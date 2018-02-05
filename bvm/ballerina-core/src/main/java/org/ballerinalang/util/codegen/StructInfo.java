@@ -20,7 +20,9 @@ package org.ballerinalang.util.codegen;
 import org.ballerinalang.model.types.BStructType;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 /**
@@ -32,7 +34,7 @@ public class StructInfo extends StructureTypeInfo {
 
     private BStructType structType;
     private List<StructFieldInfo> fieldInfoEntries = new ArrayList<>();
-    public List<AttachedFunctionInfo> attachedFuncInfoEntries = new ArrayList<>();
+    public Map<String, AttachedFunctionInfo> funcInfoEntries = new HashMap<>();
 
     public StructInfo(int pkgPathCPIndex, String packagePath, int nameCPIndex, String name, int flags) {
         super(pkgPathCPIndex, packagePath, nameCPIndex, name, flags);

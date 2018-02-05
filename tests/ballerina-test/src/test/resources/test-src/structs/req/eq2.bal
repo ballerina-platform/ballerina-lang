@@ -8,7 +8,7 @@ public struct userPFoo {
 }
 
 public function <userPFoo u> getName () returns (string) {
-    return u.name;
+    return u.name + ":userPFoo";
 }
 
 public function <userPFoo u> getAge () returns (int) {

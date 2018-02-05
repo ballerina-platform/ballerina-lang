@@ -826,7 +826,7 @@ public class HoverTreeVisitor extends BLangNodeVisitor {
 
     }
 
-    public void visit(BLangInvocation.BLangFunctionInvocation iExpr) {
+    public void visit(BLangInvocation.BLangAttachedFunctionInvocation iExpr) {
 
     }
 

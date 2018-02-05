@@ -50,6 +50,7 @@ public class RequestNativeFunctionNegativeTest {
 
     private CompileResult result, resultNegative;
     private final String inRequestStruct = Constants.IN_REQUEST;
+    private final String outRequestStruct = Constants.OUT_REQUEST;
     private final String entityStruct = Constants.ENTITY;
     private final String mediaTypeStruct = MEDIA_TYPE;
     private final String protocolPackageHttp = Constants.PROTOCOL_PACKAGE_HTTP;
@@ -177,7 +178,7 @@ public class RequestNativeFunctionNegativeTest {
 
     @Test
     public void testRemoveHeaderNegative() {
-        BStruct request = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, inRequestStruct);
+        BStruct request = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, outRequestStruct);
         HTTPCarbonMessage cMsg = HttpUtil.createHttpCarbonMessage(true);
         String expect = "Expect";
         cMsg.setHeader(expect, "100-continue");
@@ -194,7 +195,7 @@ public class RequestNativeFunctionNegativeTest {
 
     @Test
     public void testRemoveAllHeadersNegative() {
-        BStruct request = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, inRequestStruct);
+        BStruct request = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, outRequestStruct);
         HTTPCarbonMessage cMsg = HttpUtil.createHttpCarbonMessage(true);
         HttpUtil.addCarbonMsg(request, cMsg);
         BValue[] inputArg = { request };

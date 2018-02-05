@@ -155,7 +155,7 @@ public interface InstructionCodes {
     int HALT = 118;
     int TR_RETRY = 119;
     int CALL = 120;
-    int NCALL = 121;
+    int VCALL = 121;
     int ACALL = 122;
     int THROW = 123;
     int ERRSTORE = 124;

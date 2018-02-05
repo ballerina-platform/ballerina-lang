@@ -83,7 +83,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangIntRangeExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation.BFunctionPointerInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation.BLangActionInvocation;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation.BLangFunctionInvocation;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation.BLangAttachedFunctionInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation.BLangTransformerInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLambdaFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
@@ -965,20 +965,8 @@ public class CodeGenerator extends BLangNodeVisitor {
             return;
         }
 
-        BInvokableSymbol funcSymbol = (BInvokableSymbol) iExpr.symbol;
-        int pkgRefCPIndex = addPackageRefCPEntry(currentPkgInfo, funcSymbol.pkgID);
-        int funcNameCPIndex = addUTF8CPEntry(currentPkgInfo, funcSymbol.name.value);
-        FunctionRefCPEntry funcRefCPEntry = new FunctionRefCPEntry(pkgRefCPIndex, funcNameCPIndex);
-
-        int funcRefCPIndex = currentPkgInfo.addCPEntry(funcRefCPEntry);
-        Operand[] operands = getFuncOperands(iExpr, funcRefCPIndex);
-
-        if (Symbols.isNative(funcSymbol)) {
-            emit(InstructionCodes.NCALL, operands);
-        } else {
-            emit(InstructionCodes.CALL, operands);
-        }
-
+        Operand[] operands = getFuncOperands(iExpr);
+        emit(InstructionCodes.CALL, operands);
     }
 
     public void visit(BLangActionInvocation aIExpr) {
@@ -1029,17 +1017,13 @@ public class CodeGenerator extends BLangNodeVisitor {
         emit(InstructionCodes.ACALL, operands);
     }
 
-    public void visit(BLangFunctionInvocation iExpr) {
-        BInvokableSymbol funcSymbol = (BInvokableSymbol) iExpr.symbol;
-        int pkgRefCPIndex = addPackageRefCPEntry(currentPkgInfo, funcSymbol.pkgID);
-        int funcNameCPIndex = addUTF8CPEntry(currentPkgInfo, funcSymbol.name.value);
-        FunctionRefCPEntry funcRefCPEntry = new FunctionRefCPEntry(pkgRefCPIndex, funcNameCPIndex);
-
-        int funcRefCPIndex = currentPkgInfo.addCPEntry(funcRefCPEntry);
-        Operand[] operands = getFuncOperands(iExpr, funcRefCPIndex);
-
-        if (Symbols.isNative(funcSymbol)) {
-            emit(InstructionCodes.NCALL, operands);
+    public void visit(BLangAttachedFunctionInvocation iExpr) {
+        Operand[] operands = getFuncOperands(iExpr);
+        if (iExpr.expr.type.tag == TypeTags.STRUCT) {
+            Operand[] vCallOperands = new Operand[operands.length + 1];
+            vCallOperands[0] = iExpr.expr.regIndex;
+            System.arraycopy(operands, 0, vCallOperands, 1, operands.length);
+            emit(InstructionCodes.VCALL, vCallOperands);
         } else {
             emit(InstructionCodes.CALL, operands);
         }
@@ -1670,6 +1654,15 @@ public class CodeGenerator extends BLangNodeVisitor {
         attributeInfoPool.addAttributeInfo(AttributeInfo.Kind.VARIABLE_TYPE_COUNT_ATTRIBUTE, varCountAttribInfo);
     }
 
+    private Operand[] getFuncOperands(BLangInvocation iExpr) {
+        BInvokableSymbol funcSymbol = (BInvokableSymbol) iExpr.symbol;
+        int pkgRefCPIndex = addPackageRefCPEntry(currentPkgInfo, funcSymbol.pkgID);
+        int funcNameCPIndex = addUTF8CPEntry(currentPkgInfo, funcSymbol.name.value);
+        FunctionRefCPEntry funcRefCPEntry = new FunctionRefCPEntry(pkgRefCPIndex, funcNameCPIndex);
+        int funcRefCPIndex = currentPkgInfo.addCPEntry(funcRefCPEntry);
+        return getFuncOperands(iExpr, funcRefCPIndex);
+    }
+
     private Operand[] getFuncOperands(BLangInvocation iExpr, int funcRefCPIndex) {
         // call funcRefCPIndex, nArgRegs, argRegs[nArgRegs], nRetRegs, retRegs[nRetRegs]
         int i = 0;
@@ -1843,23 +1836,30 @@ public class CodeGenerator extends BLangNodeVisitor {
         }
     }
 
-    private void createFunctionInfoEntry(BLangInvokableNode invokable) {
-        BInvokableSymbol funcSymbol = invokable.symbol;
+    /**
+     * Creates a {@code FunctionInfo} from the given function node in AST.
+     *
+     * @param funcNode function node in AST
+     */
+    private void createFunctionInfoEntry(BLangFunction funcNode) {
+        BInvokableSymbol funcSymbol = funcNode.symbol;
         BInvokableType funcType = (BInvokableType) funcSymbol.type;
 
         // Add function name as an UTFCPEntry to the constant pool
-        int funcNameCPIndex = this.addUTF8CPEntry(currentPkgInfo, funcSymbol.name.value);
+        int funcNameCPIndex = this.addUTF8CPEntry(currentPkgInfo, funcNode.name.value);
 
-        FunctionInfo invInfo = new FunctionInfo(currentPackageRefCPIndex, funcNameCPIndex);
-        invInfo.paramTypes = funcType.paramTypes.toArray(new BType[0]);
-        invInfo.retParamTypes = funcType.retTypes.toArray(new BType[0]);
-        invInfo.flags = funcSymbol.flags;
+        FunctionInfo funcInfo = new FunctionInfo(currentPackageRefCPIndex, funcNameCPIndex);
+        funcInfo.paramTypes = funcType.paramTypes.toArray(new BType[0]);
+        funcInfo.retParamTypes = funcType.retTypes.toArray(new BType[0]);
+        funcInfo.signatureCPIndex = addUTF8CPEntry(this.currentPkgInfo,
+                generateFunctionSig(funcInfo.paramTypes, funcInfo.retParamTypes));
+        funcInfo.flags = funcSymbol.flags;
+        if (funcNode.receiver != null) {
+            funcInfo.attachedToTypeCPIndex = getTypeCPIndex(funcNode.receiver.type).value;
+        }
 
-        this.addWorkerInfoEntries(invInfo, invokable.getWorkers());
-
-        invInfo.signatureCPIndex = addUTF8CPEntry(this.currentPkgInfo,
-                generateFunctionSig(invInfo.paramTypes, invInfo.retParamTypes));
-        this.currentPkgInfo.functionInfoMap.put(funcSymbol.name.value, invInfo);
+        this.addWorkerInfoEntries(funcInfo, funcNode.getWorkers());
+        this.currentPkgInfo.functionInfoMap.put(funcSymbol.name.value, funcInfo);
     }
 
     private void createTransformerInfoEntry(BLangInvokableNode invokable) {
@@ -3095,7 +3095,7 @@ public class CodeGenerator extends BLangNodeVisitor {
 
     /**
      * Get the constant pool entry index of a given type.
-     * 
+     *
      * @param type Type to get the constant pool entry index
      * @return constant pool entry index of the type
      */

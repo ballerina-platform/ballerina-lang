@@ -33,6 +33,8 @@ public class AttachedFunctionInfo {
 
     public int flags;
 
+    public FunctionInfo functionInfo;
+
     public AttachedFunctionInfo(int nameCPIndex, String name, int signatureCPIndex,
                                 String typeSignature, int flags) {
         this.nameCPIndex = nameCPIndex;
@@ -40,5 +42,9 @@ public class AttachedFunctionInfo {
         this.signatureCPIndex = signatureCPIndex;
         this.typeSignature = typeSignature;
         this.flags = flags;
+    }
+
+    public static String getUniqueFuncName(String pkgQualifiedTypeName, String funcName) {
+        return pkgQualifiedTypeName + "." + funcName;
     }
 }

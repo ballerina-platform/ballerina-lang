@@ -459,7 +459,7 @@ public abstract class BLangNodeVisitor {
         throw new AssertionError();
     }
 
-    public void visit(BLangInvocation.BLangFunctionInvocation iExpr) {
+    public void visit(BLangInvocation.BLangAttachedFunctionInvocation iExpr) {
         throw new AssertionError();
     }
 

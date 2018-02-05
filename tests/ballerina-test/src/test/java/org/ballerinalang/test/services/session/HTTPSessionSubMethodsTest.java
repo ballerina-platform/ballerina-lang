@@ -71,8 +71,8 @@ public class HTTPSessionSubMethodsTest {
         String responseMsgPayload = StringUtils
                 .getStringFromInputStream(new HttpMessageDataStreamer(response).getInputStream());
         Assert.assertNotNull(responseMsgPayload);
-        String error = responseMsgPayload.substring(0, 56);
-        Assert.assertTrue(error.contains("message: argument 0 is null"));
+        Assert.assertTrue(responseMsgPayload.contains("nullReferenceException\n" +
+                "\tat .:sample2.id2(http-session-test.bal:392)"));
     }
 
     @Test(description = "Test for isNew Function")

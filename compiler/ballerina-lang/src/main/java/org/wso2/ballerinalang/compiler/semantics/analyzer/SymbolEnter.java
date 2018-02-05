@@ -943,7 +943,8 @@ public class SymbolEnter extends BLangNodeVisitor {
 
     private Name getFuncSymbolName(BLangFunction funcNode) {
         if (funcNode.receiver != null) {
-            return names.fromString(funcNode.receiver.type + "." + funcNode.name.value);
+            return names.fromString(Symbols.getAttachedFuncSymbolName(
+                    funcNode.receiver.type.tsymbol.name.value, funcNode.name.value));
         }
         return names.fromIdNode(funcNode.name);
     }

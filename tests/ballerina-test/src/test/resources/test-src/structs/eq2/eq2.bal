@@ -19,7 +19,7 @@ public function <employee e> getAge() returns (int) {
 }
 
 public function <employee e> getSSN() returns (string) {
-    return e.ssn;
+    return e.ssn + ":employee";
 }
 
 public function <employee e> setSSN(string ssn) {

@@ -66,6 +66,7 @@ public class ResponseNativeFunctionSuccessTest {
 
     private CompileResult result, serviceResult;
     private final String inResponseStruct = Constants.IN_RESPONSE;
+    private final String outResponseStruct = Constants.OUT_RESPONSE;
     private final String entityStruct = Constants.ENTITY;
     private final String mediaTypeStruct = MEDIA_TYPE;
     private final String headerStruct = HEADER_VALUE_STRUCT;
@@ -81,7 +82,8 @@ public class ResponseNativeFunctionSuccessTest {
 
     @Test
     public void testAddHeader() {
-        BStruct response = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, inResponseStruct);
+        BStruct response = BCompileUtil.createAndGetStruct(result.getProgFile(),
+                protocolPackageHttp, outResponseStruct);
         HTTPCarbonMessage cMsg = HttpUtil.createHttpCarbonMessage(false);
 
         HttpUtil.addCarbonMsg(response, cMsg);
@@ -401,7 +403,8 @@ public class ResponseNativeFunctionSuccessTest {
 
     @Test
     public void testRemoveHeader() {
-        BStruct response = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, inResponseStruct);
+        BStruct response = BCompileUtil.createAndGetStruct(result.getProgFile(),
+                protocolPackageHttp, outResponseStruct);
         HTTPCarbonMessage cMsg = HttpUtil.createHttpCarbonMessage(false);
         String expect = "Expect";
         cMsg.setHeader(expect, "100-continue");
@@ -432,7 +435,8 @@ public class ResponseNativeFunctionSuccessTest {
 
     @Test
     public void testRemoveAllHeaders() {
-        BStruct response = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, inResponseStruct);
+        BStruct response = BCompileUtil.createAndGetStruct(result.getProgFile(),
+                protocolPackageHttp, outResponseStruct);
         HTTPCarbonMessage cMsg = HttpUtil.createHttpCarbonMessage(false);
         String expect = "Expect";
         String range = "Range";
@@ -472,7 +476,8 @@ public class ResponseNativeFunctionSuccessTest {
 
     @Test
     public void testSetHeader() {
-        BStruct response = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, inResponseStruct);
+        BStruct response = BCompileUtil.createAndGetStruct(result.getProgFile(),
+                protocolPackageHttp, outResponseStruct);
         HTTPCarbonMessage cMsg = HttpUtil.createHttpCarbonMessage(false);
         HttpUtil.addCarbonMsg(response, cMsg);
         String range = "Range";
@@ -492,7 +497,8 @@ public class ResponseNativeFunctionSuccessTest {
 
     @Test
     public void testSetHeaderStruct() {
-        BStruct response = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, inResponseStruct);
+        BStruct response = BCompileUtil.createAndGetStruct(result.getProgFile(),
+                protocolPackageHttp, outResponseStruct);
         HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage("", Constants.HTTP_METHOD_GET);
         cMsg.setProperty(Constants.HTTP_STATUS_CODE, 200);
         HttpUtil.addCarbonMsg(response, cMsg);
@@ -519,7 +525,8 @@ public class ResponseNativeFunctionSuccessTest {
 
     @Test
     public void testSetJsonPayload() {
-        BStruct response = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, inResponseStruct);
+        BStruct response = BCompileUtil.createAndGetStruct(result.getProgFile(),
+                protocolPackageHttp, outResponseStruct);
         HTTPCarbonMessage cMsg = HttpUtil.createHttpCarbonMessage(false);
         HttpUtil.addCarbonMsg(response, cMsg);
 
@@ -537,7 +544,8 @@ public class ResponseNativeFunctionSuccessTest {
 
     @Test
     public void testSetProperty() {
-        BStruct response = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, inResponseStruct);
+        BStruct response = BCompileUtil.createAndGetStruct(result.getProgFile(),
+                protocolPackageHttp, outResponseStruct);
         HTTPCarbonMessage cMsg = HttpUtil.createHttpCarbonMessage(false);
         HttpUtil.addCarbonMsg(response, cMsg);
         String propertyName = "wso2";
@@ -576,7 +584,8 @@ public class ResponseNativeFunctionSuccessTest {
 
     @Test
     public void testSetStringPayload() {
-        BStruct response = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, inResponseStruct);
+        BStruct response = BCompileUtil.createAndGetStruct(result.getProgFile(),
+                protocolPackageHttp, outResponseStruct);
         HTTPCarbonMessage cMsg = HttpUtil.createHttpCarbonMessage(false);
         HttpUtil.addCarbonMsg(response, cMsg);
 
@@ -594,7 +603,8 @@ public class ResponseNativeFunctionSuccessTest {
 
     @Test
     public void testSetXmlPayload() {
-        BStruct response = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, inResponseStruct);
+        BStruct response = BCompileUtil.createAndGetStruct(result.getProgFile(),
+                protocolPackageHttp, outResponseStruct);
         HTTPCarbonMessage cMsg = HttpUtil.createHttpCarbonMessage(false);
         HttpUtil.addCarbonMsg(response, cMsg);
 

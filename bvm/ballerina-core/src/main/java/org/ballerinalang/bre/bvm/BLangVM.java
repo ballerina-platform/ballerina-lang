@@ -71,6 +71,7 @@ import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.runtime.threadpool.ThreadPoolFactory;
 import org.ballerinalang.util.TransactionStatus;
 import org.ballerinalang.util.codegen.ActionInfo;
+import org.ballerinalang.util.codegen.AttachedFunctionInfo;
 import org.ballerinalang.util.codegen.CallableUnitInfo;
 import org.ballerinalang.util.codegen.ConnectorInfo;
 import org.ballerinalang.util.codegen.ErrorTableEntry;
@@ -82,6 +83,7 @@ import org.ballerinalang.util.codegen.Instruction.InstructionCALL;
 import org.ballerinalang.util.codegen.Instruction.InstructionFORKJOIN;
 import org.ballerinalang.util.codegen.Instruction.InstructionIteratorNext;
 import org.ballerinalang.util.codegen.Instruction.InstructionTCALL;
+import org.ballerinalang.util.codegen.Instruction.InstructionVCALL;
 import org.ballerinalang.util.codegen.Instruction.InstructionWRKSendReceive;
 import org.ballerinalang.util.codegen.InstructionCodes;
 import org.ballerinalang.util.codegen.LineNumberInfo;
@@ -463,9 +465,10 @@ public class BLangVM {
                     callIns = (InstructionCALL) instruction;
                     invokeCallableUnit(callIns.functionInfo, callIns.argRegs, callIns.retRegs);
                     break;
-                case InstructionCodes.NCALL:
-                    callIns = (InstructionCALL) instruction;
-                    invokeNativeFunction(callIns.functionInfo, callIns.argRegs, callIns.retRegs);
+                case InstructionCodes.VCALL:
+                    InstructionVCALL vcallIns = (InstructionVCALL) instruction;
+                    invokeVirtualFunction(vcallIns.receiverRegIndex, vcallIns.functionInfo,
+                            vcallIns.argRegs, vcallIns.retRegs);
                     break;
                 case InstructionCodes.ACALL:
                     InstructionACALL acallIns = (InstructionACALL) instruction;
@@ -2446,9 +2449,9 @@ public class BLangVM {
     /**
      * Inter mediate debug check to avoid switch case falling through.
      *
-     * @param currentExecLine   Current execution line.
-     * @param debugger          Debugger object.
-     * @param debugContext      Current debug context.
+     * @param currentExecLine Current execution line.
+     * @param debugger        Debugger object.
+     * @param debugContext    Current debug context.
      */
     private void interMediateDebugCheck(LineNumberInfo currentExecLine, Debugger debugger,
                                         DebugContext debugContext) {
@@ -2462,9 +2465,9 @@ public class BLangVM {
      * Helper method to check whether given point is a debug point or not.
      * If it's a debug point, then notify the debugger.
      *
-     * @param currentExecLine   Current execution line.
-     * @param debugger          Debugger object.
-     * @param debugContext      Current debug context.
+     * @param currentExecLine Current execution line.
+     * @param debugger        Debugger object.
+     * @param debugContext    Current debug context.
      * @return Boolean true if it's a debug point, false otherwise.
      */
     private boolean debugPointCheck(LineNumberInfo currentExecLine, Debugger debugger, DebugContext debugContext) {
@@ -2479,9 +2482,9 @@ public class BLangVM {
      * Helper method to set required details when a debug point hits.
      * And also to notify the debugger.
      *
-     * @param currentExecLine   Current execution line.
-     * @param debugger          Debugger object.
-     * @param debugContext      Current debug context.
+     * @param currentExecLine Current execution line.
+     * @param debugger        Debugger object.
+     * @param debugContext    Current debug context.
      */
     private void debugHit(LineNumberInfo currentExecLine, Debugger debugger, DebugContext debugContext) {
         if (!debugContext.isAtive() && !debugger.tryAcquireDebugSessionLock()) {
@@ -2668,7 +2671,12 @@ public class BLangVM {
         ballerinaTransactionManager.incrementCurrentRetryCount(transactionId);
     }
 
-    public void invokeCallableUnit(CallableUnitInfo callableUnitInfo, int[] argRegs, int[] retRegs) {
+    private void invokeCallableUnit(CallableUnitInfo callableUnitInfo, int[] argRegs, int[] retRegs) {
+        if (callableUnitInfo.isNative()) {
+            invokeNativeFunction((FunctionInfo) callableUnitInfo, argRegs, retRegs);
+            return;
+        }
+
         BType[] paramTypes = callableUnitInfo.getParamTypes();
         StackFrame callerSF = controlStack.currentFrame;
 
@@ -2683,6 +2691,20 @@ public class BLangVM {
         this.constPool = calleeSF.packageInfo.getConstPoolEntries();
         this.code = calleeSF.packageInfo.getInstructions();
         ip = defaultWorkerInfo.getCodeAttributeInfo().getCodeAddrs();
+    }
+
+    private void invokeVirtualFunction(int receiver, FunctionInfo virtualFuncInfo, int[] argRegs, int[] retRegs) {
+        BStruct structVal = (BStruct) controlStack.currentFrame.refRegs[receiver];
+        if (structVal == null) {
+            context.setError(BLangVMErrors.createNullRefError(this.context, ip));
+            handleError();
+            return;
+        }
+
+        StructInfo structInfo = structVal.getType().structInfo;
+        AttachedFunctionInfo attachedFuncInfo = structInfo.funcInfoEntries.get(virtualFuncInfo.getName());
+        FunctionInfo concreteFuncInfo = attachedFuncInfo.functionInfo;
+        invokeCallableUnit(concreteFuncInfo, argRegs, retRegs);
     }
 
     public void invokeAction(String actionName, int[] argRegs, int[] retRegs) {

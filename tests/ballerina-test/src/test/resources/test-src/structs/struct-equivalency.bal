@@ -47,7 +47,7 @@ public function <employee1 e> getAge () returns (int) {
 }
 
 public function <employee1 e> getSSN () returns (string) {
-    return e.ssn;
+    return e.ssn + ":employee";
 }
 
 public function <employee1 e> setSSN (string ssn) {
@@ -112,7 +112,7 @@ public function <employee2 e> getAge () returns (int) {
 }
 
 public function <employee2 e> getSSN () returns (string) {
-    return e.ssn;
+    return e.ssn + ":employee";
 }
 
 public function <employee2 e> setSSN (string ssn) {
@@ -162,7 +162,7 @@ public function <employee3 e> getAge () returns (int) {
 }
 
 public function <employee3 e> getSSN () returns (string) {
-    return e.ssn;
+    return e.ssn + ":employee";
 }
 
 public function <employee3 e> setSSN (string ssn) {
@@ -175,7 +175,7 @@ public function <employee3 e> getEmployeeId () returns (int) {
 
 function testEqOfPublicStructs1 () (string) {
     employee3 e = {age:14, name:"rat"};
-    e.setSSN("234-56-7890");
+    e.setSSN("234-56-1234");
 
     eq:person p = (eq:person)e;
 
@@ -184,7 +184,7 @@ function testEqOfPublicStructs1 () (string) {
 
 function testEqOfPublicStructs2 () (string) {
     eq2:employee e = {age:14, name:"rat"};
-    e.setSSN("234-56-7890");
+    e.setSSN("234-56-3345");
 
     eq:person p = (eq:person)e;
 
@@ -334,5 +334,5 @@ function testRuntimeEqPublicStructs1 () (string) {
     if (err != null) {
         return err.msg;
     }
-    return uB.name;
+    return uB.getName();
 }

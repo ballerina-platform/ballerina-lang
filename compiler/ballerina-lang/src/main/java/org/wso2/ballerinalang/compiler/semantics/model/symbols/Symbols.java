@@ -23,6 +23,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.util.Name;
+import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.util.Flags;
 import org.wso2.ballerinalang.util.Lists;
 
@@ -198,6 +199,10 @@ public class Symbols {
         symbol.kind = SymbolKind.TRANSFORMER;
         symbol.scope = new Scope(symbol);
         return symbol;
+    }
+
+    public static String getAttachedFuncSymbolName(String typeName, String funcName) {
+        return typeName + Names.DOT.value + funcName;
     }
 
     public static boolean isNative(BSymbol sym) {

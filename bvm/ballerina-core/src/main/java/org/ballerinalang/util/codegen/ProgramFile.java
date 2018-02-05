@@ -202,8 +202,9 @@ public class ProgramFile implements ConstantPool, AttributeInfoPool {
             VarTypeCountAttributeInfo varTypeCountAttribInfo = (VarTypeCountAttributeInfo) attributeInfo;
             int[] globalVarCount = varTypeCountAttribInfo.getVarTypeCount();
 
+            // TODO Introduce an abstraction for memory blocks
             // Initialize global memory block
-            BStructType dummyType = new BStructType("", "", 0);
+            BStructType dummyType = new BStructType(null, "", "", 0);
             dummyType.setFieldTypeCount(globalVarCount);
             this.globalMemoryBlock = new BStruct(dummyType);
         }

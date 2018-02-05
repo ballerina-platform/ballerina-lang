@@ -832,6 +832,7 @@ public class BLangPackageBuilder {
 
         if (isReceiverAttached) {
             function.receiver = (BLangVariable) this.varStack.pop();
+            function.flagSet.add(Flag.ATTACHED);
         }
 
         this.compUnit.addTopLevelNode(function);

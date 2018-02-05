@@ -19,6 +19,7 @@ package org.ballerinalang.model.types;
 
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.util.codegen.StructInfo;
 
 /**
  * {@code BStructType} represents a user defined {@code StructDef} in Ballerina.
@@ -27,6 +28,7 @@ import org.ballerinalang.model.values.BValue;
  */
 public class BStructType extends BType {
 
+    public StructInfo structInfo;
     private StructField[] structFields;
     private AttachedFunction[] attachedFunctions;
     private int[] fieldTypeCount;
@@ -38,8 +40,9 @@ public class BStructType extends BType {
      * @param typeName string name of the type
      * @param pkgPath  package of the struct
      */
-    public BStructType(String typeName, String pkgPath, int flags) {
+    public BStructType(StructInfo structInfo, String typeName, String pkgPath, int flags) {
         super(typeName, pkgPath, BStruct.class);
+        this.structInfo = structInfo;
         this.flags = flags;
     }
 
