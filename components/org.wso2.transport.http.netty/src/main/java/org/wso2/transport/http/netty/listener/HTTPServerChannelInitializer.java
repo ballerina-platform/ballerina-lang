@@ -30,7 +30,7 @@ import org.wso2.transport.http.netty.common.Constants;
 import org.wso2.transport.http.netty.common.ssl.SSLConfig;
 import org.wso2.transport.http.netty.common.ssl.SSLHandlerFactory;
 import org.wso2.transport.http.netty.config.ChunkConfig;
-import org.wso2.transport.http.netty.config.RequestSizeValidationConfiguration;
+import org.wso2.transport.http.netty.config.RequestSizeValidationConfig;
 import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
 
 import java.util.Map;
@@ -48,9 +48,10 @@ public class HTTPServerChannelInitializer extends ChannelInitializer<SocketChann
     private boolean httpTraceLogEnabled;
     private ChunkConfig chunkConfig;
     private String interfaceId;
+    private String serverName;
     private SSLConfig sslConfig;
     private ServerConnectorFuture serverConnectorFuture;
-    private RequestSizeValidationConfiguration requestSizeValidationConfig;
+    private RequestSizeValidationConfig reqSizeValidationConfig;
 
     @Override
     public void setup(Map<String, String> parameters) {
@@ -85,15 +86,10 @@ public class HTTPServerChannelInitializer extends ChannelInitializer<SocketChann
      * @param pipeline Channel
      */
     public void configureHTTPPipeline(ChannelPipeline pipeline) {
-        // Removed the default encoder since http/2 version upgrade already added to pipeline
-        if (requestSizeValidationConfig != null && requestSizeValidationConfig.isHeaderSizeValidation()) {
-            pipeline.addLast("decoder", new CustomHttpRequestDecoder(requestSizeValidationConfig));
-        } else {
-            pipeline.addLast("decoder", new HttpRequestDecoder());
-        }
-        if (requestSizeValidationConfig != null && requestSizeValidationConfig.isRequestSizeValidation()) {
-            pipeline.addLast("custom-aggregator", new CustomHttpObjectAggregator(requestSizeValidationConfig));
-        }
+
+        pipeline.addLast("decoder",
+                new HttpRequestDecoder(reqSizeValidationConfig.getUriMaxSize(),
+                        reqSizeValidationConfig.getHeaderMaxSize(), reqSizeValidationConfig.getMaxChunkSize()));
         pipeline.addLast("compressor", new CustomHttpContentCompressor());
         pipeline.addLast("chunkWriter", new ChunkedWriteHandler());
 
@@ -102,20 +98,16 @@ public class HTTPServerChannelInitializer extends ChannelInitializer<SocketChann
                              new HTTPTraceLoggingHandler("tracelog.http.downstream"));
         }
 
+        pipeline.addLast("uriLengthValidator", new UriLengthValidator(this.serverName));
+        if (reqSizeValidationConfig.getEntityBodyMaxSize() > -1) {
+            pipeline.addLast("maxEntityBodyValidator", new MaxEntityBodyValidator(this.serverName,
+                    reqSizeValidationConfig.getEntityBodyMaxSize()));
+        }
+
         pipeline.addLast(Constants.WEBSOCKET_SERVER_HANDSHAKE_HANDLER,
                          new WebSocketServerHandshakeHandler(this.serverConnectorFuture, this.interfaceId));
-
-        try {
-            if (requestSizeValidationConfig != null && requestSizeValidationConfig.isRequestSizeValidation()) {
-                pipeline.addLast(Constants.HTTP_SOURCE_HANDLER,
-                        new AggregatorSourceHandler(this.serverConnectorFuture, this.interfaceId, this.chunkConfig));
-            } else {
-                pipeline.addLast(Constants.HTTP_SOURCE_HANDLER,
-                        new SourceHandler(this.serverConnectorFuture, this.interfaceId, this.chunkConfig));
-            }
-        } catch (Exception e) {
-            log.error("Cannot Create SourceHandler ", e);
-        }
+        pipeline.addLast(Constants.HTTP_SOURCE_HANDLER, new SourceHandler(this.serverConnectorFuture,
+                this.interfaceId, this.chunkConfig, this.serverName));
     }
 
     @Override
@@ -135,10 +127,6 @@ public class HTTPServerChannelInitializer extends ChannelInitializer<SocketChann
         this.httpTraceLogEnabled = httpTraceLogEnabled;
     }
 
-    public String getInterfaceId() {
-        return interfaceId;
-    }
-
     public void setInterfaceId(String interfaceId) {
         this.interfaceId = interfaceId;
     }
@@ -147,15 +135,15 @@ public class HTTPServerChannelInitializer extends ChannelInitializer<SocketChann
         this.sslConfig = sslConfig;
     }
 
-    public void setRequestSizeValidationConfig(RequestSizeValidationConfiguration requestSizeValidationConfig) {
-        this.requestSizeValidationConfig = requestSizeValidationConfig;
-    }
-
-    public ChunkConfig getChunkingConfig() {
-        return this.chunkConfig;
+    public void setReqSizeValidationConfig(RequestSizeValidationConfig reqSizeValidationConfig) {
+        this.reqSizeValidationConfig = reqSizeValidationConfig;
     }
 
     public void setChunkingConfig(ChunkConfig chunkConfig) {
         this.chunkConfig = chunkConfig;
+    }
+
+    public void setServerName(String serverName) {
+        this.serverName = serverName;
     }
 }

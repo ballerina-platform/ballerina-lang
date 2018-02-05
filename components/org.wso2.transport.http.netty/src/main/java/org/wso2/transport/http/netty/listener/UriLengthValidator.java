@@ -20,48 +20,49 @@ package org.wso2.transport.http.netty.listener;
 
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
-import io.netty.handler.codec.http.DefaultHttpResponse;
-import io.netty.handler.codec.http.HttpContent;
+import io.netty.handler.codec.TooLongFrameException;
 import io.netty.handler.codec.http.HttpRequest;
-import io.netty.handler.codec.http.HttpResponse;
 import io.netty.handler.codec.http.HttpResponseStatus;
-import io.netty.handler.codec.http.LastHttpContent;
-import org.wso2.transport.http.netty.config.RequestSizeValidationConfig;
+import io.netty.handler.codec.http.HttpVersion;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.wso2.transport.http.netty.common.Constants;
+import org.wso2.transport.http.netty.common.Util;
 
 /**
  * Responsible for validating the request before sending it to the application
  */
-public class UriSizeValidator extends ChannelInboundHandlerAdapter {
+public class UriLengthValidator extends ChannelInboundHandlerAdapter {
 
-    private RequestSizeValidationConfig requestSizeValidationConfig;
+    private static final Logger log = LoggerFactory.getLogger(UriLengthValidator.class);
 
-    private boolean isUriTooLarge = false;
-    private HttpRequest inboundRequest;
+    private String serverName;
 
-    public UriSizeValidator(RequestSizeValidationConfig requestSizeValidationConfig) {
-        this.requestSizeValidationConfig = requestSizeValidationConfig;
+    UriLengthValidator(String serverName) {
+        this.serverName = serverName;
     }
 
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
         if (msg instanceof HttpRequest) {
-            inboundRequest = (HttpRequest) msg;
-            if (inboundRequest.uri().getBytes().length > requestSizeValidationConfig.getUriMaxSize()) {
-                isUriTooLarge = true;
-            } else {
-                super.channelRead(ctx, msg);
-            }
-        } else if (msg instanceof HttpContent) {
-            HttpContent inboundRequestContent = (HttpContent) msg;
-            if (isUriTooLarge) {
-                inboundRequestContent.release();
-                if (inboundRequestContent instanceof LastHttpContent) {
-                    HttpResponse outboundResponse = new DefaultHttpResponse(inboundRequest.protocolVersion(),
-                            HttpResponseStatus.REQUEST_URI_TOO_LONG);
-                    ctx.channel().writeAndFlush(outboundResponse);
+            if (ctx.channel().isActive()) {
+                HttpRequest inboundRequest = (HttpRequest) msg;
+                Throwable cause = inboundRequest.decoderResult().cause();
+                if (cause instanceof TooLongFrameException) {
+                    if (Constants.REQUEST_HEADER_TOO_LARGE.equalsIgnoreCase(cause.getMessage())) {
+                        Util.sendAndCloseNoEntityBodyResp(ctx, HttpResponseStatus.REQUEST_ENTITY_TOO_LARGE,
+                                HttpVersion.HTTP_1_0, serverName);
+                        log.warn("Inbound request Entity exceeds the max entity size allowed for a request");
+                    } else if (Constants.REQUEST_LINE_TOO_LONG.equalsIgnoreCase(cause.getMessage())) {
+                        Util.sendAndCloseNoEntityBodyResp(ctx, HttpResponseStatus.REQUEST_URI_TOO_LONG,
+                                HttpVersion.HTTP_1_0, serverName);
+                        log.warn("Inbound request URI length exceeds the max uri length allowed for a request");
+                    } else {
+                        super.channelRead(ctx, msg);
+                    }
+                } else {
+                    super.channelRead(ctx, msg);
                 }
-            } else {
-                super.channelRead(ctx, msg);
             }
         } else {
             super.channelRead(ctx, msg);

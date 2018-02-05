@@ -23,6 +23,7 @@ import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelInitializer;
 import io.netty.handler.codec.http.DefaultHttpRequest;
 import io.netty.handler.codec.http.DefaultLastHttpContent;
+import io.netty.handler.codec.http.FullHttpResponse;
 import io.netty.handler.codec.http.HttpMethod;
 import io.netty.handler.codec.http.HttpVersion;
 import org.apache.commons.io.Charsets;
@@ -90,6 +91,7 @@ public class TestUtil {
     public static final int REMOTE_WS_SERVER_PORT = 9010;
     public static final long HTTP2_RESPONSE_TIME_OUT = 30;
     public static final String TEST_HOST = "localhost";
+    public static final String TEST_SERVER = "test-server";
     public static final String KEY_STORE_FILE_PATH = "/simple-test-config/wso2carbon.jks";
     public static final String TRUST_STORE_FILE_PATH = "/simple-test-config/client-truststore.jks";
     public static final String KEY_STORE_PASSWORD = "wso2carbon";
@@ -320,6 +322,15 @@ public class TestUtil {
             }
         }
         return result;
+    }
+
+    public static String getEntityBodyFrom(FullHttpResponse httpResponse) {
+        ByteBuffer content = httpResponse.content().nioBuffer();
+        StringBuilder stringContent = new StringBuilder();
+        while (content.hasRemaining()) {
+            stringContent.append((char) content.get());
+        }
+        return stringContent.toString();
     }
 
     public static String largeEntity = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"

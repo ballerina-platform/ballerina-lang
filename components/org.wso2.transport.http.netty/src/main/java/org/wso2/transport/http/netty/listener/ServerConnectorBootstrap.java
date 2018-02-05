@@ -28,7 +28,7 @@ import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.common.Util;
 import org.wso2.transport.http.netty.common.ssl.SSLConfig;
 import org.wso2.transport.http.netty.config.ChunkConfig;
-import org.wso2.transport.http.netty.config.RequestSizeValidationConfiguration;
+import org.wso2.transport.http.netty.config.RequestSizeValidationConfig;
 import org.wso2.transport.http.netty.contract.ServerConnector;
 import org.wso2.transport.http.netty.contract.ServerConnectorException;
 import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
@@ -67,10 +67,8 @@ public class ServerConnectorBootstrap {
             return null;
         }
 
-        ChannelFuture future = serverBootstrap
+        return serverBootstrap
                 .bind(new InetSocketAddress(serverConnector.getHost(), serverConnector.getPort()));
-
-        return future;
 
         // TODO: Fix this with HTTP2
 //            ListenerConfiguration listenerConfiguration = serverConnector.getListenerConfiguration();
@@ -145,12 +143,16 @@ public class ServerConnectorBootstrap {
         httpServerChannelInitializer.setHttpTraceLogEnabled(isHttpTraceLogEnabled);
     }
 
-    public void addHeaderAndEntitySizeValidation(RequestSizeValidationConfiguration requestSizeValidationConfig) {
-        httpServerChannelInitializer.setRequestSizeValidationConfig(requestSizeValidationConfig);
+    public void addHeaderAndEntitySizeValidation(RequestSizeValidationConfig requestSizeValidationConfig) {
+        httpServerChannelInitializer.setReqSizeValidationConfig(requestSizeValidationConfig);
     }
 
     public void addChunkingBehaviour(ChunkConfig chunkConfig) {
         httpServerChannelInitializer.setChunkingConfig(chunkConfig);
+    }
+
+    public void addServerHeader(String serverName) {
+        httpServerChannelInitializer.setServerName(serverName);
     }
 
     class HTTPServerConnector implements ServerConnector {
@@ -164,8 +166,7 @@ public class ServerConnectorBootstrap {
         private int port;
         private String connectorID;
 
-        public HTTPServerConnector(String id, ServerConnectorBootstrap serverConnectorBootstrap,
-                String host, int port) {
+        HTTPServerConnector(String id, ServerConnectorBootstrap serverConnectorBootstrap, String host, int port) {
             this.serverConnectorBootstrap = serverConnectorBootstrap;
             this.host = host;
             this.port = port;

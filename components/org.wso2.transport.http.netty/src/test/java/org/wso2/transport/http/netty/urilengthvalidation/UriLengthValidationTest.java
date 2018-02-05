@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.wso2.transport.http.netty.uriLengthValidation;
+package org.wso2.transport.http.netty.urilengthvalidation;
 
 import io.netty.buffer.Unpooled;
 import io.netty.handler.codec.http.DefaultFullHttpRequest;
@@ -50,7 +50,7 @@ import java.util.HashMap;
 import static org.testng.AssertJUnit.assertEquals;
 
 /**
- * A test class for passthrough transport.
+ * This class tests for 414 and 413 responses
  */
 public class UriLengthValidationTest {
 
@@ -69,7 +69,6 @@ public class UriLengthValidationTest {
     public void setUp() {
         listenerConfiguration.setPort(TestUtil.SERVER_CONNECTOR_PORT);
         listenerConfiguration.setServerHeader(TestUtil.TEST_SERVER);
-//        listenerConfiguration.getRequestSizeValidationConfig().setEntityBodyMaxSize(9343);
         listenerConfiguration.getRequestSizeValidationConfig().setEntityBodyMaxSize(1024);
 
         ServerBootstrapConfiguration serverBootstrapConfig = new ServerBootstrapConfiguration(new HashMap<>());
@@ -143,7 +142,7 @@ public class UriLengthValidationTest {
             FullHttpResponse httpResponse = httpClient.sendChunkRequest(httpRequest);
             assertEntityTooLargeResponse(httpResponse);
 
-            httpClient = new HttpClient(TestUtil.TEST_HOST,TestUtil.SERVER_CONNECTOR_PORT);
+            httpClient = new HttpClient(TestUtil.TEST_HOST, TestUtil.SERVER_CONNECTOR_PORT);
             httpRequest = new DefaultFullHttpRequest(HttpVersion.HTTP_1_1,
                     HttpMethod.POST, "/", Unpooled.wrappedBuffer(TestUtil.largeEntity.getBytes()));
             httpResponse = httpClient.sendRequest(httpRequest);

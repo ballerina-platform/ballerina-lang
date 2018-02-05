@@ -15,6 +15,8 @@
 
 package org.wso2.transport.http.netty.common;
 
+import io.netty.channel.ChannelFuture;
+import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.DefaultHttpRequest;
 import io.netty.handler.codec.http.DefaultHttpResponse;
@@ -25,9 +27,10 @@ import io.netty.handler.codec.http.HttpResponse;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.codec.http.HttpVersion;
 import io.netty.handler.codec.http.LastHttpContent;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.common.ssl.SSLConfig;
 import org.wso2.transport.http.netty.config.Parameter;
-import org.wso2.transport.http.netty.listener.RequestDataHolder;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 
 import java.io.File;
@@ -42,6 +45,8 @@ import static io.netty.handler.codec.http.HttpVersion.HTTP_1_1;
  * Includes utility methods for creating http requests and responses and their related properties.
  */
 public class Util {
+
+    private static Logger log = LoggerFactory.getLogger(Util.class);
 
     private static String getStringValue(HTTPCarbonMessage msg, String key, String defaultValue) {
         String value = (String) msg.getProperty(key);
@@ -131,22 +136,6 @@ public class Util {
         return httpMethod;
     }
 
-    /**
-     * Prepare request message with Transfer-Encoding/Content-Length
-     *
-     * @param httpOutboundRequest HTTPCarbonMessage
-     * @param chunkEnabled Specifies whether chunking is enabled or disabled
-     */
-    public static void setupChunkedOrContentLengthForReq(HTTPCarbonMessage httpOutboundRequest, boolean chunkEnabled) {
-        if (chunkEnabled) {
-            httpOutboundRequest.removeHeader(Constants.HTTP_CONTENT_LENGTH);
-            setTransferEncodingHeader(httpOutboundRequest);
-        } else {
-            httpOutboundRequest.removeHeader(Constants.HTTP_TRANSFER_ENCODING);
-            setContentLength(httpOutboundRequest);
-        }
-    }
-
     public static void setupChunkedRequest(HTTPCarbonMessage httpOutboundRequest) {
         httpOutboundRequest.removeHeader(Constants.HTTP_CONTENT_LENGTH);
         setTransferEncodingHeader(httpOutboundRequest);
@@ -155,13 +144,6 @@ public class Util {
     public static void setupContentLengthRequest(HTTPCarbonMessage httpOutboundRequest, int contentLength) {
         httpOutboundRequest.removeHeader(Constants.HTTP_TRANSFER_ENCODING);
         if (httpOutboundRequest.getHeader(Constants.HTTP_CONTENT_LENGTH) == null) {
-            httpOutboundRequest.setHeader(Constants.HTTP_CONTENT_LENGTH, String.valueOf(contentLength));
-        }
-    }
-
-    private static void setContentLength(HTTPCarbonMessage httpOutboundRequest) {
-        if (httpOutboundRequest.getHeader(Constants.HTTP_CONTENT_LENGTH) == null) {
-            int contentLength = httpOutboundRequest.getFullMessageLength();
             httpOutboundRequest.setHeader(Constants.HTTP_CONTENT_LENGTH, String.valueOf(contentLength));
         }
     }
@@ -186,80 +168,6 @@ public class Util {
     public static boolean isVersionCompatibleForChunking(String httpVersion) {
         String version = new HttpVersion(httpVersion, true).text();
         return version.equals(Constants.DEFAULT_VERSION_HTTP_1_1) || version.equals(Constants.HTTP_VERSION_2_0);
-    }
-
-    /**
-     * Prepare response message with Transfer-Encoding/Content-Length/Content-Type.
-     *
-     * @param outboundResMsg Carbon message.
-     * @param requestDataHolder Requested data holder.
-     */
-    public static void setupTransferEncodingAndContentTypeForResponse(HTTPCarbonMessage outboundResMsg
-            , RequestDataHolder requestDataHolder) {
-
-        // 1. Remove Transfer-Encoding and Content-Length as per rfc7230#section-3.3.1
-        int statusCode = Util.getIntValue(outboundResMsg, Constants.HTTP_STATUS_CODE, 200);
-        String httpMethod = requestDataHolder.getHttpMethod();
-        if (statusCode == 204 ||
-            statusCode >= 100 && statusCode < 200 ||
-            (HttpMethod.CONNECT.name().equals(httpMethod) && statusCode >= 200 && statusCode < 300)) {
-            outboundResMsg.removeHeader(Constants.HTTP_TRANSFER_ENCODING);
-            outboundResMsg.removeHeader(Constants.HTTP_CONTENT_LENGTH);
-            outboundResMsg.removeHeader(Constants.HTTP_CONTENT_TYPE);
-            return;
-        }
-
-        // 2. Check for transfer encoding header is set in the request
-        // As per RFC 2616, Section 4.4, Content-Length must be ignored if Transfer-Encoding header
-        // is present and its value not equal to 'identity'
-        String requestTransferEncodingHeader = requestDataHolder.getTransferEncodingHeaderValue();
-        if (requestTransferEncodingHeader != null &&
-            !Constants.HTTP_TRANSFER_ENCODING_IDENTITY.equalsIgnoreCase(requestTransferEncodingHeader)) {
-            outboundResMsg.setHeader(Constants.HTTP_TRANSFER_ENCODING, requestTransferEncodingHeader);
-            outboundResMsg.removeHeader(Constants.HTTP_CONTENT_LENGTH);
-            return;
-        }
-
-        // 3. Check for request Content-Length header
-        String requestContentLength = requestDataHolder.getContentLengthHeaderValue();
-        if (requestContentLength != null &&
-            (outboundResMsg.getHeader(Constants.HTTP_CONTENT_LENGTH) == null)) {
-            int contentLength = outboundResMsg.getFullMessageLength();
-            if (contentLength > 0) {
-                outboundResMsg.setHeader(Constants.HTTP_CONTENT_LENGTH, String.valueOf(contentLength));
-            }
-            outboundResMsg.removeHeader(Constants.HTTP_TRANSFER_ENCODING);
-            return;
-        }
-
-        // 4. If request doesn't have Transfer-Encoding or Content-Length header look for response properties
-        if (outboundResMsg.getHeader(Constants.HTTP_TRANSFER_ENCODING) != null) {
-            outboundResMsg.getHeaders().remove(Constants.HTTP_CONTENT_LENGTH);  // remove Content-Length if present
-        } else if (outboundResMsg.getHeader(Constants.HTTP_CONTENT_LENGTH) == null) {
-            int contentLength = outboundResMsg.getFullMessageLength();
-            outboundResMsg.setHeader(Constants.HTTP_CONTENT_LENGTH, String.valueOf(contentLength));
-        }
-    }
-
-    public static boolean isChunkedOutboundResponse(HTTPCarbonMessage outboundResMsg,
-            RequestDataHolder requestDataHolder) {
-        // 2. Check for transfer encoding header is set in the request
-        // As per RFC 2616, Section 4.4, Content-Length must be ignored if Transfer-Encoding header
-        // is present and its value not equal to 'identity'
-        String inboundReqTransferEncodingHeaderValue = requestDataHolder.getTransferEncodingHeaderValue();
-        if (inboundReqTransferEncodingHeaderValue != null &&
-                !Constants.HTTP_TRANSFER_ENCODING_IDENTITY.equalsIgnoreCase(inboundReqTransferEncodingHeaderValue)) {
-            return true;
-        }
-
-        // 3. Check for request Content-Length header
-        String requestContentLength = requestDataHolder.getContentLengthHeaderValue();
-        if (requestContentLength != null) {
-            return false;
-        }
-
-        // 4. If request doesn't have Transfer-Encoding or Content-Length header look for response properties
-        return outboundResMsg.getHeader(Constants.HTTP_TRANSFER_ENCODING) != null;
     }
 
     public static SSLConfig getSSLConfigForListener(String certPass, String keyStorePass, String keyStoreFilePath,
@@ -400,8 +308,7 @@ public class Util {
      * @param defaultVal default value of the property
      * @return integer value of the property,
      */
-    public static String getStringProperty(
-            Map<String, Object> properties, String key, String defaultVal) {
+    public static String getStringProperty(Map<String, Object> properties, String key, String defaultVal) {
 
         if (properties == null) {
             return defaultVal;
@@ -431,8 +338,7 @@ public class Util {
      * @param defaultVal default value of the property
      * @return integer value of the property,
      */
-    public static Boolean getBooleanProperty(
-            Map<String, Object> properties, String key, boolean defaultVal) {
+    public static Boolean getBooleanProperty(Map<String, Object> properties, String key, boolean defaultVal) {
 
         if (properties == null) {
             return defaultVal;
@@ -461,8 +367,7 @@ public class Util {
      * @param defaultVal default value of the property
      * @return integer value of the property,
      */
-    public static Long getLongProperty(
-            Map<String, Object> properties, String key, long defaultVal) {
+    public static Long getLongProperty(Map<String, Object> properties, String key, long defaultVal) {
 
         if (properties == null) {
             return defaultVal;
@@ -492,7 +397,7 @@ public class Util {
      * @param value string value to substitute
      * @return String substituted string
      */
-    public static String substituteVariables(String value) {
+    private static String substituteVariables(String value) {
         Matcher matcher = varPattern.matcher(value);
         boolean found = matcher.find();
         if (!found) {
@@ -522,7 +427,7 @@ public class Util {
      * @param defaultValue default value to be returned if the specified system variable is not specified.
      * @return value of the system/environment variable
      */
-    public static String getSystemVariableValue(String variableName, String defaultValue) {
+    private static String getSystemVariableValue(String variableName, String defaultValue) {
         String value;
         if (System.getProperty(variableName) != null) {
             value = System.getProperty(variableName);
@@ -566,5 +471,26 @@ public class Util {
      */
     public static boolean isLastHttpContent(HttpContent httpContent) {
         return httpContent instanceof LastHttpContent;
+    }
+
+    /**
+     * Send back no entity body response and close the connection. This function is mostly used
+     * when we send back error messages.
+     *
+     * @param ctx connection
+     * @param status response status
+     * @param httpVersion of the response
+     * @param serverName server name
+     */
+    public static void sendAndCloseNoEntityBodyResp(ChannelHandlerContext ctx, HttpResponseStatus status,
+            HttpVersion httpVersion, String serverName) {
+        HttpResponse outboundResponse = new DefaultHttpResponse(httpVersion, status);
+        outboundResponse.headers().set(Constants.HTTP_CONTENT_LENGTH, 0);
+        outboundResponse.headers().set(Constants.HTTP_CONNECTION, Constants.CONNECTION_CLOSE);
+        outboundResponse.headers().set(Constants.HTTP_SERVER_HEADER, serverName);
+        ChannelFuture outboundRespFuture = ctx.channel().writeAndFlush(outboundResponse);
+        outboundRespFuture.addListener(
+                (ChannelFutureListener) channelFuture -> log.warn("Failed to send " + status.reasonPhrase()));
+        ctx.channel().close();
     }
 }

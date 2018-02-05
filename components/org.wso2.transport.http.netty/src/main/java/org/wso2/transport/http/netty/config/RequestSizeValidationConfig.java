@@ -21,12 +21,12 @@ package org.wso2.transport.http.netty.config;
 /**
  * Configuration for the request size validation.
  */
-public class RequestSizeValidationConfiguration {
+public class RequestSizeValidationConfig {
 
     private int uriMaxSize = 4096;
     private int headerMaxSize = 8192;
     private int maxChunkSize = 8192;
-    private int entityBodyMaxSize = 8192;
+    private int entityBodyMaxSize = -1;
 
     public int getUriMaxSize() {
         return uriMaxSize;
