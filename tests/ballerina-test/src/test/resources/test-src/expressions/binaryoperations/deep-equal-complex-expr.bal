@@ -77,14 +77,14 @@ public function testNestedStructs() (boolean) {
                  name: "Charger",
                  wheels: [{pressure: 30}, {pressure: 31}, {pressure: 30}, {pressure: 29}]};
     Car c3Unmatch = {name: "Charger",
-                 wheels: [{pressure: 30}, {pressure: 31}, {pressure: 30}, {pressure: 29}],
-                 engine: {model: "v8", capacity: 1500}};
+                        wheels: [{pressure: 30}, {pressure: 31}, {pressure: 30}, {pressure: 29}],
+                        engine: {model: "v8", capacity: 1500}};
     Car c4Unmatch = {name: "Corvette",
-                 wheels: [{pressure: 30}, {pressure: 31}, {pressure: 30}, {pressure: 29}],
-                 engine: {model: "v8", capacity: 2000}};
+                        wheels: [{pressure: 30}, {pressure: 31}, {pressure: 30}, {pressure: 29}],
+                        engine: {model: "v8", capacity: 2000}};
     Car c5Unmatch = {name: "Charger",
-                 engine: {model: "v8", capacity: 2000},
-                 wheels: [{pressure: 29}, {pressure: 31}, {pressure: 28}, {pressure: 29}]};
+                        engine: {model: "v8", capacity: 2000},
+                        wheels: [{pressure: 29}, {pressure: 31}, {pressure: 28}, {pressure: 29}]};
 
     return c1 === c2 &&
            !(c1 !== c2) &&
@@ -131,16 +131,16 @@ public function testMaps () (boolean) {
                  city:"Colombo 03", country:"Sri Lanka", checkinsTimes: ["0900", 2230]};
 
     map mUnorder = {line1:"No. 20", city:"Colombo 03", line2:"Palm Grove",
-                             country:"Sri Lanka", checkinsTimes: ["0900", 2230]};
+                       country:"Sri Lanka", checkinsTimes: ["0900", 2230]};
 
     map mArrayUnorder = {line1:"No. 20", line2:"Palm Grove",
-                 city:"Colombo 03", country:"Sri Lanka", checkinsTimes: [2230, "0900"]};
+                            city:"Colombo 03", country:"Sri Lanka", checkinsTimes: [2230, "0900"]};
 
     map mStringValueMismatch = {line1:"No. 20", line2:"Palm Groveeeeeeee",
-                 city:"Colombo 03", country:"Sri Lanka", checkinsTimes: ["0900", 2230]};
+                                   city:"Colombo 03", country:"Sri Lanka", checkinsTimes: ["0900", 2230]};
 
     map mMissingKeys = {line1:"No. 20",
-                 city:"Colombo 03", country:"Sri Lanka", checkinsTimes: ["0900", 2230]};
+                           city:"Colombo 03", country:"Sri Lanka", checkinsTimes: ["0900", 2230]};
 
     return m1 === m2 &&
            !(m1 !== m2) &&
@@ -229,58 +229,58 @@ public function testJSONString() (boolean) {
 
 public function testJSONInt() (boolean) {
     return jInt1 === jInt2 &&
-            !(jInt1 !== jInt2) &&
-            !(jInt1 === jStringUnmatch) &&
-            jInt1 !== jStringUnmatch &&
-            !(jInt1 === jIntUnmatch) &&
-            jInt1 !== jIntUnmatch &&
-            !(jInt1 === jBooleanUnmatch) &&
-            jInt1 !== jBooleanUnmatch &&
-            !(jInt1 === jNull1) &&
-            jInt1 !== jNull1 &&
-            !(jInt1 === empty1) &&
-            jInt1 !== empty1;
+           !(jInt1 !== jInt2) &&
+           !(jInt1 === jStringUnmatch) &&
+           jInt1 !== jStringUnmatch &&
+           !(jInt1 === jIntUnmatch) &&
+           jInt1 !== jIntUnmatch &&
+           !(jInt1 === jBooleanUnmatch) &&
+           jInt1 !== jBooleanUnmatch &&
+           !(jInt1 === jNull1) &&
+           jInt1 !== jNull1 &&
+           !(jInt1 === empty1) &&
+           jInt1 !== empty1;
 }
 
 public function testJSONBoolean() (boolean) {
     return jBoolean1 === jBoolean2 &&
-             !(jBoolean1 !== jBoolean2) &&
-             !(jBoolean1 === jStringUnmatch) &&
-             jBoolean1 !== jStringUnmatch &&
-             !(jBoolean1 === jIntUnmatch) &&
-             jBoolean1 !== jIntUnmatch &&
-             !(jBoolean1 === jBooleanUnmatch) &&
-             jBoolean1 !== jBooleanUnmatch &&
-             !(jBoolean1 === jNull1) &&
-             jBoolean1 !== jNull1 &&
-             !(jBoolean1 === empty1) &&
-             jBoolean1 !== empty1;
+           !(jBoolean1 !== jBoolean2) &&
+           !(jBoolean1 === jStringUnmatch) &&
+           jBoolean1 !== jStringUnmatch &&
+           !(jBoolean1 === jIntUnmatch) &&
+           jBoolean1 !== jIntUnmatch &&
+           !(jBoolean1 === jBooleanUnmatch) &&
+           jBoolean1 !== jBooleanUnmatch &&
+           !(jBoolean1 === jNull1) &&
+           jBoolean1 !== jNull1 &&
+           !(jBoolean1 === empty1) &&
+           jBoolean1 !== empty1;
 }
 
 public function testJSONNull() (boolean) {
     return jNull1 === jNull2 &&
-             !(jNull1 !== jNull2) &&
-             !(jNull1 === jStringUnmatch) &&
-             jNull1 !== jStringUnmatch &&
-             !(jNull1 === jIntUnmatch) &&
-             jNull1 !== jIntUnmatch &&
-             !(jNull1 === jBooleanUnmatch) &&
-             jNull1 !== jBooleanUnmatch &&
-             !(jNull1 === empty1) &&
-             jNull1 !== empty1;
+           !(jNull1 !== jNull2) &&
+           !(jNull1 === jStringUnmatch) &&
+           jNull1 !== jStringUnmatch &&
+           !(jNull1 === jIntUnmatch) &&
+           jNull1 !== jIntUnmatch &&
+           !(jNull1 === jBooleanUnmatch) &&
+           jNull1 !== jBooleanUnmatch &&
+           !(jNull1 === empty1) &&
+           jNull1 !== empty1;
 }
 
 public function testJSONEmpty() (boolean) {
     return empty1 === empty2 &&
-          !(empty1 !== empty2) &&
-          !(empty1 === jStringUnmatch) &&
-          empty1 !== jStringUnmatch &&
-          !(empty1 === jIntUnmatch) &&
-          empty1 !== jIntUnmatch &&
-          !(empty1 === jBooleanUnmatch) &&
-          empty1 !== jBooleanUnmatch &&
-          !(empty1 === jNull1) &&
-          empty1 !== jNull1;
+           !(empty1 !== empty2) &&
+           !(empty1 === jStringUnmatch) &&
+           empty1 !== jStringUnmatch &&
+           !(empty1 === jIntUnmatch) &&
+           empty1 !== jIntUnmatch &&
+           !(empty1 === jBooleanUnmatch) &&
+           empty1 !== jBooleanUnmatch &&
+           !(empty1 === jNull1) &&
+           empty1 !== jNull1;
 }
 
 public function testJSONObjects() (boolean) {
@@ -356,19 +356,19 @@ public function testJSONNested() (boolean) {
                          };
 
     json jObjUnmatch1 = {name:"Cubs",
-                             products:[{price:40.50, new:true, name:"apple"},
-                                       {name:"orange", price:30.50}],
-                             location:{
-                                          address1:"19, sample road",
-                                          postalCode: 6789
-                                      },
-                             manager:null
-                         };
+                            products:[{price:40.50, new:true, name:"apple"},
+                                      {name:"orange", price:30.50}],
+                            location:{
+                                         address1:"19, sample road",
+                                         postalCode: 6789
+                                     },
+                            manager:null
+                        };
 
     json jObjUnmatch2 = {name:"Target",
                             products:[{name:"orange", price:30.50},
                                       {price:40.50, new:true, name:"apple"}
-                                      ],
+                                     ],
                             location:{
                                          address1:"19, sample road",
                                          postalCode: 6789
@@ -399,24 +399,24 @@ public function testJSONNested() (boolean) {
                         };
 
     json jObjUnmatch5 = {   name:"Target",
-                     location:{
-                                  address1:"19, sample road",
-                                  postalCode: 6789
-                              },
-                     products:[{price: 88.99, new: true, name:"apple"},
-                               {name:"orange", price: 30.50}],
-                     manager: null
-                 };
+                            location:{
+                                         address1:"19, sample road",
+                                         postalCode: 6789
+                                     },
+                            products:[{price: 88.99, new: true, name:"apple"},
+                                      {name:"orange", price: 30.50}],
+                            manager: null
+                        };
 
     json jObjUnmatch6 = {   name:"Target",
-                     location:{
-                                  address1:"19, sample road",
-                                  postalCode: 6789
-                              },
-                     products:[{price: 40.50, new: true, name:"apple"},
-                               {name:"orange", price: 30.50}],
-                     manager: {name: "Larry Ben"}
-                 };
+                            location:{
+                                         address1:"19, sample road",
+                                         postalCode: 6789
+                                     },
+                            products:[{price: 40.50, new: true, name:"apple"},
+                                      {name:"orange", price: 30.50}],
+                            manager: {name: "Larry Ben"}
+                        };
 
     json jObjUnmatch7 = {   name:"Target",
                             location:{
@@ -440,14 +440,14 @@ public function testJSONNested() (boolean) {
            jObj1 !== jObjUnmatch2 &&
            !(jObj1 === jObjUnmatch3) &&
            jObj1 !== jObjUnmatch3 &&
-            !(jObj1 === jObjUnmatch4) &&
-            jObj1 !== jObjUnmatch4 &&
-            !(jObj1 === jObjUnmatch5) &&
-            jObj1 !== jObjUnmatch5 &&
-            !(jObj1 === jObjUnmatch6) &&
-            jObj1 !== jObjUnmatch6 &&
-            !(jObj1 === jObjUnmatch7) &&
-            jObj1 !== jObjUnmatch7 &&
+           !(jObj1 === jObjUnmatch4) &&
+           jObj1 !== jObjUnmatch4 &&
+           !(jObj1 === jObjUnmatch5) &&
+           jObj1 !== jObjUnmatch5 &&
+           !(jObj1 === jObjUnmatch6) &&
+           jObj1 !== jObjUnmatch6 &&
+           !(jObj1 === jObjUnmatch7) &&
+           jObj1 !== jObjUnmatch7 &&
            !(jObj1 === jObjUnmatch8) &&
            jObj1 !== jObjUnmatch8;
 }

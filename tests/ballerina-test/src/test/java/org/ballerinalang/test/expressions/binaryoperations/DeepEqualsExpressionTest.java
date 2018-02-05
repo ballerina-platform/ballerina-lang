@@ -44,7 +44,7 @@ public class DeepEqualsExpressionTest {
     public void setup() {
         compileResultForPrimitives = BCompileUtil.compile("test-src/expressions/binaryoperations/deep-equal-expr.bal");
         compileResultForComplex = BCompileUtil.compile(
-                                                "test-src/expressions/binaryoperations/deep-equal-complex-expr.bal");
+                "test-src/expressions/binaryoperations/deep-equal-complex-expr.bal");
     }
     
     /**
@@ -55,7 +55,7 @@ public class DeepEqualsExpressionTest {
     @DataProvider(name = "DeepEqualsValidFunctionInfos")
     public Object[][] functionNames() throws FileNotFoundException {
         Optional<PackageInfo> assertFilePackage = Arrays.stream(
-                                                    compileResultForPrimitives.getProgFile().getPackageInfoEntries())
+                compileResultForPrimitives.getProgFile().getPackageInfoEntries())
                 .filter((packageInfo -> packageInfo.getPkgPath().equals(".")))
                 .findFirst();
         
@@ -95,13 +95,13 @@ public class DeepEqualsExpressionTest {
         Assert.assertSame(returns[0].getClass(), BBoolean.class);
         boolean actual = ((BBoolean) returns[0]).booleanValue();
         Assert.assertTrue(actual, "Condition should give TRUE");
-    
+        
         returns = BRunUtil.invoke(compileResultForComplex, "testPrimitiveStructs");
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BBoolean.class);
         actual = ((BBoolean) returns[0]).booleanValue();
         Assert.assertTrue(actual, "Condition should give TRUE");
-    
+        
         returns = BRunUtil.invoke(compileResultForComplex, "testNestedStructs");
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BBoolean.class);
