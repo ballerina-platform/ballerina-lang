@@ -61,6 +61,7 @@ public class ParseHeader extends AbstractNativeFunction {
 
     @Override
     public BValue[] execute(Context context) {
+        String errMsg;
         try {
             String headerValue = getStringArgument(context, 0);
             if (headerValue.contains(COMMA)) {
@@ -68,13 +69,11 @@ public class ParseHeader extends AbstractNativeFunction {
             }
             return getValueAndParamMap(headerValue);
         } catch (BLangNullReferenceException ex) {
-            String errMsg = PARSER_ERROR + "header value cannot be null";
-            return getParserError(context, errMsg);
-
+            errMsg = PARSER_ERROR + "header value cannot be null";
         } catch (BallerinaException ex) {
-            String errMsg = PARSER_ERROR + ex.getMessage();
-            return getParserError(context, errMsg);
+            errMsg = PARSER_ERROR + ex.getMessage();
         }
+        return getParserError(context, errMsg);
     }
 
     private BValue[] getValueAndParamMap(String headerValue) {
