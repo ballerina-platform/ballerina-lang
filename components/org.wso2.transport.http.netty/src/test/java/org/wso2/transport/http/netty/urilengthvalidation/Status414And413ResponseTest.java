@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -50,7 +50,7 @@ import java.util.HashMap;
 import static org.testng.AssertJUnit.assertEquals;
 
 /**
- * This class tests for 414 and 413 responses
+ * This class tests for 414 and 413 responses.
  */
 public class Status414And413ResponseTest {
 
