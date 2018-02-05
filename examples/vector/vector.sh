@@ -1,4 +1,5 @@
 $ ballerina run vector.bal
-No. of elements in the vector: 2
+No. of elements in the vector: 3
 Vector
+null
 Ballerina
