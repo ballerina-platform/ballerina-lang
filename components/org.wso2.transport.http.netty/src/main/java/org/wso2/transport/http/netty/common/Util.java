@@ -39,8 +39,6 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static io.netty.handler.codec.http.HttpVersion.HTTP_1_1;
-
 /**
  * Includes utility methods for creating http requests and responses and their related properties.
  */
@@ -67,17 +65,26 @@ public class Util {
     }
 
     @SuppressWarnings("unchecked")
-    public static HttpResponse createHttpResponse(HTTPCarbonMessage outboundResponseMsg, boolean keepAlive) {
-        HttpVersion httpVersion = new HttpVersion(Util
-                .getStringValue(outboundResponseMsg, Constants.HTTP_VERSION, HTTP_1_1.text()), true);
+    public static HttpResponse createHttpResponse(HTTPCarbonMessage outboundResponseMsg, String inboundReqHttpVersion,
+            String serverName, boolean keepAlive) {
+
+        HttpVersion httpVersion = new HttpVersion("HTTP/" + inboundReqHttpVersion, true);
         HttpResponseStatus httpResponseStatus = getHttpResponseStatus(outboundResponseMsg);
-
         HttpResponse outboundNettyResponse = new DefaultHttpResponse(httpVersion, httpResponseStatus, false);
-        outboundNettyResponse.setProtocolVersion(httpVersion);
-        outboundNettyResponse.setStatus(httpResponseStatus);
 
-        if (!keepAlive) {
+        if (!keepAlive && (Float.valueOf(inboundReqHttpVersion) >= 1.1)) {
             outboundResponseMsg.setHeader(Constants.HTTP_CONNECTION, Constants.CONNECTION_CLOSE);
+        } else {
+            outboundResponseMsg.removeHeader(Constants.HTTP_CONNECTION);
+        }
+        if (keepAlive && (Float.valueOf(inboundReqHttpVersion) < 1.1)) {
+            outboundResponseMsg.setHeader(Constants.HTTP_CONNECTION, Constants.CONNECTION_KEEP_ALIVE);
+        } else {
+            outboundResponseMsg.removeHeader(Constants.HTTP_CONNECTION);
+        }
+
+        if (outboundResponseMsg.getHeader(Constants.HTTP_SERVER_HEADER) == null) {
+            outboundResponseMsg.setHeader(Constants.HTTP_SERVER_HEADER, serverName);
         }
 
         outboundNettyResponse.headers().add(outboundResponseMsg.getHeaders());
@@ -119,7 +126,7 @@ public class Util {
     private static HttpVersion getHttpVersion(HTTPCarbonMessage outboundRequestMsg) {
         HttpVersion httpVersion;
         if (null != outboundRequestMsg.getProperty(Constants.HTTP_VERSION)) {
-            httpVersion = new HttpVersion((String) outboundRequestMsg.getProperty(Constants.HTTP_VERSION), true);
+            httpVersion = new HttpVersion("HTTP/" + outboundRequestMsg.getProperty(Constants.HTTP_VERSION), true);
         } else {
             httpVersion = new HttpVersion(Constants.DEFAULT_VERSION_HTTP_1_1, true);
         }
@@ -166,8 +173,7 @@ public class Util {
      * @return  boolean value of status.
      */
     public static boolean isVersionCompatibleForChunking(String httpVersion) {
-        String version = new HttpVersion(httpVersion, true).text();
-        return version.equals(Constants.DEFAULT_VERSION_HTTP_1_1) || version.equals(Constants.HTTP_VERSION_2_0);
+        return Float.valueOf(httpVersion) >= 1.1;
     }
 
     public static SSLConfig getSSLConfigForListener(String certPass, String keyStorePass, String keyStoreFilePath,

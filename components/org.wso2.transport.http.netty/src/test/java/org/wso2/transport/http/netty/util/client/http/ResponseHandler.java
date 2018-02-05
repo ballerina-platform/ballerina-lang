@@ -31,6 +31,7 @@ import java.util.concurrent.CountDownLatch;
 public class ResponseHandler extends ChannelInboundHandlerAdapter {
 
     private CountDownLatch latch;
+    private CountDownLatch waitForConnectionClosureLatch;
     private FullHttpResponse fullHttpResponse;
 
     @Override
@@ -55,7 +56,16 @@ public class ResponseHandler extends ChannelInboundHandlerAdapter {
         super.exceptionCaught(ctx, cause);
     }
 
+    @Override
+    public void channelInactive(ChannelHandlerContext ctx) throws Exception {
+        this.waitForConnectionClosureLatch.countDown();
+    }
+
     public void setLatch(CountDownLatch latch) {
         this.latch = latch;
+    }
+
+    public void setWaitForConnectionClosureLatch(CountDownLatch waitForConnectionClosureLatch) {
+        this.waitForConnectionClosureLatch = waitForConnectionClosureLatch;
     }
 }

@@ -63,7 +63,7 @@ public class CommonUtilTestCase {
         headers.add("aaa", "xyz");
         HTTPCarbonMessage outboundResponseMsg = new HTTPCarbonMessage(new DefaultHttpResponse(HttpVersion.HTTP_1_1,
                 HttpResponseStatus.OK, headers));
-        HttpResponse outboundNettyResponse = Util.createHttpResponse(outboundResponseMsg, true);
+        HttpResponse outboundNettyResponse = Util.createHttpResponse(outboundResponseMsg, "1.1", "test-server", true);
 
         Assert.assertEquals(outboundNettyResponse.protocolVersion(), HttpVersion.HTTP_1_1);
         Assert.assertEquals(outboundNettyResponse.status(), HttpResponseStatus.OK);

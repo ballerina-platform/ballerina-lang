@@ -18,7 +18,6 @@
  */
 package org.wso2.transport.http.netty.config;
 
-import org.wso2.transport.http.netty.common.Constants;
 import org.wso2.transport.http.netty.common.ProxyServerConfiguration;
 import org.wso2.transport.http.netty.common.Util;
 import org.wso2.transport.http.netty.common.ssl.SSLConfig;
@@ -94,7 +93,7 @@ public class SenderConfiguration {
     private boolean isKeepAlive = true;
 
     private String tlsStoreType;
-    private String httpVersion = Constants.DEFAULT_VERSION_HTTP_1_1;
+    private String httpVersion = "1.1";
     private ProxyServerConfiguration proxyServerConfiguration;
 
     public SenderConfiguration() {

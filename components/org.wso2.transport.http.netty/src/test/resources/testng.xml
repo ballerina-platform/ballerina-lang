@@ -61,6 +61,10 @@
             <!--<class name="org.wso2.carbon.transport.http.netty.http2.HTTP2RequestResponseTestCase" />-->
             <class name="org.wso2.transport.http.netty.encoding.ContentEncodingTestCase"/>
             <class name="org.wso2.transport.http.netty.urilengthvalidation.Status414And413ResponseTest"/>
+            <class name="org.wso2.transport.http.netty.http1point0test.HttpOnePointZeroServerConnectorTestCase"/>
+            <class name="org.wso2.transport.http.netty.http1point0test.KeepAliveHttpOnePointZeroClientTestCase"/>
+            <class name="org.wso2.transport.http.netty.http1point0test.ChunkAutoHttpOnePointZeroClientTestCase"/>
+            <class name="org.wso2.transport.http.netty.http1point0test.ChunkAlwaysHttpOnePointZeroClientTestCase"/>
 
             <class name="org.wso2.transport.http.netty.websocket.WebSocketServerTestCase"/>
             <class name="org.wso2.transport.http.netty.websocket.WebSocketClientTestCase"/>

@@ -67,6 +67,7 @@ public class HttpToWsProtocolSwitchTestCase {
         urlConn.setRequestProperty("upgrade", "websocket");
         urlConn.setRequestProperty("Sec-WebSocket-Key", "dGhlIHNhbXBsZSBub25jZQ==");
         urlConn.setRequestProperty("Sec-WebSocket-Version", "13");
+
         Assert.assertEquals(urlConn.getResponseCode(), 101);
         Assert.assertEquals(urlConn.getResponseMessage(), "Switching Protocols");
         Assert.assertEquals(urlConn.getHeaderField("upgrade"), "websocket");
@@ -83,9 +84,9 @@ public class HttpToWsProtocolSwitchTestCase {
         urlConn.setRequestProperty("Upgrade", "websocket");
         urlConn.setRequestProperty("Sec-WebSocket-Key", "dGhlIHNhbXBsZSBub25jZQ==");
         urlConn.setRequestProperty("Sec-WebSocket-Version", "13");
+
         Assert.assertEquals(urlConn.getResponseCode(), 200);
         Assert.assertEquals(urlConn.getResponseMessage(), "OK");
-        Assert.assertEquals(urlConn.getHeaderField("connection"), "keep-alive");
         Assert.assertTrue(urlConn.getHeaderField("sec-websocket-accept") == null);
     }
 
