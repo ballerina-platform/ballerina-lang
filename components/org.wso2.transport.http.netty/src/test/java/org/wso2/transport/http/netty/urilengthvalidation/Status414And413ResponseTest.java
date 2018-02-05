@@ -52,16 +52,16 @@ import static org.testng.AssertJUnit.assertEquals;
 /**
  * This class tests for 414 and 413 responses
  */
-public class UriLengthValidationTest {
+public class Status414And413ResponseTest {
 
-    private static final Logger log = LoggerFactory.getLogger(UriLengthValidationTest.class);
+    private static final Logger log = LoggerFactory.getLogger(Status414And413ResponseTest.class);
 
     protected ServerConnector serverConnector;
     protected ListenerConfiguration listenerConfiguration;
     private static final String testValue = "Test Message";
     private URI baseURI = URI.create(String.format("http://%s:%d", "localhost", TestUtil.SERVER_CONNECTOR_PORT));
 
-    UriLengthValidationTest() {
+    Status414And413ResponseTest() {
         this.listenerConfiguration = new ListenerConfiguration();
     }
 
