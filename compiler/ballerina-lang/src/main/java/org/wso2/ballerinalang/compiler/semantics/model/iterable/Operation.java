@@ -43,8 +43,8 @@ public class Operation {
 
     public BType collectionType;
     public List<BType> expectedTypes;
-    public List<BType> resultTypes;
-    public List<BType> argTypes, retArgTypes;
+    public List<BType> resultTypes; // Reduced value or intermediate collection type.
+    public List<BType> argTypes, retArgTypes;   // Operation's input and output arguments types.
 
     /* variables for lambda based operations. */
     public int arity;

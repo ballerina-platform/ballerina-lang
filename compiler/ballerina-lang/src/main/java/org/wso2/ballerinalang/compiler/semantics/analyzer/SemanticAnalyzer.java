@@ -1126,13 +1126,8 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 dlog.error(lastOperation.pos, DiagnosticCode.ASSIGNMENT_COUNT_MISMATCH, 1, expectedTypes.size());
                 continue;
             }
-            if (expectedTypes.get(0) == symTable.noType) {
-                // Accepts given value
-                context.resultType = symTable.noType;
-                continue;
-            }
-            if (expectedTypes.get(0) == symTable.errType) {
-                //  it is an error, just ignore it.
+            if (expectedTypes.get(0) == symTable.noType || expectedTypes.get(0) == symTable.errType) {
+                context.resultType = expectedTypes.get(0);
                 continue;
             }
             if (resultTypes.size() == 0) {
@@ -1155,6 +1150,8 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 dlog.error(lastOperation.pos, DiagnosticCode.ITERABLE_RETURN_TYPE_MISMATCH, lastOperation.kind,
                         expectedTypes.get(0));
             }
+            context.resultType = types.checkType(lastOperation.pos, resultTypes.get(0), expectedTypes.get(0),
+                    DiagnosticCode.INCOMPATIBLE_TYPES);
         }
     }
 }

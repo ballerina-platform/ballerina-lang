@@ -54,7 +54,7 @@ public class IterableAnalyzer {
     private TypeChecker typeChecker;
     private DiagnosticLog dlog;
 
-    private final BIterableTypeVisitor lambdaTypeChecker;
+    private final BIterableTypeVisitor lambdaTypeChecker, terminalTypeChecker;
 
     private IterableAnalyzer(CompilerContext context) {
         context.put(ITERABLE_ANALYZER_KEY, this);
@@ -64,6 +64,7 @@ public class IterableAnalyzer {
         this.typeChecker = TypeChecker.getInstance(context);
 
         this.lambdaTypeChecker = new LambdaBasedTypeChecker(dlog, symTable);
+        this.terminalTypeChecker = new TerminalOperationTypeChecker(dlog, symTable);
     }
 
     public static IterableAnalyzer getInstance(CompilerContext context) {
@@ -93,23 +94,18 @@ public class IterableAnalyzer {
         if (iterableKind.isLambdaRequired()) {
             handleLambdaBasedIterableOperation(iOperation);
         } else {
-            handleSimpleOperations(iOperation);
+            handleSimpleTerminalOperations(iOperation);
         }
     }
 
-    private void handleSimpleOperations(Operation operation) {
+    private void handleSimpleTerminalOperations(Operation operation) {
         if (operation.iExpr.argExprs.size() > 0) {
             dlog.error(operation.pos, DiagnosticCode.ITERABLE_NO_ARGS_REQUIRED, operation.kind);
             return;
         }
-        // Handle new Iterable Operations here.
-        switch (operation.kind) {
-            case MAX:
-            case MIN:
-            case SUM:
-            case AVERAGE:
-            case COUNT:
-                break;
+        operation.resultTypes = operation.collectionType.accept(terminalTypeChecker, operation);
+        if (operation.kind.isTerminal()) {
+            operation.retArgTypes = operation.resultTypes;
         }
     }
 
@@ -128,32 +124,31 @@ public class IterableAnalyzer {
 
         operation.lambdaType = (BInvokableType) bTypes.get(0);
         operation.arity = operation.lambdaType.getParameterTypes().size();
-        final List<BType> supportedArgTypes, supportedRetTypes, givenRetTypes;
-        // Define new iterable operation here.
-        givenRetTypes = operation.lambdaType.getReturnTypes();
+        final List<BType> givenArgTypes = operation.lambdaType.getParameterTypes(); // given args type of lambda.
+        final List<BType> givenRetTypes = operation.lambdaType.getReturnTypes(); // given return type of lambda.
+
+        // calculated lambda's args types.(By looking collection type)
+        final List<BType> supportedArgTypes = operation.collectionType.accept(lambdaTypeChecker, operation);
+        final List<BType> supportedRetTypes;    // calculated lambda's return types. (By looking operation type)
         switch (operation.kind) {
             case FOREACH:
-                supportedArgTypes = operation.collectionType.accept(lambdaTypeChecker, operation);
                 supportedRetTypes = Collections.emptyList();
                 break;
             case MAP:
-                supportedArgTypes = operation.collectionType.accept(lambdaTypeChecker, operation);
                 supportedRetTypes = givenRetTypes;
                 break;
             case FILTER:
-                supportedArgTypes = operation.collectionType.accept(lambdaTypeChecker, operation);
                 supportedRetTypes = Lists.of(symTable.booleanType);
                 break;
             default:
                 return;
         }
-        validateLambdaArgs(operation, supportedArgTypes);
+        validateLambdaArgs(operation, supportedArgTypes, givenArgTypes);
         validateLambdaReturnArgs(operation, supportedRetTypes, givenRetTypes);
         assignInvocationType(operation, supportedArgTypes, supportedRetTypes);
     }
 
-    private void validateLambdaArgs(Operation operation, List<BType> supportedTypes) {
-        final List<BType> givenTypes = operation.lambdaType.getParameterTypes();
+    private void validateLambdaArgs(Operation operation, List<BType> supportedTypes, List<BType> givenTypes) {
         if (givenTypes.size() < supportedTypes.size()) {
             dlog.error(operation.pos, DiagnosticCode.ITERABLE_NOT_ENOUGH_VARIABLES, operation.collectionType,
                     supportedTypes.size());
@@ -278,4 +273,64 @@ public class IterableAnalyzer {
         }
     }
 
+
+    /**
+     * Type checker for Simple terminal operations.
+     *
+     * @since 0.961.0
+     */
+    private static class TerminalOperationTypeChecker extends BIterableTypeVisitor {
+
+        TerminalOperationTypeChecker(DiagnosticLog dlog, SymbolTable symTable) {
+            super(dlog, symTable);
+        }
+
+        @Override
+        public List<BType> visit(BMapType t, Operation operation) {
+            return Lists.of(calculateType(operation, t.constraint));
+        }
+
+        @Override
+        public List<BType> visit(BXMLType t, Operation operation) {
+            return Lists.of(calculateType(operation, t));
+        }
+
+        @Override
+        public List<BType> visit(BJSONType t, Operation operation) {
+            return Lists.of(calculateType(operation, t));
+        }
+
+        @Override
+        public List<BType> visit(BArrayType t, Operation operation) {
+            return Lists.of(calculateType(operation, t.eType));
+        }
+
+        @Override
+        public List<BType> visit(BTupleCollectionType t, Operation operation) {
+            return Lists.of(calculateType(operation, t));
+        }
+
+        private BType calculateType(Operation operation, BType elementType) {
+            switch (operation.kind) {
+                case MAX:
+                case MIN:
+                case SUM:
+                    if (elementType.tag == TypeTags.INT || elementType.tag == TypeTags.FLOAT) {
+                        return elementType;
+                    }
+                    break;
+                case AVERAGE:
+                    if (elementType.tag == TypeTags.INT || elementType.tag == TypeTags.FLOAT) {
+                        return symTable.floatType;
+                    }
+                    break;
+                case COUNT:
+                    return symTable.intType;
+                default:
+                    break;
+            }
+            dlog.error(operation.pos, DiagnosticCode.ITERABLE_NOT_SUPPORTED_OPERATION, operation.kind);
+            return symTable.errType;
+        }
+    }
 }

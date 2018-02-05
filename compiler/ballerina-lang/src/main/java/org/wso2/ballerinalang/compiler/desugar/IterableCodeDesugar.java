@@ -45,6 +45,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangTernaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeCastExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangUnaryExpr;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
@@ -70,7 +71,7 @@ import java.util.Set;
 /**
  * Class responsible for desugar an iterable chain into actual Ballerina code.
  *
- * @since 0.96.1
+ * @since 0.961.0
  */
 public class IterableCodeDesugar {
 
@@ -82,7 +83,7 @@ public class IterableCodeDesugar {
     private static final String VAR_COUNT = "count";
     private static final String VAR_COLLECTION = "collection";
 
-    private static final CompilerContext.Key<IterableCodeDesugar> DESUGAR_KEY =
+    private static final CompilerContext.Key<IterableCodeDesugar> ITERABLE_DESUGAR_KEY =
             new CompilerContext.Key<>();
 
     private final SymbolTable symTable;
@@ -94,7 +95,7 @@ public class IterableCodeDesugar {
     private int variableCount = 0;
 
     public static IterableCodeDesugar getInstance(CompilerContext context) {
-        IterableCodeDesugar desugar = context.get(DESUGAR_KEY);
+        IterableCodeDesugar desugar = context.get(ITERABLE_DESUGAR_KEY);
         if (desugar == null) {
             desugar = new IterableCodeDesugar(context);
         }
@@ -103,7 +104,7 @@ public class IterableCodeDesugar {
     }
 
     private IterableCodeDesugar(CompilerContext context) {
-        context.put(DESUGAR_KEY, this);
+        context.put(ITERABLE_DESUGAR_KEY, this);
         this.symTable = SymbolTable.getInstance(context);
         this.symResolver = SymbolResolver.getInstance(context);
         this.symbolEnter = SymbolEnter.getInstance(context);
@@ -113,6 +114,8 @@ public class IterableCodeDesugar {
     public void desugar(IterableContext ctx) {
         rewrite(ctx);
         generateIteratorFunction(ctx);
+
+        // create invocation expression to invoke iterable operation.
         final BLangSimpleVarRef collectionRef = (BLangSimpleVarRef) ctx.collectionExpr;
         final BLangVariable collectionVar = createVariable(collectionRef.pos, collectionRef.variableName.value,
                 collectionRef.type);
@@ -124,7 +127,6 @@ public class IterableCodeDesugar {
         variableCount = 0;
         ctx.operations.forEach(this::rewrite);
         ctx.collectionExpr = ctx.getFirstOperation().iExpr.expr;
-
     }
 
     private void rewrite(Operation operation) {
@@ -159,12 +161,6 @@ public class IterableCodeDesugar {
         }
     }
 
-    private List<BLangVariable> copyOf(List<BLangVariable> variables) {
-        List<BLangVariable> copy = new ArrayList<>();
-        variables.forEach(variable -> copy.add(createVariable(variable.pos, variable.name.value, variable.type)));
-        return copy;
-    }
-
     private void defineVariable(BLangVariable variable, PackageID pkgID, BLangFunction funcNode) {
         variable.symbol = new BVarSymbol(0, names.fromIdNode(variable.name), pkgID, variable.type, funcNode.symbol);
         funcNode.symbol.scope.define(variable.symbol.name, variable.symbol);
@@ -178,9 +174,8 @@ public class IterableCodeDesugar {
         // Create and define function signature.
         final BLangFunction funcNode = createFunction(pos, FUNC_CALLER);
         funcNode.params.add(createVariable(pos, VAR_COLLECTION, ctx.collectionExpr.type));
-        if (isFunctionReturn(ctx)) {
-            ctx.resultVar = createVariable(ctx.getLastOperation().pos, VAR_RESULT, ctx.resultType);
-            funcNode.retParams.add(ctx.resultVar);
+        if (isReturningIteratorFunction(ctx)) {
+            funcNode.retParams.add(ctx.resultVar = createVariable(pos, VAR_RESULT, ctx.resultType));
         }
 
         final BPackageSymbol packageSymbol = firstOperation.env.enclPkg.symbol;
@@ -191,35 +186,20 @@ public class IterableCodeDesugar {
         packageEnv.enclPkg.topLevelNodes.add(funcNode);
 
         // Generate function Body.
-
-        // create and define required variables.
-        if (isFunctionReturn(ctx)) {
-            ctx.countVar = createVariable(pos, VAR_COUNT, symTable.intType);
-            ctx.countVar.expr = createLiteral(pos, symTable.intType, 0L);
-            defineVariable(ctx.countVar, packageSymbol.pkgID, funcNode);
-            createVariableDefStmt(pos, funcNode.body).var = ctx.countVar;
+        if (isReturningIteratorFunction(ctx)) {
+            generateCounterVariable(funcNode.body, ctx, funcNode);
             generateResultVariable(funcNode.body, ctx, ctx.resultVar);
         }
-        List<BLangVariable> assignmentVars = new ArrayList<>();
-        assignmentVars.add(ctx.skipVar = createVariable(pos, VAR_SKIP, symTable.booleanType));
-        assignmentVars.addAll(copyOf(lastOperation.retVars));
-        assignmentVars.forEach(variable -> {
-            defineVariable(variable, packageSymbol.pkgID, funcNode);
-            createVariableDefStmt(pos, funcNode.body).var = variable;
-        });
+        // create and define required variables.
+        generateVarDefForStream(funcNode.body, ctx, funcNode);
 
         // Generate foreach iteration.
-        // TODO : Future improvement:- optimize single operation invocation, which doesn't need a stream function.
-
-        // Define variable used in iteration.
+        final BLangForeach foreach = createForeach(pos, funcNode.body);
         final List<BLangVariable> foreachVars = copyOf(ctx.getFirstOperation().argVars);
         foreachVars.forEach(variable -> defineVariable(variable, packageSymbol.pkgID, funcNode));
-
-        // Generate foreach structure.
-        final BLangForeach foreach = createForeach(pos, funcNode.body);
+        foreach.varRefs.addAll(createVariableRefList(pos, foreachVars));
         foreach.collection = createVariableRef(pos, funcNode.params.get(0).symbol);
         foreach.varTypes = firstOperation.argTypes;
-        foreach.varRefs.addAll(createVariableReferences(pos, foreachVars));
         foreach.body = createBlockStmt(pos);
 
         // Call Stream function and its assignment.
@@ -227,19 +207,41 @@ public class IterableCodeDesugar {
         final BLangInvocation iExpr = createInvocationExpr(pos, ctx.streamFuncSymbol, foreachVars);
         BLangAssignment assignment = createAssignmentStmt(pos, foreach.body);
         assignment.expr = iExpr;
-        assignment.varRefs.addAll(createVariableReferences(pos, assignmentVars));
+        assignment.varRefs.addAll(createVariableRefList(pos, ctx.streamRetVars));
 
-        if (isFunctionReturn(ctx)) {
-            generateSkipCondition(foreach.body, ctx);
-            generateAggregator(foreach.body, ctx, assignmentVars);
+        // Generate aggregator and result
+        if (isReturningIteratorFunction(ctx)) {
+            generateNextCondition(foreach.body, ctx);
+            generateAggregator(foreach.body, ctx);
+            generateFinalResult(funcNode.body, ctx);
         }
 
         final BLangReturn returnStmt = createReturnStmt(lastOperation.pos, funcNode.body);
         returnStmt.addExpression(createVariableRef(pos, ctx.resultVar.symbol));
     }
 
-    private boolean isFunctionReturn(IterableContext ctx) {
+    private boolean isReturningIteratorFunction(IterableContext ctx) {
         return ctx.resultType != symTable.noType;
+    }
+
+    /**
+     * Generates following.
+     *
+     * int count = 0;
+     *
+     * @param blockStmt target
+     * @param ctx       current context
+     * @param funcNode  functionNode
+     */
+    private void generateCounterVariable(BLangBlockStmt blockStmt, IterableContext ctx, BLangFunction funcNode) {
+        if (ctx.resultType.tag != TypeTags.ARRAY && ctx.getLastOperation().kind != IterableKind.AVERAGE) {
+            return;
+        }
+        final DiagnosticPos pos = blockStmt.pos;
+        ctx.countVar = createVariable(pos, VAR_COUNT, symTable.intType);
+        ctx.countVar.expr = createLiteral(pos, symTable.intType, 0L);
+        defineVariable(ctx.countVar, funcNode.symbol.pkgID, funcNode);
+        createVariableDefStmt(pos, blockStmt).var = ctx.countVar;
     }
 
     /**
@@ -253,19 +255,23 @@ public class IterableCodeDesugar {
      * @param varResult result variable
      */
     private void generateResultVariable(BLangBlockStmt blockStmt, IterableContext ctx, BLangVariable varResult) {
-        final BLangAssignment assignment = createAssignmentStmt(ctx.getLastOperation().pos, blockStmt);
-        assignment.varRefs.add(createVariableRef(ctx.getLastOperation().pos, varResult.symbol));
+        if (ctx.resultType.tag != TypeTags.ARRAY && ctx.resultType.tag != TypeTags.MAP) {
+            return;
+        }
+        final DiagnosticPos pos = blockStmt.pos;
+        final BLangAssignment assignment = createAssignmentStmt(pos, blockStmt);
+        assignment.varRefs.add(createVariableRef(pos, varResult.symbol));
         switch (ctx.resultType.tag) {
             case TypeTags.ARRAY:
                 final BLangArrayLiteral arrayInit = (BLangArrayLiteral) TreeBuilder.createArrayLiteralNode();
-                arrayInit.pos = ctx.getLastOperation().pos;
+                arrayInit.pos = pos;
                 arrayInit.exprs = new ArrayList<>();
                 arrayInit.type = ctx.resultType;
                 assignment.expr = arrayInit;
                 break;
             case TypeTags.MAP:
                 final BLangRecordLiteral record = (BLangRecordLiteral) TreeBuilder.createRecordLiteralNode();
-                record.pos = ctx.getLastOperation().pos;
+                record.pos = pos;
                 record.type = ctx.resultType;
                 assignment.expr = record;
                 break;
@@ -275,113 +281,23 @@ public class IterableCodeDesugar {
     /**
      * Generates following.
      *
-     * if(skip){
-     * next;
-     * }
+     * var arg1;
+     * var arg2;
+     * ...
      *
      * @param blockStmt target
      * @param ctx       current context
+     * @param funcNode  functionNode
      */
-    private void generateSkipCondition(BLangBlockStmt blockStmt, IterableContext ctx) {
-        final DiagnosticPos pos = ctx.getLastOperation().pos;
-        final BLangIf ifNode = createIfStmt(pos, blockStmt);
-        ifNode.expr = createVariableRef(pos, ctx.skipVar.symbol);
-        ifNode.body = createBlockStmt(pos);
-        createNextStmt(pos, ifNode.body);
+    private void generateVarDefForStream(BLangBlockStmt blockStmt, IterableContext ctx, BLangFunction funcNode) {
+        ctx.streamRetVars = new ArrayList<>();
+        ctx.streamRetVars.add(ctx.skipVar = createVariable(blockStmt.pos, VAR_SKIP, symTable.booleanType));
+        ctx.streamRetVars.addAll(copyOf(ctx.getLastOperation().retVars));
+        ctx.streamRetVars.forEach(variable -> {
+            defineVariable(variable, funcNode.symbol.pkgID, funcNode);
+            createVariableDefStmt(blockStmt.pos, funcNode.body).var = variable;
+        });
     }
-
-    /* Aggregator related code generation */
-
-    /**
-     * Generates target aggregator logic.
-     * @param blockStmt target
-     * @param ctx       current context
-     * @param vars result variable
-     */
-    private void generateAggregator(BLangBlockStmt blockStmt, IterableContext ctx, List<BLangVariable> vars) {
-        switch (ctx.resultType.tag) {
-            case TypeTags.ARRAY:
-                generateArrayAggregator(blockStmt, ctx, vars);
-                break;
-            case TypeTags.MAP:
-                generateMapAggregator(blockStmt, ctx, vars);
-                break;
-        }
-    }
-
-    /**
-     * Generates following.
-     *
-     * result[count] = value;
-     * count = count + 1;
-     *
-     * @param blockStmt target
-     * @param ctx       current context
-     * @param vars result variable
-     */
-    private void generateArrayAggregator(BLangBlockStmt blockStmt, IterableContext ctx, List<BLangVariable> vars) {
-        final DiagnosticPos pos = ctx.getLastOperation().pos;
-        // create assignment result[count] = value;
-        final BLangIndexBasedAccess indexAccessNode = (BLangIndexBasedAccess) TreeBuilder.createIndexBasedAccessNode();
-        indexAccessNode.pos = pos;
-        indexAccessNode.indexExpr = createVariableRef(pos, ctx.countVar.symbol);
-        indexAccessNode.expr = createVariableRef(pos, ctx.resultVar.symbol);
-        indexAccessNode.type = vars.get(1).symbol.type;
-        final BLangAssignment valueAssign = createAssignmentStmt(pos, blockStmt);
-        valueAssign.varRefs.add(indexAccessNode);
-        valueAssign.expr = createVariableRef(pos, vars.get(1).symbol);
-
-        // create count = count + 1;
-        final BLangBinaryExpr add = (BLangBinaryExpr) TreeBuilder.createBinaryExpressionNode();
-        add.pos = pos;
-        add.type = symTable.intType;
-        add.opKind = OperatorKind.ADD;
-        add.lhsExpr = createVariableRef(pos, ctx.countVar.symbol);
-        add.rhsExpr = createLiteral(pos, symTable.intType, 1L);
-        add.opSymbol = (BOperatorSymbol) symResolver.resolveBinaryOperator(OperatorKind.ADD, symTable.intType,
-                symTable.intType);
-        final BLangAssignment countAdd = createAssignmentStmt(pos, blockStmt);
-        countAdd.varRefs.add(createVariableRef(pos, ctx.countVar.symbol));
-        countAdd.expr = add;
-    }
-
-    /**
-     * Generates following.
-     *
-     * result[key] = value;
-     *
-     * @param blockStmt target
-     * @param ctx       current context
-     * @param varResult result variable
-     */
-    private void generateMapAggregator(BLangBlockStmt blockStmt, IterableContext ctx, List<BLangVariable> varResult) {
-        final DiagnosticPos pos = ctx.getLastOperation().pos;
-        // create assignment result[key] = value
-        final BLangIndexBasedAccess indexAccessNode = (BLangIndexBasedAccess) TreeBuilder.createIndexBasedAccessNode();
-        indexAccessNode.pos = pos;
-        indexAccessNode.indexExpr = createVariableRef(pos, varResult.get(1).symbol);
-        indexAccessNode.expr = createVariableRef(pos, ctx.resultVar.symbol);
-        indexAccessNode.type = varResult.get(2).symbol.type;
-        final BLangAssignment valueAssign = createAssignmentStmt(pos, blockStmt);
-        valueAssign.varRefs.add(indexAccessNode);
-        valueAssign.expr = generateMapValueExpression(createVariableRef(pos, varResult.get(2).symbol));
-    }
-
-    private BLangExpression generateMapValueExpression(BLangSimpleVarRef varRef) {
-        if (varRef.type.tag > TypeTags.TYPE) {
-            return varRef;
-        }
-        // Box value using cast expression.
-        final BLangTypeCastExpr implicitCastExpr = (BLangTypeCastExpr) TreeBuilder.createTypeCastNode();
-        implicitCastExpr.pos = varRef.pos;
-        implicitCastExpr.expr = varRef;
-        implicitCastExpr.type = symTable.anyType;
-        implicitCastExpr.types = Lists.of(symTable.anyType);
-        implicitCastExpr.castSymbol = (BOperatorSymbol) symResolver.resolveImplicitCastOperator(
-                varRef.type, symTable.anyType);
-        return implicitCastExpr;
-    }
-
 
     /**
      * Generate Stream function from operation chain.
@@ -389,10 +305,11 @@ public class IterableCodeDesugar {
      * @param ctx current context
      */
     private void generateStreamFunction(IterableContext ctx) {
+        final DiagnosticPos pos = ctx.getFirstOperation().pos;
         // Create and define function signature.
-        final BLangFunction funcNode = createFunction(ctx.getFirstOperation().pos, FUNC_STREAM);
+        final BLangFunction funcNode = createFunction(pos, FUNC_STREAM);
         funcNode.params.addAll(ctx.getFirstOperation().argVars);
-        funcNode.retParams.add(createVariable(ctx.getLastOperation().pos, VAR_SKIP, symTable.booleanType));
+        funcNode.retParams.add(createVariable(pos, VAR_SKIP, symTable.booleanType));
         funcNode.retParams.addAll(ctx.getLastOperation().retVars);
 
         final BPackageSymbol packageSymbol = ctx.getFirstOperation().env.enclPkg.symbol;
@@ -412,7 +329,7 @@ public class IterableCodeDesugar {
         unusedVars.removeAll(funcNode.retParams);
         unusedVars.forEach(variable -> defineVariable(variable, packageSymbol.pkgID, funcNode));
         unusedVars.forEach(variable -> {
-            BLangVariableDef variableDefStmt = createVariableDefStmt(ctx.getFirstOperation().pos, funcNode.body);
+            BLangVariableDef variableDefStmt = createVariableDefStmt(pos, funcNode.body);
             variableDefStmt.var = variable;
         });
         // Generate function Body.
@@ -433,7 +350,228 @@ public class IterableCodeDesugar {
         final BLangReturn returnStmt = createReturnStmt(pos, blockStmt);
 
         returnStmt.exprs.add(createLiteral(pos, symTable.booleanType, false));
-        returnStmt.exprs.addAll(createVariableReferences(pos, retArgs));
+        returnStmt.exprs.addAll(createVariableRefList(pos, retArgs));
+    }
+
+    /**
+     * Generates following.
+     *
+     * if(skip){
+     * next;
+     * }
+     *
+     * @param blockStmt target
+     * @param ctx       current context
+     */
+    private void generateNextCondition(BLangBlockStmt blockStmt, IterableContext ctx) {
+        final DiagnosticPos pos = ctx.getLastOperation().pos;
+        final BLangIf ifNode = createIfStmt(pos, blockStmt);
+        ifNode.expr = createVariableRef(pos, ctx.skipVar.symbol);
+        ifNode.body = createBlockStmt(pos);
+        createNextStmt(pos, ifNode.body);
+    }
+
+
+    /* Aggregator related code generation */
+
+    /**
+     * Generates target aggregator logic.
+     *
+     * @param blockStmt target
+     * @param ctx       current context
+     */
+    private void generateAggregator(BLangBlockStmt blockStmt, IterableContext ctx) {
+        switch (ctx.getLastOperation().kind) {
+            case COUNT:
+                generateCountAggregator(blockStmt, ctx.resultVar);
+                return;
+            case SUM:
+                generateSumAggregator(blockStmt, ctx);
+                return;
+            case AVERAGE:
+                generateSumAggregator(blockStmt, ctx);
+                generateCountAggregator(blockStmt, ctx.countVar);
+                return;
+            case MAX:
+                generateCompareAggregator(blockStmt, ctx, OperatorKind.LESS_THAN);
+                return;
+            case MIN:
+                generateCompareAggregator(blockStmt, ctx, OperatorKind.GREATER_THAN);
+                return;
+        }
+        switch (ctx.resultType.tag) {
+            case TypeTags.ARRAY:
+                generateArrayAggregator(blockStmt, ctx);
+                break;
+            case TypeTags.MAP:
+                generateMapAggregator(blockStmt, ctx);
+                break;
+        }
+    }
+
+    /**
+     * Generate result from aggregator logic.
+     *
+     * @param blockStmt target
+     * @param ctx       current context
+     */
+    private void generateFinalResult(BLangBlockStmt blockStmt, IterableContext ctx) {
+        switch (ctx.getLastOperation().kind) {
+            case AVERAGE:
+                generateCalculateAverage(blockStmt, ctx);
+                break;
+            default:
+                break;
+        }
+    }
+
+    /**
+     * Generates following.
+     *
+     * variable = variable + 1;
+     *
+     * @param blockStmt target
+     * @param variable  variable to increment
+     */
+    private void generateCountAggregator(BLangBlockStmt blockStmt, BLangVariable variable) {
+        final DiagnosticPos pos = blockStmt.pos;
+        // create count = count + 1;
+        final BLangBinaryExpr add = (BLangBinaryExpr) TreeBuilder.createBinaryExpressionNode();
+        add.pos = pos;
+        add.type = symTable.intType;
+        add.opKind = OperatorKind.ADD;
+        add.lhsExpr = createVariableRef(pos, variable.symbol);
+        add.rhsExpr = createLiteral(pos, symTable.intType, 1L);
+        add.opSymbol = (BOperatorSymbol) symResolver.resolveBinaryOperator(OperatorKind.ADD, symTable.intType,
+                symTable.intType);
+        final BLangAssignment countAdd = createAssignmentStmt(pos, blockStmt);
+        countAdd.varRefs.add(createVariableRef(pos, variable.symbol));
+        countAdd.expr = add;
+    }
+
+    /**
+     * Generates following.
+     *
+     * result = result + value
+     *
+     * @param blockStmt target
+     * @param ctx       current context
+     */
+    private void generateSumAggregator(BLangBlockStmt blockStmt, IterableContext ctx) {
+        final DiagnosticPos pos = blockStmt.pos;
+        final BLangBinaryExpr add = (BLangBinaryExpr) TreeBuilder.createBinaryExpressionNode();
+        add.pos = pos;
+        add.type = ctx.resultVar.symbol.type;
+        add.opKind = OperatorKind.ADD;
+        add.lhsExpr = createVariableRef(pos, ctx.resultVar.symbol);
+        add.rhsExpr = createVariableRef(pos, ctx.streamRetVars.get(1).symbol);
+        add.opSymbol = (BOperatorSymbol) symResolver.resolveBinaryOperator(OperatorKind.ADD, add.type, add.type);
+        final BLangAssignment countAdd = createAssignmentStmt(pos, blockStmt);
+        countAdd.varRefs.add(createVariableRef(pos, ctx.resultVar.symbol));
+        countAdd.expr = add;
+    }
+
+    /**
+     * Generates following.
+     *
+     * result = result (Operator) value ? result : value
+     *
+     * @param blockStmt target
+     * @param ctx       current context
+     * @param operator  compare operator
+     */
+    private void generateCompareAggregator(BLangBlockStmt blockStmt, IterableContext ctx, OperatorKind operator) {
+        final DiagnosticPos pos = blockStmt.pos;
+        final BLangSimpleVarRef resultVar = createVariableRef(pos, ctx.resultVar.symbol);
+        final BLangSimpleVarRef valueVar = createVariableRef(pos, ctx.streamRetVars.get(1).symbol);
+
+        final BLangBinaryExpr compare = (BLangBinaryExpr) TreeBuilder.createBinaryExpressionNode();
+        compare.pos = pos;
+        compare.type = ctx.resultVar.symbol.type;
+        compare.opKind = operator;
+        compare.lhsExpr = resultVar;
+        compare.rhsExpr = valueVar;
+        compare.opSymbol = (BOperatorSymbol) symResolver.resolveBinaryOperator(operator, compare.type, compare.type);
+
+        final BLangTernaryExpr ternaryExpr = (BLangTernaryExpr) TreeBuilder.createTernaryExpressionNode();
+        ternaryExpr.pos = pos;
+        ternaryExpr.expr = compare;
+        ternaryExpr.thenExpr = resultVar;
+        ternaryExpr.elseExpr = valueVar;
+        ternaryExpr.type = compare.type;
+
+        final BLangAssignment countAdd = createAssignmentStmt(pos, blockStmt);
+        countAdd.varRefs.add(resultVar);
+        countAdd.expr = ternaryExpr;
+    }
+
+    /**
+     * Generates following.
+     *
+     * result = result / count
+     *
+     * @param blockStmt target
+     * @param ctx       current context
+     */
+    private void generateCalculateAverage(BLangBlockStmt blockStmt, IterableContext ctx) {
+        final DiagnosticPos pos = blockStmt.pos;
+        final BLangBinaryExpr divide = (BLangBinaryExpr) TreeBuilder.createBinaryExpressionNode();
+        divide.pos = pos;
+        divide.type = ctx.resultVar.symbol.type;
+        divide.opKind = OperatorKind.ADD;
+        divide.lhsExpr = createVariableRef(pos, ctx.resultVar.symbol);
+        divide.rhsExpr = createVariableRef(pos, ctx.countVar.symbol);
+        divide.opSymbol = (BOperatorSymbol) symResolver.resolveBinaryOperator(OperatorKind.DIV, divide.type,
+                ctx.countVar.symbol.type);
+        final BLangAssignment countAdd = createAssignmentStmt(pos, blockStmt);
+        countAdd.varRefs.add(createVariableRef(pos, ctx.resultVar.symbol));
+        countAdd.expr = divide;
+    }
+
+    /**
+     * Generates following.
+     *
+     * result[count] = value;
+     * count = count + 1;
+     *
+     * @param blockStmt target
+     * @param ctx       current context
+     */
+    private void generateArrayAggregator(BLangBlockStmt blockStmt, IterableContext ctx) {
+        final DiagnosticPos pos = blockStmt.pos;
+        // create assignment result[count] = value;
+        final BLangIndexBasedAccess indexAccessNode = (BLangIndexBasedAccess) TreeBuilder.createIndexBasedAccessNode();
+        indexAccessNode.pos = pos;
+        indexAccessNode.indexExpr = createVariableRef(pos, ctx.countVar.symbol);
+        indexAccessNode.expr = createVariableRef(pos, ctx.resultVar.symbol);
+        indexAccessNode.type = ctx.streamRetVars.get(1).symbol.type;
+        final BLangAssignment valueAssign = createAssignmentStmt(pos, blockStmt);
+        valueAssign.varRefs.add(indexAccessNode);
+        valueAssign.expr = createVariableRef(pos, ctx.streamRetVars.get(1).symbol);
+
+        // create count = count + 1;
+        generateCountAggregator(blockStmt, ctx.countVar);
+    }
+
+    /**
+     * Generates following.
+     *
+     * result[key] = value;
+     *
+     * @param blockStmt target
+     * @param ctx       current context
+     */
+    private void generateMapAggregator(BLangBlockStmt blockStmt, IterableContext ctx) {
+        final DiagnosticPos pos = blockStmt.pos;
+        // create assignment result[key] = value
+        final BLangIndexBasedAccess indexAccessNode = (BLangIndexBasedAccess) TreeBuilder.createIndexBasedAccessNode();
+        indexAccessNode.pos = pos;
+        indexAccessNode.indexExpr = createVariableRef(pos, ctx.streamRetVars.get(1).symbol);
+        indexAccessNode.expr = createVariableRef(pos, ctx.resultVar.symbol);
+        indexAccessNode.type = ctx.streamRetVars.get(2).symbol.type;
+        final BLangAssignment valueAssign = createAssignmentStmt(pos, blockStmt);
+        valueAssign.varRefs.add(indexAccessNode);
+        valueAssign.expr = generateMapValueCastExpr(createVariableRef(pos, ctx.streamRetVars.get(2).symbol));
     }
 
     /**
@@ -449,7 +587,7 @@ public class IterableCodeDesugar {
                 generateForeach(blockStmt, operation);
                 break;
             case FILTER:
-                generateFilter(blockStmt, operation, ctx);
+                generateFilter(blockStmt, operation);
                 break;
             case MAP:
                 generateMap(blockStmt, operation);
@@ -457,7 +595,8 @@ public class IterableCodeDesugar {
         }
     }
 
-    /* Operation related code generation */
+
+    /* Lambda based Operation related code generation */
 
     /**
      * Generates statements for foreach operation.
@@ -484,9 +623,8 @@ public class IterableCodeDesugar {
      *
      * @param blockStmt target
      * @param operation operation instance
-     * @param ctx       current context
      */
-    private void generateFilter(BLangBlockStmt blockStmt, Operation operation, IterableContext ctx) {
+    private void generateFilter(BLangBlockStmt blockStmt, Operation operation) {
         final DiagnosticPos pos = operation.pos;
 
         final BLangIf ifNode = createIfStmt(pos, blockStmt);
@@ -516,7 +654,7 @@ public class IterableCodeDesugar {
     private void generateMap(BLangBlockStmt blockStmt, Operation operation) {
         final DiagnosticPos pos = operation.pos;
         final BLangAssignment assignment = createAssignmentStmt(pos, blockStmt);
-        assignment.varRefs.addAll(createVariableReferences(operation.pos, operation.retVars));
+        assignment.varRefs.addAll(createVariableRefList(operation.pos, operation.retVars));
         assignment.expr = createInvocationExpr(pos, (BInvokableSymbol) ((BLangSimpleVarRef) operation.lambda).symbol,
                 operation.argVars);
     }
@@ -531,7 +669,7 @@ public class IterableCodeDesugar {
         bLangFunction.flagSet = EnumSet.of(Flag.LAMBDA);
         bLangFunction.pos = pos;
         //Create body of the function
-        bLangFunction.body = createBlockStmt(bLangFunction.pos);
+        bLangFunction.body = createBlockStmt(pos);
         return bLangFunction;
     }
 
@@ -589,17 +727,32 @@ public class IterableCodeDesugar {
         return blockNode;
     }
 
+    private BLangExpression generateMapValueCastExpr(BLangSimpleVarRef varRef) {
+        if (varRef.type.tag > TypeTags.TYPE) {
+            return varRef;
+        }
+        // Box value using cast expression.
+        final BLangTypeCastExpr implicitCastExpr = (BLangTypeCastExpr) TreeBuilder.createTypeCastNode();
+        implicitCastExpr.pos = varRef.pos;
+        implicitCastExpr.expr = varRef;
+        implicitCastExpr.type = symTable.anyType;
+        implicitCastExpr.types = Lists.of(symTable.anyType);
+        implicitCastExpr.castSymbol = (BOperatorSymbol) symResolver.resolveImplicitCastOperator(
+                varRef.type, symTable.anyType);
+        return implicitCastExpr;
+    }
+
     private BLangInvocation createInvocationExpr(DiagnosticPos pos, BInvokableSymbol invokableSymbol,
                                                  List<BLangVariable> args) {
         final BLangInvocation invokeLambda = (BLangInvocation) TreeBuilder.createInvocationNode();
         invokeLambda.pos = pos;
-        invokeLambda.argExprs.addAll(createVariableReferences(pos, args));
+        invokeLambda.argExprs.addAll(createVariableRefList(pos, args));
         invokeLambda.symbol = invokableSymbol;
         invokeLambda.types.addAll(((BInvokableType) invokableSymbol.type).retTypes);
         return invokeLambda;
     }
 
-    private List<BLangSimpleVarRef> createVariableReferences(DiagnosticPos pos, List<BLangVariable> args) {
+    private List<BLangSimpleVarRef> createVariableRefList(DiagnosticPos pos, List<BLangVariable> args) {
         final List<BLangSimpleVarRef> varRefs = new ArrayList<>();
         args.forEach(variable -> varRefs.add(createVariableRef(pos, variable.symbol)));
         return varRefs;
@@ -644,4 +797,9 @@ public class IterableCodeDesugar {
         return name + lambdaFunctionCount++;
     }
 
+    private List<BLangVariable> copyOf(List<BLangVariable> variables) {
+        List<BLangVariable> copy = new ArrayList<>();
+        variables.forEach(variable -> copy.add(createVariable(variable.pos, variable.name.value, variable.type)));
+        return copy;
+    }
 }
