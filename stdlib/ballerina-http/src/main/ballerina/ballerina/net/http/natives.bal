@@ -175,7 +175,8 @@ public native function <OutResponse res> getProperty (string propertyName) (stri
 @Param { value:"headerValue: The header value" }
 @Return { value:"The header value" }
 @Return { value:"The header value parameter map" }
-public native function parseHeaderValue (string headerValue)(string, map);
+@Return { value:"Error occured during header parsing" }
+public native function parseHeader (string headerValue)(string, map, error);
 
 @Description { value:"Represents an HTTP Session"}
 public struct Session {

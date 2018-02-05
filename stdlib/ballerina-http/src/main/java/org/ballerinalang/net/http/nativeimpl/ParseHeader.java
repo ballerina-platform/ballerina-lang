@@ -21,12 +21,15 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
+import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.net.http.HttpUtil;
+import org.ballerinalang.util.codegen.PackageInfo;
+import org.ballerinalang.util.codegen.StructInfo;
 import org.ballerinalang.util.exceptions.BLangNullReferenceException;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
@@ -41,17 +44,20 @@ import java.util.stream.Collectors;
  */
 @BallerinaFunction(
         packageName = "ballerina.net.http",
-        functionName = "parseHeaderValue",
+        functionName = "parseHeader",
         args = {@Argument(name = "headerValue", type = TypeKind.STRING)},
         returnType = {@ReturnType(type = TypeKind.STRING),
-                @ReturnType(type = TypeKind.MAP, elementType = TypeKind.STRING)},
+                @ReturnType(type = TypeKind.MAP, elementType = TypeKind.STRING),
+                @ReturnType(type = TypeKind.STRUCT, structType = "Error")},
         isPublic = true
 )
-public class ParseHeaderValue extends AbstractNativeFunction {
+public class ParseHeader extends AbstractNativeFunction {
 
     private static final String SEMICOLON = ";";
     private static final String COMMA = ",";
     private static final String PARSER_ERROR = "failed to parse: ";
+    private static final String BUILTIN_PACKAGE = "ballerina.builtin";
+    private static final String STRUCT_GENERIC_ERROR = "error";
 
     @Override
     public BValue[] execute(Context context) {
@@ -62,9 +68,12 @@ public class ParseHeaderValue extends AbstractNativeFunction {
             }
             return getValueAndParamMap(headerValue);
         } catch (BLangNullReferenceException ex) {
-            throw new BallerinaException(PARSER_ERROR + "header value cannot be null");
+            String errMsg = PARSER_ERROR + "header value cannot be null";
+            return getParserError(context, errMsg);
+
         } catch (BallerinaException ex) {
-            throw new BallerinaException(PARSER_ERROR + ex.getMessage());
+            String errMsg = PARSER_ERROR + ex.getMessage();
+            return getParserError(context, errMsg);
         }
     }
 
@@ -94,5 +103,14 @@ public class ParseHeaderValue extends AbstractNativeFunction {
             return false;
         }
         return true;
+    }
+
+    private BValue[] getParserError(Context context, String errMsg) {
+        PackageInfo errorPackageInfo = context.getProgramFile().getPackageInfo(BUILTIN_PACKAGE);
+        StructInfo errorStructInfo = errorPackageInfo.getStructInfo(STRUCT_GENERIC_ERROR);
+
+        BStruct parserError = new BStruct(errorStructInfo.getType());
+        parserError.setStringField(0, errMsg);
+        return getBValues(null, null, parserError);
     }
 }

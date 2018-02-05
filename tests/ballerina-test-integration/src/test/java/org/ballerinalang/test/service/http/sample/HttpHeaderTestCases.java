@@ -30,7 +30,7 @@ import java.io.File;
 import java.io.IOException;
 
 /**
- * Testing the Http headers availability in pass-through scenarios
+ * Testing the Http headers availability in pass-through scenarios.
  */
 public class HttpHeaderTestCases extends IntegrationTestCase {
     private ServerInstance ballerinaServer;

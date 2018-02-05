@@ -590,7 +590,7 @@ public class HttpUtil {
             if (param.contains("=")) {
                 String[] keyValuePair = param.split("=");
                 if (keyValuePair.length != 2 || keyValuePair[0].isEmpty()) {
-                    throw new BallerinaException("Invalid header parameter: " + param);
+                    throw new BallerinaException("invalid header parameter: " + param);
                 }
                 paramMap.put(keyValuePair[0].trim(), new BString(keyValuePair[1].trim()));
             } else {
