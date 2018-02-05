@@ -1363,8 +1363,9 @@ class PositioningUtil {
 
         // Set the position of the failed body
         if (failedBody) {
-            failedBody.viewState.bBox.x = bBox.x;
-            failedBody.viewState.bBox.y = nextComponentY + failedBody.viewState.components['block-header'].h;
+            failedBody.viewState.bBox.x = bBox.x + this.config.compoundStatement.gap.left +
+                transactionBody.viewState.bBox.w;
+            failedBody.viewState.bBox.y = nextComponentY;
             this.positionCompoundStatementComponents(failedBody);
             this.increaseNodeComponentWidth(failedBody, newWidth);
         }
