@@ -98,7 +98,7 @@ public class HTTPServerChannelInitializer extends ChannelInitializer<SocketChann
                              new HTTPTraceLoggingHandler("tracelog.http.downstream"));
         }
 
-        pipeline.addLast("uriLengthValidator", new UriLengthValidator(this.serverName));
+        pipeline.addLast("uriLengthValidator", new UriAndHeaderLengthValidator(this.serverName));
         if (reqSizeValidationConfig.getMaxEntityBodySize() > -1) {
             pipeline.addLast("maxEntityBodyValidator", new MaxEntityBodyValidator(this.serverName,
                     reqSizeValidationConfig.getMaxEntityBodySize()));

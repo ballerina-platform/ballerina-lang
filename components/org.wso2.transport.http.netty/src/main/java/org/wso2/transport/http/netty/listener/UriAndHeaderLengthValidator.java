@@ -30,15 +30,15 @@ import org.wso2.transport.http.netty.common.Constants;
 import org.wso2.transport.http.netty.common.Util;
 
 /**
- * Responsible for validating the request before sending it to the application
+ * Responsible for validating the request before sending it to the application.
  */
-public class UriLengthValidator extends ChannelInboundHandlerAdapter {
+public class UriAndHeaderLengthValidator extends ChannelInboundHandlerAdapter {
 
-    private static final Logger log = LoggerFactory.getLogger(UriLengthValidator.class);
+    private static final Logger log = LoggerFactory.getLogger(UriAndHeaderLengthValidator.class);
 
     private String serverName;
 
-    UriLengthValidator(String serverName) {
+    UriAndHeaderLengthValidator(String serverName) {
         this.serverName = serverName;
     }
 

@@ -38,7 +38,7 @@ import java.net.InetSocketAddress;
 import java.util.concurrent.CountDownLatch;
 
 /**
- * Http Client for testing
+ * Http Client for testing.
  */
 public class HttpClient {
 
@@ -47,7 +47,6 @@ public class HttpClient {
     private Channel connectedChannel;
     private final String host;
     private final int port;
-    private CountDownLatch latch;
     private final ResponseHandler responseHandler;
 
     public HttpClient(String host, int port) {
@@ -57,8 +56,8 @@ public class HttpClient {
 
         EventLoopGroup group = new NioEventLoopGroup();
         try {
-            Bootstrap b = new Bootstrap();
-            b.group(group)
+            Bootstrap clientBootStrap = new Bootstrap();
+            clientBootStrap.group(group)
                     .channel(NioSocketChannel.class)
                     .remoteAddress(new InetSocketAddress(host, port))
                     .handler(new ChannelInitializer<SocketChannel>() {
@@ -69,7 +68,7 @@ public class HttpClient {
                             ch.pipeline().addLast(responseHandler);
                         }
                     });
-            connectedChannel = b.connect().sync().channel();
+            connectedChannel = clientBootStrap.connect().sync().channel();
         } catch (Exception e) {
             log.error("Error while initializing the client", e);
         }
@@ -86,12 +85,12 @@ public class HttpClient {
     }
 
     private FullHttpResponse send(FullHttpRequest httpRequest) {
-        this.latch = new CountDownLatch(1);
+        CountDownLatch latch = new CountDownLatch(1);
         this.responseHandler.setLatch(latch);
         httpRequest.headers().set(Constants.HOST, host + ":" + port);
         this.connectedChannel.writeAndFlush(httpRequest);
         try {
-            this.latch.await();
+            latch.await();
         } catch (InterruptedException e) {
             log.warn("Operation go interrupted before receiving the response");
         }

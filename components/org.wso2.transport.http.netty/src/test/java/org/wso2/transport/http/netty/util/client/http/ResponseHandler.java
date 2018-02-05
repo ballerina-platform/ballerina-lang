@@ -26,7 +26,7 @@ import io.netty.handler.codec.http.FullHttpResponse;
 import java.util.concurrent.CountDownLatch;
 
 /**
- * Handle http response
+ * Handle http response.
  */
 public class ResponseHandler extends ChannelInboundHandlerAdapter {
 

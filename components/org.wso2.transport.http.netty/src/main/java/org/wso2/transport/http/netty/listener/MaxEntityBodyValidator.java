@@ -34,7 +34,7 @@ import org.wso2.transport.http.netty.common.Util;
 import java.util.LinkedList;
 
 /**
- * Responsible for validating the request before sending it to the application
+ * Responsible for validating request entity body size before sending it to the application.
  */
 public class MaxEntityBodyValidator extends ChannelInboundHandlerAdapter {
 
