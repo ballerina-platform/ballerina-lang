@@ -22,7 +22,6 @@ import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelPipeline;
 import io.netty.handler.codec.http.HttpContentCompressor;
-import io.netty.handler.codec.http.HttpRequestDecoder;
 import io.netty.handler.codec.http.HttpResponseEncoder;
 import io.netty.handler.ssl.ApplicationProtocolNames;
 import io.netty.handler.ssl.ApplicationProtocolNegotiationHandler;
@@ -30,11 +29,9 @@ import io.netty.handler.stream.ChunkedWriteHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.config.ListenerConfiguration;
-import org.wso2.transport.http.netty.config.RequestSizeValidationConfiguration;
+import org.wso2.transport.http.netty.config.RequestSizeValidationConfig;
 import org.wso2.transport.http.netty.contractimpl.HttpWsServerConnectorFuture;
 import org.wso2.transport.http.netty.internal.HTTPTransportContextHolder;
-import org.wso2.transport.http.netty.listener.CustomHttpObjectAggregator;
-import org.wso2.transport.http.netty.listener.CustomHttpRequestDecoder;
 import org.wso2.transport.http.netty.listener.SourceHandler;
 import org.wso2.transport.http.netty.sender.channel.pool.ConnectionManager;
 
@@ -47,7 +44,7 @@ public class HTTPProtocolNegotiationHandler extends ApplicationProtocolNegotiati
     private static final Logger log = LoggerFactory.getLogger(HTTPProtocolNegotiationHandler.class);
     protected ConnectionManager connectionManager;
     protected ListenerConfiguration listenerConfiguration;
-    protected RequestSizeValidationConfiguration requestSizeValidationConfig;
+    protected RequestSizeValidationConfig requestSizeValidationConfig;
 
     public HTTPProtocolNegotiationHandler(ConnectionManager connectionManager, ListenerConfiguration
             listenerConfiguration) {
@@ -72,20 +69,20 @@ public class HTTPProtocolNegotiationHandler extends ApplicationProtocolNegotiati
         // handles pipeline for HTTP/1 requests after SSL handshake
         if (ApplicationProtocolNames.HTTP_1_1.equals(protocol)) {
             p.addLast("encoder", new HttpResponseEncoder());
-            if (requestSizeValidationConfig.isHeaderSizeValidation()) {
-                p.addLast("decoder", new CustomHttpRequestDecoder(requestSizeValidationConfig));
-            } else {
-                p.addLast("decoder", new HttpRequestDecoder());
-            }
-            if (requestSizeValidationConfig.isRequestSizeValidation()) {
-                p.addLast("custom-aggregator", new CustomHttpObjectAggregator(requestSizeValidationConfig));
-            }
+//            if (requestSizeValidationConfig.isHeaderSizeValidation()) {
+//                p.addLast("decoder", new CustomHttpRequestDecoder(requestSizeValidationConfig));
+//            } else {
+//                p.addLast("decoder", new HttpRequestDecoder());
+//            }
+//            if (requestSizeValidationConfig.isRequestSizeValidation()) {
+//                p.addLast("custom-aggregator", new CustomHttpObjectAggregator(requestSizeValidationConfig));
+//            }
             p.addLast("compressor", new HttpContentCompressor());
             p.addLast("chunkWriter", new ChunkedWriteHandler());
             try {
                 // TODO: Properly fix this part once we start HTTP2 integration
                 p.addLast("handler", new SourceHandler(
-                        new HttpWsServerConnectorFuture(null), null, null));
+                        new HttpWsServerConnectorFuture(null), null, null, null));
             } catch (Exception e) {
                 log.error("Cannot Create SourceHandler ", e);
             }

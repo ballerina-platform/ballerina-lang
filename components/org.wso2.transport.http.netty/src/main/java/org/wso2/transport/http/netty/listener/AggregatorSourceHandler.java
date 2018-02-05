@@ -35,8 +35,8 @@ public class AggregatorSourceHandler extends SourceHandler {
     private static Logger log = LoggerFactory.getLogger(AggregatorSourceHandler.class);
 
     public AggregatorSourceHandler(ServerConnectorFuture serverConnectorFuture,
-            String interfaceId, ChunkConfig chunkConfig) {
-        super(serverConnectorFuture, interfaceId, chunkConfig);
+            String interfaceId, ChunkConfig chunkConfig, String serverName) {
+        super(serverConnectorFuture, interfaceId, chunkConfig, serverName);
     }
 
     @SuppressWarnings("unchecked")

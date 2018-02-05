@@ -102,11 +102,14 @@ public class ListenerConfiguration {
     @XmlAttribute
     private boolean keepAlive = true;
 
+    @XmlAttribute
+    private String serverHeader = "wso2-http-transport";
+
     @XmlElementWrapper(name = "parameters")
     @XmlElement(name = "parameter")
     private List<Parameter> parameters = getDefaultParameters();
 
-    private RequestSizeValidationConfiguration requestSizeValidationConfig = new RequestSizeValidationConfiguration();
+    private RequestSizeValidationConfig requestSizeValidationConfig = new RequestSizeValidationConfig();
 
     public ListenerConfiguration() {
     }
@@ -279,11 +282,11 @@ public class ListenerConfiguration {
         this.httpTraceLogEnabled = httpTraceLogEnabled;
     }
 
-    public RequestSizeValidationConfiguration getRequestSizeValidationConfig() {
+    public RequestSizeValidationConfig getRequestSizeValidationConfig() {
         return requestSizeValidationConfig;
     }
 
-    public void setRequestSizeValidationConfig(RequestSizeValidationConfiguration requestSizeValidationConfig) {
+    public void setRequestSizeValidationConfig(RequestSizeValidationConfig requestSizeValidationConfig) {
         this.requestSizeValidationConfig = requestSizeValidationConfig;
     }
 
@@ -301,5 +304,13 @@ public class ListenerConfiguration {
 
     public void setChunkConfig(ChunkConfig chunkConfig) {
         this.chunkingConfig = chunkConfig;
+    }
+
+    public String getServerHeader() {
+        return serverHeader;
+    }
+
+    public void setServerHeader(String serverHeader) {
+        this.serverHeader = serverHeader;
     }
 }

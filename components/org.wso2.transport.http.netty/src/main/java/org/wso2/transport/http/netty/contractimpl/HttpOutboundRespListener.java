@@ -56,15 +56,17 @@ public class HttpOutboundRespListener implements HttpConnectorListener {
     private ChunkConfig chunkConfig;
     private boolean isHeaderWritten = false;
     private int contentLength = 0;
+    private String serverName;
     private List<HttpContent> contentList = new ArrayList<>();
 
     public HttpOutboundRespListener(ChannelHandlerContext channelHandlerContext, HTTPCarbonMessage requestMsg,
-            ChunkConfig chunkConfig) {
+            ChunkConfig chunkConfig, String serverName) {
         this.sourceContext = channelHandlerContext;
         this.requestDataHolder = new RequestDataHolder(requestMsg);
         this.inboundRequestMsg = requestMsg;
         this.handlerExecutor = HTTPTransportContextHolder.getInstance().getHandlerExecutor();
         this.chunkConfig = chunkConfig;
+        this.serverName = serverName;
     }
 
     @Override
@@ -196,6 +198,10 @@ public class HttpOutboundRespListener implements HttpConnectorListener {
 
     private void writeOutboundResponseHeaders(HTTPCarbonMessage httpOutboundRequest, boolean keepAlive) {
         HttpResponse response = Util.createHttpResponse(httpOutboundRequest, keepAlive);
+        if (response.headers().get(Constants.HTTP_SERVER_HEADER) == null) {
+            response.headers().add(Constants.HTTP_SERVER_HEADER, serverName);
+        }
+
         isHeaderWritten = true;
         sourceContext.write(response);
     }

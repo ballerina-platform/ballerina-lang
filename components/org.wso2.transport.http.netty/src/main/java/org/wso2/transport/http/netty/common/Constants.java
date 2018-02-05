@@ -25,28 +25,14 @@ import org.wso2.transport.http.netty.sender.channel.TargetChannel;
  */
 public final class Constants {
 
-    // Server state constants
-    public static final String STATE_TRANSITION = "STATE_TRANSITION";
-
-    public static final String STATE_STARTED = "STATE_STARTED";
-
-    public static final String STATE_STOPPED = "STATE_STOPPED";
-
     // Client Bootstrap related
     public static final String CLIENT_BOOTSTRAP_TCP_NO_DELY = "client.bootstrap.nodelay";
-
     public static final String CLIENT_BOOTSTRAP_KEEPALIVE = "client.bootstrap.keepalive";
-
     public static final String CLIENT_BOOTSTRAP_SEND_BUFFER_SIZE = "client.bootstrap.sendbuffersize";
-
     public static final String CLIENT_BOOTSTRAP_RECEIVE_BUFFER_SIZE = "client.bootstrap.recievebuffersize";
-
     public static final String CLIENT_BOOTSTRAP_CONNECT_TIME_OUT = "client.bootstrap.connect.timeout";
-
     public static final String CLIENT_BOOTSTRAP_SO_REUSE = "client.bootstrap.socket.reuse";
-
     public static final String CLIENT_BOOTSTRAP_SO_TIMEOUT = "client.bootstrap.socket.timeout";
-
     public static final String CLIENT_BOOTSTRAP_WORKER_GROUP_SIZE = "client.bootstrap.worker.group.size";
 
     //Server side SSL Parameters
@@ -57,24 +43,15 @@ public final class Constants {
 
     // Server Bootstrap related
     public static final String SERVER_BOOTSTRAP_TCP_NO_DELY = "server.bootstrap.nodelay";
-
     public static final String SERVER_BOOTSTRAP_KEEPALIVE = "server.bootstrap.keepalive";
-
     public static final String SERVER_BOOTSTRAP_SEND_BUFFER_SIZE = "server.bootstrap.sendbuffersize";
-
     public static final String SERVER_BOOTSTRAP_RECEIVE_BUFFER_SIZE = "server.bootstrap.recievebuffersize";
-
     public static final String SERVER_BOOTSTRAP_CONNECT_TIME_OUT = "server.bootstrap.connect.timeout";
-
     public static final String SERVER_BOOTSTRAP_SO_REUSE = "server.bootstrap.socket.reuse";
-
     public static final String SERVER_BOOTSTRAP_SO_BACKLOG = "server.bootstrap.socket.backlog";
-
     public static final String SERVER_BOOTSTRAP_SO_TIMEOUT = "server.bootstrap.socket.timeout";
-
     // Boss group size of the server bootstrap
     public static final String SERVER_BOOTSTRAP_BOSS_GROUP_SIZE = "server.bootstrap.boss.group.size";
-
     //Worker group size of the server bootstrap
     public static final String SERVER_BOOTSTRAP_WORKER_GROUP_SIZE = "server.bootstrap.worker.group.size";
 
@@ -96,90 +73,52 @@ public final class Constants {
 
     // Connection Pool parameters
     public static final String NUMBER_OF_POOLS = "client.connection.pool.count";
-
     public static final String MAX_ACTIVE_CONNECTIONS_PER_POOL = "client.max.active.connections.per.pool";
-
     public static final String MIN_IDLE_CONNECTIONS_PER_POOL = "client.min.idle.connections.per.pool";
-
     public static final String MAX_IDLE_CONNECTIONS_PER_POOL = "cleint.max.idle.connections.per.pool";
-
     public static final String MAX_WAIT_FOR_CLIENT_CONNECTION_POOL = "max.wait.for.client.connection.pool";
-
     public static final String MIN_EVICTION_IDLE_TIME = "client.min.eviction.idle.time";
     public static final String TIME_BETWEEN_EVICTION_RUNS = "client.time.between.eviction.runs";
 
-    public static final String ENABLE_GLOBAL_CONNECTION_POOLING = "enable.global.client.connection.pooling";
-
     public static final String NO_THREADS_IN_EXECUTOR_SERVICE = "sender.thread.count";
-
 
     public static final String EXECUTOR_WORKER_POOL = "executor.workerpool";
 
     public static final String OUTPUT_CONTENT_BUFFER_SIZE = "output.content.buffer.size";
-
     public static final String CERTPASS = "certPass";
-
     public static final String KEYSTOREPASS = "keyStorePass";
-
     public static final String KEYSTOREFILE = "keyStoreFile";
-
     public static final String TRUSTSTOREFILE = "trustStoreFile";
-
     public static final String TRUSTSTOREPASS = "trustStorePass";
-
-    public static final String RESPONSE_CALLBACK = "RESPONSE_CALLBACK";
-
-    public static final String HOST = "Host";
 
     public static final String PORT = "PORT";
 
     public static final int DEFAULT_HTTP_PORT = 80;
-
     public static final int DEFAULT_HTTPS_PORT = 443;
 
     public static final String TO = "TO";
-
     public static final String PROTOCOL = "PROTOCOL";
-
     public static final String HTTP_SCHEME = "http";
-
     public static final String HTTPS_SCHEME = "https";
-
-    public static final String HTTP_PROTOCOL = "HTTP_PROTOCOL";
-
     public static final String HTTP_VERSION = "HTTP_VERSION";
-
     public static final String HTTP_METHOD = "HTTP_METHOD";
-
-    public static final String HTTP_CONTENT_TYPE = "Content-Type";
-
-    public static final String TEXT_XML = "text/xml";
 
     public static final String TEXT_PLAIN = "text/plain";
 
-    public static final String APPLICATION_XML = "application/xml";
-
-    public static final String CONTENT_ENCODING = "Content-Encoding";
-
     public static final String ENCODING_GZIP = "gzip";
-
     public static final String ENCODING_DEFLATE = "deflate";
-
-    public static final String HTTP_CONTENT_LENGTH = "Content-Length";
-
-    public static final String HTTP_TRANSFER_ENCODING = "Transfer-Encoding";
-
     public static final String HTTP_TRANSFER_ENCODING_IDENTITY = "identity";
 
     public static final String HTTP_CONNECTION = "Connection";
-
     public static final String CONNECTION_KEEP_ALIVE = "keep-alive";
-
-    public static final String CONNECTION_CLOSE = "Close";
-
-    public static final String HTTP_SOAP_ACTION = "SOAPAction";
-
+    public static final String CONNECTION_CLOSE = "close";
     public static final String ACCEPT_ENCODING = "Accept-Encoding";
+    public static final String CONTENT_ENCODING = "Content-Encoding";
+    public static final String HTTP_CONTENT_TYPE = "Content-Type";
+    public static final String HTTP_CONTENT_LENGTH = "Content-Length";
+    public static final String HTTP_TRANSFER_ENCODING = "Transfer-Encoding";
+    public static final String HOST = "Host";
+    public static final String HTTP_SERVER_HEADER = "Server";
 
     public static final String LOCATION = "Location";
 
@@ -202,15 +141,11 @@ public final class Constants {
     public static final String HTTP_TRUST_STORE_PASS = "trustStorePassword";
     public static final String TLS_STORE_TYPE = "tlsStoreType";
 
-    public static final String TRANSPORT_HEADERS = "TRANSPORT_HEADERS";
-
     public static final String HTTP_STATUS_CODE = "HTTP_STATUS_CODE";
 
     public static final String HTTP_REASON_PHRASE = "HTTP_REASON_PHRASE";
 
     public static final String CHNL_HNDLR_CTX = "CHNL_HNDLR_CTX";
-
-    public static final String MESSAGE_PROCESSOR_ID = "MESSAGE_PROCESSOR_ID";
 
     public static final String SRC_HANDLER = "SRC_HANDLER";
     public static final String POOLED_BYTE_BUFFER_FACTORY = "POOLED_BYTE_BUFFER_FACTORY";
@@ -226,8 +161,6 @@ public final class Constants {
     public static final String REQUEST_URL = "REQUEST_URL";
 
     public static final String CHANNEL_ID = "CHANNEL_ID";
-
-    public static final String LOOP_BACK_ADDRESS = "127.0.0.1";
 
     public static final String DEFAULT_ADDRESS = "0.0.0.0";
 
@@ -251,7 +184,6 @@ public final class Constants {
     public static final String WEBSOCKET_TARGET = "WEBSOCKET_TARGET";
     public static final String WEBSOCKET_MESSAGE = "WEBSOCKET_MESSAGE";
     public static final String WEBSOCKET_HEADER_SUBPROTOCOL = "Sec-WebSocket-Protocol";
-
 
     // Callback related parameters
     public static final String HTTP_CONNECTION_CLOSE = "close";
@@ -303,6 +235,9 @@ public final class Constants {
     public static final String CHUNKED = "chunked";
 
     public static final String LISTENER_PORT = "LISTENER_PORT";
+
+    public static final String REQUEST_LINE_TOO_LONG = "An HTTP line is larger than 4096 bytes.";
+    public static final String REQUEST_HEADER_TOO_LARGE = "HTTP header is larger than 8192 bytes.";
 
     public static final String IDLE_TIMEOUT_TRIGGERED_WHILE_READING_INBOUND_REQUEST
             = "Idle timeout triggered while reading inbound request";

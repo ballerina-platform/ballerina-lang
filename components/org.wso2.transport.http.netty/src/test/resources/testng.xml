@@ -60,6 +60,7 @@
 
             <!--<class name="org.wso2.carbon.transport.http.netty.http2.HTTP2RequestResponseTestCase" />-->
             <class name="org.wso2.transport.http.netty.encoding.ContentEncodingTestCase"/>
+            <class name="org.wso2.transport.http.netty.urilengthvalidation.Status414And413ResponseTest"/>
 
             <class name="org.wso2.transport.http.netty.websocket.WebSocketServerTestCase"/>
             <class name="org.wso2.transport.http.netty.websocket.WebSocketClientTestCase"/>

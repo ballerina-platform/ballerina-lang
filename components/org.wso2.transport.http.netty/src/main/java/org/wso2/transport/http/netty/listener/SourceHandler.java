@@ -63,17 +63,20 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
     protected HandlerExecutor handlerExecutor;
     private Map<String, GenericObjectPool> targetChannelPool;
     private ServerConnectorFuture serverConnectorFuture;
-    private String interfaceId;
     private ChunkConfig chunkConfig;
     private HttpResponseFuture httpOutboundRespFuture;
+    private String interfaceId;
+    private String serverName;
     private boolean idleTimeout;
 
-    public SourceHandler(ServerConnectorFuture serverConnectorFuture, String interfaceId, ChunkConfig chunkConfig) {
+    public SourceHandler(ServerConnectorFuture serverConnectorFuture, String interfaceId, ChunkConfig chunkConfig,
+            String serverName) {
         this.serverConnectorFuture = serverConnectorFuture;
         this.interfaceId = interfaceId;
         this.chunkConfig = chunkConfig;
         this.targetChannelPool = new ConcurrentHashMap<>();
         this.idleTimeout = false;
+        this.serverName = serverName;
     }
 
     @Override
@@ -121,8 +124,6 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
         }
     }
 
-    //Carbon Message is published to registered message processor and Message Processor should return transport thread
-    //immediately
     protected void notifyRequestListener(HTTPCarbonMessage httpRequestMsg, ChannelHandlerContext ctx)
             throws URISyntaxException {
 
@@ -147,7 +148,8 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
                 try {
                     ServerConnectorFuture outboundRespFuture = httpRequestMsg.getHttpResponseFuture();
                     outboundRespFuture
-                            .setHttpConnectorListener(new HttpOutboundRespListener(ctx, httpRequestMsg, chunkConfig));
+                            .setHttpConnectorListener(new HttpOutboundRespListener(ctx, httpRequestMsg,
+                                    chunkConfig, serverName));
                     this.serverConnectorFuture.notifyHttpListener(httpRequestMsg);
                 } catch (Exception e) {
                     log.error("Error while notifying listeners", e);
