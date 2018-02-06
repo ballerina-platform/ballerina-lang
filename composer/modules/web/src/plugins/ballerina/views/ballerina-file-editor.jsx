@@ -151,17 +151,6 @@ class BallerinaFileEditor extends React.Component {
         this.handleSplitChange = this.handleSplitChange.bind(this);
     }
 
-
-    /**
-     * @override
-     * @param {any} nextProps next props.
-     * @memberof BallerinaFileEditor
-     */
-    componentWillReceiveProps(nextProps) {
-        this.state.splitSize = nextProps.width / 2;
-    }
-
-
     /**
      * @override
      * @memberof Diagram
