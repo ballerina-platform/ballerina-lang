@@ -68,6 +68,7 @@ import static org.ballerinalang.mime.util.Constants.MESSAGE_ENTITY;
 import static org.ballerinalang.mime.util.Constants.MULTIPART_DATA_INDEX;
 import static org.ballerinalang.mime.util.Constants.MULTIPART_ENCODER;
 import static org.ballerinalang.mime.util.Constants.MULTIPART_FORM_DATA;
+import static org.ballerinalang.mime.util.Constants.MULTIPART_MIXED;
 import static org.ballerinalang.mime.util.Constants.OCTET_STREAM;
 import static org.ballerinalang.mime.util.Constants.OVERFLOW_DATA_INDEX;
 import static org.ballerinalang.mime.util.Constants.PROTOCOL_PACKAGE_FILE;
@@ -104,7 +105,7 @@ public class MultipartRequestTest {
     @Test(description = "Test sending a multipart request with a text body part which is kept in memory")
     public void testTextBodyPart() {
         String path = "/test/textbodypart";
-        Map<String, Object> messageMap = createPrerequisiteMessages(path);
+        Map<String, Object> messageMap = createPrerequisiteMessages(path, MULTIPART_FORM_DATA);
         ArrayList<BStruct> bodyParts = new ArrayList<>();
         bodyParts.add(getTextBodyPart());
         HTTPTestRequest cMsg = getCarbonMessageWithBodyParts(messageMap, getArrayOfBodyParts(bodyParts));
@@ -116,7 +117,7 @@ public class MultipartRequestTest {
     @Test(description = "Test sending a multipart request with a text body part where the content is kept in a file")
     public void testTextBodyPartAsFileUpload() {
         String path = "/test/textbodypart";
-        Map<String, Object> messageMap = createPrerequisiteMessages(path);
+        Map<String, Object> messageMap = createPrerequisiteMessages(path, MULTIPART_FORM_DATA);
         ArrayList<BStruct> bodyParts = new ArrayList<>();
         bodyParts.add(getTextFilePart());
         HTTPTestRequest cMsg = getCarbonMessageWithBodyParts(messageMap, getArrayOfBodyParts(bodyParts));
@@ -128,7 +129,7 @@ public class MultipartRequestTest {
     @Test(description = "Test sending a multipart request with a json body part which is kept in memory")
     public void testJsonBodyPart() {
         String path = "/test/jsonbodypart";
-        Map<String, Object> messageMap = createPrerequisiteMessages(path);
+        Map<String, Object> messageMap = createPrerequisiteMessages(path, MULTIPART_FORM_DATA);
         ArrayList<BStruct> bodyParts = new ArrayList<>();
         bodyParts.add(getJsonBodyPart());
         HTTPTestRequest cMsg = getCarbonMessageWithBodyParts(messageMap, getArrayOfBodyParts(bodyParts));
@@ -141,7 +142,7 @@ public class MultipartRequestTest {
     @Test(description = "Test sending a multipart request with a json body part where the content is kept in a file")
     public void testJsonBodyPartAsFileUpload() {
         String path = "/test/jsonbodypart";
-        Map<String, Object> messageMap = createPrerequisiteMessages(path);
+        Map<String, Object> messageMap = createPrerequisiteMessages(path, MULTIPART_FORM_DATA);
         ArrayList<BStruct> bodyParts = new ArrayList<>();
         bodyParts.add(getJsonFilePart());
         HTTPTestRequest cMsg = getCarbonMessageWithBodyParts(messageMap, getArrayOfBodyParts(bodyParts));
@@ -154,7 +155,7 @@ public class MultipartRequestTest {
     @Test(description = "Test sending a multipart request with a xml body part which is kept in memory")
     public void testXmlBodyPart() {
         String path = "/test/xmlbodypart";
-        Map<String, Object> messageMap = createPrerequisiteMessages(path);
+        Map<String, Object> messageMap = createPrerequisiteMessages(path, MULTIPART_FORM_DATA);
         ArrayList<BStruct> bodyParts = new ArrayList<>();
         bodyParts.add(getXmlBodyPart());
         HTTPTestRequest cMsg = getCarbonMessageWithBodyParts(messageMap, getArrayOfBodyParts(bodyParts));
@@ -167,7 +168,7 @@ public class MultipartRequestTest {
     @Test(description = "Test sending a multipart request with a json body part where the content is kept in a file")
     public void testXmlBodyPartAsFileUpload() {
         String path = "/test/xmlbodypart";
-        Map<String, Object> messageMap = createPrerequisiteMessages(path);
+        Map<String, Object> messageMap = createPrerequisiteMessages(path, MULTIPART_FORM_DATA);
         ArrayList<BStruct> bodyParts = new ArrayList<>();
         bodyParts.add(getXmlFilePart());
         HTTPTestRequest cMsg = getCarbonMessageWithBodyParts(messageMap, getArrayOfBodyParts(bodyParts));
@@ -181,7 +182,7 @@ public class MultipartRequestTest {
     @Test(description = "Test sending a multipart request with a binary body part which is kept in memory")
     public void testBinaryBodyPart() {
         String path = "/test/binarybodypart";
-        Map<String, Object> messageMap = createPrerequisiteMessages(path);
+        Map<String, Object> messageMap = createPrerequisiteMessages(path, MULTIPART_FORM_DATA);
         ArrayList<BStruct> bodyParts = new ArrayList<>();
         bodyParts.add(getBinaryBodyPart());
         HTTPTestRequest cMsg = getCarbonMessageWithBodyParts(messageMap, getArrayOfBodyParts(bodyParts));
@@ -194,7 +195,7 @@ public class MultipartRequestTest {
             "is kept in a file")
     public void testBinaryBodyPartAsFileUpload() {
         String path = "/test/binarybodypart";
-        Map<String, Object> messageMap = createPrerequisiteMessages(path);
+        Map<String, Object> messageMap = createPrerequisiteMessages(path, MULTIPART_FORM_DATA);
         ArrayList<BStruct> bodyParts = new ArrayList<>();
         bodyParts.add(getBinaryFilePart());
         HTTPTestRequest cMsg = getCarbonMessageWithBodyParts(messageMap, getArrayOfBodyParts(bodyParts));
@@ -203,10 +204,26 @@ public class MultipartRequestTest {
         Assert.assertEquals(ResponseReader.getReturnValue(response), "Ballerina binary file part");
     }
 
-    @Test(description = "Test sending a multipart request with multiple body parts")
-    public void testMixedParts() {
+    @Test(description = "Test sending a multipart request as multipart/form-data with multiple body parts")
+    public void testMultiplePartsForFormData() {
         String path = "/test/multipleparts";
-        Map<String, Object> messageMap = createPrerequisiteMessages(path);
+        Map<String, Object> messageMap = createPrerequisiteMessages(path, MULTIPART_FORM_DATA);
+        ArrayList<BStruct> bodyParts = new ArrayList<>();
+        bodyParts.add(getJsonBodyPart());
+        bodyParts.add(getXmlFilePart());
+        bodyParts.add(getTextBodyPart());
+        bodyParts.add(getBinaryFilePart());
+        HTTPTestRequest cMsg = getCarbonMessageWithBodyParts(messageMap, getArrayOfBodyParts(bodyParts));
+        HTTPCarbonMessage response = Services.invokeNew(serviceResult, cMsg);
+        Assert.assertNotNull(response, "Response message not found");
+        Assert.assertEquals(ResponseReader.getReturnValue(response), " -- jsonPart -- Ballerina xml " +
+                "file part -- Ballerina text body part -- Ballerina binary file part");
+    }
+
+    @Test(description = "Test sending a multipart request as multipart/mixed with multiple body parts")
+    public void testMultiplePartsForMixed() {
+        String path = "/test/multipleparts";
+        Map<String, Object> messageMap = createPrerequisiteMessages(path, MULTIPART_MIXED);
         ArrayList<BStruct> bodyParts = new ArrayList<>();
         bodyParts.add(getJsonBodyPart());
         bodyParts.add(getXmlFilePart());
@@ -222,7 +239,7 @@ public class MultipartRequestTest {
     @Test(description = "Test sending a multipart request with a text body part that has 7 bit tranfer encoding")
     public void testTextBodyPartWith7BitEncoding() {
         String path = "/test/textbodypart";
-        Map<String, Object> messageMap = createPrerequisiteMessages(path);
+        Map<String, Object> messageMap = createPrerequisiteMessages(path, MULTIPART_FORM_DATA);
         ArrayList<BStruct> bodyParts = new ArrayList<>();
         bodyParts.add(getTextFilePartWithEncoding(CONTENT_TRANSFER_ENCODING_7_BIT, "èiiii"));
         HTTPTestRequest cMsg = getCarbonMessageWithBodyParts(messageMap, getArrayOfBodyParts(bodyParts));
@@ -234,7 +251,7 @@ public class MultipartRequestTest {
     @Test(description = "Test sending a multipart request with a text body part that has 8 bit transfer encoding")
     public void testTextBodyPartWith8BitEncoding() {
         String path = "/test/textbodypart";
-        Map<String, Object> messageMap = createPrerequisiteMessages(path);
+        Map<String, Object> messageMap = createPrerequisiteMessages(path, MULTIPART_FORM_DATA);
         ArrayList<BStruct> bodyParts = new ArrayList<>();
         bodyParts.add(getTextFilePartWithEncoding(CONTENT_TRANSFER_ENCODING_8_BIT, "èlllll"));
         HTTPTestRequest cMsg = getCarbonMessageWithBodyParts(messageMap, getArrayOfBodyParts(bodyParts));
@@ -441,13 +458,13 @@ public class MultipartRequestTest {
      * @param path Represent path to the resource
      * @return A map of relevant messages
      */
-    private Map<String, Object> createPrerequisiteMessages(String path) {
+    private Map<String, Object> createPrerequisiteMessages(String path, String topLevelContentType) {
         Map<String, Object> messageMap = new HashMap<>();
         BStruct request = getRequestStruct();
         HTTPTestRequest cMsg = MessageUtils.generateHTTPMessageForMultiparts(path, Constants.HTTP_METHOD_POST);
         HttpUtil.addCarbonMsg(request, cMsg);
         BStruct entity = getEntityStruct();
-        MimeUtil.setContentType(getMediaTypeStruct(), entity, MULTIPART_FORM_DATA);
+        MimeUtil.setContentType(getMediaTypeStruct(), entity, topLevelContentType);
         messageMap.put(carbonMessage, cMsg);
         messageMap.put(ballerinaRequest, request);
         messageMap.put(multipartEntity, entity);

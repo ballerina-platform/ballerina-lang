@@ -74,6 +74,7 @@ public class Constants {
      * Content-type multipart/form-data.
      */
     public static final String MULTIPART_FORM_DATA = "multipart/form-data";
+    public static final String MULTIPART_MIXED = "multipart/mixed";
     public static final String MULTIPART_AS_PRIMARY_TYPE = "multipart";
 
     public static final String DEFAULT_PRIMARY_TYPE = "application";

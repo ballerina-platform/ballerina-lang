@@ -85,7 +85,8 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
         try {
             String contentType = requestMsg.getHeader(CONTENT_TYPE);
             if (contentType != null) {
-                if (MULTIPART_FORM_DATA.equals(new MimeType(contentType).getBaseType())) {
+                MimeType mimeType = new MimeType(contentType);
+                if (MULTIPART_FORM_DATA.equals(mimeType.getBaseType())) {
                     HttpUtil.prepareRequestWithMultiparts(requestMsg, requestStruct);
                 }
             }
