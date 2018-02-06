@@ -35,10 +35,10 @@ public class HTTPResourceDispatcher {
             throws BallerinaConnectorException {
 
         String method = (String) inboundRequest.getProperty(Constants.HTTP_METHOD);
-        String subPath = (String) inboundRequest.getProperty(Constants.SUB_PATH);
         String basePath = (String) inboundRequest.getProperty(Constants.BASE_PATH);
+        String subPath = (String) inboundRequest.getProperty(Constants.SUB_PATH);
         Map<String, Map<String, String>> matrixParams = new HashMap<>();
-        subPath = removeMatrixParams(basePath, sanitizeSubPath(subPath), matrixParams);
+        subPath = removeMatrixParams(sanitizeSubPath(basePath), sanitizeSubPath(subPath), matrixParams);
         Map<String, String> resourceArgumentValues = new HashMap<>();
         try {
             HttpResource resource = service.getUriTemplate().matches(subPath, resourceArgumentValues, inboundRequest);
@@ -96,7 +96,7 @@ public class HTTPResourceDispatcher {
     private static String removeMatrixParams(String basePath, String subPath,
                                              Map<String, Map<String, String>> matrixParams) {
         String[] pathSegments = subPath.substring(1).split("/");
-        String pathToMatrixParam = basePath;
+        String pathToMatrixParam = "";
         for (String pathSegment : pathSegments) {
             String[] splitPathSegment = pathSegment.split(";");
             pathToMatrixParam = pathToMatrixParam.concat("/" + splitPathSegment[0]);
@@ -110,7 +110,7 @@ public class HTTPResourceDispatcher {
                     segmentMatrixParams.put(splitMatrixParam[0], splitMatrixParam[1]);
                 }
             }
-            matrixParams.put(pathToMatrixParam, segmentMatrixParams);
+            matrixParams.put(basePath.concat(pathToMatrixParam), segmentMatrixParams);
         }
         return pathToMatrixParam;
     }
