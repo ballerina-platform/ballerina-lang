@@ -65,4 +65,9 @@ public class SelectStoreQueryRuntime implements StoreQueryRuntime {
         }
     }
 
+    @Override
+    public void reset() {
+
+    }
+
 }

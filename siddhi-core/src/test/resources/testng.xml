@@ -52,7 +52,8 @@
             <class name="org.wso2.siddhi.core.query.join.OuterJoinTestCase"/>
 
             <class name="org.wso2.siddhi.core.query.partition.JoinPartitionTestCase"/>
-            <class name="org.wso2.siddhi.core.query.partition.PartitionTestCase"/>
+            <class name="org.wso2.siddhi.core.query.partition.PartitionTestCase1"/>
+            <class name="org.wso2.siddhi.core.query.partition.PartitionTestCase2"/>
             <class name="org.wso2.siddhi.core.query.partition.PatternPartitionTestCase"/>
             <class name="org.wso2.siddhi.core.query.partition.SequencePartitionTestCase"/>
             <class name="org.wso2.siddhi.core.query.partition.TablePartitionTestCase"/>

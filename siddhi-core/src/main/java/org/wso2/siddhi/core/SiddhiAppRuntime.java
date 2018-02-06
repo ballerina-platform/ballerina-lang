@@ -273,6 +273,8 @@ public class SiddhiAppRuntime {
                 storeQueryRuntime = StoreQueryParser.parse(storeQuery, siddhiAppContext, tableMap, windowMap,
                         aggregationMap);
                 storeQueryRuntimeMap.put(storeQuery, storeQueryRuntime);
+            } else {
+                storeQueryRuntime.reset();
             }
 
             return storeQueryRuntime.execute();

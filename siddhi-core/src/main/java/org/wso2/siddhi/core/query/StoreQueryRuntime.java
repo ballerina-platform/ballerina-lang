@@ -25,4 +25,6 @@ import org.wso2.siddhi.core.event.Event;
 public interface StoreQueryRuntime {
 
     Event[] execute();
+
+    void reset();
 }

@@ -146,7 +146,7 @@ public class StoreQueryParser {
                 generateMatchingMetaInfoHolder(metaStreamEvent, window.getWindowDefinition()),
                 siddhiAppContext, variableExpressionExecutors, tableMap, queryName);
         FindStoreQueryRuntime findStoreQueryRuntime = new FindStoreQueryRuntime(window, compiledCondition,
-                queryName, metaStreamEvent.getEventType());
+                queryName, metaStreamEvent);
         populateStoreQueryRuntime(findStoreQueryRuntime, metaStreamInfoHolder, storeQuery.getSelector(),
                 variableExpressionExecutors, siddhiAppContext, tableMap, queryName, metaPosition);
         return findStoreQueryRuntime;
@@ -169,7 +169,7 @@ public class StoreQueryParser {
         metaStreamInfoHolder = ((IncrementalAggregateCompileCondition) compiledCondition).
                 getAlteredMatchingMetaInfoHolder();
         FindStoreQueryRuntime findStoreQueryRuntime = new FindStoreQueryRuntime(aggregation, compiledCondition,
-                queryName, metaStreamEvent.getEventType());
+                queryName, metaStreamEvent);
         metaPosition = 1;
         populateStoreQueryRuntime(findStoreQueryRuntime, metaStreamInfoHolder,
                 storeQuery.getSelector(), variableExpressionExecutors, siddhiAppContext, tableMap,
@@ -207,7 +207,7 @@ public class StoreQueryParser {
             return storeQueryRuntime;
         } else {
             FindStoreQueryRuntime storeQueryRuntime = new FindStoreQueryRuntime(table, compiledCondition, queryName,
-                    metaStreamEvent.getEventType());
+                    metaStreamEvent);
             populateStoreQueryRuntime(storeQueryRuntime, metaStreamInfoHolder, storeQuery.getSelector(),
                     variableExpressionExecutors, siddhiAppContext, tableMap, queryName, metaPosition);
             return storeQueryRuntime;
