@@ -187,7 +187,7 @@ builtInReferenceTypeName
     :   TYPE_MAP (LT typeName GT)?
     |   TYPE_XML (LT (LEFT_BRACE xmlNamespaceName RIGHT_BRACE)? xmlLocalName GT)?
     |   TYPE_JSON (LT nameReference GT)?
-    |   TYPE_DATATABLE
+    |   TYPE_TABLE (LT nameReference GT)?
     |   functionTypeName
     ;
 

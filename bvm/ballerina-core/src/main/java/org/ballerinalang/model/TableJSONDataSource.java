@@ -25,8 +25,8 @@ import org.ballerinalang.model.util.JsonGenerator;
 import org.ballerinalang.model.util.JsonNode;
 import org.ballerinalang.model.util.JsonNode.Type;
 import org.ballerinalang.model.util.JsonParser;
-import org.ballerinalang.model.values.BDataTable;
 import org.ballerinalang.model.values.BJSON.JSONDataSource;
+import org.ballerinalang.model.values.BTable;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.io.IOException;
@@ -39,19 +39,19 @@ import java.sql.Struct;
  *
  * @since 0.8.0
  */
-public class DataTableJSONDataSource implements JSONDataSource {
+public class TableJSONDataSource implements JSONDataSource {
 
-    private BDataTable df;
+    private BTable df;
 
     private JSONObjectGenerator objGen;
 
     private boolean isInTransaction;
 
-    public DataTableJSONDataSource(BDataTable df, boolean isInTransaction) {
+    public TableJSONDataSource(BTable df, boolean isInTransaction) {
         this(df, new DefaultJSONObjectGenerator(), isInTransaction);
     }
 
-    public DataTableJSONDataSource(BDataTable df, JSONObjectGenerator objGen, boolean isInTransaction) {
+    public TableJSONDataSource(BTable df, JSONObjectGenerator objGen, boolean isInTransaction) {
         this.df = df;
         this.objGen = objGen;
         this.isInTransaction = isInTransaction;
@@ -69,13 +69,13 @@ public class DataTableJSONDataSource implements JSONDataSource {
     }
 
     /**
-     * Default {@link DataTableJSONDataSource.JSONObjectGenerator} implementation based
-     * on the datatable's in-built column definition.
+     * Default {@link TableJSONDataSource.JSONObjectGenerator} implementation based
+     * on the table's in-built column definition.
      */
     private static class DefaultJSONObjectGenerator implements JSONObjectGenerator {
 
         @Override
-        public JsonNode transform(BDataTable df) throws IOException {
+        public JsonNode transform(BTable df) throws IOException {
             JsonNode objNode = new JsonNode(Type.OBJECT);
             BStructType structType = df.getStructType();
             BStructType.StructField[] structFields = null;
@@ -99,7 +99,7 @@ public class DataTableJSONDataSource implements JSONDataSource {
 
     }
 
-    private static void constructJsonData(BDataTable df, JsonNode objNode, String name, TypeKind type, int index,
+    private static void constructJsonData(BTable df, JsonNode objNode, String name, TypeKind type, int index,
             BStructType.StructField[] structFields) {
         switch (type) {
         case STRING:
@@ -206,7 +206,7 @@ public class DataTableJSONDataSource implements JSONDataSource {
         return jsonData;
     }
 
-    private static JsonNode getDataArray(BDataTable df, int columnIndex) {
+    private static JsonNode getDataArray(BTable df, int columnIndex) {
         Object[] dataArray = df.getArray(columnIndex);
         int length = dataArray.length;
         JsonNode jsonArray = new JsonNode(Type.ARRAY);
@@ -248,13 +248,13 @@ public class DataTableJSONDataSource implements JSONDataSource {
     public static interface JSONObjectGenerator {
 
         /**
-         * Converts the current position of the given datatable to a JSON object.
+         * Converts the current position of the given table to a JSON object.
          *
-         * @param datatable The datatable that should be used in the current position
+         * @param table The table that should be used in the current position
          * @return The generated JSON object
          * @throws IOException for json reading/serializing errors
          */
-        JsonNode transform(BDataTable datatable) throws IOException;
+        JsonNode transform(BTable table) throws IOException;
 
     }
 

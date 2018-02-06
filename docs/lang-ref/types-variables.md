@@ -250,11 +250,9 @@ system:println (m.city, m[“country”]);
 
 If the accessed field does not exist, in the case of a struct there will be a compile-time error, while the other cases will result in a null value being returned.
 
-### Type: `datatable`
+### Type: `table`
 
-The `datatable` type is used to hold tabular data, such as those returned from an SQL database queries, and provides cursor-based access to the data. In the current release, values of this type can only be created as the return value of certain actions of the SQL data connector (for details, see the `ballerina.data.sql` package).
-
-Navigating a `datatable` requires you to use the library functions in the package `ballerina.lang.datatables`. More information is available in the documentation for that package.
+The `table` type is used to hold tabular data, such as those returned from an SQL database queries, and provides cursor-based access to the data. In the current release, values of this type can only be created as the return value of certain actions of the SQL data connector (for details, see the `ballerina.data.sql` package).
 
 ## Iterators
 Iterators are defined using the iterator constructor `~` as follows:

@@ -24,6 +24,7 @@ import org.ballerinalang.model.types.BEnumType;
 import org.ballerinalang.model.types.BFunctionType;
 import org.ballerinalang.model.types.BJSONType;
 import org.ballerinalang.model.types.BStructType;
+import org.ballerinalang.model.types.BTableType;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.types.TypeSignature;
@@ -825,6 +826,7 @@ public class ProgramFileReader {
             case 'J':
             case 'T':
             case 'E':
+            case 'D':
                 char typeChar = chars[index];
                 // TODO Improve this logic
                 index++;
@@ -855,6 +857,12 @@ public class ProgramFileReader {
                 } else if (typeChar == 'J') {
                     if (name.isEmpty()) {
                         typeStack.push(BTypes.typeJSON);
+                    } else {
+                        typeStack.push(new BJSONType(packageInfoOfType.getStructInfo(name).getType()));
+                    }
+                } else if (typeChar == 'D') {
+                    if (name.isEmpty()) {
+                        typeStack.push(BTypes.typeTable);
                     } else {
                         typeStack.push(new BJSONType(packageInfoOfType.getStructInfo(name).getType()));
                     }
@@ -904,11 +912,16 @@ public class ProgramFileReader {
             case 'J':
             case 'T':
             case 'E':
+            case 'D':
                 String typeName = desc.substring(1, desc.length() - 1);
                 String[] parts = typeName.split(":");
 
-                if (ch == 'J' && parts.length == 1) {
-                    return BTypes.typeJSON;
+                if (parts.length == 1) {
+                    if (ch == 'J') {
+                        return BTypes.typeJSON;
+                    } else if (ch == 'D') {
+                        return BTypes.typeTable;
+                    }
                 }
 
                 String pkgPath = parts[0];
@@ -918,6 +931,8 @@ public class ProgramFileReader {
                     return new BJSONType(packageInfoOfType.getStructInfo(name).getType());
                 } else if (ch == 'C') {
                     return packageInfoOfType.getConnectorInfo(name).getType();
+                } else if (ch == 'D') {
+                    return new BTableType(packageInfoOfType.getStructInfo(name).getType());
                 } else if (ch == 'E') {
                     return packageInfoOfType.getEnumInfo(name).getType();
                 } else {
@@ -1334,7 +1349,7 @@ public class ProgramFileReader {
                 case InstructionCodes.ERRSTORE:
                 case InstructionCodes.TR_END:
                 case InstructionCodes.NEWMAP:
-                case InstructionCodes.NEWDATATABLE:
+                case InstructionCodes.NEWTABLE:
                     i = codeStream.readInt();
                     packageInfo.addInstruction(InstructionFactory.get(opcode, i));
                     break;

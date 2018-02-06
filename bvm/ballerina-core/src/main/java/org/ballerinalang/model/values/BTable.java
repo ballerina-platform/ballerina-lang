@@ -26,17 +26,17 @@ import org.ballerinalang.model.types.BTypes;
 import java.util.List;
 
 /**
- * The {@code BDataTable} represents a data set in Ballerina.
+ * The {@code BTable} represents a data set in Ballerina.
  *
  * @since 0.8.0
  */
-public class BDataTable implements BRefType<Object> {
+public class BTable implements BRefType<Object>, BCollection {
 
     private DataIterator iterator;
     private boolean hasNextVal;
     private boolean nextPrefetched;
 
-    public BDataTable(DataIterator dataIterator) {
+    public BTable(DataIterator dataIterator) {
         this.iterator = dataIterator;
         this.nextPrefetched = false;
         this.hasNextVal = false;
@@ -54,7 +54,7 @@ public class BDataTable implements BRefType<Object> {
 
     @Override
     public BType getType() {
-        return BTypes.typeDatatable;
+        return BTypes.typeTable;
     }
 
     public boolean hasNext(boolean isInTransaction) {
@@ -124,5 +124,39 @@ public class BDataTable implements BRefType<Object> {
     @Override
     public BValue copy() {
         return null;
+    }
+
+    @Override
+    public BIterator newIterator() {
+        return new BTable.BTableIterator(this);
+    }
+
+    /**
+     * {@code {@link BMap.BMapIterator }} provides iterator implementation for map values.
+     *
+     * @since 0.96.8
+     */
+    static class BTableIterator<K, V extends BValue> implements BIterator {
+
+        BTable table;
+        int cursor = 0;
+
+        BTableIterator(BTable value) {
+            table = value;
+        }
+
+        @Override
+        public BValue[] getNext(int arity) {
+            if (arity == 1) {
+                return new BValue[] {table.getNext()};
+            }
+            int cursor = this.cursor++;
+            return new BValue[] {new BInteger(cursor), table.getNext()};
+        }
+
+        @Override
+        public boolean hasNext() {
+            return table.hasNext(false);
+        }
     }
 }
