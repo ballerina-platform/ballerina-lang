@@ -42,7 +42,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.util.HashSet;
-import java.util.Locale;
 import java.util.Set;
 
 /**
@@ -97,12 +96,10 @@ public class OpenChannel extends AbstractNativeChannel {
     @Override
     public AbstractChannel inFlow(Context context) throws BallerinaException {
         BStruct fileStruct = (BStruct) getRefArgument(context, FILE_CHANNEL_INDEX);
-//        String accessMode = getStringArgument(context, FILE_ACCESS_MODE_INDEX);
         BEnumerator accessMode = (BEnumerator) getRefArgument(context, FILE_ACCESS_MODE_INDEX);
         Path path = null;
         AbstractChannel channel;
         try {
-//            String accessLC = accessMode.toLowerCase(Locale.getDefault());
             path = Paths.get(fileStruct.getStringField(PATH_FIELD_INDEX));
             Set<OpenOption> opts = new HashSet<>();
             if (Constants.ACCESS_MODE_READ.equals(accessMode.getName())) {

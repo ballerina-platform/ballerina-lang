@@ -21,6 +21,7 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.nativeimpl.file.utils.FileUtils;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -29,6 +30,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.io.PrintStream;
 import java.nio.file.CopyOption;
 import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.FileVisitOption;
@@ -45,9 +47,6 @@ import java.util.TreeSet;
 
 import static java.nio.file.StandardCopyOption.COPY_ATTRIBUTES;
 import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
-import static org.ballerinalang.nativeimpl.file.utils.FileUtils.createAccessDeniedError;
-import static org.ballerinalang.nativeimpl.file.utils.FileUtils.createFileNotFoundError;
-import static org.ballerinalang.nativeimpl.file.utils.FileUtils.createIOError;
 
 /**
  * Copies a file from a given location to another.
@@ -69,6 +68,7 @@ import static org.ballerinalang.nativeimpl.file.utils.FileUtils.createIOError;
 public class Copy extends AbstractNativeFunction {
 
     private static final Logger log = LoggerFactory.getLogger(Copy.class);
+    private static final PrintStream console = System.err;
     
     @Override
     public BValue[] execute(Context context) {
@@ -80,7 +80,7 @@ public class Copy extends AbstractNativeFunction {
         Path destinationFile = Paths.get(destination.getStringField(0));
 
         if (!Files.exists(sourceFile)) {
-            return getBValues(createFileNotFoundError(context, "Failed to copy file: '"
+            return getBValues(FileUtils.createFileNotFoundError(context, "Failed to copy file: '"
                     + sourceFile.toString() + "'. File not found."), null, null);
         }
 
@@ -89,11 +89,11 @@ public class Copy extends AbstractNativeFunction {
         } catch (SecurityException e) {
             String errMsg = "Failed to copy file/dir: " + sourceFile.toString() + " to " + destinationFile.toString();
             log.error(errMsg, e);
-            return getBValues(null, createAccessDeniedError(context, "Permission denied: " + errMsg), null);
+            return getBValues(null, FileUtils.createAccessDeniedError(context, "Permission denied: " + errMsg), null);
         } catch (IOException e) {
             String errMsg = "Failed to copy file/dir: " + sourceFile.toString() + " to " + destinationFile.toString();
             log.error(errMsg, e);
-            return getBValues(null, null, createIOError(context, "I/O error occurred: " + errMsg));
+            return getBValues(null, null, FileUtils.createIOError(context, "I/O error occurred: " + errMsg));
         }
 
         return getBValues(null, null, null);
@@ -106,35 +106,41 @@ public class Copy extends AbstractNativeFunction {
 
         if (Files.isDirectory(source)) {
             EnumSet<FileVisitOption> opts = EnumSet.of(FileVisitOption.FOLLOW_LINKS);
-            DirCopier dirCopier = new DirCopier(source, target, copyOptions);
+            // Passing the boolean value itself since findbugs complained.
+            DirCopier dirCopier = new DirCopier(source, target, replaceExisting);
             Files.walkFileTree(source, opts, Integer.MAX_VALUE, dirCopier);
 
             if (dirCopier.hasCopyFailures()) {
-                System.err.println("ballerina: failed to copy the following files:");
-                dirCopier.copyFailuresIterator().forEachRemaining(failedFile -> System.err.println("\t" + failedFile));
+                console.println("ballerina: failed to copy the following files:");
+                dirCopier.copyFailuresIterator().forEachRemaining(failedFile -> console.println("\t" + failedFile));
             }
         } else {
             try {
                 Files.copy(source, target, copyOptions);
             } catch (IOException ex) {
-                System.err.println("ballerina: failed to copy file: " + source + " to " + target);
+                console.println("ballerina: failed to copy file: " + source + " to " + target);
                 throw ex;
             }
         }
     }
 
+    /**
+     * A FileVisitor implementation for copying directories.
+     */
     public static class DirCopier extends SimpleFileVisitor<Path> {
 
         private final Path sourceFile;
         private final Path targetFile;
-        private final CopyOption[] fileCopyOptions;
+        private CopyOption[] fileCopyOptions;
         private TreeSet<String> failedFiles;
 
-        public DirCopier(Path sourceFile, Path targetFile, CopyOption[] fileCopyOptions) {
+        public DirCopier(Path sourceFile, Path targetFile, boolean replaceExisting) {
             this.sourceFile = sourceFile;
             this.targetFile = targetFile;
-            this.fileCopyOptions = fileCopyOptions;
             this.failedFiles = new TreeSet<>();
+            this.fileCopyOptions =
+                    replaceExisting
+                            ? new CopyOption[]{REPLACE_EXISTING, COPY_ATTRIBUTES} : new CopyOption[]{COPY_ATTRIBUTES};
         }
 
         @Override
