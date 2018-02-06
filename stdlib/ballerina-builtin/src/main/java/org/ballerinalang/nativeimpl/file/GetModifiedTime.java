@@ -49,8 +49,9 @@ import static org.ballerinalang.nativeimpl.file.utils.FileUtils.createIOError;
         packageName = "ballerina.file",
         functionName = "getModifiedTime",
         receiver = @Receiver(type = TypeKind.STRUCT, structType = "File", structPackage = "ballerina.file"),
-        returnType = {@ReturnType(type = TypeKind.STRUCT), @ReturnType(type = TypeKind.STRUCT),
-                @ReturnType(type = TypeKind.STRUCT)},
+        returnType = {@ReturnType(type = TypeKind.STRUCT),
+                @ReturnType(type = TypeKind.STRUCT, structType = "AccessDeniedError", structPackage = "ballerina.file"),
+                @ReturnType(type = TypeKind.STRUCT, structType = "IOError", structPackage = "ballerina.file")},
         isPublic = true
 )
 public class GetModifiedTime extends AbstractNativeFunction {

@@ -3,9 +3,14 @@ import ballerina.io;
 
 io:ByteChannel channel;
 
-function initFileChannel(string filePath, string permission){
+function initFileReadChannel(string filePath){
     file:File src = {path:filePath};
-    channel = src.openChannel(permission);
+    channel = src.openChannel(file:AccessMode.R);
+}
+
+function initFileWriteChannel(string filePath){
+    file:File src = {path:filePath};
+    channel = src.openChannel(file:AccessMode.W);
 }
 
 function readAll() (blob) {

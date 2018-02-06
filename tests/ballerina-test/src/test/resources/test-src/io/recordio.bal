@@ -3,9 +3,16 @@ import ballerina.io;
 
 io:DelimitedRecordChannel delimitedRecordChannel;
 
-function initFileChannel(string filePath,string permission,string encoding,string rs,string fs){
+function initFileReadChannel (string filePath, string encoding, string rs, string fs) {
     file:File src = {path:filePath};
-    io:ByteChannel channel = src.openChannel(permission);
+    io:ByteChannel channel = src.openChannel(file:AccessMode.R);
+    io:CharacterChannel  characterChannel = channel.toCharacterChannel(encoding);
+    textRecordChannel = characterChannel.toTextRecordChannel(rs,fs);
+}
+
+function initFileWriteChannel (string filePath, string encoding, string rs, string fs) {
+    file:File src = {path:filePath};
+    io:ByteChannel channel = src.openChannel(file:AccessMode.W);
     io:CharacterChannel  characterChannel = channel.toCharacterChannel(encoding);
     delimitedRecordChannel = characterChannel.toTextRecordChannel(rs, fs);
 }

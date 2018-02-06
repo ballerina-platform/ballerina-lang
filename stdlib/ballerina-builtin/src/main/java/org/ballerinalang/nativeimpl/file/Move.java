@@ -55,7 +55,10 @@ import static org.ballerinalang.nativeimpl.file.utils.FileUtils.createIOError;
                 structPackage = "ballerina.file"),
                 @Argument(name = "destination", type = TypeKind.STRUCT, structType = "File",
                         structPackage = "ballerina.file")},
-        returnType = {@ReturnType(type = TypeKind.STRUCT), @ReturnType(type = TypeKind.STRUCT)},
+        returnType = {
+                @ReturnType(type = TypeKind.STRUCT, structType = "FileNotFoundError", structPackage = "ballerina.file"),
+                @ReturnType(type = TypeKind.STRUCT, structType = "AccessDeniedError", structPackage = "ballerina.file"),
+                @ReturnType(type = TypeKind.STRUCT, structType = "IOError", structPackage = "ballerina.file")},
         isPublic = true
 )
 public class Move extends AbstractNativeFunction {
@@ -70,9 +73,8 @@ public class Move extends AbstractNativeFunction {
 
         Path sourceFile = Paths.get(source.getStringField(0)).toAbsolutePath();
         if (!Files.exists(sourceFile)) {
-            return getBValues(
-                    createFileNotFoundError(context,
-                                            "Failed to move file: '" + sourceFile.toString() + "'. File not found."));
+            return getBValues(createFileNotFoundError(context, "Failed to move file: '"
+                                                + sourceFile.toString() + "'. File not found."), null, null);
         }
 
         Path targetFile = Paths.get(destination.getStringField(0)).toAbsolutePath();
@@ -86,7 +88,7 @@ public class Move extends AbstractNativeFunction {
             } else {
                 Path targetDir = targetFile.getParent();
 
-                // If the target directory tree doesn't exist, create it. Creates a directory structure for the
+                // If the target directory tree doesn't exist, create it. Creates a directory tree for the
                 // parent of the file specified by 'targetFile'.
                 createDirectories(targetDir);
 
@@ -96,7 +98,7 @@ public class Move extends AbstractNativeFunction {
             String errMsg = "Failed to move file: '" + sourceFile.toString()
                     + "' to '" + targetFile.toString() + "'. Permission denied.";
             log.error(errMsg, e);
-            return getBValues(createAccessDeniedError(context, errMsg), null);
+            return getBValues(null, createAccessDeniedError(context, errMsg), null);
         } catch (BallerinaException e) {
             return getBValues(null, createIOError(context, e.getMessage()));
         } catch (FileAlreadyExistsException e) {
@@ -104,20 +106,20 @@ public class Move extends AbstractNativeFunction {
                     "File already exists: '" + targetFile.toString() +
                             "'. Enable file replacing to replace existing file.";
             log.error(errMsg, e);
-            return getBValues(null, createIOError(context, errMsg));
+            return getBValues(null, null, createIOError(context, errMsg));
         } catch (DirectoryNotEmptyException e) {
             String errMsg = "Failed to move file: '" + sourceFile.toString()
                     + "' to '" + targetFile.toString() + "'. Target directory is not empty.";
             log.error(errMsg, e);
-            return getBValues(null, createIOError(context, errMsg));
+            return getBValues(null, null, createIOError(context, errMsg));
         } catch (IOException e) {
             String errMsg = "Failed to move file: '" + sourceFile.toString()
                     + "' to '" + targetFile.toString() + "'. I/O error occurred.";
             log.error(errMsg, e);
-            return getBValues(null, createIOError(context, errMsg));
+            return getBValues(null, null, createIOError(context, errMsg));
         }
 
-        return new BValue[]{null};
+        return getBValues(null, null, null);
     }
 
     private void createDirectories(Path dirPath) {
