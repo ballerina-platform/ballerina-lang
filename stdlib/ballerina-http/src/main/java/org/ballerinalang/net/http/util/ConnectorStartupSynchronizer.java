@@ -35,15 +35,15 @@ public class ConnectorStartupSynchronizer {
 
     private List<String> inUseConnectors = new ArrayList<>();
     private Map<String, Exception> exceptions = new HashMap<>();
-    private CountDownLatch countDownLatch;
+    private CountDownLatch connectorStartupLatch;
 
     public ConnectorStartupSynchronizer(int noOfConnectors) {
-        this.countDownLatch = new CountDownLatch(noOfConnectors);
+        this.connectorStartupLatch = new CountDownLatch(noOfConnectors);
     }
 
     public void addServerConnector(String connectorId) {
         inUseConnectors.add(connectorId);
-        countDownLatch.countDown();
+        connectorStartupLatch.countDown();
     }
 
     public Iterator<String> inUseConnectorsIterator() {
@@ -52,7 +52,7 @@ public class ConnectorStartupSynchronizer {
 
     public void addException(String connectorId, Exception ex) {
         exceptions.put(connectorId, ex);
-        countDownLatch.countDown();
+        connectorStartupLatch.countDown();
     }
 
     public Iterator<Map.Entry<String, Exception>> failedConnectorsIterator() {
@@ -64,6 +64,6 @@ public class ConnectorStartupSynchronizer {
     }
 
     public void syncConnectors() throws InterruptedException {
-        countDownLatch.await();
+        connectorStartupLatch.await();
     }
 }
