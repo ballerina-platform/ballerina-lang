@@ -69,11 +69,6 @@ struct ResultPrimitiveInt {
     int INT_TYPE;
 }
 
-struct ResultDataTableRep {
-    int ROW_ID;
-    int INT_TYPE;
-}
-
 struct ResultCount {
     int COUNTVAL;
 }
