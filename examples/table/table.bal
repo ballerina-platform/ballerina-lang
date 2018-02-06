@@ -27,8 +27,8 @@ function main (string[] args) {
         '1999-12-31', '13:40:24', '2017-05-23 09:15:28')", null);
 
     //Query the table using SQL connector select action. Either select or call
-    //action can return a datatable.
-    datatable dt = testDB.select("SELECT * from EMPLOYEE", null, typeof Employee);
+    //action can return a table.
+    table dt = testDB.select("SELECT * from EMPLOYEE", null, typeof Employee);
     //Iterate through the result until hasNext() become false and retrieve
     //the data struct corresponding to each row.
     while (dt.hasNext()) {
@@ -37,17 +37,17 @@ function main (string[] args) {
                 "|" + rs.birthdate + "|" + rs.birthtime + "|" + rs.updated);
     }
 
-    //The datatable to json/xml conversion is resulted in streamed data. With the data
+    //The table to json/xml conversion is resulted in streamed data. With the data
     //streaming functionality, when a service client makes a request, the result is
     //streamed to the service client rather than building the full result in the server
     //and returning it. This allows virtually unlimited payload sizes in the result, and
     //the response is instantaneous to the client. <br>
-    //Convert a datatable to JSON.
+    //Convert a table to JSON.
     dt = testDB.select("SELECT id,name FROM EMPLOYEE", null, null);
     var jsonRes, _ = <json>dt;
     println(jsonRes);
 
-    //Convert a datatable to XML.
+    //Convert a table to XML.
     dt = testDB.select("SELECT id,name FROM EMPLOYEE", null, null);
     var xmlRes, _ = <xml>dt;
     println(xmlRes);
