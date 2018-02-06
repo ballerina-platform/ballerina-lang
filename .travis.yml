@@ -28,4 +28,4 @@ install:
 cache:
   directories:
   - $HOME/.m2
-  - modules/web/node_modules
+  - composer/modules/web/node_modules
