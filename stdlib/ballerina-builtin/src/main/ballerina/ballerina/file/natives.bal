@@ -2,17 +2,6 @@ package ballerina.file;
 
 import ballerina.io;
 
-@Description { value:"The Read access mode"}
-public const string R = "R";
-@Description { value:"The Write access mode"}
-public const string W = "W";
-@Description { value:"The Read Write access mode"}
-public const string RW = "RW";
-@Description { value:"The Append access mode"}
-public const string A = "A";
-@Description { value:"The Read Append access mode"}
-public const string RA = "RA";
-
 @Description { value:"The types of access modes available when dealing with files" }
 @Field { value:"R: Read-only access mode" }
 @Field { value:"W: Write-only access mode" }
@@ -76,16 +65,18 @@ public struct FileNotOpenedError {
 @Description { value:"Copies a file from a given location to another"}
 @Param { value:"source: File/Directory that should be copied" }
 @Param { value:"destination: Destination directory or path to which the source should be copied" }
+@Return {value:"Returned if the specified source file/directory does not exist"}
 @Return {value:"Returned if the user does not have the necessary permissions to access/modify the directory/file"}
 @Return {value:"Returned if the directory/file could not be created"}
-public native function copy (File source, File destination, boolean replaceExisting) (AccessDeniedError, IOError);
+public native function copy (File source, File destination, boolean replaceExisting) (FileNotFoundError, AccessDeniedError, IOError);
 
 @Description { value:"Moves a file from a given location to another"}
 @Param { value:"target: File/Directory that should be moved" }
 @Param { value:"destination: Location where the File/Directory should be moved to" }
+@Return {value:"Returned if the specified source file/directory does not exist"}
 @Return {value:"Returned if the user does not have the necessary permissions to access/modify the directory/file"}
 @Return {value:"Returned if the directory/file could not be moved"}
-public native function move (File target, File destination, boolean replaceExisting) (AccessDeniedError, IOError);
+public native function move (File target, File destination, boolean replaceExisting) (FileNotFoundError, AccessDeniedError, IOError);
 
 @Description {value:"Checks whether the file exists"}
 @Param { value: "file: The file to be checked for existence"}

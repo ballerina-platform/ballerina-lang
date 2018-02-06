@@ -70,7 +70,7 @@ public function getText (Entity entity) (string) {
         file:File overFlowData = entity.overflowData;
         if (overFlowData != null) {
             string encoding = getEncoding(entity.contentType);
-            io:ByteChannel channel = overFlowData.openChannel(READ_PERMISSION);
+            io:ByteChannel channel = overFlowData.openChannel(file:AccessMode.R);
             io:CharacterChannel characterChannel = channel.toCharacterChannel(encoding);
             string characters = characterChannel.readAllCharacters();
             return characters;
@@ -89,7 +89,7 @@ public function getJson (Entity entity) (json) {
         file:File overFlowData = entity.overflowData;
         if (overFlowData != null) {
             string encoding = getEncoding(entity.contentType);
-            io:ByteChannel channel = overFlowData.openChannel(READ_PERMISSION);
+            io:ByteChannel channel = overFlowData.openChannel(file:AccessMode.R);
             blob bytes = readAll(channel);
             string content = bytes.toString(encoding);
             var jsonContent, _ = <json>content;
@@ -109,7 +109,7 @@ public function getXml (Entity entity) (xml) {
         file:File overFlowData = entity.overflowData;
         if (overFlowData != null) {
             string encoding = getEncoding(entity.contentType);
-            io:ByteChannel channel = overFlowData.openChannel(READ_PERMISSION);
+            io:ByteChannel channel = overFlowData.openChannel(file:AccessMode.R);
             blob bytes = readAll(channel);
             string content = bytes.toString(encoding);
             var xmlContent, _ = <xml>content;
@@ -126,7 +126,7 @@ handler."}
 public function getBlob (Entity entity) (blob) {
     file:File overFlowData = entity.overflowData;
     if (overFlowData != null) {
-        io:ByteChannel channel = overFlowData.openChannel(READ_PERMISSION);
+        io:ByteChannel channel = overFlowData.openChannel(file:AccessMode.R);
         return readAll(channel);
     } else {
         return entity.byteData;
@@ -285,6 +285,3 @@ public const string CHARSET = "charset";
 
 @Description {value:"Default charset to be used with mime encoding and decoding"}
 public const string DEFAULT_CHARSET = "UTF-8";
-
-@Description {value:"Permission to be used with opening a byte channel for overflow data"}
-const string READ_PERMISSION = "r";

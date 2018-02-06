@@ -46,7 +46,9 @@ import static org.ballerinalang.nativeimpl.file.utils.FileUtils.createIOError;
         functionName = "delete",
         args = {@Argument(name = "target", type = TypeKind.STRUCT, structType = "File",
                 structPackage = "ballerina.file")},
-        returnType = {@ReturnType(type = TypeKind.STRUCT), @ReturnType(type = TypeKind.STRUCT)},
+        returnType = {
+                @ReturnType(type = TypeKind.STRUCT, structType = "AccessDeniedError", structPackage = "ballerina.file"),
+                @ReturnType(type = TypeKind.STRUCT, structType = "IOError", structPackage = "ballerina.file")},
         isPublic = true
 )
 public class Delete extends AbstractNativeFunction {
