@@ -22,6 +22,9 @@ package ballerina.net.http;
 @Field {value:"exposeHeaders: The array of allowed headers which are exposed to the client"}
 @Field {value:"transferEncoding: The types of encoding applied to the response"}
 @Field {value:"chunking: The chunking behaviour of the response"}
+@Field {value:"maxUriLength: maximum length allowed for the URL"}
+@Field {value:"maxHeaderSize: maximum size allowed for the headers"}
+@Field {value:"maxEntityBodySize: maximum size allowed for the entity body"}
 @Field {value:"webSocket: Annotation to define HTTP to WebSocket upgrade"}
 public annotation configuration attach service<> {
     string host;
@@ -46,6 +49,9 @@ public annotation configuration attach service<> {
     boolean keepAlive;
     string transferEncoding;
     string chunking;
+    string maxUriLength;
+    string maxHeaderSize;
+    string maxEntityBodySize;
     webSocket webSocket;
 }
 

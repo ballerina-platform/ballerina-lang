@@ -64,6 +64,7 @@ import org.wso2.carbon.messaging.exceptions.ServerConnectorException;
 import org.wso2.transport.http.netty.config.ChunkConfig;
 import org.wso2.transport.http.netty.config.ListenerConfiguration;
 import org.wso2.transport.http.netty.config.Parameter;
+import org.wso2.transport.http.netty.config.RequestSizeValidationConfig;
 import org.wso2.transport.http.netty.contract.HttpResponseFuture;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 import org.wso2.transport.http.netty.message.HttpBodyPart;
@@ -768,6 +769,9 @@ public class HttpUtil {
         AnnAttrValue keepAliveAttrVal = configInfo.getAnnAttrValue(Constants.ANN_CONFIG_ATTR_KEEP_ALIVE);
         AnnAttrValue transferEncoding = configInfo.getAnnAttrValue(Constants.ANN_CONFIG_ATTR_TRANSFER_ENCODING);
         AnnAttrValue chunking = configInfo.getAnnAttrValue(Constants.ANN_CONFIG_ATTR_CHUNKING);
+        AnnAttrValue maxUriLength = configInfo.getAnnAttrValue(Constants.ANN_CONFIG_ATTR_MAXIMUM_URL_SIZE);
+        AnnAttrValue maxHeaderSize = configInfo.getAnnAttrValue(Constants.ANN_CONFIG_ATTR_MAXIMUM_HEADER_SIZE);
+        AnnAttrValue maxEntityBodySize = configInfo.getAnnAttrValue(Constants.ANN_CONFIG_ATTR_MAXIMUM_ENTITY_BODY_SIZE);
 
         ListenerConfiguration listenerConfiguration = new ListenerConfiguration();
         if (portAttrVal != null && portAttrVal.getIntValue() > 0) {
@@ -799,6 +803,33 @@ public class HttpUtil {
                 listenerConfiguration.setChunkConfig(chunkConfig);
             } else {
                 listenerConfiguration.setChunkConfig(ChunkConfig.AUTO);
+            }
+
+            RequestSizeValidationConfig requestSizeValidationConfig =
+                    listenerConfiguration.getRequestSizeValidationConfig();
+            if (maxUriLength != null) {
+                if (maxUriLength.getIntValue() > 0) {
+                    requestSizeValidationConfig.setMaxUriLength(Math.toIntExact(maxUriLength.getIntValue()));
+                } else {
+                    throw new BallerinaConnectorException("Invalid configuration found for maxUriLength : "
+                            + maxUriLength.getIntValue());
+                }
+            }
+            if (maxHeaderSize != null) {
+                if (maxHeaderSize.getIntValue() > 0) {
+                    requestSizeValidationConfig.setMaxHeaderSize(Math.toIntExact(maxHeaderSize.getIntValue()));
+                } else {
+                    throw new BallerinaConnectorException("Invalid configuration found for maxHeaderSize : "
+                            + maxHeaderSize.getIntValue());
+                }
+            }
+            if (maxEntityBodySize != null) {
+                if (maxEntityBodySize.getIntValue() > 0) {
+                    requestSizeValidationConfig.setMaxEntityBodySize(Math.toIntExact(maxEntityBodySize.getIntValue()));
+                } else {
+                    throw new BallerinaConnectorException("Invalid configuration found for maxEntityBodySize : "
+                            + maxEntityBodySize.getIntValue());
+                }
             }
 
             listenerConfiguration
