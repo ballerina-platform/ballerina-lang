@@ -25,3 +25,7 @@ target
 .DS_Store
 
 .idea
+.classpath
+.project
+.settings
+
