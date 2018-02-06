@@ -773,7 +773,7 @@ class BallerinaFileEditor extends React.Component {
                                 <div className='split-view-container'>
                                     <SplitPane
                                         split='vertical'
-                                        defaultSize={(this.props.width / 2)}
+                                        defaultSize={this.state.splitSize}
                                         onChange={this.handleSplitChange}
                                     >
                                         {sourceView}
@@ -805,26 +805,28 @@ class BallerinaFileEditor extends React.Component {
                         resetSwaggerViewFun={this.resetSwaggerView}
                     />
                 </div>
-                <div className={cn('bottom-right-controls-container')}>
-                    <ViewButton
-                        label='Design View'
-                        icon='design-view'
-                        onClick={() => { this.setActiveView(DESIGN_VIEW); }}
-                        active={this.state.activeView === DESIGN_VIEW}
-                    />
-                    <ViewButton
-                        label='Source View'
-                        icon='code'
-                        onClick={() => { this.setActiveView(SOURCE_VIEW); }}
-                        active={this.state.activeView === SOURCE_VIEW}
-                    />
-                    <ViewButton
-                        label='Split View'
-                        icon='split-view'
-                        onClick={() => { this.setActiveView(SPLIT_VIEW); }}
-                        active={this.state.activeView === SPLIT_VIEW}
-                    />
-                </div>
+                { !showSwaggerView &&
+                    <div className={cn('bottom-right-controls-container')}>
+                        <ViewButton
+                            label='Design View'
+                            icon='design-view'
+                            onClick={() => { this.setActiveView(DESIGN_VIEW); }}
+                            active={this.state.activeView === DESIGN_VIEW}
+                        />
+                        <ViewButton
+                            label='Source View'
+                            icon='code'
+                            onClick={() => { this.setActiveView(SOURCE_VIEW); }}
+                            active={this.state.activeView === SOURCE_VIEW}
+                        />
+                        <ViewButton
+                            label='Split View'
+                            icon='split-view'
+                            onClick={() => { this.setActiveView(SPLIT_VIEW); }}
+                            active={this.state.activeView === SPLIT_VIEW}
+                        />
+                    </div>
+                }
             </div>
         );
     }
