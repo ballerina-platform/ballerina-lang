@@ -93,8 +93,7 @@ public class MultipartSubtypesTest {
                 multipartBody);
         HTTPCarbonMessage response = Services.invokeNew(serviceResult, inRequestMsg);
         Assert.assertNotNull(response, "Response message not found");
-        Assert.assertEquals(ResponseReader.getReturnValue(response), " -- jsonPart -- Ballerina xml " +
-                "file part -- Ballerina text body part -- Ballerina binary file part");
+        Assert.assertEquals(ResponseReader.getReturnValue(response), " -- bar -- File 01" + StringUtil.NEWLINE);
     }
 
     /**

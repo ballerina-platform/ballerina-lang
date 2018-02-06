@@ -75,29 +75,29 @@ public class MultipartDataSource extends BallerinaMessageDataSource {
 
                     //Write body headers
                     BMap<String, BValue> entityHeaders = (BMap) bodyPart.getRefField(ENTITY_HEADERS_INDEX);
-                    if (entityHeaders == null) {
-                        return;
-                    }
-                    Set<String> keys = entityHeaders.keySet();
-                    for (String key : keys) {
-                        BStringArray headerValues = (BStringArray) entityHeaders.get(key);
-                        writer.write(key);
-                        writer.write(':');
-                        boolean first = true;
-                        for (int j = 0; j < headerValues.size(); j++) {
-                            if (first) {
-                                writer.write(' ');
-                                first = false;
-                            } else {
-                                writer.write(',');
+                    if (entityHeaders != null) {
+                        Set<String> keys = entityHeaders.keySet();
+                        for (String key : keys) {
+                            BStringArray headerValues = (BStringArray) entityHeaders.get(key);
+                            writer.write(key);
+                            writer.write(':');
+                            boolean first = true;
+                            for (int j = 0; j < headerValues.size(); j++) {
+                                if (first) {
+                                    writer.write(' ');
+                                    first = false;
+                                } else {
+                                    writer.write(',');
+                                }
+                                writer.write(headerValues.get(j));
                             }
-                            writer.write(headerValues.get(j));
+                            writer.write("\r\n");
                         }
-                        writer.write("\r\n");
                     }
+
                     // Mark the end of the headers for this body part
                     writer.write("\r\n");
-                    writer.flush();
+                   // writer.flush();
 
                     writeBodyContent(writer, outputStream, bodyPart);
                     writeFinalBoundaryString(writer, boundaryString);
@@ -115,6 +115,7 @@ public class MultipartDataSource extends BallerinaMessageDataSource {
                 case TEXT_PLAIN:
                     String textPayload = MimeUtil.getTextPayload(bodyPart);
                     writer.write(textPayload);
+                    break;
                 case APPLICATION_JSON:
                     BJSON jsonPayload = MimeUtil.getJsonPayload(bodyPart);
                     jsonPayload.serializeData(outputStream);
