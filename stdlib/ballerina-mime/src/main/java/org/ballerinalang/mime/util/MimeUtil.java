@@ -33,6 +33,7 @@ import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BRefType;
 import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BString;
+import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BXML;
@@ -77,7 +78,6 @@ import static org.ballerinalang.mime.util.Constants.ENTITY_HEADERS_INDEX;
 import static org.ballerinalang.mime.util.Constants.ENTITY_NAME_INDEX;
 import static org.ballerinalang.mime.util.Constants.FILE_PATH_INDEX;
 import static org.ballerinalang.mime.util.Constants.FILE_SIZE;
-import static org.ballerinalang.mime.util.Constants.HEADER_VALUE_INDEX;
 import static org.ballerinalang.mime.util.Constants.JSON_DATA_INDEX;
 import static org.ballerinalang.mime.util.Constants.JSON_EXTENSION;
 import static org.ballerinalang.mime.util.Constants.MEDIA_TYPE;
@@ -745,8 +745,8 @@ public class MimeUtil {
         BMap<String, BValue> headerMap = bodyPart.getRefField(ENTITY_HEADERS_INDEX) != null ?
                 (BMap<String, BValue>) bodyPart.getRefField(ENTITY_HEADERS_INDEX) : null;
         if (headerMap != null) {
-            BStruct headerValue = (BStruct) headerMap.get(headerName);
-            return headerValue.getStringField(HEADER_VALUE_INDEX);
+            BStringArray headerValue = (BStringArray) headerMap.get(headerName);
+            return headerValue.get(0);
         }
         return null;
     }

@@ -184,7 +184,7 @@ public class HttpClientRequest {
     private static void setHeadersAndMethod(HttpURLConnection conn, Map<String, String> headers, String method)
             throws ProtocolException {
         for (Map.Entry<String, String> e : headers.entrySet()) {
-            conn.setRequestProperty(e.getKey(), e.getValue());
+            conn.addRequestProperty(e.getKey(), e.getValue());
         }
         conn.setRequestMethod(method);
     }

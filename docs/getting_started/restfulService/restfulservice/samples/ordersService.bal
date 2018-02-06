@@ -10,7 +10,7 @@ service<http> OrderMgtService {
     }
     resource orders (http:Connection conn, http:InRequest req) {
         json payload = {};
-        string httpMethod = req.getMethod();
+        string httpMethod = req.method;
         if (httpMethod.equalsIgnoreCase("GET")) {
             payload = {"Order":{"ID":"111999", "Name":"ABC123", "Description":"Sample order."}};
         } else {

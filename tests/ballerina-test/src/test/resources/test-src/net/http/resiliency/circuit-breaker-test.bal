@@ -90,7 +90,7 @@ connector MockHttpClient (string serviceUri, http:Options connectorOptions) {
         http:HttpConnectorError err;
         actualRequestNumber = actualRequestNumber + 1;
 
-        string scenario = req.getHeader(TEST_SCENARIO_HEADER).value;
+        string scenario = req.getHeader(TEST_SCENARIO_HEADER);
 
         if (scenario == SCENARIO_TYPICAL) {
             response, err = handleScenario1(actualRequestNumber);

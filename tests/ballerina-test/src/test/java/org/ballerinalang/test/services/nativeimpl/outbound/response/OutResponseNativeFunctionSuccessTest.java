@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.ballerinalang.test.services.nativeimpl.response;
+package org.ballerinalang.test.services.nativeimpl.outbound.response;
 
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
@@ -26,8 +26,8 @@ import org.ballerinalang.model.util.StringUtils;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BJSON;
 import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BString;
+import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BXMLItem;
@@ -48,7 +48,6 @@ import static org.ballerinalang.mime.util.Constants.APPLICATION_XML;
 import static org.ballerinalang.mime.util.Constants.BYTE_DATA_INDEX;
 import static org.ballerinalang.mime.util.Constants.CONTENT_TYPE;
 import static org.ballerinalang.mime.util.Constants.ENTITY_HEADERS_INDEX;
-import static org.ballerinalang.mime.util.Constants.HEADER_VALUE_STRUCT;
 import static org.ballerinalang.mime.util.Constants.IS_ENTITY_BODY_PRESENT;
 import static org.ballerinalang.mime.util.Constants.JSON_DATA_INDEX;
 import static org.ballerinalang.mime.util.Constants.MEDIA_TYPE;
@@ -60,46 +59,41 @@ import static org.ballerinalang.mime.util.Constants.TEXT_PLAIN;
 import static org.ballerinalang.mime.util.Constants.XML_DATA_INDEX;
 
 /**
- * Test cases for ballerina.net.http.response success native functions.
+ * Test cases for ballerina.net.http outbound outResponse success native functions.
  */
-public class ResponseNativeFunctionSuccessTest {
+public class OutResponseNativeFunctionSuccessTest {
 
     private CompileResult result, serviceResult;
-    private final String inResponseStruct = Constants.IN_RESPONSE;
+    private final String outRespStruct = Constants.OUT_RESPONSE;
     private final String entityStruct = Constants.ENTITY;
     private final String mediaTypeStruct = MEDIA_TYPE;
-    private final String headerStruct = HEADER_VALUE_STRUCT;
     private final String protocolPackageHttp = Constants.PROTOCOL_PACKAGE_HTTP;
     private final String protocolPackageMime = PROTOCOL_PACKAGE_MIME;
-    private String sourceFilePath = "test-src/statements/services/nativeimpl/response/response-native-function.bal";
 
     @BeforeClass
     public void setup() {
+        String sourceFilePath =
+                "test-src/statements/services/nativeimpl/outbound/response/out-response-native-function.bal";
         result = BCompileUtil.compile(sourceFilePath);
         serviceResult = BServiceUtil.setupProgramFile(this, sourceFilePath);
     }
 
     @Test
+    @SuppressWarnings("unchecked")
     public void testAddHeader() {
-        BStruct response = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, inResponseStruct);
-        HTTPCarbonMessage cMsg = HttpUtil.createHttpCarbonMessage(false);
-
-        HttpUtil.addCarbonMsg(response, cMsg);
-
+        BStruct outResponse = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, outRespStruct);
         String headerName = "header1";
-        String headerValue = "headerValue";
+        String headerValue = "abc, xyz";
         BString key = new BString(headerName);
         BString value = new BString(headerValue);
-        BValue[] inputArg = { response, key, value };
+        BValue[] inputArg = {outResponse, key, value};
         BValue[] returnVals = BRunUtil.invoke(result, "testAddHeader", inputArg);
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
                 "Invalid Return Values.");
         Assert.assertTrue(returnVals[0] instanceof BStruct);
         BStruct entityStruct = (BStruct) ((BStruct) returnVals[0]).getNativeData(MESSAGE_ENTITY);
-        BMap map = (BMap) entityStruct.getRefField(ENTITY_HEADERS_INDEX);
-        BRefValueArray array = (BRefValueArray) map.get(headerName);
-        Assert.assertEquals(((BStruct) array.get(0)).getStringField(0), headerValue);
-
+        BMap<String, BStringArray> map = (BMap<String, BStringArray>) entityStruct.getRefField(ENTITY_HEADERS_INDEX);
+        Assert.assertEquals(map.get(headerName).get(0), headerValue);
     }
 
     @Test(description = "Test addHeader function within a service")
@@ -107,68 +101,27 @@ public class ResponseNativeFunctionSuccessTest {
         String key = "lang";
         String value = "ballerina";
         String path = "/hello/addheader/" + key + "/" + value;
-        HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, Constants.HTTP_METHOD_GET);
-        HTTPCarbonMessage response = Services.invokeNew(serviceResult, cMsg);
+        HTTPTestRequest inRequestMsg = MessageUtils.generateHTTPMessage(path, Constants.HTTP_METHOD_GET);
+        HTTPCarbonMessage response = Services.invokeNew(serviceResult, inRequestMsg);
 
         Assert.assertNotNull(response, "Response message not found");
         BJSON bJson = new BJSON(new HttpMessageDataStreamer(response).getInputStream());
         Assert.assertEquals(bJson.value().get(key).asText(), value);
     }
 
-    @Test(description = "Test res struct add Header function")
-    public void testStructAddHeader() {
-        String value = "ballerina";
-        String path = "/hello/addResHeader";
-        HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, Constants.HTTP_METHOD_GET);
-        HTTPCarbonMessage response = Services.invokeNew(serviceResult, cMsg);
-
-        Assert.assertNotNull(response, "Response message not found");
-        BJSON bJson = new BJSON(new HttpMessageDataStreamer(response).getInputStream());
-        Assert.assertEquals(bJson.value().get("headerValue").asText(), value);
-        Assert.assertEquals(bJson.value().get("paramValue").asText(), String.valueOf(6));
-    }
-
-    @Test(description = "Test res struct add Header function without params")
-    public void testStructAddHeaderWithNoParam() {
-        String value = "ballerina";
-        String path = "/hello/addResHeaderWithoutParam";
-        HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, Constants.HTTP_METHOD_GET);
-        HTTPCarbonMessage response = Services.invokeNew(serviceResult, cMsg);
-
-        Assert.assertNotNull(response, "Response message not found");
-        BJSON bJson = new BJSON(new HttpMessageDataStreamer(response).getInputStream());
-        Assert.assertEquals(bJson.value().get("headerValue").asText(), value);
-        Assert.assertEquals(bJson.value().get("paramValue").asText(), "param is null");
-    }
-
-    @Test(description = "Test req struct add Header function")
-    public void testAddHeaderViaBalFunction() {
-        String path = "/hello/addResHeaderFunc";
-        HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, Constants.HTTP_METHOD_GET);
-        HTTPCarbonMessage response = Services.invokeNew(serviceResult, cMsg);
-
-        Assert.assertNotNull(response, "Response message not found");
-        BJSON bJson = new BJSON(new HttpMessageDataStreamer(response).getInputStream());
-        Assert.assertEquals(bJson.value().get("headerValue").asText(), "chamil");
-        Assert.assertEquals(bJson.value().get("size").asText(), String.valueOf(3));
-    }
-
     @Test
     public void testGetBinaryPayloadMethod() {
-        BStruct response = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, inResponseStruct);
+        BStruct outResponse = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, outRespStruct);
         BStruct entity = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageMime, entityStruct);
         BStruct mediaType = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageMime, mediaTypeStruct);
-        HTTPCarbonMessage cMsg = HttpUtil.createHttpCarbonMessage(true);
 
         String payload = "ballerina";
-        String contentType = OCTET_STREAM;
-        MimeUtil.setContentType(mediaType, entity, contentType);
+        MimeUtil.setContentType(mediaType, entity, OCTET_STREAM);
         entity.setBlobField(BYTE_DATA_INDEX, payload.getBytes());
-        response.addNativeData(MESSAGE_ENTITY, entity);
-        response.addNativeData(IS_ENTITY_BODY_PRESENT, true);
+        outResponse.addNativeData(MESSAGE_ENTITY, entity);
+        outResponse.addNativeData(IS_ENTITY_BODY_PRESENT, true);
 
-        HttpUtil.addCarbonMsg(response, cMsg);
-        BValue[] inputArg = { response };
+        BValue[] inputArg = {outResponse};
         BValue[] returnVals = BRunUtil.invoke(result, "testGetBinaryPayload", inputArg);
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
                 "Invalid Return Values.");
@@ -177,22 +130,17 @@ public class ResponseNativeFunctionSuccessTest {
 
     @Test
     public void testGetContentLength() {
-        BStruct response = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, inResponseStruct);
-        HTTPCarbonMessage cMsg = HttpUtil.createHttpCarbonMessage(false);
-
         String payload = "ballerina";
-        cMsg.setHeader(Constants.HTTP_CONTENT_LENGTH, String.valueOf(payload.length()));
-        cMsg.setProperty(Constants.HTTP_STATUS_CODE, 200);
-        HttpUtil.addCarbonMsg(response, cMsg);
-
+        BStruct outResponse = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, outRespStruct);
         BStruct entity = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageMime, entityStruct);
-        BStruct mediaType = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageMime, mediaTypeStruct);
-        HttpUtil.setHeaderValueStructType(
-                BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageMime, headerStruct));
-        HttpUtil.populateInboundResponse(response, entity, mediaType, cMsg);
 
-        BValue[] inputArg = { response };
+        BMap<String, BStringArray> headersMap = new BMap<>();
+        headersMap.put(Constants.HTTP_CONTENT_LENGTH, new BStringArray(new String[]{String.valueOf(payload.length())}));
+        entity.setRefField(ENTITY_HEADERS_INDEX, headersMap);
+        outResponse.addNativeData(MESSAGE_ENTITY, entity);
+        BValue[] inputArg = {outResponse};
         BValue[] returnVals = BRunUtil.invoke(result, "testGetContentLength", inputArg);
+
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
                 "Invalid Return Values.");
         Assert.assertEquals(payload.length(), ((BInteger) returnVals[0]).intValue());
@@ -200,95 +148,68 @@ public class ResponseNativeFunctionSuccessTest {
 
     @Test
     public void testGetHeader() {
-        BStruct response = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, inResponseStruct);
-        HTTPCarbonMessage cMsg = HttpUtil.createHttpCarbonMessage(false);
-        cMsg.setHeader(CONTENT_TYPE, APPLICATION_FORM);
-        cMsg.setProperty(Constants.HTTP_STATUS_CODE, 200);
-        HttpUtil.addCarbonMsg(response, cMsg);
+        BStruct outResponse = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, outRespStruct);
         BStruct entity = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageMime, entityStruct);
-        BStruct mediaType = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageMime, mediaTypeStruct);
-        HttpUtil.setHeaderValueStructType(
-                BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageMime, headerStruct));
-        HttpUtil.populateInboundResponse(response, entity, mediaType, cMsg);
+
+        BMap<String, BStringArray> headersMap = new BMap<>();
+        headersMap.put(CONTENT_TYPE, new BStringArray(new String[]{APPLICATION_FORM + "; q=0.7"}));
+        entity.setRefField(ENTITY_HEADERS_INDEX, headersMap);
+        outResponse.addNativeData(MESSAGE_ENTITY, entity);
 
         BString key = new BString(CONTENT_TYPE);
-
-        BValue[] inputArg = { response, key };
+        BValue[] inputArg = {outResponse, key};
         BValue[] returnVals = BRunUtil.invoke(result, "testGetHeader", inputArg);
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
                 "Invalid Return Values.");
-        Assert.assertEquals(returnVals[0].stringValue(), APPLICATION_FORM);
+        Assert.assertEquals(returnVals[0].stringValue(), APPLICATION_FORM + "; q=0.7");
     }
 
     @Test(description = "Test GetHeader function within a service")
     public void testServiceGetHeader() {
         String value = "x-www-form-urlencoded";
         String path = "/hello/getHeader/" + CONTENT_TYPE + "/" + value;
-        HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, Constants.HTTP_METHOD_GET);
-        HTTPCarbonMessage response = Services.invokeNew(serviceResult, cMsg);
+        HTTPTestRequest inRequest = MessageUtils.generateHTTPMessage(path, Constants.HTTP_METHOD_GET);
+        HTTPCarbonMessage response = Services.invokeNew(serviceResult, inRequest);
 
         Assert.assertNotNull(response, "Response message not found");
         BJSON bJson = new BJSON(new HttpMessageDataStreamer(response).getInputStream());
         Assert.assertEquals(bJson.value().get("value").asText(), value);
     }
 
-    @Test(description = "Test struct Get Header operation")
-    public void testStructGetHeader() {
-        String path = "/hello/getResHeader";
-        HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, Constants.HTTP_METHOD_GET);
-        HTTPCarbonMessage response = Services.invokeNew(serviceResult, cMsg);
-
-        Assert.assertNotNull(response, "Response message not found");
-        BJSON bJson = new BJSON(new HttpMessageDataStreamer(response).getInputStream());
-        Assert.assertEquals(bJson.value().get("value").asText(), "ballerina");
-    }
-
     @Test(description = "Test GetHeaders function within a function")
     public void testGetHeaders() {
-        BStruct response = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, inResponseStruct);
-        HTTPCarbonMessage cMsg = HttpUtil.createHttpCarbonMessage(false);
-        cMsg.setHeader("test-header", APPLICATION_FORM + "," + TEXT_PLAIN + ";b=5");
-        cMsg.setProperty(Constants.HTTP_STATUS_CODE, 200);
+        String headerValue1 = APPLICATION_FORM;
+        String headerValue2 = TEXT_PLAIN + ";b=5";
+        BStruct outResponse = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, outRespStruct);
         BStruct entity = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageMime, entityStruct);
-        BStruct mediaType = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageMime, mediaTypeStruct);
-        HttpUtil.setHeaderValueStructType(
-                BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageMime, headerStruct));
-        HttpUtil.populateInboundResponse(response, entity, mediaType, cMsg);
+
+        BMap<String, BStringArray> headersMap = new BMap<>();
+        headersMap.put("test-header", new BStringArray(new String[]{headerValue1, headerValue2}));
+        entity.setRefField(ENTITY_HEADERS_INDEX, headersMap);
+        outResponse.addNativeData(MESSAGE_ENTITY, entity);
 
         BString key = new BString("test-header");
-        BValue[] inputArg = { response, key };
+        BValue[] inputArg = {outResponse, key};
         BValue[] returnVals = BRunUtil.invoke(result, "testGetHeaders", inputArg);
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
                 "Invalid Return Values.");
-        Assert.assertEquals(returnVals[0].stringValue(), TEXT_PLAIN);
-    }
-
-    @Test(description = "Test GetHeaders function within a service")
-    public void testServiceGetHeaders() {
-        String path = "/hello/getHeaders";
-        HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, Constants.HTTP_METHOD_GET);
-        HTTPCarbonMessage response = Services.invokeNew(serviceResult, cMsg);
-
-        Assert.assertNotNull(response, "Response message not found");
-        BJSON bJson = new BJSON(new HttpMessageDataStreamer(response).getInputStream());
-        Assert.assertEquals(bJson.value().get("value").asText(), "transport");
-        Assert.assertEquals(bJson.value().get("paramValue").asText(), String.valueOf(6));
+        Assert.assertEquals(((BStringArray) returnVals[0]).get(0), headerValue1);
+        Assert.assertEquals(((BStringArray) returnVals[0]).get(1), headerValue2);
     }
 
     @Test
     public void testGetJsonPayload() {
-        BStruct response = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, inResponseStruct);
+        BStruct outResponse = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, outRespStruct);
         BStruct entity = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageMime, entityStruct);
         BStruct mediaType = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageMime, mediaTypeStruct);
-        HTTPCarbonMessage cMsg = HttpUtil.createHttpCarbonMessage(false);
+
         String payload = "{'code':'123'}";
-        cMsg.setHeader(CONTENT_TYPE, APPLICATION_JSON);
-        HttpUtil.addCarbonMsg(response, cMsg);
         MimeUtil.setContentType(mediaType, entity, APPLICATION_JSON);
         entity.setRefField(JSON_DATA_INDEX, new BJSON(payload));
-        response.addNativeData(MESSAGE_ENTITY, entity);
-        response.addNativeData(IS_ENTITY_BODY_PRESENT, true);
-        BValue[] inputArg = { response };
+        outResponse.addNativeData(MESSAGE_ENTITY, entity);
+        outResponse.addNativeData(IS_ENTITY_BODY_PRESENT, true);
+
+        BValue[] inputArg = {outResponse};
         BValue[] returnVals = BRunUtil.invoke(result, "testGetJsonPayload", inputArg);
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
                 "Invalid Return Values.");
@@ -299,8 +220,8 @@ public class ResponseNativeFunctionSuccessTest {
     public void testServiceGetJsonPayload() {
         String value = "ballerina";
         String path = "/hello/getJsonPayload/" + value;
-        HTTPTestRequest requestMsg = MessageUtils.generateHTTPMessage(path, Constants.HTTP_METHOD_GET);
-        HTTPCarbonMessage responseMsg = Services.invokeNew(serviceResult, requestMsg);
+        HTTPTestRequest inRequestMsg = MessageUtils.generateHTTPMessage(path, Constants.HTTP_METHOD_GET);
+        HTTPCarbonMessage responseMsg = Services.invokeNew(serviceResult, inRequestMsg);
 
         Assert.assertNotNull(responseMsg, "Response message not found");
         Assert.assertEquals(new BJSON(new HttpMessageDataStreamer(responseMsg).getInputStream()).stringValue(), value);
@@ -308,14 +229,15 @@ public class ResponseNativeFunctionSuccessTest {
 
     @Test
     public void testGetProperty() {
-        BStruct response = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, inResponseStruct);
-        HTTPCarbonMessage cMsg = HttpUtil.createHttpCarbonMessage(false);
+        BStruct outResponse = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, outRespStruct);
+        HTTPCarbonMessage outResponseMsg = HttpUtil.createHttpCarbonMessage(false);
         String propertyName = "wso2";
         String propertyValue = "Ballerina";
-        cMsg.setProperty(propertyName, propertyValue);
-        HttpUtil.addCarbonMsg(response, cMsg);
+        outResponseMsg.setProperty(propertyName, propertyValue);
+        HttpUtil.addCarbonMsg(outResponse, outResponseMsg);
+
         BString name = new BString(propertyName);
-        BValue[] inputArg = { response, name };
+        BValue[] inputArg = {outResponse, name};
         BValue[] returnVals = BRunUtil.invoke(result, "testGetProperty", inputArg);
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
                 "Invalid Return Values.");
@@ -327,8 +249,8 @@ public class ResponseNativeFunctionSuccessTest {
         String propertyName = "wso2";
         String propertyValue = "Ballerina";
         String path = "/hello/GetProperty/" + propertyName + "/" + propertyValue;
-        HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, Constants.HTTP_METHOD_GET);
-        HTTPCarbonMessage response = Services.invokeNew(serviceResult, cMsg);
+        HTTPTestRequest inRequestMsg = MessageUtils.generateHTTPMessage(path, Constants.HTTP_METHOD_GET);
+        HTTPCarbonMessage response = Services.invokeNew(serviceResult, inRequestMsg);
 
         Assert.assertNotNull(response, "Response message not found");
         BJSON bJson = new BJSON(new HttpMessageDataStreamer(response).getInputStream());
@@ -337,18 +259,17 @@ public class ResponseNativeFunctionSuccessTest {
 
     @Test
     public void testGetStringPayload() {
-        BStruct response = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, inResponseStruct);
+        BStruct outResponse = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, outRespStruct);
         BStruct entity = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageMime, entityStruct);
         BStruct mediaType = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageMime, mediaTypeStruct);
-        HTTPCarbonMessage cMsg = HttpUtil.createHttpCarbonMessage(false);
+
         String payload = "ballerina";
-        HttpUtil.addCarbonMsg(response, cMsg);
-        String contentType = TEXT_PLAIN;
-        MimeUtil.setContentType(mediaType, entity, contentType);
+        MimeUtil.setContentType(mediaType, entity, TEXT_PLAIN);
         entity.setStringField(TEXT_DATA_INDEX, payload);
-        response.addNativeData(MESSAGE_ENTITY, entity);
-        response.addNativeData(IS_ENTITY_BODY_PRESENT, true);
-        BValue[] inputArg = { response };
+        outResponse.addNativeData(MESSAGE_ENTITY, entity);
+        outResponse.addNativeData(IS_ENTITY_BODY_PRESENT, true);
+
+        BValue[] inputArg = {outResponse};
         BValue[] returnVals = BRunUtil.invoke(result, "testGetStringPayload", inputArg);
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
                 "Invalid Return Values.");
@@ -359,8 +280,8 @@ public class ResponseNativeFunctionSuccessTest {
     public void testServiceGetStringPayload() {
         String value = "ballerina";
         String path = "/hello/GetStringPayload/" + value;
-        HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, Constants.HTTP_METHOD_GET);
-        HTTPCarbonMessage response = Services.invokeNew(serviceResult, cMsg);
+        HTTPTestRequest inRequestMsg = MessageUtils.generateHTTPMessage(path, Constants.HTTP_METHOD_GET);
+        HTTPCarbonMessage response = Services.invokeNew(serviceResult, inRequestMsg);
 
         Assert.assertNotNull(response, "Response message not found");
         Assert.assertEquals(
@@ -369,18 +290,17 @@ public class ResponseNativeFunctionSuccessTest {
 
     @Test
     public void testGetXmlPayload() {
-        BStruct response = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, inResponseStruct);
+        BStruct outResponse = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, outRespStruct);
         BStruct entity = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageMime, entityStruct);
         BStruct mediaType = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageMime, mediaTypeStruct);
-        HTTPCarbonMessage cMsg = HttpUtil.createHttpCarbonMessage(false);
+
         String payload = "<name>ballerina</name>";
-        HttpUtil.addCarbonMsg(response, cMsg);
-        String contentType = APPLICATION_XML;
-        MimeUtil.setContentType(mediaType, entity, contentType);
+        MimeUtil.setContentType(mediaType, entity, APPLICATION_XML);
         entity.setRefField(XML_DATA_INDEX, new BXMLItem(payload));
-        response.addNativeData(MESSAGE_ENTITY, entity);
-        response.addNativeData(IS_ENTITY_BODY_PRESENT, true);
-        BValue[] inputArg = { response };
+        outResponse.addNativeData(MESSAGE_ENTITY, entity);
+        outResponse.addNativeData(IS_ENTITY_BODY_PRESENT, true);
+
+        BValue[] inputArg = {outResponse};
         BValue[] returnVals = BRunUtil.invoke(result, "testGetXmlPayload", inputArg);
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
                 "Invalid Return Values.");
@@ -391,8 +311,8 @@ public class ResponseNativeFunctionSuccessTest {
     public void testServiceGetXmlPayload() {
         String value = "ballerina";
         String path = "/hello/GetXmlPayload";
-        HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, Constants.HTTP_METHOD_GET);
-        HTTPCarbonMessage response = Services.invokeNew(serviceResult, cMsg);
+        HTTPTestRequest inRequestMsg = MessageUtils.generateHTTPMessage(path, Constants.HTTP_METHOD_GET);
+        HTTPCarbonMessage response = Services.invokeNew(serviceResult, inRequestMsg);
 
         Assert.assertNotNull(response, "Response message not found");
         Assert.assertEquals(
@@ -400,30 +320,35 @@ public class ResponseNativeFunctionSuccessTest {
     }
 
     @Test
+    @SuppressWarnings("unchecked")
     public void testRemoveHeader() {
-        BStruct response = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, inResponseStruct);
-        HTTPCarbonMessage cMsg = HttpUtil.createHttpCarbonMessage(false);
+        BStruct outResponse = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, outRespStruct);
+        BStruct entity = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageMime, entityStruct);
         String expect = "Expect";
-        cMsg.setHeader(expect, "100-continue");
-        HttpUtil.addCarbonMsg(response, cMsg);
+        String headerValue = "100-continue";
         BString key = new BString(expect);
-        BValue[] inputArg = { response, key };
+
+        BMap<String, BStringArray> headersMap = new BMap<>();
+        headersMap.put(expect, new BStringArray(new String[]{headerValue}));
+        entity.setRefField(ENTITY_HEADERS_INDEX, headersMap);
+        outResponse.addNativeData(MESSAGE_ENTITY, entity);
+
+        BValue[] inputArg = {outResponse, key};
         BValue[] returnVals = BRunUtil.invoke(result, "testRemoveHeader", inputArg);
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
                 "Invalid Return Values.");
         Assert.assertTrue(returnVals[0] instanceof BStruct);
         BStruct entityStruct = (BStruct) ((BStruct) returnVals[0]).getNativeData(MESSAGE_ENTITY);
-        BMap map = (BMap) entityStruct.getRefField(ENTITY_HEADERS_INDEX);
+        BMap<String, BStringArray> map = (BMap<String, BStringArray>) entityStruct.getRefField(ENTITY_HEADERS_INDEX);
         Assert.assertNull(map.get("100-continue"));
     }
 
     @Test(description = "Test RemoveHeader function within a service")
     public void testServiceRemoveHeader() {
-        String key = CONTENT_TYPE;
         String value = "x-www-form-urlencoded";
-        String path = "/hello/RemoveHeader/" + key + "/" + value;
-        HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, Constants.HTTP_METHOD_GET);
-        HTTPCarbonMessage response = Services.invokeNew(serviceResult, cMsg);
+        String path = "/hello/RemoveHeader/" + CONTENT_TYPE + "/" + value;
+        HTTPTestRequest inRequestMsg = MessageUtils.generateHTTPMessage(path, Constants.HTTP_METHOD_GET);
+        HTTPCarbonMessage response = Services.invokeNew(serviceResult, inRequestMsg);
 
         Assert.assertNotNull(response, "Response message not found");
         BJSON bJson = new BJSON(new HttpMessageDataStreamer(response).getInputStream());
@@ -431,21 +356,26 @@ public class ResponseNativeFunctionSuccessTest {
     }
 
     @Test
+    @SuppressWarnings("unchecked")
     public void testRemoveAllHeaders() {
-        BStruct response = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, inResponseStruct);
-        HTTPCarbonMessage cMsg = HttpUtil.createHttpCarbonMessage(false);
+        BStruct outResponse = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, outRespStruct);
+        BStruct entity = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageMime, entityStruct);
         String expect = "Expect";
         String range = "Range";
-        cMsg.setHeader(expect, "100-continue");
-        cMsg.setHeader(range, "bytes=500-999");
-        HttpUtil.addCarbonMsg(response, cMsg);
-        BValue[] inputArg = { response };
+
+        BMap<String, BStringArray> headersMap = new BMap<>();
+        headersMap.put(expect, new BStringArray(new String[]{"100-continue"}));
+        headersMap.put(range, new BStringArray(new String[]{"bytes=500-999"}));
+        entity.setRefField(ENTITY_HEADERS_INDEX, headersMap);
+        outResponse.addNativeData(MESSAGE_ENTITY, entity);
+        BValue[] inputArg = {outResponse};
+
         BValue[] returnVals = BRunUtil.invoke(result, "testRemoveAllHeaders", inputArg);
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
                 "Invalid Return Values.");
         Assert.assertTrue(returnVals[0] instanceof BStruct);
         BStruct entityStruct = (BStruct) ((BStruct) returnVals[0]).getNativeData(MESSAGE_ENTITY);
-        BMap map = (BMap) entityStruct.getRefField(ENTITY_HEADERS_INDEX);
+        BMap<String, BStringArray> map = (BMap<String, BStringArray>) entityStruct.getRefField(ENTITY_HEADERS_INDEX);
         Assert.assertNull(map.get(expect));
         Assert.assertNull(map.get(range));
     }
@@ -453,8 +383,8 @@ public class ResponseNativeFunctionSuccessTest {
     @Test(description = "Test RemoveAllHeaders function within a service")
     public void testServiceRemoveAllHeaders() {
         String path = "/hello/RemoveAllHeaders";
-        HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, Constants.HTTP_METHOD_GET);
-        HTTPCarbonMessage response = Services.invokeNew(serviceResult, cMsg);
+        HTTPTestRequest inRequestMsg = MessageUtils.generateHTTPMessage(path, Constants.HTTP_METHOD_GET);
+        HTTPCarbonMessage response = Services.invokeNew(serviceResult, inRequestMsg);
 
         Assert.assertNotNull(response, "Response message not found");
         BJSON bJson = new BJSON(new HttpMessageDataStreamer(response).getInputStream());
@@ -464,72 +394,37 @@ public class ResponseNativeFunctionSuccessTest {
     @Test
     public void testRespondMethod() {
         String path = "/hello/11";
-        HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, Constants.HTTP_METHOD_GET);
-        HTTPCarbonMessage response = Services.invokeNew(serviceResult, cMsg);
-
+        HTTPTestRequest inRequestMsg = MessageUtils.generateHTTPMessage(path, Constants.HTTP_METHOD_GET);
+        HTTPCarbonMessage response = Services.invokeNew(serviceResult, inRequestMsg);
         Assert.assertNotNull(response, "Response message not found");
     }
 
     @Test
+    @SuppressWarnings("unchecked")
     public void testSetHeader() {
-        BStruct response = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, inResponseStruct);
-        HTTPCarbonMessage cMsg = HttpUtil.createHttpCarbonMessage(false);
-        HttpUtil.addCarbonMsg(response, cMsg);
         String range = "Range";
-        String rangeValue = "bytes=500-999";
+        String rangeValue = "bytes=500-999; a=4";
         BString key = new BString(range);
         BString value = new BString(rangeValue);
-        BValue[] inputArg = { response, key, value };
+        BValue[] inputArg = {key, value};
         BValue[] returnVals = BRunUtil.invoke(result, "testSetHeader", inputArg);
+
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
                 "Invalid Return Values.");
         Assert.assertTrue(returnVals[0] instanceof BStruct);
         BStruct entityStruct = (BStruct) ((BStruct) returnVals[0]).getNativeData(MESSAGE_ENTITY);
-        BMap map = (BMap) entityStruct.getRefField(ENTITY_HEADERS_INDEX);
-        BRefValueArray array = (BRefValueArray) map.get(range);
-        Assert.assertEquals(((BStruct) array.get(0)).getStringField(0), rangeValue);
-    }
-
-    @Test
-    public void testSetHeaderStruct() {
-        BStruct response = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, inResponseStruct);
-        HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage("", Constants.HTTP_METHOD_GET);
-        cMsg.setProperty(Constants.HTTP_STATUS_CODE, 200);
-        HttpUtil.addCarbonMsg(response, cMsg);
-        BStruct entity = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageMime, entityStruct);
-        BStruct mediaType = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageMime, mediaTypeStruct);
-        HttpUtil.setHeaderValueStructType(
-                BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageMime, headerStruct));
-        HttpUtil.populateInboundResponse(response, entity, mediaType, cMsg);
-
-        String range = "Range";
-        String rangeValue = "bytes=500-999";
-        BString key = new BString(range);
-        BString value = new BString(rangeValue);
-        BValue[] inputArg = { response, key, value };
-        BValue[] returnVals = BRunUtil.invoke(result, "testSetHeaderStruct", inputArg);
-        Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
-                "Invalid Return Values.");
-        Assert.assertTrue(returnVals[0] instanceof BStruct);
-        BStruct entityStruct = (BStruct) ((BStruct) returnVals[0]).getNativeData(MESSAGE_ENTITY);
-        BMap map = (BMap) entityStruct.getRefField(ENTITY_HEADERS_INDEX);
-        BRefValueArray array = (BRefValueArray) map.get(range);
-        Assert.assertEquals(((BStruct) array.get(0)).getStringField(0), rangeValue);
+        BMap<String, BStringArray> map = (BMap<String, BStringArray>) entityStruct.getRefField(ENTITY_HEADERS_INDEX);
+        Assert.assertEquals(map.get(range).get(0), rangeValue);
     }
 
     @Test
     public void testSetJsonPayload() {
-        BStruct response = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, inResponseStruct);
-        HTTPCarbonMessage cMsg = HttpUtil.createHttpCarbonMessage(false);
-        HttpUtil.addCarbonMsg(response, cMsg);
-
         BJSON value = new BJSON("{'name':'wso2'}");
-        BValue[] inputArg = { response, value };
+        BValue[] inputArg = {value};
         BValue[] returnVals = BRunUtil.invoke(result, "testSetJsonPayload", inputArg);
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
                 "Invalid Return Values.");
         Assert.assertTrue(returnVals[0] instanceof BStruct);
-
         BStruct entity = (BStruct) ((BStruct) returnVals[0]).getNativeData(MESSAGE_ENTITY);
         BJSON bJson = (BJSON) entity.getRefField(JSON_DATA_INDEX);
         Assert.assertEquals(bJson.value().get("name").asText(), "wso2", "Payload is not set properly");
@@ -537,14 +432,11 @@ public class ResponseNativeFunctionSuccessTest {
 
     @Test
     public void testSetProperty() {
-        BStruct response = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, inResponseStruct);
-        HTTPCarbonMessage cMsg = HttpUtil.createHttpCarbonMessage(false);
-        HttpUtil.addCarbonMsg(response, cMsg);
         String propertyName = "wso2";
         String propertyValue = "Ballerina";
         BString name = new BString(propertyName);
         BString value = new BString(propertyValue);
-        BValue[] inputArg = { response, name, value };
+        BValue[] inputArg = {name, value};
         BValue[] returnVals = BRunUtil.invoke(result, "testSetProperty", inputArg);
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
                 "Invalid Return Values.");
@@ -557,8 +449,8 @@ public class ResponseNativeFunctionSuccessTest {
     public void testSetReasonPhase() {
         String phase = "ballerina";
         String path = "/hello/12/" + phase;
-        HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, Constants.HTTP_METHOD_GET);
-        HTTPCarbonMessage response = Services.invokeNew(serviceResult, cMsg);
+        HTTPTestRequest inRequestMsg = MessageUtils.generateHTTPMessage(path, Constants.HTTP_METHOD_GET);
+        HTTPCarbonMessage response = Services.invokeNew(serviceResult, inRequestMsg);
 
         Assert.assertNotNull(response, "Response message not found");
         Assert.assertEquals(response.getProperty(Constants.HTTP_REASON_PHRASE), phase);
@@ -567,8 +459,8 @@ public class ResponseNativeFunctionSuccessTest {
     @Test
     public void testSetStatusCode() {
         String path = "/hello/13";
-        HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, Constants.HTTP_METHOD_GET);
-        HTTPCarbonMessage response = Services.invokeNew(serviceResult, cMsg);
+        HTTPTestRequest inRequestMsg = MessageUtils.generateHTTPMessage(path, Constants.HTTP_METHOD_GET);
+        HTTPCarbonMessage response = Services.invokeNew(serviceResult, inRequestMsg);
 
         Assert.assertNotNull(response, "Response message not found");
         Assert.assertEquals(response.getProperty(Constants.HTTP_STATUS_CODE), 203);
@@ -576,17 +468,12 @@ public class ResponseNativeFunctionSuccessTest {
 
     @Test
     public void testSetStringPayload() {
-        BStruct response = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, inResponseStruct);
-        HTTPCarbonMessage cMsg = HttpUtil.createHttpCarbonMessage(false);
-        HttpUtil.addCarbonMsg(response, cMsg);
-
         BString value = new BString("Ballerina");
-        BValue[] inputArg = { response, value };
+        BValue[] inputArg = {value};
         BValue[] returnVals = BRunUtil.invoke(result, "testSetStringPayload", inputArg);
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
                 "Invalid Return Values.");
         Assert.assertTrue(returnVals[0] instanceof BStruct);
-
         BStruct entity = (BStruct) ((BStruct) returnVals[0]).getNativeData(MESSAGE_ENTITY);
         String stringValue = entity.getStringField(TEXT_DATA_INDEX);
         Assert.assertEquals(stringValue, "Ballerina", "Payload is not set properly");
@@ -594,17 +481,12 @@ public class ResponseNativeFunctionSuccessTest {
 
     @Test
     public void testSetXmlPayload() {
-        BStruct response = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, inResponseStruct);
-        HTTPCarbonMessage cMsg = HttpUtil.createHttpCarbonMessage(false);
-        HttpUtil.addCarbonMsg(response, cMsg);
-
         BXMLItem value = new BXMLItem("<name>Ballerina</name>");
-        BValue[] inputArg = { response, value };
+        BValue[] inputArg = {value};
         BValue[] returnVals = BRunUtil.invoke(result, "testSetXmlPayload", inputArg);
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
                 "Invalid Return Values.");
         Assert.assertTrue(returnVals[0] instanceof BStruct);
-
         BStruct entity = (BStruct) ((BStruct) returnVals[0]).getNativeData(MESSAGE_ENTITY);
         BXMLItem xmlValue = (BXMLItem) entity.getRefField(XML_DATA_INDEX);
         Assert.assertEquals(xmlValue.getTextValue().stringValue(), "Ballerina", "Payload is not set properly");

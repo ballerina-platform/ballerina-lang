@@ -6,24 +6,22 @@ import ballerina.file;
 const string HEADER_VAL_100_CONTINUE = "100-continue";
 const string HEADER_KEY_EXPECT = "Expect";
 
-@Description {value:"Gets a transport header from the inbound request"}
+@Description {value:"Returns the header value with the specified header name. If there are more than one header value for the specified header name, the first value is returned."}
 @Param {value:"req: A inbound request message"}
 @Param {value:"headerName: The header name"}
-@Return {value:"The first header value struct for the provided header name. Returns null if the header does not exist."}
-public function <InRequest req> getHeader (string headerName) (mime:HeaderValue) {
+@Return {value:"The first header value for the provided header name. Returns null if the header does not exist."}
+public function <InRequest req> getHeader (string headerName) (string) {
     mime:Entity entity = req.getEntityWithoutBody();
-    mime:HeaderValue[] headerValues = getHeadersFromEntity(entity, headerName);
-    return headerValues != null ? headerValues[0] : null;
+    return getFirstHeaderFromEntity(entity, headerName);
 }
 
-@Description {value:"Gets a transport header from the outbound request"}
+@Description {value:"Returns the header value with the specified header name. If there are more than one header value for the specified header name, the first value is returned."}
 @Param {value:"req: A outbound request message"}
 @Param {value:"headerName: The header name"}
-@Return {value:"The first header value struct for the provided header name. Returns null if the header does not exist."}
-public function <OutRequest req> getHeader (string headerName) (mime:HeaderValue) {
+@Return {value:"The first header value for the provided header name. Returns null if the header does not exist."}
+public function <OutRequest req> getHeader (string headerName) (string) {
     mime:Entity entity = req.getEntityWithoutBody();
-    mime:HeaderValue[] headerValues = getHeadersFromEntity(entity, headerName);
-    return headerValues != null ? headerValues[0] : null;
+    return getFirstHeaderFromEntity(entity, headerName);
 }
 
 @Description {value:"Adds the specified key/value pair as an HTTP header to the outbound request"}
@@ -39,7 +37,7 @@ public function <OutRequest req> addHeader (string headerName, string headerValu
 @Param {value:"req: A inbound request message"}
 @Param {value:"headerName: The header name"}
 @Return {value:"The header values struct array for a given header name"}
-public function <InRequest req> getHeaders (string headerName) (mime:HeaderValue[]) {
+public function <InRequest req> getHeaders (string headerName) (string[]) {
     mime:Entity entity = req.getEntityWithoutBody();
     return getHeadersFromEntity(entity, headerName);
 }
@@ -48,7 +46,7 @@ public function <InRequest req> getHeaders (string headerName) (mime:HeaderValue
 @Param {value:"req: A outbound request message"}
 @Param {value:"headerName: The header name"}
 @Return {value:"The header values struct array for a given header name"}
-public function <OutRequest req> getHeaders (string headerName) (mime:HeaderValue[]) {
+public function <OutRequest req> getHeaders (string headerName) (string[]) {
     mime:Entity entity = req.getEntityWithoutBody();
     return getHeadersFromEntity(entity, headerName);
 }
@@ -59,23 +57,7 @@ public function <OutRequest req> getHeaders (string headerName) (mime:HeaderValu
 @Param {value:"headerValue: The header value"}
 public function <OutRequest req> setHeader (string headerName, string headerValue) {
     mime:Entity entity = req.getEntityWithoutBody();
-    if (entity.headers == null) {
-        entity.headers = {};
-    }
-    mime:HeaderValue[] header = [{value:headerValue}];
-    entity.headers[headerName] = header;
-}
-
-@Description {value:"Sets the value of a transport header with multiple header values"}
-@Param {value:"req: A outbound request message"}
-@Param {value:"headerName: The header name"}
-@Param {value:"headerValues: An array of header values"}
-public function <OutRequest req> setHeaders (string headerName, mime:HeaderValue[] headerValues) {
-    mime:Entity entity = req.getEntityWithoutBody();
-    if (entity.headers == null) {
-        entity.headers = {};
-    }
-    entity.headers[headerName] = headerValues;
+    setHeaderToEntity(entity, headerName, headerValue);
 }
 
 @Description {value:"Removes a transport header from the outbound request"}
@@ -83,9 +65,6 @@ public function <OutRequest req> setHeaders (string headerName, mime:HeaderValue
 @Param {value:"key: The header name"}
 public function <OutRequest req> removeHeader (string key) {
     mime:Entity entity = req.getEntityWithoutBody();
-    if (entity.headers == null) {
-        return;
-    }
     entity.headers.remove(key);
 }
 
@@ -101,7 +80,7 @@ public function <OutRequest req> removeAllHeaders () {
 @Return {value:"Returns true if the client expects a 100-continue response. If not, returns false."}
 public function <InRequest req> expects100Continue () (boolean) {
     var expectHeader = req.getHeader(HEADER_KEY_EXPECT);
-    if (expectHeader != null && expectHeader.value == HEADER_VAL_100_CONTINUE) {
+    if (expectHeader != null && expectHeader == HEADER_VAL_100_CONTINUE) {
         return true;
     }
     return false;
@@ -112,7 +91,18 @@ public function <InRequest req> expects100Continue () (boolean) {
 @Return {value:"length of the message"}
 public function <InRequest request> getContentLength () (int) {
     if (request.getHeader(CONTENT_LENGTH) != null) {
-        string strContentLength = request.getHeader(CONTENT_LENGTH).value;
+        string strContentLength = request.getHeader(CONTENT_LENGTH);
+        return getContentLengthIntValue(strContentLength);
+    }
+    return -1;
+}
+
+@Description {value:"Gets the Content-Length header from the Outbound request"}
+@Param {value:"req: A Outbound request message"}
+@Return {value:"length of the message"}
+public function <OutRequest request> getContentLength () (int) {
+    if (request.getHeader(CONTENT_LENGTH) != null) {
+        string strContentLength = request.getHeader(CONTENT_LENGTH);
         return getContentLengthIntValue(strContentLength);
     }
     return -1;

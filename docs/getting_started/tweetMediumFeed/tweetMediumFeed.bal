@@ -34,7 +34,7 @@ function main (string[] args) {
         http:InResponse response = {};
         response, err = tweeterEP.post(tweetPath, twitterRequest);
 
-        int statusCd = response.getStatusCode();
+        int statusCd = response.statusCode;
         if (statusCd == 200) {
             println("Successfully tweeted: '" + title + "'");
         } else {
