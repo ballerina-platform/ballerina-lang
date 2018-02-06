@@ -84,6 +84,11 @@ public native function <InRequest req> getQueryParams () (map);
 @Return { value:"The property value" }
 public native function <InRequest req> getProperty (string propertyName) (string);
 
+@Description { value: "Get matrix parameters from the request"}
+@Param { value: "Path to the location of matrix parameters"}
+@Return { value: "A map of matrix paramters which can be found for a given path"}
+public native function <InRequest req> getMatrixParams (string path) (map);
+
 @Description { value:"Represents an HTTP outbound request message"}
 public struct OutRequest {
 }

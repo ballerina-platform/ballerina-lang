@@ -318,6 +318,20 @@ public class HttpUtil {
         return params;
     }
 
+    public static BMap<String, BValue> getMatrixParamsMap(String path, HTTPCarbonMessage carbonMessage) {
+        BMap<String, BValue> matrixParamsBMap = new BMap<>();
+        Map<String, Map<String, String>> pathToMatrixParamMap =
+                (Map<String, Map<String, String>>) carbonMessage.getProperty(Constants.MATRIX_PARAMS);
+        if (!pathToMatrixParamMap.containsKey(path)) {
+            return matrixParamsBMap;
+        }
+        Map<String, String> matrixParamsMap = pathToMatrixParamMap.get(path);
+        for (Map.Entry<String, String> matrixParamEntry : matrixParamsMap.entrySet()) {
+            matrixParamsBMap.put(matrixParamEntry.getKey(), new BString(matrixParamEntry.getValue()));
+        }
+        return matrixParamsBMap;
+    }
+
     /**
      * Helper method to start pending http server connectors.
      *
