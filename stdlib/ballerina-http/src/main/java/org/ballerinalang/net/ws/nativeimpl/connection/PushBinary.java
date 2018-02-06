@@ -16,7 +16,7 @@
  *  under the License.
  */
 
-package org.ballerinalang.net.ws.nativeimpl;
+package org.ballerinalang.net.ws.nativeimpl.connection;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeKind;
@@ -27,42 +27,36 @@ import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.net.ws.Constants;
-import org.ballerinalang.net.ws.WebSocketConnectionManager;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
-import java.io.IOException;
-import javax.websocket.CloseReason;
+import java.nio.ByteBuffer;
 import javax.websocket.Session;
 
 /**
- * Get the ID of the connection.
+ * Push binary data to the other end of the connection.
  *
  * @since 0.94
  */
 
 @BallerinaFunction(
         packageName = "ballerina.net.ws",
-        functionName = "closeConnection",
+        functionName = "pushBinary",
         receiver = @Receiver(type = TypeKind.STRUCT, structType = "Connection",
                              structPackage = "ballerina.net.ws"),
-        args = {@Argument(name = "statusCode", type = TypeKind.INT),
-                @Argument(name = "reason", type = TypeKind.STRING)},
+        args = {@Argument(name = "binaryData", type = TypeKind.BLOB)},
         isPublic = true
 )
-public class CloseConnection extends AbstractNativeFunction {
+public class PushBinary extends AbstractNativeFunction {
 
     @Override
     public BValue[] execute(Context context) {
-        BStruct wsConnection = (BStruct) getRefArgument(context, 0);
-        int statusCode = (int) getIntArgument(context, 0);
-        String reason = getStringArgument(context, 0);
-        Session session = (Session) wsConnection.getNativeData(Constants.NATIVE_DATA_WEBSOCKET_SESSION);
         try {
-            session.close(new CloseReason(() -> statusCode, reason));
-        } catch (IOException e) {
-            throw new BallerinaException("Could not close the connection: " + e.getMessage());
-        } finally {
-            WebSocketConnectionManager.getInstance().removeConnection(session.getId());
+            BStruct wsConnection = (BStruct) getRefArgument(context, 0);
+            Session session = (Session) wsConnection.getNativeData(Constants.NATIVE_DATA_WEBSOCKET_SESSION);
+            byte[] binaryData = getBlobArgument(context, 0);
+            session.getBasicRemote().sendBinary(ByteBuffer.wrap(binaryData));
+        } catch (Throwable e) {
+            throw new BallerinaException("Cannot send the message. Error occurred.");
         }
         return VOID_RETURN;
     }

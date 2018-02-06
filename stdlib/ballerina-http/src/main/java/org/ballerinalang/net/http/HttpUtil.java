@@ -72,9 +72,7 @@ import org.wso2.transport.http.netty.message.MultipartRequestDecoder;
 
 import java.io.IOException;
 import java.io.OutputStream;
-import java.io.UnsupportedEncodingException;
 import java.net.InetSocketAddress;
-import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -290,24 +288,6 @@ public class HttpUtil {
         } catch (IOException e) {
             log.error("Couldn't close message output stream", e);
         }
-    }
-
-    public static BMap<String, BValue> getParamMap(String payload) throws UnsupportedEncodingException {
-        BMap<String, BValue> params = new BMap<>();
-        String[] entries = payload.split("&");
-        for (String entry : entries) {
-            int index = entry.indexOf('=');
-            if (index != -1) {
-                String name = entry.substring(0, index).trim();
-                String value = URLDecoder.decode(entry.substring(index + 1).trim(), "UTF-8");
-                if (value.matches("")) {
-                    params.put(name, new BString(""));
-                    continue;
-                }
-                params.put(name, new BString(value));
-            }
-        }
-        return params;
     }
 
     /**

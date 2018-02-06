@@ -18,6 +18,12 @@
 
 package org.ballerinalang.net.uri;
 
+import org.ballerinalang.model.values.BMap;
+import org.ballerinalang.model.values.BString;
+
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
+
 /**
  * Utilities related to URI processing.
  */
@@ -38,5 +44,22 @@ public class URIUtil {
         }
 
         return path.substring(basePath.length());
+    }
+
+    public static void populateQueryParamMap(String queryParamString, BMap<String, BString> queryParamsMap)
+            throws UnsupportedEncodingException {
+        String[] queryParamVals = queryParamString.split("&");
+        for (String queryParam : queryParamVals) {
+            int index = queryParam.indexOf('=');
+            if (index != -1) {
+                String queryParamName = queryParam.substring(0, index).trim();
+                String queryParamValue = URLDecoder.decode(queryParam.substring(index + 1).trim(), "UTF-8");
+                if (queryParamValue.matches("")) {
+                    queryParamsMap.put(queryParamName, new BString(""));
+                    continue;
+                }
+                queryParamsMap.put(queryParamName, new BString(queryParamValue));
+            }
+        }
     }
 }

@@ -16,46 +16,44 @@
  *  under the License.
  */
 
-package org.ballerinalang.net.ws.nativeimpl;
+package org.ballerinalang.net.ws.nativeimpl.handshakeconnection;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
-import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.net.ws.Constants;
-
-import java.util.Locale;
-import java.util.Map;
+import org.wso2.transport.http.netty.contract.websocket.WebSocketInitMessage;
 
 /**
- * Get upgrade header for a given key.
+ * Get the ID of the connection.
  *
  * @since 0.94
  */
 
 @BallerinaFunction(
         packageName = "ballerina.net.ws",
-        functionName = "getUpgradeHeader",
-        receiver = @Receiver(type = TypeKind.STRUCT, structType = "Connection",
+        functionName = "cancelHandshake",
+        receiver = @Receiver(type = TypeKind.STRUCT, structType = "HandshakeConnection",
                              structPackage = "ballerina.net.ws"),
-        args = {@Argument(name = "text", type = TypeKind.STRING)},
-        returnType = {@ReturnType(type = TypeKind.STRING)},
+        args = {@Argument(name = "statusCode", type = TypeKind.INT),
+                @Argument(name = "reason", type = TypeKind.STRING)},
         isPublic = true
 )
-public class GetUpgradeHeader extends AbstractNativeFunction {
+public class CancelHandshake extends AbstractNativeFunction {
 
     @Override
     public BValue[] execute(Context context) {
-        BStruct wsConnection = (BStruct) getRefArgument(context, 0);
-        String key = getStringArgument(context, 0).toLowerCase(Locale.ENGLISH);
-        Map<String, String> upgradeHeaders =
-                (Map<String, String>) wsConnection.getNativeData(Constants.NATIVE_DATA_UPGRADE_HEADERS);
-        return getBValues(new BString(upgradeHeaders.get(key)));
+        BStruct handshakeConnection = (BStruct) getRefArgument(context, 0);
+        int statusCode = (int) getIntArgument(context, 0);
+        String reason = getStringArgument(context, 0);
+        WebSocketInitMessage initMessage =
+                (WebSocketInitMessage) handshakeConnection.getNativeData(Constants.WEBSOCKET_MESSAGE);
+        initMessage.cancelHandShake(statusCode, reason);
+        return VOID_RETURN;
     }
 }
