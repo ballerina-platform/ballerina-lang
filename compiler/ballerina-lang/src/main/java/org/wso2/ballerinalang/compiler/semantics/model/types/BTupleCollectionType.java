@@ -27,7 +27,7 @@ import java.util.stream.Collectors;
  * {@code {@link BTupleCollectionType }} represents the type of an intermediate tuple Collection returned by an
  * iterable operation.
  *
- * @since 0.96.1
+ * @since 0.961.0
  */
 public class BTupleCollectionType extends BType implements TupleCollectionType {
 

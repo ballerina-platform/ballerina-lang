@@ -21,7 +21,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 /**
  * Represents XML Type.
  *
- * @since 0.96.1
+ * @since 0.961.0
  */
 public class BXMLType extends BBuiltInRefType {
 

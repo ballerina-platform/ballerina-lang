@@ -26,9 +26,9 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * TODO: Add.
+ * Type visitor used for validating iterable collections.
  *
- * @since 0.96.0
+ * @since 0.961.0
  */
 public abstract class BIterableTypeVisitor implements BTypeVisitor<Operation, List<BType>> {
 

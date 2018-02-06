@@ -29,7 +29,7 @@ import java.util.List;
  * Represents Chain of Iterable Operation.
  * This will converted into a function at code generation.
  *
- * @since 0.96.1
+ * @since 0.961.0
  */
 public class IterableContext {
 

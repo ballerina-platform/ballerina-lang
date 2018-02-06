@@ -28,9 +28,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * TODO: Add.
+ * Data model of an iterable operation, that used for semantic and desugar analysis.
  *
- * @since 0.96.1
+ * @since 0.961.0
  */
 public class Operation {
 
@@ -50,7 +50,6 @@ public class Operation {
     public int arity;
     public BLangExpression lambda;
     public BInvokableType lambdaType;
-
 
     /* fields required for code generation. */
     public List<BLangVariable> argVars;

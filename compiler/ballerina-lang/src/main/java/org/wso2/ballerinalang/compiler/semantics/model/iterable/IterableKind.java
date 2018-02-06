@@ -19,7 +19,7 @@ package org.wso2.ballerinalang.compiler.semantics.model.iterable;
 /**
  * Represents supported iterable operations for iterable collections.
  *
- * @since 0.96.1
+ * @since 0.961.0
  */
 public enum IterableKind {
 

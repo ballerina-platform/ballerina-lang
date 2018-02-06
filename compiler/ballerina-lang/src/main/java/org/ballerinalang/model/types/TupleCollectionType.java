@@ -23,7 +23,7 @@ import java.util.List;
  * {@code {@link TupleCollectionType }} represents the type of an intermediate Collection returned by an iterable
  * operation.
  *
- * @since 0.96.1
+ * @since 0.961.0
  */
 public interface TupleCollectionType extends Type {
 
