@@ -13,6 +13,20 @@ public const string A = "A";
 @Description { value:"The Read Append access mode"}
 public const string RA = "RA";
 
+@Description { value:"The types of access modes available when dealing with files" }
+@Field { value:"R: Read-only access mode" }
+@Field { value:"W: Write-only access mode" }
+@Field { value:"RW: Read and write access mode" }
+@Field { value:"A: Append-only access mode" }
+@Field { value:"RA: Read and append access mode" }
+public enum AccessMode {
+    R,
+    W,
+    RW,
+    A,
+    RA
+}
+
 @Description { value: "Represents a file in the file system and can perform various file operations on this."}
 @Field { value : "path: The path of the file"}
 public struct File {
@@ -59,24 +73,19 @@ public struct FileNotOpenedError {
     StackFrame[] stackTrace;
 }
 
-@Description { value:"Closes a given file and its stream"}
-@Param { value: "file: The file to be closed"}
-public native function <File file> close ();
-
-@Description { value:"Retrieves the stream from a local file"}
-@Param { value:"file: The file which needs to be opened" }
-@Param { value:"accessMode: The file access mode used when opening the file" }
-public native function <File file> open (string accessMode);
-
 @Description { value:"Copies a file from a given location to another"}
 @Param { value:"source: File/Directory that should be copied" }
 @Param { value:"destination: Destination directory or path to which the source should be copied" }
-public native function copy (File source, File destination);
+@Return {value:"Returned if the user does not have the necessary permissions to access/modify the directory/file"}
+@Return {value:"Returned if the directory/file could not be created"}
+public native function copy (File source, File destination, boolean replaceExisting) (AccessDeniedError, IOError);
 
 @Description { value:"Moves a file from a given location to another"}
 @Param { value:"target: File/Directory that should be moved" }
 @Param { value:"destination: Location where the File/Directory should be moved to" }
-public native function move (File target, File destination);
+@Return {value:"Returned if the user does not have the necessary permissions to access/modify the directory/file"}
+@Return {value:"Returned if the directory/file could not be moved"}
+public native function move (File target, File destination, boolean replaceExisting) (AccessDeniedError, IOError);
 
 @Description {value:"Checks whether the file exists"}
 @Param { value: "file: The file to be checked for existence"}
@@ -84,8 +93,10 @@ public native function move (File target, File destination);
 public native function <File file> exists () (boolean);
 
 @Description { value:"Deletes a file from a given location"}
-@Param { value: "file: The file to be deleted"}
-public native function <File file> delete ();
+@Param { value: "target: The file to be deleted"}
+@Return {value:"Returned if the user does not have the necessary permissions to delete the directory/file"}
+@Return {value:"Returned if the directory/file could not be deleted"}
+public native function delete (File target) (AccessDeniedError, IOError);
 
 @Description {value:"Checks whether the file is a directory"}
 @Param { value: "file: The file to be checked to determine whether it is a directory"}
@@ -124,19 +135,19 @@ public native function <File file> isWritable () (boolean);
 @Description {value:"Creates a new file given by the path in the File struct"}
 @Param { value: "file: The file to be created"}
 @Return {value:"Returns true if the new file was successfully created"}
-@Return {value:"Returns an AccessDeniedError if the user does not have the necessary permissions to create the file"}
-@Return {value:"Returns an IOError if the file could not be created due to an I/O error"}
+@Return {value:"Returned if the user does not have the permissions necessary to create the file"}
+@Return {value:"Returned if the file could not be created due to an I/O error"}
 public native function <File file> createNewFile () (boolean, AccessDeniedError, IOError);
 
 @Description {value:"Lists the files in the specified directory"}
 @Param { value: "file: The directory whose files list is needed"}
 @Return {value:"Returns an array of File structs if successful"}
-@Return {value:"Returns an AccessDeniedError if the user does not have the necessary permissions to read the directory"}
-@Return {value:"Returns an IOError if the directory could not be opened due to an I/O error"}
+@Return {value:"Returned if the user does not have the permissions necessary to read the directory"}
+@Return {value:"Returned if the directory could not be opened due to an I/O error"}
 public native function <File file> list () (File[], AccessDeniedError, IOError);
 
 @Description {value:"Function to return a ByteChannel related to the file. This ByteChannel can then be used to read/write from/to the file."}
 @Param { value: "file: The file to which a channel needs to be opened"}
-@Param {value:"accessMode: Specifies whether the file should be opened for reading or writing (r/w)"}
+@Param {value:"mode: The access mode in which the file should be opened."}
 @Return{value:"ByteChannel which will allow to perform I/O operations"}
-public native function <File file>  openChannel (string accessMode)(io:ByteChannel);
+public native function <File file>  openChannel (AccessMode mode)(io:ByteChannel);

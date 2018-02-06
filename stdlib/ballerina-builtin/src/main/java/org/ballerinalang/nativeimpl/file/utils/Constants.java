@@ -33,4 +33,10 @@ public class Constants {
     public static final String FILE_NOT_FOUND_ERROR = "FileNotFoundError";
     public static final String FILE_NOT_OPENED_ERROR = "FileNotOpenedError";
     public static final String IO_ERROR = "IOError";
+
+    public static final String ACCESS_MODE_READ = "R";
+    public static final String ACCESS_MODE_WRITE = "W";
+    public static final String ACCESS_MODE_READ_AND_WRITE = "RW";
+    public static final String ACCESS_MODE_APPEND = "A";
+    public static final String ACCESS_MODE_READ_AND_APPEND = "RA";
 }
