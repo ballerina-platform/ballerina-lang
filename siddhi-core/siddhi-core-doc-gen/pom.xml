@@ -74,12 +74,14 @@
                         <extensionRepository>siddhi-io-file</extensionRepository>
                         <extensionRepository>siddhi-io-rabbitmq</extensionRepository>
                         <extensionRepository>siddhi-io-mqtt</extensionRepository>
+                        <extensionRepository>siddhi-io-websocket</extensionRepository>
                         <extensionRepository>siddhi-map-json</extensionRepository>
                         <extensionRepository>siddhi-map-xml</extensionRepository>
                         <extensionRepository>siddhi-map-binary</extensionRepository>
                         <extensionRepository>siddhi-map-text</extensionRepository>
                         <extensionRepository>siddhi-map-wso2event</extensionRepository>
                         <extensionRepository>siddhi-map-keyvalue</extensionRepository>
+                        <extensionRepository>siddhi-map-csv</extensionRepository>
                         <extensionRepository>siddhi-store-rdbms</extensionRepository>
                         <extensionRepository>siddhi-store-solr</extensionRepository>
                         <extensionRepository>siddhi-store-mongodb</extensionRepository>
