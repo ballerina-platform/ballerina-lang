@@ -27,6 +27,7 @@ import org.ballerinalang.model.types.BStructType;
 import org.ballerinalang.model.values.BJSON;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BRefValueArray;
+import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BXMLItem;
@@ -61,7 +62,6 @@ import static org.ballerinalang.mime.util.Constants.ENTITY_HEADERS_INDEX;
 import static org.ballerinalang.mime.util.Constants.ENTITY_NAME_INDEX;
 import static org.ballerinalang.mime.util.Constants.FILE;
 import static org.ballerinalang.mime.util.Constants.FILE_PATH_INDEX;
-import static org.ballerinalang.mime.util.Constants.HEADER_VALUE_STRUCT;
 import static org.ballerinalang.mime.util.Constants.JSON_DATA_INDEX;
 import static org.ballerinalang.mime.util.Constants.MEDIA_TYPE;
 import static org.ballerinalang.mime.util.Constants.MESSAGE_ENTITY;
@@ -89,7 +89,6 @@ public class MultipartRequestTest {
     private final String protocolPackageMime = PROTOCOL_PACKAGE_MIME;
     private final String protocolPackageFile = PROTOCOL_PACKAGE_FILE;
     private final String entityStruct = Constants.ENTITY;
-    private final String headerValueStruct = HEADER_VALUE_STRUCT;
     private final String mediaTypeStruct = MEDIA_TYPE;
     private String sourceFilePath = "test-src/mime/multipart-request.bal";
     private final String carbonMessage = "CarbonMessage";
@@ -319,9 +318,7 @@ public class MultipartRequestTest {
             bodyPart.setStringField(ENTITY_NAME_INDEX, "Text File Part");
             MimeUtil.setContentType(getMediaTypeStruct(), bodyPart, TEXT_PLAIN);
             BMap<String, BValue> headerMap = new BMap<>();
-            BStruct headerStruct = getHeaderValueStruct();
-            headerStruct.setStringField(0, contentTransferEncoding);
-            headerMap.put(CONTENT_TRANSFER_ENCODING, headerStruct);
+            headerMap.put(CONTENT_TRANSFER_ENCODING, new BStringArray(new String[]{contentTransferEncoding}));
             bodyPart.setRefField(ENTITY_HEADERS_INDEX, headerMap);
             return bodyPart;
         } catch (IOException e) {
@@ -528,10 +525,5 @@ public class MultipartRequestTest {
     private BStruct getMediaTypeStruct() {
         return BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageMime,
                 mediaTypeStruct);
-    }
-
-    private BStruct getHeaderValueStruct() {
-        return BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageMime,
-                headerValueStruct);
     }
 }

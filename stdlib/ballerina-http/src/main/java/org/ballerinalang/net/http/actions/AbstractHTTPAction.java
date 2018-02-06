@@ -51,7 +51,6 @@ import javax.activation.MimeType;
 import javax.activation.MimeTypeParseException;
 
 import static org.ballerinalang.mime.util.Constants.CONTENT_TYPE;
-import static org.ballerinalang.mime.util.Constants.HEADER_VALUE_STRUCT;
 import static org.ballerinalang.mime.util.Constants.MEDIA_TYPE;
 import static org.ballerinalang.mime.util.Constants.MULTIPART_ENCODER;
 import static org.ballerinalang.mime.util.Constants.MULTIPART_FORM_DATA;
@@ -205,7 +204,7 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
     }
 
     private void sendOutboundRequest(Context context, HTTPCarbonMessage outboundRequestMsg,
-                                    HTTPClientConnectorListener httpClientConnectorLister) {
+                                     HTTPClientConnectorListener httpClientConnectorLister) {
         try {
             send(context, outboundRequestMsg, httpClientConnectorLister);
         } catch (BallerinaConnectorException e) {
@@ -215,36 +214,36 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
         }
     }
 
-    private void send(Context context, HTTPCarbonMessage outboundReqMsg,
-            HTTPClientConnectorListener httpClientConnectorLister) throws Exception {
+    private void send(Context context, HTTPCarbonMessage outboundRequestMsg,
+                      HTTPClientConnectorListener httpClientConnectorLister) throws Exception {
         BConnector bConnector = (BConnector) getRefArgument(context, 0);
         HttpClientConnector clientConnector =
                 (HttpClientConnector) bConnector.getnativeData(Constants.CONNECTOR_NAME);
 
-        HttpResponseFuture future = clientConnector.send(outboundReqMsg);
+        HttpResponseFuture future = clientConnector.send(outboundRequestMsg);
         future.setHttpConnectorListener(httpClientConnectorLister);
-        if (isMultiPartRequest(outboundReqMsg)) {
+        if (isMultiPartRequest(outboundRequestMsg)) {
             BStruct requestStruct = ((BStruct) getRefArgument(context, 1));
-            HttpUtil.addMultipartsToCarbonMessage(outboundReqMsg,
+            HttpUtil.addMultipartsToCarbonMessage(outboundRequestMsg,
                     (HttpPostRequestEncoder) requestStruct.getNativeData(MULTIPART_ENCODER));
         } else {
-            serializeDataSource(context, outboundReqMsg, httpClientConnectorLister);
+            serializeDataSource(context, outboundRequestMsg, httpClientConnectorLister);
         }
     }
 
-    private boolean isMultiPartRequest(HTTPCarbonMessage httpRequestMsg) throws MimeTypeParseException {
-        return httpRequestMsg.getHeader(CONTENT_TYPE) != null &&
-                MULTIPART_FORM_DATA.equals(new MimeType(httpRequestMsg.getHeader(CONTENT_TYPE)).getBaseType());
+    private boolean isMultiPartRequest(HTTPCarbonMessage outboundRequestMsg) throws MimeTypeParseException {
+        return outboundRequestMsg.getHeader(CONTENT_TYPE) != null &&
+                MULTIPART_FORM_DATA.equals(new MimeType(outboundRequestMsg.getHeader(CONTENT_TYPE)).getBaseType());
     }
 
     private void serializeDataSource(Context context, HTTPCarbonMessage outboundReqMsg,
-            HTTPClientConnectorListener httpClientConnectorLister) {
+                                     HTTPClientConnectorListener httpClientConnectorListener) {
         BStruct requestStruct = ((BStruct) getRefArgument(context, 1));
         MessageDataSource messageDataSource = HttpUtil.readMessageDataSource(requestStruct);
         if (messageDataSource != null) {
             HttpMessageDataStreamer outboundMsgDataStreamer = new HttpMessageDataStreamer(outboundReqMsg);
             OutputStream messageOutputStream = outboundMsgDataStreamer.getOutputStream();
-            httpClientConnectorLister.setOutboundMsgDataStreamer(outboundMsgDataStreamer);
+            httpClientConnectorListener.setOutboundMsgDataStreamer(outboundMsgDataStreamer);
             messageDataSource.serializeData(messageOutputStream);
             HttpUtil.closeMessageOutputStream(messageOutputStream);
         }
@@ -294,7 +293,6 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
                     Constants.PROTOCOL_PACKAGE_HTTP);
             BStruct entity = createStruct(this.context, Constants.ENTITY, PROTOCOL_PACKAGE_MIME);
             BStruct mediaType = createStruct(this.context, MEDIA_TYPE, PROTOCOL_PACKAGE_MIME);
-            HttpUtil.setHeaderValueStructType(createStruct(this.context, HEADER_VALUE_STRUCT, PROTOCOL_PACKAGE_MIME));
             HttpUtil.populateInboundResponse(inboundResponse, entity, mediaType, httpCarbonMessage);
             ballerinaFuture.notifyReply(inboundResponse);
         }
@@ -304,7 +302,6 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
             if (throwable instanceof IOException) {
                 this.outboundMsgDataStreamer.setIoException((IOException) throwable);
             }
-
             if (checkRetryState(throwable)) {
                 return;
             }
