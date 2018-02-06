@@ -1,0 +1,302 @@
+body {
+  padding: 0;
+  margin: 0;
+  height: 100%;
+  overflow: hidden;
+  font-family: 'Roboto', sans-serif;
+}
+
+h1, h2, h3, h4, h5, h6, .h1, .h2, .h3, .h4, .h5, .h6 {
+    font-family: 'Roboto', sans-serif;
+}
+
+#header {
+  background-color: #333;
+  color: #fff;
+  padding: 6px 10px;
+  min-height: 40px;
+}
+
+#header a {
+  color: #fff;
+}
+a.logo {
+  color: #fff;
+  text-decoration: none;
+}
+
+a.logo {
+  &:hover{
+    color: #ccc;
+    text-decoration: underline;
+  }
+  &:visited {
+    color: #fff;
+  }
+  &:active {
+    color: #fff !important;
+  }
+}
+
+.content > h2 {
+  font-weight: 400;
+  font-size: 28px;
+  text-align: center;
+  padding: 20px 0;
+}
+
+.navbar-header > h3 {
+  font-size:16px;
+  font-weight: 300;
+  padding-left: 10px;
+}
+
+.bold {
+  font-weight: 600;
+}
+
+.content > ul {
+  padding-left: 43%;
+  font-size: 16px;
+  color: #1a1a1a;
+}
+
+.content > ul > li {
+  list-style: none;
+}
+
+.content > ul > li > a {
+  color: #1a1a1a;
+  font-size: 16px;
+  font-weight: 200;
+}
+.content > ul > li > a:hover{
+  color: #f1772a;
+}
+
+.left-panel {
+  background-color: #f9f9f9;
+}
+
+.left-panel > ul {
+  padding-left:15px;
+}
+
+.left-panel > ul > li{
+  list-style: none;
+  padding-right:10px;
+  margin-right: 10px ;
+}
+
+.left-panel > ul > li > a{
+  color: #1a1a1a;
+}
+
+.thin-text{
+  font-weight: 400;
+}
+
+label.thin-text{
+  font-size: 16px;
+}
+
+.gray{ color: #555;}
+.light-gray{ color: #999;}
+
+.main-wrapper {
+  padding:20px 40px;
+}
+
+#content {
+    margin: 0;
+    margin-top: 20px;
+    padding-bottom: 15px;
+    width: 82%;
+    height: 96%;
+    position: fixed;
+    overflow: hidden;
+}
+
+.main-content-wrapper {
+  padding:30px;
+}
+
+.content-wrapper > h4, .content-wrapper > ul > li > h4{
+  font-size: 16px;
+  font-weight: 500;
+}
+
+.sm-icon{
+  font-size: 14px !important;
+  color: #717171;
+}
+
+.xs-icon{
+  font-size: 10px !important;
+  color: #ccc;
+  padding: 0 10px;
+}
+
+table {
+  margin: 0 0 0 1em;
+  width: 60%;
+  border: 0;
+}
+
+table tbody tr:first-child{
+  background-color:#f8fafa;
+  border-top: 1px solid #dae0e2;
+  border-bottom: 1px solid #dae0e2;
+  border-left:0;
+  border-right:0;
+  height: 30px;
+  color: #5c5c5c;
+}
+table tbody tr:first-child > th{
+  font-weight: 400;
+}
+
+table tbody tr {
+  border: solid 1px #dae0e2;
+  border-left: 0;
+  border-right: 0;
+  height: 30px;
+  color: #333;
+  font-weight: 400;
+}
+
+td, th{
+  padding-left:10px;
+  border: 0;
+}
+
+.table-header-text{
+  margin-left: 1.2em;
+  font-weight: 400;
+  padding: 5px 0;
+  color: #777;
+}
+
+.function-wrapper{
+  margin: 0 0 0 20px ;
+}
+
+.function-wrapper > h4 {
+  list-style: none;
+  padding: 0;
+}
+
+.function-wrapper > ul {
+  list-style: none;
+  padding: 0;
+}
+
+.function-wrapper > ul > li{
+  list-style: none;
+  padding: 0;
+  margin: 2em 0;
+}
+.padding-bottom{
+  padding-bottom: 15px;
+}
+.secondary-menu > ul {
+  list-style: none;
+}
+
+.container-full {
+  margin: 0 auto;
+  width: 100%;
+}
+
+.docerina-content {
+    margin-right: 0px;
+}
+
+.navbar-fixed-side {
+    margin: 0;
+    margin-top: 40px;
+    padding-bottom: 15px;
+    width: 17%;
+    height: 96%;
+    position: fixed;
+    overflow: hidden;
+    background-color: #f0f0f0;
+}
+
+.navbar-fixed-side > div.container {
+    padding-right: 0;
+    padding-left: 0;
+}
+
+.package-name-ul {
+    width: 100%;
+}
+
+.package-name-ul.active-package {
+    padding: 0 0 15px 0;
+    background: #f9f9f9 !important;
+}
+
+.package-name-ul > li > a {
+    border-bottom: 0 !important;
+    color: #1a1a1a !important;
+    padding-top: 5px !important;
+    padding-bottom: 5px !important;
+}
+
+.package-list-wrapper {
+    border: 0 !important;
+    padding-right: 0;
+    padding-left: 0;
+}
+
+.constructs-ul {
+    list-style: none;
+    padding-left: 20px;
+}
+
+.constructs-ul > li > a {
+    color: #222 !important;
+    line-height: 1.8;
+}
+
+.constructs-ul > li.active > a {
+    font-weight: 600;
+}
+
+.construct-inner-items-ul {
+    list-style: none;
+    padding-left: 20px;
+}
+
+.construct-inner-items-ul > li > a {
+    color: #555 !important;
+    line-height: 1.8;
+    font-weight: 300;
+}
+
+.construct-inner-items-ul > li.active > a {
+    font-weight: 600;
+}
+
+.construct-icon {
+    float: left;
+    color: #888;
+    margin-right: 10px;
+}
+
+.construct-name {
+    padding-left: 24px;
+}
+
+.construct-wrapper {
+    margin: 2em 0;
+}
+
+.construct-wrapper h4 {
+    padding-top: 5px;
+}
+
+.navbar-default .navbar-nav>.active>a {
+    background-color: transparent;
+}

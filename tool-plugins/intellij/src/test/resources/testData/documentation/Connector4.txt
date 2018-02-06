@@ -1,0 +1,1 @@
+<b>org.test<br><br>action get(string path, message m)(message)</b><br><DL><DT>GET action implementation of the HTTP Connector</DT></DL><DL><DT><b>Parameters:</b></DT><DD>path - Request path</DD><DD>m - message</DD></DL><DL><DT><b>Returns:</b></DT><DD>message - The response message object</DD></DL>

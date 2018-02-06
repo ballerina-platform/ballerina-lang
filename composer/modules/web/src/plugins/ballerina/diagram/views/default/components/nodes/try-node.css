@@ -1,0 +1,12 @@
+.add-else-button,
+.add-else-if-button {
+    fill: #f1772a;
+    cursor: pointer;
+}
+
+.add-else-button-label,
+.add-else-if-button-label {
+    fill: #fff;
+    dominant-baseline: central;
+    cursor: pointer;
+}

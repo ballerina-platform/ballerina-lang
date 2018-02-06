@@ -1,0 +1,97 @@
+<!--
+  ~ Copyright (c) 2016, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+  ~
+  ~ WSO2 Inc. licenses this file to you under the Apache License,
+  ~ Version 2.0 (the "License"); you may not use this file except
+  ~ in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~    http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing,
+  ~ software distributed under the License is distributed on an
+  ~ "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+  ~ KIND, either express or implied.  See the License for the
+  ~ specific language governing permissions and limitations
+  ~ under the License.
+  -->
+
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+    <parent>
+        <groupId>org.ballerinalang</groupId>
+        <artifactId>ballerina-parent</artifactId>
+        <version>0.96.1-SNAPSHOT</version>
+        <relativePath>../pom.xml</relativePath>
+    </parent>
+
+    <modelVersion>4.0.0</modelVersion>
+    <artifactId>composer</artifactId>
+    <packaging>pom</packaging>
+    <name>Ballerina - Composer</name>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.wso2.msf4j.example</groupId>
+                <artifactId>stockquote-fatjar</artifactId>
+                <version>${msf4j.examples.version}</version>
+                <scope>test</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <configuration>
+                    <argLine>-Dfile.encoding=UTF-8</argLine>
+                </configuration>
+            </plugin>
+        </plugins>
+
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.antlr</groupId>
+                    <artifactId>antlr4-maven-plugin</artifactId>
+                    <version>${antlr.maven.plugin.version}</version>
+                    <executions>
+                        <execution>
+                            <goals>
+                                <goal>antlr4</goal>
+                            </goals>
+                            <configuration>
+                                <listener>true</listener>
+                                <visitor>false</visitor>
+                                <encoding>${file.encoding}</encoding>
+                            </configuration>
+                        </execution>
+                    </executions>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+    </build>
+
+    <properties>
+        <ballerina.version>${project.version}</ballerina.version>
+        <msf4j.examples.version>2.1.0</msf4j.examples.version>
+        <antlr.maven.plugin.version>4.5.1</antlr.maven.plugin.version>
+        <maven.checkstyleplugin.excludes>**/parser/*,**/${native.constructs.provider.class}.java</maven.checkstyleplugin.excludes>
+
+        <!-- Maven plugins -->
+        <mavan.findbugsplugin.exclude.file>findbugs-exclude.xml</mavan.findbugsplugin.exclude.file>
+        <native.constructs.provider.package>org.ballerinalang.nativeimpl</native.constructs.provider.package>
+        <native.constructs.provider.class>BallerinaNativeConstructsProvider</native.constructs.provider.class>
+    </properties>
+
+    <modules>
+        <module>modules/server</module>
+        <module>modules/web</module>
+        <module>modules/js-tests</module>
+        <module>integration-tests</module>
+    </modules>
+
+</project>
