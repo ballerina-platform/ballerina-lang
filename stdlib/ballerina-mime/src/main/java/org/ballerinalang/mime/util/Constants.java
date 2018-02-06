@@ -28,7 +28,6 @@ public class Constants {
     public static final String MEDIA_TYPE = "MediaType";
     public static final String PROTOCOL_PACKAGE_MIME = "ballerina.mime";
     public static final String PROTOCOL_PACKAGE_FILE = "ballerina.file";
-    public static final String HEADER_VALUE_STRUCT = "HeaderValue";
 
     /**
      * Content type HTTP header.

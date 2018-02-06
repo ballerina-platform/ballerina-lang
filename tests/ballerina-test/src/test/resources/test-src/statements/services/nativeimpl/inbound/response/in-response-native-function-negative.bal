@@ -1,11 +1,6 @@
 import ballerina.net.http;
 import ballerina.mime;
 
-function testAddHeader (http:OutResponse res, string key, string value) (http:OutResponse) {
-    res.addHeader(key, value);
-    return res;
-}
-
 function testGetContentLength (http:InResponse res) (int) {
     int length = res.getContentLength();
     return length;
@@ -16,7 +11,7 @@ function testGetHeader (http:InResponse res, string key) (string) {
     if (contentType == null) {
         return null;
     }
-    return contentType.value;
+    return contentType;
 }
 
 function testGetEntity (http:InResponse response) (mime:Entity) {
@@ -47,39 +42,4 @@ function testGetBinaryPayload (http:InResponse res) (blob) {
 function testGetXmlPayload (http:InResponse res) (xml) {
     xml payload = res.getXmlPayload();
     return payload;
-}
-
-function testRemoveHeader (http:OutResponse res, string key) (http:OutResponse) {
-    res.removeHeader(key);
-    return res;
-}
-
-function testRemoveAllHeaders (http:OutResponse res) (http:OutResponse) {
-    res.removeAllHeaders();
-    return res;
-}
-
-function testSetHeader (http:OutResponse res, string key, string value) (http:OutResponse) {
-    res.setHeader(key, value);
-    return res;
-}
-
-function testSetJsonPayload (http:OutResponse res, json value) (http:OutResponse) {
-    res.setJsonPayload(value);
-    return res;
-}
-
-function testSetProperty (http:OutResponse res, string name, string value) (http:OutResponse) {
-    res.setProperty(name, value);
-    return res;
-}
-
-function testSetStringPayload (http:OutResponse res, string value) (http:OutResponse) {
-    res.setStringPayload(value);
-    return res;
-}
-
-function testSetXmlPayload (http:OutResponse res, xml value) (http:OutResponse) {
-    res.setXmlPayload(value);
-    return res;
 }

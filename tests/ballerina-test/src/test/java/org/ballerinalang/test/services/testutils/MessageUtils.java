@@ -84,6 +84,7 @@ public class MessageUtils {
                 Constants.DEFAULT_INTERFACE);
         // Set url
         carbonMessage.setProperty(org.wso2.carbon.messaging.Constants.TO, path);
+        carbonMessage.setProperty(Constants.REQUEST_URL, path);
         carbonMessage.setProperty(Constants.HTTP_METHOD, method.trim().toUpperCase(Locale.getDefault()));
         carbonMessage.setProperty(Constants.LOCAL_ADDRESS,
                 new InetSocketAddress(Constants.HTTP_DEFAULT_HOST, 9090));

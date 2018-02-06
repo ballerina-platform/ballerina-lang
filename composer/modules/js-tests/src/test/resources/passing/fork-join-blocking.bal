@@ -11,7 +11,7 @@ function testForkJoin() (int x, int st){
             http:Request req = {};
             http:Response res;
             res, _ = c.get("", req);
-            int code = res.getStatusCode();
+            int code = res.statusCode;
             code -> fork;
         }
         worker w2 {

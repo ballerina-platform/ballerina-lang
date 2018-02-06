@@ -11,7 +11,7 @@ function testGetHeader (http:InRequest req, string key) (string) {
     if (contentType == null) {
         return null;
     }
-    return contentType.value;
+    return contentType;
 }
 
 function testGetJsonPayload (http:InRequest req) (json) {
@@ -20,7 +20,7 @@ function testGetJsonPayload (http:InRequest req) (json) {
 }
 
 function testGetMethod (http:InRequest req) (string ) {
-    string method = req.getMethod();
+    string method = req.method;
     return method;
 }
 
@@ -30,7 +30,7 @@ function testGetProperty (http:InRequest req, string propertyName) (string) {
 }
 
 function testGetRequestURL (http:InRequest req) (string) {
-    string url = req.getRequestURL();
+    string url = req.rawPath;
     if (url == "") {
         url = "no url";
     }
@@ -57,37 +57,7 @@ function testGetXmlPayload (http:InRequest req) (xml) {
     return payload;
 }
 
-function testRemoveHeader (http:OutRequest req, string key) (http:OutRequest) {
-    req.removeHeader(key);
-    return req;
-}
-
-function testRemoveAllHeaders (http:OutRequest req) (http:OutRequest) {
-    req.removeAllHeaders();
-    return req;
-}
-
 function testSetHeader (http:OutRequest req, string key, string value) (http:OutRequest) {
     req.setHeader(key, value);
-    return req;
-}
-
-function testSetJsonPayload (http:OutRequest req, json value) (http:OutRequest) {
-    req.setJsonPayload(value);
-    return req;
-}
-
-function testSetProperty (http:OutRequest req, string name, string value) (http:OutRequest) {
-    req.setProperty(name, value);
-    return req;
-}
-
-function testSetStringPayload (http:OutRequest req, string value) (http:OutRequest) {
-    req.setStringPayload(value);
-    return req;
-}
-
-function testSetXmlPayload (http:OutRequest req, xml value) (http:OutRequest) {
-    req.setXmlPayload(value);
     return req;
 }
