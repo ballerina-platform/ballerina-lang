@@ -68,16 +68,16 @@ public class Util {
     public static HttpResponse createHttpResponse(HTTPCarbonMessage outboundResponseMsg, String inboundReqHttpVersion,
             String serverName, boolean keepAlive) {
 
-        HttpVersion httpVersion = new HttpVersion("HTTP/" + inboundReqHttpVersion, true);
+        HttpVersion httpVersion = new HttpVersion(Constants.HTTP_VERSION_PREFIX + inboundReqHttpVersion, true);
         HttpResponseStatus httpResponseStatus = getHttpResponseStatus(outboundResponseMsg);
         HttpResponse outboundNettyResponse = new DefaultHttpResponse(httpVersion, httpResponseStatus, false);
 
-        if (!keepAlive && (Float.valueOf(inboundReqHttpVersion) >= 1.1)) {
+        if (!keepAlive && (Float.valueOf(inboundReqHttpVersion) >= Constants.HTTP_1_1)) {
             outboundResponseMsg.setHeader(Constants.HTTP_CONNECTION, Constants.CONNECTION_CLOSE);
         } else {
             outboundResponseMsg.removeHeader(Constants.HTTP_CONNECTION);
         }
-        if (keepAlive && (Float.valueOf(inboundReqHttpVersion) < 1.1)) {
+        if (keepAlive && (Float.valueOf(inboundReqHttpVersion) < Constants.HTTP_1_1)) {
             outboundResponseMsg.setHeader(Constants.HTTP_CONNECTION, Constants.CONNECTION_KEEP_ALIVE);
         } else {
             outboundResponseMsg.removeHeader(Constants.HTTP_CONNECTION);
@@ -126,7 +126,8 @@ public class Util {
     private static HttpVersion getHttpVersion(HTTPCarbonMessage outboundRequestMsg) {
         HttpVersion httpVersion;
         if (null != outboundRequestMsg.getProperty(Constants.HTTP_VERSION)) {
-            httpVersion = new HttpVersion("HTTP/" + outboundRequestMsg.getProperty(Constants.HTTP_VERSION), true);
+            httpVersion = new HttpVersion(Constants.HTTP_VERSION_PREFIX
+                    + outboundRequestMsg.getProperty(Constants.HTTP_VERSION), true);
         } else {
             httpVersion = new HttpVersion(Constants.DEFAULT_VERSION_HTTP_1_1, true);
         }
@@ -173,7 +174,7 @@ public class Util {
      * @return  boolean value of status.
      */
     public static boolean isVersionCompatibleForChunking(String httpVersion) {
-        return Float.valueOf(httpVersion) >= 1.1;
+        return Float.valueOf(httpVersion) >= Constants.HTTP_1_1;
     }
 
     public static SSLConfig getSSLConfigForListener(String certPass, String keyStorePass, String keyStoreFilePath,

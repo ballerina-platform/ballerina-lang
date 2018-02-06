@@ -150,6 +150,8 @@ public final class Constants {
     public static final String SRC_HANDLER = "SRC_HANDLER";
     public static final String POOLED_BYTE_BUFFER_FACTORY = "POOLED_BYTE_BUFFER_FACTORY";
     public static final String DEFAULT_VERSION_HTTP_1_1 = "HTTP/1.1";
+    public static final float HTTP_1_1 = 1.1f;
+    public static final String HTTP_VERSION_PREFIX = "HTTP/";
 
     //Server Connection Related Parameters
     public static final String LOCAL_ADDRESS = "LOCAL_ADDRESS";
