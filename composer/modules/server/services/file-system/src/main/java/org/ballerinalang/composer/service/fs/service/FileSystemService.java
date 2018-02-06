@@ -23,6 +23,12 @@ import org.ballerinalang.composer.server.spi.ServiceInfo;
 import org.ballerinalang.composer.server.spi.ServiceType;
 import org.ballerinalang.composer.service.fs.Constants;
 import org.ballerinalang.composer.service.fs.FileSystem;
+import org.ballerinalang.composer.service.fs.service.request.CreateFileRequest;
+import org.ballerinalang.composer.service.fs.service.request.DeleteFileRequest;
+import org.ballerinalang.composer.service.fs.service.request.FileExistsRequest;
+import org.ballerinalang.composer.service.fs.service.request.ListFilesRequest;
+import org.ballerinalang.composer.service.fs.service.request.MoveCopyFileRequest;
+import org.ballerinalang.composer.service.fs.service.request.ReadFileRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -42,13 +48,11 @@ import java.util.Base64;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import javax.ws.rs.DefaultValue;
-import javax.ws.rs.FormParam;
+import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
@@ -63,6 +67,7 @@ public class FileSystemService implements ComposerService {
     private static final String STATUS = "status";
     private static final String SUCCESS = "success";
     private static final String ACCESS_CONTROL_ALLOW_ORIGIN_HEADER = "Access-Control-Allow-Origin";
+    private static final String MIME_APPLICATION_JSON = "application/json";
 
     private List<java.nio.file.Path> rootPaths;
 
@@ -72,12 +77,13 @@ public class FileSystemService implements ComposerService {
         this.fileSystem = fileSystem;
     }
 
-    @GET
-    @Path("/root")
-    @Produces("application/json")
-    public Response root(@DefaultValue(".bal") @QueryParam("extensions") String extensions) {
+    @POST
+    @Path("/list/roots")
+    @Consumes(MIME_APPLICATION_JSON)
+    @Produces(MIME_APPLICATION_JSON)
+    public Response root(ListFilesRequest request) {
         try {
-            List<String> extensionList = Arrays.asList(extensions.split(","));
+            List<String> extensionList = Arrays.asList(request.getExtensions().split(","));
             JsonArray roots = (rootPaths == null || rootPaths.isEmpty()) ? fileSystem.listRoots(extensionList) :
                     fileSystem.getJsonForRoots(rootPaths, extensionList);
             return createOKResponse(roots);
@@ -87,13 +93,13 @@ public class FileSystemService implements ComposerService {
         }
     }
 
-    @GET
+    @POST
     @Path("/exists")
-    @Produces("application/json")
-    public Response pathExists(@QueryParam("path") String path) {
+    @Consumes(MIME_APPLICATION_JSON)
+    @Produces(MIME_APPLICATION_JSON)
+    public Response pathExists(FileExistsRequest request) {
         try {
-            JsonObject exists = fileSystem.exists(new String(Base64.getDecoder().decode(path),
-                    Charset.defaultCharset()));
+            JsonObject exists = fileSystem.exists(request.getPath());
             return createOKResponse(exists);
         } catch (Throwable throwable) {
             logger.error("/exists service error", throwable.getMessage(), throwable);
@@ -103,14 +109,11 @@ public class FileSystemService implements ComposerService {
 
     @POST
     @Path("/create")
-    @Produces("application/json")
-    public Response create(@FormParam("path") String pathParam, @FormParam("type") String typeParam,
-                           @FormParam("content") String contentParam) {
+    @Consumes(MIME_APPLICATION_JSON)
+    @Produces(MIME_APPLICATION_JSON)
+    public Response create(CreateFileRequest request) {
         try {
-            String path = new String(Base64.getDecoder().decode(pathParam), Charset.defaultCharset()),
-                    type = new String(Base64.getDecoder().decode(typeParam), Charset.defaultCharset()),
-                    content = new String(Base64.getDecoder().decode(contentParam), Charset.defaultCharset());
-            fileSystem.create(path, type, content);
+            fileSystem.create(request.getPath(), request.getType(), request.getContent());
             JsonObject entity = new JsonObject();
             entity.addProperty(STATUS, SUCCESS);
             return createOKResponse(entity);
@@ -122,12 +125,11 @@ public class FileSystemService implements ComposerService {
 
     @POST
     @Path("/move")
-    @Produces("application/json")
-    public Response move(@FormParam("srcPath") String srcPath, @FormParam("destPath") String destPath) {
+    @Consumes(MIME_APPLICATION_JSON)
+    @Produces(MIME_APPLICATION_JSON)
+    public Response move(MoveCopyFileRequest request) {
         try {
-            String src = new String(Base64.getDecoder().decode(srcPath), Charset.defaultCharset()),
-                    dest = new String(Base64.getDecoder().decode(destPath), Charset.defaultCharset());
-            fileSystem.move(src, dest);
+            fileSystem.move(request.getSrcPath(), request.getDestPath());
             JsonObject entity = new JsonObject();
             entity.addProperty(STATUS, SUCCESS);
             return createOKResponse(entity);
@@ -139,12 +141,11 @@ public class FileSystemService implements ComposerService {
 
     @POST
     @Path("/copy")
-    @Produces("application/json")
-    public Response copy(@FormParam("srcPath") String srcPath, @FormParam("destPath") String destPath) {
+    @Consumes(MIME_APPLICATION_JSON)
+    @Produces(MIME_APPLICATION_JSON)
+    public Response copy(MoveCopyFileRequest request) {
         try {
-            String src = new String(Base64.getDecoder().decode(srcPath), Charset.defaultCharset()),
-                    dest = new String(Base64.getDecoder().decode(destPath), Charset.defaultCharset());
-            fileSystem.copy(src, dest);
+            fileSystem.copy(request.getSrcPath(), request.getDestPath());
             JsonObject entity = new JsonObject();
             entity.addProperty(STATUS, SUCCESS);
             return createOKResponse(entity);
@@ -156,11 +157,11 @@ public class FileSystemService implements ComposerService {
 
     @POST
     @Path("/delete")
-    @Produces("application/json")
-    public Response delete(@FormParam("path") String pathParam) {
+    @Consumes(MIME_APPLICATION_JSON)
+    @Produces(MIME_APPLICATION_JSON)
+    public Response delete(DeleteFileRequest request) {
         try {
-            String path = new String(Base64.getDecoder().decode(pathParam), Charset.defaultCharset());
-            fileSystem.delete(path);
+            fileSystem.delete(request.getPath());
             JsonObject entity = new JsonObject();
             entity.addProperty(STATUS, SUCCESS);
             return createOKResponse(entity);
@@ -170,15 +171,14 @@ public class FileSystemService implements ComposerService {
         }
     }
 
-    @GET
-    @Path("/listFiles")
-    @Produces("application/json")
-    public Response filesInPath(@QueryParam("path") String path,
-                                @DefaultValue(".bal") @QueryParam("extensions") String extensions) {
+    @POST
+    @Path("/list/files")
+    @Consumes(MIME_APPLICATION_JSON)
+    @Produces(MIME_APPLICATION_JSON)
+    public Response filesInPath(ListFilesRequest request) {
         try {
-            List<String> extensionList = Arrays.asList(extensions.split(","));
-            JsonArray filesInPath = fileSystem.listFilesInPath(new String(Base64.getDecoder().decode(path),
-                    Charset.defaultCharset()), extensionList);
+            List<String> extensionList = Arrays.asList(request.getExtensions().split(","));
+            JsonArray filesInPath = fileSystem.listFilesInPath(request.getPath(), extensionList);
             return createOKResponse(filesInPath);
         } catch (Throwable throwable) {
             logger.error("/list service error", throwable.getMessage(), throwable);
@@ -188,7 +188,7 @@ public class FileSystemService implements ComposerService {
 
     @POST
     @Path("/write")
-    @Produces("application/json")
+    @Produces(MIME_APPLICATION_JSON)
     public Response write(String payload) {
         try {
             String location = "";
@@ -238,10 +238,11 @@ public class FileSystemService implements ComposerService {
 
     @POST
     @Path("/read")
-    @Produces("application/json")
-    public Response read(String path) {
+    @Consumes(MIME_APPLICATION_JSON)
+    @Produces(MIME_APPLICATION_JSON)
+    public Response read(ReadFileRequest request) {
         try {
-            return createOKResponse(fileSystem.read(path));
+            return createOKResponse(fileSystem.read(request.getPath()));
         } catch (Throwable throwable) {
             logger.error("/read service error", throwable.getMessage(), throwable);
             return createErrorResponse(throwable);
@@ -249,8 +250,8 @@ public class FileSystemService implements ComposerService {
     }
 
     @GET
-    @Path("/userHome")
-    @Produces("text/plain")
+    @Path("/user/home")
+    @Produces(MIME_APPLICATION_JSON)
     public Response userHome() {
         try {
             return createOKResponse(fileSystem.getUserHome());
@@ -262,6 +263,7 @@ public class FileSystemService implements ComposerService {
 
     /**
      * Creates the JSON response for given entity.
+     *
      * @param entity Response
      * @return Response
      */
@@ -274,7 +276,8 @@ public class FileSystemService implements ComposerService {
     }
 
     /**
-     * Creates an error response for the given IO Exception
+     * Creates an error response for the given IO Exception.
+     *
      * @param ex Thrown Exception
      * @return Error Message
      */
@@ -299,7 +302,7 @@ public class FileSystemService implements ComposerService {
         entity.addProperty("Error", errMsg);
         return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
                 .entity(entity)
-                .header("Access-Control-Allow-Origin", '*')
+                .header(ACCESS_CONTROL_ALLOW_ORIGIN_HEADER, '*')
                 .type(MediaType.APPLICATION_JSON)
                 .build();
     }
