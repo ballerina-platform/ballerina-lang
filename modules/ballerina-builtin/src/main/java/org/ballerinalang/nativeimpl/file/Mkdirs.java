@@ -20,7 +20,6 @@ package org.ballerinalang.nativeimpl.file;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.AbstractNativeFunction;
@@ -30,7 +29,10 @@ import org.ballerinalang.natives.annotations.ReturnType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
+import java.io.IOException;
+import java.nio.file.FileAlreadyExistsException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 
 import static org.ballerinalang.nativeimpl.file.utils.FileUtils.createAccessDeniedError;
@@ -56,20 +58,24 @@ public class Mkdirs extends AbstractNativeFunction {
     @Override
     public BValue[] execute(Context context) {
         BStruct fileStruct = (BStruct) getRefArgument(context, 0);
-        String path = fileStruct.getStringField(0);
-        File dir = Paths.get(path).toFile();
+        Path dir = Paths.get(fileStruct.getStringField(0));
 
-        boolean dirCreated;
         try {
-            dirCreated = dir.mkdirs();
+            Files.createDirectories(dir);
         } catch (SecurityException e) {
-            log.error("Could not create directory structure: " + path, e);
-            return getBValues(new BBoolean(false), null,
-                              createIOError(context, "Could not create the requested directory structure: " + path));
+            String errMsg = "Failed to create file tree: '" + dir.toString() + "'. Permission denied.";
+            log.error(errMsg, e);
+            return getBValues(createAccessDeniedError(context, errMsg), null);
+        } catch (FileAlreadyExistsException e) {
+            String errMsg = "File already exists: '" + dir.toString() + "'. Existing file replacing disabled.";
+            log.error(errMsg, e);
+            return getBValues(null, createIOError(context, errMsg));
+        } catch (IOException e) {
+            String errMsg = "Failed to create file tree: '" + dir.toString() + "'. I/O error occurred.";
+            log.error(errMsg, e);
+            return getBValues(null, createIOError(context, errMsg));
         }
 
-        return dirCreated ? getBValues(new BBoolean(true), null, null) :
-                getBValues(new BBoolean(false), createAccessDeniedError
-                        (context, "Permission denied to create the requested directory structure: " + path), null);
+        return new BValue[]{null};
     }
 }

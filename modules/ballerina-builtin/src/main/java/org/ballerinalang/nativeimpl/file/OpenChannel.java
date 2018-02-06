@@ -20,7 +20,9 @@ package org.ballerinalang.nativeimpl.file;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeKind;
+import org.ballerinalang.model.values.BEnumerator;
 import org.ballerinalang.model.values.BStruct;
+import org.ballerinalang.nativeimpl.file.utils.Constants;
 import org.ballerinalang.nativeimpl.io.IOConstants;
 import org.ballerinalang.nativeimpl.io.channels.AbstractNativeChannel;
 import org.ballerinalang.nativeimpl.io.channels.FileIOChannel;
@@ -59,17 +61,17 @@ import java.util.Set;
 public class OpenChannel extends AbstractNativeChannel {
 
     /**
-     * File channel index in ballerina.lang.files#openChannel.
+     * File channel index in ballerina.lang.file#openChannel.
      */
     private static final int FILE_CHANNEL_INDEX = 0;
 
     /**
-     * File access mode defined in ballerina.lang.files#openChannel.
+     * File access mode defined in ballerina.lang.file#openChannel.
      */
-    private static final int FILE_ACCESS_MODE_INDEX = 0;
+    private static final int FILE_ACCESS_MODE_INDEX = 1;
 
     /**
-     * File path defined under ballerina.lang.files.File.
+     * File path defined under ballerina.lang.filesFile.
      */
     private static final int PATH_FIELD_INDEX = 0;
 
@@ -95,14 +97,15 @@ public class OpenChannel extends AbstractNativeChannel {
     @Override
     public AbstractChannel inFlow(Context context) throws BallerinaException {
         BStruct fileStruct = (BStruct) getRefArgument(context, FILE_CHANNEL_INDEX);
-        String accessMode = getStringArgument(context, FILE_ACCESS_MODE_INDEX);
+//        String accessMode = getStringArgument(context, FILE_ACCESS_MODE_INDEX);
+        BEnumerator accessMode = (BEnumerator) getRefArgument(context, FILE_ACCESS_MODE_INDEX);
         Path path = null;
         AbstractChannel channel;
         try {
-            String accessLC = accessMode.toLowerCase(Locale.getDefault());
+//            String accessLC = accessMode.toLowerCase(Locale.getDefault());
             path = Paths.get(fileStruct.getStringField(PATH_FIELD_INDEX));
             Set<OpenOption> opts = new HashSet<>();
-            if (accessLC.contains("r")) {
+            if (Constants.ACCESS_MODE_READ.equals(accessMode.getName())) {
                 if (!Files.exists(path)) {
                     throw new BallerinaException("file not found: " + path);
                 }
@@ -111,8 +114,8 @@ public class OpenChannel extends AbstractNativeChannel {
                 }
                 opts.add(StandardOpenOption.READ);
             }
-            boolean write = accessLC.contains("w");
-            boolean append = accessLC.contains("a");
+            boolean write = Constants.ACCESS_MODE_WRITE.equals(accessMode.getName());
+            boolean append = Constants.ACCESS_MODE_APPEND.equals(accessMode.getName());
             if (write || append) {
                 if (Files.exists(path) && !Files.isWritable(path)) {
                     throw new BallerinaException("file is not writable: " + path);
