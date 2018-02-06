@@ -183,7 +183,7 @@ public class HttpOutboundRespListener implements HttpConnectorListener {
     private boolean isKeepAlive() {
         String requestConnectionHeader = requestDataHolder.getConnectionHeaderValue();
 
-        if (Float.valueOf(requestDataHolder.getHttpVersion()) <= 1.0) {
+        if (Float.valueOf(requestDataHolder.getHttpVersion()) <= Constants.HTTP_1_0) {
             return requestConnectionHeader != null && requestConnectionHeader
                     .equalsIgnoreCase(Constants.CONNECTION_KEEP_ALIVE);
         } else {

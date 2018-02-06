@@ -94,9 +94,9 @@ public class HttpClientConnectorImpl implements HttpClientConnector {
                             setChannelAttributes(channelFuture.channel(), httpOutboundRequest, httpResponseFuture,
                                                  targetChannel);
                         }
-                        if (!keepAlive && Float.valueOf(httpVersion) >= 1.1) {
+                        if (!keepAlive && Float.valueOf(httpVersion) >= Constants.HTTP_1_1) {
                             httpOutboundRequest.setHeader(Constants.CONNECTION, Constants.CONNECTION_CLOSE);
-                        } else if (keepAlive && Float.valueOf(httpVersion) < 1.1) {
+                        } else if (keepAlive && Float.valueOf(httpVersion) < Constants.HTTP_1_1) {
                             httpOutboundRequest.setHeader(Constants.CONNECTION, Constants.CONNECTION_KEEP_ALIVE);
                         }
                         targetChannel.writeContent(httpOutboundRequest);
