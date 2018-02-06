@@ -279,7 +279,7 @@ public class HttpUtil {
     private static void populateMultiparts(Context context, BStruct entity, HttpMessageDataStreamer
             httpMessageDataStreamer, MultipartRequestDecoder multipartRequestDecoder, String contentType) {
         if (multipartRequestDecoder.isMultipartRequest()) { //If multipart/form-data
-            try {
+           /* try {
                 multipartRequestDecoder.parseBody();
                 List<HttpBodyPart> multiparts = multipartRequestDecoder.getMultiparts();
                 if (multiparts != null) {
@@ -287,7 +287,8 @@ public class HttpUtil {
                 }
             } catch (IOException e) {
                 log.error("Error occurred while parsing multipart/form-data body in populateEntityBody", e);
-            }
+            }*/
+            MimeUtil.decodeMultiparts(context, entity, contentType, httpMessageDataStreamer.getInputStream());
         } else {
             //Other multipart subtypes
             MimeUtil.decodeMultiparts(context, entity, contentType, httpMessageDataStreamer.getInputStream());

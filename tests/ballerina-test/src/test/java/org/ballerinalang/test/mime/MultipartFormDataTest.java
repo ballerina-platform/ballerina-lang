@@ -19,6 +19,7 @@
 package org.ballerinalang.test.mime;
 
 import io.netty.handler.codec.http.multipart.HttpPostRequestEncoder;
+import io.netty.util.internal.StringUtil;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BServiceUtil;
 import org.ballerinalang.launcher.util.CompileResult;
@@ -42,6 +43,7 @@ import org.slf4j.LoggerFactory;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+import org.wso2.carbon.messaging.Header;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 
 import java.io.BufferedWriter;
@@ -50,6 +52,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import static org.ballerinalang.mime.util.Constants.APPLICATION_JSON;
@@ -58,6 +61,7 @@ import static org.ballerinalang.mime.util.Constants.BYTE_DATA_INDEX;
 import static org.ballerinalang.mime.util.Constants.CONTENT_TRANSFER_ENCODING;
 import static org.ballerinalang.mime.util.Constants.CONTENT_TRANSFER_ENCODING_7_BIT;
 import static org.ballerinalang.mime.util.Constants.CONTENT_TRANSFER_ENCODING_8_BIT;
+import static org.ballerinalang.mime.util.Constants.CONTENT_TYPE;
 import static org.ballerinalang.mime.util.Constants.ENTITY_HEADERS_INDEX;
 import static org.ballerinalang.mime.util.Constants.ENTITY_NAME_INDEX;
 import static org.ballerinalang.mime.util.Constants.FILE;
@@ -80,8 +84,8 @@ import static org.ballerinalang.mime.util.Constants.XML_DATA_INDEX;
 /**
  * Test cases for multipart request handling.
  */
-public class MultipartRequestTest {
-    private static final Logger LOG = LoggerFactory.getLogger(MultipartRequestTest.class);
+public class MultipartFormDataTest {
+    private static final Logger LOG = LoggerFactory.getLogger(MultipartFormDataTest.class);
 
     private CompileResult result, serviceResult;
     private final String requestStruct = Constants.IN_REQUEST;
@@ -207,22 +211,6 @@ public class MultipartRequestTest {
     public void testMultiplePartsForFormData() {
         String path = "/test/multipleparts";
         Map<String, Object> messageMap = createPrerequisiteMessages(path, MULTIPART_FORM_DATA);
-        ArrayList<BStruct> bodyParts = new ArrayList<>();
-        bodyParts.add(getJsonBodyPart());
-        bodyParts.add(getXmlFilePart());
-        bodyParts.add(getTextBodyPart());
-        bodyParts.add(getBinaryFilePart());
-        HTTPTestRequest cMsg = getCarbonMessageWithBodyParts(messageMap, getArrayOfBodyParts(bodyParts));
-        HTTPCarbonMessage response = Services.invokeNew(serviceResult, cMsg);
-        Assert.assertNotNull(response, "Response message not found");
-        Assert.assertEquals(ResponseReader.getReturnValue(response), " -- jsonPart -- Ballerina xml " +
-                "file part -- Ballerina text body part -- Ballerina binary file part");
-    }
-
-    @Test(description = "Test sending a multipart request as multipart/mixed with multiple body parts")
-    public void testMultiplePartsForMixed() {
-        String path = "/test/multipleparts";
-        Map<String, Object> messageMap = createPrerequisiteMessages(path, MULTIPART_MIXED);
         ArrayList<BStruct> bodyParts = new ArrayList<>();
         bodyParts.add(getJsonBodyPart());
         bodyParts.add(getXmlFilePart());

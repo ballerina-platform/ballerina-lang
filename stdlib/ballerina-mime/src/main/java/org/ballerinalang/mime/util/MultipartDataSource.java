@@ -20,8 +20,11 @@ package org.ballerinalang.mime.util;
 
 import io.netty.util.internal.PlatformDependent;
 import org.ballerinalang.model.values.BJSON;
+import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BRefValueArray;
+import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BStruct;
+import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BXML;
 import org.ballerinalang.runtime.message.BallerinaMessageDataSource;
 import org.ballerinalang.runtime.message.BlobDataSource;
@@ -32,9 +35,13 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.nio.charset.Charset;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import static org.ballerinalang.mime.util.Constants.APPLICATION_JSON;
 import static org.ballerinalang.mime.util.Constants.APPLICATION_XML;
+import static org.ballerinalang.mime.util.Constants.ENTITY_HEADERS_INDEX;
 import static org.ballerinalang.mime.util.Constants.TEXT_PLAIN;
 
 public class MultipartDataSource extends BallerinaMessageDataSource {
@@ -55,8 +62,6 @@ public class MultipartDataSource extends BallerinaMessageDataSource {
             for (int i = 0; i < bodyParts.size(); i++) {
                 try {
                     BStruct bodyPart = (BStruct) bodyParts.get(i);
-               /* MimeUtil.encodeBodyPart(nettyEncoder, outboundRequest.getNettyHttpRequest(),
-                        bodyPart);*/
                     // Write the leading boundary string
                     if (isFirst) {
                         isFirst = false;
@@ -68,8 +73,28 @@ public class MultipartDataSource extends BallerinaMessageDataSource {
                     writer.write(boundaryString);
                     writer.write("\r\n");
 
-                    //TODO:Write body headers
-                    //...
+                    //Write body headers
+                    BMap<String, BValue> entityHeaders = (BMap) bodyPart.getRefField(ENTITY_HEADERS_INDEX);
+                    if (entityHeaders == null) {
+                        return;
+                    }
+                    Set<String> keys = entityHeaders.keySet();
+                    for (String key : keys) {
+                        BStringArray headerValues = (BStringArray) entityHeaders.get(key);
+                        writer.write(key);
+                        writer.write(':');
+                        boolean first = true;
+                        for (int j = 0; j < headerValues.size(); j++) {
+                            if (first) {
+                                writer.write(' ');
+                                first = false;
+                            } else {
+                                writer.write(',');
+                            }
+                            writer.write(headerValues.get(j));
+                        }
+                        writer.write("\r\n");
+                    }
                     // Mark the end of the headers for this body part
                     writer.write("\r\n");
                     writer.flush();
