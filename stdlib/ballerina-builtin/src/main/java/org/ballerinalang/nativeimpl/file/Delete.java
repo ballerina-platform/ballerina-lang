@@ -74,6 +74,6 @@ public class Delete extends AbstractNativeFunction {
             log.error(errMsg, e);
             return getBValues(null, createIOError(context, errMsg));
         }
-        return new BValue[]{null};
+        return getBValues(null, null);
     }
 }

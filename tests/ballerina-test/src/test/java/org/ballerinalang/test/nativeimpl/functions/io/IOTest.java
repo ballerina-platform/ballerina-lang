@@ -21,7 +21,6 @@ import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.BServiceUtil;
 import org.ballerinalang.launcher.util.CompileResult;
-import org.ballerinalang.model.types.BEnumType;
 import org.ballerinalang.model.values.BBlob;
 import org.ballerinalang.model.values.BEnumerator;
 import org.ballerinalang.model.values.BBoolean;

@@ -20,6 +20,7 @@ package org.ballerinalang.nativeimpl.file;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeKind;
+import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.AbstractNativeFunction;
@@ -62,21 +63,21 @@ public class Mkdirs extends AbstractNativeFunction {
         Path dir = Paths.get(fileStruct.getStringField(0));
 
         try {
-            Files.createDirectories(dir);
+            dir = Files.createDirectories(dir);
         } catch (SecurityException e) {
             String errMsg = "Failed to create file tree: '" + dir.toString() + "'. Permission denied.";
             log.error(errMsg, e);
-            return getBValues(createAccessDeniedError(context, errMsg), null);
+            return getBValues(new BBoolean(false), createAccessDeniedError(context, errMsg), null);
         } catch (FileAlreadyExistsException e) {
             String errMsg = "File already exists: '" + dir.toString() + "'. Existing file replacing disabled.";
             log.error(errMsg, e);
-            return getBValues(null, createIOError(context, errMsg));
+            return getBValues(new BBoolean(false), null, createIOError(context, errMsg));
         } catch (IOException e) {
             String errMsg = "Failed to create file tree: '" + dir.toString() + "'. I/O error occurred.";
             log.error(errMsg, e);
-            return getBValues(null, createIOError(context, errMsg));
+            return getBValues(new BBoolean(false), null, createIOError(context, errMsg));
         }
 
-        return new BValue[]{null};
+        return getBValues(new BBoolean(Files.exists(dir)), null, null);
     }
 }

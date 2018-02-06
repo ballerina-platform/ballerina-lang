@@ -21,24 +21,19 @@ package org.ballerinalang.test.nativeimpl.functions.file.util;
 import org.ballerinalang.nativeimpl.file.Copy;
 
 import java.io.IOException;
-import java.nio.file.CopyOption;
 import java.nio.file.FileVisitOption;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.EnumSet;
 
-import static java.nio.file.StandardCopyOption.COPY_ATTRIBUTES;
-import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
-
 /**
- * Created by pubudu on 2/6/18.
+ * Util methods for File API tests.
  */
 public class FileTestUtils {
 
     public static Path copyDir(Path source, Path target) throws IOException {
         EnumSet<FileVisitOption> opts = EnumSet.of(FileVisitOption.FOLLOW_LINKS);
-        Copy.DirCopier dirCopier = new Copy.DirCopier(source, target,
-                                                      new CopyOption[]{COPY_ATTRIBUTES, REPLACE_EXISTING});
+        Copy.DirCopier dirCopier = new Copy.DirCopier(source, target, false);
         return Files.walkFileTree(source, opts, Integer.MAX_VALUE, dirCopier);
     }
 }
