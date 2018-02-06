@@ -428,9 +428,9 @@ public class Desugar extends BLangNodeVisitor {
         enclLocks.push(lockNode);
         lockNode.body = rewrite(lockNode.body);
         enclLocks.pop();
-        lockNode.lockVariables = lockNode.lockVariables.stream().sorted((o1, o2) -> {
-            String o1FullName = String.join(":", o1.pkgID.getName().getValue(), o1.name.getValue());
-            String o2FullName = String.join(":", o2.pkgID.getName().getValue(), o2.name.getValue());
+        lockNode.lockVariables = lockNode.lockVariables.stream().sorted((v1, v2) -> {
+            String o1FullName = String.join(":", v1.pkgID.getName().getValue(), v1.name.getValue());
+            String o2FullName = String.join(":", v2.pkgID.getName().getValue(), v2.name.getValue());
             return o1FullName.compareTo(o2FullName);
         }).collect(Collectors.toSet());
         result = lockNode;

@@ -64,6 +64,7 @@ import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BXML;
 import org.ballerinalang.model.values.BXMLAttributes;
 import org.ballerinalang.model.values.BXMLQName;
+import org.ballerinalang.model.values.LockableStructureType;
 import org.ballerinalang.model.values.StructureType;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.runtime.threadpool.ThreadPoolFactory;
@@ -147,7 +148,7 @@ public class BLangVM {
     private int ip = 0;
     private Instruction[] code;
 
-    private StructureType globalMemBlock;
+    private LockableStructureType globalMemBlock;
 
     public BLangVM(ProgramFile programFile) {
         this.programFile = programFile;

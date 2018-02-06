@@ -18,32 +18,33 @@
 package org.ballerinalang.model.values;
 
 /**
- * @since 0.87
+ * The {@code LockableStructureType} represents a lockable structure type in Ballerina.
+ *
+ * @since 0.961.0
  */
-public interface StructureType {
+public interface LockableStructureType extends StructureType {
 
-    long getIntField(int index);
+    void lockIntField(int index);
 
-    void setIntField(int index, long value);
+    void unlockIntField(int index);
 
-    double getFloatField(int index);
+    void lockFloatField(int index);
 
-    void setFloatField(int index, double value);
+    void unlockFloatField(int index);
 
-    String getStringField(int index);
+    void lockStringField(int index);
 
-    void setStringField(int index, String value);
+    void unlockStringField(int index);
 
-    int getBooleanField(int index);
+    void lockBooleanField(int index);
 
-    void setBooleanField(int index, int value);
+    void unlockBooleanField(int index);
 
-    byte[] getBlobField(int index);
+    void lockBlobField(int index);
 
-    void setBlobField(int index, byte[] value);
+    void unlockBlobField(int index);
 
-    BRefType getRefField(int index);
+    void lockRefField(int index);
 
-    void setRefField(int index, BRefType value);
-
+    void unlockRefField(int index);
 }

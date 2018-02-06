@@ -33,7 +33,7 @@ import java.util.StringJoiner;
  *
  * @since 1.0.0
  */
-public final class BStruct implements BRefType, StructureType {
+public final class BStruct implements BRefType, LockableStructureType {
 
     private HashMap<String, Object> nativeData = new HashMap<>();
 

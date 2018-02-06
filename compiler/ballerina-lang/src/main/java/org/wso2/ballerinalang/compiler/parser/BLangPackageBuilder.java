@@ -1310,13 +1310,13 @@ public class BLangPackageBuilder {
     }
 
     public void addLockStmt(DiagnosticPos pos, Set<Whitespace> ws) {
-        BLangLock whileNode = (BLangLock) TreeBuilder.createLockNode();
-        whileNode.pos = pos;
-        whileNode.addWS(ws);
+        BLangLock lockNode = (BLangLock) TreeBuilder.createLockNode();
+        lockNode.pos = pos;
+        lockNode.addWS(ws);
         BLangBlockStmt lockBlock = (BLangBlockStmt) this.blockNodeStack.pop();
         lockBlock.pos = pos;
-        whileNode.setBody(lockBlock);
-        addStmtToCurrentBlock(whileNode);
+        lockNode.setBody(lockBlock);
+        addStmtToCurrentBlock(lockNode);
     }
 
     public void addNextStatement(DiagnosticPos pos, Set<Whitespace> ws) {
