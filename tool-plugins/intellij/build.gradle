@@ -1,0 +1,89 @@
+/*
+ *  Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *  http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
+
+buildscript {
+    repositories {
+        maven { url 'http://dl.bintray.com/jetbrains/intellij-plugin-service' }
+    }
+}
+
+plugins {
+    id "org.jetbrains.intellij" version "0.2.5"
+    id "de.undercouch.download" version "3.2.0"
+}
+
+repositories {
+    mavenCentral()
+}
+
+apply plugin: 'java'
+sourceSets {
+    main {
+        java {
+            srcDirs = ['src/main/java', 'adaptor/src']
+        }
+    }
+}
+
+apply plugin: 'org.jetbrains.intellij'
+intellij {
+    // For a full list of IntelliJ IDEA releases, please see https://www.jetbrains.com/intellij-repository/releases.
+    version ideaVersion
+    type ideaType
+    pluginName ballerinaPluginName
+    updateSinceUntilBuild false
+    // plugins 'coverage' //Bundled plugin dependencies
+    // Uncomment this line to test the plugin using small IDEs. Add -Dorg.gradle.project.localIdePath="IDE_HOME_PATH"
+    // VM option in run config.
+    // alternativeIdePath localIdePath
+}
+
+apply plugin: 'antlr'
+dependencies {
+    antlr "org.antlr:antlr4:4.6"
+}
+
+generateGrammarSource {
+    arguments << "-lib" << "src/main/antlr/org/ballerinalang/plugins/idea/grammar"
+    arguments << "-package" << "org.ballerinalang.plugins.idea.grammar"
+}
+
+apply plugin: 'jacoco'
+jacocoTestReport {
+    reports {
+        xml.enabled false
+        csv.enabled false
+        html.destination "${buildDir}/jacocoHtml"
+    }
+}
+
+apply plugin: 'de.undercouch.download'
+task downloadPsiViewerPlugin() {
+    download {
+        src 'https://plugins.jetbrains.com/plugin/download?updateId=31087'
+        dest new File("${buildDir}/tmp/plugins/", 'PsiViewer.jar')
+        onlyIfNewer true
+    }
+}
+
+task copyPsiViewerPluginToSandBox(type: Copy) {
+    from "${buildDir}/tmp/plugins/PsiViewer.jar"
+    into "${buildDir}/idea-sandbox/plugins/"
+}
+
+copyPsiViewerPluginToSandBox.dependsOn downloadPsiViewerPlugin
+copyPsiViewerPluginToSandBox.mustRunAfter prepareSandbox
+runIde.dependsOn copyPsiViewerPluginToSandBox

@@ -21,6 +21,8 @@ import org.ballerinalang.langserver.completions.TreeVisitor;
 import org.ballerinalang.model.tree.Node;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
+import static org.ballerinalang.langserver.TextDocumentServiceUtil.toZeroBasedPosition;
+
 /**
  * Position resolver for the top level nodes.
  */
@@ -39,15 +41,15 @@ public class TopLevelNodeScopeResolver extends CursorPositionResolver {
                                       TextDocumentServiceContext completionContext) {
         int line = completionContext.get(DocumentServiceKeys.POSITION_KEY).getPosition().getLine();
         int col = completionContext.get(DocumentServiceKeys.POSITION_KEY).getPosition().getCharacter();
-        DiagnosticPos zeroBasedPos = this.toZeroBasedPosition(nodePosition);
+        DiagnosticPos zeroBasedPos = toZeroBasedPosition(nodePosition);
         int nodeSLine = zeroBasedPos.sLine;
         int nodeSCol = zeroBasedPos.sCol;
-        
+
         if (line < nodeSLine || (line == nodeSLine && col <= nodeSCol)) {
             treeVisitor.setTerminateVisitor(true);
             return true;
         }
-        
+
         return false;
     }
 }

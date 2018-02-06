@@ -66,6 +66,9 @@ class BlockCtrl extends React.Component {
             // do nothing
         } else if (TreeUtil.isForeach(node.parent)) {
             // do nothing
+        } else if (TreeUtil.isTransaction(node.parent)) {
+            // do nothing
+            button.y = 0;
         } else {
             if (!TreeUtil.isWorker(node.parent)) {
                 bBox.y += bBox.h - (this.context.config.statement.height * 0.5);

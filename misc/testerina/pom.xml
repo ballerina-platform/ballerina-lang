@@ -28,7 +28,6 @@
     <modelVersion>4.0.0</modelVersion>
     <artifactId>testerina</artifactId>
     <packaging>pom</packaging>
-    <version>0.96.1-SNAPSHOT</version>
 
     <name>Ballerina - Testerina - Parent</name>
 

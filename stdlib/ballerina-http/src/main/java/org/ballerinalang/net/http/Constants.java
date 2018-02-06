@@ -154,8 +154,6 @@ public class Constants {
     public static final String IN_RESPONSE = "InResponse";
     public static final String OUT_RESPONSE = "OutResponse";
     public static final String ENTITY = "Entity";
-    public static final String HEADER_VALUE = "value";
-    public static final String HEADER_PARAM = "param";
     public static final String HTTP_CONNECTOR_ERROR = "HttpConnectorError";
     public static final String TYPE_STRING = "string";
     public static final String TRANSPORT_MESSAGE = "transport_message";
@@ -192,7 +190,7 @@ public class Constants {
     public static final int CONNECTION_PORT_INDEX = 0;
 
     //InRequest struct indexes
-    public static final int IN_REQUEST_PATH_INDEX = 0;
+    public static final int IN_REQUEST_RAW_PATH_INDEX = 0;
     public static final int IN_REQUEST_METHOD_INDEX = 1;
     public static final int IN_REQUEST_VERSION_INDEX = 2;
     public static final int IN_REQUEST_USER_AGENT_INDEX = 3;
@@ -206,10 +204,6 @@ public class Constants {
     //OutResponse struct indexes
     public static final int OUT_RESPONSE_STATUS_CODE_INDEX = 0;
     public static final int OUT_RESPONSE_REASON_PHRASE_INDEX = 0;
-
-    //HeaderValue struct indexes
-    public static final int HEADER_VALUE_INDEX = 0;
-    public static final int HEADER_PARAM_INDEX = 0;
 
     //Proxy server struct indexes
     public static final int PROXY_STRUCT_INDEX = 3;
