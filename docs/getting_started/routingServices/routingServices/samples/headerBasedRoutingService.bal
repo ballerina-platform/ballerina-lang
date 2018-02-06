@@ -22,7 +22,7 @@ service<http> headerBasedRouting {
         http:OutRequest clientRequest = {};
         http:InResponse clientResponse = {};
         http:HttpConnectorError err;
-        if (nameString.value == nyseString) {
+        if (nameString == nyseString) {
             clientResponse, err = nyseEP.post("/stocks", clientRequest);
         } else {
             clientResponse, err = nasdaqEP.post("/stocks", clientRequest);

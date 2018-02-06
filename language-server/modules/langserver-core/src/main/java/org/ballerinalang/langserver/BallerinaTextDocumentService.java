@@ -23,6 +23,7 @@ import org.ballerinalang.langserver.definition.util.DefinitionUtil;
 import org.ballerinalang.langserver.hover.HoverTreeVisitor;
 import org.ballerinalang.langserver.hover.util.HoverUtil;
 import org.ballerinalang.langserver.signature.SignatureHelpUtil;
+import org.ballerinalang.langserver.signature.SignatureTreeVisitor;
 import org.ballerinalang.langserver.symbols.SymbolFindingVisitor;
 import org.ballerinalang.langserver.util.Debouncer;
 import org.ballerinalang.langserver.workspace.WorkspaceDocumentManager;
@@ -172,17 +173,10 @@ public class BallerinaTextDocumentService implements TextDocumentService {
             SignatureHelp signatureHelp;
             try {
                 BLangPackage bLangPackage = TextDocumentServiceUtil.getBLangPackage(signatureContext, documentManager);
-                CompilerContext compilerContext = signatureContext.get(DocumentServiceKeys.COMPILER_CONTEXT_KEY);
-                // TODO: Gracefully handle this package loading with a proper API
-                
-                SignatureHelpUtil.getSystemPkgIDs().forEach(packageID -> {
-                    if (!bLangPackageContext.containsPackage(packageID)) {
-                        bLangPackageContext.addPackage(BallerinaPackageLoader
-                                .getPackageByName(compilerContext, packageID));
-                    }
-                });
-                bLangPackageContext.addPackage(bLangPackage);
-                signatureHelp = SignatureHelpUtil.getFunctionSignatureHelp(signatureContext, bLangPackageContext);
+                SignatureTreeVisitor signatureTreeVisitor = new SignatureTreeVisitor(signatureContext);
+                bLangPackage.accept(signatureTreeVisitor);
+                signatureContext.put(DocumentServiceKeys.B_LANG_PACKAGE_CONTEXT_KEY, bLangPackageContext);
+                signatureHelp = SignatureHelpUtil.getFunctionSignatureHelp(signatureContext);
             } catch (Exception e) {
                 signatureHelp = new SignatureHelp();
             }
@@ -427,7 +421,7 @@ public class BallerinaTextDocumentService implements TextDocumentService {
         } catch (URISyntaxException | MalformedURLException e) {
             // Do Nothing
         }
-        
+
         return path;
     }
 }

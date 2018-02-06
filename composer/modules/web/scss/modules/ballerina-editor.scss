@@ -27,13 +27,26 @@
 }
 .ballerina-editor{
     .design-view-container {
-        background-color: #f5f5f5;
+        background-color: #f9f9f9;
     }
-    .protocol-http{
+    .protocol-http, .svg-container{
         .panel{
             /* -- Service herder Styles -- */
             .panel-header{
                 fill: #f3faff;
+                .argument-parameter-group, .parameter-delete-icon-wrapper, .parameter-wrapper {
+                    fill: #dde7f2;
+                }
+                .return-parameter-group {
+                    fill: #dce7f1;
+                }
+                .text-placeholder {
+                    fill: #dde7f2;
+                    shape-rendering: crispEdges;
+                    stroke: #9e9c9c;
+                    stroke-width: 1;
+                    stroke-dasharray: 2, 2;
+                }
                 .headingRect{
                     stroke-width: 1;
                     stroke:#c4d5e2;
@@ -46,15 +59,93 @@
                 .panel-header-controls-wrapper{
                     fill: rgba(255, 255, 255, 0.1);
                 }
+                text{
+                    fill: #333 !important;
+                }
+                .parameter-text, .parameter-bracket-text, .return-types-opening-brack-text, .parameter-bracket-text, .return-types-closing-brack-text {
+                    dominant-baseline: text-before-edge;
+                    cursor: default;
+                }
+                .editor-area{
+                    color:#333 !important;
+                    border: 1px solid #333;
+                }
+
             }
             .panel-body{
+                .client-line-group {
+                    .client-line-header {
+                        fill: #f9f9f9;
+                        stroke: #303030;
+                        stroke-width: 1px;
+                    }
+                    .client-life-line, .worker-life-line, .client-invocation-arrow {
+                        stroke: #303030;
+                        stroke-width: 1px;
+                    }
+                    .client-line-text {
+                        text-anchor: middle;
+                        dominant-baseline: central;
+                        text-transform: lowercase;
+                    }
+                }
+                .action-arrow, .action-arrow-head {
+                    stroke: #666769;
+                    fill: #666769;
+                }
+                .action-dash-line {
+                    stroke: #666769;
+                    fill: #666769;
+                    stroke-dasharray: 5,5;
+                }
+                .action-invocation-statement-rect{
+                    fill: #26A69A;
+                    stroke-width: 1;
+                }
+                .struct-content-operations-wrapper {
+                    fill: #e4e4e4;
+                    stroke: #e4e4e4;
+                }
+                .struct-type-dropdown-wrapper, .struct-input-value-wrapper {
+                    fill: #f9f9f9;
+                    stroke: #ccc;
+                    stroke-width: 1.2;
+                }
+                .struct-added-value-wrapper-light {
+                    fill: #f5f5f5;
+                    stroke: #ccc;
+                    stroke-width: 0.5px;
+                }
+                .struct-delete-icon-wrapper-light{
+                    fill: #f5f5f5;
+                    stroke: #ccc;
+                    stroke-dasharray:0,150,50;
+                }
+                .struct-added-value-wrapper-dark {
+                    fill: #dcdcdc;
+                    stroke: #ccc;
+                    stroke-width: 0.5px;
+                }
+                .struct-delete-icon-wrapper-dark{
+                    fill: #dcdcdc;
+                    stroke: #ccc;
+                    stroke-dasharray: 0,150,50;
+                }
+                .default-worker-life-line, .worker-life-line {
+                    stroke: #1b79b4;
+                    stroke-width: 1;
+                }
+                .connector-life-line {
+                    stroke: #17a085;
+                    stroke-width: 1;
+                }
                 .panel-body-rect{
                     stroke-width: 1px;
                     stroke: #c4d5e2;
                 }
                 .statement-title-rect {
-                    fill: #f5f5f5;
-                    stroke: #000;
+                    fill: #f9f9f9;
+                    stroke: #222;
                 }
                 .statement-title-text, .condition-text{
                     text-anchor: middle;
@@ -74,13 +165,13 @@
                     font-style: italic;
                 }
                 .flowchart-background-empty-rect {
-                    fill: #f5f5f5;
+                    fill: #f9f9f9;
                     fill-opacity: 0;
                     stroke: #1b79b4;
                     stroke-width: 1;
                 }
                 .flowchart-background-empty-rect {
-                    fill: #f5f5f5;
+                    fill: #f9f9f9;
                     fill-opacity: 0;
                     stroke: #1b79b4;
                     stroke-width: 1;
@@ -100,7 +191,7 @@
                     stroke-dasharray: 3,3;
                 }
                 .flowchart-separator-line {
-                    stroke: #f5f5f5;
+                    stroke: #f9f9f9;
                     stroke-width: 2;
                 }
                 .flowchart-true-text {
@@ -114,13 +205,13 @@
                     font-weight: bolder;
                 }
                 .property-pane-action-button-wrapper{
-                    fill: #e9e9e9;
+                    fill: #e2e2e2;
+                    padding: 10px;
                 }
                 .property-pane-action-button-delete, .property-pane-action-button-jump{
-                    opacity: 0.4;
+                    opacity: 0.6;
                     &:hover{
                         opacity: 1;
-                        fill: red;
                     }
                 }
             }
@@ -129,8 +220,8 @@
 
     .panel-body{
         .panel {
-            .panel-header {
-                fill: #f5f5f5;
+            .panel-header, .svg-container {
+                fill: #f9f9f9;
                 .headingRect {
                     stroke-width: 1px;
                     stroke: #e4e4e4;
@@ -139,36 +230,13 @@
                             fill: rgba(255, 255, 255, 0.1);
                         }
                     }
+
                 }
-                .parameter-text, .parameter-bracket-text {
+                .parameter-text, .parameter-bracket-text, .return-types-opening-brack-text, .parameter-bracket-text {
                     fill: #333;
                     dominant-baseline: text-before-edge;
                     cursor: default;
                 }
-            }
-            .client-line-group{
-                .client-line-header{
-                    fill: #f5f5f5;
-                    stroke: #303030;
-                    stroke-width: 1px;
-                }
-                .client-life-line, .worker-life-line, .client-invocation-arrow {
-                    stroke: #303030;
-                    stroke-width: 1px;
-                }
-                .client-line-text{
-                    text-anchor: middle;
-                    dominant-baseline: central;
-                    text-transform: lowercase;
-                }
-            }
-            .default-worker-life-line, .worker-life-line {
-                stroke: #1b79b4;
-                stroke-width: 1;
-            }
-            .connector-life-line {
-                stroke: #17a085;
-                stroke-width: 1;
             }
         }
     }
@@ -177,7 +245,7 @@
         bottom: 20px;
         right: 50px;
         z-index: 30;
-        color: #f5f5f5;
+        color: #f9f9f9;
         padding: 0;
         line-height: 30px;
         width: 120px;
@@ -191,10 +259,38 @@
             border: 1px solid #c1c1c1;
             color: #333;
         }
+        div[title]:hover {
+            position: relative;
+            cursor: pointer;
+        }
+        div[title]:before {
+            content: attr(title);
+            position: absolute;
+            top: -3em;
+            left: -1em;
+            visibility: hidden;
+            color: #fff;
+            text-align: center;
+            background-color: #303030;
+            width: 100px;
+        }
+        div[title]:hover:after {
+            border: 11px solid transparent;
+            border-top-color: #303030;
+            content: '';
+            display: block;
+            height: 0;
+            width: 0;
+            position: absolute;
+            top: -14px;
+            font-size:12px;
+        }
+        div[title]:hover:before {
+            visibility: visible;
+        }
         .bottom-view-label{
             display: none;
         }
     }
 }
-
 

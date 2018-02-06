@@ -1,0 +1,3 @@
+struct test {
+    string test;
+}
