@@ -97,7 +97,7 @@ class WorkerNode extends React.Component {
                     bBox={model.viewState.components.lifeLine}
                     editorOptions={editorOptions}
                     classes={classes}
-                    icon={ImageUtil.getSVGIconString('tool-icons/worker')}
+                    icon={ImageUtil.getCodePoint('worker')}
                     iconColor='#0070af'
                     onDelete={this.onDelete}
                 />

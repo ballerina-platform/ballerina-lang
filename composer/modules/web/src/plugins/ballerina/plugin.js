@@ -126,7 +126,6 @@ class BallerinaPlugin extends Plugin {
                             ballerinaPlugin: this,
                         };
                     },
-                    tabTitleClass: CLASSES.TAB_TITLE.DESIGN_VIEW,
                     newFileContentProvider: (fileFullPath) => {
                         if (!fileFullPath) {
                             return '';
