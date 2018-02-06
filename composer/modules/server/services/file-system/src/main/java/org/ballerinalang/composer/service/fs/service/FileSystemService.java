@@ -52,7 +52,6 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-
 /**
  *  Micro service that exposes the file system to composer.
  */
@@ -63,6 +62,7 @@ public class FileSystemService implements ComposerService {
     private static final String FILE_SEPARATOR = "file.separator";
     private static final String STATUS = "status";
     private static final String SUCCESS = "success";
+    private static final String ACCESS_CONTROL_ALLOW_ORIGIN_HEADER = "Access-Control-Allow-Origin";
 
     private List<java.nio.file.Path> rootPaths;
 
@@ -80,14 +80,10 @@ public class FileSystemService implements ComposerService {
             List<String> extensionList = Arrays.asList(extensions.split(","));
             JsonArray roots = (rootPaths == null || rootPaths.isEmpty()) ? fileSystem.listRoots(extensionList) :
                     fileSystem.getJsonForRoots(rootPaths, extensionList);
-            return Response.status(Response.Status.OK)
-                    .entity(roots)
-                    .header("Access-Control-Allow-Origin", '*')
-                    .type(MediaType.APPLICATION_JSON)
-                    .build();
+            return createOKResponse(roots);
         } catch (Throwable throwable) {
             logger.error("/root service error", throwable.getMessage(), throwable);
-            return getErrorResponse(throwable);
+            return createErrorResponse(throwable);
         }
     }
 
@@ -96,14 +92,12 @@ public class FileSystemService implements ComposerService {
     @Produces("application/json")
     public Response pathExists(@QueryParam("path") String path) {
         try {
-            return Response.status(Response.Status.OK)
-                    .entity(fileSystem.exists(new String(Base64.getDecoder().decode(path), Charset.defaultCharset())))
-                    .header("Access-Control-Allow-Origin", '*')
-                    .type(MediaType.APPLICATION_JSON)
-                    .build();
+            JsonObject exists = fileSystem.exists(new String(Base64.getDecoder().decode(path),
+                    Charset.defaultCharset()));
+            return createOKResponse(exists);
         } catch (Throwable throwable) {
             logger.error("/exists service error", throwable.getMessage(), throwable);
-            return getErrorResponse(throwable);
+            return createErrorResponse(throwable);
         }
     }
 
@@ -119,11 +113,10 @@ public class FileSystemService implements ComposerService {
             fileSystem.create(path, type, content);
             JsonObject entity = new JsonObject();
             entity.addProperty(STATUS, SUCCESS);
-            return Response.status(Response.Status.OK).entity(entity).header("Access-Control-Allow-Origin", '*')
-                    .type(MediaType.APPLICATION_JSON).build();
+            return createOKResponse(entity);
         } catch (Throwable throwable) {
             logger.error("/create service error", throwable.getMessage(), throwable);
-            return getErrorResponse(throwable);
+            return createErrorResponse(throwable);
         }
     }
 
@@ -137,11 +130,10 @@ public class FileSystemService implements ComposerService {
             fileSystem.move(src, dest);
             JsonObject entity = new JsonObject();
             entity.addProperty(STATUS, SUCCESS);
-            return Response.status(Response.Status.OK).entity(entity).header("Access-Control-Allow-Origin", '*')
-                    .type(MediaType.APPLICATION_JSON).build();
+            return createOKResponse(entity);
         } catch (Throwable throwable) {
             logger.error("/create service error", throwable.getMessage(), throwable);
-            return getErrorResponse(throwable);
+            return createErrorResponse(throwable);
         }
     }
 
@@ -155,11 +147,10 @@ public class FileSystemService implements ComposerService {
             fileSystem.copy(src, dest);
             JsonObject entity = new JsonObject();
             entity.addProperty(STATUS, SUCCESS);
-            return Response.status(Response.Status.OK).entity(entity).header("Access-Control-Allow-Origin", '*')
-                    .type(MediaType.APPLICATION_JSON).build();
+            return createOKResponse(entity);
         } catch (Throwable throwable) {
             logger.error("/create service error", throwable.getMessage(), throwable);
-            return getErrorResponse(throwable);
+            return createErrorResponse(throwable);
         }
     }
 
@@ -172,11 +163,10 @@ public class FileSystemService implements ComposerService {
             fileSystem.delete(path);
             JsonObject entity = new JsonObject();
             entity.addProperty(STATUS, SUCCESS);
-            return Response.status(Response.Status.OK).entity(entity).header("Access-Control-Allow-Origin", '*')
-                    .type(MediaType.APPLICATION_JSON).build();
+            return createOKResponse(entity);
         } catch (Throwable throwable) {
             logger.error("/delete service error", throwable.getMessage(), throwable);
-            return getErrorResponse(throwable);
+            return createErrorResponse(throwable);
         }
     }
 
@@ -187,14 +177,12 @@ public class FileSystemService implements ComposerService {
                                 @DefaultValue(".bal") @QueryParam("extensions") String extensions) {
         try {
             List<String> extensionList = Arrays.asList(extensions.split(","));
-
-            return Response.status(Response.Status.OK)
-                    .entity(fileSystem.listFilesInPath(new String(Base64.getDecoder().decode(path),
-                            Charset.defaultCharset()), extensionList))
-                    .header("Access-Control-Allow-Origin", '*').type(MediaType.APPLICATION_JSON).build();
+            JsonArray filesInPath = fileSystem.listFilesInPath(new String(Base64.getDecoder().decode(path),
+                    Charset.defaultCharset()), extensionList);
+            return createOKResponse(filesInPath);
         } catch (Throwable throwable) {
             logger.error("/list service error", throwable.getMessage(), throwable);
-            return getErrorResponse(throwable);
+            return createErrorResponse(throwable);
         }
     }
 
@@ -241,11 +229,10 @@ public class FileSystemService implements ComposerService {
             }
             JsonObject entity = new JsonObject();
             entity.addProperty(STATUS, SUCCESS);
-            return Response.status(Response.Status.OK).entity(entity).header("Access-Control-Allow-Origin", '*').type
-                    (MediaType.APPLICATION_JSON).build();
+            return createOKResponse(entity);
         } catch (Throwable throwable) {
             logger.error("/write service error", throwable.getMessage(), throwable);
-            return getErrorResponse(throwable);
+            return createErrorResponse(throwable);
         }
     }
 
@@ -254,12 +241,10 @@ public class FileSystemService implements ComposerService {
     @Produces("application/json")
     public Response read(String path) {
         try {
-            return Response.status(Response.Status.OK)
-                    .entity(fileSystem.read(path)).header("Access-Control-Allow-Origin", '*')
-                    .type(MediaType.APPLICATION_JSON).build();
+            return createOKResponse(fileSystem.read(path));
         } catch (Throwable throwable) {
             logger.error("/read service error", throwable.getMessage(), throwable);
-            return getErrorResponse(throwable);
+            return createErrorResponse(throwable);
         }
     }
 
@@ -268,16 +253,32 @@ public class FileSystemService implements ComposerService {
     @Produces("text/plain")
     public Response userHome() {
         try {
-            return Response.status(Response.Status.OK)
-                    .entity(fileSystem.getUserHome()).header("Access-Control-Allow-Origin", '*')
-                    .type(MediaType.APPLICATION_JSON).build();
+            return createOKResponse(fileSystem.getUserHome());
         } catch (Throwable throwable) {
             logger.error("/userHome service error", throwable.getMessage(), throwable);
-            return getErrorResponse(throwable);
+            return createErrorResponse(throwable);
         }
     }
 
-    private Response getErrorResponse(Throwable ex) {
+    /**
+     * Creates the JSON response for given entity.
+     * @param entity Response
+     * @return Response
+     */
+    private Response createOKResponse(Object entity) {
+        return Response.status(Response.Status.OK)
+                .entity(entity)
+                .header(ACCESS_CONTROL_ALLOW_ORIGIN_HEADER, '*')
+                .type(MediaType.APPLICATION_JSON)
+                .build();
+    }
+
+    /**
+     * Creates an error response for the given IO Exception
+     * @param ex Thrown Exception
+     * @return Error Message
+     */
+    private Response createErrorResponse(Throwable ex) {
         JsonObject entity = new JsonObject();
         String errMsg = ex.getMessage();
         if (ex instanceof AccessDeniedException) {
