@@ -1079,6 +1079,11 @@
                         </execution>
                     </executions>
                 </plugin>
+                <plugin>
+                    <groupId>org.ballerinalang</groupId>
+                    <artifactId>docerina-maven-plugin</artifactId>
+                    <version>${ballerina.version}</version>
+                </plugin>
             </plugins>
         </pluginManagement>
         <plugins>

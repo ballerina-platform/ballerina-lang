@@ -60,11 +60,6 @@
                 <version>4.8.2</version>
                 <scope>test</scope>
             </dependency>
-            <dependency>
-                <groupId>org.ballerinalang</groupId>
-                <artifactId>docerina</artifactId>
-                <version>${docerina.version}</version>
-            </dependency>
         </dependencies>
     </dependencyManagement>
 
@@ -80,6 +75,5 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <docerina.version>${project.version}</docerina.version>
     </properties>
 </project>

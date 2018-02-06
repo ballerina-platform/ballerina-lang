@@ -151,7 +151,6 @@
             <plugin>
                 <groupId>org.ballerinalang</groupId>
                 <artifactId>docerina-maven-plugin</artifactId>
-                <version>${docerina.maven.plugin.version}</version>
                 <executions>
                     <execution>
                         <phase>compile</phase>
