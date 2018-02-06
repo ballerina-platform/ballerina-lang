@@ -34,9 +34,6 @@ import java.net.URLDecoder;
 import java.util.List;
 import java.util.Map;
 
-import static org.ballerinalang.mime.util.Constants.HEADER_VALUE_STRUCT;
-import static org.ballerinalang.mime.util.Constants.PROTOCOL_PACKAGE_MIME;
-
 /**
  * {@code HttpDispatcher} is responsible for dispatching incoming http requests to the correct resource.
  *
@@ -159,8 +156,6 @@ public class HttpDispatcher {
                 Constants.PROTOCOL_PACKAGE_HTTP, Constants.CONNECTION);
         BStruct inRequest = ConnectorUtils.createStruct(httpResource.getBalResource(),
                 Constants.PROTOCOL_PACKAGE_HTTP, Constants.IN_REQUEST);
-        HttpUtil.setHeaderValueStructType(ConnectorUtils.createStruct(httpResource.getBalResource(),
-                PROTOCOL_PACKAGE_MIME, HEADER_VALUE_STRUCT));
 
         BStruct entityForRequest = ConnectorUtils.createStruct(httpResource.getBalResource(),
                 org.ballerinalang.mime.util.Constants.PROTOCOL_PACKAGE_MIME,

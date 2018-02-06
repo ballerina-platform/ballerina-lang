@@ -1,0 +1,3 @@
+[submodule "adaptor"]
+	path = tool-plugins/intellij/adaptor
+	url = https://github.com/antlr/jetbrains.git

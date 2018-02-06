@@ -35,17 +35,4 @@ public abstract class CursorPositionResolver {
      */
     public abstract boolean isCursorBeforeNode(DiagnosticPos nodePosition, Node node, TreeVisitor treeVisitor,
                                                TextDocumentServiceContext completionContext);
-
-    /**
-     * Convert the diagnostic position to a zero based positioning diagnostic position.
-     * @param diagnosticPos - diagnostic position to be cloned
-     * @return {@link DiagnosticPos} converted diagnostic position
-     */
-    DiagnosticPos  toZeroBasedPosition(DiagnosticPos diagnosticPos) {
-        int startLine = diagnosticPos.getStartLine() - 1;
-        int endLine = diagnosticPos.getEndLine() - 1;
-        int startColumn = diagnosticPos.getStartColumn() - 1;
-        int endColumn = diagnosticPos.getEndColumn() - 1;
-        return new DiagnosticPos(diagnosticPos.getSource(), startLine, endLine, startColumn, endColumn);
-    }
 }

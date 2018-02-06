@@ -30,6 +30,8 @@ import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 import java.util.List;
 import java.util.Map;
 
+import static org.ballerinalang.langserver.TextDocumentServiceUtil.toZeroBasedPosition;
+
 /**
  * Service scope position resolver.
  */
@@ -38,7 +40,7 @@ public class ServiceScopeResolver extends CursorPositionResolver {
     public boolean isCursorBeforeNode(DiagnosticPos nodePosition, Node node, TreeVisitor treeVisitor,
                                       TextDocumentServiceContext completionContext) {
         Position position = completionContext.get(DocumentServiceKeys.POSITION_KEY).getPosition();
-        DiagnosticPos zeroBasedPo = this.toZeroBasedPosition(nodePosition);
+        DiagnosticPos zeroBasedPo = toZeroBasedPosition(nodePosition);
         int line = position.getLine();
         int col = position.getCharacter();
         int nodeSLine = zeroBasedPo.sLine;
@@ -64,7 +66,7 @@ public class ServiceScopeResolver extends CursorPositionResolver {
      * @param curLine       line of the cursor                     
      * @param curCol        column of the cursor                     
      * @return              {@link Boolean} whether the last child node or not
-     */    
+     */
     protected boolean isWithinScopeAfterLastChildNode(Node node, TreeVisitor treeVisitor, int curLine, int curCol) {
         BLangService bLangService = (BLangService) treeVisitor.getBlockOwnerStack().peek();
         List<BLangResource> resources = bLangService.resources;
@@ -80,7 +82,7 @@ public class ServiceScopeResolver extends CursorPositionResolver {
         } else {
             isLastChildNode = resources.indexOf(node) == (resources.size() - 1);
         }
-        
+
         return (isLastChildNode
                 && (curLine < serviceEndLine || (curLine == serviceEndLine && curCol < serviceEndCol))
                 && (nodeEndLine < curLine || (nodeEndLine == curLine && nodeEndCol < curCol)));
