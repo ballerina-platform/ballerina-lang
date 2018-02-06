@@ -15,15 +15,20 @@
  */
 package org.ballerinalang.langserver.signature;
 
-import org.ballerinalang.langserver.BLangPackageContext;
+import org.ballerinalang.langserver.DocumentServiceKeys;
 import org.ballerinalang.langserver.TextDocumentServiceContext;
+import org.ballerinalang.langserver.completions.SymbolInfo;
 import org.eclipse.lsp4j.ParameterInformation;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.SignatureHelp;
 import org.eclipse.lsp4j.SignatureInformation;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
+import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAttachmentAttribute;
+import org.wso2.ballerinalang.compiler.util.CompilerContext;
+import org.wso2.ballerinalang.compiler.util.Name;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -38,8 +43,11 @@ import java.util.stream.Collectors;
 public class SignatureHelpUtil {
 
     private static final String OPEN_BRACKET = "(";
+
     private static final String CLOSE_BRACKET = ")";
+
     private static final String COMMA = ",";
+
     private static final List<String> TERMINAL_CHARACTERS = Arrays.asList(OPEN_BRACKET, COMMA, ".");
 
     /**
@@ -50,9 +58,10 @@ public class SignatureHelpUtil {
      * @param serviceContext    Text Document service context instance for the signature help operation
      */
     public static void captureCallableItemInfo(Position position, String fileContent,
-                                                 TextDocumentServiceContext serviceContext) {
+                                               TextDocumentServiceContext serviceContext) {
         int lineNumber = position.getLine();
         int character = position.getCharacter();
+        int paramCounter = 0;
         // Here add offset of 2 since the indexing is zero based
         String[] lineTokens = fileContent.split("\\r?\\n", lineNumber + 2);
         String line = lineTokens[lineNumber];
@@ -65,47 +74,43 @@ public class SignatureHelpUtil {
                 break;
             }
             String currentToken = Character.toString(line.charAt(backTrackPosition));
-            if (CLOSE_BRACKET.equals(currentToken)) {
+            if (COMMA.equals(currentToken)) {
+                paramCounter++;
+            } else if (CLOSE_BRACKET.equals(currentToken)) {
                 closeBracketStack.push(CLOSE_BRACKET);
             } else if (OPEN_BRACKET.equals(currentToken)) {
                 if (!closeBracketStack.isEmpty()) {
                     closeBracketStack.pop();
+                    paramCounter = 0;
                 } else {
                     setItemInfo(line, backTrackPosition - 1, serviceContext);
                 }
             }
             backTrackPosition--;
         }
+
+        serviceContext.put(SignatureKeys.PARAMETER_COUNT, paramCounter);
     }
 
     /**
      * Get the functionSignatureHelp instance.
      *
      * @param context                   Signature help context
-     * @param bLangPackageContext       BLangPackageContext
      * @return {@link SignatureHelp}    Signature help for the completion
      */
-    public static SignatureHelp getFunctionSignatureHelp(TextDocumentServiceContext context,
-                                                         BLangPackageContext bLangPackageContext) {
-        
-        String callableItemName = context.get(SignatureKeys.CALLABLE_ITEM_NAME);
+    public static SignatureHelp getFunctionSignatureHelp(TextDocumentServiceContext context) {
         // Get the functions List
-        List<BLangFunction> functions = bLangPackageContext.getItems(BLangFunction.class);
-
+        List<SymbolInfo> functions = context.get(SignatureKeys.FILTERED_FUNCTIONS);
         List<SignatureInformation> signatureInformationList = functions
                 .stream()
-                .map(bLangFunction -> {
-                    if (bLangFunction.getName().getValue().equals(callableItemName)) {
-                        return getSignatureInformation(bLangFunction);
-                    }
-                    return null;
-                })
+                .map(symbolInfo -> getSignatureInformation((BInvokableSymbol) symbolInfo.getScopeEntry().symbol,
+                        context))
                 .filter(Objects::nonNull)
                 .collect(Collectors.toList());
 
         SignatureHelp signatureHelp = new SignatureHelp();
         signatureHelp.setSignatures(signatureInformationList);
-        signatureHelp.setActiveParameter(0);
+        signatureHelp.setActiveParameter(context.get(SignatureKeys.PARAMETER_COUNT));
         signatureHelp.setActiveSignature(0);
 
         return signatureHelp;
@@ -114,14 +119,16 @@ public class SignatureHelpUtil {
     /**
      * Get the signature information for the given Ballerina function.
      *
-     * @param bLangFunction Ballerina Function
+     * @param bInvokableSymbol BLang Invokable symbol
+     * @param signatureContext Signature operation context
      * @return {@link SignatureInformation}     Signature information for the function
      */
-    private static SignatureInformation getSignatureInformation(BLangFunction bLangFunction) {
+    private static SignatureInformation getSignatureInformation(BInvokableSymbol bInvokableSymbol,
+                                                                TextDocumentServiceContext signatureContext) {
         List<ParameterInformation> parameterInformationList = new ArrayList<>();
         SignatureInformation signatureInformation = new SignatureInformation();
-        List<ParameterInfoModel> paramInfoModels = getParamInfoList(bLangFunction);
-        String functionName = bLangFunction.getName().getValue();
+        List<ParameterInfoModel> paramInfoModels = getParamInfoList(bInvokableSymbol, signatureContext);
+        String functionName = bInvokableSymbol.getName().getValue();
 
         // Join the function parameters to generate the function's signature
         String paramsJoined = paramInfoModels.stream().map(parameterInfoModel -> {
@@ -132,7 +139,6 @@ public class SignatureHelpUtil {
 
             return parameterInfoModel.toString();
         }).collect(Collectors.joining(", "));
-
         signatureInformation.setLabel(functionName + "(" + paramsJoined + ")");
         signatureInformation.setParameters(parameterInformationList);
 
@@ -142,19 +148,32 @@ public class SignatureHelpUtil {
     /**
      * Get the list of Parameter information data models for the given ballerina function.
      *
-     * @param bLangFunction Ballerina Function
+     * @param bInvokableSymbol  Invokable symbol
      * @return {@link List}     List of parameter info data models
      */
-    private static List<ParameterInfoModel> getParamInfoList(BLangFunction bLangFunction) {
+    private static List<ParameterInfoModel> getParamInfoList(BInvokableSymbol bInvokableSymbol,
+                                                             TextDocumentServiceContext signatureContext) {
         List<ParameterInfoModel> paramList = new ArrayList<>();
-        bLangFunction.getParameters().forEach(bLangVariable -> {
+        Name packageName = bInvokableSymbol.pkgID.getName();
+        String functionName = signatureContext.get(SignatureKeys.CALLABLE_ITEM_NAME);
+        CompilerContext compilerContext = signatureContext.get(DocumentServiceKeys.COMPILER_CONTEXT_KEY);
+        BLangPackage bLangPackage = signatureContext.get(DocumentServiceKeys.B_LANG_PACKAGE_CONTEXT_KEY).
+                getPackageByName(compilerContext, packageName);
+
+        BLangFunction blangFunction = bLangPackage.getFunctions().stream()
+                .filter(bLangFunction -> bLangFunction.getName().getValue().equals(functionName))
+                .findFirst()
+                .orElse(null);
+
+        bInvokableSymbol.getParameters().forEach(bVarSymbol -> {
             ParameterInfoModel parameterInfoModel = new ParameterInfoModel();
-            parameterInfoModel.setParamType(bLangVariable.getTypeNode().type.toString());
-            parameterInfoModel.setParamValue(bLangVariable.getName().getValue());
-            parameterInfoModel.setDescription(getParameterDescription(bLangFunction.getAnnotationAttachments(),
-                    bLangVariable.getName().getValue()));
+            parameterInfoModel.setParamType(bVarSymbol.getType().toString());
+            parameterInfoModel.setParamValue(bVarSymbol.getName().getValue());
+            parameterInfoModel.setDescription(getParameterDescription(blangFunction.getAnnotationAttachments(),
+                    bVarSymbol.getName().getValue()));
             paramList.add(parameterInfoModel);
         });
+
         return paramList;
     }
 
@@ -211,10 +230,11 @@ public class SignatureHelpUtil {
                 break;
             }
             char c = line.charAt(counter);
-            if (!(Character.isLetterOrDigit(c)
-                    || "_".equals(Character.toString(c))) || TERMINAL_CHARACTERS.contains(Character.toString(c))) {
+            if (!(Character.isLetterOrDigit(c) || "_".equals(Character.toString(c)))
+                    || TERMINAL_CHARACTERS.contains(Character.toString(c))) {
                 callableItemName = line.substring(counter + 1, startPosition + 1);
                 delimiter = String.valueOf(line.charAt(counter));
+                captureIdentifierAgainst(line, counter, signatureContext);
                 break;
             }
             counter--;
@@ -222,35 +242,34 @@ public class SignatureHelpUtil {
         signatureContext.put(SignatureKeys.CALLABLE_ITEM_NAME, callableItemName);
         signatureContext.put(SignatureKeys.ITEM_DELIMITER, delimiter);
     }
-    
-    public static void captureIdentifierAgainst(String line, int startPosition,
+
+    /**
+     * Capture the identifier against (s.contains() here s is the identifier against).
+     * @param line              Current line being evaluated
+     * @param startPosition     Evaluation start position
+     * @param signatureContext  Signature help context
+     */
+    private static void captureIdentifierAgainst(String line, int startPosition,
                                                  TextDocumentServiceContext signatureContext) {
         int counter = startPosition;
         String identifier = "";
-        while (true) {
-            if (counter < 0) {
-                break;
-            }
-            char c = line.charAt(counter);
-            if (TERMINAL_CHARACTERS.contains(Character.toString(c))) {
-                identifier = line.substring(counter + 1, startPosition + 1);
-                break;
-            }
+        if (".".equals(Character.toString(line.charAt(counter)))
+                || ":".equals(Character.toString(line.charAt(counter)))) {
             counter--;
+            while (true) {
+                if (counter < 0) {
+                    break;
+                }
+                char c = line.charAt(counter);
+                if (TERMINAL_CHARACTERS.contains(Character.toString(c)) || Character.toString(c).equals(" ")
+                        || Character.toString(c).equals("\n")) {
+                    identifier = line.substring(counter + 1, startPosition);
+                    break;
+                }
+                counter--;
+            }
         }
-        signatureContext.put(SignatureKeys.IDENTIFIER_AGAINST, identifier);
-    }
-
-    /**
-     * Get the system package IDs.
-     * @return {@link List} list of ids
-     */
-    public static List<String> getSystemPkgIDs() {
-        return new ArrayList<>(Arrays.asList(new String[]{
-                "ballerina.config", "ballerina.math", "ballerina.user", "ballerina.util", "ballerina.util.arrays",
-                "ballerina.io", "ballerina.task", "ballerina.file", "ballerina.caching", "ballerina.runtime",
-                "ballerina.security.crypto", "ballerina.log", "ballerina.os", "ballerina.data.sql",
-                "ballerina.net.http", "ballerina.net.http.swagger", "ballerina.net.ws", "ballerina.net.uri"}));
+        signatureContext.put(SignatureKeys.IDENTIFIER_AGAINST, identifier.trim());
     }
 
     /**

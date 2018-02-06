@@ -1648,35 +1648,63 @@ class SizingUtil {
      *
      */
     sizeTransactionNode(node) {
-        this.sizeCompoundNode(node);
-        node.viewState.components['statement-box'].h = 0;
+        // size transaction node
+        const viewState = node.viewState;
+        const components = viewState.components;
+        const dropZoneHeight = TreeUtil.isBlock(node.parent) ? this.config.statement.gutter.v : 0;
+        const nodeBodyViewState = node.transactionBody.viewState;
 
-        // We ignore the previously calculated node height and re calculate it based on the component heights
-        if (node.transactionBody) {
-            node.transactionBody.viewState.components.titleWidth = this.getTextWidth('Transaction');
-            if (node.condition) {
-                node.transactionBody.viewState.components.withKeywordWidth = this.getTextWidth('with');
-                node.transactionBody.viewState.components.retiresKeywordWidth = this.getTextWidth('retries');
-                node.viewState.components.expression = this.getTextWidth(node.condition.getSource(true));
-            }
-            node.viewState.components['statement-box'].h
-                += node.transactionBody.viewState.components['statement-box'].h;
-            node.viewState.bBox.w = Math.max(node.viewState.bBox.w, node.transactionBody.viewState.bBox.w);
-        }
+        // flow chart if width and height is different to normal block node width and height
+        nodeBodyViewState.bBox.w = (nodeBodyViewState.bBox.w < this.config.compoundStatement.width) ?
+                                    this.config.compoundStatement.width : nodeBodyViewState.bBox.w;
+        nodeBodyViewState.bBox.h += this.config.statement.gutter.v;
+
+        components.body = new SimpleBBox();
+
+        viewState.components['drop-zone'] = new SimpleBBox();
+        viewState.components['statement-box'] = new SimpleBBox();
+        // Set the block header as an opaque box to prevent conflicts with arrows.
+        components['block-header'] = new SimpleBBox();
+        viewState.components.text = new SimpleBBox();
+
+        const bodyWidth = nodeBodyViewState.bBox.w;
+        const bodyHeight = nodeBodyViewState.bBox.h;
+
+        components['block-header'].h = this.config.statement.height + this.config.compoundStatement.padding.top;
+
+        viewState.components['drop-zone'].h = dropZoneHeight + (viewState.offSet || 0);
+        viewState.components['drop-zone'].w = bodyWidth;
+        viewState.components['statement-box'].h = bodyHeight;
+        viewState.components['statement-box'].w = bodyWidth;
+
+        viewState.bBox.h = viewState.components['statement-box'].h
+                            + viewState.components['drop-zone'].h
+                            + components['block-header'].h;
+        viewState.bBox.w = bodyWidth;
+
+        components['block-header'].setOpaque(true);
+
+        // calculate left margin from the lifeline centre
+        let leftMargin = this.calcLeftMargin(node.transactionBody.statements);
+        leftMargin = (leftMargin === 0) ? this.config.compoundStatement.gap.left
+                                        // since there is a left expansion for try when nested,
+                                        // add a left padding
+                                        : (leftMargin + this.config.compoundStatement.padding.left);
+        viewState.components['left-margin'] = {
+            w: leftMargin,
+        };
+
+        // end of try block sizing
+
+        let nodeHeight = viewState.bBox.h;
+        const nodeWidth = viewState.bBox.w;
+
         if (node.failedBody) {
-            node.failedBody.viewState.components.titleWidth = this.getTextWidth('Failed');
-            node.failedBody.viewState.components['statement-box'].h
-                += node.failedBody.viewState.components['block-header'].h;
-            node.viewState.components['statement-box'].h += node.failedBody.viewState.components['statement-box'].h;
-            node.viewState.bBox.w = Math.max(node.viewState.bBox.w, node.failedBody.viewState.bBox.w);
+            nodeHeight += (3 * this.config.compoundStatement.padding.top);
         }
-        node.viewState.bBox.h = node.viewState.components['statement-box'].h + node.viewState.components['drop-zone'].h
-            + node.viewState.components['block-header'].h;
-        node.viewState.bBox.w += Math.max(node.condition ? (node.transactionBody.viewState.components.titleWidth.w
-            + node.transactionBody.viewState.components.withKeywordWidth.w
-            + node.transactionBody.viewState.components.retiresKeywordWidth.w)
-            : node.transactionBody.viewState.components.titleWidth.w,
-            (node.failedBody ? node.failedBody.viewState.components.titleWidth.w : 0));
+
+        node.viewState.bBox.h = nodeHeight;
+        node.viewState.bBox.w = nodeWidth;
     }
 
     /**
