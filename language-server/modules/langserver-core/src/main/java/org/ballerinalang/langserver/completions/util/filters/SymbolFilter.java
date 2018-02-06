@@ -23,17 +23,16 @@ import org.ballerinalang.langserver.DocumentServiceKeys;
 import org.ballerinalang.langserver.TextDocumentServiceContext;
 import org.ballerinalang.langserver.completions.CompletionKeys;
 import org.ballerinalang.langserver.completions.SymbolInfo;
-import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.types.Type;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BConnectorType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BEndpointType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BEnumType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BStructType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.util.Name;
 
@@ -91,12 +90,12 @@ abstract class SymbolFilter {
     }
 
     /**
-     * Get the bound actions, functions and types including the enums.
+     * Get the invocations and fields against an identifier (functions, struct fields and types including the enums).
      * @param context     Text Document Service context (Completion Context)
      * @param delimiterIndex        delimiter index (index of either . or :)
      * @return {@link ArrayList}    List of filtered symbol info
      */
-    ArrayList<SymbolInfo> getBoundActionFunctionAndTypes(TextDocumentServiceContext context, int delimiterIndex) {
+    ArrayList<SymbolInfo> invocationsAndFieldsOnIdentifier(TextDocumentServiceContext context, int delimiterIndex) {
         ArrayList<SymbolInfo> actionFunctionList = new ArrayList<>();
         TokenStream tokenStream = context.get(DocumentServiceKeys.TOKEN_STREAM_KEY);
         List<SymbolInfo> symbols = context.get(CompletionKeys.VISIBLE_SYMBOLS_KEY);
@@ -136,19 +135,9 @@ abstract class SymbolFilter {
         if (packageSymbolInfo == null && packageID.equals(builtinPkgName)) {
             // If the packageID is ballerina.builtin, we extract entries of builtin package
             entries = symbolTable.builtInPackageSymbol.scope.entries;
-        } else if (packageSymbolInfo == null && bType instanceof BEnumType) {
-            // If the bType is an enum, we extract the fields of the enum
-            SymbolInfo enumSymbolInfo = context.get(CompletionKeys.VISIBLE_SYMBOLS_KEY)
-                    .stream()
-                    .filter(symbolInfo -> {
-                        BSymbol bSymbol = symbolInfo.getScopeEntry().symbol;
-                        SymbolKind symbolKind = bSymbol.kind;
-                        return SymbolKind.ENUM.equals(symbolKind) && symbolInfo.getSymbolName().equals(bTypeValue);
-                    })
-                    .findFirst()
-                    .orElse(null);
-            
-            entries = enumSymbolInfo.getScopeEntry().symbol.scope.entries;
+        } else if (packageSymbolInfo == null && (bType instanceof BEnumType || bType instanceof BStructType)) {
+            // If the bType is an enum/ struct, we extract the fields of the enum
+            entries = this.getScopeEntries(bTypeValue, context);
         } else if (packageSymbolInfo != null) {
             // If the package exist, we extract particular entries from package
             entries = packageSymbolInfo.getScopeEntry().symbol.scope.entries;
@@ -165,7 +154,7 @@ abstract class SymbolFilter {
             }
         }
 
-        if (bType instanceof BEnumType) {
+        if (bType instanceof BEnumType || bType instanceof BStructType) {
             entries.forEach((name, scopeEntry) -> {
                 SymbolInfo actionFunctionSymbol = new SymbolInfo(name.toString(), scopeEntry);
                 actionFunctionList.add(actionFunctionSymbol);
@@ -186,34 +175,6 @@ abstract class SymbolFilter {
         }
 
         return actionFunctionList;
-    }
-
-    /**
-     * Get the index of a certain token.
-     * @param tokenString - token string
-     * @param from - start searching from
-     * @param completionContext - completion operation context
-     * @return {@link Integer}
-     */
-    public int getIndexOfTokenString(String tokenString, int from, TextDocumentServiceContext completionContext) {
-        TokenStream tokenStream = completionContext.get(DocumentServiceKeys.TOKEN_STREAM_KEY);
-        int resultTokenIndex = -1;
-        int searchIndex = from;
-
-        while (true) {
-            if (searchIndex < 0 || tokenStream.size() - 1 < searchIndex) {
-                break;
-            }
-            Token token = tokenStream.get(searchIndex);
-            if (token.getChannel() != Token.DEFAULT_CHANNEL || !token.getText().equals(tokenString)) {
-                searchIndex++;
-            } else {
-                resultTokenIndex = searchIndex;
-                break;
-            }
-        }
-
-        return resultTokenIndex;
     }
 
     /**
@@ -268,5 +229,21 @@ abstract class SymbolFilter {
                 .filter(symbolInfo -> symbolInfo.getSymbolName().equals(name))
                 .findFirst()
                 .orElse(null);
+    }
+
+    /**
+     * Get the scope entries
+     * @param bTypeName         Name of the bType 
+     * @param completionCtx     Completion context
+     * @return                  {@link Map} Scope entries map
+     */
+    private Map<Name, Scope.ScopeEntry> getScopeEntries(String bTypeName, TextDocumentServiceContext completionCtx) {
+        SymbolInfo enumSymbolInfo = completionCtx.get(CompletionKeys.VISIBLE_SYMBOLS_KEY)
+                .stream()
+                .filter(symbolInfo -> symbolInfo.getSymbolName().equals(bTypeName))
+                .findFirst()
+                .orElse(null);
+
+        return enumSymbolInfo.getScopeEntry().symbol.scope.entries;
     }
 }
