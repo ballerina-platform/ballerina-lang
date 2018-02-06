@@ -232,7 +232,7 @@ abstract class SymbolFilter {
     }
 
     /**
-     * Get the scope entries
+     * Get the scope entries.
      * @param bTypeName         Name of the bType 
      * @param completionCtx     Completion context
      * @return                  {@link Map} Scope entries map
