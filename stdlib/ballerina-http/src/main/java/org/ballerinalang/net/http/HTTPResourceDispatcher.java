@@ -35,17 +35,14 @@ public class HTTPResourceDispatcher {
             throws BallerinaConnectorException {
 
         String method = (String) inboundRequest.getProperty(Constants.HTTP_METHOD);
-        String basePath = (String) inboundRequest.getProperty(Constants.BASE_PATH);
         String subPath = (String) inboundRequest.getProperty(Constants.SUB_PATH);
-        Map<String, Map<String, String>> matrixParams = new HashMap<>();
-        subPath = removeMatrixParams(sanitizeSubPath(basePath), sanitizeSubPath(subPath), matrixParams);
+        subPath = sanitizeSubPath(subPath);
         Map<String, String> resourceArgumentValues = new HashMap<>();
         try {
             HttpResource resource = service.getUriTemplate().matches(subPath, resourceArgumentValues, inboundRequest);
             if (resource != null) {
                 inboundRequest.setProperty(Constants.RESOURCE_ARGS, resourceArgumentValues);
                 inboundRequest.setProperty(Constants.RESOURCES_CORS, resource.getCorsHeaders());
-                inboundRequest.setProperty(Constants.MATRIX_PARAMS, matrixParams);
                 return resource;
             } else {
                 if (method.equals(Constants.HTTP_METHOD_OPTIONS)) {
@@ -91,27 +88,5 @@ public class HTTPResourceDispatcher {
         response.setProperty(Constants.HTTP_STATUS_CODE, 200);
         response.setEndOfMsgAdded(true);
         HttpUtil.sendOutboundResponse(cMsg, response);
-    }
-
-    private static String removeMatrixParams(String basePath, String subPath,
-                                             Map<String, Map<String, String>> matrixParams) {
-        String[] pathSegments = subPath.substring(1).split("/");
-        String pathToMatrixParam = "";
-        for (String pathSegment : pathSegments) {
-            String[] splitPathSegment = pathSegment.split(";");
-            pathToMatrixParam = pathToMatrixParam.concat("/" + splitPathSegment[0]);
-            Map<String, String> segmentMatrixParams = new HashMap<>();
-            if (splitPathSegment.length > 1) {
-                for (int i = 1; i < splitPathSegment.length; i++) {
-                    String[] splitMatrixParam = splitPathSegment[i].split("=");
-                    if (splitMatrixParam.length != 2) {
-                        throw new BallerinaConnectorException("Found non matrix parameter in " + subPath);
-                    }
-                    segmentMatrixParams.put(splitMatrixParam[0], splitMatrixParam[1]);
-                }
-            }
-            matrixParams.put(basePath.concat(pathToMatrixParam), segmentMatrixParams);
-        }
-        return pathToMatrixParam;
     }
 }

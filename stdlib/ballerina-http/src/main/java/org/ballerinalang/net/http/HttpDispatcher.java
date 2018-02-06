@@ -31,6 +31,7 @@ import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URLDecoder;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -46,7 +47,16 @@ public class HttpDispatcher {
     private static HttpService findService(HTTPServicesRegistry servicesRegistry, HTTPCarbonMessage inboundReqMsg) {
         try {
             Map<String, HttpService> servicesOnInterface = getServicesOnInterface(servicesRegistry, inboundReqMsg);
-            URI requestUri = getValidateURI(inboundReqMsg);
+
+            // Extracting Matrix params and clean the URI
+            Map<String, Map<String, String>> matrixParams = new HashMap<>();
+            String uriStr = (String) inboundReqMsg.getProperty(org.wso2.carbon.messaging.Constants.TO);
+            uriStr = removeMatrixParams(uriStr, matrixParams);
+
+            inboundReqMsg.setProperty(org.wso2.carbon.messaging.Constants.TO, uriStr);
+            inboundReqMsg.setProperty(Constants.MATRIX_PARAMS, matrixParams);
+
+            URI requestUri = getValidateURI(uriStr);
 
             // Most of the time we will find service from here
             String basePath =
@@ -64,6 +74,30 @@ public class HttpDispatcher {
         } catch (Throwable e) {
             throw new BallerinaConnectorException(e.getMessage());
         }
+    }
+
+    private static String removeMatrixParams(String path, Map<String, Map<String, String>> matrixParams) {
+        if (path.startsWith("/")) {
+            path = path.substring(1);
+        }
+        String[] pathSegments = path.split("/");
+        String pathToMatrixParam = "";
+        for (String pathSegment : pathSegments) {
+            String[] splitPathSegment = pathSegment.split(";");
+            pathToMatrixParam = pathToMatrixParam.concat("/" + splitPathSegment[0]);
+            Map<String, String> segmentMatrixParams = new HashMap<>();
+            if (splitPathSegment.length > 1) {
+                for (int i = 1; i < splitPathSegment.length; i++) {
+                    String[] splitMatrixParam = splitPathSegment[i].split("=");
+                    if (splitMatrixParam.length != 2) {
+                        throw new BallerinaConnectorException("Found non matrix parameter in " + path);
+                    }
+                    segmentMatrixParams.put(splitMatrixParam[0], splitMatrixParam[1]);
+                }
+            }
+            matrixParams.put(pathToMatrixParam, segmentMatrixParams);
+        }
+        return pathToMatrixParam;
     }
 
     private static Map<String, HttpService> getServicesOnInterface(HTTPServicesRegistry servicesRegistry,
@@ -85,9 +119,8 @@ public class HttpDispatcher {
         inboundReqMsg.setProperty(Constants.RAW_QUERY_STR, requestUri.getRawQuery());
     }
 
-    private static URI getValidateURI(HTTPCarbonMessage inboundReqMsg) {
+    private static URI getValidateURI(String uriStr) {
         URI requestUri;
-        String uriStr = (String) inboundReqMsg.getProperty(org.wso2.carbon.messaging.Constants.TO);
         try {
             requestUri = URI.create(uriStr);
         } catch (IllegalArgumentException e) {
