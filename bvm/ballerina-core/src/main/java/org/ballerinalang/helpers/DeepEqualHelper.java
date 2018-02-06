@@ -21,8 +21,6 @@ package org.ballerinalang.helpers;
 import org.ballerinalang.model.types.BStructType;
 import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.util.JsonNode;
-import org.ballerinalang.model.values.BConnector;
-import org.ballerinalang.model.values.BEnumerator;
 import org.ballerinalang.model.values.BJSON;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BNewArray;
@@ -43,119 +41,120 @@ import java.util.stream.Collectors;
 public class DeepEqualHelper {
     /**
      * Deep equal or strict equal implementation for any value type. I.E ===.
-     * @param lhVal The value on the left side.
-     * @param rhVal The value on the right side.
+     * @param lhsValue The value on the left side.
+     * @param rhsValue The value on the right side.
      * @return True if values are equal, else false.
      */
-    public static boolean isDeepEqual(BValue lhVal, BValue rhVal) {
-        if (null == lhVal && null == rhVal) {
+    public static boolean isDeepEqual(BValue lhsValue, BValue rhsValue) {
+        if (null == lhsValue && null == rhsValue) {
             return true;
         }
         
-        if (null == lhVal || null == rhVal) {
+        if (null == lhsValue || null == rhsValue) {
             return false;
         }
         
         // Required for any == any.
-        if (lhVal.getType().getTag() != rhVal.getType().getTag()) {
+        if (lhsValue.getType().getTag() != rhsValue.getType().getTag()) {
             return false;
         }
     
-        if (null != lhVal.getType().getPackagePath() && null != rhVal.getType().getPackagePath() &&
-            !lhVal.getType().getPackagePath().equals(rhVal.getType().getPackagePath())) {
+        if (null != lhsValue.getType().getPackagePath() && null != rhsValue.getType().getPackagePath() &&
+            !lhsValue.getType().getPackagePath().equals(rhsValue.getType().getPackagePath())) {
             return false;
         }
         
-        if (null != lhVal.getType().getName() && null != rhVal.getType().getName() &&
-            !lhVal.getType().getName().equals(rhVal.getType().getName())) {
+        if (null != lhsValue.getType().getName() && null != rhsValue.getType().getName() &&
+            !lhsValue.getType().getName().equals(rhsValue.getType().getName())) {
             return false;
         }
         
-        switch (lhVal.getType().getTag()) {
+        // Handling JSON.
+        if (lhsValue instanceof BJSON && rhsValue instanceof BJSON) {
+            JsonNode lhsJSON = ((BJSON) lhsValue).value();
+            JsonNode rhsJSON = ((BJSON) rhsValue).value();
+            return isDeepEqual(lhsJSON, rhsJSON);
+        }
+        
+        switch (lhsValue.getType().getTag()) {
             case TypeTags.STRING_TAG:
             case TypeTags.INT_TAG:
             case TypeTags.FLOAT_TAG:
             case TypeTags.BOOLEAN_TAG:
             case TypeTags.TYPE_TAG:
-                BRefType lhRef = (BRefType) lhVal;
-                BRefType rhRef = (BRefType) rhVal;
-                if (lhRef instanceof BJSON) {
-                    JsonNode lhJSON = ((BJSON) lhVal).value();
-                    JsonNode rhJSON = ((BJSON) rhVal).value();
-                    return isDeepEqual(lhJSON, rhJSON);
-                } else {
-                    return lhRef.value().equals(rhRef.value());
-                }
+                BRefType lhsRef = (BRefType) lhsValue;
+                BRefType rhsRef = (BRefType) rhsValue;
+                return lhsRef.value().equals(rhsRef.value());
             case TypeTags.STRUCT_TAG:
-                BStructType lhStructType = (BStructType) lhVal.getType();
-                BStructType rhStructType = (BStructType) rhVal.getType();
-                if (!Arrays.equals(lhStructType.getFieldTypeCount(), rhStructType.getFieldTypeCount())) {
+                BStructType lhsStructType = (BStructType) lhsValue.getType();
+                BStructType rhsStructType = (BStructType) rhsValue.getType();
+                if (!Arrays.equals(lhsStructType.getFieldTypeCount(), rhsStructType.getFieldTypeCount())) {
                     return false;
                 }
                 
-                BStruct lhStruct = (BStruct) lhVal;
-                BStruct rhStruct = (BStruct) rhVal;
+                BStruct lhsStruct = (BStruct) lhsValue;
+                BStruct rhStruct = (BStruct) rhsValue;
     
                 // Checking equality for integer fields.
-                for (int i = 0; i < lhStructType.getFieldTypeCount()[0]; i++) {
-                    if (lhStruct.getIntField(i) != rhStruct.getIntField(i)) {
+                for (int i = 0; i < lhsStructType.getFieldTypeCount()[0]; i++) {
+                    if (lhsStruct.getIntField(i) != rhStruct.getIntField(i)) {
                         return false;
                     }
                 }
     
                 // Checking equality for float fields.
-                for (int i = 0; i < lhStructType.getFieldTypeCount()[1]; i++) {
-                    if (lhStruct.getFloatField(i) != rhStruct.getFloatField(i)) {
+                for (int i = 0; i < lhsStructType.getFieldTypeCount()[1]; i++) {
+                    if (lhsStruct.getFloatField(i) != rhStruct.getFloatField(i)) {
                         return false;
                     }
                 }
     
                 // Checking equality for string fields.
-                for (int i = 0; i < lhStructType.getFieldTypeCount()[2]; i++) {
-                    if (!lhStruct.getStringField(i).equals(rhStruct.getStringField(i))) {
+                for (int i = 0; i < lhsStructType.getFieldTypeCount()[2]; i++) {
+                    if (!lhsStruct.getStringField(i).equals(rhStruct.getStringField(i))) {
                         return false;
                     }
                 }
     
                 // Checking equality for boolean fields.
-                for (int i = 0; i < lhStructType.getFieldTypeCount()[3]; i++) {
-                    if (lhStruct.getBooleanField(i) != rhStruct.getBooleanField(i)) {
+                for (int i = 0; i < lhsStructType.getFieldTypeCount()[3]; i++) {
+                    if (lhsStruct.getBooleanField(i) != rhStruct.getBooleanField(i)) {
                         return false;
                     }
                 }
     
                 // Checking equality for byte fields.
-                for (int i = 0; i < lhStructType.getFieldTypeCount()[4]; i++) {
-                    if (!Arrays.equals(lhStruct.getBlobField(i), rhStruct.getBlobField(i))) {
+                for (int i = 0; i < lhsStructType.getFieldTypeCount()[4]; i++) {
+                    if (!Arrays.equals(lhsStruct.getBlobField(i), rhStruct.getBlobField(i))) {
                         return false;
                     }
                 }
     
                 // Checking equality for refs fields.
-                for (int i = 0; i < lhStructType.getFieldTypeCount()[5]; i++) {
-                    if (!isDeepEqual(lhStruct.getRefField(i), rhStruct.getRefField(i))) {
+                for (int i = 0; i < lhsStructType.getFieldTypeCount()[5]; i++) {
+                    if (!isDeepEqual(lhsStruct.getRefField(i), rhStruct.getRefField(i))) {
                         return false;
                     }
                 }
                 break;
             case TypeTags.MAP_TAG:
-                BMap lhMap = (BMap) lhVal;
-                BMap rhMap = (BMap) rhVal;
+                BMap lhsMap = (BMap) lhsValue;
+                BMap rhsMap = (BMap) rhsValue;
                 // Check if size is same.
-                if (lhMap.size() != rhMap.size()) {
+                if (lhsMap.size() != rhsMap.size()) {
                     return false;
                 }
     
                 // Check if key set is equal.
-                if (!lhMap.keySet().containsAll(rhMap.keySet())) {
+                if (!lhsMap.keySet().containsAll(rhsMap.keySet())) {
                     return false;
                 }
     
-                List<String> keys = Arrays.stream(lhMap.keySet().toArray())
+                List<String> keys = Arrays.stream(lhsMap.keySet().toArray())
                         .map(String.class::cast)
                         .collect(Collectors.toList());
-                for (int i = 0; i < lhMap.size(); i++) {
-                    if (!isDeepEqual(lhMap.get(keys.get(i)), rhMap.get(keys.get(i)))) {
+                for (int i = 0; i < lhsMap.size(); i++) {
+                    if (!isDeepEqual(lhsMap.get(keys.get(i)), rhsMap.get(keys.get(i)))) {
                         return false;
                     }
                 }
@@ -163,48 +162,22 @@ public class DeepEqualHelper {
             case TypeTags.ARRAY_TAG:
             case TypeTags.ANY_TAG:
                 // TODO: This block should ideally be in the ARRAY_TAG case only. Not ANY_TAG. #4505.
-                if (lhVal instanceof BNewArray) {
-                    BNewArray lhArray = (BNewArray) lhVal;
-                    BNewArray rhArray = (BNewArray) rhVal;
-                    if (lhArray.size() != rhArray.size()) {
+                if (lhsValue instanceof BNewArray) {
+                    BNewArray lhsArray = (BNewArray) lhsValue;
+                    BNewArray rhsArray = (BNewArray) rhsValue;
+                    if (lhsArray.size() != rhsArray.size()) {
                         return false;
                     }
     
-                    for (int i = 0; i < lhArray.size(); i++) {
-                        if (!isDeepEqual(lhArray.getBValue(i), rhArray.getBValue(i))) {
+                    for (int i = 0; i < lhsArray.size(); i++) {
+                        if (!isDeepEqual(lhsArray.getBValue(i), rhsArray.getBValue(i))) {
                             return false;
                         }
                     }
                 }
                 break;
-            case TypeTags.JSON_TAG:
-                JsonNode lhJSON = ((BJSON) lhVal).value();
-                JsonNode rhJSON = ((BJSON) rhVal).value();
-    
-                return isDeepEqual(lhJSON, rhJSON);
             case TypeTags.XML_TAG:
-                // https://www.pixelstech.net/article/1453272563-Canonicalize-XML-in-Java
-                break;
-            case TypeTags.CONNECTOR_TAG:
-                BConnector lhConnector = (BConnector) lhVal;
-                BConnector rhConnector = (BConnector) rhVal;
-                
-                if (!lhConnector.getConnectorType().getPackagePath().equals(
-                        rhConnector.getConnectorType().getPackagePath())) {
-                    return false;
-                }
-    
-                if (!lhConnector.getConnectorType().getName().equals(rhConnector.getConnectorType().getName())) {
-                    return false;
-                }
-                break;
-            case TypeTags.ENUM_TAG:
-                BEnumerator lhEnum = (BEnumerator) lhVal;
-                BEnumerator rhEnum = (BEnumerator) rhVal;
-                
-                if (!lhEnum.stringValue().equals(rhEnum.stringValue())) {
-                    return false;
-                }
+                // TODO: https://www.pixelstech.net/article/1453272563-Canonicalize-XML-in-Java
                 break;
             default:
                 return false;
@@ -215,21 +188,21 @@ public class DeepEqualHelper {
     
     /**
      * Deep equals function for JSON type values. I.E ===
-     * @param lhJson The left side value.
-     * @param rhJson The right side value.
+     * @param lhsJson The left side value.
+     * @param rhsJson The right side value.
      * @return True if values are equal, else false.
      */
-    private static boolean isDeepEqual(JsonNode lhJson, JsonNode rhJson) {
-        if (lhJson.getType() == JsonNode.Type.OBJECT) {
+    private static boolean isDeepEqual(JsonNode lhsJson, JsonNode rhsJson) {
+        if (lhsJson.getType() == JsonNode.Type.OBJECT) {
             // Converting iterators to maps as iterators are ordered.
-            Iterator<Map.Entry<String, JsonNode>> lhJsonFieldsIterator = lhJson.fields();
+            Iterator<Map.Entry<String, JsonNode>> lhJsonFieldsIterator = lhsJson.fields();
             HashMap<String, JsonNode> lhJsonFields = new HashMap<>();
             while (lhJsonFieldsIterator.hasNext()) {
                 Map.Entry<String, JsonNode> field = lhJsonFieldsIterator.next();
                 lhJsonFields.put(field.getKey(), field.getValue());
             }
     
-            Iterator<Map.Entry<String, JsonNode>> rhJsonFieldsIterator = rhJson.fields();
+            Iterator<Map.Entry<String, JsonNode>> rhJsonFieldsIterator = rhsJson.fields();
             HashMap<String, JsonNode> rhJsonFields = new HashMap<>();
             while (rhJsonFieldsIterator.hasNext()) {
                 Map.Entry<String, JsonNode> field = rhJsonFieldsIterator.next();
@@ -253,19 +226,19 @@ public class DeepEqualHelper {
             }
         }
         
-        if (lhJson.getType() == JsonNode.Type.ARRAY) {
-            if (lhJson.size() != rhJson.size()) {
+        if (lhsJson.getType() == JsonNode.Type.ARRAY) {
+            if (lhsJson.size() != rhsJson.size()) {
                 return false;
             }
             
-            for (int i = 0; i < lhJson.size(); i++) {
-                if (!isDeepEqual(lhJson.get(i), rhJson.get(i))) {
+            for (int i = 0; i < lhsJson.size(); i++) {
+                if (!isDeepEqual(lhsJson.get(i), rhsJson.get(i))) {
                     return false;
                 }
             }
         }
         
         // If it is a value type, then equalize their text values.
-        return lhJson.asText().equals(rhJson.asText());
+        return lhsJson.asText().equals(rhsJson.asText());
     }
 }

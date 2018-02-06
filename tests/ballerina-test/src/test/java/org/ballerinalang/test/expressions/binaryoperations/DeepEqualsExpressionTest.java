@@ -207,22 +207,4 @@ public class DeepEqualsExpressionTest {
         boolean actual = ((BBoolean) returns[0]).booleanValue();
         Assert.assertTrue(actual, "Condition should give TRUE");
     }
-    
-    @Test
-    public void testConnectorsDeepEqual() {
-        BValue[] returns = BRunUtil.invoke(compileResultForComplex, "testConnectors");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BBoolean.class);
-        boolean actual = ((BBoolean) returns[0]).booleanValue();
-        Assert.assertTrue(actual, "Condition should give TRUE");
-    }
-    
-    @Test
-    public void testEnumsDeepEqual() {
-        BValue[] returns = BRunUtil.invoke(compileResultForComplex, "testEnums");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BBoolean.class);
-        boolean actual = ((BBoolean) returns[0]).booleanValue();
-        Assert.assertTrue(actual, "Condition should give TRUE");
-    }
 }

@@ -307,11 +307,7 @@ public class SymbolTable {
         defineBinaryOperator(OperatorKind.DEEP_EQUAL, mapType, mapType, booleanType, InstructionCodes.RDEQ);
         defineBinaryOperator(OperatorKind.DEEP_EQUAL, anyType, anyType, booleanType, InstructionCodes.RDEQ);
         defineBinaryOperator(OperatorKind.DEEP_EQUAL, jsonType, jsonType, booleanType, InstructionCodes.RDEQ);
-        defineBinaryOperator(OperatorKind.DEEP_EQUAL, connectorType, connectorType, booleanType, InstructionCodes.RDEQ);
         defineBinaryOperator(OperatorKind.DEEP_EQUAL, datatableType, datatableType, booleanType, InstructionCodes.RDEQ);
-        defineBinaryOperator(OperatorKind.DEEP_EQUAL, enumType, enumType, booleanType, InstructionCodes.RDEQ);
-        defineBinaryOperator(OperatorKind.DEEP_EQUAL, enumType, nullType, booleanType, InstructionCodes.RDEQ);
-        defineBinaryOperator(OperatorKind.DEEP_EQUAL, nullType, enumType, booleanType, InstructionCodes.RDEQ);
     
         //// Binary deep not equality operators !==
         // Primitives
@@ -345,13 +341,8 @@ public class SymbolTable {
         defineBinaryOperator(OperatorKind.DEEP_NOT_EQUAL, mapType, mapType, booleanType, InstructionCodes.RDNE);
         defineBinaryOperator(OperatorKind.DEEP_NOT_EQUAL, anyType, anyType, booleanType, InstructionCodes.RDNE);
         defineBinaryOperator(OperatorKind.DEEP_NOT_EQUAL, jsonType, jsonType, booleanType, InstructionCodes.RDNE);
-        defineBinaryOperator(OperatorKind.DEEP_NOT_EQUAL, connectorType, connectorType, booleanType,
-                                                                                                InstructionCodes.RDNE);
         defineBinaryOperator(OperatorKind.DEEP_NOT_EQUAL, datatableType, datatableType, booleanType,
                                                                                                 InstructionCodes.RDNE);
-        defineBinaryOperator(OperatorKind.DEEP_NOT_EQUAL, enumType, enumType, booleanType, InstructionCodes.RDNE);
-        defineBinaryOperator(OperatorKind.DEEP_NOT_EQUAL, enumType, nullType, booleanType, InstructionCodes.RDNE);
-        defineBinaryOperator(OperatorKind.DEEP_NOT_EQUAL, nullType, enumType, booleanType, InstructionCodes.RDNE);
         
         // Binary comparison operators <=, <, >=, >
         defineBinaryOperator(OperatorKind.LESS_THAN, intType, intType, booleanType, InstructionCodes.ILT);
