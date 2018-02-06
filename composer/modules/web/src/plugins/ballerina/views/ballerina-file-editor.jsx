@@ -21,7 +21,6 @@ import React from 'react';
 import cn from 'classnames';
 import PropTypes from 'prop-types';
 import SplitPane from 'react-split-pane';
-import { Scrollbars } from 'react-custom-scrollbars';
 import CSSTransitionGroup from 'react-transition-group/CSSTransitionGroup';
 import DebugManager from 'plugins/debugger/DebugManager/DebugManager'; // FIXME: Importing from debugger plugin
 import TreeUtil from 'plugins/ballerina/model/tree-util.js';
@@ -29,7 +28,8 @@ import { parseFile } from 'api-client/api-client';
 import { CONTENT_MODIFIED, UNDO_EVENT, REDO_EVENT } from 'plugins/ballerina/constants/events';
 import { GO_TO_POSITION, FORMAT } from 'plugins/ballerina/constants/commands';
 import File from 'core/workspace/model/file';
-import { EVENTS as WORKSPACE_EVENTS } from 'core/workspace/constants';
+import { COMMANDS as LAYOUT_COMMANDS } from 'core/layout/constants';
+import { DOC_VIEW_ID } from 'plugins/ballerina/constants';
 import DesignView from './design-view.jsx';
 import SourceView from './source-view.jsx';
 import SwaggerView from './swagger-view.jsx';
@@ -44,8 +44,6 @@ import TreeUtils from './../model/tree-util';
 import TreeBuilder from './../model/tree-builder';
 import CompilationUnitNode from './../model/tree/compilation-unit-node';
 import FragmentUtils from '../utils/fragment-utils';
-import { COMMANDS as LAYOUT_COMMANDS } from 'core/layout/constants';
-import { DOC_VIEW_ID } from 'plugins/ballerina/constants';
 import ErrorMappingVisitor from './../visitors/error-mapping-visitor';
 import SyncErrorsVisitor from './../visitors/sync-errors';
 import { EVENTS } from '../constants';
@@ -720,8 +718,9 @@ class BallerinaFileEditor extends React.Component {
         const showLoadingOverlay = !this.skipLoadingOverlay && this.state.parsePending;
 
         const sourceWidth = (this.state.activeView === SOURCE_VIEW) ? this.props.width :
+            this.state.splitSize;
+        const designWidth = (this.state.activeView === DESIGN_VIEW) ? this.props.width :
             this.props.width - this.state.splitSize;
-        const designWidth = (this.state.activeView === DESIGN_VIEW) ? this.props.width : this.state.splitSize;
 
         const sourceView = (
             <SourceView
@@ -777,6 +776,7 @@ class BallerinaFileEditor extends React.Component {
                                         defaultSize={(this.props.width / 2)}
                                         onChange={this.handleSplitChange}
                                     >
+                                        {sourceView}
                                         <div>
                                             {this.state.activeView === SPLIT_VIEW
                                                 && !_.isEmpty(this.state.syntaxErrors) &&
@@ -790,12 +790,11 @@ class BallerinaFileEditor extends React.Component {
                                             }
                                             {designView}
                                         </div>
-                                        {sourceView}
                                     </SplitPane>
                                 </div>
                             );
                         default:
-                            return [designView, sourceView];
+                            return [sourceView, designView];
                     }
                 })()}
                 <div style={{ display: showSwaggerView ? 'block' : 'none' }}>
