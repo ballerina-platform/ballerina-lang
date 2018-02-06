@@ -23,6 +23,7 @@ import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.tree.OperatorKind;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolEnter;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolResolver;
+import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.iterable.IterableContext;
@@ -65,6 +66,7 @@ import org.wso2.ballerinalang.util.Lists;
 import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
@@ -82,6 +84,8 @@ public class IterableCodeDesugar {
     private static final String VAR_RESULT = "result";
     private static final String VAR_COUNT = "count";
     private static final String VAR_COLLECTION = "collection";
+    private static final String COPY_OF = "copy";
+    private static final String EMPTY = "";
 
     private static final CompilerContext.Key<IterableCodeDesugar> ITERABLE_DESUGAR_KEY =
             new CompilerContext.Key<>();
@@ -89,6 +93,7 @@ public class IterableCodeDesugar {
     private final SymbolTable symTable;
     private final SymbolResolver symResolver;
     private final SymbolEnter symbolEnter;
+    private final Types types;
     private final Names names;
 
     private int lambdaFunctionCount = 0;
@@ -108,6 +113,7 @@ public class IterableCodeDesugar {
         this.symTable = SymbolTable.getInstance(context);
         this.symResolver = SymbolResolver.getInstance(context);
         this.symbolEnter = SymbolEnter.getInstance(context);
+        this.types = Types.getInstance(context);
         this.names = Names.getInstance(context);
     }
 
@@ -168,7 +174,6 @@ public class IterableCodeDesugar {
 
     private void generateIteratorFunction(IterableContext ctx) {
         final Operation firstOperation = ctx.getFirstOperation();
-        final Operation lastOperation = ctx.getLastOperation();
         final DiagnosticPos pos = firstOperation.pos;
 
         // Create and define function signature.
@@ -195,7 +200,7 @@ public class IterableCodeDesugar {
 
         // Generate foreach iteration.
         final BLangForeach foreach = createForeach(pos, funcNode.body);
-        final List<BLangVariable> foreachVars = copyOf(ctx.getFirstOperation().argVars);
+        final List<BLangVariable> foreachVars = copyOf(ctx.getFirstOperation().argVars, COPY_OF);
         foreachVars.forEach(variable -> defineVariable(variable, packageSymbol.pkgID, funcNode));
         foreach.varRefs.addAll(createVariableRefList(pos, foreachVars));
         foreach.collection = createVariableRef(pos, funcNode.params.get(0).symbol);
@@ -216,7 +221,7 @@ public class IterableCodeDesugar {
             generateFinalResult(funcNode.body, ctx);
         }
 
-        final BLangReturn returnStmt = createReturnStmt(lastOperation.pos, funcNode.body);
+        final BLangReturn returnStmt = createReturnStmt(firstOperation.pos, funcNode.body);
         returnStmt.addExpression(createVariableRef(pos, ctx.resultVar.symbol));
     }
 
@@ -234,9 +239,6 @@ public class IterableCodeDesugar {
      * @param funcNode  functionNode
      */
     private void generateCounterVariable(BLangBlockStmt blockStmt, IterableContext ctx, BLangFunction funcNode) {
-        if (ctx.resultType.tag != TypeTags.ARRAY && ctx.getLastOperation().kind != IterableKind.AVERAGE) {
-            return;
-        }
         final DiagnosticPos pos = blockStmt.pos;
         ctx.countVar = createVariable(pos, VAR_COUNT, symTable.intType);
         ctx.countVar.expr = createLiteral(pos, symTable.intType, 0L);
@@ -255,7 +257,11 @@ public class IterableCodeDesugar {
      * @param varResult result variable
      */
     private void generateResultVariable(BLangBlockStmt blockStmt, IterableContext ctx, BLangVariable varResult) {
-        if (ctx.resultType.tag != TypeTags.ARRAY && ctx.resultType.tag != TypeTags.MAP) {
+        final IterableKind kind = ctx.getLastOperation().kind;
+        if (ctx.resultType.tag != TypeTags.ARRAY
+                && ctx.resultType.tag != TypeTags.MAP
+                && kind != IterableKind.MAX
+                && kind != IterableKind.MIN) {
             return;
         }
         final DiagnosticPos pos = blockStmt.pos;
@@ -275,6 +281,20 @@ public class IterableCodeDesugar {
                 record.type = ctx.resultType;
                 assignment.expr = record;
                 break;
+            case TypeTags.INT:
+                if (kind == IterableKind.MAX) {
+                    assignment.expr = createLiteral(pos, symTable.intType, Long.MIN_VALUE);
+                } else if (kind == IterableKind.MIN) {
+                    assignment.expr = createLiteral(pos, symTable.intType, Long.MIN_VALUE);
+                }
+                break;
+            case TypeTags.FLOAT:
+                if (kind == IterableKind.MAX) {
+                    assignment.expr = createLiteral(pos, symTable.floatType, Double.MIN_VALUE);
+                } else if (kind == IterableKind.MIN) {
+                    assignment.expr = createLiteral(pos, symTable.floatType, Double.MIN_VALUE);
+                }
+                break;
         }
     }
 
@@ -292,7 +312,14 @@ public class IterableCodeDesugar {
     private void generateVarDefForStream(BLangBlockStmt blockStmt, IterableContext ctx, BLangFunction funcNode) {
         ctx.streamRetVars = new ArrayList<>();
         ctx.streamRetVars.add(ctx.skipVar = createVariable(blockStmt.pos, VAR_SKIP, symTable.booleanType));
-        ctx.streamRetVars.addAll(copyOf(ctx.getLastOperation().retVars));
+        Operation lastLambda = ctx.getLastOperation();
+        while (!lastLambda.kind.isLambdaRequired()) {
+            if (lastLambda.previous == null) {
+                return;
+            }
+            lastLambda = lastLambda.previous;
+        }
+        ctx.streamRetVars.addAll(copyOf(lastLambda.retVars, EMPTY));
         ctx.streamRetVars.forEach(variable -> {
             defineVariable(variable, funcNode.symbol.pkgID, funcNode);
             createVariableDefStmt(blockStmt.pos, funcNode.body).var = variable;
@@ -306,11 +333,13 @@ public class IterableCodeDesugar {
      */
     private void generateStreamFunction(IterableContext ctx) {
         final DiagnosticPos pos = ctx.getFirstOperation().pos;
+        LinkedList<Operation> streamOperations = new LinkedList<>();
+        ctx.operations.stream().filter(op -> op.kind.isLambdaRequired()).forEach(streamOperations::add);
         // Create and define function signature.
         final BLangFunction funcNode = createFunction(pos, FUNC_STREAM);
         funcNode.params.addAll(ctx.getFirstOperation().argVars);
         funcNode.retParams.add(createVariable(pos, VAR_SKIP, symTable.booleanType));
-        funcNode.retParams.addAll(ctx.getLastOperation().retVars);
+        funcNode.retParams.addAll(streamOperations.getLast().retVars);
 
         final BPackageSymbol packageSymbol = ctx.getFirstOperation().env.enclPkg.symbol;
         final SymbolEnv packageEnv = symbolEnter.packageEnvs.get(packageSymbol);
@@ -321,7 +350,7 @@ public class IterableCodeDesugar {
 
         // Define all undefined variables.
         Set<BLangVariable> unusedVars = new HashSet<>();
-        ctx.operations.forEach(operation -> {
+        streamOperations.forEach(operation -> {
             unusedVars.addAll(operation.argVars);
             unusedVars.addAll(operation.retVars);
         });
@@ -334,7 +363,7 @@ public class IterableCodeDesugar {
         });
         // Generate function Body.
         ctx.operations.forEach(operation -> generateOperationCode(funcNode.body, operation, ctx));
-        generateStreamReturnStmt(funcNode.body, ctx.getLastOperation().retVars);
+        generateStreamReturnStmt(funcNode.body, streamOperations.getLast().retVars);
     }
 
     /**
@@ -364,7 +393,7 @@ public class IterableCodeDesugar {
      * @param ctx       current context
      */
     private void generateNextCondition(BLangBlockStmt blockStmt, IterableContext ctx) {
-        final DiagnosticPos pos = ctx.getLastOperation().pos;
+        final DiagnosticPos pos = blockStmt.pos;
         final BLangIf ifNode = createIfStmt(pos, blockStmt);
         ifNode.expr = createVariableRef(pos, ctx.skipVar.symbol);
         ifNode.body = createBlockStmt(pos);
@@ -381,6 +410,7 @@ public class IterableCodeDesugar {
      * @param ctx       current context
      */
     private void generateAggregator(BLangBlockStmt blockStmt, IterableContext ctx) {
+        generateCountAggregator(blockStmt, ctx.countVar);
         switch (ctx.getLastOperation().kind) {
             case COUNT:
                 generateCountAggregator(blockStmt, ctx.resultVar);
@@ -390,13 +420,12 @@ public class IterableCodeDesugar {
                 return;
             case AVERAGE:
                 generateSumAggregator(blockStmt, ctx);
-                generateCountAggregator(blockStmt, ctx.countVar);
                 return;
             case MAX:
-                generateCompareAggregator(blockStmt, ctx, OperatorKind.LESS_THAN);
+                generateCompareAggregator(blockStmt, ctx, OperatorKind.GREATER_THAN);
                 return;
             case MIN:
-                generateCompareAggregator(blockStmt, ctx, OperatorKind.GREATER_THAN);
+                generateCompareAggregator(blockStmt, ctx, OperatorKind.LESS_THAN);
                 return;
         }
         switch (ctx.resultType.tag) {
@@ -405,22 +434,6 @@ public class IterableCodeDesugar {
                 break;
             case TypeTags.MAP:
                 generateMapAggregator(blockStmt, ctx);
-                break;
-        }
-    }
-
-    /**
-     * Generate result from aggregator logic.
-     *
-     * @param blockStmt target
-     * @param ctx       current context
-     */
-    private void generateFinalResult(BLangBlockStmt blockStmt, IterableContext ctx) {
-        switch (ctx.getLastOperation().kind) {
-            case AVERAGE:
-                generateCalculateAverage(blockStmt, ctx);
-                break;
-            default:
                 break;
         }
     }
@@ -487,11 +500,12 @@ public class IterableCodeDesugar {
 
         final BLangBinaryExpr compare = (BLangBinaryExpr) TreeBuilder.createBinaryExpressionNode();
         compare.pos = pos;
-        compare.type = ctx.resultVar.symbol.type;
+        compare.type = symTable.booleanType;
         compare.opKind = operator;
         compare.lhsExpr = resultVar;
         compare.rhsExpr = valueVar;
-        compare.opSymbol = (BOperatorSymbol) symResolver.resolveBinaryOperator(operator, compare.type, compare.type);
+        compare.opSymbol = (BOperatorSymbol) symResolver.resolveBinaryOperator(operator, resultVar.symbol.type,
+                valueVar.symbol.type);
 
         final BLangTernaryExpr ternaryExpr = (BLangTernaryExpr) TreeBuilder.createTernaryExpressionNode();
         ternaryExpr.pos = pos;
@@ -503,29 +517,6 @@ public class IterableCodeDesugar {
         final BLangAssignment countAdd = createAssignmentStmt(pos, blockStmt);
         countAdd.varRefs.add(resultVar);
         countAdd.expr = ternaryExpr;
-    }
-
-    /**
-     * Generates following.
-     *
-     * result = result / count
-     *
-     * @param blockStmt target
-     * @param ctx       current context
-     */
-    private void generateCalculateAverage(BLangBlockStmt blockStmt, IterableContext ctx) {
-        final DiagnosticPos pos = blockStmt.pos;
-        final BLangBinaryExpr divide = (BLangBinaryExpr) TreeBuilder.createBinaryExpressionNode();
-        divide.pos = pos;
-        divide.type = ctx.resultVar.symbol.type;
-        divide.opKind = OperatorKind.ADD;
-        divide.lhsExpr = createVariableRef(pos, ctx.resultVar.symbol);
-        divide.rhsExpr = createVariableRef(pos, ctx.countVar.symbol);
-        divide.opSymbol = (BOperatorSymbol) symResolver.resolveBinaryOperator(OperatorKind.DIV, divide.type,
-                ctx.countVar.symbol.type);
-        final BLangAssignment countAdd = createAssignmentStmt(pos, blockStmt);
-        countAdd.varRefs.add(createVariableRef(pos, ctx.resultVar.symbol));
-        countAdd.expr = divide;
     }
 
     /**
@@ -575,6 +566,88 @@ public class IterableCodeDesugar {
     }
 
     /**
+     * Generate result from aggregator logic.
+     *
+     * @param blockStmt target
+     * @param ctx       current context
+     */
+    private void generateFinalResult(BLangBlockStmt blockStmt, IterableContext ctx) {
+        generateDefaultIfEmpty(blockStmt, ctx);
+        switch (ctx.getLastOperation().kind) {
+            case AVERAGE:
+                generateCalculateAverage(blockStmt, ctx);
+                break;
+            default:
+                break;
+        }
+    }
+
+    /**
+     * Generates following.
+     *
+     * if(count == 0){
+     * return;
+     * }
+     *
+     * @param blockStmt target
+     * @param ctx       current context
+     */
+    private void generateDefaultIfEmpty(BLangBlockStmt blockStmt, IterableContext ctx) {
+        final DiagnosticPos pos = blockStmt.pos;
+        final BLangBinaryExpr equality = (BLangBinaryExpr) TreeBuilder.createBinaryExpressionNode();
+        equality.pos = pos;
+        equality.type = symTable.booleanType;
+        equality.opKind = OperatorKind.EQUAL;
+        equality.lhsExpr = createVariableRef(pos, ctx.countVar.symbol);
+        equality.rhsExpr = createLiteral(pos, symTable.intType, 0L);
+        equality.opSymbol = (BOperatorSymbol) symResolver.resolveBinaryOperator(OperatorKind.EQUAL, symTable.intType,
+                symTable.intType);
+
+        final BLangIf ifNode = createIfStmt(pos, blockStmt);
+        ifNode.expr = equality;
+        ifNode.body = createBlockStmt(pos);
+        if (ctx.resultVar.symbol.type.tag <= TypeTags.FLOAT) {
+            final BLangAssignment assign = createAssignmentStmt(pos, ifNode.body);
+            assign.varRefs.add(createVariableRef(pos, ctx.resultVar.symbol));
+            switch (ctx.resultVar.symbol.type.tag) {
+                case TypeTags.INT:
+                    assign.expr = createLiteral(pos, symTable.intType, 0L);
+                    break;
+                case TypeTags.FLOAT:
+                    assign.expr = createLiteral(pos, symTable.floatType, 0D);
+                    break;
+            }
+        }
+        createReturnStmt(pos, ifNode.body);
+    }
+
+    /**
+     * Generates following.
+     *
+     * result = result / count
+     *
+     * @param blockStmt target
+     * @param ctx       current context
+     */
+    private void generateCalculateAverage(BLangBlockStmt blockStmt, IterableContext ctx) {
+        final DiagnosticPos pos = blockStmt.pos;
+        final BLangBinaryExpr divide = (BLangBinaryExpr) TreeBuilder.createBinaryExpressionNode();
+        divide.pos = pos;
+        divide.type = ctx.resultVar.symbol.type;
+        divide.opKind = OperatorKind.ADD;
+        divide.lhsExpr = createVariableRef(pos, ctx.resultVar.symbol);
+        divide.rhsExpr = createVariableRef(pos, ctx.countVar.symbol);
+        divide.opSymbol = (BOperatorSymbol) symResolver.resolveBinaryOperator(OperatorKind.DIV, divide.type,
+                ctx.countVar.symbol.type);
+        final BLangAssignment countAdd = createAssignmentStmt(pos, blockStmt);
+        countAdd.varRefs.add(createVariableRef(pos, ctx.resultVar.symbol));
+        countAdd.expr = divide;
+    }
+
+
+    /* Lambda based Operation related code generation */
+
+    /**
      * Generates Operation related code.
      *
      * @param blockStmt target
@@ -594,9 +667,6 @@ public class IterableCodeDesugar {
                 break;
         }
     }
-
-
-    /* Lambda based Operation related code generation */
 
     /**
      * Generates statements for foreach operation.
@@ -797,9 +867,10 @@ public class IterableCodeDesugar {
         return name + lambdaFunctionCount++;
     }
 
-    private List<BLangVariable> copyOf(List<BLangVariable> variables) {
+    private List<BLangVariable> copyOf(List<BLangVariable> variables, String postFix) {
         List<BLangVariable> copy = new ArrayList<>();
-        variables.forEach(variable -> copy.add(createVariable(variable.pos, variable.name.value, variable.type)));
+        variables.forEach(variable -> copy.add(createVariable(variable.pos, variable.name.value + postFix,
+                variable.type)));
         return copy;
     }
 }

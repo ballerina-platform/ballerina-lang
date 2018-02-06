@@ -310,16 +310,29 @@ public class IterableAnalyzer {
             return Lists.of(calculateType(operation, t));
         }
 
-        private BType calculateType(Operation operation, BType elementType) {
+        private BType calculateType(Operation operation, BType type) {
+            BType elementType = type;
             switch (operation.kind) {
                 case MAX:
                 case MIN:
                 case SUM:
+                    if (elementType.tag == TypeTags.TUPLE_COLLECTION) {
+                        BTupleCollectionType tupleType = (BTupleCollectionType) elementType;
+                        if (tupleType.tupleTypes.size() == 1) {
+                            elementType = tupleType.tupleTypes.get(0);
+                        }
+                    }
                     if (elementType.tag == TypeTags.INT || elementType.tag == TypeTags.FLOAT) {
                         return elementType;
                     }
                     break;
                 case AVERAGE:
+                    if (elementType.tag == TypeTags.TUPLE_COLLECTION) {
+                        BTupleCollectionType tupleType = (BTupleCollectionType) elementType;
+                        if (tupleType.tupleTypes.size() == 1) {
+                            elementType = tupleType.tupleTypes.get(0);
+                        }
+                    }
                     if (elementType.tag == TypeTags.INT || elementType.tag == TypeTags.FLOAT) {
                         return symTable.floatType;
                     }
