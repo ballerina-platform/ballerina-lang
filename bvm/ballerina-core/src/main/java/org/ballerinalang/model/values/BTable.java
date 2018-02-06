@@ -132,9 +132,9 @@ public class BTable implements BRefType<Object>, BCollection {
     }
 
     /**
-     * {@code {@link BMap.BMapIterator }} provides iterator implementation for map values.
+     * Provides iterator implementation for table values.
      *
-     * @since 0.96.8
+     * @since 0.961.0
      */
     static class BTableIterator<K, V extends BValue> implements BIterator {
 

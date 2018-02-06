@@ -25,13 +25,6 @@ struct ResultObject {
     blob BINARY_TYPE;
 }
 
-struct Person {
-    string name;
-    int age = -1;
-    string status;
-}
-
-
 struct ResultMap {
     int[] INT_ARRAY;
     int[] LONG_ARRAY;
@@ -715,6 +708,7 @@ function testTablePrintAndPrintln() {
     print(dt);
     testDB.close();
 }
+
 function testMutltipleRows () (int i1, int i2) {
     endpoint<sql:ClientConnector> testDB {
         create sql:ClientConnector(sql:DB.HSQLDB_FILE, "./target/tempdb/",
@@ -1009,24 +1003,43 @@ function testStructFieldNotMatchingColumnName () (int countAll, int i1, int i2, 
     return;
 }
 
-function testGetPrimitiveTypesWithForEach () (string s) {
+function testGetPrimitiveTypesWithForEach () (int i, int l, float f, float d, boolean b, string s) {
+    endpoint<sql:ClientConnector> testDB {
+        create sql:ClientConnector(sql:DB.HSQLDB_FILE, "./target/tempdb/",
+                                   0, "TEST_DATA_TABLE_DB", "SA", "", {maximumPoolSize:1});
+    }
+    table<ResultPrimitive> dt = testDB.select("SELECT int_type, long_type, float_type, double_type,
+              boolean_type, string_type from DataTable WHERE row_id = 1", null, typeof ResultPrimitive);
+    foreach x in dt {
+        i = x.INT_TYPE;
+        l = x.LONG_TYPE;
+        f = x.FLOAT_TYPE;
+        d = x.DOUBLE_TYPE;
+        b = x.BOOLEAN_TYPE;
+        s = x.STRING_TYPE;
+    }
+    testDB.close();
+    return;
+}
+
+function testMutltipleRowsWithForEach () (int i1, int i2) {
     endpoint<sql:ClientConnector> testDB {
         create sql:ClientConnector(sql:DB.HSQLDB_FILE, "./target/tempdb/",
                                    0, "TEST_DATA_TABLE_DB", "SA", "", {maximumPoolSize:1});
     }
 
-    table<ResultDataTableRep> dt = testDB.select("SELECT * from DataTableRep ", null, typeof ResultDataTableRep );
-
-    s  = "";
-
-    //ResultPrimitive x;
+    table<ResultPrimitiveInt> dt = testDB.select("SELECT int_type from DataTableRep", null, typeof ResultPrimitiveInt);
+    ResultPrimitiveInt rs1;
+    ResultPrimitiveInt rs2;
+    int i = 0;
     foreach x in dt {
-        s = s + x.ROW_ID;
-        s = s + ":";
-        s = s + x.INT_TYPE;
-        s = s + ",";
+        if (i == 0) {
+            rs1 = x;
+        } else {
+            rs2 = x;
+        }
+        i = i + 1;
     }
-    println(s);
     testDB.close();
-    return;
+    return rs1.INT_TYPE, rs2.INT_TYPE;
 }

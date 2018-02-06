@@ -552,10 +552,23 @@ public class TableTest {
         Assert.assertEquals(((BInteger) returns[4]).intValue(), 100);
     }
 
-    @Test(groups = "TableTest", description = "Check retrieving primitive types.")
+    @Test(groups = "TableTest", description = "Check retrieving data using foreach")
     public void testGetPrimitiveTypesWithForEach() {
         BValue[] returns = BRunUtil.invoke(result, "testGetPrimitiveTypesWithForEach");
-        Assert.assertEquals((returns[0]).stringValue(), "1:100,2:200,");
+        Assert.assertEquals(returns.length, 6);
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 1);
+        Assert.assertEquals(((BInteger) returns[1]).intValue(), 9223372036854774807L);
+        Assert.assertEquals(((BFloat) returns[2]).floatValue(), 123.34D);
+        Assert.assertEquals(((BFloat) returns[3]).floatValue(), 2139095039D);
+        Assert.assertEquals(((BBoolean) returns[4]).booleanValue(), true);
+        Assert.assertEquals(returns[5].stringValue(), "Hello");
+    }
+
+    @Test(groups = "TableTest", description = "Check retrieving data using foreach with multiple rows")
+    public void testMutltipleRowsWithForEach() {
+        BValue[] returns = BRunUtil.invoke(result, "testMutltipleRowsWithForEach");
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 100);
+        Assert.assertEquals(((BInteger) returns[1]).intValue(), 200);
     }
 
     @AfterSuite
