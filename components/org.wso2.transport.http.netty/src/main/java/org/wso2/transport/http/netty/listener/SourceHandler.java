@@ -29,6 +29,7 @@ import io.netty.handler.codec.http.DefaultLastHttpContent;
 import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http.HttpMessage;
 import io.netty.handler.codec.http.HttpRequest;
+import io.netty.handler.codec.http.HttpVersion;
 import io.netty.handler.codec.http.LastHttpContent;
 import io.netty.handler.timeout.IdleStateEvent;
 import org.apache.commons.pool.impl.GenericObjectPool;
@@ -212,7 +213,7 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
         return ctx;
     }
 
-    protected HTTPCarbonMessage setupCarbonMessage(HttpMessage httpMessage, ChannelHandlerContext ctx)
+    HTTPCarbonMessage setupCarbonMessage(HttpMessage httpMessage, ChannelHandlerContext ctx)
             throws URISyntaxException {
 
         if (handlerExecutor != null) {
@@ -225,7 +226,9 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
         HttpRequest httpRequest = (HttpRequest) httpMessage;
         sourceReqCmsg.setProperty(Constants.CHNL_HNDLR_CTX, this.ctx);
         sourceReqCmsg.setProperty(Constants.SRC_HANDLER, this);
-        sourceReqCmsg.setProperty(Constants.HTTP_VERSION, httpRequest.protocolVersion().text());
+        HttpVersion protocolVersion = httpRequest.protocolVersion();
+        sourceReqCmsg.setProperty(Constants.HTTP_VERSION,
+                protocolVersion.majorVersion() + "." + protocolVersion.minorVersion());
         sourceReqCmsg.setProperty(Constants.HTTP_METHOD, httpRequest.method().name());
         InetSocketAddress localAddress = null;
 

@@ -150,6 +150,9 @@ public final class Constants {
     public static final String SRC_HANDLER = "SRC_HANDLER";
     public static final String POOLED_BYTE_BUFFER_FACTORY = "POOLED_BYTE_BUFFER_FACTORY";
     public static final String DEFAULT_VERSION_HTTP_1_1 = "HTTP/1.1";
+    public static final float HTTP_1_1 = 1.1f;
+    public static final float HTTP_1_0 = 1.0f;
+    public static final String HTTP_VERSION_PREFIX = "HTTP/";
 
     //Server Connection Related Parameters
     public static final String LOCAL_ADDRESS = "LOCAL_ADDRESS";
@@ -262,6 +265,9 @@ public final class Constants {
             = "Remote host closed the connection before completing outbound request";
     public static final String REMOTE_CLIENT_ABRUPTLY_CLOSE_RESPONSE_CONNECTION
             = "Remote client closed the connection before completing outbound response";
+
+    public static final String REMOTE_SERVER_CLOSE_RESPONSE_CONNECTION_AFTER_REQUEST_READ
+            = "Remote host closed the connection without sending inbound response";
 
     private Constants() {
     }

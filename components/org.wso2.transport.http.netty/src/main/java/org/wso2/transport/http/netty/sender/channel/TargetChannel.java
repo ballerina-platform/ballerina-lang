@@ -220,7 +220,7 @@ public class TargetChannel {
     }
 
     private void writeOutboundRequestBody(HttpContent lastHttpContent) {
-        if (chunkConfig == ChunkConfig.NEVER) {
+        if (chunkConfig == ChunkConfig.NEVER || !Util.isVersionCompatibleForChunking(httpVersion)) {
             for (HttpContent cachedHttpContent : contentList) {
                 ChannelFuture outboundRequestChannelFuture = this.getChannel().writeAndFlush(cachedHttpContent);
                 notifyIfFailure(outboundRequestChannelFuture);

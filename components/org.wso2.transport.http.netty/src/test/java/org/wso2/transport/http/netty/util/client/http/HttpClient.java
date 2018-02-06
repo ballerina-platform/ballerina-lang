@@ -36,6 +36,7 @@ import org.wso2.transport.http.netty.common.Constants;
 
 import java.net.InetSocketAddress;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Http Client for testing.
@@ -48,6 +49,7 @@ public class HttpClient {
     private final String host;
     private final int port;
     private final ResponseHandler responseHandler;
+    private CountDownLatch waitForConnectionClosureLatch;
 
     public HttpClient(String host, int port) {
         this.host = host;
@@ -86,7 +88,10 @@ public class HttpClient {
 
     private FullHttpResponse send(FullHttpRequest httpRequest) {
         CountDownLatch latch = new CountDownLatch(1);
+        this.waitForConnectionClosureLatch = new CountDownLatch(1);
         this.responseHandler.setLatch(latch);
+        this.responseHandler.setWaitForConnectionClosureLatch(this.waitForConnectionClosureLatch);
+
         httpRequest.headers().set(Constants.HOST, host + ":" + port);
         this.connectedChannel.writeAndFlush(httpRequest);
         try {
@@ -95,5 +100,17 @@ public class HttpClient {
             log.warn("Operation go interrupted before receiving the response");
         }
         return this.responseHandler.getHttpFullResponse();
+    }
+
+    public boolean waitForChannelClose() {
+        try {
+            if (!this.waitForConnectionClosureLatch.await(5, TimeUnit.SECONDS)) {
+                return false;
+            }
+        } catch (InterruptedException e) {
+            log.warn("Operation go interrupted before receiving the response");
+            return false;
+        }
+        return true;
     }
 }

@@ -145,11 +145,15 @@ public class TargetHandler extends ChannelInboundHandlerAdapter {
         }
 
         closeChannel(ctx);
-        connectionManager.invalidateTargetChannel(targetChannel);
 
-        if (targetRespMsg != null && !idleTimeout) {
+        if (targetChannel.isRequestWritten()) {
+            httpResponseFuture.notifyHttpListener(
+                    new ClientConnectorException(Constants.REMOTE_SERVER_CLOSE_RESPONSE_CONNECTION_AFTER_REQUEST_READ));
+        } else if (targetRespMsg != null && !idleTimeout) {
             handleIncompleteInboundResponse(Constants.REMOTE_SERVER_ABRUPTLY_CLOSE_RESPONSE_CONNECTION);
         }
+
+        connectionManager.invalidateTargetChannel(targetChannel);
 
         if (handlerExecutor != null) {
             handlerExecutor.executeAtTargetConnectionTermination(Integer.toString(ctx.hashCode()));

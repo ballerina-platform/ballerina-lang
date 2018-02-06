@@ -77,7 +77,7 @@ public class HttpOutboundRespListener implements HttpConnectorListener {
                 handlerExecutor.executeAtSourceResponseReceiving(outboundResponseMsg);
             }
 
-            boolean keepAlive = isKeepAlive(outboundResponseMsg);
+            boolean keepAlive = isKeepAlive();
 
             outboundResponseMsg.getHttpContentAsync().setMessageListener(httpContent ->
                     this.sourceContext.channel().eventLoop().execute(() -> {
@@ -136,7 +136,8 @@ public class HttpOutboundRespListener implements HttpConnectorListener {
 
     private ChannelFuture writeOutboundResponseBody(HttpContent lastHttpContent) {
         HttpResponseFuture outboundRespStatusFuture = inboundRequestMsg.getHttpOutboundRespStatusFuture();
-        if (chunkConfig == ChunkConfig.NEVER) {
+        if (chunkConfig == ChunkConfig.NEVER ||
+                !Util.isVersionCompatibleForChunking(requestDataHolder.getHttpVersion())) {
             for (HttpContent cachedHttpContent : contentList) {
                 ChannelFuture outboundResponseChannelFuture = sourceContext.writeAndFlush(cachedHttpContent);
                 notifyIfFailure(outboundRespStatusFuture, outboundResponseChannelFuture);
@@ -179,30 +180,27 @@ public class HttpOutboundRespListener implements HttpConnectorListener {
     }
 
     // Decides whether to close the connection after sending the response
-    private boolean isKeepAlive(HTTPCarbonMessage responseMsg) {
-        String responseConnectionHeader = responseMsg.getHeader(Constants.HTTP_CONNECTION);
+    private boolean isKeepAlive() {
         String requestConnectionHeader = requestDataHolder.getConnectionHeaderValue();
-        if ((responseConnectionHeader != null &&
-                Constants.CONNECTION_CLOSE.equalsIgnoreCase(responseConnectionHeader))
-                || (requestConnectionHeader != null &&
-                Constants.CONNECTION_CLOSE.equalsIgnoreCase(requestConnectionHeader))) {
-            return false;
+
+        if (Float.valueOf(requestDataHolder.getHttpVersion()) <= Constants.HTTP_1_0) {
+            return requestConnectionHeader != null && requestConnectionHeader
+                    .equalsIgnoreCase(Constants.CONNECTION_KEEP_ALIVE);
+        } else {
+            return requestConnectionHeader == null || !requestConnectionHeader
+                    .equalsIgnoreCase(Constants.CONNECTION_CLOSE);
         }
-        return true;
+    }
+
+    private void writeOutboundResponseHeaders(HTTPCarbonMessage outboundResponseMsg, boolean keepAlive) {
+        HttpResponse response = Util.createHttpResponse(outboundResponseMsg, requestDataHolder.getHttpVersion(),
+                serverName, keepAlive);
+        isHeaderWritten = true;
+        sourceContext.write(response);
     }
 
     @Override
     public void onError(Throwable throwable) {
-
-    }
-
-    private void writeOutboundResponseHeaders(HTTPCarbonMessage httpOutboundRequest, boolean keepAlive) {
-        HttpResponse response = Util.createHttpResponse(httpOutboundRequest, keepAlive);
-        if (response.headers().get(Constants.HTTP_SERVER_HEADER) == null) {
-            response.headers().add(Constants.HTTP_SERVER_HEADER, serverName);
-        }
-
-        isHeaderWritten = true;
-        sourceContext.write(response);
+        log.error("Couldn't send the outbound response", throwable);
     }
 }

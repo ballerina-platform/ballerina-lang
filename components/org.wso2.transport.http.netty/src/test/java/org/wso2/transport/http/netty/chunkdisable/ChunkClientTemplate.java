@@ -65,7 +65,7 @@ public class ChunkClientTemplate {
 
         requestMsg.setProperty(Constants.PORT, TestUtil.HTTP_SERVER_PORT);
         requestMsg.setProperty(Constants.PROTOCOL, Constants.HTTP_SCHEME);
-        requestMsg.setProperty(Constants.HOST, "localhost");
+        requestMsg.setProperty(Constants.HOST, TestUtil.TEST_HOST);
         requestMsg.setProperty(Constants.HTTP_METHOD, Constants.HTTP_POST_METHOD);
 
         CountDownLatch latch = new CountDownLatch(1);
