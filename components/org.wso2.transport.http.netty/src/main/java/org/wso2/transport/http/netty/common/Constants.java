@@ -266,6 +266,9 @@ public final class Constants {
     public static final String REMOTE_CLIENT_ABRUPTLY_CLOSE_RESPONSE_CONNECTION
             = "Remote client closed the connection before completing outbound response";
 
+    public static final String REMOTE_SERVER_CLOSE_RESPONSE_CONNECTION_AFTER_REQUEST_READ
+            = "Remote host closed the connection without sending inbound response";
+
     private Constants() {
     }
 }

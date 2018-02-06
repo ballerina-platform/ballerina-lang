@@ -74,10 +74,7 @@ public class Util {
 
         if (!keepAlive && (Float.valueOf(inboundReqHttpVersion) >= Constants.HTTP_1_1)) {
             outboundResponseMsg.setHeader(Constants.HTTP_CONNECTION, Constants.CONNECTION_CLOSE);
-        } else {
-            outboundResponseMsg.removeHeader(Constants.HTTP_CONNECTION);
-        }
-        if (keepAlive && (Float.valueOf(inboundReqHttpVersion) < Constants.HTTP_1_1)) {
+        } else if (keepAlive && (Float.valueOf(inboundReqHttpVersion) < Constants.HTTP_1_1)) {
             outboundResponseMsg.setHeader(Constants.HTTP_CONNECTION, Constants.CONNECTION_KEEP_ALIVE);
         } else {
             outboundResponseMsg.removeHeader(Constants.HTTP_CONNECTION);
