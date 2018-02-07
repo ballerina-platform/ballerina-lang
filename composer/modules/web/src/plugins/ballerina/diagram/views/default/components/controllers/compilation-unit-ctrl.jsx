@@ -87,23 +87,6 @@ class CompilationUnitCtrl extends React.Component {
                     </Menu>
                 </Button>
             </Area>,
-            <Area bBox={{ x: x + 40, y, w, h }} key='mode-switch'>
-                <Button
-                    icon={this.mode === 'default' ? 'default-view' : 'action-view'}
-                    buttonX={0}
-                    buttonY={0}
-                    showAlways
-                    hideIconBackground
-                    buttonColor={'#eee'}
-                    buttonIconColor={'black'}
-                    buttonRadius={12}
-                    onClick={() => {
-                        this.context.command.dispatch(COMMANDS.DIAGRAM_MODE_CHANGE,
-                            { mode: this.context.mode === 'default' ? 'action' : 'default' });
-                    }}
-                    tooltip={`switch to ${this.context.mode === 'default' ? 'action' : 'default'} mode`}
-                />
-            </Area>,
         ];
     }
 
