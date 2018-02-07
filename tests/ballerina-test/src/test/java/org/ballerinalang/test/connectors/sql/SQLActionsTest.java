@@ -449,7 +449,7 @@ public class SQLActionsTest {
         Assert.assertEquals(retValue.intValue(), 1);
     }
 
-    @Test(groups = "DatatableTest", description = "Check blob binary and clob types types.")
+    @Test(groups = "ConnectorTest", description = "Check blob binary and clob types types.")
     public void testComplexTypeRetrieval() {
         BValue[] args = {};
         BValue[] returns = BRunUtil.invoke(result, "testComplexTypeRetrieval", args);

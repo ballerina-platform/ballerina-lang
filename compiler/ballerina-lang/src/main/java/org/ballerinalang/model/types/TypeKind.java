@@ -49,7 +49,7 @@ public enum TypeKind {
     BLOB("blob"),
 
     TYPE("type"),
-    DATATABLE("datatable"),
+    TABLE("table"),
     JSON("json"),
     XML("xml"),
     ANY("any"),

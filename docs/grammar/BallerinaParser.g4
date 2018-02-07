@@ -187,7 +187,7 @@ builtInReferenceTypeName
     :   TYPE_MAP (LT typeName GT)?
     |   TYPE_XML (LT (LEFT_BRACE xmlNamespaceName RIGHT_BRACE)? xmlLocalName GT)?
     |   TYPE_JSON (LT nameReference GT)?
-    |   TYPE_DATATABLE
+    |   TYPE_TABLE (LT nameReference GT)?
     |   functionTypeName
     ;
 
@@ -490,7 +490,6 @@ expression
     |   expression (ADD | SUB) expression                                   # binaryAddSubExpression
     |   expression (LT_EQUAL | GT_EQUAL | GT | LT) expression               # binaryCompareExpression
     |   expression (EQUAL | NOT_EQUAL) expression                           # binaryEqualExpression
-    |   expression (DEEP_EQUAL | DEEP_NOT_EQUAL) expression                 # binaryDeepEqualExpression
     |   expression AND expression                                           # binaryAndExpression
     |   expression OR expression                                            # binaryOrExpression
     |   expression QUESTION_MARK expression COLON expression                # ternaryExpression

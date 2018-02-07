@@ -17,23 +17,34 @@
  */
 package org.ballerinalang.model.types;
 
-import org.ballerinalang.model.values.BDataTable;
+import org.ballerinalang.model.values.BTable;
 import org.ballerinalang.model.values.BValue;
 
 /**
- * {@code BDataTableType} represents a output data set of a SQL select query in Ballerina.
+ * {@code BTableType} represents tabular data in Ballerina.
  *
  * @since 0.8.0
  */
-public class BDataTableType extends BType {
+public class BTableType extends BType {
+
+    private BType constraint;
 
     /**
-     * Create a {@code BDataTableType} which represents the SQL Result Set.
+     * Create a {@code BTableType} which represents the SQL Result Set.
      *
      * @param typeName string name of the type
      */
-    BDataTableType(String typeName, String pkgPath) {
-        super(typeName, pkgPath, BDataTable.class);
+    BTableType(String typeName, String pkgPath) {
+        super(typeName, pkgPath, BTable.class);
+    }
+
+    public BTableType(BType constraint) {
+        super(TypeConstants.TABLE_TNAME, null, BTable.class);
+        this.constraint = constraint;
+    }
+
+    public BType getConstrainedType() {
+        return constraint;
     }
 
     @Override
@@ -43,16 +54,20 @@ public class BDataTableType extends BType {
 
     @Override
     public <V extends BValue> V getEmptyValue() {
-        return (V) new BDataTable(null);
+        return (V) new BTable(null);
     }
 
     @Override
     public TypeSignature getSig() {
-        return new TypeSignature(TypeSignature.SIG_REFTYPE, TypeEnum.DATATABLE.getName());
+        if (constraint == null) {
+            return new TypeSignature(TypeSignature.SIG_TABLE);
+        } else {
+            return new TypeSignature(TypeSignature.SIG_TABLE, constraint.getPackagePath(), constraint.getName());
+        }
     }
 
     @Override
     public int getTag() {
-        return TypeTags.DATATABLE_TAG;
+        return TypeTags.TABLE_TAG;
     }
 }

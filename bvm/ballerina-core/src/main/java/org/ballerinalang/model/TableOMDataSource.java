@@ -22,7 +22,7 @@ import org.ballerinalang.model.types.BStructType;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.types.TypeTags;
-import org.ballerinalang.model.values.BDataTable;
+import org.ballerinalang.model.values.BTable;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.sql.SQLException;
@@ -31,12 +31,12 @@ import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
 
 /**
- * This will provide custom OMDataSource implementation by wrapping BDataTable.
+ * This will provide custom OMDataSource implementation by wrapping BTable.
  * This will use to convert result set into XML stream.
  *
  * @since 0.8.0
  */
-public class DataTableOMDataSource extends AbstractPushOMDataSource {
+public class TableOMDataSource extends AbstractPushOMDataSource {
 
     private static final String XSI_NAMESPACE = "http://www.w3.org/2001/XMLSchema-instance";
     private static final String XSI_PREFIX = "xsi";
@@ -44,13 +44,13 @@ public class DataTableOMDataSource extends AbstractPushOMDataSource {
     private static final String DEFAULT_ROOT_WRAPPER = "results";
     private static final String DEFAULT_ROW_WRAPPER = "result";
 
-    private BDataTable dataTable;
+    private BTable table;
     private String rootWrapper;
     private String rowWrapper;
     private boolean isInTransaction;
 
-    public DataTableOMDataSource(BDataTable dataTable, String rootWrapper, String rowWrapper, boolean isInTransaction) {
-        this.dataTable = dataTable;
+    public TableOMDataSource(BTable table, String rootWrapper, String rowWrapper, boolean isInTransaction) {
+        this.table = table;
         this.rootWrapper = rootWrapper != null ? rootWrapper : DEFAULT_ROOT_WRAPPER;
         this.rowWrapper = rowWrapper != null ? rowWrapper : DEFAULT_ROW_WRAPPER;
         this.isInTransaction = isInTransaction;
@@ -59,16 +59,16 @@ public class DataTableOMDataSource extends AbstractPushOMDataSource {
     @Override
     public void serialize(XMLStreamWriter xmlStreamWriter) throws XMLStreamException {
         xmlStreamWriter.writeStartElement("", this.rootWrapper, "");
-        while (dataTable.hasNext(this.isInTransaction)) {
-            dataTable.next();
+        while (table.hasNext(this.isInTransaction)) {
+            table.next();
             xmlStreamWriter.writeStartElement("", this.rowWrapper, "");
-            BStructType structType = dataTable.getStructType();
+            BStructType structType = table.getStructType();
             BStructType.StructField[] structFields = null;
             if (structType != null) {
                 structFields = structType.getStructFields();
             }
             int index = 1;
-            for (ColumnDefinition col : dataTable.getColumnDefs()) {
+            for (ColumnDefinition col : table.getColumnDefs()) {
                 String name;
                 if (structFields != null) {
                     name = structFields[index - 1].getFieldName();
@@ -81,7 +81,7 @@ public class DataTableOMDataSource extends AbstractPushOMDataSource {
             xmlStreamWriter.writeEndElement();
         }
         xmlStreamWriter.writeEndElement();
-        dataTable.close(isInTransaction);
+        table.close(isInTransaction);
         xmlStreamWriter.flush();
     }
 
@@ -92,28 +92,28 @@ public class DataTableOMDataSource extends AbstractPushOMDataSource {
         String value = null;
         switch (type) {
         case BOOLEAN:
-            value = String.valueOf(dataTable.getBoolean(index));
+            value = String.valueOf(table.getBoolean(index));
             break;
         case STRING:
-            value = dataTable.getString(index);
+            value = table.getString(index);
             break;
         case INT:
-            value = String.valueOf(dataTable.getInt(index));
+            value = String.valueOf(table.getInt(index));
             break;
         case FLOAT:
-            value = String.valueOf(dataTable.getFloat(index));
+            value = String.valueOf(table.getFloat(index));
             break;
         case BLOB:
-            value = dataTable.getBlob(index);
+            value = table.getBlob(index);
             break;
         case ARRAY:
             isArray = true;
-            Object[] array = dataTable.getArray(index);
+            Object[] array = table.getArray(index);
             processArray(xmlStreamWriter, array);
             break;
         case STRUCT:
             isArray = true;
-            Object[] structData = dataTable.getStruct(index);
+            Object[] structData = table.getStruct(index);
             if (structFields == null) {
                 processArray(xmlStreamWriter, structData);
             } else {
@@ -121,7 +121,7 @@ public class DataTableOMDataSource extends AbstractPushOMDataSource {
             }
             break;
         default:
-            value = dataTable.getString(index);
+            value = table.getString(index);
             break;
         }
         if (!isArray) {

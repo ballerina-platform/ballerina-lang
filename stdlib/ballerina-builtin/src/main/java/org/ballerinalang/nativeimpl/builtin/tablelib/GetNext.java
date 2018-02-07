@@ -15,12 +15,11 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.ballerinalang.nativeimpl.builtin.datatablelib;
+package org.ballerinalang.nativeimpl.builtin.tablelib;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BBoolean;
-import org.ballerinalang.model.values.BDataTable;
+import org.ballerinalang.model.values.BTable;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
@@ -28,22 +27,21 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
 /**
- * Native function to check record availability in datatable.
- * ballerina.model.datatables:hasNext(datatable)
+ * Native function to get the current row of a table as a struct.
  *
- * @since 0.8.0
+ * @since 0.88
  */
 @BallerinaFunction(
         packageName = "ballerina.builtin",
-        functionName = "datatable.hasNext",
-        args = {@Argument(name = "dt", type = TypeKind.DATATABLE)},
-        returnType = {@ReturnType(type = TypeKind.BOOLEAN)},
+        functionName = "table.getNext",
+        args = {@Argument(name = "dt", type = TypeKind.TABLE)},
+        returnType = {@ReturnType(type = TypeKind.ANY)},
         isPublic = true
 )
-public class HasNext extends AbstractNativeFunction {
+public class GetNext extends AbstractNativeFunction {
 
     public BValue[] execute(Context ctx) {
-        BDataTable dataTable = (BDataTable) getRefArgument(ctx, 0);
-        return getBValues(new BBoolean(dataTable.hasNext(ctx.isInTransaction())));
+        BTable table = (BTable) getRefArgument(ctx, 0);
+        return getBValues(table.getNext());
     }
 }

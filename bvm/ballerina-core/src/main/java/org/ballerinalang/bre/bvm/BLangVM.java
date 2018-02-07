@@ -24,7 +24,6 @@ import org.ballerinalang.connector.api.AbstractNativeAction;
 import org.ballerinalang.connector.api.ConnectorFuture;
 import org.ballerinalang.connector.impl.BClientConnectorFutureListener;
 import org.ballerinalang.connector.impl.BServerConnectorFuture;
-import org.ballerinalang.helpers.DeepEqualHelper;
 import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.BConnectorType;
 import org.ballerinalang.model.types.BEnumType;
@@ -44,7 +43,6 @@ import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BBooleanArray;
 import org.ballerinalang.model.values.BCollection;
 import org.ballerinalang.model.values.BConnector;
-import org.ballerinalang.model.values.BDataTable;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BFloatArray;
 import org.ballerinalang.model.values.BFunctionPointer;
@@ -60,6 +58,7 @@ import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BStruct;
+import org.ballerinalang.model.values.BTable;
 import org.ballerinalang.model.values.BTypeValue;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BXML;
@@ -405,7 +404,6 @@ public class BLangVM {
                 case InstructionCodes.FEQ:
                 case InstructionCodes.SEQ:
                 case InstructionCodes.BEQ:
-                case InstructionCodes.RDEQ:
                 case InstructionCodes.REQ:
                 case InstructionCodes.TEQ:
                 case InstructionCodes.INE:
@@ -413,7 +411,6 @@ public class BLangVM {
                 case InstructionCodes.SNE:
                 case InstructionCodes.BNE:
                 case InstructionCodes.RNE:
-                case InstructionCodes.RDNE:
                 case InstructionCodes.TNE:
                     execBinaryOpCodes(sf, opcode, operands);
                     break;
@@ -674,9 +671,9 @@ public class BLangVM {
                     typeRefCPEntry = (TypeRefCPEntry) constPool[cpIndex];
                     sf.refRegs[i] = new BJSON("{}", typeRefCPEntry.getType());
                     break;
-                case InstructionCodes.NEWDATATABLE:
+                case InstructionCodes.NEWTABLE:
                     i = operands[0];
-                    sf.refRegs[i] = new BDataTable(null);
+                    sf.refRegs[i] = new BTable(null);
                     break;
                 case InstructionCodes.NEW_INT_RANGE:
                     createNewIntRange(operands, sf);
@@ -1650,18 +1647,6 @@ public class BLangVM {
                 k = operands[2];
                 sf.intRegs[k] = sf.refRegs[i] == sf.refRegs[j] ? 1 : 0;
                 break;
-            case InstructionCodes.RDEQ:
-                i = operands[0];
-                j = operands[1];
-                k = operands[2];
-                sf.intRegs[k] = DeepEqualHelper.isDeepEqual(sf.refRegs[i], sf.refRegs[j]) ? 1 : 0;
-                break;
-            case InstructionCodes.RDNE:
-                i = operands[0];
-                j = operands[1];
-                k = operands[2];
-                sf.intRegs[k] = DeepEqualHelper.isDeepEqual(sf.refRegs[i], sf.refRegs[j]) ? 0 : 1;
-                break;
             case InstructionCodes.TEQ:
                 i = operands[0];
                 j = operands[1];
@@ -1970,7 +1955,7 @@ public class BLangVM {
                 handleAnyToRefTypeCast(sf, operands, BTypes.typeType);
                 break;
             case InstructionCodes.ANY2DT:
-                handleAnyToRefTypeCast(sf, operands, BTypes.typeDatatable);
+                handleAnyToRefTypeCast(sf, operands, BTypes.typeTable);
                 break;
             case InstructionCodes.ANY2E:
             case InstructionCodes.ANY2T:
@@ -2153,11 +2138,11 @@ public class BLangVM {
                 }
 
                 try {
-                    sf.refRegs[j] = XMLUtils.datatableToXML((BDataTable) bRefType, context.isInTransaction());
+                    sf.refRegs[j] = XMLUtils.tableToXML((BTable) bRefType, context.isInTransaction());
                     sf.refRegs[k] = null;
                 } catch (Exception e) {
                     sf.refRegs[j] = null;
-                    handleTypeConversionError(sf, k, TypeConstants.DATATABLE_TNAME, TypeConstants.XML_TNAME);
+                    handleTypeConversionError(sf, k, TypeConstants.TABLE_TNAME, TypeConstants.XML_TNAME);
                 }
                 break;
             case InstructionCodes.DT2JSON:
@@ -2172,11 +2157,11 @@ public class BLangVM {
                 }
 
                 try {
-                    sf.refRegs[j] = JSONUtils.toJSON((BDataTable) bRefType, context.isInTransaction());
+                    sf.refRegs[j] = JSONUtils.toJSON((BTable) bRefType, context.isInTransaction());
                     sf.refRegs[k] = null;
                 } catch (Exception e) {
                     sf.refRegs[j] = null;
-                    handleTypeConversionError(sf, k, TypeConstants.DATATABLE_TNAME, TypeConstants.XML_TNAME);
+                    handleTypeConversionError(sf, k, TypeConstants.TABLE_TNAME, TypeConstants.XML_TNAME);
                 }
                 break;
             case InstructionCodes.T2MAP:

@@ -33,11 +33,11 @@ import org.apache.axiom.om.OMXMLBuilderFactory;
 import org.apache.axiom.om.impl.dom.TextImpl;
 import org.apache.axiom.om.impl.llom.OMSourcedElementImpl;
 import org.apache.axiom.om.util.AXIOMUtil;
-import org.ballerinalang.model.DataTableOMDataSource;
+import org.ballerinalang.model.TableOMDataSource;
 import org.ballerinalang.model.util.JsonNode.Type;
-import org.ballerinalang.model.values.BDataTable;
 import org.ballerinalang.model.values.BJSON;
 import org.ballerinalang.model.values.BRefValueArray;
+import org.ballerinalang.model.values.BTable;
 import org.ballerinalang.model.values.BXML;
 import org.ballerinalang.model.values.BXMLItem;
 import org.ballerinalang.model.values.BXMLQName;
@@ -180,16 +180,16 @@ public class XMLUtils {
     }
 
     /**
-     * Converts a {@link BDataTable} to {@link BXML}.
+     * Converts a {@link BTable} to {@link BXML}.
      *
-     * @param dataTable {@link BDataTable} to convert
+     * @param table {@link BTable} to convert
      * @param isInTransaction   Within a transaction or not
      * @return converted {@link BXML}
      */
     @SuppressWarnings("rawtypes")
-    public static BXML datatableToXML(BDataTable dataTable, boolean isInTransaction) {
+    public static BXML tableToXML(BTable table, boolean isInTransaction) {
         OMSourcedElementImpl omSourcedElement = new OMSourcedElementImpl();
-        omSourcedElement.init(new DataTableOMDataSource(dataTable, null, null, isInTransaction));
+        omSourcedElement.init(new TableOMDataSource(table, null, null, isInTransaction));
         return new BXMLItem(omSourcedElement);
     }
 

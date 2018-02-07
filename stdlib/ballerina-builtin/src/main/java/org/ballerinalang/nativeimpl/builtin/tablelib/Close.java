@@ -15,33 +15,32 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.ballerinalang.nativeimpl.builtin.datatablelib;
+package org.ballerinalang.nativeimpl.builtin.tablelib;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BDataTable;
+import org.ballerinalang.model.values.BTable;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 
 /**
- * Native function to clear connection resources in the datatable.
- * ballerina.model.datatables:close(datatable)
+ * Native function to clear connection resources in the table.
  *
  * @since 0.8.0
  */
 @BallerinaFunction(
         packageName = "ballerina.builtin",
-        functionName = "datatable.close",
-        args = {@Argument(name = "dt", type = TypeKind.DATATABLE)},
+        functionName = "table.close",
+        args = {@Argument(name = "dt", type = TypeKind.TABLE)},
         isPublic = true
 )
 public class Close extends AbstractNativeFunction {
 
     public BValue[] execute(Context ctx) {
-        BDataTable dataTable = (BDataTable) getRefArgument(ctx, 0);
-        dataTable.close(ctx.isInTransaction());
+        BTable table = (BTable) getRefArgument(ctx, 0);
+        table.close(ctx.isInTransaction());
         return VOID_RETURN;
     }
 }

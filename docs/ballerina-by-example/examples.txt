@@ -41,14 +41,13 @@ Fork/Join
 Fork/Join Condition Some
 Fork/Join Variable Access
 SQL Connector
-Datatable
+Table
 Transactions
 Distributed Transactions
 Transformers
 Transform JSON
 Strings
 Blob Type
-Deep Equals
 Date Time
 File API
 Throw

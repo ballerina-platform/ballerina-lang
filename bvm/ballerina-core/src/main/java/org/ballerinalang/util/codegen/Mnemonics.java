@@ -104,8 +104,6 @@ public class Mnemonics {
         mnemonics[InstructionCodes.IADD] = "iadd";
         mnemonics[InstructionCodes.FADD] = "fadd";
         mnemonics[InstructionCodes.SADD] = "sadd";
-        mnemonics[InstructionCodes.RDEQ] = "rdeq";
-        mnemonics[InstructionCodes.RDNE] = "rdne";
         mnemonics[InstructionCodes.XMLADD] = "xmladd";
         
         mnemonics[InstructionCodes.ISUB] = "isub";
@@ -231,7 +229,7 @@ public class Mnemonics {
         mnemonics[InstructionCodes.NEWCONNECTOR] = "newconnector";
         mnemonics[InstructionCodes.NEWMAP] = "newmap";
         mnemonics[InstructionCodes.NEWJSON] = "newjson";
-        mnemonics[InstructionCodes.NEWDATATABLE] = "newdatatable";
+        mnemonics[InstructionCodes.NEWTABLE] = "newtable";
 
         mnemonics[InstructionCodes.NEW_INT_RANGE] = "new_int_range";
         mnemonics[InstructionCodes.ITR_NEW] = "itr_new";
