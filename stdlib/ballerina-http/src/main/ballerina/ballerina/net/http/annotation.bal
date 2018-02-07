@@ -49,9 +49,9 @@ public annotation configuration attach service<> {
     boolean keepAlive;
     string transferEncoding;
     string chunking;
-    string maxUriLength;
-    string maxHeaderSize;
-    string maxEntityBodySize;
+    int maxUriLength;
+    int maxHeaderSize;
+    int maxEntityBodySize;
     webSocket webSocket;
 }
 
