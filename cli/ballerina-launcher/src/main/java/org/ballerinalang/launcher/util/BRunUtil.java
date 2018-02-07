@@ -25,6 +25,7 @@ import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.debugger.Debugger;
 import org.ballerinalang.util.program.BLangFunctions;
 
+import java.util.Arrays;
 /**
  * Utility methods for run Ballerina functions.
  *
@@ -176,7 +177,8 @@ public class BRunUtil {
      */
     public static BValue[] invoke(CompileResult compileResult, String functionName, BValue[] args) {
         if (compileResult.getErrorCount() > 0) {
-            throw new IllegalStateException("compilation contains errors.");
+            throw new IllegalStateException("compilation contains errors." +
+                    Arrays.toString(compileResult.getDiagnostics()));
         }
         ProgramFile programFile = compileResult.getProgFile();
         Debugger debugger = new Debugger(programFile);
