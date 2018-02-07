@@ -20,12 +20,8 @@ import { getServiceEndpoint } from 'api-client/api-client';
 import axios from 'axios';
 import File from './model/file';
 
-const COMMON_HEADERS = {
-    'content-type': 'text/plain; charset=utf-8',
-};
-
 const CONTENT_TYPE_JSON_HEADER = {
-    'content-type': 'application/json; charset=utf-8',
+    'content-type': 'application/json;charset=utf-8',
 };
 
 const FS_SERVICE = 'filesystem';
@@ -66,16 +62,19 @@ export function read(targetFilePath) {
  * @param {String} path Path of the folder
  * @param {String} name Name of the file
  * @param {String} content Content of the file
- * @param {Boolean} isCustomContent is content to be sent custom.
+ * @param {Boolean} isBase64Encoded is content to be sent encoded in base64.
  *
  * @returns {Promise} Resolves file path or reject with error.
  */
-export function createOrUpdate(path, name, content, isCustomContent) {
+export function createOrUpdate(path, name, content, isBase64Encoded) {
     const serviceEP = `${getServiceEndpoint(FS_SERVICE)}/write`;
-    // FIXME: Refactor backend params
-    const data = isCustomContent ? content : `location=${btoa(path)}&configName=${btoa(name)}&config=${
-                            encodeURIComponent(content)}`;
-    return axios.post(serviceEP, data, { headers: COMMON_HEADERS })
+    const data = {
+        path,
+        name,
+        content,
+        isBase64Encoded,
+    };
+    return axios.post(serviceEP, data, { headers: CONTENT_TYPE_JSON_HEADER })
         .then((response) => {
             return response.data;
         });
@@ -102,16 +101,16 @@ export function remove(path) {
 /**
  * Creates given file/folder in file system.
  *
- * @param {String} path Path of the file/folder
+ * @param {String} fullPath Path of the file/folder
  * @param {String} type file or folder
  * @param {String} content file content - if creating a file
  *
  * @returns {Promise} Resolves created file path or reject with error.
  */
-export function create(path, type, content) {
+export function create(fullPath, type, content) {
     const serviceEP = `${getServiceEndpoint(FS_SERVICE)}/create`;
     const data = {
-        path,
+        fullPath,
         type,
         content,
     };
@@ -173,7 +172,7 @@ export function exists(path) {
         path,
     };
     return new Promise((resolve, reject) => {
-        axios.post(endpoint, data, { headers: COMMON_HEADERS })
+        axios.post(endpoint, data, { headers: CONTENT_TYPE_JSON_HEADER })
             .then((response) => {
                 resolve(response.data);
             }).catch(error => reject(error));

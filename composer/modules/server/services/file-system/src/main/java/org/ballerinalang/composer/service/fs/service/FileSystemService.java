@@ -33,7 +33,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.FileNotFoundException;
-import java.net.URLDecoder;
 import java.nio.charset.Charset;
 import java.nio.file.AccessDeniedException;
 import java.nio.file.DirectoryNotEmptyException;
@@ -46,10 +45,9 @@ import java.nio.file.ReadOnlyFileSystemException;
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
+import javax.ws.rs.OPTIONS;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
@@ -63,7 +61,6 @@ import javax.ws.rs.core.Response;
 public class FileSystemService implements ComposerService {
 
     private static final Logger logger = LoggerFactory.getLogger(FileSystemService.class);
-    private static final String FILE_SEPARATOR = "file.separator";
     private static final String STATUS = "status";
     private static final String SUCCESS = "success";
     private static final String ACCESS_CONTROL_ALLOW_ORIGIN_HEADER = "Access-Control-Allow-Origin";
@@ -77,11 +74,17 @@ public class FileSystemService implements ComposerService {
         this.fileSystem = fileSystem;
     }
 
+    @OPTIONS
+    @Path("/list/roots")
+    public Response listRootsOptions() {
+        return createCORSResponse();
+    }
+
     @POST
     @Path("/list/roots")
     @Consumes(MIME_APPLICATION_JSON)
     @Produces(MIME_APPLICATION_JSON)
-    public Response root(ListFilesRequest request) {
+    public Response listRoots(ListFilesRequest request) {
         try {
             List<String> extensionList = Arrays.asList(request.getExtensions().split(","));
             JsonArray roots = (rootPaths == null || rootPaths.isEmpty()) ? fileSystem.listRoots(extensionList) :
@@ -91,6 +94,12 @@ public class FileSystemService implements ComposerService {
             logger.error("/root service error", throwable.getMessage(), throwable);
             return createErrorResponse(throwable);
         }
+    }
+
+    @OPTIONS
+    @Path("/exists")
+    public Response pathExistsOptions() {
+        return createCORSResponse();
     }
 
     @POST
@@ -107,13 +116,22 @@ public class FileSystemService implements ComposerService {
         }
     }
 
+    @OPTIONS
+    @Path("/create")
+    public Response createOptions() {
+        return createCORSResponse();
+    }
+
     @POST
     @Path("/create")
     @Consumes(MIME_APPLICATION_JSON)
     @Produces(MIME_APPLICATION_JSON)
     public Response create(CreateFileRequest request) {
         try {
-            fileSystem.create(request.getPath(), request.getType(), request.getContent());
+            String filePath = request.getFullPath() != null
+                                ? request.getFullPath()
+                                : Paths.get(request.getPath(), request.getName()).toString();
+            fileSystem.create(filePath, request.getType(), request.getContent());
             JsonObject entity = new JsonObject();
             entity.addProperty(STATUS, SUCCESS);
             return createOKResponse(entity);
@@ -121,6 +139,12 @@ public class FileSystemService implements ComposerService {
             logger.error("/create service error", throwable.getMessage(), throwable);
             return createErrorResponse(throwable);
         }
+    }
+
+    @OPTIONS
+    @Path("/move")
+    public Response moveOptions() {
+        return createCORSResponse();
     }
 
     @POST
@@ -139,6 +163,12 @@ public class FileSystemService implements ComposerService {
         }
     }
 
+    @OPTIONS
+    @Path("/copy")
+    public Response copyOptions() {
+        return createCORSResponse();
+    }
+
     @POST
     @Path("/copy")
     @Consumes(MIME_APPLICATION_JSON)
@@ -153,6 +183,12 @@ public class FileSystemService implements ComposerService {
             logger.error("/create service error", throwable.getMessage(), throwable);
             return createErrorResponse(throwable);
         }
+    }
+
+    @OPTIONS
+    @Path("/delete")
+    public Response deleteOptions() {
+        return createCORSResponse();
     }
 
     @POST
@@ -171,6 +207,12 @@ public class FileSystemService implements ComposerService {
         }
     }
 
+    @OPTIONS
+    @Path("/list/files")
+    public Response filesInPathOptions() {
+        return createCORSResponse();
+    }
+
     @POST
     @Path("/list/files")
     @Consumes(MIME_APPLICATION_JSON)
@@ -186,47 +228,26 @@ public class FileSystemService implements ComposerService {
         }
     }
 
+    @OPTIONS
+    @Path("/write")
+    public Response writeOptions() {
+        return createCORSResponse();
+    }
+
     @POST
     @Path("/write")
+    @Consumes(MIME_APPLICATION_JSON)
     @Produces(MIME_APPLICATION_JSON)
-    public Response write(String payload) {
+    public Response write(CreateFileRequest request) {
         try {
-            String location = "";
-            String configName = "";
-            String config = "";
-            String isImageFile = "";
-            Matcher locationMatcher = Pattern.compile("location=(.*?)&configName").matcher(payload);
-            while (locationMatcher.find()) {
-                location = locationMatcher.group(1);
-            }
-            Matcher configNameMatcher = Pattern.compile("configName=(.*?)&").matcher(payload);
-            while (configNameMatcher.find()) {
-                configName = configNameMatcher.group(1);
-            }
-            Matcher isImageFileMatcher = Pattern.compile("imageFile=(.*?)&config").matcher(payload);
-            while (isImageFileMatcher.find()) {
-                isImageFile = isImageFileMatcher.group(1);
-            }
-            String[] splitConfigContent = payload.split("config=");
-            if (splitConfigContent.length > 1) {
-                config = splitConfigContent[1];
-            }
-
-            byte[] base64ConfigName = Base64.getDecoder().decode(configName);
-            byte[] base64Location = Base64.getDecoder().decode(location);
-            byte[] configDecoded = URLDecoder.decode(config, "UTF-8").getBytes("UTF-8");
-            if (isImageFile.equals("true")) {
-                byte[] base64Decoded = Base64.getDecoder().decode(configDecoded);
-                Files.write(Paths.get(new String(base64Location, Charset.defaultCharset()) +
-                                System.getProperty(FILE_SEPARATOR) +
-                                new String(base64ConfigName, Charset.defaultCharset())),
-                        base64Decoded);
-            } else {
-                Files.write(Paths.get(new String(base64Location, Charset.defaultCharset()) +
-                                System.getProperty(FILE_SEPARATOR) +
-                                new String(base64ConfigName, Charset.defaultCharset())),
-                        configDecoded);
-            }
+            java.nio.file.Path filePath = request.getFullPath() != null
+                    ? Paths.get(request.getFullPath())
+                    : Paths.get(request.getPath(), request.getName());
+            // Note that default charset is set UTF-8 via file.encoding property
+            byte[] content = request.isBase64Encoded()
+                            ? Base64.getDecoder().decode(request.getContent())
+                            : request.getContent().getBytes(Charset.defaultCharset());
+            Files.write(filePath, content);
             JsonObject entity = new JsonObject();
             entity.addProperty(STATUS, SUCCESS);
             return createOKResponse(entity);
@@ -234,6 +255,12 @@ public class FileSystemService implements ComposerService {
             logger.error("/write service error", throwable.getMessage(), throwable);
             return createErrorResponse(throwable);
         }
+    }
+
+    @OPTIONS
+    @Path("/read")
+    public Response readOptions() {
+        return createCORSResponse();
     }
 
     @POST
@@ -247,6 +274,12 @@ public class FileSystemService implements ComposerService {
             logger.error("/read service error", throwable.getMessage(), throwable);
             return createErrorResponse(throwable);
         }
+    }
+
+    @OPTIONS
+    @Path("/user/home")
+    public Response userHomeOptions() {
+        return createCORSResponse();
     }
 
     @GET
@@ -304,6 +337,23 @@ public class FileSystemService implements ComposerService {
                 .entity(entity)
                 .header(ACCESS_CONTROL_ALLOW_ORIGIN_HEADER, '*')
                 .type(MediaType.APPLICATION_JSON)
+                .build();
+    }
+
+    /**
+     * Create CORS Response allowing all origins.
+     *
+     * TODO: Find a better solution to handle CORS in a global manner
+     * and to avoid redundant logic for CORS in each service.
+     *
+     * @return CORS Response
+     */
+    public Response createCORSResponse() {
+        return Response.ok()
+                .header("Access-Control-Allow-Origin", "*")
+                .header("Access-Control-Allow-Credentials", "true")
+                .header("Access-Control-Allow-Methods", "POST, GET, OPTIONS ")
+                .header("Access-Control-Allow-Headers", "Content-Type, Accept, X-Requested-With")
                 .build();
     }
 

@@ -20,11 +20,33 @@ package org.ballerinalang.composer.service.fs.service.request;
  */
 public class CreateFileRequest {
 
+    private String fullPath;
+
     private String path;
+
+    private String name;
 
     private String type;
 
     private String content;
+
+    private boolean isBase64Encoded;
+
+    public String getFullPath() {
+        return fullPath;
+    }
+
+    public void setFullPath(String fullPath) {
+        this.fullPath = fullPath;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
 
     public String getPath() {
         return path;
@@ -49,4 +71,14 @@ public class CreateFileRequest {
     public void setContent(String content) {
         this.content = content;
     }
+
+    public boolean isBase64Encoded() {
+        return isBase64Encoded;
+    }
+
+    public void setBase64Encoded(boolean base64Encoded) {
+        isBase64Encoded = base64Encoded;
+    }
+
+
 }
