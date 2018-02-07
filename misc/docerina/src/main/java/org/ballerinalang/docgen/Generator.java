@@ -279,6 +279,7 @@ public class Generator {
                 returnParams.add(variable);
             }
         }
+        processedReturnAnnots.clear();
         return new FunctionDoc(functionName, description(functionNode), new ArrayList<>(), parameters, returnParams);
     }
 
@@ -310,6 +311,7 @@ public class Generator {
                 returnParams.add(variable);
             }
         }
+        processedReturnAnnots.clear();
         return new ActionDoc(actionName, description(actionNode), new ArrayList<>(),
                 parameters, returnParams);
     }
