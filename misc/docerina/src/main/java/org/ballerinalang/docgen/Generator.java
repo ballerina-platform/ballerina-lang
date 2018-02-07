@@ -55,7 +55,6 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 
@@ -63,7 +62,6 @@ import java.util.Optional;
  * Generates the Page objects for bal packages.
  */
 public class Generator {
-    private static HashSet<String> processedReturnAnnots = new HashSet<>();
     private static final String ANONYMOUS_STRUCT = "$anonStruct$";
 
     /**
@@ -272,14 +270,14 @@ public class Generator {
 
         // Iterate through the return types
         if (functionNode.getReturnParameters().size() > 0) {
-            for (BLangVariable returnParam : functionNode.getReturnParameters()) {
+            for (int i = 0; i < functionNode.getReturnParameters().size(); i++) {
+                BLangVariable returnParam = functionNode.getReturnParameters().get(i);
                 String dataType = type(returnParam);
-                String desc = returnParamAnnotation(functionNode);
+                String desc = returnParamAnnotation(functionNode, i);
                 Variable variable = new Variable(returnParam.getName().value, dataType, desc);
                 returnParams.add(variable);
             }
         }
-        processedReturnAnnots.clear();
         return new FunctionDoc(functionName, description(functionNode), new ArrayList<>(), parameters, returnParams);
     }
 
@@ -304,14 +302,14 @@ public class Generator {
 
         // Iterate through the return types
         if (actionNode.getReturnParameters().size() > 0) {
-            for (BLangVariable returnParam : actionNode.getReturnParameters()) {
+            for (int i = 0; i < actionNode.getReturnParameters().size(); i++) {
+                BLangVariable returnParam = actionNode.getReturnParameters().get(i);
                 String dataType = type(returnParam);
-                String desc = returnParamAnnotation(actionNode);
+                String desc = returnParamAnnotation(actionNode, i);
                 Variable variable = new Variable(returnParam.getName().value, dataType, desc);
                 returnParams.add(variable);
             }
         }
-        processedReturnAnnots.clear();
         return new ActionDoc(actionName, description(actionNode), new ArrayList<>(),
                 parameters, returnParams);
     }
@@ -434,17 +432,20 @@ public class Generator {
     /**
      * Get description annotation of the return parameter.
      * @param node parent node.
+     * @param returnTypeIndex The index of the return type.
      * @return description of the return parameter.
      */
-    private static String returnParamAnnotation(BLangNode node) {
+    private static String returnParamAnnotation(BLangNode node, int returnTypeIndex) {
+        int currentReturnAnnotationIndex = 0;
         for (AnnotationAttachmentNode annotation : getAnnotationAttachments(node)) {
             if (annotation.getAttributes().size() > 1) {
                 continue;
             }
-            if ((annotation.getAnnotationName().getValue().equals("Return"))
-                    && !processedReturnAnnots.contains(annotation.getPosition().toString())) {
-                processedReturnAnnots.add(annotation.getPosition().toString());
-                return annotation.getAttributes().get(0).getValue().getValue().toString();
+            if (annotation.getAnnotationName().getValue().equals("Return")) {
+                if (currentReturnAnnotationIndex == returnTypeIndex) {
+                    return annotation.getAttributes().get(0).getValue().getValue().toString();
+                }
+                currentReturnAnnotationIndex++;
             }
         }
         return "";
