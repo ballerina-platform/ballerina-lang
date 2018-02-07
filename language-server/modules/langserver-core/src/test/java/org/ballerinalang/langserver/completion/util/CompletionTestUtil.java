@@ -36,9 +36,7 @@ import org.slf4j.LoggerFactory;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 
-import java.net.MalformedURLException;
-import java.net.URISyntaxException;
-import java.net.URL;
+
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -53,8 +51,6 @@ public class CompletionTestUtil {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(FileUtils.class);
 
-    private static final String SCHEME = "file://";
-
     /**
      * Get a new request message from the content.
      * @param position      position of the cursor
@@ -64,8 +60,8 @@ public class CompletionTestUtil {
     public static TextDocumentPositionParams getPositionParams(Position position, String uri) {
         TextDocumentPositionParams textDocumentPositionParams = new TextDocumentPositionParams();
         TextDocumentIdentifier documentIdentifier = new TextDocumentIdentifier();
+        documentIdentifier.setUri(Paths.get(uri).toUri().toString());
 
-        documentIdentifier.setUri(SCHEME + uri);
         textDocumentPositionParams.setPosition(position);
         textDocumentPositionParams.setTextDocument(documentIdentifier);
 
@@ -147,12 +143,8 @@ public class CompletionTestUtil {
         Path openedPath;
         WorkspaceDocumentManagerImpl documentManager = new WorkspaceDocumentManagerImpl();
 
-        try {
-            openedPath = Paths.get(new URL(SCHEME + uri).toURI());
-            documentManager.openFile(openedPath, balContent);
-        } catch (URISyntaxException | MalformedURLException e) {
-            LOGGER.error(e.getMessage());
-        }
+        openedPath = Paths.get(uri);
+        documentManager.openFile(openedPath, balContent);
 
         return documentManager;
     }
