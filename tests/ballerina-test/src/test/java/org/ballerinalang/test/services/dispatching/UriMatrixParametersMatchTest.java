@@ -44,7 +44,7 @@ public class UriMatrixParametersMatchTest {
 
     @Test
     public void testMatrixParamsAndQueryParamsMatching() {
-        String path = "/hello/t1/john;age=10;color=white/1991;month=may;day=12/foo;a=5;b=10?x=10&y=5";
+        String path = "/hello/t1/john;age=10;color=white/bar/1991;month=may;day=12/foo;a=5;b=10?x=10&y=5";
         HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, "GET");
         HTTPCarbonMessage response = Services.invokeNew(application, cMsg);
 

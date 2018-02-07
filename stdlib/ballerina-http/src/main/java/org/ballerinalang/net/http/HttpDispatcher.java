@@ -50,10 +50,10 @@ public class HttpDispatcher {
 
             // Extracting Matrix params and clean the URI
             Map<String, Map<String, String>> matrixParams = new HashMap<>();
-            String uriStr = (String) inboundReqMsg.getProperty(org.wso2.carbon.messaging.Constants.TO);
+            String uriStr = (String) inboundReqMsg.getProperty(Constants.TO);
             uriStr = URIUtil.removeMatrixParams(uriStr, matrixParams);
 
-            inboundReqMsg.setProperty(org.wso2.carbon.messaging.Constants.TO, uriStr);
+            inboundReqMsg.setProperty(Constants.TO, uriStr);
             inboundReqMsg.setProperty(Constants.MATRIX_PARAMS, matrixParams);
 
             URI requestUri = getValidateURI(uriStr);
@@ -138,7 +138,7 @@ public class HttpDispatcher {
     public static HttpResource findResource(HTTPServicesRegistry servicesRegistry,
                                             HTTPCarbonMessage httpCarbonMessage) {
         HttpResource resource = null;
-        String protocol = (String) httpCarbonMessage.getProperty(org.wso2.carbon.messaging.Constants.PROTOCOL);
+        String protocol = (String) httpCarbonMessage.getProperty(Constants.PROTOCOL);
         if (protocol == null) {
             throw new BallerinaConnectorException("protocol not defined in the incoming request");
         }

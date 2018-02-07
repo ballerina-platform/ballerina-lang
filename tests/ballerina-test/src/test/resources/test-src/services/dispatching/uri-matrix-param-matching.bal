@@ -5,7 +5,7 @@ service<http> testService {
 
     @http:resourceConfig {
         methods:["GET"],
-        path:"/t1/{person}/{year}/foo"
+        path:"/t1/{person}/bar/{year}/foo"
     }
     resource test1 (http:Connection conn, http:InRequest req, string person, string year) {
         http:OutResponse res = {};
@@ -17,12 +17,12 @@ service<http> testService {
         var color, _ = (string) personMParams["color"];
         outJson.personMatrix = string `age={{age}};color={{color}}`;
 
-        map yearMParams = req.getMatrixParams(string `/hello/t1/{{person}}/{{year}}`);
+        map yearMParams = req.getMatrixParams(string `/hello/t1/{{person}}/bar/{{year}}`);
         var month, _ = (string) yearMParams["month"];
         var day, _ = (string) yearMParams["day"];
         outJson.yearMatrix = string `month={{month}};day={{day}}`;
 
-        map fooMParams = req.getMatrixParams(string `/hello/t1/{{person}}/{{year}}/foo`);
+        map fooMParams = req.getMatrixParams(string `/hello/t1/{{person}}/bar/{{year}}/foo`);
         var a, _ = (string) fooMParams["a"];
         var b, _ = (string) fooMParams["b"];
         outJson.fooMatrix = string `a={{a}};b={{b}}`;
