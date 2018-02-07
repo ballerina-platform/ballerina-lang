@@ -19,59 +19,93 @@ package org.ballerinalang.langserver.definition.util;
 import org.ballerinalang.langserver.DocumentServiceKeys;
 import org.ballerinalang.langserver.TextDocumentServiceContext;
 import org.ballerinalang.langserver.TextDocumentServiceUtil;
-import org.ballerinalang.langserver.definition.constants.DefinitionConstants;
-import org.ballerinalang.langserver.hover.HoverKeys;
+import org.ballerinalang.langserver.common.constants.ContextConstants;
+import org.ballerinalang.langserver.common.constants.NodeContextKeys;
+import org.ballerinalang.langserver.definition.DefinitionTreeVisitor;
 import org.eclipse.lsp4j.Location;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextDocumentPositionParams;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+
 /**
  * Utility class for go to definition functionality of language server.
  */
 public class DefinitionUtil {
     /**
-     * Get definition position for the given hover context.
+     * Get definition position for the given definition context.
      *
-     * @param currentBLangPackage resolved bLangPackage for the hover context.
-     * @param hoverContext context of the hover.
+     * @param currentBLangPackage resolved bLangPackage for the definition context.
+     * @param definitionContext   context of the definition.
      * @return position
      */
-    public static List<Location> getDefinitionPosition(TextDocumentServiceContext hoverContext,
+    public static List<Location> getDefinitionPosition(TextDocumentServiceContext definitionContext,
                                                        BLangPackage currentBLangPackage) {
         List<Location> contents = new ArrayList<>();
-        if (hoverContext.get(HoverKeys.SYMBOL_KIND_OF_HOVER_NODE_KEY) == null) {
+        if (definitionContext.get(NodeContextKeys.SYMBOL_KIND_OF_NODE_KEY) == null) {
             return contents;
         }
-        String nodeKind = hoverContext.get(HoverKeys.SYMBOL_KIND_OF_HOVER_NODE_KEY).name();
+        String nodeKind = definitionContext.get(NodeContextKeys.SYMBOL_KIND_OF_NODE_KEY);
         BLangNode bLangNode = null;
         switch (nodeKind) {
-            case DefinitionConstants.FUNCTION:
+            case ContextConstants.FUNCTION:
                 bLangNode = currentBLangPackage.functions.stream()
                         .filter(function -> function.name.getValue()
-                                .equals(hoverContext.get(HoverKeys.NAME_OF_HOVER_NODE_KEY).getValue()))
+                                .equals(definitionContext.get(NodeContextKeys.NAME_OF_NODE_KEY)))
                         .findAny().orElse(null);
                 break;
-            case DefinitionConstants.STRUCT:
+            case ContextConstants.STRUCT:
                 bLangNode = currentBLangPackage.structs.stream()
                         .filter(struct -> struct.name.getValue()
-                                .equals(hoverContext.get(HoverKeys.NAME_OF_HOVER_NODE_KEY).getValue()))
+                                .equals(definitionContext.get(NodeContextKeys.NAME_OF_NODE_KEY)))
                         .findAny().orElse(null);
                 break;
-            case DefinitionConstants.ENUM:
+            case ContextConstants.ENUM:
                 bLangNode = currentBLangPackage.enums.stream()
-                        .filter(struct -> struct.name.getValue()
-                                .equals(hoverContext.get(HoverKeys.NAME_OF_HOVER_NODE_KEY).getValue()))
+                        .filter(enm -> enm.name.getValue()
+                                .equals(definitionContext.get(NodeContextKeys.NAME_OF_NODE_KEY)))
                         .findAny().orElse(null);
+                break;
+            case ContextConstants.CONNECTOR:
+                bLangNode = currentBLangPackage.connectors.stream()
+                        .filter(bConnector -> bConnector.name.getValue()
+                                .equals(definitionContext.get(NodeContextKeys.NAME_OF_NODE_KEY)))
+                        .findAny().orElse(null);
+                break;
+            case ContextConstants.ACTION:
+                bLangNode = currentBLangPackage.connectors.stream()
+                        .filter(bConnector -> bConnector.name.getValue()
+                                .equals(((BLangInvocation) definitionContext
+                                        .get(NodeContextKeys.PREVIOUSLY_VISITED_NODE_KEY))
+                                        .symbol.owner.name.getValue()))
+                        .flatMap(connector -> connector.actions.stream())
+                        .filter(bAction -> bAction.name.getValue()
+                                .equals(definitionContext.get(NodeContextKeys.NAME_OF_NODE_KEY)))
+                        .findAny().orElse(null);
+                break;
+            case ContextConstants.VARIABLE:
+                bLangNode = currentBLangPackage.globalVars.stream()
+                        .filter(globalVar -> globalVar.name.getValue()
+                                .equals(definitionContext.get(NodeContextKeys.VAR_NAME_OF_NODE_KEY)))
+                        .findAny().orElse(null);
+
+                if (bLangNode == null) {
+                    DefinitionTreeVisitor definitionTreeVisitor = new DefinitionTreeVisitor(definitionContext);
+                    definitionContext.get(NodeContextKeys.NODE_STACK_KEY).pop().accept(definitionTreeVisitor);
+                    if (definitionContext.get(NodeContextKeys.NODE_KEY) != null) {
+                        bLangNode = definitionContext.get(NodeContextKeys.NODE_KEY);
+                        break;
+                    }
+                }
                 break;
             default:
-
                 break;
         }
         if (bLangNode == null) {
@@ -79,7 +113,7 @@ public class DefinitionUtil {
         }
 
         Location l = new Location();
-        TextDocumentPositionParams position = hoverContext.get(DocumentServiceKeys.POSITION_KEY);
+        TextDocumentPositionParams position = definitionContext.get(DocumentServiceKeys.POSITION_KEY);
         Path parentPath = TextDocumentServiceUtil.getPath(position.getTextDocument().getUri()).getParent();
         if (parentPath != null) {
             String fileName = bLangNode.getPosition().getSource().getCompilationUnitName();

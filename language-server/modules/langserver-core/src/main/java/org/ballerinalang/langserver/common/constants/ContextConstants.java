@@ -13,15 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package org.ballerinalang.langserver.common.constants;
 
-package org.ballerinalang.langserver.definition.constants;
 /**
- * Constants for definition functionality.
+ * Constants for hover functionality.
  */
-public class DefinitionConstants {
+public class ContextConstants {
     public static final String FUNCTION = "FUNCTION";
     public static final String STRUCT = "STRUCT";
-    public static final String ENUM = "ENUM";
     public static final String ACTION = "ACTION";
-    public static final  String VARIABLE = "VARIABLE";
+    public static final String ENUM = "ENUM";
+    public static final String TRANSFORMER = "TRANSFORMER";
+    public static final String CONNECTOR = "CONNECTOR";
+    public static final String VARIABLE = "VARIABLE";
+    public static final String DESCRIPTION = "Description";
+    public static final String PARAM = "Param";
+    public static final String RETURN = "Return";
+    public static final String FIELD = "Field";
 }
