@@ -82,7 +82,7 @@ import static org.ballerinalang.mime.util.Constants.TEXT_PLAIN;
 import static org.ballerinalang.mime.util.Constants.XML_DATA_INDEX;
 
 /**
- * Test cases for multipart request handling.
+ * Test cases for multipart/form-data handling.
  */
 public class MultipartFormDataTest {
     private static final Logger LOG = LoggerFactory.getLogger(MultipartFormDataTest.class);

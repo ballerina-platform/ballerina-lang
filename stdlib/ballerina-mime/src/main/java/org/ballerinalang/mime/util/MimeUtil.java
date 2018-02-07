@@ -23,6 +23,7 @@ import io.netty.handler.codec.http.multipart.FileUpload;
 import io.netty.handler.codec.http.multipart.HttpDataFactory;
 import io.netty.handler.codec.http.multipart.HttpPostRequestEncoder;
 import io.netty.handler.codec.http.multipart.InterfaceHttpData;
+import io.netty.util.internal.PlatformDependent;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.connector.api.ConnectorUtils;
 import org.ballerinalang.model.types.BStructType;
@@ -1009,5 +1010,9 @@ public class MimeUtil {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    public static String getNewMultipartDelimiter() {
+        return Long.toHexString(PlatformDependent.threadLocalRandom().nextLong());
     }
 }

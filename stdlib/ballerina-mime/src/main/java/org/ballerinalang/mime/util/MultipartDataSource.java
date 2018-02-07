@@ -47,16 +47,18 @@ import static org.ballerinalang.mime.util.Constants.TEXT_PLAIN;
 public class MultipartDataSource extends BallerinaMessageDataSource {
 
     private BRefValueArray bodyParts;
+    private String boundaryString;
 
-    public MultipartDataSource(BRefValueArray bodyParts) {
+    public MultipartDataSource(BRefValueArray bodyParts, String boundaryString) {
         this.bodyParts = bodyParts;
+        this.boundaryString = boundaryString;
     }
 
     @Override
     public void serializeData(OutputStream outputStream) {
         //TODO: Get charset from content type and use that
         final Writer writer = new BufferedWriter(new OutputStreamWriter(outputStream, Charset.defaultCharset()));
-        String boundaryString = getNewMultipartDelimiter();
+
         if (bodyParts != null) {
             boolean isFirst = true;
             for (int i = 0; i < bodyParts.size(); i++) {
@@ -97,7 +99,7 @@ public class MultipartDataSource extends BallerinaMessageDataSource {
 
                     // Mark the end of the headers for this body part
                     writer.write("\r\n");
-                   // writer.flush();
+                    writer.flush();
 
                     writeBodyContent(writer, outputStream, bodyPart);
                     writeFinalBoundaryString(writer, boundaryString);
@@ -144,9 +146,5 @@ public class MultipartDataSource extends BallerinaMessageDataSource {
         writer.write(boundaryString);
         writer.write("--\r\n");
         writer.flush();
-    }
-
-    private static String getNewMultipartDelimiter() {
-        return Long.toHexString(PlatformDependent.threadLocalRandom().nextLong());
     }
 }

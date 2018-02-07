@@ -30,7 +30,7 @@ import static org.ballerinalang.mime.util.Constants.MULTIPART_MIXED;
 import static org.ballerinalang.mime.util.Constants.PROTOCOL_PACKAGE_FILE;
 import static org.ballerinalang.mime.util.Constants.PROTOCOL_PACKAGE_MIME;
 
-public class MultipartSubtypesTest {
+public class GenericMultipartTest {
     private CompileResult result, serviceResult;
     private final String requestStruct = Constants.IN_REQUEST;
     private final String protocolPackageHttp = Constants.PROTOCOL_PACKAGE_HTTP;
@@ -60,8 +60,8 @@ public class MultipartSubtypesTest {
         bodyParts.add(getBinaryFilePart());
         HTTPTestRequest cMsg = getCarbonMessageWithBodyParts(messageMap, getArrayOfBodyParts(bodyParts));*/
         List<Header> headers = new ArrayList<>();
-        headers.add(new Header(CONTENT_TYPE, "multipart/mixed; boundary=thisistheboundary"));
-        String multipartDataBoundary = "thisistheboundary";
+        String multipartDataBoundary = MimeUtil.getNewMultipartDelimiter();
+        headers.add(new Header(CONTENT_TYPE, "multipart/mixed; boundary=" + multipartDataBoundary));
        /* String multipartBody = "--" + multipartDataBoundary + "\r\n" +
                                 "Content-Disposition: form-data; name=\"foo\"" + "\r\n" +
                                 "Content-Type: text/plain; charset=UTF-8" + "\r\n" +
