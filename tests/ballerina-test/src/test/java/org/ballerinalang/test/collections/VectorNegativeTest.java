@@ -46,21 +46,27 @@ public class VectorNegativeTest {
     public void testGetIndexOutOfRange() {
         long[] expectedVals = new long[]{10, 30};
         long vectorSize = 10;
+        long[] indices = new long[]{0, 2, vectorSize, -1};
         String[] expectedErrMsgs = new String[]{"Index out of range: 10", "Index out of range: -1"};
 
         BValue[] returns = BRunUtil.invoke(compileResult, "testGetIndexOutOfRange",
-                                           new BValue[]{new BInteger(vectorSize)});
+                                           new BValue[]{buildIntArray(indices), new BInteger(vectorSize)});
 
         Assert.assertNotNull(returns);
 
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), expectedVals[0]);
-        Assert.assertEquals(((BInteger) returns[1]).intValue(), expectedVals[1]);
+        BRefValueArray returnedVals = (BRefValueArray) returns[0];
+        Assert.assertEquals(returnedVals.size(), expectedVals.length);
 
-        Assert.assertNull(returns[2]);
-        Assert.assertNull(returns[3]);
+        for (int i = 0; i < expectedVals.length; i++) {
+            Assert.assertEquals(((BInteger) returnedVals.get(i)).intValue(), expectedVals[i]);
+        }
 
-        Assert.assertEquals(((BStruct) returns[4]).getStringField(0), expectedErrMsgs[0]);
-        Assert.assertEquals(((BStruct) returns[5]).getStringField(0), expectedErrMsgs[1]);
+        BRefValueArray errors = (BRefValueArray) returns[1];
+        Assert.assertEquals(errors.size(), expectedErrMsgs.length);
+
+        for (int i = 0; i < expectedErrMsgs.length; i++) {
+            Assert.assertEquals(((BStruct) errors.get(i)).getStringField(0), expectedErrMsgs[i]);
+        }
     }
 
     @Test(description = "Test case for testing insertion of elements outside the bounds of a vector.")
@@ -97,13 +103,13 @@ public class VectorNegativeTest {
 
     @Test(description = "Test case for testing removal of elements from outside of the bounds of a vector.")
     public void testRemoveIndexOutOfRange() {
-        long removedVal = 10;
         long vectorSize = 10;
+        long[] indices = new long[]{0, vectorSize - 1, -1};
         long[] expectedFinalValues = new long[]{20, 30, 40, 50, 60, 70, 80, 90, 100};
         String[] expectedErrMsgs = new String[]{"Index out of range: 9", "Index out of range: -1"};
 
         BValue[] returns = BRunUtil.invoke(compileResult, "testRemoveIndexOutOfRange",
-                                           new BValue[]{new BInteger(vectorSize)});
+                                           new BValue[]{buildIntArray(indices), new BInteger(vectorSize)});
 
         Assert.assertNotNull(returns);
 
@@ -117,16 +123,16 @@ public class VectorNegativeTest {
             Assert.assertEquals(vectorEntries.get(i).value(), expectedFinalValues[i]);
         }
 
-        Assert.assertEquals(((BInteger) returns[1]).intValue(), removedVal);
-        Assert.assertNull(returns[2]);
-        Assert.assertNull(returns[3]);
+        BRefValueArray removedVals = (BRefValueArray) returns[1];
+        Assert.assertEquals(removedVals.size(), 1); // only 1 valid index
+        Assert.assertEquals(((BInteger) removedVals.get(0)).intValue(), 10);
 
-        BRefValueArray errors = (BRefValueArray) returns[4];
+        BRefValueArray errors = (BRefValueArray) returns[2];
+        Assert.assertEquals(errors.size(), expectedErrMsgs.length);
 
-        Assert.assertEquals(errors.size(), 3); // Since there are 3 removals
-        Assert.assertNull(errors.get(0)); // Since first removal is valid, the error is null
-        Assert.assertEquals(((BStruct) errors.get(1)).getStringField(0), expectedErrMsgs[0]);
-        Assert.assertEquals(((BStruct) errors.get(2)).getStringField(0), expectedErrMsgs[1]);
+        for (int i = 0; i < expectedErrMsgs.length; i++) {
+            Assert.assertEquals(((BStruct) errors.get(i)).getStringField(0), expectedErrMsgs[i]);
+        }
     }
 
     @Test(description = "Test case for testing replacement of elements outside the bounds of a vector.")

@@ -26,10 +26,10 @@ function testGet (int size) (any x1, any x2, any x3, any x4) {
     collections:Vector vector = {vec:[]};
     populateVector(vector, size);
 
-    x1, _ = vector.get(0);
-    x2, _ = vector.get(2);
-    x3, _ = vector.get(4);
-    x4, _ = vector.get(6);
+    x1 = vector.get(0);
+    x2 = vector.get(2);
+    x3 = vector.get(4);
+    x4 = vector.get(6);
 
     return;
 }
@@ -40,7 +40,7 @@ function testInsert (int[] values, int[] indices, int size) (collections:Vector)
 
     int i = 0;
     while (i < lengthof values) {
-        _ = vector.insert(values[i], indices[i]);
+        vector.insert(values[i], indices[i]);
         i = i + 1;
     }
 
@@ -51,9 +51,9 @@ function testRemove (int size) (collections:Vector vector, any x1, any x2, any x
     vector = {vec:[]};
     populateVector(vector, size);
 
-    x1, _ = vector.remove(0);
-    x2, _ = vector.remove(2);
-    x3, _ = vector.remove(size - 3);
+    x1 = vector.remove(0);
+    x2 = vector.remove(2);
+    x3 = vector.remove(size - 3);
 
     return;
 }
@@ -65,47 +65,70 @@ function testReplace (int[] values, int[] indices, int size) (collections:Vector
 
     int i = 0;
     while (i < lengthof values) {
-        replacedVals[i], _ = vector.replace(values[i], indices[i]);
+        replacedVals[i] = vector.replace(values[i], indices[i]);
         i = i + 1;
     }
 
     return vector, replacedVals;
 }
 
-function testGetIndexOutOfRange(int size) (any x1, any x2, any x3, any x4, collections:IndexOutOfRangeError e1, collections:IndexOutOfRangeError e2) {
+function testGetIndexOutOfRange (int[] indices, int size) (any[] vals, collections:IndexOutOfRangeError[] errs) {
     collections:Vector vector = {vec:[]};
     populateVector(vector, size);
+    vals = [];
+    errs = [];
+    int i = 0;
+    int errIndex = 0;
 
-    x1, _ = vector.get(0);
-    x2, _ = vector.get(2);
-    x3, e1 = vector.get(size);
-    x4, e2 = vector.get(-1);
-
+    while (i < lengthof indices) {
+        try {
+            vals[i] = vector.get(indices[i]);
+        } catch (collections:IndexOutOfRangeError e) {
+            errs[errIndex] = e;
+            errIndex = errIndex + 1;
+        }
+        i = i + 1;
+    }
     return;
 }
 
-function testInsertIndexOutOfRange(int[] values, int[] indices, int size) (collections:Vector vector, collections:IndexOutOfRangeError[] errs) {
+function testInsertIndexOutOfRange (int[] values, int[] indices, int size) (collections:Vector vector, collections:IndexOutOfRangeError[] errs) {
     vector = {vec:[]};
     populateVector(vector, size);
     errs = [];
-
     int i = 0;
+    int errIndex = 0;
+
     while (i < lengthof values) {
-        errs[i] = vector.insert(values[i], indices[i]);
+        try {
+            vector.insert(values[i], indices[i]);
+        } catch (collections:IndexOutOfRangeError e) {
+            errs[i] = e;
+            errIndex = errIndex + 1;
+        }
         i = i + 1;
     }
 
     return vector, errs;
 }
 
-function testRemoveIndexOutOfRange (int size) (collections:Vector vector, any x1, any x2, any x3, collections:IndexOutOfRangeError[] errs) {
+function testRemoveIndexOutOfRange (int[] indices, int size) (collections:Vector vector, any[] removedVals, collections:IndexOutOfRangeError[] errs) {
     vector = {vec:[]};
     populateVector(vector, size);
+    removedVals = [];
     errs = [];
+    int i = 0;
+    int errIndex = 0;
 
-    x1, errs[0] = vector.remove(0);
-    x2, errs[1] = vector.remove(size - 1);
-    x3, errs[2] = vector.remove(-1);
+    while (i < lengthof indices) {
+        try {
+            removedVals[i] = vector.remove(indices[i]);
+        } catch (collections:IndexOutOfRangeError e) {
+            errs[errIndex] = e;
+            errIndex = errIndex + 1;
+        }
+        i = i + 1;
+    }
 
     return;
 }
@@ -114,10 +137,16 @@ function testReplaceIndexOutOfRange (int[] values, int[] indices, int size) (col
     vector = {vec:[]};
     populateVector(vector, size);
     errs = [];
-
     int i = 0;
+    int errIndex = 0;
+
     while (i < lengthof values) {
-        _, errs[i] = vector.replace(values[i], indices[i]);
+        try {
+            _ = vector.replace(values[i], indices[i]);
+        } catch (collections:IndexOutOfRangeError e) {
+            errs[i] = e;
+            errIndex = errIndex + 1;
+        }
         i = i + 1;
     }
 
