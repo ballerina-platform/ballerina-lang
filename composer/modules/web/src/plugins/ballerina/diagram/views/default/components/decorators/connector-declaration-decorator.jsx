@@ -104,7 +104,7 @@ class ConnectorDeclarationDecorator extends React.Component {
                     title={this.props.title}
                     bBox={this.props.bBox}
                     classes={connectorClasses}
-                    icon={ImageUtil.getConnectorIcon(packageAlias)}
+                    icon={ImageUtil.getCodePoint('endpoint')}
                     editorOptions={this.editorOptions}
                     iconColor='#17a085'
                     onDelete={this.onDelete}
