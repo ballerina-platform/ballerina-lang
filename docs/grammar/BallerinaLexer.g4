@@ -96,17 +96,15 @@ MOD     : '%';
 
 // Relational operators
 
-NOT             : '!' ;
-EQUAL           : '==' ;
-NOT_EQUAL       : '!=' ;
-DEEP_EQUAL      : '===' ;
-DEEP_NOT_EQUAL  : '!==' ;
-GT              : '>' ;
-LT              : '<' ;
-GT_EQUAL        : '>=' ;
-LT_EQUAL        : '<=' ;
-AND             : '&&' ;
-OR              : '||' ;
+NOT         : '!' ;
+EQUAL       : '==' ;
+NOT_EQUAL   : '!=' ;
+GT          : '>' ;
+LT          : '<' ;
+GT_EQUAL    : '>=' ;
+LT_EQUAL    : '<=' ;
+AND         : '&&' ;
+OR          : '||' ;
 
 // Additional symbols 
 
