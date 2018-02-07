@@ -1472,13 +1472,11 @@ public class ProgramFileReader {
                 case InstructionCodes.SEQ:
                 case InstructionCodes.BEQ:
                 case InstructionCodes.REQ:
-                case InstructionCodes.RDEQ:
                 case InstructionCodes.INE:
                 case InstructionCodes.FNE:
                 case InstructionCodes.SNE:
                 case InstructionCodes.BNE:
                 case InstructionCodes.RNE:
-                case InstructionCodes.RDNE:
                 case InstructionCodes.IGT:
                 case InstructionCodes.FGT:
                 case InstructionCodes.IGE:

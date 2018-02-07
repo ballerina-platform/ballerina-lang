@@ -24,7 +24,6 @@ import org.ballerinalang.connector.api.AbstractNativeAction;
 import org.ballerinalang.connector.api.ConnectorFuture;
 import org.ballerinalang.connector.impl.BClientConnectorFutureListener;
 import org.ballerinalang.connector.impl.BServerConnectorFuture;
-import org.ballerinalang.helpers.DeepEqualHelper;
 import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.BConnectorType;
 import org.ballerinalang.model.types.BEnumType;
@@ -405,7 +404,6 @@ public class BLangVM {
                 case InstructionCodes.FEQ:
                 case InstructionCodes.SEQ:
                 case InstructionCodes.BEQ:
-                case InstructionCodes.RDEQ:
                 case InstructionCodes.REQ:
                 case InstructionCodes.TEQ:
                 case InstructionCodes.INE:
@@ -413,7 +411,6 @@ public class BLangVM {
                 case InstructionCodes.SNE:
                 case InstructionCodes.BNE:
                 case InstructionCodes.RNE:
-                case InstructionCodes.RDNE:
                 case InstructionCodes.TNE:
                     execBinaryOpCodes(sf, opcode, operands);
                     break;
@@ -1649,18 +1646,6 @@ public class BLangVM {
                 j = operands[1];
                 k = operands[2];
                 sf.intRegs[k] = sf.refRegs[i] == sf.refRegs[j] ? 1 : 0;
-                break;
-            case InstructionCodes.RDEQ:
-                i = operands[0];
-                j = operands[1];
-                k = operands[2];
-                sf.intRegs[k] = DeepEqualHelper.isDeepEqual(sf.refRegs[i], sf.refRegs[j]) ? 1 : 0;
-                break;
-            case InstructionCodes.RDNE:
-                i = operands[0];
-                j = operands[1];
-                k = operands[2];
-                sf.intRegs[k] = DeepEqualHelper.isDeepEqual(sf.refRegs[i], sf.refRegs[j]) ? 0 : 1;
                 break;
             case InstructionCodes.TEQ:
                 i = operands[0];
