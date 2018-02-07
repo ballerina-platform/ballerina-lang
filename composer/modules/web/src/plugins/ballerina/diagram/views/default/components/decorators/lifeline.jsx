@@ -177,7 +177,7 @@ class LifeLine extends React.Component {
             <g onClick={this.handleConnectorProps}>
                 <text
                     x={startX - (iconSize / 2)}
-                    y={bBox.y - 25}
+                    y={bBox.y - 5}
                     fontFamily='font-ballerina'
                     fontSize={iconSize}
                     fill={this.props.iconColor}
