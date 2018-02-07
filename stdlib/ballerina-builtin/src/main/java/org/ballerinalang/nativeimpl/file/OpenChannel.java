@@ -60,17 +60,17 @@ import java.util.Set;
 public class OpenChannel extends AbstractNativeChannel {
 
     /**
-     * File channel index in ballerina.lang.file#openChannel.
+     * File channel index in ballerina.file#openChannel.
      */
     private static final int FILE_CHANNEL_INDEX = 0;
 
     /**
-     * File access mode defined in ballerina.lang.file#openChannel.
+     * File access mode defined in ballerina.file#openChannel.
      */
     private static final int FILE_ACCESS_MODE_INDEX = 1;
 
     /**
-     * File path defined under ballerina.lang.filesFile.
+     * File path defined under ballerina.file.File.
      */
     private static final int PATH_FIELD_INDEX = 0;
 
