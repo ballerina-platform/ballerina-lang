@@ -30,6 +30,10 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import java.io.IOException;
+import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -40,14 +44,14 @@ public class ConfigTest {
 
     private CompileResult compileResult;
     private final String ballerinaConf = "ballerina.conf";
-    private final String userDir = "user.dir";
-    private String userDirectory;
+    private final Path tempConfPath = Paths.get(".").resolve(ballerinaConf);
 
     @BeforeClass
-    public void setup() {
+    public void setup() throws IOException {
         compileResult = BCompileUtil.compile("test-src/nativeimpl/functions/config.bal");
-        userDirectory = System.getProperty(userDir);
-        System.setProperty(userDir, getClass().getClassLoader().getResource("datafiles/config/default").getPath());
+        URL resource = getClass().getClassLoader().getResource("datafiles/config/default/" + ballerinaConf);
+        Assert.assertNotNull(resource);
+        Files.copy(Paths.get(resource.getPath()), tempConfPath);
     }
 
     @Test(description = "test global method with runtime and custom config file properties")
@@ -199,7 +203,7 @@ public class ConfigTest {
     }
 
     @AfterClass
-    public void tearDown() {
-        System.setProperty(userDir, userDirectory);
+    public void tearDown() throws IOException {
+        Files.delete(tempConfPath);
     }
 }
