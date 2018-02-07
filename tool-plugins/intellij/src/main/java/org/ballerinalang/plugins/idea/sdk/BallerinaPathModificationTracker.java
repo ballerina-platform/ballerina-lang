@@ -35,6 +35,9 @@ import java.nio.file.Paths;
 import java.util.Collection;
 import java.util.Set;
 
+/**
+ * Tracks Ballerina path modifications.
+ */
 public class BallerinaPathModificationTracker {
 
     private final Set<String> pathsToTrack = ContainerUtil.newHashSet();

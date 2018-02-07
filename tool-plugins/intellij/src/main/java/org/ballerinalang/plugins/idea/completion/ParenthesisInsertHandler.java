@@ -27,6 +27,9 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.psi.PsiDocumentManager;
 
+/**
+ * Provides parenthesis completion support.
+ */
 public class ParenthesisInsertHandler implements InsertHandler<LookupElement> {
 
     public static final InsertHandler<LookupElement> INSTANCE = new ParenthesisInsertHandler(false);

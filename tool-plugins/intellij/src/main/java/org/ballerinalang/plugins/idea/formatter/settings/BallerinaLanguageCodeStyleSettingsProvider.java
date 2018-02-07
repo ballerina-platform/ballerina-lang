@@ -24,6 +24,9 @@ import com.intellij.psi.codeStyle.LanguageCodeStyleSettingsProvider;
 import org.ballerinalang.plugins.idea.BallerinaLanguage;
 import org.jetbrains.annotations.NotNull;
 
+/**
+ * Ballerina code style settings provider.
+ */
 public class BallerinaLanguageCodeStyleSettingsProvider extends LanguageCodeStyleSettingsProvider {
 
     private static final String DEFAULT_CODE_SAMPLE =

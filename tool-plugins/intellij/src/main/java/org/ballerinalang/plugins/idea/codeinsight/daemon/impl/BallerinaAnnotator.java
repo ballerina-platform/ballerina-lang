@@ -56,6 +56,9 @@ import java.util.Collection;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+/**
+ * Handles annotating text in the runtime.
+ */
 public class BallerinaAnnotator implements Annotator {
 
     private static final String VALID_ESCAPE_CHARACTERS = "\\\\[btnfr\"'\\\\]|\\\\u[0-f]{4}|\\\\[0-3][0-7]{2}" +

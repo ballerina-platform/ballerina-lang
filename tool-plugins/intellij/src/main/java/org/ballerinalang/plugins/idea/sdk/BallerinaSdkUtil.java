@@ -53,6 +53,9 @@ import java.util.regex.Pattern;
 
 import static com.intellij.util.containers.ContainerUtil.newLinkedHashSet;
 
+/**
+ * Contains util classes related to Ballerina SDK.
+ */
 public class BallerinaSdkUtil {
 
     private static final Pattern BALLERINA_VERSION_PATTERN = Pattern.compile("(\\d+\\.\\d+(\\.\\d+)?(-.+)?)");

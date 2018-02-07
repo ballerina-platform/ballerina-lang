@@ -34,6 +34,9 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Map;
 
+/**
+ * Handles creating new Ballerina file.
+ */
 public class BallerinaCreateFileAction extends CreateFileFromTemplateAction implements DumbAware {
 
     private static final String BALLERINA_EMPTY_FILE = "Ballerina File";

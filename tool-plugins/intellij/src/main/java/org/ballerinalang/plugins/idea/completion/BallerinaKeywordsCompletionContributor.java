@@ -70,6 +70,9 @@ import static org.ballerinalang.plugins.idea.completion.BallerinaCompletionUtils
 import static org.ballerinalang.plugins.idea.completion.BallerinaCompletionUtils.getValueKeywords;
 import static org.ballerinalang.plugins.idea.completion.BallerinaCompletionUtils.getWorkerInteractionKeywords;
 
+/**
+ * Provides keyword completion support.
+ */
 public class BallerinaKeywordsCompletionContributor extends CompletionContributor {
 
     @Override

@@ -46,6 +46,9 @@ import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 
+/**
+ * Checks the package declaration in files.
+ */
 public class WrongPackageStatementInspection extends LocalInspectionTool {
 
     @Override

@@ -38,6 +38,9 @@ import org.ballerinalang.plugins.idea.util.BallerinaUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+/**
+ * Provides auto import support.
+ */
 public class AutoImportInsertHandler implements InsertHandler<LookupElement> {
 
     public static final InsertHandler<LookupElement> INSTANCE = new AutoImportInsertHandler(false);

@@ -40,6 +40,9 @@ import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 
+/**
+ * Checks for unused variables in the code.
+ */
 public class UnusedVariableInspection extends LocalInspectionTool {
 
     @Override

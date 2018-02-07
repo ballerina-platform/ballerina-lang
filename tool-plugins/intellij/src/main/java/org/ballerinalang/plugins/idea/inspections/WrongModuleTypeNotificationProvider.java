@@ -34,6 +34,9 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.Set;
 
+/**
+ * Provides wrong module type message if the ballerina file is not in a Ballerina module.
+ */
 public class WrongModuleTypeNotificationProvider extends EditorNotifications.Provider<EditorNotificationPanel>
         implements DumbAware {
 

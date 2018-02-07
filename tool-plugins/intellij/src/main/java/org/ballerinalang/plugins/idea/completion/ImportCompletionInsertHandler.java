@@ -27,6 +27,9 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.psi.PsiDocumentManager;
 
+/**
+ * Provides import completion support.
+ */
 public class ImportCompletionInsertHandler implements InsertHandler<LookupElement> {
 
     public static final InsertHandler<LookupElement> INSTANCE = new ImportCompletionInsertHandler(false);

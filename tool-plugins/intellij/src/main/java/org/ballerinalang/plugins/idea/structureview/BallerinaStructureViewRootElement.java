@@ -20,6 +20,9 @@ import com.intellij.navigation.ItemPresentation;
 import com.intellij.psi.PsiFile;
 import org.jetbrains.annotations.NotNull;
 
+/**
+ * Represents the structure view root element.
+ */
 public class BallerinaStructureViewRootElement extends BallerinaStructureViewElement {
 
     BallerinaStructureViewRootElement(PsiFile element) {

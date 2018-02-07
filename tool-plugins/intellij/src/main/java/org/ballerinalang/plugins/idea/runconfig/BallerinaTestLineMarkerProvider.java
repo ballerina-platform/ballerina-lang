@@ -26,6 +26,9 @@ import org.ballerinalang.plugins.idea.BallerinaTypes;
 import org.ballerinalang.plugins.idea.psi.FunctionDefinitionNode;
 import org.jetbrains.annotations.Nullable;
 
+/**
+ * Provides run line marker for Ballerina tests.
+ */
 public class BallerinaTestLineMarkerProvider extends RunLineMarkerContributor {
 
     private static final Function<PsiElement, String> APPLICATION_TOOLTIP_PROVIDER = element -> "Run Tests";

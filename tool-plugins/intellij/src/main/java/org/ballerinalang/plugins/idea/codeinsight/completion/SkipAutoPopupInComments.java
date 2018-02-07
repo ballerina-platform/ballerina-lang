@@ -23,6 +23,9 @@ import com.intellij.psi.PsiFile;
 import com.intellij.util.ThreeState;
 import org.jetbrains.annotations.NotNull;
 
+/**
+ * Responsible for skipping auto popup in comments.
+ */
 public class SkipAutoPopupInComments extends CompletionConfidence {
 
     @NotNull

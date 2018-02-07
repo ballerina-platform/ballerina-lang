@@ -22,6 +22,9 @@ import com.intellij.openapi.editor.colors.TextAttributesKey;
 
 import static com.intellij.openapi.editor.colors.TextAttributesKey.createTextAttributesKey;
 
+/**
+ * Contains colors for syntax highlighting.
+ */
 public class BallerinaSyntaxHighlightingColors {
 
     public static final TextAttributesKey LINE_COMMENT = createTextAttributesKey("BALLERINA_LINE_COMMENT",

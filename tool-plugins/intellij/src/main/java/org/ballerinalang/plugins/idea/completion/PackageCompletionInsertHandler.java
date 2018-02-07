@@ -27,6 +27,9 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.psi.PsiDocumentManager;
 
+/**
+ * Provides package completion support.
+ */
 public class PackageCompletionInsertHandler implements InsertHandler<LookupElement> {
 
     public static final InsertHandler<LookupElement> INSTANCE = new PackageCompletionInsertHandler(false);

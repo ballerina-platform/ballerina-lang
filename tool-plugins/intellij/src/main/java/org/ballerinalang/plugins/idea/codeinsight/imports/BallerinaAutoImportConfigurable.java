@@ -33,6 +33,9 @@ import javax.swing.JCheckBox;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 
+/**
+ * Adds enabling/disabling Ballerina auto imports in settings.
+ */
 public class BallerinaAutoImportConfigurable implements SearchableConfigurable {
 
     private JCheckBox myCbShowImportPopup;
@@ -59,7 +62,9 @@ public class BallerinaAutoImportConfigurable implements SearchableConfigurable {
 
         JPanel result = new JPanel(new BorderLayout());
         result.add(builder.getPanel(), BorderLayout.NORTH);
-        if (myIsDialog) result.setPreferredSize(new Dimension(300, -1));
+        if (myIsDialog) {
+            result.setPreferredSize(new Dimension(300, -1));
+        }
         return result;
     }
 

@@ -25,6 +25,9 @@ import org.ballerinalang.plugins.idea.BallerinaConstants;
 import org.ballerinalang.plugins.idea.sdk.BallerinaSdkUtil;
 import org.jetbrains.annotations.NotNull;
 
+/**
+ * Provides Ballerina application library services.
+ */
 @State(
         name = BallerinaConstants.BALLERINA_LIBRARIES_SERVICE_NAME,
         storages = @Storage(file = StoragePathMacros.APP_CONFIG + "/" +
@@ -58,6 +61,9 @@ public class BallerinaApplicationLibrariesService extends
         }
     }
 
+    /**
+     * Represents Ballerina application library state.
+     */
     public static class BallerinaApplicationLibrariesState extends BallerinaLibraryState {
 
         private boolean myUseBallerinaPathFromSystemEnvironment = true;

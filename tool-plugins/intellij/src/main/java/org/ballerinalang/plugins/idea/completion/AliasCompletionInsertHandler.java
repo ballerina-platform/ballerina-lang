@@ -26,6 +26,9 @@ import com.intellij.openapi.editor.EditorModificationUtil;
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiDocumentManager;
 
+/**
+ * Provides alias completion support.
+ */
 public class AliasCompletionInsertHandler implements InsertHandler<LookupElement> {
 
     public static final InsertHandler<LookupElement> INSTANCE = new AliasCompletionInsertHandler(false);

@@ -37,6 +37,9 @@ import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 
+/**
+ * Checks for unused constants in the code.
+ */
 public class UnusedConstantInspection extends LocalInspectionTool {
 
     @Override

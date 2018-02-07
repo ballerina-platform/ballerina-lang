@@ -25,6 +25,9 @@ import com.intellij.util.ThreeState;
 import org.ballerinalang.plugins.idea.BallerinaTypes;
 import org.jetbrains.annotations.NotNull;
 
+/**
+ * Responsible for skipping auto popup in strings.
+ */
 public class SkipAutoPopupInStrings extends CompletionConfidence {
 
     @NotNull

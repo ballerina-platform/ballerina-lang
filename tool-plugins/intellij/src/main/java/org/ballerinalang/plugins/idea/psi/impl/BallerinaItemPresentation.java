@@ -20,6 +20,9 @@ import com.intellij.navigation.ItemPresentation;
 import com.intellij.psi.PsiElement;
 import org.jetbrains.annotations.Nullable;
 
+/**
+ * Use to provide icons for Ballerina element types.
+ */
 public abstract class BallerinaItemPresentation implements ItemPresentation {
 
     private PsiElement nameIdentifier;

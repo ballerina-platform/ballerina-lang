@@ -31,6 +31,9 @@ import org.ballerinalang.plugins.idea.util.BallerinaUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+/**
+ * Quick fix which updates package name.
+ */
 public class AdjustPackageNameFix extends LocalQuickFixAndIntentionActionOnPsiElement {
 
     private final String myName;

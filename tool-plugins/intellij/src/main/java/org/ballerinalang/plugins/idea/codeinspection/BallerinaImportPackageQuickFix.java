@@ -61,6 +61,9 @@ import java.util.List;
 
 import javax.swing.SwingConstants;
 
+/**
+ * Quick fix which adds imports.
+ */
 public class BallerinaImportPackageQuickFix extends LocalQuickFixAndIntentionActionOnPsiElement
         implements HintAction, HighPriorityAction {
 

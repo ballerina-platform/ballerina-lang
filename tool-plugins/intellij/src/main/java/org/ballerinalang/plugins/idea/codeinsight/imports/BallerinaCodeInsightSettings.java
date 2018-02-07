@@ -24,6 +24,9 @@ import com.intellij.openapi.components.StoragePathMacros;
 import com.intellij.util.xmlb.XmlSerializerUtil;
 import org.jetbrains.annotations.Nullable;
 
+/**
+ * Auto import code insight settings provider.
+ */
 @State(
         name = "Ballerina",
         storages = @Storage(file = StoragePathMacros.APP_CONFIG + "/editor.codeInsight.xml")

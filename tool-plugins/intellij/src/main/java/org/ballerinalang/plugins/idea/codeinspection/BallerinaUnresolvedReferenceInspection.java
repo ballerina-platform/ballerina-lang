@@ -51,6 +51,9 @@ import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 
+/**
+ * Checks for unresolved references in the code.
+ */
 public class BallerinaUnresolvedReferenceInspection extends LocalInspectionTool {
 
     @Override

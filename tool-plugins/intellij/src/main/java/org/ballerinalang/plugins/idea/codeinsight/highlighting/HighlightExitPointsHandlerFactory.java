@@ -26,6 +26,9 @@ import com.intellij.psi.tree.IElementType;
 import org.ballerinalang.plugins.idea.BallerinaTypes;
 import org.jetbrains.annotations.NotNull;
 
+/**
+ * Create exit point handlers.
+ */
 public class HighlightExitPointsHandlerFactory extends HighlightUsagesHandlerFactoryBase {
 
     @Override

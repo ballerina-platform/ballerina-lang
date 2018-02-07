@@ -41,6 +41,9 @@ import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 
+/**
+ * Checks for unused imports in the code.
+ */
 public class UnusedImportInspection extends LocalInspectionTool {
 
     @Override

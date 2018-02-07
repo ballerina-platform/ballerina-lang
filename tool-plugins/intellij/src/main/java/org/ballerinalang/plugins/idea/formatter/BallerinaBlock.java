@@ -72,6 +72,9 @@ import static org.ballerinalang.plugins.idea.BallerinaTypes.WHILE_STATEMENT;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.WORKER_BODY;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.WORKER_DECLARATION;
 
+/**
+ * Represents a code block.
+ */
 public class BallerinaBlock extends AbstractBlock {
 
     private SpacingBuilder spacingBuilder;

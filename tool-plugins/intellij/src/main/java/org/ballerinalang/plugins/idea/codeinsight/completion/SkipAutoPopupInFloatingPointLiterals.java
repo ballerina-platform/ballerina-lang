@@ -24,6 +24,9 @@ import com.intellij.util.ThreeState;
 import org.ballerinalang.plugins.idea.psi.FloatingPointLiteral;
 import org.jetbrains.annotations.NotNull;
 
+/**
+ * Responsible for skipping auto popup when we type "." when we are entering a float value.
+ */
 public class SkipAutoPopupInFloatingPointLiterals extends CompletionConfidence {
 
     @NotNull

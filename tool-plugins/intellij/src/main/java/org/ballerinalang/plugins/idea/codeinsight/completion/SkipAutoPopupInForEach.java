@@ -25,6 +25,9 @@ import org.ballerinalang.plugins.idea.psi.ForEachStatementNode;
 import org.ballerinalang.plugins.idea.psi.VariableReferenceListNode;
 import org.jetbrains.annotations.NotNull;
 
+/**
+ * Responsible for skipping auto popup in foreach blocks.
+ */
 public class SkipAutoPopupInForEach extends CompletionConfidence {
 
     @NotNull

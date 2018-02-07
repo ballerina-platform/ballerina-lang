@@ -50,6 +50,9 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Collection;
 import java.util.Map;
 
+/**
+ * Contains util classes related to running Ballerina programs.
+ */
 public class BallerinaRunUtil {
 
     private BallerinaRunUtil() {

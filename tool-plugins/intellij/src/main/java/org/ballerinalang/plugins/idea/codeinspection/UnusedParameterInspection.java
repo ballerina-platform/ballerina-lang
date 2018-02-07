@@ -37,6 +37,9 @@ import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 
+/**
+ * Checks for unused parameters in the code.
+ */
 public class UnusedParameterInspection extends LocalInspectionTool {
 
     @Override

@@ -45,6 +45,9 @@ import org.jetbrains.annotations.NotNull;
 import java.util.Collection;
 import java.util.List;
 
+/**
+ * Provides support to fold codes in Ballerina.
+ */
 public class BallerinaFoldingBuilder extends CustomFoldingBuilder implements DumbAware {
 
     @Override

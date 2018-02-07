@@ -23,6 +23,9 @@ import org.ballerinalang.plugins.idea.BallerinaTypes;
 import org.ballerinalang.plugins.idea.psi.IdentifierPSINode;
 import org.jetbrains.annotations.NotNull;
 
+/**
+ * Provides spell checking strategy for Ballerina files.
+ */
 public class BallerinaSpellcheckingStrategy extends SpellcheckingStrategy {
 
     private final BallerinaIdentifierTokenizer identifierTokenizer = new BallerinaIdentifierTokenizer();

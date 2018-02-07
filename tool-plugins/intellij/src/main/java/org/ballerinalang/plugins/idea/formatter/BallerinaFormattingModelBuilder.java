@@ -137,6 +137,9 @@ import static org.ballerinalang.plugins.idea.BallerinaTypes.XML_ATTRIB;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.XML_LOCAL_NAME;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.XML_NAMESPACE_NAME;
 
+/**
+ * Builds the Ballerina file formatting model.
+ */
 public class BallerinaFormattingModelBuilder implements FormattingModelBuilder {
 
     @NotNull

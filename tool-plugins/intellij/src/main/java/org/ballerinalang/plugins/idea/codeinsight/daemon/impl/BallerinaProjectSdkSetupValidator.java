@@ -37,6 +37,9 @@ import org.ballerinalang.plugins.idea.sdk.BallerinaSdkType;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+/**
+ * Validates the project SDK.
+ */
 public class BallerinaProjectSdkSetupValidator implements ProjectSdkSetupValidator {
 
     public static final BallerinaProjectSdkSetupValidator INSTANCE = new BallerinaProjectSdkSetupValidator();

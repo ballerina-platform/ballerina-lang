@@ -20,6 +20,9 @@ import com.intellij.codeInsight.editorActions.SimpleTokenSetQuoteHandler;
 import com.intellij.openapi.editor.highlighter.HighlighterIterator;
 import org.ballerinalang.plugins.idea.BallerinaTypes;
 
+/**
+ * Responsible for entering the closing quotes when we type a double quote.
+ */
 public class BallerinaQuoteHandler extends SimpleTokenSetQuoteHandler {
 
     public BallerinaQuoteHandler() {
