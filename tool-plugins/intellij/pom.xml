@@ -38,15 +38,15 @@
                 <artifactId>exec-maven-plugin</artifactId>
                 <executions>
                     <execution>
-                        <id>gradleBuild</id>
+                        <id>test</id>
                         <phase>pre-integration-test</phase>
                         <goals>
                             <goal>exec</goal>
                         </goals>
                         <configuration>
-                            <executable>gradlew</executable>
+                            <executable>${project.basedir}/gradlew</executable>
                             <arguments>
-                                <argument>buildPlugin</argument>
+                                <argument>test</argument>
                             </arguments>
                         </configuration>
                     </execution>
