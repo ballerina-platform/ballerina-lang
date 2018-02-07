@@ -224,6 +224,9 @@ public interface InstructionCodes {
     int S2JSONX = 183;
     int NULL2S = 184;
 
+    int LOCK = 185;
+    int UNLOCK = 186;
+
     // Transactions
     int TR_BEGIN = 188;
     int TR_END = 189;
