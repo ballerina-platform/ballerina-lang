@@ -21,6 +21,9 @@ import $ from 'jquery';
 import hardcodedTypeLattice from './hardcoded-type-lattice';
 import hardcodedOperatorLattice from './hardcoded-operator-lattice';
 
+const CONTENT_TYPE_JSON_HEADER = {
+    'content-type': 'application/json; charset=utf-8',
+};
 
 // updating this with endpoints upon initial fetchConfigs()
 let endpoints = {};
@@ -77,12 +80,9 @@ export function parseFile(file) {
         includeProgramDir: true,
     };
     const endpoint = getServiceEndpoint('ballerina-parser') + '/file/validate-and-parse';
-    const headers = {
-        'content-type': 'application/json; charset=utf-8',
-    };
 
     return new Promise((resolve, reject) => {
-        axios.post(endpoint, payload, { headers })
+        axios.post(endpoint, payload, { headers: CONTENT_TYPE_JSON_HEADER })
             .then((response) => {
                 resolve(response.data);
             }).catch(error => reject(error));
@@ -104,12 +104,9 @@ export function parseContent(content) {
         content,
     };
     const endpoint = getServiceEndpoint('ballerina-parser') + '/file/validate-and-parse';
-    const headers = {
-        'content-type': 'application/json; charset=utf-8',
-    };
 
     return new Promise((resolve, reject) => {
-        axios.post(endpoint, payload, { headers })
+        axios.post(endpoint, payload, { headers: CONTENT_TYPE_JSON_HEADER })
             .then((response) => {
                 resolve(response.data);
             }).catch(error => reject(error));
@@ -121,12 +118,9 @@ export function parseContent(content) {
  */
 export function getPackages() {
     const endpoint = getServiceEndpoint('ballerina-parser') + '/built-in-packages';
-    const headers = {
-        'content-type': 'application/json; charset=utf-8',
-    };
 
     return new Promise((resolve, reject) => {
-        axios.get(endpoint, { headers })
+        axios.get(endpoint, { headers: CONTENT_TYPE_JSON_HEADER })
             .then((response) => {
                 resolve(response.data);
             }).catch(error => reject(error));
@@ -138,12 +132,9 @@ export function getPackages() {
  */
 export function getBuiltInTypes() {
     const endpoint = getServiceEndpoint('ballerina-parser') + '/built-in-types';
-    const headers = {
-        'content-type': 'application/json; charset=utf-8',
-    };
 
     return new Promise((resolve, reject) => {
-        axios.get(endpoint, { headers })
+        axios.get(endpoint, { headers: CONTENT_TYPE_JSON_HEADER })
             .then((response) => {
                 resolve(response.data);
             }).catch(error => reject(error));
@@ -154,14 +145,13 @@ export function getBuiltInTypes() {
  * Get FS Roots
  */
 export function getFSRoots(extensions) {
-    const exts = _.join(extensions, ',');
-    const endpoint = `${getServiceEndpoint('filesystem')}/root?extensions=${exts}`;
-    const headers = {
-        'content-type': 'application/json; charset=utf-8',
+    const endpoint = `${getServiceEndpoint('filesystem')}/list/roots`;
+    const data = {
+        extensions: _.join(extensions, ','),
     };
 
     return new Promise((resolve, reject) => {
-        axios.get(endpoint, { headers })
+        axios.post(endpoint, data, { headers: CONTENT_TYPE_JSON_HEADER })
             .then((response) => {
                 resolve(response.data);
             }).catch(error => reject(error));
@@ -172,17 +162,14 @@ export function getFSRoots(extensions) {
  * Get File List
  */
 export function listFiles(path, extensions) {
-    const endpoint = `${getServiceEndpoint('filesystem')}/listFiles`;
-    const headers = {
-        'content-type': 'application/json; charset=utf-8',
-    };
-    const params = {
-        path: btoa(path),
+    const endpoint = `${getServiceEndpoint('filesystem')}/list/files`;
+    const data = {
+        path,
         extensions: _.join(extensions, ','),
     };
 
     return new Promise((resolve, reject) => {
-        axios.get(endpoint, { headers, params })
+        axios.post(endpoint, data, { headers: CONTENT_TYPE_JSON_HEADER })
             .then((response) => {
                 resolve(response.data);
             }).catch(error => reject(error));
@@ -192,15 +179,12 @@ export function listFiles(path, extensions) {
 
 export function getSwaggerDefinition(ballerinaSource, serviceName) {
     const endpoint = `${getServiceEndpoint('ballerina-to-swagger')}/ballerina-to-swagger?serviceName=${serviceName}`;
-    const headers = {
-        'content-type': 'application/json; charset=utf-8',
-    };
     const payload = {
         ballerinaDefinition: ballerinaSource,
     };
 
     return new Promise((resolve, reject) => {
-        axios.post(endpoint, payload, { headers })
+        axios.post(endpoint, payload, { headers: CONTENT_TYPE_JSON_HEADER })
             .then((response) => {
                 resolve(response.data.swaggerDefinition);
             }).catch(error => reject(error));
@@ -297,12 +281,9 @@ export function getPathSeperator() {
  */
 export function invokeTryIt(tryItPayload, protocol) {
     const endpoint = getServiceEndpoint('try-it') + '/' + protocol;
-    const headers = {
-        'Content-Type': 'text/plain; charset=utf-8',
-    };
 
     return new Promise((resolve, reject) => {
-        axios.post(endpoint, tryItPayload, { headers })
+        axios.post(endpoint, tryItPayload, { headers: CONTENT_TYPE_JSON_HEADER })
             .then((response) => {
                 resolve(response.data);
             }).catch(error => reject(error));
@@ -330,7 +311,7 @@ export function getTryItUrl() {
  * @returns {Promise} Resolves string path
  */
 export function getUserHome() {
-    const endpoint = `${getServiceEndpoint('filesystem')}/userHome`;
+    const endpoint = `${getServiceEndpoint('filesystem')}/user/home`;
     return new Promise((resolve, reject) => {
         axios.get(endpoint, {})
             .then((response) => {

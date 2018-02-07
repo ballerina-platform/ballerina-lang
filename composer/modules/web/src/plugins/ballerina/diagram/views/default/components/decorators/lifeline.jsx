@@ -28,6 +28,7 @@ import OverlayComponentsRenderingUtil from './../utils/overlay-component-renderi
 import ActionBox from './action-box';
 import ActiveArbiter from './active-arbiter';
 import ArrowDecorator from '../decorators/arrow-decorator';
+import codepoints from 'font-ballerina/codepoints.json';
 
 class LifeLine extends React.Component {
 
@@ -174,13 +175,15 @@ class LifeLine extends React.Component {
             />
             {this.props.icon &&
             <g onClick={this.handleConnectorProps}>
-                <image
+                <text
                     x={startX - (iconSize / 2)}
                     y={bBox.y - 25}
-                    width={iconSize}
-                    height={iconSize}
-                    xlinkHref={this.props.icon}
-                />
+                    fontFamily='font-ballerina'
+                    fontSize={iconSize}
+                    fill={this.props.iconColor}
+                >
+                    {this.props.icon}
+                </text>
             </g>
             }
             <line
