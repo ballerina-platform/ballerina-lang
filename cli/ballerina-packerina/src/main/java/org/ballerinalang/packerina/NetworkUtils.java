@@ -46,7 +46,7 @@ public class NetworkUtils {
      * @param resourceName
      */
     public static void pullPackages(String resourceName) {
-        compileResult = compileBalFile();
+        compileResult = compilePullCmdBalFile();
         // Destination folder: by default should be downloaded to
         Path targetDirectoryPath = UserRepositoryUtils.initializeUserRepository()
                 .resolve(USER_REPO_ARTIFACTS_DIRNAME)
@@ -64,7 +64,7 @@ public class NetworkUtils {
      *
      * @return compile result after compiling the bal file
      */
-    private static CompileResult compileBalFile() {
+    private static CompileResult compilePullCmdBalFile() {
         CompileResult compileResult = BCompileUtil.compile("src", "ballerina.pull", CompilerPhase.CODE_GEN);
         ProgramFile programFile = compileResult.getProgFile();
         PackageInfo packageInfo = programFile.getPackageInfo(compileResult.getProgFile().getEntryPkgName());
