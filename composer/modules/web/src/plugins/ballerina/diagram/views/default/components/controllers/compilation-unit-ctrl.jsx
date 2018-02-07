@@ -80,6 +80,7 @@ class CompilationUnitCtrl extends React.Component {
                     buttonX={0}
                     buttonY={0}
                     showAlways
+                    menuOverButton
                     buttonRadius={12}
                 >
                     <Menu>
