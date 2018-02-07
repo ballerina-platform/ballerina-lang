@@ -44,8 +44,13 @@ function test4() {
 
 function test5(){
     string[] s = ["1", "a"];
-
     int x;
+    x = s.foreach(function (string s){word = word + s;});
     string y;
     x, y = s.map(function (int i, string v)(int, string){ return i*2, v + v;});
+}
+
+function test6(){
+    string[] s = ["1", "a"];
+    s.count(test5);
 }

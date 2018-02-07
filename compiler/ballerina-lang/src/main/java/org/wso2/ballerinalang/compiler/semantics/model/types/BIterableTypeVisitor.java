@@ -90,6 +90,10 @@ public abstract class BIterableTypeVisitor implements BTypeVisitor<Operation, Li
         dlog.error(op.pos, DiagnosticCode.ITERABLE_TOO_MANY_VARIABLES, op.collectionType);
     }
 
+    protected void logNotEnoughVariablesError(Operation op, int count) {
+        dlog.error(op.pos, DiagnosticCode.ITERABLE_NOT_ENOUGH_VARIABLES, op.collectionType, count);
+    }
+
     protected List<BType> getErrorTypeList(int size, BType... initialData) {
         List<BType> errorTypes = Lists.of(initialData);
         errorTypes.addAll(Collections.nCopies(size - initialData.length, symTable.errType));

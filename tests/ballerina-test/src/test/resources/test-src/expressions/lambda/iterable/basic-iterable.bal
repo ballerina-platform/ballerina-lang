@@ -84,8 +84,9 @@ function testBasicArray2 (string[] values) (string) {
     return output.trim();
 }
 
-function testBasicMap1 () (string[] values) {
+function testBasicMap1 () (int count, string[] values) {
     map m = {a:"A", b:"B", c:"C", d:"D", e:"E"};
+    count = m.count();
     values = m.map(function (any value)(string) {
                     var v, _ = (string)value;
                     return v;
@@ -159,4 +160,27 @@ function xmlTest()(int nodeCount, any elementCount, map m){
         return <string>i, x;
     });
     return;
+}
+
+struct person {
+    string name;
+    int age;
+}
+
+function structTest()(int count, string[] names){
+    person bob = { name: "bob", age: 30};
+    person tom = { name: "tom", age: 20};
+    person sam = { name: "sam", age: 24};
+    person[] p = [bob, tom, sam];
+    count = p.filter(isBellow25).count();
+    names = p.map(getName);
+    return;
+}
+
+function getName(person p)(string s){
+    return p.name;
+}
+
+function isBellow25(person p)(boolean){
+    return p.age < 25;
 }

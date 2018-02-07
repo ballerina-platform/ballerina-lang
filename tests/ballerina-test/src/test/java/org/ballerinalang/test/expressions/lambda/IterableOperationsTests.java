@@ -39,32 +39,43 @@ import java.util.Locale;
  */
 public class IterableOperationsTests {
 
-    private CompileResult basic, negative;
+    private CompileResult basic, negative, negative2;
     private static String[] values = new String[] {"Hello", "World..!", "I", "am", "Ballerina.!!!"};
 
     @BeforeClass
     public void setup() {
         basic = BCompileUtil.compile("test-src/expressions/lambda/iterable/basic-iterable.bal");
         negative = BCompileUtil.compile("test-src/expressions/lambda/iterable/iterable-negative.bal");
+        negative2 = BCompileUtil.compile("test-src/expressions/lambda/iterable/iterable-negative2.bal");
     }
 
     @Test
     public void testNegative() {
-        Assert.assertEquals(negative.getErrorCount(), 10);
+        Assert.assertEquals(negative.getErrorCount(), 11);
         BAssertUtil.validateError(negative, 0, "undefined function 'int.foreach'", 6, 5);
         BAssertUtil.validateError(negative, 1, "undefined function 'string.map'", 8, 5);
         BAssertUtil.validateError(negative, 2, "variable assignment is required", 14, 5);
         BAssertUtil.validateError(negative, 3, "not enough variables are defined for iterable type '(int,string)[]', " +
-                "" + "require '2' variables", 18, 15);
-        BAssertUtil.validateError(negative, 4, "undefined function 'count'", 16, 5);
-        BAssertUtil.validateError(negative, 5, "function invocation on type '(string,string)[]' is not supported",
+                "" + "require at least '2' variables", 18, 15);
+        BAssertUtil.validateError(negative, 4, "function invocation on type '(string,string)[]' is not supported",
                 23, 21);
+        BAssertUtil.validateError(negative, 5, "no argument required for operation 'count'", 55, 13);
+
         BAssertUtil.validateError(negative, 6, "incompatible types: expected 'string[]', found '(string,string)[]'",
                 31, 24);
         BAssertUtil.validateError(negative, 7, "incompatible types: expected 'map', found '(any)[]'", 35, 22);
         BAssertUtil.validateError(negative, 8, "cannot assign return value of 'filter' operation here, use reduce " +
                 "operation", 39, 22);
-        BAssertUtil.validateError(negative, 9, "assignment count mismatch: expected 1 values, but found 2", 50, 18);
+        BAssertUtil.validateError(negative, 9, "'foreach()' does not return a value;", 48, 19);
+        BAssertUtil.validateError(negative, 10, "assignment count mismatch: expected 1 values, but found 2", 50, 18);
+
+        Assert.assertEquals(negative2.getErrorCount(), 4);
+        BAssertUtil.validateError(negative2, 0, "single lambda function required here", 5, 5);
+        BAssertUtil.validateError(negative2, 1, "single lambda function required here", 7, 15);
+        BAssertUtil.validateError(negative2, 2, "too many variables are defined for iterable type 'string[]'", 12, 15);
+        BAssertUtil.validateError(negative2, 3, "not enough variables are defined for iterable type 'string[]', " +
+                "require at least '1' variables", 13, 15);
+
     }
 
     @Test
@@ -169,9 +180,9 @@ public class IterableOperationsTests {
     public void testBasicMap1() {
         BValue[] returns = BRunUtil.invoke(basic, "testBasicMap1");
         Assert.assertNotNull(returns);
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertNotNull(returns[0]);
-        Assert.assertEquals(returns[0].stringValue(), "[\"A\", \"E\"]");
+        Assert.assertEquals(returns.length, 2);
+        Assert.assertEquals(returns[0].stringValue(), "5");
+        Assert.assertEquals(returns[1].stringValue(), "[\"A\", \"E\"]");
     }
 
     @Test
@@ -206,5 +217,14 @@ public class IterableOperationsTests {
         Assert.assertEquals(returns[1].stringValue(), "3");
         Assert.assertEquals(returns[2].stringValue(), "{\"0\":<p:city xmlns:p=\"foo\" xmlns:q=\"bar\">NY</p:city>, " +
                 "\"1\":<q:country xmlns:q=\"bar\" xmlns:p=\"foo\">US</q:country>}");
+    }
+
+    @Test
+    public void testStruct() {
+        BValue[] returns = BRunUtil.invoke(basic, "structTest");
+        Assert.assertNotNull(returns);
+        Assert.assertEquals(returns.length, 2);
+        Assert.assertEquals(returns[0].stringValue(), "2");
+        Assert.assertEquals(returns[1].stringValue(), "[\"bob\", \"tom\", \"sam\"]");
     }
 }

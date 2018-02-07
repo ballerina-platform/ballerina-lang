@@ -102,6 +102,7 @@ public class IterableAnalyzer {
     private void handleSimpleTerminalOperations(Operation operation) {
         if (operation.iExpr.argExprs.size() > 0) {
             dlog.error(operation.pos, DiagnosticCode.ITERABLE_NO_ARGS_REQUIRED, operation.kind);
+            operation.resultTypes = Lists.of(symTable.errType);
             return;
         }
         operation.resultTypes = operation.collectionType.accept(terminalTypeChecker, operation);
@@ -114,12 +115,14 @@ public class IterableAnalyzer {
     private void handleLambdaBasedIterableOperation(Operation operation) {
         if (operation.iExpr.argExprs.size() == 0 || operation.iExpr.argExprs.size() > 1) {
             dlog.error(operation.pos, DiagnosticCode.ITERABLE_LAMBDA_REQUIRED);
+            operation.resultTypes = Lists.of(symTable.errType);
             return;
         }
 
         final List<BType> bTypes = typeChecker.checkExpr(operation.iExpr.argExprs.get(0), operation.env);
         if (bTypes.size() != 1 || bTypes.get(0).tag != TypeTags.INVOKABLE) {
             dlog.error(operation.pos, DiagnosticCode.ITERABLE_LAMBDA_REQUIRED);
+            operation.resultTypes = Lists.of(symTable.errType);
             return;
         }
 
@@ -130,6 +133,10 @@ public class IterableAnalyzer {
 
         // calculated lambda's args types.(By looking collection type)
         final List<BType> supportedArgTypes = operation.collectionType.accept(lambdaTypeChecker, operation);
+        if (supportedArgTypes.contains(symTable.errType)) {
+            operation.resultTypes = Lists.of(symTable.errType);
+            return;
+        }
         final List<BType> supportedRetTypes;    // calculated lambda's return types. (By looking operation type)
         switch (operation.kind) {
             case FOREACH:
@@ -142,10 +149,17 @@ public class IterableAnalyzer {
                 supportedRetTypes = Lists.of(symTable.booleanType);
                 break;
             default:
+                operation.resultTypes = Lists.of(symTable.errType);
                 return;
         }
         validateLambdaArgs(operation, supportedArgTypes, givenArgTypes);
+        if (operation.resultTypes != null) {
+            return;
+        }
         validateLambdaReturnArgs(operation, supportedRetTypes, givenRetTypes);
+        if (operation.resultTypes != null) {
+            return;
+        }
         assignInvocationType(operation, supportedArgTypes, supportedRetTypes);
     }
 
@@ -153,9 +167,11 @@ public class IterableAnalyzer {
         if (givenTypes.size() < supportedTypes.size()) {
             dlog.error(operation.pos, DiagnosticCode.ITERABLE_NOT_ENOUGH_VARIABLES, operation.collectionType,
                     supportedTypes.size());
+            operation.resultTypes = Lists.of(symTable.errType);
             return;
         } else if (givenTypes.size() > supportedTypes.size()) {
             dlog.error(operation.pos, DiagnosticCode.ITERABLE_TOO_MANY_VARIABLES, operation.collectionType);
+            operation.resultTypes = Lists.of(symTable.errType);
             return;
         }
         for (int i = 0; i < givenTypes.size(); i++) {
@@ -174,9 +190,11 @@ public class IterableAnalyzer {
         }
         if (givenTypes.size() < supportedTypes.size()) {
             dlog.error(operation.pos, DiagnosticCode.ITERABLE_TOO_MANY_RETURN_VARIABLES, operation.kind);
+            operation.resultTypes = Lists.of(symTable.errType);
             return;
         } else if (givenTypes.size() > supportedTypes.size()) {
             dlog.error(operation.pos, DiagnosticCode.ITERABLE_NOT_ENOUGH_RETURN_VARIABLES, operation.kind);
+            operation.resultTypes = Lists.of(symTable.errType);
             return;
         }
         for (int i = 0; i < givenTypes.size(); i++) {
@@ -222,7 +240,10 @@ public class IterableAnalyzer {
 
         @Override
         public List<BType> visit(BMapType type, Operation op) {
-            if (op.arity == 1) {
+            if (op.arity == 0) {
+                logNotEnoughVariablesError(op, 1);
+                return Lists.of(symTable.errType);
+            } else if (op.arity == 1) {
                 return Lists.of(type.constraint);
             } else if (op.arity == 2) {
                 return Lists.of(symTable.stringType, type.constraint);
@@ -233,7 +254,10 @@ public class IterableAnalyzer {
 
         @Override
         public List<BType> visit(BXMLType type, Operation op) {
-            if (op.arity == 1) {
+            if (op.arity == 0) {
+                logNotEnoughVariablesError(op, 1);
+                return Lists.of(symTable.errType);
+            } else if (op.arity == 1) {
                 return Lists.of(symTable.xmlType);
             } else if (op.arity == 2) {
                 return Lists.of(symTable.intType, symTable.xmlType);
@@ -244,7 +268,10 @@ public class IterableAnalyzer {
 
         @Override
         public List<BType> visit(BJSONType type, Operation op) {
-            if (op.arity == 1) {
+            if (op.arity == 0) {
+                logNotEnoughVariablesError(op, 1);
+                return Lists.of(symTable.errType);
+            } else if (op.arity == 1) {
                 return Lists.of(symTable.jsonType);
             }
             logTooMayVariablesError(op);
@@ -253,7 +280,10 @@ public class IterableAnalyzer {
 
         @Override
         public List<BType> visit(BArrayType type, Operation op) {
-            if (op.arity == 1) {
+            if (op.arity == 0) {
+                logNotEnoughVariablesError(op, 1);
+                return Lists.of(symTable.errType);
+            } else if (op.arity == 1) {
                 return Lists.of(type.eType);
             } else if (op.arity == 2) {
                 return Lists.of(symTable.intType, type.eType);
@@ -270,7 +300,7 @@ public class IterableAnalyzer {
                 logTooMayVariablesError(op);
                 return getErrorTypeList(op.arity, type.tupleTypes.toArray(new BType[0]));
             }
-            dlog.error(op.pos, DiagnosticCode.ITERABLE_NOT_ENOUGH_VARIABLES, op.collectionType, type.tupleTypes.size());
+            logNotEnoughVariablesError(op, type.tupleTypes.size());
             return Collections.nCopies(op.arity, symTable.errType);
         }
     }

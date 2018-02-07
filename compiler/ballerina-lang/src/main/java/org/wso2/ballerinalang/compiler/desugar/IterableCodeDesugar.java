@@ -908,7 +908,7 @@ public class IterableCodeDesugar {
             BLangSimpleVarRef varRef = variableRefList.get(i);
             BType target = symbol.getParameters().get(i).type;
             BType source = varRef.symbol.type;
-            if (source.tag < TypeTags.TYPE && target.tag < TypeTags.TYPE && source != target) {
+            if (source != target) {
                 argsExpr.add(generateConversionExpr(varRef, target));
                 continue;
             }
