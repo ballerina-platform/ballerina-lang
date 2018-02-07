@@ -10,7 +10,7 @@ service<http> CustomerMgtService {
     }
     resource customers (http:Connection conn, http:InRequest req) {
         json payload = {};
-        string httpMethod = req.getMethod();
+        string httpMethod = req.method;
         if (httpMethod.equalsIgnoreCase("GET")) {
             payload = {"Customer":{"ID":"987654", "Name":"ABC PQR", "Description":"Sample Customer."}};
         } else {

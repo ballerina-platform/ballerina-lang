@@ -203,7 +203,7 @@ public abstract class AbstractItemResolver {
      * @param documentServiceContext - Completion operation context
      * @return {@link Boolean}
      */
-    protected boolean isActionOrFunctionInvocationStatement(TextDocumentServiceContext documentServiceContext) {
+    protected boolean isInvocationOrFieldAccess(TextDocumentServiceContext documentServiceContext) {
         ArrayList<String> terminalTokens = new ArrayList<>(Arrays.asList(new String[]{";", "}", "{"}));
         TokenStream tokenStream = documentServiceContext.get(DocumentServiceKeys.TOKEN_STREAM_KEY);
         int searchTokenIndex = documentServiceContext.get(DocumentServiceKeys.TOKEN_INDEX_KEY);

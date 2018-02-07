@@ -124,6 +124,7 @@
                             <arguments>
                                 <argument>install</argument>
                             </arguments>
+                            <skip>${skipTests}</skip>
                         </configuration>
                     </execution>
                     <execution>
@@ -138,6 +139,7 @@
                                 <argument>run</argument>
                                 <argument>compile</argument>
                             </arguments>
+                            <skip>${skipTests}</skip>
                         </configuration>
                     </execution>
                     <execution>
@@ -153,6 +155,7 @@
                                 <argument>--</argument>
                                 <argument>--projectVersion=${project.version}</argument>
                             </arguments>
+                            <skip>${skipTests}</skip>
                         </configuration>
                     </execution>
                 </executions>

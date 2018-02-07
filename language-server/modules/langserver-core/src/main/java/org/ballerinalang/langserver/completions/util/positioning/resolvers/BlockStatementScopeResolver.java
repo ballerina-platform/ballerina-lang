@@ -36,6 +36,8 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 
+import static org.ballerinalang.langserver.TextDocumentServiceUtil.toZeroBasedPosition;
+
 /**
  * Block statement scope position resolver.
  */
@@ -51,7 +53,7 @@ public class BlockStatementScopeResolver extends CursorPositionResolver {
                                       TextDocumentServiceContext completionContext) {
         int line = completionContext.get(DocumentServiceKeys.POSITION_KEY).getPosition().getLine();
         int col = completionContext.get(DocumentServiceKeys.POSITION_KEY).getPosition().getCharacter();
-        DiagnosticPos zeroBasedPos = this.toZeroBasedPosition(nodePosition);
+        DiagnosticPos zeroBasedPos = toZeroBasedPosition(nodePosition);
         int nodeSLine = zeroBasedPos.sLine;
         int nodeSCol = zeroBasedPos.sCol;
         // node endLine for the BLangIf node has to calculate by considering the else node. End line of the BLangIf
@@ -100,7 +102,7 @@ public class BlockStatementScopeResolver extends CursorPositionResolver {
         } else if (blockOwner instanceof BLangTransaction) {
             return this.getTransactionBlockComponentEndLine((BLangTransaction) blockOwner, bLangBlockStmt);
         } else {
-            return this.toZeroBasedPosition((DiagnosticPos) blockOwner.getPosition()).getEndLine();
+            return toZeroBasedPosition((DiagnosticPos) blockOwner.getPosition()).getEndLine();
         }
     }
 
@@ -110,9 +112,9 @@ public class BlockStatementScopeResolver extends CursorPositionResolver {
         } else if (blockOwner == null) {
             // When the else node is evaluating, block owner is null and the block statement only present
             // This is because, else node is represented with a blocks statement only
-            return this.toZeroBasedPosition(bLangBlockStmt.getPosition()).getEndColumn();
+            return toZeroBasedPosition(bLangBlockStmt.getPosition()).getEndColumn();
         } else {
-            return this.toZeroBasedPosition((DiagnosticPos) blockOwner.getPosition()).getEndColumn();
+            return toZeroBasedPosition((DiagnosticPos) blockOwner.getPosition()).getEndColumn();
         }
     }
 

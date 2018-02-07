@@ -234,7 +234,7 @@ public class HoverUtil {
      * @return string formatted using markdown.
      */
     private static String getFormattedHoverContent(String header, String content) {
-        return String.format("**%s**\r%n```\r%n%s\r%n```\r%n", header, content);
+        return "**" + header + "**\r\n```\r\n" + content + "\r\n```\r\n";
     }
 
     /**

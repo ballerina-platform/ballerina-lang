@@ -28,7 +28,6 @@
 
     <groupId>org.ballerinalang</groupId>
     <artifactId>ballerina-maven-plugins</artifactId>
-    <version>0.96.1-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>Ballerina - Maven Plugins - Parent</name>

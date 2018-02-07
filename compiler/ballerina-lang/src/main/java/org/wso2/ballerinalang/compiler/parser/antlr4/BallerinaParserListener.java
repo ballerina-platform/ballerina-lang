@@ -1120,6 +1120,16 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 */
 	void exitTransactionPropertyInitStatementList(BallerinaParser.TransactionPropertyInitStatementListContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link BallerinaParser#lockStatement}.
+	 * @param ctx the parse tree
+	 */
+	void enterLockStatement(BallerinaParser.LockStatementContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BallerinaParser#lockStatement}.
+	 * @param ctx the parse tree
+	 */
+	void exitLockStatement(BallerinaParser.LockStatementContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link BallerinaParser#failedClause}.
 	 * @param ctx the parse tree
 	 */

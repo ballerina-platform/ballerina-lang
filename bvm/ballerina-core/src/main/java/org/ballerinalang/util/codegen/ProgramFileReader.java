@@ -34,6 +34,7 @@ import org.ballerinalang.util.codegen.Instruction.InstructionACALL;
 import org.ballerinalang.util.codegen.Instruction.InstructionCALL;
 import org.ballerinalang.util.codegen.Instruction.InstructionFORKJOIN;
 import org.ballerinalang.util.codegen.Instruction.InstructionIteratorNext;
+import org.ballerinalang.util.codegen.Instruction.InstructionLock;
 import org.ballerinalang.util.codegen.Instruction.InstructionTCALL;
 import org.ballerinalang.util.codegen.Instruction.InstructionWRKSendReceive;
 import org.ballerinalang.util.codegen.attributes.AnnotationAttributeInfo;
@@ -1616,6 +1617,19 @@ public class ProgramFileReader {
                     retRegs = getArgRegs(codeStream);
                     packageInfo.addInstruction(new InstructionIteratorNext(opcode, iteratorIndex, retRegs.length,
                             typeTags, retRegs));
+                    break;
+                case InstructionCodes.LOCK:
+                case InstructionCodes.UNLOCK:
+                    int varCount = codeStream.readInt();
+                    BType[] varTypes = new BType[varCount];
+                    int[] varRegs = new int[varCount];
+                    for (int m = 0; m < varCount; m++) {
+                        int varSigCPIndex = codeStream.readInt();
+                        TypeRefCPEntry typeRefCPEntry = (TypeRefCPEntry) packageInfo.getCPEntry(varSigCPIndex);
+                        varTypes[m] = typeRefCPEntry.getType();
+                        varRegs[m] = codeStream.readInt();
+                    }
+                    packageInfo.addInstruction(new InstructionLock(opcode, varTypes, varRegs));
                     break;
                 default:
                     throw new ProgramFileFormatException("unknown opcode " + opcode +
