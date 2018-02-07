@@ -776,8 +776,8 @@
                 <module>tests/ballerina-test</module>
                 <module>tests/ballerina-test-integration</module>
 
-                <module>tool-plugins/intellij</module>
-                <module>tool-plugins/vscode</module>
+                <!--<module>tool-plugins/intellij</module>-->
+                <!--<module>tool-plugins/vscode</module>-->
             </modules>
         </profile>
         <profile>
@@ -836,8 +836,8 @@
                 <module>tests/ballerina-test</module>
                 <module>tests/ballerina-test-integration</module>
 
-                <module>tool-plugins/intellij</module>
-                <module>tool-plugins/vscode</module>
+                <!--<module>tool-plugins/intellij</module>-->
+                <!--<module>tool-plugins/vscode</module>-->
             </modules>
         </profile>
     </profiles>
@@ -1214,7 +1214,7 @@
         <wso2.maven.compiler.source>1.8</wso2.maven.compiler.source>
         <wso2.maven.compiler.target>1.8</wso2.maven.compiler.target>
         <sourceReleaseAssemblyDescriptor>source-release</sourceReleaseAssemblyDescriptor>
-        <project.scm.id>my-scm-server</project.scm.id>
+        <project.scm.id>ballerina-scm-server</project.scm.id>
 
         <!-- Maven plugin versions -->
         <maven.antrun.plugin.version>1.8</maven.antrun.plugin.version>
