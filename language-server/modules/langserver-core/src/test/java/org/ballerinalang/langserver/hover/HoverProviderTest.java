@@ -140,7 +140,7 @@ public class HoverProviderTest {
     private String getHoverResponseMessageAsString(Position position) throws InterruptedException {
         TextDocumentPositionParams positionParams = new TextDocumentPositionParams();
         TextDocumentIdentifier identifier = new TextDocumentIdentifier();
-        identifier.setUri("file://" + balPath);
+        identifier.setUri(Paths.get(balPath).toUri().toString());
         positionParams.setTextDocument(identifier);
         positionParams.setPosition(position);
 
