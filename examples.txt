@@ -48,7 +48,6 @@ Transformers
 Transform JSON
 Strings
 Blob Type
-Deep Equals
 Date Time
 File API
 Throw
