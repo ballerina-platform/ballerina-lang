@@ -67,8 +67,7 @@ public abstract class ConnectionAction extends AbstractNativeFunction {
         if (entityStruct != null) {
             String baseType = MimeUtil.getContentType(entityStruct);
             if (MimeUtil.isContentInMemory(entityStruct, baseType)) {
-                MessageDataSource outboundMessageSource = HttpUtil.
-                        readMessageDataSource(entityStruct);
+                MessageDataSource outboundMessageSource = MimeUtil.readMessageDataSource(entityStruct);
                 serializeMsgDataSource(responseMessage, outboundMessageSource, outboundRespStatusFuture);
             } else if (MimeUtil.isOverFlowDataNotNull(entityStruct)) {
                 writeToOutputStreamFromFile(context, responseMessage, entityStruct, outboundRespStatusFuture);

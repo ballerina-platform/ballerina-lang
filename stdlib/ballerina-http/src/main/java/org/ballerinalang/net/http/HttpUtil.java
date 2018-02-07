@@ -347,48 +347,6 @@ public class HttpUtil {
         HttpUtil.enrichOutboundMessage(outboundResponseMsg, outboundResponseStruct);
     }
 
-    /**
-     * Extract entity body from the request/response message and construct 'MessageDataSource' with the extracted
-     * content. Only the content that is in memory will be read from this method.
-     *
-     * @param entity Represent entity
-     * @return Newly created 'MessageDataSource' from the entity body
-     */
-    public static MessageDataSource readMessageDataSource(BStruct entity) {
-        String baseType = MimeUtil.getContentType(entity);
-        if (baseType != null) {
-            switch (baseType) {
-                case TEXT_PLAIN:
-                    String textPayload = MimeUtil.getTextPayloadFromMemory(entity);
-                    return new StringDataSource(textPayload);
-                case APPLICATION_JSON:
-                    BJSON jsonPayload = MimeUtil.getJsonPayloadFromMemory(entity);
-                    if (jsonPayload != null) {
-                        return jsonPayload;
-                    }
-                    break;
-                case APPLICATION_XML:
-                case TEXT_XML:
-                    BXML xmlPayload = MimeUtil.getXmlPayloadFromMemory(entity);
-                    if (xmlPayload != null) {
-                        return xmlPayload;
-                    }
-                    break;
-                default:
-                    byte[] binaryPayload = MimeUtil.getBinaryPayloadFromMemory(entity);
-                    if (binaryPayload != null) {
-                        return new BlobDataSource(binaryPayload);
-                    }
-            }
-        } else {
-            byte[] binaryPayload = MimeUtil.getBinaryPayloadFromMemory(entity);
-            if (binaryPayload != null) {
-                return new BlobDataSource(binaryPayload);
-            }
-        }
-        return null;
-    }
-
     public static BStruct createSessionStruct(Context context, Session session) {
         BStruct sessionStruct = ConnectorUtils
                 .createAndGetStruct(context, Constants.PROTOCOL_PACKAGE_HTTP, Constants.SESSION);

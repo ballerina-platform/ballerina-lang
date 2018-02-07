@@ -18,16 +18,13 @@
 
 package org.ballerinalang.mime.util;
 
-import io.netty.util.internal.PlatformDependent;
-import org.ballerinalang.model.values.BJSON;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.model.values.BXML;
 import org.ballerinalang.runtime.message.BallerinaMessageDataSource;
-import org.ballerinalang.runtime.message.BlobDataSource;
+import org.ballerinalang.runtime.message.MessageDataSource;
 
 import java.io.BufferedWriter;
 import java.io.IOException;
@@ -35,14 +32,9 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.nio.charset.Charset;
-import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
-import static org.ballerinalang.mime.util.Constants.APPLICATION_JSON;
-import static org.ballerinalang.mime.util.Constants.APPLICATION_XML;
 import static org.ballerinalang.mime.util.Constants.ENTITY_HEADERS_INDEX;
-import static org.ballerinalang.mime.util.Constants.TEXT_PLAIN;
 
 public class MultipartDataSource extends BallerinaMessageDataSource {
 
@@ -110,7 +102,7 @@ public class MultipartDataSource extends BallerinaMessageDataSource {
     }
 
     private void writeBodyContent(Writer writer, OutputStream outputStream, BStruct bodyPart) throws IOException {
-        String baseType = MimeUtil.getContentType(bodyPart);
+       /* String baseType = MimeUtil.getContentType(bodyPart);
         if (baseType != null) {
             switch (baseType) {
                 case TEXT_PLAIN:
@@ -136,6 +128,14 @@ public class MultipartDataSource extends BallerinaMessageDataSource {
             if (binaryPayload != null) {
                 new BlobDataSource(binaryPayload).serializeData(outputStream);
             }
+        }*/
+
+        String baseType = MimeUtil.getContentType(bodyPart);
+        if (MimeUtil.isContentInMemory(bodyPart, baseType)) {
+            MessageDataSource messageDataSource = MimeUtil.readMessageDataSource(bodyPart);
+            messageDataSource.serializeData(outputStream);
+        }  else if (MimeUtil.isOverFlowDataNotNull(bodyPart)) {
+            MimeUtil.writeFileToOutputStream(bodyPart, outputStream);
         }
     }
 

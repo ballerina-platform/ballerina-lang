@@ -49,8 +49,6 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import javax.activation.MimeType;
 import javax.activation.MimeTypeParseException;
 
@@ -272,7 +270,7 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
         if (entityStruct != null) {
             String baseType = MimeUtil.getContentType(entityStruct);
             if (MimeUtil.isContentInMemory(entityStruct, baseType)) {
-                MessageDataSource messageDataSource = HttpUtil.readMessageDataSource(entityStruct);
+                MessageDataSource messageDataSource = MimeUtil.readMessageDataSource(entityStruct);
                 if (messageDataSource != null) {
                     OutputStream messageOutputStream = getOutputStream(outboundReqMsg, httpClientConnectorListener);
                     messageDataSource.serializeData(messageOutputStream);
@@ -280,13 +278,13 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
                 }
             } else if (MimeUtil.isOverFlowDataNotNull(entityStruct)) {
                 OutputStream messageOutputStream = getOutputStream(outboundReqMsg, httpClientConnectorListener);
-                String overFlowFilePath = MimeUtil.getOverFlowFileLocation(entityStruct);
                 try {
-                    Files.copy(Paths.get(overFlowFilePath), messageOutputStream);
-                    HttpUtil.closeMessageOutputStream(messageOutputStream);
+                    MimeUtil.writeFileToOutputStream(entityStruct, messageOutputStream);
                 } catch (IOException e) {
                     throw new BallerinaException("Failed to write payload to outputstream when payload is in overflow" +
                             " file location", e, context);
+                } finally {
+                    HttpUtil.closeMessageOutputStream(messageOutputStream);
                 }
             }
         }

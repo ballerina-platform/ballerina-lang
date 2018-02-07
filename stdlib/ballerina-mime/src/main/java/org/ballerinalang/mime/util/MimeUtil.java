@@ -38,6 +38,9 @@ import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BXML;
+import org.ballerinalang.runtime.message.BlobDataSource;
+import org.ballerinalang.runtime.message.MessageDataSource;
+import org.ballerinalang.runtime.message.StringDataSource;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.jvnet.mimepull.MIMEConfig;
 import org.jvnet.mimepull.MIMEMessage;
@@ -1110,5 +1113,51 @@ public class MimeUtil {
             return null;
         }
         return (BStruct) httpMessageStruct.getNativeData(MESSAGE_ENTITY);
+    }
+
+    /**
+     * Construct 'MessageDataSource' with the entity body read from memory.
+     *
+     * @param entity Represent entity
+     * @return Newly created 'MessageDataSource' from the entity body
+     */
+    public static MessageDataSource readMessageDataSource(BStruct entity) {
+        String baseType = MimeUtil.getContentType(entity);
+        if (baseType != null) {
+            switch (baseType) {
+                case TEXT_PLAIN:
+                    String textPayload = MimeUtil.getTextPayloadFromMemory(entity);
+                    return new StringDataSource(textPayload);
+                case APPLICATION_JSON:
+                    BJSON jsonPayload = MimeUtil.getJsonPayloadFromMemory(entity);
+                    if (jsonPayload != null) {
+                        return jsonPayload;
+                    }
+                    break;
+                case APPLICATION_XML:
+                case TEXT_XML:
+                    BXML xmlPayload = MimeUtil.getXmlPayloadFromMemory(entity);
+                    if (xmlPayload != null) {
+                        return xmlPayload;
+                    }
+                    break;
+                default:
+                    byte[] binaryPayload = MimeUtil.getBinaryPayloadFromMemory(entity);
+                    if (binaryPayload != null) {
+                        return new BlobDataSource(binaryPayload);
+                    }
+            }
+        } else {
+            byte[] binaryPayload = MimeUtil.getBinaryPayloadFromMemory(entity);
+            if (binaryPayload != null) {
+                return new BlobDataSource(binaryPayload);
+            }
+        }
+        return null;
+    }
+
+    public static void writeFileToOutputStream(BStruct entityStruct, OutputStream messageOutputStream) throws IOException {
+        String overFlowFilePath = MimeUtil.getOverFlowFileLocation(entityStruct);
+        Files.copy(Paths.get(overFlowFilePath), messageOutputStream);
     }
 }
