@@ -65,7 +65,13 @@ class CanvasDecorator extends React.Component {
                     this.props.overlayComponents : null }
                 {(this.props.errorList && this.props.errorList.length > 0) ?
                     this.props.errorList : null }
-                <svg className='svg-container' width={svgSize.w} height={svgSize.h} viewBox={viewBox}>
+                <svg
+                    className='svg-container'
+                    width={svgSize.w}
+                    height={svgSize.h}
+                    viewBox={viewBox}
+                    preserveAspectRatio='xMinYMin'
+                >
                     <DropZone
                         x='0'
                         y='0'
