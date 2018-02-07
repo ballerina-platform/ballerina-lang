@@ -75,7 +75,8 @@ public native function <InRequest req> getQueryParams () (map);
 public native function <InRequest req> getProperty (string propertyName) (string);
 
 @Description { value: "Get matrix parameters from the request"}
-@Param { value: "Path to the location of matrix parameters"}
+@Param { value:"req: The inbound request message" }
+@Param { value: "path: Path to the location of matrix parameters"}
 @Return { value: "A map of matrix paramters which can be found for a given path"}
 public native function <InRequest req> getMatrixParams (string path) (map);
 

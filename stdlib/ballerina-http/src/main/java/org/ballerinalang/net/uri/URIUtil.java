@@ -99,7 +99,9 @@ public class URIUtil {
                 for (int i = 1; i < splitPathSegment.length; i++) {
                     String[] splitMatrixParam = splitPathSegment[i].split("=");
                     if (splitMatrixParam.length != 2) {
-                        throw new BallerinaConnectorException("Found non matrix parameter in " + path);
+                        throw new BallerinaConnectorException(
+                                String.format("Found non-matrix parameter '%s' in path '%s'",
+                                              splitPathSegment[i], path));
                     }
                     segmentMatrixParams.put(splitMatrixParam[0], splitMatrixParam[1]);
                 }

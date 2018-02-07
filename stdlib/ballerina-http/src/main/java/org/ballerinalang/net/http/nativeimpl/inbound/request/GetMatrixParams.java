@@ -34,7 +34,7 @@ import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 /**
  * Get the Query params from HTTP message and return a map.
  *
- * @since 0.94
+ * @since 0.961.0
  */
 @BallerinaFunction(
         packageName = "ballerina.net.http",

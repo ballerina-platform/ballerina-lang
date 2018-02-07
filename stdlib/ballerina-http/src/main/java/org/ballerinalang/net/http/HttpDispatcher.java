@@ -56,7 +56,7 @@ public class HttpDispatcher {
             inboundReqMsg.setProperty(Constants.TO, uriStr);
             inboundReqMsg.setProperty(Constants.MATRIX_PARAMS, matrixParams);
 
-            URI requestUri = getValidateURI(uriStr);
+            URI requestUri = getValidatedURI(uriStr);
 
             // Most of the time we will find service from here
             String basePath =
@@ -95,7 +95,7 @@ public class HttpDispatcher {
         inboundReqMsg.setProperty(Constants.RAW_QUERY_STR, requestUri.getRawQuery());
     }
 
-    private static URI getValidateURI(String uriStr) {
+    private static URI getValidatedURI(String uriStr) {
         URI requestUri;
         try {
             requestUri = URI.create(uriStr);
