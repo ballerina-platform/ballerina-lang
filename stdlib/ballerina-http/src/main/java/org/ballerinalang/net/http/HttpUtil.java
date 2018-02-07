@@ -769,7 +769,7 @@ public class HttpUtil {
         AnnAttrValue keepAliveAttrVal = configInfo.getAnnAttrValue(Constants.ANN_CONFIG_ATTR_KEEP_ALIVE);
         AnnAttrValue transferEncoding = configInfo.getAnnAttrValue(Constants.ANN_CONFIG_ATTR_TRANSFER_ENCODING);
         AnnAttrValue chunking = configInfo.getAnnAttrValue(Constants.ANN_CONFIG_ATTR_CHUNKING);
-        AnnAttrValue maxUriLength = configInfo.getAnnAttrValue(Constants.ANN_CONFIG_ATTR_MAXIMUM_URL_SIZE);
+        AnnAttrValue maxUriLength = configInfo.getAnnAttrValue(Constants.ANN_CONFIG_ATTR_MAXIMUM_URL_LENGTH);
         AnnAttrValue maxHeaderSize = configInfo.getAnnAttrValue(Constants.ANN_CONFIG_ATTR_MAXIMUM_HEADER_SIZE);
         AnnAttrValue maxEntityBodySize = configInfo.getAnnAttrValue(Constants.ANN_CONFIG_ATTR_MAXIMUM_ENTITY_BODY_SIZE);
 

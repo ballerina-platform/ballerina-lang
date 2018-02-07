@@ -98,7 +98,7 @@ public class Constants {
     public static final String ANN_CONFIG_ATTR_SSL_PROTOCOL = "sslProtocol";
     public static final String ANN_CONFIG_ATTR_WEBSOCKET = "webSocket";
     public static final String ANN_CONFIG_ATTR_TRANSFER_ENCODING = "transferEncoding";
-    public static final String ANN_CONFIG_ATTR_MAXIMUM_URL_SIZE = "maxUriLength";
+    public static final String ANN_CONFIG_ATTR_MAXIMUM_URL_LENGTH = "maxUriLength";
     public static final String ANN_CONFIG_ATTR_MAXIMUM_HEADER_SIZE = "maxHeaderSize";
     public static final String ANN_CONFIG_ATTR_MAXIMUM_ENTITY_BODY_SIZE = "maxEntityBodySize";
     public static final String ANN_CONFIG_ATTR_CHUNKING = "chunking";
