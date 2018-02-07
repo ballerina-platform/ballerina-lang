@@ -25,7 +25,6 @@
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
-    <groupId>org.ballerinalang</groupId>
     <artifactId>plugin-intellij</artifactId>
     <packaging>pom</packaging>
 
