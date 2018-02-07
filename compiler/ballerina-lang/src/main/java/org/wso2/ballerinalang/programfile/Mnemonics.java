@@ -106,6 +106,8 @@ public class Mnemonics {
         mnemonics[InstructionCodes.IADD] = "iadd";
         mnemonics[InstructionCodes.FADD] = "fadd";
         mnemonics[InstructionCodes.SADD] = "sadd";
+        mnemonics[InstructionCodes.RDEQ] = "rdeq";
+        mnemonics[InstructionCodes.RDNE] = "rdne";
         mnemonics[InstructionCodes.XMLADD] = "radd";
         
         mnemonics[InstructionCodes.ISUB] = "isub";
@@ -257,6 +259,8 @@ public class Mnemonics {
         mnemonics[InstructionCodes.S2XML] = "s2xml";
         mnemonics[InstructionCodes.XML2S] = "xml2s";
         mnemonics[InstructionCodes.S2JSONX] = "s2jsonx";
+        mnemonics[InstructionCodes.LOCK] = "lock";
+        mnemonics[InstructionCodes.UNLOCK] = "unlock";
     }
 
     public static String getMnem(int opcode) {

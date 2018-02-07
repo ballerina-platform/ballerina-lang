@@ -243,7 +243,7 @@
     .bottom-right-controls-container{
         position: absolute;
         bottom: 20px;
-        right: 50px;
+        right: 15px;
         z-index: 30;
         color: #f9f9f9;
         padding: 0;
@@ -291,6 +291,12 @@
         .bottom-view-label{
             display: none;
         }
+    }
+
+    .zoom-controls {
+        bottom: 60px !important;
+        width: 30px;
+        right: 25px;
     }
 }
 

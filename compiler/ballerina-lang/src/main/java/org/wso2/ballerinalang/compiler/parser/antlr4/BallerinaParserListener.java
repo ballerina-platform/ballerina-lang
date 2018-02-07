@@ -1110,6 +1110,16 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 */
 	void exitTransactionPropertyInitStatementList(BallerinaParser.TransactionPropertyInitStatementListContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link BallerinaParser#lockStatement}.
+	 * @param ctx the parse tree
+	 */
+	void enterLockStatement(BallerinaParser.LockStatementContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BallerinaParser#lockStatement}.
+	 * @param ctx the parse tree
+	 */
+	void exitLockStatement(BallerinaParser.LockStatementContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link BallerinaParser#failedClause}.
 	 * @param ctx the parse tree
 	 */
@@ -1411,6 +1421,18 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitUnaryExpression(BallerinaParser.UnaryExpressionContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code binaryDeepEqualExpression}
+	 * labeled alternative in {@link BallerinaParser#expression}.
+	 * @param ctx the parse tree
+	 */
+	void enterBinaryDeepEqualExpression(BallerinaParser.BinaryDeepEqualExpressionContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code binaryDeepEqualExpression}
+	 * labeled alternative in {@link BallerinaParser#expression}.
+	 * @param ctx the parse tree
+	 */
+	void exitBinaryDeepEqualExpression(BallerinaParser.BinaryDeepEqualExpressionContext ctx);
 	/**
 	 * Enter a parse tree produced by the {@code ternaryExpression}
 	 * labeled alternative in {@link BallerinaParser#expression}.

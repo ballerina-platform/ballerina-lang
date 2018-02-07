@@ -47,6 +47,11 @@ public struct HandshakeConnection {
     map<string> upgradeHeaders;
 }
 
+@Description {value:"Gets the query parameters from the HandshakeConnection as a map"}
+@Param {value:"req: The HandshakeConnection struct" }
+@Return {value:"The map of query params" }
+public native function <HandshakeConnection conn> getQueryParams () (map);
+
 @Description {value:"Cancels the handshake"}
 @Param {value:"conn: A HandshakeConnection struct"}
 @Param {value:"statusCode: Status code for closing the connection"}
@@ -121,6 +126,10 @@ public native function <Connection conn> pong(blob data);
 @Param {value:"reason: Reason for closing the connection"}
 public native function <Connection conn> closeConnection(int statusCode, string reason);
 
+@Description {value:"Gets the query parameters from the Connection as a map"}
+@Param {value:"req: The Connection struct" }
+@Return {value:"The map of query params" }
+public native function <Connection conn> getQueryParams () (map);
 
 @Description {value:"Configuration struct for WebSocket client connection"}
 @Field {value: "subProtocols: Negotiable sub protocols for the client"}

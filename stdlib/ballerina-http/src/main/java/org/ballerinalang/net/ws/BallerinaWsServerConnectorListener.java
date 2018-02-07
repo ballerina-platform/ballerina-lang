@@ -66,7 +66,9 @@ public class BallerinaWsServerConnectorListener implements WebSocketConnectorLis
     @Override
     public void onMessage(WebSocketInitMessage webSocketInitMessage) {
         Map<String, String> variables = new HashMap<>();
-        WebSocketService wsService = WebSocketDispatcher.findService(servicesRegistry, variables, webSocketInitMessage);
+        BMap<String, BString> queryParams = new BMap<>();
+        WebSocketService wsService = WebSocketDispatcher.findService(servicesRegistry, variables, webSocketInitMessage,
+                                                                     queryParams);
         Resource onHandshakeResource = wsService.getResourceByName(Constants.RESOURCE_NAME_ON_HANDSHAKE);
         if (onHandshakeResource != null) {
             Semaphore semaphore = new Semaphore(0);
@@ -74,6 +76,7 @@ public class BallerinaWsServerConnectorListener implements WebSocketConnectorLis
             // TODO: Resource should be able to run without any parameter.
             BStruct handshakeStruct = wsService.createHandshakeConnectionStruct();
             handshakeStruct.addNativeData(Constants.WEBSOCKET_MESSAGE, webSocketInitMessage);
+            handshakeStruct.addNativeData(Constants.NATIVE_DATA_QUERY_PARAMS, queryParams);
             handshakeStruct.setStringField(0, webSocketInitMessage.getSessionID());
             handshakeStruct.setBooleanField(0, webSocketInitMessage.isConnectionSecured() ? 1 : 0);
 
@@ -109,14 +112,14 @@ public class BallerinaWsServerConnectorListener implements WebSocketConnectorLis
             try {
                 semaphore.acquire();
                 if (isResourceExeSuccessful.get() && !webSocketInitMessage.isCancelled()) {
-                    handleHandshake(webSocketInitMessage, wsService, variables);
+                    handleHandshake(webSocketInitMessage, wsService, variables, queryParams);
                 }
             } catch (InterruptedException e) {
                 throw new BallerinaConnectorException("Connection interrupted during handshake");
             }
 
         } else {
-            handleHandshake(webSocketInitMessage, wsService, variables);
+            handleHandshake(webSocketInitMessage, wsService, variables, queryParams);
         }
     }
 
@@ -157,7 +160,7 @@ public class BallerinaWsServerConnectorListener implements WebSocketConnectorLis
 
 
     private void handleHandshake(WebSocketInitMessage initMessage, WebSocketService wsService,
-                                 final Map<String, String> variables) {
+                                 final Map<String, String> variables, BMap<String, BString> queryParams) {
         String[] subProtocols = wsService.getNegotiableSubProtocols();
         int idleTimeoutInSeconds = wsService.getIdleTimeoutInSeconds();
         HandshakeFuture future = initMessage.handshake(subProtocols, true, idleTimeoutInSeconds * 1000);
@@ -168,6 +171,7 @@ public class BallerinaWsServerConnectorListener implements WebSocketConnectorLis
                 wsConnection.addNativeData(Constants.NATIVE_DATA_WEBSOCKET_SESSION, session);
                 wsConnection.addNativeData(Constants.WEBSOCKET_MESSAGE, initMessage);
                 wsConnection.addNativeData(Constants.NATIVE_DATA_UPGRADE_HEADERS, initMessage.getHeaders());
+                wsConnection.addNativeData(Constants.NATIVE_DATA_QUERY_PARAMS, queryParams);
                 connectionManager.addConnection(session.getId(),
                                                 new WsOpenConnectionInfo(wsService, wsConnection, variables));
 
