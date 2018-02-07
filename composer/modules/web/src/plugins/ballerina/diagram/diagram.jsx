@@ -168,6 +168,8 @@ class Diagram extends React.Component {
         const children = getComponentForNodeArray(tln, this.props.mode);
 
         controllers = _.concat(controllers, overlayComponents);
+        // get container dimentions to fit svg when mode is fit-to-screen
+        const { width, height } = this.props;
 
         // 4. Ok we are all set, now lets render the diagram with React. We will create
         //    a CsnvasDecorator and pass child components for that.
@@ -175,6 +177,10 @@ class Diagram extends React.Component {
             dropTarget={this.props.model}
             bBox={viewState.bBox}
             overlayComponents={controllers}
+            containerSize={{
+                width,
+                height,
+            }}
             disabled={this.props.disabled}
         >
             { children }
