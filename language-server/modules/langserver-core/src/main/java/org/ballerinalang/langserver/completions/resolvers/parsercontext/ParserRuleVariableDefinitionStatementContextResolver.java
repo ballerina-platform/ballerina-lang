@@ -49,7 +49,7 @@ public class ParserRuleVariableDefinitionStatementContextResolver extends Abstra
 
         // Here we specifically need to check whether the statement is function invocation,
         // action invocation or worker invocation
-        if (isActionOrFunctionInvocationStatement(completionContext)) {
+        if (isInvocationOrFieldAccess(completionContext)) {
             ArrayList<SymbolInfo> actionAndFunctions = new ArrayList<>();
             actionAndFunctions.addAll(actionFunctionTypeFilter.filterItems(completionContext));
             this.populateCompletionItemList(actionAndFunctions, completionItems);
