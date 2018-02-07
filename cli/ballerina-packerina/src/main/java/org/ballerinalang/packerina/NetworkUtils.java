@@ -27,6 +27,7 @@ import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.debugger.Debugger;
 import org.ballerinalang.util.program.BLangFunctions;
 
+import java.io.File;
 import java.nio.file.Path;
 
 import static org.ballerinalang.util.BLangConstants.USER_REPO_ARTIFACTS_DIRNAME;
@@ -46,15 +47,13 @@ public class NetworkUtils {
      */
     public static void pullPackages(String resourceName) {
         compileResult = compileBalFile();
-        // Ballerina central repository URL
-        String url = BALLERINA_CENTRAL_REPOSITORY;
         // Destination folder: by default should be downloaded to
         Path targetDirectoryPath = UserRepositoryUtils.initializeUserRepository()
                 .resolve(USER_REPO_ARTIFACTS_DIRNAME)
                 .resolve(USER_REPO_SRC_DIRNAME);
 
-        String dstPath = targetDirectoryPath + "/" + resourceName;
-        String resourcePath = url + "/" + resourceName;
+        String dstPath = targetDirectoryPath + File.separator + resourceName;
+        String resourcePath = BALLERINA_CENTRAL_REPOSITORY + File.separator + resourceName;
 
         String[] arguments = new String[]{resourcePath, dstPath};
         LauncherUtils.runMain(compileResult.getProgFile(), arguments);
