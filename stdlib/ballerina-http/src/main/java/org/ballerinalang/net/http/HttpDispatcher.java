@@ -80,7 +80,8 @@ public class HttpDispatcher {
         if (path.startsWith("/")) {
             path = path.substring(1);
         }
-        String[] pathSegments = path.split("/");
+        String[] pathSplits = path.split("\\?");
+        String[] pathSegments = pathSplits[0].split("/");
         String pathToMatrixParam = "";
         for (String pathSegment : pathSegments) {
             String[] splitPathSegment = pathSegment.split(";");
@@ -96,6 +97,12 @@ public class HttpDispatcher {
                 }
             }
             matrixParams.put(pathToMatrixParam, segmentMatrixParams);
+        }
+
+        if (pathSplits.length > 1) {
+            for (int i = 1; i < pathSplits.length; i++) {
+                pathToMatrixParam = pathToMatrixParam.concat("?").concat(pathSplits[i]);
+            }
         }
         return pathToMatrixParam;
     }
