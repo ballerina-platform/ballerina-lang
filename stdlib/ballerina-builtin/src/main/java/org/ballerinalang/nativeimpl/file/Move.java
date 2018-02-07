@@ -62,8 +62,10 @@ import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 public class Move extends AbstractNativeFunction {
 
     private static final Logger log = LoggerFactory.getLogger(Move.class);
+    private static final String failedToMoveFile = "Failed to move file: '";
+    private static final String failedToCreateDir = "Failed to create directory: '";
 
-    @Override 
+    @Override
     public BValue[] execute(Context context) {
         BStruct source = (BStruct) getRefArgument(context, 0);
         BStruct destination = (BStruct) getRefArgument(context, 1);
@@ -71,7 +73,7 @@ public class Move extends AbstractNativeFunction {
 
         Path sourceFile = Paths.get(source.getStringField(0)).toAbsolutePath();
         if (!Files.exists(sourceFile)) {
-            return getBValues(FileUtils.createFileNotFoundError(context, "Failed to move file: '"
+            return getBValues(FileUtils.createFileNotFoundError(context, failedToMoveFile
                                                 + sourceFile.toString() + "'. File not found."), null, null);
         }
 
@@ -95,7 +97,7 @@ public class Move extends AbstractNativeFunction {
                 Files.move(sourceFile, targetFile, copyOptions);
             }
         } catch (SecurityException | AccessDeniedException e) {
-            String errMsg = "Failed to move file: '" + sourceFile.toString()
+            String errMsg = failedToMoveFile + sourceFile.toString()
                     + "' to '" + targetFile.toString() + "'. Permission denied.";
             log.error(errMsg, e);
             return getBValues(null, FileUtils.createAccessDeniedError(context, errMsg), null);
@@ -108,12 +110,12 @@ public class Move extends AbstractNativeFunction {
             log.error(errMsg, e);
             return getBValues(null, null, FileUtils.createIOError(context, errMsg));
         } catch (DirectoryNotEmptyException e) {
-            String errMsg = "Failed to move file: '" + sourceFile.toString()
+            String errMsg = failedToMoveFile + sourceFile.toString()
                     + "' to '" + targetFile.toString() + "'. Target directory is not empty.";
             log.error(errMsg, e);
             return getBValues(null, null, FileUtils.createIOError(context, errMsg));
         } catch (IOException e) {
-            String errMsg = "Failed to move file: '" + sourceFile.toString()
+            String errMsg = failedToMoveFile + sourceFile.toString()
                     + "' to '" + targetFile.toString() + "'. I/O error occurred.";
             log.error(errMsg, e);
             return getBValues(null, null, FileUtils.createIOError(context, errMsg));
@@ -127,15 +129,15 @@ public class Move extends AbstractNativeFunction {
             try {
                 Files.createDirectories(dirPath);
             } catch (FileAlreadyExistsException e) {
-                String errMsg = "Failed to create directory: '" + dirPath + "'. File already exists.";
+                String errMsg = failedToCreateDir + dirPath + "'. File already exists.";
                 log.error(errMsg, e);
                 throw new BallerinaException(errMsg);
             } catch (SecurityException e) {
-                String errMsg = "Failed to create directory: '" + dirPath + "'. Permission denied.";
+                String errMsg = failedToCreateDir + dirPath + "'. Permission denied.";
                 log.error(errMsg, e);
                 throw new BallerinaException(errMsg);
             } catch (IOException e) {
-                String errMsg = "Failed to create directory: '" + dirPath + "'. I/O error occurred.";
+                String errMsg = failedToCreateDir + dirPath + "'. I/O error occurred.";
                 log.error(errMsg, e);
                 throw new BallerinaException(errMsg);
             }

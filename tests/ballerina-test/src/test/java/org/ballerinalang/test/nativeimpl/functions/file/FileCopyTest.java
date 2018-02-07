@@ -113,11 +113,11 @@ public class FileCopyTest {
         Assert.assertEquals(Files.size(destPath), Files.size(sourcePath));
 
         Set<Path> copiedFiles = Files.walk(destPath)
-                                        .map(path -> destPath.relativize(path))
+                                        .map(destPath::relativize)
                                         .collect(Collectors.toSet());
 
         Set<Path> originalFiles = Files.walk(sourcePath)
-                                        .map(path -> sourcePath.relativize(path))
+                                        .map(sourcePath::relativize)
                                         .collect(Collectors.toSet());
 
         // If all files were copied correctly, adding the files from the original directory should not change the

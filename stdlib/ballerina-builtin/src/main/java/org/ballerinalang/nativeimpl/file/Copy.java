@@ -69,6 +69,7 @@ public class Copy extends AbstractNativeFunction {
 
     private static final Logger log = LoggerFactory.getLogger(Copy.class);
     private static final PrintStream console = System.err;
+    private static final String failedToCopyFile = "Failed to copy file: '";
     
     @Override
     public BValue[] execute(Context context) {
@@ -80,18 +81,18 @@ public class Copy extends AbstractNativeFunction {
         Path destinationFile = Paths.get(destination.getStringField(0));
 
         if (!Files.exists(sourceFile)) {
-            return getBValues(FileUtils.createFileNotFoundError(context, "Failed to copy file: '"
-                    + sourceFile.toString() + "'. File not found."), null, null);
+            return getBValues(FileUtils.createFileNotFoundError(context, failedToCopyFile
+                                            + sourceFile.toString() + "'. File not found."), null, null);
         }
 
         try {
             copyFile(sourceFile, destinationFile, replaceExisting);
         } catch (SecurityException e) {
-            String errMsg = "Failed to copy file/dir: " + sourceFile.toString() + " to " + destinationFile.toString();
+            String errMsg = failedToCopyFile + sourceFile.toString() + "' to '" + destinationFile.toString();
             log.error(errMsg, e);
             return getBValues(null, FileUtils.createAccessDeniedError(context, "Permission denied: " + errMsg), null);
         } catch (IOException e) {
-            String errMsg = "Failed to copy file/dir: " + sourceFile.toString() + " to " + destinationFile.toString();
+            String errMsg = failedToCopyFile + sourceFile.toString() + "' to '" + destinationFile.toString();
             log.error(errMsg, e);
             return getBValues(null, null, FileUtils.createIOError(context, "I/O error occurred: " + errMsg));
         }
@@ -115,12 +116,7 @@ public class Copy extends AbstractNativeFunction {
                 dirCopier.copyFailuresIterator().forEachRemaining(failedFile -> console.println("\t" + failedFile));
             }
         } else {
-            try {
-                Files.copy(source, target, copyOptions);
-            } catch (IOException ex) {
-                console.println("ballerina: failed to copy file: " + source + " to " + target);
-                throw ex;
-            }
+            Files.copy(source, target, copyOptions);
         }
     }
 

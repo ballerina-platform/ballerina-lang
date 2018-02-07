@@ -102,7 +102,7 @@ public class FileMoveTest {
         BValue[] args = new BValue[]{new BString(sourcePath.toString()), new BString(destPath.toString())};
 
         Set<Path> originalFiles = Files.walk(sourcePath)
-                                        .map(path -> sourcePath.relativize(path))
+                                        .map(sourcePath::relativize)
                                         .collect(Collectors.toSet());
 
         BValue[] returnValues = BRunUtil.invoke(compileResult, "testMove", args);
@@ -115,7 +115,7 @@ public class FileMoveTest {
         Assert.assertTrue(Files.exists(destPath));
 
         Set<Path> copiedFiles = Files.walk(destPath)
-                                        .map(path -> destPath.relativize(path))
+                                        .map(destPath::relativize)
                                         .collect(Collectors.toSet());
 
         // If all files were copied correctly, adding the files from the original directory should not change the
