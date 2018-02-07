@@ -41,20 +41,11 @@
       .panel-header {
         fill: #f3faff;
 
-        .argument-parameter-group, .parameter-delete-icon-wrapper, .parameter-wrapper {
-          fill: #dde7f2;
-        }
-
-        .return-parameter-group {
-          fill: #dce7f1;
-        }
-
         .text-placeholder {
-          fill: #dde7f2;
           shape-rendering: crispEdges;
-          stroke: #9e9c9c;
+          stroke: #a5a5a5;
           stroke-width: 1;
-          stroke-dasharray: 2, 2;
+          stroke-dasharray: 4, 2;
         }
 
         .headingRect {
@@ -224,7 +215,7 @@
           stroke: #0070af;
         }
 
-        .compound-statment-rect {
+        .compound-statement-rect {
           fill: none;
           stroke: #777;
           stroke-dasharray: 3, 3;
@@ -286,6 +277,7 @@
       }
     }
   }
+
   .bottom-right-controls-container {
     position: absolute;
     bottom: 20px;
@@ -344,10 +336,10 @@
       display: none;
     }
   }
+
   .zoom-controls {
     bottom: 60px !important;
     width: 30px;
     right: 25px;
   }
 }
-
