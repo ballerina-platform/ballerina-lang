@@ -19,6 +19,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import ActionInvocationDecorator from '../decorators/action-invocation-decorator';
 import ActiveArbiter from '../decorators/active-arbiter';
+import TreeUtil from '../../../../../model/tree-util';
 
 /**
  * Action Invocation Node component. This is a custom component for rendering all statements
@@ -51,7 +52,11 @@ class ActionInvocationNode extends React.Component {
         let expression = model.viewState.expression;
 
         if (model.viewState.isActionInvocation) {
-            expression = model.getExpression().getInvocationSignature();
+            if (TreeUtil.isVariableDef(model)) {
+                expression = model.variable.getInitialExpression().getInvocationSignature();
+            } else {
+                expression = model.getExpression().getInvocationSignature();
+            }
         }
 
         return (

@@ -272,8 +272,8 @@ public class MimeTest {
             HTTPCarbonMessage response = Services.invokeNew(serviceResult, cMsg);
             Assert.assertNotNull(response, "Response message not found");
             String temporaryFilePath = ResponseReader.getReturnValue(response);
-            boolean isCorrectTempFileCreated = temporaryFilePath.startsWith("/tmp/ballerinaBinaryPayload");
-            Assert.assertEquals(isCorrectTempFileCreated, true);
+            Assert.assertNotNull(temporaryFilePath);
+            Assert.assertFalse(temporaryFilePath.isEmpty(), "Temporary file has not been created");
             File file = new File(temporaryFilePath);
             file.delete();
         } catch (IOException | URISyntaxException e) {

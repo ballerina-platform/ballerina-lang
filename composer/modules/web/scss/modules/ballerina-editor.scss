@@ -56,6 +56,7 @@
           stroke-width: 1;
           stroke-dasharray: 2, 2;
         }
+
         .headingRect {
           stroke-width: 1;
           stroke: #c4d5e2;
@@ -288,7 +289,7 @@
   .bottom-right-controls-container {
     position: absolute;
     bottom: 20px;
-    right: 50px;
+    right: 15px;
     z-index: 30;
     color: #f9f9f9;
     padding: 0;
@@ -343,4 +344,10 @@
       display: none;
     }
   }
+  .zoom-controls {
+    bottom: 60px !important;
+    width: 30px;
+    right: 25px;
+  }
 }
+

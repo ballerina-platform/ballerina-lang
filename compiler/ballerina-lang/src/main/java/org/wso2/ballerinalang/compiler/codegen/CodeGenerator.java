@@ -122,6 +122,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForeach;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangLock;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangNext;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn.BLangWorkerReturn;
@@ -2546,6 +2547,46 @@ public class CodeGenerator extends BLangNodeVisitor {
         exitLoopJumpAddr.value = nextIP();
     }
 
+    public void visit(BLangLock lockNode) {
+        if (lockNode.lockVariables.isEmpty()) {
+            this.genNode(lockNode.body, this.env);
+            return;
+        }
+        Operand gotoLockEndAddr = getOperand(-1);
+        Instruction instructGotoLockEnd = InstructionFactory.get(InstructionCodes.GOTO, gotoLockEndAddr);
+        Operand[] operands = getOperands(lockNode);
+        ErrorTableAttributeInfo errorTable = createErrorTableIfAbsent(currentPkgInfo);
+
+        int fromIP = nextIP();
+        emit((InstructionCodes.LOCK), operands);
+
+        this.genNode(lockNode.body, this.env);
+        int toIP = nextIP() - 1;
+
+        emit((InstructionCodes.UNLOCK), operands);
+        emit(instructGotoLockEnd);
+
+        ErrorTableEntry errorTableEntry = new ErrorTableEntry(fromIP, toIP, nextIP(), 0, -1);
+        errorTable.addErrorTableEntry(errorTableEntry);
+
+        emit((InstructionCodes.UNLOCK), operands);
+        emit(InstructionFactory.get(InstructionCodes.THROW, getOperand(-1)));
+        gotoLockEndAddr.value = nextIP();
+    }
+
+    private Operand[] getOperands(BLangLock lockNode) {
+        Operand[] operands = new Operand[(lockNode.lockVariables.size() * 2) + 1];
+        int i = 0;
+        operands[i++] = new Operand(lockNode.lockVariables.size());
+        for (BVarSymbol varSymbol : lockNode.lockVariables) {
+            int typeSigCPIndex = addUTF8CPEntry(currentPkgInfo, varSymbol.getType().getDesc());
+            TypeRefCPEntry typeRefCPEntry = new TypeRefCPEntry(typeSigCPIndex);
+            operands[i++] = getOperand(currentPkgInfo.addCPEntry(typeRefCPEntry));
+            operands[i++] = varSymbol.varIndex;
+        }
+        return operands;
+    }
+
     public void visit(BLangTransaction transactionNode) {
         ++transactionIndex;
         Operand retryCountRegIndex = new RegIndex(-1, TypeTags.INT);
@@ -2948,9 +2989,14 @@ public class CodeGenerator extends BLangNodeVisitor {
             if (NodeKind.TRY == parent.getKind()) {
                 BLangTryCatchFinally tryCatchFinally = (BLangTryCatchFinally) parent;
                 final BLangStatement body = current;
-                if (tryCatchFinally.finallyBody != null && (current == tryCatchFinally.tryBody
-                        || tryCatchFinally.catchBlocks.stream().anyMatch(c -> c.body == body))) {
+                if (tryCatchFinally.finallyBody != null && current != tryCatchFinally.finallyBody) {
                     genNode(tryCatchFinally.finallyBody, env);
+                }
+            } else if (NodeKind.LOCK == parent.getKind()) {
+                BLangLock lockNode = (BLangLock) parent;
+                if (!lockNode.lockVariables.isEmpty()) {
+                    Operand[] operands = getOperands(lockNode);
+                    emit((InstructionCodes.UNLOCK), operands);
                 }
             }
             current = parent;

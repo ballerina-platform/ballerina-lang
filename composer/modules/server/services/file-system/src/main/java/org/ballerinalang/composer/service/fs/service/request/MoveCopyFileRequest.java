@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (c) 2018, WSO2 Inc. (http://wso2.com) All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,15 +13,30 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package org.ballerinalang.composer.service.fs.service.request;
 
-package org.ballerinalang.langserver.definition.constants;
 /**
- * Constants for definition functionality.
+ * Move File Request.
  */
-public class DefinitionConstants {
-    public static final String FUNCTION = "FUNCTION";
-    public static final String STRUCT = "STRUCT";
-    public static final String ENUM = "ENUM";
-    public static final String ACTION = "ACTION";
-    public static final  String VARIABLE = "VARIABLE";
+public class MoveCopyFileRequest {
+
+    private String srcPath;
+
+    private String destPath;
+
+    public String getSrcPath() {
+        return srcPath;
+    }
+
+    public void setSrcPath(String srcPath) {
+        this.srcPath = srcPath;
+    }
+
+    public String getDestPath() {
+        return destPath;
+    }
+
+    public void setDestPath(String destPath) {
+        this.destPath = destPath;
+    }
 }
