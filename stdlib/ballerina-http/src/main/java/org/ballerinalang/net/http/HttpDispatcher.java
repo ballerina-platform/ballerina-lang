@@ -49,9 +49,9 @@ public class HttpDispatcher {
             Map<String, HttpService> servicesOnInterface = getServicesOnInterface(servicesRegistry, inboundReqMsg);
 
             // Extracting Matrix params and clean the URI
-            Map<String, Map<String, String>> matrixParams = new HashMap<>();
             String uriStr = (String) inboundReqMsg.getProperty(Constants.TO);
-            uriStr = URIUtil.removeMatrixParams(uriStr, matrixParams);
+            Map<String, Map<String, String>> matrixParams = new HashMap<>();
+            uriStr = URIUtil.extractMatrixParams(uriStr, matrixParams);
 
             inboundReqMsg.setProperty(Constants.TO, uriStr);
             inboundReqMsg.setProperty(Constants.MATRIX_PARAMS, matrixParams);

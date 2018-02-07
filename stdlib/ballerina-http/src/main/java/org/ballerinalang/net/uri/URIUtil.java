@@ -83,7 +83,7 @@ public class URIUtil {
     }
 
 
-    public static String removeMatrixParams(String path, Map<String, Map<String, String>> matrixParams) {
+    public static String extractMatrixParams(String path, Map<String, Map<String, String>> matrixParams) {
         if (path.startsWith("/")) {
             path = path.substring(1);
         }
