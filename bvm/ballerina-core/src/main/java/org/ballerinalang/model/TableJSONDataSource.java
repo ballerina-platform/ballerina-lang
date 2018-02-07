@@ -35,7 +35,7 @@ import java.sql.SQLException;
 import java.sql.Struct;
 
 /**
- * {@link org.ballerinalang.model.values.BJSON.JSONDataSource} implementation for DataTable.
+ * {@link org.ballerinalang.model.values.BJSON.JSONDataSource} implementation for table.
  *
  * @since 0.8.0
  */

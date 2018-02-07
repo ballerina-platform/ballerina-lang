@@ -136,10 +136,10 @@ public class BTable implements BRefType<Object>, BCollection {
      *
      * @since 0.961.0
      */
-    static class BTableIterator<K, V extends BValue> implements BIterator {
+    private static class BTableIterator<K, V extends BValue> implements BIterator {
 
-        BTable table;
-        int cursor = 0;
+        private BTable table;
+        private int cursor = 0;
 
         BTableIterator(BTable value) {
             table = value;

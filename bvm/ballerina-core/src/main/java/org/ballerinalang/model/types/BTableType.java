@@ -21,7 +21,7 @@ import org.ballerinalang.model.values.BTable;
 import org.ballerinalang.model.values.BValue;
 
 /**
- * {@code BDataTableType} represents a output data set of a SQL select query in Ballerina.
+ * {@code BTableType} represents tabular data in Ballerina.
  *
  * @since 0.8.0
  */

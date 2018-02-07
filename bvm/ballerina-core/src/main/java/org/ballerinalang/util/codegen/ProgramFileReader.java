@@ -864,7 +864,7 @@ public class ProgramFileReader {
                     if (name.isEmpty()) {
                         typeStack.push(BTypes.typeTable);
                     } else {
-                        typeStack.push(new BJSONType(packageInfoOfType.getStructInfo(name).getType()));
+                        typeStack.push(new BTableType(packageInfoOfType.getStructInfo(name).getType()));
                     }
                 } else if (typeChar == 'E') {
                     typeStack.push(packageInfoOfType.getEnumInfo(name).getType());
