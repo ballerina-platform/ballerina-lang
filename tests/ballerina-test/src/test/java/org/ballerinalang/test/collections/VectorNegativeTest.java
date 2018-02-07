@@ -31,7 +31,7 @@ import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 
 /**
- * Negative test cases for Vectors
+ * Negative test cases for Vectors.
  */
 public class VectorNegativeTest {
 

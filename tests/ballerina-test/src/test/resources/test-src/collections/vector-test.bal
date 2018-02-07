@@ -47,6 +47,71 @@ function testInsert (int[] values, int[] indices, int size) (collections:Vector)
     return vector;
 }
 
+function testIsEmpty (int size) (boolean[] isEmpty) {
+    collections:Vector vector = {vec:[]};
+    populateVector(vector, size);
+    isEmpty = [];
+    int i = 0;
+
+    isEmpty[i] = vector.isEmpty();
+    i = i + 1;
+
+    vector.clear();
+    isEmpty[i] = vector.isEmpty();
+    i = i + 1;
+
+    populateVector(vector, size);
+    int j = 0;
+    while (j < size) {
+        _ = vector.remove(0);
+        j = j + 1;
+    }
+    isEmpty[i] = vector.isEmpty();
+
+    return;
+}
+
+function testSize (int[] addElems, int[] insertElems, int[] replaceElems, int nRemoveElems, int size) (int[] vecSizes) {
+    collections:Vector vector = {vec:[]};
+    populateVector(vector, size);
+    vecSizes = [];
+    int sizesIndex = 0;
+
+    int i = 0;
+    while (i < lengthof addElems) {
+        vector.add(addElems[i]);
+        i = i + 1;
+    }
+    vecSizes[sizesIndex] = vector.size();
+    sizesIndex = sizesIndex + 1;
+
+    i = 0;
+    while (i < lengthof insertElems) {
+        vector.insert(insertElems[i], 8);
+        i = i + 1;
+    }
+    vecSizes[sizesIndex] = vector.size();
+    sizesIndex = sizesIndex + 1;
+
+    i = 0;
+    while (i < lengthof replaceElems) {
+        _ = vector.replace(replaceElems[i], i + 2);
+        i = i + 1;
+    }
+    vecSizes[sizesIndex] = vector.size();
+    sizesIndex = sizesIndex + 1;
+
+    i = 0;
+    while (i < nRemoveElems) {
+        _ = vector.remove(3);
+        i = i + 1;
+    }
+    vecSizes[sizesIndex] = vector.size();
+    sizesIndex = sizesIndex + 1;
+
+    return;
+}
+
 function testRemove (int size) (collections:Vector vector, any x1, any x2, any x3) {
     vector = {vec:[]};
     populateVector(vector, size);

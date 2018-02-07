@@ -36,7 +36,6 @@ public function <Vector v> clear() {
 @Param { value: "v: The vector from which the element will be retrieved"}
 @Param { value: "index: The position of the element to retrieve"}
 @Return { value:"The element at the specified position."}
-@Return { value:"Returned if the specified index is not within 0 (inclusive) and the size of the vector (exclusive)."}
 public function <Vector v> get (int index) (any) {
     validateRange(v.size, index);
     return v.vec[index];
@@ -46,7 +45,6 @@ public function <Vector v> get (int index) (any) {
 @Param { value: "v: The vector to which the element will be inserted"}
 @Param { value: "element: The element to insert"}
 @Param { value: "index: The position to insert the element to"}
-@Return { value:"Returned if the specified index is not within 0 and the size of the vector (both inclusive)."}
 public function <Vector v> insert (any element, int index) {
     validateRange(v.size + 1, index); // range validated for the new vector size
     shiftRight(v, index);
@@ -54,11 +52,17 @@ public function <Vector v> insert (any element, int index) {
     v.size = v.size + 1;
 }
 
+@Description { value:"Checks whether the specified vector is empty."}
+@Param { value: "v: The vector to be checked if its empty"}
+@Return { value:"Returns true if there aren't any elements in the vector"}
+public function <Vector v> isEmpty() (boolean) {
+    return v.size == 0;
+}
+
 @Description { value:"Removes and returns the element at the position specified. All the elements to the right of the specified position are shifted to the left."}
 @Param { value: "v: The vector from which the element will be removed"}
 @Param { value: "index: The position to remove the element from"}
 @Return { value:"The element at the specified position."}
-@Return { value:"Returned if the specified index is not within 0 (inclusive) and the size of the vector (exclusive)."}
 public function <Vector v> remove (int index) (any) {
     validateRange(v.size, index);
     any element = v.vec[index];
@@ -72,7 +76,6 @@ public function <Vector v> remove (int index) (any) {
 @Param { value: "element: The replacement element"}
 @Param { value: "index: The position of the element to be replaced"}
 @Return { value:"The element which was originally at the specified position"}
-@Return { value:"Returned if the specified index is not within 0 (inclusive) and the size of the vector (exclusive)."}
 public function <Vector v> replace(any element, int index) (any) {
     validateRange(v.size, index);
     any currentElement = v.vec[index];
@@ -117,7 +120,7 @@ function shiftLeft (Vector v, int index) {
 
 function validateRange (int vectorSize, int index) {
     if (index >= vectorSize || index < 0) {
-        IndexOutOfRangeError err = {msg:"Index out of range: " + index};
+        IndexOutOfRangeError err = {msg:"Index out of range: " + index + ", size: " + vectorSize};
         throw err;
     }
 }

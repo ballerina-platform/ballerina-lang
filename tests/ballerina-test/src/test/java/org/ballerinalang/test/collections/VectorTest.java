@@ -21,6 +21,7 @@ package org.ballerinalang.test.collections;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
+import org.ballerinalang.model.values.BBooleanArray;
 import org.ballerinalang.model.values.BIntArray;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BRefValueArray;
@@ -32,7 +33,7 @@ import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 
 /**
- * Test cases for Vectors
+ * Test cases for Vectors.
  */
 public class VectorTest {
 
@@ -173,6 +174,47 @@ public class VectorTest {
         Assert.assertEquals(((BInteger) replacedVals.get(0)).intValue(), 40);
         Assert.assertEquals(((BInteger) replacedVals.get(1)).intValue(), 50);
         Assert.assertEquals(((BInteger) replacedVals.get(2)).intValue(), 100);
+    }
+
+    @Test(description = "Test case for testing size() function")
+    public void testSize() {
+        long[] addElems = new long[]{11, 12, 13, 14, 15};
+        long[] insertElems = new long[]{21, 23, 25};
+        long[] replaceElems = new long[]{32, 34, 36, 38};
+        long nRemoveElems = 9;
+        long vectorSize = 10;
+
+        BValue[] returns = BRunUtil.invoke(compileResult, "testSize",
+                                           new BValue[]{buildIntArray(addElems), buildIntArray(insertElems),
+                                                   buildIntArray(replaceElems), new BInteger(nRemoveElems),
+                                                   new BInteger(vectorSize)});
+
+        Assert.assertNotNull(returns);
+
+        BIntArray vecSizes = (BIntArray) returns[0];
+
+        Assert.assertEquals(vecSizes.get(0), (vectorSize += addElems.length));
+        Assert.assertEquals(vecSizes.get(1), (vectorSize += insertElems.length));
+        Assert.assertEquals(vecSizes.get(2), vectorSize);
+        Assert.assertEquals(vecSizes.get(3), (vectorSize -= nRemoveElems));
+
+    }
+
+    @Test(description = "Test case for testing isEmpty() function")
+    public void testIsEmpty() {
+        final int booleanTrue = 1;
+        int vectorSize = 10;
+        boolean[] expectedVals = new boolean[]{false, true, true};
+
+        BValue[] returns = BRunUtil.invoke(compileResult, "testIsEmpty", new BValue[]{new BInteger(vectorSize)});
+
+        Assert.assertNotNull(returns);
+
+        BBooleanArray isEmptyVals = (BBooleanArray) returns[0];
+
+        for (int i = 0; i < expectedVals.length; i++) {
+            Assert.assertEquals(isEmptyVals.get(i) == booleanTrue, expectedVals[i]);
+        }
     }
 
     private BStringArray buildStringArray(String[] args) {
