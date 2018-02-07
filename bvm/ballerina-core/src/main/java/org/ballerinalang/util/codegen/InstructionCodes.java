@@ -108,6 +108,8 @@ public interface InstructionCodes {
     int IADD = 76;
     int FADD = 77;
     int SADD = 78;
+    int RDEQ = 79;
+    int RDNE = 80;
     int XMLADD = 81;
     int ISUB = 82;
     int FSUB = 83;

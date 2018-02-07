@@ -33,6 +33,8 @@ public enum OperatorKind {
     OR("||"),
     EQUAL("=="),
     NOT_EQUAL("!="),
+    DEEP_EQUAL("==="),
+    DEEP_NOT_EQUAL("!=="),
     GREATER_THAN(">"),
     GREATER_EQUAL(">="),
     LESS_THAN("<"),
