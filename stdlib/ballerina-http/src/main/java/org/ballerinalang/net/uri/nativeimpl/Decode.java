@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -29,57 +29,32 @@ import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.net.http.HttpUtil;
 
 import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
+import java.net.URLDecoder;
 
 /**
- * Native function to encode URLs.
- * ballerina.net.uri:encode
+ * Native function to decode URLs.
+ * ballerina.net.uri:decode
  */
 
 @BallerinaFunction(
         packageName = "ballerina.net.uri",
-        functionName = "encode",
+        functionName = "decode",
         args = {@Argument(name = "url", type = TypeKind.STRING)},
         returnType = {@ReturnType(type = TypeKind.STRING),
                       @ReturnType(type = TypeKind.STRUCT, structType = "Error")},
         isPublic = true
 )
-public class Encode extends AbstractNativeFunction {
+public class Decode extends AbstractNativeFunction {
 
     @Override
     public BValue[] execute(Context context) {
         String url = getStringArgument(context, 0);
         String charset = getStringArgument(context, 1);
         try {
-            return getBValues(new BString(encode(url, charset)), null);
-        } catch (Throwable e) {
+            return getBValues(new BString(URLDecoder.decode(url, charset)), null);
+        } catch (UnsupportedEncodingException e) {
             return getBValues(null,
-                    HttpUtil.getGenericError(context, "Error occurred while encoding the url. " + e.getMessage()));
+                    HttpUtil.getGenericError(context, "Error occurred while decoding the url. " + e.getMessage()));
         }
-    }
-
-    private String encode(String url, String charset) throws UnsupportedEncodingException {
-        String encoded;
-
-        encoded = URLEncoder.encode(url, charset);
-
-        StringBuilder buf = new StringBuilder(encoded.length());
-        char focus;
-        for (int i = 0; i < encoded.length(); i++) {
-            focus = encoded.charAt(i);
-            if (focus == '*') {
-                buf.append("%2A");
-            } else if (focus == '+') {
-                buf.append("%20");
-            } else if (focus == '%' && (i + 1) < encoded.length() && encoded.charAt(i + 1) == '7'
-                    && encoded.charAt(i + 2) == 'E') {
-                buf.append('~');
-                i += 2;
-            } else {
-                buf.append(focus);
-            }
-
-        }
-        return buf.toString();
     }
 }
