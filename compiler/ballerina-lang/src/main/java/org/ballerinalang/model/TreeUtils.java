@@ -37,7 +37,7 @@ public class TreeUtils {
         stringTypeKindMap.put("blob", TypeKind.BLOB);
         stringTypeKindMap.put("json", TypeKind.JSON);
         stringTypeKindMap.put("xml", TypeKind.XML);
-        stringTypeKindMap.put("datatable", TypeKind.DATATABLE);
+        stringTypeKindMap.put("table", TypeKind.TABLE);
         stringTypeKindMap.put("any", TypeKind.ANY);
         stringTypeKindMap.put("map", TypeKind.MAP);
         stringTypeKindMap.put("type", TypeKind.TYPE);

@@ -11,7 +11,7 @@ function testConnectionPoolProperties () (string firstName) {
                       transactionIsolation:"TRANSACTION_READ_COMMITTED", catalog:"PUBLIC",
                       connectionTestQuery:"SELECT 1 FROM INFORMATION_SCHEMA.SYSTEM_USERS"};
     bind create sql:ClientConnector(sql:DB.HSQLDB_FILE, "", 0, "", "SA", "", properties) with testDB;
-    datatable dt = testDB.select("SELECT  FirstName from Customers where registrationID = 1", null, null);
+    table dt = testDB.select("SELECT  FirstName from Customers where registrationID = 1", null, null);
     var j, _ = <json>dt;
     firstName = j.toString();
     return;
@@ -22,7 +22,7 @@ function testConnectorWithDefaultPropertiesForListedDB () (string firstName) {
         create sql:ClientConnector(sql:DB.HSQLDB_FILE, "./target/tempdb/", 0,
                                    "TEST_SQL_CONNECTOR_INIT", "SA", "", null);
     }
-    datatable dt = testDB.select("SELECT  FirstName from Customers where registrationID = 1", null, null);
+    table dt = testDB.select("SELECT  FirstName from Customers where registrationID = 1", null, null);
     var j, _ = <json>dt;
     firstName = j.toString();
     return;
@@ -33,7 +33,7 @@ function testConnectorWithDirectUrl () (string firstName) {
     endpoint<sql:ClientConnector> testDB {}
     sql:ConnectionProperties Properties = {url:"jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR_INIT"};
     bind create sql:ClientConnector(sql:DB.GENERIC, "", 0, "", "SA", "", Properties) with testDB;
-    datatable dt = testDB.select("SELECT  FirstName from Customers where registrationID = 1", null, null);
+    table dt = testDB.select("SELECT  FirstName from Customers where registrationID = 1", null, null);
     var j, _ = <json>dt;
     firstName = j.toString();
     return;
@@ -45,7 +45,7 @@ function testConnectorWithDataSourceClass () (string firstName) {
     sql:ConnectionProperties properties = {dataSourceClassName:"org.hsqldb.jdbc.JDBCDataSource",
                                               datasourceProperties:propertiesMap};
     bind create sql:ClientConnector(sql:DB.GENERIC, "", 0, "", "SA", "", properties) with testDB;
-    datatable dt = testDB.select("SELECT  FirstName from Customers where registrationID = 1", null, null);
+    table dt = testDB.select("SELECT  FirstName from Customers where registrationID = 1", null, null);
     var j, _ = <json>dt;
     firstName = j.toString();
     return;
@@ -58,7 +58,7 @@ function testConnectorWithDataSourceClassAndProps () (string firstName) {
                                               datasourceProperties:propertiesMap};
     bind create sql:ClientConnector(sql:DB.HSQLDB_FILE, "./target/tempdb/",
                                     0, "TEST_SQL_CONNECTOR_INIT", "SA", "", properties) with testDB;
-    datatable dt = testDB.select("SELECT  FirstName from Customers where registrationID = 1", null, null);
+    table dt = testDB.select("SELECT  FirstName from Customers where registrationID = 1", null, null);
     var j, _ = <json>dt;
     firstName = j.toString();
     testDB.close();
@@ -70,7 +70,7 @@ function testConnectorWithDataSourceClassWithoutURL () (string firstName) {
     sql:ConnectionProperties properties = {dataSourceClassName:"org.hsqldb.jdbc.JDBCDataSource"};
     bind create sql:ClientConnector(sql:DB.HSQLDB_FILE, "./target/tempdb/", 0,
                                     "TEST_SQL_CONNECTOR_INIT", "SA", "", properties) with testDB;
-    datatable dt = testDB.select("SELECT  FirstName from Customers where registrationID = 1", null, null);
+    table dt = testDB.select("SELECT  FirstName from Customers where registrationID = 1", null, null);
     var j, _ = <json>dt;
     firstName = j.toString();
     return;
@@ -83,7 +83,7 @@ function testConnectorWithDataSourceClassURLPriority () (string firstName) {
                                               datasourceProperties:propertiesMap};
     bind create sql:ClientConnector(sql:DB.HSQLDB_FILE, "./target/tempdb/", 0,
                                     "INVALID_DB_NAME", "SA", "", properties) with testDB;
-    datatable dt = testDB.select("SELECT  FirstName from Customers where registrationID = 1", null, null);
+    table dt = testDB.select("SELECT  FirstName from Customers where registrationID = 1", null, null);
     var j, _ = <json>dt;
     firstName = j.toString();
     return;

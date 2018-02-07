@@ -204,11 +204,9 @@ system:println (m.city, m[“country”]);
 
 If the accessed field does not exist, in the case of a struct there will be a compile-time error, while the other cases will result in a null value being returned.
 
-### Type: `datatable`
+### Type: `table`
 
-The `datatable` type is used to hold tabular data, such as those returned from an SQL database query and provides cursor based access to the data. As of version 0.8, values of this type can only be created as the return value of certain actions of the SQL data connector (see the `ballerina.data.sql` package).
-
-Navigating a `datatable` requires one to use the library functions in the package `ballerina.lang.datatables`. More information is available in the documentation for that package.
+The `table` type is used to hold tabular data, such as those returned from an SQL database query and provides cursor based access to the data. As of version 0.8, values of this type can only be created as the return value of certain actions of the SQL data connector (see the `ballerina.data.sql` package).
 
 > NOTE: This section needs more elaboration.
 

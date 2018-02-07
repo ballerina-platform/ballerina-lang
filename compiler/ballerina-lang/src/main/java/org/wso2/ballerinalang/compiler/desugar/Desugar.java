@@ -630,7 +630,7 @@ public class Desugar extends BLangNodeVisitor {
             case TypeTags.JSON:
             case TypeTags.XML:
             case TypeTags.MAP:
-            case TypeTags.DATATABLE:
+            case TypeTags.TABLE:
             case TypeTags.STRUCT:
                 List<BLangExpression> argExprs = new ArrayList<>(iExpr.argExprs);
                 argExprs.add(0, iExpr.expr);
@@ -1079,8 +1079,8 @@ public class Desugar extends BLangNodeVisitor {
             case TypeTags.BLOB:
             case TypeTags.XML:
                 return;
-            case TypeTags.DATATABLE:
-                // TODO: add this once the datatable initializing is supported.
+            case TypeTags.TABLE:
+                // TODO: add this once the able initializing is supported.
                 return;
             default:
                 return;

@@ -251,7 +251,7 @@ public interface InstructionCodes {
     int NEWCONNECTOR = 211;
     int NEWMAP = 212;
     int NEWJSON = 213;
-    int NEWDATATABLE = 215;
+    int NEWTABLE = 215;
 
     int NEW_INT_RANGE = 219;
     int ITR_NEW = 220;

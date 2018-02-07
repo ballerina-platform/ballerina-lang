@@ -173,13 +173,13 @@ public connector ClientConnector (DB dbType, string hostOrPath, int port, string
 	@Param { value:"query: SQL query to execute" }
 	@Param { value:"parameters: Parameter array used with the SQL query" }
 	@Return { value:"Result set for the given query" }
-	native action call (string query, Parameter[] parameters, type structType) (datatable);
+	native action call (string query, Parameter[] parameters, type structType) (table);
 
 	@Description { value:"The select action implementation for SQL connector to select data from tables."}
 	@Param { value:"query: SQL query to execute" }
 	@Param { value:"parameters: Parameter array used with the SQL query" }
 	@Return { value:"Result set for the given query" }
-	native action select (string query, Parameter[] parameters, type structType) (datatable);
+	native action select (string query, Parameter[] parameters, type structType) (table);
 
 	@Description { value:"The close action implementation for SQL connector to shutdown the connection pool."}
 	native action close ();
