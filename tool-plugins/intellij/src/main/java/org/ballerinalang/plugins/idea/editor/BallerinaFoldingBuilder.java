@@ -69,7 +69,8 @@ public class BallerinaFoldingBuilder extends CustomFoldingBuilder implements Dum
             ImportDeclarationNode firstImport = importDeclarationNodesArray[0];
             ImportDeclarationNode lastImport = importDeclarationNodesArray[importDeclarationNodes.size() - 1];
 
-            FullyQualifiedPackageNameNode fullyQualifiedPackageNameNode = PsiTreeUtil.findChildOfType(firstImport, FullyQualifiedPackageNameNode.class);
+            FullyQualifiedPackageNameNode fullyQualifiedPackageNameNode = PsiTreeUtil.findChildOfType(firstImport,
+                    FullyQualifiedPackageNameNode.class);
             if (fullyQualifiedPackageNameNode == null || fullyQualifiedPackageNameNode.getText().isEmpty()) {
                 return;
             }
@@ -81,7 +82,8 @@ public class BallerinaFoldingBuilder extends CustomFoldingBuilder implements Dum
 
     private void buildFunctionFoldRegions(@NotNull List<FoldingDescriptor> descriptors, @NotNull PsiElement root) {
         // Get all function nodes.
-        Collection<FunctionDefinitionNode> functionNodes = PsiTreeUtil.findChildrenOfType(root, FunctionDefinitionNode.class);
+        Collection<FunctionDefinitionNode> functionNodes = PsiTreeUtil.findChildrenOfType(root,
+                FunctionDefinitionNode.class);
         for (FunctionDefinitionNode functionNode : functionNodes) {
             // Get the function body. This is used to calculate the start offset.
             CallableUnitBodyNode callableUnitBodyNode = PsiTreeUtil.getChildOfType(functionNode,
@@ -96,7 +98,8 @@ public class BallerinaFoldingBuilder extends CustomFoldingBuilder implements Dum
 
     private void buildConnectorFoldRegions(@NotNull List<FoldingDescriptor> descriptors, @NotNull PsiElement root) {
         // Get all connectors.
-        Collection<ConnectorDefinitionNode> connectorNodes = PsiTreeUtil.findChildrenOfType(root, ConnectorDefinitionNode.class);
+        Collection<ConnectorDefinitionNode> connectorNodes = PsiTreeUtil.findChildrenOfType(root,
+                ConnectorDefinitionNode.class);
         for (ConnectorDefinitionNode connectorNode : connectorNodes) {
             // Get the connector body. This is used to calculate the start offset.
             ConnectorBodyNode connectorBodyNode = PsiTreeUtil.getChildOfType(connectorNode, ConnectorBodyNode.class);

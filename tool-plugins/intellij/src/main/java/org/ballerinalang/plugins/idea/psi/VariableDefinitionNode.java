@@ -27,6 +27,9 @@ import org.jetbrains.annotations.Nullable;
 
 import javax.swing.Icon;
 
+/**
+ * Represents an VariableDefinition in PSI tree.
+ */
 public class VariableDefinitionNode extends IdentifierDefSubtree {
 
     public VariableDefinitionNode(@NotNull ASTNode node) {

@@ -28,7 +28,7 @@ import com.intellij.psi.PsiDocumentManager;
 
 public class AliasCompletionInsertHandler implements InsertHandler<LookupElement> {
 
-    public final static InsertHandler<LookupElement> INSTANCE = new AliasCompletionInsertHandler(false);
+    public static final InsertHandler<LookupElement> INSTANCE = new AliasCompletionInsertHandler(false);
 
     private final boolean myTriggerAutoPopup;
 

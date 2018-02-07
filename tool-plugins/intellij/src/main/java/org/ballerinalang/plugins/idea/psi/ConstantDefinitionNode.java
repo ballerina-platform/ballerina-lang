@@ -27,6 +27,9 @@ import org.jetbrains.annotations.Nullable;
 
 import javax.swing.Icon;
 
+/**
+ * Represents a ConstantDefinition in PSI tree.
+ */
 public class ConstantDefinitionNode extends IdentifierDefSubtree {
 
     public ConstantDefinitionNode(@NotNull ASTNode node) {

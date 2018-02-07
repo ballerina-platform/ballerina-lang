@@ -45,6 +45,9 @@ import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+/**
+ * Represents a Ballerina context for live templates.
+ */
 public abstract class BallerinaCodeContextType extends TemplateContextType {
 
     BallerinaCodeContextType(@NotNull @NonNls String id, @NotNull String presentableName,
@@ -69,6 +72,9 @@ public abstract class BallerinaCodeContextType extends TemplateContextType {
 
     protected abstract boolean isInContext(@NotNull PsiElement element);
 
+    /**
+     * Represents a Ballerina file context.
+     */
     public static class File extends BallerinaCodeContextType {
 
         protected File() {
@@ -94,6 +100,9 @@ public abstract class BallerinaCodeContextType extends TemplateContextType {
         }
     }
 
+    /**
+     * Represents a Ballerina service context.
+     */
     public static class Service extends BallerinaCodeContextType {
 
         protected Service() {
@@ -157,6 +166,9 @@ public abstract class BallerinaCodeContextType extends TemplateContextType {
         }
     }
 
+    /**
+     * Represents a Ballerina resource context.
+     */
     public static class Resource extends BallerinaCodeContextType {
 
         protected Resource() {
@@ -207,6 +219,9 @@ public abstract class BallerinaCodeContextType extends TemplateContextType {
         }
     }
 
+    /**
+     * Represents a Ballerina connector context.
+     */
     public static class Connector extends BallerinaCodeContextType {
 
         protected Connector() {
@@ -261,6 +276,9 @@ public abstract class BallerinaCodeContextType extends TemplateContextType {
         }
     }
 
+    /**
+     * Represents a Ballerina action context.
+     */
     public static class Action extends BallerinaCodeContextType {
 
         protected Action() {
@@ -314,6 +332,9 @@ public abstract class BallerinaCodeContextType extends TemplateContextType {
         }
     }
 
+    /**
+     * Represents a Ballerina function context.
+     */
     public static class Function extends BallerinaCodeContextType {
 
         protected Function() {
@@ -367,6 +388,9 @@ public abstract class BallerinaCodeContextType extends TemplateContextType {
         }
     }
 
+    /**
+     * Represents a Ballerina fork-join context.
+     */
     public static class ForkJoin extends BallerinaCodeContextType {
 
         protected ForkJoin() {

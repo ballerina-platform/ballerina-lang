@@ -25,6 +25,9 @@ import org.ballerinalang.plugins.idea.psi.scopes.VariableContainer;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+/**
+ * Represents a CodeBlockBody in PSI tree.
+ */
 public class CodeBlockBodyNode extends ANTLRPsiNode implements CodeBlockScope, VariableContainer {
 
     public CodeBlockBodyNode(@NotNull ASTNode node) {

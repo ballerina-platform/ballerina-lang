@@ -19,6 +19,9 @@ package org.ballerinalang.plugins.idea.psi;
 import com.intellij.lang.ASTNode;
 import org.jetbrains.annotations.NotNull;
 
+/**
+ * Represents a ConnectorDeclarationStatement in PSI tree.
+ */
 public class ConnectorDeclarationStatementNode extends VariableDefinitionNode {
 
     public ConnectorDeclarationStatementNode(@NotNull ASTNode node) {

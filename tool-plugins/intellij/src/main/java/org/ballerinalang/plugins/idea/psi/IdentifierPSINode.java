@@ -73,6 +73,9 @@ import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_struct
 import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_transformerReference;
 import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_workerReference;
 
+/**
+ * Represents an Identifier in PSI tree.
+ */
 public class IdentifierPSINode extends ANTLRPsiLeafNode implements PsiNamedElement, PsiNameIdentifierOwner {
 
     public IdentifierPSINode(IElementType type, CharSequence text) {

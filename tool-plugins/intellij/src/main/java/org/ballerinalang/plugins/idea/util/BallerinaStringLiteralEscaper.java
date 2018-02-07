@@ -23,6 +23,9 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.Locale;
 
+/**
+ * Responsible for escaping characters in strings. Need for language injection.
+ */
 public class BallerinaStringLiteralEscaper extends LiteralTextEscaper<QuotedLiteralString> {
 
     private int[] outSourceOffsets;
@@ -122,7 +125,9 @@ public class BallerinaStringLiteralEscaper extends LiteralTextEscaper<QuotedLite
                 outChars.append(c);
                 continue;
             }
-            if (index == chars.length()) return false;
+            if (index == chars.length()) {
+                return false;
+            }
             c = chars.charAt(index++);
             switch (c) {
                 case 'a':
@@ -213,7 +218,9 @@ public class BallerinaStringLiteralEscaper extends LiteralTextEscaper<QuotedLite
                         try {
                             int v = Integer.parseInt(chars.substring(index, index + 4), 16);
                             c = chars.charAt(index);
-                            if (c == '+' || c == '-') return false;
+                            if (c == '+' || c == '-') {
+                                return false;
+                            }
                             outChars.append((char) v);
                             index += 4;
                         } catch (Exception e) {
@@ -230,7 +237,9 @@ public class BallerinaStringLiteralEscaper extends LiteralTextEscaper<QuotedLite
                         try {
                             int v = Integer.parseInt(chars.substring(index, index + 8), 16);
                             c = chars.charAt(index);
-                            if (c == '+' || c == '-') return false;
+                            if (c == '+' || c == '-') {
+                                return false;
+                            }
                             outChars.append((char) v);
                             index += 8;
                         } catch (Exception e) {

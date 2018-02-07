@@ -28,7 +28,7 @@ import com.intellij.psi.PsiDocumentManager;
 
 public class StatementCompletionInsertHandler implements InsertHandler<LookupElement> {
 
-    public final static InsertHandler<LookupElement> INSTANCE = new StatementCompletionInsertHandler();
+    public static final InsertHandler<LookupElement> INSTANCE = new StatementCompletionInsertHandler();
 
     private final String myIgnoreOnChars;
 

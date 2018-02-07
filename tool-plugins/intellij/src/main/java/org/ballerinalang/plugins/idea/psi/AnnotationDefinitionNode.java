@@ -30,6 +30,9 @@ import org.jetbrains.annotations.Nullable;
 
 import javax.swing.Icon;
 
+/**
+ * Represents an AnnotationDefinition in PSI tree.
+ */
 public class AnnotationDefinitionNode extends IdentifierDefSubtree implements ScopeNode {
 
     public AnnotationDefinitionNode(@NotNull ASTNode node) {

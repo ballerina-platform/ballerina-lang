@@ -19,6 +19,9 @@ package org.ballerinalang.plugins.idea.psi;
 import com.intellij.lang.ASTNode;
 import org.jetbrains.annotations.NotNull;
 
+/**
+ * Represents an ExpressionVariableDefinitionStatement in PSI tree.
+ */
 public class ExpressionVariableDefinitionStatementNode extends VariableDefinitionNode {
 
     public ExpressionVariableDefinitionStatementNode(@NotNull ASTNode node) {

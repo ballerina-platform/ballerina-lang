@@ -29,8 +29,8 @@ import com.intellij.psi.PsiDocumentManager;
 
 public class ImportCompletionInsertHandler implements InsertHandler<LookupElement> {
 
-    public final static InsertHandler<LookupElement> INSTANCE = new ImportCompletionInsertHandler(false);
-    public final static InsertHandler<LookupElement> INSTANCE_WITH_AUTO_POPUP = new ImportCompletionInsertHandler(true);
+    public static final InsertHandler<LookupElement> INSTANCE = new ImportCompletionInsertHandler(false);
+    public static final InsertHandler<LookupElement> INSTANCE_WITH_AUTO_POPUP = new ImportCompletionInsertHandler(true);
 
     private final String myIgnoreOnChars;
     private final boolean myTriggerAutoPopup;

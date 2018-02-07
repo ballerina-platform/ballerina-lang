@@ -27,6 +27,9 @@ import org.jetbrains.annotations.Nullable;
 
 import javax.swing.Icon;
 
+/**
+ * Represents an GlobalVariableDefinition in PSI tree.
+ */
 public class GlobalVariableDefinitionNode extends IdentifierDefSubtree {
 
     public GlobalVariableDefinitionNode(@NotNull ASTNode node) {

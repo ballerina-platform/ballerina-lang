@@ -39,7 +39,7 @@ import com.intellij.util.PathUtil;
 import org.ballerinalang.plugins.idea.psi.FullyQualifiedPackageNameNode;
 import org.ballerinalang.plugins.idea.psi.PackageDeclarationNode;
 import org.ballerinalang.plugins.idea.sdk.BallerinaSdkService;
-import org.ballerinalang.util.diagnostic.Diagnostic;
+import org.ballerinalang.plugins.idea.util.Diagnostic;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
@@ -105,9 +105,9 @@ public class BallerinaExternalAnnotator extends ExternalAnnotator<BallerinaExter
             }
             // Create a new class loader.
             urlClassLoader = new URLClassLoader(filesToLoad.toArray(new URL[filesToLoad.size()]),
-                    this.getClass().getClassLoader());
+                                                this.getClass().getClassLoader());
             Class classToLoad = Class.forName("org.ballerinalang.launcher.util.BCompileUtil", true,
-                    urlClassLoader);
+                                              urlClassLoader);
             // Get the method.
             method = classToLoad.getMethod("getDiagnostics", ClassLoader.class, String.class, String.class);
         } catch (MalformedURLException | NoSuchMethodException | ClassNotFoundException e) {
@@ -143,7 +143,7 @@ public class BallerinaExternalAnnotator extends ExternalAnnotator<BallerinaExter
             // If we are currently in a module, we need to set the module root as the source root.
             if (module != null && FileUtil.exists(module.getModuleFilePath())) {
                 sourceRoot = StringUtil.trimEnd(PathUtil.getParentPath(module.getModuleFilePath()),
-                        BallerinaConstants.IDEA_CONFIG_DIRECTORY);
+                                                BallerinaConstants.IDEA_CONFIG_DIRECTORY);
             }
 
             try {
@@ -174,7 +174,7 @@ public class BallerinaExternalAnnotator extends ExternalAnnotator<BallerinaExter
             return null;
         }
         FullyQualifiedPackageNameNode packageNameNode = PsiTreeUtil.getChildOfType(packageDeclarationNode,
-                FullyQualifiedPackageNameNode.class);
+                                                                                   FullyQualifiedPackageNameNode.class);
         if (packageNameNode == null) {
             return null;
         }
@@ -197,7 +197,7 @@ public class BallerinaExternalAnnotator extends ExternalAnnotator<BallerinaExter
         String sourceRoot = file.getProject().getBasePath();
         if (module != null && FileUtil.exists(module.getModuleFilePath())) {
             sourceRoot = StringUtil.trimEnd(PathUtil.getParentPath(module.getModuleFilePath()),
-                    BallerinaConstants.IDEA_CONFIG_DIRECTORY);
+                                            BallerinaConstants.IDEA_CONFIG_DIRECTORY);
         }
 
         // Get the package according to the directory structure.
@@ -242,7 +242,7 @@ public class BallerinaExternalAnnotator extends ExternalAnnotator<BallerinaExter
 
             // Get the logical start postion. This is used to get the offset.
             LogicalPosition startPosition = new LogicalPosition(position.getStartLine() - 1,
-                    position.getStartColumn() - 1);
+                                                                position.getStartColumn() - 1);
             int startOffset = editor.logicalPositionToOffset(startPosition);
             // Get the element at the offset.
             PsiElement elementAtOffset = file.findElementAt(startOffset);
@@ -285,6 +285,9 @@ public class BallerinaExternalAnnotator extends ExternalAnnotator<BallerinaExter
         method = null;
     }
 
+    /**
+     * Helper class which contains data.
+     */
     public static class Data {
 
         Editor editor;
