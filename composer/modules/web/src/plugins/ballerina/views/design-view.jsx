@@ -152,13 +152,13 @@ class DesignView extends React.Component {
 
     zoomIn() {
         let newLevel = this.state.zoomLevel + 1;
-        newLevel = (newLevel >= zoomLevels.length) ? zoomLevels.length : newLevel;
+        newLevel = (newLevel >= zoomLevels.length) ? zoomLevels.length - 1 : newLevel;
         this.setState({ zoomLevel: newLevel });
     }
 
     zoomOut() {
         let newLevel = this.state.zoomLevel - 1;
-        newLevel = (newLevel <= 0) ? 0 : newLevel;
+        newLevel = (newLevel < 0) ? 0 : newLevel;
         this.setState({ zoomLevel: newLevel });
     }
 
