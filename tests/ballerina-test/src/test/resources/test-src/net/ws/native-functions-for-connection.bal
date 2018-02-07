@@ -28,6 +28,10 @@ function testGetParentConnection(ws:Connection conn) (ws:Connection) {
     return conn.getParentConnection();
 }
 
+function testGetQueryParams(ws:Connection conn) (map) {
+    return conn.getQueryParams();
+}
+
 function testPushText(ws:Connection conn, string text) {
     conn.pushText(text);
 }

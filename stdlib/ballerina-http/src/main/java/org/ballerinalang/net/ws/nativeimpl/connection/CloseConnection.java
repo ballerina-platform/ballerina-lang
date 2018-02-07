@@ -16,46 +16,54 @@
  *  under the License.
  */
 
-package org.ballerinalang.net.ws.nativeimpl;
+package org.ballerinalang.net.ws.nativeimpl.connection;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.AbstractNativeFunction;
+import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
-import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.net.ws.Constants;
+import org.ballerinalang.net.ws.WebSocketConnectionManager;
+import org.ballerinalang.util.exceptions.BallerinaException;
 
-import java.util.Map;
+import java.io.IOException;
+import javax.websocket.CloseReason;
+import javax.websocket.Session;
 
 /**
- * Get all the upgrade headers.
+ * Get the ID of the connection.
  *
  * @since 0.94
  */
 
 @BallerinaFunction(
         packageName = "ballerina.net.ws",
-        functionName = "getUpgradeHeaders",
+        functionName = "closeConnection",
         receiver = @Receiver(type = TypeKind.STRUCT, structType = "Connection",
                              structPackage = "ballerina.net.ws"),
-        returnType = {@ReturnType(type = TypeKind.MAP)},
+        args = {@Argument(name = "statusCode", type = TypeKind.INT),
+                @Argument(name = "reason", type = TypeKind.STRING)},
         isPublic = true
 )
-public class GetUpgradeHeaders extends AbstractNativeFunction {
+public class CloseConnection extends AbstractNativeFunction {
 
     @Override
     public BValue[] execute(Context context) {
         BStruct wsConnection = (BStruct) getRefArgument(context, 0);
-        Map<String, String> upgradeHeaders =
-                (Map<String, String>) wsConnection.getNativeData(Constants.NATIVE_DATA_UPGRADE_HEADERS);
-        BMap<String, BString> bUpgradeHeaders = new BMap<>();
-        upgradeHeaders.entrySet().forEach(
-                upgradeHeader -> bUpgradeHeaders.put(upgradeHeader.getKey(), new BString(upgradeHeader.getValue())));
-        return getBValues(bUpgradeHeaders);
+        int statusCode = (int) getIntArgument(context, 0);
+        String reason = getStringArgument(context, 0);
+        Session session = (Session) wsConnection.getNativeData(Constants.NATIVE_DATA_WEBSOCKET_SESSION);
+        try {
+            session.close(new CloseReason(() -> statusCode, reason));
+        } catch (IOException e) {
+            throw new BallerinaException("Could not close the connection: " + e.getMessage());
+        } finally {
+            WebSocketConnectionManager.getInstance().removeConnection(session.getId());
+        }
+        return VOID_RETURN;
     }
 }

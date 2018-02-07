@@ -16,7 +16,7 @@
  *  under the License.
  */
 
-package org.ballerinalang.net.ws.nativeimpl;
+package org.ballerinalang.net.ws.nativeimpl.connection;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeKind;
