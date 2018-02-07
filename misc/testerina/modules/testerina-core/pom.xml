@@ -180,4 +180,11 @@
             </plugin>
         </plugins>
     </build>
+
+    <properties>
+        <maven.checkstyleplugin.excludes>
+            **/parser/*,
+            **/generated/**
+        </maven.checkstyleplugin.excludes>
+    </properties>
 </project>
