@@ -64,6 +64,7 @@ import org.wso2.carbon.messaging.exceptions.ServerConnectorException;
 import org.wso2.transport.http.netty.config.ChunkConfig;
 import org.wso2.transport.http.netty.config.ListenerConfiguration;
 import org.wso2.transport.http.netty.config.Parameter;
+import org.wso2.transport.http.netty.config.RequestSizeValidationConfig;
 import org.wso2.transport.http.netty.contract.HttpResponseFuture;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 import org.wso2.transport.http.netty.message.HttpBodyPart;
@@ -72,9 +73,7 @@ import org.wso2.transport.http.netty.message.MultipartRequestDecoder;
 
 import java.io.IOException;
 import java.io.OutputStream;
-import java.io.UnsupportedEncodingException;
 import java.net.InetSocketAddress;
-import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -290,38 +289,6 @@ public class HttpUtil {
         } catch (IOException e) {
             log.error("Couldn't close message output stream", e);
         }
-    }
-
-    public static BMap<String, BValue> getParamMap(String payload) throws UnsupportedEncodingException {
-        BMap<String, BValue> params = new BMap<>();
-        String[] entries = payload.split("&");
-        for (String entry : entries) {
-            int index = entry.indexOf('=');
-            if (index != -1) {
-                String name = entry.substring(0, index).trim();
-                String value = URLDecoder.decode(entry.substring(index + 1).trim(), "UTF-8");
-                if (value.matches("")) {
-                    params.put(name, new BString(""));
-                    continue;
-                }
-                params.put(name, new BString(value));
-            }
-        }
-        return params;
-    }
-
-    public static BMap<String, BValue> getMatrixParamsMap(String path, HTTPCarbonMessage carbonMessage) {
-        BMap<String, BValue> matrixParamsBMap = new BMap<>();
-        Map<String, Map<String, String>> pathToMatrixParamMap =
-                (Map<String, Map<String, String>>) carbonMessage.getProperty(Constants.MATRIX_PARAMS);
-        if (!pathToMatrixParamMap.containsKey(path)) {
-            return matrixParamsBMap;
-        }
-        Map<String, String> matrixParamsMap = pathToMatrixParamMap.get(path);
-        for (Map.Entry<String, String> matrixParamEntry : matrixParamsMap.entrySet()) {
-            matrixParamsBMap.put(matrixParamEntry.getKey(), new BString(matrixParamEntry.getValue()));
-        }
-        return matrixParamsBMap;
     }
 
     /**
@@ -782,6 +749,9 @@ public class HttpUtil {
         AnnAttrValue keepAliveAttrVal = configInfo.getAnnAttrValue(Constants.ANN_CONFIG_ATTR_KEEP_ALIVE);
         AnnAttrValue transferEncoding = configInfo.getAnnAttrValue(Constants.ANN_CONFIG_ATTR_TRANSFER_ENCODING);
         AnnAttrValue chunking = configInfo.getAnnAttrValue(Constants.ANN_CONFIG_ATTR_CHUNKING);
+        AnnAttrValue maxUriLength = configInfo.getAnnAttrValue(Constants.ANN_CONFIG_ATTR_MAXIMUM_URL_LENGTH);
+        AnnAttrValue maxHeaderSize = configInfo.getAnnAttrValue(Constants.ANN_CONFIG_ATTR_MAXIMUM_HEADER_SIZE);
+        AnnAttrValue maxEntityBodySize = configInfo.getAnnAttrValue(Constants.ANN_CONFIG_ATTR_MAXIMUM_ENTITY_BODY_SIZE);
 
         ListenerConfiguration listenerConfiguration = new ListenerConfiguration();
         if (portAttrVal != null && portAttrVal.getIntValue() > 0) {
@@ -813,6 +783,33 @@ public class HttpUtil {
                 listenerConfiguration.setChunkConfig(chunkConfig);
             } else {
                 listenerConfiguration.setChunkConfig(ChunkConfig.AUTO);
+            }
+
+            RequestSizeValidationConfig requestSizeValidationConfig =
+                    listenerConfiguration.getRequestSizeValidationConfig();
+            if (maxUriLength != null) {
+                if (maxUriLength.getIntValue() > 0) {
+                    requestSizeValidationConfig.setMaxUriLength(Math.toIntExact(maxUriLength.getIntValue()));
+                } else {
+                    throw new BallerinaConnectorException("Invalid configuration found for maxUriLength : "
+                            + maxUriLength.getIntValue());
+                }
+            }
+            if (maxHeaderSize != null) {
+                if (maxHeaderSize.getIntValue() > 0) {
+                    requestSizeValidationConfig.setMaxHeaderSize(Math.toIntExact(maxHeaderSize.getIntValue()));
+                } else {
+                    throw new BallerinaConnectorException("Invalid configuration found for maxHeaderSize : "
+                            + maxHeaderSize.getIntValue());
+                }
+            }
+            if (maxEntityBodySize != null) {
+                if (maxEntityBodySize.getIntValue() > 0) {
+                    requestSizeValidationConfig.setMaxEntityBodySize(Math.toIntExact(maxEntityBodySize.getIntValue()));
+                } else {
+                    throw new BallerinaConnectorException("Invalid configuration found for maxEntityBodySize : "
+                            + maxEntityBodySize.getIntValue());
+                }
             }
 
             listenerConfiguration

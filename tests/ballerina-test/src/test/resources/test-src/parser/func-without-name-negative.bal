@@ -1,4 +1,4 @@
 function {
 	int b;
-	reply m;
+	return m;
 }

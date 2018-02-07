@@ -7,6 +7,6 @@ service<http> HelloService {
   resource tweet (message m) {
       // Following line is invalid.
       int b
-      reply m;
+      return m;
   }
 }

@@ -28,6 +28,7 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.net.http.HttpUtil;
+import org.ballerinalang.net.uri.URIUtil;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 
 /**
@@ -50,6 +51,6 @@ public class GetMatrixParams extends AbstractNativeFunction {
         BStruct requestStruct  = ((BStruct) getRefArgument(context, 0));
         String path = getStringArgument(context, 0);
         HTTPCarbonMessage httpCarbonMessage = HttpUtil.getCarbonMsg(requestStruct, null);
-        return new BValue[]{HttpUtil.getMatrixParamsMap(path, httpCarbonMessage)};
+        return new BValue[]{URIUtil.getMatrixParamsMap(path, httpCarbonMessage)};
     }
 }

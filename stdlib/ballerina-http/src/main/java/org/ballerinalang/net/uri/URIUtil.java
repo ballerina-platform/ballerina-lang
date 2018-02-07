@@ -19,7 +19,14 @@
 package org.ballerinalang.net.uri;
 
 import org.ballerinalang.connector.api.BallerinaConnectorException;
+import org.ballerinalang.model.values.BMap;
+import org.ballerinalang.model.values.BString;
+import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.net.http.Constants;
+import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -44,6 +51,38 @@ public class URIUtil {
 
         return path.substring(basePath.length());
     }
+
+    public static void populateQueryParamMap(String queryParamString, BMap<String, BString> queryParamsMap)
+            throws UnsupportedEncodingException {
+        String[] queryParamVals = queryParamString.split("&");
+        for (String queryParam : queryParamVals) {
+            int index = queryParam.indexOf('=');
+            if (index != -1) {
+                String queryParamName = queryParam.substring(0, index).trim();
+                String queryParamValue = URLDecoder.decode(queryParam.substring(index + 1).trim(), "UTF-8");
+                if (queryParamValue.matches("")) {
+                    queryParamsMap.put(queryParamName, new BString(""));
+                    continue;
+                }
+                queryParamsMap.put(queryParamName, new BString(queryParamValue));
+            }
+        }
+    }
+
+    public static BMap<String, BValue> getMatrixParamsMap(String path, HTTPCarbonMessage carbonMessage) {
+        BMap<String, BValue> matrixParamsBMap = new BMap<>();
+        Map<String, Map<String, String>> pathToMatrixParamMap =
+                (Map<String, Map<String, String>>) carbonMessage.getProperty(Constants.MATRIX_PARAMS);
+        if (!pathToMatrixParamMap.containsKey(path)) {
+            return matrixParamsBMap;
+        }
+        Map<String, String> matrixParamsMap = pathToMatrixParamMap.get(path);
+        for (Map.Entry<String, String> matrixParamEntry : matrixParamsMap.entrySet()) {
+            matrixParamsBMap.put(matrixParamEntry.getKey(), new BString(matrixParamEntry.getValue()));
+        }
+        return matrixParamsBMap;
+    }
+
 
     public static String removeMatrixParams(String path, Map<String, Map<String, String>> matrixParams) {
         if (path.startsWith("/")) {

@@ -24,6 +24,7 @@ import org.ballerinalang.connector.api.AbstractNativeAction;
 import org.ballerinalang.connector.api.ConnectorFuture;
 import org.ballerinalang.connector.impl.BClientConnectorFutureListener;
 import org.ballerinalang.connector.impl.BServerConnectorFuture;
+import org.ballerinalang.helpers.DeepEqualHelper;
 import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.BConnectorType;
 import org.ballerinalang.model.types.BEnumType;
@@ -64,6 +65,7 @@ import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BXML;
 import org.ballerinalang.model.values.BXMLAttributes;
 import org.ballerinalang.model.values.BXMLQName;
+import org.ballerinalang.model.values.LockableStructureType;
 import org.ballerinalang.model.values.StructureType;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.runtime.threadpool.ThreadPoolFactory;
@@ -79,6 +81,7 @@ import org.ballerinalang.util.codegen.Instruction.InstructionACALL;
 import org.ballerinalang.util.codegen.Instruction.InstructionCALL;
 import org.ballerinalang.util.codegen.Instruction.InstructionFORKJOIN;
 import org.ballerinalang.util.codegen.Instruction.InstructionIteratorNext;
+import org.ballerinalang.util.codegen.Instruction.InstructionLock;
 import org.ballerinalang.util.codegen.Instruction.InstructionTCALL;
 import org.ballerinalang.util.codegen.Instruction.InstructionWRKSendReceive;
 import org.ballerinalang.util.codegen.InstructionCodes;
@@ -146,7 +149,7 @@ public class BLangVM {
     private int ip = 0;
     private Instruction[] code;
 
-    private StructureType globalMemBlock;
+    private LockableStructureType globalMemBlock;
 
     public BLangVM(ProgramFile programFile) {
         this.programFile = programFile;
@@ -402,6 +405,7 @@ public class BLangVM {
                 case InstructionCodes.FEQ:
                 case InstructionCodes.SEQ:
                 case InstructionCodes.BEQ:
+                case InstructionCodes.RDEQ:
                 case InstructionCodes.REQ:
                 case InstructionCodes.TEQ:
                 case InstructionCodes.INE:
@@ -409,6 +413,7 @@ public class BLangVM {
                 case InstructionCodes.SNE:
                 case InstructionCodes.BNE:
                 case InstructionCodes.RNE:
+                case InstructionCodes.RDNE:
                 case InstructionCodes.TNE:
                     execBinaryOpCodes(sf, opcode, operands);
                     break;
@@ -744,6 +749,14 @@ public class BLangVM {
                 case InstructionCodes.ITR_NEXT:
                 case InstructionCodes.ITR_HAS_NEXT:
                     execIteratorOperation(sf, instruction);
+                    break;
+                case InstructionCodes.LOCK:
+                    InstructionLock instructionLock = (InstructionLock) instruction;
+                    handleVariableLock(instructionLock.types, instructionLock.varRegs);
+                    break;
+                case InstructionCodes.UNLOCK:
+                    InstructionLock instructionUnLock = (InstructionLock) instruction;
+                    handleVariableUnlock(instructionUnLock.types, instructionUnLock.varRegs);
                     break;
                 default:
                     throw new UnsupportedOperationException();
@@ -1637,6 +1650,18 @@ public class BLangVM {
                 k = operands[2];
                 sf.intRegs[k] = sf.refRegs[i] == sf.refRegs[j] ? 1 : 0;
                 break;
+            case InstructionCodes.RDEQ:
+                i = operands[0];
+                j = operands[1];
+                k = operands[2];
+                sf.intRegs[k] = DeepEqualHelper.isDeepEqual(sf.refRegs[i], sf.refRegs[j]) ? 1 : 0;
+                break;
+            case InstructionCodes.RDNE:
+                i = operands[0];
+                j = operands[1];
+                k = operands[2];
+                sf.intRegs[k] = DeepEqualHelper.isDeepEqual(sf.refRegs[i], sf.refRegs[j]) ? 0 : 1;
+                break;
             case InstructionCodes.TEQ:
                 i = operands[0];
                 j = operands[1];
@@ -2354,6 +2379,58 @@ public class BLangVM {
                 BXML<?> child = (BXML<?>) sf.refRegs[j];
                 xmlVal.addChildren(child);
                 break;
+        }
+    }
+
+    private void handleVariableLock(BType[] types, int[] varRegs) {
+        for (int i = 0; i < varRegs.length; i++) {
+            BType paramType = types[i];
+            int regIndex = varRegs[i];
+            switch (paramType.getTag()) {
+                case TypeTags.INT_TAG:
+                    globalMemBlock.lockIntField(regIndex);
+                    break;
+                case TypeTags.FLOAT_TAG:
+                    globalMemBlock.lockFloatField(regIndex);
+                    break;
+                case TypeTags.STRING_TAG:
+                    globalMemBlock.lockStringField(regIndex);
+                    break;
+                case TypeTags.BOOLEAN_TAG:
+                    globalMemBlock.lockBooleanField(regIndex);
+                    break;
+                case TypeTags.BLOB_TAG:
+                    globalMemBlock.lockBlobField(regIndex);
+                    break;
+                default:
+                    globalMemBlock.lockRefField(regIndex);
+            }
+        }
+    }
+
+    private void handleVariableUnlock(BType[] types, int[] varRegs) {
+        for (int i = varRegs.length - 1; i > -1; i--) {
+            BType paramType = types[i];
+            int regIndex = varRegs[i];
+            switch (paramType.getTag()) {
+                case TypeTags.INT_TAG:
+                    globalMemBlock.unlockIntField(regIndex);
+                    break;
+                case TypeTags.FLOAT_TAG:
+                    globalMemBlock.unlockFloatField(regIndex);
+                    break;
+                case TypeTags.STRING_TAG:
+                    globalMemBlock.unlockStringField(regIndex);
+                    break;
+                case TypeTags.BOOLEAN_TAG:
+                    globalMemBlock.unlockBooleanField(regIndex);
+                    break;
+                case TypeTags.BLOB_TAG:
+                    globalMemBlock.unlockBlobField(regIndex);
+                    break;
+                default:
+                    globalMemBlock.unlockRefField(regIndex);
+            }
         }
     }
 

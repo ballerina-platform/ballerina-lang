@@ -72,6 +72,7 @@ import org.ballerinalang.model.tree.statements.ExpressionStatementNode;
 import org.ballerinalang.model.tree.statements.ForeachNode;
 import org.ballerinalang.model.tree.statements.ForkJoinNode;
 import org.ballerinalang.model.tree.statements.IfNode;
+import org.ballerinalang.model.tree.statements.LockNode;
 import org.ballerinalang.model.tree.statements.NextNode;
 import org.ballerinalang.model.tree.statements.ReturnNode;
 import org.ballerinalang.model.tree.statements.ThrowNode;
@@ -146,6 +147,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForeach;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangLock;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangNext;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangThrow;
@@ -418,6 +420,10 @@ public class TreeBuilder {
 
     public static WhileNode createWhileNode() {
         return new BLangWhile();
+    }
+
+    public static LockNode createLockNode() {
+        return new BLangLock();
     }
 
     public static NextNode createNextNode() {
