@@ -51,7 +51,7 @@ public class IterableOperationsTests {
 
     @Test
     public void testNegative() {
-        Assert.assertEquals(negative.getErrorCount(), 11);
+        Assert.assertEquals(negative.getErrorCount(), 13);
         BAssertUtil.validateError(negative, 0, "undefined function 'int.foreach'", 6, 5);
         BAssertUtil.validateError(negative, 1, "undefined function 'string.map'", 8, 5);
         BAssertUtil.validateError(negative, 2, "variable assignment is required", 14, 5);
@@ -60,21 +60,32 @@ public class IterableOperationsTests {
         BAssertUtil.validateError(negative, 4, "function invocation on type '(string,string)[]' is not supported",
                 23, 21);
         BAssertUtil.validateError(negative, 5, "no argument required for operation 'count'", 55, 13);
+        BAssertUtil.validateError(negative, 6, "cannot ignore return value of 'map' operation here", 23, 27);
 
-        BAssertUtil.validateError(negative, 6, "incompatible types: expected 'string[]', found '(string,string)[]'",
+        BAssertUtil.validateError(negative, 7, "incompatible types: expected 'string[]', found '(string,string)[]'",
                 31, 24);
-        BAssertUtil.validateError(negative, 7, "incompatible types: expected 'map', found '(any)[]'", 35, 22);
-        BAssertUtil.validateError(negative, 8, "cannot assign return value of 'filter' operation here, use reduce " +
+        BAssertUtil.validateError(negative, 8, "incompatible types: expected 'map', found '(any)[]'", 35, 22);
+        BAssertUtil.validateError(negative, 9, "cannot assign return value of 'filter' operation here, use a reduce " +
                 "operation", 39, 22);
-        BAssertUtil.validateError(negative, 9, "'foreach()' does not return a value;", 48, 19);
-        BAssertUtil.validateError(negative, 10, "assignment count mismatch: expected 1 values, but found 2", 50, 18);
+        BAssertUtil.validateError(negative, 10, "'foreach()' does not return a value;", 48, 19);
+        BAssertUtil.validateError(negative, 11, "assignment count mismatch: expected 1 values, but found 2", 50, 18);
+        BAssertUtil.validateError(negative, 12, "cannot ignore return value of 'filter' operation here", 56, 18);
 
-        Assert.assertEquals(negative2.getErrorCount(), 4);
-        BAssertUtil.validateError(negative2, 0, "single lambda function required here", 5, 5);
-        BAssertUtil.validateError(negative2, 1, "single lambda function required here", 7, 15);
-        BAssertUtil.validateError(negative2, 2, "too many variables are defined for iterable type 'string[]'", 12, 15);
-        BAssertUtil.validateError(negative2, 3, "not enough variables are defined for iterable type 'string[]', " +
+        Assert.assertEquals(negative2.getErrorCount(), 10);
+
+        BAssertUtil.validateError(negative2, 0, "unknown type 'person'", 16, 23);
+        BAssertUtil.validateError(negative2, 1, "unknown type 'person'", 17, 37);
+        BAssertUtil.validateError(negative2, 2, "single lambda function required here", 5, 5);
+        BAssertUtil.validateError(negative2, 3, "single lambda function required here", 7, 15);
+        BAssertUtil.validateError(negative2, 4, "too many variables are defined for iterable type 'string[]'", 12, 15);
+        BAssertUtil.validateError(negative2, 5, "not enough variables are defined for iterable type 'string[]', " +
                 "require at least '1' variables", 13, 15);
+        BAssertUtil.validateError(negative2, 6, "too many return arguments are defined for operation 'filter'", 14, 14);
+        BAssertUtil.validateError(negative2, 7, "not enough return arguments are defined for operation 'filter'", 15,
+                14);
+        BAssertUtil.validateError(negative2, 8, "not enough return arguments are defined for operation 'filter'", 16,
+                14);
+        BAssertUtil.validateError(negative2, 9, "cannot ignore return value of 'filter' operation here", 17, 18);
 
     }
 

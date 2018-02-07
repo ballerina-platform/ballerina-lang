@@ -53,4 +53,5 @@ function test5(){
 function test6(){
     string[] s = ["1", "a"];
     s.count(test5);
+    _ = s.filter(function(string s)(boolean){return s == "a";});
 }

@@ -22,7 +22,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.iterable.Operation;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticLog;
 import org.wso2.ballerinalang.util.Lists;
 
-import java.util.Collections;
 import java.util.List;
 
 /**
@@ -43,12 +42,12 @@ public abstract class BIterableTypeVisitor implements BTypeVisitor<Operation, Li
     @Override
     public List<BType> visit(BType type, Operation op) {
         dlog.error(op.pos, DiagnosticCode.ITERABLE_NOT_SUPPORTED_COLLECTION, op.collectionType);
-        return getErrorTypeList(op.arity);
+        return Lists.of(symTable.errType);
     }
 
     @Override
     public List<BType> visit(BErrorType type, Operation op) {
-        return Collections.nCopies(op.arity, type);
+        return Lists.of(symTable.errType);
     }
 
     /* Following  types are not iterable and will be handler at BType visitor */
@@ -93,12 +92,5 @@ public abstract class BIterableTypeVisitor implements BTypeVisitor<Operation, Li
     protected void logNotEnoughVariablesError(Operation op, int count) {
         dlog.error(op.pos, DiagnosticCode.ITERABLE_NOT_ENOUGH_VARIABLES, op.collectionType, count);
     }
-
-    protected List<BType> getErrorTypeList(int size, BType... initialData) {
-        List<BType> errorTypes = Lists.of(initialData);
-        errorTypes.addAll(Collections.nCopies(size - initialData.length, symTable.errType));
-        return errorTypes;
-    }
-
 
 }

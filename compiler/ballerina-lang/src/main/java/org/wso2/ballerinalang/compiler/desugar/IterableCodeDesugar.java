@@ -376,9 +376,6 @@ public class IterableCodeDesugar {
     }
 
     private List<BLangVariable> getStreamFunctionVariableList(LinkedList<Operation> streamOperations) {
-        if (streamOperations.isEmpty()) {
-            return Collections.emptyList();
-        }
         List<BLangVariable> retVars = streamOperations.getLast().retVars;
         Operation lastOperation = streamOperations.getLast();
         while (lastOperation.kind == IterableKind.FILTER) {
@@ -399,9 +396,6 @@ public class IterableCodeDesugar {
      * @param streamOperations streaming operation list
      */
     private void generateStreamFunction(IterableContext ctx, LinkedList<Operation> streamOperations) {
-        if (streamOperations.isEmpty()) {
-            return;
-        }
         final DiagnosticPos pos = ctx.getFirstOperation().pos;
         List<BLangVariable> retVars = getStreamFunctionVariableList(streamOperations);
         List<BLangVariable> retParmVars = retVars.stream()
