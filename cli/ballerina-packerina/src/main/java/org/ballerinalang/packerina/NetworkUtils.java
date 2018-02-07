@@ -1,6 +1,7 @@
 package org.ballerinalang.packerina;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.launcher.LauncherUtils;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.CompileResult;
@@ -28,7 +29,7 @@ public class NetworkUtils {
     public static void pullPackages(String resourceName) {
         compileResult = compileBalFile();
         // Ballerina central repository URL
-        String url = "";
+        String url = "http://10.100.1.228/";
         // Destination folder: by default should be downloaded to
         Path targetDirectoryPath = UserRepositoryUtils.initializeUserRepository()
                 .resolve(USER_REPO_ARTIFACTS_DIRNAME)
@@ -47,7 +48,7 @@ public class NetworkUtils {
      * @return compile result after compiling the bal file
      */
     public static CompileResult compileBalFile() {
-        CompileResult compileResult = BCompileUtil.compile(new NetworkUtils(), "src", "ballerina.pull");
+        CompileResult compileResult = BCompileUtil.compile("src", "ballerina.pull", CompilerPhase.CODE_GEN);
         ProgramFile programFile = compileResult.getProgFile();
         PackageInfo packageInfo = programFile.getPackageInfo(compileResult.getProgFile().getEntryPkgName());
         Context context = new Context(programFile);
