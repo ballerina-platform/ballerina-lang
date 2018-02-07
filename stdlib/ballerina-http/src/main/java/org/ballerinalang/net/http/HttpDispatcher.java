@@ -51,7 +51,7 @@ public class HttpDispatcher {
             // Extracting Matrix params and clean the URI
             Map<String, Map<String, String>> matrixParams = new HashMap<>();
             String uriStr = (String) inboundReqMsg.getProperty(org.wso2.carbon.messaging.Constants.TO);
-            uriStr = removeMatrixParams(uriStr, matrixParams);
+            uriStr = URIUtil.removeMatrixParams(uriStr, matrixParams);
 
             inboundReqMsg.setProperty(org.wso2.carbon.messaging.Constants.TO, uriStr);
             inboundReqMsg.setProperty(Constants.MATRIX_PARAMS, matrixParams);
@@ -74,37 +74,6 @@ public class HttpDispatcher {
         } catch (Throwable e) {
             throw new BallerinaConnectorException(e.getMessage());
         }
-    }
-
-    private static String removeMatrixParams(String path, Map<String, Map<String, String>> matrixParams) {
-        if (path.startsWith("/")) {
-            path = path.substring(1);
-        }
-        String[] pathSplits = path.split("\\?");
-        String[] pathSegments = pathSplits[0].split("/");
-        String pathToMatrixParam = "";
-        for (String pathSegment : pathSegments) {
-            String[] splitPathSegment = pathSegment.split(";");
-            pathToMatrixParam = pathToMatrixParam.concat("/" + splitPathSegment[0]);
-            Map<String, String> segmentMatrixParams = new HashMap<>();
-            if (splitPathSegment.length > 1) {
-                for (int i = 1; i < splitPathSegment.length; i++) {
-                    String[] splitMatrixParam = splitPathSegment[i].split("=");
-                    if (splitMatrixParam.length != 2) {
-                        throw new BallerinaConnectorException("Found non matrix parameter in " + path);
-                    }
-                    segmentMatrixParams.put(splitMatrixParam[0], splitMatrixParam[1]);
-                }
-            }
-            matrixParams.put(pathToMatrixParam, segmentMatrixParams);
-        }
-
-        if (pathSplits.length > 1) {
-            for (int i = 1; i < pathSplits.length; i++) {
-                pathToMatrixParam = pathToMatrixParam.concat("?").concat(pathSplits[i]);
-            }
-        }
-        return pathToMatrixParam;
     }
 
     private static Map<String, HttpService> getServicesOnInterface(HTTPServicesRegistry servicesRegistry,

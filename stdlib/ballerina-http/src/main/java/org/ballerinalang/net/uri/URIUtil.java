@@ -18,6 +18,11 @@
 
 package org.ballerinalang.net.uri;
 
+import org.ballerinalang.connector.api.BallerinaConnectorException;
+
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * Utilities related to URI processing.
  */
@@ -38,5 +43,36 @@ public class URIUtil {
         }
 
         return path.substring(basePath.length());
+    }
+
+    public static String removeMatrixParams(String path, Map<String, Map<String, String>> matrixParams) {
+        if (path.startsWith("/")) {
+            path = path.substring(1);
+        }
+        String[] pathSplits = path.split("\\?");
+        String[] pathSegments = pathSplits[0].split("/");
+        String pathToMatrixParam = "";
+        for (String pathSegment : pathSegments) {
+            String[] splitPathSegment = pathSegment.split(";");
+            pathToMatrixParam = pathToMatrixParam.concat("/" + splitPathSegment[0]);
+            Map<String, String> segmentMatrixParams = new HashMap<>();
+            if (splitPathSegment.length > 1) {
+                for (int i = 1; i < splitPathSegment.length; i++) {
+                    String[] splitMatrixParam = splitPathSegment[i].split("=");
+                    if (splitMatrixParam.length != 2) {
+                        throw new BallerinaConnectorException("Found non matrix parameter in " + path);
+                    }
+                    segmentMatrixParams.put(splitMatrixParam[0], splitMatrixParam[1]);
+                }
+            }
+            matrixParams.put(pathToMatrixParam, segmentMatrixParams);
+        }
+
+        if (pathSplits.length > 1) {
+            for (int i = 1; i < pathSplits.length; i++) {
+                pathToMatrixParam = pathToMatrixParam.concat("?").concat(pathSplits[i]);
+            }
+        }
+        return pathToMatrixParam;
     }
 }
