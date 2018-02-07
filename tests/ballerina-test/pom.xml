@@ -84,6 +84,11 @@
             <groupId>org.testng</groupId>
             <artifactId>testng</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.ballerinalang</groupId>
+            <artifactId>ballerina-packerina</artifactId>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <build>
