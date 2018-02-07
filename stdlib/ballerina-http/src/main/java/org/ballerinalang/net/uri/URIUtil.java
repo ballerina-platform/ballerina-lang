@@ -73,12 +73,11 @@ public class URIUtil {
         BMap<String, BValue> matrixParamsBMap = new BMap<>();
         Map<String, Map<String, String>> pathToMatrixParamMap =
                 (Map<String, Map<String, String>>) carbonMessage.getProperty(Constants.MATRIX_PARAMS);
-        if (!pathToMatrixParamMap.containsKey(path)) {
-            return matrixParamsBMap;
-        }
-        Map<String, String> matrixParamsMap = pathToMatrixParamMap.get(path);
-        for (Map.Entry<String, String> matrixParamEntry : matrixParamsMap.entrySet()) {
-            matrixParamsBMap.put(matrixParamEntry.getKey(), new BString(matrixParamEntry.getValue()));
+        if (pathToMatrixParamMap.containsKey(path)) {
+            Map<String, String> matrixParamsMap = pathToMatrixParamMap.get(path);
+            for (Map.Entry<String, String> matrixParamEntry : matrixParamsMap.entrySet()) {
+                matrixParamsBMap.put(matrixParamEntry.getKey(), new BString(matrixParamEntry.getValue()));
+            }
         }
         return matrixParamsBMap;
     }
@@ -95,24 +94,20 @@ public class URIUtil {
             String[] splitPathSegment = pathSegment.split(";");
             pathToMatrixParam = pathToMatrixParam.concat("/" + splitPathSegment[0]);
             Map<String, String> segmentMatrixParams = new HashMap<>();
-            if (splitPathSegment.length > 1) {
-                for (int i = 1; i < splitPathSegment.length; i++) {
-                    String[] splitMatrixParam = splitPathSegment[i].split("=");
-                    if (splitMatrixParam.length != 2) {
-                        throw new BallerinaConnectorException(
-                                String.format("Found non-matrix parameter '%s' in path '%s'",
-                                              splitPathSegment[i], path));
-                    }
-                    segmentMatrixParams.put(splitMatrixParam[0], splitMatrixParam[1]);
+            for (int i = 1; i < splitPathSegment.length; i++) {
+                String[] splitMatrixParam = splitPathSegment[i].split("=");
+                if (splitMatrixParam.length != 2) {
+                    throw new BallerinaConnectorException(
+                            String.format("Found non-matrix parameter '%s' in path '%s'",
+                                          splitPathSegment[i], path));
                 }
+                segmentMatrixParams.put(splitMatrixParam[0], splitMatrixParam[1]);
             }
             matrixParams.put(pathToMatrixParam, segmentMatrixParams);
         }
 
-        if (pathSplits.length > 1) {
-            for (int i = 1; i < pathSplits.length; i++) {
-                pathToMatrixParam = pathToMatrixParam.concat("?").concat(pathSplits[i]);
-            }
+        for (int i = 1; i < pathSplits.length; i++) {
+            pathToMatrixParam = pathToMatrixParam.concat("?").concat(pathSplits[i]);
         }
         return pathToMatrixParam;
     }

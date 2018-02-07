@@ -32,6 +32,9 @@ import org.testng.annotations.Test;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 import org.wso2.transport.http.netty.message.HttpMessageDataStreamer;
 
+/**
+ * Test class for Matrix parameters based dispatching.
+ */
 public class UriMatrixParametersMatchTest {
 
     private CompileResult application;
@@ -100,6 +103,23 @@ public class UriMatrixParametersMatchTest {
                 .getStringFromInputStream(new HttpMessageDataStreamer(response).getInputStream());
         Assert.assertNotNull(errorMessage, "Message body null");
         Assert.assertTrue(errorMessage.contains("no matching resource found for path"),
+                          "Expected error not found.");
+    }
+
+    @Test
+    public void testErrorReportInURI() {
+        String path = "/hello/t2/john;age;color=white/foo;a=5;b=10"; // encoded URI
+        HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, "GET");
+        HTTPCarbonMessage response = Services.invokeNew(application, cMsg);
+
+        Assert.assertNotNull(response, "Response message not found");
+        Assert.assertEquals(
+                response.getProperty(Constants.HTTP_STATUS_CODE), 500, "Response code mismatch");
+        //checking the exception message
+        String errorMessage = StringUtils
+                .getStringFromInputStream(new HttpMessageDataStreamer(response).getInputStream());
+        Assert.assertNotNull(errorMessage, "Message body null");
+        Assert.assertTrue(errorMessage.contains("found non-matrix parameter"),
                           "Expected error not found.");
     }
 }
