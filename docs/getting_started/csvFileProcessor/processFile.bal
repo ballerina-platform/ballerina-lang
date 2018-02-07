@@ -10,11 +10,9 @@ function getFileRecordChannel (string filePath, string permission, string encodi
 }
 
 function process (io:TextRecordChannel srcRecordChannel, io:TextRecordChannel dstRecordChannel) {
-    int numberOfFields = -1;
-    while (numberOfFields != 0) {
-        string[] records = srcRecordChannel.readTextRecord();
+    while (srcRecordChannel.hasNextTextRecord()) {
+        string[] records = srcRecordChannel.nextTextRecord();
         dstRecordChannel.writeTextRecord(records);
-        numberOfFields = lengthof records;
     }
 }
 

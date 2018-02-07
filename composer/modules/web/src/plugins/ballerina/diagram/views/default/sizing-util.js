@@ -486,9 +486,6 @@ class SizingUtil {
         viewState.titleWidth = textWidth.w + this.config.panel.heading.title.margin.right
             + this.config.panelHeading.iconSize.width;
 
-        cmp.parametersPrefixContainer = {};
-        cmp.parametersPrefixContainer.w = this.getTextWidth('Parameters: ').w;
-
         // Creating components for argument parameters
         if (node.getParameters()) {
             // Creating component for opening bracket of the parameters view.

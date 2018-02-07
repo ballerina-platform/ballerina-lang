@@ -38,6 +38,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BEndpointType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BJSONType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.types.BLangArrayType;
@@ -470,12 +471,16 @@ public class SymbolResolver extends BLangNodeVisitor {
     public void visit(BLangConstrainedType constrainedTypeNode) {
         BType type = resolveTypeNode(constrainedTypeNode.type, env);
         BType constraintType = resolveTypeNode(constrainedTypeNode.constraint, env);
-        if (!types.checkStructToJSONCompatibility(constraintType) && constraintType != symTable.errType) {
-            dlog.error(constrainedTypeNode.pos, DiagnosticCode.INCOMPATIBLE_TYPE_CONSTRAINT, type, constraintType);
-            resultType = symTable.errType;
-            return;
+        if (type.tag == TypeTags.TABLE) {
+            resultType = new BTableType(TypeTags.TABLE, constraintType, type.tsymbol);
+        } else {
+            if (!types.checkStructToJSONCompatibility(constraintType) && constraintType != symTable.errType) {
+                dlog.error(constrainedTypeNode.pos, DiagnosticCode.INCOMPATIBLE_TYPE_CONSTRAINT, type, constraintType);
+                resultType = symTable.errType;
+                return;
+            }
+            resultType = new BJSONType(TypeTags.JSON, constraintType, type.tsymbol);
         }
-        resultType = new BJSONType(TypeTags.JSON, constraintType, type.tsymbol);
     }
 
     public void visit(BLangUserDefinedType userDefinedTypeNode) {

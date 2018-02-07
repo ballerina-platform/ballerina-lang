@@ -27,6 +27,10 @@ import CompilationUnitNode from './../model/tree/compilation-unit-node';
 import { TOOL_PALETTE_WIDTH } from './constants';
 import { EVENTS } from '../constants';
 import DesignViewErrorBoundary from './DesignViewErrorBoundary';
+import ViewButton from './view-button';
+
+
+const zoomLevels = ['action', 'default'];
 
 class DesignView extends React.Component {
 
@@ -34,7 +38,7 @@ class DesignView extends React.Component {
         super(props);
         this.state = {
             isTransformActive: false,
-            mode: 'action',
+            zoomLevel: 0,
         };
         this.overlayContainer = undefined;
         this.diagramContainer = undefined;
@@ -46,9 +50,8 @@ class DesignView extends React.Component {
         this.getDiagramContainer = this.getDiagramContainer.bind(this);
         this.setToolPaletteContainer = this.setToolPaletteContainer.bind(this);
         this.getToolPaletteContainer = this.getToolPaletteContainer.bind(this);
-        this.props.commandProxy.on('diagram-mode-change', ({ mode }) => {
-            this.setMode(mode);
-        });
+        this.zoomIn = this.zoomIn.bind(this);
+        this.zoomOut = this.zoomOut.bind(this);
         this.props.commandProxy.on('go-to-node', (node) => {
             this.scrollbars.scrollTop(node.viewState.bBox.y);
         });
@@ -147,8 +150,16 @@ class DesignView extends React.Component {
         return this.toolPaletteContainer;
     }
 
-    setMode(diagramMode) {
-        this.setState({ mode: diagramMode });
+    zoomIn() {
+        let newLevel = this.state.zoomLevel + 1;
+        newLevel = (newLevel >= zoomLevels.length) ? zoomLevels.length - 1 : newLevel;
+        this.setState({ zoomLevel: newLevel });
+    }
+
+    zoomOut() {
+        let newLevel = this.state.zoomLevel - 1;
+        newLevel = (newLevel < 0) ? 0 : newLevel;
+        this.setState({ zoomLevel: newLevel });
     }
 
     render() {
@@ -189,7 +200,7 @@ class DesignView extends React.Component {
                                     <DesignViewErrorBoundary>
                                         <BallerinaDiagram
                                             model={this.props.model}
-                                            mode={this.state.mode}
+                                            mode={zoomLevels[this.state.zoomLevel]}
                                             width={this.props.width - TOOL_PALETTE_WIDTH}
                                             height={this.props.height}
                                             disabled={this.props.disabled}
@@ -199,6 +210,20 @@ class DesignView extends React.Component {
                             </div>
                         </div>
                     </Scrollbars>
+                    <div className={'bottom-right-controls-container zoom-controls'}>
+                        <ViewButton
+                            label='Zoom In'
+                            icon='add'
+                            onClick={this.zoomIn}
+                            active={!(this.state.zoomLevel === (zoomLevels.length - 1))}
+                        />
+                        <ViewButton
+                            label='Zoom Out'
+                            icon='minus'
+                            onClick={this.zoomOut}
+                            active={!(this.state.zoomLevel === 0)}
+                        />
+                    </div>
                     {shouldShowTransform &&
                         <TransformerExpanded
                             model={activeTransformModel}

@@ -37,7 +37,7 @@ public class TypeConstants {
     public static final String CONNECTOR_TNAME = "connector";
     public static final String STRUCT_TNAME = "struct";
     static final String ITERATOR_TNAME = "iterator";
-    public static final String DATATABLE_TNAME = "datatable";
+    public static final String TABLE_TNAME = "table";
     public static final String ANY_TNAME = "any";
     public static final String TYPE_TNAME = "type";
     public static final String NULL_TNAME = "null";

@@ -353,11 +353,9 @@ class ExportDiagramDialog extends React.Component {
      * @param {function} callServer - call back to server.
      * */
     sendPayload(location, configName, fileType, callServer) {
-        let payload = '';
-        const config = this.getSVG();
+        const svgContent = this.getSVG();
         if (fileType === 'SVG') {
-            payload = `location=${btoa(location)}&configName=${btoa(configName)}&config=${encodeURIComponent(config)}`;
-            callServer(payload);
+            callServer(btoa(svgContent));
         } else if (fileType === 'PNG') {
             const tab = $(('#bal-file-editor-' + this.props.file.id).replace(/(:|\.|\[|\]|\/|,|=)/g, '\\$1'));
             const svgElement = tab.find('.svg-container');
@@ -369,11 +367,9 @@ class ExportDiagramDialog extends React.Component {
                 const png = canvas.toDataURL('image/png');
                 let img = png.replace('data:image/png;base64,', '');
                 img = img.replace(' ', '+');
-                payload = `location=${btoa(location)}&configName=${btoa(configName)}`
-                    + `&imageFile=true&config=${encodeURIComponent(img)}`;
-                callServer(payload);
+                callServer(img);
             };
-            image.src = 'data:image/svg+xml;charset-utf-8,' + encodeURIComponent(config);
+            image.src = 'data:image/svg+xml;charset-utf-8,' + svgContent;
         }
     }
 

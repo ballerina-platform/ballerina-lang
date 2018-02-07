@@ -14,13 +14,22 @@ You can download the Ballerina distribution, try samples, and read the documenta
 
 ## Building from the source
 
-If you want to build Ballerina from the source code:
+### Prerequisites
 
-1. Get a clone or download the source from this repository (https://github.com/ballerinalang/ballerina).
-1. Run the Maven command ``mvn clean install`` from the ``ballerina`` root directory.
-1. Get a clone or download the source from tools-distribution repository (https://github.com/ballerinalang/tools-distribution).
-1. Run the Maven command ``mvn clean install`` from ``tools-distribution`` root directory.
-1. Extract the Ballerina distribution created at `tools-distribution/modules/ballerina/target/ballerina-<version>-SNAPSHOT.zip` to your local directory.
+1. [Maven](https://maven.apache.org/download.cgi)
+2. [Node + npm](https://nodejs.org/en/download/)
+3. [Docker](https://www.docker.com/get-docker)
+
+### Building the source
+
+1. Clone this repository using the following command.
+
+    ```bash
+    git clone https://github.com/ballerinalang/ballerina
+    ```
+    
+2. Run the Maven command ``mvn clean install`` from the ``ballerina`` root directory.
+3. Extract the Ballerina distribution created at `distribution/zip/ballerina/target/ballerina-<version>-SNAPSHOT.zip`.
 
 ## Running samples
 

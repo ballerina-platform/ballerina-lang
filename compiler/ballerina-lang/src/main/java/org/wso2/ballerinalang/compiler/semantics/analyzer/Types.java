@@ -38,6 +38,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStructType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStructType.BAttachedFunction;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStructType.BStructField;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeVisitor;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
@@ -189,6 +190,10 @@ public class Types {
      */
     public boolean isAssignable(BType source, BType target) {
         if (target.tag == TypeTags.ANY && !isValueType(source)) {
+            return true;
+        }
+
+        if (target.tag == TypeTags.TABLE && source.tag == TypeTags.TABLE) {
             return true;
         }
 
@@ -394,6 +399,15 @@ public class Types {
                 } else {
                     maxSupportedTypes = 2;
                     errorTypes = Lists.of(symTable.intType, symTable.xmlType);
+                }
+                break;
+            case TypeTags.TABLE:
+                BTableType tableType = (BTableType) collectionType;
+                if (variableSize == 1) {
+                    return Lists.of(tableType.constraint);
+                } else {
+                    maxSupportedTypes = 1;
+                    errorTypes = Lists.of(tableType.constraint);
                 }
                 break;
             case TypeTags.ERROR:

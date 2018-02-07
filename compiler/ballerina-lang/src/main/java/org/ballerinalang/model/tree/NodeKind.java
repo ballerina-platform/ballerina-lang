@@ -93,6 +93,7 @@ public enum NodeKind {
     TRY,
     VARIABLE_DEF,
     WHILE,
+    LOCK,
     WORKER_RECEIVE,
     WORKER_SEND,
 

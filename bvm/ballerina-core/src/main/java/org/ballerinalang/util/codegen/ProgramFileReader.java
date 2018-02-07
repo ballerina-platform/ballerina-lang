@@ -24,6 +24,7 @@ import org.ballerinalang.model.types.BEnumType;
 import org.ballerinalang.model.types.BFunctionType;
 import org.ballerinalang.model.types.BJSONType;
 import org.ballerinalang.model.types.BStructType;
+import org.ballerinalang.model.types.BTableType;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.types.TypeSignature;
@@ -36,6 +37,7 @@ import org.ballerinalang.util.codegen.Instruction.InstructionACALL;
 import org.ballerinalang.util.codegen.Instruction.InstructionCALL;
 import org.ballerinalang.util.codegen.Instruction.InstructionFORKJOIN;
 import org.ballerinalang.util.codegen.Instruction.InstructionIteratorNext;
+import org.ballerinalang.util.codegen.Instruction.InstructionLock;
 import org.ballerinalang.util.codegen.Instruction.InstructionTCALL;
 import org.ballerinalang.util.codegen.Instruction.InstructionVCALL;
 import org.ballerinalang.util.codegen.Instruction.InstructionWRKSendReceive;
@@ -860,6 +862,7 @@ public class ProgramFileReader {
             case 'J':
             case 'T':
             case 'E':
+            case 'D':
                 char typeChar = chars[index];
                 // TODO Improve this logic
                 index++;
@@ -892,6 +895,12 @@ public class ProgramFileReader {
                         typeStack.push(BTypes.typeJSON);
                     } else {
                         typeStack.push(new BJSONType(packageInfoOfType.getStructInfo(name).getType()));
+                    }
+                } else if (typeChar == 'D') {
+                    if (name.isEmpty()) {
+                        typeStack.push(BTypes.typeTable);
+                    } else {
+                        typeStack.push(new BTableType(packageInfoOfType.getStructInfo(name).getType()));
                     }
                 } else if (typeChar == 'E') {
                     typeStack.push(packageInfoOfType.getEnumInfo(name).getType());
@@ -939,11 +948,16 @@ public class ProgramFileReader {
             case 'J':
             case 'T':
             case 'E':
+            case 'D':
                 String typeName = desc.substring(1, desc.length() - 1);
                 String[] parts = typeName.split(":");
 
-                if (ch == 'J' && parts.length == 1) {
-                    return BTypes.typeJSON;
+                if (parts.length == 1) {
+                    if (ch == 'J') {
+                        return BTypes.typeJSON;
+                    } else if (ch == 'D') {
+                        return BTypes.typeTable;
+                    }
                 }
 
                 String pkgPath = parts[0];
@@ -953,6 +967,8 @@ public class ProgramFileReader {
                     return new BJSONType(packageInfoOfType.getStructInfo(name).getType());
                 } else if (ch == 'C') {
                     return packageInfoOfType.getConnectorInfo(name).getType();
+                } else if (ch == 'D') {
+                    return new BTableType(packageInfoOfType.getStructInfo(name).getType());
                 } else if (ch == 'E') {
                     return packageInfoOfType.getEnumInfo(name).getType();
                 } else {
@@ -1369,7 +1385,7 @@ public class ProgramFileReader {
                 case InstructionCodes.ERRSTORE:
                 case InstructionCodes.TR_END:
                 case InstructionCodes.NEWMAP:
-                case InstructionCodes.NEWDATATABLE:
+                case InstructionCodes.NEWTABLE:
                     i = codeStream.readInt();
                     packageInfo.addInstruction(InstructionFactory.get(opcode, i));
                     break;
@@ -1646,6 +1662,19 @@ public class ProgramFileReader {
                     retRegs = getArgRegs(codeStream);
                     packageInfo.addInstruction(new InstructionIteratorNext(opcode, iteratorIndex, retRegs.length,
                             typeTags, retRegs));
+                    break;
+                case InstructionCodes.LOCK:
+                case InstructionCodes.UNLOCK:
+                    int varCount = codeStream.readInt();
+                    BType[] varTypes = new BType[varCount];
+                    int[] varRegs = new int[varCount];
+                    for (int m = 0; m < varCount; m++) {
+                        int varSigCPIndex = codeStream.readInt();
+                        TypeRefCPEntry typeRefCPEntry = (TypeRefCPEntry) packageInfo.getCPEntry(varSigCPIndex);
+                        varTypes[m] = typeRefCPEntry.getType();
+                        varRegs[m] = codeStream.readInt();
+                    }
+                    packageInfo.addInstruction(new InstructionLock(opcode, varTypes, varRegs));
                     break;
                 default:
                     throw new ProgramFileFormatException("unknown opcode " + opcode +

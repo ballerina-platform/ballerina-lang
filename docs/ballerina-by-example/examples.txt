@@ -41,7 +41,7 @@ Fork/Join
 Fork/Join Condition Some
 Fork/Join Variable Access
 SQL Connector
-Datatable
+Table
 Transactions
 Distributed Transactions
 Transformers

@@ -15,12 +15,12 @@
  */
 package org.ballerinalang.langserver;
 
+import org.ballerinalang.langserver.common.position.PositionTreeVisitor;
 import org.ballerinalang.langserver.completions.CompletionKeys;
 import org.ballerinalang.langserver.completions.TreeVisitor;
 import org.ballerinalang.langserver.completions.consts.CompletionItemResolver;
 import org.ballerinalang.langserver.completions.resolvers.TopLevelResolver;
 import org.ballerinalang.langserver.definition.util.DefinitionUtil;
-import org.ballerinalang.langserver.hover.HoverTreeVisitor;
 import org.ballerinalang.langserver.hover.util.HoverUtil;
 import org.ballerinalang.langserver.signature.SignatureHelpUtil;
 import org.ballerinalang.langserver.signature.SignatureTreeVisitor;
@@ -186,7 +186,6 @@ public class BallerinaTextDocumentService implements TextDocumentService {
 
     @Override
     public CompletableFuture<List<? extends Location>> definition(TextDocumentPositionParams position) {
-
         return CompletableFuture.supplyAsync(() -> {
             TextDocumentServiceContext hoverContext = new TextDocumentServiceContext();
             hoverContext.put(DocumentServiceKeys.FILE_URI_KEY, position.getTextDocument().getUri());
@@ -197,8 +196,8 @@ public class BallerinaTextDocumentService implements TextDocumentService {
             bLangPackageContext.addPackage(currentBLangPackage);
             List<Location> contents;
             try {
-                HoverTreeVisitor hoverTreeVisitor = new HoverTreeVisitor(hoverContext);
-                currentBLangPackage.accept(hoverTreeVisitor);
+                PositionTreeVisitor positionTreeVisitor = new PositionTreeVisitor(hoverContext);
+                currentBLangPackage.accept(positionTreeVisitor);
 
                 contents = DefinitionUtil.getDefinitionPosition(hoverContext, currentBLangPackage);
             } catch (Exception e) {

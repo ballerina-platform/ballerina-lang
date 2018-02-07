@@ -229,7 +229,7 @@ public class Mnemonics {
         mnemonics[InstructionCodes.NEWCONNECTOR] = "newconnector";
         mnemonics[InstructionCodes.NEWMAP] = "newmap";
         mnemonics[InstructionCodes.NEWJSON] = "newjson";
-        mnemonics[InstructionCodes.NEWDATATABLE] = "newdatatable";
+        mnemonics[InstructionCodes.NEWTABLE] = "newtable";
 
         mnemonics[InstructionCodes.NEW_INT_RANGE] = "new_int_range";
         mnemonics[InstructionCodes.ITR_NEW] = "itr_new";
@@ -259,6 +259,8 @@ public class Mnemonics {
         mnemonics[InstructionCodes.S2XML] = "s2xml";
         mnemonics[InstructionCodes.XML2S] = "xml2s";
         mnemonics[InstructionCodes.S2JSONX] = "s2jsonx";
+        mnemonics[InstructionCodes.LOCK] = "lock";
+        mnemonics[InstructionCodes.UNLOCK] = "unlock";
     }
 
     public static String getMnem(int opcode) {

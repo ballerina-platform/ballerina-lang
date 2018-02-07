@@ -224,6 +224,9 @@ public interface InstructionCodes {
     int S2JSONX = 183;
     int NULL2S = 184;
 
+    int LOCK = 185;
+    int UNLOCK = 186;
+
     // Transactions
     int TR_BEGIN = 188;
     int TR_END = 189;
@@ -248,7 +251,7 @@ public interface InstructionCodes {
     int NEWCONNECTOR = 211;
     int NEWMAP = 212;
     int NEWJSON = 213;
-    int NEWDATATABLE = 215;
+    int NEWTABLE = 215;
 
     int NEW_INT_RANGE = 219;
     int ITR_NEW = 220;
