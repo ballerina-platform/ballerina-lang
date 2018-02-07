@@ -49,11 +49,11 @@ public class UriAndHeaderLengthValidator extends ChannelInboundHandlerAdapter {
                 HttpRequest inboundRequest = (HttpRequest) msg;
                 Throwable cause = inboundRequest.decoderResult().cause();
                 if (cause instanceof TooLongFrameException) {
-                    if (Constants.REQUEST_HEADER_TOO_LARGE.equalsIgnoreCase(cause.getMessage())) {
+                    if (cause.getMessage().contains(Constants.REQUEST_HEADER_TOO_LARGE)) {
                         Util.sendAndCloseNoEntityBodyResp(ctx, HttpResponseStatus.REQUEST_ENTITY_TOO_LARGE,
                                 HttpVersion.HTTP_1_0, serverName);
                         log.warn("Inbound request Entity exceeds the max entity size allowed for a request");
-                    } else if (Constants.REQUEST_LINE_TOO_LONG.equalsIgnoreCase(cause.getMessage())) {
+                    } else if (cause.getMessage().contains(Constants.REQUEST_LINE_TOO_LONG)) {
                         Util.sendAndCloseNoEntityBodyResp(ctx, HttpResponseStatus.REQUEST_URI_TOO_LONG,
                                 HttpVersion.HTTP_1_0, serverName);
                         log.warn("Inbound request URI length exceeds the max uri length allowed for a request");

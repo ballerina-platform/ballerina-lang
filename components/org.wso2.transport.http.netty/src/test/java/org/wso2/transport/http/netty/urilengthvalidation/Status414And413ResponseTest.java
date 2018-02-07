@@ -70,6 +70,8 @@ public class Status414And413ResponseTest {
         listenerConfiguration.setPort(TestUtil.SERVER_CONNECTOR_PORT);
         listenerConfiguration.setServerHeader(TestUtil.TEST_SERVER);
         listenerConfiguration.getRequestSizeValidationConfig().setMaxEntityBodySize(1024);
+        listenerConfiguration.getRequestSizeValidationConfig().setMaxHeaderSize(1024);
+        listenerConfiguration.getRequestSizeValidationConfig().setMaxEntityBodySize(1024);
 
         ServerBootstrapConfiguration serverBootstrapConfig = new ServerBootstrapConfiguration(new HashMap<>());
         HttpWsConnectorFactory httpWsConnectorFactory = new HttpWsConnectorFactoryImpl();
