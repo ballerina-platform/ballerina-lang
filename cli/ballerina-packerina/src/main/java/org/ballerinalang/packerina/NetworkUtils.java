@@ -37,7 +37,7 @@ import static org.ballerinalang.util.BLangConstants.USER_REPO_SRC_DIRNAME;
  * Util class for network calls
  */
 public class NetworkUtils {
-    static CompileResult compileResult;
+    private static CompileResult compileResult;
     private static final String BALLERINA_CENTRAL_REPOSITORY = "http://packages.ballerina.io/";
 
     /**
@@ -64,7 +64,7 @@ public class NetworkUtils {
      *
      * @return compile result after compiling the bal file
      */
-    public static CompileResult compileBalFile() {
+    private static CompileResult compileBalFile() {
         CompileResult compileResult = BCompileUtil.compile("src", "ballerina.pull", CompilerPhase.CODE_GEN);
         ProgramFile programFile = compileResult.getProgFile();
         PackageInfo packageInfo = programFile.getPackageInfo(compileResult.getProgFile().getEntryPkgName());
