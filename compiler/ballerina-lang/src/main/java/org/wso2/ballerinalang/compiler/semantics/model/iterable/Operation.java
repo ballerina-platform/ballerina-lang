@@ -17,10 +17,10 @@
 package org.wso2.ballerinalang.compiler.semantics.model.iterable;
 
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
@@ -44,11 +44,12 @@ public class Operation {
     public BType collectionType;
     public List<BType> expectedTypes;
     public List<BType> resultTypes; // Reduced value or intermediate collection type.
-    public List<BType> argTypes, retArgTypes;   // Operation's input and output arguments types.
+    public List<BType> argTypes = new ArrayList<>();        // Operation's input arguments types.
+    public List<BType> retArgTypes = new ArrayList<>();     // Operation's output arguments types.
 
     /* variables for lambda based operations. */
     public int arity;
-    public BLangExpression lambda;
+    public BInvokableSymbol lambdaSymbol;
     public BInvokableType lambdaType;
 
     /* fields required for code generation. */
@@ -57,7 +58,11 @@ public class Operation {
 
     public Operation(IterableKind iterableKind, BLangInvocation iExpr, List<BType> expTypes, SymbolEnv env) {
         this.iExpr = iExpr;
-        this.pos = iExpr.pos;
+        if (iExpr.argExprs.isEmpty()) {
+            this.pos = iExpr.pos;
+        } else {
+            this.pos = iExpr.argExprs.get(0).pos;
+        }
         this.collectionType = iExpr.expr.type;
         this.kind = iterableKind;
         this.expectedTypes = expTypes;

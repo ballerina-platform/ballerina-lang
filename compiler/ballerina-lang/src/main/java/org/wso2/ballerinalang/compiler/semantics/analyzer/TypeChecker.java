@@ -458,7 +458,11 @@ public class TypeChecker extends BLangNodeVisitor {
                 checkFunctionInvocationExpr(iExpr, symTable.jsonType);
                 break;
             case TypeTags.ARRAY:
+            case TypeTags.TUPLE_COLLECTION:
                 dlog.error(iExpr.pos, DiagnosticCode.INVALID_FUNCTION_INVOCATION, iExpr.expr.type);
+                break;
+            case TypeTags.NONE:
+                dlog.error(iExpr.pos, DiagnosticCode.UNDEFINED_FUNCTION, iExpr.name);
                 break;
             default:
                 // TODO Handle this condition
@@ -647,7 +651,7 @@ public class TypeChecker extends BLangNodeVisitor {
                 actualTypes = getActualTypesOfConversionExpr(conversionExpr, targetType, sourceType, conversionSym);
             }
         } else {
-           actualTypes = checkNamedTransformerInvocation(conversionExpr, sourceType, targetType);
+            actualTypes = checkNamedTransformerInvocation(conversionExpr, sourceType, targetType);
         }
 
         resultTypes = types.checkTypes(conversionExpr, actualTypes, expTypes);

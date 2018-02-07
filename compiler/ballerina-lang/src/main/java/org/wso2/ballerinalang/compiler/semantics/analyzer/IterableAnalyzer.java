@@ -54,7 +54,7 @@ public class IterableAnalyzer {
     private TypeChecker typeChecker;
     private DiagnosticLog dlog;
 
-    private final BIterableTypeVisitor lambdaTypeChecker, terminalTypeChecker;
+    private final BIterableTypeVisitor lambdaTypeChecker, terminalInputTypeChecker, terminalTypeChecker;
 
     private IterableAnalyzer(CompilerContext context) {
         context.put(ITERABLE_ANALYZER_KEY, this);
@@ -65,6 +65,7 @@ public class IterableAnalyzer {
 
         this.lambdaTypeChecker = new LambdaBasedTypeChecker(dlog, symTable);
         this.terminalTypeChecker = new TerminalOperationTypeChecker(dlog, symTable);
+        this.terminalInputTypeChecker = new TerminalOperationInputTypeChecker(dlog, symTable);
     }
 
     public static IterableAnalyzer getInstance(CompilerContext context) {
@@ -104,6 +105,7 @@ public class IterableAnalyzer {
             return;
         }
         operation.resultTypes = operation.collectionType.accept(terminalTypeChecker, operation);
+        operation.argTypes = operation.collectionType.accept(terminalInputTypeChecker, operation);
         if (operation.kind.isTerminal()) {
             operation.retArgTypes = operation.resultTypes;
         }
@@ -115,8 +117,7 @@ public class IterableAnalyzer {
             return;
         }
 
-        operation.lambda = operation.iExpr.argExprs.get(0);
-        final List<BType> bTypes = typeChecker.checkExpr(operation.lambda, operation.env);
+        final List<BType> bTypes = typeChecker.checkExpr(operation.iExpr.argExprs.get(0), operation.env);
         if (bTypes.size() != 1 || bTypes.get(0).tag != TypeTags.INVOKABLE) {
             dlog.error(operation.pos, DiagnosticCode.ITERABLE_LAMBDA_REQUIRED);
             return;
@@ -161,7 +162,7 @@ public class IterableAnalyzer {
             if (supportedTypes.get(i).tag == TypeTags.ERROR || givenTypes.get(i).tag == TypeTags.ERROR) {
                 return;
             }
-            types.checkType(operation.lambda, givenTypes.get(i), supportedTypes.get(i),
+            types.checkType(operation.pos, givenTypes.get(i), supportedTypes.get(i),
                     DiagnosticCode.ITERABLE_LAMBDA_INCOMPATIBLE_TYPES);
         }
     }
@@ -182,7 +183,7 @@ public class IterableAnalyzer {
             if (supportedTypes.get(i).tag == TypeTags.ERROR || givenTypes.get(i).tag == TypeTags.ERROR) {
                 return;
             }
-            types.checkType(operation.lambda, givenTypes.get(i), supportedTypes.get(i),
+            types.checkType(operation.pos, givenTypes.get(i), supportedTypes.get(i),
                     DiagnosticCode.ITERABLE_LAMBDA_INCOMPATIBLE_TYPES);
         }
     }
@@ -190,12 +191,13 @@ public class IterableAnalyzer {
     private void assignInvocationType(Operation operation, List<BType> argTypes, List<BType> supportedRetTypes) {
         operation.argTypes = argTypes;
         operation.retArgTypes = supportedRetTypes;
-        if (operation.kind.isTerminal()) {
-            operation.resultTypes = supportedRetTypes;
-            return;
-        }
         if (supportedRetTypes.size() == 0) {
             operation.resultTypes = Collections.emptyList();
+            operation.iExpr.type = symTable.noType;
+            return;
+        }
+        if (operation.kind.isTerminal()) {
+            operation.resultTypes = supportedRetTypes;
             return;
         }
         if (operation.kind == IterableKind.FILTER) {
@@ -310,7 +312,7 @@ public class IterableAnalyzer {
             return Lists.of(calculateType(operation, t));
         }
 
-        private BType calculateType(Operation operation, BType type) {
+        BType calculateType(Operation operation, BType type) {
             BType elementType = type;
             switch (operation.kind) {
                 case MAX:
@@ -343,6 +345,57 @@ public class IterableAnalyzer {
                     break;
             }
             dlog.error(operation.pos, DiagnosticCode.ITERABLE_NOT_SUPPORTED_OPERATION, operation.kind);
+            return symTable.errType;
+        }
+    }
+
+    /**
+     * Type checker for checking input of a simple terminal operation.
+     *
+     * @since 0.961.0
+     */
+    private static class TerminalOperationInputTypeChecker extends TerminalOperationTypeChecker {
+
+        TerminalOperationInputTypeChecker(DiagnosticLog dlog, SymbolTable symTable) {
+            super(dlog, symTable);
+        }
+
+        @Override
+        BType calculateType(Operation operation, BType type) {
+            BType elementType = type;
+            switch (operation.kind) {
+                case MAX:
+                case MIN:
+                case SUM:
+                    if (elementType.tag == TypeTags.TUPLE_COLLECTION) {
+                        BTupleCollectionType tupleType = (BTupleCollectionType) elementType;
+                        if (tupleType.tupleTypes.size() == 1) {
+                            elementType = tupleType.tupleTypes.get(0);
+                        }
+                    }
+                    if (elementType.tag == TypeTags.INT || elementType.tag == TypeTags.FLOAT) {
+                        return elementType;
+                    }
+                    break;
+                case AVERAGE:
+                    if (elementType.tag == TypeTags.TUPLE_COLLECTION) {
+                        BTupleCollectionType tupleType = (BTupleCollectionType) elementType;
+                        if (tupleType.tupleTypes.size() == 1) {
+                            elementType = tupleType.tupleTypes.get(0);
+                        }
+                    }
+                    if (elementType.tag == TypeTags.INT || elementType.tag == TypeTags.FLOAT) {
+                        return elementType;
+                    }
+                    break;
+                case COUNT:
+                    if (elementType.tag == TypeTags.TUPLE_COLLECTION) {
+                        elementType = ((BTupleCollectionType) elementType).tupleTypes.get(0);
+                    }
+                    return elementType;
+                default:
+                    break;
+            }
             return symTable.errType;
         }
     }

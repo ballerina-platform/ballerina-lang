@@ -1145,10 +1145,11 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                     context.resultType = symTable.mapType;
                     lastOperation.resultTypes = Lists.of(context.resultType);
                     continue;
+                } else if (expectedTypes.get(0).tag == TypeTags.ANY) {
+                    context.resultType = symTable.errType;
+                    dlog.error(lastOperation.pos, DiagnosticCode.ITERABLE_RETURN_TYPE_MISMATCH, lastOperation.kind);
+                    continue;
                 }
-                context.resultType = symTable.errType;
-                dlog.error(lastOperation.pos, DiagnosticCode.ITERABLE_RETURN_TYPE_MISMATCH, lastOperation.kind,
-                        expectedTypes.get(0));
             }
             context.resultType = types.checkType(lastOperation.pos, resultTypes.get(0), expectedTypes.get(0),
                     DiagnosticCode.INCOMPATIBLE_TYPES);
