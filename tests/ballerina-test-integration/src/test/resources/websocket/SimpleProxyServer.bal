@@ -20,6 +20,11 @@ service<ws> SimpleProxyServer {
         } else {
             clientConn.attributes["name"] = name;
             clientConnMap[con.connectionID] = clientConn;
+            map queryParams = con.getQueryParams();
+            var age, err = (string)queryParams.age;
+            if (err == null) {
+                clientConn.attributes["age"] = age;
+            }
         }
     }
 
@@ -37,7 +42,13 @@ service<ws> SimpleProxyServer {
         } else if (text == "client_ping_req") {
             clientConn.pushText("ping");
         } else if (clientConn != null) {
-            clientConn.pushText(name + " " + text);
+            map params = conn.getQueryParams();
+            var age, err = (string)params.age;
+            if (err != null) {
+                clientConn.pushText(name + " " + text);
+            } else {
+                clientConn.pushText(name + "(" + age + ") " + text);
+            }
         }
     }
 
@@ -62,7 +73,12 @@ service<ws> ClientService {
     resource onTextMessage(ws:Connection conn, ws:TextFrame frame) {
         ws:Connection parentConn = conn.getParentConnection();
         var parentName, _ = (string) conn.attributes["name"];
-        parentConn.pushText(parentName + " client service: " + frame.text);
+        var age, err = (string) conn.attributes["age"];
+        if(err != null) {
+            parentConn.pushText(parentName + " client service: " + frame.text);
+        } else {
+            parentConn.pushText(parentName + "(" + age + ") client service: " + frame.text);
+        }
     }
 
     resource onPing(ws:Connection conn, ws:PingFrame frame) {

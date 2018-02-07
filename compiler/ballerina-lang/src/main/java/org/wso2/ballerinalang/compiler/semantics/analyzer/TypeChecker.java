@@ -443,7 +443,7 @@ public class TypeChecker extends BLangNodeVisitor {
             case TypeTags.BLOB:
             case TypeTags.XML:
             case TypeTags.MAP:
-            case TypeTags.DATATABLE:
+            case TypeTags.TABLE:
                 checkFunctionInvocationExpr(iExpr, iExpr.expr.type);
                 break;
             case TypeTags.JSON:

@@ -22,9 +22,11 @@ import org.ballerinalang.connector.api.ConnectorFuture;
 import org.ballerinalang.connector.api.Executor;
 import org.ballerinalang.connector.api.ParamDetail;
 import org.ballerinalang.connector.api.Resource;
+import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.net.uri.URIUtil;
 import org.ballerinalang.services.ErrorHandlerUtils;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketBinaryMessage;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketCloseMessage;
@@ -34,13 +36,14 @@ import org.wso2.transport.http.netty.contract.websocket.WebSocketMessage;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketTextMessage;
 
 import java.io.IOException;
+import java.net.URI;
 import java.util.List;
 import java.util.Map;
 import javax.websocket.Session;
 
 /**
- * {@code WebSocketDispatcher} This is the web socket request dispatcher implementation which finds
- * best matching resource for incoming web socket request.
+ * {@code WebSocketDispatcher} This is the web socket request dispatcher implementation which finds best matching
+ * resource for incoming web socket request.
  *
  * @since 0.94
  */
@@ -53,7 +56,8 @@ public class WebSocketDispatcher {
      * @return matching service.
      */
     public static WebSocketService findService(WebSocketServicesRegistry servicesRegistry,
-                                               Map<String, String> variables, WebSocketMessage webSocketMessage) {
+                                               Map<String, String> variables, WebSocketMessage webSocketMessage,
+                                               BMap<String, BString> queryParams) {
         if (!webSocketMessage.isServerMessage()) {
             String clientServiceName = webSocketMessage.getTarget();
             WebSocketService clientService = servicesRegistry.getClientService(clientServiceName);
@@ -66,11 +70,19 @@ public class WebSocketDispatcher {
             String interfaceId = webSocketMessage.getListenerInterface();
             String serviceUri = webSocketMessage.getTarget();
             serviceUri = servicesRegistry.refactorUri(serviceUri);
-
-            WebSocketService service = servicesRegistry.matchServiceEndpoint(interfaceId, serviceUri, variables);
-
+            URI requestUri;
+            try {
+                requestUri = URI.create(serviceUri);
+            } catch (IllegalArgumentException e) {
+                throw new BallerinaConnectorException(e.getMessage());
+            }
+            WebSocketService service = servicesRegistry.matchServiceEndpoint(interfaceId, requestUri.getPath(),
+                                                                             variables);
             if (service == null) {
                 throw new BallerinaConnectorException("no Service found to handle the service request: " + serviceUri);
+            }
+            if (requestUri.getQuery() != null) {
+                URIUtil.populateQueryParamMap(requestUri.getQuery(), queryParams);
             }
             return service;
         } catch (Throwable throwable) {
@@ -232,4 +244,5 @@ public class WebSocketDispatcher {
             ErrorHandlerUtils.printError(ex);
         }
     }
+
 }

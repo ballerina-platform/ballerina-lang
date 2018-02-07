@@ -17,7 +17,6 @@
 */
 package org.ballerinalang.langserver.completions.resolvers.parsercontext;
 
-import org.ballerinalang.langserver.DocumentServiceKeys;
 import org.ballerinalang.langserver.TextDocumentServiceContext;
 import org.ballerinalang.langserver.completions.CompletionKeys;
 import org.ballerinalang.langserver.completions.SymbolInfo;
@@ -77,7 +76,6 @@ public class ParserRuleStatementContextResolver extends AbstractItemResolver {
             StatementTemplateFilter statementTemplateFilter = new StatementTemplateFilter();
             // Add the statement templates
             completionItems.addAll(statementTemplateFilter.filterItems(completionContext));
-            this.populateBasicTypes(completionItems, completionContext.get(DocumentServiceKeys.SYMBOL_TABLE_KEY));
 
             CompletionItem xmlns = new CompletionItem();
             xmlns.setLabel(ItemResolverConstants.XMLNS);
