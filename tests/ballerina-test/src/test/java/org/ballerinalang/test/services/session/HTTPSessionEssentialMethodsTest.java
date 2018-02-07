@@ -571,7 +571,7 @@ public class HTTPSessionEssentialMethodsTest {
         String responseMsgPayload = StringUtils
                 .getStringFromInputStream(new HttpMessageDataStreamer(response).getInputStream());
         Assert.assertNotNull(responseMsgPayload);
-        String error = responseMsgPayload.substring(0, 34);
-        Assert.assertEquals(error, "error, message: argument 0 is null");
+        Assert.assertEquals(responseMsgPayload, "nullReferenceException\n" +
+                "\tat .:sample.echo5(http-session-test.bal:89)");
     }
 }

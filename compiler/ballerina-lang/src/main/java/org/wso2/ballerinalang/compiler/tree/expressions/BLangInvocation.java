@@ -148,12 +148,14 @@ public class BLangInvocation extends BLangVariableReference implements Invocatio
     /**
      * @since 0.94
      */
-    public static class BLangFunctionInvocation extends BLangInvocation {
+    public static class BLangAttachedFunctionInvocation extends BLangInvocation {
+        public BLangExpression expr;
 
-        public BLangFunctionInvocation(DiagnosticPos pos,
-                                       List<BLangExpression> argExprs,
-                                       BSymbol symbol,
-                                       List<BType> types) {
+        public BLangAttachedFunctionInvocation(DiagnosticPos pos,
+                                               List<BLangExpression> argExprs,
+                                               BSymbol symbol,
+                                               List<BType> types,
+                                               BLangExpression expr) {
             this.pos = pos;
             this.argExprs = argExprs;
             this.symbol = symbol;
@@ -161,6 +163,7 @@ public class BLangInvocation extends BLangVariableReference implements Invocatio
             if (types.size() > 0) {
                 this.type = types.get(0);
             }
+            this.expr = expr;
         }
 
         @Override

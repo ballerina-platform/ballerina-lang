@@ -616,7 +616,7 @@ public class DefinitionTreeVisitor extends BLangNodeVisitor {
         // No implementation
     }
 
-    public void visit(BLangInvocation.BLangFunctionInvocation iExpr) {
+    public void visit(BLangInvocation.BLangAttachedFunctionInvocation iExpr) {
         // No implementation
     }
 

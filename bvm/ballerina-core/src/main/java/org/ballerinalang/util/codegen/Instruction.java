@@ -89,6 +89,35 @@ public class Instruction {
     }
 
     /**
+     * {@code InstructionVCALL} represents the VCALL instruction in Ballerina bytecode.
+     * <p>
+     * The VCALL instruction performs a virtual function invocation in BVM.
+     *
+     * @since 0.95.6
+     */
+    public static class InstructionVCALL extends InstructionCALL {
+        public int receiverRegIndex;
+
+        InstructionVCALL(int opcode, int receiverRegIndex, int funcRefCPIndex,
+                        FunctionInfo functionInfo, int[] argRegs, int[] retRegs) {
+            super(opcode, funcRefCPIndex, functionInfo, argRegs, retRegs);
+            this.receiverRegIndex = receiverRegIndex;
+        }
+
+        @Override
+        public String toString() {
+            StringJoiner sj = new StringJoiner(" ");
+            sj.add(String.valueOf(receiverRegIndex));
+            sj.add(String.valueOf(funcRefCPIndex));
+            sj.add(String.valueOf(argRegs.length));
+            Arrays.stream(argRegs).forEach(i -> sj.add(String.valueOf(i)));
+            sj.add(String.valueOf(retRegs.length));
+            Arrays.stream(retRegs).forEach(i -> sj.add(String.valueOf(i)));
+            return Mnemonics.getMnem(opcode) + " " + sj.toString();
+        }
+    }
+
+    /**
      * {@code InstructionACALL} represents the ACALL instruction in Ballerina bytecode.
      * <p>
      * The ACALL instruction performs an action invocation in BVM.
