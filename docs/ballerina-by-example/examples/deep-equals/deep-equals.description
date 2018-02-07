@@ -1,0 +1,2 @@
+//Deep equals or triple equals(===) is a binary operation which checks 2 values are equal in type and in value.
+//Deep equals is currently supported for string, int, float, boolean, type, structs, maps, arrays, any, JSON.

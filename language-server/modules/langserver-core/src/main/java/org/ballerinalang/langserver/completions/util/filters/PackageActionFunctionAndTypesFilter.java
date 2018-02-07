@@ -50,7 +50,7 @@ public class PackageActionFunctionAndTypesFilter extends SymbolFilter {
 
         if (DOT_SYMBOL_KEY.equals(delimiter)) {
             // If the delimiter is "." then we are filtering the bound functions for the structs
-            returnSymbolsInfoList.addAll(this.getBoundActionFunctionAndTypes(completionContext, delimiterIndex));
+            returnSymbolsInfoList.addAll(this.invocationsAndFieldsOnIdentifier(completionContext, delimiterIndex));
         } else if (PKG_DELIMITER_KEYWORD.equals(delimiter)) {
             // We are filtering the package functions, actions and the types
             ArrayList<SymbolInfo> filteredList = this.getActionsFunctionsAndTypes(completionContext, delimiterIndex);

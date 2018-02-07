@@ -108,6 +108,8 @@ public interface InstructionCodes {
     int IADD = 76;
     int FADD = 77;
     int SADD = 78;
+    int RDEQ = 79;
+    int RDNE = 80;
     int XMLADD = 81;
     int ISUB = 82;
     int FSUB = 83;
@@ -223,6 +225,9 @@ public interface InstructionCodes {
     int ANY2TYPE = 182;
     int S2JSONX = 183;
     int NULL2S = 184;
+
+    int LOCK = 185;
+    int UNLOCK = 186;
 
     // Transactions
     int TR_BEGIN = 188;

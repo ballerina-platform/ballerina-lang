@@ -1668,6 +1668,30 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      * {@inheritDoc}
      */
     @Override
+    public void enterLockStatement(BallerinaParser.LockStatementContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+
+        this.pkgBuilder.startLockStmt();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void exitLockStatement(BallerinaParser.LockStatementContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+
+        this.pkgBuilder.addLockStmt(getCurrentPos(ctx), getWS(ctx));
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public void enterFailedClause(BallerinaParser.FailedClauseContext ctx) {
         if (ctx.exception != null) {
             return;
@@ -1936,7 +1960,19 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
         this.pkgBuilder.createUnaryExpr(getCurrentPos(ctx), getWS(ctx), ctx.getChild(0).getText());
     }
-
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void exitBinaryDeepEqualExpression(BallerinaParser.BinaryDeepEqualExpressionContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+        
+        this.pkgBuilder.createBinaryExpr(getCurrentPos(ctx), getWS(ctx), ctx.getChild(1).getText());
+    }
+    
     /**
      * {@inheritDoc}
      */

@@ -5,6 +5,6 @@ service<http> HelloService {
   @Path {value:"/tweet"}
   resource {
       int b;
-      reply m;
+      return m;
   }
 }

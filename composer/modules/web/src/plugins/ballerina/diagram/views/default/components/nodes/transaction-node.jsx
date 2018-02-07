@@ -18,10 +18,9 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
-import CompoundStatementDecorator from './compound-statement-decorator';
+import TransactionStatementDecorator from './transaction-statement-decorator';
 import DropZone from './../../../../../drag-drop/DropZone';
 import DefaultNodeFactory from '../../../../../model/default-node-factory';
-import AddCompoundBlock from './add-compound-block';
 import './if-node.css';
 
 /**
@@ -47,36 +46,6 @@ class TransactionNode extends React.Component {
     }
 
     /**
-     * get Add block button rendering view.
-     * @return {XML} return node.
-     * */
-    getAddBlockButton() {
-        const model = this.props.model;
-        const transactionBody = model.transactionBody;
-        const failedBody = model.failedBody;
-        const blocksToBeAdded = [];
-
-        if (!failedBody) {
-            const failedBlock = {
-                name: 'failed',
-                addBlock: this.addFailedBody,
-            };
-            blocksToBeAdded.push(failedBlock);
-        }
-
-        if (blocksToBeAdded.length > 0) {
-            return (
-                <AddCompoundBlock
-                    blocksToBeAdded={blocksToBeAdded}
-                    model={transactionBody}
-                />
-            );
-        } else {
-            return null;
-        }
-    }
-
-    /**
      * Add failed body to transaction statement.
      * */
     addFailedBody() {
@@ -93,18 +62,8 @@ class TransactionNode extends React.Component {
      * */
     render() {
         const model = this.props.model;
-        const transactionBody = model.transactionBody;
-        const condition = model.condition;
-        const failedBody = model.failedBody;
+        const bBox = model.viewState.bBox;
         const dropZone = model.viewState.components['drop-zone'];
-        const expression = {
-            text: condition ? condition.getSource() : '',
-        };
-        const editorOptions = {
-            propertyType: 'text',
-            key: 'Retries count',
-            model: model.condition,
-        };
         return (
             <g>
                 <DropZone
@@ -119,43 +78,12 @@ class TransactionNode extends React.Component {
                     enableDragBg
                     enableCenterOverlayLine
                 />
-                {condition &&
-                <CompoundStatementDecorator
+                <TransactionStatementDecorator
                     dropTarget={model}
-                    bBox={transactionBody.viewState.bBox}
-                    title={'transaction with retries'}
-                    titleWidth={transactionBody.viewState.components.titleWidth.w
-                            + transactionBody.viewState.components.withKeywordWidth.w
-                            + transactionBody.viewState.components.retiresKeywordWidth.w}
+                    bBox={bBox}
                     model={model}
-                    expression={expression}
-                    editorOptions={editorOptions}
-                    body={transactionBody}
+                    body={model.body}
                 />
-                }
-
-                {!condition &&
-                <CompoundStatementDecorator
-                    dropTarget={model}
-                    bBox={transactionBody.viewState.bBox}
-                    title={'transaction'}
-                    titleWidth={transactionBody.viewState.components.titleWidth.w}
-                    model={model}
-                    body={transactionBody}
-                />
-                }
-
-                {this.getAddBlockButton()}
-                {failedBody &&
-                <CompoundStatementDecorator
-                    dropTarget={failedBody}
-                    bBox={failedBody.viewState.bBox}
-                    title={'failed'}
-                    titleWidth={failedBody.viewState.components.titleWidth.w}
-                    model={failedBody}
-                    body={failedBody}
-                />
-                }
             </g>
         );
     }

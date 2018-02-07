@@ -23,11 +23,16 @@ import org.ballerinalang.composer.server.spi.ServiceInfo;
 import org.ballerinalang.composer.server.spi.ServiceType;
 import org.ballerinalang.composer.service.fs.Constants;
 import org.ballerinalang.composer.service.fs.FileSystem;
+import org.ballerinalang.composer.service.fs.service.request.CreateFileRequest;
+import org.ballerinalang.composer.service.fs.service.request.DeleteFileRequest;
+import org.ballerinalang.composer.service.fs.service.request.FileExistsRequest;
+import org.ballerinalang.composer.service.fs.service.request.ListFilesRequest;
+import org.ballerinalang.composer.service.fs.service.request.MoveCopyFileRequest;
+import org.ballerinalang.composer.service.fs.service.request.ReadFileRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.FileNotFoundException;
-import java.net.URLDecoder;
 import java.nio.charset.Charset;
 import java.nio.file.AccessDeniedException;
 import java.nio.file.DirectoryNotEmptyException;
@@ -40,18 +45,14 @@ import java.nio.file.ReadOnlyFileSystemException;
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import javax.ws.rs.DefaultValue;
-import javax.ws.rs.FormParam;
+import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
+import javax.ws.rs.OPTIONS;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-
 
 /**
  *  Micro service that exposes the file system to composer.
@@ -60,9 +61,10 @@ import javax.ws.rs.core.Response;
 public class FileSystemService implements ComposerService {
 
     private static final Logger logger = LoggerFactory.getLogger(FileSystemService.class);
-    private static final String FILE_SEPARATOR = "file.separator";
     private static final String STATUS = "status";
     private static final String SUCCESS = "success";
+    private static final String ACCESS_CONTROL_ALLOW_ORIGIN_HEADER = "Access-Control-Allow-Origin";
+    private static final String MIME_APPLICATION_JSON = "application/json";
 
     private List<java.nio.file.Path> rootPaths;
 
@@ -72,212 +74,247 @@ public class FileSystemService implements ComposerService {
         this.fileSystem = fileSystem;
     }
 
-    @GET
-    @Path("/root")
-    @Produces("application/json")
-    public Response root(@DefaultValue(".bal") @QueryParam("extensions") String extensions) {
+    @OPTIONS
+    @Path("/list/roots")
+    public Response listRootsOptions() {
+        return createCORSResponse();
+    }
+
+    @POST
+    @Path("/list/roots")
+    @Consumes(MIME_APPLICATION_JSON)
+    @Produces(MIME_APPLICATION_JSON)
+    public Response listRoots(ListFilesRequest request) {
         try {
-            List<String> extensionList = Arrays.asList(extensions.split(","));
+            List<String> extensionList = Arrays.asList(request.getExtensions().split(","));
             JsonArray roots = (rootPaths == null || rootPaths.isEmpty()) ? fileSystem.listRoots(extensionList) :
                     fileSystem.getJsonForRoots(rootPaths, extensionList);
-            return Response.status(Response.Status.OK)
-                    .entity(roots)
-                    .header("Access-Control-Allow-Origin", '*')
-                    .type(MediaType.APPLICATION_JSON)
-                    .build();
+            return createOKResponse(roots);
         } catch (Throwable throwable) {
             logger.error("/root service error", throwable.getMessage(), throwable);
-            return getErrorResponse(throwable);
+            return createErrorResponse(throwable);
         }
     }
 
-    @GET
+    @OPTIONS
     @Path("/exists")
-    @Produces("application/json")
-    public Response pathExists(@QueryParam("path") String path) {
+    public Response pathExistsOptions() {
+        return createCORSResponse();
+    }
+
+    @POST
+    @Path("/exists")
+    @Consumes(MIME_APPLICATION_JSON)
+    @Produces(MIME_APPLICATION_JSON)
+    public Response pathExists(FileExistsRequest request) {
         try {
-            return Response.status(Response.Status.OK)
-                    .entity(fileSystem.exists(new String(Base64.getDecoder().decode(path), Charset.defaultCharset())))
-                    .header("Access-Control-Allow-Origin", '*')
-                    .type(MediaType.APPLICATION_JSON)
-                    .build();
+            JsonObject exists = fileSystem.exists(request.getPath());
+            return createOKResponse(exists);
         } catch (Throwable throwable) {
             logger.error("/exists service error", throwable.getMessage(), throwable);
-            return getErrorResponse(throwable);
+            return createErrorResponse(throwable);
         }
+    }
+
+    @OPTIONS
+    @Path("/create")
+    public Response createOptions() {
+        return createCORSResponse();
     }
 
     @POST
     @Path("/create")
-    @Produces("application/json")
-    public Response create(@FormParam("path") String pathParam, @FormParam("type") String typeParam,
-                           @FormParam("content") String contentParam) {
+    @Consumes(MIME_APPLICATION_JSON)
+    @Produces(MIME_APPLICATION_JSON)
+    public Response create(CreateFileRequest request) {
         try {
-            String path = new String(Base64.getDecoder().decode(pathParam), Charset.defaultCharset()),
-                    type = new String(Base64.getDecoder().decode(typeParam), Charset.defaultCharset()),
-                    content = new String(Base64.getDecoder().decode(contentParam), Charset.defaultCharset());
-            fileSystem.create(path, type, content);
+            String filePath = request.getFullPath() != null
+                                ? request.getFullPath()
+                                : Paths.get(request.getPath(), request.getName()).toString();
+            fileSystem.create(filePath, request.getType(), request.getContent());
             JsonObject entity = new JsonObject();
             entity.addProperty(STATUS, SUCCESS);
-            return Response.status(Response.Status.OK).entity(entity).header("Access-Control-Allow-Origin", '*')
-                    .type(MediaType.APPLICATION_JSON).build();
+            return createOKResponse(entity);
         } catch (Throwable throwable) {
             logger.error("/create service error", throwable.getMessage(), throwable);
-            return getErrorResponse(throwable);
+            return createErrorResponse(throwable);
         }
+    }
+
+    @OPTIONS
+    @Path("/move")
+    public Response moveOptions() {
+        return createCORSResponse();
     }
 
     @POST
     @Path("/move")
-    @Produces("application/json")
-    public Response move(@FormParam("srcPath") String srcPath, @FormParam("destPath") String destPath) {
+    @Consumes(MIME_APPLICATION_JSON)
+    @Produces(MIME_APPLICATION_JSON)
+    public Response move(MoveCopyFileRequest request) {
         try {
-            String src = new String(Base64.getDecoder().decode(srcPath), Charset.defaultCharset()),
-                    dest = new String(Base64.getDecoder().decode(destPath), Charset.defaultCharset());
-            fileSystem.move(src, dest);
+            fileSystem.move(request.getSrcPath(), request.getDestPath());
             JsonObject entity = new JsonObject();
             entity.addProperty(STATUS, SUCCESS);
-            return Response.status(Response.Status.OK).entity(entity).header("Access-Control-Allow-Origin", '*')
-                    .type(MediaType.APPLICATION_JSON).build();
+            return createOKResponse(entity);
         } catch (Throwable throwable) {
             logger.error("/create service error", throwable.getMessage(), throwable);
-            return getErrorResponse(throwable);
+            return createErrorResponse(throwable);
         }
+    }
+
+    @OPTIONS
+    @Path("/copy")
+    public Response copyOptions() {
+        return createCORSResponse();
     }
 
     @POST
     @Path("/copy")
-    @Produces("application/json")
-    public Response copy(@FormParam("srcPath") String srcPath, @FormParam("destPath") String destPath) {
+    @Consumes(MIME_APPLICATION_JSON)
+    @Produces(MIME_APPLICATION_JSON)
+    public Response copy(MoveCopyFileRequest request) {
         try {
-            String src = new String(Base64.getDecoder().decode(srcPath), Charset.defaultCharset()),
-                    dest = new String(Base64.getDecoder().decode(destPath), Charset.defaultCharset());
-            fileSystem.copy(src, dest);
+            fileSystem.copy(request.getSrcPath(), request.getDestPath());
             JsonObject entity = new JsonObject();
             entity.addProperty(STATUS, SUCCESS);
-            return Response.status(Response.Status.OK).entity(entity).header("Access-Control-Allow-Origin", '*')
-                    .type(MediaType.APPLICATION_JSON).build();
+            return createOKResponse(entity);
         } catch (Throwable throwable) {
             logger.error("/create service error", throwable.getMessage(), throwable);
-            return getErrorResponse(throwable);
+            return createErrorResponse(throwable);
         }
+    }
+
+    @OPTIONS
+    @Path("/delete")
+    public Response deleteOptions() {
+        return createCORSResponse();
     }
 
     @POST
     @Path("/delete")
-    @Produces("application/json")
-    public Response delete(@FormParam("path") String pathParam) {
+    @Consumes(MIME_APPLICATION_JSON)
+    @Produces(MIME_APPLICATION_JSON)
+    public Response delete(DeleteFileRequest request) {
         try {
-            String path = new String(Base64.getDecoder().decode(pathParam), Charset.defaultCharset());
-            fileSystem.delete(path);
+            fileSystem.delete(request.getPath());
             JsonObject entity = new JsonObject();
             entity.addProperty(STATUS, SUCCESS);
-            return Response.status(Response.Status.OK).entity(entity).header("Access-Control-Allow-Origin", '*')
-                    .type(MediaType.APPLICATION_JSON).build();
+            return createOKResponse(entity);
         } catch (Throwable throwable) {
             logger.error("/delete service error", throwable.getMessage(), throwable);
-            return getErrorResponse(throwable);
+            return createErrorResponse(throwable);
         }
     }
 
-    @GET
-    @Path("/listFiles")
-    @Produces("application/json")
-    public Response filesInPath(@QueryParam("path") String path,
-                                @DefaultValue(".bal") @QueryParam("extensions") String extensions) {
-        try {
-            List<String> extensionList = Arrays.asList(extensions.split(","));
+    @OPTIONS
+    @Path("/list/files")
+    public Response filesInPathOptions() {
+        return createCORSResponse();
+    }
 
-            return Response.status(Response.Status.OK)
-                    .entity(fileSystem.listFilesInPath(new String(Base64.getDecoder().decode(path),
-                            Charset.defaultCharset()), extensionList))
-                    .header("Access-Control-Allow-Origin", '*').type(MediaType.APPLICATION_JSON).build();
+    @POST
+    @Path("/list/files")
+    @Consumes(MIME_APPLICATION_JSON)
+    @Produces(MIME_APPLICATION_JSON)
+    public Response filesInPath(ListFilesRequest request) {
+        try {
+            List<String> extensionList = Arrays.asList(request.getExtensions().split(","));
+            JsonArray filesInPath = fileSystem.listFilesInPath(request.getPath(), extensionList);
+            return createOKResponse(filesInPath);
         } catch (Throwable throwable) {
             logger.error("/list service error", throwable.getMessage(), throwable);
-            return getErrorResponse(throwable);
+            return createErrorResponse(throwable);
         }
+    }
+
+    @OPTIONS
+    @Path("/write")
+    public Response writeOptions() {
+        return createCORSResponse();
     }
 
     @POST
     @Path("/write")
-    @Produces("application/json")
-    public Response write(String payload) {
+    @Consumes(MIME_APPLICATION_JSON)
+    @Produces(MIME_APPLICATION_JSON)
+    public Response write(CreateFileRequest request) {
         try {
-            String location = "";
-            String configName = "";
-            String config = "";
-            String isImageFile = "";
-            Matcher locationMatcher = Pattern.compile("location=(.*?)&configName").matcher(payload);
-            while (locationMatcher.find()) {
-                location = locationMatcher.group(1);
-            }
-            Matcher configNameMatcher = Pattern.compile("configName=(.*?)&").matcher(payload);
-            while (configNameMatcher.find()) {
-                configName = configNameMatcher.group(1);
-            }
-            Matcher isImageFileMatcher = Pattern.compile("imageFile=(.*?)&config").matcher(payload);
-            while (isImageFileMatcher.find()) {
-                isImageFile = isImageFileMatcher.group(1);
-            }
-            String[] splitConfigContent = payload.split("config=");
-            if (splitConfigContent.length > 1) {
-                config = splitConfigContent[1];
-            }
-
-            byte[] base64ConfigName = Base64.getDecoder().decode(configName);
-            byte[] base64Location = Base64.getDecoder().decode(location);
-            byte[] configDecoded = URLDecoder.decode(config, "UTF-8").getBytes("UTF-8");
-            if (isImageFile.equals("true")) {
-                byte[] base64Decoded = Base64.getDecoder().decode(configDecoded);
-                Files.write(Paths.get(new String(base64Location, Charset.defaultCharset()) +
-                                System.getProperty(FILE_SEPARATOR) +
-                                new String(base64ConfigName, Charset.defaultCharset())),
-                        base64Decoded);
-            } else {
-                Files.write(Paths.get(new String(base64Location, Charset.defaultCharset()) +
-                                System.getProperty(FILE_SEPARATOR) +
-                                new String(base64ConfigName, Charset.defaultCharset())),
-                        configDecoded);
-            }
+            java.nio.file.Path filePath = request.getFullPath() != null
+                    ? Paths.get(request.getFullPath())
+                    : Paths.get(request.getPath(), request.getName());
+            // Note that default charset is set UTF-8 via file.encoding property
+            byte[] content = request.isBase64Encoded()
+                            ? Base64.getDecoder().decode(request.getContent())
+                            : request.getContent().getBytes(Charset.defaultCharset());
+            Files.write(filePath, content);
             JsonObject entity = new JsonObject();
             entity.addProperty(STATUS, SUCCESS);
-            return Response.status(Response.Status.OK).entity(entity).header("Access-Control-Allow-Origin", '*').type
-                    (MediaType.APPLICATION_JSON).build();
+            return createOKResponse(entity);
         } catch (Throwable throwable) {
             logger.error("/write service error", throwable.getMessage(), throwable);
-            return getErrorResponse(throwable);
+            return createErrorResponse(throwable);
         }
+    }
+
+    @OPTIONS
+    @Path("/read")
+    public Response readOptions() {
+        return createCORSResponse();
     }
 
     @POST
     @Path("/read")
-    @Produces("application/json")
-    public Response read(String path) {
+    @Consumes(MIME_APPLICATION_JSON)
+    @Produces(MIME_APPLICATION_JSON)
+    public Response read(ReadFileRequest request) {
         try {
-            return Response.status(Response.Status.OK)
-                    .entity(fileSystem.read(path)).header("Access-Control-Allow-Origin", '*')
-                    .type(MediaType.APPLICATION_JSON).build();
+            return createOKResponse(fileSystem.read(request.getPath()));
         } catch (Throwable throwable) {
             logger.error("/read service error", throwable.getMessage(), throwable);
-            return getErrorResponse(throwable);
+            return createErrorResponse(throwable);
         }
+    }
+
+    @OPTIONS
+    @Path("/user/home")
+    public Response userHomeOptions() {
+        return createCORSResponse();
     }
 
     @GET
-    @Path("/userHome")
-    @Produces("text/plain")
+    @Path("/user/home")
+    @Produces(MIME_APPLICATION_JSON)
     public Response userHome() {
         try {
-            return Response.status(Response.Status.OK)
-                    .entity(fileSystem.getUserHome()).header("Access-Control-Allow-Origin", '*')
-                    .type(MediaType.APPLICATION_JSON).build();
+            return createOKResponse(fileSystem.getUserHome());
         } catch (Throwable throwable) {
             logger.error("/userHome service error", throwable.getMessage(), throwable);
-            return getErrorResponse(throwable);
+            return createErrorResponse(throwable);
         }
     }
 
-    private Response getErrorResponse(Throwable ex) {
+    /**
+     * Creates the JSON response for given entity.
+     *
+     * @param entity Response
+     * @return Response
+     */
+    private Response createOKResponse(Object entity) {
+        return Response.status(Response.Status.OK)
+                .entity(entity)
+                .header(ACCESS_CONTROL_ALLOW_ORIGIN_HEADER, '*')
+                .type(MediaType.APPLICATION_JSON)
+                .build();
+    }
+
+    /**
+     * Creates an error response for the given IO Exception.
+     *
+     * @param ex Thrown Exception
+     * @return Error Message
+     */
+    private Response createErrorResponse(Throwable ex) {
         JsonObject entity = new JsonObject();
         String errMsg = ex.getMessage();
         if (ex instanceof AccessDeniedException) {
@@ -298,8 +335,25 @@ public class FileSystemService implements ComposerService {
         entity.addProperty("Error", errMsg);
         return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
                 .entity(entity)
-                .header("Access-Control-Allow-Origin", '*')
+                .header(ACCESS_CONTROL_ALLOW_ORIGIN_HEADER, '*')
                 .type(MediaType.APPLICATION_JSON)
+                .build();
+    }
+
+    /**
+     * Create CORS Response allowing all origins.
+     *
+     * TODO: Find a better solution to handle CORS in a global manner
+     * and to avoid redundant logic for CORS in each service.
+     *
+     * @return CORS Response
+     */
+    public Response createCORSResponse() {
+        return Response.ok()
+                .header("Access-Control-Allow-Origin", "*")
+                .header("Access-Control-Allow-Credentials", "true")
+                .header("Access-Control-Allow-Methods", "POST, GET, OPTIONS ")
+                .header("Access-Control-Allow-Headers", "Content-Type, Accept, X-Requested-With")
                 .build();
     }
 

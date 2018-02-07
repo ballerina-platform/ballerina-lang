@@ -27,7 +27,6 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.ballerinalang</groupId>
     <artifactId>ballerina-container-support</artifactId>
-    <version>0.96.1-SNAPSHOT</version>
     <name>Ballerina - Docker</name>
     <packaging>jar</packaging>
 

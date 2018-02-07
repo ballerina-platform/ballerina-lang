@@ -29,7 +29,6 @@
     <groupId>org.ballerinalang</groupId>
     <artifactId>swagger-ballerina</artifactId>
     <packaging>pom</packaging>
-    <version>0.96.1-SNAPSHOT</version>
     <name>Ballerina - Swagger Tooling - Parent</name>
 
     <properties>

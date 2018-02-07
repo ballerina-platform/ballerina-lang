@@ -18,20 +18,31 @@
 package org.ballerinalang.langserver.signature;
 
 import org.ballerinalang.langserver.LanguageServerContext;
+import org.ballerinalang.langserver.completions.SymbolInfo;
+
+import java.util.List;
 
 /**
  * Text Document Service context keys for the signature help operation context.
  * @since 0.95.6
  */
-public class SignatureKeys {
-    public static final LanguageServerContext.Key<String> CALLABLE_ITEM_NAME
+class SignatureKeys {
+    static final LanguageServerContext.Key<String> CALLABLE_ITEM_NAME
             = new LanguageServerContext.Key<>();
-    public static final LanguageServerContext.Key<String> ITEM_DELIMITER
+    static final LanguageServerContext.Key<String> ITEM_DELIMITER
+            = new LanguageServerContext.Key<>();
+    static final LanguageServerContext.Key<List<SymbolInfo>> FILTERED_FUNCTIONS
             = new LanguageServerContext.Key<>();
     /**
      * If os:get... then identifier against is os
      * If res.send(.. then identifier against is res
      */
-    public static final LanguageServerContext.Key<String> IDENTIFIER_AGAINST
+    static final LanguageServerContext.Key<String> IDENTIFIER_AGAINST
+            = new LanguageServerContext.Key<>();
+    static final LanguageServerContext.Key<String> IDENTIFIER_TYPE
+            = new LanguageServerContext.Key<>();
+    static final LanguageServerContext.Key<String> IDENTIFIER_PKGID
+            = new LanguageServerContext.Key<>();
+    static final LanguageServerContext.Key<Integer> PARAMETER_COUNT
             = new LanguageServerContext.Key<>();
 }

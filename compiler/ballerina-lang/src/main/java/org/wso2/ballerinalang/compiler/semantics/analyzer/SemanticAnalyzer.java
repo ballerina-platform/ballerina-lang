@@ -74,6 +74,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForeach;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangLock;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangNext;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement;
@@ -651,6 +652,11 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     public void visit(BLangWhile whileNode) {
         typeChecker.checkExpr(whileNode.expr, env, Lists.of(symTable.booleanType));
         analyzeStmt(whileNode.body, env);
+    }
+
+    @Override
+    public void visit(BLangLock lockNode) {
+        analyzeStmt(lockNode.body, env);
     }
 
     public void visit(BLangConnector connectorNode) {

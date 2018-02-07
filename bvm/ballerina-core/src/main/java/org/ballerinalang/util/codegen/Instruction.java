@@ -228,4 +228,31 @@ public class Instruction {
             this.retRegs = retRegs;
         }
     }
+
+    /**
+     * {@code {@link InstructionLock}} represents the LOCK/UNLOCK instruction in Ballerina bytecode.
+     *
+     * @since 0.961.0
+     */
+    public static class InstructionLock extends Instruction {
+
+        public BType[] types;
+        public int[] varRegs;
+
+        InstructionLock(int opcode, BType[] types, int[] varRegs) {
+            super(opcode);
+            this.types = types;
+            this.varRegs = varRegs;
+        }
+
+        @Override
+        public String toString() {
+            StringJoiner sj = new StringJoiner(" ");
+            for (int i = 0; i < varRegs.length; i++) {
+                sj.add(types[i].toString());
+                sj.add(String.valueOf(varRegs[i]));
+            }
+            return Mnemonics.getMnem(opcode) + " " + sj.toString();
+        }
+    }
 }
