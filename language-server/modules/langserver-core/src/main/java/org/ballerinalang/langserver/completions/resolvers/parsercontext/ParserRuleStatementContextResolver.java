@@ -50,14 +50,14 @@ public class ParserRuleStatementContextResolver extends AbstractItemResolver {
 
         // Here we specifically need to check whether the statement is function invocation,
         // action invocation or worker invocation
-        if (isActionOrFunctionInvocationStatement(completionContext)) {
+        if (isInvocationOrFieldAccess(completionContext)) {
 
             // Get the action and function list
-            ArrayList<SymbolInfo> actionFunctionList = new ArrayList<>();
-            actionFunctionList.addAll(actionAndFunctionFilter.filterItems(completionContext));
+            ArrayList<SymbolInfo> invocationOrFieldAccessList = new ArrayList<>();
+            invocationOrFieldAccessList.addAll(actionAndFunctionFilter.filterItems(completionContext));
 
             // Populate the completion items
-            this.populateCompletionItemList(actionFunctionList, completionItems);
+            this.populateCompletionItemList(invocationOrFieldAccessList, completionItems);
 
             // Set the sorting priorities
             prioritiesMap.put(ItemResolverConstants.FUNCTION_TYPE, Priority.PRIORITY7.name());
