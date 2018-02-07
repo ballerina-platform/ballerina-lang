@@ -20,6 +20,7 @@ import static org.ballerinalang.util.BLangConstants.USER_REPO_SRC_DIRNAME;
  */
 public class NetworkUtils {
     static CompileResult compileResult;
+    private static final String BALLERINA_CENTRAL_REPOSITORY = "http://packages.ballerina.io/";
 
     /**
      * Pull/Downloads packages from the package repository
@@ -29,7 +30,7 @@ public class NetworkUtils {
     public static void pullPackages(String resourceName) {
         compileResult = compileBalFile();
         // Ballerina central repository URL
-        String url = "http://10.100.1.228/";
+        String url = BALLERINA_CENTRAL_REPOSITORY;
         // Destination folder: by default should be downloaded to
         Path targetDirectoryPath = UserRepositoryUtils.initializeUserRepository()
                 .resolve(USER_REPO_ARTIFACTS_DIRNAME)
