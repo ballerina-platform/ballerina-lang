@@ -116,20 +116,6 @@ node("${nodeLabel}") {
                 archiveArtifacts artifacts: 'ballerina/distribution/zip/ballerina-tools/target/ballerina-tools-*.zip'
             }
         }
-
-        println("****************************************************************************");
-        println("****************************************************************************");
-        println("*********************** Release build finished *****************************");
-        println("****************************************************************************");
-        println("****************************************************************************");
-
-        //following steps are to update to latest versions
-        if (isRelease) {
-            stage('Building ballerina') {
-                pushCurrentBranch(ballerinaRepository, gitCredentialsID, user);
-                build(settingsXMLID, ballerinaRepository, YES);
-            }
-        }
     } catch (Exception e) {
         println("An exception has occurred in during the build process");
         if (isRelease && YES.equals(allowCleanUpAfterReleaseFailure)) {
