@@ -39,7 +39,7 @@ class SamplesPreview extends React.Component {
         if (this.props.sampleConfigs) {
             previewThumbnails = this.props.sampleConfigs.map((config, index) => (
                 <div
-                    className="col-xs-12 col-sm-6 col-md-6 col-lg-3 thumbnail-wrapper"
+                    className='col-xs-12 col-sm-6 col-md-6 col-lg-3 thumbnail-wrapper'
                     key={config.sampleName}
                 >
                     <div
@@ -48,7 +48,7 @@ class SamplesPreview extends React.Component {
                         style={{ textAlign: 'center' }}
                     >
                         <img
-                            id="previewImg"
+                            id='previewImg'
                             src={`images/${config.image}.png`}
                             alt={config.sampleName}
                             onLoad={() => {
@@ -58,9 +58,9 @@ class SamplesPreview extends React.Component {
                             }}
                         />
                         {!this.state.imagesLoadStatus[index] &&
-                            <i className="fw fw-loader2 fw-spin fw-lg loader-center" />
+                            <i className='fw fw-loader2 fw-spin fw-lg loader-center' />
                         }
-                        <div className="caption">
+                        <div className='caption'>
                             <h4>{config.sampleName}</h4>
                         </div>
                     </div>
