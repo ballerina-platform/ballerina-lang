@@ -212,7 +212,7 @@ class TransactionStatementDecorator extends React.Component {
         const body = getComponentForNodeArray(this.props.model.transactionBody);
 
         let trainsactionTitle = 'transaction';
-        if (this.props.model.condition.value) {
+        if (this.props.model.condition && this.props.model.condition.value) {
             trainsactionTitle = `transaction with ${this.props.model.condition.value} retries`;
         }
 

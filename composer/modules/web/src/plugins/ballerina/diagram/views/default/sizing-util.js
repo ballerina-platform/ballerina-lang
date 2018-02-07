@@ -1702,7 +1702,7 @@ class SizingUtil {
         if (node.failedBody) {
             nodeHeight += node.failedBody.viewState.components['statement-box'].h;
             nodeHeight -= this.config.compoundStatement.padding.top;
-            nodeWidth += viewState.components['statement-box'].w;
+            nodeWidth += node.failedBody.viewState.bBox.w;
         }
 
         node.viewState.bBox.h = nodeHeight;
