@@ -53,6 +53,7 @@ public class OutResponseNativeFunctionNegativeTest {
 
     private CompileResult result, resultNegative;
     private final String inRespStruct = Constants.IN_RESPONSE;
+    private final String outRespStruct = Constants.OUT_RESPONSE;
     private final String entityStruct = Constants.ENTITY;
     private final String mediaTypeStruct = MEDIA_TYPE;
     private final String protocolPackageHttp = Constants.PROTOCOL_PACKAGE_HTTP;
@@ -172,7 +173,7 @@ public class OutResponseNativeFunctionNegativeTest {
     @Test
     @SuppressWarnings("unchecked")
     public void testRemoveHeaderNegative() {
-        BStruct outResponse = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, inRespStruct);
+        BStruct outResponse = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, outRespStruct);
         BStruct entity = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageMime, entityStruct);
         String range = "Range";
         BMap<String, BStringArray> headersMap = new BMap<>();

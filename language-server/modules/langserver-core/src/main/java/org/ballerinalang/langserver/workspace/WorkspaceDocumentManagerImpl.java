@@ -32,17 +32,17 @@ public class WorkspaceDocumentManagerImpl implements WorkspaceDocumentManager {
 
     private static final Logger logger = LoggerFactory.getLogger(WorkspaceDocumentManagerImpl.class);
 
-    private Map<String, WorkspaceDocument> documentList = new HashMap<>();
+    private Map<Path, WorkspaceDocument> documentList = new HashMap<>();
 
     @Override
     public boolean isFileOpen(Path filePath) {
-        return filePath != null && documentList.containsKey(filePath.toString());
+        return filePath != null && documentList.containsKey(filePath);
     }
 
     @Override
     public void openFile(Path filePath, String content) {
         if (!isFileOpen(filePath)) {
-            documentList.put(filePath.toString(), new WorkspaceDocument(filePath, content));
+            documentList.put(filePath, new WorkspaceDocument(filePath, content));
         } else {
             logger.warn("File " + filePath.toString() + " already opened in document manager.");
         }
@@ -51,7 +51,7 @@ public class WorkspaceDocumentManagerImpl implements WorkspaceDocumentManager {
     @Override
     public void updateFile(Path filePath, String updatedContent) {
         if (isFileOpen(filePath)) {
-            documentList.get(filePath.toString()).setContent(updatedContent);
+            documentList.get(filePath).setContent(updatedContent);
         } else {
             logger.error("File " + filePath.toString() + " is not opened in document manager.");
         }
@@ -60,7 +60,7 @@ public class WorkspaceDocumentManagerImpl implements WorkspaceDocumentManager {
     @Override
     public void closeFile(Path filePath) {
         if (isFileOpen(filePath)) {
-            documentList.remove(filePath.toString());
+            documentList.remove(filePath);
         } else {
             logger.error("File " + filePath.toString() + " is not opened in document manager.");
         }
@@ -68,6 +68,6 @@ public class WorkspaceDocumentManagerImpl implements WorkspaceDocumentManager {
 
     @Override
     public String getFileContent(Path filePath) {
-        return isFileOpen(filePath) ? documentList.get(filePath.toString()).getContent() : null;
+        return isFileOpen(filePath) ? documentList.get(filePath).getContent() : null;
     }
 }

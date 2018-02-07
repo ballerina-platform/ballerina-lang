@@ -1768,12 +1768,16 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
 
+        DiagnosticPos currentPos = getCurrentPos(ctx);
+        Set<Whitespace> ws = getWS(ctx);
+        String name = ctx.Identifier().getText();
+        boolean exprAvailable = ctx.simpleLiteral() != null;
         if (ctx.parent instanceof BallerinaParser.StructBodyContext) {
-            this.pkgBuilder.addVarToStruct(getCurrentPos(ctx), getWS(ctx), ctx.Identifier().getText(),
-                    ctx.simpleLiteral() != null, 0);
+            this.pkgBuilder.addVarToStruct(currentPos, ws, name, exprAvailable, 0, false);
+        } else if (ctx.parent instanceof BallerinaParser.PrivateStructBodyContext) {
+            this.pkgBuilder.addVarToStruct(currentPos, ws, name, exprAvailable, 0, true);
         } else if (ctx.parent instanceof BallerinaParser.AnnotationBodyContext) {
-            this.pkgBuilder.addVarToAnnotation(getCurrentPos(ctx), getWS(ctx), ctx.Identifier().getText(),
-                    ctx.simpleLiteral() != null, 0);
+            this.pkgBuilder.addVarToAnnotation(currentPos, ws, name, exprAvailable, 0);
         }
     }
 
