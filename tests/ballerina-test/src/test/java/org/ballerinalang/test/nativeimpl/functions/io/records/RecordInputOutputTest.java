@@ -96,13 +96,17 @@ public class RecordInputOutputTest {
 
         String[] readRecord = recordChannel.read();
         Assert.assertEquals(readRecord.length, 9);
+        Assert.assertTrue(recordChannel.hasNext(), "Expecting more records but received as EOL.");
 
         //This will be a blank record
         readRecord = recordChannel.read();
         Assert.assertEquals(readRecord.length, 1);
+        Assert.assertTrue(recordChannel.hasNext(), "Expecting more records but received as EOL.");
 
         readRecord = recordChannel.read();
         Assert.assertEquals(readRecord.length, 9);
+        Assert.assertFalse(recordChannel.hasNext(),
+                "Last record received, but indicate as more records available.");
 
         recordChannel.close();
     }
