@@ -49,17 +49,30 @@ class CanvasDecorator extends React.Component {
             x: 0,
             y: 0,
         };
+        const { fitToScreen } = this.context;
+        const svgSize = {
+            w: fitToScreen ? this.props.containerSize.width : this.props.bBox.w,
+            h: fitToScreen ? this.props.containerSize.height : this.props.bBox.h,
+        };
+        const viewBox = fitToScreen ? `0 0 ${this.props.bBox.w} ${this.props.bBox.h}` : '';
         return (
             <div className='' style={{ width: this.props.bBox.w }} >
                 <div ref={(x) => { setCanvasOverlay(x); }}>
                     {/* This space is used to render html elements over svg */ }
                 </div>
                 {(this.props.annotations && this.props.annotations.length > 0) ? this.props.annotations : null }
-                {(this.props.overlayComponents && this.props.overlayComponents.length > 0) ?
+                {(!fitToScreen && this.props.overlayComponents && this.props.overlayComponents.length > 0) ?
                     this.props.overlayComponents : null }
                 {(this.props.errorList && this.props.errorList.length > 0) ?
                     this.props.errorList : null }
-                <svg className='svg-container' width={this.props.bBox.w} height={this.props.bBox.h}>
+                <svg
+                    className='svg-container'
+                    width={svgSize.w}
+                    height={svgSize.h}
+                    viewBox={viewBox}
+                    preserveAspectRatio='xMinYMin'
+                    style={{ pointerEvents: fitToScreen ? 'none' : 'auto' }}
+                >
                     <DropZone
                         x='0'
                         y='0'
@@ -78,6 +91,10 @@ class CanvasDecorator extends React.Component {
 }
 
 CanvasDecorator.propTypes = {
+    containerSize: PropTypes.shape({
+        height: PropTypes.number.isRequired,
+        width: PropTypes.number.isRequired,
+    }).isRequired,
     bBox: PropTypes.shape({
         h: PropTypes.number.isRequired,
         w: PropTypes.number.isRequired,
@@ -87,6 +104,10 @@ CanvasDecorator.propTypes = {
     annotations: PropTypes.arrayOf(PropTypes.element),
     overlayComponents: PropTypes.arrayOf(PropTypes.element),
     errorList: PropTypes.arrayOf(PropTypes.element),
+};
+
+CanvasDecorator.contextTypes = {
+    fitToScreen: PropTypes.bool,
 };
 
 CanvasDecorator.defaultProps = {
