@@ -1,5 +1,5 @@
-/**
- * Copyright (c) 2017, WSO2 Inc. (http://wso2.com) All Rights Reserved.
+/*
+ * Copyright (c) 2018, WSO2 Inc. (http://wso2.com) All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,11 +14,12 @@
  * limitations under the License.
  */
 
-package org.ballerinalang.langserver.hover;
+package org.ballerinalang.langserver.common.position;
 
 import org.ballerinalang.langserver.DocumentServiceKeys;
 import org.ballerinalang.langserver.TextDocumentServiceContext;
-import org.ballerinalang.langserver.hover.constants.HoverConstants;
+import org.ballerinalang.langserver.common.constants.ContextConstants;
+import org.ballerinalang.langserver.common.constants.NodeContextKeys;
 import org.ballerinalang.langserver.hover.util.HoverUtil;
 import org.ballerinalang.model.tree.TopLevelNode;
 import org.eclipse.lsp4j.Position;
@@ -104,12 +105,13 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangValueType;
 
 import java.util.List;
+import java.util.Stack;
 import java.util.stream.Collectors;
 
 /**
- * Tree visitor for the hover functionality.
+ * Tree visitor for the get the node at the given position.
  */
-public class HoverTreeVisitor extends BLangNodeVisitor {
+public class PositionTreeVisitor extends BLangNodeVisitor {
 
     private String fileName;
     private Position position;
@@ -117,16 +119,17 @@ public class HoverTreeVisitor extends BLangNodeVisitor {
     private SymbolEnter symbolEnter;
     private TextDocumentServiceContext context;
     private Object previousNode;
+    private Stack<BLangNode> nodeStack;
 
-    public HoverTreeVisitor(TextDocumentServiceContext context) {
+    public PositionTreeVisitor(TextDocumentServiceContext context) {
         this.context = context;
         this.position = context.get(DocumentServiceKeys.POSITION_KEY).getPosition();
         this.fileName = context.get(DocumentServiceKeys.FILE_NAME_KEY);
         this.symbolEnter = SymbolEnter.getInstance(context.get(DocumentServiceKeys.COMPILER_CONTEXT_KEY));
         this.position.setLine(this.position.getLine() + 1);
+        this.nodeStack = new Stack<>();
+        this.context.put(NodeContextKeys.NODE_STACK_KEY, nodeStack);
     }
-
-    // Visitor methods
 
     public void visit(BLangPackage pkgNode) {
         // Then visit each top-level element sorted using the compilation unit
@@ -149,7 +152,7 @@ public class HoverTreeVisitor extends BLangNodeVisitor {
     }
 
     public void visit(BLangXMLNS xmlnsNode) {
-
+        // No implementation
     }
 
     public void visit(BLangFunction funcNode) {
@@ -160,6 +163,7 @@ public class HoverTreeVisitor extends BLangNodeVisitor {
         }
 
         previousNode = funcNode;
+        this.nodeStack.push(funcNode);
 
         if (!funcNode.params.isEmpty()) {
             funcNode.params.forEach(this::acceptNode);
@@ -181,7 +185,6 @@ public class HoverTreeVisitor extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangUserDefinedType userDefinedType) {
-        // TODO: move position calculation logic to common place.
         userDefinedType.getPosition().sCol += (previousNode instanceof BLangEndpointTypeNode
                 ? "endpoint<".length()
                 : 0);
@@ -189,22 +192,24 @@ public class HoverTreeVisitor extends BLangNodeVisitor {
                 + userDefinedType.typeName.value.length()
                 + (!userDefinedType.pkgAlias.value.isEmpty() ? (userDefinedType.pkgAlias.value + ":").length() : 0);
         if (HoverUtil.isMatchingPosition(userDefinedType.getPosition(), this.position)) {
-            this.context.put(HoverKeys.HOVERING_OVER_NODE_KEY, userDefinedType);
-            this.context.put(HoverKeys.PREVIOUSLY_VISITED_NODE_KEY, this.previousNode);
-            this.context.put(HoverKeys.NAME_OF_HOVER_NODE_KEY, userDefinedType.typeName);
-            this.context.put(HoverKeys.PACKAGE_OF_HOVER_NODE_KEY, userDefinedType.type.tsymbol.pkgID);
-            this.context.put(HoverKeys.SYMBOL_KIND_OF_HOVER_NODE_KEY, userDefinedType.type.tsymbol.kind);
+            this.context.put(NodeContextKeys.NODE_KEY, userDefinedType);
+            this.context.put(NodeContextKeys.PREVIOUSLY_VISITED_NODE_KEY, this.previousNode);
+            this.context.put(NodeContextKeys.NAME_OF_NODE_KEY, userDefinedType.typeName.getValue());
+            this.context.put(NodeContextKeys.PACKAGE_OF_NODE_KEY, userDefinedType.type.tsymbol.pkgID);
+            this.context.put(NodeContextKeys.SYMBOL_KIND_OF_NODE_PARENT_KEY, userDefinedType.type.tsymbol.kind.name());
+            this.context.put(NodeContextKeys.SYMBOL_KIND_OF_NODE_KEY, userDefinedType.type.tsymbol.kind.name());
             terminateVisitor = true;
         }
     }
 
     @Override
     public void visit(BLangEnum enumNode) {
+        // No implementation
     }
 
     @Override
     public void visit(BLangAnnotation annotationNode) {
-        // TODO: implement support for hover.
+        // No implementation
     }
 
     @Override
@@ -221,42 +226,68 @@ public class HoverTreeVisitor extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangLiteral litNode) {
+        // No implementation
     }
 
     @Override
     public void visit(BLangSimpleVarRef varRefExpr) {
-        // TODO: Move position calculation logic to common place.
         varRefExpr.getPosition().eCol = varRefExpr.getPosition().sCol
                 + varRefExpr.variableName.value.length()
                 + (!varRefExpr.pkgAlias.value.isEmpty() ? (varRefExpr.pkgAlias.value + ":").length() : 0);
         if (varRefExpr.type instanceof BEndpointType && ((BEndpointType) varRefExpr.type).constraint != null
-                && ((BEndpointType) varRefExpr.type).constraint.tsymbol.kind.name().equals(HoverConstants.CONNECTOR)
+                && ((BEndpointType) varRefExpr.type).constraint.tsymbol.kind.name().equals(ContextConstants.CONNECTOR)
                 && HoverUtil.isMatchingPosition(varRefExpr.getPosition(), this.position)) {
-            this.context.put(HoverKeys.HOVERING_OVER_NODE_KEY, varRefExpr);
-            this.context.put(HoverKeys.PREVIOUSLY_VISITED_NODE_KEY, this.previousNode);
-            varRefExpr.variableName.setValue(((BEndpointType) varRefExpr.type).constraint.tsymbol.name.getValue());
-            this.context.put(HoverKeys.NAME_OF_HOVER_NODE_KEY, varRefExpr.variableName);
-            this.context.put(HoverKeys.PACKAGE_OF_HOVER_NODE_KEY,
+            this.context.put(NodeContextKeys.NODE_KEY, varRefExpr);
+            this.context.put(NodeContextKeys.PREVIOUSLY_VISITED_NODE_KEY, this.previousNode);
+            this.context.put(NodeContextKeys.NAME_OF_NODE_KEY,
+                    ((BEndpointType) varRefExpr.type).constraint.tsymbol.name.getValue());
+            this.context.put(NodeContextKeys.PACKAGE_OF_NODE_KEY,
                     ((BEndpointType) varRefExpr.type).constraint.tsymbol.pkgID);
-            this.context.put(HoverKeys.SYMBOL_KIND_OF_HOVER_NODE_KEY,
-                    ((BEndpointType) varRefExpr.type).constraint.tsymbol.kind);
+            this.context.put(NodeContextKeys.SYMBOL_KIND_OF_NODE_PARENT_KEY,
+                    ((BEndpointType) varRefExpr.type).constraint.tsymbol.kind.name());
+            this.context.put(NodeContextKeys.SYMBOL_KIND_OF_NODE_KEY, ContextConstants.VARIABLE);
+            if (varRefExpr.symbol != null) {
+                this.context.put(NodeContextKeys.NODE_OWNER_KEY, varRefExpr.symbol.owner.name.getValue());
+                this.context.put(NodeContextKeys.VAR_NAME_OF_NODE_KEY, varRefExpr.variableName.getValue());
+            }
             terminateVisitor = true;
         } else if (varRefExpr.type.tsymbol != null && varRefExpr.type.tsymbol.kind != null
-                && (varRefExpr.type.tsymbol.kind.name().equals(HoverConstants.ENUM)
-                || varRefExpr.type.tsymbol.kind.name().equals(HoverConstants.STRUCT))
+                && (varRefExpr.type.tsymbol.kind.name().equals(ContextConstants.ENUM)
+                || varRefExpr.type.tsymbol.kind.name().equals(ContextConstants.STRUCT))
                 && HoverUtil.isMatchingPosition(varRefExpr.getPosition(), this.position)) {
-            this.context.put(HoverKeys.HOVERING_OVER_NODE_KEY, varRefExpr);
-            this.context.put(HoverKeys.PREVIOUSLY_VISITED_NODE_KEY, this.previousNode);
-            varRefExpr.variableName.setValue(varRefExpr.type.tsymbol.name.getValue());
-            this.context.put(HoverKeys.NAME_OF_HOVER_NODE_KEY, varRefExpr.variableName);
-            this.context.put(HoverKeys.PACKAGE_OF_HOVER_NODE_KEY, varRefExpr.type.tsymbol.pkgID);
-            this.context.put(HoverKeys.SYMBOL_KIND_OF_HOVER_NODE_KEY, varRefExpr.type.tsymbol.kind);
+            this.context.put(NodeContextKeys.NODE_KEY, varRefExpr);
+            this.context.put(NodeContextKeys.PREVIOUSLY_VISITED_NODE_KEY, this.previousNode);
+            this.context.put(NodeContextKeys.NAME_OF_NODE_KEY, varRefExpr.type.tsymbol.name.getValue());
+            this.context.put(NodeContextKeys.PACKAGE_OF_NODE_KEY, varRefExpr.type.tsymbol.pkgID);
+            this.context.put(NodeContextKeys.SYMBOL_KIND_OF_NODE_PARENT_KEY, varRefExpr.type.tsymbol.kind.name());
+            this.context.put(NodeContextKeys.SYMBOL_KIND_OF_NODE_KEY, ContextConstants.VARIABLE);
+            if (varRefExpr.symbol != null) {
+                this.context.put(NodeContextKeys.NODE_OWNER_KEY, varRefExpr.symbol.owner.name.getValue());
+                this.context.put(NodeContextKeys.VAR_NAME_OF_NODE_KEY, varRefExpr.variableName.getValue());
+                this.context.put(NodeContextKeys.SYMBOL_KIND_OF_NODE_KEY, ContextConstants.VARIABLE);
+            } else {
+                this.context.put(NodeContextKeys.SYMBOL_KIND_OF_NODE_KEY, varRefExpr.type.tsymbol.kind.name());
+            }
+            terminateVisitor = true;
+        } else if (varRefExpr.pkgSymbol != null
+                && HoverUtil.isMatchingPosition(varRefExpr.getPosition(), this.position)) {
+            this.context.put(NodeContextKeys.NODE_KEY, varRefExpr);
+            this.context.put(NodeContextKeys.PREVIOUSLY_VISITED_NODE_KEY, this.previousNode);
+            this.context.put(NodeContextKeys.NAME_OF_NODE_KEY, varRefExpr.variableName.getValue());
+            this.context.put(NodeContextKeys.PACKAGE_OF_NODE_KEY, varRefExpr.pkgSymbol.pkgID);
+            this.context.put(NodeContextKeys.SYMBOL_KIND_OF_NODE_PARENT_KEY, ContextConstants.VARIABLE);
+            this.context.put(NodeContextKeys.SYMBOL_KIND_OF_NODE_KEY, ContextConstants.VARIABLE);
+            if (varRefExpr.symbol != null) {
+                this.context.put(NodeContextKeys.NODE_OWNER_KEY, varRefExpr.symbol.owner.name.getValue());
+                this.context.put(NodeContextKeys.VAR_NAME_OF_NODE_KEY, varRefExpr.variableName.getValue());
+            }
             terminateVisitor = true;
         }
     }
 
     @Override
     public void visit(BLangRecordLiteral recordLiteral) {
+        // No implementation
     }
 
     @Override
@@ -330,6 +361,8 @@ public class HoverTreeVisitor extends BLangNodeVisitor {
 
     public void visit(BLangStruct structNode) {
         previousNode = structNode;
+        this.nodeStack.push(structNode);
+
         if (!structNode.fields.isEmpty()) {
             structNode.fields.forEach(this::acceptNode);
         }
@@ -347,6 +380,8 @@ public class HoverTreeVisitor extends BLangNodeVisitor {
 
     public void visit(BLangTransformer transformerNode) {
         previousNode = transformerNode;
+        this.nodeStack.push(transformerNode);
+
         if (transformerNode.source != null) {
             acceptNode(transformerNode.source);
         }
@@ -370,6 +405,7 @@ public class HoverTreeVisitor extends BLangNodeVisitor {
 
     public void visit(BLangConnector connectorNode) {
         previousNode = connectorNode;
+        this.nodeStack.push(connectorNode);
 
         if (!connectorNode.params.isEmpty()) {
             connectorNode.params.forEach(this::acceptNode);
@@ -386,6 +422,7 @@ public class HoverTreeVisitor extends BLangNodeVisitor {
 
     public void visit(BLangAction actionNode) {
         previousNode = actionNode;
+        this.nodeStack.push(actionNode);
 
         if (!actionNode.params.isEmpty()) {
             actionNode.params.forEach(this::acceptNode);
@@ -406,6 +443,8 @@ public class HoverTreeVisitor extends BLangNodeVisitor {
 
     public void visit(BLangService serviceNode) {
         previousNode = serviceNode;
+        this.nodeStack.push(serviceNode);
+
         if (!serviceNode.resources.isEmpty()) {
             serviceNode.resources.forEach(this::acceptNode);
         }
@@ -417,6 +456,8 @@ public class HoverTreeVisitor extends BLangNodeVisitor {
 
     public void visit(BLangResource resourceNode) {
         previousNode = resourceNode;
+        this.nodeStack.push(resourceNode);
+
         if (!resourceNode.params.isEmpty()) {
             resourceNode.params.forEach(this::acceptNode);
         }
@@ -476,7 +517,7 @@ public class HoverTreeVisitor extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangAbort abortNode) {
-        // TODO: implement support for hover.
+        // No implementation
     }
 
     @Override
@@ -553,7 +594,7 @@ public class HoverTreeVisitor extends BLangNodeVisitor {
     }
 
     public void visit(BLangNext nextNode) {
-        // Ignore.
+        // No implementation
     }
 
     public void visit(BLangInvocation invocationExpr) {
@@ -567,11 +608,12 @@ public class HoverTreeVisitor extends BLangNodeVisitor {
         }
 
         if (!terminateVisitor && HoverUtil.isMatchingPosition(invocationExpr.getPosition(), this.position)) {
-            this.context.put(HoverKeys.HOVERING_OVER_NODE_KEY, invocationExpr);
-            this.context.put(HoverKeys.PREVIOUSLY_VISITED_NODE_KEY, this.previousNode);
-            this.context.put(HoverKeys.NAME_OF_HOVER_NODE_KEY, invocationExpr.name);
-            this.context.put(HoverKeys.PACKAGE_OF_HOVER_NODE_KEY, invocationExpr.symbol.pkgID);
-            this.context.put(HoverKeys.SYMBOL_KIND_OF_HOVER_NODE_KEY, invocationExpr.symbol.kind);
+            this.context.put(NodeContextKeys.NODE_KEY, invocationExpr);
+            this.context.put(NodeContextKeys.PREVIOUSLY_VISITED_NODE_KEY, this.previousNode);
+            this.context.put(NodeContextKeys.NAME_OF_NODE_KEY, invocationExpr.name.getValue());
+            this.context.put(NodeContextKeys.PACKAGE_OF_NODE_KEY, invocationExpr.symbol.pkgID);
+            this.context.put(NodeContextKeys.SYMBOL_KIND_OF_NODE_PARENT_KEY, invocationExpr.symbol.kind.name());
+            this.context.put(NodeContextKeys.SYMBOL_KIND_OF_NODE_KEY, invocationExpr.symbol.kind.name());
             this.terminateVisitor = true;
         }
     }
@@ -592,56 +634,57 @@ public class HoverTreeVisitor extends BLangNodeVisitor {
         }
     }
 
-    public void visit(BLangCompilationUnit compUnit) {
 
+    public void visit(BLangCompilationUnit compUnit) {
+        // No implementation
     }
 
     public void visit(BLangPackageDeclaration pkgDclNode) {
-
+        // No implementation
     }
 
     public void visit(BLangEnum.BLangEnumerator enumeratorNode) {
-
+        // No implementation
     }
 
     public void visit(BLangIdentifier identifierNode) {
-
+        // No implementation
     }
 
     public void visit(BLangAnnotAttribute annotationAttribute) {
-
+        // No implementation
     }
 
     public void visit(BLangAnnotationAttachment annAttachmentNode) {
-
+        // No implementation
     }
 
     public void visit(BLangAnnotAttachmentAttributeValue annotAttributeValue) {
-
+        // No implementation
     }
 
     public void visit(BLangAnnotAttachmentAttribute annotAttachmentAttribute) {
-
+        // No implementation
     }
 
     public void visit(BLangBind bindNode) {
-
+        // No implementation
     }
 
     public void visit(BLangBreak breakNode) {
-
+        // No implementation
     }
 
     public void visit(BLangReturn.BLangWorkerReturn returnNode) {
-
+        // No implementation
     }
 
     public void visit(BLangThrow throwNode) {
-
+        // No implementation
     }
 
     public void visit(BLangXMLNSStatement xmlnsStmtNode) {
-
+        // No implementation
     }
 
     public void visit(BLangArrayLiteral arrayLiteral) {
@@ -652,13 +695,12 @@ public class HoverTreeVisitor extends BLangNodeVisitor {
     }
 
     public void visit(BLangIndexBasedAccess indexAccessExpr) {
-
+        // No implementation
     }
 
     public void visit(BLangConnectorInit connectorInitExpr) {
         previousNode = connectorInitExpr;
         if (connectorInitExpr.connectorType != null) {
-            // TODO: check why connectorType's type is null as it is a userdefindtype
             connectorInitExpr.connectorType.type = connectorInitExpr.type;
             acceptNode(connectorInitExpr.connectorType);
         }
@@ -669,23 +711,30 @@ public class HoverTreeVisitor extends BLangNodeVisitor {
     }
 
     public void visit(BLangInvocation.BLangActionInvocation actionInvocationExpr) {
-
+        // No implementation
     }
 
     public void visit(BLangTernaryExpr ternaryExpr) {
-
+        // No implementation
     }
 
     public void visit(BLangUnaryExpr unaryExpr) {
-
+        // No implementation
     }
 
     public void visit(BLangTypeofExpr accessExpr) {
-
+        // No implementation
     }
 
     public void visit(BLangTypeCastExpr castExpr) {
+        previousNode = castExpr;
+        if (castExpr.typeNode != null) {
+            this.acceptNode(castExpr.typeNode);
+        }
 
+        if (castExpr.expr != null) {
+            this.acceptNode(castExpr.expr);
+        }
     }
 
     public void visit(BLangTypeConversionExpr conversionExpr) {
@@ -705,31 +754,31 @@ public class HoverTreeVisitor extends BLangNodeVisitor {
     }
 
     public void visit(BLangXMLQName xmlQName) {
-
+        // No implementation
     }
 
     public void visit(BLangXMLAttribute xmlAttribute) {
-
+        // No implementation
     }
 
     public void visit(BLangXMLElementLiteral xmlElementLiteral) {
-
+        // No implementation
     }
 
     public void visit(BLangXMLTextLiteral xmlTextLiteral) {
-
+        // No implementation
     }
 
     public void visit(BLangXMLCommentLiteral xmlCommentLiteral) {
-
+        // No implementation
     }
 
     public void visit(BLangXMLProcInsLiteral xmlProcInsLiteral) {
-
+        // No implementation
     }
 
     public void visit(BLangXMLQuotedString xmlQuotedString) {
-
+        // No implementation
     }
 
     public void visit(BLangStringTemplateLiteral stringTemplateLiteral) {
@@ -741,15 +790,15 @@ public class HoverTreeVisitor extends BLangNodeVisitor {
     }
 
     public void visit(BLangLambdaFunction bLangLambdaFunction) {
-
+        // No implementation
     }
 
     public void visit(BLangXMLAttributeAccess xmlAttributeAccessExpr) {
-
+        // No implementation
     }
 
     public void visit(BLangValueType valueType) {
-
+        // No implementation
     }
 
     public void visit(BLangArrayType arrayType) {
@@ -760,7 +809,7 @@ public class HoverTreeVisitor extends BLangNodeVisitor {
     }
 
     public void visit(BLangBuiltInRefTypeNode builtInRefType) {
-
+        // No implementation
     }
 
     public void visit(BLangEndpointTypeNode endpointType) {
@@ -771,87 +820,87 @@ public class HoverTreeVisitor extends BLangNodeVisitor {
     }
 
     public void visit(BLangConstrainedType constrainedType) {
-
+        // No implementation
     }
 
     public void visit(BLangFunctionTypeNode functionTypeNode) {
-
+        // No implementation
     }
 
     public void visit(BLangSimpleVarRef.BLangLocalVarRef localVarRef) {
-
+        // No implementation
     }
 
     public void visit(BLangSimpleVarRef.BLangFieldVarRef fieldVarRef) {
-
+        // No implementation
     }
 
     public void visit(BLangSimpleVarRef.BLangPackageVarRef packageVarRef) {
-
+        // No implementation
     }
 
     public void visit(BLangSimpleVarRef.BLangFunctionVarRef functionVarRef) {
-
+        // No implementation
     }
 
     public void visit(BLangFieldBasedAccess.BLangStructFieldAccessExpr fieldAccessExpr) {
-
+        // No implementation
     }
 
     public void visit(BLangIndexBasedAccess.BLangMapAccessExpr mapKeyAccessExpr) {
-
+        // No implementation
     }
 
     public void visit(BLangIndexBasedAccess.BLangArrayAccessExpr arrayIndexAccessExpr) {
-
+        // No implementation
     }
 
     public void visit(BLangIndexBasedAccess.BLangXMLAccessExpr xmlIndexAccessExpr) {
-
+        // No implementation
     }
 
     public void visit(BLangRecordLiteral.BLangJSONLiteral jsonLiteral) {
-
+        // No implementation
     }
 
     public void visit(BLangRecordLiteral.BLangMapLiteral mapLiteral) {
-
+        // No implementation
     }
 
     public void visit(BLangRecordLiteral.BLangStructLiteral structLiteral) {
-
+        // No implementation
     }
 
     public void visit(BLangInvocation.BFunctionPointerInvocation bFunctionPointerInvocation) {
-
+        // No implementation
     }
 
     public void visit(BLangInvocation.BLangFunctionInvocation iExpr) {
-
+        // No implementation
     }
 
     public void visit(BLangInvocation.BLangTransformerInvocation iExpr) {
-
+        // No implementation
     }
 
     public void visit(BLangArrayLiteral.BLangJSONArrayLiteral jsonArrayLiteral) {
-
+        // No implementation
     }
 
     public void visit(BLangIndexBasedAccess.BLangJSONAccessExpr jsonAccessExpr) {
-
+        // No implementation
     }
 
     public void visit(BLangXMLNS.BLangLocalXMLNS xmlnsNode) {
-
+        // No implementation
     }
 
     public void visit(BLangXMLNS.BLangPackageXMLNS xmlnsNode) {
-
+        // No implementation
     }
 
     public void visit(BLangFieldBasedAccess.BLangEnumeratorAccessExpr enumeratorAccessExpr) {
-
+        // No implementation
     }
 
     /**
