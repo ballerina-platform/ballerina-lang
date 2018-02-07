@@ -39,7 +39,7 @@ class SamplesPreview extends React.Component {
         if (this.props.sampleConfigs) {
             previewThumbnails = this.props.sampleConfigs.map((config, index) => (
                 <div
-                    className="col-sm-12 col-md-6 col-lg-3 thumbnail-wrapper"
+                    className="col-xs-12 col-sm-6 col-md-6 col-lg-3 thumbnail-wrapper"
                     key={config.sampleName}
                 >
                     <div
