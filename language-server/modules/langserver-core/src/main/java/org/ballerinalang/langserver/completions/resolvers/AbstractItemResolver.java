@@ -29,7 +29,7 @@ import org.ballerinalang.model.symbols.SymbolKind;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.CompletionItemKind;
 import org.eclipse.lsp4j.InsertTextFormat;
-import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
@@ -45,6 +45,9 @@ import java.util.List;
  * Interface for completion item resolvers.
  */
 public abstract class AbstractItemResolver {
+    
+    private static final String NOT_FOUND_TYPE = "><";
+    
     public abstract ArrayList<CompletionItem> resolveItems(TextDocumentServiceContext completionContext);
 
     /**
@@ -52,18 +55,21 @@ public abstract class AbstractItemResolver {
      * @param symbolInfoList - list of symbol information
      * @param completionItems - completion item list to populate
      */
-    public void populateCompletionItemList(List<SymbolInfo> symbolInfoList, List<CompletionItem> completionItems) {
+    protected void populateCompletionItemList(List<SymbolInfo> symbolInfoList, List<CompletionItem> completionItems) {
 
         symbolInfoList.forEach(symbolInfo -> {
             CompletionItem completionItem = null;
-            if (symbolInfo.getScopeEntry().symbol instanceof BInvokableSymbol
-                    && ((BInvokableSymbol) symbolInfo.getScopeEntry().symbol).kind != null
-                    && !((BInvokableSymbol) symbolInfo.getScopeEntry().symbol).kind.equals(SymbolKind.WORKER)) {
+            BSymbol bSymbol = symbolInfo.getScopeEntry().symbol;
+            if (bSymbol instanceof BInvokableSymbol
+                    && ((BInvokableSymbol) bSymbol).kind != null
+                    && !((BInvokableSymbol) bSymbol).kind.equals(SymbolKind.WORKER)) {
                 completionItem = this.populateBallerinaFunctionCompletionItem(symbolInfo);
-            } else if (!(symbolInfo.getScopeEntry().symbol instanceof BInvokableSymbol)
-                    && symbolInfo.getScopeEntry().symbol instanceof BVarSymbol) {
+            } else if (!(bSymbol instanceof BInvokableSymbol)
+                    && bSymbol instanceof BVarSymbol) {
                 completionItem = this.populateVariableDefCompletionItem(symbolInfo);
-            } else if (symbolInfo.getScopeEntry().symbol instanceof BTypeSymbol) {
+            } else if (bSymbol instanceof BTypeSymbol
+                    && !bSymbol.getName().getValue().equals(NOT_FOUND_TYPE)
+                    && !(bSymbol instanceof BAnnotationSymbol)) {
                 completionItem = this.populateBTypeCompletionItem(symbolInfo);
             }
 
@@ -123,7 +129,7 @@ public abstract class AbstractItemResolver {
      * @param symbolInfo - symbol information
      * @return completion item
      */
-    CompletionItem populateBTypeCompletionItem(SymbolInfo symbolInfo) {
+    private CompletionItem populateBTypeCompletionItem(SymbolInfo symbolInfo) {
         CompletionItem completionItem = new CompletionItem();
         completionItem.setLabel(symbolInfo.getSymbolName());
         String[] delimiterSeparatedTokens = (symbolInfo.getSymbolName()).split("\\.");
@@ -162,8 +168,8 @@ public abstract class AbstractItemResolver {
             String receiverType = bInvokableSymbol.receiverSymbol.getType().toString();
             functionName = functionName.replace(receiverType + ".", "");
         }
-        StringBuffer signature = new StringBuffer(functionName + "(");
-        StringBuffer insertText = new StringBuffer(functionName + "(");
+        StringBuilder signature = new StringBuilder(functionName + "(");
+        StringBuilder insertText = new StringBuilder(functionName + "(");
         List<BVarSymbol> parameterDefs = bInvokableSymbol.getParameters();
 
         for (int itr = 0; itr < parameterDefs.size(); itr++) {
@@ -327,12 +333,13 @@ public abstract class AbstractItemResolver {
         return completionItem;
     }
 
-    protected void populateBasicTypes(List<CompletionItem> completionItems, SymbolTable symbolTable) {
-        symbolTable.rootScope.entries.forEach((key, value) -> {
-            if (value.symbol instanceof BTypeSymbol) {
-                String insertText = value.symbol.getName().getValue();
-                completionItems.add(populateCompletionItem(insertText, ItemResolverConstants.B_TYPE,
-                        Priority.PRIORITY4.name(), insertText));
+    protected void populateBasicTypes(List<CompletionItem> completionItems, List<SymbolInfo> visibleSymbols) {
+        visibleSymbols.forEach(symbolInfo -> {
+            BSymbol bSymbol = symbolInfo.getScopeEntry().symbol;
+            if (bSymbol instanceof BTypeSymbol
+                    && !bSymbol.getName().getValue().equals(NOT_FOUND_TYPE)
+                    && !(bSymbol instanceof BAnnotationSymbol)) {
+                completionItems.add(this.populateBTypeCompletionItem(symbolInfo));
             }
         });
     }
