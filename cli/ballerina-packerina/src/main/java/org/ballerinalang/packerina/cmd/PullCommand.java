@@ -27,6 +27,8 @@ import org.ballerinalang.packerina.NetworkUtils;
 import java.io.PrintStream;
 import java.util.List;
 
+import static org.ballerinalang.runtime.Constants.SYSTEM_PROP_BAL_DEBUG;
+
 /**
  * This class represents the "ballerina pull" command.
  *
@@ -45,7 +47,10 @@ public class PullCommand implements BLauncherCmd {
     @Parameter(names = {"--help", "-h"}, hidden = true)
     private boolean helpFlag;
 
-    @Parameter(names = "--java.debug", hidden = true)
+    @Parameter(names = "--java.debug", hidden = true, description = "remote java debugging port")
+    private String javaDebugPort;
+
+    @Parameter(names = "--debug", hidden = true)
     private String debugPort;
 
     @Override
@@ -62,6 +67,11 @@ public class PullCommand implements BLauncherCmd {
 
         if (argList.size() > 1) {
             throw LauncherUtils.createUsageException("too many arguments");
+        }
+
+        // Enable remote debugging
+        if (null != debugPort) {
+            System.setProperty(SYSTEM_PROP_BAL_DEBUG, debugPort);
         }
 
         String resourceName = argList.get(0);
