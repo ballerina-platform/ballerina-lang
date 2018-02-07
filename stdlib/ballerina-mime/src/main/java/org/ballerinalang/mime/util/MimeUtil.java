@@ -84,10 +84,12 @@ import static org.ballerinalang.mime.util.Constants.ENTITY_HEADERS_INDEX;
 import static org.ballerinalang.mime.util.Constants.ENTITY_NAME_INDEX;
 import static org.ballerinalang.mime.util.Constants.FILE_PATH_INDEX;
 import static org.ballerinalang.mime.util.Constants.FILE_SIZE;
+import static org.ballerinalang.mime.util.Constants.IS_ENTITY_BODY_PRESENT;
 import static org.ballerinalang.mime.util.Constants.JSON_DATA_INDEX;
 import static org.ballerinalang.mime.util.Constants.JSON_EXTENSION;
 import static org.ballerinalang.mime.util.Constants.MEDIA_TYPE;
 import static org.ballerinalang.mime.util.Constants.MEDIA_TYPE_INDEX;
+import static org.ballerinalang.mime.util.Constants.MESSAGE_ENTITY;
 import static org.ballerinalang.mime.util.Constants.MULTIPART_DATA_INDEX;
 import static org.ballerinalang.mime.util.Constants.MULTIPART_FORM_DATA;
 import static org.ballerinalang.mime.util.Constants.OCTET_STREAM;
@@ -298,8 +300,7 @@ public class MimeUtil {
         if (isNotNullAndEmpty(returnValue)) {
             return returnValue;
         } else {
-            BStruct fileHandler = (BStruct) entity.getRefField(OVERFLOW_DATA_INDEX);
-            String filePath = fileHandler.getStringField(FILE_PATH_INDEX);
+            String filePath = getOverFlowFileLocation(entity);
             try {
                 return new String(readFromFile(filePath), UTF_8);
             } catch (UnsupportedEncodingException e) {
@@ -307,6 +308,19 @@ public class MimeUtil {
             }
         }
         return null;
+    }
+
+    public static String getTextPayloadFromMemory(BStruct entity) {
+        String returnValue = entity.getStringField(TEXT_DATA_INDEX);
+        if (isNotNullAndEmpty(returnValue)) {
+            return returnValue;
+        }
+        return null;
+    }
+
+    public static String getOverFlowFileLocation(BStruct entity) {
+        BStruct fileHandler = (BStruct) entity.getRefField(OVERFLOW_DATA_INDEX);
+        return fileHandler.getStringField(FILE_PATH_INDEX);
     }
 
     /**
@@ -320,13 +334,20 @@ public class MimeUtil {
         if (jsonRefType != null) {
             return (BJSON) entity.getRefField(JSON_DATA_INDEX);
         } else {
-            BStruct fileHandler = (BStruct) entity.getRefField(OVERFLOW_DATA_INDEX);
-            String filePath = fileHandler.getStringField(FILE_PATH_INDEX);
+            String filePath = getOverFlowFileLocation(entity);
             try {
                 return new BJSON(new String(readFromFile(filePath), UTF_8));
             } catch (UnsupportedEncodingException e) {
                 LOG.error("Error occured while extracting json payload from entity", e.getMessage());
             }
+        }
+        return null;
+    }
+
+    public static BJSON getJsonPayloadFromMemory(BStruct entity) {
+        BRefType jsonRefType = entity.getRefField(JSON_DATA_INDEX);
+        if (jsonRefType != null) {
+            return (BJSON) entity.getRefField(JSON_DATA_INDEX);
         }
         return null;
     }
@@ -342,13 +363,20 @@ public class MimeUtil {
         if (xmlRefType != null) {
             return (BXML) entity.getRefField(XML_DATA_INDEX);
         } else {
-            BStruct fileHandler = (BStruct) entity.getRefField(OVERFLOW_DATA_INDEX);
-            String filePath = fileHandler.getStringField(FILE_PATH_INDEX);
+            String filePath = getOverFlowFileLocation(entity);
             try {
                 return XMLUtils.parse(new String(readFromFile(filePath), UTF_8));
             } catch (UnsupportedEncodingException e) {
                 LOG.error("Error occured while extracting xml payload from entity", e.getMessage());
             }
+        }
+        return null;
+    }
+
+    public static BXML getXmlPayloadFromMemory(BStruct entity) {
+        BRefType xmlRefType = entity.getRefField(XML_DATA_INDEX);
+        if (xmlRefType != null) {
+            return (BXML) entity.getRefField(XML_DATA_INDEX);
         }
         return null;
     }
@@ -364,19 +392,26 @@ public class MimeUtil {
         if (byteData != null) {
             return entity.getBlobField(BYTE_DATA_INDEX);
         } else {
-            BStruct fileHandler = (BStruct) entity.getRefField(OVERFLOW_DATA_INDEX);
-            String filePath = fileHandler.getStringField(FILE_PATH_INDEX);
+            String filePath = getOverFlowFileLocation(entity);
             return readFromFile(filePath);
         }
     }
 
-    /**
-     * Construct 'MediaType' struct with the given Content-Type and set it into the given 'Entity'.
-     *
-     * @param mediaType    Represent 'MediaType' struct
-     * @param entityStruct Represent 'Entity' struct
-     * @param contentType  Content-Type value in string
-     */
+    public static byte[] getBinaryPayloadFromMemory(BStruct entity) {
+        byte[] byteData = entity.getBlobField(BYTE_DATA_INDEX);
+        if (byteData != null) {
+            return entity.getBlobField(BYTE_DATA_INDEX);
+        }
+        return null;
+    }
+
+        /**
+         * Construct 'MediaType' struct with the given Content-Type and set it into the given 'Entity'.
+         *
+         * @param mediaType    Represent 'MediaType' struct
+         * @param entityStruct Represent 'Entity' struct
+         * @param contentType  Content-Type value in string
+         */
     public static void setContentType(BStruct mediaType, BStruct entityStruct, String contentType) {
         BStruct mimeType = parseMediaType(mediaType, contentType);
         if (contentType == null) {
@@ -597,6 +632,7 @@ public class MimeUtil {
             case APPLICATION_JSON:
                 return MimeUtil.isJsonBodyPresent(entity);
             case APPLICATION_XML:
+            case TEXT_XML:
                 return MimeUtil.isXmlBodyPresent(entity);
             case MULTIPART_FORM_DATA:
                 return MimeUtil.isMultipartsAvailable(entity);
@@ -917,7 +953,7 @@ public class MimeUtil {
      * @param entity Represent ballerina entity
      * @return a boolean indicating nullability of the overflow data
      */
-    private static boolean isOverFlowDataNotNull(BStruct entity) {
+    public static boolean isOverFlowDataNotNull(BStruct entity) {
         BStruct overFlowData = (BStruct) entity.getRefField(OVERFLOW_DATA_INDEX);
         if (overFlowData != null) {
             return true;
@@ -1014,5 +1050,65 @@ public class MimeUtil {
 
     public static String getNewMultipartDelimiter() {
         return Long.toHexString(PlatformDependent.threadLocalRandom().nextLong());
+    }
+
+    public static boolean isContentInMemory(BStruct entity, String baseType) {
+        switch (baseType) {
+            case TEXT_PLAIN:
+                return isTextPayloadInMemory(entity);
+            case APPLICATION_JSON:
+                return isJsonPayloadInMemory(entity);
+            case APPLICATION_XML:
+            case TEXT_XML:
+                return isXmlPayloadInMemory(entity);
+            default:
+                return isBinaryPayloadInMemory(entity);
+        }
+    }
+
+    private static boolean isBinaryPayloadInMemory(BStruct entity) {
+        byte[] binaryPayload = entity.getBlobField(BYTE_DATA_INDEX);
+        if (binaryPayload != null) {
+            return true;
+        }
+        return false;
+    }
+
+    private static boolean isXmlPayloadInMemory(BStruct entity) {
+        BRefType xmlRefType = entity.getRefField(XML_DATA_INDEX);
+        if (xmlRefType != null) {
+            BXML xmlPayload = (BXML) entity.getRefField(XML_DATA_INDEX);
+            if (xmlPayload != null) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private static boolean isJsonPayloadInMemory(BStruct entity) {
+        BRefType jsonRefType = entity.getRefField(JSON_DATA_INDEX);
+        if (jsonRefType != null) {
+            BJSON jsonPayload = (BJSON) entity.getRefField(JSON_DATA_INDEX);
+            if (jsonPayload != null) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private static boolean isTextPayloadInMemory(BStruct entity) {
+        String textPayload = entity.getStringField(TEXT_DATA_INDEX);
+        if (isNotNullAndEmpty(textPayload)) {
+            return true;
+        }
+        return false;
+    }
+
+    public static BStruct extractEntity(BStruct httpMessageStruct) {
+        Object isEntityBodyAvailable = httpMessageStruct.getNativeData(IS_ENTITY_BODY_PRESENT);
+        if (isEntityBodyAvailable == null || !((Boolean) isEntityBodyAvailable)) {
+            return null;
+        }
+        return (BStruct) httpMessageStruct.getNativeData(MESSAGE_ENTITY);
     }
 }

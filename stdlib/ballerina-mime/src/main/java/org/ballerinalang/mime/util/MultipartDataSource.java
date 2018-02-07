@@ -58,11 +58,11 @@ public class MultipartDataSource extends BallerinaMessageDataSource {
     public void serializeData(OutputStream outputStream) {
         //TODO: Get charset from content type and use that
         final Writer writer = new BufferedWriter(new OutputStreamWriter(outputStream, Charset.defaultCharset()));
-
+        try {
         if (bodyParts != null) {
             boolean isFirst = true;
             for (int i = 0; i < bodyParts.size(); i++) {
-                try {
+
                     BStruct bodyPart = (BStruct) bodyParts.get(i);
                     // Write the leading boundary string
                     if (isFirst) {
@@ -96,17 +96,16 @@ public class MultipartDataSource extends BallerinaMessageDataSource {
                             writer.write("\r\n");
                         }
                     }
-
                     // Mark the end of the headers for this body part
                     writer.write("\r\n");
                     writer.flush();
 
                     writeBodyContent(writer, outputStream, bodyPart);
-                    writeFinalBoundaryString(writer, boundaryString);
-                } catch (IOException e) {
-                    e.printStackTrace();
                 }
             }
+            writeFinalBoundaryString(writer, boundaryString);
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 

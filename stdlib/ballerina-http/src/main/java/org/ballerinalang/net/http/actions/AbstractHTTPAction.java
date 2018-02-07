@@ -49,6 +49,8 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import javax.activation.MimeType;
 import javax.activation.MimeTypeParseException;
 
@@ -266,14 +268,36 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
     private void serializeDataSource(Context context, HTTPCarbonMessage outboundReqMsg,
                                      HTTPClientConnectorListener httpClientConnectorListener) {
         BStruct requestStruct = ((BStruct) getRefArgument(context, 1));
-        MessageDataSource messageDataSource = HttpUtil.readMessageDataSource(requestStruct);
-        if (messageDataSource != null) {
-            HttpMessageDataStreamer outboundMsgDataStreamer = new HttpMessageDataStreamer(outboundReqMsg);
-            OutputStream messageOutputStream = outboundMsgDataStreamer.getOutputStream();
-            httpClientConnectorListener.setOutboundMsgDataStreamer(outboundMsgDataStreamer);
-            messageDataSource.serializeData(messageOutputStream);
-            HttpUtil.closeMessageOutputStream(messageOutputStream);
+        BStruct entityStruct = MimeUtil.extractEntity(requestStruct);
+        if (entityStruct != null) {
+            String baseType = MimeUtil.getContentType(entityStruct);
+            if (MimeUtil.isContentInMemory(entityStruct, baseType)) {
+                MessageDataSource messageDataSource = HttpUtil.readMessageDataSource(entityStruct);
+                if (messageDataSource != null) {
+                    OutputStream messageOutputStream = getOutputStream(outboundReqMsg, httpClientConnectorListener);
+                    messageDataSource.serializeData(messageOutputStream);
+                    HttpUtil.closeMessageOutputStream(messageOutputStream);
+                }
+            } else if (MimeUtil.isOverFlowDataNotNull(entityStruct)) {
+                OutputStream messageOutputStream = getOutputStream(outboundReqMsg, httpClientConnectorListener);
+                String overFlowFilePath = MimeUtil.getOverFlowFileLocation(entityStruct);
+                try {
+                    Files.copy(Paths.get(overFlowFilePath), messageOutputStream);
+                    HttpUtil.closeMessageOutputStream(messageOutputStream);
+                } catch (IOException e) {
+                    throw new BallerinaException("Failed to write payload to outputstream when payload is in overflow" +
+                            " file location", e, context);
+                }
+            }
         }
+    }
+
+    private static OutputStream getOutputStream(HTTPCarbonMessage outboundReqMsg, HTTPClientConnectorListener
+            httpClientConnectorListener) {
+        HttpMessageDataStreamer outboundMsgDataStreamer = new HttpMessageDataStreamer(outboundReqMsg);
+        OutputStream messageOutputStream = outboundMsgDataStreamer.getOutputStream();
+        httpClientConnectorListener.setOutboundMsgDataStreamer(outboundMsgDataStreamer);
+        return messageOutputStream;
     }
 
     private RetryConfig getRetryConfiguration(Context context) {

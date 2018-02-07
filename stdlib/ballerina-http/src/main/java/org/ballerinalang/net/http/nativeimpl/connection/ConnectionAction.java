@@ -19,6 +19,7 @@
 package org.ballerinalang.net.http.nativeimpl.connection;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.mime.util.MimeUtil;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.AbstractNativeFunction;
@@ -32,6 +33,8 @@ import org.wso2.transport.http.netty.message.HttpMessageDataStreamer;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 
 /**
  * {@code {@link ConnectionAction}} represents a Abstract implementation of Native Ballerina Connection Function.
@@ -58,12 +61,37 @@ public abstract class ConnectionAction extends AbstractNativeFunction {
     }
 
     private BValue[] sendOutboundResponseRobust(Context context, HTTPCarbonMessage requestMessage,
-            BStruct outboundResponseStruct, HTTPCarbonMessage responseMessage) {
-        MessageDataSource outboundMessageSource = HttpUtil.readMessageDataSource(outboundResponseStruct);
+                                                BStruct outboundResponseStruct, HTTPCarbonMessage responseMessage) {
+        BStruct entityStruct = MimeUtil.extractEntity(outboundResponseStruct);
         HttpResponseFuture outboundRespStatusFuture = HttpUtil.sendOutboundResponse(requestMessage, responseMessage);
-        serializeMsgDataSource(responseMessage, outboundMessageSource, outboundRespStatusFuture);
-
+        if (entityStruct != null) {
+            String baseType = MimeUtil.getContentType(entityStruct);
+            if (MimeUtil.isContentInMemory(entityStruct, baseType)) {
+                MessageDataSource outboundMessageSource = HttpUtil.
+                        readMessageDataSource(entityStruct);
+                serializeMsgDataSource(responseMessage, outboundMessageSource, outboundRespStatusFuture);
+            } else if (MimeUtil.isOverFlowDataNotNull(entityStruct)) {
+                writeToOutputStreamFromFile(context, responseMessage, entityStruct, outboundRespStatusFuture);
+            }
+        }
         return handleResponseStatus(context, outboundRespStatusFuture);
+    }
+
+    private void writeToOutputStreamFromFile(Context context, HTTPCarbonMessage responseMessage, BStruct entityStruct,
+                                             HttpResponseFuture outboundRespStatusFuture) {
+        String overFlowFilePath = MimeUtil.getOverFlowFileLocation(entityStruct);
+        HttpMessageDataStreamer outboundMsgDataStreamer = new HttpMessageDataStreamer(responseMessage);
+        HttpConnectorListener outboundResStatusConnectorListener =
+                new HttpResponseConnectorListener(outboundMsgDataStreamer);
+        outboundRespStatusFuture.setHttpConnectorListener(outboundResStatusConnectorListener);
+        OutputStream messageOutputStream = outboundMsgDataStreamer.getOutputStream();
+        try {
+            Files.copy(Paths.get(overFlowFilePath), messageOutputStream);
+            HttpUtil.closeMessageOutputStream(messageOutputStream);
+        } catch (IOException e) {
+            throw new BallerinaException("Failed to send outbound response payload is in overflow" +
+                    " file location", e, context);
+        }
     }
 
     private BValue[] handleResponseStatus(Context context, HttpResponseFuture outboundResponseStatusFuture) {
