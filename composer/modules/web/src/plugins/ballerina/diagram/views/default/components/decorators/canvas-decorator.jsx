@@ -71,6 +71,7 @@ class CanvasDecorator extends React.Component {
                     height={svgSize.h}
                     viewBox={viewBox}
                     preserveAspectRatio='xMinYMin'
+                    style={{ pointerEvents: fitToScreen ? 'none' : 'auto' }}
                 >
                     <DropZone
                         x='0'
