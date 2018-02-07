@@ -29,4 +29,8 @@ public class BXMLType extends BBuiltInRefType {
         super(tag, tsymbol);
     }
 
+    @Override
+    public <T, R> R accept(BTypeVisitor<T, R> visitor, T t) {
+        return visitor.visit(this, t);
+    }
 }

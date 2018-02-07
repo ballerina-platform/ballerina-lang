@@ -10,6 +10,9 @@ function test1(){
 
 function test2(){
     string[] y = ["1", "a"];
+
+    y.count();
+
     y.filter(function (int i, string x)(boolean){
         return true;})
      .foreach(function (string x){ word = x;}).count();
@@ -37,4 +40,12 @@ function test4() {
          var s, _ = (string) x;
          return s == null;
      });
+}
+
+function test5(){
+    string[] s = ["1", "a"];
+
+    int x;
+    string y;
+    x, y = s.map(function (int i, string v)(int, string){ return i*2, v + v;});
 }

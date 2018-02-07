@@ -125,11 +125,14 @@ public class IterableCodeDesugar {
         generateIteratorFunction(ctx);
 
         // create invocation expression to invoke iterable operation.
-        final BLangSimpleVarRef collectionRef = (BLangSimpleVarRef) ctx.collectionExpr;
-        final BLangVariable collectionVar = createVariable(collectionRef.pos, collectionRef.variableName.value,
-                collectionRef.type);
-        collectionVar.symbol = collectionRef.symbol;
-        ctx.iteratorCaller = createInvocationExpr(collectionRef.pos, ctx.iteratorFuncSymbol, Lists.of(collectionVar));
+        final BLangInvocation iExpr = createInvocationExpr(ctx.collectionExpr.pos,
+                ctx.iteratorFuncSymbol, Collections.emptyList());
+        iExpr.argExprs.add(ctx.collectionExpr);
+        if (ctx.getLastOperation().expectedTypes.isEmpty()) {
+            ctx.iteratorCaller = iExpr;
+        } else {
+            ctx.iteratorCaller = generateCastExpr(iExpr, ctx.getLastOperation().expectedTypes.get(0));
+        }
     }
 
     private void rewrite(IterableContext ctx) {
@@ -665,6 +668,9 @@ public class IterableCodeDesugar {
      * @param ctx       current context
      */
     private void generateDefaultIfEmpty(BLangBlockStmt blockStmt, IterableContext ctx) {
+        if (ctx.resultVar.symbol.type.tag > TypeTags.TYPE) {
+            return;
+        }
         final DiagnosticPos pos = blockStmt.pos;
         final BLangBinaryExpr equality = (BLangBinaryExpr) TreeBuilder.createBinaryExpressionNode();
         equality.pos = pos;
@@ -865,8 +871,8 @@ public class IterableCodeDesugar {
         return blockNode;
     }
 
-    private BLangExpression generateCastExpr(BLangSimpleVarRef varRef, BType target) {
-        if (varRef.type.tag > TypeTags.TYPE) {
+    private BLangExpression generateCastExpr(BLangExpression varRef, BType target) {
+        if (varRef.type.tag == target.tag || varRef.type.tag > TypeTags.TYPE) {
             return varRef;
         }
         // Box value using cast expression.
@@ -879,8 +885,8 @@ public class IterableCodeDesugar {
         return implicitCastExpr;
     }
 
-    private BLangExpression generateConversionExpr(BLangSimpleVarRef varRef, BType target) {
-        if (varRef.type.tag > TypeTags.TYPE) {
+    private BLangExpression generateConversionExpr(BLangExpression varRef, BType target) {
+        if (varRef.type.tag == target.tag || varRef.type.tag > TypeTags.TYPE) {
             return varRef;
         }
         // Box value using cast expression.
@@ -918,6 +924,9 @@ public class IterableCodeDesugar {
         invokeLambda.argExprs.addAll(generateArgExprs(pos, args, invokableSymbol));
         invokeLambda.symbol = invokableSymbol;
         invokeLambda.types.addAll(((BInvokableType) invokableSymbol.type).retTypes);
+        if (!invokeLambda.types.isEmpty()) {
+            invokeLambda.type = invokeLambda.types.get(0);
+        }
         return invokeLambda;
     }
 

@@ -50,18 +50,21 @@ public class IterableOperationsTests {
 
     @Test
     public void testNegative() {
+        Assert.assertEquals(negative.getErrorCount(), 10);
         BAssertUtil.validateError(negative, 0, "undefined function 'int.foreach'", 6, 5);
         BAssertUtil.validateError(negative, 1, "undefined function 'string.map'", 8, 5);
-        BAssertUtil.validateError(negative, 2, "not enough variables are defined for iterable type '(int,string)[]', " +
-                "require '2' variables", 15, 15);
-        BAssertUtil.validateError(negative, 3, "undefined function 'count'", 13, 5);
-        BAssertUtil.validateError(negative, 4, "function invocation on type '(string,string)[]' is not supported",
-                20, 21);
-        BAssertUtil.validateError(negative, 5, "incompatible types: expected 'string[]', found '(string,string)[]'",
-                28, 24);
-        BAssertUtil.validateError(negative, 6, "incompatible types: expected 'map', found '(any)[]'", 32, 22);
-        BAssertUtil.validateError(negative, 7, "cannot assign return value of 'filter' operation here, use reduce " +
-                "operation", 36, 22);
+        BAssertUtil.validateError(negative, 2, "variable assignment is required", 14, 5);
+        BAssertUtil.validateError(negative, 3, "not enough variables are defined for iterable type '(int,string)[]', " +
+                "" + "require '2' variables", 18, 15);
+        BAssertUtil.validateError(negative, 4, "undefined function 'count'", 16, 5);
+        BAssertUtil.validateError(negative, 5, "function invocation on type '(string,string)[]' is not supported",
+                23, 21);
+        BAssertUtil.validateError(negative, 6, "incompatible types: expected 'string[]', found '(string,string)[]'",
+                31, 24);
+        BAssertUtil.validateError(negative, 7, "incompatible types: expected 'map', found '(any)[]'", 35, 22);
+        BAssertUtil.validateError(negative, 8, "cannot assign return value of 'filter' operation here, use reduce " +
+                "operation", 39, 22);
+        BAssertUtil.validateError(negative, 9, "assignment count mismatch: expected 1 values, but found 2", 50, 18);
     }
 
     @Test
@@ -178,5 +181,30 @@ public class IterableOperationsTests {
         Assert.assertEquals(returns.length, 1);
         Assert.assertNotNull(returns[0]);
         Assert.assertEquals(returns[0].stringValue(), "[\"aA\", \"eE\"]");
+    }
+
+    @Test
+    public void testJSON() {
+        BValue[] returns = BRunUtil.invoke(basic, "jsonTest");
+        Assert.assertNotNull(returns);
+        Assert.assertEquals(returns.length, 5);
+        Assert.assertEquals(returns[0].stringValue(), "bob10true[{\"subject\":\"maths\",\"marks\":75}," +
+                "{\"subject\":\"English\",\"marks\":85}]");
+        Assert.assertEquals(returns[1].stringValue(), "[\"bob\"]");
+        Assert.assertEquals(returns[2].stringValue(), "4");
+        Assert.assertEquals(returns[3].stringValue(), "4");
+        Assert.assertEquals(returns[4].stringValue(), "[\"0->{\"subject\":\"maths\",\"marks\":75}\", " +
+                "\"1->{\"subject\":\"English\",\"marks\":85}\"]");
+    }
+
+    @Test
+    public void testXML() {
+        BValue[] returns = BRunUtil.invoke(basic, "xmlTest");
+        Assert.assertNotNull(returns);
+        Assert.assertEquals(returns.length, 3);
+        Assert.assertEquals(returns[0].stringValue(), "7");
+        Assert.assertEquals(returns[1].stringValue(), "3");
+        Assert.assertEquals(returns[2].stringValue(), "{\"0\":<p:city xmlns:p=\"foo\" xmlns:q=\"bar\">NY</p:city>, " +
+                "\"1\":<q:country xmlns:q=\"bar\" xmlns:p=\"foo\">US</q:country>}");
     }
 }

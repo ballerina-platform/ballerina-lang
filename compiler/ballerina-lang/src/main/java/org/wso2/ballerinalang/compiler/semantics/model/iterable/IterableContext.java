@@ -20,7 +20,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -40,7 +39,7 @@ public class IterableContext {
     public BLangVariable countVar, skipVar, resultVar;
     public List<BLangVariable> streamRetVars;
     public BLangExpression collectionExpr;
-    public BLangInvocation iteratorCaller;
+    public BLangExpression iteratorCaller;
 
     public BInvokableSymbol streamFuncSymbol, iteratorFuncSymbol;
 

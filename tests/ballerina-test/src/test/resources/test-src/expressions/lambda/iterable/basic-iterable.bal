@@ -118,3 +118,45 @@ function mapAnyToString (string key, any value) (string, string) {
 function concatString (string v1, string v2) (string) {
     return v1 + v2;
 }
+
+json j1 = {name:"bob", age:10, pass:true, subjects:[{subject:"maths", marks:75}, {subject:"English", marks:85}]};
+function jsonTest()(string, string[], int, any, string[]){
+    output = "";
+    j1.foreach(function (json j){
+        output = output + j.toString();
+    });
+
+    string[] sa = j1.map(function (json j)(string){
+        return j.toString();
+    })
+    .filter(function (string s)(boolean){
+        return s == "bob";
+    });
+
+    int i = j1.count();
+
+    var ja, _ = (json[]) j1.subjects;
+    string[] result = ja.map(function (int i, json j)(string){
+        return i + "->" + j.toString();
+    });
+
+    return output, sa, i, j1.count(), result;
+}
+
+xml xdata = xml `<p:person xmlns:p="foo" xmlns:q="bar">
+        <p:name>bob</p:name>
+        <p:address>
+            <p:city>NY</p:city>
+            <q:country>US</q:country>
+        </p:address>
+        <q:ID>1131313</q:ID>
+    </p:person>`;
+
+function xmlTest()(int nodeCount, any elementCount, map m){
+    nodeCount = xdata.children().count();
+    elementCount = xdata.children().elements().count();
+    m = xdata.children().elements()[1].children().elements().map(function (int i, xml x)(string, xml){
+        return <string>i, x;
+    });
+    return;
+}
