@@ -425,7 +425,7 @@ functionInvocation
     ;
 
 invocation
-    : DOT Identifier LEFT_PARENTHESIS expressionList? RIGHT_PARENTHESIS
+    : DOT anyIdentifierName LEFT_PARENTHESIS expressionList? RIGHT_PARENTHESIS
     ;
 
 expressionList
@@ -611,4 +611,14 @@ stringTemplateLiteral
 stringTemplateContent
     :   (StringTemplateExpressionStart expression ExpressionEnd)+ StringTemplateText?
     |   StringTemplateText
+    ;
+
+anyIdentifierName
+    : Identifier
+    | reservedWord
+    ;
+
+reservedWord
+    :   FOREACH
+    |   TYPE_MAP
     ;

@@ -48,6 +48,7 @@ public class TypeTags {
     public static final int ERROR = XML_ATTRIBUTES + 1;
     public static final int ENDPOINT = ERROR + 1;
     public static final int ITERATOR = ENDPOINT + 1;
+    public static final int TUPLE_COLLECTION = ITERATOR + 1;
 
     private TypeTags() {
     }

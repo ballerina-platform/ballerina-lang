@@ -19,7 +19,6 @@ package org.wso2.ballerinalang.compiler.parser;
 
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.Token;
-import org.antlr.v4.runtime.tree.ErrorNode;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.TerminalNode;
 import org.apache.commons.lang3.StringEscapeUtils;
@@ -45,8 +44,8 @@ import java.util.stream.Collectors;
  * @since 0.94
  */
 public class BLangParserListener extends BallerinaParserBaseListener {
-    protected static final String KEYWORD_PUBLIC = "public";
-    protected static final String KEYWORD_NATIVE = "native";
+    private static final String KEYWORD_PUBLIC = "public";
+    private static final String KEYWORD_NATIVE = "native";
 
     private BLangPackageBuilder pkgBuilder;
     private BDiagnosticSource diagnosticSrc;
@@ -54,8 +53,8 @@ public class BLangParserListener extends BallerinaParserBaseListener {
     private List<String> pkgNameComps;
     private String pkgVersion;
 
-    public BLangParserListener(CompilerContext context, CompilationUnitNode compUnit,
-                               BDiagnosticSource diagnosticSource) {
+    BLangParserListener(CompilerContext context, CompilationUnitNode compUnit,
+                        BDiagnosticSource diagnosticSource) {
         this.pkgBuilder = new BLangPackageBuilder(context, compUnit);
         this.diagnosticSrc = diagnosticSource;
     }
@@ -77,13 +76,6 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
         this.pkgBuilder.addVar(getCurrentPos(ctx), getWS(ctx), ctx.Identifier().getText(),
                 false, ctx.annotationAttachment().size());
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void enterCompilationUnit(BallerinaParser.CompilationUnitContext ctx) {
     }
 
     /**
@@ -132,20 +124,6 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         String alias = ctx.Identifier() != null ? ctx.Identifier().getText() : null;
         this.pkgBuilder.addImportPackageDeclaration(getCurrentPos(ctx), getWS(ctx),
                 this.pkgNameComps, this.pkgVersion, alias);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void enterDefinition(BallerinaParser.DefinitionContext ctx) {
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void exitDefinition(BallerinaParser.DefinitionContext ctx) {
     }
 
     /**
@@ -263,12 +241,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
 
-        boolean isReceiverAttached;
-        if (ctx.parameter() != null) {
-            isReceiverAttached = true;
-        } else {
-            isReceiverAttached = false;
-        }
+        boolean isReceiverAttached = ctx.parameter() != null;
 
         int nativeKWTokenIndex = 0;
         boolean publicFunc = KEYWORD_PUBLIC.equals(ctx.getChild(0).getText());
@@ -299,13 +272,6 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         this.pkgBuilder.addLambdaFunctionDef(getCurrentPos(ctx), getWS(ctx), ctx.parameterList() != null,
                 ctx.returnParameters() != null,
                 ctx.returnParameters() != null && ctx.returnParameters().typeList() != null);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void enterCallableUnitSignature(BallerinaParser.CallableUnitSignatureContext ctx) {
     }
 
     /**
@@ -540,13 +506,6 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      * {@inheritDoc}
      */
     @Override
-    public void enterServiceAttachPoint(BallerinaParser.ServiceAttachPointContext ctx) {
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
     public void exitServiceAttachPoint(BallerinaParser.ServiceAttachPointContext ctx) {
         if (ctx.exception != null) {
             return;
@@ -606,13 +565,6 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         }
 
         this.pkgBuilder.addAttachPoint(BLangAnnotationAttachmentPoint.AttachmentPoint.FUNCTION, null);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void enterStructAttachPoint(BallerinaParser.StructAttachPointContext ctx) {
     }
 
     /**
@@ -732,13 +684,6 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      * {@inheritDoc}
      */
     @Override
-    public void enterWorkerDefinition(BallerinaParser.WorkerDefinitionContext ctx) {
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
     public void exitWorkerDefinition(BallerinaParser.WorkerDefinitionContext ctx) {
         if (ctx.exception != null) {
             return;
@@ -781,10 +726,6 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         }
         // This is 'any' type
         this.pkgBuilder.addValueType(getCurrentPos(ctx), getWS(ctx), ctx.getChild(0).getText());
-    }
-
-    @Override
-    public void exitReferenceTypeName(BallerinaParser.ReferenceTypeNameContext ctx) {
     }
 
     @Override
@@ -874,34 +815,6 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      * {@inheritDoc}
      */
     @Override
-    public void enterXmlNamespaceName(BallerinaParser.XmlNamespaceNameContext ctx) {
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void exitXmlNamespaceName(BallerinaParser.XmlNamespaceNameContext ctx) {
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void enterXmlLocalName(BallerinaParser.XmlLocalNameContext ctx) {
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void exitXmlLocalName(BallerinaParser.XmlLocalNameContext ctx) {
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
     public void enterAnnotationAttachment(BallerinaParser.AnnotationAttachmentContext ctx) {
         if (ctx.exception != null) {
             return;
@@ -922,26 +835,6 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         this.pkgBuilder.setAnnotationAttachmentName(getWS(ctx));
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void enterAnnotationAttributeList(BallerinaParser.AnnotationAttributeListContext ctx) {
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void exitAnnotationAttributeList(BallerinaParser.AnnotationAttributeListContext ctx) {
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void enterAnnotationAttribute(BallerinaParser.AnnotationAttributeContext ctx) {
-    }
 
     /**
      * {@inheritDoc}
@@ -956,12 +849,6 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         this.pkgBuilder.createAnnotAttachmentAttribute(getCurrentPos(ctx), getWS(ctx), attrName);
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void enterAnnotationAttributeValue(BallerinaParser.AnnotationAttributeValueContext ctx) {
-    }
 
     /**
      * {@inheritDoc}
@@ -982,34 +869,6 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         } else if (childContext instanceof BallerinaParser.AnnotationAttributeArrayContext) {
             this.pkgBuilder.createArrayTypeAttributeValue(getCurrentPos(ctx), getWS(ctx));
         }
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void enterAnnotationAttributeArray(BallerinaParser.AnnotationAttributeArrayContext ctx) {
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void exitAnnotationAttributeArray(BallerinaParser.AnnotationAttributeArrayContext ctx) {
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void enterStatement(BallerinaParser.StatementContext ctx) {
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void exitStatement(BallerinaParser.StatementContext ctx) {
     }
 
     @Override
@@ -1179,13 +1038,6 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      * {@inheritDoc}
      */
     @Override
-    public void enterIfClause(BallerinaParser.IfClauseContext ctx) {
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
     public void exitIfClause(BallerinaParser.IfClauseContext ctx) {
         if (ctx.exception != null) {
             return;
@@ -1296,26 +1148,12 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      * {@inheritDoc}
      */
     @Override
-    public void enterNextStatement(BallerinaParser.NextStatementContext ctx) {
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
     public void exitNextStatement(BallerinaParser.NextStatementContext ctx) {
         if (ctx.exception != null) {
             return;
         }
 
         this.pkgBuilder.addNextStatement(getCurrentPos(ctx), getWS(ctx));
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void enterBreakStatement(BallerinaParser.BreakStatementContext ctx) {
     }
 
     /**
@@ -1492,13 +1330,6 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      * {@inheritDoc}
      */
     @Override
-    public void enterReturnStatement(BallerinaParser.ReturnStatementContext ctx) {
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
     public void exitReturnStatement(BallerinaParser.ReturnStatementContext ctx) {
         if (ctx.exception != null) {
             return;
@@ -1532,13 +1363,6 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         }
 
         this.pkgBuilder.addWorkerReceiveStmt(getCurrentPos(ctx), getWS(ctx), ctx.Identifier().getText());
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void enterXmlAttribVariableReference(BallerinaParser.XmlAttribVariableReferenceContext ctx) {
     }
 
     /**
@@ -1589,13 +1413,23 @@ public class BLangParserListener extends BallerinaParserBaseListener {
     }
 
     @Override
+    public void exitReservedWord(BallerinaParser.ReservedWordContext ctx) {
+        this.pkgBuilder.startInvocationNode(getWS(ctx));
+    }
+
+    @Override
+    public void exitAnyIdentifierName(BallerinaParser.AnyIdentifierNameContext ctx) {
+        this.pkgBuilder.startInvocationNode(getWS(ctx));
+    }
+
+    @Override
     public void exitInvocationReference(BallerinaParser.InvocationReferenceContext ctx) {
         if (ctx.exception != null) {
             return;
         }
 
         boolean argsAvailable = ctx.invocation().expressionList() != null;
-        String invocation = ctx.invocation().Identifier().getText();
+        String invocation = ctx.invocation().anyIdentifierName().getText();
         this.pkgBuilder.createInvocationNode(getCurrentPos(ctx), getWS(ctx), invocation, argsAvailable);
     }
 
@@ -1709,13 +1543,6 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      * {@inheritDoc}
      */
     @Override
-    public void enterAbortStatement(BallerinaParser.AbortStatementContext ctx) {
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
     public void exitAbortStatement(BallerinaParser.AbortStatementContext ctx) {
         if (ctx.exception != null) {
             return;
@@ -1775,48 +1602,6 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         this.pkgBuilder.createBinaryExpr(getCurrentPos(ctx), getWS(ctx), ctx.getChild(1).getText());
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void enterXmlLiteralExpression(BallerinaParser.XmlLiteralExpressionContext ctx) {
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void exitXmlLiteralExpression(BallerinaParser.XmlLiteralExpressionContext ctx) {
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void enterValueTypeTypeExpression(BallerinaParser.ValueTypeTypeExpressionContext ctx) {
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void exitValueTypeTypeExpression(BallerinaParser.ValueTypeTypeExpressionContext ctx) {
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void enterSimpleLiteralExpression(BallerinaParser.SimpleLiteralExpressionContext ctx) {
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void exitSimpleLiteralExpression(BallerinaParser.SimpleLiteralExpressionContext ctx) {
-    }
-
     @Override
     public void exitBinaryEqualExpression(BallerinaParser.BinaryEqualExpressionContext ctx) {
         if (ctx.exception != null) {
@@ -1824,55 +1609,6 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         }
 
         this.pkgBuilder.createBinaryExpr(getCurrentPos(ctx), getWS(ctx), ctx.getChild(1).getText());
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void enterArrayLiteralExpression(BallerinaParser.ArrayLiteralExpressionContext ctx) {
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void exitArrayLiteralExpression(BallerinaParser.ArrayLiteralExpressionContext ctx) {
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void enterBracedExpression(BallerinaParser.BracedExpressionContext ctx) {
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void exitBracedExpression(BallerinaParser.BracedExpressionContext ctx) {
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void enterVariableReferenceExpression(BallerinaParser.VariableReferenceExpressionContext ctx) {
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void exitVariableReferenceExpression(BallerinaParser.VariableReferenceExpressionContext ctx) {
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void enterTypeCastingExpression(BallerinaParser.TypeCastingExpressionContext ctx) {
     }
 
     /**
@@ -1917,12 +1653,6 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         this.pkgBuilder.createBinaryExpr(getCurrentPos(ctx), getWS(ctx), ctx.getChild(1).getText());
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void enterTypeConversionExpression(BallerinaParser.TypeConversionExpressionContext ctx) {
-    }
 
     /**
      * {@inheritDoc}
@@ -2043,20 +1773,6 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      * {@inheritDoc}
      */
     @Override
-    public void enterParameter(BallerinaParser.ParameterContext ctx) {
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void enterFieldDefinition(BallerinaParser.FieldDefinitionContext ctx) {
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
     public void exitFieldDefinition(BallerinaParser.FieldDefinitionContext ctx) {
         if (ctx.exception != null) {
             return;
@@ -2073,13 +1789,6 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         } else if (ctx.parent instanceof BallerinaParser.AnnotationBodyContext) {
             this.pkgBuilder.addVarToAnnotation(currentPos, ws, name, exprAvailable, 0);
         }
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void enterSimpleLiteral(BallerinaParser.SimpleLiteralContext ctx) {
     }
 
     /**
@@ -2105,16 +1814,9 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             text = text.substring(1, text.length() - 1);
             text = StringEscapeUtils.unescapeJava(text);
             this.pkgBuilder.addLiteralValue(pos, ws, TypeTags.STRING, text);
-        } else if ((node = ctx.NullLiteral()) != null) {
+        } else if (ctx.NullLiteral() != null) {
             this.pkgBuilder.addLiteralValue(pos, ws, TypeTags.NULL, null);
         }
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void enterXmlLiteral(BallerinaParser.XmlLiteralContext ctx) {
     }
 
     /**
@@ -2126,41 +1828,6 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
         this.pkgBuilder.attachXmlLiteralWS(getWS(ctx));
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void enterXmlItem(BallerinaParser.XmlItemContext ctx) {
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void exitXmlItem(BallerinaParser.XmlItemContext ctx) {
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void enterContent(BallerinaParser.ContentContext ctx) {
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void exitContent(BallerinaParser.ContentContext ctx) {
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void enterComment(BallerinaParser.CommentContext ctx) {
     }
 
     /**
@@ -2186,13 +1853,6 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      * {@inheritDoc}
      */
     @Override
-    public void enterElement(BallerinaParser.ElementContext ctx) {
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
     public void exitElement(BallerinaParser.ElementContext ctx) {
         if (ctx.exception != null) {
             return;
@@ -2201,13 +1861,6 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         if (ctx.getParent() instanceof BallerinaParser.ContentContext) {
             this.pkgBuilder.addChildToXMLElement(getWS(ctx));
         }
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void enterStartTag(BallerinaParser.StartTagContext ctx) {
     }
 
     /**
@@ -2227,26 +1880,12 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      * {@inheritDoc}
      */
     @Override
-    public void enterCloseTag(BallerinaParser.CloseTagContext ctx) {
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
     public void exitCloseTag(BallerinaParser.CloseTagContext ctx) {
         if (ctx.exception != null) {
             return;
         }
 
         this.pkgBuilder.endXMLElement(getWS(ctx));
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void enterEmptyTag(BallerinaParser.EmptyTagContext ctx) {
     }
 
     /**
@@ -2260,13 +1899,6 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
         boolean isRoot = ctx.parent.parent instanceof BallerinaParser.XmlItemContext;
         this.pkgBuilder.startXMLElement(getCurrentPos(ctx), getWS(ctx), isRoot);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void enterProcIns(BallerinaParser.ProcInsContext ctx) {
     }
 
     /**
@@ -2297,26 +1929,12 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      * {@inheritDoc}
      */
     @Override
-    public void enterAttribute(BallerinaParser.AttributeContext ctx) {
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
     public void exitAttribute(BallerinaParser.AttributeContext ctx) {
         if (ctx.exception != null) {
             return;
         }
 
         this.pkgBuilder.createXMLAttribute(getCurrentPos(ctx), getWS(ctx));
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void enterText(BallerinaParser.TextContext ctx) {
     }
 
     /**
@@ -2341,27 +1959,6 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      * {@inheritDoc}
      */
     @Override
-    public void enterXmlQuotedString(BallerinaParser.XmlQuotedStringContext ctx) {
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void exitXmlQuotedString(BallerinaParser.XmlQuotedStringContext ctx) {
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void enterXmlSingleQuotedString(BallerinaParser.XmlSingleQuotedStringContext ctx) {
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
     public void exitXmlSingleQuotedString(BallerinaParser.XmlSingleQuotedStringContext ctx) {
         if (ctx.exception != null) {
             return;
@@ -2371,13 +1968,6 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         String endingString = getTemplateEndingStr(ctx.XMLSingleQuotedString());
         this.pkgBuilder.createXMLQuotedLiteral(getCurrentPos(ctx), getWS(ctx), stringFragments, endingString,
                 QuoteType.SINGLE_QUOTE);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void enterXmlDoubleQuotedString(BallerinaParser.XmlDoubleQuotedStringContext ctx) {
     }
 
     /**
@@ -2399,13 +1989,6 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      * {@inheritDoc}
      */
     @Override
-    public void enterXmlQualifiedName(BallerinaParser.XmlQualifiedNameContext ctx) {
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
     public void exitXmlQualifiedName(BallerinaParser.XmlQualifiedNameContext ctx) {
         if (ctx.exception != null) {
             return;
@@ -2417,7 +2000,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
         List<TerminalNode> qnames = ctx.XMLQName();
         String prefix = null;
-        String localname = null;
+        String localname;
 
         if (qnames.size() > 1) {
             prefix = qnames.get(0).getText();
@@ -2433,19 +2016,12 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      * {@inheritDoc}
      */
     @Override
-    public void enterStringTemplateLiteral(BallerinaParser.StringTemplateLiteralContext ctx) {
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
     public void exitStringTemplateLiteral(BallerinaParser.StringTemplateLiteralContext ctx) {
         if (ctx.exception != null) {
             return;
         }
 
-        Stack<String> stringFragments = null;
+        Stack<String> stringFragments;
         String endingText = null;
         StringTemplateContentContext contentContext = ctx.stringTemplateContent();
         if (contentContext != null) {
@@ -2456,48 +2032,6 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         }
 
         this.pkgBuilder.createStringTemplateLiteral(getCurrentPos(ctx), getWS(ctx), stringFragments, endingText);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void enterStringTemplateContent(BallerinaParser.StringTemplateContentContext ctx) {
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void exitStringTemplateContent(BallerinaParser.StringTemplateContentContext ctx) {
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void enterEveryRule(ParserRuleContext ctx) {
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void exitEveryRule(ParserRuleContext ctx) {
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void visitTerminal(TerminalNode node) {
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void visitErrorNode(ErrorNode node) {
     }
 
     private DiagnosticPos getCurrentPos(ParserRuleContext ctx) {

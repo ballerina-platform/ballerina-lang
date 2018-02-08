@@ -26,6 +26,8 @@ import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
+import org.wso2.ballerinalang.compiler.semantics.model.iterable.IterableContext;
+import org.wso2.ballerinalang.compiler.semantics.model.iterable.Operation;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationAttributeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
@@ -35,6 +37,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BBuiltInRefType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleCollectionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangAction;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotAttribute;
@@ -165,6 +168,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         pkgNode.topLevelNodes.forEach(topLevelNode -> analyzeDef((BLangNode) topLevelNode, pkgEnv));
 
         analyzeDef(pkgNode.initFunction, pkgEnv);
+        validateIterableContexts(pkgNode);
 
         pkgNode.completedPhases.add(CompilerPhase.TYPE_CHECK);
     }
@@ -213,7 +217,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
         this.processWorkers(funcNode, funcEnv);
     }
-    
+
     private void processWorkers(BLangInvokableNode invNode, SymbolEnv invEnv) {
         if (invNode.workers.size() > 0) {
             invEnv.scope.entries.putAll(invNode.body.scope.entries);
@@ -325,7 +329,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             Name attributeName = names.fromIdNode((BLangIdentifier) annotAttachmentAttribute.getName());
             BAnnotationAttributeSymbol attributeSymbol =
                     (BAnnotationAttributeSymbol) annotationSymbol.scope.lookup(attributeName).symbol;
-            
+
             // Resolve Attribute against the Annotation Definition
             if (attributeSymbol == null) {
                 this.dlog.error(annAttachmentNode.pos, DiagnosticCode.NO_SUCH_ATTRIBUTE,
@@ -795,7 +799,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         BLangBlockStmt joinResultsBlock = this.generateCodeBlock(this.createVarDef(forkJoin.joinResultVar));
         SymbolEnv joinResultsEnv = SymbolEnv.createBlockEnv(joinResultsBlock, this.env);
         this.analyzeNode(joinResultsBlock, joinResultsEnv);
-        /* create an environment for the join body, making the enclosing environment the earlier 
+        /* create an environment for the join body, making the enclosing environment the earlier
          * join result's environment */
         SymbolEnv joinBodyEnv = SymbolEnv.createBlockEnv(forkJoin.joinedBody, joinResultsEnv);
         this.analyzeNode(forkJoin.joinedBody, joinBodyEnv);
@@ -810,15 +814,15 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             this.typeChecker.checkExpr(forkJoin.timeoutExpression,
                     timeoutVarEnv, Arrays.asList(symTable.intType));
             this.analyzeNode(timeoutVarBlock, timeoutVarEnv);
-            /* create an environment for the timeout body, making the enclosing environment the earlier 
+            /* create an environment for the timeout body, making the enclosing environment the earlier
              * timeout var's environment */
             SymbolEnv timeoutBodyEnv = SymbolEnv.createBlockEnv(forkJoin.timeoutBody, timeoutVarEnv);
             this.analyzeNode(forkJoin.timeoutBody, timeoutBodyEnv);
         }
-        
+
         this.validateJoinWorkerList(forkJoin, forkJoinEnv);
     }
-    
+
     private void validateJoinWorkerList(BLangForkJoin forkJoin, SymbolEnv forkJoinEnv) {
         forkJoin.joinedWorkers.forEach(e -> {
             if (!this.workerExists(forkJoinEnv, e.value)) {
@@ -1108,5 +1112,57 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         }
 
         dlog.error(param.pos, DiagnosticCode.TRANSFORMER_UNSUPPORTED_TYPES, type);
+    }
+
+    private void validateIterableContexts(BLangPackage pkgNode) {
+        for (IterableContext context : pkgNode.iterableContexts) {
+            final Operation lastOperation = context.operations.getLast();
+            final List<BType> expectedTypes = lastOperation.expectedTypes;
+            final List<BType> resultTypes = lastOperation.resultTypes;
+            if (expectedTypes.size() == 0 && resultTypes.size() == 0) {
+                context.resultType = symTable.noType;
+                continue;
+            }
+            if (expectedTypes.size() == 0) {
+                // This error already logged.
+                continue;
+            }
+            if (expectedTypes.size() > 1) {
+                // Iterable collection always return a single value.
+                dlog.error(lastOperation.pos, DiagnosticCode.ASSIGNMENT_COUNT_MISMATCH, 1, expectedTypes.size());
+                continue;
+            }
+            if (expectedTypes.get(0) == symTable.errType) {
+                context.resultType = expectedTypes.get(0);
+                continue;
+            }
+            if (resultTypes.size() == 0) {
+                dlog.error(lastOperation.pos, DiagnosticCode.DOES_NOT_RETURN_VALUE, lastOperation.kind);
+                continue;
+            }
+            if (resultTypes.get(0).tag == TypeTags.TUPLE_COLLECTION) {
+                final BTupleCollectionType tupleType = (BTupleCollectionType) resultTypes.get(0);
+                if (expectedTypes.get(0).tag == TypeTags.ARRAY && tupleType.tupleTypes.size() == 1) {
+                    context.resultType = new BArrayType(tupleType.tupleTypes.get(0));
+                    lastOperation.resultTypes = Lists.of(context.resultType);
+                    continue;
+                } else if (expectedTypes.get(0).tag == TypeTags.MAP && tupleType.tupleTypes.size() == 2
+                        && tupleType.tupleTypes.get(0).tag == TypeTags.STRING) {
+                    context.resultType = symTable.mapType;
+                    lastOperation.resultTypes = Lists.of(context.resultType);
+                    continue;
+                } else if (expectedTypes.get(0).tag == TypeTags.ANY) {
+                    context.resultType = symTable.errType;
+                    dlog.error(lastOperation.pos, DiagnosticCode.ITERABLE_RETURN_TYPE_MISMATCH, lastOperation.kind);
+                    continue;
+                } else if (expectedTypes.get(0).tag == TypeTags.NONE) {
+                    context.resultType = symTable.errType;
+                    dlog.error(lastOperation.pos, DiagnosticCode.ITERABLE_RETURN_TYPE_IGNORED, lastOperation.kind);
+                    continue;
+                }
+            }
+            context.resultType = types.checkType(lastOperation.pos, resultTypes.get(0), expectedTypes.get(0),
+                    DiagnosticCode.INCOMPATIBLE_TYPES);
+        }
     }
 }
