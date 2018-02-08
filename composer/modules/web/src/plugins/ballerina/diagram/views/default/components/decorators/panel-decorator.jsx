@@ -355,8 +355,8 @@ class PanelDecorator extends React.Component {
                     >{this.props.model.public ? 'public' : null}</text>
                 </g>}
                 <image
-                    x={bBox.x + 15 + publicPrivateFlagoffset}
-                    y={bBox.y + 8 + annotationBodyHeight}
+                    x={bBox.x + 10}
+                    y={bBox.y + 8}
                     width={iconSize}
                     height={iconSize}
                     xlinkHref={ImageUtil.getSVGIconString(this.props.icon)}

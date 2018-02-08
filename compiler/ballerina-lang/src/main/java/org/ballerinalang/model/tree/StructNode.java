@@ -26,7 +26,7 @@ public interface StructNode extends AnnotatableNode, TopLevelNode {
     
     IdentifierNode getName();
     
-    public void setName(IdentifierNode name);
+    void setName(IdentifierNode name);
 
     List<? extends VariableNode> getFields();
     

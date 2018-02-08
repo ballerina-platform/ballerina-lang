@@ -72,6 +72,9 @@ public class DefinitionUtil {
                         .filter(enm -> enm.name.getValue()
                                 .equals(definitionContext.get(NodeContextKeys.NAME_OF_NODE_KEY)))
                         .findAny().orElse(null);
+                // Fixing the position issue with enum node.
+                bLangNode.getPosition().eLine = bLangNode.getPosition().sLine;
+                bLangNode.getPosition().eCol = bLangNode.getPosition().sCol;
                 break;
             case ContextConstants.CONNECTOR:
                 bLangNode = currentBLangPackage.connectors.stream()

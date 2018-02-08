@@ -150,7 +150,7 @@ public class Mnemonics {
         mnemonics[InstructionCodes.HALT] = "halt";
         mnemonics[InstructionCodes.TR_RETRY] = "tr_retry";
         mnemonics[InstructionCodes.CALL] = "call";
-        mnemonics[InstructionCodes.NCALL] = "ncall";
+        mnemonics[InstructionCodes.VCALL] = "vcall";
         mnemonics[InstructionCodes.ACALL] = "acall";
         mnemonics[InstructionCodes.THROW] = "throw";
         mnemonics[InstructionCodes.ERRSTORE] = "errstore";

@@ -92,11 +92,17 @@ structDefinition
     ;
 
 structBody
-    :   LEFT_BRACE fieldDefinition* RIGHT_BRACE
+    :   LEFT_BRACE fieldDefinition* privateStructBody? RIGHT_BRACE
+    ;
+
+
+privateStructBody
+    :   PRIVATE COLON fieldDefinition*
     ;
 
 annotationDefinition
     : (PUBLIC)? ANNOTATION Identifier (ATTACH attachmentPoint (COMMA attachmentPoint)*)? annotationBody
+
     ;
 
 enumDefinition

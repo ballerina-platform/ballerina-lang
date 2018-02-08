@@ -1,4 +1,4 @@
-struct InvalidNameError {
+public struct InvalidNameError {
     string msg;
     error cause;
     StackFrame[] stackTrace;

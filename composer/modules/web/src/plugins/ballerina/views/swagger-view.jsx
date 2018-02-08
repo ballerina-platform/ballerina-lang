@@ -291,7 +291,13 @@ class SwaggerView extends React.Component {
      */
     render() {
         return (
-            <div className='swagger-view-container'>
+            <div
+                className='swagger-view-container'
+                style={{
+                    width: this.props.width,
+                    height: this.props.height,
+                }}
+            >
                 <div
                     className='swaggerEditor'
                     // keep the ref to this element as the container ref

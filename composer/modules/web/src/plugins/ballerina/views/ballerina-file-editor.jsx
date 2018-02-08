@@ -795,6 +795,8 @@ class BallerinaFileEditor extends React.Component {
                         commandProxy={this.props.commandProxy}
                         hideSwaggerAceEditor={this.hideSwaggerAceEditor}
                         resetSwaggerViewFun={this.resetSwaggerView}
+                        height={this.props.height}
+                        width={this.props.width}
                     />
                 </div>
                 { !showSwaggerView &&
