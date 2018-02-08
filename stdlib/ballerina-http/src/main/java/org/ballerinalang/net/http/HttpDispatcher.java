@@ -48,27 +48,27 @@ public class HttpDispatcher {
         try {
             Map<String, HttpService> servicesOnInterface = getServicesOnInterface(servicesRegistry, inboundReqMsg);
 
-            // Extracting Matrix params and clean the URI
-            String uriStr = (String) inboundReqMsg.getProperty(Constants.TO);
+            String rawUri = (String) inboundReqMsg.getProperty(Constants.TO);
+            inboundReqMsg.setProperty(Constants.RAW_URI, rawUri);
             Map<String, Map<String, String>> matrixParams = new HashMap<>();
-            uriStr = URIUtil.extractMatrixParams(uriStr, matrixParams);
+            String uriWithoutMatrixParams = URIUtil.extractMatrixParams(rawUri, matrixParams);
 
-            inboundReqMsg.setProperty(Constants.TO, uriStr);
+            inboundReqMsg.setProperty(Constants.TO, uriWithoutMatrixParams);
             inboundReqMsg.setProperty(Constants.MATRIX_PARAMS, matrixParams);
 
-            URI requestUri = getValidatedURI(uriStr);
+            URI validatedUri = getValidatedURI(uriWithoutMatrixParams);
 
             // Most of the time we will find service from here
             String basePath =
-                    servicesRegistry.findTheMostSpecificBasePath(requestUri.getPath(), servicesOnInterface);
+                    servicesRegistry.findTheMostSpecificBasePath(validatedUri.getPath(), servicesOnInterface);
             HttpService service = servicesOnInterface.get(basePath);
             if (service == null) {
                 inboundReqMsg.setProperty(Constants.HTTP_STATUS_CODE, 404);
                 throw new BallerinaConnectorException("no matching service found for path : " +
-                        requestUri.getRawPath());
+                        validatedUri.getRawPath());
             }
 
-            setInboundReqProperties(inboundReqMsg, requestUri, basePath);
+            setInboundReqProperties(inboundReqMsg, validatedUri, basePath);
 
             return service;
         } catch (Throwable e) {
