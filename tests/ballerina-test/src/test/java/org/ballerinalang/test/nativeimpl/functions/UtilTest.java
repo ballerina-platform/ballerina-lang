@@ -138,13 +138,13 @@ public class UtilTest {
         returnValues = BRunUtil.invoke(compileResult, "testHexToDecimal", args);
         Assert.assertFalse(returnValues == null || returnValues.length < 2 || returnValues[0] == null,
                 "Invalid return value");
-        Assert.assertEquals(returnValues[0].intValue(), 1251004370415);
+        Assert.assertEquals(returnValues[0].intValue(), 914748364);
 
         args = new BValue[]{new BString("0xfedcba9876")};
         returnValues = BRunUtil.invoke(compileResult, "testHexToDecimal", args);
         Assert.assertFalse(returnValues == null || returnValues.length < 2 || returnValues[0] == null,
                 "Invalid return value");
-        Assert.assertEquals(returnValues[0].intValue(), 1094624909430);
+        Assert.assertEquals(returnValues[0].intValue(), 2147483647);
     }
 
     @Test
