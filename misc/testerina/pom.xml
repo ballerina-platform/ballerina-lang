@@ -33,14 +33,10 @@
 
     <properties>
 
-        <ballerina.version>${project.version}</ballerina.version>
-        <docerina.maven.plugin.version>${ballerina.version}</docerina.maven.plugin.version>
         <mvn.exec.plugin.version>1.1.1</mvn.exec.plugin.version>
         <mvn.processor.plugin.version>2.2.4</mvn.processor.plugin.version>
         <mvn.resource.plugins.version>3.0.2</mvn.resource.plugins.version>
         <testerina.source.directory>${project.build.directory}/../src/main/ballerina</testerina.source.directory>
-
-        <maven.checkstyleplugin.excludes>**/parser/*</maven.checkstyleplugin.excludes>
 
         <!-- Path to the generated natives ballerina files temp directory -->
         <generated.testerina.source.directory>${project.build.directory}/natives/</generated.testerina.source.directory>
