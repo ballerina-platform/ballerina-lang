@@ -119,7 +119,7 @@ class LifeLine extends React.Component {
           : (3 * DesignerDefaults.actionBox.width - 14) / 4;
         actionBbox.h = DesignerDefaults.actionBox.height;
         actionBbox.x = bBox.x + (bBox.w - actionBbox.w) / 2;
-        actionBbox.y = bBox.y + titleBoxH + DesignerDefaults.actionBox.padding.top;
+        actionBbox.y = bBox.y + 20;
         let tooltip = this.props.title;
         if (this.props.tooltip) {
             tooltip = this.props.tooltip;

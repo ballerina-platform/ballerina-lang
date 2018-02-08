@@ -170,27 +170,6 @@ class ResourceNode extends React.Component {
                         {connectors}
                     </g>
                 </PanelDecorator>
-                {(thisNodeIndex !== parentNode.getResources().length - 1 && showAddResourceBtnForWS &&
-                showAddResourceForOneResource && !this.props.model.viewState.collapsed) &&
-                <g
-                    className={this.state.style}
-                    onMouseOver={this.onMouseOver}
-                    onMouseOut={this.onMouseOut}
-                >
-                    <rect
-                        x={bBox.x - 50}
-                        y={bBox.y + bBox.h}
-                        width={bBox.w + 20}
-                        height='50'
-                        fillOpacity='0'
-                        strokeOpacity='0'
-                    />
-                    <AddResourceDefinition
-                        model={this.props.model}
-                        style={this.state.style}
-                    />
-                </g>
-                }
             </g>);
     }
 }

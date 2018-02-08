@@ -60,11 +60,7 @@ class CanvasDecorator extends React.Component {
                 <div ref={(x) => { setCanvasOverlay(x); }}>
                     {/* This space is used to render html elements over svg */ }
                 </div>
-                {(this.props.annotations && this.props.annotations.length > 0) ? this.props.annotations : null }
-                {(!fitToScreen && this.props.overlayComponents && this.props.overlayComponents.length > 0) ?
-                    this.props.overlayComponents : null }
-                {(this.props.errorList && this.props.errorList.length > 0) ?
-                    this.props.errorList : null }
+                {(!fitToScreen) ? this.props.overlay : null }
                 <svg
                     className='svg-container'
                     width={svgSize.w}
@@ -102,7 +98,7 @@ CanvasDecorator.propTypes = {
     children: PropTypes.node.isRequired,
     dropTarget: PropTypes.instanceOf(Node).isRequired,
     annotations: PropTypes.arrayOf(PropTypes.element),
-    overlayComponents: PropTypes.arrayOf(PropTypes.element),
+    overlay: PropTypes.arrayOf(PropTypes.element),
     errorList: PropTypes.arrayOf(PropTypes.element),
 };
 
@@ -112,7 +108,7 @@ CanvasDecorator.contextTypes = {
 
 CanvasDecorator.defaultProps = {
     annotations: [],
-    overlayComponents: [],
+    overlay: null,
     errorList: [],
 };
 export default CanvasDecorator;
