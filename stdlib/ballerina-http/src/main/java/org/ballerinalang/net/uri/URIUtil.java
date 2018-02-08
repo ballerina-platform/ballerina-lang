@@ -73,8 +73,8 @@ public class URIUtil {
         BMap<String, BValue> matrixParamsBMap = new BMap<>();
         Map<String, Map<String, String>> pathToMatrixParamMap =
                 (Map<String, Map<String, String>>) carbonMessage.getProperty(Constants.MATRIX_PARAMS);
-        if (pathToMatrixParamMap.containsKey(path)) {
-            Map<String, String> matrixParamsMap = pathToMatrixParamMap.get(path);
+        Map<String, String> matrixParamsMap = pathToMatrixParamMap.get(path);
+        if (matrixParamsMap != null) {
             for (Map.Entry<String, String> matrixParamEntry : matrixParamsMap.entrySet()) {
                 matrixParamsBMap.put(matrixParamEntry.getKey(), new BString(matrixParamEntry.getValue()));
             }
