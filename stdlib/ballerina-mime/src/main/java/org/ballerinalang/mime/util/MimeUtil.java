@@ -18,6 +18,7 @@
 
 package org.ballerinalang.mime.util;
 
+import io.netty.handler.codec.Headers;
 import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.multipart.FileUpload;
 import io.netty.handler.codec.http.multipart.HttpDataFactory;
@@ -42,6 +43,7 @@ import org.ballerinalang.runtime.message.BlobDataSource;
 import org.ballerinalang.runtime.message.MessageDataSource;
 import org.ballerinalang.runtime.message.StringDataSource;
 import org.ballerinalang.util.exceptions.BallerinaException;
+import org.jvnet.mimepull.Header;
 import org.jvnet.mimepull.MIMEConfig;
 import org.jvnet.mimepull.MIMEMessage;
 import org.jvnet.mimepull.MIMEPart;
@@ -75,10 +77,11 @@ import static org.ballerinalang.mime.util.Constants.APPLICATION_FORM;
 import static org.ballerinalang.mime.util.Constants.APPLICATION_JSON;
 import static org.ballerinalang.mime.util.Constants.APPLICATION_XML;
 import static org.ballerinalang.mime.util.Constants.BALLERINA_BINARY_DATA;
+import static org.ballerinalang.mime.util.Constants.BALLERINA_BODY_PART_CONTENT;
 import static org.ballerinalang.mime.util.Constants.BALLERINA_JSON_DATA;
-import static org.ballerinalang.mime.util.Constants.BALLERINA_MIME_BODY;
 import static org.ballerinalang.mime.util.Constants.BALLERINA_TEXT_DATA;
 import static org.ballerinalang.mime.util.Constants.BALLERINA_XML_DATA;
+import static org.ballerinalang.mime.util.Constants.BOUNDARY;
 import static org.ballerinalang.mime.util.Constants.BYTE_DATA_INDEX;
 import static org.ballerinalang.mime.util.Constants.BYTE_LIMIT;
 import static org.ballerinalang.mime.util.Constants.CONTENT_TRANSFER_ENCODING;
@@ -964,37 +967,72 @@ public class MimeUtil {
         return false;
     }
 
+    /**
+     * Decode multiparts from a given input stream.
+     *
+     * @param context     Represent ballerina context
+     * @param entity      Represent ballerina entity which needs to be populated with body parts
+     * @param contentType Content-Type of the top level message
+     * @param inputStream Represent input stream coming from the request/response
+     */
     public static void decodeMultiparts(Context context, BStruct entity, String contentType, InputStream inputStream) {
         try {
             MimeType mimeType = new MimeType(contentType);
             final MIMEMessage mimeMessage = new MIMEMessage(inputStream,
-                    mimeType.getParameter("boundary"),
+                    mimeType.getParameter(BOUNDARY),
                     getMimeConfig());
-            populateBallerinaParts(context, entity, mimeMessage.getAttachments());
+            List<MIMEPart> mimeParts = mimeMessage.getAttachments();
+            if (mimeParts != null && !mimeParts.isEmpty()) {
+                populateBallerinaParts(context, entity, mimeParts);
+            }
         } catch (MimeTypeParseException e) {
-            e.printStackTrace();
+            LOG.error("Error occured while decoding body parts from inputstream", e.getMessage());
         }
     }
 
+    /**
+     * Create mime configuration with the maximum memory limit.
+     *
+     * @return MIMEConfig which defines configuration for MIME message parsing and storing
+     */
     private static MIMEConfig getMimeConfig() {
         MIMEConfig mimeConfig = new MIMEConfig();
         mimeConfig.setMemoryThreshold(BYTE_LIMIT);
         return mimeConfig;
     }
 
+    /**
+     * Populate ballerina body parts from the given mime parts and set it to top level entity.
+     *
+     * @param context   Represent ballerina context
+     * @param entity    Represent top level entity that the body parts needs to be attached to
+     * @param mimeParts List of decoded mime parts
+     */
     private static void populateBallerinaParts(Context context, BStruct entity, List<MIMEPart> mimeParts) {
         ArrayList<BStruct> bodyParts = new ArrayList<>();
         for (final MIMEPart mimePart : mimeParts) {
             BStruct partStruct = ConnectorUtils.createAndGetStruct(context, PROTOCOL_PACKAGE_MIME, ENTITY);
             BStruct mediaType = ConnectorUtils.createAndGetStruct(context, PROTOCOL_PACKAGE_MIME, MEDIA_TYPE);
-            // partStruct.setIntField(SIZE_INDEX, bodyPart.getSize());
+            partStruct.setIntField(SIZE_INDEX, Long.parseLong(mimePart.getHeader("content-length").get(0)));
+            //TODO: set body part headers
+            setBodyPartHeaders(mimePart.getAllHeaders());
             setContentType(mediaType, partStruct, mimePart.getContentType());
             populateMimeBody(context, partStruct, mimePart);
             bodyParts.add(partStruct);
-            setPartsToTopLevelEntity(entity, bodyParts);
         }
+        setPartsToTopLevelEntity(entity, bodyParts);
     }
 
+    private static void setBodyPartHeaders(List<? extends Header> bodyPartHeaders) {
+
+    }
+
+    /**
+     * Set ballerina body parts to it's top level entity.
+     *
+     * @param entity    Represent top level message's entity
+     * @param bodyParts Represent ballerina body parts
+     */
     private static void setPartsToTopLevelEntity(BStruct entity, ArrayList<BStruct> bodyParts) {
         if (!bodyParts.isEmpty()) {
             BStructType typeOfBodyPart = bodyParts.get(0).getType();
@@ -1004,16 +1042,31 @@ public class MimeUtil {
         }
     }
 
-    public static void populateMimeBody(Context context, BStruct entity, MIMEPart mimePart) {
-        String baseType = getContentType(entity);
-        long contentLength = entity.getIntField(SIZE_INDEX);
+    /**
+     * Populate ballerina body parts with actual body content. Based on the memory threshhold this this will either
+     * kept in memory or in a temp file.
+     *
+     * @param context  Represent ballerina context
+     * @param bodyPart Represent ballerina body part
+     * @param mimePart Represent decoded mime part
+     */
+    private static void populateMimeBody(Context context, BStruct bodyPart, MIMEPart mimePart) {
+        String baseType = getContentType(bodyPart);
+        long contentLength = bodyPart.getIntField(SIZE_INDEX);
         if (contentLength > Constants.BYTE_LIMIT) {
-            writeToTempFile(context, entity, mimePart);
+            writeToTempFile(context, bodyPart, mimePart);
         } else {
-            saveInMemory(entity, mimePart, baseType);
+            saveInMemory(bodyPart, mimePart, baseType);
         }
     }
 
+    /**
+     * Keep body part content in memory.
+     *
+     * @param entity   Represent top level entity
+     * @param mimePart Represent a decoded mime part
+     * @param baseType Represent base type of the body part
+     */
     private static void saveInMemory(BStruct entity, MIMEPart mimePart, String baseType) {
         try {
             if (baseType != null) {
@@ -1037,13 +1090,20 @@ public class MimeUtil {
                 entity.setBlobField(BYTE_DATA_INDEX, getByteArray(mimePart.read()));
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            LOG.error("Error occurred while reading decoded body part content", e.getMessage());
         }
     }
 
+    /**
+     * Save body part content in a temporary file.
+     *
+     * @param context  Represent ballerina context
+     * @param entity   Represent top level entity
+     * @param mimePart Represent a decoded mime part
+     */
     private static void writeToTempFile(Context context, BStruct entity, MIMEPart mimePart) {
         try {
-            File tempFile = File.createTempFile(BALLERINA_MIME_BODY, TEMP_FILE_EXTENSION);
+            File tempFile = File.createTempFile(BALLERINA_BODY_PART_CONTENT, TEMP_FILE_EXTENSION);
             mimePart.moveTo(tempFile);
             createBallerinaFileHandler(context, entity, tempFile.getAbsolutePath());
         } catch (IOException e) {

@@ -254,10 +254,9 @@ public class HttpUtil {
         HTTPCarbonMessage httpCarbonMessage = HttpUtil
                 .getCarbonMsg(httpMessageStruct, HttpUtil.createHttpCarbonMessage(isRequest));
         HttpMessageDataStreamer httpMessageDataStreamer = new HttpMessageDataStreamer(httpCarbonMessage);
-        MultipartRequestDecoder multipartRequestDecoder = new MultipartRequestDecoder(httpCarbonMessage);
         String contentType = httpCarbonMessage.getHeader(CONTENT_TYPE);
         if (isRequest && MimeUtil.isNotNullAndEmpty(contentType) && contentType.startsWith(MULTIPART_AS_PRIMARY_TYPE)) {
-            populateMultiparts(context, entity, httpMessageDataStreamer, multipartRequestDecoder, contentType);
+            MimeUtil.decodeMultiparts(context, entity, contentType, httpMessageDataStreamer.getInputStream());
         } else {
             int contentLength = NO_CONTENT_LENGTH_FOUND;
             String lengthStr = httpCarbonMessage.getHeader(Constants.HTTP_CONTENT_LENGTH);
@@ -274,25 +273,6 @@ public class HttpUtil {
         }
         httpMessageStruct.addNativeData(MESSAGE_ENTITY, entity);
         httpMessageStruct.addNativeData(IS_ENTITY_BODY_PRESENT, true);
-    }
-
-    private static void populateMultiparts(Context context, BStruct entity, HttpMessageDataStreamer
-            httpMessageDataStreamer, MultipartRequestDecoder multipartRequestDecoder, String contentType) {
-        if (multipartRequestDecoder.isMultipartRequest()) { //If multipart/form-data
-           /* try {
-                multipartRequestDecoder.parseBody();
-                List<HttpBodyPart> multiparts = multipartRequestDecoder.getMultiparts();
-                if (multiparts != null) {
-                    MimeUtil.handleMultipartFormData(context, entity, multiparts);
-                }
-            } catch (IOException e) {
-                log.error("Error occurred while parsing multipart/form-data body in populateEntityBody", e);
-            }*/
-            MimeUtil.decodeMultiparts(context, entity, contentType, httpMessageDataStreamer.getInputStream());
-        } else {
-            //Other multipart subtypes
-            MimeUtil.decodeMultiparts(context, entity, contentType, httpMessageDataStreamer.getInputStream());
-        }
     }
 
     public static void closeMessageOutputStream(OutputStream messageOutputStream) {

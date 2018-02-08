@@ -73,8 +73,13 @@ public class Constants {
      * Content-type multipart/form-data.
      */
     public static final String MULTIPART_FORM_DATA = "multipart/form-data";
+    /**
+     * Content-type multipart/mixed.
+     */
     public static final String MULTIPART_MIXED = "multipart/mixed";
+
     public static final String MULTIPART_AS_PRIMARY_TYPE = "multipart";
+    public static final String BOUNDARY = "boundary";
 
     public static final String DEFAULT_PRIMARY_TYPE = "application";
     public static final String DEFAULT_SUB_TYPE = "octet-stream";
@@ -124,11 +129,11 @@ public class Constants {
     public static final String JSON_EXTENSION = ".json";
     public static final String XML_EXTENSION = ".xml";
 
-    public static final String BALLERINA_TEXT_DATA = "ballerinaTextPayload";
-    public static final String BALLERINA_JSON_DATA = "ballerinaJsonPayload";
-    public static final String BALLERINA_XML_DATA = "ballerinaXmlPayload";
-    public static final String BALLERINA_BINARY_DATA = "ballerinaBinaryPayload";
-    public static final String BALLERINA_MIME_BODY = "ballerinaMimeBody";
+    public static final String BALLERINA_TEXT_DATA = "BallerinaTextPayload";
+    public static final String BALLERINA_JSON_DATA = "BallerinaJsonPayload";
+    public static final String BALLERINA_XML_DATA = "BallerinaXmlPayload";
+    public static final String BALLERINA_BINARY_DATA = "BallerinaBinaryPayload";
+    public static final String BALLERINA_BODY_PART_CONTENT = "BallerinaBodyPart";
 
     public static final int NO_CONTENT_LENGTH_FOUND = -1;
     /**
