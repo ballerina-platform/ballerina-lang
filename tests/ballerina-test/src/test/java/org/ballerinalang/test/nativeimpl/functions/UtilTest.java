@@ -20,6 +20,7 @@ package org.ballerinalang.test.nativeimpl.functions;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
+import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.testng.Assert;
@@ -126,25 +127,25 @@ public class UtilTest {
         BValue[] returnValues = BRunUtil.invoke(compileResult, "testHexToDecimal", args);
         Assert.assertFalse(returnValues == null || returnValues.length < 2 || returnValues[0] == null,
                 "Invalid return value");
-        Assert.assertEquals(returnValues[0].intValue(), 0);
+        Assert.assertEquals((BInteger) returnValues[0], 0);
 
         args = new BValue[]{new BString("0xf")};
         returnValues = BRunUtil.invoke(compileResult, "testHexToDecimal", args);
         Assert.assertFalse(returnValues == null || returnValues.length < 2 || returnValues[0] == null,
                 "Invalid return value");
-        Assert.assertEquals(returnValues[0].intValue(), 15);
+        Assert.assertEquals((BInteger) returnValues[0], 15);
 
         args = new BValue[]{new BString("0x3685f3cc")};
         returnValues = BRunUtil.invoke(compileResult, "testHexToDecimal", args);
         Assert.assertFalse(returnValues == null || returnValues.length < 2 || returnValues[0] == null,
                 "Invalid return value");
-        Assert.assertEquals(returnValues[0].intValue(), 914748364);
+        Assert.assertEquals((BInteger) returnValues[0], 914748364);
 
         args = new BValue[]{new BString("0x7ffffffe")};
         returnValues = BRunUtil.invoke(compileResult, "testHexToDecimal", args);
         Assert.assertFalse(returnValues == null || returnValues.length < 2 || returnValues[0] == null,
                 "Invalid return value");
-        Assert.assertEquals(returnValues[0].intValue(), 2147483646);
+        Assert.assertEquals((BInteger) returnValues[0], 2147483646);
     }
 
     @Test
