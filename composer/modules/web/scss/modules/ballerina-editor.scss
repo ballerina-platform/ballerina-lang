@@ -434,3 +434,54 @@ to {
   width: 1.25em;
 }
 }
+
+
+.swagger-view-container {
+  background: #FFF;
+}
+    
+.swagger-ui h1, h2, h3, h4, h5, h6, .h1, .h2, .h3, .h4, .h5, .h6 {
+  font-weight: normal;
+  line-height: normal;
+}
+
+.swagger-ui pre {
+  padding: 0;
+  font-size: medium;
+  line-height: normal;
+  word-break: normal;
+  word-wrap: normal;
+  background-color: transparent;
+  border-radius: 0;
+}
+
+.swagger-ui .try-out {
+  display: none,
+}
+
+.expand-operation {
+  display: none;
+}
+
+.SplitPane .vertical {
+  overflow: hidden;
+}
+
+.swaggerEditor .SplitPane {
+  height: 100% !important;
+}
+
+.swagger-service-selector-wrapper {
+  background-color: #131313;
+  height: 22px;
+  overflow: hidden;
+  line-height: 15px;
+  color: white;
+  padding-left: 20px;
+}
+
+.swagger-service-selector-span {
+  float: left;
+  margin-top: 6px;
+  padding-right: 8px;
+}
