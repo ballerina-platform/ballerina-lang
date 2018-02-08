@@ -177,6 +177,8 @@ public class BLangPackageBuilder {
 
     private Stack<Set<Whitespace>> commaWsStack = new Stack<>();
 
+    private Stack<Set<Whitespace>> invocationWsStack = new Stack<>();
+
     private Stack<BLangRecordLiteral> recordLiteralNodes = new Stack<>();
 
     private Stack<BLangTryCatchFinally> tryCatchFinallyNodesStack = new Stack<>();
@@ -705,10 +707,15 @@ public class BLangPackageBuilder {
         addExpressionNode(invocationNode);
     }
 
+    public void startInvocationNode(Set<Whitespace> ws) {
+        invocationWsStack.push(ws);
+    }
+
     public void createInvocationNode(DiagnosticPos pos, Set<Whitespace> ws, String invocation, boolean argsAvailable) {
         BLangInvocation invocationNode = (BLangInvocation) TreeBuilder.createInvocationNode();
         invocationNode.pos = pos;
         invocationNode.addWS(ws);
+        invocationNode.addWS(invocationWsStack.pop());
         if (argsAvailable) {
             List<ExpressionNode> exprNodes = exprNodeListStack.pop();
             exprNodes.forEach(exprNode -> invocationNode.argExprs.add((BLangExpression) exprNode));

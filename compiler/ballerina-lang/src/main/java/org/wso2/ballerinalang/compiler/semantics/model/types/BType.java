@@ -69,8 +69,8 @@ public class BType implements ValueType {
         return new ArrayList<>(0);
     }
 
-    public <R> R accept(BTypeVisitor<R> visitor, BType type) {
-        return visitor.visit(this, type);
+    public <T, R> R accept(BTypeVisitor<T, R> visitor, T t) {
+        return visitor.visit(this, t);
     }
 
     @Override
