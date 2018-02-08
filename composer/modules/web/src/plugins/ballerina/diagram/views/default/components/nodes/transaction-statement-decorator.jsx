@@ -160,7 +160,6 @@ class TransactionStatementDecorator extends React.Component {
         const viewState = model.viewState;
         const titleH = designer.config.statement.height;
         const statementBBox = viewState.components['statement-box'];
-        console.log(viewState);
         const gapLeft = viewState.components['left-margin'].w;
         const gapTop = designer.config.compoundStatement.padding.top;
 
@@ -211,6 +210,12 @@ class TransactionStatementDecorator extends React.Component {
             h: statementBBox.h + blockHeaderHeight,
         };
         const body = getComponentForNodeArray(this.props.model.transactionBody);
+
+        let trainsactionTitle = 'transaction';
+        if (this.props.model.condition && this.props.model.condition.value) {
+            trainsactionTitle = `transaction with ${this.props.model.condition.value} retries`;
+        }
+
         return (
             <g
                 onMouseOut={this.setActionVisibilityFalse}
@@ -232,7 +237,7 @@ class TransactionStatementDecorator extends React.Component {
                     x={p1X + designer.config.compoundStatement.text.padding}
                     y={p2Y}
                     className='statement-title-text-left'
-                >transaction
+                >{trainsactionTitle}
                 </text>
 
                 <DropZone
