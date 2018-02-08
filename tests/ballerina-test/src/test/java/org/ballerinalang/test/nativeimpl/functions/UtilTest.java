@@ -174,5 +174,4 @@ public class UtilTest {
                 "Invalid return value");
         Assert.assertEquals(returnValues[0].stringValue(), "0x7ffffffe");
     }
-
 }
