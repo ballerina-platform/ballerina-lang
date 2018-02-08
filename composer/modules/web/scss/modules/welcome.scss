@@ -96,11 +96,10 @@
               padding-bottom: 30px;
               position: relative;
 
-              &.hover{
-                border: 1px solid #9a9a9a;
-                -webkit-box-shadow: 6px 7px 5px 1px rgba(224,224,224,0.7);
-                -moz-box-shadow: 6px 7px 5px 1px rgba(224,224,224,0.7);
-                box-shadow: 6px 7px 5px 1px rgba(224,224,224,0.7);
+              &:hover{
+                border: 1px solid #a9a1a1;
+                -webkit-box-shadow: 0 1px 2px rgba(58, 58, 58, 0.3);
+                box-shadow: 0 1px 2px rgba(58, 58, 58, 0.3);
               }
 
               .caption {
