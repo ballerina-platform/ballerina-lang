@@ -52,11 +52,11 @@ class CanvasDecorator extends React.Component {
         const { fitToScreen } = this.context;
         const svgSize = {
             w: fitToScreen ? this.props.containerSize.width : this.props.bBox.w,
-            h: fitToScreen ? this.props.containerSize.height : this.props.bBox.h,
+            h: this.props.bBox.h,
         };
         const viewBox = fitToScreen ? `0 0 ${this.props.bBox.w} ${this.props.bBox.h}` : '';
         return (
-            <div className='' style={{ width: this.props.bBox.w }} >
+            <div className='' style={{ width: svgSize.w }} >
                 <div ref={(x) => { setCanvasOverlay(x); }}>
                     {/* This space is used to render html elements over svg */ }
                 </div>
