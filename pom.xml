@@ -1083,7 +1083,7 @@
                 <plugin>
                     <groupId>org.owasp</groupId>
                     <artifactId>dependency-check-maven</artifactId>
-                    <version>3.1.1</version>
+                    <version>${maven.dependency.check.plugin.version}</version>
                     <inherited>false</inherited>
                     <configuration>
                         <suppressionFiles>
@@ -1274,6 +1274,7 @@
         <clirr.maven.plugin.version>2.7</clirr.maven.plugin.version>
         <apache.source.release.assembly.descriptor.version>1.0.5</apache.source.release.assembly.descriptor.version>
         <awaitility.version>3.0.0</awaitility.version>
+        <maven.dependency.check.plugin.version>3.1.1</maven.dependency.check.plugin.version>
     </properties>
 
 </project>
