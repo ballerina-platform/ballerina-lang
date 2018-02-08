@@ -1413,6 +1413,16 @@ public class BLangParserListener extends BallerinaParserBaseListener {
     }
 
     @Override
+    public void exitReservedWord(BallerinaParser.ReservedWordContext ctx) {
+        this.pkgBuilder.startInvocationNode(getWS(ctx));
+    }
+
+    @Override
+    public void exitAnyIdentifierName(BallerinaParser.AnyIdentifierNameContext ctx) {
+        this.pkgBuilder.startInvocationNode(getWS(ctx));
+    }
+
+    @Override
     public void exitInvocationReference(BallerinaParser.InvocationReferenceContext ctx) {
         if (ctx.exception != null) {
             return;
