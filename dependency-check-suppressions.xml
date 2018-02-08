@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<suppressions xmlns="https://jeremylong.github.io/DependencyCheck/dependency-suppression.1.1.xsd">
+    <suppress>
+        <notes><![CDATA[
+            Issue is a only relevant to Eclipse IDE. The flagged component is not used in this project. 
+        ]]></notes>
+        <filePath regex="true">.*\.jar</filePath>
+        <cpe>cpe:/a:eclipse:eclipse_ide</cpe>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+            Issue is only relevant to Eclipse Business Intelligence and Reporting Tools (BIRT). The flagged component is
+            not used in this project.
+        ]]></notes>
+        <filePath regex="true">.*\.jar</filePath>
+        <cpe>cpe:/a:eclipse:birt</cpe>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+            Issue is only relevant to NTP (Network Time Protocol) daemon. The flagged component is not used in this
+            project.
+        ]]></notes>
+        <filePath regex="true">.*\.jar</filePath>
+        <cpe>cpe:/a:ntp:ntp</cpe>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+            Issue is only relevant to RESTful web services module for Drupal. The flagged component is not used in this
+            project.
+        ]]></notes>
+        <filePath regex="true">.*\bjavax.ws.rs-api-.*\.jar</filePath>
+        <cpe>cpe:/a:restful_project:restful</cpe>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+            Issue is only relevant to RESTful web services module for Drupal. The flagged component is not used in this
+            project.
+        ]]></notes>
+        <filePath regex="true">.*\bjavax.ws.rs-api-.*\.jar</filePath>
+        <cpe>cpe:/a:restful_web_services_project:restful_web_services</cpe>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+            Airline is a "Java annotation-based framework for parsing Git like command line structures." The reported
+            issue is only relevant to Git project. Hence, the flagged component is not used in this project.
+        ]]></notes>
+        <gav regex="true">^io\.airlift:airline:.*$</gav>
+        <cpe>cpe:/a:git_project:git</cpe>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+            Airline is a "Java annotation-based framework for parsing Git like command line structures." The reported
+            issue is only relevant to Git project. Hence, the flagged component is not used in this project.
+        ]]></notes>
+        <gav regex="true">^io\.airlift:airline:.*$</gav>
+        <cpe>cpe:/a:git:git</cpe>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+            The issue is only applicable to "paxtar" tape archiver (linux tool). The flagged component is not used in
+            this project.
+        ]]></notes>
+        <cpe>cpe:/a:pax_project:pax</cpe>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+            The issue is only applicable to "Docker Engine". The flagged component is not bundled with this project.
+        ]]></notes>
+        <cpe>cpe:/a:docker:docker</cpe>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+            The issue is only applicable to "Gradle" build automation tool. The flagged component is not bundled with
+            this project.
+        ]]></notes>
+        <cpe>cpe:/a:gradle:gradle</cpe>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+            commons_collections:3.2.1 is used in "io.fabric8:docker-client:1.2.1" as a transitive dependency of
+            "io.sundr:builder-annotations:0.4.2". However, the flagged component is not bundled with Ballerina.
+        ]]></notes>
+        <cpe>cpe:/a:apache:commons_collections:3.2.1</cpe>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+            log4j is used in "msf4j-core" as a transitive dependency of
+            "org.wso2.carbon:org.wso2.carbon.runtime.feature". However, the flagged component is not bundled with
+            Ballerina.
+        ]]></notes>
+        <gav regex="true">^org\.apache\.logging\.log4j:log4j-core:.*$</gav>
+        <cpe>cpe:/a:apache:log4j</cpe>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+            log4j is used in "msf4j-core" as a transitive dependency of
+            "org.wso2.carbon:org.wso2.carbon.runtime.feature". However, the flagged component is not bundled with
+            Ballerina.
+        ]]></notes>
+        <gav regex="true">^org\.apache\.logging\.log4j:log4j-api:.*$</gav>
+        <cpe>cpe:/a:apache:log4j</cpe>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+            BeanShell is only used in TestNG during test execution. The flagged component is not bundled with Ballerina.
+        ]]></notes>
+        <gav regex="true">^org\.beanshell:bsh:.*$</gav>
+        <cpe>cpe:/a:beanshell_project:beanshell</cpe>
+    </suppress>
+</suppressions>
