@@ -313,7 +313,7 @@ public class HttpUtil {
 
         HttpUtil.checkEntityAvailability(context, outboundResponseStruct);
         HttpUtil.setKeepAliveHeader(context, outboundResponseMsg);
-        addHTTPSessionAndCorsHeaders(inboundRequestMsg, outboundResponseMsg);
+        HttpUtil.addHTTPSessionAndCorsHeaders(context, inboundRequestMsg, outboundResponseMsg);
         HttpUtil.enrichOutboundMessage(outboundResponseMsg, outboundResponseStruct);
     }
 
@@ -377,10 +377,23 @@ public class HttpUtil {
                 .findFirst().get().trim().substring(Constants.SESSION_ID.length());
     }
 
-    public static void addHTTPSessionAndCorsHeaders(HTTPCarbonMessage requestMsg, HTTPCarbonMessage responseMsg) {
+    public static void addHTTPSessionAndCorsHeaders(Context context, HTTPCarbonMessage requestMsg,
+                                                    HTTPCarbonMessage responseMsg) {
         Session session = (Session) requestMsg.getProperty(Constants.HTTP_SESSION);
         if (session != null) {
-            session.generateSessionHeader(responseMsg);
+            boolean isSecureRequest = false;
+            AnnAttachmentInfo configAnn = context.getServiceInfo().getAnnotationAttachmentInfo(
+                    Constants.PROTOCOL_PACKAGE_HTTP, Constants.ANN_NAME_CONFIG);
+            if (configAnn != null) {
+                AnnAttributeValue httpsPortAttrVal = configAnn.getAttributeValue(Constants.ANN_CONFIG_ATTR_HTTPS_PORT);
+                if (httpsPortAttrVal != null) {
+                    Integer listenerPort = (Integer) requestMsg.getProperty(Constants.LISTENER_PORT);
+                    if (listenerPort != null && httpsPortAttrVal.getIntValue() == listenerPort.intValue()) {
+                        isSecureRequest = true;
+                    }
+                }
+            }
+            session.generateSessionHeader(responseMsg, isSecureRequest);
         }
         //Process CORS if exists.
         if (requestMsg.getHeader(Constants.ORIGIN) != null) {
