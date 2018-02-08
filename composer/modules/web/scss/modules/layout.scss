@@ -27,7 +27,7 @@
 .Resizer {
   background: #000;
   opacity: .2;
-  z-index: 2;
+  z-index: 1;
   @include box-sizing('border-box');
   -moz-background-clip: padding;
   -webkit-background-clip: padding;
