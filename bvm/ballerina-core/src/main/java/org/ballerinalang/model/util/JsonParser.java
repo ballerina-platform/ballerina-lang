@@ -1021,7 +1021,7 @@ public class JsonParser {
                 for (; i < count; i++) {
                     ch = buff[i];
                     sm.processLocation(ch);
-                    if ((ch >= '0' && ch <= '9') || (ch >= 'A' && ch <= 'F')) {
+                    if ((ch >= '0' && ch <= '9') || (ch >= 'A' && ch <= 'F') || (ch >= 'a' && ch <= 'f')) {
                         sm.hexBuilder.append(ch);
                         if (sm.hexBuilder.length() >= 4) {
                             sm.append(this.extractUnicodeChar(sm));
