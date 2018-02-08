@@ -463,7 +463,7 @@ class SizingUtil {
         workers.forEach((worker) => {
             worker.viewState.bBox.h = maxWorkerHeight;
             worker.body.viewState.bBox.h = maxWorkerHeight - this.config.lifeLine.head.height
-                                             - this.config.lifeLine.footer.height;
+                                             - (this.config.lifeLine.footer.height * 2);
             worker.viewState.components.lifeLine.h = maxWorkerHeight;
             // now add the worker width to panelBody width.
             cmp.panelBody.w += this.config.lifeLine.gutter.h + worker.viewState.bBox.w;
