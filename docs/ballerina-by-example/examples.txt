@@ -55,7 +55,7 @@ File API
 Throw
 Try/Catch/Finally
 Base Path and Path
-Query, Path and Matrix Param
+Query/Path/Matrix Param
 Content Based Routing
 Header Based Routing
 Produces/Consumes
