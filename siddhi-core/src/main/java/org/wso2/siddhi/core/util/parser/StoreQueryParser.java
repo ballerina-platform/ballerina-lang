@@ -230,11 +230,8 @@ public class StoreQueryParser {
                 StateEventPopulatorFactory.constructEventPopulator(metaStreamInfoHolder.getMetaStateEvent()));
         findStoreQueryRuntime.setStateEventPool(new StateEventPool(metaStreamInfoHolder.getMetaStateEvent(), 5));
         findStoreQueryRuntime.setSelector(querySelector);
-        findStoreQueryRuntime.setOutputAttributeList(getOutputAttributeList(metaStreamInfoHolder));
-    }
-
-    private static List<Attribute> getOutputAttributeList(MatchingMetaInfoHolder metaStreamInfoHolder) {
-        return metaStreamInfoHolder.getMetaStateEvent().getOutputStreamDefinition().getAttributeList();
+        findStoreQueryRuntime.setOutputAttributes(metaStreamInfoHolder.getMetaStateEvent().
+                getOutputStreamDefinition().getAttributeList());
     }
 
     private static MatchingMetaInfoHolder generateMatchingMetaInfoHolder(MetaStreamEvent metaStreamEvent,

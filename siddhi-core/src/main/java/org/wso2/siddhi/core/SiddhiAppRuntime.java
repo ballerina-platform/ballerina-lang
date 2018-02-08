@@ -270,14 +270,24 @@ public class SiddhiAppRuntime {
      * @param storeQuery this storeQuery is processed and get the output attributes.
      * @return List of output attributes
      */
-    public List<Attribute> getStoreQueryOutputTypes(StoreQuery storeQuery) {
-        StoreQueryRuntime storeQueryRuntime = storeQueryRuntimeMap.get(storeQuery);
-        if (storeQueryRuntime == null) {
-            storeQueryRuntime = StoreQueryParser.parse(storeQuery, siddhiAppContext, tableMap, windowMap,
-                    aggregationMap);
-            storeQueryRuntimeMap.put(storeQuery, storeQueryRuntime);
+    public Attribute[] getStoreQueryOutputAttributes(StoreQuery storeQuery) {
+        try {
+            StoreQueryRuntime storeQueryRuntime = storeQueryRuntimeMap.get(storeQuery);
+            if (storeQueryRuntime == null) {
+                storeQueryRuntime = StoreQueryParser.parse(storeQuery, siddhiAppContext, tableMap, windowMap,
+                        aggregationMap);
+                storeQueryRuntimeMap.put(storeQuery, storeQueryRuntime);
+            }
+            return storeQueryRuntime.getStoreQueryOutputAttributes();
+        } catch (RuntimeException e) {
+            if (e instanceof SiddhiAppContextException) {
+                throw new StoreQueryCreationException(((SiddhiAppContextException) e).getMessageWithOutContext(), e,
+                        ((SiddhiAppContextException) e).getQueryContextStartIndex(),
+                        ((SiddhiAppContextException) e).getQueryContextEndIndex(), null, siddhiAppContext
+                        .getSiddhiAppString());
+            }
+            throw new StoreQueryCreationException(e.getMessage(), e);
         }
-        return storeQueryRuntime.getStoreQueryOutputTypes();
     }
 
     private Event[] query(StoreQuery storeQuery, String storeQueryString) {

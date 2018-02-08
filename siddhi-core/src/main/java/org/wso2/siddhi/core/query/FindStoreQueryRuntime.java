@@ -33,6 +33,7 @@ import org.wso2.siddhi.core.window.Window;
 import org.wso2.siddhi.query.api.definition.Attribute;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -49,7 +50,7 @@ public class FindStoreQueryRuntime implements StoreQueryRuntime {
     private QuerySelector selector;
     private StateEventPool stateEventPool;
     private MetaStreamEvent metaStreamEvent;
-    private List<Attribute> outputAttributeList;
+    private Attribute[] outputAttributes;
 
     public FindStoreQueryRuntime(Table table, CompiledCondition compiledCondition, String queryName,
                                  MetaStreamEvent metaStreamEvent) {
@@ -58,6 +59,7 @@ public class FindStoreQueryRuntime implements StoreQueryRuntime {
         this.queryName = queryName;
         this.eventType = metaStreamEvent.getEventType();
         this.metaStreamEvent = metaStreamEvent;
+        this.setOutputAttributes(metaStreamEvent.getInputDefinitions().get(0).getAttributeList());
     }
 
     public FindStoreQueryRuntime(Window window, CompiledCondition compiledCondition, String queryName,
@@ -67,6 +69,7 @@ public class FindStoreQueryRuntime implements StoreQueryRuntime {
         this.queryName = queryName;
         this.eventType = metaStreamEvent.getEventType();
         this.metaStreamEvent = metaStreamEvent;
+        this.setOutputAttributes(metaStreamEvent.getInputDefinitions().get(0).getAttributeList());
     }
 
     public FindStoreQueryRuntime(AggregationRuntime aggregation, CompiledCondition compiledCondition, String queryName,
@@ -76,6 +79,7 @@ public class FindStoreQueryRuntime implements StoreQueryRuntime {
         this.queryName = queryName;
         this.eventType = metaStreamEvent.getEventType();
         this.metaStreamEvent = metaStreamEvent;
+        this.setOutputAttributes(metaStreamEvent.getInputDefinitions().get(0).getAttributeList());
     }
 
     @Override
@@ -156,13 +160,13 @@ public class FindStoreQueryRuntime implements StoreQueryRuntime {
      *
      * @param outputAttributeList
      */
-    public void setOutputAttributeList(List<Attribute> outputAttributeList) {
-        this.outputAttributeList = outputAttributeList;
+    public void setOutputAttributes(List<Attribute> outputAttributeList) {
+        this.outputAttributes = outputAttributeList.toArray(new Attribute[outputAttributeList.size()]);
     }
 
     @Override
-    public List<Attribute> getStoreQueryOutputTypes() {
-        return this.outputAttributeList;
+    public Attribute[] getStoreQueryOutputAttributes() {
+        return Arrays.copyOf(outputAttributes, outputAttributes.length);
     }
 
     private Event[] executeSelector(StreamEvent streamEvents, MetaStreamEvent.EventType eventType) {

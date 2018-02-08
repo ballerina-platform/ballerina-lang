@@ -22,11 +22,13 @@ import org.wso2.siddhi.core.event.state.StateEvent;
 import org.wso2.siddhi.core.event.stream.StreamEvent;
 import org.wso2.siddhi.core.exception.StoreQueryRuntimeException;
 import org.wso2.siddhi.core.query.processor.stream.window.QueryableProcessor;
+import org.wso2.siddhi.core.table.Table;
 import org.wso2.siddhi.core.util.collection.operator.CompiledCondition;
 import org.wso2.siddhi.core.util.collection.operator.CompiledSelection;
 import org.wso2.siddhi.query.api.definition.Attribute;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -38,6 +40,7 @@ public class SelectStoreQueryRuntime implements StoreQueryRuntime {
     private final CompiledCondition compiledCondition;
     private final String queryName;
     private QueryableProcessor queryableProcessor;
+    private Attribute[] outputAttributes;
 
     public SelectStoreQueryRuntime(QueryableProcessor queryableProcessor, CompiledCondition compiledCondition,
                                    CompiledSelection compiledSelection, String queryName) {
@@ -45,12 +48,13 @@ public class SelectStoreQueryRuntime implements StoreQueryRuntime {
         this.compiledCondition = compiledCondition;
         this.compiledSelection = compiledSelection;
         this.queryName = queryName;
+        List<Attribute> attributeList = ((Table) queryableProcessor).getTableDefinition().getAttributeList();
+        this.outputAttributes = attributeList.toArray(new Attribute[attributeList.size()]);
     }
 
     @Override
-    public List<Attribute> getStoreQueryOutputTypes() {
-        //TODO Need to add implementation to this method when we complete implementation of this class.
-        return null;
+    public Attribute[] getStoreQueryOutputAttributes() {
+        return Arrays.copyOf(outputAttributes, outputAttributes.length);
     }
 
     public Event[] execute() {
