@@ -35,6 +35,7 @@ XML Functions
 JSON To XML Conversion
 XML To JSON Conversion
 Foreach
+Iterable Operations
 Worker
 Worker Interaction
 Fork/Join
