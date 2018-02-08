@@ -194,6 +194,7 @@ class LifelineButton extends React.Component {
                     buttonY={0}
                     showAlways
                     menuOverButton
+                    type='secondary'
                 >
                     <Menu>
                         <div className={connectorListCssClass}>

@@ -39,15 +39,16 @@
         }
         .rc-tabs-tab {
             @extend .unseletable-content;
-            background-color: #565656;
-            color: #999999;
-            height: 20px;
+            background-color: #3c3c3c;
+            color: #999;
+            height: 24px;
             min-width: 120px;
             padding: 0;
             margin-right: 0;
             border-right: 1px solid #16191d;
+            font-weight: 400;
             .tab-title-wrapper {
-                padding: 0 5px 0 5px;
+                padding: 2px 5px 0 5px;
                 .dirty-indicator {
                     margin-left: 5px;
                 }
@@ -68,7 +69,8 @@
                     background: white;
                 }
                 color: #bebebe;
-                background-color: #3c3c3c;
+                background-color: #1e1e1e;
+                border-top: 1px solid #282828;
             }
             .close-tab {
                 color: #999999;
