@@ -18,11 +18,17 @@
 
 package org.ballerinalang.net.uri;
 
+import org.ballerinalang.connector.api.BallerinaConnectorException;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
+import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.net.http.Constants;
+import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Utilities related to URI processing.
@@ -61,5 +67,48 @@ public class URIUtil {
                 queryParamsMap.put(queryParamName, new BString(queryParamValue));
             }
         }
+    }
+
+    public static BMap<String, BValue> getMatrixParamsMap(String path, HTTPCarbonMessage carbonMessage) {
+        BMap<String, BValue> matrixParamsBMap = new BMap<>();
+        Map<String, Map<String, String>> pathToMatrixParamMap =
+                (Map<String, Map<String, String>>) carbonMessage.getProperty(Constants.MATRIX_PARAMS);
+        Map<String, String> matrixParamsMap = pathToMatrixParamMap.get(path);
+        if (matrixParamsMap != null) {
+            for (Map.Entry<String, String> matrixParamEntry : matrixParamsMap.entrySet()) {
+                matrixParamsBMap.put(matrixParamEntry.getKey(), new BString(matrixParamEntry.getValue()));
+            }
+        }
+        return matrixParamsBMap;
+    }
+
+
+    public static String extractMatrixParams(String path, Map<String, Map<String, String>> matrixParams) {
+        if (path.startsWith("/")) {
+            path = path.substring(1);
+        }
+        String[] pathSplits = path.split("\\?");
+        String[] pathSegments = pathSplits[0].split("/");
+        String pathToMatrixParam = "";
+        for (String pathSegment : pathSegments) {
+            String[] splitPathSegment = pathSegment.split(";");
+            pathToMatrixParam = pathToMatrixParam.concat("/" + splitPathSegment[0]);
+            Map<String, String> segmentMatrixParams = new HashMap<>();
+            for (int i = 1; i < splitPathSegment.length; i++) {
+                String[] splitMatrixParam = splitPathSegment[i].split("=");
+                if (splitMatrixParam.length != 2) {
+                    throw new BallerinaConnectorException(
+                            String.format("Found non-matrix parameter '%s' in path '%s'",
+                                          splitPathSegment[i], path));
+                }
+                segmentMatrixParams.put(splitMatrixParam[0], splitMatrixParam[1]);
+            }
+            matrixParams.put(pathToMatrixParam, segmentMatrixParams);
+        }
+
+        for (int i = 1; i < pathSplits.length; i++) {
+            pathToMatrixParam = pathToMatrixParam.concat("?").concat(pathSplits[i]);
+        }
+        return pathToMatrixParam;
     }
 }

@@ -50,8 +50,7 @@ public class HTTPResourceDispatcher {
                 } else {
                     inboundRequest.setProperty(Constants.HTTP_STATUS_CODE, 404);
                     throw new BallerinaConnectorException("no matching resource found for path : "
-                            + inboundRequest.getProperty(org.wso2.carbon.messaging.Constants.TO)
-                            + " , method : " + method);
+                            + inboundRequest.getProperty(Constants.TO) + " , method : " + method);
                 }
                 return null;
             }
@@ -82,7 +81,7 @@ public class HTTPResourceDispatcher {
         } else {
             cMsg.setProperty(Constants.HTTP_STATUS_CODE, 404);
             throw new BallerinaConnectorException("no matching resource found for path : "
-                    + cMsg.getProperty(org.wso2.carbon.messaging.Constants.TO) + " , method : " + "OPTIONS");
+                    + cMsg.getProperty(Constants.TO) + " , method : " + "OPTIONS");
         }
         CorsHeaderGenerator.process(cMsg, response, false);
         response.setProperty(Constants.HTTP_STATUS_CODE, 200);

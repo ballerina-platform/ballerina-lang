@@ -31,6 +31,7 @@ import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URLDecoder;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -46,19 +47,28 @@ public class HttpDispatcher {
     private static HttpService findService(HTTPServicesRegistry servicesRegistry, HTTPCarbonMessage inboundReqMsg) {
         try {
             Map<String, HttpService> servicesOnInterface = getServicesOnInterface(servicesRegistry, inboundReqMsg);
-            URI requestUri = getValidateURI(inboundReqMsg);
+
+            String rawUri = (String) inboundReqMsg.getProperty(Constants.TO);
+            inboundReqMsg.setProperty(Constants.RAW_URI, rawUri);
+            Map<String, Map<String, String>> matrixParams = new HashMap<>();
+            String uriWithoutMatrixParams = URIUtil.extractMatrixParams(rawUri, matrixParams);
+
+            inboundReqMsg.setProperty(Constants.TO, uriWithoutMatrixParams);
+            inboundReqMsg.setProperty(Constants.MATRIX_PARAMS, matrixParams);
+
+            URI validatedUri = getValidatedURI(uriWithoutMatrixParams);
 
             // Most of the time we will find service from here
             String basePath =
-                    servicesRegistry.findTheMostSpecificBasePath(requestUri.getPath(), servicesOnInterface);
+                    servicesRegistry.findTheMostSpecificBasePath(validatedUri.getPath(), servicesOnInterface);
             HttpService service = servicesOnInterface.get(basePath);
             if (service == null) {
                 inboundReqMsg.setProperty(Constants.HTTP_STATUS_CODE, 404);
                 throw new BallerinaConnectorException("no matching service found for path : " +
-                        requestUri.getRawPath());
+                        validatedUri.getRawPath());
             }
 
-            setInboundReqProperties(inboundReqMsg, requestUri, basePath);
+            setInboundReqProperties(inboundReqMsg, validatedUri, basePath);
 
             return service;
         } catch (Throwable e) {
@@ -85,9 +95,8 @@ public class HttpDispatcher {
         inboundReqMsg.setProperty(Constants.RAW_QUERY_STR, requestUri.getRawQuery());
     }
 
-    private static URI getValidateURI(HTTPCarbonMessage inboundReqMsg) {
+    private static URI getValidatedURI(String uriStr) {
         URI requestUri;
-        String uriStr = (String) inboundReqMsg.getProperty(org.wso2.carbon.messaging.Constants.TO);
         try {
             requestUri = URI.create(uriStr);
         } catch (IllegalArgumentException e) {
@@ -129,7 +138,7 @@ public class HttpDispatcher {
     public static HttpResource findResource(HTTPServicesRegistry servicesRegistry,
                                             HTTPCarbonMessage httpCarbonMessage) {
         HttpResource resource = null;
-        String protocol = (String) httpCarbonMessage.getProperty(org.wso2.carbon.messaging.Constants.PROTOCOL);
+        String protocol = (String) httpCarbonMessage.getProperty(Constants.PROTOCOL);
         if (protocol == null) {
             throw new BallerinaConnectorException("protocol not defined in the incoming request");
         }
