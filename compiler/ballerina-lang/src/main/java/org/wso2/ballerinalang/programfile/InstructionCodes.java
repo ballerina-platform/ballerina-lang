@@ -108,8 +108,6 @@ public interface InstructionCodes {
     int IADD = 76;
     int FADD = 77;
     int SADD = 78;
-    int RDEQ = 79;
-    int RDNE = 80;
     int XMLADD = 81;
     int ISUB = 82;
     int FSUB = 83;
@@ -157,7 +155,7 @@ public interface InstructionCodes {
     int HALT = 118;
     int TR_RETRY = 119;
     int CALL = 120;
-    int NCALL = 121;
+    int VCALL = 121;
     int ACALL = 122;
     int THROW = 123;
     int ERRSTORE = 124;
@@ -253,7 +251,7 @@ public interface InstructionCodes {
     int NEWCONNECTOR = 211;
     int NEWMAP = 212;
     int NEWJSON = 213;
-    int NEWDATATABLE = 215;
+    int NEWTABLE = 215;
 
     int NEW_INT_RANGE = 219;
     int ITR_NEW = 220;

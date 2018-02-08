@@ -24,13 +24,13 @@ import TransformerExpanded from 'plugins/ballerina/diagram/views/default/compone
 import TreeUtil from 'plugins/ballerina/model/tree-util.js';
 import DragLayer from './../drag-drop/drag-layer';
 import CompilationUnitNode from './../model/tree/compilation-unit-node';
-import { TOOL_PALETTE_WIDTH } from './constants';
+import { TOOL_PALETTE_WIDTH, ZOOM_LEVELS } from './constants';
 import { EVENTS } from '../constants';
 import DesignViewErrorBoundary from './DesignViewErrorBoundary';
 import ViewButton from './view-button';
 
 
-const zoomLevels = ['action', 'default'];
+const zoomLevels = [ZOOM_LEVELS.FIT_TO_SCREEN, ZOOM_LEVELS.ACTION, ZOOM_LEVELS.DEFAULT];
 
 class DesignView extends React.Component {
 
@@ -38,7 +38,7 @@ class DesignView extends React.Component {
         super(props);
         this.state = {
             isTransformActive: false,
-            zoomLevel: 0,
+            zoomLevel: 1,
         };
         this.overlayContainer = undefined;
         this.diagramContainer = undefined;
@@ -63,6 +63,7 @@ class DesignView extends React.Component {
      */
     getChildContext() {
         return {
+            fitToScreen: zoomLevels[this.state.zoomLevel] === ZOOM_LEVELS.FIT_TO_SCREEN,
             designView: this,
             getOverlayContainer: this.getOverlayContainer,
             getDiagramContainer: this.getDiagramContainer,
@@ -175,7 +176,10 @@ class DesignView extends React.Component {
         const shouldShowTransform = isTransformActive && activeTransformModel;
 
         const disabled = (this.props.disabled) ? 'design-view-disabled' : '';
-
+        // For now, fit to screen mode is same as action for components
+        const mode = zoomLevels[this.state.zoomLevel] === ZOOM_LEVELS.FIT_TO_SCREEN
+                        ? 'action'
+                        : zoomLevels[this.state.zoomLevel];
         return (
             <div
                 className={`design-view-container ${disabled}`}
@@ -200,7 +204,7 @@ class DesignView extends React.Component {
                                     <DesignViewErrorBoundary>
                                         <BallerinaDiagram
                                             model={this.props.model}
-                                            mode={zoomLevels[this.state.zoomLevel]}
+                                            mode={mode}
                                             width={this.props.width - TOOL_PALETTE_WIDTH}
                                             height={this.props.height}
                                             disabled={this.props.disabled}
@@ -266,6 +270,7 @@ DesignView.contextTypes = {
 };
 
 DesignView.childContextTypes = {
+    fitToScreen: PropTypes.bool,
     designView: PropTypes.instanceOf(DesignView).isRequired,
     getDiagramContainer: PropTypes.instanceOf(Object).isRequired,
     getOverlayContainer: PropTypes.instanceOf(Object).isRequired,

@@ -673,7 +673,7 @@ public class SignatureTreeVisitor extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangInvocation.BLangFunctionInvocation iExpr) {
+    public void visit(BLangInvocation.BLangAttachedFunctionInvocation iExpr) {
         // No Implementation
     }
 

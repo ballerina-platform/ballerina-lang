@@ -35,7 +35,7 @@
     .rc-tabs-tab-active {
         .tab-title-wrapper {
             &.welcome-page-tab-title {
-                background-color: white;
+                background-color:#f9f9f9;
                 color: #7D7D7D;
                 .close-tab {
                     color: #7D7D7D;
@@ -45,13 +45,5 @@
                 }
             }
         }
-    }
-}
-
-.welcome-page {
-    background: #FFF;
-    height: 100%;
-    .logo{
-        fill: black;
     }
 }

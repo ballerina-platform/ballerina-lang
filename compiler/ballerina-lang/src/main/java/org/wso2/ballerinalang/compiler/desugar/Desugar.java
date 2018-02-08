@@ -69,7 +69,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangIntRangeExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation.BFunctionPointerInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation.BLangActionInvocation;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation.BLangFunctionInvocation;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation.BLangAttachedFunctionInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation.BLangTransformerInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLambdaFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
@@ -630,11 +630,12 @@ public class Desugar extends BLangNodeVisitor {
             case TypeTags.JSON:
             case TypeTags.XML:
             case TypeTags.MAP:
-            case TypeTags.DATATABLE:
+            case TypeTags.TABLE:
             case TypeTags.STRUCT:
                 List<BLangExpression> argExprs = new ArrayList<>(iExpr.argExprs);
                 argExprs.add(0, iExpr.expr);
-                result = new BLangFunctionInvocation(iExpr.pos, argExprs, iExpr.symbol, iExpr.types);
+                result = new BLangAttachedFunctionInvocation(iExpr.pos, argExprs, iExpr.symbol,
+                        iExpr.types, iExpr.expr);
                 break;
             case TypeTags.ENDPOINT:
                 List<BLangExpression> actionArgExprs = new ArrayList<>(iExpr.argExprs);
@@ -1079,8 +1080,8 @@ public class Desugar extends BLangNodeVisitor {
             case TypeTags.BLOB:
             case TypeTags.XML:
                 return;
-            case TypeTags.DATATABLE:
-                // TODO: add this once the datatable initializing is supported.
+            case TypeTags.TABLE:
+                // TODO: add this once the able initializing is supported.
                 return;
             default:
                 return;

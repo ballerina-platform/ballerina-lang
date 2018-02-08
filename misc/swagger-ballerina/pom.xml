@@ -32,7 +32,6 @@
     <name>Ballerina - Swagger Tooling - Parent</name>
 
     <properties>
-        <ballerina.version>${project.version}</ballerina.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.checkstyleplugin.excludes>**/parser/*</maven.checkstyleplugin.excludes>
     </properties>

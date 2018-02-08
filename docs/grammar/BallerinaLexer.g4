@@ -10,6 +10,7 @@ PACKAGE     : 'package' ;
 IMPORT      : 'import' ;
 AS          : 'as' ;
 PUBLIC      : 'public' ;
+PRIVATE      : 'private' ;
 NATIVE      : 'native' ;
 SERVICE     : 'service' ;
 RESOURCE    : 'resource' ;
@@ -36,7 +37,7 @@ TYPE_BLOB       : 'blob' ;
 TYPE_MAP        : 'map' ;
 TYPE_JSON       : 'json' ;
 TYPE_XML        : 'xml' ;
-TYPE_DATATABLE  : 'datatable' ;
+TYPE_TABLE      : 'table' ;
 TYPE_ANY        : 'any' ;
 TYPE_TYPE       : 'type' ;
 
@@ -96,17 +97,15 @@ MOD     : '%';
 
 // Relational operators
 
-NOT             : '!' ;
-EQUAL           : '==' ;
-NOT_EQUAL       : '!=' ;
-DEEP_EQUAL      : '===' ;
-DEEP_NOT_EQUAL  : '!==' ;
-GT              : '>' ;
-LT              : '<' ;
-GT_EQUAL        : '>=' ;
-LT_EQUAL        : '<=' ;
-AND             : '&&' ;
-OR              : '||' ;
+NOT         : '!' ;
+EQUAL       : '==' ;
+NOT_EQUAL   : '!=' ;
+GT          : '>' ;
+LT          : '<' ;
+GT_EQUAL    : '>=' ;
+LT_EQUAL    : '<=' ;
+AND         : '&&' ;
+OR          : '||' ;
 
 // Additional symbols 
 

@@ -51,7 +51,7 @@ import ballerina.lang.system;
 
 function main (string[] args) {
     system:println(|සිංහල වාක්යක් දෙන්න|());
-}
+}   
 
 function |සිංහල වාක්යක් දෙන්න|() (string) {
     string |සිංහල වාක්යක්| = "සිංහල වාක්යක්";
@@ -86,7 +86,7 @@ When naming Ballerina elements, Swagger files, program files, and packages, do *
 - catch
 - connector
 - const
-- datatable
+- table
 - double
 - else
 - exception

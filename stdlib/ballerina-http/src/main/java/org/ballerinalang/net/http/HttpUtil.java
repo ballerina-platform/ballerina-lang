@@ -81,6 +81,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import static org.ballerinalang.bre.bvm.BLangVMErrors.BUILTIN_PACKAGE;
+import static org.ballerinalang.bre.bvm.BLangVMErrors.STRUCT_GENERIC_ERROR;
 import static org.ballerinalang.mime.util.Constants.APPLICATION_JSON;
 import static org.ballerinalang.mime.util.Constants.APPLICATION_XML;
 import static org.ballerinalang.mime.util.Constants.CONTENT_TYPE;
@@ -1010,4 +1012,21 @@ public class HttpUtil {
 
         return intVal;
     }
+
+    /**
+     * Extract generic error message.
+     *
+     * @param context Represent ballerina context.
+     * @param errMsg  Error message.
+     * @return Generic error message.
+     */
+    public static BStruct getGenericError(Context context, String errMsg) {
+        PackageInfo errorPackageInfo = context.getProgramFile().getPackageInfo(BUILTIN_PACKAGE);
+        StructInfo errorStructInfo = errorPackageInfo.getStructInfo(STRUCT_GENERIC_ERROR);
+
+        BStruct genericError = new BStruct(errorStructInfo.getType());
+        genericError.setStringField(0, errMsg);
+        return genericError;
+    }
 }
+

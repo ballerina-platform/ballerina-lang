@@ -188,6 +188,16 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 */
 	void exitStructBody(BallerinaParser.StructBodyContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link BallerinaParser#privateStructBody}.
+	 * @param ctx the parse tree
+	 */
+	void enterPrivateStructBody(BallerinaParser.PrivateStructBodyContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BallerinaParser#privateStructBody}.
+	 * @param ctx the parse tree
+	 */
+	void exitPrivateStructBody(BallerinaParser.PrivateStructBodyContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link BallerinaParser#annotationDefinition}.
 	 * @param ctx the parse tree
 	 */
@@ -1421,18 +1431,6 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitUnaryExpression(BallerinaParser.UnaryExpressionContext ctx);
-	/**
-	 * Enter a parse tree produced by the {@code binaryDeepEqualExpression}
-	 * labeled alternative in {@link BallerinaParser#expression}.
-	 * @param ctx the parse tree
-	 */
-	void enterBinaryDeepEqualExpression(BallerinaParser.BinaryDeepEqualExpressionContext ctx);
-	/**
-	 * Exit a parse tree produced by the {@code binaryDeepEqualExpression}
-	 * labeled alternative in {@link BallerinaParser#expression}.
-	 * @param ctx the parse tree
-	 */
-	void exitBinaryDeepEqualExpression(BallerinaParser.BinaryDeepEqualExpressionContext ctx);
 	/**
 	 * Enter a parse tree produced by the {@code ternaryExpression}
 	 * labeled alternative in {@link BallerinaParser#expression}.

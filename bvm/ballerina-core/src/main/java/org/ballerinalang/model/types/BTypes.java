@@ -30,7 +30,7 @@ public class BTypes {
     public static BType typeBlob = new BBlobType(TypeConstants.BLOB_TNAME, null);
     public static BType typeXML = new BXMLType(TypeConstants.XML_TNAME, null);
     public static BType typeJSON = new BJSONType(TypeConstants.JSON_TNAME, null);
-    public static BType typeDatatable = new BDataTableType(TypeConstants.DATATABLE_TNAME, null);
+    public static BType typeTable = new BTableType(TypeConstants.TABLE_TNAME, null);
     public static BType typeAny = new BAnyType(TypeConstants.ANY_TNAME, null);
     public static BType typeType = new BTypeType(TypeConstants.TYPE_TNAME, null);
     public static BType typeMap = new BMapType(TypeConstants.MAP_TNAME, typeAny, null);
@@ -59,8 +59,8 @@ public class BTypes {
                 return typeXML;
             case TypeConstants.MAP_TNAME:
                 return typeMap;
-            case TypeConstants.DATATABLE_TNAME:
-                return typeDatatable;
+            case TypeConstants.TABLE_TNAME:
+                return typeTable;
             default:
                 throw new IllegalStateException("Unknown type name");
         }

@@ -1,11 +1,11 @@
 function testJsonArrayWithUnsupportedtypes() (json) {
-    datatable dt;
+    table dt;
     json j = ["a", "b", "c", dt];
     return j;
 }
 
 function testJsonInitWithUnsupportedtypes() (json) {
-    datatable dt;
+    table dt;
     json j = {"name":"Supun", "value":dt};
     return j;
 }
