@@ -154,7 +154,7 @@ abstract class SymbolFilter {
             }
         }
 
-        if (bType instanceof BEnumType || bType instanceof BStructType) {
+        if (bType instanceof BEnumType) {
             entries.forEach((name, scopeEntry) -> {
                 SymbolInfo actionFunctionSymbol = new SymbolInfo(name.toString(), scopeEntry);
                 actionFunctionList.add(actionFunctionSymbol);
@@ -167,7 +167,10 @@ abstract class SymbolFilter {
                             .receiverSymbol.getType().tsymbol.name.getValue();
 
                     if (symbolBoundedName.equals(bTypeValue)) {
-                        SymbolInfo actionFunctionSymbol = new SymbolInfo(name.toString(), scopeEntry);
+                        // TODO: Need to handle the name in a proper manner
+                        String[] nameComponents = name.toString().split("\\."); 
+                        SymbolInfo actionFunctionSymbol =
+                                new SymbolInfo(nameComponents[nameComponents.length - 1], scopeEntry);
                         actionFunctionList.add(actionFunctionSymbol);
                     }
                 }

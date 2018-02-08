@@ -160,7 +160,8 @@ public abstract class AbstractItemResolver {
      * @return {@link String}
      */
     private FunctionSignature getFunctionSignature(BInvokableSymbol bInvokableSymbol) {
-        String functionName = bInvokableSymbol.getName().getValue();
+        String[] funcNameComponents = bInvokableSymbol.getName().getValue().split("\\.");
+        String functionName = funcNameComponents[funcNameComponents.length - 1];
 
         // If there is a receiver symbol, then the name comes with the package name and struct name appended.
         // Hence we need to remove it
