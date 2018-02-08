@@ -128,7 +128,8 @@ public class IterableCodeDesugar {
         final BLangInvocation iExpr = createInvocationExpr(ctx.collectionExpr.pos,
                 ctx.iteratorFuncSymbol, Collections.emptyList());
         iExpr.argExprs.add(ctx.collectionExpr);
-        if (ctx.getLastOperation().expectedTypes.isEmpty()) {
+        if (ctx.getLastOperation().expectedTypes.isEmpty() ||
+                ctx.getLastOperation().expectedTypes.get(0) == symTable.noType) {
             ctx.iteratorCaller = iExpr;
         } else {
             ctx.iteratorCaller = generateCastExpr(iExpr, ctx.getLastOperation().expectedTypes.get(0));
