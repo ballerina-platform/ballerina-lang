@@ -127,25 +127,25 @@ public class UtilTest {
         BValue[] returnValues = BRunUtil.invoke(compileResult, "testHexToDecimal", args);
         Assert.assertFalse(returnValues == null || returnValues.length < 2 || returnValues[0] == null,
                 "Invalid return value");
-        Assert.assertEquals((BInteger) returnValues[0], 0);
+        Assert.assertEquals((BInteger) returnValues[0], (BInteger) 0);
 
         args = new BValue[]{new BString("0xf")};
         returnValues = BRunUtil.invoke(compileResult, "testHexToDecimal", args);
         Assert.assertFalse(returnValues == null || returnValues.length < 2 || returnValues[0] == null,
                 "Invalid return value");
-        Assert.assertEquals((BInteger) returnValues[0], 15);
+        Assert.assertEquals((BInteger) returnValues[0],(BInteger) 15);
 
         args = new BValue[]{new BString("0x3685f3cc")};
         returnValues = BRunUtil.invoke(compileResult, "testHexToDecimal", args);
         Assert.assertFalse(returnValues == null || returnValues.length < 2 || returnValues[0] == null,
                 "Invalid return value");
-        Assert.assertEquals((BInteger) returnValues[0], 914748364);
+        Assert.assertEquals((BInteger) returnValues[0], (BInteger) 914748364);
 
         args = new BValue[]{new BString("0x7ffffffe")};
         returnValues = BRunUtil.invoke(compileResult, "testHexToDecimal", args);
         Assert.assertFalse(returnValues == null || returnValues.length < 2 || returnValues[0] == null,
                 "Invalid return value");
-        Assert.assertEquals((BInteger) returnValues[0], 2147483646);
+        Assert.assertEquals((BInteger) returnValues[0], (BInteger) 2147483646);
     }
 
     @Test
