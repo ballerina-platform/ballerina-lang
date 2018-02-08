@@ -24,6 +24,7 @@ import org.wso2.siddhi.core.exception.StoreQueryRuntimeException;
 import org.wso2.siddhi.core.query.processor.stream.window.QueryableProcessor;
 import org.wso2.siddhi.core.util.collection.operator.CompiledCondition;
 import org.wso2.siddhi.core.util.collection.operator.CompiledSelection;
+import org.wso2.siddhi.query.api.definition.Attribute;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -44,6 +45,12 @@ public class SelectStoreQueryRuntime implements StoreQueryRuntime {
         this.compiledCondition = compiledCondition;
         this.compiledSelection = compiledSelection;
         this.queryName = queryName;
+    }
+
+    @Override
+    public List<Attribute> getStoreQueryOutputTypes() {
+        //TODO Need to add implementation to this method when we complete implementation of this class.
+        return null;
     }
 
     public Event[] execute() {

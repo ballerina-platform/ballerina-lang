@@ -45,6 +45,7 @@ import org.wso2.siddhi.core.util.snapshot.SnapshotService;
 import org.wso2.siddhi.core.window.Window;
 import org.wso2.siddhi.query.api.aggregation.Within;
 import org.wso2.siddhi.query.api.definition.AbstractDefinition;
+import org.wso2.siddhi.query.api.definition.Attribute;
 import org.wso2.siddhi.query.api.execution.query.StoreQuery;
 import org.wso2.siddhi.query.api.execution.query.input.store.AggregationInputStore;
 import org.wso2.siddhi.query.api.execution.query.input.store.ConditionInputStore;
@@ -229,6 +230,11 @@ public class StoreQueryParser {
                 StateEventPopulatorFactory.constructEventPopulator(metaStreamInfoHolder.getMetaStateEvent()));
         findStoreQueryRuntime.setStateEventPool(new StateEventPool(metaStreamInfoHolder.getMetaStateEvent(), 5));
         findStoreQueryRuntime.setSelector(querySelector);
+        findStoreQueryRuntime.setOutputAttributeList(getOutputAttributeList(metaStreamInfoHolder));
+    }
+
+    private static List<Attribute> getOutputAttributeList(MatchingMetaInfoHolder metaStreamInfoHolder) {
+        return metaStreamInfoHolder.getMetaStateEvent().getOutputStreamDefinition().getAttributeList();
     }
 
     private static MatchingMetaInfoHolder generateMatchingMetaInfoHolder(MetaStreamEvent metaStreamEvent,

@@ -30,6 +30,7 @@ import org.wso2.siddhi.core.query.selector.QuerySelector;
 import org.wso2.siddhi.core.table.Table;
 import org.wso2.siddhi.core.util.collection.operator.CompiledCondition;
 import org.wso2.siddhi.core.window.Window;
+import org.wso2.siddhi.query.api.definition.Attribute;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -48,6 +49,7 @@ public class FindStoreQueryRuntime implements StoreQueryRuntime {
     private QuerySelector selector;
     private StateEventPool stateEventPool;
     private MetaStreamEvent metaStreamEvent;
+    private List<Attribute> outputAttributeList;
 
     public FindStoreQueryRuntime(Table table, CompiledCondition compiledCondition, String queryName,
                                  MetaStreamEvent metaStreamEvent) {
@@ -147,6 +149,20 @@ public class FindStoreQueryRuntime implements StoreQueryRuntime {
 
     public void setSelector(QuerySelector selector) {
         this.selector = selector;
+    }
+
+    /**
+     * This method sets the output attribute list of the given store query.
+     *
+     * @param outputAttributeList
+     */
+    public void setOutputAttributeList(List<Attribute> outputAttributeList) {
+        this.outputAttributeList = outputAttributeList;
+    }
+
+    @Override
+    public List<Attribute> getStoreQueryOutputTypes() {
+        return this.outputAttributeList;
     }
 
     private Event[] executeSelector(StreamEvent streamEvents, MetaStreamEvent.EventType eventType) {

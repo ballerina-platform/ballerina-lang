@@ -61,6 +61,7 @@ import org.wso2.siddhi.core.util.statistics.MemoryUsageTracker;
 import org.wso2.siddhi.core.window.Window;
 import org.wso2.siddhi.query.api.definition.AbstractDefinition;
 import org.wso2.siddhi.query.api.definition.AggregationDefinition;
+import org.wso2.siddhi.query.api.definition.Attribute;
 import org.wso2.siddhi.query.api.definition.StreamDefinition;
 import org.wso2.siddhi.query.api.definition.TableDefinition;
 import org.wso2.siddhi.query.api.definition.WindowDefinition;
@@ -261,6 +262,22 @@ public class SiddhiAppRuntime {
 
     public Event[] query(StoreQuery storeQuery) {
         return query(storeQuery, null);
+    }
+
+    /**
+     * This method get the storeQuery and return the corresponding output and its types.
+     *
+     * @param storeQuery this storeQuery is processed and get the output attributes.
+     * @return List of output attributes
+     */
+    public List<Attribute> getStoreQueryOutputTypes(StoreQuery storeQuery) {
+        StoreQueryRuntime storeQueryRuntime = storeQueryRuntimeMap.get(storeQuery);
+        if (storeQueryRuntime == null) {
+            storeQueryRuntime = StoreQueryParser.parse(storeQuery, siddhiAppContext, tableMap, windowMap,
+                    aggregationMap);
+            storeQueryRuntimeMap.put(storeQuery, storeQueryRuntime);
+        }
+        return storeQueryRuntime.getStoreQueryOutputTypes();
     }
 
     private Event[] query(StoreQuery storeQuery, String storeQueryString) {
