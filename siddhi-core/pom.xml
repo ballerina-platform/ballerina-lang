@@ -21,7 +21,7 @@
     <parent>
         <artifactId>siddhi</artifactId>
         <groupId>org.wso2.siddhi</groupId>
-        <version>4.1.6</version>
+        <version>4.1.7-SNAPSHOT</version>
         <relativePath>../../pom.xml</relativePath>
 
     </parent>
