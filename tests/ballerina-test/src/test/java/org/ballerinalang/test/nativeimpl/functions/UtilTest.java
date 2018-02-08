@@ -134,17 +134,17 @@ public class UtilTest {
                 "Invalid return value");
         Assert.assertEquals(returnValues[0].intValue(), 15);
 
-        args = new BValue[]{new BString("0x012345abcdef")};
+        args = new BValue[]{new BString("0x3685f3cc")};
         returnValues = BRunUtil.invoke(compileResult, "testHexToDecimal", args);
         Assert.assertFalse(returnValues == null || returnValues.length < 2 || returnValues[0] == null,
                 "Invalid return value");
         Assert.assertEquals(returnValues[0].intValue(), 914748364);
 
-        args = new BValue[]{new BString("0xfedcba9876")};
+        args = new BValue[]{new BString("0x7ffffffe")};
         returnValues = BRunUtil.invoke(compileResult, "testHexToDecimal", args);
         Assert.assertFalse(returnValues == null || returnValues.length < 2 || returnValues[0] == null,
                 "Invalid return value");
-        Assert.assertEquals(returnValues[0].intValue(), 2147483647);
+        Assert.assertEquals(returnValues[0].intValue(), 2147483646);
     }
 
     @Test
@@ -161,17 +161,17 @@ public class UtilTest {
                 "Invalid return value");
         Assert.assertEquals(returnValues[0].stringValue(), "0xf");
 
-        args = new BValue[]{new BInteger(1251004370415)};
+        args = new BValue[]{new BInteger(914748364)};
         returnValues = BRunUtil.invoke(compileResult, "testDecimalToHex", args);
         Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null,
                 "Invalid return value");
-        Assert.assertEquals(returnValues[0].stringValue(), "0x012345abcdef");
+        Assert.assertEquals(returnValues[0].stringValue(), "0x3685f3cc");
 
-        args = new BValue[]{new BInteger(1094624909430)};
+        args = new BValue[]{new BInteger(2147483646)};
         returnValues = BRunUtil.invoke(compileResult, "testDecimalToHex", args);
         Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null,
                 "Invalid return value");
-        Assert.assertEquals(returnValues[0].stringValue(), "0xfedcba9876");
+        Assert.assertEquals(returnValues[0].stringValue(), "0x7ffffffe");
     }
 
 }
