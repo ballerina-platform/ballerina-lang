@@ -191,12 +191,6 @@ class ServiceNode extends React.Component {
                     rightComponents={rightComponents}
                     protocol={model.getProtocolPackageIdentifier().value}
                 >
-                    <ServiceTransportLine
-                        model={this.props.model}
-                        bBox={this.props.model.viewState.components.transportLine}
-                        resources={resources}
-                        addResource={this.state.addResource}
-                    />
                     {blockNode}
                     {connectors}
                 </PanelDecorator>
