@@ -34,14 +34,14 @@ import static org.ballerinalang.util.BLangConstants.USER_REPO_ARTIFACTS_DIRNAME;
 import static org.ballerinalang.util.BLangConstants.USER_REPO_SRC_DIRNAME;
 
 /**
- * Util class for network calls
+ * Util class for network calls.
  */
 public class NetworkUtils {
     private static final String BALLERINA_CENTRAL_REPOSITORY = "http://packages.ballerina.io/";
     private static CompileResult compileResult;
 
     /**
-     * Pull/Downloads packages from the package repository
+     * Pull/Downloads packages from the package repository.
      *
      * @param resourceName
      */
@@ -58,7 +58,7 @@ public class NetworkUtils {
     }
 
     /**
-     * Compile the bal file
+     * Compile the bal file.
      *
      * @return compile result after compiling the bal file
      */
