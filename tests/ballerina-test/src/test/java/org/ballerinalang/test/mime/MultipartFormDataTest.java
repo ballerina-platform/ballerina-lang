@@ -59,7 +59,6 @@ import static org.ballerinalang.mime.util.Constants.CONTENT_TRANSFER_ENCODING;
 import static org.ballerinalang.mime.util.Constants.CONTENT_TRANSFER_ENCODING_7_BIT;
 import static org.ballerinalang.mime.util.Constants.CONTENT_TRANSFER_ENCODING_8_BIT;
 import static org.ballerinalang.mime.util.Constants.ENTITY_HEADERS_INDEX;
-import static org.ballerinalang.mime.util.Constants.ENTITY_NAME_INDEX;
 import static org.ballerinalang.mime.util.Constants.FILE;
 import static org.ballerinalang.mime.util.Constants.FILE_PATH_INDEX;
 import static org.ballerinalang.mime.util.Constants.JSON_DATA_INDEX;
@@ -250,7 +249,7 @@ public class MultipartFormDataTest {
     private BStruct getTextBodyPart() {
         BStruct bodyPart = getEntityStruct();
         bodyPart.setStringField(TEXT_DATA_INDEX, "Ballerina text body part");
-        bodyPart.setStringField(ENTITY_NAME_INDEX, "Text Body Part");
+       // bodyPart.setStringField(ENTITY_NAME_INDEX, "Text Body Part");
         MimeUtil.setContentType(getMediaTypeStruct(), bodyPart, TEXT_PLAIN);
         return bodyPart;
     }
@@ -271,7 +270,7 @@ public class MultipartFormDataTest {
             fileStruct.setStringField(FILE_PATH_INDEX, file.getAbsolutePath());
             BStruct bodyPart = getEntityStruct();
             bodyPart.setRefField(OVERFLOW_DATA_INDEX, fileStruct);
-            bodyPart.setStringField(ENTITY_NAME_INDEX, "Text File Part");
+         //   bodyPart.setStringField(ENTITY_NAME_INDEX, "Text File Part");
             MimeUtil.setContentType(getMediaTypeStruct(), bodyPart, TEXT_PLAIN);
             return bodyPart;
         } catch (IOException e) {
@@ -298,7 +297,7 @@ public class MultipartFormDataTest {
             fileStruct.setStringField(FILE_PATH_INDEX, file.getAbsolutePath());
             BStruct bodyPart = getEntityStruct();
             bodyPart.setRefField(OVERFLOW_DATA_INDEX, fileStruct);
-            bodyPart.setStringField(ENTITY_NAME_INDEX, "Text File Part");
+         //   bodyPart.setStringField(ENTITY_NAME_INDEX, "Text File Part");
             MimeUtil.setContentType(getMediaTypeStruct(), bodyPart, TEXT_PLAIN);
             BMap<String, BValue> headerMap = new BMap<>();
             headerMap.put(CONTENT_TRANSFER_ENCODING, new BStringArray(new String[]{contentTransferEncoding}));
@@ -322,7 +321,7 @@ public class MultipartFormDataTest {
         String jsonContent = "{\"" + key + "\":\"" + value + "\"}";
         BStruct bodyPart = getEntityStruct();
         bodyPart.setRefField(JSON_DATA_INDEX, new BJSON(jsonContent));
-        bodyPart.setStringField(ENTITY_NAME_INDEX, "Json Body Part");
+     //   bodyPart.setStringField(ENTITY_NAME_INDEX, "Json Body Part");
         MimeUtil.setContentType(getMediaTypeStruct(), bodyPart, APPLICATION_JSON);
         return bodyPart;
     }
@@ -343,7 +342,7 @@ public class MultipartFormDataTest {
             fileStruct.setStringField(FILE_PATH_INDEX, file.getAbsolutePath());
             BStruct bodyPart = getEntityStruct();
             bodyPart.setRefField(OVERFLOW_DATA_INDEX, fileStruct);
-            bodyPart.setStringField(ENTITY_NAME_INDEX, "Json File Part");
+        //    bodyPart.setStringField(ENTITY_NAME_INDEX, "Json File Part");
             MimeUtil.setContentType(getMediaTypeStruct(), bodyPart, APPLICATION_JSON);
             return bodyPart;
         } catch (IOException e) {
@@ -362,7 +361,7 @@ public class MultipartFormDataTest {
         BXMLItem xmlContent = new BXMLItem("<name>Ballerina</name>");
         BStruct bodyPart = getEntityStruct();
         bodyPart.setRefField(XML_DATA_INDEX, xmlContent);
-        bodyPart.setStringField(ENTITY_NAME_INDEX, "Xml Body Part");
+    //    bodyPart.setStringField(ENTITY_NAME_INDEX, "Xml Body Part");
         MimeUtil.setContentType(getMediaTypeStruct(), bodyPart, APPLICATION_XML);
         return bodyPart;
     }
@@ -383,7 +382,7 @@ public class MultipartFormDataTest {
             fileStruct.setStringField(FILE_PATH_INDEX, file.getAbsolutePath());
             BStruct bodyPart = getEntityStruct();
             bodyPart.setRefField(OVERFLOW_DATA_INDEX, fileStruct);
-            bodyPart.setStringField(ENTITY_NAME_INDEX, "Xml File Part");
+        //    bodyPart.setStringField(ENTITY_NAME_INDEX, "Xml File Part");
             MimeUtil.setContentType(getMediaTypeStruct(), bodyPart, APPLICATION_XML);
             return bodyPart;
         } catch (IOException e) {
@@ -401,7 +400,7 @@ public class MultipartFormDataTest {
     private BStruct getBinaryBodyPart() {
         BStruct bodyPart = getEntityStruct();
         bodyPart.setBlobField(BYTE_DATA_INDEX, "Ballerina binary part".getBytes());
-        bodyPart.setStringField(ENTITY_NAME_INDEX, "Binary Body Part");
+    //    bodyPart.setStringField(ENTITY_NAME_INDEX, "Binary Body Part");
         MimeUtil.setContentType(getMediaTypeStruct(), bodyPart, OCTET_STREAM);
         return bodyPart;
     }
@@ -422,7 +421,7 @@ public class MultipartFormDataTest {
             fileStruct.setStringField(FILE_PATH_INDEX, file.getAbsolutePath());
             BStruct bodyPart = getEntityStruct();
             bodyPart.setRefField(OVERFLOW_DATA_INDEX, fileStruct);
-            bodyPart.setStringField(ENTITY_NAME_INDEX, "Binary File Part");
+         //   bodyPart.setStringField(ENTITY_NAME_INDEX, "Binary File Part");
             MimeUtil.setContentType(getMediaTypeStruct(), bodyPart, OCTET_STREAM);
             return bodyPart;
         } catch (IOException e) {

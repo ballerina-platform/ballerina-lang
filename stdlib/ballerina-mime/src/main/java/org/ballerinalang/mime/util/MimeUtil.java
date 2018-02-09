@@ -18,7 +18,6 @@
 
 package org.ballerinalang.mime.util;
 
-import io.netty.handler.codec.Headers;
 import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.multipart.FileUpload;
 import io.netty.handler.codec.http.multipart.HttpDataFactory;
@@ -68,6 +67,7 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 import javax.activation.MimeType;
 import javax.activation.MimeTypeParameterList;
@@ -84,12 +84,21 @@ import static org.ballerinalang.mime.util.Constants.BALLERINA_XML_DATA;
 import static org.ballerinalang.mime.util.Constants.BOUNDARY;
 import static org.ballerinalang.mime.util.Constants.BYTE_DATA_INDEX;
 import static org.ballerinalang.mime.util.Constants.BYTE_LIMIT;
+import static org.ballerinalang.mime.util.Constants.CONTENT_DISPOSITION;
+import static org.ballerinalang.mime.util.Constants.CONTENT_DISPOSITION_FILE_NAME;
+import static org.ballerinalang.mime.util.Constants.CONTENT_DISPOSITION_INDEX;
+import static org.ballerinalang.mime.util.Constants.CONTENT_DISPOSITION_NAME;
+import static org.ballerinalang.mime.util.Constants.CONTENT_DISPOSITION_PARA_MAP_INDEX;
+import static org.ballerinalang.mime.util.Constants.CONTENT_DISPOSITION_STRUCT;
+import static org.ballerinalang.mime.util.Constants.CONTENT_LENGTH;
 import static org.ballerinalang.mime.util.Constants.CONTENT_TRANSFER_ENCODING;
+import static org.ballerinalang.mime.util.Constants.DISPOSITION_INDEX;
 import static org.ballerinalang.mime.util.Constants.ENTITY;
 import static org.ballerinalang.mime.util.Constants.ENTITY_HEADERS_INDEX;
-import static org.ballerinalang.mime.util.Constants.ENTITY_NAME_INDEX;
+import static org.ballerinalang.mime.util.Constants.FILENAME_INDEX;
 import static org.ballerinalang.mime.util.Constants.FILE_PATH_INDEX;
 import static org.ballerinalang.mime.util.Constants.FILE_SIZE;
+import static org.ballerinalang.mime.util.Constants.FIRST_ELEMENT;
 import static org.ballerinalang.mime.util.Constants.IS_ENTITY_BODY_PRESENT;
 import static org.ballerinalang.mime.util.Constants.JSON_DATA_INDEX;
 import static org.ballerinalang.mime.util.Constants.JSON_EXTENSION;
@@ -98,6 +107,8 @@ import static org.ballerinalang.mime.util.Constants.MEDIA_TYPE_INDEX;
 import static org.ballerinalang.mime.util.Constants.MESSAGE_ENTITY;
 import static org.ballerinalang.mime.util.Constants.MULTIPART_DATA_INDEX;
 import static org.ballerinalang.mime.util.Constants.MULTIPART_FORM_DATA;
+import static org.ballerinalang.mime.util.Constants.NAME_INDEX;
+import static org.ballerinalang.mime.util.Constants.NO_CONTENT_LENGTH_FOUND;
 import static org.ballerinalang.mime.util.Constants.OCTET_STREAM;
 import static org.ballerinalang.mime.util.Constants.OVERFLOW_DATA_INDEX;
 import static org.ballerinalang.mime.util.Constants.PARAMETER_MAP_INDEX;
@@ -411,13 +422,13 @@ public class MimeUtil {
         return null;
     }
 
-        /**
-         * Construct 'MediaType' struct with the given Content-Type and set it into the given 'Entity'.
-         *
-         * @param mediaType    Represent 'MediaType' struct
-         * @param entityStruct Represent 'Entity' struct
-         * @param contentType  Content-Type value in string
-         */
+    /**
+     * Construct 'MediaType' struct with the given Content-Type and set it into the given 'Entity'.
+     *
+     * @param mediaType    Represent 'MediaType' struct
+     * @param entityStruct Represent 'Entity' struct
+     * @param contentType  Content-Type value in string
+     */
     public static void setContentType(BStruct mediaType, BStruct entityStruct, String contentType) {
         BStruct mimeType = parseMediaType(mediaType, contentType);
         if (contentType == null) {
@@ -912,11 +923,13 @@ public class MimeUtil {
      * @return a string denoting the body part's name
      */
     private static String getBodyPartName(BStruct bodyPart) {
-        String bodyPartName = bodyPart.getStringField(ENTITY_NAME_INDEX);
+      /*  String bodyPartName = bodyPart.getStringField(ENTITY_NAME_INDEX);
         if (bodyPartName == null || bodyPartName.isEmpty()) {
             bodyPartName = UUID.randomUUID().toString();
         }
-        return bodyPartName;
+        return bodyPartName;*/
+      return UUID.randomUUID().toString();
+
     }
 
     /**
@@ -1013,18 +1026,73 @@ public class MimeUtil {
         for (final MIMEPart mimePart : mimeParts) {
             BStruct partStruct = ConnectorUtils.createAndGetStruct(context, PROTOCOL_PACKAGE_MIME, ENTITY);
             BStruct mediaType = ConnectorUtils.createAndGetStruct(context, PROTOCOL_PACKAGE_MIME, MEDIA_TYPE);
-            partStruct.setIntField(SIZE_INDEX, Long.parseLong(mimePart.getHeader("content-length").get(0)));
-            //TODO: set body part headers
-            setBodyPartHeaders(mimePart.getAllHeaders());
+            partStruct.setRefField(ENTITY_HEADERS_INDEX, setBodyPartHeaders(mimePart.getAllHeaders(), new BMap<>()));
+            if (mimePart.getHeader(CONTENT_LENGTH).get(FIRST_ELEMENT) != null) {
+                setContentLength(partStruct, Integer.parseInt(mimePart.getHeader(CONTENT_LENGTH).get(FIRST_ELEMENT)));
+            } else {
+                setContentLength(partStruct, NO_CONTENT_LENGTH_FOUND);
+            }
             setContentType(mediaType, partStruct, mimePart.getContentType());
-            populateMimeBody(context, partStruct, mimePart);
+            if (mimePart.getHeader(CONTENT_DISPOSITION).get(FIRST_ELEMENT) != null) {
+                BStruct contentDisposition = ConnectorUtils.createAndGetStruct(context, PROTOCOL_PACKAGE_MIME,
+                        CONTENT_DISPOSITION_STRUCT);
+                setContentDisposition(contentDisposition, partStruct, mimePart.getHeader(CONTENT_DISPOSITION)
+                        .get(FIRST_ELEMENT));
+            }
+            populateBodyContent(context, partStruct, mimePart);
             bodyParts.add(partStruct);
         }
         setPartsToTopLevelEntity(entity, bodyParts);
     }
 
-    private static void setBodyPartHeaders(List<? extends Header> bodyPartHeaders) {
+    /**
+     * Set body part headers.
+     *
+     * @param bodyPartHeaders Represent decoded mime part headers
+     * @param headerMap       Represent ballerina header map
+     * @return a populated ballerina map with body part headers
+     */
+    private static BMap<String, BValue> setBodyPartHeaders(List<? extends Header> bodyPartHeaders,
+                                                           BMap<String, BValue> headerMap) {
+        for (final Header header : bodyPartHeaders) {
+            if (headerMap.keySet().contains(header.getName())) {
+                BStringArray valueArray = (BStringArray) headerMap.get(header.getName());
+                valueArray.add(valueArray.size(), header.getValue());
+            } else {
+                BStringArray valueArray = new BStringArray(new String[]{header.getValue()});
+                headerMap.put(header.getName(), valueArray);
+            }
+        }
+        return headerMap;
+    }
 
+    /**
+     * Populate ContentDisposition struct and set it to body part.
+     *
+     * @param contentDisposition       Represent the ContentDisposition struct that needs to be filled with values
+     * @param bodyPart                 Represent a body part
+     * @param contentDispositionHeader Represent Content-Disposition header value with parameters
+     */
+    private static void setContentDisposition(BStruct contentDisposition, BStruct bodyPart,
+                                              String contentDispositionHeader) {
+        contentDisposition.setStringField(DISPOSITION_INDEX, HeaderParser.getHeaderValue(contentDispositionHeader));
+        BMap<String, BValue> paramMap = HeaderParser.getParamMap(contentDispositionHeader);
+        if (paramMap != null) {
+            Set<String> keys = paramMap.keySet();
+            for (String key : keys) {
+                BString paramValue = (BString) paramMap.get(key);
+                switch (key) {
+                    case CONTENT_DISPOSITION_FILE_NAME:
+                        contentDisposition.setStringField(FILENAME_INDEX, paramValue.toString());
+                        break;
+                    case CONTENT_DISPOSITION_NAME:
+                        contentDisposition.setStringField(NAME_INDEX, paramValue.toString());
+                        break;
+                }
+            }
+        }
+        contentDisposition.setRefField(CONTENT_DISPOSITION_PARA_MAP_INDEX, paramMap);
+        bodyPart.setRefField(CONTENT_DISPOSITION_INDEX, contentDisposition);
     }
 
     /**
@@ -1043,17 +1111,17 @@ public class MimeUtil {
     }
 
     /**
-     * Populate ballerina body parts with actual body content. Based on the memory threshhold this this will either
+     * Populate ballerina body parts with actual body content. Based on the memory threshhold this will either
      * kept in memory or in a temp file.
      *
      * @param context  Represent ballerina context
      * @param bodyPart Represent ballerina body part
      * @param mimePart Represent decoded mime part
      */
-    private static void populateMimeBody(Context context, BStruct bodyPart, MIMEPart mimePart) {
+    private static void populateBodyContent(Context context, BStruct bodyPart, MIMEPart mimePart) {
         String baseType = getContentType(bodyPart);
         long contentLength = bodyPart.getIntField(SIZE_INDEX);
-        if (contentLength > Constants.BYTE_LIMIT) {
+        if (contentLength > Constants.BYTE_LIMIT || contentLength == NO_CONTENT_LENGTH_FOUND) {
             writeToTempFile(context, bodyPart, mimePart);
         } else {
             saveInMemory(bodyPart, mimePart, baseType);

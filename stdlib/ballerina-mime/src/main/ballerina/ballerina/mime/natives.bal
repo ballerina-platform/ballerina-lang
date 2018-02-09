@@ -29,11 +29,6 @@ should represent the header name and value will be the 'HeaderValue' struct"}
 connector, contents will be saved in a temporary file and can be accessed through this file handler"}
 @Field {value:"multipartData: Represent body parts(entities) of a multipart entity"}
 @Field {value:"size: Represent the size of the entity"}
-@Field {value:"fileName: Default filename for storing the bodypart, if the receiving agent wishes to store it in an
-external file"}
-@Field {value:"contentDisposition: Indicates how the body part should be presented (inline, attachment or as
-form-data)"}
-@Field {value:"name: Represent the field name in case of 'multipart/form-data'"}
 public struct Entity {
     MediaType contentType;
     string contentId;
@@ -45,19 +40,22 @@ public struct Entity {
     file:File overflowData;
     Entity[] multipartData;
     int size;
-    string fileName;
-    Disposition contentDisposition;
-    string name;
+    ContentDisposition contentDisposition;
 }
 
-@Description {value:"Indicates how the body part should be presented."}
-@Field {value:"INLINE: Is intended to be displayed automatically upon display of the message"}
-@Field {value:"ATTACHMENT: Indicate that the body part is separate from the main body of the top level message"}
-@Field {value:"FORM_DATA: When the media type is multipart/form-data, content disposition will be 'form-data'"}
-public enum Disposition {
-    INLINE,
-    ATTACHMENT,
-    FORM_DATA
+
+@Description {value:"Represent values in Content-Disposition header"}
+@Field {value:"fileName: Default filename for storing the bodypart, if the receiving agent wishes to store it in an
+external file"}
+@Field {value:"disposition: Indicates how the body part should be presented (inline, attachment or as
+form-data)"}
+@Field {value:"name: Represent the field name in case of 'multipart/form-data'"}
+@Field {value:"parameters: A set of parameters, specified in an attribute=value notation"}
+public struct ContentDisposition {
+    string fileName;
+    string disposition;
+    string name;
+    map parameters;
 }
 
 @Description {value:"Given an entity, get the text payload, either from the memory or from the file handler."}

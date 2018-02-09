@@ -531,23 +531,6 @@ public class HttpUtil {
         return headerMap;
     }
 
-    public static BMap<String, BValue> createParamBMap(List<String> paramList) {
-        BMap<String, BValue> paramMap = new BMap<>();
-        for (String param : paramList) {
-            if (param.contains("=")) {
-                String[] keyValuePair = param.split("=");
-                if (keyValuePair.length != 2 || keyValuePair[0].isEmpty()) {
-                    throw new BallerinaException("invalid header parameter: " + param);
-                }
-                paramMap.put(keyValuePair[0].trim(), new BString(keyValuePair[1].trim()));
-            } else {
-                //handle when parameter value is optional
-                paramMap.put(param.trim(), null);
-            }
-        }
-        return paramMap;
-    }
-
     /**
      * Set headers and properties of request/response struct to the outbound transport message.
      *
