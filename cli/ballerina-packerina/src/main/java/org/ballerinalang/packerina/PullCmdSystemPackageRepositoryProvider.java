@@ -31,7 +31,7 @@ public class PullCmdSystemPackageRepositoryProvider implements SystemPackageRepo
     private static final String JAR_SYSTEM_LIB_LOCATION = "/META-INF/ballerina/";
 
     /**
-     * Loads the package repository
+     * Loads the package repository.
      *
      * @return loaded package repository
      */
