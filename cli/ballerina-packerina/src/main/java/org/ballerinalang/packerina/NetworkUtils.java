@@ -52,7 +52,7 @@ public class NetworkUtils {
                 .resolve(USER_REPO_ARTIFACTS_DIRNAME)
                 .resolve(USER_REPO_SRC_DIRNAME);
 
-        String dstPath = targetDirectoryPath + File.separator + resourceName;
+        String dstPath = targetDirectoryPath + File.separator;
         String resourcePath = BALLERINA_CENTRAL_REPOSITORY + File.separator + resourceName;
 
         String[] arguments = new String[]{resourcePath, dstPath};
