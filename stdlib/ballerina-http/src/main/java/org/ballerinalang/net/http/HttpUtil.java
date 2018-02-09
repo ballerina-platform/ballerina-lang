@@ -38,20 +38,18 @@ import org.ballerinalang.connector.api.BallerinaConnectorException;
 import org.ballerinalang.connector.api.ConnectorUtils;
 import org.ballerinalang.connector.api.Resource;
 import org.ballerinalang.connector.api.Service;
+import org.ballerinalang.mime.util.EntityBodyHandler;
+import org.ballerinalang.mime.util.HeaderUtil;
 import org.ballerinalang.mime.util.MimeUtil;
-import org.ballerinalang.model.values.BJSON;
+import org.ballerinalang.mime.util.MultipartDecoder;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.model.values.BXML;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.net.http.session.Session;
-import org.ballerinalang.runtime.message.BlobDataSource;
-import org.ballerinalang.runtime.message.MessageDataSource;
-import org.ballerinalang.runtime.message.StringDataSource;
 import org.ballerinalang.services.ErrorHandlerUtils;
 import org.ballerinalang.util.codegen.AnnAttachmentInfo;
 import org.ballerinalang.util.codegen.AnnAttributeValue;
@@ -67,7 +65,6 @@ import org.wso2.transport.http.netty.config.Parameter;
 import org.wso2.transport.http.netty.contract.HttpResponseFuture;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 import org.wso2.transport.http.netty.message.HttpMessageDataStreamer;
-import org.wso2.transport.http.netty.message.MultipartRequestDecoder;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -81,8 +78,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import static org.ballerinalang.mime.util.Constants.APPLICATION_JSON;
-import static org.ballerinalang.mime.util.Constants.APPLICATION_XML;
 import static org.ballerinalang.mime.util.Constants.CONTENT_TYPE;
 import static org.ballerinalang.mime.util.Constants.ENTITY_HEADERS_INDEX;
 import static org.ballerinalang.mime.util.Constants.IS_ENTITY_BODY_PRESENT;
@@ -92,8 +87,6 @@ import static org.ballerinalang.mime.util.Constants.MULTIPART_DATA_INDEX;
 import static org.ballerinalang.mime.util.Constants.MULTIPART_ENCODER;
 import static org.ballerinalang.mime.util.Constants.NO_CONTENT_LENGTH_FOUND;
 import static org.ballerinalang.mime.util.Constants.OCTET_STREAM;
-import static org.ballerinalang.mime.util.Constants.TEXT_PLAIN;
-import static org.ballerinalang.mime.util.Constants.TEXT_XML;
 import static org.ballerinalang.net.http.Constants.ENTITY_INDEX;
 import static org.ballerinalang.net.http.Constants.HTTP_MESSAGE_INDEX;
 
@@ -162,7 +155,7 @@ public class HttpUtil {
         }
         HttpUtil.setHeaderToEntity(entity, CONTENT_TYPE, baseType);
         httpMessageStruct.addNativeData(MESSAGE_ENTITY, entity);
-        httpMessageStruct.addNativeData(IS_ENTITY_BODY_PRESENT, MimeUtil.checkEntityBodyAvailability(entity, baseType));
+        httpMessageStruct.addNativeData(IS_ENTITY_BODY_PRESENT, EntityBodyHandler.checkEntityBodyAvailability(entity, baseType));
         return AbstractNativeFunction.VOID_RETURN;
     }
 
@@ -256,7 +249,7 @@ public class HttpUtil {
         HttpMessageDataStreamer httpMessageDataStreamer = new HttpMessageDataStreamer(httpCarbonMessage);
         String contentType = httpCarbonMessage.getHeader(CONTENT_TYPE);
         if (isRequest && MimeUtil.isNotNullAndEmpty(contentType) && contentType.startsWith(MULTIPART_AS_PRIMARY_TYPE)) {
-            MimeUtil.decodeMultiparts(context, entity, contentType, httpMessageDataStreamer.getInputStream());
+            MultipartDecoder.parseBody(context, entity, contentType, httpMessageDataStreamer.getInputStream());
         } else {
             int contentLength = NO_CONTENT_LENGTH_FOUND;
             String lengthStr = httpCarbonMessage.getHeader(Constants.HTTP_CONTENT_LENGTH);
@@ -265,11 +258,11 @@ public class HttpUtil {
                 if (contentLength == NO_CONTENT_LENGTH_FOUND) {
                     contentLength = httpCarbonMessage.getFullMessageLength();
                 }
-                MimeUtil.setContentLength(entity, contentLength);
+                HeaderUtil.setContentLength(entity, contentLength);
             } catch (NumberFormatException e) {
                 throw new BallerinaException("Invalid content length");
             }
-            MimeUtil.handleDiscreteMediaTypeContent(context, entity, httpMessageDataStreamer.getInputStream());
+            EntityBodyHandler.handleDiscreteMediaTypeContent(context, entity, httpMessageDataStreamer.getInputStream());
         }
         httpMessageStruct.addNativeData(MESSAGE_ENTITY, entity);
         httpMessageStruct.addNativeData(IS_ENTITY_BODY_PRESENT, true);
@@ -511,7 +504,7 @@ public class HttpUtil {
         String lengthStr = cMsg.getHeader(Constants.HTTP_CONTENT_LENGTH);
         try {
             contentLength = lengthStr != null ? Integer.parseInt(lengthStr) : contentLength;
-            MimeUtil.setContentLength(entity, contentLength);
+            HeaderUtil.setContentLength(entity, contentLength);
         } catch (NumberFormatException e) {
             throw new BallerinaException("Invalid content length");
         }

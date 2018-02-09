@@ -18,7 +18,7 @@
 package org.ballerinalang.net.http.nativeimpl;
 
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.mime.util.HeaderParser;
+import org.ballerinalang.mime.util.HeaderUtil;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
@@ -67,10 +67,10 @@ public class ParseHeader extends AbstractNativeFunction {
 
     private BValue[] getValueAndParamMap(String headerValue) {
         String value = headerValue.trim();
-        return getBValues(new BString(value), HeaderParser.getParamMap(headerValue));
+        return getBValues(new BString(value), HeaderUtil.getParamMap(headerValue));
     }
 
     private BValue[] getParserError(Context context, String errMsg) {
-        return getBValues(null, null, HeaderParser.getParserError(context, errMsg));
+        return getBValues(null, null, HeaderUtil.getParserError(context, errMsg));
     }
 }

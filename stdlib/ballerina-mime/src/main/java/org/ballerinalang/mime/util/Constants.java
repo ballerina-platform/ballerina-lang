@@ -105,7 +105,7 @@ public class Constants {
     public static final int MEDIA_TYPE_INDEX = 0;
     public static final int ENTITY_HEADERS_INDEX = 1;
     public static final int MULTIPART_DATA_INDEX = 5;
-    public static final int CONTENT_DISPOSITION_INDEX = 0;
+    public static final int CONTENT_DISPOSITION_INDEX = 6;
 
     //Media type properties
     public static final int PRIMARY_TYPE_INDEX = 0;
