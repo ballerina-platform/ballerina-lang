@@ -101,10 +101,8 @@ public abstract class AbstractQueryableRecordTable extends AbstractRecordTable i
      *                          corresponding to the compiled condition and selection
      * @param compiledCondition the compiledCondition against which records should be matched
      * @param compiledSelection the compiledSelection that maps records based to requested format
-     *
-     * @throws ConnectionUnavailableException
-     *
      * @return RecordIterator of matching records
+     * @throws ConnectionUnavailableException
      */
     protected abstract RecordIterator<Object[]> query(Map<String, Object> parameterMap,
                                                       CompiledCondition compiledCondition,
@@ -112,6 +110,7 @@ public abstract class AbstractQueryableRecordTable extends AbstractRecordTable i
             throws ConnectionUnavailableException;
 
     public CompiledSelection compileSelection(Selector selector,
+                                              List<Attribute> expectedOutputAttributes,
                                               MatchingMetaInfoHolder matchingMetaInfoHolder,
                                               SiddhiAppContext siddhiAppContext,
                                               List<VariableExpressionExecutor> variableExpressionExecutors,

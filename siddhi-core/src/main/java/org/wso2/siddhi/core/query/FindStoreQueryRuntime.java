@@ -59,7 +59,7 @@ public class FindStoreQueryRuntime implements StoreQueryRuntime {
         this.queryName = queryName;
         this.eventType = metaStreamEvent.getEventType();
         this.metaStreamEvent = metaStreamEvent;
-        this.setOutputAttributes(metaStreamEvent.getInputDefinitions().get(0).getAttributeList());
+        this.setOutputAttributes(metaStreamEvent.getOutputStreamDefinition().getAttributeList());
     }
 
     public FindStoreQueryRuntime(Window window, CompiledCondition compiledCondition, String queryName,
@@ -69,7 +69,7 @@ public class FindStoreQueryRuntime implements StoreQueryRuntime {
         this.queryName = queryName;
         this.eventType = metaStreamEvent.getEventType();
         this.metaStreamEvent = metaStreamEvent;
-        this.setOutputAttributes(metaStreamEvent.getInputDefinitions().get(0).getAttributeList());
+        this.setOutputAttributes(metaStreamEvent.getOutputStreamDefinition().getAttributeList());
     }
 
     public FindStoreQueryRuntime(AggregationRuntime aggregation, CompiledCondition compiledCondition, String queryName,
@@ -79,7 +79,7 @@ public class FindStoreQueryRuntime implements StoreQueryRuntime {
         this.queryName = queryName;
         this.eventType = metaStreamEvent.getEventType();
         this.metaStreamEvent = metaStreamEvent;
-        this.setOutputAttributes(metaStreamEvent.getInputDefinitions().get(0).getAttributeList());
+        this.setOutputAttributes(metaStreamEvent.getOutputStreamDefinition().getAttributeList());
     }
 
     @Override

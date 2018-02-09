@@ -27,6 +27,7 @@ import org.wso2.siddhi.core.table.Table;
 import org.wso2.siddhi.core.util.collection.operator.CompiledCondition;
 import org.wso2.siddhi.core.util.collection.operator.CompiledSelection;
 import org.wso2.siddhi.core.util.collection.operator.MatchingMetaInfoHolder;
+import org.wso2.siddhi.query.api.definition.Attribute;
 import org.wso2.siddhi.query.api.execution.query.selection.Selector;
 
 import java.util.List;
@@ -48,10 +49,8 @@ public interface QueryableProcessor extends FindableProcessor {
      *                          the matchingEvent based on pool of events at Processor
      * @param compiledSelection the execution element responsible for transforming the corresponding events to the
      *                          given selection
-     *
-     * @throws ConnectionUnavailableException
-     *
      * @return the matched events
+     * @throws ConnectionUnavailableException
      */
     StreamEvent query(StateEvent matchingEvent, CompiledCondition compiledCondition,
                       CompiledSelection compiledSelection) throws ConnectionUnavailableException;
@@ -60,6 +59,7 @@ public interface QueryableProcessor extends FindableProcessor {
      * To construct a selection having the capability of transforming events based on given selection logic.
      *
      * @param selector                    the query selector
+     * @param expectedOutputAttributes
      * @param matchingMetaInfoHolder      the meta structure of the incoming matchingEvent
      * @param siddhiAppContext            current siddhi app context
      * @param variableExpressionExecutors the list of variable ExpressionExecutors already created
@@ -68,6 +68,7 @@ public interface QueryableProcessor extends FindableProcessor {
      * @return compiled Selection having the capability of transforming events based on the selection
      */
     CompiledSelection compileSelection(Selector selector,
+                                       List<Attribute> expectedOutputAttributes,
                                        MatchingMetaInfoHolder matchingMetaInfoHolder,
                                        SiddhiAppContext siddhiAppContext,
                                        List<VariableExpressionExecutor> variableExpressionExecutors,
