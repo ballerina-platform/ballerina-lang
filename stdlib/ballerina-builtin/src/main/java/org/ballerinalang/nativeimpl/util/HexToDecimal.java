@@ -24,6 +24,7 @@ import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
+import org.ballerinalang.util.exceptions.BallerinaException;
 
 /**
  * Native function ballerina.util:hexToDecimal.
@@ -39,9 +40,15 @@ import org.ballerinalang.natives.annotations.ReturnType;
 )
 public class HexToDecimal extends AbstractNativeFunction {
 
+    private static final String ERROR_PREFIX = "invalid character: ";
+
     @Override
     public BValue[] execute(Context context) {
-        String hexValue = getStringArgument(context, 0).substring(2);
-        return getBValues(new BInteger(Integer.parseInt(hexValue, 16)));
+        try {
+            String hexValue = getStringArgument(context, 0).substring(2);
+            return getBValues(new BInteger(Integer.parseInt(hexValue, 16)));
+        } catch (Throwable e) {
+            throw new BallerinaException(ERROR_PREFIX + e.getMessage());
+        }
     }
 }

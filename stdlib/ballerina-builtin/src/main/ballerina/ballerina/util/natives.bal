@@ -35,7 +35,7 @@ public native function base64ToBase16Encode (string baseString) (string);
 @Description {value:"Convert hex numbers into decimal numbers"}
 @Param {value:"hexValue: String of the hex number to be converted into decimal"}
 @Return {value:"Integer in decimal"}
-public native function hexToDecimal (string hexValue) (int, TypeConversionError);
+public native function hexToDecimal (string hexValue) (int);
 
 @Description {value:"Convert decimal numbers into hex numbers"}
 @Param {value:"decimalValue: Integer of the decimal number to be converted into hex"}

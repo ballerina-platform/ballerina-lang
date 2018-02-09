@@ -33,7 +33,7 @@ function testHMACValueFromBase64ToBase16Encoding (string base, string key) (stri
     return util:base64ToBase16Encode(util:base16ToBase64Encode(crypto:getHmac(base, key, crypto:Algorithm.MD5)));
 }
 
-function testHexToDecimal (string hexValue) (int, TypeConversionError) {
+function testHexToDecimal (string hexValue) (int) {
     return util:hexToDecimal(hexValue);
 }
 

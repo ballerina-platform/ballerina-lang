@@ -23,6 +23,7 @@ import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -125,27 +126,35 @@ public class UtilTest {
     public void testHexToDecimal() {
         BValue[] args = new BValue[]{new BString("0x0")};
         BValue[] returnValues = BRunUtil.invoke(compileResult, "testHexToDecimal", args);
-        Assert.assertFalse(returnValues == null || returnValues.length < 2 || returnValues[0] == null,
+        Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null,
                 "Invalid return value");
         Assert.assertEquals((BInteger) returnValues[0], new BInteger(0));
 
         args = new BValue[]{new BString("0xf")};
         returnValues = BRunUtil.invoke(compileResult, "testHexToDecimal", args);
-        Assert.assertFalse(returnValues == null || returnValues.length < 2 || returnValues[0] == null,
+        Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null,
                 "Invalid return value");
         Assert.assertEquals((BInteger) returnValues[0], new BInteger(15));
 
         args = new BValue[]{new BString("0x3685f3cc")};
         returnValues = BRunUtil.invoke(compileResult, "testHexToDecimal", args);
-        Assert.assertFalse(returnValues == null || returnValues.length < 2 || returnValues[0] == null,
+        Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null,
                 "Invalid return value");
         Assert.assertEquals((BInteger) returnValues[0], new BInteger(914748364));
 
         args = new BValue[]{new BString("0x7ffffffe")};
         returnValues = BRunUtil.invoke(compileResult, "testHexToDecimal", args);
-        Assert.assertFalse(returnValues == null || returnValues.length < 2 || returnValues[0] == null,
+        Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null,
                 "Invalid return value");
         Assert.assertEquals((BInteger) returnValues[0], new BInteger(2147483646));
+    }
+
+    @Test(description = "Test failed select query",
+            expectedExceptions = {BLangRuntimeException.class},
+            expectedExceptionsMessageRegExp = ".*message: invalid character: .*")
+    public void testHexToDecimalError() {
+        BValue[] args = new BValue[]{new BString("xyz")};
+        BValue[] returnValues = BRunUtil.invoke(compileResult, "testHexToDecimal", args);
     }
 
     @Test
@@ -173,5 +182,11 @@ public class UtilTest {
         Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null,
                 "Invalid return value");
         Assert.assertEquals(returnValues[0].stringValue(), "0x7ffffffe");
+
+        args = new BValue[]{new BInteger(-2147483646)};
+        returnValues = BRunUtil.invoke(compileResult, "testDecimalToHex", args);
+        Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null,
+                "Invalid return value");
+        Assert.assertEquals(returnValues[0].stringValue(), "0xffffffff80000002");
     }
 }
