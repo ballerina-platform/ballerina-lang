@@ -81,7 +81,7 @@ import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
-import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticLog;
+import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 import org.wso2.ballerinalang.programfile.InstructionCodes;
 import org.wso2.ballerinalang.util.Lists;
@@ -104,8 +104,8 @@ public class TypeChecker extends BLangNodeVisitor {
     private SymbolEnter symbolEnter;
     private SymbolResolver symResolver;
     private Types types;
-    private DiagnosticLog dlog;
     private IterableAnalyzer iterableAnalyzer;
+    private BLangDiagnosticLog dlog;
 
     private SymbolEnv env;
 
@@ -135,8 +135,8 @@ public class TypeChecker extends BLangNodeVisitor {
         this.symbolEnter = SymbolEnter.getInstance(context);
         this.symResolver = SymbolResolver.getInstance(context);
         this.types = Types.getInstance(context);
-        this.dlog = DiagnosticLog.getInstance(context);
         this.iterableAnalyzer = IterableAnalyzer.getInstance(context);
+        this.dlog = BLangDiagnosticLog.getInstance(context);
     }
 
     public List<BType> checkExpr(BLangExpression expr, SymbolEnv env) {
