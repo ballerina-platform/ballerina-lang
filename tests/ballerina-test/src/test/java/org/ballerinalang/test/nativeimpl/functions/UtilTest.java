@@ -1,27 +1,29 @@
 /*
-*   Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
-*
-*  WSO2 Inc. licenses this file to you under the Apache License,
-*  Version 2.0 (the "License"); you may not use this file except
-*  in compliance with the License.
-*  You may obtain a copy of the License at
-*
-*    http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing,
-* software distributed under the License is distributed on an
-* "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-* KIND, either express or implied.  See the License for the
-* specific language governing permissions and limitations
-* under the License.
-*/
+ *   Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ *  WSO2 Inc. licenses this file to you under the Apache License,
+ *  Version 2.0 (the "License"); you may not use this file except
+ *  in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
 package org.ballerinalang.test.nativeimpl.functions;
 
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
+import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -48,7 +50,7 @@ public class UtilTest {
         for (String s : stringsToTest) {
             BValue[] returnVals = BRunUtil.invoke(compileResult, "testEncodeDecode", new BValue[]{new BString(s)});
             Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
-                               "Invalid Return Values for :" + s);
+                    "Invalid Return Values for :" + s);
             Assert.assertEquals(returnVals[0].stringValue(), s, "Original and Return value didn't match");
         }
     }
@@ -57,7 +59,7 @@ public class UtilTest {
     public void testRandomString() {
         BValue[] returnValues = BRunUtil.invoke(compileResult, "testRandomString");
         Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null,
-                           "Invalid return value");
+                "Invalid return value");
     }
 
     @Test
@@ -66,7 +68,7 @@ public class UtilTest {
         BValue[] args = new BValue[]{new BString("Hello Ballerina")};
         BValue[] returnValues = BRunUtil.invoke(compileResult, "testBase64Encoding", args);
         Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null,
-                           "Invalid return value");
+                "Invalid return value");
         Assert.assertEquals(returnValues[0].stringValue(), expectedValue);
     }
 
@@ -76,7 +78,7 @@ public class UtilTest {
         BValue[] args = new BValue[]{new BString("SGVsbG8gQmFsbGVyaW5h")};
         BValue[] returnValues = BRunUtil.invoke(compileResult, "testBase64Decoding", args);
         Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null,
-                           "Invalid return value");
+                "Invalid return value");
         Assert.assertEquals(returnValues[0].stringValue(), expectedValue);
     }
 
@@ -86,7 +88,7 @@ public class UtilTest {
         BValue[] args = new BValue[]{new BString("48656C6C6F2042616C6C6572696E61")};
         BValue[] returnValues = BRunUtil.invoke(compileResult, "testBase16ToBase64Encoding", args);
         Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null,
-                           "Invalid return value");
+                "Invalid return value");
         Assert.assertEquals(returnValues[0].stringValue(), expectedValue);
     }
 
@@ -96,7 +98,7 @@ public class UtilTest {
         BValue[] args = new BValue[]{new BString("SGVsbG8gQmFsbGVyaW5h")};
         BValue[] returnValues = BRunUtil.invoke(compileResult, "testBase64ToBase16Encoding", args);
         Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null,
-                           "Invalid return value");
+                "Invalid return value");
         Assert.assertEquals(returnValues[0].stringValue(), expectedValue);
     }
 
@@ -106,7 +108,7 @@ public class UtilTest {
         BValue[] args = new BValue[]{new BString("Hello Ballerina"), new BString("abcdefghijk")};
         BValue[] returnValues = BRunUtil.invoke(compileResult, "testHMACValueFromBase16ToBase64Encoding", args);
         Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null,
-                           "Invalid return value");
+                "Invalid return value");
         Assert.assertEquals(returnValues[0].stringValue(), expectedValue);
     }
 
@@ -116,7 +118,75 @@ public class UtilTest {
         BValue[] args = new BValue[]{new BString("Hello Ballerina"), new BString("abcdefghijk")};
         BValue[] returnValues = BRunUtil.invoke(compileResult, "testHMACValueFromBase64ToBase16Encoding", args);
         Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null,
-                           "Invalid return value");
+                "Invalid return value");
         Assert.assertEquals(returnValues[0].stringValue(), expectedValue);
+    }
+
+    @Test
+    public void testHexToDecimal() {
+        BValue[] args = new BValue[]{new BString("0x0")};
+        BValue[] returnValues = BRunUtil.invoke(compileResult, "testHexToDecimal", args);
+        Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null,
+                "Invalid return value");
+        Assert.assertEquals((BInteger) returnValues[0], new BInteger(0));
+
+        args = new BValue[]{new BString("0xf")};
+        returnValues = BRunUtil.invoke(compileResult, "testHexToDecimal", args);
+        Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null,
+                "Invalid return value");
+        Assert.assertEquals((BInteger) returnValues[0], new BInteger(15));
+
+        args = new BValue[]{new BString("0x3685f3cc")};
+        returnValues = BRunUtil.invoke(compileResult, "testHexToDecimal", args);
+        Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null,
+                "Invalid return value");
+        Assert.assertEquals((BInteger) returnValues[0], new BInteger(914748364));
+
+        args = new BValue[]{new BString("0x7ffffffe")};
+        returnValues = BRunUtil.invoke(compileResult, "testHexToDecimal", args);
+        Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null,
+                "Invalid return value");
+        Assert.assertEquals((BInteger) returnValues[0], new BInteger(2147483646));
+    }
+
+    @Test(description = "Test failed select query",
+            expectedExceptions = {BLangRuntimeException.class},
+            expectedExceptionsMessageRegExp = ".*message: invalid character: .*")
+    public void testHexToDecimalError() {
+        BValue[] args = new BValue[]{new BString("xyz")};
+        BValue[] returnValues = BRunUtil.invoke(compileResult, "testHexToDecimal", args);
+    }
+
+    @Test
+    public void testDecimalToHex() {
+        BValue[] args = new BValue[]{new BInteger(0)};
+        BValue[] returnValues = BRunUtil.invoke(compileResult, "testDecimalToHex", args);
+        Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null,
+                "Invalid return value");
+        Assert.assertEquals(returnValues[0].stringValue(), "0x0");
+
+        args = new BValue[]{new BInteger(15)};
+        returnValues = BRunUtil.invoke(compileResult, "testDecimalToHex", args);
+        Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null,
+                "Invalid return value");
+        Assert.assertEquals(returnValues[0].stringValue(), "0xf");
+
+        args = new BValue[]{new BInteger(914748364)};
+        returnValues = BRunUtil.invoke(compileResult, "testDecimalToHex", args);
+        Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null,
+                "Invalid return value");
+        Assert.assertEquals(returnValues[0].stringValue(), "0x3685f3cc");
+
+        args = new BValue[]{new BInteger(2147483646)};
+        returnValues = BRunUtil.invoke(compileResult, "testDecimalToHex", args);
+        Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null,
+                "Invalid return value");
+        Assert.assertEquals(returnValues[0].stringValue(), "0x7ffffffe");
+
+        args = new BValue[]{new BInteger(-2147483646)};
+        returnValues = BRunUtil.invoke(compileResult, "testDecimalToHex", args);
+        Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null,
+                "Invalid return value");
+        Assert.assertEquals(returnValues[0].stringValue(), "0xffffffff80000002");
     }
 }
