@@ -31,7 +31,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 import org.wso2.ballerinalang.compiler.util.Names;
-import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticLog;
+import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.programfile.ProgramFile;
 
 /**
@@ -43,7 +43,7 @@ public class Compiler {
             new CompilerContext.Key<>();
 
     private CompilerOptions options;
-    private DiagnosticLog dlog;
+    private BLangDiagnosticLog dlog;
     private PackageLoader pkgLoader;
     private SymbolTable symbolTable;
     private SemanticAnalyzer semAnalyzer;
@@ -70,7 +70,7 @@ public class Compiler {
         context.put(COMPILER_KEY, this);
 
         this.options = CompilerOptions.getInstance(context);
-        this.dlog = DiagnosticLog.getInstance(context);
+        this.dlog = BLangDiagnosticLog.getInstance(context);
         this.pkgLoader = PackageLoader.getInstance(context);
         this.symbolTable = SymbolTable.getInstance(context);
         this.semAnalyzer = SemanticAnalyzer.getInstance(context);

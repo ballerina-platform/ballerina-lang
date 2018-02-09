@@ -103,7 +103,7 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangValueType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
-import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticLog;
+import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
 import java.util.ArrayList;
@@ -136,7 +136,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     private int forkJoinCount;
     private int workerCount;
     private SymbolEnter symbolEnter;
-    private DiagnosticLog dlog;
+    private BLangDiagnosticLog dlog;
     private TypeChecker typeChecker;
     private Stack<WorkerActionSystem> workerActionSystemStack = new Stack<>();
     private Stack<Boolean> loopWithintransactionCheckStack = new Stack<>();
@@ -152,7 +152,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     public CodeAnalyzer(CompilerContext context) {
         context.put(CODE_ANALYZER_KEY, this);
         this.symbolEnter = SymbolEnter.getInstance(context);
-        this.dlog = DiagnosticLog.getInstance(context);
+        this.dlog = BLangDiagnosticLog.getInstance(context);
         this.typeChecker = TypeChecker.getInstance(context);
     }
 

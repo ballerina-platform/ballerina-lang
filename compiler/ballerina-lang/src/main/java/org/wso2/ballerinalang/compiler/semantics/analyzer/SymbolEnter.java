@@ -91,7 +91,7 @@ import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.NodeUtils;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
-import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticLog;
+import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 import org.wso2.ballerinalang.util.Flags;
 
@@ -118,7 +118,7 @@ public class SymbolEnter extends BLangNodeVisitor {
     private SymbolTable symTable;
     private Names names;
     private SymbolResolver symResolver;
-    private DiagnosticLog dlog;
+    private BLangDiagnosticLog dlog;
 
     private BLangPackage rootPkgNode;
 
@@ -145,7 +145,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         this.symTable = SymbolTable.getInstance(context);
         this.names = Names.getInstance(context);
         this.symResolver = SymbolResolver.getInstance(context);
-        this.dlog = DiagnosticLog.getInstance(context);
+        this.dlog = BLangDiagnosticLog.getInstance(context);
 
         this.rootPkgNode = (BLangPackage) TreeBuilder.createPackageNode();
         this.rootPkgNode.symbol = symTable.rootPkgSymbol;
