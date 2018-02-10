@@ -19,6 +19,7 @@
 package org.ballerinalang.net.http.nativeimpl.connection;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.mime.util.EntityBodyHandler;
 import org.ballerinalang.mime.util.MimeUtil;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
@@ -66,10 +67,10 @@ public abstract class ConnectionAction extends AbstractNativeFunction {
         HttpResponseFuture outboundRespStatusFuture = HttpUtil.sendOutboundResponse(requestMessage, responseMessage);
         if (entityStruct != null) {
             String baseType = MimeUtil.getContentType(entityStruct);
-            if (MimeUtil.isContentInMemory(entityStruct, baseType)) {
-                MessageDataSource outboundMessageSource = MimeUtil.readMessageDataSource(entityStruct);
+            if (EntityBodyHandler.isContentInMemory(entityStruct, baseType)) {
+                MessageDataSource outboundMessageSource = EntityBodyHandler.readMessageDataSource(entityStruct);
                 serializeMsgDataSource(responseMessage, outboundMessageSource, outboundRespStatusFuture);
-            } else if (MimeUtil.isOverFlowDataNotNull(entityStruct)) {
+            } else if (EntityBodyHandler.isOverFlowDataNotNull(entityStruct)) {
                 writeToOutputStreamFromFile(context, responseMessage, entityStruct, outboundRespStatusFuture);
             }
         }
@@ -78,7 +79,7 @@ public abstract class ConnectionAction extends AbstractNativeFunction {
 
     private void writeToOutputStreamFromFile(Context context, HTTPCarbonMessage responseMessage, BStruct entityStruct,
                                              HttpResponseFuture outboundRespStatusFuture) {
-        String overFlowFilePath = MimeUtil.getOverFlowFileLocation(entityStruct);
+        String overFlowFilePath = EntityBodyHandler.getOverFlowFileLocation(entityStruct);
         HttpMessageDataStreamer outboundMsgDataStreamer = new HttpMessageDataStreamer(responseMessage);
         HttpConnectorListener outboundResStatusConnectorListener =
                 new HttpResponseConnectorListener(outboundMsgDataStreamer);

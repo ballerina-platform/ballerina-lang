@@ -142,12 +142,12 @@ public class MultipartDataSource extends BallerinaMessageDataSource {
 
     private void writeBodyContent(OutputStream outputStream, BStruct bodyPart) throws IOException {
         String baseType = MimeUtil.getContentType(bodyPart);
-        if (MimeUtil.isContentInMemory(bodyPart, baseType)) {
-            MessageDataSource messageDataSource = MimeUtil.readMessageDataSource(bodyPart);
+        if (EntityBodyHandler.isContentInMemory(bodyPart, baseType)) {
+            MessageDataSource messageDataSource = EntityBodyHandler.readMessageDataSource(bodyPart);
             if (messageDataSource != null) {
                 messageDataSource.serializeData(outputStream);
             }
-        } else if (MimeUtil.isOverFlowDataNotNull(bodyPart)) {
+        } else if (EntityBodyHandler.isOverFlowDataNotNull(bodyPart)) {
             MimeUtil.writeFileToOutputStream(bodyPart, outputStream);
         }
     }

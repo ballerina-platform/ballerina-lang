@@ -22,6 +22,7 @@ import io.netty.handler.codec.http.HttpHeaders;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.connector.api.AbstractNativeAction;
 import org.ballerinalang.connector.api.BallerinaConnectorException;
+import org.ballerinalang.mime.util.EntityBodyHandler;
 import org.ballerinalang.mime.util.MimeUtil;
 import org.ballerinalang.mime.util.MultipartDataSource;
 import org.ballerinalang.model.types.BStructType;
@@ -254,14 +255,14 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
         BStruct entityStruct = MimeUtil.extractEntity(requestStruct);
         if (entityStruct != null) {
             String baseType = MimeUtil.getContentType(entityStruct);
-            if (MimeUtil.isContentInMemory(entityStruct, baseType)) {
-                MessageDataSource messageDataSource = MimeUtil.readMessageDataSource(entityStruct);
+            if (EntityBodyHandler.isContentInMemory(entityStruct, baseType)) {
+                MessageDataSource messageDataSource = EntityBodyHandler.readMessageDataSource(entityStruct);
                 if (messageDataSource != null) {
                     OutputStream messageOutputStream = getOutputStream(outboundReqMsg, httpClientConnectorListener);
                     messageDataSource.serializeData(messageOutputStream);
                     HttpUtil.closeMessageOutputStream(messageOutputStream);
                 }
-            } else if (MimeUtil.isOverFlowDataNotNull(entityStruct)) {
+            } else if (EntityBodyHandler.isOverFlowDataNotNull(entityStruct)) {
                 OutputStream messageOutputStream = getOutputStream(outboundReqMsg, httpClientConnectorListener);
                 try {
                     MimeUtil.writeFileToOutputStream(entityStruct, messageOutputStream);

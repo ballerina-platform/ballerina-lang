@@ -95,9 +95,9 @@ public class MultipartDecoder {
                         CONTENT_DISPOSITION_STRUCT);
                 HeaderUtil.setContentDisposition(contentDisposition, partStruct, contentDispositionHeaders.get(FIRST_ELEMENT));
             }
-            MimeUtil.populateBodyContent(context, partStruct, mimePart);
+            EntityBodyHandler.populateBodyContent(context, partStruct, mimePart);
             bodyParts.add(partStruct);
         }
-        MimeUtil.setPartsToTopLevelEntity(entity, bodyParts);
+        EntityBodyHandler.setPartsToTopLevelEntity(entity, bodyParts);
     }
 }

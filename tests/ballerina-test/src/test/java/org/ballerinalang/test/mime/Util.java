@@ -31,9 +31,12 @@ import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 import java.io.BufferedWriter;
 import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStreamWriter;
+import java.io.Writer;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -63,6 +66,7 @@ import static org.ballerinalang.mime.util.Constants.TEMP_FILE_EXTENSION;
 import static org.ballerinalang.mime.util.Constants.TEMP_FILE_NAME;
 import static org.ballerinalang.mime.util.Constants.TEXT_DATA_INDEX;
 import static org.ballerinalang.mime.util.Constants.TEXT_PLAIN;
+import static org.ballerinalang.mime.util.Constants.UTF_8;
 import static org.ballerinalang.mime.util.Constants.XML_DATA_INDEX;
 import static org.ballerinalang.mime.util.Constants.XML_EXTENSION;
 
@@ -603,7 +607,7 @@ public class Util {
             throws IOException {
         File file = File.createTempFile(TEMP_FILE_NAME, fileExtension);
         file.deleteOnExit();
-        MimeUtil.writeToTempFile(file, actualContent);
+        writeToTempFile(file, actualContent);
         FileUploadContentHolder contentHolder = new FileUploadContentHolder();
         contentHolder.setRequest(request);
         contentHolder.setBodyPartName(bodyPartName);
@@ -664,5 +668,20 @@ public class Util {
         }
         return bodyPartName;*/
         return UUID.randomUUID().toString();
+    }
+
+    /**
+     * Write content to temp file through a file writer.
+     *
+     * @param file            Represent the file that the content needs to be written to
+     * @param messageAsString Actual content that needs to be written
+     * @throws IOException In case an exception occurs when writing to temp file
+     */
+    public static void writeToTempFile(File file, String messageAsString) throws IOException {
+        try (Writer writer = new OutputStreamWriter(new FileOutputStream(file), UTF_8);
+             BufferedWriter bufferedWriter = new BufferedWriter(writer);) {
+            bufferedWriter.write(messageAsString);
+            bufferedWriter.close();
+        }
     }
 }
