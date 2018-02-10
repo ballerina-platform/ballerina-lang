@@ -85,18 +85,6 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
         HttpUtil.checkEntityAvailability(context, requestStruct);
         HttpUtil.enrichOutboundMessage(requestMsg, requestStruct);
         prepareOutboundRequest(bConnector, path, requestMsg);
-        try {
-            String contentType = requestMsg.getHeader(CONTENT_TYPE);
-            if (contentType != null) {
-                MimeType mimeType = new MimeType(contentType);
-                if (MULTIPART_FORM_DATA.equals(mimeType.getBaseType())) {
-                    HttpUtil.prepareRequestWithMultiparts(requestMsg, requestStruct);
-                }
-            }
-        } catch (MimeTypeParseException e) {
-            logger.error("Error occurred while parsing Content-Type header in createOutboundRequestMsg",
-                    e.getMessage());
-        }
         return requestMsg;
     }
 
@@ -234,9 +222,6 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
 
         if (contentType != null && contentType.startsWith(MULTIPART_AS_PRIMARY_TYPE)) {
             BStruct requestStruct = ((BStruct) getRefArgument(context, 1));
-           /* HttpUtil.addMultipartsToCarbonMessage(outboundRequestMsg,
-                    (HttpPostRequestEncoder) requestStruct.getNativeData(MULTIPART_ENCODER));*/
-            //TODO: send multiparts
             BStruct entityStruct = requestStruct.getNativeData(MESSAGE_ENTITY) != null ?
                     (BStruct) requestStruct.getNativeData(MESSAGE_ENTITY) : null;
             if (entityStruct != null) {

@@ -160,54 +160,6 @@ public class HttpUtil {
     }
 
     /**
-     * Prepare carbon request message with multiparts.
-     *
-     * @param outboundRequest Represent outbound carbon request
-     * @param requestStruct   Ballerina request struct which contains multipart data
-     */
-    public static void prepareRequestWithMultiparts(HTTPCarbonMessage outboundRequest, BStruct requestStruct) {
-        BStruct entityStruct = requestStruct.getNativeData(MESSAGE_ENTITY) != null ?
-                (BStruct) requestStruct.getNativeData(MESSAGE_ENTITY) : null;
-        if (entityStruct != null) {
-            BRefValueArray bodyParts = entityStruct.getRefField(MULTIPART_DATA_INDEX) != null ?
-                    (BRefValueArray) entityStruct.getRefField(MULTIPART_DATA_INDEX) : null;
-            if (bodyParts != null) {
-                HttpDataFactory dataFactory = new DefaultHttpDataFactory(DefaultHttpDataFactory.MINSIZE);
-                MimeUtil.setDataFactory(dataFactory);
-                try {
-                    HttpPostRequestEncoder nettyEncoder = new HttpPostRequestEncoder(dataFactory,
-                            outboundRequest.getNettyHttpRequest(), true);
-                    for (int i = 0; i < bodyParts.size(); i++) {
-                        BStruct bodyPart = (BStruct) bodyParts.get(i);
-                        MimeUtil.encodeBodyPart(nettyEncoder, outboundRequest.getNettyHttpRequest(),
-                                bodyPart);
-                    }
-                    nettyEncoder.finalizeRequest();
-                    requestStruct.addNativeData(MULTIPART_ENCODER, nettyEncoder);
-                } catch (HttpPostRequestEncoder.ErrorDataEncoderException e) {
-                    log.error("Error occurred while creating netty request encoder for multipart data binding",
-                            e.getMessage());
-                }
-            }
-        }
-    }
-
-    /**
-     * Read http content chunk by chunk from netty encoder and add it to carbon message.
-     *
-     * @param httpRequestMsg Represent carbon message that the content should be added to
-     * @param nettyEncoder   Represent netty encoder that holds the actual http content
-     * @throws Exception In case content cannot be read from netty encoder
-     */
-    public static void addMultipartsToCarbonMessage(HTTPCarbonMessage httpRequestMsg,
-                                                    HttpPostRequestEncoder nettyEncoder) throws Exception {
-        while (!nettyEncoder.isEndOfInput()) {
-            httpRequestMsg.addHttpContent(nettyEncoder.readChunk(ByteBufAllocator.DEFAULT));
-        }
-        nettyEncoder.cleanFiles();
-    }
-
-    /**
      * Get the entity from request or response.
      *
      * @param context                Ballerina context
