@@ -272,7 +272,7 @@ public class MimeUtilityFunctionTest {
             HTTPCarbonMessage response = Services.invokeNew(serviceResult, cMsg);
             Assert.assertNotNull(response, "Response message not found");
             String temporaryFilePath = ResponseReader.getReturnValue(response);
-            boolean isCorrectTempFileCreated = temporaryFilePath.startsWith("/tmp/ballerinaBinaryPayload");
+            boolean isCorrectTempFileCreated = temporaryFilePath.startsWith("/tmp/BallerinaBinaryPayload");
             Assert.assertEquals(isCorrectTempFileCreated, true);
             File file = new File(temporaryFilePath);
             file.delete();

@@ -1,5 +1,22 @@
-package org.ballerinalang.mime.util;
+/*
+*  Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+*
+*  WSO2 Inc. licenses this file to you under the Apache License,
+*  Version 2.0 (the "License"); you may not use this file except
+*  in compliance with the License.
+*  You may obtain a copy of the License at
+*
+*    http://www.apache.org/licenses/LICENSE-2.0
+*
+*  Unless required by applicable law or agreed to in writing,
+*  software distributed under the License is distributed on an
+*  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+*  KIND, either express or implied.  See the License for the
+*  specific language governing permissions and limitations
+*  under the License.
+*/
 
+package org.ballerinalang.mime.util;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.BStructType;
@@ -47,6 +64,8 @@ import static org.ballerinalang.mime.util.Constants.XML_DATA_INDEX;
 
 /**
  * Entity body related operations are included here.
+ *
+ *  @since 0.967 >> TODO:Whats the next version?
  */
 public class EntityBodyHandler {
     private static final Logger LOG = LoggerFactory.getLogger(EntityBodyHandler.class);
@@ -61,7 +80,7 @@ public class EntityBodyHandler {
      * @param inputStream   Represent input stream coming from the request/response
      * @param contentLength Content length of the request
      */
-    public static void readAndSetStringPayload(Context context, BStruct entityStruct, InputStream inputStream,
+    private static void readAndSetStringPayload(Context context, BStruct entityStruct, InputStream inputStream,
                                                long contentLength) {
         if (contentLength > Constants.BYTE_LIMIT) {
             String temporaryFilePath = MimeUtil.writeToTemporaryFile(inputStream, BALLERINA_TEXT_DATA);
@@ -82,7 +101,7 @@ public class EntityBodyHandler {
      * @param inputStream   Represent input stream coming from the request/response
      * @param contentLength Content length of the request
      */
-    public static void readAndSetJsonPayload(Context context, BStruct entityStruct, InputStream inputStream,
+    private static void readAndSetJsonPayload(Context context, BStruct entityStruct, InputStream inputStream,
                                              long contentLength) {
         if (contentLength > Constants.BYTE_LIMIT) {
             String temporaryFilePath = MimeUtil.writeToTemporaryFile(inputStream, BALLERINA_JSON_DATA);
@@ -103,7 +122,7 @@ public class EntityBodyHandler {
      * @param inputStream   Represent input stream coming from the request/response
      * @param contentLength Content length of the request
      */
-    public static void readAndSetXmlPayload(Context context, BStruct entityStruct, InputStream inputStream,
+    private static void readAndSetXmlPayload(Context context, BStruct entityStruct, InputStream inputStream,
                                             long contentLength) {
         if (contentLength > Constants.BYTE_LIMIT) {
             String temporaryFilePath = MimeUtil.writeToTemporaryFile(inputStream, BALLERINA_XML_DATA);
@@ -124,7 +143,7 @@ public class EntityBodyHandler {
      * @param inputStream   Represent input stream coming from the request/response
      * @param contentLength Content length of the request
      */
-    public static void readAndSetBinaryPayload(Context context, BStruct entityStruct, InputStream inputStream,
+     private static void readAndSetBinaryPayload(Context context, BStruct entityStruct, InputStream inputStream,
                                                long contentLength) {
         if (contentLength > Constants.BYTE_LIMIT) {
             String temporaryFilePath = MimeUtil.writeToTemporaryFile(inputStream, BALLERINA_BINARY_DATA);
@@ -146,13 +165,9 @@ public class EntityBodyHandler {
      * @param entity Represent 'Entity' struct
      * @return a boolean denoting the availability of text payload
      */
-    public static boolean isTextBodyPresent(BStruct entity) {
+    private static boolean isTextBodyPresent(BStruct entity) {
         String textPayload = entity.getStringField(TEXT_DATA_INDEX);
-        if (MimeUtil.isNotNullAndEmpty(textPayload)) {
-            return true;
-        } else {
-            return isOverFlowDataNotNull(entity);
-        }
+        return MimeUtil.isNotNullAndEmpty(textPayload) || isOverFlowDataNotNull(entity);
     }
 
     /**
@@ -161,7 +176,7 @@ public class EntityBodyHandler {
      * @param entity Represent 'Entity' struct
      * @return a boolean denoting the availability of json payload
      */
-    public static boolean isJsonBodyPresent(BStruct entity) {
+    private static boolean isJsonBodyPresent(BStruct entity) {
         BRefType jsonRefType = entity.getRefField(JSON_DATA_INDEX);
         if (jsonRefType != null) {
             BJSON jsonPayload = (BJSON) entity.getRefField(JSON_DATA_INDEX);
@@ -180,7 +195,7 @@ public class EntityBodyHandler {
      * @param entity Represent 'Entity' struct
      * @return a boolean denoting the availability of xml payload
      */
-    public static boolean isXmlBodyPresent(BStruct entity) {
+    private static boolean isXmlBodyPresent(BStruct entity) {
         BRefType xmlRefType = entity.getRefField(XML_DATA_INDEX);
         if (xmlRefType != null) {
             BXML xmlPayload = (BXML) entity.getRefField(XML_DATA_INDEX);
@@ -199,13 +214,9 @@ public class EntityBodyHandler {
      * @param entity Represent 'Entity' struct
      * @return a boolean denoting the availability of binary payload
      */
-    public static boolean isBinaryBodyPresent(BStruct entity) {
+    private static boolean isBinaryBodyPresent(BStruct entity) {
         byte[] binaryPayload = entity.getBlobField(BYTE_DATA_INDEX);
-        if (binaryPayload != null) {
-            return true;
-        } else {
-            return isOverFlowDataNotNull(entity);
-        }
+        return binaryPayload != null || isOverFlowDataNotNull(entity);
     }
 
     /**
@@ -214,11 +225,8 @@ public class EntityBodyHandler {
      * @param entity Represent 'Entity' struct
      * @return a boolean denoting the availability of binary payload
      */
-    public static boolean isMultipartsAvailable(BStruct entity) {
-        if (entity.getRefField(MULTIPART_DATA_INDEX) != null) {
-            return true;
-        }
-        return false;
+    private static boolean isMultipartsAvailable(BStruct entity) {
+        return entity.getRefField(MULTIPART_DATA_INDEX) != null;
     }
 
     /**
@@ -390,7 +398,7 @@ public class EntityBodyHandler {
      * @param entity    Represent top level message's entity
      * @param bodyParts Represent ballerina body parts
      */
-    public static void setPartsToTopLevelEntity(BStruct entity, ArrayList<BStruct> bodyParts) {
+    static void setPartsToTopLevelEntity(BStruct entity, ArrayList<BStruct> bodyParts) {
         if (!bodyParts.isEmpty()) {
             BStructType typeOfBodyPart = bodyParts.get(0).getType();
             BStruct[] result = bodyParts.toArray(new BStruct[bodyParts.size()]);
@@ -407,7 +415,7 @@ public class EntityBodyHandler {
      * @param bodyPart Represent ballerina body part
      * @param mimePart Represent decoded mime part
      */
-    public static void populateBodyContent(Context context, BStruct bodyPart, MIMEPart mimePart) {
+    static void populateBodyContent(Context context, BStruct bodyPart, MIMEPart mimePart) {
         String baseType = MimeUtil.getContentType(bodyPart);
         long contentLength = bodyPart.getIntField(SIZE_INDEX);
         if (contentLength > Constants.BYTE_LIMIT || contentLength == NO_CONTENT_LENGTH_FOUND) {
@@ -484,10 +492,7 @@ public class EntityBodyHandler {
 
     private static boolean isBinaryPayloadInMemory(BStruct entity) {
         byte[] binaryPayload = entity.getBlobField(BYTE_DATA_INDEX);
-        if (binaryPayload != null) {
-            return true;
-        }
-        return false;
+        return binaryPayload != null;
     }
 
     private static boolean isXmlPayloadInMemory(BStruct entity) {
@@ -514,10 +519,7 @@ public class EntityBodyHandler {
 
     private static boolean isTextPayloadInMemory(BStruct entity) {
         String textPayload = entity.getStringField(TEXT_DATA_INDEX);
-        if (MimeUtil.isNotNullAndEmpty(textPayload)) {
-            return true;
-        }
-        return false;
+        return MimeUtil.isNotNullAndEmpty(textPayload);
     }
 
     /**
@@ -528,9 +530,6 @@ public class EntityBodyHandler {
      */
     public static boolean isOverFlowDataNotNull(BStruct entity) {
         BStruct overFlowData = (BStruct) entity.getRefField(OVERFLOW_DATA_INDEX);
-        if (overFlowData != null) {
-            return true;
-        }
-        return false;
+        return overFlowData != null;
     }
 }
