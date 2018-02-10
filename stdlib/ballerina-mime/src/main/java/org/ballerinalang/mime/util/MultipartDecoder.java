@@ -41,17 +41,21 @@ public class MultipartDecoder {
      */
     public static void parseBody(Context context, BStruct entity, String contentType, InputStream inputStream) {
         try {
-            MimeType mimeType = new MimeType(contentType);
-            final MIMEMessage mimeMessage = new MIMEMessage(inputStream,
-                    mimeType.getParameter(BOUNDARY),
-                    getMimeConfig());
-            List<MIMEPart> mimeParts = mimeMessage.getAttachments();
+            List<MIMEPart> mimeParts = decodeBodyParts(contentType, inputStream);
             if (mimeParts != null && !mimeParts.isEmpty()) {
                 populateBallerinaParts(context, entity, mimeParts);
             }
         } catch (MimeTypeParseException e) {
             LOG.error("Error occured while decoding body parts from inputstream", e.getMessage());
         }
+    }
+
+    public static List<MIMEPart> decodeBodyParts(String contentType, InputStream inputStream) throws MimeTypeParseException {
+        MimeType mimeType = new MimeType(contentType);
+        final MIMEMessage mimeMessage = new MIMEMessage(inputStream,
+                mimeType.getParameter(BOUNDARY),
+                getMimeConfig());
+        return mimeMessage.getAttachments();
     }
 
     /**

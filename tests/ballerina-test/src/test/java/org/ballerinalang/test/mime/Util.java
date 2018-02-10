@@ -1,6 +1,5 @@
 package org.ballerinalang.test.mime;
 
-
 import io.netty.handler.codec.http.multipart.HttpPostRequestEncoder;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.CompileResult;
@@ -47,8 +46,11 @@ import static org.ballerinalang.mime.util.Constants.TEXT_DATA_INDEX;
 import static org.ballerinalang.mime.util.Constants.TEXT_PLAIN;
 import static org.ballerinalang.mime.util.Constants.XML_DATA_INDEX;
 
-public class MimeTestUtil {
-    private static final Logger LOG = LoggerFactory.getLogger(MimeTestUtil.class);
+/**
+ * Contains utility functions used by mime test cases.
+ */
+public class Util {
+    private static final Logger LOG = LoggerFactory.getLogger(Util.class);
 
     private static final String REQUEST_STRUCT = Constants.IN_REQUEST;
     private static final String PROTOCOL_PACKAGE_HTTP = Constants.PROTOCOL_PACKAGE_HTTP;

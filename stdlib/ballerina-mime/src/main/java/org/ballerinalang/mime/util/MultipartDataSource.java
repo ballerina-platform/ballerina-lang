@@ -92,7 +92,7 @@ public class MultipartDataSource extends BallerinaMessageDataSource {
                     writer.write("\r\n");
                     writer.flush();
 
-                    writeBodyContent(writer, outputStream, bodyPart);
+                    writeBodyContent(outputStream, bodyPart);
                 }
             }
             writeFinalBoundaryString(writer, boundaryString);
@@ -101,39 +101,13 @@ public class MultipartDataSource extends BallerinaMessageDataSource {
         }
     }
 
-    private void writeBodyContent(Writer writer, OutputStream outputStream, BStruct bodyPart) throws IOException {
-       /* String baseType = MimeUtil.getContentType(bodyPart);
-        if (baseType != null) {
-            switch (baseType) {
-                case TEXT_PLAIN:
-                    String textPayload = MimeUtil.getTextPayload(bodyPart);
-                    writer.write(textPayload);
-                    break;
-                case APPLICATION_JSON:
-                    BJSON jsonPayload = MimeUtil.getJsonPayload(bodyPart);
-                    jsonPayload.serializeData(outputStream);
-                    break;
-                case APPLICATION_XML:
-                    BXML xmlPayload = MimeUtil.getXmlPayload(bodyPart);
-                    xmlPayload.serializeData(outputStream);
-                    break;
-                default:
-                    byte[] binaryPayload = MimeUtil.getBinaryPayload(bodyPart);
-                    if (binaryPayload != null) {
-                        new BlobDataSource(binaryPayload).serializeData(outputStream);
-                    }
-            }
-        } else {
-            byte[] binaryPayload = MimeUtil.getBinaryPayload(bodyPart);
-            if (binaryPayload != null) {
-                new BlobDataSource(binaryPayload).serializeData(outputStream);
-            }
-        }*/
-
+    private void writeBodyContent(OutputStream outputStream, BStruct bodyPart) throws IOException {
         String baseType = MimeUtil.getContentType(bodyPart);
         if (MimeUtil.isContentInMemory(bodyPart, baseType)) {
             MessageDataSource messageDataSource = MimeUtil.readMessageDataSource(bodyPart);
-            messageDataSource.serializeData(outputStream);
+            if (messageDataSource != null) {
+                messageDataSource.serializeData(outputStream);
+            }
         }  else if (MimeUtil.isOverFlowDataNotNull(bodyPart)) {
             MimeUtil.writeFileToOutputStream(bodyPart, outputStream);
         }
