@@ -114,9 +114,9 @@ public class Constants {
     public static final int PARAMETER_MAP_INDEX = 0;
 
     //Content-Disposition properties
-    public static final int FILENAME_INDEX = 0;
+    public static final int CONTENT_DISPOSITION_FILENAME_INDEX = 0;
     public static final int DISPOSITION_INDEX = 1;
-    public static final int NAME_INDEX = 2;
+    public static final int CONTENT_DISPOSITION_NAME_INDEX = 2;
     public static final int CONTENT_DISPOSITION_PARA_MAP_INDEX = 0;
 
     //Native function indexes

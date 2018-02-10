@@ -63,6 +63,7 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 import javax.activation.MimeType;
 import javax.activation.MimeTypeParameterList;
@@ -410,6 +411,36 @@ public class MimeUtil {
             }
         }
         return null;
+    }
+
+    /**
+     * Given a ballerina entity, get the content-type with parameters included.
+     *
+     * @param entity Represent an 'Entity'
+     * @return content-type in 'primarytype/subtype; key=value;' format
+     */
+    public static String getContentTypeWithParameters(BStruct entity) {
+        String contentType = null;
+        if (entity.getRefField(MEDIA_TYPE_INDEX) != null) {
+            BStruct mediaType = (BStruct) entity.getRefField(MEDIA_TYPE_INDEX);
+            if (mediaType != null) {
+                contentType = mediaType.getStringField(PRIMARY_TYPE_INDEX) + "/" +
+                        mediaType.getStringField(SUBTYPE_INDEX);
+                BMap map = (BMap) mediaType.getRefField(PARAMETER_MAP_INDEX);
+                Set<String> keys = map.keySet();
+                int index = 0;
+                for (String key : keys) {
+                    BString paramValue = (BString) map.get(key);
+                    if (index == keys.size() - 1) {
+                        contentType = contentType + key + "=" + paramValue.toString();
+                    } else {
+                        contentType = contentType + key + "=" + paramValue.toString() + ";";
+                        index = index + 1;
+                    }
+                }
+            }
+        }
+        return contentType;
     }
 
     /**

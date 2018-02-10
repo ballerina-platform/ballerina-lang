@@ -17,15 +17,15 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static org.ballerinalang.mime.util.Constants.BUILTIN_PACKAGE;
+import static org.ballerinalang.mime.util.Constants.CONTENT_DISPOSITION_FILENAME_INDEX;
 import static org.ballerinalang.mime.util.Constants.CONTENT_DISPOSITION_FILE_NAME;
 import static org.ballerinalang.mime.util.Constants.CONTENT_DISPOSITION_INDEX;
 import static org.ballerinalang.mime.util.Constants.CONTENT_DISPOSITION_NAME;
+import static org.ballerinalang.mime.util.Constants.CONTENT_DISPOSITION_NAME_INDEX;
 import static org.ballerinalang.mime.util.Constants.CONTENT_DISPOSITION_PARA_MAP_INDEX;
 import static org.ballerinalang.mime.util.Constants.DISPOSITION_INDEX;
 import static org.ballerinalang.mime.util.Constants.ENTITY_HEADERS_INDEX;
-import static org.ballerinalang.mime.util.Constants.FILENAME_INDEX;
 import static org.ballerinalang.mime.util.Constants.FIRST_ELEMENT;
-import static org.ballerinalang.mime.util.Constants.NAME_INDEX;
 import static org.ballerinalang.mime.util.Constants.SEMICOLON;
 import static org.ballerinalang.mime.util.Constants.SIZE_INDEX;
 import static org.ballerinalang.mime.util.Constants.STRUCT_GENERIC_ERROR;
@@ -134,16 +134,53 @@ public class HeaderUtil {
                 BString paramValue = (BString) paramMap.get(key);
                 switch (key) {
                     case CONTENT_DISPOSITION_FILE_NAME:
-                        contentDisposition.setStringField(FILENAME_INDEX, paramValue.toString());
+                        contentDisposition.setStringField(CONTENT_DISPOSITION_FILENAME_INDEX, paramValue.toString());
                         break;
                     case CONTENT_DISPOSITION_NAME:
-                        contentDisposition.setStringField(NAME_INDEX, paramValue.toString());
+                        contentDisposition.setStringField(CONTENT_DISPOSITION_NAME_INDEX, paramValue.toString());
                         break;
                 }
             }
         }
         contentDisposition.setRefField(CONTENT_DISPOSITION_PARA_MAP_INDEX, paramMap);
         bodyPart.setRefField(CONTENT_DISPOSITION_INDEX, contentDisposition);
+    }
+
+    /**
+     * Given a ballerina entity, get the content-type with parameters included.
+     *
+     * @param entity Represent an 'Entity'
+     * @return content-type in 'primarytype/subtype; key=value;' format
+     */
+    public static String getContentDisposition(BStruct entity) {
+        String disposition = null;
+        if (entity.getRefField(CONTENT_DISPOSITION_INDEX) != null) {
+            BStruct contentDispositionStruct = (BStruct) entity.getRefField(CONTENT_DISPOSITION_INDEX);
+            if (contentDispositionStruct != null) {
+                disposition = contentDispositionStruct.getStringField(DISPOSITION_INDEX);
+                String name = contentDispositionStruct.getStringField(CONTENT_DISPOSITION_NAME_INDEX);
+                String fileName = contentDispositionStruct.getStringField(CONTENT_DISPOSITION_FILENAME_INDEX);
+                if (name != null) {
+                    disposition = disposition + CONTENT_DISPOSITION_NAME + "=" + name + ";";
+                }
+                if (fileName != null) {
+                    disposition = disposition + CONTENT_DISPOSITION_FILE_NAME + "=" + fileName + ";";
+                }
+                BMap map = (BMap) contentDispositionStruct.getRefField(CONTENT_DISPOSITION_PARA_MAP_INDEX);
+                Set<String> keys = map.keySet();
+                int index = 0;
+                for (String key : keys) {
+                    BString paramValue = (BString) map.get(key);
+                    if (index == keys.size() - 1) {
+                        disposition = disposition + key + "=" + paramValue.toString();
+                    } else {
+                        disposition = disposition + key + "=" + paramValue.toString() + ";";
+                        index = index + 1;
+                    }
+                }
+            }
+        }
+        return disposition;
     }
 
     /**
