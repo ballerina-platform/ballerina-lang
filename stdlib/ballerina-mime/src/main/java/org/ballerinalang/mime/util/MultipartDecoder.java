@@ -46,11 +46,14 @@ import static org.ballerinalang.mime.util.Constants.MEDIA_TYPE;
 import static org.ballerinalang.mime.util.Constants.NO_CONTENT_LENGTH_FOUND;
 import static org.ballerinalang.mime.util.Constants.PROTOCOL_PACKAGE_MIME;
 
+/**
+ *
+ */
 public class MultipartDecoder {
-    private static final Logger LOG = LoggerFactory.getLogger(MultipartDecoder.class);
+    private static final Logger log = LoggerFactory.getLogger(MultipartDecoder.class);
 
     /**
-     * Decode multiparts from a given input stream.
+     * Decode inputstream and populate ballerina body parts.
      *
      * @param context     Represent ballerina context
      * @param entity      Represent ballerina entity which needs to be populated with body parts
@@ -64,10 +67,18 @@ public class MultipartDecoder {
                 populateBallerinaParts(context, entity, mimeParts);
             }
         } catch (MimeTypeParseException e) {
-            LOG.error("Error occured while decoding body parts from inputstream", e.getMessage());
+            log.error("Error occured while decoding body parts from inputstream", e.getMessage());
         }
     }
 
+    /**
+     * Decode multiparts from a given input stream.
+     *
+     * @param contentType Content-Type of the top level message
+     * @param inputStream Represent input stream coming from the request/response
+     * @return
+     * @throws MimeTypeParseException
+     */
     public static List<MIMEPart> decodeBodyParts(String contentType, InputStream inputStream) throws MimeTypeParseException {
         MimeType mimeType = new MimeType(contentType);
         final MIMEMessage mimeMessage = new MIMEMessage(inputStream,
@@ -102,16 +113,16 @@ public class MultipartDecoder {
             partStruct.setRefField(ENTITY_HEADERS_INDEX, HeaderUtil.setBodyPartHeaders(mimePart.getAllHeaders(), new BMap<>()));
             List<String> lengthHeaders = mimePart.getHeader(CONTENT_LENGTH);
             if (HeaderUtil.isHeaderExist(lengthHeaders)) {
-                HeaderUtil.setContentLength(partStruct, Integer.parseInt(lengthHeaders.get(FIRST_ELEMENT)));
+                MimeUtil.setContentLength(partStruct, Integer.parseInt(lengthHeaders.get(FIRST_ELEMENT)));
             } else {
-                HeaderUtil.setContentLength(partStruct, NO_CONTENT_LENGTH_FOUND);
+                MimeUtil.setContentLength(partStruct, NO_CONTENT_LENGTH_FOUND);
             }
             MimeUtil.setContentType(mediaType, partStruct, mimePart.getContentType());
             List<String> contentDispositionHeaders = mimePart.getHeader(CONTENT_DISPOSITION);
             if (HeaderUtil.isHeaderExist(contentDispositionHeaders)) {
                 BStruct contentDisposition = ConnectorUtils.createAndGetStruct(context, PROTOCOL_PACKAGE_MIME,
                         CONTENT_DISPOSITION_STRUCT);
-                HeaderUtil.setContentDisposition(contentDisposition, partStruct, contentDispositionHeaders.get(FIRST_ELEMENT));
+                MimeUtil.setContentDisposition(contentDisposition, partStruct, contentDispositionHeaders.get(FIRST_ELEMENT));
             }
             EntityBodyHandler.populateBodyContent(context, partStruct, mimePart);
             bodyParts.add(partStruct);

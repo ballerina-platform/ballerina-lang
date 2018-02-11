@@ -65,10 +65,42 @@ import static org.ballerinalang.mime.util.Constants.XML_DATA_INDEX;
 /**
  * Entity body related operations are included here.
  *
- *  @since 0.967 >> TODO:Whats the next version?
+ * @since 0.967 >> TODO:Whats the next version?
  */
 public class EntityBodyHandler {
-    private static final Logger LOG = LoggerFactory.getLogger(EntityBodyHandler.class);
+    private static final Logger log = LoggerFactory.getLogger(EntityBodyHandler.class);
+
+    /**
+     * Handle discrete media type content. This method populates ballerina entity with the relevant payload.
+     *
+     * @param context     Represent ballerina context
+     * @param entity      Represent an 'Entity'
+     * @param inputStream Represent input stream coming from the request/response
+     */
+    public static void handleDiscreteMediaTypeContent(Context context, BStruct entity, InputStream inputStream) {
+        String baseType = MimeUtil.getContentType(entity);
+        long contentLength = entity.getIntField(SIZE_INDEX);
+        if (baseType != null) {
+            switch (baseType) {
+                case TEXT_PLAIN:
+                case APPLICATION_FORM:
+                    readAndSetStringPayload(context, entity, inputStream, contentLength);
+                    break;
+                case APPLICATION_JSON:
+                    readAndSetJsonPayload(context, entity, inputStream, contentLength);
+                    break;
+                case TEXT_XML:
+                case APPLICATION_XML:
+                    readAndSetXmlPayload(context, entity, inputStream, contentLength);
+                    break;
+                default:
+                    readAndSetBinaryPayload(context, entity, inputStream, contentLength);
+                    break;
+            }
+        } else {
+            readAndSetBinaryPayload(context, entity, inputStream, contentLength);
+        }
+    }
 
     /**
      * Read the string payload from input stream and set it into request or response's entity struct. If the content
@@ -81,7 +113,7 @@ public class EntityBodyHandler {
      * @param contentLength Content length of the request
      */
     private static void readAndSetStringPayload(Context context, BStruct entityStruct, InputStream inputStream,
-                                               long contentLength) {
+                                                long contentLength) {
         if (contentLength > Constants.BYTE_LIMIT) {
             String temporaryFilePath = MimeUtil.writeToTemporaryFile(inputStream, BALLERINA_TEXT_DATA);
             MimeUtil.createBallerinaFileHandler(context, entityStruct, temporaryFilePath);
@@ -102,7 +134,7 @@ public class EntityBodyHandler {
      * @param contentLength Content length of the request
      */
     private static void readAndSetJsonPayload(Context context, BStruct entityStruct, InputStream inputStream,
-                                             long contentLength) {
+                                              long contentLength) {
         if (contentLength > Constants.BYTE_LIMIT) {
             String temporaryFilePath = MimeUtil.writeToTemporaryFile(inputStream, BALLERINA_JSON_DATA);
             MimeUtil.createBallerinaFileHandler(context, entityStruct, temporaryFilePath);
@@ -123,7 +155,7 @@ public class EntityBodyHandler {
      * @param contentLength Content length of the request
      */
     private static void readAndSetXmlPayload(Context context, BStruct entityStruct, InputStream inputStream,
-                                            long contentLength) {
+                                             long contentLength) {
         if (contentLength > Constants.BYTE_LIMIT) {
             String temporaryFilePath = MimeUtil.writeToTemporaryFile(inputStream, BALLERINA_XML_DATA);
             MimeUtil.createBallerinaFileHandler(context, entityStruct, temporaryFilePath);
@@ -143,8 +175,8 @@ public class EntityBodyHandler {
      * @param inputStream   Represent input stream coming from the request/response
      * @param contentLength Content length of the request
      */
-     private static void readAndSetBinaryPayload(Context context, BStruct entityStruct, InputStream inputStream,
-                                               long contentLength) {
+    private static void readAndSetBinaryPayload(Context context, BStruct entityStruct, InputStream inputStream,
+                                                long contentLength) {
         if (contentLength > Constants.BYTE_LIMIT) {
             String temporaryFilePath = MimeUtil.writeToTemporaryFile(inputStream, BALLERINA_BINARY_DATA);
             MimeUtil.createBallerinaFileHandler(context, entityStruct, temporaryFilePath);
@@ -156,6 +188,29 @@ public class EntityBodyHandler {
                 throw new BallerinaException("Error while converting inputstream to a byte array: " + e.getMessage());
             }
             entityStruct.setBlobField(BYTE_DATA_INDEX, payload);
+        }
+    }
+
+    /**
+     * Check whether the entity body is present.
+     *
+     * @param entity   Represent an 'Entity'
+     * @param baseType Content type that describes the entity body
+     * @return a boolean indicating entity body availability
+     */
+    public static boolean checkEntityBodyAvailability(BStruct entity, String baseType) {
+        switch (baseType) {
+            case TEXT_PLAIN:
+                return isTextBodyPresent(entity);
+            case APPLICATION_JSON:
+                return isJsonBodyPresent(entity);
+            case APPLICATION_XML:
+            case TEXT_XML:
+                return isXmlBodyPresent(entity);
+            case MULTIPART_FORM_DATA:
+                return isMultipartsAvailable(entity);
+            default:
+                return isBinaryBodyPresent(entity);
         }
     }
 
@@ -220,7 +275,7 @@ public class EntityBodyHandler {
     }
 
     /**
-     * Check whether the 'Entity' body is present as multi parts.
+     * Check whether the 'Entity' body is present as multiparts.
      *
      * @param entity Represent 'Entity' struct
      * @return a boolean denoting the availability of binary payload
@@ -230,64 +285,9 @@ public class EntityBodyHandler {
     }
 
     /**
-     * Check whether the entity body is present.
+     * Construct 'MessageDataSource' with the entity body content read from memory.
      *
-     * @param entity   Represent an 'Entity'
-     * @param baseType Content type that describes the entity body
-     * @return a boolean indicating entity body availability
-     */
-    public static boolean checkEntityBodyAvailability(BStruct entity, String baseType) {
-        switch (baseType) {
-            case TEXT_PLAIN:
-                return isTextBodyPresent(entity);
-            case APPLICATION_JSON:
-                return isJsonBodyPresent(entity);
-            case APPLICATION_XML:
-            case TEXT_XML:
-                return isXmlBodyPresent(entity);
-            case MULTIPART_FORM_DATA:
-                return isMultipartsAvailable(entity);
-            default:
-                return isBinaryBodyPresent(entity);
-        }
-    }
-
-    /**
-     * Handle discrete media type content. This method populates ballerina entity with the relevant payload.
-     *
-     * @param context     Represent ballerina context
-     * @param entity      Represent an 'Entity'
-     * @param inputStream Represent input stream coming from the request/response
-     */
-    public static void handleDiscreteMediaTypeContent(Context context, BStruct entity, InputStream inputStream) {
-        String baseType = MimeUtil.getContentType(entity);
-        long contentLength = entity.getIntField(SIZE_INDEX);
-        if (baseType != null) {
-            switch (baseType) {
-                case TEXT_PLAIN:
-                case APPLICATION_FORM:
-                    readAndSetStringPayload(context, entity, inputStream, contentLength);
-                    break;
-                case APPLICATION_JSON:
-                    readAndSetJsonPayload(context, entity, inputStream, contentLength);
-                    break;
-                case TEXT_XML:
-                case APPLICATION_XML:
-                    readAndSetXmlPayload(context, entity, inputStream, contentLength);
-                    break;
-                default:
-                    readAndSetBinaryPayload(context, entity, inputStream, contentLength);
-                    break;
-            }
-        } else {
-            readAndSetBinaryPayload(context, entity, inputStream, contentLength);
-        }
-    }
-
-    /**
-     * Construct 'MessageDataSource' with the entity body read from memory.
-     *
-     * @param entity Represent entity
+     * @param entity Represent a ballerina entity
      * @return Newly created 'MessageDataSource' from the entity body
      */
     public static MessageDataSource readMessageDataSource(BStruct entity) {
@@ -296,7 +296,10 @@ public class EntityBodyHandler {
             switch (baseType) {
                 case TEXT_PLAIN:
                     String textPayload = getTextPayloadFromMemory(entity);
-                    return new StringDataSource(textPayload);
+                    if (textPayload != null) {
+                        return new StringDataSource(textPayload);
+                    }
+                    break;
                 case APPLICATION_JSON:
                     BJSON jsonPayload = getJsonPayloadFromMemory(entity);
                     if (jsonPayload != null) {
@@ -408,7 +411,7 @@ public class EntityBodyHandler {
     }
 
     /**
-     * Populate ballerina body parts with actual body content. Based on the memory threshhold this will either
+     * Populate ballerina body parts with actual body content. Based on the memory threshhold this will either be
      * kept in memory or in a temp file.
      *
      * @param context  Represent ballerina context
@@ -438,7 +441,7 @@ public class EntityBodyHandler {
             mimePart.moveTo(tempFile);
             MimeUtil.createBallerinaFileHandler(context, entity, tempFile.getAbsolutePath());
         } catch (IOException e) {
-            e.printStackTrace();
+            log.error("Error occured while saving body part content in a temporary file", e.getMessage());
         }
     }
 
@@ -472,40 +475,52 @@ public class EntityBodyHandler {
                 entity.setBlobField(BYTE_DATA_INDEX, MimeUtil.getByteArray(mimePart.read()));
             }
         } catch (IOException e) {
-            LOG.error("Error occurred while reading decoded body part content", e.getMessage());
+            log.error("Error occurred while reading decoded body part content", e.getMessage());
         }
     }
 
-    public static boolean isContentInMemory(BStruct entity, String baseType) {
-        switch (baseType) {
-            case TEXT_PLAIN:
-                return isTextPayloadInMemory(entity);
-            case APPLICATION_JSON:
-                return isJsonPayloadInMemory(entity);
-            case APPLICATION_XML:
-            case TEXT_XML:
-                return isXmlPayloadInMemory(entity);
-            default:
-                return isBinaryPayloadInMemory(entity);
-        }
-    }
-
-    private static boolean isBinaryPayloadInMemory(BStruct entity) {
-        byte[] binaryPayload = entity.getBlobField(BYTE_DATA_INDEX);
-        return binaryPayload != null;
-    }
-
-    private static boolean isXmlPayloadInMemory(BStruct entity) {
-        BRefType xmlRefType = entity.getRefField(XML_DATA_INDEX);
-        if (xmlRefType != null) {
-            BXML xmlPayload = (BXML) entity.getRefField(XML_DATA_INDEX);
-            if (xmlPayload != null) {
-                return true;
+    /**
+     * Given an entity check whether it's body is in memory.
+     *
+     * @param entity Represent a ballerina entity
+     * @return a boolean indicating whether the body content is in memory
+     */
+    public static boolean isContentInMemory(BStruct entity) {
+        String baseType = MimeUtil.getContentType(entity);
+        if (baseType != null) {
+            switch (baseType) {
+                case TEXT_PLAIN:
+                    return isTextPayloadInMemory(entity);
+                case APPLICATION_JSON:
+                    return isJsonPayloadInMemory(entity);
+                case APPLICATION_XML:
+                case TEXT_XML:
+                    return isXmlPayloadInMemory(entity);
+                default:
+                    return isBinaryPayloadInMemory(entity);
             }
+        } else {
+            return isBinaryPayloadInMemory(entity);
         }
-        return false;
     }
 
+    /**
+     * Check whether the text payload is in memory for a given entity.
+     *
+     * @param entity Represent a ballerina entity
+     * @return a boolean indicating whether the text body is in memory
+     */
+    private static boolean isTextPayloadInMemory(BStruct entity) {
+        String textPayload = entity.getStringField(TEXT_DATA_INDEX);
+        return MimeUtil.isNotNullAndEmpty(textPayload);
+    }
+
+    /**
+     * Check whether the json payload is in memory for a given entity.
+     *
+     * @param entity Represent a ballerina entity
+     * @return a boolean indicating whether the json body is in memory
+     */
     private static boolean isJsonPayloadInMemory(BStruct entity) {
         BRefType jsonRefType = entity.getRefField(JSON_DATA_INDEX);
         if (jsonRefType != null) {
@@ -517,13 +532,36 @@ public class EntityBodyHandler {
         return false;
     }
 
-    private static boolean isTextPayloadInMemory(BStruct entity) {
-        String textPayload = entity.getStringField(TEXT_DATA_INDEX);
-        return MimeUtil.isNotNullAndEmpty(textPayload);
+    /**
+     * Check whether the xml payload is in memory for a given entity.
+     *
+     * @param entity Represent a ballerina entity
+     * @return a boolean indicating whether the json body is in memory
+     */
+    private static boolean isXmlPayloadInMemory(BStruct entity) {
+        BRefType xmlRefType = entity.getRefField(XML_DATA_INDEX);
+        if (xmlRefType != null) {
+            BXML xmlPayload = (BXML) entity.getRefField(XML_DATA_INDEX);
+            if (xmlPayload != null) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
-     * Check whether the file handler which indicates the overflow data is null or not.
+     * Check whether the binary payload is in memory for a given entity.
+     *
+     * @param entity Represent a ballerina entity
+     * @return a boolean indicating whether the binary body is in memory
+     */
+    private static boolean isBinaryPayloadInMemory(BStruct entity) {
+        byte[] binaryPayload = entity.getBlobField(BYTE_DATA_INDEX);
+        return binaryPayload != null;
+    }
+
+    /**
+     * Check whether the file handler which represent the overflow data is null or not.
      *
      * @param entity Represent ballerina entity
      * @return a boolean indicating nullability of the overflow data

@@ -1,3 +1,21 @@
+/*
+*  Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+*
+*  WSO2 Inc. licenses this file to you under the Apache License,
+*  Version 2.0 (the "License"); you may not use this file except
+*  in compliance with the License.
+*  You may obtain a copy of the License at
+*
+*    http://www.apache.org/licenses/LICENSE-2.0
+*
+*  Unless required by applicable law or agreed to in writing,
+*  software distributed under the License is distributed on an
+*  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+*  KIND, either express or implied.  See the License for the
+*  specific language governing permissions and limitations
+*  under the License.
+*/
+
 package org.ballerinalang.mime.util;
 
 import org.ballerinalang.bre.Context;
@@ -17,21 +35,15 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static org.ballerinalang.mime.util.Constants.BUILTIN_PACKAGE;
-import static org.ballerinalang.mime.util.Constants.CONTENT_DISPOSITION_FILENAME_INDEX;
-import static org.ballerinalang.mime.util.Constants.CONTENT_DISPOSITION_FILE_NAME;
-import static org.ballerinalang.mime.util.Constants.CONTENT_DISPOSITION_INDEX;
-import static org.ballerinalang.mime.util.Constants.CONTENT_DISPOSITION_NAME;
-import static org.ballerinalang.mime.util.Constants.CONTENT_DISPOSITION_NAME_INDEX;
-import static org.ballerinalang.mime.util.Constants.CONTENT_DISPOSITION_PARA_MAP_INDEX;
-import static org.ballerinalang.mime.util.Constants.DISPOSITION_INDEX;
 import static org.ballerinalang.mime.util.Constants.ENTITY_HEADERS_INDEX;
 import static org.ballerinalang.mime.util.Constants.FIRST_ELEMENT;
 import static org.ballerinalang.mime.util.Constants.SEMICOLON;
-import static org.ballerinalang.mime.util.Constants.SIZE_INDEX;
 import static org.ballerinalang.mime.util.Constants.STRUCT_GENERIC_ERROR;
 
 /**
  * Utility methods for parsing headers.
+ *
+ * @since 0.967 >> TODO:Whats the next version?
  */
 public class HeaderUtil {
 
@@ -46,7 +58,7 @@ public class HeaderUtil {
         return paramMap;
     }
 
-    public static String getHeaderValue(String headerValue) {
+    static String getHeaderValue(String headerValue) {
         return extractValue(headerValue.trim());
     }
 
@@ -60,10 +72,7 @@ public class HeaderUtil {
 
     private static boolean validateParams(List<String> paramList) {
         //validate header values which ends with semicolon without params
-        if (paramList.size() == 1 && paramList.get(0).isEmpty()) {
-            return false;
-        }
-        return true;
+        return !(paramList.size() == 1 && paramList.get(0).isEmpty());
     }
 
     public static BStruct getParserError(Context context, String errMsg) {
@@ -92,7 +101,7 @@ public class HeaderUtil {
         return paramMap;
     }
 
-    public static boolean isHeaderExist(List<String> headers) {
+    static boolean isHeaderExist(List<String> headers) {
         return headers != null && headers.get(FIRST_ELEMENT) != null && !headers.get(FIRST_ELEMENT).isEmpty();
     }
 
@@ -103,8 +112,8 @@ public class HeaderUtil {
      * @param headerMap       Represent ballerina header map
      * @return a populated ballerina map with body part headers
      */
-    public static BMap<String, BValue> setBodyPartHeaders(List<? extends Header> bodyPartHeaders,
-                                                          BMap<String, BValue> headerMap) {
+    static BMap<String, BValue> setBodyPartHeaders(List<? extends Header> bodyPartHeaders,
+                                                   BMap<String, BValue> headerMap) {
         for (final Header header : bodyPartHeaders) {
             if (headerMap.keySet().contains(header.getName())) {
                 BStringArray valueArray = (BStringArray) headerMap.get(header.getName());
@@ -118,82 +127,6 @@ public class HeaderUtil {
     }
 
     /**
-     * Populate ContentDisposition struct and set it to body part.
-     *
-     * @param contentDisposition       Represent the ContentDisposition struct that needs to be filled with values
-     * @param bodyPart                 Represent a body part
-     * @param contentDispositionHeader Represent Content-Disposition header value with parameters
-     */
-    public static void setContentDisposition(BStruct contentDisposition, BStruct bodyPart,
-                                             String contentDispositionHeader) {
-        contentDisposition.setStringField(DISPOSITION_INDEX, HeaderUtil.getHeaderValue(contentDispositionHeader));
-        BMap<String, BValue> paramMap = HeaderUtil.getParamMap(contentDispositionHeader);
-        if (paramMap != null) {
-            Set<String> keys = paramMap.keySet();
-            for (String key : keys) {
-                BString paramValue = (BString) paramMap.get(key);
-                switch (key) {
-                    case CONTENT_DISPOSITION_FILE_NAME:
-                        contentDisposition.setStringField(CONTENT_DISPOSITION_FILENAME_INDEX, paramValue.toString());
-                        break;
-                    case CONTENT_DISPOSITION_NAME:
-                        contentDisposition.setStringField(CONTENT_DISPOSITION_NAME_INDEX, paramValue.toString());
-                        break;
-                }
-            }
-        }
-        contentDisposition.setRefField(CONTENT_DISPOSITION_PARA_MAP_INDEX, paramMap);
-        bodyPart.setRefField(CONTENT_DISPOSITION_INDEX, contentDisposition);
-    }
-
-    /**
-     * Given a ballerina entity, get the content-type with parameters included.
-     *
-     * @param entity Represent an 'Entity'
-     * @return content-type in 'primarytype/subtype; key=value;' format
-     */
-    public static String getContentDisposition(BStruct entity) {
-        String disposition = null;
-        if (entity.getRefField(CONTENT_DISPOSITION_INDEX) != null) {
-            BStruct contentDispositionStruct = (BStruct) entity.getRefField(CONTENT_DISPOSITION_INDEX);
-            if (contentDispositionStruct != null) {
-                disposition = contentDispositionStruct.getStringField(DISPOSITION_INDEX);
-                String name = contentDispositionStruct.getStringField(CONTENT_DISPOSITION_NAME_INDEX);
-                String fileName = contentDispositionStruct.getStringField(CONTENT_DISPOSITION_FILENAME_INDEX);
-                if (name != null) {
-                    disposition = disposition + CONTENT_DISPOSITION_NAME + "=" + name + ";";
-                }
-                if (fileName != null) {
-                    disposition = disposition + CONTENT_DISPOSITION_FILE_NAME + "=" + fileName + ";";
-                }
-                BMap map = (BMap) contentDispositionStruct.getRefField(CONTENT_DISPOSITION_PARA_MAP_INDEX);
-                Set<String> keys = map.keySet();
-                int index = 0;
-                for (String key : keys) {
-                    BString paramValue = (BString) map.get(key);
-                    if (index == keys.size() - 1) {
-                        disposition = disposition + key + "=" + paramValue.toString();
-                    } else {
-                        disposition = disposition + key + "=" + paramValue.toString() + ";";
-                        index = index + 1;
-                    }
-                }
-            }
-        }
-        return disposition;
-    }
-
-    /**
-     * Populate given 'Entity' with it's body size.
-     *
-     * @param entityStruct Represent 'Entity'
-     * @param length       Size of the entity body
-     */
-    public static void setContentLength(BStruct entityStruct, int length) {
-        entityStruct.setIntField(SIZE_INDEX, length);
-    }
-
-    /**
      * Get the header value for a given header name from a body part.
      *
      * @param bodyPart   Represent a ballerina body part.
@@ -201,12 +134,29 @@ public class HeaderUtil {
      * @return a header value for the given header name
      */
     public static String getHeaderValue(BStruct bodyPart, String headerName) {
-        BMap<String, BValue> headerMap = bodyPart.getRefField(ENTITY_HEADERS_INDEX) != null ?
+        BMap<String, BValue> headerMap = (bodyPart.getRefField(ENTITY_HEADERS_INDEX) != null) ?
                 (BMap<String, BValue>) bodyPart.getRefField(ENTITY_HEADERS_INDEX) : null;
         if (headerMap != null) {
             BStringArray headerValue = (BStringArray) headerMap.get(headerName);
             return headerValue.get(0);
         }
         return null;
+    }
+
+    static String appendHeaderParams(String contentType, BMap map) {
+        int index = 0;
+        Set<String> keys = map.keySet();
+        if (!keys.isEmpty()) {
+            for (String key : keys) {
+                BString paramValue = (BString) map.get(key);
+                if (index == keys.size() - 1) {
+                    contentType = contentType + key + "=" + paramValue.toString();
+                } else {
+                    contentType = contentType + key + "=" + paramValue.toString() + ";";
+                    index = index + 1;
+                }
+            }
+        }
+        return contentType;
     }
 }

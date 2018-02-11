@@ -128,7 +128,7 @@ public class MultipartDataSource extends BallerinaMessageDataSource {
     }
 
     private void setContentDispositionHeader(BStruct bodyPart, BMap<String, BValue> entityHeaders) {
-        String contentDisposition = HeaderUtil.getContentDisposition(bodyPart);
+        String contentDisposition = MimeUtil.getContentDisposition(bodyPart);
         if (contentDisposition != null) {
             if (entityHeaders.keySet().contains(CONTENT_DISPOSITION)) {
                 BStringArray valueArray = (BStringArray) entityHeaders.get(CONTENT_DISPOSITION);
@@ -141,8 +141,7 @@ public class MultipartDataSource extends BallerinaMessageDataSource {
     }
 
     private void writeBodyContent(OutputStream outputStream, BStruct bodyPart) throws IOException {
-        String baseType = MimeUtil.getContentType(bodyPart);
-        if (EntityBodyHandler.isContentInMemory(bodyPart, baseType)) {
+        if (EntityBodyHandler.isContentInMemory(bodyPart)) {
             MessageDataSource messageDataSource = EntityBodyHandler.readMessageDataSource(bodyPart);
             if (messageDataSource != null) {
                 messageDataSource.serializeData(outputStream);

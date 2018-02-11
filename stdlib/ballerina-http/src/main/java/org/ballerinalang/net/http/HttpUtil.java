@@ -210,7 +210,7 @@ public class HttpUtil {
                 if (contentLength == NO_CONTENT_LENGTH_FOUND) {
                     contentLength = httpCarbonMessage.getFullMessageLength();
                 }
-                HeaderUtil.setContentLength(entity, contentLength);
+                MimeUtil.setContentLength(entity, contentLength);
             } catch (NumberFormatException e) {
                 throw new BallerinaException("Invalid content length");
             }
@@ -456,7 +456,7 @@ public class HttpUtil {
         String lengthStr = cMsg.getHeader(Constants.HTTP_CONTENT_LENGTH);
         try {
             contentLength = lengthStr != null ? Integer.parseInt(lengthStr) : contentLength;
-            HeaderUtil.setContentLength(entity, contentLength);
+            MimeUtil.setContentLength(entity, contentLength);
         } catch (NumberFormatException e) {
             throw new BallerinaException("Invalid content length");
         }

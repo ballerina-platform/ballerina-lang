@@ -43,12 +43,20 @@ import javax.activation.MimeType;
 import javax.activation.MimeTypeParameterList;
 import javax.activation.MimeTypeParseException;
 
+import static org.ballerinalang.mime.util.Constants.CONTENT_DISPOSITION_FILENAME_INDEX;
+import static org.ballerinalang.mime.util.Constants.CONTENT_DISPOSITION_FILE_NAME;
+import static org.ballerinalang.mime.util.Constants.CONTENT_DISPOSITION_INDEX;
+import static org.ballerinalang.mime.util.Constants.CONTENT_DISPOSITION_NAME;
+import static org.ballerinalang.mime.util.Constants.CONTENT_DISPOSITION_NAME_INDEX;
+import static org.ballerinalang.mime.util.Constants.CONTENT_DISPOSITION_PARA_MAP_INDEX;
+import static org.ballerinalang.mime.util.Constants.DISPOSITION_INDEX;
 import static org.ballerinalang.mime.util.Constants.IS_ENTITY_BODY_PRESENT;
 import static org.ballerinalang.mime.util.Constants.MEDIA_TYPE_INDEX;
 import static org.ballerinalang.mime.util.Constants.MESSAGE_ENTITY;
 import static org.ballerinalang.mime.util.Constants.OVERFLOW_DATA_INDEX;
 import static org.ballerinalang.mime.util.Constants.PARAMETER_MAP_INDEX;
 import static org.ballerinalang.mime.util.Constants.PRIMARY_TYPE_INDEX;
+import static org.ballerinalang.mime.util.Constants.SIZE_INDEX;
 import static org.ballerinalang.mime.util.Constants.SUBTYPE_INDEX;
 import static org.ballerinalang.mime.util.Constants.SUFFIX_INDEX;
 import static org.ballerinalang.mime.util.Constants.TEMP_FILE_EXTENSION;
@@ -60,7 +68,7 @@ import static org.ballerinalang.mime.util.Constants.TEMP_FILE_PATH_INDEX;
  * @since 0.96
  */
 public class MimeUtil {
-    private static final Logger LOG = LoggerFactory.getLogger(MimeUtil.class);
+    private static final Logger log = LoggerFactory.getLogger(MimeUtil.class);
 
     /**
      * Given a ballerina entity, get the content-type as a base type.
@@ -84,24 +92,16 @@ public class MimeUtil {
      * @param entity Represent an 'Entity'
      * @return content-type in 'primarytype/subtype; key=value;' format
      */
-    public static String getContentTypeWithParameters(BStruct entity) {
+    static String getContentTypeWithParameters(BStruct entity) {
         String contentType = null;
         if (entity.getRefField(MEDIA_TYPE_INDEX) != null) {
             BStruct mediaType = (BStruct) entity.getRefField(MEDIA_TYPE_INDEX);
             if (mediaType != null) {
                 contentType = mediaType.getStringField(PRIMARY_TYPE_INDEX) + "/" +
                         mediaType.getStringField(SUBTYPE_INDEX);
-                BMap map = (BMap) mediaType.getRefField(PARAMETER_MAP_INDEX);
-                Set<String> keys = map.keySet();
-                int index = 0;
-                for (String key : keys) {
-                    BString paramValue = (BString) map.get(key);
-                    if (index == keys.size() - 1) {
-                        contentType = contentType + key + "=" + paramValue.toString();
-                    } else {
-                        contentType = contentType + key + "=" + paramValue.toString() + ";";
-                        index = index + 1;
-                    }
+                if (mediaType.getRefField(PARAMETER_MAP_INDEX) != null) {
+                    BMap map = (BMap) mediaType.getRefField(PARAMETER_MAP_INDEX);
+                    return HeaderUtil.appendHeaderParams(contentType, map);
                 }
             }
         }
@@ -158,6 +158,72 @@ public class MimeUtil {
         return mediaType;
     }
 
+    /**
+     * Populate ContentDisposition struct and set it to body part.
+     *
+     * @param contentDisposition       Represent the ContentDisposition struct that needs to be filled with values
+     * @param bodyPart                 Represent a body part
+     * @param contentDispositionHeader Represent Content-Disposition header value with parameters
+     */
+    static void setContentDisposition(BStruct contentDisposition, BStruct bodyPart,
+                                      String contentDispositionHeader) {
+        contentDisposition.setStringField(DISPOSITION_INDEX, HeaderUtil.getHeaderValue(contentDispositionHeader));
+        BMap<String, BValue> paramMap = HeaderUtil.getParamMap(contentDispositionHeader);
+        if (paramMap != null) {
+            Set<String> keys = paramMap.keySet();
+            for (String key : keys) {
+                BString paramValue = (BString) paramMap.get(key);
+                switch (key) {
+                    case CONTENT_DISPOSITION_FILE_NAME:
+                        contentDisposition.setStringField(CONTENT_DISPOSITION_FILENAME_INDEX, paramValue.toString());
+                        break;
+                    case CONTENT_DISPOSITION_NAME:
+                        contentDisposition.setStringField(CONTENT_DISPOSITION_NAME_INDEX, paramValue.toString());
+                        break;
+                }
+            }
+        }
+        contentDisposition.setRefField(CONTENT_DISPOSITION_PARA_MAP_INDEX, paramMap);
+        bodyPart.setRefField(CONTENT_DISPOSITION_INDEX, contentDisposition);
+    }
+
+    /**
+     * Given a ballerina entity, get the content-type with parameters included.
+     *
+     * @param entity Represent an 'Entity'
+     * @return content-type in 'primarytype/subtype; key=value;' format
+     */
+    static String getContentDisposition(BStruct entity) {
+        String disposition = null;
+        if (entity.getRefField(CONTENT_DISPOSITION_INDEX) != null) {
+            BStruct contentDispositionStruct = (BStruct) entity.getRefField(CONTENT_DISPOSITION_INDEX);
+            if (contentDispositionStruct != null) {
+                disposition = contentDispositionStruct.getStringField(DISPOSITION_INDEX);
+                String name = contentDispositionStruct.getStringField(CONTENT_DISPOSITION_NAME_INDEX);
+                String fileName = contentDispositionStruct.getStringField(CONTENT_DISPOSITION_FILENAME_INDEX);
+                if (name != null) {
+                    disposition = disposition + CONTENT_DISPOSITION_NAME + "=" + name + ";";
+                }
+                if (fileName != null) {
+                    disposition = disposition + CONTENT_DISPOSITION_FILE_NAME + "=" + fileName + ";";
+                }
+                BMap map = (BMap) contentDispositionStruct.getRefField(CONTENT_DISPOSITION_PARA_MAP_INDEX);
+                disposition = HeaderUtil.appendHeaderParams(disposition, map);
+            }
+        }
+        return disposition;
+    }
+
+    /**
+     * Populate given 'Entity' with it's body size.
+     *
+     * @param entityStruct Represent 'Entity'
+     * @param length       Size of the entity body
+     */
+    public static void setContentLength(BStruct entityStruct, int length) {
+        entityStruct.setIntField(SIZE_INDEX, length);
+    }
+
     public static BStruct extractEntity(BStruct httpMessageStruct) {
         Object isEntityBodyAvailable = httpMessageStruct.getNativeData(IS_ENTITY_BODY_PRESENT);
         if (isEntityBodyAvailable == null || !((Boolean) isEntityBodyAvailable)) {
@@ -182,7 +248,15 @@ public class MimeUtil {
         return entityStruct;
     }
 
-    public static void writeFileToOutputStream(BStruct entityStruct, OutputStream messageOutputStream) throws IOException {
+    /**
+     * Write file content directly to a given outputstream.
+     *
+     * @param entityStruct        Represent a ballerina entity
+     * @param messageOutputStream Represent an outputstream that the file content should be written to
+     * @throws IOException In case an exception occurs while writing file content to outputstream
+     */
+    public static void writeFileToOutputStream(BStruct entityStruct, OutputStream messageOutputStream)
+            throws IOException {
         String overFlowFilePath = EntityBodyHandler.getOverFlowFileLocation(entityStruct);
         Files.copy(Paths.get(overFlowFilePath), messageOutputStream);
     }
@@ -218,7 +292,7 @@ public class MimeUtil {
                     outputStream.close();
                 }
             } catch (IOException e) {
-                LOG.error("Error occured while closing outputstream in writeToTemporaryFile", e.getMessage());
+                log.error("Error occured while closing outputstream in writeToTemporaryFile", e.getMessage());
             }
         }
     }
@@ -231,7 +305,7 @@ public class MimeUtil {
      * @throws IOException In case an error occurs while reading input stream
      */
     static byte[] getByteArray(InputStream input) throws IOException {
-        try (ByteArrayOutputStream output = new ByteArrayOutputStream();) {
+        try (ByteArrayOutputStream output = new ByteArrayOutputStream()) {
             byte[] buffer = new byte[4096];
             for (int len; (len = input.read(buffer)) != -1; ) {
                 output.write(buffer, 0, len);
@@ -250,6 +324,11 @@ public class MimeUtil {
         return textValue != null && !textValue.isEmpty();
     }
 
+    /**
+     * Get a new multipart boundary delimiter.
+     *
+     * @return a boundary string
+     */
     public static String getNewMultipartDelimiter() {
         return Long.toHexString(PlatformDependent.threadLocalRandom().nextLong());
     }
