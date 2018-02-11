@@ -94,7 +94,7 @@ import static org.ballerinalang.mime.util.Constants.XML_EXTENSION;
  * Contains utility functions used by mime test cases.
  */
 public class Util {
-    private static final Logger LOG = LoggerFactory.getLogger(Util.class);
+    private static final Logger log = LoggerFactory.getLogger(Util.class);
 
     private static final String REQUEST_STRUCT = Constants.IN_REQUEST;
     private static final String PROTOCOL_PACKAGE_HTTP = Constants.PROTOCOL_PACKAGE_HTTP;
@@ -151,7 +151,7 @@ public class Util {
             MimeUtil.setContentType(getMediaTypeStruct(result), bodyPart, TEXT_PLAIN);
             return bodyPart;
         } catch (IOException e) {
-            LOG.error("Error occured while creating a temp file for json file part in getTextFilePart",
+            log.error("Error occured while creating a temp file for json file part in getTextFilePart",
                     e.getMessage());
         }
         return null;
@@ -180,7 +180,7 @@ public class Util {
             bodyPart.setRefField(ENTITY_HEADERS_INDEX, headerMap);
             return bodyPart;
         } catch (IOException e) {
-            LOG.error("Error occured while creating a temp file for json file part in getTextFilePart",
+            log.error("Error occured while creating a temp file for json file part in getTextFilePart",
                     e.getMessage());
         }
         return null;
@@ -220,7 +220,7 @@ public class Util {
             MimeUtil.setContentType(getMediaTypeStruct(result), bodyPart, APPLICATION_JSON);
             return bodyPart;
         } catch (IOException e) {
-            LOG.error("Error occured while creating a temp file for json file part in getJsonFilePart",
+            log.error("Error occured while creating a temp file for json file part in getJsonFilePart",
                     e.getMessage());
         }
         return null;
@@ -258,7 +258,7 @@ public class Util {
             MimeUtil.setContentType(getMediaTypeStruct(result), bodyPart, APPLICATION_XML);
             return bodyPart;
         } catch (IOException e) {
-            LOG.error("Error occured while creating a temp file for xml file part in getXmlFilePart",
+            log.error("Error occured while creating a temp file for xml file part in getXmlFilePart",
                     e.getMessage());
         }
         return null;
@@ -295,7 +295,7 @@ public class Util {
             MimeUtil.setContentType(getMediaTypeStruct(result), bodyPart, OCTET_STREAM);
             return bodyPart;
         } catch (IOException e) {
-            LOG.error("Error occured while creating a temp file for binary file part in getBinaryFilePart",
+            log.error("Error occured while creating a temp file for binary file part in getBinaryFilePart",
                     e.getMessage());
         }
         return null;
@@ -307,7 +307,8 @@ public class Util {
      * @param path Represent path to the resource
      * @return A map of relevant messages
      */
-    static Map<String, Object> createPrerequisiteMessages(String path, String topLevelContentType, CompileResult result) {
+    static Map<String, Object> createPrerequisiteMessages(String path, String topLevelContentType,
+                                                          CompileResult result) {
         Map<String, Object> messageMap = new HashMap<>();
         BStruct request = getRequestStruct(result);
         HTTPTestRequest cMsg = MessageUtils.generateHTTPMessageForMultiparts(path, Constants.HTTP_METHOD_POST);
@@ -349,7 +350,7 @@ public class Util {
             HttpPostRequestEncoder nettyEncoder = (HttpPostRequestEncoder) request.getNativeData(MULTIPART_ENCODER);
             addMultipartsToCarbonMessage(cMsg, nettyEncoder);
         } catch (Exception e) {
-            LOG.error("Error occured while adding multiparts to carbon message in setCarbonMessageWithMultiparts",
+            log.error("Error occured while adding multiparts to carbon message in setCarbonMessageWithMultiparts",
                     e.getMessage());
         }
     }
@@ -408,7 +409,7 @@ public class Util {
                     nettyEncoder.finalizeRequest();
                     requestStruct.addNativeData(MULTIPART_ENCODER, nettyEncoder);
                 } catch (HttpPostRequestEncoder.ErrorDataEncoderException e) {
-                    LOG.error("Error occurred while creating netty request encoder for multipart data binding",
+                    log.error("Error occurred while creating netty request encoder for multipart data binding",
                             e.getMessage());
                 }
             }
@@ -450,7 +451,7 @@ public class Util {
                 nettyEncoder.addBodyHttpData(encodedData);
             }
         } catch (IOException e) {
-            LOG.error("Error occurred while encoding body part in ", e.getMessage());
+            log.error("Error occurred while encoding body part in ", e.getMessage());
         }
     }
 
@@ -674,12 +675,16 @@ public class Util {
      */
     private static String getBodyPartName(BStruct bodyPart) {
         String contentDisposition = MimeUtil.getContentDisposition(bodyPart);
-        BMap<String, BValue> paramMap = HeaderUtil.getParamMap(contentDisposition);
-        if (paramMap != null) {
-            BString bodyPartName = paramMap.get(CONTENT_DISPOSITION_NAME) != null ?
-                    (BString) paramMap.get(CONTENT_DISPOSITION_NAME) : null;
-            if (bodyPartName != null) {
-                return bodyPartName.toString();
+        if (contentDisposition != null && !contentDisposition.isEmpty()) {
+            BMap<String, BValue> paramMap = HeaderUtil.getParamMap(contentDisposition);
+            if (paramMap != null) {
+                BString bodyPartName = paramMap.get(CONTENT_DISPOSITION_NAME) != null ?
+                        (BString) paramMap.get(CONTENT_DISPOSITION_NAME) : null;
+                if (bodyPartName != null) {
+                    return bodyPartName.toString();
+                } else {
+                    return UUID.randomUUID().toString();
+                }
             } else {
                 return UUID.randomUUID().toString();
             }

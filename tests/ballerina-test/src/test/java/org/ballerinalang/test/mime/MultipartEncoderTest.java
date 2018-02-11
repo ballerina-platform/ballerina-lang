@@ -25,6 +25,8 @@ import org.ballerinalang.mime.util.MultipartDataSource;
 import org.ballerinalang.mime.util.MultipartDecoder;
 import org.ballerinalang.model.values.BStruct;
 import org.jvnet.mimepull.MIMEPart;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -36,7 +38,12 @@ import java.util.ArrayList;
 import java.util.List;
 import javax.activation.MimeTypeParseException;
 
+/**
+ * Unit tests for multipart encoder.
+ */
 public class MultipartEncoderTest {
+    private static final Logger log = LoggerFactory.getLogger(MultipartEncoderTest.class);
+
     private CompileResult result;
 
     @BeforeClass
@@ -56,18 +63,17 @@ public class MultipartEncoderTest {
 
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         String multipartDataBoundary = MimeUtil.getNewMultipartDelimiter();
-
         MultipartDataSource multipartDataSource = new MultipartDataSource(Util.getArrayOfBodyParts(bodyParts),
                 multipartDataBoundary);
         multipartDataSource.serializeData(outputStream);
         InputStream inputStream = new ByteArrayInputStream(outputStream.toByteArray());
         try {
-            List<MIMEPart> mimeParts= MultipartDecoder.decodeBodyParts("multipart/mixed; boundary=" +
+            List<MIMEPart> mimeParts = MultipartDecoder.decodeBodyParts("multipart/mixed; boundary=" +
                     multipartDataBoundary, inputStream);
             Assert.assertEquals(mimeParts.size(), 4);
 
         } catch (MimeTypeParseException e) {
-            e.printStackTrace();
+            log.error("Error occurred while testing mulitpart/mixed encoding", e.getMessage());
         }
     }
 }

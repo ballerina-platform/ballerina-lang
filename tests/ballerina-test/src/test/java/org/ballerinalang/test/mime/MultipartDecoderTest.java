@@ -38,6 +38,9 @@ import java.util.List;
 
 import static org.ballerinalang.mime.util.Constants.CONTENT_TYPE;
 
+/**
+ * Unit tests for multipart decoder.
+ */
 public class MultipartDecoderTest {
     private CompileResult serviceResult;
 
