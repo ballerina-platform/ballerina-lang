@@ -25,6 +25,8 @@ import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.runtime.message.BallerinaMessageDataSource;
 import org.ballerinalang.runtime.message.MessageDataSource;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.BufferedWriter;
 import java.io.IOException;
@@ -38,7 +40,13 @@ import static org.ballerinalang.mime.util.Constants.CONTENT_DISPOSITION;
 import static org.ballerinalang.mime.util.Constants.CONTENT_TYPE;
 import static org.ballerinalang.mime.util.Constants.ENTITY_HEADERS_INDEX;
 
+/**
+ * Act as the multipart encoder.
+ *
+ * @since 0.967 >> TODO:Whats the next version?
+ */
 public class MultipartDataSource extends BallerinaMessageDataSource {
+    private static final Logger log = LoggerFactory.getLogger(MultipartDataSource.class);
 
     private BRefValueArray bodyParts;
     private String boundaryString;
@@ -83,12 +91,20 @@ public class MultipartDataSource extends BallerinaMessageDataSource {
             }
             writeFinalBoundaryString(writer, boundaryString);
         } catch (IOException e) {
-            e.printStackTrace();
+            log.error("Error occured while writing body parts to outputstream", e.getMessage());
         }
     }
 
+    /**
+     * Write body part headers to output stream.
+     *
+     * @param writer   Represent the outputstream writer
+     * @param bodyPart Represent ballerina body part
+     * @throws IOException When an error occurs while writing body part headers
+     */
     private void writeBodyPartHeaders(Writer writer, BStruct bodyPart) throws IOException {
-        BMap<String, BValue> entityHeaders = (BMap) bodyPart.getRefField(ENTITY_HEADERS_INDEX);
+        BMap<String, BValue> entityHeaders = bodyPart.getRefField(ENTITY_HEADERS_INDEX) != null ?
+                (BMap) bodyPart.getRefField(ENTITY_HEADERS_INDEX) : null;
         if (entityHeaders == null) {
             entityHeaders = new BMap<>();
         }
@@ -116,30 +132,37 @@ public class MultipartDataSource extends BallerinaMessageDataSource {
         writer.flush();
     }
 
+    /**
+     * Add content type info while is in MediaType struct as an entity header.
+     *
+     * @param bodyPart      Represent a ballerina body part
+     * @param entityHeaders Map of entity headers
+     */
     private void setContentTypeHeader(BStruct bodyPart, BMap<String, BValue> entityHeaders) {
         String contentType = MimeUtil.getContentTypeWithParameters(bodyPart);
-        if (entityHeaders.keySet().contains(CONTENT_TYPE)) {
-            BStringArray valueArray = (BStringArray) entityHeaders.get(CONTENT_TYPE);
-            valueArray.add(valueArray.size(), contentType);
-        } else {
-            BStringArray valueArray = new BStringArray(new String[]{contentType});
-            entityHeaders.put(CONTENT_TYPE, valueArray);
-        }
+        HeaderUtil.addToEntityHeaders(entityHeaders, CONTENT_TYPE, contentType);
     }
 
+    /**
+     * Add content disposition info while is in ContentDisposition struct as an entity header.
+     *
+     * @param bodyPart      Represent a ballerina body part
+     * @param entityHeaders Map of entity headers
+     */
     private void setContentDispositionHeader(BStruct bodyPart, BMap<String, BValue> entityHeaders) {
         String contentDisposition = MimeUtil.getContentDisposition(bodyPart);
         if (contentDisposition != null) {
-            if (entityHeaders.keySet().contains(CONTENT_DISPOSITION)) {
-                BStringArray valueArray = (BStringArray) entityHeaders.get(CONTENT_DISPOSITION);
-                valueArray.add(valueArray.size(), contentDisposition);
-            } else {
-                BStringArray valueArray = new BStringArray(new String[]{contentDisposition});
-                entityHeaders.put(CONTENT_DISPOSITION, valueArray);
-            }
+            HeaderUtil.addToEntityHeaders(entityHeaders, CONTENT_DISPOSITION, contentDisposition);
         }
     }
 
+    /**
+     * Write body part content to outputstream.
+     *
+     * @param outputStream Represent an outputstream
+     * @param bodyPart     Represent a ballerina body part
+     * @throws IOException When an error occurs while writing body content
+     */
     private void writeBodyContent(OutputStream outputStream, BStruct bodyPart) throws IOException {
         if (EntityBodyHandler.isContentInMemory(bodyPart)) {
             MessageDataSource messageDataSource = EntityBodyHandler.readMessageDataSource(bodyPart);
@@ -151,8 +174,14 @@ public class MultipartDataSource extends BallerinaMessageDataSource {
         }
     }
 
+    /**
+     * Write the final boundary string.
+     *
+     * @param writer         Represent an outputstream writer
+     * @param boundaryString Represent the boundary as a string
+     * @throws IOException When an error occurs while writing final boundary string
+     */
     private void writeFinalBoundaryString(Writer writer, String boundaryString) throws IOException {
-        // Write the final boundary string
         writer.write(CRLF_POST_DASH);
         writer.write(boundaryString);
         writer.write(CRLF_PRE_DASH);

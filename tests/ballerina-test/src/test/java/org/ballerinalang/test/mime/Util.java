@@ -1,3 +1,21 @@
+/*
+*  Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+*
+*  WSO2 Inc. licenses this file to you under the Apache License,
+*  Version 2.0 (the "License"); you may not use this file except
+*  in compliance with the License.
+*  You may obtain a copy of the License at
+*
+*    http://www.apache.org/licenses/LICENSE-2.0
+*
+*  Unless required by applicable law or agreed to in writing,
+*  software distributed under the License is distributed on an
+*  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+*  KIND, either express or implied.  See the License for the
+*  specific language governing permissions and limitations
+*  under the License.
+*/
+
 package org.ballerinalang.test.mime;
 
 import io.netty.buffer.ByteBufAllocator;
@@ -15,6 +33,7 @@ import org.ballerinalang.model.types.BStructType;
 import org.ballerinalang.model.values.BJSON;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BRefValueArray;
+import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
@@ -48,6 +67,7 @@ import java.util.UUID;
 import static org.ballerinalang.mime.util.Constants.APPLICATION_JSON;
 import static org.ballerinalang.mime.util.Constants.APPLICATION_XML;
 import static org.ballerinalang.mime.util.Constants.BYTE_DATA_INDEX;
+import static org.ballerinalang.mime.util.Constants.CONTENT_DISPOSITION_NAME;
 import static org.ballerinalang.mime.util.Constants.CONTENT_TRANSFER_ENCODING;
 import static org.ballerinalang.mime.util.Constants.ENTITY_HEADERS_INDEX;
 import static org.ballerinalang.mime.util.Constants.FILE;
@@ -94,7 +114,7 @@ public class Util {
      * @param bodyParts List of body parts
      * @return BRefValueArray representing an array of entities
      */
-    public static BRefValueArray getArrayOfBodyParts(ArrayList<BStruct> bodyParts) {
+    static BRefValueArray getArrayOfBodyParts(ArrayList<BStruct> bodyParts) {
         BStructType typeOfBodyPart = bodyParts.get(0).getType();
         BStruct[] result = bodyParts.toArray(new BStruct[bodyParts.size()]);
         return new BRefValueArray(result, typeOfBodyPart);
@@ -105,10 +125,9 @@ public class Util {
      *
      * @return A ballerina struct that represent a body part
      */
-    public static BStruct getTextBodyPart(CompileResult result) {
+    static BStruct getTextBodyPart(CompileResult result) {
         BStruct bodyPart = getEntityStruct(result);
         bodyPart.setStringField(TEXT_DATA_INDEX, "Ballerina text body part");
-        // bodyPart.setStringField(ENTITY_NAME_INDEX, "Text Body Part");
         MimeUtil.setContentType(getMediaTypeStruct(result), bodyPart, TEXT_PLAIN);
         return bodyPart;
     }
@@ -118,7 +137,7 @@ public class Util {
      *
      * @return a body part with text content in a file
      */
-    public static BStruct getTextFilePart(CompileResult result) {
+    static BStruct getTextFilePart(CompileResult result) {
         try {
             File file = File.createTempFile("test", ".txt");
             file.deleteOnExit();
@@ -129,7 +148,6 @@ public class Util {
             fileStruct.setStringField(FILE_PATH_INDEX, file.getAbsolutePath());
             BStruct bodyPart = getEntityStruct(result);
             bodyPart.setRefField(OVERFLOW_DATA_INDEX, fileStruct);
-            //   bodyPart.setStringField(ENTITY_NAME_INDEX, "Text File Part");
             MimeUtil.setContentType(getMediaTypeStruct(result), bodyPart, TEXT_PLAIN);
             return bodyPart;
         } catch (IOException e) {
@@ -144,7 +162,7 @@ public class Util {
      *
      * @return A ballerina struct that represent a body part
      */
-    public static BStruct getTextFilePartWithEncoding(String contentTransferEncoding, String message, CompileResult result) {
+    static BStruct getTextFilePartWithEncoding(String contentTransferEncoding, String message, CompileResult result) {
 
         try {
             File file = File.createTempFile("test", ".txt");
@@ -156,7 +174,6 @@ public class Util {
             fileStruct.setStringField(FILE_PATH_INDEX, file.getAbsolutePath());
             BStruct bodyPart = getEntityStruct(result);
             bodyPart.setRefField(OVERFLOW_DATA_INDEX, fileStruct);
-            //   bodyPart.setStringField(ENTITY_NAME_INDEX, "Text File Part");
             MimeUtil.setContentType(getMediaTypeStruct(result), bodyPart, TEXT_PLAIN);
             BMap<String, BValue> headerMap = new BMap<>();
             headerMap.put(CONTENT_TRANSFER_ENCODING, new BStringArray(new String[]{contentTransferEncoding}));
@@ -174,13 +191,12 @@ public class Util {
      *
      * @return A ballerina struct that represent a body part
      */
-    public static BStruct getJsonBodyPart(CompileResult result) {
+    static BStruct getJsonBodyPart(CompileResult result) {
         String key = "bodyPart";
         String value = "jsonPart";
         String jsonContent = "{\"" + key + "\":\"" + value + "\"}";
         BStruct bodyPart = getEntityStruct(result);
         bodyPart.setRefField(JSON_DATA_INDEX, new BJSON(jsonContent));
-        //   bodyPart.setStringField(ENTITY_NAME_INDEX, "Json Body Part");
         MimeUtil.setContentType(getMediaTypeStruct(result), bodyPart, APPLICATION_JSON);
         return bodyPart;
     }
@@ -190,7 +206,7 @@ public class Util {
      *
      * @return a body part with json content in a file
      */
-    public static BStruct getJsonFilePart(CompileResult result) {
+    static BStruct getJsonFilePart(CompileResult result) {
         try {
             File file = File.createTempFile("test", ".json");
             file.deleteOnExit();
@@ -201,7 +217,6 @@ public class Util {
             fileStruct.setStringField(FILE_PATH_INDEX, file.getAbsolutePath());
             BStruct bodyPart = getEntityStruct(result);
             bodyPart.setRefField(OVERFLOW_DATA_INDEX, fileStruct);
-            //    bodyPart.setStringField(ENTITY_NAME_INDEX, "Json File Part");
             MimeUtil.setContentType(getMediaTypeStruct(result), bodyPart, APPLICATION_JSON);
             return bodyPart;
         } catch (IOException e) {
@@ -216,11 +231,10 @@ public class Util {
      *
      * @return A ballerina struct that represent a body part
      */
-    public static BStruct getXmlBodyPart(CompileResult result) {
+    static BStruct getXmlBodyPart(CompileResult result) {
         BXMLItem xmlContent = new BXMLItem("<name>Ballerina</name>");
         BStruct bodyPart = getEntityStruct(result);
         bodyPart.setRefField(XML_DATA_INDEX, xmlContent);
-        //    bodyPart.setStringField(ENTITY_NAME_INDEX, "Xml Body Part");
         MimeUtil.setContentType(getMediaTypeStruct(result), bodyPart, APPLICATION_XML);
         return bodyPart;
     }
@@ -230,7 +244,7 @@ public class Util {
      *
      * @return a body part with xml content in a file
      */
-    public static BStruct getXmlFilePart(CompileResult result) {
+    static BStruct getXmlFilePart(CompileResult result) {
         try {
             File file = File.createTempFile("test", ".xml");
             file.deleteOnExit();
@@ -241,7 +255,6 @@ public class Util {
             fileStruct.setStringField(FILE_PATH_INDEX, file.getAbsolutePath());
             BStruct bodyPart = getEntityStruct(result);
             bodyPart.setRefField(OVERFLOW_DATA_INDEX, fileStruct);
-            //    bodyPart.setStringField(ENTITY_NAME_INDEX, "Xml File Part");
             MimeUtil.setContentType(getMediaTypeStruct(result), bodyPart, APPLICATION_XML);
             return bodyPart;
         } catch (IOException e) {
@@ -256,10 +269,9 @@ public class Util {
      *
      * @return A ballerina struct that represent a body part
      */
-    public static BStruct getBinaryBodyPart(CompileResult result) {
+    static BStruct getBinaryBodyPart(CompileResult result) {
         BStruct bodyPart = getEntityStruct(result);
         bodyPart.setBlobField(BYTE_DATA_INDEX, "Ballerina binary part".getBytes());
-        //    bodyPart.setStringField(ENTITY_NAME_INDEX, "Binary Body Part");
         MimeUtil.setContentType(getMediaTypeStruct(result), bodyPart, OCTET_STREAM);
         return bodyPart;
     }
@@ -269,7 +281,7 @@ public class Util {
      *
      * @return a body part with blob content in a file
      */
-    public static BStruct getBinaryFilePart(CompileResult result) {
+    static BStruct getBinaryFilePart(CompileResult result) {
         try {
             File file = File.createTempFile("test", ".tmp");
             file.deleteOnExit();
@@ -280,7 +292,6 @@ public class Util {
             fileStruct.setStringField(FILE_PATH_INDEX, file.getAbsolutePath());
             BStruct bodyPart = getEntityStruct(result);
             bodyPart.setRefField(OVERFLOW_DATA_INDEX, fileStruct);
-            //   bodyPart.setStringField(ENTITY_NAME_INDEX, "Binary File Part");
             MimeUtil.setContentType(getMediaTypeStruct(result), bodyPart, OCTET_STREAM);
             return bodyPart;
         } catch (IOException e) {
@@ -296,7 +307,7 @@ public class Util {
      * @param path Represent path to the resource
      * @return A map of relevant messages
      */
-    public static Map<String, Object> createPrerequisiteMessages(String path, String topLevelContentType, CompileResult result) {
+    static Map<String, Object> createPrerequisiteMessages(String path, String topLevelContentType, CompileResult result) {
         Map<String, Object> messageMap = new HashMap<>();
         BStruct request = getRequestStruct(result);
         HTTPTestRequest cMsg = MessageUtils.generateHTTPMessageForMultiparts(path, Constants.HTTP_METHOD_POST);
@@ -316,7 +327,7 @@ public class Util {
      * @param bodyParts  Represent body parts that needs to be added to multipart entity
      * @return A test carbon message to be used for invoking the service with.
      */
-    public static HTTPTestRequest getCarbonMessageWithBodyParts(Map<String, Object> messageMap, BRefValueArray bodyParts) {
+    static HTTPTestRequest getCarbonMessageWithBodyParts(Map<String, Object> messageMap, BRefValueArray bodyParts) {
         HTTPTestRequest cMsg = (HTTPTestRequest) messageMap.get(CARBON_MESSAGE);
         BStruct request = (BStruct) messageMap.get(BALLERINA_REQUEST);
         BStruct entity = (BStruct) messageMap.get(MULTIPART_ENTITY);
@@ -332,7 +343,7 @@ public class Util {
      * @param request Ballerina request struct
      * @param cMsg    Represent carbon message
      */
-    public static void setCarbonMessageWithMultiparts(BStruct request, HTTPTestRequest cMsg) {
+    private static void setCarbonMessageWithMultiparts(BStruct request, HTTPTestRequest cMsg) {
         prepareRequestWithMultiparts(cMsg, request);
         try {
             HttpPostRequestEncoder nettyEncoder = (HttpPostRequestEncoder) request.getNativeData(MULTIPART_ENCODER);
@@ -363,8 +374,8 @@ public class Util {
      * @param nettyEncoder   Represent netty encoder that holds the actual http content
      * @throws Exception In case content cannot be read from netty encoder
      */
-    public static void addMultipartsToCarbonMessage(HTTPCarbonMessage httpRequestMsg,
-                                                    HttpPostRequestEncoder nettyEncoder) throws Exception {
+    private static void addMultipartsToCarbonMessage(HTTPCarbonMessage httpRequestMsg,
+                                                     HttpPostRequestEncoder nettyEncoder) throws Exception {
         while (!nettyEncoder.isEndOfInput()) {
             httpRequestMsg.addHttpContent(nettyEncoder.readChunk(ByteBufAllocator.DEFAULT));
         }
@@ -377,7 +388,7 @@ public class Util {
      * @param outboundRequest Represent outbound carbon request
      * @param requestStruct   Ballerina request struct which contains multipart data
      */
-    public static void prepareRequestWithMultiparts(HTTPCarbonMessage outboundRequest, BStruct requestStruct) {
+    private static void prepareRequestWithMultiparts(HTTPCarbonMessage outboundRequest, BStruct requestStruct) {
         BStruct entityStruct = requestStruct.getNativeData(MESSAGE_ENTITY) != null ?
                 (BStruct) requestStruct.getNativeData(MESSAGE_ENTITY) : null;
         if (entityStruct != null) {
@@ -412,8 +423,8 @@ public class Util {
      * @param bodyPart     Represent a ballerina body part
      * @throws HttpPostRequestEncoder.ErrorDataEncoderException when an error occurs while encoding
      */
-    public static void encodeBodyPart(HttpPostRequestEncoder nettyEncoder, HttpRequest httpRequest,
-                                      BStruct bodyPart) throws HttpPostRequestEncoder.ErrorDataEncoderException {
+    private static void encodeBodyPart(HttpPostRequestEncoder nettyEncoder, HttpRequest httpRequest,
+                                       BStruct bodyPart) throws HttpPostRequestEncoder.ErrorDataEncoderException {
         try {
             InterfaceHttpData encodedData;
             String baseType = MimeUtil.getContentType(bodyPart);
@@ -651,7 +662,7 @@ public class Util {
      *
      * @param dataFactory which enables creation of InterfaceHttpData objects
      */
-    public static void setDataFactory(HttpDataFactory dataFactory) {
+    private static void setDataFactory(HttpDataFactory dataFactory) {
         Util.dataFactory = dataFactory;
     }
 
@@ -662,12 +673,19 @@ public class Util {
      * @return a string denoting the body part's name
      */
     private static String getBodyPartName(BStruct bodyPart) {
-      /*  String bodyPartName = bodyPart.getStringField(ENTITY_NAME_INDEX);
-        if (bodyPartName == null || bodyPartName.isEmpty()) {
-            bodyPartName = UUID.randomUUID().toString();
+        String contentDisposition = MimeUtil.getContentDisposition(bodyPart);
+        BMap<String, BValue> paramMap = HeaderUtil.getParamMap(contentDisposition);
+        if (paramMap != null) {
+            BString bodyPartName = paramMap.get(CONTENT_DISPOSITION_NAME) != null ?
+                    (BString) paramMap.get(CONTENT_DISPOSITION_NAME) : null;
+            if (bodyPartName != null) {
+                return bodyPartName.toString();
+            } else {
+                return UUID.randomUUID().toString();
+            }
+        } else {
+            return UUID.randomUUID().toString();
         }
-        return bodyPartName;*/
-        return UUID.randomUUID().toString();
     }
 
     /**
@@ -677,9 +695,9 @@ public class Util {
      * @param messageAsString Actual content that needs to be written
      * @throws IOException In case an exception occurs when writing to temp file
      */
-    public static void writeToTempFile(File file, String messageAsString) throws IOException {
+    private static void writeToTempFile(File file, String messageAsString) throws IOException {
         try (Writer writer = new OutputStreamWriter(new FileOutputStream(file), UTF_8);
-             BufferedWriter bufferedWriter = new BufferedWriter(writer);) {
+             BufferedWriter bufferedWriter = new BufferedWriter(writer)) {
             bufferedWriter.write(messageAsString);
             bufferedWriter.close();
         }

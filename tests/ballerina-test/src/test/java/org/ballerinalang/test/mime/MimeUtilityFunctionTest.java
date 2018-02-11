@@ -74,10 +74,10 @@ public class MimeUtilityFunctionTest {
     private final String protocolPackageFile = PROTOCOL_PACKAGE_FILE;
     private final String entityStruct = Constants.ENTITY;
     private final String mediaTypeStruct = MEDIA_TYPE;
-    private String sourceFilePath = "test-src/mime/mime-test.bal";
 
     @BeforeClass
     public void setup() {
+        String sourceFilePath = "test-src/mime/mime-test.bal";
         compileResult = BCompileUtil.compile(sourceFilePath);
         serviceResult = BServiceUtil.setupProgramFile(this, sourceFilePath);
     }

@@ -315,13 +315,13 @@ public class EntityBodyHandler {
                     break;
                 default:
                     byte[] binaryPayload = getBinaryPayloadFromMemory(entity);
-                    if (binaryPayload != null) {
+                    if (binaryPayload.length != 0) {
                         return new BlobDataSource(binaryPayload);
                     }
             }
         } else {
             byte[] binaryPayload = getBinaryPayloadFromMemory(entity);
-            if (binaryPayload != null) {
+            if (binaryPayload.length != 0) {
                 return new BlobDataSource(binaryPayload);
             }
         }
@@ -381,7 +381,7 @@ public class EntityBodyHandler {
         if (byteData != null) {
             return entity.getBlobField(BYTE_DATA_INDEX);
         }
-        return null;
+        return new byte[0];
     }
 
     /**

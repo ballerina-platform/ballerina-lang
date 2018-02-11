@@ -47,7 +47,9 @@ import static org.ballerinalang.mime.util.Constants.NO_CONTENT_LENGTH_FOUND;
 import static org.ballerinalang.mime.util.Constants.PROTOCOL_PACKAGE_MIME;
 
 /**
+ * Responsible for decoding an inputstream to get a set of multiparts.
  *
+ * @since 0.967 >> TODO:Whats the next version?
  */
 public class MultipartDecoder {
     private static final Logger log = LoggerFactory.getLogger(MultipartDecoder.class);
@@ -76,10 +78,11 @@ public class MultipartDecoder {
      *
      * @param contentType Content-Type of the top level message
      * @param inputStream Represent input stream coming from the request/response
-     * @return
-     * @throws MimeTypeParseException
+     * @return A list of mime parts
+     * @throws MimeTypeParseException When an inputstream cannot be decoded properly
      */
-    public static List<MIMEPart> decodeBodyParts(String contentType, InputStream inputStream) throws MimeTypeParseException {
+    public static List<MIMEPart> decodeBodyParts(String contentType, InputStream inputStream)
+            throws MimeTypeParseException {
         MimeType mimeType = new MimeType(contentType);
         final MIMEMessage mimeMessage = new MIMEMessage(inputStream,
                 mimeType.getParameter(BOUNDARY),
@@ -110,7 +113,8 @@ public class MultipartDecoder {
         for (final MIMEPart mimePart : mimeParts) {
             BStruct partStruct = ConnectorUtils.createAndGetStruct(context, PROTOCOL_PACKAGE_MIME, ENTITY);
             BStruct mediaType = ConnectorUtils.createAndGetStruct(context, PROTOCOL_PACKAGE_MIME, MEDIA_TYPE);
-            partStruct.setRefField(ENTITY_HEADERS_INDEX, HeaderUtil.setBodyPartHeaders(mimePart.getAllHeaders(), new BMap<>()));
+            partStruct.setRefField(ENTITY_HEADERS_INDEX, HeaderUtil.setBodyPartHeaders(mimePart.getAllHeaders(),
+                    new BMap<>()));
             List<String> lengthHeaders = mimePart.getHeader(CONTENT_LENGTH);
             if (HeaderUtil.isHeaderExist(lengthHeaders)) {
                 MimeUtil.setContentLength(partStruct, Integer.parseInt(lengthHeaders.get(FIRST_ELEMENT)));
@@ -122,7 +126,8 @@ public class MultipartDecoder {
             if (HeaderUtil.isHeaderExist(contentDispositionHeaders)) {
                 BStruct contentDisposition = ConnectorUtils.createAndGetStruct(context, PROTOCOL_PACKAGE_MIME,
                         CONTENT_DISPOSITION_STRUCT);
-                MimeUtil.setContentDisposition(contentDisposition, partStruct, contentDispositionHeaders.get(FIRST_ELEMENT));
+                MimeUtil.setContentDisposition(contentDisposition, partStruct, contentDispositionHeaders
+                        .get(FIRST_ELEMENT));
             }
             EntityBodyHandler.populateBodyContent(context, partStruct, mimePart);
             bodyParts.add(partStruct);

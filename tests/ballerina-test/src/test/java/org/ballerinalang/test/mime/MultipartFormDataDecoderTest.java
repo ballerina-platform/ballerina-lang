@@ -27,8 +27,6 @@ import org.ballerinalang.model.values.BXMLItem;
 import org.ballerinalang.test.services.testutils.HTTPTestRequest;
 import org.ballerinalang.test.services.testutils.Services;
 import org.ballerinalang.test.utils.ResponseReader;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -45,13 +43,12 @@ import static org.ballerinalang.mime.util.Constants.MULTIPART_FORM_DATA;
  * Test cases for multipart/form-data handling.
  */
 public class MultipartFormDataDecoderTest {
-    private static final Logger LOG = LoggerFactory.getLogger(MultipartFormDataDecoderTest.class);
 
     private CompileResult result, serviceResult;
-    private String sourceFilePath = "test-src/mime/multipart-request.bal";
 
     @BeforeClass
     public void setup() {
+        String sourceFilePath = "test-src/mime/multipart-request.bal";
         result = BCompileUtil.compile(sourceFilePath);
         serviceResult = BServiceUtil.setupProgramFile(this, sourceFilePath);
     }

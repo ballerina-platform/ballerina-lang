@@ -43,12 +43,17 @@ import static org.ballerinalang.mime.util.Constants.STRUCT_GENERIC_ERROR;
 /**
  * Utility methods for parsing headers.
  *
- * @since 0.967 >> TODO:Whats the next version?
+ * @since 0.967
  */
 public class HeaderUtil {
 
+    /**
+     * Given a header value, get it's parameters.
+     *
+     * @param headerValue Header value as a string
+     * @return Parameter map
+     */
     public static BMap<String, BValue> getParamMap(String headerValue) {
-
         BMap<String, BValue> paramMap = null;
         if (headerValue.contains(SEMICOLON)) {
             List<String> paramList = Arrays.stream(headerValue.substring(headerValue.indexOf(SEMICOLON) + 1)
@@ -58,10 +63,22 @@ public class HeaderUtil {
         return paramMap;
     }
 
+    /**
+     * Get header value without parameters.
+     *
+     * @param headerValue Header value with parameters as a string
+     * @return Header value without parameters
+     */
     static String getHeaderValue(String headerValue) {
         return extractValue(headerValue.trim());
     }
 
+    /**
+     * Extract header value.
+     *
+     * @param headerValue Header value with parameters as a string
+     * @return Header value without parameters
+     */
     private static String extractValue(String headerValue) {
         String value = headerValue.substring(0, headerValue.indexOf(SEMICOLON)).trim();
         if (value.isEmpty()) {
@@ -75,6 +92,13 @@ public class HeaderUtil {
         return !(paramList.size() == 1 && paramList.get(0).isEmpty());
     }
 
+    /**
+     * Get parser error as a ballerina struct.
+     *
+     * @param context Represent ballerina context
+     * @param errMsg  Error message in string form
+     * @return Ballerina struct with parse error
+     */
     public static BStruct getParserError(Context context, String errMsg) {
         PackageInfo errorPackageInfo = context.getProgramFile().getPackageInfo(BUILTIN_PACKAGE);
         StructInfo errorStructInfo = errorPackageInfo.getStructInfo(STRUCT_GENERIC_ERROR);
@@ -84,6 +108,12 @@ public class HeaderUtil {
         return parserError;
     }
 
+    /**
+     * Create a parameter map.
+     *
+     * @param paramList List of parameters
+     * @return Ballerina map
+     */
     private static BMap<String, BValue> createParamBMap(List<String> paramList) {
         BMap<String, BValue> paramMap = new BMap<>();
         for (String param : paramList) {
@@ -127,7 +157,7 @@ public class HeaderUtil {
     }
 
     /**
-     * Get the header value for a given header name from a body part.
+     * Extract the header value from a body part for a given header name.
      *
      * @param bodyPart   Represent a ballerina body part.
      * @param headerName Represent an http header name
@@ -143,20 +173,45 @@ public class HeaderUtil {
         return null;
     }
 
-    static String appendHeaderParams(String contentType, BMap map) {
+    /**
+     * Get the header value intact with parameters.
+     *
+     * @param headerValue Header value as a string
+     * @param map         Represent a parameter map
+     * @return Header value along with it's parameters as a string
+     */
+    static String appendHeaderParams(String headerValue, BMap map) {
+        StringBuilder builder = new StringBuilder(headerValue);
         int index = 0;
         Set<String> keys = map.keySet();
         if (!keys.isEmpty()) {
             for (String key : keys) {
                 BString paramValue = (BString) map.get(key);
                 if (index == keys.size() - 1) {
-                    contentType = contentType + key + "=" + paramValue.toString();
+                    builder.append(key).append("=").append(paramValue.toString());
                 } else {
-                    contentType = contentType + key + "=" + paramValue.toString() + ";";
+                    builder.append(key).append("=").append(paramValue.toString()).append(";");
                     index = index + 1;
                 }
             }
         }
-        return contentType;
+        return builder.toString();
+    }
+
+    /**
+     * Add a given header name and a value to entity headers.
+     *
+     * @param entityHeaders A map of entity headers
+     * @param headerName    Header name as a string
+     * @param headerValue   Header value as a string
+     */
+    static void addToEntityHeaders(BMap<String, BValue> entityHeaders, String headerName, String headerValue) {
+        if (entityHeaders.keySet().contains(headerName)) {
+            BStringArray valueArray = (BStringArray) entityHeaders.get(headerName);
+            valueArray.add(valueArray.size(), headerValue);
+        } else {
+            BStringArray valueArray = new BStringArray(new String[]{headerValue});
+            entityHeaders.put(headerName, valueArray);
+        }
     }
 }

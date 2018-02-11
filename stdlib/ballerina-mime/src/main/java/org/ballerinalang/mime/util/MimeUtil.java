@@ -180,6 +180,7 @@ public class MimeUtil {
                     case CONTENT_DISPOSITION_NAME:
                         contentDisposition.setStringField(CONTENT_DISPOSITION_NAME_INDEX, paramValue.toString());
                         break;
+                    default:
                 }
             }
         }
@@ -193,7 +194,7 @@ public class MimeUtil {
      * @param entity Represent an 'Entity'
      * @return content-type in 'primarytype/subtype; key=value;' format
      */
-    static String getContentDisposition(BStruct entity) {
+    public static String getContentDisposition(BStruct entity) {
         String disposition = null;
         if (entity.getRefField(CONTENT_DISPOSITION_INDEX) != null) {
             BStruct contentDispositionStruct = (BStruct) entity.getRefField(CONTENT_DISPOSITION_INDEX);
