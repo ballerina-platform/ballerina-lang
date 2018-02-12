@@ -26,6 +26,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.common.Constants;
 import org.wso2.transport.http.netty.common.ProxyServerConfiguration;
+import org.wso2.transport.http.netty.config.ChunkConfig;
 import org.wso2.transport.http.netty.config.SenderConfiguration;
 import org.wso2.transport.http.netty.listener.CustomHttpContentCompressor;
 import org.wso2.transport.http.netty.listener.HTTPTraceLoggingHandler;
@@ -44,7 +45,11 @@ public class HTTPClientInitializer extends ChannelInitializer<SocketChannel> {
     private TargetHandler targetHandler;
     private boolean httpTraceLogEnabled;
     private boolean followRedirect;
+    private boolean certificateRevocationVerifier;
     private int maxRedirectCount;
+    private int cacheSize;
+    private int cacheDelay;
+    private ChunkConfig chunkConfig;
     private boolean isKeepAlive;
     private ProxyServerConfiguration proxyServerConfiguration;
     private ConnectionManager connectionManager;
@@ -55,9 +60,13 @@ public class HTTPClientInitializer extends ChannelInitializer<SocketChannel> {
         this.httpTraceLogEnabled = senderConfiguration.isHttpTraceLogEnabled();
         this.followRedirect = senderConfiguration.isFollowRedirect();
         this.maxRedirectCount = senderConfiguration.getMaxRedirectCount(Constants.MAX_REDIRECT_COUNT);
+        this.chunkConfig = senderConfiguration.getChunkingConfig();
         this.isKeepAlive = senderConfiguration.isKeepAlive();
         this.proxyServerConfiguration = senderConfiguration.getProxyServerConfiguration();
         this.connectionManager = connectionManager;
+        this.certificateRevocationVerifier = senderConfiguration.getCertificateRevocationVerifier();
+        this.cacheDelay = senderConfiguration.getCacheDelay();
+        this.cacheSize = senderConfiguration.getCacheSize();
     }
 
     @Override
@@ -80,7 +89,10 @@ public class HTTPClientInitializer extends ChannelInitializer<SocketChannel> {
             log.debug("adding ssl handler");
             ch.pipeline().addLast("ssl", new SslHandler(this.sslEngine));
         }
-
+        if (certificateRevocationVerifier && sslEngine != null) {
+            ch.pipeline().addLast("certificateValidation",
+                    new CertificateValidationHandler(this.sslEngine, this.cacheDelay, this.cacheSize));
+        }
         ch.pipeline().addLast("compressor", new CustomHttpContentCompressor());
         ch.pipeline().addLast("decoder", new HttpResponseDecoder());
         ch.pipeline().addLast("encoder", new HttpRequestEncoder());

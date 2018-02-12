@@ -127,6 +127,30 @@
             <version>3.11</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>org.bouncycastle</groupId>
+            <artifactId>bcprov-jdk15on</artifactId>
+            <version>${bcprov-jdk15on.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.bouncycastle</groupId>
+            <artifactId>bcpkix-jdk15on</artifactId>
+            <version>${bcpkix-jdk15on.version}</version>
+        </dependency>
+        <!--&lt;!&ndash; BouncyCastle Api which needs when validating Certificates. &ndash;&gt;-->
+        <!--&lt;!&ndash; https://mvnrepository.com/artifact/org.bouncycastle/bcpkix-jdk15on &ndash;&gt;-->
+        <!--<dependency>-->
+            <!--<groupId>org.bouncycastle</groupId>-->
+            <!--<artifactId>bcpkix-jdk15on</artifactId>-->
+            <!--<version>1.52</version>-->
+        <!--</dependency>-->
+        <!--&lt;!&ndash; https://mvnrepository.com/artifact/org.bouncycastle/bcprov-jdk16 &ndash;&gt;-->
+        <!--<dependency>-->
+            <!--<groupId>org.bouncycastle</groupId>-->
+            <!--<artifactId>bcprov-jdk16</artifactId>-->
+            <!--<version>1.46</version>-->
+        <!--</dependency>-->
+
     </dependencies>
 
     <build>
