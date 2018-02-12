@@ -22,8 +22,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.nio.channels.ByteChannel;
+import java.nio.channels.Channels;
 import java.nio.channels.WritableByteChannel;
 
 /**
@@ -173,5 +175,22 @@ public abstract class AbstractChannel {
             String message = "Error occurred while closing the connection. ";
             throw new BallerinaIOException(message, e);
         }
+    }
+
+    /**
+     * This will return {@link InputStream} from underlying {@link ByteChannel}.
+     *
+     * @return An {@link InputStream}
+     */
+    public InputStream getInputStream() {
+        if (null == channel) {
+            String message = "Underlying channel is null.";
+            throw new BallerinaIOException(message);
+        }
+        if (!channel.isOpen()) {
+            String message = "Channel is already in a close state.";
+            throw new BallerinaIOException(message);
+        }
+        return Channels.newInputStream(channel);
     }
 }
