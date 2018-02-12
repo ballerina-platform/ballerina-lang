@@ -17,17 +17,8 @@
 */
 package org.ballerinalang.langserver.definition;
 
-import com.google.gson.Gson;
-import org.ballerinalang.langserver.BallerinaLanguageServer;
-import org.eclipse.lsp4j.DidOpenTextDocumentParams;
+import org.ballerinalang.langserver.common.util.CommonUtil;
 import org.eclipse.lsp4j.Position;
-import org.eclipse.lsp4j.TextDocumentIdentifier;
-import org.eclipse.lsp4j.TextDocumentItem;
-import org.eclipse.lsp4j.TextDocumentPositionParams;
-import org.eclipse.lsp4j.jsonrpc.Endpoint;
-import org.eclipse.lsp4j.jsonrpc.messages.ResponseError;
-import org.eclipse.lsp4j.jsonrpc.messages.ResponseMessage;
-import org.eclipse.lsp4j.jsonrpc.services.ServiceEndpoints;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -38,31 +29,23 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
-
-import static java.lang.Thread.sleep;
 
 /**
- * Tests goto definition feature
+ * Test goto definition language server feature.
  */
 public class DefinitionTest {
     private static final String DEFINITION_TESTS_SAMPLES = "src" + File.separator + "test" + File.separator
             + "resources" + File.separator + "definition";
     private static final String ROOT_DIR = Paths.get("").toAbsolutePath().toString() + File.separator;
     private static final String SAMPLES_COPY_DIR = ROOT_DIR + "samples" + File.separator + "definition";
+    private static final String METHOD = "textDocument/definition";
     private String balPath1 = SAMPLES_COPY_DIR + File.separator + "test" + File.separator + "definition1.bal";
     private String balPath2 = SAMPLES_COPY_DIR + File.separator + "test" + File.separator + "definition2.bal";
-    private BallerinaLanguageServer ballerinaLanguageServer;
-    private Endpoint serviceEndpoint;
-    private Gson gson;
     private String balFile1Content;
     private String balFile2Content;
 
     @BeforeClass
     public void loadLangServer() throws Exception {
-        ballerinaLanguageServer = new BallerinaLanguageServer();
-        serviceEndpoint = ServiceEndpoints.toEndpoint(ballerinaLanguageServer);
         File source = new File(DEFINITION_TESTS_SAMPLES);
         File destination = new File(SAMPLES_COPY_DIR);
         org.apache.commons.io.FileUtils.copyDirectory(source, destination);
@@ -70,47 +53,46 @@ public class DefinitionTest {
         balFile1Content = new String(encoded1);
         byte[] encoded2 = Files.readAllBytes(Paths.get(balPath2));
         balFile2Content = new String(encoded2);
-        gson = new Gson();
     }
 
     @Test(description = "Test goto definition for local functions", dataProvider = "localFuncPosition")
     public void definitionForLocalFunctionsTest(Position position, DefinitionTestDataModel dataModel)
             throws InterruptedException, IOException {
-        Assert.assertEquals(getDefinitionResponseMessageAsString(position, dataModel.getBallerinaFilePath(),
-                dataModel.getBallerinaFileContent()), getExpectedValue(dataModel.getExpectedFileName(),
-                dataModel.getDefinitionFileURI()), "Did not match the definition content for "
-                + dataModel.getExpectedFileName() + " and position line:" + position.getLine() + " character:"
-                + position.getCharacter());
+        Assert.assertEquals(CommonUtil.getLanguageServerResponseMessageAsString(position,
+                dataModel.getBallerinaFilePath(), dataModel.getBallerinaFileContent(), METHOD),
+                getExpectedValue(dataModel.getExpectedFileName(), dataModel.getDefinitionFileURI()),
+                "Did not match the definition content for " + dataModel.getExpectedFileName()
+                        + " and position line:" + position.getLine() + " character:" + position.getCharacter());
     }
 
     @Test(description = "Test goto definition for structs", dataProvider = "structPositions")
     public void definitionForStructsTest(Position position, DefinitionTestDataModel dataModel)
             throws InterruptedException, IOException {
-        Assert.assertEquals(getDefinitionResponseMessageAsString(position, dataModel.getBallerinaFilePath(),
-                dataModel.getBallerinaFileContent()), getExpectedValue(dataModel.getExpectedFileName(),
-                dataModel.getDefinitionFileURI()), "Did not match the definition content for "
-                + dataModel.getExpectedFileName() + " and position line:" + position.getLine() + " character:"
-                + position.getCharacter());
+        Assert.assertEquals(CommonUtil.getLanguageServerResponseMessageAsString(position,
+                dataModel.getBallerinaFilePath(), dataModel.getBallerinaFileContent(), METHOD),
+                getExpectedValue(dataModel.getExpectedFileName(), dataModel.getDefinitionFileURI()),
+                "Did not match the definition content for " + dataModel.getExpectedFileName()
+                        + " and position line:" + position.getLine() + " character:" + position.getCharacter());
     }
 
     @Test(description = "Test goto definition for global variables", dataProvider = "globalVariablePositions")
     public void definitionForGlobalVariablesTest(Position position, DefinitionTestDataModel dataModel)
             throws InterruptedException, IOException {
-        Assert.assertEquals(getDefinitionResponseMessageAsString(position, dataModel.getBallerinaFilePath(),
-                dataModel.getBallerinaFileContent()), getExpectedValue(dataModel.getExpectedFileName(),
-                dataModel.getDefinitionFileURI()), "Did not match the definition content for "
-                + dataModel.getExpectedFileName() + " and position line:" + position.getLine() + " character:"
-                + position.getCharacter());
+        Assert.assertEquals(CommonUtil.getLanguageServerResponseMessageAsString(position,
+                dataModel.getBallerinaFilePath(), dataModel.getBallerinaFileContent(), METHOD),
+                getExpectedValue(dataModel.getExpectedFileName(), dataModel.getDefinitionFileURI()),
+                "Did not match the definition content for " + dataModel.getExpectedFileName() +
+                        " and position line:" + position.getLine() + " character:" + position.getCharacter());
     }
 
     @Test(description = "Test goto definition for local variables", dataProvider = "localVariablePositions")
     public void definitionForLocalVariablesTest(Position position, DefinitionTestDataModel dataModel)
             throws InterruptedException, IOException {
-        Assert.assertEquals(getDefinitionResponseMessageAsString(position, dataModel.getBallerinaFilePath(),
-                dataModel.getBallerinaFileContent()), getExpectedValue(dataModel.getExpectedFileName(),
-                dataModel.getDefinitionFileURI()), "Did not match the definition content for "
-                + dataModel.getExpectedFileName() + " and position line:" + position.getLine() + " character:"
-                + position.getCharacter());
+        Assert.assertEquals(CommonUtil.getLanguageServerResponseMessageAsString(position,
+                dataModel.getBallerinaFilePath(), dataModel.getBallerinaFileContent(), METHOD),
+                getExpectedValue(dataModel.getExpectedFileName(), dataModel.getDefinitionFileURI()),
+                "Did not match the definition content for " + dataModel.getExpectedFileName() +
+                        " and position line:" + position.getLine() + " character:" + position.getCharacter());
     }
 
     @DataProvider(name = "localFuncPosition")
@@ -173,50 +155,6 @@ public class DefinitionTest {
     @AfterClass
     public void cleanSamples() throws IOException {
         org.apache.commons.io.FileUtils.deleteDirectory(new File(ROOT_DIR + "samples"));
-    }
-
-    /**
-     * Get the definition response message as a string.
-     *
-     * @param position hovering position to get the definition.
-     * @return json string value of the response
-     */
-    private String getDefinitionResponseMessageAsString(Position position, String file, String fileContent)
-            throws InterruptedException {
-        TextDocumentPositionParams positionParams = new TextDocumentPositionParams();
-        TextDocumentIdentifier identifier = new TextDocumentIdentifier();
-        identifier.setUri(Paths.get(file).toUri().toString());
-        positionParams.setTextDocument(identifier);
-        positionParams.setPosition(position);
-
-        DidOpenTextDocumentParams documentParams = new DidOpenTextDocumentParams();
-        TextDocumentItem textDocumentItem = new TextDocumentItem();
-        textDocumentItem.setUri(identifier.getUri());
-        textDocumentItem.setText(fileContent);
-        documentParams.setTextDocument(textDocumentItem);
-
-        serviceEndpoint.notify("textDocument/didOpen", documentParams);
-        sleep(200);
-        CompletableFuture result = serviceEndpoint.request("textDocument/definition", positionParams);
-        sleep(200);
-        ResponseMessage jsonrpcResponse = new ResponseMessage();
-        try {
-            jsonrpcResponse.setId("324");
-            jsonrpcResponse.setResult(result.get());
-        } catch (InterruptedException e) {
-            ResponseError responseError = new ResponseError();
-            responseError.setCode(-32002);
-            responseError.setMessage("Attempted to retrieve the result of a task/s" +
-                    "that was aborted by throwing an exception");
-            jsonrpcResponse.setError(responseError);
-        } catch (ExecutionException e) {
-            ResponseError responseError = new ResponseError();
-            responseError.setCode(-32001);
-            responseError.setMessage("Current thread was interrupted");
-            jsonrpcResponse.setError(responseError);
-        }
-
-        return gson.toJson(jsonrpcResponse);
     }
 
     /**

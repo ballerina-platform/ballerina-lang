@@ -38,31 +38,15 @@ public class DefinitionTestDataModel {
         return expectedFileName;
     }
 
-    public void setExpectedFileName(String expectedFileName) {
-        this.expectedFileName = expectedFileName;
-    }
-
     public String getDefinitionFileURI() {
         return definitionFileURI;
-    }
-
-    public void setDefinitionFileURI(String definitionFileURI) {
-        this.definitionFileURI = definitionFileURI;
     }
 
     public String getBallerinaFilePath() {
         return ballerinaFilePath;
     }
 
-    public void setBallerinaFilePath(String ballerinaFilePath) {
-        this.ballerinaFilePath = ballerinaFilePath;
-    }
-
     public String getBallerinaFileContent() {
         return ballerinaFileContent;
-    }
-
-    public void setBallerinaFileContent(String ballerinaFileContent) {
-        this.ballerinaFileContent = ballerinaFileContent;
     }
 }
