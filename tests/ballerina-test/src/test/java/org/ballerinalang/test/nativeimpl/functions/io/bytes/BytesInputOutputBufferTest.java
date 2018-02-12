@@ -224,7 +224,7 @@ public class BytesInputOutputBufferTest {
 
     @Test(description = "Validate getting InputStream from closed channel",
             expectedExceptions = BallerinaIOException.class,
-            expectedExceptionsMessageRegExp = "Channel is already in a close state.")
+            expectedExceptionsMessageRegExp = "Channel is already closed.")
     public void checkChanelCloseStatue() throws IOException, URISyntaxException {
         ByteChannel byteChannel = TestUtil.openForReading("datafiles/io/text/6charfile.txt");
         Channel channel = new MockByteChannel(byteChannel, 0);

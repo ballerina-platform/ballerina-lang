@@ -184,7 +184,7 @@ public abstract class AbstractChannel {
      */
     public InputStream getInputStream() {
         if (!channel.isOpen()) {
-            String message = "Channel is already in a close state.";
+            String message = "Channel is already closed.";
             throw new BallerinaIOException(message);
         }
         return Channels.newInputStream(channel);
