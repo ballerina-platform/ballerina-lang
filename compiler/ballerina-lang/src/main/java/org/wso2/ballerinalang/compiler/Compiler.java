@@ -1,20 +1,20 @@
 /*
-*  Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
-*
-*  WSO2 Inc. licenses this file to you under the Apache License,
-*  Version 2.0 (the "License"); you may not use this file except
-*  in compliance with the License.
-*  You may obtain a copy of the License at
-*
-*    http://www.apache.org/licenses/LICENSE-2.0
-*
-*  Unless required by applicable law or agreed to in writing,
-*  software distributed under the License is distributed on an
-*  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-*  KIND, either express or implied.  See the License for the
-*  specific language governing permissions and limitations
-*  under the License.
-*/
+ *  Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ *  WSO2 Inc. licenses this file to you under the Apache License,
+ *  Version 2.0 (the "License"); you may not use this file except
+ *  in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing,
+ *  software distributed under the License is distributed on an
+ *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ *  KIND, either express or implied.  See the License for the
+ *  specific language governing permissions and limitations
+ *  under the License.
+ */
 package org.wso2.ballerinalang.compiler;
 
 import org.ballerinalang.compiler.CompilerOptionName;
@@ -24,6 +24,7 @@ import org.ballerinalang.model.tree.PackageNode;
 import org.wso2.ballerinalang.compiler.codegen.CodeGenerator;
 import org.wso2.ballerinalang.compiler.desugar.Desugar;
 import org.wso2.ballerinalang.compiler.parser.BLangParserException;
+import org.wso2.ballerinalang.compiler.semantics.analyzer.BLangAnnotationProcessor;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.CodeAnalyzer;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SemanticAnalyzer;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
@@ -48,6 +49,7 @@ public class Compiler {
     private SymbolTable symbolTable;
     private SemanticAnalyzer semAnalyzer;
     private CodeAnalyzer codeAnalyzer;
+    private BLangAnnotationProcessor annotationProcessor;
     private Desugar desugar;
     private CodeGenerator codeGenerator;
 
@@ -75,6 +77,7 @@ public class Compiler {
         this.symbolTable = SymbolTable.getInstance(context);
         this.semAnalyzer = SemanticAnalyzer.getInstance(context);
         this.codeAnalyzer = CodeAnalyzer.getInstance(context);
+        this.annotationProcessor = BLangAnnotationProcessor.getInstance(context);
         this.desugar = Desugar.getInstance(context);
         this.codeGenerator = CodeGenerator.getInstance(context);
 
@@ -98,9 +101,15 @@ public class Compiler {
         }
 
         pkgNode = codeAnalyze(pkgNode);
+        if (this.stopCompilation(CompilerPhase.ANNOTATION_PROCESS)) {
+            return;
+        }
+
+        pkgNode = annotationProcess(pkgNode);
         if (this.stopCompilation(CompilerPhase.DESUGAR)) {
             return;
         }
+
         // TODO : Improve this.
         desugar(builtInPackage);
         pkgNode = desugar(pkgNode);
@@ -129,10 +138,6 @@ public class Compiler {
         return programFile;
     }
 
-    public ProgramFile getCompiledPackage() {
-        // TODO
-        return null;
-    }
 
     public PackageNode getAST() {
         return pkgNode;
@@ -156,6 +161,10 @@ public class Compiler {
 
     private BLangPackage codeAnalyze(BLangPackage pkgNode) {
         return codeAnalyzer.analyze(pkgNode);
+    }
+
+    private BLangPackage annotationProcess(BLangPackage pkgNode) {
+        return annotationProcessor.analyze(pkgNode);
     }
 
     private BLangPackage desugar(BLangPackage pkgNode) {
