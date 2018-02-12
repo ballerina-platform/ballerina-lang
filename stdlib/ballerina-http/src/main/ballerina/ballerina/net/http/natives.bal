@@ -271,6 +271,9 @@ public struct Retry {
 @Field {value:"sslEnabledProtocols: SSL/TLS protocols to be enabled. eg: TLSv1,TLSv1.1,TLSv1.2"}
 @Field {value:"ciphers: List of ciphers to be used. eg: TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA"}
 @Field {value:"sslProtocol: SSL Protocol to be used. eg: TLS1.2"}
+@Field {value:"certificateRevocationVerifier: true/false to enable certificate revocation verifier"}
+@Field {value:"cacheSize: Maximum size of the cache"}
+@Field {value:"cacheDelay: Time duration between two consecutive scheduled cache managing tasks"}
 public struct SSL {
     string trustStoreFile;
     string trustStorePassword;
@@ -279,6 +282,9 @@ public struct SSL {
     string sslEnabledProtocols;
     string ciphers;
     string sslProtocol;
+	boolean certificateRevocationVerifier;
+	int cacheSize;
+	int cacheDelay;
 }
 
 @Description { value:"FollowRedirects struct represents HTTP redirect related options to be used for HTTP client invocation" }
