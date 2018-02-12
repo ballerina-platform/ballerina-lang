@@ -388,7 +388,7 @@ public class HttpUtil {
                 AnnAttributeValue httpsPortAttrVal = configAnn.getAttributeValue(Constants.ANN_CONFIG_ATTR_HTTPS_PORT);
                 if (httpsPortAttrVal != null) {
                     Integer listenerPort = (Integer) requestMsg.getProperty(Constants.LISTENER_PORT);
-                    if (listenerPort != null && httpsPortAttrVal.getIntValue() == listenerPort.intValue()) {
+                    if (listenerPort != null && httpsPortAttrVal.getIntValue() == listenerPort) {
                         isSecureRequest = true;
                     }
                 }
