@@ -228,19 +228,34 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
                 BRefValueArray bodyParts = entityStruct.getRefField(MULTIPART_DATA_INDEX) != null ?
                         (BRefValueArray) entityStruct.getRefField(MULTIPART_DATA_INDEX) : null;
                 if (bodyParts != null && bodyParts.size() > 0) {
-                    MultipartDataSource multipartDataSource = new MultipartDataSource(bodyParts, boundaryString);
-                    HttpMessageDataStreamer outboundMsgDataStreamer = new HttpMessageDataStreamer(outboundRequestMsg);
-                    OutputStream messageOutputStream = outboundMsgDataStreamer.getOutputStream();
-                    httpClientConnectorLister.setOutboundMsgDataStreamer(outboundMsgDataStreamer);
-                    multipartDataSource.serializeData(messageOutputStream);
-                    HttpUtil.closeMessageOutputStream(messageOutputStream);
+                    serializeMultipartDataSource(outboundRequestMsg, httpClientConnectorLister, boundaryString,
+                            bodyParts);
                 } else {
-                    //TODO: throw an exception coz at least one body part is required
+                    throw new BallerinaException("At least one body part is required for the mutlipart entity",
+                            context);
                 }
             }
         } else {
             serializeDataSource(context, outboundRequestMsg, httpClientConnectorLister);
         }
+    }
+
+    /**
+     * Serialize multipart content.
+     *
+     * @param outboundRequestMsg        Outbound request message
+     * @param httpClientConnectorLister Represent http client connector listener
+     * @param boundaryString            Boundary string of multipart entity
+     * @param bodyParts                 Represent an array of body parts
+     */
+    private void serializeMultipartDataSource(HTTPCarbonMessage outboundRequestMsg, HTTPClientConnectorListener
+            httpClientConnectorLister, String boundaryString, BRefValueArray bodyParts) {
+        MultipartDataSource multipartDataSource = new MultipartDataSource(bodyParts, boundaryString);
+        HttpMessageDataStreamer outboundMsgDataStreamer = new HttpMessageDataStreamer(outboundRequestMsg);
+        OutputStream messageOutputStream = outboundMsgDataStreamer.getOutputStream();
+        httpClientConnectorLister.setOutboundMsgDataStreamer(outboundMsgDataStreamer);
+        multipartDataSource.serializeData(messageOutputStream);
+        HttpUtil.closeMessageOutputStream(messageOutputStream);
     }
 
     private String getContentType(HTTPCarbonMessage outboundRequestMsg) throws MimeTypeParseException {

@@ -105,4 +105,32 @@ public class MultipartDecoderTest {
         Assert.assertNotNull(response, "Response message not found");
         Assert.assertEquals(ResponseReader.getReturnValue(response), " -- bar -- File 01" + StringUtil.NEWLINE);
     }
+
+    @Test(description = "Test whether the requests with new multipart sub types can be decoded properly")
+    public void testMultiplePartsForNewSubTypes() {
+        String path = "/test/multipleparts";
+        List<Header> headers = new ArrayList<>();
+        String multipartDataBoundary = MimeUtil.getNewMultipartDelimiter();
+        headers.add(new Header(CONTENT_TYPE, "multipart/new-sub-type; boundary=" + multipartDataBoundary));
+        String multipartBody = "--" + multipartDataBoundary + "\r\n" +
+                "Content-Disposition: form-data; name=\"foo\"" + "\r\n" +
+                "Content-Type: text/plain; charset=UTF-8" + "\r\n" +
+                "\r\n" +
+                "bar" +
+                "\r\n" +
+                "--" + multipartDataBoundary + "\r\n" +
+                "Content-Disposition: inline" + "\r\n" +
+                "Content-Type: text/plain" + "\r\n" +
+                "Content-Transfer-Encoding: binary" + "\r\n" +
+                "\r\n" +
+                "File 01" + StringUtil.NEWLINE +
+                "\r\n" +
+                "--" + multipartDataBoundary + "--" + "\r\n";
+
+        HTTPTestRequest inRequestMsg = MessageUtils.generateHTTPMessage(path, Constants.HTTP_METHOD_POST, headers,
+                multipartBody);
+        HTTPCarbonMessage response = Services.invokeNew(serviceResult, inRequestMsg);
+        Assert.assertNotNull(response, "Response message not found");
+        Assert.assertEquals(ResponseReader.getReturnValue(response), " -- bar -- File 01" + StringUtil.NEWLINE);
+    }
 }

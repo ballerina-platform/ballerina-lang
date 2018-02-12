@@ -213,47 +213,6 @@ converted to a byte array with the given charset encoding. If the charset given 
 @Return {value:"return resulting decoded string"}
 public native function <MimeBase64Decoder decoder> decodeString (string content, string charset) (string);
 
-public function getFirstHeaderFromEntity (Entity entity, string headerName) (string) {
-    var headerValue, _ = (string[]) entity.headers[headerName];
-    return headerValue == null ? null : headerValue[0];
-}
-
-public function getHeadersFromEntity (Entity entity, string headerName) (string[]) {
-    var headerValue, _ = (string[]) entity.headers[headerName];
-    return headerValue;
-}
-
-public function getContentLengthIntValue (string strContentLength) (int) {
-    var contentLength, conversionErr = <int>strContentLength;
-    if (conversionErr != null) {
-        contentLength = -1;
-        throw conversionErr;
-    }
-    return contentLength;
-}
-
-public function addHeaderToEntity (Entity entity, string headerName, string headerValue) {
-    if (entity.headers == null) {
-        entity.headers = {};
-    }
-    var existingValues = entity.headers[headerName];
-    if (existingValues == null) {
-        setHeaderToEntity(entity, headerName, headerValue);
-    } else {
-        var valueArray, _ = (string[])existingValues;
-        valueArray[lengthof valueArray] = headerValue;
-        entity.headers[headerName] = valueArray;
-    }
-}
-
-public function setHeaderToEntity (Entity entity, string headerName, string headerValue) {
-    string[] valueArray = [headerValue];
-    if (entity.headers == null) {
-        entity.headers = {};
-    }
-    entity.headers[headerName] = valueArray;
-}
-
 @Description {value:"Utility function used internally to get the bytes from a given channel."}
 @Param {value:"channel: A ByteChannel"}
 @Return {value:"return a byte array"}

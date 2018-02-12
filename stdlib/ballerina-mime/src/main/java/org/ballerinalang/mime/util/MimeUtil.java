@@ -168,7 +168,7 @@ public class MimeUtil {
      * @param bodyPart                 Represent a body part
      * @param contentDispositionHeaderWithParams Represent Content-Disposition header value with parameters
      */
-    static void setContentDisposition(BStruct contentDisposition, BStruct bodyPart,
+    public static void setContentDisposition(BStruct contentDisposition, BStruct bodyPart,
                                       String contentDispositionHeaderWithParams) {
         String dispositionValue = null;
         if (isNotNullAndEmpty(contentDispositionHeaderWithParams)) {

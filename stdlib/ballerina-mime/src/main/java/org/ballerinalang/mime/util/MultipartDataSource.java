@@ -65,7 +65,6 @@ public class MultipartDataSource extends BallerinaMessageDataSource {
 
     @Override
     public void serializeData(OutputStream outputStream) {
-        //TODO: Get charset from content type and use that
         final Writer writer = new BufferedWriter(new OutputStreamWriter(outputStream, Charset.defaultCharset()));
         try {
             if (bodyParts != null) {
@@ -84,7 +83,6 @@ public class MultipartDataSource extends BallerinaMessageDataSource {
                     writer.write(boundaryString);
                     writer.write(CRLF);
 
-                    //Write body headers
                     writeBodyPartHeaders(writer, bodyPart);
                     writeBodyContent(outputStream, bodyPart);
                 }

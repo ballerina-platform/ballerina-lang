@@ -49,7 +49,7 @@ import static org.ballerinalang.mime.util.Constants.PROTOCOL_PACKAGE_MIME;
 /**
  * Responsible for decoding an inputstream to get a set of multiparts.
  *
- * @since 0.967 >> TODO:Whats the next version?
+ * @since 0.962.0
  */
 public class MultipartDecoder {
     private static final Logger log = LoggerFactory.getLogger(MultipartDecoder.class);

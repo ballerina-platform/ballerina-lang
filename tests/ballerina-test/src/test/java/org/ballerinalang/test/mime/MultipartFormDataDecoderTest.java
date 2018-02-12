@@ -41,6 +41,8 @@ import static org.ballerinalang.mime.util.Constants.MULTIPART_FORM_DATA;
 
 /**
  * Test cases for multipart/form-data handling.
+ *
+ * @since 0.962.0
  */
 public class MultipartFormDataDecoderTest {
 
