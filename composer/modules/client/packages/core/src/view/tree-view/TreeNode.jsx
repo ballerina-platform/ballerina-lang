@@ -18,11 +18,11 @@
  */
 
 import React from 'react';
-import log from 'log';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
-import { getPathSeperator } from 'api-client/api-client';
+import { getPathSeperator } from '@ballerina-lang/composer-api-client';
 import classnames from 'classnames';
+import log from '../../log/log';
 import ContextMenuTrigger from './../context-menu/ContextMenuTrigger';
 import { getContextMenuItems } from './menu';
 import { exists, create, move } from './../../workspace/fs-util';

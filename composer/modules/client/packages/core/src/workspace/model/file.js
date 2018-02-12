@@ -18,9 +18,9 @@
  */
 import _ from 'lodash';
 import uuid from 'uuid/v4';
-import EventChannel from 'event_channel';
-import { getPathSeperator } from 'api-client/api-client';
-import { isClientOnWindows } from 'core/utils/client-info';
+import { getPathSeperator } from '@ballerina-lang/composer-api-client';
+import EventChannel from '../../event/channel';
+import { isClientOnWindows } from '../../utils/client-info';
 import { EVENTS } from './../constants';
 
 /**

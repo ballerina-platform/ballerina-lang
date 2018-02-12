@@ -17,8 +17,8 @@
  */
 import PropTypes from 'prop-types';
 import _ from 'lodash';
-import log from 'log';
 import Mousetrap from 'mousetrap';
+import log from '../log/log';
 import { PLUGIN_ID } from './constants';
 import CommandChannel from './channel';
 import Plugin from './../plugin/plugin';

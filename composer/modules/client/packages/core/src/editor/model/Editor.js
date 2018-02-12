@@ -16,8 +16,7 @@
  * under the License.
  *
  */
-
-import EventChannel from 'event_channel';
+import EventChannel from '../../event/channel';
 import { EVENTS } from './../constants';
 import UndoManager from './../undo-manager/undo-manager';
 

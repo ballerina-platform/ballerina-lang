@@ -18,7 +18,7 @@
  */
 
 import _ from 'lodash';
-import { getPathSeperator } from 'api-client/api-client';
+import { getPathSeperator } from '@ballerina-lang/composer-api-client';
 
 /**
  * Represents a Folder opened in workspace

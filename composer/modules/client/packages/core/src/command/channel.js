@@ -15,8 +15,8 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import log from 'log';
-import EventChannel from 'event_channel';
+import EventChannel from '../event/channel';
+import log from '../log/log';
 
 /**
  * Command Channel

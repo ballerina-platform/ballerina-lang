@@ -1,0 +1,28 @@
+{
+  "name": "@ballerina-lang/composer-api-client",
+  "version": "0.962.0",
+  "description": "A Client for the backend services of Composer",
+  "homepage": "https://github.com/ballerina-lang/ballerina/composer/modules/client/packages/api-client",
+  "license": "Apache-2.0",
+  "main": "dist/api-client.js",
+  "bugs": {
+    "url": "https://github.com/ballerina-lang/ballerina/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ballerina-lang/ballerina.git"
+  },
+  "scripts": {
+    "clean": "rimraf dist",
+    "build": "npm run clean && babel src -d dist"
+  },
+  "dependencies": {
+    "axios": "^0.16.2",
+    "jquery": "^1.9.1",
+    "lodash": "^4.13.1"
+  },
+  "devDependencies": {
+    "babel-cli": "^6.24.0",
+    "rimraf": "^2.6.2"
+  }
+}

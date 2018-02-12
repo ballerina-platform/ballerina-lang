@@ -19,7 +19,7 @@
 
 import React from 'react';
 import _ from 'lodash';
-import { getPathSeperator, getUserHome } from 'api-client/api-client';
+import { getPathSeperator, getUserHome } from '@ballerina-lang/composer-api-client';
 import PropTypes from 'prop-types';
 import { Button, Form, FormGroup, FormControl, ControlLabel, Col } from 'react-bootstrap';
 import ScrollBarsWithContextAPI from './../../view/scroll-bars/ScrollBarsWithContextAPI';

@@ -18,7 +18,7 @@
  */
 
 import _ from 'lodash';
-import log from 'log';
+import log from '../log/log';
 import { COMMANDS, DIALOGS, EVENTS } from './constants';
 import { COMMANDS as LAYOUT_COMMANDS } from './../layout/constants';
 import { createOrUpdate } from './fs-util';

@@ -16,7 +16,7 @@
  * under the License.
  */
 import _ from 'lodash';
-import log from 'log';
+import log from '../log/log';
 import Plugin from './../plugin/plugin';
 import { CONTRIBUTIONS } from './../plugin/constants';
 import { COMMANDS as EDITOR_COMMANDS } from './../editor/constants';

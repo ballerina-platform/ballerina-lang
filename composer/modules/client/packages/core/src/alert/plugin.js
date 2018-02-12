@@ -15,13 +15,13 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import log from 'log';
 import _ from 'lodash';
 import React from 'react';
 import ReactDOM from 'react-dom';
 import PropTypes from 'prop-types';
 import Plugin from './../plugin/plugin';
-import { CONTRIBUTIONS } from './../plugin/constants';
+import { CONTRIBUTIONS } from '../plugin/constants';
+import log from '../log/log';
 
 import { getCommandDefinitions } from './commands';
 import { getHandlerDefinitions } from './handlers';

@@ -1,0 +1,24 @@
+{
+  "name": "@ballerina-lang/composer-font",
+  "version": "0.962.0",
+  "description": "Composer Font",
+  "main": "dist/codepoints.json",
+  "homepage": "https://github.com/ballerina-lang/ballerina/composer/modules/client/packages/font",
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/ballerina-lang/ballerina/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ballerina-lang/ballerina.git"
+  },
+  "scripts": {
+    "clean": "rimraf dist",
+    "build": "node ./scripts/build.js"
+  },
+  "devDependencies": {
+    "babel-cli": "^6.24.0",
+    "rimraf": "^2.6.2",
+    "webfont": "^7.1.4"
+  }
+}

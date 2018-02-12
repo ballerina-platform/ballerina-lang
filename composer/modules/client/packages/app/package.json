@@ -1,6 +1,6 @@
 {
   "name": "@ballerina-lang/composer-app",
-  "version": "0.96.1",
+  "version": "0.962.0",
   "description": "A web based tool for creating integrations in ballerina language.",
   "scripts": {
     "clean": "rimraf dist",
@@ -94,6 +94,7 @@
     "yargs": "^1.3.3"
   },
   "dependencies": {
+    "@ballerina-lang/composer-core": "0.962.0",
     "ace-builds": "^1.2.6",
     "axios": "^0.16.2",
     "bootstrap": "^3.3.6",

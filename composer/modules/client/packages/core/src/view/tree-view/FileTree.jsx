@@ -16,11 +16,10 @@
  * under the License.
  *
  */
-
 import React from 'react';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
-import { getFSRoots, listFiles } from 'api-client/api-client';
+import { getFSRoots, listFiles } from '@ballerina-lang/composer-api-client';
 import TreeNode from './TreeNode';
 import './file-tree.scss';
 

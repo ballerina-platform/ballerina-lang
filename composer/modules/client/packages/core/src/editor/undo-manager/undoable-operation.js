@@ -16,7 +16,7 @@
  * under the License.
  */
 import _ from 'lodash';
-import EventChannel from 'event_channel';
+import EventChannel from '../../event/channel';
 
 /**
  * Class to represent an undoable operation

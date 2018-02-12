@@ -20,7 +20,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Button, Form, FormGroup, FormControl, ControlLabel, Col } from 'react-bootstrap';
-import { getUserHome } from 'api-client/api-client';
+import { getUserHome } from '@ballerina-lang/composer-api-client';
 import ScrollBarsWithContextAPI from './../../view/scroll-bars/ScrollBarsWithContextAPI';
 import Dialog from './../../view/Dialog';
 import FileTree from './../../view/tree-view/FileTree';

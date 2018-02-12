@@ -18,9 +18,9 @@
  */
 
 import _ from 'lodash';
-import log from 'log';
 import copy from 'copy-to-clipboard';
-import { listFiles } from 'api-client/api-client';
+import { listFiles } from '@ballerina-lang/composer-api-client';
+import log from '../../log/log';
 import { COMMANDS as WORKSPACE_CMDS, DIALOGS as WORKSPACE_DIALOGS } from './../../workspace/constants';
 import { COMMANDS as LAYOUT_COMMANDS } from './../../layout/constants';
 import { DIALOGS as EDITOR_DIALOGS } from './../../editor/constants';

@@ -15,9 +15,8 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
-import log from 'log';
 import _ from 'lodash';
+import log from '../log/log';
 import Plugin from './../plugin/plugin';
 import { CONTRIBUTIONS } from './../plugin/constants';
 

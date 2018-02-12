@@ -20,7 +20,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import _ from 'lodash';
-import log from 'log';
+import log from '../log/log';
 import { COMMANDS, EVENTS, REGIONS, HISTORY } from './constants';
 import { COMMANDS as EDITOR_COMMANDS } from './../editor/constants';
 import { withViewFeatures, withDialogContext } from './components/utils';

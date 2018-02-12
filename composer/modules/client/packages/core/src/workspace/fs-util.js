@@ -16,7 +16,7 @@
  * under the License.
  */
 
-import { getServiceEndpoint } from 'api-client/api-client';
+import { getServiceEndpoint } from '@ballerina-lang/composer-api-client';
 import axios from 'axios';
 import File from './model/file';
 

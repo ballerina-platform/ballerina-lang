@@ -16,13 +16,12 @@
  * under the License.
  *
  */
-
 import React from 'react';
 import classnames from 'classnames';
 import PropTypes from 'prop-types';
-import ContextMenuTrigger from 'core/view/context-menu/ContextMenuTrigger';
-import FileTree from 'core/view/tree-view/FileTree';
-import { getContextMenuItems } from 'core/view/tree-view/menu';
+import ContextMenuTrigger from '../../view/context-menu/ContextMenuTrigger';
+import FileTree from '../../view/tree-view/FileTree';
+import { getContextMenuItems } from '../../view/tree-view/menu';
 import { COMMANDS } from './../constants';
 import Folder from '../model/folder';
 import './styles.scss';

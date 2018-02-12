@@ -16,9 +16,8 @@
  * under the License.
  *
  */
-
 import PropTypes from 'prop-types';
-import EventChannel from 'event_channel';
+import EventChannel from '../event/channel';
 
 import { ACTIVATION_POLICIES, EVENTS } from './constants';
 
