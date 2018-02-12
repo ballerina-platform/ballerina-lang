@@ -247,4 +247,20 @@ public class IterableOperationsTests {
         Assert.assertEquals(returns[0].stringValue(), "total count 2");
         Assert.assertEquals(returns[1].stringValue(), "7");
     }
+
+    @Test
+    public void testInFunctionInvocation() {
+        BValue[] returns = BRunUtil.invoke(basic, "testInFunctionInvocation");
+        Assert.assertNotNull(returns);
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals(returns[0].stringValue(), "4");
+    }
+
+    @Test
+    public void testInStatement() {
+        BValue[] returns = BRunUtil.invoke(basic, "testInStatement");
+        Assert.assertNotNull(returns);
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals(returns[0].stringValue(), "10");
+    }
 }

@@ -209,3 +209,26 @@ function testInExpression()(string, int){
     int i = s.count() + r.count();
     return output, i;
 }
+
+function testInFunctionInvocation () (int) {
+    map m = { a: "abc", b: "cd", c :"pqr"};
+    return doubleInt(m.filter(function (any a) (boolean) {
+                                    var s,_ = (string) a;
+                                    return lengthof s == 3;})
+                     .count());
+}
+
+function doubleInt (int i) (int) {
+    return i * 2;
+}
+
+function testInStatement() (int){
+    map m = { a: "abc", b: "cd", c :"pqr"};
+    if(5 > m.filter(function (any a) (boolean) {
+                                  var s,_ = (string) a;
+                                  return lengthof s == 3;})
+                     .count()){
+        return 10;
+    }
+    return 0;
+}

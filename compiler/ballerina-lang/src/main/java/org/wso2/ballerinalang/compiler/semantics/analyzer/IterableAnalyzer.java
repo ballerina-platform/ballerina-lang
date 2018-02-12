@@ -194,7 +194,7 @@ public class IterableAnalyzer {
     private void assignInvocationType(Operation operation, List<BType> argTypes, List<BType> supportedRetTypes) {
         operation.argTypes = argTypes;
         operation.retArgTypes = supportedRetTypes;
-        if (supportedRetTypes.size() == 0) {
+        if (supportedRetTypes.isEmpty()) {
             operation.resultTypes = Collections.emptyList();
             operation.iExpr.type = symTable.noType;
             return;
@@ -419,11 +419,11 @@ public class IterableAnalyzer {
         final Operation lastOperation = context.operations.getLast();
         final List<BType> expectedTypes = lastOperation.expectedTypes;
         final List<BType> resultTypes = lastOperation.resultTypes;
-        if (expectedTypes.size() == 0 && resultTypes.size() == 0) {
+        if (expectedTypes.isEmpty() && resultTypes.isEmpty()) {
             context.resultType = symTable.noType;
             return;
         }
-        if (expectedTypes.size() == 0) {
+        if (expectedTypes.isEmpty()) {
             // This error already logged.
             return;
         }
@@ -436,7 +436,7 @@ public class IterableAnalyzer {
             context.resultType = expectedTypes.get(0);
             return;
         }
-        if (resultTypes.size() == 0) {
+        if (resultTypes.isEmpty()) {
             dlog.error(lastOperation.pos, DiagnosticCode.DOES_NOT_RETURN_VALUE, lastOperation.kind);
             return;
         }
