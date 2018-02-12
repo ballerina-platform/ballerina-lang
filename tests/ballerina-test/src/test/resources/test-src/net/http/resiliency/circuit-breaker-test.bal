@@ -141,12 +141,13 @@ function getErrorStruct () (http:HttpConnectorError) {
 
 function getResponse () (http:InResponse) {
     // TODO: The way the status code is set may need to be changed once struct fields can be made read-only
-    MockInResponse response = {};
+    http:InResponse response = {};
+  //  MockInResponse response = {};
     response.statusCode = 200;
-    return (http:InResponse) response;
+    return response;
 }
 
-struct MockInResponse {
+public struct MockInResponse {
     int statusCode;
     string reasonPhrase;
     string server;

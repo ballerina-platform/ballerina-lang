@@ -56,6 +56,7 @@ public class HeaderUtil {
     public static BMap<String, BValue> getParamMap(String headerValue) {
         BMap<String, BValue> paramMap = null;
         if (headerValue.contains(SEMICOLON)) {
+            extractValue(headerValue);
             List<String> paramList = Arrays.stream(headerValue.substring(headerValue.indexOf(SEMICOLON) + 1)
                     .split(SEMICOLON)).map(String::trim).collect(Collectors.toList());
             paramMap = validateParams(paramList) ? createParamBMap(paramList) : null;
@@ -69,7 +70,7 @@ public class HeaderUtil {
      * @param headerValue Header value with parameters as a string
      * @return Header value without parameters
      */
-    static String getHeaderValue(String headerValue) {
+    public static String getHeaderValue(String headerValue) {
         return extractValue(headerValue.trim());
     }
 

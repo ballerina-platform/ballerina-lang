@@ -21,6 +21,8 @@ import org.ballerinalang.langserver.TextDocumentServiceContext;
 import org.ballerinalang.langserver.completions.CompletionKeys;
 import org.ballerinalang.langserver.completions.util.filters.StatementTemplateFilter;
 import org.eclipse.lsp4j.CompletionItem;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 
 import java.util.ArrayList;
 
@@ -36,6 +38,11 @@ public class StatementContextResolver extends AbstractItemResolver {
         StatementTemplateFilter statementTemplateFilter = new StatementTemplateFilter();
         // Add the statement templates
         completionItems.addAll(statementTemplateFilter.filterItems(completionContext));
+        // We need to remove the functions having a receiver symbol
+        completionContext.get(CompletionKeys.VISIBLE_SYMBOLS_KEY).removeIf(symbolInfo -> {
+            BSymbol bSymbol = symbolInfo.getScopeEntry().symbol;
+            return bSymbol instanceof BInvokableSymbol && ((BInvokableSymbol) bSymbol).receiverSymbol != null;
+        });
         populateCompletionItemList(completionContext.get(CompletionKeys.VISIBLE_SYMBOLS_KEY), completionItems);
 
         return completionItems;

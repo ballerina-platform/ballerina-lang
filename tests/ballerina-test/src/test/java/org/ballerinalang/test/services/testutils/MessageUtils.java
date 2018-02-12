@@ -25,16 +25,11 @@ import org.ballerinalang.net.http.Constants;
 import org.wso2.carbon.messaging.CarbonMessage;
 import org.wso2.carbon.messaging.DefaultCarbonMessage;
 import org.wso2.carbon.messaging.Header;
-import org.wso2.carbon.messaging.StatusCarbonMessage;
-import org.wso2.carbon.messaging.TextCarbonMessage;
 
 import java.net.InetSocketAddress;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
-import javax.websocket.Session;
 
 /**
  * RequestResponseUtil Class contains method for generating a message.
@@ -78,68 +73,18 @@ public class MessageUtils {
 
     private static HTTPTestRequest getHttpTestRequest(String path, String method) {
         HTTPTestRequest carbonMessage = new HTTPTestRequest();
-        carbonMessage.setProperty(org.wso2.carbon.messaging.Constants.PROTOCOL,
+        carbonMessage.setProperty(Constants.PROTOCOL,
                 Constants.PROTOCOL_HTTP);
-        carbonMessage.setProperty(org.wso2.carbon.messaging.Constants.LISTENER_INTERFACE_ID,
+        carbonMessage.setProperty(Constants.LISTENER_INTERFACE_ID,
                 Constants.DEFAULT_INTERFACE);
         // Set url
-        carbonMessage.setProperty(org.wso2.carbon.messaging.Constants.TO, path);
+        carbonMessage.setProperty(Constants.TO, path);
         carbonMessage.setProperty(Constants.REQUEST_URL, path);
         carbonMessage.setProperty(Constants.HTTP_METHOD, method.trim().toUpperCase(Locale.getDefault()));
         carbonMessage.setProperty(Constants.LOCAL_ADDRESS,
                 new InetSocketAddress(Constants.HTTP_DEFAULT_HOST, 9090));
         carbonMessage.setProperty(Constants.LISTENER_PORT, 9090);
         carbonMessage.setProperty(Constants.RESOURCE_ARGS, new HashMap<String, String>());
-        return carbonMessage;
-    }
-
-    public static CarbonMessage generateWebSocketTextMessage(String text, Session session, String path) {
-        TextCarbonMessage textMessage = new TextCarbonMessage(text);
-        return setWebSocketCommonProperties(textMessage, session, path);
-    }
-
-    public static CarbonMessage generateWebSocketOnOpenMessage(Session session, String path) {
-        StatusCarbonMessage statusCarbonMessage = new StatusCarbonMessage(
-                org.wso2.carbon.messaging.Constants.STATUS_OPEN, 0, null);
-        statusCarbonMessage.setProperty(org.ballerinalang.net.ws.Constants.CONNECTION, org
-                .ballerinalang.net.ws.Constants.UPGRADE);
-        statusCarbonMessage.setProperty(org.ballerinalang.net.ws.Constants.UPGRADE, org
-                .ballerinalang.net.ws.Constants.WEBSOCKET_UPGRADE);
-        return setWebSocketCommonProperties(statusCarbonMessage, session, path);
-    }
-
-    public static CarbonMessage generateWebSocketOnOpenMessage(Session session, String path,
-                                                               Map<String, String> headers) {
-        StatusCarbonMessage statusCarbonMessage = new StatusCarbonMessage(
-                org.wso2.carbon.messaging.Constants.STATUS_OPEN, 0, null);
-        statusCarbonMessage.setProperty(org.ballerinalang.net.ws.Constants.CONNECTION, org
-                .ballerinalang.net.ws.Constants.UPGRADE);
-        statusCarbonMessage.setProperty(org.ballerinalang.net.ws.Constants.UPGRADE, org
-                .ballerinalang.net.ws.Constants.WEBSOCKET_UPGRADE);
-        headers.entrySet().stream().forEach(
-                entry -> {
-                    statusCarbonMessage.setHeader(entry.getKey(), entry.getValue());
-                }
-        );
-        return setWebSocketCommonProperties(statusCarbonMessage, session, path);
-    }
-
-    public static CarbonMessage generateWebSocketOnCloseMessage(Session session, String path) {
-        StatusCarbonMessage statusCarbonMessage = new StatusCarbonMessage(
-                org.wso2.carbon.messaging.Constants.STATUS_CLOSE, 1000, "Normal closure");
-        return setWebSocketCommonProperties(statusCarbonMessage, session, path);
-    }
-
-    private static CarbonMessage setWebSocketCommonProperties(CarbonMessage carbonMessage, Session session,
-                                                              String path) {
-        carbonMessage.setProperty(Constants.PROTOCOL,
-                                  org.ballerinalang.net.ws.Constants.PROTOCOL_WEBSOCKET);
-        carbonMessage.setProperty(Constants.TO, path);
-        carbonMessage.setProperty(org.ballerinalang.net.ws.Constants.IS_WEBSOCKET_SERVER, true);
-        carbonMessage.setProperty(
-                org.ballerinalang.net.ws.Constants.WEBSOCKET_SERVER_SESSION, session);
-        carbonMessage.setProperty(org.ballerinalang.net.ws.Constants.WEBSOCKET_CLIENT_SESSIONS_LIST,
-                                  new LinkedList<>());
         return carbonMessage;
     }
 }

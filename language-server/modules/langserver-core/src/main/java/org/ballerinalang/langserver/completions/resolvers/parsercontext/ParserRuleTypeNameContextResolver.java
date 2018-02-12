@@ -18,8 +18,8 @@
 
 package org.ballerinalang.langserver.completions.resolvers.parsercontext;
 
-import org.ballerinalang.langserver.DocumentServiceKeys;
 import org.ballerinalang.langserver.TextDocumentServiceContext;
+import org.ballerinalang.langserver.completions.CompletionKeys;
 import org.ballerinalang.langserver.completions.resolvers.AbstractItemResolver;
 import org.ballerinalang.langserver.completions.util.filters.StatementTemplateFilter;
 import org.eclipse.lsp4j.CompletionItem;
@@ -38,7 +38,7 @@ public class ParserRuleTypeNameContextResolver extends AbstractItemResolver {
         StatementTemplateFilter statementTemplateFilter = new StatementTemplateFilter();
         // Add the statement templates
         completionItems.addAll(statementTemplateFilter.filterItems(completionContext));
-        this.populateBasicTypes(completionItems, completionContext.get(DocumentServiceKeys.SYMBOL_TABLE_KEY));
+        this.populateBasicTypes(completionItems, completionContext.get(CompletionKeys.VISIBLE_SYMBOLS_KEY));
         return completionItems;
     }
 }

@@ -125,8 +125,7 @@ public class BallerinaAnnotationProcessor extends AbstractProcessor {
         NativeFunctionCodeDef def = new NativeFunctionCodeDef();
         def.pkg = func.packageName();
         if (func.receiver().type() == TypeKind.STRUCT) {
-            def.name = func.receiver().structPackage() + ":"
-                    + func.receiver().structType() + "." + func.functionName();
+            def.name = func.receiver().structType() + "." + func.functionName();
         } else {
             def.name = func.functionName();
         }

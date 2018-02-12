@@ -31,6 +31,7 @@ import org.ballerinalang.util.exceptions.BallerinaException;
 
 import static org.ballerinalang.mime.util.Constants.COMMA;
 import static org.ballerinalang.mime.util.Constants.PARSER_ERROR;
+import static org.ballerinalang.mime.util.Constants.SEMICOLON;
 
 /**
  * Native function to parse header value and get value with parameter map.
@@ -67,6 +68,9 @@ public class ParseHeader extends AbstractNativeFunction {
 
     private BValue[] getValueAndParamMap(String headerValue) {
         String value = headerValue.trim();
+        if (headerValue.contains(SEMICOLON)) {
+            value = HeaderUtil.getHeaderValue(value);
+        }
         return getBValues(new BString(value), HeaderUtil.getParamMap(headerValue));
     }
 

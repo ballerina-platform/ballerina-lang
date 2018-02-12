@@ -3,8 +3,9 @@
     background-color: #333;
     width: 100%;
     & .tab-content {
-      left: $activity-bar-width !important;
-      position: fixed;
+        left: $activity-bar-width !important;
+        position: fixed;
+        background-color: #252525;
       & .tab-pane {
           text-align: center;
       }

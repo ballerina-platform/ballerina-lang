@@ -484,7 +484,7 @@ public class SymbolFindingVisitor extends BLangNodeVisitor {
         // ignore
     }
 
-    public void visit(BLangInvocation.BLangFunctionInvocation iExpr) {
+    public void visit(BLangInvocation.BLangAttachedFunctionInvocation iExpr) {
         // ignore
     }
 

@@ -178,7 +178,8 @@ public class TreeVisitor extends BLangNodeVisitor {
     }
 
     public void visit(BLangXMLNS xmlnsNode) {
-        throw new AssertionError();
+        CursorScopeResolver.getResolverByClass(cursorPositionResolver)
+                .isCursorBeforeNode(xmlnsNode.getPosition(), xmlnsNode, this, this.documentServiceContext);
     }
 
     public void visit(BLangFunction funcNode) {
@@ -474,6 +475,8 @@ public class TreeVisitor extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangAbort abortNode) {
+        CursorScopeResolver.getResolverByClass(cursorPositionResolver)
+                .isCursorBeforeNode(abortNode.getPosition(), abortNode, this, this.documentServiceContext);
     }
 
     private BLangVariableDef createVarDef(BLangVariable var) {
@@ -568,7 +571,6 @@ public class TreeVisitor extends BLangNodeVisitor {
     public void visit(BLangEnum enumNode) {
         CursorScopeResolver.getResolverByClass(cursorPositionResolver).isCursorBeforeNode(enumNode.getPosition(),
                 enumNode, this, this.documentServiceContext);
-            // TODO: Implementation Required
     }
 
     @Override
@@ -603,12 +605,15 @@ public class TreeVisitor extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangBind bindNode) {
-        // No Implementation
+        CursorScopeResolver.getResolverByClass(cursorPositionResolver).isCursorBeforeNode(bindNode.getPosition(),
+                bindNode, this, this.documentServiceContext);
+        // TODO: need to implement the bind context related suggestions. Implementation on hold - grammar inconsistency
     }
 
     @Override
     public void visit(BLangBreak breakNode) {
-        // No Implementation
+        CursorScopeResolver.getResolverByClass(cursorPositionResolver).isCursorBeforeNode(breakNode.getPosition(),
+                breakNode, this, this.documentServiceContext);
     }
 
     @Override
@@ -618,7 +623,8 @@ public class TreeVisitor extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangThrow throwNode) {
-        // No Implementation
+        CursorScopeResolver.getResolverByClass(cursorPositionResolver).isCursorBeforeNode(throwNode.getPosition(),
+                throwNode, this, this.documentServiceContext);
     }
 
     @Override
@@ -837,7 +843,7 @@ public class TreeVisitor extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangInvocation.BLangFunctionInvocation iExpr) {
+    public void visit(BLangInvocation.BLangAttachedFunctionInvocation iExpr) {
         // No Implementation
     }
 

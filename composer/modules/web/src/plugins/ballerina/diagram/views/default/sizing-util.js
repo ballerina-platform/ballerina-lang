@@ -463,7 +463,7 @@ class SizingUtil {
         workers.forEach((worker) => {
             worker.viewState.bBox.h = maxWorkerHeight;
             worker.body.viewState.bBox.h = maxWorkerHeight - this.config.lifeLine.head.height
-                                             - this.config.lifeLine.footer.height;
+                                             - (this.config.lifeLine.footer.height * 2);
             worker.viewState.components.lifeLine.h = maxWorkerHeight;
             // now add the worker width to panelBody width.
             cmp.panelBody.w += this.config.lifeLine.gutter.h + worker.viewState.bBox.w;
@@ -485,9 +485,6 @@ class SizingUtil {
         const textWidth = this.getTextWidth(node.getName().value);
         viewState.titleWidth = textWidth.w + this.config.panel.heading.title.margin.right
             + this.config.panelHeading.iconSize.width;
-
-        cmp.parametersPrefixContainer = {};
-        cmp.parametersPrefixContainer.w = this.getTextWidth('Parameters: ').w;
 
         // Creating components for argument parameters
         if (node.getParameters()) {
@@ -1670,7 +1667,7 @@ class SizingUtil {
         const bodyWidth = nodeBodyViewState.bBox.w;
         const bodyHeight = nodeBodyViewState.bBox.h;
 
-        components['block-header'].h = this.config.statement.height + this.config.compoundStatement.padding.top;
+        components['block-header'].h = this.config.statement.height;
 
         viewState.components['drop-zone'].h = dropZoneHeight + (viewState.offSet || 0);
         viewState.components['drop-zone'].w = bodyWidth;
@@ -1697,10 +1694,12 @@ class SizingUtil {
         // end of try block sizing
 
         let nodeHeight = viewState.bBox.h;
-        const nodeWidth = viewState.bBox.w;
+        let nodeWidth = viewState.bBox.w;
 
         if (node.failedBody) {
-            nodeHeight += (3 * this.config.compoundStatement.padding.top);
+            nodeHeight += node.failedBody.viewState.components['statement-box'].h;
+            nodeHeight -= this.config.compoundStatement.padding.top;
+            nodeWidth += node.failedBody.viewState.bBox.w;
         }
 
         node.viewState.bBox.h = nodeHeight;

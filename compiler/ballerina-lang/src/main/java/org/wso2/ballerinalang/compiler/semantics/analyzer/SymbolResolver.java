@@ -38,6 +38,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BEndpointType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BJSONType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.types.BLangArrayType;
@@ -51,7 +52,6 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangValueType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
-import org.wso2.ballerinalang.compiler.util.TypeDescriptor;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticLog;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
@@ -471,12 +471,16 @@ public class SymbolResolver extends BLangNodeVisitor {
     public void visit(BLangConstrainedType constrainedTypeNode) {
         BType type = resolveTypeNode(constrainedTypeNode.type, env);
         BType constraintType = resolveTypeNode(constrainedTypeNode.constraint, env);
-        if (!types.checkStructToJSONCompatibility(constraintType) && constraintType != symTable.errType) {
-            dlog.error(constrainedTypeNode.pos, DiagnosticCode.INCOMPATIBLE_TYPE_CONSTRAINT, type, constraintType);
-            resultType = symTable.errType;
-            return;
+        if (type.tag == TypeTags.TABLE) {
+            resultType = new BTableType(TypeTags.TABLE, constraintType, type.tsymbol);
+        } else {
+            if (!types.checkStructToJSONCompatibility(constraintType) && constraintType != symTable.errType) {
+                dlog.error(constrainedTypeNode.pos, DiagnosticCode.INCOMPATIBLE_TYPE_CONSTRAINT, type, constraintType);
+                resultType = symTable.errType;
+                return;
+            }
+            resultType = new BJSONType(TypeTags.JSON, constraintType, type.tsymbol);
         }
-        resultType = new BJSONType(TypeTags.JSON, constraintType, type.tsymbol);
     }
 
     public void visit(BLangUserDefinedType userDefinedTypeNode) {
@@ -532,9 +536,7 @@ public class SymbolResolver extends BLangNodeVisitor {
         List<BType> retParamTypes = new ArrayList<>();
         functionTypeNode.getParamTypeNode().forEach(t -> paramTypes.add(resolveTypeNode((BLangType) t, env)));
         functionTypeNode.getReturnParamTypeNode().forEach(t -> retParamTypes.add(resolveTypeNode((BLangType) t, env)));
-        BInvokableType bInvokableType = new BInvokableType(paramTypes, retParamTypes, null);
-        bInvokableType.typeDescriptor = TypeDescriptor.SIG_FUNCTION;
-        resultType = bInvokableType;
+        resultType = new BInvokableType(paramTypes, retParamTypes, null);
     }
 
     /**

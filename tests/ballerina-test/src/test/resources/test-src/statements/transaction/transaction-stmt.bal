@@ -1,4 +1,4 @@
-struct TrxError {
+public struct TrxError {
     string msg;
     error cause;
     StackFrame[] stackTrace;

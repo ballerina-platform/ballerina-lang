@@ -12,21 +12,19 @@ function getFileRecordChannel (string filePath, string permission, string encodi
     //Finally we convert the character channel to record channel
     //to read content as records.
     io:TextRecordChannel textRecordChannel = characterChannel.
-                                             toTextRecordChannel(rs, fs);
+                                                             toTextRecordChannel(rs, fs);
     return textRecordChannel;
 }
 
 @Description{value:"This function will process CSV file and write content back as text with '|' delimiter."}
 function process (io:TextRecordChannel srcRecordChannel,
                   io:TextRecordChannel dstRecordChannel) {
-    int numberOfFields = -1;
     //We read all the records from the provided file until there're no records returned.
-    while (numberOfFields != 0) {
+    while (srcRecordChannel.hasNextTextRecord()) {
         //Here's how we read records.
-        string[] records = srcRecordChannel.readTextRecord();
+        string[] records = srcRecordChannel.nextTextRecord();
         //Here's how we write records.
         dstRecordChannel.writeTextRecord(records);
-        numberOfFields = lengthof records;
     }
 }
 

@@ -24,9 +24,13 @@ import TransformerExpanded from 'plugins/ballerina/diagram/views/default/compone
 import TreeUtil from 'plugins/ballerina/model/tree-util.js';
 import DragLayer from './../drag-drop/drag-layer';
 import CompilationUnitNode from './../model/tree/compilation-unit-node';
-import { TOOL_PALETTE_WIDTH } from './constants';
+import { TOOL_PALETTE_WIDTH, ZOOM_LEVELS } from './constants';
 import { EVENTS } from '../constants';
 import DesignViewErrorBoundary from './DesignViewErrorBoundary';
+import ViewButton from './view-button';
+
+
+const zoomLevels = [ZOOM_LEVELS.FIT_TO_SCREEN, ZOOM_LEVELS.ACTION, ZOOM_LEVELS.DEFAULT];
 
 class DesignView extends React.Component {
 
@@ -34,7 +38,7 @@ class DesignView extends React.Component {
         super(props);
         this.state = {
             isTransformActive: false,
-            mode: 'action',
+            zoomLevel: 1,
         };
         this.overlayContainer = undefined;
         this.diagramContainer = undefined;
@@ -46,9 +50,8 @@ class DesignView extends React.Component {
         this.getDiagramContainer = this.getDiagramContainer.bind(this);
         this.setToolPaletteContainer = this.setToolPaletteContainer.bind(this);
         this.getToolPaletteContainer = this.getToolPaletteContainer.bind(this);
-        this.props.commandProxy.on('diagram-mode-change', ({ mode }) => {
-            this.setMode(mode);
-        });
+        this.zoomIn = this.zoomIn.bind(this);
+        this.zoomOut = this.zoomOut.bind(this);
         this.props.commandProxy.on('go-to-node', (node) => {
             this.scrollbars.scrollTop(node.viewState.bBox.y);
         });
@@ -60,6 +63,7 @@ class DesignView extends React.Component {
      */
     getChildContext() {
         return {
+            fitToScreen: zoomLevels[this.state.zoomLevel] === ZOOM_LEVELS.FIT_TO_SCREEN,
             designView: this,
             getOverlayContainer: this.getOverlayContainer,
             getDiagramContainer: this.getDiagramContainer,
@@ -147,8 +151,16 @@ class DesignView extends React.Component {
         return this.toolPaletteContainer;
     }
 
-    setMode(diagramMode) {
-        this.setState({ mode: diagramMode });
+    zoomIn() {
+        let newLevel = this.state.zoomLevel + 1;
+        newLevel = (newLevel >= zoomLevels.length) ? zoomLevels.length - 1 : newLevel;
+        this.setState({ zoomLevel: newLevel });
+    }
+
+    zoomOut() {
+        let newLevel = this.state.zoomLevel - 1;
+        newLevel = (newLevel < 0) ? 0 : newLevel;
+        this.setState({ zoomLevel: newLevel });
     }
 
     render() {
@@ -164,7 +176,10 @@ class DesignView extends React.Component {
         const shouldShowTransform = isTransformActive && activeTransformModel;
 
         const disabled = (this.props.disabled) ? 'design-view-disabled' : '';
-
+        // For now, fit to screen mode is same as action for components
+        const mode = zoomLevels[this.state.zoomLevel] === ZOOM_LEVELS.FIT_TO_SCREEN
+                        ? 'action'
+                        : zoomLevels[this.state.zoomLevel];
         return (
             <div
                 className={`design-view-container ${disabled}`}
@@ -189,7 +204,7 @@ class DesignView extends React.Component {
                                     <DesignViewErrorBoundary>
                                         <BallerinaDiagram
                                             model={this.props.model}
-                                            mode={this.state.mode}
+                                            mode={mode}
                                             width={this.props.width - TOOL_PALETTE_WIDTH}
                                             height={this.props.height}
                                             disabled={this.props.disabled}
@@ -199,6 +214,20 @@ class DesignView extends React.Component {
                             </div>
                         </div>
                     </Scrollbars>
+                    <div className={'bottom-right-controls-container zoom-controls'}>
+                        <ViewButton
+                            label='Zoom In'
+                            icon='add'
+                            onClick={this.zoomIn}
+                            active={!(this.state.zoomLevel === (zoomLevels.length - 1))}
+                        />
+                        <ViewButton
+                            label='Zoom Out'
+                            icon='minus'
+                            onClick={this.zoomOut}
+                            active={!(this.state.zoomLevel === 0)}
+                        />
+                    </div>
                     {shouldShowTransform &&
                         <TransformerExpanded
                             model={activeTransformModel}
@@ -241,6 +270,7 @@ DesignView.contextTypes = {
 };
 
 DesignView.childContextTypes = {
+    fitToScreen: PropTypes.bool,
     designView: PropTypes.instanceOf(DesignView).isRequired,
     getDiagramContainer: PropTypes.instanceOf(Object).isRequired,
     getOverlayContainer: PropTypes.instanceOf(Object).isRequired,

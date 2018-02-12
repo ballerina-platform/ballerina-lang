@@ -41,22 +41,18 @@
         <dependency>
             <groupId>org.ballerinalang</groupId>
             <artifactId>ballerina-core</artifactId>
-            <version>${ballerina.version}</version>
         </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>
             <artifactId>ballerina-lang</artifactId>
-            <version>${ballerina.version}</version>
         </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>
             <artifactId>ballerina-launcher</artifactId>
-            <version>${ballerina.version}</version>
         </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>
             <artifactId>ballerina-builtin</artifactId>
-            <version>${ballerina.version}</version>
         </dependency>
         <dependency>
             <groupId>com.beust</groupId>
@@ -207,7 +203,6 @@
 
     <properties>
         <cobertura.version>2.7</cobertura.version>
-        <ballerina.version>${project.version}</ballerina.version>
         <mavan.findbugsplugin.exclude.file>findbugs-exclude.xml</mavan.findbugsplugin.exclude.file>
         <maven.checkstyleplugin.excludes>**/parser/*</maven.checkstyleplugin.excludes>
     </properties>
