@@ -45,7 +45,7 @@ public class NetworkUtils {
      * @param resourceName package name to be pulled
      */
     public static void pullPackages(String resourceName) {
-        compileResult = compilePullCmdBalFile();
+        compileResult = compilePullCmdBalFile("ballerina.pull");
         Path targetDirectoryPath = UserRepositoryUtils.initializeUserRepository()
                 .resolve(USER_REPO_ARTIFACTS_DIRNAME).resolve(USER_REPO_SRC_DIRNAME);
         String ballerinaCentralRepoURL = "http://packages.ballerina.io/";
@@ -61,8 +61,8 @@ public class NetworkUtils {
      *
      * @return compile result after compiling the bal file
      */
-    private static CompileResult compilePullCmdBalFile() {
-        CompileResult compileResult = BCompileUtil.compile("src", "ballerina.pull", CompilerPhase.CODE_GEN);
+    private static CompileResult compilePullCmdBalFile(String packageName) {
+        CompileResult compileResult = BCompileUtil.compile("src", packageName, CompilerPhase.CODE_GEN);
         ProgramFile programFile = compileResult.getProgFile();
         PackageInfo packageInfo = programFile.getPackageInfo(compileResult.getProgFile().getEntryPkgName());
         Context context = new Context(programFile);
@@ -71,5 +71,16 @@ public class NetworkUtils {
         compileResult.setContext(context);
         BLangFunctions.invokePackageInitFunction(programFile, packageInfo.getInitFunctionInfo(), context);
         return compileResult;
+    }
+
+    /**
+     * Push/Uploads packages to the central repository
+     * @param resourceName path of the package folder to be pushed
+     */
+    public static void pushPackages(String resourceName) {
+        compileResult = compilePullCmdBalFile("ballerina.push");
+        String ballerinaCentralRepoURL = "http://packages.ballerina.io/";
+        String[] arguments = new String[]{ballerinaCentralRepoURL, resourceName};
+        LauncherUtils.runMain(compileResult.getProgFile(), arguments);
     }
 }
