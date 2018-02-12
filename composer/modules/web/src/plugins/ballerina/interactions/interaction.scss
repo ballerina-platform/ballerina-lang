@@ -46,6 +46,7 @@
 .button:hover .button-background-secondary, .button-show-always:hover .button-background-secondary {
     color:#f1772a;
     opacity: 1 !important;
+    border:1px solid #f1772a;
 }
 
 .button-background {
@@ -54,7 +55,9 @@
 }
 
 .button-background-secondary {
-    color:#dddddd;
+    color:#f3f3f3;
+    border: 1px solid #ccc;
+    border-radius: 50%;
 }
 
 

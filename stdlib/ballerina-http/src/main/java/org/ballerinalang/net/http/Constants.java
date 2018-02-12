@@ -28,7 +28,9 @@ public class Constants {
     public static final String BASE_PATH = "BASE_PATH";
     public static final String SUB_PATH = "SUB_PATH";
     public static final String EXTRA_PATH_INFO = "EXTRA_PATH_INFO";
+    public static final String RAW_URI = "RAW_URI";
     public static final String RESOURCE_ARGS = "RESOURCE_ARGS";
+    public static final String MATRIX_PARAMS = "MATRIX_PARAMS";
     public static final String QUERY_STR = "QUERY_STR";
     public static final String RAW_QUERY_STR = "RAW_QUERY_STR";
 

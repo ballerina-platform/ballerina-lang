@@ -23,6 +23,7 @@ import Menu from './menu';
 import Item from './item';
 import Search from './search';
 import DefaultNodeFactory from '../model/default-node-factory';
+import { binaryOpTools, unaryOpTools, ternaryOpTools } from '../tool-palette/item-provider/operator-tools';
 
 // When suggestion is clicked, Autosuggest needs to populate the input
 // based on the clicked suggestion. Teach Autosuggest how to calculate the
@@ -45,11 +46,14 @@ class TransformButton extends React.Component {
         super();
         this.state = {
             listConnectors: false,
+            listOperators: false,
             value: '',
             suggestions: [],
         };
         this.showConnectors = this.showConnectors.bind(this);
         this.hideConnectors = this.hideConnectors.bind(this);
+        this.showOperators = this.showOperators.bind(this);
+        this.hideOperators = this.hideOperators.bind(this);
         this.onSuggestionsFetchRequested = this.onSuggestionsFetchRequested.bind(this);
         this.storeInputReference = this.storeInputReference.bind(this);
         this.onChange = this.onChange.bind(this);
@@ -87,6 +91,19 @@ class TransformButton extends React.Component {
         });
     }
 
+    onChange(event, { newValue, method }) {
+        this.setState({
+            value: newValue,
+        });
+    }
+
+
+    onSuggestionSelected(event, item) {
+        const node = DefaultNodeFactory.createFunctionInvocationStatement(item.suggestion);
+        this.props.model.addStatements(node);
+        this.hideConnectors();
+    }
+
     getAllSuggestions() {
         const environment = this.context.editor.environment;
         const packages = environment.getFilteredPackages([]);
@@ -106,17 +123,68 @@ class TransformButton extends React.Component {
         return suggestions;
     }
 
-    onChange(event, { newValue, method }) {
-        this.setState({
-            value: newValue,
-        });
-    }
-
-
-    onSuggestionSelected(event, item) {
-        const node = DefaultNodeFactory.createFunctionInvocationStatement(item.suggestion);
-        this.props.model.addStatements(node);
-        this.hideConnectors();
+    /**
+     * Get menu list of operators
+     * @return {object} menu list rendering object
+     */
+    getOperatorItems() {
+        return (
+            <div>
+                <div className='endpoint-select-header'>
+                    <div className='connector-select-close'>
+                        <i onClick={this.hideOperators} className='nav-button fw fw-left' />
+                        Select an operator
+                    </div>
+                </div>
+                <p className='add-menu-text'>Unary Operators</p>
+                {
+                    unaryOpTools.map((operator) => {
+                        return (<Item
+                            label={operator.title}
+                            icon={'fw fw-' + operator.icon}
+                            callback={() => {
+                                this.props.transformNodeManager.addDefaultOperator(
+                                    { callback: operator.nodeFactoryMethod,
+                                        args: operator.factoryArgs });
+                            }}
+                        />);
+                    })
+                }
+                <hr />
+                <p className='add-menu-text'>Binary Operators</p>
+                {
+                    binaryOpTools.map((operator) => {
+                        if (!operator.seperator) {
+                            return (<Item
+                                label={operator.title}
+                                icon={'fw fw-' + operator.icon}
+                                callback={() => {
+                                    this.props.transformNodeManager.addDefaultOperator(
+                                        { callback: operator.nodeFactoryMethod,
+                                            args: operator.factoryArgs });
+                                }}
+                            />);
+                        } else {
+                            return (<hr />);
+                        }
+                    })
+                }
+                <hr />
+                <p className='add-menu-text'>Ternary Operators</p>
+                {
+                    ternaryOpTools.map((operator) => {
+                        return (<Item
+                            label={operator.title}
+                            icon={'fw fw-' + operator.icon}
+                            callback={() => {
+                                this.props.transformNodeManager.addDefaultOperator(
+                                    { callback: operator.nodeFactoryMethod,
+                                        args: operator.factoryArgs });
+                            }}
+                        />);
+                    })
+                }
+            </div>);
     }
 
     storeInputReference(autosuggest) {
@@ -131,6 +199,14 @@ class TransformButton extends React.Component {
 
     hideConnectors() {
         this.setState({ listConnectors: false, value: '' });
+    }
+
+    showOperators() {
+        this.setState({ listOperators: true });
+    }
+
+    hideOperators() {
+        this.setState({ listOperators: false });
     }
 
     /**
@@ -154,25 +230,34 @@ class TransformButton extends React.Component {
                     showAlways
                 >
                     <Menu maxHeight={300}>
-                        { !this.state.listConnectors &&
+                        { !this.state.listConnectors && !this.state.listOperators &&
                         <div>
                             <Item
-                                label='Function'
+                                label='Functions'
                                 icon='fw fw-function'
                                 callback={this.showConnectors}
                                 closeMenu={false}
                             />
-                            {this.props.children}
+                            <Item
+                                label='Operators'
+                                icon='fw fw-operator'
+                                callback={this.showOperators}
+                                closeMenu={false}
+                            />
                         </div>
                         }
-                        { this.state.listConnectors &&
+                        { this.state.listOperators && !this.state.listConnectors &&
+                            this.getOperatorItems()
+                        }
+
+                        { this.state.listConnectors && !this.state.listOperators &&
                             <div
                                 className='connector-select transform-function-list'
                             >
                                 <div className='endpoint-select-header'>
                                     <div className='connector-select-close'>
                                         <i onClick={this.hideConnectors} className='nav-button fw fw-left' />
-                                        Select a connector
+                                        Select a function
                                     </div>
                                 </div>
                                 <Search
@@ -197,7 +282,7 @@ class TransformButton extends React.Component {
 TransformButton.propTypes = {
     bBox: PropTypes.valueOf(PropTypes.object).isRequired,
     model: PropTypes.valueOf(PropTypes.object).isRequired,
-    children: PropTypes.isRequired,
+    transformNodeManager: PropTypes.isRequired,
 };
 
 TransformButton.defaultProps = {

@@ -51,11 +51,11 @@ public class LocksInServicesTest {
 
     @Test(description = "Test locking service level variable basic")
     public void testServiceLvlVarLockBasic() {
-        Semaphore semaphore = new Semaphore(-499);
+        Semaphore semaphore = new Semaphore(-99);
 
         ExecutorService executor = TestThreadPool.getInstance().getExecutor();
 
-        for (int i = 0; i < 500; i++) {
+        for (int i = 0; i < 100; i++) {
             executor.submit(new TestRequestSender(compileResult, semaphore, "/sample/echo"));
         }
 
@@ -70,7 +70,7 @@ public class LocksInServicesTest {
             Assert.assertNotNull(response, "Response message not found");
             String responseMsgPayload = StringUtils.getStringFromInputStream(new HttpMessageDataStreamer(response)
                     .getInputStream());
-            Assert.assertEquals(responseMsgPayload, "count - 500", "incorrect request count");
+            Assert.assertEquals(responseMsgPayload, "count - 100", "incorrect request count");
         } catch (InterruptedException e) {
             Assert.fail("thread interrupted before request execution finished - " + e.getMessage(), e);
         }
