@@ -37,21 +37,20 @@ import static org.ballerinalang.util.BLangConstants.USER_REPO_SRC_DIRNAME;
  * Util class for network calls.
  */
 public class NetworkUtils {
-    private static final String BALLERINA_CENTRAL_REPOSITORY = "http://packages.ballerina.io/";
     private static CompileResult compileResult;
 
     /**
      * Pull/Downloads packages from the package repository.
      *
-     * @param resourceName
+     * @param resourceName package name to be pulled
      */
     public static void pullPackages(String resourceName) {
         compileResult = compilePullCmdBalFile();
         Path targetDirectoryPath = UserRepositoryUtils.initializeUserRepository()
                 .resolve(USER_REPO_ARTIFACTS_DIRNAME).resolve(USER_REPO_SRC_DIRNAME);
-
+        String ballerinaCentralRepoURL = "http://packages.ballerina.io/";
         String dstPath = targetDirectoryPath + File.separator;
-        String resourcePath = BALLERINA_CENTRAL_REPOSITORY + File.separator + resourceName;
+        String resourcePath = ballerinaCentralRepoURL + File.separator + resourceName;
 
         String[] arguments = new String[]{resourcePath, dstPath};
         LauncherUtils.runMain(compileResult.getProgFile(), arguments);
