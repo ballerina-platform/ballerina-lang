@@ -183,10 +183,6 @@ public abstract class AbstractChannel {
      * @return An {@link InputStream}
      */
     public InputStream getInputStream() {
-        if (null == channel) {
-            String message = "Underlying channel is null.";
-            throw new BallerinaIOException(message);
-        }
         if (!channel.isOpen()) {
             String message = "Channel is already in a close state.";
             throw new BallerinaIOException(message);
