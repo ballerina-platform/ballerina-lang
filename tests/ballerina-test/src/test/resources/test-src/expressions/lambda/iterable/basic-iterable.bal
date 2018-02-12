@@ -184,3 +184,28 @@ function getName(person p)(string s){
 function isBellow25(person p)(boolean){
     return p.age < 25;
 }
+
+function testIgnoredValue()(string x){
+    output = "";
+    string[] s = ["abc", "cd", "pqr"];
+    _ = s.filter(function(string s)(boolean){return lengthof s == 3;})
+            .map(function(string s)(string){
+                     output = output + " " + s;
+                     return s + s;
+                     });
+    return output.trim();
+}
+
+function appendAny(any a){
+    var s, _ = (string) a;
+    output = s;
+}
+
+function testInExpression()(string, int){
+    output = "";
+    string[] s = ["abc", "cd", "pqr"];
+    float[] r = [1.1, -2.2, 3.3, 4.4];
+    appendAny("total count " + s.filter(function(string s)(boolean){return lengthof s == 3;}).count());
+    int i = s.count() + r.count();
+    return output, i;
+}
