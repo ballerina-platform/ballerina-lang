@@ -21,7 +21,7 @@ package org.ballerinalang.test.services.testutils;
 import org.ballerinalang.net.http.Constants;
 
 /**
- * Utility for properly splitting and parsing cookie header
+ * Utility for properly splitting and parsing cookie header.
  */
 public class CookieUtils {
 
