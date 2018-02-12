@@ -73,6 +73,7 @@ class ResourceNode extends React.Component {
         const classes = {
             lineClass: 'default-worker-life-line',
             polygonClass: 'default-worker-life-line-polygon',
+            textClass: 'default-worker-icon',
         };
         const argumentParameters = this.props.model.getParameters();
 
@@ -149,7 +150,6 @@ class ResourceNode extends React.Component {
                                     bBox={this.props.model.viewState.components.defaultWorkerLine}
                                     classes={classes}
                                     icon={ImageUtil.getCodePoint('worker')}
-                                    iconColor='#2980b9'
                                 />
                                 {blockNode}
                             </g>

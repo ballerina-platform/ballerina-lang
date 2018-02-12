@@ -100,6 +100,14 @@
           }
         }
 
+        .default-worker-icon{
+          fill: #2980b9;
+        }
+
+        .connector-icon{
+          fill: #17a085;
+        }
+
         .action-arrow, .action-arrow-head {
           stroke: #555;
           fill: #555;
@@ -154,6 +162,10 @@
         .default-worker-life-line, .worker-life-line {
           stroke: #1b79b4;
           stroke-width: 1;
+        }
+
+        .life-line-group{
+
         }
 
         .connector-life-line {

@@ -90,6 +90,7 @@ class ConnectorDeclarationDecorator extends React.Component {
         const connectorClasses = {
             lineClass: 'connector-life-line',
             polygonClass: 'connector-life-line-polygon',
+            textClass: 'connector-icon',
         };
 
         // Editor options for the expression editor
@@ -109,7 +110,6 @@ class ConnectorDeclarationDecorator extends React.Component {
                     classes={connectorClasses}
                     icon={ImageUtil.getCodePoint('endpoint')}
                     editorOptions={this.editorOptions}
-                    iconColor='#17a085'
                     onDelete={this.onDelete}
                 />
             </g>
