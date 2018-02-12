@@ -183,6 +183,8 @@
                 <include>org.atomikos.wso2:atomikos</include>
                 <include>org.quartz-scheduler:quartz</include>
                 <include>org.quartz-scheduler:quartz-jobs</include>
+                <include>org.bouncycastle:bcprov-jdk15on</include>
+                <include>org.bouncycastle:bcpkix-jdk15on</include>
             </includes>
         </dependencySet>
 

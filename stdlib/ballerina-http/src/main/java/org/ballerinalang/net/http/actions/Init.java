@@ -138,6 +138,20 @@ public class Init extends AbstractHTTPAction {
             String sslEnabledProtocols = ssl.getStringField(Constants.SSL_ENABLED_PROTOCOLS_INDEX);
             String ciphers = ssl.getStringField(Constants.CIPHERS_INDEX);
             String sslProtocol = ssl.getStringField(Constants.SSL_PROTOCOL_INDEX);
+            boolean certificateRevocationVerifier =
+                    ssl.getBooleanField(Constants.CERTIFICATE_REVOCATION_VERIFIER_INDEX) == TRUE;
+            int cacheSize = (int) ssl.getIntField(Constants.CACHE_SIZE);
+            int cacheDelay = (int) ssl.getIntField(Constants.CACHE_DELAY);
+
+            if (certificateRevocationVerifier && cacheSize == 0) {
+                throw new BallerinaConnectorException(
+                        "cache size must be provided in order to enable certificate revocation verifier");
+            }
+
+            if (certificateRevocationVerifier && cacheDelay == 0) {
+                throw new BallerinaConnectorException(
+                        "cache delay must be provided in order to enable certificate revocation verifier");
+            }
 
             if (StringUtils.isNotBlank(trustStoreFile)) {
                 senderConfiguration.setTrustStoreFile(trustStoreFile);
@@ -166,6 +180,11 @@ public class Init extends AbstractHTTPAction {
             }
             if (!clientParams.isEmpty()) {
                 senderConfiguration.setParameters(clientParams);
+            }
+            if (certificateRevocationVerifier) {
+                senderConfiguration.setCertificateRevocationVerifier(certificateRevocationVerifier);
+                senderConfiguration.setCacheSize(cacheSize);
+                senderConfiguration.setCacheDelay(cacheDelay);
             }
         }
         if (options.getRefField(Constants.PROXY_STRUCT_INDEX) != null) {

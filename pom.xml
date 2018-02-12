@@ -663,6 +663,16 @@
                 <version>${awaitility.version}</version>
                 <scope>test</scope>
             </dependency>
+            <dependency>
+                <groupId>org.bouncycastle</groupId>
+                <artifactId>bcprov-jdk15on</artifactId>
+                <version>${bcprov-jdk15on.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.bouncycastle</groupId>
+                <artifactId>bcpkix-jdk15on</artifactId>
+                <version>${bcpkix-jdk15on.version}</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
@@ -1212,6 +1222,8 @@
         <clirr.maven.plugin.version>2.7</clirr.maven.plugin.version>
         <apache.source.release.assembly.descriptor.version>1.0.5</apache.source.release.assembly.descriptor.version>
         <awaitility.version>3.0.0</awaitility.version>
+        <bcprov-jdk15on.version>1.59</bcprov-jdk15on.version>
+        <bcpkix-jdk15on.version>1.59</bcpkix-jdk15on.version>
     </properties>
 
 </project>

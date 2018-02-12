@@ -842,6 +842,10 @@ public class HttpUtil {
         AnnAttrValue ciphersAttrVal = configInfo.getAnnAttrValue(Constants.ANN_CONFIG_ATTR_CIPHERS);
         AnnAttrValue sslProtocolAttrVal = configInfo.getAnnAttrValue(Constants.ANN_CONFIG_ATTR_SSL_PROTOCOL);
         AnnAttrValue hostAttrVal = configInfo.getAnnAttrValue(Constants.ANN_CONFIG_ATTR_HOST);
+        AnnAttrValue certificateRevocationVerifierAttrValue = configInfo
+                .getAnnAttrValue(Constants.ANN_CONFIG_ATTR_CERTIFICATE_REVOCATION_VERIFIER);
+        AnnAttrValue cacheSizeAttrValue = configInfo.getAnnAttrValue(Constants.ANN_CONFIG_ATTR_CACHE_SIZE);
+        AnnAttrValue cacheDelayAttrValue = configInfo.getAnnAttrValue(Constants.ANN_CONFIG_ATTR_CACHE_DELAY);
 
         ListenerConfiguration listenerConfiguration = new ListenerConfiguration();
         if (httpsPortAttrVal != null && httpsPortAttrVal.getIntValue() > 0) {
@@ -892,7 +896,18 @@ public class HttpUtil {
             if (trustStorePasswordAttrVal != null) {
                 listenerConfiguration.setTrustStorePass(trustStorePasswordAttrVal.getStringValue());
             }
-
+            if (certificateRevocationVerifierAttrValue.getBooleanValue() && cacheDelayAttrValue == null) {
+                throw new BallerinaException("cacheDelay value must be provided to enable certificate validation");
+            }
+            if (certificateRevocationVerifierAttrValue.getBooleanValue() && cacheSizeAttrValue == null) {
+                throw new BallerinaException("cacheSize value must be provided to enable certificate validation");
+            }
+            if (certificateRevocationVerifierAttrValue.getBooleanValue()) {
+                listenerConfiguration
+                        .setCertificateRevocationVerifier(certificateRevocationVerifierAttrValue.getBooleanValue());
+                listenerConfiguration.setCacheSize((int) cacheSizeAttrValue.getIntValue());
+                listenerConfiguration.setCacheDelay((int) cacheDelayAttrValue.getIntValue());
+            }
             List<Parameter> serverParams = new ArrayList<>();
             Parameter serverCiphers;
             if (sslEnabledProtocolsAttrVal != null && sslEnabledProtocolsAttrVal.getStringValue() != null) {

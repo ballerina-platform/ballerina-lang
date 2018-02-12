@@ -96,6 +96,9 @@ public class Constants {
     public static final String ANN_CONFIG_ATTR_SSL_ENABLED_PROTOCOLS = "sslEnabledProtocols";
     public static final String ANN_CONFIG_ATTR_CIPHERS = "ciphers";
     public static final String ANN_CONFIG_ATTR_SSL_PROTOCOL = "sslProtocol";
+    public static final String ANN_CONFIG_ATTR_CERTIFICATE_REVOCATION_VERIFIER = "certificateRevocationVerifier";
+    public static final String ANN_CONFIG_ATTR_CACHE_SIZE = "cacheSize";
+    public static final String ANN_CONFIG_ATTR_CACHE_DELAY = "cacheDelay";
     public static final String ANN_CONFIG_ATTR_WEBSOCKET = "webSocket";
     public static final String ANN_CONFIG_ATTR_TRANSFER_ENCODING = "transferEncoding";
     public static final String ANN_CONFIG_ATTR_CHUNKING = "chunking";
@@ -180,6 +183,9 @@ public class Constants {
     public static final int SSL_ENABLED_PROTOCOLS_INDEX = 4;
     public static final int CIPHERS_INDEX = 5;
     public static final int SSL_PROTOCOL_INDEX = 6;
+    public static final int CERTIFICATE_REVOCATION_VERIFIER_INDEX = 0;
+    public static final int CACHE_SIZE = 0;
+    public static final int CACHE_DELAY = 1;
 
     public static final int HTTP_MESSAGE_INDEX = 0;
     public static final int ENTITY_INDEX = 1;
