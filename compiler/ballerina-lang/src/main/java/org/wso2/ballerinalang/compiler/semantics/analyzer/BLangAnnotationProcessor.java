@@ -227,6 +227,8 @@ public class BLangAnnotationProcessor extends BLangNodeVisitor {
                     annotationID, k -> new ArrayList<>());
             processorList.add(processor);
         }
+
+        processor.init(dlog);
     }
 
     private boolean validateAnnotationType(AnnotationType annType) {
