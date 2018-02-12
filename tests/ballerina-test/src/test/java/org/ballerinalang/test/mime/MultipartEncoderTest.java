@@ -40,6 +40,8 @@ import javax.activation.MimeTypeParseException;
 
 /**
  * Unit tests for multipart encoder.
+ *
+ * @since 0.962.0
  */
 public class MultipartEncoderTest {
     private static final Logger log = LoggerFactory.getLogger(MultipartEncoderTest.class);

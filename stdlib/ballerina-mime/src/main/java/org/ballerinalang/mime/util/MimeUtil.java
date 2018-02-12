@@ -43,6 +43,7 @@ import javax.activation.MimeType;
 import javax.activation.MimeTypeParameterList;
 import javax.activation.MimeTypeParseException;
 
+import static org.ballerinalang.mime.util.Constants.ASSIGNMENT;
 import static org.ballerinalang.mime.util.Constants.CONTENT_DISPOSITION_FILENAME_INDEX;
 import static org.ballerinalang.mime.util.Constants.CONTENT_DISPOSITION_FILE_NAME;
 import static org.ballerinalang.mime.util.Constants.CONTENT_DISPOSITION_INDEX;
@@ -53,9 +54,11 @@ import static org.ballerinalang.mime.util.Constants.DISPOSITION_INDEX;
 import static org.ballerinalang.mime.util.Constants.IS_ENTITY_BODY_PRESENT;
 import static org.ballerinalang.mime.util.Constants.MEDIA_TYPE_INDEX;
 import static org.ballerinalang.mime.util.Constants.MESSAGE_ENTITY;
+import static org.ballerinalang.mime.util.Constants.MULTIPART_FORM_DATA;
 import static org.ballerinalang.mime.util.Constants.OVERFLOW_DATA_INDEX;
 import static org.ballerinalang.mime.util.Constants.PARAMETER_MAP_INDEX;
 import static org.ballerinalang.mime.util.Constants.PRIMARY_TYPE_INDEX;
+import static org.ballerinalang.mime.util.Constants.SEMICOLON;
 import static org.ballerinalang.mime.util.Constants.SIZE_INDEX;
 import static org.ballerinalang.mime.util.Constants.SUBTYPE_INDEX;
 import static org.ballerinalang.mime.util.Constants.SUFFIX_INDEX;
@@ -101,7 +104,7 @@ public class MimeUtil {
                         mediaType.getStringField(SUBTYPE_INDEX);
                 if (mediaType.getRefField(PARAMETER_MAP_INDEX) != null) {
                     BMap map = (BMap) mediaType.getRefField(PARAMETER_MAP_INDEX);
-                    return HeaderUtil.appendHeaderParams(contentType, map);
+                    return HeaderUtil.appendHeaderParams(new StringBuilder(contentType), map);
                 }
             }
         }
@@ -163,29 +166,36 @@ public class MimeUtil {
      *
      * @param contentDisposition       Represent the ContentDisposition struct that needs to be filled with values
      * @param bodyPart                 Represent a body part
-     * @param contentDispositionHeader Represent Content-Disposition header value with parameters
+     * @param contentDispositionHeaderWithParams Represent Content-Disposition header value with parameters
      */
     static void setContentDisposition(BStruct contentDisposition, BStruct bodyPart,
-                                      String contentDispositionHeader) {
-        contentDisposition.setStringField(DISPOSITION_INDEX, HeaderUtil.getHeaderValue(contentDispositionHeader));
-        BMap<String, BValue> paramMap = HeaderUtil.getParamMap(contentDispositionHeader);
-        if (paramMap != null) {
-            Set<String> keys = paramMap.keySet();
-            for (String key : keys) {
-                BString paramValue = (BString) paramMap.get(key);
-                switch (key) {
-                    case CONTENT_DISPOSITION_FILE_NAME:
-                        contentDisposition.setStringField(CONTENT_DISPOSITION_FILENAME_INDEX, paramValue.toString());
-                        break;
-                    case CONTENT_DISPOSITION_NAME:
-                        contentDisposition.setStringField(CONTENT_DISPOSITION_NAME_INDEX, paramValue.toString());
-                        break;
-                    default:
+                                      String contentDispositionHeaderWithParams) {
+        String dispositionValue = null;
+        if (isNotNullAndEmpty(contentDispositionHeaderWithParams)) {
+            if (contentDispositionHeaderWithParams.contains(SEMICOLON)) {
+                dispositionValue = HeaderUtil.getHeaderValue(contentDispositionHeaderWithParams);
+            }
+            contentDisposition.setStringField(DISPOSITION_INDEX, dispositionValue);
+            BMap<String, BValue> paramMap = HeaderUtil.getParamMap(contentDispositionHeaderWithParams);
+            if (paramMap != null) {
+                Set<String> keys = paramMap.keySet();
+                for (String key : keys) {
+                    BString paramValue = (BString) paramMap.get(key);
+                    switch (key) {
+                        case CONTENT_DISPOSITION_FILE_NAME:
+                            contentDisposition.setStringField(CONTENT_DISPOSITION_FILENAME_INDEX,
+                                    paramValue.toString());
+                            break;
+                        case CONTENT_DISPOSITION_NAME:
+                            contentDisposition.setStringField(CONTENT_DISPOSITION_NAME_INDEX, paramValue.toString());
+                            break;
+                        default:
+                    }
                 }
             }
+            contentDisposition.setRefField(CONTENT_DISPOSITION_PARA_MAP_INDEX, paramMap);
+            bodyPart.setRefField(CONTENT_DISPOSITION_INDEX, contentDisposition);
         }
-        contentDisposition.setRefField(CONTENT_DISPOSITION_PARA_MAP_INDEX, paramMap);
-        bodyPart.setRefField(CONTENT_DISPOSITION_INDEX, contentDisposition);
     }
 
     /**
@@ -195,22 +205,43 @@ public class MimeUtil {
      * @return content-type in 'primarytype/subtype; key=value;' format
      */
     public static String getContentDisposition(BStruct entity) {
-        String disposition = null;
+        StringBuilder dispositionBuilder = new StringBuilder();
         if (entity.getRefField(CONTENT_DISPOSITION_INDEX) != null) {
             BStruct contentDispositionStruct = (BStruct) entity.getRefField(CONTENT_DISPOSITION_INDEX);
             if (contentDispositionStruct != null) {
-                disposition = contentDispositionStruct.getStringField(DISPOSITION_INDEX);
-                String name = contentDispositionStruct.getStringField(CONTENT_DISPOSITION_NAME_INDEX);
-                String fileName = contentDispositionStruct.getStringField(CONTENT_DISPOSITION_FILENAME_INDEX);
-                if (name != null) {
-                    disposition = disposition + CONTENT_DISPOSITION_NAME + "=" + name + ";";
+                String disposition = contentDispositionStruct.getStringField(DISPOSITION_INDEX);
+                if (disposition == null || disposition.isEmpty()) {
+                    String contentType = getContentType(entity);
+                    if (contentType != null && contentType.equals(MULTIPART_FORM_DATA)) {
+                        dispositionBuilder.append(MULTIPART_FORM_DATA);
+                    }
+                } else {
+                    dispositionBuilder.append(disposition);
                 }
-                if (fileName != null) {
-                    disposition = disposition + CONTENT_DISPOSITION_FILE_NAME + "=" + fileName + ";";
+                if (!dispositionBuilder.toString().isEmpty()) {
+                    String name = contentDispositionStruct.getStringField(CONTENT_DISPOSITION_NAME_INDEX);
+                    String fileName = contentDispositionStruct.getStringField(CONTENT_DISPOSITION_FILENAME_INDEX);
+                    if (isNotNullAndEmpty(name)) {
+                        appendSemiColon(dispositionBuilder).append(CONTENT_DISPOSITION_NAME).append(ASSIGNMENT).append(
+                                name).append(SEMICOLON);
+                    }
+                    if (isNotNullAndEmpty(fileName)) {
+                        appendSemiColon(dispositionBuilder).append(CONTENT_DISPOSITION_FILE_NAME).append(ASSIGNMENT)
+                                .append(fileName).append(SEMICOLON);
+                    }
+                    if (contentDispositionStruct.getRefField(CONTENT_DISPOSITION_PARA_MAP_INDEX) != null) {
+                        BMap map = (BMap) contentDispositionStruct.getRefField(CONTENT_DISPOSITION_PARA_MAP_INDEX);
+                        HeaderUtil.appendHeaderParams(appendSemiColon(dispositionBuilder), map);
+                    }
                 }
-                BMap map = (BMap) contentDispositionStruct.getRefField(CONTENT_DISPOSITION_PARA_MAP_INDEX);
-                disposition = HeaderUtil.appendHeaderParams(disposition, map);
             }
+        }
+        return dispositionBuilder.toString();
+    }
+
+    private static StringBuilder appendSemiColon(StringBuilder disposition) {
+        if (!disposition.toString().endsWith(SEMICOLON)) {
+            disposition.append(SEMICOLON);
         }
         return disposition;
     }

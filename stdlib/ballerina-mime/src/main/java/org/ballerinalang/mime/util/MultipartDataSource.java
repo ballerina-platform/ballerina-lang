@@ -43,7 +43,7 @@ import static org.ballerinalang.mime.util.Constants.ENTITY_HEADERS_INDEX;
 /**
  * Act as the multipart encoder.
  *
- * @since 0.967 >> TODO:Whats the next version?
+ * @since 0.962.0
  */
 public class MultipartDataSource extends BallerinaMessageDataSource {
     private static final Logger log = LoggerFactory.getLogger(MultipartDataSource.class);
@@ -151,7 +151,7 @@ public class MultipartDataSource extends BallerinaMessageDataSource {
      */
     private void setContentDispositionHeader(BStruct bodyPart, BMap<String, BValue> entityHeaders) {
         String contentDisposition = MimeUtil.getContentDisposition(bodyPart);
-        if (contentDisposition != null) {
+        if (MimeUtil.isNotNullAndEmpty(contentDisposition)) {
             HeaderUtil.addToEntityHeaders(entityHeaders, CONTENT_DISPOSITION, contentDisposition);
         }
     }

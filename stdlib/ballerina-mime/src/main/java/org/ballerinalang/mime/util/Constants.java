@@ -152,6 +152,7 @@ public class Constants {
 
     public static final String SEMICOLON = ";";
     public static final String COMMA = ",";
+    public static final String ASSIGNMENT = "=";
     public static final String PARSER_ERROR = "failed to parse: ";
     public static final String BUILTIN_PACKAGE = "ballerina.builtin";
     public static final String STRUCT_GENERIC_ERROR = "error";

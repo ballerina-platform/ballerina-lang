@@ -65,7 +65,7 @@ import static org.ballerinalang.mime.util.Constants.XML_DATA_INDEX;
 /**
  * Entity body related operations are included here.
  *
- * @since 0.967 >> TODO:Whats the next version?
+ * @since 0.962.0
  */
 public class EntityBodyHandler {
     private static final Logger log = LoggerFactory.getLogger(EntityBodyHandler.class);

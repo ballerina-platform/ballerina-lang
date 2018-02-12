@@ -34,6 +34,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static org.ballerinalang.mime.util.Constants.ASSIGNMENT;
 import static org.ballerinalang.mime.util.Constants.BUILTIN_PACKAGE;
 import static org.ballerinalang.mime.util.Constants.ENTITY_HEADERS_INDEX;
 import static org.ballerinalang.mime.util.Constants.FIRST_ELEMENT;
@@ -43,7 +44,7 @@ import static org.ballerinalang.mime.util.Constants.STRUCT_GENERIC_ERROR;
 /**
  * Utility methods for parsing headers.
  *
- * @since 0.967
+ * @since 0.962.0
  */
 public class HeaderUtil {
 
@@ -181,22 +182,23 @@ public class HeaderUtil {
      * @param map         Represent a parameter map
      * @return Header value along with it's parameters as a string
      */
-    static String appendHeaderParams(String headerValue, BMap map) {
-        StringBuilder builder = new StringBuilder(headerValue);
+    static String appendHeaderParams(StringBuilder headerValue, BMap map) {
         int index = 0;
-        Set<String> keys = map.keySet();
-        if (!keys.isEmpty()) {
-            for (String key : keys) {
-                BString paramValue = (BString) map.get(key);
-                if (index == keys.size() - 1) {
-                    builder.append(key).append("=").append(paramValue.toString());
-                } else {
-                    builder.append(key).append("=").append(paramValue.toString()).append(";");
-                    index = index + 1;
+        if (map != null && !map.isEmpty()) {
+            Set<String> keys = map.keySet();
+            if (keys != null && !keys.isEmpty()) {
+                for (String key : keys) {
+                    BString paramValue = (BString) map.get(key);
+                    if (index == keys.size() - 1) {
+                        headerValue.append(key).append(ASSIGNMENT).append(paramValue.toString());
+                    } else {
+                        headerValue.append(key).append(ASSIGNMENT).append(paramValue.toString()).append(SEMICOLON);
+                        index = index + 1;
+                    }
                 }
             }
         }
-        return builder.toString();
+        return headerValue.toString();
     }
 
     /**

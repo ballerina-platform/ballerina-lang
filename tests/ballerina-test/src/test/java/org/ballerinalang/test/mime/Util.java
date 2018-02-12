@@ -92,6 +92,8 @@ import static org.ballerinalang.mime.util.Constants.XML_EXTENSION;
 
 /**
  * Contains utility functions used by mime test cases.
+ *
+ * @since 0.962.0
  */
 public class Util {
     private static final Logger log = LoggerFactory.getLogger(Util.class);
@@ -675,7 +677,7 @@ public class Util {
      */
     private static String getBodyPartName(BStruct bodyPart) {
         String contentDisposition = MimeUtil.getContentDisposition(bodyPart);
-        if (contentDisposition != null && !contentDisposition.isEmpty()) {
+        if (!contentDisposition.isEmpty()) {
             BMap<String, BValue> paramMap = HeaderUtil.getParamMap(contentDisposition);
             if (paramMap != null) {
                 BString bodyPartName = paramMap.get(CONTENT_DISPOSITION_NAME) != null ?
@@ -683,14 +685,18 @@ public class Util {
                 if (bodyPartName != null) {
                     return bodyPartName.toString();
                 } else {
-                    return UUID.randomUUID().toString();
+                    return getRandomString();
                 }
             } else {
-                return UUID.randomUUID().toString();
+                return getRandomString();
             }
         } else {
-            return UUID.randomUUID().toString();
+            return getRandomString();
         }
+    }
+
+    private static String getRandomString() {
+        return UUID.randomUUID().toString();
     }
 
     /**
