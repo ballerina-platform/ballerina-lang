@@ -29,6 +29,7 @@ import org.ballerinalang.spi.SystemPackageRepositoryProvider;
 import org.ballerinalang.spi.UserRepositoryProvider;
 import org.wso2.ballerinalang.compiler.parser.Parser;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolEnter;
+import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
@@ -38,9 +39,7 @@ import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
 
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.ServiceLoader;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -61,9 +60,9 @@ public class PackageLoader {
     private CompilerOptions options;
     private Parser parser;
     private SymbolEnter symbolEnter;
+    private SymbolTable symTable;
     private Names names;
 
-    private Map<PackageID, BPackageSymbol> packages;
     private PackageRepository packageRepo;
 
     public static PackageLoader getInstance(CompilerContext context) {
@@ -81,9 +80,9 @@ public class PackageLoader {
         this.options = CompilerOptions.getInstance(context);
         this.parser = Parser.getInstance(context);
         this.symbolEnter = SymbolEnter.getInstance(context);
+        this.symTable = SymbolTable.getInstance(context);
         this.names = Names.getInstance(context);
 
-        this.packages = new HashMap<>();
         loadPackageRepository(context);
     }
 
@@ -123,7 +122,7 @@ public class PackageLoader {
     }
 
     public BPackageSymbol getPackageSymbol(PackageID pkgId) {
-        return packages.get(pkgId);
+        return this.symTable.pkgSymbolMap.get(pkgId);
     }
 
     public BLangPackage loadPackageNode(PackageID pkgId) {
@@ -161,7 +160,7 @@ public class PackageLoader {
             throw new RuntimeException("TODO Entry package cannot be a compiled package");
         }
 
-        packages.put(pkgId, pSymbol);
+        symTable.pkgSymbolMap.put(pkgId, pSymbol);
         return pkgNode;
     }
 

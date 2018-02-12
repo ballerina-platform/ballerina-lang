@@ -23,8 +23,8 @@ import org.ballerinalang.langserver.common.constants.NodeContextKeys;
 import org.ballerinalang.langserver.hover.util.HoverUtil;
 import org.ballerinalang.model.tree.TopLevelNode;
 import org.eclipse.lsp4j.Position;
-import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolEnter;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
+import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
@@ -116,7 +116,7 @@ public class PositionTreeVisitor extends BLangNodeVisitor {
     private String fileName;
     private Position position;
     private boolean terminateVisitor = false;
-    private SymbolEnter symbolEnter;
+    private SymbolTable symTable;
     private TextDocumentServiceContext context;
     private Object previousNode;
     private Stack<BLangNode> nodeStack;
@@ -125,7 +125,7 @@ public class PositionTreeVisitor extends BLangNodeVisitor {
         this.context = context;
         this.position = context.get(DocumentServiceKeys.POSITION_KEY).getPosition();
         this.fileName = context.get(DocumentServiceKeys.FILE_NAME_KEY);
-        this.symbolEnter = SymbolEnter.getInstance(context.get(DocumentServiceKeys.COMPILER_CONTEXT_KEY));
+        this.symTable = SymbolTable.getInstance(context.get(DocumentServiceKeys.COMPILER_CONTEXT_KEY));
         this.position.setLine(this.position.getLine() + 1);
         this.nodeStack = new Stack<>();
         this.context.put(NodeContextKeys.NODE_STACK_KEY, nodeStack);
@@ -147,7 +147,7 @@ public class PositionTreeVisitor extends BLangNodeVisitor {
 
     public void visit(BLangImportPackage importPkgNode) {
         BPackageSymbol pkgSymbol = importPkgNode.symbol;
-        SymbolEnv pkgEnv = symbolEnter.packageEnvs.get(pkgSymbol);
+        SymbolEnv pkgEnv = this.symTable.pkgEnvMap.get(pkgSymbol);
         acceptNode(pkgEnv.node);
     }
 
