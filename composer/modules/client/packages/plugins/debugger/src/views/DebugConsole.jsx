@@ -18,9 +18,9 @@
 
 import React from 'react';
 import _ from 'lodash';
-import ConsoleDecorators from 'plugins/debugger/views/console-decorators';
-import View from 'core/view/view';
+import { View } from '@ballerina-lang/composer-core';
 import { VIEWS } from './../constants';
+import ConsoleDecorators from './console-decorators';
 import './DebugConsole.css';
 
 /**

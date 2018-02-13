@@ -20,9 +20,9 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Button } from 'react-bootstrap';
 import Linkify from 'react-linkify';
-import { COMMANDS as TRY_IT_COMMANDS } from 'plugins/try-it/constants';
-import { COMMANDS as TOOLBAR_COMMANDS } from 'core/toolbar/constants';
-import LaunchManager from 'plugins/debugger/LaunchManager';
+import { TryItConstants } from '@ballerina-lang/composer-try-it-plugin';
+import { ToolBarConstants } from '@ballerina-lang/composer-core';
+import LaunchManager from '../../LaunchManager/LaunchManager';
 
 import './http-service-decorator.scss';
 
@@ -36,7 +36,7 @@ class HttpServiceDecorator extends React.Component {
      * @override
      */
     componentDidMount() {
-        this.props.command.dispatch(TOOLBAR_COMMANDS.UPDATE_TOOL_BAR);
+        this.props.command.dispatch(ToolBarConstants.COMMANDS.UPDATE_TOOL_BAR);
     }
 
     /**
@@ -51,7 +51,7 @@ class HttpServiceDecorator extends React.Component {
                 bsStyle='primary'
                 disabled={!LaunchManager.active}
                 onClick={() => {
-                    this.props.command.dispatch(TRY_IT_COMMANDS.SHOW_TRY_IT);
+                    this.props.command.dispatch(TryItConstants.COMMANDS.SHOW_TRY_IT);
                 }}
             >
                 Try-It

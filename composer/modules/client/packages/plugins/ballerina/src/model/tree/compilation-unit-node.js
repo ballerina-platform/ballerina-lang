@@ -17,7 +17,7 @@
  */
 
 import _ from 'lodash';
-import log from 'log';
+import { Log as log } from '@ballerina-lang/composer-core';
 import AbstractCompilationUnitNode from './abstract-tree/compilation-unit-node';
 import TreeUtils from '../tree-util';
 

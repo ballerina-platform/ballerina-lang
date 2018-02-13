@@ -21,13 +21,11 @@ import {
     BaseLanguageClient, CloseAction, ErrorAction,
     createMonacoServices, createConnection,
 } from 'monaco-languageclient';
-import debuggerHoc from 'src/plugins/debugger/views/DebuggerHoc';
-import File from 'core/workspace/model/file';
-import { COMMANDS, EVENTS as WORKSPACE_EVENTS } from 'core/workspace/constants';
-import { CONTENT_MODIFIED } from 'plugins/ballerina/constants/events';
-import { GO_TO_POSITION } from 'plugins/ballerina/constants/commands';
+import { File, WorkspaceConstants } from '@ballerina-lang/composer-core';
+import { DebuggerHoc as debuggerHoc } from '@ballerina-lang/composer-debugger-plugin';
+import { CONTENT_MODIFIED } from '../constants/events';
+import { GO_TO_POSITION } from '../constants/commands';
 import MonacoEditor from 'react-monaco-editor';
-import SourceViewCompleterFactory from './../../ballerina/utils/source-view-completer-factory';
 import { CHANGE_EVT_TYPES } from './constants';
 import Grammar from './../utils/monarch-grammar';
 import { getMonacoKeyBinding } from '../utils/monaco-key-utils';
@@ -48,7 +46,6 @@ class SourceEditor extends React.Component {
         this.monaco = undefined;
         this.editorInstance = undefined;
         this.inSilentMode = false;
-        this.sourceViewCompleterFactory = new SourceViewCompleterFactory();
         this.goToCursorPosition = this.goToCursorPosition.bind(this);
         this.onFileContentChanged = this.onFileContentChanged.bind(this);
         this.lastUpdatedTimestamp = props.file.lastUpdated;
@@ -115,7 +112,7 @@ class SourceEditor extends React.Component {
      * @inheritdoc
      */
     componentWillUnmount() {
-        this.props.commandProxy.off(WORKSPACE_EVENTS.FILE_CLOSED, this.onWorkspaceFileClose);
+        this.props.commandProxy.off(WorkspaceConstants.EVENTS.FILE_CLOSED, this.onWorkspaceFileClose);
         this.props.commandProxy.off(GO_TO_POSITION, this.handleGoToPosition);
     }
 
@@ -167,7 +164,7 @@ class SourceEditor extends React.Component {
             modelForFile = monaco.editor.createModel(this.props.file.content, BAL_LANGUAGE, uri);
         }
         editorInstance.setModel(modelForFile);
-        this.props.commandProxy.on(WORKSPACE_EVENTS.FILE_CLOSED, this.onWorkspaceFileClose);
+        this.props.commandProxy.on(WorkspaceConstants.EVENTS.FILE_CLOSED, this.onWorkspaceFileClose);
         this.props.commandProxy.on(GO_TO_POSITION, this.handleGoToPosition);
         const services = createMonacoServices(editorInstance);
         const getLangServerConnection = this.props.ballerinaPlugin.getLangServerConnection();
@@ -208,11 +205,11 @@ class SourceEditor extends React.Component {
                         })
                         .then((result) => {
                             if (result[0] && result[0].uri && result[0].range) {
-                                this.props.commandProxy.dispatch(COMMANDS.OPEN_FILE, {
+                                this.props.commandProxy.dispatch(WorkspaceConstants.COMMANDS.OPEN_FILE, {
                                     filePath: monaco.Uri.parse(result[0].uri).path,
                                 });
 
-                                this.props.commandProxy.dispatch(COMMANDS.GO_TO_POSITION, {
+                                this.props.commandProxy.dispatch(WorkspaceConstants.COMMANDS.GO_TO_POSITION, {
                                     row: result[0].range.start.line,
                                     column: result[0].range.start.character,
                                 });

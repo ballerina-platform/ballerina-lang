@@ -18,9 +18,8 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
-import { EVENTS as BAL_PLUGIN_EVENTS } from 'plugins/ballerina/constants';
-import { EVENTS as EDITOR_EVENTS } from 'core/editor/constants';
-import Editor from 'core/editor/model/Editor';
+import { EditorConstants, Editor } from '@ballerina-lang/composer-core';
+import { BallerinaPluginConstants } from '@ballerina-lang/composer-ballerina-plugin';
 import ModelRenderer from './ModelRenderer';
 import './CodeExplorer.scss';
 
@@ -40,16 +39,16 @@ class CodeExplorerPanel extends React.Component {
 
     componentDidMount() {
         const { command: { on } } = this.props.codeExplorerPlugin.appContext;
-        on(BAL_PLUGIN_EVENTS.ACTIVE_BAL_AST_CHANGED, this.onActiveBalASTChange);
-        on(EDITOR_EVENTS.ACTIVE_TAB_CHANGE, this.onTabChange);
-        on(BAL_PLUGIN_EVENTS.SCROLL_DESIGN_VIEW, this.onScrollDesignView);
+        on(BallerinaPluginConstants.EVENTS.ACTIVE_BAL_AST_CHANGED, this.onActiveBalASTChange);
+        on(EditorConstants.EVENTS.ACTIVE_TAB_CHANGE, this.onTabChange);
+        on(BallerinaPluginConstants.EVENTS.SCROLL_DESIGN_VIEW, this.onScrollDesignView);
     }
 
     componentWillUnmount() {
         const { command: { off } } = this.props.codeExplorerPlugin.appContext;
-        off(BAL_PLUGIN_EVENTS.ACTIVE_BAL_AST_CHANGED, this.onActiveBalASTChange);
-        off(EDITOR_EVENTS.ACTIVE_TAB_CHANGE, this.onTabChange);
-        off(BAL_PLUGIN_EVENTS.SCROLL_DESIGN_VIEW, this.onScrollDesignView);
+        off(BallerinaPluginConstants.EVENTS.ACTIVE_BAL_AST_CHANGED, this.onActiveBalASTChange);
+        off(EditorConstants.EVENTS.ACTIVE_TAB_CHANGE, this.onTabChange);
+        off(BallerinaPluginConstants.EVENTS.SCROLL_DESIGN_VIEW, this.onScrollDesignView);
     }
 
     onScrollDesignView({ scrollTop, scrollLeft, scrollHeight, scrollWidth, clientHeight, clientWidth }) {

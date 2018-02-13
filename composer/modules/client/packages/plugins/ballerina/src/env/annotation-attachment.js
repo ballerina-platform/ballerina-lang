@@ -16,10 +16,11 @@
  * under the License.
  */
 import _ from 'lodash';
-import EventChannel from 'event_channel';
+import { EventChannel } from '@ballerina-lang/composer-core';
 
 /**
- * Represents an annotation attachment i.e. @doc of an annotation definition({@link Annotation Attachment}) for ballerina-env.
+ * Represents an annotation attachment i.e. @doc of an annotation definition({@link Annotation Attachment})
+ * for ballerina-env.
  *
  * @class AnnotationAttachment
  * @extends {EventChannel}

@@ -15,9 +15,9 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+import { getServiceEndpoint } from '@ballerina-lang/composer-api-client';
 import React from 'react';
 import './document.css';
-import { getServiceEndpoint } from 'api-client/api-client';
 
 /**
  * Document for the given package or package related functions.

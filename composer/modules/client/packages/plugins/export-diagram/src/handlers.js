@@ -15,8 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
-import { COMMANDS as LAYOUT_COMMANDS } from 'core/layout/constants';
+import { LayoutConstants } from '@ballerina-lang/composer-core';
 import { COMMANDS, DIALOG } from './constants';
 
 /**
@@ -32,7 +31,7 @@ export function getHandlerDefinitions(plugin) {
             handler: () => {
                 const { command: { dispatch } } = plugin.appContext;
                 const id = DIALOG.EXPORT_DIAGRAM;
-                dispatch(LAYOUT_COMMANDS.POPUP_DIALOG, { id });
+                dispatch(LayoutConstants.COMMANDS.POPUP_DIALOG, { id });
             },
         },
     ];

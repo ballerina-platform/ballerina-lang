@@ -17,11 +17,11 @@
  */
 /* eslint-env es6 */
 
-import { fetchConfigs } from 'api-client/api-client';
+import { fetchConfigs } from '@ballerina-lang/composer-api-client';
 import { expect } from 'chai';
-import TransformManager from 'plugins/ballerina/diagram/views/default/components/transform/transform-node-manager';
-import environment from 'plugins/ballerina/env/environment';
 import TransformerTestUtils from './transformer-test-utils';
+import TransformManager from '../../../../diagram/views/default/components/transformer/transformer-node-manager';
+import environment from '../../../../env/environment';
 
 let transformManager;
 

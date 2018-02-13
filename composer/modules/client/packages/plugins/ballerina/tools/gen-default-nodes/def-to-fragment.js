@@ -16,7 +16,7 @@
  * under the License.
  */
 
-import FragmentUtils from '../../src/plugins/ballerina/utils/fragment-utils';
+import FragmentUtils from '../../src/utils/fragment-utils';
 
 export default {
     createHTTPServiceDef: () => {

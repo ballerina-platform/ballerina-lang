@@ -16,7 +16,7 @@
  * under the License.
  */
 import _ from 'lodash';
-import log from 'log';
+import { Log as log } from '@ballerina-lang/composer-core';
 import { DragSource } from 'react-dnd';
 import { ITEM_TYPES } from './constants';
 

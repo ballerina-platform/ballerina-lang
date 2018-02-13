@@ -17,9 +17,9 @@
  */
 import React from 'react';
 import PropTypes from 'prop-types';
-import breakpointHoc from 'src/plugins/debugger/views/BreakpointHoc';
-import SimpleBBox from 'plugins/ballerina/model/view/simple-bounding-box';
-import ExpressionEditor from 'plugins/ballerina/expression-editor/expression-editor-utils';
+import { BreakpointHoc as breakpointHoc } from '@ballerina-lang/composer-debugger-plugin';
+import SimpleBBox from '../../../../../model/view/simple-bounding-box';
+import ExpressionEditor from '../../../../../expression-editor/expression-editor-utils';
 import Node from '../../../../../model/tree/node';
 import DropZone from '../../../../../drag-drop/DropZone';
 import './compound-statement-decorator.css';

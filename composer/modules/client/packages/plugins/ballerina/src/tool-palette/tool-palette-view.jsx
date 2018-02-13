@@ -19,7 +19,7 @@ import React from 'react';
 import { Scrollbars } from 'react-custom-scrollbars';
 import _ from 'lodash';
 import PropTypes, { instanceOf } from 'prop-types';
-import { EVENTS as EDITOR_EVENTS } from 'core/editor/constants';
+import { EditorConstants } from '@ballerina-lang/composer-core';;
 import DefaultTools from './item-provider/default-design-tools';
 import ToolGroupView from './tool-group-view';
 import './tool-palette.css';
@@ -282,12 +282,12 @@ class ToolPaletteView extends React.Component {
 
     componentDidMount() {
         const { command: { on } } = this.context;
-        on(EDITOR_EVENTS.ACTIVE_TAB_CHANGE, this.reRender);
+        on(EditorConstants.EVENTS.ACTIVE_TAB_CHANGE, this.reRender);
     }
 
     componentWillUnmount() {
         const { command: { off } } = this.context;
-        off(EDITOR_EVENTS.ACTIVE_TAB_CHANGE, this.reRender);
+        off(EditorConstants.EVENTS.ACTIVE_TAB_CHANGE, this.reRender);
     }
 
     onSearchTextChange(value) {

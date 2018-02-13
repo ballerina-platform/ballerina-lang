@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import TreeUtils from 'plugins/ballerina/model/tree-util';
+import TreeUtils from '../model/tree-util';
 
 /**
  * A helper class relations ballerina environment annotations.

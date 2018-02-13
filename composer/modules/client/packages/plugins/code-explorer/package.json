@@ -1,0 +1,29 @@
+{
+  "name": "@ballerina-lang/composer-code-explorer-plugin",
+  "version": "0.962.0",
+  "description": "Code Explorer plugin for composer",
+  "homepage": "https://github.com/ballerina-lang/ballerina/composer/modules/client/packages/plugins/code-explorer",
+  "license": "Apache-2.0",
+  "main": "dist/plugin.js",
+  "bugs": {
+    "url": "https://github.com/ballerina-lang/ballerina/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ballerina-lang/ballerina.git"
+  },
+  "scripts": {
+    "clean": "rimraf dist",
+    "build": "npm run clean && babel src -d dist"
+  },
+  "devDependencies": {
+    "babel-cli": "^6.24.0"
+  },
+  "dependencies": {
+    "@ballerina-lang/composer-core": "0.962.0",
+    "@ballerina-lang/composer-ballerina-plugin": "0.962.0",
+    "prop-types": "^15.5.8",
+    "react": "^16.2.0",
+    "react-treeview": "^0.4.7"
+  }
+}

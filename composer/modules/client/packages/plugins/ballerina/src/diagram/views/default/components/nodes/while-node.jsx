@@ -19,8 +19,8 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
-import WhileNodeModel from 'plugins/ballerina/model/tree/while-node';
-import DropZone from 'plugins/ballerina/drag-drop/DropZone';
+import WhileNodeModel from '../../../../../model/tree/while-node';
+import DropZone from '../../../../../drag-drop/DropZone';
 import WhileStatementDecorator from './while-statement-decorator';
 import './try-node.css';
 

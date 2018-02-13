@@ -17,7 +17,7 @@
  */
 
 import _ from 'lodash';
-import SimpleBBox from 'plugins/ballerina/model/view/simple-bounding-box';
+import SimpleBBox from '../../../model/view/simple-bounding-box';
 import TreeUtil from './../../../model/tree-util';
 import OverlayComponentsRenderingUtil from './../default/components/utils/overlay-component-rendering-util';
 

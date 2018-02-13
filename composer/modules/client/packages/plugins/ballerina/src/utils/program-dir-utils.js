@@ -15,7 +15,7 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-import { getPathSeperator } from 'api-client/api-client';
+import { getPathSeperator } from '@ballerina-lang/composer-api-client';
 
 const PKG_SEP = '.';
 

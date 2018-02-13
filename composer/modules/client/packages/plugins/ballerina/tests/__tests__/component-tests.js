@@ -24,7 +24,7 @@ import Adapter from 'enzyme-adapter-react-16';
 import {render, shallow} from 'enzyme';
 import chaiJestSnapshot from "chai-jest-snapshot";
 import toJson from 'enzyme-to-json';
-import {fetchConfigs, parseContent} from 'api-client/api-client';
+import {fetchConfigs, parseContent} from '@ballerina-lang/composer-api-client';
 import ASTFactory from '../../js/ballerina/ast/ast-factory';
 import DefaultASTFactory from '../../js/ballerina/ast/default-ast-factory';
 import AssignmentStatement from '../../js/ballerina/diagram/views/default/components/assignment-statement';

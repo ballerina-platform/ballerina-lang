@@ -15,10 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
-import _ from 'lodash';
-import EventChannel from 'event_channel';
-import log from 'log';
+import { Log as log, EventChannel } from '@ballerina-lang/composer-core';
 
 // See http://tools.ietf.org/html/rfc6455#section-7.4.1
 const WS_NORMAL_CODE = 1000;
@@ -26,46 +23,43 @@ const WS_SSL_CODE = 1015;
 const WS_PING_INTERVAL = 15000;
 
 /**
- * Connect to Launcher backend
- *
- * @class LaunchChannel
+ * Handles websocket communitation with debugger backend
+ * @class DebugChannel
  * @extends {EventChannel}
  */
-class LaunchChannel extends EventChannel {
+class DebugChannel extends EventChannel {
     /**
-     * Creates an instance of LaunchChannel.
+     * Creates an instance of DebugChannel.
      * @param {Object} args - connection configurations
      *
-     * @memberof LaunchChannel
+     * @memberof DebugChannel
      */
     constructor(endpoint) {
         super();
-        if (_.isNil(endpoint)) {
+        if (!endpoint) {
             throw new Error('Invalid Endpoint');
         }
         this.endpoint = endpoint;
-
-        this.connect();
     }
+
     /**
-     * Connect to launcher backend
+     * Connect to debugger backend
      *
-     * @memberof LaunchChannel
+     * @memberof DebugChannel
      */
     connect() {
         const websocket = new WebSocket(this.endpoint);
-        // bind functions
         websocket.onmessage = (strMessage) => { this.parseMessage(strMessage); };
         websocket.onopen = () => { this.onOpen(); };
         websocket.onclose = (event) => { this.onClose(event); };
-        websocket.onerror = (error) => { this.onError(error); };
+        websocket.onerror = () => { this.onError(); };
         this.websocket = websocket;
     }
     /**
      * Parses string to JSON
      * @param {String} strMessage - message
      *
-     * @memberof LaunchChannel
+     * @memberof DebugChannel
      */
     parseMessage(strMessage) {
         const message = JSON.parse(strMessage.data);
@@ -75,7 +69,7 @@ class LaunchChannel extends EventChannel {
      * Sends message to backend
      * @param {Object} message - object to send
      *
-     * @memberof LaunchChannel
+     * @memberof DebugChannel
      */
     sendMessage(message) {
         this.websocket.send(JSON.stringify(message));
@@ -84,51 +78,45 @@ class LaunchChannel extends EventChannel {
      * Handles websocket onClose event
      * @param {Object} event - websocket onClose event
      *
-     * @memberof LaunchChannel
+     * @memberof DebugChannel
      */
     onClose(event) {
         clearInterval(this.ping);
-        // this.launcher.active = false;
         this.trigger('session-terminated');
         let reason;
         if (event.code === WS_NORMAL_CODE) {
             reason = 'Normal closure';
             this.trigger('session-ended');
-            this.debugger.active = false;
             return;
         } else if (event.code === WS_SSL_CODE) {
             reason = 'Certificate Issue';
         } else {
-            reason = `Unknown reason :${event.code}`;
+            reason = `Debug socket close with reason :${event.code}`;
         }
-        log.debug(`Web socket closed, reason ${reason}`);
+        log.debug(reason);
     }
     /**
      * Handles websocket onError event
      *
-     * @memberof LaunchChannel
+     * @memberof DebugChannel
      */
-    onError(error) {
+    onError() {
         clearInterval(this.ping);
-        this.trigger('session-error', error);
-        // this.launcher.active = false;
-        // this.launcher.trigger('session-error');
+        this.trigger('session-error', this.endpoint);
     }
     /**
      * Handles websocket onOpen event
      *
-     * @memberof LaunchChannel
+     * @memberof DebugChannel
      */
     onOpen() {
-        // this.launcher.active = true;
         this.trigger('connected');
-        this.startPing();
     }
 
     /**
      * start a ping for the websocket.
      *
-     * @memberof LaunchChannel
+     * @memberof LaunchDebugChannel
      */
     startPing() {
         this.ping = setInterval(() => {
@@ -137,13 +125,15 @@ class LaunchChannel extends EventChannel {
     }
 
     /**
-     * Close websocket channel.
+     * Close websocket DebugChannel.
      *
-     * @memberof LaunchChannel
+     * @memberof LaunchDebugChannel
      */
     close() {
         clearInterval(this.ping);
+        this.websocket.close();
+        this.trigger('connection-closed');
     }
 }
 
-export default LaunchChannel;
+export default DebugChannel;

@@ -19,7 +19,7 @@ import _ from 'lodash';
 import AbstractTreeUtil from './abstract-tree-util';
 import TreeBuilder from './tree-builder';
 import FragmentUtils from '../utils/fragment-utils';
-import { statement } from 'plugins/ballerina/diagram/views/default/designer-defaults';
+import { statement } from '../diagram/views/default/designer-defaults';
 
 /**
  * Util class for tree related functionality.

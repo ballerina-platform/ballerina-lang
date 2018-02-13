@@ -19,7 +19,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import TreeView from 'react-treeview';
-import TreeUtil from 'plugins/ballerina/model/tree-util';
+import { TreeUtil } from '@ballerina-lang/composer-ballerina-plugin';
 
 /**
  * Model Renderer

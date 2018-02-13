@@ -17,7 +17,7 @@
  */
 
 import _ from 'lodash';
-import log from 'log';
+import { Log as log } from '@ballerina-lang/composer-core';
 import TreeUtil from '../../../../../model/tree-util';
 import Mapper from './transformer-node-mapper';
 import TransformFactory from '../../../../../model/transformer-factory';

@@ -15,8 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
-import log from 'log';
+import { Log as log } from '@ballerina-lang/composer-core';
 import React from 'react';
 import _ from 'lodash';
 

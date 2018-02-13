@@ -21,8 +21,8 @@ import PropTypes from 'prop-types';
 import CSSTransitionGroup from 'react-transition-group/CSSTransitionGroup';
 import { Overlay, Popover } from 'react-bootstrap/lib';
 import classNames from 'classnames';
-import File from 'core/workspace/model/file';
-import { GO_TO_POSITION } from 'plugins/ballerina/constants/commands';
+import { File } from '@ballerina-lang/composer-core';
+import { GO_TO_POSITION } from '../constants/commands';
 import { DESIGN_VIEW } from './constants';
 import SourceEditor from './source-editor';
 

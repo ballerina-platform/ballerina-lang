@@ -15,14 +15,14 @@
  */
 import _ from 'lodash';
 import $ from 'jquery';
-import log from 'log';
+import { Log as log } from '@ballerina-lang/composer-core';
 import 'brace';
 import 'brace/ext/language_tools';
 import 'brace/ext/searchbox';
-import 'plugins/ballerina/utils/ace-mode';
-import DesignViewCompleterFactory from 'plugins/ballerina/utils/design-view-completer-factory';
-import TreeUtil from 'plugins/ballerina/model/tree-util';
-import splitVariableDefByLambda from 'plugins/ballerina/model/lambda-util';
+import '../utils/ace-mode';
+import DesignViewCompleterFactory from '../utils/design-view-completer-factory';
+import TreeUtil from '../model/tree-util';
+import splitVariableDefByLambda from '../model/lambda-util';
 
 const ace = global.ace;
 const Range = ace.acequire('ace/range');

@@ -4,7 +4,7 @@
   "description": "Core framework of Composer",
   "homepage": "https://github.com/ballerina-lang/ballerina/composer/modules/client/packages/core",
   "license": "Apache-2.0",
-  "main": "dist/app.js",
+  "main": "dist/index.js",
   "bugs": {
     "url": "https://github.com/ballerina-lang/ballerina/issues"
   },

@@ -17,9 +17,9 @@
  */
 import React from 'react';
 import PropTypes from 'prop-types';
-import log from 'log';
+import { Log as log } from '@ballerina-lang/composer-core';
 import _ from 'lodash';
-import ExpressionEditor from 'plugins/ballerina/expression-editor/expression-editor-utils';
+import ExpressionEditor from '../../../../../expression-editor/expression-editor-utils';
 import ImageUtil from './../../../../image-util';
 import SimpleBBox from '../../../../../model/view/simple-bounding-box';
 import TreeBuilder from './../../../../../model/tree-builder';

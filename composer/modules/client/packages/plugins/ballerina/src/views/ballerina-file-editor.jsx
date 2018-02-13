@@ -15,21 +15,19 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import log from 'log';
+import { Log as log, File, LayoutConstants } from '@ballerina-lang/composer-core';
 import _ from 'lodash';
 import React from 'react';
 import cn from 'classnames';
 import PropTypes from 'prop-types';
 import SplitPane from 'react-split-pane';
 import CSSTransitionGroup from 'react-transition-group/CSSTransitionGroup';
-import DebugManager from 'plugins/debugger/DebugManager/DebugManager'; // FIXME: Importing from debugger plugin
-import TreeUtil from 'plugins/ballerina/model/tree-util.js';
-import { parseFile } from 'api-client/api-client';
-import { CONTENT_MODIFIED, UNDO_EVENT, REDO_EVENT } from 'plugins/ballerina/constants/events';
-import { GO_TO_POSITION, FORMAT } from 'plugins/ballerina/constants/commands';
-import File from 'core/workspace/model/file';
-import { COMMANDS as LAYOUT_COMMANDS } from 'core/layout/constants';
-import { DOC_VIEW_ID } from 'plugins/ballerina/constants';
+import { DebugManager } from '@ballerina-lang/composer-debugger-plugin';
+import TreeUtil from '../model/tree-util.js';
+import { parseFile } from '@ballerina-lang/composer-api-client';
+import { CONTENT_MODIFIED, UNDO_EVENT, REDO_EVENT } from '../constants/events';
+import { GO_TO_POSITION, FORMAT } from '../constants/commands';
+import { DOC_VIEW_ID } from '../constants';
 import DesignView from './design-view.jsx';
 import SourceView from './source-view.jsx';
 import SwaggerView from './swagger-view.jsx';
@@ -508,7 +506,7 @@ class BallerinaFileEditor extends React.Component {
      * @param {string} symbolName
      */
     openDocumentation(packageName, symbolName) {
-        this.props.commandProxy.dispatch(LAYOUT_COMMANDS.SHOW_VIEW,
+        this.props.commandProxy.dispatch(LayoutConstants.COMMANDS.SHOW_VIEW,
             {
                 id: DOC_VIEW_ID,
                 additionalProps: {

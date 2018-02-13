@@ -16,10 +16,10 @@
  * under the License.
  */
 
-import AnnotationHelper from 'plugins/ballerina/env/helpers/annotation-helper';
-import BallerinaEnvironment from 'plugins/ballerina/env/environment';
-import NodeFactory from 'plugins/ballerina/model/node-factory';
-import TreeUtil from 'plugins/ballerina/model/tree-util';
+import AnnotationHelper from '../../../../../env/helpers/annotation-helper';
+import BallerinaEnvironment from '../../../../../env/environment';
+import NodeFactory from '../../../../../model/node-factory';
+import TreeUtil from '../../../../../model/tree-util';
 
 /**
  * Deletes a given node from the tree.

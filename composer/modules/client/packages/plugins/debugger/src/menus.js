@@ -15,8 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
-import { MENU_DEF_TYPES } from 'core/menu/constants';
+import { MenuConstants } from '@ballerina-lang/composer-core';
 import { MENUS, COMMANDS, LABELS } from './constants';
 
 import LaunchManager from './LaunchManager';
@@ -38,7 +37,7 @@ export function getMenuDefinitions(debuggerInstance) {
             },
             icon: '',
             order: 21,
-            type: MENU_DEF_TYPES.ROOT,
+            type: MenuConstants.MENU_DEF_TYPES.ROOT,
         },
         {
             id: MENUS.RUN_START_MENU,
@@ -51,7 +50,7 @@ export function getMenuDefinitions(debuggerInstance) {
             },
             command: COMMANDS.RUN,
             icon: 'start',
-            type: MENU_DEF_TYPES.ITEM,
+            type: MenuConstants.MENU_DEF_TYPES.ITEM,
         },
         {
             id: MENUS.DEBUG_START_MENU,
@@ -64,7 +63,7 @@ export function getMenuDefinitions(debuggerInstance) {
             },
             command: COMMANDS.RUN_WITH_DEBUG,
             icon: 'bug',
-            type: MENU_DEF_TYPES.ITEM,
+            type: MenuConstants.MENU_DEF_TYPES.ITEM,
         },
     ];
 }

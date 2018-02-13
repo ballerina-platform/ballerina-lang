@@ -16,18 +16,14 @@
  * under the License.
  */
 import _ from 'lodash';
-import log from 'log';
-import Plugin from 'core/plugin/plugin';
+import { Log as log, PluginConstants, LayoutConstants, WorkspaceConstants,
+            Plugin, FSUtils } from '@ballerina-lang/composer-core';
 import { listen } from 'vscode-ws-jsonrpc';
 import { setTimeout } from 'timers';
 import ReconnectingWebSocket from 'reconnecting-websocket';
-import { parseFile, getPathSeperator, getServiceEndpoint } from 'api-client/api-client';
-import { CONTRIBUTIONS } from 'core/plugin/constants';
-import { REGIONS, COMMANDS as LAYOUT_COMMANDS } from 'core/layout/constants';
-import { EVENTS as WORKSPACE_EVENTS, COMMANDS as WORKSPACE_CMDS } from 'core/workspace/constants';
-import { createOrUpdate, move } from 'core/workspace/fs-util';
-import { CLASSES } from 'plugins/ballerina/views/constants';
-import Document from 'plugins/ballerina/docerina/document.jsx';
+import { parseFile, getPathSeperator, getServiceEndpoint } from '@ballerina-lang/composer-api-client';
+import { CLASSES } from './views/constants';
+import Document from './docerina/document.jsx';
 import Editor from './views/editor-wrapper';
 import { PLUGIN_ID, EDITOR_ID, DOC_VIEW_ID, COMMANDS as COMMAND_IDS, TOOLS as TOOL_IDS,
             DIALOGS as DIALOG_IDS, EVENTS } from './constants';
@@ -37,7 +33,7 @@ import { isInCorrectPath, getCorrectPackageForPath, getCorrectPathForPackage } f
 import TreeBuilder from './model/tree-builder';
 import FragmentUtils from './utils/fragment-utils';
 
-
+const { createOrUpdate, move } = FSUtils;
 /**
  * Plugin for Ballerina Lang
  */
@@ -114,7 +110,7 @@ class BallerinaPlugin extends Plugin {
      * @inheritdoc
      */
     getContributions() {
-        const { EDITORS, TOOLS, VIEWS, HANDLERS, DIALOGS } = CONTRIBUTIONS;
+        const { EDITORS, TOOLS, VIEWS, HANDLERS, DIALOGS } = PluginConstants.CONTRIBUTIONS;
         return {
             [EDITORS]: [
                 {
@@ -211,7 +207,7 @@ class BallerinaPlugin extends Plugin {
                                                             const targetEditor = editor.getEditorByID(file.fullPath);
                                                             const wasActive =
                                                                 editor.getActiveEditor().id === targetEditor.id;
-                                                            dispatch(WORKSPACE_CMDS.OPEN_FILE, {
+                                                            dispatch(WorkspaceConstants.COMMANDS.OPEN_FILE, {
                                                                 filePath: correctPath + file.name + '.' +
                                                                     file.extension,
                                                                 activate: wasActive,
@@ -248,7 +244,7 @@ class BallerinaPlugin extends Plugin {
                                     }
                                 };
 
-                                dispatch(LAYOUT_COMMANDS.POPUP_DIALOG, {
+                                dispatch(LayoutConstants.COMMANDS.POPUP_DIALOG, {
                                     id: DIALOG_IDS.FIX_PACKAGE_NAME_OR_PATH_CONFIRM,
                                     additionalProps: {
                                         file,
@@ -264,13 +260,13 @@ class BallerinaPlugin extends Plugin {
                     },
                 },
                 {
-                    cmdID: WORKSPACE_EVENTS.FILE_OPENED,
+                    cmdID: WorkspaceConstants.EVENTS.FILE_OPENED,
                     handler: ({ file }) => {
                         parseFile(file)
                             .then(({ programDirPath = undefined }) => {
                                 const { workspace, command: { dispatch } } = this.appContext;
                                 if (programDirPath && !workspace.isFilePathOpenedInExplorer(programDirPath)) {
-                                    dispatch(LAYOUT_COMMANDS.POPUP_DIALOG, {
+                                    dispatch(LayoutConstants.COMMANDS.POPUP_DIALOG, {
                                         id: DIALOG_IDS.OPEN_PROGRAM_DIR_CONFIRM,
                                         additionalProps: {
                                             file,

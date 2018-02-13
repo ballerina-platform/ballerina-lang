@@ -15,9 +15,8 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import { CHANGE_EVT_TYPES } from 'plugins/ballerina/views/constants';
-import UndoableOperation from 'core/editor/undo-manager/undoable-operation';
-import { EVENTS } from 'core/editor/constants';
+import { EditorConstants, UndoableOperation } from '@ballerina-lang/composer-core';
+import { CHANGE_EVT_TYPES } from '../views/constants';
 
 /**
  * Class to represent an undoable operation in ballerina file editor
@@ -47,7 +46,7 @@ class UndoableBalEditorOperation extends UndoableOperation {
 
     undo() {
         this.getFile().setContent(this.getOldContent(), {
-            type: EVENTS.UNDO_EVENT,
+            type: EditorConstants.EVENTS.UNDO_EVENT,
             originEvt: this.originEvt,
         });
     }
@@ -58,7 +57,7 @@ class UndoableBalEditorOperation extends UndoableOperation {
 
     redo() {
         this.getFile().setContent(this.getNewContent(), {
-            type: EVENTS.REDO_EVENT,
+            type: EditorConstants.EVENTS.REDO_EVENT,
             originEvt: this.originEvt,
         });
     }

@@ -20,7 +20,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Button, Row, Grid, Col } from 'react-bootstrap';
-import Dialog from 'core/view/Dialog';
+import { Dialog } from '@ballerina-lang/composer-core';
 
 /**
  * Ask user's confirmation to open the program directory related to file

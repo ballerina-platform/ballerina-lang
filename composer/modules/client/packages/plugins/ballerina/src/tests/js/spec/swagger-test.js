@@ -19,10 +19,10 @@
 import path from 'path';
 import fs from 'fs';
 import { expect } from 'chai';
-import { fetchConfigs, parseContent } from 'api-client/api-client';
-import SwaggerImportPlugin from 'plugins/import-swagger/plugin';
-import SwaggerParser from 'plugins/ballerina/swagger-parser/swagger-parser';
-import TreeBuilder from 'plugins/ballerina/model/tree-builder';
+import { fetchConfigs, parseContent } from '@ballerina-lang/composer-api-client';
+import SwaggerImportPlugin from '@ballerina-lang/composer-import-swagger-plugin';
+import SwaggerParser from '../../../swagger-parser/swagger-parser';
+import TreeBuilder from '../../../model/tree-builder';
 
 /* global describe */
 /* global it */
@@ -58,8 +58,8 @@ describe('Ballerina Composer Test Suite', () => {
                 .catch(beforeAllDone);
         });
 
-        const swaggerParserTestDir = path.resolve(path.join(directory, 'src', 'plugins', 'ballerina', 'tests',
-                                                                                        'resources', 'swagger-parser'));
+        const swaggerParserTestDir = path.resolve(path.join(directory, '..', '..', 
+                                                    'resources', 'swagger-parser'));
         const swaggerDirectory = path.resolve(path.join(swaggerParserTestDir, 'swagger-jsons'));
         const expectedBalDir = path.resolve(path.join(swaggerParserTestDir, 'expected-ballerina-source'));
 

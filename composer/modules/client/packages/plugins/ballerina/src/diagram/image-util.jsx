@@ -17,8 +17,7 @@
  */
 
 import $ from 'jquery';
-import { getServiceEndpoint } from 'api-client/api-client';
-import codepoints from 'font-ballerina/codepoints.json';
+import codepoints from '@ballerina-lang/composer-font';
 
 /**
  * Gets the base name of a file.

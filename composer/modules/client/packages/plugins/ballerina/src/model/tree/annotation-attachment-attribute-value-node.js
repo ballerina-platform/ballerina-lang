@@ -17,7 +17,7 @@
  */
 
 import _ from 'lodash';
-import TreeUtil from 'plugins/ballerina/model/tree-util';
+import TreeUtil from '../tree-util';
 import AbstractAnnotationAttachmentAttributeValueNode from './abstract-tree/annotation-attachment-attribute-value-node';
 
 class AnnotationAttachmentAttributeValueNode extends AbstractAnnotationAttachmentAttributeValueNode {

@@ -17,7 +17,7 @@
  */
 import _ from 'lodash';
 import uuid from 'uuid/v4';
-import EventChannel from 'event_channel';
+import { EventChannel } from '@ballerina-lang/composer-core';
 import SimpleBBox from '../view/simple-bounding-box';
 import getSourceOf from '../source-gen';
 

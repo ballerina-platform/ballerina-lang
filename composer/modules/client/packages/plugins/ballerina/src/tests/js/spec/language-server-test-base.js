@@ -15,11 +15,10 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
-import log from 'log';
+import { Log as log } from '@ballerina-lang/composer-core';
 import path from 'path';
 import fs from 'fs';
-import SourceViewCompleterFactory from 'plugins/ballerina/utils/source-view-completer-factory';
+import SourceViewCompleterFactory from '../../../utils/source-view-completer-factory';
 
 /**
  * Read the given file and return the content
@@ -45,9 +44,9 @@ const wsCloseEventHandler = (event) => {
  * @param {function} done
  */
 export function testCompletions(cursorPosition, directory, testFileName, expectedFile, done, getCompareCallback) {
-    const testFilePath = path.join(directory, 'src', 'plugins', 'ballerina', 'tests', 'resources', 'languageServer');
-    const expectedFilePath = path.resolve(path.join(directory, 'src', 'plugins', 'ballerina', 'tests', 'resources',
-                                                                        'languageServer', 'expected', expectedFile));
+    const testFilePath = path.join(directory, '..', '..', 'resources', 'languageServer');
+    const expectedFilePath = path.resolve(path.join(directory, '..', '..', 'resources',
+                                                        'languageServer', 'expected', expectedFile));
     const expectedFileContent = fs.readFileSync(expectedFilePath, 'utf8');
     const compareCallback = getCompareCallback(expectedFileContent, done);
     const testFile = path.resolve(path.join(testFilePath, testFileName));

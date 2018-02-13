@@ -17,9 +17,8 @@
  */
 
 import _ from 'lodash';
-import EventChannel from 'event_channel';
+import { EventChannel } from '@ballerina-lang/composer-core';
 import LangserverChannel from './langserver-channel';
-import Console from 'console';
 
 class LangServerManager extends EventChannel {
     constructor() {

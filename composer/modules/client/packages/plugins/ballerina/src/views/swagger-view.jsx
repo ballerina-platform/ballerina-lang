@@ -20,13 +20,13 @@ import _ from 'lodash';
 import $ from 'jquery';
 import * as YAML from 'js-yaml';
 import PropTypes from 'prop-types';
-import log from 'log';
+import { Log as log } from '@ballerina-lang/composer-core';
 import cn from 'classnames';
 import SwaggerEditorBundle from 'swagger-editor-dist/swagger-editor-bundle';
-import SwaggerParser from 'plugins/ballerina/swagger-parser/swagger-parser';
-import NodeFactory from 'plugins/ballerina/model/node-factory';
-import ServiceNode from 'plugins/ballerina/model/tree/service-node';
-import { getSwaggerDefinition } from 'api-client/api-client';
+import SwaggerParser from '../swagger-parser/swagger-parser';
+import NodeFactory from '../model/node-factory';
+import ServiceNode from '../model/tree/service-node';
+import { getSwaggerDefinition } from '@ballerina-lang/composer-api-client';
 import { DESIGN_VIEW, SOURCE_VIEW } from './constants';
 
 

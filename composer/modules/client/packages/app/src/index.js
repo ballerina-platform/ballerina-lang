@@ -24,10 +24,9 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/css/bootstrap-theme.min.css';
 import 'font-ballerina/css/font-ballerina.css';
 
-import log from 'log';
 import _ from 'lodash';
 import { fetchConfigs } from 'api-client/api-client';
-import Application from './core/app';
+import { Composer, Log as log } from '@ballerina-lang/composer-core';
 import defaultConfig from './config';
 
 // Before start rendering, fetch api endpoint information & other configs from config service
@@ -37,7 +36,7 @@ fetchConfigs()
         const newConfig = _.merge(defaultConfig, configs);
         try {
             log.initAjaxAppender(newConfig.services.logging.endpoint);
-            const app = new Application(newConfig);
+            const app = new Composer(newConfig);
             app.render();
         } catch (ex) {
             throw Error(ex.message + '. ' + ex.stack);

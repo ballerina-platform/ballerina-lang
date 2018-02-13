@@ -16,15 +16,11 @@
  * under the License.
  *
  */
-
+import { EditorUtils, EditorConstants, WorkspaceConstants } from '@ballerina-lang/composer-core';
 import React from 'react';
 import PropTypes from 'prop-types';
-import BallerinaFileEditor from 'plugins/ballerina/views/ballerina-file-editor';
-import { EVENTS as EDITOR_EVENTS } from 'core/editor/constants';
-import { withUndoRedoSupport } from 'core/editor/views/utils';
-import { EVENTS as WORKSPACE_EVENTS } from 'core/workspace/constants';
+import BallerinaFileEditor from './ballerina-file-editor';
 import UndoableBalEditorOperation from './../operations/undoable-bal-editor-operation';
-
 
 /**
  * Editor for Bal Files
@@ -52,7 +48,7 @@ class Editor extends React.Component {
      * @inheritdoc
      */
     componentDidMount() {
-        this.props.file.on(WORKSPACE_EVENTS.CONTENT_MODIFIED, this.onFileContentModified);
+        this.props.file.on(WorkspaceConstants.EVENTS.CONTENT_MODIFIED, this.onFileContentModified);
     }
 
     /**
@@ -66,8 +62,8 @@ class Editor extends React.Component {
      * On File Modifications
      */
     onFileContentModified(changeEvent) {
-        if (changeEvent.originEvt.type !== EDITOR_EVENTS.UNDO_EVENT
-            && changeEvent.originEvt.type !== EDITOR_EVENTS.REDO_EVENT) {
+        if (changeEvent.originEvt.type !== EditorConstants.EVENTS.UNDO_EVENT
+            && changeEvent.originEvt.type !== EditorConstants.EVENTS.REDO_EVENT) {
             const undoableOp = new UndoableBalEditorOperation({
                 file: this.props.file,
                 changeEvent,
@@ -80,7 +76,7 @@ class Editor extends React.Component {
      * @inheritdoc
      */
     componetWillUnmount() {
-        this.props.file.off(WORKSPACE_EVENTS.CONTENT_MODIFIED, this.onFileContentModified);
+        this.props.file.off(WorkspaceConstants.EVENTS.CONTENT_MODIFIED, this.onFileContentModified);
     }
 
     /**
@@ -121,4 +117,4 @@ Editor.defaultProps = {
     isPreviewViewEnabled: false,
 };
 
-export default withUndoRedoSupport(Editor);
+export default EditorUtils.withUndoRedoSupport(Editor);

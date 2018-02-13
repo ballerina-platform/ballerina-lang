@@ -16,7 +16,7 @@
  * under the License.
  */
 import _ from 'lodash';
-import log from 'log';
+import { Log as log } from '@ballerina-lang/composer-core';
 import ConnectorDeclarationVisitor from '../visitors/connector-declaration-visitor';
 import ASTFactory from '../ast/ast-factory';
 

@@ -17,10 +17,10 @@
  */
 import React from 'react';
 import PropTypes from 'prop-types';
-import TreeUtil from 'plugins/ballerina/model/tree-util';
-import IfNodeModel from 'plugins/ballerina/model/tree/if-node';
-import DropZone from 'plugins/ballerina/drag-drop/DropZone';
-import DefaultNodeFactory from 'plugins/ballerina/model/default-node-factory';
+import TreeUtil from '../../../../../model/tree-util';
+import IfNodeModel from '../../../../../model/tree/if-node';
+import DropZone from '../../../../../drag-drop/DropZone';
+import DefaultNodeFactory from '../../../../../model/default-node-factory';
 import IfStatementDecorator from './if-statement-decorator';
 import AddCompoundBlock from './add-compound-block';
 import './if-node.css';

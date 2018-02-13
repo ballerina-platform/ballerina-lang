@@ -16,8 +16,8 @@
  * under the License.
  */
 import _ from 'lodash';
-import SimpleBBox from 'plugins/ballerina/model/view/simple-bounding-box';
-import TreeUtils from 'plugins/ballerina/model/tree-util';
+import SimpleBBox from '../model/view/simple-bounding-box';
+import TreeUtils from '../model/tree-util';
 
 /**
  * This will vist the tree and resolve any conflicts of arrows with boxes.

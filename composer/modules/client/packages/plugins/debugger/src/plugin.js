@@ -15,11 +15,8 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import { getServiceEndpoint } from 'api-client/api-client';
-import Plugin from 'core/plugin/plugin';
-import { CONTRIBUTIONS } from 'core/plugin/constants';
-
-import { REGIONS, COMMANDS as LAYOUT_COMMANDS } from 'core/layout/constants';
+import { getServiceEndpoint } from '@ballerina-lang/composer-api-client';
+import { PluginConstants, LayoutConstants, Plugin } from '@ballerina-lang/composer-core';
 
 import { getCommandDefinitions } from './commands';
 import { getHandlerDefinitions } from './handlers';
@@ -47,12 +44,12 @@ class DebuggerPlugin extends Plugin {
 
         LaunchManager.on('execution-started execution-ended', () => {
             const { command: { dispatch } } = this.appContext;
-            dispatch(LAYOUT_COMMANDS.UPDATE_ALL_ACTION_TRIGGERS, {});
+            dispatch(LayoutConstants.COMMANDS.UPDATE_ALL_ACTION_TRIGGERS, {});
         });
 
         DebugManager.on('debugging-started execution-ended', () => {
             const { command: { dispatch } } = this.appContext;
-            dispatch(LAYOUT_COMMANDS.UPDATE_ALL_ACTION_TRIGGERS, {});
+            dispatch(LayoutConstants.COMMANDS.UPDATE_ALL_ACTION_TRIGGERS, {});
         });
     }
 
@@ -90,7 +87,7 @@ class DebuggerPlugin extends Plugin {
      * @inheritdoc
      */
     getContributions() {
-        const { COMMANDS, HANDLERS, VIEWS, DIALOGS, TOOLS, MENUS } = CONTRIBUTIONS;
+        const { COMMANDS, HANDLERS, VIEWS, DIALOGS, TOOLS, MENUS } = PluginConstants.CONTRIBUTIONS;
         return {
             [MENUS]: getMenuDefinitions(this),
             [COMMANDS]: getCommandDefinitions(this),
@@ -110,7 +107,7 @@ class DebuggerPlugin extends Plugin {
                             DebugManager,
                         };
                     },
-                    region: REGIONS.LEFT_PANEL,
+                    region: LayoutConstants.REGIONS.LEFT_PANEL,
                     // region specific options for left-panel views
                     regionOptions: {
                         activityBarIcon: 'bug',
@@ -128,7 +125,7 @@ class DebuggerPlugin extends Plugin {
                                 icon: 'console',
                                 handleAction: () => {
                                     const { command: { dispatch } } = this.appContext;
-                                    dispatch(LAYOUT_COMMANDS.TOGGLE_BOTTOM_PANEL);
+                                    dispatch(LayoutConstants.COMMANDS.TOGGLE_BOTTOM_PANEL);
                                 },
                                 description: 'Toggle Console',
                             },
@@ -146,7 +143,7 @@ class DebuggerPlugin extends Plugin {
                             LaunchManager,
                         };
                     },
-                    region: REGIONS.BOTTOM_PANEL,
+                    region: LayoutConstants.REGIONS.BOTTOM_PANEL,
                     // region specific options for bottom views
                     regionOptions: {
                         panelTitle: 'Console',

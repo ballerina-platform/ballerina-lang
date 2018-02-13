@@ -18,8 +18,8 @@
 /* eslint-env es6 */
 
 import _ from 'lodash';
-import EventChannel from 'event_channel';
-import { getServiceEndpoint } from 'api-client/api-client';
+import { EventChannel } from '@ballerina-lang/composer-core';
+import { getServiceEndpoint } from '@ballerina-lang/composer-api-client';
 import LangserverChannel from './langserver-channel';
 import RequestSession from './request-session';
 

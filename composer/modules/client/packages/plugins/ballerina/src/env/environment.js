@@ -15,12 +15,11 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import log from 'log';
 import _ from 'lodash';
-import EventChannel from 'event_channel';
-import { getTypeLattice, getOperatorLattice, getPackages, getBuiltInTypes } from 'api-client/api-client';
-import TypeLattice from 'plugins/ballerina/type-lattice/type-lattice';
-import OperatorLattice from 'plugins/ballerina/type-lattice/operator-lattice';
+import { EventChannel, Log as log } from '@ballerina-lang/composer-core';
+import { getTypeLattice, getOperatorLattice, getPackages, getBuiltInTypes } from '@ballerina-lang/composer-api-client';
+import TypeLattice from '../type-lattice/type-lattice';
+import OperatorLattice from '../type-lattice/operator-lattice';
 import BallerinaEnvFactory from './ballerina-env-factory';
 
 

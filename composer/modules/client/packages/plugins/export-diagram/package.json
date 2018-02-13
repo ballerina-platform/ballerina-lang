@@ -1,0 +1,32 @@
+{
+  "name": "@ballerina-lang/composer-export-diagram-plugin",
+  "version": "0.962.0",
+  "description": "Diagram Export plugin for composer",
+  "homepage": "https://github.com/ballerina-lang/ballerina/composer/modules/client/packages/plugins/export-diagram",
+  "license": "Apache-2.0",
+  "main": "dist/index.js",
+  "bugs": {
+    "url": "https://github.com/ballerina-lang/ballerina/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ballerina-lang/ballerina.git"
+  },
+  "scripts": {
+    "clean": "rimraf dist",
+    "build": "npm run clean && babel src -d dist"
+  },
+  "devDependencies": {
+    "babel-cli": "^6.24.0"
+  },
+  "dependencies": {
+    "@ballerina-lang/composer-core": "0.962.0",
+    "@ballerina-lang/composer-api-client": "0.962.0",
+    "prop-types": "^15.5.8",
+    "react": "^16.2.0",
+    "react-bootstrap": "^0.31.5",
+    "react-htmltree": "github:pahans/react-htmltree#upgrade-to-react-16",
+    "lodash": "^4.13.1",
+    "jquery": "^1.9.1"
+  }
+}

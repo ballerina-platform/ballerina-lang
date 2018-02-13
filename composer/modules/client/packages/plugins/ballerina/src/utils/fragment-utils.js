@@ -17,7 +17,7 @@
  */
 
 // using relative imports here, since gen-default-nodes runs without webpack
-import { parseFragment } from 'api-client/api-client';
+import { parseFragment } from '@ballerina-lang/composer-api-client';
 
 /**
  * Class for fragment utils.

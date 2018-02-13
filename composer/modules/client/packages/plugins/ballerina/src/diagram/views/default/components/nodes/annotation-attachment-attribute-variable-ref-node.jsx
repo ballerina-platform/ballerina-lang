@@ -18,7 +18,7 @@
  */
 import React from 'react';
 import PropTypes from 'prop-types';
-import SimpleVariableRefTreeNode from 'plugins/ballerina/model/tree/simple-variable-ref-node';
+import SimpleVariableRefTreeNode from '../../../../../model/tree/simple-variable-ref-node';
 
 /**
  * React component of a b-value that is being used in an annotation attribute.

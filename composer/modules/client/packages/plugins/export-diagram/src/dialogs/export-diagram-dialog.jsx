@@ -19,19 +19,16 @@
 import React from 'react';
 import _ from 'lodash';
 import $ from 'jquery';
-import { getPathSeperator, getUserHome } from 'api-client/api-client';
+import { getPathSeperator, getUserHome } from '@ballerina-lang/composer-api-client';
 import PropTypes from 'prop-types';
 import { Button, Form, FormGroup, FormControl, ControlLabel, Col } from 'react-bootstrap';
-import Dialog from 'core/view/Dialog';
-import FileTree from 'core/view/tree-view/FileTree';
-import { createOrUpdate, exists as checkFileExists } from 'core/workspace/fs-util';
-import { DIALOGS } from 'core/workspace/constants';
-import { COMMANDS as LAYOUT_COMMANDS } from 'core/layout/constants';
-import ScrollBarsWithContextAPI from 'core/view/scroll-bars/ScrollBarsWithContextAPI';
+import { Dialog, FileTree, FSUtils, ScrollBarsWithContextAPI,
+     WorkspaceConstants, LayoutConstants } from '@ballerina-lang/composer-core';
 
 const FILE_TYPE = 'file';
 const HISTORY_LAST_ACTIVE_PATH = 'composer.history.workspace.export-diagram-dialog.last-active-path';
-
+const { createOrUpdate } = FSUtils;
+const checkFileExists = FSUtils.exists;
 /**
  * File Save Wizard Dialog
  * @extends React.Component
@@ -121,8 +118,8 @@ class ExportDiagramDialog extends React.Component {
                 if (!exists) {
                     this.sendPayload(derivedFilePath, derivedFileName, derivedFileType, saveFile);
                 } else {
-                    this.props.command.dispatch(LAYOUT_COMMANDS.POPUP_DIALOG, {
-                        id: DIALOGS.REPLACE_FILE_CONFIRM,
+                    this.props.command.dispatch(LayoutConstants.COMMANDS.POPUP_DIALOG, {
+                        id: WorkspaceConstants.DIALOGS.REPLACE_FILE_CONFIRM,
                         additionalProps: {
                             filePath: derivedFilePath + derivedFileName,
                             onConfirm: () => {

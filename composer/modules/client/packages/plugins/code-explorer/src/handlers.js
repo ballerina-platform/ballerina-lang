@@ -15,11 +15,6 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
-import { COMMANDS as LAYOUT_COMMANDS } from 'core/layout/constants';
-import { EVENTS as WORKSPACE_EVENTS } from 'core/workspace/constants';
-import { COMMANDS, DIALOG } from './constants';
-
 /**
  * Provides command handler definitions of code explorer plugin.
  * @param {plugin} plugin plugin instance

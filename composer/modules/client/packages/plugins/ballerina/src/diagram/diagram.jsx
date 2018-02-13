@@ -18,7 +18,6 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
-import EventChannel from 'event_channel';
 import CanvasDecorator from './views/default/components/decorators/canvas-decorator';
 import ControllerOverlay from './views/default/components/decorators/controller-overlay';
 import PositionVisitor from './visitors/position-visitor';

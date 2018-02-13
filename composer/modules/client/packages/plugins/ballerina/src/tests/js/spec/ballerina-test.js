@@ -23,13 +23,13 @@
 /* global after */
 /* global before */
 
-import { fetchConfigs, parseContent } from 'api-client/api-client';
+import { fetchConfigs, parseContent } from '@ballerina-lang/composer-api-client';
 import fs from 'fs';
 import { expect } from 'chai';
 import _ from 'lodash';
 import path from 'path';
 import chalk from 'chalk';
-import TreeBuilder from 'plugins/ballerina/model/tree-builder';
+import TreeBuilder from '../../../model/tree-builder';
 
 const directory = process.env.DIRECTORY ? process.env.DIRECTORY : '';
 
@@ -127,8 +127,7 @@ describe('Ballerina Composer Test Suite', () => {
             .then(() => beforeAllDone())
             .catch(beforeAllDone);
     });
-    const testResDir = path.resolve(path.join(directory, 'src', 'plugins', 'ballerina', 'tests', 'resources',
-                                                                                                            'parser'));
+    const testResDir = path.resolve(path.join(directory, '..', '..', 'resources', 'parser'));
     const testFiles = findBalFilesInDirSync(testResDir);
     _.sortBy(testFiles, f => fs.statSync(f).size).slice(0, 500).forEach((testFile) => {
         const relPath = path.relative('.', testFile);

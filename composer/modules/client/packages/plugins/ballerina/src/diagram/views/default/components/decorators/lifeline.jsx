@@ -20,7 +20,7 @@
 import React from 'react';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
-import ExpressionEditor from 'plugins/ballerina/expression-editor/expression-editor-utils';
+import ExpressionEditor from '../../../../../expression-editor/expression-editor-utils';
 import SimpleBBox from './../../../../../model/view/simple-bounding-box';
 import * as DesignerDefaults from './../../designer-defaults';
 import TreeUtils from './../../../../../model/tree-util';
@@ -28,7 +28,7 @@ import OverlayComponentsRenderingUtil from './../utils/overlay-component-renderi
 import ActionBox from './action-box';
 import ActiveArbiter from './active-arbiter';
 import ArrowDecorator from '../decorators/arrow-decorator';
-import codepoints from 'font-ballerina/codepoints.json';
+import codepoints from '@ballerina-lang/composer-font';
 
 class LifeLine extends React.Component {
 

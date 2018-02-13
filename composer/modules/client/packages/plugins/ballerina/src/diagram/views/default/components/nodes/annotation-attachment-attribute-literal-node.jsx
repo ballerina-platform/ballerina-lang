@@ -18,7 +18,7 @@
  */
 import React from 'react';
 import PropTypes from 'prop-types';
-import LiteralTreeNode from 'plugins/ballerina/model/tree/literal-node';
+import LiteralTreeNode from '../../../../../model/tree/literal-node';
 
 /**
  * React component of a b-value that is being used in an annotation attribute.

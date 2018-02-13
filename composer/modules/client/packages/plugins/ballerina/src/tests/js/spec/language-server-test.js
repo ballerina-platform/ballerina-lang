@@ -18,7 +18,7 @@
 /* eslint-env es6 */
 /* global it, describe, after */
 import _ from 'lodash';
-import { fetchConfigs } from 'api-client/api-client';
+import { fetchConfigs } from '@ballerina-lang/composer-api-client';
 import { expect } from 'chai';
 import { testCompletions, close } from './language-server-test-base';
 

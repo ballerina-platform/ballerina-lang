@@ -15,9 +15,9 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import log from 'log';
+import { Log as log } from '@ballerina-lang/composer-core';
 import _ from 'lodash';
-import ServiceDefinition from 'plugins/ballerina/model/tree/service-node';
+import ServiceDefinition from '../model/tree/service-node';
 import BallerinaEnvFactory from './ballerina-env-factory';
 
 /**

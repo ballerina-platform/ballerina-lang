@@ -25,7 +25,6 @@ const ExtractTextPlugin = require('extract-text-webpack-plugin');
 const UnusedFilesWebpackPlugin = require('unused-files-webpack-plugin').UnusedFilesWebpackPlugin;
 const CircularDependencyPlugin = require('circular-dependency-plugin');
 const ProgressBarPlugin = require('progress-bar-webpack-plugin');
-const WebfontPlugin = require('webpack-webfont').default;
 const UglifyJsPlugin = require('uglifyjs-webpack-plugin');
 const WriteFilePlugin = require('write-file-webpack-plugin');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
@@ -135,36 +134,6 @@ const config = [{
             $: 'jquery',
             jQuery: 'jquery',
         }),
-        new webpack.WatchIgnorePlugin([path.resolve(__dirname, './font/dist/')]),
-        new WebfontPlugin({
-            files: path.resolve(__dirname, './font/font-ballerina/icons/**/*.svg'),
-            cssTemplateFontPath: '../fonts/',
-            fontName: 'font-ballerina',
-            fontHeight: 1000,
-            normalize: true,
-            cssTemplateClassName: 'fw', // TODO: map with proper class name
-            template: path.resolve(__dirname, './font/font-ballerina/template.css.njk'),
-            glyphTransformFn: (obj) => {
-                codepoints[obj.name] = obj.unicode;
-            },
-            dest: {
-                fontsDir: path.resolve(__dirname, './font/dist/font-ballerina/fonts'),
-                stylesDir: path.resolve(__dirname, './font/dist/font-ballerina/css'),
-                outputFilename: 'font-ballerina.css',
-            },
-            hash: new Date().getTime(),
-        }), {
-            apply: function(compiler) {
-                compiler.plugin('compile', function(compilation, callback) {
-                    fs.writeFile(
-                        path.resolve(__dirname, './font/dist/font-ballerina/codepoints.json'),
-                        JSON.stringify(codepoints),
-                        'utf8',
-                        callback
-                    );
-                });
-            }
-        },
         new WriteFilePlugin(),
         new CopyWebpackPlugin([
             {

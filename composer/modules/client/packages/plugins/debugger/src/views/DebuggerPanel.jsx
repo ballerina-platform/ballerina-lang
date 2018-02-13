@@ -18,7 +18,7 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
-import View from 'core/view/view';
+import { View } from '@ballerina-lang/composer-core';
 import { VIEWS, COMMANDS } from './../constants';
 import './DebuggerPanel.scss';
 import Toolbar from '../views/Toolbar';

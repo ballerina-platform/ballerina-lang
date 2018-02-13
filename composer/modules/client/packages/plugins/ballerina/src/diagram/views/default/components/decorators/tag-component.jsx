@@ -18,7 +18,7 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
-import ExpressionEditor from 'plugins/ballerina/expression-editor/expression-editor-utils';
+import ExpressionEditor from '../../../../../expression-editor/expression-editor-utils';
 import SuggestionsText from './../nodes/suggestions-text';
 import ParameterDefinition from './../nodes/parameter-definition';
 import SizingUtils from './../../sizing-util';

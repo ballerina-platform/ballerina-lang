@@ -15,10 +15,8 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
+import { Log as log, EventChannel } from '@ballerina-lang/composer-core';
 import _ from 'lodash';
-import EventChannel from 'event_channel';
-import log from 'log';
 import DebugChannel from './DebugChannel';
 import DebugPoint from './DebugPoint';
 import LaunchManager from './../LaunchManager';

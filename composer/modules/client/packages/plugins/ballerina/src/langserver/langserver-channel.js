@@ -17,8 +17,7 @@
  */
 
 import _ from 'lodash';
-import EventChannel from 'event_channel';
-import log from 'log';
+import { EventChannel, Log as log } from '@ballerina-lang/composer-core';
 
 // See http://tools.ietf.org/html/rfc6455#section-7.4.1
 const WS_NORMAL_CODE = 1000;

@@ -18,7 +18,7 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
-import TreeUtil from 'plugins/ballerina/model/tree-util.js';
+import { TreeUtil } from '@ballerina-lang/composer-ballerina-plugin';
 import DebugManager from '../DebugManager';
 import './BreakpointHoc.scss';
 

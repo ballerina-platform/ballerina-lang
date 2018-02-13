@@ -19,9 +19,9 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Scrollbars } from 'react-custom-scrollbars';
-import BallerinaDiagram from 'plugins/ballerina/diagram/diagram';
-import TransformerExpanded from 'plugins/ballerina/diagram/views/default/components/transformer/transformer-expanded';
-import TreeUtil from 'plugins/ballerina/model/tree-util.js';
+import BallerinaDiagram from '../diagram/diagram';
+import TransformerExpanded from '../diagram/views/default/components/transformer/transformer-expanded';
+import TreeUtil from '../model/tree-util.js';
 import DragLayer from './../drag-drop/drag-layer';
 import CompilationUnitNode from './../model/tree/compilation-unit-node';
 import { TOOL_PALETTE_WIDTH, ZOOM_LEVELS } from './constants';

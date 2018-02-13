@@ -15,9 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
-import { COMMANDS as LAYOUT_COMMANDS } from 'core/layout/constants';
-import { COMMANDS as WORKSPACE_COMMANDS } from 'core/workspace/constants';
+import { WorkspaceConstants, LayoutConstants } from '@ballerina-lang/composer-core';
 import { COMMANDS, DIALOG_IDS, VIEWS as VIEW_IDS } from './constants';
 import LaunchManager from './LaunchManager';
 import DebugManager from './DebugManager';
@@ -36,11 +34,11 @@ export function getHandlerDefinitions(debuggerPlugin) {
                 const activeEditor = debuggerPlugin.appContext.editor.getActiveEditor();
                 const { command: { dispatch } } = debuggerPlugin.appContext;
                 if (activeEditor && activeEditor.file) {
-                    dispatch(WORKSPACE_COMMANDS.SAVE_FILE, {
+                    dispatch(WorkspaceConstants.COMMANDS.SAVE_FILE, {
                         file: activeEditor.file,
                         onSaveSuccess: () => {
-                            dispatch(LAYOUT_COMMANDS.SHOW_BOTTOM_PANEL);
-                            dispatch(LAYOUT_COMMANDS.SHOW_VIEW, { id: VIEW_IDS.DEBUGGER_PANEL });
+                            dispatch(LayoutConstants.COMMANDS.SHOW_BOTTOM_PANEL);
+                            dispatch(LayoutConstants.COMMANDS.SHOW_VIEW, { id: VIEW_IDS.DEBUGGER_PANEL });
                             LaunchManager.run(activeEditor.file, true,
                                 debuggerPlugin.getArgumentConfigs(activeEditor.file));
                         },
@@ -68,11 +66,11 @@ export function getHandlerDefinitions(debuggerPlugin) {
                 const activeEditor = debuggerPlugin.appContext.editor.getActiveEditor();
                 const { command: { dispatch } } = debuggerPlugin.appContext;
                 if (activeEditor && activeEditor.file) {
-                    dispatch(WORKSPACE_COMMANDS.SAVE_FILE, {
+                    dispatch(WorkspaceConstants.COMMANDS.SAVE_FILE, {
                         file: activeEditor.file,
                         onSaveSuccess: () => {
-                            dispatch(LAYOUT_COMMANDS.SHOW_BOTTOM_PANEL);
-                            dispatch(LAYOUT_COMMANDS.SHOW_VIEW, { id: VIEW_IDS.DEBUGGER_PANEL });
+                            dispatch(LayoutConstants.COMMANDS.SHOW_BOTTOM_PANEL);
+                            dispatch(LayoutConstants.COMMANDS.SHOW_VIEW, { id: VIEW_IDS.DEBUGGER_PANEL });
                             LaunchManager.run(activeEditor.file, false,
                                 debuggerPlugin.getArgumentConfigs(activeEditor.file));
                         },
@@ -86,7 +84,7 @@ export function getHandlerDefinitions(debuggerPlugin) {
             handler: () => {
                 const id = DIALOG_IDS.LAUNCHER_CONFIG;
                 const { command: { dispatch } } = debuggerPlugin.appContext;
-                dispatch(LAYOUT_COMMANDS.POPUP_DIALOG, { id });
+                dispatch(LayoutConstants.COMMANDS.POPUP_DIALOG, { id });
             },
         },
         {
@@ -94,7 +92,7 @@ export function getHandlerDefinitions(debuggerPlugin) {
             handler: () => {
                 const id = DIALOG_IDS.REMOTE_DEBUG;
                 const { command: { dispatch } } = debuggerPlugin.appContext;
-                dispatch(LAYOUT_COMMANDS.POPUP_DIALOG, { id });
+                dispatch(LayoutConstants.COMMANDS.POPUP_DIALOG, { id });
             },
         },
         {

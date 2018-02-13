@@ -16,9 +16,9 @@
  * under the License.
  */
 import _ from 'lodash';
-import NodeFactory from 'plugins/ballerina/model/node-factory';
+import NodeFactory from '../node-factory';
 import AbstractResourceNode from './abstract-tree/resource-node';
-import TreeUtil from './../tree-util';
+import TreeUtil from '../tree-util';
 
 /**
  * Node for a resource definition.

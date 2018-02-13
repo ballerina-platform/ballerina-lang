@@ -15,9 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
-import { MENUS as WORKSPACE_MENU } from 'core/workspace/constants';
-import { MENU_DEF_TYPES } from 'core/menu/constants';
+import { WorkspaceConstants, MenuConstants } from '@ballerina-lang/composer-core';
 import { MENUS, COMMANDS, LABELS } from './constants';
 
 /**
@@ -30,7 +28,7 @@ export function getMenuDefinitions(plugin) {
     return [
         {
             id: MENUS.EXPORT_DIAGRAM_MENU,
-            parent: WORKSPACE_MENU.FILE_MENU,
+            parent: WorkspaceConstants.MENUS.FILE_MENU,
             label: LABELS.EXPORT_DIAGRAM_MENU_TITLE,
             isActive: () => {
                 const { editor } = plugin.appContext;
@@ -39,7 +37,7 @@ export function getMenuDefinitions(plugin) {
             },
             icon: 'export',
             command: COMMANDS.SHOW_EXPORT_DIAGRAM_DIALOG,
-            type: MENU_DEF_TYPES.ITEM,
+            type: MenuConstants.MENU_DEF_TYPES.ITEM,
         },
     ];
 }

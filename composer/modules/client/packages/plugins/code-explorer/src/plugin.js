@@ -15,10 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import Plugin from 'core/plugin/plugin';
-import { CONTRIBUTIONS } from 'core/plugin/constants';
-
-import { REGIONS } from 'core/layout/constants';
+import { PluginConstants, LayoutConstants, Plugin } from '@ballerina-lang/composer-core';
 
 import CodeExplorerPanel from './views/CodeExplorerPanel';
 
@@ -44,7 +41,7 @@ class CodeExplorerPlugin extends Plugin {
      * @inheritdoc
      */
     getContributions() {
-        const { COMMANDS, HANDLERS, VIEWS } = CONTRIBUTIONS;
+        const { COMMANDS, HANDLERS, VIEWS } = PluginConstants.CONTRIBUTIONS;
         return {
             [COMMANDS]: getCommandDefinitions(this),
             [HANDLERS]: getHandlerDefinitions(this),
@@ -63,7 +60,7 @@ class CodeExplorerPlugin extends Plugin {
                             ast,
                         };
                     },
-                    region: REGIONS.LEFT_PANEL,
+                    region: LayoutConstants.REGIONS.LEFT_PANEL,
                     // region specific options for left-panel views
                     regionOptions: {
                         activityBarIcon: 'outline',

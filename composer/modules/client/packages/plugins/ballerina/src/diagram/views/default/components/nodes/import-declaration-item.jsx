@@ -17,13 +17,13 @@
  */
 
 import React from 'react';
-import log from 'log';
+import { Log as log } from '@ballerina-lang/composer-core';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
-import { parseContent } from 'api-client/api-client';
+import { parseContent } from '@ballerina-lang/composer-api-client';
 import './import-declaration-item.css';
 import TreeBuilder from './../../../../../model/tree-builder';
-import ExpressionEditor from 'plugins/ballerina/expression-editor/expression-editor-utils';
+import ExpressionEditor from '../../../../../expression-editor/expression-editor-utils';
 
 export default class importDeclarationItem extends React.Component {
     constructor() {

@@ -17,7 +17,7 @@
  */
 import React from 'react';
 import PropTypes from 'prop-types';
-import { COMMANDS } from 'plugins/ballerina/constants';
+import { COMMANDS } from '../../../../../constants';
 import Button from '../../../../../interactions/button';
 import Area from '../../../../../interactions/area';
 import Menu from '../../../../../interactions/menu';
