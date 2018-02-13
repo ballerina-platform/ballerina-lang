@@ -17,6 +17,7 @@
  */
 package org.ballerinalang.net.grpc;
 
+import com.google.protobuf.DescriptorProtos;
 import com.google.protobuf.Descriptors;
 import org.ballerinalang.connector.api.Resource;
 import org.ballerinalang.model.types.BArrayType;
@@ -29,7 +30,10 @@ import org.ballerinalang.net.grpc.definition.Method;
 import org.ballerinalang.net.grpc.definition.Service;
 import org.ballerinalang.net.grpc.exception.GrpcServerException;
 
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 
@@ -112,6 +116,20 @@ public class ServiceProtoUtils {
             requestMsgBuilder.addFieldDefinition(messageField);
         }
         return requestMsgBuilder.build();
+    }
+
+    public static com.google.protobuf.Descriptors.FileDescriptor getDescriptor(org.ballerinalang.connector.api
+                                                                                       .Service service) {
+        java.io.File initialFile = new java.io.File(service.getName() + ".desc");
+        try (InputStream targetStream = new FileInputStream(initialFile)) {
+            DescriptorProtos.FileDescriptorSet set = DescriptorProtos.FileDescriptorSet.parseFrom(targetStream);
+            return Descriptors.FileDescriptor.buildFrom((DescriptorProtos.FileDescriptorProto)
+                    set.getFileOrBuilder(0), new com.google.protobuf.Descriptors.FileDescriptor[] {
+                    com.google.protobuf.WrappersProto.getDescriptor(),
+            });
+        } catch (IOException | Descriptors.DescriptorValidationException e) {
+            throw new RuntimeException("Error : ", e);
+        }
     }
 
     /**

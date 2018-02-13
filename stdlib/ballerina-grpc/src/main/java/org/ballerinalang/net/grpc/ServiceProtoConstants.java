@@ -15,9 +15,11 @@ public class ServiceProtoConstants {
     // Proto file extension
     public static final String PROTO_FILE_EXTENSION = ".proto";
     // Message Message index
-    public static final int REQUEST_MESSAGE_INDEX = 0;
+    public static final int CONNECTION_INDEX = 0;
     // Response Message index
-    public static final int RESPONSE_MESSAGE_INDEX = 1;
+    public static final int REQUEST_MESSAGE_INDEX = 1;
+    // Response Message index
+    public static final int RESPONSE_MESSAGE_INDEX = 2;
     // dot symbol for generate full class path
     public static final char CLASSPATH_SYMBOL = '.';
     // Proto contract directory.

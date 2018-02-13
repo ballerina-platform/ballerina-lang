@@ -29,7 +29,6 @@ import io.grpc.stub.ServerCalls;
 import io.netty.channel.nio.NioEventLoopGroup;
 import org.ballerinalang.connector.api.Resource;
 import org.ballerinalang.connector.api.Service;
-import org.ballerinalang.net.grpc.definition.File;
 import org.ballerinalang.net.grpc.exception.GrpcServerException;
 import org.ballerinalang.net.grpc.interceptor.ServerHeaderInterceptor;
 
@@ -62,12 +61,12 @@ public class GrpcServicesBuilder {
         // Server Definition Builder for the service.
         Builder serviceDefBuilder = ServerServiceDefinition.builder(serviceName);
         // Generate protobuf definition from Ballerina Service.
-        File protobufFileDefinition = ServiceProtoUtils.generateServiceDefinition(service);
+        //File protobufFileDefinition = ServiceProtoUtils.generateServiceDefinition(service);
         // Write protobuf file definition to .proto file.
-        ServiceProtoUtils.writeConfigurationFile(protobufFileDefinition, service.getName());
+        //ServiceProtoUtils.writeConfigurationFile(protobufFileDefinition, service.getName());
         // we are registering one service. So there will be only one service in file descriptor.
-        Descriptors.ServiceDescriptor serviceDescriptor = protobufFileDefinition.getFileDescriptor().getServices()
-                .get(0);
+        Descriptors.FileDescriptor fileDescriptor = ServiceProtoUtils.getDescriptor(service);
+        Descriptors.ServiceDescriptor serviceDescriptor = fileDescriptor.getServices().get(0);
 
         for (Resource resource : service.getResources()) {
             // Method name format: <service_name>/<method_name>
@@ -78,9 +77,9 @@ public class GrpcServicesBuilder {
                 continue;
             }
 
-            Descriptors.Descriptor requestDescriptor = protobufFileDefinition.getFileDescriptor().findServiceByName
+            Descriptors.Descriptor requestDescriptor = fileDescriptor.findServiceByName
                     (service.getName()).findMethodByName(resource.getName()).getInputType();
-            Descriptors.Descriptor responseDescriptor = protobufFileDefinition.getFileDescriptor().findServiceByName
+            Descriptors.Descriptor responseDescriptor = fileDescriptor.findServiceByName
                     (service.getName()).findMethodByName(resource.getName()).getOutputType();
                     MessageRegistry.getInstance().addMessageDescriptor(requestDescriptor.getName(), requestDescriptor);
             MessageRegistry.getInstance().addMessageDescriptor(responseDescriptor.getName(), responseDescriptor);
@@ -97,7 +96,8 @@ public class GrpcServicesBuilder {
                     .setResponseMarshaller(resMarshaller)
                     .setSchemaDescriptor(methodDescriptor).build();
 
-            ServerCalls.UnaryMethod<Object, Object> methodInvokation = new UnaryMethodInvoker(service, resource);
+            ServerCalls.UnaryMethod<Object, Object> methodInvokation = new UnaryMethodInvoker(methodDescriptor,
+                    resource);
 
             serviceDefBuilder.addMethod(grpcMethodDescriptor, ServerCalls.asyncUnaryCall(methodInvokation));
         }
