@@ -51,8 +51,7 @@ public class BallerinaPushCmdTestCase extends IntegrationTestCase {
         String srcDirPath = new File("src" + File.separator + "test" + File.separator + "resources"
                 + File.separator + "ballerinaPush" + File.separator + "files").getAbsolutePath();
         String destDirPath = new File("src" + File.separator + "test" + File.separator + "resources"
-                + File.separator + "ballerinaPush" + File.separator + "files" + File.separator +
-        "ballerina").getAbsolutePath();
+                + File.separator + "ballerinaPush" + File.separator + "output").getAbsolutePath();
         String[] clientArgs = {new File("src" + File.separator + "test" + File.separator + "resources"
                 + File.separator + "ballerinaPush" + File.separator + "pushClient.bal").getAbsolutePath(),
                 srcDirPath, destDirPath};
