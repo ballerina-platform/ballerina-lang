@@ -2,6 +2,7 @@ package ballerina.pull;
 
 import ballerina.net.http;
 import ballerina.compression;
+import ballerina.log;
 
 function main (string[] args) {
     endpoint<http:HttpClient> httpEndpoint {
@@ -11,5 +12,5 @@ function main (string[] args) {
     http:InResponse resp = {};
     resp, _ = httpEndpoint.get("", req);
     compression:unzipBytes(resp.getBinaryPayload(), args[1]);
-    println("Ballerina package pulled successfully");
+    log:printInfo("Ballerina package pulled successfully");
 }
