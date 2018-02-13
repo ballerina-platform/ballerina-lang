@@ -485,6 +485,7 @@ expression
     |   builtInReferenceTypeName DOT Identifier                             # builtInReferenceTypeTypeExpression
     |   variableReference                                                   # variableReferenceExpression
     |   lambdaFunction                                                      # lambdaFunctionExpression
+    |   query                                                               # queryExpression
     |   connectorInit                                                       # connectorInitExpression
     |   LEFT_PARENTHESIS typeName RIGHT_PARENTHESIS expression              # typeCastingExpression
     |   LT typeName (COMMA functionInvocation)? GT expression               # typeConversionExpression
@@ -621,4 +622,14 @@ anyIdentifierName
 reservedWord
     :   FOREACH
     |   TYPE_MAP
+    ;
+
+query
+    :   FROM Identifier (AS Identifier)? (JOIN Identifier (AS Identifier)? ON expression)?
+        (WHERE expression)?
+        ( SELECT (MUL| ( expression (AS Identifier)? (COMMA expression (AS Identifier)?)* ) )
+         (GROUP BY variableReference (COMMA variableReference)*)?
+         (HAVING expression)?
+        )?
+        (ORDER BY variableReference (COMMA variableReference)*)?
     ;

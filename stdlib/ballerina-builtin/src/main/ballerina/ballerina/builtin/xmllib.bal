@@ -27,7 +27,7 @@ public native function <xml x> elements() (xml);
 @Param { value:"x: An XML object" }
 @Param { value:"qname: Qualified name of the element" }
 @Return { value:"All the elements-type items in the given XML sequence, that matches the qualified name" }
-public native function <xml x> select(string qname) (xml);
+public native function <xml x> selectElements(string qname) (xml);
 
 @Description { value:"Get the type of a XML as a string. If the XML is singleton, type can be one of 'element', 'text', 'comment' or 'pi'. Returns an empty string if the XML is not a singleton."}
 @Param { value:"x: An XML object" }

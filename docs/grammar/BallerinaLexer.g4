@@ -70,6 +70,14 @@ WITH        : 'with' ;
 BIND        : 'bind' ;
 IN          : 'in' ;
 LOCK        : 'lock' ;
+FROM        : 'from' ;
+ON          : 'on' ;
+SELECT      : 'select' ;
+GROUP       : 'group' ;
+BY          : 'by' ;
+HAVING      : 'having' ;
+ORDER       : 'order' ;
+WHERE       : 'where' ;
 
 // Separators
 

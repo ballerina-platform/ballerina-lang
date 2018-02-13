@@ -32,7 +32,7 @@ function main (string[] args) {
     println(x);
 
     // An element with a particular name can also be retrieved.
-    x = content.select("name");
+    x = content.selectElements("name");
     println(x);
 
     // Set the children of an XML.

@@ -214,7 +214,7 @@ function testGetElementsFromSequence() (xml, boolean, boolean){
 function testGetElementsByName() (xml, boolean, boolean) {
     var x1, _ = <xml> "<ns0:name xmlns:ns0=\"http://sample.com/test\"><ns0:fname>supun</ns0:fname><ns0:fname>thilina</ns0:fname><ns0:lname>setunga</ns0:lname></ns0:name>";
     xml x2 = x1.children();
-    xml x3 = x2.select("{http://sample.com/test}fname");
+    xml x3 = x2.selectElements("{http://sample.com/test}fname");
     
     boolean isEmpty = x3.isEmpty();
     boolean isSingleton = x3.isSingleton();
@@ -225,7 +225,7 @@ function testGetElementsByName() (xml, boolean, boolean) {
 function testGetElementsByNameWithDefaultNamespace() (xml, boolean, boolean) {
     var x1, _ = <xml> "<name xmlns=\"http://sample.com/test\"><fname>supun</fname><fname>thilina</fname><lname>setunga</lname></name>";
     xml x2 = x1.children();
-    xml x3 = x2.select("{http://sample.com/test}fname");
+    xml x3 = x2.selectElements("{http://sample.com/test}fname");
 
     boolean isEmpty = x3.isEmpty();
     boolean isSingleton = x3.isSingleton();
@@ -237,7 +237,7 @@ function testGetElementsByNameByPrefix() (xml, boolean, boolean) {
     xmlns "http://sample.com/test" as ns0;
     var x1, _ = <xml> "<ns0:name xmlns:ns0=\"http://sample.com/test\"><ns0:fname>supun</ns0:fname><ns0:fname>thilina</ns0:fname><ns0:lname>setunga</ns0:lname></ns0:name>";
     xml x2 = x1.children();
-    xml x3 = x2.select(ns0:fname);
+    xml x3 = x2.selectElements(ns0:fname);
 
     boolean isEmpty = x3.isEmpty();
     boolean isSingleton = x3.isSingleton();
@@ -249,7 +249,7 @@ function testGetElementsByNameByDifferentPrefix() (xml, boolean, boolean) {
     xmlns "http://sample.com/test" as pre;
     var x1, _ = <xml> "<ns0:name xmlns:ns0=\"http://sample.com/test\"><ns0:fname>supun</ns0:fname><ns0:fname>thilina</ns0:fname><ns0:lname>setunga</ns0:lname></ns0:name>";
     xml x2 = x1.children();
-    xml x3 = x2.select(pre:fname);
+    xml x3 = x2.selectElements(pre:fname);
 
     boolean isEmpty = x3.isEmpty();
     boolean isSingleton = x3.isSingleton();
@@ -261,7 +261,7 @@ function testGetElementsByNameEmptyNamespace() (xml, boolean, boolean) {
     xmlns "";
     xml x1 = xml `<name xmlns=""><fname>supun</fname><fname>thilina</fname><lname>setunga</lname></name>`;
     xml x2 = x1.children();
-    xml x3 = x2.select("{}fname");
+    xml x3 = x2.selectElements("{}fname");
 
     boolean isEmpty = x3.isEmpty();
     boolean isSingleton = x3.isSingleton();
@@ -273,7 +273,7 @@ function testGetElementsByNamePrefixForDefaultNamespace() (xml, boolean, boolean
     xmlns "http://sample.com/test" as pre;
     var x1, _ = <xml> "<name xmlns=\"http://sample.com/test\"><fname>supun</fname><fname>thilina</fname><lname>setunga</lname></name>";
     xml x2 = x1.children();
-    xml x3 = x2.select(pre:fname);
+    xml x3 = x2.selectElements(pre:fname);
 
     boolean isEmpty = x3.isEmpty();
     boolean isSingleton = x3.isSingleton();
@@ -285,8 +285,8 @@ function testGetElementsByNameDifferentNamespaces() (xml, xml, boolean, boolean,
     xmlns "http://sample.com/test" as pre;
     var x1, _ = <xml> "<name xmlns=\"http://sample.com/test\"><ns0:fname xmlns:ns0=\"http://sample.com/test/code\">supun</ns0:fname><fname>thilina</fname><lname>setunga</lname></name>";
     xml x2 = x1.children();
-    xml x3 = x2.select(pre:fname);
-    xml x4 = x2.select("{http://sample.com/test/code}fname");
+    xml x3 = x2.selectElements(pre:fname);
+    xml x4 = x2.selectElements("{http://sample.com/test/code}fname");
 
     boolean isEmpty_1 = x3.isEmpty();
     boolean isSingleton_1 = x3.isSingleton();
@@ -783,8 +783,8 @@ function testSelectElementsWithEmptyNs() (xml, xml) {
     xml x1 = xml `<name><fname>supun</fname><fname xmlns="">thilina</fname><lname>setunga</lname></name>`;
     xml x2 = x1.children();
     
-    xml x3 = x2.select("fname");
-    xml x4 = x2.select("{}fname");
+    xml x3 = x2.selectElements("fname");
+    xml x4 = x2.selectElements("{}fname");
     
     return x3, x4;
 }

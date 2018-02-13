@@ -175,26 +175,26 @@ public connector ClientConnector (DB dbType, string hostOrPath, int port, string
 	@Return { value:"Result set for the given query" }
 	native action call (string query, Parameter[] parameters, type structType) (table);
 
-	@Description { value:"The select action implementation for SQL connector to select data from tables."}
+	@Description { value:"The selectQuery action implementation for SQL connector to select data from tables."}
 	@Param { value:"query: SQL query to execute" }
 	@Param { value:"parameters: Parameter array used with the SQL query" }
 	@Return { value:"Result set for the given query" }
-	native action select (string query, Parameter[] parameters, type structType) (table);
+	native action selectQuery (string query, Parameter[] parameters, type structType) (table);
 
 	@Description { value:"The close action implementation for SQL connector to shutdown the connection pool."}
 	native action close ();
 
-	@Description { value:"The update action implementation for SQL connector to update data and schema of the database."}
+	@Description { value:"The updateQuery action implementation for SQL connector to update data and schema of the database."}
 	@Param { value:"query: SQL query to execute" }
 	@Param { value:"parameters: Parameter array used with the SQL query" }
 	@Return { value:"Updated row count" }
-	native action update (string query, Parameter[] parameters) (int);
+	native action updateQuery (string query, Parameter[] parameters) (int);
 
-	@Description { value:"The batchUpdate action implementation for SQL connector to batch data insert."}
+	@Description { value:"The batchUpdateQuery action implementation for SQL connector to batch data insert."}
 	@Param { value:"query: SQL query to execute" }
 	@Param { value:"parameters: Parameter array used with the SQL query" }
 	@Return { value:"Array of update counts" }
-	native action batchUpdate (string query, Parameter[][] parameters) (int[]);
+	native action batchUpdateQuery (string query, Parameter[][] parameters) (int[]);
 
 	@Description { value:"The updateWithGeneratedKeys action implementation for SQL connector which returns the auto generated keys during the update action."}
 	@Param { value:"query: SQL query to execute" }

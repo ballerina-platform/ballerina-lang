@@ -33,13 +33,13 @@ import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
 /**
- * {@code Update} is the Update action implementation of the SQL Connector.
+ * {@code UpdateQuery} is the UpdateQuery action implementation of the SQL Connector.
  *
  * @since 0.8.0
  */
 @BallerinaAction(
         packageName = "ballerina.data.sql",
-        actionName = "update",
+        actionName = "updateQuery",
         connectorName = Constants.CONNECTOR_NAME,
         args = {@Argument(name = "c", type = TypeKind.CONNECTOR),
                 @Argument(name = "query", type = TypeKind.STRING),
@@ -49,7 +49,7 @@ import org.ballerinalang.util.exceptions.BallerinaException;
         connectorArgs = {
                 @Argument(name = "options", type = TypeKind.MAP)
         })
-public class Update extends AbstractSQLAction {
+public class UpdateQuery extends AbstractSQLAction {
 
     @Override
     public ConnectorFuture execute(Context context) {

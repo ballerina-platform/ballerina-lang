@@ -35,8 +35,8 @@ import org.ballerinalang.util.exceptions.RuntimeErrors;
         packageName = "ballerina.builtin",
         functionName = "string.subString",
         args = {@Argument(name = "mainString", type = TypeKind.STRING),
-                @Argument(name = "from", type = TypeKind.INT),
-                @Argument(name = "to", type = TypeKind.INT)},
+                @Argument(name = "beginIndex", type = TypeKind.INT),
+                @Argument(name = "endIndex", type = TypeKind.INT)},
         returnType = {@ReturnType(type = TypeKind.STRING)},
         isPublic = true
 )
@@ -63,7 +63,7 @@ public class SubString extends AbstractNativeFunction {
 
         if (from < 0 || to > initialString.length()) {
             throw new BallerinaException("String index out of range. Actual:" + initialString.length() +
-                    " requested: " + from + " to " + to);
+                                         " requested: " + from + " to " + to);
         }
         BString subString = new BString(initialString.substring(from, to));
         return getBValues(subString);

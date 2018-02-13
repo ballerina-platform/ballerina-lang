@@ -65,7 +65,7 @@ class AboutDialog extends React.Component {
                             />
                             <span className='appname'>Composer</span>
                         </div>
-                        <div className="version">v0.96.1.SNAPSHOT</div>
+                        <div className='version'>v0.961.1.SNAPSHOT</div>
                     </div>
                 }
                 onHide={this.onDialogHide}

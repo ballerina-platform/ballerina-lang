@@ -1252,6 +1252,18 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 */
 	void exitSimpleLiteralExpression(BallerinaParser.SimpleLiteralExpressionContext ctx);
 	/**
+	 * Enter a parse tree produced by the {@code queryExpression}
+	 * labeled alternative in {@link BallerinaParser#expression}.
+	 * @param ctx the parse tree
+	 */
+	void enterQueryExpression(BallerinaParser.QueryExpressionContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code queryExpression}
+	 * labeled alternative in {@link BallerinaParser#expression}.
+	 * @param ctx the parse tree
+	 */
+	void exitQueryExpression(BallerinaParser.QueryExpressionContext ctx);
+	/**
 	 * Enter a parse tree produced by the {@code stringTemplateLiteralExpression}
 	 * labeled alternative in {@link BallerinaParser#expression}.
 	 * @param ctx the parse tree
@@ -1715,4 +1727,14 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitReservedWord(BallerinaParser.ReservedWordContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link BallerinaParser#query}.
+	 * @param ctx the parse tree
+	 */
+	void enterQuery(BallerinaParser.QueryContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BallerinaParser#query}.
+	 * @param ctx the parse tree
+	 */
+	void exitQuery(BallerinaParser.QueryContext ctx);
 }
