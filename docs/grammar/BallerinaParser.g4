@@ -622,6 +622,7 @@ anyIdentifierName
 reservedWord
     :   FOREACH
     |   TYPE_MAP
+    ;
 
 // Documentation parsing.
 

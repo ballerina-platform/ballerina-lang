@@ -2042,48 +2042,6 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      * {@inheritDoc}
      */
     @Override
-    public void enterStringTemplateContent(BallerinaParser.StringTemplateContentContext ctx) {
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void exitStringTemplateContent(BallerinaParser.StringTemplateContentContext ctx) {
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void enterEveryRule(ParserRuleContext ctx) {
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void exitEveryRule(ParserRuleContext ctx) {
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void visitTerminal(TerminalNode node) {
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void visitErrorNode(ErrorNode node) {
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
     public void enterDocumentationAttachment(BallerinaParser.DocumentationAttachmentContext ctx) {
         if (ctx.exception != null) {
             return;
