@@ -29,5 +29,8 @@ public interface Constants {
     public static final int CACHE_MAX_DELAY_MINS = 60 * 24;
     public static final int CACHE_MIN_DELAY_MINS = 1;
     public static final int CACHE_DEFAULT_DELAY_MINS = 15;
+    public static final String BOUNCY_CASTLE_PROVIDER = "BC";
+    public static final String CERTIFICATE_TYPE = "X.509";
+    public static final String ALGORITHM = "PKIX";
 }
 

@@ -132,8 +132,8 @@ public class OCSPVerifierTest {
                 .getDeclaredMethod("generateOCSPRequest", X509Certificate.class, BigInteger.class);
         generateOCSPRequest.setAccessible(true);
 
-        OCSPReq request = (OCSPReq) generateOCSPRequest.invoke(ocspVerifier, caCert, revokedSerialNumber);
-        return request;
+      //  OCSPReq request = (OCSPReq) generateOCSPRequest.invoke(ocspVerifier, caCert, revokedSerialNumber);
+        return (OCSPReq) generateOCSPRequest.invoke(ocspVerifier, caCert, revokedSerialNumber);
     }
 
     /**

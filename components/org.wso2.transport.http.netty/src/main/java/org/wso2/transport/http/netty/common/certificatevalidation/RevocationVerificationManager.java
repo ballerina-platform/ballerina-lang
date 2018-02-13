@@ -90,7 +90,7 @@ public class RevocationVerificationManager {
         throw new CertificateVerificationException("Path Verification Failed for both OCSP and CRL");
     }
 
-    /**
+    /** Convert certificates and create a certificate chain.
      * @param certs array of javax.security.cert.X509Certificate[] s.
      * @return the converted array of java.security.cert.X509Certificate[] s.
      * @throws CertificateVerificationException
@@ -106,9 +106,7 @@ public class RevocationVerificationManager {
                 CertificateFactory cf = CertificateFactory.getInstance("X.509");
                 certChain[i] = ((X509Certificate) cf.generateCertificate(bis));
                 continue;
-            } catch (CertificateEncodingException e) {
-                exceptionThrown = e;
-            } catch (CertificateException e) {
+            } catch (CertificateEncodingException | CertificateException e) {
                 exceptionThrown = e;
             }
             throw new CertificateVerificationException("Cant Convert certificates from javax to java", exceptionThrown);

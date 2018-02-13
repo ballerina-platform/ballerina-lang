@@ -144,7 +144,7 @@ public class OCSPCache implements ManageableCache {
             this.setCacheValue(cacheValue.serialNumber, resp, request, serviceUrl);
 
         } catch (CertificateVerificationException | OCSPException e) {
-            log.info("Cant replace old CacheValue with new CacheValue. So remove", e);
+            log.info("Cant replace old CacheValue with new CacheValue. So removing ocsp cache value", e);
             //If cant be replaced remove.
             cacheValue.removeThisCacheValue();
         }

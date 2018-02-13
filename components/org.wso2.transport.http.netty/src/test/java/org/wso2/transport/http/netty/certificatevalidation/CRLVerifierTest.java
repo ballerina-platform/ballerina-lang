@@ -123,7 +123,7 @@ public class CRLVerifierTest {
      * @return the created fake CRL
      * @throws Exception
      */
-    public static X509CRL createCRL(X509Certificate caCert, PrivateKey caPrivateKey, BigInteger revokedSerialNumber)
+    private static X509CRL createCRL(X509Certificate caCert, PrivateKey caPrivateKey, BigInteger revokedSerialNumber)
             throws Exception {
 
         JcaX509ExtensionUtils extUtils = new JcaX509ExtensionUtils();
@@ -141,8 +141,8 @@ public class CRLVerifierTest {
         X509CRLHolder cRLHolder = builder.build(contentSignerBuilder.build(caPrivateKey));
         JcaX509CRLConverter converter = new JcaX509CRLConverter();
         converter.setProvider("BC");
-        X509CRL crl = converter.getCRL(cRLHolder);
-        return crl;
+       // X509CRL crl = converter.getCRL(cRLHolder);
+        return converter.getCRL(cRLHolder);
     }
 }
 

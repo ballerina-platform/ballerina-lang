@@ -18,10 +18,9 @@ public class CertificateValidationHandler extends ChannelInboundHandlerAdapter {
 
     protected static final Logger LOG = LoggerFactory.getLogger(CertificateValidationHandler.class);
     private SSLEngine sslEngine;
-    private final RevocationVerificationManager verificationManager = null;
     RevocationVerificationManager revocationVerifier = null;
-    int cacheSize;
-    int cacheDelay;
+    private int cacheSize;
+    private int cacheDelay;
     private HttpResponseFuture httpResponseFuture;
 
     public CertificateValidationHandler(SSLEngine sslEngine, int cacheDelay, int cacheSize) {

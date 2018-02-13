@@ -193,8 +193,7 @@ public class CacheManager {
             private void collectEntriesToRemove(ManageableCacheValue value) {
 
                 entriesToRemove.add(value);
-                int i = entriesToRemove.size() - 1;
-                int j = i;
+                int j = entriesToRemove.size() - 1;
                 for (; j > 0 && (value.getTimeStamp() < entriesToRemove.get(j - 1).getTimeStamp()); j--) {
                     entriesToRemove.remove(j);
                     entriesToRemove.add(j, (entriesToRemove.get(j - 1)));

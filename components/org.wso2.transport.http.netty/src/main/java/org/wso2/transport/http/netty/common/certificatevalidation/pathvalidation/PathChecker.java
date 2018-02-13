@@ -38,8 +38,8 @@ import java.util.Set;
  */
 public class PathChecker extends PKIXCertPathChecker {
 
-    X509Certificate[] certChainArray;
-    RevocationVerifier verifier;
+    private X509Certificate[] certChainArray;
+    private RevocationVerifier verifier;
     private int position;
     private static final Logger log = LoggerFactory.getLogger(PathChecker.class);
 
@@ -50,7 +50,8 @@ public class PathChecker extends PKIXCertPathChecker {
         this.verifier = verifier;
     }
 
-    @Override public void init(boolean forward) throws CertPathValidatorException {
+    @Override
+    public void init(boolean forward) throws CertPathValidatorException {
         if (forward) {
             throw new CertPathValidatorException("Forward checking is not supported");
         }
@@ -61,11 +62,13 @@ public class PathChecker extends PKIXCertPathChecker {
      * to the target certificate. This is the default implementation of the Path validator used
      * CertPathValidator.getInstance("PKIX", "BC") in CertificatePathValidator;
      */
-    @Override public boolean isForwardCheckingSupported() {
+    @Override
+    public boolean isForwardCheckingSupported() {
         return false;
     }
 
-    @Override public Set<String> getSupportedExtensions() {
+    @Override
+    public Set<String> getSupportedExtensions() {
         return null;
     }
 
@@ -76,7 +79,8 @@ public class PathChecker extends PKIXCertPathChecker {
      * @param unresolvedCritExts not used in this method.
      * @throws CertPathValidatorException
      */
-    @Override public void check(Certificate cert, Collection<String> unresolvedCritExts)
+    @Override
+    public void check(Certificate cert, Collection<String> unresolvedCritExts)
             throws CertPathValidatorException {
         RevocationStatus status;
         try {

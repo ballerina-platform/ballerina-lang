@@ -72,7 +72,7 @@ public class MBeanRegistrar {
 
     private String getObjectName(String category, String id) {
 
-        String jmxAgentName = System.getProperty("jmx.agent.name");
+        String jmxAgentName = System.getProperty(Constants.JMX_AGENT_NAME);
         if (jmxAgentName == null || "".equals(jmxAgentName)) {
             jmxAgentName = "ballerina";
         }

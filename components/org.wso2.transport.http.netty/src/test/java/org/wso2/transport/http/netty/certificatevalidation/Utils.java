@@ -68,8 +68,8 @@ public class Utils {
 
         X509CertificateHolder holder = builder.build(contentSigner);
 
-        X509Certificate cert = new JcaX509CertificateConverter().getCertificate(holder);
-        return cert;
+        //X509Certificate cert = new JcaX509CertificateConverter().getCertificate(holder);
+        return new JcaX509CertificateConverter().getCertificate(holder);
     }
 
     public KeyPair generateRSAKeyPair() throws Exception {
