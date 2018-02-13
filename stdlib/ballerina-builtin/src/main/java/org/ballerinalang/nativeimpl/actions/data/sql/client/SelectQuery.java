@@ -64,7 +64,7 @@ public class SelectQuery extends AbstractSQLAction {
             datasource = (SQLDatasource) sharedMap.get(new BString(Constants.DATASOURCE_KEY));
         } else {
             throw new BallerinaException("Datasource have not been initialized properly at " +
-                                         "Init native action invocation.");
+                    "Init native action invocation.");
         }
         executeQuery(context, datasource, query, parameters, structType);
         ClientConnectorFuture future = new ClientConnectorFuture();

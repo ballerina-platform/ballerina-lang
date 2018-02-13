@@ -63,7 +63,7 @@ public class SubString extends AbstractNativeFunction {
 
         if (from < 0 || to > initialString.length()) {
             throw new BallerinaException("String index out of range. Actual:" + initialString.length() +
-                                         " requested: " + from + " to " + to);
+                    " requested: " + from + " to " + to);
         }
         BString subString = new BString(initialString.substring(from, to));
         return getBValues(subString);
