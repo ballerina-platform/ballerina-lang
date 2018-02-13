@@ -21,6 +21,9 @@ import com.intellij.psi.codeStyle.CodeStyleManager;
 import org.ballerinalang.BallerinaCodeInsightFixtureTestCase;
 import org.jetbrains.annotations.Nullable;
 
+/**
+ * Formatting tests.
+ */
 public class BallerinaFormattingTest extends BallerinaCodeInsightFixtureTestCase {
 
     @Override

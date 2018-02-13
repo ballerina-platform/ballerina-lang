@@ -19,6 +19,9 @@ package org.ballerinalang.completion;
 import java.util.LinkedList;
 import java.util.List;
 
+/**
+ * File level code completion tests.
+ */
 public class BallerinaFileLevelCompletionTest extends BallerinaCompletionTestBase {
 
     /**

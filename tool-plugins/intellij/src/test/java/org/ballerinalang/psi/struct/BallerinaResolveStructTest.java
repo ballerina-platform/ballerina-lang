@@ -20,6 +20,9 @@ import org.ballerinalang.psi.BallerinaResolveTestBase;
 
 import java.io.IOException;
 
+/**
+ * Test struct resolving.
+ */
 public class BallerinaResolveStructTest extends BallerinaResolveTestBase {
 
     private String struct = "public struct /*def*/testStruct {\n    string a;\n}";
