@@ -30,13 +30,6 @@
 
     <name>Ballerina - Plugin Intellij</name>
 
-    <!--<profiles>-->
-        <!--<profile>-->
-            <!--<id>intellij</id>-->
-            <!---->
-        <!--</profile>-->
-    <!--</profiles>-->
-
     <build>
         <plugins>
             <plugin>
