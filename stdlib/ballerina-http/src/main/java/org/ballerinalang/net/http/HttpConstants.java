@@ -23,7 +23,7 @@ package org.ballerinalang.net.http;
  *
  * @since 0.8.0
  */
-public class Constants {
+public class HttpConstants {
 
     public static final String BASE_PATH = "BASE_PATH";
     public static final String SUB_PATH = "SUB_PATH";

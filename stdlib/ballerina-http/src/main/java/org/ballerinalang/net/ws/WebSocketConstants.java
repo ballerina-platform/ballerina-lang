@@ -21,7 +21,7 @@ package org.ballerinalang.net.ws;
 /**
  * Constants of WebSocket.
  */
-public class Constants extends org.ballerinalang.net.http.Constants {
+public class WebSocketConstants {
 
     // Common constants
     public static final String CONNECTOR_NAME = "WsClient";

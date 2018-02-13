@@ -34,23 +34,23 @@ public class HTTPResourceDispatcher {
     public static HttpResource findResource(HttpService service, HTTPCarbonMessage inboundRequest)
             throws BallerinaConnectorException {
 
-        String method = (String) inboundRequest.getProperty(Constants.HTTP_METHOD);
-        String subPath = (String) inboundRequest.getProperty(Constants.SUB_PATH);
+        String method = (String) inboundRequest.getProperty(HttpConstants.HTTP_METHOD);
+        String subPath = (String) inboundRequest.getProperty(HttpConstants.SUB_PATH);
         subPath = sanitizeSubPath(subPath);
         Map<String, String> resourceArgumentValues = new HashMap<>();
         try {
             HttpResource resource = service.getUriTemplate().matches(subPath, resourceArgumentValues, inboundRequest);
             if (resource != null) {
-                inboundRequest.setProperty(Constants.RESOURCE_ARGS, resourceArgumentValues);
-                inboundRequest.setProperty(Constants.RESOURCES_CORS, resource.getCorsHeaders());
+                inboundRequest.setProperty(HttpConstants.RESOURCE_ARGS, resourceArgumentValues);
+                inboundRequest.setProperty(HttpConstants.RESOURCES_CORS, resource.getCorsHeaders());
                 return resource;
             } else {
-                if (method.equals(Constants.HTTP_METHOD_OPTIONS)) {
+                if (method.equals(HttpConstants.HTTP_METHOD_OPTIONS)) {
                     handleOptionsRequest(inboundRequest, service);
                 } else {
-                    inboundRequest.setProperty(Constants.HTTP_STATUS_CODE, 404);
+                    inboundRequest.setProperty(HttpConstants.HTTP_STATUS_CODE, 404);
                     throw new BallerinaConnectorException("no matching resource found for path : "
-                            + inboundRequest.getProperty(Constants.TO) + " , method : " + method);
+                            + inboundRequest.getProperty(HttpConstants.TO) + " , method : " + method);
                 }
                 return null;
             }
@@ -64,7 +64,7 @@ public class HTTPResourceDispatcher {
             return subPath;
         }
         if (!subPath.startsWith("/")) {
-            subPath = Constants.DEFAULT_BASE_PATH + subPath;
+            subPath = HttpConstants.DEFAULT_BASE_PATH + subPath;
         }
         subPath = subPath.endsWith("/") ? subPath.substring(0, subPath.length() - 1) : subPath;
         return subPath;
@@ -73,18 +73,18 @@ public class HTTPResourceDispatcher {
     private static void handleOptionsRequest(HTTPCarbonMessage cMsg, HttpService service)
             throws URITemplateException {
         HTTPCarbonMessage response = HttpUtil.createHttpCarbonMessage(false);
-        if (cMsg.getHeader(Constants.ALLOW) != null) {
-            response.setHeader(Constants.ALLOW, cMsg.getHeader(Constants.ALLOW));
-        } else if (service.getBasePath().equals(cMsg.getProperty(Constants.TO))
+        if (cMsg.getHeader(HttpConstants.ALLOW) != null) {
+            response.setHeader(HttpConstants.ALLOW, cMsg.getHeader(HttpConstants.ALLOW));
+        } else if (service.getBasePath().equals(cMsg.getProperty(HttpConstants.TO))
                 && !service.getAllAllowMethods().isEmpty()) {
-            response.setHeader(Constants.ALLOW, DispatcherUtil.concatValues(service.getAllAllowMethods(), false));
+            response.setHeader(HttpConstants.ALLOW, DispatcherUtil.concatValues(service.getAllAllowMethods(), false));
         } else {
-            cMsg.setProperty(Constants.HTTP_STATUS_CODE, 404);
+            cMsg.setProperty(HttpConstants.HTTP_STATUS_CODE, 404);
             throw new BallerinaConnectorException("no matching resource found for path : "
-                    + cMsg.getProperty(Constants.TO) + " , method : " + "OPTIONS");
+                    + cMsg.getProperty(HttpConstants.TO) + " , method : " + "OPTIONS");
         }
         CorsHeaderGenerator.process(cMsg, response, false);
-        response.setProperty(Constants.HTTP_STATUS_CODE, 200);
+        response.setProperty(HttpConstants.HTTP_STATUS_CODE, 200);
         response.setEndOfMsgAdded(true);
         HttpUtil.sendOutboundResponse(cMsg, response);
     }

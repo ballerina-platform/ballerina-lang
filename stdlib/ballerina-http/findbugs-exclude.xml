@@ -33,9 +33,6 @@
         <Class name="org.ballerinalang.net.uri.parser.SimpleSplitStringExpression"/>
     </Match>
     <Match>
-        <Class name="org.ballerinalang.net.ws.Constants"/>
-    </Match>
-    <Match>
         <Class name="org.ballerinalang.net.ws.WebSocketService"/>
     </Match>
     <Match>

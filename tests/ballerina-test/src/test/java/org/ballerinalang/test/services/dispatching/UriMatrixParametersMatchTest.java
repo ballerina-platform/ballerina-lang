@@ -22,7 +22,7 @@ import org.ballerinalang.launcher.util.BServiceUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.util.StringUtils;
 import org.ballerinalang.model.values.BJSON;
-import org.ballerinalang.net.http.Constants;
+import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.test.services.testutils.HTTPTestRequest;
 import org.ballerinalang.test.services.testutils.MessageUtils;
 import org.ballerinalang.test.services.testutils.Services;
@@ -97,7 +97,7 @@ public class UriMatrixParametersMatchTest {
 
         Assert.assertNotNull(response, "Response message not found");
         Assert.assertEquals(
-                response.getProperty(Constants.HTTP_STATUS_CODE), 404, "Response code mismatch");
+                response.getProperty(HttpConstants.HTTP_STATUS_CODE), 404, "Response code mismatch");
         //checking the exception message
         String errorMessage = StringUtils
                 .getStringFromInputStream(new HttpMessageDataStreamer(response).getInputStream());
@@ -114,7 +114,7 @@ public class UriMatrixParametersMatchTest {
 
         Assert.assertNotNull(response, "Response message not found");
         Assert.assertEquals(
-                response.getProperty(Constants.HTTP_STATUS_CODE), 500, "Response code mismatch");
+                response.getProperty(HttpConstants.HTTP_STATUS_CODE), 500, "Response code mismatch");
         //checking the exception message
         String errorMessage = StringUtils
                 .getStringFromInputStream(new HttpMessageDataStreamer(response).getInputStream());

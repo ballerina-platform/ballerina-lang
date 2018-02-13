@@ -27,7 +27,7 @@ import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
-import org.ballerinalang.net.http.Constants;
+import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.session.Session;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
@@ -50,7 +50,7 @@ public class GetAttributeNames extends AbstractNativeFunction {
     public BValue[] execute(Context context) {
         try {
             BStruct sessionStruct = ((BStruct) getRefArgument(context, 0));
-            Session session = (Session) sessionStruct.getNativeData(Constants.HTTP_SESSION);
+            Session session = (Session) sessionStruct.getNativeData(HttpConstants.HTTP_SESSION);
             if (session != null && session.isValid()) {
                 return getBValues(new BStringArray(session.getAttributeNames()));
             } else {
