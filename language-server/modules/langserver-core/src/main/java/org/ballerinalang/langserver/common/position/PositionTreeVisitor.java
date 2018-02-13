@@ -163,12 +163,7 @@ public class PositionTreeVisitor extends BLangNodeVisitor {
         }
 
         previousNode = funcNode;
-        if (!terminateVisitor) {
-            if (!this.nodeStack.empty()) {
-                this.nodeStack.pop();
-            }
-            this.nodeStack.push(funcNode);
-        }
+        this.addToNodeStack(funcNode);
 
         if (!funcNode.params.isEmpty()) {
             funcNode.params.forEach(this::acceptNode);
@@ -375,12 +370,7 @@ public class PositionTreeVisitor extends BLangNodeVisitor {
 
     public void visit(BLangStruct structNode) {
         previousNode = structNode;
-        if (!terminateVisitor) {
-            if (!this.nodeStack.empty()) {
-                this.nodeStack.pop();
-            }
-            this.nodeStack.push(structNode);
-        }
+        this.addToNodeStack(structNode);
 
         if (!structNode.fields.isEmpty()) {
             structNode.fields.forEach(this::acceptNode);
@@ -399,12 +389,7 @@ public class PositionTreeVisitor extends BLangNodeVisitor {
 
     public void visit(BLangTransformer transformerNode) {
         previousNode = transformerNode;
-        if (!terminateVisitor) {
-            if (!this.nodeStack.empty()) {
-                this.nodeStack.pop();
-            }
-            this.nodeStack.push(transformerNode);
-        }
+        this.addToNodeStack(transformerNode);
 
         if (transformerNode.source != null) {
             acceptNode(transformerNode.source);
@@ -429,12 +414,7 @@ public class PositionTreeVisitor extends BLangNodeVisitor {
 
     public void visit(BLangConnector connectorNode) {
         previousNode = connectorNode;
-        if (!terminateVisitor) {
-            if (!this.nodeStack.empty()) {
-                this.nodeStack.pop();
-            }
-            this.nodeStack.push(connectorNode);
-        }
+        this.addToNodeStack(connectorNode);
 
         if (!connectorNode.params.isEmpty()) {
             connectorNode.params.forEach(this::acceptNode);
@@ -451,12 +431,7 @@ public class PositionTreeVisitor extends BLangNodeVisitor {
 
     public void visit(BLangAction actionNode) {
         previousNode = actionNode;
-        if (!terminateVisitor) {
-            if (!this.nodeStack.empty()) {
-                this.nodeStack.pop();
-            }
-            this.nodeStack.push(actionNode);
-        }
+        this.addToNodeStack(actionNode);
 
         if (!actionNode.params.isEmpty()) {
             actionNode.params.forEach(this::acceptNode);
@@ -477,12 +452,7 @@ public class PositionTreeVisitor extends BLangNodeVisitor {
 
     public void visit(BLangService serviceNode) {
         previousNode = serviceNode;
-        if (!terminateVisitor) {
-            if (!this.nodeStack.empty()) {
-                this.nodeStack.pop();
-            }
-            this.nodeStack.push(serviceNode);
-        }
+        this.addToNodeStack(serviceNode);
 
         if (!serviceNode.resources.isEmpty()) {
             serviceNode.resources.forEach(this::acceptNode);
@@ -495,12 +465,7 @@ public class PositionTreeVisitor extends BLangNodeVisitor {
 
     public void visit(BLangResource resourceNode) {
         previousNode = resourceNode;
-        if (!terminateVisitor) {
-            if (!this.nodeStack.empty()) {
-                this.nodeStack.pop();
-            }
-            this.nodeStack.push(resourceNode);
-        }
+        this.addToNodeStack(resourceNode);
 
         if (!resourceNode.params.isEmpty()) {
             resourceNode.params.forEach(this::acceptNode);
@@ -960,5 +925,19 @@ public class PositionTreeVisitor extends BLangNodeVisitor {
             return;
         }
         node.accept(this);
+    }
+
+    /**
+     * Add node in to a stack to track the visited nodes.
+     *
+     * @param node BLangNode to be added to the stack
+     * */
+    private void addToNodeStack(BLangNode node) {
+        if (!terminateVisitor) {
+            if (!this.nodeStack.empty()) {
+                this.nodeStack.pop();
+            }
+            this.nodeStack.push(node);
+        }
     }
 }
