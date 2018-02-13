@@ -48,7 +48,7 @@ public class NetworkUtils {
         compileResult = compilePullCmdBalFile("ballerina.pull");
         Path targetDirectoryPath = UserRepositoryUtils.initializeUserRepository()
                 .resolve(USER_REPO_ARTIFACTS_DIRNAME).resolve(USER_REPO_SRC_DIRNAME);
-        String ballerinaCentralRepoURL = "http://packages.ballerina.io/";
+        String ballerinaCentralRepoURL = "http://52.54.136.13:9090/p";
         String dstPath = targetDirectoryPath + File.separator;
         String resourcePath = ballerinaCentralRepoURL + File.separator + resourceName;
 
@@ -74,12 +74,12 @@ public class NetworkUtils {
     }
 
     /**
-     * Push/Uploads packages to the central repository
+     * Push/Uploads packages to the central repository.
      * @param resourceName path of the package folder to be pushed
      */
     public static void pushPackages(String resourceName) {
         compileResult = compilePullCmdBalFile("ballerina.push");
-        String ballerinaCentralRepoURL = "http://packages.ballerina.io/";
+        String ballerinaCentralRepoURL = "http://52.54.136.13:9090/p/natasha/foobar/1.0.0";
         String[] arguments = new String[]{ballerinaCentralRepoURL, resourceName};
         LauncherUtils.runMain(compileResult.getProgFile(), arguments);
     }
