@@ -2,7 +2,7 @@ package ballerina.net.http;
 
 const string HEADER_KEY_LOCATION = "Location";
 
-enum redirectCode {
+public enum redirectCode {
     MULTIPLE_CHOICES_300,
     MOVED_PERMANENTLY_301,
     FOUND_302,
@@ -49,7 +49,7 @@ public function <Connection conn> redirect(OutResponse response, redirectCode co
     foreach location in locations {
         locationsStr = locationsStr + location + ",";
     }
-    locationsStr = locationsStr.substring(0, (lengthof locationsStr) - 1);
+    locationsStr = locationsStr.subString(0, (lengthof locationsStr) - 1);
 
     response.setHeader(HEADER_KEY_LOCATION, locationsStr);
     var e = conn.respond(response);
