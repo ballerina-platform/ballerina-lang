@@ -282,9 +282,9 @@ public struct SSL {
     string sslEnabledProtocols;
     string ciphers;
     string sslProtocol;
-	boolean certificateRevocationVerifier;
-	int cacheSize;
-	int cacheDelay;
+    boolean certificateRevocationVerifier;
+    int cacheSize;
+    int cacheDelay;
 }
 
 @Description { value:"FollowRedirects struct represents HTTP redirect related options to be used for HTTP client invocation" }

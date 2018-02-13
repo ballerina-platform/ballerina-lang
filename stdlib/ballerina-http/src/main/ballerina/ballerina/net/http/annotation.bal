@@ -14,7 +14,7 @@ package ballerina.net.http;
 @Field {value:"sslEnabledProtocols: SSL/TLS protocols to be enabled"}
 @Field {value:"ciphers: List of ciphers to be used"}
 @Field {value:"sslProtocol: The SSL protocol version"}
-@Field {value:"certificateRevocationVerifier: true/false to enable/disable certificate revocation verifier"}
+@Field {value:"certificateRevocationVerifier: The status of certificate revocation verifier {default value : false (disable)}"}
 @Field {value:"cacheSize: Maximum size of the cache"}
 @Field {value:"cacheDelay: Time duration between two consecutive scheduled cache managing tasks"}
 @Field {value:"allowOrigins: The array of origins with which the response is shared by the service"}

@@ -896,13 +896,13 @@ public class HttpUtil {
             if (trustStorePasswordAttrVal != null) {
                 listenerConfiguration.setTrustStorePass(trustStorePasswordAttrVal.getStringValue());
             }
-            if (certificateRevocationVerifierAttrValue.getBooleanValue() && cacheDelayAttrValue == null) {
-                throw new BallerinaException("cacheDelay value must be provided to enable certificate validation");
-            }
-            if (certificateRevocationVerifierAttrValue.getBooleanValue() && cacheSizeAttrValue == null) {
-                throw new BallerinaException("cacheSize value must be provided to enable certificate validation");
-            }
-            if (certificateRevocationVerifierAttrValue.getBooleanValue()) {
+            if (certificateRevocationVerifierAttrValue != null && certificateRevocationVerifierAttrValue.getBooleanValue()) {
+                if (cacheSizeAttrValue == null) {
+                    throw new BallerinaException("cacheSize value must be provided to enable certificate validation");
+                }
+                if (cacheDelayAttrValue == null) {
+                    throw new BallerinaException("cacheDelay value must be provided to enable certificate validation");
+                }
                 listenerConfiguration
                         .setCertificateRevocationVerifier(certificateRevocationVerifierAttrValue.getBooleanValue());
                 listenerConfiguration.setCacheSize((int) cacheSizeAttrValue.getIntValue());

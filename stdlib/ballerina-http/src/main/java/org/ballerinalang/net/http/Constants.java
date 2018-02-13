@@ -184,8 +184,8 @@ public class Constants {
     public static final int CIPHERS_INDEX = 5;
     public static final int SSL_PROTOCOL_INDEX = 6;
     public static final int CERTIFICATE_REVOCATION_VERIFIER_INDEX = 0;
-    public static final int CACHE_SIZE = 0;
-    public static final int CACHE_DELAY = 1;
+    public static final int CACHE_SIZE_INDEX = 0;
+    public static final int CACHE_DELAY_INDEX = 1;
 
     public static final int HTTP_MESSAGE_INDEX = 0;
     public static final int ENTITY_INDEX = 1;

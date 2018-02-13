@@ -140,8 +140,8 @@ public class Init extends AbstractHTTPAction {
             String sslProtocol = ssl.getStringField(Constants.SSL_PROTOCOL_INDEX);
             boolean certificateRevocationVerifier =
                     ssl.getBooleanField(Constants.CERTIFICATE_REVOCATION_VERIFIER_INDEX) == TRUE;
-            int cacheSize = (int) ssl.getIntField(Constants.CACHE_SIZE);
-            int cacheDelay = (int) ssl.getIntField(Constants.CACHE_DELAY);
+            int cacheSize = (int) ssl.getIntField(Constants.CACHE_SIZE_INDEX);
+            int cacheDelay = (int) ssl.getIntField(Constants.CACHE_DELAY_INDEX);
 
             if (certificateRevocationVerifier && cacheSize == 0) {
                 throw new BallerinaConnectorException(
