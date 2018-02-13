@@ -848,7 +848,8 @@
 
                 <module>tests/ballerina-test-integration</module>
 
-                <module>tool-plugins/intellij</module>
+                <!-- Intellij build disabled in default build -->
+                <!--<module>tool-plugins/intellij</module>-->
                 <module>tool-plugins/vscode</module>
             </modules>
         </profile>
