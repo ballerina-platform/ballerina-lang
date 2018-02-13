@@ -40,6 +40,7 @@ import static org.ballerinalang.plugins.idea.BallerinaTypes.ANNOTATION_ATTRIBUTE
 import static org.ballerinalang.plugins.idea.BallerinaTypes.ANNOTATION_ATTRIBUTE_VALUE;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.ANNOTATION_REFERENCE;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.ANY;
+import static org.ballerinalang.plugins.idea.BallerinaTypes.ANY_IDENTIFIER_NAME;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.AS;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.AT;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.ATTACH;
@@ -284,6 +285,7 @@ public class BallerinaFormattingModelBuilder implements FormattingModelBuilder {
                 .withinPairInside(IDENTIFIER, LPAREN, ACTION_DEFINITION).spaceIf(true)
                 .before(INVOCATION).spaceIf(false)
                 .afterInside(IDENTIFIER, INVOCATION).spaceIf(false)
+                .around(ANY_IDENTIFIER_NAME).spaceIf(false)
                 .after(BIND).spaceIf(true)
                 .between(LT, CONNECTOR_REFERENCE).spaceIf(false)
                 .between(CONNECTOR_REFERENCE, GT).spaceIf(false)

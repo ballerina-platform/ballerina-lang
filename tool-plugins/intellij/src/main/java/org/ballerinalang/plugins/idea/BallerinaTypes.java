@@ -30,6 +30,7 @@ import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_annota
 import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_annotationAttributeValue;
 import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_annotationBody;
 import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_annotationReference;
+import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_anyIdentifierName;
 import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_attachmentPoint;
 import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_callableUnitBody;
 import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_catchClause;
@@ -192,11 +193,11 @@ public class BallerinaTypes {
     public static final RuleIElementType SIMPLE_EXPRESSION = ruleIElementTypes.get(RULE_simpleExpression);
     public static final RuleIElementType RETURN_PARAMETERS = ruleIElementTypes.get(RULE_returnParameters);
     public static final RuleIElementType VALUE_TYPE_NAME = ruleIElementTypes.get(RULE_valueTypeName);
-    //    public static final RuleIElementType ACTION_INVOCATION = ruleIElementTypes.get(RULE_actionInvocation);
     public static final RuleIElementType XML_NAMESPACE_NAME = ruleIElementTypes.get(RULE_xmlNamespaceName);
     public static final RuleIElementType SOURCE_NOTATION = ruleIElementTypes.get(RULE_sourceNotation);
     public static final RuleIElementType PACKAGE_NAME = ruleIElementTypes.get(RULE_packageName);
     public static final RuleIElementType INVOCATION = ruleIElementTypes.get(RULE_invocation);
+    public static final RuleIElementType ANY_IDENTIFIER_NAME = ruleIElementTypes.get(RULE_anyIdentifierName);
     public static final RuleIElementType ENUM_FIELD_LIST = ruleIElementTypes.get(RULE_enumFieldList);
     public static final RuleIElementType TRANSACTION_PROPERTY_INIT_STATEMENT_LIST =
             ruleIElementTypes.get(RULE_transactionPropertyInitStatementList);
