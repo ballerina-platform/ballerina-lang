@@ -24,12 +24,15 @@ import org.ballerinalang.bre.bvm.StackFrame;
 import org.ballerinalang.connector.api.Resource;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
+import org.ballerinalang.model.values.BBlob;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
+import org.ballerinalang.model.values.BJSON;
 import org.ballerinalang.model.values.BRefType;
 import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.model.values.BXML;
 import org.ballerinalang.util.BLangConstants;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
@@ -133,6 +136,8 @@ public class ResourceExecutor {
                 } else if (value instanceof BStruct) {
                     refRegs[refParamCount++] = (BRefType) value;
                 } else if (value instanceof BRefValueArray) {
+                    refRegs[refParamCount++] = (BRefType) value;
+                } else if (value instanceof BJSON || value instanceof BXML || value instanceof BBlob) {
                     refRegs[refParamCount++] = (BRefType) value;
                 } else {
                     connectorFuture.notifyFailure(new BallerinaException("unsupported " +

@@ -784,19 +784,19 @@
                 <module>cli/ballerina-packerina</module>
                 <module>compiler/ballerina-lang</module>
 
-                <module>composer</module>
+                <!--<module>composer</module>-->
 
-                <module>distribution/docker</module>
+                <!--<module>distribution/docker</module>-->
                 <module>distribution/zip/ballerina</module>
                 <module>distribution/zip/ballerina-tools</module>
 
-                <module>language-server</module>
+                <!--<module>language-server</module>-->
 
-                <module>misc/ballerina-maven-plugins</module>
+                <!--<module>misc/ballerina-maven-plugins</module>-->
                 <module>misc/ballerina-samples</module>
-                <module>misc/docerina</module>
-                <module>misc/swagger-ballerina</module>
-                <module>misc/testerina</module>
+                <!--<module>misc/docerina</module>-->
+                <!--<module>misc/swagger-ballerina</module>-->
+                <!--<module>misc/testerina</module>-->
 
                 <module>stdlib/ballerina-builtin</module>
                 <module>stdlib/ballerina-config</module>

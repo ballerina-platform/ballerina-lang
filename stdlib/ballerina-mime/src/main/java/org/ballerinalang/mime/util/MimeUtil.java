@@ -116,16 +116,15 @@ public class MimeUtil {
      * length exceeds the BYTE_LIMIT, data will be written on to a temporary file. Otherwise data will be kept in
      * memory.
      *
-     * @param context       Ballerina Context
      * @param entityStruct  Represent 'Entity' struct
      * @param inputStream   Represent input stream coming from the request/response
      * @param contentLength Content length of the request
      */
-    public static void readAndSetStringPayload(Context context, BStruct entityStruct, InputStream inputStream,
+    public static void readAndSetStringPayload(BStruct entityStruct, InputStream inputStream,
                                                long contentLength) {
         if (contentLength > Constants.BYTE_LIMIT) {
             String temporaryFilePath = writeToTemporaryFile(inputStream, BALLERINA_TEXT_DATA);
-            createBallerinaFileHandler(context, entityStruct, temporaryFilePath);
+            populateBallerinaFileHandler(entityStruct, temporaryFilePath);
         } else {
             String payload = StringUtils.getStringFromInputStream(inputStream);
             entityStruct.setStringField(TEXT_DATA_INDEX, payload);
@@ -137,16 +136,15 @@ public class MimeUtil {
      * length exceeds the BYTE_LIMIT, data will be written on to a temporary file. Otherwise data will be kept in
      * memory.
      *
-     * @param context       Ballerina Context
      * @param entityStruct  Represent 'Entity' struct
      * @param inputStream   Represent input stream coming from the request/response
      * @param contentLength Content length of the request
      */
-    public static void readAndSetJsonPayload(Context context, BStruct entityStruct, InputStream inputStream,
+    public static void readAndSetJsonPayload(BStruct entityStruct, InputStream inputStream,
                                              long contentLength) {
         if (contentLength > Constants.BYTE_LIMIT) {
             String temporaryFilePath = writeToTemporaryFile(inputStream, BALLERINA_JSON_DATA);
-            createBallerinaFileHandler(context, entityStruct, temporaryFilePath);
+            populateBallerinaFileHandler(entityStruct, temporaryFilePath);
         } else {
             BJSON payload = new BJSON(inputStream);
             entityStruct.setRefField(JSON_DATA_INDEX, payload);
@@ -158,16 +156,15 @@ public class MimeUtil {
      * length exceeds the BYTE_LIMIT, data will be written on to a temporary file. Otherwise data will be kept in
      * memory.
      *
-     * @param context       Ballerina Context
      * @param entityStruct  Represent 'Entity' struct
      * @param inputStream   Represent input stream coming from the request/response
      * @param contentLength Content length of the request
      */
-    public static void readAndSetXmlPayload(Context context, BStruct entityStruct, InputStream inputStream,
+    public static void readAndSetXmlPayload(BStruct entityStruct, InputStream inputStream,
                                             long contentLength) {
         if (contentLength > Constants.BYTE_LIMIT) {
             String temporaryFilePath = writeToTemporaryFile(inputStream, BALLERINA_XML_DATA);
-            createBallerinaFileHandler(context, entityStruct, temporaryFilePath);
+            populateBallerinaFileHandler(entityStruct, temporaryFilePath);
         } else {
             BXML payload = XMLUtils.parse(inputStream);
             entityStruct.setRefField(XML_DATA_INDEX, payload);
@@ -179,16 +176,15 @@ public class MimeUtil {
      * length exceeds the BYTE_LIMIT, data will be written on to a temporary file. Otherwise data will be kept in
      * memory.
      *
-     * @param context       Ballerina Context
      * @param entityStruct  Represent 'Entity' struct
      * @param inputStream   Represent input stream coming from the request/response
      * @param contentLength Content length of the request
      */
-    public static void readAndSetBinaryPayload(Context context, BStruct entityStruct, InputStream inputStream,
+    public static void readAndSetBinaryPayload(BStruct entityStruct, InputStream inputStream,
                                                long contentLength) {
         if (contentLength > Constants.BYTE_LIMIT) {
             String temporaryFilePath = writeToTemporaryFile(inputStream, BALLERINA_BINARY_DATA);
-            createBallerinaFileHandler(context, entityStruct, temporaryFilePath);
+            populateBallerinaFileHandler(entityStruct, temporaryFilePath);
         } else {
             byte[] payload;
             try {
@@ -297,7 +293,7 @@ public class MimeUtil {
             try {
                 return new String(readFromFile(filePath), UTF_8);
             } catch (UnsupportedEncodingException e) {
-                LOG.error("Error occured while extracting text payload from entity", e.getMessage());
+                LOG.error("Error occurred while extracting text payload from entity", e.getMessage());
             }
         }
         return null;
@@ -319,7 +315,7 @@ public class MimeUtil {
             try {
                 return new BJSON(new String(readFromFile(filePath), UTF_8));
             } catch (UnsupportedEncodingException e) {
-                LOG.error("Error occured while extracting json payload from entity", e.getMessage());
+                LOG.error("Error occurred while extracting json payload from entity", e.getMessage());
             }
         }
         return null;
@@ -341,7 +337,7 @@ public class MimeUtil {
             try {
                 return XMLUtils.parse(new String(readFromFile(filePath), UTF_8));
             } catch (UnsupportedEncodingException e) {
-                LOG.error("Error occured while extracting xml payload from entity", e.getMessage());
+                LOG.error("Error occurred while extracting xml payload from entity", e.getMessage());
             }
         }
         return null;
@@ -425,18 +421,15 @@ public class MimeUtil {
     }
 
     /**
-     * Create a ballerina file struct and set it into the given 'Entity'.
+     * Populate a ballerina file struct with temporary file path.
      *
-     * @param context           Represent ballerina context
      * @param entityStruct      Represent 'Entity'
      * @param temporaryFilePath Temporary file path
      * @return Entity struct populated with file handler
      */
-    private static BStruct createBallerinaFileHandler(Context context, BStruct entityStruct, String temporaryFilePath) {
-        BStruct fileStruct = ConnectorUtils
-                .createAndGetStruct(context, Constants.PROTOCOL_PACKAGE_FILE, Constants.FILE);
+    private static BStruct populateBallerinaFileHandler(BStruct entityStruct, String temporaryFilePath) {
+        BStruct fileStruct = (BStruct) entityStruct.getRefField(OVERFLOW_DATA_INDEX);
         fileStruct.setStringField(TEMP_FILE_PATH_INDEX, temporaryFilePath);
-        entityStruct.setRefField(OVERFLOW_DATA_INDEX, fileStruct);
         return entityStruct;
     }
 
@@ -510,32 +503,31 @@ public class MimeUtil {
     /**
      * Handle discrete media type content. This method populates ballerina entity with the relevant payload.
      *
-     * @param context     Represent ballerina context
      * @param entity      Represent an 'Entity'
      * @param inputStream Represent input stream coming from the request/response
      */
-    public static void handleDiscreteMediaTypeContent(Context context, BStruct entity, InputStream inputStream) {
+    public static void handleDiscreteMediaTypeContent(BStruct entity, InputStream inputStream) {
         String baseType = getContentType(entity);
         long contentLength = entity.getIntField(SIZE_INDEX);
         if (baseType != null) {
             switch (baseType) {
                 case TEXT_PLAIN:
                 case APPLICATION_FORM:
-                    MimeUtil.readAndSetStringPayload(context, entity, inputStream, contentLength);
+                    MimeUtil.readAndSetStringPayload(entity, inputStream, contentLength);
                     break;
                 case APPLICATION_JSON:
-                    MimeUtil.readAndSetJsonPayload(context, entity, inputStream, contentLength);
+                    MimeUtil.readAndSetJsonPayload(entity, inputStream, contentLength);
                     break;
                 case TEXT_XML:
                 case APPLICATION_XML:
-                    MimeUtil.readAndSetXmlPayload(context, entity, inputStream, contentLength);
+                    MimeUtil.readAndSetXmlPayload(entity, inputStream, contentLength);
                     break;
                 default:
-                    MimeUtil.readAndSetBinaryPayload(context, entity, inputStream, contentLength);
+                    MimeUtil.readAndSetBinaryPayload(entity, inputStream, contentLength);
                     break;
             }
         } else {
-            MimeUtil.readAndSetBinaryPayload(context, entity, inputStream, contentLength);
+            MimeUtil.readAndSetBinaryPayload(entity, inputStream, contentLength);
         }
     }
 
@@ -555,7 +547,7 @@ public class MimeUtil {
             partStruct.setIntField(SIZE_INDEX, bodyPart.getSize());
             BStruct mediaType = ConnectorUtils.createAndGetStruct(context, PROTOCOL_PACKAGE_MIME, MEDIA_TYPE);
             setContentType(mediaType, partStruct, baseType);
-            handleDiscreteMediaTypeContent(context, partStruct, new ByteArrayInputStream(bodyPart.getContent()));
+            handleDiscreteMediaTypeContent(partStruct, new ByteArrayInputStream(bodyPart.getContent()));
             bodyParts.add(partStruct);
         }
         if (!bodyParts.isEmpty()) {

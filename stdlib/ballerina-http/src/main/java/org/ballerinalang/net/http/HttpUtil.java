@@ -92,6 +92,7 @@ import static org.ballerinalang.mime.util.Constants.MULTIPART_DATA_INDEX;
 import static org.ballerinalang.mime.util.Constants.MULTIPART_ENCODER;
 import static org.ballerinalang.mime.util.Constants.NO_CONTENT_LENGTH_FOUND;
 import static org.ballerinalang.mime.util.Constants.OCTET_STREAM;
+import static org.ballerinalang.mime.util.Constants.OVERFLOW_DATA_INDEX;
 import static org.ballerinalang.mime.util.Constants.TEXT_PLAIN;
 import static org.ballerinalang.net.http.Constants.ENTITY_INDEX;
 import static org.ballerinalang.net.http.Constants.HTTP_MESSAGE_INDEX;
@@ -232,12 +233,26 @@ public class HttpUtil {
             isEntityBodyAvailable = (Boolean) httpMessageStruct.getNativeData(IS_ENTITY_BODY_PRESENT);
         }
         if (entity != null && isEntityBodyRequired && !isEntityBodyAvailable) {
+            addFileHandlerToEntity(context, entity);
             populateEntityBody(context, httpMessageStruct, entity, isRequest);
         }
         if (entity == null) {
             entity = createNewEntity(context, httpMessageStruct);
         }
         return abstractNativeFunction.getBValues(entity);
+    }
+
+    /**
+     * Create file struct and set it to the entity.
+     *
+     * @param context           Represent ballerina context
+     * @param entity            Represent an entity
+     */
+    private static void addFileHandlerToEntity(Context context, BStruct entity) {
+        BStruct fileStruct = ConnectorUtils.createAndGetStruct(context,
+                org.ballerinalang.mime.util.Constants.PROTOCOL_PACKAGE_FILE,
+                org.ballerinalang.mime.util.Constants.FILE);
+        entity.setRefField(OVERFLOW_DATA_INDEX, fileStruct);
     }
 
     /**
@@ -254,7 +269,7 @@ public class HttpUtil {
                 .getCarbonMsg(httpMessageStruct, HttpUtil.createHttpCarbonMessage(isRequest));
         HttpMessageDataStreamer httpMessageDataStreamer = new HttpMessageDataStreamer(httpCarbonMessage);
         MultipartRequestDecoder multipartRequestDecoder = new MultipartRequestDecoder(httpCarbonMessage);
-        if (isRequest && multipartRequestDecoder.isMultipartRequest()) {
+        if (isRequest && multipartRequestDecoder.isMultipartRequest() && context != null) {
             try {
                 multipartRequestDecoder.parseBody();
                 List<HttpBodyPart> multiparts = multipartRequestDecoder.getMultiparts();
@@ -276,7 +291,7 @@ public class HttpUtil {
             } catch (NumberFormatException e) {
                 throw new BallerinaException("Invalid content length");
             }
-            MimeUtil.handleDiscreteMediaTypeContent(context, entity, httpMessageDataStreamer.getInputStream());
+            MimeUtil.handleDiscreteMediaTypeContent(entity, httpMessageDataStreamer.getInputStream());
         }
         httpMessageStruct.addNativeData(MESSAGE_ENTITY, entity);
         httpMessageStruct.addNativeData(IS_ENTITY_BODY_PRESENT, true);

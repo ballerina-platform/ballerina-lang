@@ -1,6 +1,6 @@
 package ballerina.net.http;
 
-@Description { value:"Configuration for HTTP service"}
+@Description {value:"Configuration for HTTP service"}
 @Field {value:"host: Host of the service"}
 @Field {value:"port: Port number of the service"}
 @Field {value:"httpsPort: HTTPS port number of service"}
@@ -57,9 +57,10 @@ public annotation webSocket attach service<> {
     string serviceName;
 }
 
-@Description { value:"Configuration for HTTP resource"}
+@Description {value:"Configuration for HTTP resource"}
 @Field {value:"methods: The array of allowed HTTP methods"}
 @Field {value:"path: The path of resource"}
+@Field {value:"body: Inbound request entity body name which declared in signature"}
 @Field {value:"consumes: The media types which are accepted by resource"}
 @Field {value:"produces: The media types which are produced by resource"}
 @Field {value:"allowOrigins: The array of origins with which the response is shared by the resource"}
@@ -71,6 +72,7 @@ public annotation webSocket attach service<> {
 public annotation resourceConfig attach resource {
     string[] methods;
     string path;
+    string body;
     string[] consumes;
     string[] produces;
     string[] allowOrigins;

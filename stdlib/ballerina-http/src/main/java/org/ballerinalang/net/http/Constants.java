@@ -77,6 +77,7 @@ public class Constants {
     public static final String ANN_NAME_RESOURCE_CONFIG = "resourceConfig";
     public static final String ANN_RESOURCE_ATTR_METHODS = "methods";
     public static final String ANN_RESOURCE_ATTR_PATH = "path";
+    public static final String ANN_RESOURCE_ATTR_BODY = "body";
     public static final String ANN_RESOURCE_ATTR_CONSUMES = "consumes";
     public static final String ANN_RESOURCE_ATTR_PRODUCES = "produces";
     public static final String ANN_NAME_CONFIG = "configuration";

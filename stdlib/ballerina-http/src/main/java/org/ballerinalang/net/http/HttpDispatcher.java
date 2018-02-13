@@ -19,7 +19,11 @@ package org.ballerinalang.net.http;
 
 import org.ballerinalang.connector.api.BallerinaConnectorException;
 import org.ballerinalang.connector.api.ConnectorUtils;
-import org.ballerinalang.connector.api.ParamDetail;
+import org.ballerinalang.mime.util.MimeUtil;
+import org.ballerinalang.model.types.BType;
+import org.ballerinalang.model.types.TypeTags;
+import org.ballerinalang.model.values.BBlob;
+import org.ballerinalang.model.values.BJSON;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
@@ -31,8 +35,9 @@ import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URLDecoder;
-import java.util.List;
 import java.util.Map;
+
+import static org.ballerinalang.mime.util.Constants.OVERFLOW_DATA_INDEX;
 
 /**
  * {@code HttpDispatcher} is responsible for dispatching incoming http requests to the correct resource.
@@ -157,7 +162,7 @@ public class HttpDispatcher {
         BStruct inRequest = ConnectorUtils.createStruct(httpResource.getBalResource(),
                 Constants.PROTOCOL_PACKAGE_HTTP, Constants.IN_REQUEST);
 
-        BStruct entityForRequest = ConnectorUtils.createStruct(httpResource.getBalResource(),
+        BStruct inRequestEntity = ConnectorUtils.createStruct(httpResource.getBalResource(),
                 org.ballerinalang.mime.util.Constants.PROTOCOL_PACKAGE_MIME,
                 org.ballerinalang.mime.util.Constants.ENTITY);
 
@@ -166,22 +171,22 @@ public class HttpDispatcher {
                 org.ballerinalang.mime.util.Constants.MEDIA_TYPE);
 
         HttpUtil.enrichConnectionInfo(connection, httpCarbonMessage);
-        HttpUtil.populateInboundRequest(inRequest, entityForRequest, mediaType, httpCarbonMessage);
+        HttpUtil.populateInboundRequest(inRequest, inRequestEntity, mediaType, httpCarbonMessage);
 
-        List<ParamDetail> paramDetails = httpResource.getParamDetails();
-        BValue[] bValues = new BValue[paramDetails.size()];
+        SignatureParams signatureParams = httpResource.getSignatureParams();
+        BValue[] bValues = new BValue[signatureParams.getParamCount()];
         bValues[0] = connection;
         bValues[1] = inRequest;
-        if (paramDetails.size() == 2) {
+        if (signatureParams.getParamCount() == 2) {
             return bValues;
         }
 
         Map<String, String> resourceArgumentValues =
                 (Map<String, String>) httpCarbonMessage.getProperty(Constants.RESOURCE_ARGS);
-        for (int i = 2; i < paramDetails.size(); i++) {
+        for (int i = 0; i < signatureParams.getPathParams().size(); i++) {
             //No need for validation as validation already happened at deployment time,
             //only string parameters can be found here.
-            String argumentValue = resourceArgumentValues.get(paramDetails.get(i).getVarName());
+            String argumentValue = resourceArgumentValues.get(signatureParams.getPathParams().get(i).getVarName());
             if (argumentValue != null) {
                 try {
                     argumentValue = URLDecoder.decode(argumentValue, "UTF-8");
@@ -190,8 +195,47 @@ public class HttpDispatcher {
                     // application deal with the value.
                 }
             }
-            bValues[i] = new BString(argumentValue);
+            bValues[i+2] = new BString(argumentValue);
         }
+
+        if (signatureParams.getEntityBody() == null) {
+            return bValues;
+        }
+        //assign entityBody
+        bValues[bValues.length-1] = populateAndGetEntityBody(httpResource, inRequest, inRequestEntity,
+                signatureParams.getEntityBody().getVarType());
         return bValues;
+    }
+
+    private static BValue populateAndGetEntityBody(HttpResource httpResource, BStruct inRequest,
+                                                   BStruct inRequestEntity, BType entityBodyType) {
+        BStruct fileStruct = ConnectorUtils.createStruct(httpResource.getBalResource(),
+                org.ballerinalang.mime.util.Constants.PROTOCOL_PACKAGE_FILE,
+                org.ballerinalang.mime.util.Constants.FILE);
+        inRequestEntity.setRefField(OVERFLOW_DATA_INDEX, fileStruct);
+        HttpUtil.populateEntityBody(null, inRequest, inRequestEntity, true);
+
+        BValue body;
+        switch (entityBodyType.getTag()) {
+            case TypeTags.STRING_TAG:
+                body = new BString(MimeUtil.getTextPayload(inRequestEntity));
+                break;
+            case TypeTags.JSON_TAG:
+                body = MimeUtil.getJsonPayload(inRequestEntity);
+                break;
+            case TypeTags.XML_TAG:
+                body = MimeUtil.getXmlPayload(inRequestEntity);
+                break;
+            case TypeTags.BLOB_TAG:
+                body = new BBlob(MimeUtil.getBinaryPayload(inRequestEntity));
+                break;
+            case TypeTags.STRUCT_TAG:
+                BJSON bjson = MimeUtil.getJsonPayload(inRequestEntity);
+                body = ConnectorUtils.convertJSONToStruct(httpResource.getBalResource(), bjson, entityBodyType);
+                break;
+            default:
+                throw new BallerinaConnectorException("unsupported entity body type parameter");
+        }
+        return body;
     }
 }
