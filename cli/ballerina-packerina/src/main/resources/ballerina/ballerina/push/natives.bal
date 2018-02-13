@@ -3,7 +3,6 @@ package ballerina.push;
 import ballerina.compression;
 import ballerina.mime;
 import ballerina.net.http;
-import ballerina.log;
 
 function main (string[] args) {
 
@@ -26,5 +25,5 @@ function main (string[] args) {
     request.setEntity(topLevelEntity);
     http:InResponse resp1 = {};
     resp1, _ = httpEndpoint.post("", request);
-    log:printInfo("Ballerina package pushed successfully");
+    println("Ballerina package pushed successfully");
 }
