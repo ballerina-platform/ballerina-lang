@@ -16,10 +16,7 @@
  * under the License.
  */
 import _ from 'lodash';
-import Plugin from 'core/plugin/plugin';
-import { CONTRIBUTIONS } from 'core/plugin/constants';
-import { REGIONS } from 'core/layout/constants';
-import { COMMANDS as WORKSPACE_COMMANDS } from 'core/workspace/constants';
+import { PluginConstants, Plugin, WorkspaceConstants, LayoutConstants } from '@ballerina-lang/composer-core';
 /** Plugin imports */
 import { getCommandDefinitions } from './commands';
 import { getHandlerDefinitions } from './handlers';
@@ -45,7 +42,7 @@ class WelcomeTabPlugin extends Plugin {
      */
     createNewHandler() {
         const { command } = this.appContext;
-        command.dispatch(WORKSPACE_COMMANDS.CREATE_NEW_FILE, '');
+        command.dispatch(WorkspaceConstants.COMMANDS.CREATE_NEW_FILE, '');
     }
 
     /**
@@ -54,7 +51,7 @@ class WelcomeTabPlugin extends Plugin {
      */
     openFileHandler() {
         const { command } = this.appContext;
-        command.dispatch(WORKSPACE_COMMANDS.SHOW_FILE_OPEN_WIZARD, '');
+        command.dispatch(WorkspaceConstants.COMMANDS.SHOW_FILE_OPEN_WIZARD, '');
     }
 
     /**
@@ -63,7 +60,7 @@ class WelcomeTabPlugin extends Plugin {
      */
     openDirectoryHandler() {
         const { command } = this.appContext;
-        command.dispatch(WORKSPACE_COMMANDS.SHOW_FOLDER_OPEN_WIZARD, '');
+        command.dispatch(WorkspaceConstants.COMMANDS.SHOW_FOLDER_OPEN_WIZARD, '');
     }
 
      /**
@@ -81,7 +78,7 @@ class WelcomeTabPlugin extends Plugin {
      * @inheritdoc
      */
     getContributions() {
-        const { COMMANDS, HANDLERS, MENUS, VIEWS } = CONTRIBUTIONS;
+        const { COMMANDS, HANDLERS, MENUS, VIEWS } = PluginConstants.CONTRIBUTIONS;
         return {
             [COMMANDS]: getCommandDefinitions(this),
             [HANDLERS]: getHandlerDefinitions(this),
@@ -102,7 +99,7 @@ class WelcomeTabPlugin extends Plugin {
                             commandManager: command,
                         };
                     },
-                    region: REGIONS.EDITOR_TABS,
+                    region: LayoutConstants.EDITOR_TABS,
                     // region specific options for editor-tabs views
                     regionOptions: {
                         tabTitle: LABELS.WELCOME,

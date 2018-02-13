@@ -15,12 +15,8 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
-import Plugin from 'core/plugin/plugin';
-import { CONTRIBUTIONS } from 'core/plugin/constants';
-import { REGIONS, COMMANDS as LAYOUT_COMMANDS } from 'core/layout/constants';
-import { TOOLS as DEBUGGER_TOOLS } from 'plugins/debugger/constants';
-import LaunchManager from 'plugins/debugger/LaunchManager';
+import { PluginConstants, Plugin, FSUtils, LayoutConstants } from '@ballerina-lang/composer-core';
+import { LaunchManager, DebuggerConstants } from '@ballerina-lang/composer-debugger-plugin';
 /** Plugin imports */
 import { getCommandDefinitions } from './commands';
 import { getHandlerDefinitions } from './handlers';
@@ -31,6 +27,8 @@ import { VIEWS as TRY_IT_VIEW,
     TOOLS as TRY_IT_TOOLS,
     COMMANDS as TRY_IT_COMMANDS,
     PLUGIN_CONSTANTS as CONSTANTS } from './constants';
+
+const { REGIONS } = LayoutConstants;
 
 /**
  * Plugin for Try-it
@@ -79,7 +77,7 @@ class TryItPlugin extends Plugin {
      * @inheritdoc
      */
     getContributions() {
-        const { COMMANDS, HANDLERS, VIEWS, TOOLS } = CONTRIBUTIONS;
+        const { COMMANDS, HANDLERS, VIEWS, TOOLS } = PluginConstants.CONTRIBUTIONS;
         return {
             [COMMANDS]: getCommandDefinitions(this),
             [HANDLERS]: getHandlerDefinitions(this),
@@ -102,7 +100,7 @@ class TryItPlugin extends Plugin {
             [TOOLS]: [
                 {
                     id: TRY_IT_TOOLS.SHOW_TRY_IT,
-                    group: DEBUGGER_TOOLS.GROUP,
+                    group: DebuggerConstants.TOOLS.GROUP,
                     icon: 'dgm-try-catch',
                     commandID: TRY_IT_COMMANDS.SHOW_TRY_IT,
                     isActive: () => {

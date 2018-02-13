@@ -18,9 +18,8 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
-import { getPathSeperator } from 'api-client/api-client';
-import { COMMANDS as WORKSPACE_COMMANDS, VIEWS as WORKSPACE_VIEWS } from 'core/workspace/constants';
-import { COMMANDS as LAYOUT_COMMANDS } from 'core/layout/constants';
+import { getPathSeperator } from '@ballerina-lang/composer-api-client';
+import { WorkspaceConstants, LayoutConstants } from '@ballerina-lang/composer-core';
 import SamplesPreview from './samples-preview';
 
 /**
@@ -53,18 +52,18 @@ class WelcomeTab extends React.Component {
                 const sampleFile = sample.path.split('/').join(pathSeperator);
                 const sampleFolder = sample.folder ? sample.folder.split('/').join(pathSeperator) : '';
                 if (sample.isFile) {
-                    this.props.commandManager.dispatch(WORKSPACE_COMMANDS.OPEN_FILE, {
+                    this.props.commandManager.dispatch(WorkspaceConstants.COMMANDS.OPEN_FILE, {
                         filePath: ballerinaHome + sampleFile,
                         ext: 'bal',
                     });
                 } else {
                     if (sample.openFolder) {
-                        this.props.commandManager.dispatch(WORKSPACE_COMMANDS.OPEN_FOLDER, {
+                        this.props.commandManager.dispatch(WorkspaceConstants.COMMANDS.OPEN_FOLDER, {
                             folderPath: ballerinaHome + sampleFolder,
                         });
-                        this.props.commandManager.dispatch(LAYOUT_COMMANDS.SHOW_VIEW, { id: WORKSPACE_VIEWS.EXPLORER });
+                        this.props.commandManager.dispatch(LayoutConstants.COMMANDS.SHOW_VIEW, { id: WorkspaceConstants.VIEWS.EXPLORER });
                     }
-                    this.props.commandManager.dispatch(WORKSPACE_COMMANDS.OPEN_FILE, {
+                    this.props.commandManager.dispatch(WorkspaceConstants.COMMANDS.OPEN_FILE, {
                         filePath: ballerinaHome + sampleFile,
                         ext: 'bal',
                     });

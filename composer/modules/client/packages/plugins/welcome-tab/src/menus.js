@@ -15,9 +15,8 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
-import { MENU_DEF_TYPES } from 'core/menu/constants';
-import { MENUS as HELP_MENUS } from 'plugins/help/constants';
+import { MenuConstants } from '@ballerina-lang/composer-core';
+import { HelpPluginConstants } from '@ballerina-lang/composer-help-plugin';
 import { MENUS, COMMANDS, LABELS } from './constants';
 
 /**
@@ -28,14 +27,14 @@ export function getMenuDefinitions(plugin) {
     return [
         {
             id: MENUS.WELCOME_PAGE_MENU,
-            parent: HELP_MENUS.HELP_MENU,
+            parent: HelpPluginConstants.MENUS.HELP_MENU,
             label: LABELS.WELCOME,
             isActive: (appContext) => {
                 return true;
             },
             order: 5,
             command: COMMANDS.SHOW_WELCOME,
-            type: MENU_DEF_TYPES.ITEM,
+            type: MenuConstants.MENU_DEF_TYPES.ITEM,
         },
     ];
 }

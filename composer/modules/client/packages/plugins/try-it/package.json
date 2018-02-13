@@ -1,8 +1,8 @@
 {
-  "name": "@ballerina-lang/composer-import-struct-plugin",
+  "name": "@ballerina-lang/composer-try-it-plugin",
   "version": "0.962.0",
-  "description": "Import Struct plugin for composer",
-  "homepage": "https://github.com/ballerina-lang/ballerina/composer/modules/client/packages/plugins/import-struct",
+  "description": "TryIt plugin for composer",
+  "homepage": "https://github.com/ballerina-lang/ballerina/composer/modules/client/packages/plugins/try-it",
   "license": "Apache-2.0",
   "main": "dist/index.js",
   "bugs": {
@@ -21,9 +21,17 @@
   },
   "dependencies": {
     "@ballerina-lang/composer-core": "0.962.0",
+    "@ballerina-lang/composer-api-client": "0.962.0",
+    "@ballerina-lang/composer-debugger-plugin": "0.962.0",
+    "@ballerina-lang/composer-ballerina-plugin":"0.962.0",
+    "brace": "^0.10.0",
+    "classnames": "^2.2.5",
+    "copy-to-clipboard": "^3.0.8",
     "prop-types": "^15.5.8",
     "react": "^16.2.0",
     "react-ace": "^5.8.0",
-    "react-bootstrap": "^0.31.5"
+    "react-bootstrap": "^0.31.5",
+    "lodash": "^4.13.1",
+    "uuid": "^3.1.0"
   }
 }

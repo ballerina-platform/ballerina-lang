@@ -20,6 +20,8 @@ import TreeUtil from './model/tree-util';
 import SwaggerParser from './swagger-parser/swagger-parser';
 import DefaultNodeFactory from './model/default-node-factory';
 import NodeFactory from './model/node-factory';
+import AutoSuggest from './diagram/views/default/components/decorators/autosuggest-html';
+import ServiceNode from './model/tree/service-node';
 
 export default {
     BallerinaPlugin,
@@ -28,4 +30,6 @@ export default {
     SwaggerParser,
     DefaultNodeFactory,
     NodeFactory,
+    AutoSuggest,
+    ServiceNode,
 };

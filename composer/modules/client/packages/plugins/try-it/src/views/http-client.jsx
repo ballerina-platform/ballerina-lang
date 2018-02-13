@@ -18,15 +18,14 @@
 
 import 'brace';
 import _ from 'lodash';
-import { invokeTryIt, getTryItUrl } from 'api-client/api-client';
+import { invokeTryIt, getTryItUrl } from '@ballerina-lang/composer-api-client';
 import cn from 'classnames';
 import AceEditor from 'react-ace';
 import { DropdownButton, MenuItem } from 'react-bootstrap';
 import copy from 'copy-to-clipboard';
-import AutoSuggest from 'plugins/ballerina/diagram/views/default/components/decorators/autosuggest-html';
+import { AutoSuggest, ServiceNode } from '@ballerina-lang/composer-ballerina-plugin';
 import PropTypes from 'prop-types';
 import React from 'react';
-import ServiceTreeNode from 'plugins/ballerina/model/tree/service-node';
 import uuid from 'uuid/v4';
 import 'brace/mode/json';
 import 'brace/mode/xml';
@@ -956,7 +955,7 @@ class HttpClient extends React.Component {
 }
 
 HttpClient.propTypes = {
-    serviceNodes: PropTypes.arrayOf(PropTypes.instanceOf(ServiceTreeNode)),
+    serviceNodes: PropTypes.arrayOf(PropTypes.instanceOf(ServiceNode)),
 };
 
 HttpClient.defaultProps = {

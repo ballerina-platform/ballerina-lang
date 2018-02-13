@@ -19,9 +19,8 @@
 import _ from 'lodash';
 import React from 'react';
 import PropTypes from 'prop-types';
-import { parseFile } from 'api-client/api-client';
-import TreeBuilder from 'plugins/ballerina/model/tree-builder';
-import File from 'core/workspace/model/file';
+import { parseFile } from '@ballerina-lang/composer-api-client';
+import { TreeBuilder, File } from '@ballerina-lang/composer-ballerina-plugin';
 import { Nav, NavItem } from 'react-bootstrap';
 import HttpClient from './http-client';
 

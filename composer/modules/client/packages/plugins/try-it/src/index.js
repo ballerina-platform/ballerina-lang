@@ -15,18 +15,10 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import DebuggerPlugin from './plugin';
-import BreakpointHoc from './views/BreakpointHoc';
-import DebuggerHoc from './views/DebuggerHoc';
-import DebugManager from './DebugManager/DebugManager';
-import LaunchManager from './LaunchManager';
-import * as DebuggerConstants from './constants';
+import TryItPlugin from './plugin';
+import * as TryItConstants from './constants';
 
 export default {
-    DebuggerPlugin,
-    BreakpointHoc,
-    DebuggerHoc,
-    DebugManager,
-    LaunchManager,
-    DebuggerConstants,
+    TryItPlugin,
+    TryItConstants,
 };
