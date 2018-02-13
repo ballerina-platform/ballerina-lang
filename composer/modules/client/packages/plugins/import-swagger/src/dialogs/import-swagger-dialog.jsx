@@ -19,15 +19,12 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Button, Form, FormGroup, FormControl, ControlLabel, Col } from 'react-bootstrap';
-import Dialog from 'core/view/Dialog';
-import FileTree from 'core/view/tree-view/FileTree';
-import { exists as checkPathExists } from 'core/workspace/fs-util';
-import { getUserHome } from 'api-client/api-client';
-import ScrollBarsWithContextAPI from 'core/view/scroll-bars/ScrollBarsWithContextAPI';
+import { Dialog, FileTree, FSUtils, ScrollBarsWithContextAPI } from '@ballerina-lang/composer-core';
+import { getUserHome } from '@ballerina-lang/composer-api-client';
 
 const FILE_TYPE = 'file';
 const HISTORY_LAST_ACTIVE_PATH = 'composer.history.workspace.import-swagger.last-active-path';
-
+const checkPathExists = FSUtils.exists;
 /**
  * File Open Wizard Dialog
  * @extends React.Component

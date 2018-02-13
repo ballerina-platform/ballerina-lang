@@ -19,7 +19,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Button } from 'react-bootstrap';
-import Dialog from 'core/view/Dialog';
+import { Dialog } from '@ballerina-lang/composer-core';
 import AceEditor from 'react-ace';
 
 /**

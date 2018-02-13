@@ -15,19 +15,17 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+import { PluginConstants, Plugin,
+            SwaggerParser, DefaultNodeFactory, NodeFactory,
+            FSUtils, WorkspaceConstants } from '@ballerina-lang/composer-core';
 import _ from 'lodash';
-import Plugin from 'core/plugin/plugin';
-import { CONTRIBUTIONS } from 'core/plugin/constants';
-import { read } from 'core/workspace/fs-util';
-import { COMMANDS as WORKSPACE_COMMANDS } from 'core/workspace/constants';
-import SwaggerParser from 'plugins/ballerina/swagger-parser/swagger-parser';
-import DefaultNodeFactory from 'plugins/ballerina/model/default-node-factory';
-import NodeFactory from 'plugins/ballerina/model/node-factory';
 import { getCommandDefinitions } from './commands';
 import { getHandlerDefinitions } from './handlers';
 import { getMenuDefinitions } from './menus';
 import { PLUGIN_ID, DIALOG } from './constants';
 import ImportSwaggerDialog from './dialogs/import-swagger-dialog';
+
+const { read } = FSUtils;
 
 /**
  * Help plugin.
@@ -65,7 +63,7 @@ class ImportSwaggerPlugin extends Plugin {
 
                     // source gen the create ast root and set it to file object.
                     const { command: { dispatch }, editor } = appContext;
-                    dispatch(WORKSPACE_COMMANDS.CREATE_NEW_FILE);
+                    dispatch(WorkspaceConstants.COMMANDS.CREATE_NEW_FILE);
 
                     const balFile = editor.getActiveEditor().file;
                     balFile.setContent(rootNode.getSource(), true);
@@ -142,7 +140,7 @@ class ImportSwaggerPlugin extends Plugin {
      * @inheritdoc
      */
     getContributions() {
-        const { COMMANDS, HANDLERS, MENUS, DIALOGS } = CONTRIBUTIONS;
+        const { COMMANDS, HANDLERS, MENUS, DIALOGS } = PluginConstants.CONTRIBUTIONS;
         return {
             [COMMANDS]: getCommandDefinitions(this),
             [HANDLERS]: getHandlerDefinitions(this),

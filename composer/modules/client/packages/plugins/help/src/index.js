@@ -1,4 +1,5 @@
-/* Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+/**
+ * Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -14,18 +15,10 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import BallerinaPlugin from './plugin';
-import * as BallerinaPluginConstants from './constants';
-import TreeUtil from './model/tree-util';
-import SwaggerParser from './swagger-parser/swagger-parser';
-import DefaultNodeFactory from './model/default-node-factory';
-import NodeFactory from './model/node-factory';
+import HelpPlugin from './plugin';
+import * as HelpPluginConstants from './constants';
 
 export default {
-    BallerinaPlugin,
-    BallerinaPluginConstants,
-    TreeUtil,
-    SwaggerParser,
-    DefaultNodeFactory,
-    NodeFactory,
-};
+    HelpPlugin,
+    HelpPluginConstants,
+}

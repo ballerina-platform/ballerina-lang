@@ -15,8 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import Plugin from 'core/plugin/plugin';
-import { CONTRIBUTIONS } from 'core/plugin/constants';
+import { PluginConstants, Plugin } from '@ballerina-lang/composer-core';
 import { getCommandDefinitions } from './commands';
 import { getHandlerDefinitions } from './handlers';
 import { getMenuDefinitions } from './menus';
@@ -41,7 +40,7 @@ class HelpPlugin extends Plugin {
      * @inheritdoc
      */
     getContributions() {
-        const { COMMANDS, HANDLERS, MENUS, DIALOGS } = CONTRIBUTIONS;
+        const { COMMANDS, HANDLERS, MENUS, DIALOGS } = PluginConstants.CONTRIBUTIONS;
         return {
             [COMMANDS]: getCommandDefinitions(this),
             [HANDLERS]: getHandlerDefinitions(this),

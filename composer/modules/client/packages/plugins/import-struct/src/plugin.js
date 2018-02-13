@@ -15,8 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import Plugin from 'core/plugin/plugin';
-import { CONTRIBUTIONS } from 'core/plugin/constants';
+import { PluginConstants, Plugin } from '@ballerina-lang/composer-core';
 import { PLUGIN_ID, DIALOG } from './constants';
 import ImportStructDialog from './dialogs/import-struct-dialog';
 
@@ -38,7 +37,7 @@ class ImportStructPlugin extends Plugin {
      * @inheritdoc
      */
     getContributions() {
-        const { DIALOGS } = CONTRIBUTIONS;
+        const { DIALOGS } = PluginConstants.CONTRIBUTIONS;
         return {
             [DIALOGS]: [
                 {

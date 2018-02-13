@@ -15,9 +15,8 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
+import { MenuConstants } from '@ballerina-lang/composer-core';
 import { MENUS, COMMANDS, LABELS } from './constants';
-import { MENU_DEF_TYPES } from './../../core/menu/constants';
 
 /**
  * Provides menu definitions of help plugin.
@@ -34,7 +33,7 @@ export function getMenuDefinitions(plugin) {
                 return true;
             },
             icon: '',
-            type: MENU_DEF_TYPES.ROOT,
+            type: MenuConstants.MENU_DEF_TYPES.ROOT,
         },
         {
             id: MENUS.EXAMPLE_MENU,
@@ -45,7 +44,7 @@ export function getMenuDefinitions(plugin) {
             },
             order: 0,
             command: COMMANDS.OPEN_EXAMPLE,
-            type: MENU_DEF_TYPES.ITEM,
+            type: MenuConstants.MENU_DEF_TYPES.ITEM,
         },
         {
             id: MENUS.API_REFERENCE_MENU,
@@ -56,7 +55,7 @@ export function getMenuDefinitions(plugin) {
             },
             order: 0,
             command: COMMANDS.OPEN_API_REFERENCE,
-            type: MENU_DEF_TYPES.ITEM,
+            type: MenuConstants.MENU_DEF_TYPES.ITEM,
         },
         {
             id: MENUS.REPORT_MENU,
@@ -68,7 +67,7 @@ export function getMenuDefinitions(plugin) {
             icon: 'warning',
             order: 10,
             command: COMMANDS.REPORT_ISSUE,
-            type: MENU_DEF_TYPES.ITEM,
+            type: MenuConstants.MENU_DEF_TYPES.ITEM,
         },
         {
             id: MENUS.ABOUT_MENU,
@@ -79,7 +78,7 @@ export function getMenuDefinitions(plugin) {
             },
             order: 20,
             command: COMMANDS.SHOW_ABOUT,
-            type: MENU_DEF_TYPES.ITEM,
+            type: MenuConstants.MENU_DEF_TYPES.ITEM,
         },
     ];
 }

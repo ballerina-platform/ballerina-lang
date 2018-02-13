@@ -15,10 +15,8 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
+import { WorkspaceConstants, MenuConstants } from '@ballerina-lang/composer-core';
 import { MENUS, COMMANDS, LABELS } from './constants';
-import { MENUS as WORKSPACE_MENU } from 'core/workspace/constants';
-import { MENU_DEF_TYPES } from './../../core/menu/constants';
 
 /**
  * Provides menu definitions of help plugin.
@@ -30,14 +28,14 @@ export function getMenuDefinitions(plugin) {
     return [
         {
             id: MENUS.IMPORT_SWAGGER_MENU,
-            parent: WORKSPACE_MENU.FILE_MENU,
+            parent: WorkspaceConstants.MENUS.FILE_MENU,
             label: LABELS.IMPORT_SWAGGER_MENU_TITLE,
             isActive: (appContext) => {
                 return true;
             },
             icon: 'swagger',
             command: COMMANDS.SHOW_IMPORT_SWAGGER_DIALOG,
-            type: MENU_DEF_TYPES.ITEM,
+            type: MenuConstants.MENU_DEF_TYPES.ITEM,
         },
     ];
 }
