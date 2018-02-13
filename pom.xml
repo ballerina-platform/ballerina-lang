@@ -839,6 +839,9 @@
                 <module>distribution/zip/ballerina-tools</module>
 
                 <module>tests/ballerina-test-integration</module>
+
+                <module>tool-plugins/intellij</module>
+                <module>tool-plugins/vscode</module>
             </modules>
         </profile>
     </profiles>
