@@ -101,6 +101,7 @@ class LifeLine extends React.Component {
         const bBox = this.props.bBox;
         const iconSize = 18;
         const lineClass = `${this.props.classes.lineClass} unhoverable`;
+        const textClass = this.props.classes.textClass;
         const polygonClassTop = this.props.classes.polygonClass;
         const polygonClassBottom = `${this.props.classes.polygonClass} unhoverable`;
         const startSolidLineFrom = this.props.startSolidLineFrom;
@@ -180,7 +181,7 @@ class LifeLine extends React.Component {
                     y={bBox.y - 5}
                     fontFamily='font-ballerina'
                     fontSize={iconSize}
-                    fill={this.props.iconColor}
+                    className={textClass}
                 >
                     {this.props.icon}
                 </text>
@@ -199,7 +200,7 @@ class LifeLine extends React.Component {
                 textAnchor='middle'
                 dominantBaseline='central'
                 fontWeight='400'
-                fill={this.props.iconColor}
+                className={textClass}
                 onClick={e => this.openExpressionEditor(e)}
             >{identifier}</text>
             <text
@@ -208,7 +209,7 @@ class LifeLine extends React.Component {
                 textAnchor='middle'
                 dominantBaseline='central'
                 fontWeight='400'
-                fill={this.props.iconColor}
+                className={textClass}
             >{identifier}</text>
             {this.props.onDelete &&
                 <ActionBox

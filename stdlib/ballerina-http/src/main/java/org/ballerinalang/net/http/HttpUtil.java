@@ -73,6 +73,8 @@ import java.util.Set;
 
 import static org.ballerinalang.bre.bvm.BLangVMErrors.BUILTIN_PACKAGE;
 import static org.ballerinalang.bre.bvm.BLangVMErrors.STRUCT_GENERIC_ERROR;
+import static org.ballerinalang.mime.util.Constants.APPLICATION_JSON;
+import static org.ballerinalang.mime.util.Constants.APPLICATION_XML;
 import static org.ballerinalang.mime.util.Constants.CONTENT_TYPE;
 import static org.ballerinalang.mime.util.Constants.ENTITY_HEADERS_INDEX;
 import static org.ballerinalang.mime.util.Constants.IS_ENTITY_BODY_PRESENT;

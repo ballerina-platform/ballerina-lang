@@ -108,7 +108,7 @@ public class MultipartEncoderTest {
         }
     }
 
-    @Test(description = "Test that the body part build the Content-Disposition struct properly for multipart/form-data")
+    @Test(description = "Test that the body part build the ContentDisposition struct properly for multipart/form-data")
     public void testContentDispositionForFormData() {
         BStruct bodyPart = Util.getEntityStruct(result);
         BStruct contentDispositionStruct = Util.getContentDispositionStruct(result);
