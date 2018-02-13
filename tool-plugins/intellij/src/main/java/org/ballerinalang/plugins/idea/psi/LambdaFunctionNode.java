@@ -24,6 +24,9 @@ import org.ballerinalang.plugins.idea.psi.scopes.ParameterContainer;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+/**
+ * Represents an LambdaFunction in PSI tree.
+ */
 public class LambdaFunctionNode extends ANTLRPsiNode implements ParameterContainer {
 
     public LambdaFunctionNode(@NotNull ASTNode node) {

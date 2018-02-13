@@ -38,6 +38,9 @@ import java.util.stream.Collectors;
 
 import static org.ballerinalang.plugins.idea.completion.BallerinaCompletionUtils.getPackageAsLookups;
 
+/**
+ * Provides code completion support.
+ */
 public class BallerinaCompletionContributor extends CompletionContributor {
 
     @Override

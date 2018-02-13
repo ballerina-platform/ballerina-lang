@@ -26,13 +26,12 @@ import com.intellij.testFramework.LightProjectDescriptor;
 import com.intellij.testFramework.fixtures.DefaultLightProjectDescriptor;
 import com.intellij.testFramework.fixtures.LightPlatformCodeInsightFixtureTestCase;
 import org.ballerinalang.plugins.idea.BallerinaModuleType;
-import org.ballerinalang.plugins.idea.project.BallerinaApplicationLibrariesService;
 import org.ballerinalang.plugins.idea.sdk.BallerinaSdkType;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 
-abstract public class BallerinaCodeInsightFixtureTestCase extends LightPlatformCodeInsightFixtureTestCase {
+public abstract class BallerinaCodeInsightFixtureTestCase extends LightPlatformCodeInsightFixtureTestCase {
 
     protected static String getTestDataPath(String path) {
         return "src/test/resources/testData/" + path;

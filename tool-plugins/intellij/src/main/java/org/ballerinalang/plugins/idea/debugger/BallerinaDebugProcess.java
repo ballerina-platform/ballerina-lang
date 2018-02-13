@@ -65,6 +65,9 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.swing.event.HyperlinkListener;
 
+/**
+ * Ballerina debug process which handles debugging.
+ */
 public class BallerinaDebugProcess extends XDebugProcess {
 
     private static final Logger LOGGER = Logger.getInstance(BallerinaDebugProcess.class);

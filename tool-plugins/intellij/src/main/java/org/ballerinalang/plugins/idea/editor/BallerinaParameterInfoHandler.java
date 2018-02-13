@@ -59,6 +59,9 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
+/**
+ * Provides parameter info support.
+ */
 public class BallerinaParameterInfoHandler implements ParameterInfoHandlerWithTabActionSupport {
 
     @NotNull

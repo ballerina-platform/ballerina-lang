@@ -27,10 +27,13 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.psi.PsiDocumentManager;
 
+/**
+ * Provides import completion support.
+ */
 public class ImportCompletionInsertHandler implements InsertHandler<LookupElement> {
 
-    public final static InsertHandler<LookupElement> INSTANCE = new ImportCompletionInsertHandler(false);
-    public final static InsertHandler<LookupElement> INSTANCE_WITH_AUTO_POPUP = new ImportCompletionInsertHandler(true);
+    public static final InsertHandler<LookupElement> INSTANCE = new ImportCompletionInsertHandler(false);
+    public static final InsertHandler<LookupElement> INSTANCE_WITH_AUTO_POPUP = new ImportCompletionInsertHandler(true);
 
     private final String myIgnoreOnChars;
     private final boolean myTriggerAutoPopup;

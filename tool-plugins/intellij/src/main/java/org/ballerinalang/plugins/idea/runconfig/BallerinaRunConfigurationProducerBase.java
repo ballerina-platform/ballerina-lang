@@ -40,6 +40,11 @@ import org.ballerinalang.plugins.idea.runconfig.test.BallerinaTestConfiguration;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+/**
+ * Provides the capability to identify the configuration when we try to run a file from the gutter run icon.
+ *
+ * @param <T> run configuration type
+ */
 public abstract class BallerinaRunConfigurationProducerBase<T extends BallerinaRunConfigurationWithMain>
         extends RunConfigurationProducer<T> implements Cloneable {
 

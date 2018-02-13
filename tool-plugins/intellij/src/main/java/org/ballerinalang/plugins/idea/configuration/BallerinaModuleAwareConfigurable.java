@@ -22,6 +22,9 @@ import com.intellij.openapi.project.Project;
 import org.ballerinalang.plugins.idea.sdk.BallerinaSdkService;
 import org.jetbrains.annotations.NotNull;
 
+/**
+ * Represents a module aware configuration.
+ */
 public abstract class BallerinaModuleAwareConfigurable extends ModuleAwareProjectConfigurable {
 
     public BallerinaModuleAwareConfigurable(@NotNull Project project, String displayName, String helpTopic) {

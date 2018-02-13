@@ -61,6 +61,9 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
 
+/**
+ * Responsible for running Ballerina files.
+ */
 public class BallerinaExecutor {
 
     private static final Logger LOGGER = Logger.getInstance(BallerinaExecutor.class);

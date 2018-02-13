@@ -56,8 +56,4 @@
         </plugins>
     </build>
 
-    <properties>
-        <maven.checkstyleplugin.excludes>**org/ballerinalang/**</maven.checkstyleplugin.excludes>
-    </properties>
-
 </project>

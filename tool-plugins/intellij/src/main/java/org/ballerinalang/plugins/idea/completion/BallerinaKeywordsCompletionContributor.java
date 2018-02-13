@@ -52,8 +52,27 @@ import org.ballerinalang.plugins.idea.psi.references.NameReference;
 import org.ballerinalang.plugins.idea.psi.references.WorkerReference;
 import org.jetbrains.annotations.NotNull;
 
-import static org.ballerinalang.plugins.idea.completion.BallerinaCompletionUtils.*;
+import static org.ballerinalang.plugins.idea.completion.BallerinaCompletionUtils.addOtherTypeAsLookup;
+import static org.ballerinalang.plugins.idea.completion.BallerinaCompletionUtils.addReferenceTypesAsLookups;
+import static org.ballerinalang.plugins.idea.completion.BallerinaCompletionUtils.addTypeNamesAsLookups;
+import static org.ballerinalang.plugins.idea.completion.BallerinaCompletionUtils.addValueTypesAsLookups;
+import static org.ballerinalang.plugins.idea.completion.BallerinaCompletionUtils.addXmlnsAsLookup;
+import static org.ballerinalang.plugins.idea.completion.BallerinaCompletionUtils.getAttachKeyword;
+import static org.ballerinalang.plugins.idea.completion.BallerinaCompletionUtils.getCommonKeywords;
+import static org.ballerinalang.plugins.idea.completion.BallerinaCompletionUtils.getConnectorSpecificKeywords;
+import static org.ballerinalang.plugins.idea.completion.BallerinaCompletionUtils.getCreateKeyword;
+import static org.ballerinalang.plugins.idea.completion.BallerinaCompletionUtils.getFileLevelKeywordsAsLookups;
+import static org.ballerinalang.plugins.idea.completion.BallerinaCompletionUtils.getFunctionSpecificKeywords;
+import static org.ballerinalang.plugins.idea.completion.BallerinaCompletionUtils.getLengthOfKeyword;
+import static org.ballerinalang.plugins.idea.completion.BallerinaCompletionUtils.getResourceSpecificKeywords;
+import static org.ballerinalang.plugins.idea.completion.BallerinaCompletionUtils.getServiceSpecificKeywords;
+import static org.ballerinalang.plugins.idea.completion.BallerinaCompletionUtils.getTypeOfKeyword;
+import static org.ballerinalang.plugins.idea.completion.BallerinaCompletionUtils.getValueKeywords;
+import static org.ballerinalang.plugins.idea.completion.BallerinaCompletionUtils.getWorkerInteractionKeywords;
 
+/**
+ * Provides keyword completion support.
+ */
 public class BallerinaKeywordsCompletionContributor extends CompletionContributor {
 
     @Override

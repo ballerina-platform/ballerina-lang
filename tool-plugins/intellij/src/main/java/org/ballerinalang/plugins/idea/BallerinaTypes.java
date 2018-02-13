@@ -24,8 +24,73 @@ import org.ballerinalang.plugins.idea.grammar.BallerinaLexer;
 
 import java.util.List;
 
-import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.*;
+import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_actionDefinition;
+import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_annotationAttachment;
+import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_annotationAttributeList;
+import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_annotationAttributeValue;
+import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_annotationBody;
+import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_annotationReference;
+import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_attachmentPoint;
+import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_callableUnitBody;
+import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_catchClause;
+import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_catchClauses;
+import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_codeBlockBody;
+import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_connectorBody;
+import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_connectorDefinition;
+import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_connectorReference;
+import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_elseClause;
+import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_elseIfClause;
+import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_endpointBody;
+import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_endpointDeclaration;
+import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_enumFieldList;
+import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_expression;
+import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_expressionList;
+import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_failedClause;
+import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_field;
+import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_finallyClause;
+import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_foreachStatement;
+import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_forkJoinStatement;
+import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_functionDefinition;
+import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_functionReference;
+import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_ifClause;
+import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_ifElseStatement;
+import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_index;
+import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_invocation;
+import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_joinClause;
+import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_joinConditions;
+import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_nameReference;
+import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_packageName;
+import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_parameterList;
+import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_recordKeyValue;
+import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_recordLiteral;
+import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_resourceDefinition;
+import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_returnParameters;
+import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_serviceBody;
+import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_serviceDefinition;
+import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_simpleExpression;
+import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_sourceNotation;
+import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_statement;
+import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_structBody;
+import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_structDefinition;
+import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_timeoutClause;
+import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_transactionPropertyInitStatementList;
+import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_transactionStatement;
+import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_transformerInvocation;
+import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_tryCatchStatement;
+import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_typeList;
+import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_typeName;
+import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_valueTypeName;
+import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_variableReference;
+import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_whileStatement;
+import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_workerBody;
+import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_workerDeclaration;
+import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_xmlAttrib;
+import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_xmlLocalName;
+import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_xmlNamespaceName;
 
+/**
+ * Contains Ballerina lexer and parser rules. These are needed for formatting, etc.
+ */
 public class BallerinaTypes {
 
     private BallerinaTypes() {
@@ -224,5 +289,5 @@ public class BallerinaTypes {
     public static final TokenIElementType AT = tokenIElementTypes.get(BallerinaLexer.AT);
 
     public static final TokenSet OPERATORS = TokenSet.create(ASSIGN, EQUAL, LE, GE, NOTEQUAL, AND, OR, MUL, DIV,
-            BITAND, BITOR, CARET, MOD);
+                                                             BITAND, BITOR, CARET, MOD);
 }

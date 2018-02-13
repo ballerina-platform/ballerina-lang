@@ -50,6 +50,9 @@ import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 
+/**
+ * Provides quick documentation support.
+ */
 public class BallerinaDocumentationProvider extends AbstractDocumentationProvider {
 
     private static final String DOC_SEPARATOR = ":";

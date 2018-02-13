@@ -20,6 +20,9 @@ import com.intellij.lang.ASTNode;
 import org.antlr.jetbrains.adaptor.psi.ANTLRPsiNode;
 import org.jetbrains.annotations.NotNull;
 
+/**
+ * Represents an ReturnParameters in PSI tree.
+ */
 public class ReturnParametersNode extends ANTLRPsiNode {
 
     public ReturnParametersNode(@NotNull ASTNode node) {

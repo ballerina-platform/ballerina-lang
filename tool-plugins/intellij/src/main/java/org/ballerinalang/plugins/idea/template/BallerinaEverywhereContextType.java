@@ -23,6 +23,9 @@ import com.intellij.psi.impl.source.tree.LeafPsiElement;
 import org.ballerinalang.plugins.idea.BallerinaTypes;
 import org.jetbrains.annotations.NotNull;
 
+/**
+ * Represents a Ballerina context.
+ */
 public class BallerinaEverywhereContextType extends BallerinaCodeContextType {
 
     protected BallerinaEverywhereContextType() {

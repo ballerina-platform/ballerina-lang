@@ -20,6 +20,9 @@ import com.intellij.lang.ASTNode;
 import org.antlr.jetbrains.adaptor.psi.ANTLRPsiNode;
 import org.jetbrains.annotations.NotNull;
 
+/**
+ * Represents an RecordKeyValue in PSI tree.
+ */
 public class RecordKeyValueNode extends ANTLRPsiNode {
 
     public RecordKeyValueNode(@NotNull ASTNode node) {

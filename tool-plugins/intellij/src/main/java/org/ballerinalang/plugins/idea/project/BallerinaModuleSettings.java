@@ -27,22 +27,21 @@ import com.intellij.openapi.module.ModuleServiceManager;
 import com.intellij.openapi.options.ShowSettingsUtil;
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.impl.source.resolve.ResolveCache;
-import com.intellij.util.messages.Topic;
 import com.intellij.util.xmlb.XmlSerializerUtil;
 import org.ballerinalang.plugins.idea.BallerinaConstants;
 import org.ballerinalang.plugins.idea.configuration.BallerinaConfigurableProvider;
 import org.ballerinalang.plugins.idea.configuration.BallerinaModuleSettingsConfigurable;
 import org.jetbrains.annotations.NotNull;
 
+/**
+ * Handles module settings.
+ */
 @State(
         name = BallerinaConstants.BALLERINA_MODULE_SESTTINGS_SERVICE_NAME,
         storages = @Storage(file = StoragePathMacros.MODULE_FILE)
 )
 public class BallerinaModuleSettings implements
         PersistentStateComponent<BallerinaModuleSettings.BallerinaModuleSettingsState> {
-
-    public static final Topic<BuildTargetListener> TOPIC = Topic.create("build target changed",
-            BuildTargetListener.class);
 
     @NotNull
     private final BallerinaModuleSettingsState myState = new BallerinaModuleSettingsState();
@@ -77,9 +76,6 @@ public class BallerinaModuleSettings implements
         XmlSerializerUtil.copyBean(state, myState);
     }
 
-    public interface BuildTargetListener {
-        void changed(@NotNull Module module);
-    }
 
     static class BallerinaModuleSettingsState {
 

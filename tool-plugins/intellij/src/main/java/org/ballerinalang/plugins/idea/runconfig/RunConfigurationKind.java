@@ -16,6 +16,9 @@
 
 package org.ballerinalang.plugins.idea.runconfig;
 
+/**
+ * Represents supported Ballerina program types.
+ */
 public enum RunConfigurationKind {
     MAIN, SERVICE
 }

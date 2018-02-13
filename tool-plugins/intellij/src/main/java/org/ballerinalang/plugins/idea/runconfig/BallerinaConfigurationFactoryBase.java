@@ -22,6 +22,9 @@ import com.intellij.execution.configurations.ConfigurationFactory;
 import com.intellij.execution.configurations.ConfigurationType;
 import com.intellij.openapi.util.Key;
 
+/**
+ * Used to create Ballerina run configurations.
+ */
 public abstract class BallerinaConfigurationFactoryBase extends ConfigurationFactory {
 
     protected BallerinaConfigurationFactoryBase(ConfigurationType type) {

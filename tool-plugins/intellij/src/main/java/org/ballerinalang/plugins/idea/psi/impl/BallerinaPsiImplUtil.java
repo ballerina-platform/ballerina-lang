@@ -126,6 +126,9 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+/**
+ * Contains util methods which manipulates PSI elements.
+ */
 public class BallerinaPsiImplUtil {
 
     private static List<String> builtInDirectories = new LinkedList<>();
@@ -2004,7 +2007,7 @@ public class BallerinaPsiImplUtil {
      *     var person2 = person;
      *     var person3 = person2;
      *
-     *     system:println(person3.<caret>);
+     *     system:println(person3.&lt;caret&gt;);
      * }
      *
      * function getData () (Person) {

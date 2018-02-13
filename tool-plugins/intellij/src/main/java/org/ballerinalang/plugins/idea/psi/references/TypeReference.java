@@ -30,6 +30,9 @@ import org.jetbrains.annotations.Nullable;
 import java.util.LinkedList;
 import java.util.List;
 
+/**
+ * Represents a type reference.
+ */
 public class TypeReference extends BallerinaElementReference {
 
     private PsiElement typeNameNode;
