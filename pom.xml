@@ -242,6 +242,11 @@
                 <version>${ballerina.version}</version>
                 <type>zip</type>
             </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>language-server-stdio-launcher</artifactId>
+                <version>${ballerina.version}</version>
+            </dependency>
 
 
             <dependency>
@@ -777,6 +782,9 @@
                 <module>distribution/zip/ballerina-tools</module>
 
                 <module>tests/ballerina-test-integration</module>
+
+                <module>tool-plugins/intellij</module>
+                <module>tool-plugins/vscode</module>
             </modules>
         </profile>
         <profile>

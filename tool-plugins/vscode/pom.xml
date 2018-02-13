@@ -25,21 +25,11 @@
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
-    <groupId>org.ballerinalang</groupId>
     <artifactId>plugin-vscode</artifactId>
     <packaging>pom</packaging>
 
     <name>Ballerina - Plugin VSCode</name>
 
-    <dependencyManagement>
-        <dependencies>
-            <dependency>
-                <groupId>org.ballerinalang</groupId>
-                <artifactId>${langserver.launcher.id}</artifactId>
-                <version>${langserver.launcher.version}</version>
-            </dependency>
-        </dependencies>
-    </dependencyManagement>
     <build>
         <plugins>
             <plugin>
@@ -56,8 +46,8 @@
                             <artifactItems>
                                 <artifactItem>
                                     <groupId>org.ballerinalang</groupId>
-                                    <artifactId>${langserver.launcher.id}</artifactId>
-                                    <version>${langserver.launcher.version}</version>
+                                    <artifactId>language-server-stdio-launcher</artifactId>
+                                    <version>${ballerina.version}</version>
                                     <type>jar</type>
                                     <classifier>jar-with-dependencies</classifier>
                                     <overWrite>true</overWrite>
@@ -66,8 +56,8 @@
                                 </artifactItem>
                                 <artifactItem>
                                     <groupId>org.ballerinalang</groupId>
-                                    <artifactId>${langserver.launcher.id}</artifactId>
-                                    <version>${langserver.launcher.version}</version>
+                                    <artifactId>language-server-stdio-launcher</artifactId>
+                                    <version>${ballerina.version}</version>
                                     <type>jar</type>
                                     <classifier>jar-with-non-ballerina-dependencies</classifier>
                                     <overWrite>true</overWrite>
@@ -81,8 +71,4 @@
             </plugin>
         </plugins>
     </build>
-    <properties>
-        <langserver.launcher.id>language-server-stdio-launcher</langserver.launcher.id>
-        <langserver.launcher.version>0.96.0</langserver.launcher.version>
-    </properties>
 </project>
