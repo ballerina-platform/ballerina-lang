@@ -82,7 +82,7 @@
             <fileMode>644</fileMode>
         </file>
         <file>
-            <source>../COPYRIGHT.txt</source>
+            <source>../../../COPYRIGHT</source>
             <outputDirectory>.</outputDirectory>
             <filtered>true</filtered>
             <fileMode>644</fileMode>
