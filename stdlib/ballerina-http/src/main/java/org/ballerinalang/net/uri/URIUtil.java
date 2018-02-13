@@ -22,7 +22,7 @@ import org.ballerinalang.connector.api.BallerinaConnectorException;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.net.http.Constants;
+import org.ballerinalang.net.http.HttpConstants;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 
 import java.io.UnsupportedEncodingException;
@@ -72,7 +72,7 @@ public class URIUtil {
     public static BMap<String, BValue> getMatrixParamsMap(String path, HTTPCarbonMessage carbonMessage) {
         BMap<String, BValue> matrixParamsBMap = new BMap<>();
         Map<String, Map<String, String>> pathToMatrixParamMap =
-                (Map<String, Map<String, String>>) carbonMessage.getProperty(Constants.MATRIX_PARAMS);
+                (Map<String, Map<String, String>>) carbonMessage.getProperty(HttpConstants.MATRIX_PARAMS);
         Map<String, String> matrixParamsMap = pathToMatrixParamMap.get(path);
         if (matrixParamsMap != null) {
             for (Map.Entry<String, String> matrixParamEntry : matrixParamsMap.entrySet()) {

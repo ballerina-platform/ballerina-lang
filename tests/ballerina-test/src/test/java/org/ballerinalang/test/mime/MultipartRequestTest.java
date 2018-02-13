@@ -31,7 +31,7 @@ import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BXMLItem;
-import org.ballerinalang.net.http.Constants;
+import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.HttpUtil;
 import org.ballerinalang.test.services.testutils.HTTPTestRequest;
 import org.ballerinalang.test.services.testutils.MessageUtils;
@@ -83,11 +83,11 @@ public class MultipartRequestTest {
     private static final Logger LOG = LoggerFactory.getLogger(MultipartRequestTest.class);
 
     private CompileResult result, serviceResult;
-    private final String requestStruct = Constants.IN_REQUEST;
-    private final String protocolPackageHttp = Constants.PROTOCOL_PACKAGE_HTTP;
+    private final String requestStruct = HttpConstants.IN_REQUEST;
+    private final String protocolPackageHttp = HttpConstants.PROTOCOL_PACKAGE_HTTP;
     private final String protocolPackageMime = PROTOCOL_PACKAGE_MIME;
     private final String protocolPackageFile = PROTOCOL_PACKAGE_FILE;
-    private final String entityStruct = Constants.ENTITY;
+    private final String entityStruct = HttpConstants.ENTITY;
     private final String mediaTypeStruct = MEDIA_TYPE;
     private String sourceFilePath = "test-src/mime/multipart-request.bal";
     private final String carbonMessage = "CarbonMessage";
@@ -441,7 +441,7 @@ public class MultipartRequestTest {
     private Map<String, Object> createPrerequisiteMessages(String path) {
         Map<String, Object> messageMap = new HashMap<>();
         BStruct request = getRequestStruct();
-        HTTPTestRequest cMsg = MessageUtils.generateHTTPMessageForMultiparts(path, Constants.HTTP_METHOD_POST);
+        HTTPTestRequest cMsg = MessageUtils.generateHTTPMessageForMultiparts(path, HttpConstants.HTTP_METHOD_POST);
         HttpUtil.addCarbonMsg(request, cMsg);
         BStruct entity = getEntityStruct();
         MimeUtil.setContentType(getMediaTypeStruct(), entity, MULTIPART_FORM_DATA);

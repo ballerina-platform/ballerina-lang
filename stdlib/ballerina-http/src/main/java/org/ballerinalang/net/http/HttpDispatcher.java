@@ -48,13 +48,13 @@ public class HttpDispatcher {
         try {
             Map<String, HttpService> servicesOnInterface = getServicesOnInterface(servicesRegistry, inboundReqMsg);
 
-            String rawUri = (String) inboundReqMsg.getProperty(Constants.TO);
-            inboundReqMsg.setProperty(Constants.RAW_URI, rawUri);
+            String rawUri = (String) inboundReqMsg.getProperty(HttpConstants.TO);
+            inboundReqMsg.setProperty(HttpConstants.RAW_URI, rawUri);
             Map<String, Map<String, String>> matrixParams = new HashMap<>();
             String uriWithoutMatrixParams = URIUtil.extractMatrixParams(rawUri, matrixParams);
 
-            inboundReqMsg.setProperty(Constants.TO, uriWithoutMatrixParams);
-            inboundReqMsg.setProperty(Constants.MATRIX_PARAMS, matrixParams);
+            inboundReqMsg.setProperty(HttpConstants.TO, uriWithoutMatrixParams);
+            inboundReqMsg.setProperty(HttpConstants.MATRIX_PARAMS, matrixParams);
 
             URI validatedUri = getValidatedURI(uriWithoutMatrixParams);
 
@@ -63,7 +63,7 @@ public class HttpDispatcher {
                     servicesRegistry.findTheMostSpecificBasePath(validatedUri.getPath(), servicesOnInterface);
             HttpService service = servicesOnInterface.get(basePath);
             if (service == null) {
-                inboundReqMsg.setProperty(Constants.HTTP_STATUS_CODE, 404);
+                inboundReqMsg.setProperty(HttpConstants.HTTP_STATUS_CODE, 404);
                 throw new BallerinaConnectorException("no matching service found for path : " +
                         validatedUri.getRawPath());
             }
@@ -88,11 +88,11 @@ public class HttpDispatcher {
 
     private static void setInboundReqProperties(HTTPCarbonMessage inboundReqMsg, URI requestUri, String basePath) {
         String subPath = URIUtil.getSubPath(requestUri.getPath(), basePath);
-        inboundReqMsg.setProperty(Constants.BASE_PATH, basePath);
-        inboundReqMsg.setProperty(Constants.SUB_PATH, subPath);
-        inboundReqMsg.setProperty(Constants.QUERY_STR, requestUri.getQuery());
+        inboundReqMsg.setProperty(HttpConstants.BASE_PATH, basePath);
+        inboundReqMsg.setProperty(HttpConstants.SUB_PATH, subPath);
+        inboundReqMsg.setProperty(HttpConstants.QUERY_STR, requestUri.getQuery());
         //store query params comes with request as it is
-        inboundReqMsg.setProperty(Constants.RAW_QUERY_STR, requestUri.getRawQuery());
+        inboundReqMsg.setProperty(HttpConstants.RAW_QUERY_STR, requestUri.getRawQuery());
     }
 
     private static URI getValidatedURI(String uriStr) {
@@ -106,12 +106,12 @@ public class HttpDispatcher {
     }
 
     private static String getInterface(HTTPCarbonMessage inboundRequest) {
-        String interfaceId = (String) inboundRequest.getProperty(Constants.LISTENER_INTERFACE_ID);
+        String interfaceId = (String) inboundRequest.getProperty(HttpConstants.LISTENER_INTERFACE_ID);
         if (interfaceId == null) {
             if (breLog.isDebugEnabled()) {
                 breLog.debug("Interface id not found on the message, hence using the default interface");
             }
-            interfaceId = Constants.DEFAULT_INTERFACE;
+            interfaceId = HttpConstants.DEFAULT_INTERFACE;
         }
 
         return interfaceId;
@@ -138,7 +138,7 @@ public class HttpDispatcher {
     public static HttpResource findResource(HTTPServicesRegistry servicesRegistry,
                                             HTTPCarbonMessage httpCarbonMessage) {
         HttpResource resource = null;
-        String protocol = (String) httpCarbonMessage.getProperty(Constants.PROTOCOL);
+        String protocol = (String) httpCarbonMessage.getProperty(HttpConstants.PROTOCOL);
         if (protocol == null) {
             throw new BallerinaConnectorException("protocol not defined in the incoming request");
         }
@@ -162,9 +162,9 @@ public class HttpDispatcher {
     public static BValue[] getSignatureParameters(HttpResource httpResource, HTTPCarbonMessage httpCarbonMessage) {
         //TODO Think of keeping struct type globally rather than creating for each request
         BStruct connection = ConnectorUtils.createStruct(httpResource.getBalResource(),
-                Constants.PROTOCOL_PACKAGE_HTTP, Constants.CONNECTION);
+                                                         HttpConstants.PROTOCOL_PACKAGE_HTTP, HttpConstants.CONNECTION);
         BStruct inRequest = ConnectorUtils.createStruct(httpResource.getBalResource(),
-                Constants.PROTOCOL_PACKAGE_HTTP, Constants.IN_REQUEST);
+                                                        HttpConstants.PROTOCOL_PACKAGE_HTTP, HttpConstants.IN_REQUEST);
 
         BStruct entityForRequest = ConnectorUtils.createStruct(httpResource.getBalResource(),
                 org.ballerinalang.mime.util.Constants.PROTOCOL_PACKAGE_MIME,
@@ -186,7 +186,7 @@ public class HttpDispatcher {
         }
 
         Map<String, String> resourceArgumentValues =
-                (Map<String, String>) httpCarbonMessage.getProperty(Constants.RESOURCE_ARGS);
+                (Map<String, String>) httpCarbonMessage.getProperty(HttpConstants.RESOURCE_ARGS);
         for (int i = 2; i < paramDetails.size(); i++) {
             //No need for validation as validation already happened at deployment time,
             //only string parameters can be found here.

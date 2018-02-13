@@ -26,7 +26,7 @@ import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
-import org.ballerinalang.net.ws.Constants;
+import org.ballerinalang.net.ws.WebSocketConstants;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
 import javax.websocket.Session;
@@ -51,7 +51,7 @@ public class PushText extends AbstractNativeFunction {
     public BValue[] execute(Context context) {
         try {
             BStruct wsConnection = (BStruct) getRefArgument(context, 0);
-            Session session = (Session) wsConnection.getNativeData(Constants.NATIVE_DATA_WEBSOCKET_SESSION);
+            Session session = (Session) wsConnection.getNativeData(WebSocketConstants.NATIVE_DATA_WEBSOCKET_SESSION);
             String text = getStringArgument(context, 0);
             session.getBasicRemote().sendText(text);
         } catch (Throwable e) {

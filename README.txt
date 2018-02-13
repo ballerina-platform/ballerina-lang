@@ -26,7 +26,11 @@ Building the source
 
 1. Clone this repository using the following command.
 
-     git clone https://github.com/ballerinalang/ballerina
+     git clone --recursive https://github.com/ballerinalang/ballerina
+
+   If you download the sources, you need to update the git submodules using the following command.
+
+     git submodule update --init
 
 2. Run the Maven command ``mvn clean install`` from the ``ballerina`` root directory.
 3. Extract the Ballerina distribution created at `distribution/zip/ballerina/target/ballerina-<version>-SNAPSHOT.zip`.

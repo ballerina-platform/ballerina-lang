@@ -27,7 +27,7 @@ import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
-import org.ballerinalang.net.ws.Constants;
+import org.ballerinalang.net.ws.WebSocketConstants;
 
 import javax.websocket.Session;
 
@@ -50,7 +50,7 @@ public class GetNegotiatedSubProtocol extends AbstractNativeFunction {
     @Override
     public BValue[] execute(Context context) {
         BStruct wsConnection = (BStruct) getRefArgument(context, 0);
-        Session session = (Session) wsConnection.getNativeData(Constants.NATIVE_DATA_WEBSOCKET_SESSION);
+        Session session = (Session) wsConnection.getNativeData(WebSocketConstants.NATIVE_DATA_WEBSOCKET_SESSION);
         String negotiatedSubProtocol = session.getNegotiatedSubprotocol();
         return getBValues(new BString(negotiatedSubProtocol));
     }

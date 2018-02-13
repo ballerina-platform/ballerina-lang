@@ -26,7 +26,7 @@ import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BRefType;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStruct;
-import org.ballerinalang.net.ws.Constants;
+import org.ballerinalang.net.ws.WebSocketConstants;
 import org.ballerinalang.net.ws.WebSocketService;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.StructInfo;
@@ -43,17 +43,18 @@ public abstract class AbstractNativeWsAction extends AbstractNativeAction {
 
     public BStruct createWsConnectionStruct(WebSocketService wsService, Session session, String parentConnectionID) {
         BStruct wsConnection = wsService.createConnectionStruct();
-        wsConnection.addNativeData(Constants.NATIVE_DATA_WEBSOCKET_SESSION, session);
-        wsConnection.addNativeData(Constants.NATIVE_DATA_PARENT_CONNECTION_ID, parentConnectionID);
+        wsConnection.addNativeData(WebSocketConstants.NATIVE_DATA_WEBSOCKET_SESSION, session);
+        wsConnection.addNativeData(WebSocketConstants.NATIVE_DATA_PARENT_CONNECTION_ID, parentConnectionID);
         return wsConnection;
     }
 
     public BStruct createWsErrorStruct(Context context, Throwable throwable) {
 
         //gather package details from natives
-        PackageInfo wsErrorPackageInfo = context.getProgramFile().getPackageInfo(Constants.PROTOCOL_PACKAGE_WS);
+        PackageInfo wsErrorPackageInfo = context.getProgramFile().getPackageInfo(
+                WebSocketConstants.PROTOCOL_PACKAGE_WS);
         StructInfo wsConnectionStructInfo =
-                wsErrorPackageInfo.getStructInfo(Constants.STRUCT_WEBSOCKET_ERROR);
+                wsErrorPackageInfo.getStructInfo(WebSocketConstants.STRUCT_WEBSOCKET_ERROR);
 
         //create error struct
         BStructType structType = wsConnectionStructInfo.getType();

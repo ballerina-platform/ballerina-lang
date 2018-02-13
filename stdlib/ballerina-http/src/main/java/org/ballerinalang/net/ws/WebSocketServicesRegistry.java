@@ -22,6 +22,7 @@ import org.ballerinalang.connector.api.AnnAttrValue;
 import org.ballerinalang.connector.api.Annotation;
 import org.ballerinalang.connector.api.BallerinaConnectorException;
 import org.ballerinalang.net.http.HttpConnectionManager;
+import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.HttpUtil;
 import org.ballerinalang.net.uri.URITemplate;
 import org.ballerinalang.net.uri.URITemplateException;
@@ -73,7 +74,7 @@ public class WebSocketServicesRegistry {
         } else {
             if (WebSocketServiceValidator.validateServiceEndpoint(service)) {
                 Annotation configAnnotation =
-                        HttpUtil.getServiceConfigAnnotation(service, Constants.PROTOCOL_PACKAGE_WS);
+                        HttpUtil.getServiceConfigAnnotation(service, WebSocketConstants.PROTOCOL_PACKAGE_WS);
                 if (configAnnotation == null) {
                     slaveServices.put(service.getName(), service);
                     return;
@@ -123,7 +124,7 @@ public class WebSocketServicesRegistry {
             StringBuilder errorMsg = new StringBuilder("Cannot register following services: \n");
             for (String serviceName : slaveServices.keySet()) {
                 WebSocketService service = slaveServices.remove(serviceName);
-                if (HttpUtil.getServiceConfigAnnotation(service, Constants.PROTOCOL_PACKAGE_WS) == null) {
+                if (HttpUtil.getServiceConfigAnnotation(service, WebSocketConstants.PROTOCOL_PACKAGE_WS) == null) {
                     String msg = "Cannot deploy WebSocket service without configuration annotation";
                     errorMsg.append(String.format("\t%s: %s\n", serviceName, msg));
                 } else {
@@ -221,11 +222,12 @@ public class WebSocketServicesRegistry {
      */
     private String findFullWebSocketUpgradePath(WebSocketService service) {
         // Find Base path for WebSocket
-        Annotation configAnnotation = HttpUtil.getServiceConfigAnnotation(service, Constants.PROTOCOL_PACKAGE_WS);
+        Annotation configAnnotation = HttpUtil.getServiceConfigAnnotation(service,
+                                                                          WebSocketConstants.PROTOCOL_PACKAGE_WS);
         String basePath = null;
         if (configAnnotation != null) {
             AnnAttrValue annotationAttributeBasePathValue = configAnnotation.getAnnAttrValue
-                    (Constants.ANN_CONFIG_ATTR_BASE_PATH);
+                    (HttpConstants.ANN_CONFIG_ATTR_BASE_PATH);
             if (annotationAttributeBasePathValue != null && annotationAttributeBasePathValue.getStringValue() != null
                     && !annotationAttributeBasePathValue.getStringValue().trim().isEmpty()) {
                 basePath = refactorUri(annotationAttributeBasePathValue.getStringValue());

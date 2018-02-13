@@ -21,7 +21,7 @@ package org.ballerinalang.test.services.testutils;
 import io.netty.buffer.Unpooled;
 import io.netty.handler.codec.http.DefaultLastHttpContent;
 import io.netty.handler.codec.http.HttpHeaders;
-import org.ballerinalang.net.http.Constants;
+import org.ballerinalang.net.http.HttpConstants;
 import org.wso2.carbon.messaging.CarbonMessage;
 import org.wso2.carbon.messaging.DefaultCarbonMessage;
 import org.wso2.carbon.messaging.Header;
@@ -73,18 +73,18 @@ public class MessageUtils {
 
     private static HTTPTestRequest getHttpTestRequest(String path, String method) {
         HTTPTestRequest carbonMessage = new HTTPTestRequest();
-        carbonMessage.setProperty(Constants.PROTOCOL,
-                Constants.PROTOCOL_HTTP);
-        carbonMessage.setProperty(Constants.LISTENER_INTERFACE_ID,
-                Constants.DEFAULT_INTERFACE);
+        carbonMessage.setProperty(HttpConstants.PROTOCOL,
+                HttpConstants.PROTOCOL_HTTP);
+        carbonMessage.setProperty(HttpConstants.LISTENER_INTERFACE_ID,
+                HttpConstants.DEFAULT_INTERFACE);
         // Set url
-        carbonMessage.setProperty(Constants.TO, path);
-        carbonMessage.setProperty(Constants.REQUEST_URL, path);
-        carbonMessage.setProperty(Constants.HTTP_METHOD, method.trim().toUpperCase(Locale.getDefault()));
-        carbonMessage.setProperty(Constants.LOCAL_ADDRESS,
-                new InetSocketAddress(Constants.HTTP_DEFAULT_HOST, 9090));
-        carbonMessage.setProperty(Constants.LISTENER_PORT, 9090);
-        carbonMessage.setProperty(Constants.RESOURCE_ARGS, new HashMap<String, String>());
+        carbonMessage.setProperty(HttpConstants.TO, path);
+        carbonMessage.setProperty(HttpConstants.REQUEST_URL, path);
+        carbonMessage.setProperty(HttpConstants.HTTP_METHOD, method.trim().toUpperCase(Locale.getDefault()));
+        carbonMessage.setProperty(HttpConstants.LOCAL_ADDRESS,
+                new InetSocketAddress(HttpConstants.HTTP_DEFAULT_HOST, 9090));
+        carbonMessage.setProperty(HttpConstants.LISTENER_PORT, 9090);
+        carbonMessage.setProperty(HttpConstants.RESOURCE_ARGS, new HashMap<String, String>());
         return carbonMessage;
     }
 }
