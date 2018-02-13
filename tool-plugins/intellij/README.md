@@ -1,6 +1,5 @@
 # Ballerina plugin for IntelliJ IDEA
 
-[![Build Status](https://travis-ci.org/ballerinalang/ballerina.svg?branch=master)](https://travis-ci.org/ballerinalang/ballerina)
 [![Version](https://img.shields.io/jetbrains/plugin/v/9520-ballerina.svg)](https://plugins.jetbrains.com/plugin/9520-ballerina)
 [![Downloads](https://img.shields.io/jetbrains/plugin/d/9520-ballerina.svg)](https://plugins.jetbrains.com/plugin/9520-ballerina)
 
