@@ -11,7 +11,7 @@ options {
 compilationUnit
     :   packageDeclaration?
         (importDeclaration | namespaceDeclaration)*
-        (annotationAttachment* definition)*
+        (annotationAttachment* documentationAttachment? definition)*
         EOF
     ;
 
@@ -52,7 +52,7 @@ serviceBody
     ;
 
 resourceDefinition
-    :   annotationAttachment* RESOURCE Identifier LEFT_PARENTHESIS parameterList RIGHT_PARENTHESIS callableUnitBody
+    :   annotationAttachment* documentationAttachment? RESOURCE Identifier LEFT_PARENTHESIS parameterList RIGHT_PARENTHESIS callableUnitBody
     ;
 
 callableUnitBody
@@ -83,8 +83,8 @@ connectorBody
     ;
 
 actionDefinition
-    :   annotationAttachment* NATIVE ACTION  callableUnitSignature SEMICOLON
-    |   annotationAttachment* ACTION callableUnitSignature callableUnitBody
+    :   annotationAttachment* documentationAttachment? NATIVE ACTION  callableUnitSignature SEMICOLON
+    |   annotationAttachment* documentationAttachment? ACTION callableUnitSignature callableUnitBody
     ;
 
 structDefinition
@@ -613,6 +613,7 @@ stringTemplateContent
     |   StringTemplateText
     ;
 
+
 anyIdentifierName
     : Identifier
     | reservedWord
@@ -621,4 +622,31 @@ anyIdentifierName
 reservedWord
     :   FOREACH
     |   TYPE_MAP
+
+// Documentation parsing.
+
+documentationAttachment
+    :   DocumentationTemplateStart documentationTemplateContent DocumentationTemplateEnd
+    ;
+
+documentationTemplateContent
+    :   docText? documentationTemplateAttributeDescription+
+    |   docText
+    ;
+
+documentationTemplateAttributeDescription
+    :   DocumentationTemplateAttributeStart DocumentationTemplateAttributeEnd docText?
+    ;
+
+docText
+    :   documentationTemplateInlineCode (documentationTemplateText | documentationTemplateInlineCode)*
+    |   documentationTemplateText  (documentationTemplateText | documentationTemplateInlineCode)*
+    ;
+
+documentationTemplateInlineCode
+    :   DocumentationInlineCodeStart InlineCode? DocumentationInlineCodeEnd
+    ;
+
+documentationTemplateText
+    :   DocumentationTemplateStringChar+
     ;

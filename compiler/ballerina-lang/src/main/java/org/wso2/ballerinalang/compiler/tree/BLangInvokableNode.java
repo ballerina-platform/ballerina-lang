@@ -19,6 +19,7 @@ package org.wso2.ballerinalang.compiler.tree;
 
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.tree.AnnotationAttachmentNode;
+import org.ballerinalang.model.tree.DocumentationNode;
 import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.tree.InvokableNode;
 import org.ballerinalang.model.tree.VariableNode;
@@ -44,6 +45,7 @@ public abstract class BLangInvokableNode extends BLangNode implements InvokableN
     public BLangBlockStmt body;
     public Set<Flag> flagSet;
     public List<BLangAnnotationAttachment> annAttachments;
+    public List<BLangDocumentation> docAttachments;
     public List<BLangWorker> workers;
 
     public BInvokableSymbol symbol;
@@ -54,6 +56,7 @@ public abstract class BLangInvokableNode extends BLangNode implements InvokableN
         this.annAttachments = new ArrayList<>();
         this.flagSet = EnumSet.noneOf(Flag.class);
         this.workers = new ArrayList<>();
+        this.docAttachments = new ArrayList<>();
     }
 
     @Override
@@ -114,6 +117,16 @@ public abstract class BLangInvokableNode extends BLangNode implements InvokableN
     @Override
     public void addAnnotationAttachment(AnnotationAttachmentNode annAttachment) {
         this.getAnnotationAttachments().add((BLangAnnotationAttachment) annAttachment);
+    }
+
+    @Override
+    public List<BLangDocumentation> getDocumentationAttachments() {
+        return docAttachments;
+    }
+
+    @Override
+    public void addDocumentationAttachment(DocumentationNode docAttachment) {
+        this.docAttachments.add((BLangDocumentation) docAttachment);
     }
 
     @Override

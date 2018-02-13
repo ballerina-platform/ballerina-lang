@@ -71,6 +71,8 @@ BIND        : 'bind' ;
 IN          : 'in' ;
 LOCK        : 'lock' ;
 
+DOCUMENTATION  : 'documentation';
+
 // Separators
 
 SEMICOLON           : ';' ;
@@ -361,6 +363,11 @@ NullLiteral
     :   'null'
     ;
 
+// This is place before the Identifier lexer rule to break the tie case.
+DocumentationTemplateAttributeEnd
+    :   {inTemplate}? Identifier               ->  popMode
+    ;
+
 Identifier
     :   ( Letter LetterOrDigit* )
     |   IdentifierLiteral
@@ -390,6 +397,10 @@ XMLLiteralStart
 
 StringTemplateLiteralStart
     :   TYPE_STRING WS* BACKTICK   { inTemplate = true; } -> pushMode(STRING_TEMPLATE)
+    ;
+
+DocumentationTemplateStart
+    :   DOCUMENTATION WS* LEFT_BRACE   { inTemplate = true; } -> pushMode(DOCUMENTATION_TEMPLATE)
     ;
 
 ExpressionEnd
@@ -685,6 +696,73 @@ XMLCommentSpecialSequence
     :   '>'+
     |   ('>'* '-' '>'+)+
     |   '-'? '>'* '-'+
+    ;
+
+mode DOCUMENTATION_TEMPLATE;
+
+DocumentationTemplateEnd
+    :   RIGHT_BRACE { inTemplate = false; }                                    -> popMode
+    ;
+
+DocumentationTemplateAttributeStart
+    :  DocNewLine DocSpace? DocSpace? DocSpace? DocSub WS DocHash              -> pushMode(DEFAULT_MODE)
+    ;
+
+DocumentationInlineCodeStart
+    :  DocBackTick                                                             -> pushMode(DOCUMENTATION_INLINE_CODE)
+    ;
+
+DocumentationTemplateStringChar
+    :   ~[{}\\`]
+    |   '\\' [{}`]
+    |   WS
+    |   DocumentationLiteralEscapedSequence
+    ;
+
+fragment
+DocBackTick
+    :   '`'
+    ;
+
+fragment
+DocHash
+    :   '#'
+    ;
+
+fragment
+DocSpace
+    :   ' '
+    ;
+
+fragment
+DocSub
+    :  SUB
+    ;
+
+fragment
+DocNewLine
+    :  [\r\n\u000C]
+    ;
+
+fragment
+DocumentationLiteralEscapedSequence
+    :   '\\\\'
+    ;
+
+mode DOCUMENTATION_INLINE_CODE;
+
+DocumentationInlineCodeEnd
+    : BACKTICK                               -> popMode
+    ;
+
+InlineCode
+    : InlineCodeChar+
+    ;
+
+fragment
+InlineCodeChar
+    :  ~ [`]
+    |  '\\' [`]
     ;
 
 mode STRING_TEMPLATE;

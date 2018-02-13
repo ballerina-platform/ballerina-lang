@@ -21,6 +21,7 @@ import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.tree.AnnotationAttachmentNode;
 import org.ballerinalang.model.tree.AnnotationAttributeNode;
 import org.ballerinalang.model.tree.AnnotationNode;
+import org.ballerinalang.model.tree.DocumentationNode;
 import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.tree.NodeKind;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
@@ -38,6 +39,7 @@ public class BLangAnnotation extends BLangNode implements AnnotationNode {
     public List<BLangAnnotAttribute> attributes;
     public Set<Flag> flagSet;
     public List<BLangAnnotationAttachment> annAttachments;
+    public List<BLangDocumentation> docAttachments;
     public BSymbol symbol;
     public List<BLangAnnotationAttachmentPoint> attachmentPoints;
 
@@ -46,6 +48,7 @@ public class BLangAnnotation extends BLangNode implements AnnotationNode {
         this.flagSet = EnumSet.noneOf(Flag.class);
         this.annAttachments = new ArrayList<>();
         this.attachmentPoints = new ArrayList<>();
+        this.docAttachments = new ArrayList<>();
     }
 
     public void addAttachmentPoint(BLangAnnotationAttachmentPoint attachmentPoint) {
@@ -94,6 +97,16 @@ public class BLangAnnotation extends BLangNode implements AnnotationNode {
     @Override
     public void addAnnotationAttachment(AnnotationAttachmentNode annAttachment) {
         this.annAttachments.add((BLangAnnotationAttachment) annAttachment);
+    }
+
+    @Override
+    public List<BLangDocumentation> getDocumentationAttachments() {
+        return docAttachments;
+    }
+
+    @Override
+    public void addDocumentationAttachment(DocumentationNode docAttachment) {
+        this.docAttachments.add((BLangDocumentation) docAttachment);
     }
 
     @Override

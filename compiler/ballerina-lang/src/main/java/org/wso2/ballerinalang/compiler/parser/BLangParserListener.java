@@ -192,8 +192,10 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         if (ctx.exception != null) {
             return;
         }
+
+        boolean docExists = ctx.documentationAttachment() != null;
         this.pkgBuilder.endResourceDef(getCurrentPos(ctx), getWS(ctx),
-                ctx.Identifier().getText(), ctx.annotationAttachment().size());
+                ctx.Identifier().getText(), ctx.annotationAttachment().size(), docExists);
     }
 
     /**
@@ -360,8 +362,10 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
         boolean nativeAction = ctx.NATIVE() != null;
         boolean bodyExists = ctx.callableUnitBody() != null;
+        boolean docExists = ctx.documentationAttachment() != null;
         this.pkgBuilder.endActionDef(
-                getCurrentPos(ctx), getWS(ctx), ctx.annotationAttachment().size(), nativeAction, bodyExists);
+                getCurrentPos(ctx), getWS(ctx), ctx.annotationAttachment().size(),
+                nativeAction, bodyExists, docExists);
     }
 
     /**
@@ -2032,6 +2036,85 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         }
 
         this.pkgBuilder.createStringTemplateLiteral(getCurrentPos(ctx), getWS(ctx), stringFragments, endingText);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void enterStringTemplateContent(BallerinaParser.StringTemplateContentContext ctx) {
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void exitStringTemplateContent(BallerinaParser.StringTemplateContentContext ctx) {
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void enterEveryRule(ParserRuleContext ctx) {
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void exitEveryRule(ParserRuleContext ctx) {
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void visitTerminal(TerminalNode node) {
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void visitErrorNode(ErrorNode node) {
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void enterDocumentationAttachment(BallerinaParser.DocumentationAttachmentContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+        this.pkgBuilder.startDocumentationAttachment(getCurrentPos(ctx));
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void exitDocumentationTemplateContent(BallerinaParser.DocumentationTemplateContentContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+        String contentText = ctx.docText() != null ? ctx.docText().getText() : null;
+        this.pkgBuilder.setDocumentationAttachmentContent(getCurrentPos(ctx), getWS(ctx), contentText);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void exitDocumentationTemplateAttributeDescription
+    (BallerinaParser.DocumentationTemplateAttributeDescriptionContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+        String attributeName = ctx.DocumentationTemplateAttributeEnd().getText();
+        String endText = ctx.docText() != null ? ctx.docText().getText().trim() : null;
+        this.pkgBuilder.createDocumentationAttribute(getCurrentPos(ctx), getWS(ctx), attributeName, endText);
     }
 
     private DiagnosticPos getCurrentPos(ParserRuleContext ctx) {

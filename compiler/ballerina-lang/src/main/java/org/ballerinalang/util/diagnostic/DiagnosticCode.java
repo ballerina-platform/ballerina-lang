@@ -137,6 +137,10 @@ public enum DiagnosticCode {
     ATTRIBUTE_VAL_CANNOT_REFER_NON_CONST("annotation.attribute.value.cannot.refer.non.constant"),
     INCOMPATIBLE_TYPES_ARRAY_FOUND("incompatible.types.array.found"),
 
+    NO_SUCH_DOCUMENTABLE_ATTRIBUTE("no.such.documentable.attribute"),
+    DUPLICATE_DOCUMENTED_ATTRIBUTE("duplicate.documented.attribute"),
+    ATTRIBUTE_NOT_ALLOWED_DOCUMENTATION("attribute.not.allowed.documentation"),
+
     // Error codes related to iteration.
     ITERABLE_NOT_SUPPORTED_COLLECTION("iterable.not.supported.collection"),
     ITERABLE_NOT_SUPPORTED_OPERATION("iterable.not.supported.operation"),

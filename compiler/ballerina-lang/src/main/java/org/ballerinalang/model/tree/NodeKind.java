@@ -23,6 +23,7 @@ package org.ballerinalang.model.tree;
 public enum NodeKind {
 
     ACTION,
+    DOCUMENTATION,
     ANNOTATION,
     ANNOTATION_ATTACHMENT,
     ANNOTATION_ATTRIBUTE,
@@ -46,6 +47,7 @@ public enum NodeKind {
     TRANSFORMER,
 
     /* Expressions */
+    DOCUMENTATION_ATTRIBUTE,
     ANNOTATION_ATTACHMENT_ATTRIBUTE,
     ANNOTATION_ATTACHMENT_ATTRIBUTE_VALUE,
     ARRAY_LITERAL_EXPR,

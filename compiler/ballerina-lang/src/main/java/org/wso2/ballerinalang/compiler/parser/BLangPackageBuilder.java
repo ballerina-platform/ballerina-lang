@@ -28,6 +28,8 @@ import org.ballerinalang.model.tree.AnnotationAttachmentNode;
 import org.ballerinalang.model.tree.AnnotationNode;
 import org.ballerinalang.model.tree.CompilationUnitNode;
 import org.ballerinalang.model.tree.ConnectorNode;
+import org.ballerinalang.model.tree.DocumentableNode;
+import org.ballerinalang.model.tree.DocumentationNode;
 import org.ballerinalang.model.tree.EnumNode;
 import org.ballerinalang.model.tree.FunctionNode;
 import org.ballerinalang.model.tree.IdentifierNode;
@@ -58,6 +60,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachmentPoint;
 import org.wso2.ballerinalang.compiler.tree.BLangConnector;
+import org.wso2.ballerinalang.compiler.tree.BLangDocumentation;
 import org.wso2.ballerinalang.compiler.tree.BLangEnum;
 import org.wso2.ballerinalang.compiler.tree.BLangEnum.BLangEnumerator;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
@@ -77,6 +80,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAttachmentAttr
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrayLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConnectorInit;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangDocumentationAttribute;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
@@ -198,6 +202,8 @@ public class BLangPackageBuilder {
     private Stack<AnnotationNode> annotationStack = new Stack<>();
 
     private Stack<AnnotationAttachmentAttributeValueNode> annotAttribValStack = new Stack<>();
+
+    private Stack<DocumentationNode> docAttachmentStack = new Stack<>();
 
     private Stack<AnnotationAttachmentNode> annotAttachmentStack = new Stack<>();
 
@@ -386,6 +392,7 @@ public class BLangPackageBuilder {
     public void startFunctionDef() {
         FunctionNode functionNode = TreeBuilder.createFunctionNode();
         attachAnnotations(functionNode);
+        attachDocumentations(functionNode);
         this.invokableNodeStack.push(functionNode);
     }
 
@@ -1003,12 +1010,14 @@ public class BLangPackageBuilder {
             var.flagSet.add(Flag.PUBLIC);
         }
         attachAnnotations(var);
+        attachDocumentations(var);
         this.compUnit.addTopLevelNode(var);
     }
 
     public void startStructDef() {
         StructNode structNode = TreeBuilder.createStructNode();
         attachAnnotations(structNode);
+        attachDocumentations(structNode);
         this.structStack.add(structNode);
     }
 
@@ -1026,6 +1035,7 @@ public class BLangPackageBuilder {
         BLangEnum bLangEnum = (BLangEnum) TreeBuilder.createEnumNode();
         bLangEnum.pos = pos;
         attachAnnotations(bLangEnum);
+        attachDocumentations(bLangEnum);
         this.enumStack.add(bLangEnum);
     }
 
@@ -1053,6 +1063,7 @@ public class BLangPackageBuilder {
     public void startConnectorDef() {
         ConnectorNode connectorNode = TreeBuilder.createConnectorNode();
         attachAnnotations(connectorNode);
+        attachDocumentations(connectorNode);
         this.connectorNodeStack.push(connectorNode);
     }
 
@@ -1095,7 +1106,8 @@ public class BLangPackageBuilder {
     }
 
     public void endActionDef(DiagnosticPos pos,
-                             Set<Whitespace> ws, int annotCount, boolean nativeAction, boolean bodyExists) {
+                             Set<Whitespace> ws, int annotCount,
+                             boolean nativeAction, boolean bodyExists, boolean docExists) {
         BLangAction actionNode = (BLangAction) this.invokableNodeStack.pop();
         actionNode.pos = pos;
         actionNode.addWS(ws);
@@ -1105,6 +1117,10 @@ public class BLangPackageBuilder {
 
         if (!bodyExists) {
             actionNode.body = null;
+        }
+
+        if (docExists) {
+            attachDocumentations(actionNode);
         }
 
         attachAnnotations(actionNode, annotCount);
@@ -1130,6 +1146,7 @@ public class BLangPackageBuilder {
         BLangAnnotation annotNode = (BLangAnnotation) TreeBuilder.createAnnotationNode();
         annotNode.pos = pos;
         attachAnnotations(annotNode);
+        attachDocumentations(annotNode);
         this.annotationStack.add(annotNode);
     }
 
@@ -1159,6 +1176,42 @@ public class BLangPackageBuilder {
             ((BLangAnnotation) annotationNode).attachmentPoints.add(attachmentPointStack.pop());
         }
         this.compUnit.addTopLevelNode(annotationNode);
+    }
+
+    public void startDocumentationAttachment(DiagnosticPos currentPos) {
+        BLangDocumentation docAttachmentNode =
+                (BLangDocumentation) TreeBuilder.createDocumentationNode();
+        docAttachmentNode.pos = currentPos;
+        docAttachmentStack.push(docAttachmentNode);
+    }
+
+    public void setDocumentationAttachmentContent(DiagnosticPos pos,
+                                                  Set<Whitespace> ws,
+                                                  String contentText) {
+        DocumentationNode  docAttachmentNode = docAttachmentStack.peek();
+        docAttachmentNode.addWS(ws);
+
+        contentText = contentText == null ? "" : StringEscapeUtils.unescapeJava(contentText);
+        addLiteralValue(pos, ws, TypeTags.STRING, contentText);
+        docAttachmentNode.setDocumentationText(exprNodeStack.pop());
+
+    }
+
+    public void createDocumentationAttribute(DiagnosticPos pos,
+                                             Set<Whitespace> ws,
+                                             String attributeName,
+                                             String endText) {
+        BLangDocumentationAttribute attrib =
+                (BLangDocumentationAttribute) TreeBuilder.createDocumentationAttributeNode();
+        attrib.documentationField = (BLangIdentifier) createIdentifier(attributeName);
+
+        endText = endText == null ? "" : endText;
+        addLiteralValue(pos, ws, TypeTags.STRING, endText);
+        attrib.documentationText = (BLangExpression) exprNodeStack.pop();
+
+        attrib.pos = pos;
+        attrib.addWS(ws);
+        docAttachmentStack.peek().addAttribute(attrib);
     }
 
     public void startAnnotationAttachment(DiagnosticPos currentPos) {
@@ -1237,6 +1290,12 @@ public class BLangPackageBuilder {
     private void attachAnnotations(AnnotatableNode annotatableNode) {
         annotAttachmentStack.forEach(annot -> annotatableNode.addAnnotationAttachment(annot));
         annotAttachmentStack.clear();
+    }
+
+    private void attachDocumentations(DocumentableNode documentableNode) {
+        if (!docAttachmentStack.empty()) {
+            documentableNode.addDocumentationAttachment(docAttachmentStack.pop());
+        }
     }
 
     private void attachAnnotations(AnnotatableNode annotatableNode, int count) {
@@ -1490,6 +1549,7 @@ public class BLangPackageBuilder {
         BLangService serviceNode = (BLangService) TreeBuilder.createServiceNode();
         serviceNode.pos = pos;
         attachAnnotations(serviceNode);
+        attachDocumentations(serviceNode);
         serviceNodeStack.push(serviceNode);
     }
 
@@ -1514,12 +1574,16 @@ public class BLangPackageBuilder {
         invokableNodeStack.push(resourceNode);
     }
 
-    public void endResourceDef(DiagnosticPos pos, Set<Whitespace> ws, String resourceName, int annotCount) {
+    public void endResourceDef(DiagnosticPos pos, Set<Whitespace> ws,
+                               String resourceName, int annotCount, boolean docExists) {
         BLangResource resourceNode = (BLangResource) invokableNodeStack.pop();
         resourceNode.pos = pos;
         resourceNode.addWS(ws);
         resourceNode.setName(createIdentifier(resourceName));
         attachAnnotations(resourceNode, annotCount);
+        if (docExists) {
+            attachDocumentations(resourceNode);
+        }
         varListStack.pop().forEach(resourceNode::addParameter);
         serviceNodeStack.peek().addResource(resourceNode);
     }
@@ -1692,6 +1756,7 @@ public class BLangPackageBuilder {
     public void startTransformerDef() {
         TransformerNode transformerNode = TreeBuilder.createTransformerNode();
         attachAnnotations(transformerNode);
+        attachDocumentations(transformerNode);
         this.invokableNodeStack.push(transformerNode);
     }
 

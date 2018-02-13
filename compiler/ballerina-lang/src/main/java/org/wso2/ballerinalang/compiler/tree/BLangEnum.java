@@ -21,6 +21,7 @@ package org.wso2.ballerinalang.compiler.tree;
 
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.tree.AnnotationAttachmentNode;
+import org.ballerinalang.model.tree.DocumentationNode;
 import org.ballerinalang.model.tree.EnumNode;
 import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.tree.NodeKind;
@@ -40,6 +41,7 @@ public class BLangEnum extends BLangNode implements EnumNode {
     public BLangIdentifier name;
     public Set<Flag> flagSet;
     public List<BLangAnnotationAttachment> annAttachments;
+    public List<BLangDocumentation> docAttachments;
     public List<BLangEnumerator> enumerators;
     public BSymbol symbol;
 
@@ -47,6 +49,7 @@ public class BLangEnum extends BLangNode implements EnumNode {
         this.enumerators = new ArrayList<>();
         this.flagSet = EnumSet.noneOf(Flag.class);
         this.annAttachments = new ArrayList<>();
+        this.docAttachments = new ArrayList<>();
     }
 
     @Override
@@ -100,6 +103,16 @@ public class BLangEnum extends BLangNode implements EnumNode {
     @Override
     public void addAnnotationAttachment(AnnotationAttachmentNode annAttachement) {
         this.getAnnotationAttachments().add((BLangAnnotationAttachment) annAttachement);
+    }
+
+    @Override
+    public List<BLangDocumentation> getDocumentationAttachments() {
+        return docAttachments;
+    }
+
+    @Override
+    public void addDocumentationAttachment(DocumentationNode docAttachment) {
+        this.docAttachments.add((BLangDocumentation) docAttachment);
     }
 
     /**
