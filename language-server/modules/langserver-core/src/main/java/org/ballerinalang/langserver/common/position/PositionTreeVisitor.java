@@ -1,4 +1,4 @@
-/*
+/**
  * Copyright (c) 2018, WSO2 Inc. (http://wso2.com) All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -163,7 +163,7 @@ public class PositionTreeVisitor extends BLangNodeVisitor {
         }
 
         previousNode = funcNode;
-        this.nodeStack.push(funcNode);
+        this.addToNodeStack(funcNode);
 
         if (!funcNode.params.isEmpty()) {
             funcNode.params.forEach(this::acceptNode);
@@ -198,6 +198,9 @@ public class PositionTreeVisitor extends BLangNodeVisitor {
             this.context.put(NodeContextKeys.PACKAGE_OF_NODE_KEY, userDefinedType.type.tsymbol.pkgID);
             this.context.put(NodeContextKeys.SYMBOL_KIND_OF_NODE_PARENT_KEY, userDefinedType.type.tsymbol.kind.name());
             this.context.put(NodeContextKeys.SYMBOL_KIND_OF_NODE_KEY, userDefinedType.type.tsymbol.kind.name());
+            this.context.put(NodeContextKeys.NODE_OWNER_KEY, userDefinedType.type.tsymbol.owner.name.getValue());
+            this.context.put(NodeContextKeys.NODE_OWNER_PACKAGE_KEY,
+                    userDefinedType.type.tsymbol.owner.pkgID);
             terminateVisitor = true;
         }
     }
@@ -248,6 +251,8 @@ public class PositionTreeVisitor extends BLangNodeVisitor {
             this.context.put(NodeContextKeys.SYMBOL_KIND_OF_NODE_KEY, ContextConstants.VARIABLE);
             if (varRefExpr.symbol != null) {
                 this.context.put(NodeContextKeys.NODE_OWNER_KEY, varRefExpr.symbol.owner.name.getValue());
+                this.context.put(NodeContextKeys.NODE_OWNER_PACKAGE_KEY,
+                        varRefExpr.symbol.owner.pkgID);
                 this.context.put(NodeContextKeys.VAR_NAME_OF_NODE_KEY, varRefExpr.variableName.getValue());
             }
             terminateVisitor = true;
@@ -263,6 +268,8 @@ public class PositionTreeVisitor extends BLangNodeVisitor {
             this.context.put(NodeContextKeys.SYMBOL_KIND_OF_NODE_KEY, ContextConstants.VARIABLE);
             if (varRefExpr.symbol != null) {
                 this.context.put(NodeContextKeys.NODE_OWNER_KEY, varRefExpr.symbol.owner.name.getValue());
+                this.context.put(NodeContextKeys.NODE_OWNER_PACKAGE_KEY,
+                        varRefExpr.symbol.owner.pkgID);
                 this.context.put(NodeContextKeys.VAR_NAME_OF_NODE_KEY, varRefExpr.variableName.getValue());
                 this.context.put(NodeContextKeys.SYMBOL_KIND_OF_NODE_KEY, ContextConstants.VARIABLE);
             } else {
@@ -279,6 +286,8 @@ public class PositionTreeVisitor extends BLangNodeVisitor {
             this.context.put(NodeContextKeys.SYMBOL_KIND_OF_NODE_KEY, ContextConstants.VARIABLE);
             if (varRefExpr.symbol != null) {
                 this.context.put(NodeContextKeys.NODE_OWNER_KEY, varRefExpr.symbol.owner.name.getValue());
+                this.context.put(NodeContextKeys.NODE_OWNER_PACKAGE_KEY,
+                        varRefExpr.symbol.owner.pkgID);
                 this.context.put(NodeContextKeys.VAR_NAME_OF_NODE_KEY, varRefExpr.variableName.getValue());
             }
             terminateVisitor = true;
@@ -361,7 +370,7 @@ public class PositionTreeVisitor extends BLangNodeVisitor {
 
     public void visit(BLangStruct structNode) {
         previousNode = structNode;
-        this.nodeStack.push(structNode);
+        this.addToNodeStack(structNode);
 
         if (!structNode.fields.isEmpty()) {
             structNode.fields.forEach(this::acceptNode);
@@ -380,7 +389,7 @@ public class PositionTreeVisitor extends BLangNodeVisitor {
 
     public void visit(BLangTransformer transformerNode) {
         previousNode = transformerNode;
-        this.nodeStack.push(transformerNode);
+        this.addToNodeStack(transformerNode);
 
         if (transformerNode.source != null) {
             acceptNode(transformerNode.source);
@@ -405,7 +414,7 @@ public class PositionTreeVisitor extends BLangNodeVisitor {
 
     public void visit(BLangConnector connectorNode) {
         previousNode = connectorNode;
-        this.nodeStack.push(connectorNode);
+        this.addToNodeStack(connectorNode);
 
         if (!connectorNode.params.isEmpty()) {
             connectorNode.params.forEach(this::acceptNode);
@@ -422,7 +431,7 @@ public class PositionTreeVisitor extends BLangNodeVisitor {
 
     public void visit(BLangAction actionNode) {
         previousNode = actionNode;
-        this.nodeStack.push(actionNode);
+        this.addToNodeStack(actionNode);
 
         if (!actionNode.params.isEmpty()) {
             actionNode.params.forEach(this::acceptNode);
@@ -443,7 +452,7 @@ public class PositionTreeVisitor extends BLangNodeVisitor {
 
     public void visit(BLangService serviceNode) {
         previousNode = serviceNode;
-        this.nodeStack.push(serviceNode);
+        this.addToNodeStack(serviceNode);
 
         if (!serviceNode.resources.isEmpty()) {
             serviceNode.resources.forEach(this::acceptNode);
@@ -456,7 +465,7 @@ public class PositionTreeVisitor extends BLangNodeVisitor {
 
     public void visit(BLangResource resourceNode) {
         previousNode = resourceNode;
-        this.nodeStack.push(resourceNode);
+        this.addToNodeStack(resourceNode);
 
         if (!resourceNode.params.isEmpty()) {
             resourceNode.params.forEach(this::acceptNode);
@@ -614,6 +623,9 @@ public class PositionTreeVisitor extends BLangNodeVisitor {
             this.context.put(NodeContextKeys.PACKAGE_OF_NODE_KEY, invocationExpr.symbol.pkgID);
             this.context.put(NodeContextKeys.SYMBOL_KIND_OF_NODE_PARENT_KEY, invocationExpr.symbol.kind.name());
             this.context.put(NodeContextKeys.SYMBOL_KIND_OF_NODE_KEY, invocationExpr.symbol.kind.name());
+            this.context.put(NodeContextKeys.NODE_OWNER_KEY, invocationExpr.symbol.owner.name.getValue());
+            this.context.put(NodeContextKeys.NODE_OWNER_PACKAGE_KEY,
+                    invocationExpr.symbol.owner.pkgID);
             this.terminateVisitor = true;
         }
     }
@@ -913,5 +925,19 @@ public class PositionTreeVisitor extends BLangNodeVisitor {
             return;
         }
         node.accept(this);
+    }
+
+    /**
+     * Add node in to a stack to track the visited nodes.
+     *
+     * @param node BLangNode to be added to the stack
+     * */
+    private void addToNodeStack(BLangNode node) {
+        if (!terminateVisitor) {
+            if (!this.nodeStack.empty()) {
+                this.nodeStack.pop();
+            }
+            this.nodeStack.push(node);
+        }
     }
 }
