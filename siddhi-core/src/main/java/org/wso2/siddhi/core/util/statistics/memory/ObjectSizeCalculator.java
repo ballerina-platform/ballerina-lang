@@ -18,12 +18,12 @@
 
 package org.wso2.siddhi.core.util.statistics.memory;
 
-import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Preconditions;
-import com.google.common.cache.CacheBuilder;
-import com.google.common.cache.CacheLoader;
-import com.google.common.cache.LoadingCache;
-import com.google.common.collect.Sets;
+import org.wso2.siddhi.core.guava.annotations.VisibleForTesting;
+import org.wso2.siddhi.core.guava.base.Preconditions;
+import org.wso2.siddhi.core.guava.cache.CacheBuilder;
+import org.wso2.siddhi.core.guava.cache.CacheLoader;
+import org.wso2.siddhi.core.guava.cache.LoadingCache;
+import org.wso2.siddhi.core.guava.collect.Sets;
 import org.apache.log4j.Logger;
 import org.wso2.siddhi.core.config.SiddhiAppContext;
 import org.wso2.siddhi.core.query.output.callback.OutputCallback;
