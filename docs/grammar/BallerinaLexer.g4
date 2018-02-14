@@ -2,6 +2,7 @@ lexer grammar BallerinaLexer;
 
 @members {
     boolean inTemplate = false;
+    boolean inDocTemplate = false;
 }
 
 // Reserved words
@@ -365,7 +366,7 @@ NullLiteral
 
 // This is place before the Identifier lexer rule to break the tie case.
 DocumentationTemplateAttributeEnd
-    :   {inTemplate}? Identifier               ->  popMode
+    :   {inDocTemplate}? Identifier               ->  popMode
     ;
 
 Identifier
@@ -400,7 +401,7 @@ StringTemplateLiteralStart
     ;
 
 DocumentationTemplateStart
-    :   DOCUMENTATION WS* LEFT_BRACE   { inTemplate = true; } -> pushMode(DOCUMENTATION_TEMPLATE)
+    :   DOCUMENTATION WS* LEFT_BRACE   { inDocTemplate = true; } -> pushMode(DOCUMENTATION_TEMPLATE)
     ;
 
 ExpressionEnd
@@ -701,11 +702,11 @@ XMLCommentSpecialSequence
 mode DOCUMENTATION_TEMPLATE;
 
 DocumentationTemplateEnd
-    :   RIGHT_BRACE { inTemplate = false; }                                    -> popMode
+    :   RIGHT_BRACE { inDocTemplate = false; }                                 -> popMode
     ;
 
 DocumentationTemplateAttributeStart
-    :  DocNewLine WS? DocSub WS DocHash              -> pushMode(DEFAULT_MODE)
+    :  DocNewLine WS? DocSub WS DocHash                                        -> pushMode(DEFAULT_MODE)
     ;
 
 DocumentationInlineCodeStart

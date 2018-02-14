@@ -193,6 +193,7 @@ public class BallerinaLexer extends Lexer {
 
 
 	    boolean inTemplate = false;
+	    boolean inDocTemplate = false;
 
 
 	public BallerinaLexer(CharStream input) {
@@ -255,7 +256,7 @@ public class BallerinaLexer extends Lexer {
 	private void DocumentationTemplateStart_action(RuleContext _localctx, int actionIndex) {
 		switch (actionIndex) {
 		case 2:
-			 inTemplate = true; 
+			 inDocTemplate = true; 
 			break;
 		}
 	}
@@ -269,7 +270,7 @@ public class BallerinaLexer extends Lexer {
 	private void DocumentationTemplateEnd_action(RuleContext _localctx, int actionIndex) {
 		switch (actionIndex) {
 		case 4:
-			 inTemplate = false; 
+			 inDocTemplate = false; 
 			break;
 		}
 	}
@@ -293,7 +294,7 @@ public class BallerinaLexer extends Lexer {
 	private boolean DocumentationTemplateAttributeEnd_sempred(RuleContext _localctx, int predIndex) {
 		switch (predIndex) {
 		case 0:
-			return inTemplate;
+			return inDocTemplate;
 		}
 		return true;
 	}
