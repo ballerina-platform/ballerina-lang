@@ -61,7 +61,7 @@ import static org.ballerinalang.mime.util.Constants.BYTE_DATA_INDEX;
 import static org.ballerinalang.mime.util.Constants.CONTENT_TYPE;
 import static org.ballerinalang.mime.util.Constants.ENTITY_HEADERS_INDEX;
 import static org.ballerinalang.mime.util.Constants.FILE;
-import static org.ballerinalang.mime.util.Constants.IS_ENTITY_BODY_PRESENT;
+import static org.ballerinalang.mime.util.Constants.IS_BODY_BYTE_CHANNEL_ALREADY_SET;
 import static org.ballerinalang.mime.util.Constants.JSON_DATA_INDEX;
 import static org.ballerinalang.mime.util.Constants.MEDIA_TYPE;
 import static org.ballerinalang.mime.util.Constants.MESSAGE_ENTITY;
@@ -135,7 +135,7 @@ public class OutRequestNativeFunctionSuccessTest {
         MimeUtil.setContentType(mediaType, entity, OCTET_STREAM);
         entity.setBlobField(BYTE_DATA_INDEX, payload.getBytes());
         outRequest.addNativeData(MESSAGE_ENTITY, entity);
-        outRequest.addNativeData(IS_ENTITY_BODY_PRESENT, true);
+        outRequest.addNativeData(IS_BODY_BYTE_CHANNEL_ALREADY_SET, true);
 
         HttpUtil.addCarbonMsg(outRequest, outRequestMsg);
         BValue[] inputArg = {outRequest};
@@ -234,7 +234,7 @@ public class OutRequestNativeFunctionSuccessTest {
         MimeUtil.setContentType(mediaType, entity, APPLICATION_JSON);
         entity.setRefField(JSON_DATA_INDEX, new BJSON(payload));
         outRequest.addNativeData(MESSAGE_ENTITY, entity);
-        outRequest.addNativeData(IS_ENTITY_BODY_PRESENT, true);
+        outRequest.addNativeData(IS_BODY_BYTE_CHANNEL_ALREADY_SET, true);
 
         BValue[] inputArg = {outRequest};
         BValue[] returnVals = BRunUtil.invoke(result, "testGetJsonPayload", inputArg);
@@ -292,7 +292,7 @@ public class OutRequestNativeFunctionSuccessTest {
         MimeUtil.setContentType(mediaType, entity, TEXT_PLAIN);
         entity.setStringField(TEXT_DATA_INDEX, payload);
         outRequest.addNativeData(MESSAGE_ENTITY, entity);
-        outRequest.addNativeData(IS_ENTITY_BODY_PRESENT, true);
+        outRequest.addNativeData(IS_BODY_BYTE_CHANNEL_ALREADY_SET, true);
 
         BValue[] inputArg = {outRequest};
         BValue[] returnVals = BRunUtil.invoke(result, "testGetStringPayload", inputArg);
@@ -322,7 +322,7 @@ public class OutRequestNativeFunctionSuccessTest {
         MimeUtil.setContentType(mediaType, entity, APPLICATION_XML);
         entity.setRefField(XML_DATA_INDEX, new BXMLItem(payload));
         outRequest.addNativeData(MESSAGE_ENTITY, entity);
-        outRequest.addNativeData(IS_ENTITY_BODY_PRESENT, true);
+        outRequest.addNativeData(IS_BODY_BYTE_CHANNEL_ALREADY_SET, true);
 
         BValue[] inputArg = {outRequest};
         BValue[] returnVals = BRunUtil.invoke(result, "testGetXmlPayload", inputArg);

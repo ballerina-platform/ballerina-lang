@@ -33,16 +33,25 @@ public struct Entity {
     MediaType contentType;
     string contentId;
     map headers;
-    string textData;
-    json jsonData;
-    xml xmlData;
-    blob byteData;
-    file:File overflowData;
+    io:ByteChannel byteChannel;
     Entity[] multipartData;
     int size;
     ContentDisposition contentDisposition;
 }
 
+//@Description {value:"Sets the entity body with a given file content"}
+//@Param {value:"fileContent: File containing the actual content"}
+//@Param {value:"contentType: Content-Type of the given data"}
+//public native function  <Entity entity> setFileAsEntityBody (file:File fileContent);
+
+@Description {value:"Sets the entity body with the given json content"}
+@Param {value:"jsonContent: Json content that needs to be set to entity"}
+public native function <Entity entity> setJson (json jsonContent);
+
+@Description {value:"Given an entity, get the json payload, either from the memory or from the file handler."}
+@Param {value:"entity: Represent mime Entity"}
+@Return {value:"return json data"}
+public native function <Entity entity> getJson() (json);
 
 @Description {value:"Represent values in Content-Disposition header"}
 @Field {value:"fileName: Default filename for storing the bodypart, if the receiving agent wishes to store it in an
@@ -58,78 +67,78 @@ public struct ContentDisposition {
     map parameters;
 }
 
-@Description {value:"Given an entity, get the text payload, either from the memory or from the file handler."}
-@Param {value:"entity: Represent mime Entity"}
-@Return {value:"return text data"}
-public function getText (Entity entity) (string) {
-    if (entity.textData != null && entity.textData != "") {
-        return entity.textData;
-    } else {
-        file:File overFlowData = entity.overflowData;
-        if (overFlowData != null) {
-            string encoding = getEncoding(entity.contentType);
-            io:ByteChannel channel = overFlowData.openChannel(READ_PERMISSION);
-            io:CharacterChannel characterChannel = channel.toCharacterChannel(encoding);
-            string characters = characterChannel.readAllCharacters();
-            return characters;
-        }
-        return null;
-    }
-}
-
-@Description {value:"Given an entity, get the json payload, either from the memory or from the file handler."}
-@Param {value:"entity: Represent mime Entity"}
-@Return {value:"return json data"}
-public function getJson (Entity entity) (json) {
-    if (entity.jsonData != null) {
-        return entity.jsonData;
-    } else {
-        file:File overFlowData = entity.overflowData;
-        if (overFlowData != null) {
-            string encoding = getEncoding(entity.contentType);
-            io:ByteChannel channel = overFlowData.openChannel(READ_PERMISSION);
-            blob bytes = readAll(channel);
-            string content = bytes.toString(encoding);
-            var jsonContent, _ = <json>content;
-            return jsonContent;
-        }
-        return null;
-    }
-}
-
-@Description {value:"Given an entity, get the xml payload, either from the memory or from the file handler."}
-@Param {value:"entity: Represent mime Entity"}
-@Return {value:"return xml data"}
-public function getXml (Entity entity) (xml) {
-    if (entity.xmlData != null) {
-        return entity.xmlData;
-    } else {
-        file:File overFlowData = entity.overflowData;
-        if (overFlowData != null) {
-            string encoding = getEncoding(entity.contentType);
-            io:ByteChannel channel = overFlowData.openChannel(READ_PERMISSION);
-            blob bytes = readAll(channel);
-            string content = bytes.toString(encoding);
-            var xmlContent, _ = <xml>content;
-            return xmlContent;
-        }
-        return null;
-    }
-}
-
-@Description {value:"Given an entity, get the content as a byte array, either from the memory or from the file
-handler."}
-@Param {value:"entity: Represent mime Entity"}
-@Return {value:"return byte array"}
-public function getBlob (Entity entity) (blob) {
-    file:File overFlowData = entity.overflowData;
-    if (overFlowData != null) {
-        io:ByteChannel channel = overFlowData.openChannel(READ_PERMISSION);
-        return readAll(channel);
-    } else {
-        return entity.byteData;
-    }
-}
+//@Description {value:"Given an entity, get the text payload, either from the memory or from the file handler."}
+//@Param {value:"entity: Represent mime Entity"}
+//@Return {value:"return text data"}
+//public function getText (Entity entity) (string) {
+//    if (entity.textData != null && entity.textData != "") {
+//        return entity.textData;
+//    } else {
+//        file:File overFlowData = entity.overflowData;
+//        if (overFlowData != null) {
+//            string encoding = getEncoding(entity.contentType);
+//            io:ByteChannel channel = overFlowData.openChannel(READ_PERMISSION);
+//            io:CharacterChannel characterChannel = channel.toCharacterChannel(encoding);
+//            string characters = characterChannel.readAllCharacters();
+//            return characters;
+//        }
+//        return null;
+//    }
+//}
+//
+////@Description {value:"Given an entity, get the json payload, either from the memory or from the file handler."}
+////@Param {value:"entity: Represent mime Entity"}
+////@Return {value:"return json data"}
+////public function getJson (Entity entity) (json) {
+////    if (entity.jsonData != null) {
+////        return entity.jsonData;
+////    } else {
+////        file:File overFlowData = entity.overflowData;
+////        if (overFlowData != null) {
+////            string encoding = getEncoding(entity.contentType);
+////            io:ByteChannel channel = overFlowData.openChannel(READ_PERMISSION);
+////            blob bytes = readAll(channel);
+////            string content = bytes.toString(encoding);
+////            var jsonContent, _ = <json>content;
+////            return jsonContent;
+////        }
+////        return null;
+////    }
+////}
+//
+//@Description {value:"Given an entity, get the xml payload, either from the memory or from the file handler."}
+//@Param {value:"entity: Represent mime Entity"}
+//@Return {value:"return xml data"}
+//public function getXml (Entity entity) (xml) {
+//    if (entity.xmlData != null) {
+//        return entity.xmlData;
+//    } else {
+//        file:File overFlowData = entity.overflowData;
+//        if (overFlowData != null) {
+//            string encoding = getEncoding(entity.contentType);
+//            io:ByteChannel channel = overFlowData.openChannel(READ_PERMISSION);
+//            blob bytes = readAll(channel);
+//            string content = bytes.toString(encoding);
+//            var xmlContent, _ = <xml>content;
+//            return xmlContent;
+//        }
+//        return null;
+//    }
+//}
+//
+//@Description {value:"Given an entity, get the content as a byte array, either from the memory or from the file
+//handler."}
+//@Param {value:"entity: Represent mime Entity"}
+//@Return {value:"return byte array"}
+//public function getBlob (Entity entity) (blob) {
+//    file:File overFlowData = entity.overflowData;
+//    if (overFlowData != null) {
+//        io:ByteChannel channel = overFlowData.openChannel(READ_PERMISSION);
+//        return readAll(channel);
+//    } else {
+//        return entity.byteData;
+//    }
+//}
 
 @Description {value:"Given the Content-Type in string, get the MediaType struct populated with it."}
 @Param {value:"contentType: Content-Type in string"}

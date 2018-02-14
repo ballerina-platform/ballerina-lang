@@ -29,6 +29,8 @@ public class Constants {
     public static final String CONTENT_DISPOSITION_STRUCT = "ContentDisposition";
     public static final String PROTOCOL_PACKAGE_MIME = "ballerina.mime";
     public static final String PROTOCOL_PACKAGE_FILE = "ballerina.file";
+    public static final String PROTOCOL_PACKAGE_IO ="ballerina.io";
+    public static final String BYTE_CHANNEL_STRUCT = "ByteChannel";
 
     /**
      * Content type HTTP header.
@@ -91,7 +93,8 @@ public class Constants {
     public static final String SUFFIX_ATTACHMENT = "+";
 
     public static final String MESSAGE_ENTITY = "message_entity";
-    public static final String IS_ENTITY_BODY_PRESENT = "is_entity_body_present";
+    public static final String MESSAGE_DATA_SOURCE = "message_datasource";
+    public static final String IS_BODY_BYTE_CHANNEL_ALREADY_SET = "is_byte_channel_set";
     public static final String MULTIPART_ENCODER = "MultipartEncoder";
 
     //Entity properties
@@ -106,6 +109,8 @@ public class Constants {
     public static final int ENTITY_HEADERS_INDEX = 1;
     public static final int MULTIPART_DATA_INDEX = 5;
     public static final int CONTENT_DISPOSITION_INDEX = 6;
+
+    public static final int ENTITY_BYTE_CHANNEL_INDEX = 2;
 
     //Media type properties
     public static final int PRIMARY_TYPE_INDEX = 0;
@@ -147,6 +152,7 @@ public class Constants {
     public static final String BALLERINA_XML_DATA = "BallerinaXmlPayload";
     public static final String BALLERINA_BINARY_DATA = "BallerinaBinaryPayload";
     public static final String BALLERINA_BODY_PART_CONTENT = "BallerinaBodyPart";
+    public static final String BALLERINA_TEMP_FILE = "BallerinaTempFile";
 
     public static final int NO_CONTENT_LENGTH_FOUND = -1;
 

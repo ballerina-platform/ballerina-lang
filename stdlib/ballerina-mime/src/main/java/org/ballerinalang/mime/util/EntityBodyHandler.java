@@ -19,6 +19,7 @@
 package org.ballerinalang.mime.util;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.connector.api.ConnectorUtils;
 import org.ballerinalang.model.types.BStructType;
 import org.ballerinalang.model.util.StringUtils;
 import org.ballerinalang.model.util.XMLUtils;
@@ -27,6 +28,7 @@ import org.ballerinalang.model.values.BRefType;
 import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BXML;
+import org.ballerinalang.nativeimpl.io.IOConstants;
 import org.ballerinalang.runtime.message.BlobDataSource;
 import org.ballerinalang.runtime.message.MessageDataSource;
 import org.ballerinalang.runtime.message.StringDataSource;
@@ -38,7 +40,18 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.ByteBuffer;
+import java.nio.channels.ByteChannel;
+import java.nio.channels.Channels;
+import java.nio.channels.ReadableByteChannel;
+import java.nio.file.Files;
+import java.nio.file.OpenOption;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Set;
 
 import static org.ballerinalang.mime.util.Constants.APPLICATION_FORM;
 import static org.ballerinalang.mime.util.Constants.APPLICATION_JSON;
@@ -46,11 +59,14 @@ import static org.ballerinalang.mime.util.Constants.APPLICATION_XML;
 import static org.ballerinalang.mime.util.Constants.BALLERINA_BINARY_DATA;
 import static org.ballerinalang.mime.util.Constants.BALLERINA_BODY_PART_CONTENT;
 import static org.ballerinalang.mime.util.Constants.BALLERINA_JSON_DATA;
+import static org.ballerinalang.mime.util.Constants.BALLERINA_TEMP_FILE;
 import static org.ballerinalang.mime.util.Constants.BALLERINA_TEXT_DATA;
 import static org.ballerinalang.mime.util.Constants.BALLERINA_XML_DATA;
 import static org.ballerinalang.mime.util.Constants.BYTE_DATA_INDEX;
+import static org.ballerinalang.mime.util.Constants.ENTITY_BYTE_CHANNEL_INDEX;
 import static org.ballerinalang.mime.util.Constants.FILE_PATH_INDEX;
 import static org.ballerinalang.mime.util.Constants.JSON_DATA_INDEX;
+import static org.ballerinalang.mime.util.Constants.MESSAGE_DATA_SOURCE;
 import static org.ballerinalang.mime.util.Constants.MULTIPART_DATA_INDEX;
 import static org.ballerinalang.mime.util.Constants.MULTIPART_FORM_DATA;
 import static org.ballerinalang.mime.util.Constants.NO_CONTENT_LENGTH_FOUND;
@@ -71,35 +87,42 @@ public class EntityBodyHandler {
     private static final Logger log = LoggerFactory.getLogger(EntityBodyHandler.class);
 
     /**
-     * Handle discrete media type content. This method populates ballerina entity with the relevant payload.
+     * Handle discrete media type content. This method populates ballerina entity with a byte channel to the
+     * inputstream.
      *
-     * @param context     Represent ballerina context
-     * @param entity      Represent an 'Entity'
-     * @param inputStream Represent input stream coming from the request/response
+     * @param context      Represent ballerina context
+     * @param entityStruct Represent an 'Entity'
+     * @param inputStream  Represent input stream coming from the request/response
      */
-    public static void handleDiscreteMediaTypeContent(Context context, BStruct entity, InputStream inputStream) {
-        String baseType = MimeUtil.getContentType(entity);
-        long contentLength = entity.getIntField(SIZE_INDEX);
-        if (baseType != null) {
-            switch (baseType) {
-                case TEXT_PLAIN:
-                case APPLICATION_FORM:
-                    readAndSetStringPayload(context, entity, inputStream, contentLength);
-                    break;
-                case APPLICATION_JSON:
-                    readAndSetJsonPayload(context, entity, inputStream, contentLength);
-                    break;
-                case TEXT_XML:
-                case APPLICATION_XML:
-                    readAndSetXmlPayload(context, entity, inputStream, contentLength);
-                    break;
-                default:
-                    readAndSetBinaryPayload(context, entity, inputStream, contentLength);
-                    break;
+    public static void setDiscreteMediaTypeBodyContent(Context context, BStruct entityStruct, InputStream inputStream) {
+        long contentLength = entityStruct.getIntField(SIZE_INDEX);
+        BStruct byteChannelStruct = ConnectorUtils.createAndGetStruct(context
+                , org.ballerinalang.mime.util.Constants.PROTOCOL_PACKAGE_IO
+                , org.ballerinalang.mime.util.Constants.BYTE_CHANNEL_STRUCT);
+        ByteChannel byteChannel;
+        if (contentLength > Constants.BYTE_LIMIT) {
+            String temporaryFilePath = MimeUtil.writeToTemporaryFile(inputStream, BALLERINA_TEMP_FILE);
+            Set<OpenOption> options = new HashSet<>();
+            options.add(StandardOpenOption.READ);
+            Path path = Paths.get(temporaryFilePath);
+            try {
+                byteChannel = Files.newByteChannel(path, options);
+            } catch (IOException e) {
+                throw new BallerinaException("Error occurred while creating a byte channel from a temporary file path");
             }
         } else {
-            readAndSetBinaryPayload(context, entity, inputStream, contentLength);
+            byteChannel = new EntityBodyChannel(inputStream);
         }
+        byteChannelStruct.addNativeData(IOConstants.BYTE_CHANNEL_NAME, byteChannel);
+        entityStruct.setRefField(ENTITY_BYTE_CHANNEL_INDEX, byteChannelStruct);
+    }
+
+    public static MessageDataSource getMessageDataSource(BStruct entityStruct) {
+        return (MessageDataSource) entityStruct.getNativeData(MESSAGE_DATA_SOURCE);
+    }
+
+    public static void addMessageDataSource(BStruct entityStruct, MessageDataSource messageDataSource) {
+        entityStruct.addNativeData(MESSAGE_DATA_SOURCE, messageDataSource);
     }
 
     /**
@@ -194,12 +217,11 @@ public class EntityBodyHandler {
     /**
      * Check whether the entity body is present.
      *
-     * @param entity   Represent an 'Entity'
-     * @param baseType Content type that describes the entity body
+     * @param entityStruct   Represent an 'Entity'
      * @return a boolean indicating entity body availability
      */
-    public static boolean checkEntityBodyAvailability(BStruct entity, String baseType) {
-        switch (baseType) {
+    public static boolean checkEntityBodyAvailability(BStruct entityStruct) {
+       /* switch (baseType) {
             case TEXT_PLAIN:
                 return isTextBodyPresent(entity);
             case APPLICATION_JSON:
@@ -211,7 +233,9 @@ public class EntityBodyHandler {
                 return isMultipartsAvailable(entity);
             default:
                 return isBinaryBodyPresent(entity);
-        }
+        }*/
+       BStruct byteChannel = (BStruct)entityStruct.getRefField(ENTITY_BYTE_CHANNEL_INDEX);
+       return byteChannel != null;
     }
 
     /**

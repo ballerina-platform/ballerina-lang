@@ -73,11 +73,9 @@ import java.util.Set;
 
 import static org.ballerinalang.bre.bvm.BLangVMErrors.BUILTIN_PACKAGE;
 import static org.ballerinalang.bre.bvm.BLangVMErrors.STRUCT_GENERIC_ERROR;
-import static org.ballerinalang.mime.util.Constants.APPLICATION_JSON;
-import static org.ballerinalang.mime.util.Constants.APPLICATION_XML;
 import static org.ballerinalang.mime.util.Constants.CONTENT_TYPE;
 import static org.ballerinalang.mime.util.Constants.ENTITY_HEADERS_INDEX;
-import static org.ballerinalang.mime.util.Constants.IS_ENTITY_BODY_PRESENT;
+import static org.ballerinalang.mime.util.Constants.IS_BODY_BYTE_CHANNEL_ALREADY_SET;
 import static org.ballerinalang.mime.util.Constants.MESSAGE_ENTITY;
 import static org.ballerinalang.mime.util.Constants.MULTIPART_AS_PRIMARY_TYPE;
 import static org.ballerinalang.mime.util.Constants.NO_CONTENT_LENGTH_FOUND;
@@ -150,8 +148,8 @@ public class HttpUtil {
         }
         HttpUtil.setHeaderToEntity(entity, CONTENT_TYPE, baseType);
         httpMessageStruct.addNativeData(MESSAGE_ENTITY, entity);
-        httpMessageStruct.addNativeData(IS_ENTITY_BODY_PRESENT, EntityBodyHandler
-                .checkEntityBodyAvailability(entity, baseType));
+        httpMessageStruct.addNativeData(IS_BODY_BYTE_CHANNEL_ALREADY_SET, EntityBodyHandler
+                .checkEntityBodyAvailability(entity));
         return AbstractNativeFunction.VOID_RETURN;
     }
 
@@ -168,12 +166,12 @@ public class HttpUtil {
                                      boolean isEntityBodyRequired) {
         BStruct httpMessageStruct = (BStruct) abstractNativeFunction.getRefArgument(context, HTTP_MESSAGE_INDEX);
         BStruct entity = (BStruct) httpMessageStruct.getNativeData(MESSAGE_ENTITY);
-        boolean isEntityBodyAvailable = false;
+        boolean isByteChannelAlreadySet = false;
 
-        if (httpMessageStruct.getNativeData(IS_ENTITY_BODY_PRESENT) != null) {
-            isEntityBodyAvailable = (Boolean) httpMessageStruct.getNativeData(IS_ENTITY_BODY_PRESENT);
+        if (httpMessageStruct.getNativeData(IS_BODY_BYTE_CHANNEL_ALREADY_SET) != null) {
+            isByteChannelAlreadySet = (Boolean) httpMessageStruct.getNativeData(IS_BODY_BYTE_CHANNEL_ALREADY_SET);
         }
-        if (entity != null && isEntityBodyRequired && !isEntityBodyAvailable) {
+        if (entity != null && isEntityBodyRequired && !isByteChannelAlreadySet) {
             populateEntityBody(context, httpMessageStruct, entity, isRequest);
         }
         if (entity == null) {
@@ -210,10 +208,11 @@ public class HttpUtil {
             } catch (NumberFormatException e) {
                 throw new BallerinaException("Invalid content length");
             }
-            EntityBodyHandler.handleDiscreteMediaTypeContent(context, entity, httpMessageDataStreamer.getInputStream());
+            EntityBodyHandler.setDiscreteMediaTypeBodyContent(context, entity, httpMessageDataStreamer
+                    .getInputStream());
         }
         httpMessageStruct.addNativeData(MESSAGE_ENTITY, entity);
-        httpMessageStruct.addNativeData(IS_ENTITY_BODY_PRESENT, true);
+        httpMessageStruct.addNativeData(IS_BODY_BYTE_CHANNEL_ALREADY_SET, true);
     }
 
     public static void closeMessageOutputStream(OutputStream messageOutputStream) {
@@ -361,7 +360,7 @@ public class HttpUtil {
 
         populateEntity(entity, mediaType, inboundRequestMsg);
         inboundRequestStruct.addNativeData(MESSAGE_ENTITY, entity);
-        inboundRequestStruct.addNativeData(IS_ENTITY_BODY_PRESENT, false);
+        inboundRequestStruct.addNativeData(IS_BODY_BYTE_CHANNEL_ALREADY_SET, false);
     }
 
     private static void enrichWithInboundRequestHeaders(BStruct inboundRequestStruct,
@@ -417,7 +416,7 @@ public class HttpUtil {
         }
         populateEntity(entity, mediaType, inboundResponseMsg);
         inboundResponse.addNativeData(MESSAGE_ENTITY, entity);
-        inboundResponse.addNativeData(IS_ENTITY_BODY_PRESENT, false);
+        inboundResponse.addNativeData(IS_BODY_BYTE_CHANNEL_ALREADY_SET, false);
     }
 
     /**
@@ -557,7 +556,7 @@ public class HttpUtil {
                 , org.ballerinalang.mime.util.Constants.ENTITY);
         entity.setRefField(ENTITY_HEADERS_INDEX, new BMap<>());
         struct.addNativeData(MESSAGE_ENTITY, entity);
-        struct.addNativeData(IS_ENTITY_BODY_PRESENT, false);
+        struct.addNativeData(IS_BODY_BYTE_CHANNEL_ALREADY_SET, false);
         return entity;
     }
 

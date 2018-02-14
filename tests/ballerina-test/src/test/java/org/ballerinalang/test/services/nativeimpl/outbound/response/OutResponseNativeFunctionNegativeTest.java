@@ -38,7 +38,7 @@ import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 import static org.ballerinalang.mime.util.Constants.APPLICATION_JSON;
 import static org.ballerinalang.mime.util.Constants.CONTENT_TYPE;
 import static org.ballerinalang.mime.util.Constants.ENTITY_HEADERS_INDEX;
-import static org.ballerinalang.mime.util.Constants.IS_ENTITY_BODY_PRESENT;
+import static org.ballerinalang.mime.util.Constants.IS_BODY_BYTE_CHANNEL_ALREADY_SET;
 import static org.ballerinalang.mime.util.Constants.JSON_DATA_INDEX;
 import static org.ballerinalang.mime.util.Constants.MEDIA_TYPE;
 import static org.ballerinalang.mime.util.Constants.MESSAGE_ENTITY;
@@ -112,7 +112,7 @@ public class OutResponseNativeFunctionNegativeTest {
         MimeUtil.setContentType(mediaType, entity, TEXT_PLAIN);
         entity.setStringField(TEXT_DATA_INDEX, payload);
         outResponse.addNativeData(MESSAGE_ENTITY, entity);
-        outResponse.addNativeData(IS_ENTITY_BODY_PRESENT, true);
+        outResponse.addNativeData(IS_BODY_BYTE_CHANNEL_ALREADY_SET, true);
 
         BValue[] inputArg = {outResponse};
         BValue[] returnVals = BRunUtil.invoke(result, "testGetJsonPayload", inputArg);
@@ -153,7 +153,7 @@ public class OutResponseNativeFunctionNegativeTest {
         MimeUtil.setContentType(mediaType, entity, APPLICATION_JSON);
         entity.setRefField(JSON_DATA_INDEX, new BJSON(payload));
         outResponse.addNativeData(MESSAGE_ENTITY, entity);
-        outResponse.addNativeData(IS_ENTITY_BODY_PRESENT, true);
+        outResponse.addNativeData(IS_BODY_BYTE_CHANNEL_ALREADY_SET, true);
 
         BValue[] inputArg = {outResponse};
         BValue[] returnVals = BRunUtil.invoke(result, "testGetStringPayload", inputArg);
