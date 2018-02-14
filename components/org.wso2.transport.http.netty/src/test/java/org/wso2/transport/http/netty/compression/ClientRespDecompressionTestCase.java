@@ -60,6 +60,7 @@ public class ClientRespDecompressionTestCase {
     private HttpClientConnector clientConnector;
     private ListenerConfiguration listenerConfiguration;
     private SenderConfiguration senderConfiguration;
+    private CountDownLatch latch;
 
     ClientRespDecompressionTestCase() {
         this.listenerConfiguration = new ListenerConfiguration();
@@ -67,6 +68,7 @@ public class ClientRespDecompressionTestCase {
 
     @BeforeClass
     public void setUp() {
+        latch = new CountDownLatch(1);
         HttpWsConnectorFactory httpWsConnectorFactory = new HttpWsConnectorFactoryImpl();
 
         listenerConfiguration.setPort(TestUtil.SERVER_CONNECTOR_PORT);
@@ -89,6 +91,7 @@ public class ClientRespDecompressionTestCase {
     public void clientConnectorRespDecompressionTest() {
         try {
             HTTPCarbonMessage requestMsg = sendRequest(TestUtil.largeEntity);
+            latch.await(5, TimeUnit.SECONDS);
             assertEquals(TestUtil.largeEntity, TestUtil.getStringFromInputStream(
                     new HttpMessageDataStreamer(requestMsg).getInputStream()));
         } catch (Exception e) {
@@ -107,7 +110,7 @@ public class ClientRespDecompressionTestCase {
 
         requestMsg.setHeader("Accept-Encoding", "deflate;q=1.0, gzip;q=0.8");
 
-        CountDownLatch latch = new CountDownLatch(1);
+        latch = new CountDownLatch(1);
         HTTPConnectorListener listener = new HTTPConnectorListener(latch);
         clientConnector.send(requestMsg).setHttpConnectorListener(listener);
         HttpMessageDataStreamer httpMessageDataStreamer = new HttpMessageDataStreamer(requestMsg);

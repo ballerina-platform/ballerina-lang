@@ -54,20 +54,10 @@ public class HTTPConnectorListener implements HttpConnectorListener {
     }
 
     public HTTPCarbonMessage getHttpResponseMessage() {
-        try {
-            latch.await();
-        } catch (InterruptedException e) {
-            log.error("Interrupted while waiting for the response message", e);
-        }
         return httpMessage;
     }
 
     public Throwable getHttpErrorMessage() {
-        try {
-            latch.await();
-        } catch (InterruptedException e) {
-            log.error("Interrupted while waiting for the error response", e);
-        }
         return throwable;
     }
 }

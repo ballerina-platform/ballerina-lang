@@ -76,11 +76,9 @@ public class HTTPSClientTestCase {
         httpsServer = TestUtil.startHttpsServer(TestUtil.HTTPS_SERVER_PORT,
                 new MockServerInitializer(testValue, "text/plain", 200));
         HttpWsConnectorFactory connectorFactory = new HttpWsConnectorFactoryImpl();
-        SenderConfiguration senderConfiguration =
-                HTTPConnectorUtil.getSenderConfiguration(transportsConfiguration, Constants.HTTPS_SCHEME);
-        senderConfiguration.setSSLProtocol("TLSv1.1");
         httpClientConnector = connectorFactory.createHttpClientConnector(
-                HTTPConnectorUtil.getTransportProperties(transportsConfiguration), senderConfiguration);
+                HTTPConnectorUtil.getTransportProperties(transportsConfiguration),
+                HTTPConnectorUtil.getSenderConfiguration(transportsConfiguration, Constants.HTTPS_SCHEME));
     }
 
     @Test
