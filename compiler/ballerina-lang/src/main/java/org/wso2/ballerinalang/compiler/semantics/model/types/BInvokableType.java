@@ -31,7 +31,7 @@ public class BInvokableType extends BType implements InvokableType {
 
     public List<BType> paramTypes;
     public List<BType> retTypes;
-    public String typeDescriptor;
+    private String typeDescriptor = TypeDescriptor.SIG_FUNCTION;
 
     // This field is only applicable for functions and actions at the moment.
     private BType receiverType;
@@ -67,8 +67,8 @@ public class BInvokableType extends BType implements InvokableType {
     }
 
     @Override
-    public <R> R accept(BTypeVisitor<R> visitor, BType type) {
-        return visitor.visit(this, type);
+    public <T, R> R accept(BTypeVisitor<T, R> visitor, T t) {
+        return visitor.visit(this, t);
     }
 
     @Override

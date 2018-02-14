@@ -30,7 +30,6 @@ import org.ballerinalang.model.values.BBlob;
 import org.ballerinalang.model.values.BBlobArray;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BBooleanArray;
-import org.ballerinalang.model.values.BDataTable;
 import org.ballerinalang.model.values.BEnumerator;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BFloatArray;
@@ -41,6 +40,7 @@ import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BStruct;
+import org.ballerinalang.model.values.BTable;
 import org.ballerinalang.model.values.BTypeValue;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.nativeimpl.Utils;
@@ -114,7 +114,7 @@ public abstract class AbstractSQLAction extends AbstractNativeAction {
             stmt = getPreparedStatement(conn, datasource, processedQuery);
             createProcessedStatement(conn, stmt, parameters);
             rs = stmt.executeQuery();
-            context.getControlStack().getCurrentFrame().returnValues[0] = constructDataTable(context, rs, stmt, conn,
+            context.getControlStack().getCurrentFrame().returnValues[0] = constructTable(context, rs, stmt, conn,
                     structType);
         } catch (Throwable e) {
             SQLDatasourceUtils.cleanupConnection(rs, stmt, conn, isInTransaction);
@@ -194,7 +194,7 @@ public abstract class AbstractSQLAction extends AbstractNativeAction {
             rs = executeStoredProc(stmt);
             setOutParameters(stmt, parameters);
             if (rs != null) {
-                context.getControlStack().getCurrentFrame().returnValues[0] = constructDataTable(context, rs, stmt,
+                context.getControlStack().getCurrentFrame().returnValues[0] = constructTable(context, rs, stmt,
                         conn, structType);
             } else {
                 SQLDatasourceUtils.cleanupConnection(null, stmt, conn, isInTransaction);
@@ -759,7 +759,7 @@ public abstract class AbstractSQLAction extends AbstractNativeAction {
 
     private Connection getDatabaseConnection(Context context, SQLDatasource datasource, boolean isInTransaction)
             throws SQLException {
-        Connection conn = null;
+        Connection conn;
         if (!isInTransaction) {
             conn = datasource.getSQLConnection();
             return conn;
@@ -795,10 +795,10 @@ public abstract class AbstractSQLAction extends AbstractNativeAction {
         return conn;
     }
 
-    private BDataTable constructDataTable(Context context, ResultSet rs, Statement stmt, Connection conn,
+    private BTable constructTable(Context context, ResultSet rs, Statement stmt, Connection conn,
             BStructType structType) throws SQLException {
         List<ColumnDefinition> columnDefinitions = getColumnDefinitions(rs);
-        return new BDataTable(new SQLDataIterator(conn, stmt, rs, utcCalendar, columnDefinitions, structType,
+        return new BTable(new SQLDataIterator(conn, stmt, rs, utcCalendar, columnDefinitions, structType,
                 Utils.getTimeStructInfo(context), Utils.getTimeZoneStructInfo(context)));
     }
 

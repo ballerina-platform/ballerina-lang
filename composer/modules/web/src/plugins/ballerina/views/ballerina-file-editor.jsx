@@ -49,6 +49,7 @@ import SyncErrorsVisitor from './../visitors/sync-errors';
 import { EVENTS } from '../constants';
 import ViewButton from './view-button';
 
+
 /**
  * React component for BallerinaFileEditor.
  *
@@ -725,23 +726,7 @@ class BallerinaFileEditor extends React.Component {
         );
 
         const designView = (
-            <DesignView
-                model={this.state.model}
-                show={showDesignView}
-                file={this.props.file}
-                commandProxy={this.props.commandProxy}
-                width={designWidth}
-                height={this.props.height}
-                panelResizeInProgress={this.props.panelResizeInProgress}
-                disabled={this.state.parseFailed}
-            />
-        );
-
-        return (
-            <div
-                id={`bal-file-editor-${this.props.file.id}`}
-                className='bal-file-editor'
-            >
+            <div>
                 <CSSTransitionGroup
                     transitionName='loading-overlay'
                     transitionEnterTimeout={300}
@@ -755,6 +740,24 @@ class BallerinaFileEditor extends React.Component {
                         </div>
                     }
                 </CSSTransitionGroup>
+                <DesignView
+                    model={this.state.model}
+                    show={showDesignView}
+                    file={this.props.file}
+                    commandProxy={this.props.commandProxy}
+                    width={designWidth}
+                    height={this.props.height}
+                    panelResizeInProgress={this.props.panelResizeInProgress}
+                    disabled={this.state.parseFailed}
+                />
+            </div>
+        );
+
+        return (
+            <div
+                id={`bal-file-editor-${this.props.file.id}`}
+                className='bal-file-editor'
+            >
                 {(() => {
                     switch (this.state.activeView) {
                         case SPLIT_VIEW:
@@ -792,16 +795,12 @@ class BallerinaFileEditor extends React.Component {
                         commandProxy={this.props.commandProxy}
                         hideSwaggerAceEditor={this.hideSwaggerAceEditor}
                         resetSwaggerViewFun={this.resetSwaggerView}
+                        height={this.props.height}
+                        width={this.props.width}
                     />
                 </div>
                 { !showSwaggerView &&
                     <div className={cn('bottom-right-controls-container')}>
-                        <ViewButton
-                            label='Design View'
-                            icon='design-view'
-                            onClick={() => { this.setActiveView(DESIGN_VIEW); }}
-                            active={this.state.activeView === DESIGN_VIEW}
-                        />
                         <ViewButton
                             label='Source View'
                             icon='code'
@@ -813,6 +812,12 @@ class BallerinaFileEditor extends React.Component {
                             icon='split-view'
                             onClick={() => { this.setActiveView(SPLIT_VIEW); }}
                             active={this.state.activeView === SPLIT_VIEW}
+                        />
+                        <ViewButton
+                            label='Design View'
+                            icon='design-view'
+                            onClick={() => { this.setActiveView(DESIGN_VIEW); }}
+                            active={this.state.activeView === DESIGN_VIEW}
                         />
                     </div>
                 }

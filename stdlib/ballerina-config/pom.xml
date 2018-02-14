@@ -21,7 +21,7 @@
     <parent>
         <artifactId>ballerina-parent</artifactId>
         <groupId>org.ballerinalang</groupId>
-        <version>0.96.1-SNAPSHOT</version>
+        <version>0.961.1-SNAPSHOT</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
 
@@ -34,6 +34,7 @@
 
     <properties>
         <mavan.findbugsplugin.exclude.file>findbugs-exclude.xml</mavan.findbugsplugin.exclude.file>
+        <maven.checkstyleplugin.excludes>**/generated/**</maven.checkstyleplugin.excludes>
     </properties>
 
 </project>

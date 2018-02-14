@@ -21,6 +21,7 @@ import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
 import org.ballerinalang.model.tree.expressions.InvocationNode;
+import org.wso2.ballerinalang.compiler.semantics.model.iterable.IterableContext;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
@@ -46,6 +47,9 @@ public class BLangInvocation extends BLangVariableReference implements Invocatio
     public List<BType> types = new ArrayList<>(0);
     public BSymbol symbol;
     public boolean functionPointerInvocation;
+    /* Variables Required for Iterable Operation */
+    public boolean iterableOperationInvocation;
+    public IterableContext iContext;
     protected RegIndex[] regIndexes;
 
     public boolean isMultiReturnExpr() {
@@ -148,12 +152,14 @@ public class BLangInvocation extends BLangVariableReference implements Invocatio
     /**
      * @since 0.94
      */
-    public static class BLangFunctionInvocation extends BLangInvocation {
+    public static class BLangAttachedFunctionInvocation extends BLangInvocation {
+        public BLangExpression expr;
 
-        public BLangFunctionInvocation(DiagnosticPos pos,
-                                       List<BLangExpression> argExprs,
-                                       BSymbol symbol,
-                                       List<BType> types) {
+        public BLangAttachedFunctionInvocation(DiagnosticPos pos,
+                                               List<BLangExpression> argExprs,
+                                               BSymbol symbol,
+                                               List<BType> types,
+                                               BLangExpression expr) {
             this.pos = pos;
             this.argExprs = argExprs;
             this.symbol = symbol;
@@ -161,6 +167,7 @@ public class BLangInvocation extends BLangVariableReference implements Invocatio
             if (types.size() > 0) {
                 this.type = types.get(0);
             }
+            this.expr = expr;
         }
 
         @Override

@@ -16,62 +16,105 @@
 
 package org.ballerinalang.langserver.definition.util;
 
+import org.ballerinalang.langserver.BLangPackageContext;
 import org.ballerinalang.langserver.DocumentServiceKeys;
 import org.ballerinalang.langserver.TextDocumentServiceContext;
 import org.ballerinalang.langserver.TextDocumentServiceUtil;
-import org.ballerinalang.langserver.definition.constants.DefinitionConstants;
-import org.ballerinalang.langserver.hover.HoverKeys;
+import org.ballerinalang.langserver.common.constants.ContextConstants;
+import org.ballerinalang.langserver.common.constants.NodeContextKeys;
+import org.ballerinalang.langserver.definition.DefinitionTreeVisitor;
 import org.eclipse.lsp4j.Location;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextDocumentPositionParams;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
+import org.wso2.ballerinalang.compiler.util.Name;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+
 /**
  * Utility class for go to definition functionality of language server.
  */
 public class DefinitionUtil {
     /**
-     * Get definition position for the given hover context.
+     * Get definition position for the given definition context.
      *
-     * @param currentBLangPackage resolved bLangPackage for the hover context.
-     * @param hoverContext context of the hover.
+     * @param definitionContext   context of the definition.
+     * @param bLangPackageContext package context for language server.
      * @return position
      */
-    public static List<Location> getDefinitionPosition(TextDocumentServiceContext hoverContext,
-                                                       BLangPackage currentBLangPackage) {
+    public static List<Location> getDefinitionPosition(TextDocumentServiceContext definitionContext,
+                                                       BLangPackageContext bLangPackageContext) {
         List<Location> contents = new ArrayList<>();
-        if (hoverContext.get(HoverKeys.SYMBOL_KIND_OF_HOVER_NODE_KEY) == null) {
+        if (definitionContext.get(NodeContextKeys.SYMBOL_KIND_OF_NODE_KEY) == null) {
             return contents;
         }
-        String nodeKind = hoverContext.get(HoverKeys.SYMBOL_KIND_OF_HOVER_NODE_KEY).name();
+        String nodeKind = definitionContext.get(NodeContextKeys.SYMBOL_KIND_OF_NODE_KEY);
+
+        BLangPackage bLangPackage = getPackageOfTheOwner(definitionContext
+                .get(NodeContextKeys.NODE_OWNER_PACKAGE_KEY).name, definitionContext, bLangPackageContext);
         BLangNode bLangNode = null;
         switch (nodeKind) {
-            case DefinitionConstants.FUNCTION:
-                bLangNode = currentBLangPackage.functions.stream()
+            case ContextConstants.FUNCTION:
+                bLangNode = bLangPackage.functions.stream()
                         .filter(function -> function.name.getValue()
-                                .equals(hoverContext.get(HoverKeys.NAME_OF_HOVER_NODE_KEY).getValue()))
+                                .equals(definitionContext.get(NodeContextKeys.NAME_OF_NODE_KEY)))
                         .findAny().orElse(null);
                 break;
-            case DefinitionConstants.STRUCT:
-                bLangNode = currentBLangPackage.structs.stream()
+            case ContextConstants.STRUCT:
+                bLangNode = bLangPackage.structs.stream()
                         .filter(struct -> struct.name.getValue()
-                                .equals(hoverContext.get(HoverKeys.NAME_OF_HOVER_NODE_KEY).getValue()))
+                                .equals(definitionContext.get(NodeContextKeys.NAME_OF_NODE_KEY)))
                         .findAny().orElse(null);
                 break;
-            case DefinitionConstants.ENUM:
-                bLangNode = currentBLangPackage.enums.stream()
-                        .filter(struct -> struct.name.getValue()
-                                .equals(hoverContext.get(HoverKeys.NAME_OF_HOVER_NODE_KEY).getValue()))
+            case ContextConstants.ENUM:
+                bLangNode = bLangPackage.enums.stream()
+                        .filter(enm -> enm.name.getValue()
+                                .equals(definitionContext.get(NodeContextKeys.NAME_OF_NODE_KEY)))
                         .findAny().orElse(null);
+                // Fixing the position issue with enum node.
+                bLangNode.getPosition().eLine = bLangNode.getPosition().sLine;
+                bLangNode.getPosition().eCol = bLangNode.getPosition().sCol;
+                break;
+            case ContextConstants.CONNECTOR:
+                bLangNode = bLangPackage.connectors.stream()
+                        .filter(bConnector -> bConnector.name.getValue()
+                                .equals(definitionContext.get(NodeContextKeys.NAME_OF_NODE_KEY)))
+                        .findAny().orElse(null);
+                break;
+            case ContextConstants.ACTION:
+                bLangNode = bLangPackage.connectors.stream()
+                        .filter(bConnector -> bConnector.name.getValue()
+                                .equals(((BLangInvocation) definitionContext
+                                        .get(NodeContextKeys.PREVIOUSLY_VISITED_NODE_KEY))
+                                        .symbol.owner.name.getValue()))
+                        .flatMap(connector -> connector.actions.stream())
+                        .filter(bAction -> bAction.name.getValue()
+                                .equals(definitionContext.get(NodeContextKeys.NAME_OF_NODE_KEY)))
+                        .findAny().orElse(null);
+                break;
+            case ContextConstants.VARIABLE:
+                bLangNode = bLangPackage.globalVars.stream()
+                        .filter(globalVar -> globalVar.name.getValue()
+                                .equals(definitionContext.get(NodeContextKeys.VAR_NAME_OF_NODE_KEY)))
+                        .findAny().orElse(null);
+
+                // BLangNode is null only when node at the cursor position is a local variable.
+                if (bLangNode == null) {
+                    DefinitionTreeVisitor definitionTreeVisitor = new DefinitionTreeVisitor(definitionContext);
+                    definitionContext.get(NodeContextKeys.NODE_STACK_KEY).pop().accept(definitionTreeVisitor);
+                    if (definitionContext.get(NodeContextKeys.NODE_KEY) != null) {
+                        bLangNode = definitionContext.get(NodeContextKeys.NODE_KEY);
+                        break;
+                    }
+                }
                 break;
             default:
-
                 break;
         }
         if (bLangNode == null) {
@@ -79,12 +122,15 @@ public class DefinitionUtil {
         }
 
         Location l = new Location();
-        TextDocumentPositionParams position = hoverContext.get(DocumentServiceKeys.POSITION_KEY);
+        TextDocumentPositionParams position = definitionContext.get(DocumentServiceKeys.POSITION_KEY);
         Path parentPath = TextDocumentServiceUtil.getPath(position.getTextDocument().getUri()).getParent();
         if (parentPath != null) {
             String fileName = bLangNode.getPosition().getSource().getCompilationUnitName();
-
-            Path filePath = Paths.get(parentPath.toString(), fileName);
+            Path filePath = Paths
+                    .get(getPackageURI(definitionContext.get(NodeContextKeys.PACKAGE_OF_NODE_KEY).nameComps,
+                            parentPath.toString(),
+                            definitionContext.get(NodeContextKeys.PACKAGE_OF_NODE_KEY).nameComps),
+                            fileName);
             l.setUri(filePath.toUri().toString());
             Range r = new Range();
             // Subtract 1 to convert the token lines and char positions to zero based indexing
@@ -98,5 +144,38 @@ public class DefinitionUtil {
 
         return contents;
 
+    }
+
+    /**
+     * Get the package of the owner of given node.
+     */
+    private static BLangPackage getPackageOfTheOwner(Name packageName, TextDocumentServiceContext definitionContext,
+                                                     BLangPackageContext bLangPackageContext) {
+        return bLangPackageContext
+                .getPackageByName(definitionContext.get(DocumentServiceKeys.COMPILER_CONTEXT_KEY), packageName);
+    }
+
+    /**
+     * Get the package URI to the given package name.
+     *
+     * @param pkgName        Name of the package that need the URI for
+     * @param currentPkgPath String URI of the current package
+     * @param currentPkgName Name of the current package
+     * @return String URI for the given path.
+     */
+    private static String getPackageURI(List<Name> pkgName, String currentPkgPath, List<Name> currentPkgName) {
+        String newPackagePath;
+        // If current package path is not null and current package is not default package continue,
+        // else new package path is same as the current package path.
+        if (currentPkgPath != null && !currentPkgName.get(0).getValue().equals(".")) {
+            int indexOfCurrentPkgName = currentPkgPath.indexOf(currentPkgName.get(0).getValue());
+            newPackagePath = currentPkgPath.substring(0, indexOfCurrentPkgName);
+            for (Name pkgDir : pkgName) {
+                newPackagePath = Paths.get(newPackagePath, pkgDir.getValue()).toString();
+            }
+        } else {
+            newPackagePath = currentPkgPath;
+        }
+        return newPackagePath;
     }
 }

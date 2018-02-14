@@ -20,7 +20,7 @@
     <parent>
         <groupId>org.ballerinalang</groupId>
         <artifactId>ballerina-parent</artifactId>
-        <version>0.96.1-SNAPSHOT</version>
+        <version>0.961.1-SNAPSHOT</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
 
@@ -50,7 +50,6 @@
         <dependency>
             <groupId>org.ballerinalang</groupId>
             <artifactId>ballerina-launcher</artifactId>
-            <version>${ballerina.launcher.version}</version>
         </dependency>
         <dependency>
             <groupId>org.testng</groupId>
@@ -263,7 +262,6 @@
 
     <properties>
         <maven.findbugsplugin.version.exclude>findbugs-exclude.xml</maven.findbugsplugin.version.exclude>
-        <ballerina.launcher.version>${project.version}</ballerina.launcher.version>
         <surefireArgLine>-Dfile.encoding=UTF-8</surefireArgLine>
         <jackson.version>2.6.1</jackson.version>
         <replacer.plugin.version>1.5.3</replacer.plugin.version>

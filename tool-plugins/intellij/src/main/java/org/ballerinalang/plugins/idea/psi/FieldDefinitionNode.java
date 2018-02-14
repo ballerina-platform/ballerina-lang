@@ -27,6 +27,9 @@ import org.jetbrains.annotations.Nullable;
 
 import javax.swing.Icon;
 
+/**
+ * Represents a FieldDefinition in PSI tree.
+ */
 public class FieldDefinitionNode extends IdentifierDefSubtree {
 
     public FieldDefinitionNode(@NotNull ASTNode node) {

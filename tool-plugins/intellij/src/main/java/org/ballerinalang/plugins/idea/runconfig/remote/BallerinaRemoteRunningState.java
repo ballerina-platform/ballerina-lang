@@ -21,6 +21,9 @@ import com.intellij.openapi.module.Module;
 import org.ballerinalang.plugins.idea.runconfig.BallerinaRunningState;
 import org.jetbrains.annotations.NotNull;
 
+/**
+ * Represents Ballerina remote running state.
+ */
 public class BallerinaRemoteRunningState extends BallerinaRunningState<BallerinaRemoteConfiguration> {
 
     BallerinaRemoteRunningState(@NotNull ExecutionEnvironment env, @NotNull Module module,

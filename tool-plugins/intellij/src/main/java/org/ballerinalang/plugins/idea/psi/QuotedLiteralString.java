@@ -24,6 +24,9 @@ import org.ballerinalang.plugins.idea.psi.impl.BallerinaPsiImplUtil;
 import org.ballerinalang.plugins.idea.util.BallerinaStringLiteralEscaper;
 import org.jetbrains.annotations.NotNull;
 
+/**
+ * Represents an QuotedLiteralString in PSI tree.
+ */
 public class QuotedLiteralString extends ANTLRPsiLeafNode implements PsiLanguageInjectionHost {
 
     public QuotedLiteralString(IElementType type, CharSequence text) {

@@ -14,7 +14,9 @@
  *  limitations under the License.
  */
 
-package org.ballerinalang;import java.lang.annotation.ElementType;
+package org.ballerinalang;
+
+import java.lang.annotation.ElementType;
 import java.lang.annotation.Inherited;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;

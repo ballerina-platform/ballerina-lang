@@ -20,6 +20,9 @@ import com.intellij.lang.ASTNode;
 import org.antlr.jetbrains.adaptor.psi.ANTLRPsiNode;
 import org.jetbrains.annotations.NotNull;
 
+/**
+ * Represents an TriggerWorker in PSI tree.
+ */
 public class TriggerWorkerNode extends ANTLRPsiNode {
 
     public TriggerWorkerNode(@NotNull ASTNode node) {

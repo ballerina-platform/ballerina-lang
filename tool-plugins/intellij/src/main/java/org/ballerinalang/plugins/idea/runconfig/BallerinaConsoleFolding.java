@@ -24,6 +24,9 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+/**
+ * Provides Ballerina run command folding in console support.
+ */
 public class BallerinaConsoleFolding extends ConsoleFolding {
 
     private static final String REGEX = "ballerina(.bat)? (run|build|test) .+";

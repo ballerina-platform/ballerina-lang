@@ -24,6 +24,9 @@ import org.ballerinalang.plugins.idea.psi.scopes.VariableContainer;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+/**
+ * Represents an ServiceBody in PSI tree.
+ */
 public class ServiceBodyNode extends ANTLRPsiNode implements VariableContainer {
 
     public ServiceBodyNode(@NotNull ASTNode node) {

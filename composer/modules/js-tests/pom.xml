@@ -3,7 +3,7 @@
     <parent>
         <groupId>org.ballerinalang</groupId>
         <artifactId>composer</artifactId>
-        <version>0.96.1-SNAPSHOT</version>
+        <version>0.961.1-SNAPSHOT</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
     <packaging>pom</packaging>
@@ -39,6 +39,9 @@
                         <goals>
                             <goal>copy</goal>
                         </goals>
+                        <configuration>
+                            <skip>${maven.test.skip}</skip>
+                        </configuration>
                     </execution>
                 </executions>
                 <configuration>
@@ -65,6 +68,7 @@
                             <goal>unpack-dependencies</goal>
                         </goals>
                         <configuration>
+                            <skip>${maven.test.skip}</skip>
                             <includeArtifactIds>ballerina-composer-web</includeArtifactIds>
                             <outputDirectory>${project.build.directory}/extracted-web</outputDirectory>
                             <overWriteReleases>false</overWriteReleases>
@@ -90,10 +94,11 @@
                             <goal>run</goal>
                         </goals>
                         <configuration>
+                            <skip>${maven.test.skip}</skip>
                             <target name="copy js files to target">
-                                <mkdir dir="${build.directory}/js-files-from-web" />
-                                <copy todir="${build.directory}/js-files-from-web" overwrite="true" flatten="true">
-                                    <fileset dir="${build.directory}/extracted-web/">
+                                <mkdir dir="${project.build.directory}/js-files-from-web" />
+                                <copy todir="${project.build.directory}/js-files-from-web" overwrite="true" flatten="true">
+                                    <fileset dir="${project.build.directory}/extracted-web/">
                                         <include name="**/*.js" />
                                     </fileset>
                                     <chainedmapper>
@@ -120,11 +125,11 @@
                         </goals>
                         <phase>initialize</phase>
                         <configuration>
+                            <skip>${maven.test.skip}</skip>
                             <executable>${npm.executable}</executable>
                             <arguments>
                                 <argument>install</argument>
                             </arguments>
-                            <skip>${skipTests}</skip>
                         </configuration>
                     </execution>
                     <execution>
@@ -139,7 +144,7 @@
                                 <argument>run</argument>
                                 <argument>compile</argument>
                             </arguments>
-                            <skip>${skipTests}</skip>
+                            <skip>${maven.test.skip}</skip>
                         </configuration>
                     </execution>
                     <execution>
@@ -155,7 +160,7 @@
                                 <argument>--</argument>
                                 <argument>--projectVersion=${project.version}</argument>
                             </arguments>
-                            <skip>${skipTests}</skip>
+                            <skip>${maven.test.skip}</skip>
                         </configuration>
                     </execution>
                 </executions>

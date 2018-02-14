@@ -27,6 +27,9 @@ import org.jetbrains.annotations.Nullable;
 
 import javax.swing.Icon;
 
+/**
+ * Represents an WorkerDeclaration in PSI tree.
+ */
 public class WorkerDeclarationNode extends IdentifierDefSubtree {
 
     public WorkerDeclarationNode(@NotNull ASTNode node) {

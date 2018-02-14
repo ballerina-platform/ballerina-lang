@@ -19,8 +19,6 @@ package org.ballerinalang.util.codegen;
 
 import org.ballerinalang.model.types.BEnumType;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Objects;
 
 /**
@@ -29,13 +27,10 @@ import java.util.Objects;
  * @since 0.95
  */
 public class EnumInfo extends StructureTypeInfo {
-
     private BEnumType enumType;
 
-    private List<EnumeratorInfo> enumeratorInfoList = new ArrayList<>();
-
-    public EnumInfo(int pkgPathCPIndex, String packagePath, int nameCPIndex, String name) {
-        super(pkgPathCPIndex, packagePath, nameCPIndex, name);
+    public EnumInfo(int pkgPathCPIndex, String packagePath, int nameCPIndex, String name, int flags) {
+        super(pkgPathCPIndex, packagePath, nameCPIndex, name, flags);
     }
 
     public BEnumType getType() {

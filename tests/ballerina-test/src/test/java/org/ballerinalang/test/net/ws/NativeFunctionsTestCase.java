@@ -28,8 +28,8 @@ import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.net.ws.Constants;
 import org.ballerinalang.net.ws.WebSocketConnectionManager;
+import org.ballerinalang.net.ws.WebSocketConstants;
 import org.ballerinalang.net.ws.WsOpenConnectionInfo;
 import org.ballerinalang.test.utils.ws.MockWebSocketSession;
 import org.ballerinalang.util.codegen.ProgramFile;
@@ -62,6 +62,8 @@ public class NativeFunctionsTestCase {
     String header2Key = "my_header_2";
     String header2Value = "my_header_value_2";
 
+    private String paramKey = "age";
+    private BString paramVal = new BString("25");
 
     @BeforeClass
     public void setup() {
@@ -84,10 +86,14 @@ public class NativeFunctionsTestCase {
         upgradeHeaders.put(header1Key, header1Value);
         upgradeHeaders.put(header2Key, header2Value);
 
-        wsConnection = BCompileUtil.createAndGetStruct(programFile, Constants.PROTOCOL_PACKAGE_WS,
-                                                     Constants.STRUCT_WEBSOCKET_CONNECTION);
-        wsConnection.addNativeData(Constants.NATIVE_DATA_WEBSOCKET_SESSION, session);
-        wsConnection.addNativeData(Constants.NATIVE_DATA_UPGRADE_HEADERS, upgradeHeaders);
+        BMap<String, BString> queryParams = new BMap<>();
+        queryParams.put(paramKey, paramVal);
+
+        wsConnection = BCompileUtil.createAndGetStruct(programFile, WebSocketConstants.PROTOCOL_PACKAGE_WS,
+                                                       WebSocketConstants.STRUCT_WEBSOCKET_CONNECTION);
+        wsConnection.addNativeData(WebSocketConstants.NATIVE_DATA_WEBSOCKET_SESSION, session);
+        wsConnection.addNativeData(WebSocketConstants.NATIVE_DATA_UPGRADE_HEADERS, upgradeHeaders);
+        wsConnection.addNativeData(WebSocketConstants.NATIVE_DATA_QUERY_PARAMS, queryParams);
     }
 
     @Test
@@ -166,9 +172,11 @@ public class NativeFunctionsTestCase {
         String testSessionID = "test_session_id";
         MockWebSocketSession testSession = new MockWebSocketSession(testSessionID);
         BStruct testParentWsConnection = BCompileUtil.createAndGetStruct(programFile,
-                                                Constants.PROTOCOL_PACKAGE_WS, Constants.STRUCT_WEBSOCKET_CONNECTION);
-        testParentWsConnection.addNativeData(Constants.NATIVE_DATA_WEBSOCKET_SESSION, testSession);
-        wsConnection.addNativeData(Constants.NATIVE_DATA_PARENT_CONNECTION_ID, testSessionID);
+                                                                         WebSocketConstants.PROTOCOL_PACKAGE_WS,
+                                                                         WebSocketConstants
+                                                                                 .STRUCT_WEBSOCKET_CONNECTION);
+        testParentWsConnection.addNativeData(WebSocketConstants.NATIVE_DATA_WEBSOCKET_SESSION, testSession);
+        wsConnection.addNativeData(WebSocketConstants.NATIVE_DATA_PARENT_CONNECTION_ID, testSessionID);
         WsOpenConnectionInfo connectionInfo =
                 new WsOpenConnectionInfo(null, testParentWsConnection, null);
         WebSocketConnectionManager.getInstance().addConnection(testSessionID, connectionInfo);
@@ -190,6 +198,18 @@ public class NativeFunctionsTestCase {
         Assert.assertTrue(returnResultBValues[0] instanceof BString, "Invalid return type");
         BString result = (BString) returnResultBValues[0];
         Assert.assertEquals(result.stringValue(), testSessionID);
+    }
+
+    @Test
+    public void testGetQueryParams() {
+        BValue[] inputBValues = {wsConnection};
+        BValue[] returnBValues = BRunUtil.invoke(compileResult, "testGetQueryParams", inputBValues);
+        Assert.assertFalse(returnBValues == null || returnBValues.length == 0
+                                   || returnBValues[0] == null, "Invalid output");
+        Assert.assertTrue(returnBValues[0] instanceof BMap, "Invalid return type");
+        BMap<String, BString> result = (BMap<String, BString>) returnBValues[0];
+        Assert.assertTrue(result.hasKey(paramKey));
+        Assert.assertEquals(result.get(paramKey), paramVal);
     }
 
     @Test

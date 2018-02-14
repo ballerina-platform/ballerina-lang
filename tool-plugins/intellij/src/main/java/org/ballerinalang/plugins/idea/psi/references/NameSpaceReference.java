@@ -34,6 +34,9 @@ import org.jetbrains.annotations.Nullable;
 import java.util.LinkedList;
 import java.util.List;
 
+/**
+ * Represents a namespace reference.
+ */
 public class NameSpaceReference extends BallerinaElementReference {
 
     public NameSpaceReference(@NotNull IdentifierPSINode element) {

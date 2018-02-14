@@ -23,6 +23,9 @@ import org.jetbrains.annotations.Nullable;
 
 import javax.swing.Icon;
 
+/**
+ * Provides Ballerina root presentation in structure view.
+ */
 public class BallerinaRootPresentation implements ItemPresentation {
 
     protected final PsiFile element;

@@ -43,6 +43,9 @@ import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 
+/**
+ * Represents a record value reference.
+ */
 public class RecordValueReference extends BallerinaElementReference {
 
     public RecordValueReference(@NotNull IdentifierPSINode element) {
@@ -139,9 +142,7 @@ public class RecordValueReference extends BallerinaElementReference {
         // Todo - improve suggesting elements from a package in StructValueNode since it will not be identified properly
         RecordKeyValueNode recordKeyValueNode = PsiTreeUtil.getParentOfType(identifier,
                 RecordKeyValueNode.class);
-        if (recordKeyValueNode != null)
-
-        {
+        if (recordKeyValueNode != null) {
             RecordKeyNode mapStructKeyNode = PsiTreeUtil.getChildOfType(recordKeyValueNode, RecordKeyNode.class);
             if (mapStructKeyNode != null) {
 
@@ -181,9 +182,7 @@ public class RecordValueReference extends BallerinaElementReference {
         }
 
         PsiDirectory currentPackage = originalFile.getParent();
-        if (currentPackage != null)
-
-        {
+        if (currentPackage != null) {
             List<IdentifierPSINode> functions = BallerinaPsiImplUtil.getAllFunctionsFromPackage(currentPackage,
                     true, true);
             results.addAll(BallerinaCompletionUtils.createFunctionLookupElements(functions));
@@ -203,9 +202,7 @@ public class RecordValueReference extends BallerinaElementReference {
         // Todo - use a util method
         ScopeNode scope = PsiTreeUtil.getParentOfType(identifier, CodeBlockScope.class, VariableContainer.class,
                 TopLevelDefinition.class, LowerLevelDefinition.class);
-        if (scope != null)
-
-        {
+        if (scope != null) {
             int caretOffset = identifier.getStartOffset();
 
             List<IdentifierPSINode> variables = BallerinaPsiImplUtil.getAllLocalVariablesInResolvableScope(scope,

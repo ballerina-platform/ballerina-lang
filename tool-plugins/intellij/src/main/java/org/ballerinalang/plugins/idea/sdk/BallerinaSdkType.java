@@ -34,6 +34,9 @@ import java.io.File;
 
 import javax.swing.Icon;
 
+/**
+ * Represent a Ballerina SDK.
+ */
 public class BallerinaSdkType extends SdkType {
 
     public BallerinaSdkType() {

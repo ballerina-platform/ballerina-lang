@@ -25,6 +25,9 @@ import org.ballerinalang.plugins.idea.psi.scopes.RestrictedScope;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+/**
+ * Represents an WorkerBody in PSI tree.
+ */
 public class WorkerBodyNode extends ANTLRPsiNode implements CodeBlockScope, RestrictedScope {
 
     public WorkerBodyNode(@NotNull ASTNode node) {

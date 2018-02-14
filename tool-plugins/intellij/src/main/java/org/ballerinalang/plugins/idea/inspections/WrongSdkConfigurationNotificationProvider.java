@@ -40,6 +40,9 @@ import org.ballerinalang.plugins.idea.sdk.BallerinaSdkService;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+/**
+ * Provides a notifications if a non Ballerina SDK is added to a Ballerina project or a module.
+ */
 public class WrongSdkConfigurationNotificationProvider extends EditorNotifications.Provider<EditorNotificationPanel>
         implements DumbAware {
 

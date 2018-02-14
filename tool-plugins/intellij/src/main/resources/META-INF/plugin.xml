@@ -53,11 +53,11 @@
         <colorSettingsPage implementation="org.ballerinalang.plugins.idea.highlighter.BallerinaColorSettingsPage"/>
 
         <annotator language="Ballerina"
-                   implementationClass="org.ballerinalang.plugins.idea.codeInsight.daemon.impl.BallerinaAnnotator"/>
+                   implementationClass="org.ballerinalang.plugins.idea.codeinsight.daemon.impl.BallerinaAnnotator"/>
 
         <!--exit points highlighting-->
         <highlightUsagesHandlerFactory
-                implementation="org.ballerinalang.plugins.idea.codeInsight.highlighting.HighlightExitPointsHandlerFactory"/>
+                implementation="org.ballerinalang.plugins.idea.codeinsight.highlighting.HighlightExitPointsHandlerFactory"/>
 
         <!--string manipulator-->
         <lang.elementManipulator forClass="org.ballerinalang.plugins.idea.psi.QuotedLiteralString"
@@ -72,7 +72,7 @@
                 implementation="org.ballerinalang.plugins.idea.formatter.settings.BallerinaLanguageCodeStyleSettingsProvider"/>
 
         <quoteHandler fileType="Ballerina file"
-                      className="org.ballerinalang.plugins.idea.codeInsight.editoractions.BallerinaQuoteHandler"/>
+                      className="org.ballerinalang.plugins.idea.codeinsight.editoractions.BallerinaQuoteHandler"/>
 
         <enterHandlerDelegate
                 implementation="org.ballerinalang.plugins.idea.formatter.BallerinaEnterBetweenBracesHandler"/>
@@ -91,21 +91,21 @@
                                 implementationClass="org.ballerinalang.plugins.idea.completion.BallerinaKeywordsCompletionContributor"/>
 
         <lang.braceMatcher language="Ballerina"
-                           implementationClass="org.ballerinalang.plugins.idea.codeInsight.highlighting.BallerinaPairedBraceMatcher"/>
+                           implementationClass="org.ballerinalang.plugins.idea.codeinsight.highlighting.BallerinaPairedBraceMatcher"/>
 
         <codeInsight.parameterInfo language="Ballerina"
                                    implementationClass="org.ballerinalang.plugins.idea.editor.BallerinaParameterInfoHandler"/>
 
         <completion.confidence language="Ballerina"
-                               implementationClass="org.ballerinalang.plugins.idea.codeInsight.completion.SkipAutoPopupInFloatingPointLiterals"
+                               implementationClass="org.ballerinalang.plugins.idea.codeinsight.completion.SkipAutoPopupInFloatingPointLiterals"
                                id="ballerinaSkipAutoPopupInFloats"/>
 
         <completion.confidence language="Ballerina"
-                               implementationClass="org.ballerinalang.plugins.idea.codeInsight.completion.SkipAutoPopupInStrings"
+                               implementationClass="org.ballerinalang.plugins.idea.codeinsight.completion.SkipAutoPopupInStrings"
                                id="ballerinaSkipAutoPopupInStrings"/>
 
         <completion.confidence language="Ballerina"
-                               implementationClass="org.ballerinalang.plugins.idea.codeInsight.completion.SkipAutoPopupInComments"
+                               implementationClass="org.ballerinalang.plugins.idea.codeinsight.completion.SkipAutoPopupInComments"
                                id="ballerinaSkipAutoPopupInComments"/>
 
         <!--line marker-->
@@ -155,7 +155,7 @@
         <!-- sdk -->
         <sdkType implementation="org.ballerinalang.plugins.idea.sdk.BallerinaSdkType"/>
         <projectSdkSetupValidator id="BallerinaSdk"
-                                  implementation="org.ballerinalang.plugins.idea.codeInsight.daemon.impl.BallerinaProjectSdkSetupValidator"/>
+                                  implementation="org.ballerinalang.plugins.idea.codeinsight.daemon.impl.BallerinaProjectSdkSetupValidator"/>
         <library.presentationProvider
                 implementation="org.ballerinalang.plugins.idea.sdk.BallerinaSdkLibraryPresentationProvider"/>
         <applicationService
@@ -218,7 +218,7 @@
                              dynamic="true"/>
         <projectExtension implementation="org.ballerinalang.plugins.idea.project.BallerinaProjectExtension"/>
         <applicationService
-                serviceImplementation="org.ballerinalang.plugins.idea.codeInsight.imports.BallerinaCodeInsightSettings"/>
+                serviceImplementation="org.ballerinalang.plugins.idea.codeinsight.imports.BallerinaCodeInsightSettings"/>
         <projectStructureDetector
                 implementation="org.ballerinalang.plugins.idea.project.BallerinaProjectStructureDetector"/>
         <directoryProjectGenerator
@@ -239,38 +239,38 @@
         <!--inspections-->
         <localInspection language="Ballerina" displayName="Wrong package statement" groupPath="Ballerina"
                          groupName="Probable bugs" enabledByDefault="true" level="WARNING"
-                         implementationClass="org.ballerinalang.plugins.idea.codeInspection.WrongPackageStatementInspection"/>
+                         implementationClass="org.ballerinalang.plugins.idea.codeinspection.WrongPackageStatementInspection"/>
 
         <localInspection language="Ballerina" displayName="Unused import inspection" groupPath="Ballerina"
                          groupName="Declaration redundancy" enabledByDefault="true" level="WARNING"
-                         implementationClass="org.ballerinalang.plugins.idea.codeInspection.UnusedImportInspection"/>
+                         implementationClass="org.ballerinalang.plugins.idea.codeinspection.UnusedImportInspection"/>
 
         <localInspection language="Ballerina" displayName="Unresolved reference inspection" groupPath="Ballerina"
                          groupName="General" enabledByDefault="true" level="ERROR"
-                         implementationClass="org.ballerinalang.plugins.idea.codeInspection.BallerinaUnresolvedReferenceInspection"/>
+                         implementationClass="org.ballerinalang.plugins.idea.codeinspection.BallerinaUnresolvedReferenceInspection"/>
 
         <localInspection language="Ballerina" displayName="Unused variable inspection" groupPath="Ballerina"
                          groupName="Declaration redundancy" enabledByDefault="true" level="WARNING"
-                         implementationClass="org.ballerinalang.plugins.idea.codeInspection.UnusedVariableInspection"/>
+                         implementationClass="org.ballerinalang.plugins.idea.codeinspection.UnusedVariableInspection"/>
 
         <localInspection language="Ballerina" displayName="Unused constant inspection" groupPath="Ballerina"
                          groupName="Declaration redundancy" enabledByDefault="true" level="WARNING"
-                         implementationClass="org.ballerinalang.plugins.idea.codeInspection.UnusedConstantInspection"/>
+                         implementationClass="org.ballerinalang.plugins.idea.codeinspection.UnusedConstantInspection"/>
 
         <localInspection language="Ballerina" displayName="Unused constant inspection" groupPath="Ballerina"
                          groupName="Declaration redundancy" enabledByDefault="true" level="WARNING"
-                         implementationClass="org.ballerinalang.plugins.idea.codeInspection.UnusedGlobalVariableInspection"/>
+                         implementationClass="org.ballerinalang.plugins.idea.codeinspection.UnusedGlobalVariableInspection"/>
 
         <localInspection language="Ballerina" displayName="Unused constant inspection" groupPath="Ballerina"
                          groupName="Declaration redundancy" enabledByDefault="true" level="WARNING"
-                         implementationClass="org.ballerinalang.plugins.idea.codeInspection.UnusedParameterInspection"/>
+                         implementationClass="org.ballerinalang.plugins.idea.codeinspection.UnusedParameterInspection"/>
 
         <externalAnnotator language="Ballerina"
                            implementationClass="org.ballerinalang.plugins.idea.BallerinaExternalAnnotator"/>
 
         <!--completion confidences-->
         <completion.confidence language="Ballerina"
-                               implementationClass="org.ballerinalang.plugins.idea.codeInsight.completion.SkipAutoPopupInForEach"
+                               implementationClass="org.ballerinalang.plugins.idea.codeinsight.completion.SkipAutoPopupInForEach"
                                id="ballerinaSkipAutoPopupInForEach"/>
 
     </extensions>

@@ -35,6 +35,8 @@ import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URLDecoder;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import static org.ballerinalang.mime.util.Constants.OVERFLOW_DATA_INDEX;
@@ -51,19 +53,28 @@ public class HttpDispatcher {
     private static HttpService findService(HTTPServicesRegistry servicesRegistry, HTTPCarbonMessage inboundReqMsg) {
         try {
             Map<String, HttpService> servicesOnInterface = getServicesOnInterface(servicesRegistry, inboundReqMsg);
-            URI requestUri = getValidateURI(inboundReqMsg);
+
+            String rawUri = (String) inboundReqMsg.getProperty(HttpConstants.TO);
+            inboundReqMsg.setProperty(HttpConstants.RAW_URI, rawUri);
+            Map<String, Map<String, String>> matrixParams = new HashMap<>();
+            String uriWithoutMatrixParams = URIUtil.extractMatrixParams(rawUri, matrixParams);
+
+            inboundReqMsg.setProperty(HttpConstants.TO, uriWithoutMatrixParams);
+            inboundReqMsg.setProperty(HttpConstants.MATRIX_PARAMS, matrixParams);
+
+            URI validatedUri = getValidatedURI(uriWithoutMatrixParams);
 
             // Most of the time we will find service from here
             String basePath =
-                    servicesRegistry.findTheMostSpecificBasePath(requestUri.getPath(), servicesOnInterface);
+                    servicesRegistry.findTheMostSpecificBasePath(validatedUri.getPath(), servicesOnInterface);
             HttpService service = servicesOnInterface.get(basePath);
             if (service == null) {
-                inboundReqMsg.setProperty(Constants.HTTP_STATUS_CODE, 404);
+                inboundReqMsg.setProperty(HttpConstants.HTTP_STATUS_CODE, 404);
                 throw new BallerinaConnectorException("no matching service found for path : " +
-                        requestUri.getRawPath());
+                        validatedUri.getRawPath());
             }
 
-            setInboundReqProperties(inboundReqMsg, requestUri, basePath);
+            setInboundReqProperties(inboundReqMsg, validatedUri, basePath);
 
             return service;
         } catch (Throwable e) {
@@ -83,16 +94,15 @@ public class HttpDispatcher {
 
     private static void setInboundReqProperties(HTTPCarbonMessage inboundReqMsg, URI requestUri, String basePath) {
         String subPath = URIUtil.getSubPath(requestUri.getPath(), basePath);
-        inboundReqMsg.setProperty(Constants.BASE_PATH, basePath);
-        inboundReqMsg.setProperty(Constants.SUB_PATH, subPath);
-        inboundReqMsg.setProperty(Constants.QUERY_STR, requestUri.getQuery());
+        inboundReqMsg.setProperty(HttpConstants.BASE_PATH, basePath);
+        inboundReqMsg.setProperty(HttpConstants.SUB_PATH, subPath);
+        inboundReqMsg.setProperty(HttpConstants.QUERY_STR, requestUri.getQuery());
         //store query params comes with request as it is
-        inboundReqMsg.setProperty(Constants.RAW_QUERY_STR, requestUri.getRawQuery());
+        inboundReqMsg.setProperty(HttpConstants.RAW_QUERY_STR, requestUri.getRawQuery());
     }
 
-    private static URI getValidateURI(HTTPCarbonMessage inboundReqMsg) {
+    private static URI getValidatedURI(String uriStr) {
         URI requestUri;
-        String uriStr = (String) inboundReqMsg.getProperty(org.wso2.carbon.messaging.Constants.TO);
         try {
             requestUri = URI.create(uriStr);
         } catch (IllegalArgumentException e) {
@@ -102,12 +112,12 @@ public class HttpDispatcher {
     }
 
     private static String getInterface(HTTPCarbonMessage inboundRequest) {
-        String interfaceId = (String) inboundRequest.getProperty(Constants.LISTENER_INTERFACE_ID);
+        String interfaceId = (String) inboundRequest.getProperty(HttpConstants.LISTENER_INTERFACE_ID);
         if (interfaceId == null) {
             if (breLog.isDebugEnabled()) {
                 breLog.debug("Interface id not found on the message, hence using the default interface");
             }
-            interfaceId = Constants.DEFAULT_INTERFACE;
+            interfaceId = HttpConstants.DEFAULT_INTERFACE;
         }
 
         return interfaceId;
@@ -134,7 +144,7 @@ public class HttpDispatcher {
     public static HttpResource findResource(HTTPServicesRegistry servicesRegistry,
                                             HTTPCarbonMessage httpCarbonMessage) {
         HttpResource resource = null;
-        String protocol = (String) httpCarbonMessage.getProperty(org.wso2.carbon.messaging.Constants.PROTOCOL);
+        String protocol = (String) httpCarbonMessage.getProperty(HttpConstants.PROTOCOL);
         if (protocol == null) {
             throw new BallerinaConnectorException("protocol not defined in the incoming request");
         }
@@ -158,9 +168,9 @@ public class HttpDispatcher {
     public static BValue[] getSignatureParameters(HttpResource httpResource, HTTPCarbonMessage httpCarbonMessage) {
         //TODO Think of keeping struct type globally rather than creating for each request
         BStruct connection = ConnectorUtils.createStruct(httpResource.getBalResource(),
-                Constants.PROTOCOL_PACKAGE_HTTP, Constants.CONNECTION);
+                                                         HttpConstants.PROTOCOL_PACKAGE_HTTP, HttpConstants.CONNECTION);
         BStruct inRequest = ConnectorUtils.createStruct(httpResource.getBalResource(),
-                Constants.PROTOCOL_PACKAGE_HTTP, Constants.IN_REQUEST);
+                                                        HttpConstants.PROTOCOL_PACKAGE_HTTP, HttpConstants.IN_REQUEST);
 
         BStruct inRequestEntity = ConnectorUtils.createStruct(httpResource.getBalResource(),
                 org.ballerinalang.mime.util.Constants.PROTOCOL_PACKAGE_MIME,
@@ -182,7 +192,7 @@ public class HttpDispatcher {
         }
 
         Map<String, String> resourceArgumentValues =
-                (Map<String, String>) httpCarbonMessage.getProperty(Constants.RESOURCE_ARGS);
+                (Map<String, String>) httpCarbonMessage.getProperty(HttpConstants.RESOURCE_ARGS);
         for (int i = 0; i < signatureParams.getPathParams().size(); i++) {
             //No need for validation as validation already happened at deployment time,
             //only string parameters can be found here.

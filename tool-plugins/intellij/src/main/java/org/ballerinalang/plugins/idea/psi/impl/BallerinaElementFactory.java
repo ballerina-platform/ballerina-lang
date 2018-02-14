@@ -29,6 +29,9 @@ import org.ballerinalang.plugins.idea.psi.PackageDeclarationNode;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+/**
+ * Used to create new PSI elements.
+ */
 public class BallerinaElementFactory {
 
     private BallerinaElementFactory() {

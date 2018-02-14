@@ -143,8 +143,8 @@ public class TextDocumentServiceUtil {
 
         List<org.ballerinalang.util.diagnostic.Diagnostic> balDiagnostics = new ArrayList<>();
         CollectDiagnosticListener diagnosticListener = new CollectDiagnosticListener(balDiagnostics);
-        BallerinaCustomErrorStrategy customErrorStrategy = new BallerinaCustomErrorStrategy(context);
         compilerContext.put(DiagnosticListener.class, diagnosticListener);
+        BallerinaCustomErrorStrategy customErrorStrategy = new BallerinaCustomErrorStrategy(context);
         compilerContext.put(DefaultErrorStrategy.class, customErrorStrategy);
 
         Compiler compiler = Compiler.getInstance(compilerContext);

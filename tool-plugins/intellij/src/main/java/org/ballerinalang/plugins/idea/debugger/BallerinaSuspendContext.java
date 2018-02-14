@@ -27,6 +27,9 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
+/**
+ * Represent a Ballerina suspended context. Created in debug hits.
+ */
 public class BallerinaSuspendContext extends XSuspendContext {
 
     @NotNull

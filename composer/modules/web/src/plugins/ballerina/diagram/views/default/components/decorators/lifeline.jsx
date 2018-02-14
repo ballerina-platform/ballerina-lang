@@ -101,6 +101,7 @@ class LifeLine extends React.Component {
         const bBox = this.props.bBox;
         const iconSize = 18;
         const lineClass = `${this.props.classes.lineClass} unhoverable`;
+        const textClass = this.props.classes.textClass;
         const polygonClassTop = this.props.classes.polygonClass;
         const polygonClassBottom = `${this.props.classes.polygonClass} unhoverable`;
         const startSolidLineFrom = this.props.startSolidLineFrom;
@@ -119,7 +120,7 @@ class LifeLine extends React.Component {
           : (3 * DesignerDefaults.actionBox.width - 14) / 4;
         actionBbox.h = DesignerDefaults.actionBox.height;
         actionBbox.x = bBox.x + (bBox.w - actionBbox.w) / 2;
-        actionBbox.y = bBox.y + titleBoxH + DesignerDefaults.actionBox.padding.top;
+        actionBbox.y = bBox.y + 20;
         let tooltip = this.props.title;
         if (this.props.tooltip) {
             tooltip = this.props.tooltip;
@@ -177,10 +178,10 @@ class LifeLine extends React.Component {
             <g onClick={this.handleConnectorProps}>
                 <text
                     x={startX - (iconSize / 2)}
-                    y={bBox.y - 25}
+                    y={bBox.y - 5}
                     fontFamily='font-ballerina'
                     fontSize={iconSize}
-                    fill={this.props.iconColor}
+                    className={textClass}
                 >
                     {this.props.icon}
                 </text>
@@ -199,7 +200,7 @@ class LifeLine extends React.Component {
                 textAnchor='middle'
                 dominantBaseline='central'
                 fontWeight='400'
-                fill={this.props.iconColor}
+                className={textClass}
                 onClick={e => this.openExpressionEditor(e)}
             >{identifier}</text>
             <text
@@ -208,7 +209,7 @@ class LifeLine extends React.Component {
                 textAnchor='middle'
                 dominantBaseline='central'
                 fontWeight='400'
-                fill={this.props.iconColor}
+                className={textClass}
             >{identifier}</text>
             {this.props.onDelete &&
                 <ActionBox
