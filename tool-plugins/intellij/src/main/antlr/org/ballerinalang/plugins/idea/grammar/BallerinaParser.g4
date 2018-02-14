@@ -169,13 +169,17 @@ builtInTypeName
      |   TYPE_TYPE
      |   valueTypeName
      |   builtInReferenceTypeName
-     |   builtInTypeName (LEFT_BRACKET RIGHT_BRACKET)+
+     |   typeName (LEFT_BRACKET RIGHT_BRACKET)+
      ;
 
 referenceTypeName
     :   builtInReferenceTypeName
-    |   nameReference
+    |   userDefineTypeName
     |   anonStructTypeName
+    ;
+
+userDefineTypeName
+    :   nameReference
     ;
 
 anonStructTypeName
@@ -194,7 +198,7 @@ builtInReferenceTypeName
     :   TYPE_MAP (LT typeName GT)?
     |   TYPE_XML (LT (LEFT_BRACE xmlNamespaceName RIGHT_BRACE)? xmlLocalName GT)?
     |   TYPE_JSON (LT structReference GT)?
-    |   TYPE_DATATABLE
+    |   TYPE_TABLE (LT structReference GT)?
     |   functionTypeName
     ;
 
@@ -425,7 +429,7 @@ functionInvocation
     ;
 
 invocation
-    : DOT Identifier LEFT_PARENTHESIS expressionList? RIGHT_PARENTHESIS
+    : DOT anyIdentifierName LEFT_PARENTHESIS expressionList? RIGHT_PARENTHESIS
     ;
 
 expressionList
@@ -599,10 +603,16 @@ stringTemplateLiteral
     ;
 
 stringTemplateContent
-    :   (StringTemplateExpressionStart expression ExpressionEnd)+ stringTemplateText?
-    |   stringTemplateText
+    :   (StringTemplateExpressionStart expression ExpressionEnd)+ StringTemplateText?
+    |   StringTemplateText
     ;
 
-stringTemplateText
-    :   StringTemplateText
+anyIdentifierName
+    : Identifier
+    | reservedWord
+    ;
+
+reservedWord
+    :   FOREACH
+    |   TYPE_MAP
     ;

@@ -28,6 +28,9 @@ import org.ballerinalang.plugins.idea.psi.FullyQualifiedPackageNameNode;
 import org.ballerinalang.plugins.idea.psi.PackageDeclarationNode;
 import org.jetbrains.annotations.NotNull;
 
+/**
+ * Create file action tests.
+ */
 public class BallerinaCreateFileActionTest extends BallerinaCodeInsightFixtureTestCase {
 
     public void testPackageNameInARootDirectory() {
@@ -64,17 +67,17 @@ public class BallerinaCreateFileActionTest extends BallerinaCodeInsightFixtureTe
     private static void doTemplateTest(@NotNull PsiDirectory dir, @NotNull String expectedPackage,
                                        @NotNull CustomFileTemplate template) {
         PsiFile fileFromTemplate = CreateFileFromTemplateAction.createFileFromTemplate("test",
-                                                                                       template, dir, null, true);
+                template, dir, null, true);
         BallerinaFile file = (BallerinaFile) fileFromTemplate;
         assertNotNull(file);
         PackageDeclarationNode packageDeclarationNode = PsiTreeUtil.findChildOfType(fileFromTemplate,
-                                                                                    PackageDeclarationNode.class);
+                PackageDeclarationNode.class);
         // If the file is created in a content root, the package name is empty. So there will be no package
         // declaration available. Otherwise there will be a package declaration node.
         if (!expectedPackage.isEmpty()) {
             assertNotNull(packageDeclarationNode);
-            FullyQualifiedPackageNameNode fullyQualifiedPackageNameNode = PsiTreeUtil.getChildOfType(
-                    packageDeclarationNode, FullyQualifiedPackageNameNode.class);
+            FullyQualifiedPackageNameNode fullyQualifiedPackageNameNode =
+                    PsiTreeUtil.getChildOfType(packageDeclarationNode, FullyQualifiedPackageNameNode.class);
             assertNotNull(fullyQualifiedPackageNameNode);
             assertEquals(expectedPackage, fullyQualifiedPackageNameNode.getText());
         } else {

@@ -26,6 +26,9 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+/**
+ * Code completion parent class.
+ */
 public abstract class BallerinaCompletionTestBase extends BallerinaCodeInsightFixtureTestCase {
 
     static final List<String> FILE_LEVEL_KEYWORDS = Arrays.asList("public", "package", "import", "const",

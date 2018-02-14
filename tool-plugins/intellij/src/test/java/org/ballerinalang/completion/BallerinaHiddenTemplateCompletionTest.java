@@ -16,6 +16,9 @@
 
 package org.ballerinalang.completion;
 
+/**
+ * Hidden template completion test.
+ */
 public class BallerinaHiddenTemplateCompletionTest extends BallerinaCompletionTestBase {
 
     /**

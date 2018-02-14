@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *  Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -14,20 +14,18 @@
  *  limitations under the License.
  */
 
-package org.ballerinalang;
+package org.ballerinalang.plugins.idea.psi;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Inherited;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import com.intellij.lang.ASTNode;
+import org.antlr.jetbrains.adaptor.psi.ANTLRPsiNode;
+import org.jetbrains.annotations.NotNull;
 
 /**
- * Used to identify SDK aware tests.
+ * Represents an UserDefinedType in PSI tree.
  */
-@Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.TYPE)
-@Inherited
-public @interface BallerinaSDKAware {
+public class UserDefinedTypeName extends ANTLRPsiNode {
 
+    public UserDefinedTypeName(@NotNull ASTNode node) {
+        super(node);
+    }
 }

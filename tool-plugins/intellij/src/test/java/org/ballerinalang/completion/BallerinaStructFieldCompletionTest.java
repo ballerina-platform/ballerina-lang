@@ -16,6 +16,9 @@
 
 package org.ballerinalang.completion;
 
+/**
+ * Struct fields completion tests.
+ */
 public class BallerinaStructFieldCompletionTest extends BallerinaCompletionTestBase {
 
     @Override

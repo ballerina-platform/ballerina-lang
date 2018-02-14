@@ -24,6 +24,9 @@ import org.ballerinalang.BallerinaCodeInsightFixtureTestCase;
 
 import java.util.List;
 
+/**
+ * Exit point highlighter tests.
+ */
 public class BallerinaExitPointHighlightingTest extends BallerinaCodeInsightFixtureTestCase {
 
     @Override
