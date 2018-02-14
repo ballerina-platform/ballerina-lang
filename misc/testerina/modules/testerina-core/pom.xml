@@ -130,7 +130,7 @@
             <!--<plugin>-->
                 <!--<groupId>org.codehaus.mojo</groupId>-->
                 <!--<artifactId>exec-maven-plugin</artifactId>-->
-                <!--<version>${mvn.exec.plugin.version}</version>-->
+                <!--<version>${maven.exec.plugin.version}</version>-->
                 <!--<executions>-->
                     <!--<execution>-->
                         <!--<phase>process-classes</phase>-->

@@ -58,8 +58,8 @@
         <dependencies>
             <dependency>
                 <groupId>org.ballerinalang</groupId>
-                <artifactId>${langserver.launcher.id}</artifactId>
-                <version>${langserver.launcher.version}</version>
+                <artifactId>language-server-stdio-launcher</artifactId>
+                <version>${project.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
@@ -68,7 +68,7 @@
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>exec-maven-plugin</artifactId>
-                <version>1.5.0</version>
+                <version>${maven.exec.plugin.version}</version>
                 <executions>
                     <execution>
                         <id>npm-install</id>
@@ -105,7 +105,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-antrun-plugin</artifactId>
-                <version>1.8</version>
+                <version>${maven.antrun.plugin.version}</version>
                 <executions>
                     <execution>
                         <id>clean-target-server-build-dirs</id>
@@ -174,7 +174,7 @@
             <plugin>
                 <groupId>com.google.code.maven-replacer-plugin</groupId>
                 <artifactId>replacer</artifactId>
-                <version>1.5.3</version>
+                <version>${maven.replacer.plugin.version}</version>
                 <executions>
                     <execution>
                         <id>replace-version</id>
@@ -198,24 +198,4 @@
             </plugin>
         </plugins>
     </build>
-    <profiles>
-        <profile>
-            <id>platform-windows</id>
-            <activation>
-                <os>
-                    <family>windows</family>
-                </os>
-            </activation>
-            <properties>
-                <!-- Override the executable names for Windows -->
-                <npm.executable>npm.cmd</npm.executable>
-            </properties>
-        </profile>
-    </profiles>
-
-    <properties>
-        <npm.executable>npm</npm.executable>
-        <langserver.launcher.id>language-server-stdio-launcher</langserver.launcher.id>
-        <langserver.launcher.version>${project.version}</langserver.launcher.version>
-    </properties>
 </project>
