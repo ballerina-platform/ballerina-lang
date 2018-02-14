@@ -178,13 +178,6 @@ public class HttpOutboundRespListener implements HttpConnectorListener {
 
     private ChannelFuture writeOutboundResponseBody(HttpContent lastHttpContent) {
         HttpResponseFuture outboundRespStatusFuture = inboundRequestMsg.getHttpOutboundRespStatusFuture();
-        if (chunkConfig == ChunkConfig.NEVER ||
-                !Util.isVersionCompatibleForChunking(requestDataHolder.getHttpVersion())) {
-            for (HttpContent cachedHttpContent : contentList) {
-                ChannelFuture outboundResponseChannelFuture = sourceContext.writeAndFlush(cachedHttpContent);
-                notifyIfFailure(outboundRespStatusFuture, outboundResponseChannelFuture);
-            }
-        }
         ChannelFuture outboundChannelFuture = sourceContext.writeAndFlush(lastHttpContent);
         checkForWriteStatus(outboundRespStatusFuture, outboundChannelFuture);
         return outboundChannelFuture;
