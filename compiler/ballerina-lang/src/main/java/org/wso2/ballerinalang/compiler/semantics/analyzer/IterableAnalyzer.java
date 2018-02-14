@@ -81,7 +81,6 @@ public class IterableAnalyzer {
 
         if (iExpr.expr.type.tag != TypeTags.TUPLE_COLLECTION) {
             context = new IterableContext(iExpr.expr);   // This is a new iteration chain.
-            env.enclPkg.iterableContexts.add(context);
         } else {
             context = ((BLangInvocation) iExpr.expr).iContext; // Get context from previous invocation.
         }
@@ -97,6 +96,7 @@ public class IterableAnalyzer {
         } else {
             handleSimpleTerminalOperations(iOperation);
         }
+        validateIterableContext(context);
     }
 
     private void handleSimpleTerminalOperations(Operation operation) {
@@ -113,7 +113,7 @@ public class IterableAnalyzer {
     }
 
     private void handleLambdaBasedIterableOperation(Operation operation) {
-        if (operation.iExpr.argExprs.size() == 0 || operation.iExpr.argExprs.size() > 1) {
+        if (operation.iExpr.argExprs.size() != 1) {
             dlog.error(operation.pos, DiagnosticCode.ITERABLE_LAMBDA_REQUIRED);
             operation.resultTypes = Lists.of(symTable.errType);
             return;
@@ -194,7 +194,7 @@ public class IterableAnalyzer {
     private void assignInvocationType(Operation operation, List<BType> argTypes, List<BType> supportedRetTypes) {
         operation.argTypes = argTypes;
         operation.retArgTypes = supportedRetTypes;
-        if (supportedRetTypes.size() == 0) {
+        if (supportedRetTypes.isEmpty()) {
             operation.resultTypes = Collections.emptyList();
             operation.iExpr.type = symTable.noType;
             return;
@@ -413,5 +413,54 @@ public class IterableAnalyzer {
             }
             return symTable.errType;
         }
+    }
+
+    public void validateIterableContext(IterableContext context) {
+        final Operation lastOperation = context.operations.getLast();
+        final List<BType> expectedTypes = lastOperation.expectedTypes;
+        final List<BType> resultTypes = lastOperation.resultTypes;
+        if (expectedTypes.isEmpty() && resultTypes.isEmpty()) {
+            context.resultType = symTable.noType;
+            return;
+        }
+        if (expectedTypes.isEmpty()) {
+            // This error already logged.
+            return;
+        }
+        if (expectedTypes.size() > 1) {
+            // Iterable collection always return a single value.
+            dlog.error(lastOperation.pos, DiagnosticCode.ASSIGNMENT_COUNT_MISMATCH, 1, expectedTypes.size());
+            return;
+        }
+        if (expectedTypes.get(0) == symTable.errType) {
+            context.resultType = expectedTypes.get(0);
+            return;
+        }
+        if (resultTypes.isEmpty()) {
+            dlog.error(lastOperation.pos, DiagnosticCode.DOES_NOT_RETURN_VALUE, lastOperation.kind);
+            return;
+        }
+        if (resultTypes.get(0).tag == TypeTags.TUPLE_COLLECTION) {
+            final BTupleCollectionType tupleType = (BTupleCollectionType) resultTypes.get(0);
+            if (expectedTypes.get(0).tag == TypeTags.ARRAY && tupleType.tupleTypes.size() == 1) {
+                context.resultType = new BArrayType(tupleType.tupleTypes.get(0));
+                lastOperation.resultTypes = Lists.of(context.resultType);
+                return;
+            } else if (expectedTypes.get(0).tag == TypeTags.MAP && tupleType.tupleTypes.size() == 2
+                    && tupleType.tupleTypes.get(0).tag == TypeTags.STRING) {
+                context.resultType = symTable.mapType;
+                lastOperation.resultTypes = Lists.of(context.resultType);
+                return;
+            } else if (expectedTypes.get(0).tag == TypeTags.ANY) {
+                context.resultType = symTable.errType;
+                dlog.error(lastOperation.pos, DiagnosticCode.ITERABLE_RETURN_TYPE_MISMATCH, lastOperation.kind);
+                return;
+            } else if (expectedTypes.get(0).tag == TypeTags.NONE) {
+                context.resultType = symTable.noType;
+                return;
+            }
+        }
+        context.resultType = types.checkType(lastOperation.pos, resultTypes.get(0), expectedTypes.get(0),
+                DiagnosticCode.INCOMPATIBLE_TYPES);
     }
 }
