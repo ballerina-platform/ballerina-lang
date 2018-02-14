@@ -1,3 +1,5 @@
+import ballerina.net.http;
+
 documentation { Documentation for Test annotation
 - #a annotation `field a` documentation
 - #a annotation `field a` documentation
@@ -78,4 +80,37 @@ struct Employee {
     int age;
     string address;
     any ageAny;
+}
+
+documentation {
+Test Connector
+- #url url for endpoint
+- #url url for endpoint
+- #urls urls for endpoint}
+connector TestConnector (string url) {
+
+    documentation {Test Connector action testAction
+    - #s which represent successful or not
+    - #s which represent successful or not
+    - #ssss which represent successful or not}
+    action testAction() (boolean s) {
+       boolean value;
+       return value;
+    }
+}
+
+documentation { PizzaService HTTP Service
+- #conn HTTP connection.}
+service<http> PizzaService {
+
+    documentation {
+    Check orderPizza resource.
+    - #conn HTTP connection.
+    - #req In request.
+    - #req In request.
+    - #reqest In request.}
+    resource orderPizza(http:Connection conn, http:InRequest req) {
+        http:OutResponse res = {};
+        _ = conn.respond(res);
+    }
 }

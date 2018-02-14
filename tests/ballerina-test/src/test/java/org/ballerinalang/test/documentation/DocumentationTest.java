@@ -24,6 +24,7 @@ import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
+import org.wso2.ballerinalang.compiler.tree.BLangConnector;
 import org.wso2.ballerinalang.compiler.tree.BLangDocumentation;
 import org.wso2.ballerinalang.compiler.tree.BLangEnum;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
@@ -144,33 +145,47 @@ public class DocumentationTest {
 
     }
 
-    @Test(description = "Test global variable as annotation attribute value")
+    @Test(description = "Test negative cases.")
     public void testDocumentationNegative() {
         CompileResult compileResult = BCompileUtil.compile(this, "test-src", "documentation/negative.bal");
-        Assert.assertEquals(compileResult.getWarnCount(), 11);
+        Assert.assertEquals(compileResult.getWarnCount(), 18);
         BAssertUtil.validateWarning(compileResult, 0,
-                "already documented attribute 'a' in annotation 'Test'", 2, 40);
+                "already documented attribute 'a' in annotation 'Test'", 4, 40);
         BAssertUtil.validateWarning(compileResult, 1,
-                "no such documentable attribute 'c' in annotation 'Test'", 4, 40);
+                "no such documentable attribute 'c' in annotation 'Test'", 6, 40);
         BAssertUtil.validateWarning(compileResult, 2,
                 "invalid usage of attribute 'abc': attributes are not allowed for " +
-                        "constant and global variable documentation", 12, 53);
+                        "constant and global variable documentation", 14, 53);
         BAssertUtil.validateWarning(compileResult, 3,
-                "already documented attribute 'foo' in enum 'state'", 17, 38);
+                "already documented attribute 'foo' in enum 'state'", 19, 38);
         BAssertUtil.validateWarning(compileResult, 4,
-                "no such documentable attribute 'bar' in enum 'state'", 18, 38);
+                "no such documentable attribute 'bar' in enum 'state'", 20, 38);
         BAssertUtil.validateWarning(compileResult, 5,
-                "already documented attribute 'a' in struct 'Test'", 27, 36);
+                "already documented attribute 'a' in struct 'Test'", 29, 36);
         BAssertUtil.validateWarning(compileResult, 6,
-                "no such documentable attribute 'c' in struct 'Test'", 29, 36);
+                "no such documentable attribute 'c' in struct 'Test'", 31, 36);
         BAssertUtil.validateWarning(compileResult, 7,
-                "already documented attribute 'file' in function 'File.open'", 42, 76);
+                "already documented attribute 'file' in function 'File.open'", 44, 76);
         BAssertUtil.validateWarning(compileResult, 8,
-                "no such documentable attribute 'successfuls' in function 'File.open'", 44, 33);
+                "no such documentable attribute 'successfuls' in function 'File.open'", 46, 33);
         BAssertUtil.validateWarning(compileResult, 9,
-                "no such documentable attribute 'pa' in transformer 'Foo'", 59, 36);
+                "no such documentable attribute 'pa' in transformer 'Foo'", 61, 36);
         BAssertUtil.validateWarning(compileResult, 10,
-                "already documented attribute 'e' in transformer 'Foo'", 61, 64);
+                "already documented attribute 'e' in transformer 'Foo'", 63, 64);
+        BAssertUtil.validateWarning(compileResult, 11,
+                "already documented attribute 's' in action 'testAction'", 93, 43);
+        BAssertUtil.validateWarning(compileResult, 12,
+                "no such documentable attribute 'ssss' in action 'testAction'", 94, 43);
+        BAssertUtil.validateWarning(compileResult, 13,
+                "already documented attribute 'url' in connector 'TestConnector'", 87, 24);
+        BAssertUtil.validateWarning(compileResult, 14,
+                "no such documentable attribute 'urls' in connector 'TestConnector'", 88, 24);
+        BAssertUtil.validateWarning(compileResult, 15,
+                "already documented attribute 'req' in resource 'orderPizza'", 109, 23);
+        BAssertUtil.validateWarning(compileResult, 16,
+                "no such documentable attribute 'reqest' in resource 'orderPizza'", 110, 23);
+        BAssertUtil.validateWarning(compileResult, 17,
+                "no such documentable attribute 'conn' in service 'PizzaService'", 102, 42);
     }
 
     @Test(description = "Test annotation transformer.")
@@ -225,6 +240,104 @@ public class DocumentationTest {
         Assert.assertEquals(dNode.getAttributes().get(1).documentationField.getValue(), "req");
         Assert.assertEquals(dNode.getAttributes().get(1).documentationText.toString(),
                 "In request.");
+    }
+
+    @Test(description = "Test annotation connector.")
+    public void testDocConnector() {
+        CompileResult compileResult = BCompileUtil.compile(this, "test-src", "documentation/connector.bal");
+        PackageNode packageNode = compileResult.getAST();
+        BLangConnector connector = (BLangConnector) packageNode.getConnectors().get(0);
+        List<BLangDocumentation> docNodes = connector.docAttachments;
+        BLangDocumentation dNode = docNodes.get(0);
+        Assert.assertNotNull(dNode);
+        Assert.assertEquals(dNode.getAttributes().size(), 1);
+        Assert.assertEquals(dNode.documentationText.toString(), "\n" +
+                "Test Connector");
+        Assert.assertEquals(dNode.getAttributes().get(0).documentationField.getValue(), "url");
+        Assert.assertEquals(dNode.getAttributes().get(0).documentationText.toString(),
+                "url for endpoint");
+
+        dNode = connector.getActions().get(0).docAttachments.get(0);
+        Assert.assertEquals(dNode.getAttributes().size(), 1);
+        Assert.assertEquals(dNode.documentationText.toString(),
+                "Test Connector action testAction");
+        Assert.assertEquals(dNode.getAttributes().get(0).documentationField.getValue(), "s");
+        Assert.assertEquals(dNode.getAttributes().get(0).documentationText.toString(),
+                "which represent successful or not");
+
+        dNode = connector.getActions().get(1).docAttachments.get(0);
+        Assert.assertEquals(dNode.documentationText.toString(),
+                "Test Connector action testSend");
+        Assert.assertEquals(dNode.getAttributes().size(), 2);
+        Assert.assertEquals(dNode.getAttributes().get(0).documentationField.getValue(), "ep");
+        Assert.assertEquals(dNode.getAttributes().get(0).documentationText.toString(),
+                "which represent successful or not");
+        Assert.assertEquals(dNode.getAttributes().get(1).documentationField.getValue(), "s");
+        Assert.assertEquals(dNode.getAttributes().get(1).documentationText.toString(),
+                "which represent successful or not");
+    }
+
+    @Test(description = "Test annotation connector/function.")
+    public void testDocConnectorFunction() {
+        CompileResult compileResult = BCompileUtil.compile(this, "test-src", "documentation/connector_function.bal");
+        PackageNode packageNode = compileResult.getAST();
+        BLangConnector connector = (BLangConnector) packageNode.getConnectors().get(0);
+        List<BLangDocumentation> docNodes = connector.docAttachments;
+        BLangDocumentation dNode = docNodes.get(0);
+        Assert.assertNotNull(dNode);
+        Assert.assertEquals(dNode.getAttributes().size(), 1);
+        Assert.assertEquals(dNode.documentationText.toString(), "\n" +
+                "Test Connector");
+        Assert.assertEquals(dNode.getAttributes().get(0).documentationField.getValue(), "url");
+        Assert.assertEquals(dNode.getAttributes().get(0).documentationText.toString(),
+                "url for endpoint");
+
+        dNode = connector.getActions().get(0).docAttachments.get(0);
+        Assert.assertEquals(dNode.getAttributes().size(), 1);
+        Assert.assertEquals(dNode.documentationText.toString(),
+                "Test Connector action testAction");
+        Assert.assertEquals(dNode.getAttributes().get(0).documentationField.getValue(), "s");
+        Assert.assertEquals(dNode.getAttributes().get(0).documentationText.toString(),
+                "which represent successful or not");
+
+        dNode = connector.getActions().get(1).docAttachments.get(0);
+        Assert.assertEquals(dNode.documentationText.toString(),
+                "Test Connector action testSend");
+        Assert.assertEquals(dNode.getAttributes().size(), 2);
+        Assert.assertEquals(dNode.getAttributes().get(0).documentationField.getValue(), "ep");
+        Assert.assertEquals(dNode.getAttributes().get(0).documentationText.toString(),
+                "which represent successful or not");
+        Assert.assertEquals(dNode.getAttributes().get(1).documentationField.getValue(), "s");
+        Assert.assertEquals(dNode.getAttributes().get(1).documentationText.toString(),
+                "which represent successful or not");
+
+        docNodes = ((BLangFunction) packageNode.getFunctions().get(0)).docAttachments;
+        dNode = docNodes.get(0);
+        Assert.assertNotNull(dNode);
+        Assert.assertEquals(dNode.documentationText.toString(), "\n" +
+                "Gets a access parameter value (`true` or `false`) for a given key. " +
+                "Please note that #foo will always be bigger than #bar.\n" +
+                "Example:\n" +
+                "`SymbolEnv pkgEnv = symbolEnter.packageEnvs.get(pkgNode.symbol);`");
+        Assert.assertEquals(dNode.getAttributes().size(), 3);
+        Assert.assertEquals(dNode.getAttributes().get(0).documentationField.getValue(), "file");
+        Assert.assertEquals(dNode.getAttributes().get(0).documentationText.toString(),
+                "file path `C:\\users\\OddThinking\\Documents\\My Source\\Widget\\foo.src`");
+        Assert.assertEquals(dNode.getAttributes().get(1).documentationField.getValue(), "accessMode");
+        Assert.assertEquals(dNode.getAttributes().get(1).documentationText.toString(),
+                "read or write mode");
+        Assert.assertEquals(dNode.getAttributes().get(2).documentationField.getValue(), "successful");
+        Assert.assertEquals(dNode.getAttributes().get(2).documentationText.toString(),
+                "boolean `true` or `false`");
+
+        docNodes = ((BLangStruct) packageNode.getStructs().get(0)).docAttachments;
+        dNode = docNodes.get(0);
+        Assert.assertNotNull(dNode);
+        Assert.assertEquals(dNode.documentationText.toString(), " Documentation for File struct");
+        Assert.assertEquals(dNode.getAttributes().size(), 1);
+        Assert.assertEquals(dNode.getAttributes().get(0).documentationField.getValue(), "path");
+        Assert.assertEquals(dNode.getAttributes().get(0).documentationText.toString(),
+                "struct `field path` documentation");
     }
 
 }
