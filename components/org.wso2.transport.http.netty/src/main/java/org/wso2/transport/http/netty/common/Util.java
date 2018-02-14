@@ -15,9 +15,11 @@
 
 package org.wso2.transport.http.netty.common;
 
+import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
+import io.netty.handler.codec.http.DefaultFullHttpResponse;
 import io.netty.handler.codec.http.DefaultHttpRequest;
 import io.netty.handler.codec.http.DefaultHttpResponse;
 import io.netty.handler.codec.http.HttpContent;
@@ -72,6 +74,28 @@ public class Util {
         HttpResponseStatus httpResponseStatus = getHttpResponseStatus(outboundResponseMsg);
         HttpResponse outboundNettyResponse = new DefaultHttpResponse(httpVersion, httpResponseStatus, false);
 
+        setOutboundRespHeaders(outboundResponseMsg, inboundReqHttpVersion, serverName, keepAlive,
+                outboundNettyResponse);
+
+        return outboundNettyResponse;
+    }
+
+    public static HttpResponse createFullHttpResponse(HTTPCarbonMessage outboundResponseMsg,
+            String inboundReqHttpVersion, String serverName, boolean keepAlive, ByteBuf fullContent) {
+
+        HttpVersion httpVersion = new HttpVersion(Constants.HTTP_VERSION_PREFIX + inboundReqHttpVersion, true);
+        HttpResponseStatus httpResponseStatus = getHttpResponseStatus(outboundResponseMsg);
+        HttpResponse outboundNettyResponse =
+                new DefaultFullHttpResponse(httpVersion, httpResponseStatus, fullContent, false);
+
+        setOutboundRespHeaders(outboundResponseMsg, inboundReqHttpVersion, serverName, keepAlive,
+                outboundNettyResponse);
+
+        return outboundNettyResponse;
+    }
+
+    private static void setOutboundRespHeaders(HTTPCarbonMessage outboundResponseMsg, String inboundReqHttpVersion,
+            String serverName, boolean keepAlive, HttpResponse outboundNettyResponse) {
         if (!keepAlive && (Float.valueOf(inboundReqHttpVersion) >= Constants.HTTP_1_1)) {
             outboundResponseMsg.setHeader(Constants.HTTP_CONNECTION, Constants.CONNECTION_CLOSE);
         } else if (keepAlive && (Float.valueOf(inboundReqHttpVersion) < Constants.HTTP_1_1)) {
@@ -85,8 +109,6 @@ public class Util {
         }
 
         outboundNettyResponse.headers().add(outboundResponseMsg.getHeaders());
-
-        return outboundNettyResponse;
     }
 
     private static HttpResponseStatus getHttpResponseStatus(HTTPCarbonMessage msg) {
@@ -108,6 +130,8 @@ public class Util {
         outboundNettyRequest.setProtocolVersion(httpVersion);
         outboundNettyRequest.setUri(requestPath);
 
+        outboundNettyRequest.headers().set(Constants.ACCEPT_ENCODING,
+                Constants.ENCODING_DEFLATE + ", " + Constants.ENCODING_GZIP);
         outboundNettyRequest.headers().add(outboundRequestMsg.getHeaders());
 
         return outboundNettyRequest;
