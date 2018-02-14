@@ -22,12 +22,14 @@ import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.BServiceUtil;
 import org.ballerinalang.launcher.util.CompileResult;
+import org.ballerinalang.model.util.XMLUtils;
 import org.ballerinalang.model.values.BBlob;
 import org.ballerinalang.model.values.BJSON;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.model.values.BXML;
 import org.ballerinalang.model.values.BXMLItem;
 import org.ballerinalang.nativeimpl.io.channels.base.AbstractChannel;
 import org.ballerinalang.nativeimpl.io.channels.base.CharacterChannel;
@@ -101,6 +103,44 @@ public class MimeUtilityFunctionTest {
         Assert.assertEquals(returns.length, 1);
         Assert.assertEquals(((BJSON) returns[0]).getMessageAsString(),
                 "{\"concatContent\":[{\"code\":\"123\"},{\"code\":\"123\"},{\"code\":\"123\"}]}");
+    }
+
+    @Test(description = "Test setting json content to and entity and get the content back from entity as json")
+    public void testGetAndSetXml() {
+        BXML xmlContent = XMLUtils.parse("<name>ballerina</name>");
+        BValue[] args = {xmlContent};
+        BValue[] returns = BRunUtil.invoke(compileResult, "testSetAndGetXml", args);
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals(((BXML) returns[0]).getTextValue().stringValue(), "ballerina");
+    }
+
+    @Test(description = "Test whether the json content can be retrieved properly when it is called multiple times")
+    public void testGetXmlMoreThanOnce() {
+        BXML xmlContent = XMLUtils.parse("<name>ballerina</name>");
+        BValue[] args = {xmlContent};
+        BValue[] returns = BRunUtil.invoke(compileResult, "testGetXmlMultipleTimes", args);
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals(((BXML<Object>) returns[0]).getMessageAsString(),
+                "<name>ballerina</name><name>ballerina</name><name>ballerina</name>");
+    }
+
+    @Test(description = "Test setting json content to and entity and get the content back from entity as json")
+    public void testGetAndSetText() {
+        BString textContent = new BString("Hello Ballerina !");
+        BValue[] args = {textContent};
+        BValue[] returns = BRunUtil.invoke(compileResult, "testSetAndGetText", args);
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals(returns[0].stringValue(), "Hello Ballerina !");
+    }
+
+    @Test(description = "Test whether the json content can be retrieved properly when it is called multiple times")
+    public void testGetTextMoreThanOnce() {
+        BString textContent = new BString("Hello Ballerina !");
+        BValue[] args = {textContent};
+        BValue[] returns = BRunUtil.invoke(compileResult, "testGetTextMultipleTimes", args);
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals(returns[0].stringValue(),
+                "<name>ballerina</name><name>ballerina</name><name>ballerina</name>");
     }
 
    /* @Test(description = "Test 'getText' function in ballerina.net.mime package")

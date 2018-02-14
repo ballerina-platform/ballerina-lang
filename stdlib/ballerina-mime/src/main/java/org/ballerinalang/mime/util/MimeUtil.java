@@ -25,6 +25,7 @@ import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.nativeimpl.io.IOConstants;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -51,6 +52,7 @@ import static org.ballerinalang.mime.util.Constants.CONTENT_DISPOSITION_NAME;
 import static org.ballerinalang.mime.util.Constants.CONTENT_DISPOSITION_NAME_INDEX;
 import static org.ballerinalang.mime.util.Constants.CONTENT_DISPOSITION_PARA_MAP_INDEX;
 import static org.ballerinalang.mime.util.Constants.DISPOSITION_INDEX;
+import static org.ballerinalang.mime.util.Constants.ENTITY_BYTE_CHANNEL_INDEX;
 import static org.ballerinalang.mime.util.Constants.IS_BODY_BYTE_CHANNEL_ALREADY_SET;
 import static org.ballerinalang.mime.util.Constants.MEDIA_TYPE_INDEX;
 import static org.ballerinalang.mime.util.Constants.MESSAGE_ENTITY;
@@ -336,7 +338,7 @@ public class MimeUtil {
      * @return a byte array
      * @throws IOException In case an error occurs while reading input stream
      */
-    static byte[] getByteArray(InputStream input) throws IOException {
+    public static byte[] getByteArray(InputStream input) throws IOException {
         try (ByteArrayOutputStream output = new ByteArrayOutputStream()) {
             byte[] buffer = new byte[4096];
             for (int len; (len = input.read(buffer)) != -1; ) {
@@ -363,5 +365,23 @@ public class MimeUtil {
      */
     public static String getNewMultipartDelimiter() {
         return Long.toHexString(PlatformDependent.threadLocalRandom().nextLong());
+    }
+
+    public static BStruct createByteChannelStruct(Context context, EntityBodyChannel byteChannel) {
+        BStruct byteChannelStruct = ConnectorUtils.createAndGetStruct(context
+                , org.ballerinalang.mime.util.Constants.PROTOCOL_PACKAGE_IO
+                , org.ballerinalang.mime.util.Constants.BYTE_CHANNEL_STRUCT);
+        byteChannelStruct.addNativeData(IOConstants.BYTE_CHANNEL_NAME, byteChannel);
+        return byteChannelStruct;
+    }
+
+    public static void setByteChannelToEntity(Context context, BStruct entityStruct, EntityBodyChannel byteChannel) {
+        BStruct byteChannelStruct = MimeUtil.createByteChannelStruct(context, byteChannel);
+        entityStruct.setRefField(ENTITY_BYTE_CHANNEL_INDEX, byteChannelStruct);
+    }
+
+    public static EntityBodyChannel extractEntityBodyChannel(BStruct entityStruct) {
+        BStruct byteChannel = (BStruct) entityStruct.getRefField(ENTITY_BYTE_CHANNEL_INDEX);
+        return (EntityBodyChannel)byteChannel.getNativeData(IOConstants.BYTE_CHANNEL_NAME);
     }
 }

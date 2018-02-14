@@ -4,7 +4,6 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.mime.util.EntityBodyChannel;
 import org.ballerinalang.mime.util.MimeUtil;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BJSON;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.AbstractNativeFunction;
@@ -19,19 +18,18 @@ import java.nio.charset.StandardCharsets;
  * Set the entity body with JSON content.
  */
 @BallerinaFunction(packageName = "ballerina.mime",
-        functionName = "setJson",
+        functionName = "setText",
         receiver = @Receiver(type = TypeKind.STRUCT, structType = "Entity",
                 structPackage = "ballerina.mime"),
-        args = {@Argument(name = "jsonContent", type = TypeKind.JSON)},
+        args = {@Argument(name = "textContent", type = TypeKind.STRING)},
         isPublic = true)
-public class SetJson extends AbstractNativeFunction {
+public class SetText extends AbstractNativeFunction {
     @Override
     public BValue[] execute(Context context) {
         BStruct entityStruct = (BStruct) this.getRefArgument(context, 0);
-        BJSON jsonContent = (BJSON) this.getRefArgument(context, 1);
-
+        String textContent = this.getStringArgument(context, 1);
         EntityBodyChannel byteChannel = new EntityBodyChannel(new ByteArrayInputStream(
-                jsonContent.getMessageAsString().getBytes(StandardCharsets.UTF_8)));
+                textContent.getBytes(StandardCharsets.UTF_8)));
         MimeUtil.setByteChannelToEntity(context, entityStruct, byteChannel);
         return AbstractNativeFunction.VOID_RETURN;
     }

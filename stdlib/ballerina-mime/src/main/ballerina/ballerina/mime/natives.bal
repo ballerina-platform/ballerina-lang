@@ -53,6 +53,33 @@ public native function <Entity entity> setJson (json jsonContent);
 @Return {value:"return json data"}
 public native function <Entity entity> getJson() (json);
 
+@Description {value:"Sets the entity body with the given json content"}
+@Param {value:"jsonContent: Json content that needs to be set to entity"}
+public native function <Entity entity> setXml (xml jsonContent);
+
+@Description {value:"Given an entity, get the json payload, either from the memory or from the file handler."}
+@Param {value:"entity: Represent mime Entity"}
+@Return {value:"return json data"}
+public native function <Entity entity> getXml() (xml);
+
+@Description {value:"Sets the entity body with the given json content"}
+@Param {value:"jsonContent: Json content that needs to be set to entity"}
+public native function <Entity entity> setText (string textContent);
+
+@Description {value:"Given an entity, get the json payload, either from the memory or from the file handler."}
+@Param {value:"entity: Represent mime Entity"}
+@Return {value:"return json data"}
+public native function <Entity entity> getText() (string);
+
+@Description {value:"Sets the entity body with the given json content"}
+@Param {value:"jsonContent: Json content that needs to be set to entity"}
+public native function <Entity entity> setBlob (blob blobContent);
+
+@Description {value:"Given an entity, get the json payload, either from the memory or from the file handler."}
+@Param {value:"entity: Represent mime Entity"}
+@Return {value:"return json data"}
+public native function <Entity entity> getBlob() (blob);
+
 @Description {value:"Represent values in Content-Disposition header"}
 @Field {value:"fileName: Default filename for storing the bodypart, if the receiving agent wishes to store it in an
 external file"}
@@ -222,14 +249,14 @@ converted to a byte array with the given charset encoding. If the charset given 
 @Return {value:"return resulting decoded string"}
 public native function <MimeBase64Decoder decoder> decodeString (string content, string charset) (string);
 
-@Description {value:"Utility function used internally to get the bytes from a given channel."}
-@Param {value:"channel: A ByteChannel"}
-@Return {value:"return a byte array"}
-function readAll (io:ByteChannel channel) (blob) {
-    blob bytes;
-    bytes, _ = channel.readAllBytes();
-    return bytes;
-}
+//@Description {value:"Utility function used internally to get the bytes from a given channel."}
+//@Param {value:"channel: A ByteChannel"}
+//@Return {value:"return a byte array"}
+//function readAll (io:ByteChannel channel) (blob) {
+//    blob bytes;
+//    bytes, _ = channel.readAllBytes();
+//    return bytes;
+//}
 
 @Description {value:"Get the encoding value from a given MediaType."}
 @Param {value:"contentType: A MediaType struct"}

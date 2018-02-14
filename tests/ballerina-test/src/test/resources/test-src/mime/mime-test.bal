@@ -32,6 +32,38 @@ function testGetJsonMultipleTimes (json jsonContent) (json) {
     return returnContent;
 }
 
+function testSetAndGetXml (xml xmlContent) (xml) {
+    mime:Entity entity = {};
+    entity.setXml(xmlContent);
+    return entity.getXml();
+}
+
+function testGetXmlMultipleTimes (xml xmlContent) (xml) {
+    mime:Entity entity = {};
+    entity.setXml(xmlContent);
+    xml returnContent1 = entity.getXml();
+    xml returnContent2 = entity.getXml();
+    xml returnContent3 = entity.getXml();
+    xml returnContent = returnContent1 + returnContent2 + returnContent3;
+    return returnContent;
+}
+
+function testSetAndGetText (string textContent) (string) {
+    mime:Entity entity = {};
+    entity.setText(textContent);
+    return entity.getText();
+}
+
+function testGetTextMultipleTimes (string textContent) (string) {
+    mime:Entity entity = {};
+    entity.setText(textContent);
+    string returnContent1 = entity.getText();
+    string returnContent2 = entity.getText();
+    string returnContent3 = entity.getText();
+    string returnContent = returnContent1 + returnContent2 + returnContent3;
+    return returnContent;
+}
+
 function testGetMediaType (string contentType) (mime:MediaType) {
     return mime:getMediaType(contentType);
 }
