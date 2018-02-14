@@ -35,11 +35,10 @@ import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 public class ConnectionNativeFunctionTest {
 
     private CompileResult serviceResult;
-    private String filePath =
-            "test-src/statements/services/nativeimpl/connection/connection-native-function.bal";
 
     @BeforeClass
     public void setup() {
+        String filePath = "test-src/statements/services/nativeimpl/connection/connection-native-function.bal";
         serviceResult = BServiceUtil.setupProgramFile(this, filePath);
     }
 
