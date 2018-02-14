@@ -20,11 +20,12 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Button } from 'react-bootstrap';
 import Linkify from 'react-linkify';
-import { TryItConstants } from '@ballerina-lang/composer-try-it-plugin';
 import { ToolBarConstants } from '@ballerina-lang/composer-core';
 import LaunchManager from '../../LaunchManager/LaunchManager';
 
 import './http-service-decorator.scss';
+
+const CMD_SHOW_TRY_IT = 'show-try-it-view';
 
 /**
  * Component for http service message in the console.
@@ -51,7 +52,7 @@ class HttpServiceDecorator extends React.Component {
                 bsStyle='primary'
                 disabled={!LaunchManager.active}
                 onClick={() => {
-                    this.props.command.dispatch(TryItConstants.COMMANDS.SHOW_TRY_IT);
+                    this.props.command.dispatch(CMD_SHOW_TRY_IT);
                 }}
             >
                 Try-It

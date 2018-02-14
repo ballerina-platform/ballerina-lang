@@ -18,7 +18,7 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
-import { TreeUtil } from '@ballerina-lang/composer-ballerina-plugin';
+import { getPackageNameString } from '../utils';
 import DebugManager from '../DebugManager';
 import './BreakpointHoc.scss';
 
@@ -145,7 +145,7 @@ function breakpointHoc(WrappedComponent) {
          */
         getPackageName() {
             const { astRoot } = this.context;
-            return TreeUtil.getPackageNameString(astRoot);
+            return getPackageNameString(astRoot);
         }
         /**
          * add breakpoint
