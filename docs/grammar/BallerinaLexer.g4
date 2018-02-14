@@ -705,7 +705,7 @@ DocumentationTemplateEnd
     ;
 
 DocumentationTemplateAttributeStart
-    :  DocNewLine DocSpace? DocSpace? DocSpace? DocSub WS DocHash              -> pushMode(DEFAULT_MODE)
+    :  DocNewLine WS? DocSub WS DocHash              -> pushMode(DEFAULT_MODE)
     ;
 
 DocumentationInlineCodeStart
@@ -727,11 +727,6 @@ DocBackTick
 fragment
 DocHash
     :   '#'
-    ;
-
-fragment
-DocSpace
-    :   ' '
     ;
 
 fragment

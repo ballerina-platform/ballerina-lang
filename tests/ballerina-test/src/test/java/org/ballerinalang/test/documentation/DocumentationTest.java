@@ -27,7 +27,9 @@ import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangDocumentation;
 import org.wso2.ballerinalang.compiler.tree.BLangEnum;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
+import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.BLangStruct;
+import org.wso2.ballerinalang.compiler.tree.BLangTransformer;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 
 import java.util.List;
@@ -145,7 +147,7 @@ public class DocumentationTest {
     @Test(description = "Test global variable as annotation attribute value")
     public void testDocumentationNegative() {
         CompileResult compileResult = BCompileUtil.compile(this, "test-src", "documentation/negative.bal");
-        Assert.assertEquals(compileResult.getWarnCount(), 9);
+        Assert.assertEquals(compileResult.getWarnCount(), 11);
         BAssertUtil.validateWarning(compileResult, 0,
                 "already documented attribute 'a' in annotation 'Test'", 2, 40);
         BAssertUtil.validateWarning(compileResult, 1,
@@ -165,6 +167,64 @@ public class DocumentationTest {
                 "already documented attribute 'file' in function 'File.open'", 42, 76);
         BAssertUtil.validateWarning(compileResult, 8,
                 "no such documentable attribute 'successfuls' in function 'File.open'", 44, 33);
+        BAssertUtil.validateWarning(compileResult, 9,
+                "no such documentable attribute 'pa' in transformer 'Foo'", 59, 36);
+        BAssertUtil.validateWarning(compileResult, 10,
+                "already documented attribute 'e' in transformer 'Foo'", 61, 64);
+    }
+
+    @Test(description = "Test annotation transformer.")
+    public void testDocTransformer() {
+        CompileResult compileResult = BCompileUtil.compile(this, "test-src", "documentation/transformer.bal");
+        PackageNode packageNode = compileResult.getAST();
+        List<BLangDocumentation> docNodes = ((BLangTransformer) packageNode.getTransformers().get(0)).docAttachments;
+        BLangDocumentation dNode = docNodes.get(0);
+        Assert.assertNotNull(dNode);
+        Assert.assertEquals(dNode.documentationText.toString(), "\n" +
+                " Transformer Foo Person -> Employee");
+        Assert.assertEquals(dNode.getAttributes().size(), 3);
+        Assert.assertEquals(dNode.getAttributes().get(0).documentationField.getValue(), "p");
+        Assert.assertEquals(dNode.getAttributes().get(0).documentationText.toString(),
+                "input struct Person source used for transformation");
+        Assert.assertEquals(dNode.getAttributes().get(1).documentationField.getValue(), "e");
+        Assert.assertEquals(dNode.getAttributes().get(1).documentationText.toString(),
+                "output struct Employee struct which Person transformed to");
+        Assert.assertEquals(dNode.getAttributes().get(2).documentationField.getValue(), "defaultAddress");
+        Assert.assertEquals(dNode.getAttributes().get(2).documentationText.toString(),
+                "address which serves Eg: `POSTCODE 112`");
+    }
+
+    @Test(description = "Test annotation service.")
+    public void testDocService() {
+        CompileResult compileResult = BCompileUtil.compile(this, "test-src", "documentation/service.bal");
+        PackageNode packageNode = compileResult.getAST();
+        BLangService service = (BLangService) packageNode.getServices().get(0);
+        List<BLangDocumentation> docNodes = service.docAttachments;
+        BLangDocumentation dNode = docNodes.get(0);
+        Assert.assertNotNull(dNode);
+        Assert.assertEquals(dNode.documentationText.toString(), " PizzaService HTTP Service ");
+
+        dNode = service.getResources().get(0).docAttachments.get(0);
+        Assert.assertEquals(dNode.getAttributes().size(), 2);
+        Assert.assertEquals(dNode.documentationText.toString(), "\n" +
+                "    Check orderPizza resource.");
+        Assert.assertEquals(dNode.getAttributes().get(0).documentationField.getValue(), "conn");
+        Assert.assertEquals(dNode.getAttributes().get(0).documentationText.toString(),
+                "HTTP connection.");
+        Assert.assertEquals(dNode.getAttributes().get(1).documentationField.getValue(), "req");
+        Assert.assertEquals(dNode.getAttributes().get(1).documentationText.toString(),
+                "In request.");
+
+        dNode = service.getResources().get(1).docAttachments.get(0);
+        Assert.assertEquals(dNode.documentationText.toString(), "\n" +
+                "    Check status resource.");
+        Assert.assertEquals(dNode.getAttributes().size(), 2);
+        Assert.assertEquals(dNode.getAttributes().get(0).documentationField.getValue(), "conn");
+        Assert.assertEquals(dNode.getAttributes().get(0).documentationText.toString(),
+                "HTTP connection.");
+        Assert.assertEquals(dNode.getAttributes().get(1).documentationField.getValue(), "req");
+        Assert.assertEquals(dNode.getAttributes().get(1).documentationText.toString(),
+                "In request.");
     }
 
 }
