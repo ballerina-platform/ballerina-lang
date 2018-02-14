@@ -156,7 +156,8 @@ public class PackageActionFunctionAndTypesFilter extends AbstractSymbolFilter {
      * @param delimiterIndex        delimiter index (index of either . or :)
      * @return {@link ArrayList}    List of filtered symbol info
      */
-    private ArrayList<SymbolInfo> invocationsAndFieldsOnIdentifier(TextDocumentServiceContext context, int delimiterIndex) {
+    private ArrayList<SymbolInfo> invocationsAndFieldsOnIdentifier(TextDocumentServiceContext context,
+                                                                   int delimiterIndex) {
         ArrayList<SymbolInfo> actionFunctionList = new ArrayList<>();
         TokenStream tokenStream = context.get(DocumentServiceKeys.TOKEN_STREAM_KEY);
         List<SymbolInfo> symbols = context.get(CompletionKeys.VISIBLE_SYMBOLS_KEY);
