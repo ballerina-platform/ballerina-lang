@@ -47,22 +47,22 @@ public class SignatureParams {
         if (paramDetails.size() < 2) {
             throw new BallerinaConnectorException("resource signature parameter count should be more than two");
         }
-        if (!isValidResourceParam(paramDetails.get(0), Constants.CONNECTION)) {
+        if (!isValidResourceParam(paramDetails.get(0), HttpConstants.CONNECTION)) {
             throw new BallerinaConnectorException("first parameter should be of type - "
-                    + Constants.PROTOCOL_PACKAGE_HTTP + ":" + Constants.CONNECTION);
+                    + HttpConstants.PROTOCOL_PACKAGE_HTTP + ":" + HttpConstants.CONNECTION);
         }
-        if (!isValidResourceParam(paramDetails.get(1), Constants.IN_REQUEST)) {
+        if (!isValidResourceParam(paramDetails.get(1), HttpConstants.IN_REQUEST)) {
             throw new BallerinaConnectorException("second parameter should be of type - "
-                    + Constants.PROTOCOL_PACKAGE_HTTP + ":" + Constants.IN_REQUEST);
+                    + HttpConstants.PROTOCOL_PACKAGE_HTTP + ":" + HttpConstants.IN_REQUEST);
         }
-        if(paramDetails.size() == 2) {
+        if (paramDetails.size() == 2) {
             return;
         }
 
-        if(resource.getEntityBodyAttributeValue() == null) {
+        if (resource.getEntityBodyAttributeValue() == null) {
             validatePathParam(paramDetails.subList(2, paramDetails.size()));
         } else {
-            int lastParamIndex = paramDetails.size()-1;
+            int lastParamIndex = paramDetails.size() - 1;
             validatePathParam(paramDetails.subList(2, lastParamIndex));
             validateEntityBodyParam(paramDetails.get(lastParamIndex));
         }
@@ -70,7 +70,7 @@ public class SignatureParams {
 
     private boolean isValidResourceParam(ParamDetail paramDetail, String varTypeName) {
         return paramDetail.getVarType().getPackagePath() != null
-                && paramDetail.getVarType().getPackagePath().equals(Constants.PROTOCOL_PACKAGE_HTTP)
+                && paramDetail.getVarType().getPackagePath().equals(HttpConstants.PROTOCOL_PACKAGE_HTTP)
                 && paramDetail.getVarType().getName().equals(varTypeName);
     }
 

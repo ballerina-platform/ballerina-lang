@@ -36,7 +36,6 @@ import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URLDecoder;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import static org.ballerinalang.mime.util.Constants.OVERFLOW_DATA_INDEX;
@@ -83,7 +82,7 @@ public class HttpDispatcher {
     }
 
     private static Map<String, HttpService> getServicesOnInterface(HTTPServicesRegistry servicesRegistry,
-            HTTPCarbonMessage inboundReqMsg) {
+                                                                   HTTPCarbonMessage inboundReqMsg) {
         String interfaceId = getInterface(inboundReqMsg);
         Map<String, HttpService> servicesOnInterface = servicesRegistry.getServicesInfoByInterface(interfaceId);
         if (servicesOnInterface == null) {
@@ -205,14 +204,14 @@ public class HttpDispatcher {
                     // application deal with the value.
                 }
             }
-            bValues[i+2] = new BString(argumentValue);
+            bValues[i + 2] = new BString(argumentValue);
         }
 
         if (signatureParams.getEntityBody() == null) {
             return bValues;
         }
         //assign entityBody
-        bValues[bValues.length-1] = populateAndGetEntityBody(httpResource, inRequest, inRequestEntity,
+        bValues[bValues.length - 1] = populateAndGetEntityBody(httpResource, inRequest, inRequestEntity,
                 signatureParams.getEntityBody().getVarType());
         return bValues;
     }

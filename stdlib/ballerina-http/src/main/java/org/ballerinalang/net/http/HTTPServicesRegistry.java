@@ -166,6 +166,7 @@ public class HTTPServicesRegistry {
         List<HttpResource> resources = new ArrayList<>();
         for (Resource resource : httpService.getBalerinaService().getResources()) {
             HttpResource httpResource = buildHttpResource(resource);
+            httpResource.prepareAndValidateSignatureParams();
             try {
                 httpService.getUriTemplate().parse(httpResource.getPath(), httpResource,
                                                    new HttpResourceElementFactory());
@@ -238,13 +239,10 @@ public class HTTPServicesRegistry {
                     .distinct().collect(Collectors.toList());
             httpResource.setProducesSubTypes(subAttributeValues);
         }
-        AnnAttrValue bodyAttributeValue = resourceConfigAnnotation.getAnnAttrValue(Constants.ANN_RESOURCE_ATTR_BODY);
-        if (bodyAttributeValue != null) {
-            httpResource.setEntityBodyAttributeValue(bodyAttributeValue.getStringValue());
+        AnnAttrValue bodyAttrVal = resourceConfigAnnotation.getAnnAttrValue(HttpConstants.ANN_RESOURCE_ATTR_BODY);
+        if (bodyAttrVal != null) {
+            httpResource.setEntityBodyAttributeValue(bodyAttrVal.getStringValue());
         }
-
-        httpResource.prepareAndValidateSignatureParams();
-
         return httpResource;
     }
 
