@@ -2,7 +2,7 @@ package ballerina.net.http;
 
 const string HEADER_KEY_LOCATION = "Location";
 
-public enum redirectCode {
+public enum RedirectCode {
     MULTIPLE_CHOICES_300,
     MOVED_PERMANENTLY_301,
     FOUND_302,
@@ -22,26 +22,26 @@ public function <Connection conn> respondContinue () (HttpConnectorError) {
     return err;
 }
 
-@Description { value:"Sends a redirect response code to the user with given redirection status code." }
+@Description { value:"Sends a redirect response to the user with given redirection status code." }
 @Param { value:"conn: The server connector connection" }
-@Param { value:"response: Response which user wants to send." }
+@Param { value:"response: Response to be sent to client." }
 @Param { value:"redirectCode: Status code of the specific redirect." }
 @Param { value:"locations: Array of locations where the redirection can happen." }
 @Return { value:"Returns an HttpConnectorError if there was any issue in sending the response." }
-public function <Connection conn> redirect(OutResponse response, redirectCode code, string[] locations) (HttpConnectorError) {
-    if (code == redirectCode.MULTIPLE_CHOICES_300) {
+public function <Connection conn> redirect (OutResponse response, RedirectCode code, string[] locations) (HttpConnectorError) {
+    if (code == RedirectCode.MULTIPLE_CHOICES_300) {
         response.statusCode = 300;
-    } else if (code == redirectCode.MOVED_PERMANENTLY_301) {
+    } else if (code == RedirectCode.MOVED_PERMANENTLY_301) {
         response.statusCode = 301;
-    } else if (code == redirectCode.FOUND_302) {
+    } else if (code == RedirectCode.FOUND_302) {
         response.statusCode = 302;
-    } else if (code == redirectCode.SEE_OTHER_303) {
+    } else if (code == RedirectCode.SEE_OTHER_303) {
         response.statusCode = 303;
-    } else if (code == redirectCode.NOT_MODIFIED_304) {
+    } else if (code == RedirectCode.NOT_MODIFIED_304) {
         response.statusCode = 304;
-    } else if (code == redirectCode.USE_PROXY_305) {
+    } else if (code == RedirectCode.USE_PROXY_305) {
         response.statusCode = 305;
-    } else if (code == redirectCode.TEMPORARY_REDIRECT_307) {
+    } else if (code == RedirectCode.TEMPORARY_REDIRECT_307) {
         response.statusCode = 307;
     }
 

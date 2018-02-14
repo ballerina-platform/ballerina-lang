@@ -29,6 +29,9 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 
+/**
+ * Test cases for ballerina.net.http.response native functions.
+ */
 public class ConnectionNativeFunctionTest {
 
     private CompileResult serviceResult;
