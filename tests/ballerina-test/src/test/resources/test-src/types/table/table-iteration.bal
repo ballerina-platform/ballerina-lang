@@ -80,6 +80,22 @@ function testFilterTable () (int count, int id1, int id2) {
     return;
 }
 
+function testFilterWithAnnonymousFuncOnTable () (int count, int id1, int id2) {
+    endpoint<sql:ClientConnector> testDB {
+        create sql:ClientConnector(sql:DB.HSQLDB_FILE, "./target/tempdb/",
+                                   0, "TEST_DATA_TABLE__ITR_DB", "SA", "", {maximumPoolSize:1});
+    }
+    table<Person> dt = testDB.select("SELECT * from Person", null, typeof Person);
+    Person[] personBelow35 = dt.filter(function (Person p) (boolean) {
+                                           return p.age < 35;
+                                       });
+    count = lengthof personBelow35;
+    id1 = personBelow35[0].id;
+    id2 = personBelow35[1].id;
+    testDB.close();
+    return;
+}
+
 
 function testFilterTableWithCount () (int count) {
     endpoint<sql:ClientConnector> testDB {
