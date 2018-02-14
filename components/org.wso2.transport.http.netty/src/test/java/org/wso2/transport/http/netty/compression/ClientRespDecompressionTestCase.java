@@ -50,7 +50,7 @@ import java.util.concurrent.TimeUnit;
 import static org.testng.AssertJUnit.assertEquals;
 
 /**
- * This class tests for 414 and 413 responses.
+ * This class tests handling compressed inbound responses.
  */
 public class ClientRespDecompressionTestCase {
 
