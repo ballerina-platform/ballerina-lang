@@ -15,19 +15,24 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.ballerinalang.langserver.completions.consts;
+package org.ballerinalang.langserver.completions.util;
 
 /**
  * Completion Item Priority enum.
  */
 public enum  Priority {
-    PRIORITY1(1),
-    PRIORITY2(2),
-    PRIORITY3(3),
-    PRIORITY4(4),
-    PRIORITY5(5),
-    PRIORITY6(6),
-    PRIORITY7(7);
+    PRIORITY10(10),
+    PRIORITY20(20),
+    PRIORITY30(30),
+    PRIORITY40(40),
+    PRIORITY50(50),
+    PRIORITY60(60),
+    PRIORITY70(70),
+    PRIORITY80(80),
+    PRIORITY90(90),
+    PRIORITY100(100),
+    PRIORITY110(110),
+    PRIORITY120(120);
 
     private int priority;
 
@@ -37,5 +42,9 @@ public enum  Priority {
 
     public int getPriority() {
         return this.priority;
+    }
+    
+    public String toString() {
+        return Integer.toString(this.priority);
     }
 }
