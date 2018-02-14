@@ -2,6 +2,14 @@ package ballerina.net.http;
 
 const string HEADER_KEY_LOCATION = "Location";
 
+@Description { value:"Status codes for HTTP redirect"}
+@Field { value:"MULTIPLE_CHOICES_300: Represent status code 300 - Mutlipe choises."}
+@Field { value:"MOVED_PERMANENTLY_301: Represent status code 301 - Moved Permanantly."}
+@Field { value:"FOUND_302: Represent status code 302 - Found."}
+@Field { value:"SEE_OTHER_303: Represent status code 303 - See Other."}
+@Field { value:"NOT_MODIFIED_304: Represent status code 304 - Not Modified."}
+@Field { value:"USE_PROXY_305: Represent status code 305 - Use Proxy."}
+@Field { value:"TEMPORARY_REDIRECT_307: Represent status code 307 - Temporary Redirect."}
 public enum RedirectCode {
     MULTIPLE_CHOICES_300,
     MOVED_PERMANENTLY_301,
