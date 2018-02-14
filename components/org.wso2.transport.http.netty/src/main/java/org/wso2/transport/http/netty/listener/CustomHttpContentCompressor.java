@@ -21,9 +21,6 @@ public class CustomHttpContentCompressor extends HttpContentCompressor {
 
     @Override
     protected Result beginEncode(HttpResponse headers, String acceptEncoding) throws Exception {
-        if (headers.headers().get("Content-Length") != null) {
-            return null;
-        }
         String allowHeader = headers.headers().get("Allow");
         String contentLength = headers.headers().get("Content-Length");
         if (method == HttpMethod.OPTIONS && allowHeader != null && contentLength.equals("0")) {

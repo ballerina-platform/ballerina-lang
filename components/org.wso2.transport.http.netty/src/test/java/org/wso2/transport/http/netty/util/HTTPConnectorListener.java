@@ -18,6 +18,9 @@
 
 package org.wso2.transport.http.netty.util;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.wso2.transport.http.netty.compression.ServerRespCompressionTestCase;
 import org.wso2.transport.http.netty.contract.HttpConnectorListener;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 
@@ -27,6 +30,8 @@ import java.util.concurrent.CountDownLatch;
  * A connector listener for HTTP
  */
 public class HTTPConnectorListener implements HttpConnectorListener {
+
+    private static final Logger log = LoggerFactory.getLogger(ServerRespCompressionTestCase.class);
 
     private HTTPCarbonMessage httpMessage;
     private Throwable throwable;
@@ -49,10 +54,20 @@ public class HTTPConnectorListener implements HttpConnectorListener {
     }
 
     public HTTPCarbonMessage getHttpResponseMessage() {
+        try {
+            latch.await();
+        } catch (InterruptedException e) {
+            log.error("Interrupted while waiting for the response message", e);
+        }
         return httpMessage;
     }
 
     public Throwable getHttpErrorMessage() {
+        try {
+            latch.await();
+        } catch (InterruptedException e) {
+            log.error("Interrupted while waiting for the error response", e);
+        }
         return throwable;
     }
 }

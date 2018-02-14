@@ -64,7 +64,6 @@ public class ResponseStreamingWithoutBufferingListener implements HttpConnectorL
                 cMsg.addHttpContent(httpContent);
                 if (httpContent instanceof LastHttpContent) {
                     cMsg.addHttpContent(new DefaultLastHttpContent());
-                    httpRequestMessage.release();
                     break;
                 }
             }

@@ -67,6 +67,9 @@
             <class name="org.wso2.transport.http.netty.http1point0test.ChunkAutoHttpOnePointZeroClientTestCase"/>
             <class name="org.wso2.transport.http.netty.http1point0test.ChunkAlwaysHttpOnePointZeroClientTestCase"/>
 
+            <class name="org.wso2.transport.http.netty.compression.ServerRespCompressionTestCase"/>
+            <class name="org.wso2.transport.http.netty.compression.ClientRespDecompressionTestCase"/>
+
             <class name="org.wso2.transport.http.netty.websocket.WebSocketServerTestCase"/>
             <class name="org.wso2.transport.http.netty.websocket.WebSocketClientTestCase"/>
             <!--<class name="org.wso2.transport.http.netty.websocket.WebSocketPassThroughTestCase"/>-->

@@ -44,8 +44,7 @@ public class WebSocketServerHandshakeHandler extends ChannelInboundHandlerAdapte
     private final ServerConnectorFuture serverConnectorFuture;
     private final String interfaceId;
 
-    public WebSocketServerHandshakeHandler(
-            ServerConnectorFuture serverConnectorFuture, String interfaceId) {
+    public WebSocketServerHandshakeHandler(ServerConnectorFuture serverConnectorFuture, String interfaceId) {
         this.serverConnectorFuture = serverConnectorFuture;
         this.interfaceId = interfaceId;
     }
