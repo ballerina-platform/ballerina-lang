@@ -16,19 +16,16 @@
  * under the License.
  */
 
-import { PLUGIN_ID as LAYOUT_MANAGER_PLUGIN_ID } from './core/layout/constants';
-import { PLUGIN_ID as ALERT_PLUGIN_ID } from './core/alert/constants';
-import BallerinaPlugin from './plugins/ballerina/plugin';
-import DebuggerPlugin from './plugins/debugger/plugin';
-import HelpPlugin from './plugins/help/plugin';
-import TryItPlugin from './plugins/try-it/plugin';
-import WelcomeTabPlugin from './plugins/welcome-tab/plugin';
-import ImportSwaggerPlugin from './plugins/import-swagger/plugin';
-import ExportDiagramPlugin from './plugins/export-diagram/plugin';
-import CodeExplorerPlugin from './plugins/code-explorer/plugin';
-import { PLUGIN_ID as HELP_PLUGIN_ID } from './plugins/help/constants';
-import { WELCOME_TAB_PLUGIN_ID } from './plugins/welcome-tab/constants';
-import ImportStructPlugin from './plugins/import-struct/plugin';
+import { LayoutConstants, AlertConstants } from '@ballerina-lang/composer-core';
+import { BallerinaPlugin } from '@ballerina-lang/composer-ballerina-plugin';
+import { DebuggerPlugin } from '@ballerina-lang/composer-debugger-plugin';
+import { HelpPlugin, HelpPluginConstants } from '@ballerina-lang/composer-help-plugin';
+import { TryItPlugin } from '@ballerina-lang/composer-try-it-plugin';
+import { WelcomeTabPlugin, WelcomeTabConstants } from '@ballerina-lang/composer-welcome-tab-plugin';
+import { ImportSwaggerPlugin } from '@ballerina-lang/composer-import-swagger-plugin';
+import { DiagramExportPlugin } from '@ballerina-lang/composer-export-diagram-plugin';
+import { CodeExplorerPlugin } from '@ballerina-lang/composer-code-explorer-plugin';
+import { ImportStructPlugin } from '@ballerina-lang/composer-import-struct-plugin';
 
 export default {
     app: {
@@ -41,25 +38,25 @@ export default {
             WelcomeTabPlugin,
             ImportSwaggerPlugin,
             ImportStructPlugin,
-            ExportDiagramPlugin,
+            DiagramExportPlugin,
         ],
     },
     // provide plugin specific configs - if any.
     // plugin-id will be the key
     pluginConfigs: {
-        [ALERT_PLUGIN_ID]: {
+        [AlertConstants.PLUGIN_ID]: {
             container: 'alert-container',
         },
-        [LAYOUT_MANAGER_PLUGIN_ID]: {
+        [LayoutConstants.PLUGIN_ID]: {
             container: 'app-container',
             dialogContainer: 'dialog-container',
         },
-        [HELP_PLUGIN_ID]: {
+        [HelpPluginConstants.PLUGIN_ID]: {
             issue_tracker_url: 'https://github.com/ballerinalang/composer/issues/',
             example_url: 'https://ballerinalang.org/docs/by-example/',
             api_reference_url: 'https://ballerinalang.org/docs/api/0.96.1/',
         },
-        [WELCOME_TAB_PLUGIN_ID]: {
+        [WelcomeTabConstants.PLUGIN_ID]: {
             userGuide: 'http://ballerinalang.org/docs/user-guide/',
             samples: [
                 {

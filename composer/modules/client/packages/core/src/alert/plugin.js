@@ -15,7 +15,6 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import _ from '@ballerina-lang/composer-api-client/test/index';
 import React from 'react';
 import ReactDOM from 'react-dom';
 import PropTypes from 'prop-types';

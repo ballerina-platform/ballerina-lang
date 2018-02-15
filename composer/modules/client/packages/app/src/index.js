@@ -19,15 +19,14 @@
 
  // importing for side effects only
 import 'bootstrap';
-import 'theme_wso2';
+import 'theme-wso2';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/css/bootstrap-theme.min.css';
-import 'font-ballerina/css/font-ballerina.css';
-
-import _ from 'lodash';
-import { fetchConfigs } from 'api-client/api-client';
+import '@ballerina-lang/composer-font/dist/css/font-ballerina.css';
+import { fetchConfigs } from '@ballerina-lang/composer-api-client';
 import { Composer, Log as log } from '@ballerina-lang/composer-core';
-import defaultConfig from './config';
+import _ from 'lodash';
+import defaultConfig from '../config/composer-config';
 
 // Before start rendering, fetch api endpoint information & other configs from config service
 fetchConfigs()

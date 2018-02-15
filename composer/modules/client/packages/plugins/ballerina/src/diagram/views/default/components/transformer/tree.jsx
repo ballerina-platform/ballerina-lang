@@ -17,7 +17,7 @@
  */
 
 import React from 'react';
-import VariableEndpoint from './variable-endpoint.jsx';
+import VariableEndpoint from './variable-endpoint';
 import _ from 'lodash';
 import './tree.css';
 

@@ -23,7 +23,7 @@ import { setTimeout } from 'timers';
 import ReconnectingWebSocket from 'reconnecting-websocket';
 import { parseFile, getPathSeperator, getServiceEndpoint } from '@ballerina-lang/composer-api-client';
 import { CLASSES } from './views/constants';
-import Document from './docerina/document.jsx';
+import Document from './docerina/document';
 import Editor from './views/editor-wrapper';
 import { PLUGIN_ID, EDITOR_ID, DOC_VIEW_ID, COMMANDS as COMMAND_IDS, TOOLS as TOOL_IDS,
             DIALOGS as DIALOG_IDS, EVENTS } from './constants';

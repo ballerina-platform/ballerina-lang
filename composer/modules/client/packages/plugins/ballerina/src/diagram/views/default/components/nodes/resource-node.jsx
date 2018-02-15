@@ -20,7 +20,7 @@ import React from 'react';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
 import StatementDropZone from '../../../../../drag-drop/DropZone';
-import LifeLineDecorator from './../decorators/lifeline.jsx';
+import LifeLineDecorator from './../decorators/lifeline';
 import PanelDecorator from './../decorators/panel-decorator';
 import { getComponentForNodeArray } from './../../../../diagram-util';
 import ImageUtil from './../../../../image-util';

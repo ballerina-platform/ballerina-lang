@@ -18,6 +18,7 @@
   },
   "devDependencies": {
     "babel-cli": "^6.24.0",
+    "copyfiles": "^1.2.0",
     "rimraf": "^2.6.2",
     "webfont": "^7.1.4"
   }

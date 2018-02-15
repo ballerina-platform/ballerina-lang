@@ -14,7 +14,8 @@
   },
   "scripts": {
     "clean": "rimraf dist",
-    "build": "cross-env NODE_ENV=production webpack --config webpack.config.js",
+    "copy-assets": "copyfiles -u 1 'src/**/*.css' 'src/**/*.scss' 'src/**/*.json' 'src/**/*.ttf' dist",
+    "build": "npm run clean && npm run copy-assets && babel src -d dist",
     "test-spec:keep-building": "cross-env NODE_ENV=test-source-gen-dev webpack --watch",
     "test-spec:run": "mocha --require source-map-support/register ./src/plugins/ballerina/tests/js/spec/setup.js ./target/ballerina-test.js",
     "test-spec:run-ignore-ws": "cross-env IGNORE_WS=true mocha --require source-map-support/register ./src/plugins/ballerina/tests/js/spec/setup.js ./target/ballerina-test.js",
@@ -34,6 +35,7 @@
     "chalk": "^2.3.0",
     "chai-jest-snapshot": "^1.3.0",
     "cross-env": "^3.2.3",
+    "copyfiles": "^1.2.0",
     "enzyme": "^3.3.0",
     "enzyme-to-json": "^3.3.0",
     "jsdom": "^9.11.0",

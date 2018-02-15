@@ -17,7 +17,7 @@
  */
 
 import React from 'react';
-import Tree from './tree.jsx';
+import Tree from './tree';
 import './function.css';
 import './operator.css';
 import opClassMap from './op-class-map';

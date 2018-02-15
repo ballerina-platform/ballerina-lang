@@ -43,9 +43,7 @@ const codepoints = {}
 const config = [{
     target: 'web',
     entry: {
-        tree: './src/plugins/ballerina/model/tree-builder.js',
         bundle: './src/index.js',
-        testable: './src/plugins/ballerina/tests/testable.js',
     },
     output: {
         filename: '[name]-[hash].js',
@@ -83,6 +81,7 @@ const config = [{
                 use: [{
                     loader: 'css-loader',
                     options: {
+                        url: false,
                         sourceMap: !isProductionBuild,
                     },
                 }],
@@ -110,26 +109,14 @@ const config = [{
         new ProgressBarPlugin(),
         new CleanWebpackPlugin(['dist'], {watch: true, exclude:['themes']}),
         new webpack.optimize.CommonsChunkPlugin({
-            name: 'tree',
-            chunks: ['bundle', 'tree', 'testable'],
-            minChunks: Infinity,
-        }),
-        new webpack.optimize.CommonsChunkPlugin({
             name: 'vendor',
-            chunks: ['bundle', 'tree', 'testable'],
+            chunks: ['bundle'],
             minChunks(module) {
                 const context = module.context;
-                return context && context.indexOf('node_modules') >= 0;
+                return context && context.indexOf('node_modules') >= 0 && context.indexOf('@ballerina-lang') === -1;
             },
         }),
         extractCSSBundle,
-        // new UnusedFilesWebpackPlugin({
-        //    pattern: 'js/**/*.*',
-        //    globOptions: {
-        //        ignore: 'js/tests/**/*.*',
-        //    },
-        // }),
-        // https://github.com/fronteed/icheck/issues/322
         new webpack.ProvidePlugin({
             $: 'jquery',
             jQuery: 'jquery',
@@ -148,12 +135,6 @@ const config = [{
             template: 'src/index.ejs',
             inject: false,
         })
-        /*
-        new CircularDependencyPlugin({
-            exclude: /a\.css|node_modules/,
-            failOnError: true,
-        }),
-        */
     ],
     devServer: {
         contentBase: path.join(__dirname, "dist"),
@@ -169,19 +150,10 @@ const config = [{
     devtool: 'source-map',
     resolve: {
         extensions: ['.js', '.json', '.jsx'],
-        modules: ['src', 'public/lib', 'font/dist', 'node_modules', path.resolve(__dirname)],
+        modules: ['src', 'public/lib', 'node_modules'],
         alias: {
-            // ///////////////////////
-            // third party modules //
-            // //////////////////////
-            theme_wso2: 'theme-wso2-2.0.0/js/theme-wso2',
-            // /////////////////////
-            // custom modules ////
-            // ////////////////////
-            log: 'core/log/log',
-            event_channel: 'core/event/channel',
-            plugins: 'plugins',
-            images: 'public/images',
+            "theme-wso2": 'theme-wso2-2.0.0/js/theme-wso2',
+            "images": 'public/images',
         },
     },
 

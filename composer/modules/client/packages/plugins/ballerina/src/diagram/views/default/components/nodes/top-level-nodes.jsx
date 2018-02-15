@@ -29,7 +29,7 @@ import ImageUtil from '../../../../image-util';
 import EditableText from './editable-text';
 import CompilationUnitNode from '../../../../../model/tree/abstract-tree/compilation-unit-node';
 import TreeBuilder from './../../../../../model/tree-builder';
-import FragmentUtils from './../../../../../../ballerina/utils/fragment-utils';
+import FragmentUtils from '../../../../../utils/fragment-utils';
 
 /**
  * Class representing the package definition and other top level views.

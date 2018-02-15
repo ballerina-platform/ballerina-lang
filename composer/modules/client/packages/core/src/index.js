@@ -19,6 +19,7 @@ import Composer from './app';
 import Log from './log/log';
 import EventChannel from './event/channel';
 import Plugin from './plugin/plugin';
+import * as AlertConstants from './alert/constants';
 import * as PluginConstants from './plugin/constants';
 import * as LayoutConstants from './layout/constants';
 import * as EditorConstants from './editor/constants';
@@ -40,6 +41,7 @@ export default {
     Log,
     EventChannel,
     Plugin,
+    AlertConstants,
     PluginConstants,
     LayoutConstants,
     EditorConstants,

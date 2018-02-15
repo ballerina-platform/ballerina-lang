@@ -19,7 +19,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import './variable-endpoint.css';
-import VariableTypeDropdown from './variable-type-dropdown.jsx';
+import VariableTypeDropdown from './variable-type-dropdown';
 
 export default class VariableEndpoint extends React.Component {
     constructor(props, context) {

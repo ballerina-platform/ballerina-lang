@@ -18,7 +18,7 @@ const config = {
     glyphTransformFn: (obj) => {
         codepoints[obj.name] = obj.unicode;
     },
-    formats: ['ttf', 'eot', 'woff', 'woff2'],
+    formats: ['svg', 'ttf', 'eot', 'woff', 'woff2'],
     dest: {
         outputFilename: 'font-ballerina.css',
     },
@@ -42,6 +42,7 @@ webfont(config)
         if (!fs.existsSync(stylesDir)) {
             fs.mkdirSync(stylesDir);
         }
+        fs.writeFileSync(path.join(fontsDir, outputFilename + '.svg'), result.svg);
         fs.writeFileSync(path.join(fontsDir, outputFilename + '.ttf'), result.ttf);
         fs.writeFileSync(path.join(fontsDir, outputFilename + '.eot'), result.eot);
         fs.writeFileSync(path.join(fontsDir, outputFilename + '.woff'), result.woff);
