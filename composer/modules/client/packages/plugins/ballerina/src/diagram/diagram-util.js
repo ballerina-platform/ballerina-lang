@@ -73,6 +73,7 @@ function requireAll(requireContext) {
 }
 
 function getComponentForNodeArray(nodeArray, mode = 'default') {
+    // TODO Fix this using an generated index.js files
     // lets load the view components diffrent modes.
     components.default = requireAll(require.context('./views/default/components/nodes', true, /\.jsx$/));
     components.action = requireAll(require.context('./views/action/components/', true, /\.jsx$/));
