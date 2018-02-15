@@ -43,7 +43,7 @@ public class HTTPClientInitializer extends ChannelInitializer<SocketChannel> {
     private TargetHandler targetHandler;
     private boolean httpTraceLogEnabled;
     private boolean followRedirect;
-    private boolean certificateRevocationVerifier;
+    private boolean validateCertificateEnabled;
     private int maxRedirectCount;
     private int cacheSize;
     private int cacheDelay;
@@ -60,7 +60,7 @@ public class HTTPClientInitializer extends ChannelInitializer<SocketChannel> {
         this.isKeepAlive = senderConfiguration.isKeepAlive();
         this.proxyServerConfiguration = senderConfiguration.getProxyServerConfiguration();
         this.connectionManager = connectionManager;
-        this.certificateRevocationVerifier = senderConfiguration.getCertificateRevocationVerifier();
+        this.validateCertificateEnabled = senderConfiguration.isValidateCertificateEnabled();
         this.cacheDelay = senderConfiguration.getCacheDelay();
         this.cacheSize = senderConfiguration.getCacheSize();
     }
@@ -85,7 +85,7 @@ public class HTTPClientInitializer extends ChannelInitializer<SocketChannel> {
             log.debug("adding ssl handler");
             ch.pipeline().addLast("ssl", new SslHandler(this.sslEngine));
         }
-        if (certificateRevocationVerifier && sslEngine != null) {
+        if (validateCertificateEnabled && sslEngine != null) {
             ch.pipeline().addLast("certificateValidation",
                     new CertificateValidationHandler(this.sslEngine, this.cacheDelay, this.cacheSize));
         }

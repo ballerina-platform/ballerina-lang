@@ -147,8 +147,8 @@ public class ServerConnectorBootstrap {
         httpServerChannelInitializer.setReqSizeValidationConfig(requestSizeValidationConfig);
     }
 
-    public void addcertificateRevocationVerifier(Boolean isCertificateRevocationverifierEnabled) {
-        httpServerChannelInitializer.setCertificateRevocationVerifier(isCertificateRevocationverifierEnabled);
+    public void addcertificateRevocationVerifier(Boolean validateCertificateEnabled) {
+        httpServerChannelInitializer.setValidateCertificateEnabled(validateCertificateEnabled);
     }
 
     public void addCacheDelay(int cacheDelay) {

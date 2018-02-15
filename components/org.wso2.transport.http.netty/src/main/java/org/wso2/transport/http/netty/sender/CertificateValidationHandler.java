@@ -2,9 +2,9 @@ package org.wso2.transport.http.netty.sender;
 
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
+import io.netty.handler.ssl.SslHandshakeCompletionEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.transport.http.netty.common.certificatevalidation.CertificateVerificationException;
 import org.wso2.transport.http.netty.common.certificatevalidation.RevocationVerificationManager;
 import org.wso2.transport.http.netty.contract.HttpResponseFuture;
 
@@ -18,7 +18,7 @@ public class CertificateValidationHandler extends ChannelInboundHandlerAdapter {
 
     protected static final Logger LOG = LoggerFactory.getLogger(CertificateValidationHandler.class);
     private SSLEngine sslEngine;
-    RevocationVerificationManager revocationVerifier = null;
+    private RevocationVerificationManager revocationVerifier;
     private int cacheSize;
     private int cacheDelay;
     private HttpResponseFuture httpResponseFuture;
@@ -27,18 +27,23 @@ public class CertificateValidationHandler extends ChannelInboundHandlerAdapter {
         this.sslEngine = sslEngine;
         this.cacheDelay = cacheDelay;
         this.cacheSize = cacheSize;
+        this.revocationVerifier = null;
     }
 
     @Override
     public void userEventTriggered(ChannelHandlerContext ctx, Object evt) throws Exception {
         revocationVerifier = new RevocationVerificationManager(cacheSize, cacheDelay);
-        if (evt.toString().equals("SslHandshakeCompletionEvent(SUCCESS)")) {
-            try {
-                revocationVerifier.verifyRevocationStatus(sslEngine.getSession().getPeerCertificateChain());
-                 ctx.fireChannelRead(evt);
-            } catch (CertificateVerificationException e) {
+        if (evt instanceof SslHandshakeCompletionEvent) {
+            ctx.pipeline().remove(this);
+
+            SslHandshakeCompletionEvent event = (SslHandshakeCompletionEvent) evt;
+
+            if (event.isSuccess() && revocationVerifier
+                    .verifyRevocationStatus(sslEngine.getSession().getPeerCertificateChain())) {
+                ctx.fireChannelRead(evt);
+            } else {
                 ctx.close();
-                throw new SSLException("Certificate Chain Validation failed", e);
+                throw new SSLException("Certificate Chain Validation failed. Hence closing the channel");
             }
         }
        ctx.fireUserEventTriggered(evt);

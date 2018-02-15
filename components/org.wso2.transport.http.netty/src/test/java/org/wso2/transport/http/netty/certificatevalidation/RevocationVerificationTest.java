@@ -17,6 +17,7 @@
  */
 package org.wso2.transport.http.netty.certificatevalidation;
 
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.testng.annotations.Test;
 import org.wso2.transport.http.netty.common.certificatevalidation.CertificateVerificationException;
 import org.wso2.transport.http.netty.common.certificatevalidation.RevocationVerifier;
@@ -46,14 +47,14 @@ public class RevocationVerificationTest {
     @Test
     public void testCRLPathValidation() throws Exception {
         //Add BouncyCastle as Security Provider.
-        Security.addProvider(new org.bouncycastle.jce.provider.BouncyCastleProvider());
+        Security.addProvider(new BouncyCastleProvider());
         Utils utils = new Utils();
         X509Certificate[] certificates = utils.getRealCertificateChain();
         Throwable throwable = null;
         try {
             crlPathValidation(certificates);
         } catch (CertificateVerificationException e) {
-            //Path Verification Should Pass. This catch block should not be called
+            //Path Verification Should Pass. This catch block should not be called.
             throwable = e;
         }
         assertNull(throwable);
@@ -68,7 +69,7 @@ public class RevocationVerificationTest {
     @Test
     public void testCRLPathValidationWithFakeCerts() throws Exception {
         //Add BouncyCastle as Security Provider.
-        Security.addProvider(new org.bouncycastle.jce.provider.BouncyCastleProvider());
+        Security.addProvider(new BouncyCastleProvider());
         Utils utils = new Utils();
         X509Certificate[] fakeCertificates = utils.getFakeCertificateChain();
         Throwable throwable = null;
@@ -90,7 +91,7 @@ public class RevocationVerificationTest {
     @Test
     public void testOCSPPathValidation() throws Exception {
         //Add BouncyCastle as Security Provider.
-        Security.addProvider(new org.bouncycastle.jce.provider.BouncyCastleProvider());
+        Security.addProvider(new BouncyCastleProvider());
         Utils utils = new Utils();
         X509Certificate[] certificates = utils.getRealCertificateChain();
         Throwable throwable = null;
@@ -112,7 +113,7 @@ public class RevocationVerificationTest {
     @Test
     public void testOCSPPathValidationWithFakeCerts() throws Exception {
 
-        Security.addProvider(new org.bouncycastle.jce.provider.BouncyCastleProvider());
+        Security.addProvider(new BouncyCastleProvider());
         Utils utils = new Utils();
         X509Certificate[] fackeCertificates = utils.getFakeCertificateChain();
         Throwable throwable = null;

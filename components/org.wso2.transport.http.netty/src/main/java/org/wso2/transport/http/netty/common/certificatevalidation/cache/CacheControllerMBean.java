@@ -19,20 +19,20 @@
 package org.wso2.transport.http.netty.common.certificatevalidation.cache;
 
 /**
- * Bean Class for cache control.
+ * Bean class for cache control.
  */
 public interface CacheControllerMBean {
 
-    public boolean stopCacheManager();
+    boolean stopCacheManager();
 
-    public boolean wakeUpCacheManager();
+    boolean wakeUpCacheManager();
 
-    public boolean changeCacheManagerDelayMins(int delay);
+    boolean changeCacheManagerDelayMins(int delay);
 
-    public boolean isCacheManagerRunning();
+    boolean isCacheManagerRunning();
 
-    public int getCacheSize();
+    int getCacheSize();
 
-    public int getCacheManagerDelayMins();
+    int getCacheManagerDelayMins();
 }
 

@@ -25,8 +25,10 @@ import org.bouncycastle.cert.X509v2CRLBuilder;
 import org.bouncycastle.cert.jcajce.JcaX509CRLConverter;
 import org.bouncycastle.cert.jcajce.JcaX509ExtensionUtils;
 import org.bouncycastle.jce.PrincipalUtil;
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.bouncycastle.operator.jcajce.JcaContentSignerBuilder;
 import org.testng.annotations.Test;
+import org.wso2.transport.http.netty.common.certificatevalidation.Constants;
 import org.wso2.transport.http.netty.common.certificatevalidation.RevocationStatus;
 import org.wso2.transport.http.netty.common.certificatevalidation.crl.CRLCache;
 import org.wso2.transport.http.netty.common.certificatevalidation.crl.CRLVerifier;
@@ -46,7 +48,7 @@ import static org.testng.Assert.assertTrue;
 public class CRLVerifierTest {
 
     /**
-     * To test CRLVerifier behaviour when a revoked certificate is given, a fake certificate will be created, signed
+     * To test revoked certificate CRLVerifier behaviour, a fake certificate will be created, signed
      * by a fake root certificate. CrlDistributionPoint extension will be extracted from
      * the real peer certificate in resources directory and copied to the fake certificate as a certificate extension.
      * So the criDistributionPointURL in the fake certificate will be the same as in the real certificate.
@@ -58,27 +60,21 @@ public class CRLVerifierTest {
     @Test
     public void testRevokedCertificate() throws Exception {
 
-        //Add BouncyCastle as Security Provider.
-        Security.addProvider(new org.bouncycastle.jce.provider.BouncyCastleProvider());
+        Security.addProvider(new BouncyCastleProvider());
 
         Utils utils = new Utils();
-        //Create X509Certificate from the real certificate file in resource folder.
         X509Certificate realPeerCertificate = utils.getRealPeerCertificate();
-        //Extract crlDistributionPointUrl from the real peer certificate.
         String crlDistributionPointUrl = getCRLDistributionPointUrl(realPeerCertificate);
 
-        //Create fake CA certificate.
         KeyPair caKeyPair = utils.generateRSAKeyPair();
         X509Certificate fakeCACert = utils.generateFakeRootCert(caKeyPair);
 
-        //Create fake peer certificate signed by the fake CA private key. This will be a revoked certificate.
         KeyPair peerKeyPair = utils.generateRSAKeyPair();
         BigInteger revokedSerialNumber = BigInteger.valueOf(111);
 
         X509Certificate fakeRevokedCertificate = utils
                 .getFakeCertificateForCRLTest(fakeCACert, peerKeyPair, revokedSerialNumber, realPeerCertificate);
 
-        //Create a crl with fakeRevokedCertificate marked as revoked.
         X509CRL x509CRL = createCRL(fakeRevokedCertificate, caKeyPair.getPrivate(), revokedSerialNumber);
 
         CRLCache cache = CRLCache.getCache();
@@ -93,7 +89,7 @@ public class CRLVerifierTest {
     }
 
     /**
-     * This will use Reflection to call getCrlDistributionPoints() private method in CRLVerifier.
+     * This method is used to extract CRL distribution points from real peer certificate.
      *
      * @param certificate is a certificate with a proper CRLDistributionPoints extension.
      * @return the extracted cRLDistributionPointUrl.
@@ -117,10 +113,10 @@ public class CRLVerifierTest {
      * Creates a fake CRL for the fake CA. The fake certificate with the given revokedSerialNumber will be marked
      * as Revoked in the returned CRL.
      *
-     * @param caCert              the fake CA certificate.
-     * @param caPrivateKey        private key of the fake CA.
-     * @param revokedSerialNumber the serial number of the fake peer certificate made to be marked as revoked.
-     * @return the created fake CRL
+     * @param caCert              Fake CA certificate.
+     * @param caPrivateKey        Private key of the fake CA.
+     * @param revokedSerialNumber Serial number of the fake peer certificate made to be marked as revoked.
+     * @return Created fake CRL
      * @throws Exception
      */
     private static X509CRL createCRL(X509Certificate caCert, PrivateKey caPrivateKey, BigInteger revokedSerialNumber)
@@ -132,16 +128,15 @@ public class CRLVerifierTest {
         X509v2CRLBuilder builder = new X509v2CRLBuilder(issuer, new Date());
         builder.addCRLEntry(revokedSerialNumber, new Date(), 9);
         builder.setNextUpdate(new Date(now.getTime() + TestConstants.NEXT_UPDATE_PERIOD));
-        builder.addExtension(new ASN1ObjectIdentifier("2.5.29.31"), false,
+        builder.addExtension(new ASN1ObjectIdentifier(TestConstants.CRL_DISTRIBUTION_POINT_EXTENSION), false,
                 extUtils.createAuthorityKeyIdentifier(caCert));
         builder.addExtension(new ASN1ObjectIdentifier("2.5.29.20"), false, new CRLNumber(BigInteger.valueOf(1)));
         JcaContentSignerBuilder contentSignerBuilder = new JcaContentSignerBuilder("SHA256WithRSAEncryption");
 
-        contentSignerBuilder.setProvider("BC");
+        contentSignerBuilder.setProvider(Constants.BOUNCY_CASTLE_PROVIDER);
         X509CRLHolder cRLHolder = builder.build(contentSignerBuilder.build(caPrivateKey));
         JcaX509CRLConverter converter = new JcaX509CRLConverter();
-        converter.setProvider("BC");
-       // X509CRL crl = converter.getCRL(cRLHolder);
+        converter.setProvider(Constants.BOUNCY_CASTLE_PROVIDER);
         return converter.getCRL(cRLHolder);
     }
 }

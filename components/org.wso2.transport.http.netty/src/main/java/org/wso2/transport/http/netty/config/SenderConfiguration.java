@@ -95,7 +95,7 @@ public class SenderConfiguration {
     private String tlsStoreType;
     private String httpVersion = "1.1";
     private ProxyServerConfiguration proxyServerConfiguration;
-    private boolean certificateRevocationVerifier;
+    private boolean validateCertificateEnabled;
     private int cacheSize;
     private int cacheDelay;
 
@@ -266,8 +266,8 @@ public class SenderConfiguration {
         }
     }
 
-    public void setCertificateRevocationVerifier(boolean certificateRevocationVerifier) {
-        this.certificateRevocationVerifier = certificateRevocationVerifier;
+    public void setValidateCertificateEnabled(boolean validateCertificateEnabled) {
+        this.validateCertificateEnabled = validateCertificateEnabled;
     }
 
     public void setCacheSize(int cacheSize) {
@@ -278,8 +278,8 @@ public class SenderConfiguration {
         this.cacheDelay = cacheDelay;
     }
 
-    public boolean getCertificateRevocationVerifier() {
-        return certificateRevocationVerifier;
+    public boolean isValidateCertificateEnabled() {
+        return validateCertificateEnabled;
     }
 
     public int getCacheSize() {

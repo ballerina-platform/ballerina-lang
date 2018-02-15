@@ -71,7 +71,7 @@ public class OCSPCache implements ManageableCache {
     }
 
     /**
-     * This lazy initializes the Cache with a CacheManager. If this method is not called,
+     * This lazy initializes the cache with a CacheManager. If this method is not called,
      * a cache manager will not be used.
      *
      * @param size  max size of the cache
@@ -117,7 +117,8 @@ public class OCSPCache implements ManageableCache {
         iterator = hashMap.entrySet().iterator();
     }
 
-    //This has to be synchronized coz several threads will try to replace cache value (cacheManager and Reactor thread)
+    //This has to be synchronized because several threads will try to replace cache value
+    // (cacheManager and Reactor thread)
     private synchronized void replaceNewCacheValue(OCSPCacheValue cacheValue) {
         //If someone has updated with the new value before current Thread.
         if (cacheValue.isValid()) {
@@ -130,21 +131,24 @@ public class OCSPCache implements ManageableCache {
             OCSPResp response = ocspVerifier.getOCSPResponce(serviceUrl, request);
 
             if (OCSPResponseStatus.SUCCESSFUL != response.getStatus()) {
-                throw new CertificateVerificationException("OCSP response status not SUCCESSFUL");
+                throw new CertificateVerificationException(
+                        "OCSP response status was not SUCCESSFUL. Found OCSPResponseStatus:" + response.getStatus());
             }
 
             BasicOCSPResp basicResponse = (BasicOCSPResp) response.getResponseObject();
             SingleResp[] responses = (basicResponse == null) ? null : basicResponse.getResponses();
 
             if (responses == null) {
-                throw new CertificateVerificationException("Cant get OCSP response");
+                throw new CertificateVerificationException("Unable to get OCSP response.");
             }
 
             SingleResp resp = responses[0];
             this.setCacheValue(cacheValue.serialNumber, resp, request, serviceUrl);
 
         } catch (CertificateVerificationException | OCSPException e) {
-            log.info("Cant replace old CacheValue with new CacheValue. So removing ocsp cache value", e);
+            if (log.isInfoEnabled()) {
+                log.info("Can not replace old CacheValue with new CacheValue. So removing ocsp cache value", e);
+            }
             //If cant be replaced remove.
             cacheValue.removeThisCacheValue();
         }
@@ -153,7 +157,7 @@ public class OCSPCache implements ManageableCache {
     public synchronized SingleResp getCacheValue(BigInteger serialNumber) {
         OCSPCacheValue cacheValue = hashMap.get(serialNumber);
         if (cacheValue != null) {
-            //If who ever gets this cache value before Cache manager task found its invalid, update it and get the
+            //If someone gets this cache value before cache manager task found it is invalid, update it and get the
             // new value.
             if (!cacheValue.isValid()) {
                 cacheValue.updateCacheWithNewValue();
@@ -170,15 +174,23 @@ public class OCSPCache implements ManageableCache {
     public synchronized void setCacheValue(BigInteger serialNumber, SingleResp singleResp, OCSPReq request,
             String serviceUrl) {
         OCSPCacheValue cacheValue = new OCSPCacheValue(serialNumber, singleResp, request, serviceUrl);
-        log.info("Before set - HashMap size " + hashMap.size());
+        if (log.isDebugEnabled()) {
+            log.debug("Before setting - HashMap size " + hashMap.size());
+        }
         hashMap.put(serialNumber, cacheValue);
-        log.info("After set - HashMap size " + hashMap.size());
+        if (log.isDebugEnabled()) {
+            log.debug("After setting - HashMap size " + hashMap.size());
+        }
     }
 
     public synchronized void removeCacheValue(BigInteger serialNumber) {
-        log.info("Before remove - HashMap size " + hashMap.size());
+        if (log.isDebugEnabled()) {
+            log.debug("Before removing - HashMap size " + hashMap.size());
+        }
         hashMap.remove(serialNumber);
-        log.info("After remove - HashMap size " + hashMap.size());
+        if (log.isDebugEnabled()) {
+            log.debug("After removing - HashMap size " + hashMap.size());
+        }
     }
 
     /**
@@ -210,7 +222,7 @@ public class OCSPCache implements ManageableCache {
         }
 
         /**
-         * An OCSP response is valid during its validity period.
+         * An OCSP response is valid only during it's validity period. So check whether CA's response has expired.
          */
         public boolean isValid() {
             Date now = new Date();

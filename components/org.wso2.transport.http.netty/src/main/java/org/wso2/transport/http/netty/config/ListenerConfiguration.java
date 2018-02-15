@@ -107,7 +107,7 @@ public class ListenerConfiguration {
     private String serverHeader = "wso2-http-transport";
 
     @XmlAttribute
-    private boolean certificateRevocationVerifier;
+    private boolean validateCertificateEnabled;
 
     @XmlAttribute
     private int cacheSize;
@@ -210,12 +210,12 @@ public class ListenerConfiguration {
         return sslProtocol;
     }
 
-    public boolean isCertificateRevocationVerifier() {
-        return certificateRevocationVerifier;
+    public boolean isValidateCertificateEnabled() {
+        return validateCertificateEnabled;
     }
 
-    public void setCertificateRevocationVerifier(boolean certificateRevocationVerifier) {
-        this.certificateRevocationVerifier = certificateRevocationVerifier;
+    public void setValidateCertificateEnabled(boolean validateCertificateEnabled) {
+        this.validateCertificateEnabled = validateCertificateEnabled;
     }
 
     public int getCacheSize() {

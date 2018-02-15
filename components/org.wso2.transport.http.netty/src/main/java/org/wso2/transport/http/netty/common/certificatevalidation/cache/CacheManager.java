@@ -30,7 +30,7 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
 /**
- * Cache Manager takes care and maintains an LRU cache which implements ManageableCache Interface.
+ * Cache Manager class handles and maintains an LRU cache which implements ManageableCache Interface.
  */
 public class CacheManager {
 
@@ -46,7 +46,7 @@ public class CacheManager {
     /**
      * A new cacheManager will be started on the given ManageableCache object.
      *
-     * @param cache        a Manageable Cache which can be managed by this cache manager.
+     * @param cache        a Manageable cache which can be managed by this cache manager.
      * @param cacheMaxSize Maximum size of the cache. If the cache exceeds this size, LRU values will be
      *                     removed
      */
@@ -61,13 +61,15 @@ public class CacheManager {
     }
 
     /**
-     * To Start the CacheManager needs to be called only once per CacheManager. Because of that calls in constructor.
+     * To Start the CacheManager, it needs to be called only once. Because of that calls in constructor.
      * CacheManager will run its TimerTask every "delay" number of seconds.
      */
     private boolean start() {
-        if (scheduledFuture == null || (scheduledFuture.isCancelled())) {
+        if (scheduledFuture == null || scheduledFuture.isCancelled()) {
             scheduledFuture = scheduler.scheduleWithFixedDelay(cacheManagingTask, delay, delay, TimeUnit.MINUTES);
-            log.info(cache.getClass().getSimpleName() + " Cache Manager Started");
+            if (log.isDebugEnabled()) {
+                log.debug(cache.getClass().getSimpleName() + " Cache Manager Started.");
+            }
             return true;
         }
         return false;
@@ -75,7 +77,7 @@ public class CacheManager {
 
     /**
      * To wake cacheManager up at will. If this method is called while its task is running, it will run its task again
-     * soon after its done. CacheManagerTask will be rescheduled as before.
+     * soon after it is done. CacheManagerTask will be rescheduled as before.
      *
      * @return true if successfully waken up. false otherwise.
      */
@@ -85,7 +87,9 @@ public class CacheManager {
                 scheduledFuture.cancel(doNotInterruptIfRunning);
             }
             scheduledFuture = scheduler.scheduleWithFixedDelay(cacheManagingTask, 0, delay, TimeUnit.MINUTES);
-            log.info(cache.getClass().getSimpleName() + " Cache Manager woke up.....");
+            if (log.isDebugEnabled()) {
+                log.debug(cache.getClass().getSimpleName() + " Cache Manager woke up.");
+            }
             return true;
         }
         return false;
@@ -112,7 +116,9 @@ public class CacheManager {
     public boolean stop() {
         if (scheduledFuture != null && !scheduledFuture.isCancelled()) {
             scheduledFuture.cancel(doNotInterruptIfRunning);
-            log.info(cache.getClass().getSimpleName() + " Cache Manager stopped.....");
+            if (log.isDebugEnabled()) {
+                log.debug(cache.getClass().getSimpleName() + " Cache Manager stopped.");
+            }
             return true;
         }
         return false;
@@ -123,7 +129,7 @@ public class CacheManager {
     }
 
     /**
-     * This is the Scheduled Task the CacheManager uses in order to remove invalid cache values and
+     * This is the scheduled task which the CacheManager uses in order to remove invalid cache values and
      * to remove LRU values if the cache reaches cacheMaxSize.
      */
     private class CacheManagingTask implements Runnable {
@@ -131,7 +137,9 @@ public class CacheManager {
         public void run() {
 
             long start = System.currentTimeMillis();
-            log.info(cache.getClass().getSimpleName() + " Cache Manager Task Started.");
+            if (log.isDebugEnabled()) {
+                log.debug(cache.getClass().getSimpleName() + " Cache Manager Task Started.");
+            }
 
             ManageableCacheValue nextCacheValue;
             //cache.getCacheSize() can vary when new entries are added. So get cache size at this point
@@ -148,13 +156,17 @@ public class CacheManager {
 
                 nextCacheValue = cache.getNextCacheValue();
                 if (nextCacheValue == null) {
-                    log.info("Cache manager iteration through Cache values done");
+                    if (log.isDebugEnabled()) {
+                        log.debug("Cache manager iteration through Cache values done");
+                    }
                     break;
                 }
 
-                //Updating invalid cache values
+                //Updating invalid cache values.
                 if (!nextCacheValue.isValid()) {
-                    log.info("Updating Invalid Cache Value by Manager");
+                    if (log.isDebugEnabled()) {
+                        log.debug("Updating Invalid Cache Value by Manager");
+                    }
                     nextCacheValue.updateCacheWithNewValue();
                 }
 
@@ -166,12 +178,16 @@ public class CacheManager {
 
             //LRU entries removing
             for (ManageableCacheValue oldCacheValue : entriesToRemove) {
-                log.info("Removing LRU value from cache");
+                if (log.isDebugEnabled()) {
+                    log.debug("Removing LRU value from cache");
+                }
                 oldCacheValue.removeThisCacheValue();
             }
 
-            log.info(cache.getClass().getSimpleName() + " Cache Manager Task Done. Took " + (System.currentTimeMillis()
-                    - start) + " ms.");
+            if (log.isDebugEnabled()) {
+                log.debug(cache.getClass().getSimpleName() + " Cache Manager Task Done. Took " + (
+                        System.currentTimeMillis() - start) + " ms.");
+            }
         }
 
         private class LRUEntryCollector {
@@ -185,8 +201,8 @@ public class CacheManager {
             }
 
             /**
-             * This method collects the listMaxSize number of LRU values from the Cache. These values
-             * will be removed from the cache. This uses a part of the Logic in Insertion Sort.
+             * This method collects the listMaxSize number of LRU values from the cache. These values
+             * will be removed from the cache. This uses a part of the logic in Insertion Sort.
              *
              * @param value to be collected.
              */
@@ -209,7 +225,6 @@ public class CacheManager {
                     entriesToRemove.remove(entriesToRemove.size() - 1);
                 }
             }
-
         }
     }
 }

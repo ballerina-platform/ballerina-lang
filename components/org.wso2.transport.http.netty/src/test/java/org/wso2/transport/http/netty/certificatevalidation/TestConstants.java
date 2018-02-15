@@ -20,13 +20,11 @@ package org.wso2.transport.http.netty.certificatevalidation;
 public interface TestConstants {
 
     //Validity period of a fake certificate made. 1 day (in milliseconds)
-    static final int VALIDITY_PERIOD = 24 * 60 * 60 * 1000;
+    int VALIDITY_PERIOD = 24 * 60 * 60 * 1000;
     //Next update for OCSPResponse or X509CRL will be after Now + NEXT_UPDATE_PERIOD
-    static final int NEXT_UPDATE_PERIOD = 1000000;
+    int NEXT_UPDATE_PERIOD = 1000000;
 
     /**
-     * The certificates in the resources folder will contain the certificates in the certificate chain from
-     * https://www.github.com
      * These certificates are chosen because the certificate issuers support both CRL and OCSP. Read the certificates
      * for more details.
      * <p>
@@ -36,6 +34,8 @@ public interface TestConstants {
      * DigiCertHighAssuranceEVCA-1   : 10/22/2028
      * DigiCertHighAssuranceEVRootCA : 11/10/2031
      */
-    static final String INTERMEDIATE_CERT = "/simple-test-config/certificatevalidation/DigiCertHighAssuranceEVCA-1";
-    static final String ROOT_CERT = "/simple-test-config/certificatevalidation/DigiCertHighAssuranceEVRootCA";
+    String INTERMEDIATE_CERT = "/simple-test-config/certificatevalidation/DigiCertHighAssuranceEVCA-1";
+    String ROOT_CERT = "/simple-test-config/certificatevalidation/DigiCertHighAssuranceEVRootCA";
+    String CRL_DISTRIBUTION_POINT_EXTENSION = "2.5.29.31";
 }
+

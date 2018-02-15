@@ -35,12 +35,14 @@ import org.bouncycastle.cert.ocsp.Req;
 import org.bouncycastle.cert.ocsp.RespID;
 import org.bouncycastle.cert.ocsp.RevokedStatus;
 import org.bouncycastle.cert.ocsp.SingleResp;
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.bouncycastle.operator.ContentSigner;
 import org.bouncycastle.operator.DigestCalculatorProvider;
 import org.bouncycastle.operator.OperatorCreationException;
 import org.bouncycastle.operator.jcajce.JcaContentSignerBuilder;
 import org.bouncycastle.operator.jcajce.JcaDigestCalculatorProviderBuilder;
 import org.testng.annotations.Test;
+import org.wso2.transport.http.netty.common.certificatevalidation.Constants;
 import org.wso2.transport.http.netty.common.certificatevalidation.RevocationStatus;
 import org.wso2.transport.http.netty.common.certificatevalidation.ocsp.OCSPCache;
 import org.wso2.transport.http.netty.common.certificatevalidation.ocsp.OCSPVerifier;
@@ -50,7 +52,6 @@ import java.math.BigInteger;
 import java.security.KeyPair;
 import java.security.NoSuchProviderException;
 import java.security.PrivateKey;
-import java.security.PublicKey;
 import java.security.Security;
 import java.security.cert.X509Certificate;
 import java.util.Date;
@@ -58,8 +59,6 @@ import java.util.Date;
 import static org.testng.Assert.assertTrue;
 
 public class OCSPVerifierTest {
-
-    private static final String BC = "BC";
 
     /**
      * A fake certificate signed by a fake CA is made as the revoked certificate. The created OCSP response to the
@@ -74,34 +73,31 @@ public class OCSPVerifierTest {
     public void testOCSPVerifier() throws Exception {
 
         //Add BouncyCastle as Security Provider.
-        Security.addProvider(new org.bouncycastle.jce.provider.BouncyCastleProvider());
+        Security.addProvider(new BouncyCastleProvider());
 
         Utils utils = new Utils();
-        //Create fake CA certificate.
         KeyPair caKeyPair = utils.generateRSAKeyPair();
         X509Certificate caCert = utils.generateFakeRootCert(caKeyPair);
 
-        //Create fake peer certificate signed by the fake CA private key. This will be a revoked certificate.
         KeyPair peerKeyPair = utils.generateRSAKeyPair();
         BigInteger revokedSerialNumber = BigInteger.valueOf(111);
 
         X509Certificate revokedCertificate = utils
                 .generateFakeCertificate(caCert, peerKeyPair.getPublic(), revokedSerialNumber, caKeyPair);
 
-        //Create OCSP request to check if certificate with "serialNumber == revokedSerialNumber" is revoked.
         OCSPReq request = getOCSPRequest(caCert, revokedSerialNumber);
 
         byte[] issuerCertEnc = caCert.getEncoded();
         X509CertificateHolder certificateHolder = new X509CertificateHolder(issuerCertEnc);
-        DigestCalculatorProvider digCalcProv = new JcaDigestCalculatorProviderBuilder().setProvider(BC).build();
+        DigestCalculatorProvider digCalcProv = new JcaDigestCalculatorProviderBuilder()
+                .setProvider(Constants.BOUNCY_CASTLE_PROVIDER).build();
 
         // CertID structure is used to uniquely identify certificates that are the subject of
-        // an OCSP request or response and has an ASN.1 definition. CertID structure is defined in RFC 2560
+        // an OCSP request or response and has an ASN.1 definition. CertID structure is defined in RFC 2560.
         CertificateID revokedID = new CertificateID(digCalcProv.get(CertificateID.HASH_SHA1), certificateHolder,
                 revokedSerialNumber);
 
-        OCSPResp response = generateOCSPResponse(request, certificateHolder, caKeyPair.getPrivate(),
-                caKeyPair.getPublic(), revokedID);
+        OCSPResp response = generateOCSPResponse(request, certificateHolder, caKeyPair.getPrivate(), revokedID);
         SingleResp singleResp = ((BasicOCSPResp) response.getResponseObject()).getResponses()[0];
 
         OCSPCache cache = OCSPCache.getCache();
@@ -111,18 +107,17 @@ public class OCSPVerifierTest {
         OCSPVerifier ocspVerifier = new OCSPVerifier(cache);
         RevocationStatus status = ocspVerifier.checkRevocationStatus(revokedCertificate, caCert);
 
-        //the cache will have the SingleResponse derived from the OCSP response and it will be checked to see if the
-        //fake certificate is revoked. So the status should be REVOKED.
+        //the cache will have the SingleResponse derived from the create OCSP response and it will be checked to see
+        //if the fake certificate is revoked. So the status should be REVOKED.
         assertTrue(status == RevocationStatus.REVOKED);
     }
 
     /**
-     * An OCSP request is made to be given to the fake CA. Reflection is used to call generateOCSPRequest(..) private
-     * method in OCSPVerifier.
+     * An OCSP request is made to be given to the fake CA.
      *
-     * @param caCert              the fake CA certificate.
-     * @param revokedSerialNumber the serial number of the certificate which needs to be checked if revoked.
-     * @return the created OCSP request.
+     * @param caCert Fake CA certificate.
+     * @param revokedSerialNumber Serial number of the certificate which needs to be checked if revoked.
+     * @return Created OCSP request.
      * @throws Exception
      */
     private OCSPReq getOCSPRequest(X509Certificate caCert, BigInteger revokedSerialNumber) throws Exception {
@@ -131,27 +126,24 @@ public class OCSPVerifierTest {
         Method generateOCSPRequest = ocspVerifierClass
                 .getDeclaredMethod("generateOCSPRequest", X509Certificate.class, BigInteger.class);
         generateOCSPRequest.setAccessible(true);
-
-      //  OCSPReq request = (OCSPReq) generateOCSPRequest.invoke(ocspVerifier, caCert, revokedSerialNumber);
         return (OCSPReq) generateOCSPRequest.invoke(ocspVerifier, caCert, revokedSerialNumber);
     }
 
     /**
      * This makes the corresponding OCSP response to the OCSP request which is sent to the fake CA. If the request
      * has a certificateID which is marked as revoked by the CA, the OCSP response will say that the certificate
-     * which is referred to by the request, is revoked.
+     * which is referred by the request, is revoked.
      *
-     * @param request      the OCSP request which asks if the certificate is revoked.
-     * @param caPrivateKey privateKey of the fake CA.
-     * @param caPublicKey  publicKey of the fake CA
-     * @param revokedID    the ID at fake CA which is checked against the certificateId in the request.
-     * @return the created OCSP response by the fake CA.
+     * @param request OCSP request which asks if the certificate is revoked.
+     * @param caPrivateKey PrivateKey of the fake CA.
+     * @param revokedID ID in fake CA which is checked against the certificateId in the request.
+     * @return Created OCSP response by the fake CA.
      * @throws NoSuchProviderException
      * @throws OCSPException
      * @throws OperatorCreationException
      */
     private OCSPResp generateOCSPResponse(OCSPReq request, X509CertificateHolder certificateHolder,
-            PrivateKey caPrivateKey, PublicKey caPublicKey, CertificateID revokedID)
+            PrivateKey caPrivateKey, CertificateID revokedID)
             throws NoSuchProviderException, OCSPException, OperatorCreationException {
 
         BasicOCSPRespBuilder basicOCSPRespBuilder = new BasicOCSPRespBuilder(
@@ -179,7 +171,8 @@ public class OCSPVerifierTest {
         }
 
         X509CertificateHolder[] chain = { certificateHolder };
-        ContentSigner signer = new JcaContentSignerBuilder("SHA1withRSA").setProvider("BC").build(caPrivateKey);
+        ContentSigner signer = new JcaContentSignerBuilder("SHA1withRSA").setProvider(Constants.BOUNCY_CASTLE_PROVIDER)
+                .build(caPrivateKey);
         BasicOCSPResp basicResp = basicOCSPRespBuilder.build(signer, chain, new Date());
         OCSPRespBuilder builder = new OCSPRespBuilder();
 

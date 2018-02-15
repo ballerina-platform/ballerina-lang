@@ -35,7 +35,7 @@ import javax.security.cert.CertificateEncodingException;
 
 /**
  * Manager class responsible for verifying certificates. This class will use the available verifiers according to
- * a predefined policy.
+ * a predefined policy (First check with OCSP access end point and then move to CRL distribution point to validate).
  */
 public class RevocationVerificationManager {
 
@@ -60,15 +60,15 @@ public class RevocationVerificationManager {
      * faster. If that fails it tries to do the verification using CRL.
      *
      * @param peerCertificates javax.security.cert.X509Certificate[] array of peer certificate chain from peer/client.
-     * @throws CertificateVerificationException
+     * @throws CertificateVerificationException Occurs when certificate fails to be validated from both OCSP and CRL.
      */
-    public void verifyRevocationStatus(javax.security.cert.X509Certificate[] peerCertificates)
+    public boolean verifyRevocationStatus(javax.security.cert.X509Certificate[] peerCertificates)
             throws CertificateVerificationException {
 
         X509Certificate[] convertedCertificates = convert(peerCertificates);
 
         long start = System.currentTimeMillis();
-
+        // If not set by the user, default cache size will be 50 and default cache delay will be 15 mins.
         OCSPCache ocspCache = OCSPCache.getCache();
         ocspCache.init(cacheSize, cacheDelayMins);
         CRLCache crlCache = CRLCache.getCache();
@@ -80,17 +80,22 @@ public class RevocationVerificationManager {
             try {
                 CertificatePathValidator pathValidator = new CertificatePathValidator(convertedCertificates, verifier);
                 pathValidator.validatePath();
-                log.info("Path verification Successful. Took " + (System.currentTimeMillis() - start) + " ms.");
-                return;
+                if (log.isInfoEnabled()) {
+                    log.info("Path verification is successful. Took " + (System.currentTimeMillis() - start) + " ms.");
+                }
+                return true;
             } catch (Exception e) {
-                log.info(verifier.getClass().getSimpleName() + " failed.");
-                log.debug("Certificate verification with " + verifier.getClass().getSimpleName() + " failed. ", e);
+                if (log.isDebugEnabled()) {
+                    log.debug(verifier.getClass().getSimpleName() + " failed.");
+                    log.debug("Certificate verification with " + verifier.getClass().getSimpleName() + " failed. ", e);
+                }
             }
         }
-        throw new CertificateVerificationException("Path Verification Failed for both OCSP and CRL");
+        throw new CertificateVerificationException("Path verification failed for both OCSP and CRL");
     }
 
     /** Convert certificates and create a certificate chain.
+     *
      * @param certs array of javax.security.cert.X509Certificate[] s.
      * @return the converted array of java.security.cert.X509Certificate[] s.
      * @throws CertificateVerificationException
@@ -102,9 +107,9 @@ public class RevocationVerificationManager {
         for (int i = 0; i < certs.length; i++) {
             try {
                 byte[] encoded = certs[i].getEncoded();
-                ByteArrayInputStream bis = new ByteArrayInputStream(encoded);
-                CertificateFactory cf = CertificateFactory.getInstance("X.509");
-                certChain[i] = ((X509Certificate) cf.generateCertificate(bis));
+                ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(encoded);
+                CertificateFactory certificateFactory = CertificateFactory.getInstance(Constants.X_509);
+                certChain[i] = ((X509Certificate) certificateFactory.generateCertificate(byteArrayInputStream));
                 continue;
             } catch (CertificateEncodingException | CertificateException e) {
                 exceptionThrown = e;

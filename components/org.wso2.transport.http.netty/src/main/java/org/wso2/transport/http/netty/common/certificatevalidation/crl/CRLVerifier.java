@@ -31,6 +31,7 @@ import org.bouncycastle.asn1.x509.GeneralNames;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.common.certificatevalidation.CertificateVerificationException;
+import org.wso2.transport.http.netty.common.certificatevalidation.Constants;
 import org.wso2.transport.http.netty.common.certificatevalidation.RevocationStatus;
 import org.wso2.transport.http.netty.common.certificatevalidation.RevocationVerifier;
 
@@ -71,15 +72,19 @@ public class CRLVerifier implements RevocationVerifier {
             throws CertificateVerificationException {
 
         List<String> list = getCrlDistributionPoints(peerCert);
-        //check with distributions points in the list one by one. if one fails go to the other.
+        //check with distributions points in the list one by one. if one fails move to the other.
         for (String crlUrl : list) {
-            log.info("Trying to get CRL for URL: " + crlUrl);
+            if (log.isInfoEnabled()) {
+                log.info("Trying to get CRL for URL: " + crlUrl);
+            }
 
             if (cache != null) {
                 X509CRL x509CRL = cache.getCacheValue(crlUrl);
                 if (x509CRL != null) {
                     RevocationStatus status = getRevocationStatus(x509CRL, peerCert);
-                    log.info("CRL taken from cache....");
+                    if (log.isInfoEnabled()) {
+                        log.info("CRL taken from cache.");
+                    }
                     return status;
                 }
             }
@@ -92,7 +97,9 @@ public class CRLVerifier implements RevocationVerifier {
                     return getRevocationStatus(x509CRL, peerCert);
                 }
             } catch (IOException e) {
-                log.info("Either url is bad or cant build X509CRL. So check with the next url in the list.", e);
+                if (log.isInfoEnabled()) {
+                    log.info("Either URL is bad or can't build X509CRL. So check with the next url in the list.", e);
+                }
             }
         }
         throw new CertificateVerificationException("Cannot check revocation status with the certificate");
@@ -107,17 +114,17 @@ public class CRLVerifier implements RevocationVerifier {
     }
 
     /**
-     * Downloads CRL from the crlUrl. Does not support HTTPS
+     * Downloads CRL from the crlUrl. Does not support HTTPS.
      */
     protected X509CRL downloadCRLFromWeb(String crlURL) throws IOException, CertificateVerificationException {
         InputStream crlStream = null;
         try {
             URL url = new URL(crlURL);
             crlStream = url.openStream();
-            CertificateFactory cf = CertificateFactory.getInstance("X.509");
+            CertificateFactory cf = CertificateFactory.getInstance(Constants.X_509);
             return (X509CRL) cf.generateCRL(crlStream);
         } catch (MalformedURLException e) {
-            throw new CertificateVerificationException("CRL Url is malformed", e);
+            throw new CertificateVerificationException("CRL URL is malformed", e);
         } catch (IOException e) {
             throw new CertificateVerificationException("Cant reach URI: " + crlURL + " - only support HTTP", e);
         } catch (CertificateException e) {
@@ -138,10 +145,10 @@ public class CRLVerifier implements RevocationVerifier {
      */
     private List<String> getCrlDistributionPoints(X509Certificate cert) throws CertificateVerificationException {
 
-        //Gets the DER-encoded OCTET string for the extension value for CRLDistributionPoints
+        //Gets the DER-encoded OCTET string for the extension value for CRLDistributionPoints.
         byte[] crlDPExtensionValue = cert.getExtensionValue(Extension.cRLDistributionPoints.getId());
         if (crlDPExtensionValue == null) {
-            throw new CertificateVerificationException("Certificate doesn't have CRL Distribution points");
+            throw new CertificateVerificationException("Certificate doesn't have CRL distribution points");
         }
         //crlDPExtensionValue is encoded in ASN.1 format.
         ASN1InputStream asn1In = new ASN1InputStream(crlDPExtensionValue);
@@ -150,37 +157,37 @@ public class CRLVerifier implements RevocationVerifier {
         CRLDistPoint distPoint;
         try {
             DEROctetString crlDEROctetString = (DEROctetString) asn1In.readObject();
-            //Get Input stream in octets
+            //Get Input stream in octets.
             try (ASN1InputStream asn1InOctets = new ASN1InputStream(crlDEROctetString.getOctets());) {
                 ASN1Primitive crlDERObject = asn1InOctets.readObject();
                 distPoint = CRLDistPoint.getInstance(crlDERObject);
 
             } catch (IOException e) {
-                throw new CertificateVerificationException("Cannot read certificate to get CRL urls", e);
+                throw new CertificateVerificationException("Cannot read certificate to get CRL URLs", e);
             }
         } catch (IOException e) {
-            throw new CertificateVerificationException("Cannot read certificate to get CRL urls", e);
+            throw new CertificateVerificationException("Cannot read certificate to get CRL URLs", e);
         } finally {
             try {
                 asn1In.close();
             } catch (IOException e) {
-                log.error("Cannot close input stream");
+                log.error("Cannot close input stream", e);
             }
         }
 
         List<String> crlUrls = new ArrayList<String>();
-        //Loop through ASN1Encodable DistributionPoints
+        //Loop through ASN1Encodable DistributionPoints.
         for (DistributionPoint dp : distPoint.getDistributionPoints()) {
-            //get ASN1Encodable DistributionPointName
+            //get ASN1Encodable DistributionPointName.
             DistributionPointName dpn = dp.getDistributionPoint();
             if (dpn != null && dpn.getType() == DistributionPointName.FULL_NAME) {
-                //Create ASN1Encodable General Names
+                //Create ASN1Encodable General Names.
                 GeneralName[] genNames = GeneralNames.getInstance(dpn.getName()).getNames();
                 // Look for a URI
                 for (GeneralName genName : genNames) {
                     if (genName.getTagNo() == GeneralName.uniformResourceIdentifier) {
                         //DERIA5String contains an ascii string.
-                        //A IA5String is a restricted character string type in the ASN.1 notation
+                        //A IA5String is a restricted character string type in the ASN.1 notation.
                         String url = DERIA5String.getInstance(genName.getName()).getString().trim();
                         crlUrls.add(url);
                     }

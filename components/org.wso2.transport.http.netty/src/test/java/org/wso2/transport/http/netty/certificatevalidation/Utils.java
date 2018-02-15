@@ -32,6 +32,7 @@ import org.bouncycastle.operator.DefaultDigestAlgorithmIdentifierFinder;
 import org.bouncycastle.operator.DefaultSignatureAlgorithmIdentifierFinder;
 import org.bouncycastle.operator.OperatorCreationException;
 import org.bouncycastle.operator.bc.BcRSAContentSignerBuilder;
+import org.wso2.transport.http.netty.common.certificatevalidation.Constants;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -68,13 +69,12 @@ public class Utils {
 
         X509CertificateHolder holder = builder.build(contentSigner);
 
-        //X509Certificate cert = new JcaX509CertificateConverter().getCertificate(holder);
         return new JcaX509CertificateConverter().getCertificate(holder);
     }
 
     public KeyPair generateRSAKeyPair() throws Exception {
 
-        KeyPairGenerator kpGen = KeyPairGenerator.getInstance("RSA", "BC");
+        KeyPairGenerator kpGen = KeyPairGenerator.getInstance("RSA", Constants.BOUNCY_CASTLE_PROVIDER);
         kpGen.initialize(1024, new SecureRandom());
         return kpGen.generateKeyPair();
     }
@@ -93,14 +93,12 @@ public class Utils {
         AlgorithmIdentifier digAlgId = new DefaultDigestAlgorithmIdentifierFinder().find(sigAlgId);
         ContentSigner contentSigner = new BcRSAContentSignerBuilder(sigAlgId, digAlgId)
                 .build(PrivateKeyFactory.createKey(keyPair.getPrivate().getEncoded()));
-        builder.copyAndAddExtension(new ASN1ObjectIdentifier("2.5.29.31"), true,
+        builder.copyAndAddExtension(new ASN1ObjectIdentifier(TestConstants.CRL_DISTRIBUTION_POINT_EXTENSION), true,
                 new JcaX509CertificateHolder(realPeerCertificate));
 
         X509CertificateHolder holder = builder.build(contentSigner);
 
-        X509Certificate fakecert = new JcaX509CertificateConverter().getCertificate(holder);
-
-        return fakecert;
+        return new JcaX509CertificateConverter().getCertificate(holder);
     }
 
     public X509Certificate generateFakeCertificate(X509Certificate caCert, PublicKey peerPublicKey,
@@ -120,9 +118,7 @@ public class Utils {
 
         X509CertificateHolder holder = builder.build(contentSigner);
 
-        X509Certificate fakecert = new JcaX509CertificateConverter().getCertificate(holder);
-
-        return fakecert;
+        return new JcaX509CertificateConverter().getCertificate(holder);
     }
 
     /**
@@ -168,10 +164,12 @@ public class Utils {
 
     private X509Certificate createCertificateFromResourceFile(String resourcePath) throws Exception {
 
-        CertificateFactory certFactory = CertificateFactory.getInstance("X.509", "BC");
+        CertificateFactory certFactory = CertificateFactory
+                .getInstance(Constants.X_509, Constants.BOUNCY_CASTLE_PROVIDER);
         File faceBookCertificateFile = new File(this.getClass().getResource(resourcePath).toURI());
         InputStream in = new FileInputStream(faceBookCertificateFile);
-        X509Certificate certificate = (X509Certificate) certFactory.generateCertificate(in);
-        return certificate;
+
+        return (X509Certificate) certFactory.generateCertificate(in);
     }
 }
+

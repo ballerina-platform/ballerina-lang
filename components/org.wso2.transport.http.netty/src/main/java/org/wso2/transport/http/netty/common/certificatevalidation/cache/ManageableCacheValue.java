@@ -23,14 +23,12 @@ package org.wso2.transport.http.netty.common.certificatevalidation.cache;
  */
 public interface ManageableCacheValue {
 
-    //To remove invalid entries from the cache.
-    public boolean isValid();
+    boolean isValid();
 
-    //To decide LRU value to replace.
-    public long getTimeStamp();
+    long getTimeStamp();
 
-    public void removeThisCacheValue();
+    void removeThisCacheValue();
 
-    public void updateCacheWithNewValue();
+    void updateCacheWithNewValue();
 }
 

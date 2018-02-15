@@ -52,14 +52,14 @@ public class MBeanRegistrar {
         assertNull(category, "MBean instance category is null");
         assertNull(id, "MBean instance name is null");
         try {
-            MBeanServer mbs = ManagementFactory.getPlatformMBeanServer();
-            ObjectName name = new ObjectName(getObjectName(category, id));
-            Set set = mbs.queryNames(name, null);
+            MBeanServer mBeanServer = ManagementFactory.getPlatformMBeanServer();
+            ObjectName objectName = new ObjectName(getObjectName(category, id));
+            Set set = mBeanServer.queryNames(objectName, null);
             if (set != null && set.isEmpty()) {
-                mbs.registerMBean(mBeanInstance, name);
+                mBeanServer.registerMBean(mBeanInstance, objectName);
             } else {
-                mbs.unregisterMBean(name);
-                mbs.registerMBean(mBeanInstance, name);
+                mBeanServer.unregisterMBean(objectName);
+                mBeanServer.registerMBean(mBeanInstance, objectName);
             }
             return true;
         } catch (MalformedObjectNameException | NotCompliantMBeanException | MBeanRegistrationException
@@ -73,7 +73,7 @@ public class MBeanRegistrar {
     private String getObjectName(String category, String id) {
 
         String jmxAgentName = System.getProperty(Constants.JMX_AGENT_NAME);
-        if (jmxAgentName == null || "".equals(jmxAgentName)) {
+        if (jmxAgentName == null || jmxAgentName.isEmpty()) {
             jmxAgentName = "ballerina";
         }
         return jmxAgentName + ":Type=" + category + ",Name=" + id;

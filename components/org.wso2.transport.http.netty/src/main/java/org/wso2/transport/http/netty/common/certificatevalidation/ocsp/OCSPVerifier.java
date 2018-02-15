@@ -46,6 +46,7 @@ import org.bouncycastle.operator.jcajce.JcaDigestCalculatorProviderBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.common.certificatevalidation.CertificateVerificationException;
+import org.wso2.transport.http.netty.common.certificatevalidation.Constants;
 import org.wso2.transport.http.netty.common.certificatevalidation.RevocationStatus;
 import org.wso2.transport.http.netty.common.certificatevalidation.RevocationVerifier;
 
@@ -71,7 +72,6 @@ public class OCSPVerifier implements RevocationVerifier {
 
     private OCSPCache cache;
     private static final Logger log = LoggerFactory.getLogger(OCSPVerifier.class);
-    private static final String BC = "BC";
 
     public OCSPVerifier(OCSPCache cache) {
         this.cache = cache;
@@ -80,36 +80,37 @@ public class OCSPVerifier implements RevocationVerifier {
     /**
      * Gets the revocation status (Good, Revoked or Unknown) of the given peer certificate.
      *
-     * @param peerCert   The certificate we want to check if revoked.
-     * @param issuerCert Needed to create OCSP request.
-     * @return revocation status of the peer certificate.
+     * @param peerCert The certificate that needs to be validated.
+     * @param issuerCert Needs to create OCSP request.
+     * @return Revocation status of the peer certificate.
      * @throws CertificateVerificationException
      */
     public RevocationStatus checkRevocationStatus(X509Certificate peerCert, X509Certificate issuerCert)
             throws CertificateVerificationException {
 
-        //check cache
+        //check cache. Check inside the cache, before calling CA.
         if (cache != null) {
             SingleResp resp = cache.getCacheValue(peerCert.getSerialNumber());
             if (resp != null) {
                 //If cant be casted, we have used the wrong cache.
                 RevocationStatus status = getRevocationStatus(resp);
-                log.info("OCSP response taken from cache....");
+                if (log.isInfoEnabled()) {
+                    log.info("OCSP response taken from cache.");
+                }
                 return status;
             }
         }
 
         OCSPReq request = generateOCSPRequest(issuerCert, peerCert.getSerialNumber());
-        //This list will sometimes have non ocsp urls as well.
         List<String> locations = getAIALocations(peerCert);
-
+        OCSPResp ocspResponse = null;
         for (String serviceUrl : locations) {
 
             SingleResp[] responses;
             try {
-                OCSPResp ocspResponse = getOCSPResponce(serviceUrl, request);
+                ocspResponse = getOCSPResponce(serviceUrl, request);
                 if (OCSPResponseStatus.SUCCESSFUL != ocspResponse.getStatus()) {
-                    continue; // Server didn't give the response right.
+                    continue; // Server didn't give the correct response.
                 }
 
                 BasicOCSPResp basicResponse = (BasicOCSPResp) ocspResponse.getResponseObject();
@@ -127,7 +128,8 @@ public class OCSPVerifier implements RevocationVerifier {
                 return status;
             }
         }
-        throw new CertificateVerificationException("Cant get Revocation Status from OCSP.");
+        throw new CertificateVerificationException(
+                "Could not get revocation status from OCSP. Response Status :" + ocspResponse.getStatus());
     }
 
     private RevocationStatus getRevocationStatus(SingleResp resp) throws CertificateVerificationException {
@@ -139,7 +141,7 @@ public class OCSPVerifier implements RevocationVerifier {
         } else if (status instanceof UnknownStatus) {
             return RevocationStatus.UNKNOWN;
         }
-        throw new CertificateVerificationException("Cant recognize Certificate Status");
+        throw new CertificateVerificationException("Could not recognize OCSP certificate status for :" + status);
     }
 
     /**
@@ -147,7 +149,7 @@ public class OCSPVerifier implements RevocationVerifier {
      * only HTTP.
      *
      * @param serviceUrl URL of the OCSP endpoint.
-     * @param request    an OCSP request object.
+     * @param request An OCSP request object.
      * @return OCSP response encoded in ASN.1 structure.
      * @throws CertificateVerificationException
      */
@@ -156,13 +158,13 @@ public class OCSPVerifier implements RevocationVerifier {
         try {
             byte[] array = request.getEncoded();
             if (serviceUrl.startsWith("http")) {
-                HttpURLConnection con;
+                HttpURLConnection connection;
                 URL url = new URL(serviceUrl);
-                con = (HttpURLConnection) url.openConnection();
-                con.setRequestProperty("Content-Type", "application/ocsp-request");
-                con.setRequestProperty("Accept", "application/ocsp-response");
-                con.setDoOutput(true);
-                try (OutputStream out = con.getOutputStream();
+                connection = (HttpURLConnection) url.openConnection();
+                connection.setRequestProperty("Content-Type", "application/ocsp-request");
+                connection.setRequestProperty("Accept", "application/ocsp-response");
+                connection.setDoOutput(true);
+                try (OutputStream out = connection.getOutputStream();
                         DataOutputStream dataOut = new DataOutputStream(new BufferedOutputStream(out));) {
 
                     dataOut.write(array);
@@ -171,27 +173,27 @@ public class OCSPVerifier implements RevocationVerifier {
                     dataOut.close();
 
                     //Check errors in response:
-                    if (con.getResponseCode() / 100 != 2) {
+                    if (connection.getResponseCode() / 100 != 2) {
                         throw new CertificateVerificationException(
-                                "Error getting ocsp response." + "Response code is " + con.getResponseCode());
+                                "Error getting ocsp response." + "Response code is " + connection.getResponseCode());
                     }
 
-                    //Get Response
-                    InputStream in = (InputStream) con.getContent();
+                    //Get Response.
+                    InputStream in = (InputStream) connection.getContent();
                     return new OCSPResp(in);
                 }
             } else {
-                throw new CertificateVerificationException("Only http is supported for ocsp calls");
+                throw new CertificateVerificationException("Only http is supported for OCSP calls");
             }
         } catch (IOException e) {
-            throw new CertificateVerificationException("Cannot get ocspResponse from url: " + serviceUrl, e);
+            throw new CertificateVerificationException("Cannot get OCSP Response from url: " + serviceUrl, e);
         }
     }
 
     /**
-     * This method generates an OCSP Request to be sent to an OCSP endpoint.
+     * This method generates an OCSP Request to be sent to an OCSP authority access endpoint.
      *
-     * @param issuerCert   is the Certificate of the Issuer of the peer certificate we are interested in.
+     * @param issuerCert the Issuer's certificate of the peer certificate we are interested in.
      * @param serialNumber of the peer certificate.
      * @return generated OCSP request.
      * @throws CertificateVerificationException
@@ -199,26 +201,28 @@ public class OCSPVerifier implements RevocationVerifier {
     private OCSPReq generateOCSPRequest(X509Certificate issuerCert, BigInteger serialNumber)
             throws CertificateVerificationException {
 
-        //Add provider BC
+        //Programatically adding Bouncy Castle as the security provider. So no need to manually set. Once the programme
+        // is over security provider will also be removed.
         Security.addProvider(new BouncyCastleProvider());
         try {
 
             byte[] issuerCertEnc = issuerCert.getEncoded();
             X509CertificateHolder certificateHolder = new X509CertificateHolder(issuerCertEnc);
-            DigestCalculatorProvider digCalcProv = new JcaDigestCalculatorProviderBuilder().setProvider(BC).build();
+            DigestCalculatorProvider digCalcProv = new JcaDigestCalculatorProviderBuilder()
+                    .setProvider(Constants.BOUNCY_CASTLE_PROVIDER).build();
 
             //  CertID structure is used to uniquely identify certificates that are the subject of
-            // an OCSP request or response and has an ASN.1 definition. CertID structure is defined in RFC 2560
+            // an OCSP request or response and has an ASN.1 definition. CertID structure is defined in RFC 2560.
             CertificateID id = new CertificateID(digCalcProv.get(CertificateID.HASH_SHA1), certificateHolder,
                     serialNumber);
 
-            // basic request generation with nonce
+            // basic request generation with nonce.
             OCSPReqBuilder builder = new OCSPReqBuilder();
             builder.addRequest(id);
 
             // create details for nonce extension. The nonce extension is used to bind
-            // a request to a response to prevent replay attacks. As the name implies,
-            // the nonce value is something that the client should only use once within a reasonably small period.
+            // a request to a response to prevent re-play attacks. As the name implies,
+            // the nonce value is something that the client should only use once during a reasonably small period.
             BigInteger nonce = BigInteger.valueOf(System.currentTimeMillis());
 
             //to create the request Extension
@@ -228,7 +232,7 @@ public class OCSPVerifier implements RevocationVerifier {
             return builder.build();
 
         } catch (OCSPException | OperatorCreationException | IOException | CertificateEncodingException e) {
-            throw new CertificateVerificationException("Cannot generate OSCP Request with the given certificate", e);
+            throw new CertificateVerificationException("Cannot generate OCSP Request with the given certificate", e);
         }
     }
 
@@ -242,10 +246,10 @@ public class OCSPVerifier implements RevocationVerifier {
      */
     private List<String> getAIALocations(X509Certificate cert) throws CertificateVerificationException {
 
-        //Gets the DER-encoded OCTET string for the extension value for Authority information access Points
+        //Gets the DER-encoded OCTET string for the extension value for Authority information access points.
         byte[] aiaExtensionValue = cert.getExtensionValue(Extension.authorityInfoAccess.getId());
         if (aiaExtensionValue == null) {
-            throw new CertificateVerificationException("Certificate Doesn't have Authority Information Access points");
+            throw new CertificateVerificationException("Certificate doesn't have Authority Information Access points");
         }
         AuthorityInformationAccess authorityInformationAccess;
         ASN1InputStream asn1InputStream = null;
@@ -263,7 +267,7 @@ public class OCSPVerifier implements RevocationVerifier {
                     asn1InputStream.close();
                 }
             } catch (IOException e) {
-                log.error("Cannot close ASN1InputStream");
+                log.error("Cannot close ASN1InputStream", e);
             }
         }
 
@@ -279,7 +283,7 @@ public class OCSPVerifier implements RevocationVerifier {
             }
         }
         if (ocspUrlList.isEmpty()) {
-            throw new CertificateVerificationException("Cant get OCSP urls from certificate");
+            throw new CertificateVerificationException("Cannot get OCSP urls from certificate");
         }
         return ocspUrlList;
     }
