@@ -33,6 +33,7 @@ public class ItemResolverConstants {
     public static final String ABORT = "abort";
     public static final String TRY = "try";
     public static final String WHILE = "while";
+    public static final String LOCK = "lock";
     public static final String BIND = "bind";
     public static final String ENDPOINT = "endpoint";
     public static final String NEXT = "next";
