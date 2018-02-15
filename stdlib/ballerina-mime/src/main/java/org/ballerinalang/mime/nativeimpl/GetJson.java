@@ -1,25 +1,23 @@
 package org.ballerinalang.mime.nativeimpl;
 
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.mime.util.EntityBodyChannel;
 import org.ballerinalang.mime.util.EntityBodyHandler;
+import org.ballerinalang.mime.util.EntityBodyReader;
 import org.ballerinalang.mime.util.MimeUtil;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BJSON;
-import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.nativeimpl.io.IOConstants;
+import org.ballerinalang.nativeimpl.io.channels.FileIOChannel;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
+import org.ballerinalang.runtime.message.BlobDataSource;
 import org.ballerinalang.runtime.message.MessageDataSource;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.nio.channels.Channels;
-
-import static org.ballerinalang.mime.util.Constants.ENTITY_BYTE_CHANNEL_INDEX;
 
 /**
  *  Get the payload of the Message as a JSON.
@@ -50,8 +48,7 @@ public class GetJson extends AbstractNativeFunction {
                     result = new BJSON(payload.getMessageAsString());
                 }
             } else {
-                EntityBodyChannel channel = MimeUtil.extractEntityBodyChannel(entityStruct);
-                result = new BJSON(Channels.newInputStream(channel));
+                result = EntityBodyHandler.readJsonDataSource(entityStruct);
                 EntityBodyHandler.addMessageDataSource(entityStruct, result);
             }
         } catch (Throwable e) {

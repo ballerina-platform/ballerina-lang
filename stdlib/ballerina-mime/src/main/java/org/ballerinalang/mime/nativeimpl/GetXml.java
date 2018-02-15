@@ -1,9 +1,7 @@
 package org.ballerinalang.mime.nativeimpl;
 
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.mime.util.EntityBodyChannel;
 import org.ballerinalang.mime.util.EntityBodyHandler;
-import org.ballerinalang.mime.util.MimeUtil;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.util.XMLUtils;
 import org.ballerinalang.model.values.BStruct;
@@ -16,10 +14,8 @@ import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.runtime.message.MessageDataSource;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
-import java.nio.channels.Channels;
-
 /**
- *  Get the payload of the Message as a JSON.
+ * Get the payload of the Message as a JSON.
  */
 @BallerinaFunction(
         packageName = "ballerina.mime",
@@ -37,7 +33,6 @@ public class GetXml extends AbstractNativeFunction {
         try {
             // Accessing First Parameter Value.
             BStruct entityStruct = (BStruct) this.getRefArgument(context, 0);
-
             MessageDataSource messageDataSource = EntityBodyHandler.getMessageDataSource(entityStruct);
             if (messageDataSource != null) {
                 if (messageDataSource instanceof BXML) {
@@ -47,8 +42,7 @@ public class GetXml extends AbstractNativeFunction {
                     result = XMLUtils.parse(messageDataSource.getMessageAsString());
                 }
             } else {
-                EntityBodyChannel channel = MimeUtil.extractEntityBodyChannel(entityStruct);
-                result = XMLUtils.parse(Channels.newInputStream(channel));
+                result = EntityBodyHandler.readXmlDataSource(entityStruct);
                 EntityBodyHandler.addMessageDataSource(entityStruct, result);
             }
         } catch (Throwable e) {

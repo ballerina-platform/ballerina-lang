@@ -98,19 +98,12 @@ public class Constants {
     public static final String MULTIPART_ENCODER = "MultipartEncoder";
 
     //Entity properties
-    public static final int TEXT_DATA_INDEX = 1;
-    public static final int JSON_DATA_INDEX = 2;
-    public static final int XML_DATA_INDEX = 3;
-    public static final int BYTE_DATA_INDEX = 0;
-    public static final int SIZE_INDEX = 0;
-    public static final int OVERFLOW_DATA_INDEX = 4;
-    public static final int TEMP_FILE_PATH_INDEX = 0;
     public static final int MEDIA_TYPE_INDEX = 0;
     public static final int ENTITY_HEADERS_INDEX = 1;
-    public static final int MULTIPART_DATA_INDEX = 5;
-    public static final int CONTENT_DISPOSITION_INDEX = 6;
-
     public static final int ENTITY_BYTE_CHANNEL_INDEX = 2;
+    public static final int MULTIPART_DATA_INDEX = 3;
+    public static final int SIZE_INDEX = 0;
+    public static final int CONTENT_DISPOSITION_INDEX = 3;
 
     //Media type properties
     public static final int PRIMARY_TYPE_INDEX = 0;

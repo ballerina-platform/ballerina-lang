@@ -1,7 +1,7 @@
 package org.ballerinalang.mime.nativeimpl;
 
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.mime.util.EntityBodyChannel;
+import org.ballerinalang.mime.util.EntityBodyStream;
 import org.ballerinalang.mime.util.MimeUtil;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BStruct;
@@ -29,7 +29,7 @@ public class SetXml extends AbstractNativeFunction {
     public BValue[] execute(Context context) {
         BStruct entityStruct = (BStruct) this.getRefArgument(context, 0);
         BXML xmlContent = (BXML) this.getRefArgument(context, 1);
-        EntityBodyChannel byteChannel = new EntityBodyChannel(new ByteArrayInputStream(
+        EntityBodyStream byteChannel = new EntityBodyStream(new ByteArrayInputStream(
                 xmlContent.getMessageAsString().getBytes(StandardCharsets.UTF_8)));
         MimeUtil.setByteChannelToEntity(context, entityStruct, byteChannel);
         return AbstractNativeFunction.VOID_RETURN;

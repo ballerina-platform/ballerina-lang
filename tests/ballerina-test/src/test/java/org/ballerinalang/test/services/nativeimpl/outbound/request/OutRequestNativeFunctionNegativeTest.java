@@ -22,26 +22,25 @@ import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.mime.util.MimeUtil;
-import org.ballerinalang.model.values.BJSON;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.net.http.Constants;
+import org.ballerinalang.test.mime.Util;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import static org.ballerinalang.mime.util.Constants.APPLICATION_JSON;
 import static org.ballerinalang.mime.util.Constants.CONTENT_TYPE;
+import static org.ballerinalang.mime.util.Constants.ENTITY_BYTE_CHANNEL_INDEX;
 import static org.ballerinalang.mime.util.Constants.ENTITY_HEADERS_INDEX;
 import static org.ballerinalang.mime.util.Constants.IS_BODY_BYTE_CHANNEL_ALREADY_SET;
-import static org.ballerinalang.mime.util.Constants.JSON_DATA_INDEX;
 import static org.ballerinalang.mime.util.Constants.MEDIA_TYPE;
 import static org.ballerinalang.mime.util.Constants.MESSAGE_ENTITY;
 import static org.ballerinalang.mime.util.Constants.PROTOCOL_PACKAGE_MIME;
-import static org.ballerinalang.mime.util.Constants.TEXT_DATA_INDEX;
 import static org.ballerinalang.mime.util.Constants.TEXT_PLAIN;
 
 /**
@@ -97,7 +96,9 @@ public class OutRequestNativeFunctionNegativeTest {
 
         String payload = "ballerina";
         MimeUtil.setContentType(mediaType, entity, TEXT_PLAIN);
-        entity.setStringField(TEXT_DATA_INDEX, payload);
+        BStruct byteChannelStruct = Util.getByteChannelStruct(result);
+        Util.createByteChannelFromText(payload, byteChannelStruct);
+        entity.setRefField(ENTITY_BYTE_CHANNEL_INDEX, byteChannelStruct);
         outRequest.addNativeData(MESSAGE_ENTITY, entity);
         outRequest.addNativeData(IS_BODY_BYTE_CHANNEL_ALREADY_SET, true);
 
@@ -145,7 +146,9 @@ public class OutRequestNativeFunctionNegativeTest {
 
         String payload = "{\"code\":\"123\"}";
         MimeUtil.setContentType(mediaType, entity, APPLICATION_JSON);
-        entity.setRefField(JSON_DATA_INDEX, new BJSON(payload));
+        BStruct byteChannelStruct = Util.getByteChannelStruct(result);
+        Util.createByteChannelFromText(payload, byteChannelStruct);
+        entity.setRefField(ENTITY_BYTE_CHANNEL_INDEX, byteChannelStruct);
         outRequest.addNativeData(MESSAGE_ENTITY, entity);
         outRequest.addNativeData(IS_BODY_BYTE_CHANNEL_ALREADY_SET, true);
 

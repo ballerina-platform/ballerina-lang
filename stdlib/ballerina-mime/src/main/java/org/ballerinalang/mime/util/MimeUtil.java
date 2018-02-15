@@ -26,6 +26,7 @@ import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.nativeimpl.io.IOConstants;
+import org.ballerinalang.nativeimpl.io.channels.FileIOChannel;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,8 +37,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.Enumeration;
 import java.util.Set;
 import javax.activation.MimeType;
@@ -57,7 +56,6 @@ import static org.ballerinalang.mime.util.Constants.IS_BODY_BYTE_CHANNEL_ALREADY
 import static org.ballerinalang.mime.util.Constants.MEDIA_TYPE_INDEX;
 import static org.ballerinalang.mime.util.Constants.MESSAGE_ENTITY;
 import static org.ballerinalang.mime.util.Constants.MULTIPART_FORM_DATA;
-import static org.ballerinalang.mime.util.Constants.OVERFLOW_DATA_INDEX;
 import static org.ballerinalang.mime.util.Constants.PARAMETER_MAP_INDEX;
 import static org.ballerinalang.mime.util.Constants.PRIMARY_TYPE_INDEX;
 import static org.ballerinalang.mime.util.Constants.SEMICOLON;
@@ -65,7 +63,6 @@ import static org.ballerinalang.mime.util.Constants.SIZE_INDEX;
 import static org.ballerinalang.mime.util.Constants.SUBTYPE_INDEX;
 import static org.ballerinalang.mime.util.Constants.SUFFIX_INDEX;
 import static org.ballerinalang.mime.util.Constants.TEMP_FILE_EXTENSION;
-import static org.ballerinalang.mime.util.Constants.TEMP_FILE_PATH_INDEX;
 
 /**
  * Mime utility functions are included in here.
@@ -166,12 +163,12 @@ public class MimeUtil {
     /**
      * Populate ContentDisposition struct and set it to body part.
      *
-     * @param contentDisposition       Represent the ContentDisposition struct that needs to be filled with values
-     * @param bodyPart                 Represent a body part
+     * @param contentDisposition                 Represent the ContentDisposition struct that needs to be filled with values
+     * @param bodyPart                           Represent a body part
      * @param contentDispositionHeaderWithParams Represent Content-Disposition header value with parameters
      */
     public static void setContentDisposition(BStruct contentDisposition, BStruct bodyPart,
-                                      String contentDispositionHeaderWithParams) {
+                                             String contentDispositionHeaderWithParams) {
         String dispositionValue = null;
         if (isNotNullAndEmpty(contentDispositionHeaderWithParams)) {
             if (contentDispositionHeaderWithParams.contains(SEMICOLON)) {
@@ -273,7 +270,7 @@ public class MimeUtil {
      * @param entityStruct      Represent 'Entity'
      * @param temporaryFilePath Temporary file path
      * @return Entity struct populated with file handler
-     */
+     *//*
     static BStruct createBallerinaFileHandler(Context context, BStruct entityStruct, String temporaryFilePath) {
         BStruct fileStruct = ConnectorUtils
                 .createAndGetStruct(context, Constants.PROTOCOL_PACKAGE_FILE, Constants.FILE);
@@ -282,18 +279,18 @@ public class MimeUtil {
         return entityStruct;
     }
 
-    /**
+    *//**
      * Write file content directly to a given outputstream.
      *
      * @param entityStruct        Represent a ballerina entity
      * @param messageOutputStream Represent an outputstream that the file content should be written to
      * @throws IOException In case an exception occurs while writing file content to outputstream
-     */
+     *//*
     public static void writeFileToOutputStream(BStruct entityStruct, OutputStream messageOutputStream)
             throws IOException {
         String overFlowFilePath = EntityBodyHandler.getOverFlowFileLocation(entityStruct);
         Files.copy(Paths.get(overFlowFilePath), messageOutputStream);
-    }
+    }*/
 
     /**
      * Given an input stream, create a temporary file and write the content to it.
@@ -367,7 +364,7 @@ public class MimeUtil {
         return Long.toHexString(PlatformDependent.threadLocalRandom().nextLong());
     }
 
-    public static BStruct createByteChannelStruct(Context context, EntityBodyChannel byteChannel) {
+    public static BStruct createByteChannelStruct(Context context, EntityBodyStream byteChannel) {
         BStruct byteChannelStruct = ConnectorUtils.createAndGetStruct(context
                 , org.ballerinalang.mime.util.Constants.PROTOCOL_PACKAGE_IO
                 , org.ballerinalang.mime.util.Constants.BYTE_CHANNEL_STRUCT);
@@ -375,13 +372,25 @@ public class MimeUtil {
         return byteChannelStruct;
     }
 
-    public static void setByteChannelToEntity(Context context, BStruct entityStruct, EntityBodyChannel byteChannel) {
+    public static void setByteChannelToEntity(Context context, BStruct entityStruct, EntityBodyStream byteChannel) {
         BStruct byteChannelStruct = MimeUtil.createByteChannelStruct(context, byteChannel);
         entityStruct.setRefField(ENTITY_BYTE_CHANNEL_INDEX, byteChannelStruct);
     }
 
-    public static EntityBodyChannel extractEntityBodyChannel(BStruct entityStruct) {
-        BStruct byteChannel = (BStruct) entityStruct.getRefField(ENTITY_BYTE_CHANNEL_INDEX);
-        return (EntityBodyChannel)byteChannel.getNativeData(IOConstants.BYTE_CHANNEL_NAME);
+    public static EntityBodyReader extractEntityBodyReader(BStruct entityStruct) {
+        EntityBodyReader entityBodyReader = null;
+        BStruct byteChannel = entityStruct.getRefField(ENTITY_BYTE_CHANNEL_INDEX) != null ?
+                (BStruct) entityStruct.getRefField(ENTITY_BYTE_CHANNEL_INDEX) : null;
+        if (byteChannel != null) {
+            Object channel = byteChannel.getNativeData(IOConstants.BYTE_CHANNEL_NAME);
+            if (channel != null) {
+                if (channel instanceof EntityBodyStream) {
+                    entityBodyReader = new EntityBodyReader((EntityBodyStream)channel, true);
+                } else if (channel instanceof FileIOChannel) {
+                    entityBodyReader = new EntityBodyReader((FileIOChannel)channel, false);
+                }
+            }
+        }
+        return entityBodyReader;
     }
 }

@@ -34,8 +34,6 @@ import org.wso2.transport.http.netty.message.HttpMessageDataStreamer;
 
 import java.io.IOException;
 import java.io.OutputStream;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 
 /**
  * {@code {@link ConnectionAction}} represents a Abstract implementation of Native Ballerina Connection Function.
@@ -66,17 +64,14 @@ public abstract class ConnectionAction extends AbstractNativeFunction {
         BStruct entityStruct = MimeUtil.extractEntity(outboundResponseStruct);
         HttpResponseFuture outboundRespStatusFuture = HttpUtil.sendOutboundResponse(requestMessage, responseMessage);
         if (entityStruct != null) {
-            if (EntityBodyHandler.isContentInMemory(entityStruct)) {
-                MessageDataSource outboundMessageSource = EntityBodyHandler.readMessageDataSource(entityStruct);
-                serializeMsgDataSource(responseMessage, outboundMessageSource, outboundRespStatusFuture);
-            } else if (EntityBodyHandler.isOverFlowDataNotNull(entityStruct)) {
-                writeToOutputStreamFromFile(context, responseMessage, entityStruct, outboundRespStatusFuture);
-            }
+            MessageDataSource outboundMessageSource = EntityBodyHandler.readMessageDataSource(entityStruct);
+            serializeMsgDataSource(responseMessage, outboundMessageSource, outboundRespStatusFuture);
+
         }
         return handleResponseStatus(context, outboundRespStatusFuture);
     }
 
-    private void writeToOutputStreamFromFile(Context context, HTTPCarbonMessage responseMessage, BStruct entityStruct,
+  /*  private void writeToOutputStreamFromFile(Context context, HTTPCarbonMessage responseMessage, BStruct entityStruct,
                                              HttpResponseFuture outboundRespStatusFuture) {
         String overFlowFilePath = EntityBodyHandler.getOverFlowFileLocation(entityStruct);
         HttpMessageDataStreamer outboundMsgDataStreamer = new HttpMessageDataStreamer(responseMessage);
@@ -91,7 +86,7 @@ public abstract class ConnectionAction extends AbstractNativeFunction {
             throw new BallerinaException("Failed to send outbound response payload is in overflow" +
                     " file location", e, context);
         }
-    }
+    }*/
 
     private BValue[] handleResponseStatus(Context context, HttpResponseFuture outboundResponseStatusFuture) {
         try {

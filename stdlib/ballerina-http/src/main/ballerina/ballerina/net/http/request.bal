@@ -113,7 +113,7 @@ public function <OutRequest request> getContentLength () (int) {
 @Return {value:"The JSON reresentation of the message payload"}
 public function <InRequest request> getJsonPayload () (json) {
     mime:Entity entity = request.getEntity();
-    return mime:getJson(entity);
+    return entity.getJson();
 }
 
 @Description {value:"Gets the outbound request payload in JSON format"}
@@ -121,7 +121,7 @@ public function <InRequest request> getJsonPayload () (json) {
 @Return {value:"The JSON reresentation of the message payload"}
 public function <OutRequest request> getJsonPayload () (json) {
     mime:Entity entity = request.getEntity();
-    return mime:getJson(entity);
+    return entity.getJson();
 }
 
 @Description {value:"Gets the inbound request payload in XML format"}
@@ -129,7 +129,7 @@ public function <OutRequest request> getJsonPayload () (json) {
 @Return {value:"The XML representation of the message payload"}
 public function <InRequest request> getXmlPayload () (xml) {
     mime:Entity entity = request.getEntity();
-    return mime:getXml(entity);
+    return entity.getXml();
 }
 
 @Description {value:"Gets the outbound request payload in XML format"}
@@ -137,7 +137,7 @@ public function <InRequest request> getXmlPayload () (xml) {
 @Return {value:"The XML representation of the message payload"}
 public function <OutRequest request> getXmlPayload () (xml) {
     mime:Entity entity = request.getEntity();
-    return mime:getXml(entity);
+    return entity.getXml();
 }
 
 @Description {value:"Gets the inbound request payload as a string"}
@@ -145,7 +145,7 @@ public function <OutRequest request> getXmlPayload () (xml) {
 @Return {value:"The string representation of the message payload"}
 public function <InRequest request> getStringPayload () (string) {
     mime:Entity entity = request.getEntity();
-    return mime:getText(entity);
+    return entity.getText();
 }
 
 @Description {value:"Gets the outbound request payload as a string"}
@@ -153,7 +153,7 @@ public function <InRequest request> getStringPayload () (string) {
 @Return {value:"The string representation of the message payload"}
 public function <OutRequest request> getStringPayload () (string) {
     mime:Entity entity = request.getEntity();
-    return mime:getText(entity);
+    return entity.getText();
 }
 
 @Description {value:"Gets the inboundrequest payload in blob format"}
@@ -161,7 +161,7 @@ public function <OutRequest request> getStringPayload () (string) {
 @Return {value:"The blob representation of the message payload"}
 public function <InRequest request> getBinaryPayload () (blob) {
     mime:Entity entity = request.getEntity();
-    return mime:getBlob(entity);
+    return entity.getBlob();
 }
 
 @Description {value:"Gets the outbound request payload in blob format"}
@@ -169,7 +169,7 @@ public function <InRequest request> getBinaryPayload () (blob) {
 @Return {value:"The blob representation of the message payload"}
 public function <OutRequest request> getBinaryPayload () (blob) {
     mime:Entity entity = request.getEntity();
-    return mime:getBlob(entity);
+    return entity.getBlob();
 }
 
 @Description {value:"Gets the form parameters from the HTTP request as a map"}
@@ -177,7 +177,7 @@ public function <OutRequest request> getBinaryPayload () (blob) {
 @Return {value:"The map of form params"}
 public function <InRequest request> getFormParams () (map) {
     mime:Entity entity = request.getEntity();
-    string formData = mime:getText(entity);
+    string formData = entity.getText();
     map parameters = {};
     if (formData != null && formData != "") {
         string[] entries = formData.split("&");
@@ -219,7 +219,7 @@ public function <OutRequest request> getMultiparts () (mime:Entity[]) {
 @Param {value:"payload: The JSON payload to be set to the request"}
 public function <OutRequest request> setJsonPayload (json payload) {
     mime:Entity entity = request.getEntityWithoutBody();
-    entity.jsonData = payload;
+    entity.setJson(payload);
     mime:MediaType mediaType = mime:getMediaType(mime:APPLICATION_JSON);
     entity.contentType = mediaType;
     request.setEntity(entity);
@@ -230,7 +230,7 @@ public function <OutRequest request> setJsonPayload (json payload) {
 @Param {value:"payload: The XML payload object"}
 public function <OutRequest request> setXmlPayload (xml payload) {
     mime:Entity entity = request.getEntityWithoutBody();
-    entity.xmlData = payload;
+    entity.setXml(payload);
     mime:MediaType mediaType = mime:getMediaType(mime:APPLICATION_XML);
     entity.contentType = mediaType;
     request.setEntity(entity);
@@ -241,7 +241,7 @@ public function <OutRequest request> setXmlPayload (xml payload) {
 @Param {value:"payload: The payload to be set to the request as a string"}
 public function <OutRequest request> setStringPayload (string payload) {
     mime:Entity entity = request.getEntityWithoutBody();
-    entity.textData = payload;
+    entity.setText(payload);
     mime:MediaType mediaType = mime:getMediaType(mime:TEXT_PLAIN);
     entity.contentType = mediaType;
     request.setEntity(entity);
@@ -252,7 +252,7 @@ public function <OutRequest request> setStringPayload (string payload) {
 @Param {value:"payload: The blob representation of the message payload"}
 public function <OutRequest request> setBinaryPayload (blob payload) {
     mime:Entity entity = request.getEntityWithoutBody();
-    entity.byteData = payload;
+    entity.setBlob(payload);
     mime:MediaType mediaType = mime:getMediaType(mime:APPLICATION_OCTET_STREAM);
     entity.contentType = mediaType;
     request.setEntity(entity);
@@ -273,10 +273,10 @@ public function <OutRequest request> setMultiparts (mime:Entity[] bodyParts) {
 @Param {value:"request: The outbound request message"}
 @Param {value:"content: File containing the actual content"}
 @Param {value:"contentType: Content-Type of the given data"}
-public function <OutRequest request> setEntityBody (file:File content, string contentType) {
+public function <OutRequest request> setFileAsPayload (file:File fileHandler, string contentType) {
     mime:MediaType mediaType = mime:getMediaType(contentType);
     mime:Entity entity = request.getEntityWithoutBody();
+    entity.setFileAsEntityBody(fileHandler);
     entity.contentType = mediaType;
-    entity.overflowData = content;
     request.setEntity(entity);
 }

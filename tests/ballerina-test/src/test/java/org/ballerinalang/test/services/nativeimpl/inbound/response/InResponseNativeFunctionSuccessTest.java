@@ -32,6 +32,7 @@ import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BXMLItem;
 import org.ballerinalang.net.http.Constants;
 import org.ballerinalang.net.http.HttpUtil;
+import org.ballerinalang.test.mime.Util;
 import org.ballerinalang.test.services.testutils.HTTPTestRequest;
 import org.ballerinalang.test.services.testutils.MessageUtils;
 import org.ballerinalang.test.services.testutils.Services;
@@ -43,17 +44,14 @@ import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 import static org.ballerinalang.mime.util.Constants.APPLICATION_FORM;
 import static org.ballerinalang.mime.util.Constants.APPLICATION_JSON;
 import static org.ballerinalang.mime.util.Constants.APPLICATION_XML;
-import static org.ballerinalang.mime.util.Constants.BYTE_DATA_INDEX;
 import static org.ballerinalang.mime.util.Constants.CONTENT_TYPE;
+import static org.ballerinalang.mime.util.Constants.ENTITY_BYTE_CHANNEL_INDEX;
 import static org.ballerinalang.mime.util.Constants.IS_BODY_BYTE_CHANNEL_ALREADY_SET;
-import static org.ballerinalang.mime.util.Constants.JSON_DATA_INDEX;
 import static org.ballerinalang.mime.util.Constants.MEDIA_TYPE;
 import static org.ballerinalang.mime.util.Constants.MESSAGE_ENTITY;
 import static org.ballerinalang.mime.util.Constants.OCTET_STREAM;
 import static org.ballerinalang.mime.util.Constants.PROTOCOL_PACKAGE_MIME;
-import static org.ballerinalang.mime.util.Constants.TEXT_DATA_INDEX;
 import static org.ballerinalang.mime.util.Constants.TEXT_PLAIN;
-import static org.ballerinalang.mime.util.Constants.XML_DATA_INDEX;
 
 /**
  * Test cases for ballerina.net.http inbound inResponse success native functions.
@@ -83,7 +81,9 @@ public class InResponseNativeFunctionSuccessTest {
 
         String payload = "ballerina";
         MimeUtil.setContentType(mediaType, entity, OCTET_STREAM);
-        entity.setBlobField(BYTE_DATA_INDEX, payload.getBytes());
+        BStruct byteChannelStruct = Util.getByteChannelStruct(result);
+        Util.createByteChannelFromText(payload, byteChannelStruct);
+        entity.setRefField(ENTITY_BYTE_CHANNEL_INDEX, byteChannelStruct);
         inResponse.addNativeData(MESSAGE_ENTITY, entity);
         inResponse.addNativeData(IS_BODY_BYTE_CHANNEL_ALREADY_SET, true);
 
@@ -165,7 +165,9 @@ public class InResponseNativeFunctionSuccessTest {
 
         String payload = "{'code':'123'}";
         MimeUtil.setContentType(mediaType, entity, APPLICATION_JSON);
-        entity.setRefField(JSON_DATA_INDEX, new BJSON(payload));
+        BStruct byteChannelStruct = Util.getByteChannelStruct(result);
+        Util.createByteChannelFromText(payload, byteChannelStruct);
+        entity.setRefField(ENTITY_BYTE_CHANNEL_INDEX, byteChannelStruct);
         inResponse.addNativeData(MESSAGE_ENTITY, entity);
         inResponse.addNativeData(IS_BODY_BYTE_CHANNEL_ALREADY_SET, true);
         BValue[] inputArg = {inResponse};
@@ -201,7 +203,9 @@ public class InResponseNativeFunctionSuccessTest {
 
         String payload = "ballerina";
         MimeUtil.setContentType(mediaType, entity, TEXT_PLAIN);
-        entity.setStringField(TEXT_DATA_INDEX, payload);
+        BStruct byteChannelStruct = Util.getByteChannelStruct(result);
+        Util.createByteChannelFromText(payload, byteChannelStruct);
+        entity.setRefField(ENTITY_BYTE_CHANNEL_INDEX, byteChannelStruct);
         inResponse.addNativeData(MESSAGE_ENTITY, entity);
         inResponse.addNativeData(IS_BODY_BYTE_CHANNEL_ALREADY_SET, true);
         BValue[] inputArg = {inResponse};
@@ -220,7 +224,9 @@ public class InResponseNativeFunctionSuccessTest {
 
         String payload = "<name>ballerina</name>";
         MimeUtil.setContentType(mediaType, entity, APPLICATION_XML);
-        entity.setRefField(XML_DATA_INDEX, new BXMLItem(payload));
+        BStruct byteChannelStruct = Util.getByteChannelStruct(result);
+        Util.createByteChannelFromText(payload, byteChannelStruct);
+        entity.setRefField(ENTITY_BYTE_CHANNEL_INDEX, byteChannelStruct);
         inResponse.addNativeData(MESSAGE_ENTITY, entity);
         inResponse.addNativeData(IS_BODY_BYTE_CHANNEL_ALREADY_SET, true);
         BValue[] inputArg = {inResponse};

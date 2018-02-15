@@ -39,10 +39,13 @@ public struct Entity {
     ContentDisposition contentDisposition;
 }
 
-//@Description {value:"Sets the entity body with a given file content"}
-//@Param {value:"fileContent: File containing the actual content"}
-//@Param {value:"contentType: Content-Type of the given data"}
-//public native function  <Entity entity> setFileAsEntityBody (file:File fileContent);
+@Description {value:"Sets the entity body with a given file content"}
+@Param {value:"fileContent: File containing the actual content"}
+@Param {value:"contentType: Content-Type of the given data"}
+public function  <Entity entity> setFileAsEntityBody (file:File fileHandler) {
+    io:ByteChannel byteChannel = fileHandler.openChannel(READ_PERMISSION);
+    entity.byteChannel = byteChannel;
+}
 
 @Description {value:"Sets the entity body with the given json content"}
 @Param {value:"jsonContent: Json content that needs to be set to entity"}

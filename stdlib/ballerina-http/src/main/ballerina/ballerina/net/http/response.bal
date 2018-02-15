@@ -99,7 +99,7 @@ public function <OutResponse response> getContentLength () (int) {
 @Return {value:"The JSON reresentation of the message payload"}
 public function <InResponse response> getJsonPayload () (json) {
     mime:Entity entity = response.getEntity();
-    return mime:getJson(entity);
+    return entity.getJson();
 }
 
 @Description {value:"Gets the outbound response payload in JSON format"}
@@ -107,7 +107,7 @@ public function <InResponse response> getJsonPayload () (json) {
 @Return {value:"The JSON reresentation of the message payload"}
 public function <OutResponse response> getJsonPayload () (json) {
     mime:Entity entity = response.getEntity();
-    return mime:getJson(entity);
+    return entity.getJson();
 }
 
 @Description {value:"Gets the inbound response payload in XML format"}
@@ -115,7 +115,7 @@ public function <OutResponse response> getJsonPayload () (json) {
 @Return {value:"The XML representation of the message payload"}
 public function <InResponse response> getXmlPayload () (xml) {
     mime:Entity entity = response.getEntity();
-    return mime:getXml(entity);
+    return entity.getXml();
 }
 
 @Description {value:"Gets the outbound response payload in XML format"}
@@ -123,7 +123,7 @@ public function <InResponse response> getXmlPayload () (xml) {
 @Return {value:"The XML representation of the message payload"}
 public function <OutResponse response> getXmlPayload () (xml) {
     mime:Entity entity = response.getEntity();
-    return mime:getXml(entity);
+    return entity.getXml();
 }
 
 @Description {value:"Gets the inbound response payload as a string"}
@@ -131,7 +131,7 @@ public function <OutResponse response> getXmlPayload () (xml) {
 @Return {value:"The string representation of the message payload"}
 public function <InResponse response> getStringPayload () (string) {
     mime:Entity entity = response.getEntity();
-    return mime:getText(entity);
+    return entity.getText();
 }
 
 @Description {value:"Gets the outbound response payload as a string"}
@@ -139,7 +139,7 @@ public function <InResponse response> getStringPayload () (string) {
 @Return {value:"The string representation of the message payload"}
 public function <OutResponse response> getStringPayload () (string) {
     mime:Entity entity = response.getEntity();
-    return mime:getText(entity);
+    return entity.getText();
 }
 
 @Description {value:"Gets the inbound response payload in blob format"}
@@ -147,7 +147,7 @@ public function <OutResponse response> getStringPayload () (string) {
 @Return {value:"The blob representation of the message payload"}
 public function <InResponse response> getBinaryPayload () (blob) {
     mime:Entity entity = response.getEntity();
-    return mime:getBlob(entity);
+    return entity.getBlob();
 }
 
 @Description {value:"Gets the outbound response payload in blob format"}
@@ -155,7 +155,7 @@ public function <InResponse response> getBinaryPayload () (blob) {
 @Return {value:"The blob representation of the message payload"}
 public function <OutResponse response> getBinaryPayload () (blob) {
     mime:Entity entity = response.getEntity();
-    return mime:getBlob(entity);
+    return entity.getBlob();
 }
 
 @Description {value:"Sets a JSON as the outbound response payload"}
@@ -163,7 +163,7 @@ public function <OutResponse response> getBinaryPayload () (blob) {
 @Param {value:"payload: The JSON payload object"}
 public function <OutResponse response> setJsonPayload (json payload) {
     mime:Entity entity = response.getEntityWithoutBody();
-    entity.jsonData = payload;
+    entity.setJson(payload);
     mime:MediaType mediaType = mime:getMediaType(mime:APPLICATION_JSON);
     entity.contentType = mediaType;
     response.setEntity(entity);
@@ -174,7 +174,7 @@ public function <OutResponse response> setJsonPayload (json payload) {
 @Param {value:"payload: The XML payload object"}
 public function <OutResponse response> setXmlPayload (xml payload) {
     mime:Entity entity = response.getEntityWithoutBody();
-    entity.xmlData = payload;
+    entity.setXml(payload);
     mime:MediaType mediaType = mime:getMediaType(mime:APPLICATION_XML);
     entity.contentType = mediaType;
     response.setEntity(entity);
@@ -185,7 +185,7 @@ public function <OutResponse response> setXmlPayload (xml payload) {
 @Param { value:"payload: The payload to be set to the response as a string" }
 public function <OutResponse response> setStringPayload (string payload) {
     mime:Entity entity = response.getEntityWithoutBody();
-    entity.textData = payload;
+    entity.setText(payload);
     mime:MediaType mediaType = mime:getMediaType(mime:TEXT_PLAIN);
     entity.contentType = mediaType;
     response.setEntity(entity);
@@ -196,7 +196,7 @@ public function <OutResponse response> setStringPayload (string payload) {
 @Param {value:"payload: The blob representation of the message payload"}
 public function <OutResponse response> setBinaryPayload (blob payload) {
     mime:Entity entity = response.getEntityWithoutBody();
-    entity.byteData = payload;
+    entity.setBlob(payload);
     mime:MediaType mediaType = mime:getMediaType(mime:APPLICATION_OCTET_STREAM);
     entity.contentType = mediaType;
     response.setEntity(entity);
@@ -206,10 +206,10 @@ public function <OutResponse response> setBinaryPayload (blob payload) {
 @Param {value:"response: The outbound response message"}
 @Param {value:"content: File containing the actual content"}
 @Param {value:"contentType: Content-Type of the given data"}
-public function <OutResponse response> setEntityBody(file:File content, string contentType) {
+public function <OutResponse response> setFileAsPayload(file:File fileHandler, string contentType) {
     mime:MediaType mediaType = mime:getMediaType(contentType);
     mime:Entity entity = response.getEntityWithoutBody();
     entity.contentType = mediaType;
-    entity.overflowData = content;
+    entity.setFileAsEntityBody(fileHandler);
     response.setEntity(entity);
 }

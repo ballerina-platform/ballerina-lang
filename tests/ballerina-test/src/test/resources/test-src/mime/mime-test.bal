@@ -1,4 +1,5 @@
 import ballerina.mime;
+import ballerina.file;
 
 //function testGetTextFromFile(mime:Entity entity) (string) {
 //    return mime:getText(entity);
@@ -62,6 +63,29 @@ function testGetTextMultipleTimes (string textContent) (string) {
     string returnContent3 = entity.getText();
     string returnContent = returnContent1 + returnContent2 + returnContent3;
     return returnContent;
+}
+
+function testSetAndBlob (blob blobContent) (blob) {
+    mime:Entity entity = {};
+    entity.setBlob(blobContent);
+    return entity.getBlob();
+}
+
+function testGetBlobMultipleTimes (blob blobContent) (string) {
+    mime:Entity entity = {};
+    entity.setBlob(blobContent);
+    blob returnContent1 = entity.getBlob();
+    blob returnContent2 = entity.getBlob();
+    blob returnContent3 = entity.getBlob();
+    string contentAsString = returnContent1.toString("utf-8") + returnContent2.toString("utf-8") +
+                           returnContent3.toString("utf-8");
+    return contentAsString;
+}
+
+function testSetFileAsEntityBody (file:File fileHandler) (blob) {
+    mime:Entity entity = {};
+    entity.setFileAsEntityBody(fileHandler);
+    return entity.getBlob();
 }
 
 function testGetMediaType (string contentType) (mime:MediaType) {

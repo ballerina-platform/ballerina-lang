@@ -1,13 +1,14 @@
 package org.ballerinalang.mime.nativeimpl;
 
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.mime.util.EntityBodyChannel;
 import org.ballerinalang.mime.util.EntityBodyHandler;
+import org.ballerinalang.mime.util.EntityBodyReader;
 import org.ballerinalang.mime.util.MimeUtil;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BBlob;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.nativeimpl.io.channels.FileIOChannel;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
@@ -16,6 +17,7 @@ import org.ballerinalang.runtime.message.BlobDataSource;
 import org.ballerinalang.runtime.message.MessageDataSource;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
+import java.io.IOException;
 import java.nio.channels.Channels;
 
 /**
@@ -41,8 +43,7 @@ public class GetBlob extends AbstractNativeFunction {
             if (messageDataSource != null) {
                 result = (BlobDataSource) messageDataSource;
             } else {
-                EntityBodyChannel channel = MimeUtil.extractEntityBodyChannel(entityStruct);
-                result = new BlobDataSource(MimeUtil.getByteArray(Channels.newInputStream(channel)));
+                result = EntityBodyHandler.readBinaryDataSource(entityStruct);
                 EntityBodyHandler.addMessageDataSource(entityStruct, result);
             }
         } catch (Throwable e) {

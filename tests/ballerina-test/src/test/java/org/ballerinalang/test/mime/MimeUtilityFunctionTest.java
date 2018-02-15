@@ -20,7 +20,6 @@ package org.ballerinalang.test.mime;
 
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
-import org.ballerinalang.launcher.util.BServiceUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.util.XMLUtils;
 import org.ballerinalang.model.values.BBlob;
@@ -30,34 +29,20 @@ import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BXML;
-import org.ballerinalang.model.values.BXMLItem;
-import org.ballerinalang.nativeimpl.io.channels.base.AbstractChannel;
-import org.ballerinalang.nativeimpl.io.channels.base.CharacterChannel;
 import org.ballerinalang.net.http.Constants;
-import org.ballerinalang.test.nativeimpl.functions.io.MockByteChannel;
-import org.ballerinalang.test.nativeimpl.functions.io.util.TestUtil;
-import org.ballerinalang.test.services.testutils.HTTPTestRequest;
-import org.ballerinalang.test.services.testutils.MessageUtils;
-import org.ballerinalang.test.services.testutils.Services;
-import org.ballerinalang.test.utils.ResponseReader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.net.URISyntaxException;
-import java.nio.channels.ByteChannel;
-import java.nio.charset.StandardCharsets;
 
 import static org.ballerinalang.mime.util.Constants.FILE;
 import static org.ballerinalang.mime.util.Constants.MEDIA_TYPE;
-import static org.ballerinalang.mime.util.Constants.OVERFLOW_DATA_INDEX;
 import static org.ballerinalang.mime.util.Constants.PARAMETER_MAP_INDEX;
 import static org.ballerinalang.mime.util.Constants.PRIMARY_TYPE_INDEX;
 import static org.ballerinalang.mime.util.Constants.PROTOCOL_PACKAGE_FILE;
@@ -83,16 +68,16 @@ public class MimeUtilityFunctionTest {
     public void setup() {
         String sourceFilePath = "test-src/mime/mime-test.bal";
         compileResult = BCompileUtil.compile(sourceFilePath);
-       // serviceResult = BServiceUtil.setupProgramFile(this, sourceFilePath);
+        // serviceResult = BServiceUtil.setupProgramFile(this, sourceFilePath);
     }
 
     @Test(description = "Test setting json content to and entity and get the content back from entity as json")
     public void testGetAndSetJson() {
-            BJSON jsonContent = new BJSON("{'code':'123'}");
-            BValue[] args = {jsonContent};
-            BValue[] returns = BRunUtil.invoke(compileResult, "testSetAndGetJson", args);
-            Assert.assertEquals(returns.length, 1);
-            Assert.assertEquals(((BJSON) returns[0]).value().get("code").asText(), "123");
+        BJSON jsonContent = new BJSON("{'code':'123'}");
+        BValue[] args = {jsonContent};
+        BValue[] returns = BRunUtil.invoke(compileResult, "testSetAndGetJson", args);
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals(((BJSON) returns[0]).value().get("code").asText(), "123");
     }
 
     @Test(description = "Test whether the json content can be retrieved properly when it is called multiple times")
@@ -140,7 +125,49 @@ public class MimeUtilityFunctionTest {
         BValue[] returns = BRunUtil.invoke(compileResult, "testGetTextMultipleTimes", args);
         Assert.assertEquals(returns.length, 1);
         Assert.assertEquals(returns[0].stringValue(),
-                "<name>ballerina</name><name>ballerina</name><name>ballerina</name>");
+                "Hello Ballerina !Hello Ballerina !Hello Ballerina !");
+    }
+
+    @Test(description = "Test setting json content to and entity and get the content back from entity as json")
+    public void testGetAndSetBlob() {
+        String content = "ballerina";
+        BBlob byteContent = new BBlob(content.getBytes());
+        BValue[] args = {byteContent};
+        BValue[] returns = BRunUtil.invoke(compileResult, "testSetAndBlob", args);
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals(returns[0].stringValue(), content);
+    }
+
+    @Test(description = "Test whether the json content can be retrieved properly when it is called multiple times")
+    public void testGetBlobMoreThanOnce() {
+        String content = "ballerina";
+        BBlob byteContent = new BBlob(content.getBytes());
+        BValue[] args = {byteContent};
+        BValue[] returns = BRunUtil.invoke(compileResult, "testGetBlobMultipleTimes", args);
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals(returns[0].stringValue(),
+                "ballerinaballerinaballerina");
+    }
+
+    @Test(description = "Test whether the json content can be retrieved properly when it is called multiple times")
+    public void testSetFileAsEntityBody() {
+        try {
+            File file = File.createTempFile("testFile", ".tmp");
+            file.deleteOnExit();
+            BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(file));
+            bufferedWriter.write("Hello Ballerina!");
+            bufferedWriter.close();
+            BStruct fileStruct = BCompileUtil
+                    .createAndGetStruct(compileResult.getProgFile(), protocolPackageFile, FILE);
+            fileStruct.setStringField(0, file.getAbsolutePath());
+            BValue[] args = {fileStruct};
+            BValue[] returns = BRunUtil.invoke(compileResult, "testSetFileAsEntityBody", args);
+            Assert.assertEquals(returns.length, 1);
+            Assert.assertEquals(returns[0].stringValue(), "Hello Ballerina!",
+                    "Entity body is not properly set");
+        } catch (IOException e) {
+            LOG.error("Error occured in testGetJsonFromFile", e.getMessage());
+        }
     }
 
    /* @Test(description = "Test 'getText' function in ballerina.net.mime package")

@@ -268,26 +268,15 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
         BStruct requestStruct = ((BStruct) getRefArgument(context, 1));
         BStruct entityStruct = MimeUtil.extractEntity(requestStruct);
         if (entityStruct != null) {
-            if (EntityBodyHandler.isContentInMemory(entityStruct)) {
-                MessageDataSource messageDataSource = EntityBodyHandler.readMessageDataSource(entityStruct);
-                if (messageDataSource != null) {
-                    OutputStream messageOutputStream = getOutputStream(outboundReqMsg, httpClientConnectorListener);
-                    messageDataSource.serializeData(messageOutputStream);
-                    HttpUtil.closeMessageOutputStream(messageOutputStream);
-                }
-            } else if (EntityBodyHandler.isOverFlowDataNotNull(entityStruct)) {
+            MessageDataSource messageDataSource = EntityBodyHandler.readMessageDataSource(entityStruct);
+            if (messageDataSource != null) {
                 OutputStream messageOutputStream = getOutputStream(outboundReqMsg, httpClientConnectorListener);
-                try {
-                    MimeUtil.writeFileToOutputStream(entityStruct, messageOutputStream);
-                } catch (IOException e) {
-                    throw new BallerinaException("Failed to write payload to outputstream when payload is in overflow" +
-                            " file location", e, context);
-                } finally {
-                    HttpUtil.closeMessageOutputStream(messageOutputStream);
-                }
+                messageDataSource.serializeData(messageOutputStream);
+                HttpUtil.closeMessageOutputStream(messageOutputStream);
             }
         }
     }
+
 
     private static OutputStream getOutputStream(HTTPCarbonMessage outboundReqMsg, HTTPClientConnectorListener
             httpClientConnectorListener) {

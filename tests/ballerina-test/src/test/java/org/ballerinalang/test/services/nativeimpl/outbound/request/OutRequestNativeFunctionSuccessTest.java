@@ -21,6 +21,7 @@ import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.BServiceUtil;
 import org.ballerinalang.launcher.util.CompileResult;
+import org.ballerinalang.mime.util.EntityBodyHandler;
 import org.ballerinalang.mime.util.MimeUtil;
 import org.ballerinalang.model.util.StringUtils;
 import org.ballerinalang.model.values.BBlob;
@@ -31,10 +32,12 @@ import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.model.values.BXML;
 import org.ballerinalang.model.values.BXMLItem;
 import org.ballerinalang.net.http.Constants;
 import org.ballerinalang.net.http.HttpUtil;
 import org.ballerinalang.runtime.message.BlobDataSource;
+import org.ballerinalang.test.mime.Util;
 import org.ballerinalang.test.services.testutils.HTTPTestRequest;
 import org.ballerinalang.test.services.testutils.MessageUtils;
 import org.ballerinalang.test.services.testutils.Services;
@@ -51,28 +54,21 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 
 import static org.ballerinalang.mime.util.Constants.APPLICATION_FORM;
 import static org.ballerinalang.mime.util.Constants.APPLICATION_JSON;
 import static org.ballerinalang.mime.util.Constants.APPLICATION_XML;
-import static org.ballerinalang.mime.util.Constants.BYTE_DATA_INDEX;
 import static org.ballerinalang.mime.util.Constants.CONTENT_TYPE;
+import static org.ballerinalang.mime.util.Constants.ENTITY_BYTE_CHANNEL_INDEX;
 import static org.ballerinalang.mime.util.Constants.ENTITY_HEADERS_INDEX;
 import static org.ballerinalang.mime.util.Constants.FILE;
 import static org.ballerinalang.mime.util.Constants.IS_BODY_BYTE_CHANNEL_ALREADY_SET;
-import static org.ballerinalang.mime.util.Constants.JSON_DATA_INDEX;
 import static org.ballerinalang.mime.util.Constants.MEDIA_TYPE;
 import static org.ballerinalang.mime.util.Constants.MESSAGE_ENTITY;
 import static org.ballerinalang.mime.util.Constants.OCTET_STREAM;
-import static org.ballerinalang.mime.util.Constants.OVERFLOW_DATA_INDEX;
 import static org.ballerinalang.mime.util.Constants.PROTOCOL_PACKAGE_FILE;
 import static org.ballerinalang.mime.util.Constants.PROTOCOL_PACKAGE_MIME;
-import static org.ballerinalang.mime.util.Constants.TEXT_DATA_INDEX;
 import static org.ballerinalang.mime.util.Constants.TEXT_PLAIN;
-import static org.ballerinalang.mime.util.Constants.UTF_8;
-import static org.ballerinalang.mime.util.Constants.XML_DATA_INDEX;
 
 /**
  * Test cases for ballerina.net.http outbound outRequest success native functions.
@@ -133,7 +129,9 @@ public class OutRequestNativeFunctionSuccessTest {
 
         String payload = "ballerina";
         MimeUtil.setContentType(mediaType, entity, OCTET_STREAM);
-        entity.setBlobField(BYTE_DATA_INDEX, payload.getBytes());
+        BStruct byteChannelStruct = Util.getByteChannelStruct(result);
+        Util.createByteChannelFromText(payload, byteChannelStruct);
+        entity.setRefField(ENTITY_BYTE_CHANNEL_INDEX, byteChannelStruct);
         outRequest.addNativeData(MESSAGE_ENTITY, entity);
         outRequest.addNativeData(IS_BODY_BYTE_CHANNEL_ALREADY_SET, true);
 
@@ -232,7 +230,9 @@ public class OutRequestNativeFunctionSuccessTest {
 
         String payload = "{'code':'123'}";
         MimeUtil.setContentType(mediaType, entity, APPLICATION_JSON);
-        entity.setRefField(JSON_DATA_INDEX, new BJSON(payload));
+        BStruct byteChannelStruct = Util.getByteChannelStruct(result);
+        Util.createByteChannelFromText(payload, byteChannelStruct);
+        entity.setRefField(ENTITY_BYTE_CHANNEL_INDEX, byteChannelStruct);
         outRequest.addNativeData(MESSAGE_ENTITY, entity);
         outRequest.addNativeData(IS_BODY_BYTE_CHANNEL_ALREADY_SET, true);
 
@@ -290,7 +290,9 @@ public class OutRequestNativeFunctionSuccessTest {
 
         String payload = "ballerina";
         MimeUtil.setContentType(mediaType, entity, TEXT_PLAIN);
-        entity.setStringField(TEXT_DATA_INDEX, payload);
+        BStruct byteChannelStruct = Util.getByteChannelStruct(result);
+        Util.createByteChannelFromText(payload, byteChannelStruct);
+        entity.setRefField(ENTITY_BYTE_CHANNEL_INDEX, byteChannelStruct);
         outRequest.addNativeData(MESSAGE_ENTITY, entity);
         outRequest.addNativeData(IS_BODY_BYTE_CHANNEL_ALREADY_SET, true);
 
@@ -320,7 +322,9 @@ public class OutRequestNativeFunctionSuccessTest {
 
         String payload = "<name>ballerina</name>";
         MimeUtil.setContentType(mediaType, entity, APPLICATION_XML);
-        entity.setRefField(XML_DATA_INDEX, new BXMLItem(payload));
+        BStruct byteChannelStruct = Util.getByteChannelStruct(result);
+        Util.createByteChannelFromText(payload, byteChannelStruct);
+        entity.setRefField(ENTITY_BYTE_CHANNEL_INDEX, byteChannelStruct);
         outRequest.addNativeData(MESSAGE_ENTITY, entity);
         outRequest.addNativeData(IS_BODY_BYTE_CHANNEL_ALREADY_SET, true);
 
@@ -469,7 +473,7 @@ public class OutRequestNativeFunctionSuccessTest {
                 "Invalid Return Values.");
         Assert.assertTrue(returnVals[0] instanceof BStruct);
         BStruct entity = (BStruct) ((BStruct) returnVals[0]).getNativeData(MESSAGE_ENTITY);
-        BJSON bJson = (BJSON) entity.getRefField(JSON_DATA_INDEX);
+        BJSON bJson = EntityBodyHandler.readJsonDataSource(entity);
         Assert.assertEquals(bJson.value().get("name").asText(), "wso2", "Payload is not set properly");
     }
 
@@ -524,8 +528,8 @@ public class OutRequestNativeFunctionSuccessTest {
                 "Invalid Return Values.");
         Assert.assertTrue(returnVals[0] instanceof BStruct);
         BStruct entity = (BStruct) ((BStruct) returnVals[0]).getNativeData(MESSAGE_ENTITY);
-        String stringValue = entity.getStringField(TEXT_DATA_INDEX);
-        Assert.assertEquals(stringValue, "Ballerina", "Payload is not set properly");
+        BString stringValue = EntityBodyHandler.readStringDataSource(entity);
+        Assert.assertEquals(stringValue.toString(), "Ballerina", "Payload is not set properly");
     }
 
     @Test(description = "Test SetStringPayload function within a service")
@@ -550,7 +554,8 @@ public class OutRequestNativeFunctionSuccessTest {
                 "Invalid Return Values.");
         Assert.assertTrue(returnVals[0] instanceof BStruct);
         BStruct entity = (BStruct) ((BStruct) returnVals[0]).getNativeData(MESSAGE_ENTITY);
-        BXMLItem xmlValue = (BXMLItem) entity.getRefField(XML_DATA_INDEX);
+     //   BXMLItem xmlValue = (BXMLItem) entity.getRefField(XML_DATA_INDEX);
+        BXML xmlValue = EntityBodyHandler.readXmlDataSource(entity);
         Assert.assertEquals(xmlValue.getTextValue().stringValue(), "Ballerina", "Payload is not set properly");
     }
 
@@ -600,7 +605,12 @@ public class OutRequestNativeFunctionSuccessTest {
                 "Invalid Return Values.");
         Assert.assertTrue(returnVals[0] instanceof BStruct);
         BStruct entity = (BStruct) ((BStruct) returnVals[0]).getNativeData(MESSAGE_ENTITY);
-        BlobDataSource blobDataSource = new BlobDataSource(entity.getBlobField(BYTE_DATA_INDEX));
+        BlobDataSource blobDataSource = null;
+        try {
+            blobDataSource = EntityBodyHandler.readBinaryDataSource(entity);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         Assert.assertEquals(blobDataSource.getMessageAsString(), "Ballerina", "Payload is not set properly");
     }
 
@@ -621,11 +631,11 @@ public class OutRequestNativeFunctionSuccessTest {
                     "Invalid Return Values.");
             Assert.assertTrue(returnVals[0] instanceof BStruct);
             BStruct entity = (BStruct) ((BStruct) returnVals[0]).getNativeData(MESSAGE_ENTITY);
-            BStruct returnFileStruct = (BStruct) entity.getRefField(OVERFLOW_DATA_INDEX);
+           /* BStruct returnFileStruct = (BStruct) entity.getRefField(OVERFLOW_DATA_INDEX);
 
             String returnJsonValue = new String(Files.readAllBytes(Paths.get(returnFileStruct.getStringField(0))),
-                    UTF_8);
-            BJSON bJson = new BJSON(returnJsonValue);
+                    UTF_8);*/
+            BJSON bJson = EntityBodyHandler.readJsonDataSource(entity);
             Assert.assertEquals(bJson.value().get("name").asText(), "wso2", "Payload is not set properly");
         } catch (IOException e) {
             LOG.error("Error occured while creating a temporary file in testSetEntityBody", e.getMessage());
