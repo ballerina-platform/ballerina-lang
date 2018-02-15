@@ -79,25 +79,28 @@ public class ZipFile extends AbstractNativeFunction {
                 log.debug("File with the specified pathname does not exist", e);
                 log.error("File with the specified pathname does not exist : " + destDir);
             }
-            zos = new ZipOutputStream(fos);
-            for (String filePath : filesListInDir) {
-                log.debug("Zipping " + filePath);
-                //for ZipEntry we need to keep only relative file path, so we used substring on absolute path
-                ZipEntry ze = new ZipEntry(filePath.substring(dir.getAbsolutePath().length() + 1, filePath.length()));
-                zos.putNextEntry(ze);
-                //read the file and write to ZipOutputStream
-                FileInputStream fis = null;
-                try {
-                    fis = new FileInputStream(filePath);
-                    byte[] buffer = new byte[1024];
-                    int len;
-                    while ((len = fis.read(buffer)) > 0) {
-                        zos.write(buffer, 0, len);
-                    }
-                    zos.closeEntry();
-                } finally {
-                    if (fis != null) {
-                        fis.close();
+            if (fos != null) {
+                zos = new ZipOutputStream(fos);
+                for (String filePath : filesListInDir) {
+                    log.debug("Zipping " + filePath);
+                    //for ZipEntry we need to keep only relative file path, so we used substring on absolute path
+                    ZipEntry ze = new ZipEntry(filePath.substring(dir.getAbsolutePath().length() + 1,
+                            filePath.length()));
+                    zos.putNextEntry(ze);
+                    //read the file and write to ZipOutputStream
+                    FileInputStream fis = null;
+                    try {
+                        fis = new FileInputStream(filePath);
+                        byte[] buffer = new byte[1024];
+                        int len;
+                        while ((len = fis.read(buffer)) > 0) {
+                            zos.write(buffer, 0, len);
+                        }
+                        zos.closeEntry();
+                    } finally {
+                        if (fis != null) {
+                            fis.close();
+                        }
                     }
                 }
             }
