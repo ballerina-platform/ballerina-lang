@@ -172,6 +172,7 @@ public class TreeVisitor extends BLangNodeVisitor {
             cursorPositionResolver = PackageNodeScopeResolver.class;
             topLevelNodes.forEach(topLevelNode -> {
                 cursorPositionResolver = TopLevelNodeScopeResolver.class;
+                this.blockOwnerStack.push(pkgNode);
                 acceptNode((BLangNode) topLevelNode, pkgEnv);
             });
         }
@@ -953,13 +954,15 @@ public class TreeVisitor extends BLangNodeVisitor {
     }
 
     public void setTerminateVisitor(boolean terminateVisitor) {
-        if (terminateVisitor && !blockOwnerStack.isEmpty()) {
+        if (terminateVisitor) {
             boolean currentNodeIsTransaction = !this.isCurrentNodeTransactionStack.isEmpty();
             documentServiceContext.put(CompletionKeys.CURRENT_NODE_TRANSACTION_KEY, currentNodeIsTransaction);
-            documentServiceContext.put(CompletionKeys.BLOCK_OWNER_KEY, blockOwnerStack.peek());
             documentServiceContext.put(CompletionKeys.LOOP_COUNT_KEY, this.loopCount);
             documentServiceContext.put(CompletionKeys.TRANSACTION_COUNT_KEY, this.transactionCount);
             documentServiceContext.put(CompletionKeys.PREVIOUS_NODE_KEY, this.previousNode);
+            if (!blockOwnerStack.isEmpty()) {
+                documentServiceContext.put(CompletionKeys.BLOCK_OWNER_KEY, blockOwnerStack.peek());
+            }
         }
         this.terminateVisitor = terminateVisitor;
     }
