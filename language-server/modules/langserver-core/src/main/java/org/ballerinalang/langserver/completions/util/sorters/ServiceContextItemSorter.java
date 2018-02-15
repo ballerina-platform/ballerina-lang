@@ -40,6 +40,12 @@ public class ServiceContextItemSorter extends CompletionItemSorter {
     public void sortItems(TextDocumentServiceContext ctx, List<CompletionItem> completionItems) {
         BLangNode previousNode = ctx.get(CompletionKeys.PREVIOUS_NODE_KEY);
         
+        /*
+        Remove the statement type completion type. When the going through the parser
+        rule contexts such as typeNameContext, we add the statements as well.
+        Sorters are responsible for to the next level of such filtering.
+         */
+        this.removeCompletionsByType(ItemResolverConstants.STATEMENT_TYPE, completionItems);
         if (previousNode == null) {
             this.populateWhenCursorBeforeOrAfterEp(completionItems);
         } else if (previousNode instanceof BLangVariableDef) {
