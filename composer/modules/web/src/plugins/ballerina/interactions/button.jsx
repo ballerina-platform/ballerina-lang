@@ -145,7 +145,7 @@ class Button extends React.Component {
                 <div className='button-panel'>
                     <span
                         onClick={this.props.onClick}
-                        className={(this.state.showAlways ? 'button-show-always' : 'button') + ' fw-lg '  + buttonBackgroundClass}
+                        className={(this.state.showAlways ? 'button-show-always' : 'button') + ' fw-lg ' + buttonBackgroundClass}
                         title={this.props.tooltip}
                     >
                         <i className={`fw fw-${this.props.icon} fw-lg button-icon`} />
