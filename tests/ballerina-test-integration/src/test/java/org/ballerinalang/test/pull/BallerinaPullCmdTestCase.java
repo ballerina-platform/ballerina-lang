@@ -17,6 +17,8 @@
 */
 package org.ballerinalang.test.pull;
 
+import org.ballerinalang.launcher.toml.model.Proxy;
+import org.ballerinalang.launcher.toml.parser.ProxyProcessor;
 import org.ballerinalang.test.IntegrationTestCase;
 import org.ballerinalang.test.context.BallerinaTestException;
 import org.ballerinalang.test.context.Constant;
@@ -53,9 +55,13 @@ public class BallerinaPullCmdTestCase extends IntegrationTestCase {
                 + "hello.zip").getAbsolutePath();
         String destDirPath = new File("src" + File.separator + "test" + File.separator + "resources"
                 + File.separator + "ballerinaPull" + File.separator + "files").getAbsolutePath();
+
+        String proxyConfigFile = new File("src" + File.separator + "test" + File.separator + "resources"
+                + File.separator + "ballerinaPull" + File.separator + "proxy-config.toml").getAbsolutePath();
+        Proxy proxy = ProxyProcessor.parseTomlContentFromFile(proxyConfigFile);
         String[] clientArgs = {new File("src" + File.separator + "test" + File.separator + "resources"
                 + File.separator + "ballerinaPull" + File.separator + "pullClient.bal").getAbsolutePath(),
-                srcDirPath, destDirPath};
+                srcDirPath, destDirPath, proxy.getHost(), proxy.getPort()};
 
         ballerinaClient = new ServerInstance(serverZipPath);
         ballerinaClient.runMain(clientArgs);
