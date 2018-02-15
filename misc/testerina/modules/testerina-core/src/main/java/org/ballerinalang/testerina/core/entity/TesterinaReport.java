@@ -32,18 +32,20 @@ public class TesterinaReport {
 
     private List<TesterinaResult> passedTests = new ArrayList<>();
     private List<TesterinaResult> failedTests = new ArrayList<>();
+    private int skipedTestCount = 0;
 
     public void printTestSummary() {
-        if (!passedTests.isEmpty() || !failedTests.isEmpty()) {
-            int totalTests = passedTests.size() + failedTests.size();
-            outStream.println();
-            outStream.println("result: ");
-            outStream.print("tests run: " + totalTests);
-            outStream.print(", passed: " + passedTests.size());
-            outStream.println(", failed: " + failedTests.size());
-        }
+        int totalTests = passedTests.size() + failedTests.size();
+        outStream.println();
+        outStream.println("============== TEST RESULT SUMMARY ==============");
+        outStream.println("result: ");
+        outStream.print("tests run: " + totalTests);
+        outStream.print(", passed: " + passedTests.size());
+        outStream.print(", failed: " + failedTests.size());
+        outStream.println(", skipped: " + skipedTestCount);
 
         if (!failedTests.isEmpty()) {
+            outStream.println();
             outStream.println("failed tests:");
             for (TesterinaResult failedResult : failedTests) {
                 outStream.println(
@@ -64,8 +66,23 @@ public class TesterinaReport {
         return Collections.unmodifiableList(passedTests);
     }
 
+    public int getPassedTestCount() {
+        return Collections.unmodifiableList(passedTests).size();
+    }
+
+    public int getFailedTestCount() {
+        return Collections.unmodifiableList(failedTests).size();
+    }
+
+    public int getSkippedTestCount() {
+        return skipedTestCount;
+    }
+
     public List<TesterinaResult> getFailedTests() {
         return Collections.unmodifiableList(failedTests);
     }
 
+    public void incrementSkipCount() {
+        skipedTestCount++;
+    }
 }

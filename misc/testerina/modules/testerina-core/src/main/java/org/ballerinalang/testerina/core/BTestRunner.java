@@ -15,10 +15,12 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+
 package org.ballerinalang.testerina.core;
 
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.launcher.LauncherUtils;
+import org.ballerinalang.model.values.BString;
 import org.ballerinalang.testerina.core.entity.TesterinaContext;
 import org.ballerinalang.testerina.core.entity.TesterinaFunction;
 import org.ballerinalang.testerina.core.entity.TesterinaReport;
@@ -34,6 +36,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 import static org.ballerinalang.compiler.CompilerOptionName.COMPILER_PHASE;
 import static org.ballerinalang.compiler.CompilerOptionName.PRESERVE_WHITESPACE;
@@ -46,20 +49,34 @@ public class BTestRunner {
 
     private static Path programDirPath = Paths.get(System.getProperty("user.dir"));
     private static PrintStream outStream = System.err;
-    private static TesterinaReport tReport = new TesterinaReport();
+    private TesterinaReport tReport = new TesterinaReport();
 
-    public static void runTest(Path[] sourceFilePaths) {
+    /**
+     * Executes a given set of ballerina program files.
+     *
+     * @param sourceFilePaths List of @{@link Path} of ballerina files
+     * @param groups          List of groups to be included
+     */
+    public void runTest(Path[] sourceFilePaths, List<String> groups) {
+        runTest(sourceFilePaths, groups, false);
+    }
+
+    /**
+     * Executes a given set of ballerina program files.
+     *
+     * @param sourceFilePaths List of @{@link Path} of ballerina files
+     * @param groups          List of groups to be included/excluded
+     * @param ignoreGroups    flag to specify whether to include or exclude provided groups
+     */
+    public void runTest(Path[] sourceFilePaths, List<String> groups, boolean ignoreGroups) {
         ProgramFile[] programFiles = Arrays.stream(sourceFilePaths).map(BTestRunner::buildTestModel)
                 .toArray(ProgramFile[]::new);
         Arrays.stream(programFiles).forEachOrdered(programFile -> {
             TesterinaRegistry.getInstance().addProgramFile(programFile);
         });
 
-    // TODO Implement debugging for Testerina
-
-        executeTestFunctions(programFiles);
+        executeTestFunctions(programFiles, groups, ignoreGroups);
         tReport.printTestSummary();
-        Runtime.getRuntime().exit(0);
     }
 
     private static ProgramFile buildTestModel(Path sourceFilePath) {
@@ -72,19 +89,17 @@ public class BTestRunner {
         // compile
         Compiler compiler = Compiler.getInstance(context);
         compiler.compile(sourceFilePath.toString());
-
         org.wso2.ballerinalang.programfile.ProgramFile programFile = compiler.getCompiledProgram();
 
         if (programFile == null) {
             throw new BallerinaException("compilation contains errors");
         }
-
         ProgramFile progFile = LauncherUtils.getExecutableProgram(programFile);
         progFile.setProgramFilePath(sourceFilePath);
         return progFile;
     }
 
-    private static void executeTestFunctions(ProgramFile[] programFiles) {
+    private void executeTestFunctions(ProgramFile[] programFiles, List<String> groups, boolean disableGroups) {
         TesterinaContext tFile = new TesterinaContext(programFiles);
         ArrayList<TesterinaFunction> testFunctions = tFile.getTestFunctions();
         ArrayList<TesterinaFunction> beforeTestFunctions = tFile.getBeforeTestFunctions();
@@ -108,20 +123,62 @@ public class BTestRunner {
         for (TesterinaFunction tFunction : testFunctions) {
             boolean isTestPassed = true;
             String errorMessage = null;
-            try {
-                tFunction.invoke();
-            } catch (BallerinaException e) {
-                isTestPassed = false;
-                errorMessage = e.getMessage();
-                outStream.println("test '" + tFunction.getName() + "' failed: " + errorMessage);
-            } catch (Exception e) {
-                isTestPassed = false;
-                errorMessage = e.getMessage();
-                outStream.println("test '" + tFunction.getName() + "' has an error: " + errorMessage);
+
+            // Check whether the test is disabled.
+            if (tFunction.getTesterinaAnnotation().isDisabled()) {
+                tReport.incrementSkipCount();
+                continue;
             }
-            // if there are no exception thrown, test is passed
-            TesterinaResult functionResult = new TesterinaResult(tFunction.getName(), isTestPassed, errorMessage);
-            tReport.addFunctionResult(functionResult);
+            // Filtering the test functions by group
+            if (groups != null) {
+                // If provided groups matches and the provided flag is to disable groups the function is skipped
+                if ((isGroupAvailable(groups, tFunction.getTesterinaAnnotation().getGroups()) && disableGroups) || (
+                        !isGroupAvailable(groups, tFunction.getTesterinaAnnotation().getGroups())
+                        && !disableGroups)) {
+                    tReport.incrementSkipCount();
+                    continue;
+                }
+            }
+
+            // Check whether valueSets are attached to the test function
+            List<String[]> valueSets = tFunction.getTesterinaAnnotation().getValueSet();
+            if (valueSets != null && valueSets.size() > 0) {
+                for (String[] valueSet : valueSets) {
+                    isTestPassed = true;
+                    try {
+                        // Parsing the args to invoke function
+                        tFunction.invoke(Arrays.stream(valueSet).map(s -> new BString(s)).toArray(BString[]::new));
+                    } catch (BallerinaException e) {
+                        isTestPassed = false;
+                        errorMessage = "valueSet: " + Arrays.toString(valueSet) + " " + e.getMessage();
+                        outStream.println("test '" + tFunction.getName() + "' failed: " + errorMessage);
+                    } catch (Exception e) {
+                        isTestPassed = false;
+                        errorMessage = "valueSet: " + Arrays.toString(valueSet) + " " + e.getMessage();
+                        outStream.println("test '" + tFunction.getName() + "' has an error: " + errorMessage);
+                    }
+                    // Adding results to the report
+                    TesterinaResult functionResult = new TesterinaResult(tFunction.getName(), isTestPassed,
+                            errorMessage);
+                    tReport.addFunctionResult(functionResult);
+                }
+            } else {
+                try {
+                    tFunction.invoke();
+                } catch (BallerinaException e) {
+                    isTestPassed = false;
+                    errorMessage = e.getMessage();
+                    outStream.println("test '" + tFunction.getName() + "' failed: " + errorMessage);
+                } catch (Exception e) {
+                    isTestPassed = false;
+                    errorMessage = e.getMessage();
+                    outStream.println("test '" + tFunction.getName() + "' has an error: " + errorMessage);
+                }
+                // if there are no exception thrown, test is passed
+                TesterinaResult functionResult = new TesterinaResult(tFunction.getName(), isTestPassed,
+                        errorMessage);
+                tReport.addFunctionResult(functionResult);
+            }
         }
 
         //after test
@@ -134,4 +191,30 @@ public class BTestRunner {
         }
     }
 
+    /**
+     * Return the Test report of program runner.
+     *
+     * @return @{@link TesterinaReport} object
+     */
+    public TesterinaReport getTesterinaReport() {
+        return tReport;
+    }
+
+    /**
+     * Check whether there is a common element in two Lists.
+     *
+     * @param inputGroups    String @{@link List} to match
+     * @param functionGroups String @{@link List} to match agains
+     * @return true if a match is found
+     */
+    private static boolean isGroupAvailable(List<String> inputGroups, List<String> functionGroups) {
+        for (String group : inputGroups) {
+            for (String funcGroup : functionGroups) {
+                if (group.equals(funcGroup)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
 }

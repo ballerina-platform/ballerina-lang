@@ -34,6 +34,7 @@ public class TesterinaFunction {
     private Type type;
     private FunctionInfo bFunction;
     private ProgramFile programFile;
+    private TesterinaAnnotation testerinaAnnotation;
 
     private static final int WORKER_TIMEOUT = 10;
 
@@ -54,17 +55,39 @@ public class TesterinaFunction {
             this.prefix = prefix;
         }
 
-        @Override
-        public String toString() {
+        @Override public String toString() {
             return prefix;
         }
     }
 
-    TesterinaFunction(ProgramFile programFile, FunctionInfo bFunction, Type type) {
+    /**
+     * Testerina annotation names.
+     */
+    public enum Annotations {
+        TEST_FUNCTION("testFunction"),
+        BEFORE_TEST("beforeTest"),
+        AFTER_TEST("afterTest"),
+        TEST_GROUP("group"),
+        TEST_VALUE_SET("valueSet");
+
+        String annotationName;
+
+        Annotations(String annotationName) {
+            this.annotationName = annotationName;
+        }
+
+        @Override public String toString() {
+            return annotationName;
+        }
+    }
+
+    TesterinaFunction(ProgramFile programFile, FunctionInfo bFunction, Type type,
+                      TesterinaAnnotation testerinaAnnotation) {
         this.name = bFunction.getName();
         this.type = type;
         this.bFunction = bFunction;
         this.programFile = programFile;
+        this.testerinaAnnotation = testerinaAnnotation;
     }
 
     public BValue[] invoke() throws BallerinaException {
@@ -80,10 +103,10 @@ public class TesterinaFunction {
     public BValue[] invoke(BValue[] args) {
         WorkerExecutionContext ctx = new WorkerExecutionContext(programFile);
         Debugger debugger = new Debugger(programFile);
-        initDebugger(programFile, debugger);
-        return BLangFunctions.invokeCallable(bFunction, ctx, args);
+        initDebugger(ctx, debugger);
+        return BLangFunctions
+                .invokeNew(programFile, bFunction.getPackageInfo().getPkgPath(), bFunction.getName(), args, ctx);
     }
-
 
     public String getName() {
         return name;
@@ -109,12 +132,19 @@ public class TesterinaFunction {
         this.bFunction = bFunction;
     }
 
-    private static void initDebugger(ProgramFile programFile, Debugger debugger) {
-        programFile.setDebugger(debugger);
+    public TesterinaAnnotation getTesterinaAnnotation() {
+        return testerinaAnnotation;
+    }
+
+    public void setTesterinaAnnotation(TesterinaAnnotation testerinaAnnotation) {
+        this.testerinaAnnotation = testerinaAnnotation;
+    }
+
+    private static void initDebugger(Context bContext, Debugger debugger) {
+        bContext.getProgramFile().setDebugger(debugger);
         if (debugger.isDebugEnabled()) {
             debugger.init();
             debugger.waitTillDebuggeeResponds();
         }
     }
-
 }

@@ -31,8 +31,8 @@ public class CompileResult {
 
     private List<Diagnostic> diagnostics;
     private ProgramFile progFile;
-    private int errorCount = 0;;
-    private int warnCount = 0;;
+    private int errorCount = 0;
+    private int warnCount = 0;
 
     public CompileResult() {
         diagnostics = new ArrayList<Diagnostic>();

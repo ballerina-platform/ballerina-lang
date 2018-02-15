@@ -46,6 +46,51 @@ If at least one assert fails, whole test function will be marked as failed.
 Detailed information is shown in the test result summary.  
 > One package may contain more than one ```*._test.bal``` file.
 
+#### Grouping Tests
+
+You can group the test functions and control the execution of tests by grouping them.
+
+e.g:
+```ballerina
+@test:config{
+    groups:["g2","g3"]
+}
+function testFunc () {
+test:assertFalse(false, "errorMessage");
+}
+```
+
+Inorder to execute tests belonging to a selected group. Run the below command.
+````
+ballerina test your_package --groups g2,g3
+````
+Note: You can also use `--disable-groups` flag to exclude groups from executing. Also un-grouped tests will be added to a group names default.
+
+#### Running Data-driven tests
+
+Data sets allows users to execute the same test case with different values sets. Testerina supports data driven tests natively.
+
+e.g:
+```ballerina
+@test:config{
+    valueSets:["val1,val2","val3, val4"]
+}
+function testFunc10 (string input, string output) {
+println("Input: " +input + " Output: " +output);
+test:assertFalse(false, "errorMessage");
+}
+```
+
+Executing the above will produce the following output.
+```
+Input: val3 Output: val4
+Input: val1 Output: val2
+
+============== TEST RESULT SUMMARY ==============
+result: 
+tests run: 2, passed: 2, failed: 0, skipped: 0
+````
+
 #### Tutorial
 
 1 Download [1] ```ballerina-tools-<release-version>.zip``` distribution and unzip.  

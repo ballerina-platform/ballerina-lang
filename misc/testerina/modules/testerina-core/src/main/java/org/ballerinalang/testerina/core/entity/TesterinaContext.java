@@ -17,6 +17,7 @@
  */
 package org.ballerinalang.testerina.core.entity;
 
+import org.ballerinalang.testerina.core.AnnotationProcessor;
 import org.ballerinalang.util.codegen.FunctionInfo;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
@@ -73,30 +74,30 @@ public class TesterinaContext {
      * @param programFile {@link ProgramFile}.
      */
     private void extractTestFunctions(ProgramFile programFile) {
-        Arrays.stream(programFile.getPackageInfoEntries())
-                .map(PackageInfo::getFunctionInfoEntries)
-                .flatMap(Arrays::stream)
-                .forEachOrdered(f -> addTestFunctions(programFile, f));
+        Arrays.stream(programFile.getPackageInfoEntries()).map(PackageInfo::getFunctionInfoEntries)
+                .flatMap(Arrays::stream).forEachOrdered(f -> addTestFunctions(programFile, f));
     }
 
     private void addTestFunctions(ProgramFile programFile, FunctionInfo functionInfo) {
-            String nameUpperCase = functionInfo.getName().toUpperCase(Locale.ENGLISH);
-        if (nameUpperCase.startsWith(TesterinaFunction.PREFIX_TEST) &&
-                !nameUpperCase.endsWith(TesterinaFunction.INIT_SUFFIX)) {
-            TesterinaFunction tFunction = new TesterinaFunction(programFile, functionInfo, 
-                    TesterinaFunction.Type.TEST);
+        //TODO : We need exclude builtin packages in ballerina when searching for test functions
+        String nameUpperCase = functionInfo.getName().toUpperCase(Locale.ENGLISH);
+
+        if (nameUpperCase.startsWith(TesterinaFunction.PREFIX_TEST) && !nameUpperCase
+                .endsWith(TesterinaFunction.INIT_SUFFIX)) {
+
+            TesterinaFunction tFunction = new TesterinaFunction(programFile, functionInfo, TesterinaFunction.Type.TEST,
+                    AnnotationProcessor.processAnnotations(functionInfo));
             this.testFunctions.add(tFunction);
-        } else if (nameUpperCase.startsWith(TesterinaFunction.PREFIX_BEFORETEST) &&
-                !nameUpperCase.endsWith(TesterinaFunction.INIT_SUFFIX)) {
-            TesterinaFunction tFunction = new TesterinaFunction(programFile, functionInfo, 
-                    TesterinaFunction.Type.BEFORE_TEST);
+        } else if (nameUpperCase.startsWith(TesterinaFunction.PREFIX_BEFORETEST) && !nameUpperCase
+                .endsWith(TesterinaFunction.INIT_SUFFIX)) {
+            TesterinaFunction tFunction = new TesterinaFunction(programFile, functionInfo,
+                    TesterinaFunction.Type.BEFORE_TEST, null);
             this.beforeTestFunctions.add(tFunction);
-        } else if (nameUpperCase.startsWith(TesterinaFunction.PREFIX_AFTERTEST) &&
-                !nameUpperCase.endsWith(TesterinaFunction.INIT_SUFFIX)) {
-            TesterinaFunction tFunction = new TesterinaFunction(programFile, functionInfo, 
-                    TesterinaFunction.Type.AFTER_TEST);
+        } else if (nameUpperCase.startsWith(TesterinaFunction.PREFIX_AFTERTEST) && !nameUpperCase
+                .endsWith(TesterinaFunction.INIT_SUFFIX)) {
+            TesterinaFunction tFunction = new TesterinaFunction(programFile, functionInfo,
+                    TesterinaFunction.Type.AFTER_TEST, null);
             this.afterTestFunctions.add(tFunction);
         }
     }
-
 }
