@@ -30,6 +30,7 @@ import TreeUtil from '../../../../../model/tree-util';
 import EndpointDecorator from '../decorators/endpoint-decorator';
 import Client from '../decorators/client';
 import ResourceNodeModel from '../../../../../model/tree/resource-node';
+import HttpResourceHeader from '../decorators/http-resource-header';
 
 class ResourceNode extends React.Component {
 
@@ -116,6 +117,24 @@ class ResourceNode extends React.Component {
             showAddResourceForOneResource = false;
         }
 
+        let panelAdditionalProps = {};
+        if (protocolPkgIdentifier === 'http') {
+            const nodeDetails = ({ x, y }) => {
+                return (
+                    <HttpResourceHeader
+                        x={x}
+                        y={y}
+                        model={this.props.model}
+                    />
+                );
+            };
+            panelAdditionalProps = {
+                title: null,
+                headerComponent: nodeDetails,
+                protocol: null,
+            };
+        }
+
         return (
             <g>
                 <PanelDecorator
@@ -127,6 +146,8 @@ class ResourceNode extends React.Component {
                     canDrop={this.canDropToPanelBody}
                     argumentParams={argumentParameters}
                     packageIdentifier={protocolPkgIdentifier}
+                    // headerComponent={nodeDetails}
+                    {...panelAdditionalProps}
                 >
                     <Client
                         title={protocolPkgIdentifier + ' conn'}
