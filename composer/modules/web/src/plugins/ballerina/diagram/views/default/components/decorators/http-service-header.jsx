@@ -55,27 +55,25 @@ class HttpServiceHeader extends React.Component {
     render() {
         const { x, y, model } = this.props;
         const { viewState } = model;
-        let serviceNameOffset = 50;
         const basePathY = y + (viewState.components.heading.h / 2);
-        if (viewState.components.title.w > serviceNameOffset) {
-            serviceNameOffset = viewState.components.title.w;
-        }
+        const basePath = new SizingUtils().getTextWidth(this.getBasePath(), 80, 250);
+        const serviceNameOffset = basePath.w + 80;
         return (
-            <g>
+            <g className='http-service-header'>
                 <text
                     style={{ dominantBaseline: 'central' }}
                     x={x + 50}
                     y={basePathY}
                     fill='white'
-                    className='editable-text-label'
-                >{this.getBasePath()}</text>
+                    className='editable-text-label base-path'
+                >{basePath.text}</text>
 
                 <text
                     style={{ dominantBaseline: 'central' }}
-                    x={x + 70 + serviceNameOffset}
+                    x={x + serviceNameOffset}
                     y={basePathY}
                     fill='white'
-                    className='editable-text-label'
+                    className='editable-text-label service-name'
                 >{this.getServiceName()}</text>
             </g>
         );

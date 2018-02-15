@@ -737,7 +737,7 @@ class SizingUtil {
 
         if (pathAtributeNode && pathAtributeNode.getValue() && pathAtributeNode.getValue().getValueArray()) {
             pathAtributeNode.getValue().getValueArray().forEach((method) => {
-                const textWidth = this.getTextWidth(method.getValue().unescapedValue, 15, 50);
+                const textWidth = this.getTextWidth(method.getValue().unescapedValue, 15, 80);
                 node.viewState.components.httpMethods[textWidth.text] = {};
                 node.viewState.components.httpMethods[textWidth.text].w = textWidth.w;
                 node.viewState.components.httpMethods[textWidth.text].offset =
@@ -745,7 +745,6 @@ class SizingUtil {
                 node.viewState.components.httpMethods.bBox.w += textWidth.w + 10;
             });
         }
-        node.viewState.components.httpMethods.bBox.w += 30;
     }
 
 
@@ -798,21 +797,6 @@ class SizingUtil {
             endpoints = node.filterVariables((statement) => {
                 return TreeUtil.isEndpointTypeVariableDef(statement);
             });
-            const resources = node.getResources();
-            if (resources) {
-                const titleOffsets = resources.map((resource) => {
-                    if (resource.viewState.components.httpMethods) {
-                        return resource.viewState.components.httpMethods.bBox.w;
-                    }
-                    return 0;
-                });
-                cmp.title.w = _.max(titleOffsets);
-                resources.forEach((resource) => {
-                    if (resource.viewState.components.httpMethods) {
-                        resource.viewState.components.httpMethods.bBox.w = cmp.title.w;
-                    }
-                });
-            }
         } else if (TreeUtil.isConnector(node)) {
             variables = node.getVariableDefs();
             endpoints = node.filterVariableDefs((statement) => {
