@@ -65,11 +65,6 @@
             <artifactId>ballerina-mime</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.ballerinalang</groupId>
-            <artifactId>ballerina-samples</artifactId>
-            <type>zip</type>
-        </dependency>
-        <dependency>
             <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.core</artifactId>
         </dependency>
@@ -127,7 +122,7 @@
                         </goals>
                         <configuration>
                             <includeArtifactIds>
-                                ballerina-builtin,ballerina-http,ballerina-mime,ballerina-logging,ballerina-samples
+                                ballerina-builtin,ballerina-http,ballerina-mime,ballerina-logging
                             </includeArtifactIds>
                             <outputDirectory>${project.build.directory}/extracted-distributions
                             </outputDirectory>

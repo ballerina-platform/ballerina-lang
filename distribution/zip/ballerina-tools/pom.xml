@@ -34,11 +34,6 @@
     <dependencies>
         <dependency>
             <groupId>org.ballerinalang</groupId>
-            <artifactId>ballerina-samples</artifactId>
-            <type>zip</type>
-        </dependency>
-        <dependency>
-            <groupId>org.ballerinalang</groupId>
             <artifactId>composer-server-distribution</artifactId>
         </dependency>
         <dependency>
