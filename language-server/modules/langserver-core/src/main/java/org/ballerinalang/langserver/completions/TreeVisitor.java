@@ -329,10 +329,12 @@ public class TreeVisitor extends BLangNodeVisitor {
         if (!ScopeResolverConstants.getResolverByClass(cursorPositionResolver)
                 .isCursorBeforeNode(transformerNode.getPosition(), transformerNode, this,
                         this.documentServiceContext)) {
+            SymbolEnv transformerEnv = SymbolEnv
+                    .createTransformerEnv(transformerNode, transformerNode.symbol.scope, symbolEnv);
             this.blockOwnerStack.push(transformerNode);
             // Cursor position is calculated against the Block statement scope resolver
             cursorPositionResolver = BlockStatementScopeResolver.class;
-            this.acceptNode(transformerNode.body, symbolEnv);
+            this.acceptNode(transformerNode.body, transformerEnv);
             this.blockOwnerStack.pop();
         }
     }

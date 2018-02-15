@@ -110,10 +110,10 @@ public abstract class CompletionItemSorter {
 
     /**
      * Remove the specific type of completion items from the completion items list.
-     * @param type              Completion Item type
+     * @param types              Completion Item types
      * @param completionItems   List of completion Items
      */
-    void removeCompletionsByType(String type, List<CompletionItem> completionItems) {
-        completionItems.removeIf(completionItem -> completionItem.getDetail().equals(type));
+    void removeCompletionsByType(List<String> types, List<CompletionItem> completionItems) {
+        completionItems.removeIf(completionItem -> types.contains(completionItem.getDetail()));
     }
 }
