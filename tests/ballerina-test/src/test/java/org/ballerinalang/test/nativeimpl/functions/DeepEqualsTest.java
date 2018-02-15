@@ -38,8 +38,8 @@ import java.util.Optional;
  * Test cases for ballerina.reflect:deepEquals() function.
  */
 public class DeepEqualsTest {
-    CompileResult compileResultForPrimitives;
-    CompileResult compileResultForComplex;
+    private CompileResult compileResultForPrimitives;
+    private CompileResult compileResultForComplex;
     
     @BeforeClass
     public void setup() {
