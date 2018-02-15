@@ -20,6 +20,9 @@ import org.ballerinalang.psi.BallerinaResolveTestBase;
 
 import java.io.IOException;
 
+/**
+ * Test global variable resolving.
+ */
 public class BallerinaResolveGlobalVariableTest extends BallerinaResolveTestBase {
 
     private String globalVariable = "public int /*def*/a;";

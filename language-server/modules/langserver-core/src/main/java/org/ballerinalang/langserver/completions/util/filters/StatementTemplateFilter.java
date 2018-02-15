@@ -18,9 +18,9 @@
 package org.ballerinalang.langserver.completions.util.filters;
 
 import org.ballerinalang.langserver.TextDocumentServiceContext;
-import org.ballerinalang.langserver.completions.consts.ItemResolverConstants;
-import org.ballerinalang.langserver.completions.consts.Priority;
-import org.ballerinalang.langserver.completions.consts.Snippet;
+import org.ballerinalang.langserver.completions.CompletionKeys;
+import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
+import org.ballerinalang.langserver.completions.util.Snippet;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.InsertTextFormat;
 
@@ -31,7 +31,7 @@ import java.util.List;
 /**
  * Provides the statement templates.
  */
-public class StatementTemplateFilter extends SymbolFilter {
+public class StatementTemplateFilter extends AbstractSymbolFilter {
     @Override
     public List filterItems(TextDocumentServiceContext completionContext) {
         ArrayList<CompletionItem> completionItems = new ArrayList<>();
@@ -43,7 +43,6 @@ public class StatementTemplateFilter extends SymbolFilter {
         ifItem.setLabel(ItemResolverConstants.IF);
         ifItem.setInsertText(Snippet.IF.toString());
         ifItem.setDetail(ItemResolverConstants.STATEMENT_TYPE);
-        ifItem.setSortText(Priority.PRIORITY6.name());
         completionItems.add(ifItem);
 
         // Populate While Statement template
@@ -51,7 +50,6 @@ public class StatementTemplateFilter extends SymbolFilter {
         whileItem.setLabel(ItemResolverConstants.WHILE);
         whileItem.setInsertText(Snippet.WHILE.toString());
         whileItem.setDetail(ItemResolverConstants.STATEMENT_TYPE);
-        whileItem.setSortText(Priority.PRIORITY6.name());
         completionItems.add(whileItem);
 
         // Populate Foreach Statement template
@@ -59,7 +57,6 @@ public class StatementTemplateFilter extends SymbolFilter {
         forEachItem.setLabel(ItemResolverConstants.FOREACH);
         forEachItem.setInsertText(Snippet.FOREACH.toString());
         forEachItem.setDetail(ItemResolverConstants.STATEMENT_TYPE);
-        forEachItem.setSortText(Priority.PRIORITY6.name());
         completionItems.add(forEachItem);
 
         // Populate Bind Statement template
@@ -67,31 +64,14 @@ public class StatementTemplateFilter extends SymbolFilter {
         bindItem.setLabel(ItemResolverConstants.BIND);
         bindItem.setInsertText(Snippet.BIND.toString());
         bindItem.setDetail(ItemResolverConstants.STATEMENT_TYPE);
-        bindItem.setSortText(Priority.PRIORITY6.name());
         completionItems.add(bindItem);
 
-        // Populate Endpoint Statement template
-        CompletionItem endpointItem = new CompletionItem();
-        endpointItem.setLabel(ItemResolverConstants.ENDPOINT);
-        endpointItem.setInsertText(Snippet.ENDPOINT.toString());
-        endpointItem.setDetail(ItemResolverConstants.STATEMENT_TYPE);
-        endpointItem.setSortText(Priority.PRIORITY6.name());
-        completionItems.add(endpointItem);
-
-        // Populate Iterate Statement template
-        CompletionItem iterateItem = new CompletionItem();
-        iterateItem.setLabel(ItemResolverConstants.ITERATE);
-        iterateItem.setInsertText(Snippet.ITERATE.toString());
-        iterateItem.setDetail(ItemResolverConstants.STATEMENT_TYPE);
-        iterateItem.setSortText(Priority.PRIORITY6.name());
-        completionItems.add(iterateItem);
-
         // Populate Fork Statement template
+        // TODO: Should make this a snippet type and move to specific sorters
         CompletionItem forkItem = new CompletionItem();
         forkItem.setLabel(ItemResolverConstants.FORK);
         forkItem.setInsertText(Snippet.FORK.toString());
         forkItem.setDetail(ItemResolverConstants.STATEMENT_TYPE);
-        forkItem.setSortText(Priority.PRIORITY6.name());
         completionItems.add(forkItem);
 
         // Populate Try Catch Statement template
@@ -99,7 +79,6 @@ public class StatementTemplateFilter extends SymbolFilter {
         tryCatchItem.setLabel(ItemResolverConstants.TRY);
         tryCatchItem.setInsertText(Snippet.TRY_CATCH.toString());
         tryCatchItem.setDetail(ItemResolverConstants.STATEMENT_TYPE);
-        tryCatchItem.setSortText(Priority.PRIORITY6.name());
         completionItems.add(tryCatchItem);
 
         // Populate Transaction Statement template
@@ -107,7 +86,6 @@ public class StatementTemplateFilter extends SymbolFilter {
         transactionItem.setLabel(ItemResolverConstants.TRANSACTION);
         transactionItem.setInsertText(Snippet.TRANSACTION.toString());
         transactionItem.setDetail(ItemResolverConstants.STATEMENT_TYPE);
-        transactionItem.setSortText(Priority.PRIORITY6.name());
         completionItems.add(transactionItem);
 
         // Populate Trigger Worker Statement template
@@ -115,7 +93,6 @@ public class StatementTemplateFilter extends SymbolFilter {
         workerInvokeItem.setLabel(ItemResolverConstants.TRIGGER_WORKER);
         workerInvokeItem.setInsertText(Snippet.TRIGGER_WORKER.toString());
         workerInvokeItem.setDetail(ItemResolverConstants.STATEMENT_TYPE);
-        workerInvokeItem.setSortText(Priority.PRIORITY6.name());
         completionItems.add(workerInvokeItem);
 
         // Populate Worker Reply Statement template
@@ -123,48 +100,45 @@ public class StatementTemplateFilter extends SymbolFilter {
         workerReplyItem.setLabel(ItemResolverConstants.WORKER_REPLY);
         workerReplyItem.setInsertText(Snippet.WORKER_REPLY.toString());
         workerReplyItem.setDetail(ItemResolverConstants.STATEMENT_TYPE);
-        workerReplyItem.setSortText(Priority.PRIORITY6.name());
         completionItems.add(workerReplyItem);
-
-        // Populate Next Statement template
-        CompletionItem nextItem = new CompletionItem();
-        nextItem.setLabel(ItemResolverConstants.NEXT);
-        nextItem.setInsertText(Snippet.NEXT.toString());
-        nextItem.setDetail(ItemResolverConstants.STATEMENT_TYPE);
-        nextItem.setSortText(Priority.PRIORITY6.name());
-        completionItems.add(nextItem);
-
-        // Populate Break Statement template
-        CompletionItem breakItem = new CompletionItem();
-        breakItem.setLabel(ItemResolverConstants.BREAK);
-        breakItem.setInsertText(Snippet.BREAK.toString());
-        breakItem.setDetail(ItemResolverConstants.STATEMENT_TYPE);
-        breakItem.setSortText(Priority.PRIORITY6.name());
-        completionItems.add(breakItem);
+        
+        if (completionContext.get(CompletionKeys.LOOP_COUNT_KEY) > 0
+                && !completionContext.get(CompletionKeys.CURRENT_NODE_TRANSACTION_KEY)) {
+            /*
+            Populate Next Statement template only if enclosed within a looping construct
+            and not in immediate transaction construct
+             */
+            CompletionItem nextItem = new CompletionItem();
+            nextItem.setLabel(ItemResolverConstants.NEXT);
+            nextItem.setInsertText(Snippet.NEXT.toString());
+            nextItem.setDetail(ItemResolverConstants.STATEMENT_TYPE);
+            completionItems.add(nextItem);
+        }
+        
+        if (completionContext.get(CompletionKeys.LOOP_COUNT_KEY) > 0) {
+            // Populate Break Statement template only if there is an enclosing looping construct such as while/ foreach
+            CompletionItem breakItem = new CompletionItem();
+            breakItem.setLabel(ItemResolverConstants.BREAK);
+            breakItem.setInsertText(Snippet.BREAK.toString());
+            breakItem.setDetail(ItemResolverConstants.STATEMENT_TYPE);
+            completionItems.add(breakItem);
+        }
 
         // Populate Return Statement template
         CompletionItem returnItem = new CompletionItem();
         returnItem.setLabel(ItemResolverConstants.RETURN);
         returnItem.setInsertText(Snippet.RETURN.toString());
         returnItem.setDetail(ItemResolverConstants.STATEMENT_TYPE);
-        returnItem.setSortText(Priority.PRIORITY6.name());
         completionItems.add(returnItem);
-
-        // Populate Reply Statement template
-        CompletionItem replyItem = new CompletionItem();
-        replyItem.setLabel(ItemResolverConstants.REPLY);
-        replyItem.setInsertText(Snippet.REPLY.toString());
-        replyItem.setDetail(ItemResolverConstants.STATEMENT_TYPE);
-        replyItem.setSortText(Priority.PRIORITY6.name());
-        completionItems.add(replyItem);
-
-        // Populate Worker Reply Statement template
-        CompletionItem abortItem = new CompletionItem();
-        abortItem.setLabel(ItemResolverConstants.ABORT);
-        abortItem.setInsertText(Snippet.ABORT.toString());
-        abortItem.setDetail(ItemResolverConstants.STATEMENT_TYPE);
-        abortItem.setSortText(Priority.PRIORITY6.name());
-        completionItems.add(abortItem);
+        
+        if (completionContext.get(CompletionKeys.TRANSACTION_COUNT_KEY) > 0) {
+            // Populate Worker Reply Statement template on if there is at least one enclosing transaction construct 
+            CompletionItem abortItem = new CompletionItem();
+            abortItem.setLabel(ItemResolverConstants.ABORT);
+            abortItem.setInsertText(Snippet.ABORT.toString());
+            abortItem.setDetail(ItemResolverConstants.STATEMENT_TYPE);
+            completionItems.add(abortItem);
+        }
 
         completionItems.sort(Comparator.comparing(CompletionItem::getLabel));
 

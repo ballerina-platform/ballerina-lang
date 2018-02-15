@@ -35,6 +35,7 @@ import com.intellij.util.containers.ContainerUtil;
 import org.antlr.jetbrains.adaptor.psi.IdentifierDefSubtree;
 import org.ballerinalang.plugins.idea.BallerinaTypes;
 import org.ballerinalang.plugins.idea.psi.ActionInvocationNode;
+import org.ballerinalang.plugins.idea.psi.AnyIdentifierNameNode;
 import org.ballerinalang.plugins.idea.psi.ConnectorInitNode;
 import org.ballerinalang.plugins.idea.psi.ConnectorReferenceNode;
 import org.ballerinalang.plugins.idea.psi.ExpressionListNode;
@@ -479,7 +480,11 @@ public class BallerinaParameterInfoHandler implements ParameterInfoHandlerWithTa
         } else if (parent instanceof ConnectorInitNode) {
             namedIdentifierDefNode = PsiTreeUtil.findChildOfType(parent, ConnectorReferenceNode.class);
         } else if (parent instanceof InvocationNode) {
-            namedIdentifierDefNode = PsiTreeUtil.findChildOfType(parent, IdentifierPSINode.class);
+            AnyIdentifierNameNode anyIdentifierNameNode = PsiTreeUtil.getChildOfType(parent,
+                    AnyIdentifierNameNode.class);
+            if (anyIdentifierNameNode != null) {
+                namedIdentifierDefNode = PsiTreeUtil.findChildOfType(anyIdentifierNameNode, IdentifierPSINode.class);
+            }
         }
         return namedIdentifierDefNode;
     }
@@ -495,7 +500,11 @@ public class BallerinaParameterInfoHandler implements ParameterInfoHandlerWithTa
             nameIdentifier = ((IdentifierDefSubtree) namedIdentifierDefNode).getNameIdentifier();
         }
         if (namedIdentifierDefNode instanceof InvocationNode) {
-            nameIdentifier = PsiTreeUtil.getChildOfType(namedIdentifierDefNode, IdentifierPSINode.class);
+            AnyIdentifierNameNode anyIdentifierNameNode = PsiTreeUtil.getChildOfType(namedIdentifierDefNode,
+                    AnyIdentifierNameNode.class);
+            if (anyIdentifierNameNode != null) {
+                nameIdentifier = PsiTreeUtil.getChildOfType(anyIdentifierNameNode, IdentifierPSINode.class);
+            }
         }
         if (namedIdentifierDefNode instanceof IdentifierPSINode) {
             nameIdentifier = namedIdentifierDefNode;
