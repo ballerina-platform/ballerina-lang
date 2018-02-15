@@ -48,7 +48,9 @@ public enum Snippet {
     WHILE("while (${1:true}) {\n\t${2}\n}"),
     WORKER_REPLY("${1} <- ${2};"),
     WORKER("worker ${1:name} {\n\t${2}\n}"),
-    XML_ATTRIBUTE_REFERENCE("\"${1}\"@[\"${2}\"]");
+    XML_ATTRIBUTE_REFERENCE("\"${1}\"@[\"${2}\"]"),
+    VAR_KEYWORD_SNIPPET("var "),
+    CREATE_KEYWORD_SNIPPET("create ");    
 
     private String value;
 

@@ -61,8 +61,8 @@ public class ParserRuleStatementContextResolver extends AbstractItemResolver {
             completionItems.add(xmlns);
 
             CompletionItem varKeyword = new CompletionItem();
-            varKeyword.setInsertText("var ");
-            varKeyword.setLabel("var");
+            varKeyword.setInsertText(Snippet.VAR_KEYWORD_SNIPPET.toString());
+            varKeyword.setLabel(ItemResolverConstants.VAR_KEYWORD);
             varKeyword.setDetail(ItemResolverConstants.KEYWORD_TYPE);
             completionItems.add(varKeyword);
         }

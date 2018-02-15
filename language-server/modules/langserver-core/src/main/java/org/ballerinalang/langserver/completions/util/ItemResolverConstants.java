@@ -75,6 +75,10 @@ public class ItemResolverConstants {
     public static final String ENUM_TYPE = "Enum";
     public static final String FIELD_TYPE = "Field";
     public static final String NONE = "none";
-    // Symbol Types Constants
+    // End Symbol Types Constants
+    
+    // Keyword constants
+    public static final String VAR_KEYWORD = "var";
+    public static final String CREATE_KEYWORD = "create";
 
 }

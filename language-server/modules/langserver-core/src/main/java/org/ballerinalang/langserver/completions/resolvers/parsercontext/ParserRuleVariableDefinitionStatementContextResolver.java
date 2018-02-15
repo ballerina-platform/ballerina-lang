@@ -23,6 +23,7 @@ import org.ballerinalang.langserver.completions.CompletionKeys;
 import org.ballerinalang.langserver.completions.SymbolInfo;
 import org.ballerinalang.langserver.completions.resolvers.AbstractItemResolver;
 import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
+import org.ballerinalang.langserver.completions.util.Snippet;
 import org.ballerinalang.langserver.completions.util.filters.ConnectorInitExpressionItemFilter;
 import org.ballerinalang.langserver.completions.util.filters.PackageActionFunctionAndTypesFilter;
 import org.ballerinalang.langserver.completions.util.sorters.CompletionItemSorter;
@@ -64,8 +65,8 @@ public class ParserRuleVariableDefinitionStatementContextResolver extends Abstra
 
             // Add the create keyword
             CompletionItem createKeyword = new CompletionItem();
-            createKeyword.setInsertText("create ");
-            createKeyword.setLabel("create");
+            createKeyword.setInsertText(Snippet.CREATE_KEYWORD_SNIPPET.toString());
+            createKeyword.setLabel(ItemResolverConstants.CREATE_KEYWORD);
             createKeyword.setDetail(ItemResolverConstants.KEYWORD_TYPE);
 
             List<SymbolInfo> filteredList = completionContext.get(CompletionKeys.VISIBLE_SYMBOLS_KEY)
