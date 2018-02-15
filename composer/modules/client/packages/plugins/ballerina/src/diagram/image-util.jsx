@@ -47,7 +47,7 @@ function requireAll(requireContext) {
     return components;
 }
 
-const images = requireAll(require.context('images', true, /\.svg$/));
+const images = requireAll(require.context('@ballerina-lang/composer-images/dist', true, /\.svg$/));
 
 /**
  * Utility class for images.

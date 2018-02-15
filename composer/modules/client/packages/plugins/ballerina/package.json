@@ -49,6 +49,7 @@
     "@ballerina-lang/composer-font": "0.962.0",
     "@ballerina-lang/composer-debugger-plugin": "0.962.0",
     "@ballerina-lang/composer-import-swagger-plugin": "0.962.0",
+    "@ballerina-lang/composer-images": "0.962.0",
     "axios": "^0.16.2",
     "brace": "^0.10.0",
     "classnames": "^2.2.5",
