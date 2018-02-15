@@ -32,7 +32,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * Custom listener which is extended from the Toml listener with our own custom logic
+ * Custom listener which is extended from the Toml listener with our own custom logic.
  */
 public class ManifestBuildListener extends TomlBaseListener {
     private final Manifest manifest;
@@ -41,7 +41,7 @@ public class ManifestBuildListener extends TomlBaseListener {
     private SingletonStack currentKey = new SingletonStack();
 
     /**
-     * Cosntructor with the manifest object
+     * Cosntructor with the manifest object.
      *
      * @param manifest manifest object
      */
@@ -137,7 +137,7 @@ public class ManifestBuildListener extends TomlBaseListener {
     }
 
     /**
-     * Add the dependencies and patches to the manifest object
+     * Add the dependencies and patches to the manifest object.
      */
     private void setDependancyAndPatches() {
         if (Section.DEPENDENCIES.stringEquals(currentHeader)) {
@@ -148,7 +148,7 @@ public class ManifestBuildListener extends TomlBaseListener {
     }
 
     /**
-     * Add the key-value pairs specified in the toml file
+     * Add the key-value pairs specified in the toml file.
      *
      * @param value KeyvalContext object
      */
@@ -158,8 +158,9 @@ public class ManifestBuildListener extends TomlBaseListener {
             if (packageFieldField != null) {
                 packageFieldField.setStringTo(this.manifest, value);
             }
-        } else if (currentKey.present() && (Section.DEPENDENCIES.stringEquals(currentHeader) || Section.PATCHES.stringEquals(currentHeader))) {
-            DependencyField dependencyField = DependencyField.lookup.get(currentKey.pop());
+        } else if (currentKey.present() && (Section.DEPENDENCIES.stringEquals(currentHeader) ||
+                Section.PATCHES.stringEquals(currentHeader))) {
+            DependencyField dependencyField = DependencyField.LOOKUP.get(currentKey.pop());
             if (dependencyField != null) {
                 dependencyField.setValueTo(dependency, value);
             }
@@ -167,7 +168,7 @@ public class ManifestBuildListener extends TomlBaseListener {
     }
 
     /**
-     * Add array elements to manifest object
+     * Add array elements to manifest object.
      *
      * @param arrayValuesContext ArrayValuesContext object
      */
@@ -182,7 +183,7 @@ public class ManifestBuildListener extends TomlBaseListener {
     }
 
     /**
-     * Populate list values
+     * Populate list values.
      *
      * @param arrayValuesContext array values
      * @return list of strings
@@ -198,7 +199,7 @@ public class ManifestBuildListener extends TomlBaseListener {
     }
 
     /**
-     * Add table headers in the toml file
+     * Add table headers in the toml file.
      *
      * @param keyContextList list of keys specified in the header
      */
@@ -212,7 +213,7 @@ public class ManifestBuildListener extends TomlBaseListener {
     }
 
     /**
-     * Add inline table content specified
+     * Add inline table content specified.
      *
      * @param ctx InlineTableKeyvalsContext object
      */
@@ -228,14 +229,14 @@ public class ManifestBuildListener extends TomlBaseListener {
     }
 
     /**
-     * Populate dependency fields by iterating over the context object
+     * Populate dependency fields by iterating over the context object.
      *
      * @param ctx Inline table values
      */
     private void populateDependencyField(TomlParser.InlineTableKeyvalsContext ctx) {
         for (TomlParser.InlineTableKeyvalsNonEmptyContext valueContext : ctx.inlineTableKeyvalsNonEmpty()) {
             String name = valueContext.key().getText();
-            DependencyField dependencyField = DependencyField.lookup.get(name);
+            DependencyField dependencyField = DependencyField.LOOKUP.get(name);
             if (dependencyField != null) {
                 dependencyField.setValueTo(dependency, valueContext.val().getText());
             }
@@ -243,13 +244,13 @@ public class ManifestBuildListener extends TomlBaseListener {
     }
 
     /**
-     * Create dependency object and set the name
+     * Create dependency object and set the name.
      *
      * @param packageName pkg name of the dependency
      */
     private void createDependencyObject(String packageName) {
         dependency = new Dependency();
-        DependencyField dependencyField = DependencyField.lookup.get("name");
+        DependencyField dependencyField = DependencyField.LOOKUP.get("name");
         if (dependencyField != null) {
             dependencyField.setValueTo(dependency, packageName);
         }

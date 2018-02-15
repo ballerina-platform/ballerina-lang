@@ -24,7 +24,7 @@ import java.util.Map;
 import java.util.function.BiConsumer;
 
 /**
- * Proxy object fields
+ * Proxy object fields.
  */
 public enum ProxyField {
     HOST(Proxy::setHost),
@@ -32,18 +32,18 @@ public enum ProxyField {
     USERNAME(Proxy::setUserName),
     PASSWORD(Proxy::setPassword);
 
-    public static final Map<String, ProxyField> lookup = new HashMap<>();
+    public static final Map<String, ProxyField> LOOKUP = new HashMap<>();
 
     static {
         for (ProxyField proxyField : ProxyField.values()) {
-            lookup.put(proxyField.name().toLowerCase(), proxyField);
+            LOOKUP.put(proxyField.name().toLowerCase(), proxyField);
         }
     }
 
     private final BiConsumer<Proxy, String> stringSetter;
 
     /**
-     * Constructor which sets the string value
+     * Constructor which sets the string value.
      *
      * @param stringSetter string value to be set
      */
@@ -52,7 +52,7 @@ public enum ProxyField {
     }
 
     /**
-     * Set values to the proxy object
+     * Set values to the proxy object.
      *
      * @param proxy proxy object
      * @param value value to be set

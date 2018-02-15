@@ -18,7 +18,7 @@
 package org.ballerinalang.launcher.toml.model;
 
 /**
- * Defines dependency object fields. The same object will be used to define patches
+ * Defines dependency object fields. The same object will be used to define patches.
  */
 public class Dependency {
     private String packageName;
@@ -26,7 +26,7 @@ public class Dependency {
     private String location;
 
     /**
-     * Get the package name
+     * Get the package name.
      *
      * @return package name
      */
@@ -35,7 +35,7 @@ public class Dependency {
     }
 
     /**
-     * Set the package name
+     * Set the package name.
      *
      * @param packageName name of the dependancy
      */
@@ -44,7 +44,7 @@ public class Dependency {
     }
 
     /**
-     * Get version of the dependency
+     * Get version of the dependency.
      *
      * @return version of the dependency
      */
@@ -53,7 +53,7 @@ public class Dependency {
     }
 
     /**
-     * Set the version of the dependency
+     * Set the version of the dependency.
      *
      * @param version version of the dependency
      */
@@ -62,7 +62,7 @@ public class Dependency {
     }
 
     /**
-     * Get the path/location of the dependency
+     * Get the path/location of the dependency.
      *
      * @return location of the dependency
      */
@@ -71,7 +71,7 @@ public class Dependency {
     }
 
     /**
-     * Set the path/location of the dependency
+     * Set the path/location of the dependency.
      *
      * @param location location of the dependency
      */

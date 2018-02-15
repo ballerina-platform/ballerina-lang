@@ -27,12 +27,12 @@ import org.ballerinalang.launcher.toml.util.TomlProcessor;
 import java.io.IOException;
 
 /**
- * Proxy Processor which processes the proxy configuration toml file parsed and populate the Proxy POJO
+ * Proxy Processor which processes the proxy configuration toml file parsed and populate the Proxy POJO.
  */
 public class ProxyProcessor {
 
     /**
-     * Get the char stream of the content from file
+     * Get the char stream of the content from file.
      *
      * @param fileName path of the toml file
      * @return charstream object
@@ -44,7 +44,7 @@ public class ProxyProcessor {
     }
 
     /**
-     * Get the char stream from string content
+     * Get the char stream from string content.
      *
      * @param content toml file content as a string
      * @return charstream object
@@ -55,7 +55,7 @@ public class ProxyProcessor {
     }
 
     /**
-     * Get the proxy config object by passing the proxy configuration toml file
+     * Get the proxy config object by passing the proxy configuration toml file.
      *
      * @param charStream toml file content as a char stream
      * @return proxy config object

@@ -22,7 +22,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * Defines the manifest object which is created using the toml file configs
+ * Defines the manifest object which is created using the toml file configs.
  */
 public class Manifest {
     private String name;
@@ -39,7 +39,7 @@ public class Manifest {
     private List<Dependency> patches = new ArrayList<>();
 
     /**
-     * Get the patches list
+     * Get the patches list.
      *
      * @return patches list
      */
@@ -48,7 +48,7 @@ public class Manifest {
     }
 
     /**
-     * Add a patch to the patches list
+     * Add a patch to the patches list.
      *
      * @param dependency dependency object
      */
@@ -58,7 +58,7 @@ public class Manifest {
     }
 
     /**
-     * Get the dependencies list
+     * Get the dependencies list.
      *
      * @return dependencies list
      */
@@ -67,7 +67,7 @@ public class Manifest {
     }
 
     /**
-     * Add a dependency to the dependencies list
+     * Add a dependency to the dependencies list.
      *
      * @param dependency dependency object
      */
@@ -77,7 +77,7 @@ public class Manifest {
     }
 
     /**
-     * Get keywords
+     * Get keywords.
      *
      * @return list of keywords
      */
@@ -86,7 +86,7 @@ public class Manifest {
     }
 
     /**
-     * Set keywords list
+     * Set keywords list.
      *
      * @param keywords keyword list
      */
@@ -95,7 +95,7 @@ public class Manifest {
     }
 
     /**
-     * Get file path of the readme file
+     * Get file path of the readme file.
      *
      * @return file path of the readme file
      */
@@ -104,7 +104,7 @@ public class Manifest {
     }
 
     /**
-     * Set file path of the readme file
+     * Set file path of the readme file.
      *
      * @param readmeFilePath file path of the readme file
      */
@@ -113,7 +113,7 @@ public class Manifest {
     }
 
     /**
-     * Get documentation URL
+     * Get documentation URL.
      *
      * @return documentation URL
      */
@@ -122,7 +122,7 @@ public class Manifest {
     }
 
     /**
-     * Set documentation URL
+     * Set documentation URL.
      *
      * @param documentationURL documentation URL
      */
@@ -131,7 +131,7 @@ public class Manifest {
     }
 
     /**
-     * Get homepage URL
+     * Get homepage URL.
      *
      * @return homepage URL
      */
@@ -140,7 +140,7 @@ public class Manifest {
     }
 
     /**
-     * Set homepage URL
+     * Set homepage URL.
      *
      * @param homepageURL homepage URL
      */
@@ -149,7 +149,7 @@ public class Manifest {
     }
 
     /**
-     * Get repository URL
+     * Get repository URL.
      *
      * @return repository URL
      */
@@ -158,7 +158,7 @@ public class Manifest {
     }
 
     /**
-     * Set the repository URL
+     * Set the repository URL.
      *
      * @param repositoryURL repository URL
      */
@@ -167,7 +167,7 @@ public class Manifest {
     }
 
     /**
-     * Get description
+     * Get description.
      *
      * @return description
      */
@@ -176,7 +176,7 @@ public class Manifest {
     }
 
     /**
-     * Set the description
+     * Set the description.
      *
      * @param description description about the package
      */
@@ -185,7 +185,7 @@ public class Manifest {
     }
 
     /**
-     * Get authors of the toml file
+     * Get authors of the toml file.
      *
      * @return authors
      */
@@ -194,7 +194,7 @@ public class Manifest {
     }
 
     /**
-     * Set authors of the toml file
+     * Set authors of the toml file.
      *
      * @param authors list of authors
      */
@@ -203,7 +203,7 @@ public class Manifest {
     }
 
     /**
-     * Get the package name
+     * Get the package name.
      *
      * @return package name
      */
@@ -212,7 +212,7 @@ public class Manifest {
     }
 
     /**
-     * Set the package name
+     * Set the package name.
      *
      * @param name package name
      */
@@ -221,7 +221,7 @@ public class Manifest {
     }
 
     /**
-     * Get the version
+     * Get the version.
      *
      * @return version
      */
@@ -232,14 +232,14 @@ public class Manifest {
     /**
      * Set the version
      *
-     * @param version version of the package
+     * @param version version of the package.
      */
     public void setVersion(String version) {
         this.version = version;
     }
 
     /**
-     * Get the license
+     * Get the license.
      *
      * @return license
      */
@@ -248,7 +248,7 @@ public class Manifest {
     }
 
     /**
-     * Set the license
+     * Set the license.
      *
      * @param license license
      */
@@ -257,7 +257,7 @@ public class Manifest {
     }
 
     /**
-     * Remove duplicates from dependencies and patches list
+     * Remove duplicates from dependencies and patches list.
      *
      * @param list list of elements
      * @return dependencies or patches list without duplicates
