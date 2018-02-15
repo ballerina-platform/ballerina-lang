@@ -78,7 +78,7 @@ public class SignatureParams {
         for (int i = 0; i < paramDetails.size(); i++) {
             ParamDetail paramDetail = paramDetails.get(i);
             if (paramDetail.getVarType().getTag() != TypeTags.STRING_TAG) {
-                throw new BallerinaConnectorException("incompatible resource signature path parameter type");
+                throw new BallerinaConnectorException("incompatible resource signature parameter type");
             }
             paramCount++;
         }
@@ -88,7 +88,7 @@ public class SignatureParams {
     private void validateEntityBodyParam(ParamDetail entityBodyParam) {
         String entityBodyAttributeValue = resource.getEntityBodyAttributeValue();
         if (!entityBodyAttributeValue.equals(entityBodyParam.getVarName())) {
-            throw new BallerinaConnectorException("expected : " + entityBodyAttributeValue +
+            throw new BallerinaConnectorException("expected " + entityBodyAttributeValue +
                     " as param name instead of " + entityBodyParam.getVarName());
         }
         int type = entityBodyParam.getVarType().getTag();

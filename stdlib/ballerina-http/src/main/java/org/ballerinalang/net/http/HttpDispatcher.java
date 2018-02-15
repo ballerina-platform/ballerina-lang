@@ -247,4 +247,8 @@ public class HttpDispatcher {
         }
         return body;
     }
+
+    public static boolean isDiffered(HttpResource httpResource) {
+        return httpResource.getSignatureParams().getEntityBody() != null;
+    }
 }
