@@ -24,6 +24,9 @@ import org.ballerinalang.plugins.idea.psi.scopes.ParameterContainer;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+/**
+ * Represents an TimeoutClause in PSI tree.
+ */
 public class TimeoutClauseNode extends ANTLRPsiNode implements ParameterContainer {
 
     public TimeoutClauseNode(@NotNull ASTNode node) {

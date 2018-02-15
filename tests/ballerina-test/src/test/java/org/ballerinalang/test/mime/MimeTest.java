@@ -31,7 +31,7 @@ import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BXMLItem;
 import org.ballerinalang.nativeimpl.io.channels.base.AbstractChannel;
 import org.ballerinalang.nativeimpl.io.channels.base.CharacterChannel;
-import org.ballerinalang.net.http.Constants;
+import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.test.nativeimpl.functions.io.MockByteChannel;
 import org.ballerinalang.test.nativeimpl.functions.io.util.TestUtil;
 import org.ballerinalang.test.services.testutils.HTTPTestRequest;
@@ -72,7 +72,7 @@ public class MimeTest {
     private CompileResult compileResult, serviceResult;
     private final String protocolPackageMime = PROTOCOL_PACKAGE_MIME;
     private final String protocolPackageFile = PROTOCOL_PACKAGE_FILE;
-    private final String entityStruct = Constants.ENTITY;
+    private final String entityStruct = HttpConstants.ENTITY;
     private final String mediaTypeStruct = MEDIA_TYPE;
     private String sourceFilePath = "test-src/mime/mime-test.bal";
 
@@ -268,12 +268,13 @@ public class MimeTest {
             CharacterChannel characterChannel = new CharacterChannel(channel, StandardCharsets.UTF_8.name());
             String responseValue = characterChannel.readAll();
             characterChannel.close();
-            HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, Constants.HTTP_METHOD_POST, responseValue);
+            HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, HttpConstants.HTTP_METHOD_POST,
+                                                                    responseValue);
             HTTPCarbonMessage response = Services.invokeNew(serviceResult, cMsg);
             Assert.assertNotNull(response, "Response message not found");
             String temporaryFilePath = ResponseReader.getReturnValue(response);
-            boolean isCorrectTempFileCreated = temporaryFilePath.startsWith("/tmp/ballerinaBinaryPayload");
-            Assert.assertEquals(isCorrectTempFileCreated, true);
+            Assert.assertNotNull(temporaryFilePath);
+            Assert.assertFalse(temporaryFilePath.isEmpty(), "Temporary file has not been created");
             File file = new File(temporaryFilePath);
             file.delete();
         } catch (IOException | URISyntaxException e) {

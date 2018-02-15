@@ -17,16 +17,16 @@
 */
 package org.ballerinalang.langserver.completions.resolvers;
 
+import org.antlr.v4.runtime.ParserRuleContext;
 import org.ballerinalang.langserver.DocumentServiceKeys;
 import org.ballerinalang.langserver.TextDocumentServiceContext;
-import org.ballerinalang.langserver.completions.consts.ItemResolverConstants;
-import org.ballerinalang.langserver.completions.consts.Priority;
-import org.ballerinalang.langserver.completions.consts.Snippet;
+import org.ballerinalang.langserver.completions.CompletionKeys;
+import org.ballerinalang.langserver.completions.util.CompletionItemResolver;
+import org.ballerinalang.langserver.completions.util.sorters.CompletionItemSorter;
+import org.ballerinalang.langserver.completions.util.sorters.ItemSorters;
 import org.eclipse.lsp4j.CompletionItem;
-import org.eclipse.lsp4j.InsertTextFormat;
 
 import java.util.ArrayList;
-import java.util.List;
 
 /**
  * ServiceContextResolver.
@@ -37,27 +37,18 @@ public class ServiceContextResolver extends AbstractItemResolver {
     public ArrayList<CompletionItem> resolveItems(TextDocumentServiceContext completionContext) {
         ArrayList<CompletionItem> completionItems = new ArrayList<>();
         // TODO: Add annotations
-        this.addSnippets(completionItems);
-        this.populateBasicTypes(completionItems, completionContext.get(DocumentServiceKeys.SYMBOL_TABLE_KEY));
+        ParserRuleContext parserRuleContext = completionContext.get(DocumentServiceKeys.PARSER_RULE_CONTEXT_KEY);
+        if (parserRuleContext != null) {
+            AbstractItemResolver resolver = CompletionItemResolver.getResolverByClass(parserRuleContext.getClass());
+            if (resolver != null) {
+                completionItems.addAll(resolver.resolveItems(completionContext));
+            }
+        } else {
+            this.populateBasicTypes(completionItems, completionContext.get(CompletionKeys.VISIBLE_SYMBOLS_KEY));
+            CompletionItemSorter itemSorter =
+                    ItemSorters.getSorterByClass(completionContext.get(CompletionKeys.SYMBOL_ENV_NODE_KEY).getClass());
+            itemSorter.sortItems(completionContext, completionItems);
+        }
         return completionItems;
-    }
-
-    private void addSnippets(List<CompletionItem> completionItems) {
-        CompletionItem resource = new CompletionItem();
-        resource.setLabel(ItemResolverConstants.RESOURCE_TYPE);
-        resource.setInsertText(Snippet.RESOURCE.toString());
-        resource.setInsertTextFormat(InsertTextFormat.Snippet);
-        resource.setDetail(ItemResolverConstants.SNIPPET_TYPE);
-        resource.setSortText(Priority.PRIORITY7.name());
-        completionItems.add(resource);
-
-        // Add Endpoint snippet
-        CompletionItem endpointItem = new CompletionItem();
-        endpointItem.setLabel(ItemResolverConstants.ENDPOINT);
-        endpointItem.setInsertText(Snippet.ENDPOINT.toString());
-        endpointItem.setInsertTextFormat(InsertTextFormat.Snippet);
-        endpointItem.setDetail(ItemResolverConstants.SNIPPET_TYPE);
-        endpointItem.setSortText(Priority.PRIORITY7.name());
-        completionItems.add(endpointItem);
     }
 }

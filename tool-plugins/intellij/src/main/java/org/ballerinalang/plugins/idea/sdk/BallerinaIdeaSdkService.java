@@ -37,6 +37,9 @@ import org.ballerinalang.plugins.idea.BallerinaModuleType;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+/**
+ * Provides Ballerina SDK service.
+ */
 public class BallerinaIdeaSdkService extends BallerinaSdkService {
 
     public BallerinaIdeaSdkService(@NotNull Project project) {
@@ -94,7 +97,7 @@ public class BallerinaIdeaSdkService extends BallerinaSdkService {
     public Configurable createSdkConfigurable() {
         return null;
     }
-    
+
     private Sdk getBallerinaSdk(@Nullable Module module) {
         if (module != null) {
             Sdk sdk = ModuleRootManager.getInstance(module).getSdk();

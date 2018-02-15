@@ -45,6 +45,9 @@ import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 
+/**
+ * Represents a record key reference.
+ */
 public class RecordKeyReference extends BallerinaElementReference {
 
     public RecordKeyReference(@NotNull IdentifierPSINode element) {

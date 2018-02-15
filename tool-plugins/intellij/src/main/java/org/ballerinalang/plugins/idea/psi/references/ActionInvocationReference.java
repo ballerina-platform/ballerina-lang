@@ -35,6 +35,9 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Collection;
 import java.util.List;
 
+/**
+ * Represents an action invocation reference.
+ */
 public class ActionInvocationReference extends BallerinaElementReference {
 
     public ActionInvocationReference(@NotNull IdentifierPSINode element) {

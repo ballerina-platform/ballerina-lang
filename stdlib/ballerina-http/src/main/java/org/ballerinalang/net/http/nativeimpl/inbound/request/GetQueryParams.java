@@ -21,14 +21,15 @@ package org.ballerinalang.net.http.nativeimpl.inbound.request;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BMap;
+import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
-import org.ballerinalang.net.http.Constants;
-import org.ballerinalang.net.http.HttpUtil;
+import org.ballerinalang.net.http.HttpConstants;
+import org.ballerinalang.net.uri.URIUtil;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 
@@ -51,11 +52,13 @@ public class GetQueryParams extends AbstractNativeFunction {
         try {
             BStruct requestStruct  = ((BStruct) getRefArgument(context, 0));
             HTTPCarbonMessage httpCarbonMessage = (HTTPCarbonMessage) requestStruct
-                    .getNativeData(Constants.TRANSPORT_MESSAGE);
+                    .getNativeData(HttpConstants.TRANSPORT_MESSAGE);
 
-            if (httpCarbonMessage.getProperty(Constants.QUERY_STR) != null) {
-                String queryString = (String) httpCarbonMessage.getProperty(Constants.QUERY_STR);
-                return getBValues(HttpUtil.getParamMap(queryString));
+            if (httpCarbonMessage.getProperty(HttpConstants.QUERY_STR) != null) {
+                String queryString = (String) httpCarbonMessage.getProperty(HttpConstants.QUERY_STR);
+                BMap<String, BString> params = new BMap<>();
+                URIUtil.populateQueryParamMap(queryString, params);
+                return getBValues(params);
             } else {
                 return getBValues(new BMap<>());
             }

@@ -15,7 +15,6 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-
 package org.ballerinalang.langserver.completions.resolvers;
 
 import org.antlr.v4.runtime.Token;
@@ -23,13 +22,12 @@ import org.antlr.v4.runtime.TokenStream;
 import org.ballerinalang.langserver.DocumentServiceKeys;
 import org.ballerinalang.langserver.TextDocumentServiceContext;
 import org.ballerinalang.langserver.completions.SymbolInfo;
-import org.ballerinalang.langserver.completions.consts.ItemResolverConstants;
-import org.ballerinalang.langserver.completions.consts.Priority;
+import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.CompletionItemKind;
 import org.eclipse.lsp4j.InsertTextFormat;
-import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
@@ -38,13 +36,15 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
 
 /**
  * Interface for completion item resolvers.
  */
 public abstract class AbstractItemResolver {
+    
+    private static final String NOT_FOUND_TYPE = "><";
+    
     public abstract ArrayList<CompletionItem> resolveItems(TextDocumentServiceContext completionContext);
 
     /**
@@ -52,18 +52,21 @@ public abstract class AbstractItemResolver {
      * @param symbolInfoList - list of symbol information
      * @param completionItems - completion item list to populate
      */
-    public void populateCompletionItemList(List<SymbolInfo> symbolInfoList, List<CompletionItem> completionItems) {
+    protected void populateCompletionItemList(List<SymbolInfo> symbolInfoList, List<CompletionItem> completionItems) {
 
         symbolInfoList.forEach(symbolInfo -> {
             CompletionItem completionItem = null;
-            if (symbolInfo.getScopeEntry().symbol instanceof BInvokableSymbol
-                    && ((BInvokableSymbol) symbolInfo.getScopeEntry().symbol).kind != null
-                    && !((BInvokableSymbol) symbolInfo.getScopeEntry().symbol).kind.equals(SymbolKind.WORKER)) {
+            BSymbol bSymbol = symbolInfo.getScopeEntry().symbol;
+            if (bSymbol instanceof BInvokableSymbol
+                    && ((BInvokableSymbol) bSymbol).kind != null
+                    && !((BInvokableSymbol) bSymbol).kind.equals(SymbolKind.WORKER)) {
                 completionItem = this.populateBallerinaFunctionCompletionItem(symbolInfo);
-            } else if (!(symbolInfo.getScopeEntry().symbol instanceof BInvokableSymbol)
-                    && symbolInfo.getScopeEntry().symbol instanceof BVarSymbol) {
+            } else if (!(bSymbol instanceof BInvokableSymbol)
+                    && bSymbol instanceof BVarSymbol) {
                 completionItem = this.populateVariableDefCompletionItem(symbolInfo);
-            } else if (symbolInfo.getScopeEntry().symbol instanceof BTypeSymbol) {
+            } else if (bSymbol instanceof BTypeSymbol
+                    && !bSymbol.getName().getValue().equals(NOT_FOUND_TYPE)
+                    && !(bSymbol instanceof BAnnotationSymbol)) {
                 completionItem = this.populateBTypeCompletionItem(symbolInfo);
             }
 
@@ -93,7 +96,6 @@ public abstract class AbstractItemResolver {
         completionItem.setLabel(functionSignature.getLabel());
         completionItem.setInsertText(functionSignature.getInsertText());
         completionItem.setDetail(ItemResolverConstants.FUNCTION_TYPE);
-        completionItem.setSortText(Priority.PRIORITY6.name());
         completionItem.setKind(CompletionItemKind.Function);
 
         return completionItem;
@@ -111,8 +113,6 @@ public abstract class AbstractItemResolver {
         completionItem.setInsertText(delimiterSeparatedTokens[delimiterSeparatedTokens.length - 1]);
         String typeName = symbolInfo.getScopeEntry().symbol.type.toString();
         completionItem.setDetail((typeName.equals("")) ? ItemResolverConstants.NONE : typeName);
-
-        completionItem.setSortText(Priority.PRIORITY7.name());
         completionItem.setKind(CompletionItemKind.Unit);
 
         return completionItem;
@@ -123,7 +123,7 @@ public abstract class AbstractItemResolver {
      * @param symbolInfo - symbol information
      * @return completion item
      */
-    CompletionItem populateBTypeCompletionItem(SymbolInfo symbolInfo) {
+    private CompletionItem populateBTypeCompletionItem(SymbolInfo symbolInfo) {
         CompletionItem completionItem = new CompletionItem();
         completionItem.setLabel(symbolInfo.getSymbolName());
         String[] delimiterSeparatedTokens = (symbolInfo.getSymbolName()).split("\\.");
@@ -154,7 +154,8 @@ public abstract class AbstractItemResolver {
      * @return {@link String}
      */
     private FunctionSignature getFunctionSignature(BInvokableSymbol bInvokableSymbol) {
-        String functionName = bInvokableSymbol.getName().getValue();
+        String[] funcNameComponents = bInvokableSymbol.getName().getValue().split("\\.");
+        String functionName = funcNameComponents[funcNameComponents.length - 1];
 
         // If there is a receiver symbol, then the name comes with the package name and struct name appended.
         // Hence we need to remove it
@@ -162,8 +163,8 @@ public abstract class AbstractItemResolver {
             String receiverType = bInvokableSymbol.receiverSymbol.getType().toString();
             functionName = functionName.replace(receiverType + ".", "");
         }
-        StringBuffer signature = new StringBuffer(functionName + "(");
-        StringBuffer insertText = new StringBuffer(functionName + "(");
+        StringBuilder signature = new StringBuilder(functionName + "(");
+        StringBuilder insertText = new StringBuilder(functionName + "(");
         List<BVarSymbol> parameterDefs = bInvokableSymbol.getParameters();
 
         for (int itr = 0; itr < parameterDefs.size(); itr++) {
@@ -203,7 +204,7 @@ public abstract class AbstractItemResolver {
      * @param documentServiceContext - Completion operation context
      * @return {@link Boolean}
      */
-    protected boolean isActionOrFunctionInvocationStatement(TextDocumentServiceContext documentServiceContext) {
+    protected boolean isInvocationOrFieldAccess(TextDocumentServiceContext documentServiceContext) {
         ArrayList<String> terminalTokens = new ArrayList<>(Arrays.asList(new String[]{";", "}", "{"}));
         TokenStream tokenStream = documentServiceContext.get(DocumentServiceKeys.TOKEN_STREAM_KEY);
         int searchTokenIndex = documentServiceContext.get(DocumentServiceKeys.TOKEN_INDEX_KEY);
@@ -298,41 +299,27 @@ public abstract class AbstractItemResolver {
     }
 
     /**
-     * Assign the Priorities to the completion items.
-     * @param itemPriorityMap - Map of item priorities against the Item type
-     * @param completionItems - list of completion items
-     */
-    protected void assignItemPriorities(HashMap<String, String> itemPriorityMap, List<CompletionItem> completionItems) {
-        completionItems.forEach(completionItem -> {
-            if (itemPriorityMap.containsKey(completionItem.getDetail())) {
-                completionItem.setSortText(itemPriorityMap.get(completionItem.getDetail()));
-            }
-        });
-    }
-
-    /**
      * Populate a completion item with the given data and return it.
      * @param insertText insert text
      * @param type type of the completion item
-     * @param priority completion item priority
      * @param label completion item label
      * @return {@link CompletionItem}
      */
-    protected CompletionItem populateCompletionItem(String insertText, String type, String priority, String label) {
+    protected CompletionItem populateCompletionItem(String insertText, String type, String label) {
         CompletionItem completionItem = new CompletionItem();
         completionItem.setInsertText(insertText);
         completionItem.setDetail(type);
-        completionItem.setSortText(priority);
         completionItem.setLabel(label);
         return completionItem;
     }
 
-    protected void populateBasicTypes(List<CompletionItem> completionItems, SymbolTable symbolTable) {
-        symbolTable.rootScope.entries.forEach((key, value) -> {
-            if (value.symbol instanceof BTypeSymbol) {
-                String insertText = value.symbol.getName().getValue();
-                completionItems.add(populateCompletionItem(insertText, ItemResolverConstants.B_TYPE,
-                        Priority.PRIORITY4.name(), insertText));
+    protected void populateBasicTypes(List<CompletionItem> completionItems, List<SymbolInfo> visibleSymbols) {
+        visibleSymbols.forEach(symbolInfo -> {
+            BSymbol bSymbol = symbolInfo.getScopeEntry().symbol;
+            if (bSymbol instanceof BTypeSymbol
+                    && !bSymbol.getName().getValue().equals(NOT_FOUND_TYPE)
+                    && !(bSymbol instanceof BAnnotationSymbol)) {
+                completionItems.add(this.populateBTypeCompletionItem(symbolInfo));
             }
         });
     }

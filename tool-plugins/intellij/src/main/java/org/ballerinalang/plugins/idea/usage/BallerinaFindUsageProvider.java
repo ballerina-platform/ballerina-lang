@@ -29,8 +29,28 @@ import org.ballerinalang.plugins.idea.psi.IdentifierPSINode;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.*;
+import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_actionDefinition;
+import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_annotationDefinition;
+import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_connectorDefinition;
+import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_constantDefinition;
+import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_endpointDeclaration;
+import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_enumDefinition;
+import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_enumField;
+import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_fieldDefinition;
+import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_functionDefinition;
+import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_globalVariableDefinition;
+import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_nameReference;
+import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_namespaceDeclaration;
+import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_packageName;
+import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_parameter;
+import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_serviceDefinition;
+import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_structDefinition;
+import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_variableDefinitionStatement;
+import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_workerDeclaration;
 
+/**
+ * Find usage provider for Ballerina.
+ */
 public class BallerinaFindUsageProvider implements FindUsagesProvider {
 
     @Nullable

@@ -20,6 +20,9 @@ import com.intellij.lang.ASTNode;
 import org.antlr.jetbrains.adaptor.psi.ANTLRPsiNode;
 import org.jetbrains.annotations.NotNull;
 
+/**
+ * Represents a FailedClause in PSI tree.
+ */
 public class FailedClauseNode extends ANTLRPsiNode {
 
     public FailedClauseNode(@NotNull ASTNode node) {

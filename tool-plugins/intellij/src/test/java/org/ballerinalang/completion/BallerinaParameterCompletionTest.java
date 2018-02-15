@@ -19,6 +19,9 @@ package org.ballerinalang.completion;
 import java.util.LinkedList;
 import java.util.List;
 
+/**
+ * Parameter completion tests.
+ */
 public class BallerinaParameterCompletionTest extends BallerinaCompletionTestBase {
 
     /**

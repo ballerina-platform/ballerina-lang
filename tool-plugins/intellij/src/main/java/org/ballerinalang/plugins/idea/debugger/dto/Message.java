@@ -19,6 +19,9 @@ package org.ballerinalang.plugins.idea.debugger.dto;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Represent a message which is received from the debug server.
+ */
 public class Message {
 
     private String code;

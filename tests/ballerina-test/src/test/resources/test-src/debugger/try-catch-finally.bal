@@ -1,17 +1,17 @@
-struct testError {
+public struct testError {
     string msg;
     error cause;
     StackFrame[] stackTrace;
     string code;
 }
 
-struct testDataError {
+public struct testDataError {
     string msg;
     error cause;
     StackFrame[] stackTrace;
     string data;
 }
-struct testInputError {
+public struct testInputError {
     string msg;
     error cause;
     StackFrame[] stackTrace;

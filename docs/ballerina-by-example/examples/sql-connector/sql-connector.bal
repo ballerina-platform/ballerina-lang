@@ -40,10 +40,10 @@ function main (string[] args) {
     println("Inserted row count:" + count);
     println("Generated key:" + ids[0]);
 
-    //Select data using select action. Select action returns a datatable
-    //and see datatables section for more details on how to access data.
+    //Select data using select action. Select action returns a table
+    //and see table section for more details on how to access data.
     params = [para1];
-    datatable dt = testDB.select("SELECT * FROM STUDENT WHERE AGE = ?", params, null);
+    table dt = testDB.select("SELECT * FROM STUDENT WHERE AGE = ?", params, null);
     var jsonRes, err = <json>dt;
     println(jsonRes);
 

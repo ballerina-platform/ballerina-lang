@@ -192,7 +192,7 @@ class TransactionFailedDecorator extends React.Component {
         //                    (P6)
 
         const p1X = bBox.x - gapLeft;
-        const p1Y = bBox.y + gapTop;
+        const p1Y = statementBBox.y + gapTop;
 
         const p2X = bBox.x - (titleW / 2);
         const p2Y = p1Y + (titleH / 2);
@@ -201,13 +201,10 @@ class TransactionFailedDecorator extends React.Component {
         const p8Y = p2Y + (titleH / 2);
 
         const p6X = bBox.x;
-        const p6Y = p8Y + this.context.designer.config.statement.height;
+        const p6Y = p8Y + viewState.components['statement-box'].h - (titleH / 2);
 
         const p11X = p1X;
         const p11Y = p1Y + (titleH / 2);
-
-        this.conditionBox = new SimpleBBox(p2X, (p2Y - (this.context.designer.config.statement.height / 2)),
-            statementBBox.w, this.context.designer.config.statement.height);
 
         const actionBoxBbox = new SimpleBBox();
         actionBoxBbox.w = (3 * designer.config.actionBox.width) / 4;

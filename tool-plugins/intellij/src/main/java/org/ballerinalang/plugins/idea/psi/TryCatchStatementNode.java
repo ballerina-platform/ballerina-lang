@@ -24,6 +24,9 @@ import org.ballerinalang.plugins.idea.psi.scopes.CodeBlockScope;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+/**
+ * Represents an TryCatchStatement in PSI tree.
+ */
 public class TryCatchStatementNode extends ANTLRPsiNode implements CodeBlockScope {
 
     public TryCatchStatementNode(@NotNull ASTNode node) {

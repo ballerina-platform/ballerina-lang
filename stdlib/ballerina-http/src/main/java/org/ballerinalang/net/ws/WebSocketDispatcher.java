@@ -22,9 +22,11 @@ import org.ballerinalang.connector.api.ConnectorFuture;
 import org.ballerinalang.connector.api.Executor;
 import org.ballerinalang.connector.api.ParamDetail;
 import org.ballerinalang.connector.api.Resource;
+import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.net.uri.URIUtil;
 import org.ballerinalang.services.ErrorHandlerUtils;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketBinaryMessage;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketCloseMessage;
@@ -34,13 +36,14 @@ import org.wso2.transport.http.netty.contract.websocket.WebSocketMessage;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketTextMessage;
 
 import java.io.IOException;
+import java.net.URI;
 import java.util.List;
 import java.util.Map;
 import javax.websocket.Session;
 
 /**
- * {@code WebSocketDispatcher} This is the web socket request dispatcher implementation which finds
- * best matching resource for incoming web socket request.
+ * {@code WebSocketDispatcher} This is the web socket request dispatcher implementation which finds best matching
+ * resource for incoming web socket request.
  *
  * @since 0.94
  */
@@ -53,7 +56,8 @@ public class WebSocketDispatcher {
      * @return matching service.
      */
     public static WebSocketService findService(WebSocketServicesRegistry servicesRegistry,
-                                               Map<String, String> variables, WebSocketMessage webSocketMessage) {
+                                               Map<String, String> variables, WebSocketMessage webSocketMessage,
+                                               BMap<String, BString> queryParams) {
         if (!webSocketMessage.isServerMessage()) {
             String clientServiceName = webSocketMessage.getTarget();
             WebSocketService clientService = servicesRegistry.getClientService(clientServiceName);
@@ -66,11 +70,19 @@ public class WebSocketDispatcher {
             String interfaceId = webSocketMessage.getListenerInterface();
             String serviceUri = webSocketMessage.getTarget();
             serviceUri = servicesRegistry.refactorUri(serviceUri);
-
-            WebSocketService service = servicesRegistry.matchServiceEndpoint(interfaceId, serviceUri, variables);
-
+            URI requestUri;
+            try {
+                requestUri = URI.create(serviceUri);
+            } catch (IllegalArgumentException e) {
+                throw new BallerinaConnectorException(e.getMessage());
+            }
+            WebSocketService service = servicesRegistry.matchServiceEndpoint(interfaceId, requestUri.getPath(),
+                                                                             variables);
             if (service == null) {
                 throw new BallerinaConnectorException("no Service found to handle the service request: " + serviceUri);
+            }
+            if (requestUri.getQuery() != null) {
+                URIUtil.populateQueryParamMap(requestUri.getQuery(), queryParams);
             }
             return service;
         } catch (Throwable throwable) {
@@ -81,7 +93,7 @@ public class WebSocketDispatcher {
 
     public static void dispatchTextMessage(WsOpenConnectionInfo connectionInfo, WebSocketTextMessage textMessage) {
         WebSocketService wsService = connectionInfo.getService();
-        Resource onTextMessageResource = wsService.getResourceByName(Constants.RESOURCE_NAME_ON_TEXT_MESSAGE);
+        Resource onTextMessageResource = wsService.getResourceByName(WebSocketConstants.RESOURCE_NAME_ON_TEXT_MESSAGE);
         if (onTextMessageResource == null) {
             return;
         }
@@ -105,7 +117,8 @@ public class WebSocketDispatcher {
     public static void dispatchBinaryMessage(WsOpenConnectionInfo connectionInfo,
                                              WebSocketBinaryMessage binaryMessage) {
         WebSocketService wsService = connectionInfo.getService();
-        Resource onBinaryMessageResource = wsService.getResourceByName(Constants.RESOURCE_NAME_ON_BINARY_MESSAGE);
+        Resource onBinaryMessageResource = wsService.getResourceByName(
+                WebSocketConstants.RESOURCE_NAME_ON_BINARY_MESSAGE);
         if (onBinaryMessageResource == null) {
             return;
         }
@@ -141,7 +154,7 @@ public class WebSocketDispatcher {
     private static void dispatchPingMessage(WsOpenConnectionInfo connectionInfo,
                                             WebSocketControlMessage controlMessage) {
         WebSocketService wsService = connectionInfo.getService();
-        Resource onPingMessageResource = wsService.getResourceByName(Constants.RESOURCE_NAME_ON_PING);
+        Resource onPingMessageResource = wsService.getResourceByName(WebSocketConstants.RESOURCE_NAME_ON_PING);
         if (onPingMessageResource == null) {
             pingAutomatically(controlMessage);
             return;
@@ -162,7 +175,7 @@ public class WebSocketDispatcher {
     private static void dispatchPongMessage(WsOpenConnectionInfo connectionInfo,
                                             WebSocketControlMessage controlMessage) {
         WebSocketService wsService = connectionInfo.getService();
-        Resource onPongMessageResource = wsService.getResourceByName(Constants.RESOURCE_NAME_ON_PONG);
+        Resource onPongMessageResource = wsService.getResourceByName(WebSocketConstants.RESOURCE_NAME_ON_PONG);
         if (onPongMessageResource == null) {
             return;
         }
@@ -181,7 +194,7 @@ public class WebSocketDispatcher {
 
     public static void dispatchCloseMessage(WsOpenConnectionInfo connectionInfo, WebSocketCloseMessage closeMessage) {
         WebSocketService wsService = connectionInfo.getService();
-        Resource onCloseResource = wsService.getResourceByName(Constants.RESOURCE_NAME_ON_CLOSE);
+        Resource onCloseResource = wsService.getResourceByName(WebSocketConstants.RESOURCE_NAME_ON_CLOSE);
         if (onCloseResource == null) {
             return;
         }
@@ -201,7 +214,7 @@ public class WebSocketDispatcher {
     public static void dispatchIdleTimeout(WsOpenConnectionInfo connectionInfo,
                                            WebSocketControlMessage controlMessage) {
         WebSocketService wsService = connectionInfo.getService();
-        Resource onIdleTimeoutResource = wsService.getResourceByName(Constants.RESOURCE_NAME_ON_IDLE_TIMEOUT);
+        Resource onIdleTimeoutResource = wsService.getResourceByName(WebSocketConstants.RESOURCE_NAME_ON_IDLE_TIMEOUT);
         if (onIdleTimeoutResource == null) {
             return;
         }
@@ -232,4 +245,5 @@ public class WebSocketDispatcher {
             ErrorHandlerUtils.printError(ex);
         }
     }
+
 }

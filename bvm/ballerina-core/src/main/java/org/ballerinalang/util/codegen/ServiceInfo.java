@@ -39,10 +39,10 @@ public class ServiceInfo extends StructureTypeInfo {
     private FunctionInfo initFuncInfo;
 
     public ServiceInfo(int pkgPathCPIndex, String packageName,
-                       int nameCPIndex, String serviceName,
+                       int nameCPIndex, String serviceName, int flags,
                        int protocolPkgPathCPIndex, String protocolPkgPath) {
 
-        super(pkgPathCPIndex, packageName, nameCPIndex, serviceName);
+        super(pkgPathCPIndex, packageName, nameCPIndex, serviceName, flags);
         this.protocolPkgPathCPIndex = protocolPkgPathCPIndex;
         this.protocolPkgPath = protocolPkgPath;
     }

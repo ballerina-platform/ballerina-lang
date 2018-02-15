@@ -14,9 +14,9 @@ package ballerina.net.http;
 @Field {value:"sslEnabledProtocols: SSL/TLS protocols to be enabled"}
 @Field {value:"ciphers: List of ciphers to be used"}
 @Field {value:"sslProtocol: The SSL protocol version"}
-@Field {value:"certificateRevocationVerifier: The status of certificate revocation verifier {default value : false (disable)}"}
+@Field {value:"validateCertificateEnabled: The status of validateCertificateEnabled {default value : false (disable)}"}
 @Field {value:"cacheSize: Maximum size of the cache"}
-@Field {value:"cacheDelay: Time duration between two consecutive scheduled cache managing tasks"}
+@Field {value:"cacheValidityPeriod: Time duration of cache validity period"}
 @Field {value:"allowOrigins: The array of origins with which the response is shared by the service"}
 @Field {value:"allowCredentials: Specifies whether credentials are required to access the service"}
 @Field {value:"allowMethods: The array of allowed methods by the service"}
@@ -25,6 +25,9 @@ package ballerina.net.http;
 @Field {value:"exposeHeaders: The array of allowed headers which are exposed to the client"}
 @Field {value:"transferEncoding: The types of encoding applied to the response"}
 @Field {value:"chunking: The chunking behaviour of the response"}
+@Field {value:"maxUriLength: Maximum length allowed for the URL"}
+@Field {value:"maxHeaderSize: Maximum size allowed for the headers"}
+@Field {value:"maxEntityBodySize: Maximum size allowed for the entity body"}
 @Field {value:"webSocket: Annotation to define HTTP to WebSocket upgrade"}
 public annotation configuration attach service<> {
     string host;
@@ -40,9 +43,9 @@ public annotation configuration attach service<> {
     string sslEnabledProtocols;
     string ciphers;
     string sslProtocol;
-    boolean certificateRevocationVerifier;
+    boolean validateCertificateEnabled;
     int cacheSize;
-    int cacheDelay;
+    int cacheValidityPeriod;
     string[] allowOrigins;
     boolean allowCredentials;
     string[] allowMethods;
@@ -52,6 +55,9 @@ public annotation configuration attach service<> {
     boolean keepAlive;
     string transferEncoding;
     string chunking;
+    int maxUriLength;
+    int maxHeaderSize;
+    int maxEntityBodySize;
     webSocket webSocket;
 }
 

@@ -73,6 +73,7 @@ class ResourceNode extends React.Component {
         const classes = {
             lineClass: 'default-worker-life-line',
             polygonClass: 'default-worker-life-line-polygon',
+            textClass: 'default-worker-icon',
         };
         const argumentParameters = this.props.model.getParameters();
 
@@ -148,8 +149,7 @@ class ResourceNode extends React.Component {
                                     title='default'
                                     bBox={this.props.model.viewState.components.defaultWorkerLine}
                                     classes={classes}
-                                    icon={ImageUtil.getSVGIconString('tool-icons/worker')}
-                                    iconColor='#2980b9'
+                                    icon={ImageUtil.getCodePoint('worker')}
                                 />
                                 {blockNode}
                             </g>
@@ -170,27 +170,6 @@ class ResourceNode extends React.Component {
                         {connectors}
                     </g>
                 </PanelDecorator>
-                {(thisNodeIndex !== parentNode.getResources().length - 1 && showAddResourceBtnForWS &&
-                showAddResourceForOneResource && !this.props.model.viewState.collapsed) &&
-                <g
-                    className={this.state.style}
-                    onMouseOver={this.onMouseOver}
-                    onMouseOut={this.onMouseOut}
-                >
-                    <rect
-                        x={bBox.x - 50}
-                        y={bBox.y + bBox.h}
-                        width={bBox.w + 20}
-                        height='50'
-                        fillOpacity='0'
-                        strokeOpacity='0'
-                    />
-                    <AddResourceDefinition
-                        model={this.props.model}
-                        style={this.state.style}
-                    />
-                </g>
-                }
             </g>);
     }
 }

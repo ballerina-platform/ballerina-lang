@@ -51,6 +51,9 @@ import javax.swing.JPanel;
 
 import static com.intellij.openapi.fileChooser.FileChooserDescriptorFactory.createMultipleFoldersDescriptor;
 
+/**
+ * Provides ballerina library configurations.
+ */
 public class BallerinaLibrariesConfigurable implements SearchableConfigurable, Configurable.NoScroll {
 
     @NotNull

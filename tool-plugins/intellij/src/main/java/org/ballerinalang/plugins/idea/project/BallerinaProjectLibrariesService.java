@@ -25,6 +25,9 @@ import com.intellij.openapi.project.Project;
 import org.ballerinalang.plugins.idea.BallerinaConstants;
 import org.jetbrains.annotations.NotNull;
 
+/**
+ * Represents Ballerina project library service.
+ */
 @State(
         name = BallerinaConstants.BALLERINA_LIBRARIES_SERVICE_NAME,
         storages = {

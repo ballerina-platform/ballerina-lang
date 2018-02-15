@@ -20,6 +20,9 @@ import org.ballerinalang.psi.BallerinaResolveTestBase;
 
 import java.io.IOException;
 
+/**
+ * Test function resolving.
+ */
 public class BallerinaResolveFunctionTest extends BallerinaResolveTestBase {
 
     private String function = "public function /*def*/fun ()(string) {\n    return \"\";\n}";

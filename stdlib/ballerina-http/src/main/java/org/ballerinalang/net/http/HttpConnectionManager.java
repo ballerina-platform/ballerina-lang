@@ -60,8 +60,8 @@ public class HttpConnectionManager {
     private HttpWsConnectorFactory httpConnectorFactory = new HttpWsConnectorFactoryImpl();
 
     private HttpConnectionManager() {
-        String nettyConfigFile = System.getProperty(Constants.HTTP_TRANSPORT_CONF,
-                "conf" + File.separator + "transports" +
+        String nettyConfigFile = System.getProperty(HttpConstants.HTTP_TRANSPORT_CONF,
+                                                    "conf" + File.separator + "transports" +
                         File.separator + "netty-transports.yml");
         trpConfig = ConfigurationBuilder.getInstance().getConfiguration(nettyConfigFile);
         serverBootstrapConfiguration = HTTPConnectorUtil

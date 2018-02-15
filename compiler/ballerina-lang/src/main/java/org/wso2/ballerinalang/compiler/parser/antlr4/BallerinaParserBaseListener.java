@@ -232,6 +232,18 @@ public class BallerinaParserBaseListener implements BallerinaParserListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterPrivateStructBody(BallerinaParser.PrivateStructBodyContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitPrivateStructBody(BallerinaParser.PrivateStructBodyContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterAnnotationDefinition(BallerinaParser.AnnotationDefinitionContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -1288,6 +1300,18 @@ public class BallerinaParserBaseListener implements BallerinaParserListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterLockStatement(BallerinaParser.LockStatementContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitLockStatement(BallerinaParser.LockStatementContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterFailedClause(BallerinaParser.FailedClauseContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -1907,6 +1931,30 @@ public class BallerinaParserBaseListener implements BallerinaParserListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitStringTemplateContent(BallerinaParser.StringTemplateContentContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterAnyIdentifierName(BallerinaParser.AnyIdentifierNameContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitAnyIdentifierName(BallerinaParser.AnyIdentifierNameContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterReservedWord(BallerinaParser.ReservedWordContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitReservedWord(BallerinaParser.ReservedWordContext ctx) { }
 
 	/**
 	 * {@inheritDoc}

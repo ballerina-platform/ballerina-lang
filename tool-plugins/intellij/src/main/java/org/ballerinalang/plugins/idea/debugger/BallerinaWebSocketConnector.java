@@ -25,6 +25,9 @@ import java.net.URISyntaxException;
 
 import javax.net.ssl.SSLException;
 
+/**
+ * Used to communicate with debug server.
+ */
 public class BallerinaWebSocketConnector {
 
     private static final Logger LOGGER = Logger.getInstance(BallerinaWebSocketConnector.class);

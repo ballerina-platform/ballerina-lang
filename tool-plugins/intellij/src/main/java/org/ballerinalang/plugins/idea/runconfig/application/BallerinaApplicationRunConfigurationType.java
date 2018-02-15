@@ -25,6 +25,9 @@ import org.ballerinalang.plugins.idea.BallerinaIcons;
 import org.ballerinalang.plugins.idea.runconfig.BallerinaConfigurationFactoryBase;
 import org.jetbrains.annotations.NotNull;
 
+/**
+ * Represents Ballerina run configuration type. This is used to create Ballerina application configurations.
+ */
 public class BallerinaApplicationRunConfigurationType extends ConfigurationTypeBase {
 
     public BallerinaApplicationRunConfigurationType() {

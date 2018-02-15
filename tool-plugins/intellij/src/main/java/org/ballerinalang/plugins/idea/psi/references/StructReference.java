@@ -32,6 +32,9 @@ import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 
+/**
+ * Represents a struct reference.
+ */
 public class StructReference extends BallerinaElementReference {
 
     public StructReference(@NotNull IdentifierPSINode element) {

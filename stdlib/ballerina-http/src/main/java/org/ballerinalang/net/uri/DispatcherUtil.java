@@ -22,7 +22,7 @@ package org.ballerinalang.net.uri;
 import org.ballerinalang.connector.api.AnnAttrValue;
 import org.ballerinalang.connector.api.Annotation;
 import org.ballerinalang.connector.api.Resource;
-import org.ballerinalang.net.http.Constants;
+import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.HttpResource;
 import org.ballerinalang.net.http.HttpService;
 import org.ballerinalang.net.http.HttpUtil;
@@ -37,9 +37,9 @@ import java.util.stream.Collectors;
  */
 public class DispatcherUtil {
 
-    private static String[] allMethods = new String[]{Constants.HTTP_METHOD_GET, Constants.HTTP_METHOD_HEAD
-            , Constants.HTTP_METHOD_POST, Constants.HTTP_METHOD_DELETE
-            , Constants.HTTP_METHOD_PUT, Constants.HTTP_METHOD_OPTIONS};
+    private static String[] allMethods = new String[]{HttpConstants.HTTP_METHOD_GET, HttpConstants.HTTP_METHOD_HEAD
+            , HttpConstants.HTTP_METHOD_POST, HttpConstants.HTTP_METHOD_DELETE
+            , HttpConstants.HTTP_METHOD_PUT, HttpConstants.HTTP_METHOD_OPTIONS};
 
     public static boolean isMatchingMethodExist(HttpResource resourceInfo, String method) {
         if (resourceInfo.getMethods() == null) {
@@ -50,12 +50,12 @@ public class DispatcherUtil {
 
     public static String[] getHttpMethods(Resource resource) {
         Annotation resourceConfigAnnotation = HttpUtil.getResourceConfigAnnotation(resource,
-                                                                                   Constants.HTTP_PACKAGE_PATH);
+                                                                                   HttpConstants.HTTP_PACKAGE_PATH);
         if (resourceConfigAnnotation == null) {
             return null;
         }
 
-        AnnAttrValue methodsAttrVal = resourceConfigAnnotation.getAnnAttrValue(Constants.ANN_RESOURCE_ATTR_METHODS);
+        AnnAttrValue methodsAttrVal = resourceConfigAnnotation.getAnnAttrValue(HttpConstants.ANN_RESOURCE_ATTR_METHODS);
         if (methodsAttrVal == null) {
             return null;
         }
@@ -87,10 +87,10 @@ public class DispatcherUtil {
         if (cachedMethods.isEmpty()) {
             return cachedMethods;
         }
-        if (cachedMethods.contains(Constants.HTTP_METHOD_GET)) {
-            cachedMethods.add(Constants.HTTP_METHOD_HEAD);
+        if (cachedMethods.contains(HttpConstants.HTTP_METHOD_GET)) {
+            cachedMethods.add(HttpConstants.HTTP_METHOD_HEAD);
         }
-        cachedMethods.add(Constants.HTTP_METHOD_OPTIONS);
+        cachedMethods.add(HttpConstants.HTTP_METHOD_OPTIONS);
         cachedMethods = cachedMethods.stream().distinct().collect(Collectors.toList());
         return cachedMethods;
     }

@@ -20,7 +20,7 @@ package org.ballerinalang.model.tree.types;
 import org.ballerinalang.model.types.TypeKind;
 
 /**
- * Represents node type of json, xml, datatable etc.
+ * Represents node type of json, xml, table etc.
  *
  * @since 0.94
  */

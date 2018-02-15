@@ -21,6 +21,9 @@ import com.intellij.psi.codeStyle.CodeStyleSettings;
 import com.intellij.psi.codeStyle.CodeStyleSettingsProvider;
 import org.jetbrains.annotations.NotNull;
 
+/**
+ * Ballerina code style configuration provider.
+ */
 public class BallerinaCodeStyleSettingsProvider extends CodeStyleSettingsProvider {
 
     @Override

@@ -48,9 +48,9 @@ public class BallerinaHTTPConnectorListener implements HttpConnectorListener {
         //TODO below should be fixed properly
         //basically need to find a way to pass information from server connector side to client connector side
         Map<String, Object> properties = null;
-        if (httpCarbonMessage.getProperty(Constants.SRC_HANDLER) != null) {
-            Object srcHandler = httpCarbonMessage.getProperty(Constants.SRC_HANDLER);
-            properties = Collections.singletonMap(Constants.SRC_HANDLER, srcHandler);
+        if (httpCarbonMessage.getProperty(HttpConstants.SRC_HANDLER) != null) {
+            Object srcHandler = httpCarbonMessage.getProperty(HttpConstants.SRC_HANDLER);
+            properties = Collections.singletonMap(HttpConstants.SRC_HANDLER, srcHandler);
         }
         BValue[] signatureParams = HttpDispatcher.getSignatureParameters(httpResource, httpCarbonMessage);
         ConnectorFuture future = Executor.submit(httpResource.getBalResource(), properties, signatureParams);

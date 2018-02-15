@@ -45,6 +45,7 @@ import org.ballerinalang.plugins.idea.psi.AnnotationAttributeValueNode;
 import org.ballerinalang.plugins.idea.psi.AnnotationDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.AnnotationReferenceNode;
 import org.ballerinalang.plugins.idea.psi.AnonStructTypeNameNode;
+import org.ballerinalang.plugins.idea.psi.AnyIdentifierNameNode;
 import org.ballerinalang.plugins.idea.psi.AssignmentStatementNode;
 import org.ballerinalang.plugins.idea.psi.AttachmentPointNode;
 import org.ballerinalang.plugins.idea.psi.BallerinaFile;
@@ -115,6 +116,7 @@ import org.ballerinalang.plugins.idea.psi.TypeCastNode;
 import org.ballerinalang.plugins.idea.psi.TypeConversionNode;
 import org.ballerinalang.plugins.idea.psi.TypeListNode;
 import org.ballerinalang.plugins.idea.psi.TypeNameNode;
+import org.ballerinalang.plugins.idea.psi.UserDefinedTypeName;
 import org.ballerinalang.plugins.idea.psi.ValueTypeNameNode;
 import org.ballerinalang.plugins.idea.psi.VariableDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.VariableReferenceListNode;
@@ -126,8 +128,86 @@ import org.ballerinalang.plugins.idea.psi.XmlAttribNode;
 import org.ballerinalang.plugins.idea.psi.XmlContentNode;
 import org.jetbrains.annotations.NotNull;
 
-import static org.ballerinalang.plugins.idea.grammar.BallerinaLexer.*;
+import static org.ballerinalang.plugins.idea.grammar.BallerinaLexer.ABORT;
+import static org.ballerinalang.plugins.idea.grammar.BallerinaLexer.ACTION;
+import static org.ballerinalang.plugins.idea.grammar.BallerinaLexer.ALL;
+import static org.ballerinalang.plugins.idea.grammar.BallerinaLexer.ANNOTATION;
+import static org.ballerinalang.plugins.idea.grammar.BallerinaLexer.AS;
+import static org.ballerinalang.plugins.idea.grammar.BallerinaLexer.ATTACH;
+import static org.ballerinalang.plugins.idea.grammar.BallerinaLexer.BIND;
+import static org.ballerinalang.plugins.idea.grammar.BallerinaLexer.BREAK;
+import static org.ballerinalang.plugins.idea.grammar.BallerinaLexer.BooleanLiteral;
+import static org.ballerinalang.plugins.idea.grammar.BallerinaLexer.CATCH;
+import static org.ballerinalang.plugins.idea.grammar.BallerinaLexer.COLON;
+import static org.ballerinalang.plugins.idea.grammar.BallerinaLexer.COMMA;
+import static org.ballerinalang.plugins.idea.grammar.BallerinaLexer.CONNECTOR;
+import static org.ballerinalang.plugins.idea.grammar.BallerinaLexer.CONST;
+import static org.ballerinalang.plugins.idea.grammar.BallerinaLexer.CREATE;
+import static org.ballerinalang.plugins.idea.grammar.BallerinaLexer.ELSE;
+import static org.ballerinalang.plugins.idea.grammar.BallerinaLexer.ENDPOINT;
+import static org.ballerinalang.plugins.idea.grammar.BallerinaLexer.ENUM;
+import static org.ballerinalang.plugins.idea.grammar.BallerinaLexer.ERRCHAR;
+import static org.ballerinalang.plugins.idea.grammar.BallerinaLexer.FAILED;
+import static org.ballerinalang.plugins.idea.grammar.BallerinaLexer.FINALLY;
+import static org.ballerinalang.plugins.idea.grammar.BallerinaLexer.FOREACH;
+import static org.ballerinalang.plugins.idea.grammar.BallerinaLexer.FORK;
+import static org.ballerinalang.plugins.idea.grammar.BallerinaLexer.FUNCTION;
+import static org.ballerinalang.plugins.idea.grammar.BallerinaLexer.FloatingPointLiteral;
+import static org.ballerinalang.plugins.idea.grammar.BallerinaLexer.IF;
+import static org.ballerinalang.plugins.idea.grammar.BallerinaLexer.IMPORT;
+import static org.ballerinalang.plugins.idea.grammar.BallerinaLexer.IN;
+import static org.ballerinalang.plugins.idea.grammar.BallerinaLexer.Identifier;
+import static org.ballerinalang.plugins.idea.grammar.BallerinaLexer.IntegerLiteral;
+import static org.ballerinalang.plugins.idea.grammar.BallerinaLexer.JOIN;
+import static org.ballerinalang.plugins.idea.grammar.BallerinaLexer.LARROW;
+import static org.ballerinalang.plugins.idea.grammar.BallerinaLexer.LENGTHOF;
+import static org.ballerinalang.plugins.idea.grammar.BallerinaLexer.LINE_COMMENT;
+import static org.ballerinalang.plugins.idea.grammar.BallerinaLexer.LOCK;
+import static org.ballerinalang.plugins.idea.grammar.BallerinaLexer.NATIVE;
+import static org.ballerinalang.plugins.idea.grammar.BallerinaLexer.NEXT;
+import static org.ballerinalang.plugins.idea.grammar.BallerinaLexer.NullLiteral;
+import static org.ballerinalang.plugins.idea.grammar.BallerinaLexer.PACKAGE;
+import static org.ballerinalang.plugins.idea.grammar.BallerinaLexer.PARAMETER;
+import static org.ballerinalang.plugins.idea.grammar.BallerinaLexer.PUBLIC;
+import static org.ballerinalang.plugins.idea.grammar.BallerinaLexer.QuotedStringLiteral;
+import static org.ballerinalang.plugins.idea.grammar.BallerinaLexer.RARROW;
+import static org.ballerinalang.plugins.idea.grammar.BallerinaLexer.RESOURCE;
+import static org.ballerinalang.plugins.idea.grammar.BallerinaLexer.RETRIES;
+import static org.ballerinalang.plugins.idea.grammar.BallerinaLexer.RETURN;
+import static org.ballerinalang.plugins.idea.grammar.BallerinaLexer.RETURNS;
+import static org.ballerinalang.plugins.idea.grammar.BallerinaLexer.SEMICOLON;
+import static org.ballerinalang.plugins.idea.grammar.BallerinaLexer.SERVICE;
+import static org.ballerinalang.plugins.idea.grammar.BallerinaLexer.SOME;
+import static org.ballerinalang.plugins.idea.grammar.BallerinaLexer.STRUCT;
+import static org.ballerinalang.plugins.idea.grammar.BallerinaLexer.THROW;
+import static org.ballerinalang.plugins.idea.grammar.BallerinaLexer.TILDE;
+import static org.ballerinalang.plugins.idea.grammar.BallerinaLexer.TIMEOUT;
+import static org.ballerinalang.plugins.idea.grammar.BallerinaLexer.TRANSACTION;
+import static org.ballerinalang.plugins.idea.grammar.BallerinaLexer.TRANSFORMER;
+import static org.ballerinalang.plugins.idea.grammar.BallerinaLexer.TRY;
+import static org.ballerinalang.plugins.idea.grammar.BallerinaLexer.TYPEOF;
+import static org.ballerinalang.plugins.idea.grammar.BallerinaLexer.TYPE_ANY;
+import static org.ballerinalang.plugins.idea.grammar.BallerinaLexer.TYPE_BLOB;
+import static org.ballerinalang.plugins.idea.grammar.BallerinaLexer.TYPE_BOOL;
+import static org.ballerinalang.plugins.idea.grammar.BallerinaLexer.TYPE_FLOAT;
+import static org.ballerinalang.plugins.idea.grammar.BallerinaLexer.TYPE_INT;
+import static org.ballerinalang.plugins.idea.grammar.BallerinaLexer.TYPE_JSON;
+import static org.ballerinalang.plugins.idea.grammar.BallerinaLexer.TYPE_MAP;
+import static org.ballerinalang.plugins.idea.grammar.BallerinaLexer.TYPE_STRING;
+import static org.ballerinalang.plugins.idea.grammar.BallerinaLexer.TYPE_TABLE;
+import static org.ballerinalang.plugins.idea.grammar.BallerinaLexer.TYPE_TYPE;
+import static org.ballerinalang.plugins.idea.grammar.BallerinaLexer.TYPE_XML;
+import static org.ballerinalang.plugins.idea.grammar.BallerinaLexer.VAR;
+import static org.ballerinalang.plugins.idea.grammar.BallerinaLexer.VERSION;
+import static org.ballerinalang.plugins.idea.grammar.BallerinaLexer.WHILE;
+import static org.ballerinalang.plugins.idea.grammar.BallerinaLexer.WITH;
+import static org.ballerinalang.plugins.idea.grammar.BallerinaLexer.WORKER;
+import static org.ballerinalang.plugins.idea.grammar.BallerinaLexer.WS;
+import static org.ballerinalang.plugins.idea.grammar.BallerinaLexer.XMLNS;
 
+/**
+ * Responsible for identifying PSI tree nodes which corresponds to parser rules.
+ */
 public class BallerinaParserDefinition implements ParserDefinition {
 
     private static final IFileElementType FILE = new IFileElementType(BallerinaLanguage.INSTANCE);
@@ -156,7 +236,7 @@ public class BallerinaParserDefinition implements ParserDefinition {
             ENUM, FAILED, FINALLY, FOREACH, FORK, FUNCTION, IF, IMPORT, IN, JOIN, LENGTHOF, LOCK, NATIVE, NEXT, PACKAGE,
             PARAMETER, PUBLIC, RESOURCE, RETRIES, RETURN, RETURNS, SERVICE, SOME, STRUCT, THROW, TIMEOUT,
             TRANSACTION, TRANSFORMER, TRY, VAR, WHILE, WORKER, XMLNS, TYPEOF, TYPE_BOOL, TYPE_INT, TYPE_FLOAT,
-            TYPE_STRING, TYPE_BLOB, TYPE_MAP, TYPE_XML, TYPE_JSON, TYPE_DATATABLE, TYPE_ANY, TYPE_TYPE, VERSION,
+            TYPE_STRING, TYPE_BLOB, TYPE_MAP, TYPE_XML, TYPE_JSON, TYPE_TABLE, TYPE_ANY, TYPE_TYPE, VERSION,
             WITH, BooleanLiteral, NullLiteral);
 
     public static final TokenSet BRACES_AND_OPERATORS = PSIElementTypeFactory.createTokenSet(BallerinaLanguage.INSTANCE,
@@ -397,6 +477,10 @@ public class BallerinaParserDefinition implements ParserDefinition {
                 return new AnonStructTypeNameNode(node);
             case BallerinaParser.RULE_failedClause:
                 return new FailedClauseNode(node);
+            case BallerinaParser.RULE_userDefineTypeName:
+                return new UserDefinedTypeName(node);
+            case BallerinaParser.RULE_anyIdentifierName:
+                return new AnyIdentifierNameNode(node);
             default:
                 return new ANTLRPsiNode(node);
         }

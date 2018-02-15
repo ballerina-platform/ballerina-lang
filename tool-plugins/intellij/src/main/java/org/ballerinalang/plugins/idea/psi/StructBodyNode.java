@@ -20,6 +20,9 @@ import com.intellij.lang.ASTNode;
 import org.antlr.jetbrains.adaptor.psi.ANTLRPsiNode;
 import org.jetbrains.annotations.NotNull;
 
+/**
+ * Represents an StructBody in PSI tree.
+ */
 public class StructBodyNode extends ANTLRPsiNode {
 
     public StructBodyNode(@NotNull ASTNode node) {

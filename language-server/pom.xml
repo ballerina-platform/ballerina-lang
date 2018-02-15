@@ -3,7 +3,7 @@
     <parent>
         <groupId>org.ballerinalang</groupId>
         <artifactId>ballerina-parent</artifactId>
-        <version>0.96.1-SNAPSHOT</version>
+        <version>0.961.1-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
@@ -27,26 +27,6 @@
                 <version>${lsp4j.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.ballerinalang</groupId>
-                <artifactId>ballerina-core</artifactId>
-                <version>${ballerina.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.ballerinalang</groupId>
-                <artifactId>ballerina-lang</artifactId>
-                <version>${ballerina.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.ballerinalang</groupId>
-                <artifactId>ballerina-builtin</artifactId>
-                <version>${ballerina.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.ballerinalang</groupId>
-                <artifactId>ballerina-http</artifactId>
-                <version>${ballerina.version}</version>
-            </dependency>
-            <dependency>
                 <groupId>commons-io</groupId>
                 <artifactId>commons-io</artifactId>
                 <version>${apache.commons.io.version}</version>
@@ -55,7 +35,6 @@
     </dependencyManagement>
 
     <properties>
-        <ballerina.version>${project.version}</ballerina.version>
         <maven.findbugsplugin.version>3.0.3</maven.findbugsplugin.version>
         <lsp4j.version>0.3.0</lsp4j.version>
         <apache.commons.io.version>2.6</apache.commons.io.version>

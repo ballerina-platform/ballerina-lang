@@ -23,6 +23,9 @@ import org.jetbrains.annotations.NotNull;
 
 import javax.swing.Icon;
 
+/**
+ * Contains Ballerina icons.
+ */
 public class BallerinaIcons {
 
     public static final Icon ICON = IconLoader.findIcon("/icons/ballerina.png");

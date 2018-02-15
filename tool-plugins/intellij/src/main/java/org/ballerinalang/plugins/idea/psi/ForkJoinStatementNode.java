@@ -24,7 +24,10 @@ import org.ballerinalang.plugins.idea.psi.scopes.CodeBlockScope;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public class ForkJoinStatementNode extends ANTLRPsiNode implements CodeBlockScope{
+/**
+ * Represents a ForkJoinStatement in PSI tree.
+ */
+public class ForkJoinStatementNode extends ANTLRPsiNode implements CodeBlockScope {
 
     public ForkJoinStatementNode(@NotNull ASTNode node) {
         super(node);

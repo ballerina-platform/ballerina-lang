@@ -38,6 +38,9 @@ import java.util.regex.Pattern;
 
 import javax.swing.Icon;
 
+/**
+ * Detects project structure if the project is imported from an already created source.
+ */
 public class BallerinaProjectStructureDetector extends ProjectStructureDetector {
 
     @NotNull

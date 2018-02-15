@@ -23,7 +23,7 @@ import org.apache.axiom.om.OMElement;
 import org.apache.axiom.om.OMFactory;
 import org.apache.axiom.om.OMNamespace;
 import org.apache.axiom.om.OMText;
-import org.ballerinalang.model.DataTableJSONDataSource;
+import org.ballerinalang.model.TableJSONDataSource;
 import org.ballerinalang.model.types.BAnyType;
 import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.BJSONType;
@@ -35,7 +35,6 @@ import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.util.JsonNode.Type;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BBooleanArray;
-import org.ballerinalang.model.values.BDataTable;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BFloatArray;
 import org.ballerinalang.model.values.BIntArray;
@@ -48,6 +47,7 @@ import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BStruct;
+import org.ballerinalang.model.values.BTable;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BXML;
 import org.ballerinalang.model.values.BXMLItem;
@@ -313,14 +313,14 @@ public class JSONUtils {
     }
 
     /**
-     * Convert {@link BDataTable} to {@link BJSON}.
+     * Convert {@link BTable} to {@link BJSON}.
      *
-     * @param dataTable {@link BDataTable} to be converted to {@link BJSON}
+     * @param table {@link BTable} to be converted to {@link BJSON}
      * @param isInTransaction   Within a transaction or not
-     * @return JSON representation of the provided datatable
+     * @return JSON representation of the provided table
      */
-    public static BJSON toJSON(BDataTable dataTable, boolean isInTransaction) {
-        return new BJSON(new DataTableJSONDataSource(dataTable, isInTransaction));
+    public static BJSON toJSON(BTable table, boolean isInTransaction) {
+        return new BJSON(new TableJSONDataSource(table, isInTransaction));
     }
     
     /**
@@ -799,7 +799,7 @@ public class JSONUtils {
     /**
      * Convert a JSON node to an array.
      *
-     * @param jsonNode JSON to convert
+     * @param arrayNode JSON to convert
      * @param targetArrayType Type of the target array
      * @return If the provided JSON is of array type, this method will return a {@link BArrayType} containing the values
      *         of the JSON array. Otherwise the method will throw a {@link BallerinaException}.

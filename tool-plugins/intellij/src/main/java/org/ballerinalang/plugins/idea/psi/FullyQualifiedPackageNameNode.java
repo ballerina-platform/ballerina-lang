@@ -20,6 +20,9 @@ import com.intellij.lang.ASTNode;
 import org.antlr.jetbrains.adaptor.psi.ANTLRPsiNode;
 import org.jetbrains.annotations.NotNull;
 
+/**
+ * Represents a FullyQualifiedPackageName in PSI tree.
+ */
 public class FullyQualifiedPackageNameNode extends ANTLRPsiNode {
 
     public FullyQualifiedPackageNameNode(@NotNull ASTNode node) {

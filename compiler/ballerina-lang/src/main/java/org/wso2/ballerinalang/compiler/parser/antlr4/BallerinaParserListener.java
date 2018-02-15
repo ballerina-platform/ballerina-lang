@@ -188,6 +188,16 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 */
 	void exitStructBody(BallerinaParser.StructBodyContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link BallerinaParser#privateStructBody}.
+	 * @param ctx the parse tree
+	 */
+	void enterPrivateStructBody(BallerinaParser.PrivateStructBodyContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BallerinaParser#privateStructBody}.
+	 * @param ctx the parse tree
+	 */
+	void exitPrivateStructBody(BallerinaParser.PrivateStructBodyContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link BallerinaParser#annotationDefinition}.
 	 * @param ctx the parse tree
 	 */
@@ -1110,6 +1120,16 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 */
 	void exitTransactionPropertyInitStatementList(BallerinaParser.TransactionPropertyInitStatementListContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link BallerinaParser#lockStatement}.
+	 * @param ctx the parse tree
+	 */
+	void enterLockStatement(BallerinaParser.LockStatementContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BallerinaParser#lockStatement}.
+	 * @param ctx the parse tree
+	 */
+	void exitLockStatement(BallerinaParser.LockStatementContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link BallerinaParser#failedClause}.
 	 * @param ctx the parse tree
 	 */
@@ -1675,4 +1695,24 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitStringTemplateContent(BallerinaParser.StringTemplateContentContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link BallerinaParser#anyIdentifierName}.
+	 * @param ctx the parse tree
+	 */
+	void enterAnyIdentifierName(BallerinaParser.AnyIdentifierNameContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BallerinaParser#anyIdentifierName}.
+	 * @param ctx the parse tree
+	 */
+	void exitAnyIdentifierName(BallerinaParser.AnyIdentifierNameContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link BallerinaParser#reservedWord}.
+	 * @param ctx the parse tree
+	 */
+	void enterReservedWord(BallerinaParser.ReservedWordContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BallerinaParser#reservedWord}.
+	 * @param ctx the parse tree
+	 */
+	void exitReservedWord(BallerinaParser.ReservedWordContext ctx);
 }

@@ -38,14 +38,17 @@ import org.ballerinalang.plugins.idea.util.BallerinaUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+/**
+ * Provides auto import support.
+ */
 public class AutoImportInsertHandler implements InsertHandler<LookupElement> {
 
     public static final InsertHandler<LookupElement> INSTANCE = new AutoImportInsertHandler(false);
-    public final static InsertHandler<LookupElement> INSTANCE_WITH_AUTO_POPUP =
+    public static final InsertHandler<LookupElement> INSTANCE_WITH_AUTO_POPUP =
             new AutoImportInsertHandler(true);
-    public final static InsertHandler<LookupElement> INSTANCE_WITH_ALIAS =
+    public static final InsertHandler<LookupElement> INSTANCE_WITH_ALIAS =
             new AutoImportInsertHandler(false, true);
-    public final static InsertHandler<LookupElement> INSTANCE_WITH_ALIAS_WITH_POPUP =
+    public static final InsertHandler<LookupElement> INSTANCE_WITH_ALIAS_WITH_POPUP =
             new AutoImportInsertHandler(true, true);
 
     private final boolean suggestAlias;

@@ -4,7 +4,7 @@
     <parent>
         <groupId>org.ballerinalang</groupId>
         <artifactId>testerina</artifactId>
-        <version>0.96.1-SNAPSHOT</version>
+        <version>0.961.1-SNAPSHOT</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
 
@@ -130,7 +130,7 @@
             <!--<plugin>-->
                 <!--<groupId>org.codehaus.mojo</groupId>-->
                 <!--<artifactId>exec-maven-plugin</artifactId>-->
-                <!--<version>${mvn.exec.plugin.version}</version>-->
+                <!--<version>${maven.exec.plugin.version}</version>-->
                 <!--<executions>-->
                     <!--<execution>-->
                         <!--<phase>process-classes</phase>-->
@@ -151,7 +151,6 @@
             <plugin>
                 <groupId>org.ballerinalang</groupId>
                 <artifactId>docerina-maven-plugin</artifactId>
-                <version>${docerina.maven.plugin.version}</version>
                 <executions>
                     <execution>
                         <phase>compile</phase>
@@ -181,4 +180,11 @@
             </plugin>
         </plugins>
     </build>
+
+    <properties>
+        <maven.checkstyleplugin.excludes>
+            **/parser/*,
+            **/generated/**
+        </maven.checkstyleplugin.excludes>
+    </properties>
 </project>

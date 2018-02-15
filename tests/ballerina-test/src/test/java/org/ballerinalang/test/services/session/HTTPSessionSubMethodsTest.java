@@ -30,9 +30,9 @@ import org.testng.annotations.Test;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 import org.wso2.transport.http.netty.message.HttpMessageDataStreamer;
 
-import static org.ballerinalang.net.http.Constants.COOKIE_HEADER;
-import static org.ballerinalang.net.http.Constants.RESPONSE_COOKIE_HEADER;
-import static org.ballerinalang.net.http.Constants.SESSION_ID;
+import static org.ballerinalang.net.http.HttpConstants.COOKIE_HEADER;
+import static org.ballerinalang.net.http.HttpConstants.RESPONSE_COOKIE_HEADER;
+import static org.ballerinalang.net.http.HttpConstants.SESSION_ID;
 
 /**
  * HTTP session sub Methods Test Class.
@@ -71,8 +71,8 @@ public class HTTPSessionSubMethodsTest {
         String responseMsgPayload = StringUtils
                 .getStringFromInputStream(new HttpMessageDataStreamer(response).getInputStream());
         Assert.assertNotNull(responseMsgPayload);
-        String error = responseMsgPayload.substring(0, 56);
-        Assert.assertTrue(error.contains("message: argument 0 is null"));
+        Assert.assertTrue(responseMsgPayload.contains("nullReferenceException\n" +
+                "\tat .:sample2.id2(http-session-test.bal:392)"));
     }
 
     @Test(description = "Test for isNew Function")

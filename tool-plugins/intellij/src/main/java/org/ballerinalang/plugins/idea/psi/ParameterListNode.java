@@ -20,6 +20,9 @@ import com.intellij.lang.ASTNode;
 import org.antlr.jetbrains.adaptor.psi.ANTLRPsiNode;
 import org.jetbrains.annotations.NotNull;
 
+/**
+ * Represents an ParameterList in PSI tree.
+ */
 public class ParameterListNode extends ANTLRPsiNode {
 
     public ParameterListNode(@NotNull ASTNode node) {

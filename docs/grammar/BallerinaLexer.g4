@@ -10,6 +10,7 @@ PACKAGE     : 'package' ;
 IMPORT      : 'import' ;
 AS          : 'as' ;
 PUBLIC      : 'public' ;
+PRIVATE      : 'private' ;
 NATIVE      : 'native' ;
 SERVICE     : 'service' ;
 RESOURCE    : 'resource' ;
@@ -36,7 +37,7 @@ TYPE_BLOB       : 'blob' ;
 TYPE_MAP        : 'map' ;
 TYPE_JSON       : 'json' ;
 TYPE_XML        : 'xml' ;
-TYPE_DATATABLE  : 'datatable' ;
+TYPE_TABLE      : 'table' ;
 TYPE_ANY        : 'any' ;
 TYPE_TYPE       : 'type' ;
 
@@ -59,7 +60,6 @@ CATCH       : 'catch' ;
 FINALLY     : 'finally' ;
 THROW       : 'throw' ;
 RETURN      : 'return' ;
-REPLY       : 'reply' ;
 TRANSACTION : 'transaction' ;
 ABORT       : 'abort' ;
 FAILED      : 'failed' ;
@@ -69,6 +69,7 @@ TYPEOF      : 'typeof' ;
 WITH        : 'with' ;
 BIND        : 'bind' ;
 IN          : 'in' ;
+LOCK        : 'lock' ;
 
 // Separators
 

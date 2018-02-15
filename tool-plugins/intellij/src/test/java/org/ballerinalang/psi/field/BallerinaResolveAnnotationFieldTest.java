@@ -20,6 +20,9 @@ import org.ballerinalang.psi.BallerinaResolveTestBase;
 
 import java.io.IOException;
 
+/**
+ * Test annotation field resolving.
+ */
 public class BallerinaResolveAnnotationFieldTest extends BallerinaResolveTestBase {
 
     private final String annotation = "\npublic annotation A attach function {\n    string /*def*/F;\n}\n";

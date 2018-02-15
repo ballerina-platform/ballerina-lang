@@ -92,11 +92,17 @@ structDefinition
     ;
 
 structBody
-    :   LEFT_BRACE fieldDefinition* RIGHT_BRACE
+    :   LEFT_BRACE fieldDefinition* privateStructBody? RIGHT_BRACE
+    ;
+
+
+privateStructBody
+    :   PRIVATE COLON fieldDefinition*
     ;
 
 annotationDefinition
     : (PUBLIC)? ANNOTATION Identifier (ATTACH attachmentPoint (COMMA attachmentPoint)*)? annotationBody
+
     ;
 
 enumDefinition
@@ -187,7 +193,7 @@ builtInReferenceTypeName
     :   TYPE_MAP (LT typeName GT)?
     |   TYPE_XML (LT (LEFT_BRACE xmlNamespaceName RIGHT_BRACE)? xmlLocalName GT)?
     |   TYPE_JSON (LT nameReference GT)?
-    |   TYPE_DATATABLE
+    |   TYPE_TABLE (LT nameReference GT)?
     |   functionTypeName
     ;
 
@@ -246,6 +252,7 @@ statement
     |   expressionStmt
     |   transactionStatement
     |   abortStatement
+    |   lockStatement
     |   namespaceDeclarationStatement
     ;
 
@@ -418,7 +425,7 @@ functionInvocation
     ;
 
 invocation
-    : DOT Identifier LEFT_PARENTHESIS expressionList? RIGHT_PARENTHESIS
+    : DOT anyIdentifierName LEFT_PARENTHESIS expressionList? RIGHT_PARENTHESIS
     ;
 
 expressionList
@@ -443,6 +450,10 @@ transactionPropertyInitStatement
 
 transactionPropertyInitStatementList
     : transactionPropertyInitStatement (COMMA transactionPropertyInitStatement)*
+    ;
+
+lockStatement
+    : LOCK LEFT_BRACE statement* RIGHT_BRACE
     ;
 
 failedClause
@@ -600,4 +611,14 @@ stringTemplateLiteral
 stringTemplateContent
     :   (StringTemplateExpressionStart expression ExpressionEnd)+ StringTemplateText?
     |   StringTemplateText
+    ;
+
+anyIdentifierName
+    : Identifier
+    | reservedWord
+    ;
+
+reservedWord
+    :   FOREACH
+    |   TYPE_MAP
     ;

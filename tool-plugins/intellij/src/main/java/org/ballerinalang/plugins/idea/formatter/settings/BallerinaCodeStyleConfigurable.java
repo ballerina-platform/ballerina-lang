@@ -23,6 +23,9 @@ import com.intellij.psi.codeStyle.CodeStyleSettings;
 import org.ballerinalang.plugins.idea.BallerinaLanguage;
 import org.jetbrains.annotations.NotNull;
 
+/**
+ * Ballerina code style configurations.
+ */
 public class BallerinaCodeStyleConfigurable extends CodeStyleAbstractConfigurable {
 
     public BallerinaCodeStyleConfigurable(@NotNull CodeStyleSettings settings, CodeStyleSettings cloneSettings) {

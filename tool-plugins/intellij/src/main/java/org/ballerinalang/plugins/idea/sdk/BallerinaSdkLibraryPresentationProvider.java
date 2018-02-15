@@ -28,6 +28,9 @@ import java.util.List;
 
 import javax.swing.Icon;
 
+/**
+ * Provides the presentation for Ballerina SDK.
+ */
 public class BallerinaSdkLibraryPresentationProvider extends LibraryPresentationProvider<DummyLibraryProperties> {
 
     private static final LibraryKind KIND = LibraryKind.create("Ballerina");

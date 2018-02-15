@@ -39,7 +39,7 @@ import com.intellij.util.PathUtil;
 import org.ballerinalang.plugins.idea.psi.FullyQualifiedPackageNameNode;
 import org.ballerinalang.plugins.idea.psi.PackageDeclarationNode;
 import org.ballerinalang.plugins.idea.sdk.BallerinaSdkService;
-import org.ballerinalang.util.diagnostic.Diagnostic;
+import org.ballerinalang.plugins.idea.util.Diagnostic;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
@@ -224,57 +224,61 @@ public class BallerinaExternalAnnotator extends ExternalAnnotator<BallerinaExter
         String packageName = getPackageName(file);
         String fileName = file.getVirtualFile().getName();
 
-        for (Diagnostic diagnostic : diagnostics) {
-            // Validate the package name.
-            if (packageName != null && !diagnostic.getSource().getPackageName().equals(packageName)) {
-                continue;
-            }
-            // Validate the file name since diagnostics are sent for all files in the package.
-            if (!fileName.equals(diagnostic.getSource().getCompilationUnitName())) {
-                continue;
-            }
-
-            Diagnostic.DiagnosticPosition position = diagnostic.getPosition();
-            // If the start line or start column is less than 0, it will throw an exception.
-            if (position.getStartLine() <= 0 || position.getStartColumn() <= 0) {
-                continue;
-            }
-
-            // Get the logical start postion. This is used to get the offset.
-            LogicalPosition startPosition = new LogicalPosition(position.getStartLine() - 1,
-                    position.getStartColumn() - 1);
-            int startOffset = editor.logicalPositionToOffset(startPosition);
-            // Get the element at the offset.
-            PsiElement elementAtOffset = file.findElementAt(startOffset);
-            // If the element at the offset is a whitespace, highlight the next element.
-            if (elementAtOffset instanceof PsiWhiteSpace) {
-                elementAtOffset = PsiTreeUtil.nextVisibleLeaf(elementAtOffset);
-            }
-
-            // Get the text range to be highlighted.
-            TextRange textRange;
-            if (elementAtOffset == null) {
-                int endColumn = position.getStartColumn() == position.getEndColumn() ?
-                        position.getEndColumn() + 1 : position.getEndColumn();
-                if (position.getEndLine() <= 0) {
+        try {
+            for (Diagnostic diagnostic : diagnostics) {
+                // Validate the package name.
+                if (packageName != null && !diagnostic.getSource().getPackageName().equals(packageName)) {
                     continue;
                 }
-                LogicalPosition endPosition = new LogicalPosition(position.getEndLine() - 1, endColumn);
-                int endOffset = editor.logicalPositionToOffset(endPosition);
-                textRange = new TextRange(startOffset, endOffset);
-            } else {
-                int endOffset = elementAtOffset.getTextOffset() + elementAtOffset.getTextLength();
-                textRange = new TextRange(elementAtOffset.getTextOffset(), endOffset);
-            }
+                // Validate the file name since diagnostics are sent for all files in the package.
+                if (!fileName.equals(diagnostic.getSource().getCompilationUnitName())) {
+                    continue;
+                }
 
-            // Highlight the range according to the diagnostic kind.
-            if (diagnostic.getKind() == Diagnostic.Kind.ERROR) {
-                holder.createErrorAnnotation(textRange, diagnostic.getMessage());
-            } else if (diagnostic.getKind() == Diagnostic.Kind.WARNING) {
-                holder.createWarningAnnotation(textRange, diagnostic.getMessage());
-            } else if (diagnostic.getKind() == Diagnostic.Kind.NOTE) {
-                holder.createInfoAnnotation(textRange, diagnostic.getMessage());
+                Diagnostic.DiagnosticPosition position = diagnostic.getPosition();
+                // If the start line or start column is less than 0, it will throw an exception.
+                if (position.getStartLine() <= 0 || position.getStartColumn() <= 0) {
+                    continue;
+                }
+
+                // Get the logical start postion. This is used to get the offset.
+                LogicalPosition startPosition = new LogicalPosition(position.getStartLine() - 1,
+                        position.getStartColumn() - 1);
+                int startOffset = editor.logicalPositionToOffset(startPosition);
+                // Get the element at the offset.
+                PsiElement elementAtOffset = file.findElementAt(startOffset);
+                // If the element at the offset is a whitespace, highlight the next element.
+                if (elementAtOffset instanceof PsiWhiteSpace) {
+                    elementAtOffset = PsiTreeUtil.nextVisibleLeaf(elementAtOffset);
+                }
+
+                // Get the text range to be highlighted.
+                TextRange textRange;
+                if (elementAtOffset == null) {
+                    int endColumn = position.getStartColumn() == position.getEndColumn() ?
+                            position.getEndColumn() + 1 : position.getEndColumn();
+                    if (position.getEndLine() <= 0) {
+                        continue;
+                    }
+                    LogicalPosition endPosition = new LogicalPosition(position.getEndLine() - 1, endColumn);
+                    int endOffset = editor.logicalPositionToOffset(endPosition);
+                    textRange = new TextRange(startOffset, endOffset);
+                } else {
+                    int endOffset = elementAtOffset.getTextOffset() + elementAtOffset.getTextLength();
+                    textRange = new TextRange(elementAtOffset.getTextOffset(), endOffset);
+                }
+
+                // Highlight the range according to the diagnostic kind.
+                if (diagnostic.getKind() == Diagnostic.Kind.ERROR) {
+                    holder.createErrorAnnotation(textRange, diagnostic.getMessage());
+                } else if (diagnostic.getKind() == Diagnostic.Kind.WARNING) {
+                    holder.createWarningAnnotation(textRange, diagnostic.getMessage());
+                } else if (diagnostic.getKind() == Diagnostic.Kind.NOTE) {
+                    holder.createInfoAnnotation(textRange, diagnostic.getMessage());
+                }
             }
+        } catch (ClassCastException e) {
+            LOGGER.debug(e.getMessage(), e);
         }
     }
 
@@ -285,6 +289,9 @@ public class BallerinaExternalAnnotator extends ExternalAnnotator<BallerinaExter
         method = null;
     }
 
+    /**
+     * Helper class which contains data.
+     */
     public static class Data {
 
         Editor editor;

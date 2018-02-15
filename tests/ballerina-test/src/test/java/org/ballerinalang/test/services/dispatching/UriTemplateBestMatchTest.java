@@ -20,7 +20,7 @@ package org.ballerinalang.test.services.dispatching;
 import org.ballerinalang.launcher.util.BServiceUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BJSON;
-import org.ballerinalang.net.http.Constants;
+import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.test.services.testutils.HTTPTestRequest;
 import org.ballerinalang.test.services.testutils.MessageUtils;
 import org.ballerinalang.test.services.testutils.Services;
@@ -300,7 +300,7 @@ public class UriTemplateBestMatchTest {
         HTTPCarbonMessage response = Services.invokeNew(application, cMsg);
 
         Assert.assertNotNull(response, "Response message not found");
-        int trueResponse = (int) response.getProperty(Constants.HTTP_STATUS_CODE);
+        int trueResponse = (int) response.getProperty(HttpConstants.HTTP_STATUS_CODE);
         Assert.assertEquals(trueResponse, 405, "Method not found");
     }
 
@@ -311,7 +311,7 @@ public class UriTemplateBestMatchTest {
         HTTPCarbonMessage response = Services.invokeNew(application, cMsg);
 
         Assert.assertNotNull(response, "Response message not found");
-        int trueResponse = (int) response.getProperty(Constants.HTTP_STATUS_CODE);
+        int trueResponse = (int) response.getProperty(HttpConstants.HTTP_STATUS_CODE);
         Assert.assertEquals(trueResponse, 405, "Method not found");
     }
 

@@ -18,8 +18,9 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
-import _ from 'lodash';
+import EventChannel from 'event_channel';
 import CanvasDecorator from './views/default/components/decorators/canvas-decorator';
+import ControllerOverlay from './views/default/components/decorators/controller-overlay';
 import PositionVisitor from './visitors/position-visitor';
 import DimensionVisitor from './visitors/dimension-visitor';
 import ErrorRenderer from './visitors/error-rendering-visitor';
@@ -27,21 +28,18 @@ import WorkerInvocationSyncVisitor from './visitors/worker-invocation-sync-visit
 import InvocationArrowPositionVisitor from './visitors/worker-invocation-arrow-position-sync-visitor';
 // import ArrowConflictResolver from '../visitors/arrow-conflict-resolver';
 import Clean from './visitors/clean';
-import OverlayComponentsRenderingVisitor from '../visitors/overlay-comp-rendering-visitor';
 import {
     getComponentForNodeArray,
     getSizingUtil,
     getPositioningUtil,
     getWorkerInvocationSyncUtil,
     getInvocationArrowPositionUtil,
-    getOverlayComponent,
     getConfig,
 //    getErrorCollectorUtil,
 } from './diagram-util';
 import ActiveArbiter from './views/default/components/decorators/active-arbiter';
 import CompilationUnitNode from './../model/tree/compilation-unit-node';
 import TopLevelNodes from './views/default/components/nodes/top-level-nodes';
-import ControllerVisitor from './visitors/controller-visitor';
 
 const padding = 5;
 
@@ -118,14 +116,6 @@ class Diagram extends React.Component {
             .setWorkerInvocationPositionSyncUtil(getInvocationArrowPositionUtil(this.props.mode));
         this.props.model.accept(this.invocationArrowPositionVisitor);
 
-        // 7. Now we will visit the model again and collect the errors of each node
-        //    in the tree. We will use ErrorRenderer for this. This will only collect errors
-        //    for default and compact view.
-        /* if (this.props.mode !== 'action') { //TODOX
-            this.errorRenderer.setErrorUtil(getErrorCollectorUtil(this.props.mode));
-            this.props.model.accept(this.errorRenderer);
-        } */
-
         /* TODOX
         // 2.1 Lets resolve arrow conflicts.
         this.props.model.accept(new ArrowConflictResolver());
@@ -135,46 +125,23 @@ class Diagram extends React.Component {
         others = getComponentForNodeArray(otherNodes, this.props.mode);
          */
 
-        // 3.1 lets filter out annotations so we can overlay html on top of svg.
-        /* const annotationRenderer = new AnnotationRenderingVisitor();
-        // this.props.model.accept(annotationRenderer); TODOX Disable annotations.
-        let annotations = [];
-        if (annotationRenderer.getAnnotations()) {
-            annotations = getComponentForNodeArray(annotationRenderer.getAnnotations(), this.props.mode);
-        } */
-
-        // Filter out the overlay components so we can overlay html on top of svg.
-
-        const overlayCompRender = new OverlayComponentsRenderingVisitor();
-        this.props.model.accept(overlayCompRender);
-        let overlayComponents = [];
-        if (overlayCompRender.getOverlayComponents()) {
-            overlayComponents = getOverlayComponent(overlayCompRender.getOverlayComponents(), this.props.mode);
-        }
-
-        // Filter out the errors collected so we can show them near the specific components
-        /* const errorCollector = new ErrorCollectorVisitor();
-        this.props.model.accept(errorCollector);
-        let errorList = [];
-        if (errorCollector.getErrors()) {
-            errorList = getOverlayComponent(errorCollector.getErrors(), this.props.mode);
-        } */
-
-        const controllerVisitor = new ControllerVisitor(this.props.mode);
-        this.props.model.accept(controllerVisitor);
-        let controllers = controllerVisitor.getComponents();
-
         const tln = (this.props.model.getTopLevelNodes()) ? this.props.model.getTopLevelNodes() : [];
         const children = getComponentForNodeArray(tln, this.props.mode);
 
-        controllers = _.concat(controllers, overlayComponents);
+        const overlay = <ControllerOverlay model={this.props.model} />;
+        // get container dimentions to fit svg when mode is fit-to-screen
+        const { width, height } = this.props;
 
         // 4. Ok we are all set, now lets render the diagram with React. We will create
         //    a CsnvasDecorator and pass child components for that.
         return (<CanvasDecorator
             dropTarget={this.props.model}
             bBox={viewState.bBox}
-            overlayComponents={controllers}
+            overlay={overlay}
+            containerSize={{
+                width,
+                height,
+            }}
             disabled={this.props.disabled}
         >
             { children }

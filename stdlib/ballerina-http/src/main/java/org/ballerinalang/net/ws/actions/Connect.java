@@ -33,8 +33,9 @@ import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaAction;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.net.http.BallerinaHttpServerConnector;
+import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.ws.BallerinaWsClientConnectorListener;
-import org.ballerinalang.net.ws.Constants;
+import org.ballerinalang.net.ws.WebSocketConstants;
 import org.ballerinalang.net.ws.WebSocketService;
 import org.ballerinalang.net.ws.WsOpenConnectionInfo;
 import org.wso2.transport.http.netty.contract.HttpWsConnectorFactory;
@@ -55,11 +56,11 @@ import javax.websocket.Session;
 @BallerinaAction(
         packageName = "ballerina.net.ws",
         actionName = "connect",
-        connectorName = Constants.CONNECTOR_NAME,
+        connectorName = WebSocketConstants.CONNECTOR_NAME,
         args = {
                 @Argument(name = "c", type = TypeKind.CONNECTOR),
                 @Argument(name = "clientConnectorConfig", type = TypeKind.STRUCT, structType = "ClientConnectorConfig",
-                          structPackage = Constants.PROTOCOL_PACKAGE_WS)
+                          structPackage = WebSocketConstants.PROTOCOL_PACKAGE_WS)
         },
         returnType = {@ReturnType(type = TypeKind.STRUCT, structType = "Connection",
                                   structPackage = "ballerina.net.ws")}
@@ -73,7 +74,7 @@ public class Connect extends AbstractNativeWsAction {
         String remoteUrl = getUrlFromConnector(bconnector);
         String clientServiceName = getClientServiceNameFromConnector(bconnector);
         BallerinaHttpServerConnector httpServerConnector = (BallerinaHttpServerConnector) ConnectorUtils.
-                getBallerinaServerConnector(context, Constants.HTTP_PACKAGE_PATH);
+                getBallerinaServerConnector(context, HttpConstants.HTTP_PACKAGE_PATH);
         final WebSocketService wsService =
                 httpServerConnector.getWebSocketServicesRegistry().getClientService(clientServiceName);
         if (wsService == null) {
