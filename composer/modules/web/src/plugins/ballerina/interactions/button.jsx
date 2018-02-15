@@ -142,17 +142,13 @@ class Button extends React.Component {
                 className={menuCss}
                 style={{ position: 'absolute', left: btnX, top: btnY, '--button-size': buttonArea + 'px' }}
             >
-                <div style={{ fontSize: btnRadius }} className='button-panel'>
+                <div className='button-panel'>
                     <span
                         onClick={this.props.onClick}
-                        className={(this.state.showAlways ? 'button-show-always' : 'button') + ' fw-stack fw-lg'}
+                        className={(this.state.showAlways ? 'button-show-always' : 'button') + ' fw-lg '  + buttonBackgroundClass}
                         title={this.props.tooltip}
                     >
-                        <i
-                            style={{ opacity: IconOpacity }}
-                            className={'fw fw-circle fw-stack-2x ' + buttonBackgroundClass}
-                        />
-                        <i style={{ color: btnIconColor }} className={`fw fw-${this.props.icon} fw-stack-1x`} />
+                        <i className={`fw fw-${this.props.icon} fw-lg button-icon`} />
                     </span>
                 </div>
                 <div style={menuStyle}>
@@ -184,8 +180,6 @@ Button.defaultProps = {
     buttonX: 20,
     buttonY: 20,
     buttonRadius: 10,
-    buttonColor: '#f1772a',
-    buttonIconColor: '#ffffff',
     hideIconBackground: false,
     showAlways: false,
     onClick: () => {},
