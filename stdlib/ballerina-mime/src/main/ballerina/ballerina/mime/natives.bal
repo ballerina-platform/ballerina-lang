@@ -229,7 +229,7 @@ function readAll (io:ByteChannel channel) (blob) {
 @Return {value:"return encoding value"}
 function getEncoding(MediaType contentType) (string){
     var encoding = DEFAULT_CHARSET;
-    TypeCastError castErr;
+    error castErr;
     if (contentType != null) {
         encoding, castErr = (string)contentType.parameters.CHARSET;
         if (castErr != null) {

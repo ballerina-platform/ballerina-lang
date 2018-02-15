@@ -112,15 +112,8 @@ public class Compiler {
     }
 
     private BLangPackage loadBuiltInPackage() {
-        BLangPackage builtInCorePkg = getBuiltInPackage(Names.BUILTIN_CORE_PACKAGE);
-        symbolTable.createErrorTypes();
-        symbolTable.loadOperators();
         // Load built-in packages.
         BLangPackage builtInPkg = getBuiltInPackage(Names.BUILTIN_PACKAGE);
-        builtInCorePkg.getStructs().forEach(s -> {
-            builtInPkg.getStructs().add(s);
-            builtInPkg.topLevelNodes.add(s);
-        });
         symbolTable.builtInPackageSymbol = builtInPkg.symbol;
         return builtInPkg;
     }
