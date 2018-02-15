@@ -18,6 +18,7 @@
 package org.ballerinalang.langserver.completions;
 
 import org.ballerinalang.langserver.LanguageServerContext;
+import org.ballerinalang.model.tree.Node;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 
 import java.util.List;
@@ -30,5 +31,15 @@ public class CompletionKeys {
     public static final LanguageServerContext.Key<BLangNode> SYMBOL_ENV_NODE_KEY
             = new LanguageServerContext.Key<>();
     public static final LanguageServerContext.Key<List<SymbolInfo>> VISIBLE_SYMBOLS_KEY
+            = new LanguageServerContext.Key<>();
+    public static final LanguageServerContext.Key<Node> BLOCK_OWNER_KEY
+            = new LanguageServerContext.Key<>();
+    public static final LanguageServerContext.Key<BLangNode> PREVIOUS_NODE_KEY
+            = new LanguageServerContext.Key<>();
+    public static final LanguageServerContext.Key<Integer> LOOP_COUNT_KEY
+            = new LanguageServerContext.Key<>();
+    public static final LanguageServerContext.Key<Boolean> CURRENT_NODE_TRANSACTION_KEY
+            = new LanguageServerContext.Key<>();
+    public static final LanguageServerContext.Key<Integer> TRANSACTION_COUNT_KEY
             = new LanguageServerContext.Key<>();
 }

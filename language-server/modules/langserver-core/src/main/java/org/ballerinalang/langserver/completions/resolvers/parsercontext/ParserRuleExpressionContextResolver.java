@@ -1,5 +1,5 @@
 /*
-*  Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+*  Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 *
 *  WSO2 Inc. licenses this file to you under the Apache License,
 *  Version 2.0 (the "License"); you may not use this file except
@@ -15,27 +15,29 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-
 package org.ballerinalang.langserver.completions.resolvers.parsercontext;
 
+import org.antlr.v4.runtime.ParserRuleContext;
+import org.ballerinalang.langserver.DocumentServiceKeys;
 import org.ballerinalang.langserver.TextDocumentServiceContext;
 import org.ballerinalang.langserver.completions.resolvers.AbstractItemResolver;
 import org.ballerinalang.langserver.completions.util.CompletionItemResolver;
 import org.eclipse.lsp4j.CompletionItem;
-import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser;
 
 import java.util.ArrayList;
 
 /**
- * Expression Variable Definition Context resolver for the completion items. This is mainly supposed to be used when
- * there is a variable definition inside a transaction statement.
+ * expression context resolver for the completion items.
+ * @since 0.961.0
  */
-public class ParserRuleExpressionVariableDefStatementContextResolver extends AbstractItemResolver {
+public class ParserRuleExpressionContextResolver extends AbstractItemResolver {
     @Override
     public ArrayList<CompletionItem> resolveItems(TextDocumentServiceContext completionContext) {
-
-        // Here we are using the existing variable statement itm resolver
-        Class parserRuleContextResolver = BallerinaParser.VariableDefinitionStatementContext.class;
-        return CompletionItemResolver.getResolverByClass(parserRuleContextResolver).resolveItems(completionContext);
+        ParserRuleContext contextParent = completionContext
+                .get(DocumentServiceKeys.PARSER_RULE_CONTEXT_KEY).getParent();
+        if (contextParent != null) {
+            return CompletionItemResolver.getResolverByClass(contextParent.getClass()).resolveItems(completionContext);
+        }
+        return new ArrayList<>();
     }
 }

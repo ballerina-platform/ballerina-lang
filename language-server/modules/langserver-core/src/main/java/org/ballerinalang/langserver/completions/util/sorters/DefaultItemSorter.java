@@ -1,5 +1,5 @@
 /*
-*  Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+*  Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 *
 *  WSO2 Inc. licenses this file to you under the Apache License,
 *  Version 2.0 (the "License"); you may not use this file except
@@ -15,22 +15,19 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-
-package org.ballerinalang.langserver.completions.resolvers.parsercontext;
+package org.ballerinalang.langserver.completions.util.sorters;
 
 import org.ballerinalang.langserver.TextDocumentServiceContext;
-import org.ballerinalang.langserver.completions.resolvers.AbstractItemResolver;
 import org.eclipse.lsp4j.CompletionItem;
 
-import java.util.ArrayList;
+import java.util.List;
 
 /**
- * constant definition context resolver for the completion items.
+ * Default Item Sorter.
  */
-public class ParserRuleConstantDefinitionContextResolver extends AbstractItemResolver {
+class DefaultItemSorter extends CompletionItemSorter {
     @Override
-    public ArrayList<CompletionItem> resolveItems(TextDocumentServiceContext completionContext) {
-        // TODO: Implementation required after revamp
-        return new ArrayList<>();
+    public void sortItems(TextDocumentServiceContext ctx, List<CompletionItem> completionItems) {
+        this.setPriorities(completionItems);
     }
 }

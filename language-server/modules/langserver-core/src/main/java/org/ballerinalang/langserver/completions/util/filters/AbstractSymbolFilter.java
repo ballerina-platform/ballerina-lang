@@ -1,5 +1,5 @@
 /*
-*  Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+*  Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 *
 *  WSO2 Inc. licenses this file to you under the Apache License,
 *  Version 2.0 (the "License"); you may not use this file except
@@ -18,24 +18,18 @@
 package org.ballerinalang.langserver.completions.util.filters;
 
 import org.ballerinalang.langserver.TextDocumentServiceContext;
-import org.ballerinalang.langserver.completions.CompletionKeys;
-import org.ballerinalang.langserver.completions.SymbolInfo;
-import org.ballerinalang.model.types.BType;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
- * Filter the BTypes.
+ * Interface for filtering the symbols.
  */
-public class BTypeFilter extends SymbolFilter {
-    public List<SymbolInfo> filterItems(TextDocumentServiceContext completionContext) {
-        List<SymbolInfo> filteredList;
-        filteredList = completionContext.get(CompletionKeys.VISIBLE_SYMBOLS_KEY)
-                .stream()
-                .filter(symbolInfo -> symbolInfo.getSymbol() instanceof BType)
-                .collect(Collectors.toList());
-
-        return filteredList;
-    }
+public abstract class AbstractSymbolFilter {
+    /**
+     * Filters the symbolInfo from the list based on a particular filter criteria.
+     * @param completionContext - Completion operation context
+     * @return {@link ArrayList}
+     */
+    public abstract List filterItems(TextDocumentServiceContext completionContext);
 }
