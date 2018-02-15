@@ -141,8 +141,7 @@ public class PackageActionFunctionAndTypesFilter extends AbstractSymbolFilter {
                 if ((value.symbol instanceof BInvokableSymbol
                         && ((BInvokableSymbol) value.symbol).receiverSymbol == null)
                         || (value.symbol instanceof BTypeSymbol && !(value.symbol instanceof BPackageSymbol))) {
-                    SymbolInfo actionFunctionSymbol = new SymbolInfo(name.toString(), value);
-                    actionFunctionList.add(actionFunctionSymbol);
+                    actionFunctionList.add(new SymbolInfo(name.toString(), value));
                 }
             });
         }
@@ -177,7 +176,6 @@ public class PackageActionFunctionAndTypesFilter extends AbstractSymbolFilter {
         if (bType instanceof BEndpointType) {
             // If the BType is a BEndPointType we get the package id of the constraint
             Type constraint = ((BEndpointType) bType).getConstraint();
-            assert constraint instanceof BConnectorType : constraint.getClass();
             packageID = ((BConnectorType) constraint).tsymbol.pkgID.toString();
             constraintTypeName = constraint.toString();
             bTypeValue = constraint.toString();
