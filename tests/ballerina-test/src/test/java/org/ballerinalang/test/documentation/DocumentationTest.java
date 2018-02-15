@@ -357,4 +357,81 @@ public class DocumentationTest {
                 "    ``xml x = xml `<{{tagName}}>hello</{{tagName}}>`;``\n");
     }
 
+    @Test(description = "Test annotation multiple.")
+    public void testMultiple() {
+        CompileResult compileResult = BCompileUtil.compile(this, "test-src", "documentation/multiple.bal");
+        PackageNode packageNode = compileResult.getAST();
+
+        List<BLangDocumentation> docNodes = ((BLangAnnotation) packageNode.getAnnotations().get(0)).docAttachments;
+        BLangDocumentation dNode = docNodes.get(0);
+        Assert.assertNotNull(dNode);
+        Assert.assertEquals(dNode.documentationText.toString(), " Documentation for Test annotation");
+        Assert.assertEquals(dNode.getAttributes().size(), 3);
+        Assert.assertEquals(dNode.getAttributes().get(0).documentationField.getValue(), "a");
+        Assert.assertEquals(dNode.getAttributes().get(0).documentationText.toString(),
+                "annotation `field a` documentation");
+        Assert.assertEquals(dNode.getAttributes().get(1).documentationField.getValue(), "b");
+        Assert.assertEquals(dNode.getAttributes().get(1).documentationText.toString(),
+                "annotation `field b` documentation");
+        Assert.assertEquals(dNode.getAttributes().get(2).documentationField.getValue(), "c");
+        Assert.assertEquals(dNode.getAttributes().get(2).documentationText.toString(),
+                "annotation `field c` documentation");
+
+        docNodes = ((BLangEnum) packageNode.getEnums().get(0)).docAttachments;
+        dNode = docNodes.get(0);
+        Assert.assertNotNull(dNode);
+        Assert.assertEquals(dNode.documentationText.toString(), " Documentation for state enum");
+        Assert.assertEquals(dNode.getAttributes().size(), 2);
+        Assert.assertEquals(dNode.getAttributes().get(0).documentationField.getValue(), "foo");
+        Assert.assertEquals(dNode.getAttributes().get(0).documentationText.toString(),
+                "enum `field foo` documentation");
+        Assert.assertEquals(dNode.getAttributes().get(1).documentationField.getValue(), "bar");
+        Assert.assertEquals(dNode.getAttributes().get(1).documentationText.toString(),
+                "enum `field bar` documentation");
+
+        docNodes = ((BLangTransformer) packageNode.getTransformers().get(0)).docAttachments;
+        dNode = docNodes.get(0);
+        Assert.assertNotNull(dNode);
+        Assert.assertEquals(dNode.documentationText.toString(), "\n" +
+                " Transformer Foo Person -> Employee");
+        Assert.assertEquals(dNode.getAttributes().size(), 3);
+        Assert.assertEquals(dNode.getAttributes().get(0).documentationField.getValue(), "p");
+        Assert.assertEquals(dNode.getAttributes().get(0).documentationText.toString(),
+                "input struct Person source used for transformation");
+        Assert.assertEquals(dNode.getAttributes().get(1).documentationField.getValue(), "e");
+        Assert.assertEquals(dNode.getAttributes().get(1).documentationText.toString(),
+                "output struct Employee struct which Person transformed to");
+        Assert.assertEquals(dNode.getAttributes().get(2).documentationField.getValue(), "defaultAddress");
+        Assert.assertEquals(dNode.getAttributes().get(2).documentationText.toString(),
+                "address which serves Eg: `POSTCODE 112`");
+
+        BLangService service = (BLangService) packageNode.getServices().get(0);
+        docNodes = service.docAttachments;
+        dNode = docNodes.get(0);
+        Assert.assertNotNull(dNode);
+        Assert.assertEquals(dNode.documentationText.toString(), " PizzaService HTTP Service ");
+
+        dNode = service.getResources().get(0).docAttachments.get(0);
+        Assert.assertEquals(dNode.getAttributes().size(), 2);
+        Assert.assertEquals(dNode.documentationText.toString(), "\n" +
+                "    Check orderPizza resource.");
+        Assert.assertEquals(dNode.getAttributes().get(0).documentationField.getValue(), "conn");
+        Assert.assertEquals(dNode.getAttributes().get(0).documentationText.toString(),
+                "HTTP connection.");
+        Assert.assertEquals(dNode.getAttributes().get(1).documentationField.getValue(), "req");
+        Assert.assertEquals(dNode.getAttributes().get(1).documentationText.toString(),
+                "In request.");
+
+        dNode = service.getResources().get(1).docAttachments.get(0);
+        Assert.assertEquals(dNode.documentationText.toString(), "\n" +
+                "    Check status resource.");
+        Assert.assertEquals(dNode.getAttributes().size(), 2);
+        Assert.assertEquals(dNode.getAttributes().get(0).documentationField.getValue(), "conn");
+        Assert.assertEquals(dNode.getAttributes().get(0).documentationText.toString(),
+                "HTTP connection.");
+        Assert.assertEquals(dNode.getAttributes().get(1).documentationField.getValue(), "req");
+        Assert.assertEquals(dNode.getAttributes().get(1).documentationText.toString(),
+                "In request.");
+    }
+
 }
