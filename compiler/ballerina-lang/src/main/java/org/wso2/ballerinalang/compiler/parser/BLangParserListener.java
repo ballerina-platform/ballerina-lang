@@ -1211,9 +1211,9 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             workerNames = ctx.Identifier().stream().map(TerminalNode::getText).collect(Collectors.toList());
         }
         int joinCount = 0;
-        if (ctx.IntegerLiteral() != null) {
+        if (ctx.DecimalIntegerLiteral() != null) {
             try {
-                joinCount = Integer.valueOf(ctx.IntegerLiteral().getText());
+                joinCount = Integer.valueOf(ctx.DecimalIntegerLiteral().getText());
             } catch (NumberFormatException ex) {
                 // When ctx.IntegerLiteral() is not a string or missing, compilation fails due to NumberFormatException.
                 // Hence catching the error and ignore. Still Parser complains about missing IntegerLiteral.
@@ -1803,7 +1803,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         TerminalNode node;
         DiagnosticPos pos = getCurrentPos(ctx);
         Set<Whitespace> ws = getWS(ctx);
-        if ((node = ctx.IntegerLiteral()) != null) {
+        if ((node = ctx.DecimalIntegerLiteral()) != null) {
             this.pkgBuilder.addLiteralValue(pos, ws, TypeTags.INT, Long.parseLong(getNodeValue(ctx, node)));
         } else if ((node = ctx.FloatingPointLiteral()) != null) {
             this.pkgBuilder.addLiteralValue(pos, ws, TypeTags.FLOAT, Double.parseDouble(getNodeValue(ctx, node)));
@@ -1816,6 +1816,15 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             this.pkgBuilder.addLiteralValue(pos, ws, TypeTags.STRING, text);
         } else if (ctx.NullLiteral() != null) {
             this.pkgBuilder.addLiteralValue(pos, ws, TypeTags.NULL, null);
+        } else if ((node = ctx.HexIntegerLiteral()) != null) {
+            this.pkgBuilder.addLiteralValue(pos, ws, TypeTags.INT, Long.parseLong(getNodeValue(ctx, node).toLowerCase()
+                    .replace("0x", ""), 16));
+        } else if ((node = ctx.OctalIntegerLiteral()) != null) {
+            this.pkgBuilder.addLiteralValue(pos, ws, TypeTags.INT, Long.parseLong(getNodeValue(ctx, node)
+                    .replace("0x", ""), 8));
+        } else if ((node = ctx.BinaryIntegerLiteral()) != null) {
+            this.pkgBuilder.addLiteralValue(pos, ws, TypeTags.INT, Long.parseLong(getNodeValue(ctx, node).toLowerCase()
+                    .replace("0x", ""), 2));
         }
     }
 

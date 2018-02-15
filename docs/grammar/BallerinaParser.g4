@@ -349,7 +349,7 @@ joinClause
     ;
 
 joinConditions
-    : SOME IntegerLiteral (Identifier (COMMA Identifier)*)?     # anyJoinCondition
+    : SOME DecimalIntegerLiteral (Identifier (COMMA Identifier)*)?     # anyJoinCondition
     | ALL (Identifier (COMMA Identifier)*)?                     # allJoinCondition
     ;
 
@@ -528,7 +528,10 @@ fieldDefinition
     ;
 
 simpleLiteral
-    :   (SUB)? IntegerLiteral
+    :   (SUB)? DecimalIntegerLiteral
+    |   (SUB)? HexIntegerLiteral
+    |   (SUB)? OctalIntegerLiteral
+    |   (SUB)? BinaryIntegerLiteral
     |   (SUB)? FloatingPointLiteral
     |   QuotedStringLiteral
     |   BooleanLiteral
