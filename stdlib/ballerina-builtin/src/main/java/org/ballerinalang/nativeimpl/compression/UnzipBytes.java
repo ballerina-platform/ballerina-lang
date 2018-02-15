@@ -82,7 +82,7 @@ public class UnzipBytes extends AbstractNativeFunction {
                 /* this part is necessary because file entry can come before
                  * directory entry where the file is located
                  */
-                dir = dirpart(name);
+                dir = getDirectoryPath(name);
                 if (dir != null) {
                     mkdirs(outdir, dir);
                 }
@@ -145,9 +145,12 @@ public class UnzipBytes extends AbstractNativeFunction {
      * @param name name of the directory
      * @return directory name
      */
-    private static String dirpart(String name) {
-        int s = name.lastIndexOf(File.separatorChar);
-        return s == -1 ? null : name.substring(0, s);
+    private static String getDirectoryPath(String name) {
+        if (name != null) {
+            int s = name.lastIndexOf(File.separatorChar);
+            return s == -1 ? null : name.substring(0, s);
+        }
+        return null;
     }
 
     /**
