@@ -1,5 +1,6 @@
 const fs = require('fs');
 const path = require('path');
+const shell = require('shelljs');
 const webfont = require('webfont').default
 const codepoints = {};
 
@@ -37,10 +38,10 @@ function ensureDirectoryExistence(filePath) {
 webfont(config)
     .then((result) => {
         if (!fs.existsSync(fontsDir)) {
-            fs.mkdirSync(fontsDir);
+            shell.mkdir('-p', fontsDir);
         }
         if (!fs.existsSync(stylesDir)) {
-            fs.mkdirSync(stylesDir);
+            shell.mkdir('-p', stylesDir);
         }
         fs.writeFileSync(path.join(fontsDir, outputFilename + '.svg'), result.svg);
         fs.writeFileSync(path.join(fontsDir, outputFilename + '.ttf'), result.ttf);
@@ -49,7 +50,8 @@ webfont(config)
         fs.writeFileSync(path.join(fontsDir, outputFilename + '.woff2'), result.woff2);
         fs.writeFileSync(path.join(stylesDir, outputFilename + '.css'), result.styles);
         fs.writeFileSync(path.resolve(__dirname, '../dist/codepoints.json'), JSON.stringify(codepoints), 'utf8');
+        console.info('Successfully built font at ' + fontsDir);
     })
     .catch((error) => {
-        console.error('Error while building the font.\n'+ error);
+        console.error('Error while building the font.\n' + error);
     });
