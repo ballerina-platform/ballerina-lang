@@ -119,4 +119,24 @@ public class UtilTest {
                            "Invalid return value");
         Assert.assertEquals(returnValues[0].stringValue(), expectedValue);
     }
+
+    @Test
+    public void testBase64UrlEncoding() {
+        String expectedValue = "aHR0cHM6Ly9leGFtcGxlLmNvbS90ZXN0L2luZGV4Lmh0bWwjbm1-";
+        BValue[] args = new BValue[]{new BString("https://example.com/test/index.html#nm~")};
+        BValue[] returnValues = BRunUtil.invoke(compileResult, "testBase64UrlEncoding", args);
+        Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null,
+                           "Invalid return value");
+        Assert.assertEquals(returnValues[0].stringValue(), expectedValue);
+    }
+
+    @Test
+    public void testBase64UrlDecoding() {
+        String expectedValue = "https://example.com/test/index.html#nm~";
+        BValue[] args = new BValue[]{new BString("aHR0cHM6Ly9leGFtcGxlLmNvbS90ZXN0L2luZGV4Lmh0bWwjbm1-")};
+        BValue[] returnValues = BRunUtil.invoke(compileResult, "testBase64UrlDecoding", args);
+        Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null,
+                           "Invalid return value");
+        Assert.assertEquals(returnValues[0].stringValue(), expectedValue);
+    }
 }

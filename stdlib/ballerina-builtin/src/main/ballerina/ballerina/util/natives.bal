@@ -31,3 +31,13 @@ public native function base16ToBase64Encode (string baseString) (string);
 @Param {value:"s: string to be encoded"}
 @Return {value:"the encoded string."}
 public native function base64ToBase16Encode (string baseString) (string);
+
+@Description {value:"Encodes a base10 encoded string to url and filename safe base64."}
+@Param {value:"s: string to be encoded"}
+@Return {value:"the encoded string."}
+public native function base64UrlEncode (string s) (string);
+
+@Description {value:"Decodes a url and filename safe base64 encoded string to base10."}
+@Param {value:"s: string to be decoded"}
+@Return {value:"the decoded string."}
+public native function base64UrlDecode (string s) (string);
