@@ -17,6 +17,7 @@ package org.wso2.transport.http.netty.sender;
 
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.socket.SocketChannel;
+import io.netty.handler.codec.http.HttpContentDecompressor;
 import io.netty.handler.codec.http.HttpRequestEncoder;
 import io.netty.handler.codec.http.HttpResponseDecoder;
 import io.netty.handler.proxy.HttpProxyHandler;
@@ -82,6 +83,7 @@ public class HTTPClientInitializer extends ChannelInitializer<SocketChannel> {
 
         ch.pipeline().addLast("decoder", new HttpResponseDecoder());
         ch.pipeline().addLast("encoder", new HttpRequestEncoder());
+        ch.pipeline().addLast("decompressor", new HttpContentDecompressor());
         ch.pipeline().addLast("chunkWriter", new ChunkedWriteHandler());
         if (httpTraceLogEnabled) {
             ch.pipeline().addLast(Constants.HTTP_TRACE_LOG_HANDLER,
