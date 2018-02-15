@@ -27,12 +27,12 @@ import org.ballerinalang.launcher.toml.util.TomlProcessor;
 import java.io.IOException;
 
 /**
- * Manifest Processor which processes the toml file parsed and populate the Manifest POJO
+ * Manifest Processor which processes the toml file parsed and populate the Manifest POJO.
  */
 public class ManifestProcessor {
 
     /**
-     * Get the char stream of the content from file
+     * Get the char stream of the content from file.
      *
      * @param fileName path of the toml file
      * @return charstream object
@@ -44,7 +44,7 @@ public class ManifestProcessor {
     }
 
     /**
-     * Get the char stream from string content
+     * Get the char stream from string content.
      *
      * @param content toml file content as a string
      * @return charstream object
@@ -55,7 +55,7 @@ public class ManifestProcessor {
     }
 
     /**
-     * Get the manifest object by passing the ballerina toml file
+     * Get the manifest object by passing the ballerina toml file.
      *
      * @param charStream toml file content as a char stream
      * @return manifest object

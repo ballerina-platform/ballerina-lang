@@ -26,7 +26,7 @@ import java.util.Map;
 import java.util.function.BiConsumer;
 
 /**
- * Fields defined in the manifest "package" header
+ * Fields defined in the manifest "package" header.
  */
 public enum PackageField {
     NAME(Manifest::setName),
@@ -52,7 +52,7 @@ public enum PackageField {
     private BiConsumer<Manifest, List<String>> listSetter;
 
     /**
-     * Constructor which sets the string value
+     * Constructor which sets the string value.
      *
      * @param stringSetter value to be set
      */
@@ -61,7 +61,7 @@ public enum PackageField {
     }
 
     /**
-     * Constructor which sets a list of strings
+     * Constructor which sets a list of strings.
      *
      * @param stringSetter string to be set: will be always null
      * @param listSetter   list of strings
@@ -72,7 +72,7 @@ public enum PackageField {
     }
 
     /**
-     * Set the string value to the manifest object
+     * Set the string value to the manifest object.
      *
      * @param manifest manifest object
      * @param value    string value
@@ -86,7 +86,7 @@ public enum PackageField {
     }
 
     /**
-     * Set the list of strings to the manifest object
+     * Set the list of strings to the manifest object.
      *
      * @param manifest manifest object
      * @param list     list of strings

@@ -27,7 +27,7 @@ import org.ballerinalang.launcher.toml.util.SingletonStack;
 import java.util.List;
 
 /**
- * Custom listener which is extended from the Toml listener with our own custom logic
+ * Custom listener which is extended from the Toml listener with our own custom logic.
  */
 public class ProxyBuildListener extends TomlBaseListener {
     private final Proxy proxy;
@@ -35,7 +35,7 @@ public class ProxyBuildListener extends TomlBaseListener {
     private SingletonStack currentKey = new SingletonStack();
 
     /**
-     * Constructor with the proxy object
+     * Constructor with the proxy object.
      *
      * @param proxy proxy object
      */
@@ -80,7 +80,7 @@ public class ProxyBuildListener extends TomlBaseListener {
     }
 
     /**
-     * Add table headers in the toml file
+     * Add table headers in the toml file.
      *
      * @param keyContextList list of keys specified in the header
      */
@@ -89,13 +89,13 @@ public class ProxyBuildListener extends TomlBaseListener {
     }
 
     /**
-     * Add the key-value pairs specified in the toml file
+     * Add the key-value pairs specified in the toml file.
      *
      * @param value KeyvalContext object
      */
     private void setToProxy(String value) {
         if (currentKey.present() && Section.PROXY.stringEquals(currentHeader)) {
-            ProxyField proxyField = ProxyField.lookup.get(currentKey.pop());
+            ProxyField proxyField = ProxyField.LOOKUP.get(currentKey.pop());
             if (proxyField != null) {
                 proxyField.setValueTo(this.proxy, value);
             }

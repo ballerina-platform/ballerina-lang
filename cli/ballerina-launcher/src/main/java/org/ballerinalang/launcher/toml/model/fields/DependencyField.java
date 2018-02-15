@@ -24,25 +24,25 @@ import java.util.Map;
 import java.util.function.BiConsumer;
 
 /**
- * Dependency object fields
+ * Dependency object fields.
  */
 public enum DependencyField {
     NAME(Dependency::setPackageName),
     VERSION(Dependency::setVersion),
     LOCATION(Dependency::setLocation);
 
-    public static final Map<String, DependencyField> lookup = new HashMap<>();
+    public static final Map<String, DependencyField> LOOKUP = new HashMap<>();
 
     static {
         for (DependencyField dependencyField : DependencyField.values()) {
-            lookup.put(dependencyField.name().toLowerCase(), dependencyField);
+            LOOKUP.put(dependencyField.name().toLowerCase(), dependencyField);
         }
     }
 
     private final BiConsumer<Dependency, String> stringSetter;
 
     /**
-     * Constructor which sets the string value
+     * Constructor which sets the string value.
      *
      * @param stringSetter string value to be set
      */
@@ -51,7 +51,7 @@ public enum DependencyField {
     }
 
     /**
-     * Set values to the dependency object
+     * Set values to the dependency object.
      *
      * @param dependency dependency object
      * @param value      value to be set
