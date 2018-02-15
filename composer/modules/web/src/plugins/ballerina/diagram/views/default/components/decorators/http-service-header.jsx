@@ -42,7 +42,9 @@ class HttpServiceHeader extends React.Component {
         const basePathAtributeNode = _.filter(annotationAttachment.attributes, (atribute) => {
             return atribute.getName().value === 'basePath';
         })[0];
-        return basePathAtributeNode.getValue().getValue().unescapedValue;
+        return basePathAtributeNode
+                ? basePathAtributeNode.getValue().getValue().unescapedValue
+                : '/' + this.props.model.name.value;
     }
     /**
      * Get Name of the service
