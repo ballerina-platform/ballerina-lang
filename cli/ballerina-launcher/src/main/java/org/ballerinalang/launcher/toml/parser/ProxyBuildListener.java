@@ -94,7 +94,7 @@ public class ProxyBuildListener extends TomlBaseListener {
      * @param value KeyvalContext object
      */
     private void setToProxy(String value) {
-        if (currentKey.hasKey() && Section.PROXY.stringEquals(currentHeader)) {
+        if (currentKey.present() && Section.PROXY.stringEquals(currentHeader)) {
             ProxyField proxyField = ProxyField.lookup.get(currentKey.pop());
             if (proxyField != null) {
                 proxyField.setValueTo(this.proxy, value);

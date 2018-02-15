@@ -18,49 +18,45 @@
 package org.ballerinalang.launcher.toml.util;
 
 /**
- * This class can be used to handle a singleton stack with one element
+ * This class can be used to handle a singleton content with one element
  *
  * @param <T>
  */
 public class SingletonStack<T> {
-    private T stack;
+    private T content;
 
     /**
-     * Constructor
-     */
-    public SingletonStack() {
-        this.stack = (T) new Object[1];
-    }
-
-    /**
-     * Push object to the stack
+     * Push object to the content
      *
      * @param obj
      */
     public void push(T obj) {
-        stack = obj;
+        if (content != null) {
+            throw new IllegalStateException("Stack is already full");
+        }
+        content = obj;
     }
 
     /**
-     * Pops/Gets the object from stack
+     * Pops/Gets the object from content
      *
-     * @return object if exists, if stack is null an exception
+     * @return object if exists, if content is null an exception
      */
     public T pop() {
-        if (stack == null) {
-            throw new IllegalStateException("Current key is null");
+        if (content == null) {
+            throw new IllegalStateException("Stack is empty");
         }
-        T lastKey = stack;
-        stack = null;
+        T lastKey = content;
+        content = null;
         return lastKey;
     }
 
     /**
-     * Check if the object exists in the stack
+     * Check if the object exists in the content
      *
      * @return if object exists true else false
      */
-    public boolean hasKey() {
-        return stack != null;
+    public boolean present() {
+        return content != null;
     }
 }
