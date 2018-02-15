@@ -1,5 +1,5 @@
 /*
-*  Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+*  Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 *
 *  WSO2 Inc. licenses this file to you under the Apache License,
 *  Version 2.0 (the "License"); you may not use this file except
@@ -25,7 +25,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 
 /**
- * @since 0.94
+ * @since 0.961.1
  */
 public class BLangDocumentationAttribute extends
         BLangExpression implements DocumentationAttributeNode {
@@ -65,8 +65,8 @@ public class BLangDocumentationAttribute extends
 
     @Override
     public String toString() {
-        return "BLangDocAttachmentAttribute: " + documentationField != null ? documentationText.toString() + " : "
-                + documentationText.toString() : documentationText.toString();
+        return "BLangDocAttachmentAttribute: " + (documentationField != null ? documentationField.toString() + " : "
+                + documentationText.toString() : documentationText.toString());
     }
 
 }

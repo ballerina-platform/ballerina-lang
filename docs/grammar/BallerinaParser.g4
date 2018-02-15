@@ -645,9 +645,13 @@ docText
     ;
 
 documentationTemplateInlineCode
-    :   DocumentationInlineCodeStart InlineCode? DocumentationInlineCodeEnd
+    :   DocumentationInlineCodeStart inlineCode? DocumentationInlineCodeEnd
     ;
 
 documentationTemplateText
     :   DocumentationTemplateStringChar+
+    ;
+
+inlineCode
+    : InlineCodeChar+
     ;

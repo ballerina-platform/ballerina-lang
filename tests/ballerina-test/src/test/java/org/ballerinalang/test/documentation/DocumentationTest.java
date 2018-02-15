@@ -122,11 +122,11 @@ public class DocumentationTest {
                 "Gets a access parameter value (`true` or `false`) for a given key. " +
                 "Please note that #foo will always be bigger than #bar.\n" +
                 "Example:\n" +
-                "`SymbolEnv pkgEnv = symbolEnter.packageEnvs.get(pkgNode.symbol);`");
+                "``SymbolEnv pkgEnv = symbolEnter.packageEnvs.get(pkgNode.symbol);``");
         Assert.assertEquals(dNode.getAttributes().size(), 3);
         Assert.assertEquals(dNode.getAttributes().get(0).documentationField.getValue(), "file");
         Assert.assertEquals(dNode.getAttributes().get(0).documentationText.toString(),
-                "file path `C:\\users\\OddThinking\\Documents\\My Source\\Widget\\foo.src`");
+                "file path ``C:\\users\\OddThinking\\Documents\\My Source\\Widget\\foo.src``");
         Assert.assertEquals(dNode.getAttributes().get(1).documentationField.getValue(), "accessMode");
         Assert.assertEquals(dNode.getAttributes().get(1).documentationText.toString(),
                 "read or write mode");
@@ -165,7 +165,7 @@ public class DocumentationTest {
         BAssertUtil.validateWarning(compileResult, 6,
                 "no such documentable attribute 'c' in struct 'Test'", 31, 36);
         BAssertUtil.validateWarning(compileResult, 7,
-                "already documented attribute 'file' in function 'File.open'", 44, 76);
+                "already documented attribute 'file' in function 'File.open'", 44, 78);
         BAssertUtil.validateWarning(compileResult, 8,
                 "no such documentable attribute 'successfuls' in function 'File.open'", 46, 33);
         BAssertUtil.validateWarning(compileResult, 9,
@@ -318,11 +318,11 @@ public class DocumentationTest {
                 "Gets a access parameter value (`true` or `false`) for a given key. " +
                 "Please note that #foo will always be bigger than #bar.\n" +
                 "Example:\n" +
-                "`SymbolEnv pkgEnv = symbolEnter.packageEnvs.get(pkgNode.symbol);`");
+                "``SymbolEnv pkgEnv = symbolEnter.packageEnvs.get(pkgNode.symbol);``");
         Assert.assertEquals(dNode.getAttributes().size(), 3);
         Assert.assertEquals(dNode.getAttributes().get(0).documentationField.getValue(), "file");
         Assert.assertEquals(dNode.getAttributes().get(0).documentationText.toString(),
-                "file path `C:\\users\\OddThinking\\Documents\\My Source\\Widget\\foo.src`");
+                "file path ``C:\\users\\OddThinking\\Documents\\My Source\\Widget\\foo.src``");
         Assert.assertEquals(dNode.getAttributes().get(1).documentationField.getValue(), "accessMode");
         Assert.assertEquals(dNode.getAttributes().get(1).documentationText.toString(),
                 "read or write mode");
@@ -338,6 +338,23 @@ public class DocumentationTest {
         Assert.assertEquals(dNode.getAttributes().get(0).documentationField.getValue(), "path");
         Assert.assertEquals(dNode.getAttributes().get(0).documentationText.toString(),
                 "struct `field path` documentation");
+    }
+
+    @Test(description = "Test annotation inline code.")
+    public void testInlineCode() {
+        CompileResult compileResult = BCompileUtil.compile(this, "test-src", "documentation/doc_inline.bal");
+        PackageNode packageNode = compileResult.getAST();
+        BLangVariable connector = (BLangVariable) packageNode.getGlobalVariables().get(0);
+        List<BLangDocumentation> docNodes = connector.docAttachments;
+        BLangDocumentation dNode = docNodes.get(0);
+        Assert.assertNotNull(dNode);
+        Assert.assertEquals(dNode.getAttributes().size(), 0);
+        Assert.assertEquals(dNode.documentationText.toString(), "\n" +
+                "  Example of a string template:\n" +
+                "    ``string s = string `hello {{name}}`;``\n" +
+                "\n" +
+                "  Example for an xml literal:\n" +
+                "    ``xml x = xml `<{{tagName}}>hello</{{tagName}}>`;``\n");
     }
 
 }

@@ -29,6 +29,7 @@ ENDPOINT    : 'endpoint' ;
 XMLNS       : 'xmlns' ;
 RETURNS     : 'returns';
 VERSION     : 'version';
+DOCUMENTATION  : 'documentation';
 
 TYPE_INT        : 'int' ;
 TYPE_FLOAT      : 'float' ;
@@ -71,8 +72,6 @@ WITH        : 'with' ;
 BIND        : 'bind' ;
 IN          : 'in' ;
 LOCK        : 'lock' ;
-
-DOCUMENTATION  : 'documentation';
 
 // Separators
 
@@ -710,12 +709,12 @@ DocumentationTemplateAttributeStart
     ;
 
 DocumentationInlineCodeStart
-    :  DocBackTick                                                             -> pushMode(DOCUMENTATION_INLINE_CODE)
+    :  DocBackTick DocBackTick                                                 -> pushMode(DOCUMENTATION_INLINE_CODE)
     ;
 
 DocumentationTemplateStringChar
-    :   ~[{}\\`]
-    |   '\\' [{}`]
+    :   ~[{}\\]
+    |   '\\' [{}]
     |   WS
     |   DocumentationLiteralEscapedSequence
     ;
@@ -748,17 +747,11 @@ DocumentationLiteralEscapedSequence
 mode DOCUMENTATION_INLINE_CODE;
 
 DocumentationInlineCodeEnd
-    : BACKTICK                               -> popMode
+    : BACKTICK BACKTICK                       -> popMode
     ;
 
-InlineCode
-    : InlineCodeChar+
-    ;
-
-fragment
 InlineCodeChar
-    :  ~ [`]
-    |  '\\' [`]
+    :  .
     ;
 
 mode STRING_TEMPLATE;

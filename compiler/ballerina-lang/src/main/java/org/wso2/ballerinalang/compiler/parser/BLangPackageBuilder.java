@@ -1191,10 +1191,8 @@ public class BLangPackageBuilder {
         DocumentationNode  docAttachmentNode = docAttachmentStack.peek();
         docAttachmentNode.addWS(ws);
 
-        contentText = contentText == null ? "" : StringEscapeUtils.unescapeJava(contentText);
         addLiteralValue(pos, ws, TypeTags.STRING, contentText);
         docAttachmentNode.setDocumentationText(exprNodeStack.pop());
-
     }
 
     public void createDocumentationAttribute(DiagnosticPos pos,
@@ -1205,7 +1203,6 @@ public class BLangPackageBuilder {
                 (BLangDocumentationAttribute) TreeBuilder.createDocumentationAttributeNode();
         attrib.documentationField = (BLangIdentifier) createIdentifier(attributeName);
 
-        endText = endText == null ? "" : endText;
         addLiteralValue(pos, ws, TypeTags.STRING, endText);
         attrib.documentationText = (BLangExpression) exprNodeStack.pop();
 

@@ -132,10 +132,7 @@ public enum SemanticErrors {
     UNKNOWN_FIELD_IN_JSON_STRUCT("unknown.field.in.json.struct", "SEMANTIC_0108"),
     RETRY_STMT_NOT_ALLOWED_HERE("retry.stmt.not.allowed.here", "SEMANTIC_0109"),
     INVALID_RETRY_COUNT("invalid.retry.count", "SEMANTIC_0110"),
-    ARGUMENTS_COUNT_MISMATCH("arguments.count.mismatch", "SEMANTIC_0109"),
-    NO_SUCH_DOCUMENTABLE_ATTRIBUTE("no.such.documentable.attribute", "SEMANTIC_0110"),
-    DUPLICATE_DOCUMENTED_ATTRIBUTE("duplicate.documented.attribute", "SEMANTIC_0111"),
-    ATTRIBUTE_NOT_ALLOWED_DOCUMENTATION("attribute.not.allowed.documentation", "SEMANTIC_0112")
+    ARGUMENTS_COUNT_MISMATCH("arguments.count.mismatch", "SEMANTIC_0109")
     ;
 
     private String errorMsgKey;

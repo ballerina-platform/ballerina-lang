@@ -2027,6 +2027,18 @@ public class BallerinaParserBaseListener implements BallerinaParserListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitDocumentationTemplateText(BallerinaParser.DocumentationTemplateTextContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterInlineCode(BallerinaParser.InlineCodeContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitInlineCode(BallerinaParser.InlineCodeContext ctx) { }
 
 	/**
 	 * {@inheritDoc}
