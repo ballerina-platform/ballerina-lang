@@ -2,6 +2,7 @@ lexer grammar BallerinaLexer;
 
 @members {
     boolean inTemplate = false;
+    boolean inDocTemplate = false;
 }
 
 // Reserved words
@@ -70,6 +71,8 @@ WITH            : 'with';
 BIND            : 'bind';
 IN              : 'in';
 LOCK            : 'lock';
+
+DOCUMENTATION   : 'documentation';
 
 // Separators
 
@@ -367,6 +370,11 @@ NullLiteral
     :   'null'
     ;
 
+// This is place before the Identifier lexer rule to break the tie case.
+DocumentationTemplateAttributeEnd
+    :   {inDocTemplate}? Identifier               ->  popMode
+    ;
+
 Identifier
     :   ( Letter LetterOrDigit* )
     |   IdentifierLiteral
@@ -396,6 +404,10 @@ XMLStart
 
 StringTemplateLiteralStart
     :   TYPE_STRING WS* BACKTICK   { inTemplate = true; } -> pushMode(STRING_TEMPLATE)
+    ;
+
+DocumentationTemplateStart
+    :   DOCUMENTATION WS* LEFT_BRACE   { inDocTemplate = true; } -> pushMode(DOCUMENTATION_TEMPLATE)
     ;
 
 ExpressionEnd
@@ -476,6 +488,76 @@ XMLValidCharSequence
     ;
 
 XML_ERRCHAR
+	:	.	-> channel(HIDDEN)
+	;
+
+mode DOCUMENTATION_TEMPLATE;
+
+DocumentationTemplateEnd
+    :   RIGHT_BRACE { inDocTemplate = false; }                                 -> popMode
+    ;
+
+DocumentationTemplateAttributeStart
+    :  DocNewLine WS? DocSub WS DocHash                                        -> pushMode(DEFAULT_MODE)
+    ;
+
+DocumentationInlineCodeStart
+    :  DocBackTick                                                             -> pushMode(DOCUMENTATION_INLINE_CODE)
+    ;
+
+DocumentationTemplateStringChar
+    :   ~[{}\\`]
+    |   '\\' [{}`]
+    |   WS
+    |   DocumentationLiteralEscapedSequence
+    ;
+
+fragment
+DocBackTick
+    :   '`'
+    ;
+
+fragment
+DocHash
+    :   '#'
+    ;
+
+fragment
+DocSub
+    :  SUB
+    ;
+
+fragment
+DocNewLine
+    :  [\r\n\u000C]
+    ;
+
+fragment
+DocumentationLiteralEscapedSequence
+    :   '\\\\'
+    ;
+
+DOCUMENTATION_TEMPLATE_ERRCHAR
+	:	.	-> channel(HIDDEN)
+	;
+
+mode DOCUMENTATION_INLINE_CODE;
+
+DocumentationInlineCodeEnd
+    : BACKTICK                               -> popMode
+    ;
+
+InlineCode
+    : InlineCodeChar+
+    ;
+
+fragment
+InlineCodeChar
+    :  ~ [`]
+    |  '\\' [`]
+    ;
+
+DOCUMENTATION_INLINE_CODE_ERRCHAR
 	:	.	-> channel(HIDDEN)
 	;
 

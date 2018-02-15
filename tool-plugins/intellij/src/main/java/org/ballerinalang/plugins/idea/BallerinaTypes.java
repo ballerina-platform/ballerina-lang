@@ -128,6 +128,12 @@ public class BallerinaTypes {
     public static final TokenIElementType EXPRESSION_END =
             tokenIElementTypes.get(BallerinaLexer.ExpressionEnd);
 
+    public static final TokenIElementType DOCUMENTATION_TEMPLATE_START =
+            tokenIElementTypes.get(BallerinaLexer.DocumentationTemplateStart);
+    public static final TokenIElementType DOCUMENTATION_TEMPLATE_ATTRIBUTE_END =
+            tokenIElementTypes.get(BallerinaLexer.DocumentationTemplateAttributeEnd);
+    public static final TokenIElementType INLINE_CODE = tokenIElementTypes.get(BallerinaLexer.InlineCode);
+
     public static final RuleIElementType STATEMENT = ruleIElementTypes.get(RULE_statement);
 
     public static final RuleIElementType FUNCTION_BODY = ruleIElementTypes.get(RULE_callableUnitBody);
@@ -290,5 +296,5 @@ public class BallerinaTypes {
     public static final TokenIElementType AT = tokenIElementTypes.get(BallerinaLexer.AT);
 
     public static final TokenSet OPERATORS = TokenSet.create(ASSIGN, EQUAL, LE, GE, NOTEQUAL, AND, OR, MUL, DIV,
-                                                             BITAND, BITOR, CARET, MOD);
+            BITAND, BITOR, CARET, MOD);
 }
