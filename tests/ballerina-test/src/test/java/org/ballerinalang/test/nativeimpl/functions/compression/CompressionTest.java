@@ -173,7 +173,7 @@ public class CompressionTest {
         BString destDir = new BString(dirPath);
         BBlob contentAsByteArray = new BBlob(fileContentAsByteArray);
         BValue[] inputArg = {contentAsByteArray, destDir};
-        BValue [] returns = BRunUtil.invoke(compileResult, "testUnzipBytes", inputArg);
+        BValue[] returns = BRunUtil.invoke(compileResult, "testUnzipBytes", inputArg);
         Assert.assertNotNull(returns);
         Assert.assertEquals(returns.length, 1);
         Assert.assertNotNull(returns[0]);
@@ -190,7 +190,7 @@ public class CompressionTest {
         BString destDir = new BString(null);
         BBlob contentAsByteArray = new BBlob(fileContentAsByteArray);
         BValue[] inputArg = {contentAsByteArray, destDir};
-        BValue [] returns = BRunUtil.invoke(compileResult, "testUnzipBytes", inputArg);
+        BValue[] returns = BRunUtil.invoke(compileResult, "testUnzipBytes", inputArg);
         Assert.assertNotNull(returns);
         Assert.assertEquals(returns.length, 1);
         Assert.assertNotNull(returns[0]);
@@ -216,7 +216,8 @@ public class CompressionTest {
 
     }
 
-    @Test(description = "test zipping/compressing a file to a byte array when the destination directory is not given", expectedExceptions = BLangRuntimeException.class)
+    @Test(description = "test zipping/compressing a file to a byte array when the destination directory is not given",
+            expectedExceptions = BLangRuntimeException.class)
     public void testZipToBytesWithoutDestDir() throws IOException, URISyntaxException {
         BString dirPathValue = new BString(null);
         BValue[] inputArg = {dirPathValue};
