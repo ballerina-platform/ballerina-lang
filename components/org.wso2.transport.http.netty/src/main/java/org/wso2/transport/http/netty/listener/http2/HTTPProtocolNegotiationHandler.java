@@ -62,8 +62,9 @@ public class HTTPProtocolNegotiationHandler extends ApplicationProtocolNegotiati
         ChannelPipeline p = ctx.pipeline();
         // handles pipeline for HTTP/2 requests after SSL handshake
         if (ApplicationProtocolNames.HTTP_2.equals(protocol)) {
-            ctx.pipeline().addLast("http2-handler", new HTTP2SourceHandlerBuilder(connectionManager,
+            /*ctx.pipeline().addLast("http2-handler", new HTTP2SourceHandlerBuilder(connectionManager,
                     listenerConfiguration).build());
+            */
             return;
         }
         // handles pipeline for HTTP/1 requests after SSL handshake

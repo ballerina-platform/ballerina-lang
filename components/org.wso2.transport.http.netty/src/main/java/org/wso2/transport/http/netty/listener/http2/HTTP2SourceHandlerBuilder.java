@@ -23,8 +23,7 @@ import io.netty.handler.codec.http2.DefaultHttp2Connection;
 import io.netty.handler.codec.http2.Http2ConnectionDecoder;
 import io.netty.handler.codec.http2.Http2ConnectionEncoder;
 import io.netty.handler.codec.http2.Http2Settings;
-import org.wso2.transport.http.netty.config.ListenerConfiguration;
-import org.wso2.transport.http.netty.sender.channel.pool.ConnectionManager;
+import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
 
 /**
  * {@code HTTP2SourceHandlerBuilder} is used to build the http2 response handler with frame listener and connection
@@ -33,12 +32,12 @@ import org.wso2.transport.http.netty.sender.channel.pool.ConnectionManager;
 public final class HTTP2SourceHandlerBuilder
         extends AbstractHttp2ConnectionHandlerBuilder<HTTP2SourceHandler, HTTP2SourceHandlerBuilder> {
 
-    private ConnectionManager connectionManager;
-    private ListenerConfiguration listenerConfiguration;
+    private String interfaceId;
+    private ServerConnectorFuture serverConnectorFuture;
 
-    public HTTP2SourceHandlerBuilder(ConnectionManager connectionManager, ListenerConfiguration listenerConfiguration) {
-        this.listenerConfiguration = listenerConfiguration;
-        this.connectionManager = connectionManager;
+    public HTTP2SourceHandlerBuilder(String interfaceId, ServerConnectorFuture serverConnectorFuture) {
+        this.interfaceId = interfaceId;
+        this.serverConnectorFuture = serverConnectorFuture;
     }
 
     @Override
@@ -49,9 +48,9 @@ public final class HTTP2SourceHandlerBuilder
     @Override
     protected HTTP2SourceHandler build(Http2ConnectionDecoder decoder, Http2ConnectionEncoder encoder,
                                        Http2Settings initialSettings) {
-        HTTP2SourceHandler handler = new HTTP2SourceHandler(decoder, encoder, initialSettings, connectionManager,
-                listenerConfiguration);
-        frameListener(handler);
+        HTTP2SourceHandler handler =
+                new HTTP2SourceHandler(decoder, encoder, initialSettings, interfaceId, serverConnectorFuture);
+        frameListener(handler.getHttp2FrameListener());
         connection(new DefaultHttp2Connection(true));
         return handler;
     }
