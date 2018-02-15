@@ -8,13 +8,11 @@ public struct Vector {
 }
 
 @Description { value: "An error which is returned when the user attempts to access an element which is out of the Vector's range."}
-@Field { value : "msg: The error message"}
+@Field { value : "message: The error message"}
 @Field { value : "cause: The cause for the error"}
-@Field { value : "stackTrace: The stack trace of the error"}
 public struct IndexOutOfRangeError {
-    string msg;
+    string message;
     error cause;
-    StackFrame[] stackTrace;
 }
 
 @Description { value:"Adds the specified element to the end of the vector."}
@@ -112,7 +110,7 @@ function shiftLeft (Vector v, int index) {
 
 function validateRange (int vectorSize, int index) {
     if (index >= vectorSize || index < 0) {
-        IndexOutOfRangeError err = {msg:"Index out of range: " + index};
+        IndexOutOfRangeError err = {message:"Index out of range: " + index};
         throw err;
     }
 }
