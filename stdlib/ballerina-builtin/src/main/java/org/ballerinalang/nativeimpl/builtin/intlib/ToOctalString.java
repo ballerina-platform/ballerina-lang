@@ -43,6 +43,6 @@ public class ToOctalString extends AbstractNativeFunction {
 
     @Override
     public BValue[] execute(Context context) {
-        return getBValues(new BString("0x".concat(Long.toOctalString(getIntArgument(context, 0)))));
+        return getBValues(new BString("0_".concat(Long.toOctalString(getIntArgument(context, 0)))));
     }
 }

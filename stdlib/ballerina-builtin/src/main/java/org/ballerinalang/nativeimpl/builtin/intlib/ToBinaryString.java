@@ -43,6 +43,6 @@ public class ToBinaryString extends AbstractNativeFunction {
 
     @Override
     public BValue[] execute(Context context) {
-        return getBValues(new BString("0x".concat(Long.toBinaryString(getIntArgument(context, 0)))));
+        return getBValues(new BString("0b".concat(Long.toBinaryString(getIntArgument(context, 0)))));
     }
 }
