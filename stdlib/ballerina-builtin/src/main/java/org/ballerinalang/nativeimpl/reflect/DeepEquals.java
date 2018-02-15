@@ -245,13 +245,11 @@ public class DeepEquals extends AbstractNativeFunction {
             if (lhJsonFields.size() != rhJsonFields.size()) {
                 return false;
             }
-            
+    
             if (lhJsonFields.size() > 0) {
                 for (Map.Entry<String, JsonNode> entry : lhJsonFields.entrySet()) {
-                    if (!rhJsonFields.keySet().contains(entry.getKey())) {
-                        return false;
-                    }
-                    if (!isDeepEqual(entry.getValue(), rhJsonFields.get(entry.getKey()))) {
+                    if (!rhJsonFields.keySet().contains(entry.getKey()) || !isDeepEqual(entry.getValue(),
+                            rhJsonFields.get(entry.getKey()))) {
                         return false;
                     }
                 }
