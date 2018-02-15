@@ -21,15 +21,15 @@ import org.antlr.v4.runtime.ANTLRFileStream;
 import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.tree.ParseTreeWalker;
-import org.ballerinalang.launcher.toml.model.Manifest;
+import org.ballerinalang.launcher.toml.model.Proxy;
 import org.ballerinalang.launcher.toml.util.TomlProcessor;
 
 import java.io.IOException;
 
 /**
- * Manifest Processor which processes the toml file parsed and populate the Manifest POJO
+ * Proxy Processor which processes the proxy configuration toml file parsed and populate the Proxy POJO
  */
-public class ManifestProcessor {
+public class ProxyProcessor {
 
     /**
      * Get the char stream of the content from file
@@ -38,9 +38,9 @@ public class ManifestProcessor {
      * @return charstream object
      * @throws IOException exception if the file cannot be found
      */
-    public static Manifest parseTomlContentFromFile(String fileName) throws IOException {
+    public static Proxy parseTomlContentFromFile(String fileName) throws IOException {
         ANTLRFileStream in = new ANTLRFileStream(fileName);
-        return getManifest(in);
+        return getProxyConfig(in);
     }
 
     /**
@@ -49,21 +49,21 @@ public class ManifestProcessor {
      * @param content toml file content as a string
      * @return charstream object
      */
-    public static Manifest parseTomlContentFromString(String content) {
+    public static Proxy parseTomlContentFromString(String content) {
         ANTLRInputStream in = new ANTLRInputStream(content);
-        return getManifest(in);
+        return getProxyConfig(in);
     }
 
     /**
-     * Get the manifest object by passing the ballerina toml file
+     * Get the proxy config object by passing the proxy configuration toml file
      *
      * @param charStream toml file content as a char stream
-     * @return manifest object
+     * @return proxy config object
      */
-    public static Manifest getManifest(CharStream charStream) {
-        Manifest manifest = new Manifest();
+    public static Proxy getProxyConfig(CharStream charStream) {
+        Proxy proxy = new Proxy();
         ParseTreeWalker walker = new ParseTreeWalker();
-        walker.walk(new ManifestBuildListener(manifest), TomlProcessor.parseTomlContent(charStream));
-        return manifest;
+        walker.walk(new ProxyBuildListener(proxy), TomlProcessor.parseTomlContent(charStream));
+        return proxy;
     }
 }

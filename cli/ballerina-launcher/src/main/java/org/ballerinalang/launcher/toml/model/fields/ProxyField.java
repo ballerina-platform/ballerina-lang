@@ -17,47 +17,48 @@
  */
 package org.ballerinalang.launcher.toml.model.fields;
 
-import org.ballerinalang.launcher.toml.model.Dependency;
+import org.ballerinalang.launcher.toml.model.Proxy;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.BiConsumer;
 
 /**
- * Dependency object fields
+ * Proxy object fields
  */
-public enum DependencyField {
-    NAME(Dependency::setPackageName),
-    VERSION(Dependency::setVersion),
-    LOCATION(Dependency::setLocation);
+public enum ProxyField {
+    HOST(Proxy::setHost),
+    PORT(Proxy::setPort),
+    USERNAME(Proxy::setUserName),
+    PASSWORD(Proxy::setPassword);
 
-    public static final Map<String, DependencyField> lookup = new HashMap<>();
+    public static final Map<String, ProxyField> lookup = new HashMap<>();
 
     static {
-        for (DependencyField dependencyField : DependencyField.values()) {
-            lookup.put(dependencyField.name().toLowerCase(), dependencyField);
+        for (ProxyField proxyField : ProxyField.values()) {
+            lookup.put(proxyField.name().toLowerCase(), proxyField);
         }
     }
 
-    private final BiConsumer<Dependency, String> stringSetter;
+    private final BiConsumer<Proxy, String> stringSetter;
 
     /**
      * Constructor which sets the string value
      *
      * @param stringSetter string value to be set
      */
-    DependencyField(BiConsumer<Dependency, String> stringSetter) {
+    ProxyField(BiConsumer<Proxy, String> stringSetter) {
         this.stringSetter = stringSetter;
     }
 
     /**
-     * Set values to the dependency object
+     * Set values to the proxy object
      *
-     * @param dependency dependency object
-     * @param value      value to be set
+     * @param proxy proxy object
+     * @param value value to be set
      */
-    public void setValueTo(Dependency dependency, String value) {
-        stringSetter.accept(dependency, value);
+    public void setValueTo(Proxy proxy, String value) {
+        stringSetter.accept(proxy, value);
     }
 
 }

@@ -25,6 +25,7 @@ import org.ballerinalang.launcher.toml.model.Manifest;
 import org.ballerinalang.launcher.toml.model.fields.DependencyField;
 import org.ballerinalang.launcher.toml.model.fields.PackageField;
 import org.ballerinalang.launcher.toml.model.fields.Section;
+import org.ballerinalang.launcher.toml.util.SingletonStack;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -37,7 +38,7 @@ public class ManifestBuildListener extends TomlBaseListener {
     private final Manifest manifest;
     private Dependency dependency;
     private String currentHeader = null;
-    private String currentKey = null;
+    private SingletonStack currentKey = new SingletonStack();
 
     /**
      * Cosntructor with the manifest object
@@ -57,7 +58,7 @@ public class ManifestBuildListener extends TomlBaseListener {
      */
     @Override
     public void enterKeyval(TomlParser.KeyvalContext ctx) {
-        pushKey(ctx.key().getText());
+        currentKey.push(ctx.key().getText());
     }
 
     /**
@@ -152,13 +153,13 @@ public class ManifestBuildListener extends TomlBaseListener {
      * @param value KeyvalContext object
      */
     private void setToManifest(String value) {
-        if (hasKey() && Section.PACKAGE.stringEquals(currentHeader)) {
-            PackageField packageFieldField = PackageField.LOOKUP.get(popKey());
+        if (currentKey.hasKey() && Section.PACKAGE.stringEquals(currentHeader)) {
+            PackageField packageFieldField = PackageField.LOOKUP.get(currentKey.pop());
             if (packageFieldField != null) {
                 packageFieldField.setStringTo(this.manifest, value);
             }
-        } else if (hasKey() && (Section.DEPENDENCIES.stringEquals(currentHeader) || Section.PATCHES.stringEquals(currentHeader))) {
-            DependencyField dependencyField = DependencyField.lookup.get(popKey());
+        } else if (currentKey.hasKey() && (Section.DEPENDENCIES.stringEquals(currentHeader) || Section.PATCHES.stringEquals(currentHeader))) {
+            DependencyField dependencyField = DependencyField.lookup.get(currentKey.pop());
             if (dependencyField != null) {
                 dependencyField.setValueTo(dependency, value);
             }
@@ -171,8 +172,8 @@ public class ManifestBuildListener extends TomlBaseListener {
      * @param arrayValuesContext ArrayValuesContext object
      */
     private void setToManifest(TomlParser.ArrayValuesContext arrayValuesContext) {
-        if (hasKey() && Section.PACKAGE.stringEquals(currentHeader)) {
-            PackageField packageFieldField = PackageField.LOOKUP.get(popKey());
+        if (currentKey.hasKey() && Section.PACKAGE.stringEquals(currentHeader)) {
+            PackageField packageFieldField = PackageField.LOOKUP.get(currentKey.pop());
             if (packageFieldField != null) {
                 List<String> arrayElements = populateList(arrayValuesContext);
                 packageFieldField.setListTo(this.manifest, arrayElements);
@@ -216,10 +217,10 @@ public class ManifestBuildListener extends TomlBaseListener {
      * @param ctx InlineTableKeyvalsContext object
      */
     private void setToManifest(TomlParser.InlineTableKeyvalsContext ctx) {
-        if (hasKey() &&
+        if (currentKey.hasKey() &&
                 (Section.DEPENDENCIES.stringEquals(currentHeader) ||
                         Section.PATCHES.stringEquals(currentHeader))) {
-            createDependencyObject(popKey());
+            createDependencyObject(String.valueOf(currentKey.pop()));
             if (ctx != null) {
                 populateDependencyField(ctx);
             }
@@ -239,38 +240,6 @@ public class ManifestBuildListener extends TomlBaseListener {
                 dependencyField.setValueTo(dependency, valueContext.val().getText());
             }
         }
-    }
-
-    /**
-     * Set the current key processed
-     *
-     * @param value current key processed
-     */
-    private void pushKey(String value) {
-        currentKey = value;
-    }
-
-    /**
-     * Get the current key and set it to null once accessed
-     *
-     * @return currently processed key
-     */
-    private String popKey() {
-        if (currentKey == null) {
-            throw new IllegalStateException("Key is null");
-        }
-        String lastKey = this.currentKey;
-        this.currentKey = null;
-        return lastKey;
-    }
-
-    /**
-     * Check if the current key is null or not
-     *
-     * @return true if the key is there else false
-     */
-    private boolean hasKey() {
-        return currentKey != null;
     }
 
     /**
