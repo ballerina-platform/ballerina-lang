@@ -68,7 +68,7 @@ public function getText (Entity entity) (string) {
         return entity.textData;
     } else {
         file:File overFlowData = entity.overflowData;
-        if (overFlowData != null) {
+        if (overFlowData != null && overFlowData.path != "") {
             string encoding = getEncoding(entity.contentType);
             io:ByteChannel channel = overFlowData.openChannel(READ_PERMISSION);
             io:CharacterChannel characterChannel = channel.toCharacterChannel(encoding);
@@ -87,7 +87,7 @@ public function getJson (Entity entity) (json) {
         return entity.jsonData;
     } else {
         file:File overFlowData = entity.overflowData;
-        if (overFlowData != null) {
+        if (overFlowData != null && overFlowData.path != "") {
             string encoding = getEncoding(entity.contentType);
             io:ByteChannel channel = overFlowData.openChannel(READ_PERMISSION);
             blob bytes = readAll(channel);
@@ -107,7 +107,7 @@ public function getXml (Entity entity) (xml) {
         return entity.xmlData;
     } else {
         file:File overFlowData = entity.overflowData;
-        if (overFlowData != null) {
+        if (overFlowData != null && overFlowData.path != "") {
             string encoding = getEncoding(entity.contentType);
             io:ByteChannel channel = overFlowData.openChannel(READ_PERMISSION);
             blob bytes = readAll(channel);
@@ -125,7 +125,7 @@ handler."}
 @Return {value:"return byte array"}
 public function getBlob (Entity entity) (blob) {
     file:File overFlowData = entity.overflowData;
-    if (overFlowData != null) {
+    if (overFlowData != null && overFlowData.path != "") {
         io:ByteChannel channel = overFlowData.openChannel(READ_PERMISSION);
         return readAll(channel);
     } else {

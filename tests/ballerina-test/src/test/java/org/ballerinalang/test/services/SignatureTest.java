@@ -66,10 +66,26 @@ public class SignatureTest {
     }
 
     @Test(expectedExceptions = BallerinaConnectorException.class,
-            expectedExceptionsMessageRegExp = "incompatible resource signature path parameter type")
+            expectedExceptionsMessageRegExp = "incompatible resource signature parameter type")
     public void testSignatureWithBooleanParamAsThirdParam() {
         compileResult = BCompileUtil.compile(getClass().getClassLoader().getResource(
                 "test-src/services/signature/boolean-param.bal").getPath());
+        BServiceUtil.runService(compileResult);
+    }
+
+    @Test(expectedExceptions = BallerinaConnectorException.class,
+            expectedExceptionsMessageRegExp = "incompatible entity-body type : int")
+    public void testSignatureWithInvalidBodyIntParam() {
+        compileResult = BCompileUtil.compile(getClass().getClassLoader().getResource(
+                "test-src/services/signature/invalid-body-param.bal").getPath());
+        BServiceUtil.runService(compileResult);
+    }
+
+    @Test(expectedExceptions = BallerinaConnectorException.class,
+            expectedExceptionsMessageRegExp = "expected person as param name instead of ballerina")
+    public void testSignatureWithMismatchedBodyParam() {
+        compileResult = BCompileUtil.compile(getClass().getClassLoader().getResource(
+                "test-src/services/signature/mismatched-body-param.bal").getPath());
         BServiceUtil.runService(compileResult);
     }
 }

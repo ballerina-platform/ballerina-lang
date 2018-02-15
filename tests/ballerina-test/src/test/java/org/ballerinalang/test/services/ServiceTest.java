@@ -41,6 +41,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.ballerinalang.mime.util.Constants.APPLICATION_FORM;
+import static org.ballerinalang.mime.util.Constants.APPLICATION_JSON;
+import static org.ballerinalang.mime.util.Constants.APPLICATION_XML;
 import static org.ballerinalang.mime.util.Constants.CONTENT_TYPE;
 import static org.ballerinalang.mime.util.Constants.TEXT_PLAIN;
 
@@ -262,5 +264,83 @@ public class ServiceTest {
         BAssertUtil.validateError(negativeResult, 3, "unreachable code", 26, 9);
         BAssertUtil.validateError(negativeResult, 4, "worker send/receive interactions are invalid; worker(s) cannot " +
                 "move onwards from the state: '{w1=[a] -> w2, w2=[b] -> w1}'", 30, 9);
+    }
+
+    @Test(description = "Test data binding with string payload")
+    public void testDataBindingWithStringPayload() {
+        String path = "/echo/body1";
+        HTTPTestRequest requestMsg = MessageUtils
+                .generateHTTPMessage(path, "POST", "WSO2");
+        requestMsg.setHeader(CONTENT_TYPE, TEXT_PLAIN);
+        HTTPCarbonMessage responseMsg = Services.invokeNew(compileResult, requestMsg);
+
+        Assert.assertNotNull(responseMsg, "responseMsg message not found");
+        BJSON bJson = new BJSON(new HttpMessageDataStreamer(responseMsg).getInputStream());
+        Assert.assertEquals(bJson.value().get("Person").asText(), "WSO2"
+                , "Team variable not set properly.");
+    }
+
+    @Test(description = "Test data binding when path param exists")
+    public void testDataBindingWhenPathParamExist() {
+        String path = "/echo/body2/hello";
+        HTTPTestRequest requestMsg = MessageUtils
+                .generateHTTPMessage(path, "POST", "WSO2");
+        requestMsg.setHeader(CONTENT_TYPE, TEXT_PLAIN);
+        HTTPCarbonMessage responseMsg = Services.invokeNew(compileResult, requestMsg);
+
+        Assert.assertNotNull(responseMsg, "responseMsg message not found");
+        BJSON bJson = new BJSON(new HttpMessageDataStreamer(responseMsg).getInputStream());
+        Assert.assertEquals(bJson.value().get("Key").asText(), "hello"
+                , "Name variable not set properly.");
+        Assert.assertEquals(bJson.value().get("Person").asText(), "WSO2"
+                , "Team variable not set properly.");
+    }
+
+    @Test(description = "Test data binding with JSON payload")
+    public void testDataBindingWithJSONPayload() {
+        String path = "/echo/body3";
+        HTTPTestRequest requestMsg = MessageUtils
+                .generateHTTPMessage(path, "POST", "{'name':'WSO2', 'team':'ballerina'}");
+        requestMsg.setHeader(CONTENT_TYPE, APPLICATION_JSON);
+        HTTPCarbonMessage responseMsg = Services.invokeNew(compileResult, requestMsg);
+
+        Assert.assertNotNull(responseMsg, "responseMsg message not found");
+        BJSON bJson = new BJSON(new HttpMessageDataStreamer(responseMsg).getInputStream());
+        Assert.assertEquals(bJson.value().get("Key").asText(), "WSO2"
+                , "Name variable not set properly.");
+        Assert.assertEquals(bJson.value().get("Team").asText(), "ballerina"
+                , "Team variable not set properly.");
+    }
+
+    @Test(description = "Test data binding with XML payload")
+    public void testDataBindingWithXMLPayload() {
+        String path = "/echo/body4";
+        HTTPTestRequest requestMsg = MessageUtils
+                .generateHTTPMessage(path, "POST", "<name>WSO2</name>");
+        requestMsg.setHeader(CONTENT_TYPE, APPLICATION_XML);
+        HTTPCarbonMessage responseMsg = Services.invokeNew(compileResult, requestMsg);
+
+        Assert.assertNotNull(responseMsg, "responseMsg message not found");
+        BJSON bJson = new BJSON(new HttpMessageDataStreamer(responseMsg).getInputStream());
+        Assert.assertEquals(bJson.value().get("Key").asText(), "name"
+                , "Name variable not set properly.");
+        Assert.assertEquals(bJson.value().get("Team").asText(), "WSO2"
+                , "Team variable not set properly.");
+    }
+
+    @Test(description = "Test data binding with global custom struct")
+    public void testDataBindingWithGlobalStruct() {
+        String path = "/echo/body5";
+        HTTPTestRequest requestMsg = MessageUtils
+                .generateHTTPMessage(path, "POST", "{'name':'wso2','age':12}");
+        requestMsg.setHeader(CONTENT_TYPE, APPLICATION_JSON);
+        HTTPCarbonMessage responseMsg = Services.invokeNew(compileResult, requestMsg);
+
+        Assert.assertNotNull(responseMsg, "responseMsg message not found");
+        BJSON bJson = new BJSON(new HttpMessageDataStreamer(responseMsg).getInputStream());
+        Assert.assertEquals(bJson.value().get("Key").asText(), "wso2"
+                , "Name variable not set properly.");
+        Assert.assertEquals(bJson.value().get("Age").asText(), "12"
+                , "Team variable not set properly.");
     }
 }
