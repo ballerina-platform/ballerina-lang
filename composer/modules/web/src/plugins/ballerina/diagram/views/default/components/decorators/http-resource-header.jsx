@@ -20,6 +20,7 @@ import React from 'react';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
 import SizingUtils from '../../sizing-util';
+import './http-resource-header.scss';
 
 /**
  * React component to render Http resource header
@@ -28,25 +29,6 @@ import SizingUtils from '../../sizing-util';
  * @extends {React.Component}
  */
 class HttpResourceHeader extends React.Component {
-
-    /**
-     * Get base path of the service
-     * @returns string - base path
-    */
-    getBasePath() {
-        const annotationAttachment = this.props.model.parent.filterAnnotationAttachments((attachment) => {
-            return attachment.getAnnotationName().value === 'configuration';
-        });
-
-        const basePathAtributeNode = _.filter(annotationAttachment[0].attributes, (atribute) => {
-            return atribute.getName().value === 'basePath';
-        })[0];
-        let basePath = basePathAtributeNode.getValue().getValue().unescapedValue;
-        if (basePath.charAt(0) === '/') {
-            basePath = basePath.substr(1);
-        }
-        return basePath;
-    }
     /**
      * Get base path of the resource
      * @returns string - base path
@@ -110,35 +92,41 @@ class HttpResourceHeader extends React.Component {
         const { x, y, model } = this.props;
         const { viewState } = model;
         const dimensions = viewState.components.httpMethods;
-        const offset = 70 + dimensions.bBox.w;
+        let offset = dimensions.bBox.w;
+        if (offset < 50) {
+            offset = 50;
+        }
         const basePathY = y + (viewState.components.heading.h / 2);
-        const title = `${this.getBasePath()}${this.getResourcePath()}`;
-        const resourceNameOffset = offset + new SizingUtils().getTextWidth(title, 150, 170).w;
+        const path = `${this.getResourcePath()}`;
+        const pathTextSize = new SizingUtils().getTextWidth(path, 80, 250);
+        const resourceNameOffset = offset + pathTextSize.w + 30;
 
         const resourceName = this.getResourceName();
-        const parameterOffset = resourceNameOffset + new SizingUtils().getTextWidth(resourceName, 150, 170).w;
+        const resourceNameSize = new SizingUtils().getTextWidth(resourceName, 40, 170);
+        const parameterOffset = resourceNameOffset + resourceNameSize.w + 30;
 
         const parameters = this.getParametersString();
-        const methods = this.getMethods();
+        const methods = this.getMethods().reverse();
         return (
-            <g>
+            <g className='http-resource-header'>
                 {methods.map((method) => {
                     return (
-                        <g>
+                        <g className='http-methods'>
                             <rect
-                                x={x + dimensions[method].offset}
+                                x={x + dimensions[method].offset - 15}
                                 y={y + 5}
                                 width={dimensions[method].w}
                                 height={20}
                                 fill='#e2e2e2'
                                 rx='3'
                                 ry='3'
+                                className={method.toLowerCase()}
                             />
                             <text
                                 style={{ dominantBaseline: 'central' }}
-                                x={x + dimensions[method].offset + 5}
+                                x={x + dimensions[method].offset - 10}
                                 y={basePathY}
-                                className='editable-text-label'
+                                className={`editable-text-label ${method.toLowerCase()}`}
                             >
                                 {method}
                             </text>
@@ -150,23 +138,23 @@ class HttpResourceHeader extends React.Component {
                     x={x + offset}
                     y={basePathY}
                     fill='white'
-                    className='editable-text-label'
-                >{title}</text>
+                    className='editable-text-label resource-path'
+                >{pathTextSize.text}</text>
 
                 <text
                     style={{ dominantBaseline: 'central' }}
                     x={x + resourceNameOffset}
                     y={basePathY}
                     fill='white'
-                    className='editable-text-label'
-                >{resourceName}</text>
+                    className='editable-text-label resource-name'
+                >{resourceNameSize.text}</text>
 
                 <text
                     style={{ dominantBaseline: 'central' }}
                     x={x + parameterOffset}
                     y={basePathY}
                     fill='white'
-                    className='editable-text-label'
+                    className='editable-text-label resource-parameters'
                 >{parameters}</text>
             </g>
         );
