@@ -27,7 +27,6 @@ import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.common.Constants;
 import org.wso2.transport.http.netty.common.ProxyServerConfiguration;
 import org.wso2.transport.http.netty.config.SenderConfiguration;
-import org.wso2.transport.http.netty.listener.CustomHttpContentCompressor;
 import org.wso2.transport.http.netty.listener.HTTPTraceLoggingHandler;
 import org.wso2.transport.http.netty.sender.channel.pool.ConnectionManager;
 
@@ -90,7 +89,6 @@ public class HTTPClientInitializer extends ChannelInitializer<SocketChannel> {
             ch.pipeline().addLast("certificateValidation",
                     new CertificateValidationHandler(this.sslEngine, this.cacheDelay, this.cacheSize));
         }
-        ch.pipeline().addLast("compressor", new CustomHttpContentCompressor());
         ch.pipeline().addLast("decoder", new HttpResponseDecoder());
         ch.pipeline().addLast("encoder", new HttpRequestEncoder());
         ch.pipeline().addLast("chunkWriter", new ChunkedWriteHandler());
