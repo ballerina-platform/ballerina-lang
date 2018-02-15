@@ -22,7 +22,9 @@ import java.util.List;
 
 
 /**
- * @since 0.961.1
+ * Interface to extend to make a node Documentable.
+ *
+ * @since 0.962.0
  */
 public interface DocumentableNode  extends Node {
 

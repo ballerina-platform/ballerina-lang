@@ -25,7 +25,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 
 /**
- * @since 0.961.1
+ * @since 0.962.0
  */
 public class BLangDocumentationAttribute extends
         BLangExpression implements DocumentationAttributeNode {

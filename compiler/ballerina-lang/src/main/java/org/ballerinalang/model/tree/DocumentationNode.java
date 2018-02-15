@@ -24,7 +24,9 @@ import org.ballerinalang.model.tree.expressions.ExpressionNode;
 import java.util.List;
 
 /**
- * @since 0.961.1
+ * Represents Ballerina Documentation Node.
+ *
+ * @since 0.962.0
  */
 public interface DocumentationNode extends Node {
 

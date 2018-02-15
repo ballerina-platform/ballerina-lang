@@ -29,7 +29,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * @since 0.961.1
+ * @since 0.962.0
  */
 public class BLangDocumentation extends BLangNode implements DocumentationNode {
 

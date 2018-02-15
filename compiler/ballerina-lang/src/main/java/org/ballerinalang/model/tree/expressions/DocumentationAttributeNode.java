@@ -20,7 +20,9 @@ package org.ballerinalang.model.tree.expressions;
 import org.ballerinalang.model.tree.IdentifierNode;
 
 /**
- * @since 0.961.1
+ * Represents attribute inside Documentation Node.
+ *
+ * @since 0.962.0
  */
 public interface DocumentationAttributeNode extends ExpressionNode {
 
