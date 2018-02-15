@@ -107,4 +107,13 @@ public abstract class CompletionItemSorter {
         endpointItem.setDetail(ItemResolverConstants.SNIPPET_TYPE);
         return endpointItem;
     }
+
+    /**
+     * Remove the specific type of completion items from the completion items list.
+     * @param type              Completion Item type
+     * @param completionItems   List of completion Items
+     */
+    void removeCompletionsByType(String type, List<CompletionItem> completionItems) {
+        completionItems.removeIf(completionItem -> completionItem.getDetail().equals(type));
+    }
 }
