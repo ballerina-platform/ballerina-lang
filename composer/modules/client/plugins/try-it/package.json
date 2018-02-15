@@ -2,7 +2,7 @@
   "name": "@ballerina-lang/composer-try-it-plugin",
   "version": "0.962.0",
   "description": "TryIt plugin for composer",
-  "homepage": "https://github.com/ballerina-lang/ballerina/composer/modules/client/packages/plugins/try-it",
+  "homepage": "https://github.com/ballerina-lang/ballerina/composer/modules/client/plugins/try-it",
   "license": "Apache-2.0",
   "main": "dist/index.js",
   "bugs": {
@@ -19,7 +19,8 @@
   },
   "devDependencies": {
     "babel-cli": "^6.24.0",
-    "copyfiles": "^1.2.0"
+    "copyfiles": "^1.2.0",
+    "rimraf": "^2.6.2"
   },
   "dependencies": {
     "@ballerina-lang/composer-core": "0.962.0",

@@ -1,8 +1,8 @@
 {
-  "name": "@ballerina-lang/composer-welcome-tab-plugin",
+  "name": "@ballerina-lang/composer-export-diagram-plugin",
   "version": "0.962.0",
-  "description": "Welome Tab plugin for composer",
-  "homepage": "https://github.com/ballerina-lang/ballerina/composer/modules/client/packages/plugins/welcome-tab",
+  "description": "Diagram Export plugin for composer",
+  "homepage": "https://github.com/ballerina-lang/ballerina/composer/modules/client/plugins/export-diagram",
   "license": "Apache-2.0",
   "main": "dist/index.js",
   "bugs": {
@@ -19,14 +19,17 @@
   },
   "devDependencies": {
     "babel-cli": "^6.24.0",
-    "copyfiles": "^1.2.0"
+    "copyfiles": "^1.2.0",
+    "rimraf": "^2.6.2"
   },
   "dependencies": {
     "@ballerina-lang/composer-core": "0.962.0",
     "@ballerina-lang/composer-api-client": "0.962.0",
-    "@ballerina-lang/composer-help-plugin": "0.962.0",
     "prop-types": "^15.5.8",
     "react": "^16.2.0",
-    "lodash": "^4.13.1"
+    "react-bootstrap": "^0.31.5",
+    "react-htmltree": "github:pahans/react-htmltree#upgrade-to-react-16",
+    "lodash": "^4.13.1",
+    "jquery": "^1.9.1"
   }
 }

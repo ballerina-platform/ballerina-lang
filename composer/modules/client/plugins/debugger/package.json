@@ -1,8 +1,8 @@
 {
-  "name": "@ballerina-lang/composer-import-swagger-plugin",
+  "name": "@ballerina-lang/composer-debugger-plugin",
   "version": "0.962.0",
-  "description": "Import Swagger plugin for composer",
-  "homepage": "https://github.com/ballerina-lang/ballerina/composer/modules/client/packages/plugins/import-swagger",
+  "description": "Debugger plugin for composer",
+  "homepage": "https://github.com/ballerina-lang/ballerina/composer/modules/client/plugins/debugger",
   "license": "Apache-2.0",
   "main": "dist/index.js",
   "bugs": {
@@ -19,7 +19,8 @@
   },
   "devDependencies": {
     "babel-cli": "^6.24.0",
-    "copyfiles": "^1.2.0"
+    "copyfiles": "^1.2.0",
+    "rimraf": "^2.6.2"
   },
   "dependencies": {
     "@ballerina-lang/composer-core": "0.962.0",
@@ -27,6 +28,11 @@
     "prop-types": "^15.5.8",
     "react": "^16.2.0",
     "react-bootstrap": "^0.31.5",
+    "react-treeview": "^0.4.7",
+    "react-json-view": "^1.13.3",
+    "react-htmltree": "github:pahans/react-htmltree#upgrade-to-react-16",
+    "react-linkify": "^0.2.1",
+    "json5": "^0.5.1",
     "lodash": "^4.13.1"
   }
 }

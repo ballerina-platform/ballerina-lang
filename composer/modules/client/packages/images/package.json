@@ -1,0 +1,23 @@
+{
+  "name": "@ballerina-lang/composer-images",
+  "version": "0.962.0",
+  "description": "Composer Images",
+  "homepage": "https://github.com/ballerina-lang/ballerina/composer/modules/client/packages/images",
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/ballerina-lang/ballerina/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ballerina-lang/ballerina.git"
+  },
+  "scripts": {
+    "clean": "rimraf dist",
+    "copy-assets": "copyfiles -u 1 'src/**/*.*' dist",
+    "build": "npm run clean && npm run copy-assets"
+  },
+  "devDependencies": {
+    "copyfiles": "^1.2.0",
+    "rimraf": "^2.6.2"
+  }
+}
