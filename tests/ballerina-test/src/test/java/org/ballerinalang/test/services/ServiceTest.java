@@ -208,7 +208,7 @@ public class ServiceTest {
     @Test(description = "Test GetFormParams empty responseMsgPayloads")
     public void testGetFormParamsEmptyresponseMsgPayload() {
         String path = "/echo/getFormParams";
-        HTTPTestRequest requestMsg = MessageUtils.generateHTTPMessage(path, "POST", "");
+        HTTPTestRequest requestMsg = MessageUtils.generateHTTPMessage(path, "POST", " ");
         requestMsg.setHeader(CONTENT_TYPE, APPLICATION_FORM);
         HTTPCarbonMessage responseMsg = Services.invokeNew(compileResult, requestMsg);
         Assert.assertNotNull(responseMsg, "responseMsg message not found");
