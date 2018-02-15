@@ -721,6 +721,31 @@ class SizingUtil {
      */
     sizeResourceNode(node) {
         this.sizeFunctionNode(node);
+
+        // calculate http methods dimensions
+        let annotationAttachment = node.filterAnnotationAttachments((attachment) => {
+            return attachment.getAnnotationName().value === 'resourceConfig';
+        })[0];
+        annotationAttachment = annotationAttachment || {};
+        annotationAttachment.attributes = annotationAttachment.attributes || [];
+        const pathAtributeNode = _.filter(annotationAttachment.attributes, (atribute) => {
+            return atribute.getName().value === 'methods';
+        })[0];
+        node.viewState.components.httpMethods = {
+            bBox: new SimpleBBox(),
+        };
+
+        if (pathAtributeNode && pathAtributeNode.getValue() && pathAtributeNode.getValue().getValueArray()) {
+            pathAtributeNode.getValue().getValueArray().forEach((method) => {
+                const textWidth = this.getTextWidth(method.getValue().unescapedValue, 15, 50);
+                node.viewState.components.httpMethods[textWidth.text] = {};
+                node.viewState.components.httpMethods[textWidth.text].w = textWidth.w;
+                node.viewState.components.httpMethods[textWidth.text].offset =
+                    node.viewState.components.httpMethods.bBox.w;
+                node.viewState.components.httpMethods.bBox.w += textWidth.w + 10;
+            });
+        }
+        node.viewState.components.httpMethods.bBox.w += 30;
     }
 
 
@@ -752,6 +777,7 @@ class SizingUtil {
         cmp.transportLine = new SimpleBBox();
         cmp.connectors = new SimpleBBox();
         cmp.annotation = new SimpleBBox();
+        cmp.title = new SimpleBBox();
         // initialize annotation view if not defined.
         if (_.isNil(viewState.showAnnotationContainer)) {
             viewState.showAnnotationContainer = true;
@@ -772,6 +798,21 @@ class SizingUtil {
             endpoints = node.filterVariables((statement) => {
                 return TreeUtil.isEndpointTypeVariableDef(statement);
             });
+            const resources = node.getResources();
+            if (resources) {
+                const titleOffsets = resources.map((resource) => {
+                    if (resource.viewState.components.httpMethods) {
+                        return resource.viewState.components.httpMethods.bBox.w;
+                    }
+                    return 0;
+                });
+                cmp.title.w = _.max(titleOffsets);
+                resources.forEach((resource) => {
+                    if (resource.viewState.components.httpMethods) {
+                        resource.viewState.components.httpMethods.bBox.w = cmp.title.w;
+                    }
+                });
+            }
         } else if (TreeUtil.isConnector(node)) {
             variables = node.getVariableDefs();
             endpoints = node.filterVariableDefs((statement) => {
