@@ -79,7 +79,7 @@ public class NetworkUtils {
      */
     public static void pushPackages(String resourceName) {
         compileResult = compilePullCmdBalFile("ballerina.push");
-        String ballerinaCentralRepoURL = "http://52.54.136.13:9090/p/natasha/foobar/1.0.0";
+        String ballerinaCentralRepoURL = "http://52.54.136.13:9090/p/" + resourceName + "/1.0.0";
         String[] arguments = new String[]{ballerinaCentralRepoURL, resourceName};
         LauncherUtils.runMain(compileResult.getProgFile(), arguments);
     }
