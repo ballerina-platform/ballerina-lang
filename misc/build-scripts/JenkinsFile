@@ -115,6 +115,11 @@ node("${nodeLabel}") {
             stage("Archiving Tools distribution") {
                 archiveArtifacts artifacts: 'distribution/zip/ballerina-tools/target/ballerina-tools-*.zip'
             }
+
+            // Archive the vscode distribution
+            stage("Archiving vscode distribution") {
+                archiveArtifacts artifacts: 'tool-plugins/vscode/target/ballerina-vscode-plugin-*.vsix'
+            }
         }
     } catch (Exception e) {
         println("An exception has occurred in during the build process");
