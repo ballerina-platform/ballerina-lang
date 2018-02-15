@@ -18,13 +18,13 @@
 package org.ballerinalang.launcher.toml.model.fields;
 
 /**
- * Section defined in the toml file
+ * Section defined in the toml file.
  */
 public enum Section {
     PACKAGE, DEPENDENCIES, PATCHES, PROXY;
 
     /**
-     * Check if the section header matches the toml header
+     * Check if the section header matches the toml header.
      *
      * @param match section header in the toml file
      * @return if it matches or not
