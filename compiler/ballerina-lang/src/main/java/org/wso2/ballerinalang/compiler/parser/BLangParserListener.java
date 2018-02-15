@@ -1821,10 +1821,10 @@ public class BLangParserListener extends BallerinaParserBaseListener {
                     .replace("0x", ""), 16));
         } else if ((node = ctx.OctalIntegerLiteral()) != null) {
             this.pkgBuilder.addLiteralValue(pos, ws, TypeTags.INT, Long.parseLong(getNodeValue(ctx, node)
-                    .replace("0x", ""), 8));
+                    .replace("0_", ""), 8));
         } else if ((node = ctx.BinaryIntegerLiteral()) != null) {
             this.pkgBuilder.addLiteralValue(pos, ws, TypeTags.INT, Long.parseLong(getNodeValue(ctx, node).toLowerCase()
-                    .replace("0x", ""), 2));
+                    .replace("0b", ""), 2));
         }
     }
 
