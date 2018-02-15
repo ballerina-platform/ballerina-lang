@@ -153,12 +153,12 @@ public class ManifestBuildListener extends TomlBaseListener {
      * @param value KeyvalContext object
      */
     private void setToManifest(String value) {
-        if (currentKey.hasKey() && Section.PACKAGE.stringEquals(currentHeader)) {
+        if (currentKey.present() && Section.PACKAGE.stringEquals(currentHeader)) {
             PackageField packageFieldField = PackageField.LOOKUP.get(currentKey.pop());
             if (packageFieldField != null) {
                 packageFieldField.setStringTo(this.manifest, value);
             }
-        } else if (currentKey.hasKey() && (Section.DEPENDENCIES.stringEquals(currentHeader) || Section.PATCHES.stringEquals(currentHeader))) {
+        } else if (currentKey.present() && (Section.DEPENDENCIES.stringEquals(currentHeader) || Section.PATCHES.stringEquals(currentHeader))) {
             DependencyField dependencyField = DependencyField.lookup.get(currentKey.pop());
             if (dependencyField != null) {
                 dependencyField.setValueTo(dependency, value);
@@ -172,7 +172,7 @@ public class ManifestBuildListener extends TomlBaseListener {
      * @param arrayValuesContext ArrayValuesContext object
      */
     private void setToManifest(TomlParser.ArrayValuesContext arrayValuesContext) {
-        if (currentKey.hasKey() && Section.PACKAGE.stringEquals(currentHeader)) {
+        if (currentKey.present() && Section.PACKAGE.stringEquals(currentHeader)) {
             PackageField packageFieldField = PackageField.LOOKUP.get(currentKey.pop());
             if (packageFieldField != null) {
                 List<String> arrayElements = populateList(arrayValuesContext);
@@ -217,7 +217,7 @@ public class ManifestBuildListener extends TomlBaseListener {
      * @param ctx InlineTableKeyvalsContext object
      */
     private void setToManifest(TomlParser.InlineTableKeyvalsContext ctx) {
-        if (currentKey.hasKey() &&
+        if (currentKey.present() &&
                 (Section.DEPENDENCIES.stringEquals(currentHeader) ||
                         Section.PATCHES.stringEquals(currentHeader))) {
             createDependencyObject(String.valueOf(currentKey.pop()));
