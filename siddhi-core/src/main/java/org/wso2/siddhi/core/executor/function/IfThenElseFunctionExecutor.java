@@ -17,7 +17,8 @@
  */
 package org.wso2.siddhi.core.executor.function;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.wso2.siddhi.annotation.Example;
 import org.wso2.siddhi.annotation.Extension;
 import org.wso2.siddhi.annotation.Parameter;
@@ -86,7 +87,7 @@ import java.util.Map;
         }
 )
 public class IfThenElseFunctionExecutor extends FunctionExecutor {
-    private static final Logger log = Logger.getLogger(IfThenElseFunctionExecutor.class);
+    private static final Logger log = LoggerFactory.getLogger(IfThenElseFunctionExecutor.class);
     Attribute.Type returnType;
 
     @Override

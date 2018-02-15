@@ -18,7 +18,8 @@
 
 package org.wso2.siddhi.core.util.snapshot;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.wso2.siddhi.core.config.SiddhiAppContext;
 import org.wso2.siddhi.core.util.ExceptionUtil;
 
@@ -32,7 +33,7 @@ import java.io.ObjectOutputStream;
  * Serializer used by {@link SnapshotService} to do Object to Byte[] conversion and vise-versa
  */
 public class ByteSerializer {
-    private static final Logger log = Logger.getLogger(ByteSerializer.class);
+    private static final Logger log = LoggerFactory.getLogger(ByteSerializer.class);
 
     private ByteSerializer() {
     }

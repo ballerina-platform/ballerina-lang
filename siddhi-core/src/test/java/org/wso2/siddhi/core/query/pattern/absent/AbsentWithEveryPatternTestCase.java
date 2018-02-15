@@ -18,7 +18,8 @@
 
 package org.wso2.siddhi.core.query.pattern.absent;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.testng.AssertJUnit;
 import org.testng.annotations.Test;
 import org.wso2.siddhi.core.SiddhiAppRuntime;
@@ -33,7 +34,7 @@ import org.wso2.siddhi.core.stream.input.InputHandler;
  */
 public class AbsentWithEveryPatternTestCase {
 
-    private static final Logger log = Logger.getLogger(AbsentWithEveryPatternTestCase.class);
+    private static final Logger log = LoggerFactory.getLogger(AbsentWithEveryPatternTestCase.class);
 
     @Test
     public void testQuery1() throws InterruptedException {

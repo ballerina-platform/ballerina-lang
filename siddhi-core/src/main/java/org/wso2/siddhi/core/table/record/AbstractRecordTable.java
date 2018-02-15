@@ -18,7 +18,8 @@
 
 package org.wso2.siddhi.core.table.record;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.wso2.siddhi.core.config.SiddhiAppContext;
 import org.wso2.siddhi.core.event.ComplexEventChunk;
 import org.wso2.siddhi.core.event.state.StateEvent;
@@ -51,7 +52,7 @@ import java.util.Map;
  */
 public abstract class AbstractRecordTable extends Table {
 
-    private static final Logger log = Logger.getLogger(AbstractRecordTable.class);
+    private static final Logger log = LoggerFactory.getLogger(AbstractRecordTable.class);
 
     protected StreamEventPool storeEventPool;
     protected RecordTableHandler recordTableHandler;

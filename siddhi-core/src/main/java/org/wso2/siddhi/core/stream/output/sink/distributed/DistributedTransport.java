@@ -18,7 +18,8 @@
 
 package org.wso2.siddhi.core.stream.output.sink.distributed;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.wso2.siddhi.core.config.SiddhiAppContext;
 import org.wso2.siddhi.core.exception.ConnectionUnavailableException;
 import org.wso2.siddhi.core.stream.output.sink.Sink;
@@ -38,7 +39,7 @@ import java.util.List;
  * This is the base class for Distributed transports. All distributed transport types must inherit from this class
  */
 public abstract class DistributedTransport extends Sink {
-    private static final Logger log = Logger.getLogger(DistributedTransport.class);
+    private static final Logger log = LoggerFactory.getLogger(DistributedTransport.class);
     protected DistributionStrategy strategy;
     protected StreamDefinition streamDefinition;
     protected SiddhiAppContext siddhiAppContext;

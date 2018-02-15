@@ -31,10 +31,6 @@
 
     <dependencies>
         <dependency>
-            <groupId>org.apache.log4j.wso2</groupId>
-            <artifactId>log4j</artifactId>
-        </dependency>
-        <dependency>
             <groupId>com.google.code.gson</groupId>
             <artifactId>gson</artifactId>
         </dependency>

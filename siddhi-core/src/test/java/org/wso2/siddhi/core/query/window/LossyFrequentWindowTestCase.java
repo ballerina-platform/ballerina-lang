@@ -18,7 +18,8 @@
 
 package org.wso2.siddhi.core.query.window;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.testng.AssertJUnit;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
@@ -30,7 +31,7 @@ import org.wso2.siddhi.core.stream.input.InputHandler;
 import org.wso2.siddhi.core.util.EventPrinter;
 
 public class LossyFrequentWindowTestCase {
-    private static final Logger log = Logger.getLogger(LossyFrequentWindowTestCase.class);
+    private static final Logger log = LoggerFactory.getLogger(LossyFrequentWindowTestCase.class);
 
     private int inEventCount;
     private int removeEventCount;

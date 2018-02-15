@@ -18,7 +18,8 @@
 
 package org.wso2.siddhi.core.table.holder;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.wso2.siddhi.core.config.SiddhiAppContext;
 import org.wso2.siddhi.core.event.ComplexEvent;
 import org.wso2.siddhi.core.event.ComplexEventChunk;
@@ -46,7 +47,7 @@ import java.util.TreeMap;
  */
 public class IndexEventHolder implements IndexedEventHolder, Serializable {
 
-    private static final Logger log = Logger.getLogger(IndexEventHolder.class);
+    private static final Logger log = LoggerFactory.getLogger(IndexEventHolder.class);
     private static final long serialVersionUID = 1272291743721603253L;
     private final Map<Object, StreamEvent> primaryKeyData;
     private final Map<String, TreeMap<Object, Set<StreamEvent>>> indexData;

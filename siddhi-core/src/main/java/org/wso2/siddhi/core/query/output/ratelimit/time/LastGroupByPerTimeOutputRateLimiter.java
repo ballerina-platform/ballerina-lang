@@ -19,7 +19,8 @@
 package org.wso2.siddhi.core.query.output.ratelimit.time;
 
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.wso2.siddhi.core.event.ComplexEvent;
 import org.wso2.siddhi.core.event.ComplexEventChunk;
 import org.wso2.siddhi.core.event.GroupedComplexEvent;
@@ -40,7 +41,7 @@ import java.util.concurrent.ScheduledExecutorService;
  * event. This implementation specifically represent GroupBy queries.
  */
 public class LastGroupByPerTimeOutputRateLimiter extends OutputRateLimiter implements Schedulable {
-    private static final Logger log = Logger.getLogger(LastGroupByPerTimeOutputRateLimiter.class);
+    private static final Logger log = LoggerFactory.getLogger(LastGroupByPerTimeOutputRateLimiter.class);
     private final Long value;
     private String id;
     private Map<String, ComplexEvent> allGroupByKeyEvents = new LinkedHashMap<String, ComplexEvent>();

@@ -18,7 +18,6 @@
 
 package org.wso2.siddhi.core.query.output.ratelimit.time;
 
-import org.apache.log4j.Logger;
 import org.wso2.siddhi.core.event.ComplexEvent;
 import org.wso2.siddhi.core.event.ComplexEventChunk;
 import org.wso2.siddhi.core.event.stream.StreamEventPool;
@@ -39,7 +38,6 @@ import java.util.concurrent.ScheduledExecutorService;
 
 public class AllPerTimeOutputRateLimiter extends OutputRateLimiter implements Schedulable {
 
-    private static final Logger log = Logger.getLogger(AllPerTimeOutputRateLimiter.class);
     private final Long value;
     private String id;
     private ScheduledExecutorService scheduledExecutorService;

@@ -17,7 +17,8 @@
  */
 package org.wso2.siddhi.core.query.selector;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.wso2.siddhi.core.config.SiddhiAppContext;
 import org.wso2.siddhi.core.event.ComplexEvent;
 import org.wso2.siddhi.core.event.ComplexEventChunk;
@@ -44,7 +45,7 @@ import java.util.Map;
 public class QuerySelector implements Processor {
 
 
-    private static final Logger log = Logger.getLogger(QuerySelector.class);
+    private static final Logger log = LoggerFactory.getLogger(QuerySelector.class);
     private Selector selector;
     private SiddhiAppContext siddhiAppContext;
     private boolean currentOn = false;

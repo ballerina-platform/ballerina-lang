@@ -18,7 +18,8 @@
 
 package org.wso2.siddhi.core.stream.output.sink;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.wso2.siddhi.annotation.Example;
 import org.wso2.siddhi.annotation.Extension;
 import org.wso2.siddhi.annotation.Parameter;
@@ -90,7 +91,7 @@ import java.util.Map;
 )
 
 public class LogSink extends Sink {
-    private static final Logger logger = Logger.getLogger(LogSink.class);
+    private static final Logger logger = LoggerFactory.getLogger(LogSink.class);
     private static final String PREFIX = "prefix";
     private static final String PRIORITY = "priority";
     private String logPrefix;
@@ -137,9 +138,9 @@ public class LogSink extends Sink {
             case WARN:
                 logger.warn(message);
                 break;
-            case FATAL:
-                logger.fatal(message);
-                break;
+//            case FATAL:
+//                logger.fatal(message);
+//                break;
             case ERROR:
                 logger.error(message);
                 break;

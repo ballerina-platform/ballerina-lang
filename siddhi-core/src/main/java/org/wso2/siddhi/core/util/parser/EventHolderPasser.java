@@ -18,7 +18,8 @@
 
 package org.wso2.siddhi.core.util.parser;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.wso2.siddhi.core.config.SiddhiAppContext;
 import org.wso2.siddhi.core.event.stream.StreamEventPool;
 import org.wso2.siddhi.core.event.stream.converter.ZeroStreamEventConverter;
@@ -43,7 +44,7 @@ import java.util.Map;
  * Class to parse {@link EventHolder}
  */
 public class EventHolderPasser {
-    private static final Logger log = Logger.getLogger(EventHolderPasser.class);
+    private static final Logger log = LoggerFactory.getLogger(EventHolderPasser.class);
 
     public static EventHolder parse(AbstractDefinition tableDefinition, StreamEventPool tableStreamEventPool,
                                     SiddhiAppContext siddhiAppContext) {

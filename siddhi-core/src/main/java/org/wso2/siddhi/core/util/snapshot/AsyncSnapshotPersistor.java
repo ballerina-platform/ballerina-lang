@@ -18,7 +18,8 @@
 
 package org.wso2.siddhi.core.util.snapshot;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.wso2.siddhi.core.exception.NoPersistenceStoreException;
 import org.wso2.siddhi.core.util.persistence.PersistenceStore;
 
@@ -26,7 +27,7 @@ import org.wso2.siddhi.core.util.persistence.PersistenceStore;
  * {@link Runnable} which is responsible for persisting the snapshots that are taken
  */
 public class AsyncSnapshotPersistor implements Runnable {
-    private static final Logger log = Logger.getLogger(AsyncSnapshotPersistor.class);
+    private static final Logger log = LoggerFactory.getLogger(AsyncSnapshotPersistor.class);
     private byte[] snapshots;
     private PersistenceStore persistenceStore;
     private String siddhiAppName;

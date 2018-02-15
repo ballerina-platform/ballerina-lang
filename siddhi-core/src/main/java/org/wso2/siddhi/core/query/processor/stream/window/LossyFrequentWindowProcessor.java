@@ -18,7 +18,8 @@
 
 package org.wso2.siddhi.core.query.processor.stream.window;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.wso2.siddhi.annotation.Example;
 import org.wso2.siddhi.annotation.Extension;
 import org.wso2.siddhi.annotation.Parameter;
@@ -100,7 +101,7 @@ import java.util.concurrent.ConcurrentHashMap;
         }
 )
 public class LossyFrequentWindowProcessor extends WindowProcessor implements FindableProcessor {
-    private static final Logger log = Logger.getLogger(LossyFrequentWindowProcessor.class);
+    private static final Logger log = LoggerFactory.getLogger(LossyFrequentWindowProcessor.class);
     private ConcurrentHashMap<String, LossyCount> countMap = new ConcurrentHashMap<String, LossyCount>();
     private ConcurrentHashMap<String, StreamEvent> map = new ConcurrentHashMap<String, StreamEvent>();
     private VariableExpressionExecutor[] variableExpressionExecutors;

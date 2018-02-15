@@ -18,7 +18,8 @@
 
 package org.wso2.siddhi.core.stream.input.source;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.wso2.siddhi.core.config.SiddhiAppContext;
 import org.wso2.siddhi.core.exception.ConnectionUnavailableException;
 import org.wso2.siddhi.core.util.ExceptionUtil;
@@ -40,7 +41,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * source should be implemented.
  */
 public abstract class Source implements Snapshotable {
-    private static final Logger LOG = Logger.getLogger(Source.class);
+    private static final Logger LOG = LoggerFactory.getLogger(Source.class);
     private String type;
     private SourceMapper mapper;
     private StreamDefinition streamDefinition;

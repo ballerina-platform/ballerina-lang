@@ -18,7 +18,8 @@
 
 package org.wso2.siddhi.core.query;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.testng.AssertJUnit;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
@@ -38,7 +39,7 @@ import org.wso2.siddhi.query.api.execution.query.selection.Selector;
 import org.wso2.siddhi.query.api.expression.Expression;
 
 public class PassThroughTestCase {
-    private static final Logger log = Logger.getLogger(PassThroughTestCase.class);
+    private static final Logger log = LoggerFactory.getLogger(PassThroughTestCase.class);
     private int count;
     private boolean eventArrived;
 

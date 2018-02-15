@@ -17,7 +17,9 @@
  */
 package org.wso2.siddhi.core.util.persistence;
 
-import org.apache.log4j.Logger;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -29,7 +31,7 @@ import java.util.Map;
  */
 public class InMemoryPersistenceStore implements PersistenceStore {
 
-    private static final Logger log = Logger.getLogger(InMemoryPersistenceStore.class);
+    private static final Logger log = LoggerFactory.getLogger(InMemoryPersistenceStore.class);
 
     Map<String, Map<String, byte[]>> persistenceMap = new HashMap<String, Map<String, byte[]>>();
     Map<String, List<String>> revisionMap = new HashMap<String, List<String>>();

@@ -17,7 +17,6 @@
  */
 package org.wso2.siddhi.core.query.processor.stream.window;
 
-import org.apache.log4j.Logger;
 import org.quartz.CronScheduleBuilder;
 import org.quartz.Job;
 import org.quartz.JobDataMap;
@@ -30,6 +29,8 @@ import org.quartz.SchedulerException;
 import org.quartz.SchedulerFactory;
 import org.quartz.Trigger;
 import org.quartz.impl.StdSchedulerFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.wso2.siddhi.annotation.Example;
 import org.wso2.siddhi.annotation.Extension;
 import org.wso2.siddhi.annotation.Parameter;
@@ -73,7 +74,7 @@ import java.util.Map;
                 description = "This will processed events as the output every 5 seconds.")
 )
 public class CronWindowProcessor extends WindowProcessor implements Job {
-    private static final Logger log = Logger.getLogger(CronWindowProcessor.class);
+    private static final Logger log = LoggerFactory.getLogger(CronWindowProcessor.class);
     private final String jobGroup = "CronWindowGroup";
     private ComplexEventChunk<StreamEvent> currentEventChunk = new ComplexEventChunk<StreamEvent>(false);
     private ComplexEventChunk<StreamEvent> expiredEventChunk = new ComplexEventChunk<StreamEvent>(false);

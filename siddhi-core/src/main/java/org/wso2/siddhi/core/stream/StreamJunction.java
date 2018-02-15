@@ -23,7 +23,8 @@ import com.lmax.disruptor.EventHandler;
 import com.lmax.disruptor.RingBuffer;
 import com.lmax.disruptor.dsl.Disruptor;
 import com.lmax.disruptor.dsl.ProducerType;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.wso2.siddhi.core.config.SiddhiAppContext;
 import org.wso2.siddhi.core.event.ComplexEvent;
 import org.wso2.siddhi.core.event.Event;
@@ -54,7 +55,7 @@ import java.util.concurrent.ExecutorService;
  * events till they are consumed by registered Receivers.
  */
 public class StreamJunction implements EventBufferHolder {
-    private static final Logger log = Logger.getLogger(StreamJunction.class);
+    private static final Logger log = LoggerFactory.getLogger(StreamJunction.class);
     private final SiddhiAppContext siddhiAppContext;
     private final StreamDefinition streamDefinition;
     private int bufferSize;

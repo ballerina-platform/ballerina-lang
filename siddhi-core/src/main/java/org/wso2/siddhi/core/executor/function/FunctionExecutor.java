@@ -17,7 +17,8 @@
  */
 package org.wso2.siddhi.core.executor.function;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.wso2.siddhi.core.config.SiddhiAppContext;
 import org.wso2.siddhi.core.event.ComplexEvent;
 import org.wso2.siddhi.core.exception.SiddhiAppCreationException;
@@ -33,7 +34,7 @@ import org.wso2.siddhi.core.util.snapshot.Snapshotable;
  */
 public abstract class FunctionExecutor implements ExpressionExecutor, Snapshotable {
 
-    private static final Logger log = Logger.getLogger(FunctionExecutor.class);
+    private static final Logger log = LoggerFactory.getLogger(FunctionExecutor.class);
     protected ExpressionExecutor[] attributeExpressionExecutors;
     protected SiddhiAppContext siddhiAppContext;
     protected String elementId;

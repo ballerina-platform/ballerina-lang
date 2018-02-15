@@ -18,7 +18,8 @@
 
 package org.wso2.siddhi.core.query.window;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.testng.AssertJUnit;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
@@ -40,7 +41,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class ExternalTimeBatchWindowTestCase {
 
 
-    private static final Logger log = Logger.getLogger(TimeWindowTestCase.class);
+    private static final Logger log = LoggerFactory.getLogger(TimeWindowTestCase.class);
     private static SiddhiManager siddhiManager;
     private int inEventCount;
     private int removeEventCount;

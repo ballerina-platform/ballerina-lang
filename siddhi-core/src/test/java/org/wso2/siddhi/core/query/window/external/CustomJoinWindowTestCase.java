@@ -18,7 +18,8 @@
 
 package org.wso2.siddhi.core.query.window.external;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.testng.AssertJUnit;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
@@ -35,7 +36,7 @@ import static org.testng.AssertJUnit.assertArrayEquals;
 import static org.testng.AssertJUnit.assertEquals;
 
 public class CustomJoinWindowTestCase {
-    private static final Logger log = Logger.getLogger(CustomJoinWindowTestCase.class);
+    private static final Logger log = LoggerFactory.getLogger(CustomJoinWindowTestCase.class);
     private int inEventCount;
     private int removeEventCount;
     private int count;

@@ -18,7 +18,8 @@
 
 package org.wso2.siddhi.core.query.sequence.absent;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.testng.AssertJUnit;
 import org.testng.annotations.Test;
 import org.wso2.siddhi.core.SiddhiAppRuntime;
@@ -37,7 +38,7 @@ import org.wso2.siddhi.core.stream.input.InputHandler;
  */
 public class EveryAbsentSequenceTestCase {
 
-    private static final Logger log = Logger.getLogger(EveryAbsentSequenceTestCase.class);
+    private static final Logger log = LoggerFactory.getLogger(EveryAbsentSequenceTestCase.class);
 
     @Test
     public void testQueryAbsent1() throws InterruptedException {

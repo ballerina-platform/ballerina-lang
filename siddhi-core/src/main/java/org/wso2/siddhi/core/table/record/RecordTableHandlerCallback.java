@@ -16,7 +16,8 @@
 
 package org.wso2.siddhi.core.table.record;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.wso2.siddhi.core.exception.ConnectionUnavailableException;
 import org.wso2.siddhi.core.util.collection.operator.CompiledCondition;
 import org.wso2.siddhi.core.util.collection.operator.CompiledExpression;
@@ -32,7 +33,7 @@ import java.util.Map;
  */
 public class RecordTableHandlerCallback {
 
-    private static final Logger log = Logger.getLogger(RecordTableHandlerCallback.class);
+    private static final Logger log = LoggerFactory.getLogger(RecordTableHandlerCallback.class);
 
     private AbstractRecordTable abstractRecordTable;
 

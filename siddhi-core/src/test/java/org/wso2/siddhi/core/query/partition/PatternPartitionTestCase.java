@@ -17,7 +17,8 @@
  */
 package org.wso2.siddhi.core.query.partition;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.testng.AssertJUnit;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
@@ -32,7 +33,7 @@ import org.wso2.siddhi.core.util.SiddhiTestHelper;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class PatternPartitionTestCase {
-    private static final Logger log = Logger.getLogger(PatternPartitionTestCase.class);
+    private static final Logger log = LoggerFactory.getLogger(PatternPartitionTestCase.class);
     private AtomicInteger inEventCount;
     private AtomicInteger removeEventCount;
     private boolean eventArrived;

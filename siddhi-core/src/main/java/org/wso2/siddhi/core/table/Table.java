@@ -18,7 +18,8 @@
 
 package org.wso2.siddhi.core.table;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.wso2.siddhi.core.config.SiddhiAppContext;
 import org.wso2.siddhi.core.event.ComplexEventChunk;
 import org.wso2.siddhi.core.event.state.StateEvent;
@@ -56,7 +57,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  */
 public abstract class Table implements FindableProcessor, MemoryCalculable {
 
-    private static final Logger LOG = Logger.getLogger(Table.class);
+    private static final Logger LOG = LoggerFactory.getLogger(Table.class);
 
     protected TableDefinition tableDefinition;
 

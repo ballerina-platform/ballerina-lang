@@ -17,7 +17,6 @@
  */
 package org.wso2.siddhi.core.query.window;
 
-import org.apache.log4j.Logger;
 import org.testng.AssertJUnit;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
@@ -31,7 +30,6 @@ import org.wso2.siddhi.core.stream.output.StreamCallback;
 import org.wso2.siddhi.core.util.EventPrinter;
 
 public class TimeWindowTestCase {
-    private static final Logger log = Logger.getLogger(TimeWindowTestCase.class);
     private int inEventCount;
     private int removeEventCount;
     private boolean eventArrived;

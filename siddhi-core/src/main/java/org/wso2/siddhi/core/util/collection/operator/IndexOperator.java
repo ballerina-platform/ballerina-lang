@@ -18,7 +18,8 @@
 
 package org.wso2.siddhi.core.util.collection.operator;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.wso2.siddhi.core.event.ComplexEventChunk;
 import org.wso2.siddhi.core.event.state.StateEvent;
 import org.wso2.siddhi.core.event.stream.StreamEvent;
@@ -39,7 +40,7 @@ import java.util.Set;
  */
 public class IndexOperator implements Operator {
 
-    private static final Logger log = Logger.getLogger(IndexOperator.class);
+    private static final Logger log = LoggerFactory.getLogger(IndexOperator.class);
     protected String queryName;
     private CollectionExecutor collectionExecutor;
 

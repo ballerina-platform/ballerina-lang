@@ -17,7 +17,6 @@
  */
 package org.wso2.siddhi.core.util.parser;
 
-import org.apache.log4j.Logger;
 import org.wso2.siddhi.core.config.SiddhiAppContext;
 import org.wso2.siddhi.core.config.SiddhiContext;
 import org.wso2.siddhi.core.exception.SiddhiAppCreationException;
@@ -64,7 +63,6 @@ import static org.wso2.siddhi.core.util.parser.helper.AnnotationHelper.generateI
  * Class to parse {@link SiddhiApp}
  */
 public class SiddhiAppParser {
-    private static final Logger log = Logger.getLogger(SiddhiAppParser.class);
 
     /**
      * Parse an SiddhiApp returning SiddhiAppRuntime

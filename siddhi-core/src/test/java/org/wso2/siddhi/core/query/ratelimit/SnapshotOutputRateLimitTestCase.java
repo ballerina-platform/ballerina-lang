@@ -18,7 +18,8 @@
 
 package org.wso2.siddhi.core.query.ratelimit;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.testng.AssertJUnit;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
@@ -34,7 +35,7 @@ import org.wso2.siddhi.core.util.SiddhiTestHelper;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class SnapshotOutputRateLimitTestCase {
-    private static final Logger log = Logger.getLogger(SnapshotOutputRateLimitTestCase.class);
+    private static final Logger log = LoggerFactory.getLogger(SnapshotOutputRateLimitTestCase.class);
     private volatile AtomicInteger count;
     private long value;
     private volatile boolean eventArrived;

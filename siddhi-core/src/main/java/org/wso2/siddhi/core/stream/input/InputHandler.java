@@ -17,7 +17,8 @@
  */
 package org.wso2.siddhi.core.stream.input;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.wso2.siddhi.core.event.Event;
 
 /**
@@ -26,7 +27,7 @@ import org.wso2.siddhi.core.event.Event;
  */
 public class InputHandler {
 
-    private static final Logger log = Logger.getLogger(InputHandler.class);
+    private static final Logger log = LoggerFactory.getLogger(InputHandler.class);
 
     protected String streamId;
     protected int streamIndex;

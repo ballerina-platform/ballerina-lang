@@ -17,7 +17,8 @@
  */
 package org.wso2.siddhi.core.debugger;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.wso2.siddhi.core.config.SiddhiAppContext;
 import org.wso2.siddhi.core.event.ComplexEvent;
 import org.wso2.siddhi.core.util.snapshot.SnapshotService;
@@ -38,7 +39,7 @@ public class SiddhiDebugger {
     /**
      * Logger to log events.
      */
-    private static final Logger log = Logger.getLogger(SiddhiDebugger.class);
+    private static final Logger log = LoggerFactory.getLogger(SiddhiDebugger.class);
 
     /**
      * Thread local flag to indicate whether the next endpoint must be blocked or not.

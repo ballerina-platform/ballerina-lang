@@ -18,7 +18,8 @@
 
 package org.wso2.siddhi.core.stream.input.source;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.wso2.siddhi.core.config.SiddhiAppContext;
 import org.wso2.siddhi.core.event.Event;
 import org.wso2.siddhi.core.stream.input.InputHandler;
@@ -33,7 +34,7 @@ import java.util.List;
  */
 public class InputEventHandler {
 
-    private static final Logger LOG = Logger.getLogger(InputEventHandler.class);
+    private static final Logger LOG = LoggerFactory.getLogger(InputEventHandler.class);
 
     private final ThreadLocal<String[]> trpProperties;
     private final TimestampGenerator timestampGenerator;

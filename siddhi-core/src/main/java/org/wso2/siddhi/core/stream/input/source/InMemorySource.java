@@ -18,7 +18,6 @@
 
 package org.wso2.siddhi.core.stream.input.source;
 
-import org.apache.log4j.Logger;
 import org.wso2.siddhi.annotation.Example;
 import org.wso2.siddhi.annotation.Extension;
 import org.wso2.siddhi.annotation.Parameter;
@@ -49,7 +48,6 @@ import java.util.Map;
         )
 )
 public class InMemorySource extends Source {
-    private static final Logger LOG = Logger.getLogger(InMemorySource.class);
     private static final String TOPIC_KEY = "topic";
     private SourceEventListener sourceEventListener;
     private InMemoryBroker.Subscriber subscriber;

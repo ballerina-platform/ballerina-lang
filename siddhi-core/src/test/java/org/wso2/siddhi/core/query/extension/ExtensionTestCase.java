@@ -17,7 +17,8 @@
  */
 package org.wso2.siddhi.core.query.extension;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.testng.AssertJUnit;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
@@ -35,7 +36,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class ExtensionTestCase {
-    private static final Logger log = Logger.getLogger(ExtensionTestCase.class);
+    private static final Logger log = LoggerFactory.getLogger(ExtensionTestCase.class);
     private volatile int count;
     private volatile boolean eventArrived;
 

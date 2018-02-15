@@ -18,13 +18,14 @@
 
 package org.wso2.siddhi.core.util.statistics.memory;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.wso2.siddhi.core.guava.annotations.VisibleForTesting;
 import org.wso2.siddhi.core.guava.base.Preconditions;
 import org.wso2.siddhi.core.guava.cache.CacheBuilder;
 import org.wso2.siddhi.core.guava.cache.CacheLoader;
 import org.wso2.siddhi.core.guava.cache.LoadingCache;
 import org.wso2.siddhi.core.guava.collect.Sets;
-import org.apache.log4j.Logger;
 import org.wso2.siddhi.core.config.SiddhiAppContext;
 import org.wso2.siddhi.core.query.output.callback.OutputCallback;
 import org.wso2.siddhi.core.stream.StreamJunction;
@@ -64,7 +65,7 @@ import java.util.Set;
  * @author Attila Szegedi
  */
 public class ObjectSizeCalculator {
-    private static final Logger log = Logger.getLogger(ObjectSizeCalculator.class);
+    private static final Logger log = LoggerFactory.getLogger(ObjectSizeCalculator.class);
 
     // Fixed object header size for arrays.
     private final int arrayHeaderSize;

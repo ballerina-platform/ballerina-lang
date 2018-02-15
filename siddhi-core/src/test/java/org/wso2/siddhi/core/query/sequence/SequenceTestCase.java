@@ -18,7 +18,8 @@
 
 package org.wso2.siddhi.core.query.sequence;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.testng.AssertJUnit;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
@@ -35,7 +36,7 @@ import org.wso2.siddhi.core.util.EventPrinter;
  */
 public class SequenceTestCase {
 
-    private static final Logger log = Logger.getLogger(SequenceTestCase.class);
+    private static final Logger log = LoggerFactory.getLogger(SequenceTestCase.class);
     private int inEventCount;
     private int removeEventCount;
     private boolean eventArrived;

@@ -18,7 +18,8 @@
 
 package org.wso2.siddhi.core.managment;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.testng.AssertJUnit;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
@@ -32,7 +33,7 @@ import org.wso2.siddhi.core.util.persistence.InMemoryPersistenceStore;
 import org.wso2.siddhi.core.util.persistence.PersistenceStore;
 
 public class LogTestCase {
-    private static final Logger log = Logger.getLogger(LogTestCase.class);
+    private static final Logger log = LoggerFactory.getLogger(LogTestCase.class);
     private int count;
     private boolean eventArrived;
     private long firstValue;

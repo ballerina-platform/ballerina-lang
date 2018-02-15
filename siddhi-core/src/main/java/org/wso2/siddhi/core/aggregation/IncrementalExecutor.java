@@ -18,7 +18,8 @@
 
 package org.wso2.siddhi.core.aggregation;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.wso2.siddhi.core.config.SiddhiAppContext;
 import org.wso2.siddhi.core.event.ComplexEvent;
 import org.wso2.siddhi.core.event.ComplexEventChunk;
@@ -47,7 +48,7 @@ import java.util.concurrent.Semaphore;
  * Incremental executor class which is responsible for performing incremental aggregation.
  */
 public class IncrementalExecutor implements Executor, Snapshotable {
-    private static final Logger LOG = Logger.getLogger(IncrementalExecutor.class);
+    private static final Logger LOG = LoggerFactory.getLogger(IncrementalExecutor.class);
 
     private final StreamEvent resetEvent;
     private final ExpressionExecutor timestampExpressionExecutor;

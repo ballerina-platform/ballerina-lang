@@ -17,7 +17,6 @@
  */
 package org.wso2.siddhi.core.query;
 
-import org.apache.log4j.Logger;
 import org.testng.Assert;
 import org.testng.AssertJUnit;
 import org.testng.annotations.BeforeMethod;
@@ -30,7 +29,6 @@ import org.wso2.siddhi.core.stream.input.InputHandler;
 import org.wso2.siddhi.core.util.EventPrinter;
 
 public class OrderByLimitTestCase {
-    private static final Logger log = Logger.getLogger(OrderByLimitTestCase.class);
     private int inEventCount;
     private int removeEventCount;
     private int count;

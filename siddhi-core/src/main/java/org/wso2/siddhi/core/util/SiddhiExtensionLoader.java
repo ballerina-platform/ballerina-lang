@@ -18,13 +18,14 @@
 
 package org.wso2.siddhi.core.util;
 
-import org.apache.log4j.Logger;
 import org.atteo.classindex.ClassIndex;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.BundleEvent;
 import org.osgi.framework.BundleListener;
 import org.osgi.framework.wiring.BundleWiring;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.wso2.siddhi.annotation.Extension;
 import org.wso2.siddhi.core.executor.incremental.IncrementalStartTimeEndTimeFunctionExecutor;
 import org.wso2.siddhi.core.executor.incremental.IncrementalTimeGetTimeZone;
@@ -38,7 +39,7 @@ import java.util.Map;
  */
 public class SiddhiExtensionLoader {
 
-    private static final Logger log = Logger.getLogger(SiddhiExtensionLoader.class);
+    private static final Logger log = LoggerFactory.getLogger(SiddhiExtensionLoader.class);
 
     /**
      * Helper method to load the Siddhi extensions.

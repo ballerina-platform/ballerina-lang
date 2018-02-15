@@ -19,7 +19,8 @@
 package org.wso2.siddhi.core.stream;
 
 import com.lmax.disruptor.ExceptionHandler;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.testng.AssertJUnit;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
@@ -35,7 +36,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class ExceptionHandlerTestCase {
 
-    private static final Logger log = Logger.getLogger(CallbackTestCase.class);
+    private static final Logger log = LoggerFactory.getLogger(CallbackTestCase.class);
     private volatile AtomicInteger count;
     private volatile boolean eventArrived;
     private volatile AtomicInteger failedCount;

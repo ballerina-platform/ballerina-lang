@@ -17,7 +17,8 @@
  */
 package org.wso2.siddhi.core.stream.output.sink;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.wso2.siddhi.core.config.SiddhiAppContext;
 import org.wso2.siddhi.core.event.Event;
 import org.wso2.siddhi.core.stream.output.StreamCallback;
@@ -30,7 +31,7 @@ import java.util.List;
  * {@link org.wso2.siddhi.core.stream.StreamJunction} and send them to {@link SinkMapper}s to do the mapping.
  */
 public class SinkCallback extends StreamCallback {
-    private static final Logger log = Logger.getLogger(SinkCallback.class);
+    private static final Logger log = LoggerFactory.getLogger(SinkCallback.class);
     private AbstractDefinition outputStreamDefinition;
     private List<Sink> sinks;
 

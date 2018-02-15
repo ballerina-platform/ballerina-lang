@@ -18,7 +18,8 @@
 
 package org.wso2.siddhi.core.stream.output.sink;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.wso2.siddhi.annotation.Example;
 import org.wso2.siddhi.annotation.Extension;
 import org.wso2.siddhi.annotation.Parameter;
@@ -54,7 +55,7 @@ import java.util.Map;
         )
 )
 public class InMemorySink extends Sink {
-    private static final Logger log = Logger.getLogger(InMemorySink.class);
+    private static final Logger log = LoggerFactory.getLogger(InMemorySink.class);
     private static final String TOPIC_KEY = "topic";
     private Option topicOption;
 

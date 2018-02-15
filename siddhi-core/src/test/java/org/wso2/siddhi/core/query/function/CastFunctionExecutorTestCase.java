@@ -18,7 +18,8 @@
 
 package org.wso2.siddhi.core.query.function;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.testng.AssertJUnit;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
@@ -34,7 +35,7 @@ import org.wso2.siddhi.core.util.SiddhiTestHelper;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class CastFunctionExecutorTestCase {
-    private static final Logger log = Logger.getLogger(CastFunctionExecutorTestCase.class);
+    private static final Logger log = LoggerFactory.getLogger(CastFunctionExecutorTestCase.class);
     private AtomicInteger count = new AtomicInteger(0);
     private volatile boolean eventArrived;
 

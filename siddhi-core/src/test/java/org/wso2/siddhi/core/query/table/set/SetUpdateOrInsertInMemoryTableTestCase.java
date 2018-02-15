@@ -18,7 +18,8 @@
 
 package org.wso2.siddhi.core.query.table.set;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
@@ -30,7 +31,7 @@ import org.wso2.siddhi.core.stream.input.InputHandler;
 import java.sql.SQLException;
 
 public class SetUpdateOrInsertInMemoryTableTestCase {
-    private static final Logger log = Logger.getLogger(SetUpdateOrInsertInMemoryTableTestCase.class);
+    private static final Logger log = LoggerFactory.getLogger(SetUpdateOrInsertInMemoryTableTestCase.class);
 
     @BeforeMethod
     public void init() {

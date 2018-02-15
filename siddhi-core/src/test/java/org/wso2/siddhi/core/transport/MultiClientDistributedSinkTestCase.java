@@ -18,7 +18,8 @@
 
 package org.wso2.siddhi.core.transport;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.testng.AssertJUnit;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
@@ -33,7 +34,7 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class MultiClientDistributedSinkTestCase {
-    private static final Logger log = Logger.getLogger(MultiClientDistributedSinkTestCase.class);
+    private static final Logger log = LoggerFactory.getLogger(MultiClientDistributedSinkTestCase.class);
     private AtomicInteger topic1Count = new AtomicInteger(0);
     private AtomicInteger topic2Count = new AtomicInteger(0);
 

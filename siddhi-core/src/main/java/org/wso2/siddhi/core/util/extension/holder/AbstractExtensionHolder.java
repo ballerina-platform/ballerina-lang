@@ -13,11 +13,14 @@
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
  * KIND, either express or implied. See the License for the
  * specific language governing permissions and limitations
+ *
+ *
  * under the License.
  */
 package org.wso2.siddhi.core.util.extension.holder;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.wso2.siddhi.core.config.SiddhiAppContext;
 import org.wso2.siddhi.core.util.SiddhiConstants;
 
@@ -28,7 +31,7 @@ import java.util.Map;
  * Abstract Holder class to retrieve added extensions and store them in a map.
  */
 public abstract class AbstractExtensionHolder {
-    private static final Logger log = Logger.getLogger(AbstractExtensionHolder.class);
+    private static final Logger log = LoggerFactory.getLogger(AbstractExtensionHolder.class);
 
     protected Map<String, Class> extensionMap = new HashMap<String, Class>();
 

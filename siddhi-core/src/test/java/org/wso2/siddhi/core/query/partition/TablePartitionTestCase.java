@@ -18,7 +18,8 @@
 
 package org.wso2.siddhi.core.query.partition;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.testng.AssertJUnit;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
@@ -34,16 +35,14 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 
 public class TablePartitionTestCase {
-    private static final Logger log = Logger.getLogger(TablePartitionTestCase.class);
+    private static final Logger log = LoggerFactory.getLogger(TablePartitionTestCase.class);
     private AtomicInteger count = new AtomicInteger(0);
-    private int stockStreamEventCount;
     private boolean eventArrived;
 
     @BeforeMethod
     public void init() {
         count.set(0);
         eventArrived = false;
-        stockStreamEventCount = 0;
     }
 
     @Test

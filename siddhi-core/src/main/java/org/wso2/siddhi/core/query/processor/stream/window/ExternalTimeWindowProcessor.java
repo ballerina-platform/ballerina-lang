@@ -18,7 +18,6 @@
 
 package org.wso2.siddhi.core.query.processor.stream.window;
 
-import org.apache.log4j.Logger;
 import org.wso2.siddhi.annotation.Example;
 import org.wso2.siddhi.annotation.Extension;
 import org.wso2.siddhi.annotation.Parameter;
@@ -80,7 +79,6 @@ import java.util.Map;
         )
 )
 public class ExternalTimeWindowProcessor extends WindowProcessor implements FindableProcessor {
-    private static final Logger log = Logger.getLogger(ExternalTimeWindowProcessor.class);
     private long timeToKeep;
     private ComplexEventChunk<StreamEvent> expiredEventChunk;
     private VariableExpressionExecutor timeStampVariableExpressionExecutor;

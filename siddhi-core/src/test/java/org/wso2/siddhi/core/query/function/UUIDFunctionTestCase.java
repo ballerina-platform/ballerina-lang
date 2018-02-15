@@ -18,7 +18,8 @@
 
 package org.wso2.siddhi.core.query.function;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.testng.AssertJUnit;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
@@ -31,7 +32,7 @@ import org.wso2.siddhi.core.util.EventPrinter;
 
 public class UUIDFunctionTestCase {
 
-    private static final Logger log = Logger.getLogger(UUIDFunctionTestCase.class);
+    private static final Logger log = LoggerFactory.getLogger(UUIDFunctionTestCase.class);
     private int count;
     private boolean eventArrived;
 

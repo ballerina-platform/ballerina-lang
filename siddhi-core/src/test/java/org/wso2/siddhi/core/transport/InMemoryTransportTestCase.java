@@ -18,7 +18,8 @@
 
 package org.wso2.siddhi.core.transport;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.testng.AssertJUnit;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
@@ -38,7 +39,7 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class InMemoryTransportTestCase {
-    private static final Logger log = Logger.getLogger(InMemoryTransportTestCase.class);
+    private static final Logger log = LoggerFactory.getLogger(InMemoryTransportTestCase.class);
     private AtomicInteger wso2Count = new AtomicInteger(0);
     private AtomicInteger ibmCount = new AtomicInteger(0);
 

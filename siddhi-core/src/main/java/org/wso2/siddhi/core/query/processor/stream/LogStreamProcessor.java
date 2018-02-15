@@ -18,7 +18,8 @@
 
 package org.wso2.siddhi.core.query.processor.stream;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.wso2.siddhi.annotation.Example;
 import org.wso2.siddhi.annotation.Extension;
 import org.wso2.siddhi.annotation.Parameter;
@@ -93,7 +94,7 @@ import java.util.Map;
         }
 )
 public class LogStreamProcessor extends StreamProcessor {
-    private static final Logger log = Logger.getLogger(LogStreamProcessor.class);
+    private static final Logger log = LoggerFactory.getLogger(LogStreamProcessor.class);
     private ExpressionExecutor isLogEventExpressionExecutor = null;
     private ExpressionExecutor logMessageExpressionExecutor = null;
     private ExpressionExecutor logPriorityExpressionExecutor = null;
@@ -247,9 +248,9 @@ public class LogStreamProcessor extends StreamProcessor {
             case WARN:
                 log.warn(message);
                 break;
-            case FATAL:
-                log.fatal(message);
-                break;
+//            case FATAL:
+//                log.fatal(message);
+//                break;
             case ERROR:
                 log.error(message);
                 break;

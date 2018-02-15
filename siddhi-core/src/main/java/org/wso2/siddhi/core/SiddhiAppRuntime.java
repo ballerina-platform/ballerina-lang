@@ -19,7 +19,8 @@
 package org.wso2.siddhi.core;
 
 import com.lmax.disruptor.ExceptionHandler;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.wso2.siddhi.core.aggregation.AggregationRuntime;
 import org.wso2.siddhi.core.config.SiddhiAppContext;
 import org.wso2.siddhi.core.debugger.SiddhiDebugger;
@@ -85,7 +86,7 @@ import java.util.stream.Collectors;
  * Keep streamDefinitions, partitionRuntimes, queryRuntimes of an SiddhiApp and streamJunctions and inputHandlers used.
  */
 public class SiddhiAppRuntime {
-    private static final Logger log = Logger.getLogger(SiddhiAppRuntime.class);
+    private static final Logger log = LoggerFactory.getLogger(SiddhiAppRuntime.class);
     private final Map<String, Window> windowMap;
     private final Map<String, List<Source>> sourceMap;
     private final Map<String, List<Sink>> sinkMap;

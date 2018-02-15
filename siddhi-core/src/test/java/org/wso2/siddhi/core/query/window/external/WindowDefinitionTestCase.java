@@ -18,7 +18,8 @@
 
 package org.wso2.siddhi.core.query.window.external;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.testng.annotations.Test;
 import org.wso2.siddhi.core.SiddhiAppRuntime;
 import org.wso2.siddhi.core.SiddhiManager;
@@ -29,7 +30,7 @@ import org.wso2.siddhi.query.compiler.exception.SiddhiParserException;
 import static org.testng.AssertJUnit.assertTrue;
 
 public class WindowDefinitionTestCase {
-    private static final Logger log = Logger.getLogger(WindowDefinitionTestCase.class);
+    private static final Logger log = LoggerFactory.getLogger(WindowDefinitionTestCase.class);
 
     @Test
     public void testEventWindow1() throws InterruptedException {

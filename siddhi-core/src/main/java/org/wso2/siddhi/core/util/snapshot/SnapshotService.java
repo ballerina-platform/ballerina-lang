@@ -17,7 +17,8 @@
  */
 package org.wso2.siddhi.core.util.snapshot;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.wso2.siddhi.core.config.SiddhiAppContext;
 import org.wso2.siddhi.core.exception.CannotRestoreSiddhiAppStateException;
 import org.wso2.siddhi.core.util.ThreadBarrier;
@@ -33,7 +34,7 @@ import java.util.Map;
 public class SnapshotService {
 
 
-    private static final Logger log = Logger.getLogger(SnapshotService.class);
+    private static final Logger log = LoggerFactory.getLogger(SnapshotService.class);
     private static final ThreadLocal<Boolean> skipSnapshotableThreadLocal = new ThreadLocal<Boolean>();
 
     private final ThreadBarrier threadBarrier;

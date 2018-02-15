@@ -19,7 +19,8 @@
 package org.wso2.siddhi.core.config;
 
 import com.lmax.disruptor.ExceptionHandler;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.wso2.siddhi.core.stream.input.source.SourceHandlerManager;
 import org.wso2.siddhi.core.stream.output.sink.SinkHandlerManager;
 import org.wso2.siddhi.core.table.record.RecordTableHandlerManager;
@@ -40,7 +41,7 @@ import javax.sql.DataSource;
  */
 public class SiddhiContext {
 
-    private static final Logger log = Logger.getLogger(SiddhiContext.class);
+    private static final Logger log = LoggerFactory.getLogger(SiddhiContext.class);
 
     private ExceptionHandler<Object> defaultDisrupterExceptionHandler;
     private Map<String, Class> siddhiExtensions = new HashMap<>();

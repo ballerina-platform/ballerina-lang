@@ -18,7 +18,8 @@
 
 package org.wso2.siddhi.core.query.table;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.testng.AssertJUnit;
 import org.testng.annotations.Test;
 import org.wso2.siddhi.core.SiddhiAppRuntime;
@@ -39,7 +40,7 @@ import java.util.Map;
  * Created on 1/17/15.
  */
 public class DefineTableTestCase {
-    private static final Logger log = Logger.getLogger(DefineTableTestCase.class);
+    private static final Logger log = LoggerFactory.getLogger(DefineTableTestCase.class);
 
     @Test
     public void testQuery1() throws InterruptedException {

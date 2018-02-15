@@ -18,7 +18,8 @@
 
 package org.wso2.siddhi.core.transport;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.wso2.siddhi.annotation.Example;
 import org.wso2.siddhi.annotation.Extension;
 import org.wso2.siddhi.annotation.Parameter;
@@ -43,7 +44,7 @@ import org.wso2.siddhi.core.stream.input.source.InMemorySource;
         )
 )
 public class TestFailingInMemorySource extends InMemorySource {
-    private static final Logger LOG = Logger.getLogger(InMemorySource.class);
+    private static final Logger LOG = LoggerFactory.getLogger(InMemorySource.class);
     public static int numberOfErrorOccurred;
     public static boolean fail = false;
     public static ConnectionCallback connectionCallback;

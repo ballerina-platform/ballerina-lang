@@ -18,7 +18,8 @@
 
 package org.wso2.siddhi.core.table.record;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.wso2.siddhi.core.config.SiddhiAppContext;
 import org.wso2.siddhi.core.event.ComplexEventChunk;
 import org.wso2.siddhi.core.event.state.StateEvent;
@@ -54,7 +55,7 @@ import java.util.Map;
  */
 public abstract class AbstractQueryableRecordTable extends AbstractRecordTable implements QueryableProcessor {
 
-    private static final Logger log = Logger.getLogger(AbstractQueryableRecordTable.class);
+    private static final Logger log = LoggerFactory.getLogger(AbstractQueryableRecordTable.class);
 
     @Override
     public StreamEvent query(StateEvent matchingEvent, CompiledCondition compiledCondition,

@@ -18,7 +18,8 @@
 
 package org.wso2.siddhi.core.query.table;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.testng.AssertJUnit;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
@@ -39,7 +40,7 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class PrimaryKeyTableTestCase {
-    private static final Logger log = Logger.getLogger(PrimaryKeyTableTestCase.class);
+    private static final Logger log = LoggerFactory.getLogger(PrimaryKeyTableTestCase.class);
     private AtomicInteger inEventCount = new AtomicInteger(0);
     private int removeEventCount;
     private boolean eventArrived;

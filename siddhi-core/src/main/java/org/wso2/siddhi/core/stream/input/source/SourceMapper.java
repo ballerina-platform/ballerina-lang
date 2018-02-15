@@ -18,7 +18,8 @@
 
 package org.wso2.siddhi.core.stream.input.source;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.wso2.siddhi.core.config.SiddhiAppContext;
 import org.wso2.siddhi.core.stream.input.InputHandler;
 import org.wso2.siddhi.core.util.SiddhiConstants;
@@ -36,7 +37,7 @@ import java.util.List;
  */
 public abstract class SourceMapper implements SourceEventListener {
 
-    private static final Logger log = Logger.getLogger(SourceMapper.class);
+    private static final Logger log = LoggerFactory.getLogger(SourceMapper.class);
     private final ThreadLocal<String[]> trpProperties = new ThreadLocal<>();
     private InputEventHandler inputEventHandler;
     private StreamDefinition streamDefinition;

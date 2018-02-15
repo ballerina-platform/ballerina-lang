@@ -18,7 +18,6 @@
 
 package org.wso2.siddhi.core.stream.input.source;
 
-import org.apache.log4j.Logger;
 import org.wso2.siddhi.annotation.Example;
 import org.wso2.siddhi.annotation.Extension;
 import org.wso2.siddhi.core.config.SiddhiAppContext;
@@ -45,7 +44,6 @@ import java.util.List;
         )
 )
 public class PassThroughSourceMapper extends SourceMapper {
-    private static final Logger LOG = Logger.getLogger(PassThroughSourceMapper.class);
 
     @Override
     public void init(StreamDefinition streamDefinition, OptionHolder optionHolder, List<AttributeMapping>

@@ -18,14 +18,15 @@
 
 package org.wso2.siddhi.core.managment;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 import org.wso2.siddhi.core.SiddhiManager;
 import org.wso2.siddhi.core.exception.SiddhiAppCreationException;
 
 public class ValidateTestCase {
-    private static final Logger log = Logger.getLogger(ValidateTestCase.class);
+    private static final Logger log = LoggerFactory.getLogger(ValidateTestCase.class);
     private int count;
     private boolean eventArrived;
     private int inEventCount;

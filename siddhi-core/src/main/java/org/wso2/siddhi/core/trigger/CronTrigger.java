@@ -18,7 +18,6 @@
 
 package org.wso2.siddhi.core.trigger;
 
-import org.apache.log4j.Logger;
 import org.quartz.CronScheduleBuilder;
 import org.quartz.Job;
 import org.quartz.JobDataMap;
@@ -30,6 +29,8 @@ import org.quartz.Scheduler;
 import org.quartz.SchedulerException;
 import org.quartz.SchedulerFactory;
 import org.quartz.impl.StdSchedulerFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.wso2.siddhi.core.config.SiddhiAppContext;
 import org.wso2.siddhi.core.event.Event;
 import org.wso2.siddhi.core.stream.StreamJunction;
@@ -44,7 +45,7 @@ import org.wso2.siddhi.query.api.definition.TriggerDefinition;
  */
 public class CronTrigger implements Trigger, Job {
 
-    protected static final Logger LOG = Logger.getLogger(CronTrigger.class);
+    protected static final Logger LOG = LoggerFactory.getLogger(CronTrigger.class);
 
     private TriggerDefinition triggerDefinition;
     private SiddhiAppContext siddhiAppContext;

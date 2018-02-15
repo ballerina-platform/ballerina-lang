@@ -18,7 +18,8 @@
 
 package org.wso2.siddhi.core.util;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.wso2.siddhi.core.config.SiddhiAppContext;
 import org.wso2.siddhi.core.event.ComplexEventChunk;
 import org.wso2.siddhi.core.event.stream.StreamEvent;
@@ -40,7 +41,7 @@ import java.util.concurrent.LinkedBlockingQueue;
  */
 public abstract class Scheduler implements Snapshotable {
 
-    private static final Logger log = Logger.getLogger(Scheduler.class);
+    private static final Logger log = LoggerFactory.getLogger(Scheduler.class);
     protected final BlockingQueue<Long> toNotifyQueue = new LinkedBlockingQueue<Long>();
     private final ThreadBarrier threadBarrier;
     private final Schedulable singleThreadEntryValve;

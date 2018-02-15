@@ -18,7 +18,8 @@
 
 package org.wso2.siddhi.core.util.transport;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.wso2.siddhi.core.config.SiddhiAppContext;
 import org.wso2.siddhi.core.exception.ConnectionUnavailableException;
 import org.wso2.siddhi.core.stream.output.sink.Sink;
@@ -43,7 +44,7 @@ import java.util.Map;
  * with Sink interface and it does not make any assumptions on the underlying transport implementation.
  */
 public class MultiClientDistributedSink extends DistributedTransport {
-    private static final Logger log = Logger.getLogger(MultiClientDistributedSink.class);
+    private static final Logger log = LoggerFactory.getLogger(MultiClientDistributedSink.class);
 
     private List<Sink> transports = new ArrayList<>();
 

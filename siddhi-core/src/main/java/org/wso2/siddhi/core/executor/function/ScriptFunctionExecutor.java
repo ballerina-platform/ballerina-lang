@@ -18,7 +18,8 @@
 
 package org.wso2.siddhi.core.executor.function;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.wso2.siddhi.core.config.SiddhiAppContext;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.core.function.Script;
@@ -32,7 +33,7 @@ import java.util.Map;
  */
 public class ScriptFunctionExecutor extends FunctionExecutor {
 
-    static final Logger LOG = Logger.getLogger(ScriptFunctionExecutor.class);
+    static final Logger LOG = LoggerFactory.getLogger(ScriptFunctionExecutor.class);
     Attribute.Type returnType;
     Script script;
 

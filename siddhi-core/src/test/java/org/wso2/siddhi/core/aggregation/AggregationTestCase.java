@@ -18,7 +18,8 @@
 
 package org.wso2.siddhi.core.aggregation;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.testng.AssertJUnit;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
@@ -42,7 +43,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class AggregationTestCase {
 
-    private static final Logger LOG = Logger.getLogger(AggregationTestCase.class);
+    private static final Logger LOG = LoggerFactory.getLogger(AggregationTestCase.class);
     private AtomicInteger inEventCount;
     private AtomicInteger removeEventCount;
     private boolean eventArrived;

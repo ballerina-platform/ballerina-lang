@@ -17,7 +17,6 @@
  */
 package org.wso2.siddhi.core.executor.function;
 
-import org.apache.log4j.Logger;
 import org.wso2.siddhi.annotation.Example;
 import org.wso2.siddhi.annotation.Extension;
 import org.wso2.siddhi.annotation.Parameter;
@@ -62,7 +61,6 @@ import java.util.Map;
                 description = "This will replace TempStream's temp attribute with default value if the temp is null.")
 )
 public class DefaultFunctionExecutor extends FunctionExecutor {
-    private static final Logger log = Logger.getLogger(DefaultFunctionExecutor.class);
     Attribute.Type returnType;
 
     @Override

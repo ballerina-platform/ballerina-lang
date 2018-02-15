@@ -18,7 +18,8 @@
 
 package org.wso2.siddhi.core.stream.output.sink;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.wso2.siddhi.core.config.SiddhiAppContext;
 import org.wso2.siddhi.core.exception.ConnectionUnavailableException;
 import org.wso2.siddhi.core.util.ExceptionUtil;
@@ -46,7 +47,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  */
 public abstract class Sink implements SinkListener, Snapshotable {
 
-    private static final Logger LOG = Logger.getLogger(Sink.class);
+    private static final Logger LOG = LoggerFactory.getLogger(Sink.class);
     private StreamDefinition streamDefinition;
     private String type;
     private SinkMapper mapper;

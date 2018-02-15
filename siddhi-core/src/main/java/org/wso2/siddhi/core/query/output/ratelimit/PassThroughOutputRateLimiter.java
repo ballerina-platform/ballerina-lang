@@ -18,7 +18,6 @@
 package org.wso2.siddhi.core.query.output.ratelimit;
 
 
-import org.apache.log4j.Logger;
 import org.wso2.siddhi.core.event.ComplexEventChunk;
 
 import java.util.Map;
@@ -28,7 +27,6 @@ import java.util.Map;
  * is the default rate limiting strategy used by Siddhi.
  */
 public class PassThroughOutputRateLimiter extends OutputRateLimiter {
-    private static final Logger log = Logger.getLogger(PassThroughOutputRateLimiter.class);
     private String id;
 
     public PassThroughOutputRateLimiter(String id) {

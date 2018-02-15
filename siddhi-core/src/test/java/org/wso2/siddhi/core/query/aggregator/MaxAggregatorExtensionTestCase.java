@@ -18,7 +18,8 @@
 
 package org.wso2.siddhi.core.query.aggregator;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.testng.AssertJUnit;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
@@ -30,7 +31,7 @@ import org.wso2.siddhi.core.stream.output.StreamCallback;
 import org.wso2.siddhi.core.util.EventPrinter;
 
 public class MaxAggregatorExtensionTestCase {
-    private static final Logger log = Logger.getLogger(MaxAggregatorExtensionTestCase.class);
+    private static final Logger log = LoggerFactory.getLogger(MaxAggregatorExtensionTestCase.class);
     private volatile int count;
     private volatile boolean eventArrived;
 

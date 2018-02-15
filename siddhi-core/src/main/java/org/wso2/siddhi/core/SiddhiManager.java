@@ -17,7 +17,8 @@
  */
 package org.wso2.siddhi.core;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.wso2.siddhi.core.config.SiddhiContext;
 import org.wso2.siddhi.core.config.StatisticsConfiguration;
 import org.wso2.siddhi.core.exception.CannotRestoreSiddhiAppStateException;
@@ -43,7 +44,7 @@ import javax.sql.DataSource;
  */
 public class SiddhiManager {
 
-    private static final Logger log = Logger.getLogger(SiddhiManager.class);
+    private static final Logger log = LoggerFactory.getLogger(SiddhiManager.class);
     private SiddhiContext siddhiContext;
     private ConcurrentMap<String, SiddhiAppRuntime> siddhiAppRuntimeMap = new ConcurrentHashMap<String,
             SiddhiAppRuntime>();
