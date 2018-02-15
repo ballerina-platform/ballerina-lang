@@ -17,5 +17,5 @@ public native function zipFile (string dirPath, string destDir);
 
 @Description {value:"Function to compress bytes"}
 @Param {value:"dirPath: Path of the directory to be compressed"}
-@Return {value:"compressed bytes of the file"}
+@Return {value:"Compressed bytes of the file"}
 public native function zipToBytes (string dirPath) (blob);
