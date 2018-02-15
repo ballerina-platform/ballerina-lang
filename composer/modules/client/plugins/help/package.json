@@ -25,6 +25,7 @@
   "dependencies": {
     "@ballerina-lang/composer-core": "0.962.0",
     "prop-types": "^15.5.8",
-    "react": "^16.2.0"
+    "react": "^16.2.0",
+    "react-dom": "^16.2.0"
   }
 }
