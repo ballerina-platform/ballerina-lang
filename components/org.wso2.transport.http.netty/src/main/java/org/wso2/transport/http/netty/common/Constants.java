@@ -109,6 +109,7 @@ public final class Constants {
     public static final String ENCODING_DEFLATE = "deflate";
     public static final String HTTP_TRANSFER_ENCODING_IDENTITY = "identity";
 
+    // TODO: Move string constants for HTTP headers and header values to their own class
     public static final String HTTP_CONNECTION = "Connection";
     public static final String CONNECTION_KEEP_ALIVE = "keep-alive";
     public static final String CONNECTION_CLOSE = "close";
@@ -119,8 +120,8 @@ public final class Constants {
     public static final String HTTP_TRANSFER_ENCODING = "Transfer-Encoding";
     public static final String HOST = "Host";
     public static final String HTTP_SERVER_HEADER = "Server";
-
     public static final String LOCATION = "Location";
+    public static final String DATE = "Date";
 
     public static final String HTTP_GET_METHOD = "GET";
     public static final String HTTP_POST_METHOD = "POST";
