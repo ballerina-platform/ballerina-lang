@@ -527,20 +527,26 @@ class TransformerExpanded extends React.Component {
     drawConnection(sourceId, targetId, folded, statement) {
         let type = '';
         if (sourceId && targetId && statement) {
-            if (TreeUtil.isTypeConversionExpr(statement.getExpression())) {
-                if (TreeUtil.isFieldBasedAccessExpr(statement.getExpression().getExpression())) {
-                    type = statement.getExpression().getTypeNode().getTypeKind();
-                } else if (TreeUtil.isInvocation(statement.getExpression().getExpression())) {
+            let expression;
+            if (TreeUtil.isVariableDef(statement)) {
+                expression = statement.getVariable().getInitialExpression();
+            } else {
+                expression = statement.getExpression();
+            }
+            if (TreeUtil.isTypeConversionExpr(expression)) {
+                if (TreeUtil.isFieldBasedAccessExpr(expression.getExpression())) {
+                    type = expression.getTypeNode().getTypeKind();
+                } else if (TreeUtil.isInvocation(expression.getExpression())) {
                     // Handle Function outgoing parameter conversion
-                    if (statement.getExpression().getExpression().getID() === sourceId.split(':')[0]) {
-                        type = statement.getExpression().getTypeNode().getTypeKind();
+                    if (expression.getExpression().getID() === sourceId.split(':')[0]) {
+                        type = expression.getTypeNode().getTypeKind();
                     } else {
                         type = this.getFunctionArgConversionType(
-                          statement.getExpression().getExpression().getArgumentExpressions(), sourceId.split(':')[0]);
+                            expression.getExpression().getArgumentExpressions(), sourceId.split(':')[0]);
                     }
                 }
-            } else if (TreeUtil.isInvocation(statement.getExpression())) {
-                type = this.getFunctionArgConversionType(statement.getExpression().getArgumentExpressions(),
+            } else if (TreeUtil.isInvocation(expression)) {
+                type = this.getFunctionArgConversionType(expression.getArgumentExpressions(),
                                                           sourceId.split(':')[0]);
             }
         }
@@ -1013,7 +1019,7 @@ class TransformerExpanded extends React.Component {
             const func = this.transformNodeManager.getFunctionVertices(nodeExpression);
             if (_.isUndefined(func)) {
                 this.context.alert.showError('Function definition for "' +
-                     nodeExpression.getFunctionName() + '" cannot be found');
+                nodeExpression.getFunctionName() + '" cannot be found');
                 return [];
             }
             nodeExpression.argumentExpressions.forEach((arg) => {

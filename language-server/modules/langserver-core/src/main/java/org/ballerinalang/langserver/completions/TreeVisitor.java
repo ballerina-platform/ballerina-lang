@@ -96,6 +96,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForeach;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangLock;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangNext;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangThrow;
@@ -329,10 +330,12 @@ public class TreeVisitor extends BLangNodeVisitor {
         if (!ScopeResolverConstants.getResolverByClass(cursorPositionResolver)
                 .isCursorBeforeNode(transformerNode.getPosition(), transformerNode, this,
                         this.documentServiceContext)) {
+            SymbolEnv transformerEnv = SymbolEnv
+                    .createTransformerEnv(transformerNode, transformerNode.symbol.scope, symbolEnv);
             this.blockOwnerStack.push(transformerNode);
             // Cursor position is calculated against the Block statement scope resolver
             cursorPositionResolver = BlockStatementScopeResolver.class;
-            this.acceptNode(transformerNode.body, symbolEnv);
+            this.acceptNode(transformerNode.body, transformerEnv);
             this.blockOwnerStack.pop();
         }
     }
@@ -893,6 +896,16 @@ public class TreeVisitor extends BLangNodeVisitor {
     @Override
     public void visit(BLangFieldBasedAccess.BLangEnumeratorAccessExpr enumeratorAccessExpr) {
         // No Implementation
+    }
+
+    @Override
+    public void visit(BLangLock lockNode) {
+        if (!ScopeResolverConstants.getResolverByClass(cursorPositionResolver)
+                .isCursorBeforeNode(lockNode.getPosition(), lockNode, this, this.documentServiceContext)) {
+            this.blockOwnerStack.push(lockNode);
+            this.acceptNode(lockNode.body, symbolEnv);
+            this.blockOwnerStack.pop();
+        }
     }
 
     @Override
