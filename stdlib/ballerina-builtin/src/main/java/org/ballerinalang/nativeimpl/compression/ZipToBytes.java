@@ -13,7 +13,6 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-
 package org.ballerinalang.nativeimpl.compression;
 
 import org.ballerinalang.bre.Context;
@@ -50,9 +49,7 @@ import java.util.zip.ZipOutputStream;
         isPublic = true
 )
 public class ZipToBytes extends AbstractNativeFunction {
-
     private static final Logger log = LoggerFactory.getLogger(ZipToBytes.class);
-
     /**
      * File path defined in ballerina.compression
      */
@@ -61,22 +58,30 @@ public class ZipToBytes extends AbstractNativeFunction {
     /**
      * @param dirPath file content as a byte array.
      */
-    private static byte[] zipToByte(String dirPath) throws IOException {
-        Stream<Path> list = Files.list(Paths.get(dirPath));
-        try (ByteArrayOutputStream bos = new ByteArrayOutputStream()) {
+    private static byte[] zipToByte(String dirPath) {
+        ByteArrayOutputStream bos = null;
+        try {
+            Stream<Path> list = Files.list(Paths.get(dirPath));
+            bos = new ByteArrayOutputStream();
             ZipOutputStream zos = new ZipOutputStream(bos);
             byte[] buffer = new byte[4096];
             list.forEach(p -> addEntry(zos, buffer, p.toString()));
             zos.close();
+        } catch (IOException e) {
+            log.debug("I/O Exception when processing files ", e);
+            log.error("I/O Exception when processing files " + e.getMessage());
+        }
+        if (bos != null) {
             return bos.toByteArray();
         }
-
+        return new byte[0];
     }
 
     /**
-     * Add each entry (file) to the ZipOutputStream.
-     * @param zos ZipOutputStream
-     * @param buffer byte buffer
+     * Add file inside the src directory to the ZipOutputStream.
+     *
+     * @param zos      ZipOutputStream
+     * @param buffer   byte buffer
      * @param filePath file path of each file inside the driectory
      */
     private static void addEntry(ZipOutputStream zos, byte[] buffer, String filePath) {
@@ -101,13 +106,7 @@ public class ZipToBytes extends AbstractNativeFunction {
     public BValue[] execute(Context context) {
         BBlob readByteBlob;
         String dirPath = getStringArgument(context, SRC_PATH_FIELD_INDEX);
-        byte[] compressedBytes = new byte[0];
-        try {
-            compressedBytes = zipToByte(dirPath);
-        } catch (IOException e) {
-            log.debug("I/O Exception when processing files ", e);
-            log.error("I/O Exception when processing files " + e.getMessage());
-        }
+        byte[] compressedBytes = zipToByte(dirPath);
         readByteBlob = new BBlob(compressedBytes);
         return getBValues(readByteBlob);
     }
