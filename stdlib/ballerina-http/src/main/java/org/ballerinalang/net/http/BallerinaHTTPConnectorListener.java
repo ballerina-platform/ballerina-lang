@@ -17,11 +17,12 @@
  */
 package org.ballerinalang.net.http;
 
+import org.ballerinalang.connector.api.BallerinaConnectorException;
 import org.ballerinalang.connector.api.ConnectorFuture;
 import org.ballerinalang.connector.api.ConnectorFutureListener;
 import org.ballerinalang.connector.api.Executor;
-import org.ballerinalang.mime.util.Constants;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.util.exceptions.BallerinaException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.contract.HttpConnectorListener;
@@ -49,7 +50,7 @@ public class BallerinaHTTPConnectorListener implements HttpConnectorListener {
         HttpResource httpResource;
         if (!isAccessed(httpCarbonMessage)) {
             httpResource = HttpDispatcher.findResource(httpServicesRegistry, httpCarbonMessage);
-            if(HttpDispatcher.isDiffered(httpResource)) {
+            if (HttpDispatcher.isDiffered(httpResource)) {
                 httpCarbonMessage.setProperty(HTTP_RESOURCE, httpResource);
             } else {
                 extractPropertiesAndStartResourceExecution(httpCarbonMessage, httpResource);
@@ -65,7 +66,8 @@ public class BallerinaHTTPConnectorListener implements HttpConnectorListener {
         log.error("Error in http server connector", throwable);
     }
 
-    private void extractPropertiesAndStartResourceExecution(HTTPCarbonMessage httpCarbonMessage, HttpResource httpResource) {
+    private void extractPropertiesAndStartResourceExecution(HTTPCarbonMessage httpCarbonMessage,
+                                                            HttpResource httpResource) {
         Map<String, Object> properties = null;
         //TODO below should be fixed properly
         //basically need to find a way to pass information from server connector side to client connector side
@@ -73,8 +75,14 @@ public class BallerinaHTTPConnectorListener implements HttpConnectorListener {
             Object srcHandler = httpCarbonMessage.getProperty(HttpConstants.SRC_HANDLER);
             properties = Collections.singletonMap(HttpConstants.SRC_HANDLER, srcHandler);
         }
-        BValue[] signatureParams = HttpDispatcher.getSignatureParameters(httpResource, httpCarbonMessage);
-        ConnectorFuture future = Executor.submit( httpResource.getBalResource(), properties, signatureParams);
+        BValue[] signatureParams;
+        try {
+            signatureParams = HttpDispatcher.getSignatureParameters(httpResource, httpCarbonMessage);
+        } catch (BallerinaException ex) {
+            HttpUtil.handleFailure(httpCarbonMessage, new BallerinaConnectorException(ex.getMessage()));
+            return;
+        }
+        ConnectorFuture future = Executor.submit(httpResource.getBalResource(), properties, signatureParams);
         ConnectorFutureListener futureListener = new HttpConnectorFutureListener(httpCarbonMessage);
         future.setConnectorFutureListener(futureListener);
     }

@@ -288,10 +288,9 @@ public class MimeUtil {
         if (isNotNullAndEmpty(returnValue)) {
             return returnValue;
         } else {
-            BStruct fileHandler = (BStruct) entity.getRefField(OVERFLOW_DATA_INDEX);
-            String filePath = fileHandler.getStringField(FILE_PATH_INDEX);
+            String filePath = getFilePathFromFileHandler(entity);
             try {
-                return new String(readFromFile(filePath), UTF_8);
+                return (filePath.isEmpty()) ? null : new String(readFromFile(filePath), UTF_8);
             } catch (UnsupportedEncodingException e) {
                 LOG.error("Error occurred while extracting text payload from entity", e.getMessage());
             }
@@ -310,10 +309,9 @@ public class MimeUtil {
         if (jsonRefType != null) {
             return (BJSON) entity.getRefField(JSON_DATA_INDEX);
         } else {
-            BStruct fileHandler = (BStruct) entity.getRefField(OVERFLOW_DATA_INDEX);
-            String filePath = fileHandler.getStringField(FILE_PATH_INDEX);
+            String filePath = getFilePathFromFileHandler(entity);
             try {
-                return new BJSON(new String(readFromFile(filePath), UTF_8));
+                return (filePath.isEmpty()) ? null : new BJSON(new String(readFromFile(filePath), UTF_8));
             } catch (UnsupportedEncodingException e) {
                 LOG.error("Error occurred while extracting json payload from entity", e.getMessage());
             }
@@ -332,10 +330,9 @@ public class MimeUtil {
         if (xmlRefType != null) {
             return (BXML) entity.getRefField(XML_DATA_INDEX);
         } else {
-            BStruct fileHandler = (BStruct) entity.getRefField(OVERFLOW_DATA_INDEX);
-            String filePath = fileHandler.getStringField(FILE_PATH_INDEX);
+            String filePath = getFilePathFromFileHandler(entity);
             try {
-                return XMLUtils.parse(new String(readFromFile(filePath), UTF_8));
+                return (filePath.isEmpty()) ? null : XMLUtils.parse(new String(readFromFile(filePath), UTF_8));
             } catch (UnsupportedEncodingException e) {
                 LOG.error("Error occurred while extracting xml payload from entity", e.getMessage());
             }
@@ -354,10 +351,14 @@ public class MimeUtil {
         if (byteData != null) {
             return entity.getBlobField(BYTE_DATA_INDEX);
         } else {
-            BStruct fileHandler = (BStruct) entity.getRefField(OVERFLOW_DATA_INDEX);
-            String filePath = fileHandler.getStringField(FILE_PATH_INDEX);
-            return readFromFile(filePath);
+            String filePath = getFilePathFromFileHandler(entity);
+            return (filePath.isEmpty()) ? null : readFromFile(filePath);
         }
+    }
+
+    private static String getFilePathFromFileHandler(BStruct entity) {
+        BStruct fileHandler = (BStruct) entity.getRefField(OVERFLOW_DATA_INDEX);
+        return fileHandler.getStringField(FILE_PATH_INDEX);
     }
 
     /**

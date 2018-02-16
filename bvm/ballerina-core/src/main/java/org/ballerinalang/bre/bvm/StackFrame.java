@@ -81,7 +81,6 @@ public class StackFrame {
         this.stringRegs = new String[codeAttribInfo.getMaxStringRegs()];
         this.intRegs = new int[codeAttribInfo.getMaxIntRegs()];
         this.byteRegs = new byte[codeAttribInfo.getMaxByteRegs()][];
-        Arrays.fill(this.byteRegs, new byte[0]);
         this.refRegs = new BRefType[codeAttribInfo.getMaxRefRegs()];
 
         this.retAddrs = retAddrs;

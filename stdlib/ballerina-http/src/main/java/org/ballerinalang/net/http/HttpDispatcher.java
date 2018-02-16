@@ -28,6 +28,7 @@ import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.net.uri.URIUtil;
+import org.ballerinalang.util.exceptions.BallerinaException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
@@ -167,9 +168,9 @@ public class HttpDispatcher {
     public static BValue[] getSignatureParameters(HttpResource httpResource, HTTPCarbonMessage httpCarbonMessage) {
         //TODO Think of keeping struct type globally rather than creating for each request
         BStruct connection = ConnectorUtils.createStruct(httpResource.getBalResource(),
-                                                         HttpConstants.PROTOCOL_PACKAGE_HTTP, HttpConstants.CONNECTION);
+                HttpConstants.PROTOCOL_PACKAGE_HTTP, HttpConstants.CONNECTION);
         BStruct inRequest = ConnectorUtils.createStruct(httpResource.getBalResource(),
-                                                        HttpConstants.PROTOCOL_PACKAGE_HTTP, HttpConstants.IN_REQUEST);
+                HttpConstants.PROTOCOL_PACKAGE_HTTP, HttpConstants.IN_REQUEST);
 
         BStruct inRequestEntity = ConnectorUtils.createStruct(httpResource.getBalResource(),
                 org.ballerinalang.mime.util.Constants.PROTOCOL_PACKAGE_MIME,
@@ -211,23 +212,30 @@ public class HttpDispatcher {
             return bValues;
         }
         //assign entityBody
-        bValues[bValues.length - 1] = populateAndGetEntityBody(httpResource, inRequest, inRequestEntity,
-                signatureParams.getEntityBody().getVarType());
+        try {
+            bValues[bValues.length - 1] = populateAndGetEntityBody(httpResource, inRequest, inRequestEntity,
+                    signatureParams.getEntityBody().getVarType());
+        } catch (BallerinaException ex) {
+            httpCarbonMessage.setProperty(HttpConstants.HTTP_STATUS_CODE, 400);
+            throw new BallerinaConnectorException("data binding failed: " + ex.getMessage());
+        }
         return bValues;
     }
 
     private static BValue populateAndGetEntityBody(HttpResource httpResource, BStruct inRequest,
                                                    BStruct inRequestEntity, BType entityBodyType) {
+
         BStruct fileStruct = ConnectorUtils.createStruct(httpResource.getBalResource(),
                 org.ballerinalang.mime.util.Constants.PROTOCOL_PACKAGE_FILE,
                 org.ballerinalang.mime.util.Constants.FILE);
         inRequestEntity.setRefField(OVERFLOW_DATA_INDEX, fileStruct);
         HttpUtil.populateEntityBody(null, inRequest, inRequestEntity, true);
 
-        BValue body;
+        BValue body = null;
         switch (entityBodyType.getTag()) {
             case TypeTags.STRING_TAG:
-                body = new BString(MimeUtil.getTextPayload(inRequestEntity));
+                String stringPayload = MimeUtil.getTextPayload(inRequestEntity);
+                body = (stringPayload == null) ? null : new BString(stringPayload);
                 break;
             case TypeTags.JSON_TAG:
                 body = MimeUtil.getJsonPayload(inRequestEntity);
@@ -236,14 +244,25 @@ public class HttpDispatcher {
                 body = MimeUtil.getXmlPayload(inRequestEntity);
                 break;
             case TypeTags.BLOB_TAG:
-                body = new BBlob(MimeUtil.getBinaryPayload(inRequestEntity));
+                byte[] binaryPayload = MimeUtil.getBinaryPayload(inRequestEntity);
+                body = (binaryPayload == null) ? null : new BBlob(binaryPayload);
                 break;
             case TypeTags.STRUCT_TAG:
                 BJSON bjson = MimeUtil.getJsonPayload(inRequestEntity);
-                body = ConnectorUtils.convertJSONToStruct(httpResource.getBalResource(), bjson, entityBodyType);
+                if (bjson == null) {
+                    break;
+                }
+                try {
+                    body = ConnectorUtils.convertJSONToStruct(httpResource.getBalResource(), bjson, entityBodyType);
+                } catch (NullPointerException ex) {
+                    throw new BallerinaConnectorException("invalid struct type: " +
+                            entityBodyType.getName());
+                }
                 break;
-            default:
-                throw new BallerinaConnectorException("unsupported entity body type parameter");
+        }
+        if (body == null) {
+            throw new BallerinaConnectorException("incompatible entity body type: expected " +
+                    entityBodyType.getName());
         }
         return body;
     }
