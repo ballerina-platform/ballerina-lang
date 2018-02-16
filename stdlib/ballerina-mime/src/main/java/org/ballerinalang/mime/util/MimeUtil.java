@@ -30,6 +30,7 @@ import org.ballerinalang.nativeimpl.io.channels.FileIOChannel;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import sun.nio.ch.FileChannelImpl;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -37,6 +38,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.channels.FileChannel;
 import java.util.Enumeration;
 import java.util.Set;
 import javax.activation.MimeType;
@@ -388,6 +390,9 @@ public class MimeUtil {
                     entityBodyReader = new EntityBodyReader((EntityBodyStream)channel, true);
                 } else if (channel instanceof FileIOChannel) {
                     entityBodyReader = new EntityBodyReader((FileIOChannel)channel, false);
+                } else if (channel instanceof FileChannel) {
+                    entityBodyReader = new EntityBodyReader(new FileIOChannel((FileChannel)channel,
+                            IOConstants.CHANNEL_BUFFER_SIZE), false);
                 }
             }
         }

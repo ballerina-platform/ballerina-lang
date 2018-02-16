@@ -24,6 +24,7 @@ import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.mime.util.EntityBodyHandler;
 import org.ballerinalang.mime.util.MimeUtil;
 import org.ballerinalang.model.util.StringUtils;
+import org.ballerinalang.model.util.XMLUtils;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BJSON;
 import org.ballerinalang.model.values.BMap;
@@ -228,7 +229,8 @@ public class OutResponseNativeFunctionSuccessTest {
         HTTPCarbonMessage responseMsg = Services.invokeNew(serviceResult, inRequestMsg);
 
         Assert.assertNotNull(responseMsg, "Response message not found");
-        Assert.assertEquals(new BJSON(new HttpMessageDataStreamer(responseMsg).getInputStream()).stringValue(), value);
+        Assert.assertEquals(new BJSON(new HttpMessageDataStreamer(responseMsg).getInputStream()).value().get("lang").
+                asText(), value);
     }
 
     @Test
@@ -312,7 +314,7 @@ public class OutResponseNativeFunctionSuccessTest {
         BValue[] returnVals = BRunUtil.invoke(result, "testGetXmlPayload", inputArg);
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
                 "Invalid Return Values.");
-        Assert.assertEquals(((BXMLItem) returnVals[0]).getTextValue().stringValue(), "ballerina");
+        Assert.assertEquals(((BXML) returnVals[0]).getTextValue().stringValue(), "ballerina");
     }
 
     @Test(description = "Test GetXmlPayload function within a service")
@@ -323,8 +325,8 @@ public class OutResponseNativeFunctionSuccessTest {
         HTTPCarbonMessage response = Services.invokeNew(serviceResult, inRequestMsg);
 
         Assert.assertNotNull(response, "Response message not found");
-        Assert.assertEquals(
-                StringUtils.getStringFromInputStream(new HttpMessageDataStreamer(response).getInputStream()), value);
+        BXML returnXmlValue = XMLUtils.parse(new HttpMessageDataStreamer(response).getInputStream());
+        Assert.assertEquals(returnXmlValue.getTextValue().stringValue(), value);
     }
 
     @Test
@@ -498,5 +500,27 @@ public class OutResponseNativeFunctionSuccessTest {
         BStruct entity = (BStruct) ((BStruct) returnVals[0]).getNativeData(MESSAGE_ENTITY);
         BXML xmlValue = EntityBodyHandler.readXmlDataSource(entity);
         Assert.assertEquals(xmlValue.getTextValue().stringValue(), "Ballerina", "Payload is not set properly");
+    }
+
+    @Test(description = "Test getStringPayload method with JSON payload")
+    public void testGetStringPayloadMethodWithJsonPayload() {
+        BStruct outResponse = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp,
+                Constants.IN_RESPONSE);
+        BStruct entity = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageMime, entityStruct);
+        BStruct mediaType = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageMime, mediaTypeStruct);
+
+        String payload = "{\"code\":\"123\"}";
+        MimeUtil.setContentType(mediaType, entity, APPLICATION_JSON);
+        BStruct byteChannelStruct = Util.getByteChannelStruct(result);
+        Util.createByteChannelFromText(payload, byteChannelStruct);
+        entity.setRefField(ENTITY_BYTE_CHANNEL_INDEX, byteChannelStruct);
+        outResponse.addNativeData(MESSAGE_ENTITY, entity);
+        outResponse.addNativeData(IS_BODY_BYTE_CHANNEL_ALREADY_SET, true);
+
+        BValue[] inputArg = {outResponse};
+        BValue[] returnVals = BRunUtil.invoke(result, "testGetStringPayload", inputArg);
+        Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
+                "Invalid Return Values.");
+        Assert.assertEquals(returnVals[0].stringValue(), payload);
     }
 }

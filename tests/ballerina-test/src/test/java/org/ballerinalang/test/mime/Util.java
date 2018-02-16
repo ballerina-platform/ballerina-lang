@@ -27,6 +27,7 @@ import io.netty.handler.codec.http.multipart.HttpPostRequestEncoder;
 import io.netty.handler.codec.http.multipart.InterfaceHttpData;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.CompileResult;
+import org.ballerinalang.mime.util.EntityBodyHandler;
 import org.ballerinalang.mime.util.EntityBodyReader;
 import org.ballerinalang.mime.util.EntityBodyStream;
 import org.ballerinalang.mime.util.HeaderUtil;
@@ -154,15 +155,14 @@ public class Util {
             bufferedWriter.close();
             BStruct bodyPart = getEntityStruct(result);
             BStruct byteChannelStruct = getByteChannelStruct(result);
-            ByteChannel byteChannel = TestUtil.openForReading(file.getAbsolutePath());
+            ByteChannel byteChannel = EntityBodyHandler.getByteChannelForTempFile(file.getAbsolutePath());
             byteChannelStruct.addNativeData(IOConstants.BYTE_CHANNEL_NAME, byteChannel);
+            bodyPart.setRefField(ENTITY_BYTE_CHANNEL_INDEX, byteChannelStruct);
             MimeUtil.setContentType(getMediaTypeStruct(result), bodyPart, TEXT_PLAIN);
             return bodyPart;
         } catch (IOException e) {
             log.error("Error occured while creating a temp file for json file part in getTextFilePart",
                     e.getMessage());
-        } catch (URISyntaxException e) {
-            e.printStackTrace();
         }
         return null;
     }
@@ -182,8 +182,9 @@ public class Util {
             bufferedWriter.close();
             BStruct bodyPart = getEntityStruct(result);
             BStruct byteChannelStruct = getByteChannelStruct(result);
-            ByteChannel byteChannel = TestUtil.openForReading(file.getAbsolutePath());
+            ByteChannel byteChannel = EntityBodyHandler.getByteChannelForTempFile(file.getAbsolutePath());
             byteChannelStruct.addNativeData(IOConstants.BYTE_CHANNEL_NAME, byteChannel);
+            bodyPart.setRefField(ENTITY_BYTE_CHANNEL_INDEX, byteChannelStruct);
             MimeUtil.setContentType(getMediaTypeStruct(result), bodyPart, TEXT_PLAIN);
             BMap<String, BValue> headerMap = new BMap<>();
             headerMap.put(CONTENT_TRANSFER_ENCODING, new BStringArray(new String[]{contentTransferEncoding}));
@@ -192,8 +193,6 @@ public class Util {
         } catch (IOException e) {
             log.error("Error occured while creating a temp file for json file part in getTextFilePart",
                     e.getMessage());
-        } catch (URISyntaxException e) {
-            e.printStackTrace();
         }
         return null;
     }
@@ -229,15 +228,14 @@ public class Util {
             bufferedWriter.close();
             BStruct bodyPart = getEntityStruct(result);
             BStruct byteChannelStruct = getByteChannelStruct(result);
-            ByteChannel byteChannel = TestUtil.openForReading(file.getAbsolutePath());
+            ByteChannel byteChannel = EntityBodyHandler.getByteChannelForTempFile(file.getAbsolutePath());
             byteChannelStruct.addNativeData(IOConstants.BYTE_CHANNEL_NAME, byteChannel);
+            bodyPart.setRefField(ENTITY_BYTE_CHANNEL_INDEX, byteChannelStruct);
             MimeUtil.setContentType(getMediaTypeStruct(result), bodyPart, APPLICATION_JSON);
             return bodyPart;
         } catch (IOException e) {
             log.error("Error occured while creating a temp file for json file part in getJsonFilePart",
                     e.getMessage());
-        } catch (URISyntaxException e) {
-            e.printStackTrace();
         }
         return null;
     }
@@ -273,15 +271,14 @@ public class Util {
             bufferedWriter.close();
             BStruct bodyPart = getEntityStruct(result);
             BStruct byteChannelStruct = getByteChannelStruct(result);
-            ByteChannel byteChannel = TestUtil.openForReading(file.getAbsolutePath());
+            ByteChannel byteChannel = EntityBodyHandler.getByteChannelForTempFile(file.getAbsolutePath());
             byteChannelStruct.addNativeData(IOConstants.BYTE_CHANNEL_NAME, byteChannel);
+            bodyPart.setRefField(ENTITY_BYTE_CHANNEL_INDEX, byteChannelStruct);
             MimeUtil.setContentType(getMediaTypeStruct(result), bodyPart, APPLICATION_XML);
             return bodyPart;
         } catch (IOException e) {
             log.error("Error occured while creating a temp file for xml file part in getXmlFilePart",
                     e.getMessage());
-        } catch (URISyntaxException e) {
-            e.printStackTrace();
         }
         return null;
     }
@@ -314,15 +311,14 @@ public class Util {
             bufferedWriter.close();
             BStruct bodyPart = getEntityStruct(result);
             BStruct byteChannelStruct = getByteChannelStruct(result);
-            ByteChannel byteChannel = TestUtil.openForReading(file.getAbsolutePath());
+            ByteChannel byteChannel = EntityBodyHandler.getByteChannelForTempFile(file.getAbsolutePath());
             byteChannelStruct.addNativeData(IOConstants.BYTE_CHANNEL_NAME, byteChannel);
+            bodyPart.setRefField(ENTITY_BYTE_CHANNEL_INDEX, byteChannelStruct);
             MimeUtil.setContentType(getMediaTypeStruct(result), bodyPart, OCTET_STREAM);
             return bodyPart;
         } catch (IOException e) {
             log.error("Error occured while creating a temp file for binary file part in getBinaryFilePart",
                     e.getMessage());
-        } catch (URISyntaxException e) {
-            e.printStackTrace();
         }
         return null;
     }

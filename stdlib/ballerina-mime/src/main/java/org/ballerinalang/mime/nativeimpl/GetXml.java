@@ -46,7 +46,7 @@ public class GetXml extends AbstractNativeFunction {
                 EntityBodyHandler.addMessageDataSource(entityStruct, result);
             }
         } catch (Throwable e) {
-            throw new BallerinaException("Error while retrieving json payload from message: " + e.getMessage());
+            throw new BallerinaException("Error while retrieving xml payload from message: " + e.getMessage());
         }
         // Setting output value.
         return this.getBValues(result);

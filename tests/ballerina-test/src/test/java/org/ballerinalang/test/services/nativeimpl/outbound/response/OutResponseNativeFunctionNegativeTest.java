@@ -87,8 +87,13 @@ public class OutResponseNativeFunctionNegativeTest {
     public void testGetJsonPayloadWithoutPayload() {
         BStruct outResponse = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, inRespStruct);
         BValue[] inputArg = {outResponse};
-        BValue[] returnVals = BRunUtil.invoke(result, "testGetJsonPayload", inputArg);
-        Assert.assertNull(returnVals[0]);
+        String error = null;
+        try {
+            BRunUtil.invoke(result, "testGetJsonPayload", inputArg);
+        } catch (Throwable e) {
+            error = e.getMessage();
+        }
+        Assert.assertTrue(error.contains("error while retrieving json payload"));
     }
 
     @Test(description = "Test getEntity method on a response without a entity")
@@ -116,8 +121,13 @@ public class OutResponseNativeFunctionNegativeTest {
         outResponse.addNativeData(IS_BODY_BYTE_CHANNEL_ALREADY_SET, true);
 
         BValue[] inputArg = {outResponse};
-        BValue[] returnVals = BRunUtil.invoke(result, "testGetJsonPayload", inputArg);
-        Assert.assertNull(returnVals[0]);
+        String error = null;
+        try {
+            BRunUtil.invoke(result, "testGetJsonPayload", inputArg);
+        } catch (Throwable e) {
+            error = e.getMessage();
+        }
+        Assert.assertTrue(error.contains("unrecognized token 'ballerina'"));
     }
 
     @Test
@@ -138,39 +148,26 @@ public class OutResponseNativeFunctionNegativeTest {
     public void testGetStringPayloadNegative() {
         BStruct outResponse = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, inRespStruct);
         BValue[] inputArg = {outResponse};
-        BValue[] returnVals = BRunUtil.invoke(result, "testGetStringPayload", inputArg);
-        Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
-                "Invalid Return Values.");
-        Assert.assertNull(returnVals[0].stringValue());
-    }
-
-    @Test(description = "Test getStringPayload method with JSON payload")
-    public void testGetStringPayloadMethodWithJsonPayload() {
-        BStruct outResponse = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, inRespStruct);
-        BStruct entity = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageMime, entityStruct);
-        BStruct mediaType = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageMime, mediaTypeStruct);
-
-        String payload = "{\"code\":\"123\"}";
-        MimeUtil.setContentType(mediaType, entity, APPLICATION_JSON);
-        BStruct byteChannelStruct = Util.getByteChannelStruct(result);
-        Util.createByteChannelFromText(payload, byteChannelStruct);
-        entity.setRefField(ENTITY_BYTE_CHANNEL_INDEX, byteChannelStruct);
-        outResponse.addNativeData(MESSAGE_ENTITY, entity);
-        outResponse.addNativeData(IS_BODY_BYTE_CHANNEL_ALREADY_SET, true);
-
-        BValue[] inputArg = {outResponse};
-        BValue[] returnVals = BRunUtil.invoke(result, "testGetStringPayload", inputArg);
-        Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
-                "Invalid Return Values.");
-        Assert.assertNull(returnVals[0].stringValue());
+        String error = null;
+        try {
+            BRunUtil.invoke(result, "testGetStringPayload", inputArg);
+        } catch (Throwable e) {
+            error = e.getMessage();
+        }
+        Assert.assertTrue(error.contains("error while retrieving json payload from message"));
     }
 
     @Test
     public void testGetXmlPayloadNegative() {
         BStruct outResponse = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, inRespStruct);
         BValue[] inputArg = {outResponse};
-        BValue[] returnVals = BRunUtil.invoke(result, "testGetXmlPayload", inputArg);
-        Assert.assertNull(returnVals[0]);
+        String error = null;
+        try {
+            BRunUtil.invoke(result, "testGetXmlPayload", inputArg);
+        } catch (Throwable e) {
+            error = e.getMessage();
+        }
+        Assert.assertTrue(error.contains("error while retrieving xml payload from message"));
     }
 
     @Test

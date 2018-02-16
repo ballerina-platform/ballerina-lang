@@ -332,7 +332,7 @@ public class OutRequestNativeFunctionSuccessTest {
         BValue[] returnVals = BRunUtil.invoke(result, "testGetXmlPayload", inputArg);
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
                 "Invalid Return Values.");
-        Assert.assertEquals(((BXMLItem) returnVals[0]).getTextValue().stringValue(), "ballerina");
+        Assert.assertEquals(((BXML) returnVals[0]).getTextValue().stringValue(), "ballerina");
     }
 
     @Test(description = "Test GetXmlPayload function within a service")
@@ -640,5 +640,26 @@ public class OutRequestNativeFunctionSuccessTest {
         } catch (IOException e) {
             LOG.error("Error occured while creating a temporary file in testSetEntityBody", e.getMessage());
         }
+    }
+
+    @Test(description = "Test getStringPayload method with JSON payload")
+    public void testGetStringPayloadMethodWithJsonPayload() {
+        BStruct outRequest = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, outReqStruct);
+        BStruct entity = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageMime, entityStruct);
+        BStruct mediaType = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageMime, mediaTypeStruct);
+
+        String payload = "{\"code\":\"123\"}";
+        MimeUtil.setContentType(mediaType, entity, APPLICATION_JSON);
+        BStruct byteChannelStruct = Util.getByteChannelStruct(result);
+        Util.createByteChannelFromText(payload, byteChannelStruct);
+        entity.setRefField(ENTITY_BYTE_CHANNEL_INDEX, byteChannelStruct);
+        outRequest.addNativeData(MESSAGE_ENTITY, entity);
+        outRequest.addNativeData(IS_BODY_BYTE_CHANNEL_ALREADY_SET, true);
+
+        BValue[] inputArg = {outRequest};
+        BValue[] returnVals = BRunUtil.invoke(result, "testGetStringPayload", inputArg);
+        Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
+                "Invalid Return Values.");
+        Assert.assertEquals(returnVals[0].stringValue(), payload);
     }
 }

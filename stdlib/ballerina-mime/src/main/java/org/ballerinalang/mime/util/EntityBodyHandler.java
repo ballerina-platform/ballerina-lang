@@ -82,19 +82,25 @@ public class EntityBodyHandler {
         ByteChannel byteChannel;
         if (contentLength > Constants.BYTE_LIMIT) {
             String temporaryFilePath = MimeUtil.writeToTemporaryFile(inputStream, BALLERINA_TEMP_FILE);
-            Set<OpenOption> options = new HashSet<>();
-            options.add(StandardOpenOption.READ);
-            Path path = Paths.get(temporaryFilePath);
-            try {
-                byteChannel = Files.newByteChannel(path, options);
-            } catch (IOException e) {
-                throw new BallerinaException("Error occurred while creating a byte channel from a temporary file path");
-            }
+            byteChannel = getByteChannelForTempFile(temporaryFilePath);
         } else {
             byteChannel = new EntityBodyStream(inputStream);
         }
         byteChannelStruct.addNativeData(IOConstants.BYTE_CHANNEL_NAME, byteChannel);
         entityStruct.setRefField(ENTITY_BYTE_CHANNEL_INDEX, byteChannelStruct);
+    }
+
+    public static ByteChannel getByteChannelForTempFile(String temporaryFilePath) {
+        ByteChannel byteChannel;
+        Set<OpenOption> options = new HashSet<>();
+        options.add(StandardOpenOption.READ);
+        Path path = Paths.get(temporaryFilePath);
+        try {
+            byteChannel = Files.newByteChannel(path, options);
+        } catch (IOException e) {
+            throw new BallerinaException("Error occurred while creating a byte channel from a temporary file path");
+        }
+        return byteChannel;
     }
 
     public static MessageDataSource getMessageDataSource(BStruct entityStruct) {
