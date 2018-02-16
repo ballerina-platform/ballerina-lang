@@ -15,7 +15,7 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.ballerinalang.net.grpc.definition;
+package org.ballerinalang.net.grpc.proto.definition;
 
 import com.google.protobuf.DescriptorProtos;
 

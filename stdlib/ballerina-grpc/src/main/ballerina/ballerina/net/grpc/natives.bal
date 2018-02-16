@@ -14,37 +14,35 @@ public struct Connection {
 @Param { value:"conn: The server connector connection" }
 @Param { value:"res: The outbound response message" }
 @Return { value:"Error occured during HTTP server connector respond" }
-public native function <Connection conn> send (string res) (Http2ConnectorError);
+public native function <Connection conn> send (any res) (ConnectorError);
 
 @Description { value:"Forwards inbound response to the caller"}
 @Param { value:"conn: The server connector connection" }
 @Param { value:"res: The inbound response message" }
 @Return { value:"Error occured during HTTP server connector forward" }
-public native function <Connection conn> error (GrpcServerError serverError) (Http2ConnectorError);
+public native function <Connection conn> error (ServerError serverError) (ConnectorError);
 
-@Description { value:"Http2ConnectorError struct represents an error occured during the HTTP2 client invocation" }
+@Description { value:"ConnectorError struct represents an error occured during the HTTP client invocation" }
 @Field {value:"msg:  An error message explaining about the error"}
-@Field {value:"cause: The error that caused HttpConnectorError to get thrown"}
-@Field {value:"stackTrace: Represents the invocation stack when Http2ConnectorError is thrown"}
+@Field {value:"cause: The error that caused ConnectorError to get thrown"}
+@Field {value:"stackTrace: Represents the invocation stack when ConnectorError is thrown"}
 @Field {value:"statusCode: HTTP status code"}
-public struct Http2ConnectorError {
+public struct ConnectorError {
     string msg;
     error cause;
     StackFrame[] stackTrace;
     int statusCode;
 }
 
-@Description { value:"GrpcServerError struct represents an error occured during gRPC server excution" }
+@Description { value:"ServerError struct represents an error occured during gRPC server excution" }
 @Field {value:"msg:  An error message explaining about the error"}
-@Field {value:"cause: The error that caused GrpcServerError to get thrown"}
+@Field {value:"cause: The error that caused ServerError to get thrown"}
 @Field {value:"stackTrace: Represents the invocation stack when GrpcServerError is thrown"}
 @Field {value:"statusCode: gRPC server status code. refer: https://github
 .com/grpc/grpc-java/blob/master/core/src/main/java/io/grpc/Status.java"}
-public struct GrpcServerError {
+public struct ServerError {
     string msg;
     error cause;
     StackFrame[] stackTrace;
     int statusCode;
 }
-
-

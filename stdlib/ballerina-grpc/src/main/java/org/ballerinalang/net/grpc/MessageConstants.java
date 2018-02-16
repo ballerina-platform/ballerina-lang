@@ -34,4 +34,12 @@ public class MessageConstants {
     public static final String PROTOCOL_PACKAGE_GRPC = "ballerina.net.grpc";
     public static final String CONNECTION = "Connection";
     public static final String RESPONSE_MESSAGE_DEFINITION = "response_msg_definition";
+    public static final String HTTP2_CONNECTOR_ERROR = "HttpConnectorError";
+
+    // Response Message index
+    public static final int REQUEST_MESSAGE_INDEX = 1;
+    // Response Message index
+    public static final int RESPONSE_MESSAGE_INDEX = 2;
+
+
 }

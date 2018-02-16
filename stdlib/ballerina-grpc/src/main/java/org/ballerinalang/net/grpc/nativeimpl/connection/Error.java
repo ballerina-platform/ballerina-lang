@@ -16,14 +16,19 @@
 
 package org.ballerinalang.net.grpc.nativeimpl.connection;
 
+import io.grpc.Status;
+import io.grpc.StatusRuntimeException;
+import io.grpc.stub.StreamObserver;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeKind;
+import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
+import org.ballerinalang.net.grpc.MessageUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -49,6 +54,21 @@ public class Error extends AbstractNativeFunction {
     @Override
     public BValue[] execute(Context context) {
         log.info("calling error...");
+        BStruct connectionStruct = (BStruct) getRefArgument(context, 0);
+        BValue responseValue = getRefArgument(context, 1);
+        if (responseValue instanceof BStruct) {
+            BStruct responseStruct = (BStruct) responseValue;
+            int statusCode = Integer.parseInt(String.valueOf(responseStruct.getIntField(0)));
+            String errorMsg = responseStruct.getStringField(0);
+            StreamObserver<Object> responseObserver = MessageUtils.getStreamObserver(connectionStruct);
+            if (responseObserver == null) {
+                return getBValues(MessageUtils.getServerConnectorError(context, new StatusRuntimeException(Status
+                        .fromCode(Status.INTERNAL.getCode()).withDescription("Error while sending the error. Response" +
+                                " observer not found."))));
+            }
+            responseObserver.onError(new StatusRuntimeException(Status.fromCodeValue(statusCode).withDescription
+                    (errorMsg)));
+        }
         return new BValue[0];
     }
 }

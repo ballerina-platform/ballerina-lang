@@ -15,6 +15,7 @@
  */
 package org.ballerinalang.net.grpc;
 
+import com.google.protobuf.Descriptors;
 import io.grpc.Metadata;
 import io.grpc.stub.StreamObserver;
 import org.ballerinalang.bre.Context;
@@ -22,6 +23,9 @@ import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.AbstractNativeFunction;
+import org.ballerinalang.net.grpc.proto.ServiceProtoConstants;
+import org.ballerinalang.util.codegen.PackageInfo;
+import org.ballerinalang.util.codegen.StructInfo;
 
 import java.util.Base64;
 
@@ -30,6 +34,8 @@ import java.util.Base64;
  * Message Utils.
  */
 public class MessageUtils {
+    private static final String IO_EXCEPTION_OCCURED = "I/O exception occurred";
+
     public static BValue[] getHeader(Context context, AbstractNativeFunction abstractNativeFunction) {
         String headerName = abstractNativeFunction.getStringArgument(context, 0);
         String headerValue = getHeaderValue(headerName);
@@ -66,6 +72,54 @@ public class MessageUtils {
             return ((StreamObserver<Object>) observerObject);
         }
         return null;
+    }
+
+    public static BStruct getServerConnectorError(Context context, Throwable throwable) {
+        PackageInfo httpPackageInfo = context.getProgramFile()
+                .getPackageInfo(MessageConstants.PROTOCOL_PACKAGE_GRPC);
+        StructInfo errorStructInfo = httpPackageInfo.getStructInfo(MessageConstants.HTTP2_CONNECTOR_ERROR);
+        BStruct httpConnectorError = new BStruct(errorStructInfo.getType());
+        if (throwable.getMessage() == null) {
+            httpConnectorError.setStringField(0, IO_EXCEPTION_OCCURED);
+        } else {
+            httpConnectorError.setStringField(0, throwable.getMessage());
+        }
+        return httpConnectorError;
+    }
+
+    /**
+     * Returns wire type corresponding to the field descriptor type.
+     * <p>
+     * 0 -> int32, int64, uint32, uint64, sint32, sint64, bool, enum
+     * 1 -> fixed64, sfixed64, double
+     * 2 -> string, bytes, embedded messages, packed repeated fields
+     * 5 -> fixed32, sfixed32, float
+     *
+     * @param fieldType field descriptor type
+     * @return wire type
+     */
+    public static int getFieldWireType(Descriptors.FieldDescriptor.Type fieldType) {
+        if (fieldType == null) {
+            return ServiceProtoConstants.INVALID_WIRE_TYPE;
+        }
+        Integer wireType = ServiceProtoConstants.WIRE_TYPE_MAP.get(fieldType.toProto());
+        if (wireType != null) {
+            return wireType;
+        } else {
+            // Returns embedded messages, packed repeated fields message type, if field type doesn't map with the
+            // predefined proto types.
+            return ServiceProtoConstants.MESSAGE_WIRE_TYPE;
+        }
+    }
+
+    /**
+     * Check whether message object is an array.
+     *
+     * @param object message object
+     * @return true if object is array, false otherwise.
+     */
+    public static boolean isArray(Object object) {
+        return object != null && object.getClass().isArray();
     }
 
 /*    public static com.google.protobuf.Message generateProtoMessage(BStruct bValue, BStructType structType) {

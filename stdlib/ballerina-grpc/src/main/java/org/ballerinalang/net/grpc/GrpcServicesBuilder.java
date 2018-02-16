@@ -31,6 +31,8 @@ import org.ballerinalang.connector.api.Resource;
 import org.ballerinalang.connector.api.Service;
 import org.ballerinalang.net.grpc.exception.GrpcServerException;
 import org.ballerinalang.net.grpc.interceptor.ServerHeaderInterceptor;
+import org.ballerinalang.net.grpc.proto.ServiceProtoConstants;
+import org.ballerinalang.net.grpc.proto.ServiceProtoUtils;
 
 import java.io.IOException;
 
@@ -63,7 +65,7 @@ public class GrpcServicesBuilder {
         // Generate protobuf definition from Ballerina Service.
         //File protobufFileDefinition = ServiceProtoUtils.generateServiceDefinition(service);
         // Write protobuf file definition to .proto file.
-        //ServiceProtoUtils.writeConfigurationFile(protobufFileDefinition, service.getName());
+        //ServiceProtoUtils.writeServiceFiles(protobufFileDefinition, service.getName());
         // we are registering one service. So there will be only one service in file descriptor.
         Descriptors.FileDescriptor fileDescriptor = ServiceProtoUtils.getDescriptor(service);
         Descriptors.ServiceDescriptor serviceDescriptor = fileDescriptor.getServices().get(0);
@@ -96,10 +98,10 @@ public class GrpcServicesBuilder {
                     .setResponseMarshaller(resMarshaller)
                     .setSchemaDescriptor(methodDescriptor).build();
 
-            ServerCalls.UnaryMethod<Object, Object> methodInvokation = new UnaryMethodInvoker(methodDescriptor,
+            ServerCalls.UnaryMethod<Object, Object> unaryMethodListener = new UnaryMethodListener(methodDescriptor,
                     resource);
 
-            serviceDefBuilder.addMethod(grpcMethodDescriptor, ServerCalls.asyncUnaryCall(methodInvokation));
+            serviceDefBuilder.addMethod(grpcMethodDescriptor, ServerCalls.asyncUnaryCall(unaryMethodListener));
         }
 
         return serviceDefBuilder.build();

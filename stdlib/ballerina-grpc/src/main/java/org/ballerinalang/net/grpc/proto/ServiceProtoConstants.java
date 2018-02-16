@@ -1,4 +1,4 @@
-package org.ballerinalang.net.grpc;
+package org.ballerinalang.net.grpc.proto;
 
 import com.google.protobuf.DescriptorProtos;
 
@@ -14,12 +14,11 @@ public class ServiceProtoConstants {
     public static final String PROTOCOL_SYNTAX = "proto3";
     // Proto file extension
     public static final String PROTO_FILE_EXTENSION = ".proto";
+    // Descriptor file extension
+    public static final String DESC_FILE_EXTENSION = ".desc";
     // Message Message index
     public static final int CONNECTION_INDEX = 0;
-    // Response Message index
-    public static final int REQUEST_MESSAGE_INDEX = 1;
-    // Response Message index
-    public static final int RESPONSE_MESSAGE_INDEX = 2;
+
     // dot symbol for generate full class path
     public static final char CLASSPATH_SYMBOL = '.';
     // Proto contract directory.
@@ -29,6 +28,18 @@ public class ServiceProtoConstants {
     // Embedded messages, packed repeated fields wire type.
     public static final int MESSAGE_WIRE_TYPE = 2;
     public static final String UTF_8_CHARSET = "UTF-8";
+
+
+    // proto wrapper message constants
+    public static final String WRAPPER_DOUBLE_MESSAGE = "DoubleValue";
+    public static final String WRAPPER_FLOAT_MESSAGE = "FloatValue";
+    public static final String WRAPPER_INT64_MESSAGE = "Int64Value";
+    public static final String WRAPPER_UINT64_MESSAGE = "UInt64Value";
+    public static final String WRAPPER_INT32_MESSAGE = "Int32Value";
+    public static final String WRAPPER_UINT32_MESSAGE = "UInt32Value";
+    public static final String WRAPPER_BOOL_MESSAGE = "BoolValue";
+    public static final String WRAPPER_STRING_MESSAGE = "StringValue";
+    public static final String WRAPPER_BYTES_MESSAGE = "BytesValue";
 
     public static final Map<Integer, String> FIELD_TYPE_MAP;
     static {

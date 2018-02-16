@@ -15,7 +15,7 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.ballerinalang.net.grpc.definition;
+package org.ballerinalang.net.grpc.proto.definition;
 
 import com.google.protobuf.DescriptorProtos;
 import com.google.protobuf.Descriptors;
@@ -32,17 +32,22 @@ public class File {
     private DescriptorProtos.FileDescriptorProto fileDescriptorProto;
     private List<Message> messageList = new ArrayList<>();
     private List<Service> serviceList = new ArrayList<>();
+    private List<String> dependencyList = new ArrayList<>();
 
     private File(DescriptorProtos.FileDescriptorProto fileDescriptorProto) {
         this.fileDescriptorProto = fileDescriptorProto;
     }
 
-    protected void setMessageList(List<Message> messageList) {
+    void setMessageList(List<Message> messageList) {
         this.messageList = messageList;
     }
 
-    protected void setServiceList(List<Service> serviceList) {
+    void setServiceList(List<Service> serviceList) {
         this.serviceList = serviceList;
+    }
+
+    void setDependencyList(List<String> dependencyList) {
+        this.dependencyList = dependencyList;
     }
 
     public static File.Builder newBuilder(String fileName) {
@@ -65,7 +70,10 @@ public class File {
         StringBuilder fileDefinition = new StringBuilder();
 
         fileDefinition.append("syntax = \"").append(fileDescriptorProto.getSyntax()).append("\";\n");
-        fileDefinition.append("package ").append(fileDescriptorProto.getPackage()).append(";\n");
+        fileDefinition.append("package \"").append(fileDescriptorProto.getPackage()).append("\";\n");
+        for (String dependency : dependencyList) {
+            fileDefinition.append("import ").append(dependency).append(";\n");
+        }
         for (Service service : serviceList) {
             fileDefinition.append(service.getServiceDefinition());
         }
@@ -84,6 +92,7 @@ public class File {
             File file = new File(fileBuilder.build());
             file.setMessageList(messageList);
             file.setServiceList(serviceList);
+            file.setDependencyList(dependencyList);
             return file;
         }
 
@@ -109,8 +118,18 @@ public class File {
             return this;
         }
 
+        public Builder setDependeny (String dependency) {
+            fileBuilder.addDependency(dependency);
+            dependencyList.add(dependency);
+            return this;
+        }
+
         public List<DescriptorProtos.DescriptorProto> getRegisteredMessages() {
             return Collections.unmodifiableList(fileBuilder.getMessageTypeList());
+        }
+
+        public List<String> getRegisteredDependencies() {
+            return Collections.unmodifiableList(fileBuilder.getDependencyList());
         }
 
         private Builder(String fileName) {
@@ -121,5 +140,6 @@ public class File {
         private DescriptorProtos.FileDescriptorProto.Builder fileBuilder;
         private List<Message> messageList = new ArrayList<>();
         private List<Service> serviceList = new ArrayList<>();
+        private List<String> dependencyList = new ArrayList<>();
     }
 }

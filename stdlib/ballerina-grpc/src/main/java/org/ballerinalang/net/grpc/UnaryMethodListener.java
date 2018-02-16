@@ -40,12 +40,12 @@ import java.util.Map;
 /**
  * This is Unary Method Implementation for gRPC Service Call.
  */
-public class UnaryMethodInvoker implements UnaryMethod<Object, Object> {
+public class UnaryMethodListener implements UnaryMethod<Object, Object> {
 
     private final Descriptors.MethodDescriptor methodDescriptor;
     private final Resource resource;
 
-    public UnaryMethodInvoker(Descriptors.MethodDescriptor methodDescriptor, Resource resource) {
+    public UnaryMethodListener(Descriptors.MethodDescriptor methodDescriptor, Resource resource) {
         this.methodDescriptor = methodDescriptor;
         this.resource = resource;
     }
@@ -89,9 +89,9 @@ public class UnaryMethodInvoker implements UnaryMethod<Object, Object> {
         List<ParamDetail> paramDetails = resource.getParamDetails();
         BValue[] bValues = new BValue[paramDetails.size()];
         bValues[0] = connection;
-        BType requestType = resource.getParamDetails().get(ServiceProtoConstants.REQUEST_MESSAGE_INDEX)
+        BType requestType = resource.getParamDetails().get(MessageConstants.REQUEST_MESSAGE_INDEX)
                     .getVarType();
-        String requestName = resource.getParamDetails().get(ServiceProtoConstants.REQUEST_MESSAGE_INDEX).getVarName();
+        String requestName = resource.getParamDetails().get(MessageConstants.REQUEST_MESSAGE_INDEX).getVarName();
         bValues[1] = generateRequestStruct(requestMessage, requestName, requestType);
 //        connection.addNativeData(MessageConstants.RESPONSE_MESSAGE_NAME, requestMessage.getDescriptor().getName());
         //MessageUtils.enrichConnectionInfo(connection, responseObserver);
@@ -127,28 +127,28 @@ public class UnaryMethodInvoker implements UnaryMethod<Object, Object> {
                                 structFieldName, structField.getFieldType()));
                     }
                 } else {
-                    if (request.getFields().containsKey(fieldName)) {
+                    if (request.getFields().containsKey(structFieldName)) {
                         String fieldType = structField.getFieldType().getName();
                         switch (fieldType) {
                             case "string": {
                                 requestStruct.setStringField(stringIndex++, (String) request.getFields().get
-                                        (fieldName));
+                                        (structFieldName));
                                 break;
                             }
                             case "int": {
                                 requestStruct.setIntField(intIndex++, (Long) request.getFields().get
-                                        (fieldName));
+                                        (structFieldName));
                                 break;
                             }
                             case "float": {
-                                Float value = (Float) request.getFields().get(fieldName);
+                                Float value = (Float) request.getFields().get(structFieldName);
                                 if (value != null) {
                                     requestStruct.setFloatField(floatIndex++, Double.parseDouble(value.toString()));
                                 }
                                 break;
                             }
                             case "double": {
-                                Double value = (Double) request.getFields().get(fieldName);
+                                Double value = (Double) request.getFields().get(structFieldName);
                                 if (value != null) {
                                     requestStruct.setFloatField(floatIndex++, Double.parseDouble(value.toString()));
                                 }
@@ -156,7 +156,7 @@ public class UnaryMethodInvoker implements UnaryMethod<Object, Object> {
                             }
                             case "boolean": {
                                 requestStruct.setBooleanField(boolIndex++, (Integer) request.getFields().get
-                                        (fieldName));
+                                        (structFieldName));
                                 break;
                             }
                             default: {
@@ -170,7 +170,7 @@ public class UnaryMethodInvoker implements UnaryMethod<Object, Object> {
             bValue = requestStruct;
         } else {
             Map<String, Object> fields = request.getFields();
-            if (fields.size() == 1 || fields.containsKey("value")) {
+            if (fields.size() == 1 && fields.containsKey("value")) {
                 fieldName = "value";
             }
             if (request.getFields().containsKey(fieldName)) {

@@ -7,3 +7,7 @@ public annotation methodInfo attach resource {
     string inputMessage;
     string outputMessage;
 }
+
+public annotation serviceInfo attach service {
+    string serviceName;
+}

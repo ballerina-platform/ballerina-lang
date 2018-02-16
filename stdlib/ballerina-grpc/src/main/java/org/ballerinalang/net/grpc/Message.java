@@ -98,7 +98,7 @@ public class Message extends GeneratedMessageV3 {
         for (Descriptors.FieldDescriptor fieldDescriptor : messageDescriptor.getFields()) {
             Descriptors.FieldDescriptor.Type fieldType = fieldDescriptor.getType();
             int number = fieldDescriptor.getNumber();
-            int byteCode = ((number << 3) + ServiceProtoUtils.getFieldWireType(fieldType));
+            int byteCode = ((number << 3) + MessageUtils.getFieldWireType(fieldType));
             fields.put(byteCode, fieldDescriptor);
         }
 
@@ -219,7 +219,7 @@ public class Message extends GeneratedMessageV3 {
                 switch (fieldDescriptor.getType().toProto().getNumber()) {
                     case DescriptorProtos.FieldDescriptorProto.Type.TYPE_DOUBLE_VALUE: {
                         Object msgObject = fields.get(fieldDescriptor.getName());
-                        if (ServiceProtoUtils.isArray(msgObject)) {
+                        if (MessageUtils.isArray(msgObject)) {
                             Double[] messages = (Double[]) msgObject;
                             for (Double message : messages) {
                                 output.writeDouble(fieldDescriptor.getNumber(), message);
@@ -231,7 +231,7 @@ public class Message extends GeneratedMessageV3 {
                     }
                     case DescriptorProtos.FieldDescriptorProto.Type.TYPE_FLOAT_VALUE: {
                         Object msgObject = fields.get(fieldDescriptor.getName());
-                        if (ServiceProtoUtils.isArray(msgObject)) {
+                        if (MessageUtils.isArray(msgObject)) {
                             Float[] messages = (Float[]) msgObject;
                             for (Float message : messages) {
                                 output.writeFloat(fieldDescriptor.getNumber(), message);
@@ -243,7 +243,7 @@ public class Message extends GeneratedMessageV3 {
                     }
                     case DescriptorProtos.FieldDescriptorProto.Type.TYPE_INT64_VALUE: {
                         Object msgObject = fields.get(fieldDescriptor.getName());
-                        if (ServiceProtoUtils.isArray(msgObject)) {
+                        if (MessageUtils.isArray(msgObject)) {
                             Long[] messages = (Long[]) msgObject;
                             for (Long message : messages) {
                                 output.writeInt64(fieldDescriptor.getNumber(), message);
@@ -255,7 +255,7 @@ public class Message extends GeneratedMessageV3 {
                     }
                     case DescriptorProtos.FieldDescriptorProto.Type.TYPE_UINT64_VALUE: {
                         Object msgObject = fields.get(fieldDescriptor.getName());
-                        if (ServiceProtoUtils.isArray(msgObject)) {
+                        if (MessageUtils.isArray(msgObject)) {
                             Long[] messages = (Long[]) msgObject;
                             for (Long message : messages) {
                                 output.writeUInt64(fieldDescriptor.getNumber(), message);
@@ -267,7 +267,7 @@ public class Message extends GeneratedMessageV3 {
                     }
                     case DescriptorProtos.FieldDescriptorProto.Type.TYPE_INT32_VALUE: {
                         Object msgObject = fields.get(fieldDescriptor.getName());
-                        if (ServiceProtoUtils.isArray(msgObject)) {
+                        if (MessageUtils.isArray(msgObject)) {
                             Integer[] messages = (Integer[]) msgObject;
                             for (Integer message : messages) {
                                 output.writeInt32(fieldDescriptor.getNumber(), message);
@@ -279,7 +279,7 @@ public class Message extends GeneratedMessageV3 {
                     }
                     case DescriptorProtos.FieldDescriptorProto.Type.TYPE_FIXED64_VALUE: {
                         Object msgObject = fields.get(fieldDescriptor.getName());
-                        if (ServiceProtoUtils.isArray(msgObject)) {
+                        if (MessageUtils.isArray(msgObject)) {
                             Long[] messages = (Long[]) msgObject;
                             for (Long message : messages) {
                                 output.writeFixed64(fieldDescriptor.getNumber(), message);
@@ -291,7 +291,7 @@ public class Message extends GeneratedMessageV3 {
                     }
                     case DescriptorProtos.FieldDescriptorProto.Type.TYPE_FIXED32_VALUE: {
                         Object msgObject = fields.get(fieldDescriptor.getName());
-                        if (ServiceProtoUtils.isArray(msgObject)) {
+                        if (MessageUtils.isArray(msgObject)) {
                             Integer[] messages = (Integer[]) msgObject;
                             for (Integer message : messages) {
                                 output.writeFixed32(fieldDescriptor.getNumber(), message);
@@ -303,7 +303,7 @@ public class Message extends GeneratedMessageV3 {
                     }
                     case DescriptorProtos.FieldDescriptorProto.Type.TYPE_BOOL_VALUE: {
                         Object msgObject = fields.get(fieldDescriptor.getName());
-                        if (ServiceProtoUtils.isArray(msgObject)) {
+                        if (MessageUtils.isArray(msgObject)) {
                             Boolean[] messages = (Boolean[]) msgObject;
                             for (Boolean message : messages) {
                                 output.writeBool(fieldDescriptor.getNumber(), message);
@@ -315,7 +315,7 @@ public class Message extends GeneratedMessageV3 {
                     }
                     case DescriptorProtos.FieldDescriptorProto.Type.TYPE_STRING_VALUE: {
                         Object msgObject = fields.get(fieldDescriptor.getName());
-                        if (ServiceProtoUtils.isArray(msgObject)) {
+                        if (MessageUtils.isArray(msgObject)) {
                             String[] messages = (String[]) msgObject;
                             for (String message : messages) {
                                 output.writeString(fieldDescriptor.getNumber(), message);
@@ -328,7 +328,7 @@ public class Message extends GeneratedMessageV3 {
                     }
                     case DescriptorProtos.FieldDescriptorProto.Type.TYPE_MESSAGE_VALUE: {
                         Object msgObject = fields.get(fieldDescriptor.getName());
-                        if (ServiceProtoUtils.isArray(msgObject)) {
+                        if (MessageUtils.isArray(msgObject)) {
                             Object[] messages = (Object[]) msgObject;
                             for (Object message : messages) {
                                 output.writeMessage(fieldDescriptor.getNumber(), (MessageLite) message);
@@ -362,7 +362,7 @@ public class Message extends GeneratedMessageV3 {
                 switch (fieldDescriptor.getType().toProto().getNumber()) {
                     case DescriptorProtos.FieldDescriptorProto.Type.TYPE_DOUBLE_VALUE: {
                         Object msgObject = fields.get(fieldDescriptor.getName());
-                        if (ServiceProtoUtils.isArray(msgObject)) {
+                        if (MessageUtils.isArray(msgObject)) {
                             Double[] messages = (Double[]) msgObject;
                             for (Double message : messages) {
                                 size += com.google.protobuf.CodedOutputStream.computeDoubleSize(fieldDescriptor
@@ -376,7 +376,7 @@ public class Message extends GeneratedMessageV3 {
                     }
                     case DescriptorProtos.FieldDescriptorProto.Type.TYPE_FLOAT_VALUE: {
                         Object msgObject = fields.get(fieldDescriptor.getName());
-                        if (ServiceProtoUtils.isArray(msgObject)) {
+                        if (MessageUtils.isArray(msgObject)) {
                             Float[] messages = (Float[]) msgObject;
                             for (Float message : messages) {
                                 size += com.google.protobuf.CodedOutputStream.computeFloatSize(fieldDescriptor
@@ -390,7 +390,7 @@ public class Message extends GeneratedMessageV3 {
                     }
                     case DescriptorProtos.FieldDescriptorProto.Type.TYPE_INT64_VALUE: {
                         Object msgObject = fields.get(fieldDescriptor.getName());
-                        if (ServiceProtoUtils.isArray(msgObject)) {
+                        if (MessageUtils.isArray(msgObject)) {
                             Long[] messages = (Long[]) msgObject;
                             for (Long message : messages) {
                                 size += com.google.protobuf.CodedOutputStream.computeInt64Size(fieldDescriptor
@@ -404,7 +404,7 @@ public class Message extends GeneratedMessageV3 {
                     }
                     case DescriptorProtos.FieldDescriptorProto.Type.TYPE_UINT64_VALUE: {
                         Object msgObject = fields.get(fieldDescriptor.getName());
-                        if (ServiceProtoUtils.isArray(msgObject)) {
+                        if (MessageUtils.isArray(msgObject)) {
                             Long[] messages = (Long[]) msgObject;
                             for (Long message : messages) {
                                 size += com.google.protobuf.CodedOutputStream.computeUInt64Size(fieldDescriptor
@@ -418,7 +418,7 @@ public class Message extends GeneratedMessageV3 {
                     }
                     case DescriptorProtos.FieldDescriptorProto.Type.TYPE_INT32_VALUE: {
                         Object msgObject = fields.get(fieldDescriptor.getName());
-                        if (ServiceProtoUtils.isArray(msgObject)) {
+                        if (MessageUtils.isArray(msgObject)) {
                             Integer[] messages = (Integer[]) msgObject;
                             for (Integer message : messages) {
                                 size += com.google.protobuf.CodedOutputStream.computeInt32Size(fieldDescriptor
@@ -432,7 +432,7 @@ public class Message extends GeneratedMessageV3 {
                     }
                     case DescriptorProtos.FieldDescriptorProto.Type.TYPE_FIXED64_VALUE: {
                         Object msgObject = fields.get(fieldDescriptor.getName());
-                        if (ServiceProtoUtils.isArray(msgObject)) {
+                        if (MessageUtils.isArray(msgObject)) {
                             Long[] messages = (Long[]) msgObject;
                             for (Long message : messages) {
                                 size += com.google.protobuf.CodedOutputStream.computeFixed64Size(fieldDescriptor
@@ -446,7 +446,7 @@ public class Message extends GeneratedMessageV3 {
                     }
                     case DescriptorProtos.FieldDescriptorProto.Type.TYPE_FIXED32_VALUE: {
                         Object msgObject = fields.get(fieldDescriptor.getName());
-                        if (ServiceProtoUtils.isArray(msgObject)) {
+                        if (MessageUtils.isArray(msgObject)) {
                             Integer[] messages = (Integer[]) msgObject;
                             for (Integer message : messages) {
                                 size += com.google.protobuf.CodedOutputStream.computeFixed32Size(fieldDescriptor
@@ -460,7 +460,7 @@ public class Message extends GeneratedMessageV3 {
                     }
                     case DescriptorProtos.FieldDescriptorProto.Type.TYPE_BOOL_VALUE: {
                         Object msgObject = fields.get(fieldDescriptor.getName());
-                        if (ServiceProtoUtils.isArray(msgObject)) {
+                        if (MessageUtils.isArray(msgObject)) {
                             Boolean[] messages = (Boolean[]) msgObject;
                             for (Boolean message : messages) {
                                 size += com.google.protobuf.CodedOutputStream.computeBoolSize(fieldDescriptor
@@ -474,7 +474,7 @@ public class Message extends GeneratedMessageV3 {
                     }
                     case DescriptorProtos.FieldDescriptorProto.Type.TYPE_STRING_VALUE: {
                         Object msgObject = fields.get(fieldDescriptor.getName());
-                        if (ServiceProtoUtils.isArray(msgObject)) {
+                        if (MessageUtils.isArray(msgObject)) {
                             String[] messages = (String[]) msgObject;
                             for (String message : messages) {
                                 size += com.google.protobuf.GeneratedMessageV3.computeStringSize(fieldDescriptor
@@ -488,7 +488,7 @@ public class Message extends GeneratedMessageV3 {
                     }
                     case DescriptorProtos.FieldDescriptorProto.Type.TYPE_MESSAGE_VALUE: {
                         Object msgObject = fields.get(fieldDescriptor.getName());
-                        if (ServiceProtoUtils.isArray(msgObject)) {
+                        if (MessageUtils.isArray(msgObject)) {
                             Object[] messages = (Object[]) msgObject;
                             for (Object message : messages) {
                                 size += com.google.protobuf.CodedOutputStream.computeMessageSize(fieldDescriptor
@@ -621,10 +621,6 @@ public class Message extends GeneratedMessageV3 {
             }
             onBuilt();
             return result;
-        }
-
-        public Map<String, Object> getFields() {
-            return fields;
         }
 
         public Builder addField(String name, Object value) {
