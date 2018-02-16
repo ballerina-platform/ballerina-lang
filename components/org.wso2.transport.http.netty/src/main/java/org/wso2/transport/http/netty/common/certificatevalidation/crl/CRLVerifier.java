@@ -66,7 +66,7 @@ public class CRLVerifier implements RevocationVerifier {
      * @param peerCert   peer certificate
      * @param issuerCert issuer certificate of the peer.
      * @return revocation status of the peer certificate.
-     * @throws CertificateVerificationException
+     * @throws CertificateVerificationException Occurs when it fails to verify the status of certificate.
      */
     public RevocationStatus checkRevocationStatus(X509Certificate peerCert, X509Certificate issuerCert)
             throws CertificateVerificationException {
@@ -115,6 +115,11 @@ public class CRLVerifier implements RevocationVerifier {
 
     /**
      * Downloads CRL from the crlUrl. Does not support HTTPS.
+     *
+     * @param crlURL URL of the CRL distribution point.
+     * @return Downloaded CRL.
+     * @throws IOException If an error occurs while downloading the CRL from web.
+     * @throws CertificateVerificationException If an error occurs in CRL download process.
      */
     protected X509CRL downloadCRLFromWeb(String crlURL) throws IOException, CertificateVerificationException {
         InputStream crlStream = null;

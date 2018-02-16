@@ -61,6 +61,7 @@ public class RevocationVerificationManager {
      *
      * @param peerCertificates javax.security.cert.X509Certificate[] array of peer certificate chain from peer/client.
      * @throws CertificateVerificationException Occurs when certificate fails to be validated from both OCSP and CRL.
+     * @return true If the process of certificate revocation becomes successful.
      */
     public boolean verifyRevocationStatus(javax.security.cert.X509Certificate[] peerCertificates)
             throws CertificateVerificationException {
@@ -98,7 +99,8 @@ public class RevocationVerificationManager {
      *
      * @param certs array of javax.security.cert.X509Certificate[] s.
      * @return the converted array of java.security.cert.X509Certificate[] s.
-     * @throws CertificateVerificationException
+     * @throws CertificateVerificationException If an error occurs while converting certificates
+     * from java to javax
      */
     private X509Certificate[] convert(javax.security.cert.X509Certificate[] certs)
             throws CertificateVerificationException {

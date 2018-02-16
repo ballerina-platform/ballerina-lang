@@ -75,9 +75,9 @@ public class PathChecker extends PKIXCertPathChecker {
     /**
      * Used by CertPathValidator to pass the certificates one by one from the certificate chain.
      *
-     * @param cert               the certificate passed to be checked.
+     * @param cert the certificate passed to be checked.
      * @param unresolvedCritExts not used in this method.
-     * @throws CertPathValidatorException
+     * @throws CertPathValidatorException if any error occurs while verifying the status given by CA.
      */
     @Override
     public void check(Certificate cert, Collection<String> unresolvedCritExts)

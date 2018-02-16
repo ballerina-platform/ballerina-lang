@@ -83,7 +83,7 @@ public class OCSPVerifier implements RevocationVerifier {
      * @param peerCert The certificate that needs to be validated.
      * @param issuerCert Needs to create OCSP request.
      * @return Revocation status of the peer certificate.
-     * @throws CertificateVerificationException
+     * @throws CertificateVerificationException Occurs when it fails to verify the ocsp status of certificate.
      */
     public RevocationStatus checkRevocationStatus(X509Certificate peerCert, X509Certificate issuerCert)
             throws CertificateVerificationException {
@@ -151,7 +151,7 @@ public class OCSPVerifier implements RevocationVerifier {
      * @param serviceUrl URL of the OCSP endpoint.
      * @param request An OCSP request object.
      * @return OCSP response encoded in ASN.1 structure.
-     * @throws CertificateVerificationException
+     * @throws CertificateVerificationException if any error occurs while trying to get a response from the CA.
      */
     protected OCSPResp getOCSPResponce(String serviceUrl, OCSPReq request) throws CertificateVerificationException {
 
@@ -196,7 +196,7 @@ public class OCSPVerifier implements RevocationVerifier {
      * @param issuerCert the Issuer's certificate of the peer certificate we are interested in.
      * @param serialNumber of the peer certificate.
      * @return generated OCSP request.
-     * @throws CertificateVerificationException
+     * @throws CertificateVerificationException if any error occurs while generating ocsp request.
      */
     private OCSPReq generateOCSPRequest(X509Certificate issuerCert, BigInteger serialNumber)
             throws CertificateVerificationException {
@@ -242,7 +242,8 @@ public class OCSPVerifier implements RevocationVerifier {
      *
      * @param cert is the certificate
      * @return a lit of URLs in AIA extension of the certificate which will hopefully contain an OCSP endpoint.
-     * @throws CertificateVerificationException
+     * @throws CertificateVerificationException if any error occurs while retrieving authority access points from the
+     * certificate.
      */
     private List<String> getAIALocations(X509Certificate cert) throws CertificateVerificationException {
 

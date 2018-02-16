@@ -46,9 +46,10 @@ public class CacheManager {
     /**
      * A new cacheManager will be started on the given ManageableCache object.
      *
-     * @param cache        a Manageable cache which can be managed by this cache manager.
+     * @param cache Manageable cache which can be managed by this cache manager.
      * @param cacheMaxSize Maximum size of the cache. If the cache exceeds this size, LRU values will be
      *                     removed
+     * @param delay Cache delay.
      */
     public CacheManager(ManageableCache cache, int cacheMaxSize, int delay) {
         int numThreads = 1;
@@ -112,6 +113,7 @@ public class CacheManager {
 
     /**
      * Gracefully stop cacheManager.
+     * @return true if successfully cancel the scheduled future.
      */
     public boolean stop() {
         if (scheduledFuture != null && !scheduledFuture.isCancelled()) {
