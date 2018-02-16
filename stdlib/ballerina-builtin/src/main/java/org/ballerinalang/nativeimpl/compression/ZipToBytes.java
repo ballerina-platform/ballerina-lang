@@ -24,15 +24,16 @@ import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
-import org.ballerinalang.util.CompressionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.ByteArrayOutputStream;
-import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.util.List;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -61,37 +62,39 @@ public class ZipToBytes extends AbstractNativeFunction {
      * @param dirPath file content as a byte array.
      */
     private static byte[] zipToByte(String dirPath) throws IOException {
-        File dir = new File(dirPath);
-        List<String> filesListInDir = CompressionUtils.populateFilesList(dir);
-        ByteArrayOutputStream bos = new ByteArrayOutputStream();
-        ZipOutputStream zos = new ZipOutputStream(bos);
-        byte[] buffer = new byte[4096];
+        Stream<Path> list = Files.list(Paths.get(dirPath));
+        try (ByteArrayOutputStream bos = new ByteArrayOutputStream()) {
+            ZipOutputStream zos = new ZipOutputStream(bos);
+            byte[] buffer = new byte[4096];
+            list.forEach(p -> addEntry(zos, buffer, p.toString()));
+            zos.close();
+            return bos.toByteArray();
+        }
+
+    }
+
+    /**
+     * Add each entry (file) to the ZipOutputStream.
+     * @param zos ZipOutputStream
+     * @param buffer byte buffer
+     * @param filePath file path of each file inside the driectory
+     */
+    private static void addEntry(ZipOutputStream zos, byte[] buffer, String filePath) {
         try {
-            for (String filePath : filesListInDir) {
-                ZipEntry ze = new ZipEntry(filePath.substring(dir.getAbsolutePath().length() + 1, filePath.length()));
-                zos.putNextEntry(ze);
-                FileInputStream fis = null;
-                try {
-                    fis = new FileInputStream(filePath);
-                    int len;
-                    while ((len = fis.read(buffer)) > 0) {
-                        zos.write(buffer, 0, len);
-                    }
-                    zos.closeEntry();
-                } finally {
-                    if (fis != null) {
-                        fis.close();
-                    }
+            ZipEntry ze = new ZipEntry(filePath);
+            zos.putNextEntry(ze);
+            try (FileInputStream fis = new FileInputStream(filePath)) {
+                int len;
+                while ((len = fis.read(buffer)) > 0) {
+                    zos.write(buffer, 0, len);
                 }
+                zos.closeEntry();
+                fis.close();
             }
         } catch (IOException e) {
             log.debug("I/O Exception when processing files ", e);
             log.error("I/O Exception when processing files " + e.getMessage());
-        } finally {
-            zos.close();
         }
-        return bos.toByteArray();
-
     }
 
     @Override
