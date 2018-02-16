@@ -119,6 +119,10 @@ public class VectorTest {
         for (int i = 0; i < finalVectorSize; i++) {
             Assert.assertEquals(vectorEntries.get(i).value(), expectedVals[i]);
         }
+
+        for (int i = (int) finalVectorSize; i < vectorEntries.size(); i++) {
+            Assert.assertNull(vectorEntries.get(i));
+        }
     }
 
     @Test(description = "Test case for testing clearing of the vector.")
