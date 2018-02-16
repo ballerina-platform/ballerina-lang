@@ -18,18 +18,18 @@ function getConnectorConfigs(string host, string port, string username, string p
     http:Options option;
     int portInt = 0;
     if (host != ""){
-        if (port != ""){
-            var portI, _ = <int> port;
-            portInt = portI;
-        }
-        option = {
-                     proxy:{
-                               host:host,
-                               port:portInt,
-                               userName:username,
-                               password:password
-                           }
-                 };
+      if (port != ""){
+          var portI, _ = <int> port;
+          portInt = portI;
+      }
+      option = {
+         proxy:{
+           host:host,
+           port:portInt,
+           userName:username,
+           password:password
+         }
+      };
     } else {
         option = {};
     }
