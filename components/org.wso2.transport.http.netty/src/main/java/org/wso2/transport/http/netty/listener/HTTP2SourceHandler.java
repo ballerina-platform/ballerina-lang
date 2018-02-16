@@ -15,7 +15,7 @@
 * specific language governing permissions and limitations
 * under the License.
 */
-package org.wso2.transport.http.netty.listener.http2;
+package org.wso2.transport.http.netty.listener;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
@@ -26,7 +26,9 @@ import io.netty.handler.codec.http.DefaultHttpRequest;
 import io.netty.handler.codec.http.DefaultLastHttpContent;
 import io.netty.handler.codec.http.HttpMethod;
 import io.netty.handler.codec.http.HttpRequest;
+import io.netty.handler.codec.http.HttpServerUpgradeHandler;
 import io.netty.handler.codec.http.HttpVersion;
+import io.netty.handler.codec.http2.DefaultHttp2Headers;
 import io.netty.handler.codec.http2.Http2ConnectionDecoder;
 import io.netty.handler.codec.http2.Http2ConnectionEncoder;
 import io.netty.handler.codec.http2.Http2ConnectionHandler;
@@ -34,11 +36,13 @@ import io.netty.handler.codec.http2.Http2EventAdapter;
 import io.netty.handler.codec.http2.Http2Exception;
 import io.netty.handler.codec.http2.Http2Headers;
 import io.netty.handler.codec.http2.Http2Settings;
+import io.netty.util.AsciiString;
 import io.netty.util.internal.PlatformDependent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.common.Constants;
 import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
+import org.wso2.transport.http.netty.contractimpl.Http2OutboundRespListener;
 import org.wso2.transport.http.netty.internal.HTTPTransportContextHolder;
 import org.wso2.transport.http.netty.message.EmptyLastHttpContent;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
@@ -47,6 +51,8 @@ import org.wso2.transport.http.netty.message.PooledDataStreamerFactory;
 
 import java.net.InetSocketAddress;
 import java.util.Map;
+
+import static io.netty.handler.codec.http.HttpResponseStatus.OK;
 
 /**
  * Class {@code HTTP2SourceHandler} will read the Http2 binary frames sent from client through the channel
@@ -93,6 +99,23 @@ public final class HTTP2SourceHandler extends Http2ConnectionHandler {
         }
     }
 
+    /**
+     * Handles the cleartext HTTP upgrade event. If an upgrade occurred, sends a simple response via HTTP/2
+     * on stream 1 (the stream specifically reserved for cleartext HTTP upgrade).
+     */
+    @Override
+    public void userEventTriggered(ChannelHandlerContext ctx, Object evt) throws Exception {
+        if (evt instanceof HttpServerUpgradeHandler.UpgradeEvent) {
+            // Write an HTTP/2 response to the upgrade request
+            // TODO: Need to dispatch message to the message flow
+            Http2Headers headers =
+                    new DefaultHttp2Headers().status(OK.codeAsText())
+                            .set(new AsciiString(Constants.UPGRADE_RESPONSE_HEADER), new AsciiString("true"));
+            encoder().writeHeaders(ctx, 1, headers, 0, true, ctx.newPromise());
+        }
+        super.userEventTriggered(ctx, evt);
+    }
+
     public HTTP2FrameListener getHttp2FrameListener() {
         return http2FrameListener;
     }
@@ -109,7 +132,7 @@ public final class HTTP2SourceHandler extends Http2ConnectionHandler {
             if (endOfStream) {  // Add empty last http content if no data frames available in the http request
                 sourceReqCMsg.addHttpContent(new EmptyLastHttpContent());
             }
-            notifyRequestListener(sourceReqCMsg);
+            notifyRequestListener(sourceReqCMsg, streamId);
         }
 
         @Override
@@ -156,7 +179,7 @@ public final class HTTP2SourceHandler extends Http2ConnectionHandler {
             }
 
             // Construct new HTTP carbon message and put into stream id request map
-            HttpRequest httpRequest = new DefaultHttpRequest(new HttpVersion("HTTP/2", true),
+            HttpRequest httpRequest = new DefaultHttpRequest(new HttpVersion("HTTP/2.0", true),
                                                              HttpMethod.valueOf(method), path);
             HTTPCarbonMessage sourceReqCMsg = new HttpCarbonRequest(httpRequest);
 
@@ -177,9 +200,8 @@ public final class HTTP2SourceHandler extends Http2ConnectionHandler {
             sourceReqCMsg.setProperty(Constants.PROTOCOL, Constants.HTTP_SCHEME);
             sourceReqCMsg.setProperty(Constants.STREAM_ID, streamId);
 
-            // TODO: Check HTTP/2 ALPN Handler
             boolean isSecuredConnection = false;
-            if (ctx.channel().pipeline().get(Constants.SSL_HANDLER) != null) {
+            if (ctx.channel().pipeline().get(Constants.HTTP2_ALPN_HANDLER) != null) {
                 isSecuredConnection = true;
             }
             sourceReqCMsg.setProperty(Constants.IS_SECURED_CONNECTION, isSecuredConnection);
@@ -197,12 +219,15 @@ public final class HTTP2SourceHandler extends Http2ConnectionHandler {
             return sourceReqCMsg;
         }
 
-        private void notifyRequestListener(HTTPCarbonMessage httpRequestMsg) {
+        private void notifyRequestListener(HTTPCarbonMessage httpRequestMsg, int streamId) {
 
             if (serverConnectorFuture != null) {
                 try {
+                    ServerConnectorFuture outboundRespFuture = httpRequestMsg.getHttpResponseFuture();
+                    outboundRespFuture
+                            .setHttpConnectorListener(
+                                    new Http2OutboundRespListener(ctx, encoder(), streamId));
                     serverConnectorFuture.notifyHttpListener(httpRequestMsg);
-                    //TODO: handle response path
                 } catch (Exception e) {
                     log.error("Error while notifying listeners", e);
                 }

@@ -15,7 +15,7 @@
 * specific language governing permissions and limitations
 * under the License.
 */
-package org.wso2.transport.http.netty.listener.http2;
+package org.wso2.transport.http.netty.listener;
 
 
 import io.netty.handler.codec.http2.AbstractHttp2ConnectionHandlerBuilder;

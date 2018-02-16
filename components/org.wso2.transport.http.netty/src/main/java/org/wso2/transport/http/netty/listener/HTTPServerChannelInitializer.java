@@ -15,14 +15,24 @@
 
 package org.wso2.transport.http.netty.listener;
 
+import io.netty.buffer.Unpooled;
+import io.netty.channel.ChannelFutureListener;
+import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelPipeline;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.handler.codec.http.HttpRequestDecoder;
 import io.netty.handler.codec.http.HttpResponseEncoder;
+import io.netty.handler.codec.http.HttpServerCodec;
+import io.netty.handler.codec.http.HttpServerUpgradeHandler;
+import io.netty.handler.codec.http2.Http2CodecUtil;
+import io.netty.handler.codec.http2.Http2ServerUpgradeCodec;
+import io.netty.handler.ssl.ApplicationProtocolNames;
+import io.netty.handler.ssl.ApplicationProtocolNegotiationHandler;
 import io.netty.handler.ssl.SslHandler;
 import io.netty.handler.stream.ChunkedWriteHandler;
 import io.netty.handler.timeout.IdleStateHandler;
+import io.netty.util.AsciiString;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.messaging.CarbonTransportInitializer;
@@ -52,6 +62,7 @@ public class HTTPServerChannelInitializer extends ChannelInitializer<SocketChann
     private SSLConfig sslConfig;
     private ServerConnectorFuture serverConnectorFuture;
     private RequestSizeValidationConfig reqSizeValidationConfig;
+    private boolean isHttp2Enabled = true;
 
     @Override
     public void setup(Map<String, String> parameters) {
@@ -65,18 +76,26 @@ public class HTTPServerChannelInitializer extends ChannelInitializer<SocketChann
 
         ChannelPipeline pipeline = ch.pipeline();
 
-        if (sslConfig != null) {
-            pipeline.addLast(Constants.SSL_HANDLER, new SslHandler(new SSLHandlerFactory(sslConfig).build()));
-        }
+        if (isHttp2Enabled) {
+            if (sslConfig != null) {
+                pipeline.addLast(Constants.SSL_HANDLER, new SslHandler(new SSLHandlerFactory(sslConfig).build()));
+                pipeline.addLast(Constants.HTTP2_ALPN_HANDLER, new H2PipelineConfigurator());
+            } else {
+                configureH2cPipeline(pipeline);
+            }
+        } else {
+            if (sslConfig != null) {
+                pipeline.addLast(Constants.SSL_HANDLER, new SslHandler(new SSLHandlerFactory(sslConfig).build()));
+            }
+            pipeline.addLast("encoder", new HttpResponseEncoder());
+            configureHTTPPipeline(pipeline);
 
-        pipeline.addLast("encoder", new HttpResponseEncoder());
-        configureHTTPPipeline(pipeline);
-
-        if (socketIdleTimeout > 0) {
-            pipeline.addBefore(
-                    Constants.HTTP_SOURCE_HANDLER, Constants.IDLE_STATE_HANDLER,
-                    new IdleStateHandler(socketIdleTimeout, socketIdleTimeout, socketIdleTimeout,
-                                         TimeUnit.MILLISECONDS));
+            if (socketIdleTimeout > 0) {
+                pipeline.addBefore(
+                        Constants.HTTP_SOURCE_HANDLER, Constants.IDLE_STATE_HANDLER,
+                        new IdleStateHandler(socketIdleTimeout, socketIdleTimeout, socketIdleTimeout,
+                                             TimeUnit.MILLISECONDS));
+            }
         }
     }
 
@@ -108,6 +127,25 @@ public class HTTPServerChannelInitializer extends ChannelInitializer<SocketChann
                          new WebSocketServerHandshakeHandler(this.serverConnectorFuture, this.interfaceId));
         pipeline.addLast(Constants.HTTP_SOURCE_HANDLER, new SourceHandler(this.serverConnectorFuture,
                 this.interfaceId, this.chunkConfig, this.serverName));
+    }
+
+    public void configureH2cPipeline(ChannelPipeline pipeline) {
+        // Add http2 upgrade decoder and upgrade handler for check http version
+        final HttpServerCodec sourceCodec = new HttpServerCodec();
+
+        final HttpServerUpgradeHandler.UpgradeCodecFactory upgradeCodecFactory = protocol -> {
+            if (AsciiString.contentEquals(Http2CodecUtil.HTTP_UPGRADE_PROTOCOL_NAME, protocol)) {
+                return new Http2ServerUpgradeCodec(Constants.HTTP2_SOURCE_HANDLER,
+                                                   new HTTP2SourceHandlerBuilder(
+                                                           this.interfaceId, this.serverConnectorFuture).build());
+            } else {
+                return null;
+            }
+        };
+        pipeline.addLast("encoder", sourceCodec);
+        pipeline.addLast("http2-upgrade", new HttpServerUpgradeHandler(sourceCodec, upgradeCodecFactory));
+        //Requests will be propagated to next handlers if no upgrade has been attempted
+        configureHTTPPipeline(pipeline);
     }
 
     @Override
@@ -146,4 +184,36 @@ public class HTTPServerChannelInitializer extends ChannelInitializer<SocketChann
     public void setServerName(String serverName) {
         this.serverName = serverName;
     }
+
+    class H2PipelineConfigurator extends ApplicationProtocolNegotiationHandler {
+
+        public H2PipelineConfigurator() {
+            super(ApplicationProtocolNames.HTTP_1_1);
+        }
+
+        @Override
+        /**
+         *  Configure pipeline after SSL handshake
+         */
+        protected void configurePipeline(ChannelHandlerContext ctx, String protocol) throws Exception {
+            if (ApplicationProtocolNames.HTTP_2.equals(protocol)) {
+                // handles pipeline for HTTP/2 requests after SSL handshake
+                ctx.pipeline().addLast(Constants.HTTP2_SOURCE_HANDLER,
+                                       new HTTP2SourceHandlerBuilder(interfaceId, serverConnectorFuture).build());
+            } else if (ApplicationProtocolNames.HTTP_1_1.equals(protocol)) {
+                // handles pipeline for HTTP/1 requests after SSL handshake
+                configureHTTPPipeline(ctx.pipeline());
+            } else {
+                throw new IllegalStateException("unknown protocol: " + protocol);
+            }
+        }
+
+        @Override
+        public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
+            if (ctx != null && ctx.channel().isActive()) {
+                ctx.writeAndFlush(Unpooled.EMPTY_BUFFER).addListener(ChannelFutureListener.CLOSE);
+            }
+        }
+    }
+
 }
