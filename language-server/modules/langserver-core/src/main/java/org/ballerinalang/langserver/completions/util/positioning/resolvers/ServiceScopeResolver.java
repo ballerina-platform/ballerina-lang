@@ -21,6 +21,7 @@ import org.ballerinalang.langserver.completions.TreeVisitor;
 import org.ballerinalang.model.tree.Node;
 import org.eclipse.lsp4j.Position;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
+import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangResource;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangVariableDef;
@@ -83,8 +84,14 @@ public class ServiceScopeResolver extends CursorPositionResolver {
             isLastChildNode = resources.indexOf(node) == (resources.size() - 1);
         }
 
-        return (isLastChildNode
+        boolean isWithinScope =  (isLastChildNode
                 && (curLine < serviceEndLine || (curLine == serviceEndLine && curCol < serviceEndCol))
                 && (nodeEndLine < curLine || (nodeEndLine == curLine && nodeEndCol < curCol)));
+        
+        if (isWithinScope) {
+            treeVisitor.setPreviousNode((BLangNode) node);
+        }
+        
+        return isWithinScope;
     }
 }

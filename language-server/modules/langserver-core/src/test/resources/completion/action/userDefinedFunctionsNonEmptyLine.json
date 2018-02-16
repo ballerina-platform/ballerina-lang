@@ -8,7 +8,7 @@
     {
       "label": "function4()",
       "kind": 6,
-      "detail": "function",
+      "detail": "Function",
       "documentation": null,
       "sortText": 6,
       "insertText": "function4()",
@@ -16,7 +16,7 @@
     }, {
       "label": "function3(int param1, int param2)(int a, int b)",
       "kind": 6,
-      "detail": "function",
+      "detail": "Function",
       "documentation": null,
       "sortText": 6,
       "insertText": "function3(${1:param1}, ${2:param2})",
@@ -24,7 +24,7 @@
     }, {
       "label": "function2()(int a, int b)",
       "kind": 6,
-      "detail": "function",
+      "detail": "Function",
       "documentation": null,
       "sortText": 6,
       "insertText": "function2()",
@@ -32,7 +32,7 @@
     }, {
       "label": "function1(int a, string b)",
       "kind": 6,
-      "detail": "function",
+      "detail": "Function",
       "documentation": null,
       "sortText": 6,
       "insertText": "function1(${1:a}, ${2:b})",
