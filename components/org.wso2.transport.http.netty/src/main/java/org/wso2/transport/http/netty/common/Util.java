@@ -129,9 +129,6 @@ public class Util {
         outboundNettyRequest.setMethod(httpMethod);
         outboundNettyRequest.setProtocolVersion(httpVersion);
         outboundNettyRequest.setUri(requestPath);
-
-        outboundNettyRequest.headers().set(Constants.ACCEPT_ENCODING,
-                Constants.ENCODING_DEFLATE + ", " + Constants.ENCODING_GZIP);
         outboundNettyRequest.headers().add(outboundRequestMsg.getHeaders());
 
         return outboundNettyRequest;
