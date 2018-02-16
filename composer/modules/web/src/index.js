@@ -18,10 +18,7 @@
  */
 
  // importing for side effects only
-import 'bootstrap';
-import 'theme_wso2';
-import 'bootstrap/dist/css/bootstrap.min.css';
-import 'bootstrap/dist/css/bootstrap-theme.min.css';
+import 'semantic-ui-css/semantic.min.css';
 import 'font-ballerina/css/font-ballerina.css';
 
 import log from 'log';
