@@ -228,6 +228,11 @@
             </dependency>
             <dependency>
                 <groupId>org.ballerinalang</groupId>
+                <artifactId>swagger-to-ballerina-generator</artifactId>
+                <version>${ballerina.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
                 <artifactId>ballerina-container-support</artifactId>
                 <version>${ballerina.version}</version>
             </dependency>

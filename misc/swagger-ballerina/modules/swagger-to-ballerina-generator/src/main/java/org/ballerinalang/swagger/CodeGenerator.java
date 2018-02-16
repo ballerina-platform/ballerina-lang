@@ -112,9 +112,9 @@ public class CodeGenerator {
         String templatesDirPath = System.getProperty(GeneratorConstants.TEMPLATES_DIR_PATH_KEY, defaultTemplateDir);
         ClassPathTemplateLoader cpTemplateLoader = new ClassPathTemplateLoader((templatesDirPath));
         FileTemplateLoader fileTemplateLoader = new FileTemplateLoader(templatesDirPath);
-
         cpTemplateLoader.setSuffix(GeneratorConstants.TEMPLATES_SUFFIX);
         fileTemplateLoader.setSuffix(GeneratorConstants.TEMPLATES_SUFFIX);
+        
         Handlebars handlebars = new Handlebars().with(cpTemplateLoader, fileTemplateLoader);
         handlebars.registerHelpers(StringHelpers.class);
         handlebars.registerHelper("equals", (object, options) -> {
@@ -125,7 +125,7 @@ public class CodeGenerator {
                 throw new IllegalArgumentException("found 'null', expected 'string'");
             }
             if (object != null && object.toString().equals(param0.toString())) {
-                result = options.fn(object);
+                result = options.fn(options.context);
             } else {
                 result = null;
             }

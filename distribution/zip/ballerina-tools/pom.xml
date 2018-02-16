@@ -60,6 +60,10 @@
         </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>
+            <artifactId>swagger-to-ballerina-generator</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.ballerinalang</groupId>
             <artifactId>ballerina-container-support</artifactId>
         </dependency>
         <dependency>
