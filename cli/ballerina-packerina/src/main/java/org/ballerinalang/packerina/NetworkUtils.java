@@ -53,7 +53,7 @@ public class NetworkUtils {
      *
      * @return compile result after compiling the bal file
      */
-    private static CompileResult compilePullCmdBalFile(String packageName) {
+    private static CompileResult compileBalFile(String packageName) {
         CompileResult compileResult = BCompileUtil.compile("src", packageName, CompilerPhase.CODE_GEN);
         ProgramFile programFile = compileResult.getProgFile();
         PackageInfo packageInfo = programFile.getPackageInfo(compileResult.getProgFile().getEntryPkgName());
@@ -71,11 +71,11 @@ public class NetworkUtils {
      * @param resourceName package name to be pulled
      */
     public static void pullPackages(String resourceName) {
-        compileResult = compilePullCmdBalFile("ballerina.pull");
+        compileResult = compileBalFile("ballerina.pull");
         Path targetDirectoryPath = UserRepositoryUtils.initializeUserRepository()
                 .resolve(USER_REPO_ARTIFACTS_DIRNAME).resolve(USER_REPO_SRC_DIRNAME);
         String dstPath = targetDirectoryPath + File.separator;
-        String resourcePath = BALLERINA_CENTRAL_REPO_URL + File.separator + resourceName + "/1.0.0";
+        String resourcePath = BALLERINA_CENTRAL_REPO_URL + resourceName;
         String[] proxyConfigs = readProxyConfigurations();
         String[] arguments = new String[]{resourcePath, dstPath};
         arguments = Stream.concat(Arrays.stream(arguments), Arrays.stream(proxyConfigs))
@@ -89,7 +89,7 @@ public class NetworkUtils {
      * @param resourceName path of the package folder to be pushed
      */
     public static void pushPackages(String resourceName) {
-        compileResult = compilePullCmdBalFile("ballerina.push");
+        compileResult = compileBalFile("ballerina.push");
         String resourcePath = BALLERINA_CENTRAL_REPO_URL + resourceName + "/1.0.0";
         String[] proxyConfigs = readProxyConfigurations();
         String[] arguments = new String[]{resourcePath, resourceName};
