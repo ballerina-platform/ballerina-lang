@@ -31,6 +31,9 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -69,14 +72,15 @@ public class UnzipBytes extends AbstractNativeFunction {
     protected static void decompress(byte[] fileContentAsByteArray, String outputFolder) {
         ZipInputStream zin = null;
         try {
-            File outdir = new File(outputFolder);
+            Path outdir = Paths.get(outputFolder);
             zin = new ZipInputStream(new ByteArrayInputStream(fileContentAsByteArray));
             ZipEntry entry;
             String name, dir;
             while ((entry = zin.getNextEntry()) != null) {
                 name = entry.getName();
                 if (entry.isDirectory()) {
-                    mkdirs(outdir, name);
+                    Path pathToFile = Paths.get(outdir + name);
+                    Files.createDirectories(pathToFile);
                     continue;
                 }
                 /* this part is necessary because file entry can come before
@@ -84,7 +88,8 @@ public class UnzipBytes extends AbstractNativeFunction {
                  */
                 dir = getDirectoryPath(name);
                 if (dir != null) {
-                    mkdirs(outdir, dir);
+                    Path pathToFile = Paths.get(outdir + name);
+                    Files.createDirectories(pathToFile);
                 }
 
                 extractFile(zin, outdir, name);
@@ -111,11 +116,12 @@ public class UnzipBytes extends AbstractNativeFunction {
      * @param outdir output directory file
      * @param name   name of the file
      */
-    private static void extractFile(ZipInputStream in, File outdir, String name) {
+    private static void extractFile(ZipInputStream in, Path outdir, String name) {
         byte[] buffer = new byte[4096];
         BufferedOutputStream out = null;
         try {
-            out = new BufferedOutputStream(new FileOutputStream(new File(outdir, name)));
+            Path pathToFile = Paths.get(outdir + name);
+            out = new BufferedOutputStream(new FileOutputStream(pathToFile.toString()));
 
             int count = -1;
             while ((count = in.read(buffer)) != -1) {
@@ -151,17 +157,6 @@ public class UnzipBytes extends AbstractNativeFunction {
             return s == -1 ? null : name.substring(0, s);
         }
         return null;
-    }
-
-    /**
-     * Make directories if they doesn't exists.
-     *
-     * @param outdir destination file
-     * @param path path of the destination directory
-     */
-    private static boolean mkdirs(File outdir, String path) {
-        File d = new File(outdir, path);
-        return !d.exists() && d.mkdirs();
     }
 
     @Override
