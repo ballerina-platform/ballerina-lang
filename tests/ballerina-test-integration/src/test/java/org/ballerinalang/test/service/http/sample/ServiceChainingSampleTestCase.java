@@ -47,9 +47,8 @@ public class ServiceChainingSampleTestCase extends IntegrationTestCase {
     @BeforeClass
     private void setup() throws Exception {
         ballerinaServer = ServerInstance.initBallerinaServer();
-        String serviceSampleDir = ballerinaServer.getServerHome() + File.separator + Constant.SERVICE_SAMPLE_DIR;
-        String balFile = serviceSampleDir + File.separator + "serviceChaining"
-                + File.separator + "ATMLocatorService.balx";
+        String balFile = new File("src" + File.separator + "test" + File.separator + "resources"
+                + File.separator + "httpService" + File.separator + "ATMLocatorService.bal").getAbsolutePath();
         ballerinaServer.startBallerinaServer(balFile);
     }
 

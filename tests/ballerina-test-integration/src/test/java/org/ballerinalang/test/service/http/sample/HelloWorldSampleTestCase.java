@@ -41,9 +41,8 @@ public class HelloWorldSampleTestCase extends IntegrationTestCase {
     @BeforeClass
     private void setup() throws Exception {
         ballerinaServer = ServerInstance.initBallerinaServer();
-        String serviceSampleDir = ballerinaServer.getServerHome() + File.separator + Constant.SERVICE_SAMPLE_DIR;
-        String balFile = serviceSampleDir + File.separator + "helloWorldService" + File.separator
-                + "helloWorldService.bal";
+        String balFile = new File("src" + File.separator + "test" + File.separator + "resources"
+                + File.separator + "httpService" + File.separator + "helloWorldService.bal").getAbsolutePath();
         ballerinaServer.startBallerinaServer(balFile);
     }
 
