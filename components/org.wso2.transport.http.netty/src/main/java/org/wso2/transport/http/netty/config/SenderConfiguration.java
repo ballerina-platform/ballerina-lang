@@ -95,6 +95,9 @@ public class SenderConfiguration {
     private String tlsStoreType;
     private String httpVersion = "1.1";
     private ProxyServerConfiguration proxyServerConfiguration;
+    private boolean validateCertificateEnabled;
+    private int cacheSize;
+    private int cacheDelay;
 
     public SenderConfiguration() {
     }
@@ -261,5 +264,29 @@ public class SenderConfiguration {
         if (!httpVersion.isEmpty()) {
             this.httpVersion = httpVersion;
         }
+    }
+
+    public void setValidateCertificateEnabled(boolean validateCertificateEnabled) {
+        this.validateCertificateEnabled = validateCertificateEnabled;
+    }
+
+    public void setCacheSize(int cacheSize) {
+        this.cacheSize = cacheSize;
+    }
+
+    public void setCacheDelay(int cacheDelay) {
+        this.cacheDelay = cacheDelay;
+    }
+
+    public boolean isValidateCertificateEnabled() {
+        return validateCertificateEnabled;
+    }
+
+    public int getCacheSize() {
+        return cacheSize;
+    }
+
+    public int getCacheDelay() {
+        return cacheDelay;
     }
 }

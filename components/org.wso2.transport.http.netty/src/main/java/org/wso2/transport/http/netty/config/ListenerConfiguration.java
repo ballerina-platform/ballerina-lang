@@ -23,6 +23,7 @@ import org.wso2.transport.http.netty.common.ssl.SSLConfig;
 
 import java.util.ArrayList;
 import java.util.List;
+
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
@@ -104,6 +105,15 @@ public class ListenerConfiguration {
 
     @XmlAttribute
     private String serverHeader = "wso2-http-transport";
+
+    @XmlAttribute
+    private boolean validateCertificateEnabled;
+
+    @XmlAttribute
+    private int cacheSize;
+
+    @XmlAttribute
+    private int cacheDelay;
 
     @XmlElementWrapper(name = "parameters")
     @XmlElement(name = "parameter")
@@ -198,6 +208,30 @@ public class ListenerConfiguration {
 
     public String getSSLProtocol() {
         return sslProtocol;
+    }
+
+    public boolean isValidateCertificateEnabled() {
+        return validateCertificateEnabled;
+    }
+
+    public void setValidateCertificateEnabled(boolean validateCertificateEnabled) {
+        this.validateCertificateEnabled = validateCertificateEnabled;
+    }
+
+    public int getCacheSize() {
+        return cacheSize;
+    }
+
+    public void setCacheSize(int cacheSize) {
+        this.cacheSize = cacheSize;
+    }
+
+    public int getCacheDelay() {
+        return cacheDelay;
+    }
+
+    public void setCacheDelay(int cacheDelay) {
+        this.cacheDelay = cacheDelay;
     }
 
     public int getPort() {
