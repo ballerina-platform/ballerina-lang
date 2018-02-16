@@ -61,6 +61,8 @@
             <class name="org.wso2.transport.http.netty.connectionpool.ConnectionPoolEvictionTestCase" />
             <class name="org.wso2.transport.http.netty.connectionpool.ConnectionPoolMaxConnTestCase" />
 
+            <class name="org.wso2.transport.http.netty.headers.DateHeaderTestCase" />
+
             <class name="org.wso2.transport.http.netty.unitfunction.CommonUtilTestCase" />
             <class name="org.wso2.transport.http.netty.unitfunction.HttpCarbonMessageTestCase" />
 
