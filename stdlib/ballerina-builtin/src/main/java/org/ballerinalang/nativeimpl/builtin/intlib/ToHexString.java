@@ -30,7 +30,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
 /**
  * Native function ballerina.model.int:toHexString.
  *
- * @since 0.962.0
+ * @since 0.963.0
  */
 @BallerinaFunction(
         packageName = "ballerina.builtin",
