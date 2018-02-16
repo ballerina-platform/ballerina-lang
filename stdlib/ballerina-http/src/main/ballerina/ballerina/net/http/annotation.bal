@@ -14,7 +14,7 @@ package ballerina.net.http;
 @Field {value:"sslEnabledProtocols: SSL/TLS protocols to be enabled"}
 @Field {value:"ciphers: List of ciphers to be used"}
 @Field {value:"sslProtocol: The SSL protocol version"}
-@Field {value:"validateCertificateEnabled: The status of validateCertificateEnabled {default value : false (disable)}"}
+@Field {value:"validateCertEnabled: The status of validateCertEnabled {default value : false (disable)}"}
 @Field {value:"cacheSize: Maximum size of the cache"}
 @Field {value:"cacheValidityPeriod: Time duration of cache validity period"}
 @Field {value:"allowOrigins: The array of origins with which the response is shared by the service"}
@@ -43,7 +43,7 @@ public annotation configuration attach service<> {
     string sslEnabledProtocols;
     string ciphers;
     string sslProtocol;
-    boolean validateCertificateEnabled;
+    boolean validateCertEnabled;
     int cacheSize;
     int cacheValidityPeriod;
     string[] allowOrigins;

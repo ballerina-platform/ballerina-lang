@@ -862,7 +862,7 @@ public class HttpUtil {
         AnnAttrValue sslProtocolAttrVal = configInfo.getAnnAttrValue(HttpConstants.ANN_CONFIG_ATTR_SSL_PROTOCOL);
         AnnAttrValue hostAttrVal = configInfo.getAnnAttrValue(HttpConstants.ANN_CONFIG_ATTR_HOST);
         AnnAttrValue certificateValidationEnabledAttrValue = configInfo
-                .getAnnAttrValue(HttpConstants.ANN_CONFIG_ATTR_VALIDATE_CERTIFICATE_ENABLED);
+                .getAnnAttrValue(HttpConstants.ANN_CONFIG_ATTR_VALIDATE_CERT_ENABLED);
         AnnAttrValue cacheSizeAttrValue = configInfo.getAnnAttrValue(HttpConstants.ANN_CONFIG_ATTR_CACHE_SIZE);
         AnnAttrValue cacheValidityPeriodAttrValue = configInfo
                 .getAnnAttrValue(HttpConstants.ANN_CONFIG_ATTR_CACHE_VALIDITY_PERIOD);
@@ -918,17 +918,13 @@ public class HttpUtil {
             }
             if (certificateValidationEnabledAttrValue != null && certificateValidationEnabledAttrValue
                     .getBooleanValue()) {
-                if (cacheSizeAttrValue == null) {
-                    throw new BallerinaException("cacheSize value must be provided to enable certificate validation");
+                listenerConfiguration.setValidateCertEnabled(certificateValidationEnabledAttrValue.getBooleanValue());
+                if (cacheSizeAttrValue != null) {
+                    listenerConfiguration.setCacheSize((int) cacheSizeAttrValue.getIntValue());
                 }
-                if (cacheValidityPeriodAttrValue == null) {
-                    throw new BallerinaException(
-                            "cacheValidityPeriod value must be provided to enable certificate validation");
+                if (cacheValidityPeriodAttrValue != null) {
+                    listenerConfiguration.setCacheValidityPeriod((int) cacheValidityPeriodAttrValue.getIntValue());
                 }
-                listenerConfiguration
-                        .setValidateCertificateEnabled(certificateValidationEnabledAttrValue.getBooleanValue());
-                listenerConfiguration.setCacheSize((int) cacheSizeAttrValue.getIntValue());
-                listenerConfiguration.setCacheDelay((int) cacheValidityPeriodAttrValue.getIntValue());
             }
             List<Parameter> serverParams = new ArrayList<>();
             Parameter serverCiphers;

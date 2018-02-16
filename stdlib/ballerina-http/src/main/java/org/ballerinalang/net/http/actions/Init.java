@@ -138,19 +138,18 @@ public class Init extends AbstractHTTPAction {
             String sslEnabledProtocols = ssl.getStringField(HttpConstants.SSL_ENABLED_PROTOCOLS_INDEX);
             String ciphers = ssl.getStringField(HttpConstants.CIPHERS_INDEX);
             String sslProtocol = ssl.getStringField(HttpConstants.SSL_PROTOCOL_INDEX);
-            boolean isCertificateValidationEnabled =
-                    ssl.getBooleanField(HttpConstants.CERTIFICATE_VALIDATION_ENABLED_INDEX) == TRUE;
+            boolean validateCertEnabled = ssl.getBooleanField(HttpConstants.VALIDATE_CERT_ENABLED_INDEX) == TRUE;
             int cacheSize = (int) ssl.getIntField(HttpConstants.CACHE_SIZE_INDEX);
             int cacheValidityPeriod = (int) ssl.getIntField(HttpConstants.CACHE_VALIDITY_PERIOD_INDEX);
 
-            if (isCertificateValidationEnabled && cacheSize == 0) {
-                throw new BallerinaConnectorException(
-                        "cache size must be provided in order to enable certificate revocation verifier");
-            }
-
-            if (isCertificateValidationEnabled && cacheValidityPeriod == 0) {
-                throw new BallerinaConnectorException(
-                        "cache delay must be provided in order to enable certificate revocation verifier");
+            if (validateCertEnabled) {
+                senderConfiguration.setValidateCertEnabled(validateCertEnabled);
+                if (cacheValidityPeriod != 0) {
+                    senderConfiguration.setCacheValidityPeriod(cacheValidityPeriod);
+                }
+                if (cacheSize != 0) {
+                    senderConfiguration.setCacheSize(cacheSize);
+                }
             }
             if (StringUtils.isNotBlank(trustStoreFile)) {
                 senderConfiguration.setTrustStoreFile(trustStoreFile);
@@ -179,11 +178,6 @@ public class Init extends AbstractHTTPAction {
             }
             if (!clientParams.isEmpty()) {
                 senderConfiguration.setParameters(clientParams);
-            }
-            if (isCertificateValidationEnabled) {
-                senderConfiguration.setValidateCertificateEnabled(isCertificateValidationEnabled);
-                senderConfiguration.setCacheSize(cacheSize);
-                senderConfiguration.setCacheDelay(cacheValidityPeriod);
             }
         }
         if (options.getRefField(HttpConstants.PROXY_STRUCT_INDEX) != null) {
