@@ -66,7 +66,7 @@ public class SignatureTest {
     }
 
     @Test(expectedExceptions = BallerinaConnectorException.class,
-            expectedExceptionsMessageRegExp = "incompatible resource signature path parameter type")
+            expectedExceptionsMessageRegExp = "incompatible resource signature parameter type")
     public void testSignatureWithBooleanParamAsThirdParam() {
         compileResult = BCompileUtil.compile(getClass().getClassLoader().getResource(
                 "test-src/services/signature/boolean-param.bal").getPath());

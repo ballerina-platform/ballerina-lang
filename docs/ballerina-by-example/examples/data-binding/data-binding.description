@@ -1,1 +1,0 @@
-//HTTP data binding helps accessing payload through the last resource signature parameter. Parameter name should be declared in resource config under "body" annotation and String, JSON, XML, BLOB and Struct are supported as parameter types.

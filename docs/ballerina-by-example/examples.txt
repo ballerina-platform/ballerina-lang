@@ -69,6 +69,7 @@ HTTP Disable Chunking
 HTTP to WebSocket Upgrade
 HTTP CORS
 HTTP Circuit Breaker
+HTTP Data Binding
 Log API
 Function Pointers
 Lambda

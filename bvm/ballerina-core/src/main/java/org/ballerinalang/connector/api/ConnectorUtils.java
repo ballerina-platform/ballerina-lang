@@ -102,13 +102,13 @@ public class ConnectorUtils extends StructHelper {
     /**
      * This method is used to convert a JSON to struct given the resource, json and required struct type.
      *
-     * @param resource to get required details.
-     * @param bjson which needs to be converted.
+     * @param resource   to get required details.
+     * @param bJson      which needs to be converted.
      * @param structType of required struct.
      * @return converted struct.
      */
-    public static BStruct convertJSONToStruct(Resource resource, BJSON bjson, BType structType) {
+    public static BStruct convertJSONToStruct(Resource resource, BJSON bJson, BType structType) {
         PackageInfo packageInfo = getPackageInfo(resource);
-        return JSONUtils.convertJSONToStruct(bjson, (BStructType) structType, packageInfo);
+        return JSONUtils.convertJSONToStruct(bJson, (BStructType) structType, packageInfo);
     }
 }

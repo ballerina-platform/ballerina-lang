@@ -290,7 +290,7 @@ public class MimeUtil {
         } else {
             String filePath = getFilePathFromFileHandler(entity);
             try {
-                return (filePath.isEmpty()) ? null : new String(readFromFile(filePath), UTF_8);
+                return filePath.isEmpty() ? null : new String(readFromFile(filePath), UTF_8);
             } catch (UnsupportedEncodingException e) {
                 LOG.error("Error occurred while extracting text payload from entity", e.getMessage());
             }
@@ -311,7 +311,7 @@ public class MimeUtil {
         } else {
             String filePath = getFilePathFromFileHandler(entity);
             try {
-                return (filePath.isEmpty()) ? null : new BJSON(new String(readFromFile(filePath), UTF_8));
+                return filePath.isEmpty() ? null : new BJSON(new String(readFromFile(filePath), UTF_8));
             } catch (UnsupportedEncodingException e) {
                 LOG.error("Error occurred while extracting json payload from entity", e.getMessage());
             }
@@ -332,7 +332,7 @@ public class MimeUtil {
         } else {
             String filePath = getFilePathFromFileHandler(entity);
             try {
-                return (filePath.isEmpty()) ? null : XMLUtils.parse(new String(readFromFile(filePath), UTF_8));
+                return filePath.isEmpty() ? null : XMLUtils.parse(new String(readFromFile(filePath), UTF_8));
             } catch (UnsupportedEncodingException e) {
                 LOG.error("Error occurred while extracting xml payload from entity", e.getMessage());
             }
@@ -352,7 +352,7 @@ public class MimeUtil {
             return entity.getBlobField(BYTE_DATA_INDEX);
         } else {
             String filePath = getFilePathFromFileHandler(entity);
-            return (filePath.isEmpty()) ? null : readFromFile(filePath);
+            return filePath.isEmpty() ? null : readFromFile(filePath);
         }
     }
 
@@ -422,7 +422,7 @@ public class MimeUtil {
     }
 
     /**
-     * Populate a ballerina file struct with temporary file path.
+     * Populate ballerina file struct with temporary file path.
      *
      * @param entityStruct      Represent 'Entity'
      * @param temporaryFilePath Temporary file path

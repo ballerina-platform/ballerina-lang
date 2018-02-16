@@ -38,6 +38,7 @@ import org.ballerinalang.connector.api.BallerinaConnectorException;
 import org.ballerinalang.connector.api.ConnectorUtils;
 import org.ballerinalang.connector.api.Resource;
 import org.ballerinalang.connector.api.Service;
+import org.ballerinalang.mime.util.Constants;
 import org.ballerinalang.mime.util.MimeUtil;
 import org.ballerinalang.model.values.BJSON;
 import org.ballerinalang.model.values.BMap;
@@ -94,7 +95,6 @@ import static org.ballerinalang.mime.util.Constants.MULTIPART_DATA_INDEX;
 import static org.ballerinalang.mime.util.Constants.MULTIPART_ENCODER;
 import static org.ballerinalang.mime.util.Constants.NO_CONTENT_LENGTH_FOUND;
 import static org.ballerinalang.mime.util.Constants.OCTET_STREAM;
-import static org.ballerinalang.mime.util.Constants.OVERFLOW_DATA_INDEX;
 import static org.ballerinalang.mime.util.Constants.TEXT_PLAIN;
 import static org.ballerinalang.net.http.HttpConstants.ENTITY_INDEX;
 import static org.ballerinalang.net.http.HttpConstants.HTTP_MESSAGE_INDEX;
@@ -247,14 +247,13 @@ public class HttpUtil {
     /**
      * Create file struct and set it to the entity.
      *
-     * @param context           Represent ballerina context
-     * @param entity            Represent an entity
+     * @param context Represent ballerina context
+     * @param entity  Represent an entity
      */
     private static void addFileHandlerToEntity(Context context, BStruct entity) {
-        BStruct fileStruct = ConnectorUtils.createAndGetStruct(context,
-                org.ballerinalang.mime.util.Constants.PROTOCOL_PACKAGE_FILE,
-                org.ballerinalang.mime.util.Constants.FILE);
-        entity.setRefField(OVERFLOW_DATA_INDEX, fileStruct);
+        BStruct fileStruct = ConnectorUtils
+                .createAndGetStruct(context, Constants.PROTOCOL_PACKAGE_FILE, Constants.FILE);
+        entity.setRefField(Constants.OVERFLOW_DATA_INDEX, fileStruct);
     }
 
     /**

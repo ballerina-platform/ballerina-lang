@@ -8,7 +8,7 @@ struct Student {
 
 service<http> hello {
 
-    @Description {value:"Annotation body represents the JSON payload of the inbound request."}
+    @Description {value:"Body annotation represents the entity body of the inbound request."}
     @http:resourceConfig {
         methods:["POST"],
         body:"order"

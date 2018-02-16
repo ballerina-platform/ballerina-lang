@@ -25,9 +25,9 @@ import org.ballerinalang.model.types.TypeTags;
 import java.util.List;
 
 /**
- * This class represents...........
+ * This class holds the resource signature parameters.
  *
- * @since 0.962.0
+ * @since 0.963.0
  */
 public class SignatureParams {
 

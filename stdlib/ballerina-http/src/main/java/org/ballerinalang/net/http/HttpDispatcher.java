@@ -19,6 +19,7 @@ package org.ballerinalang.net.http;
 
 import org.ballerinalang.connector.api.BallerinaConnectorException;
 import org.ballerinalang.connector.api.ConnectorUtils;
+import org.ballerinalang.mime.util.Constants;
 import org.ballerinalang.mime.util.MimeUtil;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.TypeTags;
@@ -38,8 +39,6 @@ import java.net.URI;
 import java.net.URLDecoder;
 import java.util.HashMap;
 import java.util.Map;
-
-import static org.ballerinalang.mime.util.Constants.OVERFLOW_DATA_INDEX;
 
 /**
  * {@code HttpDispatcher} is responsible for dispatching incoming http requests to the correct resource.
@@ -211,7 +210,6 @@ public class HttpDispatcher {
         if (signatureParams.getEntityBody() == null) {
             return bValues;
         }
-        //assign entityBody
         try {
             bValues[bValues.length - 1] = populateAndGetEntityBody(httpResource, inRequest, inRequestEntity,
                     signatureParams.getEntityBody().getVarType());
@@ -225,10 +223,9 @@ public class HttpDispatcher {
     private static BValue populateAndGetEntityBody(HttpResource httpResource, BStruct inRequest,
                                                    BStruct inRequestEntity, BType entityBodyType) {
 
-        BStruct fileStruct = ConnectorUtils.createStruct(httpResource.getBalResource(),
-                org.ballerinalang.mime.util.Constants.PROTOCOL_PACKAGE_FILE,
-                org.ballerinalang.mime.util.Constants.FILE);
-        inRequestEntity.setRefField(OVERFLOW_DATA_INDEX, fileStruct);
+        BStruct fileStruct = ConnectorUtils.createStruct(httpResource.getBalResource(), Constants.PROTOCOL_PACKAGE_FILE,
+                Constants.FILE);
+        inRequestEntity.setRefField(Constants.OVERFLOW_DATA_INDEX, fileStruct);
         HttpUtil.populateEntityBody(null, inRequest, inRequestEntity, true);
 
         BValue body = null;
@@ -255,7 +252,7 @@ public class HttpDispatcher {
                 try {
                     body = ConnectorUtils.convertJSONToStruct(httpResource.getBalResource(), bjson, entityBodyType);
                 } catch (NullPointerException ex) {
-                    throw new BallerinaConnectorException("invalid struct type: " +
+                    throw new BallerinaConnectorException("cannot convert payload to struct type: " +
                             entityBodyType.getName());
                 }
                 break;
