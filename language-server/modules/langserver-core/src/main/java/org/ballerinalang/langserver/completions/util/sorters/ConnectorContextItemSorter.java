@@ -30,6 +30,8 @@ import org.wso2.ballerinalang.compiler.tree.BLangAction;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangVariableDef;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -45,7 +47,8 @@ class ConnectorContextItemSorter extends CompletionItemSorter {
         rule contexts such as typeNameContext, we add the statements as well.
         Sorters are responsible for to the next level of such filtering.
          */
-        this.removeCompletionsByType(ItemResolverConstants.STATEMENT_TYPE, completionItems);
+        this.removeCompletionsByType(new ArrayList<>(Collections.singletonList(ItemResolverConstants.STATEMENT_TYPE)),
+                completionItems);
         if (previousNode == null) {
             this.populateWhenCursorBeforeOrAfterEp(completionItems);
         } else if (previousNode instanceof BLangVariableDef) {
