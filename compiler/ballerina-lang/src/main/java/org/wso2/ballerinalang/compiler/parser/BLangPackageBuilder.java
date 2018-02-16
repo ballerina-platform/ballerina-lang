@@ -28,6 +28,8 @@ import org.ballerinalang.model.tree.AnnotationAttachmentNode;
 import org.ballerinalang.model.tree.AnnotationNode;
 import org.ballerinalang.model.tree.CompilationUnitNode;
 import org.ballerinalang.model.tree.ConnectorNode;
+import org.ballerinalang.model.tree.DeprecatableNode;
+import org.ballerinalang.model.tree.DeprecatedNode;
 import org.ballerinalang.model.tree.DocumentableNode;
 import org.ballerinalang.model.tree.DocumentationNode;
 import org.ballerinalang.model.tree.EnumNode;
@@ -60,6 +62,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachmentPoint;
 import org.wso2.ballerinalang.compiler.tree.BLangConnector;
+import org.wso2.ballerinalang.compiler.tree.BLangDeprecatedNode;
 import org.wso2.ballerinalang.compiler.tree.BLangDocumentation;
 import org.wso2.ballerinalang.compiler.tree.BLangEnum;
 import org.wso2.ballerinalang.compiler.tree.BLangEnum.BLangEnumerator;
@@ -204,6 +207,8 @@ public class BLangPackageBuilder {
     private Stack<AnnotationAttachmentAttributeValueNode> annotAttribValStack = new Stack<>();
 
     private Stack<DocumentationNode> docAttachmentStack = new Stack<>();
+
+    private Stack<DeprecatedNode> deprecatedAttachmentStack = new Stack<>();
 
     private Stack<AnnotationAttachmentNode> annotAttachmentStack = new Stack<>();
 
@@ -393,6 +398,7 @@ public class BLangPackageBuilder {
         FunctionNode functionNode = TreeBuilder.createFunctionNode();
         attachAnnotations(functionNode);
         attachDocumentations(functionNode);
+        attachDeprecatedNode(functionNode);
         this.invokableNodeStack.push(functionNode);
     }
 
@@ -850,6 +856,10 @@ public class BLangPackageBuilder {
             function.flagSet.add(Flag.ATTACHED);
         }
 
+        if (!function.deprecatedAttachments.isEmpty()) {
+            function.flagSet.add(Flag.DEPRECATED);
+        }
+
         this.compUnit.addTopLevelNode(function);
     }
 
@@ -1011,6 +1021,7 @@ public class BLangPackageBuilder {
         }
         attachAnnotations(var);
         attachDocumentations(var);
+        attachDeprecatedNode(var);
         this.compUnit.addTopLevelNode(var);
     }
 
@@ -1018,6 +1029,7 @@ public class BLangPackageBuilder {
         StructNode structNode = TreeBuilder.createStructNode();
         attachAnnotations(structNode);
         attachDocumentations(structNode);
+        attachDeprecatedNode(structNode);
         this.structStack.add(structNode);
     }
 
@@ -1036,6 +1048,7 @@ public class BLangPackageBuilder {
         bLangEnum.pos = pos;
         attachAnnotations(bLangEnum);
         attachDocumentations(bLangEnum);
+        attachDeprecatedNode(bLangEnum);
         this.enumStack.add(bLangEnum);
     }
 
@@ -1064,6 +1077,7 @@ public class BLangPackageBuilder {
         ConnectorNode connectorNode = TreeBuilder.createConnectorNode();
         attachAnnotations(connectorNode);
         attachDocumentations(connectorNode);
+        attachDeprecatedNode(connectorNode);
         this.connectorNodeStack.push(connectorNode);
     }
 
@@ -1107,7 +1121,7 @@ public class BLangPackageBuilder {
 
     public void endActionDef(DiagnosticPos pos,
                              Set<Whitespace> ws, int annotCount,
-                             boolean nativeAction, boolean bodyExists, boolean docExists) {
+                             boolean nativeAction, boolean bodyExists, boolean docExists, boolean isDeprecated) {
         BLangAction actionNode = (BLangAction) this.invokableNodeStack.pop();
         actionNode.pos = pos;
         actionNode.addWS(ws);
@@ -1121,6 +1135,10 @@ public class BLangPackageBuilder {
 
         if (docExists) {
             attachDocumentations(actionNode);
+        }
+
+        if (isDeprecated) {
+            attachDeprecatedNode(actionNode);
         }
 
         attachAnnotations(actionNode, annotCount);
@@ -1147,6 +1165,7 @@ public class BLangPackageBuilder {
         annotNode.pos = pos;
         attachAnnotations(annotNode);
         attachDocumentations(annotNode);
+        attachDeprecatedNode(annotNode);
         this.annotationStack.add(annotNode);
     }
 
@@ -1209,6 +1228,19 @@ public class BLangPackageBuilder {
         attrib.pos = pos;
         attrib.addWS(ws);
         docAttachmentStack.peek().addAttribute(attrib);
+    }
+
+    public void createDeprecatedNode(DiagnosticPos pos,
+                                     Set<Whitespace> ws,
+                                     String content) {
+        BLangDeprecatedNode deprecatedNode = (BLangDeprecatedNode) TreeBuilder.createDeprecatedNode();
+
+        deprecatedNode.pos = pos;
+        deprecatedNode.addWS(ws);
+
+        addLiteralValue(pos, ws, TypeTags.STRING, content);
+        deprecatedNode.documentationText = (BLangExpression) exprNodeStack.pop();
+        deprecatedAttachmentStack.push(deprecatedNode);
     }
 
     public void startAnnotationAttachment(DiagnosticPos currentPos) {
@@ -1292,6 +1324,12 @@ public class BLangPackageBuilder {
     private void attachDocumentations(DocumentableNode documentableNode) {
         if (!docAttachmentStack.empty()) {
             documentableNode.addDocumentationAttachment(docAttachmentStack.pop());
+        }
+    }
+
+    private void attachDeprecatedNode(DeprecatableNode deprecatableNode) {
+        if (!deprecatedAttachmentStack.empty()) {
+            deprecatableNode.addDeprecatedAttachment(deprecatedAttachmentStack.pop());
         }
     }
 
@@ -1547,6 +1585,7 @@ public class BLangPackageBuilder {
         serviceNode.pos = pos;
         attachAnnotations(serviceNode);
         attachDocumentations(serviceNode);
+        attachDeprecatedNode(serviceNode);
         serviceNodeStack.push(serviceNode);
     }
 
@@ -1572,7 +1611,7 @@ public class BLangPackageBuilder {
     }
 
     public void endResourceDef(DiagnosticPos pos, Set<Whitespace> ws,
-                               String resourceName, int annotCount, boolean docExists) {
+                               String resourceName, int annotCount, boolean docExists, boolean isDeprecated) {
         BLangResource resourceNode = (BLangResource) invokableNodeStack.pop();
         resourceNode.pos = pos;
         resourceNode.addWS(ws);
@@ -1580,6 +1619,9 @@ public class BLangPackageBuilder {
         attachAnnotations(resourceNode, annotCount);
         if (docExists) {
             attachDocumentations(resourceNode);
+        }
+        if (isDeprecated) {
+            attachDeprecatedNode(resourceNode);
         }
         varListStack.pop().forEach(resourceNode::addParameter);
         serviceNodeStack.peek().addResource(resourceNode);
@@ -1754,6 +1796,7 @@ public class BLangPackageBuilder {
         TransformerNode transformerNode = TreeBuilder.createTransformerNode();
         attachAnnotations(transformerNode);
         attachDocumentations(transformerNode);
+        attachDeprecatedNode(transformerNode);
         this.invokableNodeStack.push(transformerNode);
     }
 

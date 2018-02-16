@@ -84,6 +84,7 @@ import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticLog;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 import org.wso2.ballerinalang.programfile.InstructionCodes;
+import org.wso2.ballerinalang.util.Flags;
 import org.wso2.ballerinalang.util.Lists;
 
 import java.util.ArrayList;
@@ -907,7 +908,7 @@ public class TypeChecker extends BLangNodeVisitor {
             // Check for function pointer.
             iExpr.functionPointerInvocation = true;
         }
-
+        checkFunctionDeprecated(iExpr.pos, names.fromIdNode(iExpr.name), funcSymbol);
         // Set the resolved function symbol in the invocation expression.
         // This is used in the code generation phase.
         iExpr.symbol = funcSymbol;
@@ -931,7 +932,7 @@ public class TypeChecker extends BLangNodeVisitor {
             }
             iExpr.functionPointerInvocation = true;
         }
-
+        checkFunctionDeprecated(iExpr.pos, names.fromIdNode(iExpr.name), funcSymbol);
         iExpr.symbol = funcSymbol;
         checkInvocationParamAndReturnType(iExpr);
     }
@@ -947,9 +948,15 @@ public class TypeChecker extends BLangNodeVisitor {
             resultTypes = getListWithErrorTypes(expTypes.size());
             return;
         }
-
+        checkFunctionDeprecated(iExpr.pos, names.fromIdNode(iExpr.name), funcSymbol);
         iExpr.symbol = funcSymbol;
         checkInvocationParamAndReturnType(iExpr);
+    }
+
+    private void checkFunctionDeprecated(DiagnosticPos pos, Name funcName, BSymbol funcSymbol) {
+        if (Symbols.isFlagOn(funcSymbol.flags, Flags.DEPRECATED)) {
+            dlog.warning(pos, DiagnosticCode.USAGE_OF_DEPRECATED_FUNCTION, funcName);
+        }
     }
 
     private boolean isIterableOperationInvocation(BLangInvocation iExpr) {

@@ -21,6 +21,7 @@ package org.wso2.ballerinalang.compiler.tree;
 
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.tree.AnnotationAttachmentNode;
+import org.ballerinalang.model.tree.DeprecatedNode;
 import org.ballerinalang.model.tree.DocumentationNode;
 import org.ballerinalang.model.tree.EnumNode;
 import org.ballerinalang.model.tree.IdentifierNode;
@@ -43,6 +44,7 @@ public class BLangEnum extends BLangNode implements EnumNode {
     public List<BLangAnnotationAttachment> annAttachments;
     public List<BLangDocumentation> docAttachments;
     public List<BLangEnumerator> enumerators;
+    public List<BLangDeprecatedNode> deprecatedAttachments;
     public BSymbol symbol;
 
     public BLangEnum() {
@@ -50,6 +52,7 @@ public class BLangEnum extends BLangNode implements EnumNode {
         this.flagSet = EnumSet.noneOf(Flag.class);
         this.annAttachments = new ArrayList<>();
         this.docAttachments = new ArrayList<>();
+        this.deprecatedAttachments = new ArrayList<>();
     }
 
     @Override
@@ -113,6 +116,16 @@ public class BLangEnum extends BLangNode implements EnumNode {
     @Override
     public void addDocumentationAttachment(DocumentationNode docAttachment) {
         this.docAttachments.add((BLangDocumentation) docAttachment);
+    }
+
+    @Override
+    public List<BLangDeprecatedNode> getDeprecatedAttachments() {
+        return deprecatedAttachments;
+    }
+
+    @Override
+    public void addDeprecatedAttachment(DeprecatedNode deprecatedNode) {
+        this.deprecatedAttachments.add((BLangDeprecatedNode) deprecatedNode);
     }
 
     /**

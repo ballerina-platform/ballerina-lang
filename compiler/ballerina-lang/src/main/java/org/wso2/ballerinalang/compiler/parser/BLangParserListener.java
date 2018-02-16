@@ -194,8 +194,9 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         }
 
         boolean docExists = ctx.documentationAttachment() != null;
+        boolean isDeprecated = ctx.deprecatedAttachment() != null;
         this.pkgBuilder.endResourceDef(getCurrentPos(ctx), getWS(ctx),
-                ctx.Identifier().getText(), ctx.annotationAttachment().size(), docExists);
+                ctx.Identifier().getText(), ctx.annotationAttachment().size(), docExists, isDeprecated);
     }
 
     /**
@@ -363,9 +364,10 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         boolean nativeAction = ctx.NATIVE() != null;
         boolean bodyExists = ctx.callableUnitBody() != null;
         boolean docExists = ctx.documentationAttachment() != null;
+        boolean isDeprecated = ctx.deprecatedAttachment() != null;
         this.pkgBuilder.endActionDef(
                 getCurrentPos(ctx), getWS(ctx), ctx.annotationAttachment().size(),
-                nativeAction, bodyExists, docExists);
+                nativeAction, bodyExists, docExists, isDeprecated);
     }
 
     /**
@@ -2073,6 +2075,18 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         String attributeName = ctx.DocumentationTemplateAttributeEnd().getText();
         String endText = ctx.docText() != null ? ctx.docText().getText().trim() : "";
         this.pkgBuilder.createDocumentationAttribute(getCurrentPos(ctx), getWS(ctx), attributeName, endText);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void exitDeprecatedAttachment(BallerinaParser.DeprecatedAttachmentContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+        String contentText = ctx.deprecatedText() != null ? ctx.deprecatedText().getText() : "";
+        this.pkgBuilder.createDeprecatedNode(getCurrentPos(ctx), getWS(ctx), contentText);
     }
 
     private DiagnosticPos getCurrentPos(ParserRuleContext ctx) {

@@ -1716,6 +1716,66 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 */
 	void exitReservedWord(BallerinaParser.ReservedWordContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link BallerinaParser#deprecatedAttachment}.
+	 * @param ctx the parse tree
+	 */
+	void enterDeprecatedAttachment(BallerinaParser.DeprecatedAttachmentContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BallerinaParser#deprecatedAttachment}.
+	 * @param ctx the parse tree
+	 */
+	void exitDeprecatedAttachment(BallerinaParser.DeprecatedAttachmentContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link BallerinaParser#deprecatedText}.
+	 * @param ctx the parse tree
+	 */
+	void enterDeprecatedText(BallerinaParser.DeprecatedTextContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BallerinaParser#deprecatedText}.
+	 * @param ctx the parse tree
+	 */
+	void exitDeprecatedText(BallerinaParser.DeprecatedTextContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link BallerinaParser#deprecatedTemplateInlineCode}.
+	 * @param ctx the parse tree
+	 */
+	void enterDeprecatedTemplateInlineCode(BallerinaParser.DeprecatedTemplateInlineCodeContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BallerinaParser#deprecatedTemplateInlineCode}.
+	 * @param ctx the parse tree
+	 */
+	void exitDeprecatedTemplateInlineCode(BallerinaParser.DeprecatedTemplateInlineCodeContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link BallerinaParser#singleBackTickDeprecatedInlineCode}.
+	 * @param ctx the parse tree
+	 */
+	void enterSingleBackTickDeprecatedInlineCode(BallerinaParser.SingleBackTickDeprecatedInlineCodeContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BallerinaParser#singleBackTickDeprecatedInlineCode}.
+	 * @param ctx the parse tree
+	 */
+	void exitSingleBackTickDeprecatedInlineCode(BallerinaParser.SingleBackTickDeprecatedInlineCodeContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link BallerinaParser#doubleBackTickDeprecatedInlineCode}.
+	 * @param ctx the parse tree
+	 */
+	void enterDoubleBackTickDeprecatedInlineCode(BallerinaParser.DoubleBackTickDeprecatedInlineCodeContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BallerinaParser#doubleBackTickDeprecatedInlineCode}.
+	 * @param ctx the parse tree
+	 */
+	void exitDoubleBackTickDeprecatedInlineCode(BallerinaParser.DoubleBackTickDeprecatedInlineCodeContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link BallerinaParser#deprecatedTemplateText}.
+	 * @param ctx the parse tree
+	 */
+	void enterDeprecatedTemplateText(BallerinaParser.DeprecatedTemplateTextContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BallerinaParser#deprecatedTemplateText}.
+	 * @param ctx the parse tree
+	 */
+	void exitDeprecatedTemplateText(BallerinaParser.DeprecatedTemplateTextContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link BallerinaParser#documentationAttachment}.
 	 * @param ctx the parse tree
 	 */
@@ -1766,6 +1826,26 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 */
 	void exitDocumentationTemplateInlineCode(BallerinaParser.DocumentationTemplateInlineCodeContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link BallerinaParser#singleBackTickDocInlineCode}.
+	 * @param ctx the parse tree
+	 */
+	void enterSingleBackTickDocInlineCode(BallerinaParser.SingleBackTickDocInlineCodeContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BallerinaParser#singleBackTickDocInlineCode}.
+	 * @param ctx the parse tree
+	 */
+	void exitSingleBackTickDocInlineCode(BallerinaParser.SingleBackTickDocInlineCodeContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link BallerinaParser#doubleBackTickDocInlineCode}.
+	 * @param ctx the parse tree
+	 */
+	void enterDoubleBackTickDocInlineCode(BallerinaParser.DoubleBackTickDocInlineCodeContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BallerinaParser#doubleBackTickDocInlineCode}.
+	 * @param ctx the parse tree
+	 */
+	void exitDoubleBackTickDocInlineCode(BallerinaParser.DoubleBackTickDocInlineCodeContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link BallerinaParser#documentationTemplateText}.
 	 * @param ctx the parse tree
 	 */
@@ -1776,13 +1856,13 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 */
 	void exitDocumentationTemplateText(BallerinaParser.DocumentationTemplateTextContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link BallerinaParser#inlineCode}.
+	 * Enter a parse tree produced by {@link BallerinaParser#doubleBackTickInlineCode}.
 	 * @param ctx the parse tree
 	 */
-	void enterInlineCode(BallerinaParser.InlineCodeContext ctx);
+	void enterDoubleBackTickInlineCode(BallerinaParser.DoubleBackTickInlineCodeContext ctx);
 	/**
-	 * Exit a parse tree produced by {@link BallerinaParser#inlineCode}.
+	 * Exit a parse tree produced by {@link BallerinaParser#doubleBackTickInlineCode}.
 	 * @param ctx the parse tree
 	 */
-	void exitInlineCode(BallerinaParser.InlineCodeContext ctx);
+	void exitDoubleBackTickInlineCode(BallerinaParser.DoubleBackTickInlineCodeContext ctx);
 }

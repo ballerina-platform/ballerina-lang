@@ -25,6 +25,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangConnector;
+import org.wso2.ballerinalang.compiler.tree.BLangDeprecatedNode;
 import org.wso2.ballerinalang.compiler.tree.BLangDocumentation;
 import org.wso2.ballerinalang.compiler.tree.BLangEnum;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
@@ -148,43 +149,43 @@ public class DocumentationTest {
     @Test(description = "Test negative cases.")
     public void testDocumentationNegative() {
         CompileResult compileResult = BCompileUtil.compile(this, "test-src", "documentation/negative.bal");
-        Assert.assertEquals(compileResult.getWarnCount(), 18);
-        BAssertUtil.validateWarning(compileResult, 0,
+        Assert.assertEquals(compileResult.getWarnCount(), 215);
+        BAssertUtil.validateWarning(compileResult, 197,
                 "already documented attribute 'a' in annotation 'Test'", 4, 40);
-        BAssertUtil.validateWarning(compileResult, 1,
+        BAssertUtil.validateWarning(compileResult, 198,
                 "no such documentable attribute 'c' in annotation 'Test'", 6, 40);
-        BAssertUtil.validateWarning(compileResult, 2,
+        BAssertUtil.validateWarning(compileResult, 199,
                 "invalid usage of attribute 'abc': attributes are not allowed for " +
                         "constant and global variable documentation", 14, 53);
-        BAssertUtil.validateWarning(compileResult, 3,
+        BAssertUtil.validateWarning(compileResult, 200,
                 "already documented attribute 'foo' in enum 'state'", 19, 38);
-        BAssertUtil.validateWarning(compileResult, 4,
+        BAssertUtil.validateWarning(compileResult, 201,
                 "no such documentable attribute 'bar' in enum 'state'", 20, 38);
-        BAssertUtil.validateWarning(compileResult, 5,
+        BAssertUtil.validateWarning(compileResult, 202,
                 "already documented attribute 'a' in struct 'Test'", 29, 36);
-        BAssertUtil.validateWarning(compileResult, 6,
+        BAssertUtil.validateWarning(compileResult, 203,
                 "no such documentable attribute 'c' in struct 'Test'", 31, 36);
-        BAssertUtil.validateWarning(compileResult, 7,
+        BAssertUtil.validateWarning(compileResult, 204,
                 "already documented attribute 'file' in function 'File.open'", 44, 78);
-        BAssertUtil.validateWarning(compileResult, 8,
+        BAssertUtil.validateWarning(compileResult, 205,
                 "no such documentable attribute 'successfuls' in function 'File.open'", 46, 33);
-        BAssertUtil.validateWarning(compileResult, 9,
+        BAssertUtil.validateWarning(compileResult, 206,
                 "no such documentable attribute 'pa' in transformer 'Foo'", 61, 36);
-        BAssertUtil.validateWarning(compileResult, 10,
+        BAssertUtil.validateWarning(compileResult, 207,
                 "already documented attribute 'e' in transformer 'Foo'", 63, 64);
-        BAssertUtil.validateWarning(compileResult, 11,
+        BAssertUtil.validateWarning(compileResult, 208,
                 "already documented attribute 's' in action 'testAction'", 93, 43);
-        BAssertUtil.validateWarning(compileResult, 12,
+        BAssertUtil.validateWarning(compileResult, 209,
                 "no such documentable attribute 'ssss' in action 'testAction'", 94, 43);
-        BAssertUtil.validateWarning(compileResult, 13,
+        BAssertUtil.validateWarning(compileResult, 210,
                 "already documented attribute 'url' in connector 'TestConnector'", 87, 24);
-        BAssertUtil.validateWarning(compileResult, 14,
+        BAssertUtil.validateWarning(compileResult, 211,
                 "no such documentable attribute 'urls' in connector 'TestConnector'", 88, 24);
-        BAssertUtil.validateWarning(compileResult, 15,
+        BAssertUtil.validateWarning(compileResult, 212,
                 "already documented attribute 'req' in resource 'orderPizza'", 109, 23);
-        BAssertUtil.validateWarning(compileResult, 16,
+        BAssertUtil.validateWarning(compileResult, 213,
                 "no such documentable attribute 'reqest' in resource 'orderPizza'", 110, 23);
-        BAssertUtil.validateWarning(compileResult, 17,
+        BAssertUtil.validateWarning(compileResult, 214,
                 "no such documentable attribute 'conn' in service 'PizzaService'", 102, 42);
     }
 
@@ -432,6 +433,32 @@ public class DocumentationTest {
         Assert.assertEquals(dNode.getAttributes().get(1).documentationField.getValue(), "req");
         Assert.assertEquals(dNode.getAttributes().get(1).documentationText.toString(),
                 "In request.");
+    }
+
+    @Test(description = "Test annotation deprecated.")
+    public void testDeprecated() {
+        CompileResult compileResult = BCompileUtil.compile(this, "test-src", "documentation/deprecated.bal");
+        PackageNode packageNode = compileResult.getAST();
+        List<BLangDeprecatedNode> dNodes = ((BLangFunction) packageNode.getFunctions().get(0)).deprecatedAttachments;
+        BLangDeprecatedNode dNode = dNodes.get(0);
+        Assert.assertNotNull(dNode);
+        Assert.assertEquals(dNode.documentationText.toString(), "\n" +
+                "  This function is deprecated `openFile(string accessMode){}` instead.\n");
+
+        dNodes = ((BLangStruct) packageNode.getStructs().get(0)).deprecatedAttachments;
+        dNode = dNodes.get(0);
+        Assert.assertNotNull(dNode);
+        Assert.assertEquals(dNode.documentationText.toString(), "\n" +
+                "  This Struct is deprecated `File2` instead.\n");
+    }
+
+    @Test(description = "Test annotation deprecated function use.")
+    public void testDeprecatedFunctionUse() {
+        CompileResult compileResult = BCompileUtil.compile(this, "test-src",
+                "documentation/deprecate_function_use.bal");
+        Assert.assertEquals(compileResult.getWarnCount(), 73);
+        BAssertUtil.validateWarning(compileResult, 72,
+                "usage of deprecated function 'randomNumber'", 10, 12);
     }
 
 }

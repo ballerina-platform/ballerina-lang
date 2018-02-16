@@ -23,13 +23,14 @@ package org.ballerinalang.model.tree;
 public enum NodeKind {
 
     ACTION,
-    DOCUMENTATION,
     ANNOTATION,
     ANNOTATION_ATTACHMENT,
     ANNOTATION_ATTRIBUTE,
     CATCH,
     COMPILATION_UNIT,
     CONNECTOR,
+    DEPRECATED,
+    DOCUMENTATION,
     ENUM,
     ENUMERATOR,
     FUNCTION,

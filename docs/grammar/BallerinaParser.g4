@@ -11,7 +11,7 @@ options {
 compilationUnit
     :   packageDeclaration?
         (importDeclaration | namespaceDeclaration)*
-        (annotationAttachment* documentationAttachment? definition)*
+        (annotationAttachment* documentationAttachment? deprecatedAttachment? definition)*
         EOF
     ;
 
@@ -52,7 +52,7 @@ serviceBody
     ;
 
 resourceDefinition
-    :   annotationAttachment* documentationAttachment? RESOURCE Identifier LEFT_PARENTHESIS parameterList RIGHT_PARENTHESIS callableUnitBody
+    :   annotationAttachment* documentationAttachment? deprecatedAttachment? RESOURCE Identifier LEFT_PARENTHESIS parameterList RIGHT_PARENTHESIS callableUnitBody
     ;
 
 callableUnitBody
@@ -83,8 +83,8 @@ connectorBody
     ;
 
 actionDefinition
-    :   annotationAttachment* documentationAttachment? NATIVE ACTION  callableUnitSignature SEMICOLON
-    |   annotationAttachment* documentationAttachment? ACTION callableUnitSignature callableUnitBody
+    :   annotationAttachment* documentationAttachment? deprecatedAttachment? NATIVE ACTION  callableUnitSignature SEMICOLON
+    |   annotationAttachment* documentationAttachment? deprecatedAttachment? ACTION callableUnitSignature callableUnitBody
     ;
 
 structDefinition
@@ -624,10 +624,39 @@ reservedWord
     |   TYPE_MAP
     ;
 
+// Deprecated parsing.
+
+deprecatedAttachment
+    :   DeprecatedTemplateStart deprecatedText? DeprecatedTemplateEnd
+    ;
+
+deprecatedText
+    :   deprecatedTemplateInlineCode (deprecatedTemplateText | deprecatedTemplateInlineCode)*
+    |   deprecatedTemplateText  (deprecatedTemplateText | deprecatedTemplateInlineCode)*
+    ;
+
+deprecatedTemplateInlineCode
+    :   singleBackTickDeprecatedInlineCode
+    |   doubleBackTickDeprecatedInlineCode
+    ;
+
+singleBackTickDeprecatedInlineCode
+    :   SBDeprecatedInlineCodeStart SingleBackTickInlineCode? SingleBackTickInlineCodeEnd
+    ;
+
+doubleBackTickDeprecatedInlineCode
+    :   DBDeprecatedInlineCodeStart doubleBackTickInlineCode? DoubleBackTickInlineCodeEnd
+    ;
+
+deprecatedTemplateText
+    :   DeprecatedTemplateStringChar+
+    ;
+
+
 // Documentation parsing.
 
 documentationAttachment
-    :   DocumentationTemplateStart documentationTemplateContent DocumentationTemplateEnd
+    :   DocumentationTemplateStart documentationTemplateContent? DocumentationTemplateEnd
     ;
 
 documentationTemplateContent
@@ -645,13 +674,22 @@ docText
     ;
 
 documentationTemplateInlineCode
-    :   DocumentationInlineCodeStart inlineCode? DocumentationInlineCodeEnd
+    :   singleBackTickDocInlineCode
+    |   doubleBackTickDocInlineCode
+    ;
+
+singleBackTickDocInlineCode
+    :   SBDocInlineCodeStart SingleBackTickInlineCode? SingleBackTickInlineCodeEnd
+    ;
+
+doubleBackTickDocInlineCode
+    :   DBDocInlineCodeStart doubleBackTickInlineCode? DoubleBackTickInlineCodeEnd
     ;
 
 documentationTemplateText
     :   DocumentationTemplateStringChar+
     ;
 
-inlineCode
-    : InlineCodeChar+
+doubleBackTickInlineCode
+    : DoubleBackTickInlineCodeChar+
     ;

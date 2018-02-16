@@ -19,6 +19,7 @@ package org.wso2.ballerinalang.compiler.tree;
 
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.tree.AnnotationAttachmentNode;
+import org.ballerinalang.model.tree.DeprecatedNode;
 import org.ballerinalang.model.tree.DocumentationNode;
 import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.tree.InvokableNode;
@@ -46,6 +47,7 @@ public abstract class BLangInvokableNode extends BLangNode implements InvokableN
     public Set<Flag> flagSet;
     public List<BLangAnnotationAttachment> annAttachments;
     public List<BLangDocumentation> docAttachments;
+    public List<BLangDeprecatedNode> deprecatedAttachments;
     public List<BLangWorker> workers;
 
     public BInvokableSymbol symbol;
@@ -57,6 +59,7 @@ public abstract class BLangInvokableNode extends BLangNode implements InvokableN
         this.flagSet = EnumSet.noneOf(Flag.class);
         this.workers = new ArrayList<>();
         this.docAttachments = new ArrayList<>();
+        this.deprecatedAttachments = new ArrayList<>();
     }
 
     @Override
@@ -127,6 +130,16 @@ public abstract class BLangInvokableNode extends BLangNode implements InvokableN
     @Override
     public void addDocumentationAttachment(DocumentationNode docAttachment) {
         this.docAttachments.add((BLangDocumentation) docAttachment);
+    }
+
+    @Override
+    public List<BLangDeprecatedNode> getDeprecatedAttachments() {
+        return deprecatedAttachments;
+    }
+
+    @Override
+    public void addDeprecatedAttachment(DeprecatedNode deprecatedNode) {
+        this.deprecatedAttachments.add((BLangDeprecatedNode) deprecatedNode);
     }
 
     @Override

@@ -1,5 +1,5 @@
 /*
-*  Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+*  Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 *
 *  WSO2 Inc. licenses this file to you under the Apache License,
 *  Version 2.0 (the "License"); you may not use this file except
@@ -15,20 +15,20 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
+
 package org.ballerinalang.model.tree;
 
-import java.util.List;
+import org.ballerinalang.model.tree.expressions.ExpressionNode;
 
 /**
- * @since 0.94
+ * Interface to extend to make a node Deprecatable.
+ *
+ * @since 0.962.0
  */
-public interface AnnotationNode extends AnnotatableNode, DocumentableNode, DeprecatableNode, TopLevelNode {
+public interface DeprecatedNode {
 
-    IdentifierNode getName();
+    ExpressionNode getDocumentationText();
 
-    public void setName(IdentifierNode name);
+    void setDocumentationText(ExpressionNode documentationText);
 
-    List<? extends AnnotationAttributeNode> getAttributes();
-
-    void addAttribute(AnnotationAttributeNode attribute);
 }
