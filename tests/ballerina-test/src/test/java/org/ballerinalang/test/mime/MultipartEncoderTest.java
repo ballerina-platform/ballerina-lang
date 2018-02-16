@@ -46,7 +46,7 @@ import static org.ballerinalang.mime.util.Constants.DISPOSITION_INDEX;
 /**
  * Unit tests for multipart encoder.
  *
- * @since 0.962.0
+ * @since 0.964.0
  */
 public class MultipartEncoderTest {
     private static final Logger log = LoggerFactory.getLogger(MultipartEncoderTest.class);

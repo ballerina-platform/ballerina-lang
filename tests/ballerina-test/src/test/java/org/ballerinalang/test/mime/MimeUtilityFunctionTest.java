@@ -53,7 +53,7 @@ import static org.ballerinalang.mime.util.Constants.SUFFIX_INDEX;
 /**
  * Unit tests for MIME package utilities.
  *
- * @since 0.962.0
+ * @since 0.964.0
  */
 public class MimeUtilityFunctionTest {
     private static final Logger LOG = LoggerFactory.getLogger(MimeUtilityFunctionTest.class);

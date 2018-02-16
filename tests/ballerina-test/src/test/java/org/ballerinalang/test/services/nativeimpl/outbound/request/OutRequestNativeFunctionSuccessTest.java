@@ -36,7 +36,7 @@ import org.ballerinalang.model.values.BXML;
 import org.ballerinalang.model.values.BXMLItem;
 import org.ballerinalang.net.http.Constants;
 import org.ballerinalang.net.http.HttpUtil;
-import org.ballerinalang.runtime.message.BlobDataSource;
+import org.ballerinalang.runtime.message.MessageDataSource;
 import org.ballerinalang.runtime.message.StringDataSource;
 import org.ballerinalang.test.services.testutils.HTTPTestRequest;
 import org.ballerinalang.test.services.testutils.MessageUtils;
@@ -465,7 +465,7 @@ public class OutRequestNativeFunctionSuccessTest {
                 "Invalid Return Values.");
         Assert.assertTrue(returnVals[0] instanceof BStruct);
         BStruct entity = (BStruct) ((BStruct) returnVals[0]).getNativeData(MESSAGE_ENTITY);
-        BJSON bJson = EntityBodyHandler.constructJsonDataSource(entity);
+        BJSON bJson = (BJSON) EntityBodyHandler.getMessageDataSource(entity);
         Assert.assertEquals(bJson.value().get("name").asText(), "wso2", "Payload is not set properly");
     }
 
@@ -520,8 +520,8 @@ public class OutRequestNativeFunctionSuccessTest {
                 "Invalid Return Values.");
         Assert.assertTrue(returnVals[0] instanceof BStruct);
         BStruct entity = (BStruct) ((BStruct) returnVals[0]).getNativeData(MESSAGE_ENTITY);
-        StringDataSource stringValue = EntityBodyHandler.constructStringDataSource(entity);
-        Assert.assertEquals(stringValue.toString(), "Ballerina", "Payload is not set properly");
+        StringDataSource stringValue = (StringDataSource) EntityBodyHandler.getMessageDataSource(entity);
+        Assert.assertEquals(stringValue.getMessageAsString(), "Ballerina", "Payload is not set properly");
     }
 
     @Test(description = "Test SetStringPayload function within a service")
@@ -547,7 +547,7 @@ public class OutRequestNativeFunctionSuccessTest {
         Assert.assertTrue(returnVals[0] instanceof BStruct);
         BStruct entity = (BStruct) ((BStruct) returnVals[0]).getNativeData(MESSAGE_ENTITY);
      //   BXMLItem xmlValue = (BXMLItem) entity.getRefField(XML_DATA_INDEX);
-        BXML xmlValue = EntityBodyHandler.readXmlDataSource(entity);
+        BXML xmlValue = (BXML)EntityBodyHandler.getMessageDataSource(entity);
         Assert.assertEquals(xmlValue.getTextValue().stringValue(), "Ballerina", "Payload is not set properly");
     }
 
@@ -597,13 +597,9 @@ public class OutRequestNativeFunctionSuccessTest {
                 "Invalid Return Values.");
         Assert.assertTrue(returnVals[0] instanceof BStruct);
         BStruct entity = (BStruct) ((BStruct) returnVals[0]).getNativeData(MESSAGE_ENTITY);
-        BlobDataSource blobDataSource = null;
-        try {
-            blobDataSource = EntityBodyHandler.constructBlobDataSource(entity);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        Assert.assertEquals(blobDataSource.getMessageAsString(), "Ballerina", "Payload is not set properly");
+        MessageDataSource messageDataSource = EntityBodyHandler.getMessageDataSource(entity);
+        Assert.assertEquals(messageDataSource.getMessageAsString(), "Ballerina",
+                "Payload is not set properly");
     }
 
     @Test(description = "Test setEntityBody() function")
@@ -628,6 +624,7 @@ public class OutRequestNativeFunctionSuccessTest {
             String returnJsonValue = new String(Files.readAllBytes(Paths.get(returnFileStruct.getStringField(0))),
                     UTF_8);*/
             BJSON bJson = EntityBodyHandler.constructJsonDataSource(entity);
+
             Assert.assertEquals(bJson.value().get("name").asText(), "wso2", "Payload is not set properly");
         } catch (IOException e) {
             LOG.error("Error occured while creating a temporary file in testSetEntityBody", e.getMessage());

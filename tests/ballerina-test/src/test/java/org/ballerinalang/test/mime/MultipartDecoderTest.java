@@ -41,7 +41,7 @@ import static org.ballerinalang.mime.util.Constants.CONTENT_TYPE;
 /**
  * Unit tests for multipart decoder.
  *
- * @since 0.962.0
+ * @since 0.964.0
  */
 public class MultipartDecoderTest {
     private CompileResult serviceResult;

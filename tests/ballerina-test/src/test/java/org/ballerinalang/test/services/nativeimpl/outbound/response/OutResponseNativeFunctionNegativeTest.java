@@ -35,8 +35,8 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 
-import static org.ballerinalang.mime.util.Constants.BYTE_CHANNEL_STRUCT;
 import static org.ballerinalang.mime.util.Constants.CONTENT_TYPE;
+import static org.ballerinalang.mime.util.Constants.ENTITY_BYTE_CHANNEL;
 import static org.ballerinalang.mime.util.Constants.ENTITY_HEADERS_INDEX;
 import static org.ballerinalang.mime.util.Constants.IS_BODY_BYTE_CHANNEL_ALREADY_SET;
 import static org.ballerinalang.mime.util.Constants.MEDIA_TYPE;
@@ -87,12 +87,8 @@ public class OutResponseNativeFunctionNegativeTest {
         BStruct outResponse = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, inRespStruct);
         BValue[] inputArg = {outResponse};
         String error = null;
-        try {
-            BRunUtil.invoke(result, "testGetJsonPayload", inputArg);
-        } catch (Throwable e) {
-            error = e.getMessage();
-        }
-        Assert.assertTrue(error.contains("error while retrieving json payload"));
+        BValue[] returnVals = BRunUtil.invoke(result, "testGetJsonPayload", inputArg);
+        Assert.assertNull(returnVals[0]);
     }
 
     @Test(description = "Test getEntity method on a response without a entity")
@@ -113,7 +109,7 @@ public class OutResponseNativeFunctionNegativeTest {
 
         String payload = "ballerina";
         MimeUtil.setContentType(mediaType, entity, TEXT_PLAIN);
-        entity.addNativeData(BYTE_CHANNEL_STRUCT, EntityBodyHandler.getByteChannel(payload));
+        entity.addNativeData(ENTITY_BYTE_CHANNEL, EntityBodyHandler.getByteChannel(payload));
         outResponse.addNativeData(MESSAGE_ENTITY, entity);
         outResponse.addNativeData(IS_BODY_BYTE_CHANNEL_ALREADY_SET, true);
 
@@ -124,7 +120,7 @@ public class OutResponseNativeFunctionNegativeTest {
         } catch (Throwable e) {
             error = e.getMessage();
         }
-        Assert.assertTrue(error.contains("unrecognized token 'ballerina'"));
+        Assert.assertTrue(error.contains("error occurred while extracting json data from entity"));
     }
 
     @Test
@@ -145,26 +141,16 @@ public class OutResponseNativeFunctionNegativeTest {
     public void testGetStringPayloadNegative() {
         BStruct outResponse = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, inRespStruct);
         BValue[] inputArg = {outResponse};
-        String error = null;
-        try {
-            BRunUtil.invoke(result, "testGetStringPayload", inputArg);
-        } catch (Throwable e) {
-            error = e.getMessage();
-        }
-        Assert.assertTrue(error.contains("error while retrieving json payload from message"));
+        BValue[] returnVals = BRunUtil.invoke(result, "testGetStringPayload", inputArg);
+        Assert.assertNull(returnVals[0].stringValue());
     }
 
     @Test
     public void testGetXmlPayloadNegative() {
         BStruct outResponse = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, inRespStruct);
         BValue[] inputArg = {outResponse};
-        String error = null;
-        try {
-            BRunUtil.invoke(result, "testGetXmlPayload", inputArg);
-        } catch (Throwable e) {
-            error = e.getMessage();
-        }
-        Assert.assertTrue(error.contains("error while retrieving xml payload from message"));
+        BValue[] returnVals = BRunUtil.invoke(result, "testGetXmlPayload", inputArg);
+        Assert.assertNull(returnVals[0]);
     }
 
     @Test
