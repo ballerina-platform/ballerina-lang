@@ -22,16 +22,16 @@ import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.util.CompressionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.List;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -70,40 +70,18 @@ public class ZipFile extends AbstractNativeFunction {
         ZipOutputStream zos = null;
         FileOutputStream fos = null;
         try {
-            File dir = new File(dirPath);
-            List<String> filesListInDir = CompressionUtils.populateFilesList(dir);
-
-            try {
-                fos = new FileOutputStream(destDir);
-            } catch (FileNotFoundException e) {
-                log.debug("File with the specified pathname does not exist", e);
-                log.error("File with the specified pathname does not exist : " + destDir);
-            }
-            if (fos != null) {
-                zos = new ZipOutputStream(fos);
-                for (String filePath : filesListInDir) {
-                    log.debug("Zipping " + filePath);
-                    //for ZipEntry we need to keep only relative file path, so we used substring on absolute path
-                    ZipEntry ze = new ZipEntry(filePath.substring(dir.getAbsolutePath().length() + 1,
-                            filePath.length()));
-                    zos.putNextEntry(ze);
-                    //read the file and write to ZipOutputStream
-                    FileInputStream fis = null;
-                    try {
-                        fis = new FileInputStream(filePath);
-                        byte[] buffer = new byte[1024];
-                        int len;
-                        while ((len = fis.read(buffer)) > 0) {
-                            zos.write(buffer, 0, len);
-                        }
-                        zos.closeEntry();
-                    } finally {
-                        if (fis != null) {
-                            fis.close();
-                        }
-                    }
+            Stream<Path> list = Files.list(Paths.get(dirPath));
+            fos = new FileOutputStream(destDir);
+            zos = new ZipOutputStream(fos);
+            ZipOutputStream finalZos = zos;
+            list.forEach(p -> {
+                try {
+                    addEntry(finalZos, p.toString());
+                } catch (IOException e) {
+                    log.debug("I/O Exception when processing files ", e);
+                    log.error("I/O Exception when processing files " + e.getMessage());
                 }
-            }
+            });
         } catch (IOException e) {
             log.debug("Failed or interrupted I/O operation has occured", e);
             log.error("Failed or interrupted I/O operation has occured");
@@ -118,6 +96,32 @@ public class ZipFile extends AbstractNativeFunction {
             } catch (IOException e) {
                 log.debug("Failed or interrupted I/O operation has occured when closing the ZipOutputStream", e);
                 log.error("Failed or interrupted I/O operation has occured when closing the ZipOutputStream");
+            }
+        }
+    }
+
+    /**
+     * Add file inside the src directory to the ZipOutputStream.
+     *
+     * @param zos      ZipOutputStream
+     * @param filePath file path of each file inside the driectory
+     */
+    private static void addEntry(ZipOutputStream zos, String filePath) throws IOException {
+        log.debug("Zipping " + filePath);
+        ZipEntry ze = new ZipEntry(filePath);
+        zos.putNextEntry(ze);
+        FileInputStream fis = null;
+        try {
+            fis = new FileInputStream(filePath);
+            byte[] buffer = new byte[1024];
+            int len;
+            while ((len = fis.read(buffer)) > 0) {
+                zos.write(buffer, 0, len);
+            }
+            zos.closeEntry();
+        } finally {
+            if (fis != null) {
+                fis.close();
             }
         }
     }

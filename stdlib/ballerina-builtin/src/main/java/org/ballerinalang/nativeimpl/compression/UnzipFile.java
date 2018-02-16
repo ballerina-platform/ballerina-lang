@@ -25,9 +25,9 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Paths;
 
 /**
  * Native function ballerina.compression:unzipFile
@@ -63,7 +63,7 @@ public class UnzipFile extends AbstractNativeFunction {
      */
     private static void decompress(String dirPath, String outputFolder) {
         try {
-            byte[] fileContentAsByteArray = Files.readAllBytes(new File(dirPath).toPath());
+            byte[] fileContentAsByteArray = Files.readAllBytes(Paths.get(dirPath));
             UnzipBytes.decompress(fileContentAsByteArray, outputFolder);
         } catch (IOException e) {
             log.debug("I/O exception occured when processing the file " + dirPath, e);
