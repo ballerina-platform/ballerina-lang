@@ -23,6 +23,8 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.carbon.messaging.exceptions.ServerConnectorException;
 import org.wso2.transport.http.netty.common.Constants;
+import org.wso2.transport.http.netty.config.ListenerConfiguration;
+import org.wso2.transport.http.netty.config.SenderConfiguration;
 import org.wso2.transport.http.netty.config.TransportsConfiguration;
 import org.wso2.transport.http.netty.contract.HttpClientConnector;
 import org.wso2.transport.http.netty.contract.HttpWsConnectorFactory;
@@ -35,6 +37,7 @@ import org.wso2.transport.http.netty.util.server.initializers.SendChannelIDServe
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
@@ -50,15 +53,11 @@ public class ConnectionPoolMainTestCase {
 
     @BeforeClass
     public void setup() {
-        TransportsConfiguration transportsConfiguration = TestUtil.getConfiguration(
-                "/simple-test-config" + File.separator + "netty-transports.yml");
-
-        httpServer = TestUtil.startHTTPServer(TestUtil.HTTP_SERVER_PORT, new SendChannelIDServerInitializer(6000));
+        httpServer = TestUtil.startHTTPServer(TestUtil.HTTP_SERVER_PORT, new SendChannelIDServerInitializer(5000));
 
         HttpWsConnectorFactory connectorFactory = new HttpWsConnectorFactoryImpl();
-        httpClientConnector = connectorFactory.createHttpClientConnector(
-                HTTPConnectorUtil.getTransportProperties(transportsConfiguration),
-                HTTPConnectorUtil.getSenderConfiguration(transportsConfiguration, Constants.HTTP_SCHEME));
+        SenderConfiguration senderConfiguration = new SenderConfiguration();
+        httpClientConnector = connectorFactory.createHttpClientConnector(new HashMap<>(), senderConfiguration);
     }
 
     @Test
@@ -75,7 +74,7 @@ public class ConnectionPoolMainTestCase {
             // While the first request is being processed by the back-end,
             // we send the second request which forces the client connector to
             // create a new connection.
-            Thread.sleep(4000);
+            Thread.sleep(2500);
             TestUtil.sendRequestAsync(requestTwoLatch, httpClientConnector);
 
             String responseOne = TestUtil.waitAndGetStringEntity(requestOneLatch, responseListener);
