@@ -34,7 +34,12 @@
             <class name="org.wso2.transport.http.netty.https.SSLProtocolsTest" />
             <class name="org.wso2.transport.http.netty.https.MutualSSLTestCase" />
             <class name="org.wso2.transport.http.netty.https.CipherSuitesTest" />
+
             <class name="org.wso2.transport.http.netty.pkcs.PKCSTest" />
+
+            <class name="org.wso2.transport.http.netty.certificatevalidation.RevocationVerificationTest" />
+            <class name="org.wso2.transport.http.netty.certificatevalidation.CRLVerifierTest" />
+            <class name="org.wso2.transport.http.netty.certificatevalidation.OCSPVerifierTest" />
 
             <class name="org.wso2.transport.http.netty.proxyserver.ProxyServerTestCase" />
 
@@ -55,6 +60,8 @@
             <class name="org.wso2.transport.http.netty.connectionpool.ConnectionPoolMainTestCase" />
             <class name="org.wso2.transport.http.netty.connectionpool.ConnectionPoolEvictionTestCase" />
             <class name="org.wso2.transport.http.netty.connectionpool.ConnectionPoolMaxConnTestCase" />
+
+            <class name="org.wso2.transport.http.netty.headers.DateHeaderTestCase" />
 
             <class name="org.wso2.transport.http.netty.unitfunction.CommonUtilTestCase" />
             <class name="org.wso2.transport.http.netty.unitfunction.HttpCarbonMessageTestCase" />

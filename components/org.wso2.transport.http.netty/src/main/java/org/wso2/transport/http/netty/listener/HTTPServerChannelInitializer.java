@@ -32,9 +32,12 @@ import org.wso2.transport.http.netty.common.ssl.SSLHandlerFactory;
 import org.wso2.transport.http.netty.config.ChunkConfig;
 import org.wso2.transport.http.netty.config.RequestSizeValidationConfig;
 import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
+import org.wso2.transport.http.netty.sender.CertificateValidationHandler;
 
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
+
+import javax.net.ssl.SSLEngine;
 
 /**
  * A class that responsible for build server side channels.
@@ -52,6 +55,10 @@ public class HTTPServerChannelInitializer extends ChannelInitializer<SocketChann
     private SSLConfig sslConfig;
     private ServerConnectorFuture serverConnectorFuture;
     private RequestSizeValidationConfig reqSizeValidationConfig;
+    private boolean validateCertEnabled;
+    private int cacheDelay;
+    private int cacheSize;
+    private SSLEngine sslEngine;
 
     @Override
     public void setup(Map<String, String> parameters) {
@@ -66,9 +73,14 @@ public class HTTPServerChannelInitializer extends ChannelInitializer<SocketChann
         ChannelPipeline pipeline = ch.pipeline();
 
         if (sslConfig != null) {
-            pipeline.addLast(Constants.SSL_HANDLER, new SslHandler(new SSLHandlerFactory(sslConfig).build()));
+            sslEngine = new SSLHandlerFactory(sslConfig).build();
+            pipeline.addLast(Constants.SSL_HANDLER, new SslHandler(sslEngine));
         }
 
+        if (validateCertEnabled) {
+            ch.pipeline().addLast("certificateValidation",
+                    new CertificateValidationHandler(sslEngine, cacheDelay, cacheSize));
+        }
         pipeline.addLast("encoder", new HttpResponseEncoder());
         configureHTTPPipeline(pipeline);
 
@@ -141,6 +153,18 @@ public class HTTPServerChannelInitializer extends ChannelInitializer<SocketChann
 
     public void setChunkingConfig(ChunkConfig chunkConfig) {
         this.chunkConfig = chunkConfig;
+    }
+
+    public void setValidateCertEnabled(boolean validateCertEnabled) {
+        this.validateCertEnabled = validateCertEnabled;
+    }
+
+    public void setCacheDelay(int cacheDelay) {
+        this.cacheDelay = cacheDelay;
+    }
+
+    public void setCacheSize(int cacheSize) {
+        this.cacheSize = cacheSize;
     }
 
     public void setServerName(String serverName) {

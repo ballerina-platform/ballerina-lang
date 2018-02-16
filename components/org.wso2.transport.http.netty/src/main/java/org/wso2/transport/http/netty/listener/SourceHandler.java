@@ -58,6 +58,7 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class SourceHandler extends ChannelInboundHandlerAdapter {
     private static Logger log = LoggerFactory.getLogger(SourceHandler.class);
+    private static final String HTTP_RESOURCE = "httpResource";
 
     protected ChannelHandlerContext ctx;
     protected HTTPCarbonMessage sourceReqCmsg;
@@ -114,6 +115,9 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
                     if (Util.isLastHttpContent(httpContent)) {
                         if (handlerExecutor != null) {
                             handlerExecutor.executeAtSourceRequestSending(sourceReqCmsg);
+                        }
+                        if (isDiffered(sourceReqCmsg)) {
+                            this.serverConnectorFuture.notifyHttpListener(sourceReqCmsg);
                         }
                         httpOutboundRespFuture = sourceReqCmsg.getHttpOutboundRespStatusFuture();
                         sourceReqCmsg = null;
@@ -271,5 +275,10 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
             ctx.close();
             log.warn("Idle timeout has reached hence closing the connection");
         }
+    }
+
+    private boolean isDiffered(HTTPCarbonMessage sourceReqCmsg) {
+        //Http resource stored in the HTTPCarbonMessage means execution waits till payload.
+        return sourceReqCmsg.getProperty(HTTP_RESOURCE) != null;
     }
 }

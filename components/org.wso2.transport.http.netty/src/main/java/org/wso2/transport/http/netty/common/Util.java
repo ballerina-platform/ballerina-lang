@@ -36,6 +36,8 @@ import org.wso2.transport.http.netty.config.Parameter;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 
 import java.io.File;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -108,6 +110,11 @@ public class Util {
             outboundResponseMsg.setHeader(Constants.HTTP_SERVER_HEADER, serverName);
         }
 
+        if (outboundResponseMsg.getHeader(Constants.DATE) == null) {
+            outboundResponseMsg.setHeader(Constants.DATE,
+                                          ZonedDateTime.now().format(DateTimeFormatter.RFC_1123_DATE_TIME));
+        }
+
         outboundNettyResponse.headers().add(outboundResponseMsg.getHeaders());
     }
 
@@ -129,9 +136,6 @@ public class Util {
         outboundNettyRequest.setMethod(httpMethod);
         outboundNettyRequest.setProtocolVersion(httpVersion);
         outboundNettyRequest.setUri(requestPath);
-
-        outboundNettyRequest.headers().set(Constants.ACCEPT_ENCODING,
-                Constants.ENCODING_DEFLATE + ", " + Constants.ENCODING_GZIP);
         outboundNettyRequest.headers().add(outboundRequestMsg.getHeaders());
 
         return outboundNettyRequest;

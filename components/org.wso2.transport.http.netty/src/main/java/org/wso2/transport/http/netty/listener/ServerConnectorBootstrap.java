@@ -147,6 +147,18 @@ public class ServerConnectorBootstrap {
         httpServerChannelInitializer.setReqSizeValidationConfig(requestSizeValidationConfig);
     }
 
+    public void addcertificateRevocationVerifier(Boolean validateCertEnabled) {
+        httpServerChannelInitializer.setValidateCertEnabled(validateCertEnabled);
+    }
+
+    public void addCacheDelay(int cacheDelay) {
+        httpServerChannelInitializer.setCacheDelay(cacheDelay);
+    }
+
+    public void addCacheSize(int cacheSize) {
+        httpServerChannelInitializer.setCacheSize(cacheSize);
+    }
+
     public void addChunkingBehaviour(ChunkConfig chunkConfig) {
         httpServerChannelInitializer.setChunkingConfig(chunkConfig);
     }
