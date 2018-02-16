@@ -61,9 +61,9 @@ public class HttpWsConnectorFactoryImpl implements HttpWsConnectorFactory {
         ServerConnectorBootstrap serverConnectorBootstrap = new ServerConnectorBootstrap();
         serverConnectorBootstrap.addSocketConfiguration(serverBootstrapConfiguration);
         serverConnectorBootstrap.addSecurity(listenerConfig.getSSLConfig());
-        if (listenerConfig.isValidateCertificateEnabled()) {
-            serverConnectorBootstrap.addcertificateRevocationVerifier(listenerConfig.isValidateCertificateEnabled());
-            serverConnectorBootstrap.addCacheDelay(listenerConfig.getCacheDelay());
+        if (listenerConfig.validateCertEnabled()) {
+            serverConnectorBootstrap.addcertificateRevocationVerifier(listenerConfig.validateCertEnabled());
+            serverConnectorBootstrap.addCacheDelay(listenerConfig.getCacheValidityPeriod());
             serverConnectorBootstrap.addCacheSize(listenerConfig.getCacheSize());
         }
         serverConnectorBootstrap.addIdleTimeout(listenerConfig.getSocketIdleTimeout(120000));

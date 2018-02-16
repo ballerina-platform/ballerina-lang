@@ -55,7 +55,7 @@ public class HTTPServerChannelInitializer extends ChannelInitializer<SocketChann
     private SSLConfig sslConfig;
     private ServerConnectorFuture serverConnectorFuture;
     private RequestSizeValidationConfig reqSizeValidationConfig;
-    private boolean isValidateCertificateEnabled;
+    private boolean validateCertEnabled;
     private int cacheDelay;
     private int cacheSize;
     private SSLEngine sslEngine;
@@ -77,7 +77,7 @@ public class HTTPServerChannelInitializer extends ChannelInitializer<SocketChann
             pipeline.addLast(Constants.SSL_HANDLER, new SslHandler(sslEngine));
         }
 
-        if (isValidateCertificateEnabled) {
+        if (validateCertEnabled) {
             ch.pipeline().addLast("certificateValidation",
                     new CertificateValidationHandler(sslEngine, cacheDelay, cacheSize));
         }
@@ -155,8 +155,8 @@ public class HTTPServerChannelInitializer extends ChannelInitializer<SocketChann
         this.chunkConfig = chunkConfig;
     }
 
-    public void setValidateCertificateEnabled(boolean validateCertificateEnabled) {
-        this.isValidateCertificateEnabled = validateCertificateEnabled;
+    public void setValidateCertEnabled(boolean validateCertEnabled) {
+        this.validateCertEnabled = validateCertEnabled;
     }
 
     public void setCacheDelay(int cacheDelay) {

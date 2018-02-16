@@ -107,13 +107,13 @@ public class ListenerConfiguration {
     private String serverHeader = "wso2-http-transport";
 
     @XmlAttribute
-    private boolean validateCertificateEnabled;
+    private boolean validateCertEnabled;
 
     @XmlAttribute
-    private int cacheSize;
+    private int cacheSize = 50;
 
     @XmlAttribute
-    private int cacheDelay;
+    private int cacheValidityPeriod = 15;
 
     @XmlElementWrapper(name = "parameters")
     @XmlElement(name = "parameter")
@@ -210,12 +210,12 @@ public class ListenerConfiguration {
         return sslProtocol;
     }
 
-    public boolean isValidateCertificateEnabled() {
-        return validateCertificateEnabled;
+    public boolean validateCertEnabled() {
+        return validateCertEnabled;
     }
 
-    public void setValidateCertificateEnabled(boolean validateCertificateEnabled) {
-        this.validateCertificateEnabled = validateCertificateEnabled;
+    public void setValidateCertEnabled(boolean validateCertEnabled) {
+        this.validateCertEnabled = validateCertEnabled;
     }
 
     public int getCacheSize() {
@@ -226,12 +226,12 @@ public class ListenerConfiguration {
         this.cacheSize = cacheSize;
     }
 
-    public int getCacheDelay() {
-        return cacheDelay;
+    public int getCacheValidityPeriod() {
+        return cacheValidityPeriod;
     }
 
-    public void setCacheDelay(int cacheDelay) {
-        this.cacheDelay = cacheDelay;
+    public void setCacheValidityPeriod(int cacheValidityPeriod) {
+        this.cacheValidityPeriod = cacheValidityPeriod;
     }
 
     public int getPort() {
