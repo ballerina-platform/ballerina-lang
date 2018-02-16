@@ -13,7 +13,6 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-
 package org.ballerinalang.nativeimpl.compression;
 
 import org.ballerinalang.bre.Context;
@@ -50,14 +49,11 @@ import java.util.zip.ZipInputStream;
         isPublic = true
 )
 public class UnzipBytes extends AbstractNativeFunction {
-
     private static final Logger log = LoggerFactory.getLogger(UnzipBytes.class);
-
     /**
      * File content as byte array defined.
      */
     private static final int SRC_AS_BYTEARRAY_FIELD_INDEX = 0;
-
     /**
      * File path of the destination directory.
      */
@@ -79,19 +75,14 @@ public class UnzipBytes extends AbstractNativeFunction {
             while ((entry = zin.getNextEntry()) != null) {
                 name = entry.getName();
                 if (entry.isDirectory()) {
-                    Path pathToFile = Paths.get(outdir + name);
-                    Files.createDirectories(pathToFile);
+                    mkdirs(outdir, name);
                     continue;
                 }
-                /* this part is necessary because file entry can come before
-                 * directory entry where the file is located
-                 */
+                // this part is necessary because file entry can come before directory entry where the file is located
                 dir = getDirectoryPath(name);
                 if (dir != null) {
-                    Path pathToFile = Paths.get(outdir + name);
-                    Files.createDirectories(pathToFile);
+                    mkdirs(outdir, dir);
                 }
-
                 extractFile(zin, outdir, name);
             }
         } catch (IOException e) {
@@ -120,9 +111,8 @@ public class UnzipBytes extends AbstractNativeFunction {
         byte[] buffer = new byte[4096];
         BufferedOutputStream out = null;
         try {
-            Path pathToFile = Paths.get(outdir + name);
-            out = new BufferedOutputStream(new FileOutputStream(pathToFile.toString()));
-
+            Path resourcePath = Paths.get(outdir.toString()).resolve(name);
+            out = new BufferedOutputStream(new FileOutputStream(resourcePath.toString()));
             int count = -1;
             while ((count = in.read(buffer)) != -1) {
                 out.write(buffer, 0, count);
@@ -157,6 +147,21 @@ public class UnzipBytes extends AbstractNativeFunction {
             return s == -1 ? null : name.substring(0, s);
         }
         return null;
+    }
+
+    /**
+     * Make directories if they doesn't exists.
+     *
+     * @param outdir destination file
+     * @param path   path of the destination directory
+     */
+    private static boolean mkdirs(Path outdir, String path) throws IOException {
+        Path dir = outdir.resolve(path);
+        if (!Files.exists(dir)) {
+            Files.createDirectories(dir);
+            return true;
+        }
+        return false;
     }
 
     @Override
