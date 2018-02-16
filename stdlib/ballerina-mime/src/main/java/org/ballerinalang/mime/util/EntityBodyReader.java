@@ -4,10 +4,10 @@ import org.ballerinalang.nativeimpl.io.channels.FileIOChannel;
 
 public class EntityBodyReader {
     private boolean isStream;
-    private EntityBodyStream entityBodyChannel;
+    private EntityBodyChannel entityBodyChannel;
     private FileIOChannel fileIOChannel;
 
-    EntityBodyReader(EntityBodyStream entityBodyChannel, boolean isStream) {
+    EntityBodyReader(EntityBodyChannel entityBodyChannel, boolean isStream) {
         this.entityBodyChannel = entityBodyChannel;
         this.isStream = isStream;
     }
@@ -21,7 +21,7 @@ public class EntityBodyReader {
         return isStream;
     }
 
-    public EntityBodyStream getEntityBodyStream() {
+    public EntityBodyChannel getEntityBodyChannel() {
         return entityBodyChannel;
     }
 

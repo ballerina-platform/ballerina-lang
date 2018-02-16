@@ -95,12 +95,16 @@ public class Constants {
     public static final String MESSAGE_ENTITY = "message_entity";
     public static final String MESSAGE_DATA_SOURCE = "message_datasource";
     public static final String IS_BODY_BYTE_CHANNEL_ALREADY_SET = "is_byte_channel_set";
+    public static final String ENTITY_BYTE_CHANNEL = "byte_channel";
     public static final String MULTIPART_ENCODER = "MultipartEncoder";
+
+    //Native argument indexes
+    public static final int FIRST_PARAMETER_INDEX = 0;
 
     //Entity properties
     public static final int MEDIA_TYPE_INDEX = 0;
     public static final int ENTITY_HEADERS_INDEX = 1;
-    public static final int ENTITY_BYTE_CHANNEL_INDEX = 2;
+    //public static final int ENTITY_BYTE_CHANNEL_INDEX = 2;
     public static final int MULTIPART_DATA_INDEX = 3;
     public static final int SIZE_INDEX = 0;
     public static final int CONTENT_DISPOSITION_INDEX = 3;

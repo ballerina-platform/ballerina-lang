@@ -22,6 +22,7 @@ import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.BServiceUtil;
 import org.ballerinalang.launcher.util.CompileResult;
+import org.ballerinalang.mime.util.EntityBodyHandler;
 import org.ballerinalang.mime.util.MimeUtil;
 import org.ballerinalang.model.util.StringUtils;
 import org.ballerinalang.model.values.BInteger;
@@ -34,7 +35,6 @@ import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BXML;
 import org.ballerinalang.net.http.Constants;
 import org.ballerinalang.net.http.HttpUtil;
-import org.ballerinalang.test.mime.Util;
 import org.ballerinalang.test.services.testutils.HTTPTestRequest;
 import org.ballerinalang.test.services.testutils.MessageUtils;
 import org.ballerinalang.test.services.testutils.Services;
@@ -53,7 +53,7 @@ import static org.ballerinalang.mime.util.Constants.APPLICATION_FORM;
 import static org.ballerinalang.mime.util.Constants.APPLICATION_JSON;
 import static org.ballerinalang.mime.util.Constants.APPLICATION_XML;
 import static org.ballerinalang.mime.util.Constants.CONTENT_TYPE;
-import static org.ballerinalang.mime.util.Constants.ENTITY_BYTE_CHANNEL_INDEX;
+import static org.ballerinalang.mime.util.Constants.ENTITY_BYTE_CHANNEL;
 import static org.ballerinalang.mime.util.Constants.ENTITY_HEADERS_INDEX;
 import static org.ballerinalang.mime.util.Constants.IS_BODY_BYTE_CHANNEL_ALREADY_SET;
 import static org.ballerinalang.mime.util.Constants.MEDIA_TYPE;
@@ -87,12 +87,10 @@ public class InRequestNativeFunctionSuccessTest {
         BStruct inRequest = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, inReqStruct);
         BStruct entity = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageMime, entityStruct);
         BStruct mediaType = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageMime, mediaTypeStruct);
-        BStruct byteChannelStruct = Util.getByteChannelStruct(result);
 
         String payload = "ballerina";
         MimeUtil.setContentType(mediaType, entity, OCTET_STREAM);
-        Util.createByteChannelFromText(payload, byteChannelStruct);
-        entity.setRefField(ENTITY_BYTE_CHANNEL_INDEX, byteChannelStruct);
+        entity.addNativeData(ENTITY_BYTE_CHANNEL, EntityBodyHandler.getByteChannel(payload));
         inRequest.addNativeData(MESSAGE_ENTITY, entity);
         inRequest.addNativeData(IS_BODY_BYTE_CHANNEL_ALREADY_SET, true);
 
@@ -196,9 +194,7 @@ public class InRequestNativeFunctionSuccessTest {
 
         String payload = "{'code':'123'}";
         MimeUtil.setContentType(mediaType, entity, APPLICATION_JSON);
-        BStruct byteChannelStruct = Util.getByteChannelStruct(result);
-        Util.createByteChannelFromText(payload, byteChannelStruct);
-        entity.setRefField(ENTITY_BYTE_CHANNEL_INDEX, byteChannelStruct);
+        entity.addNativeData(ENTITY_BYTE_CHANNEL, EntityBodyHandler.getByteChannel(payload));
         inRequest.addNativeData(MESSAGE_ENTITY, entity);
         inRequest.addNativeData(IS_BODY_BYTE_CHANNEL_ALREADY_SET, true);
         BValue[] inputArg = {inRequest};
@@ -261,9 +257,7 @@ public class InRequestNativeFunctionSuccessTest {
 
         String payload = "ballerina";
         MimeUtil.setContentType(mediaType, entity, TEXT_PLAIN);
-        BStruct byteChannelStruct = Util.getByteChannelStruct(result);
-        Util.createByteChannelFromText(payload, byteChannelStruct);
-        entity.setRefField(ENTITY_BYTE_CHANNEL_INDEX, byteChannelStruct);
+        entity.addNativeData(ENTITY_BYTE_CHANNEL, EntityBodyHandler.getByteChannel(payload));
         inRequest.addNativeData(MESSAGE_ENTITY, entity);
         inRequest.addNativeData(IS_BODY_BYTE_CHANNEL_ALREADY_SET, true);
 
@@ -295,9 +289,7 @@ public class InRequestNativeFunctionSuccessTest {
 
         String payload = "<name>ballerina</name>";
         MimeUtil.setContentType(mediaType, entity, APPLICATION_XML);
-        BStruct byteChannelStruct = Util.getByteChannelStruct(result);
-        Util.createByteChannelFromText(payload, byteChannelStruct);
-        entity.setRefField(ENTITY_BYTE_CHANNEL_INDEX, byteChannelStruct);
+        entity.addNativeData(ENTITY_BYTE_CHANNEL, EntityBodyHandler.getByteChannel(payload));
         inRequest.addNativeData(MESSAGE_ENTITY, entity);
         inRequest.addNativeData(IS_BODY_BYTE_CHANNEL_ALREADY_SET, true);
 
@@ -353,9 +345,7 @@ public class InRequestNativeFunctionSuccessTest {
 
         String payload = "{\"code\":\"123\"}";
         MimeUtil.setContentType(mediaType, entity, APPLICATION_JSON);
-        BStruct byteChannelStruct = Util.getByteChannelStruct(result);
-        Util.createByteChannelFromText(payload, byteChannelStruct);
-        entity.setRefField(ENTITY_BYTE_CHANNEL_INDEX, byteChannelStruct);
+        entity.addNativeData(ENTITY_BYTE_CHANNEL, EntityBodyHandler.getByteChannel(payload));
         inRequest.addNativeData(MESSAGE_ENTITY, entity);
         inRequest.addNativeData(IS_BODY_BYTE_CHANNEL_ALREADY_SET, true);
 

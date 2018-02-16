@@ -19,31 +19,35 @@
 package org.ballerinalang.mime.nativeimpl;
 
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.mime.util.EntityBodyHandler;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.nativeimpl.io.IOConstants;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
-import org.ballerinalang.runtime.message.StringDataSource;
+
+import java.nio.channels.ByteChannel;
+
+import static org.ballerinalang.mime.util.Constants.ENTITY_BYTE_CHANNEL;
 
 /**
- * Set the entity body with JSON content.
+ * Set the entity body with XML content.
  */
 @BallerinaFunction(packageName = "ballerina.mime",
-        functionName = "setText",
+        functionName = "setByteChannel",
         receiver = @Receiver(type = TypeKind.STRUCT, structType = "Entity",
                 structPackage = "ballerina.mime"),
-        args = {@Argument(name = "textContent", type = TypeKind.STRING)},
+        args = {@Argument(name = "byteChannel", type = TypeKind.BLOB)},
         isPublic = true)
-public class SetText extends AbstractNativeFunction {
+public class SetByteChannel extends AbstractNativeFunction {
     @Override
     public BValue[] execute(Context context) {
         BStruct entityStruct = (BStruct) this.getRefArgument(context, 0);
-        String textContent = this.getStringArgument(context, 0);
-        EntityBodyHandler.addMessageDataSource(entityStruct, new StringDataSource(textContent));
+        BStruct byteChannel = (BStruct) this.getRefArgument(context, 1);
+        entityStruct.addNativeData(ENTITY_BYTE_CHANNEL, byteChannel.getNativeData
+                (IOConstants.BYTE_CHANNEL_NAME));
         return AbstractNativeFunction.VOID_RETURN;
     }
 }

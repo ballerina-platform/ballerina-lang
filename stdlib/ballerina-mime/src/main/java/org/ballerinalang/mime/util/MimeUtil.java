@@ -30,7 +30,6 @@ import org.ballerinalang.nativeimpl.io.channels.FileIOChannel;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import sun.nio.ch.FileChannelImpl;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -53,7 +52,7 @@ import static org.ballerinalang.mime.util.Constants.CONTENT_DISPOSITION_NAME;
 import static org.ballerinalang.mime.util.Constants.CONTENT_DISPOSITION_NAME_INDEX;
 import static org.ballerinalang.mime.util.Constants.CONTENT_DISPOSITION_PARA_MAP_INDEX;
 import static org.ballerinalang.mime.util.Constants.DISPOSITION_INDEX;
-import static org.ballerinalang.mime.util.Constants.ENTITY_BYTE_CHANNEL_INDEX;
+import static org.ballerinalang.mime.util.Constants.ENTITY_BYTE_CHANNEL;
 import static org.ballerinalang.mime.util.Constants.IS_BODY_BYTE_CHANNEL_ALREADY_SET;
 import static org.ballerinalang.mime.util.Constants.MEDIA_TYPE_INDEX;
 import static org.ballerinalang.mime.util.Constants.MESSAGE_ENTITY;
@@ -366,7 +365,7 @@ public class MimeUtil {
         return Long.toHexString(PlatformDependent.threadLocalRandom().nextLong());
     }
 
-    public static BStruct createByteChannelStruct(Context context, EntityBodyStream byteChannel) {
+    public static BStruct createByteChannelStruct(Context context, EntityBodyChannel byteChannel) {
         BStruct byteChannelStruct = ConnectorUtils.createAndGetStruct(context
                 , org.ballerinalang.mime.util.Constants.PROTOCOL_PACKAGE_IO
                 , org.ballerinalang.mime.util.Constants.BYTE_CHANNEL_STRUCT);
@@ -374,26 +373,27 @@ public class MimeUtil {
         return byteChannelStruct;
     }
 
-    public static void setByteChannelToEntity(Context context, BStruct entityStruct, EntityBodyStream byteChannel) {
-        BStruct byteChannelStruct = MimeUtil.createByteChannelStruct(context, byteChannel);
-        entityStruct.setRefField(ENTITY_BYTE_CHANNEL_INDEX, byteChannelStruct);
+    public static void setByteChannelToEntity(BStruct entityStruct, EntityBodyChannel byteChannel) {
+        entityStruct.addNativeData(ENTITY_BYTE_CHANNEL, byteChannel);
     }
 
-    public static EntityBodyReader extractEntityBodyReader(BStruct entityStruct) {
+    /**
+     * Wrap the byte channel associated with the given entity as an EntityReader.
+     *
+     * @param entityStruct Represent an entity struct
+     * @return EntityBodyReader which wraps the underline byte channel
+     */
+    public static EntityBodyReader constructEntityBodyReader(BStruct entityStruct) {
         EntityBodyReader entityBodyReader = null;
-        BStruct byteChannel = entityStruct.getRefField(ENTITY_BYTE_CHANNEL_INDEX) != null ?
-                (BStruct) entityStruct.getRefField(ENTITY_BYTE_CHANNEL_INDEX) : null;
-        if (byteChannel != null) {
-            Object channel = byteChannel.getNativeData(IOConstants.BYTE_CHANNEL_NAME);
-            if (channel != null) {
-                if (channel instanceof EntityBodyStream) {
-                    entityBodyReader = new EntityBodyReader((EntityBodyStream)channel, true);
-                } else if (channel instanceof FileIOChannel) {
-                    entityBodyReader = new EntityBodyReader((FileIOChannel)channel, false);
-                } else if (channel instanceof FileChannel) {
-                    entityBodyReader = new EntityBodyReader(new FileIOChannel((FileChannel)channel,
-                            IOConstants.CHANNEL_BUFFER_SIZE), false);
-                }
+        Object channel = entityStruct.getNativeData(ENTITY_BYTE_CHANNEL);
+        if (channel != null) {
+            if (channel instanceof EntityBodyChannel) {
+                entityBodyReader = new EntityBodyReader((EntityBodyChannel) channel, true);
+            } else if (channel instanceof FileIOChannel) {
+                entityBodyReader = new EntityBodyReader((FileIOChannel) channel, false);
+            } else if (channel instanceof FileChannel) {
+                entityBodyReader = new EntityBodyReader(new FileIOChannel((FileChannel) channel,
+                        IOConstants.CHANNEL_BUFFER_SIZE), false);
             }
         }
         return entityBodyReader;

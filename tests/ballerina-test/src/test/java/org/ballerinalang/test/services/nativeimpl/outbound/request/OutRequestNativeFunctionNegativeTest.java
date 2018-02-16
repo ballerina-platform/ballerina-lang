@@ -21,6 +21,7 @@ import org.ballerinalang.launcher.util.BAssertUtil;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
+import org.ballerinalang.mime.util.EntityBodyHandler;
 import org.ballerinalang.mime.util.MimeUtil;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
@@ -28,14 +29,12 @@ import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.net.http.Constants;
-import org.ballerinalang.test.mime.Util;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import static org.ballerinalang.mime.util.Constants.APPLICATION_JSON;
+import static org.ballerinalang.mime.util.Constants.BYTE_CHANNEL_STRUCT;
 import static org.ballerinalang.mime.util.Constants.CONTENT_TYPE;
-import static org.ballerinalang.mime.util.Constants.ENTITY_BYTE_CHANNEL_INDEX;
 import static org.ballerinalang.mime.util.Constants.ENTITY_HEADERS_INDEX;
 import static org.ballerinalang.mime.util.Constants.IS_BODY_BYTE_CHANNEL_ALREADY_SET;
 import static org.ballerinalang.mime.util.Constants.MEDIA_TYPE;
@@ -84,13 +83,8 @@ public class OutRequestNativeFunctionNegativeTest {
     public void testGetJsonPayloadWithoutPayload() {
         BStruct outRequest = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, outReqStruct);
         BValue[] inputArg = {outRequest};
-        String error = null;
-        try {
-            BRunUtil.invoke(result, "testGetJsonPayload", inputArg);
-        } catch (Throwable e) {
-            error = e.getMessage();
-        }
-        Assert.assertTrue(error.contains("error while retrieving json payload from message"));
+        BValue[] returnVals = BRunUtil.invoke(result, "testGetJsonPayload", inputArg);
+        Assert.assertNull(returnVals[0]);
     }
 
     @Test(description = "Test method with string payload")
@@ -101,20 +95,13 @@ public class OutRequestNativeFunctionNegativeTest {
 
         String payload = "ballerina";
         MimeUtil.setContentType(mediaType, entity, TEXT_PLAIN);
-        BStruct byteChannelStruct = Util.getByteChannelStruct(result);
-        Util.createByteChannelFromText(payload, byteChannelStruct);
-        entity.setRefField(ENTITY_BYTE_CHANNEL_INDEX, byteChannelStruct);
+        entity.addNativeData(BYTE_CHANNEL_STRUCT, EntityBodyHandler.getByteChannel(payload));
         outRequest.addNativeData(MESSAGE_ENTITY, entity);
         outRequest.addNativeData(IS_BODY_BYTE_CHANNEL_ALREADY_SET, true);
 
         BValue[] inputArg = {outRequest};
-        String error = null;
-        try {
-            BRunUtil.invoke(result, "testGetJsonPayload", inputArg);
-        } catch (Throwable e) {
-            error = e.getMessage();
-        }
-        Assert.assertTrue(error.contains("error while retrieving json payload from message"));
+        BValue[] returnVals = BRunUtil.invoke(result, "testGetJsonPayload", inputArg);
+        Assert.assertNull(returnVals[0]);
     }
 
     @Test
@@ -142,26 +129,16 @@ public class OutRequestNativeFunctionNegativeTest {
     public void testGetStringPayloadNegative() {
         BStruct outRequest = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, outReqStruct);
         BValue[] inputArg = {outRequest};
-        String error = null;
-        try {
-            BRunUtil.invoke(result, "testGetStringPayload", inputArg);
-        } catch (Throwable e) {
-            error = e.getMessage();
-        }
-        Assert.assertTrue(error.contains("error while retrieving json payload from message"));
+        BValue[] returnVals = BRunUtil.invoke(result, "testGetStringPayload", inputArg);
+        Assert.assertNull(returnVals[0].stringValue());
     }
 
     @Test
     public void testGetXmlPayloadNegative() {
         BStruct outRequest = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, outReqStruct);
         BValue[] inputArg = {outRequest};
-        String error = null;
-        try {
-            BRunUtil.invoke(result, "testGetXmlPayload", inputArg);
-        } catch (Throwable e) {
-            error = e.getMessage();
-        }
-        Assert.assertTrue(error.contains("error while retrieving xml payload from message"));
+        BValue[] returnVals = BRunUtil.invoke(result, "testGetXmlPayload", inputArg);
+        Assert.assertNull(returnVals[0]);
     }
 
     @Test

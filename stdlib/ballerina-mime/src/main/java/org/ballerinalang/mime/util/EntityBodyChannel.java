@@ -7,11 +7,11 @@ import java.nio.channels.ByteChannel;
 import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
 
-public class EntityBodyStream implements ByteChannel {
+public class EntityBodyChannel implements ByteChannel {
     private InputStream in;
     private ReadableByteChannel inChannel;
 
-    public EntityBodyStream(InputStream in) {
+    public EntityBodyChannel(InputStream in) {
         this.in = in;
         this.inChannel = Channels.newChannel(in);
     }

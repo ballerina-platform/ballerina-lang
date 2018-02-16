@@ -21,21 +21,20 @@ import org.ballerinalang.launcher.util.BAssertUtil;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
+import org.ballerinalang.mime.util.EntityBodyHandler;
 import org.ballerinalang.mime.util.MimeUtil;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.net.http.Constants;
 import org.ballerinalang.net.http.HttpUtil;
-import org.ballerinalang.test.mime.Util;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 
-import static org.ballerinalang.mime.util.Constants.APPLICATION_JSON;
+import static org.ballerinalang.mime.util.Constants.BYTE_CHANNEL_STRUCT;
 import static org.ballerinalang.mime.util.Constants.CONTENT_TYPE;
-import static org.ballerinalang.mime.util.Constants.ENTITY_BYTE_CHANNEL_INDEX;
 import static org.ballerinalang.mime.util.Constants.IS_BODY_BYTE_CHANNEL_ALREADY_SET;
 import static org.ballerinalang.mime.util.Constants.MEDIA_TYPE;
 import static org.ballerinalang.mime.util.Constants.MESSAGE_ENTITY;
@@ -111,19 +110,12 @@ public class InResponseNativeFunctionNegativeTest {
 
         String payload = "ballerina";
         MimeUtil.setContentType(mediaType, entity, TEXT_PLAIN);
-        BStruct byteChannelStruct = Util.getByteChannelStruct(result);
-        Util.createByteChannelFromText(payload, byteChannelStruct);
-        entity.setRefField(ENTITY_BYTE_CHANNEL_INDEX, byteChannelStruct);
+        entity.addNativeData(BYTE_CHANNEL_STRUCT, EntityBodyHandler.getByteChannel(payload));
         inResponse.addNativeData(MESSAGE_ENTITY, entity);
         inResponse.addNativeData(IS_BODY_BYTE_CHANNEL_ALREADY_SET, true);
         BValue[] inputArg = {inResponse};
-        String error = null;
-        try {
-            BRunUtil.invoke(result, "testGetJsonPayload", inputArg);
-        } catch (Throwable e) {
-            error = e.getMessage();
-        }
-        Assert.assertTrue(error.contains("error while retrieving json payload from message"));
+        BValue[] returnVals = BRunUtil.invoke(result, "testGetJsonPayload", inputArg);
+        Assert.assertNull(returnVals[0]);
     }
 
     @Test
@@ -164,7 +156,7 @@ public class InResponseNativeFunctionNegativeTest {
         } catch (Throwable e) {
             error = e.getMessage();
         }
-        Assert.assertTrue(error.contains("error: error, message: error while retrieving xml payload from message: " +
+        Assert.assertTrue(error.contains("error while retrieving xml data from entity: " +
                 "Unexpected EOF in prolog"));
     }
 

@@ -36,7 +36,6 @@ import org.ballerinalang.model.values.BXML;
 import org.ballerinalang.model.values.BXMLItem;
 import org.ballerinalang.net.http.Constants;
 import org.ballerinalang.net.http.HttpUtil;
-import org.ballerinalang.test.mime.Util;
 import org.ballerinalang.test.services.testutils.HTTPTestRequest;
 import org.ballerinalang.test.services.testutils.MessageUtils;
 import org.ballerinalang.test.services.testutils.Services;
@@ -50,7 +49,7 @@ import static org.ballerinalang.mime.util.Constants.APPLICATION_FORM;
 import static org.ballerinalang.mime.util.Constants.APPLICATION_JSON;
 import static org.ballerinalang.mime.util.Constants.APPLICATION_XML;
 import static org.ballerinalang.mime.util.Constants.CONTENT_TYPE;
-import static org.ballerinalang.mime.util.Constants.ENTITY_BYTE_CHANNEL_INDEX;
+import static org.ballerinalang.mime.util.Constants.ENTITY_BYTE_CHANNEL;
 import static org.ballerinalang.mime.util.Constants.ENTITY_HEADERS_INDEX;
 import static org.ballerinalang.mime.util.Constants.IS_BODY_BYTE_CHANNEL_ALREADY_SET;
 import static org.ballerinalang.mime.util.Constants.MEDIA_TYPE;
@@ -118,9 +117,7 @@ public class OutResponseNativeFunctionSuccessTest {
 
         String payload = "ballerina";
         MimeUtil.setContentType(mediaType, entity, OCTET_STREAM);
-        BStruct byteChannelStruct = Util.getByteChannelStruct(result);
-        Util.createByteChannelFromText(payload, byteChannelStruct);
-        entity.setRefField(ENTITY_BYTE_CHANNEL_INDEX, byteChannelStruct);
+        entity.addNativeData(ENTITY_BYTE_CHANNEL, EntityBodyHandler.getByteChannel(payload));
         outResponse.addNativeData(MESSAGE_ENTITY, entity);
         outResponse.addNativeData(IS_BODY_BYTE_CHANNEL_ALREADY_SET, true);
 
@@ -208,9 +205,7 @@ public class OutResponseNativeFunctionSuccessTest {
 
         String payload = "{'code':'123'}";
         MimeUtil.setContentType(mediaType, entity, APPLICATION_JSON);
-        BStruct byteChannelStruct = Util.getByteChannelStruct(result);
-        Util.createByteChannelFromText(payload, byteChannelStruct);
-        entity.setRefField(ENTITY_BYTE_CHANNEL_INDEX, byteChannelStruct);
+        entity.addNativeData(ENTITY_BYTE_CHANNEL, EntityBodyHandler.getByteChannel(payload));
         outResponse.addNativeData(MESSAGE_ENTITY, entity);
         outResponse.addNativeData(IS_BODY_BYTE_CHANNEL_ALREADY_SET, true);
 
@@ -271,9 +266,7 @@ public class OutResponseNativeFunctionSuccessTest {
 
         String payload = "ballerina";
         MimeUtil.setContentType(mediaType, entity, TEXT_PLAIN);
-        BStruct byteChannelStruct = Util.getByteChannelStruct(result);
-        Util.createByteChannelFromText(payload, byteChannelStruct);
-        entity.setRefField(ENTITY_BYTE_CHANNEL_INDEX, byteChannelStruct);
+        entity.addNativeData(ENTITY_BYTE_CHANNEL, EntityBodyHandler.getByteChannel(payload));
         outResponse.addNativeData(MESSAGE_ENTITY, entity);
         outResponse.addNativeData(IS_BODY_BYTE_CHANNEL_ALREADY_SET, true);
 
@@ -304,9 +297,7 @@ public class OutResponseNativeFunctionSuccessTest {
 
         String payload = "<name>ballerina</name>";
         MimeUtil.setContentType(mediaType, entity, APPLICATION_XML);
-        BStruct byteChannelStruct = Util.getByteChannelStruct(result);
-        Util.createByteChannelFromText(payload, byteChannelStruct);
-        entity.setRefField(ENTITY_BYTE_CHANNEL_INDEX, byteChannelStruct);
+        entity.addNativeData(ENTITY_BYTE_CHANNEL, EntityBodyHandler.getByteChannel(payload));
         outResponse.addNativeData(MESSAGE_ENTITY, entity);
         outResponse.addNativeData(IS_BODY_BYTE_CHANNEL_ALREADY_SET, true);
 
@@ -436,7 +427,7 @@ public class OutResponseNativeFunctionSuccessTest {
                 "Invalid Return Values.");
         Assert.assertTrue(returnVals[0] instanceof BStruct);
         BStruct entity = (BStruct) ((BStruct) returnVals[0]).getNativeData(MESSAGE_ENTITY);
-        BJSON bJson = EntityBodyHandler.readJsonDataSource(entity);
+        BJSON bJson = EntityBodyHandler.constructJsonDataSource(entity);
         Assert.assertEquals(bJson.value().get("name").asText(), "wso2", "Payload is not set properly");
     }
 
@@ -485,7 +476,7 @@ public class OutResponseNativeFunctionSuccessTest {
                 "Invalid Return Values.");
         Assert.assertTrue(returnVals[0] instanceof BStruct);
         BStruct entity = (BStruct) ((BStruct) returnVals[0]).getNativeData(MESSAGE_ENTITY);
-        String stringValue = EntityBodyHandler.readStringDataSource(entity).toString();
+        String stringValue = EntityBodyHandler.constructStringDataSource(entity).toString();
         Assert.assertEquals(stringValue, "Ballerina", "Payload is not set properly");
     }
 
@@ -511,9 +502,7 @@ public class OutResponseNativeFunctionSuccessTest {
 
         String payload = "{\"code\":\"123\"}";
         MimeUtil.setContentType(mediaType, entity, APPLICATION_JSON);
-        BStruct byteChannelStruct = Util.getByteChannelStruct(result);
-        Util.createByteChannelFromText(payload, byteChannelStruct);
-        entity.setRefField(ENTITY_BYTE_CHANNEL_INDEX, byteChannelStruct);
+        entity.addNativeData(ENTITY_BYTE_CHANNEL, EntityBodyHandler.getByteChannel(payload));
         outResponse.addNativeData(MESSAGE_ENTITY, entity);
         outResponse.addNativeData(IS_BODY_BYTE_CHANNEL_ALREADY_SET, true);
 

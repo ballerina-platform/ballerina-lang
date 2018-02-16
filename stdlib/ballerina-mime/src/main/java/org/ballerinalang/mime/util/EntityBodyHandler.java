@@ -19,19 +19,18 @@
 package org.ballerinalang.mime.util;
 
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.connector.api.ConnectorUtils;
 import org.ballerinalang.model.types.BStructType;
 import org.ballerinalang.model.util.StringUtils;
 import org.ballerinalang.model.util.XMLUtils;
 import org.ballerinalang.model.values.BJSON;
 import org.ballerinalang.model.values.BRefValueArray;
-import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BXML;
 import org.ballerinalang.nativeimpl.io.IOConstants;
 import org.ballerinalang.nativeimpl.io.channels.FileIOChannel;
 import org.ballerinalang.runtime.message.BlobDataSource;
 import org.ballerinalang.runtime.message.MessageDataSource;
+import org.ballerinalang.runtime.message.StringDataSource;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.jvnet.mimepull.MIMEPart;
 import org.slf4j.Logger;
@@ -53,7 +52,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import static org.ballerinalang.mime.util.Constants.BALLERINA_TEMP_FILE;
-import static org.ballerinalang.mime.util.Constants.ENTITY_BYTE_CHANNEL_INDEX;
+import static org.ballerinalang.mime.util.Constants.ENTITY_BYTE_CHANNEL;
 import static org.ballerinalang.mime.util.Constants.MESSAGE_DATA_SOURCE;
 import static org.ballerinalang.mime.util.Constants.MULTIPART_DATA_INDEX;
 import static org.ballerinalang.mime.util.Constants.SIZE_INDEX;
@@ -70,24 +69,24 @@ public class EntityBodyHandler {
      * Handle discrete media type content. This method populates ballerina entity with a byte channel to the
      * inputstream.
      *
-     * @param context      Represent ballerina context
      * @param entityStruct Represent an 'Entity'
      * @param inputStream  Represent input stream coming from the request/response
      */
-    public static void setDiscreteMediaTypeBodyContent(Context context, BStruct entityStruct, InputStream inputStream) {
+    public static void setDiscreteMediaTypeBodyContent(BStruct entityStruct, InputStream inputStream) {
         long contentLength = entityStruct.getIntField(SIZE_INDEX);
-        BStruct byteChannelStruct = ConnectorUtils.createAndGetStruct(context
-                , org.ballerinalang.mime.util.Constants.PROTOCOL_PACKAGE_IO
-                , org.ballerinalang.mime.util.Constants.BYTE_CHANNEL_STRUCT);
         ByteChannel byteChannel;
         if (contentLength > Constants.BYTE_LIMIT) {
             String temporaryFilePath = MimeUtil.writeToTemporaryFile(inputStream, BALLERINA_TEMP_FILE);
             byteChannel = getByteChannelForTempFile(temporaryFilePath);
         } else {
-            byteChannel = new EntityBodyStream(inputStream);
+            byteChannel = new EntityBodyChannel(inputStream);
         }
-        byteChannelStruct.addNativeData(IOConstants.BYTE_CHANNEL_NAME, byteChannel);
-        entityStruct.setRefField(ENTITY_BYTE_CHANNEL_INDEX, byteChannelStruct);
+        entityStruct.addNativeData(ENTITY_BYTE_CHANNEL, byteChannel);
+    }
+
+    public static EntityBodyChannel getByteChannel(String textPayload) {
+        return new EntityBodyChannel(new ByteArrayInputStream(
+                textPayload.getBytes(StandardCharsets.UTF_8)));
     }
 
     public static ByteChannel getByteChannelForTempFile(String temporaryFilePath) {
@@ -103,67 +102,112 @@ public class EntityBodyHandler {
         return byteChannel;
     }
 
+    /**
+     * Get the message data source associated with a given entity.
+     *
+     * @param entityStruct Represent a ballerina entity
+     * @return MessageDataSource which represent the entity body in memory
+     */
     public static MessageDataSource getMessageDataSource(BStruct entityStruct) {
         return (MessageDataSource) entityStruct.getNativeData(MESSAGE_DATA_SOURCE);
     }
 
+    /**
+     * Associate a given message data source with a given entity.
+     *
+     * @param entityStruct      Represent the ballerina entity
+     * @param messageDataSource which represent the entity body in memory
+     */
     public static void addMessageDataSource(BStruct entityStruct, MessageDataSource messageDataSource) {
         entityStruct.addNativeData(MESSAGE_DATA_SOURCE, messageDataSource);
     }
 
-    public static void setTextAsEntityBody(Context context, BStruct entityStruct, String textContent) {
-        EntityBodyStream byteChannel = new EntityBodyStream(new ByteArrayInputStream(
+   /* public static void setTextAsEntityBody(Context context, BStruct entityStruct, String textContent) {
+        EntityBodyChannel byteChannel = new EntityBodyChannel(new ByteArrayInputStream(
                 textContent.getBytes(StandardCharsets.UTF_8)));
         MimeUtil.setByteChannelToEntity(context, entityStruct, byteChannel);
-    }
+    }*/
 
-    public static BlobDataSource readBinaryDataSource(BStruct entityStruct) throws IOException {
-        EntityBodyReader entityBodyReader = MimeUtil.extractEntityBodyReader(entityStruct);
-        if (entityBodyReader.isStream()) {
-            return new BlobDataSource(MimeUtil.getByteArray(Channels.newInputStream(
-                    entityBodyReader.getEntityBodyStream())));
-        } else {
-            FileIOChannel fileIOChannel = entityBodyReader.getFileIOChannel();
-            return new BlobDataSource(fileIOChannel.readAll());
+    /**
+     * Construct BlobDataSource from the underneath byte channel which is associated with the entity struct.
+     *
+     * @param entityStruct Represent an entity struct
+     * @return BlobDataSource Data source for binary data which is kept in memory
+     * @throws IOException
+     */
+    public static BlobDataSource constructBlobDataSource(BStruct entityStruct) throws IOException {
+        EntityBodyReader entityBodyReader = MimeUtil.constructEntityBodyReader(entityStruct);
+        if (entityBodyReader != null) {
+            if (entityBodyReader.isStream()) {
+                return new BlobDataSource(MimeUtil.getByteArray(Channels.newInputStream(
+                        entityBodyReader.getEntityBodyChannel())));
+            } else {
+                FileIOChannel fileIOChannel = entityBodyReader.getFileIOChannel();
+                return new BlobDataSource(fileIOChannel.readAll());
+            }
         }
+        return null;
     }
 
-    public static BJSON readJsonDataSource(BStruct entityStruct) {
-        EntityBodyReader entityBodyReader = MimeUtil.extractEntityBodyReader(entityStruct);
-        if (entityBodyReader.isStream()) {
-            return new BJSON(Channels.newInputStream(entityBodyReader.getEntityBodyStream()));
-        } else{
-            FileIOChannel fileIOChannel = entityBodyReader.getFileIOChannel();
-            BlobDataSource blobDataSource = new BlobDataSource(fileIOChannel.readAll());
-            return new BJSON(blobDataSource.getMessageAsString());
+    /**
+     * Construct JsonDataSource from the underneath byte channel which is associated with the entity struct.
+     *
+     * @param entityStruct Represent an entity struct
+     * @return BJSON data source which is kept in memory
+     */
+    public static BJSON constructJsonDataSource(BStruct entityStruct) {
+        EntityBodyReader entityBodyReader = MimeUtil.constructEntityBodyReader(entityStruct);
+        if (entityBodyReader != null) {
+            if (entityBodyReader.isStream()) {
+                return new BJSON(Channels.newInputStream(entityBodyReader.getEntityBodyChannel()));
+            } else {
+                FileIOChannel fileIOChannel = entityBodyReader.getFileIOChannel();
+                return new BJSON(new ByteArrayInputStream(fileIOChannel.readAll()));
+            }
         }
+        return null;
     }
 
+    /**
+     * Construct XMl data source from the underneath byte channel which is associated with the entity struct.
+     *
+     * @param entityStruct Represent an entity struct
+     * @return BXML data source which is kept in memory
+     */
     public static BXML readXmlDataSource(BStruct entityStruct) {
-        EntityBodyReader entityBodyReader = MimeUtil.extractEntityBodyReader(entityStruct);
-        if (entityBodyReader.isStream()) {
-            return XMLUtils.parse(Channels.newInputStream(entityBodyReader.getEntityBodyStream()));
-        } else {
-            FileIOChannel fileIOChannel = entityBodyReader.getFileIOChannel();
-            BlobDataSource blobDataSource = new BlobDataSource(fileIOChannel.readAll());
-            return XMLUtils.parse(blobDataSource.getMessageAsString());
+        EntityBodyReader entityBodyReader = MimeUtil.constructEntityBodyReader(entityStruct);
+        if (entityBodyReader != null) {
+            if (entityBodyReader.isStream()) {
+                return XMLUtils.parse(Channels.newInputStream(entityBodyReader.getEntityBodyChannel()));
+            } else {
+                FileIOChannel fileIOChannel = entityBodyReader.getFileIOChannel();
+                return XMLUtils.parse(new ByteArrayInputStream(fileIOChannel.readAll()));
+            }
         }
+        return null;
     }
 
-    public static BString readStringDataSource(BStruct entityStruct) {
-        EntityBodyReader entityBodyReader = MimeUtil.extractEntityBodyReader(entityStruct);
-        BString result;
-        if (entityBodyReader.isStream()) {
-            String textContent = StringUtils.getStringFromInputStream(Channels.newInputStream(
-                    entityBodyReader.getEntityBodyStream()));
-            result = new BString(textContent);
-        } else {
-            FileIOChannel fileIOChannel = entityBodyReader.getFileIOChannel();
-            BlobDataSource blobDataSource = new BlobDataSource(fileIOChannel.readAll());
-            String textContent = blobDataSource.getMessageAsString();
-            result = new BString(textContent);
+    /**
+     * Construct StringDataSource from the underneath byte channel which is associated with the entity struct.
+     *
+     * @param entityStruct Represent an entity struct
+     * @return StringDataSource which represent the entity body which is kept in memory
+     */
+    public static StringDataSource constructStringDataSource(BStruct entityStruct) {
+        EntityBodyReader entityBodyReader = MimeUtil.constructEntityBodyReader(entityStruct);
+        if (entityBodyReader != null) {
+            String textContent;
+            if (entityBodyReader.isStream()) {
+                textContent = StringUtils.getStringFromInputStream(Channels.newInputStream(
+                        entityBodyReader.getEntityBodyChannel()));
+                return new StringDataSource(textContent);
+            } else {
+                FileIOChannel fileIOChannel = entityBodyReader.getFileIOChannel();
+                textContent = StringUtils.getStringFromInputStream(new ByteArrayInputStream(fileIOChannel.readAll()));
+                return new StringDataSource(textContent);
+            }
         }
-        return result;
+        return null;
     }
 
    /* *//**
@@ -258,7 +302,7 @@ public class EntityBodyHandler {
     /**
      * Check whether the entity body is present.
      *
-     * @param entityStruct   Represent an 'Entity'
+     * @param entityStruct Represent an 'Entity'
      * @return a boolean indicating entity body availability
      */
     public static boolean checkEntityBodyAvailability(BStruct entityStruct) {
@@ -275,8 +319,7 @@ public class EntityBodyHandler {
             default:
                 return isBinaryBodyPresent(entity);
         }*/
-       BStruct byteChannel = (BStruct)entityStruct.getRefField(ENTITY_BYTE_CHANNEL_INDEX);
-       return byteChannel != null;
+        return entityStruct.getNativeData(ENTITY_BYTE_CHANNEL) != null || getMessageDataSource(entityStruct) != null;
     }
 
    /* *//**
@@ -542,8 +585,8 @@ public class EntityBodyHandler {
         } catch (IOException e) {
             log.error("Error occurred while reading decoded body part content", e.getMessage());
         }*/
-        EntityBodyStream byteChannel = new EntityBodyStream(mimePart.readOnce());
-        MimeUtil.setByteChannelToEntity(context, entity, byteChannel);
+        EntityBodyChannel byteChannel = new EntityBodyChannel(mimePart.readOnce());
+        MimeUtil.setByteChannelToEntity(entity, byteChannel);
     }
 
     /**

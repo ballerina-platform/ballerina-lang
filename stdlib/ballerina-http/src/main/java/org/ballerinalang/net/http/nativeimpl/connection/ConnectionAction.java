@@ -117,10 +117,10 @@ public abstract class ConnectionAction extends AbstractNativeFunction {
                 outboundMessageSource.serializeData(messageOutputStream);
                 HttpUtil.closeMessageOutputStream(messageOutputStream);
             } else {
-                EntityBodyReader entityBodyReader = MimeUtil.extractEntityBodyReader(entityStruct);
+                EntityBodyReader entityBodyReader = MimeUtil.constructEntityBodyReader(entityStruct);
                 byte[] buffer = new byte[1024];
                 if (entityBodyReader.isStream()) {
-                    InputStream inputStream = Channels.newInputStream(entityBodyReader.getEntityBodyStream());
+                    InputStream inputStream = Channels.newInputStream(entityBodyReader.getEntityBodyChannel());
                     int len;
                     while ((len = inputStream.read(buffer)) != -1) {
                         messageOutputStream.write(buffer, 0, len);

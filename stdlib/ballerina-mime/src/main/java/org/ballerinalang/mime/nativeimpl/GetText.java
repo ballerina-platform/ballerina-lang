@@ -1,34 +1,48 @@
+/*
+*  Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+*
+*  WSO2 Inc. licenses this file to you under the Apache License,
+*  Version 2.0 (the "License"); you may not use this file except
+*  in compliance with the License.
+*  You may obtain a copy of the License at
+*
+*    http://www.apache.org/licenses/LICENSE-2.0
+*
+*  Unless required by applicable law or agreed to in writing,
+*  software distributed under the License is distributed on an
+*  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+*  KIND, either express or implied.  See the License for the
+*  specific language governing permissions and limitations
+*  under the License.
+*/
+
 package org.ballerinalang.mime.nativeimpl;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.mime.util.EntityBodyHandler;
-import org.ballerinalang.mime.util.EntityBodyReader;
-import org.ballerinalang.mime.util.MimeUtil;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.util.StringUtils;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.nativeimpl.io.channels.FileIOChannel;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
-import org.ballerinalang.runtime.message.BlobDataSource;
 import org.ballerinalang.runtime.message.MessageDataSource;
 import org.ballerinalang.runtime.message.StringDataSource;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
-import java.nio.channels.Channels;
+import static org.ballerinalang.mime.util.Constants.FIRST_PARAMETER_INDEX;
 
 /**
- * Get the payload of the Message as a JSON.
+ * Get the entity body as a string.
+ *
+ * @since 0.964.0
  */
 @BallerinaFunction(
         packageName = "ballerina.mime",
         functionName = "getText",
-        receiver = @Receiver(type = TypeKind.STRUCT, structType = "Entity",
-                structPackage = "ballerina.mime"),
+        receiver = @Receiver(type = TypeKind.STRUCT, structType = "Entity", structPackage = "ballerina.mime"),
         returnType = {@ReturnType(type = TypeKind.STRING)},
         isPublic = true
 )
@@ -36,22 +50,22 @@ public class GetText extends AbstractNativeFunction {
 
     @Override
     public BValue[] execute(Context context) {
-        BString result;
+        BString result = null;
         try {
-            // Accessing First Parameter Value.
-            BStruct entityStruct = (BStruct) this.getRefArgument(context, 0);
-            StringDataSource stringDataSource;
+            BStruct entityStruct = (BStruct) this.getRefArgument(context, FIRST_PARAMETER_INDEX);
             MessageDataSource payload = EntityBodyHandler.getMessageDataSource(entityStruct);
             if (payload != null) {
                 result = new BString(payload.getMessageAsString());
             } else {
-                result = EntityBodyHandler.readStringDataSource(entityStruct);
-                EntityBodyHandler.addMessageDataSource(entityStruct, new StringDataSource(result.toString()));
+                StringDataSource stringDataSource = EntityBodyHandler.constructStringDataSource(entityStruct);
+                if (stringDataSource != null) {
+                    result = new BString(stringDataSource.getMessageAsString());
+                    EntityBodyHandler.addMessageDataSource(entityStruct, stringDataSource);
+                }
             }
         } catch (Throwable e) {
             throw new BallerinaException("Error while retrieving json payload from message: " + e.getMessage());
         }
-        // Setting output value.
         return this.getBValues(result);
     }
 }

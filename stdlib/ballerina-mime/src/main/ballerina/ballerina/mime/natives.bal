@@ -15,74 +15,6 @@ public struct MediaType {
     map parameters;
 }
 
-@Description {value:"Represent the headers and body of a message. This can be used to represent both the entity of a top
-level message and an entity(body part) inside of a multipart entity."}
-@Field {value:"contentType: Describes the data contained in the body of the entity"}
-@Field {value:"contentId: Helps one body of an entity to make a reference to another"}
-@Field {value:"headers: Denote general, request/response and entity related headers. Keys of the header map
-should represent the header name and value will be the 'HeaderValue' struct"}
-@Field {value:"textData: Contents of the body in string form if the content is of text type"}
-@Field {value:"jsonData: Contents of the body in json form if the content is of json type"}
-@Field {value:"xmlData: Contents of the body in xml form if the content is of xml type"}
-@Field {value:"byteData: Contents of the body as a byte array"}
-@Field {value:"overflowData: If the size of the entity exceeds the limit defined in ballerina service or the client
-connector, contents will be saved in a temporary file and can be accessed through this file handler"}
-@Field {value:"multipartData: Represent body parts(entities) of a multipart entity"}
-@Field {value:"size: Represent the size of the entity"}
-public struct Entity {
-    MediaType contentType;
-    string contentId;
-    map headers;
-    io:ByteChannel byteChannel;
-    Entity[] multipartData;
-    int size;
-    ContentDisposition contentDisposition;
-}
-
-@Description {value:"Sets the entity body with a given file content"}
-@Param {value:"fileContent: File containing the actual content"}
-@Param {value:"contentType: Content-Type of the given data"}
-public function  <Entity entity> setFileAsEntityBody (file:File fileHandler) {
-    io:ByteChannel byteChannel = fileHandler.openChannel(READ_PERMISSION);
-    entity.byteChannel = byteChannel;
-}
-
-@Description {value:"Sets the entity body with the given json content"}
-@Param {value:"jsonContent: Json content that needs to be set to entity"}
-public native function <Entity entity> setJson (json jsonContent);
-
-@Description {value:"Given an entity, get the json payload, either from the memory or from the file handler."}
-@Param {value:"entity: Represent mime Entity"}
-@Return {value:"return json data"}
-public native function <Entity entity> getJson() (json);
-
-@Description {value:"Sets the entity body with the given json content"}
-@Param {value:"jsonContent: Json content that needs to be set to entity"}
-public native function <Entity entity> setXml (xml jsonContent);
-
-@Description {value:"Given an entity, get the json payload, either from the memory or from the file handler."}
-@Param {value:"entity: Represent mime Entity"}
-@Return {value:"return json data"}
-public native function <Entity entity> getXml() (xml);
-
-@Description {value:"Sets the entity body with the given json content"}
-@Param {value:"jsonContent: Json content that needs to be set to entity"}
-public native function <Entity entity> setText (string textContent);
-
-@Description {value:"Given an entity, get the json payload, either from the memory or from the file handler."}
-@Param {value:"entity: Represent mime Entity"}
-@Return {value:"return json data"}
-public native function <Entity entity> getText() (string);
-
-@Description {value:"Sets the entity body with the given json content"}
-@Param {value:"jsonContent: Json content that needs to be set to entity"}
-public native function <Entity entity> setBlob (blob blobContent);
-
-@Description {value:"Given an entity, get the json payload, either from the memory or from the file handler."}
-@Param {value:"entity: Represent mime Entity"}
-@Return {value:"return json data"}
-public native function <Entity entity> getBlob() (blob);
-
 @Description {value:"Represent values in Content-Disposition header"}
 @Field {value:"fileName: Default filename for storing the bodypart, if the receiving agent wishes to store it in an
 external file"}
@@ -97,78 +29,75 @@ public struct ContentDisposition {
     map parameters;
 }
 
-//@Description {value:"Given an entity, get the text payload, either from the memory or from the file handler."}
-//@Param {value:"entity: Represent mime Entity"}
-//@Return {value:"return text data"}
-//public function getText (Entity entity) (string) {
-//    if (entity.textData != null && entity.textData != "") {
-//        return entity.textData;
-//    } else {
-//        file:File overFlowData = entity.overflowData;
-//        if (overFlowData != null) {
-//            string encoding = getEncoding(entity.contentType);
-//            io:ByteChannel channel = overFlowData.openChannel(READ_PERMISSION);
-//            io:CharacterChannel characterChannel = channel.toCharacterChannel(encoding);
-//            string characters = characterChannel.readAllCharacters();
-//            return characters;
-//        }
-//        return null;
-//    }
-//}
-//
-////@Description {value:"Given an entity, get the json payload, either from the memory or from the file handler."}
-////@Param {value:"entity: Represent mime Entity"}
-////@Return {value:"return json data"}
-////public function getJson (Entity entity) (json) {
-////    if (entity.jsonData != null) {
-////        return entity.jsonData;
-////    } else {
-////        file:File overFlowData = entity.overflowData;
-////        if (overFlowData != null) {
-////            string encoding = getEncoding(entity.contentType);
-////            io:ByteChannel channel = overFlowData.openChannel(READ_PERMISSION);
-////            blob bytes = readAll(channel);
-////            string content = bytes.toString(encoding);
-////            var jsonContent, _ = <json>content;
-////            return jsonContent;
-////        }
-////        return null;
-////    }
-////}
-//
-//@Description {value:"Given an entity, get the xml payload, either from the memory or from the file handler."}
-//@Param {value:"entity: Represent mime Entity"}
-//@Return {value:"return xml data"}
-//public function getXml (Entity entity) (xml) {
-//    if (entity.xmlData != null) {
-//        return entity.xmlData;
-//    } else {
-//        file:File overFlowData = entity.overflowData;
-//        if (overFlowData != null) {
-//            string encoding = getEncoding(entity.contentType);
-//            io:ByteChannel channel = overFlowData.openChannel(READ_PERMISSION);
-//            blob bytes = readAll(channel);
-//            string content = bytes.toString(encoding);
-//            var xmlContent, _ = <xml>content;
-//            return xmlContent;
-//        }
-//        return null;
-//    }
-//}
-//
-//@Description {value:"Given an entity, get the content as a byte array, either from the memory or from the file
-//handler."}
-//@Param {value:"entity: Represent mime Entity"}
-//@Return {value:"return byte array"}
-//public function getBlob (Entity entity) (blob) {
-//    file:File overFlowData = entity.overflowData;
-//    if (overFlowData != null) {
-//        io:ByteChannel channel = overFlowData.openChannel(READ_PERMISSION);
-//        return readAll(channel);
-//    } else {
-//        return entity.byteData;
-//    }
-//}
+@Description {value:"Represent the headers and body of a message. This can be used to represent both the entity of a top
+level message and an entity(body part) inside of a multipart entity."}
+@Field {value:"contentType: Describes the data contained in the body of the entity"}
+@Field {value:"contentId: Helps one body of an entity to make a reference to another"}
+@Field {value:"headers: Denote general, request/response and entity related headers. Keys of the header map
+should represent the header name and value will be the 'HeaderValue' struct"}
+@Field {value:"multipartData: Represent body parts(entities) of a multipart entity"}
+@Field {value:"size: Represent the size of the entity"}
+@Field {value:"contentDisposition: Represent values related to Content-Disposition header"}
+public struct Entity {
+    MediaType contentType;
+    string contentId;
+    map headers;
+    Entity[] multipartData;
+    int size;
+    ContentDisposition contentDisposition;
+}
+
+@Description {value:"Sets the entity body with a given file handler"}
+@Param {value:"fileHandler: Represent a file"}
+public function <Entity entity> setFileAsEntityBody (file:File fileHandler) {
+    io:ByteChannel byteChannel = fileHandler.openChannel(READ_PERMISSION);
+    entity.setByteChannel(byteChannel);
+}
+
+@Description {value:"Sets the entity body with the given json content"}
+@Param {value:"jsonContent: Json content that needs to be set to entity"}
+public native function <Entity entity> setJson (json jsonContent);
+
+@Description {value:"Given an entity, get the entity body in json form."}
+@Param {value:"entity: Represent mime Entity"}
+@Return {value:"return json data"}
+public native function <Entity entity> getJson () (json);
+
+@Description {value:"Sets the entity body with the given xml content"}
+@Param {value:"xmlContent: Xml content that needs to be set to entity"}
+public native function <Entity entity> setXml (xml xmlContent);
+
+@Description {value:"Given an entity, get the entity body in xml form."}
+@Param {value:"entity: Represent mime Entity"}
+@Return {value:"return xml data"}
+public native function <Entity entity> getXml () (xml);
+
+@Description {value:"Sets the entity body with the given text content"}
+@Param {value:"textContent: Text content that needs to be set to entity"}
+public native function <Entity entity> setText (string textContent);
+
+@Description {value:"Given an entity, get the entity body in text form."}
+@Param {value:"entity: Represent mime Entity"}
+@Return {value:"return text data"}
+public native function <Entity entity> getText () (string);
+
+@Description {value:"Sets the entity body with the given blob content"}
+@Param {value:"blobContent: Blob content that needs to be set to entity"}
+public native function <Entity entity> setBlob (blob blobContent);
+
+@Description {value:"Given an entity, get the entity body as a blob."}
+@Param {value:"entity: Represent mime Entity"}
+@Return {value:"return byte array"}
+public native function <Entity entity> getBlob () (blob);
+
+@Description {value:"Sets the entity body with the given byte channel content"}
+@Param {value:"byteChannel: Byte channel that needs to be set to entity"}
+public native function <Entity entity> setByteChannel (io:ByteChannel byteChannel);
+
+@Description {value:"Given an entity, get the entity body as a byte channel."}
+@Param {value:"entity: Represent mime Entity"}
+@Return {value:"return byte channel"}
+public native function <Entity entity> getByteChannel () (io:ByteChannel);
 
 @Description {value:"Given the Content-Type in string, get the MediaType struct populated with it."}
 @Param {value:"contentType: Content-Type in string"}
@@ -252,19 +181,10 @@ converted to a byte array with the given charset encoding. If the charset given 
 @Return {value:"return resulting decoded string"}
 public native function <MimeBase64Decoder decoder> decodeString (string content, string charset) (string);
 
-//@Description {value:"Utility function used internally to get the bytes from a given channel."}
-//@Param {value:"channel: A ByteChannel"}
-//@Return {value:"return a byte array"}
-//function readAll (io:ByteChannel channel) (blob) {
-//    blob bytes;
-//    bytes, _ = channel.readAllBytes();
-//    return bytes;
-//}
-
 @Description {value:"Get the encoding value from a given MediaType."}
 @Param {value:"contentType: A MediaType struct"}
 @Return {value:"return encoding value"}
-function getEncoding(MediaType contentType) (string){
+function getEncoding (MediaType contentType) (string) {
     var encoding = DEFAULT_CHARSET;
     TypeCastError castErr;
     if (contentType != null) {

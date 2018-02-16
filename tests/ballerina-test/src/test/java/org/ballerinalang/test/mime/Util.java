@@ -27,9 +27,9 @@ import io.netty.handler.codec.http.multipart.HttpPostRequestEncoder;
 import io.netty.handler.codec.http.multipart.InterfaceHttpData;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.CompileResult;
+import org.ballerinalang.mime.util.EntityBodyChannel;
 import org.ballerinalang.mime.util.EntityBodyHandler;
 import org.ballerinalang.mime.util.EntityBodyReader;
-import org.ballerinalang.mime.util.EntityBodyStream;
 import org.ballerinalang.mime.util.HeaderUtil;
 import org.ballerinalang.mime.util.MimeUtil;
 import org.ballerinalang.model.types.BStructType;
@@ -40,11 +40,9 @@ import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BXMLItem;
-import org.ballerinalang.nativeimpl.io.IOConstants;
 import org.ballerinalang.nativeimpl.io.channels.FileIOChannel;
 import org.ballerinalang.net.http.Constants;
 import org.ballerinalang.net.http.HttpUtil;
-import org.ballerinalang.test.nativeimpl.functions.io.util.TestUtil;
 import org.ballerinalang.test.services.testutils.HTTPTestRequest;
 import org.ballerinalang.test.services.testutils.MessageUtils;
 import org.slf4j.Logger;
@@ -59,7 +57,6 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
-import java.net.URISyntaxException;
 import java.nio.channels.ByteChannel;
 import java.nio.channels.Channels;
 import java.nio.charset.StandardCharsets;
@@ -70,11 +67,10 @@ import java.util.UUID;
 
 import static org.ballerinalang.mime.util.Constants.APPLICATION_JSON;
 import static org.ballerinalang.mime.util.Constants.APPLICATION_XML;
-import static org.ballerinalang.mime.util.Constants.BYTE_CHANNEL_STRUCT;
 import static org.ballerinalang.mime.util.Constants.CONTENT_DISPOSITION_NAME;
 import static org.ballerinalang.mime.util.Constants.CONTENT_DISPOSITION_STRUCT;
 import static org.ballerinalang.mime.util.Constants.CONTENT_TRANSFER_ENCODING;
-import static org.ballerinalang.mime.util.Constants.ENTITY_BYTE_CHANNEL_INDEX;
+import static org.ballerinalang.mime.util.Constants.ENTITY_BYTE_CHANNEL;
 import static org.ballerinalang.mime.util.Constants.ENTITY_HEADERS_INDEX;
 import static org.ballerinalang.mime.util.Constants.MEDIA_TYPE;
 import static org.ballerinalang.mime.util.Constants.MESSAGE_ENTITY;
@@ -82,7 +78,6 @@ import static org.ballerinalang.mime.util.Constants.MULTIPART_DATA_INDEX;
 import static org.ballerinalang.mime.util.Constants.MULTIPART_ENCODER;
 import static org.ballerinalang.mime.util.Constants.OCTET_STREAM;
 import static org.ballerinalang.mime.util.Constants.PROTOCOL_PACKAGE_FILE;
-import static org.ballerinalang.mime.util.Constants.PROTOCOL_PACKAGE_IO;
 import static org.ballerinalang.mime.util.Constants.TEMP_FILE_EXTENSION;
 import static org.ballerinalang.mime.util.Constants.TEMP_FILE_NAME;
 import static org.ballerinalang.mime.util.Constants.TEXT_PLAIN;
@@ -128,17 +123,9 @@ public class Util {
     static BStruct getTextBodyPart(CompileResult result) {
         String textPayload = "Ballerina text body part";
         BStruct bodyPart = getEntityStruct(result);
-        BStruct byteChannelStruct = getByteChannelStruct(result);
-        createByteChannelFromText(textPayload, byteChannelStruct);
-        bodyPart.setRefField(ENTITY_BYTE_CHANNEL_INDEX, byteChannelStruct);
+        bodyPart.addNativeData(ENTITY_BYTE_CHANNEL, EntityBodyHandler.getByteChannel(textPayload));
         MimeUtil.setContentType(getMediaTypeStruct(result), bodyPart, TEXT_PLAIN);
         return bodyPart;
-    }
-
-    public static void createByteChannelFromText(String textPayload, BStruct byteChannelStruct) {
-        EntityBodyStream byteChannel = new EntityBodyStream(new ByteArrayInputStream(
-                textPayload.getBytes(StandardCharsets.UTF_8)));
-        byteChannelStruct.addNativeData(IOConstants.BYTE_CHANNEL_NAME, byteChannel);
     }
 
     /**
@@ -154,10 +141,8 @@ public class Util {
             bufferedWriter.write("Ballerina text as a file part");
             bufferedWriter.close();
             BStruct bodyPart = getEntityStruct(result);
-            BStruct byteChannelStruct = getByteChannelStruct(result);
             ByteChannel byteChannel = EntityBodyHandler.getByteChannelForTempFile(file.getAbsolutePath());
-            byteChannelStruct.addNativeData(IOConstants.BYTE_CHANNEL_NAME, byteChannel);
-            bodyPart.setRefField(ENTITY_BYTE_CHANNEL_INDEX, byteChannelStruct);
+            bodyPart.addNativeData(ENTITY_BYTE_CHANNEL, byteChannel);
             MimeUtil.setContentType(getMediaTypeStruct(result), bodyPart, TEXT_PLAIN);
             return bodyPart;
         } catch (IOException e) {
@@ -181,10 +166,8 @@ public class Util {
             bufferedWriter.write(message);
             bufferedWriter.close();
             BStruct bodyPart = getEntityStruct(result);
-            BStruct byteChannelStruct = getByteChannelStruct(result);
             ByteChannel byteChannel = EntityBodyHandler.getByteChannelForTempFile(file.getAbsolutePath());
-            byteChannelStruct.addNativeData(IOConstants.BYTE_CHANNEL_NAME, byteChannel);
-            bodyPart.setRefField(ENTITY_BYTE_CHANNEL_INDEX, byteChannelStruct);
+            bodyPart.addNativeData(ENTITY_BYTE_CHANNEL, byteChannel);
             MimeUtil.setContentType(getMediaTypeStruct(result), bodyPart, TEXT_PLAIN);
             BMap<String, BValue> headerMap = new BMap<>();
             headerMap.put(CONTENT_TRANSFER_ENCODING, new BStringArray(new String[]{contentTransferEncoding}));
@@ -207,9 +190,8 @@ public class Util {
         String value = "jsonPart";
         String jsonContent = "{\"" + key + "\":\"" + value + "\"}";
         BStruct bodyPart = getEntityStruct(result);
-        BStruct byteChannelStruct = getByteChannelStruct(result);
-        createByteChannelFromText(jsonContent, byteChannelStruct);
-        bodyPart.setRefField(ENTITY_BYTE_CHANNEL_INDEX, byteChannelStruct);
+        ByteChannel byteChannel = EntityBodyHandler.getByteChannel(jsonContent);
+        bodyPart.addNativeData(ENTITY_BYTE_CHANNEL, byteChannel);
         MimeUtil.setContentType(getMediaTypeStruct(result), bodyPart, APPLICATION_JSON);
         return bodyPart;
     }
@@ -227,10 +209,8 @@ public class Util {
             bufferedWriter.write("{'name':'wso2'}");
             bufferedWriter.close();
             BStruct bodyPart = getEntityStruct(result);
-            BStruct byteChannelStruct = getByteChannelStruct(result);
             ByteChannel byteChannel = EntityBodyHandler.getByteChannelForTempFile(file.getAbsolutePath());
-            byteChannelStruct.addNativeData(IOConstants.BYTE_CHANNEL_NAME, byteChannel);
-            bodyPart.setRefField(ENTITY_BYTE_CHANNEL_INDEX, byteChannelStruct);
+            bodyPart.addNativeData(ENTITY_BYTE_CHANNEL, byteChannel);
             MimeUtil.setContentType(getMediaTypeStruct(result), bodyPart, APPLICATION_JSON);
             return bodyPart;
         } catch (IOException e) {
@@ -248,11 +228,9 @@ public class Util {
     static BStruct getXmlBodyPart(CompileResult result) {
         BXMLItem xmlContent = new BXMLItem("<name>Ballerina</name>");
         BStruct bodyPart = getEntityStruct(result);
-        BStruct byteChannelStruct = getByteChannelStruct(result);
-        EntityBodyStream byteChannel = new EntityBodyStream(new ByteArrayInputStream(
+        EntityBodyChannel byteChannel = new EntityBodyChannel(new ByteArrayInputStream(
                 xmlContent.getMessageAsString().getBytes(StandardCharsets.UTF_8)));
-        byteChannelStruct.addNativeData(IOConstants.BYTE_CHANNEL_NAME, byteChannel);
-        bodyPart.setRefField(ENTITY_BYTE_CHANNEL_INDEX, byteChannelStruct);
+        bodyPart.addNativeData(ENTITY_BYTE_CHANNEL, byteChannel);
         MimeUtil.setContentType(getMediaTypeStruct(result), bodyPart, APPLICATION_XML);
         return bodyPart;
     }
@@ -270,10 +248,8 @@ public class Util {
             bufferedWriter.write("<name>Ballerina xml file part</name>");
             bufferedWriter.close();
             BStruct bodyPart = getEntityStruct(result);
-            BStruct byteChannelStruct = getByteChannelStruct(result);
             ByteChannel byteChannel = EntityBodyHandler.getByteChannelForTempFile(file.getAbsolutePath());
-            byteChannelStruct.addNativeData(IOConstants.BYTE_CHANNEL_NAME, byteChannel);
-            bodyPart.setRefField(ENTITY_BYTE_CHANNEL_INDEX, byteChannelStruct);
+            bodyPart.addNativeData(ENTITY_BYTE_CHANNEL, byteChannel);
             MimeUtil.setContentType(getMediaTypeStruct(result), bodyPart, APPLICATION_XML);
             return bodyPart;
         } catch (IOException e) {
@@ -290,9 +266,8 @@ public class Util {
      */
     static BStruct getBinaryBodyPart(CompileResult result) {
         BStruct bodyPart = getEntityStruct(result);
-        BStruct byteChannelStruct = getByteChannelStruct(result);
-        createByteChannelFromText("Ballerina binary part", byteChannelStruct);
-        bodyPart.setRefField(ENTITY_BYTE_CHANNEL_INDEX, byteChannelStruct);
+        ByteChannel byteChannel = EntityBodyHandler.getByteChannel("Ballerina binary part");
+        bodyPart.addNativeData(ENTITY_BYTE_CHANNEL, byteChannel);
         MimeUtil.setContentType(getMediaTypeStruct(result), bodyPart, OCTET_STREAM);
         return bodyPart;
     }
@@ -310,10 +285,8 @@ public class Util {
             bufferedWriter.write("Ballerina binary file part");
             bufferedWriter.close();
             BStruct bodyPart = getEntityStruct(result);
-            BStruct byteChannelStruct = getByteChannelStruct(result);
             ByteChannel byteChannel = EntityBodyHandler.getByteChannelForTempFile(file.getAbsolutePath());
-            byteChannelStruct.addNativeData(IOConstants.BYTE_CHANNEL_NAME, byteChannel);
-            bodyPart.setRefField(ENTITY_BYTE_CHANNEL_INDEX, byteChannelStruct);
+            bodyPart.addNativeData(ENTITY_BYTE_CHANNEL, byteChannel);
             MimeUtil.setContentType(getMediaTypeStruct(result), bodyPart, OCTET_STREAM);
             return bodyPart;
         } catch (IOException e) {
@@ -385,11 +358,11 @@ public class Util {
         return BCompileUtil.createAndGetStruct(result.getProgFile(), PACKAGE_MIME, ENTITY_STRUCT);
     }
 
-    public static BStruct getByteChannelStruct(CompileResult result) {
+    /*public static BStruct getByteChannelStruct(CompileResult result) {
         BStruct byteChannelStruct = BCompileUtil.createAndGetStruct(result.getProgFile(),
                 PROTOCOL_PACKAGE_IO, BYTE_CHANNEL_STRUCT);
         return byteChannelStruct;
-    }
+    }*/
 
     private static BStruct getMediaTypeStruct(CompileResult result) {
         return BCompileUtil.createAndGetStruct(result.getProgFile(), PACKAGE_MIME,
@@ -460,7 +433,7 @@ public class Util {
                                        BStruct bodyPart) throws HttpPostRequestEncoder.ErrorDataEncoderException {
         try {
             InterfaceHttpData encodedData;
-            EntityBodyReader entityBodyReader = MimeUtil.extractEntityBodyReader(bodyPart);
+            EntityBodyReader entityBodyReader = MimeUtil.constructEntityBodyReader(bodyPart);
             FileUploadContentHolder contentHolder = new FileUploadContentHolder();
             contentHolder.setRequest(httpRequest);
             contentHolder.setBodyPartName(getBodyPartName(bodyPart));
@@ -472,7 +445,7 @@ public class Util {
                 contentHolder.setContentTransferEncoding(contentTransferHeaderValue);
             }
             if (entityBodyReader.isStream()) {
-                contentHolder.setContentStream(Channels.newInputStream(entityBodyReader.getEntityBodyStream()));
+                contentHolder.setContentStream(Channels.newInputStream(entityBodyReader.getEntityBodyChannel()));
                 encodedData = getFileUpload(contentHolder);
             } else {
                 FileIOChannel fileIOChannel = entityBodyReader.getFileIOChannel();
