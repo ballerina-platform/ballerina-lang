@@ -62,6 +62,11 @@ public class BLangVMErrors {
     public static BStruct createError(Context context, int ip, String message) {
         return generateError(context, ip, null, message);
     }
+    
+    public static BStruct createError(WorkerExecutionContext context, int ip, String message) {
+        //TODO
+        return null;
+    }
 
     /**
      * Create ballerina.lang.errors:Error Struct from given error message.
@@ -104,6 +109,17 @@ public class BLangVMErrors {
         error.setRefField(1, generateStackTraceItems(context, ip - 1));
         return error;
     }
+    
+    public static BStruct createNullRefError(WorkerExecutionContext context, int ip) {
+//        PackageInfo errorPackageInfo = context.getProgramFile().getPackageInfo(BUILTIN_PACKAGE);
+//        StructInfo errorStructInfo = errorPackageInfo.getStructInfo(STRUCT_NULL_REF_EXCEPTION);
+//        BStruct error = createBStruct(errorStructInfo);
+//        // Set StackTrace.
+//        error.setRefField(1, generateStackTraceItems(context, ip - 1));
+//        return error;
+        return null;
+        //TODO
+    }
 
     /**
      * Create TypeCastError.
@@ -123,6 +139,19 @@ public class BLangVMErrors {
 
         // Set StackTrace.
         error.setRefField(1, generateStackTraceItems(context, ip - 1));
+        return error;
+    }
+    
+    public static BStruct createTypeCastError(WorkerExecutionContext context, int ip, String sourceType, String targetType) {
+        PackageInfo errorPackageInfo = context.programFile.getPackageInfo(BUILTIN_PACKAGE);
+        StructInfo errorStructInfo = errorPackageInfo.getStructInfo(STRUCT_TYPE_CAST_ERROR);
+
+        String errorMsg = "'" + sourceType + "' cannot be cast to '" + targetType + "'";
+        BStruct error = createBStruct(errorStructInfo, errorMsg, null, null, sourceType, targetType);
+
+        // Set StackTrace.
+        //error.setRefField(1, generateStackTraceItems(context, ip - 1));
+        //TODO
         return error;
     }
 
@@ -169,6 +198,19 @@ public class BLangVMErrors {
 
         // Set StackTrace.
         error.setRefField(1, generateStackTraceItems(context, ip - 1));
+        return error;
+    }
+    
+    public static BStruct createTypeConversionError(WorkerExecutionContext context, int ip, String errorMessage,
+            String sourceTypeName, String targetTypeName) {
+        PackageInfo errorPackageInfo = context.programFile.getPackageInfo(BUILTIN_PACKAGE);
+        StructInfo errorStructInfo = errorPackageInfo.getStructInfo(STRUCT_TYPE_CONVERSION_ERROR);
+
+        BStruct error = createBStruct(errorStructInfo, errorMessage, null, null, sourceTypeName, targetTypeName);
+
+        // Set StackTrace.
+        //error.setRefField(1, generateStackTraceItems(context, ip - 1));
+        //TODO
         return error;
     }
 
