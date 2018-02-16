@@ -20,9 +20,11 @@ package org.ballerinalang.net.http.nativeimpl.connection;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.mime.util.EntityBodyHandler;
+import org.ballerinalang.mime.util.EntityBodyReader;
 import org.ballerinalang.mime.util.MimeUtil;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.nativeimpl.io.channels.FileIOChannel;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.net.http.HttpUtil;
 import org.ballerinalang.runtime.message.MessageDataSource;
@@ -32,8 +34,11 @@ import org.wso2.transport.http.netty.contract.HttpResponseFuture;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 import org.wso2.transport.http.netty.message.HttpMessageDataStreamer;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.channels.Channels;
 
 /**
  * {@code {@link ConnectionAction}} represents a Abstract implementation of Native Ballerina Connection Function.
@@ -65,8 +70,7 @@ public abstract class ConnectionAction extends AbstractNativeFunction {
         HttpResponseFuture outboundRespStatusFuture = HttpUtil.sendOutboundResponse(requestMessage, responseMessage);
         if (entityStruct != null) {
             MessageDataSource outboundMessageSource = EntityBodyHandler.readMessageDataSource(entityStruct);
-            serializeMsgDataSource(responseMessage, outboundMessageSource, outboundRespStatusFuture);
-
+                serializeMsgDataSource(responseMessage, outboundMessageSource, outboundRespStatusFuture, entityStruct);
         }
         return handleResponseStatus(context, outboundRespStatusFuture);
     }
@@ -102,15 +106,38 @@ public abstract class ConnectionAction extends AbstractNativeFunction {
     }
 
     private void serializeMsgDataSource(HTTPCarbonMessage responseMessage, MessageDataSource outboundMessageSource,
-            HttpResponseFuture outboundResponseStatusFuture) {
-        if (outboundMessageSource != null) {
-            HttpMessageDataStreamer outboundMsgDataStreamer = new HttpMessageDataStreamer(responseMessage);
-            HttpConnectorListener outboundResStatusConnectorListener =
-                    new HttpResponseConnectorListener(outboundMsgDataStreamer);
-            outboundResponseStatusFuture.setHttpConnectorListener(outboundResStatusConnectorListener);
-            OutputStream messageOutputStream = outboundMsgDataStreamer.getOutputStream();
-            outboundMessageSource.serializeData(messageOutputStream);
-            HttpUtil.closeMessageOutputStream(messageOutputStream);
+                                        HttpResponseFuture outboundResponseStatusFuture, BStruct entityStruct) {
+        HttpMessageDataStreamer outboundMsgDataStreamer = new HttpMessageDataStreamer(responseMessage);
+        HttpConnectorListener outboundResStatusConnectorListener =
+                new HttpResponseConnectorListener(outboundMsgDataStreamer);
+        outboundResponseStatusFuture.setHttpConnectorListener(outboundResStatusConnectorListener);
+        OutputStream messageOutputStream = outboundMsgDataStreamer.getOutputStream();
+        try {
+            if (outboundMessageSource != null) {
+                outboundMessageSource.serializeData(messageOutputStream);
+                HttpUtil.closeMessageOutputStream(messageOutputStream);
+            } else {
+                EntityBodyReader entityBodyReader = MimeUtil.extractEntityBodyReader(entityStruct);
+                byte[] buffer = new byte[1024];
+                if (entityBodyReader.isStream()) {
+                    InputStream inputStream = Channels.newInputStream(entityBodyReader.getEntityBodyStream());
+                    int len;
+                    while ((len = inputStream.read(buffer)) != -1) {
+                        messageOutputStream.write(buffer, 0, len);
+                    }
+
+                } else {
+                    FileIOChannel fileIOChannel = entityBodyReader.getFileIOChannel();
+                    InputStream inputStream = new ByteArrayInputStream(fileIOChannel.readAll());
+                    int len;
+                    while ((len = inputStream.read(buffer)) != -1) {
+                        messageOutputStream.write(buffer, 0, len);
+                    }
+                }
+                HttpUtil.closeMessageOutputStream(messageOutputStream);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 
