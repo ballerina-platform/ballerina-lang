@@ -27,7 +27,6 @@ import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.debugger.Debugger;
 import org.ballerinalang.util.program.BLangFunctions;
 
-import java.io.File;
 import java.nio.file.Path;
 
 import static org.ballerinalang.util.BLangConstants.USER_REPO_ARTIFACTS_DIRNAME;
@@ -48,11 +47,22 @@ public class NetworkUtils {
         compileResult = compilePullCmdBalFile("ballerina.pull");
         Path targetDirectoryPath = UserRepositoryUtils.initializeUserRepository()
                 .resolve(USER_REPO_ARTIFACTS_DIRNAME).resolve(USER_REPO_SRC_DIRNAME);
-        String ballerinaCentralRepoURL = "http://52.54.136.13:9090/p";
-        String dstPath = targetDirectoryPath + File.separator;
-        String resourcePath = ballerinaCentralRepoURL + File.separator + resourceName;
+        String ballerinaCentralRepoURL = "http://52.54.136.13:9090/p/";
+        String dstPath = targetDirectoryPath.toString();
+        String resourcePath = ballerinaCentralRepoURL + resourceName;
 
         String[] arguments = new String[]{resourcePath, dstPath};
+        LauncherUtils.runMain(compileResult.getProgFile(), arguments);
+    }
+
+    /**
+     * Push/Uploads packages to the central repository.
+     * @param resourceName path of the package folder to be pushed
+     */
+    public static void pushPackages(String resourceName) {
+        compileResult = compilePullCmdBalFile("ballerina.push");
+        String ballerinaCentralRepoURL = "http://52.54.136.13:9090/p/" + resourceName + "/1.0.0";
+        String[] arguments = new String[]{ballerinaCentralRepoURL, resourceName};
         LauncherUtils.runMain(compileResult.getProgFile(), arguments);
     }
 
@@ -71,16 +81,5 @@ public class NetworkUtils {
         compileResult.setContext(context);
         BLangFunctions.invokePackageInitFunction(programFile, packageInfo.getInitFunctionInfo(), context);
         return compileResult;
-    }
-
-    /**
-     * Push/Uploads packages to the central repository.
-     * @param resourceName path of the package folder to be pushed
-     */
-    public static void pushPackages(String resourceName) {
-        compileResult = compilePullCmdBalFile("ballerina.push");
-        String ballerinaCentralRepoURL = "http://52.54.136.13:9090/p/" + resourceName + "/1.0.0";
-        String[] arguments = new String[]{ballerinaCentralRepoURL, resourceName};
-        LauncherUtils.runMain(compileResult.getProgFile(), arguments);
     }
 }
