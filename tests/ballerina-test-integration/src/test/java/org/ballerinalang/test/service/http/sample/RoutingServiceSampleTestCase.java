@@ -18,7 +18,6 @@
 package org.ballerinalang.test.service.http.sample;
 
 import org.ballerinalang.test.IntegrationTestCase;
-import org.ballerinalang.test.context.Constant;
 import org.ballerinalang.test.context.ServerInstance;
 import org.ballerinalang.test.util.HttpClientRequest;
 import org.ballerinalang.test.util.HttpResponse;
