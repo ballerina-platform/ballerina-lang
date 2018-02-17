@@ -137,7 +137,7 @@ public class EntityBodyHandler {
      * @param entityBody Represent an entity body
      * @return InputStream created from EntityBodyChannel
      */
-    private static InputStream getNewInputStream(EntityBody entityBody) {
+    public static InputStream getNewInputStream(EntityBody entityBody) {
         return Channels.newInputStream(
                 entityBody.getEntityBodyChannel());
     }

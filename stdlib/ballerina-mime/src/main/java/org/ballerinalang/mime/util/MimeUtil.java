@@ -167,7 +167,7 @@ public class MimeUtil {
     /**
      * Populate ContentDisposition struct and set it to body part.
      *
-     * @param contentDisposition                 Represent the ContentDisposition struct that needs to be filled with values
+     * @param contentDisposition                 Represent the ContentDisposition struct that needs to be filled
      * @param bodyPart                           Represent a body part
      * @param contentDispositionHeaderWithParams Represent Content-Disposition header value with parameters
      */

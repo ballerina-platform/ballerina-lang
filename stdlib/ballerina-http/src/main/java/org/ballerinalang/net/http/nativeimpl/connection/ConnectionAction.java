@@ -19,8 +19,8 @@
 package org.ballerinalang.net.http.nativeimpl.connection;
 
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.mime.util.EntityBodyHandler;
 import org.ballerinalang.mime.util.EntityBody;
+import org.ballerinalang.mime.util.EntityBodyHandler;
 import org.ballerinalang.mime.util.MimeUtil;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
@@ -38,7 +38,6 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.nio.channels.Channels;
 
 /**
  * {@code {@link ConnectionAction}} represents a Abstract implementation of Native Ballerina Connection Function.
@@ -75,23 +74,6 @@ public abstract class ConnectionAction extends AbstractNativeFunction {
         return handleResponseStatus(context, outboundRespStatusFuture);
     }
 
-  /*  private void writeToOutputStreamFromFile(Context context, HTTPCarbonMessage responseMessage, BStruct entityStruct,
-                                             HttpResponseFuture outboundRespStatusFuture) {
-        String overFlowFilePath = EntityBodyHandler.getOverFlowFileLocation(entityStruct);
-        HttpMessageDataStreamer outboundMsgDataStreamer = new HttpMessageDataStreamer(responseMessage);
-        HttpConnectorListener outboundResStatusConnectorListener =
-                new HttpResponseConnectorListener(outboundMsgDataStreamer);
-        outboundRespStatusFuture.setHttpConnectorListener(outboundResStatusConnectorListener);
-        OutputStream messageOutputStream = outboundMsgDataStreamer.getOutputStream();
-        try {
-            Files.copy(Paths.get(overFlowFilePath), messageOutputStream);
-            HttpUtil.closeMessageOutputStream(messageOutputStream);
-        } catch (IOException e) {
-            throw new BallerinaException("Failed to send outbound response payload is in overflow" +
-                    " file location", e, context);
-        }
-    }*/
-
     private BValue[] handleResponseStatus(Context context, HttpResponseFuture outboundResponseStatusFuture) {
         try {
             outboundResponseStatusFuture = outboundResponseStatusFuture.sync();
@@ -115,29 +97,31 @@ public abstract class ConnectionAction extends AbstractNativeFunction {
         try {
             if (outboundMessageSource != null) {
                 outboundMessageSource.serializeData(messageOutputStream);
-                HttpUtil.closeMessageOutputStream(messageOutputStream);
-            } else {
-                EntityBody entityBodyReader = MimeUtil.constructEntityBody(entityStruct);
-                byte[] buffer = new byte[1024];
-                if (entityBodyReader.isStream()) {
-                    InputStream inputStream = Channels.newInputStream(entityBodyReader.getEntityBodyChannel());
-                    int len;
-                    while ((len = inputStream.read(buffer)) != -1) {
-                        messageOutputStream.write(buffer, 0, len);
+            } else { //When the entity body is a byte channel
+                EntityBody entityBody = MimeUtil.constructEntityBody(entityStruct);
+                if (entityBody != null) {
+                    InputStream inputStream;
+                    if (entityBody.isStream()) {
+                        inputStream = EntityBodyHandler.getNewInputStream(entityBody);
+                    } else {
+                        FileIOChannel fileIOChannel = entityBody.getFileIOChannel();
+                        inputStream = new ByteArrayInputStream(fileIOChannel.readAll());
                     }
-
-                } else {
-                    FileIOChannel fileIOChannel = entityBodyReader.getFileIOChannel();
-                    InputStream inputStream = new ByteArrayInputStream(fileIOChannel.readAll());
-                    int len;
-                    while ((len = inputStream.read(buffer)) != -1) {
-                        messageOutputStream.write(buffer, 0, len);
-                    }
+                    writeInputToOutputStream(messageOutputStream, inputStream);
                 }
-                HttpUtil.closeMessageOutputStream(messageOutputStream);
             }
+            HttpUtil.closeMessageOutputStream(messageOutputStream);
         } catch (IOException e) {
-            e.printStackTrace();
+            throw new BallerinaException("Error occurred while serializing message data source : " + e.getMessage());
+        }
+    }
+
+    private void writeInputToOutputStream(OutputStream messageOutputStream, InputStream inputStream) throws
+            IOException {
+        byte[] buffer = new byte[1024];
+        int len;
+        while ((len = inputStream.read(buffer)) != -1) {
+            messageOutputStream.write(buffer, 0, len);
         }
     }
 

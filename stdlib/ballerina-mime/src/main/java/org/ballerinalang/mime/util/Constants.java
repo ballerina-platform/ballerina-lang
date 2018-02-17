@@ -29,7 +29,7 @@ public class Constants {
     public static final String CONTENT_DISPOSITION_STRUCT = "ContentDisposition";
     public static final String PROTOCOL_PACKAGE_MIME = "ballerina.mime";
     public static final String PROTOCOL_PACKAGE_FILE = "ballerina.file";
-    public static final String PROTOCOL_PACKAGE_IO ="ballerina.io";
+    public static final String PROTOCOL_PACKAGE_IO = "ballerina.io";
     public static final String BYTE_CHANNEL_STRUCT = "ByteChannel";
 
     /**

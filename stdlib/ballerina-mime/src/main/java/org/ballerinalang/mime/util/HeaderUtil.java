@@ -18,14 +18,11 @@
 
 package org.ballerinalang.mime.util;
 
-import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.util.codegen.PackageInfo;
-import org.ballerinalang.util.codegen.StructInfo;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.jvnet.mimepull.Header;
 
@@ -35,11 +32,9 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static org.ballerinalang.mime.util.Constants.ASSIGNMENT;
-import static org.ballerinalang.mime.util.Constants.BUILTIN_PACKAGE;
 import static org.ballerinalang.mime.util.Constants.ENTITY_HEADERS_INDEX;
 import static org.ballerinalang.mime.util.Constants.FIRST_ELEMENT;
 import static org.ballerinalang.mime.util.Constants.SEMICOLON;
-import static org.ballerinalang.mime.util.Constants.STRUCT_GENERIC_ERROR;
 
 /**
  * Utility methods for parsing headers.
