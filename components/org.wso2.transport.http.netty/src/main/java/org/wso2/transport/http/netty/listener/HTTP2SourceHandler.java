@@ -243,13 +243,12 @@ public final class HTTP2SourceHandler extends Http2ConnectionHandler {
         sourceReqCMsg.addHttpContent(httpMessage);
         sourceReqCMsg.setProperty(Constants.POOLED_BYTE_BUFFER_FACTORY, new PooledDataStreamerFactory(ctx.alloc()));
 
-        HttpRequest httpRequest = (HttpRequest) httpMessage;
         sourceReqCMsg.setProperty(Constants.CHNL_HNDLR_CTX, this.ctx);
         sourceReqCMsg.setProperty(Constants.SRC_HANDLER, this);
-        HttpVersion protocolVersion = httpRequest.protocolVersion();
+        HttpVersion protocolVersion = httpMessage.protocolVersion();
         sourceReqCMsg.setProperty(Constants.HTTP_VERSION,
                                   protocolVersion.majorVersion() + "." + protocolVersion.minorVersion());
-        sourceReqCMsg.setProperty(Constants.HTTP_METHOD, httpRequest.method().name());
+        sourceReqCMsg.setProperty(Constants.HTTP_METHOD, httpMessage.method().name());
         InetSocketAddress localAddress = null;
 
         //This check was added because in case of netty embedded channel, this could be of type 'EmbeddedSocketAddress'.
@@ -267,13 +266,11 @@ public final class HTTP2SourceHandler extends Http2ConnectionHandler {
         sourceReqCMsg.setProperty(Constants.IS_SECURED_CONNECTION, isSecuredConnection);
 
         sourceReqCMsg.setProperty(Constants.LOCAL_ADDRESS, ctx.channel().localAddress());
-        sourceReqCMsg.setProperty(Constants.REQUEST_URL, httpRequest.uri());
-        sourceReqCMsg.setProperty(Constants.TO, httpRequest.uri());
-        //Added protocol name as a string
+        sourceReqCMsg.setProperty(Constants.REQUEST_URL, httpMessage.uri());
+        sourceReqCMsg.setProperty(Constants.TO, httpMessage.uri());
 
         return sourceReqCMsg;
     }
-
 
 }
 
