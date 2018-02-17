@@ -166,7 +166,9 @@ public class MultipartDataSource extends BallerinaMessageDataSource {
      */
     private void setContentIdHeader(BStruct bodyPart, BMap<String, BValue> entityHeaders) {
         String contentId = bodyPart.getStringField(CONTENT_ID_INDEX);
-        HeaderUtil.addToEntityHeaders(entityHeaders, CONTENT_ID, contentId);
+        if (MimeUtil.isNotNullAndEmpty(contentId)) {
+            HeaderUtil.addToEntityHeaders(entityHeaders, CONTENT_ID, contentId);
+        }
     }
 
     /**
@@ -180,6 +182,8 @@ public class MultipartDataSource extends BallerinaMessageDataSource {
         MessageDataSource messageDataSource = EntityBodyHandler.readMessageDataSource(bodyPart);
         if (messageDataSource != null) {
             messageDataSource.serializeData(outputStream);
+        } else {
+            EntityBodyHandler.writeByteChannelToOutputStream(bodyPart, outputStream);
         }
     }
 

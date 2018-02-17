@@ -19,12 +19,10 @@
 package org.ballerinalang.net.http.nativeimpl.connection;
 
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.mime.util.EntityBody;
 import org.ballerinalang.mime.util.EntityBodyHandler;
 import org.ballerinalang.mime.util.MimeUtil;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.nativeimpl.io.channels.FileIOChannel;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.net.http.HttpUtil;
 import org.ballerinalang.runtime.message.MessageDataSource;
@@ -34,9 +32,7 @@ import org.wso2.transport.http.netty.contract.HttpResponseFuture;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 import org.wso2.transport.http.netty.message.HttpMessageDataStreamer;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.OutputStream;
 
 /**
@@ -98,30 +94,11 @@ public abstract class ConnectionAction extends AbstractNativeFunction {
             if (outboundMessageSource != null) {
                 outboundMessageSource.serializeData(messageOutputStream);
             } else { //When the entity body is a byte channel
-                EntityBody entityBody = MimeUtil.constructEntityBody(entityStruct);
-                if (entityBody != null) {
-                    InputStream inputStream;
-                    if (entityBody.isStream()) {
-                        inputStream = EntityBodyHandler.getNewInputStream(entityBody);
-                    } else {
-                        FileIOChannel fileIOChannel = entityBody.getFileIOChannel();
-                        inputStream = new ByteArrayInputStream(fileIOChannel.readAll());
-                    }
-                    writeInputToOutputStream(messageOutputStream, inputStream);
-                }
+                EntityBodyHandler.writeByteChannelToOutputStream(entityStruct, messageOutputStream);
             }
             HttpUtil.closeMessageOutputStream(messageOutputStream);
         } catch (IOException e) {
             throw new BallerinaException("Error occurred while serializing message data source : " + e.getMessage());
-        }
-    }
-
-    private void writeInputToOutputStream(OutputStream messageOutputStream, InputStream inputStream) throws
-            IOException {
-        byte[] buffer = new byte[1024];
-        int len;
-        while ((len = inputStream.read(buffer)) != -1) {
-            messageOutputStream.write(buffer, 0, len);
         }
     }
 

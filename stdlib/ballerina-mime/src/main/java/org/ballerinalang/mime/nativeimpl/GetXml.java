@@ -62,7 +62,7 @@ public class GetXml extends AbstractNativeFunction {
                     result = XMLUtils.parse(dataSource.getMessageAsString());
                 }
             } else {
-                result = EntityBodyHandler.readXmlDataSource(entityStruct);
+                result = EntityBodyHandler.constructXmlDataSource(entityStruct);
                 EntityBodyHandler.addMessageDataSource(entityStruct, result);
             }
         } catch (Throwable e) {

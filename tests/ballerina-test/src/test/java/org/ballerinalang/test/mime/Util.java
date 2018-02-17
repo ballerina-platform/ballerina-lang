@@ -64,6 +64,7 @@ import java.util.UUID;
 
 import static org.ballerinalang.mime.util.Constants.APPLICATION_JSON;
 import static org.ballerinalang.mime.util.Constants.APPLICATION_XML;
+import static org.ballerinalang.mime.util.Constants.BYTE_CHANNEL_STRUCT;
 import static org.ballerinalang.mime.util.Constants.CONTENT_DISPOSITION_NAME;
 import static org.ballerinalang.mime.util.Constants.CONTENT_DISPOSITION_STRUCT;
 import static org.ballerinalang.mime.util.Constants.CONTENT_TRANSFER_ENCODING;
@@ -74,6 +75,7 @@ import static org.ballerinalang.mime.util.Constants.MESSAGE_ENTITY;
 import static org.ballerinalang.mime.util.Constants.MULTIPART_DATA_INDEX;
 import static org.ballerinalang.mime.util.Constants.MULTIPART_ENCODER;
 import static org.ballerinalang.mime.util.Constants.OCTET_STREAM;
+import static org.ballerinalang.mime.util.Constants.PROTOCOL_PACKAGE_IO;
 import static org.ballerinalang.mime.util.Constants.TEMP_FILE_EXTENSION;
 import static org.ballerinalang.mime.util.Constants.TEMP_FILE_NAME;
 import static org.ballerinalang.mime.util.Constants.TEXT_PLAIN;
@@ -344,23 +346,6 @@ public class Util {
         }
     }
 
-    private static BStruct getRequestStruct(CompileResult result) {
-        return BCompileUtil.createAndGetStruct(result.getProgFile(), PROTOCOL_PACKAGE_HTTP, REQUEST_STRUCT);
-    }
-
-    static BStruct getEntityStruct(CompileResult result) {
-        return BCompileUtil.createAndGetStruct(result.getProgFile(), PACKAGE_MIME, ENTITY_STRUCT);
-    }
-
-    private static BStruct getMediaTypeStruct(CompileResult result) {
-        return BCompileUtil.createAndGetStruct(result.getProgFile(), PACKAGE_MIME,
-                MEDIA_TYPE_STRUCT);
-    }
-
-    static BStruct getContentDispositionStruct(CompileResult result) {
-        return BCompileUtil.createAndGetStruct(result.getProgFile(), PACKAGE_MIME, CONTENT_DISPOSITION_STRUCT);
-    }
-
     /**
      * Read http content chunk by chunk from netty encoder and add it to carbon message.
      *
@@ -509,5 +494,26 @@ public class Util {
 
     private static String getRandomString() {
         return UUID.randomUUID().toString();
+    }
+
+    private static BStruct getRequestStruct(CompileResult result) {
+        return BCompileUtil.createAndGetStruct(result.getProgFile(), PROTOCOL_PACKAGE_HTTP, REQUEST_STRUCT);
+    }
+
+    static BStruct getEntityStruct(CompileResult result) {
+        return BCompileUtil.createAndGetStruct(result.getProgFile(), PACKAGE_MIME, ENTITY_STRUCT);
+    }
+
+    private static BStruct getMediaTypeStruct(CompileResult result) {
+        return BCompileUtil.createAndGetStruct(result.getProgFile(), PACKAGE_MIME,
+                MEDIA_TYPE_STRUCT);
+    }
+
+    static BStruct getContentDispositionStruct(CompileResult result) {
+        return BCompileUtil.createAndGetStruct(result.getProgFile(), PACKAGE_MIME, CONTENT_DISPOSITION_STRUCT);
+    }
+
+    static BStruct getByteChannelStruct(CompileResult result) {
+        return BCompileUtil.createAndGetStruct(result.getProgFile(), PROTOCOL_PACKAGE_IO, BYTE_CHANNEL_STRUCT);
     }
 }

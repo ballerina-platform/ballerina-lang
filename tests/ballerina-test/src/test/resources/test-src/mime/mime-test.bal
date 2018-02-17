@@ -1,21 +1,6 @@
 import ballerina.mime;
 import ballerina.file;
-
-//function testGetTextFromFile(mime:Entity entity) (string) {
-//    return mime:getText(entity);
-//}
-//
-//function testGetJsonFromFile(mime:Entity entity) (json) {
-//    return mime:getJson(entity);
-//}
-//
-//function testGetXmlFromFile(mime:Entity entity) (xml) {
-//    return mime:getXml(entity);
-//}
-//
-//function testGetBlobFromFile(mime:Entity entity) (blob) {
-//    return mime:getBlob(entity);
-//}
+import ballerina.io;
 
 function testSetAndGetJson (json jsonContent) (json) {
     mime:Entity entity = {};
@@ -65,7 +50,7 @@ function testGetTextMultipleTimes (string textContent) (string) {
     return returnContent;
 }
 
-function testSetAndBlob (blob blobContent) (blob) {
+function testSetAndGetBlob (blob blobContent) (blob) {
     mime:Entity entity = {};
     entity.setBlob(blobContent);
     return entity.getBlob();
@@ -86,6 +71,25 @@ function testSetFileAsEntityBody (file:File fileHandler) (blob) {
     mime:Entity entity = {};
     entity.setFileAsEntityBody(fileHandler);
     return entity.getBlob();
+}
+
+function testSetByteChannel (io:ByteChannel byteChannel) (blob) {
+    mime:Entity entity = {};
+    entity.setByteChannel(byteChannel);
+    return entity.getBlob();
+}
+
+function testGetByteChannel (io:ByteChannel byteChannel) (io:ByteChannel) {
+    mime:Entity entity = {};
+    entity.setByteChannel(byteChannel);
+    return entity.getByteChannel();
+}
+
+function testSetEntityBodyMultipleTimes (io:ByteChannel byteChannel, string textdata) (string) {
+    mime:Entity entity = {};
+    entity.setText(textdata);
+    entity.setByteChannel(byteChannel);
+    return entity.getText();
 }
 
 function testGetMediaType (string contentType) (mime:MediaType) {
@@ -120,16 +124,3 @@ function testMimeBase64DecodeString (string content, string charset) (string) {
     return decoder.decodeString(content, charset);
 }
 
-//@http:configuration {basePath:"/test"}
-//service<http> helloServer {
-//    @http:resourceConfig {
-//        methods:["POST"],
-//        path:"/largepayload"
-//    }
-//    resource keepPayloadInTempFile (http:Connection conn, http:InRequest request) {
-//        mime:Entity entity = request.getEntity();
-//        http:OutResponse response = {};
-//        response.setStringPayload(entity.overflowData.path);
-//        _ = conn.respond(response);
-//    }
-//}

@@ -20,10 +20,15 @@ package org.ballerinalang.test.mime;
 
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.CompileResult;
+import org.ballerinalang.mime.util.EntityBodyHandler;
 import org.ballerinalang.mime.util.MimeUtil;
 import org.ballerinalang.mime.util.MultipartDataSource;
 import org.ballerinalang.mime.util.MultipartDecoder;
+import org.ballerinalang.model.values.BJSON;
 import org.ballerinalang.model.values.BStruct;
+import org.ballerinalang.model.values.BXML;
+import org.ballerinalang.runtime.message.BlobDataSource;
+import org.ballerinalang.runtime.message.StringDataSource;
 import org.jvnet.mimepull.MIMEPart;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,6 +38,7 @@ import org.testng.annotations.Test;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
@@ -62,12 +68,7 @@ public class MultipartEncoderTest {
 
     @Test(description = "Test whether the body parts get correctly encoded for multipart/mixed")
     public void testMultipartWriterForMixed() {
-        ArrayList<BStruct> bodyParts = new ArrayList<>();
-        bodyParts.add(Util.getJsonBodyPart(result));
-        bodyParts.add(Util.getXmlFilePart(result));
-        bodyParts.add(Util.getTextBodyPart(result));
-        bodyParts.add(Util.getBinaryFilePart(result));
-
+        ArrayList<BStruct> bodyParts = getMultipleParts();
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         String multipartDataBoundary = MimeUtil.getNewMultipartDelimiter();
         MultipartDataSource multipartDataSource = new MultipartDataSource(Util.getArrayOfBodyParts(bodyParts),
@@ -78,20 +79,18 @@ public class MultipartEncoderTest {
             List<MIMEPart> mimeParts = MultipartDecoder.decodeBodyParts("multipart/mixed; boundary=" +
                     multipartDataBoundary, inputStream);
             Assert.assertEquals(mimeParts.size(), 4);
-
+            BStruct bodyPart = Util.getEntityStruct(result);
+            testBodyParts(mimeParts, bodyPart);
         } catch (MimeTypeParseException e) {
             log.error("Error occurred while testing mulitpart/mixed encoding", e.getMessage());
+        } catch (IOException e) {
+            log.error("Error occurred while decoding binary part", e.getMessage());
         }
     }
 
     @Test(description = "Test whether the body parts get correctly encoded for any new multipart sub type")
     public void testMultipartWriterForNewSubTypes() {
-        ArrayList<BStruct> bodyParts = new ArrayList<>();
-        bodyParts.add(Util.getJsonBodyPart(result));
-        bodyParts.add(Util.getXmlFilePart(result));
-        bodyParts.add(Util.getTextBodyPart(result));
-        bodyParts.add(Util.getBinaryFilePart(result));
-
+        ArrayList<BStruct> bodyParts = getMultipleParts();
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         String multipartDataBoundary = MimeUtil.getNewMultipartDelimiter();
         MultipartDataSource multipartDataSource = new MultipartDataSource(Util.getArrayOfBodyParts(bodyParts),
@@ -102,13 +101,17 @@ public class MultipartEncoderTest {
             List<MIMEPart> mimeParts = MultipartDecoder.decodeBodyParts("multipart/new-sub-type; boundary=" +
                     multipartDataBoundary, inputStream);
             Assert.assertEquals(mimeParts.size(), 4);
-
+            BStruct bodyPart = Util.getEntityStruct(result);
+            testBodyParts(mimeParts, bodyPart);
         } catch (MimeTypeParseException e) {
             log.error("Error occurred while testing mulitpart/mixed encoding", e.getMessage());
+        } catch (IOException e) {
+            log.error("Error occurred while decoding binary part", e.getMessage());
         }
     }
 
-    @Test(description = "Test that the body part build the ContentDisposition struct properly for multipart/form-data")
+    @Test(description = "Test whether the body part builds the ContentDisposition struct properly for " +
+            "multipart/form-data")
     public void testContentDispositionForFormData() {
         BStruct bodyPart = Util.getEntityStruct(result);
         BStruct contentDispositionStruct = Util.getContentDispositionStruct(result);
@@ -121,5 +124,41 @@ public class MultipartEncoderTest {
                 "\"filepart\"");
         Assert.assertEquals(contentDisposition.getStringField(DISPOSITION_INDEX),
                 "form-data");
+    }
+
+    private ArrayList<BStruct> getMultipleParts() {
+        ArrayList<BStruct> bodyParts = new ArrayList<>();
+        bodyParts.add(Util.getJsonBodyPart(result));
+        bodyParts.add(Util.getXmlFilePart(result));
+        bodyParts.add(Util.getTextBodyPart(result));
+        bodyParts.add(Util.getBinaryFilePart(result));
+        return bodyParts;
+    }
+
+    /**
+     * When the encoding has been done properly, decoding should work as it should.
+     *
+     * @param mimeParts List of decoded body parts
+     * @param bodyPart  Ballerina body part
+     * @throws IOException When an exception occurs during binary data decoding
+     */
+    private void testBodyParts(List<MIMEPart> mimeParts, BStruct bodyPart) throws IOException {
+        EntityBodyHandler.populateBodyContent(bodyPart, mimeParts.get(0));
+        BJSON jsonData = EntityBodyHandler.constructJsonDataSource(bodyPart);
+        Assert.assertNotNull(jsonData);
+        Assert.assertEquals(jsonData.getMessageAsString(), "{\"" + "bodyPart" + "\":\"" + "jsonPart" +
+                "\"}");
+        EntityBodyHandler.populateBodyContent(bodyPart, mimeParts.get(1));
+        BXML xmlData = EntityBodyHandler.constructXmlDataSource(bodyPart);
+        Assert.assertNotNull(xmlData);
+        Assert.assertEquals(xmlData.getMessageAsString(), "<name>Ballerina xml file part</name>");
+        EntityBodyHandler.populateBodyContent(bodyPart, mimeParts.get(2));
+        StringDataSource textData = EntityBodyHandler.constructStringDataSource(bodyPart);
+        Assert.assertNotNull(textData);
+        Assert.assertEquals(textData.getMessageAsString(), "Ballerina text body part");
+        EntityBodyHandler.populateBodyContent(bodyPart, mimeParts.get(3));
+        BlobDataSource blobDataSource = EntityBodyHandler.constructBlobDataSource(bodyPart);
+        Assert.assertNotNull(blobDataSource);
+        Assert.assertEquals(blobDataSource.getMessageAsString(), "Ballerina binary file part");
     }
 }

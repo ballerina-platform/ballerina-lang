@@ -25,6 +25,7 @@ import org.ballerinalang.model.values.BJSON;
 import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BXML;
+import org.ballerinalang.nativeimpl.io.IOConstants;
 import org.ballerinalang.nativeimpl.io.channels.FileIOChannel;
 import org.ballerinalang.runtime.message.BlobDataSource;
 import org.ballerinalang.runtime.message.MessageDataSource;
@@ -35,8 +36,10 @@ import org.jvnet.mimepull.MIMEPart;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.nio.channels.ByteChannel;
 import java.nio.channels.Channels;
+import java.nio.channels.FileChannel;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.OpenOption;
@@ -118,7 +121,8 @@ public class EntityBodyHandler {
      * @return MessageDataSource which represent the entity body in memory
      */
     public static MessageDataSource getMessageDataSource(BStruct entityStruct) {
-        return (MessageDataSource) entityStruct.getNativeData(MESSAGE_DATA_SOURCE);
+        return entityStruct.getNativeData(MESSAGE_DATA_SOURCE) != null ? (MessageDataSource) entityStruct.getNativeData
+                (MESSAGE_DATA_SOURCE) : null;
     }
 
     /**
@@ -137,7 +141,7 @@ public class EntityBodyHandler {
      * @param entityBody Represent an entity body
      * @return InputStream created from EntityBodyChannel
      */
-    public static InputStream getNewInputStream(EntityBody entityBody) {
+    private static InputStream getNewInputStream(EntityBody entityBody) {
         return Channels.newInputStream(
                 entityBody.getEntityBodyChannel());
     }
@@ -187,7 +191,7 @@ public class EntityBodyHandler {
      * @param entityStruct Represent an entity struct
      * @return BXML data source which is kept in memory
      */
-    public static BXML readXmlDataSource(BStruct entityStruct) {
+    public static BXML constructXmlDataSource(BStruct entityStruct) {
         EntityBody entityBody = MimeUtil.constructEntityBody(entityStruct);
         if (entityBody != null) {
             if (entityBody.isStream()) {
@@ -265,7 +269,66 @@ public class EntityBodyHandler {
      * @param bodyPart Represent ballerina body part
      * @param mimePart Represent decoded mime part
      */
-    static void populateBodyContent(BStruct bodyPart, MIMEPart mimePart) {
+    public static void populateBodyContent(BStruct bodyPart, MIMEPart mimePart) {
         bodyPart.addNativeData(ENTITY_BYTE_CHANNEL, new EntityBodyChannel(mimePart.readOnce()));
+    }
+
+    /**
+     * Given a channel as Object, convert it to correct channel type.
+     *
+     * @param channel Channel as an object
+     * @return Channel wrapped as entity body
+     */
+    public static EntityBody getEntityBody(Object channel) {
+        EntityBody entityBodyReader = null;
+        if (channel != null) {
+            if (channel instanceof EntityBodyChannel) {
+                entityBodyReader = new EntityBody((EntityBodyChannel) channel, true);
+            } else if (channel instanceof FileIOChannel) {
+                entityBodyReader = new EntityBody((FileIOChannel) channel, false);
+            } else if (channel instanceof FileChannel) {
+                entityBodyReader = new EntityBody(new FileIOChannel((FileChannel) channel,
+                        IOConstants.CHANNEL_BUFFER_SIZE), false);
+            }
+        }
+        return entityBodyReader;
+    }
+
+    /**
+     * Write byte channel stream directly into outputstream without converting it to a data source.
+     *
+     * @param entityStruct        Represent a ballerina entity
+     * @param messageOutputStream Represent the outputstream that the message should be written to
+     * @throws IOException When an error occurs while writing inputstream to outputstream
+     */
+    public static void writeByteChannelToOutputStream(BStruct entityStruct, OutputStream messageOutputStream)
+            throws IOException {
+        EntityBody entityBody = MimeUtil.constructEntityBody(entityStruct);
+        if (entityBody != null) {
+            InputStream inputStream;
+            if (entityBody.isStream()) {
+                inputStream = EntityBodyHandler.getNewInputStream(entityBody);
+            } else {
+                FileIOChannel fileIOChannel = entityBody.getFileIOChannel();
+                inputStream = new ByteArrayInputStream(fileIOChannel.readAll());
+            }
+            writeInputToOutputStream(messageOutputStream, inputStream);
+        }
+    }
+
+    /**
+     * Write a given inputstream to a given outputstream.
+     *
+     * @param messageOutputStream Represent the outputstream that the inputstream should be written to
+     * @param inputStream         Represent the inputstream that that needs to be written to outputstream
+     * @throws IOException When an error occurs while writing inputstream to outputstream
+     */
+    private static void writeInputToOutputStream(OutputStream messageOutputStream, InputStream inputStream) throws
+            IOException {
+        byte[] buffer = new byte[1024];
+        int len;
+        while ((len = inputStream.read(buffer)) != -1) {
+            messageOutputStream.write(buffer, 0, len);
+        }
     }
 }

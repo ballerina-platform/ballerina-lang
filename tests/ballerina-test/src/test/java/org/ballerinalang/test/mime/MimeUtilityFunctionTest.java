@@ -21,6 +21,9 @@ package org.ballerinalang.test.mime;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
+import org.ballerinalang.mime.util.EntityBody;
+import org.ballerinalang.mime.util.EntityBodyHandler;
+import org.ballerinalang.model.util.StringUtils;
 import org.ballerinalang.model.util.XMLUtils;
 import org.ballerinalang.model.values.BBlob;
 import org.ballerinalang.model.values.BJSON;
@@ -29,7 +32,8 @@ import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BXML;
-import org.ballerinalang.net.http.Constants;
+import org.ballerinalang.nativeimpl.io.IOConstants;
+import org.ballerinalang.nativeimpl.io.channels.FileIOChannel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.Assert;
@@ -37,6 +41,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import java.io.BufferedWriter;
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -58,20 +63,18 @@ import static org.ballerinalang.mime.util.Constants.SUFFIX_INDEX;
 public class MimeUtilityFunctionTest {
     private static final Logger LOG = LoggerFactory.getLogger(MimeUtilityFunctionTest.class);
 
-    private CompileResult compileResult, serviceResult;
+    private CompileResult compileResult;
     private final String protocolPackageMime = PROTOCOL_PACKAGE_MIME;
     private final String protocolPackageFile = PROTOCOL_PACKAGE_FILE;
-    private final String entityStruct = Constants.ENTITY;
     private final String mediaTypeStruct = MEDIA_TYPE;
 
     @BeforeClass
     public void setup() {
         String sourceFilePath = "test-src/mime/mime-test.bal";
         compileResult = BCompileUtil.compile(sourceFilePath);
-        // serviceResult = BServiceUtil.setupProgramFile(this, sourceFilePath);
     }
 
-    @Test(description = "Test setting json content to and entity and get the content back from entity as json")
+    @Test(description = "Set json data to entity and get the content back from entity as json")
     public void testGetAndSetJson() {
         BJSON jsonContent = new BJSON("{'code':'123'}");
         BValue[] args = {jsonContent};
@@ -90,7 +93,7 @@ public class MimeUtilityFunctionTest {
                 "{\"concatContent\":[{\"code\":\"123\"},{\"code\":\"123\"},{\"code\":\"123\"}]}");
     }
 
-    @Test(description = "Test setting json content to and entity and get the content back from entity as json")
+    @Test(description = "Set xml data to entity and get the content back from entity as xml")
     public void testGetAndSetXml() {
         BXML xmlContent = XMLUtils.parse("<name>ballerina</name>");
         BValue[] args = {xmlContent};
@@ -99,7 +102,7 @@ public class MimeUtilityFunctionTest {
         Assert.assertEquals(((BXML) returns[0]).getTextValue().stringValue(), "ballerina");
     }
 
-    @Test(description = "Test whether the json content can be retrieved properly when it is called multiple times")
+    @Test(description = "Test whether the xml content can be retrieved properly when it is called multiple times")
     public void testGetXmlMoreThanOnce() {
         BXML xmlContent = XMLUtils.parse("<name>ballerina</name>");
         BValue[] args = {xmlContent};
@@ -109,7 +112,7 @@ public class MimeUtilityFunctionTest {
                 "<name>ballerina</name><name>ballerina</name><name>ballerina</name>");
     }
 
-    @Test(description = "Test setting json content to and entity and get the content back from entity as json")
+    @Test(description = "Set text data to entity and get the content back from entity as text")
     public void testGetAndSetText() {
         BString textContent = new BString("Hello Ballerina !");
         BValue[] args = {textContent};
@@ -118,7 +121,7 @@ public class MimeUtilityFunctionTest {
         Assert.assertEquals(returns[0].stringValue(), "Hello Ballerina !");
     }
 
-    @Test(description = "Test whether the json content can be retrieved properly when it is called multiple times")
+    @Test(description = "Test whether the text content can be retrieved properly when it is called multiple times")
     public void testGetTextMoreThanOnce() {
         BString textContent = new BString("Hello Ballerina !");
         BValue[] args = {textContent};
@@ -128,17 +131,17 @@ public class MimeUtilityFunctionTest {
                 "Hello Ballerina !Hello Ballerina !Hello Ballerina !");
     }
 
-    @Test(description = "Test setting json content to and entity and get the content back from entity as json")
+    @Test(description = "Set blob data to entity and get the content back from entity as a blob")
     public void testGetAndSetBlob() {
         String content = "ballerina";
         BBlob byteContent = new BBlob(content.getBytes());
         BValue[] args = {byteContent};
-        BValue[] returns = BRunUtil.invoke(compileResult, "testSetAndBlob", args);
+        BValue[] returns = BRunUtil.invoke(compileResult, "testSetAndGetBlob", args);
         Assert.assertEquals(returns.length, 1);
         Assert.assertEquals(returns[0].stringValue(), content);
     }
 
-    @Test(description = "Test whether the json content can be retrieved properly when it is called multiple times")
+    @Test(description = "Test whether the blob content can be retrieved properly when it is called multiple times")
     public void testGetBlobMoreThanOnce() {
         String content = "ballerina";
         BBlob byteContent = new BBlob(content.getBytes());
@@ -149,7 +152,7 @@ public class MimeUtilityFunctionTest {
                 "ballerinaballerinaballerina");
     }
 
-    @Test(description = "Test whether the json content can be retrieved properly when it is called multiple times")
+    @Test(description = "Set file as entity body and get the content back as a blob")
     public void testSetFileAsEntityBody() {
         try {
             File file = File.createTempFile("testFile", ".tmp");
@@ -166,113 +169,75 @@ public class MimeUtilityFunctionTest {
             Assert.assertEquals(returns[0].stringValue(), "Hello Ballerina!",
                     "Entity body is not properly set");
         } catch (IOException e) {
-            LOG.error("Error occured in testGetJsonFromFile", e.getMessage());
+            LOG.error("Error occurred in testSetFileAsEntityBody", e.getMessage());
         }
     }
 
-   /* @Test(description = "Test 'getText' function in ballerina.net.mime package")
-    public void testGetTextFromFile() {
-        BStruct entity = BCompileUtil
-                .createAndGetStruct(compileResult.getProgFile(), protocolPackageMime, entityStruct);
+    @Test(description = "Set byte channel as entity body and get the content back as a blob")
+    public void testSetByteChannel() {
         try {
-            String payload = "ballerina";
-            File file = File.createTempFile("testText", ".txt");
-            file.deleteOnExit();
-            BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(file));
-            bufferedWriter.write(payload);
-            bufferedWriter.close();
-
-            BStruct fileStruct = BCompileUtil
-                    .createAndGetStruct(compileResult.getProgFile(), protocolPackageFile, FILE);
-            fileStruct.setStringField(0, file.getAbsolutePath());
-            entity.setRefField(OVERFLOW_DATA_INDEX, fileStruct);
-            BValue[] args = {entity};
-            BValue[] returns = BRunUtil.invoke(compileResult, "testGetTextFromFile", args);
-
-            Assert.assertEquals(returns.length, 1);
-            Assert.assertEquals(returns[0].stringValue(), payload);
-        } catch (IOException e) {
-            LOG.error("Error occured in testGetTextFromFile", e.getMessage());
-        }
-    }
-
-    @Test(description = "Test 'getJson' function in ballerina.net.mime package")
-    public void testGetJsonFromFile() {
-        BStruct entity = BCompileUtil
-                .createAndGetStruct(compileResult.getProgFile(), protocolPackageMime, entityStruct);
-        try {
-            File file = File.createTempFile("testJson", ".json");
-            file.deleteOnExit();
-            BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(file));
-            bufferedWriter.write("{'code':'123'}");
-            bufferedWriter.close();
-
-            BStruct fileStruct = BCompileUtil
-                    .createAndGetStruct(compileResult.getProgFile(), protocolPackageFile, FILE);
-            fileStruct.setStringField(0, file.getAbsolutePath());
-            entity.setRefField(OVERFLOW_DATA_INDEX, fileStruct);
-            BValue[] args = {entity};
-            BValue[] returns = BRunUtil.invoke(compileResult, "testGetJsonFromFile", args);
-
-            Assert.assertEquals(returns.length, 1);
-            Assert.assertEquals(((BJSON) returns[0]).value().get("code").asText(), "123");
-        } catch (IOException e) {
-            LOG.error("Error occured in testGetJsonFromFile", e.getMessage());
-        }
-    }
-
-    @Test(description = "Test 'getXml' function in ballerina.net.mime package")
-    public void testGetXmlFromFile() {
-        BStruct entity = BCompileUtil
-                .createAndGetStruct(compileResult.getProgFile(), protocolPackageMime, entityStruct);
-        try {
-            File file = File.createTempFile("testXml", ".xml");
-            file.deleteOnExit();
-            BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(file));
-            bufferedWriter.write("<test>ballerina</test>");
-            bufferedWriter.close();
-
-            BStruct fileStruct = BCompileUtil
-                    .createAndGetStruct(compileResult.getProgFile(), protocolPackageFile, FILE);
-            fileStruct.setStringField(0, file.getAbsolutePath());
-            entity.setRefField(OVERFLOW_DATA_INDEX, fileStruct);
-            BValue[] args = {entity};
-            BValue[] returns = BRunUtil.invoke(compileResult, "testGetXmlFromFile", args);
-
-            Assert.assertEquals(returns.length, 1);
-            Assert.assertEquals(((BXMLItem) returns[0]).getTextValue().stringValue(), "ballerina");
-        } catch (IOException e) {
-            LOG.error("Error occured in testGetXmlFromFile", e.getMessage());
-        }
-    }
-
-    @Test(description = "Test 'getBlob' function in ballerina.net.mime package")
-    public void testGetBlobFromFile() {
-        BStruct entity = BCompileUtil
-                .createAndGetStruct(compileResult.getProgFile(), protocolPackageMime, entityStruct);
-        try {
-            File file = File.createTempFile("testBinary", ".tmp");
+            File file = File.createTempFile("testFile", ".tmp");
             file.deleteOnExit();
             BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(file));
             bufferedWriter.write("Hello Ballerina!");
             bufferedWriter.close();
-
-            BStruct fileStruct = BCompileUtil
-                    .createAndGetStruct(compileResult.getProgFile(), protocolPackageFile, FILE);
-            fileStruct.setStringField(0, file.getAbsolutePath());
-            entity.setRefField(OVERFLOW_DATA_INDEX, fileStruct);
-            BValue[] args = {entity};
-            BValue[] returns = BRunUtil.invoke(compileResult, "testGetBlobFromFile", args);
-
+            BStruct byteChannelStruct = Util.getByteChannelStruct(compileResult);
+            byteChannelStruct.addNativeData(IOConstants.BYTE_CHANNEL_NAME, EntityBodyHandler.
+                    getByteChannelForTempFile(file.getAbsolutePath()));
+            BValue[] args = {byteChannelStruct};
+            BValue[] returns = BRunUtil.invoke(compileResult, "testSetByteChannel", args);
             Assert.assertEquals(returns.length, 1);
             Assert.assertEquals(returns[0].stringValue(), "Hello Ballerina!",
-                    "Payload is not set properly");
+                    "Entity body is not properly set");
         } catch (IOException e) {
-            LOG.error("Error occured in testGetBlobFromFile", e.getMessage());
+            LOG.error("Error occurred in testSetByteChannel", e.getMessage());
         }
     }
 
-    */
+    @Test(description = "Set byte channel as entity body and get that channel back")
+    public void testGetByteChannel() {
+        try {
+            File file = File.createTempFile("testFile", ".tmp");
+            file.deleteOnExit();
+            BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(file));
+            bufferedWriter.write("Hello Ballerina!");
+            bufferedWriter.close();
+            BStruct byteChannelStruct = Util.getByteChannelStruct(compileResult);
+            byteChannelStruct.addNativeData(IOConstants.BYTE_CHANNEL_NAME, EntityBodyHandler.
+                    getByteChannelForTempFile(file.getAbsolutePath()));
+            BValue[] args = {byteChannelStruct};
+            BValue[] returns = BRunUtil.invoke(compileResult, "testGetByteChannel", args);
+            Assert.assertEquals(returns.length, 1);
+            BStruct returnByteChannelStruct = (BStruct) returns[0];
+            EntityBody entityBody = EntityBodyHandler.getEntityBody(returnByteChannelStruct.getNativeData
+                    (IOConstants.BYTE_CHANNEL_NAME));
+            FileIOChannel fileIOChannel = entityBody.getFileIOChannel();
+            Assert.assertEquals(StringUtils.getStringFromInputStream(new ByteArrayInputStream(fileIOChannel.readAll())),
+                    "Hello Ballerina!");
+        } catch (IOException e) {
+            LOG.error("Error occurred in testSetByteChannel", e.getMessage());
+        }
+    }
+
+    @Test(description = "Set entity body as a byte channel get the content back as a string")
+    public void testSetEntityBodyMultipleTimes() {
+        try {
+            File file = File.createTempFile("testFile", ".tmp");
+            file.deleteOnExit();
+            BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(file));
+            bufferedWriter.write("File Content");
+            bufferedWriter.close();
+            BStruct byteChannelStruct = Util.getByteChannelStruct(compileResult);
+            byteChannelStruct.addNativeData(IOConstants.BYTE_CHANNEL_NAME, EntityBodyHandler.
+                    getByteChannelForTempFile(file.getAbsolutePath()));
+            BValue[] args = {byteChannelStruct, new BString("Hello Ballerina!")};
+            BValue[] returns = BRunUtil.invoke(compileResult, "testSetEntityBodyMultipleTimes", args);
+            Assert.assertEquals(returns.length, 1);
+            Assert.assertEquals(returns[0].stringValue(), "File Content");
+        } catch (IOException e) {
+            LOG.error("Error occurred in testSetByteChannel", e.getMessage());
+        }
+    }
 
     @Test(description = "Test 'getMediaType' function in ballerina.net.mime package")
     public void testGetMediaType() {
@@ -348,27 +313,4 @@ public class MimeUtilityFunctionTest {
         Assert.assertEquals(returns.length, 1);
         Assert.assertEquals(returns[0].stringValue(), "Ballerina");
     }
-
-/*
-    @Test(description = "Test whether the system keeps the payload in a temp file in case the size exceeds 2MB")
-    public void testLargePayload() {
-        String path = "/test/largepayload";
-        try {
-            ByteChannel byteChannel = TestUtil.openForReading("datafiles/io/text/fileThatExceeds2MB.txt");
-            AbstractChannel channel = new MockByteChannel(byteChannel, 10);
-            CharacterChannel characterChannel = new CharacterChannel(channel, StandardCharsets.UTF_8.name());
-            String responseValue = characterChannel.readAll();
-            characterChannel.close();
-            HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, Constants.HTTP_METHOD_POST, responseValue);
-            HTTPCarbonMessage response = Services.invokeNew(serviceResult, cMsg);
-            Assert.assertNotNull(response, "Response message not found");
-            String temporaryFilePath = ResponseReader.getReturnValue(response);
-            Assert.assertNotNull(temporaryFilePath);
-            Assert.assertFalse(temporaryFilePath.isEmpty(), "Temporary file has not been created");
-            File file = new File(temporaryFilePath);
-            file.delete();
-        } catch (IOException | URISyntaxException e) {
-            LOG.error("Error occured in testLargePayload", e.getMessage());
-        }
-    }*/
 }

@@ -24,8 +24,6 @@ import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.nativeimpl.io.IOConstants;
-import org.ballerinalang.nativeimpl.io.channels.FileIOChannel;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.StructInfo;
 import org.ballerinalang.util.exceptions.BallerinaException;
@@ -38,7 +36,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.nio.channels.FileChannel;
 import java.util.Enumeration;
 import java.util.Set;
 import javax.activation.MimeType;
@@ -346,19 +343,7 @@ public class MimeUtil {
      * @return EntityBody which wraps the underline byte channel
      */
     public static EntityBody constructEntityBody(BStruct entityStruct) {
-        EntityBody entityBodyReader = null;
-        Object channel = entityStruct.getNativeData(ENTITY_BYTE_CHANNEL);
-        if (channel != null) {
-            if (channel instanceof EntityBodyChannel) {
-                entityBodyReader = new EntityBody((EntityBodyChannel) channel, true);
-            } else if (channel instanceof FileIOChannel) {
-                entityBodyReader = new EntityBody((FileIOChannel) channel, false);
-            } else if (channel instanceof FileChannel) {
-                entityBodyReader = new EntityBody(new FileIOChannel((FileChannel) channel,
-                        IOConstants.CHANNEL_BUFFER_SIZE), false);
-            }
-        }
-        return entityBodyReader;
+        return EntityBodyHandler.getEntityBody(entityStruct.getNativeData(ENTITY_BYTE_CHANNEL));
     }
 
     /**

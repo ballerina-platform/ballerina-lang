@@ -114,26 +114,55 @@ public class MultipartDecoder {
         for (final MIMEPart mimePart : mimeParts) {
             BStruct partStruct = ConnectorUtils.createAndGetStruct(context, PROTOCOL_PACKAGE_MIME, ENTITY);
             BStruct mediaType = ConnectorUtils.createAndGetStruct(context, PROTOCOL_PACKAGE_MIME, MEDIA_TYPE);
-            partStruct.setRefField(ENTITY_HEADERS_INDEX, HeaderUtil.setBodyPartHeaders(mimePart.getAllHeaders(),
-                    new BMap<>()));
-            List<String> lengthHeaders = mimePart.getHeader(CONTENT_LENGTH);
-            if (HeaderUtil.isHeaderExist(lengthHeaders)) {
-                MimeUtil.setContentLength(partStruct, Integer.parseInt(lengthHeaders.get(FIRST_ELEMENT)));
-            } else {
-                MimeUtil.setContentLength(partStruct, NO_CONTENT_LENGTH_FOUND);
-            }
-            partStruct.setStringField(CONTENT_ID_INDEX, mimePart.getContentId());
-            MimeUtil.setContentType(mediaType, partStruct, mimePart.getContentType());
-            List<String> contentDispositionHeaders = mimePart.getHeader(CONTENT_DISPOSITION);
-            if (HeaderUtil.isHeaderExist(contentDispositionHeaders)) {
-                BStruct contentDisposition = ConnectorUtils.createAndGetStruct(context, PROTOCOL_PACKAGE_MIME,
-                        CONTENT_DISPOSITION_STRUCT);
-                MimeUtil.setContentDisposition(contentDisposition, partStruct, contentDispositionHeaders
-                        .get(FIRST_ELEMENT));
-            }
-            EntityBodyHandler.populateBodyContent(partStruct, mimePart);
+            populateBodyPart(context, mimePart, partStruct, mediaType);
             bodyParts.add(partStruct);
         }
         EntityBodyHandler.setPartsToTopLevelEntity(entity, bodyParts);
+    }
+
+    /**
+     * Populate ballerina body part with header info and actual body.
+     *
+     * @param context    Represent ballerina context
+     * @param mimePart   Represent a decoded mime part
+     * @param partStruct Represent a ballerina body part that needs to be filled with data
+     * @param mediaType  Represent the content type of the body part
+     */
+    private static void populateBodyPart(Context context, MIMEPart mimePart, BStruct partStruct, BStruct mediaType) {
+        partStruct.setRefField(ENTITY_HEADERS_INDEX, HeaderUtil.setBodyPartHeaders(mimePart.getAllHeaders(),
+                new BMap<>()));
+        populateContentLength(mimePart, partStruct);
+        populateContentId(mimePart, partStruct);
+        populateContentType(mimePart, partStruct, mediaType);
+        List<String> contentDispositionHeaders = mimePart.getHeader(CONTENT_DISPOSITION);
+        if (HeaderUtil.isHeaderExist(contentDispositionHeaders)) {
+            BStruct contentDisposition = ConnectorUtils.createAndGetStruct(context, PROTOCOL_PACKAGE_MIME,
+                    CONTENT_DISPOSITION_STRUCT);
+            populateContentDisposition(partStruct, contentDispositionHeaders, contentDisposition);
+        }
+        EntityBodyHandler.populateBodyContent(partStruct, mimePart);
+    }
+
+    public static void populateContentDisposition(BStruct partStruct, List<String> contentDispositionHeaders,
+                                                  BStruct contentDisposition) {
+        MimeUtil.setContentDisposition(contentDisposition, partStruct, contentDispositionHeaders
+                .get(FIRST_ELEMENT));
+    }
+
+    public static void populateContentType(MIMEPart mimePart, BStruct partStruct, BStruct mediaType) {
+        MimeUtil.setContentType(mediaType, partStruct, mimePart.getContentType());
+    }
+
+    public static void populateContentId(MIMEPart mimePart, BStruct partStruct) {
+        partStruct.setStringField(CONTENT_ID_INDEX, mimePart.getContentId());
+    }
+
+    public static void populateContentLength(MIMEPart mimePart, BStruct partStruct) {
+        List<String> lengthHeaders = mimePart.getHeader(CONTENT_LENGTH);
+        if (HeaderUtil.isHeaderExist(lengthHeaders)) {
+            MimeUtil.setContentLength(partStruct, Integer.parseInt(lengthHeaders.get(FIRST_ELEMENT)));
+        } else {
+            MimeUtil.setContentLength(partStruct, NO_CONTENT_LENGTH_FOUND);
+        }
     }
 }

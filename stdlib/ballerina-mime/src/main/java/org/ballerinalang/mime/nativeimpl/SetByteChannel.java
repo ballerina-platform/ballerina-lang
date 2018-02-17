@@ -19,6 +19,7 @@
 package org.ballerinalang.mime.nativeimpl;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.mime.util.EntityBodyHandler;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
@@ -27,9 +28,11 @@ import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
+import org.ballerinalang.runtime.message.MessageDataSource;
 
 import static org.ballerinalang.mime.util.Constants.ENTITY_BYTE_CHANNEL;
 import static org.ballerinalang.mime.util.Constants.FIRST_PARAMETER_INDEX;
+import static org.ballerinalang.mime.util.Constants.MESSAGE_DATA_SOURCE;
 import static org.ballerinalang.mime.util.Constants.SECOND_PARAMETER_INDEX;
 
 /**
@@ -50,6 +53,10 @@ public class SetByteChannel extends AbstractNativeFunction {
         BStruct byteChannel = (BStruct) this.getRefArgument(context, SECOND_PARAMETER_INDEX);
         entityStruct.addNativeData(ENTITY_BYTE_CHANNEL, byteChannel.getNativeData
                 (IOConstants.BYTE_CHANNEL_NAME));
+        MessageDataSource dataSource = EntityBodyHandler.getMessageDataSource(entityStruct);
+        if (dataSource != null) { //Clear message data source when the user set a byte channel to entity
+            entityStruct.addNativeData(MESSAGE_DATA_SOURCE, null);
+        }
         return AbstractNativeFunction.VOID_RETURN;
     }
 }

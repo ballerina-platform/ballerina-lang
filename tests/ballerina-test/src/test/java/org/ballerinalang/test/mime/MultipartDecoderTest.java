@@ -61,13 +61,13 @@ public class MultipartDecoderTest {
         String multipartBody = "--" + multipartDataBoundary + "\r\n" +
                 "Content-Type: text/plain; charset=UTF-8" + "\r\n" +
                 "\r\n" +
-                "bar" +
+                "Part1" +
                 "\r\n" +
                 "--" + multipartDataBoundary + "\r\n" +
                 "Content-Type: text/plain" + "\r\n" +
                 "Content-Transfer-Encoding: binary" + "\r\n" +
                 "\r\n" +
-                "File 01" + StringUtil.NEWLINE +
+                "Part2" + StringUtil.NEWLINE +
                 "\r\n" +
                 "--" + multipartDataBoundary + "--" + "\r\n";
 
@@ -75,7 +75,7 @@ public class MultipartDecoderTest {
                 multipartBody);
         HTTPCarbonMessage response = Services.invokeNew(serviceResult, inRequestMsg);
         Assert.assertNotNull(response, "Response message not found");
-        Assert.assertEquals(ResponseReader.getReturnValue(response), " -- bar -- File 01" + StringUtil.NEWLINE);
+        Assert.assertEquals(ResponseReader.getReturnValue(response), " -- Part1 -- Part2" + StringUtil.NEWLINE);
     }
 
     @Test(description = "Test sending a multipart request as multipart/form-data with multiple body parts")
@@ -88,14 +88,14 @@ public class MultipartDecoderTest {
                 "Content-Disposition: form-data; name=\"foo\"" + "\r\n" +
                 "Content-Type: text/plain; charset=UTF-8" + "\r\n" +
                 "\r\n" +
-                "bar" +
+                "Part1" +
                 "\r\n" +
                 "--" + multipartDataBoundary + "\r\n" +
                 "Content-Disposition: form-data; name=\"filepart\"; filename=\"file-01.txt\"" + "\r\n" +
                 "Content-Type: text/plain" + "\r\n" +
                 "Content-Transfer-Encoding: binary" + "\r\n" +
                 "\r\n" +
-                "File 01" + StringUtil.NEWLINE +
+                "Part2" + StringUtil.NEWLINE +
                 "\r\n" +
                 "--" + multipartDataBoundary + "--" + "\r\n";
 
@@ -103,7 +103,7 @@ public class MultipartDecoderTest {
                 multipartBody);
         HTTPCarbonMessage response = Services.invokeNew(serviceResult, inRequestMsg);
         Assert.assertNotNull(response, "Response message not found");
-        Assert.assertEquals(ResponseReader.getReturnValue(response), " -- bar -- File 01" + StringUtil.NEWLINE);
+        Assert.assertEquals(ResponseReader.getReturnValue(response), " -- Part1 -- Part2" + StringUtil.NEWLINE);
     }
 
     @Test(description = "Test whether the requests with new multipart sub types can be decoded properly")
@@ -116,14 +116,14 @@ public class MultipartDecoderTest {
                 "Content-Disposition: form-data; name=\"foo\"" + "\r\n" +
                 "Content-Type: text/plain; charset=UTF-8" + "\r\n" +
                 "\r\n" +
-                "bar" +
+                "Part1" +
                 "\r\n" +
                 "--" + multipartDataBoundary + "\r\n" +
                 "Content-Disposition: inline" + "\r\n" +
                 "Content-Type: text/plain" + "\r\n" +
                 "Content-Transfer-Encoding: binary" + "\r\n" +
                 "\r\n" +
-                "File 01" + StringUtil.NEWLINE +
+                "Part2" + StringUtil.NEWLINE +
                 "\r\n" +
                 "--" + multipartDataBoundary + "--" + "\r\n";
 
@@ -131,6 +131,6 @@ public class MultipartDecoderTest {
                 multipartBody);
         HTTPCarbonMessage response = Services.invokeNew(serviceResult, inRequestMsg);
         Assert.assertNotNull(response, "Response message not found");
-        Assert.assertEquals(ResponseReader.getReturnValue(response), " -- bar -- File 01" + StringUtil.NEWLINE);
+        Assert.assertEquals(ResponseReader.getReturnValue(response), " -- Part1 -- Part2" + StringUtil.NEWLINE);
     }
 }
