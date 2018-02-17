@@ -25,16 +25,21 @@ import io.netty.handler.codec.http2.DefaultHttp2Headers;
 import io.netty.handler.codec.http2.Http2ConnectionEncoder;
 import io.netty.handler.codec.http2.Http2Exception;
 import io.netty.handler.codec.http2.Http2Headers;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.wso2.transport.http.netty.common.Constants;
 import org.wso2.transport.http.netty.common.Util;
 import org.wso2.transport.http.netty.contract.HttpConnectorListener;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
-
 import static io.netty.handler.codec.http.HttpResponseStatus.OK;
 
 /**
  * Get executed when HTTP/2 response is available.
  */
 public class Http2OutboundRespListener implements HttpConnectorListener {
+
+    private static final Logger log = LoggerFactory.getLogger(Http2OutboundRespListener.class);
+
 
     private ChannelHandlerContext channelHandlerContext;
     private Http2ConnectionEncoder encoder;
@@ -79,18 +84,18 @@ public class Http2OutboundRespListener implements HttpConnectorListener {
 
     private void writeHeaders(HTTPCarbonMessage outboundResponseMsg) {
         Http2Headers http2Headers = new DefaultHttp2Headers().status(OK.codeAsText());
+        removeUnwantedHeaders(outboundResponseMsg);
         outboundResponseMsg.getHeaders().entries().forEach(
                 header -> http2Headers.set(header.getKey().toLowerCase(), header.getValue()));
-
         isHeaderWritten = true;
         encoder.writeHeaders(channelHandlerContext, streamId, http2Headers, 0, false,
                              channelHandlerContext.newPromise());
         try {
             encoder.flowController().writePendingBytes();
+            channelHandlerContext.flush();
         } catch (Http2Exception e) {
+            //TODO: Error handling
         }
-        channelHandlerContext.flush();
-
     }
 
     private void writeData(HttpContent httpContent, boolean endStream) {
@@ -98,10 +103,16 @@ public class Http2OutboundRespListener implements HttpConnectorListener {
                           0, endStream, channelHandlerContext.newPromise());
         try {
             encoder.flowController().writePendingBytes();
+            channelHandlerContext.flush();
         } catch (Http2Exception e) {
+            //TODO: Error handling
         }
-        channelHandlerContext.flush();
 
+    }
+
+    private void removeUnwantedHeaders(HTTPCarbonMessage outboundResponseMsg) {
+        outboundResponseMsg.removeHeader(Constants.CONNECTION);
+        outboundResponseMsg.removeHeader(Constants.HTTP_TRANSFER_ENCODING);
     }
 
 }

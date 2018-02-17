@@ -143,7 +143,10 @@ public class HTTPServerChannelInitializer extends ChannelInitializer<SocketChann
             }
         };
         pipeline.addLast("encoder", sourceCodec);
-        pipeline.addLast("http2-upgrade", new HttpServerUpgradeHandler(sourceCodec, upgradeCodecFactory));
+        pipeline.addLast("http2-upgrade",
+                         new HttpServerUpgradeHandler(sourceCodec, upgradeCodecFactory, Integer.MAX_VALUE));
+        // Max size of the upgrade request is limited to 2GB. Need to see whether there is better approach to handle
+        // large upgrade requests
         //Requests will be propagated to next handlers if no upgrade has been attempted
         configureHTTPPipeline(pipeline);
     }

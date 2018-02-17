@@ -24,11 +24,11 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.DefaultHttpContent;
 import io.netty.handler.codec.http.DefaultHttpRequest;
 import io.netty.handler.codec.http.DefaultLastHttpContent;
+import io.netty.handler.codec.http.FullHttpRequest;
 import io.netty.handler.codec.http.HttpMethod;
 import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.HttpServerUpgradeHandler;
 import io.netty.handler.codec.http.HttpVersion;
-import io.netty.handler.codec.http2.DefaultHttp2Headers;
 import io.netty.handler.codec.http2.Http2ConnectionDecoder;
 import io.netty.handler.codec.http2.Http2ConnectionEncoder;
 import io.netty.handler.codec.http2.Http2ConnectionHandler;
@@ -36,7 +36,6 @@ import io.netty.handler.codec.http2.Http2EventAdapter;
 import io.netty.handler.codec.http2.Http2Exception;
 import io.netty.handler.codec.http2.Http2Headers;
 import io.netty.handler.codec.http2.Http2Settings;
-import io.netty.util.AsciiString;
 import io.netty.util.internal.PlatformDependent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -50,9 +49,8 @@ import org.wso2.transport.http.netty.message.HttpCarbonRequest;
 import org.wso2.transport.http.netty.message.PooledDataStreamerFactory;
 
 import java.net.InetSocketAddress;
+import java.net.URISyntaxException;
 import java.util.Map;
-
-import static io.netty.handler.codec.http.HttpResponseStatus.OK;
 
 /**
  * Class {@code HTTP2SourceHandler} will read the Http2 binary frames sent from client through the channel
@@ -69,8 +67,9 @@ public final class HTTP2SourceHandler extends Http2ConnectionHandler {
     private String interfaceId;
     private ServerConnectorFuture serverConnectorFuture;
 
-    HTTP2SourceHandler(Http2ConnectionDecoder decoder, Http2ConnectionEncoder encoder, Http2Settings initialSettings,
-                       String interfaceId, ServerConnectorFuture serverConnectorFuture) {
+    public HTTP2SourceHandler(Http2ConnectionDecoder decoder, Http2ConnectionEncoder encoder,
+                              Http2Settings initialSettings,
+                              String interfaceId, ServerConnectorFuture serverConnectorFuture) {
         super(decoder, encoder, initialSettings);
         http2FrameListener = new HTTP2FrameListener();
         this.interfaceId = interfaceId;
@@ -100,18 +99,17 @@ public final class HTTP2SourceHandler extends Http2ConnectionHandler {
     }
 
     /**
-     * Handles the cleartext HTTP upgrade event. If an upgrade occurred, sends a simple response via HTTP/2
-     * on stream 1 (the stream specifically reserved for cleartext HTTP upgrade).
+     * Handles the cleartext HTTP upgrade event. If an upgrade occurred, message needs to be
+     * dispatched to the correct service/resource and response should be delivered over
+     * stream 1 (the stream specifically reserved for cleartext HTTP upgrade).
      */
     @Override
     public void userEventTriggered(ChannelHandlerContext ctx, Object evt) throws Exception {
         if (evt instanceof HttpServerUpgradeHandler.UpgradeEvent) {
             // Write an HTTP/2 response to the upgrade request
-            // TODO: Need to dispatch message to the message flow
-            Http2Headers headers =
-                    new DefaultHttp2Headers().status(OK.codeAsText())
-                            .set(new AsciiString(Constants.UPGRADE_RESPONSE_HEADER), new AsciiString("true"));
-            encoder().writeHeaders(ctx, 1, headers, 0, true, ctx.newPromise());
+            FullHttpRequest upgradedRequest = ((HttpServerUpgradeHandler.UpgradeEvent) evt).upgradeRequest();
+            HTTPCarbonMessage requestCarbonMessage = setupHTTPCarbonMessageFromUpgradedRequest(upgradedRequest, ctx);
+            http2FrameListener.notifyRequestListener(requestCarbonMessage, 1);
         }
         super.userEventTriggered(ctx, evt);
     }
@@ -126,7 +124,7 @@ public final class HTTP2SourceHandler extends Http2ConnectionHandler {
         public void onHeadersRead(ChannelHandlerContext ctx, int streamId,
                                   Http2Headers headers, int padding, boolean endOfStream) throws Http2Exception {
 
-            HTTPCarbonMessage sourceReqCMsg = setupCarbonMessage(streamId, headers);
+            HTTPCarbonMessage sourceReqCMsg = setupHTTPCarbonMessage(streamId, headers);
             streamIdRequestMap.put(streamId, sourceReqCMsg);
 
             if (endOfStream) {  // Add empty last http content if no data frames available in the http request
@@ -166,7 +164,7 @@ public final class HTTP2SourceHandler extends Http2ConnectionHandler {
          * @param headers  HTTP2 Headers
          * @return HTTPCarbonMessage
          */
-        private HTTPCarbonMessage setupCarbonMessage(int streamId, Http2Headers headers) {
+        private HTTPCarbonMessage setupHTTPCarbonMessage(int streamId, Http2Headers headers) {
 
             String method = Constants.HTTP_GET_METHOD;
             if (headers.method() != null) {
@@ -237,6 +235,45 @@ public final class HTTP2SourceHandler extends Http2ConnectionHandler {
         }
 
     }
+
+    HTTPCarbonMessage setupHTTPCarbonMessageFromUpgradedRequest(FullHttpRequest httpMessage, ChannelHandlerContext ctx)
+            throws URISyntaxException {
+
+        HTTPCarbonMessage sourceReqCMsg = new HttpCarbonRequest(httpMessage);
+        sourceReqCMsg.addHttpContent(httpMessage);
+        sourceReqCMsg.setProperty(Constants.POOLED_BYTE_BUFFER_FACTORY, new PooledDataStreamerFactory(ctx.alloc()));
+
+        HttpRequest httpRequest = (HttpRequest) httpMessage;
+        sourceReqCMsg.setProperty(Constants.CHNL_HNDLR_CTX, this.ctx);
+        sourceReqCMsg.setProperty(Constants.SRC_HANDLER, this);
+        HttpVersion protocolVersion = httpRequest.protocolVersion();
+        sourceReqCMsg.setProperty(Constants.HTTP_VERSION,
+                                  protocolVersion.majorVersion() + "." + protocolVersion.minorVersion());
+        sourceReqCMsg.setProperty(Constants.HTTP_METHOD, httpRequest.method().name());
+        InetSocketAddress localAddress = null;
+
+        //This check was added because in case of netty embedded channel, this could be of type 'EmbeddedSocketAddress'.
+        if (ctx.channel().localAddress() instanceof InetSocketAddress) {
+            localAddress = (InetSocketAddress) ctx.channel().localAddress();
+        }
+        sourceReqCMsg.setProperty(Constants.LISTENER_PORT, localAddress != null ? localAddress.getPort() : null);
+        sourceReqCMsg.setProperty(Constants.LISTENER_INTERFACE_ID, interfaceId);
+        sourceReqCMsg.setProperty(Constants.PROTOCOL, Constants.HTTP_SCHEME);
+
+        boolean isSecuredConnection = false;
+        if (ctx.channel().pipeline().get(Constants.SSL_HANDLER) != null) {
+            isSecuredConnection = true;
+        }
+        sourceReqCMsg.setProperty(Constants.IS_SECURED_CONNECTION, isSecuredConnection);
+
+        sourceReqCMsg.setProperty(Constants.LOCAL_ADDRESS, ctx.channel().localAddress());
+        sourceReqCMsg.setProperty(Constants.REQUEST_URL, httpRequest.uri());
+        sourceReqCMsg.setProperty(Constants.TO, httpRequest.uri());
+        //Added protocol name as a string
+
+        return sourceReqCMsg;
+    }
+
 
 }
 
