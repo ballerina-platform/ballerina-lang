@@ -29,20 +29,24 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.runtime.message.StringDataSource;
 
+import static org.ballerinalang.mime.util.Constants.FIRST_PARAMETER_INDEX;
+
 /**
- * Set the entity body with JSON content.
+ * Set the entity body with text data.
+ *
+ * @since 0.964.0
  */
 @BallerinaFunction(packageName = "ballerina.mime",
         functionName = "setText",
-        receiver = @Receiver(type = TypeKind.STRUCT, structType = "Entity",
-                structPackage = "ballerina.mime"),
+        receiver = @Receiver(type = TypeKind.STRUCT, structType = "Entity", structPackage = "ballerina.mime"),
         args = {@Argument(name = "textContent", type = TypeKind.STRING)},
-        isPublic = true)
+        isPublic = true
+)
 public class SetText extends AbstractNativeFunction {
     @Override
     public BValue[] execute(Context context) {
-        BStruct entityStruct = (BStruct) this.getRefArgument(context, 0);
-        String textContent = this.getStringArgument(context, 0);
+        BStruct entityStruct = (BStruct) this.getRefArgument(context, FIRST_PARAMETER_INDEX);
+        String textContent = this.getStringArgument(context, FIRST_PARAMETER_INDEX);
         EntityBodyHandler.addMessageDataSource(entityStruct, new StringDataSource(textContent));
         return AbstractNativeFunction.VOID_RETURN;
     }

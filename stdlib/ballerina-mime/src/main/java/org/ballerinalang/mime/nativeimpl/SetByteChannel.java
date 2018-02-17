@@ -28,24 +28,26 @@ import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 
-import java.nio.channels.ByteChannel;
-
 import static org.ballerinalang.mime.util.Constants.ENTITY_BYTE_CHANNEL;
+import static org.ballerinalang.mime.util.Constants.FIRST_PARAMETER_INDEX;
+import static org.ballerinalang.mime.util.Constants.SECOND_PARAMETER_INDEX;
 
 /**
- * Set the entity body with XML content.
+ * Set byte channel as entity body.
+ *
+ * @since 0.964.0
  */
 @BallerinaFunction(packageName = "ballerina.mime",
         functionName = "setByteChannel",
-        receiver = @Receiver(type = TypeKind.STRUCT, structType = "Entity",
-                structPackage = "ballerina.mime"),
-        args = {@Argument(name = "byteChannel", type = TypeKind.BLOB)},
-        isPublic = true)
+        receiver = @Receiver(type = TypeKind.STRUCT, structType = "Entity", structPackage = "ballerina.mime"),
+        args = {@Argument(name = "byteChannel", type = TypeKind.STRUCT)},
+        isPublic = true
+)
 public class SetByteChannel extends AbstractNativeFunction {
     @Override
     public BValue[] execute(Context context) {
-        BStruct entityStruct = (BStruct) this.getRefArgument(context, 0);
-        BStruct byteChannel = (BStruct) this.getRefArgument(context, 1);
+        BStruct entityStruct = (BStruct) this.getRefArgument(context, FIRST_PARAMETER_INDEX);
+        BStruct byteChannel = (BStruct) this.getRefArgument(context, SECOND_PARAMETER_INDEX);
         entityStruct.addNativeData(ENTITY_BYTE_CHANNEL, byteChannel.getNativeData
                 (IOConstants.BYTE_CHANNEL_NAME));
         return AbstractNativeFunction.VOID_RETURN;

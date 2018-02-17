@@ -44,7 +44,7 @@ import static org.ballerinalang.mime.util.Constants.STRUCT_GENERIC_ERROR;
 /**
  * Utility methods for parsing headers.
  *
- * @since 0.962.0
+ * @since 0.964.0
  */
 public class HeaderUtil {
 
@@ -92,22 +92,6 @@ public class HeaderUtil {
     private static boolean validateParams(List<String> paramList) {
         //validate header values which ends with semicolon without params
         return !(paramList.size() == 1 && paramList.get(0).isEmpty());
-    }
-
-    /**
-     * Get parser error as a ballerina struct.
-     *
-     * @param context Represent ballerina context
-     * @param errMsg  Error message in string form
-     * @return Ballerina struct with parse error
-     */
-    public static BStruct getParserError(Context context, String errMsg) {
-        PackageInfo errorPackageInfo = context.getProgramFile().getPackageInfo(BUILTIN_PACKAGE);
-        StructInfo errorStructInfo = errorPackageInfo.getStructInfo(STRUCT_GENERIC_ERROR);
-
-        BStruct parserError = new BStruct(errorStructInfo.getType());
-        parserError.setStringField(0, errMsg);
-        return parserError;
     }
 
     /**

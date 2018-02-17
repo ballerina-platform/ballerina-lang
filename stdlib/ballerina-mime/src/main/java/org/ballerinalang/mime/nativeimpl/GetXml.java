@@ -35,15 +35,14 @@ import org.ballerinalang.util.exceptions.BallerinaException;
 import static org.ballerinalang.mime.util.Constants.FIRST_PARAMETER_INDEX;
 
 /**
- * Get the entity body as an xml.
+ * Get the entity body in xml form.
  *
  * @since 0.964.0
  */
 @BallerinaFunction(
         packageName = "ballerina.mime",
         functionName = "getXml",
-        receiver = @Receiver(type = TypeKind.STRUCT, structType = "Entity",
-                structPackage = "ballerina.mime"),
+        receiver = @Receiver(type = TypeKind.STRUCT, structType = "Entity", structPackage = "ballerina.mime"),
         returnType = {@ReturnType(type = TypeKind.XML)},
         isPublic = true
 )
@@ -54,20 +53,20 @@ public class GetXml extends AbstractNativeFunction {
         BXML result;
         try {
             BStruct entityStruct = (BStruct) this.getRefArgument(context, FIRST_PARAMETER_INDEX);
-            MessageDataSource messageDataSource = EntityBodyHandler.getMessageDataSource(entityStruct);
-            if (messageDataSource != null) {
-                if (messageDataSource instanceof BXML) {
-                    result = (BXML) messageDataSource;
+            MessageDataSource dataSource = EntityBodyHandler.getMessageDataSource(entityStruct);
+            if (dataSource != null) {
+                if (dataSource instanceof BXML) {
+                    result = (BXML) dataSource;
                 } else {
                     // else, build the XML from the string representation of the payload.
-                    result = XMLUtils.parse(messageDataSource.getMessageAsString());
+                    result = XMLUtils.parse(dataSource.getMessageAsString());
                 }
             } else {
                 result = EntityBodyHandler.readXmlDataSource(entityStruct);
                 EntityBodyHandler.addMessageDataSource(entityStruct, result);
             }
         } catch (Throwable e) {
-            throw new BallerinaException("Error while retrieving xml data from entity: " + e.getMessage());
+            throw new BallerinaException("Error occurred while retrieving xml data from entity : " + e.getMessage());
         }
         return this.getBValues(result);
     }

@@ -20,13 +20,14 @@ package org.ballerinalang.mime.util;
 
 import io.netty.util.internal.PlatformDependent;
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.connector.api.ConnectorUtils;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.nativeimpl.io.IOConstants;
 import org.ballerinalang.nativeimpl.io.channels.FileIOChannel;
+import org.ballerinalang.util.codegen.PackageInfo;
+import org.ballerinalang.util.codegen.StructInfo;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,6 +46,7 @@ import javax.activation.MimeTypeParameterList;
 import javax.activation.MimeTypeParseException;
 
 import static org.ballerinalang.mime.util.Constants.ASSIGNMENT;
+import static org.ballerinalang.mime.util.Constants.BUILTIN_PACKAGE;
 import static org.ballerinalang.mime.util.Constants.CONTENT_DISPOSITION_FILENAME_INDEX;
 import static org.ballerinalang.mime.util.Constants.CONTENT_DISPOSITION_FILE_NAME;
 import static org.ballerinalang.mime.util.Constants.CONTENT_DISPOSITION_INDEX;
@@ -61,6 +63,7 @@ import static org.ballerinalang.mime.util.Constants.PARAMETER_MAP_INDEX;
 import static org.ballerinalang.mime.util.Constants.PRIMARY_TYPE_INDEX;
 import static org.ballerinalang.mime.util.Constants.SEMICOLON;
 import static org.ballerinalang.mime.util.Constants.SIZE_INDEX;
+import static org.ballerinalang.mime.util.Constants.STRUCT_GENERIC_ERROR;
 import static org.ballerinalang.mime.util.Constants.SUBTYPE_INDEX;
 import static org.ballerinalang.mime.util.Constants.SUFFIX_INDEX;
 import static org.ballerinalang.mime.util.Constants.TEMP_FILE_EXTENSION;
@@ -265,35 +268,6 @@ public class MimeUtil {
     }
 
     /**
-     * Create a ballerina file struct and set it into the given 'Entity'.
-     *
-     * @param context           Represent ballerina context
-     * @param entityStruct      Represent 'Entity'
-     * @param temporaryFilePath Temporary file path
-     * @return Entity struct populated with file handler
-     *//*
-    static BStruct createBallerinaFileHandler(Context context, BStruct entityStruct, String temporaryFilePath) {
-        BStruct fileStruct = ConnectorUtils
-                .createAndGetStruct(context, Constants.PROTOCOL_PACKAGE_FILE, Constants.FILE);
-        fileStruct.setStringField(TEMP_FILE_PATH_INDEX, temporaryFilePath);
-        entityStruct.setRefField(OVERFLOW_DATA_INDEX, fileStruct);
-        return entityStruct;
-    }
-
-    *//**
-     * Write file content directly to a given outputstream.
-     *
-     * @param entityStruct        Represent a ballerina entity
-     * @param messageOutputStream Represent an outputstream that the file content should be written to
-     * @throws IOException In case an exception occurs while writing file content to outputstream
-     *//*
-    public static void writeFileToOutputStream(BStruct entityStruct, OutputStream messageOutputStream)
-            throws IOException {
-        String overFlowFilePath = EntityBodyHandler.getOverFlowFileLocation(entityStruct);
-        Files.copy(Paths.get(overFlowFilePath), messageOutputStream);
-    }*/
-
-    /**
      * Given an input stream, create a temporary file and write the content to it.
      *
      * @param inputStream Input stream coming from the request/response.
@@ -336,7 +310,7 @@ public class MimeUtil {
      * @return a byte array
      * @throws IOException In case an error occurs while reading input stream
      */
-    public static byte[] getByteArray(InputStream input) throws IOException {
+    static byte[] getByteArray(InputStream input) throws IOException {
         try (ByteArrayOutputStream output = new ByteArrayOutputStream()) {
             byte[] buffer = new byte[4096];
             for (int len; (len = input.read(buffer)) != -1; ) {
@@ -365,37 +339,41 @@ public class MimeUtil {
         return Long.toHexString(PlatformDependent.threadLocalRandom().nextLong());
     }
 
-    public static BStruct createByteChannelStruct(Context context, EntityBodyChannel byteChannel) {
-        BStruct byteChannelStruct = ConnectorUtils.createAndGetStruct(context
-                , org.ballerinalang.mime.util.Constants.PROTOCOL_PACKAGE_IO
-                , org.ballerinalang.mime.util.Constants.BYTE_CHANNEL_STRUCT);
-        byteChannelStruct.addNativeData(IOConstants.BYTE_CHANNEL_NAME, byteChannel);
-        return byteChannelStruct;
-    }
-
-    public static void setByteChannelToEntity(BStruct entityStruct, EntityBodyChannel byteChannel) {
-        entityStruct.addNativeData(ENTITY_BYTE_CHANNEL, byteChannel);
-    }
-
     /**
-     * Wrap the byte channel associated with the given entity as an EntityReader.
+     * Wrap the byte channel associated with the given entity as the EntityBody.
      *
      * @param entityStruct Represent an entity struct
-     * @return EntityBodyReader which wraps the underline byte channel
+     * @return EntityBody which wraps the underline byte channel
      */
-    public static EntityBodyReader constructEntityBodyReader(BStruct entityStruct) {
-        EntityBodyReader entityBodyReader = null;
+    public static EntityBody constructEntityBody(BStruct entityStruct) {
+        EntityBody entityBodyReader = null;
         Object channel = entityStruct.getNativeData(ENTITY_BYTE_CHANNEL);
         if (channel != null) {
             if (channel instanceof EntityBodyChannel) {
-                entityBodyReader = new EntityBodyReader((EntityBodyChannel) channel, true);
+                entityBodyReader = new EntityBody((EntityBodyChannel) channel, true);
             } else if (channel instanceof FileIOChannel) {
-                entityBodyReader = new EntityBodyReader((FileIOChannel) channel, false);
+                entityBodyReader = new EntityBody((FileIOChannel) channel, false);
             } else if (channel instanceof FileChannel) {
-                entityBodyReader = new EntityBodyReader(new FileIOChannel((FileChannel) channel,
+                entityBodyReader = new EntityBody(new FileIOChannel((FileChannel) channel,
                         IOConstants.CHANNEL_BUFFER_SIZE), false);
             }
         }
         return entityBodyReader;
+    }
+
+    /**
+     * Get parser error as a ballerina struct.
+     *
+     * @param context Represent ballerina context
+     * @param errMsg  Error message in string form
+     * @return Ballerina struct with parse error
+     */
+    public static BStruct getParserError(Context context, String errMsg) {
+        PackageInfo errorPackageInfo = context.getProgramFile().getPackageInfo(BUILTIN_PACKAGE);
+        StructInfo errorStructInfo = errorPackageInfo.getStructInfo(STRUCT_GENERIC_ERROR);
+
+        BStruct parserError = new BStruct(errorStructInfo.getType());
+        parserError.setStringField(0, errMsg);
+        return parserError;
     }
 }

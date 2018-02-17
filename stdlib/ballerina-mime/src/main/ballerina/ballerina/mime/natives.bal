@@ -48,6 +48,7 @@ public struct Entity {
 }
 
 @Description {value:"Sets the entity body with a given file handler"}
+@Param {value:"entity: Represent a mime Entity"}
 @Param {value:"fileHandler: Represent a file"}
 public function <Entity entity> setFileAsEntityBody (file:File fileHandler) {
     io:ByteChannel byteChannel = fileHandler.openChannel(READ_PERMISSION);
@@ -55,20 +56,22 @@ public function <Entity entity> setFileAsEntityBody (file:File fileHandler) {
 }
 
 @Description {value:"Sets the entity body with the given json content"}
+@Param {value:"entity: Represent a mime Entity"}
 @Param {value:"jsonContent: Json content that needs to be set to entity"}
 public native function <Entity entity> setJson (json jsonContent);
 
 @Description {value:"Given an entity, get the entity body in json form."}
-@Param {value:"entity: Represent mime Entity"}
+@Param {value:"entity: Represent a mime Entity"}
 @Return {value:"return json data"}
 public native function <Entity entity> getJson () (json);
 
 @Description {value:"Sets the entity body with the given xml content"}
+@Param {value:"entity: Represent a mime Entity"}
 @Param {value:"xmlContent: Xml content that needs to be set to entity"}
 public native function <Entity entity> setXml (xml xmlContent);
 
 @Description {value:"Given an entity, get the entity body in xml form."}
-@Param {value:"entity: Represent mime Entity"}
+@Param {value:"entity: Represent a mime Entity"}
 @Return {value:"return xml data"}
 public native function <Entity entity> getXml () (xml);
 
@@ -77,26 +80,29 @@ public native function <Entity entity> getXml () (xml);
 public native function <Entity entity> setText (string textContent);
 
 @Description {value:"Given an entity, get the entity body in text form."}
-@Param {value:"entity: Represent mime Entity"}
+@Param {value:"entity: Represent a mime Entity"}
 @Return {value:"return text data"}
 public native function <Entity entity> getText () (string);
 
 @Description {value:"Sets the entity body with the given blob content"}
 @Param {value:"blobContent: Blob content that needs to be set to entity"}
+@Return {value:"return a blob"}
 public native function <Entity entity> setBlob (blob blobContent);
 
-@Description {value:"Given an entity, get the entity body as a blob."}
-@Param {value:"entity: Represent mime Entity"}
-@Return {value:"return byte array"}
+@Description {value:"Given an entity, get the entity body as a blob. If the entity size is considerably large consider
+using getByteChannel() method instead"}
+@Param {value:"entity: Represent a mime Entity"}
+@Return {value:"return a blob"}
 public native function <Entity entity> getBlob () (blob);
 
 @Description {value:"Sets the entity body with the given byte channel content"}
+@Param {value:"entity: Represent a mime Entity"}
 @Param {value:"byteChannel: Byte channel that needs to be set to entity"}
 public native function <Entity entity> setByteChannel (io:ByteChannel byteChannel);
 
 @Description {value:"Given an entity, get the entity body as a byte channel."}
-@Param {value:"entity: Represent mime Entity"}
-@Return {value:"return byte channel"}
+@Param {value:"entity: Represent a mime Entity"}
+@Return {value:"return a byte channel"}
 public native function <Entity entity> getByteChannel () (io:ByteChannel);
 
 @Description {value:"Given the Content-Type in string, get the MediaType struct populated with it."}
@@ -216,6 +222,9 @@ public const string APPLICATION_XML = "application/xml";
 
 @Description {value:"Represent 'multipart/form-data' media type value"}
 public const string MULTIPART_FORM_DATA = "multipart/form-data";
+
+@Description {value:"Represent 'multipart/mixed' media type value"}
+public const string MULTIPART_MIXED = "multipart/mixed";
 
 @Description {value:"Represent 'text/html' media type value"}
 public const string TEXT_HTML = "text/html";

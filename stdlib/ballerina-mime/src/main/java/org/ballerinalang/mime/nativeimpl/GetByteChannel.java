@@ -38,7 +38,7 @@ import static org.ballerinalang.mime.util.Constants.FIRST_PARAMETER_INDEX;
 import static org.ballerinalang.mime.util.Constants.PROTOCOL_PACKAGE_IO;
 
 /**
- * Get the entity body as a blob.
+ * Get the entity body as a byte channel.
  *
  * @since 0.964.0
  */
@@ -46,7 +46,7 @@ import static org.ballerinalang.mime.util.Constants.PROTOCOL_PACKAGE_IO;
         packageName = "ballerina.mime",
         functionName = "getByteChannel",
         receiver = @Receiver(type = TypeKind.STRUCT, structType = "Entity", structPackage = "ballerina.mime"),
-        returnType = {@ReturnType(type = TypeKind.BLOB)},
+        returnType = {@ReturnType(type = TypeKind.STRUCT)},
         isPublic = true
 )
 public class GetByteChannel extends AbstractNativeFunction {
@@ -56,12 +56,13 @@ public class GetByteChannel extends AbstractNativeFunction {
         BStruct byteChannelStruct;
         try {
             BStruct entityStruct = (BStruct) this.getRefArgument(context, FIRST_PARAMETER_INDEX);
-            ByteChannel byteChannel = (ByteChannel) entityStruct.getNativeData(ENTITY_BYTE_CHANNEL);
-            byteChannelStruct = ConnectorUtils
-                    .createAndGetStruct(context, PROTOCOL_PACKAGE_IO, BYTE_CHANNEL_STRUCT);
+            ByteChannel byteChannel = entityStruct.getNativeData(ENTITY_BYTE_CHANNEL) != null ?
+                    (ByteChannel) entityStruct.getNativeData(ENTITY_BYTE_CHANNEL) : null;
+            byteChannelStruct = ConnectorUtils.createAndGetStruct(context, PROTOCOL_PACKAGE_IO, BYTE_CHANNEL_STRUCT);
             byteChannelStruct.addNativeData(IOConstants.BYTE_CHANNEL_NAME, byteChannel);
         } catch (Throwable e) {
-            throw new BallerinaException("Error occurred while extracting blob data from entity : " + e.getMessage());
+            throw new BallerinaException("Error occurred while constructing byte channel from entity body : "
+                    + e.getMessage());
         }
         return this.getBValues(byteChannelStruct);
     }

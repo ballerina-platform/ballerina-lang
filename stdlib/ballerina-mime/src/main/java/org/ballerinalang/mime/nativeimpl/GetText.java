@@ -53,9 +53,9 @@ public class GetText extends AbstractNativeFunction {
         BString result = null;
         try {
             BStruct entityStruct = (BStruct) this.getRefArgument(context, FIRST_PARAMETER_INDEX);
-            MessageDataSource payload = EntityBodyHandler.getMessageDataSource(entityStruct);
-            if (payload != null) {
-                result = new BString(payload.getMessageAsString());
+            MessageDataSource dataSource = EntityBodyHandler.getMessageDataSource(entityStruct);
+            if (dataSource != null) {
+                result = new BString(dataSource.getMessageAsString());
             } else {
                 StringDataSource stringDataSource = EntityBodyHandler.constructStringDataSource(entityStruct);
                 if (stringDataSource != null) {
@@ -64,7 +64,7 @@ public class GetText extends AbstractNativeFunction {
                 }
             }
         } catch (Throwable e) {
-            throw new BallerinaException("Error while retrieving json payload from message: " + e.getMessage());
+            throw new BallerinaException("Error occurred while retrieving text data from entity : " + e.getMessage());
         }
         return this.getBValues(result);
     }

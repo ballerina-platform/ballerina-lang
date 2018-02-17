@@ -34,9 +34,9 @@ import org.ballerinalang.util.exceptions.BallerinaException;
 import static org.ballerinalang.mime.util.Constants.FIRST_PARAMETER_INDEX;
 
 /**
- *  Get the entity body as JSON.
+ * Get the entity body in JSON form.
  *
- *  @since 0.964.0
+ * @since 0.964.0
  */
 @BallerinaFunction(
         packageName = "ballerina.mime",
@@ -52,13 +52,13 @@ public class GetJson extends AbstractNativeFunction {
         BJSON result;
         try {
             BStruct entityStruct = (BStruct) this.getRefArgument(context, FIRST_PARAMETER_INDEX);
-            MessageDataSource payload = EntityBodyHandler.getMessageDataSource(entityStruct);
-            if (payload != null) {
-                if (payload instanceof BJSON) {
-                    result = (BJSON) payload;
+            MessageDataSource dataSource = EntityBodyHandler.getMessageDataSource(entityStruct);
+            if (dataSource != null) {
+                if (dataSource instanceof BJSON) {
+                    result = (BJSON) dataSource;
                 } else {
                     // else, build the JSON from the string representation of the payload.
-                    result = new BJSON(payload.getMessageAsString());
+                    result = new BJSON(dataSource.getMessageAsString());
                 }
             } else {
                 result = EntityBodyHandler.constructJsonDataSource(entityStruct);

@@ -20,7 +20,7 @@ package org.ballerinalang.net.http.nativeimpl.connection;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.mime.util.EntityBodyHandler;
-import org.ballerinalang.mime.util.EntityBodyReader;
+import org.ballerinalang.mime.util.EntityBody;
 import org.ballerinalang.mime.util.MimeUtil;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
@@ -117,7 +117,7 @@ public abstract class ConnectionAction extends AbstractNativeFunction {
                 outboundMessageSource.serializeData(messageOutputStream);
                 HttpUtil.closeMessageOutputStream(messageOutputStream);
             } else {
-                EntityBodyReader entityBodyReader = MimeUtil.constructEntityBodyReader(entityStruct);
+                EntityBody entityBodyReader = MimeUtil.constructEntityBody(entityStruct);
                 byte[] buffer = new byte[1024];
                 if (entityBodyReader.isStream()) {
                     InputStream inputStream = Channels.newInputStream(entityBodyReader.getEntityBodyChannel());

@@ -63,6 +63,6 @@ public class GetBlob extends AbstractNativeFunction {
         } catch (Throwable e) {
             throw new BallerinaException("Error occurred while extracting blob data from entity : " + e.getMessage());
         }
-        return this.getBValues(new BBlob(result.getValue()));
+        return this.getBValues(new BBlob(result != null ? result.getValue() : new byte[0]));
     }
 }

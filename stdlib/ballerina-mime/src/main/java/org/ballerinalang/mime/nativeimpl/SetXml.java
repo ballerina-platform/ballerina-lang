@@ -29,20 +29,25 @@ import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 
+import static org.ballerinalang.mime.util.Constants.FIRST_PARAMETER_INDEX;
+import static org.ballerinalang.mime.util.Constants.SECOND_PARAMETER_INDEX;
+
 /**
- * Set the entity body with XML content.
+ * Set the entity body with XML data.
+ *
+ * @since 0.964.0
  */
 @BallerinaFunction(packageName = "ballerina.mime",
         functionName = "setXml",
-        receiver = @Receiver(type = TypeKind.STRUCT, structType = "Entity",
-                structPackage = "ballerina.mime"),
+        receiver = @Receiver(type = TypeKind.STRUCT, structType = "Entity", structPackage = "ballerina.mime"),
         args = {@Argument(name = "xmlContent", type = TypeKind.XML)},
-        isPublic = true)
+        isPublic = true
+)
 public class SetXml extends AbstractNativeFunction {
     @Override
     public BValue[] execute(Context context) {
-        BStruct entityStruct = (BStruct) this.getRefArgument(context, 0);
-        BXML xmlContent = (BXML) this.getRefArgument(context, 1);
+        BStruct entityStruct = (BStruct) this.getRefArgument(context, FIRST_PARAMETER_INDEX);
+        BXML xmlContent = (BXML) this.getRefArgument(context, SECOND_PARAMETER_INDEX);
         EntityBodyHandler.addMessageDataSource(entityStruct, xmlContent);
         return AbstractNativeFunction.VOID_RETURN;
     }

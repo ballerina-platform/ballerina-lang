@@ -57,11 +57,6 @@ public class Constants {
     public static final String APPLICATION_XML = "application/xml";
 
     /**
-     * Content-type text/xml.
-     */
-    public static final String TEXT_XML = "text/xml";
-
-    /**
      * Content-type text/plain.
      */
     public static final String TEXT_PLAIN = "text/plain";
@@ -80,10 +75,6 @@ public class Constants {
      * Content-type multipart/form-data.
      */
     public static final String MULTIPART_FORM_DATA = "multipart/form-data";
-    /**
-     * Content-type multipart/mixed.
-     */
-    public static final String MULTIPART_MIXED = "multipart/mixed";
 
     public static final String MULTIPART_AS_PRIMARY_TYPE = "multipart/";
     public static final String BOUNDARY = "boundary";
@@ -100,14 +91,16 @@ public class Constants {
 
     //Native argument indexes
     public static final int FIRST_PARAMETER_INDEX = 0;
+    public static final int SECOND_PARAMETER_INDEX = 1;
 
     //Entity properties
     public static final int MEDIA_TYPE_INDEX = 0;
     public static final int ENTITY_HEADERS_INDEX = 1;
-    //public static final int ENTITY_BYTE_CHANNEL_INDEX = 2;
-    public static final int MULTIPART_DATA_INDEX = 3;
+    public static final int MULTIPART_DATA_INDEX = 2;
     public static final int SIZE_INDEX = 0;
     public static final int CONTENT_DISPOSITION_INDEX = 3;
+
+    public static final int FIRST_BODY_PART_INDEX = 0;
 
     //Media type properties
     public static final int PRIMARY_TYPE_INDEX = 0;
@@ -126,29 +119,16 @@ public class Constants {
     public static final int STRING_INDEX = 0;
     public static final int CHARSET_INDEX = 1;
 
-    public static final int HEADER_VALUE_INDEX = 0;
-
-    public static final int FILE_PATH_INDEX = 0;
-
     public static final int FIRST_ELEMENT = 0;
 
     public static final int BYTE_LIMIT = 2097152; //2MB
     public static final String UTF_8 = "UTF-8";
     public static final String CONTENT_TRANSFER_ENCODING_7_BIT = "7bit";
     public static final String CONTENT_TRANSFER_ENCODING_8_BIT = "8bit";
-    public static final String CONTENT_TRANSFER_ENCODING_BINARY = "binary";
-    public static final String FILE_SIZE = "basic:size";
 
     public static final String TEMP_FILE_EXTENSION = ".tmp";
     public static final String TEMP_FILE_NAME = "tempFile";
-    public static final String JSON_EXTENSION = ".json";
-    public static final String XML_EXTENSION = ".xml";
 
-    public static final String BALLERINA_TEXT_DATA = "BallerinaTextPayload";
-    public static final String BALLERINA_JSON_DATA = "BallerinaJsonPayload";
-    public static final String BALLERINA_XML_DATA = "BallerinaXmlPayload";
-    public static final String BALLERINA_BINARY_DATA = "BallerinaBinaryPayload";
-    public static final String BALLERINA_BODY_PART_CONTENT = "BallerinaBodyPart";
     public static final String BALLERINA_TEMP_FILE = "BallerinaTempFile";
 
     public static final int NO_CONTENT_LENGTH_FOUND = -1;

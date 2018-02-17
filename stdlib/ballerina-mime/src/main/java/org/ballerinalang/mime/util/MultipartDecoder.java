@@ -49,7 +49,7 @@ import static org.ballerinalang.mime.util.Constants.PROTOCOL_PACKAGE_MIME;
 /**
  * Responsible for decoding an inputstream to get a set of multiparts.
  *
- * @since 0.962.0
+ * @since 0.964.0
  */
 public class MultipartDecoder {
     private static final Logger log = LoggerFactory.getLogger(MultipartDecoder.class);
@@ -129,7 +129,7 @@ public class MultipartDecoder {
                 MimeUtil.setContentDisposition(contentDisposition, partStruct, contentDispositionHeaders
                         .get(FIRST_ELEMENT));
             }
-            EntityBodyHandler.populateBodyContent(context, partStruct, mimePart);
+            EntityBodyHandler.populateBodyContent(partStruct, mimePart);
             bodyParts.add(partStruct);
         }
         EntityBodyHandler.setPartsToTopLevelEntity(entity, bodyParts);

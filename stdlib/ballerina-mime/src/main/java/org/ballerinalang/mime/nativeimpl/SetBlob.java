@@ -29,20 +29,24 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.runtime.message.BlobDataSource;
 
+import static org.ballerinalang.mime.util.Constants.FIRST_PARAMETER_INDEX;
+
 /**
- * Set the entity body with XML content.
+ * Set the entity body with blob data.
+ *
+ * @since 0.964.0
  */
 @BallerinaFunction(packageName = "ballerina.mime",
         functionName = "setBlob",
-        receiver = @Receiver(type = TypeKind.STRUCT, structType = "Entity",
-                structPackage = "ballerina.mime"),
+        receiver = @Receiver(type = TypeKind.STRUCT, structType = "Entity", structPackage = "ballerina.mime"),
         args = {@Argument(name = "blobContent", type = TypeKind.BLOB)},
-        isPublic = true)
+        isPublic = true
+)
 public class SetBlob extends AbstractNativeFunction {
     @Override
     public BValue[] execute(Context context) {
-        BStruct entityStruct = (BStruct) this.getRefArgument(context, 0);
-        byte[] payload = this.getBlobArgument(context, 0);
+        BStruct entityStruct = (BStruct) this.getRefArgument(context, FIRST_PARAMETER_INDEX);
+        byte[] payload = this.getBlobArgument(context, FIRST_PARAMETER_INDEX);
         EntityBodyHandler.addMessageDataSource(entityStruct, new BlobDataSource(payload));
         return AbstractNativeFunction.VOID_RETURN;
     }

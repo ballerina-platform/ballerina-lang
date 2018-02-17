@@ -29,20 +29,25 @@ import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 
+import static org.ballerinalang.mime.util.Constants.FIRST_PARAMETER_INDEX;
+import static org.ballerinalang.mime.util.Constants.SECOND_PARAMETER_INDEX;
+
 /**
- * Set the entity body with JSON content.
+ * Set the entity body with JSON data.
+ *
+ * @since 0.964.0
  */
 @BallerinaFunction(packageName = "ballerina.mime",
         functionName = "setJson",
-        receiver = @Receiver(type = TypeKind.STRUCT, structType = "Entity",
-                structPackage = "ballerina.mime"),
+        receiver = @Receiver(type = TypeKind.STRUCT, structType = "Entity", structPackage = "ballerina.mime"),
         args = {@Argument(name = "jsonContent", type = TypeKind.JSON)},
-        isPublic = true)
+        isPublic = true
+)
 public class SetJson extends AbstractNativeFunction {
     @Override
     public BValue[] execute(Context context) {
-        BStruct entityStruct = (BStruct) this.getRefArgument(context, 0);
-        BJSON jsonContent = (BJSON) this.getRefArgument(context, 1);
+        BStruct entityStruct = (BStruct) this.getRefArgument(context, FIRST_PARAMETER_INDEX);
+        BJSON jsonContent = (BJSON) this.getRefArgument(context, SECOND_PARAMETER_INDEX);
         EntityBodyHandler.addMessageDataSource(entityStruct, jsonContent);
         return AbstractNativeFunction.VOID_RETURN;
     }
