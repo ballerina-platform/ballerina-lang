@@ -41,6 +41,8 @@ public class Constants {
 
     public static final String CONTENT_DISPOSITION = "content-disposition";
 
+    public static final String CONTENT_ID = "Content-Id";
+
     /**
      * Content-Transfer-Encoding HTTP header.
      */
@@ -95,6 +97,7 @@ public class Constants {
 
     //Entity properties
     public static final int MEDIA_TYPE_INDEX = 0;
+    public static final int CONTENT_ID_INDEX = 0;
     public static final int ENTITY_HEADERS_INDEX = 1;
     public static final int MULTIPART_DATA_INDEX = 2;
     public static final int SIZE_INDEX = 0;

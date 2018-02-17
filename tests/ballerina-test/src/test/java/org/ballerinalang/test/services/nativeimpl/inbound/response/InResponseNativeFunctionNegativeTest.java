@@ -141,7 +141,7 @@ public class InResponseNativeFunctionNegativeTest {
         BValue[] returnVals = BRunUtil.invoke(result, "testGetStringPayload", inputArg);
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
                 "Invalid Return Values.");
-        Assert.assertEquals(returnVals[0].stringValue(),"");
+        Assert.assertEquals(returnVals[0].stringValue(), "");
     }
 
     @Test
@@ -156,7 +156,7 @@ public class InResponseNativeFunctionNegativeTest {
         } catch (Throwable e) {
             error = e.getMessage();
         }
-        Assert.assertTrue(error.contains("error while retrieving xml data from entity: " +
+        Assert.assertTrue(error.contains("error occurred while retrieving xml data from entity : " +
                 "Unexpected EOF in prolog"));
     }
 

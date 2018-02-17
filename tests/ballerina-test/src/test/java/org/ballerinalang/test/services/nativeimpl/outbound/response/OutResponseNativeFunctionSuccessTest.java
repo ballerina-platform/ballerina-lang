@@ -315,7 +315,8 @@ public class OutResponseNativeFunctionSuccessTest {
         HTTPCarbonMessage response = Services.invokeNew(serviceResult, inRequestMsg);
 
         Assert.assertNotNull(response, "Response message not found");
-        String returnvalue = StringUtils.getStringFromInputStream(new HttpMessageDataStreamer(response).getInputStream());
+        String returnvalue = StringUtils.getStringFromInputStream(new HttpMessageDataStreamer(response).
+                getInputStream());
         Assert.assertEquals(returnvalue, value);
     }
 
@@ -426,7 +427,7 @@ public class OutResponseNativeFunctionSuccessTest {
                 "Invalid Return Values.");
         Assert.assertTrue(returnVals[0] instanceof BStruct);
         BStruct entity = (BStruct) ((BStruct) returnVals[0]).getNativeData(MESSAGE_ENTITY);
-        BJSON bJson = (BJSON)EntityBodyHandler.getMessageDataSource(entity);
+        BJSON bJson = (BJSON) EntityBodyHandler.getMessageDataSource(entity);
         Assert.assertEquals(bJson.value().get("name").asText(), "wso2", "Payload is not set properly");
     }
 
@@ -488,8 +489,9 @@ public class OutResponseNativeFunctionSuccessTest {
                 "Invalid Return Values.");
         Assert.assertTrue(returnVals[0] instanceof BStruct);
         BStruct entity = (BStruct) ((BStruct) returnVals[0]).getNativeData(MESSAGE_ENTITY);
-        BXML xmlValue = (BXML)EntityBodyHandler.getMessageDataSource(entity);
-        Assert.assertEquals(xmlValue.getTextValue().stringValue(), "Ballerina", "Payload is not set properly");
+        BXML xmlValue = (BXML) EntityBodyHandler.getMessageDataSource(entity);
+        Assert.assertEquals(xmlValue.getTextValue().stringValue(), "Ballerina",
+                "Payload is not set properly");
     }
 
     @Test(description = "Test getStringPayload method with JSON payload")

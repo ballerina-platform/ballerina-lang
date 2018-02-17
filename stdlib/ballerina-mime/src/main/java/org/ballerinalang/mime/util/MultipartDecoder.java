@@ -38,6 +38,7 @@ import static org.ballerinalang.mime.util.Constants.BOUNDARY;
 import static org.ballerinalang.mime.util.Constants.BYTE_LIMIT;
 import static org.ballerinalang.mime.util.Constants.CONTENT_DISPOSITION;
 import static org.ballerinalang.mime.util.Constants.CONTENT_DISPOSITION_STRUCT;
+import static org.ballerinalang.mime.util.Constants.CONTENT_ID_INDEX;
 import static org.ballerinalang.mime.util.Constants.CONTENT_LENGTH;
 import static org.ballerinalang.mime.util.Constants.ENTITY;
 import static org.ballerinalang.mime.util.Constants.ENTITY_HEADERS_INDEX;
@@ -121,6 +122,7 @@ public class MultipartDecoder {
             } else {
                 MimeUtil.setContentLength(partStruct, NO_CONTENT_LENGTH_FOUND);
             }
+            partStruct.setStringField(CONTENT_ID_INDEX, mimePart.getContentId());
             MimeUtil.setContentType(mediaType, partStruct, mimePart.getContentType());
             List<String> contentDispositionHeaders = mimePart.getHeader(CONTENT_DISPOSITION);
             if (HeaderUtil.isHeaderExist(contentDispositionHeaders)) {

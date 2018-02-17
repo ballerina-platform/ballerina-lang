@@ -546,8 +546,8 @@ public class OutRequestNativeFunctionSuccessTest {
                 "Invalid Return Values.");
         Assert.assertTrue(returnVals[0] instanceof BStruct);
         BStruct entity = (BStruct) ((BStruct) returnVals[0]).getNativeData(MESSAGE_ENTITY);
-     //   BXMLItem xmlValue = (BXMLItem) entity.getRefField(XML_DATA_INDEX);
-        BXML xmlValue = (BXML)EntityBodyHandler.getMessageDataSource(entity);
+        //   BXMLItem xmlValue = (BXMLItem) entity.getRefField(XML_DATA_INDEX);
+        BXML xmlValue = (BXML) EntityBodyHandler.getMessageDataSource(entity);
         Assert.assertEquals(xmlValue.getTextValue().stringValue(), "Ballerina", "Payload is not set properly");
     }
 

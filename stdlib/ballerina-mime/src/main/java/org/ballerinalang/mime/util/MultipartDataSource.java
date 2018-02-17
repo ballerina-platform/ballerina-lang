@@ -37,6 +37,8 @@ import java.nio.charset.Charset;
 import java.util.Set;
 
 import static org.ballerinalang.mime.util.Constants.CONTENT_DISPOSITION;
+import static org.ballerinalang.mime.util.Constants.CONTENT_ID;
+import static org.ballerinalang.mime.util.Constants.CONTENT_ID_INDEX;
 import static org.ballerinalang.mime.util.Constants.CONTENT_TYPE;
 import static org.ballerinalang.mime.util.Constants.ENTITY_HEADERS_INDEX;
 
@@ -108,6 +110,8 @@ public class MultipartDataSource extends BallerinaMessageDataSource {
         }
         setContentTypeHeader(bodyPart, entityHeaders);
         setContentDispositionHeader(bodyPart, entityHeaders);
+        setContentIdHeader(bodyPart, entityHeaders);
+
         Set<String> keys = entityHeaders.keySet();
         for (String key : keys) {
             BStringArray headerValues = (BStringArray) entityHeaders.get(key);
@@ -152,6 +156,17 @@ public class MultipartDataSource extends BallerinaMessageDataSource {
         if (MimeUtil.isNotNullAndEmpty(contentDisposition)) {
             HeaderUtil.addToEntityHeaders(entityHeaders, CONTENT_DISPOSITION, contentDisposition);
         }
+    }
+
+    /**
+     * Add content id as an entity header.
+     *
+     * @param bodyPart      Represent a ballerina body part
+     * @param entityHeaders Map of entity headers
+     */
+    private void setContentIdHeader(BStruct bodyPart, BMap<String, BValue> entityHeaders) {
+        String contentId = bodyPart.getStringField(CONTENT_ID_INDEX);
+        HeaderUtil.addToEntityHeaders(entityHeaders, CONTENT_ID, contentId);
     }
 
     /**
