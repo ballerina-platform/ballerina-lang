@@ -19,7 +19,8 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Button, Row, Grid, Col } from 'react-bootstrap';
+import { Row, Grid, Col } from 'react-bootstrap';
+import { Button } from 'semantic-ui-react';
 import Dialog from './../../view/Dialog';
 
 /**
@@ -57,11 +58,12 @@ class DirtyFileCloseConfirmDialog extends React.Component {
         return (
             <Dialog
                 show={this.state.showDialog}
-                title="Save Unsaved Content"
+                title='Save Unsaved Content'
                 actions={
                 [
                     <Button
                         key='dirty-file-close-confirm-dialog-dont-save'
+                        primary
                         onClick={(evt) => {
                             this.onDialogHide();
                             this.props.onConfirm();
@@ -73,6 +75,7 @@ class DirtyFileCloseConfirmDialog extends React.Component {
                     </Button>,
                     <Button
                         key='dirty-file-close-confirm-dialog-save'
+                        primary
                         onClick={(evt) => {
                             this.onDialogHide();
                             this.props.onSave();
@@ -91,11 +94,11 @@ class DirtyFileCloseConfirmDialog extends React.Component {
                 <Grid fluid>
                     <Row>
                         <Col md={2}>
-                            <i className="fw fw-4x fw-warning danger" />
+                            <i className='fw fw-4x fw-warning danger' />
                         </Col>
                         <Col md={10}>
                             <h4 style={{ marginTop: 0 }}>
-                                Do you want to save the changes you made to 
+                                Do you want to save the changes you made to
                                 {' "' + this.props.file.name + '.' + this.props.file.extension + '" '}?
                             </h4>
                             <p>
