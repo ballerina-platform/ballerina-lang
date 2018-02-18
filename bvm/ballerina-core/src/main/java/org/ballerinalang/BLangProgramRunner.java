@@ -112,7 +112,7 @@ public class BLangProgramRunner {
         WorkerExecutionContext ctx = new WorkerExecutionContext(null, respCtx, mainFuncInfo, defaultWorker,
                 workerLocal, workerResult, retRegIndexes, globalProps);
         WorkerExecutionContext context = new WorkerExecutionContext();
-        //BLangFunctions.invokePackageInitFunction(programFile, mainPkgInfo.getInitFunctionInfo(), context);
+        BLangFunctions.invokePackageInitFunction(programFile, mainPkgInfo.getInitFunctionInfo(), context);
         BLangFunctions.invokeFunction(programFile, mainFuncInfo, ctx);
     }
 

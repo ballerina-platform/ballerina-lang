@@ -399,7 +399,7 @@ public class CPU {
                     invokeForkJoin(forkJoinIns);
                     break;
                 case InstructionCodes.WRKRETURN:
-                    handleWorkerReturn();
+                    handleReturn(ctx);
                     break;
                 case InstructionCodes.THROW:
 //                    i = operands[0];
@@ -629,7 +629,7 @@ public class CPU {
                     callersSF.refRegs[callersRetRegIndex] = currentSF.refRegs[j];
                     break;
                 case InstructionCodes.RET:
-                    handleReturn();
+                    handleReturn(ctx);
                     break;
                 case InstructionCodes.XMLATTRSTORE:
                 case InstructionCodes.XMLATTRLOAD:
@@ -2710,30 +2710,6 @@ public class CPU {
         return false;
     }
 
-    private static void handleWorkerReturn() {
-//        WorkerContext workerContext = (WorkerContext) this.ctx;
-//        if (workerContext.parentSF.tryReturn()) {
-//            WorkerData workerCallerSF = workerContext.getControlStack().currentFrame;
-//            workerContext.parentSF.returnedWorker = workerCallerSF.workerInfo.getWorkerName();
-//
-//            WorkerData parentSF = workerContext.parentSF;
-//
-//            copyWorkersReturnValues(workerCallerSF, parentSF);
-//            // Switch to parent ctx
-//            this.ctx = workerContext.parent;
-//            this.controlStack = this.ctx.getControlStack();
-//            controlStack.popFrame();
-//            this.ctx.constPool = this.ctx.workerLocal.packageInfo.getctx.constPoolEntries();
-//            this.code = this.ctx.workerLocal.packageInfo.getInstructions();
-//            ctx.ip = parentSF.retAddrs;
-//        } else {
-//            String msg = workerContext.parentSF.returnedWorker + " already returned.";
-//            ctx.setError(BLangVMErrors.createIllegalStateException(ctx, ctx.ip, msg));
-//            handleError();
-//        }
-        //TODO
-    }
-
     private static void handleWorkerReceive(WorkerDataChannelInfo workerDataChannel, BType[] types, int[] regs) {
 //        BValue[] passedInValues = (BValue[]) workerDataChannel.takeData();
 //        WorkerData currentFrame = ctx.workerLocal;
@@ -2812,7 +2788,7 @@ public class CPU {
         }
     }
 
-    private static void handleReturn() {
+    private static void handleReturn(WorkerExecutionContext ctx) {
 //
 //        // TODO Cache stack frames -  improvement
 //        WorkerData currentSF = controlStack.popFrame();
@@ -2824,6 +2800,7 @@ public class CPU {
 //        }
 //        ctx.ip = currentSF.retAddrs;
         //TODO
+        BLangScheduler.workerReturn(ctx);
     }
 
     private static void copyWorkersReturnValues(WorkerData workerSF, WorkerData parentsSF) {

@@ -33,6 +33,10 @@ public class BLangScheduler {
         executor.submit(new WorkerExecutor(ctx));
     }
     
+    public static void workerReturn(WorkerExecutionContext ctx) {
+        ctx.ip = -1;
+    }
+    
     private static class WorkerExecutor implements Runnable {
 
         private WorkerExecutionContext ctx;
