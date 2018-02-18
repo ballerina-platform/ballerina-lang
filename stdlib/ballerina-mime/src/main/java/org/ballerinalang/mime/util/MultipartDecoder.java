@@ -22,6 +22,7 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.connector.api.ConnectorUtils;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BStruct;
+import org.ballerinalang.util.exceptions.BallerinaException;
 import org.jvnet.mimepull.MIMEConfig;
 import org.jvnet.mimepull.MIMEMessage;
 import org.jvnet.mimepull.MIMEPart;
@@ -70,7 +71,7 @@ public class MultipartDecoder {
                 populateBallerinaParts(context, entity, mimeParts);
             }
         } catch (MimeTypeParseException e) {
-            log.error("Error occurred while decoding body parts from inputstream", e.getMessage());
+            throw new BallerinaException("Error occurred while decoding body parts from inputstream");
         }
     }
 

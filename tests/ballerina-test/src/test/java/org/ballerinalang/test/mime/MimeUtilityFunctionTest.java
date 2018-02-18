@@ -18,7 +18,6 @@
 
 package org.ballerinalang.test.mime;
 
-import io.netty.handler.codec.http.HttpConstants;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.BServiceUtil;
@@ -49,6 +48,7 @@ import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
+import org.wso2.transport.http.netty.message.HttpMessageDataStreamer;
 
 import java.io.BufferedWriter;
 import java.io.ByteArrayInputStream;
@@ -352,7 +352,8 @@ public class MimeUtilityFunctionTest {
         }
     }
 
-    @Test(description = "When payload exceeds 2MB check whether the response received back is not null")
+    @Test(description = "When the payload exceeds 2MB check whether the response received back matches the original " +
+            "content length")
     public void testLargePayload() {
         String path = "/test/largepayload";
         try {
@@ -365,6 +366,15 @@ public class MimeUtilityFunctionTest {
                     responseValue);
             HTTPCarbonMessage response = Services.invokeNew(serviceResult, cMsg);
             Assert.assertNotNull(response, "Response message not found");
+            InputStream inputStream = new HttpMessageDataStreamer(response).getInputStream();
+            Assert.assertNotNull(inputStream, "Inputstream is null");
+            ByteArrayOutputStream out = new ByteArrayOutputStream();
+            byte[] bytes = new byte[1024];
+            int count;
+            while ((count = inputStream.read(bytes)) > 0) {
+                out.write(bytes, 0, count);
+            }
+            Assert.assertEquals(out.size(), 2323779);
         } catch (IOException | URISyntaxException e) {
             LOG.error("Error occured in testLargePayload", e.getMessage());
         }

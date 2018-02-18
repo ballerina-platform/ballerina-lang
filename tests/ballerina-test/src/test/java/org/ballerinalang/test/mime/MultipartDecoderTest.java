@@ -22,6 +22,7 @@ import io.netty.util.internal.StringUtil;
 import org.ballerinalang.launcher.util.BServiceUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.mime.util.MimeUtil;
+import org.ballerinalang.mime.util.MultipartDecoder;
 import org.ballerinalang.net.http.Constants;
 import org.ballerinalang.test.services.testutils.HTTPTestRequest;
 import org.ballerinalang.test.services.testutils.MessageUtils;
@@ -32,7 +33,9 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.carbon.messaging.Header;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
+import org.wso2.transport.http.netty.message.HttpMessageDataStreamer;
 
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -132,5 +135,28 @@ public class MultipartDecoderTest {
         HTTPCarbonMessage response = Services.invokeNew(serviceResult, inRequestMsg);
         Assert.assertNotNull(response, "Response message not found");
         Assert.assertEquals(ResponseReader.getReturnValue(response), " -- Part1 -- Part2" + StringUtil.NEWLINE);
+    }
+
+    @Test(description = "Test sending a multipart request without body parts")
+    public void testMultipartsWithEmptyBody() {
+        String path = "/test/emptyparts";
+        List<Header> headers = new ArrayList<>();
+        String multipartDataBoundary = MimeUtil.getNewMultipartDelimiter();
+        headers.add(new Header(CONTENT_TYPE, "multipart/mixed; boundary=" + multipartDataBoundary));
+        String multipartBody = "--" + multipartDataBoundary + "\r\n" +
+                "--" + multipartDataBoundary + "--" + "\r\n";
+
+        HTTPTestRequest inRequestMsg = MessageUtils.generateHTTPMessage(path, Constants.HTTP_METHOD_POST, headers,
+                multipartBody);
+        InputStream inputStream = new HttpMessageDataStreamer(inRequestMsg).getInputStream();
+        String error = null;
+        try {
+            MultipartDecoder.decodeBodyParts("multipart/mixed; boundary=" + multipartDataBoundary,
+                    inputStream);
+        } catch (Exception e) {
+            error = e.getMessage();
+        }
+        Assert.assertNotNull(error);
+        Assert.assertTrue(error.contains("Reached EOF, but there is no closing MIME boundary"));
     }
 }

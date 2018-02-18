@@ -71,6 +71,16 @@ service<http> helloServer {
         response.setStringPayload(content);
         _ = conn.respond(response);
     }
+
+    @http:resourceConfig {
+        methods:["POST"],
+        path:"/emptyparts"
+    }
+    resource multipart6 (http:Connection conn, http:InRequest request) {
+        mime:Entity entity = request.getEntity();
+        http:OutResponse response = {};
+        _ = conn.respond(response);
+    }
 }
 
 function handleContent (mime:Entity bodyPart) (string) {

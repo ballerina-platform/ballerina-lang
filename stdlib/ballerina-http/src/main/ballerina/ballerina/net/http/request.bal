@@ -261,10 +261,14 @@ public function <OutRequest request> setBinaryPayload (blob payload) {
 @Description {value:"Set multiparts as the request payload"}
 @Param {value:"request: The request message"}
 @Param {value:"bodyParts: Represent body parts that needs to be set to the request"}
-public function <OutRequest request> setMultiparts (mime:Entity[] bodyParts) {
+@Param {value:"contentType: Content type of the top level message"}
+public function <OutRequest request> setMultiparts (mime:Entity[] bodyParts, string contentType) {
     mime:Entity entity = request.getEntityWithoutBody();
     entity.multipartData = bodyParts;
-    mime:MediaType mediaType = mime:getMediaType(mime:MULTIPART_FORM_DATA);
+    mime:MediaType mediaType = mime:getMediaType(mime:MULTIPART_MIXED);
+    if (contentType != null || contentType != "") {
+        mediaType = mime:getMediaType(contentType);
+    }
     entity.contentType = mediaType;
     request.setEntity(entity);
 }
