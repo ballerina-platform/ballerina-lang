@@ -75,6 +75,18 @@ class TransformerFactory {
         return variable;
     }
 
+    static createIterableOperation(name, type, sourceType, isLamda) {
+        let lambdaFunction = '';
+        if (isLamda) {
+            lambdaFunction = `function(${sourceType} item)(boolean){ return true; }`;
+        }
+        const fragment = FragmentUtils.createExpressionFragment(`${name}.${type}(${lambdaFunction})`);
+        const parsedJson = FragmentUtils.parseFragment(fragment);
+        const exp = TreeBuilder.build(parsedJson).getVariable().getInitialExpression();
+        exp.clearWS();
+        return exp;
+    }
+
     /**
      * Create default expression based on argument type
      * @static

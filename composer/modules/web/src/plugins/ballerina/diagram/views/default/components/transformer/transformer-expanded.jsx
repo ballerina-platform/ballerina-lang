@@ -34,6 +34,7 @@ import TreeUtil from '../../../../../model/tree-util';
 import DropZone from '../../../../../drag-drop/DropZone';
 import Button from '../../../../../interactions/transform-button';
 import './transformer-expanded.css';
+import IterableList from './iterable-list';
 
 /**
  * React component for transform expanded view
@@ -52,6 +53,10 @@ class TransformerExpanded extends React.Component {
         super(props, context);
         this.state = {
             // vertices changes must re-render. Hence added as a state.
+            showIterables: false,
+            iterableX: 0,
+            iterableY: 0,
+            currrentConnection: {},
             vertices: [],
             typedSource: '',
             typedTarget: '',
@@ -548,9 +553,16 @@ class TransformerExpanded extends React.Component {
             } else if (TreeUtil.isInvocation(expression)) {
                 type = this.getFunctionArgConversionType(expression.getArgumentExpressions(),
                                                           sourceId.split(':')[0]);
+            } else if (TreeUtil.isFieldBasedAccessExpr(expression) && expression.symbolType[0].includes('[]')) {
+                type = 'array';
             }
         }
-        this.mapper.addConnection(sourceId, targetId, folded, type);
+
+        const callback = (pageX, pageY, connection) => {
+            this.setState({ showIterables: true, iterableX: pageX, iterableY: pageY, currrentConnection: connection });
+        };
+
+        this.mapper.addConnection(sourceId, targetId, folded, type, callback);
     }
 
     /**
@@ -1343,9 +1355,16 @@ class TransformerExpanded extends React.Component {
                                         }
                                     </DropZone>
                                     <Button
+                                        className='transformer-button'
                                         bBox={{ x: 0, y: 0, h: 0, w: 300 }}
                                         showAlways
                                         model={this.props.model.getBody()}
+                                        transformNodeManager={this.transformNodeManager}
+                                    />
+                                    <IterableList
+                                        showIterables={this.state.showIterables}
+                                        bBox={{ x: this.state.iterableX, y: this.state.iterableY, h: 0, w: 0 }}
+                                        currrentConnection={this.state.currrentConnection}
                                         transformNodeManager={this.transformNodeManager}
                                     />
                                     <div className='right-content'>

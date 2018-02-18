@@ -565,6 +565,10 @@ class TransformerNodeManager {
             return false;
         }
     }
+
+    addIterableOperator(connection, type, isLamda) {
+        this._mapper.addIterator(connection.source.name, connection.target.name, type, connection.source.type, isLamda);
+    }
  }
 
 export default TransformerNodeManager;

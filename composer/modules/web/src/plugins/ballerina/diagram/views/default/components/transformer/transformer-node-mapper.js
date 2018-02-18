@@ -1686,6 +1686,25 @@ class TransformerNodeMapper {
         });
         return kvp;
     }
+
+    addIterator(source, target, type, sourceType, isLamda) {
+        this.getMappingStatements().forEach((stmt) => {
+            if (TreeUtil.isAssignment(stmt)) {
+                if (stmt.getVariables()[0].getSource().trim() === target &&
+                    stmt.getExpression().getSource().trim() === source) {
+                    stmt.setExpression(
+                        TransformerFactory
+                            .createIterableOperation(source, type, sourceType.replace('[]', '')), isLamda);
+                    stmt.trigger('tree-modified', {
+                        origin: stmt,
+                        type: 'variable-update',
+                        title: `Variable update ${source}`,
+                        data: {},
+                    });
+                }
+            }
+        });
+    }
 }
 
 export default TransformerNodeMapper;
