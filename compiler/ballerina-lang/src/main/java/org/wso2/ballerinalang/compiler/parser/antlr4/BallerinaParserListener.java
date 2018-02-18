@@ -600,6 +600,26 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 */
 	void exitRecordLiteral(BallerinaParser.RecordLiteralContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link BallerinaParser#stuctMapJsonLiteral}.
+	 * @param ctx the parse tree
+	 */
+	void enterStuctMapJsonLiteral(BallerinaParser.StuctMapJsonLiteralContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BallerinaParser#stuctMapJsonLiteral}.
+	 * @param ctx the parse tree
+	 */
+	void exitStuctMapJsonLiteral(BallerinaParser.StuctMapJsonLiteralContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link BallerinaParser#tableLiteral}.
+	 * @param ctx the parse tree
+	 */
+	void enterTableLiteral(BallerinaParser.TableLiteralContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BallerinaParser#tableLiteral}.
+	 * @param ctx the parse tree
+	 */
+	void exitTableLiteral(BallerinaParser.TableLiteralContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link BallerinaParser#recordKeyValue}.
 	 * @param ctx the parse tree
 	 */

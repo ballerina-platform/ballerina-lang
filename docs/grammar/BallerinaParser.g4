@@ -261,7 +261,15 @@ variableDefinitionStatement
     ;
 
 recordLiteral
-    :   LEFT_BRACE (recordKeyValue (COMMA recordKeyValue)*)? RIGHT_BRACE
+    :   LEFT_BRACE (stuctMapJsonLiteral | tableLiteral) RIGHT_BRACE
+    ;
+
+stuctMapJsonLiteral
+    :   (recordKeyValue (COMMA recordKeyValue)*)?
+    ;
+
+tableLiteral
+    :   arrayLiteral
     ;
 
 recordKeyValue

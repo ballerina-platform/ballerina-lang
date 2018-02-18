@@ -13,3 +13,8 @@ public native function <table dt> hasNext () (boolean);
 @Param { value:"dt: The table object" }
 @Return { value:"The resulting row as a struct" }
 public native function <table dt> getNext () (any);
+
+@Description { value:"Add struct to the table."}
+@Param { value:"data: A struct with data" }
+public native function <table dt> add (any data);
+

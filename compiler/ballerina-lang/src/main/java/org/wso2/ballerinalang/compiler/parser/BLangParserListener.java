@@ -882,7 +882,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
     }
 
     @Override
-    public void enterRecordLiteral(BallerinaParser.RecordLiteralContext ctx) {
+    public void enterStuctMapJsonLiteral(BallerinaParser.StuctMapJsonLiteralContext ctx) {
         if (ctx.exception != null) {
             return;
         }
@@ -891,7 +891,25 @@ public class BLangParserListener extends BallerinaParserBaseListener {
     }
 
     @Override
-    public void exitRecordLiteral(BallerinaParser.RecordLiteralContext ctx) {
+    public void exitStuctMapJsonLiteral(BallerinaParser.StuctMapJsonLiteralContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+
+        this.pkgBuilder.addMapStructLiteral(getCurrentPos(ctx), getWS(ctx));
+    }
+
+    @Override
+    public void enterTableLiteral(BallerinaParser.TableLiteralContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+
+        this.pkgBuilder.startMapStructLiteral();
+    }
+
+    @Override
+    public void exitTableLiteral(BallerinaParser.TableLiteralContext ctx) {
         if (ctx.exception != null) {
             return;
         }

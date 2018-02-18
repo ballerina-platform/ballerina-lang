@@ -163,4 +163,19 @@ public class BLangRecordLiteral extends BLangExpression implements RecordLiteral
             visitor.visit(this);
         }
     }
+
+    /**
+     * @since 0.963.0
+     */
+    public static class BLangTableLiteral extends BLangRecordLiteral {
+
+        public BLangTableLiteral(BType tableType) {
+            this.type = tableType;
+        }
+
+        @Override
+        public void accept(BLangNodeVisitor visitor) {
+            visitor.visit(this);
+        }
+    }
 }

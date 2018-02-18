@@ -43,11 +43,17 @@ public interface DataIterator {
 
     boolean getBoolean(int columnIndex);
 
-    String getBlob(int columnIndex);
+    default String getBlob(int columnIndex)  {
+        throw new AssertionError();
+    }
 
-    Object[] getStruct(int columnIndex);
+    default Object[] getStruct(int columnIndex)  {
+        throw new AssertionError();
+    }
 
-    Object[] getArray(int columnIndex);
+    default Object[] getArray(int columnIndex)  {
+        throw new AssertionError();
+    }
 
     BStruct generateNext();
 
