@@ -77,7 +77,7 @@ import static org.ballerinalang.mime.util.Constants.SUFFIX_INDEX;
  * @since 0.964.0
  */
 public class MimeUtilityFunctionTest {
-    private static final Logger LOG = LoggerFactory.getLogger(MimeUtilityFunctionTest.class);
+    private static final Logger log = LoggerFactory.getLogger(MimeUtilityFunctionTest.class);
 
     private CompileResult compileResult, serviceResult;
     private final String protocolPackageMime = PROTOCOL_PACKAGE_MIME;
@@ -261,7 +261,7 @@ public class MimeUtilityFunctionTest {
             Assert.assertEquals(returns[0].stringValue(), "Hello Ballerina!",
                     "Entity body is not properly set");
         } catch (IOException e) {
-            LOG.error("Error occurred in testSetFileAsEntityBody", e.getMessage());
+            log.error("Error occurred in testSetFileAsEntityBody", e.getMessage());
         }
     }
 
@@ -282,7 +282,7 @@ public class MimeUtilityFunctionTest {
             Assert.assertEquals(returns[0].stringValue(), "Hello Ballerina!",
                     "Entity body is not properly set");
         } catch (IOException e) {
-            LOG.error("Error occurred in testSetByteChannel", e.getMessage());
+            log.error("Error occurred in testSetByteChannel", e.getMessage());
         }
     }
 
@@ -307,7 +307,7 @@ public class MimeUtilityFunctionTest {
             Assert.assertEquals(StringUtils.getStringFromInputStream(new ByteArrayInputStream(fileIOChannel.readAll())),
                     "Hello Ballerina!");
         } catch (IOException e) {
-            LOG.error("Error occurred in testSetByteChannel", e.getMessage());
+            log.error("Error occurred in testSetByteChannel", e.getMessage());
         }
     }
 
@@ -327,12 +327,12 @@ public class MimeUtilityFunctionTest {
             Assert.assertEquals(returns.length, 1);
             Assert.assertEquals(returns[0].stringValue(), "File Content");
         } catch (IOException e) {
-            LOG.error("Error occurred in testSetByteChannel", e.getMessage());
+            log.error("Error occurred in testSetByteChannel", e.getMessage());
         }
     }
 
-    @Test(description = "Once the file channel is created and temp file deleted, check whether the content can be " +
-            "still retrieved properly from the file channel")
+    @Test(description = "Once the file channel is created and temp file deleted, check whether the content can " +
+            "still be retrieved properly from the file channel")
     public void testTempFileDeletion() {
         File file;
         try {
@@ -348,7 +348,7 @@ public class MimeUtilityFunctionTest {
             EntityBodyHandler.writeInputToOutputStream(result, inputStream);
             Assert.assertEquals(result.toString("UTF-8"), "File Content");
         } catch (IOException e) {
-            LOG.error("Error occurred in testTempFileDeletion", e.getMessage());
+            log.error("Error occurred in testTempFileDeletion", e.getMessage());
         }
     }
 
@@ -376,7 +376,7 @@ public class MimeUtilityFunctionTest {
             }
             Assert.assertEquals(out.size(), 2323779);
         } catch (IOException | URISyntaxException e) {
-            LOG.error("Error occured in testLargePayload", e.getMessage());
+            log.error("Error occured in testLargePayload", e.getMessage());
         }
     }
 }

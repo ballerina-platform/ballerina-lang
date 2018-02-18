@@ -26,8 +26,6 @@ import org.ballerinalang.util.exceptions.BallerinaException;
 import org.jvnet.mimepull.MIMEConfig;
 import org.jvnet.mimepull.MIMEMessage;
 import org.jvnet.mimepull.MIMEPart;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -54,7 +52,6 @@ import static org.ballerinalang.mime.util.Constants.PROTOCOL_PACKAGE_MIME;
  * @since 0.964.0
  */
 public class MultipartDecoder {
-    private static final Logger log = LoggerFactory.getLogger(MultipartDecoder.class);
 
     /**
      * Decode inputstream and populate ballerina body parts.
@@ -145,7 +142,7 @@ public class MultipartDecoder {
     }
 
     private static void populateContentDisposition(BStruct partStruct, List<String> contentDispositionHeaders,
-                                                  BStruct contentDisposition) {
+                                                   BStruct contentDisposition) {
         MimeUtil.setContentDisposition(contentDisposition, partStruct, contentDispositionHeaders
                 .get(FIRST_ELEMENT));
     }

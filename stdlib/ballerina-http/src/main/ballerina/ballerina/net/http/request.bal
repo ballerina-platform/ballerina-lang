@@ -266,7 +266,7 @@ public function <OutRequest request> setMultiparts (mime:Entity[] bodyParts, str
     mime:Entity entity = request.getEntityWithoutBody();
     entity.multipartData = bodyParts;
     mime:MediaType mediaType = mime:getMediaType(mime:MULTIPART_MIXED);
-    if (contentType != null || contentType != "") {
+    if (contentType != null && contentType != "") {
         mediaType = mime:getMediaType(contentType);
     }
     entity.contentType = mediaType;
