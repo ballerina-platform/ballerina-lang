@@ -125,10 +125,11 @@ public final class HTTP2SourceHandler extends Http2ConnectionHandler {
                                   Http2Headers headers, int padding, boolean endOfStream) throws Http2Exception {
 
             HTTPCarbonMessage sourceReqCMsg = setupHTTPCarbonMessage(streamId, headers);
-            streamIdRequestMap.put(streamId, sourceReqCMsg);
 
             if (endOfStream) {  // Add empty last http content if no data frames available in the http request
                 sourceReqCMsg.addHttpContent(new EmptyLastHttpContent());
+            } else {
+                streamIdRequestMap.put(streamId, sourceReqCMsg);
             }
             notifyRequestListener(sourceReqCMsg, streamId);
         }
@@ -148,6 +149,7 @@ public final class HTTP2SourceHandler extends Http2ConnectionHandler {
             if (sourceReqCMsg != null) {
                 if (endOfStream) {
                     sourceReqCMsg.addHttpContent(new DefaultLastHttpContent(data.retain()));
+                    streamIdRequestMap.remove(streamId);
                 } else {
                     sourceReqCMsg.addHttpContent(new DefaultHttpContent(data.retain()));
                 }
