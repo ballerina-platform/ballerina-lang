@@ -23,7 +23,7 @@ import org.ballerinalang.bre.bvm.BLangVMErrors;
 import org.ballerinalang.bre.bvm.CPU;
 import org.ballerinalang.bre.bvm.ControlStack;
 import org.ballerinalang.bre.bvm.StackFrame;
-import org.ballerinalang.bre.bvm.SyncInvocableWorkerResultContext;
+import org.ballerinalang.bre.bvm.SyncInvocableWorkerResponseContext;
 import org.ballerinalang.bre.bvm.WorkerData;
 import org.ballerinalang.bre.bvm.WorkerExecutionContext;
 import org.ballerinalang.bre.bvm.WorkerResponseContext;
@@ -275,7 +275,8 @@ public class BLangFunctions {
         return returnValues;
     }
     
-    private static WorkerData createWorkerDataForLocal(WorkerInfo workerInfo) {
+    private static WorkerData createWorkerDataForLocal(WorkerInfo workerInfo, WorkerExecutionContext parentCtx,
+            int[] argRegs, BType[] paramTypes) {
         WorkerData wd = new WorkerData();
         CodeAttributeInfo ci = workerInfo.getCodeAttributeInfo();
         wd.longRegs = new long[ci.getMaxLongRegs()];
@@ -283,7 +284,8 @@ public class BLangFunctions {
         wd.stringRegs = new String[ci.getMaxStringRegs()];
         wd.intRegs = new int[ci.getMaxIntRegs()];
         wd.byteRegs = new byte[ci.getMaxByteRegs()][];
-        wd.refRegs = new BRefType[ci.getMaxRefRegs()];
+        wd.refRegs = new BRefType[ci.getMaxRefRegs()];        
+        copyArgValues(parentCtx.workerLocal, wd, argRegs, paramTypes);
         return wd;
     }
     
@@ -337,18 +339,58 @@ public class BLangFunctions {
         return index;
     }
 
-    public static void invokeFunction(ProgramFile programFile, FunctionInfo initFuncInfo, WorkerExecutionContext parentCtx) {
-        WorkerInfo workerInfo = initFuncInfo.getDefaultWorkerInfo();
-        WorkerResponseContext respCtx = new SyncInvocableWorkerResultContext();
-        WorkerData workerLocal = createWorkerDataForLocal(workerInfo);
-        WorkerReturnIndex wri = calculateWorkerReturnIndex(initFuncInfo.getRetParamTypes());
+    public static void invokeFunction(ProgramFile programFile, FunctionInfo functionInfo, 
+            WorkerExecutionContext parentCtx) {
+        invokeFunction(programFile, functionInfo, parentCtx, new int[0]);
+    }
+    
+    public static void invokeFunction(ProgramFile programFile, FunctionInfo functionInfo, 
+            WorkerExecutionContext parentCtx, int[] argRegs) {
+        WorkerInfo workerInfo = functionInfo.getDefaultWorkerInfo();
+        WorkerResponseContext respCtx = new SyncInvocableWorkerResponseContext(functionInfo.getRetParamTypes());
+        WorkerData workerLocal = createWorkerDataForLocal(workerInfo, parentCtx, argRegs,
+                functionInfo.getParamTypes());
+        WorkerReturnIndex wri = calculateWorkerReturnIndex(functionInfo.getRetParamTypes());
         WorkerData workerResult = createWorkerDataForReturn(wri);
-        int[] retRegIndexes = wri.retRegs;
         Map<String, Object> globalProps = new HashMap<>();
-        WorkerExecutionContext ctx = new WorkerExecutionContext(parentCtx, respCtx, initFuncInfo, workerInfo,
-                workerLocal, workerResult, retRegIndexes, globalProps);
+        WorkerExecutionContext ctx = new WorkerExecutionContext(parentCtx, respCtx, functionInfo, workerInfo,
+                workerLocal, workerResult, wri.retRegs, globalProps);
         CPU.exec(ctx);
     }
+    
+    private static void copyArgValues(WorkerData caller, WorkerData callee, int[] argRegs, BType[] paramTypes) {
+        int longRegIndex = -1;
+        int doubleRegIndex = -1;
+        int stringRegIndex = -1;
+        int booleanRegIndex = -1;
+        int refRegIndex = -1;
+        int blobRegIndex = -1;
+
+        for (int i = 0; i < argRegs.length; i++) {
+            BType paramType = paramTypes[i];
+            int argReg = argRegs[i];
+            switch (paramType.getTag()) {
+                case TypeTags.INT_TAG:
+                    callee.longRegs[++longRegIndex] = caller.longRegs[argReg];
+                    break;
+                case TypeTags.FLOAT_TAG:
+                    callee.doubleRegs[++doubleRegIndex] = caller.doubleRegs[argReg];
+                    break;
+                case TypeTags.STRING_TAG:
+                    callee.stringRegs[++stringRegIndex] = caller.stringRegs[argReg];
+                    break;
+                case TypeTags.BOOLEAN_TAG:
+                    callee.intRegs[++booleanRegIndex] = caller.intRegs[argReg];
+                    break;
+                case TypeTags.BLOB_TAG:
+                    callee.byteRegs[++blobRegIndex] = caller.byteRegs[argReg];
+                    break;
+                default:
+                    callee.refRegs[++refRegIndex] = caller.refRegs[argReg];
+            }
+        }
+    }
+
     
     public static void invokeFunction2(ProgramFile programFile, FunctionInfo initFuncInfo, Context context) {
         WorkerInfo defaultWorker = initFuncInfo.getDefaultWorkerInfo();

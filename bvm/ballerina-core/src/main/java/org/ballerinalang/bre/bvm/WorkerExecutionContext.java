@@ -59,17 +59,17 @@ public class WorkerExecutionContext {
     
     public WorkerInfo workerInfo;
     
-    public WorkerResponseContext resultCtx;
+    public WorkerResponseContext respCtx;
 
     public WorkerExecutionContext() {
         this.globalProperties = new HashMap<>();
     }
     
-    public WorkerExecutionContext(WorkerExecutionContext parent, WorkerResponseContext resultCtx, 
+    public WorkerExecutionContext(WorkerExecutionContext parent, WorkerResponseContext respCtx, 
             CallableUnitInfo callableUnitInfo, WorkerInfo workerInfo, WorkerData workerLocal, 
             WorkerData workerResult, int[] retRegIndexes, Map<String, Object> globalProperties) {
         this.parent = parent;
-        this.resultCtx = resultCtx;
+        this.respCtx = respCtx;
         this.callableUnitInfo = callableUnitInfo;
         this.workerInfo = workerInfo;
         this.programFile = callableUnitInfo.getPackageInfo().getProgramFile();

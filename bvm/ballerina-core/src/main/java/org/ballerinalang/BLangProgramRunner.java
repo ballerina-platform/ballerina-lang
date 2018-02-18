@@ -22,7 +22,7 @@ import org.ballerinalang.bre.bvm.BLangVM;
 import org.ballerinalang.bre.bvm.BLangVMErrors;
 import org.ballerinalang.bre.bvm.ControlStack;
 import org.ballerinalang.bre.bvm.StackFrame;
-import org.ballerinalang.bre.bvm.SyncInvocableWorkerResultContext;
+import org.ballerinalang.bre.bvm.SyncInvocableWorkerResponseContext;
 import org.ballerinalang.bre.bvm.WorkerData;
 import org.ballerinalang.bre.bvm.WorkerExecutionContext;
 import org.ballerinalang.bre.bvm.WorkerResponseContext;
@@ -97,23 +97,22 @@ public class BLangProgramRunner {
         if (!programFile.isMainEPAvailable()) {
             throw new BallerinaException("main function not found in  '" + programFile.getProgramFilePath() + "'");
         }
-
         PackageInfo mainPkgInfo = programFile.getEntryPackage();
         if (mainPkgInfo == null) {
             throw new BallerinaException("main function not found in  '" + programFile.getProgramFilePath() + "'");
         }
         FunctionInfo mainFuncInfo = getMainFunction(mainPkgInfo);
         WorkerInfo defaultWorker = mainFuncInfo.getDefaultWorkerInfo();
-        WorkerResponseContext respCtx = new SyncInvocableWorkerResultContext();
+        WorkerResponseContext respCtx = new SyncInvocableWorkerResponseContext();
         WorkerData workerLocal = new WorkerData();
         WorkerData workerResult = new WorkerData();
         int[] retRegIndexes = new int[0];
         Map<String, Object> globalProps = new HashMap<>();
-        WorkerExecutionContext ctx = new WorkerExecutionContext(null, respCtx, mainFuncInfo, defaultWorker,
+        WorkerExecutionContext parentCtx = new WorkerExecutionContext(null, respCtx, mainFuncInfo, defaultWorker,
                 workerLocal, workerResult, retRegIndexes, globalProps);
         WorkerExecutionContext context = new WorkerExecutionContext();
         BLangFunctions.invokePackageInitFunction(programFile, mainPkgInfo.getInitFunctionInfo(), context);
-        BLangFunctions.invokeFunction(programFile, mainFuncInfo, ctx);
+        BLangFunctions.invokeFunction(programFile, mainFuncInfo, parentCtx);
     }
 
 

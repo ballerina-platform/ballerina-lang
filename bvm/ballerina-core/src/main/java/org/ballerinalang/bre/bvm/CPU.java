@@ -2789,18 +2789,7 @@ public class CPU {
     }
 
     private static void handleReturn(WorkerExecutionContext ctx) {
-//
-//        // TODO Cache stack frames -  improvement
-//        WorkerData currentSF = controlStack.popFrame();
-//        if (ctx.workerLocal != null) {
-//            WorkerData callersSF = ctx.workerLocal;
-//            // TODO Improve
-//            this.ctx.constPool = callersSF.packageInfo.getctx.constPoolEntries();
-//            this.code = callersSF.packageInfo.getInstructions();
-//        }
-//        ctx.ip = currentSF.retAddrs;
-        //TODO
-        BLangScheduler.workerReturn(ctx);
+        ctx.respCtx.signal(new WorkerSignal(ctx, SignalType.RETURN, ctx.workerResult));
     }
 
     private static void copyWorkersReturnValues(WorkerData workerSF, WorkerData parentsSF) {
