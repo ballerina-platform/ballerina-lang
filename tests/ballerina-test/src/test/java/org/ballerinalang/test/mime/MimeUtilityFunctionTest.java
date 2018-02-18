@@ -18,8 +18,10 @@
 
 package org.ballerinalang.test.mime;
 
+import io.netty.handler.codec.http.HttpConstants;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
+import org.ballerinalang.launcher.util.BServiceUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.mime.util.EntityBody;
 import org.ballerinalang.mime.util.EntityBodyHandler;
@@ -34,17 +36,31 @@ import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BXML;
 import org.ballerinalang.nativeimpl.io.IOConstants;
 import org.ballerinalang.nativeimpl.io.channels.FileIOChannel;
+import org.ballerinalang.nativeimpl.io.channels.base.AbstractChannel;
+import org.ballerinalang.nativeimpl.io.channels.base.CharacterChannel;
+import org.ballerinalang.test.nativeimpl.functions.io.MockByteChannel;
+import org.ballerinalang.test.nativeimpl.functions.io.util.TestUtil;
+import org.ballerinalang.test.services.testutils.HTTPTestRequest;
+import org.ballerinalang.test.services.testutils.MessageUtils;
+import org.ballerinalang.test.services.testutils.Services;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 
 import java.io.BufferedWriter;
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStream;
+import java.net.URISyntaxException;
+import java.nio.channels.ByteChannel;
+import java.nio.channels.Channels;
+import java.nio.charset.StandardCharsets;
 
 import static org.ballerinalang.mime.util.Constants.FILE;
 import static org.ballerinalang.mime.util.Constants.MEDIA_TYPE;
@@ -63,7 +79,7 @@ import static org.ballerinalang.mime.util.Constants.SUFFIX_INDEX;
 public class MimeUtilityFunctionTest {
     private static final Logger LOG = LoggerFactory.getLogger(MimeUtilityFunctionTest.class);
 
-    private CompileResult compileResult;
+    private CompileResult compileResult, serviceResult;
     private final String protocolPackageMime = PROTOCOL_PACKAGE_MIME;
     private final String protocolPackageFile = PROTOCOL_PACKAGE_FILE;
     private final String mediaTypeStruct = MEDIA_TYPE;
@@ -72,6 +88,82 @@ public class MimeUtilityFunctionTest {
     public void setup() {
         String sourceFilePath = "test-src/mime/mime-test.bal";
         compileResult = BCompileUtil.compile(sourceFilePath);
+        serviceResult = BServiceUtil.setupProgramFile(this, sourceFilePath);
+    }
+
+    @Test(description = "Test 'getMediaType' function in ballerina.mime package")
+    public void testGetMediaType() {
+        String contentType = "multipart/form-data; boundary=032a1ab685934650abbe059cb45d6ff3";
+        BValue[] args = {new BString(contentType)};
+        BValue[] returns = BRunUtil.invoke(compileResult, "testGetMediaType", args);
+        Assert.assertEquals(returns.length, 1);
+        BStruct mediaType = (BStruct) returns[0];
+        Assert.assertEquals(mediaType.getStringField(PRIMARY_TYPE_INDEX), "multipart");
+        Assert.assertEquals(mediaType.getStringField(SUBTYPE_INDEX), "form-data");
+        Assert.assertEquals(mediaType.getStringField(SUFFIX_INDEX), "");
+        BMap map = (BMap) mediaType.getRefField(PARAMETER_MAP_INDEX);
+        Assert.assertEquals(map.get("boundary").stringValue(), "032a1ab685934650abbe059cb45d6ff3");
+    }
+
+    @Test(description = "Test 'toString' function in ballerina.mime package")
+    public void testToStringOnMediaType() {
+        BStruct mediaType = BCompileUtil
+                .createAndGetStruct(compileResult.getProgFile(), protocolPackageMime, mediaTypeStruct);
+        mediaType.setStringField(PRIMARY_TYPE_INDEX, "application");
+        mediaType.setStringField(SUBTYPE_INDEX, "test+xml");
+        BValue[] args = {mediaType};
+        BValue[] returns = BRunUtil.invoke(compileResult, "testToStringOnMediaType", args);
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals(returns[0].stringValue(), "application/test+xml");
+    }
+
+    @Test(description = "Test 'toStringWithParameters' function in ballerina.mime package")
+    public void testToStringWithParametersOnMediaType() {
+        BStruct mediaType = BCompileUtil
+                .createAndGetStruct(compileResult.getProgFile(), protocolPackageMime, mediaTypeStruct);
+        mediaType.setStringField(PRIMARY_TYPE_INDEX, "application");
+        mediaType.setStringField(SUBTYPE_INDEX, "test+xml");
+        BMap map = new BMap();
+        map.put("charset", new BString("utf-8"));
+        mediaType.setRefField(PRIMARY_TYPE_INDEX, map);
+        BValue[] args = {mediaType};
+        BValue[] returns = BRunUtil.invoke(compileResult, "testToStringWithParametersOnMediaType", args);
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals(returns[0].stringValue(), "application/test+xml; charset=utf-8");
+    }
+
+    @Test(description = "Test 'testMimeBase64Encode' function in ballerina.mime package")
+    public void testMimeBase64Encode() {
+        BBlob blob = new BBlob("a".getBytes());
+        BValue[] args = {blob};
+        BValue[] returns = BRunUtil.invoke(compileResult, "testMimeBase64Encode", args);
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals(returns[0].stringValue(), "YQ==");
+    }
+
+    @Test(description = "Test 'testMimeBase64EncodeString' function in ballerina.mime package")
+    public void testMimeBase64EncodeString() {
+        BValue[] args = {new BString("Ballerina"), new BString("utf-8")};
+        BValue[] returns = BRunUtil.invoke(compileResult, "testMimeBase64EncodeString", args);
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals(returns[0].stringValue(), "QmFsbGVyaW5h");
+    }
+
+    @Test(description = "Test 'testMimeBase64Decode' function in ballerina.mime package")
+    public void testMimeBase64Decode() {
+        BBlob blob = new BBlob("YQ==".getBytes());
+        BValue[] args = {blob};
+        BValue[] returns = BRunUtil.invoke(compileResult, "testMimeBase64Decode", args);
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals(returns[0].stringValue(), "a");
+    }
+
+    @Test(description = "Test 'testMimeBase64DecodeString' function in ballerina.mime package")
+    public void testMimeBase64DecodeString() {
+        BValue[] args = {new BString("QmFsbGVyaW5h"), new BString("utf-8")};
+        BValue[] returns = BRunUtil.invoke(compileResult, "testMimeBase64DecodeString", args);
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals(returns[0].stringValue(), "Ballerina");
     }
 
     @Test(description = "Set json data to entity and get the content back from entity as json")
@@ -239,78 +331,42 @@ public class MimeUtilityFunctionTest {
         }
     }
 
-    @Test(description = "Test 'getMediaType' function in ballerina.net.mime package")
-    public void testGetMediaType() {
-        String contentType = "multipart/form-data; boundary=032a1ab685934650abbe059cb45d6ff3";
-        BValue[] args = {new BString(contentType)};
-        BValue[] returns = BRunUtil.invoke(compileResult, "testGetMediaType", args);
-        Assert.assertEquals(returns.length, 1);
-        BStruct mediaType = (BStruct) returns[0];
-        Assert.assertEquals(mediaType.getStringField(PRIMARY_TYPE_INDEX), "multipart");
-        Assert.assertEquals(mediaType.getStringField(SUBTYPE_INDEX), "form-data");
-        Assert.assertEquals(mediaType.getStringField(SUFFIX_INDEX), "");
-        BMap map = (BMap) mediaType.getRefField(PARAMETER_MAP_INDEX);
-        Assert.assertEquals(map.get("boundary").stringValue(), "032a1ab685934650abbe059cb45d6ff3");
+    @Test(description = "Once the file channel is created and temp file deleted, check whether the content can be " +
+            "still retrieved properly from the file channel")
+    public void testTempFileDeletion() {
+        File file;
+        try {
+            file = File.createTempFile("testFile", ".tmp");
+            BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(file));
+            bufferedWriter.write("File Content");
+            bufferedWriter.close();
+            ByteChannel byteChannel = EntityBodyHandler.getByteChannelForTempFile(file.getAbsolutePath());
+            Assert.assertFalse(file.exists());
+            InputStream inputStream = Channels.newInputStream(byteChannel);
+            Assert.assertNotNull(inputStream);
+            ByteArrayOutputStream result = new ByteArrayOutputStream();
+            EntityBodyHandler.writeInputToOutputStream(result, inputStream);
+            Assert.assertEquals(result.toString("UTF-8"), "File Content");
+        } catch (IOException e) {
+            LOG.error("Error occurred in testTempFileDeletion", e.getMessage());
+        }
     }
 
-    @Test(description = "Test 'toString' function in ballerina.net.mime package")
-    public void testToStringOnMediaType() {
-        BStruct mediaType = BCompileUtil
-                .createAndGetStruct(compileResult.getProgFile(), protocolPackageMime, mediaTypeStruct);
-        mediaType.setStringField(PRIMARY_TYPE_INDEX, "application");
-        mediaType.setStringField(SUBTYPE_INDEX, "test+xml");
-        BValue[] args = {mediaType};
-        BValue[] returns = BRunUtil.invoke(compileResult, "testToStringOnMediaType", args);
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(), "application/test+xml");
-    }
-
-    @Test(description = "Test 'toStringWithParameters' function in ballerina.net.mime package")
-    public void testToStringWithParametersOnMediaType() {
-        BStruct mediaType = BCompileUtil
-                .createAndGetStruct(compileResult.getProgFile(), protocolPackageMime, mediaTypeStruct);
-        mediaType.setStringField(PRIMARY_TYPE_INDEX, "application");
-        mediaType.setStringField(SUBTYPE_INDEX, "test+xml");
-        BMap map = new BMap();
-        map.put("charset", new BString("utf-8"));
-        mediaType.setRefField(PRIMARY_TYPE_INDEX, map);
-        BValue[] args = {mediaType};
-        BValue[] returns = BRunUtil.invoke(compileResult, "testToStringWithParametersOnMediaType", args);
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(), "application/test+xml; charset=utf-8");
-    }
-
-    @Test(description = "Test 'testMimeBase64Encode' function in ballerina.net.mime package")
-    public void testMimeBase64Encode() {
-        BBlob blob = new BBlob("a".getBytes());
-        BValue[] args = {blob};
-        BValue[] returns = BRunUtil.invoke(compileResult, "testMimeBase64Encode", args);
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(), "YQ==");
-    }
-
-    @Test(description = "Test 'testMimeBase64EncodeString' function in ballerina.net.mime package")
-    public void testMimeBase64EncodeString() {
-        BValue[] args = {new BString("Ballerina"), new BString("utf-8")};
-        BValue[] returns = BRunUtil.invoke(compileResult, "testMimeBase64EncodeString", args);
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(), "QmFsbGVyaW5h");
-    }
-
-    @Test(description = "Test 'testMimeBase64Decode' function in ballerina.net.mime package")
-    public void testMimeBase64Decode() {
-        BBlob blob = new BBlob("YQ==".getBytes());
-        BValue[] args = {blob};
-        BValue[] returns = BRunUtil.invoke(compileResult, "testMimeBase64Decode", args);
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(), "a");
-    }
-
-    @Test(description = "Test 'testMimeBase64DecodeString' function in ballerina.net.mime package")
-    public void testMimeBase64DecodeString() {
-        BValue[] args = {new BString("QmFsbGVyaW5h"), new BString("utf-8")};
-        BValue[] returns = BRunUtil.invoke(compileResult, "testMimeBase64DecodeString", args);
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(), "Ballerina");
+    @Test(description = "When payload exceeds 2MB check whether the response received back is not null")
+    public void testLargePayload() {
+        String path = "/test/largepayload";
+        try {
+            ByteChannel byteChannel = TestUtil.openForReading("datafiles/io/text/fileThatExceeds2MB.txt");
+            AbstractChannel channel = new MockByteChannel(byteChannel, 10);
+            CharacterChannel characterChannel = new CharacterChannel(channel, StandardCharsets.UTF_8.name());
+            String responseValue = characterChannel.readAll();
+            characterChannel.close();
+            HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, "POST",
+                    responseValue);
+            HTTPCarbonMessage response = Services.invokeNew(serviceResult, cMsg);
+            Assert.assertNotNull(response, "Response message not found");
+        } catch (IOException | URISyntaxException e) {
+            LOG.error("Error occured in testLargePayload", e.getMessage());
+        }
     }
 }

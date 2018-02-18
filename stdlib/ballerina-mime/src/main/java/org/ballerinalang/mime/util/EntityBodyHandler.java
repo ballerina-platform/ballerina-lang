@@ -66,8 +66,9 @@ public class EntityBodyHandler {
 
     /**
      * Handle discrete media type content. This method populates ballerina entity with a byte channel from a given
-     * inputstream. If the payload size exceeds 2MB byte limit, keep the payload in a temp file and get a reference
-     * to a file channel, or else wrap the inputstream with an EntityBodyChannel.
+     * inputstream. If the payload size exceeds 2MB limit, write the stream to a temp file and get a reference to
+     * a file channel. After that delete the temp file. If the size does not exceed, then wrap the inputstream with an
+     * EntityBodyChannel.
      *
      * @param entityStruct Represent an 'Entity'
      * @param inputStream  Represent input stream coming from the request/response
@@ -108,6 +109,7 @@ public class EntityBodyHandler {
         Path path = Paths.get(temporaryFilePath);
         try {
             byteChannel = Files.newByteChannel(path, options);
+            Files.delete(path);
         } catch (IOException e) {
             throw new BallerinaException("Error occurred while creating a byte channel from a temporary file");
         }
@@ -271,6 +273,7 @@ public class EntityBodyHandler {
      */
     public static void populateBodyContent(BStruct bodyPart, MIMEPart mimePart) {
         bodyPart.addNativeData(ENTITY_BYTE_CHANNEL, new EntityBodyChannel(mimePart.readOnce()));
+        mimePart.close(); //Clean up temp files
     }
 
     /**
@@ -323,7 +326,7 @@ public class EntityBodyHandler {
      * @param inputStream         Represent the inputstream that that needs to be written to outputstream
      * @throws IOException When an error occurs while writing inputstream to outputstream
      */
-    private static void writeInputToOutputStream(OutputStream messageOutputStream, InputStream inputStream) throws
+    public static void writeInputToOutputStream(OutputStream messageOutputStream, InputStream inputStream) throws
             IOException {
         byte[] buffer = new byte[1024];
         int len;

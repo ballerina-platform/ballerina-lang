@@ -143,21 +143,21 @@ public class MultipartDecoder {
         EntityBodyHandler.populateBodyContent(partStruct, mimePart);
     }
 
-    public static void populateContentDisposition(BStruct partStruct, List<String> contentDispositionHeaders,
+    private static void populateContentDisposition(BStruct partStruct, List<String> contentDispositionHeaders,
                                                   BStruct contentDisposition) {
         MimeUtil.setContentDisposition(contentDisposition, partStruct, contentDispositionHeaders
                 .get(FIRST_ELEMENT));
     }
 
-    public static void populateContentType(MIMEPart mimePart, BStruct partStruct, BStruct mediaType) {
+    private static void populateContentType(MIMEPart mimePart, BStruct partStruct, BStruct mediaType) {
         MimeUtil.setContentType(mediaType, partStruct, mimePart.getContentType());
     }
 
-    public static void populateContentId(MIMEPart mimePart, BStruct partStruct) {
+    private static void populateContentId(MIMEPart mimePart, BStruct partStruct) {
         partStruct.setStringField(CONTENT_ID_INDEX, mimePart.getContentId());
     }
 
-    public static void populateContentLength(MIMEPart mimePart, BStruct partStruct) {
+    private static void populateContentLength(MIMEPart mimePart, BStruct partStruct) {
         List<String> lengthHeaders = mimePart.getHeader(CONTENT_LENGTH);
         if (HeaderUtil.isHeaderExist(lengthHeaders)) {
             MimeUtil.setContentLength(partStruct, Integer.parseInt(lengthHeaders.get(FIRST_ELEMENT)));

@@ -1,6 +1,39 @@
 import ballerina.mime;
 import ballerina.file;
 import ballerina.io;
+import ballerina.net.http;
+
+function testGetMediaType (string contentType) (mime:MediaType) {
+    return mime:getMediaType(contentType);
+}
+
+function testToStringOnMediaType (mime:MediaType mediaType) (string) {
+    return mediaType.toString();
+}
+
+function testToStringWithParametersOnMediaType (mime:MediaType mediaType) (string) {
+    return mediaType.toStringWithParameters();
+}
+
+function testMimeBase64Encode (blob value) (blob) {
+    mime:MimeBase64Encoder encoder = {};
+    return encoder.encode(value);
+}
+
+function testMimeBase64EncodeString (string content, string charset) (string) {
+    mime:MimeBase64Encoder encoder = {};
+    return encoder.encodeString(content, charset);
+}
+
+function testMimeBase64Decode (blob value) (blob) {
+    mime:MimeBase64Decoder decoder = {};
+    return decoder.decode(value);
+}
+
+function testMimeBase64DecodeString (string content, string charset) (string) {
+    mime:MimeBase64Decoder decoder = {};
+    return decoder.decodeString(content, charset);
+}
 
 function testSetAndGetJson (json jsonContent) (json) {
     mime:Entity entity = {};
@@ -92,35 +125,20 @@ function testSetEntityBodyMultipleTimes (io:ByteChannel byteChannel, string text
     return entity.getText();
 }
 
-function testGetMediaType (string contentType) (mime:MediaType) {
-    return mime:getMediaType(contentType);
-}
 
-function testToStringOnMediaType (mime:MediaType mediaType) (string) {
-    return mediaType.toString();
+@http:configuration {basePath:"/test"}
+service<http> helloServer {
+    @http:resourceConfig {
+        methods:["POST"],
+        path:"/largepayload"
+    }
+    resource getPayloadFromFileChannel (http:Connection conn, http:InRequest request) {
+        mime:Entity entity = request.getEntity();
+        io:ByteChannel byteChannel = entity.getByteChannel();
+        http:OutResponse response = {};
+        mime:Entity responseEntity = {};
+        responseEntity.setByteChannel(byteChannel);
+        response.setEntity(responseEntity);
+        _ = conn.respond(response);
+    }
 }
-
-function testToStringWithParametersOnMediaType (mime:MediaType mediaType) (string) {
-    return mediaType.toStringWithParameters();
-}
-
-function testMimeBase64Encode (blob value) (blob) {
-    mime:MimeBase64Encoder encoder = {};
-    return encoder.encode(value);
-}
-
-function testMimeBase64EncodeString (string content, string charset) (string) {
-    mime:MimeBase64Encoder encoder = {};
-    return encoder.encodeString(content, charset);
-}
-
-function testMimeBase64Decode (blob value) (blob) {
-    mime:MimeBase64Decoder decoder = {};
-    return decoder.decode(value);
-}
-
-function testMimeBase64DecodeString (string content, string charset) (string) {
-    mime:MimeBase64Decoder decoder = {};
-    return decoder.decodeString(content, charset);
-}
-
