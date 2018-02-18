@@ -88,7 +88,7 @@ public class DebuggerExecutor implements Runnable {
 
         // Invoke package init function
         FunctionInfo mainFuncInfo = BLangProgramRunner.getMainFunction(mainPkgInfo);
-        BLangFunctions.invokePackageInitFunction(programFile, mainPkgInfo.getInitFunctionInfo(), bContext);
+        BLangFunctions.invokePackageInitFunction2(programFile, mainPkgInfo.getInitFunctionInfo(), bContext);
 
         // Prepare main function arguments
         BStringArray arrayArgs = new BStringArray();

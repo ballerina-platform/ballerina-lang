@@ -17,17 +17,15 @@
 */
 package org.ballerinalang.bre.bvm;
 
-import org.ballerinalang.model.values.BStruct;
-
 /**
  * This represents a result context of a group of workers.
  */
-public interface WorkerResultContext {
+public interface WorkerResponseContext {
     
-    public void doReturn(WorkerExecutionContext ctx, WorkerData result);
-    
-    public void throwError(WorkerExecutionContext ctx, BStruct error);
-    
+    public void signal(WorkerExecutionContext ctx, WorkerSignal signal);
+        
     public void checkFulfilled();
+    
+    public void setParentWorkerResultLocation(int[] retRegIndexes);
     
 }

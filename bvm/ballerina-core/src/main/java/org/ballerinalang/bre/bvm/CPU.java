@@ -133,7 +133,7 @@ public class CPU {
         FunctionInfo functionInfo;
         InstructionCALL callIns;
 
-        boolean debugEnabled = ctx.programFile.getDebugger().isDebugEnabled();
+        //boolean debugEnabled = ctx.programFile.getDebugger().isDebugEnabled();
 
         WorkerData currentSF, callersSF;
         int callersRetRegIndex;
@@ -2576,7 +2576,7 @@ public class CPU {
     }
 
     private static void endTransaction(WorkerExecutionContext ctx, int status) {
-        BallerinaTransactionManager ballerinaTransactionManager = ctx.ballerinaTransactionManager;
+        BallerinaTransactionManager ballerinaTransactionManager = ctx.getBallerinaTransactionManager();
         if (ballerinaTransactionManager != null) {
             try {
                 if (status == TransactionStatus.SUCCESS.value()) {
@@ -2586,7 +2586,7 @@ public class CPU {
                 } else { //status = 1 Transaction end
                     ballerinaTransactionManager.endTransactionBlock();
                     if (ballerinaTransactionManager.isOuterTransaction()) {
-                        ctx.ballerinaTransactionManager = null;
+                        ctx.setBallerinaTransactionManager(null);
                     }
                 }
             } catch (Throwable e) {
@@ -2609,17 +2609,17 @@ public class CPU {
                 return;
             }
         }
-        BallerinaTransactionManager ballerinaTransactionManager = ctx.ballerinaTransactionManager;
+        BallerinaTransactionManager ballerinaTransactionManager = ctx.getBallerinaTransactionManager();
         if (ballerinaTransactionManager == null) {
             ballerinaTransactionManager = new BallerinaTransactionManager();
-            ctx.ballerinaTransactionManager = ballerinaTransactionManager;
+            ctx.setBallerinaTransactionManager(ballerinaTransactionManager);
         }
         ballerinaTransactionManager.beginTransactionBlock(transactionId, retryCount);
 
     }
 
     private static void retryTransaction(WorkerExecutionContext ctx, int transactionId, int startOfAbortIP) {
-        BallerinaTransactionManager ballerinaTransactionManager = ctx.ballerinaTransactionManager;
+        BallerinaTransactionManager ballerinaTransactionManager = ctx.getBallerinaTransactionManager();
         int allowedRetryCount = ballerinaTransactionManager.getAllowedRetryCount(transactionId);
         int currentRetryCount = ballerinaTransactionManager.getCurrentRetryCount(transactionId);
         if (currentRetryCount >= allowedRetryCount) {

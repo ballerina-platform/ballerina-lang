@@ -17,22 +17,19 @@
 */
 package org.ballerinalang.bre.bvm;
 
-import org.ballerinalang.model.values.BStruct;
-
 /**
  * This represents a synchronized invocation worker result context.
  */
-public class SyncInvocableWorkerResultContext implements WorkerResultContext {
+public class SyncInvocableWorkerResultContext implements WorkerResponseContext {
     
     @Override
-    public void doReturn(WorkerExecutionContext ctx, WorkerData result) {
+    public void signal(WorkerExecutionContext ctx, WorkerSignal signal) {
         // TODO Auto-generated method stub
         
     }
-
+    
     @Override
-    public void throwError(WorkerExecutionContext ctx, BStruct error) {
-        // TODO Auto-generated method stub
+    public void setParentWorkerResultLocation(int[] retRegIndexes) {
         
     }
 

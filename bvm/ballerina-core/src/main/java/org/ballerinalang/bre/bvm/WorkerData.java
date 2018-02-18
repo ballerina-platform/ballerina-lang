@@ -18,6 +18,7 @@
 package org.ballerinalang.bre.bvm;
 
 import org.ballerinalang.model.values.BRefType;
+import org.ballerinalang.model.values.BStruct;
 
 /**
  * This represents the local variables that are available to a worker. 
@@ -25,10 +26,17 @@ import org.ballerinalang.model.values.BRefType;
 public class WorkerData {
 
     public long[] longRegs;
+    
     public double[] doubleRegs;
+    
     public String[] stringRegs;
+    
     public int[] intRegs;
+    
     public byte[][] byteRegs;
+    
     public BRefType<?>[] refRegs;
+    
+    public BStruct error;
     
 }

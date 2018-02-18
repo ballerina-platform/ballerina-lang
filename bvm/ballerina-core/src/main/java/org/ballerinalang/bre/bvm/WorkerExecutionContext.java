@@ -22,6 +22,7 @@ import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.util.codegen.CallableUnitInfo;
 import org.ballerinalang.util.codegen.Instruction;
 import org.ballerinalang.util.codegen.ProgramFile;
+import org.ballerinalang.util.codegen.WorkerInfo;
 import org.ballerinalang.util.codegen.cpentries.ConstantPoolEntry;
 
 import java.util.HashMap;
@@ -36,7 +37,9 @@ public class WorkerExecutionContext {
     
     public WorkerState state = WorkerState.CREATED;
     
-    public Map<String, Object> properties = new HashMap<>();
+    public Map<String, Object> globalProperties;
+    
+    public Map<String, Object> localProperties = new HashMap<>();
     
     public int ip;
     
@@ -51,30 +54,54 @@ public class WorkerExecutionContext {
     public WorkerData workerResult;
     
     public int[] retRegIndexes;
-    
-    public BallerinaTransactionManager ballerinaTransactionManager;
-    
+        
     public CallableUnitInfo callableUnitInfo;
+    
+    public WorkerInfo workerInfo;
+    
+    public WorkerResponseContext resultCtx;
 
-    public WorkerExecutionContext(WorkerExecutionContext parent, ProgramFile programFile, 
-            ConstantPoolEntry[] constPool, Instruction[] code, WorkerData workerLocal,
-            WorkerData workerResult, int[] retRegIndexes, CallableUnitInfo callableUnitInfo) {
+    public WorkerExecutionContext() {
+        this.globalProperties = new HashMap<>();
+    }
+    
+    public WorkerExecutionContext(WorkerExecutionContext parent, WorkerResponseContext resultCtx, 
+            CallableUnitInfo callableUnitInfo, WorkerInfo workerInfo, WorkerData workerLocal, 
+            WorkerData workerResult, int[] retRegIndexes, Map<String, Object> globalProperties) {
         this.parent = parent;
-        this.programFile = programFile;
-        this.constPool = constPool;
-        this.code = code;
+        this.resultCtx = resultCtx;
+        this.callableUnitInfo = callableUnitInfo;
+        this.workerInfo = workerInfo;
+        this.programFile = callableUnitInfo.getPackageInfo().getProgramFile();
+        this.constPool = callableUnitInfo.getPackageInfo().getConstPoolEntries();
+        this.code = callableUnitInfo.getPackageInfo().getInstructions();
         this.workerLocal = workerLocal;
         this.workerResult = workerResult;
         this.retRegIndexes = retRegIndexes;
+        this.globalProperties = globalProperties;
+        this.ip = this.workerInfo.getCodeAttributeInfo().getCodeAddrs();
     }
     
     public void setError(BStruct error) {
         //TODO
     }
+    
+    public BStruct getError() {
+        //TODO
+        return null;
+    }
 
     public boolean isInTransaction() {
         // TODO 
         return false;
+    }
+
+    public BallerinaTransactionManager getBallerinaTransactionManager() {
+        return null;
+    }
+
+    public void setBallerinaTransactionManager(BallerinaTransactionManager ballerinaTransactionManager) {
+        //TODO
     }
     
 }

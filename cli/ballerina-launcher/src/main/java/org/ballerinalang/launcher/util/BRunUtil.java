@@ -131,7 +131,7 @@ public class BRunUtil {
         Debugger debugger = new Debugger(programFile);
         programFile.setDebugger(debugger);
         compileResult.setContext(context);
-        BLangFunctions.invokePackageInitFunction(programFile, packageInfo.getInitFunctionInfo(), context);
+        BLangFunctions.invokePackageInitFunction2(programFile, packageInfo.getInitFunctionInfo(), context);
     }
 
     /**
@@ -225,6 +225,6 @@ public class BRunUtil {
     public static void invoke(CompileResult compileResult, FunctionInfo initFuncInfo, Context context) {
         Debugger debugger = new Debugger(compileResult.getProgFile());
         compileResult.getProgFile().setDebugger(debugger);
-        BLangFunctions.invokeFunction(compileResult.getProgFile(), initFuncInfo, context);
+        BLangFunctions.invokeFunction2(compileResult.getProgFile(), initFuncInfo, context);
     }
 }

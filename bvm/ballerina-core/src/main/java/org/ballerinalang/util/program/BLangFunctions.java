@@ -20,8 +20,13 @@ package org.ballerinalang.util.program;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BLangVM;
 import org.ballerinalang.bre.bvm.BLangVMErrors;
+import org.ballerinalang.bre.bvm.CPU;
 import org.ballerinalang.bre.bvm.ControlStack;
 import org.ballerinalang.bre.bvm.StackFrame;
+import org.ballerinalang.bre.bvm.SyncInvocableWorkerResultContext;
+import org.ballerinalang.bre.bvm.WorkerData;
+import org.ballerinalang.bre.bvm.WorkerExecutionContext;
+import org.ballerinalang.bre.bvm.WorkerResponseContext;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.values.BBlob;
@@ -43,6 +48,8 @@ import org.ballerinalang.util.codegen.attributes.LocalVariableAttributeInfo;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
 
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * This class contains helper methods to invoke Ballerina functions.
@@ -104,7 +111,7 @@ public class BLangFunctions {
             throw new RuntimeException("Size of input argument arrays is not equal to size of function parameters");
         }
 
-        invokePackageInitFunction(bLangProgram, packageInfo.getInitFunctionInfo(), context);
+        invokePackageInitFunction2(bLangProgram, packageInfo.getInitFunctionInfo(), context);
         return invokeFunction(bLangProgram, functionInfo, args, context);
     }
 
@@ -267,8 +274,83 @@ public class BLangFunctions {
 
         return returnValues;
     }
+    
+    private static WorkerData createWorkerDataForLocal(WorkerInfo workerInfo) {
+        WorkerData wd = new WorkerData();
+        CodeAttributeInfo ci = workerInfo.getCodeAttributeInfo();
+        wd.longRegs = new long[ci.getMaxLongRegs()];
+        wd.doubleRegs = new double[ci.getMaxDoubleRegs()];
+        wd.stringRegs = new String[ci.getMaxStringRegs()];
+        wd.intRegs = new int[ci.getMaxIntRegs()];
+        wd.byteRegs = new byte[ci.getMaxByteRegs()][];
+        wd.refRegs = new BRefType[ci.getMaxRefRegs()];
+        return wd;
+    }
+    
+    private static WorkerData createWorkerDataForReturn(WorkerReturnIndex wri) {
+        WorkerData wd = new WorkerData();
+        wd.longRegs = new long[wri.longRegCount];
+        wd.doubleRegs = new double[wri.doubleRegCount];
+        wd.stringRegs = new String[wri.stringRegCount];
+        wd.intRegs = new int[wri.intRegCount];
+        wd.byteRegs = new byte[wri.byteRegCount][];
+        wd.refRegs = new BRefType[wri.refRegCount];
+        return wd;
+    }
+    
+    private static class WorkerReturnIndex {
+        int[] retRegs;
+        int longRegCount = 0;
+        int doubleRegCount = 0;
+        int stringRegCount = 0;
+        int intRegCount = 0;
+        int refRegCount = 0;
+        int byteRegCount = 0;
+    }
+    
+    private static WorkerReturnIndex calculateWorkerReturnIndex(BType[] retTypes) {
+        WorkerReturnIndex index = new WorkerReturnIndex();
+        index.retRegs = new int[retTypes.length];
+        for (int i = 0; i < retTypes.length; i++) {
+            BType retType = retTypes[i];
+            switch (retType.getTag()) {
+                case TypeTags.INT_TAG:
+                    index.retRegs[i] = index.longRegCount++;
+                    break;
+                case TypeTags.FLOAT_TAG:
+                    index.retRegs[i] = index.doubleRegCount++;
+                    break;
+                case TypeTags.STRING_TAG:
+                    index.retRegs[i] = index.stringRegCount++;
+                    break;
+                case TypeTags.BOOLEAN_TAG:
+                    index.retRegs[i] = index.intRegCount++;
+                    break;
+                case TypeTags.BLOB_TAG:
+                    index.retRegs[i] = index.byteRegCount++;
+                    break;
+                default:
+                    index.retRegs[i] = index.refRegCount++;
+                    break;
+            }
+        }
+        return index;
+    }
 
-    public static void invokeFunction(ProgramFile programFile, FunctionInfo initFuncInfo, Context context) {
+    public static void invokeFunction(ProgramFile programFile, FunctionInfo initFuncInfo, WorkerExecutionContext parentCtx) {
+        WorkerInfo workerInfo = initFuncInfo.getDefaultWorkerInfo();
+        WorkerResponseContext respCtx = new SyncInvocableWorkerResultContext();
+        WorkerData workerLocal = createWorkerDataForLocal(workerInfo);
+        WorkerReturnIndex wri = calculateWorkerReturnIndex(initFuncInfo.getRetParamTypes());
+        WorkerData workerResult = createWorkerDataForReturn(wri);
+        int[] retRegIndexes = wri.retRegs;
+        Map<String, Object> globalProps = new HashMap<>();
+        WorkerExecutionContext ctx = new WorkerExecutionContext(parentCtx, respCtx, initFuncInfo, workerInfo,
+                workerLocal, workerResult, retRegIndexes, globalProps);
+        CPU.exec(ctx);
+    }
+    
+    public static void invokeFunction2(ProgramFile programFile, FunctionInfo initFuncInfo, Context context) {
         WorkerInfo defaultWorker = initFuncInfo.getDefaultWorkerInfo();
         SynchronizedStackFrame stackFrame = new SynchronizedStackFrame(initFuncInfo, defaultWorker, -1, new int[0]);
         context.getControlStack().pushFrame(stackFrame);
@@ -281,7 +363,8 @@ public class BLangFunctions {
         context.resetWorkerContextFlow();
     }
 
-    public static void invokePackageInitFunction(ProgramFile programFile, FunctionInfo initFuncInfo, Context context) {
+    public static void invokePackageInitFunction(ProgramFile programFile, FunctionInfo initFuncInfo, 
+            WorkerExecutionContext context) {
         invokeFunction(programFile, initFuncInfo, context);
         if (context.getError() != null) {
             String stackTraceStr = BLangVMErrors.getPrintableStackTrace(context.getError());
@@ -318,4 +401,43 @@ public class BLangFunctions {
         });
         programFile.setUnresolvedAnnAttrValues(null);
     }
+    
+    public static void invokePackageInitFunction2(ProgramFile programFile, FunctionInfo initFuncInfo, Context context) {
+        invokeFunction2(programFile, initFuncInfo, context);
+        if (context.getError() != null) {
+            String stackTraceStr = BLangVMErrors.getPrintableStackTrace(context.getError());
+            throw new BLangRuntimeException("error: " + stackTraceStr);
+        }
+        if (programFile.getUnresolvedAnnAttrValues() == null) {
+            return;
+        }
+        programFile.getUnresolvedAnnAttrValues().forEach(a -> {
+            PackageInfo packageInfo = programFile.getPackageInfo(a.getConstPkg());
+            LocalVariableAttributeInfo localVariableAttributeInfo = (LocalVariableAttributeInfo) packageInfo
+                    .getAttributeInfo(AttributeInfo.Kind.LOCAL_VARIABLES_ATTRIBUTE);
+
+            LocalVariableInfo localVariableInfo = localVariableAttributeInfo.getLocalVarialbeDetails(a.getConstName());
+
+            switch (localVariableInfo.getVariableType().getTag()) {
+                case TypeTags.BOOLEAN_TAG:
+                    a.setBooleanValue(programFile.getGlobalMemoryBlock().getBooleanField(localVariableInfo
+                            .getVariableIndex()) == 1 ? true : false);
+                    break;
+                case TypeTags.INT_TAG:
+                    a.setIntValue(programFile.getGlobalMemoryBlock().getIntField(localVariableInfo
+                            .getVariableIndex()));
+                    break;
+                case TypeTags.FLOAT_TAG:
+                    a.setFloatValue(programFile.getGlobalMemoryBlock().getFloatField(localVariableInfo
+                            .getVariableIndex()));
+                    break;
+                case TypeTags.STRING_TAG:
+                    a.setStringValue(programFile.getGlobalMemoryBlock().getStringField(localVariableInfo
+                            .getVariableIndex()));
+                    break;
+            }
+        });
+        programFile.setUnresolvedAnnAttrValues(null);
+    }
+    
 }

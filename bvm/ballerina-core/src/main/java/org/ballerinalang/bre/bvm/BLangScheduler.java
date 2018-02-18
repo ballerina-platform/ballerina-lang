@@ -43,8 +43,14 @@ public class BLangScheduler {
         
         @Override
         public void run() {
-            ctx.state = WorkerState.RUNNING;
-            CPU.exec(ctx);
+            try {
+                System.out.println("EXEC START");
+                ctx.state = WorkerState.RUNNING;
+                System.out.println("EXEC END");
+                CPU.exec(ctx);
+            } catch (Throwable e) {
+                e.printStackTrace();
+            }
         }
         
     }

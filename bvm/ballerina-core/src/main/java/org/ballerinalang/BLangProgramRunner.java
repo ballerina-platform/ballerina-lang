@@ -22,6 +22,10 @@ import org.ballerinalang.bre.bvm.BLangVM;
 import org.ballerinalang.bre.bvm.BLangVMErrors;
 import org.ballerinalang.bre.bvm.ControlStack;
 import org.ballerinalang.bre.bvm.StackFrame;
+import org.ballerinalang.bre.bvm.SyncInvocableWorkerResultContext;
+import org.ballerinalang.bre.bvm.WorkerData;
+import org.ballerinalang.bre.bvm.WorkerExecutionContext;
+import org.ballerinalang.bre.bvm.WorkerResponseContext;
 import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
@@ -37,6 +41,9 @@ import org.ballerinalang.util.debugger.Debugger;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.ballerinalang.util.program.BLangFunctions;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * This class contains utilities to execute Ballerina main and service programs.
@@ -63,14 +70,14 @@ public class BLangProgramRunner {
         initDebugger(bContext, debugger);
 
         // Invoke package init function
-        BLangFunctions.invokePackageInitFunction(programFile, servicesPackage.getInitFunctionInfo(), bContext);
+        BLangFunctions.invokePackageInitFunction2(programFile, servicesPackage.getInitFunctionInfo(), bContext);
 
         int serviceCount = 0;
         for (ServiceInfo serviceInfo : servicesPackage.getServiceInfoEntries()) {
             // Invoke service init function
             //TODO check this to pass a Service
             bContext.setServiceInfo(serviceInfo);
-            BLangFunctions.invokeFunction(programFile, serviceInfo.getInitFunctionInfo(), bContext);
+            BLangFunctions.invokeFunction2(programFile, serviceInfo.getInitFunctionInfo(), bContext);
             if (bContext.getError() != null) {
                 String stackTraceStr = BLangVMErrors.getPrintableStackTrace(bContext.getError());
                 throw new BLangRuntimeException("error: " + stackTraceStr);
@@ -85,8 +92,32 @@ public class BLangProgramRunner {
             throw new BallerinaException("no services found in '" + programFile.getProgramFilePath() + "'");
         }
     }
-
+    
     public static void runMain(ProgramFile programFile, String[] args) {
+        if (!programFile.isMainEPAvailable()) {
+            throw new BallerinaException("main function not found in  '" + programFile.getProgramFilePath() + "'");
+        }
+
+        PackageInfo mainPkgInfo = programFile.getEntryPackage();
+        if (mainPkgInfo == null) {
+            throw new BallerinaException("main function not found in  '" + programFile.getProgramFilePath() + "'");
+        }
+        FunctionInfo mainFuncInfo = getMainFunction(mainPkgInfo);
+        WorkerInfo defaultWorker = mainFuncInfo.getDefaultWorkerInfo();
+        WorkerResponseContext respCtx = new SyncInvocableWorkerResultContext();
+        WorkerData workerLocal = new WorkerData();
+        WorkerData workerResult = new WorkerData();
+        int[] retRegIndexes = new int[0];
+        Map<String, Object> globalProps = new HashMap<>();
+        WorkerExecutionContext ctx = new WorkerExecutionContext(null, respCtx, mainFuncInfo, defaultWorker,
+                workerLocal, workerResult, retRegIndexes, globalProps);
+        WorkerExecutionContext context = new WorkerExecutionContext();
+        //BLangFunctions.invokePackageInitFunction(programFile, mainPkgInfo.getInitFunctionInfo(), context);
+        BLangFunctions.invokeFunction(programFile, mainFuncInfo, ctx);
+    }
+
+
+    public static void runMain2(ProgramFile programFile, String[] args) {
         if (!programFile.isMainEPAvailable()) {
             throw new BallerinaException("main function not found in  '" + programFile.getProgramFilePath() + "'");
         }
@@ -105,7 +136,7 @@ public class BLangProgramRunner {
 
         // Invoke package init function
         FunctionInfo mainFuncInfo = getMainFunction(mainPkgInfo);
-        BLangFunctions.invokePackageInitFunction(programFile, mainPkgInfo.getInitFunctionInfo(), bContext);
+        BLangFunctions.invokePackageInitFunction2(programFile, mainPkgInfo.getInitFunctionInfo(), bContext);
 
         // Prepare main function arguments
         BStringArray arrayArgs = new BStringArray();
