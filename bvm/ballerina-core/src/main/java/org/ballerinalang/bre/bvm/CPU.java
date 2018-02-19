@@ -96,6 +96,7 @@ import org.ballerinalang.util.debugger.Debugger;
 import org.ballerinalang.util.exceptions.BLangExceptionHelper;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.ballerinalang.util.exceptions.RuntimeErrors;
+import org.ballerinalang.util.program.BLangFunctions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -2635,22 +2636,7 @@ public class CPU {
             invokeNativeFunction((FunctionInfo) callableUnitInfo, argRegs, retRegs);
             return;
         }
-
-//        BType[] paramTypes = callableUnitInfo.getParamTypes();
-//        WorkerData callerSF = ctx.workerLocal;
-//
-//        WorkerInfo defaultWorkerInfo = callableUnitInfo.getDefaultWorkerInfo();
-//        WorkerData calleeSF = new WorkerData(callableUnitInfo, defaultWorkerInfo, ctx.ip, retRegs);
-//        controlStack.pushFrame(calleeSF);
-//
-//        // Copy arg values from the current WorkerData to the new WorkerData
-//        copyArgValues(callerSF, calleeSF, argRegs, paramTypes);
-//
-//        // TODO Improve following two lines
-//        this.ctx.constPool = calleeSF.packageInfo.getctx.constPoolEntries();
-//        this.code = calleeSF.packageInfo.getInstructions();
-//        ctx.ip = defaultWorkerInfo.getCodeAttributeInfo().getCodeAddrs();
-        //TODO
+        BLangFunctions.invokeFunction(ctx.programFile, callableUnitInfo, ctx, argRegs, retRegs);
     }
 
     private static void invokeVirtualFunction(int receiver, FunctionInfo virtualFuncInfo, int[] argRegs, int[] retRegs) {

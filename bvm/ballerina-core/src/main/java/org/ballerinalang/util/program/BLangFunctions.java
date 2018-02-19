@@ -18,9 +18,9 @@
 package org.ballerinalang.util.program;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.bre.bvm.BLangScheduler;
 import org.ballerinalang.bre.bvm.BLangVM;
 import org.ballerinalang.bre.bvm.BLangVMErrors;
-import org.ballerinalang.bre.bvm.CPU;
 import org.ballerinalang.bre.bvm.ControlStack;
 import org.ballerinalang.bre.bvm.StackFrame;
 import org.ballerinalang.bre.bvm.SyncInvocableWorkerResponseContext;
@@ -37,6 +37,7 @@ import org.ballerinalang.model.values.BRefType;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.BLangConstants;
+import org.ballerinalang.util.codegen.CallableUnitInfo;
 import org.ballerinalang.util.codegen.FunctionInfo;
 import org.ballerinalang.util.codegen.LocalVariableInfo;
 import org.ballerinalang.util.codegen.PackageInfo;
@@ -316,24 +317,24 @@ public class BLangFunctions {
         for (int i = 0; i < retTypes.length; i++) {
             BType retType = retTypes[i];
             switch (retType.getTag()) {
-                case TypeTags.INT_TAG:
-                    index.retRegs[i] = index.longRegCount++;
-                    break;
-                case TypeTags.FLOAT_TAG:
-                    index.retRegs[i] = index.doubleRegCount++;
-                    break;
-                case TypeTags.STRING_TAG:
-                    index.retRegs[i] = index.stringRegCount++;
-                    break;
-                case TypeTags.BOOLEAN_TAG:
-                    index.retRegs[i] = index.intRegCount++;
-                    break;
-                case TypeTags.BLOB_TAG:
-                    index.retRegs[i] = index.byteRegCount++;
-                    break;
-                default:
-                    index.retRegs[i] = index.refRegCount++;
-                    break;
+            case TypeTags.INT_TAG:
+                index.retRegs[i] = index.longRegCount++;
+                break;
+            case TypeTags.FLOAT_TAG:
+                index.retRegs[i] = index.doubleRegCount++;
+                break;
+            case TypeTags.STRING_TAG:
+                index.retRegs[i] = index.stringRegCount++;
+                break;
+            case TypeTags.BOOLEAN_TAG:
+                index.retRegs[i] = index.intRegCount++;
+                break;
+            case TypeTags.BLOB_TAG:
+                index.retRegs[i] = index.byteRegCount++;
+                break;
+            default:
+                index.retRegs[i] = index.refRegCount++;
+                break;
             }
         }
         return index;
@@ -341,21 +342,22 @@ public class BLangFunctions {
 
     public static void invokeFunction(ProgramFile programFile, FunctionInfo functionInfo, 
             WorkerExecutionContext parentCtx) {
-        invokeFunction(programFile, functionInfo, parentCtx, new int[0]);
+        invokeFunction(programFile, functionInfo, parentCtx, new int[0], new int[0]);
     }
     
-    public static void invokeFunction(ProgramFile programFile, FunctionInfo functionInfo, 
-            WorkerExecutionContext parentCtx, int[] argRegs) {
-        WorkerInfo workerInfo = functionInfo.getDefaultWorkerInfo();
-        WorkerResponseContext respCtx = new SyncInvocableWorkerResponseContext(functionInfo.getRetParamTypes());
+    public static void invokeFunction(ProgramFile programFile, CallableUnitInfo callableUnitInfo, 
+            WorkerExecutionContext parentCtx, int[] argRegs, int[] retRegs) {
+        WorkerInfo workerInfo = callableUnitInfo.getDefaultWorkerInfo();
+        WorkerResponseContext respCtx = new SyncInvocableWorkerResponseContext(
+                callableUnitInfo.getRetParamTypes(), retRegs);
         WorkerData workerLocal = createWorkerDataForLocal(workerInfo, parentCtx, argRegs,
-                functionInfo.getParamTypes());
-        WorkerReturnIndex wri = calculateWorkerReturnIndex(functionInfo.getRetParamTypes());
+                callableUnitInfo.getParamTypes());
+        WorkerReturnIndex wri = calculateWorkerReturnIndex(callableUnitInfo.getRetParamTypes());
         WorkerData workerResult = createWorkerDataForReturn(wri);
         Map<String, Object> globalProps = new HashMap<>();
-        WorkerExecutionContext ctx = new WorkerExecutionContext(parentCtx, respCtx, functionInfo, workerInfo,
+        WorkerExecutionContext ctx = new WorkerExecutionContext(parentCtx, respCtx, callableUnitInfo, workerInfo,
                 workerLocal, workerResult, wri.retRegs, globalProps);
-        CPU.exec(ctx);
+        BLangScheduler.schedule(ctx);
     }
     
     private static void copyArgValues(WorkerData caller, WorkerData callee, int[] argRegs, BType[] paramTypes) {
@@ -370,23 +372,23 @@ public class BLangFunctions {
             BType paramType = paramTypes[i];
             int argReg = argRegs[i];
             switch (paramType.getTag()) {
-                case TypeTags.INT_TAG:
-                    callee.longRegs[++longRegIndex] = caller.longRegs[argReg];
-                    break;
-                case TypeTags.FLOAT_TAG:
-                    callee.doubleRegs[++doubleRegIndex] = caller.doubleRegs[argReg];
-                    break;
-                case TypeTags.STRING_TAG:
-                    callee.stringRegs[++stringRegIndex] = caller.stringRegs[argReg];
-                    break;
-                case TypeTags.BOOLEAN_TAG:
-                    callee.intRegs[++booleanRegIndex] = caller.intRegs[argReg];
-                    break;
-                case TypeTags.BLOB_TAG:
-                    callee.byteRegs[++blobRegIndex] = caller.byteRegs[argReg];
-                    break;
-                default:
-                    callee.refRegs[++refRegIndex] = caller.refRegs[argReg];
+            case TypeTags.INT_TAG:
+                callee.longRegs[++longRegIndex] = caller.longRegs[argReg];
+                break;
+            case TypeTags.FLOAT_TAG:
+                callee.doubleRegs[++doubleRegIndex] = caller.doubleRegs[argReg];
+                break;
+            case TypeTags.STRING_TAG:
+                callee.stringRegs[++stringRegIndex] = caller.stringRegs[argReg];
+                break;
+            case TypeTags.BOOLEAN_TAG:
+                callee.intRegs[++booleanRegIndex] = caller.intRegs[argReg];
+                break;
+            case TypeTags.BLOB_TAG:
+                callee.byteRegs[++blobRegIndex] = caller.byteRegs[argReg];
+                break;
+            default:
+                callee.refRegs[++refRegIndex] = caller.refRegs[argReg];
             }
         }
     }

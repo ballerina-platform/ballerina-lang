@@ -18,6 +18,7 @@
 package org.ballerinalang;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.bre.bvm.BLangScheduler;
 import org.ballerinalang.bre.bvm.BLangVM;
 import org.ballerinalang.bre.bvm.BLangVMErrors;
 import org.ballerinalang.bre.bvm.ControlStack;
@@ -113,6 +114,7 @@ public class BLangProgramRunner {
         WorkerExecutionContext context = new WorkerExecutionContext();
         BLangFunctions.invokePackageInitFunction(programFile, mainPkgInfo.getInitFunctionInfo(), context);
         BLangFunctions.invokeFunction(programFile, mainFuncInfo, parentCtx);
+        BLangScheduler.waitForCompletion();
     }
 
 

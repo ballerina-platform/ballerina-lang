@@ -19,7 +19,10 @@ package org.ballerinalang.bre.bvm;
 
 import org.ballerinalang.runtime.threadpool.ThreadPoolFactory;
 
+import java.util.HashSet;
+import java.util.Set;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Semaphore;
 
 /**
  * This represents the Ballerina worker scheduling functionality. 
@@ -27,14 +30,29 @@ import java.util.concurrent.ExecutorService;
  */
 public class BLangScheduler {
 
+    private static Set<WorkerExecutionContext> activeContexts = new HashSet<>();
+    
+    private static Semaphore activeContextsTracker = new Semaphore(0);
+    
     public static void schedule(WorkerExecutionContext ctx) {
         ctx.state = WorkerState.READY;
         ExecutorService executor = ThreadPoolFactory.getInstance().getWorkerExecutor();
         executor.submit(new WorkerExecutor(ctx));
+        activeContexts.add(ctx);
     }
     
     public static void workerDone(WorkerExecutionContext ctx) {
         ctx.ip = -1;
+        activeContexts.remove(ctx);
+        if (activeContexts.isEmpty()) {
+            activeContextsTracker.release();
+        }
+    }
+    
+    public static void waitForCompletion() {
+        try {
+            activeContextsTracker.acquire();
+        } catch (InterruptedException ignore) { }
     }
     
     private static class WorkerExecutor implements Runnable {
@@ -50,8 +68,8 @@ public class BLangScheduler {
             try {
                 System.out.println("EXEC START");
                 ctx.state = WorkerState.RUNNING;
-                System.out.println("EXEC END");
                 CPU.exec(ctx);
+                System.out.println("EXEC END");
             } catch (Throwable e) {
                 e.printStackTrace();
             }

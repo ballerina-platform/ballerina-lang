@@ -37,9 +37,10 @@ public class SyncInvocableWorkerResponseContext implements WorkerResponseContext
     
     public SyncInvocableWorkerResponseContext() { }
     
-    public SyncInvocableWorkerResponseContext(BType[] responseTypes) {
+    public SyncInvocableWorkerResponseContext(BType[] responseTypes, int[] retRegIndexes) {
         this.fulfilled = new AtomicBoolean();
         this.responseTypes = responseTypes;
+        this.retRegIndexes = retRegIndexes;
     }
     
     @Override
