@@ -19,13 +19,12 @@ package org.ballerinalang.langserver.completions.resolvers;
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.ballerinalang.langserver.DocumentServiceKeys;
 import org.ballerinalang.langserver.TextDocumentServiceContext;
-import org.ballerinalang.langserver.completions.consts.CompletionItemResolver;
-import org.ballerinalang.langserver.completions.consts.ItemResolverConstants;
-import org.ballerinalang.langserver.completions.consts.Priority;
-import org.ballerinalang.langserver.completions.consts.Snippet;
 import org.ballerinalang.langserver.completions.resolvers.parsercontext.ParserRuleConstantDefinitionContextResolver;
 import org.ballerinalang.langserver.completions.resolvers.parsercontext.ParserRuleGlobalVariableDefinitionContextResolver;
 import org.ballerinalang.langserver.completions.resolvers.parsercontext.ParserRuleTypeNameContextResolver;
+import org.ballerinalang.langserver.completions.util.CompletionItemResolver;
+import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
+import org.ballerinalang.langserver.completions.util.Snippet;
 import org.ballerinalang.model.AnnotationAttachment;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.InsertTextFormat;
@@ -75,7 +74,6 @@ public class TopLevelResolver extends AbstractItemResolver {
         item.setInsertText(insertText);
         item.setInsertTextFormat(InsertTextFormat.Snippet);
         item.setDetail(ItemResolverConstants.SNIPPET_TYPE);
-        item.setSortText(Priority.PRIORITY7.name());
         completionItems.add(item);
     }
 

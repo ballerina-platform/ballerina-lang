@@ -30,10 +30,10 @@ import org.ballerinalang.natives.AbstractNativeFunction;
 public abstract class WebSocketUtil {
     public static BValue[] getQueryParams(Context context, AbstractNativeFunction abstractNativeFunction) {
         BStruct wsConnection = (BStruct) abstractNativeFunction.getRefArgument(context, 0);
-        Object queryParams = wsConnection.getNativeData(Constants.NATIVE_DATA_QUERY_PARAMS);
+        Object queryParams = wsConnection.getNativeData(WebSocketConstants.NATIVE_DATA_QUERY_PARAMS);
         if (queryParams != null && queryParams instanceof BMap) {
             return abstractNativeFunction.getBValues(
-                    (BMap) wsConnection.getNativeData(Constants.NATIVE_DATA_QUERY_PARAMS));
+                    (BMap) wsConnection.getNativeData(WebSocketConstants.NATIVE_DATA_QUERY_PARAMS));
         }
         return abstractNativeFunction.getBValues(new BMap<>());
     }

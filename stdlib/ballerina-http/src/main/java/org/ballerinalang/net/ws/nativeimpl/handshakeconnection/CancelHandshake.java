@@ -26,7 +26,7 @@ import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
-import org.ballerinalang.net.ws.Constants;
+import org.ballerinalang.net.ws.WebSocketConstants;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketInitMessage;
 
 /**
@@ -52,7 +52,7 @@ public class CancelHandshake extends AbstractNativeFunction {
         int statusCode = (int) getIntArgument(context, 0);
         String reason = getStringArgument(context, 0);
         WebSocketInitMessage initMessage =
-                (WebSocketInitMessage) handshakeConnection.getNativeData(Constants.WEBSOCKET_MESSAGE);
+                (WebSocketInitMessage) handshakeConnection.getNativeData(WebSocketConstants.WEBSOCKET_MESSAGE);
         initMessage.cancelHandShake(statusCode, reason);
         return VOID_RETURN;
     }

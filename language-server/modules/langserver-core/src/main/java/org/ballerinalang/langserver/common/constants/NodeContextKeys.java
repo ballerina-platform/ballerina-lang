@@ -1,4 +1,4 @@
-/*
+/**
  * Copyright (c) 2018, WSO2 Inc. (http://wso2.com) All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -36,6 +36,8 @@ public class NodeContextKeys {
     public static final LanguageServerContext.Key<Object> PREVIOUSLY_VISITED_NODE_KEY
             = new LanguageServerContext.Key<>();
     public static final LanguageServerContext.Key<String> NODE_OWNER_KEY
+            = new LanguageServerContext.Key<>();
+    public static final LanguageServerContext.Key<PackageID> NODE_OWNER_PACKAGE_KEY
             = new LanguageServerContext.Key<>();
     public static final LanguageServerContext.Key<Stack<BLangNode>> NODE_STACK_KEY
             = new LanguageServerContext.Key<>();

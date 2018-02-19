@@ -18,8 +18,8 @@ package org.ballerinalang.langserver;
 import org.ballerinalang.langserver.common.position.PositionTreeVisitor;
 import org.ballerinalang.langserver.completions.CompletionKeys;
 import org.ballerinalang.langserver.completions.TreeVisitor;
-import org.ballerinalang.langserver.completions.consts.CompletionItemResolver;
 import org.ballerinalang.langserver.completions.resolvers.TopLevelResolver;
+import org.ballerinalang.langserver.completions.util.CompletionItemResolver;
 import org.ballerinalang.langserver.definition.util.DefinitionUtil;
 import org.ballerinalang.langserver.hover.util.HoverUtil;
 import org.ballerinalang.langserver.signature.SignatureHelpUtil;
@@ -187,19 +187,19 @@ public class BallerinaTextDocumentService implements TextDocumentService {
     @Override
     public CompletableFuture<List<? extends Location>> definition(TextDocumentPositionParams position) {
         return CompletableFuture.supplyAsync(() -> {
-            TextDocumentServiceContext hoverContext = new TextDocumentServiceContext();
-            hoverContext.put(DocumentServiceKeys.FILE_URI_KEY, position.getTextDocument().getUri());
-            hoverContext.put(DocumentServiceKeys.POSITION_KEY, position);
+            TextDocumentServiceContext definitionContext = new TextDocumentServiceContext();
+            definitionContext.put(DocumentServiceKeys.FILE_URI_KEY, position.getTextDocument().getUri());
+            definitionContext.put(DocumentServiceKeys.POSITION_KEY, position);
 
             BLangPackage currentBLangPackage =
-                    TextDocumentServiceUtil.getBLangPackage(hoverContext, documentManager);
+                    TextDocumentServiceUtil.getBLangPackage(definitionContext, documentManager);
             bLangPackageContext.addPackage(currentBLangPackage);
             List<Location> contents;
             try {
-                PositionTreeVisitor positionTreeVisitor = new PositionTreeVisitor(hoverContext);
+                PositionTreeVisitor positionTreeVisitor = new PositionTreeVisitor(definitionContext);
                 currentBLangPackage.accept(positionTreeVisitor);
 
-                contents = DefinitionUtil.getDefinitionPosition(hoverContext, currentBLangPackage);
+                contents = DefinitionUtil.getDefinitionPosition(definitionContext, bLangPackageContext);
             } catch (Exception e) {
                 contents = new ArrayList<>();
             }

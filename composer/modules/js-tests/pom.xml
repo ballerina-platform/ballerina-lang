@@ -96,9 +96,9 @@
                         <configuration>
                             <skip>${maven.test.skip}</skip>
                             <target name="copy js files to target">
-                                <mkdir dir="${build.directory}/js-files-from-web" />
-                                <copy todir="${build.directory}/js-files-from-web" overwrite="true" flatten="true">
-                                    <fileset dir="${build.directory}/extracted-web/">
+                                <mkdir dir="${project.build.directory}/js-files-from-web" />
+                                <copy todir="${project.build.directory}/js-files-from-web" overwrite="true" flatten="true">
+                                    <fileset dir="${project.build.directory}/extracted-web/">
                                         <include name="**/*.js" />
                                     </fileset>
                                     <chainedmapper>
@@ -116,7 +116,7 @@
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>exec-maven-plugin</artifactId>
-                <version>1.5.0</version>
+                <version>${maven.exec.plugin.version}</version>
                 <executions>
                     <execution>
                         <id>npm install (initialize)</id>
@@ -167,23 +167,4 @@
             </plugin>
         </plugins>
     </build>
-
-    <profiles>
-        <profile>
-            <id>platform-windows</id>
-            <activation>
-                <os>
-                    <family>windows</family>
-                </os>
-            </activation>
-            <properties>
-                <!-- Override the executable names for Windows -->
-                <npm.executable>npm.cmd</npm.executable>
-            </properties>
-        </profile>
-    </profiles>
-
-    <properties>
-        <npm.executable>npm</npm.executable>
-    </properties>
 </project>

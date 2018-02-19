@@ -34,7 +34,7 @@ import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BXML;
 import org.ballerinalang.model.values.BXMLItem;
-import org.ballerinalang.net.http.Constants;
+import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.HttpUtil;
 import org.ballerinalang.runtime.message.MessageDataSource;
 import org.ballerinalang.runtime.message.StringDataSource;
@@ -77,10 +77,10 @@ public class OutRequestNativeFunctionSuccessTest {
     private static final Logger LOG = LoggerFactory.getLogger(OutRequestNativeFunctionSuccessTest.class);
 
     private CompileResult result, serviceResult;
-    private final String outReqStruct = Constants.OUT_REQUEST;
-    private final String protocolPackageHttp = Constants.PROTOCOL_PACKAGE_HTTP;
+    private final String outReqStruct = HttpConstants.OUT_REQUEST;
+    private final String protocolPackageHttp = HttpConstants.PROTOCOL_PACKAGE_HTTP;
     private final String protocolPackageMime = PROTOCOL_PACKAGE_MIME;
-    private final String entityStruct = Constants.ENTITY;
+    private final String entityStruct = HttpConstants.ENTITY;
     private final String mediaTypeStruct = MEDIA_TYPE;
 
     @BeforeClass
@@ -113,7 +113,7 @@ public class OutRequestNativeFunctionSuccessTest {
         String key = "lang";
         String value = "ballerina";
         String path = "/hello/addheader/" + key + "/" + value;
-        HTTPTestRequest inRequestMsg = MessageUtils.generateHTTPMessage(path, Constants.HTTP_METHOD_GET);
+        HTTPTestRequest inRequestMsg = MessageUtils.generateHTTPMessage(path, HttpConstants.HTTP_METHOD_GET);
         HTTPCarbonMessage response = Services.invokeNew(serviceResult, inRequestMsg);
         Assert.assertNotNull(response, "Response message not found");
         BJSON bJson = new BJSON(ResponseReader.getReturnValue(response));
@@ -148,7 +148,8 @@ public class OutRequestNativeFunctionSuccessTest {
         BStruct entity = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageMime, entityStruct);
 
         BMap<String, BStringArray> headersMap = new BMap<>();
-        headersMap.put(Constants.HTTP_CONTENT_LENGTH, new BStringArray(new String[]{String.valueOf(payload.length())}));
+        headersMap.put(HttpConstants.HTTP_CONTENT_LENGTH,
+                       new BStringArray(new String[]{String.valueOf(payload.length())}));
         entity.setRefField(ENTITY_HEADERS_INDEX, headersMap);
         outRequest.addNativeData(MESSAGE_ENTITY, entity);
 
@@ -162,7 +163,7 @@ public class OutRequestNativeFunctionSuccessTest {
     @Test(description = "Test GetContentLength function within a service")
     public void testServiceGetContentLength() {
         String path = "/hello/getContentLength";
-        HTTPTestRequest inRequestMsg = MessageUtils.generateHTTPMessage(path, Constants.HTTP_METHOD_GET);
+        HTTPTestRequest inRequestMsg = MessageUtils.generateHTTPMessage(path, HttpConstants.HTTP_METHOD_GET);
         HTTPCarbonMessage response = Services.invokeNew(serviceResult, inRequestMsg);
 
         Assert.assertNotNull(response, "Response message not found");
@@ -191,7 +192,7 @@ public class OutRequestNativeFunctionSuccessTest {
     @Test(description = "Test GetHeader function within a service")
     public void testServiceGetHeader() {
         String path = "/hello/getHeader";
-        HTTPTestRequest inRequestMsg = MessageUtils.generateHTTPMessage(path, Constants.HTTP_METHOD_GET);
+        HTTPTestRequest inRequestMsg = MessageUtils.generateHTTPMessage(path, HttpConstants.HTTP_METHOD_GET);
         HTTPCarbonMessage response = Services.invokeNew(serviceResult, inRequestMsg);
 
         Assert.assertNotNull(response, "Response message not found");
@@ -243,7 +244,7 @@ public class OutRequestNativeFunctionSuccessTest {
     public void testServiceGetJsonPayload() {
         String value = "ballerina";
         String path = "/hello/getJsonPayload";
-        HTTPTestRequest inRequestMsg = MessageUtils.generateHTTPMessage(path, Constants.HTTP_METHOD_GET);
+        HTTPTestRequest inRequestMsg = MessageUtils.generateHTTPMessage(path, HttpConstants.HTTP_METHOD_GET);
         HTTPCarbonMessage response = Services.invokeNew(serviceResult, inRequestMsg);
         Assert.assertNotNull(response, "Response message not found");
         Assert.assertEquals(new BJSON(ResponseReader.getReturnValue(response)).value().stringValue(), value);
@@ -270,7 +271,7 @@ public class OutRequestNativeFunctionSuccessTest {
     public void testServiceGetProperty() {
         String propertyValue = "Ballerina";
         String path = "/hello/GetProperty";
-        HTTPTestRequest inRequestMsg = MessageUtils.generateHTTPMessage(path, Constants.HTTP_METHOD_GET);
+        HTTPTestRequest inRequestMsg = MessageUtils.generateHTTPMessage(path, HttpConstants.HTTP_METHOD_GET);
         HTTPCarbonMessage response = Services.invokeNew(serviceResult, inRequestMsg);
 
         Assert.assertNotNull(response, "Response message not found");
@@ -301,7 +302,7 @@ public class OutRequestNativeFunctionSuccessTest {
     public void testServiceGetStringPayload() {
         String value = "ballerina";
         String path = "/hello/GetStringPayload";
-        HTTPTestRequest inRequestMsg = MessageUtils.generateHTTPMessage(path, Constants.HTTP_METHOD_GET);
+        HTTPTestRequest inRequestMsg = MessageUtils.generateHTTPMessage(path, HttpConstants.HTTP_METHOD_GET);
         HTTPCarbonMessage response = Services.invokeNew(serviceResult, inRequestMsg);
         Assert.assertNotNull(response, "Response message not found");
         Assert.assertEquals(
@@ -330,7 +331,7 @@ public class OutRequestNativeFunctionSuccessTest {
     @Test(description = "Test GetXmlPayload function within a service")
     public void testServiceGetXmlPayload() {
         String path = "/hello/GetXmlPayload";
-        HTTPTestRequest inRequestMsg = MessageUtils.generateHTTPMessage(path, Constants.HTTP_METHOD_GET);
+        HTTPTestRequest inRequestMsg = MessageUtils.generateHTTPMessage(path, HttpConstants.HTTP_METHOD_GET);
         HTTPCarbonMessage response = Services.invokeNew(serviceResult, inRequestMsg);
         Assert.assertNotNull(response, "Response message not found");
         Assert.assertEquals(ResponseReader.getReturnValue(response), "ballerina");
@@ -363,7 +364,7 @@ public class OutRequestNativeFunctionSuccessTest {
     @Test(description = "Test RemoveHeader function within a service")
     public void testServiceRemoveHeader() {
         String path = "/hello/RemoveHeader";
-        HTTPTestRequest inRequestMsg = MessageUtils.generateHTTPMessage(path, Constants.HTTP_METHOD_GET);
+        HTTPTestRequest inRequestMsg = MessageUtils.generateHTTPMessage(path, HttpConstants.HTTP_METHOD_GET);
         HTTPCarbonMessage response = Services.invokeNew(serviceResult, inRequestMsg);
 
         Assert.assertNotNull(response, "Response message not found");
@@ -399,7 +400,7 @@ public class OutRequestNativeFunctionSuccessTest {
     @Test(description = "Test RemoveAllHeaders function within a service")
     public void testServiceRemoveAllHeaders() {
         String path = "/hello/RemoveAllHeaders";
-        HTTPTestRequest inRequestMsg = MessageUtils.generateHTTPMessage(path, Constants.HTTP_METHOD_GET);
+        HTTPTestRequest inRequestMsg = MessageUtils.generateHTTPMessage(path, HttpConstants.HTTP_METHOD_GET);
         HTTPCarbonMessage response = Services.invokeNew(serviceResult, inRequestMsg);
 
         Assert.assertNotNull(response, "Response message not found");
@@ -448,7 +449,7 @@ public class OutRequestNativeFunctionSuccessTest {
         String key = "lang";
         String value = "ballerina";
         String path = "/hello/setHeader/" + key + "/" + value;
-        HTTPTestRequest inRequestMsg = MessageUtils.generateHTTPMessage(path, Constants.HTTP_METHOD_GET);
+        HTTPTestRequest inRequestMsg = MessageUtils.generateHTTPMessage(path, HttpConstants.HTTP_METHOD_GET);
         HTTPCarbonMessage response = Services.invokeNew(serviceResult, inRequestMsg);
 
         Assert.assertNotNull(response, "Response message not found");
@@ -473,7 +474,7 @@ public class OutRequestNativeFunctionSuccessTest {
     public void testServiceSetJsonPayload() {
         String value = "ballerina";
         String path = "/hello/SetJsonPayload/" + value;
-        HTTPTestRequest inRequestMsg = MessageUtils.generateHTTPMessage(path, Constants.HTTP_METHOD_GET);
+        HTTPTestRequest inRequestMsg = MessageUtils.generateHTTPMessage(path, HttpConstants.HTTP_METHOD_GET);
         HTTPCarbonMessage response = Services.invokeNew(serviceResult, inRequestMsg);
 
         Assert.assertNotNull(response, "Response message not found");
@@ -502,7 +503,7 @@ public class OutRequestNativeFunctionSuccessTest {
         String key = "lang";
         String value = "ballerina";
         String path = "/hello/SetProperty/" + key + "/" + value;
-        HTTPTestRequest inRequestMsg = MessageUtils.generateHTTPMessage(path, Constants.HTTP_METHOD_GET);
+        HTTPTestRequest inRequestMsg = MessageUtils.generateHTTPMessage(path, HttpConstants.HTTP_METHOD_GET);
         HTTPCarbonMessage response = Services.invokeNew(serviceResult, inRequestMsg);
 
         Assert.assertNotNull(response, "Response message not found");
@@ -528,7 +529,7 @@ public class OutRequestNativeFunctionSuccessTest {
     public void testServiceSetStringPayload() {
         String value = "ballerina";
         String path = "/hello/SetStringPayload/" + value;
-        HTTPTestRequest inRequestMsg = MessageUtils.generateHTTPMessage(path, Constants.HTTP_METHOD_GET);
+        HTTPTestRequest inRequestMsg = MessageUtils.generateHTTPMessage(path, HttpConstants.HTTP_METHOD_GET);
         HTTPCarbonMessage response = Services.invokeNew(serviceResult, inRequestMsg);
 
         Assert.assertNotNull(response, "Response message not found");
@@ -555,7 +556,7 @@ public class OutRequestNativeFunctionSuccessTest {
     public void testServiceSetXmlPayload() {
         String value = "Ballerina";
         String path = "/hello/SetXmlPayload/";
-        HTTPTestRequest inRequestMsg = MessageUtils.generateHTTPMessage(path, Constants.HTTP_METHOD_GET);
+        HTTPTestRequest inRequestMsg = MessageUtils.generateHTTPMessage(path, HttpConstants.HTTP_METHOD_GET);
         HTTPCarbonMessage response = Services.invokeNew(serviceResult, inRequestMsg);
 
         Assert.assertNotNull(response, "Response message not found");
@@ -567,7 +568,7 @@ public class OutRequestNativeFunctionSuccessTest {
     public void testServiceSetBinaryPayload() {
         String value = "Ballerina";
         String path = "/hello/SetBinaryPayload/";
-        HTTPTestRequest inRequestMsg = MessageUtils.generateHTTPMessage(path, Constants.HTTP_METHOD_GET);
+        HTTPTestRequest inRequestMsg = MessageUtils.generateHTTPMessage(path, HttpConstants.HTTP_METHOD_GET);
         HTTPCarbonMessage response = Services.invokeNew(serviceResult, inRequestMsg);
 
         Assert.assertNotNull(response, "Response message not found");
@@ -579,7 +580,7 @@ public class OutRequestNativeFunctionSuccessTest {
     public void testServiceGetBinaryPayload() {
         String payload = "ballerina";
         String path = "/hello/GetBinaryPayload";
-        HTTPTestRequest inRequestMsg = MessageUtils.generateHTTPMessage(path, Constants.HTTP_METHOD_POST, payload);
+        HTTPTestRequest inRequestMsg = MessageUtils.generateHTTPMessage(path, HttpConstants.HTTP_METHOD_POST, payload);
         HTTPCarbonMessage response = Services.invokeNew(serviceResult, inRequestMsg);
 
         Assert.assertNotNull(response, "Response message not found");

@@ -28,7 +28,7 @@ import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.net.http.Constants;
+import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.HttpUtil;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
@@ -50,11 +50,11 @@ import static org.ballerinalang.mime.util.Constants.TEXT_PLAIN;
 public class OutResponseNativeFunctionNegativeTest {
 
     private CompileResult result, resultNegative;
-    private final String inRespStruct = Constants.IN_RESPONSE;
-    private final String outRespStruct = Constants.OUT_RESPONSE;
-    private final String entityStruct = Constants.ENTITY;
+    private final String inRespStruct = HttpConstants.IN_RESPONSE;
+    private final String outRespStruct = HttpConstants.OUT_RESPONSE;
+    private final String entityStruct = HttpConstants.ENTITY;
     private final String mediaTypeStruct = MEDIA_TYPE;
-    private final String protocolPackageHttp = Constants.PROTOCOL_PACKAGE_HTTP;
+    private final String protocolPackageHttp = HttpConstants.PROTOCOL_PACKAGE_HTTP;
     private final String protocolPackageMime = PROTOCOL_PACKAGE_MIME;
 
     @BeforeClass
