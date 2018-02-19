@@ -5,7 +5,7 @@ import ballerina.compression;
 
 function main (string[] args) {
     endpoint<http:HttpClient> httpEndpoint {
-        create http:HttpClient(args[0], getConnectorConfigs(args[2], args[3], args[4], args[5]));
+        create http:HttpClient(args[0], getConnectorConfigs(args[3], args[4], args[5], args[6]));
     }
     http:OutRequest req = {};
     http:InResponse resp = {};
@@ -13,7 +13,7 @@ function main (string[] args) {
     if (resp.statusCode != 200) {
         println("Internal server error occured when pulling the ballerina package");
     } else {
-        compression:unzipBytes(resp.getBinaryPayload(), args[1]);
+        compression:unzipBytes(resp.getBinaryPayload(), args[1], args[2]);
         println("Ballerina package pulled successfully");
     }
 }
