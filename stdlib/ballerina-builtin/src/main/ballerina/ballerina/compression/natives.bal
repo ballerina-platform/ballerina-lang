@@ -3,12 +3,14 @@ package ballerina.compression;
 @Description {value:"Function to decompress compressed bytes"}
 @Param {value:"content: Byte array of the compressed file"}
 @Param {value:"destDir: Destination directory to place the decompressed file"}
-public native function unzipBytes (blob content, string destDir);
+@Param {value:"folderToUnzip: Folder to unzip from the compressed bytes"}
+public native function unzipBytes (blob content, string destDir, string folderToUnzip);
 
 @Description {value:"Function to decompress a zipped file"}
 @Param {value:"content: Path of the zipped file"}
 @Param {value:"destDir: Destination directory to place the decompressed file"}
-public native function unzipFile (string dirPath, string destDir);
+@Param {value:"folderToUnzip: Folder to unzip from the compressed bytes"}
+public native function unzipFile (string dirPath, string destDir, string folderToUnzip);
 
 @Description {value:"Function to compress a folder"}
 @Param {value:"dirPath: Path of the directory to be compressed"}
