@@ -23,7 +23,7 @@ import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.nativeimpl.io.channels.base.CharacterChannel;
-import org.ballerinalang.nativeimpl.io.channels.base.TextRecordChannel;
+import org.ballerinalang.nativeimpl.io.channels.base.DelimitedRecordChannel;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -45,7 +45,7 @@ import org.ballerinalang.util.exceptions.BallerinaException;
         args = {@Argument(name = "recordSeparator", type = TypeKind.STRING),
                 @Argument(name = "fieldSeparator", type = TypeKind.STRING)},
         returnType = {@ReturnType(type = TypeKind.STRUCT,
-                structType = "TextRecordChannel",
+                structType = "DelimitedRecordChannel",
                 structPackage = "ballerina.io")},
         isPublic = true
 )
@@ -54,7 +54,7 @@ public class ToTextRecordChannel extends AbstractNativeFunction {
     /**
      * The index od the text record channel in ballerina.io#toTextRecordChannel().
      */
-    private static final int TXT_RECORD_CHANNEL_INDEX = 0;
+    private static final int RECORD_CHANNEL_INDEX = 0;
     /**
      * The index of the record channel separator in ballerina.io#toTextRecordChannel().
      */
@@ -70,11 +70,11 @@ public class ToTextRecordChannel extends AbstractNativeFunction {
     /**
      * The package path of the byte channel.
      */
-    private static final String TXT_RECORD_CHANNEL_PACKAGE = "ballerina.io";
+    private static final String RECORD_CHANNEL_PACKAGE = "ballerina.io";
     /**
      * The type of the byte channel.
      */
-    private static final String STRUCT_TYPE = "TextRecordChannel";
+    private static final String STRUCT_TYPE = "DelimitedRecordChannel";
 
     /**
      * Gets the struct related to AbstractChannel.
@@ -85,7 +85,7 @@ public class ToTextRecordChannel extends AbstractNativeFunction {
     private StructInfo getCharacterChannelStructInfo(Context context) {
         StructInfo result = textRecordChannelStructInfo;
         if (result == null) {
-            PackageInfo timePackageInfo = context.getProgramFile().getPackageInfo(TXT_RECORD_CHANNEL_PACKAGE);
+            PackageInfo timePackageInfo = context.getProgramFile().getPackageInfo(RECORD_CHANNEL_PACKAGE);
             textRecordChannelStructInfo = timePackageInfo.getStructInfo(STRUCT_TYPE);
         }
         return textRecordChannelStructInfo;
@@ -103,7 +103,7 @@ public class ToTextRecordChannel extends AbstractNativeFunction {
         String fieldSeparator;
         try {
             //File which holds access to the channel information
-            textRecordChannelInfo = (BStruct) getRefArgument(context, TXT_RECORD_CHANNEL_INDEX);
+            textRecordChannelInfo = (BStruct) getRefArgument(context, RECORD_CHANNEL_INDEX);
             recordSeparator = getStringArgument(context, RECORD_SEPARATOR_INDEX);
             fieldSeparator = getStringArgument(context, FIELD_SEPARATOR_INDEX);
 
@@ -112,7 +112,7 @@ public class ToTextRecordChannel extends AbstractNativeFunction {
             //Will get the relevant byte channel and will create a character channel
             CharacterChannel characterChannel = (CharacterChannel) textRecordChannelInfo.getNativeData(IOConstants
                     .CHARACTER_CHANNEL_NAME);
-            TextRecordChannel bCharacterChannel = new TextRecordChannel(characterChannel, recordSeparator,
+            DelimitedRecordChannel bCharacterChannel = new DelimitedRecordChannel(characterChannel, recordSeparator,
                     fieldSeparator);
             textRecordChannel.addNativeData(IOConstants.TXT_RECORD_CHANNEL_NAME, bCharacterChannel);
             bValues = getBValues(textRecordChannel);

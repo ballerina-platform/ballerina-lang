@@ -116,7 +116,7 @@
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>exec-maven-plugin</artifactId>
-                <version>1.5.0</version>
+                <version>${maven.exec.plugin.version}</version>
                 <executions>
                     <execution>
                         <id>npm install (initialize)</id>
@@ -167,23 +167,4 @@
             </plugin>
         </plugins>
     </build>
-
-    <profiles>
-        <profile>
-            <id>platform-windows</id>
-            <activation>
-                <os>
-                    <family>windows</family>
-                </os>
-            </activation>
-            <properties>
-                <!-- Override the executable names for Windows -->
-                <npm.executable>npm.cmd</npm.executable>
-            </properties>
-        </profile>
-    </profiles>
-
-    <properties>
-        <npm.executable>npm</npm.executable>
-    </properties>
 </project>

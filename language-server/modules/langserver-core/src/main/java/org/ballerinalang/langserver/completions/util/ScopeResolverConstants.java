@@ -1,4 +1,21 @@
-package org.ballerinalang.langserver.completions;
+/*
+*  Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+*
+*  WSO2 Inc. licenses this file to you under the Apache License,
+*  Version 2.0 (the "License"); you may not use this file except
+*  in compliance with the License.
+*  You may obtain a copy of the License at
+*
+*    http://www.apache.org/licenses/LICENSE-2.0
+*
+*  Unless required by applicable law or agreed to in writing,
+*  software distributed under the License is distributed on an
+*  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+*  KIND, either express or implied.  See the License for the
+*  specific language governing permissions and limitations
+*  under the License.
+*/
+package org.ballerinalang.langserver.completions.util;
 
 import org.ballerinalang.langserver.completions.util.positioning.resolvers.BlockStatementScopeResolver;
 import org.ballerinalang.langserver.completions.util.positioning.resolvers.ConnectorScopeResolver;
@@ -15,8 +32,7 @@ import java.util.Map;
 /**
  * Enum for the cursor scope resolvers.
  */
-enum CursorScopeResolver {
-
+public enum ScopeResolverConstants {
     BLOCK_STMT_SCOPE(BlockStatementScopeResolver.class, new BlockStatementScopeResolver()),
     CONNECTOR_DEF_SCOPE(ConnectorScopeResolver.class, new ConnectorScopeResolver()),
     PACKAGE_NODE_SCOPE(PackageNodeScopeResolver.class, new PackageNodeScopeResolver()),
@@ -29,7 +45,7 @@ enum CursorScopeResolver {
     private static final Map<Class, CursorPositionResolver> resolverMap =
             Collections.unmodifiableMap(initializeMapping());
 
-    CursorScopeResolver(Class context, CursorPositionResolver positionResolver) {
+    ScopeResolverConstants(Class context, CursorPositionResolver positionResolver) {
         this.context = context;
         this.cursorPositionResolver = positionResolver;
     }
@@ -53,7 +69,7 @@ enum CursorScopeResolver {
 
     private static Map<Class, CursorPositionResolver> initializeMapping() {
         Map<Class, CursorPositionResolver> map = new HashMap<>();
-        for (CursorScopeResolver resolver : CursorScopeResolver.values()) {
+        for (ScopeResolverConstants resolver : ScopeResolverConstants.values()) {
             map.put(resolver.getContext(), resolver.getCompletionItemResolver());
         }
         return map;

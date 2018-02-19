@@ -23,7 +23,6 @@ import org.antlr.v4.runtime.TokenStream;
 import org.ballerinalang.langserver.BLangPackageContext;
 import org.ballerinalang.langserver.DocumentServiceKeys;
 import org.ballerinalang.langserver.TextDocumentServiceContext;
-import org.ballerinalang.langserver.completions.consts.Priority;
 import org.ballerinalang.model.elements.PackageID;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.CompletionItemKind;
@@ -105,7 +104,6 @@ public class PackageNameContextResolver extends AbstractItemResolver {
                     CompletionItem item = new CompletionItem();
                     item.setLabel(label);
                     item.setInsertText(insertText);
-                    item.setSortText(Priority.PRIORITY7.name());
                     item.setKind(CompletionItemKind.File);
                     completionItems.add(item);
                 }

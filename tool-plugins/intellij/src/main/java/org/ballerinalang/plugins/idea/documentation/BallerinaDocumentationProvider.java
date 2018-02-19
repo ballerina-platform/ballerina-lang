@@ -31,11 +31,11 @@ import org.ballerinalang.plugins.idea.psi.ActionDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.AnnotationAttachmentNode;
 import org.ballerinalang.plugins.idea.psi.AnnotationAttributeValueNode;
 import org.ballerinalang.plugins.idea.psi.AnnotationReferenceNode;
+import org.ballerinalang.plugins.idea.psi.AnyIdentifierNameNode;
 import org.ballerinalang.plugins.idea.psi.ConnectorDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.ConstantDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.FullyQualifiedPackageNameNode;
 import org.ballerinalang.plugins.idea.psi.FunctionDefinitionNode;
-import org.ballerinalang.plugins.idea.psi.InvocationNode;
 import org.ballerinalang.plugins.idea.psi.PackageDeclarationNode;
 import org.ballerinalang.plugins.idea.psi.ParameterListNode;
 import org.ballerinalang.plugins.idea.psi.ParameterNode;
@@ -122,7 +122,7 @@ public class BallerinaDocumentationProvider extends AbstractDocumentationProvide
                 stringBuilder.append(returnParams);
                 stringBuilder.append(")");
             }
-        } else if (parent instanceof ActionDefinitionNode || parent instanceof InvocationNode) {
+        } else if (parent instanceof ActionDefinitionNode || parent instanceof AnyIdentifierNameNode) {
             // Add the action signature.
             stringBuilder.append("action ");
             stringBuilder.append(element.getText());
