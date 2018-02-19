@@ -35,6 +35,7 @@ import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.sql.Array;
 import java.sql.Blob;
+import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Struct;
@@ -48,17 +49,20 @@ import java.util.List;
  */
 public class TableIterator implements DataIterator {
 
+    protected Connection conn;
     protected ResultSet rs;
     protected BStructType type;
     protected List<ColumnDefinition> columnDefs;
 
-    public TableIterator(ResultSet rs, BStructType type, List<ColumnDefinition> columnDefs) {
+    public TableIterator(Connection conn, ResultSet rs, BStructType type, List<ColumnDefinition> columnDefs) {
+        this.conn = conn;
         this.rs = rs;
         this.type = type;
         this.columnDefs = columnDefs;
     }
 
-    public TableIterator(ResultSet rs, BStructType type) {
+    public TableIterator(Connection conn, ResultSet rs, BStructType type) {
+        this.conn = conn;
         this.rs = rs;
         this.type = type;
         generateColumnDefinitions();
@@ -81,6 +85,9 @@ public class TableIterator implements DataIterator {
         try {
             if (rs != null && !rs.isClosed()) {
                 rs.close();
+            }
+            if (conn != null && !conn.isClosed()) {
+                conn.close();
             }
         } catch (SQLException e) {
             throw new BallerinaException(e.getMessage(), e);

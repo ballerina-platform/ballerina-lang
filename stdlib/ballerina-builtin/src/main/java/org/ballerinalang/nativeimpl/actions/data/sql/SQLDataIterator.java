@@ -54,7 +54,6 @@ import java.util.List;
  */
 public class SQLDataIterator extends TableIterator {
 
-    private Connection conn;
     private Statement stmt;
     private Calendar utcCalendar;
     private StructInfo timeStructInfo;
@@ -63,8 +62,7 @@ public class SQLDataIterator extends TableIterator {
     public SQLDataIterator(Connection conn, Statement stmt, ResultSet rs, Calendar utcCalendar,
             List<ColumnDefinition> columnDefs, BStructType structType, StructInfo timeStructInfo,
             StructInfo zoneStructInfo) throws SQLException {
-        super(rs, structType, columnDefs);
-        this.conn = conn;
+        super(conn, rs, structType, columnDefs);
         this.stmt = stmt;
         this.utcCalendar = utcCalendar;
         this.timeStructInfo = timeStructInfo;

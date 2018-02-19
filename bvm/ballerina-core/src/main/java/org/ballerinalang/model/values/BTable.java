@@ -81,7 +81,6 @@ public class BTable implements BRefType<Object>, BCollection {
         if (tableProvider == null) {
             return "";
         }
-
         StringBuilder sb = new StringBuilder();
         sb.append("{data: ");
         StringJoiner sj = new StringJoiner(", ", "[", "]");
@@ -98,6 +97,7 @@ public class BTable implements BRefType<Object>, BCollection {
     public BType getType() {
         return BTypes.typeTable;
     }
+
 
     public boolean hasNext(boolean isInTransaction) {
         if (!nextPrefetched) {
@@ -201,6 +201,7 @@ public class BTable implements BRefType<Object>, BCollection {
     @Override
     protected void finalize() {
         if (tableProvider != null) {
+            this.iterator.close(false);
             tableProvider.dropTable(this.tableName);
         }
     }

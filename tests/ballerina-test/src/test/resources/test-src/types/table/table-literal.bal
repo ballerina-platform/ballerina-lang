@@ -35,7 +35,7 @@ struct ArraTypeTest {
     boolean[] booleanArrData;
 }
 
-table< Person> dt1 = {};
+table<Person> dt1 = {};
 table<Company> dt2 = {};
 
 function testEmptyTableCreate () {
@@ -374,9 +374,4 @@ function getPersonId (Person p) (int i) {
 
 function getCompanyId (Company p) (int i) {
     return p.id;
-}
-
-function isBellow35 (any p) (boolean) {
-    var p1, _ = (Person)p;
-    return p1.age < 35;
 }

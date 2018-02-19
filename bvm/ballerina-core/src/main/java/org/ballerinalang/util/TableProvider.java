@@ -48,11 +48,10 @@ import java.sql.Statement;
 public class TableProvider {
 
     private static TableProvider tableProvider = null;
-    private Connection connection = null;
     private int tableID;
 
     private TableProvider() {
-        initDatabase();
+        tableID = 0;
     }
 
     public static TableProvider getInstance() {
@@ -68,16 +67,6 @@ public class TableProvider {
 
     private synchronized int getTableID() {
         return this.tableID++;
-    }
-
-    private void initDatabase() {
-        try {
-            Class.forName(TableConstants.DRIVER_CLASS_NAME);
-            String jdbcURL = TableConstants.DB_JDBC_URL;
-            connection = DriverManager.getConnection(jdbcURL, TableConstants.DB_USER_NAME, TableConstants.DB_PASSWORD);
-        } catch (ClassNotFoundException | SQLException e) {
-            throw new BallerinaException("error in initializing database for table types : " + e.getMessage());
-        }
     }
 
     public String createTable(BType constrainedType) {
@@ -101,16 +90,28 @@ public class TableProvider {
 
     public TableIterator createIterator(String tableName, BStructType type) {
         TableIterator itr;
-        Statement st = null;
+        Statement stmt = null;
+        Connection conn = this.getConnection();
         try {
-            st = connection.createStatement();
-            ResultSet rs = st.executeQuery(TableConstants.SQL_SELECT + tableName);
-            itr = new TableIterator(rs, type);
+            stmt = conn.createStatement();
+            ResultSet rs = stmt.executeQuery(TableConstants.SQL_SELECT + tableName);
+            itr = new TableIterator(conn, rs, type);
         } catch (SQLException e) {
-            releaseResources(st);
+            releaseResources(conn, stmt);
             throw new BallerinaException("error in creating iterator for table : " + e.getMessage());
         }
         return itr;
+    }
+
+    private Connection getConnection() {
+        Connection conn;
+        try {
+            conn = DriverManager
+                    .getConnection(TableConstants.DB_JDBC_URL, TableConstants.DB_USER_NAME, TableConstants.DB_PASSWORD);
+        } catch (SQLException e) {
+            throw new BallerinaException("error in gettign connection for table db : " + e.getMessage());
+        }
+        return conn;
     }
 
     private String generateCreateTableStatment(String tableName, BType constrainedType) {
@@ -173,22 +174,24 @@ public class TableProvider {
 
 
     private void executeStatement(String queryStatement) {
-        Statement st = null;
+        Statement stmt = null;
+        Connection conn = this.getConnection();
         try {
-            st = connection.createStatement();
-            st.executeUpdate(queryStatement);
+            stmt = conn.createStatement();
+            stmt.executeUpdate(queryStatement);
         } catch (SQLException e) {
             throw new BallerinaException(
                     "error in executing statement : " + queryStatement + " error:" + e.getMessage());
         } finally {
-            releaseResources(st);
+            releaseResources(conn, stmt);
         }
     }
 
     private void prepareAndExecuteStatement(String queryStatement, BStruct constrainedType) {
-        PreparedStatement st = null;
+        PreparedStatement stmt = null;
+        Connection conn = this.getConnection();
         try {
-            st = connection.prepareStatement(queryStatement);
+            stmt = conn.prepareStatement(queryStatement);
             BStructType.StructField[] structFields = constrainedType.getType().getStructFields();
             int intFieldIndex = 0;
             int floatFieldIndex = 0;
@@ -201,45 +204,45 @@ public class TableProvider {
                 int type = sf.getFieldType().getTag();
                 switch (type) {
                     case TypeTags.INT_TAG:
-                        st.setLong(index, constrainedType.getIntField(intFieldIndex));
+                        stmt.setLong(index, constrainedType.getIntField(intFieldIndex));
                         ++intFieldIndex;
                         break;
                     case TypeTags.STRING_TAG:
-                        st.setString(index, constrainedType.getStringField(stringFieldIndex));
+                        stmt.setString(index, constrainedType.getStringField(stringFieldIndex));
                         ++stringFieldIndex;
                         break;
                     case TypeTags.FLOAT_TAG:
-                        st.setDouble(index, constrainedType.getFloatField(floatFieldIndex));
+                        stmt.setDouble(index, constrainedType.getFloatField(floatFieldIndex));
                         ++floatFieldIndex;
                         break;
                     case TypeTags.BOOLEAN_TAG:
-                        st.setBoolean(index, constrainedType.getBooleanField(booleanFieldIndex) == 1);
+                        stmt.setBoolean(index, constrainedType.getBooleanField(booleanFieldIndex) == 1);
                         ++booleanFieldIndex;
                         break;
                     case TypeTags.XML_TAG:
                     case TypeTags.JSON_TAG:
-                        st.setString(index, constrainedType.getRefField(refFieldIndex).toString());
+                        stmt.setString(index, constrainedType.getRefField(refFieldIndex).toString());
                         ++refFieldIndex;
                         break;
                     case TypeTags.BLOB_TAG:
                         byte[] blobData = constrainedType.getBlobField(blobFieldIndex);
-                        st.setBlob(index, new ByteArrayInputStream(blobData), blobData.length);
+                        stmt.setBlob(index, new ByteArrayInputStream(blobData), blobData.length);
                         ++blobFieldIndex;
                         break;
                     case TypeTags.ARRAY_TAG:
                         Object[] arrayData = getArrayData(constrainedType.getRefField(refFieldIndex));
-                        st.setObject(index, arrayData);
+                        stmt.setObject(index, arrayData);
                         ++refFieldIndex;
                         break;
                     }
                 ++index;
             }
-            st.executeUpdate();
+            stmt.executeUpdate();
         } catch (SQLException e) {
             throw new BallerinaException(
                     "error in executing statement : " + queryStatement + " error:" + e.getMessage());
         } finally {
-            releaseResources(st);
+            releaseResources(conn, stmt);
         }
     }
 
@@ -292,10 +295,13 @@ public class TableProvider {
         return arrayData;
     }
 
-    private void releaseResources(Statement st) {
+    private void releaseResources(Connection conn, Statement stmt) {
         try {
-            if (st != null) {
-                st.close();
+            if (stmt != null) {
+                stmt.close();
+            }
+            if (conn != null && !conn.isClosed()) {
+                conn.close();
             }
         } catch (SQLException e) {
             throw new BallerinaException("error in releasing table resources : " + e.getMessage());

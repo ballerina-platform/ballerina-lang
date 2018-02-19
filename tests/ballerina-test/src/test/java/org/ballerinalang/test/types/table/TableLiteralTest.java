@@ -82,7 +82,7 @@ public class TableLiteralTest {
         Assert.assertEquals(((BIntArray) returns[5]).get(0), 100);
     }
 
-    @Test(priority = 1)
+    @Test(priority = 2)
     public void testTableDrop() {
         BRunUtil.invoke(result, "testTableDrop");
         //Table count before garbage collection happens.
@@ -295,5 +295,12 @@ public class TableLiteralTest {
     public void testTableAddInvalid() {
         BRunUtil.invoke(result, "testTableAddInvalid");
     }
+
+    @Test(priority = 3)
+    public void testSessionCount() {
+        BValue[] returns = BRunUtil.invoke(resultHelper, "getSessionCount");
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 3); //Count is 3 as there are two global tables.
+    }
+
 
 }
