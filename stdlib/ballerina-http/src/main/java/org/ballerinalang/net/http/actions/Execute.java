@@ -34,6 +34,10 @@ import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 
 import java.util.Locale;
 
+import static org.wso2.transport.http.netty.common.Constants.ACCEPT_ENCODING;
+import static org.wso2.transport.http.netty.common.Constants.ENCODING_DEFLATE;
+import static org.wso2.transport.http.netty.common.Constants.ENCODING_GZIP;
+
 /**
  * {@code Execute} action can be used to invoke execute a http call with any httpVerb.
  */
@@ -94,6 +98,7 @@ public class Execute extends AbstractHTTPAction {
             httpVerb = (String) outboundRequestMsg.getProperty(HttpConstants.HTTP_METHOD);
         }
         outboundRequestMsg.setProperty(HttpConstants.HTTP_METHOD, httpVerb.trim().toUpperCase(Locale.getDefault()));
+        outboundRequestMsg.setHeader(ACCEPT_ENCODING, ENCODING_DEFLATE + ", " + ENCODING_GZIP);
         return outboundRequestMsg;
     }
 }
