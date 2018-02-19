@@ -95,7 +95,7 @@ public class MimeUtil {
      * @param entity Represent an 'Entity'
      * @return content-type in 'primarytype/subtype; key=value;' format
      */
-    static String getContentTypeWithParameters(BStruct entity) {
+    public static String getContentTypeWithParameters(BStruct entity) {
         String contentType = null;
         if (entity.getRefField(MEDIA_TYPE_INDEX) != null) {
             BStruct mediaType = (BStruct) entity.getRefField(MEDIA_TYPE_INDEX);
@@ -104,6 +104,7 @@ public class MimeUtil {
                         mediaType.getStringField(SUBTYPE_INDEX);
                 if (mediaType.getRefField(PARAMETER_MAP_INDEX) != null) {
                     BMap map = (BMap) mediaType.getRefField(PARAMETER_MAP_INDEX);
+                    contentType = contentType + SEMICOLON;
                     return HeaderUtil.appendHeaderParams(new StringBuilder(contentType), map);
                 }
             }

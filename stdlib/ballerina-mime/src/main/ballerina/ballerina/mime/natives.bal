@@ -105,6 +105,11 @@ public native function <Entity entity> setByteChannel (io:ByteChannel byteChanne
 @Return {value:"return a byte channel"}
 public native function <Entity entity> getByteChannel () (io:ByteChannel);
 
+@Description {value:"Given an entity, get it's body parts."}
+@Param {value:"entity: Represent a mime Entity"}
+@Return {value:"return an array of entities which represent it's body parts"}
+public native function <Entity entity> getBodyParts () (Entity[]);
+
 @Description {value:"Given the Content-Type in string, get the MediaType struct populated with it."}
 @Param {value:"contentType: Content-Type in string"}
 @Return {value:"return MediaType struct"}
