@@ -575,7 +575,7 @@ public class TableTest {
     @Test(groups = "TableTest",
           description = "Test adding data to database table",
           expectedExceptions = { BLangRuntimeException.class },
-          expectedExceptionsMessageRegExp = ".*message: data cannot be added to a table returned from db.*")
+          expectedExceptionsMessageRegExp = ".*message: data cannot be added to a table returned from a database.*")
     public void testTableAddInvalid() {
         BRunUtil.invoke(result, "testTableAddInvalid");
     }

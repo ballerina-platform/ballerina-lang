@@ -142,7 +142,7 @@ public class BTable implements BRefType<Object>, BCollection {
             }
             generateIterator();
         } else {
-            throw new BallerinaException("data cannot be added to a table returned from db");
+            throw new BallerinaException("data cannot be added to a table returned from a database");
         }
     }
 

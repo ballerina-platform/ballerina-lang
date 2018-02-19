@@ -222,7 +222,7 @@ public class TableIterator implements DataIterator {
                         break;
                     }
             } catch (SQLException e) {
-                throw new BallerinaException("error in generating next row data :" + e.getMessage());
+                throw new BallerinaException("error in generating next row of data :" + e.getMessage());
             }
         }
         return bStruct;

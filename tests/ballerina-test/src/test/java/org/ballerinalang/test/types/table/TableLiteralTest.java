@@ -274,7 +274,7 @@ public class TableLiteralTest {
     @Test(priority = 1,
           description = "Test struct with any typed field",
           expectedExceptions = { BLangRuntimeException.class },
-          expectedExceptionsMessageRegExp = ".*message: unsupported type for table : any.*")
+          expectedExceptionsMessageRegExp = ".*message: unsupported column type for table : any.*")
     public void testTableWithAnyDataToJson() {
        BRunUtil.invoke(result, "testTableWithAnyDataToJson");
     }
@@ -301,6 +301,4 @@ public class TableLiteralTest {
         BValue[] returns = BRunUtil.invoke(resultHelper, "getSessionCount");
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 3); //Count is 3 as there are two global tables.
     }
-
-
 }

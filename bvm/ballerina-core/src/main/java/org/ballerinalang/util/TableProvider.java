@@ -148,7 +148,7 @@ public class TableProvider {
                     sb.append(TableConstants.SQL_TYPE_ARRAY);
                     break;
                 default:
-                    throw new BallerinaException("Unsupported type for table : " + sf.getFieldType());
+                    throw new BallerinaException("Unsupported column type for table : " + sf.getFieldType());
             }
             seperator = ",";
         }

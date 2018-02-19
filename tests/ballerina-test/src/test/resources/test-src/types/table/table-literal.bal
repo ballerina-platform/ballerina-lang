@@ -171,7 +171,7 @@ function testTableDrop () {
     dt.add(p1);
 }
 
-function testTableWithAllDataToJson ()(json) {
+function testTableWithAllDataToJson () (json) {
     json j1 = {name:"apple", color:"red", price:30.3};
     xml x1 = xml `<book>The Lost World</book>`;
     TypeTest t1 = {id:1, jsonData:j1, xmlData:x1};
@@ -185,7 +185,7 @@ function testTableWithAllDataToJson ()(json) {
     return j;
 }
 
-function testTableWithAllDataToXml ()(xml) {
+function testTableWithAllDataToXml () (xml) {
     json j1 = {name:"apple", color:"red", price:30.3};
     xml x1 = xml `<book>The Lost World</book>`;
     TypeTest t1 = {id:1, jsonData:j1, xmlData:x1};
@@ -200,7 +200,7 @@ function testTableWithAllDataToXml ()(xml) {
 }
 
 
-function testTableWithAllDataToStruct ()(json jData, xml xData) {
+function testTableWithAllDataToStruct () (json jData, xml xData) {
     json j1 = {name:"apple", color:"red", price:30.3};
     xml x1 = xml `<book>The Lost World</book>`;
     TypeTest t1 = {id:1, jsonData:j1, xmlData:x1};
@@ -208,15 +208,15 @@ function testTableWithAllDataToStruct ()(json jData, xml xData) {
     table<TypeTest> dt1 = {};
     dt1.add(t1);
 
-    while(dt1.hasNext()) {
-        var x, _ = (TypeTest) dt1.getNext();
+    while (dt1.hasNext()) {
+        var x, _ = (TypeTest)dt1.getNext();
         jData = x.jsonData;
         xData = x.xmlData;
     }
     return;
 }
 
-function testTableWithBlobDataToJson ()(json) {
+function testTableWithBlobDataToJson () (json) {
     string text = "Sample Text";
     blob content = text.toBlob("UTF-8");
     BlobTypeTest t1 = {id:1, blobData:content};
@@ -228,7 +228,7 @@ function testTableWithBlobDataToJson ()(json) {
     return j;
 }
 
-function testTableWithBlobDataToXml ()(xml) {
+function testTableWithBlobDataToXml () (xml) {
     string text = "Sample Text";
     blob content = text.toBlob("UTF-8");
     BlobTypeTest t1 = {id:1, blobData:content};
@@ -240,7 +240,7 @@ function testTableWithBlobDataToXml ()(xml) {
     return x;
 }
 
-function testTableWithBlobDataToStruct ()(blob bData) {
+function testTableWithBlobDataToStruct () (blob bData) {
     string text = "Sample Text";
     blob content = text.toBlob("UTF-8");
     BlobTypeTest t1 = {id:1, blobData:content};
@@ -248,14 +248,14 @@ function testTableWithBlobDataToStruct ()(blob bData) {
     table<BlobTypeTest> dt1 = {};
     dt1.add(t1);
 
-    while(dt1.hasNext()) {
-        var x, _ = (BlobTypeTest) dt1.getNext();
+    while (dt1.hasNext()) {
+        var x, _ = (BlobTypeTest)dt1.getNext();
         bData = x.blobData;
     }
     return;
 }
 
-function testTableWithAnyDataToJson ()(json) {
+function testTableWithAnyDataToJson () (json) {
     AnyTypeTest t1 = {id:1, anyData:"Sample Text"};
 
     table<AnyTypeTest> dt1 = {};
@@ -265,7 +265,7 @@ function testTableWithAnyDataToJson ()(json) {
     return j;
 }
 
-function testStructWithDefaultDataToJson ()(json) {
+function testStructWithDefaultDataToJson () (json) {
     Person p1 = {id:1};
     table<Person> dt1 = {};
     dt1.add(p1);
@@ -274,7 +274,7 @@ function testStructWithDefaultDataToJson ()(json) {
     return j;
 }
 
-function testStructWithDefaultDataToXml ()(xml) {
+function testStructWithDefaultDataToXml () (xml) {
     Person p1 = {id:1};
     table<Person> dt1 = {};
     dt1.add(p1);
@@ -284,13 +284,13 @@ function testStructWithDefaultDataToXml ()(xml) {
 }
 
 
-function testStructWithDefaultDataToStruct ()(int iData, float fData, string sData, boolean bData) {
+function testStructWithDefaultDataToStruct () (int iData, float fData, string sData, boolean bData) {
     Person p1 = {id:1};
     table<Person> dt1 = {};
     dt1.add(p1);
 
-    while(dt1.hasNext()) {
-        var x, _ = (Person) dt1.getNext();
+    while (dt1.hasNext()) {
+        var x, _ = (Person)dt1.getNext();
         iData = x.age;
         fData = x.salary;
         sData = x.name;
@@ -299,20 +299,19 @@ function testStructWithDefaultDataToStruct ()(int iData, float fData, string sDa
     return;
 }
 
-
-function testTableWithArrayDataToJson ()(json) {
-    int[] intArray = [1,2,3];
-    float[] floatArray = [11.1,22.2,33.3];
+function testTableWithArrayDataToJson () (json) {
+    int[] intArray = [1, 2, 3];
+    float[] floatArray = [11.1, 22.2, 33.3];
     string[] stringArray = ["Hello", "World"];
-    boolean [] boolArray = [true, false, true];
-    ArraTypeTest t1 = {id:1, intArrData:intArray, floatArrData: floatArray, stringArrData:stringArray,
+    boolean[] boolArray = [true, false, true];
+    ArraTypeTest t1 = {id:1, intArrData:intArray, floatArrData:floatArray, stringArrData:stringArray,
                           booleanArrData:boolArray};
 
-    int[] intArray2 = [10,20,30];
-    float[] floatArray2 = [111.1,222.2,333.3];
+    int[] intArray2 = [10, 20, 30];
+    float[] floatArray2 = [111.1, 222.2, 333.3];
     string[] stringArray2 = ["Hello", "World", "test"];
-    boolean [] boolArray2 = [false, false, true];
-    ArraTypeTest t2 = {id:2, intArrData:intArray2, floatArrData: floatArray2, stringArrData:stringArray2,
+    boolean[] boolArray2 = [false, false, true];
+    ArraTypeTest t2 = {id:2, intArrData:intArray2, floatArrData:floatArray2, stringArrData:stringArray2,
                           booleanArrData:boolArray2};
 
     table<ArraTypeTest> dt1 = {};
@@ -323,19 +322,19 @@ function testTableWithArrayDataToJson ()(json) {
     return j;
 }
 
-function testTableWithArrayDataToXml ()(xml) {
-    int[] intArray = [1,2,3];
-    float[] floatArray = [11.1,22.2,33.3];
+function testTableWithArrayDataToXml () (xml) {
+    int[] intArray = [1, 2, 3];
+    float[] floatArray = [11.1, 22.2, 33.3];
     string[] stringArray = ["Hello", "World"];
-    boolean [] boolArray = [true, false, true];
-    ArraTypeTest t1 = {id:1, intArrData:intArray, floatArrData: floatArray, stringArrData:stringArray,
+    boolean[] boolArray = [true, false, true];
+    ArraTypeTest t1 = {id:1, intArrData:intArray, floatArrData:floatArray, stringArrData:stringArray,
                           booleanArrData:boolArray};
 
-    int[] intArray2 = [10,20,30];
-    float[] floatArray2 = [111.1,222.2,333.3];
+    int[] intArray2 = [10, 20, 30];
+    float[] floatArray2 = [111.1, 222.2, 333.3];
     string[] stringArray2 = ["Hello", "World", "test"];
-    boolean [] boolArray2 = [false, false, true];
-    ArraTypeTest t2 = {id:2, intArrData:intArray2, floatArrData: floatArray2, stringArrData:stringArray2,
+    boolean[] boolArray2 = [false, false, true];
+    ArraTypeTest t2 = {id:2, intArrData:intArray2, floatArrData:floatArray2, stringArrData:stringArray2,
                           booleanArrData:boolArray2};
 
     table<ArraTypeTest> dt1 = {};
@@ -346,19 +345,19 @@ function testTableWithArrayDataToXml ()(xml) {
     return x;
 }
 
-function testTableWithArrayDataToStruct ()(int[] intArr, float[] floatArr, string[] stringArr, boolean[] boolArr) {
-    int[] intArray = [1,2,3];
-    float[] floatArray = [11.1,22.2,33.3];
+function testTableWithArrayDataToStruct () (int[] intArr, float[] floatArr, string[] stringArr, boolean[] boolArr) {
+    int[] intArray = [1, 2, 3];
+    float[] floatArray = [11.1, 22.2, 33.3];
     string[] stringArray = ["Hello", "World"];
-    boolean [] boolArray = [true, false, true];
-    ArraTypeTest t1 = {id:1, intArrData:intArray, floatArrData: floatArray, stringArrData:stringArray,
+    boolean[] boolArray = [true, false, true];
+    ArraTypeTest t1 = {id:1, intArrData:intArray, floatArrData:floatArray, stringArrData:stringArray,
                           booleanArrData:boolArray};
 
     table<ArraTypeTest> dt1 = {};
     dt1.add(t1);
 
-    while(dt1.hasNext()) {
-        var x, _ = (ArraTypeTest) dt1.getNext();
+    while (dt1.hasNext()) {
+        var x, _ = (ArraTypeTest)dt1.getNext();
         intArr = x.intArrData;
         floatArr = x.floatArrData;
         stringArr = x.stringArrData;
@@ -366,7 +365,6 @@ function testTableWithArrayDataToStruct ()(int[] intArr, float[] floatArr, strin
     }
     return;
 }
-
 
 function getPersonId (Person p) (int i) {
     return p.id;
