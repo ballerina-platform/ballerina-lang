@@ -7,8 +7,8 @@ function getFileCharacterChannel (string filePath, string permission, string enc
     file:File src = {path:filePath};
     //First we get the ByteChannel representation of the file.
     io:ByteChannel channel = src.openChannel(permission);
-    //Then we convert the byte channel to character channel to read content as text.
-    io:CharacterChannel characterChannel = channel.toCharacterChannel(encoding);
+    //Then we create a character channel from the byte channel to read content as text.
+    io:CharacterChannel characterChannel = io:createCharacterChannel(channel, encoding);
     return characterChannel;
 }
 

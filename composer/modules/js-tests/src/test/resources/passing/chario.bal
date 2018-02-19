@@ -6,7 +6,7 @@ io:CharacterChannel characterChannel;
 function initFileChannel(string filePath,string permission,string encoding){
     file:File src = {path:filePath};
     io:ByteChannel channel = src.openChannel(permission);
-    characterChannel = channel.toCharacterChannel(encoding);
+    characterChannel = io:createCharacterChannel(channel, encoding);
 }
 
 function readCharacters (int numberOfCharacters) (string) {

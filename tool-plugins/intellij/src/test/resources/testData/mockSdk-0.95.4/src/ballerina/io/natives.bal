@@ -12,11 +12,11 @@ public struct CharacterChannel{
 public struct TextRecordChannel{
 }
 
-@Description { value:"Function to convert a ByteChannel to CharacterChannel"}
+@Description {value:"Function to create a CharacterChannel from ByteChannel "}
 @Param {value:"channel: The ByteChannel to be converted"}
 @Param {value:"encoding: The charset/encoding of the content (i.e UTF-8, ASCII)"}
 @Return {value:"CharacterChannel converted from ByteChannel"}
-public native function <ByteChannel channel> toCharacterChannel(string encoding)(CharacterChannel);
+public native function createCharacterChannel (ByteChannel byteChannel, string encoding) (CharacterChannel);
 
 @Description {value:"Function to convert a CharacterChannel to TextRecordChannel"}
 @Param {value:"channel: The CharacterChannel to be converted"}
