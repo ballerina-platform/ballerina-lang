@@ -12,7 +12,7 @@ annotation Test {
 }
 
 documentation { Documentation for testConst constant
-- #abc abc description}
+- #testConst abc description}
 const string testConst = "TestConstantDocumentation";
 
 documentation { Documentation for state enum
