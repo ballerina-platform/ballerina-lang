@@ -18,6 +18,7 @@
 package org.wso2.siddhi.core.query;
 
 import org.wso2.siddhi.core.event.Event;
+import org.wso2.siddhi.query.api.definition.Attribute;
 
 /**
  * Store Query Runtime Interface
@@ -25,4 +26,13 @@ import org.wso2.siddhi.core.event.Event;
 public interface StoreQueryRuntime {
 
     Event[] execute();
+
+    void reset();
+
+    /**
+     * This method will return the output attributes name and its types.
+     *
+     * @return List of output attributes
+     */
+    Attribute[] getStoreQueryOutputAttributes();
 }

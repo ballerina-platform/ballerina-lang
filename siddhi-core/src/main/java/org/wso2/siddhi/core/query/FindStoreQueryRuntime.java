@@ -30,8 +30,10 @@ import org.wso2.siddhi.core.query.selector.QuerySelector;
 import org.wso2.siddhi.core.table.Table;
 import org.wso2.siddhi.core.util.collection.operator.CompiledCondition;
 import org.wso2.siddhi.core.window.Window;
+import org.wso2.siddhi.query.api.definition.Attribute;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -47,29 +49,37 @@ public class FindStoreQueryRuntime implements StoreQueryRuntime {
     private AggregationRuntime aggregation;
     private QuerySelector selector;
     private StateEventPool stateEventPool;
+    private MetaStreamEvent metaStreamEvent;
+    private Attribute[] outputAttributes;
 
     public FindStoreQueryRuntime(Table table, CompiledCondition compiledCondition, String queryName,
-                                 MetaStreamEvent.EventType eventType) {
+                                 MetaStreamEvent metaStreamEvent) {
         this.table = table;
         this.compiledCondition = compiledCondition;
         this.queryName = queryName;
-        this.eventType = eventType;
+        this.eventType = metaStreamEvent.getEventType();
+        this.metaStreamEvent = metaStreamEvent;
+        this.setOutputAttributes(metaStreamEvent.getLastInputDefinition().getAttributeList());
     }
 
     public FindStoreQueryRuntime(Window window, CompiledCondition compiledCondition, String queryName,
-                                 MetaStreamEvent.EventType eventType) {
+                                 MetaStreamEvent metaStreamEvent) {
         this.window = window;
         this.compiledCondition = compiledCondition;
         this.queryName = queryName;
-        this.eventType = eventType;
+        this.eventType = metaStreamEvent.getEventType();
+        this.metaStreamEvent = metaStreamEvent;
+        this.setOutputAttributes(metaStreamEvent.getLastInputDefinition().getAttributeList());
     }
 
     public FindStoreQueryRuntime(AggregationRuntime aggregation, CompiledCondition compiledCondition, String queryName,
-                                 MetaStreamEvent.EventType eventType) {
+                                 MetaStreamEvent metaStreamEvent) {
         this.aggregation = aggregation;
         this.compiledCondition = compiledCondition;
         this.queryName = queryName;
-        this.eventType = eventType;
+        this.eventType = metaStreamEvent.getEventType();
+        this.metaStreamEvent = metaStreamEvent;
+        this.setOutputAttributes(metaStreamEvent.getLastInputDefinition().getAttributeList());
     }
 
     @Override
@@ -112,12 +122,51 @@ public class FindStoreQueryRuntime implements StoreQueryRuntime {
         }
     }
 
+    @Override
+    public void reset() {
+        if (selector != null) {
+            selector.process(generateResetComplexEventChunk(metaStreamEvent));
+        }
+    }
+
+    private ComplexEventChunk<ComplexEvent> generateResetComplexEventChunk(MetaStreamEvent metaStreamEvent) {
+        StreamEvent streamEvent = new StreamEvent(metaStreamEvent.getBeforeWindowData().size(),
+                metaStreamEvent.getOnAfterWindowData().size(), metaStreamEvent.getOutputData().size());
+        streamEvent.setType(ComplexEvent.Type.RESET);
+
+        StateEvent stateEvent = stateEventPool.borrowEvent();
+        if (eventType == MetaStreamEvent.EventType.AGGREGATE) {
+            stateEvent.addEvent(1, streamEvent);
+        } else {
+            stateEvent.addEvent(0, streamEvent);
+        }
+        stateEvent.setType(ComplexEvent.Type.RESET);
+
+        ComplexEventChunk<ComplexEvent> complexEventChunk = new ComplexEventChunk<>(true);
+        complexEventChunk.add(stateEvent);
+        return complexEventChunk;
+    }
+
     public void setStateEventPool(StateEventPool stateEventPool) {
         this.stateEventPool = stateEventPool;
     }
 
     public void setSelector(QuerySelector selector) {
         this.selector = selector;
+    }
+
+    /**
+     * This method sets the output attribute list of the given store query.
+     *
+     * @param outputAttributeList
+     */
+    public void setOutputAttributes(List<Attribute> outputAttributeList) {
+        this.outputAttributes = outputAttributeList.toArray(new Attribute[outputAttributeList.size()]);
+    }
+
+    @Override
+    public Attribute[] getStoreQueryOutputAttributes() {
+        return Arrays.copyOf(outputAttributes, outputAttributes.length);
     }
 
     private Event[] executeSelector(StreamEvent streamEvents, MetaStreamEvent.EventType eventType) {
