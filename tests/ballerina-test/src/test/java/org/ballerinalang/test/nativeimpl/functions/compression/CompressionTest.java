@@ -61,9 +61,10 @@ public class CompressionTest {
     public void testUnzipFile() throws IOException, URISyntaxException {
         String resourceToRead = getAbsoluteFilePath("datafiles/compression/hello.zip");
         BString dirPath = new BString(resourceToRead);
+        BString folderToExtract = new BString("");
         String destDirPath = getAbsoluteFilePath("datafiles/compression/");
         BString destDir = new BString(destDirPath);
-        BValue[] inputArg = {dirPath, destDir};
+        BValue[] inputArg = {dirPath, destDir, folderToExtract};
         BRunUtil.invoke(compileResult, "testUnzipFile", inputArg);
 
         File file = new File(destDirPath + File.separator + "hello.txt");
@@ -76,7 +77,8 @@ public class CompressionTest {
         BString dirPath = new BString(null);
         String destDirPath = getAbsoluteFilePath("datafiles/compression/");
         BString destDir = new BString(destDirPath);
-        BValue[] inputArg = {dirPath, destDir};
+        BString folderToExtract = new BString("");
+        BValue[] inputArg = {dirPath, destDir, folderToExtract};
         BValue[] returns = BRunUtil.invoke(compileResult, "testUnzipFile", inputArg);
         Assert.assertNotNull(returns);
         Assert.assertEquals(returns.length, 1);
@@ -91,7 +93,8 @@ public class CompressionTest {
         String resourceToRead = getAbsoluteFilePath("datafiles/compression/hello.zip");
         BString dirPath = new BString(resourceToRead);
         BString destDir = new BString(null);
-        BValue[] inputArg = {dirPath, destDir};
+        BString folderToExtract = new BString("");
+        BValue[] inputArg = {dirPath, destDir, folderToExtract};
         BValue[] returns = BRunUtil.invoke(compileResult, "testUnzipFile", inputArg);
         Assert.assertNotNull(returns);
         Assert.assertEquals(returns.length, 1);
@@ -153,8 +156,9 @@ public class CompressionTest {
         byte[] fileContentAsByteArray = Files.readAllBytes(new File(dirPath +
                 File.separator + "test.zip").toPath());
         BString destDir = new BString(dirPath);
+        BString folderToExtract = new BString("");
         BBlob contentAsByteArray = new BBlob(fileContentAsByteArray);
-        BValue[] inputArg = {contentAsByteArray, destDir};
+        BValue[] inputArg = {contentAsByteArray, destDir, folderToExtract};
         BRunUtil.invoke(compileResult, "testUnzipBytes", inputArg);
 
         File f1 = new File(dirPath + File.separator + "test/");
@@ -170,9 +174,10 @@ public class CompressionTest {
     public void testUnzipBytesWithoutBytes() throws IOException, URISyntaxException {
         String dirPath = getAbsoluteFilePath("datafiles/compression/");
         byte[] fileContentAsByteArray = null;
+        BString folderToExtract = new BString("");
         BString destDir = new BString(dirPath);
         BBlob contentAsByteArray = new BBlob(fileContentAsByteArray);
-        BValue[] inputArg = {contentAsByteArray, destDir};
+        BValue[] inputArg = {contentAsByteArray, destDir, folderToExtract};
         BValue[] returns = BRunUtil.invoke(compileResult, "testUnzipBytes", inputArg);
         Assert.assertNotNull(returns);
         Assert.assertEquals(returns.length, 1);
@@ -188,8 +193,9 @@ public class CompressionTest {
         byte[] fileContentAsByteArray = Files.readAllBytes(new File(dirPath +
                 File.separator + "test.zip").toPath());
         BString destDir = new BString(null);
+        BString folderToExtract = new BString("");
         BBlob contentAsByteArray = new BBlob(fileContentAsByteArray);
-        BValue[] inputArg = {contentAsByteArray, destDir};
+        BValue[] inputArg = {contentAsByteArray, destDir, folderToExtract};
         BValue[] returns = BRunUtil.invoke(compileResult, "testUnzipBytes", inputArg);
         Assert.assertNotNull(returns);
         Assert.assertEquals(returns.length, 1);

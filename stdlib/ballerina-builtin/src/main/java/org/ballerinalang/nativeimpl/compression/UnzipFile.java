@@ -38,7 +38,8 @@ import java.nio.file.Paths;
         packageName = "ballerina.compression",
         functionName = "unzipFile",
         args = {@Argument(name = "dirPath", type = TypeKind.STRING),
-                @Argument(name = "destDir", type = TypeKind.STRING)},
+                @Argument(name = "destDir", type = TypeKind.STRING),
+                @Argument(name = "folderToUnzip", type = TypeKind.STRING)},
         isPublic = true
 )
 public class UnzipFile extends AbstractNativeFunction {
@@ -56,15 +57,19 @@ public class UnzipFile extends AbstractNativeFunction {
     private static final int DEST_PATH_FIELD_INDEX = 1;
 
     /**
-     * Decompress/unzip compressed file.
-     *
-     * @param dirPath      compressed file path
-     * @param outputFolder destination folder
+     * Folder to unzip from the compressed bytes.
      */
-    private static void decompress(String dirPath, String outputFolder) {
+    private static final int FOLDER_TO_UNZIP_INDEX = 2;
+    /**
+     * Decompress/unzip compressed file.
+     *  @param dirPath      compressed file path
+     * @param outputFolder destination folder
+     * @param folderToUnzip
+     */
+    private static void decompress(String dirPath, String outputFolder, String folderToUnzip) {
         try {
             byte[] fileContentAsByteArray = Files.readAllBytes(Paths.get(dirPath));
-            UnzipBytes.decompress(fileContentAsByteArray, outputFolder);
+            UnzipBytes.decompress(fileContentAsByteArray, outputFolder, folderToUnzip);
         } catch (IOException e) {
             log.debug("I/O exception occured when processing the file " + dirPath, e);
             log.error("I/O exception occured when processing the file " + dirPath);
@@ -75,7 +80,8 @@ public class UnzipFile extends AbstractNativeFunction {
     public BValue[] execute(Context context) {
         String dirPath = getStringArgument(context, SRC_PATH_FIELD_INDEX);
         String destDir = getStringArgument(context, DEST_PATH_FIELD_INDEX);
-        decompress(dirPath, destDir);
+        String folderToUnzip = getStringArgument(context, FOLDER_TO_UNZIP_INDEX);
+        decompress(dirPath, destDir, folderToUnzip);
         return VOID_RETURN;
     }
 }
