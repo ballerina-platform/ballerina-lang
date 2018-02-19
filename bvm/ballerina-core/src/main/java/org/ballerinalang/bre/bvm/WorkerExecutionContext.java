@@ -43,6 +43,8 @@ public class WorkerExecutionContext {
     
     public int ip;
     
+    public int backupIP;
+    
     public ProgramFile programFile;
     
     public ConstantPoolEntry[] constPool;
@@ -79,7 +81,15 @@ public class WorkerExecutionContext {
         this.workerResult = workerResult;
         this.retRegIndexes = retRegIndexes;
         this.globalProperties = globalProperties;
-        this.ip = this.workerInfo.getCodeAttributeInfo().getCodeAddrs();
+        this.backupIP = this.ip = this.workerInfo.getCodeAttributeInfo().getCodeAddrs();
+    }
+    
+    public void backupIP() {
+        this.backupIP = this.ip;
+    }
+    
+    public void restoreIP() {
+        this.ip = this.backupIP;
     }
     
     public void setError(BStruct error) {

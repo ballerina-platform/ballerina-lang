@@ -349,9 +349,52 @@ public class BLangFunctions {
     public static BValue[] invokeFunction(ProgramFile programFile, CallableUnitInfo callableUnitInfo, BValue[] args) {
         WorkerExecutionContext parentCtx = new WorkerExecutionContext();
         int[] argRegs = populateArgData(parentCtx, callableUnitInfo, args);
-        int[] retRegs = new int[0];
+        int[] retRegs = createReturnData(parentCtx, callableUnitInfo);
         invokeFunction(programFile, callableUnitInfo, parentCtx, argRegs, retRegs, true);
-        return null;
+        return populateReturnData(parentCtx, callableUnitInfo);
+    }
+    
+    private static BValue[] populateReturnData(WorkerExecutionContext ctx, CallableUnitInfo callableUnitInfo) {
+        int longRegCount = 0;
+        int doubleRegCount = 0;
+        int stringRegCount = 0;
+        int intRegCount = 0;
+        int refRegCount = 0;
+        int byteRegCount = 0;
+        WorkerData data = ctx.workerResult;
+        BType[] retTypes = callableUnitInfo.getRetParamTypes();
+        BValue[] returnValues = new BValue[retTypes.length];
+        for (int i = 0; i < returnValues.length; i++) {
+            BType retType = retTypes[i];
+            switch (retType.getTag()) {
+            case TypeTags.INT_TAG:
+                returnValues[i] = new BInteger(data.longRegs[longRegCount++]);
+                break;
+            case TypeTags.FLOAT_TAG:
+                returnValues[i] = new BFloat(data.doubleRegs[doubleRegCount++]);
+                break;
+            case TypeTags.STRING_TAG:
+                returnValues[i] = new BString(data.stringRegs[stringRegCount++]);
+                break;
+            case TypeTags.BOOLEAN_TAG:
+                boolean boolValue = data.intRegs[intRegCount++] == 1;
+                returnValues[i] = new BBoolean(boolValue);
+                break;
+            case TypeTags.BLOB_TAG:
+                returnValues[i] = new BBlob(data.byteRegs[byteRegCount++]);
+                break;
+            default:
+                returnValues[i] = data.refRegs[refRegCount++];
+                break;
+            }
+        }
+        return returnValues;
+    }
+    
+    private static int[] createReturnData(WorkerExecutionContext ctx, CallableUnitInfo callableUnitInfo) {
+        WorkerDataIndex wdi = calculateWorkerDataIndex(callableUnitInfo.getRetParamTypes());
+        ctx.workerResult = createWorkerData(wdi);
+        return wdi.retRegs;
     }
     
     @SuppressWarnings("rawtypes")
@@ -478,7 +521,7 @@ public class BLangFunctions {
 
     public static void invokePackageInitFunction(ProgramFile programFile, FunctionInfo initFuncInfo, 
             WorkerExecutionContext context) {
-        invokeFunction(programFile, initFuncInfo, context);
+        invokeFunction(programFile, initFuncInfo, context, new int[0], new int[0], true);
         if (context.getError() != null) {
             String stackTraceStr = BLangVMErrors.getPrintableStackTrace(context.getError());
             throw new BLangRuntimeException("error: " + stackTraceStr);

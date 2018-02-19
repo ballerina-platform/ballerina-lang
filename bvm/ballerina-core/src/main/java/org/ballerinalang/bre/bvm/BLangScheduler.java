@@ -35,6 +35,7 @@ public class BLangScheduler {
     private static Semaphore activeContextsTracker = new Semaphore(0);
     
     public static void schedule(WorkerExecutionContext ctx) {
+        ctx.restoreIP();
         ctx.state = WorkerState.READY;
         ExecutorService executor = ThreadPoolFactory.getInstance().getWorkerExecutor();
         executor.submit(new WorkerExecutor(ctx));
@@ -51,6 +52,7 @@ public class BLangScheduler {
     
     public static void switchToWaitForResponse(WorkerExecutionContext ctx) {
         ctx.state = WorkerState.WAITING_FOR_RESPONSE;
+        ctx.backupIP();
         ctx.ip = -1;
     }
     
@@ -71,10 +73,8 @@ public class BLangScheduler {
         @Override
         public void run() {
             try {
-                System.out.println("EXEC START");
                 ctx.state = WorkerState.RUNNING;
                 CPU.exec(ctx);
-                System.out.println("EXEC END");
             } catch (Throwable e) {
                 e.printStackTrace();
             }

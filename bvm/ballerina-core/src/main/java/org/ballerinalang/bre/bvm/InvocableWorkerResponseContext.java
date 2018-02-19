@@ -75,7 +75,7 @@ public class InvocableWorkerResponseContext implements WorkerResponseContext {
             return;
         }
         this.currentSignal = signal;
-        this.storeResponse();
+        this.storeResponseInParentAndContinue();
         BLangScheduler.workerDone(signal.getSourceContext());
     }
     
@@ -114,12 +114,16 @@ public class InvocableWorkerResponseContext implements WorkerResponseContext {
         }
     }
 
-    private void storeResponse() {
+    private void storeResponseInParentAndContinue() {
         if (this.retRegIndexes != null) {
             this.mergeResultData(this.currentSignal.getResult(), 
                     this.currentSignal.getSourceContext().parent.workerLocal);
             if (this.responseChecker != null) {
                 this.responseChecker.release();
+            }
+            WorkerExecutionContext parentCtx = this.currentSignal.getSourceContext().parent;
+            if (parentCtx.code != null) {
+                BLangScheduler.schedule(parentCtx);
             }
         }
     }
@@ -132,7 +136,7 @@ public class InvocableWorkerResponseContext implements WorkerResponseContext {
     @Override
     public void checkAndRefreshFulfilledResponse() {
         if (this.fulfilled.get()) {
-            this.storeResponse();
+            this.storeResponseInParentAndContinue();
         }
     }
     

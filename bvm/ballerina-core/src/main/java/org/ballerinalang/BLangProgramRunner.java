@@ -32,6 +32,7 @@ import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.values.BRefType;
 import org.ballerinalang.model.values.BStringArray;
+import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.codegen.FunctionInfo;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
@@ -103,20 +104,19 @@ public class BLangProgramRunner {
             throw new BallerinaException("main function not found in  '" + programFile.getProgramFilePath() + "'");
         }
         FunctionInfo mainFuncInfo = getMainFunction(mainPkgInfo);
-        WorkerInfo defaultWorker = mainFuncInfo.getDefaultWorkerInfo();
-        WorkerResponseContext respCtx = new InvocableWorkerResponseContext();
-        WorkerData workerLocal = new WorkerData();
-        WorkerData workerResult = new WorkerData();
-        int[] retRegIndexes = new int[0];
-        Map<String, Object> globalProps = new HashMap<>();
-        WorkerExecutionContext parentCtx = new WorkerExecutionContext(null, respCtx, mainFuncInfo, defaultWorker,
-                workerLocal, workerResult, retRegIndexes, globalProps);
         WorkerExecutionContext context = new WorkerExecutionContext();
         BLangFunctions.invokePackageInitFunction(programFile, mainPkgInfo.getInitFunctionInfo(), context);
-        BLangFunctions.invokeFunction(programFile, mainFuncInfo, parentCtx);
+        BLangFunctions.invokeFunction(programFile, mainFuncInfo, extractMainArgs(args));
         BLangScheduler.waitForCompletion();
     }
-
+    
+    private static BValue[] extractMainArgs(String[] args) {
+        BStringArray arrayArgs = new BStringArray();
+        for (int i = 0; i < args.length; i++) {
+            arrayArgs.add(i, args[i]);
+        }
+        return new BValue[] { arrayArgs };
+    }
 
     public static void runMain2(ProgramFile programFile, String[] args) {
         if (!programFile.isMainEPAvailable()) {
