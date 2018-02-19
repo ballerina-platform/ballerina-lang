@@ -55,7 +55,6 @@ import java.nio.file.Paths;
  */
 public class ServiceProtoUtils {
 
-
     public static File generateProtoDefinition(ServiceNode serviceNode) throws GrpcServerException {
         // Protobuf file definition builder.
         File.Builder fileBuilder = File.newBuilder(serviceNode.getName() + ServiceProtoConstants.PROTO_FILE_EXTENSION)
@@ -351,10 +350,24 @@ public class ServiceProtoUtils {
                     .UTF_8_CHARSET));
 
             // write the proto descriptor byte array to the file in protobuf contract directory
+            byte[] fileDescriptor = protoFileDefinition.getFileDescriptorProto().toByteArray();
             Path descFilePath = Paths.get(filename + ServiceProtoConstants.DESC_FILE_EXTENSION);
-            Files.write(descFilePath, protoFileDefinition.getFileDescriptorProto().toByteArray());
+            Files.write(descFilePath, fileDescriptor);
         } catch (IOException e) {
             throw new GrpcServerException("Error while writing file descriptor to file.", e);
         }
+    }
+
+
+    private static final char[] HEX_ARRAY = "0123456789ABCDEF".toCharArray();
+
+    public static String bytesToHex(byte[] data) {
+        char[] hexChars = new char[data.length * 2];
+        for (int j = 0; j < data.length; j++) {
+            int v = data[j] & 0xFF;
+            hexChars[j * 2] = HEX_ARRAY[v >>> 4];
+            hexChars[j * 2 + 1] = HEX_ARRAY[v & 0x0F];
+        }
+        return new String(hexChars);
     }
 }

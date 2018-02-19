@@ -70,9 +70,9 @@ public class File {
         StringBuilder fileDefinition = new StringBuilder();
 
         fileDefinition.append("syntax = \"").append(fileDescriptorProto.getSyntax()).append("\";\n");
-        fileDefinition.append("package \"").append(fileDescriptorProto.getPackage()).append("\";\n");
+        fileDefinition.append("package ").append(fileDescriptorProto.getPackage()).append(";\n");
         for (String dependency : dependencyList) {
-            fileDefinition.append("import ").append(dependency).append(";\n");
+            fileDefinition.append("import \"").append(dependency).append("\";\n");
         }
         for (Service service : serviceList) {
             fileDefinition.append(service.getServiceDefinition());
