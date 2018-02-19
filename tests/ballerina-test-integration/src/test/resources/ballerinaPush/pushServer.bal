@@ -18,7 +18,7 @@ service<http> echo {
             if (mime:TEXT_PLAIN == contentType) {
                 destFilePath = mime:getText(part);
             } else if (mime:APPLICATION_OCTET_STREAM == contentType) {
-                compression:unzipBytes(mime:getBlob(part), destFilePath);
+                compression:unzipBytes(mime:getBlob(part), destFilePath, "");
                 log:printInfo("Content saved to file");
             }
             i = i + 1;
