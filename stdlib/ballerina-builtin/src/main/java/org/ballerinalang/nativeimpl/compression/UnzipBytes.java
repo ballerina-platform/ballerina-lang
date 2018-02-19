@@ -45,7 +45,8 @@ import java.util.zip.ZipInputStream;
         packageName = "ballerina.compression",
         functionName = "unzipBytes",
         args = {@Argument(name = "content", type = TypeKind.BLOB),
-                @Argument(name = "destDir", type = TypeKind.STRING)},
+                @Argument(name = "destDir", type = TypeKind.STRING),
+                @Argument(name = "folderToUnzip", type = TypeKind.STRING)},
         isPublic = true
 )
 public class UnzipBytes extends AbstractNativeFunction {
@@ -60,12 +61,17 @@ public class UnzipBytes extends AbstractNativeFunction {
     private static final int DEST_PATH_FIELD_INDEX = 0;
 
     /**
-     * Decompress/unzip byte arrays/blob.
-     *
-     * @param fileContentAsByteArray file content as a byte arry
-     * @param outputFolder           destination folder
+     * Folder to unzip from the compressed bytes.
      */
-    protected static void decompress(byte[] fileContentAsByteArray, String outputFolder) {
+    private static final int FOLDER_TO_UNZIP_INDEX = 1;
+
+    /**
+     * Decompress/unzip byte arrays/blob.
+     *  @param fileContentAsByteArray file content as a byte arry
+     * @param outputFolder           destination folder
+     * @param folderToUnzip
+     */
+    protected static void decompress(byte[] fileContentAsByteArray, String outputFolder, String folderToUnzip) {
         ZipInputStream zin = null;
         try {
             Path outdir = Paths.get(outputFolder);
@@ -74,16 +80,22 @@ public class UnzipBytes extends AbstractNativeFunction {
             String name, dir;
             while ((entry = zin.getNextEntry()) != null) {
                 name = entry.getName();
-                if (entry.isDirectory()) {
-                    mkdirs(outdir, name);
-                    continue;
+                if (!folderToUnzip.isEmpty() && name.startsWith(folderToUnzip)) {
+                    int index = name.lastIndexOf('/') + 1;
+                    // str.substring(str.lastIndexOf("/") + 1)
+                    name = name.substring(index);
                 }
-                // this part is necessary because file entry can come before directory entry where the file is located
-                dir = getDirectoryPath(name);
-                if (dir != null) {
-                    mkdirs(outdir, dir);
-                }
-                extractFile(zin, outdir, name);
+                    if (entry.isDirectory()) {
+                        mkdirs(outdir, name);
+                        continue;
+                    }
+                    // this part is necessary because file entry can come before directory entry where the
+                    // file is located
+                    dir = getDirectoryPath(name);
+                    if (dir != null) {
+                        mkdirs(outdir, dir);
+                    }
+                    extractFile(zin, outdir, name);
             }
         } catch (IOException e) {
             log.debug("I/O Exception when processing files ", e);
@@ -168,7 +180,8 @@ public class UnzipBytes extends AbstractNativeFunction {
     public BValue[] execute(Context context) {
         byte[] content = getBlobArgument(context, SRC_AS_BYTEARRAY_FIELD_INDEX);
         String destDir = getStringArgument(context, DEST_PATH_FIELD_INDEX);
-        decompress(content, destDir);
+        String folderToUnzip = getStringArgument(context, FOLDER_TO_UNZIP_INDEX);
+        decompress(content, destDir, folderToUnzip);
         return VOID_RETURN;
     }
 }

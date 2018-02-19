@@ -12,7 +12,7 @@ function main (string[] args) {
     http:InResponse resp = {};
     log:printInfo("Sending request");
     resp, _ = httpEndpoint.get("/echo/", req);
-    compression:unzipBytes(resp.getBinaryPayload(), args[1]);
+    compression:unzipBytes(resp.getBinaryPayload(), args[1], "");
     log:printInfo("Ballerina package pulled successfully");
 }
 
