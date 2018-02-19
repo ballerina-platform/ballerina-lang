@@ -15,7 +15,7 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.ballerinalang.langserver.completions.consts;
+package org.ballerinalang.langserver.completions.util;
 
 /**
  * Snippet for the Ballerina language constructs.
@@ -33,11 +33,10 @@ public enum Snippet {
     FORK("fork {\n\t${1}\n} join (${2:all}) (map ${3:results}) {\n\t${4}\n}"),
     FUNCTION("function ${1:name} (${2}) {\n\t${3}\n}"),
     IF("if (${1:true}) {\n\t${2}\n}"),
-    ITERATE("iterate (${1}) {\n\t${2}\n}"),
+    LOCK("lock {\n\t${1}\n}"),
     MAIN_FUNCTION("function main (string[] args) {\n\t${1}\n}"),
     NAMESPACE_DECLARATION("xmlns \"${1}\" as ${2:ns};"),
     NEXT("next;"),
-    REPLY("reply ${1};"),
     RESOURCE("resource ${1:name} (http:Connection conn, http:InRequest inRequest) {\n\t${2}\n}"),
     RETURN("return;"),
     SERVICE("service<${1:http}> ${2:serviceName}{\n\tresource ${3:resourceName}" +
@@ -50,7 +49,9 @@ public enum Snippet {
     WHILE("while (${1:true}) {\n\t${2}\n}"),
     WORKER_REPLY("${1} <- ${2};"),
     WORKER("worker ${1:name} {\n\t${2}\n}"),
-    XML_ATTRIBUTE_REFERENCE("\"${1}\"@[\"${2}\"]");
+    XML_ATTRIBUTE_REFERENCE("\"${1}\"@[\"${2}\"]"),
+    VAR_KEYWORD_SNIPPET("var "),
+    CREATE_KEYWORD_SNIPPET("create ");    
 
     private String value;
 

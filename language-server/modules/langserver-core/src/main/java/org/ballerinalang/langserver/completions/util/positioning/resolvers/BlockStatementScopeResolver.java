@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.ballerinalang.langserver.completions.util.positioning.resolvers;
 
 import org.ballerinalang.langserver.DocumentServiceKeys;
@@ -21,6 +20,7 @@ import org.ballerinalang.langserver.TextDocumentServiceContext;
 import org.ballerinalang.langserver.completions.TreeVisitor;
 import org.ballerinalang.model.tree.Node;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
+import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangStruct;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
@@ -63,14 +63,12 @@ public class BlockStatementScopeResolver extends CursorPositionResolver {
 
         BLangBlockStmt bLangBlockStmt = treeVisitor.getBlockStmtStack().peek();
         Node blockOwner = treeVisitor.getBlockOwnerStack().peek();
-        int blockOwnerELine = this.getBlockOwnerELine(blockOwner, bLangBlockStmt);
-        int blockOwnerECol = this.getBlockOwnerECol(blockOwner, bLangBlockStmt);
 
         boolean isLastStatement = this.isNodeLastStatement(bLangBlockStmt, blockOwner, node);
+        boolean isWithinScopeAfterLastChild = this.isWithinScopeAfterLastChildNode(treeVisitor, isLastStatement,
+                nodeELine, nodeECol, line, col, node);
 
-        if (line < nodeSLine || (line == nodeSLine && col < nodeSCol) ||
-                (isLastStatement && (line < blockOwnerELine || (line == blockOwnerELine && col <= blockOwnerECol)) &&
-                        (line > nodeELine || (line == nodeELine && col > nodeECol)))) {
+        if (line < nodeSLine || (line == nodeSLine && col < nodeSCol) || isWithinScopeAfterLastChild) {
             Map<Name, Scope.ScopeEntry> visibleSymbolEntries =
                     treeVisitor.resolveAllVisibleSymbols(treeVisitor.getSymbolEnv());
             treeVisitor.populateSymbols(visibleSymbolEntries, null);
@@ -79,6 +77,26 @@ public class BlockStatementScopeResolver extends CursorPositionResolver {
         }
 
         return false;
+    }
+    
+    private boolean isWithinScopeAfterLastChildNode(TreeVisitor treeVisitor, boolean lastChild,
+                                                    int nodeELine, int nodeECol, int line, int col, Node node) {
+        if (!lastChild) {
+            return false;
+        } else {
+            BLangBlockStmt bLangBlockStmt = treeVisitor.getBlockStmtStack().peek();
+            Node blockOwner = treeVisitor.getBlockOwnerStack().peek();
+            int blockOwnerELine = this.getBlockOwnerELine(blockOwner, bLangBlockStmt);
+            int blockOwnerECol = this.getBlockOwnerECol(blockOwner, bLangBlockStmt);
+            boolean isWithinScope = (line < blockOwnerELine || (line == blockOwnerELine && col <= blockOwnerECol)) &&
+                    (line > nodeELine || (line == nodeELine && col > nodeECol));
+            
+            if (isWithinScope) {
+                treeVisitor.setPreviousNode((BLangNode) node);
+            }
+            
+            return isWithinScope;
+        }
     }
 
     private boolean isNodeLastStatement(BLangBlockStmt bLangBlockStmt, Node blockOwner, Node node) {

@@ -18,6 +18,9 @@ package org.ballerinalang.psi.vars;
 
 import org.ballerinalang.psi.BallerinaResolveTestBase;
 
+/**
+ * Test parameter resolving.
+ */
 public class BallerinaResolveParameterTest extends BallerinaResolveTestBase {
 
     @Override

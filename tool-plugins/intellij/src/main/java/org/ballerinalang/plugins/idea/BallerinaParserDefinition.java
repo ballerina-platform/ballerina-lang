@@ -45,6 +45,7 @@ import org.ballerinalang.plugins.idea.psi.AnnotationAttributeValueNode;
 import org.ballerinalang.plugins.idea.psi.AnnotationDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.AnnotationReferenceNode;
 import org.ballerinalang.plugins.idea.psi.AnonStructTypeNameNode;
+import org.ballerinalang.plugins.idea.psi.AnyIdentifierNameNode;
 import org.ballerinalang.plugins.idea.psi.AssignmentStatementNode;
 import org.ballerinalang.plugins.idea.psi.AttachmentPointNode;
 import org.ballerinalang.plugins.idea.psi.BallerinaFile;
@@ -115,6 +116,7 @@ import org.ballerinalang.plugins.idea.psi.TypeCastNode;
 import org.ballerinalang.plugins.idea.psi.TypeConversionNode;
 import org.ballerinalang.plugins.idea.psi.TypeListNode;
 import org.ballerinalang.plugins.idea.psi.TypeNameNode;
+import org.ballerinalang.plugins.idea.psi.UserDefinedTypeName;
 import org.ballerinalang.plugins.idea.psi.ValueTypeNameNode;
 import org.ballerinalang.plugins.idea.psi.VariableDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.VariableReferenceListNode;
@@ -166,6 +168,7 @@ import static org.ballerinalang.plugins.idea.grammar.BallerinaLexer.NEXT;
 import static org.ballerinalang.plugins.idea.grammar.BallerinaLexer.NullLiteral;
 import static org.ballerinalang.plugins.idea.grammar.BallerinaLexer.PACKAGE;
 import static org.ballerinalang.plugins.idea.grammar.BallerinaLexer.PARAMETER;
+import static org.ballerinalang.plugins.idea.grammar.BallerinaLexer.PRIVATE;
 import static org.ballerinalang.plugins.idea.grammar.BallerinaLexer.PUBLIC;
 import static org.ballerinalang.plugins.idea.grammar.BallerinaLexer.QuotedStringLiteral;
 import static org.ballerinalang.plugins.idea.grammar.BallerinaLexer.RARROW;
@@ -187,12 +190,12 @@ import static org.ballerinalang.plugins.idea.grammar.BallerinaLexer.TYPEOF;
 import static org.ballerinalang.plugins.idea.grammar.BallerinaLexer.TYPE_ANY;
 import static org.ballerinalang.plugins.idea.grammar.BallerinaLexer.TYPE_BLOB;
 import static org.ballerinalang.plugins.idea.grammar.BallerinaLexer.TYPE_BOOL;
-import static org.ballerinalang.plugins.idea.grammar.BallerinaLexer.TYPE_DATATABLE;
 import static org.ballerinalang.plugins.idea.grammar.BallerinaLexer.TYPE_FLOAT;
 import static org.ballerinalang.plugins.idea.grammar.BallerinaLexer.TYPE_INT;
 import static org.ballerinalang.plugins.idea.grammar.BallerinaLexer.TYPE_JSON;
 import static org.ballerinalang.plugins.idea.grammar.BallerinaLexer.TYPE_MAP;
 import static org.ballerinalang.plugins.idea.grammar.BallerinaLexer.TYPE_STRING;
+import static org.ballerinalang.plugins.idea.grammar.BallerinaLexer.TYPE_TABLE;
 import static org.ballerinalang.plugins.idea.grammar.BallerinaLexer.TYPE_TYPE;
 import static org.ballerinalang.plugins.idea.grammar.BallerinaLexer.TYPE_XML;
 import static org.ballerinalang.plugins.idea.grammar.BallerinaLexer.VAR;
@@ -232,9 +235,9 @@ public class BallerinaParserDefinition implements ParserDefinition {
     public static final TokenSet KEYWORDS = PSIElementTypeFactory.createTokenSet(BallerinaLanguage.INSTANCE,
             ABORT, ACTION, ALL, ANNOTATION, AS, ATTACH, BIND, BREAK, CATCH, CONNECTOR, CONST, CREATE, ELSE, ENDPOINT,
             ENUM, FAILED, FINALLY, FOREACH, FORK, FUNCTION, IF, IMPORT, IN, JOIN, LENGTHOF, LOCK, NATIVE, NEXT, PACKAGE,
-            PARAMETER, PUBLIC, RESOURCE, RETRIES, RETURN, RETURNS, SERVICE, SOME, STRUCT, THROW, TIMEOUT,
+            PARAMETER, PRIVATE, PUBLIC, RESOURCE, RETRIES, RETURN, RETURNS, SERVICE, SOME, STRUCT, THROW, TIMEOUT,
             TRANSACTION, TRANSFORMER, TRY, VAR, WHILE, WORKER, XMLNS, TYPEOF, TYPE_BOOL, TYPE_INT, TYPE_FLOAT,
-            TYPE_STRING, TYPE_BLOB, TYPE_MAP, TYPE_XML, TYPE_JSON, TYPE_DATATABLE, TYPE_ANY, TYPE_TYPE, VERSION,
+            TYPE_STRING, TYPE_BLOB, TYPE_MAP, TYPE_XML, TYPE_JSON, TYPE_TABLE, TYPE_ANY, TYPE_TYPE, VERSION,
             WITH, BooleanLiteral, NullLiteral);
 
     public static final TokenSet BRACES_AND_OPERATORS = PSIElementTypeFactory.createTokenSet(BallerinaLanguage.INSTANCE,
@@ -475,6 +478,10 @@ public class BallerinaParserDefinition implements ParserDefinition {
                 return new AnonStructTypeNameNode(node);
             case BallerinaParser.RULE_failedClause:
                 return new FailedClauseNode(node);
+            case BallerinaParser.RULE_userDefineTypeName:
+                return new UserDefinedTypeName(node);
+            case BallerinaParser.RULE_anyIdentifierName:
+                return new AnyIdentifierNameNode(node);
             default:
                 return new ANTLRPsiNode(node);
         }

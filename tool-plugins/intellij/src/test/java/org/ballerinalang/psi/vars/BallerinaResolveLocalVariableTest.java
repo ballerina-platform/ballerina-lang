@@ -18,6 +18,9 @@ package org.ballerinalang.psi.vars;
 
 import org.ballerinalang.psi.BallerinaResolveTestBase;
 
+/**
+ * Test local variable resolving.
+ */
 public class BallerinaResolveLocalVariableTest extends BallerinaResolveTestBase {
 
     @Override

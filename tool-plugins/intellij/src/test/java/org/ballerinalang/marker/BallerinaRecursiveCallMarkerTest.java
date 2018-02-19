@@ -22,6 +22,9 @@ import org.ballerinalang.plugins.idea.BallerinaIcons;
 
 import java.util.List;
 
+/**
+ * Recursive call marker tests.
+ */
 public class BallerinaRecursiveCallMarkerTest extends BallerinaCodeInsightFixtureTestCase {
 
     @Override

@@ -151,6 +151,7 @@ function shiftLeft (Vector v, int index) {
         v.vec[i] = v.vec[i + 1];
         i = i + 1;
     }
+    v.vec[v.vectorSize - 1] = null;
 }
 
 function validateRange (int vectorSize, int index) {

@@ -21,8 +21,6 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiReference;
 import com.intellij.psi.util.PsiTreeUtil;
 import org.ballerinalang.plugins.idea.completion.BallerinaCompletionUtils;
-import org.ballerinalang.plugins.idea.psi.ConnectorDeclarationStatementNode;
-import org.ballerinalang.plugins.idea.psi.ConnectorDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.GlobalVariableDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.IdentifierPSINode;
 import org.ballerinalang.plugins.idea.psi.ParameterNode;
@@ -61,20 +59,11 @@ public class InvocationReference extends BallerinaElementReference {
             return null;
         }
         PsiElement definitionNode = resolvedElement.getParent();
-        if ((definitionNode instanceof ConnectorDeclarationStatementNode)) {
-            //            return new ActionInvocationReference(this);
-        } else if (definitionNode instanceof VariableDefinitionNode || definitionNode instanceof ParameterNode
+        if (definitionNode instanceof VariableDefinitionNode || definitionNode instanceof ParameterNode
                 || definitionNode instanceof GlobalVariableDefinitionNode) {
-            ConnectorDefinitionNode connectorDefinitionNode =
-                    BallerinaPsiImplUtil.resolveConnectorFromVariableDefinitionNode(definitionNode);
-            if (connectorDefinitionNode != null) {
-                //                return new ActionInvocationReference(this);
-            }
             StructDefinitionNode structDefinitionNode = BallerinaPsiImplUtil.resolveStructFromDefinitionNode
                     (definitionNode);
             if (structDefinitionNode != null) {
-                //                return new LambdaFunctionReference(this);
-
                 List<IdentifierPSINode> attachedFunctions =
                         BallerinaPsiImplUtil.getAttachedFunctions(structDefinitionNode);
                 for (IdentifierPSINode attachedFunction : attachedFunctions) {

@@ -19,6 +19,9 @@ package org.ballerinalang.spellchecking;
 import com.intellij.spellchecker.inspections.SpellCheckingInspection;
 import org.ballerinalang.BallerinaCodeInsightFixtureTestCase;
 
+/**
+ * Spell checking tests.
+ */
 public class BallerinaSpellCheckingTest extends BallerinaCodeInsightFixtureTestCase {
 
     @Override

@@ -31,6 +31,9 @@ import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 
+/**
+ * Parent class related to code insight tests.
+ */
 public abstract class BallerinaCodeInsightFixtureTestCase extends LightPlatformCodeInsightFixtureTestCase {
 
     protected static String getTestDataPath(String path) {
