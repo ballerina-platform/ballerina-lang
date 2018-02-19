@@ -235,7 +235,7 @@ public class HttpUtil {
             isEntityBodyAvailable = (Boolean) httpMessageStruct.getNativeData(IS_ENTITY_BODY_PRESENT);
         }
         if (entity != null && isEntityBodyRequired && !isEntityBodyAvailable) {
-            addFileHandlerToEntity(context, entity);
+            addFileStructToEntity(context, entity);
             populateEntityBody(context, httpMessageStruct, entity, isRequest);
         }
         if (entity == null) {
@@ -250,7 +250,7 @@ public class HttpUtil {
      * @param context Represent ballerina context
      * @param entity  Represent an entity
      */
-    private static void addFileHandlerToEntity(Context context, BStruct entity) {
+    private static void addFileStructToEntity(Context context, BStruct entity) {
         BStruct fileStruct = ConnectorUtils
                 .createAndGetStruct(context, Constants.PROTOCOL_PACKAGE_FILE, Constants.FILE);
         entity.setRefField(Constants.OVERFLOW_DATA_INDEX, fileStruct);

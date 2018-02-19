@@ -43,9 +43,8 @@ public class SignatureParams {
     }
 
     public void validate() {
-
         if (paramDetails.size() < 2) {
-            throw new BallerinaConnectorException("resource signature parameter count should be more than two");
+            throw new BallerinaConnectorException("resource signature parameter count should be >= 2");
         }
         if (!isValidResourceParam(paramDetails.get(0), HttpConstants.CONNECTION)) {
             throw new BallerinaConnectorException("first parameter should be of type - "
@@ -75,9 +74,8 @@ public class SignatureParams {
     }
 
     private void validatePathParam(List<ParamDetail> paramDetails) {
-        for (int i = 0; i < paramDetails.size(); i++) {
-            ParamDetail paramDetail = paramDetails.get(i);
-            if (paramDetail.getVarType().getTag() != TypeTags.STRING_TAG) {
+        for (ParamDetail param : paramDetails) {
+            if (param.getVarType().getTag() != TypeTags.STRING_TAG) {
                 throw new BallerinaConnectorException("incompatible resource signature parameter type");
             }
             paramCount++;
@@ -88,8 +86,8 @@ public class SignatureParams {
     private void validateEntityBodyParam(ParamDetail entityBodyParam) {
         String entityBodyAttributeValue = resource.getEntityBodyAttributeValue();
         if (!entityBodyAttributeValue.equals(entityBodyParam.getVarName())) {
-            throw new BallerinaConnectorException("expected " + entityBodyAttributeValue +
-                    " as param name instead of " + entityBodyParam.getVarName());
+            throw new BallerinaConnectorException("expected '" + entityBodyAttributeValue +
+                    "' as param name, but found '" + entityBodyParam.getVarName() + "'");
         }
         int type = entityBodyParam.getVarType().getTag();
         if (type == TypeTags.STRUCT_TAG || type == TypeTags.JSON_TAG || type == TypeTags.XML_TAG ||

@@ -42,7 +42,7 @@ import static org.ballerinalang.mime.util.Constants.TEXT_PLAIN;
  */
 public class DataBindingTest {
 
-    CompileResult compileResult;
+    private CompileResult compileResult;
 
     @BeforeClass
     public void setup() {
@@ -133,6 +133,14 @@ public class DataBindingTest {
                 , "Key variable not set properly.");
         Assert.assertEquals(bJson.value().get("Age").asText(), "12"
                 , "Age variable not set properly.");
+    }
+
+    @Test(expectedExceptions = BallerinaConnectorException.class,
+            expectedExceptionsMessageRegExp = "data binding failed: incompatible entity body type: expected string")
+    public void testDataBindingWithoutPayload() {
+        HTTPTestRequest requestMsg = MessageUtils
+                .generateHTTPMessage("/echo/body1", "GET");
+        Services.invokeNew(compileResult, requestMsg);
     }
 
     @Test(expectedExceptions = BallerinaConnectorException.class,

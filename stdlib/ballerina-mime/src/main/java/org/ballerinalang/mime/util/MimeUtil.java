@@ -108,7 +108,7 @@ import static org.ballerinalang.mime.util.Constants.XML_EXTENSION;
  * @since 0.96
  */
 public class MimeUtil {
-    private static final Logger LOG = LoggerFactory.getLogger(MimeUtil.class);
+    private static final Logger log = LoggerFactory.getLogger(MimeUtil.class);
     private static HttpDataFactory dataFactory = null;
 
     /**
@@ -124,7 +124,7 @@ public class MimeUtil {
                                                long contentLength) {
         if (contentLength > Constants.BYTE_LIMIT) {
             String temporaryFilePath = writeToTemporaryFile(inputStream, BALLERINA_TEXT_DATA);
-            populateBallerinaFileHandler(entityStruct, temporaryFilePath);
+            populateBallerinaFileStruct(entityStruct, temporaryFilePath);
         } else {
             String payload = StringUtils.getStringFromInputStream(inputStream);
             entityStruct.setStringField(TEXT_DATA_INDEX, payload);
@@ -144,7 +144,7 @@ public class MimeUtil {
                                              long contentLength) {
         if (contentLength > Constants.BYTE_LIMIT) {
             String temporaryFilePath = writeToTemporaryFile(inputStream, BALLERINA_JSON_DATA);
-            populateBallerinaFileHandler(entityStruct, temporaryFilePath);
+            populateBallerinaFileStruct(entityStruct, temporaryFilePath);
         } else {
             BJSON payload = new BJSON(inputStream);
             entityStruct.setRefField(JSON_DATA_INDEX, payload);
@@ -164,7 +164,7 @@ public class MimeUtil {
                                             long contentLength) {
         if (contentLength > Constants.BYTE_LIMIT) {
             String temporaryFilePath = writeToTemporaryFile(inputStream, BALLERINA_XML_DATA);
-            populateBallerinaFileHandler(entityStruct, temporaryFilePath);
+            populateBallerinaFileStruct(entityStruct, temporaryFilePath);
         } else {
             BXML payload = XMLUtils.parse(inputStream);
             entityStruct.setRefField(XML_DATA_INDEX, payload);
@@ -184,7 +184,7 @@ public class MimeUtil {
                                                long contentLength) {
         if (contentLength > Constants.BYTE_LIMIT) {
             String temporaryFilePath = writeToTemporaryFile(inputStream, BALLERINA_BINARY_DATA);
-            populateBallerinaFileHandler(entityStruct, temporaryFilePath);
+            populateBallerinaFileStruct(entityStruct, temporaryFilePath);
         } else {
             byte[] payload;
             try {
@@ -288,11 +288,11 @@ public class MimeUtil {
         if (isNotNullAndEmpty(returnValue)) {
             return returnValue;
         } else {
-            String filePath = getFilePathFromFileHandler(entity);
+            String filePath = getFilePathFromFileStruct(entity);
             try {
                 return filePath.isEmpty() ? null : new String(readFromFile(filePath), UTF_8);
             } catch (UnsupportedEncodingException e) {
-                LOG.error("Error occurred while extracting text payload from entity", e.getMessage());
+                log.error("Error occurred while extracting text payload from entity", e.getMessage());
             }
         }
         return null;
@@ -309,11 +309,11 @@ public class MimeUtil {
         if (jsonRefType != null) {
             return (BJSON) entity.getRefField(JSON_DATA_INDEX);
         } else {
-            String filePath = getFilePathFromFileHandler(entity);
+            String filePath = getFilePathFromFileStruct(entity);
             try {
                 return filePath.isEmpty() ? null : new BJSON(new String(readFromFile(filePath), UTF_8));
             } catch (UnsupportedEncodingException e) {
-                LOG.error("Error occurred while extracting json payload from entity", e.getMessage());
+                log.error("Error occurred while extracting json payload from entity", e.getMessage());
             }
         }
         return null;
@@ -330,11 +330,11 @@ public class MimeUtil {
         if (xmlRefType != null) {
             return (BXML) entity.getRefField(XML_DATA_INDEX);
         } else {
-            String filePath = getFilePathFromFileHandler(entity);
+            String filePath = getFilePathFromFileStruct(entity);
             try {
                 return filePath.isEmpty() ? null : XMLUtils.parse(new String(readFromFile(filePath), UTF_8));
             } catch (UnsupportedEncodingException e) {
-                LOG.error("Error occurred while extracting xml payload from entity", e.getMessage());
+                log.error("Error occurred while extracting xml payload from entity", e.getMessage());
             }
         }
         return null;
@@ -351,14 +351,14 @@ public class MimeUtil {
         if (byteData != null) {
             return entity.getBlobField(BYTE_DATA_INDEX);
         } else {
-            String filePath = getFilePathFromFileHandler(entity);
+            String filePath = getFilePathFromFileStruct(entity);
             return filePath.isEmpty() ? null : readFromFile(filePath);
         }
     }
 
-    private static String getFilePathFromFileHandler(BStruct entity) {
-        BStruct fileHandler = (BStruct) entity.getRefField(OVERFLOW_DATA_INDEX);
-        return fileHandler.getStringField(FILE_PATH_INDEX);
+    private static String getFilePathFromFileStruct(BStruct entity) {
+        BStruct fileStruct = (BStruct) entity.getRefField(OVERFLOW_DATA_INDEX);
+        return fileStruct.getStringField(FILE_PATH_INDEX);
     }
 
     /**
@@ -428,7 +428,7 @@ public class MimeUtil {
      * @param temporaryFilePath Temporary file path
      * @return Entity struct populated with file handler
      */
-    private static BStruct populateBallerinaFileHandler(BStruct entityStruct, String temporaryFilePath) {
+    private static BStruct populateBallerinaFileStruct(BStruct entityStruct, String temporaryFilePath) {
         BStruct fileStruct = (BStruct) entityStruct.getRefField(OVERFLOW_DATA_INDEX);
         fileStruct.setStringField(TEMP_FILE_PATH_INDEX, temporaryFilePath);
         return entityStruct;
@@ -465,7 +465,7 @@ public class MimeUtil {
                     outputStream.close();
                 }
             } catch (IOException e) {
-                LOG.error("Error occured while closing outputstream in writeToTemporaryFile", e.getMessage());
+                log.error("Error occured while closing outputstream in writeToTemporaryFile", e.getMessage());
             }
         }
     }
@@ -632,7 +632,7 @@ public class MimeUtil {
                 nettyEncoder.addBodyHttpData(encodedData);
             }
         } catch (IOException e) {
-            LOG.error("Error occurred while encoding body part in ", e.getMessage());
+            log.error("Error occurred while encoding body part in ", e.getMessage());
         }
     }
 

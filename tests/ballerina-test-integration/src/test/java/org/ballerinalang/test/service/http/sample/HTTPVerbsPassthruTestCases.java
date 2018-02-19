@@ -113,6 +113,8 @@ public class HTTPVerbsPassthruTestCases extends IntegrationTestCase {
         headers.put(TestConstant.HEADER_CONTENT_TYPE, TestConstant.CONTENT_TYPE_JSON);
         HttpResponse response = HttpClientRequest.doPost(ballerinaServer.getServiceURLHttp("getQuote/employee")
                 , payload, headers);
+
+        Assert.assertNotNull(response);
         Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
         Assert.assertEquals(response.getData(), payload);
     }
@@ -124,6 +126,8 @@ public class HTTPVerbsPassthruTestCases extends IntegrationTestCase {
         headers.put(TestConstant.HEADER_CONTENT_TYPE, TestConstant.CONTENT_TYPE_TEXT_PLAIN);
         HttpResponse response = HttpClientRequest.doPost(ballerinaServer.getServiceURLHttp("getQuote/employee")
                 , payload, headers);
+
+        Assert.assertNotNull(response);
         Assert.assertEquals(response.getResponseCode(), 400, "Response code mismatched");
         Assert.assertEquals(response.getData(), "data binding failed: incompatible entity body type: expected json");
     }

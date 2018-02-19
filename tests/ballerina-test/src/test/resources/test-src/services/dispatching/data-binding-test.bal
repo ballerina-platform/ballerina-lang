@@ -9,7 +9,6 @@ struct Person {
 service<http> echo {
 
     @http:resourceConfig {
-        methods:["POST"],
         body:"person"
     }
     resource body1 (http:Connection conn, http:InRequest req, string person) {
