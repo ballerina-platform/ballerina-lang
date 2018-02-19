@@ -1,6 +1,6 @@
-function testVarDeclarationWithAllDeclaredSymbols () (int, TypeConversionError) {
+function testVarDeclarationWithAllDeclaredSymbols () (int, error) {
     int a;
-    TypeConversionError err;
+    error err;
     string s = "10";
     var a, err = <int>s;
     return a, err;

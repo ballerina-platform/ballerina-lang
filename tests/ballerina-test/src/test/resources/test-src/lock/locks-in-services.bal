@@ -179,7 +179,7 @@ service<http> sample3 {
             println("************** waiting inside first request");
             sleep(100);
             message = "sample Response";
-            error err = {msg:"error occurred"};
+            error err = {message:"error occurred"};
             throw err;
         }
         _ = conn.respond({});

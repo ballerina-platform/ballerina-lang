@@ -71,7 +71,7 @@ public class HTTPSessionSubMethodsTest {
         String responseMsgPayload = StringUtils
                 .getStringFromInputStream(new HttpMessageDataStreamer(response).getInputStream());
         Assert.assertNotNull(responseMsgPayload);
-        Assert.assertTrue(responseMsgPayload.contains("nullReferenceException\n" +
+        Assert.assertTrue(responseMsgPayload.contains("ballerina.runtime:NullReferenceException\n" +
                 "\tat .:sample2.id2(http-session-test.bal:392)"));
     }
 
