@@ -22,7 +22,7 @@ import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.nativeimpl.io.channels.base.TextRecordChannel;
+import org.ballerinalang.nativeimpl.io.channels.base.DelimitedRecordChannel;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -37,7 +37,9 @@ import org.ballerinalang.util.exceptions.BallerinaException;
 @BallerinaFunction(
         packageName = "ballerina.io",
         functionName = "writeTextRecord",
-        receiver = @Receiver(type = TypeKind.STRUCT, structType = "TextRecordChannel", structPackage = "ballerina.io"),
+        receiver = @Receiver(type = TypeKind.STRUCT,
+                structType = "DelimitedRecordChannel",
+                structPackage = "ballerina.io"),
         args = {@Argument(name = "content", type = TypeKind.ARRAY, elementType = TypeKind.STRING)},
         isPublic = true
 )
@@ -65,9 +67,9 @@ public class WriteTextRecord extends AbstractNativeFunction {
         try {
             channel = (BStruct) getRefArgument(context, RECORD_CHANNEL_INDEX);
             content = (BStringArray) getRefArgument(context, CONTENT_INDEX);
-            TextRecordChannel textRecordChannel = (TextRecordChannel) channel.getNativeData(IOConstants
+            DelimitedRecordChannel delimitedRecordChannel = (DelimitedRecordChannel) channel.getNativeData(IOConstants
                     .TXT_RECORD_CHANNEL_NAME);
-            textRecordChannel.write(content);
+            delimitedRecordChannel.write(content);
         } catch (Throwable e) {
             String message = "Error occurred while writing text record:" + e.getMessage();
             throw new BallerinaException(message, context);
