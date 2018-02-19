@@ -139,7 +139,6 @@ public enum DiagnosticCode {
 
     NO_SUCH_DOCUMENTABLE_ATTRIBUTE("no.such.documentable.attribute"),
     DUPLICATE_DOCUMENTED_ATTRIBUTE("duplicate.documented.attribute"),
-    ATTRIBUTE_NOT_ALLOWED_DOCUMENTATION("attribute.not.allowed.documentation"),
     UNDEFINED_DOCUMENTATION_PUBLIC_FUNCTION("undefined.documentation.public.function"),
     USAGE_OF_DEPRECATED_FUNCTION("usage.of.deprecated.function"),
 

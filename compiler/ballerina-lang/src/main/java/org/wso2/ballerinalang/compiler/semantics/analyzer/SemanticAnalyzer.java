@@ -601,13 +601,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 });
             }
         }
-        // Validation for not allowing attributes for constant and global variable documentation.
-        varNode.docAttachments.forEach(doc -> {
-            doc.attributes.forEach(attribute -> {
-                this.dlog.warning(attribute.pos, DiagnosticCode.ATTRIBUTE_NOT_ALLOWED_DOCUMENTATION,
-                        attribute.documentationField);
-            });
-        });
+        varNode.docAttachments.forEach(doc -> {doc.accept(this);});
         varNode.type = varNode.symbol.type;
     }
 
