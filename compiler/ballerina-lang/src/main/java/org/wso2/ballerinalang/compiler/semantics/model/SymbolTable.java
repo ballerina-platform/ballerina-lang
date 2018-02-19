@@ -95,6 +95,7 @@ public class SymbolTable {
     public BStructType errStructType;
 
     public BPackageSymbol builtInPackageSymbol;
+    public BPackageSymbol runtimePackageSymbol;
 
     private Names names;
 
