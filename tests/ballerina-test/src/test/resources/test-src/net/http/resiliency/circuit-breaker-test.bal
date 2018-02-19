@@ -134,7 +134,7 @@ function handleScenario2 (int counter) (http:InResponse, http:HttpConnectorError
 
 function getErrorStruct () (http:HttpConnectorError) {
     http:HttpConnectorError err = {};
-    err.msg = "Connection refused";
+    err.message = "Connection refused";
     err.statusCode = 502;
     return err;
 }

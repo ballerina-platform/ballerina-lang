@@ -28,7 +28,7 @@ function onTriggerW1 () returns (error e) {
     println("w1:onTriggerW1");
     if(errorMsgW1 != "") {
         println("w1:onTriggerW1 returning error");
-        e = {msg:errorMsgW1};
+        e = {message:errorMsgW1};
     }
     return;
 }
@@ -44,7 +44,7 @@ function getCount () returns (int) {
 
 function getError () returns (string w1ErrMsg) {
     if(errorW1 != null) {
-        w1ErrMsg = errorW1.msg;
+        w1ErrMsg = errorW1.message;
     }
     return;
 }

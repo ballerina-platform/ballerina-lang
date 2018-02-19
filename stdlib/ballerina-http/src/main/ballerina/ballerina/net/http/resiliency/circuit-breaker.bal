@@ -267,7 +267,7 @@ function handleOpenCircuit (CircuitHealth circuitHealth, int resetTimeout) (http
     int timeRemaining = resetTimeout - timeDif;
 
     http:HttpConnectorError err = {};
-    err.msg = "Upstream service unavailable. Requests to upstream service will be suspended for "
+    err.message = "Upstream service unavailable. Requests to upstream service will be suspended for "
               + timeRemaining + " milliseconds.";
     return err;
 }

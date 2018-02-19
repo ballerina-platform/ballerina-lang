@@ -11,23 +11,19 @@ function println(any a){
     print("\n");
 }
 
-string StackFrame = "abc";
+
 
 function test1(){
     int Time = 10;
 }
 
 function <error e> getMessage() returns (string){
-    return e.msg;
+    return e.message;
 }
 
 function test2(){
     function (any a) foo = print;
     foo("abc");
-}
-
-struct NullReferenceException {
-    string msg;
 }
 
 enum Time {
