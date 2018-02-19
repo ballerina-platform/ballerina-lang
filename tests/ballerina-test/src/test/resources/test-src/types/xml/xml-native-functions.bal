@@ -832,7 +832,7 @@ function testParseXMLElementWithXMLDeclrEntity() (xml) {
     return x;
 }
 
-function testParseXMLCommentWithXMLDeclrEntity() (xml, TypeConversionError) {
+function testParseXMLCommentWithXMLDeclrEntity() (xml, error) {
     var x, e = <xml> "<?xml version='1.0' encoding='UTF-8' standalone='no'?><!-- comment node-->";
     return x, e;
 }

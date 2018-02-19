@@ -571,7 +571,7 @@ public class HTTPSessionEssentialMethodsTest {
         String responseMsgPayload = StringUtils
                 .getStringFromInputStream(new HttpMessageDataStreamer(response).getInputStream());
         Assert.assertNotNull(responseMsgPayload);
-        Assert.assertEquals(responseMsgPayload, "nullReferenceException\n" +
+        Assert.assertEquals(responseMsgPayload, "ballerina.runtime:NullReferenceException\n" +
                 "\tat .:sample.echo5(http-session-test.bal:89)");
     }
 }

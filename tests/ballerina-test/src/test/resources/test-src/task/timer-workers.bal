@@ -45,7 +45,7 @@ function onTriggerW1 () returns (error e) {
     println("w1:onTriggerW1");
     if(errorMsgW1 != "") {
         println("w1:onTriggerW1 returning error");
-        e = {msg:errorMsgW1};
+        e = {message:errorMsgW1};
     }
     return;
 }
@@ -60,7 +60,7 @@ function onTriggerW2 () returns (error e) {
     println("w2:onTriggerW2");
     if(errorMsgW2 != "") {
         println("w2:onTriggerW2 returning error");
-        e = {msg:errorMsgW2};
+        e = {message:errorMsgW2};
     }
     return;
 }
@@ -76,10 +76,10 @@ function getCounts () returns (int, int) {
 
 function getErrors() returns (string w1ErrMsg, string w2ErrMsg) {
     if(errorW1 != null) {
-        w1ErrMsg = errorW1.msg;
+        w1ErrMsg = errorW1.message;
     }
     if(errorW2 != null) {
-        w2ErrMsg = errorW2.msg;
+        w2ErrMsg = errorW2.message;
     }
     return;
 }
