@@ -39,14 +39,14 @@ import org.ballerinalang.util.exceptions.RuntimeErrors;
 )
 
 /*
- * sprintf accept a format specifier and a list of arguments in an array and returns a formatted string.
- * Examples:
+ * sprintf accept a format specifier and a list of arguments in an array and returns a formatted
+ * string. Examples:
  *      sprintf("%s is awesome!", ["Ballerina"]) -> "Ballerina is awesome!"
  *      sprintf("%10.2f", [12.5678]) -> "     12.57"
  */
 public class Sprintf extends AbstractNativeFunction {
     @Override
-    public BValue[] execute(Context context) {
+    public final BValue[] execute(final Context context) {
         String format = getStringArgument(context, 0);
         BRefValueArray args = (BRefValueArray) getRefArgument(context, 0);
         StringBuilder result = new StringBuilder();
@@ -81,29 +81,47 @@ public class Sprintf extends AbstractNativeFunction {
         // j reads format specifier to apply
         // k records number of format specifiers seen so far, used to read respective array element
         for (int i = 0, j = 0, k = 0; i < format.length(); i++) {
-            if (format.charAt(i) == '%' && ((i+1) < format.length())) {
+            if (format.charAt(i) == '%' && ((i + 1) < format.length())) {
 
                 // skip % character
                 j = i + 1;
 
                 if (k >= args.size()) {
                     // there's not enough arguments
-                    throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.NOT_ENOUGH_FORMAT_ARGUMENTS);
+                    throw BLangExceptionHelper.getRuntimeException(
+                            RuntimeErrors.NOT_ENOUGH_FORMAT_ARGUMENTS);
                 }
                 StringBuilder padding = new StringBuilder();
-                while(Character.isDigit(format.charAt(j)) || format.charAt(j) == '.') {
+                while (Character.isDigit(format.charAt(j)) || format.charAt(j) == '.') {
                     padding.append(format.charAt(j));
-                    j+=1;
+                    j += 1;
                 }
                 switch (format.charAt(j)) {
-                    case 'b': result.append(String.format("%" + padding + "b", args.get(k).value()));          break;
-                    case 'd': result.append(String.format("%" + padding + "d", args.get(k).value()));          break;
-                    case 'f': result.append(String.format("%" + padding + "f", args.get(k).value()));          break;
-                    case 's': result.append(String.format("%" + padding + "s", args.get(k).value()));          break;
-                    case 'x': result.append(String.format("%" + padding + "x", args.get(k).value()));          break;
-                    case 'X': result.append(String.format("%" + padding + "X", args.get(k).value()));          break;
-                    case 'o': result.append(String.format("%" + padding + "o", args.get(k).value()));          break;
-                    case 'B': result.append(Integer.toBinaryString(Integer.parseInt(args.get(k).stringValue())));                      break;
+                    case 'b':
+                        result.append(String.format("%" + padding + "b", args.get(k).value()));
+                        break;
+                    case 'd':
+                        result.append(String.format("%" + padding + "d", args.get(k).value()));
+                        break;
+                    case 'f':
+                        result.append(String.format("%" + padding + "f", args.get(k).value()));
+                        break;
+                    case 's':
+                        result.append(String.format("%" + padding + "s", args.get(k).value()));
+                        break;
+                    case 'x':
+                        result.append(String.format("%" + padding + "x", args.get(k).value()));
+                        break;
+                    case 'X':
+                        result.append(String.format("%" + padding + "X", args.get(k).value()));
+                        break;
+                    case 'o':
+                        result.append(String.format("%" + padding + "o", args.get(k).value()));
+                        break;
+                    case 'B':
+                        result.append(
+                                Integer.toBinaryString(Integer.parseInt(args.get(k).stringValue())));
+                        break;
                     case 'm': // fall through
                     case 'e':
                     case 'p':
@@ -112,8 +130,13 @@ public class Sprintf extends AbstractNativeFunction {
                     case 'j':
                     case 't':
                     case 'r':
-                    case 'a': result.append(String.format("%" + padding + "s", args.get(k).stringValue()));    break;
-                    case '%': result.append("%"); break;
+                    case 'a':
+                        result.append(
+                                String.format("%" + padding + "s", args.get(k).stringValue()));
+                        break;
+                    case '%':
+                        result.append("%");
+                        break;
                     default:
                         // format string not supported
                         throw BLangExceptionHelper.getRuntimeException(
