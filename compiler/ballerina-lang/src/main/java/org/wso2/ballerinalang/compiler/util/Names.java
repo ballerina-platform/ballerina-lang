@@ -32,6 +32,7 @@ public class Names {
     public static final Name DOT = new Name(".");
     public static final Name DEFAULT_PACKAGE = DOT;
     public static final Name BUILTIN_PACKAGE = new Name("ballerina.builtin");
+    public static final Name RUNTIME_PACKAGE = new Name("ballerina.runtime");
     public static final Name IGNORE = new Name("_");
     public static final Name INVALID = new Name("><");
     public static final Name DEFAULT_VERSION = new Name("0.0.0");

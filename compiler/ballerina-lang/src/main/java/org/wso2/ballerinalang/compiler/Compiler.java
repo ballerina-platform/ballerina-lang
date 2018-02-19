@@ -82,6 +82,7 @@ public class Compiler {
     }
 
     public void compile(String sourcePkg) {
+        // "ballerina/built-in" packages is only the pre-known package by the Ballerina compiler. So load it first.
         BLangPackage builtInPackage = loadBuiltInPackage();
         if (this.stopCompilation(CompilerPhase.DEFINE)) {
             return;
@@ -108,6 +109,7 @@ public class Compiler {
             return;
         }
 
+        loadRequiredPackagesForBVM();
         gen(pkgNode);
     }
 
@@ -116,6 +118,12 @@ public class Compiler {
         BLangPackage builtInPkg = getBuiltInPackage(Names.BUILTIN_PACKAGE);
         symbolTable.builtInPackageSymbol = builtInPkg.symbol;
         return builtInPkg;
+    }
+
+    private void loadRequiredPackagesForBVM() {
+        // TODO : FIX this with Balo.
+        // This is a temporary fix to load required packages for BVM. These should be loaded from Balo to BVM.
+        symbolTable.runtimePackageSymbol = desugar(getBuiltInPackage(Names.RUNTIME_PACKAGE)).symbol;
     }
 
     public ProgramFile getCompiledProgram() {
