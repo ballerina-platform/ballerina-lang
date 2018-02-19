@@ -23,3 +23,19 @@ function testHashWithSHA1 (string base) (string) {
 function testHashWithSHA256 (string base) (string) {
     return crypto:getHash(base, crypto:Algorithm.SHA256);
 }
+
+function testHashWithCRC32ForText (string text) (string) {
+    return crypto:getCRC32(text);
+}
+
+function testHashWithCRC32ForBinary (blob payload) (string) {
+    return crypto:getCRC32(payload);
+}
+
+function testHashWithCRC32ForJSON (json payload) (string) {
+    return crypto:getCRC32(payload);
+}
+
+function testHashWithCRC32ForXML (xml payload) (string) {
+    return crypto:getCRC32(payload);
+}

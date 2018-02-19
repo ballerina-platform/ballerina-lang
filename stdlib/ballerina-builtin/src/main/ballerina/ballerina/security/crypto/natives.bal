@@ -20,3 +20,5 @@ public native function getHash (string baseString, Algorithm algorithm) (string)
 @Param {value:"algorithm: The hashing algorithm to be used"}
 @Return {value:"The hashed string"}
 public native function getHmac (string baseString, string keyString, Algorithm algorithm) (string);
+
+public native function getCRC32(any element) (string);
