@@ -178,31 +178,4 @@ public class BIntegerValueTest {
         BInteger intValue = (BInteger) returns[0];
         Assert.assertEquals(intValue.intValue(), 5, "Invalid int value returned.");
     }
-
-    @Test(description = "Test toHexString function")
-    public void testToHexString() {
-        BValue[] returns = BRunUtil.invoke(result, "testToHexString", new BValue[]{});
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BString.class);
-        BString stringValue = (BString) returns[0];
-        Assert.assertEquals(stringValue.stringValue(), "0xa", "Invalid hex value returned.");
-    }
-
-    @Test(description = "Test toOctalString function")
-    public void testToOctalString() {
-        BValue[] returns = BRunUtil.invoke(result, "testToOctalString", new BValue[]{});
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BString.class);
-        BString stringValue = (BString) returns[0];
-        Assert.assertEquals(stringValue.stringValue(), "0_12", "Invalid octal value returned.");
-    }
-
-    @Test(description = "Test toBinary function")
-    public void testToBinaryString() {
-        BValue[] returns = BRunUtil.invoke(result, "testToBinaryString", new BValue[]{});
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BString.class);
-        BString stringValue = (BString) returns[0];
-        Assert.assertEquals(stringValue.stringValue(), "0b1010", "Invalid binary value returned.");
-    }
 }
