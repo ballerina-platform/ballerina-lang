@@ -194,6 +194,8 @@ builtInReferenceTypeName
     |   TYPE_XML (LT (LEFT_BRACE xmlNamespaceName RIGHT_BRACE)? xmlLocalName GT)?
     |   TYPE_JSON (LT nameReference GT)?
     |   TYPE_TABLE (LT nameReference GT)?
+    |   TYPE_STREAM (LT nameReference GT)?
+    |   TYPE_AGGREGTION (LT nameReference GT)?
     |   functionTypeName
     ;
 
@@ -254,6 +256,7 @@ statement
     |   abortStatement
     |   lockStatement
     |   namespaceDeclarationStatement
+    |   streamingQueryStatement
     ;
 
 variableDefinitionStatement
@@ -485,7 +488,7 @@ expression
     |   builtInReferenceTypeName DOT Identifier                             # builtInReferenceTypeTypeExpression
     |   variableReference                                                   # variableReferenceExpression
     |   lambdaFunction                                                      # lambdaFunctionExpression
-    |   query                                                               # queryExpression
+    |   tableQuery                                                          # tableQueryExpression
     |   connectorInit                                                       # connectorInitExpression
     |   LEFT_PARENTHESIS typeName RIGHT_PARENTHESIS expression              # typeCastingExpression
     |   LT typeName (COMMA functionInvocation)? GT expression               # typeConversionExpression
@@ -535,26 +538,26 @@ simpleLiteral
     |   BooleanLiteral
     |   NullLiteral
     ;
-    
+
 // XML parsing
 
 xmlLiteral
     :   XMLLiteralStart xmlItem XMLLiteralEnd
     ;
 
-xmlItem 
+xmlItem
     :   element
     |   procIns
     |   comment
     |   text
     |   CDATA
     ;
-    
+
 content
     :   text? ((element | CDATA | procIns | comment) text?)*
     ;
-                
-comment 
+
+comment
     :   XML_COMMENT_START (XMLCommentTemplateText expression ExpressionEnd)* XMLCommentText
     ;
 
@@ -578,7 +581,7 @@ emptyTag
 procIns
     :   XML_TAG_SPECIAL_OPEN (XMLPITemplateText expression ExpressionEnd)* XMLPIText
     ;
-    
+
 attribute
     :   xmlQualifiedName EQUALS xmlQuotedString;
 
@@ -624,12 +627,87 @@ reservedWord
     |   TYPE_MAP
     ;
 
-query
-    :   FROM Identifier (AS Identifier)? (JOIN Identifier (AS Identifier)? ON expression)?
-        (WHERE expression)?
-        ( SELECT (MUL| ( expression (AS Identifier)? (COMMA expression (AS Identifier)?)* ) )
-         (GROUP BY variableReference (COMMA variableReference)*)?
-         (HAVING expression)?
-        )?
-        (ORDER BY variableReference (COMMA variableReference)*)?
+tableQuery
+    :   FROM streamingInput joinStreamingInput?
+        selectClause?
+        orderByClause?
+    ;
+
+aggregationQuery
+    :   FROM streamingInput
+        selectClause?
+        orderByClause?
+
+    ;
+
+streamingQueryStatement
+    :   FROM (streamingInput (joinStreamingInput)?  | pattenStreamingInput)
+        selectClause?
+        orderByClause?
+        streamingAction
+    ;
+
+orderByClause
+    :   ORDER BY variableReferenceList
+    ;
+
+selectClause
+    :   SELECT (MUL| ( selectExpression (COMMA selectExpression)* ) )
+            groupByClause?
+            havingClause?
+    ;
+
+selectExpression
+    :   expression (AS Identifier)?
+    ;
+
+groupByClause
+    : GROUP BY variableReferenceList
+    ;
+
+havingClause
+    :   HAVING expression
+    ;
+
+streamingAction
+    :   INSERT INTO Identifier
+    |   UPDATE (OR INSERT INTO)? Identifier setClause ? ON expression
+    |   DELETE Identifier ON expression
+    ;
+
+setClause
+    :   SET assignmentStatement (COMMA variableReference)*
+    ;
+
+streamingInput
+    :   Identifier (whereClasue | functionClause)* windowClause? (whereClasue | functionClause)* (AS alias=Identifier)?
+    ;
+
+joinStreamingInput
+    :   JOIN streamingInput ON expression
+    ;
+
+pattenStreamingInput
+    :   pattenStreamingInput FOLLOWED BY pattenStreamingInput
+    |   LEFT_PARENTHESIS pattenStreamingInput RIGHT_PARENTHESIS
+    |   FOREACH pattenStreamingInput
+    |   NOT pattenStreamingEdgeInput (AND pattenStreamingEdgeInput | FOR StringTemplateText)
+    |   pattenStreamingEdgeInput (AND | OR ) pattenStreamingEdgeInput
+    |   pattenStreamingEdgeInput
+    ;
+
+pattenStreamingEdgeInput
+    :   Identifier (whereClasue | functionClause)* intRangeExpression? (AS alias=Identifier)?
+    ;
+
+whereClasue
+    :   WHERE expression
+    ;
+
+functionClause
+    :   FUNCTION functionInvocation
+    ;
+
+windowClause
+    :   WINDOW functionInvocation
     ;

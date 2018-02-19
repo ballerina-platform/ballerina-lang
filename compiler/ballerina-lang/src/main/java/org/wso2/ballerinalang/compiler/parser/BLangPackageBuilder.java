@@ -42,6 +42,7 @@ import org.ballerinalang.model.tree.VariableNode;
 import org.ballerinalang.model.tree.WorkerNode;
 import org.ballerinalang.model.tree.expressions.AnnotationAttachmentAttributeValueNode;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
+import org.ballerinalang.model.tree.expressions.OrderByNode;
 import org.ballerinalang.model.tree.expressions.XMLAttributeNode;
 import org.ballerinalang.model.tree.expressions.XMLLiteralNode;
 import org.ballerinalang.model.tree.statements.BlockNode;
@@ -115,6 +116,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangLock;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangNext;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangOrderBy;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangThrow;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTransaction;
@@ -212,6 +214,8 @@ public class BLangPackageBuilder {
     private Stack<XMLAttributeNode> xmlAttributeNodeStack = new Stack<>();
 
     private Stack<BLangAnnotationAttachmentPoint> attachmentPointStack = new Stack<>();
+
+    private Stack<OrderByNode> orderByClausesStack = new Stack<>();
 
     private Set<BLangImportPackage> imports = new HashSet<>();
 
@@ -1830,5 +1834,12 @@ public class BLangPackageBuilder {
         userDefinedType.pkgAlias = pkgAlias;
         userDefinedType.typeName = name;
         return userDefinedType;
+    }
+
+    public void startOrderByClauseNode(DiagnosticPos pos, Set<Whitespace> ws) {
+        OrderByNode orderByNode = TreeBuilder.createOrderByNode();
+        ((BLangOrderBy)orderByNode).pos = pos;
+        ((BLangOrderBy)orderByNode).addWS(ws);
+        this.orderByClausesStack.push(orderByNode);
     }
 }

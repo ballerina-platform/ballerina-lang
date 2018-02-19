@@ -76,6 +76,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangLock;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangNext;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangOrderBy;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn.BLangWorkerReturn;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangThrow;
@@ -266,6 +267,10 @@ public abstract class BLangNodeVisitor {
 
     public void visit(BLangForkJoin forkJoin) {
         throw new AssertionError();
+    }
+
+    public void visit(BLangOrderBy orderBy) {
+        throw  new AssertionError();
     }
 
 

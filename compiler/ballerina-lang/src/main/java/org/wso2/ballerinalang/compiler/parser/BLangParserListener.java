@@ -2034,6 +2034,47 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         this.pkgBuilder.createStringTemplateLiteral(getCurrentPos(ctx), getWS(ctx), stringFragments, endingText);
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void enterTableQueryExpression(BallerinaParser.TableQueryExpressionContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+
+
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void exitTableQueryExpression(BallerinaParser.TableQueryExpressionContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+
+    }
+
+    @Override
+    public void enterOrderByClause(BallerinaParser.OrderByClauseContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+
+        this.pkgBuilder.startOrderByClauseNode(getCurrentPos(ctx), getWS(ctx));
+
+    }
+
+    @Override
+    public void exitOrderByClause(BallerinaParser.OrderByClauseContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+
+    }
+
     private DiagnosticPos getCurrentPos(ParserRuleContext ctx) {
         int startLine = ctx.getStart().getLine();
         int startCol = ctx.getStart().getCharPositionInLine() + 1;
