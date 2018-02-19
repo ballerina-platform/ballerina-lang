@@ -106,6 +106,19 @@ public abstract class Channel extends AbstractChannel {
     }
 
     /**
+     * <p>
+     * Async read content from the channel. This operation however will not guarantee the entire array will be filled.
+     * </p>
+     *
+     * @param content the array which should hold the read content.
+     * @return the number of bytes read.
+     */
+    public int read(byte [] content){
+        ByteBuffer buffer = ByteBuffer.wrap(content);
+        return read(buffer);
+    }
+
+    /**
      * Reads all bytes from the I/O source.
      *
      * @return all the bytes read.

@@ -72,33 +72,17 @@ public class Buffer {
      * @param totalNumberOfBytesRequired number of bytes required.
      * @return new ByteBuffer which will contain bytes which are remaining.
      */
-    private ByteBuffer getBytesLeftInBuffer(int totalNumberOfBytesRequired) {
-        ByteBuffer bufferedContent = null;
+    private ByteBuffer remainingContent(int totalNumberOfBytesRequired) {
+        ByteBuffer remainingContent = null;
         if (null != byteBuffer) {
-            int position = byteBuffer.position();
-            int limit = byteBuffer.limit();
-            int numberOfBytesRemainingInBuffer = limit - position;
-            if (numberOfBytesRemainingInBuffer == 0) {
-                //Given there's nothing to get from the buffer
-                return null;
-            }
-            if (numberOfBytesRemainingInBuffer > totalNumberOfBytesRequired) {
-                //This means there's excess amount of bytes than requested, hence we narrow down the limit
-                limit = position + totalNumberOfBytesRequired;
-            }
-            byte[] content = Arrays.copyOfRange(byteBuffer.array(), position, limit);
-            int readBufferPosition = position + content.length;
-            bufferedContent = ByteBuffer.wrap(content);
-            byteBuffer.position(readBufferPosition);
-            //We need to keep the buffer in write mode
-            bufferedContent.position(bufferedContent.limit());
+            remainingContent = byteBuffer.slice();
         } else {
             if (log.isDebugEnabled()) {
                 log.debug("ByteBuffer has not being initialized, buffer will be initialized while reading the " +
                         "requested amount of " + totalNumberOfBytesRequired + " of bytes");
             }
         }
-        return bufferedContent;
+        return remainingContent;
     }
 
     /**
@@ -122,87 +106,6 @@ public class Buffer {
 
     /**
      * <p>
-     * Will return a copy of the buffer which contains the read content.
-     * </p>
-     *
-     * @param srcBuffer the buffer which will be compressed.
-     * @return the compressed buffer.
-     */
-    private ByteBuffer compactBytes(ByteBuffer srcBuffer) {
-        int bufferSize = srcBuffer.capacity();
-        int bufferReadPosition = srcBuffer.position();
-        ByteBuffer response;
-        if (bufferSize > bufferReadPosition) {
-            byte[] resizedContent = Arrays.copyOfRange(srcBuffer.array(), 0, bufferReadPosition);
-            response = ByteBuffer.wrap(resizedContent);
-            //We need to keep the buffer in write mode
-            response.position(response.limit());
-        } else {
-            response = srcBuffer;
-        }
-        return response;
-    }
-
-    /**
-     * <p>
-     * Reads the specified number of bytes through ByteChannel.
-     * </p>
-     * <p>
-     * This operation will read bytes from the channel. The channel may or may not return all required bytes. If the
-     * offset it specified the bytes will be read from the offset position.
-     * </p>
-     * <p>
-     * If the channel doesn't return any bytes it will return an empty buffer.
-     * </p>
-     *
-     * @param requiredNumberOfBytes the number of bytes required to be read from the channel.
-     * @param offset                the number of bytes already present.
-     * @return ByteBuffer which wraps the bytes, null if the channel doesn't return any bytes.
-     * @throws BallerinaIOException if an error is encountered when reading bytes from the channel.
-     */
-    private ByteBuffer getBytesFromChannel(int requiredNumberOfBytes, int offset, AbstractChannel channel) throws
-            BallerinaIOException {
-        int numberOfBytesRequiredFromChannel = requiredNumberOfBytes - offset;
-        ByteBuffer srcBuffer = allocate(numberOfBytesRequiredFromChannel);
-        channel.readFromChannel(srcBuffer);
-        return compactBytes(srcBuffer);
-    }
-
-    /**
-     * Specifies whether the buffer is empty.
-     *
-     * @param srcBuffer the buffer which needs to be validated.
-     * @return true if the buffer is empty.
-     */
-    private boolean isBufferEmpty(ByteBuffer srcBuffer) {
-        return srcBuffer.limit() == 0;
-    }
-
-    /**
-     * <p>
-     * Consolidates a given set of ByteBuffers into a single buffer instance.
-     * </p>
-     * <p>
-     * <b>Note : </b>It should be ensured that all the buffers provided are in write-able mode (not flipped).
-     * </p>
-     *
-     * @param size   the number of bytes which should be allocated for the buffer.
-     * @param values the list of ByteBuffer instances which should be merged.
-     * @return the consolidated ByteBuffer instance.
-     */
-    private ByteBuffer consolidate(int size, ByteBuffer... values) {
-        ByteBuffer consolidatedByteBuffer = ByteBuffer.allocate(size);
-        for (ByteBuffer value : values) {
-            if (null != value && !isBufferEmpty(value)) {
-                value.flip();
-                consolidatedByteBuffer.put(value);
-            }
-        }
-        return consolidatedByteBuffer;
-    }
-
-    /**
-     * <p>
      * Resize the buffer for the specified size.
      * </p>
      *
@@ -210,15 +113,19 @@ public class Buffer {
      * @param size      the number of bytes which should be in the buffer.
      * @return the buffer which is resized.
      */
-    private ByteBuffer resizeIfRequired(ByteBuffer srcBuffer, int size) {
+    private ByteBuffer resizeAndCopy(ByteBuffer srcBuffer, int size) {
         ByteBuffer resizedBuffer;
-        int capacity = srcBuffer.capacity();
-        if (capacity < size) {
-            size = capacity;
+        if (srcBuffer.hasRemaining()) {
+            int limit = srcBuffer.limit();
+            if (limit < size) {
+                size = limit;
+            }
+            byte[] resizedContent = Arrays.copyOfRange(srcBuffer.array(), 0, size);
+            resizedBuffer = ByteBuffer.wrap(resizedContent);
+            byteBuffer.position(resizedContent.length);
+        } else {
+            resizedBuffer = ByteBuffer.wrap(new byte[0]);
         }
-        byte[] resizedContent = Arrays.copyOfRange(srcBuffer.array(), 0, size);
-        resizedBuffer = ByteBuffer.wrap(resizedContent);
-        byteBuffer.position(resizedContent.length);
         return resizedBuffer;
     }
 
@@ -254,6 +161,23 @@ public class Buffer {
 
     /**
      * <p>
+     *  Deep copies a byte buffer with it's underlying array.
+     * </p>
+     *
+     * @param srcBuffer the source buffer which should be copied.
+     * @return the buffer which is duplicated.
+     */
+    private ByteBuffer deepCopy(ByteBuffer srcBuffer) {
+        ByteBuffer dstBuffer = ByteBuffer.allocate(srcBuffer.capacity());
+        srcBuffer.rewind();
+        dstBuffer.put(srcBuffer);
+        srcBuffer.rewind();
+        dstBuffer.flip();
+        return dstBuffer;
+    }
+
+    /**
+     * <p>
      * Get readable byte buffer.
      * </p>
      * <p>
@@ -274,19 +198,44 @@ public class Buffer {
      * @return New byte buffer which contains the requested amount of bytes.
      */
     public ByteBuffer get(int numberOfBytesRequested, AbstractChannel channel) throws BallerinaIOException {
-        ByteBuffer remainingBytesInBuffer = getBytesLeftInBuffer(numberOfBytesRequested);
-        int numberOfBytesReadFromBuffer = remainingBytesInBuffer != null ? remainingBytesInBuffer.capacity() : 0;
-        int numberOfBytesReadFromChannel;
-        int consolidatedBufferSize;
-        if (numberOfBytesReadFromBuffer == numberOfBytesRequested) {
-            return remainingBytesInBuffer;
+        ByteBuffer remainingContent = remainingContent(numberOfBytesRequested);
+        int capacity = 0;
+        if (null != remainingContent) {
+            capacity = remainingContent.capacity();
         }
-        ByteBuffer bytesReadFromChannel = getBytesFromChannel(numberOfBytesRequested, numberOfBytesReadFromBuffer,
-                channel);
-        numberOfBytesReadFromChannel = bytesReadFromChannel.capacity();
-        consolidatedBufferSize = numberOfBytesReadFromChannel + numberOfBytesReadFromBuffer;
-        byteBuffer = consolidate(consolidatedBufferSize, remainingBytesInBuffer, bytesReadFromChannel);
-        return resizeIfRequired(byteBuffer, numberOfBytesRequested);
+        if (null != remainingContent && capacity >= numberOfBytesRequested) {
+            //If there is excess bytes we need only a sub-set of them
+            remainingContent.limit(numberOfBytesRequested);
+            ByteBuffer slicedBuffer = remainingContent.slice();
+            capacity = slicedBuffer.capacity();
+            int offset = slicedBuffer.arrayOffset();
+            byteBuffer.position(offset + capacity);
+            return deepCopy(slicedBuffer);
+        } else {
+            if (null != remainingContent && remainingContent.hasRemaining()) {
+                remainingContent = deepCopy(remainingContent);
+            }
+            if (byteBuffer != null && byteBuffer.capacity() >= numberOfBytesRequested) {
+                //In this case we do not need to expand the buffer
+                byteBuffer.clear();
+                if (null != remainingContent && remainingContent.hasRemaining()) {
+                    byteBuffer.put(remainingContent);
+                }
+                channel.readFromChannel(byteBuffer);
+                byteBuffer.flip();
+            } else {
+                //In this case we re-allocate
+                byteBuffer = allocate(numberOfBytesRequested);
+                if (null != remainingContent) {
+                    byteBuffer.put(remainingContent);
+                }
+                channel.readFromChannel(byteBuffer);
+                //We make the ByteBuffer ready to read
+                byteBuffer.flip();
+            }
+            return resizeAndCopy(byteBuffer, numberOfBytesRequested);
+        }
+
     }
 
 }

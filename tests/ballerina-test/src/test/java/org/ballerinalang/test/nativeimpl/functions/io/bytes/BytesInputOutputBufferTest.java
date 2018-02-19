@@ -79,6 +79,34 @@ public class BytesInputOutputBufferTest {
         Assert.assertEquals(readBytes.length, thirdLapReadLimitExpected);
     }
 
+    @Test(description = "Read all bytes from file with larger buffer size")
+    public void excessBufferAllocation() throws IOException, URISyntaxException{
+        int initialReadLimit = 3;
+        int secondLapReadLimit = 3;
+        int thirdLapReadLimit = 3;
+        //During the 3rd lap all the bytes were get
+        int thirdLapReadLimitExpected = 0;
+
+        //Number of characters in this file would be 6
+        ByteChannel byteChannel = TestUtil.openForReading("datafiles/io/text/6charfile.txt");
+        Channel channel = new MockByteChannel(byteChannel, IOConstants.CHANNEL_BUFFER_SIZE);
+        byte[] readBytes = channel.read(initialReadLimit);
+
+        //This should hold the number of bytes get
+        Assert.assertEquals(readBytes.length, initialReadLimit);
+
+        readBytes = channel.read(secondLapReadLimit);
+
+        //This should hold the number of bytes get
+        Assert.assertEquals(readBytes.length, secondLapReadLimit);
+
+        readBytes = channel.read(thirdLapReadLimit);
+
+        channel.close();
+        //This should hold the number of bytes get
+        Assert.assertEquals(readBytes.length, thirdLapReadLimitExpected);
+    }
+
     @Test(description = "Reads file which has varying buffer sizes")
     public void varyingBufferSizeTest() throws IOException, URISyntaxException {
         final int numberOfBytesInFile = 7;
@@ -198,6 +226,25 @@ public class BytesInputOutputBufferTest {
         byte[] readBytes = channel.read(requestedLimit);
         channel.close();
         Assert.assertEquals(readBytes.length, expectedLimit);
+    }
+
+    @Test(description = "Read bytes asynchronously")
+    public void asyncReadBytes() throws IOException, URISyntaxException {
+        final int numberOfBytesInFile = 45613;
+
+        ByteChannel byteChannel = TestUtil.openForReading("datafiles/io/images/ballerina.png");
+        Channel channel = new MockByteChannel(byteChannel, 0);
+        ByteChannel writeByteChannel = TestUtil.openForWriting(currentDirectoryPath + "ballerinaCopy.png");
+        Channel writeChannel = new MockByteChannel(writeByteChannel, 0);
+        byte [] content = new byte[numberOfBytesInFile];
+        int numberOfBytesRead = channel.read(content);
+        int numberOfBytesWritten = writeChannel.write(content, 0);
+
+        Assert.assertEquals(content.length, numberOfBytesInFile);
+        Assert.assertEquals(content.length, numberOfBytesWritten);
+
+        channel.close();
+        writeChannel.close();
     }
 
     @Test(description = "Write bytes to file")

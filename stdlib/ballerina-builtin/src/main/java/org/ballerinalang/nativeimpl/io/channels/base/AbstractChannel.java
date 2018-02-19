@@ -131,6 +131,35 @@ public abstract class AbstractChannel {
 
     /**
      * <p>
+     * Async read bytes from the channel.
+     * </p>
+     *
+     * @param buffer the buffer which will hold the content.
+     * @return the number of bytes read.
+     */
+    int read(ByteBuffer buffer) throws BallerinaIOException{
+        int numberOfBytesRead = 0;
+        try {
+            if(!hasReachedToEnd){
+                int channelEndOfStreamFlag = -1;
+                numberOfBytesRead = channel.read(buffer);
+                //If the EoF has reached we do not want to get anymore
+                if (numberOfBytesRead == channelEndOfStreamFlag) {
+                    if (log.isDebugEnabled()) {
+                        log.debug("The channel " + channel.hashCode() + " reached EoF");
+                    }
+                    hasReachedToEnd = true;
+                }
+            }
+        } catch (IOException e) {
+            String message = "Error occurred while reading from channel ";
+            throw new BallerinaIOException(message, e);
+        }
+        return numberOfBytesRead;
+    }
+
+    /**
+     * <p>
      * Writes provided buffer content to the channel.
      * </p>
      *
