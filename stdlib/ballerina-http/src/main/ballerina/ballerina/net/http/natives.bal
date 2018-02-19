@@ -115,10 +115,12 @@ public native function <OutRequest req> getProperty (string propertyName) (strin
 @Field {value:"statusCode: The response status code"}
 @Field {value:"reasonPhrase: The status code reason phrase"}
 @Field {value:"server: The server header"}
+@Field {value:"cacheControl: Struct for holding the cache control directives in the Cache-Control header"}
 public struct InResponse {
     int statusCode;
     string reasonPhrase;
     string server;
+    ResponseCacheControl cacheControl;
 }
 
 @Description { value:"Get the entity from the inbound response with the body"}
@@ -145,9 +147,11 @@ public native function <InResponse res> getProperty (string propertyName) (strin
 @Description { value:"Represents an HTTP outbound response message"}
 @Field {value:"statusCode: The response status code"}
 @Field {value:"reasonPhrase: The status code reason phrase"}
+@Field {value:"cacheControl: Struct for setting cache control directives in the Cache-Control header"}
 public struct OutResponse {
     int statusCode;
     string reasonPhrase;
+    ResponseCacheControl cacheControl;
 }
 
 @Description { value:"Get the entity from the outbound response"}

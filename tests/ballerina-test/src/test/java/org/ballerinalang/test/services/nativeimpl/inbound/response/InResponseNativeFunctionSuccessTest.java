@@ -64,6 +64,7 @@ public class InResponseNativeFunctionSuccessTest {
     private final String inResStruct = HttpConstants.IN_RESPONSE;
     private final String entityStruct = HttpConstants.ENTITY;
     private final String mediaTypeStruct = MEDIA_TYPE;
+    private final String cacheControlStruct = HttpConstants.RESPONSE_CACHE_CONTROL;
     private final String protocolPackageHttp = HttpConstants.PROTOCOL_PACKAGE_HTTP;
     private final String protocolPackageMime = PROTOCOL_PACKAGE_MIME;
 
@@ -106,7 +107,9 @@ public class InResponseNativeFunctionSuccessTest {
 
         BStruct entity = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageMime, entityStruct);
         BStruct mediaType = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageMime, mediaTypeStruct);
-        HttpUtil.populateInboundResponse(inResponse, entity, mediaType, inResponseMsg);
+        BStruct cacheControl = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp,
+                                                               cacheControlStruct);
+        HttpUtil.populateInboundResponse(inResponse, entity, mediaType, cacheControl, inResponseMsg);
 
         BValue[] inputArg = {inResponse};
         BValue[] returnVals = BRunUtil.invoke(result, "testGetContentLength", inputArg);
@@ -125,7 +128,9 @@ public class InResponseNativeFunctionSuccessTest {
 
         BStruct entity = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageMime, entityStruct);
         BStruct mediaType = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageMime, mediaTypeStruct);
-        HttpUtil.populateInboundResponse(inResponse, entity, mediaType, inResponseMsg);
+        BStruct cacheControl = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp,
+                                                               cacheControlStruct);
+        HttpUtil.populateInboundResponse(inResponse, entity, mediaType, cacheControl, inResponseMsg);
 
         BString key = new BString(CONTENT_TYPE);
         BValue[] inputArg = {inResponse, key};
@@ -146,7 +151,9 @@ public class InResponseNativeFunctionSuccessTest {
         inResponseMsg.setProperty(HttpConstants.HTTP_STATUS_CODE, 200);
         BStruct entity = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageMime, entityStruct);
         BStruct mediaType = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageMime, mediaTypeStruct);
-        HttpUtil.populateInboundResponse(inResponse, entity, mediaType, inResponseMsg);
+        BStruct cacheControl = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp,
+                                                               cacheControlStruct);
+        HttpUtil.populateInboundResponse(inResponse, entity, mediaType, cacheControl, inResponseMsg);
 
         BString key = new BString("test-header");
         BValue[] inputArg = {inResponse, key};

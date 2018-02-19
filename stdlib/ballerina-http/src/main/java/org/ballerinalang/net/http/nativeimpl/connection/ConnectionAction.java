@@ -18,11 +18,13 @@
 
 package org.ballerinalang.net.http.nativeimpl.connection;
 
+import io.netty.handler.codec.http.HttpResponseStatus;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.net.http.HttpUtil;
+import org.ballerinalang.net.http.util.CacheUtils;
 import org.ballerinalang.runtime.message.MessageDataSource;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.wso2.transport.http.netty.contract.HttpConnectorListener;
@@ -32,6 +34,11 @@ import org.wso2.transport.http.netty.message.HttpMessageDataStreamer;
 
 import java.io.IOException;
 import java.io.OutputStream;
+
+import static org.ballerinalang.mime.util.Constants.IS_ENTITY_BODY_PRESENT;
+import static org.ballerinalang.mime.util.Constants.MESSAGE_ENTITY;
+import static org.ballerinalang.net.http.HttpConstants.CONTENT_TYPE_HEADER;
+import static org.ballerinalang.net.http.HttpConstants.HTTP_STATUS_CODE;
 
 /**
  * {@code {@link ConnectionAction}} represents a Abstract implementation of Native Ballerina Connection Function.
@@ -51,6 +58,16 @@ public abstract class ConnectionAction extends AbstractNativeFunction {
                 .getCarbonMsg(outboundResponseStruct, HttpUtil.createHttpCarbonMessage(false));
 
         HttpUtil.prepareOutboundResponse(context, inboundRequestMsg, outboundResponseMsg, outboundResponseStruct);
+
+        if (CacheUtils.isValidCachedResponse(outboundResponseMsg, inboundRequestMsg)) {
+            // Setting to false to prevent a data source being built
+            outboundResponseStruct.addNativeData(IS_ENTITY_BODY_PRESENT, Boolean.FALSE);
+            // Remove the payload
+            outboundResponseStruct.addNativeData(MESSAGE_ENTITY, null);
+            // Removing the content-type header since this caused the response to hang
+            outboundResponseMsg.removeHeader(CONTENT_TYPE_HEADER);
+            outboundResponseMsg.setProperty(HTTP_STATUS_CODE, HttpResponseStatus.NOT_MODIFIED.code());
+        }
 
         BValue[] outboundResponseStatus = sendOutboundResponseRobust(context, inboundRequestMsg,
                 outboundResponseStruct, outboundResponseMsg);

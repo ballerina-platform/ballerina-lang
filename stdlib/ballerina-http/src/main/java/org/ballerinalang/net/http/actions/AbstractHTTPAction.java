@@ -55,6 +55,8 @@ import static org.ballerinalang.mime.util.Constants.MEDIA_TYPE;
 import static org.ballerinalang.mime.util.Constants.MULTIPART_ENCODER;
 import static org.ballerinalang.mime.util.Constants.MULTIPART_FORM_DATA;
 import static org.ballerinalang.mime.util.Constants.PROTOCOL_PACKAGE_MIME;
+import static org.ballerinalang.net.http.HttpConstants.PROTOCOL_PACKAGE_HTTP;
+import static org.ballerinalang.net.http.HttpConstants.RESPONSE_CACHE_CONTROL;
 import static org.ballerinalang.runtime.Constants.BALLERINA_VERSION;
 import static org.wso2.transport.http.netty.common.Constants.ACCEPT_ENCODING;
 import static org.wso2.transport.http.netty.common.Constants.ENCODING_DEFLATE;
@@ -293,10 +295,12 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
         @Override
         public void onMessage(HTTPCarbonMessage httpCarbonMessage) {
             BStruct inboundResponse = createStruct(this.context, HttpConstants.IN_RESPONSE,
-                                                   HttpConstants.PROTOCOL_PACKAGE_HTTP);
+                                                   PROTOCOL_PACKAGE_HTTP);
             BStruct entity = createStruct(this.context, HttpConstants.ENTITY, PROTOCOL_PACKAGE_MIME);
             BStruct mediaType = createStruct(this.context, MEDIA_TYPE, PROTOCOL_PACKAGE_MIME);
-            HttpUtil.populateInboundResponse(inboundResponse, entity, mediaType, httpCarbonMessage);
+            BStruct responseCacheControl = createStruct(this.context, RESPONSE_CACHE_CONTROL, PROTOCOL_PACKAGE_HTTP);
+            HttpUtil.populateInboundResponse(inboundResponse, entity, mediaType, responseCacheControl,
+                                             httpCarbonMessage);
             ballerinaFuture.notifyReply(inboundResponse);
         }
 
@@ -326,8 +330,8 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
         }
 
         private void notifyError(Throwable throwable) {
-            BStruct httpConnectorError = createStruct(context, HttpConstants.HTTP_CONNECTOR_ERROR, HttpConstants
-                    .PROTOCOL_PACKAGE_HTTP);
+            BStruct httpConnectorError = createStruct(context, HttpConstants.HTTP_CONNECTOR_ERROR,
+                                                      PROTOCOL_PACKAGE_HTTP);
             httpConnectorError.setStringField(0, throwable.getMessage());
             if (throwable instanceof ClientConnectorException) {
                 ClientConnectorException clientConnectorException = (ClientConnectorException) throwable;

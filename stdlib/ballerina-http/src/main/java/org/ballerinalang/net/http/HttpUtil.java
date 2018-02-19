@@ -48,6 +48,8 @@ import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BXML;
 import org.ballerinalang.natives.AbstractNativeFunction;
+import org.ballerinalang.net.http.caching.CacheControlDirective;
+import org.ballerinalang.net.http.caching.CacheControlParser;
 import org.ballerinalang.net.http.session.Session;
 import org.ballerinalang.net.ws.WebSocketConstants;
 import org.ballerinalang.runtime.message.BlobDataSource;
@@ -95,8 +97,27 @@ import static org.ballerinalang.mime.util.Constants.MULTIPART_ENCODER;
 import static org.ballerinalang.mime.util.Constants.NO_CONTENT_LENGTH_FOUND;
 import static org.ballerinalang.mime.util.Constants.OCTET_STREAM;
 import static org.ballerinalang.mime.util.Constants.TEXT_PLAIN;
+import static org.ballerinalang.net.http.HttpConstants.CACHE_CONTROL_HEADER;
+import static org.ballerinalang.net.http.HttpConstants.CACHE_CONTROL_IS_PRIVATE_INDEX;
+import static org.ballerinalang.net.http.HttpConstants.CACHE_CONTROL_MAX_AGE_INDEX;
+import static org.ballerinalang.net.http.HttpConstants.CACHE_CONTROL_MUST_REVALIDATE_INDEX;
+import static org.ballerinalang.net.http.HttpConstants.CACHE_CONTROL_NO_CACHE_FIELDS_INDEX;
+import static org.ballerinalang.net.http.HttpConstants.CACHE_CONTROL_NO_CACHE_INDEX;
+import static org.ballerinalang.net.http.HttpConstants.CACHE_CONTROL_NO_STORE_INDEX;
+import static org.ballerinalang.net.http.HttpConstants.CACHE_CONTROL_NO_TRANSFORM_INDEX;
+import static org.ballerinalang.net.http.HttpConstants.CACHE_CONTROL_PRIVATE_FIELDS_INDEX;
+import static org.ballerinalang.net.http.HttpConstants.CACHE_CONTROL_PROXY_REVALIDATE_INDEX;
+import static org.ballerinalang.net.http.HttpConstants.CACHE_CONTROL_S_MAXAGE_INDEX;
 import static org.ballerinalang.net.http.HttpConstants.ENTITY_INDEX;
 import static org.ballerinalang.net.http.HttpConstants.HTTP_MESSAGE_INDEX;
+import static org.ballerinalang.net.http.HttpConstants.HTTP_STATUS_CODE;
+import static org.ballerinalang.net.http.HttpConstants.IN_REQUEST;
+import static org.ballerinalang.net.http.HttpConstants.IN_RESPONSE_CACHE_CONTROL_INDEX;
+import static org.ballerinalang.net.http.HttpConstants.IN_RESPONSE_REASON_PHRASE_INDEX;
+import static org.ballerinalang.net.http.HttpConstants.IN_RESPONSE_SERVER_INDEX;
+import static org.ballerinalang.net.http.HttpConstants.IN_RESPONSE_STATUS_CODE_INDEX;
+import static org.ballerinalang.net.http.HttpConstants.SERVER_HEADER;
+import static org.ballerinalang.net.http.HttpConstants.TRANSPORT_MESSAGE;
 
 /**
  * Utility class providing utility methods.
@@ -106,6 +127,8 @@ public class HttpUtil {
 
     private static final String METHOD_ACCESSED = "isMethodAccessed";
     private static final String IO_EXCEPTION_OCCURED = "I/O exception occurred";
+    private static final int TRUE = 1;
+    private static final int FALSE = 0;
 
     public static BValue[] getProperty(Context context,
                                        AbstractNativeFunction abstractNativeFunction, boolean isRequest) {
@@ -401,7 +424,7 @@ public class HttpUtil {
     }
 
     public static void handleFailure(HTTPCarbonMessage requestMessage, BallerinaConnectorException ex) {
-        Object carbonStatusCode = requestMessage.getProperty(HttpConstants.HTTP_STATUS_CODE);
+        Object carbonStatusCode = requestMessage.getProperty(HTTP_STATUS_CODE);
         int statusCode = (carbonStatusCode == null) ? 500 : Integer.parseInt(carbonStatusCode.toString());
         String errorMsg = ex.getMessage();
         log.error(errorMsg);
@@ -453,7 +476,7 @@ public class HttpUtil {
 
     public static HTTPCarbonMessage getCarbonMsg(BStruct struct, HTTPCarbonMessage defaultMsg) {
         HTTPCarbonMessage httpCarbonMessage = (HTTPCarbonMessage) struct
-                .getNativeData(HttpConstants.TRANSPORT_MESSAGE);
+                .getNativeData(TRANSPORT_MESSAGE);
         if (httpCarbonMessage != null) {
             return httpCarbonMessage;
         }
@@ -462,13 +485,13 @@ public class HttpUtil {
     }
 
     public static void addCarbonMsg(BStruct struct, HTTPCarbonMessage httpCarbonMessage) {
-        struct.addNativeData(HttpConstants.TRANSPORT_MESSAGE, httpCarbonMessage);
+        struct.addNativeData(TRANSPORT_MESSAGE, httpCarbonMessage);
     }
 
     public static void populateInboundRequest(BStruct inboundRequestStruct, BStruct entity, BStruct mediaType,
                                               HTTPCarbonMessage inboundRequestMsg) {
-        inboundRequestStruct.addNativeData(HttpConstants.TRANSPORT_MESSAGE, inboundRequestMsg);
-        inboundRequestStruct.addNativeData(HttpConstants.IN_REQUEST, true);
+        inboundRequestStruct.addNativeData(TRANSPORT_MESSAGE, inboundRequestMsg);
+        inboundRequestStruct.addNativeData(IN_REQUEST, true);
 
         enrichWithInboundRequestInfo(inboundRequestStruct, inboundRequestMsg);
         enrichWithInboundRequestHeaders(inboundRequestStruct, inboundRequestMsg);
@@ -515,21 +538,28 @@ public class HttpUtil {
      * @param inboundResponse  Ballerina struct to represent response
      * @param entity    Entity of the response
      * @param mediaType Content type of the response
+     * @param responseCacheControl  Cache control struct which holds the cache control directives related to the
+     *                              response
      * @param inboundResponseMsg      Represent carbon message.
      */
     public static void populateInboundResponse(BStruct inboundResponse, BStruct entity, BStruct mediaType,
-                                               HTTPCarbonMessage inboundResponseMsg) {
-        inboundResponse.addNativeData(HttpConstants.TRANSPORT_MESSAGE, inboundResponseMsg);
-        int statusCode = (Integer) inboundResponseMsg.getProperty(HttpConstants.HTTP_STATUS_CODE);
-        inboundResponse.setIntField(HttpConstants.IN_RESPONSE_STATUS_CODE_INDEX, statusCode);
-        inboundResponse.setStringField(HttpConstants.IN_RESPONSE_REASON_PHRASE_INDEX,
+                                               BStruct responseCacheControl, HTTPCarbonMessage inboundResponseMsg) {
+        inboundResponse.addNativeData(TRANSPORT_MESSAGE, inboundResponseMsg);
+        int statusCode = (Integer) inboundResponseMsg.getProperty(HTTP_STATUS_CODE);
+        inboundResponse.setIntField(IN_RESPONSE_STATUS_CODE_INDEX, statusCode);
+        inboundResponse.setStringField(IN_RESPONSE_REASON_PHRASE_INDEX,
                                        HttpResponseStatus.valueOf(statusCode).reasonPhrase());
 
-        if (inboundResponseMsg.getHeader(HttpConstants.SERVER_HEADER) != null) {
-            inboundResponse.setStringField(HttpConstants.IN_RESPONSE_SERVER_INDEX,
-                                           inboundResponseMsg.getHeader(HttpConstants.SERVER_HEADER));
-            inboundResponseMsg.removeHeader(HttpConstants.SERVER_HEADER);
+        if (inboundResponseMsg.getHeader(SERVER_HEADER) != null) {
+            inboundResponse.setStringField(IN_RESPONSE_SERVER_INDEX, inboundResponseMsg.getHeader(SERVER_HEADER));
+            inboundResponseMsg.removeHeader(SERVER_HEADER);
         }
+
+        if (inboundResponseMsg.getHeader(CACHE_CONTROL_HEADER) != null) {
+            populateResponseCacheControlStruct(responseCacheControl, inboundResponseMsg);
+            inboundResponse.setRefField(IN_RESPONSE_CACHE_CONTROL_INDEX, responseCacheControl);
+        }
+
         populateEntity(entity, mediaType, inboundResponseMsg);
         inboundResponse.addNativeData(MESSAGE_ENTITY, entity);
         inboundResponse.addNativeData(IS_ENTITY_BODY_PRESENT, false);
@@ -567,6 +597,51 @@ public class HttpUtil {
             }
         }
         return headerMap;
+    }
+
+    private static void populateResponseCacheControlStruct(BStruct responseCacheControl, HTTPCarbonMessage response) {
+        Map<CacheControlDirective, String> controlDirectives =
+                CacheControlParser.parse(response.getHeader(CACHE_CONTROL_HEADER));
+
+        controlDirectives.forEach((directive, value) -> {
+            switch (directive) {
+                case MUST_REVALIDATE:
+                    responseCacheControl.setBooleanField(CACHE_CONTROL_MUST_REVALIDATE_INDEX, TRUE);
+                    break;
+                case NO_CACHE:
+                    responseCacheControl.setBooleanField(CACHE_CONTROL_NO_CACHE_INDEX, TRUE);
+                    if (value != null) {
+                        responseCacheControl.setRefField(CACHE_CONTROL_NO_CACHE_FIELDS_INDEX,
+                                                         new BStringArray(value.split(",")));
+                    }
+                    break;
+                case NO_STORE:
+                    responseCacheControl.setBooleanField(CACHE_CONTROL_NO_STORE_INDEX, TRUE);
+                    break;
+                case NO_TRANSFORM:
+                    responseCacheControl.setBooleanField(CACHE_CONTROL_NO_TRANSFORM_INDEX, TRUE);
+                    break;
+                case PRIVATE:
+                    responseCacheControl.setBooleanField(CACHE_CONTROL_IS_PRIVATE_INDEX, TRUE);
+                    if (value != null) {
+                        responseCacheControl.setRefField(CACHE_CONTROL_PRIVATE_FIELDS_INDEX,
+                                                         new BStringArray(value.split(",")));
+                    }
+                    break;
+                case PUBLIC:
+                    responseCacheControl.setBooleanField(CACHE_CONTROL_IS_PRIVATE_INDEX, FALSE);
+                    break;
+                case PROXY_REVALIDATE:
+                    responseCacheControl.setBooleanField(CACHE_CONTROL_PROXY_REVALIDATE_INDEX, TRUE);
+                    break;
+                case MAX_AGE:
+                    responseCacheControl.setIntField(CACHE_CONTROL_MAX_AGE_INDEX, Long.parseLong(value));
+                    break;
+                case S_MAXAGE:
+                    responseCacheControl.setIntField(CACHE_CONTROL_S_MAXAGE_INDEX, Long.parseLong(value));
+                    break;
+            }
+        });
     }
 
     public static BMap<String, BValue> createParamBMap(List<String> paramList) {
@@ -619,7 +694,7 @@ public class HttpUtil {
     }
 
     private static boolean isInboundRequestStruct(BStruct struct) {
-        return struct.getType().getName().equals(HttpConstants.IN_REQUEST);
+        return struct.getType().getName().equals(IN_REQUEST);
     }
 
     private static boolean isInboundResponseStruct(BStruct struct) {
@@ -637,9 +712,9 @@ public class HttpUtil {
                                      struct.getStringField(HttpConstants.IN_REQUEST_USER_AGENT_INDEX));
             }
         } else {
-            if (!struct.getStringField(HttpConstants.IN_RESPONSE_SERVER_INDEX).isEmpty()) {
-                transportHeaders.add(HttpConstants.SERVER_HEADER,
-                                     struct.getStringField(HttpConstants.IN_RESPONSE_SERVER_INDEX));
+            if (!struct.getStringField(IN_RESPONSE_SERVER_INDEX).isEmpty()) {
+                transportHeaders.add(SERVER_HEADER,
+                                     struct.getStringField(IN_RESPONSE_SERVER_INDEX));
             }
         }
     }

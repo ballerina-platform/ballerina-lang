@@ -50,6 +50,7 @@ public class HttpConstants {
     public static final String ACCEPT_HEADER = "Accept";
     public static final String ALLOW = "Allow";
     public static final String SERVER_HEADER = "Server";
+    public static final String CACHE_CONTROL_HEADER = "Cache-Control";
     public static final String APPLICATION_OCTET_STREAM = "application/octet-stream";
     public static final String PROTOCOL = "PROTOCOL";
     public static final String PORT = "PORT";
@@ -161,6 +162,7 @@ public class HttpConstants {
     public static final String IN_RESPONSE = "InResponse";
     public static final String OUT_RESPONSE = "OutResponse";
     public static final String ENTITY = "Entity";
+    public static final String RESPONSE_CACHE_CONTROL = "ResponseCacheControl";
     public static final String HTTP_CONNECTOR_ERROR = "HttpConnectorError";
     public static final String TYPE_STRING = "string";
     public static final String TRANSPORT_MESSAGE = "transport_message";
@@ -210,6 +212,7 @@ public class HttpConstants {
     public static final int IN_RESPONSE_STATUS_CODE_INDEX = 0;
     public static final int IN_RESPONSE_REASON_PHRASE_INDEX = 0;
     public static final int IN_RESPONSE_SERVER_INDEX = 1;
+    public static final int IN_RESPONSE_CACHE_CONTROL_INDEX = 0;
 
     //OutResponse struct indexes
     public static final int OUT_RESPONSE_STATUS_CODE_INDEX = 0;
@@ -226,6 +229,18 @@ public class HttpConstants {
     public static final int RETRY_STRUCT_INDEX = 2;
     public static final int RETRY_COUNT_INDEX = 0;
     public static final int RETRY_INTERVAL_INDEX = 1;
+
+    // Response Cache Control struct indices
+    public static final int CACHE_CONTROL_MUST_REVALIDATE_INDEX = 0;
+    public static final int CACHE_CONTROL_NO_CACHE_INDEX = 1;
+    public static final int CACHE_CONTROL_NO_STORE_INDEX = 2;
+    public static final int CACHE_CONTROL_NO_TRANSFORM_INDEX = 3;
+    public static final int CACHE_CONTROL_IS_PRIVATE_INDEX = 4;
+    public static final int CACHE_CONTROL_PROXY_REVALIDATE_INDEX = 5;
+    public static final int CACHE_CONTROL_MAX_AGE_INDEX = 0;
+    public static final int CACHE_CONTROL_S_MAXAGE_INDEX = 1;
+    public static final int CACHE_CONTROL_NO_CACHE_FIELDS_INDEX = 0;
+    public static final int CACHE_CONTROL_PRIVATE_FIELDS_INDEX = 1;
 
     public static final String CONNECTION_HEADER = "Connection";
     public static final String HEADER_VAL_CONNECTION_CLOSE = "Close";
