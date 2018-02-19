@@ -149,43 +149,43 @@ public class DocumentationTest {
     @Test(description = "Test negative cases.")
     public void testDocumentationNegative() {
         CompileResult compileResult = BCompileUtil.compile(this, "test-src", "documentation/negative.bal");
-        Assert.assertEquals(compileResult.getWarnCount(), 215);
-        BAssertUtil.validateWarning(compileResult, 197,
+        Assert.assertEquals(compileResult.getWarnCount(), 18);
+        BAssertUtil.validateWarning(compileResult, 0,
                 "already documented attribute 'a' in annotation 'Test'", 4, 40);
-        BAssertUtil.validateWarning(compileResult, 198,
+        BAssertUtil.validateWarning(compileResult, 1,
                 "no such documentable attribute 'c' in annotation 'Test'", 6, 40);
-        BAssertUtil.validateWarning(compileResult, 199,
+        BAssertUtil.validateWarning(compileResult, 2,
                 "invalid usage of attribute 'abc': attributes are not allowed for " +
                         "constant and global variable documentation", 14, 53);
-        BAssertUtil.validateWarning(compileResult, 200,
+        BAssertUtil.validateWarning(compileResult, 3,
                 "already documented attribute 'foo' in enum 'state'", 19, 38);
-        BAssertUtil.validateWarning(compileResult, 201,
+        BAssertUtil.validateWarning(compileResult, 4,
                 "no such documentable attribute 'bar' in enum 'state'", 20, 38);
-        BAssertUtil.validateWarning(compileResult, 202,
+        BAssertUtil.validateWarning(compileResult, 5,
                 "already documented attribute 'a' in struct 'Test'", 29, 36);
-        BAssertUtil.validateWarning(compileResult, 203,
+        BAssertUtil.validateWarning(compileResult, 6,
                 "no such documentable attribute 'c' in struct 'Test'", 31, 36);
-        BAssertUtil.validateWarning(compileResult, 204,
+        BAssertUtil.validateWarning(compileResult, 7,
                 "already documented attribute 'file' in function 'File.open'", 44, 78);
-        BAssertUtil.validateWarning(compileResult, 205,
+        BAssertUtil.validateWarning(compileResult, 8,
                 "no such documentable attribute 'successfuls' in function 'File.open'", 46, 33);
-        BAssertUtil.validateWarning(compileResult, 206,
+        BAssertUtil.validateWarning(compileResult, 9,
                 "no such documentable attribute 'pa' in transformer 'Foo'", 61, 36);
-        BAssertUtil.validateWarning(compileResult, 207,
+        BAssertUtil.validateWarning(compileResult, 10,
                 "already documented attribute 'e' in transformer 'Foo'", 63, 64);
-        BAssertUtil.validateWarning(compileResult, 208,
+        BAssertUtil.validateWarning(compileResult, 11,
                 "already documented attribute 's' in action 'testAction'", 93, 43);
-        BAssertUtil.validateWarning(compileResult, 209,
+        BAssertUtil.validateWarning(compileResult, 12,
                 "no such documentable attribute 'ssss' in action 'testAction'", 94, 43);
-        BAssertUtil.validateWarning(compileResult, 210,
+        BAssertUtil.validateWarning(compileResult, 13,
                 "already documented attribute 'url' in connector 'TestConnector'", 87, 24);
-        BAssertUtil.validateWarning(compileResult, 211,
+        BAssertUtil.validateWarning(compileResult, 14,
                 "no such documentable attribute 'urls' in connector 'TestConnector'", 88, 24);
-        BAssertUtil.validateWarning(compileResult, 212,
+        BAssertUtil.validateWarning(compileResult, 15,
                 "already documented attribute 'req' in resource 'orderPizza'", 109, 23);
-        BAssertUtil.validateWarning(compileResult, 213,
+        BAssertUtil.validateWarning(compileResult, 16,
                 "no such documentable attribute 'reqest' in resource 'orderPizza'", 110, 23);
-        BAssertUtil.validateWarning(compileResult, 214,
+        BAssertUtil.validateWarning(compileResult, 17,
                 "no such documentable attribute 'conn' in service 'PizzaService'", 102, 42);
     }
 
@@ -456,8 +456,8 @@ public class DocumentationTest {
     public void testDeprecatedFunctionUse() {
         CompileResult compileResult = BCompileUtil.compile(this, "test-src",
                 "documentation/deprecate_function_use.bal");
-        Assert.assertEquals(compileResult.getWarnCount(), 73);
-        BAssertUtil.validateWarning(compileResult, 72,
+        Assert.assertEquals(compileResult.getWarnCount(), 1);
+        BAssertUtil.validateWarning(compileResult, 0,
                 "usage of deprecated function 'randomNumber'", 10, 12);
     }
 

@@ -2,7 +2,7 @@
 import org.foo;
 
 
-public function testPrivateFieldAccess() {
+function testPrivateFieldAccess() {
     foo:person p = foo:newPerson();
 
     string name = p.name;
@@ -17,7 +17,7 @@ public struct personFoo {
     int id;
 }
 
-public function testCompileTimeStructEq() {
+function testCompileTimeStructEq() {
     personFoo pf = {age:10, name:"dd", ssn:"123-44-3333", id:123};
     foo:person p = (foo:person)pf;
 

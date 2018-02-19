@@ -7,10 +7,12 @@ public struct userFoo {
     string zipcode = "23468";
 }
 
+documentation {}
 public function <userFoo u> getName() returns (string) {
     return u.name;
 }
 
+documentation {}
 public function <userFoo u> getAge() returns (int) {
     return u.age;
 }
@@ -39,10 +41,12 @@ struct student {
         int schoolId;
 }
 
+documentation {}
 public function newPerson() (person) {
     return {age:12, name:"mad", ssn:"234-90-8887"};
 }
 
+documentation {}
 public function newUser() (user) {
     return {age:56, name:"mal", zipcode:"23126"};
 }

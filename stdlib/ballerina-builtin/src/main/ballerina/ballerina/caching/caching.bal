@@ -42,6 +42,13 @@ struct CacheEntry {
 @Param {value:"capacity: capacitry of the cache which should be greater than 0"}
 @Param {value:"evictionFactor: eviction factor to be used for cache eviction"}
 @Return {value:"cache: a new cache"}
+documentation {
+Creates a new cache.
+- #name name of the cache
+- #expiryTimeMillis expiryTime of the cache in ms
+- #capacity capacitry of the cache which should be greater than 0
+- #evictionFactor eviction factor to be used for cache eviction
+}
 public function createCache (string name, int expiryTimeMillis, int capacity, float evictionFactor) returns (Cache) {
     // Cache expiry time must be a positive value.
     if (expiryTimeMillis <= 0) {
@@ -69,6 +76,9 @@ public function createCache (string name, int expiryTimeMillis, int capacity, fl
 
 @Description {value:"Returns the size of the cache."}
 @Return {value:"int: The size of the cache"}
+documentation {
+Returns the size of the cache.
+}
 public function <Cache cache> size () returns (int) {
     return lengthof cache.entries;
 }
@@ -76,6 +86,11 @@ public function <Cache cache> size () returns (int) {
 @Description {value:"Adds the given key, value pair to the provided cache."}
 @Param {value:"key: value which should be used as the key"}
 @Param {value:"value: value to be cached"}
+documentation {
+Adds the given key, value pair to the provided cache.
+- #key value which should be used as the key
+- #value value to be cached
+}
 public function <Cache cache> put (string key, any value) {
     int cacheCapacity = cache.capacity;
     int cacheSize = lengthof cache.entries;
@@ -107,6 +122,10 @@ function <Cache cache> evictCache () {
 @Description {value:"Returns the cached value associated with the given key. Returns null if the provided key does not exist in the cache."}
 @Param {value:"key: key which is used to retrieve the cached value"}
 @Return { value:"The cached value associated with the given key" }
+documentation {
+Returns the cached value associated with the given key. Returns null if the provided key does not exist in the cache.
+- #key key which is used to retrieve the cached value
+}
 public function <Cache cache> get (string key) returns (any) {
     any value = cache.entries[key];
     if (value == null) {
@@ -122,6 +141,10 @@ public function <Cache cache> get (string key) returns (any) {
 
 @Description {value:"Removes a cached value from a cache."}
 @Param {value:"key: key of the cache entry which needs to be removed"}
+documentation {
+Removes a cached value from a cache.
+- #key key of the cache entry which needs to be removed
+}
 public function <Cache cache> remove (string key) {
     cache.entries.remove(key);
 }

@@ -20,6 +20,11 @@ public struct IndexOutOfRangeError {
 @Description { value:"Adds the specified element to the end of the vector."}
 @Param { value: "v: The vector to which the element will be added"}
 @Param { value: "element: The element to be added"}
+documentation {
+Adds the specified element to the end of the vector.
+- #v The vector to which the element will be added
+- #element The element to be added
+}
 public function <Vector v> add (any element) {
     v.vec[v.vectorSize] = element;
     v.vectorSize = v.vectorSize + 1;
@@ -27,6 +32,10 @@ public function <Vector v> add (any element) {
 
 @Description { value:"Clears all the elements from the vector."}
 @Param { value: "v: The vector to be cleared"}
+documentation {
+Clears all the elements from the vector.
+- #v The vector to be cleared
+}
 public function <Vector v> clear() {
     v.vec = [];
     v.vectorSize = 0;
@@ -36,7 +45,13 @@ public function <Vector v> clear() {
 @Param { value: "v: The vector from which the element will be retrieved"}
 @Param { value: "index: The position of the element to retrieve"}
 @Return { value:"The element at the specified position."}
-public function <Vector v> get (int index) (any) {
+documentation {
+Retrieves the element at the specified position of the vector.
+- #v The vector from which the element will be retrieved
+- #index The position of the element to retrieve
+- #val The element at the specified position
+}
+public function <Vector v> get (int index) (any val) {
     validateRange(v.vectorSize, index);
     return v.vec[index];
 }
@@ -45,6 +60,12 @@ public function <Vector v> get (int index) (any) {
 @Param { value: "v: The vector to which the element will be inserted"}
 @Param { value: "element: The element to insert"}
 @Param { value: "index: The position to insert the element to"}
+documentation {
+Inserts the given element at the position specified. All the elements (including the one currently in the position specified) to the right of the specified position are shifted to the right.
+- #v The vector to which the element will be inserted
+- #element The element to insert
+- #index The position to insert the element to
+}
 public function <Vector v> insert (any element, int index) {
     validateRange(v.vectorSize + 1, index); // range validated for the new vector size
     shiftRight(v, index);
@@ -55,7 +76,12 @@ public function <Vector v> insert (any element, int index) {
 @Description { value:"Checks whether the specified vector is empty."}
 @Param { value: "v: The vector to be checked if its empty"}
 @Return { value:"Returns true if there aren't any elements in the vector"}
-public function <Vector v> isEmpty() (boolean) {
+documentation {
+Checks whether the specified vector is empty.
+- #v The vector to be checked if its empty
+- #empty Returns true if there aren't any elements in the vector
+}
+public function <Vector v> isEmpty() (boolean empty) {
     return v.vectorSize == 0;
 }
 
@@ -63,7 +89,13 @@ public function <Vector v> isEmpty() (boolean) {
 @Param { value: "v: The vector from which the element will be removed"}
 @Param { value: "index: The position to remove the element from"}
 @Return { value:"The element at the specified position."}
-public function <Vector v> remove (int index) (any) {
+documentation {
+Removes and returns the element at the position specified. All the elements to the right of the specified position are shifted to the left.
+- #v The vector from which the element will be removed
+- #index The position to remove the element from
+- #val The element at the specified position
+}
+public function <Vector v> remove (int index) (any val) {
     validateRange(v.vectorSize, index);
     any element = v.vec[index];
     shiftLeft(v, index);
@@ -76,7 +108,14 @@ public function <Vector v> remove (int index) (any) {
 @Param { value: "element: The replacement element"}
 @Param { value: "index: The position of the element to be replaced"}
 @Return { value:"The element which was originally at the specified position"}
-public function <Vector v> replace(any element, int index) (any) {
+documentation {
+Replaces the element at the position specified with the provided element.
+- #v value which should be used as the key
+- #element The replacement element
+- #index The position of the element to be replaced
+- #replacedElement The element which was originally at the specified position
+}
+public function <Vector v> replace(any element, int index) (any replacedElement) {
     validateRange(v.vectorSize, index);
     any currentElement = v.vec[index];
     v.vec[index] = element;
@@ -86,7 +125,12 @@ public function <Vector v> replace(any element, int index) (any) {
 @Description { value:"Returns the size of the vector."}
 @Param { value: "v: The vector of which to look-up the size"}
 @Return { value:"The size of the vector"}
-public function <Vector v> size() (int) {
+documentation {
+Returns the size of the vector.
+- #v The vector of which to look-up the size
+- #s The size of the vector
+}
+public function <Vector v> size() (int s) {
     return v.vectorSize;
 }
 
