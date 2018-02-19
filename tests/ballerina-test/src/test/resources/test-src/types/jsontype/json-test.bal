@@ -22,39 +22,33 @@ function testGetKeys () (string[], string[], string[], string[]) {
 }
 
 function testToXML (json msg) (xml, error) {
-    jsonOptions options = {};
-    return msg.toXML(options);
+    return msg.toXML({});
 }
 
 function testToXMLStringValue () (xml, error) {
-    jsonOptions options = {};
     json j = "value";
-    return j.toXML(options);
+    return j.toXML({});
 }
 
 function testToXMLBooleanValue () (xml, error) {
-    jsonOptions options = {};
     json j = true;
-    return j.toXML(options);
+    return j.toXML({});
 }
 
 function testToXMLString (json msg) (string) {
-    jsonOptions options = {};
-    var xmlData, _ = msg.toXML(options);
+    var xmlData, _ = msg.toXML({});
     string s = <string> xmlData;
     return s;
 }
 
 function testToXMLWithXMLSequence (json msg) (string) {
-    jsonOptions options = {};
-    var xmlSequence, _ = msg.toXML(options);
+    var xmlSequence, _ = msg.toXML({});
     string s = <string> xmlSequence;
     return s;
 }
 
 function testToXMLWithOptions (json msg) (xml, error) {
-    jsonOptions options = {attributePrefix:"#", arrayEntryTag:"wrapper"};
-    return msg.toXML(options);
+    return msg.toXML({attributePrefix:"#", arrayEntryTag:"wrapper"});
 }
 
 function testStringToJSONConversion() (json, error) {
