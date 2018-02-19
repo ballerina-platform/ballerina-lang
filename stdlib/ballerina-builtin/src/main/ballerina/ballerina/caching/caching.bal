@@ -1,6 +1,7 @@
 package ballerina.caching;
 
 import ballerina.task;
+import ballerina.time;
 import ballerina.util;
 
 @Description {value:"Cache cleanup task starting delay in ms."}
@@ -84,7 +85,7 @@ public function <Cache cache> put (string key, any value) {
         cache.evictCache();
     }
     // Add the new entry.
-    int time = currentTime().time;
+    int time = time:currentTime().time;
     CacheEntry entry = {value:value, lastAccessedTime:time};
     cache.entries[key] = entry;
 }
@@ -114,7 +115,7 @@ public function <Cache cache> get (string key) returns (any) {
     if (e != null || entry == null) {
         return null;
     }
-    entry.lastAccessedTime = currentTime().time;
+    entry.lastAccessedTime = time:currentTime().time;
     return entry.value;
 }
 
@@ -152,7 +153,7 @@ function runCacheExpiry () returns (error) {
             // Get the corresponding entry from the cache.
             var entry, _ = (CacheEntry)currentCacheEntries[key];
             // Get the current system time.
-            int currentSystemTime = currentTime().time;
+            int currentSystemTime = time:currentTime().time;
             // Check whether the cache entry needs to be removed.
             if (currentSystemTime >= entry.lastAccessedTime + currentCacheExpiryTime) {
                 cachesToBeRemoved[cachesToBeRemovedIndex] = key;

@@ -1,6 +1,7 @@
 package ballerina.file;
 
 import ballerina.io;
+import ballerina.time;
 
 @Description { value:"The Read access mode"}
 public const string R = "R";
@@ -96,7 +97,7 @@ public native function <File file> mkdirs () (boolean, AccessDeniedError, IOErro
 @Return {value:"Returns a Time struct"}
 @Return {value:"Returns an AccessDeniedError if the user does not have the necessary permissions to read the file"}
 @Return {value:"Returns an IOError if the file could not be read"}
-public native function <File file> getModifiedTime () (Time, AccessDeniedError, IOError);
+public native function <File file> getModifiedTime () (time:Time, AccessDeniedError, IOError);
 
 @Description {value:"Returns the name of the file"}
 @Param { value: "file: The file of which the name needs to be looked up"}

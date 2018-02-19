@@ -126,7 +126,7 @@ public final class Constants {
     public static final String TIMEZONE_UTC = "UTC";
     public static final String QUESTION_MARK = "?";
     public static final String STRUCT_TIME = "Time";
-    public static final String STRUCT_TIME_PACKAGE = "ballerina.builtin";
+    public static final String STRUCT_TIME_PACKAGE = "ballerina.time";
     public static final String URL = "url";
     public static final String USER = "user";
     public static final String PASSWORD = "password";

@@ -15,30 +15,35 @@
 * specific language governing permissions and limitations
 * under the License.
 */
-package org.ballerinalang.nativeimpl.builtin.timelib;
+package org.ballerinalang.nativeimpl.time;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeKind;
+import org.ballerinalang.model.values.BInteger;
+import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
 /**
- * Get the current local time with local timezone information.
+ * Get the year value for the given time.
  *
  * @since 0.89
  */
 @BallerinaFunction(
-        packageName = "ballerina.builtin",
-        functionName = "currentTime",
-        returnType = {@ReturnType(type = TypeKind.STRUCT, structType = "Time",
-                                  structPackage = "ballerina.builtin")},
+        packageName = "ballerina.time",
+        functionName = "Time.year",
+        args = {@Argument(name = "time", type = TypeKind.STRUCT, structType = "Time",
+                          structPackage = "ballerina.time")},
+        returnType = {@ReturnType(type = TypeKind.INT)},
         isPublic = true
 )
-public class CurrentTime extends  AbstractTimeFunction {
+public class Year extends AbstractTimeFunction {
 
     @Override
     public BValue[] execute(Context context) {
-        return new BValue[]{createCurrentTime(context)};
+        BStruct timeStruct = ((BStruct) getRefArgument(context, 0));
+        return new BValue[]{new BInteger(getYear(timeStruct))};
     }
 }

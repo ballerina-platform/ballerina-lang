@@ -1,4 +1,5 @@
 import ballerina.data.sql;
+import ballerina.time;
 
 struct ResultPrimitive {
     int INT_TYPE;
@@ -45,10 +46,10 @@ struct ResultDates {
 }
 
 struct ResultDatesStruct {
-    Time DATE_TYPE;
-    Time TIME_TYPE;
-    Time TIMESTAMP_TYPE;
-    Time DATETIME_TYPE;
+    time:Time DATE_TYPE;
+    time:Time TIME_TYPE;
+    time:Time TIMESTAMP_TYPE;
+    time:Time DATETIME_TYPE;
 }
 
 struct ResultDatesInt {
@@ -499,11 +500,11 @@ function testDateTimeAsTimeStruct () (int dateInserted, int dateRetrieved, int t
                                    0, "TEST_DATA_TABLE_DB", "SA", "", {maximumPoolSize:1});
     }
 
-    Time dateStruct = createTime(2017, 5, 23, 0, 0, 0, 0, "");
-    Timezone zoneValue = {zoneId:"UTC"};
-    Time timeStruct = {time:51323000, zone:zoneValue};
-    Time timestampStruct = createTime(2017, 1, 25, 16, 12, 23, 0, "UTC");
-    Time datetimeStruct = createTime(2017, 1, 31, 16, 12, 23, 332, "UTC");
+    time:Time dateStruct = time:createTime(2017, 5, 23, 0, 0, 0, 0, "");
+    time:Timezone zoneValue = {zoneId:"UTC"};
+    time:Time timeStruct = {time:51323000, zone:zoneValue};
+    time:Time timestampStruct = time:createTime(2017, 1, 25, 16, 12, 23, 0, "UTC");
+    time:Time datetimeStruct = time:createTime(2017, 1, 31, 16, 12, 23, 332, "UTC");
     dateInserted = dateStruct.time;
     timeInserted = timeStruct.time;
     timestampInserted = timestampStruct.time;
