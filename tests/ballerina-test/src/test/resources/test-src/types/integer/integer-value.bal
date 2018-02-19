@@ -107,18 +107,3 @@ function testIntegerParameter (int a) (int) {
     b = a;
     return b;
 }
-
-function testToHexString() (string) {
-    int a = 0xa;
-    return a.toHexString();
-}
-
-function testToOctalString() (string) {
-    int a = 0_12;
-    return a.toOctalString();
-}
-
-function testToBinaryString() (string) {
-    int a = 0b1010;
-    return a.toBinaryString();
-}
