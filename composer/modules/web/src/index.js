@@ -18,7 +18,6 @@
  */
 
  // importing for side effects only
-import 'semantic-ui-css/semantic.min.css';
 import 'font-ballerina/css/font-ballerina.css';
 
 import log from 'log';
@@ -26,6 +25,8 @@ import _ from 'lodash';
 import { fetchConfigs } from 'api-client/api-client';
 import Application from './core/app';
 import defaultConfig from './config';
+
+import './ballerina-theme/semantic.less';
 
 // Before start rendering, fetch api endpoint information & other configs from config service
 fetchConfigs()
