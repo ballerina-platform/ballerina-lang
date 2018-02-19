@@ -1,12 +1,10 @@
-import ballerina.file;
 import ballerina.io;
 
 @Description{value:"This function will return a TextRecordChannel from a given file location.The encoding is character represenation of the content in file i.e UTF-8 ASCCI. The rs is record seperator i.e newline etc. and fs is field seperator i.e comma etc."}
 function getFileRecordChannel (string filePath, string permission, string encoding,
                                string rs, string fs) (io:TextRecordChannel) {
-    file:File src = {path:filePath};
     //First we get the ByteChannel representation of the file.
-    io:ByteChannel channel = src.openChannel(permission);
+    io:ByteChannel channel = io:openFile(filePath, permission);
     //Then we create a character channel from the byte channel to read content as text.
     io:CharacterChannel characterChannel = io:createCharacterChannel(channel, encoding);
     //Finally we convert the character channel to record channel

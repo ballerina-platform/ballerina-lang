@@ -1,9 +1,7 @@
-import ballerina.file;
 import ballerina.io;
 
 function getFileRecordChannel (string filePath, string permission, string encoding, string rs, string fs) (io:TextRecordChannel) {
-    file:File src = {path:filePath};
-    io:ByteChannel channel = src.openChannel(permission);
+    io:ByteChannel channel = io:openFile(filePath, permission);
     io:CharacterChannel characterChannel = io:createCharacterChannel(channel, encoding);
     io:TextRecordChannel textRecordChannel = characterChannel.toTextRecordChannel(rs, fs);
     return textRecordChannel;

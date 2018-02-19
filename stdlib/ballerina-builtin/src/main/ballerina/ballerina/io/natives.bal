@@ -88,3 +88,9 @@ public native function <ByteChannel channel> close();
 @Param {value:"channel: The TextRecordChannel to read text records from"}
 @Return {value:"True if the channel has more records; false otherwise"}
 public native function <TextRecordChannel channel> hasNextTextRecord () (boolean);
+
+@Description {value:"Function to return a ByteChannel related to the file. This ByteChannel can then be used to read/write from/to the file."}
+@Param {value:"path: The path of the file"}
+@Param {value:"accessMode: Specifies whether the file should be opened for reading or writing (r/w)"}
+@Return {value:"ByteChannel which will allow to perform I/O operations"}
+public native function openFile (string path, string accessMode) (ByteChannel);

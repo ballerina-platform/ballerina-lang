@@ -83,3 +83,9 @@ public native function <ByteChannel channel> writeBytes(blob content,int startOf
 @Description { value:"Function to close a byte channel"}
 @Param {value:"channel: The ByteChannel to be closed"}
 public native function <ByteChannel channel> close();
+
+@Description {value:"Function to return a ByteChannel related to the file. This ByteChannel can then be used to read/write from/to the file."}
+@Param {value:"path: The path of the file"}
+@Param {value:"accessMode: Specifies whether the file should be opened for reading or writing (r/w)"}
+@Return {value:"ByteChannel which will allow to perform I/O operations"}
+public native function openFile (string path, string accessMode) (io:ByteChannel);
