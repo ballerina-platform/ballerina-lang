@@ -49,10 +49,15 @@ public class BLangScheduler {
         }
     }
     
+    public static void switchToWaitForResponse(WorkerExecutionContext ctx) {
+        ctx.state = WorkerState.WAITING_FOR_RESPONSE;
+        ctx.ip = -1;
+    }
+    
     public static void waitForCompletion() {
         try {
             activeContextsTracker.acquire();
-        } catch (InterruptedException ignore) { }
+        } catch (InterruptedException ignore) { /* ignore */ }
     }
     
     private static class WorkerExecutor implements Runnable {

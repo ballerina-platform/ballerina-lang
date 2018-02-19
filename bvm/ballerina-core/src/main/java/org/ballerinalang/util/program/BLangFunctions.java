@@ -23,7 +23,7 @@ import org.ballerinalang.bre.bvm.BLangVM;
 import org.ballerinalang.bre.bvm.BLangVMErrors;
 import org.ballerinalang.bre.bvm.ControlStack;
 import org.ballerinalang.bre.bvm.StackFrame;
-import org.ballerinalang.bre.bvm.SyncInvocableWorkerResponseContext;
+import org.ballerinalang.bre.bvm.InvocableWorkerResponseContext;
 import org.ballerinalang.bre.bvm.WorkerData;
 import org.ballerinalang.bre.bvm.WorkerExecutionContext;
 import org.ballerinalang.bre.bvm.WorkerResponseContext;
@@ -51,6 +51,7 @@ import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.Callable;
 
 /**
  * This class contains helper methods to invoke Ballerina functions.
@@ -290,18 +291,18 @@ public class BLangFunctions {
         return wd;
     }
     
-    private static WorkerData createWorkerDataForReturn(WorkerReturnIndex wri) {
+    private static WorkerData createWorkerData(WorkerDataIndex wdi) {
         WorkerData wd = new WorkerData();
-        wd.longRegs = new long[wri.longRegCount];
-        wd.doubleRegs = new double[wri.doubleRegCount];
-        wd.stringRegs = new String[wri.stringRegCount];
-        wd.intRegs = new int[wri.intRegCount];
-        wd.byteRegs = new byte[wri.byteRegCount][];
-        wd.refRegs = new BRefType[wri.refRegCount];
+        wd.longRegs = new long[wdi.longRegCount];
+        wd.doubleRegs = new double[wdi.doubleRegCount];
+        wd.stringRegs = new String[wdi.stringRegCount];
+        wd.intRegs = new int[wdi.intRegCount];
+        wd.byteRegs = new byte[wdi.byteRegCount][];
+        wd.refRegs = new BRefType[wdi.refRegCount];
         return wd;
     }
     
-    private static class WorkerReturnIndex {
+    private static class WorkerDataIndex {
         int[] retRegs;
         int longRegCount = 0;
         int doubleRegCount = 0;
@@ -311,8 +312,8 @@ public class BLangFunctions {
         int byteRegCount = 0;
     }
     
-    private static WorkerReturnIndex calculateWorkerReturnIndex(BType[] retTypes) {
-        WorkerReturnIndex index = new WorkerReturnIndex();
+    private static WorkerDataIndex calculateWorkerDataIndex(BType[] retTypes) {
+        WorkerDataIndex index = new WorkerDataIndex();
         index.retRegs = new int[retTypes.length];
         for (int i = 0; i < retTypes.length; i++) {
             BType retType = retTypes[i];
@@ -342,22 +343,90 @@ public class BLangFunctions {
 
     public static void invokeFunction(ProgramFile programFile, FunctionInfo functionInfo, 
             WorkerExecutionContext parentCtx) {
-        invokeFunction(programFile, functionInfo, parentCtx, new int[0], new int[0]);
+        invokeFunction(programFile, functionInfo, parentCtx, new int[0], new int[0], false);
+    }
+    
+    public static BValue[] invokeFunction(ProgramFile programFile, CallableUnitInfo callableUnitInfo, BValue[] args) {
+        WorkerExecutionContext parentCtx = new WorkerExecutionContext();
+        int[] argRegs = populateArgData(parentCtx, callableUnitInfo, args);
+        int[] retRegs = new int[0];
+        invokeFunction(programFile, callableUnitInfo, parentCtx, argRegs, retRegs, true);
+        return null;
+    }
+    
+    @SuppressWarnings("rawtypes")
+    private static int[] populateArgData(WorkerExecutionContext ctx, 
+            CallableUnitInfo callableUnitInfo, BValue[] args) {
+        WorkerDataIndex wdi = calculateWorkerDataIndex(callableUnitInfo.getParamTypes());
+        WorkerData local = createWorkerData(wdi);
+        BType[] types = callableUnitInfo.getParamTypes();
+        int longParamCount = 0, doubleParamCount = 0, stringParamCount = 0, intParamCount = 0, 
+                byteParamCount = 0, refParamCount = 0;
+        for (int i = 0; i < types.length; i++) {
+            switch (types[i].getTag()) {
+                case TypeTags.INT_TAG:
+                    local.longRegs[longParamCount] = ((BInteger) args[i]).intValue();
+                    longParamCount++;
+                    break;
+                case TypeTags.FLOAT_TAG:
+                    local.doubleRegs[doubleParamCount] = ((BFloat) args[i]).floatValue();
+                    doubleParamCount++;
+                    break;
+                case TypeTags.STRING_TAG:
+                    local.stringRegs[stringParamCount] = args[i].stringValue();
+                    stringParamCount++;
+                    break;
+                case TypeTags.BOOLEAN_TAG:
+                    local.intRegs[intParamCount] = ((BBoolean) args[i]).booleanValue() ? 1 : 0;
+                    intParamCount++;
+                    break;
+                case TypeTags.BLOB_TAG:
+                    local.byteRegs[byteParamCount] = ((BBlob) args[i]).blobValue();
+                    byteParamCount++;
+                    break;
+                default:
+                    local.refRegs[refParamCount] = (BRefType) args[i];
+                    refParamCount++;
+                    break;
+            }
+        }
+        ctx.workerLocal = local;
+        return wdi.retRegs;
     }
     
     public static void invokeFunction(ProgramFile programFile, CallableUnitInfo callableUnitInfo, 
-            WorkerExecutionContext parentCtx, int[] argRegs, int[] retRegs) {
-        WorkerInfo workerInfo = callableUnitInfo.getDefaultWorkerInfo();
-        WorkerResponseContext respCtx = new SyncInvocableWorkerResponseContext(
-                callableUnitInfo.getRetParamTypes(), retRegs);
+            WorkerExecutionContext parentCtx, int[] argRegs, int[] retRegs, boolean waitForResponse) {
+        InvocableWorkerResponseContext respCtx = new InvocableWorkerResponseContext(
+                callableUnitInfo.getRetParamTypes(), waitForResponse);
+        respCtx.updateParentWorkerResultLocation(retRegs);
+        WorkerDataIndex wdi = calculateWorkerDataIndex(callableUnitInfo.getRetParamTypes());
+        Map<String, Object> globalProps = new HashMap<>();
+        for (WorkerInfo workerInfo : listWorkerInfos(callableUnitInfo)) {
+            executeWorker(respCtx, parentCtx, argRegs, callableUnitInfo, workerInfo, wdi, globalProps);
+        }
+        BLangScheduler.switchToWaitForResponse(parentCtx);
+        if (waitForResponse) {
+            respCtx.waitForResponse();
+        }
+    }
+    
+    private static void executeWorker(WorkerResponseContext respCtx, WorkerExecutionContext parentCtx, int[] argRegs,
+            CallableUnitInfo callableUnitInfo, WorkerInfo workerInfo, WorkerDataIndex wdi, 
+            Map<String, Object> globalProps) {
         WorkerData workerLocal = createWorkerDataForLocal(workerInfo, parentCtx, argRegs,
                 callableUnitInfo.getParamTypes());
-        WorkerReturnIndex wri = calculateWorkerReturnIndex(callableUnitInfo.getRetParamTypes());
-        WorkerData workerResult = createWorkerDataForReturn(wri);
-        Map<String, Object> globalProps = new HashMap<>();
+        WorkerData workerResult = createWorkerData(wdi);
         WorkerExecutionContext ctx = new WorkerExecutionContext(parentCtx, respCtx, callableUnitInfo, workerInfo,
-                workerLocal, workerResult, wri.retRegs, globalProps);
+                workerLocal, workerResult, wdi.retRegs, globalProps);
         BLangScheduler.schedule(ctx);
+    }
+    
+    private static WorkerInfo[] listWorkerInfos(CallableUnitInfo callableUnitInfo) {
+        WorkerInfo[] result = callableUnitInfo.getWorkerInfoEntries();
+        if (result.length == 0) {
+            result = new WorkerInfo[] { callableUnitInfo.getDefaultWorkerInfo() };
+        }
+        return result;
     }
     
     private static void copyArgValues(WorkerData caller, WorkerData callee, int[] argRegs, BType[] paramTypes) {

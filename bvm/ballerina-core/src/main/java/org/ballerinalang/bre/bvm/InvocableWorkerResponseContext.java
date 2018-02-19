@@ -20,12 +20,13 @@ package org.ballerinalang.bre.bvm;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.TypeTags;
 
+import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * This represents a synchronized invocation worker result context.
  */
-public class SyncInvocableWorkerResponseContext implements WorkerResponseContext {
+public class InvocableWorkerResponseContext implements WorkerResponseContext {
     
     private int[] retRegIndexes;
     
@@ -35,12 +36,16 @@ public class SyncInvocableWorkerResponseContext implements WorkerResponseContext
     
     private WorkerSignal currentSignal;
     
-    public SyncInvocableWorkerResponseContext() { }
+    private Semaphore responseChecker;
     
-    public SyncInvocableWorkerResponseContext(BType[] responseTypes, int[] retRegIndexes) {
+    public InvocableWorkerResponseContext() { }
+    
+    public InvocableWorkerResponseContext(BType[] responseTypes, boolean checkResponse) {
         this.fulfilled = new AtomicBoolean();
         this.responseTypes = responseTypes;
-        this.retRegIndexes = retRegIndexes;
+        if (checkResponse) {
+            this.responseChecker = new Semaphore(0);
+        }
     }
     
     @Override
@@ -70,7 +75,7 @@ public class SyncInvocableWorkerResponseContext implements WorkerResponseContext
             return;
         }
         this.currentSignal = signal;
-        this.doFulfilled();
+        this.storeResponse();
         BLangScheduler.workerDone(signal.getSourceContext());
     }
     
@@ -87,43 +92,57 @@ public class SyncInvocableWorkerResponseContext implements WorkerResponseContext
             BType retType = retTypes[i];
             callersRetRegIndex = this.retRegIndexes[i];
             switch (retType.getTag()) {
-                case TypeTags.INT_TAG:
-                    targetData.longRegs[callersRetRegIndex] = sourceData.longRegs[longRegCount++];
-                    break;
-                case TypeTags.FLOAT_TAG:
-                    targetData.doubleRegs[callersRetRegIndex] = sourceData.doubleRegs[doubleRegCount++];
-                    break;
-                case TypeTags.STRING_TAG:
-                    targetData.stringRegs[callersRetRegIndex] = sourceData.stringRegs[stringRegCount++];
-                    break;
-                case TypeTags.BOOLEAN_TAG:
-                    targetData.intRegs[callersRetRegIndex] = sourceData.intRegs[intRegCount++];
-                    break;
-                case TypeTags.BLOB_TAG:
-                    targetData.byteRegs[callersRetRegIndex] = sourceData.byteRegs[byteRegCount++];
-                    break;
-                default:
-                    targetData.refRegs[callersRetRegIndex] = sourceData.refRegs[refRegCount++];
-                    break;
+            case TypeTags.INT_TAG:
+                targetData.longRegs[callersRetRegIndex] = sourceData.longRegs[longRegCount++];
+                break;
+            case TypeTags.FLOAT_TAG:
+                targetData.doubleRegs[callersRetRegIndex] = sourceData.doubleRegs[doubleRegCount++];
+                break;
+            case TypeTags.STRING_TAG:
+                targetData.stringRegs[callersRetRegIndex] = sourceData.stringRegs[stringRegCount++];
+                break;
+            case TypeTags.BOOLEAN_TAG:
+                targetData.intRegs[callersRetRegIndex] = sourceData.intRegs[intRegCount++];
+                break;
+            case TypeTags.BLOB_TAG:
+                targetData.byteRegs[callersRetRegIndex] = sourceData.byteRegs[byteRegCount++];
+                break;
+            default:
+                targetData.refRegs[callersRetRegIndex] = sourceData.refRegs[refRegCount++];
+                break;
             }
         }
     }
 
-    private void doFulfilled() {
-        this.mergeResultData(this.currentSignal.getResult(), 
-                this.currentSignal.getSourceContext().parent.workerLocal);
+    private void storeResponse() {
+        if (this.retRegIndexes != null) {
+            this.mergeResultData(this.currentSignal.getResult(), 
+                    this.currentSignal.getSourceContext().parent.workerLocal);
+            if (this.responseChecker != null) {
+                this.responseChecker.release();
+            }
+        }
     }
     
     @Override
-    public void setParentWorkerResultLocation(int[] retRegIndexes) {
+    public void updateParentWorkerResultLocation(int[] retRegIndexes) {
         this.retRegIndexes = retRegIndexes;
     }
 
     @Override
-    public void checkFulfilled() {
+    public void checkAndRefreshFulfilledResponse() {
         if (this.fulfilled.get()) {
-            this.doFulfilled();
+            this.storeResponse();
         }
+    }
+    
+    public void waitForResponse() {
+        if (this.responseChecker == null) {
+            return;
+        }
+        try {
+            this.responseChecker.acquire();
+        } catch (InterruptedException ignore) { /* ignore */ }        
     }
 
 }

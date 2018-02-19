@@ -24,8 +24,8 @@ public interface WorkerResponseContext {
     
     public void signal(WorkerSignal signal);
         
-    public void checkFulfilled();
+    public void checkAndRefreshFulfilledResponse();
     
-    public void setParentWorkerResultLocation(int[] retRegIndexes);
+    public void updateParentWorkerResultLocation(int[] retRegIndexes);
     
 }

@@ -2636,7 +2636,7 @@ public class CPU {
             invokeNativeFunction((FunctionInfo) callableUnitInfo, argRegs, retRegs);
             return;
         }
-        BLangFunctions.invokeFunction(ctx.programFile, callableUnitInfo, ctx, argRegs, retRegs);
+        BLangFunctions.invokeFunction(ctx.programFile, callableUnitInfo, ctx, argRegs, retRegs, false);
     }
 
     private static void invokeVirtualFunction(int receiver, FunctionInfo virtualFuncInfo, int[] argRegs, int[] retRegs) {

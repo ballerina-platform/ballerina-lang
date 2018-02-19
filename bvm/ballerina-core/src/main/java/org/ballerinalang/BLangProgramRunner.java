@@ -23,7 +23,7 @@ import org.ballerinalang.bre.bvm.BLangVM;
 import org.ballerinalang.bre.bvm.BLangVMErrors;
 import org.ballerinalang.bre.bvm.ControlStack;
 import org.ballerinalang.bre.bvm.StackFrame;
-import org.ballerinalang.bre.bvm.SyncInvocableWorkerResponseContext;
+import org.ballerinalang.bre.bvm.InvocableWorkerResponseContext;
 import org.ballerinalang.bre.bvm.WorkerData;
 import org.ballerinalang.bre.bvm.WorkerExecutionContext;
 import org.ballerinalang.bre.bvm.WorkerResponseContext;
@@ -104,7 +104,7 @@ public class BLangProgramRunner {
         }
         FunctionInfo mainFuncInfo = getMainFunction(mainPkgInfo);
         WorkerInfo defaultWorker = mainFuncInfo.getDefaultWorkerInfo();
-        WorkerResponseContext respCtx = new SyncInvocableWorkerResponseContext();
+        WorkerResponseContext respCtx = new InvocableWorkerResponseContext();
         WorkerData workerLocal = new WorkerData();
         WorkerData workerResult = new WorkerData();
         int[] retRegIndexes = new int[0];
