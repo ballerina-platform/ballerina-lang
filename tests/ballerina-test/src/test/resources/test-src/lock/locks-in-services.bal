@@ -1,3 +1,4 @@
+import ballerina.io;
 import ballerina.net.http;
 
 service<http> sample {
@@ -114,7 +115,7 @@ service<http> sample2 {
     map mapVal = {name:""};
 
     resource echo(http:Connection conn, http:InRequest req) {
-        println("************************* echo");
+        io:println("************************* echo");
         lock {
             requestCount = requestCount + 1;
             price = price + 2;
@@ -130,7 +131,7 @@ service<http> sample2 {
     }
 
     resource echo1(http:Connection conn, http:InRequest req) {
-        println("************************* echo1");
+        io:println("************************* echo1");
         lock {
             floatArr1[1] = floatArr1[1] + 2;
             finalText1 = finalText1 + "3";
@@ -146,7 +147,7 @@ service<http> sample2 {
     }
 
     resource echo2(http:Connection conn, http:InRequest req) {
-        println("************************* echo2");
+        io:println("************************* echo2");
         lock {
             person1.age = person1.age + 1;
             requestCount = requestCount + 1;
@@ -176,7 +177,7 @@ service<http> sample3 {
 
     resource echo(http:Connection conn, http:InRequest req) {
         lock {
-            println("************** waiting inside first request");
+            io:println("************** waiting inside first request");
             sleep(100);
             message = "sample Response";
             error err = {message:"error occurred"};

@@ -1,3 +1,4 @@
+import ballerina.io;
 import ballerina.task;
 
 int w1Count;
@@ -25,16 +26,16 @@ function scheduleAppointment (string cronExpression, string errMsgW1) returns (s
 
 function onTriggerW1 () returns (error e) {
     w1Count = w1Count + 1;
-    println("w1:onTriggerW1");
+    io:println("w1:onTriggerW1");
     if(errorMsgW1 != "") {
-        println("w1:onTriggerW1 returning error");
+        io:println("w1:onTriggerW1 returning error");
         e = {message:errorMsgW1};
     }
     return;
 }
 
 function onErrorW1(error e) {
-    println("w1:onErrorW1");
+    io:println("w1:onErrorW1");
     errorW1 = e;
 }
 

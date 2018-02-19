@@ -1,4 +1,5 @@
 import ballerina.data.sql;
+import ballerina.io;
 import ballerina.time;
 
 struct ResultPrimitive {
@@ -159,7 +160,7 @@ function testToXmlMultipleConsume () (xml) {
         boolean_type, string_type from DataTable WHERE row_id = 1", null, null);
         xml result;
         result, _ = <xml>dt;
-        println(result);
+        io:println(result);
         return result;
     } finally {
         testDB.close();
@@ -201,7 +202,7 @@ function testToJsonMultipleConsume () (json) {
         boolean_type, string_type from DataTable WHERE row_id = 1", null, null);
         json result;
         result, _ = <json>dt;
-        println(result);
+        io:println(result);
         return result;
     } finally {
         testDB.close();
@@ -449,15 +450,15 @@ function testArrayDataInsertAndPrint () (int updateRet, int intArrLen, int longA
                                  from ArrayTypes where row_id = 4", null, typeof ResultMap);
     while (dt.hasNext()) {
         var rs, _ = (ResultMap)dt.getNext();
-        println(rs.INT_ARRAY);
+        io:println(rs.INT_ARRAY);
         intArrLen = lengthof rs.INT_ARRAY;
-        println(rs.LONG_ARRAY);
+        io:println(rs.LONG_ARRAY);
         longArrLen = lengthof rs.LONG_ARRAY;
-        println(rs.FLOAT_ARRAY);
+        io:println(rs.FLOAT_ARRAY);
         floatArrLen = lengthof rs.FLOAT_ARRAY;
-        println(rs.BOOLEAN_ARRAY);
+        io:println(rs.BOOLEAN_ARRAY);
         boolArrLen = lengthof rs.BOOLEAN_ARRAY;
-        println(rs.STRING_ARRAY);
+        io:println(rs.STRING_ARRAY);
         strArrLen = lengthof rs.STRING_ARRAY;
     }
     testDB.close();
@@ -700,8 +701,8 @@ function testTablePrintAndPrintln() {
     table dt = testDB.select("SELECT int_type, long_type, float_type, double_type,
     boolean_type, string_type from DataTable WHERE row_id = 1", null, null);
 
-    println(dt);
-    print(dt);
+    io:println(dt);
+    io:print(dt);
     testDB.close();
 }
 
