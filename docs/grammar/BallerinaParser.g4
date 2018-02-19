@@ -638,6 +638,7 @@ deprecatedText
 deprecatedTemplateInlineCode
     :   singleBackTickDeprecatedInlineCode
     |   doubleBackTickDeprecatedInlineCode
+    |   tripleBackTickDeprecatedInlineCode
     ;
 
 singleBackTickDeprecatedInlineCode
@@ -646,6 +647,10 @@ singleBackTickDeprecatedInlineCode
 
 doubleBackTickDeprecatedInlineCode
     :   DBDeprecatedInlineCodeStart doubleBackTickInlineCode? DoubleBackTickInlineCodeEnd
+    ;
+
+tripleBackTickDeprecatedInlineCode
+    :   TBDeprecatedInlineCodeStart tripleBackTickInlineCode? TripleBackTickInlineCodeEnd
     ;
 
 deprecatedTemplateText
@@ -676,6 +681,7 @@ docText
 documentationTemplateInlineCode
     :   singleBackTickDocInlineCode
     |   doubleBackTickDocInlineCode
+    |   tripleBackTickDocInlineCode
     ;
 
 singleBackTickDocInlineCode
@@ -686,10 +692,18 @@ doubleBackTickDocInlineCode
     :   DBDocInlineCodeStart doubleBackTickInlineCode? DoubleBackTickInlineCodeEnd
     ;
 
+tripleBackTickDocInlineCode
+    :   TBDocInlineCodeStart tripleBackTickInlineCode? TripleBackTickInlineCodeEnd
+    ;
+
 documentationTemplateText
     :   DocumentationTemplateStringChar+
     ;
 
 doubleBackTickInlineCode
     : DoubleBackTickInlineCodeChar+
+    ;
+
+tripleBackTickInlineCode
+    : TripleBackTickInlineCodeChar+
     ;

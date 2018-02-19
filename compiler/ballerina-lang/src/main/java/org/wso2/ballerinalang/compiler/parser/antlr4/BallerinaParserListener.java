@@ -1766,6 +1766,16 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 */
 	void exitDoubleBackTickDeprecatedInlineCode(BallerinaParser.DoubleBackTickDeprecatedInlineCodeContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link BallerinaParser#tripleBackTickDeprecatedInlineCode}.
+	 * @param ctx the parse tree
+	 */
+	void enterTripleBackTickDeprecatedInlineCode(BallerinaParser.TripleBackTickDeprecatedInlineCodeContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BallerinaParser#tripleBackTickDeprecatedInlineCode}.
+	 * @param ctx the parse tree
+	 */
+	void exitTripleBackTickDeprecatedInlineCode(BallerinaParser.TripleBackTickDeprecatedInlineCodeContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link BallerinaParser#deprecatedTemplateText}.
 	 * @param ctx the parse tree
 	 */
@@ -1846,6 +1856,16 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 */
 	void exitDoubleBackTickDocInlineCode(BallerinaParser.DoubleBackTickDocInlineCodeContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link BallerinaParser#tripleBackTickDocInlineCode}.
+	 * @param ctx the parse tree
+	 */
+	void enterTripleBackTickDocInlineCode(BallerinaParser.TripleBackTickDocInlineCodeContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BallerinaParser#tripleBackTickDocInlineCode}.
+	 * @param ctx the parse tree
+	 */
+	void exitTripleBackTickDocInlineCode(BallerinaParser.TripleBackTickDocInlineCodeContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link BallerinaParser#documentationTemplateText}.
 	 * @param ctx the parse tree
 	 */
@@ -1865,4 +1885,14 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitDoubleBackTickInlineCode(BallerinaParser.DoubleBackTickInlineCodeContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link BallerinaParser#tripleBackTickInlineCode}.
+	 * @param ctx the parse tree
+	 */
+	void enterTripleBackTickInlineCode(BallerinaParser.TripleBackTickInlineCodeContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BallerinaParser#tripleBackTickInlineCode}.
+	 * @param ctx the parse tree
+	 */
+	void exitTripleBackTickInlineCode(BallerinaParser.TripleBackTickInlineCodeContext ctx);
 }

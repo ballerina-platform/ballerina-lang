@@ -359,6 +359,23 @@ public class DocumentationTest {
                 "    ``xml x = xml `<{{tagName}}>hello</{{tagName}}>`;``\n");
     }
 
+    @Test(description = "Test annotation inline code with triple backtics.")
+    public void testInlineCodeEnclosedTripleBackTicks() {
+        CompileResult compileResult = BCompileUtil.compile(this, "test-src", "documentation/doc_inline_triple.bal");
+        PackageNode packageNode = compileResult.getAST();
+        BLangVariable connector = (BLangVariable) packageNode.getGlobalVariables().get(0);
+        List<BLangDocumentation> docNodes = connector.docAttachments;
+        BLangDocumentation dNode = docNodes.get(0);
+        Assert.assertNotNull(dNode);
+        Assert.assertEquals(dNode.getAttributes().size(), 0);
+        Assert.assertEquals(dNode.documentationText.toString(), "\n" +
+                "  Example of a string template:\n" +
+                "    ```string s = string `hello {{name}}`;```\n" +
+                "\n" +
+                "  Example for an xml literal:\n" +
+                "    ```xml x = xml `<{{tagName}}>hello</{{tagName}}>`;```\n");
+    }
+
     @Test(description = "Test annotation multiple.")
     public void testMultiple() {
         CompileResult compileResult = BCompileUtil.compile(this, "test-src", "documentation/multiple.bal");

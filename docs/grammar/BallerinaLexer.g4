@@ -722,6 +722,10 @@ DBDocInlineCodeStart
     :  DocBackTick DocBackTick                                                 -> pushMode(DOUBLE_BACKTICK_INLINE_CODE)
     ;
 
+TBDocInlineCodeStart
+    :  DocBackTick DocBackTick DocBackTick                                     -> pushMode(TRIPLE_BACKTICK_INLINE_CODE)
+    ;
+
 DocumentationTemplateStringChar
     :   ~[`{}\\]
     |   '\\' [{}`]
@@ -752,6 +756,16 @@ DocNewLine
 fragment
 DocumentationEscapedSequence
     :   '\\\\'
+    ;
+
+mode TRIPLE_BACKTICK_INLINE_CODE;
+
+TripleBackTickInlineCodeEnd
+    : BACKTICK BACKTICK BACKTICK              -> popMode
+    ;
+
+TripleBackTickInlineCodeChar
+    :  .
     ;
 
 mode DOUBLE_BACKTICK_INLINE_CODE;
@@ -792,6 +806,10 @@ SBDeprecatedInlineCodeStart
 
 DBDeprecatedInlineCodeStart
     :  DeprecatedBackTick DeprecatedBackTick                                  -> pushMode(DOUBLE_BACKTICK_INLINE_CODE)
+    ;
+
+TBDeprecatedInlineCodeStart
+    :  DeprecatedBackTick DeprecatedBackTick DeprecatedBackTick               -> pushMode(TRIPLE_BACKTICK_INLINE_CODE)
     ;
 
 DeprecatedTemplateStringChar
