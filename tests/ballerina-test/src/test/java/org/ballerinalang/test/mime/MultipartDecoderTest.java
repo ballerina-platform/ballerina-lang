@@ -23,7 +23,7 @@ import org.ballerinalang.launcher.util.BServiceUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.mime.util.MimeUtil;
 import org.ballerinalang.mime.util.MultipartDecoder;
-import org.ballerinalang.net.http.Constants;
+import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.test.services.testutils.HTTPTestRequest;
 import org.ballerinalang.test.services.testutils.MessageUtils;
 import org.ballerinalang.test.services.testutils.Services;
@@ -74,7 +74,7 @@ public class MultipartDecoderTest {
                 "\r\n" +
                 "--" + multipartDataBoundary + "--" + "\r\n";
 
-        HTTPTestRequest inRequestMsg = MessageUtils.generateHTTPMessage(path, Constants.HTTP_METHOD_POST, headers,
+        HTTPTestRequest inRequestMsg = MessageUtils.generateHTTPMessage(path, HttpConstants.HTTP_METHOD_POST, headers,
                 multipartBody);
         HTTPCarbonMessage response = Services.invokeNew(serviceResult, inRequestMsg);
         Assert.assertNotNull(response, "Response message not found");
@@ -102,7 +102,7 @@ public class MultipartDecoderTest {
                 "\r\n" +
                 "--" + multipartDataBoundary + "--" + "\r\n";
 
-        HTTPTestRequest inRequestMsg = MessageUtils.generateHTTPMessage(path, Constants.HTTP_METHOD_POST, headers,
+        HTTPTestRequest inRequestMsg = MessageUtils.generateHTTPMessage(path, HttpConstants.HTTP_METHOD_POST, headers,
                 multipartBody);
         HTTPCarbonMessage response = Services.invokeNew(serviceResult, inRequestMsg);
         Assert.assertNotNull(response, "Response message not found");
@@ -130,7 +130,7 @@ public class MultipartDecoderTest {
                 "\r\n" +
                 "--" + multipartDataBoundary + "--" + "\r\n";
 
-        HTTPTestRequest inRequestMsg = MessageUtils.generateHTTPMessage(path, Constants.HTTP_METHOD_POST, headers,
+        HTTPTestRequest inRequestMsg = MessageUtils.generateHTTPMessage(path, HttpConstants.HTTP_METHOD_POST, headers,
                 multipartBody);
         HTTPCarbonMessage response = Services.invokeNew(serviceResult, inRequestMsg);
         Assert.assertNotNull(response, "Response message not found");
@@ -146,7 +146,7 @@ public class MultipartDecoderTest {
         String multipartBody = "--" + multipartDataBoundary + "\r\n" +
                 "--" + multipartDataBoundary + "--" + "\r\n";
 
-        HTTPTestRequest inRequestMsg = MessageUtils.generateHTTPMessage(path, Constants.HTTP_METHOD_POST, headers,
+        HTTPTestRequest inRequestMsg = MessageUtils.generateHTTPMessage(path, HttpConstants.HTTP_METHOD_POST, headers,
                 multipartBody);
         InputStream inputStream = new HttpMessageDataStreamer(inRequestMsg).getInputStream();
         String error = null;

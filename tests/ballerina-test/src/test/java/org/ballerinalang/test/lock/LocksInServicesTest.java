@@ -60,7 +60,7 @@ public class LocksInServicesTest {
         }
 
         try {
-            if (!semaphore.tryAcquire(50000, TimeUnit.MILLISECONDS)) {
+            if (!semaphore.tryAcquire(500, TimeUnit.MILLISECONDS)) {
                 Assert.fail("request execution not finished within 100ms");
             }
             String path = "/sample/getCount";
@@ -90,7 +90,7 @@ public class LocksInServicesTest {
         }
 
         try {
-            if (!semaphore.tryAcquire(50000, TimeUnit.MILLISECONDS)) {
+            if (!semaphore.tryAcquire(500, TimeUnit.MILLISECONDS)) {
                 Assert.fail("request execution not finished within 500ms");
             }
             String path = "/sample1/getResult";
@@ -120,7 +120,7 @@ public class LocksInServicesTest {
         }
 
         try {
-            if (!semaphore.tryAcquire(50000, TimeUnit.MILLISECONDS)) {
+            if (!semaphore.tryAcquire(500, TimeUnit.MILLISECONDS)) {
                 Assert.fail("request execution not finished within 500ms");
             }
             String path = "/sample2/getResult";
@@ -146,7 +146,7 @@ public class LocksInServicesTest {
         executor.submit(new TestRequestSender(compileResult, semaphore, "/sample3/echo"));
 
         try {
-            if (!semaphore.tryAcquire(50000, TimeUnit.MILLISECONDS)) {
+            if (!semaphore.tryAcquire(500, TimeUnit.MILLISECONDS)) {
                 Assert.fail("request execution not finished within 100ms");
             }
             String path = "/sample3/getMsg";

@@ -41,7 +41,7 @@ import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BXMLItem;
 import org.ballerinalang.nativeimpl.io.channels.FileIOChannel;
-import org.ballerinalang.net.http.Constants;
+import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.HttpUtil;
 import org.ballerinalang.test.services.testutils.HTTPTestRequest;
 import org.ballerinalang.test.services.testutils.MessageUtils;
@@ -88,10 +88,10 @@ import static org.ballerinalang.mime.util.Constants.TEXT_PLAIN;
 public class Util {
     private static final Logger log = LoggerFactory.getLogger(Util.class);
 
-    private static final String REQUEST_STRUCT = Constants.IN_REQUEST;
-    private static final String PROTOCOL_PACKAGE_HTTP = Constants.PROTOCOL_PACKAGE_HTTP;
+    private static final String REQUEST_STRUCT = HttpConstants.IN_REQUEST;
+    private static final String PROTOCOL_PACKAGE_HTTP = HttpConstants.PROTOCOL_PACKAGE_HTTP;
     private static final String PACKAGE_MIME = org.ballerinalang.mime.util.Constants.PROTOCOL_PACKAGE_MIME;
-    private static final String ENTITY_STRUCT = Constants.ENTITY;
+    private static final String ENTITY_STRUCT = HttpConstants.ENTITY;
     private static final String MEDIA_TYPE_STRUCT = MEDIA_TYPE;
     private static final String CARBON_MESSAGE = "CarbonMessage";
     private static final String BALLERINA_REQUEST = "BallerinaRequest";
@@ -302,7 +302,7 @@ public class Util {
                                                           CompileResult result) {
         Map<String, Object> messageMap = new HashMap<>();
         BStruct request = getRequestStruct(result);
-        HTTPTestRequest cMsg = MessageUtils.generateHTTPMessageForMultiparts(path, Constants.HTTP_METHOD_POST);
+        HTTPTestRequest cMsg = MessageUtils.generateHTTPMessageForMultiparts(path, HttpConstants.HTTP_METHOD_POST);
         HttpUtil.addCarbonMsg(request, cMsg);
         BStruct entity = getEntityStruct(result);
         MimeUtil.setContentType(getMediaTypeStruct(result), entity, topLevelContentType);

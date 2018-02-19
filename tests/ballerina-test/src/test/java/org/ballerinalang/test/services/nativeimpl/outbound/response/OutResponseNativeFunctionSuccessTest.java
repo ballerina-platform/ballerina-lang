@@ -498,7 +498,7 @@ public class OutResponseNativeFunctionSuccessTest {
     @Test(description = "Test getStringPayload method with JSON payload")
     public void testGetStringPayloadMethodWithJsonPayload() {
         BStruct outResponse = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp,
-                Constants.IN_RESPONSE);
+                HttpConstants.IN_RESPONSE);
         BStruct entity = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageMime, entityStruct);
         BStruct mediaType = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageMime, mediaTypeStruct);
 
