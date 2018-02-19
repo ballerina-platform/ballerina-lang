@@ -11,7 +11,7 @@ public struct IllegalStateException {
 }
 
 public struct CallStackElement {
-    string caller;
+    string workerName;
     string packageName;
     string fileName;
     int lineNumber;
