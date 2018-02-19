@@ -18,6 +18,7 @@ public struct userBar {
         int ssn;
 }
 
+documentation {}
 public function <userBar ub> getName() returns (string) {
     return ub.name;
 }
