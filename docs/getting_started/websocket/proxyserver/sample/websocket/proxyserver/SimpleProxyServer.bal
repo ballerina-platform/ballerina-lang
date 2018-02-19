@@ -16,7 +16,7 @@ service<ws> SimpleProxyServer {
         }
         var clientConn, err = c.connect({parentConnectionID:con.connectionID});
         if (err != null) {
-            println("Error occcurred : " + err.msg);
+            println("Error occcurred : " + err.message);
             con.cancelHandshake(1001, "Cannot connect to remote server");
         } else {
             clientConnMap[con.connectionID] = clientConn;
