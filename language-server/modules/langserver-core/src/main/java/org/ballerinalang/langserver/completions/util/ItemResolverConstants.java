@@ -16,7 +16,7 @@
 *  under the License.
 */
 
-package org.ballerinalang.langserver.completions.consts;
+package org.ballerinalang.langserver.completions.util;
 
 /**
  * Constants for Item Resolver.
@@ -24,37 +24,23 @@ package org.ballerinalang.langserver.completions.consts;
 public class ItemResolverConstants {
 
     // Start of Basic Constructs
-    public static final String REPLY = "reply";
     public static final String RETURN = "return";
     public static final String IF = "if";
-    public static final String ELSE = "else";
-    public static final String CREATE = "create";
     public static final String FORK = "fork";
-    public static final String JOIN = "join";
-    public static final String ALL = "all";
-    public static final String SOME = "some";
-    public static final String TIMEOUT = "timeout";
     public static final String WORKER = "worker";
     public static final String TRANSFORMER = "transformer";
     public static final String TRANSACTION = "transaction";
     public static final String ABORT = "abort";
-    public static final String ABORTED = "aborted";
-    public static final String COMMITTED = "committed";
     public static final String TRY = "try";
-    public static final String CATCH = "catch";
-    public static final String FINALLY = "finally";
-    public static final String ITERATE = "iterate";
     public static final String WHILE = "while";
+    public static final String LOCK = "lock";
     public static final String BIND = "bind";
     public static final String ENDPOINT = "endpoint";
-    public static final String CONTINUE = "continue";
     public static final String NEXT = "next";
     public static final String BREAK = "break";
-    public static final String THROW = "throw";
-    public static final String TRIGGER_WORKER = "->";
-    public static final String WORKER_REPLY = "<-";
+    public static final String TRIGGER_WORKER = "wtrg   Worker Trigger Statement";
+    public static final String WORKER_REPLY = "wrply   Worker Reply Statement";
     public static final String ATTACH = "attach";
-    public static final String RETRY = "retry";
     public static final String FOREACH = "foreach";
 
     public static final String FUNCTION = "function";
@@ -77,19 +63,23 @@ public class ItemResolverConstants {
     // End of Package Name Context Constants
 
     // Symbol Types Constants
-    public static final String PACKAGE_TYPE = "package";
-    public static final String FUNCTION_TYPE = "function";
-    public static final String STRUCT_TYPE = "struct";
-    public static final String ACTION_TYPE = "action";
-    public static final String RESOURCE_TYPE = "resource";
-    public static final String WORKER_TYPE = "worker";
-    public static final String KEYWORD_TYPE = "keyword";
-    public static final String SNIPPET_TYPE = "snippet";
-    public static final String ANNOTATION_TYPE = "annotation";
-    public static final String CLIENT_CONNECTOR_TYPE = "connector";
-    public static final String STATEMENT_TYPE = "statement";
+    public static final String PACKAGE_TYPE = "Package";
+    public static final String FUNCTION_TYPE = "Function";
+    public static final String ACTION_TYPE = "Action";
+    public static final String RESOURCE_TYPE = "Resource";
+    public static final String WORKER_TYPE = "Worker";
+    public static final String KEYWORD_TYPE = "Keyword";
+    public static final String SNIPPET_TYPE = "Snippet";
+    public static final String STATEMENT_TYPE = "Statement";
     public static final String B_TYPE = "BType";
+    public static final String STRUCT_TYPE = "Struct";
+    public static final String ENUM_TYPE = "Enum";
+    public static final String FIELD_TYPE = "Field";
     public static final String NONE = "none";
-    // Symbol Types Constants
+    // End Symbol Types Constants
+    
+    // Keyword constants
+    public static final String VAR_KEYWORD = "var";
+    public static final String CREATE_KEYWORD = "create";
 
 }

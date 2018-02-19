@@ -861,6 +861,11 @@ public class HttpUtil {
         AnnAttrValue ciphersAttrVal = configInfo.getAnnAttrValue(HttpConstants.ANN_CONFIG_ATTR_CIPHERS);
         AnnAttrValue sslProtocolAttrVal = configInfo.getAnnAttrValue(HttpConstants.ANN_CONFIG_ATTR_SSL_PROTOCOL);
         AnnAttrValue hostAttrVal = configInfo.getAnnAttrValue(HttpConstants.ANN_CONFIG_ATTR_HOST);
+        AnnAttrValue certificateValidationEnabledAttrValue = configInfo
+                .getAnnAttrValue(HttpConstants.ANN_CONFIG_ATTR_VALIDATE_CERT_ENABLED);
+        AnnAttrValue cacheSizeAttrValue = configInfo.getAnnAttrValue(HttpConstants.ANN_CONFIG_ATTR_CACHE_SIZE);
+        AnnAttrValue cacheValidityPeriodAttrValue = configInfo
+                .getAnnAttrValue(HttpConstants.ANN_CONFIG_ATTR_CACHE_VALIDITY_PERIOD);
 
         ListenerConfiguration listenerConfiguration = new ListenerConfiguration();
         if (httpsPortAttrVal != null && httpsPortAttrVal.getIntValue() > 0) {
@@ -911,7 +916,16 @@ public class HttpUtil {
             if (trustStorePasswordAttrVal != null) {
                 listenerConfiguration.setTrustStorePass(trustStorePasswordAttrVal.getStringValue());
             }
-
+            if (certificateValidationEnabledAttrValue != null && certificateValidationEnabledAttrValue
+                    .getBooleanValue()) {
+                listenerConfiguration.setValidateCertEnabled(certificateValidationEnabledAttrValue.getBooleanValue());
+                if (cacheSizeAttrValue != null) {
+                    listenerConfiguration.setCacheSize((int) cacheSizeAttrValue.getIntValue());
+                }
+                if (cacheValidityPeriodAttrValue != null) {
+                    listenerConfiguration.setCacheValidityPeriod((int) cacheValidityPeriodAttrValue.getIntValue());
+                }
+            }
             List<Parameter> serverParams = new ArrayList<>();
             Parameter serverCiphers;
             if (sslEnabledProtocolsAttrVal != null && sslEnabledProtocolsAttrVal.getStringValue() != null) {

@@ -57,6 +57,7 @@ import org.ballerinalang.plugins.idea.psi.AliasNode;
 import org.ballerinalang.plugins.idea.psi.AnnotationAttachmentNode;
 import org.ballerinalang.plugins.idea.psi.AnnotationDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.AnonStructTypeNameNode;
+import org.ballerinalang.plugins.idea.psi.AnyIdentifierNameNode;
 import org.ballerinalang.plugins.idea.psi.AssignmentStatementNode;
 import org.ballerinalang.plugins.idea.psi.AttachmentPointNode;
 import org.ballerinalang.plugins.idea.psi.BallerinaFile;
@@ -2114,25 +2115,29 @@ public class BallerinaPsiImplUtil {
                                                             @NotNull IdentifierPSINode structReferenceNode) {
         InvocationNode invocationNode = PsiTreeUtil.getChildOfType(variableReferenceNode, InvocationNode.class);
         if (invocationNode != null) {
-            IdentifierPSINode identifier = PsiTreeUtil.getChildOfType(invocationNode, IdentifierPSINode.class);
-            if (identifier != null) {
-                PsiReference reference = identifier.findReferenceAt(identifier.getTextLength());
-                if (reference == null) {
-                    return null;
+            AnyIdentifierNameNode anyIdentifierNameNode = PsiTreeUtil.getChildOfType(invocationNode,
+                    AnyIdentifierNameNode.class);
+            if (anyIdentifierNameNode != null) {
+                IdentifierPSINode identifier = PsiTreeUtil.getChildOfType(anyIdentifierNameNode,
+                        IdentifierPSINode.class);
+                if (identifier != null) {
+                    PsiReference reference = identifier.findReferenceAt(identifier.getTextLength());
+                    if (reference == null) {
+                        return null;
+                    }
+                    PsiElement resolvedElement = reference.resolve();
+                    if (resolvedElement == null) {
+                        return null;
+                    }
+                    // Check whether the resolved element's parent is a connector definition.
+                    PsiElement definitionNode = resolvedElement.getParent();
+                    if (!(definitionNode instanceof ActionDefinitionNode)) {
+                        return null;
+                    }
+                    return getStructDefinition(assignmentStatementNode, structReferenceNode, definitionNode);
                 }
-                PsiElement resolvedElement = reference.resolve();
-                if (resolvedElement == null) {
-                    return null;
-                }
-                // Check whether the resolved element's parent is a connector definition.
-                PsiElement definitionNode = resolvedElement.getParent();
-                if (!(definitionNode instanceof ActionDefinitionNode)) {
-                    return null;
-                }
-                return getStructDefinition(assignmentStatementNode, structReferenceNode, definitionNode);
             }
         }
-
         // Get the first child.
         PsiElement node = variableReferenceNode.getFirstChild();
         // If te first child is a VariableReferenceNode, it can be a function invocation.

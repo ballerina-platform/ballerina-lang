@@ -61,12 +61,23 @@ generateGrammarSource {
     arguments << "-package" << "org.ballerinalang.plugins.idea.grammar"
 }
 
+apply plugin: 'checkstyle'
+checkstyle {
+    configDir new File("src/main/resources/checkstyle")
+    checkstyleMain {
+        source "src/main/java"
+    }
+    checkstyleTest {
+        source "src/test/java"
+    }
+}
+
 apply plugin: 'jacoco'
 jacocoTestReport {
     reports {
         xml.enabled false
         csv.enabled false
-        html.destination "${buildDir}/jacocoHtml"
+        html.destination new File("${buildDir}/jacocoHtml")
     }
 }
 
@@ -87,3 +98,5 @@ task copyPsiViewerPluginToSandBox(type: Copy) {
 copyPsiViewerPluginToSandBox.dependsOn downloadPsiViewerPlugin
 copyPsiViewerPluginToSandBox.mustRunAfter prepareSandbox
 runIde.dependsOn copyPsiViewerPluginToSandBox
+
+buildPlugin.dependsOn check

@@ -39,29 +39,27 @@ import java.util.Locale;
  */
 public class IterableOperationsTests {
 
-    private CompileResult basic, negative, negative2;
+    private CompileResult basic, negative;
     private static String[] values = new String[] {"Hello", "World..!", "I", "am", "Ballerina.!!!"};
 
     @BeforeClass
     public void setup() {
         basic = BCompileUtil.compile("test-src/expressions/lambda/iterable/basic-iterable.bal");
         negative = BCompileUtil.compile("test-src/expressions/lambda/iterable/iterable-negative.bal");
-        negative2 = BCompileUtil.compile("test-src/expressions/lambda/iterable/iterable-negative2.bal");
     }
 
     @Test
     public void testNegative() {
-        Assert.assertEquals(negative.getErrorCount(), 13);
-        BAssertUtil.validateError(negative, 0, "undefined function 'int.foreach'", 6, 5);
-        BAssertUtil.validateError(negative, 1, "undefined function 'string.map'", 8, 5);
-        BAssertUtil.validateError(negative, 2, "variable assignment is required", 14, 5);
-        BAssertUtil.validateError(negative, 3, "not enough variables are defined for iterable type '(int,string)[]', " +
+        Assert.assertEquals(negative.getErrorCount(), 20);
+        BAssertUtil.validateError(negative, 0, "unknown type 'person'", 67, 23);
+        BAssertUtil.validateError(negative, 1, "unknown type 'person'", 68, 37);
+        BAssertUtil.validateError(negative, 2, "undefined function 'int.foreach'", 6, 5);
+        BAssertUtil.validateError(negative, 3, "undefined function 'string.map'", 8, 5);
+        BAssertUtil.validateError(negative, 4, "variable assignment is required", 14, 5);
+        BAssertUtil.validateError(negative, 5, "not enough variables are defined for iterable type '(int,string)[]', " +
                 "" + "require at least '2' variables", 18, 15);
-        BAssertUtil.validateError(negative, 4, "function invocation on type '(string,string)[]' is not supported",
+        BAssertUtil.validateError(negative, 6, "function invocation on type '(string,string)[]' is not supported",
                 23, 21);
-        BAssertUtil.validateError(negative, 5, "no argument required for operation 'count'", 55, 13);
-        BAssertUtil.validateError(negative, 6, "cannot ignore return value of 'map' operation here", 23, 27);
-
         BAssertUtil.validateError(negative, 7, "incompatible types: expected 'string[]', found '(string,string)[]'",
                 31, 24);
         BAssertUtil.validateError(negative, 8, "incompatible types: expected 'map', found '(any)[]'", 35, 22);
@@ -69,23 +67,17 @@ public class IterableOperationsTests {
                 "operation", 39, 22);
         BAssertUtil.validateError(negative, 10, "'foreach()' does not return a value;", 48, 19);
         BAssertUtil.validateError(negative, 11, "assignment count mismatch: expected 1 values, but found 2", 50, 18);
-        BAssertUtil.validateError(negative, 12, "cannot ignore return value of 'filter' operation here", 56, 18);
-
-        Assert.assertEquals(negative2.getErrorCount(), 10);
-
-        BAssertUtil.validateError(negative2, 0, "unknown type 'person'", 16, 23);
-        BAssertUtil.validateError(negative2, 1, "unknown type 'person'", 17, 37);
-        BAssertUtil.validateError(negative2, 2, "single lambda function required here", 5, 5);
-        BAssertUtil.validateError(negative2, 3, "single lambda function required here", 7, 15);
-        BAssertUtil.validateError(negative2, 4, "too many variables are defined for iterable type 'string[]'", 12, 15);
-        BAssertUtil.validateError(negative2, 5, "not enough variables are defined for iterable type 'string[]', " +
-                "require at least '1' variables", 13, 15);
-        BAssertUtil.validateError(negative2, 6, "too many return arguments are defined for operation 'filter'", 14, 14);
-        BAssertUtil.validateError(negative2, 7, "not enough return arguments are defined for operation 'filter'", 15,
+        BAssertUtil.validateError(negative, 12, "no argument required for operation 'count'", 55, 13);
+        BAssertUtil.validateError(negative, 13, "single lambda function required here", 56, 5);
+        BAssertUtil.validateError(negative, 14, "single lambda function required here", 58, 15);
+        BAssertUtil.validateError(negative, 15, "too many variables are defined for iterable type 'string[]'", 63, 15);
+        BAssertUtil.validateError(negative, 16, "not enough variables are defined for iterable type 'string[]', " +
+                "require at least '1' variables", 64, 15);
+        BAssertUtil.validateError(negative, 17, "too many return arguments are defined for operation 'filter'", 65, 14);
+        BAssertUtil.validateError(negative, 18, "not enough return arguments are defined for operation 'filter'", 66,
                 14);
-        BAssertUtil.validateError(negative2, 8, "not enough return arguments are defined for operation 'filter'", 16,
+        BAssertUtil.validateError(negative, 19, "not enough return arguments are defined for operation 'filter'", 67,
                 14);
-        BAssertUtil.validateError(negative2, 9, "cannot ignore return value of 'filter' operation here", 17, 18);
 
     }
 
@@ -237,5 +229,38 @@ public class IterableOperationsTests {
         Assert.assertEquals(returns.length, 2);
         Assert.assertEquals(returns[0].stringValue(), "2");
         Assert.assertEquals(returns[1].stringValue(), "[\"bob\", \"tom\", \"sam\"]");
+    }
+
+    @Test
+    public void testIgnoredValue() {
+        BValue[] returns = BRunUtil.invoke(basic, "testIgnoredValue");
+        Assert.assertNotNull(returns);
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals(returns[0].stringValue(), "abc pqr");
+    }
+
+    @Test
+    public void testInExpression() {
+        BValue[] returns = BRunUtil.invoke(basic, "testInExpression");
+        Assert.assertNotNull(returns);
+        Assert.assertEquals(returns.length, 2);
+        Assert.assertEquals(returns[0].stringValue(), "total count 2");
+        Assert.assertEquals(returns[1].stringValue(), "7");
+    }
+
+    @Test
+    public void testInFunctionInvocation() {
+        BValue[] returns = BRunUtil.invoke(basic, "testInFunctionInvocation");
+        Assert.assertNotNull(returns);
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals(returns[0].stringValue(), "4");
+    }
+
+    @Test
+    public void testInStatement() {
+        BValue[] returns = BRunUtil.invoke(basic, "testInStatement");
+        Assert.assertNotNull(returns);
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals(returns[0].stringValue(), "10");
     }
 }

@@ -124,6 +124,10 @@ public class BLangInvocation extends BLangVariableReference implements Invocatio
         this.regIndex = regIndexes != null && regIndexes.length > 0 ? regIndexes[0] : null;
     }
 
+    @Override
+    public boolean isIterableOperation() {
+        return iterableOperationInvocation;
+    }
 
     /**
      * @since 0.94

@@ -16,6 +16,9 @@
 
 package org.ballerinalang.completion;
 
+/**
+ * Struct fields completion tests.
+ */
 public class BallerinaStructFieldCompletionTest extends BallerinaCompletionTestBase {
 
     @Override
@@ -72,6 +75,10 @@ public class BallerinaStructFieldCompletionTest extends BallerinaCompletionTestB
     }
 
     public void testStructVarReassigningAsVar2() {
+        doTestFile("name", "age");
+    }
+
+    public void testStructWithPrivateField() {
         doTestFile("name", "age");
     }
 }

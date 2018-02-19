@@ -18,16 +18,11 @@
 
 package org.ballerinalang.langserver.completions.resolvers.parsercontext;
 
-import org.ballerinalang.langserver.DocumentServiceKeys;
 import org.ballerinalang.langserver.TextDocumentServiceContext;
-import org.ballerinalang.langserver.completions.PossibleToken;
-import org.ballerinalang.langserver.completions.consts.ItemResolverConstants;
-import org.ballerinalang.langserver.completions.consts.Priority;
 import org.ballerinalang.langserver.completions.resolvers.AbstractItemResolver;
 import org.eclipse.lsp4j.CompletionItem;
 
 import java.util.ArrayList;
-import java.util.List;
 
 /**
  * constant definition context resolver for the completion items.
@@ -35,23 +30,7 @@ import java.util.List;
 public class ParserRuleConstantDefinitionContextResolver extends AbstractItemResolver {
     @Override
     public ArrayList<CompletionItem> resolveItems(TextDocumentServiceContext completionContext) {
-
-        ArrayList<CompletionItem> completionItems = new ArrayList<>();
-
-        List<PossibleToken> possibleTokenList = completionContext.get(DocumentServiceKeys.POSSIBLE_TOKENS_KEY);
-
-        possibleTokenList.forEach(possibleToken -> {
-            if (possibleToken.getTokenName().matches(".*[a-z].*")) {
-                String tokenStr = possibleToken.getTokenName().replace("'", "");
-                CompletionItem completionItem = new CompletionItem();
-                completionItem.setLabel(tokenStr);
-                completionItem.setInsertText(tokenStr);
-                completionItem.setDetail(ItemResolverConstants.B_TYPE);
-                completionItem.setSortText(Priority.PRIORITY7.name());
-                completionItems.add(completionItem);
-            }
-        });
-
-        return completionItems;
+        // TODO: Implementation required after revamp
+        return new ArrayList<>();
     }
 }

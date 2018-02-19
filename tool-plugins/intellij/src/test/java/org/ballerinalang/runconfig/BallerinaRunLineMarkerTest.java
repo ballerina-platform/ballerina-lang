@@ -18,6 +18,9 @@ package org.ballerinalang.runconfig;
 
 import org.ballerinalang.BallerinaCodeInsightFixtureTestCase;
 
+/**
+ * Run line marker tests.
+ */
 public class BallerinaRunLineMarkerTest extends BallerinaCodeInsightFixtureTestCase {
 
     public void testMainWithoutPackageRunLineMarker() {

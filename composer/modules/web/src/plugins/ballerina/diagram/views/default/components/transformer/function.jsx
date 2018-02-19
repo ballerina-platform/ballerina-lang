@@ -83,7 +83,7 @@ export default class FunctionInv extends React.Component {
                     title={isCollapsed ? 'Expand' : 'Collapse'}
                 >
                     <i className={`fw ${foldIndicator} fold-indicator`} />
-                    <i className='fw fw-function fw-inverse' />
+                    <i className={`fw fw-${func.type === 'iterable' ? 'iterable-operations' : 'function'} fw-inverse`} />
                     <span className='func-name'>{funcInv.getFunctionName()}</span>
                     <span
                         onClick={(e) => {

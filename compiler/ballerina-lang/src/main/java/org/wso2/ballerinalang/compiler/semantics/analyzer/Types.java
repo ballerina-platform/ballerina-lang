@@ -720,6 +720,11 @@ public class Types {
         }
 
         @Override
+        public BSymbol visit(BTableType t, BType s) {
+            return symTable.notFoundSymbol;
+        }
+
+        @Override
         public BSymbol visit(BConnectorType t, BType s) {
             if (s == symTable.anyType) {
                 return createCastOperatorSymbol(s, t, false, InstructionCodes.ANY2C);
@@ -812,6 +817,11 @@ public class Types {
         }
 
         @Override
+        public BSymbol visit(BTableType t, BType s) {
+            return symTable.notFoundSymbol;
+        }
+
+        @Override
         public BSymbol visit(BConnectorType t, BType s) {
             return symTable.notFoundSymbol;
         }
@@ -881,6 +891,11 @@ public class Types {
 
         @Override
         public Boolean visit(BStructType t, BType s) {
+            return t == s;
+        }
+
+        @Override
+        public Boolean visit(BTableType t, BType s) {
             return t == s;
         }
 
