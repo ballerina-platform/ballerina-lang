@@ -60,26 +60,26 @@ public class CodeGenerator {
         OpenApiWrapper context = new OpenApiWrapper().buildFromOpenAPI(api).apiPackage(apiPackage);
 
         // Write output to the input definition location if no destination directory is provided
-        if (outPath == null || "".equals(outPath)) {
+        if (outPath == null || outPath.isEmpty()) {
             String fileName = api.getInfo().getTitle().replaceAll(" ", "") + ".bal";
             outPath = definitionPath.substring(0, definitionPath.lastIndexOf(File.separator) + 1);
             outPath += fileName;
         }
         switch (type) {
-        case SKELETON:
-            writeBallerina(context, GeneratorConstants.DEFAULT_SKELETON_DIR, GeneratorConstants.SKELETON_TEMPLATE_NAME,
-                    outPath);
-            break;
-        case CONNECTOR:
-            writeBallerina(context, GeneratorConstants.DEFAULT_CONNECTOR_DIR,
-                    GeneratorConstants.CONNECTOR_TEMPLATE_NAME, outPath);
-            break;
-        case MOCK:
-            writeBallerina(context, GeneratorConstants.DEFAULT_MOCK_DIR, GeneratorConstants.MOCK_TEMPLATE_NAME,
-                    outPath);
-            break;
-        default:
-            return;
+            case SKELETON:
+                writeBallerina(context, GeneratorConstants.DEFAULT_SKELETON_DIR, GeneratorConstants.SKELETON_TEMPLATE_NAME,
+                        outPath);
+                break;
+            case CONNECTOR:
+                writeBallerina(context, GeneratorConstants.DEFAULT_CONNECTOR_DIR,
+                        GeneratorConstants.CONNECTOR_TEMPLATE_NAME, outPath);
+                break;
+            case MOCK:
+                writeBallerina(context, GeneratorConstants.DEFAULT_MOCK_DIR, GeneratorConstants.MOCK_TEMPLATE_NAME,
+                        outPath);
+                break;
+            default:
+                return;
         }
     }
 

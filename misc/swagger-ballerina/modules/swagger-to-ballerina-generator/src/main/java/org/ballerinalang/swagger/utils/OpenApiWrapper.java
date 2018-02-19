@@ -25,6 +25,8 @@ import io.swagger.oas.models.security.SecurityRequirement;
 import io.swagger.oas.models.servers.Server;
 import io.swagger.oas.models.tags.Tag;
 
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -34,6 +36,7 @@ import java.util.Set;
  * <p>This class can be used to push additional context variables for handlebars</p>
  */
 public class OpenApiWrapper {
+
     private String apiPackage;
     private String openapi = "3.0.0";
     private Info info = null;
@@ -44,8 +47,12 @@ public class OpenApiWrapper {
     private Set<Map.Entry<String, PathItem>> paths = null;
     private Components components = null;
     private Map<String, Object> extensions = null;
+    private String host = null;
+    private int port = 0;
+    private int httpsPort = 0;
+    private String basePath = null;
 
-    public OpenApiWrapper buildFromOpenAPI(OpenAPI openAPI) {
+    public OpenApiWrapper buildFromOpenAPI(OpenAPI openAPI) throws MalformedURLException {
         this.openapi = openAPI.getOpenapi();
         this.info = openAPI.getInfo();
         this.externalDocs = openAPI.getExternalDocs();
@@ -55,6 +62,26 @@ public class OpenApiWrapper {
         this.components = openAPI.getComponents();
         this.extensions = openAPI.getExtensions();
         this.paths = openAPI.getPaths().entrySet();
+
+        // Swagger parser returns a server object with "/" url when no servers are defined
+        // this check is to overcome possible errors due to that
+        if (servers.size() > 1 || !"/".equals(servers.get(0).getUrl())) {
+
+            // We select the first server in the list as the Host of generated service
+            // Other servers will be kept as extra information but will not be used within the service
+            URL url = new URL(servers.get(0).getUrl());
+            host = url.getHost();
+            basePath = url.getPath();
+            boolean isHttps = "https".equalsIgnoreCase(url.getProtocol());
+
+            if (isHttps) {
+                httpsPort = url.getPort();
+                httpsPort = httpsPort == -1 ? 443 : httpsPort;
+            } else {
+                port = url.getPort();
+                port = port == -1 ? 80 : port;
+            }
+        }
 
         return this;
     }
@@ -102,5 +129,21 @@ public class OpenApiWrapper {
 
     public Map<String, Object> getExtensions() {
         return extensions;
+    }
+
+    public String getHost() {
+        return host;
+    }
+
+    public int getPort() {
+        return port;
+    }
+
+    public String getBasePath() {
+        return basePath;
+    }
+
+    public int getHttpsPort() {
+        return httpsPort;
     }
 }

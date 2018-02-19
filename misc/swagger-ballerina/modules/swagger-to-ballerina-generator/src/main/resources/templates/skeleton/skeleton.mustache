@@ -1,7 +1,14 @@
 package {{apiPackage}};
 
 import ballerina.net.http;
-@http:configuration {basePath:"{{#each servers}}{{this.url}}{{/each}}"}
+
+{{#host}}
+@http:configuration {
+    host: "{{host}}",{{#port}}
+    port: {{port}},{{/port}}{{#httpsPort}}
+    httpsPort: {{httpsPort}},{{/httpsPort}}
+    basePath: "{{basePath}}"
+}{{/host}}
 service<http> {{cut info.title " "}} {
 {{#paths}}
 {{#value}}
@@ -10,127 +17,103 @@ service<http> {{cut info.title " "}} {
         methods:["GET"],
         path:"{{key}}"
     }
-    resource {{operationId}} (http:Request req, http:Response resp{{#parameters}}{{>pathParams}}{{/parameters}}) {
-        //stub code - fill as necessary
-        json payload;
-
-        resp.setHeader("Server", "Powered by Ballerina");
-        payload = {success:"true"};
-        resp.setJsonPayload(payload);
-
-        resp.send();
+    resource {{operationId}} (http:Connection conn, http:InRequest inReq{{#parameters}}{{>pathParams}}{{/parameters}}) {
+        //stub de - fill as necessary
+        http:OutResponse resp = {};
+        string payload = "Sample {{operationId}} Response";
+        resp.setStringPayload(payload);
+        _ = conn.respond(resp);
     }
 {{/get}}
 {{#post}}
     @http:resourceConfig {
-        methods:["GET"],
+        methods:["POST"],
         path:"{{key}}"
     }
-    resource {{operationId}} (http:Request req, http:Response resp{{#parameters}}{{>pathParams}}{{/parameters}}) {
+    resource {{operationId}} (http:Connection conn, http:InRequest inReq{{#parameters}}{{>pathParams}}{{/parameters}}) {
         //stub code - fill as necessary
-        json payload;
-
-        resp.setHeader("Server", "Powered by Ballerina");
-        payload = {success:"true"};
-        resp.setJsonPayload(payload);
-
-        resp.send();
+        http:OutResponse resp = {};
+        string payload = "Sample {{operationId}} Response";
+        resp.setStringPayload(payload);
+        _ = conn.respond(resp);
     }
 {{/post}}
 {{#put}}
     @http:resourceConfig {
-        methods:["GET"],
+        methods:["PUT"],
         path:"{{key}}"
     }
-    resource {{operationId}} (http:Request req, http:Response resp{{#parameters}}{{>pathParams}}{{/parameters}}) {
+    resource {{operationId}} (http:Connection conn, http:InRequest inReq{{#parameters}}{{>pathParams}}{{/parameters}}) {
         //stub code - fill as necessary
-        json payload;
-
-        resp.setHeader("Server", "Powered by Ballerina");
-        payload = {success:"true"};
-        resp.setJsonPayload(payload);
-
-        resp.send();
+        http:OutResponse resp = {};
+        string payload = "Sample {{operationId}} Response";
+        resp.setStringPayload(payload);
+        _ = conn.respond(resp);
     }
 {{/put}}
 {{#delete}}
     @http:resourceConfig {
-        methods:["GET"],
+        methods:["DELETE"],
         path:"{{key}}"
     }
-    resource {{operationId}} (http:Request req, http:Response resp{{#parameters}}{{>pathParams}}{{/parameters}}) {
+    resource {{operationId}} (http:Connection conn, http:InRequest inReq{{#parameters}}{{>pathParams}}{{/parameters}}) {
         //stub code - fill as necessary
-        json payload;
-
-        resp.setHeader("Server", "Powered by Ballerina");
-        payload = {success:"true"};
-        resp.setJsonPayload(payload);
-
-        resp.send();
+        http:OutResponse resp = {};
+        string payload = "Sample {{operationId}} Response";
+        resp.setStringPayload(payload);
+        _ = conn.respond(resp);
     }
 {{/delete}}
 {{#options}}
     @http:resourceConfig {
-        methods:["GET"],
+        methods:["OPTIONS"],
         path:"{{key}}"
     }
-    resource {{operationId}} (http:Request req, http:Response resp{{#parameters}}{{>pathParams}}{{/parameters}}) {
+    resource {{operationId}} (http:Connection conn, http:InRequest inReq{{#parameters}}{{>pathParams}}{{/parameters}}) {
         //stub code - fill as necessary
-        json payload;
-
-        resp.setHeader("Server", "Powered by Ballerina");
-        payload = {success:"true"};
-        resp.setJsonPayload(payload);
-
-        resp.send();
+        http:OutResponse resp = {};
+        string payload = "Sample {{operationId}} Response";
+        resp.setStringPayload(payload);
+        _ = conn.respond(resp);
     }
 {{/options}}
 {{#head}}
     @http:resourceConfig {
-        methods:["GET"],
+        methods:["HEAD"],
         path:"{{key}}"
     }
-    resource {{operationId}} (http:Request req, http:Response resp{{#parameters}}{{>pathParams}}{{/parameters}}) {
+    resource {{operationId}} (http:Connection conn, http:InRequest inReq{{#parameters}}{{>pathParams}}{{/parameters}}) {
         //stub code - fill as necessary
-        json payload;
-
-        resp.setHeader("Server", "Powered by Ballerina");
-        payload = {success:"true"};
-        resp.setJsonPayload(payload);
-
-        resp.send();
+        http:OutResponse resp = {};
+        string payload = "Sample {{operationId}} Response";
+        resp.setStringPayload(payload);
+        _ = conn.respond(resp);
     }
 {{/head}}
 {{#patch}}
     @http:resourceConfig {
-        methods:["GET"],
+        methods:["PATCH"],
         path:"{{key}}"
     }
-    resource {{operationId}} (http:Request req, http:Response resp{{#parameters}}{{>pathParams}}{{/parameters}}) {
+    resource {{operationId}} (http:Connection conn, http:InRequest inReq{{#parameters}}{{>pathParams}}{{/parameters}}) {
         //stub code - fill as necessary
-        json payload;
-
-        resp.setHeader("Server", "Powered by Ballerina");
-        payload = {success:"true"};
-        resp.setJsonPayload(payload);
-
-        resp.send();
+        http:OutResponse resp = {};
+        string payload = "Sample {{operationId}} Response";
+        resp.setStringPayload(payload);
+        _ = conn.respond(resp);
     }
 {{/patch}}
 {{#trace}}
     @http:resourceConfig {
-        methods:["GET"],
+        methods:["TRACE"],
         path:"{{key}}"
     }
-    resource {{operationId}} (http:Request req, http:Response resp{{#parameters}}{{>pathParams}}{{/parameters}}) {
+    resource {{operationId}} (http:Connection conn, http:InRequest inReq{{#parameters}}{{>pathParams}}{{/parameters}}) {
         //stub code - fill as necessary
-        json payload;
-
-        resp.setHeader("Server", "Powered by Ballerina");
-        payload = {success:"true"};
-        resp.setJsonPayload(payload);
-
-        resp.send();
+        http:OutResponse resp = {};
+        string payload = "Sample {{operationId}} Response";
+        resp.setStringPayload(payload);
+        _ = conn.respond(resp);
     }
 {{/trace}}
 {{/value}}
