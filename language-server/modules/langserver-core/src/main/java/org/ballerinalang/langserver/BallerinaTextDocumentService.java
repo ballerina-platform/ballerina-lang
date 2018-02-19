@@ -228,7 +228,7 @@ public class BallerinaTextDocumentService implements TextDocumentService {
                 currentBLangPackage.accept(positionTreeVisitor);
                 contents = ReferenceUtil.getReferences(referenceContext, bLangPackageContext);
             } catch (Exception e) {
-                contents = new ArrayList<>();
+                // Ignore
             }
 
             return contents;
