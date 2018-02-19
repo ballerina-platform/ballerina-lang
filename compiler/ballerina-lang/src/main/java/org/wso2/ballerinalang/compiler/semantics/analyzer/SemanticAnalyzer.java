@@ -61,6 +61,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangWorker;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAttachmentAttribute;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAttachmentAttributeValue;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangDocumentationAttribute;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
@@ -265,7 +266,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangDocumentation docNode) {
         List<BLangIdentifier> tempAttributes = new ArrayList<>();
-        docNode.attributes.forEach(attribute -> {
+        for (BLangDocumentationAttribute attribute : docNode.attributes) {
             Optional<BLangIdentifier> matchingAttribute = tempAttributes
                     .stream()
                     .filter(identifier -> identifier.equals(attribute.documentationField))
@@ -292,18 +293,18 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 if (attributeSymbol == null || attributeSymbol.tag != SymTag.ANNOTATION_ATTRIBUTE) {
                     this.dlog.warning(attribute.pos, DiagnosticCode.NO_SUCH_DOCUMENTABLE_ATTRIBUTE,
                             attribute.documentationField, construct);
-                    return;
+                    continue;
                 }
             } else {
                 attributeSymbol = this.env.scope.lookup(attributeName).symbol;
                 if (attributeSymbol == null || attributeSymbol.tag != SymTag.VARIABLE) {
                     this.dlog.warning(attribute.pos, DiagnosticCode.NO_SUCH_DOCUMENTABLE_ATTRIBUTE,
                             attribute.documentationField, construct);
-                    return;
+                    continue;
                 }
             }
             attribute.type = attributeSymbol.type;
-        });
+        }
     }
 
     public void visit(BLangAnnotation annotationNode) {
@@ -601,7 +602,9 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 });
             }
         }
-        varNode.docAttachments.forEach(doc -> {doc.accept(this);});
+        varNode.docAttachments.forEach(doc -> {
+            doc.accept(this);
+        });
         varNode.type = varNode.symbol.type;
     }
 
