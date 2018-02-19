@@ -126,6 +126,10 @@ public class TableProvider {
             case TypeTags.BOOLEAN_TAG:
                 sb.append(TableConstants.SQL_TYPE_BOOLEAN);
                 break;
+            case TypeTags.JSON_TAG:
+            case TypeTags.XML_TAG:
+                sb.append(TableConstants.SQL_TYPE_LONG_VARCHAR);
+                break;
             }
             seperator = ",";
         }
@@ -136,13 +140,14 @@ public class TableProvider {
     private String generateInsertDataStatment(String tableName, BStruct constrainedType) {
         StringBuilder sbSql = new StringBuilder();
         StringBuilder sbValues = new StringBuilder();
-        sbSql.append("INSERT INTO ").append(tableName).append(" (");
+        sbSql.append(TableConstants.SQL_INSERT_INTO).append(tableName).append(" (");
         BStructType.StructField[] structFields = constrainedType.getType().getStructFields();
         String sep = "";
         int intFieldIndex = 0;
         int floatFieldIndex = 0;
         int stringFieldIndex = 0;
         int booleanFieldIndex = 0;
+        int refFieldIndex = 0;
         for (BStructType.StructField sf : structFields) {
             String name = sf.getFieldName();
             sbSql.append(sep).append(name).append(" ");
@@ -163,6 +168,12 @@ public class TableProvider {
             case TypeTags.BOOLEAN_TAG:
                 sbValues.append(sep).append(constrainedType.getBooleanField(booleanFieldIndex));
                 ++booleanFieldIndex;
+                break;
+            case TypeTags.XML_TAG:
+            case TypeTags.JSON_TAG:
+                String sValue = constrainedType.getRefField(refFieldIndex).toString();
+                sbValues.append(sep).append("'").append(sValue).append("'");
+                ++refFieldIndex;
                 break;
             }
             sep = ",";

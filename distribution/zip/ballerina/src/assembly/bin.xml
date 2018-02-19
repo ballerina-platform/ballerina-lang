@@ -183,6 +183,7 @@
                 <include>org.atomikos.wso2:atomikos</include>
                 <include>org.quartz-scheduler:quartz</include>
                 <include>org.quartz-scheduler:quartz-jobs</include>
+                <include>com.h2database:h2</include>
             </includes>
         </dependencySet>
 

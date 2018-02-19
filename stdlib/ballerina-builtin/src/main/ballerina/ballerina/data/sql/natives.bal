@@ -67,6 +67,7 @@ public struct ConnectionProperties {
 @Field { value:"HSQLDB_FILE: HSQL Server with connection url in the format of jdbc:hsqldb:file:[path]/[database]"}
 @Field { value:"H2_SERVER: H2 Server DB with connection url in the format of jdbc:h2:tcp://[HOST]:[PORT]/[database]"}
 @Field { value:"H2_FILE: H2 File DB with connection url in the format of jdbc:h2:file://[path]/[database]"}
+@Field { value:"H2_MEM: H2 in memory DB with connection url in the format of jdbc:h2:mem:[database]"}
 @Field { value:"DERBY_SERVER: DERBY server DB with connection url in the format of jdbc:derby://[HOST]:[PORT]/[database]"}
 @Field { value:"DERBY_FILE: Derby file DB with connection url in the format of jdbc:derby://[path]/[database]"}
 @Field { value:"GENERIC: Custom DB connection with given connection url"}
@@ -81,6 +82,7 @@ public enum DB {
 	HSQLDB_FILE,
 	H2_SERVER,
 	H2_FILE,
+	H2_MEM,
 	DERBY_SERVER,
 	DERBY_FILE,
 	GENERIC

@@ -23,11 +23,16 @@ import org.ballerinalang.model.types.BStructType;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.types.TypeTags;
+import org.ballerinalang.model.values.BJSON;
 import org.ballerinalang.model.values.BStruct;
+import org.ballerinalang.model.values.BXMLItem;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
+import java.sql.Array;
+import java.sql.Blob;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Struct;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -36,9 +41,15 @@ import java.util.List;
  */
 public class TableIterator implements DataIterator {
 
-    private ResultSet rs;
-    private BStructType type;
-    private List<ColumnDefinition> columnDefs;
+    protected ResultSet rs;
+    protected BStructType type;
+    protected List<ColumnDefinition> columnDefs;
+
+    public TableIterator(ResultSet rs, BStructType type, List<ColumnDefinition> columnDefs) {
+        this.rs = rs;
+        this.type = type;
+        this.columnDefs = columnDefs;
+    }
 
     public TableIterator(ResultSet rs, BStructType type) {
         this.rs = rs;
@@ -106,12 +117,55 @@ public class TableIterator implements DataIterator {
     }
 
     @Override
+    public String getBlob(int columnIndex) {
+        try {
+            Blob bValue = rs.getBlob(columnIndex);
+            byte[] bdata = bValue.getBytes(1, (int) bValue.length());
+            return new String(bdata);
+        } catch (SQLException e) {
+            throw new BallerinaException(e.getMessage(), e);
+        }
+    }
+
+    @Override
+    public Object[] getStruct(int columnIndex) {
+        Object[] objArray = null;
+        try {
+            Struct data = (Struct) rs.getObject(columnIndex);
+            if (data != null) {
+                objArray = data.getAttributes();
+            }
+        } catch (SQLException e) {
+            throw new BallerinaException(e.getMessage(), e);
+        }
+        return objArray;
+    }
+
+    @Override
+    public Object[] getArray(int columnIndex) {
+        try {
+            return generateArrayDataResult(rs.getArray(columnIndex));
+        } catch (SQLException e) {
+            throw new BallerinaException(e.getMessage(), e);
+        }
+    }
+
+    protected Object[] generateArrayDataResult(Array array) throws SQLException {
+        Object[] objArray = null;
+        if (!rs.wasNull()) {
+            objArray = (Object[]) array.getArray();
+        }
+        return objArray;
+    }
+
+    @Override
     public BStruct generateNext() {
         BStruct bStruct = new BStruct(type);
         int longRegIndex = -1;
         int doubleRegIndex = -1;
         int stringRegIndex = -1;
         int booleanRegIndex = -1;
+        int refRegIndex = -1;
         int index = 0;
         BStructType.StructField[] structFields = type.getStructFields();
         for (BStructType.StructField sf : structFields) {
@@ -134,6 +188,14 @@ public class TableIterator implements DataIterator {
                 case TypeTags.BOOLEAN_TAG:
                     boolean boolValue = rs.getBoolean(index);
                     bStruct.setBooleanField(++booleanRegIndex, boolValue ? 1 : 0);
+                    break;
+                case TypeTags.JSON_TAG:
+                    String jsonValue = rs.getString(index);
+                    bStruct.setRefField(++refRegIndex, new BJSON(jsonValue));
+                    break;
+                case TypeTags.XML_TAG:
+                    String xmlValue = rs.getString(index);
+                    bStruct.setRefField(++refRegIndex, new BXMLItem(xmlValue));
                     break;
                 }
             } catch (SQLException e) {
@@ -171,6 +233,12 @@ public class TableIterator implements DataIterator {
                 break;
             case TypeTags.BOOLEAN_TAG:
                 typeKind = TypeKind.BOOLEAN;
+                break;
+            case TypeTags.JSON_TAG:
+                typeKind = TypeKind.JSON;
+                break;
+            case TypeTags.XML_TAG:
+                typeKind = TypeKind.XML;
                 break;
             }
             ColumnDefinition def = new ColumnDefinition(sf.fieldName, typeKind);

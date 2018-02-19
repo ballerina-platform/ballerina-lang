@@ -11,8 +11,14 @@ struct Company {
     string name;
 }
 
+struct TypeTest {
+    int id;
+    json jsonData;
+    xml xmlData;
+}
+
 table< Person> dt1 = {};
-table<Company> dt2 = {};
+               table<Company> dt2 = {};
 
 function testEmptyTableCreate () {
     table<Person> dt3 = {};
@@ -92,8 +98,8 @@ function testLoopingTable () (string) {
 
     string names = "";
 
-    while(dt.hasNext()) {
-        var p, _ = (Person) dt.getNext();
+    while (dt.hasNext()) {
+        var p, _ = (Person)dt.getNext();
         names = names + p.name + "_";
     }
     return names;
@@ -109,7 +115,7 @@ function testToJson () (json) {
     dt.add(p2);
     dt.add(p3);
 
-    var j,_ = <json> dt;
+    var j, _ = <json>dt;
     return j;
 }
 
@@ -123,11 +129,11 @@ function testToXML () (xml) {
     dt.add(p2);
     dt.add(p3);
 
-    var x,_ = <xml> dt;
+    var x, _ = <xml>dt;
     return x;
 }
 
-function testPrintData() {
+function testPrintData () {
     Person p1 = {id:1, age:30, salary:300.50, name:"jane", married:true};
     Person p2 = {id:2, age:20, salary:200.50, name:"martin", married:true};
     Person p3 = {id:3, age:32, salary:100.50, name:"john", married:false};
@@ -140,12 +146,58 @@ function testPrintData() {
     println(dt);
 }
 
-function testTableDrop() {
+function testTableDrop () {
     Person p1 = {id:1, age:30, salary:300.50, name:"jane", married:true};
 
     table<Person> dt = {};
     dt.add(p1);
 }
+
+function testTableWithAllDataToJson ()(json) {
+    json j1 = {name:"apple", color:"red", price:30.3};
+    xml x1 = xml `<book>The Lost World</book>`;
+    TypeTest t1 = {id:1, jsonData:j1, xmlData:x1};
+    TypeTest t2 = {id:2, jsonData:j1, xmlData:x1};
+
+    table<TypeTest> dt1 = {};
+    dt1.add(t1);
+    dt1.add(t2);
+
+    var j, _ = <json>dt1;
+    return j;
+}
+
+function testTableWithAllDataToXml ()(xml) {
+    json j1 = {name:"apple", color:"red", price:30.3};
+    xml x1 = xml `<book>The Lost World</book>`;
+    TypeTest t1 = {id:1, jsonData:j1, xmlData:x1};
+    TypeTest t2 = {id:2, jsonData:j1, xmlData:x1};
+
+    table<TypeTest> dt1 = {};
+    dt1.add(t1);
+    dt1.add(t2);
+
+    var x, _ = <xml>dt1;
+    return x;
+}
+
+
+function testTableWithAllDataToStruct ()(json jData, xml xData) {
+    json j1 = {name:"apple", color:"red", price:30.3};
+    xml x1 = xml `<book>The Lost World</book>`;
+    TypeTest t1 = {id:1, jsonData:j1, xmlData:x1};
+
+    table<TypeTest> dt1 = {};
+    dt1.add(t1);
+
+    while(dt1.hasNext()) {
+        var x, _ = (TypeTest) dt1.getNext();
+        jData = x.jsonData;
+        xData = x.xmlData;
+    }
+    return;
+}
+
 
 function getPersonId (Person p) (int i) {
     return p.id;
@@ -155,7 +207,7 @@ function getCompanyId (Company p) (int i) {
     return p.id;
 }
 
-function isBellow35(any p)(boolean){
-    var p1,_ = (Person)p;
+function isBellow35 (any p) (boolean) {
+    var p1, _ = (Person)p;
     return p1.age < 35;
 }

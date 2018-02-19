@@ -32,9 +32,11 @@ public class TableConstants {
     static final String SQL_SELECT = "SELECT * FROM ";
     static final String SQL_CREATE = "CREATE TABLE ";
     static final String SQL_DROP = "DROP TABLE ";
+    static final String SQL_INSERT_INTO = "INSERT INTO ";
 
-    static final String SQL_TYPE_VARCHAR = "VARCHAR(50)";
+    static final String SQL_TYPE_VARCHAR = "VARCHAR(500)";
     static final String SQL_TYPE_BIGINT = "BIGINT";
     static final String SQL_TYPE_DOUBLE = "DOUBLE";
     static final String SQL_TYPE_BOOLEAN = "BOOLEAN";
+    static final String SQL_TYPE_LONG_VARCHAR = "VARCHAR(1000)";
 }

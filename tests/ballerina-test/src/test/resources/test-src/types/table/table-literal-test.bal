@@ -7,8 +7,7 @@ struct ResultCount {
 function getTableCount (string tablePrefix) (int count) {
 
     endpoint<sql:ClientConnector> testDB {}
-    sql:ConnectionProperties Properties = {url:"jdbc:h2:mem:TABLEDB"};
-    bind create sql:ClientConnector(sql:DB.GENERIC, "", 0, "", "sa", "", Properties) with testDB;
+    bind create sql:ClientConnector(sql:DB.H2_MEM, "", 0, "TABLEDB", "sa", "", null) with testDB;
 
     sql:Parameter  p1 = {value:tablePrefix, sqlType:sql:Type.VARCHAR};
     sql:Parameter[] parameters = [p1];
