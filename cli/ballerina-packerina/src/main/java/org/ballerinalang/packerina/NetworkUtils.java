@@ -20,7 +20,9 @@ package org.ballerinalang.packerina;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.launcher.LauncherUtils;
+import org.ballerinalang.launcher.toml.model.Manifest;
 import org.ballerinalang.launcher.toml.model.Proxy;
+import org.ballerinalang.launcher.toml.parser.ManifestProcessor;
 import org.ballerinalang.launcher.toml.parser.ProxyProcessor;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.CompileResult;
@@ -33,7 +35,9 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.stream.Stream;
 
@@ -74,10 +78,27 @@ public class NetworkUtils {
         compileResult = compileBalFile("ballerina.pull");
         Path targetDirectoryPath = UserRepositoryUtils.initializeUserRepository()
                 .resolve(USER_REPO_ARTIFACTS_DIRNAME).resolve(USER_REPO_SRC_DIRNAME);
+
+        // Make directories
+        String[] resourceArr = resourceName.split("/");
+        for (String aResourceArr : resourceArr) {
+            targetDirectoryPath = targetDirectoryPath.resolve(aResourceArr);
+            if (!Files.exists(targetDirectoryPath)) {
+                try {
+                    Files.createDirectories(targetDirectoryPath);
+                } catch (IOException e) {
+                    log.debug("I/O Exception when creating the directory ", e);
+                    log.error("I/O Exception when creating the directory" + e.getMessage());
+                }
+            }
+        }
+        int index = resourceName.lastIndexOf('/');
+        String pkgName = resourceName.substring(0, index);
+
         String dstPath = targetDirectoryPath + File.separator;
         String resourcePath = BALLERINA_CENTRAL_REPO_URL + resourceName;
         String[] proxyConfigs = readProxyConfigurations();
-        String[] arguments = new String[]{resourcePath, dstPath};
+        String[] arguments = new String[]{resourcePath, dstPath, pkgName};
         arguments = Stream.concat(Arrays.stream(arguments), Arrays.stream(proxyConfigs))
                 .toArray(String[]::new);
         LauncherUtils.runMain(compileResult.getProgFile(), arguments);
@@ -90,12 +111,39 @@ public class NetworkUtils {
      */
     public static void pushPackages(String resourceName) {
         compileResult = compileBalFile("ballerina.push");
-        String resourcePath = BALLERINA_CENTRAL_REPO_URL + resourceName + "/1.0.0";
-        String[] proxyConfigs = readProxyConfigurations();
-        String[] arguments = new String[]{resourcePath, resourceName};
-        arguments = Stream.concat(Arrays.stream(arguments), Arrays.stream(proxyConfigs))
-                .toArray(String[]::new);
-        LauncherUtils.runMain(compileResult.getProgFile(), arguments);
+
+        // Get the version by reading Ballerina.toml
+        Manifest manifest = readManifestConfigurations();
+        if (manifest != null && manifest.getVersion() != null) {
+            String resourcePath = BALLERINA_CENTRAL_REPO_URL + Paths.get(resourceName).resolve
+                    (removeQuotationsFromValue(manifest.getVersion()));
+            String[] proxyConfigs = readProxyConfigurations();
+            String[] arguments = new String[]{resourcePath, resourceName};
+            arguments = Stream.concat(Arrays.stream(arguments), Arrays.stream(proxyConfigs))
+                    .toArray(String[]::new);
+            LauncherUtils.runMain(compileResult.getProgFile(), arguments);
+        } else {
+            log.debug("A package version is required when pushing. Specify it Ballerina.toml inside the project");
+            log.error("A package version is required when pushing. Specify it Ballerina.toml inside the project",
+                    "A package version is required when pushing");
+        }
+    }
+
+    /**
+     * Read the manifest.
+     *
+     * @return manifest configuration object
+     */
+    private static Manifest readManifestConfigurations() {
+        String tomlFilePath = Paths.get(".").toAbsolutePath().normalize().resolve("Ballerina.toml").toString();
+        Manifest manifest = null;
+        try {
+            manifest = ManifestProcessor.parseTomlContentFromFile(tomlFilePath);
+        } catch (IOException e) {
+            log.debug("I/O Exception when processing Ballerina.toml ", e);
+            log.error("I/O Exception when processing Ballerina.toml " + e.getMessage());
+        }
+        return manifest;
     }
 
     /**
@@ -137,7 +185,7 @@ public class NetworkUtils {
     }
 
     /**
-     * Remove enclosing quotation from the string value
+     * Remove enclosing quotation from the string value.
      *
      * @param value string value with enclosing quotations
      * @return string value after removing the enclosing quotations
