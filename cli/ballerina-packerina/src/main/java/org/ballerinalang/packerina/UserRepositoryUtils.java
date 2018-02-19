@@ -18,6 +18,7 @@
 package org.ballerinalang.packerina;
 
 import org.ballerinalang.compiler.CompilerPhase;
+import org.ballerinalang.config.ConfigRegistry;
 import org.ballerinalang.util.program.BLangPrograms;
 import org.wso2.ballerinalang.compiler.Compiler;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
@@ -67,7 +68,7 @@ public class UserRepositoryUtils {
 
     public static Path getUserRepositoryPath() {
         Path userRepoPath;
-        String userRepoDir = System.getenv(USER_REPO_ENV_KEY);
+        String userRepoDir = ConfigRegistry.getInstance().getGlobalConfigValue(USER_REPO_ENV_KEY);
         if (userRepoDir == null || userRepoDir.isEmpty()) {
             String userHomeDir = System.getProperty(USER_HOME);
             if (userHomeDir == null || userHomeDir.isEmpty()) {
