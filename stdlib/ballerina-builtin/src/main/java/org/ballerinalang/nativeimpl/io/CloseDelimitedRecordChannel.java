@@ -21,7 +21,7 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.nativeimpl.io.channels.base.TextRecordChannel;
+import org.ballerinalang.nativeimpl.io.channels.base.DelimitedRecordChannel;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
@@ -34,11 +34,13 @@ import org.ballerinalang.util.exceptions.BallerinaException;
  */
 @BallerinaFunction(
         packageName = "ballerina.io",
-        functionName = "closeTextRecordChannel",
-        receiver = @Receiver(type = TypeKind.STRUCT, structType = "TextRecordChannel", structPackage = "ballerina.io"),
+        functionName = "closeDelimitedRecordChannel",
+        receiver = @Receiver(type = TypeKind.STRUCT,
+                structType = "DelimitedRecordChannel",
+                structPackage = "ballerina.io"),
         isPublic = true
 )
-public class CloseTextRecordChannel extends AbstractNativeFunction {
+public class CloseDelimitedRecordChannel extends AbstractNativeFunction {
 
     /**
      * The index of the TextRecordChannel in ballerina.io#closeTextRecordChannel().
@@ -57,7 +59,7 @@ public class CloseTextRecordChannel extends AbstractNativeFunction {
         BStruct channel;
         try {
             channel = (BStruct) getRefArgument(context, RECORD_CHANNEL_INDEX);
-            TextRecordChannel charChannel = (TextRecordChannel)
+            DelimitedRecordChannel charChannel = (DelimitedRecordChannel)
                     channel.getNativeData(IOConstants.TXT_RECORD_CHANNEL_NAME);
             charChannel.close();
         } catch (Throwable e) {
