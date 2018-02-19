@@ -17,15 +17,25 @@
 */
 package org.ballerinalang.util;
 
+import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.BStructType;
 import org.ballerinalang.model.types.BTableType;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.TypeTags;
+import org.ballerinalang.model.values.BBlobArray;
+import org.ballerinalang.model.values.BBooleanArray;
+import org.ballerinalang.model.values.BFloatArray;
+import org.ballerinalang.model.values.BIntArray;
+import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BStruct;
+import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
+import java.io.ByteArrayInputStream;
+import java.sql.Blob;
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -80,7 +90,7 @@ public class TableProvider {
 
     public String insertData(String tableName, BStruct constrainedType) {
         String sqlStmt = generateInsertDataStatment(tableName, constrainedType);
-        executeStatement(sqlStmt);
+        prepareAndExecuteStatement(sqlStmt, constrainedType);
         return tableName;
     }
 
@@ -114,22 +124,30 @@ public class TableProvider {
             String name = sf.getFieldName();
             sb.append(seperator).append(name).append(" ");
             switch (type) {
-            case TypeTags.INT_TAG:
-                sb.append(TableConstants.SQL_TYPE_BIGINT);
-                break;
-            case TypeTags.STRING_TAG:
-                sb.append(TableConstants.SQL_TYPE_VARCHAR);
-                break;
-            case TypeTags.FLOAT_TAG:
-                sb.append(TableConstants.SQL_TYPE_DOUBLE);
-                break;
-            case TypeTags.BOOLEAN_TAG:
-                sb.append(TableConstants.SQL_TYPE_BOOLEAN);
-                break;
-            case TypeTags.JSON_TAG:
-            case TypeTags.XML_TAG:
-                sb.append(TableConstants.SQL_TYPE_LONG_VARCHAR);
-                break;
+                case TypeTags.INT_TAG:
+                    sb.append(TableConstants.SQL_TYPE_BIGINT);
+                    break;
+                case TypeTags.STRING_TAG:
+                    sb.append(TableConstants.SQL_TYPE_VARCHAR);
+                    break;
+                case TypeTags.FLOAT_TAG:
+                    sb.append(TableConstants.SQL_TYPE_DOUBLE);
+                    break;
+                case TypeTags.BOOLEAN_TAG:
+                    sb.append(TableConstants.SQL_TYPE_BOOLEAN);
+                    break;
+                case TypeTags.JSON_TAG:
+                case TypeTags.XML_TAG:
+                    sb.append(TableConstants.SQL_TYPE_LONG_VARCHAR);
+                    break;
+                case TypeTags.BLOB_TAG:
+                    sb.append(TableConstants.SQL_TYPE_BLOB);
+                    break;
+                case TypeTags.ARRAY_TAG:
+                    sb.append(TableConstants.SQL_TYPE_ARRAY);
+                    break;
+                default:
+                    throw new BallerinaException("Unsupported type for table : " + sf.getFieldType());
             }
             seperator = ",";
         }
@@ -143,44 +161,16 @@ public class TableProvider {
         sbSql.append(TableConstants.SQL_INSERT_INTO).append(tableName).append(" (");
         BStructType.StructField[] structFields = constrainedType.getType().getStructFields();
         String sep = "";
-        int intFieldIndex = 0;
-        int floatFieldIndex = 0;
-        int stringFieldIndex = 0;
-        int booleanFieldIndex = 0;
-        int refFieldIndex = 0;
         for (BStructType.StructField sf : structFields) {
             String name = sf.getFieldName();
             sbSql.append(sep).append(name).append(" ");
-            int type = sf.getFieldType().getTag();
-            switch (type) {
-            case TypeTags.INT_TAG:
-                sbValues.append(sep).append(constrainedType.getIntField(intFieldIndex));
-                ++intFieldIndex;
-                break;
-            case TypeTags.STRING_TAG:
-                sbValues.append(sep).append("'").append(constrainedType.getStringField(stringFieldIndex)).append("'");
-                ++stringFieldIndex;
-                break;
-            case TypeTags.FLOAT_TAG:
-                sbValues.append(sep).append(constrainedType.getFloatField(floatFieldIndex));
-                ++floatFieldIndex;
-                break;
-            case TypeTags.BOOLEAN_TAG:
-                sbValues.append(sep).append(constrainedType.getBooleanField(booleanFieldIndex));
-                ++booleanFieldIndex;
-                break;
-            case TypeTags.XML_TAG:
-            case TypeTags.JSON_TAG:
-                String sValue = constrainedType.getRefField(refFieldIndex).toString();
-                sbValues.append(sep).append("'").append(sValue).append("'");
-                ++refFieldIndex;
-                break;
-            }
+            sbValues.append(sep).append("?");
             sep = ",";
         }
         sbSql.append(") values (").append(sbValues).append(")");
         return sbSql.toString();
     }
+
 
     private void executeStatement(String queryStatement) {
         Statement st = null;
@@ -193,6 +183,113 @@ public class TableProvider {
         } finally {
             releaseResources(st);
         }
+    }
+
+    private void prepareAndExecuteStatement(String queryStatement, BStruct constrainedType) {
+        PreparedStatement st = null;
+        try {
+            st = connection.prepareStatement(queryStatement);
+            BStructType.StructField[] structFields = constrainedType.getType().getStructFields();
+            int intFieldIndex = 0;
+            int floatFieldIndex = 0;
+            int stringFieldIndex = 0;
+            int booleanFieldIndex = 0;
+            int refFieldIndex = 0;
+            int blobFieldIndex = 0;
+            int index = 1;
+            for (BStructType.StructField sf : structFields) {
+                int type = sf.getFieldType().getTag();
+                switch (type) {
+                    case TypeTags.INT_TAG:
+                        st.setLong(index, constrainedType.getIntField(intFieldIndex));
+                        ++intFieldIndex;
+                        break;
+                    case TypeTags.STRING_TAG:
+                        st.setString(index, constrainedType.getStringField(stringFieldIndex));
+                        ++stringFieldIndex;
+                        break;
+                    case TypeTags.FLOAT_TAG:
+                        st.setDouble(index, constrainedType.getFloatField(floatFieldIndex));
+                        ++floatFieldIndex;
+                        break;
+                    case TypeTags.BOOLEAN_TAG:
+                        st.setBoolean(index, constrainedType.getBooleanField(booleanFieldIndex) == 1);
+                        ++booleanFieldIndex;
+                        break;
+                    case TypeTags.XML_TAG:
+                    case TypeTags.JSON_TAG:
+                        st.setString(index, constrainedType.getRefField(refFieldIndex).toString());
+                        ++refFieldIndex;
+                        break;
+                    case TypeTags.BLOB_TAG:
+                        byte[] blobData = constrainedType.getBlobField(blobFieldIndex);
+                        st.setBlob(index, new ByteArrayInputStream(blobData), blobData.length);
+                        ++blobFieldIndex;
+                        break;
+                    case TypeTags.ARRAY_TAG:
+                        Object[] arrayData = getArrayData(constrainedType.getRefField(refFieldIndex));
+                        st.setObject(index, arrayData);
+                        ++refFieldIndex;
+                        break;
+                    }
+                ++index;
+            }
+            st.executeUpdate();
+        } catch (SQLException e) {
+            throw new BallerinaException(
+                    "error in executing statement : " + queryStatement + " error:" + e.getMessage());
+        } finally {
+            releaseResources(st);
+        }
+    }
+
+    private static Object[] getArrayData(BValue value) {
+        if (value == null) {
+            return new Object[] {null};
+        }
+        int typeTag = ((BArrayType) value.getType()).getElementType().getTag();
+        Object[] arrayData;
+        int arrayLength;
+        switch (typeTag) {
+        case TypeTags.INT_TAG:
+            arrayLength = (int) ((BIntArray) value).size();
+            arrayData = new Long[arrayLength];
+            for (int i = 0; i < arrayLength; i++) {
+                arrayData[i] = ((BIntArray) value).get(i);
+            }
+            break;
+        case TypeTags.FLOAT_TAG:
+            arrayLength = (int) ((BFloatArray) value).size();
+            arrayData = new Double[arrayLength];
+            for (int i = 0; i < arrayLength; i++) {
+                arrayData[i] = ((BFloatArray) value).get(i);
+            }
+            break;
+        case TypeTags.STRING_TAG:
+            arrayLength = (int) ((BStringArray) value).size();
+            arrayData = new String[arrayLength];
+            for (int i = 0; i < arrayLength; i++) {
+                arrayData[i] = ((BStringArray) value).get(i);
+            }
+            break;
+        case TypeTags.BOOLEAN_TAG:
+            arrayLength = (int) ((BBooleanArray) value).size();
+            arrayData = new Boolean[arrayLength];
+            for (int i = 0; i < arrayLength; i++) {
+                arrayData[i] = ((BBooleanArray) value).get(i) > 0;
+            }
+            break;
+        case TypeTags.BLOB_TAG:
+            arrayLength = (int) ((BBlobArray) value).size();
+            arrayData = new Blob[arrayLength];
+            for (int i = 0; i < arrayLength; i++) {
+                arrayData[i] = ((BBlobArray) value).get(i);
+            }
+            break;
+        default:
+            throw new BallerinaException("unsupported data type for array parameter");
+        }
+        return arrayData;
     }
 
     private void releaseResources(Statement st) {

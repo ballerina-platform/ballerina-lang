@@ -23,7 +23,12 @@ import org.ballerinalang.model.types.BStructType;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.types.TypeTags;
+import org.ballerinalang.model.values.BBooleanArray;
+import org.ballerinalang.model.values.BFloatArray;
+import org.ballerinalang.model.values.BIntArray;
 import org.ballerinalang.model.values.BJSON;
+import org.ballerinalang.model.values.BNewArray;
+import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BXMLItem;
 import org.ballerinalang.util.exceptions.BallerinaException;
@@ -38,6 +43,8 @@ import java.util.List;
 
 /**
  * Iterator implementation for table data types.
+ *
+ * @since 0.963.0
  */
 public class TableIterator implements DataIterator {
 
@@ -150,7 +157,7 @@ public class TableIterator implements DataIterator {
         }
     }
 
-    protected Object[] generateArrayDataResult(Array array) throws SQLException {
+    private Object[] generateArrayDataResult(Array array) throws SQLException {
         Object[] objArray = null;
         if (!rs.wasNull()) {
             objArray = (Object[]) array.getArray();
@@ -166,6 +173,7 @@ public class TableIterator implements DataIterator {
         int stringRegIndex = -1;
         int booleanRegIndex = -1;
         int refRegIndex = -1;
+        int blobRegIndex = -1;
         int index = 0;
         BStructType.StructField[] structFields = type.getStructFields();
         for (BStructType.StructField sf : structFields) {
@@ -173,31 +181,39 @@ public class TableIterator implements DataIterator {
             try {
                 ++index;
                 switch (type.getTag()) {
-                case TypeTags.INT_TAG:
-                    long iValue = rs.getInt(index);
-                    bStruct.setIntField(++longRegIndex, iValue);
-                    break;
-                case TypeTags.STRING_TAG:
-                    String sValue = rs.getString(index);
-                    bStruct.setStringField(++stringRegIndex, sValue);
-                    break;
-                case TypeTags.FLOAT_TAG:
-                    double dalue = rs.getDouble(index);
-                    bStruct.setFloatField(++doubleRegIndex, dalue);
-                    break;
-                case TypeTags.BOOLEAN_TAG:
-                    boolean boolValue = rs.getBoolean(index);
-                    bStruct.setBooleanField(++booleanRegIndex, boolValue ? 1 : 0);
-                    break;
-                case TypeTags.JSON_TAG:
-                    String jsonValue = rs.getString(index);
-                    bStruct.setRefField(++refRegIndex, new BJSON(jsonValue));
-                    break;
-                case TypeTags.XML_TAG:
-                    String xmlValue = rs.getString(index);
-                    bStruct.setRefField(++refRegIndex, new BXMLItem(xmlValue));
-                    break;
-                }
+                    case TypeTags.INT_TAG:
+                        long iValue = rs.getInt(index);
+                        bStruct.setIntField(++longRegIndex, iValue);
+                        break;
+                    case TypeTags.STRING_TAG:
+                        String sValue = rs.getString(index);
+                        bStruct.setStringField(++stringRegIndex, sValue);
+                        break;
+                    case TypeTags.FLOAT_TAG:
+                        double dalue = rs.getDouble(index);
+                        bStruct.setFloatField(++doubleRegIndex, dalue);
+                        break;
+                    case TypeTags.BOOLEAN_TAG:
+                        boolean boolValue = rs.getBoolean(index);
+                        bStruct.setBooleanField(++booleanRegIndex, boolValue ? 1 : 0);
+                        break;
+                    case TypeTags.JSON_TAG:
+                        String jsonValue = rs.getString(index);
+                        bStruct.setRefField(++refRegIndex, new BJSON(jsonValue));
+                        break;
+                    case TypeTags.XML_TAG:
+                        String xmlValue = rs.getString(index);
+                        bStruct.setRefField(++refRegIndex, new BXMLItem(xmlValue));
+                        break;
+                    case TypeTags.BLOB_TAG:
+                        Blob blobValue = rs.getBlob(index);
+                        bStruct.setBlobField(++blobRegIndex, blobValue.getBytes(1L, (int) blobValue.length()));
+                        break;
+                    case TypeTags.ARRAY_TAG:
+                        Array arrayValue = rs.getArray(index);
+                        bStruct.setRefField(++refRegIndex, getDataArray(arrayValue));
+                        break;
+                    }
             } catch (SQLException e) {
                 throw new BallerinaException("error in generating next row data :" + e.getMessage());
             }
@@ -213,6 +229,54 @@ public class TableIterator implements DataIterator {
     @Override
     public BStructType getStructType() {
         return this.type;
+    }
+
+    protected BNewArray getDataArray(Array array) throws SQLException {
+        Object[] dataArray = generateArrayDataResult(array);
+        if (dataArray != null) {
+            int length = dataArray.length;
+            if (length > 0) {
+                Object obj = dataArray[0];
+                if (obj instanceof String) {
+                    BStringArray stringDataArray = new BStringArray();
+                    for (int i = 0; i < length; i++) {
+                        stringDataArray.add(i, (String) dataArray[i]);
+                    }
+                    return stringDataArray;
+                } else if (obj instanceof Boolean) {
+                    BBooleanArray boolDataArray = new BBooleanArray();
+                    for (int i = 0; i < length; i++) {
+                        boolDataArray.add(i, ((Boolean) dataArray[i]) ? 1 : 0);
+                    }
+                    return boolDataArray;
+                } else if (obj instanceof Integer) {
+                    BIntArray intDataArray = new BIntArray();
+                    for (int i = 0; i < length; i++) {
+                        intDataArray.add(i, ((Integer) dataArray[i]));
+                    }
+                    return intDataArray;
+                } else if (obj instanceof Long) {
+                    BIntArray longDataArray = new BIntArray();
+                    for (int i = 0; i < length; i++) {
+                        longDataArray.add(i, (Long) dataArray[i]);
+                    }
+                    return longDataArray;
+                } else if (obj instanceof Float) {
+                    BFloatArray floatDataArray = new BFloatArray();
+                    for (int i = 0; i < length; i++) {
+                        floatDataArray.add(i, (Float) dataArray[i]);
+                    }
+                    return floatDataArray;
+                } else if (obj instanceof Double) {
+                    BFloatArray doubleDataArray = new BFloatArray();
+                    for (int i = 0; i < dataArray.length; i++) {
+                        doubleDataArray.add(i, (Double) dataArray[i]);
+                    }
+                    return doubleDataArray;
+                }
+            }
+        }
+        return null;
     }
 
     private void generateColumnDefinitions() {
@@ -240,10 +304,15 @@ public class TableIterator implements DataIterator {
             case TypeTags.XML_TAG:
                 typeKind = TypeKind.XML;
                 break;
+            case TypeTags.BLOB_TAG:
+                typeKind = TypeKind.BLOB;
+                break;
+            case TypeTags.ARRAY_TAG:
+                typeKind = TypeKind.ARRAY;
+                break;
             }
             ColumnDefinition def = new ColumnDefinition(sf.fieldName, typeKind);
             columnDefs.add(def);
         }
-
     }
 }

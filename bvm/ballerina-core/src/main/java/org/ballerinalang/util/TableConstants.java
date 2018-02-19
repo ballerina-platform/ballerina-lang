@@ -39,4 +39,6 @@ public class TableConstants {
     static final String SQL_TYPE_DOUBLE = "DOUBLE";
     static final String SQL_TYPE_BOOLEAN = "BOOLEAN";
     static final String SQL_TYPE_LONG_VARCHAR = "VARCHAR(1000)";
+    static final String SQL_TYPE_BLOB = "BLOB";
+    static final String SQL_TYPE_ARRAY = "ARRAY";
 }

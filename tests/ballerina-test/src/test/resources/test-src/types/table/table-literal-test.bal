@@ -16,7 +16,7 @@ function getTableCount (string tablePrefix) (int count) {
         table dt = testDB.select("SELECT count(*) as count FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME like ?",
                                  parameters, typeof ResultCount);
         if (dt.hasNext()) {
-            var rs, err = (ResultCount) dt.getNext();
+            var rs, _ = (ResultCount) dt.getNext();
             count = rs.COUNTVAL;
         }
     } finally {

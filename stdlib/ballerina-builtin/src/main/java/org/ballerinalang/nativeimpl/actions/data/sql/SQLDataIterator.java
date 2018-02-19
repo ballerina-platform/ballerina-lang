@@ -22,12 +22,7 @@ import org.ballerinalang.model.types.BStructType;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.types.TypeTags;
-import org.ballerinalang.model.values.BBooleanArray;
-import org.ballerinalang.model.values.BFloatArray;
-import org.ballerinalang.model.values.BIntArray;
-import org.ballerinalang.model.values.BNewArray;
 import org.ballerinalang.model.values.BString;
-import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.nativeimpl.Utils;
@@ -245,54 +240,6 @@ public class SQLDataIterator extends TableIterator {
                             .getMessage());
         }
         return bStruct;
-    }
-
-    private BNewArray getDataArray(Array array) throws SQLException {
-        Object[] dataArray = generateArrayDataResult(array);
-        if (dataArray != null) {
-            int length = dataArray.length;
-            if (length > 0) {
-                Object obj = dataArray[0];
-                if (obj instanceof String) {
-                    BStringArray stringDataArray = new BStringArray();
-                    for (int i = 0; i < length; i++) {
-                        stringDataArray.add(i, (String) dataArray[i]);
-                    }
-                    return stringDataArray;
-                } else if (obj instanceof Boolean) {
-                    BBooleanArray boolDataArray = new BBooleanArray();
-                    for (int i = 0; i < length; i++) {
-                        boolDataArray.add(i, ((Boolean) dataArray[i]) ? 1 : 0);
-                    }
-                    return boolDataArray;
-                } else if (obj instanceof Integer) {
-                    BIntArray intDataArray = new BIntArray();
-                    for (int i = 0; i < length; i++) {
-                        intDataArray.add(i, ((Integer) dataArray[i]));
-                    }
-                    return intDataArray;
-                } else if (obj instanceof Long) {
-                    BIntArray longDataArray = new BIntArray();
-                    for (int i = 0; i < length; i++) {
-                        longDataArray.add(i, (Long) dataArray[i]);
-                    }
-                    return longDataArray;
-                } else if (obj instanceof Float) {
-                    BFloatArray floatDataArray = new BFloatArray();
-                    for (int i = 0; i < length; i++) {
-                        floatDataArray.add(i, (Float) dataArray[i]);
-                    }
-                    return floatDataArray;
-                } else if (obj instanceof Double) {
-                    BFloatArray doubleDataArray = new BFloatArray();
-                    for (int i = 0; i < dataArray.length; i++) {
-                        doubleDataArray.add(i, (Double) dataArray[i]);
-                    }
-                    return doubleDataArray;
-                }
-            }
-        }
-        return null;
     }
 
     private BStruct createTimeStruct(long millis) {
