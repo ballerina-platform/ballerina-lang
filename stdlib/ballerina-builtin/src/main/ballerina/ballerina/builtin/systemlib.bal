@@ -11,3 +11,9 @@ public native function println (any a);
 @Description { value:"Halt the current thread for the specified time period"}
 @Param { value:"int: Sleep time in milliseconds" }
 public native function sleep (int t);
+
+@Description { value:"Returns a formatted string using the specified format string and arguments" }
+@Param { value:"format: format string" }
+@Param { value:"args: arguments for format string" }
+@Return { value:"string: Formatted string" }
+public native function sprintf (string format, any[] args) (string);
