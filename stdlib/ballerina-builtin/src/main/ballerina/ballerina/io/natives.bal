@@ -8,7 +8,7 @@ public struct ByteChannel{
 public struct CharacterChannel{
 }
 
-@Description {value:"Ballerina TextRecordChannel represents a channel which will allow to read/write text records"}
+@Description {value:"Ballerina DelimitedRecordChannel represents a channel which will allow to read/write text records"}
 public struct DelimitedRecordChannel {
 }
 
@@ -28,7 +28,7 @@ public native function <CharacterChannel channel> toTextRecordChannel(string rec
 (DelimitedRecordChannel);
 
 @Description {value:"Function to read text records"}
-@Param {value:"channel: The TextRecordChannel to read text records from"}
+@Param {value:"channel: The DelimitedRecordChannel to read text records from"}
 @Return {value:"Fields listed in the record"}
 public native function <DelimitedRecordChannel channel> nextTextRecord () (string[]);
 
@@ -38,7 +38,7 @@ public native function <DelimitedRecordChannel channel> nextTextRecord () (strin
 public native function <DelimitedRecordChannel channel> writeTextRecord (string[] records);
 
 @Description{value:"Function to close the text record channel"}
-@Param {value:"channel: The TextRecordChannel to be closed"}
+@Param {value:"channel: The DelimitedRecordChannel to be closed"}
 public native function <DelimitedRecordChannel channel> closeDelimitedRecordChannel();
 
 @Description {value:"Function to read characters"}
@@ -85,6 +85,6 @@ public native function <ByteChannel channel> writeBytes(blob content,int startOf
 public native function <ByteChannel channel> close();
 
 @Description {value:"Function to check whether next record is available or not"}
-@Param {value:"channel: The TextRecordChannel to read text records from"}
+@Param {value:"channel: The DelimitedRecordChannel to read text records from"}
 @Return {value:"True if the channel has more records; false otherwise"}
 public native function <DelimitedRecordChannel channel> hasNextTextRecord () (boolean);

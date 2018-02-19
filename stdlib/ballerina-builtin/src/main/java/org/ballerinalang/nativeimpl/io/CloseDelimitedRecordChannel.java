@@ -43,7 +43,7 @@ import org.ballerinalang.util.exceptions.BallerinaException;
 public class CloseDelimitedRecordChannel extends AbstractNativeFunction {
 
     /**
-     * The index of the TextRecordChannel in ballerina.io#closeTextRecordChannel().
+     * The index of the DelimitedRecordChannel in ballerina.io#closeDelimitedRecordChannel().
      */
     private static final int RECORD_CHANNEL_INDEX = 0;
 
