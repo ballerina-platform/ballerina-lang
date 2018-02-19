@@ -22,7 +22,7 @@ import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.nativeimpl.io.channels.base.TextRecordChannel;
+import org.ballerinalang.nativeimpl.io.channels.base.DelimitedRecordChannel;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
@@ -37,7 +37,9 @@ import org.ballerinalang.util.exceptions.BallerinaException;
 @BallerinaFunction(
         packageName = "ballerina.io",
         functionName = "nextTextRecord",
-        receiver = @Receiver(type = TypeKind.STRUCT, structType = "TextRecordChannel", structPackage = "ballerina.io"),
+        receiver = @Receiver(type = TypeKind.STRUCT,
+                structType = "DelimitedRecordChannel",
+                structPackage = "ballerina.io"),
         returnType = {@ReturnType(type = TypeKind.ARRAY, elementType = TypeKind.STRING)},
         isPublic = true
 )
@@ -57,9 +59,9 @@ public class NextTextRecord extends AbstractNativeFunction {
         try {
             channel = (BStruct) getRefArgument(context, TXT_RECORD_CHANNEL_INDEX);
 
-            TextRecordChannel textRecordChannel = (TextRecordChannel) channel.getNativeData(IOConstants
+            DelimitedRecordChannel delimitedRecordChannel = (DelimitedRecordChannel) channel.getNativeData(IOConstants
                     .TXT_RECORD_CHANNEL_NAME);
-            String[] recordValue = textRecordChannel.read();
+            String[] recordValue = delimitedRecordChannel.read();
             record = new BStringArray(recordValue);
         } catch (Throwable e) {
             String message = "Error occurred while reading text records:" + e.getMessage();

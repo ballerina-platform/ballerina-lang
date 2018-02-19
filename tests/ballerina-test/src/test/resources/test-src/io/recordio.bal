@@ -1,26 +1,26 @@
 import ballerina.io;
 
-io:TextRecordChannel textRecordChannel;
+io:DelimitedRecordChannel delimitedRecordChannel;
 
 function initFileChannel(string filePath,string permission,string encoding,string rs,string fs){
     io:ByteChannel channel = io:openFile(filePath, permission);
-    io:CharacterChannel characterChannel = io:createCharacterChannel(channel, encoding);
-    textRecordChannel = characterChannel.toTextRecordChannel(rs,fs);
+    io:CharacterChannel  characterChannel = channel.toCharacterChannel(encoding);
+    delimitedRecordChannel = characterChannel.toTextRecordChannel(rs, fs);
 }
 
 function nextRecord () (string[]) {
-    string[] fields = textRecordChannel.nextTextRecord();
+    string[] fields = delimitedRecordChannel.nextTextRecord();
     return fields;
 }
 
 function writeRecord (string[] fields) {
-    textRecordChannel.writeTextRecord(fields);
+    delimitedRecordChannel.writeTextRecord(fields);
 }
 
 function close(){
-    textRecordChannel.closeTextRecordChannel();
+    delimitedRecordChannel.closeDelimitedRecordChannel();
 }
 
 function hasNextRecord () (boolean) {
-    return textRecordChannel.hasNextTextRecord();
+    return delimitedRecordChannel.hasNextTextRecord();
 }
