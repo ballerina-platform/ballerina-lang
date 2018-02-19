@@ -25,7 +25,11 @@ function main (string[] args) {
     request.setEntity(topLevelEntity);
     http:InResponse resp1 = {};
     resp1, _ = httpEndpoint.post("", request);
-    println("Ballerina package pushed successfully");
+    if (resp1.statusCode != 200) {
+        println("Internal server error occured when pushing the package to the central repository");
+    } else {
+        println("Ballerina package pushed successfully");
+    }
 }
 
 function getConnectorConfigs(string host, string port, string username, string password) (http:Options) {
