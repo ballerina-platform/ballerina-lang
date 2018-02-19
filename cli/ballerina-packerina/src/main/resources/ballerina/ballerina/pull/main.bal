@@ -10,8 +10,12 @@ function main (string[] args) {
     http:OutRequest req = {};
     http:InResponse resp = {};
     resp, _ = httpEndpoint.get("", req);
-    compression:unzipBytes(resp.getBinaryPayload(), args[1]);
-    println("Ballerina package pulled successfully");
+    if (resp.statusCode != 200) {
+        println("Internal server error occured when pulling the ballerina package");
+    } else {
+        compression:unzipBytes(resp.getBinaryPayload(), args[1]);
+        println("Ballerina package pulled successfully");
+    }
 }
 
 function getConnectorConfigs(string host, string port, string username, string password) (http:Options) {
