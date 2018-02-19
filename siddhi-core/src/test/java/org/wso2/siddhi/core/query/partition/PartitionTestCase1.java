@@ -45,8 +45,8 @@ import org.wso2.siddhi.query.api.expression.condition.Compare;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class PartitionTestCase {
-    private static final Logger log = LoggerFactory.getLogger(PartitionTestCase.class);
+public class PartitionTestCase1 {
+    private static final Logger log = LoggerFactory.getLogger(PartitionTestCase1.class);
     private AtomicInteger count = new AtomicInteger(0);
     private int stockStreamEventCount;
     private boolean eventArrived;
