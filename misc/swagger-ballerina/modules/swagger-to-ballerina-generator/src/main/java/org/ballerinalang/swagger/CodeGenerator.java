@@ -67,8 +67,8 @@ public class CodeGenerator {
         }
         switch (type) {
             case SKELETON:
-                writeBallerina(context, GeneratorConstants.DEFAULT_SKELETON_DIR, GeneratorConstants.SKELETON_TEMPLATE_NAME,
-                        outPath);
+                writeBallerina(context, GeneratorConstants.DEFAULT_SKELETON_DIR,
+                        GeneratorConstants.SKELETON_TEMPLATE_NAME, outPath);
                 break;
             case CONNECTOR:
                 writeBallerina(context, GeneratorConstants.DEFAULT_CONNECTOR_DIR,
