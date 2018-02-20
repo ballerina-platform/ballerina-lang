@@ -133,7 +133,6 @@
     "react-transition-group": "^1.1.2",
     "react-treeview": "^0.4.7",
     "reconnecting-websocket": "^3.2.2",
-    "semantic-ui-css": "^2.2.14",
     "semantic-ui-less": "^2.2.14",
     "semantic-ui-react": "^0.78.2",
     "swagger-editor-dist": "^3.1.18",
