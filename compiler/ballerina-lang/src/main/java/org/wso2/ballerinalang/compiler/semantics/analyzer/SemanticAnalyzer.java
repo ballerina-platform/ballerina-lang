@@ -207,15 +207,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             this.analyzeDef(annotationAttachment, funcEnv);
         });
 
-        //TODO enable this check once we enforce public function documentation
-        // Check documentation attachment for all public functions. Omit init functions which we treat internally.
-        //if (Symbols.isPublic(funcNode.symbol) &&
-        //        funcNode.docAttachments.isEmpty() &&
-        //        !funcNode.name.getValue().endsWith(".<init>")) {
-        //    this.dlog.warning(funcNode.pos, DiagnosticCode.UNDEFINED_DOCUMENTATION_PUBLIC_FUNCTION,
-        //            funcNode.name);
-        //}
-
         // Check for native functions
         if (Symbols.isNative(funcNode.symbol)) {
             return;
