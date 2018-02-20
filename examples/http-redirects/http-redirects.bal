@@ -1,3 +1,4 @@
+import ballerina.io;
 import ballerina.net.http;
 
 function main (string[] args) {
@@ -10,7 +11,7 @@ function main (string[] args) {
     http:InResponse resp;
     resp, _ = httpEndoint.get("/v2/59d590762700000a049cd694", req);
 
-    println("Response received for the GET request is : " + resp.getStringPayload());
+    io:println("Response received for the GET request is : " + resp.getStringPayload());
 }
 
 function getConnectorConfigs () (http:Options) {
