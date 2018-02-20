@@ -40,7 +40,7 @@ function main (string[] args) {
     println("Inserted row count:" + count);
     println("Generated key:" + ids[0]);
 
-    //SelectElements data using select action. SelectElements action returns a datatable
+    //Select data using select action. Select action returns a datatable
     //and see datatables section for more details on how to access data.
     params = [para1];
     datatable dt = testDB.select("SELECT * FROM STUDENT WHERE AGE = ?", params);
