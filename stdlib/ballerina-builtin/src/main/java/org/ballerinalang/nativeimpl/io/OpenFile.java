@@ -17,7 +17,6 @@
  */
 package org.ballerinalang.nativeimpl.io;
 
-
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.nativeimpl.io.channels.AbstractNativeChannel;
@@ -69,7 +68,7 @@ public class OpenFile extends AbstractNativeChannel {
             try {
                 Files.createDirectories(parent);
             } catch (IOException e) {
-                throw new BallerinaException("Error in writing file", e);
+                throw new BallerinaException("Error in creating directory.", e);
             }
         }
     }
