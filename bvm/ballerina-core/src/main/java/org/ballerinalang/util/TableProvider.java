@@ -129,7 +129,7 @@ public class TableProvider {
                     sb.append(TableConstants.SQL_TYPE_BIGINT);
                     break;
                 case TypeTags.STRING_TAG:
-                    sb.append(TableConstants.SQL_TYPE_VARCHAR);
+                    sb.append(TableConstants.SQL_TYPE_CLOB);
                     break;
                 case TypeTags.FLOAT_TAG:
                     sb.append(TableConstants.SQL_TYPE_DOUBLE);
@@ -139,7 +139,7 @@ public class TableProvider {
                     break;
                 case TypeTags.JSON_TAG:
                 case TypeTags.XML_TAG:
-                    sb.append(TableConstants.SQL_TYPE_LONG_VARCHAR);
+                    sb.append(TableConstants.SQL_TYPE_CLOB);
                     break;
                 case TypeTags.BLOB_TAG:
                     sb.append(TableConstants.SQL_TYPE_BLOB);
