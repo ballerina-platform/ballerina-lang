@@ -245,8 +245,16 @@ public class TreeVisitor extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangVariable varNode) {
-        ScopeResolverConstants.getResolverByClass(cursorPositionResolver)
+        boolean isCursorBeforeNode = ScopeResolverConstants.getResolverByClass(cursorPositionResolver)
                 .isCursorBeforeNode(varNode.getPosition(), varNode, this, this.documentServiceContext);
+        // This is an endpoint definition
+        if (!isCursorBeforeNode && varNode.typeNode instanceof BLangEndpointTypeNode
+                && this.isCursorWithinEndpointDef(varNode.getPosition())) {
+            SymbolEnv endpointVarInitEnv = SymbolEnv.createVarInitEnv(varNode, symbolEnv, varNode.symbol);
+            Map<Name, Scope.ScopeEntry> visibleSymbols = this.resolveAllVisibleSymbols(symbolEnv);
+            this.populateSymbols(visibleSymbols, endpointVarInitEnv);
+            this.setTerminateVisitor(true);
+        }
     }
 
     @Override
@@ -1007,6 +1015,25 @@ public class TreeVisitor extends BLangNodeVisitor {
         }
 
         return false;
+    }
+
+    /**
+     * Check whether the cursor is within the endpoint definition node.
+     * @param nodePosition  Diagnostic position of the current node
+     * @return              {@link Boolean} whether the cursor is within the node or not
+     */
+    private boolean isCursorWithinEndpointDef(DiagnosticPos nodePosition) {
+        int line = documentServiceContext.get(DocumentServiceKeys.POSITION_KEY).getPosition().getLine();
+        int column = documentServiceContext.get(DocumentServiceKeys.POSITION_KEY).getPosition().getCharacter();
+        int nodeSLine = nodePosition.sLine;
+        int nodeELine = nodePosition.eLine;
+        int nodeSCol = nodePosition.sCol;
+        int nodeECol = nodePosition.eCol;
+        
+        return (line > nodeSLine && line < nodeELine)
+                || (line > nodeSLine && line == nodeELine && column < nodeECol)
+                || (line == nodeSLine && column > nodeSCol && line < nodeELine)
+                || (line == nodeSLine && line == nodeELine && column > nodeSCol && column < nodeECol);
     }
 
     public BLangNode getPreviousNode() {

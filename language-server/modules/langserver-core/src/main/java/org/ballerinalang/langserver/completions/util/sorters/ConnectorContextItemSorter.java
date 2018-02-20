@@ -58,7 +58,7 @@ class ConnectorContextItemSorter extends CompletionItemSorter {
             } else {
                 this.setPriorities(completionItems);
                 CompletionItem resItem = this.getActionSnippet();
-                resItem.setSortText(Priority.PRIORITY60.toString());
+                resItem.setSortText(Priority.PRIORITY160.toString());
                 completionItems.add(resItem);
             }
         } else if (previousNode instanceof BLangAction) {
@@ -72,8 +72,8 @@ class ConnectorContextItemSorter extends CompletionItemSorter {
         CompletionItem resSnippet = this.getActionSnippet();
         this.setPriorities(completionItems);
 
-        epSnippet.setSortText(Priority.PRIORITY50.toString());
-        resSnippet.setSortText(Priority.PRIORITY60.toString());
+        epSnippet.setSortText(Priority.PRIORITY150.toString());
+        resSnippet.setSortText(Priority.PRIORITY160.toString());
         completionItems.add(epSnippet);
         completionItems.add(resSnippet);
     }
