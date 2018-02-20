@@ -2073,6 +2073,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
 
+        this.pkgBuilder.endOrderByClauseNode(getCurrentPos(ctx), getWS(ctx));
     }
 
     private DiagnosticPos getCurrentPos(ParserRuleContext ctx) {

@@ -1,4 +1,4 @@
-// Generated from /home/gimantha/Desktop/antlr4/hey/ballerina/docs/grammar/BallerinaParser.g4 by ANTLR 4.5.3
+// Generated from BallerinaLexer.g4 by ANTLR 4.5.3
 package org.wso2.ballerinalang.compiler.parser.antlr4;
 import org.antlr.v4.runtime.atn.*;
 import org.antlr.v4.runtime.dfa.DFA;
