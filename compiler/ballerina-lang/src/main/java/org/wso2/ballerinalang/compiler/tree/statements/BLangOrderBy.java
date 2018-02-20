@@ -29,6 +29,9 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangVariableReference;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * BLangOrderBy represents the "order by" clause in Ballerina streams/tables SQLish syntax.
+ */
 public class BLangOrderBy extends BLangExpression implements OrderByNode {
 
     private List<BLangExpression> varRefs = new ArrayList<>();

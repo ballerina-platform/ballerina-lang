@@ -2,6 +2,7 @@ lexer grammar BallerinaLexer;
 
 @members {
     boolean inTemplate = false;
+    boolean inSiddhi = false;
 }
 
 // Reserved words
@@ -29,7 +30,7 @@ XMLNS       : 'xmlns' ;
 RETURNS     : 'returns';
 VERSION     : 'version';
 
-FROM        : 'from' ;
+FROM        : 'from' { inSiddhi = true; } ;
 ON          : 'on' ;
 SELECT      : 'select' ;
 GROUP       : 'group' ;
@@ -38,10 +39,10 @@ HAVING      : 'having' ;
 ORDER       : 'order' ;
 WHERE       : 'where' ;
 FOLLOWED    : 'followed' ;
-INSERT      : 'insert' ;
+INSERT      : {inSiddhi}? 'insert' { inSiddhi = false; } ;
 INTO        : 'into' ;
 UPDATE      : 'update' ;
-DELETE      : 'delete' ;
+DELETE      : {inSiddhi}? 'delete' { inSiddhi = false; } ;
 SET         : 'set' ;
 FOR         : 'for' ;
 WINDOW      : 'window' ;

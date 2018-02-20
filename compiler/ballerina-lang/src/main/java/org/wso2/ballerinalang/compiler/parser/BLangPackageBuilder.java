@@ -215,7 +215,7 @@ public class BLangPackageBuilder {
 
     private Stack<BLangAnnotationAttachmentPoint> attachmentPointStack = new Stack<>();
 
-    private Stack<OrderByNode> orderByClausesStack = new Stack<>();
+    private Stack<OrderByNode> orderByClauseStack = new Stack<>();
 
     private Set<BLangImportPackage> imports = new HashSet<>();
 
@@ -1838,8 +1838,8 @@ public class BLangPackageBuilder {
 
     public void startOrderByClauseNode(DiagnosticPos pos, Set<Whitespace> ws) {
         OrderByNode orderByNode = TreeBuilder.createOrderByNode();
-        ((BLangOrderBy)orderByNode).pos = pos;
-        ((BLangOrderBy)orderByNode).addWS(ws);
-        this.orderByClausesStack.push(orderByNode);
+        ((BLangOrderBy) orderByNode).pos = pos;
+        ((BLangOrderBy) orderByNode).addWS(ws);
+        this.orderByClauseStack.push(orderByNode);
     }
 }

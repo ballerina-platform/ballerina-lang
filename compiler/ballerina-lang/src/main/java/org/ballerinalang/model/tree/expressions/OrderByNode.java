@@ -22,6 +22,9 @@ import org.ballerinalang.model.tree.statements.StatementNode;
 
 import java.util.List;
 
+/**
+ * The interface with the APIs to implement the "order by" in ballerina streams/table SQLish syntax.
+ */
 public interface OrderByNode extends StatementNode {
 
     public void addVariableReference(VariableReferenceNode varRef);
