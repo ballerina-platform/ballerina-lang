@@ -707,4 +707,3 @@ doubleBackTickInlineCode
 tripleBackTickInlineCode
     : TripleBackTickInlineCodeChar+
     ;
-    
