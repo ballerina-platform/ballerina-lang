@@ -53,7 +53,7 @@ public class WorkerDataChannelInfo {
         this.source = source;
         this.targetCPIndex = targetCPIndex;
         this.target = target;
-        this.channel =  new LinkedBlockingQueue<>();
+        this.channel = new LinkedBlockingQueue<>();
     }
 
     public synchronized void putData(Object[] data) {
@@ -150,4 +150,5 @@ public class WorkerDataChannelInfo {
     public void setDataChannelRefIndex(int dataChannelRefIndex) {
         this.dataChannelRefIndex = dataChannelRefIndex;
     }
+    
 }
