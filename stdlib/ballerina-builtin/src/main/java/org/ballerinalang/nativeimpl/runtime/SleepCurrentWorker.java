@@ -29,11 +29,11 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
  */
 @BallerinaFunction(
         packageName = "ballerina.runtime",
-        functionName = "sleepCurrentThread",
+        functionName = "sleepCurrentWorker",
         args = {@Argument(name = "millis", type = TypeKind.INT)},
         isPublic = true
 )
-public class SleepCurrentThread extends AbstractNativeFunction {
+public class SleepCurrentWorker extends AbstractNativeFunction {
 
     @Override
     public BValue[] execute(Context context) {

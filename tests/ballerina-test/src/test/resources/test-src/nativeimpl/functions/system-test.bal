@@ -40,10 +40,6 @@ function printNewline() {
     io:print("hello\n");
 }
 
-function testSleep(int timeoutv) {
-    sleep(timeoutv);
-}
-
 function func1 (int a, int b) (int c) {
     c = a + b;
     return;

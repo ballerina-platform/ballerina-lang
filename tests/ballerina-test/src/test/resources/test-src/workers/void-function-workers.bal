@@ -1,3 +1,5 @@
+import ballerina.runtime;
+
 int i = 0;
 
 function testVoidFunction()(int){
@@ -7,7 +9,7 @@ function testVoidFunction()(int){
 
 function testVoid() {
     worker w1 {
-        sleep(3000);
+        runtime:sleepCurrentWorker(3000);
         testNew();
     }
     worker w2 {
@@ -17,7 +19,7 @@ function testVoid() {
 
 function testNew(){
     worker w1 {
-        sleep(2000);
+        runtime:sleepCurrentWorker(2000);
     }
     worker w2 {
         i = 10;

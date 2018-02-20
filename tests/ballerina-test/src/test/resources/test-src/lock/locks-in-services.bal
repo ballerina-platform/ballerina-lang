@@ -1,5 +1,6 @@
 import ballerina.io;
 import ballerina.net.http;
+import ballerina.runtime;
 
 service<http> sample {
 
@@ -178,7 +179,7 @@ service<http> sample3 {
     resource echo(http:Connection conn, http:InRequest req) {
         lock {
             io:println("************** waiting inside first request");
-            sleep(100);
+            runtime:sleepCurrentWorker(100);
             message = "sample Response";
             error err = {message:"error occurred"};
             throw err;

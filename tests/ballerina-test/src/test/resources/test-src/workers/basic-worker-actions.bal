@@ -1,4 +1,5 @@
 import ballerina.io;
+import ballerina.runtime;
 function workerDeclTest() {
    worker wx {
      int a = 20;
@@ -113,12 +114,12 @@ function forkJoinWithSomeJoin() (map) {
 	     int a = 5;
 	     int b = 0;
 	     m["x"] = a;
-	     sleep(1000);
+         runtime:sleepCurrentWorker(1000);
 	   }
 	   worker w2 {
 	     int a = 5;
 	     int b = 15;
-	     sleep(1000);
+         runtime:sleepCurrentWorker(1000);
 	     m["x"] = a;
 	   }
 	   worker w3 {
