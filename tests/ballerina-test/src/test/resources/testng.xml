@@ -47,4 +47,9 @@ under the License.
             <package name="org.ballerinalang.test.collections.*"/>
         </packages>
     </test>
+    <test name="ballerina-security-test-suite" preserve-order="true" parallel="false">
+        <packages>
+            <package name="org.ballerinalang.test.security.*"/>
+        </packages>
+    </test>
 </suite>
