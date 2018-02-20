@@ -1,15 +1,13 @@
-import ballerina.file;
 import ballerina.io;
 
-function getFileRecordChannel (string filePath, string permission, string encoding, string rs, string fs) (io:TextRecordChannel) {
-    file:File src = {path:filePath};
-    io:ByteChannel channel = src.openChannel(permission);
+function getFileRecordChannel (string filePath, string permission, string encoding, string rs, string fs) (io:DelimitedRecordChannel) {
+    io:ByteChannel channel = io:openFile(filePath, permission);
     io:CharacterChannel characterChannel = channel.toCharacterChannel(encoding);
-    io:TextRecordChannel textRecordChannel = characterChannel.toTextRecordChannel(rs, fs);
+    io:DelimitedRecordChannel textRecordChannel = io:createDelimitedRecordChannel(characterChannel, rs, fs);
     return textRecordChannel;
 }
 
-function process (io:TextRecordChannel srcRecordChannel, io:TextRecordChannel dstRecordChannel) {
+function process (io:DelimitedRecordChannel srcRecordChannel, io:DelimitedRecordChannel dstRecordChannel) {
     while (srcRecordChannel.hasNextTextRecord()) {
         string[] records = srcRecordChannel.nextTextRecord();
         dstRecordChannel.writeTextRecord(records);
@@ -19,8 +17,8 @@ function process (io:TextRecordChannel srcRecordChannel, io:TextRecordChannel ds
 function main (string[] args) {
     string srcFileName = "../samples/csvFileProcessor/files/sample.csv";
     string dstFileName = "../samples/csvFileProcessor/files/sampleResponse.txt";
-    io:TextRecordChannel srcRecordChannel = getFileRecordChannel(srcFileName, "r", "UTF-8", "\\r?\\n", ",");
-    io:TextRecordChannel dstRecordChannel = getFileRecordChannel(dstFileName, "w", "UTF-8", "\n", "|");
+    io:DelimitedRecordChannel srcRecordChannel = getFileRecordChannel(srcFileName, "r", "UTF-8", "\\r?\\n", ",");
+    io:DelimitedRecordChannel dstRecordChannel = getFileRecordChannel(dstFileName, "w", "UTF-8", "\n", "|");
     process(srcRecordChannel, dstRecordChannel);
     srcRecordChannel.closeTextRecordChannel();
     dstRecordChannel.closeTextRecordChannel();
