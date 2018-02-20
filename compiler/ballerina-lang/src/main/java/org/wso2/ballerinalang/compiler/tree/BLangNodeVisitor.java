@@ -73,11 +73,8 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangCatch;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForeach;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
-<<<<<<< HEAD
 import org.wso2.ballerinalang.compiler.tree.statements.BLangGroupBy;
-=======
 import org.wso2.ballerinalang.compiler.tree.statements.BLangHaving;
->>>>>>> 61b7c2e0d1fb3c78b336204a318406470e9dad6a
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangLock;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangNext;
