@@ -1,3 +1,12 @@
 /*******************************
     User Variable Overrides
 *******************************/
+@borderRadius: 0px;
+@lineHeight: 1.42857;
+@horizontalMargin: 0em;
+@verticalMargin: 0em;
+@verticalPadding: 6px;
+@horizontalPadding: 12px;
+@fontWeight: normal;
+@verticalAlign: middle;
+@fontFamily: Roboto, Arial, Helvetica, sans-serif;
