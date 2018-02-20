@@ -19,7 +19,7 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Button, Icon } from 'semantic-ui-react';
+import { Button } from 'semantic-ui-react';
 import Dialog from './../../view/Dialog';
 
 /**
@@ -57,7 +57,8 @@ class DirtyFileCloseConfirmDialog extends React.Component {
         return (
             <Dialog
                 show={this.state.showDialog}
-                title={<div><Icon name='warning circle' />Save Unsaved Content</div>}
+                title='Save Unsaved Content'
+                titleIcon='warning circle'
                 actions={
                 [
                     <Button
@@ -96,7 +97,7 @@ class DirtyFileCloseConfirmDialog extends React.Component {
                     {' "' + this.props.file.name + '.' + this.props.file.extension + '" '}?
                 </h4>
                 <p>
-                    Your changes will be lost if you don't save them.
+                    Your changes will be lost if you don&#39;t save them.
                 </p>
 
             </Dialog>
@@ -109,7 +110,6 @@ DirtyFileCloseConfirmDialog.propTypes = {
     onConfirm: PropTypes.func.isRequired,
     onAfterHide: PropTypes.func,
     onSave: PropTypes.func.isRequired,
-    editorPlugin: PropTypes.objectOf(Object).isRequired,
 };
 
 DirtyFileCloseConfirmDialog.defaultProps = {
