@@ -5,7 +5,7 @@ io:TextRecordChannel textRecordChannel;
 function initFileChannel(string filePath,string permission,string encoding,string rs,string fs){
     io:ByteChannel channel = io:openFile(filePath, permission);
     io:CharacterChannel characterChannel = io:createCharacterChannel(channel, encoding);
-    textRecordChannel = characterChannel.toTextRecordChannel(rs,fs);
+    textRecordChannel = io:createDelimitedRecordChannel(characterChannel, rs, fs);
 }
 
 function readRecord () (string[]) {

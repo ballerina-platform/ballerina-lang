@@ -18,13 +18,13 @@ public struct DelimitedRecordChannel {
 @Return {value:"CharacterChannel converted from ByteChannel"}
 public native function createCharacterChannel (ByteChannel byteChannel, string encoding) (CharacterChannel);
 
-@Description {value:"Function to convert a CharacterChannel to DelimitedRecordChannel"}
+@Description {value:"Function to create a CharacterChannel to DelimitedRecordChannel"}
 @Param {value:"channel: The CharacterChannel to be converted"}
 @Param {value:"recordSeparator: Terminating expression to distinguish between records"}
 @Param {value:"fieldSeparator: Terminating expression to distinguish between fields"}
 @Return {value:"DelimitedRecordChannel converted from CharacterChannel"}
-public native function <CharacterChannel channel> toTextRecordChannel(string recordSeparator,
-                                                                      string fieldSeparator)
+public native function createDelimitedRecordChannel(CharacterChannel channel, string recordSeparator,
+                                                    string fieldSeparator)
 (DelimitedRecordChannel);
 
 @Description {value:"Function to read text records"}

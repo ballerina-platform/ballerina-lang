@@ -9,8 +9,7 @@ function getFileRecordChannel (string filePath, string permission, string encodi
     io:CharacterChannel characterChannel = io:createCharacterChannel(channel, encoding);
     //Finally we convert the character channel to record channel
     //to read content as records.
-    io:TextRecordChannel textRecordChannel = characterChannel.
-                                             toTextRecordChannel(rs, fs);
+    io:TextRecordChannel textRecordChannel = io:createDelimitedRecordChannel(characterChannel, rs, fs);
     return textRecordChannel;
 }
 

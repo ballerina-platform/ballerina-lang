@@ -27,40 +27,40 @@ import org.ballerinalang.nativeimpl.io.channels.base.DelimitedRecordChannel;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.StructInfo;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
 /**
- * Native function ballerina.io#toTextRecordChannel.
+ * Native function ballerina.io#createDelimitedRecordChannel.
  *
- * @since 0.94
+ * @since 0.963.0
  */
 @BallerinaFunction(
         packageName = "ballerina.io",
-        functionName = "toTextRecordChannel",
-        receiver = @Receiver(type = TypeKind.STRUCT, structType = "CharacterChannel", structPackage = "ballerina.io"),
-        args = {@Argument(name = "recordSeparator", type = TypeKind.STRING),
+        functionName = "createDelimitedRecordChannel",
+        args = {@Argument(name = "channel", type = TypeKind.STRUCT, structType = "DelimitedRecordChannel",
+                structPackage = "ballerina.io"),
+                @Argument(name = "recordSeparator", type = TypeKind.STRING),
                 @Argument(name = "fieldSeparator", type = TypeKind.STRING)},
         returnType = {@ReturnType(type = TypeKind.STRUCT,
                 structType = "DelimitedRecordChannel",
                 structPackage = "ballerina.io")},
         isPublic = true
 )
-public class ToTextRecordChannel extends AbstractNativeFunction {
+public class CreateDelimitedRecordChannel extends AbstractNativeFunction {
 
     /**
-     * The index od the text record channel in ballerina.io#toTextRecordChannel().
+     * The index od the text record channel in ballerina.io#createDelimitedRecordChannel().
      */
     private static final int RECORD_CHANNEL_INDEX = 0;
     /**
-     * The index of the record channel separator in ballerina.io#toTextRecordChannel().
+     * The index of the record channel separator in ballerina.io#createDelimitedRecordChannel().
      */
     private static final int RECORD_SEPARATOR_INDEX = 0;
     /**
-     * The index of the field separator in ballerina.io#toTextRecordChannel().
+     * The index of the field separator in ballerina.io#createDelimitedRecordChannel().
      */
     private static final int FIELD_SEPARATOR_INDEX = 1;
     /**
