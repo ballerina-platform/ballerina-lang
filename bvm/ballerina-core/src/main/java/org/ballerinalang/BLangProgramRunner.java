@@ -80,14 +80,15 @@ public class BLangProgramRunner {
     }
 
     private static void deployTransactionCoordinatorServices(ProgramFile programFile, Context bContext) {
-        PackageInfo coordinatorPkgInfo = programFile.getPackageInfo("ballerina.builtin.transactions.coordinator");
+        PackageInfo coordinatorPkgInfo = programFile.getPackageInfo("ballerina.transactions.coordinator");
         ServiceInfo[] coordinatorServices = null;
         if (coordinatorPkgInfo != null) {
+            coordinatorPkgInfo.setProgramFile(programFile);
             coordinatorServices = coordinatorPkgInfo.getServiceInfoEntries();
-        }
-        if (coordinatorServices != null) {
-            for (ServiceInfo coordinatorService : coordinatorServices) {
-                deployService(programFile, bContext, coordinatorService);
+            if (coordinatorServices != null) {
+                for (ServiceInfo coordinatorService : coordinatorServices) {
+                    deployService(programFile, bContext, coordinatorService);
+                }
             }
         }
     }

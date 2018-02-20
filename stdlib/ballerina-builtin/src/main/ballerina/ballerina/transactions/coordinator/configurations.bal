@@ -29,6 +29,7 @@ function getCoordinatorHost () returns (string host) {
     if (host == null || host == "") {
         host = "localhost";
     }
+    println("Coordinator host: " + host);
     return;
 }
 
@@ -39,5 +40,6 @@ function getCoordinatorPort () returns (int port) {
     } else {
         port = p;
     }
+    println("Coordinator port: " + port);
     return;
 }

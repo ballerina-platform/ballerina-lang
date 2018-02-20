@@ -42,6 +42,12 @@ function getCoordinationTypeToProtocolsMap () returns (map m) {
 }
 service<http> manager {
 
+    resource hello (http:Connection conn, http:InRequest req) {
+        http:OutResponse res = {statusCode:200};
+        res.setStringPayload("Hello World !!!");
+        _ = conn.respond(res);
+    }
+
     @http:resourceConfig {
         path:registrationPath
     }
@@ -73,9 +79,11 @@ service<http> manager {
 
         // Micro-Transaction-Unknown
 
+        println("Registering for transaction...");
+        println(req.getJsonPayload());
         var registrationReq, e = <RegistrationRequest>req.getJsonPayload();
         http:OutResponse res;
-        if (e != null) {
+        if (e != null || registrationReq == null) {
             res = {statusCode:400};
             RequestError err = {errorMessage:"Bad Request"};
             var resPayload, _ = <json>err;
