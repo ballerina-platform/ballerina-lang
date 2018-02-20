@@ -142,7 +142,7 @@ public class Util {
             MimeUtil.setContentType(getMediaTypeStruct(result), bodyPart, TEXT_PLAIN);
             return bodyPart;
         } catch (IOException e) {
-            log.error("Error occured while creating a temp file for json file part in getTextFilePart",
+            log.error("Error occurred while creating a temp file for json file part in getTextFilePart",
                     e.getMessage());
         }
         return null;
@@ -170,7 +170,7 @@ public class Util {
             bodyPart.setRefField(ENTITY_HEADERS_INDEX, headerMap);
             return bodyPart;
         } catch (IOException e) {
-            log.error("Error occured while creating a temp file for json file part in getTextFilePart",
+            log.error("Error occurred while creating a temp file for json file part in getTextFilePart",
                     e.getMessage());
         }
         return null;
@@ -210,7 +210,7 @@ public class Util {
             MimeUtil.setContentType(getMediaTypeStruct(result), bodyPart, APPLICATION_JSON);
             return bodyPart;
         } catch (IOException e) {
-            log.error("Error occured while creating a temp file for json file part in getJsonFilePart",
+            log.error("Error occurred while creating a temp file for json file part in getJsonFilePart",
                     e.getMessage());
         }
         return null;
@@ -249,7 +249,7 @@ public class Util {
             MimeUtil.setContentType(getMediaTypeStruct(result), bodyPart, APPLICATION_XML);
             return bodyPart;
         } catch (IOException e) {
-            log.error("Error occured while creating a temp file for xml file part in getXmlFilePart",
+            log.error("Error occurred while creating a temp file for xml file part in getXmlFilePart",
                     e.getMessage());
         }
         return null;
@@ -286,7 +286,7 @@ public class Util {
             MimeUtil.setContentType(getMediaTypeStruct(result), bodyPart, OCTET_STREAM);
             return bodyPart;
         } catch (IOException e) {
-            log.error("Error occured while creating a temp file for binary file part in getBinaryFilePart",
+            log.error("Error occurred while creating a temp file for binary file part in getBinaryFilePart",
                     e.getMessage());
         }
         return null;
@@ -341,7 +341,7 @@ public class Util {
             HttpPostRequestEncoder nettyEncoder = (HttpPostRequestEncoder) request.getNativeData(MULTIPART_ENCODER);
             addMultipartsToCarbonMessage(cMsg, nettyEncoder);
         } catch (Exception e) {
-            log.error("Error occured while adding multiparts to carbon message in setCarbonMessageWithMultiparts",
+            log.error("Error occurred while adding multiparts to carbon message in setCarbonMessageWithMultiparts",
                     e.getMessage());
         }
     }

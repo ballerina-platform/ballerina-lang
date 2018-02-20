@@ -81,7 +81,6 @@ public class MimeUtilityFunctionTest {
 
     private CompileResult compileResult, serviceResult;
     private final String protocolPackageMime = PROTOCOL_PACKAGE_MIME;
-    private final String protocolPackageFile = PROTOCOL_PACKAGE_FILE;
     private final String mediaTypeStruct = MEDIA_TYPE;
 
     @BeforeClass
@@ -253,7 +252,7 @@ public class MimeUtilityFunctionTest {
             bufferedWriter.write("Hello Ballerina!");
             bufferedWriter.close();
             BStruct fileStruct = BCompileUtil
-                    .createAndGetStruct(compileResult.getProgFile(), protocolPackageFile, FILE);
+                    .createAndGetStruct(compileResult.getProgFile(), PROTOCOL_PACKAGE_FILE, FILE);
             fileStruct.setStringField(0, file.getAbsolutePath());
             BValue[] args = {fileStruct};
             BValue[] returns = BRunUtil.invoke(compileResult, "testSetFileAsEntityBody", args);
@@ -376,7 +375,7 @@ public class MimeUtilityFunctionTest {
             }
             Assert.assertEquals(out.size(), 2323779);
         } catch (IOException | URISyntaxException e) {
-            log.error("Error occured in testLargePayload", e.getMessage());
+            log.error("Error occurred in testLargePayload", e.getMessage());
         }
     }
 }
