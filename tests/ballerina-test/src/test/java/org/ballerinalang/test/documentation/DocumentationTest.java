@@ -453,6 +453,15 @@ public class DocumentationTest {
                 "In request.");
     }
 
+    @Test(description = "Test annotation deprecated function use.")
+    public void testDeprecatedFunctionUse() {
+        CompileResult compileResult = BCompileUtil.compile(this, "test-src",
+                "documentation/deprecate_function_use.bal");
+        Assert.assertEquals(compileResult.getWarnCount(), 1);
+        BAssertUtil.validateWarning(compileResult, 0,
+                "usage of deprecated function 'randomNumber'", 10, 12);
+    }
+
     @Test(description = "Test annotation deprecated.")
     public void testDeprecated() {
         CompileResult compileResult = BCompileUtil.compile(this, "test-src", "documentation/deprecated.bal");
@@ -461,22 +470,89 @@ public class DocumentationTest {
         BLangDeprecatedNode dNode = dNodes.get(0);
         Assert.assertNotNull(dNode);
         Assert.assertEquals(dNode.documentationText.toString(), "\n" +
-                "  This function is deprecated `openFile(string accessMode){}` instead.\n");
+                "  This function is deprecated use `openFile(string accessMode){}` instead.\n");
 
         dNodes = ((BLangStruct) packageNode.getStructs().get(0)).deprecatedAttachments;
         dNode = dNodes.get(0);
         Assert.assertNotNull(dNode);
         Assert.assertEquals(dNode.documentationText.toString(), "\n" +
-                "  This Struct is deprecated `File2` instead.\n");
+                "  This Struct is deprecated use `File2` instead.\n");
+
+        dNodes = ((BLangEnum) packageNode.getEnums().get(0)).deprecatedAttachments;
+        dNode = dNodes.get(0);
+        Assert.assertNotNull(dNode);
+        Assert.assertEquals(dNode.documentationText.toString(), "\n" +
+                "  This Enum is deprecated use `Enum2` instead.\n");
+
+        dNodes = ((BLangEnum) packageNode.getEnums().get(0)).deprecatedAttachments;
+        dNode = dNodes.get(0);
+        Assert.assertNotNull(dNode);
+        Assert.assertEquals(dNode.documentationText.toString(), "\n" +
+                "  This Enum is deprecated use `Enum2` instead.\n");
+
+        dNodes = ((BLangVariable) packageNode.getGlobalVariables().get(0)).deprecatedAttachments;
+        dNode = dNodes.get(0);
+        Assert.assertNotNull(dNode);
+        Assert.assertEquals(dNode.documentationText.toString(), "use ```const string testConst = " +
+                "\"TestConstantDocumentation\";``` instead");
+
+        dNodes = ((BLangConnector) packageNode.getConnectors().get(0)).deprecatedAttachments;
+        dNode = dNodes.get(0);
+        Assert.assertNotNull(dNode);
+        Assert.assertEquals(dNode.documentationText.toString(), "\n" +
+                "  This Connector is deprecated use `Connector(string url2){}` instead.\n");
+
+        dNodes = ((BLangConnector) packageNode.getConnectors().get(0)).getActions().get(0).deprecatedAttachments;
+        dNode = dNodes.get(0);
+        Assert.assertNotNull(dNode);
+        Assert.assertEquals(dNode.documentationText.toString(), "\n" +
+                "      This action is deprecated use `Connector.test(string url2){}` instead.\n" +
+                "    ");
+
+        dNodes = ((BLangService) packageNode.getServices().get(0)).deprecatedAttachments;
+        dNode = dNodes.get(0);
+        Assert.assertNotNull(dNode);
+        Assert.assertEquals(dNode.documentationText.toString(), "\n" +
+                "  This Service is deprecated use `PizzaHutService{}` instead.\n");
+
+        dNodes = ((BLangService) packageNode.getServices().get(0)).getResources().get(0).deprecatedAttachments;
+        dNode = dNodes.get(0);
+        Assert.assertNotNull(dNode);
+        Assert.assertEquals(dNode.documentationText.toString(),
+                "This Resource is deprecated use `PizzaHutService.orderFromPizza()` instead.");
+
     }
 
-    @Test(description = "Test annotation deprecated function use.")
-    public void testDeprecatedFunctionUse() {
+    @Test(description = "Test annotation deprecated Transformer.")
+    public void testDeprecatedTransformer() {
         CompileResult compileResult = BCompileUtil.compile(this, "test-src",
-                "documentation/deprecate_function_use.bal");
-        Assert.assertEquals(compileResult.getWarnCount(), 1);
-        BAssertUtil.validateWarning(compileResult, 0,
-                "usage of deprecated function 'randomNumber'", 10, 12);
+                "documentation/deprecated_transformer.bal");
+        PackageNode packageNode = compileResult.getAST();
+        List<BLangDeprecatedNode> dNodes = ((BLangTransformer) packageNode
+                .getTransformers().get(0)).deprecatedAttachments;
+        BLangDeprecatedNode dNode = dNodes.get(0);
+        Assert.assertNotNull(dNode);
+        Assert.assertEquals(dNode.documentationText.toString(), "\n" +
+                "  This Transformer is deprecated use\n" +
+                "  `transformer <Person p, Employee e> Bar(any defaultAddress) { e.name = p.firstName; }\n" +
+                "  ` instead.\n");
+
+        List<BLangDocumentation> docNodes = ((BLangTransformer) packageNode
+                .getTransformers().get(0)).docAttachments;
+        BLangDocumentation docNode = docNodes.get(0);
+        Assert.assertNotNull(docNode);
+        Assert.assertEquals(docNode.documentationText.toString(), "\n" +
+                " Transformer Foo Person -> Employee");
+        Assert.assertEquals(docNode.getAttributes().size(), 3);
+        Assert.assertEquals(docNode.getAttributes().get(0).documentationField.getValue(), "p");
+        Assert.assertEquals(docNode.getAttributes().get(0).documentationText.toString(),
+                "input struct Person source used for transformation");
+        Assert.assertEquals(docNode.getAttributes().get(1).documentationField.getValue(), "e");
+        Assert.assertEquals(docNode.getAttributes().get(1).documentationText.toString(),
+                "output struct Employee struct which Person transformed to");
+        Assert.assertEquals(docNode.getAttributes().get(2).documentationField.getValue(), "defaultAddress");
+        Assert.assertEquals(docNode.getAttributes().get(2).documentationText.toString(),
+                "address which serves Eg: `POSTCODE 112`");
     }
 
 }

@@ -36,13 +36,6 @@ public function <Connection conn> respondContinue () (HttpConnectorError) {
 @Param { value:"redirectCode: Status code of the specific redirect." }
 @Param { value:"locations: Array of locations where the redirection can happen." }
 @Return { value:"Returns an HttpConnectorError if there was any issue in sending the response." }
-documentation {
-Sends a redirect response to the user with given redirection status code.
-- #conn The server connector connection.
-- #response Response to be sent to client.
-- #code Status code of the specific redirect.
-- #locations Array of locations where the redirection can happen.
-}
 public function <Connection conn> redirect (OutResponse response, RedirectCode code, string[] locations) (HttpConnectorError) {
     if (code == RedirectCode.MULTIPLE_CHOICES_300) {
         response.statusCode = 300;
