@@ -69,7 +69,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangIntRangeExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation.BFunctionPointerInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation.BLangActionInvocation;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation.BLangFunctionInvocation;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation.BLangAttachedFunctionInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation.BLangTransformerInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLambdaFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
@@ -107,6 +107,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForeach;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangLock;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangNext;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn.BLangWorkerReturn;
@@ -130,6 +131,7 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Stack;
+import java.util.stream.Collectors;
 
 /**
  * @since 0.94
@@ -142,11 +144,14 @@ public class Desugar extends BLangNodeVisitor {
     private SymbolTable symTable;
     private SymbolResolver symResolver;
     private SymbolEnter symbolEnter;
+    private IterableCodeDesugar iterableCodeDesugar;
 
     private BLangNode result;
 
     private BLangStatementLink currentLink;
     private Stack<BLangWorker> workerStack = new Stack<>();
+
+    public Stack<BLangLock> enclLocks = new Stack<>();
 
     public static Desugar getInstance(CompilerContext context) {
         Desugar desugar = context.get(DESUGAR_KEY);
@@ -163,6 +168,7 @@ public class Desugar extends BLangNodeVisitor {
         this.symTable = SymbolTable.getInstance(context);
         this.symResolver = SymbolResolver.getInstance(context);
         this.symbolEnter = SymbolEnter.getInstance(context);
+        this.iterableCodeDesugar = IterableCodeDesugar.getInstance(context);
     }
 
     public BLangPackage perform(BLangPackage pkgNode) {
@@ -420,6 +426,19 @@ public class Desugar extends BLangNodeVisitor {
     }
 
     @Override
+    public void visit(BLangLock lockNode) {
+        enclLocks.push(lockNode);
+        lockNode.body = rewrite(lockNode.body);
+        enclLocks.pop();
+        lockNode.lockVariables = lockNode.lockVariables.stream().sorted((v1, v2) -> {
+            String o1FullName = String.join(":", v1.pkgID.getName().getValue(), v1.name.getValue());
+            String o2FullName = String.join(":", v2.pkgID.getName().getValue(), v2.name.getValue());
+            return o1FullName.compareTo(o2FullName);
+        }).collect(Collectors.toSet());
+        result = lockNode;
+    }
+
+    @Override
     public void visit(BLangTransaction transactionNode) {
         transactionNode.transactionBody = rewrite(transactionNode.transactionBody);
         transactionNode.failedBody = rewrite(transactionNode.failedBody);
@@ -525,6 +544,11 @@ public class Desugar extends BLangNodeVisitor {
             // Package variable | service variable
             // We consider both of them as package level variables
             genVarRefExpr = new BLangPackageVarRef(varRefExpr.symbol);
+
+            //Only locking service level and package level variables
+            if (!enclLocks.isEmpty()) {
+                enclLocks.peek().addLockVariable(varRefExpr.symbol);
+            }
         }
 
         genVarRefExpr.type = varRefExpr.type;
@@ -592,6 +616,9 @@ public class Desugar extends BLangNodeVisitor {
         if (iExpr.functionPointerInvocation) {
             visitFunctionPointerInvocation(iExpr);
             return;
+        } else if (iExpr.iterableOperationInvocation) {
+            visitIterableOperationInvocation(iExpr);
+            return;
         }
         iExpr.expr = rewriteExpr(iExpr.expr);
         result = genIExpr;
@@ -608,11 +635,12 @@ public class Desugar extends BLangNodeVisitor {
             case TypeTags.JSON:
             case TypeTags.XML:
             case TypeTags.MAP:
-            case TypeTags.DATATABLE:
+            case TypeTags.TABLE:
             case TypeTags.STRUCT:
                 List<BLangExpression> argExprs = new ArrayList<>(iExpr.argExprs);
                 argExprs.add(0, iExpr.expr);
-                result = new BLangFunctionInvocation(iExpr.pos, argExprs, iExpr.symbol, iExpr.types);
+                result = new BLangAttachedFunctionInvocation(iExpr.pos, argExprs, iExpr.symbol,
+                        iExpr.types, iExpr.expr);
                 break;
             case TypeTags.ENDPOINT:
                 List<BLangExpression> actionArgExprs = new ArrayList<>(iExpr.argExprs);
@@ -903,6 +931,15 @@ public class Desugar extends BLangNodeVisitor {
         result = new BFunctionPointerInvocation(iExpr, expr);
     }
 
+    private void visitIterableOperationInvocation(BLangInvocation iExpr) {
+        if (iExpr.iContext.operations.getLast().iExpr != iExpr) {
+            result = null;
+            return;
+        }
+        iterableCodeDesugar.desugar(iExpr.iContext);
+        result = rewrite(iExpr.iContext.iteratorCaller);
+    }
+
     @SuppressWarnings("unchecked")
     private <E extends BLangNode> E rewrite(E node) {
         if (node == null) {
@@ -1057,8 +1094,8 @@ public class Desugar extends BLangNodeVisitor {
             case TypeTags.BLOB:
             case TypeTags.XML:
                 return;
-            case TypeTags.DATATABLE:
-                // TODO: add this once the datatable initializing is supported.
+            case TypeTags.TABLE:
+                // TODO: add this once the able initializing is supported.
                 return;
             default:
                 return;

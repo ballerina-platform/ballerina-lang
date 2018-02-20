@@ -26,6 +26,9 @@ import org.ballerinalang.plugins.idea.util.BallerinaUtil;
 
 import java.util.Properties;
 
+/**
+ * Ballerina file template properties provider class which provides package name.
+ */
 public class BallerinaTemplatePropertiesProvider implements DefaultTemplatePropertiesProvider {
 
     private static final String BALLERINA_PACKAGE_NAME = FileTemplate.ATTRIBUTE_PACKAGE_NAME;

@@ -20,6 +20,9 @@ import com.intellij.lang.ASTNode;
 import org.antlr.jetbrains.adaptor.psi.ANTLRPsiNode;
 import org.jetbrains.annotations.NotNull;
 
+/**
+ * Represents an ImportDeclaration in PSI tree.
+ */
 public class ImportDeclarationNode extends ANTLRPsiNode implements Comparable<ImportDeclarationNode> {
 
     public ImportDeclarationNode(@NotNull ASTNode node) {

@@ -47,6 +47,7 @@ public class WebSocketPassThroughTestCase extends WebSocketIntegrationTest {
     private ServerInstance ballerinaServer;
     private WebSocketRemoteServer webSocketRemoteServer;
     private final String name = "john";
+    private final String age = "25";
 
     @BeforeClass
     private void setup() throws Exception {
@@ -62,7 +63,7 @@ public class WebSocketPassThroughTestCase extends WebSocketIntegrationTest {
 
         // Initializing and handshaking WebSocket clients.
         for (int i = 0; i < clientCount; i++) {
-            wsClients[i] = new WebSocketClient("ws://localhost:9090/proxy/ws/" + name);
+            wsClients[i] = new WebSocketClient("ws://localhost:9090/proxy/ws/" + name + "?age=" + age);
         }
         handshakeAllClients(wsClients);
     }
@@ -71,7 +72,7 @@ public class WebSocketPassThroughTestCase extends WebSocketIntegrationTest {
     public void testFullTextMediation() throws Exception {
         for (int i = 0; i < clientCount; i++) {
             final int clientNo = i;
-            final String expectedMessage = name + " client service: " + name + " " + clientNo;
+            final String expectedMessage = name + "(" + age + ") client service: " + name + "(" + age + ") " + clientNo;
             await().atMost(awaitTimeInSecs, SECONDS).until(() -> {
                 wsClients[clientNo].sendText(clientNo + "");
                 return expectedMessage.equals(wsClients[clientNo].getTextReceived());

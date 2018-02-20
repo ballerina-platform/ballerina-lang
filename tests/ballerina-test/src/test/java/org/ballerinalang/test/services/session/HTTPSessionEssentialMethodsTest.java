@@ -35,9 +35,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.ballerinalang.mime.util.Constants.TEXT_PLAIN;
-import static org.ballerinalang.net.http.Constants.COOKIE_HEADER;
-import static org.ballerinalang.net.http.Constants.RESPONSE_COOKIE_HEADER;
-import static org.ballerinalang.net.http.Constants.SESSION_ID;
+import static org.ballerinalang.net.http.HttpConstants.COOKIE_HEADER;
+import static org.ballerinalang.net.http.HttpConstants.RESPONSE_COOKIE_HEADER;
+import static org.ballerinalang.net.http.HttpConstants.SESSION_ID;
 
 /**
  * HTTP session Essential Methods Test Class.
@@ -571,7 +571,7 @@ public class HTTPSessionEssentialMethodsTest {
         String responseMsgPayload = StringUtils
                 .getStringFromInputStream(new HttpMessageDataStreamer(response).getInputStream());
         Assert.assertNotNull(responseMsgPayload);
-        String error = responseMsgPayload.substring(0, 34);
-        Assert.assertEquals(error, "error, message: argument 0 is null");
+        Assert.assertEquals(responseMsgPayload, "nullReferenceException\n" +
+                "\tat .:sample.echo5(http-session-test.bal:89)");
     }
 }

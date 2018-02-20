@@ -21,8 +21,8 @@ import org.ballerinalang.connector.api.BallerinaConnectorException;
 import org.ballerinalang.connector.api.ConnectorFutureListener;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.net.http.Constants;
 import org.ballerinalang.net.http.CorsHeaderGenerator;
+import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.HttpUtil;
 import org.ballerinalang.net.http.session.Session;
 import org.ballerinalang.services.ErrorHandlerUtils;
@@ -60,7 +60,7 @@ public class TestHttpFutureListener implements ConnectorFutureListener {
     public void notifyReply(BValue... response) {
         //TODO check below line
         HTTPCarbonMessage responseMessage = HttpUtil.getCarbonMsg((BStruct) response[0], null);
-        Session session = (Session) ((BStruct) request).getNativeData(Constants.HTTP_SESSION);
+        Session session = (Session) ((BStruct) request).getNativeData(HttpConstants.HTTP_SESSION);
         if (session != null) {
             session.generateSessionHeader(responseMessage);
         }
@@ -74,7 +74,7 @@ public class TestHttpFutureListener implements ConnectorFutureListener {
 
     @Override
     public void notifyFailure(BallerinaConnectorException ex) {
-        Object carbonStatusCode = requestMessage.getProperty(Constants.HTTP_STATUS_CODE);
+        Object carbonStatusCode = requestMessage.getProperty(HttpConstants.HTTP_STATUS_CODE);
         int statusCode = (carbonStatusCode == null) ? 500 : Integer.parseInt(carbonStatusCode.toString());
         String errorMsg = ex.getMessage();
         ErrorHandlerUtils.printError(ex);

@@ -27,6 +27,9 @@ import org.ballerinalang.plugins.idea.runconfig.application.BallerinaApplication
 import org.ballerinalang.plugins.idea.runconfig.application.BallerinaApplicationRunConfigurationProducer;
 import org.ballerinalang.plugins.idea.runconfig.application.BallerinaApplicationRunConfigurationType;
 
+/**
+ * Run config producer tests.
+ */
 public class BallerinaRunConfigurationProducerTest extends BallerinaCodeInsightFixtureTestCase {
 
     @Override

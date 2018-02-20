@@ -463,7 +463,7 @@ class SizingUtil {
         workers.forEach((worker) => {
             worker.viewState.bBox.h = maxWorkerHeight;
             worker.body.viewState.bBox.h = maxWorkerHeight - this.config.lifeLine.head.height
-                                             - this.config.lifeLine.footer.height;
+                                             - (this.config.lifeLine.footer.height * 2);
             worker.viewState.components.lifeLine.h = maxWorkerHeight;
             // now add the worker width to panelBody width.
             cmp.panelBody.w += this.config.lifeLine.gutter.h + worker.viewState.bBox.w;
@@ -485,9 +485,6 @@ class SizingUtil {
         const textWidth = this.getTextWidth(node.getName().value);
         viewState.titleWidth = textWidth.w + this.config.panel.heading.title.margin.right
             + this.config.panelHeading.iconSize.width;
-
-        cmp.parametersPrefixContainer = {};
-        cmp.parametersPrefixContainer.w = this.getTextWidth('Parameters: ').w;
 
         // Creating components for argument parameters
         if (node.getParameters()) {
@@ -724,6 +721,30 @@ class SizingUtil {
      */
     sizeResourceNode(node) {
         this.sizeFunctionNode(node);
+
+        // calculate http methods dimensions
+        let annotationAttachment = node.filterAnnotationAttachments((attachment) => {
+            return attachment.getAnnotationName().value === 'resourceConfig';
+        })[0];
+        annotationAttachment = annotationAttachment || {};
+        annotationAttachment.attributes = annotationAttachment.attributes || [];
+        const pathAtributeNode = _.filter(annotationAttachment.attributes, (atribute) => {
+            return atribute.getName().value === 'methods';
+        })[0];
+        node.viewState.components.httpMethods = {
+            bBox: new SimpleBBox(),
+        };
+
+        if (pathAtributeNode && pathAtributeNode.getValue() && pathAtributeNode.getValue().getValueArray()) {
+            pathAtributeNode.getValue().getValueArray().forEach((method) => {
+                const textWidth = this.getTextWidth(method.getValue().unescapedValue, 15, 80);
+                node.viewState.components.httpMethods[textWidth.text] = {};
+                node.viewState.components.httpMethods[textWidth.text].w = textWidth.w;
+                node.viewState.components.httpMethods[textWidth.text].offset =
+                    node.viewState.components.httpMethods.bBox.w;
+                node.viewState.components.httpMethods.bBox.w += textWidth.w + 10;
+            });
+        }
     }
 
 
@@ -755,6 +776,7 @@ class SizingUtil {
         cmp.transportLine = new SimpleBBox();
         cmp.connectors = new SimpleBBox();
         cmp.annotation = new SimpleBBox();
+        cmp.title = new SimpleBBox();
         // initialize annotation view if not defined.
         if (_.isNil(viewState.showAnnotationContainer)) {
             viewState.showAnnotationContainer = true;
@@ -1670,7 +1692,7 @@ class SizingUtil {
         const bodyWidth = nodeBodyViewState.bBox.w;
         const bodyHeight = nodeBodyViewState.bBox.h;
 
-        components['block-header'].h = this.config.statement.height + this.config.compoundStatement.padding.top;
+        components['block-header'].h = this.config.statement.height;
 
         viewState.components['drop-zone'].h = dropZoneHeight + (viewState.offSet || 0);
         viewState.components['drop-zone'].w = bodyWidth;
@@ -1697,10 +1719,12 @@ class SizingUtil {
         // end of try block sizing
 
         let nodeHeight = viewState.bBox.h;
-        const nodeWidth = viewState.bBox.w;
+        let nodeWidth = viewState.bBox.w;
 
         if (node.failedBody) {
-            nodeHeight += (3 * this.config.compoundStatement.padding.top);
+            nodeHeight += node.failedBody.viewState.components['statement-box'].h;
+            nodeHeight -= this.config.compoundStatement.padding.top;
+            nodeWidth += node.failedBody.viewState.bBox.w;
         }
 
         node.viewState.bBox.h = nodeHeight;

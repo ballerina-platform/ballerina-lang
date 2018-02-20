@@ -378,7 +378,7 @@ class TransformerRender {
 
         // Position Add button after functions and operators
         this.container.find('.button-area').css('left',
-            (this.container.find('.middle-content').position().left
+            (this.container.find('.middle-content').position().left - 15
             + ((this.container.find('.middle-content').width()) / 2)) + 'px');
         this.container.find('.button-area').css('top', yFunctionPointer + 'px');
 

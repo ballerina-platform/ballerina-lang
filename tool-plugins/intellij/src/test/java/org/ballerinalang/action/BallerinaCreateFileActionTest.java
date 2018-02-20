@@ -28,6 +28,9 @@ import org.ballerinalang.plugins.idea.psi.FullyQualifiedPackageNameNode;
 import org.ballerinalang.plugins.idea.psi.PackageDeclarationNode;
 import org.jetbrains.annotations.NotNull;
 
+/**
+ * Create file action tests.
+ */
 public class BallerinaCreateFileActionTest extends BallerinaCodeInsightFixtureTestCase {
 
     public void testPackageNameInARootDirectory() {
@@ -73,7 +76,8 @@ public class BallerinaCreateFileActionTest extends BallerinaCodeInsightFixtureTe
         // declaration available. Otherwise there will be a package declaration node.
         if (!expectedPackage.isEmpty()) {
             assertNotNull(packageDeclarationNode);
-            FullyQualifiedPackageNameNode fullyQualifiedPackageNameNode = PsiTreeUtil.getChildOfType(packageDeclarationNode, FullyQualifiedPackageNameNode.class);
+            FullyQualifiedPackageNameNode fullyQualifiedPackageNameNode =
+                    PsiTreeUtil.getChildOfType(packageDeclarationNode, FullyQualifiedPackageNameNode.class);
             assertNotNull(fullyQualifiedPackageNameNode);
             assertEquals(expectedPackage, fullyQualifiedPackageNameNode.getText());
         } else {

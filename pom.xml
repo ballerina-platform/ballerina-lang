@@ -22,7 +22,7 @@
     <groupId>org.ballerinalang</groupId>
     <artifactId>ballerina-parent</artifactId>
     <packaging>pom</packaging>
-    <version>0.96.1-SNAPSHOT</version>
+    <version>0.961.1-SNAPSHOT</version>
     <name>Ballerina - Parent</name>
 
     <description>
@@ -241,6 +241,11 @@
                 <artifactId>ballerina</artifactId>
                 <version>${ballerina.version}</version>
                 <type>zip</type>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>language-server-stdio-launcher</artifactId>
+                <version>${ballerina.version}</version>
             </dependency>
 
 
@@ -748,27 +753,63 @@
                     </plugin>
                 </plugins>
             </build>
-        </profile>
-        <profile>
-            <id>ballerina</id>
             <modules>
-                <module>bvm/ballerina-core</module>
-                <module>bvm/ballerina-logging</module>
-                <module>cli/ballerina-launcher</module>
-                <module>cli/ballerina-packerina</module>
                 <module>compiler/ballerina-lang</module>
-
-                <module>distribution/zip/ballerina</module>
-
-                <module>misc/ballerina-maven-plugins</module>
-                <module>misc/ballerina-samples</module>
-                <module>misc/docerina</module>
 
                 <module>stdlib/ballerina-builtin</module>
                 <module>stdlib/ballerina-config</module>
                 <module>stdlib/ballerina-http</module>
                 <module>stdlib/ballerina-mime</module>
+
+                <module>bvm/ballerina-core</module>
+                <module>bvm/ballerina-logging</module>
+                <module>cli/ballerina-launcher</module>
+                <module>cli/ballerina-packerina</module>
+
                 <module>tests/ballerina-test</module>
+
+                <module>language-server</module>
+                <module>misc/docerina</module>
+                <module>misc/ballerina-maven-plugins</module>
+                <module>misc/ballerina-samples</module>
+                <module>misc/swagger-ballerina</module>
+                <module>misc/testerina</module>
+
+                <module>composer</module>
+
+                <module>distribution/docker</module>
+                <module>distribution/zip/ballerina</module>
+                <module>distribution/zip/ballerina-tools</module>
+
+                <module>tests/ballerina-test-integration</module>
+
+                <module>tool-plugins/intellij</module>
+                <module>tool-plugins/vscode</module>
+            </modules>
+        </profile>
+        <profile>
+            <id>ballerina</id>
+            <modules>
+                <module>compiler/ballerina-lang</module>
+
+                <module>stdlib/ballerina-builtin</module>
+                <module>stdlib/ballerina-config</module>
+                <module>stdlib/ballerina-http</module>
+                <module>stdlib/ballerina-mime</module>
+
+                <module>bvm/ballerina-core</module>
+                <module>bvm/ballerina-logging</module>
+                <module>cli/ballerina-launcher</module>
+                <module>cli/ballerina-packerina</module>
+
+                <module>tests/ballerina-test</module>
+
+                <module>misc/docerina</module>
+                <module>misc/ballerina-maven-plugins</module>
+                <module>misc/ballerina-samples</module>
+
+                <module>distribution/zip/ballerina</module>
+
                 <module>tests/ballerina-test-integration</module>
             </modules>
         </profile>
@@ -778,11 +819,26 @@
                 <activeByDefault>true</activeByDefault>
             </activation>
             <modules>
+                <module>compiler/ballerina-lang</module>
+
+                <module>stdlib/ballerina-builtin</module>
+                <module>stdlib/ballerina-config</module>
+                <module>stdlib/ballerina-http</module>
+                <module>stdlib/ballerina-mime</module>
+
                 <module>bvm/ballerina-core</module>
                 <module>bvm/ballerina-logging</module>
                 <module>cli/ballerina-launcher</module>
                 <module>cli/ballerina-packerina</module>
-                <module>compiler/ballerina-lang</module>
+
+                <module>tests/ballerina-test</module>
+
+                <module>language-server</module>
+                <module>misc/ballerina-maven-plugins</module>
+                <module>misc/ballerina-samples</module>
+                <module>misc/docerina</module>
+                <module>misc/swagger-ballerina</module>
+                <module>misc/testerina</module>
 
                 <module>composer</module>
 
@@ -790,24 +846,24 @@
                 <module>distribution/zip/ballerina</module>
                 <module>distribution/zip/ballerina-tools</module>
 
-                <module>language-server</module>
-
-                <module>misc/ballerina-maven-plugins</module>
-                <module>misc/ballerina-samples</module>
-                <module>misc/docerina</module>
-                <module>misc/swagger-ballerina</module>
-                <module>misc/testerina</module>
-
-                <module>stdlib/ballerina-builtin</module>
-                <module>stdlib/ballerina-config</module>
-                <module>stdlib/ballerina-http</module>
-                <module>stdlib/ballerina-mime</module>
-                <module>tests/ballerina-test</module>
                 <module>tests/ballerina-test-integration</module>
 
+                <!-- Intellij build disabled in default build -->
                 <!--<module>tool-plugins/intellij</module>-->
                 <module>tool-plugins/vscode</module>
             </modules>
+        </profile>
+        <profile>
+            <id>platform-windows</id>
+            <activation>
+                <os>
+                    <family>windows</family>
+                </os>
+            </activation>
+            <properties>
+                <!-- Override the executable names for Windows -->
+                <npm.executable>npm.cmd</npm.executable>
+            </properties>
         </profile>
     </profiles>
 
@@ -842,7 +898,7 @@
                 <plugin>
                     <groupId>org.codehaus.mojo</groupId>
                     <artifactId>exec-maven-plugin</artifactId>
-                    <version>${mvn.exec.plugin.version}</version>
+                    <version>${maven.exec.plugin.version}</version>
                 </plugin>
 
                 <plugin>
@@ -1048,6 +1104,11 @@
                         </execution>
                     </executions>
                 </plugin>
+                <plugin>
+                    <groupId>org.ballerinalang</groupId>
+                    <artifactId>docerina-maven-plugin</artifactId>
+                    <version>${ballerina.version}</version>
+                </plugin>
             </plugins>
         </pluginManagement>
         <plugins>
@@ -1097,7 +1158,8 @@
     </build>
 
     <properties>
-        <ballerina.version>0.96.1-SNAPSHOT</ballerina.version>
+        <ballerina.version>0.961.1-SNAPSHOT</ballerina.version>
+        <npm.executable>npm</npm.executable>
         <ballerina.package.export.version>0.8.0</ballerina.package.export.version>
 
         <commons-net.version>3.6</commons-net.version>
@@ -1108,7 +1170,6 @@
         <ballerina.package.repository.provider.class>BallerinaBuiltinPackageRepository
         </ballerina.package.repository.provider.class>
         <mvn.processor.plugin.version>2.2.4</mvn.processor.plugin.version>
-        <mvn.exec.plugin.version>1.6.0</mvn.exec.plugin.version>
         <ant.contrib.plugin.version>1.0b3</ant.contrib.plugin.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
@@ -1122,7 +1183,7 @@
         <equinox.osgi.version>3.10.2.v20150203-1939</equinox.osgi.version>
         <equinox.osgi.services.version>3.4.0.v20140312-2051</equinox.osgi.services.version>
         <carbon.kernel.version>5.1.0</carbon.kernel.version>
-        <transport.http.version>6.0.77</transport.http.version>
+        <transport.http.version>6.0.87</transport.http.version>
         <carbon.messaging.version>2.3.7</carbon.messaging.version>
         <carbon.deployment.version>5.0.0</carbon.deployment.version>
         <carbon.config.version>2.1.2</carbon.config.version>
@@ -1178,7 +1239,7 @@
         <wso2.maven.compiler.source>1.8</wso2.maven.compiler.source>
         <wso2.maven.compiler.target>1.8</wso2.maven.compiler.target>
         <sourceReleaseAssemblyDescriptor>source-release</sourceReleaseAssemblyDescriptor>
-        <project.scm.id>my-scm-server</project.scm.id>
+        <project.scm.id>ballerina-scm-server</project.scm.id>
 
         <!-- Maven plugin versions -->
         <maven.antrun.plugin.version>1.8</maven.antrun.plugin.version>
@@ -1208,6 +1269,9 @@
         <maven.site.plugin.version>3.5</maven.site.plugin.version>
         <maven.source.plugin.version>3.0.0</maven.source.plugin.version>
         <maven.surefire.plugin.version>2.19.1</maven.surefire.plugin.version>
+        <maven.exec.plugin.version>1.6.0</maven.exec.plugin.version>
+        <maven.replacer.plugin.version>1.5.3</maven.replacer.plugin.version>
+
         <apache.rat.plugin.version>0.11</apache.rat.plugin.version>
         <clirr.maven.plugin.version>2.7</clirr.maven.plugin.version>
         <apache.source.release.assembly.descriptor.version>1.0.5</apache.source.release.assembly.descriptor.version>

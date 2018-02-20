@@ -20,6 +20,9 @@ import com.intellij.lang.ASTNode;
 import org.antlr.jetbrains.adaptor.psi.ANTLRPsiNode;
 import org.jetbrains.annotations.NotNull;
 
+/**
+ * Represents an VariableReferenceList in PSI tree.
+ */
 public class VariableReferenceListNode extends ANTLRPsiNode {
 
     public VariableReferenceListNode(@NotNull ASTNode node) {

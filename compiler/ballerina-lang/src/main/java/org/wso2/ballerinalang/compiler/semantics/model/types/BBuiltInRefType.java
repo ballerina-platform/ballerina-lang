@@ -23,9 +23,9 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.util.TypeDescriptor;
 
 import static org.wso2.ballerinalang.compiler.util.TypeTags.ANY;
-import static org.wso2.ballerinalang.compiler.util.TypeTags.DATATABLE;
 import static org.wso2.ballerinalang.compiler.util.TypeTags.JSON;
 import static org.wso2.ballerinalang.compiler.util.TypeTags.MAP;
+import static org.wso2.ballerinalang.compiler.util.TypeTags.TABLE;
 import static org.wso2.ballerinalang.compiler.util.TypeTags.XML;
 
 /**
@@ -42,7 +42,7 @@ public class BBuiltInRefType extends BType implements ReferenceType {
         switch (tag) {
             case JSON:
             case XML:
-            case DATATABLE:
+            case TABLE:
             case MAP:
                 return TypeDescriptor.SIG_REFTYPE + getKind().typeName() + ";";
             case ANY:
@@ -53,8 +53,8 @@ public class BBuiltInRefType extends BType implements ReferenceType {
     }
 
     @Override
-    public <R> R accept(BTypeVisitor<R> visitor, BType type) {
-        return visitor.visit(this, type);
+    public <T, R> R accept(BTypeVisitor<T, R> visitor, T t) {
+        return visitor.visit(this, t);
     }
 
     @Override
@@ -64,8 +64,8 @@ public class BBuiltInRefType extends BType implements ReferenceType {
                 return TypeKind.JSON;
             case XML:
                 return TypeKind.XML;
-            case DATATABLE:
-                return TypeKind.DATATABLE;
+            case TABLE:
+                return TypeKind.TABLE;
             case ANY:
                 return TypeKind.ANY;
             case MAP:

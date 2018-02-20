@@ -45,6 +45,9 @@ import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 
+/**
+ * Util methods and constants related to code completion.
+ */
 public class BallerinaCompletionUtils {
 
     private static final int VARIABLE_PRIORITY = 20;

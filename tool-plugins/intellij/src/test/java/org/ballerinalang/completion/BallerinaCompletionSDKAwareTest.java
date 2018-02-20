@@ -19,6 +19,9 @@ package org.ballerinalang.completion;
 import org.ballerinalang.BallerinaSDKAware;
 import org.ballerinalang.plugins.idea.project.BallerinaApplicationLibrariesService;
 
+/**
+ * SDK aware code completion test.
+ */
 @BallerinaSDKAware
 public class BallerinaCompletionSDKAwareTest extends BallerinaCompletionTestBase {
 

@@ -20,6 +20,9 @@ import com.intellij.psi.PsiFile;
 import org.ballerinalang.plugins.idea.runconfig.BallerinaRunConfigurationProducerBase;
 import org.jetbrains.annotations.NotNull;
 
+/**
+ * Produces Ballerina application configurations.
+ */
 public class BallerinaApplicationRunConfigurationProducer
         extends BallerinaRunConfigurationProducerBase<BallerinaApplicationConfiguration> implements Cloneable {
 

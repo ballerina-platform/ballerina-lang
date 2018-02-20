@@ -18,6 +18,9 @@ package org.ballerinalang.editor;
 
 import org.ballerinalang.BallerinaCodeInsightFixtureTestCase;
 
+/**
+ * Live template tests.
+ */
 public class BallerinaLiveTemplateTest extends BallerinaCodeInsightFixtureTestCase {
 
     public void testMainFunction() {
@@ -65,7 +68,8 @@ public class BallerinaLiveTemplateTest extends BallerinaCodeInsightFixtureTestCa
     public void testResource() {
         myFixture.configureByText("test.bal", "service<http> test {\n    <caret>\n}");
         myFixture.type("res\t");
-        myFixture.checkResult("service<http> test {\n    \n    resource  (http:Request req, http:Response res) {\n        \n    }\n}");
+        myFixture.checkResult("service<http> test {\n    \n    resource  (http:Request req, http:Response res) " +
+                "{\n        \n    }\n}");
     }
 
     public void testResourceAfterResource() {

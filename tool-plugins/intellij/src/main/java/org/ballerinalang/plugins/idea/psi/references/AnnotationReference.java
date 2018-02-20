@@ -33,6 +33,9 @@ import org.jetbrains.annotations.Nullable;
 import java.util.LinkedList;
 import java.util.List;
 
+/**
+ * Represents an annotation reference.
+ */
 public class AnnotationReference extends BallerinaElementReference {
 
     public AnnotationReference(@NotNull IdentifierPSINode element) {

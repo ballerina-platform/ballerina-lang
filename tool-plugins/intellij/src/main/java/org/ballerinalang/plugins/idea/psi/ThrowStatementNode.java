@@ -19,6 +19,9 @@ package org.ballerinalang.plugins.idea.psi;
 import com.intellij.lang.ASTNode;
 import org.jetbrains.annotations.NotNull;
 
+/**
+ * Represents an ThrowStatement in PSI tree.
+ */
 public class ThrowStatementNode extends StatementNode {
 
     public ThrowStatementNode(@NotNull ASTNode node) {

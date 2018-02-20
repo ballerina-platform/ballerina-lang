@@ -27,6 +27,9 @@ import org.jetbrains.annotations.Nullable;
 
 import javax.swing.Icon;
 
+/**
+ * Responsible for creating a Ballerina project in small IDEs.
+ */
 public class BallerinaProjectGenerator implements DirectoryProjectGenerator {
 
     @Nls

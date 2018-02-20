@@ -20,6 +20,9 @@ import com.intellij.notification.NotificationGroup;
 import com.intellij.openapi.wm.ToolWindowId;
 import org.jetbrains.annotations.NonNls;
 
+/**
+ * Contains constants related to Ballerina plugin.
+ */
 public class BallerinaConstants {
 
     private BallerinaConstants() {

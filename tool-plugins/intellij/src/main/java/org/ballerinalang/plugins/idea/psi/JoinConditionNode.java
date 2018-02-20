@@ -20,6 +20,9 @@ import com.intellij.lang.ASTNode;
 import org.antlr.jetbrains.adaptor.psi.ANTLRPsiNode;
 import org.jetbrains.annotations.NotNull;
 
+/**
+ * Represents an JoinCondition in PSI tree.
+ */
 public class JoinConditionNode extends ANTLRPsiNode {
 
     public JoinConditionNode(@NotNull ASTNode node) {

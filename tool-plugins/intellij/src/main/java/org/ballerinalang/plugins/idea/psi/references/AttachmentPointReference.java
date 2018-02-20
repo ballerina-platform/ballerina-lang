@@ -26,6 +26,9 @@ import org.jetbrains.annotations.Nullable;
 import java.util.LinkedList;
 import java.util.List;
 
+/**
+ * Represents an attachment point reference.
+ */
 public class AttachmentPointReference extends BallerinaElementReference {
 
     public AttachmentPointReference(@NotNull IdentifierPSINode element) {

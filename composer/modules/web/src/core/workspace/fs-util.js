@@ -20,12 +20,8 @@ import { getServiceEndpoint } from 'api-client/api-client';
 import axios from 'axios';
 import File from './model/file';
 
-const COMMON_HEADERS = {
-    'content-type': 'text/plain; charset=utf-8',
-};
-
-const FORM_CONTENT_COMMON_HEADERS = {
-    'content-type': 'application/x-www-form-urlencoded; charset=utf-8',
+const CONTENT_TYPE_JSON_HEADER = {
+    'content-type': 'application/json;charset=utf-8',
 };
 
 const FS_SERVICE = 'filesystem';
@@ -38,7 +34,10 @@ const FS_SERVICE = 'filesystem';
  */
 export function read(targetFilePath) {
     const serviceEP = `${getServiceEndpoint(FS_SERVICE)}/read`;
-    return axios.post(serviceEP, targetFilePath, { headers: COMMON_HEADERS })
+    const data = {
+        path: targetFilePath,
+    };
+    return axios.post(serviceEP, data, { headers: CONTENT_TYPE_JSON_HEADER })
                 .then((response) => {
                     const { fileContent, fileName, filePath, fileFullPath, extension } = response.data;
                     const name = fileName;
@@ -63,16 +62,19 @@ export function read(targetFilePath) {
  * @param {String} path Path of the folder
  * @param {String} name Name of the file
  * @param {String} content Content of the file
- * @param {Boolean} isCustomContent is content to be sent custom.
+ * @param {Boolean} isBase64Encoded is content to be sent encoded in base64.
  *
  * @returns {Promise} Resolves file path or reject with error.
  */
-export function createOrUpdate(path, name, content, isCustomContent) {
+export function createOrUpdate(path, name, content, isBase64Encoded) {
     const serviceEP = `${getServiceEndpoint(FS_SERVICE)}/write`;
-    // FIXME: Refactor backend params
-    const data = isCustomContent ? content : `location=${btoa(path)}&configName=${btoa(name)}&config=${
-                            encodeURIComponent(content)}`;
-    return axios.post(serviceEP, data, { headers: COMMON_HEADERS })
+    const data = {
+        path,
+        name,
+        content,
+        isBase64Encoded,
+    };
+    return axios.post(serviceEP, data, { headers: CONTENT_TYPE_JSON_HEADER })
         .then((response) => {
             return response.data;
         });
@@ -86,8 +88,10 @@ export function createOrUpdate(path, name, content, isCustomContent) {
  */
 export function remove(path) {
     const serviceEP = `${getServiceEndpoint(FS_SERVICE)}/delete`;
-    const data = `path=${btoa(path)}`;
-    return axios.post(serviceEP, data, { headers: FORM_CONTENT_COMMON_HEADERS })
+    const data = {
+        path,
+    };
+    return axios.post(serviceEP, data, { headers: CONTENT_TYPE_JSON_HEADER })
         .then((response) => {
             return response.data;
         });
@@ -97,17 +101,20 @@ export function remove(path) {
 /**
  * Creates given file/folder in file system.
  *
- * @param {String} path Path of the file/folder
+ * @param {String} fullPath Path of the file/folder
  * @param {String} type file or folder
  * @param {String} content file content - if creating a file
  *
  * @returns {Promise} Resolves created file path or reject with error.
  */
-export function create(path, type, content) {
+export function create(fullPath, type, content) {
     const serviceEP = `${getServiceEndpoint(FS_SERVICE)}/create`;
-    // FIXME: Refactor backend params
-    const data = `path=${btoa(path)}&type=${btoa(type)}&content=${btoa(content)}`;
-    return axios.post(serviceEP, data, { headers: FORM_CONTENT_COMMON_HEADERS })
+    const data = {
+        fullPath,
+        type,
+        content,
+    };
+    return axios.post(serviceEP, data, { headers: CONTENT_TYPE_JSON_HEADER })
         .then((response) => {
             return response.data;
         });
@@ -124,8 +131,11 @@ export function create(path, type, content) {
  */
 export function move(srcPath, destPath) {
     const serviceEP = `${getServiceEndpoint(FS_SERVICE)}/move`;
-    const data = `srcPath=${btoa(srcPath)}&destPath=${btoa(destPath)}`;
-    return axios.post(serviceEP, data, { headers: FORM_CONTENT_COMMON_HEADERS })
+    const data = {
+        srcPath,
+        destPath,
+    };
+    return axios.post(serviceEP, data, { headers: CONTENT_TYPE_JSON_HEADER })
             .then((response) => {
                 return response.data;
             });
@@ -141,8 +151,11 @@ export function move(srcPath, destPath) {
  */
 export function copy(srcPath, destPath) {
     const serviceEP = `${getServiceEndpoint(FS_SERVICE)}/copy`;
-    const data = `srcPath=${btoa(srcPath)}&destPath=${btoa(destPath)}`;
-    return axios.post(serviceEP, data, { headers: FORM_CONTENT_COMMON_HEADERS })
+    const data = {
+        srcPath,
+        destPath,
+    };
+    return axios.post(serviceEP, data, { headers: CONTENT_TYPE_JSON_HEADER })
             .then((response) => {
                 return response.data;
             });
@@ -154,9 +167,12 @@ export function copy(srcPath, destPath) {
  * @returns {Promise} Resolves boolean file exists
  */
 export function exists(path) {
-    const endpoint = `${getServiceEndpoint(FS_SERVICE)}/exists?path=${btoa(path)}`;
+    const endpoint = `${getServiceEndpoint(FS_SERVICE)}/exists`;
+    const data = {
+        path,
+    };
     return new Promise((resolve, reject) => {
-        axios.get(endpoint, { headers: COMMON_HEADERS })
+        axios.post(endpoint, data, { headers: CONTENT_TYPE_JSON_HEADER })
             .then((response) => {
                 resolve(response.data);
             }).catch(error => reject(error));

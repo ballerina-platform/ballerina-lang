@@ -20,6 +20,7 @@ Structs
 Maps
 Arrays
 Array of Arrays
+Vector
 Lengthof
 Identifier Literals
 JSON
@@ -35,13 +36,14 @@ XML Functions
 JSON To XML Conversion
 XML To JSON Conversion
 Foreach
+Iterable Operations
 Worker
 Worker Interaction
 Fork/Join
 Fork/Join Condition Some
 Fork/Join Variable Access
 SQL Connector
-Datatable
+Table
 Transactions
 Distributed Transactions
 Transformers
@@ -53,7 +55,7 @@ File API
 Throw
 Try/Catch/Finally
 Base Path and Path
-Query and Path Param
+Query/Path/Matrix Param
 Content Based Routing
 Header Based Routing
 Produces/Consumes

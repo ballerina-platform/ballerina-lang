@@ -202,6 +202,7 @@ done
     -Dcomposer.port=9091 \
     -DenableCloud=$ENABLE_CLOUD \
     -Dworkspace.port=8289 \
+    -Dopen.browser=true \
     -Dtransports.netty.conf=./resources/composer/services/netty-transports.yml \
     -Dmsf4j.conf=./resources/composer/services/deployment.yaml \
     org.ballerinalang.composer.server.launcher.ServerLauncher $@

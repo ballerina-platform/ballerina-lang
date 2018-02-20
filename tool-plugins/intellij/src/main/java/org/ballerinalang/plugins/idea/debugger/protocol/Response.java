@@ -16,6 +16,9 @@
 
 package org.ballerinalang.plugins.idea.debugger.protocol;
 
+/**
+ * Supported debug server responses.
+ */
 public enum Response {
 
     DEBUG_HIT("DEBUG_HIT"), INVALID("INVALID"), ACK("ACK"), COMPLETE("COMPLETE"), EXIT("EXIT");

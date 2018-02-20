@@ -20,6 +20,9 @@ import com.intellij.lang.ASTNode;
 import org.antlr.jetbrains.adaptor.psi.ANTLRPsiNode;
 import org.jetbrains.annotations.NotNull;
 
+/**
+ * Represents a BuiltInReferenceTypeName in PSI tree.
+ */
 public class BuiltInReferenceTypeNameNode extends ANTLRPsiNode {
 
     public BuiltInReferenceTypeNameNode(@NotNull ASTNode node) {

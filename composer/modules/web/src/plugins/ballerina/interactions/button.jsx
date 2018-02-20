@@ -101,9 +101,8 @@ class Button extends React.Component {
         const btnX = this.props.buttonX;
         const btnY = this.props.buttonY;
         const btnRadius = this.props.buttonRadius;
-        const btnColor = this.props.buttonColor;
         const btnIconColor = this.props.buttonIconColor;
-        const IconOpacity = this.props.hideIconBackground ? 0 : 1;
+        let IconOpacity = 1;
         const buttonArea = btnRadius + 2 + (btnRadius / 4);
         const topPadding = (-3 * btnRadius) + (btnRadius / 2);
         let menuCss = 'interaction-menu-area';
@@ -113,6 +112,15 @@ class Button extends React.Component {
             display: 'block',
             position: 'relative',
             float: 'left' };
+
+        let buttonBackgroundClass = 'button-background';
+
+        if (this.props.type === 'secondary') {
+            buttonBackgroundClass = 'button-background-secondary';
+        } if (this.props.type === 'default') {
+            buttonBackgroundClass = 'button-background-default';
+            IconOpacity = 0;
+        }
 
         if (this.props.menuOverButton) {
             menuStyle.zIndex = 22;
@@ -134,17 +142,13 @@ class Button extends React.Component {
                 className={menuCss}
                 style={{ position: 'absolute', left: btnX, top: btnY, '--button-size': buttonArea + 'px' }}
             >
-                <div style={{ fontSize: btnRadius }} className='button-panel'>
+                <div className='button-panel'>
                     <span
                         onClick={this.props.onClick}
-                        className={(this.state.showAlways ? 'button-show-always' : 'button') + ' fw-stack fw-lg'}
+                        className={(this.state.showAlways ? 'button-show-always' : 'button') + ' fw-lg ' + buttonBackgroundClass}
                         title={this.props.tooltip}
                     >
-                        <i
-                            style={{ color: btnColor, opacity: IconOpacity }}
-                            className='fw button-background fw-circle fw-stack-2x'
-                        />
-                        <i style={{ color: btnIconColor }} className={`fw fw-${this.props.icon} fw-stack-1x`} />
+                        <i className={`fw fw-${this.props.icon} fw-lg button-icon`} />
                     </span>
                 </div>
                 <div style={menuStyle}>
@@ -156,14 +160,13 @@ class Button extends React.Component {
 }
 
 Button.propTypes = {
+    type: PropTypes.string,
     children: PropTypes.node,
     icon: PropTypes.string,
     buttonX: PropTypes.number,
     buttonY: PropTypes.number,
     buttonRadius: PropTypes.number,
-    buttonColor: PropTypes.string,
     buttonIconColor: PropTypes.string,
-    hideIconBackground: PropTypes.bool,
     showAlways: PropTypes.bool,
     onClick: PropTypes.func,
     tooltip: PropTypes.string,
@@ -172,12 +175,11 @@ Button.propTypes = {
 };
 
 Button.defaultProps = {
+    type: 'primary',
     icon: 'add',
     buttonX: 20,
     buttonY: 20,
     buttonRadius: 10,
-    buttonColor: '#f1772a',
-    buttonIconColor: '#ffffff',
     hideIconBackground: false,
     showAlways: false,
     onClick: () => {},

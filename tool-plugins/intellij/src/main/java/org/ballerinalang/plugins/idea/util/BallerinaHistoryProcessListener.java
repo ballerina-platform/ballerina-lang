@@ -24,6 +24,9 @@ import com.intellij.openapi.util.Pair;
 
 import java.util.concurrent.ConcurrentLinkedQueue;
 
+/**
+ * Responsible for handling console history.
+ */
 public class BallerinaHistoryProcessListener extends ProcessAdapter {
 
     private final ConcurrentLinkedQueue<Pair<ProcessEvent, Key>> myHistory = new ConcurrentLinkedQueue<>();

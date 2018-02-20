@@ -31,6 +31,9 @@ import org.jetbrains.annotations.Nullable;
 import java.util.LinkedList;
 import java.util.List;
 
+/**
+ * Represents a worker reference.
+ */
 public class WorkerReference extends BallerinaElementReference {
 
     public WorkerReference(@NotNull IdentifierPSINode element) {

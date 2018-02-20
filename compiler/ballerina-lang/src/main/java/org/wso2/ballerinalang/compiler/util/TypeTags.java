@@ -30,8 +30,8 @@ public class TypeTags {
     public static final int TYPE = BLOB + 1;
     public static final int JSON = TYPE + 1;
     public static final int XML = JSON + 1;
-    public static final int DATATABLE = XML + 1;
-    public static final int MAP = DATATABLE + 1;
+    public static final int TABLE = XML + 1;
+    public static final int MAP = TABLE + 1;
     public static final int ANY = MAP + 1;
     public static final int STRUCT = ANY + 1;
     public static final int CONNECTOR = STRUCT + 1;
@@ -48,6 +48,7 @@ public class TypeTags {
     public static final int ERROR = XML_ATTRIBUTES + 1;
     public static final int ENDPOINT = ERROR + 1;
     public static final int ITERATOR = ENDPOINT + 1;
+    public static final int TUPLE_COLLECTION = ITERATOR + 1;
 
     private TypeTags() {
     }

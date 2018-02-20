@@ -25,6 +25,9 @@ import org.ballerinalang.plugins.idea.psi.scopes.ParameterContainer;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+/**
+ * Represents a ForEachStatement in PSI tree.
+ */
 public class ForEachStatementNode extends ANTLRPsiNode implements CodeBlockScope, ParameterContainer {
 
     public ForEachStatementNode(@NotNull ASTNode node) {

@@ -31,6 +31,9 @@ import org.ballerinalang.plugins.idea.debugger.Callback;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * WebSocket client handler which handles communication with the debug server.
+ */
 public class WebSocketClientHandler extends SimpleChannelInboundHandler<Object> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(WebSocketClient.class);

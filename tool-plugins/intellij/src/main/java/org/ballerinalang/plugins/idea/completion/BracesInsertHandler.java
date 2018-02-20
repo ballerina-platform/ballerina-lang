@@ -27,10 +27,13 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.psi.PsiDocumentManager;
 
+/**
+ * Provides brace insert support.
+ */
 public class BracesInsertHandler implements InsertHandler<LookupElement> {
 
-    public final static InsertHandler<LookupElement> INSTANCE = new BracesInsertHandler(false);
-    public final static InsertHandler<LookupElement> INSTANCE_WITH_AUTO_POPUP =
+    public static final InsertHandler<LookupElement> INSTANCE = new BracesInsertHandler(false);
+    public static final InsertHandler<LookupElement> INSTANCE_WITH_AUTO_POPUP =
             new BracesInsertHandler(true);
 
     private final String myIgnoreOnChars;

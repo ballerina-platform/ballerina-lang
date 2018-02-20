@@ -33,8 +33,6 @@ import Operator from './operator';
 import TreeUtil from '../../../../../model/tree-util';
 import DropZone from '../../../../../drag-drop/DropZone';
 import Button from '../../../../../interactions/transform-button';
-import Item from '../../../../../interactions/item';
-import { binaryOpTools, unaryOpTools, ternaryOpTools } from '../../../../../tool-palette/item-provider/operator-tools';
 import './transformer-expanded.css';
 
 /**
@@ -529,20 +527,26 @@ class TransformerExpanded extends React.Component {
     drawConnection(sourceId, targetId, folded, statement) {
         let type = '';
         if (sourceId && targetId && statement) {
-            if (TreeUtil.isTypeConversionExpr(statement.getExpression())) {
-                if (TreeUtil.isFieldBasedAccessExpr(statement.getExpression().getExpression())) {
-                    type = statement.getExpression().getTypeNode().getTypeKind();
-                } else if (TreeUtil.isInvocation(statement.getExpression().getExpression())) {
+            let expression;
+            if (TreeUtil.isVariableDef(statement)) {
+                expression = statement.getVariable().getInitialExpression();
+            } else {
+                expression = statement.getExpression();
+            }
+            if (TreeUtil.isTypeConversionExpr(expression)) {
+                if (TreeUtil.isFieldBasedAccessExpr(expression.getExpression())) {
+                    type = expression.getTypeNode().getTypeKind();
+                } else if (TreeUtil.isInvocation(expression.getExpression())) {
                     // Handle Function outgoing parameter conversion
-                    if (statement.getExpression().getExpression().getID() === sourceId.split(':')[0]) {
-                        type = statement.getExpression().getTypeNode().getTypeKind();
+                    if (expression.getExpression().getID() === sourceId.split(':')[0]) {
+                        type = expression.getTypeNode().getTypeKind();
                     } else {
                         type = this.getFunctionArgConversionType(
-                          statement.getExpression().getExpression().getArgumentExpressions(), sourceId.split(':')[0]);
+                            expression.getExpression().getArgumentExpressions(), sourceId.split(':')[0]);
                     }
                 }
-            } else if (TreeUtil.isInvocation(statement.getExpression())) {
-                type = this.getFunctionArgConversionType(statement.getExpression().getArgumentExpressions(),
+            } else if (TreeUtil.isInvocation(expression)) {
+                type = this.getFunctionArgConversionType(expression.getArgumentExpressions(),
                                                           sourceId.split(':')[0]);
             }
         }
@@ -1015,7 +1019,7 @@ class TransformerExpanded extends React.Component {
             const func = this.transformNodeManager.getFunctionVertices(nodeExpression);
             if (_.isUndefined(func)) {
                 this.context.alert.showError('Function definition for "' +
-                     nodeExpression.getFunctionName() + '" cannot be found');
+                nodeExpression.getFunctionName() + '" cannot be found');
                 return [];
             }
             nodeExpression.argumentExpressions.forEach((arg) => {
@@ -1342,57 +1346,8 @@ class TransformerExpanded extends React.Component {
                                         bBox={{ x: 0, y: 0, h: 0, w: 300 }}
                                         showAlways
                                         model={this.props.model.getBody()}
-                                    >
-                                        <p className='add-menu-text'>Unary Operators</p>
-                                        {
-                                            unaryOpTools.map((operator) => {
-                                                return (<Item
-                                                    label={operator.title}
-                                                    icon={'fw fw-' + operator.icon}
-                                                    callback={() => {
-                                                        this.transformNodeManager.addDefaultOperator(
-                                                            { callback: operator.nodeFactoryMethod,
-                                                                args: operator.factoryArgs });
-                                                    }}
-                                                />);
-                                            })
-                                        }
-                                        <hr />
-                                        <p className='add-menu-text'>Binary Operators</p>
-                                        {
-                                            binaryOpTools.map((operator) => {
-                                                if (!operator.seperator) {
-                                                    return (<Item
-                                                        label={operator.title}
-                                                        icon={'fw fw-' + operator.icon}
-                                                        callback={() => {
-                                                            this.transformNodeManager.addDefaultOperator(
-                                                                { callback: operator.nodeFactoryMethod,
-                                                                    args: operator.factoryArgs });
-                                                        }}
-                                                    />);
-                                                } else {
-                                                    return (<hr />);
-                                                }
-                                            })
-                                        }
-                                        <hr />
-                                        <p className='add-menu-text'>Ternary Operators</p>
-                                        {
-                                            ternaryOpTools.map((operator) => {
-                                                return (<Item
-                                                    label={operator.title}
-                                                    icon={'fw fw-' + operator.icon}
-                                                    callback={() => {
-                                                        this.transformNodeManager.addDefaultOperator(
-                                                            { callback: operator.nodeFactoryMethod,
-                                                                args: operator.factoryArgs });
-                                                    }}
-                                                />);
-                                            })
-                                        }
-
-                                    </Button>
+                                        transformNodeManager={this.transformNodeManager}
+                                    />
                                     <div className='right-content'>
                                         <div className='rightType'>
                                             <Tree

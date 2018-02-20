@@ -240,7 +240,9 @@ class LifelineButton extends React.Component {
                     buttonY={this.props.button.y}
                     showAlways={this.props.showAlways}
                     buttonRadius={8}
+                    buttonIconColor='#333'
                     menuOverButton
+                    type='secondary'
                 >
                     <Menu>
                         { !this.state.listConnectors && !this.state.listActions &&

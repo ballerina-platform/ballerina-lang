@@ -16,6 +16,9 @@
 
 package org.ballerinalang.plugins.idea.debugger.dto;
 
+/**
+ * Represent a breakpoint.
+ */
 public class BreakPoint {
 
     private String packagePath;

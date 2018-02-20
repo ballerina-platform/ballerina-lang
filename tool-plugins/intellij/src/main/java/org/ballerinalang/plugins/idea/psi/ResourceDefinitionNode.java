@@ -31,6 +31,9 @@ import org.jetbrains.annotations.Nullable;
 
 import javax.swing.Icon;
 
+/**
+ * Represents an ResourceDefinition in PSI tree.
+ */
 public class ResourceDefinitionNode extends IdentifierDefSubtree implements LowerLevelDefinition, ParameterContainer {
 
     public ResourceDefinitionNode(@NotNull ASTNode node) {

@@ -20,6 +20,9 @@ import com.intellij.lang.ASTNode;
 import org.antlr.jetbrains.adaptor.psi.ANTLRPsiNode;
 import org.jetbrains.annotations.NotNull;
 
+/**
+ * Represents an TypeCast in PSI tree.
+ */
 public class TypeCastNode extends ANTLRPsiNode {
 
     public TypeCastNode(@NotNull ASTNode node) {

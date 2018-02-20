@@ -18,9 +18,9 @@ package org.ballerinalang.langserver.hover.util;
 import org.ballerinalang.langserver.BLangPackageContext;
 import org.ballerinalang.langserver.DocumentServiceKeys;
 import org.ballerinalang.langserver.TextDocumentServiceContext;
-import org.ballerinalang.langserver.hover.HoverKeys;
-import org.ballerinalang.langserver.hover.HoverTreeVisitor;
-import org.ballerinalang.langserver.hover.constants.HoverConstants;
+import org.ballerinalang.langserver.common.constants.ContextConstants;
+import org.ballerinalang.langserver.common.constants.NodeContextKeys;
+import org.ballerinalang.langserver.common.position.PositionTreeVisitor;
 import org.eclipse.lsp4j.Hover;
 import org.eclipse.lsp4j.MarkedString;
 import org.eclipse.lsp4j.Position;
@@ -54,12 +54,12 @@ public class HoverUtil {
      * @return hover content.
      */
     public static Hover getHoverInformation(BLangPackage bLangPackage, TextDocumentServiceContext hoverContext) {
-        Hover hover = null;
-        switch (hoverContext.get(HoverKeys.SYMBOL_KIND_OF_HOVER_NODE_KEY).name()) {
-            case HoverConstants.FUNCTION:
+        Hover hover;
+        switch (hoverContext.get(NodeContextKeys.SYMBOL_KIND_OF_NODE_PARENT_KEY)) {
+            case ContextConstants.FUNCTION:
                 BLangFunction bLangFunction = bLangPackage.functions.stream()
                         .filter(function -> function.name.getValue()
-                                .equals(hoverContext.get(HoverKeys.NAME_OF_HOVER_NODE_KEY).getValue()))
+                                .equals(hoverContext.get(NodeContextKeys.NAME_OF_NODE_KEY)))
                         .findAny().orElse(null);
                 if (bLangFunction != null) {
                     hover = getAnnotationContent(bLangFunction.annAttachments);
@@ -68,10 +68,10 @@ public class HoverUtil {
                 }
 
                 break;
-            case HoverConstants.STRUCT:
+            case ContextConstants.STRUCT:
                 BLangStruct bLangStruct = bLangPackage.structs.stream()
                         .filter(struct -> struct.name.getValue()
-                                .equals(hoverContext.get(HoverKeys.NAME_OF_HOVER_NODE_KEY).getValue()))
+                                .equals(hoverContext.get(NodeContextKeys.NAME_OF_NODE_KEY)))
                         .findAny().orElse(null);
                 if (bLangStruct != null) {
                     hover = getAnnotationContent(bLangStruct.annAttachments);
@@ -80,10 +80,10 @@ public class HoverUtil {
                 }
 
                 break;
-            case HoverConstants.ENUM:
+            case ContextConstants.ENUM:
                 BLangEnum bLangEnum = bLangPackage.enums.stream()
                         .filter(bEnum -> bEnum.name.getValue()
-                                .equals(hoverContext.get(HoverKeys.NAME_OF_HOVER_NODE_KEY).getValue()))
+                                .equals(hoverContext.get(NodeContextKeys.NAME_OF_NODE_KEY)))
                         .findAny().orElse(null);
                 if (bLangEnum != null) {
                     hover = getAnnotationContent(bLangEnum.annAttachments);
@@ -92,10 +92,10 @@ public class HoverUtil {
                 }
 
                 break;
-            case HoverConstants.TRANSFORMER:
+            case ContextConstants.TRANSFORMER:
                 BLangTransformer bLangTransformer = bLangPackage.transformers.stream()
                         .filter(bTransformer -> bTransformer.name.getValue()
-                                .equals(hoverContext.get(HoverKeys.NAME_OF_HOVER_NODE_KEY).getValue()))
+                                .equals(hoverContext.get(NodeContextKeys.NAME_OF_NODE_KEY)))
                         .findAny().orElse(null);
                 if (bLangTransformer != null) {
                     hover = getAnnotationContent(bLangTransformer.annAttachments);
@@ -105,10 +105,10 @@ public class HoverUtil {
 
                 break;
 
-            case HoverConstants.CONNECTOR:
+            case ContextConstants.CONNECTOR:
                 BLangConnector bLangConnector = bLangPackage.connectors.stream()
                         .filter(bConnector -> bConnector.name.getValue()
-                                .equals(hoverContext.get(HoverKeys.NAME_OF_HOVER_NODE_KEY).getValue()))
+                                .equals(hoverContext.get(NodeContextKeys.NAME_OF_NODE_KEY)))
                         .findAny().orElse(null);
                 if (bLangConnector != null) {
                     hover = getAnnotationContent(bLangConnector.annAttachments);
@@ -117,14 +117,15 @@ public class HoverUtil {
                 }
 
                 break;
-            case HoverConstants.ACTION:
+            case ContextConstants.ACTION:
                 BLangAction bLangAction = bLangPackage.connectors.stream()
                         .filter(bConnector -> bConnector.name.getValue()
-                                .equals(((BLangInvocation) hoverContext.get(HoverKeys.PREVIOUSLY_VISITED_NODE_KEY))
+                                .equals(((BLangInvocation) hoverContext
+                                        .get(NodeContextKeys.PREVIOUSLY_VISITED_NODE_KEY))
                                         .symbol.owner.name.getValue()))
                         .flatMap(connector -> connector.actions.stream())
                         .filter(bAction -> bAction.name.getValue()
-                                .equals(hoverContext.get(HoverKeys.NAME_OF_HOVER_NODE_KEY).getValue()))
+                                .equals(hoverContext.get(NodeContextKeys.NAME_OF_NODE_KEY)))
                         .findAny().orElse(null);
                 if (bLangAction != null) {
                     hover = getAnnotationContent(bLangAction.annAttachments);
@@ -170,15 +171,15 @@ public class HoverUtil {
      */
     public static Hover getHoverContent(TextDocumentServiceContext hoverContext, BLangPackage currentBLangPackage,
                                         BLangPackageContext packageContext) {
-        HoverTreeVisitor hoverTreeVisitor = new HoverTreeVisitor(hoverContext);
-        currentBLangPackage.accept(hoverTreeVisitor);
+        PositionTreeVisitor positionTreeVisitor = new PositionTreeVisitor(hoverContext);
+        currentBLangPackage.accept(positionTreeVisitor);
         Hover hover;
 
         // If the cursor is on a node of the current package go inside, else check builtin and native packages.
-        if (hoverContext.get(HoverKeys.PACKAGE_OF_HOVER_NODE_KEY) != null) {
+        if (hoverContext.get(NodeContextKeys.PACKAGE_OF_NODE_KEY) != null) {
             hover = getHoverInformation(packageContext
                     .getPackageByName(hoverContext.get(DocumentServiceKeys.COMPILER_CONTEXT_KEY),
-                            hoverContext.get(HoverKeys.PACKAGE_OF_HOVER_NODE_KEY).name), hoverContext);
+                            hoverContext.get(NodeContextKeys.PACKAGE_OF_NODE_KEY).name), hoverContext);
         } else {
             hover = new Hover();
             List<Either<String, MarkedString>> contents = new ArrayList<>();
@@ -234,7 +235,7 @@ public class HoverUtil {
      * @return string formatted using markdown.
      */
     private static String getFormattedHoverContent(String header, String content) {
-        return String.format("**%s**\r%n```\r%n%s\r%n```\r%n", header, content);
+        return "**" + header + "**\r\n```\r\n" + content + "\r\n```\r\n";
     }
 
     /**
@@ -246,24 +247,24 @@ public class HoverUtil {
     private static Hover getAnnotationContent(List<BLangAnnotationAttachment> annAttachments) {
         Hover hover = new Hover();
         StringBuilder content = new StringBuilder();
-        if (!getAnnotationValue(HoverConstants.DESCRIPTION, annAttachments).isEmpty()) {
-            content.append(getFormattedHoverContent(HoverConstants.DESCRIPTION,
-                    getAnnotationValue(HoverConstants.DESCRIPTION, annAttachments)));
+        if (!getAnnotationValue(ContextConstants.DESCRIPTION, annAttachments).isEmpty()) {
+            content.append(getFormattedHoverContent(ContextConstants.DESCRIPTION,
+                    getAnnotationValue(ContextConstants.DESCRIPTION, annAttachments)));
         }
 
-        if (!getAnnotationValue(HoverConstants.PARAM, annAttachments).isEmpty()) {
-            content.append(getFormattedHoverContent(HoverConstants.PARAM,
-                    getAnnotationValue(HoverConstants.PARAM, annAttachments)));
+        if (!getAnnotationValue(ContextConstants.PARAM, annAttachments).isEmpty()) {
+            content.append(getFormattedHoverContent(ContextConstants.PARAM,
+                    getAnnotationValue(ContextConstants.PARAM, annAttachments)));
         }
 
-        if (!getAnnotationValue(HoverConstants.FIELD, annAttachments).isEmpty()) {
-            content.append(getFormattedHoverContent(HoverConstants.FIELD,
-                    getAnnotationValue(HoverConstants.FIELD, annAttachments)));
+        if (!getAnnotationValue(ContextConstants.FIELD, annAttachments).isEmpty()) {
+            content.append(getFormattedHoverContent(ContextConstants.FIELD,
+                    getAnnotationValue(ContextConstants.FIELD, annAttachments)));
         }
 
-        if (!getAnnotationValue(HoverConstants.RETURN, annAttachments).isEmpty()) {
-            content.append(getFormattedHoverContent(HoverConstants.RETURN,
-                    getAnnotationValue(HoverConstants.RETURN, annAttachments)));
+        if (!getAnnotationValue(ContextConstants.RETURN, annAttachments).isEmpty()) {
+            content.append(getFormattedHoverContent(ContextConstants.RETURN,
+                    getAnnotationValue(ContextConstants.RETURN, annAttachments)));
         }
 
         List<Either<String, MarkedString>> contents = new ArrayList<>();
