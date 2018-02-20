@@ -17,8 +17,10 @@ package org.ballerinalang.langserver.common.constants;
 
 import org.ballerinalang.langserver.LanguageServerContext;
 import org.ballerinalang.model.elements.PackageID;
+import org.eclipse.lsp4j.Location;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 
+import java.util.List;
 import java.util.Stack;
 
 /**
@@ -37,10 +39,14 @@ public class NodeContextKeys {
             = new LanguageServerContext.Key<>();
     public static final LanguageServerContext.Key<String> NODE_OWNER_KEY
             = new LanguageServerContext.Key<>();
+    public static final LanguageServerContext.Key<PackageID> NODE_OWNER_PACKAGE_KEY
+            = new LanguageServerContext.Key<>();
     public static final LanguageServerContext.Key<Stack<BLangNode>> NODE_STACK_KEY
             = new LanguageServerContext.Key<>();
     public static final LanguageServerContext.Key<String> SYMBOL_KIND_OF_NODE_KEY
             = new LanguageServerContext.Key<>();
     public static final LanguageServerContext.Key<String> VAR_NAME_OF_NODE_KEY
+            = new LanguageServerContext.Key<>();
+    public static final LanguageServerContext.Key<List<Location>> REFERENCE_NODES_KEY
             = new LanguageServerContext.Key<>();
 }

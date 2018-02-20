@@ -26,7 +26,7 @@ import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
-import org.ballerinalang.net.http.Constants;
+import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.session.Session;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
@@ -52,7 +52,7 @@ public class SetMaxInactiveInterval extends AbstractNativeFunction {
         try {
             BStruct sessionStruct  = ((BStruct) getRefArgument(context, 0));
             int timeInterval = (int) getIntArgument(context, 0);
-            Session session = (Session) sessionStruct.getNativeData(Constants.HTTP_SESSION);
+            Session session = (Session) sessionStruct.getNativeData(HttpConstants.HTTP_SESSION);
 
             if (timeInterval == 0) {
                 throw new IllegalStateException("Failed to set max time interval: Time interval: " + timeInterval);

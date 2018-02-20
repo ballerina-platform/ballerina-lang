@@ -21,6 +21,7 @@ import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
 import org.ballerinalang.model.tree.expressions.InvocationNode;
+import org.wso2.ballerinalang.compiler.semantics.model.iterable.IterableContext;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
@@ -46,6 +47,9 @@ public class BLangInvocation extends BLangVariableReference implements Invocatio
     public List<BType> types = new ArrayList<>(0);
     public BSymbol symbol;
     public boolean functionPointerInvocation;
+    /* Variables Required for Iterable Operation */
+    public boolean iterableOperationInvocation;
+    public IterableContext iContext;
     protected RegIndex[] regIndexes;
 
     public boolean isMultiReturnExpr() {
@@ -120,6 +124,10 @@ public class BLangInvocation extends BLangVariableReference implements Invocatio
         this.regIndex = regIndexes != null && regIndexes.length > 0 ? regIndexes[0] : null;
     }
 
+    @Override
+    public boolean isIterableOperation() {
+        return iterableOperationInvocation;
+    }
 
     /**
      * @since 0.94

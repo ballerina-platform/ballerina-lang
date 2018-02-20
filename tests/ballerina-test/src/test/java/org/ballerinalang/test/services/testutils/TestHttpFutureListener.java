@@ -21,7 +21,7 @@ import org.ballerinalang.connector.api.BallerinaConnectorException;
 import org.ballerinalang.connector.api.ConnectorFutureListener;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.net.http.Constants;
+import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.HttpUtil;
 import org.ballerinalang.services.ErrorHandlerUtils;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
@@ -64,7 +64,7 @@ public class TestHttpFutureListener implements ConnectorFutureListener {
 
     @Override
     public void notifyFailure(BallerinaConnectorException ex) {
-        Object carbonStatusCode = requestMessage.getProperty(Constants.HTTP_STATUS_CODE);
+        Object carbonStatusCode = requestMessage.getProperty(HttpConstants.HTTP_STATUS_CODE);
         int statusCode = (carbonStatusCode == null) ? 500 : Integer.parseInt(carbonStatusCode.toString());
         String errorMsg = ex.getMessage();
         ErrorHandlerUtils.printError(ex);

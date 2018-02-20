@@ -24,6 +24,7 @@ import org.ballerinalang.util.diagnostic.DiagnosticCode;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.Types.RecordKind;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
+import org.wso2.ballerinalang.compiler.semantics.model.iterable.IterableKind;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BCastOperatorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConversionOperatorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BOperatorSymbol;
@@ -88,7 +89,6 @@ import org.wso2.ballerinalang.util.Lists;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-
 import javax.xml.XMLConstants;
 
 /**
@@ -105,6 +105,7 @@ public class TypeChecker extends BLangNodeVisitor {
     private SymbolResolver symResolver;
     private Types types;
     private DiagnosticLog dlog;
+    private IterableAnalyzer iterableAnalyzer;
 
     private SymbolEnv env;
 
@@ -135,6 +136,7 @@ public class TypeChecker extends BLangNodeVisitor {
         this.symResolver = SymbolResolver.getInstance(context);
         this.types = Types.getInstance(context);
         this.dlog = DiagnosticLog.getInstance(context);
+        this.iterableAnalyzer = IterableAnalyzer.getInstance(context);
     }
 
     public List<BType> checkExpr(BLangExpression expr, SymbolEnv env) {
@@ -424,6 +426,12 @@ public class TypeChecker extends BLangNodeVisitor {
 
         // Find the variable reference expression type
         checkExpr(iExpr.expr, this.env, Lists.of(symTable.noType));
+        if (isIterableOperationInvocation(iExpr)) {
+            iExpr.iterableOperationInvocation = true;
+            iterableAnalyzer.handlerIterableOperation(iExpr, expTypes, env);
+            resultTypes = iExpr.iContext.operations.getLast().resultTypes;
+            return;
+        }
         switch (iExpr.expr.type.tag) {
             case TypeTags.STRUCT:
                 // Invoking a function bound to a struct
@@ -451,7 +459,11 @@ public class TypeChecker extends BLangNodeVisitor {
                 checkFunctionInvocationExpr(iExpr, symTable.jsonType);
                 break;
             case TypeTags.ARRAY:
+            case TypeTags.TUPLE_COLLECTION:
                 dlog.error(iExpr.pos, DiagnosticCode.INVALID_FUNCTION_INVOCATION, iExpr.expr.type);
+                break;
+            case TypeTags.NONE:
+                dlog.error(iExpr.pos, DiagnosticCode.UNDEFINED_FUNCTION, iExpr.name);
                 break;
             default:
                 // TODO Handle this condition
@@ -938,6 +950,19 @@ public class TypeChecker extends BLangNodeVisitor {
 
         iExpr.symbol = funcSymbol;
         checkInvocationParamAndReturnType(iExpr);
+    }
+
+    private boolean isIterableOperationInvocation(BLangInvocation iExpr) {
+        switch (iExpr.expr.type.tag) {
+            case TypeTags.ARRAY:
+            case TypeTags.MAP:
+            case TypeTags.JSON:
+            case TypeTags.XML:
+            case TypeTags.TABLE:
+            case TypeTags.TUPLE_COLLECTION:
+                return IterableKind.getFromString(iExpr.name.value) != IterableKind.UNDEFINED;
+        }
+        return false;
     }
 
     private void checkInvocationParamAndReturnType(BLangInvocation iExpr) {

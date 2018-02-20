@@ -1,0 +1,7 @@
+#if (${PACKAGE_NAME} && ${PACKAGE_NAME} != "")
+package ${PACKAGE_NAME};
+#end
+
+public function main (string[] args) {
+    println("Hello, World!");
+}

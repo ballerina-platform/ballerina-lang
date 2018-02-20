@@ -232,6 +232,7 @@ class TransformerNodeManager {
      */
     getFunctionVertices(functionInvocationExpression) {
         let fullPackageName = functionInvocationExpression.getFullPackageName();
+        let type = 'function';
 
         if (!fullPackageName) {
             // TODO: Fix obtaining the full package name for bound functions
@@ -248,56 +249,73 @@ class TransformerNodeManager {
         }
 
         const funcDef = funPackage.getFunctionDefinitionByName(functionInvocationExpression.getFunctionName());
-
-        if (!funcDef) {
+        let parameters = [];
+        let returnParams = [];
+        let receiver;
+        if (functionInvocationExpression.iterableOperation) {
+            const inputParamName = `${functionInvocationExpression.getID()}:0:receiver`;
+            const returnParamName = `${functionInvocationExpression.getID()}:0:return`;
+            type = 'iterable';
+            const argType = functionInvocationExpression.getExpression().symbolType[0]
+                                .replace('intermediate_collection', '[]');
+            if (functionInvocationExpression.argumentExpressions.length === 0) {
+                receiver = {
+                    name: inputParamName,
+                    type: argType,
+                    funcInv: functionInvocationExpression,
+                };
+            } else {
+                parameters = [{ name: inputParamName,
+                    type: argType,
+                    index: 0 }];
+            }
+            returnParams = [{ name: returnParamName,
+                type: functionInvocationExpression.symbolType[0].replace('intermediate_collection', '[]'),
+                funcInv: functionInvocationExpression }];
+        } else if (!funcDef) {
             log.error('Cannot find function definition for ' + functionInvocationExpression.getFunctionName());
             return;
-        }
-
-        const parameters = [];
-        const returnParams = [];
-        let receiver;
-
-        if (funcDef.getReceiverType()) {
-            receiver = {
-                name: `${functionInvocationExpression.getID()}:0:receiver`,
-                type: funcDef.getReceiverType(),
-                funcInv: functionInvocationExpression,
-            };
-        }
-
-        _.forEach(funcDef.getParameters(), (param, index) => {
-            const structDef = this.getStructDefinition(param.packageName, param.type);
-            let paramObj;
-            const paramName = `${functionInvocationExpression.getID()}:${index}`;
-            if (structDef) {
-                paramObj = this.getStructType(paramName, param.type, structDef);
-            } else {
-                paramObj = {
-                    name: paramName,
-                    type: param.type,
+        } else {
+            if (funcDef.getReceiverType()) {
+                receiver = {
+                    name: `${functionInvocationExpression.getID()}:0:receiver`,
+                    type: funcDef.getReceiverType(),
+                    funcInv: functionInvocationExpression,
                 };
             }
 
-            paramObj.displayName = param.name;
-            paramObj.index = index;
-            paramObj.funcInv = functionInvocationExpression;
+            _.forEach(funcDef.getParameters(), (param, index) => {
+                const structDef = this.getStructDefinition(param.packageName, param.type);
+                let paramObj;
+                const paramName = `${functionInvocationExpression.getID()}:${index}`;
+                if (structDef) {
+                    paramObj = this.getStructType(paramName, param.type, structDef);
+                } else {
+                    paramObj = {
+                        name: paramName,
+                        type: param.type,
+                    };
+                }
 
-            parameters.push(paramObj);
-        });
+                paramObj.displayName = param.name;
+                paramObj.index = index;
+                paramObj.funcInv = functionInvocationExpression;
+                parameters.push(paramObj);
+            });
 
-        _.forEach(funcDef.getReturnParams(), (returnParam, index) => {
-            const paramName = `${functionInvocationExpression.getID()}:${index}:return`;
-            const paramObj = {
-                name: paramName,
-                type: returnParam.type,
-                index,
-                funcInv: functionInvocationExpression,
-            };
-            returnParams.push(paramObj);
-        });
-
+            _.forEach(funcDef.getReturnParams(), (returnParam, index) => {
+                const paramName = `${functionInvocationExpression.getID()}:${index}:return`;
+                const paramObj = {
+                    name: paramName,
+                    type: returnParam.type,
+                    index,
+                    funcInv: functionInvocationExpression,
+                };
+                returnParams.push(paramObj);
+            });
+        }
         return {
+            type,
             parameters,
             returnParams,
             receiver,

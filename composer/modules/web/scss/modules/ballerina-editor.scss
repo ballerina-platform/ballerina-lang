@@ -83,12 +83,12 @@
         .client-line-group {
           .client-line-header {
             fill: #f9f9f9;
-            stroke: #303030;
+            stroke: #555;
             stroke-width: 1px;
           }
 
           .client-life-line, .worker-life-line, .client-invocation-arrow {
-            stroke: #303030;
+            stroke: #555;
             stroke-width: 1px;
           }
 
@@ -96,17 +96,26 @@
             text-anchor: middle;
             dominant-baseline: central;
             text-transform: lowercase;
+            fill: #555;
           }
         }
 
+        .default-worker-icon{
+          fill: #2980b9;
+        }
+
+        .connector-icon{
+          fill: #17a085;
+        }
+
         .action-arrow, .action-arrow-head {
-          stroke: #666769;
-          fill: #666769;
+          stroke: #555;
+          fill: #555;
         }
 
         .action-dash-line {
-          stroke: #666769;
-          fill: #666769;
+          stroke: #555;
+          fill: #555;
           stroke-dasharray: 5, 5;
         }
 
@@ -155,6 +164,10 @@
           stroke-width: 1;
         }
 
+        .life-line-group{
+
+        }
+
         .connector-life-line {
           stroke: #17a085;
           stroke-width: 1;
@@ -167,7 +180,7 @@
 
         .statement-title-rect {
           fill: #f9f9f9;
-          stroke: #222;
+          stroke: #555;
         }
 
         .statement-title-text, .condition-text {
@@ -259,9 +272,6 @@
         fill: #f9f9f9;
 
         .headingRect {
-          stroke-width: 1px;
-          stroke: #e4e4e4;
-
           .panel-header-controls {
             .panel-header-controls-wrapper {
               fill: rgba(255, 255, 255, 0.1);
@@ -270,7 +280,7 @@
         }
 
         .parameter-text, .parameter-bracket-text, .return-types-opening-brack-text, .parameter-bracket-text {
-          fill: #333;
+          fill: #444;
           dominant-baseline: text-before-edge;
           cursor: default;
         }
@@ -302,38 +312,14 @@
     .bottom-label-icon-wrapper:hover {
       position: relative;
       cursor: pointer;
-    }
-
-    .bottom-label-icon-wrapper:before {
-      content: attr(title);
-      position: absolute;
-      top: -3em;
-      left: -1em;
-      visibility: hidden;
-      color: #fff;
-      text-align: center;
-      background-color: #303030;
-      width: 100px;
-    }
-
-    .bottom-label-icon-wrapper:hover:after {
-      border: 11px solid transparent;
-      border-top-color: #303030;
-      content: '';
-      display: block;
-      height: 0;
-      width: 0;
-      position: absolute;
-      top: -14px;
-      font-size: 12px;
-    }
-
-    .bottom-label-icon-wrapper:hover:before {
-      visibility: visible;
+      background-color: #333;
+      border: 1px solid #333;
+      color: #f1f1f1;
     }
 
     .bottom-view-label {
       display: none;
+      cursor: pointer;
     }
   }
 
@@ -343,7 +329,6 @@
     right: 25px;
   }
 }
-
 
 .syntax-error-overlay {
   z-index: 1000;

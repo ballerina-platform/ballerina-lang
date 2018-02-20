@@ -36,9 +36,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.ballerinalang.mime.util.Constants.TEXT_PLAIN;
-import static org.ballerinalang.net.http.Constants.COOKIE_HEADER;
-import static org.ballerinalang.net.http.Constants.RESPONSE_COOKIE_HEADER;
-import static org.ballerinalang.net.http.Constants.SESSION_ID;
+import static org.ballerinalang.net.http.HttpConstants.COOKIE_HEADER;
+import static org.ballerinalang.net.http.HttpConstants.RESPONSE_COOKIE_HEADER;
+import static org.ballerinalang.net.http.HttpConstants.SESSION_ID;
 
 /**
  * HTTP session Essential Methods Test Class.

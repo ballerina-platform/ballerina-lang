@@ -1695,4 +1695,24 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitStringTemplateContent(BallerinaParser.StringTemplateContentContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link BallerinaParser#anyIdentifierName}.
+	 * @param ctx the parse tree
+	 */
+	void enterAnyIdentifierName(BallerinaParser.AnyIdentifierNameContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BallerinaParser#anyIdentifierName}.
+	 * @param ctx the parse tree
+	 */
+	void exitAnyIdentifierName(BallerinaParser.AnyIdentifierNameContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link BallerinaParser#reservedWord}.
+	 * @param ctx the parse tree
+	 */
+	void enterReservedWord(BallerinaParser.ReservedWordContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BallerinaParser#reservedWord}.
+	 * @param ctx the parse tree
+	 */
+	void exitReservedWord(BallerinaParser.ReservedWordContext ctx);
 }

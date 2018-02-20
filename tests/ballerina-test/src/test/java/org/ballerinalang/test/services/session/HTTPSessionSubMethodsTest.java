@@ -31,9 +31,9 @@ import org.testng.annotations.Test;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 import org.wso2.transport.http.netty.message.HttpMessageDataStreamer;
 
-import static org.ballerinalang.net.http.Constants.COOKIE_HEADER;
-import static org.ballerinalang.net.http.Constants.RESPONSE_COOKIE_HEADER;
-import static org.ballerinalang.net.http.Constants.SESSION_ID;
+import static org.ballerinalang.net.http.HttpConstants.COOKIE_HEADER;
+import static org.ballerinalang.net.http.HttpConstants.RESPONSE_COOKIE_HEADER;
+import static org.ballerinalang.net.http.HttpConstants.SESSION_ID;
 
 /**
  * HTTP session sub Methods Test Class.

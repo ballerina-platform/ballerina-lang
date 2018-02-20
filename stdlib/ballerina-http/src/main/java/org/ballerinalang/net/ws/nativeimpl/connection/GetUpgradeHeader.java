@@ -28,7 +28,7 @@ import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
-import org.ballerinalang.net.ws.Constants;
+import org.ballerinalang.net.ws.WebSocketConstants;
 
 import java.util.Locale;
 import java.util.Map;
@@ -55,7 +55,7 @@ public class GetUpgradeHeader extends AbstractNativeFunction {
         BStruct wsConnection = (BStruct) getRefArgument(context, 0);
         String key = getStringArgument(context, 0).toLowerCase(Locale.ENGLISH);
         Map<String, String> upgradeHeaders =
-                (Map<String, String>) wsConnection.getNativeData(Constants.NATIVE_DATA_UPGRADE_HEADERS);
+                (Map<String, String>) wsConnection.getNativeData(WebSocketConstants.NATIVE_DATA_UPGRADE_HEADERS);
         return getBValues(new BString(upgradeHeaders.get(key)));
     }
 }

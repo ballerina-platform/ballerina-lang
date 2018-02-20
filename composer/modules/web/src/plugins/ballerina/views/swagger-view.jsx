@@ -226,8 +226,14 @@ class SwaggerView extends React.Component {
     syncSpec() {
         this.swaggerEditor.specActions.updateUrl('');
         this.swaggerEditor.specActions.updateLoadingStatus('success');
-        this.swaggerEditor.specActions.updateSpec(this.swagger);
-        this.swaggerEditor.specActions.formatIntoYaml();
+        try {
+            const yamlString = YAML.safeDump(YAML.safeLoad(this.swagger), {
+                lineWidth: -1, // don't generate line folds
+            });
+            this.swaggerEditor.specActions.updateSpec(yamlString);
+        } catch (e) {
+            log.error('Error while updating swagger editor.');
+        }
     }
 
     /**

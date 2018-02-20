@@ -18,7 +18,7 @@
 
 package org.ballerinalang.test.services.testutils;
 
-import org.ballerinalang.net.http.Constants;
+import org.ballerinalang.net.http.HttpConstants;
 
 /**
  * Utility for properly splitting and parsing cookie header.
@@ -32,11 +32,11 @@ public class CookieUtils {
             cookie.name = headerSplits[0].split("=")[0];
             cookie.value = headerSplits[0].split("=")[1];
             for (String headerSplit : headerSplits) {
-                if (headerSplit.trim().equals(Constants.HTTP_ONLY)) {
+                if (headerSplit.trim().equals(HttpConstants.HTTP_ONLY)) {
                     cookie.httpOnly = true;
-                } else if (headerSplit.trim().equals(Constants.SECURE)) {
+                } else if (headerSplit.trim().equals(HttpConstants.SECURE)) {
                     cookie.secure = true;
-                } else if (headerSplit.trim().startsWith(Constants.PATH)) {
+                } else if (headerSplit.trim().startsWith(HttpConstants.PATH)) {
                     cookie.path = headerSplit.split("=")[1];
                 }
             }

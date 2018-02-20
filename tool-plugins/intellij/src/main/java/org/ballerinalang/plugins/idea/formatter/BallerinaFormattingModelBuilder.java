@@ -1,0 +1,303 @@
+/*
+ *  Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *  http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
+
+package org.ballerinalang.plugins.idea.formatter;
+
+import com.intellij.formatting.FormattingModel;
+import com.intellij.formatting.FormattingModelBuilder;
+import com.intellij.formatting.FormattingModelProvider;
+import com.intellij.formatting.Indent;
+import com.intellij.formatting.SpacingBuilder;
+import com.intellij.lang.ASTNode;
+import com.intellij.openapi.util.TextRange;
+import com.intellij.psi.PsiElement;
+import com.intellij.psi.PsiFile;
+import com.intellij.psi.codeStyle.CodeStyleSettings;
+import org.ballerinalang.plugins.idea.BallerinaLanguage;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
+import static org.ballerinalang.plugins.idea.BallerinaTypes.ACTION;
+import static org.ballerinalang.plugins.idea.BallerinaTypes.ACTION_DEFINITION;
+import static org.ballerinalang.plugins.idea.BallerinaTypes.ADD;
+import static org.ballerinalang.plugins.idea.BallerinaTypes.ALL;
+import static org.ballerinalang.plugins.idea.BallerinaTypes.ANNOTATION;
+import static org.ballerinalang.plugins.idea.BallerinaTypes.ANNOTATION_ATTACHMENT;
+import static org.ballerinalang.plugins.idea.BallerinaTypes.ANNOTATION_ATTRIBUTE_LIST;
+import static org.ballerinalang.plugins.idea.BallerinaTypes.ANNOTATION_ATTRIBUTE_VALUE;
+import static org.ballerinalang.plugins.idea.BallerinaTypes.ANNOTATION_REFERENCE;
+import static org.ballerinalang.plugins.idea.BallerinaTypes.ANY;
+import static org.ballerinalang.plugins.idea.BallerinaTypes.ANY_IDENTIFIER_NAME;
+import static org.ballerinalang.plugins.idea.BallerinaTypes.AS;
+import static org.ballerinalang.plugins.idea.BallerinaTypes.AT;
+import static org.ballerinalang.plugins.idea.BallerinaTypes.ATTACH;
+import static org.ballerinalang.plugins.idea.BallerinaTypes.ATTACHMENT_POINT;
+import static org.ballerinalang.plugins.idea.BallerinaTypes.BANG;
+import static org.ballerinalang.plugins.idea.BallerinaTypes.BIND;
+import static org.ballerinalang.plugins.idea.BallerinaTypes.BREAK;
+import static org.ballerinalang.plugins.idea.BallerinaTypes.CATCH;
+import static org.ballerinalang.plugins.idea.BallerinaTypes.COLON;
+import static org.ballerinalang.plugins.idea.BallerinaTypes.COMMA;
+import static org.ballerinalang.plugins.idea.BallerinaTypes.CONNECTOR;
+import static org.ballerinalang.plugins.idea.BallerinaTypes.CONNECTOR_DEFINITION;
+import static org.ballerinalang.plugins.idea.BallerinaTypes.CONNECTOR_REFERENCE;
+import static org.ballerinalang.plugins.idea.BallerinaTypes.CONST;
+import static org.ballerinalang.plugins.idea.BallerinaTypes.CREATE;
+import static org.ballerinalang.plugins.idea.BallerinaTypes.DOT;
+import static org.ballerinalang.plugins.idea.BallerinaTypes.ELSE;
+import static org.ballerinalang.plugins.idea.BallerinaTypes.ENDPOINT;
+import static org.ballerinalang.plugins.idea.BallerinaTypes.EXPRESSION;
+import static org.ballerinalang.plugins.idea.BallerinaTypes.EXPRESSION_LIST;
+import static org.ballerinalang.plugins.idea.BallerinaTypes.FAILED;
+import static org.ballerinalang.plugins.idea.BallerinaTypes.FIELD;
+import static org.ballerinalang.plugins.idea.BallerinaTypes.FINALLY;
+import static org.ballerinalang.plugins.idea.BallerinaTypes.FLOATING_POINT;
+import static org.ballerinalang.plugins.idea.BallerinaTypes.FOREACH;
+import static org.ballerinalang.plugins.idea.BallerinaTypes.FORK;
+import static org.ballerinalang.plugins.idea.BallerinaTypes.FUNCTION;
+import static org.ballerinalang.plugins.idea.BallerinaTypes.FUNCTION_DEFINITION;
+import static org.ballerinalang.plugins.idea.BallerinaTypes.FUNCTION_REFERENCE;
+import static org.ballerinalang.plugins.idea.BallerinaTypes.GT;
+import static org.ballerinalang.plugins.idea.BallerinaTypes.IDENTIFIER;
+import static org.ballerinalang.plugins.idea.BallerinaTypes.IF;
+import static org.ballerinalang.plugins.idea.BallerinaTypes.IMPORT;
+import static org.ballerinalang.plugins.idea.BallerinaTypes.IN;
+import static org.ballerinalang.plugins.idea.BallerinaTypes.INDEX;
+import static org.ballerinalang.plugins.idea.BallerinaTypes.INTEGER_LITERAL;
+import static org.ballerinalang.plugins.idea.BallerinaTypes.INVOCATION;
+import static org.ballerinalang.plugins.idea.BallerinaTypes.JOIN;
+import static org.ballerinalang.plugins.idea.BallerinaTypes.JOIN_CONDITIONS;
+import static org.ballerinalang.plugins.idea.BallerinaTypes.JSON;
+import static org.ballerinalang.plugins.idea.BallerinaTypes.LBRACE;
+import static org.ballerinalang.plugins.idea.BallerinaTypes.LBRACK;
+import static org.ballerinalang.plugins.idea.BallerinaTypes.LENGTHOF;
+import static org.ballerinalang.plugins.idea.BallerinaTypes.LOCK;
+import static org.ballerinalang.plugins.idea.BallerinaTypes.LPAREN;
+import static org.ballerinalang.plugins.idea.BallerinaTypes.LT;
+import static org.ballerinalang.plugins.idea.BallerinaTypes.MAP;
+import static org.ballerinalang.plugins.idea.BallerinaTypes.NAME_REFERENCE;
+import static org.ballerinalang.plugins.idea.BallerinaTypes.NATIVE;
+import static org.ballerinalang.plugins.idea.BallerinaTypes.OPERATORS;
+import static org.ballerinalang.plugins.idea.BallerinaTypes.PACKAGE;
+import static org.ballerinalang.plugins.idea.BallerinaTypes.PACKAGE_NAME;
+import static org.ballerinalang.plugins.idea.BallerinaTypes.PARAMETER_LIST;
+import static org.ballerinalang.plugins.idea.BallerinaTypes.PUBLIC;
+import static org.ballerinalang.plugins.idea.BallerinaTypes.RBRACE;
+import static org.ballerinalang.plugins.idea.BallerinaTypes.RECEIVEARROW;
+import static org.ballerinalang.plugins.idea.BallerinaTypes.RECORD_KEY_VALUE;
+import static org.ballerinalang.plugins.idea.BallerinaTypes.RECORD_LITERAL;
+import static org.ballerinalang.plugins.idea.BallerinaTypes.RESOURCE;
+import static org.ballerinalang.plugins.idea.BallerinaTypes.RESOURCE_DEFINITION;
+import static org.ballerinalang.plugins.idea.BallerinaTypes.RETRIES;
+import static org.ballerinalang.plugins.idea.BallerinaTypes.RETURN;
+import static org.ballerinalang.plugins.idea.BallerinaTypes.RETURNS;
+import static org.ballerinalang.plugins.idea.BallerinaTypes.RETURN_PARAMETERS;
+import static org.ballerinalang.plugins.idea.BallerinaTypes.RPAREN;
+import static org.ballerinalang.plugins.idea.BallerinaTypes.SEMI;
+import static org.ballerinalang.plugins.idea.BallerinaTypes.SENDARROW;
+import static org.ballerinalang.plugins.idea.BallerinaTypes.SERVICE;
+import static org.ballerinalang.plugins.idea.BallerinaTypes.SERVICE_DEFINITION;
+import static org.ballerinalang.plugins.idea.BallerinaTypes.SIMPLE_EXPRESSION;
+import static org.ballerinalang.plugins.idea.BallerinaTypes.SOURCE_NOTATION;
+import static org.ballerinalang.plugins.idea.BallerinaTypes.STRUCT;
+import static org.ballerinalang.plugins.idea.BallerinaTypes.SUB;
+import static org.ballerinalang.plugins.idea.BallerinaTypes.THROW;
+import static org.ballerinalang.plugins.idea.BallerinaTypes.TILDE;
+import static org.ballerinalang.plugins.idea.BallerinaTypes.TIMEOUT;
+import static org.ballerinalang.plugins.idea.BallerinaTypes.TRANSACTION;
+import static org.ballerinalang.plugins.idea.BallerinaTypes.TRANSACTION_PROPERTY_INIT_STATEMENT_LIST;
+import static org.ballerinalang.plugins.idea.BallerinaTypes.TRANSFORMER;
+import static org.ballerinalang.plugins.idea.BallerinaTypes.TRANSFORMER_INVOCATION;
+import static org.ballerinalang.plugins.idea.BallerinaTypes.TRY;
+import static org.ballerinalang.plugins.idea.BallerinaTypes.TYPE;
+import static org.ballerinalang.plugins.idea.BallerinaTypes.TYPEOF;
+import static org.ballerinalang.plugins.idea.BallerinaTypes.TYPE_LIST;
+import static org.ballerinalang.plugins.idea.BallerinaTypes.TYPE_NAME;
+import static org.ballerinalang.plugins.idea.BallerinaTypes.VALUE_TYPE_NAME;
+import static org.ballerinalang.plugins.idea.BallerinaTypes.VAR;
+import static org.ballerinalang.plugins.idea.BallerinaTypes.VARIABLE_REFERENCE;
+import static org.ballerinalang.plugins.idea.BallerinaTypes.WHILE;
+import static org.ballerinalang.plugins.idea.BallerinaTypes.WITH;
+import static org.ballerinalang.plugins.idea.BallerinaTypes.WORKER;
+import static org.ballerinalang.plugins.idea.BallerinaTypes.XML;
+import static org.ballerinalang.plugins.idea.BallerinaTypes.XMLNS;
+import static org.ballerinalang.plugins.idea.BallerinaTypes.XML_ATTRIB;
+import static org.ballerinalang.plugins.idea.BallerinaTypes.XML_LOCAL_NAME;
+import static org.ballerinalang.plugins.idea.BallerinaTypes.XML_NAMESPACE_NAME;
+
+/**
+ * Builds the Ballerina file formatting model.
+ */
+public class BallerinaFormattingModelBuilder implements FormattingModelBuilder {
+
+    @NotNull
+    @Override
+    public FormattingModel createModel(PsiElement element, CodeStyleSettings settings) {
+        BallerinaBlock rootBlock = new BallerinaBlock(
+                element.getNode(), null, Indent.getNoneIndent(), null, settings, createSpaceBuilder(settings)
+        );
+        return FormattingModelProvider.createFormattingModelForPsiFile(
+                element.getContainingFile(), rootBlock, settings
+        );
+    }
+
+    private static SpacingBuilder createSpaceBuilder(CodeStyleSettings settings) {
+        return new SpacingBuilder(settings, BallerinaLanguage.INSTANCE)
+                .around(OPERATORS).spaceIf(true)
+                .between(TYPE_NAME, GT).spaceIf(false)
+                .between(LT, TYPE_NAME).spaceIf(false)
+                .between(IDENTIFIER, LT).spaceIf(false)
+                .between(GT, SIMPLE_EXPRESSION).spaceIf(false)
+                .between(RPAREN, SIMPLE_EXPRESSION).spaceIf(false)
+                .aroundInside(LT, EXPRESSION).spaceIf(true)
+                .aroundInside(GT, EXPRESSION).spaceIf(true)
+                .between(ADD, SIMPLE_EXPRESSION).spaceIf(false)
+                .between(SUB, SIMPLE_EXPRESSION).spaceIf(false)
+                .between(ADD, INTEGER_LITERAL).spaceIf(false)
+                .between(SUB, INTEGER_LITERAL).spaceIf(false)
+                .between(ADD, FLOATING_POINT).spaceIf(false)
+                .between(SUB, FLOATING_POINT).spaceIf(false)
+                .between(BANG, SIMPLE_EXPRESSION).spaceIf(false)
+                .around(ADD).spaceIf(true)
+                .around(SUB).spaceIf(true)
+                .before(ALL).spaceIf(false)
+                .after(ACTION).spaceIf(true)
+                .after(ALL).spaceIf(true)
+                .before(ANY).spaceIf(false)
+                .after(ANY).spaceIf(true)
+                .around(AS).spaceIf(true)
+                .around(BREAK).spaceIf(false)
+                .around(CATCH).spaceIf(true)
+                .around(FAILED).spaceIf(true)
+                .around(FINALLY).spaceIf(true)
+                .after(CONNECTOR).spaceIf(true)
+                .after(CONST).spaceIf(true)
+                .after(CREATE).spaceIf(true)
+                .around(ELSE).spaceIf(true)
+                .between(FORK, LBRACE).spaceIf(true)
+                .between(EXPRESSION, LBRACE).spaceIf(true)
+                .between(FORK, SEMI).spaceIf(false)
+                .after(FUNCTION).spaceIf(true)
+                .after(IF).spaceIf(true)
+                .after(IMPORT).spaceIf(true)
+                .after(FOREACH).spaceIf(true)
+                .around(IN).spaceIf(true)
+                .around(JOIN).spaceIf(true)
+                .after(NATIVE).spaceIf(true)
+                .after(PACKAGE).spaceIf(true)
+                .after(RETRIES).spaceIf(false)
+                .after(TRANSACTION_PROPERTY_INIT_STATEMENT_LIST).spaceIf(true)
+                .after(RESOURCE).spaceIf(true)
+                .between(SERVICE, SOURCE_NOTATION).spaceIf(false)
+                .between(SERVICE, IDENTIFIER).spaceIf(true)
+                .after(STRUCT).spaceIf(true)
+                .after(THROW).spaceIf(true)
+                .around(TIMEOUT).spaceIf(true)
+                .after(TRY).spaceIf(true)
+                .after(TYPE).spaceIf(true)
+                .after(VAR).spaceIf(true)
+                .after(WHILE).spaceIf(true)
+                .after(WORKER).spaceIf(true)
+                .around(WITH).spaceIf(true)
+                .after(XMLNS).spaceIf(true)
+                .after(TYPEOF).spaceIf(true)
+                .after(LENGTHOF).spaceIf(true)
+                .after(LOCK).spaceIf(true)
+                .before(SEMI).spaceIf(false)
+                .around(DOT).spaceIf(false)
+                .around(PUBLIC).spaceIf(true)
+                .between(LPAREN, RPAREN).spaceIf(false)
+                .between(RPAREN, LBRACE).spaceIf(true)
+                .around(COLON).spaceIf(false)
+                .around(PARAMETER_LIST).spaceIf(false)
+                .around(TYPE_LIST).spaceIf(false)
+                .before(COMMA).spaceIf(false)
+                .after(COMMA).spaceIf(true)
+                .between(TYPE_NAME, IDENTIFIER).spaceIf(true)
+                .around(LBRACK).spaceIf(false)
+                .between(LBRACE, RBRACE).spaceIf(false)
+                .before(RPAREN).spaceIf(false)
+                .after(LPAREN).spaceIf(false)
+                .between(RPAREN, LPAREN).spaceIf(true)
+                .after(AT).spaceIf(false)
+                .between(BIND, EXPRESSION).spaceIf(true)
+                .around(EXPRESSION).spaceIf(false)
+                .around(RETURN_PARAMETERS).spaceIf(true)
+                .around(SENDARROW).spaceIf(true)
+                .around(RECEIVEARROW).spaceIf(true)
+                .before(TILDE).spaceIf(false)
+                .between(RETURN, EXPRESSION_LIST).spaceIf(true)
+                .around(RETURNS).spaceIf(true)
+                .after(ANNOTATION).spaceIf(true)
+                .around(ATTACH).spaceIf(true)
+                .between(ANNOTATION_ATTACHMENT, TYPE_NAME).spaceIf(true)
+                .between(VALUE_TYPE_NAME, IDENTIFIER).spaceIf(true)
+                .between(ANNOTATION_ATTACHMENT, TYPE_NAME).spaceIf(true)
+                .around(TYPE_NAME).spaceIf(false)
+                .after(TRANSACTION).spaceIf(true)
+                .between(MAP, LT).spaces(0)
+                .between(JSON, LT).spaceIf(false)
+                .between(XML, LT).spaceIf(false)
+                .between(LT, LBRACE).spaceIf(false)
+                .before(LBRACE).spaceIf(true)
+                .between(RBRACE, GT).spaceIf(false)
+                .between(RBRACE, XML_LOCAL_NAME).spaceIf(true)
+                .between(XML_LOCAL_NAME, GT).spaceIf(false)
+                .between(NAME_REFERENCE, LBRACE).spaceIf(true)
+                .between(VARIABLE_REFERENCE, INDEX).spaceIf(false)
+                .between(VARIABLE_REFERENCE, FIELD).spaceIf(false)
+                .between(VARIABLE_REFERENCE, XML_ATTRIB).spaceIf(false)
+                .between(VARIABLE_REFERENCE, LPAREN).spaceIf(false)
+                .after(ANNOTATION_REFERENCE).spaceIf(true)
+                .after(FUNCTION_REFERENCE).spaceIf(false)
+                .after(CONNECTOR_REFERENCE).spaceIf(false)
+                .around(ANNOTATION_ATTRIBUTE_LIST).spaceIf(false)
+                .around(ANNOTATION_ATTRIBUTE_VALUE).spaceIf(false)
+                .around(NAME_REFERENCE).spaceIf(false)
+                .between(VALUE_TYPE_NAME, IDENTIFIER).spaceIf(true)
+                .between(IDENTIFIER, LBRACE).spaceIf(true)
+                .between(ATTACHMENT_POINT, LBRACE).spaceIf(true)
+                .around(RECORD_LITERAL).spaceIf(false)
+                .around(RECORD_KEY_VALUE).spaceIf(false)
+                .between(XML, LT).spaceIf(false)
+                .around(XML_NAMESPACE_NAME).spaceIf(false)
+                .around(EXPRESSION_LIST).spaceIf(false)
+                .aroundInside(INTEGER_LITERAL, JOIN_CONDITIONS).spaceIf(true)
+                .aroundInside(PACKAGE_NAME, SOURCE_NOTATION).spaceIf(false)
+                .between(SOURCE_NOTATION, IDENTIFIER).spaceIf(true)
+                .withinPairInside(IDENTIFIER, LBRACE, FUNCTION_DEFINITION).spaceIf(true)
+                .withinPairInside(IDENTIFIER, LBRACE, SERVICE_DEFINITION).spaceIf(true)
+                .withinPairInside(IDENTIFIER, LBRACE, RESOURCE_DEFINITION).spaceIf(true)
+                .withinPairInside(IDENTIFIER, LPAREN, CONNECTOR_DEFINITION).spaceIf(true)
+                .withinPairInside(IDENTIFIER, LPAREN, ACTION_DEFINITION).spaceIf(true)
+                .before(INVOCATION).spaceIf(false)
+                .afterInside(IDENTIFIER, INVOCATION).spaceIf(false)
+                .around(ANY_IDENTIFIER_NAME).spaceIf(false)
+                .after(BIND).spaceIf(true)
+                .between(LT, CONNECTOR_REFERENCE).spaceIf(false)
+                .between(CONNECTOR_REFERENCE, GT).spaceIf(false)
+                .after(ENDPOINT).spaceIf(false)
+                .between(GT, IDENTIFIER).spaceIf(true)
+                .after(TRANSFORMER).spaceIf(true)
+                .around(TRANSFORMER_INVOCATION).spaceIf(false);
+    }
+
+    @Nullable
+    @Override
+    public TextRange getRangeAffectingIndent(PsiFile file, int offset, ASTNode elementAtOffset) {
+        return null;
+    }
+}
