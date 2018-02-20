@@ -161,7 +161,7 @@ public class MultipartDecoderTest {
     }
 
     @Test(description = "Test whether the nested parts can be properly decoded. Two body parts have been wrapped " +
-            "inside Multipart/mixed which in turn acts as the child part for the parent multipart/form-data")
+            "inside multipart/mixed which in turn acts as the child part for the parent multipart/form-data")
     public void testNestedPartsForOneLevel() {
         String path = "/test/nestedparts";
         List<Header> headers = new ArrayList<>();

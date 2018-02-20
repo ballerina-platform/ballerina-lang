@@ -20,7 +20,6 @@ package org.ballerinalang.mime.nativeimpl;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.mime.util.EntityBody;
-import org.ballerinalang.mime.util.EntityBodyHandler;
 import org.ballerinalang.mime.util.MimeUtil;
 import org.ballerinalang.mime.util.MultipartDecoder;
 import org.ballerinalang.model.types.TypeKind;
@@ -64,11 +63,10 @@ public class GetBodyParts extends AbstractNativeFunction {
                 if (entityBody != null) {
                     String contentType = MimeUtil.getContentTypeWithParameters(entityStruct);
                     if (MimeUtil.isNotNullAndEmpty(contentType) && contentType.startsWith(MULTIPART_AS_PRIMARY_TYPE)) {
-                        //Will populate nested parts and those parts will get set to the parent entity's
-                        // multipart data field
+                        //Populate nested parts and set them to parent entity's multipart data field
                         if (entityBody.isStream()) {
                             MultipartDecoder.parseBody(context, entityStruct, contentType,
-                                    EntityBodyHandler.getNewInputStream(entityBody));
+                                    entityBody.getEntityWrapper().getInputStream());
                         } else {
                             FileIOChannel fileIOChannel = entityBody.getFileIOChannel();
                             MultipartDecoder.parseBody(context, entityStruct, contentType,
@@ -93,9 +91,7 @@ public class GetBodyParts extends AbstractNativeFunction {
      * @return An array of body parts
      */
     private BRefValueArray getBodyPartArray(BStruct entityStruct) {
-        BRefValueArray partsArray;
-        partsArray = entityStruct.getRefField(MULTIPART_DATA_INDEX) != null ?
+        return entityStruct.getRefField(MULTIPART_DATA_INDEX) != null ?
                 (BRefValueArray) entityStruct.getRefField(MULTIPART_DATA_INDEX) : null;
-        return partsArray;
     }
 }

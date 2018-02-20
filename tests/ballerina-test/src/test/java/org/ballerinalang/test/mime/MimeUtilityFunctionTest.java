@@ -59,7 +59,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URISyntaxException;
 import java.nio.channels.ByteChannel;
-import java.nio.channels.Channels;
 import java.nio.charset.StandardCharsets;
 
 import static org.ballerinalang.mime.util.Constants.FILE;
@@ -273,8 +272,8 @@ public class MimeUtilityFunctionTest {
             bufferedWriter.write("Hello Ballerina!");
             bufferedWriter.close();
             BStruct byteChannelStruct = Util.getByteChannelStruct(compileResult);
-            byteChannelStruct.addNativeData(IOConstants.BYTE_CHANNEL_NAME, EntityBodyHandler.
-                    getByteChannelForTempFile(file.getAbsolutePath()));
+            byteChannelStruct.addNativeData(IOConstants.BYTE_CHANNEL_NAME, EntityBodyHandler.getByteChannelForTempFile
+                    (file.getAbsolutePath()));
             BValue[] args = {byteChannelStruct};
             BValue[] returns = BRunUtil.invoke(compileResult, "testSetByteChannel", args);
             Assert.assertEquals(returns.length, 1);
@@ -294,8 +293,8 @@ public class MimeUtilityFunctionTest {
             bufferedWriter.write("Hello Ballerina!");
             bufferedWriter.close();
             BStruct byteChannelStruct = Util.getByteChannelStruct(compileResult);
-            byteChannelStruct.addNativeData(IOConstants.BYTE_CHANNEL_NAME, EntityBodyHandler.
-                    getByteChannelForTempFile(file.getAbsolutePath()));
+            byteChannelStruct.addNativeData(IOConstants.BYTE_CHANNEL_NAME, EntityBodyHandler.getByteChannelForTempFile
+                    (file.getAbsolutePath()));
             BValue[] args = {byteChannelStruct};
             BValue[] returns = BRunUtil.invoke(compileResult, "testGetByteChannel", args);
             Assert.assertEquals(returns.length, 1);
@@ -319,8 +318,8 @@ public class MimeUtilityFunctionTest {
             bufferedWriter.write("File Content");
             bufferedWriter.close();
             BStruct byteChannelStruct = Util.getByteChannelStruct(compileResult);
-            byteChannelStruct.addNativeData(IOConstants.BYTE_CHANNEL_NAME, EntityBodyHandler.
-                    getByteChannelForTempFile(file.getAbsolutePath()));
+            byteChannelStruct.addNativeData(IOConstants.BYTE_CHANNEL_NAME,
+                    EntityBodyHandler.getByteChannelForTempFile(file.getAbsolutePath()));
             BValue[] args = {byteChannelStruct, new BString("Hello Ballerina!")};
             BValue[] returns = BRunUtil.invoke(compileResult, "testSetEntityBodyMultipleTimes", args);
             Assert.assertEquals(returns.length, 1);
@@ -339,9 +338,9 @@ public class MimeUtilityFunctionTest {
             BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(file));
             bufferedWriter.write("File Content");
             bufferedWriter.close();
-            ByteChannel byteChannel = EntityBodyHandler.getByteChannelForTempFile(file.getAbsolutePath());
+            FileIOChannel fileIOChannel = EntityBodyHandler.getByteChannelForTempFile(file.getAbsolutePath());
             Assert.assertFalse(file.exists());
-            InputStream inputStream = Channels.newInputStream(byteChannel);
+            InputStream inputStream = fileIOChannel.getInputStream();
             Assert.assertNotNull(inputStream);
             ByteArrayOutputStream result = new ByteArrayOutputStream();
             EntityBodyHandler.writeInputToOutputStream(result, inputStream);

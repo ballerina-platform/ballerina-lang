@@ -110,7 +110,7 @@ public class InResponseNativeFunctionNegativeTest {
 
         String payload = "ballerina";
         MimeUtil.setContentType(mediaType, entity, TEXT_PLAIN);
-        entity.addNativeData(BYTE_CHANNEL_STRUCT, EntityBodyHandler.getByteChannel(payload));
+        entity.addNativeData(BYTE_CHANNEL_STRUCT, EntityBodyHandler.getEntityWrapper(payload));
         inResponse.addNativeData(MESSAGE_ENTITY, entity);
         inResponse.addNativeData(IS_BODY_BYTE_CHANNEL_ALREADY_SET, true);
         BValue[] inputArg = {inResponse};
