@@ -18,6 +18,7 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
+import { Button } from 'semantic-ui-react';
 import { getPathSeperator } from 'api-client/api-client';
 import { COMMANDS as WORKSPACE_COMMANDS, VIEWS as WORKSPACE_VIEWS } from 'core/workspace/constants';
 import { COMMANDS as LAYOUT_COMMANDS } from 'core/layout/constants';
@@ -104,27 +105,27 @@ class WelcomeTab extends React.Component {
                             </a>
                         </div>
 
-                        <button
+                        <Button
                             id="btn-welcome-new"
-                            className="btn btn-primary"
+                            className="btn-primary"
                             onClick={this.props.createNew}
                         >
                             Create New
-                        </button>
-                        <button
+                        </Button>
+                        <Button
                             id="btn-welcome-open"
-                            className="btn btn-secondary"
+                            className="btn-secondary"
                             onClick={this.props.openFile}
                         >
                             Open File
-                        </button>
-                        <button
+                        </Button>
+                        <Button
                             id="btn-welcome-open-dir"
-                            className="btn btn-secondary"
+                            className="btn-secondary"
                             onClick={this.props.openDirectory}
                         >
                             Open Directory
-                        </button>
+                        </Button>
                         <ul className="nav nav-pills">
                             <li >
                                 <a href={this.props.userGuide} target="_blank" rel="noopener noreferrer">
@@ -136,7 +137,7 @@ class WelcomeTab extends React.Component {
                             <div className="header-title">
                                 Try out our samples / templates
                             </div>
-                            <div className="details-container">
+                            <div className="details-container ui grid">
                                 <div id="inner-samples" className="row">
                                     {samplesView}
                                 </div>
