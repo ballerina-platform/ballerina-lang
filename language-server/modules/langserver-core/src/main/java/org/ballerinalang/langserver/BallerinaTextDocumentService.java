@@ -212,7 +212,6 @@ public class BallerinaTextDocumentService implements TextDocumentService {
     @Override
     public CompletableFuture<List<? extends Location>> references(ReferenceParams params) {
         return CompletableFuture.supplyAsync(() -> {
-            ReferenceParams ref = params;
             TextDocumentServiceContext referenceContext = new TextDocumentServiceContext();
             referenceContext.put(DocumentServiceKeys.FILE_URI_KEY, params.getTextDocument().getUri());
             referenceContext.put(DocumentServiceKeys.POSITION_KEY, params);
