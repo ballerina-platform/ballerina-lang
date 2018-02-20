@@ -42,8 +42,8 @@ import org.ballerinalang.model.tree.VariableNode;
 import org.ballerinalang.model.tree.WorkerNode;
 import org.ballerinalang.model.tree.expressions.AnnotationAttachmentAttributeValueNode;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
-import org.ballerinalang.model.tree.expressions.OrderByNode;
-import org.ballerinalang.model.tree.expressions.VariableReferenceNode;
+import org.ballerinalang.model.tree.statements.HavingNode;
+import org.ballerinalang.model.tree.statements.OrderByNode;
 import org.ballerinalang.model.tree.expressions.XMLAttributeNode;
 import org.ballerinalang.model.tree.expressions.XMLLiteralNode;
 import org.ballerinalang.model.tree.statements.BlockNode;
@@ -114,6 +114,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangCatch;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForeach;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangHaving;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangLock;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangNext;
@@ -217,6 +218,8 @@ public class BLangPackageBuilder {
     private Stack<BLangAnnotationAttachmentPoint> attachmentPointStack = new Stack<>();
 
     private Stack<OrderByNode> orderByClauseStack = new Stack<>();
+
+    private Stack<HavingNode> havingClauseStack = new Stack<>();
 
     private Set<BLangImportPackage> imports = new HashSet<>();
 
@@ -1846,9 +1849,24 @@ public class BLangPackageBuilder {
 
     public void endOrderByClauseNode(DiagnosticPos currentPos, Set<Whitespace> ws) {
         if (this.exprNodeListStack.empty()) {
-            throw new IllegalStateException("ExpressionList stack cannot be empty in processing an OrderBy");
+            throw new IllegalStateException("ExpressionList stack cannot be empty in processing an OrderBy clause");
         }
         OrderByNode orderByNode = this.orderByClauseStack.peek();
         this.exprNodeListStack.pop().forEach(orderByNode::addVariableReference);
+    }
+
+    public void startHavingClauseNode(DiagnosticPos pos, Set<Whitespace> ws) {
+        HavingNode havingNode = TreeBuilder.createHavingNode();
+        ((BLangHaving) havingNode).pos = pos;
+        ((BLangHaving) havingNode).addWS(ws);
+        this.havingClauseStack.push(havingNode);
+    }
+
+    public void endHavingClauseNode(DiagnosticPos currentPos, Set<Whitespace> ws) {
+        if (this.exprNodeStack.empty()) {
+            throw new IllegalStateException("Expression stack cannot be empty in processing an having clause");
+        }
+        HavingNode havingNode = this.havingClauseStack.peek();
+        havingNode.setExpression(this.exprNodeStack.peek());
     }
 }

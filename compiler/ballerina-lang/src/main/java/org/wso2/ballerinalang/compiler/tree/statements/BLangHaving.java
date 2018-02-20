@@ -20,33 +20,17 @@ package org.wso2.ballerinalang.compiler.tree.statements;
 
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
-import org.ballerinalang.model.tree.statements.OrderByNode;
-import org.ballerinalang.model.tree.expressions.VariableReferenceNode;
+import org.ballerinalang.model.tree.statements.HavingNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangVariableReference;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
- * Implementation of {@link OrderByNode}.
- * @see OrderByNode
+ * Implementation of {@link HavingNode}
+ * @see HavingNode
  */
-public class BLangOrderBy extends BLangExpression implements OrderByNode {
+public class BLangHaving extends BLangExpression implements HavingNode {
 
-    private List<VariableReferenceNode> varRefs = new ArrayList<>();
-
-    @Override
-    public void addVariableReference(ExpressionNode varRef) {
-        varRefs.add((BLangVariableReference) varRef);
-    }
-
-    @Override
-    public List<? extends ExpressionNode> getVariables() {
-        return varRefs;
-    }
-
+    private ExpressionNode expression;
     @Override
     public void accept(BLangNodeVisitor visitor) {
         visitor.visit(this);
@@ -54,6 +38,16 @@ public class BLangOrderBy extends BLangExpression implements OrderByNode {
 
     @Override
     public NodeKind getKind() {
-        return NodeKind.ORDER_BY;
+        return NodeKind.HAVING;
+    }
+
+    @Override
+    public void setExpression(ExpressionNode expression) {
+        this.expression = expression;
+    }
+
+    @Override
+    public ExpressionNode getExpression() {
+        return this.expression;
     }
 }

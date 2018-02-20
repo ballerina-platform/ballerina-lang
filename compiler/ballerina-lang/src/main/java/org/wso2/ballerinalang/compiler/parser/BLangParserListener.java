@@ -2076,6 +2076,24 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         this.pkgBuilder.endOrderByClauseNode(getCurrentPos(ctx), getWS(ctx));
     }
 
+    @Override
+    public void enterHavingClause(BallerinaParser.HavingClauseContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+
+        this.pkgBuilder.startHavingClauseNode(getCurrentPos(ctx), getWS(ctx));
+    }
+
+    @Override
+    public void exitHavingClause(BallerinaParser.HavingClauseContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+
+        this.pkgBuilder.endHavingClauseNode(getCurrentPos(ctx), getWS(ctx));
+    }
+
     private DiagnosticPos getCurrentPos(ParserRuleContext ctx) {
         int startLine = ctx.getStart().getLine();
         int startCol = ctx.getStart().getCharPositionInLine() + 1;
