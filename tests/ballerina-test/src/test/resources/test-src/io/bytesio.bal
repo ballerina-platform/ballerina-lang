@@ -1,11 +1,9 @@
-import ballerina.file;
 import ballerina.io;
 
 io:ByteChannel channel;
 
 function initFileChannel(string filePath, string permission){
-    file:File src = {path:filePath};
-    channel = src.openChannel(permission);
+    channel = io:openFile(filePath, permission);
 }
 
 function readAll() (blob) {

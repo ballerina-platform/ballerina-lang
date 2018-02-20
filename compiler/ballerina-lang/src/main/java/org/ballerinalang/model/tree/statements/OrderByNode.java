@@ -16,18 +16,21 @@
  * under the License.
  */
 
-package org.ballerinalang.model.tree.expressions;
+package org.ballerinalang.model.tree.statements;
 
-import org.ballerinalang.model.tree.statements.StatementNode;
+import org.ballerinalang.model.tree.expressions.ExpressionNode;
 
 import java.util.List;
 
 /**
  * The interface with the APIs to implement the "order by" in ballerina streams/table SQLish syntax.
+ * <pre> E.g
+ * order by age, rank;
+ * </pre>
  */
 public interface OrderByNode extends StatementNode {
 
-    public void addVariableReference(ExpressionNode varRef);
+    void addVariableReference(ExpressionNode varRef);
 
-    public List<? extends ExpressionNode> getVariables();
+    List<? extends ExpressionNode> getVariables();
 }
