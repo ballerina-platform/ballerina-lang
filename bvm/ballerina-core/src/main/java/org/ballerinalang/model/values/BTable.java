@@ -146,6 +146,18 @@ public class BTable implements BRefType<Object>, BCollection {
         }
     }
 
+    public void removeData(BStruct data) {
+        if (tableProvider != null) {
+            tableProvider.deleteData(tableName, data);
+            if (iterator != null) {
+                iterator.close(false);
+            }
+            generateIterator();
+        } else {
+            throw new BallerinaException("data cannot be deleted from a table returned from a database");
+        }
+    }
+
     public String getString(int columnIndex) {
         return iterator.getString(columnIndex);
     }

@@ -271,6 +271,32 @@ public class TableLiteralTest {
         Assert.assertEquals(((BBooleanArray) returns[3]).get(2), 1);
     }
 
+    @Test(priority = 1)
+    public void testTableRemoveSuccess() {
+        BValue[] returns = BRunUtil.invoke(result, "testTableRemoveSuccess");
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 2);
+        Assert.assertEquals((returns[1]).stringValue(), "[{\"id\":1,\"age\":35,\"salary\":300.5,"
+                + "\"name\":\"jane\",\"married\":true}]");
+    }
+
+    @Test(priority = 1)
+    public void testTableRemoveSuccessMultipleMatch() {
+        BValue[] returns = BRunUtil.invoke(result, "testTableRemoveSuccessMultipleMatch");
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 2);
+        Assert.assertEquals((returns[1]).stringValue(), "[{\"id\":2,\"age\":20,\"salary\":200.5,"
+                + "\"name\":\"martin\",\"married\":true}]");
+    }
+
+    @Test(priority = 1)
+    public void testTableRemoveFailed() {
+        BValue[] returns = BRunUtil.invoke(result, "testTableRemoveFailed");
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 0);
+        Assert.assertEquals((returns[1]).stringValue(), "[{\"id\":1,\"age\":35,\"salary\":300.5,"
+                + "\"name\":\"jane\",\"married\":true},{\"id\":2,\"age\":40,\"salary\":200.5,"
+                + "\"name\":\"martin\",\"married\":true},{\"id\":3,\"age\":42,\"salary\":100.5,"
+                + "\"name\":\"john\",\"married\":false}]");
+    }
+
     @Test(priority = 1,
           description = "Test struct with any typed field",
           expectedExceptions = { BLangRuntimeException.class },

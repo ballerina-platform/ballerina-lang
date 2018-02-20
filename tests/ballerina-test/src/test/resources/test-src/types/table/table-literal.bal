@@ -366,10 +366,63 @@ function testTableWithArrayDataToStruct () (int[] intArr, float[] floatArr, stri
     return;
 }
 
-function getPersonId (Person p) (int i) {
+function testTableRemoveSuccess () (int count, json j) {
+    Person p1 = {id:1, age:35, salary:300.50, name:"jane", married:true};
+    Person p2 = {id:2, age:20, salary:200.50, name:"martin", married:true};
+    Person p3 = {id:3, age:32, salary:100.50, name:"john", married:false};
+
+    table<Person> dt = {};
+    dt.add(p1);
+    dt.add(p2);
+    dt.add(p3);
+
+    count = dt.remove(isBellow35);
+    j, _ = <json>dt;
+    return;
+}
+
+function testTableRemoveSuccessMultipleMatch () (int count, json j) {
+    Person p1 = {id:1, age:35, salary:300.50, name:"john", married:true};
+    Person p2 = {id:2, age:20, salary:200.50, name:"martin", married:true};
+    Person p3 = {id:3, age:32, salary:100.50, name:"john", married:false};
+
+    table<Person> dt = {};
+    dt.add(p1);
+    dt.add(p2);
+    dt.add(p3);
+
+    count = dt.remove(isJohn);
+    j, _ = <json>dt;
+    return;
+}
+
+function testTableRemoveFailed () (int count, json j) {
+    Person p1 = {id:1, age:35, salary:300.50, name:"jane", married:true};
+    Person p2 = {id:2, age:40, salary:200.50, name:"martin", married:true};
+    Person p3 = {id:3, age:42, salary:100.50, name:"john", married:false};
+
+    table<Person> dt = {};
+    dt.add(p1);
+    dt.add(p2);
+    dt.add(p3);
+
+    count = dt.remove(isBellow35);
+    j, _ = <json>dt;
+    return;
+}
+
+function getPersonId (Person p) (int) {
     return p.id;
 }
 
-function getCompanyId (Company p) (int i) {
+function getCompanyId (Company p) (int) {
     return p.id;
+}
+
+function isBellow35 (Person p) (boolean) {
+    return p.age < 35;
+}
+
+function isJohn (Person p) (boolean) {
+    return p.name == "john";
 }

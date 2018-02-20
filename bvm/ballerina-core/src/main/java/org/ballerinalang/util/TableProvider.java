@@ -83,6 +83,11 @@ public class TableProvider {
         return tableName;
     }
 
+    public void deleteData(String tableName, BStruct constrainedType) {
+        String sqlStmt = generateDeteleDataStatment(tableName, constrainedType);
+        prepareAndExecuteStatement(sqlStmt, constrainedType);
+    }
+
     public void dropTable(String tableName) {
         String sqlStmt = TableConstants.SQL_DROP + tableName;
         executeStatement(sqlStmt);
@@ -169,6 +174,19 @@ public class TableProvider {
             sep = ",";
         }
         sbSql.append(") values (").append(sbValues).append(")");
+        return sbSql.toString();
+    }
+
+    private String generateDeteleDataStatment(String tableName, BStruct constrainedType) {
+        StringBuilder sbSql = new StringBuilder();
+        sbSql.append(TableConstants.SQL_DELETE_FROM).append(tableName).append(TableConstants.SQL_WHERE);
+        BStructType.StructField[] structFields = constrainedType.getType().getStructFields();
+        String sep = "";
+        for (BStructType.StructField sf : structFields) {
+            String name = sf.getFieldName();
+            sbSql.append(sep).append(name).append(" = ? ");
+            sep = TableConstants.SQL_AND;
+        }
         return sbSql.toString();
     }
 

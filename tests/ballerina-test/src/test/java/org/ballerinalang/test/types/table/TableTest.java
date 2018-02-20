@@ -580,6 +580,14 @@ public class TableTest {
         BRunUtil.invoke(result, "testTableAddInvalid");
     }
 
+    @Test(groups = "TableTest",
+          description = "Test deleting data from a database table",
+          expectedExceptions = { BLangRuntimeException.class },
+          expectedExceptionsMessageRegExp = ".*message: data cannot be deleted from a table returned from a database.*")
+    public void testTableRemoveInvalid() {
+        BRunUtil.invoke(result, "testTableRemoveInvalid");
+    }
+
     @AfterSuite
     public void cleanup() {
         SQLDBUtils.deleteDirectory(new File(SQLDBUtils.DB_DIRECTORY));

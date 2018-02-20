@@ -33,6 +33,9 @@ public class TableConstants {
     static final String SQL_CREATE = "CREATE TABLE ";
     static final String SQL_DROP = "DROP TABLE ";
     static final String SQL_INSERT_INTO = "INSERT INTO ";
+    static final String SQL_DELETE_FROM = "DELETE FROM ";
+    static final String SQL_WHERE = " WHERE ";
+    static final String SQL_AND = " AND ";
 
     static final String SQL_TYPE_BIGINT = "BIGINT";
     static final String SQL_TYPE_DOUBLE = "DOUBLE";
