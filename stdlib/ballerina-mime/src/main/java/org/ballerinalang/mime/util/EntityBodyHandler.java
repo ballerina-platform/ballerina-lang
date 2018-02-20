@@ -263,26 +263,27 @@ public class EntityBodyHandler {
     }
 
     /**
-     * Given a channel as Object, convert it to correct channel type.
+     * Given a channel as Object, convert it to correct channel type and get the high level representation of
+     * EntityBody.
      *
      * @param channel Channel as an object
      * @return Channel wrapped as entity body
      */
     public static EntityBody getEntityBody(Object channel) {
-        EntityBody entityBodyReader = null;
+        EntityBody entityBody = null;
         if (channel != null) {
             if (channel instanceof EntityWrapper) {
-                entityBodyReader = new EntityBody((EntityWrapper) channel, true);
+                entityBody = new EntityBody((EntityWrapper) channel, true);
             } else if (channel instanceof EntityBodyChannel) {
-                entityBodyReader = new EntityBody(new EntityWrapper((EntityBodyChannel) channel), true);
+                entityBody = new EntityBody(new EntityWrapper((EntityBodyChannel) channel), true);
             } else if (channel instanceof FileIOChannel) {
-                entityBodyReader = new EntityBody((FileIOChannel) channel, false);
+                entityBody = new EntityBody((FileIOChannel) channel, false);
             } else if (channel instanceof FileChannel) {
-                entityBodyReader = new EntityBody(new FileIOChannel((FileChannel) channel,
+                entityBody = new EntityBody(new FileIOChannel((FileChannel) channel,
                         IOConstants.CHANNEL_BUFFER_SIZE), false);
             }
         }
-        return entityBodyReader;
+        return entityBody;
     }
 
     /**

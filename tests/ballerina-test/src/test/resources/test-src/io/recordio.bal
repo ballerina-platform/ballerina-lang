@@ -1,13 +1,11 @@
-import ballerina.file;
 import ballerina.io;
 
 io:DelimitedRecordChannel delimitedRecordChannel;
 
 function initFileChannel(string filePath,string permission,string encoding,string rs,string fs){
-    file:File src = {path:filePath};
-    io:ByteChannel channel = src.openChannel(permission);
-    io:CharacterChannel  characterChannel = channel.toCharacterChannel(encoding);
-    delimitedRecordChannel = characterChannel.toTextRecordChannel(rs, fs);
+    io:ByteChannel channel = io:openFile(filePath, permission);
+    io:CharacterChannel  characterChannel = io:createCharacterChannel(channel, encoding);
+    delimitedRecordChannel = io:createDelimitedRecordChannel(characterChannel, rs, fs);
 }
 
 function nextRecord () (string[]) {

@@ -91,7 +91,7 @@ public class MultipartDataSource extends BallerinaMessageDataSource {
             }
             writeFinalBoundaryString(writer, boundaryString);
         } catch (IOException e) {
-            log.error("Error occured while writing body parts to outputstream", e.getMessage());
+            log.error("Error occurred while writing body parts to outputstream", e.getMessage());
         }
     }
 

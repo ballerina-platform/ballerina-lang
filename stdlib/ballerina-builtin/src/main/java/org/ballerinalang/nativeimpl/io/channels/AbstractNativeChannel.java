@@ -36,7 +36,7 @@ import org.ballerinalang.util.exceptions.BallerinaException;
  * This will prepare the ByteChannel to perform I/O operations.
  * </p>
  *
- * @see org.ballerinalang.nativeimpl.file.OpenChannel
+ * @see org.ballerinalang.nativeimpl.io.OpenFile
  */
 public abstract class AbstractNativeChannel extends AbstractNativeFunction {
 

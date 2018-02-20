@@ -1,7 +1,6 @@
-import ballerina.net.http;
-import ballerina.mime;
 import ballerina.io;
-import ballerina.file;
+import ballerina.mime;
+import ballerina.net.http;
 
 @http:configuration {basePath:"/foo"}
 service<http> echo {
@@ -61,7 +60,6 @@ function writeToFile(io:ByteChannel byteChannel) {
 }
 
 function getByteChannel (string filePath, string permission) (io:ByteChannel) {
-    file:File src = {path:filePath};
-    io:ByteChannel channel = src.openChannel(permission);
+    io:ByteChannel channel = io:openFile(filePath, permission);
     return channel;
 }
