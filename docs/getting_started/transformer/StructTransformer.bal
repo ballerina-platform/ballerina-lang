@@ -1,3 +1,5 @@
+import ballerina.io;
+
 struct Person {
     string name;
     int age;
@@ -22,9 +24,9 @@ function main (string[] args) {
 
     u = <User> p;
 
-    println(u.username);
-    println(u.location);
-    println(u.age);
+    io:println(u.username);
+    io:println(u.location);
+    io:println(u.age);
 }
 
 transformer <Person p, User u> {
