@@ -25,7 +25,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 
 /**
- * Implementation of {@link HavingNode}
+ * Implementation of {@link HavingNode}.
  * @see HavingNode
  */
 public class BLangHaving extends BLangExpression implements HavingNode {

@@ -19,7 +19,6 @@
 package org.ballerinalang.model.tree.statements;
 
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
-import org.ballerinalang.model.tree.statements.StatementNode;
 
 import java.util.List;
 
