@@ -37,7 +37,7 @@ public class BLangGroupBy extends BLangExpression implements GroupByNode {
     private List<BLangExpression> varRefs = new ArrayList<>();
 
     @Override
-    public void addVariableReference(VariableReferenceNode varRef) {
+    public void addVariableReference(ExpressionNode varRef) {
         varRefs.add((BLangVariableReference) varRef);
     }
 

@@ -1862,4 +1862,12 @@ public class BLangPackageBuilder {
         ((BLangGroupBy) groupByNode).addWS(ws);
         this.groupByClauseStack.push(groupByNode);
     }
+
+    public void endGroupByClauseNode(DiagnosticPos currentPos, Set<Whitespace> ws) {
+        if (this.exprNodeListStack.empty()) {
+            throw new IllegalStateException("ExpressionList stack cannot be empty in processing an GroupBy");
+        }
+        GroupByNode groupByNode = this.groupByClauseStack.peek();
+        this.exprNodeListStack.pop().forEach(groupByNode::addVariableReference);
+    }
 }

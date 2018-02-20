@@ -73,6 +73,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangCatch;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForeach;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangGroupBy;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangLock;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangNext;
@@ -945,6 +946,10 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             dlog.error(throwNode.expr.pos, DiagnosticCode.INCOMPATIBLE_TYPES, symTable.errStructType,
                     throwNode.expr.type);
         }
+    }
+
+    public void visit(BLangGroupBy groupBy) {
+        throw  new AssertionError();
     }
 
     @Override
