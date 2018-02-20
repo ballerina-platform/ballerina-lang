@@ -71,7 +71,7 @@ public function getText (Entity entity) (string) {
         if (overFlowData != null) {
             string encoding = getEncoding(entity.contentType);
             io:ByteChannel channel = overFlowData.openChannel(READ_PERMISSION);
-            io:CharacterChannel characterChannel = channel.toCharacterChannel(encoding);
+            io:CharacterChannel characterChannel = io:createCharacterChannel(channel, encoding);
             string characters = characterChannel.readAllCharacters();
             return characters;
         }
