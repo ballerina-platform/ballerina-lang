@@ -37,8 +37,6 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.nio.channels.ByteChannel;
-import java.nio.channels.Channels;
 import java.nio.channels.FileChannel;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -75,14 +73,12 @@ public class EntityBodyHandler {
      */
     public static void setDiscreteMediaTypeBodyContent(BStruct entityStruct, InputStream inputStream) {
         long contentLength = entityStruct.getIntField(SIZE_INDEX);
-        ByteChannel byteChannel;
         if (contentLength > Constants.BYTE_LIMIT) {
             String temporaryFilePath = MimeUtil.writeToTemporaryFile(inputStream, BALLERINA_TEMP_FILE);
-            byteChannel = getByteChannelForTempFile(temporaryFilePath);
+            entityStruct.addNativeData(ENTITY_BYTE_CHANNEL, getByteChannelForTempFile(temporaryFilePath));
         } else {
-            byteChannel = new EntityBodyChannel(inputStream);
+            entityStruct.addNativeData(ENTITY_BYTE_CHANNEL, new EntityWrapper(new EntityBodyChannel(inputStream)));
         }
-        entityStruct.addNativeData(ENTITY_BYTE_CHANNEL, byteChannel);
     }
 
     /**
@@ -91,9 +87,9 @@ public class EntityBodyHandler {
      * @param textPayload Text data that needs to be wrapped in a byte channel
      * @return EntityBodyChannel which represent the given text
      */
-    public static EntityBodyChannel getByteChannel(String textPayload) {
-        return new EntityBodyChannel(new ByteArrayInputStream(
-                textPayload.getBytes(StandardCharsets.UTF_8)));
+    public static EntityWrapper getEntityWrapper(String textPayload) {
+        return new EntityWrapper(new EntityBodyChannel(new ByteArrayInputStream(
+                textPayload.getBytes(StandardCharsets.UTF_8))));
     }
 
     /**
@@ -102,18 +98,18 @@ public class EntityBodyHandler {
      * @param temporaryFilePath Temporary file path
      * @return ByteChannel which represent the file channel
      */
-    public static ByteChannel getByteChannelForTempFile(String temporaryFilePath) {
-        ByteChannel byteChannel;
+    public static FileIOChannel getByteChannelForTempFile(String temporaryFilePath) {
+        FileChannel fileChannel;
         Set<OpenOption> options = new HashSet<>();
         options.add(StandardOpenOption.READ);
         Path path = Paths.get(temporaryFilePath);
         try {
-            byteChannel = Files.newByteChannel(path, options);
+            fileChannel = (FileChannel) Files.newByteChannel(path, options);
             Files.delete(path);
         } catch (IOException e) {
-            throw new BallerinaException("Error occurred while creating a byte channel from a temporary file");
+            throw new BallerinaException("Error occurred while creating a file channel from a temporary file");
         }
-        return byteChannel;
+        return new FileIOChannel(fileChannel, IOConstants.CHANNEL_BUFFER_SIZE);
     }
 
     /**
@@ -138,17 +134,6 @@ public class EntityBodyHandler {
     }
 
     /**
-     * Create a new inputstream from EntityBodyChannel.
-     *
-     * @param entityBody Represent an entity body
-     * @return InputStream created from EntityBodyChannel
-     */
-    private static InputStream getNewInputStream(EntityBody entityBody) {
-        return Channels.newInputStream(
-                entityBody.getEntityBodyChannel());
-    }
-
-    /**
      * Construct BlobDataSource from the underneath byte channel which is associated with the entity struct.
      *
      * @param entityStruct Represent an entity struct
@@ -159,10 +144,10 @@ public class EntityBodyHandler {
         EntityBody entityBody = MimeUtil.constructEntityBody(entityStruct);
         if (entityBody != null) {
             if (entityBody.isStream()) {
-                return new BlobDataSource(MimeUtil.getByteArray(getNewInputStream(entityBody)));
+                return new BlobDataSource(MimeUtil.getByteArray(entityBody.getEntityWrapper().getInputStream()));
             } else {
                 FileIOChannel fileIOChannel = entityBody.getFileIOChannel();
-                return new BlobDataSource(fileIOChannel.readAll());
+                return new BlobDataSource(MimeUtil.getByteArray(fileIOChannel.getInputStream()));
             }
         }
         return null;
@@ -178,10 +163,10 @@ public class EntityBodyHandler {
         EntityBody entityBody = MimeUtil.constructEntityBody(entityStruct);
         if (entityBody != null) {
             if (entityBody.isStream()) {
-                return new BJSON(getNewInputStream(entityBody));
+                return new BJSON(entityBody.getEntityWrapper().getInputStream());
             } else {
                 FileIOChannel fileIOChannel = entityBody.getFileIOChannel();
-                return new BJSON(new ByteArrayInputStream(fileIOChannel.readAll()));
+                return new BJSON(fileIOChannel.getInputStream());
             }
         }
         return null;
@@ -197,10 +182,10 @@ public class EntityBodyHandler {
         EntityBody entityBody = MimeUtil.constructEntityBody(entityStruct);
         if (entityBody != null) {
             if (entityBody.isStream()) {
-                return XMLUtils.parse(getNewInputStream(entityBody));
+                return XMLUtils.parse(entityBody.getEntityWrapper().getInputStream());
             } else {
                 FileIOChannel fileIOChannel = entityBody.getFileIOChannel();
-                return XMLUtils.parse(new ByteArrayInputStream(fileIOChannel.readAll()));
+                return XMLUtils.parse(fileIOChannel.getInputStream());
             }
         }
         return null;
@@ -217,11 +202,12 @@ public class EntityBodyHandler {
         if (entityBodyReader != null) {
             String textContent;
             if (entityBodyReader.isStream()) {
-                textContent = StringUtils.getStringFromInputStream(getNewInputStream(entityBodyReader));
+                textContent = StringUtils.getStringFromInputStream(entityBodyReader.getEntityWrapper()
+                        .getInputStream());
                 return new StringDataSource(textContent);
             } else {
                 FileIOChannel fileIOChannel = entityBodyReader.getFileIOChannel();
-                textContent = StringUtils.getStringFromInputStream(new ByteArrayInputStream(fileIOChannel.readAll()));
+                textContent = StringUtils.getStringFromInputStream(fileIOChannel.getInputStream());
                 return new StringDataSource(textContent);
             }
         }
@@ -272,7 +258,7 @@ public class EntityBodyHandler {
      * @param mimePart Represent decoded mime part
      */
     public static void populateBodyContent(BStruct bodyPart, MIMEPart mimePart) {
-        bodyPart.addNativeData(ENTITY_BYTE_CHANNEL, new EntityBodyChannel(mimePart.readOnce()));
+        bodyPart.addNativeData(ENTITY_BYTE_CHANNEL, new EntityWrapper(new EntityBodyChannel(mimePart.readOnce())));
         mimePart.close(); //Clean up temp files
     }
 
@@ -285,8 +271,10 @@ public class EntityBodyHandler {
     public static EntityBody getEntityBody(Object channel) {
         EntityBody entityBodyReader = null;
         if (channel != null) {
-            if (channel instanceof EntityBodyChannel) {
-                entityBodyReader = new EntityBody((EntityBodyChannel) channel, true);
+            if (channel instanceof EntityWrapper) {
+                entityBodyReader = new EntityBody((EntityWrapper) channel, true);
+            } else if (channel instanceof EntityBodyChannel) {
+                entityBodyReader = new EntityBody(new EntityWrapper((EntityBodyChannel) channel), true);
             } else if (channel instanceof FileIOChannel) {
                 entityBodyReader = new EntityBody((FileIOChannel) channel, false);
             } else if (channel instanceof FileChannel) {
@@ -310,10 +298,10 @@ public class EntityBodyHandler {
         if (entityBody != null) {
             InputStream inputStream;
             if (entityBody.isStream()) {
-                inputStream = EntityBodyHandler.getNewInputStream(entityBody);
+                inputStream = entityBody.getEntityWrapper().getInputStream();
             } else {
                 FileIOChannel fileIOChannel = entityBody.getFileIOChannel();
-                inputStream = new ByteArrayInputStream(fileIOChannel.readAll());
+                inputStream = fileIOChannel.getInputStream();
             }
             writeInputToOutputStream(messageOutputStream, inputStream);
         }

@@ -90,7 +90,7 @@ public native function <Entity entity> getText () (string);
 public native function <Entity entity> setBlob (blob blobContent);
 
 @Description {value:"Given an entity, get the entity body as a blob. If the entity size is considerably large consider
-using getByteChannel() method instead"}
+using getEntityWrapper() method instead"}
 @Param {value:"entity: Represent a mime Entity"}
 @Return {value:"Return a blob"}
 public native function <Entity entity> getBlob () (blob);

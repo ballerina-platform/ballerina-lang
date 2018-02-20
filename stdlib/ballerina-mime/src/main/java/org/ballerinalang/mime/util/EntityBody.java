@@ -28,11 +28,11 @@ import org.ballerinalang.nativeimpl.io.channels.FileIOChannel;
  */
 public class EntityBody {
     private boolean isStream;
-    private EntityBodyChannel entityBodyChannel;
+    private EntityWrapper entityWrapper;
     private FileIOChannel fileIOChannel;
 
-    EntityBody(EntityBodyChannel entityBodyChannel, boolean isStream) {
-        this.entityBodyChannel = entityBodyChannel;
+    EntityBody(EntityWrapper entityWrapper, boolean isStream) {
+        this.entityWrapper = entityWrapper;
         this.isStream = isStream;
     }
 
@@ -45,8 +45,8 @@ public class EntityBody {
         return isStream;
     }
 
-    public EntityBodyChannel getEntityBodyChannel() {
-        return entityBodyChannel;
+    public EntityWrapper getEntityWrapper() {
+        return entityWrapper;
     }
 
     public FileIOChannel getFileIOChannel() {

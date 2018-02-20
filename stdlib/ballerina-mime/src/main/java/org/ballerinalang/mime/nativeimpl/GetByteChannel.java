@@ -20,20 +20,20 @@ package org.ballerinalang.mime.nativeimpl;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.connector.api.ConnectorUtils;
+import org.ballerinalang.mime.util.EntityBody;
+import org.ballerinalang.mime.util.MimeUtil;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.nativeimpl.io.IOConstants;
+import org.ballerinalang.nativeimpl.io.channels.base.Channel;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
-import java.nio.channels.ByteChannel;
-
 import static org.ballerinalang.mime.util.Constants.BYTE_CHANNEL_STRUCT;
-import static org.ballerinalang.mime.util.Constants.ENTITY_BYTE_CHANNEL;
 import static org.ballerinalang.mime.util.Constants.FIRST_PARAMETER_INDEX;
 import static org.ballerinalang.mime.util.Constants.PROTOCOL_PACKAGE_IO;
 
@@ -56,8 +56,15 @@ public class GetByteChannel extends AbstractNativeFunction {
         BStruct byteChannelStruct;
         try {
             BStruct entityStruct = (BStruct) this.getRefArgument(context, FIRST_PARAMETER_INDEX);
-            ByteChannel byteChannel = entityStruct.getNativeData(ENTITY_BYTE_CHANNEL) != null ?
-                    (ByteChannel) entityStruct.getNativeData(ENTITY_BYTE_CHANNEL) : null;
+            EntityBody entityBody = MimeUtil.constructEntityBody(entityStruct);
+            Channel byteChannel = null;
+            if (entityBody != null) {
+                if (entityBody.isStream()) {
+                    byteChannel = entityBody.getEntityWrapper();
+                } else {
+                    byteChannel = entityBody.getFileIOChannel();
+                }
+            }
             byteChannelStruct = ConnectorUtils.createAndGetStruct(context, PROTOCOL_PACKAGE_IO, BYTE_CHANNEL_STRUCT);
             byteChannelStruct.addNativeData(IOConstants.BYTE_CHANNEL_NAME, byteChannel);
         } catch (Throwable e) {
