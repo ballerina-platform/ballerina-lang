@@ -47,6 +47,7 @@ import org.ballerinalang.model.tree.expressions.XMLAttributeNode;
 import org.ballerinalang.model.tree.expressions.XMLLiteralNode;
 import org.ballerinalang.model.tree.statements.BlockNode;
 import org.ballerinalang.model.tree.statements.ForkJoinNode;
+import org.ballerinalang.model.tree.statements.GroupByNode;
 import org.ballerinalang.model.tree.statements.IfNode;
 import org.ballerinalang.model.tree.statements.StatementNode;
 import org.ballerinalang.model.tree.statements.TransactionNode;
@@ -113,6 +114,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangCatch;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForeach;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangGroupBy;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangLock;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangNext;
@@ -216,6 +218,8 @@ public class BLangPackageBuilder {
     private Stack<BLangAnnotationAttachmentPoint> attachmentPointStack = new Stack<>();
 
     private Stack<OrderByNode> orderByClauseStack = new Stack<>();
+
+    private Stack<GroupByNode> groupByClauseStack = new Stack<>();
 
     private Set<BLangImportPackage> imports = new HashSet<>();
 
@@ -1841,5 +1845,12 @@ public class BLangPackageBuilder {
         ((BLangOrderBy) orderByNode).pos = pos;
         ((BLangOrderBy) orderByNode).addWS(ws);
         this.orderByClauseStack.push(orderByNode);
+    }
+
+    public void startGroupByClauseNode(DiagnosticPos pos, Set<Whitespace> ws) {
+        GroupByNode groupByNode = TreeBuilder.createGroupByNode();
+        ((BLangGroupBy) groupByNode).pos = pos;
+        ((BLangGroupBy) groupByNode).addWS(ws);
+        this.groupByClauseStack.push(groupByNode);
     }
 }

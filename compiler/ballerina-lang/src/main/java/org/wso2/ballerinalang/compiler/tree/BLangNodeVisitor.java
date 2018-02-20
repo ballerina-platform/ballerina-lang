@@ -73,6 +73,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangCatch;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForeach;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangGroupBy;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangLock;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangNext;
@@ -273,6 +274,9 @@ public abstract class BLangNodeVisitor {
         throw  new AssertionError();
     }
 
+    public void visit(BLangGroupBy groupBy) {
+        throw  new AssertionError();
+    }
 
     // Expressions
 
