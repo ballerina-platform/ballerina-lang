@@ -132,7 +132,14 @@ public class BallerinaTypes {
             tokenIElementTypes.get(BallerinaLexer.DocumentationTemplateStart);
     public static final TokenIElementType DOCUMENTATION_TEMPLATE_ATTRIBUTE_END =
             tokenIElementTypes.get(BallerinaLexer.DocumentationTemplateAttributeEnd);
-    public static final TokenIElementType INLINE_CODE = tokenIElementTypes.get(BallerinaLexer.InlineCode);
+
+    public static final TokenIElementType DEPRECATED_TEMPLATE_START =
+            tokenIElementTypes.get(BallerinaLexer.DeprecatedTemplateStart);
+
+//    public static final TokenIElementType SINGLE_BACKTICK_INLINE_CODE =
+//            tokenIElementTypes.get(BallerinaLexer.SINGLE_BACKTICK_INLINE_CODE);
+//    public static final TokenIElementType DOUBLE_BACKTICK_INLINE_CODE =
+//            tokenIElementTypes.get(BallerinaLexer.DOUBLE_BACKTICK_INLINE_CODE);
 
     public static final RuleIElementType STATEMENT = ruleIElementTypes.get(RULE_statement);
 

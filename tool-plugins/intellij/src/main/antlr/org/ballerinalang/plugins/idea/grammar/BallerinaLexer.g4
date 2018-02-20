@@ -3,6 +3,7 @@ lexer grammar BallerinaLexer;
 @members {
     boolean inTemplate = false;
     boolean inDocTemplate = false;
+    boolean inDeprecatedTemplate = false;
 }
 
 // Reserved words
@@ -29,6 +30,8 @@ ENDPOINT        : 'endpoint';
 XMLNS           : 'xmlns';
 RETURNS         : 'returns';
 VERSION         : 'version';
+DOCUMENTATION   : 'documentation';
+DEPRECATED      : 'deprecated';
 
 TYPE_INT        : 'int';
 TYPE_FLOAT      : 'float';
@@ -71,8 +74,6 @@ WITH            : 'with';
 BIND            : 'bind';
 IN              : 'in';
 LOCK            : 'lock';
-
-DOCUMENTATION   : 'documentation';
 
 // Separators
 
@@ -410,6 +411,10 @@ DocumentationTemplateStart
     :   DOCUMENTATION WS* LEFT_BRACE   { inDocTemplate = true; } -> pushMode(DOCUMENTATION_TEMPLATE)
     ;
 
+DeprecatedTemplateStart
+    :   DEPRECATED WS* LEFT_BRACE   { inDeprecatedTemplate = true; } -> pushMode(DEPRECATED_TEMPLATE)
+    ;
+
 ExpressionEnd
     :   {inTemplate}? RIGHT_BRACE WS* RIGHT_BRACE   ->  popMode
     ;
@@ -501,15 +506,23 @@ DocumentationTemplateAttributeStart
     :  DocNewLine WS? DocSub WS DocHash                                        -> pushMode(DEFAULT_MODE)
     ;
 
-DocumentationInlineCodeStart
-    :  DocBackTick                                                             -> pushMode(DOCUMENTATION_INLINE_CODE)
+SBDocInlineCodeStart
+    :  DocBackTick                                                             -> pushMode(SINGLE_BACKTICK_INLINE_CODE)
+    ;
+
+DBDocInlineCodeStart
+    :  DocBackTick DocBackTick                                                 -> pushMode(DOUBLE_BACKTICK_INLINE_CODE)
+    ;
+
+TBDocInlineCodeStart
+    :  DocBackTick DocBackTick DocBackTick                                     -> pushMode(TRIPLE_BACKTICK_INLINE_CODE)
     ;
 
 DocumentationTemplateStringChar
-    :   ~[{}\\`]
+    :   ~[`{}\\]
     |   '\\' [{}`]
     |   WS
-    |   DocumentationLiteralEscapedSequence
+    |   DocumentationEscapedSequence
     ;
 
 fragment
@@ -533,7 +546,7 @@ DocNewLine
     ;
 
 fragment
-DocumentationLiteralEscapedSequence
+DocumentationEscapedSequence
     :   '\\\\'
     ;
 
@@ -541,23 +554,89 @@ DOCUMENTATION_TEMPLATE_ERRCHAR
 	:	.	-> channel(HIDDEN)
 	;
 
-mode DOCUMENTATION_INLINE_CODE;
+mode TRIPLE_BACKTICK_INLINE_CODE;
 
-DocumentationInlineCodeEnd
-    : BACKTICK                               -> popMode
+TripleBackTickInlineCodeEnd
+    : BACKTICK BACKTICK BACKTICK              -> popMode
     ;
 
-InlineCode
-    : InlineCodeChar+
+TripleBackTickInlineCodeChar
+    :  .
+    ;
+TRIPLE_BACKTICK_INLINE_CODE_ERRCHAR
+	:	.	-> channel(HIDDEN)
+	;
+
+mode DOUBLE_BACKTICK_INLINE_CODE;
+
+DoubleBackTickInlineCodeEnd
+    : BACKTICK BACKTICK                       -> popMode
+    ;
+
+DoubleBackTickInlineCodeChar
+    :  .
+    ;
+
+DOUBLE_BACKTICK_INLINE_CODE_ERRCHAR
+	:	.	-> channel(HIDDEN)
+	;
+
+mode SINGLE_BACKTICK_INLINE_CODE;
+
+SingleBackTickInlineCodeEnd
+    : BACKTICK                                -> popMode
+    ;
+
+SingleBackTickInlineCode
+    : SingleBackTickInlineCodeChar+
     ;
 
 fragment
-InlineCodeChar
-    :  ~ [`]
+SingleBackTickInlineCodeChar
+    :  ~[`]
     |  '\\' [`]
     ;
 
-DOCUMENTATION_INLINE_CODE_ERRCHAR
+SINGLE_BACKTICK_INLINE_CODE_ERRCHAR
+	:	.	-> channel(HIDDEN)
+	;
+
+mode DEPRECATED_TEMPLATE;
+
+DeprecatedTemplateEnd
+    :   RIGHT_BRACE { inDeprecatedTemplate = false; }                         -> popMode
+    ;
+
+SBDeprecatedInlineCodeStart
+    :  DeprecatedBackTick                                                     -> pushMode(SINGLE_BACKTICK_INLINE_CODE)
+    ;
+
+DBDeprecatedInlineCodeStart
+    :  DeprecatedBackTick DeprecatedBackTick                                  -> pushMode(DOUBLE_BACKTICK_INLINE_CODE)
+    ;
+
+TBDeprecatedInlineCodeStart
+    :  DeprecatedBackTick DeprecatedBackTick DeprecatedBackTick               -> pushMode(TRIPLE_BACKTICK_INLINE_CODE)
+    ;
+
+DeprecatedTemplateStringChar
+    :   ~[`{}\\]
+    |   '\\' [{}`]
+    |   WS
+    |   DeprecatedEscapedSequence
+    ;
+
+fragment
+DeprecatedBackTick
+    :   '`'
+    ;
+
+fragment
+DeprecatedEscapedSequence
+    :   '\\\\'
+    ;
+
+DEPRECATED_TEMPLATE_ERRCHAR
 	:	.	-> channel(HIDDEN)
 	;
 

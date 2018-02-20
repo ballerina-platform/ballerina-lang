@@ -38,6 +38,7 @@ import org.ballerinalang.plugins.idea.psi.references.AnnotationAttributeValueRef
 import org.ballerinalang.plugins.idea.psi.references.AnnotationReference;
 import org.ballerinalang.plugins.idea.psi.references.AttachmentPointReference;
 import org.ballerinalang.plugins.idea.psi.references.ConnectorReference;
+import org.ballerinalang.plugins.idea.psi.references.DocVariableReference;
 import org.ballerinalang.plugins.idea.psi.references.EnumFieldReference;
 import org.ballerinalang.plugins.idea.psi.references.FieldReference;
 import org.ballerinalang.plugins.idea.psi.references.FunctionReference;
@@ -63,6 +64,7 @@ import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_annota
 import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_anyIdentifierName;
 import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_attachmentPoint;
 import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_connectorReference;
+import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_documentationTemplateAttributeDescription;
 import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_field;
 import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_functionReference;
 import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_invocation;
@@ -292,6 +294,8 @@ public class IdentifierPSINode extends ANTLRPsiLeafNode implements PsiNamedEleme
                     return new RecordKeyReference(this);
                 case RULE_anyIdentifierName:
                     return suggestReferenceTypeForInvocation();
+                case RULE_documentationTemplateAttributeDescription:
+                    return new DocVariableReference(this);
                 default:
                     return null;
             }
@@ -502,7 +506,8 @@ public class IdentifierPSINode extends ANTLRPsiLeafNode implements PsiNamedEleme
     public PsiElement getNameIdentifier() {
         // If the parent is a ParameterNode, we return this identifier object. Otherwise when we get parents, it
         // might return excluded nodes below and can cause issues.
-        if (getParent() instanceof ParameterNode || getParent() instanceof VariableDefinitionNode) {
+        if (getParent() instanceof ParameterNode || getParent() instanceof VariableDefinitionNode
+                || getParent() instanceof DocumentationTemplateAttributeDescriptionNode) {
             return this;
         }
 
