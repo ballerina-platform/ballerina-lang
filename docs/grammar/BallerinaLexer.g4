@@ -2,6 +2,8 @@ lexer grammar BallerinaLexer;
 
 @members {
     boolean inTemplate = false;
+    boolean inSiddhi = false;
+    boolean inSiddhis = false;
 }
 
 // Reserved words
@@ -10,7 +12,7 @@ PACKAGE     : 'package' ;
 IMPORT      : 'import' ;
 AS          : 'as' ;
 PUBLIC      : 'public' ;
-PRIVATE      : 'private' ;
+PRIVATE     : 'private' ;
 NATIVE      : 'native' ;
 SERVICE     : 'service' ;
 RESOURCE    : 'resource' ;
@@ -29,6 +31,24 @@ XMLNS       : 'xmlns' ;
 RETURNS     : 'returns';
 VERSION     : 'version';
 
+FROM        : 'from' { inSiddhi = true; inSiddhis = true; } ;
+ON          : 'on' ;
+SELECT      : 'select' ;
+GROUP       : 'group' ;
+BY          : 'by' ;
+HAVING      : 'having' ;
+ORDER       : 'order' ;
+WHERE       : 'where' ;
+FOLLOWED    : 'followed' ;
+INSERT      : {inSiddhi}? 'insert' { inSiddhi = false; } ;
+INTO        : 'into' ;
+UPDATE      : 'update' ;
+DELETE      : {inSiddhis}? 'delete' { inSiddhis = false; } ;
+SET         : 'set' ;
+FOR         : 'for' ;
+WINDOW      : 'window' ;
+
+
 TYPE_INT        : 'int' ;
 TYPE_FLOAT      : 'float' ;
 TYPE_BOOL       : 'boolean' ;
@@ -38,6 +58,8 @@ TYPE_MAP        : 'map' ;
 TYPE_JSON       : 'json' ;
 TYPE_XML        : 'xml' ;
 TYPE_TABLE      : 'table' ;
+TYPE_STREAM     : 'stream' ;
+TYPE_AGGREGTION : 'aggergation' ;
 TYPE_ANY        : 'any' ;
 TYPE_TYPE       : 'type' ;
 
@@ -70,14 +92,6 @@ WITH        : 'with' ;
 BIND        : 'bind' ;
 IN          : 'in' ;
 LOCK        : 'lock' ;
-FROM        : 'from' ;
-ON          : 'on' ;
-SELECT      : 'select' ;
-GROUP       : 'group' ;
-BY          : 'by' ;
-HAVING      : 'having' ;
-ORDER       : 'order' ;
-WHERE       : 'where' ;
 
 // Separators
 
