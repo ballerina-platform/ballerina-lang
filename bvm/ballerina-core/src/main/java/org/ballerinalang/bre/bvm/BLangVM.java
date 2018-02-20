@@ -2909,7 +2909,7 @@ public class BLangVM {
     }
 
     public void handleWorkerReceive(WorkerDataChannelInfo workerDataChannel, BType[] types, int[] regs) {
-        BValue[] passedInValues = (BValue[]) workerDataChannel.takeData();
+        BValue[] passedInValues = (BValue[]) workerDataChannel.tryTakeData(null);
         StackFrame currentFrame = controlStack.currentFrame;
         copyArgValuesForWorkerReceive(currentFrame, regs, types, passedInValues);
     }

@@ -157,7 +157,7 @@ public class BLangVMWorkers {
             }
 
             if (workerInfo.getWorkerDataChannelInfoForForkJoin() != null) {
-                BValue[] results = (BValue[]) workerInfo.getWorkerDataChannelInfoForForkJoin().takeData();
+                BValue[] results = (BValue[]) workerInfo.getWorkerDataChannelInfoForForkJoin().tryTakeData(null);
                 BType[] types = workerInfo.getWorkerDataChannelInfoForForkJoin().getTypes();
                 for (int i = 0; i < types.length; i++) {
                     BType paramType = types[i];

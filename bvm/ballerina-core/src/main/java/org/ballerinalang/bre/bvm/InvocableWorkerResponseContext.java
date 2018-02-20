@@ -123,7 +123,7 @@ public class InvocableWorkerResponseContext implements WorkerResponseContext {
             }
             WorkerExecutionContext parentCtx = this.currentSignal.getSourceContext().parent;
             if (parentCtx.code != null) {
-                BLangScheduler.schedule(parentCtx);
+                BLangScheduler.resume(parentCtx);
             }
         }
     }

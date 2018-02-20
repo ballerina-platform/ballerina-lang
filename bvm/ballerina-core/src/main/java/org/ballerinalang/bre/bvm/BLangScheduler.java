@@ -31,13 +31,19 @@ import java.util.concurrent.TimeUnit;
 public class BLangScheduler {
 
     private static Set<WorkerExecutionContext> activeContexts = new HashSet<>();
-        
+
     public static void schedule(WorkerExecutionContext ctx) {
-        ctx.restoreIP();
         ctx.state = WorkerState.READY;
         ExecutorService executor = ThreadPoolFactory.getInstance().getWorkerExecutor();
         executor.submit(new WorkerExecutor(ctx));
         activeContexts.add(ctx);
+    }
+    
+    public static void resume(WorkerExecutionContext ctx) {
+        ctx.restoreIP();
+        ctx.state = WorkerState.READY;
+        ExecutorService executor = ThreadPoolFactory.getInstance().getWorkerExecutor();
+        executor.submit(new WorkerExecutor(ctx));
     }
     
     public static void workerDone(WorkerExecutionContext ctx) {

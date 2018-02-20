@@ -61,7 +61,6 @@ import org.ballerinalang.model.values.BXML;
 import org.ballerinalang.model.values.BXMLAttributes;
 import org.ballerinalang.model.values.BXMLQName;
 import org.ballerinalang.model.values.StructureType;
-import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.util.TransactionStatus;
 import org.ballerinalang.util.codegen.ActionInfo;
 import org.ballerinalang.util.codegen.CallableUnitInfo;
@@ -394,7 +393,7 @@ public class CPU {
                     break;
                 case InstructionCodes.WRKRECEIVE:
                     InstructionWRKSendReceive wrkReceiveIns = (InstructionWRKSendReceive) instruction;
-                    handleWorkerReceive(wrkReceiveIns.dataChannelInfo, wrkReceiveIns.types, wrkReceiveIns.regs);
+                    handleWorkerReceive(ctx, wrkReceiveIns.dataChannelInfo, wrkReceiveIns.types, wrkReceiveIns.regs);
                     break;
                 case InstructionCodes.FORKJOIN:
                     InstructionFORKJOIN forkJoinIns = (InstructionFORKJOIN) instruction;
@@ -2676,16 +2675,38 @@ public class CPU {
         //TODO
     }
 
-    private static void handleWorkerSend(WorkerExecutionContext ctx, WorkerDataChannelInfo workerDataChannel, BType[] types, int[] regs) {
-        WorkerData currentFrame = ctx.workerLocal;
-
-        // Extract the outgoing expressions
-        BValue[] arguments = new BValue[types.length];
-        copyArgValuesForWorkerSend(currentFrame, regs, types, arguments);
-
-        //populateArgumentValuesForWorker(expressions, arguments);
-        workerDataChannel.setTypes(types);
-        workerDataChannel.putData(arguments);
+    private static void handleWorkerSend(WorkerExecutionContext ctx, WorkerDataChannelInfo workerDataChannel, 
+            BType[] types, int[] regs) {
+        BValue[] vals = extractValues(ctx.workerLocal, types, regs);
+        workerDataChannel.putData(vals);
+    }
+    
+    private static BValue[] extractValues(WorkerData data, BType[] types, int[] regs) {
+        BValue[] result = new BValue[types.length];
+        for (int i = 0; i < regs.length; i++) {
+            BType paramType = types[i];
+            int argReg = regs[i];
+            switch (paramType.getTag()) {
+                case TypeTags.INT_TAG:
+                    result[i] = new BInteger(data.longRegs[argReg]);
+                    break;
+                case TypeTags.FLOAT_TAG:
+                    result[i] = new BFloat(data.doubleRegs[argReg]);
+                    break;
+                case TypeTags.STRING_TAG:
+                    result[i] = new BString(data.stringRegs[argReg]);
+                    break;
+                case TypeTags.BOOLEAN_TAG:
+                    result[i] = new BBoolean(data.intRegs[argReg] > 0);
+                    break;
+                case TypeTags.BLOB_TAG:
+                    result[i] = new BBlob(data.byteRegs[argReg]);
+                    break;
+                default:
+                    result[i] = data.refRegs[argReg];
+            }
+        }
+        return result;
     }
 
     private static void invokeForkJoin(InstructionFORKJOIN forkJoinIns) {
@@ -2697,36 +2718,39 @@ public class CPU {
         return false;
     }
 
-    private static void handleWorkerReceive(WorkerDataChannelInfo workerDataChannel, BType[] types, int[] regs) {
-//        BValue[] passedInValues = (BValue[]) workerDataChannel.takeData();
-//        WorkerData currentFrame = ctx.workerLocal;
-//        copyArgValuesForWorkerReceive(currentFrame, regs, types, passedInValues);
-        //TODO
+    private static void handleWorkerReceive(WorkerExecutionContext ctx, WorkerDataChannelInfo workerDataChannel, 
+            BType[] types, int[] regs) {
+        BValue[] passedInValues = (BValue[]) workerDataChannel.tryTakeData(ctx);
+        if (passedInValues != null) {
+            WorkerData currentFrame = ctx.workerLocal;
+            copyArgValuesForWorkerReceive(currentFrame, regs, types, passedInValues);
+        }
     }
-
-    public static void copyArgValuesForWorkerSend(WorkerData callerSF, int[] argRegs,
-                                                  BType[] paramTypes, BValue[] arguments) {
+    
+    @SuppressWarnings("rawtypes")
+    public static void copyArgValuesForWorkerReceive(WorkerData currentSF, int[] argRegs, BType[] paramTypes,
+            BValue[] passedInValues) {
         for (int i = 0; i < argRegs.length; i++) {
+            int regIndex = argRegs[i];
             BType paramType = paramTypes[i];
-            int argReg = argRegs[i];
             switch (paramType.getTag()) {
-                case TypeTags.INT_TAG:
-                    arguments[i] = new BInteger(callerSF.longRegs[argReg]);
-                    break;
-                case TypeTags.FLOAT_TAG:
-                    arguments[i] = new BFloat(callerSF.doubleRegs[argReg]);
-                    break;
-                case TypeTags.STRING_TAG:
-                    arguments[i] = new BString(callerSF.stringRegs[argReg]);
-                    break;
-                case TypeTags.BOOLEAN_TAG:
-                    arguments[i] = new BBoolean(callerSF.intRegs[argReg] > 0);
-                    break;
-                case TypeTags.BLOB_TAG:
-                    arguments[i] = new BBlob(callerSF.byteRegs[argReg]);
-                    break;
-                default:
-                    arguments[i] = callerSF.refRegs[argReg];
+            case TypeTags.INT_TAG:
+                currentSF.longRegs[regIndex] = ((BInteger) passedInValues[i]).intValue();
+                break;
+            case TypeTags.FLOAT_TAG:
+                currentSF.doubleRegs[regIndex] = ((BFloat) passedInValues[i]).floatValue();
+                break;
+            case TypeTags.STRING_TAG:
+                currentSF.stringRegs[regIndex] = (passedInValues[i]).stringValue();
+                break;
+            case TypeTags.BOOLEAN_TAG:
+                currentSF.intRegs[regIndex] = (((BBoolean) passedInValues[i]).booleanValue()) ? 1 : 0;
+                break;
+            case TypeTags.BLOB_TAG:
+                currentSF.byteRegs[regIndex] = ((BBlob) passedInValues[i]).blobValue();
+                break;
+            default:
+                currentSF.refRegs[regIndex] = (BRefType) passedInValues[i];
             }
         }
     }

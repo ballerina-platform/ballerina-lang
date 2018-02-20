@@ -17,13 +17,13 @@
 */
 package org.ballerinalang.util.codegen;
 
+import org.ballerinalang.bre.bvm.BLangScheduler;
+import org.ballerinalang.bre.bvm.WorkerExecutionContext;
 import org.ballerinalang.model.types.BType;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.TimeUnit;
 
 /**
  * {@code WorkerDataChannelInfo} represents data channels used in Ballerina in order to communicate between workers.
@@ -31,7 +31,7 @@ import java.util.concurrent.TimeUnit;
  * @since 0.90
  */
 public class WorkerDataChannelInfo {
-
+    
     private int sourceCPIndex;
     private String source;
 
@@ -45,7 +45,8 @@ public class WorkerDataChannelInfo {
 
     private BlockingQueue<Object[]> channel;
     private BType[] types;
-    private static final Logger log = LoggerFactory.getLogger(WorkerDataChannelInfo.class);
+    
+    private WorkerExecutionContext pendingCtx;
 
     public WorkerDataChannelInfo(int sourceCPIndex, String source, int targetCPIndex, String target) {
         this.sourceCPIndex = sourceCPIndex;
@@ -55,26 +56,31 @@ public class WorkerDataChannelInfo {
         this.channel =  new LinkedBlockingQueue<>();
     }
 
-    public void putData(Object[] data) {
+    public synchronized void putData(Object[] data) {
         try {
             if (data != null) {
                 channel.put(data);
+                if (this.pendingCtx != null) {
+                    BLangScheduler.resume(this.pendingCtx);
+                    this.pendingCtx = null;
+                }
             }
         } catch (InterruptedException e) {
-            // Handle the error properly
-            log.error("Error occurred when inserting data to the channel");
+            throw new BallerinaException(e);
         }
     }
 
-    public Object[] takeData() {
-        Object[] data = null;
-        try {
-            data = channel.poll(60, TimeUnit.SECONDS);
-        } catch (InterruptedException e) {
-            // Handle the error properly
-            log.error("Error occurred when taking data from the channel");
+    public synchronized Object[] tryTakeData(WorkerExecutionContext ctx) {
+        Object[] data = channel.peek();
+        if (data != null) {
+            channel.remove();
+            return data;
+        } else {
+            this.pendingCtx = ctx;
+            ctx.ip--; // we are going to execute the same worker receive operation later
+            BLangScheduler.switchToWaitForResponse(ctx);
+            return null;
         }
-        return data;
     }
 
     public String getChannelName() {

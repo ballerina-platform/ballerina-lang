@@ -443,7 +443,7 @@ public class BLangFunctions {
                 callableUnitInfo.getRetParamTypes(), waitForResponse);
         respCtx.updateParentWorkerResultLocation(retRegs);
         WorkerDataIndex wdi = calculateWorkerDataIndex(callableUnitInfo.getRetParamTypes());
-        Map<String, Object> globalProps = parentCtx.globalProperties;
+        Map<String, Object> globalProps = parentCtx.globalProps;
         BLangScheduler.switchToWaitForResponse(parentCtx);
         for (WorkerInfo workerInfo : listWorkerInfos(callableUnitInfo)) {
             executeWorker(respCtx, parentCtx, argRegs, callableUnitInfo, workerInfo, wdi, globalProps);

@@ -37,9 +37,9 @@ public class WorkerExecutionContext {
     
     public WorkerState state = WorkerState.CREATED;
     
-    public Map<String, Object> globalProperties;
+    public Map<String, Object> globalProps;
     
-    public Map<String, Object> localProperties = new HashMap<>();
+    public Map<String, Object> localProps = new HashMap<>();
     
     public int ip;
     
@@ -64,7 +64,7 @@ public class WorkerExecutionContext {
     public WorkerResponseContext respCtx;
 
     public WorkerExecutionContext() {
-        this.globalProperties = new HashMap<>();
+        this.globalProps = new HashMap<>();
     }
     
     public WorkerExecutionContext(WorkerExecutionContext parent, WorkerResponseContext respCtx, 
@@ -80,8 +80,8 @@ public class WorkerExecutionContext {
         this.workerLocal = workerLocal;
         this.workerResult = workerResult;
         this.retRegIndexes = retRegIndexes;
-        this.globalProperties = globalProperties;
-        this.backupIP = this.ip = this.workerInfo.getCodeAttributeInfo().getCodeAddrs();
+        this.globalProps = globalProperties;
+        this.ip = this.workerInfo.getCodeAttributeInfo().getCodeAddrs();
     }
     
     public void backupIP() {
