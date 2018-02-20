@@ -107,25 +107,28 @@ public class NetworkUtils {
     /**
      * Push/Uploads packages to the central repository.
      *
-     * @param resourceName path of the package folder to be pushed
+     * @param packageName path of the package folder to be pushed
      */
-    public static void pushPackages(String resourceName) {
+    public static void pushPackages(String packageName) {
         compileResult = compileBalFile("ballerina.push");
 
-        // Get the version by reading Ballerina.toml
+        // Get the org-name and version by reading Settings.toml
         Manifest manifest = readManifestConfigurations();
-        if (manifest != null && manifest.getVersion() != null) {
-            String resourcePath = BALLERINA_CENTRAL_REPO_URL + Paths.get(resourceName).resolve
-                    (removeQuotationsFromValue(manifest.getVersion()));
+        if (manifest != null && manifest.getName() != null && manifest.getVersion() != null) {
+            String orgName = removeQuotationsFromValue(manifest.getName());
+            String version = removeQuotationsFromValue(manifest.getVersion());
+            String resourcePath = BALLERINA_CENTRAL_REPO_URL + Paths.get(orgName).resolve(packageName).resolve(version);
             String[] proxyConfigs = readProxyConfigurations();
-            String[] arguments = new String[]{resourcePath, resourceName};
+            String[] arguments = new String[]{resourcePath, packageName};
             arguments = Stream.concat(Arrays.stream(arguments), Arrays.stream(proxyConfigs))
                     .toArray(String[]::new);
             LauncherUtils.runMain(compileResult.getProgFile(), arguments);
         } else {
-            log.debug("A package version is required when pushing. Specify it Ballerina.toml inside the project");
-            log.error("A package version is required when pushing. Specify it Ballerina.toml inside the project",
-                    "A package version is required when pushing");
+            log.debug("An org-name and package version is required when pushing. This is not specified in " +
+                    "Settings.toml inside the project");
+            log.error("An org-name and package version is required when pushing. This is not specified in " +
+                            "Settings.toml inside the project",
+                    "An org-name and package version is required when pushing");
         }
     }
 
@@ -135,25 +138,25 @@ public class NetworkUtils {
      * @return manifest configuration object
      */
     private static Manifest readManifestConfigurations() {
-        String tomlFilePath = Paths.get(".").toAbsolutePath().normalize().resolve("Ballerina.toml").toString();
+        String tomlFilePath = Paths.get(".").toAbsolutePath().normalize().resolve("Settings.toml").toString();
         Manifest manifest = null;
         try {
             manifest = ManifestProcessor.parseTomlContentFromFile(tomlFilePath);
         } catch (IOException e) {
-            log.debug("I/O Exception when processing Ballerina.toml ", e);
-            log.error("I/O Exception when processing Ballerina.toml " + e.getMessage());
+            log.debug("I/O Exception when processing Settings.toml ", e);
+            log.error("I/O Exception when processing Settings.toml " + e.getMessage());
         }
         return manifest;
     }
 
     /**
-     * Read proxy configurations from the BallerinaCLI.toml file
+     * Read proxy configurations from the Settings.toml file
      *
      * @return array with proxy configurations
      */
     private static String[] readProxyConfigurations() {
         File cliTomlFile = new File(UserRepositoryUtils.initializeUserRepository().toString()
-                + File.separator + "BallerinaCLI.toml");
+                + File.separator + "Settings.toml");
         String host = "", port = "", username = "", password = "";
         String proxyConfigArr[] = new String[]{host, port, username, password};
         if (cliTomlFile.exists()) {
