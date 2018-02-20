@@ -21,6 +21,7 @@ package org.wso2.transport.http.netty.contentaware.listeners;
 
 import io.netty.buffer.Unpooled;
 import io.netty.handler.codec.http.DefaultLastHttpContent;
+import io.netty.handler.codec.http.HttpHeaderNames;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.common.Constants;
@@ -71,14 +72,14 @@ public class RequestResponseTransformListener implements HttpConnectorListener {
                 requestValue = TestUtil.getStringFromInputStream(
                         new HttpMessageDataStreamer(httpRequest).getInputStream());
 
-                httpRequest.setProperty(Constants.HOST, TestUtil.TEST_HOST);
-                httpRequest.setProperty(Constants.PORT, TestUtil.HTTP_SERVER_PORT);
+                httpRequest.setProperty(Constants.HTTP_HOST, TestUtil.TEST_HOST);
+                httpRequest.setProperty(Constants.HTTP_PORT, TestUtil.HTTP_SERVER_PORT);
 
                 if (responseValue != null) {
                     byte[] array = responseValue.getBytes("UTF-8");
                     ByteBuffer byteBuffer = ByteBuffer.allocate(array.length);
                     byteBuffer.put(array);
-                    httpRequest.setHeader(Constants.HTTP_CONTENT_LENGTH, String.valueOf(array.length));
+                    httpRequest.setHeader(HttpHeaderNames.CONTENT_LENGTH.toString(), String.valueOf(array.length));
                     byteBuffer.flip();
                     httpRequest.addHttpContent(new DefaultLastHttpContent(Unpooled.wrappedBuffer(byteBuffer)));
                 }
@@ -116,7 +117,8 @@ public class RequestResponseTransformListener implements HttpConnectorListener {
                                 }
                                 ByteBuffer byteBuff = ByteBuffer.allocate(array.length);
                                 byteBuff.put(array);
-                                httpMessage.setHeader(Constants.HTTP_CONTENT_LENGTH, String.valueOf(array.length));
+                                httpMessage.setHeader(HttpHeaderNames.CONTENT_LENGTH.toString(),
+                                                      String.valueOf(array.length));
                                 byteBuff.flip();
                                 httpMessage.addHttpContent(
                                         new DefaultLastHttpContent(Unpooled.wrappedBuffer(byteBuff)));

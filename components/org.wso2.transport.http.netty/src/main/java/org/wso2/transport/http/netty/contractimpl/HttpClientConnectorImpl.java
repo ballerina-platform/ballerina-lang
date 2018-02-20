@@ -22,6 +22,7 @@ package org.wso2.transport.http.netty.contractimpl;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
+import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -97,9 +98,11 @@ public class HttpClientConnectorImpl implements HttpClientConnector {
                                                  targetChannel);
                         }
                         if (!keepAlive && Float.valueOf(httpVersion) >= Constants.HTTP_1_1) {
-                            httpOutboundRequest.setHeader(Constants.CONNECTION, Constants.CONNECTION_CLOSE);
+                            httpOutboundRequest.setHeader(HttpHeaderNames.CONNECTION.toString(),
+                                                          Constants.CONNECTION_CLOSE);
                         } else if (keepAlive && Float.valueOf(httpVersion) < Constants.HTTP_1_1) {
-                            httpOutboundRequest.setHeader(Constants.CONNECTION, Constants.CONNECTION_KEEP_ALIVE);
+                            httpOutboundRequest.setHeader(HttpHeaderNames.CONNECTION.toString(),
+                                                          Constants.CONNECTION_KEEP_ALIVE);
                         }
                         targetChannel.writeContent(httpOutboundRequest);
                     } else {
@@ -166,12 +169,12 @@ public class HttpClientConnectorImpl implements HttpClientConnector {
 
     private int fetchPort(HTTPCarbonMessage httpCarbonMessage) {
         int port;
-        Object intProperty = httpCarbonMessage.getProperty(Constants.PORT);
+        Object intProperty = httpCarbonMessage.getProperty(Constants.HTTP_PORT);
         if (intProperty != null && intProperty instanceof Integer) {
             port = (int) intProperty;
         } else {
             port = sslConfig != null ? Constants.DEFAULT_HTTPS_PORT : Constants.DEFAULT_HTTP_PORT;
-            httpCarbonMessage.setProperty(Constants.PORT, port);
+            httpCarbonMessage.setProperty(Constants.HTTP_PORT, port);
             log.debug("Cannot find property PORT of type integer, hence using " + port);
         }
         return port;
@@ -179,12 +182,12 @@ public class HttpClientConnectorImpl implements HttpClientConnector {
 
     private String fetchHost(HTTPCarbonMessage httpCarbonMessage) {
         String host;
-        Object hostProperty = httpCarbonMessage.getProperty(Constants.HOST);
+        Object hostProperty = httpCarbonMessage.getProperty(Constants.HTTP_HOST);
         if (hostProperty != null && hostProperty instanceof String) {
             host = (String) hostProperty;
         } else {
             host = Constants.LOCALHOST;
-            httpCarbonMessage.setProperty(Constants.HOST, Constants.LOCALHOST);
+            httpCarbonMessage.setProperty(Constants.HTTP_HOST, Constants.LOCALHOST);
             log.debug("Cannot find property HOST of type string, hence using localhost as the host");
         }
         return host;

@@ -18,6 +18,7 @@
 
 package org.wso2.transport.http.netty.http2;
 
+import io.netty.handler.codec.http.HttpHeaderNames;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.messaging.CarbonCallback;
@@ -45,11 +46,11 @@ public class HTTP2MessageProcessor implements CarbonMessageProcessor {
 
         DefaultCarbonMessage defaultCarbonMessage = new DefaultCarbonMessage();
         carbonMessage.getProperties().forEach(defaultCarbonMessage::setProperty);
-        defaultCarbonMessage.setHeader("content-type", "text/plain");
+        defaultCarbonMessage.setHeader(HttpHeaderNames.CONTENT_TYPE.toString(), "text/plain");
         defaultCarbonMessage.setStringMessageBody(TEST_VALUE);
         defaultCarbonMessage.setEndOfMsgAdded(true);
         int length = TEST_VALUE.getBytes().length;
-        defaultCarbonMessage.setHeader("content-length", String.valueOf(length));
+        defaultCarbonMessage.setHeader(HttpHeaderNames.CONTENT_LENGTH.toString(), String.valueOf(length));
         carbonCallback.done(defaultCarbonMessage);
         return true;
     }

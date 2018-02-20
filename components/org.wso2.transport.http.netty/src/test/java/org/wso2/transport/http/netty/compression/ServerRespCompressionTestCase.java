@@ -85,28 +85,28 @@ public class ServerRespCompressionTestCase {
 
             FullHttpRequest httpRequest = new DefaultFullHttpRequest(HttpVersion.HTTP_1_1,
                     HttpMethod.POST, "/", Unpooled.wrappedBuffer(TestUtil.largeEntity.getBytes()));
-            httpRequest.headers().set(Constants.ACCEPT_ENCODING, Constants.ENCODING_GZIP);
+            httpRequest.headers().set(HttpHeaderNames.ACCEPT_ENCODING, Constants.ENCODING_GZIP);
             FullHttpResponse httpResponse = httpClient.sendRequest(httpRequest);
             assertEquals(Constants.ENCODING_GZIP, httpResponse.headers().get(HttpHeaderNames.CONTENT_ENCODING));
 
             httpClient = new HttpClient(TestUtil.TEST_HOST, TestUtil.SERVER_CONNECTOR_PORT);
             httpRequest = new DefaultFullHttpRequest(HttpVersion.HTTP_1_1,
                     HttpMethod.POST, "/", Unpooled.wrappedBuffer(TestUtil.largeEntity.getBytes()));
-            httpRequest.headers().set(Constants.ACCEPT_ENCODING, Constants.ENCODING_DEFLATE);
+            httpRequest.headers().set(HttpHeaderNames.ACCEPT_ENCODING, Constants.ENCODING_DEFLATE);
             httpResponse = httpClient.sendRequest(httpRequest);
             assertEquals(Constants.ENCODING_DEFLATE, httpResponse.headers().get(HttpHeaderNames.CONTENT_ENCODING));
 
             httpClient = new HttpClient(TestUtil.TEST_HOST, TestUtil.SERVER_CONNECTOR_PORT);
             httpRequest = new DefaultFullHttpRequest(HttpVersion.HTTP_1_1,
                     HttpMethod.POST, "/", Unpooled.wrappedBuffer(TestUtil.largeEntity.getBytes()));
-            httpRequest.headers().set(Constants.ACCEPT_ENCODING, "deflate;q=1.0, gzip;q=0.8");
+            httpRequest.headers().set(HttpHeaderNames.ACCEPT_ENCODING, "deflate;q=1.0, gzip;q=0.8");
             httpResponse = httpClient.sendRequest(httpRequest);
             assertEquals(Constants.ENCODING_DEFLATE, httpResponse.headers().get(HttpHeaderNames.CONTENT_ENCODING));
 
             httpClient = new HttpClient(TestUtil.TEST_HOST, TestUtil.SERVER_CONNECTOR_PORT);
             httpRequest = new DefaultFullHttpRequest(HttpVersion.HTTP_1_1,
                     HttpMethod.POST, "/", Unpooled.wrappedBuffer(TestUtil.smallEntity.getBytes()));
-            httpRequest.headers().set(Constants.ACCEPT_ENCODING, Constants.ENCODING_DEFLATE);
+            httpRequest.headers().set(HttpHeaderNames.ACCEPT_ENCODING, Constants.ENCODING_DEFLATE);
             httpResponse = httpClient.sendRequest(httpRequest);
             assertEquals(Constants.ENCODING_DEFLATE, httpResponse.headers().get(HttpHeaderNames.CONTENT_ENCODING));
 

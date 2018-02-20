@@ -103,9 +103,9 @@ public class ClientRespDecompressionTestCase {
         HTTPCarbonMessage requestMsg = new HTTPCarbonMessage(new DefaultHttpRequest(HttpVersion.HTTP_1_1,
                 HttpMethod.POST, ""));
 
-        requestMsg.setProperty(Constants.PORT, TestUtil.SERVER_CONNECTOR_PORT);
+        requestMsg.setProperty(Constants.HTTP_PORT, TestUtil.SERVER_CONNECTOR_PORT);
         requestMsg.setProperty(Constants.PROTOCOL, Constants.HTTP_SCHEME);
-        requestMsg.setProperty(Constants.HOST, TestUtil.TEST_HOST);
+        requestMsg.setProperty(Constants.HTTP_HOST, TestUtil.TEST_HOST);
         requestMsg.setProperty(Constants.HTTP_METHOD, Constants.HTTP_POST_METHOD);
 
         requestMsg.setHeader("Accept-Encoding", "deflate;q=1.0, gzip;q=0.8");
