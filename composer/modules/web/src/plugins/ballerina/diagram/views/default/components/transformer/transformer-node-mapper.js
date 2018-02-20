@@ -1687,18 +1687,22 @@ class TransformerNodeMapper {
         return kvp;
     }
 
-    addIterator(source, target, type, sourceType, isLamda) {
+    addIterator(connection, type, isLamda) {
         this.getMappingStatements().forEach((stmt) => {
             if (TreeUtil.isAssignment(stmt)) {
-                if (stmt.getVariables()[0].getSource().trim() === target &&
-                    stmt.getExpression().getSource().trim() === source) {
+                if ((stmt.getVariables()[0].getSource().trim() === connection.target.name
+                    || connection.target.funcInv.iterableOperation) &&
+                    (stmt.getExpression().getSource().trim() === connection.source.name
+                    || connection.source.funcInv.iterableOperation)) {
+                    const sourceContent = stmt.getExpression().getSource().trim() === connection.source.name ?
+                    connection.source.name : connection.source.funcInv.getSource();
                     stmt.setExpression(
-                        TransformerFactory
-                            .createIterableOperation(source, type, sourceType.replace('[]', '')), isLamda);
+                        TransformerFactory.createIterableOperation(sourceContent,
+                            type, connection.source.type.replace('[]', ''), isLamda));
                     stmt.trigger('tree-modified', {
                         origin: stmt,
                         type: 'variable-update',
-                        title: `Variable update ${source}`,
+                        title: `Variable update ${connection.source.name}`,
                         data: {},
                     });
                 }

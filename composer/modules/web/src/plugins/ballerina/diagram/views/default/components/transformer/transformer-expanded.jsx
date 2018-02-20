@@ -551,9 +551,14 @@ class TransformerExpanded extends React.Component {
                     }
                 }
             } else if (TreeUtil.isInvocation(expression)) {
-                type = this.getFunctionArgConversionType(expression.getArgumentExpressions(),
-                                                          sourceId.split(':')[0]);
-            } else if (TreeUtil.isFieldBasedAccessExpr(expression) && expression.symbolType[0].includes('[]')) {
+                if (expression.iterableOperation) {
+                    type = 'array';
+                } else {
+                    type = this.getFunctionArgConversionType(expression.getArgumentExpressions(),
+                    sourceId.split(':')[0]);
+                }
+            } else if (TreeUtil.isFieldBasedAccessExpr(expression) && (expression.symbolType[0].includes('[]')
+            || expression.symbolType[0] === 'other')) {
                 type = 'array';
             }
         }
@@ -1201,6 +1206,12 @@ class TransformerExpanded extends React.Component {
 
         this.props.model.getBody().getStatements().forEach((stmt) => {
             let stmtExp;
+
+            const addIterableCallback = (type, isLambda, currrentConnection) => {
+                this.transformNodeManager.addIterableOperator(currrentConnection, type, isLambda);
+                this.setState({ showIterables: false });
+            };
+
             if (TreeUtil.isAssignment(stmt)) {
                 stmtExp = stmt.getExpression();
             } else if (TreeUtil.isVariableDef(stmt)) {
@@ -1366,6 +1377,7 @@ class TransformerExpanded extends React.Component {
                                         bBox={{ x: this.state.iterableX, y: this.state.iterableY, h: 0, w: 0 }}
                                         currrentConnection={this.state.currrentConnection}
                                         transformNodeManager={this.transformNodeManager}
+                                        callback={() => { this.setState({ showIterables: false }); }}
                                     />
                                     <div className='right-content'>
                                         <div className='rightType'>

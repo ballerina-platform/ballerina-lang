@@ -65,6 +65,7 @@ class IterableList extends React.Component {
     handleClickOutside(event) {
         if (this.wrapperRef && !this.wrapperRef.contains(event.target)) {
             this.setState({ showIterables: false });
+            this.props.callback();
         } else {
             this.buttonClick();
         }
@@ -74,12 +75,15 @@ class IterableList extends React.Component {
      * Handles button click event
      */
     buttonClick() {
-        this.setState({ showIterables: true });
+        if (this.props.showIterables) {
+            this.setState({ showIterables: true });
+        }
     }
 
     addIterable(type, isLambda) {
         this.props.transformNodeManager.addIterableOperator(this.props.currrentConnection, type, isLambda);
         this.setState({ showIterables: false });
+        this.props.callback();
     }
 
     /**
@@ -127,6 +131,7 @@ IterableList.propTypes = {
     showIterables: PropTypes.valueOf(PropTypes.bool).isRequired,
     currrentConnection: PropTypes.valueOf(PropTypes.object).isRequired,
     transformNodeManager: PropTypes.valueOf(PropTypes.object).isRequired,
+    callback: PropTypes.valueOf(PropTypes.object).isRequired,
 };
 
 IterableList.defaultProps = {

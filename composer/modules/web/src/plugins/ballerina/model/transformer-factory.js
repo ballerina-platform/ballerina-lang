@@ -83,8 +83,17 @@ class TransformerFactory {
         const fragment = FragmentUtils.createExpressionFragment(`${name}.${type}(${lambdaFunction})`);
         const parsedJson = FragmentUtils.parseFragment(fragment);
         const exp = TreeBuilder.build(parsedJson).getVariable().getInitialExpression();
+        TransformerFactory.updateItreableOperation(exp, sourceType);
         exp.clearWS();
         return exp;
+    }
+
+    static updateItreableOperation(node, sourceType) {
+        node.iterableOperation = true;
+        node.symbolType[0] = sourceType;
+        if (TreeUtil.isInvocation(node.getExpression())) {
+            TransformerFactory.updateItreableOperation(node.getExpression(), sourceType);
+        }
     }
 
     /**

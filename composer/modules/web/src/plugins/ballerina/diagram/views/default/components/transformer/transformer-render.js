@@ -206,11 +206,11 @@ class TransformerRender {
             };
             if (castType === 'array') {
                 options.overlays = [['Custom', {
-                    location: 0.9,
+                    location: 0.75,
                     id: 'label',
                     create: (component) => {
                         return $('<span class="button-show-always fw-lg button-background" title="">'
-                        + '<i class="fw fw-iterable-operations fw-lg button-icon"></i></span>');
+                        + '<i class="fw fw-iterable-operations fw-lg"></i></span>');
                     },
                     cssClass: 'connectionLabel',
                     events: {

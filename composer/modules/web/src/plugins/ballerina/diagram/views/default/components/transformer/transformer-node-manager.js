@@ -252,11 +252,24 @@ class TransformerNodeManager {
         let parameters = [];
         let returnParams = [];
         let receiver;
+
         if (functionInvocationExpression.iterableOperation) {
             const inputParamName = `${functionInvocationExpression.getID()}:0:receiver`;
             const returnParamName = `${functionInvocationExpression.getID()}:0:return`;
             type = 'iterable';
-            const argType = functionInvocationExpression.getExpression().symbolType[0]
+
+            let dataType = '[]';
+            let dataReturnType = '[]';
+            if (functionInvocationExpression.getExpression().symbolType
+                && functionInvocationExpression.getExpression().symbolType.length > 0) {
+                dataType = functionInvocationExpression.getExpression().symbolType[0];
+            }
+
+            if (functionInvocationExpression.symbolType && functionInvocationExpression.symbolType.length > 0) {
+                dataReturnType = functionInvocationExpression.symbolType[0];
+            }
+
+            const argType = dataType
                                 .replace('intermediate_collection', '[]');
             if (functionInvocationExpression.argumentExpressions.length === 0) {
                 receiver = {
@@ -270,7 +283,7 @@ class TransformerNodeManager {
                     index: 0 }];
             }
             returnParams = [{ name: returnParamName,
-                type: functionInvocationExpression.symbolType[0].replace('intermediate_collection', '[]'),
+                type: dataReturnType.replace('intermediate_collection', '[]'),
                 funcInv: functionInvocationExpression }];
         } else if (!funcDef) {
             log.error('Cannot find function definition for ' + functionInvocationExpression.getFunctionName());
@@ -567,7 +580,8 @@ class TransformerNodeManager {
     }
 
     addIterableOperator(connection, type, isLamda) {
-        this._mapper.addIterator(connection.source.name, connection.target.name, type, connection.source.type, isLamda);
+        this._mapper
+        .addIterator(connection, type, isLamda);
     }
  }
 
