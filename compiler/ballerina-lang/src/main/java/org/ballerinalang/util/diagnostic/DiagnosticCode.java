@@ -142,7 +142,6 @@ public enum DiagnosticCode {
     UNDEFINED_DOCUMENTATION_PUBLIC_FUNCTION("undefined.documentation.public.function"),
     USAGE_OF_DEPRECATED_FUNCTION("usage.of.deprecated.function"),
 
-
     // Error codes related to iteration.
     ITERABLE_NOT_SUPPORTED_COLLECTION("iterable.not.supported.collection"),
     ITERABLE_NOT_SUPPORTED_OPERATION("iterable.not.supported.operation"),
