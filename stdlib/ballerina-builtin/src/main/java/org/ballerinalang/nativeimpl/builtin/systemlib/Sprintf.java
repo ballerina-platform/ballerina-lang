@@ -91,8 +91,7 @@ public class Sprintf extends AbstractNativeFunction {
 
                 if (k >= args.size()) {
                     // there's not enough arguments
-                    throw BLangExceptionHelper.getRuntimeException(
-                            RuntimeErrors.NOT_ENOUGH_FORMAT_ARGUMENTS);
+                    throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.NOT_ENOUGH_FORMAT_ARGUMENTS);
                 }
                 StringBuilder padding = new StringBuilder();
                 while (Character.isDigit(format.charAt(j)) || format.charAt(j) == '.') {
@@ -122,8 +121,7 @@ public class Sprintf extends AbstractNativeFunction {
                         result.append(String.format("%" + padding + "o", args.get(k).value()));
                         break;
                     case 'B':
-                        result.append(
-                                Integer.toBinaryString(Integer.parseInt(args.get(k).stringValue())));
+                        result.append(Integer.toBinaryString(Integer.parseInt(args.get(k).stringValue())));
                         break;
                     case 'm': // fall through
                     case 'e':
@@ -134,8 +132,7 @@ public class Sprintf extends AbstractNativeFunction {
                     case 't':
                     case 'r':
                     case 'a':
-                        result.append(
-                                String.format("%" + padding + "s", args.get(k).stringValue()));
+                        result.append(String.format("%" + padding + "s", args.get(k).stringValue()));
                         break;
                     case '%':
                         result.append("%");
