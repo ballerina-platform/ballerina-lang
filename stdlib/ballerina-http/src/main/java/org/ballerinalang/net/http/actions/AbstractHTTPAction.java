@@ -53,6 +53,7 @@ import java.net.URL;
 import javax.activation.MimeType;
 import javax.activation.MimeTypeParseException;
 
+import static org.ballerinalang.mime.util.Constants.BOUNDARY;
 import static org.ballerinalang.mime.util.Constants.CONTENT_TYPE;
 import static org.ballerinalang.mime.util.Constants.MEDIA_TYPE;
 import static org.ballerinalang.mime.util.Constants.MESSAGE_ENTITY;
@@ -219,7 +220,7 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
         String boundaryString = null;
         if (contentType != null && contentType.startsWith(MULTIPART_AS_PRIMARY_TYPE)) {
             boundaryString = MimeUtil.getNewMultipartDelimiter();
-            outboundRequestMsg.setHeader(CONTENT_TYPE, contentType + "; boundary=" + boundaryString);
+            outboundRequestMsg.setHeader(CONTENT_TYPE, contentType + "; " + BOUNDARY + "=" + boundaryString);
         }
         HttpResponseFuture future = clientConnector.send(outboundRequestMsg);
         future.setHttpConnectorListener(httpClientConnectorLister);

@@ -47,7 +47,7 @@ public struct Entity {
     ContentDisposition contentDisposition;
 }
 
-@Description {value:"Sets the entity body with a given file handler"}
+@Description {value:"Set the entity body with a given file handler"}
 @Param {value:"entity: Represent a mime Entity"}
 @Param {value:"fileHandler: Represent a file"}
 public function <Entity entity> setFileAsEntityBody (file:File fileHandler) {
@@ -55,71 +55,71 @@ public function <Entity entity> setFileAsEntityBody (file:File fileHandler) {
     entity.setByteChannel(byteChannel);
 }
 
-@Description {value:"Sets the entity body with the given json content"}
+@Description {value:"Set the entity body with the given json content"}
 @Param {value:"entity: Represent a mime Entity"}
 @Param {value:"jsonContent: Json content that needs to be set to entity"}
 public native function <Entity entity> setJson (json jsonContent);
 
 @Description {value:"Given an entity, get the entity body in json form."}
 @Param {value:"entity: Represent a mime Entity"}
-@Return {value:"return json data"}
+@Return {value:"Return json data"}
 public native function <Entity entity> getJson () (json);
 
-@Description {value:"Sets the entity body with the given xml content"}
+@Description {value:"Set the entity body with the given xml content"}
 @Param {value:"entity: Represent a mime Entity"}
 @Param {value:"xmlContent: Xml content that needs to be set to entity"}
 public native function <Entity entity> setXml (xml xmlContent);
 
 @Description {value:"Given an entity, get the entity body in xml form."}
 @Param {value:"entity: Represent a mime Entity"}
-@Return {value:"return xml data"}
+@Return {value:"Return xml data"}
 public native function <Entity entity> getXml () (xml);
 
-@Description {value:"Sets the entity body with the given text content"}
+@Description {value:"Set the entity body with the given text content"}
 @Param {value:"textContent: Text content that needs to be set to entity"}
 public native function <Entity entity> setText (string textContent);
 
 @Description {value:"Given an entity, get the entity body in text form."}
 @Param {value:"entity: Represent a mime Entity"}
-@Return {value:"return text data"}
+@Return {value:"Return text data"}
 public native function <Entity entity> getText () (string);
 
-@Description {value:"Sets the entity body with the given blob content"}
+@Description {value:"Set the entity body with the given blob content"}
 @Param {value:"blobContent: Blob content that needs to be set to entity"}
-@Return {value:"return a blob"}
+@Return {value:"Return a blob"}
 public native function <Entity entity> setBlob (blob blobContent);
 
 @Description {value:"Given an entity, get the entity body as a blob. If the entity size is considerably large consider
 using getByteChannel() method instead"}
 @Param {value:"entity: Represent a mime Entity"}
-@Return {value:"return a blob"}
+@Return {value:"Return a blob"}
 public native function <Entity entity> getBlob () (blob);
 
-@Description {value:"Sets the entity body with the given byte channel content"}
+@Description {value:"Set the entity body with the given byte channel content"}
 @Param {value:"entity: Represent a mime Entity"}
 @Param {value:"byteChannel: Byte channel that needs to be set to entity"}
 public native function <Entity entity> setByteChannel (io:ByteChannel byteChannel);
 
 @Description {value:"Given an entity, get the entity body as a byte channel."}
 @Param {value:"entity: Represent a mime Entity"}
-@Return {value:"return a byte channel"}
+@Return {value:"Return a byte channel"}
 public native function <Entity entity> getByteChannel () (io:ByteChannel);
 
 @Description {value:"Given the Content-Type in string, get the MediaType struct populated with it."}
 @Param {value:"contentType: Content-Type in string"}
-@Return {value:"return MediaType struct"}
+@Return {value:"Return MediaType struct"}
 public native function getMediaType (string contentType) (MediaType);
 
 @Description {value:"Get “primaryType/subtype+suffix” combination in string format."}
 @Param {value:"mediaType: MediaType struct"}
-@Return {value:"return base type from MediaType struct"}
+@Return {value:"Return base type from MediaType struct"}
 public function <MediaType mediaType> toString () (string) {
     return mediaType.primaryType + "/" + mediaType.subType;
 }
 
 @Description {value:"Convert the media type to a string suitable for use as the value of a corresponding HTTP header."}
 @Param {value:"mediaType: MediaType struct"}
-@Return {value:"return the Content-Type with parameters as a string"}
+@Return {value:"Return the Content-Type with parameters as a string"}
 public function <MediaType mediaType> toStringWithParameters () (string) {
     string contentType = mediaType.toString() + "; ";
     map parameters = mediaType.parameters;
@@ -158,7 +158,7 @@ public struct QuotedPrintableDecoder {
 @Description {value:"Encode byte array using MIME Base64 encoding scheme."}
 @Param {value:"encoder: Represent MIME specific base64 encoder"}
 @Param {value:"content: the byte array to encode"}
-@Return {value:"return resulting encoded bytes"}
+@Return {value:"Return resulting encoded bytes"}
 public native function <MimeBase64Encoder encoder> encode (blob content) (blob);
 
 @Description {value:"Encode a given string using MIME Base64 encoding scheme. First the given string will be
@@ -168,13 +168,13 @@ converted to a byte array with the given charset encoding. If the charset given 
 @Param {value:"encoder: Represent MIME specific base64 encoder"}
 @Param {value:"content: string to encode"}
 @Param {value:"charset: charset used in the given string and the resulting string"}
-@Return {value:"return resulting encoded string"}
+@Return {value:"Return resulting encoded string"}
 public native function <MimeBase64Encoder encoder> encodeString (string content, string charset) (string);
 
 @Description {value:"Decode byte array using MIME Base64 encoding scheme."}
 @Param {value:"encoder: Represent MIME specific base64 decoder"}
 @Param {value:"content: the byte array to decode"}
-@Return {value:"return resulting decoded bytes"}
+@Return {value:"Return resulting decoded bytes"}
 public native function <MimeBase64Decoder decoder> decode (blob content) (blob);
 
 @Description {value:"Decode a given string using MIME Base64 decoding scheme. First the given string will be
@@ -184,12 +184,12 @@ converted to a byte array with the given charset encoding. If the charset given 
 @Param {value:"encoder: Represent MIME specific base64 decoder"}
 @Param {value:"content: string to decode"}
 @Param {value:"charset: charset used in the given string and the resulting string"}
-@Return {value:"return resulting decoded string"}
+@Return {value:"Return resulting decoded string"}
 public native function <MimeBase64Decoder decoder> decodeString (string content, string charset) (string);
 
 @Description {value:"Get the encoding value from a given MediaType."}
 @Param {value:"contentType: A MediaType struct"}
-@Return {value:"return encoding value"}
+@Return {value:"Return encoding value"}
 function getEncoding (MediaType contentType) (string) {
     var encoding = DEFAULT_CHARSET;
     TypeCastError castErr;
