@@ -46,6 +46,7 @@ import org.ballerinalang.model.tree.expressions.XMLAttributeNode;
 import org.ballerinalang.model.tree.expressions.XMLLiteralNode;
 import org.ballerinalang.model.tree.statements.BlockNode;
 import org.ballerinalang.model.tree.statements.ForkJoinNode;
+import org.ballerinalang.model.tree.statements.GroupByNode;
 import org.ballerinalang.model.tree.statements.HavingNode;
 import org.ballerinalang.model.tree.statements.IfNode;
 import org.ballerinalang.model.tree.statements.OrderByNode;
@@ -114,6 +115,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangCatch;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForeach;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangGroupBy;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangHaving;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangLock;
@@ -218,6 +220,8 @@ public class BLangPackageBuilder {
     private Stack<BLangAnnotationAttachmentPoint> attachmentPointStack = new Stack<>();
 
     private Stack<OrderByNode> orderByClauseStack = new Stack<>();
+
+    private Stack<GroupByNode> groupByClauseStack = new Stack<>();
 
     private Stack<HavingNode> havingClauseStack = new Stack<>();
 
@@ -1853,6 +1857,21 @@ public class BLangPackageBuilder {
         }
         OrderByNode orderByNode = this.orderByClauseStack.peek();
         this.exprNodeListStack.pop().forEach(orderByNode::addVariableReference);
+    }
+
+    public void startGroupByClauseNode(DiagnosticPos pos, Set<Whitespace> ws) {
+        GroupByNode groupByNode = TreeBuilder.createGroupByNode();
+        ((BLangGroupBy) groupByNode).pos = pos;
+        ((BLangGroupBy) groupByNode).addWS(ws);
+        this.groupByClauseStack.push(groupByNode);
+    }
+
+    public void endGroupByClauseNode(DiagnosticPos currentPos, Set<Whitespace> ws) {
+        if (this.exprNodeListStack.empty()) {
+            throw new IllegalStateException("ExpressionList stack cannot be empty in processing an GroupBy");
+        }
+        GroupByNode groupByNode = this.groupByClauseStack.peek();
+        this.exprNodeListStack.pop().forEach(groupByNode::addVariableReference);
     }
 
     public void startHavingClauseNode(DiagnosticPos pos, Set<Whitespace> ws) {
