@@ -669,38 +669,6 @@
                 <scope>test</scope>
             </dependency>
 
-            <!-- Siddhi Stream Dependencies -->
-            <dependency>
-                <groupId>org.wso2.siddhi</groupId>
-                <artifactId>siddhi-core</artifactId>
-                <version>${siddhi.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.wso2.siddhi</groupId>
-                <artifactId>siddhi-query-api</artifactId>
-                <version>${siddhi.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.wso2.siddhi</groupId>
-                <artifactId>siddhi-query-compiler</artifactId>
-                <version>${siddhi.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.wso2.siddhi</groupId>
-                <artifactId>siddhi-annotations</artifactId>
-                <version>${siddhi.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.wso2.orbit.com.lmax</groupId>
-                <artifactId>disruptor</artifactId>
-                <version>${disruptor.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>io.dropwizard.metrics</groupId>
-                <artifactId>metrics-core</artifactId>
-                <version>${metrics.version}</version>
-            </dependency>
-
         </dependencies>
     </dependencyManagement>
 
@@ -810,7 +778,7 @@
 
                 <module>composer</module>
 
-                <!--module>distribution/docker</module-->
+                <module>distribution/docker</module>
                 <module>distribution/zip/ballerina</module>
                 <module>distribution/zip/ballerina-tools</module>
 
@@ -875,7 +843,7 @@
 
                 <module>composer</module>
 
-                <!--module>distribution/docker</module-->
+                <module>distribution/docker</module>
                 <module>distribution/zip/ballerina</module>
                 <module>distribution/zip/ballerina-tools</module>
 
@@ -1309,11 +1277,6 @@
         <clirr.maven.plugin.version>2.7</clirr.maven.plugin.version>
         <apache.source.release.assembly.descriptor.version>1.0.5</apache.source.release.assembly.descriptor.version>
         <awaitility.version>3.0.0</awaitility.version>
-
-        <siddhi.version>4.1.11-SNAPSHOT</siddhi.version>
-        <metrics.version>3.1.0</metrics.version>
-        <disruptor.version>3.3.2.wso2v2</disruptor.version>
-        <log4j.version>1.2.17.wso2v1</log4j.version>
 
     </properties>
 
