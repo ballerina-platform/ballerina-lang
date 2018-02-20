@@ -6,14 +6,6 @@ package ballerina.task;
 @Param { value:"schedule: Specifies the initial delay and interval of the timer task" }
 @Return { value:"The unique ID of the timer task that was scheduled" }
 @Return { value:"This error will be returned if an occurs while scheduling the timer task" }
-documentation {
-Schedules a timer task.
-- #onTrigger The function which gets called when the timer goes off
-- #onError The function that gets called if the onTrigger function returns an error
-- #schedule Specifies the initial delay and interval of the timer task
-- #taskId The unique ID of the timer task that was scheduled
-- #e This error will be returned if an occurs while scheduling the timer task
-}
 public native function scheduleTimer (
   function() returns (error) onTrigger,
   function(error e) onError,
@@ -28,14 +20,6 @@ public native function scheduleTimer (
 @Param { value:"scheduleCronExpression: Specifies the Cron expression of the schedule" }
 @Return { value:"The unique ID of the appointment task that was scheduled" }
 @Return { value:"This error will be returned if an occurs while scheduling the appointment task" }
-documentation {
-Schedules an appointment task.
-- #onTrigger The function which gets called when the appointment falls due
-- #onError The function that gets called if the onTrigger function returns an error
-- #scheduleCronExpression Specifies the Cron expression of the schedule
-- #taskId The unique ID of the appointment task that was scheduled
-- #e This error will be returned if an occurs while scheduling the appointment task
-}
 public native function scheduleAppointment (
        function() returns (error) onTrigger,
        function(error e) onError,
@@ -44,9 +28,4 @@ public native function scheduleAppointment (
 @Description { value:"Stops the timer task with ID taskID"}
 @Param { value:"taskID: The unique ID of the timer task that has to be stopped" }
 @Return { value:"This error will be returned if an error occurs while stopping the task" }
-documentation {
-Stops the timer task with ID taskID.
-- #taskId The unique ID of the timer task that has to be stopped
-- #e This error will be returned if an occurs while stopping the task
-}
 public native function stopTask (string taskID) returns (error);

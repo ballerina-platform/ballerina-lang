@@ -23,10 +23,6 @@ public enum RedirectCode {
 @Description { value:"Sends a 100-continue response to the client."}
 @Param { value:"conn: The server connector connection" }
 @Return { value:"Returns an HttpConnectorError if there was any issue in sending the response." }
-documentation {
-Sends a 100-continue response to the client.
-- #conn The server connector connection.
-}
 public function <Connection conn> respondContinue () (HttpConnectorError) {
     OutResponse res = {};
     res.statusCode = 100;

@@ -17,45 +17,23 @@ public struct Connection {
 @Param { value:"conn: The server connector connection" }
 @Param { value:"res: The outbound response message" }
 @Return { value:"Error occured during HTTP server connector respond" }
-documentation {
-Sends outbound response to the caller.
-- #conn The server connector connection.
-- #res The outbound response message.
-- #conError Error occured during HTTP server connector respond.
-}
-public native function <Connection conn> respond (OutResponse res) (HttpConnectorError conError);
+public native function <Connection conn> respond (OutResponse res) (HttpConnectorError);
 
 @Description { value:"Forwards inbound response to the caller"}
 @Param { value:"conn: The server connector connection" }
 @Param { value:"res: The inbound response message" }
 @Return { value:"Error occured during HTTP server connector forward" }
-documentation {
-Forwards inbound response to the caller.
-- #conn The server connector connection.
-- #res The inbound response message.
-- #conError Error occured during HTTP server connector forward.
-}
 public native function <Connection conn> forward (InResponse res) (HttpConnectorError);
 
 @Description { value:"Gets the Session struct for a valid session cookie from the connection. Otherwise creates a new Session struct." }
 @Param { value:"conn: The server connector connection" }
 @Return { value:"HTTP Session struct" }
-documentation {
-Gets the Session struct for a valid session cookie from the connection. Otherwise creates a new Session struct.
-- #conn The server connector connection.
-- #s HTTP Session struct.
-}
-public native function <Connection conn> createSessionIfAbsent () (Session s);
+public native function <Connection conn> createSessionIfAbsent () (Session);
 
 @Description { value:"Gets the Session struct from the connection if it is present" }
 @Param { value:"conn: The server connector connection" }
 @Return { value:"The HTTP Session struct assoicated with the request" }
-documentation {
-Gets the Session struct from the connection if it is present.
-- #conn The server connector connection.
-- #s The HTTP Session struct assoicated with the request.
-}
-public native function <Connection conn> getSession () (Session s);
+public native function <Connection conn> getSession () (Session);
 
 @Description { value:"Represents an HTTP inbound request message"}
 @Field {value:"path: Resource path of request URI"}
@@ -73,12 +51,7 @@ public struct InRequest {
 @Description { value:"Get the entity from the inbound request with the body included"}
 @Param { value:"req: The inbound request message" }
 @Return { value:"Entity of the request" }
-documentation {
-Get the entity from the inbound request with the body included.
-- #req The inbound request message.
-- #entity Entity of the request.
-}
-public native function <InRequest req> getEntity () (mime:Entity entity);
+public native function <InRequest req> getEntity () (mime:Entity);
 
 @Description { value:"Get the entity from the inbound request without the body. This function is to be used only internally"}
 @Param { value:"req: The inbound request message" }
@@ -88,46 +61,24 @@ native function <InRequest req> getEntityWithoutBody () (mime:Entity);
 @Description { value:"Set the entity to inbound request"}
 @Param { value:"req: The inbound request message" }
 @Return { value:"Entity of the request" }
-documentation {
-Set the entity to inbound request.
-- #req The inbound request message.
-- #entity Entity of the request.
-}
 public native function <InRequest req> setEntity (mime:Entity entity);
 
 @Description { value:"Gets the query parameters from the HTTP request as a map"}
 @Param { value:"req: The inbound request message" }
 @Return { value:"The map of query params" }
-documentation {
-Gets the query parameters from the HTTP request as a map.
-- #req The inbound request message.
-- #m The map of query params.
-}
-public native function <InRequest req> getQueryParams () (map m);
+public native function <InRequest req> getQueryParams () (map);
 
 @Description { value:"Retrieves the named property from the request"}
 @Param { value:"req: The inbound request message" }
 @Param { value:"propertyName: The name of the property" }
 @Return { value:"The property value" }
-documentation {
-Retrieves the named property from the request.
-- #req The inbound request message.
-- #propertyName The name of the property.
-- #s The property value.
-}
-public native function <InRequest req> getProperty (string propertyName) (string s);
+public native function <InRequest req> getProperty (string propertyName) (string);
 
 @Description { value: "Get matrix parameters from the request"}
 @Param { value:"req: The inbound request message" }
 @Param { value: "path: Path to the location of matrix parameters"}
 @Return { value: "A map of matrix paramters which can be found for a given path"}
-documentation {
-Get matrix parameters from the request.
-- #req The inbound request message.
-- #path Path to the location of matrix parameters.
-- #m A map of matrix paramters which can be found for a given path.
-}
-public native function <InRequest req> getMatrixParams (string path) (map m);
+public native function <InRequest req> getMatrixParams (string path) (map);
 
 @Description { value:"Represents an HTTP outbound request message"}
 public struct OutRequest {
@@ -136,56 +87,29 @@ public struct OutRequest {
 @Description { value:"Get the entity from the outbound request"}
 @Param { value:"req: The outbound request message" }
 @Return { value:"Entity of the request" }
-documentation {
-Get the entity from the outbound request.
-- #req The outbound request message.
-- #entity Entity of the request.
-}
-public native function <OutRequest req> getEntity () (mime:Entity entity);
+public native function <OutRequest req> getEntity () (mime:Entity);
 
 @Description { value:"Get the entity from the outbound request without the body. This function is to be used only internally"}
 @Param { value:"req: The outbound request message" }
 @Return { value:"Entity of the request" }
-documentation {
-Get the entity from the outbound request without the body. This function is to be used only internally.
-- #req The outbound request message.
-- #entity Entity of the request.
-}
-native function <OutRequest req> getEntityWithoutBody () (mime:Entity entity);
+native function <OutRequest req> getEntityWithoutBody () (mime:Entity);
 
 @Description { value:"Set the entity to outbound request"}
 @Param { value:"req: The outbound request message" }
 @Return { value:"Entity of the request" }
-documentation {
-Set the entity to outbound request.
-- #req The outbound request message.
-- #entity Entity of the request.
-}
 public native function <OutRequest req> setEntity (mime:Entity entity);
 
 @Description { value:"Sets a request property"}
 @Param { value:"req: The outbound request message" }
 @Param { value:"propertyName: The name of the property" }
 @Param { value:"propertyValue: The value of the property" }
-documentation {
-Set the entity to outbound request.
-- #req The outbound request message.
-- #propertyName The name of the property.
-- #propertyValue The value of the property.
-}
 public native function <OutRequest req> setProperty (string propertyName, string propertyValue);
 
 @Description { value:"Retrieves the named property from the request"}
 @Param { value:"req: The outbound request message" }
 @Param { value:"propertyName: The name of the property" }
 @Return { value:"The property value" }
-documentation {
-Retrieves the named property from the request.
-- #req The outbound request message.
-- #propertyName The name of the property.
-- #s The property value.
-}
-public native function <OutRequest req> getProperty (string propertyName) (string s);
+public native function <OutRequest req> getProperty (string propertyName) (string);
 
 @Description { value:"Represents an HTTP Inbound response message"}
 @Field {value:"statusCode: The response status code"}
@@ -200,12 +124,7 @@ public struct InResponse {
 @Description { value:"Get the entity from the inbound response with the body"}
 @Param { value:"res: The inbound response message" }
 @Return { value:"Entity of the response" }
-documentation {
-Get the entity from the inbound response with the body.
-- #res The inbound response message.
-- #entity Entity of the response.
-}
-public native function <InResponse res> getEntity () (mime:Entity entity);
+public native function <InResponse res> getEntity () (mime:Entity);
 
 @Description { value:"Get the entity from the inbound response without the body. This function is to be used only internally"}
 @Param { value:"req: The inbound response message" }
@@ -215,24 +134,13 @@ native function <InResponse res> getEntityWithoutBody () (mime:Entity);
 @Description { value:"Set the entity to inbound response"}
 @Param { value:"res: The inbound response message" }
 @Return { value:"Entity of the response" }
-documentation {
-Set the entity to inbound response.
-- #res The inbound response message.
-- #entity Entity of the response.
-}
 public native function <InResponse res> setEntity (mime:Entity entity);
 
 @Description { value:"Retrieve a response property"}
 @Param { value:"res: The inbound response message" }
 @Param { value:"propertyName: The name of the property" }
 @Return { value:"The property value" }
-documentation {
-Retrieve a response property.
-- #res The inbound response message.
-- #propertyName The name of the property.
-- #s The property value.
-}
-public native function <InResponse res> getProperty (string propertyName) (string s);
+public native function <InResponse res> getProperty (string propertyName) (string);
 
 @Description { value:"Represents an HTTP outbound response message"}
 @Field {value:"statusCode: The response status code"}
@@ -245,12 +153,7 @@ public struct OutResponse {
 @Description { value:"Get the entity from the outbound response"}
 @Param { value:"res: The outbound response message" }
 @Return { value:"Entity of the response" }
-documentation {
-Get the entity from the outbound response.
-- #res The outbound response message.
-- #entity Entity of the response.
-}
-public native function <OutResponse res> getEntity () (mime:Entity entity);
+public native function <OutResponse res> getEntity () (mime:Entity);
 
 @Description { value:"Get the entity from the outbound response without the body. This function is to be used only internally"}
 @Param { value:"req: The outbound response message" }
@@ -260,49 +163,26 @@ native function <OutResponse res> getEntityWithoutBody () (mime:Entity);
 @Description { value:"Set the entity to outbound response"}
 @Param { value:"res: The outbound response message" }
 @Return { value:"Entity of the response" }
-documentation {
-Get the entity from the outbound response.
-- #res The outbound response message.
-- #entity Entity of the response.
-}
 public native function <OutResponse res> setEntity (mime:Entity entity);
 
 @Description { value:"Sets a response property"}
 @Param { value:"res: The outbound response message" }
 @Param { value:"propertyName: The name of the property" }
 @Param { value:"propertyValue: The value of the property" }
-documentation {
-Get the entity from the outbound response.
-- #res The outbound response message.
-- #entity Entity of the response.
-}
 public native function <OutResponse res> setProperty (string propertyName, string propertyValue);
 
 @Description { value:"Retrieve a response property"}
 @Param { value:"res: The outbound response message" }
 @Param { value:"propertyName: The name of the property" }
 @Return { value:"The property value" }
-documentation {
-Retrieve a response property.
-- #res The outbound response message.
-- #propertyName The name of the property.
-- #propertyValue The property value.
-}
-public native function <OutResponse res> getProperty (string propertyName) (string propertyValue);
+public native function <OutResponse res> getProperty (string propertyName) (string);
 
 @Description { value:"Parse headerValue and return value with parameter map"}
 @Param { value:"headerValue: The header value" }
 @Return { value:"The header value" }
 @Return { value:"The header value parameter map" }
 @Return { value:"Error occured during header parsing" }
-documentation {
-Parse headerValue and return value with parameter map.
-- #headerValue The header value.
-- #s The header value.
-- #m The header value parameter map.
-- #e Error occured during header parsing.
-}
-public native function parseHeader (string headerValue)(string s, map m, error e);
+public native function parseHeader (string headerValue)(string, map, error);
 
 @Description { value:"Represents an HTTP Session"}
 public struct Session {
@@ -312,122 +192,61 @@ public struct Session {
 @Param { value:"session: A Session struct" }
 @Param { value:"attributeKey: HTTP session attribute key" }
 @Return { value:"HTTP session attribute value" }
-documentation {
-Gets the named session attribute.
-- #session A Session struct.
-- #attributeKey HTTP session attribute key.
-- #att HTTP session attribute value.
-}
-public native function <Session session> getAttribute (string attributeKey) (any att);
+public native function <Session session> getAttribute (string attributeKey) (any);
 
 @Description { value:"Sets the specified key/value pair as a session attribute" }
 @Param { value:"session: A Session struct" }
 @Param { value:"attributeKey: Session attribute key" }
 @Param { value:"attributeValue: Session attribute Value" }
-documentation {
-Sets the specified key/value pair as a session attribute.
-- #session A Session struct.
-- #attributeKey Session attribute key.
-- #attributeValue Session attribute Value.
-}
 public native function <Session session> setAttribute (string attributeKey, any attributeValue);
 
 @Description { value:"Gets the session attribute names" }
 @Param { value:"session: A Session struct" }
 @Return { value:"Session attribute names array" }
-documentation {
-Gets the session attribute names.
-- #session A Session struct.
-- #attArray Session attribute names array.
-}
-public native function <Session session> getAttributeNames () (string[] attArray);
+public native function <Session session> getAttributeNames () (string[]);
 
 @Description { value:"Gets the session attribute key value pairs as a map" }
 @Param { value:"session: A session struct" }
 @Return { value:"The map of session attributes key value pairs" }
-documentation {
-Gets the session attribute key value pairs as a map.
-- #session A Session struct.
-- #m The map of session attributes key value pairs.
-}
-public native function <Session session> getAttributes () (map m);
+public native function <Session session> getAttributes () (map);
 
 @Description { value:"Invalidates the session and it will no longer be accessible from the request" }
 @Param { value:"session: A Session struct" }
-documentation {
-Invalidates the session and it will no longer be accessible from the request.
-- #session A Session struct.
-}
 public native function <Session session> invalidate ();
 
 @Description { value:"Remove the named session attribute" }
 @Param { value:"session: A Session struct" }
 @Param { value:"attributeKey: Session attribute key" }
-documentation {
-Remove the named session attribute.
-- #session A Session struct.
-- #attributeKey Session attribute key.
-}
 public native function <Session session> removeAttribute (string attributeKey);
 
 @Description { value:"Gets the session cookie ID" }
 @Param { value:"session: A Session struct" }
 @Return { value:"Session ID" }
-documentation {
-Gets the session cookie ID.
-- #session A Session struct.
-- #id Session ID.
-}
-public native function <Session session> getId () (string id);
+public native function <Session session> getId () (string);
 
 @Description { value:"Checks whether the given session is a newly created session or an existing session" }
 @Param { value:"session: A Session struct" }
 @Return { value:"Indicates if the session is a newly created session or not" }
-documentation {
-Checks whether the given session is a newly created session or an existing session.
-- #session A Session struct.
-- #isNewlyCreated Indicates if the session is a newly created session or not.
-}
-public native function <Session session> isNew () (boolean isNewlyCreated);
+public native function <Session session> isNew () (boolean);
 
 @Description { value:"Gets the session creation time" }
 @Param { value:"session: A Session struct" }
 @Return { value:"Session creation time" }
-documentation {
-Gets the session creation time.
-- #session A Session struct.
-- #t Session creation time.
-}
-public native function <Session session> getCreationTime () (int t);
+public native function <Session session> getCreationTime () (int);
 
 @Description { value:"Gets the last time the sessions was accessed" }
 @Param { value:"session: A Session struct" }
 @Return { value:"Last accessed time of the session" }
-documentation {
-Gets the last time the sessions was accessed.
-- #session A Session struct.
-- #t Last accessed time of the session.
-}
-public native function <Session session> getLastAccessedTime () (int t);
+public native function <Session session> getLastAccessedTime () (int);
 
 @Description { value:"Gets maximum inactive interval for the session. The session expires after this time period." }
 @Param { value:"session: A Session struct" }
 @Return { value:"Session max inactive interval" }
-documentation {
-Gets maximum inactive interval for the session. The session expires after this time period.
-- #session A Session struct.
-- #timeInterval Session max inactive interval.
-}
-public native function <Session session> getMaxInactiveInterval () (int timeInterval);
+public native function <Session session> getMaxInactiveInterval () (int);
 
 @Description { value:"Sets the maximum inactive interval for the session. The session expires after this time period." }
 @Param { value:"session: A Session struct" }
 @Param { value:"timeInterval: Session max inactive interval" }
-documentation {
-Sets the maximum inactive interval for the session. The session expires after this time period.
-- #session A Session struct.
-- #timeInterval Session max inactive interval.
-}
 public native function <Session session> setMaxInactiveInterval (int timeInterval);
 
 @Description { value:"HttpConnectorError struct represents an error occured during the HTTP client invocation" }

@@ -132,15 +132,15 @@ public struct person07 {
     string ssn;
 }
 
-function <person07 p> getAge() returns (int) {
+public function <person07 p> getAge() returns (int) {
     return p.age;
 }
 
-function <person07 p> getName() returns (string) {
+public function <person07 p> getName() returns (string) {
     return p.name;
 }
 
-function <person07 p> setSSN(string ssn) {
+public function <person07 p> setSSN(string ssn) {
     p.ssn = ssn;
 }
 
@@ -152,11 +152,11 @@ public struct employee07 {
     string ssn;
 }
 
-function <employee07 e> getName() returns (string) {
+public function <employee07 e> getName() returns (string) {
     return e.name;
 }
 
-function <employee07 e> getAge() returns (int) {
+public function <employee07 e> getAge() returns (int) {
     return e.age;
 }
 
@@ -176,15 +176,15 @@ public struct person08 {
     string ssn;
 }
 
-function <person08 p> getAge() returns (int) {
+public function <person08 p> getAge() returns (int) {
     return p.age;
 }
 
-function <person08 p> getName() returns (string) {
+public function <person08 p> getName() returns (string) {
     return p.name;
 }
 
-function <person08 p> setSSN(string ssn) {
+public function <person08 p> setSSN(string ssn) {
     p.ssn = ssn;
 }
 
@@ -196,7 +196,7 @@ public struct employee08 {
     string ssn;
 }
 
-function <employee08 e> getName() returns (string) {
+public function <employee08 e> getName() returns (string) {
     return e.name;
 }
 
@@ -204,7 +204,7 @@ function <employee08 e> getAge() returns (int) {
     return e.age;
 }
 
-function <employee08 e> getSSN() returns (string) {
+public function <employee08 e> getSSN() returns (string) {
     return e.ssn;
 }
 
@@ -224,15 +224,15 @@ public struct person09 {
     string ssn;
 }
 
-function <person09 p> getAge() returns (int) {
+public function <person09 p> getAge() returns (int) {
     return p.age;
 }
 
-function <person09 p> getName() returns (string) {
+public function <person09 p> getName() returns (string) {
     return p.name;
 }
 
-function <person09 p> setSSN(string ssn) {
+public function <person09 p> setSSN(string ssn) {
     p.ssn = ssn;
 }
 
@@ -244,15 +244,15 @@ public struct employee09 {
     string ssn;
 }
 
-function <employee09 e> getName() returns (string) {
+public function <employee09 e> getName() returns (string) {
     return e.name;
 }
 
-function <employee09 e> getAge(int i) returns (int) {
+public function <employee09 e> getAge(int i) returns (int) {
     return e.age;
 }
 
-function <employee09 e> getSSN() returns (string) {
+public function <employee09 e> getSSN() returns (string) {
     return e.ssn;
 }
 

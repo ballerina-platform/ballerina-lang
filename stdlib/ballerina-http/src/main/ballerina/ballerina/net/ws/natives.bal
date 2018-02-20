@@ -50,23 +50,12 @@ public struct HandshakeConnection {
 @Description {value:"Gets the query parameters from the HandshakeConnection as a map"}
 @Param {value:"req: The HandshakeConnection struct" }
 @Return {value:"The map of query params" }
-documentation {
-Gets the query parameters from the HandshakeConnection as a map.
-- #conn The HandshakeConnection struct.
-- #m The map of query params.
-}
-public native function <HandshakeConnection conn> getQueryParams () (map m);
+public native function <HandshakeConnection conn> getQueryParams () (map);
 
 @Description {value:"Cancels the handshake"}
 @Param {value:"conn: A HandshakeConnection struct"}
 @Param {value:"statusCode: Status code for closing the connection"}
 @Param {value:"reason: Reason for closing the connection"}
-documentation {
-Cancels the handshake.
-- #conn The HandshakeConnection struct.
-- #statusCode Status code for closing the connection.
-- #reason Reason for closing the connection.
-}
 public native function <HandshakeConnection conn> cancelHandshake(int statusCode, string reason);
 
 @Description {value:"Represents a WebSocket connection in ballerina. This include all connection oriented operations."}
@@ -78,136 +67,69 @@ public struct Connection {
 @Description {value:"Gets the ID of the WebSocket connection"}
 @Param {value:"conn: A Connection struct"}
 @Return {value:"ID of the connection"}
-documentation {
-Gets the ID of the WebSocket connection.
-- #conn A Connection struct.
-- #id ID of the connection.
-}
-public native function <Connection conn> getID() (string id);
+public native function <Connection conn> getID() (string);
 
 @Description {value:"Gets the negotiated sub protocol of the connection"}
 @Param {value:"conn: A Connection struct"}
 @Return {value:"Negotiated sub protocol"}
-documentation {
-Gets the negotiated sub protocol of the connection.
-- #conn A Connection struct.
-- #id ID of the connection.
-}
-public native function <Connection conn> getNegotiatedSubProtocol() (string id);
+public native function <Connection conn> getNegotiatedSubProtocol() (string);
 
 @Description {value:"Checks whether the connection is secure or not"}
 @Param {value:"conn: A Connection struct"}
 @Return {value:"True if the connection is secure"}
-documentation {
-Checks whether the connection is secure or not.
-- #conn A Connection struct.
-- #isSecure True if the connection is secure.
-}
-public native function <Connection conn> isSecure() (boolean isSecure);
+public native function <Connection conn> isSecure() (boolean);
 
 @Description {value:"Checks whether the connection is still open or not."}
 @Param {value:"conn: A Connection struct"}
 @Return {value:"True if the connection is open"}
-documentation {
-Checks whether the connection is still open or not.
-- #conn A Connection struct.
-- #isOpen True if the connection is open.
-}
-public native function <Connection conn> isOpen() (boolean isOpen);
+public native function <Connection conn> isOpen() (boolean);
 
 @Description {value:"Gets a map of all the upgrade headers of the connection"}
 @Param {value:"conn: A Connection struct"}
 @Return {value:"Map of all the headers received in the connection upgrade"}
-documentation {
-Gets a map of all the upgrade headers of the connection.
-- #conn A Connection struct.
-- #m Map of all the headers received in the connection upgrade.
-}
-public native function <Connection conn> getUpgradeHeaders() (map m);
+public native function <Connection conn> getUpgradeHeaders() (map);
 
 @Description {value:"Gets a value of a header"}
 @Param {value:"conn: A Connection struct"}
 @Param {value:"key: Key of the header for which the value should be retrieved"}
 @Return {value:"Value of the header if it exists, else it is null"}
-documentation {
-Gets a value of a header.
-- #conn A Connection struct.
-- #key Key of the header for which the value should be retrieved.
-- #value Value of the header if it exists, else it is null.
-}
-public native function <Connection conn> getUpgradeHeader(string key) (string value);
+public native function <Connection conn> getUpgradeHeader(string key) (string);
 
 @Description {value:"Gets the parent connection if there is one"}
 @Param {value:"conn: Connection for which the parent connection should be retrieved"}
 @Return {value:"The parent connection if it exists, else it is null"}
-documentation {
-Gets the parent connection if there is one.
-- #conn Connection for which the parent connection should be retrieved.
-- #parentConn The parent connection if it exists, else it is null.
-}
-public native function <Connection conn> getParentConnection() (Connection parentConn);
+public native function <Connection conn> getParentConnection() (Connection);
 
 @Description {value:"Push text to the connection"}
 @Param {value:"conn: A Connection struct"}
 @Param {value:"text: Text to be sent"}
-documentation {
-Push text to the connection.
-- #conn A Connection struct.
-- #text Text to be sent.
-}
 public native function <Connection conn> pushText(string text);
 
 @Description {value:"Push binary data to the connection"}
 @Param {value:"conn: A Connection struct"}
 @Param {value:"data: Binary data to be sent"}
-documentation {
-Push binary data to the connection.
-- #conn A Connection struct.
-- #data Binary data to be sent.
-}
 public native function <Connection conn> pushBinary(blob data);
 
 @Description {value:"Ping the connection"}
 @Param {value:"conn: A Connection struct"}
 @Param {value:"data: Binary data to be sent"}
-documentation {
-Ping the connection.
-- #conn A Connection struct.
-- #data Binary data to be sent.
-}
 public native function <Connection conn> ping(blob data);
 
 @Description {value:"Send pong message to the connection"}
 @Param {value:"conn: A Connection struct"}
 @Param {value:"data: Binary data to be sent"}
-documentation {
-Send pong message to the connection.
-- #conn A Connection struct.
-- #data Binary data to be sent.
-}
 public native function <Connection conn> pong(blob data);
 
 @Description {value:"Close the connection"}
 @Param {value:"conn: A Connection struct"}
 @Param {value:"statusCode: Status code for closing the connection"}
 @Param {value:"reason: Reason for closing the connection"}
-documentation {
-Close the connection.
-- #conn A Connection struct.
-- #statusCode Status code for closing the connection.
-- #reason Reason for closing the connection.
-}
 public native function <Connection conn> closeConnection(int statusCode, string reason);
 
 @Description {value:"Gets the query parameters from the Connection as a map"}
 @Param {value:"req: The Connection struct" }
 @Return {value:"The map of query params" }
-documentation {
-Gets the query parameters from the Connection as a map.
-- #conn The Connection struct.
-- #m The map of query params.
-}
-public native function <Connection conn> getQueryParams () (map m);
+public native function <Connection conn> getQueryParams () (map);
 
 @Description {value:"Configuration struct for WebSocket client connection"}
 @Field {value: "subProtocols: Negotiable sub protocols for the client"}

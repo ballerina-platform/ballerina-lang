@@ -63,10 +63,6 @@ public enum Disposition {
 @Description {value:"Given an entity, get the text payload, either from the memory or from the file handler."}
 @Param {value:"entity: Represent mime Entity"}
 @Return {value:"return text data"}
-documentation {
-Given an entity, get the text payload, either from the memory or from the file handler.
-- #entity Represent mime Entity
-}
 public function getText (Entity entity) (string) {
     if (entity.textData != null && entity.textData != "") {
         return entity.textData;
@@ -86,10 +82,6 @@ public function getText (Entity entity) (string) {
 @Description {value:"Given an entity, get the json payload, either from the memory or from the file handler."}
 @Param {value:"entity: Represent mime Entity"}
 @Return {value:"return json data"}
-documentation {
-Given an entity, get the json payload, either from the memory or from the file handler.
-- #entity Represent mime Entity
-}
 public function getJson (Entity entity) (json) {
     if (entity.jsonData != null) {
         return entity.jsonData;
@@ -110,10 +102,6 @@ public function getJson (Entity entity) (json) {
 @Description {value:"Given an entity, get the xml payload, either from the memory or from the file handler."}
 @Param {value:"entity: Represent mime Entity"}
 @Return {value:"return xml data"}
-documentation {
-Given an entity, get the xml payload, either from the memory or from the file handler.
-- #entity Represent mime Entity
-}
 public function getXml (Entity entity) (xml) {
     if (entity.xmlData != null) {
         return entity.xmlData;
@@ -135,10 +123,6 @@ public function getXml (Entity entity) (xml) {
 handler."}
 @Param {value:"entity: Represent mime Entity"}
 @Return {value:"return byte array"}
-documentation {
-Given an entity, get the content as a byte array, either from the memory or from the file handler.
-- #entity Represent mime Entity
-}
 public function getBlob (Entity entity) (blob) {
     file:File overFlowData = entity.overflowData;
     if (overFlowData != null) {
@@ -152,20 +136,11 @@ public function getBlob (Entity entity) (blob) {
 @Description {value:"Given the Content-Type in string, get the MediaType struct populated with it."}
 @Param {value:"contentType: Content-Type in string"}
 @Return {value:"return MediaType struct"}
-documentation {
-Given the Content-Type in string, get the MediaType struct populated with it.
-- #contentType Content-Type in string
-- #mediaType return MediaType struct
-}
-public native function getMediaType (string contentType) (MediaType mediaType);
+public native function getMediaType (string contentType) (MediaType);
 
 @Description {value:"Get “primaryType/subtype+suffix” combination in string format."}
 @Param {value:"mediaType: MediaType struct"}
 @Return {value:"return base type from MediaType struct"}
-documentation {
-Get “primaryType/subtype+suffix” combination in string format..
-- #mediaType MediaType struct
-}
 public function <MediaType mediaType> toString () (string) {
     return mediaType.primaryType + "/" + mediaType.subType;
 }
@@ -173,10 +148,6 @@ public function <MediaType mediaType> toString () (string) {
 @Description {value:"Convert the media type to a string suitable for use as the value of a corresponding HTTP header."}
 @Param {value:"mediaType: MediaType struct"}
 @Return {value:"return the Content-Type with parameters as a string"}
-documentation {
-Convert the media type to a string suitable for use as the value of a corresponding HTTP header.
-- #mediaType MediaType struct
-}
 public function <MediaType mediaType> toStringWithParameters () (string) {
     string contentType = mediaType.toString() + "; ";
     map parameters = mediaType.parameters;
@@ -216,13 +187,7 @@ public struct QuotedPrintableDecoder {
 @Param {value:"encoder: Represent MIME specific base64 encoder"}
 @Param {value:"content: the byte array to encode"}
 @Return {value:"return resulting encoded bytes"}
-documentation {
-Encode byte array using MIME Base64 encoding scheme.
-- #encoder Represent MIME specific base64 encoder
-- #content the byte array to encode
-- #encodedBytes return resulting encoded bytes
-}
-public native function <MimeBase64Encoder encoder> encode (blob content) (blob encodedBytes);
+public native function <MimeBase64Encoder encoder> encode (blob content) (blob);
 
 @Description {value:"Encode a given string using MIME Base64 encoding scheme. First the given string will be
 converted to a byte array with the given charset encoding. If the charset given is null default 'UTF-8' will be used.
@@ -232,29 +197,13 @@ converted to a byte array with the given charset encoding. If the charset given 
 @Param {value:"content: string to encode"}
 @Param {value:"charset: charset used in the given string and the resulting string"}
 @Return {value:"return resulting encoded string"}
-documentation {
-Encode a given string using MIME Base64 encoding scheme. First the given string will be
-converted to a byte array with the given charset encoding. If the charset given is null default 'UTF-8' will be used.
-Then that byte array will be encoded using MIME Base64 encoding scheme and a new string will be constructed with the 
-given charset.
-- #encoder Represent MIME specific base64 encoder
-- #content string to encode
-- #charset charset used in the given string and the resulting string
-- #s return resulting encoded string
-}
-public native function <MimeBase64Encoder encoder> encodeString (string content, string charset) (string s);
+public native function <MimeBase64Encoder encoder> encodeString (string content, string charset) (string);
 
 @Description {value:"Decode byte array using MIME Base64 encoding scheme."}
 @Param {value:"encoder: Represent MIME specific base64 decoder"}
 @Param {value:"content: the byte array to decode"}
 @Return {value:"return resulting decoded bytes"}
-documentation {
-Decode byte array using MIME Base64 encoding scheme.
-- #encoder Represent MIME specific base64 encoder
-- #content the byte array to decode
-- #decodedBytes return resulting decoded bytes
-}
-public native function <MimeBase64Decoder decoder> decode (blob content) (blob decodedBytes);
+public native function <MimeBase64Decoder decoder> decode (blob content) (blob);
 
 @Description {value:"Decode a given string using MIME Base64 decoding scheme. First the given string will be
 converted to a byte array with the given charset encoding. If the charset given is null default 'UTF-8' will be used.
@@ -264,17 +213,7 @@ converted to a byte array with the given charset encoding. If the charset given 
 @Param {value:"content: string to decode"}
 @Param {value:"charset: charset used in the given string and the resulting string"}
 @Return {value:"return resulting decoded string"}
-documentation {
-Decode a given string using MIME Base64 decoding scheme. First the given string will be
-converted to a byte array with the given charset encoding. If the charset given is null default 'UTF-8' will be used.
-Then that byte array will be decoded using MIME Base64 decoding scheme and a new string will be constructed with the
-given charset.
-- #encoder Represent MIME specific base64 encoder
-- #content string to decode
-- #charset charset used in the given string and the resulting string
-- #decodedString return resulting decoded string
-}
-public native function <MimeBase64Decoder decoder> decodeString (string content, string charset) (string decodedString);
+public native function <MimeBase64Decoder decoder> decodeString (string content, string charset) (string);
 
 @Description {value:"Utility function used internally to get the bytes from a given channel."}
 @Param {value:"channel: A ByteChannel"}

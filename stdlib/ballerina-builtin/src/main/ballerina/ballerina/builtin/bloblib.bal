@@ -4,10 +4,5 @@ package ballerina.builtin;
 @Param { value:"b: The blob value to be converted" }
 @Param { value:"encoding: Encoding to used in blob conversion to string" }
 @Return { value:"String representation of the given blob" }
-documentation {
-Converts blob to a string.
-- #b The blob value to be converted
-- #encoding Encoding to used in blob conversion to string
-- #s String representation of the given blob
-}
-public native function <blob b> toString (string encoding) (string s);
+public native function <blob b> toString (string encoding) (string);
+
