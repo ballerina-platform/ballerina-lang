@@ -128,9 +128,12 @@ public class PoolableTargetChannelFactory implements PoolableObjectFactory {
         SSLEngine sslEngine = null;
         if (sslConfig != null) {
             SSLHandlerFactory sslHandlerFactory = new SSLHandlerFactory(sslConfig);
-            sslEngine = sslHandlerFactory.build();
+            sslEngine = sslHandlerFactory.buildClientSSLEngine(httpRoute.getHost(), httpRoute.getPort());
             sslEngine.setUseClientMode(true);
             sslHandlerFactory.setSNIServerNames(sslEngine, httpRoute.getHost());
+            if (senderConfiguration.hostNameVerificationEnabled()) {
+                sslHandlerFactory.setHostNameVerfication(sslEngine);
+            }
         }
 
         return sslEngine;

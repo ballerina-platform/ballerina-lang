@@ -49,8 +49,6 @@ public class SSLConfig {
     private String[] serverNames;
     private String[] sniMatchers;
 
-    private boolean clientMode;
-
     public SSLConfig(File keyStore, String keyStorePass) {
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("Using key store" + keyStore);
@@ -191,13 +189,5 @@ public class SSLConfig {
             LOGGER.debug("Set supported cipherSuites" + cipherSuites);
         }
         this.cipherSuites = cipherSuites.replaceAll("\\s+", "").split(separator);
-    }
-
-    public boolean isClientMode() {
-        return clientMode;
-    }
-
-    public void setClientMode(boolean clientMode) {
-        this.clientMode = clientMode;
     }
 }
