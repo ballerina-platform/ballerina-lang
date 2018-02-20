@@ -52,6 +52,16 @@ public interface HttpWsConnectorFactory {
             SenderConfiguration senderConfiguration);
 
     /**
+     * This method can be used to get http2 client connectors.
+     *
+     * @param transportProperties configTargetHandler stuff like global timeout, number of outbound connections, etc.
+     * @param senderConfiguration contains SSL configuration and endpoint details.
+     * @return Http2ClientConnector.
+     */
+    Http2ClientConnector createHttp2ClientConnector(Map<String, Object> transportProperties,
+                                                  SenderConfiguration senderConfiguration);
+
+    /**
      * This method is used to get WebSocket client connector.
      *
      * @param clientConnectorConfig Properties to create a client connector.

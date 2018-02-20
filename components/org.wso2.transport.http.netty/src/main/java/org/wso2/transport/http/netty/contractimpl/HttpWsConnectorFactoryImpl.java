@@ -23,6 +23,7 @@ import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import org.wso2.transport.http.netty.config.ListenerConfiguration;
 import org.wso2.transport.http.netty.config.SenderConfiguration;
+import org.wso2.transport.http.netty.contract.Http2ClientConnector;
 import org.wso2.transport.http.netty.contract.HttpClientConnector;
 import org.wso2.transport.http.netty.contract.HttpWsConnectorFactory;
 import org.wso2.transport.http.netty.contract.ServerConnector;
@@ -79,6 +80,12 @@ public class HttpWsConnectorFactoryImpl implements HttpWsConnectorFactory {
         ConnectionManager connectionManager =
                 new ConnectionManager(poolConfiguration, transportProperties, bootstrapConfig);
         return new HttpClientConnectorImpl(connectionManager, senderConfiguration);
+    }
+
+    @Override
+    public Http2ClientConnector createHttp2ClientConnector(
+            Map<String, Object> transportProperties, SenderConfiguration senderConfiguration) {
+        return new Http2ClientConnectorImpl(senderConfiguration);
     }
 
     @Override

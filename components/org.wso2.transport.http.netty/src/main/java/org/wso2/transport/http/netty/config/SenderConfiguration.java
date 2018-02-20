@@ -92,6 +92,9 @@ public class SenderConfiguration {
     @XmlAttribute
     private boolean isKeepAlive = true;
 
+    @XmlAttribute
+    private boolean skipHttpToHttp2Upgrade = false;
+
     private String tlsStoreType;
     private String httpVersion = "1.1";
     private ProxyServerConfiguration proxyServerConfiguration;
@@ -261,5 +264,9 @@ public class SenderConfiguration {
         if (!httpVersion.isEmpty()) {
             this.httpVersion = httpVersion;
         }
+    }
+
+    public boolean skipHttpToHttp2Upgrade() {
+        return skipHttpToHttp2Upgrade;
     }
 }
