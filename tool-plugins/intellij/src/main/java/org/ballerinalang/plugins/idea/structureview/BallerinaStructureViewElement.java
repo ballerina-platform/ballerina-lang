@@ -39,6 +39,9 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+/**
+ * Represents a element in the structure view.
+ */
 public class BallerinaStructureViewElement implements StructureViewTreeElement, SortableTreeElement {
 
     protected final PsiElement element;

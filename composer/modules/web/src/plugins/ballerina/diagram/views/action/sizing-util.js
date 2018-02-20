@@ -22,15 +22,6 @@ import TreeUtil from './../../../model/tree-util';
 
 class SizingUtil extends DefaultSizingUtil {
 
-    hideStatement(node) {
-        if (!TreeUtil.statementIsInvocation(node)) {
-            const viewState = node.viewState;
-            viewState.hidden = true;
-            viewState.bBox.h = 0;
-            viewState.components = {};
-        }
-    }
-
     sizeBlockNode(node) {
         // we will iterate the statements and hide nodes.
         const statements = node.statements;
@@ -63,7 +54,9 @@ class SizingUtil extends DefaultSizingUtil {
             TreeUtil.statementIsClientResponder(node) ||
             TreeUtil.isTry(node) ||
             TreeUtil.isForeach(node) ||
-            TreeUtil.isTransaction(node)
+            TreeUtil.isTransaction(node) ||
+            TreeUtil.isWorkerReceive(node) ||
+            TreeUtil.isWorkerSend(node)
         ) {
             return true;
         }

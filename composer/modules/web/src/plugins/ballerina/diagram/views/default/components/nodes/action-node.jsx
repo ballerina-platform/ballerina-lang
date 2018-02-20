@@ -77,6 +77,7 @@ class ActionNode extends React.Component {
         const classes = {
             lineClass: 'default-worker-life-line',
             polygonClass: 'default-worker-life-line-polygon',
+            textClass: 'default-worker-icon',
         };
         const argumentParameters = this.props.model.getParameters();
         const returnParameters = this.props.model.getReturnParameters();
@@ -134,7 +135,6 @@ class ActionNode extends React.Component {
                                     bBox={this.props.model.viewState.components.defaultWorkerLine}
                                     classes={classes}
                                     icon={ImageUtil.getCodePoint('worker')}
-                                    iconColor='#025482'
                                 />
                                 {blockNode}
                             </g>

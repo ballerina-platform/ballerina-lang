@@ -28,6 +28,9 @@ import org.ballerinalang.plugins.idea.editor.BallerinaParameterInfoHandler;
 import org.ballerinalang.plugins.idea.project.BallerinaApplicationLibrariesService;
 import org.jetbrains.annotations.NotNull;
 
+/**
+ * Parameter info handler tests.
+ */
 @BallerinaSDKAware
 public class BallerinaParameterInfoHandlerTest extends BallerinaCodeInsightFixtureTestCase {
 

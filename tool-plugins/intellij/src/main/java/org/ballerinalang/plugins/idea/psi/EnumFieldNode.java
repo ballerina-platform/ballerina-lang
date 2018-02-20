@@ -21,6 +21,9 @@ import org.antlr.jetbrains.adaptor.psi.IdentifierDefSubtree;
 import org.ballerinalang.plugins.idea.BallerinaTypes;
 import org.jetbrains.annotations.NotNull;
 
+/**
+ * Represents an EnumField in PSI tree.
+ */
 public class EnumFieldNode extends IdentifierDefSubtree {
 
     public EnumFieldNode(@NotNull ASTNode node) {

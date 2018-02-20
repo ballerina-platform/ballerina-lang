@@ -41,6 +41,9 @@ import org.ballerinalang.plugins.idea.runconfig.ui.BallerinaTestSettingsEditor;
 import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
 
+/**
+ * Represents Ballerina test configuration.
+ */
 public class BallerinaTestConfiguration extends BallerinaRunConfigurationWithMain<BallerinaTestRunningState> {
 
     private static final String PACKAGE_ATTRIBUTE_NAME = "package";

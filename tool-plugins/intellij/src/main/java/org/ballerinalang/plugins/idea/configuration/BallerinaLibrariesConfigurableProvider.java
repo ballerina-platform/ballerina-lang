@@ -48,6 +48,9 @@ import java.util.Locale;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 
+/**
+ * Responsible for providing library configurations.
+ */
 public class BallerinaLibrariesConfigurableProvider extends ConfigurableProvider {
 
     @NotNull

@@ -28,6 +28,8 @@ import org.ballerinalang.model.types.BTableType;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.types.TypeSignature;
+import org.ballerinalang.model.types.TypeTags;
+import org.ballerinalang.model.util.Flags;
 import org.ballerinalang.model.values.BEnumerator;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.NativeUnitLoader;
@@ -37,6 +39,7 @@ import org.ballerinalang.util.codegen.Instruction.InstructionFORKJOIN;
 import org.ballerinalang.util.codegen.Instruction.InstructionIteratorNext;
 import org.ballerinalang.util.codegen.Instruction.InstructionLock;
 import org.ballerinalang.util.codegen.Instruction.InstructionTCALL;
+import org.ballerinalang.util.codegen.Instruction.InstructionVCALL;
 import org.ballerinalang.util.codegen.Instruction.InstructionWRKSendReceive;
 import org.ballerinalang.util.codegen.attributes.AnnotationAttributeInfo;
 import org.ballerinalang.util.codegen.attributes.AttributeInfo;
@@ -114,16 +117,9 @@ public class ProgramFileReader {
     }
 
     public ProgramFile readProgram(InputStream programFileInStream) throws IOException {
-        InputStream fileIS = null;
-        try {
-            programFile = new ProgramFile();
-            DataInputStream dataInStream = new DataInputStream(programFileInStream);
-            return readProgramInternal(dataInStream);
-        } finally {
-            if (fileIS != null) {
-                fileIS.close();
-            }
-        }
+        programFile = new ProgramFile();
+        DataInputStream dataInStream = new DataInputStream(programFileInStream);
+        return readProgramInternal(dataInStream);
     }
 
     private ProgramFile readProgramInternal(DataInputStream dataInStream) throws IOException {
@@ -383,14 +379,15 @@ public class ProgramFileReader {
         for (int i = 0; i < structCount; i++) {
             // Create struct info entry
             int structNameCPIndex = dataInStream.readInt();
+            int flags = dataInStream.readInt();
             UTF8CPEntry structNameUTF8Entry = (UTF8CPEntry) packageInfo.getCPEntry(structNameCPIndex);
             String structName = structNameUTF8Entry.getValue();
             StructInfo structInfo = new StructInfo(packageInfo.getPkgNameCPIndex(), packageInfo.getPkgPath(),
-                    structNameCPIndex, structName);
+                    structNameCPIndex, structName, flags);
             packageInfo.addStructInfo(structName, structInfo);
 
             // Set struct type
-            BStructType bStructType = new BStructType(structName, packageInfo.getPkgPath());
+            BStructType bStructType = new BStructType(structInfo, structName, packageInfo.getPkgPath(), flags);
             structInfo.setType(bStructType);
 
             // Read struct field info entries
@@ -404,11 +401,30 @@ public class ProgramFileReader {
                 int fieldTypeSigCPIndex = dataInStream.readInt();
                 UTF8CPEntry fieldTypeSigUTF8Entry = (UTF8CPEntry) packageInfo.getCPEntry(fieldTypeSigCPIndex);
 
+                int fieldFlags = dataInStream.readInt();
+
                 StructFieldInfo fieldInfo = new StructFieldInfo(fieldNameCPIndex, fieldNameUTF8Entry.getValue(),
-                        fieldTypeSigCPIndex, fieldTypeSigUTF8Entry.getValue());
+                        fieldTypeSigCPIndex, fieldTypeSigUTF8Entry.getValue(), fieldFlags);
                 structInfo.addFieldInfo(fieldInfo);
 
                 readAttributeInfoEntries(dataInStream, packageInfo, fieldInfo);
+            }
+
+            // Read attached function info entries
+            int attachedFuncCount = dataInStream.readShort();
+            for (int j = 0; j < attachedFuncCount; j++) {
+                // Read function name
+                int nameCPIndex = dataInStream.readInt();
+                UTF8CPEntry nameUTF8Entry = (UTF8CPEntry) packageInfo.getCPEntry(nameCPIndex);
+
+                // Read function type signature
+                int typeSigCPIndex = dataInStream.readInt();
+                UTF8CPEntry typeSigUTF8Entry = (UTF8CPEntry) packageInfo.getCPEntry(typeSigCPIndex);
+
+                int funcFlags = dataInStream.readInt();
+                AttachedFunctionInfo functionInfo = new AttachedFunctionInfo(nameCPIndex, nameUTF8Entry.getValue(),
+                        typeSigCPIndex, typeSigUTF8Entry.getValue(), funcFlags);
+                structInfo.funcInfoEntries.put(functionInfo.name, functionInfo);
             }
 
             // Read attributes of the struct info
@@ -423,10 +439,11 @@ public class ProgramFileReader {
 
             // Create enum info entry
             int enumNameCPIndex = dataInStream.readInt();
+            int flags = dataInStream.readInt();
             UTF8CPEntry enumNameUTF8Entry = (UTF8CPEntry) packageInfo.getCPEntry(enumNameCPIndex);
             String enumName = enumNameUTF8Entry.getValue();
             EnumInfo enumInfo = new EnumInfo(packageInfo.getPkgNameCPIndex(), packageInfo.getPkgPath(),
-                    enumNameCPIndex, enumName);
+                    enumNameCPIndex, enumName, flags);
             packageInfo.addEnumInfo(enumName, enumInfo);
 
             // Set enum type
@@ -457,14 +474,12 @@ public class ProgramFileReader {
             int connectorNameCPIndex = dataInStream.readInt();
             UTF8CPEntry connectorNameUTF8Entry = (UTF8CPEntry) packageInfo.getCPEntry(connectorNameCPIndex);
 
-            // Read connector signature cp index;
-            int connectorSigCPIndex = dataInStream.readInt();
-            UTF8CPEntry connectorSigUTF8Entry = (UTF8CPEntry) packageInfo.getCPEntry(connectorSigCPIndex);
+            int flags = dataInStream.readInt();
 
             // Create connector info
             String connectorName = connectorNameUTF8Entry.getValue();
-            ConnectorInfo connectorInfo = new ConnectorInfo(packageInfo.getPkgNameCPIndex(), packageInfo.getPkgPath(),
-                    connectorNameCPIndex, connectorName, connectorSigCPIndex, connectorSigUTF8Entry.getValue());
+            ConnectorInfo connectorInfo = new ConnectorInfo(packageInfo.getPkgNameCPIndex(),
+                    packageInfo.getPkgPath(), connectorNameCPIndex, connectorName, flags);
             packageInfo.addConnectorInfo(connectorName, connectorInfo);
 
             // Set connector type
@@ -549,13 +564,14 @@ public class ProgramFileReader {
             // Read connector name cp index
             int serviceNameCPIndex = dataInStream.readInt();
             UTF8CPEntry serviceNameUTF8Entry = (UTF8CPEntry) packageInfo.getCPEntry(serviceNameCPIndex);
+            int flags = dataInStream.readInt();
 
             // Read connector signature cp index;
             int serviceProtocolCPIndex = dataInStream.readInt();
             UTF8CPEntry serviceProtocolUTF8Entry = (UTF8CPEntry) packageInfo.getCPEntry(serviceProtocolCPIndex);
 
             ServiceInfo serviceInfo = new ServiceInfo(packageInfo.getPkgNameCPIndex(), packageInfo.getPkgPath(),
-                    serviceNameCPIndex, serviceNameUTF8Entry.getValue(),
+                    serviceNameCPIndex, serviceNameUTF8Entry.getValue(), flags,
                     serviceProtocolCPIndex, serviceProtocolUTF8Entry.getValue());
             serviceInfo.setPackageInfo(packageInfo);
             packageInfo.addServiceInfo(serviceInfo.getName(), serviceInfo);
@@ -672,18 +688,39 @@ public class ProgramFileReader {
                                   PackageInfo packageInfo) throws IOException {
         int funcNameCPIndex = dataInStream.readInt();
         UTF8CPEntry funcNameUTF8Entry = (UTF8CPEntry) packageInfo.getCPEntry(funcNameCPIndex);
+        String funcName = funcNameUTF8Entry.getValue();
         FunctionInfo functionInfo = new FunctionInfo(packageInfo.getPkgNameCPIndex(), packageInfo.getPkgPath(),
-                funcNameCPIndex, funcNameUTF8Entry.getValue());
+                funcNameCPIndex, funcName);
         functionInfo.setPackageInfo(packageInfo);
-        packageInfo.addFunctionInfo(funcNameUTF8Entry.getValue(), functionInfo);
 
         int funcSigCPIndex = dataInStream.readInt();
         UTF8CPEntry funcSigUTF8Entry = (UTF8CPEntry) packageInfo.getCPEntry(funcSigCPIndex);
         setCallableUnitSignature(functionInfo, funcSigUTF8Entry.getValue(), packageInfo);
 
-        // TODO Temp solution.
-        boolean nativeFunc = dataInStream.readByte() == 1;
+        int flags = dataInStream.readInt();
+        boolean nativeFunc = Flags.isFlagOn(flags, Flags.NATIVE);
         functionInfo.setNative(nativeFunc);
+
+        String uniqueFuncName;
+        boolean attached = Flags.isFlagOn(flags, Flags.ATTACHED);
+        if (attached) {
+            int attachedToTypeCPIndex = dataInStream.readInt();
+            functionInfo.attachedToTypeCPIndex = attachedToTypeCPIndex;
+            TypeRefCPEntry typeRefCPEntry = (TypeRefCPEntry) packageInfo.getCPEntry(attachedToTypeCPIndex);
+            functionInfo.attachedToType = typeRefCPEntry.getType();
+            uniqueFuncName = AttachedFunctionInfo.getUniqueFuncName(typeRefCPEntry.getType().getName(), funcName);
+            packageInfo.addFunctionInfo(uniqueFuncName, functionInfo);
+
+            //Update the attachedFunctionInfo
+            if (typeRefCPEntry.getType().getTag() == TypeTags.STRUCT_TAG) {
+                BStructType structType = (BStructType) typeRefCPEntry.getType();
+                AttachedFunctionInfo attachedFuncInfo = structType.structInfo.funcInfoEntries.get(funcName);
+                attachedFuncInfo.functionInfo = functionInfo;
+            }
+        } else {
+            uniqueFuncName = funcName;
+            packageInfo.addFunctionInfo(uniqueFuncName, functionInfo);
+        }
 
         int workerDataChannelsLength = dataInStream.readShort();
         for (int i = 0; i < workerDataChannelsLength; i++) {
@@ -695,10 +732,10 @@ public class ProgramFileReader {
 
         if (nativeFunc) {
             AbstractNativeFunction nativeFunction = NativeUnitLoader.getInstance().loadNativeFunction(
-                    functionInfo.getPkgPath(), functionInfo.getName());
+                    functionInfo.getPkgPath(), uniqueFuncName);
             if (nativeFunction == null) {
                 throw new BLangRuntimeException("native function not available " +
-                        functionInfo.getPkgPath() + ":" + funcNameUTF8Entry.getValue());
+                        functionInfo.getPkgPath() + ":" + uniqueFuncName);
             }
             functionInfo.setNativeFunction(nativeFunction);
         }
@@ -726,7 +763,7 @@ public class ProgramFileReader {
         UTF8CPEntry transformerSigUTF8Entry = (UTF8CPEntry) packageInfo.getCPEntry(transformerSigCPIndex);
         setCallableUnitSignature(transformerInfo, transformerSigUTF8Entry.getValue(), packageInfo);
 
-        boolean nativeFunc = dataInStream.readByte() == 1;
+        boolean nativeFunc = Flags.isFlagOn(dataInStream.readInt(), Flags.NATIVE);
         transformerInfo.setNative(nativeFunc);
 
         int workerDataChannelsLength = dataInStream.readShort();
@@ -760,21 +797,19 @@ public class ProgramFileReader {
     }
 
     private void setCallableUnitSignature(CallableUnitInfo callableUnitInfo, String sig, PackageInfo packageInfo) {
+        BFunctionType funcType = getFunctionType(sig, packageInfo);
+        callableUnitInfo.setParamTypes(funcType.paramTypes);
+        callableUnitInfo.setRetParamTypes(funcType.retParamTypes);
+    }
+
+    private BFunctionType getFunctionType(String sig, PackageInfo packageInfo) {
         int indexOfSep = sig.indexOf(")(");
         String paramSig = sig.substring(1, indexOfSep);
         String retParamSig = sig.substring(indexOfSep + 2, sig.length() - 1);
 
-        if (paramSig.length() == 0) {
-            callableUnitInfo.setParamTypes(new BType[0]);
-        } else {
-            callableUnitInfo.setParamTypes(getParamTypes(paramSig, packageInfo));
-        }
-
-        if (retParamSig.length() == 0) {
-            callableUnitInfo.setRetParamTypes(new BType[0]);
-        } else {
-            callableUnitInfo.setRetParamTypes(getParamTypes(retParamSig, packageInfo));
-        }
+        BType[] paramTypes = getParamTypes(paramSig, packageInfo);
+        BType[] retParamTypes = getParamTypes(retParamSig, packageInfo);
+        return new BFunctionType(paramTypes, retParamTypes);
     }
 
     private BType[] getParamTypes(String signature, PackageInfo packageInfo) {
@@ -1561,10 +1596,16 @@ public class ProgramFileReader {
                     break;
 
                 case InstructionCodes.CALL:
-                case InstructionCodes.NCALL:
                     funcRefCPIndex = codeStream.readInt();
                     funcRefCPEntry = (FunctionRefCPEntry) packageInfo.getCPEntry(funcRefCPIndex);
                     packageInfo.addInstruction(new InstructionCALL(opcode, funcRefCPIndex,
+                            funcRefCPEntry.getFunctionInfo(), getArgRegs(codeStream), getArgRegs(codeStream)));
+                    break;
+                case InstructionCodes.VCALL:
+                    int receiverRegIndex = codeStream.readInt();
+                    funcRefCPIndex = codeStream.readInt();
+                    funcRefCPEntry = (FunctionRefCPEntry) packageInfo.getCPEntry(funcRefCPIndex);
+                    packageInfo.addInstruction(new InstructionVCALL(opcode, receiverRegIndex, funcRefCPIndex,
                             funcRefCPEntry.getFunctionInfo(), getArgRegs(codeStream), getArgRegs(codeStream)));
                     break;
                 case InstructionCodes.ACALL:
@@ -1695,7 +1736,8 @@ public class ProgramFileReader {
                 fieldInfo.setFieldType(fieldType);
 
                 // Create the StructField in the BStructType. This is required for the type equivalence algorithm
-                BStructType.StructField structField = new BStructType.StructField(fieldType, fieldInfo.getName());
+                BStructType.StructField structField = new BStructType.StructField(fieldType,
+                        fieldInfo.getName(), fieldInfo.flags);
                 structFields[i] = structField;
             }
 
@@ -1703,6 +1745,19 @@ public class ProgramFileReader {
                     structInfo.getAttributeInfo(AttributeInfo.Kind.VARIABLE_TYPE_COUNT_ATTRIBUTE);
             structType.setFieldTypeCount(attributeInfo.getVarTypeCount());
             structType.setStructFields(structFields);
+
+            // Resolve attached function signature
+            int attachedFuncCount = structInfo.funcInfoEntries.size();
+            BStructType.AttachedFunction[] attachedFunctions = new BStructType.AttachedFunction[attachedFuncCount];
+            int count = 0;
+            for (AttachedFunctionInfo attachedFuncInfo : structInfo.funcInfoEntries.values()) {
+                BFunctionType funcType = getFunctionType(attachedFuncInfo.typeSignature, packageInfo);
+
+                BStructType.AttachedFunction attachedFunction = new BStructType.AttachedFunction(
+                        attachedFuncInfo.name, funcType, attachedFuncInfo.flags);
+                attachedFunctions[count++] = attachedFunction;
+            }
+            structType.setAttachedFunctions(attachedFunctions);
         }
     }
 

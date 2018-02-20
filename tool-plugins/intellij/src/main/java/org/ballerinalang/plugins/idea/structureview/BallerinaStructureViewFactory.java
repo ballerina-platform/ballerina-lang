@@ -26,6 +26,9 @@ import org.ballerinalang.plugins.idea.psi.BallerinaFile;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+/**
+ * Provides structure view support for Ballerina files.
+ */
 public class BallerinaStructureViewFactory implements PsiStructureViewFactory {
 
     @Nullable
@@ -36,7 +39,7 @@ public class BallerinaStructureViewFactory implements PsiStructureViewFactory {
             @NotNull
             @Override
             public StructureViewModel createStructureViewModel(@Nullable Editor editor) {
-                return new BallerinaStructureViewModel((BallerinaFile)psiFile);
+                return new BallerinaStructureViewModel((BallerinaFile) psiFile);
             }
         };
     }

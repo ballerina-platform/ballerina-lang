@@ -24,6 +24,9 @@ import org.ballerinalang.plugins.idea.psi.scopes.ParameterContainer;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+/**
+ * Represents an JoinClause in PSI tree.
+ */
 public class JoinClauseNode extends ANTLRPsiNode implements ParameterContainer {
 
     public JoinClauseNode(@NotNull ASTNode node) {

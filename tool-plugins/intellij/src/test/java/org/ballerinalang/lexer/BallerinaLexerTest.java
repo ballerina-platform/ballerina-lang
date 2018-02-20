@@ -30,6 +30,9 @@ import org.ballerinalang.plugins.idea.grammar.BallerinaParser;
 import java.io.File;
 import java.io.IOException;
 
+/**
+ * Lexer tests.
+ */
 public class BallerinaLexerTest extends LexerTestCase {
 
     private String getTestDataPath() {

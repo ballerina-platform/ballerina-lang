@@ -1,20 +1,20 @@
 /*
-*  Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
-*
-*  WSO2 Inc. licenses this file to you under the Apache License,
-*  Version 2.0 (the "License"); you may not use this file except
-*  in compliance with the License.
-*  You may obtain a copy of the License at
-*
-*    http://www.apache.org/licenses/LICENSE-2.0
-*
-*  Unless required by applicable law or agreed to in writing,
-*  software distributed under the License is distributed on an
-*  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-*  KIND, either express or implied.  See the License for the
-*  specific language governing permissions and limitations
-*  under the License.
-*/
+ *  Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ *  WSO2 Inc. licenses this file to you under the Apache License,
+ *  Version 2.0 (the "License"); you may not use this file except
+ *  in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing,
+ *  software distributed under the License is distributed on an
+ *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ *  KIND, either express or implied.  See the License for the
+ *  specific language governing permissions and limitations
+ *  under the License.
+ */
 package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
 import org.ballerinalang.model.TreeBuilder;
@@ -36,10 +36,12 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BJSONType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStructType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BStructType.BAttachedFunction;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStructType.BStructField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeVisitor;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BXMLType;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeCastExpr;
@@ -49,6 +51,7 @@ import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticLog;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 import org.wso2.ballerinalang.programfile.InstructionCodes;
+import org.wso2.ballerinalang.util.Flags;
 import org.wso2.ballerinalang.util.Lists;
 
 import java.util.ArrayList;
@@ -288,28 +291,36 @@ public class Types {
         return isSameType(source, target);
     }
 
-    public boolean checkStructEquivalency(BType actualType, BType expType) {
-        if (actualType.tag != TypeTags.STRUCT || expType.tag != TypeTags.STRUCT) {
+    public boolean checkStructEquivalency(BType rhsType, BType lhsType) {
+        if (rhsType.tag != TypeTags.STRUCT || lhsType.tag != TypeTags.STRUCT) {
             return false;
         }
 
-        BStructType expStructType = (BStructType) expType;
-        BStructType actualStructType = (BStructType) actualType;
-        if (expStructType.fields.size() > actualStructType.fields.size()) {
+        // Both structs should be public or private.
+        // Get the XOR of both flags(masks)
+        // If both are public, then public bit should be 0;
+        // If both are private, then public bit should be 0;
+        // The public bit is on means, one is public, and the other one is private.
+        if (Symbols.isFlagOn(lhsType.tsymbol.flags ^ rhsType.tsymbol.flags, Flags.PUBLIC)) {
             return false;
         }
 
-        for (int i = 0; i < expStructType.fields.size(); i++) {
-            BStructField expStructField = expStructType.fields.get(i);
-            BStructField actualStructField = actualStructType.fields.get(i);
-            if (expStructField.name.equals(actualStructField.name) &&
-                    isSameType(actualStructField.type, expStructField.type)) {
-                continue;
-            }
+        // If both structs are private, they should be in the same package.
+        if (Symbols.isPrivate(lhsType.tsymbol) && rhsType.tsymbol.pkgID != lhsType.tsymbol.pkgID) {
             return false;
         }
 
-        return true;
+        //RHS type should have at least all the fields as well attached functions of LHS type.
+        BStructType lhsStructType = (BStructType) lhsType;
+        BStructType rhsStructType = (BStructType) rhsType;
+        if (lhsStructType.fields.size() > rhsStructType.fields.size() ||
+                lhsStructType.attachedFuncs.size() > rhsStructType.attachedFuncs.size()) {
+            return false;
+        }
+
+        return Symbols.isPrivate(lhsType.tsymbol) && rhsType.tsymbol.pkgID == lhsType.tsymbol.pkgID ?
+                checkEquivalencyOfTwoPrivateStructs(lhsStructType, rhsStructType) :
+                checkEquivalencyOfPublicStructs(lhsStructType, rhsStructType);
     }
 
     public boolean checkConnectorEquivalency(BType actualType, BType expType) {
@@ -412,10 +423,8 @@ public class Types {
     }
 
     private boolean checkActionTypeEquality(BInvokableSymbol source, BInvokableSymbol target) {
-        if (!source.name.equals(target.name)) {
-            return false;
-        }
-        return checkFunctionTypeEquality((BInvokableType) source.type, (BInvokableType) target.type);
+        return source.name.equals(target.name) &&
+                checkFunctionTypeEquality((BInvokableType) source.type, (BInvokableType) target.type);
     }
 
     public void setImplicitCastExpr(BLangExpression expr, BType actualType, BType expType) {
@@ -608,6 +617,11 @@ public class Types {
         return false;
     }
 
+    private boolean isJSONAssignableType(BType type) {
+        int typeTag = getElementType(type).tag;
+        return typeTag <= TypeTags.BOOLEAN || typeTag == TypeTags.JSON;
+    }
+
     private boolean checkStructFieldToJSONConvertibility(BType structType, BType fieldType) {
         // If the struct field type is the struct
         if (structType == fieldType) {
@@ -631,7 +645,7 @@ public class Types {
 
     }
 
-    private BTypeVisitor<BSymbol> castVisitor = new BTypeVisitor<BSymbol>() {
+    private BTypeVisitor<BType, BSymbol> castVisitor = new BTypeVisitor<BType, BSymbol>() {
 
         @Override
         public BSymbol visit(BType t, BType s) {
@@ -655,6 +669,11 @@ public class Types {
         @Override
         public BSymbol visit(BMapType t, BType s) {
             return symResolver.resolveOperator(Names.CAST_OP, Lists.of(s, t));
+        }
+
+        @Override
+        public BSymbol visit(BXMLType t, BType s) {
+            return visit((BBuiltInRefType) t, s);
         }
 
         @Override
@@ -701,6 +720,11 @@ public class Types {
         }
 
         @Override
+        public BSymbol visit(BTableType t, BType s) {
+            return symTable.notFoundSymbol;
+        }
+
+        @Override
         public BSymbol visit(BConnectorType t, BType s) {
             if (s == symTable.anyType) {
                 return createCastOperatorSymbol(s, t, false, InstructionCodes.ANY2C);
@@ -732,7 +756,7 @@ public class Types {
         }
     };
 
-    private BTypeVisitor<BSymbol> conversionVisitor = new BTypeVisitor<BSymbol>() {
+    private BTypeVisitor<BType, BSymbol> conversionVisitor = new BTypeVisitor<BType, BSymbol>() {
 
         @Override
         public BSymbol visit(BType t, BType s) {
@@ -756,6 +780,11 @@ public class Types {
             }
 
             return symResolver.resolveOperator(Names.CONVERSION_OP, Lists.of(s, t));
+        }
+
+        @Override
+        public BSymbol visit(BXMLType t, BType s) {
+            return visit((BBuiltInRefType) t, s);
         }
 
         @Override
@@ -788,6 +817,11 @@ public class Types {
         }
 
         @Override
+        public BSymbol visit(BTableType t, BType s) {
+            return symTable.notFoundSymbol;
+        }
+
+        @Override
         public BSymbol visit(BConnectorType t, BType s) {
             return symTable.notFoundSymbol;
         }
@@ -808,7 +842,7 @@ public class Types {
         }
     };
 
-    private BTypeVisitor<Boolean> sameTypeVisitor = new BTypeVisitor<Boolean>() {
+    private BTypeVisitor<BType, Boolean> sameTypeVisitor = new BTypeVisitor<BType, Boolean>() {
         @Override
         public Boolean visit(BType t, BType s) {
             return t == s;
@@ -828,6 +862,11 @@ public class Types {
         @Override
         public Boolean visit(BMapType t, BType s) {
             return t == s;
+        }
+
+        @Override
+        public Boolean visit(BXMLType t, BType s) {
+            return visit((BBuiltInRefType) t, s);
         }
 
         @Override
@@ -856,6 +895,11 @@ public class Types {
         }
 
         @Override
+        public Boolean visit(BTableType t, BType s) {
+            return t == s;
+        }
+
+        @Override
         public Boolean visit(BConnectorType t, BType s) {
             return t == s;
         }
@@ -876,4 +920,82 @@ public class Types {
             return true;
         }
     };
+
+    private boolean checkEquivalencyOfTwoPrivateStructs(BStructType lhsType, BStructType rhsType) {
+        for (int fieldCounter = 0; fieldCounter < lhsType.fields.size(); fieldCounter++) {
+            BStructField lhsField = lhsType.fields.get(fieldCounter);
+            BStructField rhsField = rhsType.fields.get(fieldCounter);
+            if (lhsField.name.equals(rhsField.name) &&
+                    isSameType(rhsField.type, lhsField.type)) {
+                continue;
+            }
+            return false;
+        }
+
+        List<BAttachedFunction> lhsFuncs = lhsType.attachedFuncs;
+        List<BAttachedFunction> rhsFuncs = rhsType.attachedFuncs;
+        for (BAttachedFunction lhsFunc : lhsFuncs) {
+            BAttachedFunction rhsFunc = getMatchingInvokableType(rhsFuncs, lhsFunc);
+            if (rhsFunc == null) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private boolean checkEquivalencyOfPublicStructs(BStructType lhsType, BStructType rhsType) {
+        int fieldCounter = 0;
+        for (; fieldCounter < lhsType.fields.size(); fieldCounter++) {
+            BStructField lhsField = lhsType.fields.get(fieldCounter);
+            BStructField rhsField = rhsType.fields.get(fieldCounter);
+            if (Symbols.isPrivate(lhsField.symbol) ||
+                    Symbols.isPrivate(rhsField.symbol)) {
+                return false;
+            }
+
+            if (lhsField.name.equals(rhsField.name) &&
+                    isSameType(rhsField.type, lhsField.type)) {
+                continue;
+            }
+            return false;
+        }
+
+        // Check the rest of the fields in RHS type
+        for (; fieldCounter < rhsType.fields.size(); fieldCounter++) {
+            if (Symbols.isPrivate(rhsType.fields.get(fieldCounter).symbol)) {
+                return false;
+            }
+        }
+
+        List<BAttachedFunction> lhsFuncs = lhsType.attachedFuncs;
+        List<BAttachedFunction> rhsFuncs = rhsType.attachedFuncs;
+        for (BAttachedFunction lhsFunc : lhsFuncs) {
+            if (Symbols.isPrivate(lhsFunc.symbol)) {
+                return false;
+            }
+
+            BAttachedFunction rhsFunc = getMatchingInvokableType(rhsFuncs, lhsFunc);
+            if (rhsFunc == null || Symbols.isPrivate(rhsFunc.symbol)) {
+                return false;
+            }
+        }
+
+        // Check for private attached function of the RHS type
+        for (BAttachedFunction rhsFunc : rhsFuncs) {
+            if (Symbols.isPrivate(rhsFunc.symbol)) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    private BAttachedFunction getMatchingInvokableType(List<BAttachedFunction> rhsFuncList,
+                                                       BAttachedFunction lhsFunc) {
+        return rhsFuncList.stream()
+                .filter(rhsFunc -> lhsFunc.funcName.equals(rhsFunc.funcName))
+                .filter(rhsFunc -> checkFunctionTypeEquality(lhsFunc.type, rhsFunc.type))
+                .findFirst()
+                .orElse(null);
+    }
 }

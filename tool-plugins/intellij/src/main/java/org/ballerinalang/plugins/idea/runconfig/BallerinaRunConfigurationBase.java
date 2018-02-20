@@ -49,6 +49,11 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Collection;
 import java.util.Map;
 
+/**
+ * Configuration base which will save/load configuration settings.
+ *
+ * @param <RunningState> Running state of the Ballerina program
+ */
 public abstract class BallerinaRunConfigurationBase<RunningState extends BallerinaRunningState>
         extends ModuleBasedConfiguration<BallerinaModuleBasedConfiguration>
         implements RunConfigurationWithSuppressedDefaultRunAction, RunConfigurationWithSuppressedDefaultDebugAction {

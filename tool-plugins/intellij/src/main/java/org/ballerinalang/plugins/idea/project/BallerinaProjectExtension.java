@@ -33,6 +33,9 @@ import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+/**
+ * Provides the capability to update module SDKs when the project SDK is changed.
+ */
 public class BallerinaProjectExtension extends ProjectExtension {
 
     @Override

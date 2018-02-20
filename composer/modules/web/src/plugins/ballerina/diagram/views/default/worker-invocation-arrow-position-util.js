@@ -55,7 +55,7 @@ class InvocationArrowPositionUtil {
                     arrowEnd.x = receiverStatementBox.x;
                 }
 
-                arrowStart.y = statementBox.y + statementBox.h;
+                arrowStart.y = statementBox.y + (statementBox.h * 0.75);
                 arrowEnd.y = arrowStart.y;
 
                 viewState.components['invocation-arrow'] = {

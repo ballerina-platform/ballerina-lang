@@ -41,20 +41,11 @@
       .panel-header {
         fill: #f3faff;
 
-        .argument-parameter-group, .parameter-delete-icon-wrapper, .parameter-wrapper {
-          fill: #dde7f2;
-        }
-
-        .return-parameter-group {
-          fill: #dce7f1;
-        }
-
         .text-placeholder {
-          fill: #dde7f2;
           shape-rendering: crispEdges;
-          stroke: #9e9c9c;
+          stroke: #a5a5a5;
           stroke-width: 1;
-          stroke-dasharray: 2, 2;
+          stroke-dasharray: 4, 2;
         }
 
         .headingRect {
@@ -92,12 +83,12 @@
         .client-line-group {
           .client-line-header {
             fill: #f9f9f9;
-            stroke: #303030;
+            stroke: #555;
             stroke-width: 1px;
           }
 
           .client-life-line, .worker-life-line, .client-invocation-arrow {
-            stroke: #303030;
+            stroke: #555;
             stroke-width: 1px;
           }
 
@@ -105,17 +96,26 @@
             text-anchor: middle;
             dominant-baseline: central;
             text-transform: lowercase;
+            fill: #555;
           }
         }
 
+        .default-worker-icon{
+          fill: #2980b9;
+        }
+
+        .connector-icon{
+          fill: #17a085;
+        }
+
         .action-arrow, .action-arrow-head {
-          stroke: #666769;
-          fill: #666769;
+          stroke: #555;
+          fill: #555;
         }
 
         .action-dash-line {
-          stroke: #666769;
-          fill: #666769;
+          stroke: #555;
+          fill: #555;
           stroke-dasharray: 5, 5;
         }
 
@@ -164,6 +164,10 @@
           stroke-width: 1;
         }
 
+        .life-line-group{
+
+        }
+
         .connector-life-line {
           stroke: #17a085;
           stroke-width: 1;
@@ -176,7 +180,7 @@
 
         .statement-title-rect {
           fill: #f9f9f9;
-          stroke: #222;
+          stroke: #555;
         }
 
         .statement-title-text, .condition-text {
@@ -224,7 +228,7 @@
           stroke: #0070af;
         }
 
-        .compound-statment-rect {
+        .compound-statement-rect {
           fill: none;
           stroke: #777;
           stroke-dasharray: 3, 3;
@@ -268,9 +272,6 @@
         fill: #f9f9f9;
 
         .headingRect {
-          stroke-width: 1px;
-          stroke: #e4e4e4;
-
           .panel-header-controls {
             .panel-header-controls-wrapper {
               fill: rgba(255, 255, 255, 0.1);
@@ -279,13 +280,14 @@
         }
 
         .parameter-text, .parameter-bracket-text, .return-types-opening-brack-text, .parameter-bracket-text {
-          fill: #333;
+          fill: #444;
           dominant-baseline: text-before-edge;
           cursor: default;
         }
       }
     }
   }
+
   .bottom-right-controls-container {
     position: absolute;
     bottom: 20px;
@@ -310,40 +312,17 @@
     .bottom-label-icon-wrapper:hover {
       position: relative;
       cursor: pointer;
-    }
-
-    .bottom-label-icon-wrapper:before {
-      content: attr(title);
-      position: absolute;
-      top: -3em;
-      left: -1em;
-      visibility: hidden;
-      color: #fff;
-      text-align: center;
-      background-color: #303030;
-      width: 100px;
-    }
-
-    .bottom-label-icon-wrapper:hover:after {
-      border: 11px solid transparent;
-      border-top-color: #303030;
-      content: '';
-      display: block;
-      height: 0;
-      width: 0;
-      position: absolute;
-      top: -14px;
-      font-size: 12px;
-    }
-
-    .bottom-label-icon-wrapper:hover:before {
-      visibility: visible;
+      background-color: #333;
+      border: 1px solid #333;
+      color: #f1f1f1;
     }
 
     .bottom-view-label {
       display: none;
+      cursor: pointer;
     }
   }
+
   .zoom-controls {
     bottom: 60px !important;
     width: 30px;
@@ -351,3 +330,143 @@
   }
 }
 
+.syntax-error-overlay {
+  z-index: 1000;
+  text-align: center;
+  position: absolute;
+  height: 100%;
+  width: 100%;
+  background-color: rgba(60, 60, 60, 0.0);
+  .error-list {
+      position: relative;
+      text-align: left;
+      padding: 10px;
+      width:400px;
+      margin: auto;
+      top: 20px;
+      background-color: #d8d8d8;
+      .list-heading {
+          text-align: center;
+          font-size: 16px;
+          color:#CC0000;
+      }
+  }
+}
+
+.loading-overlay-enter {
+  opacity: 0.01;
+}
+
+.loading-overlay-enter.loading-overlay-enter-active {
+  opacity: 0.5;
+  transition: opacity 300ms ease-in;
+}
+
+.loading-overlay-leave {
+  opacity: 0.5;
+}
+
+.loading-overlay-leave.loading-overlay-leave-active {
+  opacity: 0.01;
+  transition: opacity 300ms ease-in;
+}
+
+.bal-file-editor-loading-container {
+  z-index: 1000;
+  text-align: center;
+  vertical-align: center;
+  position: absolute;
+  height: 100%;
+  width: 100%;
+  background-color: rgb(60, 60, 60);
+  color: white;
+  opacity: 0.5;
+}
+
+#parse-pending-loader{
+  left: calc(50% - 132px);
+  top: 50%;
+  position:absolute;
+  width:234px;
+  height:28px;
+  font-size: 30px;
+  margin:auto;
+  color: #fff;
+  font-weight: 500;
+}
+
+#parse-pending-loader:after {
+  overflow: hidden;
+  vertical-align: bottom;
+  -webkit-animation: ellipsis steps(4,end) 900ms infinite;
+  animation: ellipsis steps(4,end) 900ms infinite;
+  content: "\2026"; /* ascii code for the ellipsis character */
+  width: 0px;
+  display: block;
+  margin-top: -40px;
+  margin-left: 93px;
+  font-size: 50px;
+}
+
+@keyframes ellipsis {
+to {
+  width: 1.25em;
+}
+}
+
+@-webkit-keyframes ellipsis {
+to {
+  width: 1.25em;
+}
+}
+
+
+.swagger-view-container {
+  background: #FFF;
+}
+    
+.swagger-ui h1, h2, h3, h4, h5, h6, .h1, .h2, .h3, .h4, .h5, .h6 {
+  font-weight: normal;
+  line-height: normal;
+}
+
+.swagger-ui pre {
+  padding: 0;
+  font-size: medium;
+  line-height: normal;
+  word-break: normal;
+  word-wrap: normal;
+  background-color: transparent;
+  border-radius: 0;
+}
+
+.swagger-ui .try-out {
+  display: none,
+}
+
+.expand-operation {
+  display: none;
+}
+
+.SplitPane .vertical {
+  overflow: hidden;
+}
+
+.swaggerEditor .SplitPane {
+  height: 100% !important;
+}
+
+.swagger-service-selector-wrapper {
+  background-color: #131313;
+  height: 22px;
+  overflow: hidden;
+  line-height: 15px;
+  color: white;
+  padding-left: 20px;
+}
+
+.swagger-service-selector-span {
+  float: left;
+  margin-top: 6px;
+  padding-right: 8px;
+}

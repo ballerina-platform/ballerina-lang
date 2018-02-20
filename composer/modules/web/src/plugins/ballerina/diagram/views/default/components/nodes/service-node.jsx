@@ -31,6 +31,7 @@ import TreeUtil from '../../../../../model/tree-util';
 import EndpointDecorator from '../decorators/endpoint-decorator';
 import FragmentUtils from './../../../../../utils/fragment-utils';
 import TreeBuilder from './../../../../../model/tree-builder';
+import HttpServiceHeader from '../decorators/http-service-header';
 
 /**
  * React component for a service definition.
@@ -175,6 +176,27 @@ class ServiceNode extends React.Component {
                 = resources[resources.length - 1].body.viewState.bBox.y - 15;
         }
 
+        let panelAdditionalProps = {};
+
+        const protocol = model.getProtocolPackageIdentifier().value;
+        if (protocol === 'http') {
+            const nodeDetails = ({ x, y }) => {
+                return (
+                    <HttpServiceHeader
+                        x={x}
+                        y={y}
+                        model={this.props.model}
+                    />
+                );
+            };
+
+            panelAdditionalProps = {
+                title: null,
+                headerComponent: nodeDetails,
+                protocol: null,
+            };
+        }
+
         return (
             <g
                 className={`protocol-${model.getProtocolPackageIdentifier().value}`}
@@ -190,13 +212,8 @@ class ServiceNode extends React.Component {
                     canDrop={this.canDropToPanelBody}
                     rightComponents={rightComponents}
                     protocol={model.getProtocolPackageIdentifier().value}
+                    {...panelAdditionalProps}
                 >
-                    <ServiceTransportLine
-                        model={this.props.model}
-                        bBox={this.props.model.viewState.components.transportLine}
-                        resources={resources}
-                        addResource={this.state.addResource}
-                    />
                     {blockNode}
                     {connectors}
                 </PanelDecorator>

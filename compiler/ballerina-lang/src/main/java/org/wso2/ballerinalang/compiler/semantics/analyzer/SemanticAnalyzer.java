@@ -213,7 +213,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
         this.processWorkers(funcNode, funcEnv);
     }
-    
+
     private void processWorkers(BLangInvokableNode invNode, SymbolEnv invEnv) {
         if (invNode.workers.size() > 0) {
             invEnv.scope.entries.putAll(invNode.body.scope.entries);
@@ -325,7 +325,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             Name attributeName = names.fromIdNode((BLangIdentifier) annotAttachmentAttribute.getName());
             BAnnotationAttributeSymbol attributeSymbol =
                     (BAnnotationAttributeSymbol) annotationSymbol.scope.lookup(attributeName).symbol;
-            
+
             // Resolve Attribute against the Annotation Definition
             if (attributeSymbol == null) {
                 this.dlog.error(annAttachmentNode.pos, DiagnosticCode.NO_SUCH_ATTRIBUTE,
@@ -795,7 +795,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         BLangBlockStmt joinResultsBlock = this.generateCodeBlock(this.createVarDef(forkJoin.joinResultVar));
         SymbolEnv joinResultsEnv = SymbolEnv.createBlockEnv(joinResultsBlock, this.env);
         this.analyzeNode(joinResultsBlock, joinResultsEnv);
-        /* create an environment for the join body, making the enclosing environment the earlier 
+        /* create an environment for the join body, making the enclosing environment the earlier
          * join result's environment */
         SymbolEnv joinBodyEnv = SymbolEnv.createBlockEnv(forkJoin.joinedBody, joinResultsEnv);
         this.analyzeNode(forkJoin.joinedBody, joinBodyEnv);
@@ -810,15 +810,15 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             this.typeChecker.checkExpr(forkJoin.timeoutExpression,
                     timeoutVarEnv, Arrays.asList(symTable.intType));
             this.analyzeNode(timeoutVarBlock, timeoutVarEnv);
-            /* create an environment for the timeout body, making the enclosing environment the earlier 
+            /* create an environment for the timeout body, making the enclosing environment the earlier
              * timeout var's environment */
             SymbolEnv timeoutBodyEnv = SymbolEnv.createBlockEnv(forkJoin.timeoutBody, timeoutVarEnv);
             this.analyzeNode(forkJoin.timeoutBody, timeoutBodyEnv);
         }
-        
+
         this.validateJoinWorkerList(forkJoin, forkJoinEnv);
     }
-    
+
     private void validateJoinWorkerList(BLangForkJoin forkJoin, SymbolEnv forkJoinEnv) {
         forkJoin.joinedWorkers.forEach(e -> {
             if (!this.workerExists(forkJoinEnv, e.value)) {
@@ -1109,4 +1109,5 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
         dlog.error(param.pos, DiagnosticCode.TRANSFORMER_UNSUPPORTED_TYPES, type);
     }
+
 }

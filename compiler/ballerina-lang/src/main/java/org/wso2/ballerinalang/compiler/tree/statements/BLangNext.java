@@ -38,6 +38,6 @@ public class BLangNext extends BLangStatement implements NextNode {
 
     @Override
     public String toString() {
-        return "Continue";
+        return "Next";
     }
 }

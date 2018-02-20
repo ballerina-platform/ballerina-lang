@@ -18,6 +18,9 @@ package org.ballerinalang.editor;
 
 import org.ballerinalang.BallerinaCodeInsightFixtureTestCase;
 
+/**
+ * Folding builder tests.
+ */
 public class BallerinaFoldingBuilderTest extends BallerinaCodeInsightFixtureTestCase {
 
     @Override

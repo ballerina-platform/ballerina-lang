@@ -53,6 +53,9 @@ import java.util.regex.Pattern;
 
 import static com.intellij.util.containers.ContainerUtil.newLinkedHashSet;
 
+/**
+ * Contains util classes related to Ballerina SDK.
+ */
 public class BallerinaSdkUtil {
 
     private static final Pattern BALLERINA_VERSION_PATTERN = Pattern.compile("(\\d+\\.\\d+(\\.\\d+)?(-.+)?)");
@@ -74,7 +77,9 @@ public class BallerinaSdkUtil {
                 return LocalFileSystem.getInstance().findFileByPath(fromEnv);
             }
             VirtualFile usrLocal = LocalFileSystem.getInstance().findFileByPath("/usr/local/ballerina");
-            if (usrLocal != null) return usrLocal;
+            if (usrLocal != null) {
+                return usrLocal;
+            }
         }
         if (SystemInfo.isMac) {
             String macPorts = "/opt/local/lib/ballerina";

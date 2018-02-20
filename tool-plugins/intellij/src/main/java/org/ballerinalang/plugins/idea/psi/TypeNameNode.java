@@ -21,6 +21,9 @@ import org.antlr.jetbrains.adaptor.psi.IdentifierDefSubtree;
 import org.ballerinalang.plugins.idea.BallerinaTypes;
 import org.jetbrains.annotations.NotNull;
 
+/**
+ * Represents an TypeName in PSI tree.
+ */
 public class TypeNameNode extends IdentifierDefSubtree {
 
     public TypeNameNode(@NotNull ASTNode node) {

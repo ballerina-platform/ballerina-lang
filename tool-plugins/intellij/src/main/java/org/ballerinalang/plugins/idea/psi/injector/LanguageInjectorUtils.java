@@ -30,6 +30,9 @@ import org.jetbrains.annotations.NotNull;
 import java.util.Collection;
 import java.util.Set;
 
+/**
+ * Contains util methods related to language injection.
+ */
 public class LanguageInjectorUtils {
 
     private LanguageInjectorUtils() {

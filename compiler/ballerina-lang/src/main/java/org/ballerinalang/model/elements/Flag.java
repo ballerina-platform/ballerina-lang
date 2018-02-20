@@ -34,6 +34,10 @@ public enum Flag {
      */
     CONST,
     /**
+     * Indicates Flagged node is a invokable node attached to a {@link org.ballerinalang.model.types.Type}.
+     */
+    ATTACHED,
+    /**
      * Indicates Flagged node is a Lambda.
      */
     LAMBDA,

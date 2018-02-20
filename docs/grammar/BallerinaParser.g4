@@ -92,11 +92,17 @@ structDefinition
     ;
 
 structBody
-    :   LEFT_BRACE fieldDefinition* RIGHT_BRACE
+    :   LEFT_BRACE fieldDefinition* privateStructBody? RIGHT_BRACE
+    ;
+
+
+privateStructBody
+    :   PRIVATE COLON fieldDefinition*
     ;
 
 annotationDefinition
     : (PUBLIC)? ANNOTATION Identifier (ATTACH attachmentPoint (COMMA attachmentPoint)*)? annotationBody
+
     ;
 
 enumDefinition
@@ -419,7 +425,7 @@ functionInvocation
     ;
 
 invocation
-    : DOT Identifier LEFT_PARENTHESIS expressionList? RIGHT_PARENTHESIS
+    : DOT anyIdentifierName LEFT_PARENTHESIS expressionList? RIGHT_PARENTHESIS
     ;
 
 expressionList
@@ -605,4 +611,14 @@ stringTemplateLiteral
 stringTemplateContent
     :   (StringTemplateExpressionStart expression ExpressionEnd)+ StringTemplateText?
     |   StringTemplateText
+    ;
+
+anyIdentifierName
+    : Identifier
+    | reservedWord
+    ;
+
+reservedWord
+    :   FOREACH
+    |   TYPE_MAP
     ;

@@ -26,6 +26,9 @@ import org.ballerinalang.plugins.idea.psi.FunctionDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.ServiceDefinitionNode;
 import org.jetbrains.annotations.Nullable;
 
+/**
+ * Provides run line markers in gutter for main functions and services.
+ */
 public class BallerinaRunLineMarkerProvider extends RunLineMarkerContributor {
 
     private static final Function<PsiElement, String> APPLICATION_TOOLTIP_PROVIDER = element -> "Run Application";

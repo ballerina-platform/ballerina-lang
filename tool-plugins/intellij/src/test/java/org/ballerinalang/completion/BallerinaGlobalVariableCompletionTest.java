@@ -19,6 +19,9 @@ package org.ballerinalang.completion;
 import java.util.LinkedList;
 import java.util.List;
 
+/**
+ * Global variable completion tests.
+ */
 public class BallerinaGlobalVariableCompletionTest extends BallerinaCompletionTestBase {
 
     /**

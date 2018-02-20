@@ -33,8 +33,50 @@ import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.ballerinalang.plugins.idea.BallerinaTypes.*;
+import static org.ballerinalang.plugins.idea.BallerinaTypes.ACTION_DEFINITION;
+import static org.ballerinalang.plugins.idea.BallerinaTypes.ANNOTATION_ATTACHMENT;
+import static org.ballerinalang.plugins.idea.BallerinaTypes.ANNOTATION_ATTRIBUTE_LIST;
+import static org.ballerinalang.plugins.idea.BallerinaTypes.ANNOTATION_BODY;
+import static org.ballerinalang.plugins.idea.BallerinaTypes.CATCH_CLAUSE;
+import static org.ballerinalang.plugins.idea.BallerinaTypes.CATCH_CLAUSES;
+import static org.ballerinalang.plugins.idea.BallerinaTypes.CODE_BLOCK_BODY;
+import static org.ballerinalang.plugins.idea.BallerinaTypes.COMMENT_STATEMENT;
+import static org.ballerinalang.plugins.idea.BallerinaTypes.CONNECTOR_BODY;
+import static org.ballerinalang.plugins.idea.BallerinaTypes.CONNECTOR_DEFINITION;
+import static org.ballerinalang.plugins.idea.BallerinaTypes.ELSE_CLAUSE;
+import static org.ballerinalang.plugins.idea.BallerinaTypes.ELSE_IF_CLAUSE;
+import static org.ballerinalang.plugins.idea.BallerinaTypes.ENDPOINT_BODY;
+import static org.ballerinalang.plugins.idea.BallerinaTypes.ENUM_FIELD_LIST;
+import static org.ballerinalang.plugins.idea.BallerinaTypes.EXPRESSION_LIST;
+import static org.ballerinalang.plugins.idea.BallerinaTypes.FAILED_CLAUSE;
+import static org.ballerinalang.plugins.idea.BallerinaTypes.FIELD_DEFINITION;
+import static org.ballerinalang.plugins.idea.BallerinaTypes.FINALLY_CLAUSE;
+import static org.ballerinalang.plugins.idea.BallerinaTypes.FOREACH_STATEMENT;
+import static org.ballerinalang.plugins.idea.BallerinaTypes.FORK_JOIN_STATEMENT;
+import static org.ballerinalang.plugins.idea.BallerinaTypes.FUNCTION_BODY;
+import static org.ballerinalang.plugins.idea.BallerinaTypes.FUNCTION_DEFINITION;
+import static org.ballerinalang.plugins.idea.BallerinaTypes.IF_CLAUSE;
+import static org.ballerinalang.plugins.idea.BallerinaTypes.IF_ELSE_STATEMENT;
+import static org.ballerinalang.plugins.idea.BallerinaTypes.JOIN_CLAUSE;
+import static org.ballerinalang.plugins.idea.BallerinaTypes.PRIVATE_STRUCT_BODY;
+import static org.ballerinalang.plugins.idea.BallerinaTypes.RECORD_KEY_VALUE;
+import static org.ballerinalang.plugins.idea.BallerinaTypes.RECORD_LITERAL;
+import static org.ballerinalang.plugins.idea.BallerinaTypes.RESOURCE_DEFINITION;
+import static org.ballerinalang.plugins.idea.BallerinaTypes.SERVICE_BODY;
+import static org.ballerinalang.plugins.idea.BallerinaTypes.SERVICE_DEFINITION;
+import static org.ballerinalang.plugins.idea.BallerinaTypes.STRUCT_BODY;
+import static org.ballerinalang.plugins.idea.BallerinaTypes.STRUCT_DEFINITION;
+import static org.ballerinalang.plugins.idea.BallerinaTypes.TIMEOUT_CLAUSE;
+import static org.ballerinalang.plugins.idea.BallerinaTypes.TRANSACTION_STATEMENT;
+import static org.ballerinalang.plugins.idea.BallerinaTypes.TRY_CATCH_STATEMENT;
+import static org.ballerinalang.plugins.idea.BallerinaTypes.VARIABLE_REFERENCE;
+import static org.ballerinalang.plugins.idea.BallerinaTypes.WHILE_STATEMENT;
+import static org.ballerinalang.plugins.idea.BallerinaTypes.WORKER_BODY;
+import static org.ballerinalang.plugins.idea.BallerinaTypes.WORKER_DECLARATION;
 
+/**
+ * Represents a code block.
+ */
 public class BallerinaBlock extends AbstractBlock {
 
     private SpacingBuilder spacingBuilder;
@@ -110,6 +152,10 @@ public class BallerinaBlock extends AbstractBlock {
                     if (parentElementType == VARIABLE_REFERENCE) {
                         indent = Indent.getSpaceIndent(4);
                     }
+                } else if (childElementType == FIELD_DEFINITION) {
+                    if (parentElementType == PRIVATE_STRUCT_BODY) {
+                        indent = Indent.getSpaceIndent(4);
+                    }
                 }
 
                 // If the child node text is empty, the IDEA core will throw an exception.
@@ -156,8 +202,7 @@ public class BallerinaBlock extends AbstractBlock {
                 || parentElementType == ELSE_CLAUSE || parentElementType == TRY_CATCH_STATEMENT
                 || parentElementType == CATCH_CLAUSE || parentElementType == CATCH_CLAUSES
                 || parentElementType == FINALLY_CLAUSE || parentElementType == JOIN_CLAUSE
-                || parentElementType == TIMEOUT_CLAUSE || parentElementType == TRANSACTION_STATEMENT
-                || parentElementType == FAILED_CLAUSE) {
+                || parentElementType == TIMEOUT_CLAUSE || parentElementType == FAILED_CLAUSE) {
             return true;
         }
         return false;

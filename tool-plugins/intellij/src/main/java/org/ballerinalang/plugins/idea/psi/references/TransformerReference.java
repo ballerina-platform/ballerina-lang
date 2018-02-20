@@ -29,6 +29,9 @@ import org.jetbrains.annotations.Nullable;
 import java.util.LinkedList;
 import java.util.List;
 
+/**
+ * Represents a transformer reference.
+ */
 public class TransformerReference extends BallerinaElementReference {
 
     public TransformerReference(@NotNull IdentifierPSINode element) {

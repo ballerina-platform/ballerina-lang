@@ -21,7 +21,7 @@ import org.ballerinalang.launcher.util.BServiceUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.util.StringUtils;
 import org.ballerinalang.model.values.BJSON;
-import org.ballerinalang.net.http.Constants;
+import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.test.services.testutils.HTTPTestRequest;
 import org.ballerinalang.test.services.testutils.MessageUtils;
 import org.ballerinalang.test.services.testutils.Services;
@@ -74,7 +74,7 @@ public class UriTemplateDispatcherTest {
         cMsg.setHeader(xOrderIdHeadeName, xOrderIdHeadeValue);
         HTTPCarbonMessage response = Services.invokeNew(application, cMsg);
         Assert.assertEquals(
-                response.getProperty(Constants.HTTP_STATUS_CODE), 404, "Response code mismatch");
+                response.getProperty(HttpConstants.HTTP_STATUS_CODE), 404, "Response code mismatch");
         //checking the exception message
         String errorMessage = StringUtils
                 .getStringFromInputStream(new HttpMessageDataStreamer(response).getInputStream());
@@ -240,10 +240,10 @@ public class UriTemplateDispatcherTest {
         Assert.assertNotNull(response, "Response message not found");
         Assert.assertEquals(StringUtils
                 .getStringFromInputStream(new HttpMessageDataStreamer(response).getInputStream()), "");
-        Assert.assertEquals(response.getProperty(Constants.HTTP_STATUS_CODE), 200
+        Assert.assertEquals(response.getProperty(HttpConstants.HTTP_STATUS_CODE), 200
                 , "Response code mismatch");
 
-        String allowHeader = cMsg.getHeader(Constants.ALLOW);
+        String allowHeader = cMsg.getHeader(HttpConstants.ALLOW);
         Assert.assertEquals(allowHeader, "GET, HEAD, OPTIONS");
     }
 
@@ -256,10 +256,10 @@ public class UriTemplateDispatcherTest {
         Assert.assertNotNull(response, "Response message not found");
         Assert.assertEquals(StringUtils
                 .getStringFromInputStream(new HttpMessageDataStreamer(response).getInputStream()), "");
-        Assert.assertEquals(response.getProperty(Constants.HTTP_STATUS_CODE), 200
+        Assert.assertEquals(response.getProperty(HttpConstants.HTTP_STATUS_CODE), 200
                 , "Response code mismatch");
 
-        String allowHeader = cMsg.getHeader(Constants.ALLOW);
+        String allowHeader = cMsg.getHeader(HttpConstants.ALLOW);
         Assert.assertEquals(allowHeader, "POST, OPTIONS");
     }
 
@@ -272,10 +272,10 @@ public class UriTemplateDispatcherTest {
         Assert.assertNotNull(response, "Response message not found");
         Assert.assertEquals(StringUtils
                 .getStringFromInputStream(new HttpMessageDataStreamer(response).getInputStream()), "");
-        Assert.assertEquals(response.getProperty(Constants.HTTP_STATUS_CODE), 200
+        Assert.assertEquals(response.getProperty(HttpConstants.HTTP_STATUS_CODE), 200
                 , "Response code mismatch");
 
-        String allowHeader = response.getHeader(Constants.ALLOW);
+        String allowHeader = response.getHeader(HttpConstants.ALLOW);
         Assert.assertEquals(allowHeader, "PUT, OPTIONS");
     }
 
@@ -288,10 +288,10 @@ public class UriTemplateDispatcherTest {
         Assert.assertNotNull(response, "Response message not found");
         Assert.assertEquals(StringUtils
                 .getStringFromInputStream(new HttpMessageDataStreamer(response).getInputStream()), "");
-        Assert.assertEquals(response.getProperty(Constants.HTTP_STATUS_CODE), 200
+        Assert.assertEquals(response.getProperty(HttpConstants.HTTP_STATUS_CODE), 200
                 , "Response code mismatch");
 
-        String allowHeader = response.getHeader(Constants.ALLOW);
+        String allowHeader = response.getHeader(HttpConstants.ALLOW);
         Assert.assertEquals(allowHeader, "UPDATE, POST, PUT, GET, HEAD, OPTIONS");
     }
 
@@ -303,10 +303,10 @@ public class UriTemplateDispatcherTest {
 
         Assert.assertNotNull(response, "Response message not found");
         Assert.assertEquals(0, response.getFullMessageLength());
-        Assert.assertEquals(response.getProperty(Constants.HTTP_STATUS_CODE), 200
+        Assert.assertEquals(response.getProperty(HttpConstants.HTTP_STATUS_CODE), 200
                 , "Response code mismatch");
 
-        String allowHeader = response.getHeader(Constants.ALLOW);
+        String allowHeader = response.getHeader(HttpConstants.ALLOW);
         Assert.assertEquals(allowHeader, "OPTIONS, POST, GET, UPDATE, PUT, HEAD");
     }
 
@@ -317,7 +317,7 @@ public class UriTemplateDispatcherTest {
         HTTPCarbonMessage response = Services.invokeNew(application, cMsg);
 
         Assert.assertNotNull(response, "Response message not found");
-        Assert.assertEquals(response.getProperty(Constants.HTTP_STATUS_CODE), 404
+        Assert.assertEquals(response.getProperty(HttpConstants.HTTP_STATUS_CODE), 404
                 , "Response code mismatch");
         Assert.assertEquals(StringUtils
                         .getStringFromInputStream(new HttpMessageDataStreamer(response).getInputStream()),
@@ -331,7 +331,7 @@ public class UriTemplateDispatcherTest {
         HTTPCarbonMessage response = Services.invokeNew(application, cMsg);
 
         Assert.assertNotNull(response, "Response message not found");
-        Assert.assertEquals(response.getProperty(Constants.HTTP_STATUS_CODE), 404
+        Assert.assertEquals(response.getProperty(HttpConstants.HTTP_STATUS_CODE), 404
                 , "Response code mismatch");
         Assert.assertEquals(StringUtils
                         .getStringFromInputStream(new HttpMessageDataStreamer(response).getInputStream()),
@@ -345,7 +345,7 @@ public class UriTemplateDispatcherTest {
         HTTPCarbonMessage response = Services.invokeNew(application, cMsg);
 
         Assert.assertNotNull(response, "Response message not found");
-        Assert.assertEquals(response.getProperty(Constants.HTTP_STATUS_CODE), 404
+        Assert.assertEquals(response.getProperty(HttpConstants.HTTP_STATUS_CODE), 404
                 , "Response code mismatch");
         Assert.assertEquals(StringUtils
                         .getStringFromInputStream(new HttpMessageDataStreamer(response).getInputStream()),

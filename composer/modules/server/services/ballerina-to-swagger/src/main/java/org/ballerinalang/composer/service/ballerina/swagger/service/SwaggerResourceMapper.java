@@ -40,7 +40,7 @@ import org.ballerinalang.model.tree.VariableNode;
 import org.ballerinalang.model.tree.expressions.AnnotationAttachmentAttributeNode;
 import org.ballerinalang.model.tree.expressions.AnnotationAttachmentAttributeValueNode;
 import org.ballerinalang.model.tree.expressions.LiteralNode;
-import org.ballerinalang.net.http.Constants;
+import org.ballerinalang.net.http.HttpConstants;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -145,22 +145,22 @@ public class SwaggerResourceMapper {
         String httpOperation = operationAdaptor.getHttpOperation();
         Operation operation = operationAdaptor.getOperation();
         switch (httpOperation) {
-            case Constants.ANNOTATION_METHOD_GET:
+            case HttpConstants.ANNOTATION_METHOD_GET:
                 path.get(operation);
                 break;
-            case Constants.ANNOTATION_METHOD_PUT:
+            case HttpConstants.ANNOTATION_METHOD_PUT:
                 path.put(operation);
                 break;
-            case Constants.ANNOTATION_METHOD_POST:
+            case HttpConstants.ANNOTATION_METHOD_POST:
                 path.post(operation);
                 break;
-            case Constants.ANNOTATION_METHOD_DELETE:
+            case HttpConstants.ANNOTATION_METHOD_DELETE:
                 path.delete(operation);
                 break;
-            case Constants.ANNOTATION_METHOD_OPTIONS:
+            case HttpConstants.ANNOTATION_METHOD_OPTIONS:
                 path.options(operation);
                 break;
-            case Constants.ANNOTATION_METHOD_PATCH:
+            case HttpConstants.ANNOTATION_METHOD_PATCH:
                 path.patch(operation);
                 break;
             case "HEAD":
@@ -182,7 +182,7 @@ public class SwaggerResourceMapper {
         OperationAdaptor op = new OperationAdaptor();
         if (resource != null) {
             // Setting default values.
-            op.setHttpOperation(Constants.HTTP_METHOD_GET);
+            op.setHttpOperation(HttpConstants.HTTP_METHOD_GET);
             op.setPath('/' + resource.getName().getValue());
             Response response = new Response()
                     .description("Successful")

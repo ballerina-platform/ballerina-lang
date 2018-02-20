@@ -23,6 +23,9 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
+/**
+ * Code completion test.
+ */
 public class BallerinaCompletionTest extends BallerinaCompletionTestBase {
 
     private static final String UTILS_PACKAGE_NAME = "org/test/utils.bal";
@@ -201,7 +204,7 @@ public class BallerinaCompletionTest extends BallerinaCompletionTestBase {
     }
 
     public void testFunctionBodyWithoutParamsAndImports() {
-        List<String> FUNCTION_LEVEL_SUGGESTIONS = Collections.singletonList("test");
+        List<String> functionLevelSuggestions = Collections.singletonList("test");
         List<String> expectedLookups = new LinkedList<>();
         expectedLookups.addAll(DATA_TYPES);
         expectedLookups.addAll(OTHER_TYPES);
@@ -209,12 +212,12 @@ public class BallerinaCompletionTest extends BallerinaCompletionTestBase {
         expectedLookups.addAll(REFERENCE_TYPES);
         expectedLookups.addAll(COMMON_KEYWORDS);
         expectedLookups.addAll(FUNCTION_LEVEL_KEYWORDS);
-        expectedLookups.addAll(FUNCTION_LEVEL_SUGGESTIONS);
+        expectedLookups.addAll(functionLevelSuggestions);
         doTest("function test () { <caret> }", expectedLookups.toArray(new String[expectedLookups.size()]));
     }
 
     public void testFunctionBodyWithParams() {
-        List<String> FUNCTION_LEVEL_SUGGESTIONS = Arrays.asList("test", "arg");
+        List<String> functionLevelSuggestions = Arrays.asList("test", "arg");
         List<String> expectedLookups = new LinkedList<>();
         expectedLookups.addAll(DATA_TYPES);
         expectedLookups.addAll(OTHER_TYPES);
@@ -222,12 +225,12 @@ public class BallerinaCompletionTest extends BallerinaCompletionTestBase {
         expectedLookups.addAll(REFERENCE_TYPES);
         expectedLookups.addAll(COMMON_KEYWORDS);
         expectedLookups.addAll(FUNCTION_LEVEL_KEYWORDS);
-        expectedLookups.addAll(FUNCTION_LEVEL_SUGGESTIONS);
+        expectedLookups.addAll(functionLevelSuggestions);
         doTest("function test (int arg) { <caret> }", expectedLookups.toArray(new String[expectedLookups.size()]));
     }
 
     public void testFunctionBodyWithConst() {
-        List<String> FUNCTION_LEVEL_SUGGESTIONS = Arrays.asList("test", "arg", "GREETING");
+        List<String> functionLevelSuggestions = Arrays.asList("test", "arg", "GREETING");
         List<String> expectedLookups = new LinkedList<>();
         expectedLookups.addAll(DATA_TYPES);
         expectedLookups.addAll(OTHER_TYPES);
@@ -235,7 +238,7 @@ public class BallerinaCompletionTest extends BallerinaCompletionTestBase {
         expectedLookups.addAll(REFERENCE_TYPES);
         expectedLookups.addAll(COMMON_KEYWORDS);
         expectedLookups.addAll(FUNCTION_LEVEL_KEYWORDS);
-        expectedLookups.addAll(FUNCTION_LEVEL_SUGGESTIONS);
+        expectedLookups.addAll(functionLevelSuggestions);
         doTest("const string GREETING = \"Hello\"; function test (int arg) { <caret> }",
                 expectedLookups.toArray(new String[expectedLookups.size()]));
     }
@@ -689,7 +692,7 @@ public class BallerinaCompletionTest extends BallerinaCompletionTestBase {
     }
 
     /**
-     * Test statement level lookups
+     * Test statement level lookups.
      */
     public void testStrings() {
         doTest("function test() { int a; system:println(\"<caret>\") }");

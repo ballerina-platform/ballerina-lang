@@ -16,6 +16,9 @@
 
 package org.ballerinalang.plugins.idea.debugger.protocol;
 
+/**
+ * Supported debug commands.
+ */
 public enum Command {
 
     START("START"), STOP("STOP"), SET_POINTS("SET_POINTS"), STEP_OVER("STEP_OVER"), RESUME("RESUME"),

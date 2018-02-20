@@ -20,7 +20,7 @@ package org.ballerinalang.test.services.nativeimpl.connection;
 import org.ballerinalang.launcher.util.BServiceUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.util.StringUtils;
-import org.ballerinalang.net.http.Constants;
+import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.test.services.testutils.HTTPTestRequest;
 import org.ballerinalang.test.services.testutils.MessageUtils;
 import org.ballerinalang.test.services.testutils.Services;
@@ -47,11 +47,11 @@ public class ConnectionNativeFunctionNegativeTest {
     @Test(description = "Test respond with null parameter")
     public void testRespondWithNullParameter() {
         String path = "/hello/10";
-        HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, Constants.HTTP_METHOD_GET);
+        HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, HttpConstants.HTTP_METHOD_GET);
         HTTPCarbonMessage response = Services.invokeNew(serviceResult, cMsg);
 
         Assert.assertNotNull(response, "Response message not found");
-        Assert.assertEquals(response.getProperty(Constants.HTTP_STATUS_CODE), 500);
+        Assert.assertEquals(response.getProperty(HttpConstants.HTTP_STATUS_CODE), 500);
         Assert.assertTrue(StringUtils
                 .getStringFromInputStream(new HttpMessageDataStreamer(response).getInputStream())
                 .contains("argument 1 is null"));
@@ -60,7 +60,7 @@ public class ConnectionNativeFunctionNegativeTest {
     @Test(description = "Test respond with invalid connection struct")
     public void testRespondWithInvalidConnectionStruct() {
         String path = "/hello/11";
-        HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, Constants.HTTP_METHOD_GET);
+        HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, HttpConstants.HTTP_METHOD_GET);
         HTTPCarbonMessage response = Services.invokeNew(serviceResult, cMsg);
         Assert.assertTrue(StringUtils
                 .getStringFromInputStream(new HttpMessageDataStreamer(response).getInputStream())
@@ -70,11 +70,11 @@ public class ConnectionNativeFunctionNegativeTest {
     @Test(description = "Test forward with null parameter")
     public void testForwardWithNullParameter() {
         String path = "/hello/20";
-        HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, Constants.HTTP_METHOD_GET);
+        HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, HttpConstants.HTTP_METHOD_GET);
         HTTPCarbonMessage response = Services.invokeNew(serviceResult, cMsg);
 
         Assert.assertNotNull(response, "Response message not found");
-        Assert.assertEquals(response.getProperty(Constants.HTTP_STATUS_CODE), 500);
+        Assert.assertEquals(response.getProperty(HttpConstants.HTTP_STATUS_CODE), 500);
         Assert.assertTrue(StringUtils
                 .getStringFromInputStream(new HttpMessageDataStreamer(response).getInputStream())
                 .contains("argument 1 is null"));
@@ -83,7 +83,7 @@ public class ConnectionNativeFunctionNegativeTest {
     @Test(description = "Test forward with invalid connection struct")
     public void testForwardWithInvalidConnectionStruct() {
         String path = "/hello/21";
-        HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, Constants.HTTP_METHOD_GET);
+        HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, HttpConstants.HTTP_METHOD_GET);
         HTTPCarbonMessage response = Services.invokeNew(serviceResult, cMsg);
         Assert.assertTrue(StringUtils
                 .getStringFromInputStream(new HttpMessageDataStreamer(response).getInputStream())

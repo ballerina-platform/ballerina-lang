@@ -44,6 +44,9 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * Represents a statement reference.
+ */
 public class StatementReference extends BallerinaElementReference {
 
     public StatementReference(@NotNull IdentifierPSINode element) {

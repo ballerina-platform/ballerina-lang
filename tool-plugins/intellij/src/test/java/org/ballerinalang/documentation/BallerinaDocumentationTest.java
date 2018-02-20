@@ -24,6 +24,9 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import org.ballerinalang.BallerinaCodeInsightFixtureTestCase;
 
+/**
+ * Quick documentation tests.
+ */
 public class BallerinaDocumentationTest extends BallerinaCodeInsightFixtureTestCase {
 
     @Override

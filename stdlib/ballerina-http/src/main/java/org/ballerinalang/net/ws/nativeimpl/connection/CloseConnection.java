@@ -26,8 +26,8 @@ import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
-import org.ballerinalang.net.ws.Constants;
 import org.ballerinalang.net.ws.WebSocketConnectionManager;
+import org.ballerinalang.net.ws.WebSocketConstants;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.io.IOException;
@@ -56,7 +56,7 @@ public class CloseConnection extends AbstractNativeFunction {
         BStruct wsConnection = (BStruct) getRefArgument(context, 0);
         int statusCode = (int) getIntArgument(context, 0);
         String reason = getStringArgument(context, 0);
-        Session session = (Session) wsConnection.getNativeData(Constants.NATIVE_DATA_WEBSOCKET_SESSION);
+        Session session = (Session) wsConnection.getNativeData(WebSocketConstants.NATIVE_DATA_WEBSOCKET_SESSION);
         try {
             session.close(new CloseReason(() -> statusCode, reason));
         } catch (IOException e) {

@@ -33,6 +33,9 @@ import java.util.Collection;
 
 import javax.swing.Icon;
 
+/**
+ * Represents an StructDefinition in PSI tree.
+ */
 public class StructDefinitionNode extends IdentifierDefSubtree implements ScopeNode {
 
     public StructDefinitionNode(@NotNull ASTNode node) {

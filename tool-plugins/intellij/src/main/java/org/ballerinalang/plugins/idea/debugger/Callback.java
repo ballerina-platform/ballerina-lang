@@ -16,6 +16,10 @@
 
 package org.ballerinalang.plugins.idea.debugger;
 
+/**
+ * This is used to pass the callback function to
+ * {@link org.ballerinalang.plugins.idea.debugger.client.WebSocketClientHandler} class.
+ */
 @FunctionalInterface
 public interface Callback {
 

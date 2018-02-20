@@ -22,6 +22,9 @@ import org.jetbrains.annotations.Nullable;
 
 import javax.swing.Icon;
 
+/**
+ * Ballerina file type provider.
+ */
 public class BallerinaFileType extends LanguageFileType {
 
     public static final BallerinaFileType INSTANCE = new BallerinaFileType();

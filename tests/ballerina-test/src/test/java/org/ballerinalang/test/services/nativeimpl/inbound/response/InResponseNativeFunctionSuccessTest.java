@@ -30,7 +30,7 @@ import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BXMLItem;
-import org.ballerinalang.net.http.Constants;
+import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.HttpUtil;
 import org.ballerinalang.test.services.testutils.HTTPTestRequest;
 import org.ballerinalang.test.services.testutils.MessageUtils;
@@ -61,10 +61,10 @@ import static org.ballerinalang.mime.util.Constants.XML_DATA_INDEX;
 public class InResponseNativeFunctionSuccessTest {
 
     private CompileResult result, serviceResult;
-    private final String inResStruct = Constants.IN_RESPONSE;
-    private final String entityStruct = Constants.ENTITY;
+    private final String inResStruct = HttpConstants.IN_RESPONSE;
+    private final String entityStruct = HttpConstants.ENTITY;
     private final String mediaTypeStruct = MEDIA_TYPE;
-    private final String protocolPackageHttp = Constants.PROTOCOL_PACKAGE_HTTP;
+    private final String protocolPackageHttp = HttpConstants.PROTOCOL_PACKAGE_HTTP;
     private final String protocolPackageMime = PROTOCOL_PACKAGE_MIME;
 
     @BeforeClass
@@ -100,8 +100,8 @@ public class InResponseNativeFunctionSuccessTest {
         HTTPCarbonMessage inResponseMsg = HttpUtil.createHttpCarbonMessage(false);
 
         String payload = "ballerina";
-        inResponseMsg.setHeader(Constants.HTTP_CONTENT_LENGTH, String.valueOf(payload.length()));
-        inResponseMsg.setProperty(Constants.HTTP_STATUS_CODE, 200);
+        inResponseMsg.setHeader(HttpConstants.HTTP_CONTENT_LENGTH, String.valueOf(payload.length()));
+        inResponseMsg.setProperty(HttpConstants.HTTP_STATUS_CODE, 200);
         HttpUtil.addCarbonMsg(inResponse, inResponseMsg);
 
         BStruct entity = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageMime, entityStruct);
@@ -120,7 +120,7 @@ public class InResponseNativeFunctionSuccessTest {
         BStruct inResponse = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, inResStruct);
         HTTPCarbonMessage inResponseMsg = HttpUtil.createHttpCarbonMessage(false);
         inResponseMsg.setHeader(CONTENT_TYPE, APPLICATION_FORM);
-        inResponseMsg.setProperty(Constants.HTTP_STATUS_CODE, 200);
+        inResponseMsg.setProperty(HttpConstants.HTTP_STATUS_CODE, 200);
         HttpUtil.addCarbonMsg(inResponse, inResponseMsg);
 
         BStruct entity = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageMime, entityStruct);
@@ -143,7 +143,7 @@ public class InResponseNativeFunctionSuccessTest {
         headers.set("test-header", APPLICATION_FORM);
         headers.add("test-header", TEXT_PLAIN);
 
-        inResponseMsg.setProperty(Constants.HTTP_STATUS_CODE, 200);
+        inResponseMsg.setProperty(HttpConstants.HTTP_STATUS_CODE, 200);
         BStruct entity = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageMime, entityStruct);
         BStruct mediaType = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageMime, mediaTypeStruct);
         HttpUtil.populateInboundResponse(inResponse, entity, mediaType, inResponseMsg);
@@ -234,7 +234,7 @@ public class InResponseNativeFunctionSuccessTest {
     @Test
     public void testForwardMethod() {
         String path = "/hello/11";
-        HTTPTestRequest inRequestMsg = MessageUtils.generateHTTPMessage(path, Constants.HTTP_METHOD_GET);
+        HTTPTestRequest inRequestMsg = MessageUtils.generateHTTPMessage(path, HttpConstants.HTTP_METHOD_GET);
         HTTPCarbonMessage response = Services.invokeNew(serviceResult, inRequestMsg);
         Assert.assertNotNull(response, "Response message not found");
     }
