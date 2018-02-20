@@ -22,7 +22,7 @@ import org.ballerinalang.runtime.threadpool.ThreadPoolFactory;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Semaphore;
+import java.util.concurrent.TimeUnit;
 
 /**
  * This represents the Ballerina worker scheduling functionality. 
@@ -31,9 +31,7 @@ import java.util.concurrent.Semaphore;
 public class BLangScheduler {
 
     private static Set<WorkerExecutionContext> activeContexts = new HashSet<>();
-    
-    private static Semaphore activeContextsTracker = new Semaphore(0);
-    
+        
     public static void schedule(WorkerExecutionContext ctx) {
         ctx.restoreIP();
         ctx.state = WorkerState.READY;
@@ -45,9 +43,6 @@ public class BLangScheduler {
     public static void workerDone(WorkerExecutionContext ctx) {
         ctx.ip = -1;
         activeContexts.remove(ctx);
-        if (activeContexts.isEmpty()) {
-            activeContextsTracker.release();
-        }
     }
     
     public static void switchToWaitForResponse(WorkerExecutionContext ctx) {
@@ -58,7 +53,8 @@ public class BLangScheduler {
     
     public static void waitForCompletion() {
         try {
-            activeContextsTracker.acquire();
+            ThreadPoolFactory.getInstance().getWorkerExecutor().shutdown();
+            ThreadPoolFactory.getInstance().getWorkerExecutor().awaitTermination(Long.MAX_VALUE, TimeUnit.SECONDS);
         } catch (InterruptedException ignore) { /* ignore */ }
     }
     
@@ -77,6 +73,8 @@ public class BLangScheduler {
                 CPU.exec(ctx);
             } catch (Throwable e) {
                 e.printStackTrace();
+                System.out.println("*** ERROR: " + e.getMessage());
+                ctx.state = WorkerState.EXCEPTED;
             }
         }
         

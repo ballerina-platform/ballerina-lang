@@ -61,6 +61,7 @@ import org.ballerinalang.model.values.BXML;
 import org.ballerinalang.model.values.BXMLAttributes;
 import org.ballerinalang.model.values.BXMLQName;
 import org.ballerinalang.model.values.StructureType;
+import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.util.TransactionStatus;
 import org.ballerinalang.util.codegen.ActionInfo;
 import org.ballerinalang.util.codegen.CallableUnitInfo;
@@ -435,7 +436,7 @@ public class CPU {
                     funcRefCPEntry = ((BFunctionPointer) sf.refRegs[i]).value();
                     functionInfo = funcRefCPEntry.getFunctionInfo();
                     if (functionInfo.isNative()) {
-                        invokeNativeFunction(functionInfo, funcCallCPEntry.getArgRegs(), funcCallCPEntry.getRetRegs());
+                        invokeNativeFunction(ctx, functionInfo, funcCallCPEntry.getArgRegs(), funcCallCPEntry.getRetRegs());
                     } else {
                         invokeCallableUnit(ctx, functionInfo, funcCallCPEntry.getArgRegs(), funcCallCPEntry.getRetRegs());
                     }
@@ -2633,7 +2634,7 @@ public class CPU {
 
     private static void invokeCallableUnit(WorkerExecutionContext ctx, CallableUnitInfo callableUnitInfo, int[] argRegs, int[] retRegs) {
         if (callableUnitInfo.isNative()) {
-            invokeNativeFunction((FunctionInfo) callableUnitInfo, argRegs, retRegs);
+            invokeNativeFunction(ctx, (FunctionInfo) callableUnitInfo, argRegs, retRegs);
             return;
         }
         BLangFunctions.invokeFunction(ctx.programFile, callableUnitInfo, ctx, argRegs, retRegs, false);
@@ -2834,7 +2835,9 @@ public class CPU {
         return sb.toString();
     }
 
-    private static void invokeNativeFunction(FunctionInfo functionInfo, int[] argRegs, int[] retRegs) {
+    private static void invokeNativeFunction(WorkerExecutionContext ctx, FunctionInfo functionInfo, int[] argRegs, int[] retRegs) {
+        //TODO hard coded println for testing
+        System.out.println(ctx.workerLocal.refRegs[argRegs[0]]);
 //        WorkerData callerSF = ctx.workerLocal;
 //
 //        // TODO : Remove once we handle this properly for return values
