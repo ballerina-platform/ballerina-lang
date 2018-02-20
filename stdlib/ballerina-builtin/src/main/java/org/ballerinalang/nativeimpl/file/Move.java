@@ -22,12 +22,26 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.nativeimpl.file.utils.FileUtils;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
+import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.util.exceptions.BallerinaException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import java.io.File;
+import java.io.IOException;
+import java.nio.file.AccessDeniedException;
+import java.nio.file.CopyOption;
+import java.nio.file.DirectoryNotEmptyException;
+import java.nio.file.FileAlreadyExistsException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+
+import static java.nio.file.StandardCopyOption.ATOMIC_MOVE;
+import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 
 /**
  * Moves a file from a given location to another.
@@ -39,28 +53,94 @@ import java.io.File;
                 structPackage = "ballerina.file"),
                 @Argument(name = "destination", type = TypeKind.STRUCT, structType = "File",
                         structPackage = "ballerina.file")},
+        returnType = {
+                @ReturnType(type = TypeKind.STRUCT, structType = "FileNotFoundError", structPackage = "ballerina.file"),
+                @ReturnType(type = TypeKind.STRUCT, structType = "AccessDeniedError", structPackage = "ballerina.file"),
+                @ReturnType(type = TypeKind.STRUCT, structType = "IOError", structPackage = "ballerina.file")},
         isPublic = true
 )
 public class Move extends AbstractNativeFunction {
 
-    @Override 
-    public BValue[] execute(Context context) {
+    private static final Logger log = LoggerFactory.getLogger(Move.class);
+    private static final String failedToMoveFile = "Failed to move file: '";
+    private static final String failedToCreateDir = "Failed to create directory: '";
 
+    @Override
+    public BValue[] execute(Context context) {
         BStruct source = (BStruct) getRefArgument(context, 0);
         BStruct destination = (BStruct) getRefArgument(context, 1);
+        boolean replaceExisting = getBooleanArgument(context, 0);
 
-        File sourceFile = new File(source.getStringField(0));
-        if (!sourceFile.exists()) {
-            throw new BallerinaException("failed to move file: file not found: " + sourceFile.getPath());
+        Path sourceFile = Paths.get(source.getStringField(0)).toAbsolutePath();
+        if (!Files.exists(sourceFile)) {
+            return getBValues(FileUtils.createFileNotFoundError(context, failedToMoveFile
+                                                + sourceFile.toString() + "'. File not found."), null, null);
         }
-        File destinationFile = new File(destination.getStringField(0));
-        File parent = destinationFile.getParentFile();
-        if (parent != null && !parent.exists() && !parent.mkdirs()) {
-            throw new BallerinaException("failed to move file: cannot create directory: " + parent.getPath());
+
+        Path targetFile = Paths.get(destination.getStringField(0)).toAbsolutePath();
+        CopyOption[] copyOptions =
+                replaceExisting ? new CopyOption[]{REPLACE_EXISTING, ATOMIC_MOVE} : new CopyOption[]{ATOMIC_MOVE};
+
+        try {
+            if (Files.isDirectory(targetFile)) {
+                // If the target file is a directory, move the source file directly to the target directory.
+                Files.move(sourceFile, targetFile.resolve(sourceFile.getFileName()), copyOptions);
+            } else {
+                Path targetDir = targetFile.getParent();
+
+                // If the target directory tree doesn't exist, create it. Creates a directory tree for the
+                // parent of the file specified by 'targetFile'.
+                if (targetDir != null) {
+                    createDirectories(targetDir);
+                }
+
+                Files.move(sourceFile, targetFile, copyOptions);
+            }
+        } catch (SecurityException | AccessDeniedException e) {
+            String errMsg = failedToMoveFile + sourceFile.toString()
+                    + "' to '" + targetFile.toString() + "'. Permission denied.";
+            log.error(errMsg, e);
+            return getBValues(null, FileUtils.createAccessDeniedError(context, errMsg), null);
+        } catch (BallerinaException e) {
+            return getBValues(null, FileUtils.createIOError(context, e.getMessage()));
+        } catch (FileAlreadyExistsException e) {
+            String errMsg =
+                    "File already exists: '" + targetFile.toString() +
+                            "'. Enable file replacing to replace existing file.";
+            log.error(errMsg, e);
+            return getBValues(null, null, FileUtils.createIOError(context, errMsg));
+        } catch (DirectoryNotEmptyException e) {
+            String errMsg = failedToMoveFile + sourceFile.toString()
+                    + "' to '" + targetFile.toString() + "'. Target directory is not empty.";
+            log.error(errMsg, e);
+            return getBValues(null, null, FileUtils.createIOError(context, errMsg));
+        } catch (IOException e) {
+            String errMsg = failedToMoveFile + sourceFile.toString()
+                    + "' to '" + targetFile.toString() + "'. I/O error occurred.";
+            log.error(errMsg, e);
+            return getBValues(null, null, FileUtils.createIOError(context, errMsg));
         }
-        if (!sourceFile.renameTo(destinationFile)) {
-            throw new BallerinaException("failed to move file: " + sourceFile.getPath());
+
+        return getBValues(null, null, null);
+    }
+
+    private void createDirectories(Path dirPath) {
+        if (!Files.exists(dirPath)) {
+            try {
+                Files.createDirectories(dirPath);
+            } catch (FileAlreadyExistsException e) {
+                String errMsg = failedToCreateDir + dirPath + "'. File already exists.";
+                log.error(errMsg, e);
+                throw new BallerinaException(errMsg);
+            } catch (SecurityException e) {
+                String errMsg = failedToCreateDir + dirPath + "'. Permission denied.";
+                log.error(errMsg, e);
+                throw new BallerinaException(errMsg);
+            } catch (IOException e) {
+                String errMsg = failedToCreateDir + dirPath + "'. I/O error occurred.";
+                log.error(errMsg, e);
+                throw new BallerinaException(errMsg);
+            }
         }
-        return VOID_RETURN;
     }
 }

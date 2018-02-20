@@ -3,9 +3,15 @@ import ballerina.io;
 
 io:CharacterChannel characterChannel;
 
-function initFileChannel(string filePath,string permission,string encoding){
+function initFileReadChannel(string filePath, string encoding){
     file:File src = {path:filePath};
-    io:ByteChannel channel = src.openChannel(permission);
+    io:ByteChannel channel = src.openChannel(file:AccessMode.R);
+    characterChannel = channel.toCharacterChannel(encoding);
+}
+
+function initFileWriteChannel(string filePath, string encoding){
+    file:File src = {path:filePath};
+    io:ByteChannel channel = src.openChannel(file:AccessMode.W);
     characterChannel = channel.toCharacterChannel(encoding);
 }
 

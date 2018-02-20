@@ -21,20 +21,32 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.nativeimpl.file.utils.FileUtils;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.util.exceptions.BallerinaException;
+import org.ballerinalang.natives.annotations.ReturnType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.Closeable;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.PrintStream;
+import java.nio.file.CopyOption;
+import java.nio.file.FileAlreadyExistsException;
+import java.nio.file.FileVisitOption;
+import java.nio.file.FileVisitResult;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.SimpleFileVisitor;
+import java.nio.file.attribute.BasicFileAttributes;
+import java.nio.file.attribute.FileTime;
+import java.util.EnumSet;
+import java.util.Iterator;
+import java.util.TreeSet;
+
+import static java.nio.file.StandardCopyOption.COPY_ATTRIBUTES;
+import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 
 /**
  * Copies a file from a given location to another.
@@ -45,85 +57,145 @@ import java.io.OutputStream;
         args = {@Argument(name = "source", type = TypeKind.STRUCT, structType = "File",
                 structPackage = "ballerina.file"),
                 @Argument(name = "destination", type = TypeKind.STRUCT, structType = "File",
-                        structPackage = "ballerina.file")},
+                          structPackage = "ballerina.file"),
+                @Argument(name = "replaceExisting", type = TypeKind.BOOLEAN)},
+        returnType = {
+                @ReturnType(type = TypeKind.STRUCT, structType = "FileNotFoundError", structPackage = "ballerina.file"),
+                @ReturnType(type = TypeKind.STRUCT, structType = "AccessDeniedError", structPackage = "ballerina.file"),
+                @ReturnType(type = TypeKind.STRUCT, structType = "IOError", structPackage = "ballerina.file")},
         isPublic = true
 )
 public class Copy extends AbstractNativeFunction {
 
-    private static final Logger logger = LoggerFactory.getLogger(Copy.class);
+    private static final Logger log = LoggerFactory.getLogger(Copy.class);
+    private static final PrintStream console = System.err;
+    private static final String failedToCopyFile = "Failed to copy file: '";
     
     @Override
     public BValue[] execute(Context context) {
-
         BStruct source = (BStruct) getRefArgument(context, 0);
         BStruct destination = (BStruct) getRefArgument(context, 1);
+        boolean replaceExisting = getBooleanArgument(context, 0);
 
-        File sourceFile = new File(source.getStringField(0));
-        File destinationFile = new File(destination.getStringField(0));
+        Path sourceFile = Paths.get(source.getStringField(0));
+        Path destinationFile = Paths.get(destination.getStringField(0));
 
-        if (!sourceFile.exists()) {
-            throw new BallerinaException("failed to copy file: file not found: " + sourceFile.getPath());
-        }
-        File parent = destinationFile.getParentFile();
-        if (parent != null && !parent.exists() && !parent.mkdirs()) {
-            throw new BallerinaException("failed to copy file: cannot create directory: " + parent.getPath());
-        }
-        if (!copy(sourceFile, destinationFile)) {
-            throw new BallerinaException("failed to copy file: " + sourceFile.getPath());
+        if (!Files.exists(sourceFile)) {
+            return getBValues(FileUtils.createFileNotFoundError(context, failedToCopyFile
+                                            + sourceFile.toString() + "'. File not found."), null, null);
         }
 
-        return VOID_RETURN;
+        try {
+            copyFile(sourceFile, destinationFile, replaceExisting);
+        } catch (SecurityException e) {
+            String errMsg = failedToCopyFile + sourceFile.toString() + "' to '" + destinationFile.toString();
+            log.error(errMsg, e);
+            return getBValues(null, FileUtils.createAccessDeniedError(context, "Permission denied: " + errMsg), null);
+        } catch (IOException e) {
+            String errMsg = failedToCopyFile + sourceFile.toString() + "' to '" + destinationFile.toString();
+            log.error(errMsg, e);
+            return getBValues(null, null, FileUtils.createIOError(context, "I/O error occurred: " + errMsg));
+        }
+
+        return getBValues(null, null, null);
     }
 
-    private boolean copy(File src, File dest) {
+    private void copyFile(Path source, Path target, boolean replaceExisting) throws IOException {
+        CopyOption[] copyOptions =
+                replaceExisting ?
+                        new CopyOption[]{COPY_ATTRIBUTES, REPLACE_EXISTING} : new CopyOption[]{COPY_ATTRIBUTES};
 
-        InputStream in = null;
-        OutputStream out = null;
-        try {
-            if (src.isDirectory()) {
-                if (!dest.exists() && !dest.mkdir()) {
-                    return false;
-                }
-                String files[] = src.list();
-                if (files == null) {
-                    return false;
-                }
-                for (String file : files) {
-                    File srcFile = new File(src, file);
-                    File destFile = new File(dest, file);
-                    //recursive copy
-                    if (!copy(srcFile, destFile)) {
-                        return false;
-                    }
-                }
-            } else {
-                in = new FileInputStream(src);
-                out = new FileOutputStream(dest);
-                byte[] buffer = new byte[1024];
-                int length;
+        if (Files.isDirectory(source)) {
+            EnumSet<FileVisitOption> opts = EnumSet.of(FileVisitOption.FOLLOW_LINKS);
+            // Passing the boolean value itself since findbugs complained.
+            DirCopier dirCopier = new DirCopier(source, target, replaceExisting);
+            Files.walkFileTree(source, opts, Integer.MAX_VALUE, dirCopier);
 
-                while ((length = in.read(buffer)) > 0) {
-                    out.write(buffer, 0, length);
-                }
+            if (dirCopier.hasCopyFailures()) {
+                console.println("ballerina: failed to copy the following files:");
+                dirCopier.copyFailuresIterator().forEachRemaining(failedFile -> console.println("\t" + failedFile));
             }
-            return true;
-        } catch (IOException e) {
-            throw new BallerinaException("failed to copy file: " + e.getMessage(), e);
-        } finally {
-            if (in != null) {
-                closeQuietly(in);
-            }
-            if (out != null) {
-                closeQuietly(out);
-            }
+        } else {
+            Files.copy(source, target, copyOptions);
         }
     }
 
-    private void closeQuietly(Closeable resource) {
-        try {
-            resource.close();
-        } catch (IOException e) {
-            logger.error("Exception during Resource.close()", e);
+    /**
+     * A FileVisitor implementation for copying directories.
+     */
+    public static class DirCopier extends SimpleFileVisitor<Path> {
+
+        private final Path sourceFile;
+        private final Path targetFile;
+        private CopyOption[] fileCopyOptions;
+        private TreeSet<String> failedFiles;
+
+        public DirCopier(Path sourceFile, Path targetFile, boolean replaceExisting) {
+            this.sourceFile = sourceFile;
+            this.targetFile = targetFile;
+            this.failedFiles = new TreeSet<>();
+            this.fileCopyOptions =
+                    replaceExisting
+                            ? new CopyOption[]{REPLACE_EXISTING, COPY_ATTRIBUTES} : new CopyOption[]{COPY_ATTRIBUTES};
+        }
+
+        @Override
+        public FileVisitResult preVisitDirectory(Path currentDir, BasicFileAttributes attributes) {
+            // Preserve the attributes of the file being copied
+            CopyOption[] options = new CopyOption[]{COPY_ATTRIBUTES};
+
+            Path resolvedTargetDir = targetFile.resolve(sourceFile.relativize(currentDir));
+            try {
+                Files.copy(currentDir, resolvedTargetDir, options);
+            } catch (FileAlreadyExistsException e) {
+                // ignore
+            } catch (IOException e) {
+                failedFiles.add(currentDir.toString());
+                return FileVisitResult.SKIP_SUBTREE;
+            }
+
+            return FileVisitResult.CONTINUE;
+        }
+
+        @Override
+        public FileVisitResult visitFile(Path currentFile, BasicFileAttributes attrs) {
+            Path destinationFile;
+
+            try {
+                destinationFile = targetFile.resolve(sourceFile.relativize(currentFile));
+                Files.copy(currentFile, destinationFile, fileCopyOptions);
+
+                if (log.isDebugEnabled()) {
+                    log.debug("Copying file: " + currentFile + " to " + destinationFile);
+                }
+            } catch (IOException e) {
+                failedFiles.add(currentFile.toString());
+            }
+
+            return FileVisitResult.CONTINUE;
+        }
+
+        @Override
+        public FileVisitResult postVisitDirectory(Path dir, IOException ex) {
+            if (ex == null) {
+                Path relDir = targetFile.resolve(sourceFile.relativize(dir));
+                try {
+                    FileTime lastModifiedTime = Files.getLastModifiedTime(dir);
+                    Files.setLastModifiedTime(relDir, lastModifiedTime);
+                } catch (IOException e) {
+                    // ignore
+                }
+            }
+
+            return FileVisitResult.CONTINUE;
+        }
+
+        public Iterator<String> copyFailuresIterator() {
+            return failedFiles.iterator();
+        }
+
+        public boolean hasCopyFailures() {
+            return failedFiles.size() > 0;
         }
     }
 }

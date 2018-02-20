@@ -25,6 +25,7 @@ import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.StructInfo;
 
 import static org.ballerinalang.nativeimpl.file.utils.Constants.ACCESS_DENIED_ERROR;
+import static org.ballerinalang.nativeimpl.file.utils.Constants.FILE_NOT_FOUND_ERROR;
 import static org.ballerinalang.nativeimpl.file.utils.Constants.FILE_PACKAGE;
 import static org.ballerinalang.nativeimpl.file.utils.Constants.FILE_STRUCT;
 import static org.ballerinalang.nativeimpl.file.utils.Constants.IO_ERROR;
@@ -51,6 +52,12 @@ public class FileUtils {
     public static BStruct createIOError(Context context, String msg) {
         PackageInfo filePkg = context.getProgramFile().getPackageInfo(FILE_PACKAGE);
         StructInfo ioErrInfo = filePkg.getStructInfo(IO_ERROR);
+        return BLangVMStructs.createBStruct(ioErrInfo, msg);
+    }
+
+    public static BStruct createFileNotFoundError(Context context, String msg) {
+        PackageInfo filePkg = context.getProgramFile().getPackageInfo(FILE_PACKAGE);
+        StructInfo ioErrInfo = filePkg.getStructInfo(FILE_NOT_FOUND_ERROR);
         return BLangVMStructs.createBStruct(ioErrInfo, msg);
     }
 }
