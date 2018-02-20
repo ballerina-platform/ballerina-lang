@@ -112,12 +112,12 @@ public class NetworkUtils {
     public static void pushPackages(String packageName) {
         compileResult = compileBalFile("ballerina.push");
 
-        // Get the org-name and version by reading Settings.toml
+        // Get the org-name and version by reading Ballerina.toml
         Manifest manifest = readManifestConfigurations();
         if (manifest != null && manifest.getName() != null && manifest.getVersion() != null) {
             String orgName = removeQuotationsFromValue(manifest.getName());
             String version = removeQuotationsFromValue(manifest.getVersion());
-            String resourcePath = BALLERINA_CENTRAL_REPO_URL + Paths.get(orgName).resolve(packageName).resolve(version);
+            String resourcePath = BALLERINA_CENTRAL_REPO_URL + Paths.get(packageName).resolve(version);
             String[] proxyConfigs = readProxyConfigurations();
             String[] arguments = new String[]{resourcePath, packageName};
             arguments = Stream.concat(Arrays.stream(arguments), Arrays.stream(proxyConfigs))
@@ -125,9 +125,9 @@ public class NetworkUtils {
             LauncherUtils.runMain(compileResult.getProgFile(), arguments);
         } else {
             log.debug("An org-name and package version is required when pushing. This is not specified in " +
-                    "Settings.toml inside the project");
+                    "Ballerina.toml inside the project");
             log.error("An org-name and package version is required when pushing. This is not specified in " +
-                            "Settings.toml inside the project",
+                            "Ballerina.toml inside the project",
                     "An org-name and package version is required when pushing");
         }
     }
@@ -138,13 +138,13 @@ public class NetworkUtils {
      * @return manifest configuration object
      */
     private static Manifest readManifestConfigurations() {
-        String tomlFilePath = Paths.get(".").toAbsolutePath().normalize().resolve("Settings.toml").toString();
+        String tomlFilePath = Paths.get(".").toAbsolutePath().normalize().resolve("Ballerina.toml").toString();
         Manifest manifest = null;
         try {
             manifest = ManifestProcessor.parseTomlContentFromFile(tomlFilePath);
         } catch (IOException e) {
-            log.debug("I/O Exception when processing Settings.toml ", e);
-            log.error("I/O Exception when processing Settings.toml " + e.getMessage());
+            log.debug("I/O Exception when processing Ballerina.toml ", e);
+            log.error("I/O Exception when processing Ballerina.toml " + e.getMessage());
         }
         return manifest;
     }
