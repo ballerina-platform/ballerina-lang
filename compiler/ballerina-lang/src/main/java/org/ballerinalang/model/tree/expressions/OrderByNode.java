@@ -27,7 +27,7 @@ import java.util.List;
  */
 public interface OrderByNode extends StatementNode {
 
-    public void addVariableReference(VariableReferenceNode varRef);
+    public void addVariableReference(ExpressionNode varRef);
 
     public List<? extends ExpressionNode> getVariables();
 }

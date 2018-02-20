@@ -34,10 +34,10 @@ import java.util.List;
  */
 public class BLangOrderBy extends BLangExpression implements OrderByNode {
 
-    private List<BLangExpression> varRefs = new ArrayList<>();
+    private List<VariableReferenceNode> varRefs = new ArrayList<>();
 
     @Override
-    public void addVariableReference(VariableReferenceNode varRef) {
+    public void addVariableReference(ExpressionNode varRef) {
         varRefs.add((BLangVariableReference) varRef);
     }
 

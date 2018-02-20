@@ -43,6 +43,7 @@ import org.ballerinalang.model.tree.WorkerNode;
 import org.ballerinalang.model.tree.expressions.AnnotationAttachmentAttributeValueNode;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
 import org.ballerinalang.model.tree.expressions.OrderByNode;
+import org.ballerinalang.model.tree.expressions.VariableReferenceNode;
 import org.ballerinalang.model.tree.expressions.XMLAttributeNode;
 import org.ballerinalang.model.tree.expressions.XMLLiteralNode;
 import org.ballerinalang.model.tree.statements.BlockNode;
@@ -1845,6 +1846,14 @@ public class BLangPackageBuilder {
         ((BLangOrderBy) orderByNode).pos = pos;
         ((BLangOrderBy) orderByNode).addWS(ws);
         this.orderByClauseStack.push(orderByNode);
+    }
+
+    public void endOrderByClauseNode(DiagnosticPos currentPos, Set<Whitespace> ws) {
+        if (this.exprNodeListStack.empty()) {
+            throw new IllegalStateException("ExpressionList stack cannot be empty in processing an OrderBy");
+        }
+        OrderByNode orderByNode = this.orderByClauseStack.peek();
+        this.exprNodeListStack.pop().forEach(orderByNode::addVariableReference);
     }
 
     public void startGroupByClauseNode(DiagnosticPos pos, Set<Whitespace> ws) {
