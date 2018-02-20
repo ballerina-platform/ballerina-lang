@@ -7,7 +7,7 @@ function initFileReadChannel (string filePath, string encoding, string rs, strin
     file:File src = {path:filePath};
     io:ByteChannel channel = src.openChannel(file:AccessMode.R);
     io:CharacterChannel  characterChannel = channel.toCharacterChannel(encoding);
-    textRecordChannel = characterChannel.toTextRecordChannel(rs,fs);
+    delimitedRecordChannel = characterChannel.toTextRecordChannel(rs,fs);
 }
 
 function initFileWriteChannel (string filePath, string encoding, string rs, string fs) {
