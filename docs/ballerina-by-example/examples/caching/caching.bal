@@ -1,4 +1,5 @@
 import ballerina.caching;
+import ballerina.io;
 import ballerina.runtime;
 
 public function main (string[] args) {
@@ -10,12 +11,12 @@ public function main (string[] args) {
     cache.put("Name", "Ballerina");
     // Get the cached value.
     var name, _ = (string)cache.get("Name");
-    println("Name: " + name);
-    // Sleep the current thread for 6 seconds.
-    runtime:sleepCurrentThread(6000);
+    io:println("Name: " + name);
+    // Sleep the current worker for 6 seconds.
+    runtime:sleepCurrentWorker(6000);
     // Since the cache expiry time is 4 seconds, cache cleanup task runs at 5th
     // second cleans the cache while this thread was sleeping. Now this value
     // is null.
     name, _ = (string)cache.get("Name");
-    println("Name: " + name);
+    io:println("Name: " + name);
 }

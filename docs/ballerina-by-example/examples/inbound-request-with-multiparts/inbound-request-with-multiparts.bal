@@ -7,7 +7,7 @@ service<http> echo {
     @http:resourceConfig {
         methods:["POST"],
         path:"/receivableParts"
-    }r
+    }
     resource echo (http:Connection conn, http:InRequest req) {
         //Extract multiparts from the inbound request
         mime:Entity[] bodyParts = req.getMultiparts();
@@ -15,10 +15,10 @@ service<http> echo {
         //Loop through body parts
         while (i < lengthof bodyParts) {
             mime:Entity part = bodyParts[i];
-            println("-----------------------------");
-            print("Content Type : ");
-            println(part.contentType.toString());
-            println("-----------------------------");
+            io:println("-----------------------------");
+            io:print("Content Type : ");
+            io:println(part.contentType.toString());
+            io:println("-----------------------------");
             handleContent(part);
             i = i + 1;
         }
@@ -32,18 +32,18 @@ service<http> echo {
 function handleContent (mime:Entity bodyPart) {
     string contentType = bodyPart.contentType.toString();
     if (mime:APPLICATION_XML == contentType || mime:TEXT_XML == contentType) {
-        //Given a body part get it's xml content and print
-        println(mime:getXml(bodyPart));
+        //Given a body part get it's xml content and io:print
+        io:println(mime:getXml(bodyPart));
     } else if (mime:APPLICATION_JSON == contentType) {
-        //Given a body part get it's json content and print
-        println(mime:getJson(bodyPart));
+        //Given a body part get it's json content and io:print
+        io:println(mime:getJson(bodyPart));
     } else if (mime:TEXT_PLAIN == contentType){
-        //Given a body part get it's text content and print
-        println(mime:getText(bodyPart));
+        //Given a body part get it's text content and io:print
+        io:println(mime:getText(bodyPart));
     } else if ("application/vnd.ms-powerpoint" == contentType) {
         //Given a body part get it's content as a blob and write it to a file
         writeToFile(mime:getBlob(bodyPart));
-        println("Content saved to file");
+        io:println("Content saved to file");
     }
 }
 
