@@ -2099,12 +2099,11 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         if (ctx.exception != null) {
             return;
         }
-        System.out.println("TTT");
     }
 
     @Override
     public void exitStreamingQueryStatement(BallerinaParser.StreamingQueryStatementContext ctx) {
-        if (ctx.exception != null){
+        if (ctx.exception != null) {
             return;
         }
     }
