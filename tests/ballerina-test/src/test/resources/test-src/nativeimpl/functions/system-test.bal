@@ -35,6 +35,10 @@ function testPrintAndPrintlnFunctionPointer() {
     print(addFunction);
 }
 
+function testSprintf(string fmtStr, any[] fmtArgs) (string) {
+    return sprintf(fmtStr, fmtArgs);
+}
+
 function printNewline() {
     print("hello\n");
 }

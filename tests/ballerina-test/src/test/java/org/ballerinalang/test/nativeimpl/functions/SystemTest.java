@@ -199,7 +199,7 @@ public class SystemTest {
         BRefValueArray fArgs = new BRefValueArray();
         fArgs.add(0, new BBoolean(true));
         BValue[] args = {new BString("%b"), fArgs};
-        BValue[] returns = BRunUtil.invoke(compileResult, "sprintf", args);
+        BValue[] returns = BRunUtil.invoke(compileResult, "testSprintf", args);
         Assert.assertEquals(returns[0].stringValue(), "true");
     }
 
@@ -208,7 +208,7 @@ public class SystemTest {
         BRefValueArray fArgs = new BRefValueArray();
         fArgs.add(0, new BBoolean(false));
         BValue[] args = {new BString("%b"), fArgs};
-        BValue[] returns = BRunUtil.invoke(compileResult, "sprintf", args);
+        BValue[] returns = BRunUtil.invoke(compileResult, "testSprintf", args);
         Assert.assertEquals(returns[0].stringValue(), "false");
     }
 
@@ -217,7 +217,7 @@ public class SystemTest {
         BRefValueArray fArgs = new BRefValueArray();
         fArgs.add(0, new BInteger(65));
         BValue[] args = {new BString("%d"), fArgs};
-        BValue[] returns = BRunUtil.invoke(compileResult, "sprintf", args);
+        BValue[] returns = BRunUtil.invoke(compileResult, "testSprintf", args);
         Assert.assertEquals(returns[0].stringValue(), "65");
     }
 
@@ -226,7 +226,7 @@ public class SystemTest {
         BRefValueArray fArgs = new BRefValueArray();
         fArgs.add(0, new BFloat(3.25));
         BValue[] args = {new BString("%f"), fArgs};
-        BValue[] returns = BRunUtil.invoke(compileResult, "sprintf", args);
+        BValue[] returns = BRunUtil.invoke(compileResult, "testSprintf", args);
         Assert.assertEquals(returns[0].stringValue(), "3.250000");
     }
 
@@ -236,7 +236,7 @@ public class SystemTest {
         BRefValueArray fArgs = new BRefValueArray();
         fArgs.add(0, new BString(name));
         BValue[] args = {new BString("%s"), fArgs};
-        BValue[] returns = BRunUtil.invoke(compileResult, "sprintf", args);
+        BValue[] returns = BRunUtil.invoke(compileResult, "testSprintf", args);
         Assert.assertEquals(returns[0].stringValue(), name);
     }
 
@@ -245,7 +245,7 @@ public class SystemTest {
         BRefValueArray fArgs = new BRefValueArray();
         fArgs.add(0, new BInteger(57005));
         BValue[] args = {new BString("%x"), fArgs};
-        BValue[] returns = BRunUtil.invoke(compileResult, "sprintf", args);
+        BValue[] returns = BRunUtil.invoke(compileResult, "testSprintf", args);
         Assert.assertEquals(returns[0].stringValue(), "dead");
     }
 
@@ -253,8 +253,8 @@ public class SystemTest {
     public void testFormatOctal() {
         BRefValueArray fArgs = new BRefValueArray();
         fArgs.add(0, new BInteger(57005));
-        BValue[] args = {new BString("%x"), fArgs};
-        BValue[] returns = BRunUtil.invoke(compileResult, "sprintf", args);
+        BValue[] args = {new BString("%o"), fArgs};
+        BValue[] returns = BRunUtil.invoke(compileResult, "testSprintf", args);
         Assert.assertEquals(returns[0].stringValue(), "157255");
     }
 
@@ -267,9 +267,9 @@ public class SystemTest {
         arr.add(2, 333);
 
         fArgs.add(0, arr);
-        BValue[] args = {new BString("%s"), fArgs};
-        BValue[] returns = BRunUtil.invoke(compileResult, "sprintf", args);
-        Assert.assertEquals(returns[0].stringValue(), "[111,222,333]");
+        BValue[] args = {new BString("%a"), fArgs};
+        BValue[] returns = BRunUtil.invoke(compileResult, "testSprintf", args);
+        Assert.assertEquals(returns[0].stringValue(), "[111, 222, 333]");
     }
 
     @Test
@@ -277,7 +277,7 @@ public class SystemTest {
         BRefValueArray fArgs = new BRefValueArray();
         fArgs.add(0, new BString("test"));
         BValue[] args = {new BString("%% %s"), fArgs};
-        BValue[] returns = BRunUtil.invoke(compileResult, "sprintf", args);
+        BValue[] returns = BRunUtil.invoke(compileResult, "testSprintf", args);
         Assert.assertEquals(returns[0].stringValue(), "% test");
     }
 
@@ -286,7 +286,7 @@ public class SystemTest {
         BRefValueArray fArgs = new BRefValueArray();
         fArgs.add(0, new BString("Hello Ballerina"));
         BValue[] args = {new BString("%9.2s"), fArgs};
-        BValue[] returns = BRunUtil.invoke(compileResult, "sprintf", args);
+        BValue[] returns = BRunUtil.invoke(compileResult, "testSprintf", args);
         Assert.assertEquals(returns[0].stringValue(), "       He");
     }
 
@@ -295,25 +295,25 @@ public class SystemTest {
         BRefValueArray fArgs = new BRefValueArray();
         fArgs.add(0, new BFloat(123456789.9876543));
         BValue[] args = {new BString("%5.4f"), fArgs};
-        BValue[] returns = BRunUtil.invoke(compileResult, "sprintf", args);
+        BValue[] returns = BRunUtil.invoke(compileResult, "testSprintf", args);
         Assert.assertEquals(returns[0].stringValue(), "123456789.9877");
     }
 
     @Test
     public void testFormatDecimalWithPadding() {
         BRefValueArray fArgs = new BRefValueArray();
-        fArgs.add(0, new BFloat(12345));
-        BValue[] args = {new BString("%5.4d"), fArgs};
-        BValue[] returns = BRunUtil.invoke(compileResult, "sprintf", args);
-        Assert.assertEquals(returns[0].stringValue(), "123456789.9877");
+        fArgs.add(0, new BInteger(12345));
+        BValue[] args = {new BString("%15d"), fArgs};
+        BValue[] returns = BRunUtil.invoke(compileResult, "testSprintf", args);
+        Assert.assertEquals(returns[0].stringValue(), "          12345");
     }
 
     @Test
     public void testFormatBinary() {
         BRefValueArray fArgs = new BRefValueArray();
-        fArgs.add(0, new BFloat(12345));
+        fArgs.add(0, new BInteger(12345));
         BValue[] args = {new BString("%B"), fArgs};
-        BValue[] returns = BRunUtil.invoke(compileResult, "sprintf", args);
+        BValue[] returns = BRunUtil.invoke(compileResult, "testSprintf", args);
         Assert.assertEquals(returns[0].stringValue(), "11000000111001");
     }
 
