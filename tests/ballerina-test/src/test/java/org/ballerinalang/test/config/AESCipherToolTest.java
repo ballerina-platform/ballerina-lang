@@ -19,6 +19,7 @@
 package org.ballerinalang.test.config;
 
 import org.ballerinalang.config.cipher.AESCipherTool;
+import org.ballerinalang.config.cipher.AESCipherToolException;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -30,16 +31,19 @@ import org.testng.annotations.Test;
 public class AESCipherToolTest {
 
     @Test
-    public void testEncryptionAndDecryptionWithSameTool() {
-        String plainText = "this is the plain text";
+    public void testEncryptionAndDecryptionWithSameTool() throws AESCipherToolException {
+        String plainText1 = "this is the plain text one";
+        String plainText2 = "this is the plain text two";
         String encryptionKey = "abc&xyz";
         AESCipherTool aesCipherTool = new AESCipherTool(encryptionKey);
-        String encryptedStr = aesCipherTool.encrypt(plainText);
-        Assert.assertEquals(plainText, aesCipherTool.decrypt(encryptedStr));
+        String encryptedStr1 = aesCipherTool.encrypt(plainText1);
+        Assert.assertEquals(plainText1, aesCipherTool.decrypt(encryptedStr1));
+        String encryptedStr2 = aesCipherTool.encrypt(plainText2);
+        Assert.assertEquals(plainText2, aesCipherTool.decrypt(encryptedStr2));
     }
 
     @Test
-    public void testEncryptionAndDecryptionWithTwoCipherTools() {
+    public void testEncryptionAndDecryptionWithTwoCipherTools() throws AESCipherToolException {
         String plainText = "this is the plain text";
         String encryptionKey = "abc&xyz";
         AESCipherTool encryptionCipherTool = new AESCipherTool(encryptionKey);
@@ -49,7 +53,7 @@ public class AESCipherToolTest {
     }
 
     @Test
-    public void testEncryptionAndDecryptionWithLongSecret() {
+    public void testEncryptionAndDecryptionWithLongSecret() throws AESCipherToolException {
         String plainText = "this is the plain text";
         String encryptionKey = "abcdefghijklmnopqrstuvwxyz";
         AESCipherTool aesCipherTool = new AESCipherTool(encryptionKey);

@@ -18,7 +18,7 @@
 
 package org.ballerinalang.config.cipher;
 
-import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.util.Base64;
@@ -38,15 +38,23 @@ import javax.crypto.spec.SecretKeySpec;
 public class AESCipherTool {
 
     private static final String ALGORITHM = "AES";
-    private static final String UTF_8 = "UTF-8";
     private static final int KEY_LENGTH = 16;
-    private final SecretKey secretKey;
+    private final Cipher encryptionCipher;
+    private final Cipher decryptionCipher;
 
     /**
      * @param userSecret User secret String to encode and decode a value.
      */
-    public AESCipherTool(String userSecret) {
-        this.secretKey = new SecretKeySpec(getBytes(fixSecretKeyLength(userSecret, KEY_LENGTH)), ALGORITHM);
+    public AESCipherTool(String userSecret) throws AESCipherToolException {
+        try {
+            SecretKey secretKey = new SecretKeySpec(getBytes(fixSecretKeyLength(userSecret, KEY_LENGTH)), ALGORITHM);
+            this.encryptionCipher = Cipher.getInstance(ALGORITHM);
+            this.encryptionCipher.init(Cipher.ENCRYPT_MODE, secretKey);
+            this.decryptionCipher = Cipher.getInstance(ALGORITHM);
+            this.decryptionCipher.init(Cipher.DECRYPT_MODE, secretKey);
+        } catch (NoSuchPaddingException | NoSuchAlgorithmException | InvalidKeyException e) {
+            throw new AESCipherToolException(e.getMessage(), e);
+        }
     }
 
     /**
@@ -55,14 +63,11 @@ public class AESCipherTool {
      * @param value Value to be encrypted.
      * @return Encrypted value.
      */
-    public String encrypt(String value) {
+    public String encrypt(String value) throws AESCipherToolException {
         try {
-            Cipher encryptionCipher = Cipher.getInstance(ALGORITHM);
-            encryptionCipher.init(Cipher.ENCRYPT_MODE, secretKey);
             return encodeBase64(encryptionCipher.doFinal(getBytes(value)));
-        } catch (NoSuchPaddingException | NoSuchAlgorithmException | InvalidKeyException | BadPaddingException |
-                IllegalBlockSizeException err) {
-            throw new BallerinaSecurityException(err.getMessage(), err);
+        } catch (BadPaddingException | IllegalBlockSizeException err) {
+            throw new AESCipherToolException(err.getMessage(), err);
         }
     }
 
@@ -72,14 +77,11 @@ public class AESCipherTool {
      * @param value Encrypted value to be decrypted.
      * @return Decrypted value.
      */
-    public String decrypt(String value) {
+    public String decrypt(String value) throws AESCipherToolException {
         try {
-            Cipher decryptionCipher = Cipher.getInstance(ALGORITHM);
-            decryptionCipher.init(Cipher.DECRYPT_MODE, secretKey);
-            return new String(decryptionCipher.doFinal(decodeBase64(value)), Charset.forName(UTF_8));
-        } catch (NoSuchPaddingException | NoSuchAlgorithmException | InvalidKeyException | BadPaddingException |
-                IllegalBlockSizeException err) {
-            throw new BallerinaSecurityException(err.getMessage(), err);
+            return new String(decryptionCipher.doFinal(decodeBase64(value)), StandardCharsets.UTF_8);
+        } catch (BadPaddingException | IllegalBlockSizeException err) {
+            throw new AESCipherToolException(err.getMessage(), err);
         }
     }
 
@@ -92,7 +94,7 @@ public class AESCipherTool {
     }
 
     private byte[] getBytes(String value) {
-        return value.getBytes(Charset.forName(UTF_8));
+        return value.getBytes(StandardCharsets.UTF_8);
     }
 
     private String fixSecretKeyLength(String key, int length) {

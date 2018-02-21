@@ -17,38 +17,28 @@
  */
 
 package org.ballerinalang.config.cipher;
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.util.exceptions.BallerinaException;
+
+import java.security.GeneralSecurityException;
 
 /**
  * This exception is thrown when a security related error occurs.
+ *
+ * @since 0.963.0
  */
-public class BallerinaSecurityException extends BallerinaException {
+public class AESCipherToolException extends GeneralSecurityException {
 
-    public BallerinaSecurityException() {
+    public AESCipherToolException() {
     }
 
-    public BallerinaSecurityException(String message) {
-        super(message);
+    public AESCipherToolException(String msg) {
+        super(msg);
     }
 
-    public BallerinaSecurityException(String message, Context context) {
-        super(message, context);
-    }
-
-    public BallerinaSecurityException(String message, Throwable cause) {
+    public AESCipherToolException(String message, Throwable cause) {
         super(message, cause);
     }
 
-    public BallerinaSecurityException(String message, Throwable cause, Context context) {
-        super(message, cause, context);
-    }
-
-    public BallerinaSecurityException(Throwable cause) {
+    public AESCipherToolException(Throwable cause) {
         super(cause);
-    }
-
-    public BallerinaSecurityException(Context stack) {
-        super(stack);
     }
 }
