@@ -1881,7 +1881,7 @@ public class BLangPackageBuilder {
         this.havingClauseStack.push(havingNode);
     }
 
-    public void endHavingClauseNode(DiagnosticPos currentPos, Set<Whitespace> ws) {
+    public void endHavingClauseNode(DiagnosticPos pos, Set<Whitespace> ws) {
         if (this.exprNodeStack.empty()) {
             throw new IllegalStateException("Expression stack cannot be empty in processing an having clause");
         }
