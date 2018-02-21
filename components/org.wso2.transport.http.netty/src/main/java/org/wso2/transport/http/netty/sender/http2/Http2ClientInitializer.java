@@ -47,9 +47,18 @@ public class Http2ClientInitializer extends ChannelInitializer<SocketChannel> {
     private Http2ConnectionHandler connectionHandler;
     private Http2FrameListener listener;
     private boolean skipHttpToHttp2Upgrade = false;
+    private Http2Connection connection;
+    private Http2FrameListenAdapter clientFrameListener;
 
     public Http2ClientInitializer(SenderConfiguration senderConfiguration) {
         skipHttpToHttp2Upgrade = senderConfiguration.skipHttpToHttp2Upgrade();
+        connection = new DefaultHttp2Connection(false);
+        clientFrameListener = new Http2FrameListenAdapter();
+        listener = new DelegatingDecompressorFrameListener(connection, clientFrameListener);
+        connectionHandler =
+                new Http2ConnectionHandlerBuilder().connection(connection).frameLogger(logger)
+                        .frameListener(listener).build();
+        http2ClientHandler = new Http2ClientHandler(connection, connectionHandler.encoder());
     }
 
     /**
@@ -60,18 +69,9 @@ public class Http2ClientInitializer extends ChannelInitializer<SocketChannel> {
      */
     @Override
     public void initChannel(SocketChannel socketChannel) throws Exception {
-        final Http2Connection connection = new DefaultHttp2Connection(false);
-        Http2FrameListenAdapter clientFrameListener = new Http2FrameListenAdapter();
-
-        listener = new DelegatingDecompressorFrameListener(connection, clientFrameListener);
-        connectionHandler =
-                new Http2ConnectionHandlerBuilder().connection(connection).frameLogger(logger)
-                        .frameListener(listener).build();
-        http2ClientHandler = new Http2ClientHandler(connection, connectionHandler.encoder());
 
         if (skipHttpToHttp2Upgrade) {
-            socketChannel.pipeline()
-                    .addLast(connectionHandler, http2ClientHandler);
+            socketChannel.pipeline().addLast(connectionHandler, http2ClientHandler);
         } else {
             configureClearTextUpgrade(socketChannel);
         }

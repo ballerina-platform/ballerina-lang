@@ -40,14 +40,12 @@ public class TargetChannel {
     public TargetChannel(Http2ClientInitializer http2ClientInitializer, ChannelFuture channelFuture) {
         this.http2ClientInitializer = http2ClientInitializer;
         this.channelFuture = channelFuture;
+        channel = channelFuture.channel();
+        connection = http2ClientInitializer.getHttp2ClientHandler().getConnection();
     }
 
     public Channel getChannel() {
         return channel;
-    }
-
-    public void setChannel(Channel channel) {
-        this.channel = channel;
     }
 
     public Http2ClientHandler getClientHandler() {

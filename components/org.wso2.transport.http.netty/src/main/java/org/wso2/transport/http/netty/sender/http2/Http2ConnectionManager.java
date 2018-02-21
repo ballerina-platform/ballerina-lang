@@ -74,6 +74,7 @@ public class Http2ConnectionManager {
 
         // Start the client.
         ChannelFuture channelFuture = clientBootstrap.connect();
+
         log.debug("Created channel: {}", httpRoute);
         TargetChannel targetChannel = new TargetChannel(initializer, channelFuture);
         Http2ClientHandler clientHandler = initializer.getHttp2ClientHandler();

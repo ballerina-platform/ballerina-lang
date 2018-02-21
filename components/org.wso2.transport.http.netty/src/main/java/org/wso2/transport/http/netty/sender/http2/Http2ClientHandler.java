@@ -81,10 +81,6 @@ public class Http2ClientHandler extends ChannelDuplexHandler {
         return connection;
     }
 
-    public ChannelHandlerContext getChannelHandlerContext() {
-        return channelHandlerContext;
-    }
-
     public void setTargetChannel(TargetChannel targetChannel) {
         this.targetChannel = targetChannel;
     }
@@ -111,12 +107,13 @@ public class Http2ClientHandler extends ChannelDuplexHandler {
 
             HttpRequest httpRequest = Util.createHttpRequest(httpOutboundRequest);
 
+
             // Write Headers
             writeHttp2Headers(httpRequest, streamId, true);
             // Write Content
             httpOutboundRequest.getHttpContentAsync().
                     setMessageListener((httpContent ->
-                                                this.channelHandlerContext.channel().eventLoop().execute(() -> {
+                                                this.targetChannel.getChannel().eventLoop().execute(() -> {
                                                     try {
                                                         writeHttp2Content(httpContent, streamId, true);
                                                     } catch (Exception exception) {
@@ -137,6 +134,8 @@ public class Http2ClientHandler extends ChannelDuplexHandler {
 
     private void writeHttp2Headers(HttpMessage httpMsg, int streamId, boolean validateHeaders) {
         // Convert and write the headers.
+        httpMsg.headers().add(HttpConversionUtil.ExtensionHeaderNames.SCHEME.text(), "HTTP");
+
         Http2Headers http2Headers = HttpConversionUtil.toHttp2Headers(httpMsg, validateHeaders);
         boolean endStream = httpMsg instanceof FullHttpMessage && !((FullHttpMessage) httpMsg).content().isReadable();
         writeHeaders(streamId, httpMsg.headers(), http2Headers, endStream);
@@ -164,6 +163,7 @@ public class Http2ClientHandler extends ChannelDuplexHandler {
             release = false;
             encoder.writeData(channelHandlerContext, streamId, content, 0, endStream,
                               channelHandlerContext.newPromise());
+            channelHandlerContext.flush();
 
             if (!trailers.isEmpty()) {
                 // Write trailing headers.
@@ -183,6 +183,7 @@ public class Http2ClientHandler extends ChannelDuplexHandler {
                 HttpConversionUtil.ExtensionHeaderNames.STREAM_WEIGHT.text(), Http2CodecUtil.DEFAULT_PRIORITY_WEIGHT);
         encoder.writeHeaders(channelHandlerContext, streamId, http2Headers, dependencyId, weight, false,
                              0, endStream, channelHandlerContext.newPromise());
+        channelHandlerContext.flush();
     }
 
     private class UpgradeRequestWriter {
@@ -205,7 +206,7 @@ public class Http2ClientHandler extends ChannelDuplexHandler {
         public void writeContent() {
 
             httpOutboundRequest.getHttpContentAsync().
-                    setMessageListener((httpContent -> channelHandlerContext.channel().eventLoop().execute(() -> {
+                    setMessageListener((httpContent -> targetChannel.getChannel().eventLoop().execute(() -> {
                         try {
                             writeOutboundRequest(httpContent);
                         } catch (Exception exception) {
@@ -255,7 +256,7 @@ public class Http2ClientHandler extends ChannelDuplexHandler {
             httpOutboundRequest.setProperty(Constants.HTTP_VERSION, httpVersion);
             HttpRequest httpRequest = Util.createHttpRequest(httpOutboundRequest);
             isRequestWritten = true;
-            channelHandlerContext.channel().write(httpRequest);
+            targetChannel.getChannel().write(httpRequest);
         }
 
         private void writeOutboundRequestBody(HttpContent lastHttpContent) {
@@ -266,8 +267,7 @@ public class Http2ClientHandler extends ChannelDuplexHandler {
                     notifyIfFailure(outboundRequestChannelFuture);
                 }
             }
-            ChannelFuture outboundRequestChannelFuture =
-                    channelHandlerContext.channel().writeAndFlush(lastHttpContent);
+            ChannelFuture outboundRequestChannelFuture = targetChannel.getChannel().writeAndFlush(lastHttpContent);
             notifyIfFailure(outboundRequestChannelFuture);
         }
 

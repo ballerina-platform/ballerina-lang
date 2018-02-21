@@ -86,8 +86,8 @@ public class Http2ClientConnectorImpl implements Http2ClientConnector {
 
         public void operationComplete(ChannelFuture channelFuture) throws Exception {
             if (isValidateChannel(channelFuture)) {
-                targetChannel.getClientHandler().writeRequest(
-                        new OutboundHttpRequestHolder(httpOutboundRequest, httpResponseFuture));
+                targetChannel.getClientHandler().
+                        writeRequest(new OutboundHttpRequestHolder(httpOutboundRequest, httpResponseFuture));
             } else {
                 notifyErrorState(channelFuture);
             }

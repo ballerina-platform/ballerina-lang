@@ -101,7 +101,6 @@ public class Util {
         HttpMethod httpMethod = getHttpMethod(outboundRequestMsg);
         HttpVersion httpVersion = getHttpVersion(outboundRequestMsg);
         String requestPath = getRequestPath(outboundRequestMsg);
-
         HttpRequest outboundNettyRequest = new DefaultHttpRequest(httpVersion, httpMethod,
                 (String) outboundRequestMsg.getProperty(Constants.TO), false);
         outboundNettyRequest.setMethod(httpMethod);
