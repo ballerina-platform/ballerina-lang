@@ -20,7 +20,7 @@ package org.ballerinalang.test.nativeimpl.functions.io.records;
 import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.nativeimpl.io.channels.base.Channel;
 import org.ballerinalang.nativeimpl.io.channels.base.CharacterChannel;
-import org.ballerinalang.nativeimpl.io.channels.base.TextRecordChannel;
+import org.ballerinalang.nativeimpl.io.channels.base.DelimitedRecordChannel;
 import org.ballerinalang.test.nativeimpl.functions.io.MockByteChannel;
 import org.ballerinalang.test.nativeimpl.functions.io.util.TestUtil;
 import org.testng.Assert;
@@ -53,7 +53,7 @@ public class RecordInputOutputTest {
         ByteChannel byteChannel = TestUtil.openForReading("datafiles/io/records/sample.csv");
         Channel channel = new MockByteChannel(byteChannel, 0);
         CharacterChannel characterChannel = new CharacterChannel(channel, StandardCharsets.UTF_8.name());
-        TextRecordChannel recordChannel = new TextRecordChannel(characterChannel, "\n", ",");
+        DelimitedRecordChannel recordChannel = new DelimitedRecordChannel(characterChannel, "\n", ",");
 
         String[] readRecord = recordChannel.read();
         Assert.assertEquals(readRecord.length, expectedFieldCount);
@@ -77,7 +77,7 @@ public class RecordInputOutputTest {
         ByteChannel byteChannel = TestUtil.openForReading("datafiles/io/records/sample4.csv");
         Channel channel = new MockByteChannel(byteChannel, 0);
         CharacterChannel characterChannel = new CharacterChannel(channel, StandardCharsets.UTF_8.name());
-        TextRecordChannel recordChannel = new TextRecordChannel(characterChannel, "\n", ",");
+        DelimitedRecordChannel recordChannel = new DelimitedRecordChannel(characterChannel, "\n", ",");
 
         String[] readRecord = recordChannel.read();
         Assert.assertEquals(readRecord.length, expectedFieldCount);
@@ -92,7 +92,7 @@ public class RecordInputOutputTest {
         ByteChannel byteChannel = TestUtil.openForReading("datafiles/io/records/sample2.csv");
         Channel channel = new MockByteChannel(byteChannel, 0);
         CharacterChannel characterChannel = new CharacterChannel(channel, StandardCharsets.UTF_8.name());
-        TextRecordChannel recordChannel = new TextRecordChannel(characterChannel, "\n", ",");
+        DelimitedRecordChannel recordChannel = new DelimitedRecordChannel(characterChannel, "\n", ",");
 
         String[] readRecord = recordChannel.read();
         Assert.assertEquals(readRecord.length, 9);
@@ -117,7 +117,7 @@ public class RecordInputOutputTest {
         ByteChannel byteChannel = TestUtil.openForWriting(currentDirectoryPath + "records.csv");
         Channel channel = new MockByteChannel(byteChannel, 0);
         CharacterChannel characterChannel = new CharacterChannel(channel, StandardCharsets.UTF_8.name());
-        TextRecordChannel recordChannel = new TextRecordChannel(characterChannel, "\n", ",");
+        DelimitedRecordChannel recordChannel = new DelimitedRecordChannel(characterChannel, "\n", ",");
 
         String[] recordOne = {"Foo", "Bar", "911"};
         BStringArray recordOneArr = new BStringArray(recordOne);

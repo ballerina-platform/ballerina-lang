@@ -42,7 +42,7 @@ import java.nio.channels.WritableByteChannel;
  *
  * @see Channel
  * @see CharacterChannel
- * @see TextRecordChannel
+ * @see DelimitedRecordChannel
  */
 public abstract class AbstractChannel {
 
