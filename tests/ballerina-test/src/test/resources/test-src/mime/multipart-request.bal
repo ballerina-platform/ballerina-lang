@@ -12,7 +12,7 @@ service<http> helloServer {
     }
     resource multipart1 (http:Connection conn, http:InRequest request) {
         mime:Entity[] bodyParts = request.getMultiparts();
-        string textContent = mime:getText(bodyParts[0]);
+        string textContent = bodyParts[0].getText();
         http:OutResponse response = {};
         response.setStringPayload(textContent);
         _ = conn.respond(response);
@@ -24,7 +24,7 @@ service<http> helloServer {
     }
     resource multipart2 (http:Connection conn, http:InRequest request) {
         mime:Entity[] bodyParts = request.getMultiparts();
-        json jsonContent = mime:getJson(bodyParts[0]);
+        json jsonContent = bodyParts[0].getJson();
         http:OutResponse response = {};
         response.setJsonPayload(jsonContent);
         _ = conn.respond(response);
@@ -36,7 +36,7 @@ service<http> helloServer {
     }
     resource multipart3 (http:Connection conn, http:InRequest request) {
         mime:Entity[] bodyParts = request.getMultiparts();
-        xml xmlContent = mime:getXml(bodyParts[0]);
+        xml xmlContent = bodyParts[0].getXml();
         http:OutResponse response = {};
         response.setXmlPayload(xmlContent);
         _ = conn.respond(response);
@@ -48,7 +48,7 @@ service<http> helloServer {
     }
     resource multipart4 (http:Connection conn, http:InRequest request) {
         mime:Entity[] bodyParts = request.getMultiparts();
-        blob blobContent = mime:getBlob(bodyParts[0]);
+        blob blobContent = bodyParts[0].getBlob();
         http:OutResponse response = {};
         response.setBinaryPayload(blobContent);
         _ = conn.respond(response);
@@ -71,21 +71,31 @@ service<http> helloServer {
         response.setStringPayload(content);
         _ = conn.respond(response);
     }
+
+    @http:resourceConfig {
+        methods:["POST"],
+        path:"/emptyparts"
+    }
+    resource multipart6 (http:Connection conn, http:InRequest request) {
+        mime:Entity entity = request.getEntity();
+        http:OutResponse response = {};
+        _ = conn.respond(response);
+    }
 }
 
 function handleContent (mime:Entity bodyPart) (string) {
     string contentType = bodyPart.contentType.toString();
     if (mime:APPLICATION_XML == contentType || mime:TEXT_XML == contentType) {
-        xml xmlContent = mime:getXml(bodyPart);
+        xml xmlContent = bodyPart.getXml();
         return xmlContent.getTextValue();
     } else if (mime:APPLICATION_JSON == contentType) {
-        json jsonContent = mime:getJson(bodyPart);
+        json jsonContent = bodyPart.getJson();
         var jsonValue, _ = (string)jsonContent.bodyPart;
         return jsonValue;
     } else if (mime:TEXT_PLAIN == contentType) {
-        return mime:getText(bodyPart);
+        return bodyPart.getText();
     } else if (mime:APPLICATION_OCTET_STREAM == contentType) {
-        blob blobContent = mime:getBlob(bodyPart);
+        blob blobContent = bodyPart.getBlob();
         return blobContent.toString(mime:DEFAULT_CHARSET);
     }
     return null;
