@@ -32,6 +32,8 @@ import javax.crypto.spec.SecretKeySpec;
 
 /**
  * This tools is used to encrypt and decrypt data using AES Algorithm.
+ *
+ * @since 0.963.0
  */
 public class AESCipherTool {
 
@@ -41,10 +43,10 @@ public class AESCipherTool {
     private final SecretKey secretKey;
 
     /**
-     * @param secretKeyStr User secret String to encode and decode a value.
+     * @param userSecret User secret String to encode and decode a value.
      */
-    public AESCipherTool(String secretKeyStr) {
-        this.secretKey = new SecretKeySpec(getBytes(fixSecretKeyLength(secretKeyStr, KEY_LENGTH)), ALGORITHM);
+    public AESCipherTool(String userSecret) {
+        this.secretKey = new SecretKeySpec(getBytes(fixSecretKeyLength(userSecret, KEY_LENGTH)), ALGORITHM);
     }
 
     /**
