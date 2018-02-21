@@ -1,3 +1,5 @@
+import ballerina.io;
+
 struct person {
     string fname;
     string lname;
@@ -19,13 +21,13 @@ function main (string[] args) {
     //Here's how you can convert a struct to a JSON object.
     //This conversion is unsafe.
     var j, _ = <json>theRevenant;
-    println(j);
-    println(j.writer.lname);
+    io:println(j);
+    io:println(j.writer.lname);
 
     // Similarly you can convert a struct to a map. This conversion is also safe.
     map m = <map>theRevenant;
     var writer, _ = (person)m["writer"];
-    println(writer.age);
+    io:println(writer.age);
 
     //'json' to struct conversion. This conversion is unsafe because the field names and type are unknown until runtime.
     json inceptionJ = {title:"Inception", year:"2010",
@@ -33,5 +35,5 @@ function main (string[] args) {
                           writer:{fname:"Christopher",
                                      lname:"Nolan", age:30}};
     var inception, _ = <movie>inceptionJ;
-    println(inceptionJ);
+    io:println(inceptionJ);
 }

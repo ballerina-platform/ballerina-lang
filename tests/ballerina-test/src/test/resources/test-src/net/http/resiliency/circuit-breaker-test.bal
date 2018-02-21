@@ -1,5 +1,6 @@
 import ballerina.net.http;
 import ballerina.net.http.resiliency;
+import ballerina.runtime;
 
 const string TEST_SCENARIO_HEADER = "test-scenario";
 
@@ -25,7 +26,7 @@ function testTypicalScenario () (http:InResponse[], http:HttpConnectorError[]) {
 
         // To ensure the reset timeout period expires
         if (counter == 5) {
-            sleep(5000);
+            runtime:sleepCurrentWorker(5000);
         }
     }
 
@@ -50,7 +51,7 @@ function testTrialRunFailure () (http:InResponse[], http:HttpConnectorError[]) {
         counter = counter + 1;
 
         if (counter == 3) {
-            sleep(5000);
+            runtime:sleepCurrentWorker(5000);
         }
     }
 
@@ -134,7 +135,7 @@ function handleScenario2 (int counter) (http:InResponse, http:HttpConnectorError
 
 function getErrorStruct () (http:HttpConnectorError) {
     http:HttpConnectorError err = {};
-    err.msg = "Connection refused";
+    err.message = "Connection refused";
     err.statusCode = 502;
     return err;
 }

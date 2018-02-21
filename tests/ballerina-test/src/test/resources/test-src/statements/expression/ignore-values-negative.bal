@@ -5,7 +5,7 @@ function add (int x, int y) (string) {
 
 function checkAndAdd (int x, int y) (string, error) {
     if (x < 0 || y < 0) {
-        error err = {msg:"can't add negative values."};
+        error err = {message:"can't add negative values."};
         return "", err;
     }
     string result = "result is " + (x + y);

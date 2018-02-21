@@ -250,15 +250,13 @@ public native function <Session session> getMaxInactiveInterval () (int);
 public native function <Session session> setMaxInactiveInterval (int timeInterval);
 
 @Description { value:"HttpConnectorError struct represents an error occured during the HTTP client invocation" }
-@Field {value:"msg:  An error message explaining about the error"}
+@Field {value:"message:  An error message explaining about the error"}
 @Field {value:"cause: The error that caused HttpConnectorError to get thrown"}
-@Field {value:"stackTrace: Represents the invocation stack when HttpConnectorError is thrown"}
 @Field {value:"statusCode: HTTP status code"}
 public struct HttpConnectorError {
-	string msg;
-	error cause;
-	StackFrame[] stackTrace;
-	int statusCode;
+    string message;
+    error cause;
+    int statusCode;
 }
 
 @Description { value:"Retry struct represents retry related options for HTTP client invocation" }

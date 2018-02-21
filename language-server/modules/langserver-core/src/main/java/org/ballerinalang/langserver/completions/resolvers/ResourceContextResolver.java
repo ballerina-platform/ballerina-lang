@@ -15,9 +15,10 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-
 package org.ballerinalang.langserver.completions.resolvers;
 
+import org.antlr.v4.runtime.ParserRuleContext;
+import org.ballerinalang.langserver.DocumentServiceKeys;
 import org.ballerinalang.langserver.TextDocumentServiceContext;
 import org.ballerinalang.langserver.completions.util.CompletionItemResolver;
 import org.ballerinalang.model.AnnotationAttachment;
@@ -26,20 +27,21 @@ import org.eclipse.lsp4j.CompletionItem;
 import java.util.ArrayList;
 
 /**
- * ResourceContextResolver.
+ * Completion item resolver for BLangResource context.
  */
 public class ResourceContextResolver extends AbstractItemResolver {
 
     @Override
     public ArrayList<CompletionItem> resolveItems(TextDocumentServiceContext completionContext) {
-
         ArrayList<CompletionItem> completionItems = new ArrayList<>();
-
-        if (this.isAnnotationContext(completionContext)) {
-            completionItems.addAll(
-                    CompletionItemResolver
-                            .getResolverByClass(AnnotationAttachment.class).resolveItems(completionContext)
-            );
+        ParserRuleContext parserRuleContext = completionContext.get(DocumentServiceKeys.PARSER_RULE_CONTEXT_KEY);
+        AbstractItemResolver itemResolver = CompletionItemResolver.getResolverByClass(parserRuleContext.getClass());
+        
+        if (itemResolver != null) {
+            completionItems.addAll(itemResolver.resolveItems(completionContext));
+        } else if (this.isAnnotationContext(completionContext)) {
+            completionItems.addAll(CompletionItemResolver.getResolverByClass(AnnotationAttachment.class)
+                    .resolveItems(completionContext));
         }
 
         return completionItems;

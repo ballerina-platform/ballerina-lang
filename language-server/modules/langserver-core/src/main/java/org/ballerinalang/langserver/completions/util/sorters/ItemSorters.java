@@ -43,6 +43,8 @@ public enum ItemSorters {
             new CallableUnitBodyItemSorter()),
     DEFAULT_ITEM_SORTER(DefaultItemSorter.class,
             new DefaultItemSorter()),
+    ENDPOINT_DEF_ITEM_SORTER(EndpointDefContextItemSorter.class,
+            new EndpointDefContextItemSorter()),
     RESOURCE_BODY_ITEM_SORTER(BLangAction.class,
             new CallableUnitBodyItemSorter()),
     SERVICE_BODY_ITEM_SORTER(BLangService.class,

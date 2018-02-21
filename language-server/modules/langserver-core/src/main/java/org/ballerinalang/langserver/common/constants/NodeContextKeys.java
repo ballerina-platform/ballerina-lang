@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (c) 2018, WSO2 Inc. (http://wso2.com) All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,8 +17,10 @@ package org.ballerinalang.langserver.common.constants;
 
 import org.ballerinalang.langserver.LanguageServerContext;
 import org.ballerinalang.model.elements.PackageID;
+import org.eclipse.lsp4j.Location;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 
+import java.util.List;
 import java.util.Stack;
 
 /**
@@ -44,5 +46,7 @@ public class NodeContextKeys {
     public static final LanguageServerContext.Key<String> SYMBOL_KIND_OF_NODE_KEY
             = new LanguageServerContext.Key<>();
     public static final LanguageServerContext.Key<String> VAR_NAME_OF_NODE_KEY
+            = new LanguageServerContext.Key<>();
+    public static final LanguageServerContext.Key<List<Location>> REFERENCE_NODES_KEY
             = new LanguageServerContext.Key<>();
 }

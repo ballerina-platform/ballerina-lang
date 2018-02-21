@@ -1,3 +1,4 @@
+import ballerina.io;
 import ballerina.net.http;
 
 @http:configuration {basePath:"/ecommerceservice"}
@@ -8,11 +9,11 @@ service<http> Ecommerce {
     }
     resource productsInfo1 (http:Connection conn, http:InRequest req, string productId, string regId) {
         string orderId = req.getHeader("X-ORDER-ID");
-        println("Order ID " + orderId);
-        println("Product ID " + productId);
-        println("Reg ID " + regId);
+        io:println("Order ID " + orderId);
+        io:println("Product ID " + productId);
+        io:println("Reg ID " + regId);
         json responseJson = {"X-ORDER-ID":orderId, "ProductID":productId, "RegID":regId};
-        println(responseJson.toString());
+        io:println(responseJson.toString());
 
         http:OutResponse res = {};
         res.setJsonPayload(responseJson);
@@ -25,10 +26,10 @@ service<http> Ecommerce {
     }
     resource productsInfo2 (http:Connection conn, http:InRequest req, string productId, string regId) {
         json responseJson;
-        println("Product ID " + productId);
-        println("Reg ID " + regId);
+        io:println("Product ID " + productId);
+        io:println("Reg ID " + regId);
         responseJson = {"Template":"T2", "ProductID":productId, "RegID":regId};
-        println(responseJson.toString());
+        io:println(responseJson.toString());
 
         http:OutResponse res = {};
         res.setJsonPayload(responseJson);
@@ -41,10 +42,10 @@ service<http> Ecommerce {
     }
     resource productsInfo3 (http:Connection conn, http:InRequest req, string productId, string regId) {
         json responseJson;
-        println("Product ID " + productId);
-        println("Reg ID " + regId);
+        io:println("Product ID " + productId);
+        io:println("Reg ID " + regId);
         responseJson = {"Template":"T3", "ProductID":productId, "RegID":regId};
-        println(responseJson.toString());
+        io:println(responseJson.toString());
 
         http:OutResponse res = {};
         res.setJsonPayload(responseJson);
@@ -60,10 +61,10 @@ service<http> Ecommerce {
         map params = req.getQueryParams();
         string rID;
         rID, _ = (string)params.regID;
-        println("Product ID " + productId);
-        println("Reg ID " + rID);
+        io:println("Product ID " + productId);
+        io:println("Reg ID " + rID);
         responseJson = {"Template":"T4", "ProductID":productId, "RegID":rID};
-        println(responseJson.toString());
+        io:println(responseJson.toString());
 
         http:OutResponse res = {};
         res.setJsonPayload(responseJson);
@@ -81,10 +82,10 @@ service<http> Ecommerce {
         string rID;
         prdID, _ = (string)params.prodID;
         rID, _ = (string)params.regID;
-        println ("Product ID " + prdID);
-        println ("Reg ID " + rID);
+        io:println ("Product ID " + prdID);
+        io:println ("Reg ID " + rID);
         responseJson = {"Template":"T6", "ProductID":prdID, "RegID":rID};
-        println (responseJson.toString ());
+        io:println (responseJson.toString ());
 
         http:OutResponse res = {};
         res.setJsonPayload(responseJson);
@@ -100,10 +101,10 @@ service<http> Ecommerce {
         map params = req.getQueryParams();
         string rID;
         rID, _ = (string)params.regID;
-        println("Product ID " + productId);
-        println("Reg ID " + rID);
+        io:println("Product ID " + productId);
+        io:println("Reg ID " + rID);
         responseJson = {"Template":"T5", "ProductID":productId, "RegID":rID};
-        println(responseJson.toString());
+        io:println(responseJson.toString());
 
         http:OutResponse res = {};
         res.setJsonPayload(responseJson);
