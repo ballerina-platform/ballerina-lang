@@ -18,7 +18,7 @@ service<http> echo {
         mime:MediaType contentTypeOfJsonPart = mime:getMediaType(mime:APPLICATION_JSON);
         jsonBodyPart.contentType = contentTypeOfJsonPart;
         jsonBodyPart.contentDisposition = getContentDispositionForFormData("json part");
-        jsonBodyPart.setJson( "{'name':'wso2'}");
+        jsonBodyPart.setJson({"name":"wso2"});
 
         //Create a xml body part as a file upload
         mime:Entity xmlFilePart = {};

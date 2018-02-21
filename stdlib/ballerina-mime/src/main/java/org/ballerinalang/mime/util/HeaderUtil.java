@@ -55,7 +55,7 @@ public class HeaderUtil {
             extractValue(headerValue);
             List<String> paramList = Arrays.stream(headerValue.substring(headerValue.indexOf(SEMICOLON) + 1)
                     .split(SEMICOLON)).map(String::trim).collect(Collectors.toList());
-            paramMap = validateParams(paramList) ? createParamBMap(paramList) : null;
+            paramMap = validateParams(paramList) ? getHeaderParamBMap(paramList) : null;
         }
         return paramMap;
     }
@@ -90,12 +90,12 @@ public class HeaderUtil {
     }
 
     /**
-     * Create a parameter map.
+     * Given a list of string parameter list, create ballerina specific header parameter map.
      *
      * @param paramList List of parameters
      * @return Ballerina map
      */
-    private static BMap<String, BValue> createParamBMap(List<String> paramList) {
+    private static BMap<String, BValue> getHeaderParamBMap(List<String> paramList) {
         BMap<String, BValue> paramMap = new BMap<>();
         for (String param : paramList) {
             if (param.contains("=")) {
@@ -140,7 +140,7 @@ public class HeaderUtil {
     /**
      * Extract the header value from a body part for a given header name.
      *
-     * @param bodyPart   Represent a ballerina body part.
+     * @param bodyPart   Represent a ballerina body part
      * @param headerName Represent an http header name
      * @return a header value for the given header name
      */
