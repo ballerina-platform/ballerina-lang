@@ -1,3 +1,5 @@
+import ballerina.io;
+
 struct Person {
     string firstName;
     string lastName;
@@ -17,9 +19,9 @@ function main (string[] args) {
 
     u = <json<User>> p;
 
-    println(u.username);
-    println(u.location);
-    println(u.age);
+    io:println(u.username);
+    io:println(u.location);
+    io:println(u.age);
 }
 
 transformer <json<Person> p, json<User> u> {

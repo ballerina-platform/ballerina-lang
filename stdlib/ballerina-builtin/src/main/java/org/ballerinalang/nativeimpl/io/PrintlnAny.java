@@ -15,7 +15,7 @@
 * specific language governing permissions and limitations
 * under the License.
 */
-package org.ballerinalang.nativeimpl.builtin.systemlib;
+package org.ballerinalang.nativeimpl.io;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeKind;
@@ -28,12 +28,12 @@ import org.ballerinalang.natives.exceptions.ArgumentOutOfRangeException;
 import java.io.PrintStream;
 
 /**
- * Native function ballerina.model.system:println.
+ * Native function ballerina.io:println.
  *
  * @since 0.85
  */
 @BallerinaFunction(
-        packageName = "ballerina.builtin",
+        packageName = "ballerina.io",
         functionName = "println",
         args = {@Argument(name = "a", type = TypeKind.ANY)},
         isPublic = true

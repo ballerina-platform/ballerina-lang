@@ -53,9 +53,9 @@ function main (string[] args) {
     string dstFilePath = "./files/ballerinaCopy1.jpg";
     io:ByteChannel sourceChannel = getFileChannel(srcFilePath, "r");
     io:ByteChannel destinationChannel = getFileChannel(dstFilePath, "w");
-    println("Start to copy files from " + srcFilePath + " to " + dstFilePath);
+    io:println("Start to copy files from " + srcFilePath + " to " + dstFilePath);
     copy(sourceChannel, destinationChannel);
-    println("File copy completed. The copied file could be located in " + dstFilePath);
+    io:println("File copy completed. The copied file could be located in " + dstFilePath);
     //Close the created connections.
     sourceChannel.close();
     destinationChannel.close();
@@ -63,9 +63,9 @@ function main (string[] args) {
     dstFilePath = "./files/ballerinaCopy2.jpg";
     sourceChannel = getFileChannel(srcFilePath, "r");
     destinationChannel = getFileChannel(dstFilePath, "w");
-    println("Start to copy files from " + srcFilePath + " to " + dstFilePath);
+    io:println("Start to copy files from " + srcFilePath + " to " + dstFilePath);
     copyAll(sourceChannel, destinationChannel);
-    println("File copy completed. The copied file could be located in " + dstFilePath);
+    io:println("File copy completed. The copied file could be located in " + dstFilePath);
     //Close the created connections.
     sourceChannel.close();
     destinationChannel.close();
