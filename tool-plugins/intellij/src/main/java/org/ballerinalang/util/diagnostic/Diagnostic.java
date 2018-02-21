@@ -14,7 +14,7 @@
  *  limitations under the License.
  */
 
-package org.ballerinalang.plugins.idea.util;
+package org.ballerinalang.util.diagnostic;
 
 /**
  * Represents a diagnostic. Used in external annotator.

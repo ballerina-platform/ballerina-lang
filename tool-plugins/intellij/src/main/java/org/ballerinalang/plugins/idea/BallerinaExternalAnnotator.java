@@ -39,7 +39,7 @@ import com.intellij.util.PathUtil;
 import org.ballerinalang.plugins.idea.psi.FullyQualifiedPackageNameNode;
 import org.ballerinalang.plugins.idea.psi.PackageDeclarationNode;
 import org.ballerinalang.plugins.idea.sdk.BallerinaSdkService;
-import org.ballerinalang.plugins.idea.util.Diagnostic;
+import org.ballerinalang.util.diagnostic.Diagnostic;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;

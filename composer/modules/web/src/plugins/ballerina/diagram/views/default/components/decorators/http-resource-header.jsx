@@ -32,7 +32,7 @@ class HttpResourceHeader extends React.Component {
     /**
      * Get base path of the resource
      * @returns string - base path
-    */
+     */
     getResourcePath() {
         let annotationAttachment = this.props.model.filterAnnotationAttachments((attachment) => {
             return attachment.getAnnotationName().value === 'resourceConfig';
@@ -45,19 +45,19 @@ class HttpResourceHeader extends React.Component {
         if (pathAtributeNode && pathAtributeNode.getValue() && pathAtributeNode.getValue()) {
             return pathAtributeNode.getValue().getValue().unescapedValue;
         }
-        return '';
+        return '/' + this.props.model.name.value;
     }
     /**
      * Get Name of the resource
      * @returns string - resource name
-    */
+     */
     getServiceName() {
         return this.props.model.getName().value;
     }
     /**
      * Get Name of the resource
      * @returns string - resource name
-    */
+     */
     getResourceName() {
         return this.props.model.getName().value;
     }
@@ -109,7 +109,29 @@ class HttpResourceHeader extends React.Component {
         const methods = this.getMethods().reverse();
         return (
             <g className='http-resource-header'>
-                {methods.map((method) => {
+                {methods.length === 0 &&
+                (<g className='http-methods'>
+                    <rect
+                        x={x - 15}
+                        y={y + 5}
+                        width={20}
+                        height={20}
+                        fill='#e2e2e2'
+                        rx='3'
+                        ry='3'
+                    />
+                    <text
+                        style={{ dominantBaseline: 'central' }}
+                        x={x - 8}
+                        y={basePathY}
+                        className='editable-text-label'
+                    >
+                        {'*'}
+                    </text>
+                </g>)
+
+                }
+                {methods.length > 0 && methods.map((method) => {
                     return (
                         <g className='http-methods'>
                             <rect

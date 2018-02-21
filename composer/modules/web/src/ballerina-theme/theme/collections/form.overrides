@@ -1,3 +1,31 @@
 /*******************************
          Site Overrides
 *******************************/
+
+.ui.form .fields .field .ui.input input, .ui.form .field .ui.input input, .ui.form textarea{
+    background      : @off-white;
+}
+
+.ui.form input[type="text"]:focus{
+    border-color    : @orange ;
+}
+
+.ui.form textarea:focus{
+    border-color    : @orange ;
+}
+
+.ui.selection.dropdown:focus .menu{
+    border-color    : @orange ;
+}
+
+.ui.form .field {
+    .selection.dropdown{
+        border-radius   : 0;
+        background      : @off-white;
+    }
+}
+
+.ui.form .field.error .ui.dropdown{
+    border-radius   : 0;
+    background      : @off-white;
+}

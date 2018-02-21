@@ -49,6 +49,7 @@ import static org.ballerinalang.plugins.idea.BallerinaTypes.ENDPOINT_BODY;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.ENUM_FIELD_LIST;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.EXPRESSION_LIST;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.FAILED_CLAUSE;
+import static org.ballerinalang.plugins.idea.BallerinaTypes.FIELD_DEFINITION;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.FINALLY_CLAUSE;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.FOREACH_STATEMENT;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.FORK_JOIN_STATEMENT;
@@ -57,6 +58,7 @@ import static org.ballerinalang.plugins.idea.BallerinaTypes.FUNCTION_DEFINITION;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.IF_CLAUSE;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.IF_ELSE_STATEMENT;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.JOIN_CLAUSE;
+import static org.ballerinalang.plugins.idea.BallerinaTypes.PRIVATE_STRUCT_BODY;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.RECORD_KEY_VALUE;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.RECORD_LITERAL;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.RESOURCE_DEFINITION;
@@ -150,6 +152,10 @@ public class BallerinaBlock extends AbstractBlock {
                     if (parentElementType == VARIABLE_REFERENCE) {
                         indent = Indent.getSpaceIndent(4);
                     }
+                } else if (childElementType == FIELD_DEFINITION) {
+                    if (parentElementType == PRIVATE_STRUCT_BODY) {
+                        indent = Indent.getSpaceIndent(4);
+                    }
                 }
 
                 // If the child node text is empty, the IDEA core will throw an exception.
@@ -196,8 +202,7 @@ public class BallerinaBlock extends AbstractBlock {
                 || parentElementType == ELSE_CLAUSE || parentElementType == TRY_CATCH_STATEMENT
                 || parentElementType == CATCH_CLAUSE || parentElementType == CATCH_CLAUSES
                 || parentElementType == FINALLY_CLAUSE || parentElementType == JOIN_CLAUSE
-                || parentElementType == TIMEOUT_CLAUSE || parentElementType == TRANSACTION_STATEMENT
-                || parentElementType == FAILED_CLAUSE) {
+                || parentElementType == TIMEOUT_CLAUSE || parentElementType == FAILED_CLAUSE) {
             return true;
         }
         return false;
