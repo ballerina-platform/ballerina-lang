@@ -64,7 +64,6 @@ function writeToFile(io:ByteChannel byteChannel) {
 }
 
 function getByteChannel (string filePath, string permission) (io:ByteChannel) {
-    file:File src = {path:filePath};
-    io:ByteChannel channel = src.openChannel(permission);
+    io:ByteChannel channel = io:openFile(filePath, permission);
     return channel;
 }
