@@ -18,6 +18,7 @@
 
 package org.ballerinalang.test.mime;
 
+import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.util.internal.StringUtil;
 import org.ballerinalang.launcher.util.BServiceUtil;
 import org.ballerinalang.launcher.util.CompileResult;
@@ -39,8 +40,6 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.ballerinalang.mime.util.Constants.CONTENT_TYPE;
-
 /**
  * Unit tests for multipart decoder.
  *
@@ -60,7 +59,8 @@ public class MultipartDecoderTest {
         String path = "/test/multipleparts";
         List<Header> headers = new ArrayList<>();
         String multipartDataBoundary = MimeUtil.getNewMultipartDelimiter();
-        headers.add(new Header(CONTENT_TYPE, "multipart/mixed; boundary=" + multipartDataBoundary));
+        headers.add(new Header(HttpHeaderNames.CONTENT_TYPE.toString(),
+                               "multipart/mixed; boundary=" + multipartDataBoundary));
         String multipartBody = "--" + multipartDataBoundary + "\r\n" +
                 "Content-Type: text/plain; charset=UTF-8" + "\r\n" +
                 "\r\n" +
@@ -86,7 +86,8 @@ public class MultipartDecoderTest {
         String path = "/test/multipleparts";
         List<Header> headers = new ArrayList<>();
         String multipartDataBoundary = MimeUtil.getNewMultipartDelimiter();
-        headers.add(new Header(CONTENT_TYPE, "multipart/form-data; boundary=" + multipartDataBoundary));
+        headers.add(new Header(HttpHeaderNames.CONTENT_TYPE.toString(),
+                               "multipart/form-data; boundary=" + multipartDataBoundary));
         String multipartBody = "--" + multipartDataBoundary + "\r\n" +
                 "Content-Disposition: form-data; name=\"foo\"" + "\r\n" +
                 "Content-Type: text/plain; charset=UTF-8" + "\r\n" +
@@ -114,7 +115,8 @@ public class MultipartDecoderTest {
         String path = "/test/multipleparts";
         List<Header> headers = new ArrayList<>();
         String multipartDataBoundary = MimeUtil.getNewMultipartDelimiter();
-        headers.add(new Header(CONTENT_TYPE, "multipart/new-sub-type; boundary=" + multipartDataBoundary));
+        headers.add(new Header(HttpHeaderNames.CONTENT_TYPE.toString(),
+                               "multipart/new-sub-type; boundary=" + multipartDataBoundary));
         String multipartBody = "--" + multipartDataBoundary + "\r\n" +
                 "Content-Disposition: form-data; name=\"foo\"" + "\r\n" +
                 "Content-Type: text/plain; charset=UTF-8" + "\r\n" +
@@ -142,7 +144,8 @@ public class MultipartDecoderTest {
         String path = "/test/emptyparts";
         List<Header> headers = new ArrayList<>();
         String multipartDataBoundary = MimeUtil.getNewMultipartDelimiter();
-        headers.add(new Header(CONTENT_TYPE, "multipart/mixed; boundary=" + multipartDataBoundary));
+        headers.add(new Header(HttpHeaderNames.CONTENT_TYPE.toString(),
+                               "multipart/mixed; boundary=" + multipartDataBoundary));
         String multipartBody = "--" + multipartDataBoundary + "\r\n" +
                 "--" + multipartDataBoundary + "--" + "\r\n";
 
@@ -167,7 +170,8 @@ public class MultipartDecoderTest {
         List<Header> headers = new ArrayList<>();
         String multipartDataBoundary = MimeUtil.getNewMultipartDelimiter();
         String multipartMixedBoundary = MimeUtil.getNewMultipartDelimiter();
-        headers.add(new Header(CONTENT_TYPE, "multipart/form-data; boundary=" + multipartDataBoundary));
+        headers.add(new Header(HttpHeaderNames.CONTENT_TYPE.toString(),
+                               "multipart/form-data; boundary=" + multipartDataBoundary));
         String multipartBodyWithNestedParts = "--" + multipartDataBoundary + "\r\n" +
                 "Content-Disposition: form-data; name=\"parent1\"" + "\r\n" +
                 "Content-Type: text/plain; charset=UTF-8" + "\r\n" +

@@ -18,6 +18,7 @@
 
 package org.ballerinalang.mime.util;
 
+import io.netty.handler.codec.http.HttpHeaderNames;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.connector.api.ConnectorUtils;
 import org.ballerinalang.model.values.BMap;
@@ -35,10 +36,8 @@ import javax.activation.MimeTypeParseException;
 
 import static org.ballerinalang.mime.util.Constants.BOUNDARY;
 import static org.ballerinalang.mime.util.Constants.BYTE_LIMIT;
-import static org.ballerinalang.mime.util.Constants.CONTENT_DISPOSITION;
 import static org.ballerinalang.mime.util.Constants.CONTENT_DISPOSITION_STRUCT;
 import static org.ballerinalang.mime.util.Constants.CONTENT_ID_INDEX;
-import static org.ballerinalang.mime.util.Constants.CONTENT_LENGTH;
 import static org.ballerinalang.mime.util.Constants.ENTITY;
 import static org.ballerinalang.mime.util.Constants.ENTITY_HEADERS_INDEX;
 import static org.ballerinalang.mime.util.Constants.FIRST_ELEMENT;
@@ -132,7 +131,7 @@ public class MultipartDecoder {
         populateContentLength(mimePart, partStruct);
         populateContentId(mimePart, partStruct);
         populateContentType(mimePart, partStruct, mediaType);
-        List<String> contentDispositionHeaders = mimePart.getHeader(CONTENT_DISPOSITION);
+        List<String> contentDispositionHeaders = mimePart.getHeader(HttpHeaderNames.CONTENT_DISPOSITION.toString());
         if (HeaderUtil.isHeaderExist(contentDispositionHeaders)) {
             BStruct contentDisposition = ConnectorUtils.createAndGetStruct(context, PROTOCOL_PACKAGE_MIME,
                     CONTENT_DISPOSITION_STRUCT);
@@ -156,7 +155,7 @@ public class MultipartDecoder {
     }
 
     private static void populateContentLength(MIMEPart mimePart, BStruct partStruct) {
-        List<String> lengthHeaders = mimePart.getHeader(CONTENT_LENGTH);
+        List<String> lengthHeaders = mimePart.getHeader(HttpHeaderNames.CONTENT_LENGTH.toString());
         if (HeaderUtil.isHeaderExist(lengthHeaders)) {
             MimeUtil.setContentLength(partStruct, Integer.parseInt(lengthHeaders.get(FIRST_ELEMENT)));
         } else {
