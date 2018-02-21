@@ -26,7 +26,7 @@ package org.wso2.ballerinalang.compiler.util;
  * <li>ALL - Access all fields</li>
  * </ul>
  * </p>
- * @since 0.962.0
+ * @since 0.963.0
  */
 public enum FieldType {
     SINGLE, 
