@@ -18,6 +18,7 @@
 package org.ballerinalang.bre;
 
 import org.ballerinalang.util.exceptions.BallerinaException;
+import org.ballerinalang.util.transactions.BallerinaTransactionContext;
 
 import java.util.HashMap;
 import java.util.Map;
