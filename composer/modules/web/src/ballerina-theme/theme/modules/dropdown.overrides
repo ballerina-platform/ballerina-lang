@@ -1,3 +1,15 @@
 /*******************************
         User Overrides
 *******************************/
+
+.ui.form .field .selection.dropdown:focus{
+     border-color    : @orange;
+ }
+
+.ui.selection.active.dropdown .menu{
+    border-color    : @orange;
+}
+
+.ui.selection.active.dropdown:hover .menu{
+     border-color    : @orange;
+}
