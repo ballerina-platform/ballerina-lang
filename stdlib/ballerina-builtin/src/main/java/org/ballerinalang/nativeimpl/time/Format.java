@@ -15,11 +15,11 @@
 * specific language governing permissions and limitations
 * under the License.
 */
-package org.ballerinalang.nativeimpl.builtin.timelib;
+package org.ballerinalang.nativeimpl.time;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BInteger;
+import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.Argument;
@@ -27,23 +27,25 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
 /**
- * Get the second value for the given time.
+ * Convert a Time to string in the given format.
  *
  * @since 0.89
  */
 @BallerinaFunction(
-        packageName = "ballerina.builtin",
-        functionName = "Time.second",
+        packageName = "ballerina.time",
+        functionName = "Time.format",
         args = {@Argument(name = "time", type = TypeKind.STRUCT, structType = "Time",
-                          structPackage = "ballerina.builtin")},
-        returnType = {@ReturnType(type = TypeKind.INT)},
+                          structPackage = "ballerina.time"),
+                @Argument(name = "pattern", type = TypeKind.STRING)},
+        returnType = {@ReturnType(type = TypeKind.STRING)},
         isPublic = true
 )
-public class Second extends AbstractTimeFunction {
+public class Format extends AbstractTimeFunction {
 
     @Override
     public BValue[] execute(Context context) {
         BStruct timeStruct = ((BStruct) getRefArgument(context, 0));
-        return new BValue[]{new BInteger(getSecond(timeStruct))};
+        String pattern = getStringArgument(context, 0);
+        return new BValue[]{new BString(getFormattedtString(timeStruct, pattern))};
     }
 }

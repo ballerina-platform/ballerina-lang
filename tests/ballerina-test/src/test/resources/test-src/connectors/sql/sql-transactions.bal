@@ -102,7 +102,7 @@ function testTransactonErrorThrow () (int returnVal, int catchValue, int count) 
                       registrationID,creditLimit,country) values ('James', 'Clerk', 260, 5000.75, 'USA')", null);
             int i = 0;
             if (i == 0) {
-                error err = {msg:"error"};
+                error err = {message:"error"};
                 throw err;
             }
         } failed {
@@ -135,7 +135,7 @@ function testTransactionErrorThrowAndCatch () (int returnVal, int catchValue, in
         int i = 0;
         try {
             if (i == 0) {
-                error err = {msg:"error"};
+                error err = {message:"error"};
                 throw err;
             }
         } catch (error err) {

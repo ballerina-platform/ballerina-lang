@@ -15,37 +15,35 @@
 * specific language governing permissions and limitations
 * under the License.
 */
-package org.ballerinalang.nativeimpl.builtin.timelib;
+package org.ballerinalang.nativeimpl.time;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BString;
-import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
 /**
- * Convert a Time to string in the given format.
+ * Get the Time for the given string.
  *
  * @since 0.89
  */
 @BallerinaFunction(
-        packageName = "ballerina.builtin",
-        functionName = "Time.format",
-        args = {@Argument(name = "time", type = TypeKind.STRUCT, structType = "Time",
-                          structPackage = "ballerina.builtin"),
-                @Argument(name = "pattern", type = TypeKind.STRING)},
-        returnType = {@ReturnType(type = TypeKind.STRING)},
+        packageName = "ballerina.time",
+        functionName = "parse",
+        args = {@Argument(name = "dateString", type = TypeKind.STRING),
+                @Argument(name = "patter", type = TypeKind.STRING)},
+        returnType = {@ReturnType(type = TypeKind.STRUCT, structType = "Time",
+                                  structPackage = "ballerina.time")},
         isPublic = true
 )
-public class Format extends AbstractTimeFunction {
+public class Parse extends  AbstractTimeFunction {
 
     @Override
     public BValue[] execute(Context context) {
-        BStruct timeStruct = ((BStruct) getRefArgument(context, 0));
-        String pattern = getStringArgument(context, 0);
-        return new BValue[]{new BString(getFormattedtString(timeStruct, pattern))};
+        String dateString = getStringArgument(context, 0);
+        String pattern = getStringArgument(context, 1);
+        return new BValue[] { parseTime(context, dateString, pattern) };
     }
 }

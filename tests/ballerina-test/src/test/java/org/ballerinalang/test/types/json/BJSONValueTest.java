@@ -481,13 +481,13 @@ public class BJSONValueTest {
     }
 
     @Test(expectedExceptions = { BLangRuntimeException.class },
-            expectedExceptionsMessageRegExp = "error: NullReferenceException.*")
+            expectedExceptionsMessageRegExp = "error:.*NullReferenceException.*")
     public void testGetFromNull() {
         BRunUtil.invoke(compileResult, "testGetFromNull");
     }
 
     @Test(expectedExceptions = { BLangRuntimeException.class },
-            expectedExceptionsMessageRegExp = "error: NullReferenceException.*")
+            expectedExceptionsMessageRegExp = "error:.*NullReferenceException.*")
     public void testAddToNull() {
         BRunUtil.invoke(compileResult, "testAddToNull");
     }

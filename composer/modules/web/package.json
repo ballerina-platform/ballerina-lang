@@ -93,6 +93,7 @@
     "yargs": "^1.3.3"
   },
   "dependencies": {
+    "@pahans/react-htmltree": "^0.8.1",
     "ace-builds": "^1.2.6",
     "axios": "^0.16.2",
     "bootstrap": "^3.3.6",
@@ -124,7 +125,6 @@
     "react-dnd": "^2.5.3",
     "react-dnd-html5-backend": "^2.5.3",
     "react-dom": "^16.2.0",
-    "react-htmltree": "github:pahans/react-htmltree#upgrade-to-react-16",
     "react-json-view": "^1.13.3",
     "react-linkify": "^0.2.1",
     "react-monaco-editor": "^0.13.0",

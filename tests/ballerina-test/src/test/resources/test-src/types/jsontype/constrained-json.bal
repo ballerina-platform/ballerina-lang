@@ -92,14 +92,14 @@ function testConstraintJSONToJSONCast() (json) {
     return j2;
 }
 
-function testJSONToConstraintJsonUnsafeCast() (json, TypeCastError) {
+function testJSONToConstraintJsonUnsafeCast() (json, error) {
     json<Person> j;
-    TypeCastError err;
+    error err;
     j,err = (json<Person>)getPlainJson();
     return j,err;
 }
 
-function testJSONToConstraintJsonUnsafeCastPositive() (json, json, json, TypeCastError) {
+function testJSONToConstraintJsonUnsafeCastPositive() (json, json, json, error) {
     json<Person> j;
     var j, e = (json<Person>)getPersonEquivalentPlainJson();
     return j.name, j.age, j.address, e;
@@ -110,38 +110,38 @@ function testConstraintJSONToConstraintJsonCast() (json) {
     return j;
 }
 
-function testConstraintJSONToConstraintJsonUnsafePositiveCast() (json, TypeCastError) {
+function testConstraintJSONToConstraintJsonUnsafePositiveCast() (json, error) {
     json<Person> jp = (json<Person>) getStudent();
     var js, e = (json<Student>) jp;
     return js, e;
 }
 
-function testConstraintJSONToConstraintJsonUnsafeNegativeCast() (json, TypeCastError) {
+function testConstraintJSONToConstraintJsonUnsafeNegativeCast() (json, error) {
     json<Employee> je = {first_name:"John", last_name:"Doe", age:30, address:{phoneNumber:{number:"1234"}, street:"York St"}};
     var js, e = (json<Student>) je;
     return js, e;
 }
 
-function testJSONArrayToConstraintJsonArrayCastPositive() (json<Student>[], TypeCastError) {
+function testJSONArrayToConstraintJsonArrayCastPositive() (json<Student>[], error) {
     json j1 = [getStudent()];
     var j2, e = (json<Student>[]) j1;
     return j2, e;
 }
 
-function testJSONArrayToConstraintJsonArrayCastNegative() (json<Student>[], TypeCastError) {
+function testJSONArrayToConstraintJsonArrayCastNegative() (json<Student>[], error) {
     json j1 = [{"a":"b"}, {"c":"d"}];
     var j2, e = (json<Student>[]) j1;
     return j2, e;
 }
 
-function testJSONArrayToCJsonArrayCast() (json<Student>[], TypeCastError) {
+function testJSONArrayToCJsonArrayCast() (json<Student>[], error) {
     json[] j1 = [{"name":"John Doe", "age":30, "address":"London", "class":"B"}];
     json j2 = j1;
     var j3, e = (json<Student>[]) j2;
     return j3, e;
 }
 
-function testJSONArrayToCJsonArrayCastNegative() (json<Student>[], TypeCastError) {
+function testJSONArrayToCJsonArrayCastNegative() (json<Student>[], error) {
     json[] j1 = [{name:"John Doe", age:30, address:"London"}]; // one field is missing
     json j2 = j1;
     var j3, e = (json<Student>[]) j2;
@@ -156,7 +156,7 @@ function testCJSONArrayToJsonAssignment() (json) {
     return j2;
 }
 
-function testMixedTypeJSONArrayToCJsonArrayCastNegative() (json<Student>[], TypeCastError) {
+function testMixedTypeJSONArrayToCJsonArrayCastNegative() (json<Student>[], error) {
     json[] j1 = [{name:"John Doe", age:30, address:"London", "class":"B"}, [4, 6]];
     json j2 = j1;
     var j3, e = (json<Student>[]) j2;

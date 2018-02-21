@@ -1,4 +1,5 @@
 import ballerina.net.http;
+import ballerina.io;
 import ballerina.log;
 
 function main (string[] args) {
@@ -10,7 +11,7 @@ function main (string[] args) {
     log:printInfo("Sending request");
     resp, _ = connectorEP.get("/echo/", req);
     log:printInfo("response received");
-    println(resp.getStringPayload());
+    io:println(resp.getStringPayload());
 }
 
 function getConnectorConfigs() (http:Options) {

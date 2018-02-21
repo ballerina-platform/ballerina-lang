@@ -15,7 +15,7 @@
 * specific language governing permissions and limitations
 * under the License.
 */
-package org.ballerinalang.nativeimpl.builtin.systemlib;
+package org.ballerinalang.nativeimpl.io;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeKind;
@@ -32,7 +32,7 @@ import java.io.PrintStream;
  * Native function print.
  */
 @BallerinaFunction(
-        packageName = "ballerina.builtin",
+        packageName = "ballerina.io",
         functionName = "print",
         args = {@Argument(name = "a", type = TypeKind.ANY)},
         isPublic = true

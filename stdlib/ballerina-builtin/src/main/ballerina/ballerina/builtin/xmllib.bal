@@ -1,13 +1,5 @@
 package ballerina.builtin;
 
-@Description { value: "Options struct for XML to JSON conversion "}
-@Field {value:"attributePrefix:  prefix to add to the key to identify a XML attribute and namespaces, default value is '@'."}
-@Field {value:"preserveNamespaces: Indicate whether to preserve namespace prefixes when converting or not."}
-public struct xmlOptions {
-    string attributePrefix = "@";
-    boolean preserveNamespaces = true;
-}
-
 @Description { value:"Check whether the XML sequence contains only a single element."}
 @Param { value:"x: An XML object" }
 @Return { value:"Boolean flag indicating whether the XML sequence contains only a single element" }
@@ -85,7 +77,10 @@ public native function <xml x> setAttributes(map attributes);
 @Param { value:"x: A XML object" }
 @Param { value:"options: xmlOptions struct for XML to JSON conversion properties" }
 @Return { value:"JSON representation of the given XML" }
-public native function <xml x> toJSON (xmlOptions options) (json);
+public native function <xml x> toJSON (struct {
+                                           string attributePrefix = "@";
+                                           boolean preserveNamespaces = true;
+                                       } options) (json);
 
 @Description { value:"Searches in children recursively for elements matching the qualified name and returns a sequence containing them all. Does not search within a matched result." }
 @Param { value:"x: An XML object" }
