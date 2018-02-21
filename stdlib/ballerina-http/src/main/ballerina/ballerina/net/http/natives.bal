@@ -325,6 +325,7 @@ public struct Proxy {
 @Field {value:"ssl: SSL/TLS related options"}
 @Field {value:"retryConfig: Retry related options"}
 @Field {value:"proxy: Proxy server related options"}
+@Field {value:"forwarded: The choice of adding x-forwarded header{default value:false}"}
 public struct Options {
     int port;
     int endpointTimeout = 60000;
@@ -337,6 +338,7 @@ public struct Options {
     SSL ssl;
     Retry retryConfig;
     Proxy proxy;
+	boolean forwarded = false;
 }
 
 @Description { value:"HTTP client connector for outbound HTTP requests"}

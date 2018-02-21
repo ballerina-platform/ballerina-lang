@@ -225,6 +225,10 @@ public class Init extends AbstractHTTPAction {
 
         String httpVersion = options.getStringField(HttpConstants.HTTP_VERSION_STRUCT_INDEX);
         senderConfiguration.setHttpVersion(httpVersion);
+
+        boolean forwardedExtensionEnabled = options
+                .getBooleanField(HttpConstants.FORWARDED_EXTENSION_ENABLED_INDEX) == TRUE;
+        senderConfiguration.setForwardedExtensionEnabled(forwardedExtensionEnabled);
     }
 
     private boolean isInteger(long val) {
