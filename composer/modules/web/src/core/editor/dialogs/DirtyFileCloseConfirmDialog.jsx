@@ -19,7 +19,6 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Row, Grid, Col } from 'react-bootstrap';
 import { Button } from 'semantic-ui-react';
 import Dialog from './../../view/Dialog';
 
@@ -59,6 +58,7 @@ class DirtyFileCloseConfirmDialog extends React.Component {
             <Dialog
                 show={this.state.showDialog}
                 title='Save Unsaved Content'
+                titleIcon='warning circle'
                 actions={
                 [
                     <Button
@@ -71,7 +71,7 @@ class DirtyFileCloseConfirmDialog extends React.Component {
                             evt.preventDefault();
                         }}
                     >
-                        Don&#39;t Save
+                            Don&#39;t Save
                     </Button>,
                     <Button
                         key='dirty-file-close-confirm-dialog-save'
@@ -83,30 +83,23 @@ class DirtyFileCloseConfirmDialog extends React.Component {
                             evt.preventDefault();
                         }}
                     >
-                        Save
+                            Save
                     </Button>,
                 ]}
                 closeAction
                 onHide={this.onDialogHide}
                 onAfterHide={this.props.onAfterHide}
                 error={this.state.error}
+                size='small'
             >
-                <Grid fluid>
-                    <Row>
-                        <Col md={2}>
-                            <i className='fw fw-4x fw-warning danger' />
-                        </Col>
-                        <Col md={10}>
-                            <h4 style={{ marginTop: 0 }}>
-                                Do you want to save the changes you made to
-                                {' "' + this.props.file.name + '.' + this.props.file.extension + '" '}?
-                            </h4>
-                            <p>
-                                Your changes will be lost if you don't save them.
-                            </p>
-                        </Col>
-                    </Row>
-                </Grid>
+                <h4>
+                    Do you want to save the changes you made to
+                    {' "' + this.props.file.name + '.' + this.props.file.extension + '" '}?
+                </h4>
+                <p>
+                    Your changes will be lost if you don&#39;t save them.
+                </p>
+
             </Dialog>
         );
     }
@@ -117,11 +110,10 @@ DirtyFileCloseConfirmDialog.propTypes = {
     onConfirm: PropTypes.func.isRequired,
     onAfterHide: PropTypes.func,
     onSave: PropTypes.func.isRequired,
-    editorPlugin: PropTypes.objectOf(Object).isRequired,
 };
 
 DirtyFileCloseConfirmDialog.defaultProps = {
-    onAfterHide: () => {},
+    onAfterHide: () => { },
 };
 
 export default DirtyFileCloseConfirmDialog;
