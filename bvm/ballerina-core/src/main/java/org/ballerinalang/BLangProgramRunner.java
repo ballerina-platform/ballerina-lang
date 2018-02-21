@@ -81,7 +81,7 @@ public class BLangProgramRunner {
 
     private static void deployTransactionCoordinatorServices(ProgramFile programFile, Context bContext) {
         PackageInfo coordinatorPkgInfo = programFile.getPackageInfo("ballerina.transactions.coordinator");
-        ServiceInfo[] coordinatorServices = null;
+        ServiceInfo[] coordinatorServices;
         if (coordinatorPkgInfo != null) {
             coordinatorPkgInfo.setProgramFile(programFile);
             coordinatorServices = coordinatorPkgInfo.getServiceInfoEntries();

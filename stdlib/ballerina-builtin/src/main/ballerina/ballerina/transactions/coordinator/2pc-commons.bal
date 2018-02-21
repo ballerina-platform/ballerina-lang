@@ -288,3 +288,10 @@ function abortTransaction (string transactionId) returns (string message, error 
     }
     return;
 }
+
+native function prepareResourceManagers(string transactionId) returns (boolean prepareSuccessful);
+
+native function commitResourceManagers(string transactionId) returns (boolean commitSuccessful);
+
+native function abortResourceManagers(string transactionId) returns (boolean abortSuccessful);
+

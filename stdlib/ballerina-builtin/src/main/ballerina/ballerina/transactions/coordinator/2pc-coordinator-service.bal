@@ -34,25 +34,31 @@ service<http> TwoPcParticipantCoordinator {
         var prepareReq, _ = <PrepareRequest>req.getJsonPayload();
         string transactionId = prepareReq.transactionId;
         log:printInfo("Prepare received for transaction: " + transactionId);
+        PrepareResponse prepareRes;
         var txn, _ = (TwoPhaseCommitTransaction)transactions[transactionId];
         if (txn == null) {
             res = {statusCode:404};
-            PrepareResponse prepareRes = {message:"Transaction-Unknown"};
-            var j, _ = <json>prepareRes;
-            res.setJsonPayload(j);
+            prepareRes = {message:"Transaction-Unknown"};
         } else {
-            // TODO: call prepare on the local resource manager, if the transaction manager returns OK, then return
-            // "Prepared" else return "Aborted"
-
-            res = {statusCode:200};
-            txn.state = TransactionState.PREPARED;
-            //PrepareResponse prepareRes = {message:"read-only"};
-            PrepareResponse prepareRes = {message:"prepared"};
-            log:printInfo("Prepared");
+            // Call prepare on the local resource manager
+            boolean prepareSuccessful = prepareResourceManagers(transactionId);
+            if (prepareSuccessful) {
+                res = {statusCode:200};
+                txn.state = TransactionState.PREPARED;
+                //PrepareResponse prepareRes = {message:"read-only"};
+                prepareRes = {message:"prepared"};
+                log:printInfo("Prepared transaction: " + transactionId);
+            } else {
+                res = {statusCode:500};
+                prepareRes = {message:"aborted"};
+                transactions.remove(transactionId);
+                log:printInfo("Aborted transaction: " + transactionId);
+            }
             var j, _ = <json>prepareRes;
             res.setJsonPayload(j);
         }
-
+        var j, _ = <json>prepareRes;
+        res.setJsonPayload(j);
         _ = conn.respond(res);
     }
 
@@ -77,15 +83,26 @@ service<http> TwoPcParticipantCoordinator {
                     res = {statusCode:400};
                     notifyRes = {message:"Not-Prepared"};
                 } else {
-                    // TODO: Notify commit to the resource manager
-                    res = {statusCode:200};
-                    notifyRes = {message:"committed"};
-
+                    // Notify commit to the resource manager
+                    boolean commitSuccessful = commitResourceManagers(transactionId);
+                    if (commitSuccessful) {
+                        res = {statusCode:200};
+                        notifyRes = {message:"Committed"};
+                    } else {
+                        res = {statusCode:500};
+                        notifyRes = {message:"Failed-EOT"};
+                    }
                 }
             } else if (notifyReq.message == "abort") {
-                // TODO: Notify abort to the resource manager
-                res = {statusCode:200};
-                notifyRes = {message:"aborted"};
+                // Notify abort to the resource manager
+                boolean abortSuccessful = abortResourceManagers(transactionId);
+                if (abortSuccessful) {
+                    res = {statusCode:200};
+                    notifyRes = {message:"Aborted"};
+                } else {
+                    res = {statusCode:500};
+                    notifyRes = {message:"Failed-EOT"};
+                }
             }
             transactions.remove(transactionId);
         }
