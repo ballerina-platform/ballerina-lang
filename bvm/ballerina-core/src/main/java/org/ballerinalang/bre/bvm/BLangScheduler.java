@@ -63,6 +63,13 @@ public class BLangScheduler {
         } catch (InterruptedException ignore) { /* ignore */ }
     }
     
+    public static void workerExcepted(WorkerExecutionContext ctx, Throwable e) {
+        System.out.println("Worker Exception: " + ctx + " -> " + e.getMessage());
+    }
+    
+    /**
+     * This represents the thread used to execute a runnable worker.
+     */
     private static class WorkerExecutor implements Runnable {
 
         private WorkerExecutionContext ctx;
@@ -77,17 +84,17 @@ public class BLangScheduler {
         @Override
         public void run() {
             try {
-                ctx.executionLock.lock();
+                ctx.lockExecution();
                 if (this.restoreIP) {
                     ctx.restoreIP();
                 }
                 ctx.state = WorkerState.RUNNING;
                 CPU.exec(ctx);
             } catch (Throwable e) {
-                System.out.println("*** ERROR: " + e.getMessage());
                 ctx.state = WorkerState.EXCEPTED;
+                BLangScheduler.workerExcepted(this.ctx, e);
             } finally {
-                ctx.executionLock.unlock();
+                ctx.unlockExecution();
             }
         }
         

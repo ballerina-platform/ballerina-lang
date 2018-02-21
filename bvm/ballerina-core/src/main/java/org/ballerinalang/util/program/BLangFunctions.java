@@ -462,7 +462,7 @@ public class BLangFunctions {
                 callableUnitInfo.getParamTypes());
         WorkerData workerResult = createWorkerData(wdi);
         WorkerExecutionContext ctx = new WorkerExecutionContext(parentCtx, respCtx, callableUnitInfo, workerInfo,
-                workerLocal, workerResult, wdi.retRegs, globalProps);
+                workerLocal, workerResult, wdi.retRegs, globalProps, false);
         BLangScheduler.schedule(ctx);
     }
     

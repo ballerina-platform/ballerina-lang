@@ -65,15 +65,18 @@ public class WorkerExecutionContext {
     
     public WorkerResponseContext respCtx;
     
-    public Lock executionLock = new ReentrantLock();
-
+    public boolean runInCaller;
+    
+    private Lock executionLock;
+    
     public WorkerExecutionContext() {
         this.globalProps = new HashMap<>();
     }
     
     public WorkerExecutionContext(WorkerExecutionContext parent, WorkerResponseContext respCtx, 
             CallableUnitInfo callableUnitInfo, WorkerInfo workerInfo, WorkerData workerLocal, 
-            WorkerData workerResult, int[] retRegIndexes, Map<String, Object> globalProperties) {
+            WorkerData workerResult, int[] retRegIndexes, Map<String, Object> globalProperties,
+            boolean runInCaller) {
         this.parent = parent;
         this.respCtx = respCtx;
         this.callableUnitInfo = callableUnitInfo;
@@ -86,6 +89,10 @@ public class WorkerExecutionContext {
         this.retRegIndexes = retRegIndexes;
         this.globalProps = globalProperties;
         this.ip = this.workerInfo.getCodeAttributeInfo().getCodeAddrs();
+        this.runInCaller = runInCaller;
+        if (!this.runInCaller) {
+            executionLock = new ReentrantLock();
+        }
     }
     
     public void backupIP() {
@@ -116,6 +123,18 @@ public class WorkerExecutionContext {
 
     public void setBallerinaTransactionManager(BallerinaTransactionManager ballerinaTransactionManager) {
         //TODO
+    }
+    
+    public void lockExecution() {
+        if (this.executionLock != null) {
+            this.executionLock.lock();
+        }
+    }
+    
+    public void unlockExecution() {
+        if (this.executionLock != null) {
+            this.executionLock.unlock();
+        }
     }
     
 }
