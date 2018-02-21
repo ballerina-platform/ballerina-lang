@@ -62,14 +62,10 @@ public class MessageUtils {
         return headerValue;
     }
 
-    public static void enrichConnectionInfo(BStruct connection, StreamObserver<Object> streamObserver) {
-        connection.addNativeData(MessageConstants.STREAM_OBSERVER, streamObserver);
-    }
-
-    public static StreamObserver<Object> getStreamObserver(BStruct struct) {
+    public static StreamObserver<Message> getStreamObserver(BStruct struct) {
         Object observerObject = struct.getNativeData(MessageConstants.STREAM_OBSERVER);
         if (observerObject instanceof StreamObserver) {
-            return ((StreamObserver<Object>) observerObject);
+            return ((StreamObserver<Message>) observerObject);
         }
         return null;
     }
@@ -98,11 +94,11 @@ public class MessageUtils {
      * @param fieldType field descriptor type
      * @return wire type
      */
-    public static int getFieldWireType(Descriptors.FieldDescriptor.Type fieldType) {
+    static int getFieldWireType(Descriptors.FieldDescriptor.Type fieldType) {
         if (fieldType == null) {
             return ServiceProtoConstants.INVALID_WIRE_TYPE;
         }
-        Integer wireType = ServiceProtoConstants.WIRE_TYPE_MAP.get(fieldType.toProto());
+        Integer wireType = MessageConstants.WIRE_TYPE_MAP.get(fieldType.toProto());
         if (wireType != null) {
             return wireType;
         } else {
@@ -118,7 +114,7 @@ public class MessageUtils {
      * @param object message object
      * @return true if object is array, false otherwise.
      */
-    public static boolean isArray(Object object) {
+    static boolean isArray(Object object) {
         return object != null && object.getClass().isArray();
     }
 

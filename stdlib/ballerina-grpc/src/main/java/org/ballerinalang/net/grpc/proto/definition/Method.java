@@ -39,8 +39,9 @@ public class Method {
 
     public String getMethodDefinition() {
         StringBuilder methodDefinition = new StringBuilder();
-        methodDefinition.append("\trpc ").append(methodDescriptor.getName()).append("(").append
-                (methodDescriptor.getInputType()).append(") returns (").append(methodDescriptor.getOutputType())
+        methodDefinition.append("\trpc ").append(methodDescriptor.getName()).append("(").append(methodDescriptor
+                .getClientStreaming() ? "stream " : "").append(methodDescriptor.getInputType()).append(") returns (")
+                .append(methodDescriptor.getServerStreaming() ? "stream " : "").append(methodDescriptor.getOutputType())
                 .append(")").append(";\n");
         return methodDefinition.toString();
     }

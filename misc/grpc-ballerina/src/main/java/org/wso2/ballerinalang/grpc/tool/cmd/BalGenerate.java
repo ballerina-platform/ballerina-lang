@@ -48,8 +48,8 @@ public class BalGenerate {
 
         try {
             BMap descriptorMap = generateDependencyMap(rootDescriptor, dependentDescriptors);
-            BJSON descritorTree = generateDependencyTree(rootDescriptor, descriptorMap);
-            generateBaaDefinitions(rootDescriptor, balOutPath, descriptorMap, descritorTree);
+            //BJSON descritorTree = generateDependencyTree(rootDescriptor, descriptorMap);
+            generateBaaDefinitions(rootDescriptor, balOutPath, descriptorMap);
         } catch (IOException e) {
             throw new RuntimeException("Error: ", e);
         }
@@ -90,34 +90,34 @@ public class BalGenerate {
         return new String(hexChars);
     }
 
-    private BJSON generateDependencyTree(byte[] rootDescriptor, BMap dependentDescriptors) throws IOException {
-
-        String payload = "";
-        Gson gson = new Gson();
-        InputStream targetStream = new ByteArrayInputStream(rootDescriptor);
-        DescriptorProtos.FileDescriptorProto fileDescriptorSet = DescriptorProtos.FileDescriptorProto
-                .parseFrom(targetStream);
-        ProtoDescriptor protoDescriptor = new ProtoDescriptor(fileDescriptorSet.getPackage() + "." +
-                fileDescriptorSet.getName());
-        if (fileDescriptorSet.getDependencyCount() != 0) {
-            for (int i = 0; i < fileDescriptorSet.getDependencyCount(); i++) {
-                // TODO: 2/20/18 Move to recursive function
-                String descriptorString = dependentDescriptors.get("\"" + fileDescriptorSet.getDependency(i)
-                        .replace("/", ".") + "\"").stringValue();
-                descriptorString = descriptorString.substring(1, descriptorString.length() - 1);
-                targetStream = new ByteArrayInputStream(hexStringToByteArray(descriptorString));
-                DescriptorProtos.FileDescriptorProto proto = DescriptorProtos.FileDescriptorProto
-                        .parseFrom(targetStream);
-                if (proto.getDependencyCount() == 0) {
-                    protoDescriptor.addDependency(new ProtoDescriptor(proto.getPackage() + proto.getName()));
-                } else {
-                    // TODO: 2/20/18
-                }
-            }
-        }
-        payload = gson.toJson(protoDescriptor);
-        return new BJSON(payload);
-    }
+//    private BJSON generateDependencyTree(byte[] rootDescriptor, BMap dependentDescriptors) throws IOException {
+//
+//        String payload = "";
+//        Gson gson = new Gson();
+//        InputStream targetStream = new ByteArrayInputStream(rootDescriptor);
+//        DescriptorProtos.FileDescriptorProto fileDescriptorSet = DescriptorProtos.FileDescriptorProto
+//                .parseFrom(targetStream);
+//        ProtoDescriptor protoDescriptor = new ProtoDescriptor(fileDescriptorSet.getPackage() + "." +
+//                fileDescriptorSet.getName());
+//        if (fileDescriptorSet.getDependencyCount() != 0) {
+//            for (int i = 0; i < fileDescriptorSet.getDependencyCount(); i++) {
+//                // TODO: 2/20/18 Move to recursive function
+//                String descriptorString = dependentDescriptors.get("\"" + fileDescriptorSet.getDependency(i)
+//                        .replace("/", ".") + "\"").stringValue();
+//                descriptorString = descriptorString.substring(1, descriptorString.length() - 1);
+//                targetStream = new ByteArrayInputStream(hexStringToByteArray(descriptorString));
+//                DescriptorProtos.FileDescriptorProto proto = DescriptorProtos.FileDescriptorProto
+//                        .parseFrom(targetStream);
+//                if (proto.getDependencyCount() == 0) {
+//                    protoDescriptor.addDependency(new ProtoDescriptor(proto.getPackage() + proto.getName()));
+//                } else {
+//                    // TODO: 2/20/18
+//                }
+//            }
+//        }
+//        payload = gson.toJson(protoDescriptor);
+//        return new BJSON(payload);
+//    }
 
     private static byte[] hexStringToByteArray(String s) {
 
@@ -130,8 +130,7 @@ public class BalGenerate {
         return data;
     }
 
-    private void generateBaaDefinitions(byte[] rootDescriptor, String balOutPath, BMap descriptorMap,
-                                        BJSON descritorTree) {
+    private void generateBaaDefinitions(byte[] rootDescriptor, String balOutPath, BMap descriptorMap) {
 
         try {
             File targetFile = new File(balOutPath);
@@ -191,7 +190,7 @@ public class BalGenerate {
             String balPayload = generateConnector(actionList.toString(), fileDescriptorSet.getPackage(),
                     fileDescriptorSet.getService(0).getName() + "_stub") + structList
                     + NEW_LINE_CHARACTER + String.format("map descriptorMap ={%s};", mapToString(descriptorMap)) +
-                    NEW_LINE_CHARACTER + String.format("json descriptorTree = %s;", descritorTree.toString());
+                    NEW_LINE_CHARACTER;
             writeFile(balPayload, balOutPath);
         } catch (IOException e) {
             throw new RuntimeException("Error: ", e);
@@ -282,10 +281,10 @@ public class BalGenerate {
                 "    }" + NEW_LINE_CHARACTER +
                 NEW_LINE_CHARACTER +
                 "    action connect (string stubType) (grpc:Connection, error) {" + NEW_LINE_CHARACTER +
-                "        var resp, convErr = ep.connect(stubType,descriptorMap,descriptorTree);" +
+                "        var resp, convErr = ep.connect(stubType,descriptorMap);" +
                 NEW_LINE_CHARACTER +
                 "        var conn, er = <grpc:Connection>resp;" + NEW_LINE_CHARACTER +
-                "        var connErr, er = <grpc:GRPCConnectorError>convErr;" + NEW_LINE_CHARACTER +
+                "        var connErr, er = <grpc:ConnectorError>convErr;" + NEW_LINE_CHARACTER +
                 "        if (connErr != null) {" + NEW_LINE_CHARACTER +
                 "            println(\"Error: \" + connErr.msg);" + NEW_LINE_CHARACTER +
                 "            error err = {msg:connErr.msg};" + NEW_LINE_CHARACTER +

@@ -37,7 +37,7 @@ public class MessageRegistry {
         return messageRegistry;
     }
 
-    public void addMessageDescriptor(String messageName, Descriptors.Descriptor messageDescriptor) throws
+    void addMessageDescriptor(String messageName, Descriptors.Descriptor messageDescriptor) throws
             GrpcServerException {
         if (messageName == null) {
             throw new GrpcServerException("Message name cannot be null");
@@ -48,7 +48,7 @@ public class MessageRegistry {
         messageDescriptors.put(messageName, messageDescriptor);
     }
 
-    public Descriptors.Descriptor getMessageDecriptor(String messageName) throws GrpcServerException {
+    Descriptors.Descriptor getMessageDecriptor(String messageName) throws GrpcServerException {
         if (messageName == null) {
             throw new GrpcServerException("Message name cannot be null");
         }

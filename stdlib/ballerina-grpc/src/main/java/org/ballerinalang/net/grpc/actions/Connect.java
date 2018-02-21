@@ -8,7 +8,6 @@ import org.ballerinalang.connector.api.ConnectorFuture;
 import org.ballerinalang.model.types.BStructType;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BConnector;
-import org.ballerinalang.model.values.BJSON;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.nativeimpl.actions.ClientConnectorFuture;
@@ -17,6 +16,9 @@ import org.ballerinalang.natives.annotations.BallerinaAction;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.net.grpc.GRPCClientStub;
 import org.ballerinalang.net.grpc.proto.definition.ServiceProto;
+import org.ballerinalang.net.grpc.stubs.GRPCBlockingStub;
+import org.ballerinalang.net.grpc.stubs.GRPCFutureStub;
+import org.ballerinalang.net.grpc.stubs.GRPCNonBlockingStub;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.StructInfo;
 
@@ -32,12 +34,12 @@ import java.util.List;
         connectorName = "GRPCConnector",
         args = {
                 @Argument(name = "stubType", type = TypeKind.ANY),
-                @Argument(name = "describtorMap", type = TypeKind.MAP),
-                @Argument(name = "descriptorTree", type = TypeKind.JSON)
+                @Argument(name = "describtorMap", type = TypeKind.MAP)
+              
         },
         returnType = {
                 @ReturnType(type = TypeKind.STRUCT, structType = "Connection", structPackage = "ballerina.net.grpc"),
-                @ReturnType(type = TypeKind.STRUCT, structType = "GRPCConnectorError",
+                @ReturnType(type = TypeKind.STRUCT, structType = "ConnectorError",
                         structPackage = "ballerina.net.grpc"),
         },
         connectorArgs = {
@@ -46,16 +48,15 @@ import java.util.List;
         }
 )
 public class Connect extends AbstractNativeAction {
-
+private static  ServiceProto serviceProto;
     @Override
     public ConnectorFuture execute(Context context) {
 
         String host, stubType;
         BMap bMap;
-        BJSON bjson;
-        ServiceProto serviceProto;
+       
         int port;
-        BStruct outboundError = createStruct(context, "GRPCConnectorError");
+        BStruct outboundError = createStruct(context, "ConnectorError");
         ClientConnectorFuture ballerinaFuture = new ClientConnectorFuture();
         try {
             try {
@@ -88,13 +89,13 @@ public class Connect extends AbstractNativeAction {
             outboundResponse.setStringField(0, host);
             outboundResponse.setIntField(0, port);
             if ("blocking".equalsIgnoreCase(stubType)) {
-                GRPCClientStub.GRPCBlockingStub grpcBlockingStub = grpcClientStub.newBlockingStub(channel);
+                GRPCBlockingStub grpcBlockingStub = grpcClientStub.newBlockingStub(channel);
                 outboundResponse.addNativeData("stub", grpcBlockingStub);
             } else if ("non-blocking".equalsIgnoreCase(stubType)) {
-                GRPCClientStub.GRPCNonBlockingStub nonBlockingStub = grpcClientStub.newNonBlockingStub(channel);
+                GRPCNonBlockingStub nonBlockingStub = grpcClientStub.newNonBlockingStub(channel);
                 outboundResponse.addNativeData("stub", nonBlockingStub);
             } else if ("future".equalsIgnoreCase(stubType)) {
-                GRPCClientStub.GRPCFutureStub grpcFutureStub = grpcClientStub.newFutureStub(channel);
+                GRPCFutureStub grpcFutureStub = grpcClientStub.newFutureStub(channel);
                 outboundResponse.addNativeData("stub", grpcFutureStub);
             } else {
                 outboundError.setStringField(0, "gRPC Connector Error : Invalid stub type");
@@ -129,5 +130,9 @@ public class Connect extends AbstractNativeAction {
         StructInfo structInfo = httpPackageInfo.getStructInfo(structName);
         BStructType structType = structInfo.getType();
         return new BStruct(structType);
+    }
+    
+    public static ServiceProto getServiceProto() {
+        return serviceProto;
     }
 }

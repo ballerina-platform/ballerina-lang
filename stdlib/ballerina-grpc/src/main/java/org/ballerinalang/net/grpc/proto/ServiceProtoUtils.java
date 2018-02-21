@@ -19,9 +19,12 @@ package org.ballerinalang.net.grpc.proto;
 
 import com.google.protobuf.DescriptorProtos;
 import com.google.protobuf.Descriptors;
+import org.ballerinalang.model.tree.AnnotationAttachmentNode;
+import org.ballerinalang.model.tree.Node;
 import org.ballerinalang.model.tree.ResourceNode;
 import org.ballerinalang.model.tree.ServiceNode;
 import org.ballerinalang.model.tree.VariableNode;
+import org.ballerinalang.model.tree.expressions.AnnotationAttachmentAttributeNode;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
 import org.ballerinalang.model.tree.statements.BlockNode;
 import org.ballerinalang.model.tree.statements.StatementNode;
@@ -39,8 +42,10 @@ import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangForeach;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangVariableDef;
 
@@ -60,18 +65,77 @@ public class ServiceProtoUtils {
         File.Builder fileBuilder = File.newBuilder(serviceNode.getName() + ServiceProtoConstants.PROTO_FILE_EXTENSION)
                 .setSyntax(ServiceProtoConstants.PROTOCOL_SYNTAX).setPackage(serviceNode.getPosition().getSource()
                         .getPackageName());
+        ServiceConfig serviceConfig = getServiceConfiguration(serviceNode);
+        Service serviceDefinition;
+        if (serviceConfig != null) {
+            serviceDefinition = getStreamingServiceDefinition(serviceNode, serviceConfig, fileBuilder);
+        } else {
+            serviceDefinition = getUnaryServiceDefinition(serviceNode, fileBuilder);
+        }
+
+        fileBuilder.setService(serviceDefinition);
+        return fileBuilder.build();
+    }
+
+    private static ServiceConfig getServiceConfiguration(ServiceNode serviceNode) {
+        ServiceConfig serviceConfig = null;
+        for (AnnotationAttachmentNode annotationNode : serviceNode.getAnnotationAttachments()) {
+            if (!"serviceConfig".equals(annotationNode.getAnnotationName().getValue())) {
+                continue;
+            }
+            String rpcEndpoint = null;
+            String inputType = null;
+            String outputType = null;
+            boolean clientStreaming = false;
+            boolean serverStreaming = false;
+            for (AnnotationAttachmentAttributeNode attributeNode : annotationNode.getAttributes()) {
+                String attributeName = attributeNode.getName().getValue();
+                Node attributeValueNode = attributeNode.getValue() != null ? attributeNode.getValue().getValue() : null;
+                Object attributeValue = null;
+                if (attributeValueNode instanceof BLangLiteral) {
+                    attributeValue = ((BLangLiteral) attributeValueNode).getValue();
+                }
+
+                switch (attributeName) {
+                    case "rpcEndpoint": {
+                        rpcEndpoint = (String) attributeValue;
+                        break;
+                    }
+                    case "inputType": {
+                        inputType = (String) attributeValue;
+                        break;
+                    }
+                    case "outputType": {
+                        outputType = (String) attributeValue;
+                        break;
+                    }
+                    case "clientStreaming": {
+                        clientStreaming = attributeValue != null ? (Boolean) attributeValue : false;
+                        break;
+                    }
+                    case "serverStreaming": {
+                        serverStreaming = attributeValue != null ? (Boolean) attributeValue : false;
+                        break;
+                    }
+                    default: {
+                        break;
+                    }
+                }
+            }
+            if (rpcEndpoint != null && (clientStreaming || serverStreaming)) {
+                serviceConfig = new ServiceConfig(rpcEndpoint, inputType, outputType, clientStreaming, serverStreaming);
+            }
+        }
+        return serviceConfig;
+    }
+
+    private static Service getUnaryServiceDefinition(ServiceNode serviceNode, File.Builder fileBuilder) throws
+            GrpcServerException {
         // Protobuf service definition builder.
         Service.Builder serviceBuilder = Service.newBuilder(serviceNode.getName().getValue());
 
         for (ResourceNode resourceNode : serviceNode.getResources()) {
-            VariableNode requestVariable = resourceNode.getParameters().get(MessageConstants.REQUEST_MESSAGE_INDEX);
-            org.wso2.ballerinalang.compiler.semantics.model.types.BType requestType;
-            if (requestVariable instanceof BLangVariable) {
-                requestType = ((BLangVariable) requestVariable).type;
-            } else {
-                throw new GrpcServerException("unsupported request type");
-            }
-            Message requestMessage = generateMessageDefinition(requestType);
+            Message requestMessage = getRequestMessage(resourceNode);
             if (requestMessage.getMessageKind() == MessageKind.USER_DEFINED) {
                 if (!fileBuilder.getRegisteredMessages().contains(requestMessage.getDescriptorProto())) {
                     fileBuilder.setMessage(requestMessage);
@@ -82,12 +146,12 @@ public class ServiceProtoUtils {
                     fileBuilder.setDependeny(requestMessage.getDependency());
                 }
             }
-            BLangInvocation sendExpression = getInvocationExpression(resourceNode.getBody());
-            if (sendExpression == null) {
+            Message responseMessage = getResponseMessage(resourceNode);
+
+            if (responseMessage == null) {
                 throw new GrpcServerException("Connection send expression not found in resource body");
             }
-            org.wso2.ballerinalang.compiler.semantics.model.types.BType  responseType = getReturnType(sendExpression);
-            Message responseMessage = generateMessageDefinition(responseType);
+
             if (responseMessage.getMessageKind() == MessageKind.USER_DEFINED) {
                 if (!fileBuilder.getRegisteredMessages().contains(responseMessage.getDescriptorProto())) {
                     fileBuilder.setMessage(responseMessage);
@@ -99,17 +163,109 @@ public class ServiceProtoUtils {
                 }
             }
 
+            boolean serverStreaming = isServerStreaming(resourceNode);
             Method resourceMethod = Method.newBuilder(resourceNode.getName().getValue())
                     .setClientStreaming(false)
-                    .setServerStreaming(false)
+                    .setServerStreaming(serverStreaming)
                     .setInputType(requestMessage.getMessageType())
                     .setOutputType(responseMessage.getMessageType())
                     .build();
             serviceBuilder.addMethod(resourceMethod);
         }
-        Service grpcService = serviceBuilder.build();
-        fileBuilder.setService(grpcService);
-        return fileBuilder.build();
+        return serviceBuilder.build();
+    }
+
+    private static Service getStreamingServiceDefinition(ServiceNode serviceNode, ServiceConfig serviceConfig, File
+            .Builder fileBuilder) throws GrpcServerException {
+        // Protobuf service definition builder.
+        Service.Builder serviceBuilder = Service.newBuilder(serviceNode.getName().getValue());
+        Message requestMessage = null;
+        Message responseMessage = null;
+        for (ResourceNode resourceNode : serviceNode.getResources()) {
+            if ("onMessage".equals(resourceNode.getName().getValue())) {
+                requestMessage = getRequestMessage(resourceNode);
+                responseMessage = getResponseMessage(resourceNode);
+                if (responseMessage != null) {
+                    break;
+                }
+            }
+
+            if ("onComplete".equals(resourceNode.getName().getValue())) {
+                responseMessage = getResponseMessage(resourceNode);
+            }
+        }
+
+        if (requestMessage == null) {
+            throw new GrpcServerException("Cannot find request message definition for streaming service: " +
+                    serviceNode.getName().getValue());
+        }
+        if (responseMessage == null) {
+            throw new GrpcServerException("Cannot find response message definition for streaming service: " +
+                    serviceNode.getName().getValue());
+        }
+
+        if (requestMessage.getMessageKind() == MessageKind.USER_DEFINED) {
+            if (!fileBuilder.getRegisteredMessages().contains(requestMessage.getDescriptorProto())) {
+                fileBuilder.setMessage(requestMessage);
+            }
+        }
+        if (requestMessage.getDependency() != null) {
+            if (!fileBuilder.getRegisteredDependencies().contains(requestMessage.getDependency())) {
+                fileBuilder.setDependeny(requestMessage.getDependency());
+            }
+        }
+
+        if (responseMessage.getDependency() != null) {
+            if (!fileBuilder.getRegisteredDependencies().contains(responseMessage.getDependency())) {
+                fileBuilder.setDependeny(responseMessage.getDependency());
+            }
+        }
+
+        Method resourceMethod = Method.newBuilder(serviceConfig.getRpcEndpoint())
+                .setClientStreaming(serviceConfig.isClientStreaming())
+                .setServerStreaming(serviceConfig.isServerStreaming())
+                .setInputType(requestMessage.getMessageType())
+                .setOutputType(responseMessage.getMessageType())
+                .build();
+        serviceBuilder.addMethod(resourceMethod);
+        return serviceBuilder.build();
+    }
+
+    private static boolean isServerStreaming(ResourceNode resourceNode) {
+        boolean serverStreaming = false;
+        for (AnnotationAttachmentNode annotationNode : resourceNode.getAnnotationAttachments()) {
+            if (!"resourceConfig".equals(annotationNode.getAnnotationName().getValue())) {
+                continue;
+            }
+            for (AnnotationAttachmentAttributeNode attributeNode : annotationNode.getAttributes()) {
+                if ("streaming".equals(attributeNode.getName().getValue())) {
+                    serverStreaming = attributeNode.getValue() != null && (boolean) ((BLangLiteral) attributeNode
+                            .getValue().getValue()).getValue();
+                }
+            }
+        }
+        return serverStreaming;
+    }
+
+    private static Message getResponseMessage(ResourceNode resourceNode) throws GrpcServerException {
+        Message responseMessage = null;
+        BLangInvocation sendExpression = getInvocationExpression(resourceNode.getBody());
+        if (sendExpression != null) {
+            org.wso2.ballerinalang.compiler.semantics.model.types.BType responseType = getReturnType(sendExpression);
+            responseMessage = responseType != null ? generateMessageDefinition(responseType) : null;
+        }
+        return responseMessage;
+    }
+
+    private static Message getRequestMessage(ResourceNode resourceNode) throws GrpcServerException {
+        VariableNode requestVariable = resourceNode.getParameters().get(MessageConstants.REQUEST_MESSAGE_INDEX);
+        org.wso2.ballerinalang.compiler.semantics.model.types.BType requestType;
+        if (requestVariable instanceof BLangVariable) {
+            requestType = ((BLangVariable) requestVariable).type;
+        } else {
+            throw new GrpcServerException("unsupported request type");
+        }
+        return generateMessageDefinition(requestType);
     }
 
     /**
@@ -174,6 +330,14 @@ public class ServiceProtoUtils {
     private static BLangInvocation getInvocationExpression(BlockNode body) {
         for (StatementNode statementNode : body.getStatements()) {
             BLangExpression expression = null;
+            // example : conn.send inside for block.
+            if (statementNode instanceof BLangForeach) {
+                BLangForeach langForeach = (BLangForeach) statementNode;
+                BLangInvocation invocExp = getInvocationExpression(langForeach.getBody());
+                if (invocExp != null) {
+                    return invocExp;
+                }
+            }
             // example : conn.send inside if block.
             if (statementNode instanceof BLangIf) {
                 BLangIf langIf = (BLangIf) statementNode;
@@ -280,8 +444,9 @@ public class ServiceProtoUtils {
 
     /**
      * Returns protobuf message definition from ballerina struct type.
-     *
+     * <p>
      * /@param messageType ballerina struct type
+     *
      * @return message definition
      */
 /*    private static Message generateMessageDefinition(BType messageType) throws GrpcServerException {
@@ -305,7 +470,6 @@ public class ServiceProtoUtils {
         }
         return requestMsgBuilder.build();
     }*/
-
     public static com.google.protobuf.Descriptors.FileDescriptor getDescriptor(org.ballerinalang.connector.api
                                                                                        .Service service) {
 

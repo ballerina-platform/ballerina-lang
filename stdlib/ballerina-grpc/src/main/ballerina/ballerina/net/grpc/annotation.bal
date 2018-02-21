@@ -11,3 +11,15 @@ public annotation methodInfo attach resource {
 public annotation serviceInfo attach service {
     string serviceName;
 }
+
+public annotation resourceConfig attach resource {
+    boolean streaming;
+}
+
+public annotation serviceConfig attach service {
+    string rpcEndpoint;
+    string inputType;
+    string outputType;
+    boolean clientStreaming;
+    boolean serverStreaming;
+}
