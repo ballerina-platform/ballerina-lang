@@ -20,6 +20,7 @@ package org.ballerinalang.langserver.completions;
 
 import org.ballerinalang.langserver.DocumentServiceKeys;
 import org.ballerinalang.langserver.TextDocumentServiceContext;
+import org.ballerinalang.langserver.completions.util.ScopeResolverConstants;
 import org.ballerinalang.langserver.completions.util.positioning.resolvers.BlockStatementScopeResolver;
 import org.ballerinalang.langserver.completions.util.positioning.resolvers.ConnectorScopeResolver;
 import org.ballerinalang.langserver.completions.util.positioning.resolvers.PackageNodeScopeResolver;
@@ -95,6 +96,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForeach;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangLock;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangNext;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangThrow;
@@ -126,14 +128,18 @@ import java.util.stream.Collectors;
  * @since 0.94
  */
 public class TreeVisitor extends BLangNodeVisitor {
+    private boolean terminateVisitor = false;
+    private int loopCount = 0;
+    private int transactionCount = 0;
     private SymbolEnv symbolEnv;
     private SymbolResolver symbolResolver;
-    private boolean terminateVisitor = false;
     private SymbolEnter symbolEnter;
     private Stack<Node> blockOwnerStack;
     private Stack<BLangBlockStmt> blockStmtStack;
+    private Stack<Boolean> isCurrentNodeTransactionStack;
     private Class cursorPositionResolver;
     private TextDocumentServiceContext documentServiceContext;
+    private BLangNode previousNode = null;
 
     public TreeVisitor(TextDocumentServiceContext documentServiceContext) {
         this.documentServiceContext = documentServiceContext;
@@ -143,6 +149,7 @@ public class TreeVisitor extends BLangNodeVisitor {
     private void init(CompilerContext compilerContext) {
         blockOwnerStack = new Stack<>();
         blockStmtStack = new Stack<>();
+        isCurrentNodeTransactionStack = new Stack<>();
         symbolEnter = SymbolEnter.getInstance(compilerContext);
         symbolResolver = SymbolResolver.getInstance(compilerContext);
         documentServiceContext.put(DocumentServiceKeys.SYMBOL_TABLE_KEY, SymbolTable.getInstance(compilerContext));
@@ -160,12 +167,13 @@ public class TreeVisitor extends BLangNodeVisitor {
             ).collect(Collectors.toList());
 
         if (topLevelNodes.isEmpty()) {
-            terminateVisitor = true;
+            this.setTerminateVisitor(true);
             acceptNode(null, null);
         } else {
             cursorPositionResolver = PackageNodeScopeResolver.class;
             topLevelNodes.forEach(topLevelNode -> {
                 cursorPositionResolver = TopLevelNodeScopeResolver.class;
+                this.blockOwnerStack.push(pkgNode);
                 acceptNode((BLangNode) topLevelNode, pkgEnv);
             });
         }
@@ -178,12 +186,12 @@ public class TreeVisitor extends BLangNodeVisitor {
     }
 
     public void visit(BLangXMLNS xmlnsNode) {
-        CursorScopeResolver.getResolverByClass(cursorPositionResolver)
+        ScopeResolverConstants.getResolverByClass(cursorPositionResolver)
                 .isCursorBeforeNode(xmlnsNode.getPosition(), xmlnsNode, this, this.documentServiceContext);
     }
 
     public void visit(BLangFunction funcNode) {
-        if (!CursorScopeResolver.getResolverByClass(cursorPositionResolver)
+        if (!ScopeResolverConstants.getResolverByClass(cursorPositionResolver)
                 .isCursorBeforeNode(funcNode.getPosition(), funcNode, this, this.documentServiceContext)) {
             // Check for native functions
             BSymbol funcSymbol = funcNode.symbol;
@@ -200,7 +208,7 @@ public class TreeVisitor extends BLangNodeVisitor {
 
             // Process workers
             if (terminateVisitor && !funcNode.workers.isEmpty()) {
-                terminateVisitor = false;
+                this.setTerminateVisitor(false);
             }
             funcNode.workers.forEach(e -> this.symbolEnter.defineNode(e, funcEnv));
             funcNode.workers.forEach(e -> this.acceptNode(e, funcEnv));
@@ -208,7 +216,7 @@ public class TreeVisitor extends BLangNodeVisitor {
     }
 
     public void visit(BLangStruct structNode) {
-        if (!CursorScopeResolver.getResolverByClass(cursorPositionResolver)
+        if (!ScopeResolverConstants.getResolverByClass(cursorPositionResolver)
                 .isCursorBeforeNode(structNode.getPosition(), structNode, this, this.documentServiceContext)) {
             BSymbol structSymbol = structNode.symbol;
             SymbolEnv structEnv = SymbolEnv.createPkgLevelSymbolEnv(structNode, structSymbol.scope, symbolEnv);
@@ -217,7 +225,7 @@ public class TreeVisitor extends BLangNodeVisitor {
                 symbolEnv = structEnv;
                 Map<Name, Scope.ScopeEntry> visibleSymbolEntries = this.resolveAllVisibleSymbols(symbolEnv);
                 this.populateSymbols(visibleSymbolEntries, null);
-                this.terminateVisitor = true;
+                this.setTerminateVisitor(true);
             } else {
                 // Since the struct definition do not have a block statement within, we push null
                 this.blockStmtStack.push(null);
@@ -237,8 +245,16 @@ public class TreeVisitor extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangVariable varNode) {
-        CursorScopeResolver.getResolverByClass(cursorPositionResolver)
+        boolean isCursorBeforeNode = ScopeResolverConstants.getResolverByClass(cursorPositionResolver)
                 .isCursorBeforeNode(varNode.getPosition(), varNode, this, this.documentServiceContext);
+        // This is an endpoint definition
+        if (!isCursorBeforeNode && varNode.typeNode instanceof BLangEndpointTypeNode
+                && this.isCursorWithinEndpointDef(varNode.getPosition())) {
+            SymbolEnv endpointVarInitEnv = SymbolEnv.createVarInitEnv(varNode, symbolEnv, varNode.symbol);
+            Map<Name, Scope.ScopeEntry> visibleSymbols = this.resolveAllVisibleSymbols(symbolEnv);
+            this.populateSymbols(visibleSymbols, endpointVarInitEnv);
+            this.setTerminateVisitor(true);
+        }
     }
 
     @Override
@@ -257,6 +273,8 @@ public class TreeVisitor extends BLangNodeVisitor {
         this.blockStmtStack.push(blockNode);
         // Cursor position is calculated against the Block statement scope resolver
         this.cursorPositionResolver = BlockStatementScopeResolver.class;
+        // Reset the previous node to null
+        this.setPreviousNode(null);
         if (blockNode.stmts.isEmpty()) {
             this.isCursorWithinBlock((DiagnosticPos) (this.blockOwnerStack.peek()).getPosition(), blockEnv);
         } else {
@@ -267,7 +285,7 @@ public class TreeVisitor extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangVariableDef varDefNode) {
-        if (!CursorScopeResolver.getResolverByClass(cursorPositionResolver)
+        if (!ScopeResolverConstants.getResolverByClass(cursorPositionResolver)
                 .isCursorBeforeNode(varDefNode.getPosition(), varDefNode, this, this.documentServiceContext)) {
             this.acceptNode(varDefNode.var, symbolEnv);
         }
@@ -275,19 +293,19 @@ public class TreeVisitor extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangAssignment assignNode) {
-        CursorScopeResolver.getResolverByClass(cursorPositionResolver)
+        ScopeResolverConstants.getResolverByClass(cursorPositionResolver)
                 .isCursorBeforeNode(assignNode.getPosition(), assignNode, this, this.documentServiceContext);
     }
 
     @Override
     public void visit(BLangExpressionStmt exprStmtNode) {
-        CursorScopeResolver.getResolverByClass(cursorPositionResolver)
+        ScopeResolverConstants.getResolverByClass(cursorPositionResolver)
                 .isCursorBeforeNode(exprStmtNode.getPosition(), exprStmtNode, this, this.documentServiceContext);
     }
 
     @Override
     public void visit(BLangIf ifNode) {
-        if (!CursorScopeResolver.getResolverByClass(cursorPositionResolver)
+        if (!ScopeResolverConstants.getResolverByClass(cursorPositionResolver)
                 .isCursorBeforeNode(ifNode.getPosition(), ifNode, this, this.documentServiceContext)) {
             this.blockOwnerStack.push(ifNode);
             this.acceptNode(ifNode.body, symbolEnv);
@@ -306,37 +324,40 @@ public class TreeVisitor extends BLangNodeVisitor {
     }
 
     public void visit(BLangWhile whileNode) {
-        if (!CursorScopeResolver.getResolverByClass(cursorPositionResolver)
+        if (!ScopeResolverConstants.getResolverByClass(cursorPositionResolver)
                 .isCursorBeforeNode(whileNode.getPosition(), whileNode, this, this.documentServiceContext)) {
-
             this.blockOwnerStack.push(whileNode);
+            loopCount++;
             this.acceptNode(whileNode.body, symbolEnv);
+            loopCount--;
             this.blockOwnerStack.pop();
         }
     }
 
     public void visit(BLangTransformer transformerNode) {
-        if (!CursorScopeResolver.getResolverByClass(cursorPositionResolver)
+        if (!ScopeResolverConstants.getResolverByClass(cursorPositionResolver)
                 .isCursorBeforeNode(transformerNode.getPosition(), transformerNode, this,
                         this.documentServiceContext)) {
+            SymbolEnv transformerEnv = SymbolEnv
+                    .createTransformerEnv(transformerNode, transformerNode.symbol.scope, symbolEnv);
             this.blockOwnerStack.push(transformerNode);
             // Cursor position is calculated against the Block statement scope resolver
             cursorPositionResolver = BlockStatementScopeResolver.class;
-            this.acceptNode(transformerNode.body, symbolEnv);
+            this.acceptNode(transformerNode.body, transformerEnv);
             this.blockOwnerStack.pop();
         }
     }
 
     public void visit(BLangConnector connectorNode) {
-        if (!CursorScopeResolver.getResolverByClass(cursorPositionResolver)
+        if (!ScopeResolverConstants.getResolverByClass(cursorPositionResolver)
                 .isCursorBeforeNode(connectorNode.getPosition(), connectorNode, this, this.documentServiceContext)) {
             BSymbol connectorSymbol = connectorNode.symbol;
             SymbolEnv connectorEnv = SymbolEnv.createConnectorEnv(connectorNode, connectorSymbol.scope, symbolEnv);
 
+            // Reset the previous node
+            this.setPreviousNode(null);
             // TODO: Handle Annotation attachments
-            if (connectorNode.actions.isEmpty() && connectorNode.varDefs.isEmpty()) {
-                this.isCursorWithinBlock(connectorNode.getPosition(), connectorEnv);
-            } else {
+            if (!(connectorNode.actions.isEmpty() && connectorNode.varDefs.isEmpty())) {
                 // Since the connector def does not contains a block statement, we consider the block owner only.
                 // Here it is Connector Definition
                 this.blockOwnerStack.push(connectorNode);
@@ -354,12 +375,14 @@ public class TreeVisitor extends BLangNodeVisitor {
                     this.acceptNode(null, null);
                 }
                 this.blockOwnerStack.pop();
+            } else {
+                this.isCursorWithinBlock(connectorNode.getPosition(), connectorEnv);
             }
         }
     }
 
     public void visit(BLangAction actionNode) {
-        if (!CursorScopeResolver.getResolverByClass(cursorPositionResolver)
+        if (!ScopeResolverConstants.getResolverByClass(cursorPositionResolver)
                 .isCursorBeforeNode(actionNode.getPosition(), actionNode, this, this.documentServiceContext)) {
             BSymbol actionSymbol = actionNode.symbol;
             SymbolEnv actionEnv = SymbolEnv.createResourceActionSymbolEnv(actionNode, actionSymbol.scope, symbolEnv);
@@ -377,14 +400,14 @@ public class TreeVisitor extends BLangNodeVisitor {
     }
 
     public void visit(BLangService serviceNode) {
-        if (!CursorScopeResolver.getResolverByClass(cursorPositionResolver)
+        if (!ScopeResolverConstants.getResolverByClass(cursorPositionResolver)
                 .isCursorBeforeNode(serviceNode.getPosition(), serviceNode, this, this.documentServiceContext)) {
             BSymbol serviceSymbol = serviceNode.symbol;
             SymbolEnv serviceEnv = SymbolEnv.createPkgLevelSymbolEnv(serviceNode, serviceSymbol.scope, symbolEnv);
             
-            if (serviceNode.resources.isEmpty() && serviceNode.vars.isEmpty()) {
-                this.isCursorWithinBlock(serviceNode.getPosition(), serviceEnv);
-            } else {
+            // Reset the previous node
+            this.setPreviousNode(null);
+            if (!(serviceNode.resources.isEmpty() && serviceNode.vars.isEmpty())) {
                 // Since the service does not contains a block statement, we consider the block owner only.
                 // Here it is service
                 this.blockOwnerStack.push(serviceNode);
@@ -400,12 +423,14 @@ public class TreeVisitor extends BLangNodeVisitor {
                     this.acceptNode(null, null);
                 }
                 this.blockOwnerStack.pop();
+            } else {
+                this.isCursorWithinBlock(serviceNode.getPosition(), serviceEnv);
             }
         }
     }
 
     public void visit(BLangResource resourceNode) {
-        if (!CursorScopeResolver.getResolverByClass(cursorPositionResolver)
+        if (!ScopeResolverConstants.getResolverByClass(cursorPositionResolver)
                 .isCursorBeforeNode(resourceNode.getPosition(), resourceNode, this, this.documentServiceContext)) {
             BSymbol resourceSymbol = resourceNode.symbol;
             SymbolEnv resourceEnv = SymbolEnv.createResourceActionSymbolEnv(resourceNode,
@@ -425,7 +450,7 @@ public class TreeVisitor extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangTryCatchFinally tryCatchFinally) {
-        if (!CursorScopeResolver.getResolverByClass(cursorPositionResolver)
+        if (!ScopeResolverConstants.getResolverByClass(cursorPositionResolver)
                 .isCursorBeforeNode(tryCatchFinally.getPosition(),
                         tryCatchFinally, this, this.documentServiceContext)) {
 
@@ -449,7 +474,7 @@ public class TreeVisitor extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangCatch bLangCatch) {
-        if (!CursorScopeResolver.getResolverByClass(cursorPositionResolver)
+        if (!ScopeResolverConstants.getResolverByClass(cursorPositionResolver)
                 .isCursorBeforeNode(bLangCatch.getPosition(), bLangCatch, this, this.documentServiceContext)) {
             SymbolEnv catchBlockEnv = SymbolEnv.createBlockEnv(bLangCatch.body, symbolEnv);
             this.acceptNode(bLangCatch.param, catchBlockEnv);
@@ -463,8 +488,12 @@ public class TreeVisitor extends BLangNodeVisitor {
     @Override
     public void visit(BLangTransaction transactionNode) {
         this.blockOwnerStack.push(transactionNode);
+        this.isCurrentNodeTransactionStack.push(true);
+        this.transactionCount++;
         this.acceptNode(transactionNode.transactionBody, symbolEnv);
         this.blockOwnerStack.pop();
+        this.isCurrentNodeTransactionStack.pop();
+        this.transactionCount--;
 
         if (transactionNode.failedBody != null) {
             this.blockOwnerStack.push(transactionNode);
@@ -475,7 +504,7 @@ public class TreeVisitor extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangAbort abortNode) {
-        CursorScopeResolver.getResolverByClass(cursorPositionResolver)
+        ScopeResolverConstants.getResolverByClass(cursorPositionResolver)
                 .isCursorBeforeNode(abortNode.getPosition(), abortNode, this, this.documentServiceContext);
     }
 
@@ -534,26 +563,26 @@ public class TreeVisitor extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangWorkerSend workerSendNode) {
-        CursorScopeResolver.getResolverByClass(cursorPositionResolver)
+        ScopeResolverConstants.getResolverByClass(cursorPositionResolver)
                 .isCursorBeforeNode(workerSendNode.getPosition(), workerSendNode,
                         this, this.documentServiceContext);
     }
 
     @Override
     public void visit(BLangWorkerReceive workerReceiveNode) {
-        CursorScopeResolver.getResolverByClass(cursorPositionResolver)
+        ScopeResolverConstants.getResolverByClass(cursorPositionResolver)
                 .isCursorBeforeNode(workerReceiveNode.getPosition(), workerReceiveNode,
                         this, this.documentServiceContext);
     }
 
     @Override
     public void visit(BLangReturn returnNode) {
-        CursorScopeResolver.getResolverByClass(cursorPositionResolver)
+        ScopeResolverConstants.getResolverByClass(cursorPositionResolver)
                 .isCursorBeforeNode(returnNode.getPosition(), returnNode, this, this.documentServiceContext);
     }
 
     public void visit(BLangNext nextNode) {
-        CursorScopeResolver.getResolverByClass(cursorPositionResolver)
+        ScopeResolverConstants.getResolverByClass(cursorPositionResolver)
                 .isCursorBeforeNode(nextNode.getPosition(), nextNode, this, this.documentServiceContext);
     }
 
@@ -569,7 +598,7 @@ public class TreeVisitor extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangEnum enumNode) {
-        CursorScopeResolver.getResolverByClass(cursorPositionResolver).isCursorBeforeNode(enumNode.getPosition(),
+        ScopeResolverConstants.getResolverByClass(cursorPositionResolver).isCursorBeforeNode(enumNode.getPosition(),
                 enumNode, this, this.documentServiceContext);
     }
 
@@ -605,14 +634,14 @@ public class TreeVisitor extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangBind bindNode) {
-        CursorScopeResolver.getResolverByClass(cursorPositionResolver).isCursorBeforeNode(bindNode.getPosition(),
+        ScopeResolverConstants.getResolverByClass(cursorPositionResolver).isCursorBeforeNode(bindNode.getPosition(),
                 bindNode, this, this.documentServiceContext);
         // TODO: need to implement the bind context related suggestions. Implementation on hold - grammar inconsistency
     }
 
     @Override
     public void visit(BLangBreak breakNode) {
-        CursorScopeResolver.getResolverByClass(cursorPositionResolver).isCursorBeforeNode(breakNode.getPosition(),
+        ScopeResolverConstants.getResolverByClass(cursorPositionResolver).isCursorBeforeNode(breakNode.getPosition(),
                 breakNode, this, this.documentServiceContext);
     }
 
@@ -623,7 +652,7 @@ public class TreeVisitor extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangThrow throwNode) {
-        CursorScopeResolver.getResolverByClass(cursorPositionResolver).isCursorBeforeNode(throwNode.getPosition(),
+        ScopeResolverConstants.getResolverByClass(cursorPositionResolver).isCursorBeforeNode(throwNode.getPosition(),
                 throwNode, this, this.documentServiceContext);
     }
 
@@ -878,11 +907,23 @@ public class TreeVisitor extends BLangNodeVisitor {
     }
 
     @Override
+    public void visit(BLangLock lockNode) {
+        if (!ScopeResolverConstants.getResolverByClass(cursorPositionResolver)
+                .isCursorBeforeNode(lockNode.getPosition(), lockNode, this, this.documentServiceContext)) {
+            this.blockOwnerStack.push(lockNode);
+            this.acceptNode(lockNode.body, symbolEnv);
+            this.blockOwnerStack.pop();
+        }
+    }
+
+    @Override
     public void visit(BLangForeach foreach) {
-        if (!CursorScopeResolver.getResolverByClass(cursorPositionResolver)
+        if (!ScopeResolverConstants.getResolverByClass(cursorPositionResolver)
                 .isCursorBeforeNode(foreach.getPosition(), foreach, this, this.documentServiceContext)) {
             this.blockOwnerStack.push(foreach);
+            loopCount++;
             this.acceptNode(foreach.body, symbolEnv);
+            loopCount--;
             this.blockOwnerStack.pop();
         }
     }
@@ -934,13 +975,22 @@ public class TreeVisitor extends BLangNodeVisitor {
     }
 
     public void setTerminateVisitor(boolean terminateVisitor) {
+        if (terminateVisitor) {
+            boolean currentNodeIsTransaction = !this.isCurrentNodeTransactionStack.isEmpty();
+            documentServiceContext.put(CompletionKeys.CURRENT_NODE_TRANSACTION_KEY, currentNodeIsTransaction);
+            documentServiceContext.put(CompletionKeys.LOOP_COUNT_KEY, this.loopCount);
+            documentServiceContext.put(CompletionKeys.TRANSACTION_COUNT_KEY, this.transactionCount);
+            documentServiceContext.put(CompletionKeys.PREVIOUS_NODE_KEY, this.previousNode);
+            if (!blockOwnerStack.isEmpty()) {
+                documentServiceContext.put(CompletionKeys.BLOCK_OWNER_KEY, blockOwnerStack.peek());
+            }
+        }
         this.terminateVisitor = terminateVisitor;
     }
 
 
     // Private Methods
     private void acceptNode(BLangNode node, SymbolEnv env) {
-
         if (this.terminateVisitor) {
             return;
         }
@@ -949,6 +999,7 @@ public class TreeVisitor extends BLangNodeVisitor {
         this.symbolEnv = env;
         node.accept(this);
         this.symbolEnv = prevEnv;
+        this.setPreviousNode(node);
     }
 
     private boolean isCursorWithinBlock(DiagnosticPos nodePosition, SymbolEnv symbolEnv) {
@@ -959,10 +1010,37 @@ public class TreeVisitor extends BLangNodeVisitor {
         if ((nodeSLine <= line && nodeELine >= line)) {
             Map<Name, Scope.ScopeEntry> visibleSymbolEntries = this.resolveAllVisibleSymbols(symbolEnv);
             this.populateSymbols(visibleSymbolEntries, symbolEnv);
-            this.terminateVisitor = true;
+            this.setTerminateVisitor(true);
             return true;
         }
 
         return false;
+    }
+
+    /**
+     * Check whether the cursor is within the endpoint definition node.
+     * @param nodePosition  Diagnostic position of the current node
+     * @return              {@link Boolean} whether the cursor is within the node or not
+     */
+    private boolean isCursorWithinEndpointDef(DiagnosticPos nodePosition) {
+        int line = documentServiceContext.get(DocumentServiceKeys.POSITION_KEY).getPosition().getLine();
+        int column = documentServiceContext.get(DocumentServiceKeys.POSITION_KEY).getPosition().getCharacter();
+        int nodeSLine = nodePosition.sLine;
+        int nodeELine = nodePosition.eLine;
+        int nodeSCol = nodePosition.sCol;
+        int nodeECol = nodePosition.eCol;
+        
+        return (line > nodeSLine && line < nodeELine)
+                || (line > nodeSLine && line == nodeELine && column < nodeECol)
+                || (line == nodeSLine && column > nodeSCol && line < nodeELine)
+                || (line == nodeSLine && line == nodeELine && column > nodeSCol && column < nodeECol);
+    }
+
+    public BLangNode getPreviousNode() {
+        return previousNode;
+    }
+
+    public void setPreviousNode(BLangNode previousNode) {
+        this.previousNode = previousNode;
     }
 }

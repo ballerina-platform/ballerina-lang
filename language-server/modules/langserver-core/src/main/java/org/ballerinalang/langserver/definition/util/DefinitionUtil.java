@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (c) 2018, WSO2 Inc. (http://wso2.com) All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -22,6 +22,7 @@ import org.ballerinalang.langserver.TextDocumentServiceContext;
 import org.ballerinalang.langserver.TextDocumentServiceUtil;
 import org.ballerinalang.langserver.common.constants.ContextConstants;
 import org.ballerinalang.langserver.common.constants.NodeContextKeys;
+import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.definition.DefinitionTreeVisitor;
 import org.eclipse.lsp4j.Location;
 import org.eclipse.lsp4j.Position;
@@ -127,7 +128,7 @@ public class DefinitionUtil {
         if (parentPath != null) {
             String fileName = bLangNode.getPosition().getSource().getCompilationUnitName();
             Path filePath = Paths
-                    .get(getPackageURI(definitionContext.get(NodeContextKeys.PACKAGE_OF_NODE_KEY).nameComps,
+                    .get(CommonUtil.getPackageURI(definitionContext.get(NodeContextKeys.PACKAGE_OF_NODE_KEY).nameComps,
                             parentPath.toString(),
                             definitionContext.get(NodeContextKeys.PACKAGE_OF_NODE_KEY).nameComps),
                             fileName);
@@ -153,29 +154,5 @@ public class DefinitionUtil {
                                                      BLangPackageContext bLangPackageContext) {
         return bLangPackageContext
                 .getPackageByName(definitionContext.get(DocumentServiceKeys.COMPILER_CONTEXT_KEY), packageName);
-    }
-
-    /**
-     * Get the package URI to the given package name.
-     *
-     * @param pkgName        Name of the package that need the URI for
-     * @param currentPkgPath String URI of the current package
-     * @param currentPkgName Name of the current package
-     * @return String URI for the given path.
-     */
-    private static String getPackageURI(List<Name> pkgName, String currentPkgPath, List<Name> currentPkgName) {
-        String newPackagePath;
-        // If current package path is not null and current package is not default package continue,
-        // else new package path is same as the current package path.
-        if (currentPkgPath != null && !currentPkgName.get(0).getValue().equals(".")) {
-            int indexOfCurrentPkgName = currentPkgPath.indexOf(currentPkgName.get(0).getValue());
-            newPackagePath = currentPkgPath.substring(0, indexOfCurrentPkgName);
-            for (Name pkgDir : pkgName) {
-                newPackagePath = Paths.get(newPackagePath, pkgDir.getValue()).toString();
-            }
-        } else {
-            newPackagePath = currentPkgPath;
-        }
-        return newPackagePath;
     }
 }

@@ -19,6 +19,9 @@ package org.ballerinalang.parsing;
 import com.intellij.testFramework.ParsingTestCase;
 import org.ballerinalang.plugins.idea.BallerinaParserDefinition;
 
+/**
+ * Parsing tests.
+ */
 public class BallerinaParsingTest extends ParsingTestCase {
 
     public BallerinaParsingTest() {

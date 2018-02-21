@@ -108,12 +108,17 @@ node("${nodeLabel}") {
         if (isBuild || isRelease) {
             // Archive the runtime distribution
             stage("Archiving Runtime distribution") {
-                archiveArtifacts artifacts: 'ballerina/distribution/zip/ballerina/target/ballerina-*.zip'
+                archiveArtifacts artifacts: 'distribution/zip/ballerina/target/ballerina-*.zip'
             }
 
             // Archive the tools distribution
             stage("Archiving Tools distribution") {
-                archiveArtifacts artifacts: 'ballerina/distribution/zip/ballerina-tools/target/ballerina-tools-*.zip'
+                archiveArtifacts artifacts: 'distribution/zip/ballerina-tools/target/ballerina-tools-*.zip'
+            }
+
+            // Archive the vscode distribution
+            stage("Archiving vscode distribution") {
+                archiveArtifacts artifacts: 'tool-plugins/vscode/target/ballerina-vscode-plugin-*.vsix'
             }
         }
     } catch (Exception e) {

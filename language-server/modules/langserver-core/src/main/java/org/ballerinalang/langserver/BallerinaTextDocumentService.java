@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (c) 2017, WSO2 Inc. (http://wso2.com) All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,13 +15,15 @@
  */
 package org.ballerinalang.langserver;
 
+import org.ballerinalang.langserver.common.constants.NodeContextKeys;
 import org.ballerinalang.langserver.common.position.PositionTreeVisitor;
 import org.ballerinalang.langserver.completions.CompletionKeys;
 import org.ballerinalang.langserver.completions.TreeVisitor;
-import org.ballerinalang.langserver.completions.consts.CompletionItemResolver;
 import org.ballerinalang.langserver.completions.resolvers.TopLevelResolver;
+import org.ballerinalang.langserver.completions.util.CompletionItemResolver;
 import org.ballerinalang.langserver.definition.util.DefinitionUtil;
 import org.ballerinalang.langserver.hover.util.HoverUtil;
+import org.ballerinalang.langserver.references.util.ReferenceUtil;
 import org.ballerinalang.langserver.signature.SignatureHelpUtil;
 import org.ballerinalang.langserver.signature.SignatureTreeVisitor;
 import org.ballerinalang.langserver.symbols.SymbolFindingVisitor;
@@ -209,7 +211,27 @@ public class BallerinaTextDocumentService implements TextDocumentService {
 
     @Override
     public CompletableFuture<List<? extends Location>> references(ReferenceParams params) {
-        return CompletableFuture.supplyAsync(() -> null);
+        return CompletableFuture.supplyAsync(() -> {
+            TextDocumentServiceContext referenceContext = new TextDocumentServiceContext();
+            referenceContext.put(DocumentServiceKeys.FILE_URI_KEY, params.getTextDocument().getUri());
+            referenceContext.put(DocumentServiceKeys.POSITION_KEY, params);
+
+            BLangPackage currentBLangPackage =
+                    TextDocumentServiceUtil.getBLangPackage(referenceContext, documentManager);
+            bLangPackageContext.addPackage(currentBLangPackage);
+
+            List<Location> contents = new ArrayList<>();
+            referenceContext.put(NodeContextKeys.REFERENCE_NODES_KEY, contents);
+            try {
+                PositionTreeVisitor positionTreeVisitor = new PositionTreeVisitor(referenceContext);
+                currentBLangPackage.accept(positionTreeVisitor);
+                contents = ReferenceUtil.getReferences(referenceContext, bLangPackageContext);
+            } catch (Exception e) {
+                // Ignore
+            }
+
+            return contents;
+        });
     }
 
     @Override

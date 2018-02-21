@@ -19,8 +19,12 @@ package org.ballerinalang.langserver.completions.resolvers;
 
 import org.ballerinalang.langserver.TextDocumentServiceContext;
 import org.ballerinalang.langserver.completions.CompletionKeys;
+import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
+import org.ballerinalang.langserver.completions.util.Snippet;
 import org.ballerinalang.langserver.completions.util.filters.StatementTemplateFilter;
+import org.ballerinalang.langserver.completions.util.sorters.ItemSorters;
 import org.eclipse.lsp4j.CompletionItem;
+import org.eclipse.lsp4j.InsertTextFormat;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 
@@ -35,6 +39,20 @@ public class StatementContextResolver extends AbstractItemResolver {
     public ArrayList<CompletionItem> resolveItems(TextDocumentServiceContext completionContext) {
         ArrayList<CompletionItem> completionItems = new ArrayList<>();
 
+        CompletionItem xmlns = new CompletionItem();
+        xmlns.setLabel(ItemResolverConstants.XMLNS);
+        xmlns.setInsertText(Snippet.NAMESPACE_DECLARATION.toString());
+        xmlns.setInsertTextFormat(InsertTextFormat.Snippet);
+        xmlns.setDetail(ItemResolverConstants.SNIPPET_TYPE);
+        completionItems.add(xmlns);
+
+        // Add the var keyword
+        CompletionItem varKeyword = new CompletionItem();
+        varKeyword.setInsertText("var ");
+        varKeyword.setLabel("var");
+        varKeyword.setDetail(ItemResolverConstants.KEYWORD_TYPE);
+        completionItems.add(varKeyword);
+
         StatementTemplateFilter statementTemplateFilter = new StatementTemplateFilter();
         // Add the statement templates
         completionItems.addAll(statementTemplateFilter.filterItems(completionContext));
@@ -44,6 +62,10 @@ public class StatementContextResolver extends AbstractItemResolver {
             return bSymbol instanceof BInvokableSymbol && ((BInvokableSymbol) bSymbol).receiverSymbol != null;
         });
         populateCompletionItemList(completionContext.get(CompletionKeys.VISIBLE_SYMBOLS_KEY), completionItems);
+        // Now we need to sort the completion items and populate the completion items specific to the scope owner
+        // as an example, resource, action, function scopes are different from the if-else, while, and etc
+        Class itemSorter = completionContext.get(CompletionKeys.BLOCK_OWNER_KEY).getClass();
+        ItemSorters.getSorterByClass(itemSorter).sortItems(completionContext, completionItems);
 
         return completionItems;
     }

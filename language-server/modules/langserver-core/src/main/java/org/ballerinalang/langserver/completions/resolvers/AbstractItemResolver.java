@@ -15,7 +15,6 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-
 package org.ballerinalang.langserver.completions.resolvers;
 
 import org.antlr.v4.runtime.Token;
@@ -23,8 +22,7 @@ import org.antlr.v4.runtime.TokenStream;
 import org.ballerinalang.langserver.DocumentServiceKeys;
 import org.ballerinalang.langserver.TextDocumentServiceContext;
 import org.ballerinalang.langserver.completions.SymbolInfo;
-import org.ballerinalang.langserver.completions.consts.ItemResolverConstants;
-import org.ballerinalang.langserver.completions.consts.Priority;
+import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.CompletionItemKind;
@@ -38,7 +36,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -87,7 +84,9 @@ public abstract class AbstractItemResolver {
     private CompletionItem populateBallerinaFunctionCompletionItem(SymbolInfo symbolInfo) {
         CompletionItem completionItem = new CompletionItem();
         BSymbol bSymbol = symbolInfo.getScopeEntry().symbol;
-        assert bSymbol instanceof BInvokableSymbol;
+        if (!(bSymbol instanceof BInvokableSymbol)) {
+            return null;
+        }
         BInvokableSymbol bInvokableSymbol = (BInvokableSymbol) bSymbol;
         if (bInvokableSymbol.getName().getValue().contains("<")
                 || bInvokableSymbol.getName().getValue().contains("<") ||
@@ -99,7 +98,6 @@ public abstract class AbstractItemResolver {
         completionItem.setLabel(functionSignature.getLabel());
         completionItem.setInsertText(functionSignature.getInsertText());
         completionItem.setDetail(ItemResolverConstants.FUNCTION_TYPE);
-        completionItem.setSortText(Priority.PRIORITY6.name());
         completionItem.setKind(CompletionItemKind.Function);
 
         return completionItem;
@@ -117,8 +115,6 @@ public abstract class AbstractItemResolver {
         completionItem.setInsertText(delimiterSeparatedTokens[delimiterSeparatedTokens.length - 1]);
         String typeName = symbolInfo.getScopeEntry().symbol.type.toString();
         completionItem.setDetail((typeName.equals("")) ? ItemResolverConstants.NONE : typeName);
-
-        completionItem.setSortText(Priority.PRIORITY7.name());
         completionItem.setKind(CompletionItemKind.Unit);
 
         return completionItem;
@@ -305,31 +301,16 @@ public abstract class AbstractItemResolver {
     }
 
     /**
-     * Assign the Priorities to the completion items.
-     * @param itemPriorityMap - Map of item priorities against the Item type
-     * @param completionItems - list of completion items
-     */
-    protected void assignItemPriorities(HashMap<String, String> itemPriorityMap, List<CompletionItem> completionItems) {
-        completionItems.forEach(completionItem -> {
-            if (itemPriorityMap.containsKey(completionItem.getDetail())) {
-                completionItem.setSortText(itemPriorityMap.get(completionItem.getDetail()));
-            }
-        });
-    }
-
-    /**
      * Populate a completion item with the given data and return it.
      * @param insertText insert text
      * @param type type of the completion item
-     * @param priority completion item priority
      * @param label completion item label
      * @return {@link CompletionItem}
      */
-    protected CompletionItem populateCompletionItem(String insertText, String type, String priority, String label) {
+    protected CompletionItem populateCompletionItem(String insertText, String type, String label) {
         CompletionItem completionItem = new CompletionItem();
         completionItem.setInsertText(insertText);
         completionItem.setDetail(type);
-        completionItem.setSortText(priority);
         completionItem.setLabel(label);
         return completionItem;
     }

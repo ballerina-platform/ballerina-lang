@@ -19,6 +19,9 @@ package org.ballerinalang.completion;
 import java.util.LinkedList;
 import java.util.List;
 
+/**
+ * Constant completion test.
+ */
 public class BallerinaConstantCompletionTest extends BallerinaCompletionTestBase {
 
     /**

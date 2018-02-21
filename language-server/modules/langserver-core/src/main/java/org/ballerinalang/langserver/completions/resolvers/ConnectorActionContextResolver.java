@@ -18,7 +18,7 @@
 package org.ballerinalang.langserver.completions.resolvers;
 
 import org.ballerinalang.langserver.TextDocumentServiceContext;
-import org.ballerinalang.langserver.completions.consts.CompletionItemResolver;
+import org.ballerinalang.langserver.completions.util.CompletionItemResolver;
 import org.ballerinalang.model.AnnotationAttachment;
 import org.eclipse.lsp4j.CompletionItem;
 
