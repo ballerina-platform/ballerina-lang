@@ -22,10 +22,13 @@ import org.ballerinalang.config.cipher.AESCipherTool;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
+/**
+ * Test the AES Cipher tool.
+ */
 public class AESCipherToolTest {
 
     @Test
-    public void testEncryptionAndDecryption() {
+    public void testEncryptionAndDecryptionWithSameTool() {
         String plainText = "this is the plain text";
         String encryptionKey = "abc&xyz";
         AESCipherTool aesCipherTool = new AESCipherTool(encryptionKey);

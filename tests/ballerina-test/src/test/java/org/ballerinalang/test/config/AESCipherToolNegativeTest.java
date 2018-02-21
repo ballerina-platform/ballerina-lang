@@ -23,6 +23,9 @@ import org.ballerinalang.config.cipher.BallerinaSecurityException;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
+/**
+ * Test the AES Cipher tool negative scenarios.
+ */
 public class AESCipherToolNegativeTest {
 
     @Test(expectedExceptions = BallerinaSecurityException.class)
