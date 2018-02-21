@@ -40,7 +40,7 @@ function main (string[] args) {
     println(book);
 
     // Get all the children of an XML.
-    x = book.children();
+    x = book.*;
     println(x);
 
     // Get a particular child of an XML.

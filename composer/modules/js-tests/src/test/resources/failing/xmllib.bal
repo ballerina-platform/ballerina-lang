@@ -47,7 +47,7 @@ public native function <xml x> getTextValue() (string);
 @Description { value:"Selects all the children of the elements in an XML, and return as a sequence."}
 @Param { value:"x: An XML object" }
 @Return { value:"xml: All the children of the elements in the xml" }
-public native function <xml x> children() (xml);
+public native function <xml x>.* (xml);
 
 @Description { value:"Selects all the children of the elements in this sequence that matches the given qualified name."}
 @Param { value:"x: An XML object" }

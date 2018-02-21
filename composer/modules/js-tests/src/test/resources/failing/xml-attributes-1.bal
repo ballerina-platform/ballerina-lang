@@ -261,7 +261,7 @@ function testSetAttributes() (xml) {
 
 function testGetAttributeFromSingletonSeq() (string) {
     var x1, _ = <xml> "<root><child xmlns:p1=\"http://wso2.com/\" xmlns:p2=\"http://sample.com/wso2/a1/\" p1:foo=\"bar\"/></root>";
-    xml x2 = x1.children();
+    xml x2 = x1.*;
     return x2@["{http://wso2.com/}foo"];
 }
 

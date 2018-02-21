@@ -744,8 +744,10 @@ public class BLangVM {
                 case InstructionCodes.NEWXMLCOMMENT:
                 case InstructionCodes.NEWXMLTEXT:
                 case InstructionCodes.NEWXMLPI:
-                case InstructionCodes.XMLSTORE:
+                case InstructionCodes.XMLSEQSTORE:
+                case InstructionCodes.XMLSEQLOAD:
                 case InstructionCodes.XMLLOAD:
+                case InstructionCodes.XMLLOADALL:
                     execXMLOpcodes(sf, opcode, operands);
                     break;
                 case InstructionCodes.ITR_NEW:
@@ -1802,7 +1804,7 @@ public class BLangVM {
 
                 sf.refRegs[i] = new BXMLQName(localname, sf.stringRegs[uriIndex], prefix);
                 break;
-            case InstructionCodes.XMLLOAD:
+            case InstructionCodes.XMLSEQLOAD:
                 i = operands[0];
                 j = operands[1];
                 k = operands[2];
@@ -1816,11 +1818,37 @@ public class BLangVM {
                 long index = sf.longRegs[j];
                 sf.refRegs[k] = xmlVal.getItem(index);
                 break;
+            case InstructionCodes.XMLLOAD:
+                i = operands[0];
+                j = operands[1];
+                k = operands[2];
+
+                xmlVal = (BXML<?>) sf.refRegs[i];
+                if (xmlVal == null) {
+                    handleNullRefError();
+                    break;
+                }
+
+                String qname = sf.stringRegs[j];
+                sf.refRegs[k] = xmlVal.children(qname);
+                break;
+            case InstructionCodes.XMLLOADALL:
+                i = operands[0];
+                j = operands[1];
+
+                xmlVal = (BXML<?>) sf.refRegs[i];
+                if (xmlVal == null) {
+                    handleNullRefError();
+                    break;
+                }
+
+                sf.refRegs[j] = xmlVal.children();
+                break;
             case InstructionCodes.NEWXMLELEMENT:
             case InstructionCodes.NEWXMLCOMMENT:
             case InstructionCodes.NEWXMLTEXT:
             case InstructionCodes.NEWXMLPI:
-            case InstructionCodes.XMLSTORE:
+            case InstructionCodes.XMLSEQSTORE:
                 execXMLCreationOpcodes(sf, opcode, operands);
                 break;
             default:
@@ -2362,7 +2390,7 @@ public class BLangVM {
                     handleError();
                 }
                 break;
-            case InstructionCodes.XMLSTORE:
+            case InstructionCodes.XMLSEQSTORE:
                 i = operands[0];
                 j = operands[1];
 

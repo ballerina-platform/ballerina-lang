@@ -24,7 +24,7 @@ function main (string[] args) {
         http:HttpConnectorError err;
         mediumResponse, err = mediumEP.get("/feed/@wso2", request);
         xml feedXML = mediumResponse.getXmlPayload();
-        string title = feedXML.selectChildren("channel").selectChildren("item")[1].selectChildren("title").getTextValue();
+        string title = feedXML.channel.item[1].title.getTextValue();
 
         string oauthHeader = constructOAuthHeader(consumerKey, consumerSecret, accessToken, accessTokenSecret, title);
 

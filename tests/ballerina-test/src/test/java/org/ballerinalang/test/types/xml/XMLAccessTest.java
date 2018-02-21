@@ -30,15 +30,15 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 /**
- * Local function invocation test.
+ * Test cases for XML index-based and field-based access.
  *
  * @since 0.94.0
  */
-public class XMLIndexedAccessTest {
+public class XMLAccessTest {
 
     CompileResult result;
     CompileResult negativeResult;
-    
+
     @BeforeClass
     public void setup() {
         result = BCompileUtil.compile("test-src/types/xml/xml-indexed-access.bal");
@@ -56,26 +56,26 @@ public class XMLIndexedAccessTest {
         Assert.assertTrue(returns[0] instanceof BXML);
         Assert.assertEquals(returns[0].stringValue(),
                 "<root><!-- comment node--><name>supun</name><city>colombo</city></root>");
-        
+
         Assert.assertTrue(returns[1] instanceof BXML);
         Assert.assertEquals(returns[1].stringValue(), "<!-- comment node-->");
-        
+
         Assert.assertTrue(returns[2] instanceof BXML);
         Assert.assertEquals(returns[2].stringValue(), "<name>supun</name>");
     }
-    
-    @Test(expectedExceptions = {BLangRuntimeException.class}, 
+
+    @Test(expectedExceptions = { BLangRuntimeException.class },
             expectedExceptionsMessageRegExp = "error: error, message: index out of range: index: 1, size: 1.*")
     public void testXMLAccessWithOutOfIndex() {
         BRunUtil.invoke(result, "testXMLAccessWithOutOfIndex");
     }
-    
-    @Test(expectedExceptions = {BLangRuntimeException.class}, 
+
+    @Test(expectedExceptions = { BLangRuntimeException.class },
             expectedExceptionsMessageRegExp = "error: error, message: array index out of range: index: 5, size: 3.*")
     public void testXMLSequenceAccessWithOutOfIndex() {
         BRunUtil.invoke(result, "testXMLSequenceAccessWithOutOfIndex");
     }
-    
+
     @Test
     public void testLengthOfXMLSequence() {
         BValue[] returns = BRunUtil.invoke(result, "testLengthOfXMLSequence");
@@ -83,5 +83,31 @@ public class XMLIndexedAccessTest {
         Assert.assertEquals(((BInteger) returns[1]).intValue(), 3);
         Assert.assertEquals(((BInteger) returns[2]).intValue(), 1);
         Assert.assertEquals(((BInteger) returns[3]).intValue(), 2);
+    }
+
+    @Test
+    public void testFieldBasedAccess() {
+        BValue[] returns = BRunUtil.invoke(result, "testFieldBasedAccess");
+        Assert.assertEquals(returns[0].stringValue(),
+                "<fname><foo>1</foo><bar>2</bar></fname><lname1><foo>3</foo><bar>4</bar></lname1><fname><foo>5</foo>" +
+                        "<bar>6</bar></fname><lname2><foo>7</foo><bar>8</bar></lname2>apple");
+        Assert.assertEquals(returns[1].stringValue(), "<fname><foo>1</foo><bar>2</bar></fname>");
+        Assert.assertEquals(returns[2].stringValue(), "<foo>5</foo>");
+        Assert.assertEquals(returns[3].stringValue(), "<foo>5</foo>");
+        Assert.assertEquals(returns[4].stringValue(), "<bar>4</bar>");
+        Assert.assertEquals(returns[5].stringValue(),
+                "<foo>1</foo><bar>2</bar><foo>3</foo><bar>4</bar><foo>5</foo><bar>6</bar><foo>7</foo><bar>8</bar>");
+    }
+
+    @Test
+    public void testFieldBasedAccessWithNamespaces() {
+        BValue[] returns = BRunUtil.invoke(result, "testFieldBasedAccessWithNamespaces");
+        Assert.assertEquals(returns[0].stringValue(),
+                "<ns0:fname xmlns:ns0=\"http://test.com\" xmlns=\"http://test.com/default\">John</ns0:fname>");
+        Assert.assertEquals(returns[1].stringValue(),
+                "<ns0:fname xmlns:ns0=\"http://test.com\" xmlns=\"http://test.com/default\">John</ns0:fname>");
+        Assert.assertTrue(((BXML<?>) returns[2]).isEmpty().booleanValue());
+        Assert.assertEquals(returns[3].stringValue(),
+                "<ns0:fname xmlns:ns0=\"http://test.com\" xmlns=\"http://test.com/default\">John</ns0:fname>");
     }
 }
