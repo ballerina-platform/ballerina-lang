@@ -33,7 +33,7 @@ service<http> headerBasedRouting {
         http:OutResponse res = {};
         if (err != null) {
             res.statusCode = 500;
-            res.setStringPayload(err.msg);
+            res.setStringPayload(err.message);
             _ = conn.respond(res);
         } else {
             _ = conn.forward(clientResponse);
