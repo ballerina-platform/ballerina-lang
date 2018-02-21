@@ -70,10 +70,10 @@ public class InvocableWorkerResponseContext implements WorkerResponseContext {
     }
     
     private void doReturn(WorkerSignal signal) {
-        if (this.fulfilled.getAndSet(true)) {
-            this.handleAlreadyReturned();
-            return;
-        }
+//        if (this.fulfilled.getAndSet(true)) {
+//            this.handleAlreadyReturned();
+//            return;
+//        }
         this.currentSignal = signal;
         this.storeResponseInParentAndContinue();
         BLangScheduler.workerDone(signal.getSourceContext());

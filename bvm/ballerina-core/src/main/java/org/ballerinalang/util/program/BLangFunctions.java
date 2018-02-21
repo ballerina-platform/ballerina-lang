@@ -444,7 +444,9 @@ public class BLangFunctions {
         respCtx.updateParentWorkerResultLocation(retRegs);
         WorkerDataIndex wdi = calculateWorkerDataIndex(callableUnitInfo.getRetParamTypes());
         Map<String, Object> globalProps = parentCtx.globalProps;
-        BLangScheduler.switchToWaitForResponse(parentCtx);
+        if (!waitForResponse) {
+            BLangScheduler.switchToWaitForResponse(parentCtx);
+        }
         for (WorkerInfo workerInfo : listWorkerInfos(callableUnitInfo)) {
             executeWorker(respCtx, parentCtx, argRegs, callableUnitInfo, workerInfo, wdi, globalProps);
         }

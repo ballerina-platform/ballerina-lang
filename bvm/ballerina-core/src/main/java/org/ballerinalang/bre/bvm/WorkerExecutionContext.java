@@ -27,6 +27,8 @@ import org.ballerinalang.util.codegen.cpentries.ConstantPoolEntry;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * This represents a Ballerina worker execution context.
@@ -62,6 +64,8 @@ public class WorkerExecutionContext {
     public WorkerInfo workerInfo;
     
     public WorkerResponseContext respCtx;
+    
+    public Lock executionLock = new ReentrantLock();
 
     public WorkerExecutionContext() {
         this.globalProps = new HashMap<>();

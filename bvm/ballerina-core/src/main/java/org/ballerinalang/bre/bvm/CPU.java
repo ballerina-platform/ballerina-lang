@@ -61,6 +61,7 @@ import org.ballerinalang.model.values.BXML;
 import org.ballerinalang.model.values.BXMLAttributes;
 import org.ballerinalang.model.values.BXMLQName;
 import org.ballerinalang.model.values.StructureType;
+import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.util.TransactionStatus;
 import org.ballerinalang.util.codegen.ActionInfo;
 import org.ballerinalang.util.codegen.CallableUnitInfo;
@@ -2718,8 +2719,7 @@ public class CPU {
         return false;
     }
 
-    private static void handleWorkerReceive(WorkerExecutionContext ctx, WorkerDataChannelInfo workerDataChannel, 
-            BType[] types, int[] regs) {
+    private static void handleWorkerReceive(WorkerExecutionContext ctx, WorkerDataChannelInfo workerDataChannel, BType[] types, int[] regs) {
         BValue[] passedInValues = (BValue[]) workerDataChannel.tryTakeData(ctx);
         if (passedInValues != null) {
             WorkerData currentFrame = ctx.workerLocal;
@@ -2727,7 +2727,6 @@ public class CPU {
         }
     }
     
-    @SuppressWarnings("rawtypes")
     public static void copyArgValuesForWorkerReceive(WorkerData currentSF, int[] argRegs, BType[] paramTypes,
             BValue[] passedInValues) {
         for (int i = 0; i < argRegs.length; i++) {

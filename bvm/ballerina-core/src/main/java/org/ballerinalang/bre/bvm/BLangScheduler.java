@@ -35,15 +35,14 @@ public class BLangScheduler {
     public static void schedule(WorkerExecutionContext ctx) {
         ctx.state = WorkerState.READY;
         ExecutorService executor = ThreadPoolFactory.getInstance().getWorkerExecutor();
-        executor.submit(new WorkerExecutor(ctx));
         activeContexts.add(ctx);
+        executor.submit(new WorkerExecutor(ctx, false));
     }
     
     public static void resume(WorkerExecutionContext ctx) {
-        ctx.restoreIP();
         ctx.state = WorkerState.READY;
         ExecutorService executor = ThreadPoolFactory.getInstance().getWorkerExecutor();
-        executor.submit(new WorkerExecutor(ctx));
+        executor.submit(new WorkerExecutor(ctx, true));
     }
     
     public static void workerDone(WorkerExecutionContext ctx) {
@@ -68,19 +67,27 @@ public class BLangScheduler {
 
         private WorkerExecutionContext ctx;
         
-        public WorkerExecutor(WorkerExecutionContext ctx) {
+        private boolean restoreIP;
+        
+        public WorkerExecutor(WorkerExecutionContext ctx, boolean restoreIP) {
             this.ctx = ctx;
+            this.restoreIP = restoreIP;
         }
         
         @Override
         public void run() {
             try {
+                ctx.executionLock.lock();
+                if (this.restoreIP) {
+                    ctx.restoreIP();
+                }
                 ctx.state = WorkerState.RUNNING;
                 CPU.exec(ctx);
             } catch (Throwable e) {
-                e.printStackTrace();
                 System.out.println("*** ERROR: " + e.getMessage());
                 ctx.state = WorkerState.EXCEPTED;
+            } finally {
+                ctx.executionLock.unlock();
             }
         }
         
