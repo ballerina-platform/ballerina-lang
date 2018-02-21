@@ -20,7 +20,7 @@ service<http> echo {
             println("============================PART "+ i +"================================");
             println("---------Content Type-------");
             println(part.contentType.toString());
-            println("------------Part Name-------");
+            println("----------Part Name---------");
             println(part.contentDisposition.name);
             println("------Body Part Content-----");
             handleContent(part);
@@ -55,7 +55,7 @@ function writeToFile(io:ByteChannel byteChannel) {
     io:ByteChannel destinationChannel = getByteChannel(dstFilePath, "w");
     blob readContent;
     int numberOfBytesRead;
-    readContent,numberOfBytesRead = byteChannel.readAllBytes();
+    readContent, numberOfBytesRead = byteChannel.readAllBytes();
     int numberOfBytesWritten = destinationChannel.writeBytes(readContent, 0);
 }
 
