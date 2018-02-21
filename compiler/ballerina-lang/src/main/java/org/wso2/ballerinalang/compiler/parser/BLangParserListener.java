@@ -2077,6 +2077,38 @@ public class BLangParserListener extends BallerinaParserBaseListener {
     }
 
     @Override
+    public void enterGroupByClause(BallerinaParser.GroupByClauseContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+
+        this.pkgBuilder.startGroupByClauseNode(getCurrentPos(ctx), getWS(ctx));
+    }
+
+    @Override
+    public void exitGroupByClause(BallerinaParser.GroupByClauseContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+
+        this.pkgBuilder.endGroupByClauseNode(getCurrentPos(ctx), getWS(ctx));
+    }
+
+    @Override
+    public void enterStreamingQueryStatement(BallerinaParser.StreamingQueryStatementContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+    }
+
+    @Override
+    public void exitStreamingQueryStatement(BallerinaParser.StreamingQueryStatementContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+    }
+
+    @Override
     public void enterHavingClause(BallerinaParser.HavingClauseContext ctx) {
         if (ctx.exception != null) {
             return;
