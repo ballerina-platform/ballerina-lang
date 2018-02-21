@@ -79,10 +79,12 @@ export default class FunctionInv extends React.Component {
                 <div
                     id={`${funcInvID}:${viewId}`}
                     className='function-header'
-                    onClick={() => this.props.onHeaderClick(funcInvID)}
                     title={isCollapsed ? 'Expand' : 'Collapse'}
                 >
-                    <i className={`fw ${foldIndicator} fold-indicator`} />
+                    <i
+                        className={`fw ${foldIndicator} fold-indicator`}
+                        onClick={() => this.props.onHeaderClick(funcInvID)}
+                    />
                     <i className={`fw fw-${func.type === 'iterable' ? 'iterable-operations' : 'function'} fw-inverse`} />
                     <span className='func-name'>{funcInv.getFunctionName()}</span>
                     <span
