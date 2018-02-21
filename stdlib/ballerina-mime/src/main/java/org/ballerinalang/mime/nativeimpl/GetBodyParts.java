@@ -20,13 +20,12 @@ package org.ballerinalang.mime.nativeimpl;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.mime.util.EntityBody;
+import org.ballerinalang.mime.util.EntityBodyHandler;
 import org.ballerinalang.mime.util.MimeUtil;
-import org.ballerinalang.mime.util.MultipartDecoder;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.nativeimpl.io.channels.FileIOChannel;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
@@ -34,8 +33,6 @@ import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
 import static org.ballerinalang.mime.util.Constants.FIRST_PARAMETER_INDEX;
-import static org.ballerinalang.mime.util.Constants.MULTIPART_AS_PRIMARY_TYPE;
-import static org.ballerinalang.mime.util.Constants.MULTIPART_DATA_INDEX;
 
 /**
  * Extract body parts from a given entity.
@@ -56,42 +53,18 @@ public class GetBodyParts extends AbstractNativeFunction {
         BRefValueArray partsArray;
         try {
             BStruct entityStruct = (BStruct) this.getRefArgument(context, FIRST_PARAMETER_INDEX);
-            //Get the body parts from entity's multipart data field, if they have already been decoded
-            partsArray = getBodyPartArray(entityStruct);
+            //Get the body parts from entity's multipart data field, if they've been already been decoded
+            partsArray = EntityBodyHandler.getBodyPartArray(entityStruct);
             if (partsArray == null || partsArray.size() < 1) {
                 EntityBody entityBody = MimeUtil.constructEntityBody(entityStruct);
-                if (entityBody != null) {
-                    String contentType = MimeUtil.getContentTypeWithParameters(entityStruct);
-                    if (MimeUtil.isNotNullAndEmpty(contentType) && contentType.startsWith(MULTIPART_AS_PRIMARY_TYPE)) {
-                        //Populate nested parts and set them to parent entity's multipart data field
-                        if (entityBody.isStream()) {
-                            MultipartDecoder.parseBody(context, entityStruct, contentType,
-                                    entityBody.getEntityWrapper().getInputStream());
-                        } else {
-                            FileIOChannel fileIOChannel = entityBody.getFileIOChannel();
-                            MultipartDecoder.parseBody(context, entityStruct, contentType,
-                                    fileIOChannel.getInputStream());
-                        }
-                    }
-                }
+                EntityBodyHandler.decodeEntityBody(context, entityStruct, entityBody);
                 //Check the body part availability for the second time, since the parts will be by this time populated
                 // from bytechannel
-                partsArray = getBodyPartArray(entityStruct);
+                partsArray = EntityBodyHandler.getBodyPartArray(entityStruct);
             }
         } catch (Throwable e) {
             throw new BallerinaException("Error occurred while extracting body parts from entity: " + e.getMessage());
         }
         return this.getBValues(partsArray);
-    }
-
-    /**
-     * Extract body parts from a given entity.
-     *
-     * @param entityStruct Represent a ballerina entity
-     * @return An array of body parts
-     */
-    private BRefValueArray getBodyPartArray(BStruct entityStruct) {
-        return entityStruct.getRefField(MULTIPART_DATA_INDEX) != null ?
-                (BRefValueArray) entityStruct.getRefField(MULTIPART_DATA_INDEX) : null;
     }
 }
