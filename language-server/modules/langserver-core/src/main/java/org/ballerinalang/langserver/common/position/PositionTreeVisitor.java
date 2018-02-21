@@ -172,6 +172,7 @@ public class PositionTreeVisitor extends NodeVisitor {
             this.context.put(NodeContextKeys.SYMBOL_KIND_OF_NODE_KEY, userDefinedType.type.tsymbol.kind.name());
             this.context.put(NodeContextKeys.NODE_OWNER_KEY, userDefinedType.type.tsymbol.owner.name.getValue());
             this.context.put(NodeContextKeys.NODE_OWNER_PACKAGE_KEY, userDefinedType.type.tsymbol.owner.pkgID);
+            this.context.put(NodeContextKeys.VAR_NAME_OF_NODE_KEY, userDefinedType.typeName.getValue());
             terminateVisitor = true;
         }
     }
@@ -318,8 +319,14 @@ public class PositionTreeVisitor extends NodeVisitor {
         previousNode = ifNode;
         if (ifNode.expr != null && HoverUtil.isMatchingPosition(ifNode.expr.pos, this.position)) {
             acceptNode(ifNode.expr);
-        } else if (ifNode.body != null) {
+        }
+
+        if (ifNode.body != null) {
             acceptNode(ifNode.body);
+        }
+
+        if (ifNode.elseStmt != null) {
+            acceptNode(ifNode.elseStmt);
         }
     }
 
