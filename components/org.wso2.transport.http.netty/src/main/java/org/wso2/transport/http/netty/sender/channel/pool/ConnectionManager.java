@@ -17,12 +17,9 @@ package org.wso2.transport.http.netty.sender.channel.pool;
 
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.EventLoopGroup;
-import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import org.apache.commons.pool.impl.GenericObjectPool;
-import org.wso2.transport.http.netty.common.Constants;
 import org.wso2.transport.http.netty.common.HttpRoute;
-import org.wso2.transport.http.netty.common.Util;
 import org.wso2.transport.http.netty.config.SenderConfiguration;
 import org.wso2.transport.http.netty.listener.SourceHandler;
 import org.wso2.transport.http.netty.sender.channel.BootstrapConfiguration;
@@ -42,15 +39,14 @@ public class ConnectionManager {
     private BootstrapConfiguration bootstrapConfig;
     private final Map<String, GenericObjectPool> connGlobalPool;
 
-    public ConnectionManager(PoolConfiguration poolConfiguration, Map<String, Object> transportProperties,
-            BootstrapConfiguration bootstrapConfiguration) {
+    public ConnectionManager(PoolConfiguration poolConfiguration, BootstrapConfiguration bootstrapConfiguration,
+            EventLoopGroup clientEventGroup) {
         this.poolConfiguration = poolConfiguration;
         if (poolConfiguration.getNumberOfPools() == 1) {
             this.poolManagementPolicy = PoolManagementPolicy.LOCK_DEFAULT_POOLING;
         }
         connGlobalPool = new ConcurrentHashMap<>();
-        clientEventGroup = new NioEventLoopGroup(
-                Util.getIntProperty(transportProperties, Constants.CLIENT_BOOTSTRAP_WORKER_GROUP_SIZE, 4));
+        this.clientEventGroup = clientEventGroup;
 
         this.bootstrapConfig = bootstrapConfiguration;
     }
@@ -65,8 +61,8 @@ public class ConnectionManager {
     }
 
     /**
-     * @param httpRoute           BE address
-     * @param sourceHandler       Incoming channel
+     * @param httpRoute BE address
+     * @param sourceHandler Incoming channel
      * @param senderConfig The sender configuration instance
      * @return the target channel which is requested for given parameters.
      * @throws Exception to notify any errors occur during retrieving the target channel
@@ -131,7 +127,6 @@ public class ConnectionManager {
         return targetChannel;
     }
 
-    //Add connection to Pool back
     public void returnChannel(TargetChannel targetChannel) throws Exception {
         targetChannel.setRequestWritten(false);
         if (targetChannel.getCorrelatedSource() != null) {
@@ -144,7 +139,8 @@ public class ConnectionManager {
 
     private void releaseChannelToPool(TargetChannel targetChannel, GenericObjectPool pool) throws Exception {
         try {
-            if (targetChannel.getChannel().isActive()) {
+            // Need a null check because SourceHandler side could timeout before TargetHandler side.
+            if (targetChannel.getChannel().isActive() && pool != null) {
                 pool.returnObject(targetChannel);
             }
         } catch (Exception e) {

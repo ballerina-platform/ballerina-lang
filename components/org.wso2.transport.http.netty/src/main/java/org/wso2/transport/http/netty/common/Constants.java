@@ -272,6 +272,8 @@ public final class Constants {
 
     public static final String JMX_AGENT_NAME = "jmx.agent.name";
 
+    public static final String HTTP_RESOURCE = "httpResource";
+
     private Constants() {
     }
 }

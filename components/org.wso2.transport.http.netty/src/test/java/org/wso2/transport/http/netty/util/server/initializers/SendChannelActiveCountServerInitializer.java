@@ -44,15 +44,16 @@ import static io.netty.handler.codec.http.HttpVersion.HTTP_1_1;
 /**
  * An initializer class for HTTP Server.
  */
-public class SendChannelIDServerInitializer extends HTTPServerInitializer {
+public class SendChannelActiveCountServerInitializer extends HTTPServerInitializer {
 
-    private static final Logger logger = LoggerFactory.getLogger(SendChannelIDServerInitializer.class);
+    private static final Logger logger = LoggerFactory.getLogger(SendChannelActiveCountServerInitializer.class);
 
     private int delay;
     private HttpRequest req;
     private AtomicInteger requestCount = new AtomicInteger(0);
+    private AtomicInteger channelActiveCount = new AtomicInteger(0);
 
-    public SendChannelIDServerInitializer(int delay) {
+    public SendChannelActiveCountServerInitializer(int delay) {
         this.delay = delay;
     }
 
@@ -61,6 +62,11 @@ public class SendChannelIDServerInitializer extends HTTPServerInitializer {
     }
 
     private class MockServerHandler extends ChannelInboundHandlerAdapter {
+
+        @Override
+        public void channelActive(ChannelHandlerContext ctx) throws Exception {
+            channelActiveCount.incrementAndGet();
+        }
 
         @Override
         public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
@@ -89,16 +95,10 @@ public class SendChannelIDServerInitializer extends HTTPServerInitializer {
             }
         }
 
-        public void channelInactive(ChannelHandlerContext ctx) throws Exception {
-            ctx.close();
-            logger.debug("Channel has become inactive hence closing the connection");
-        }
-
-
         private FullHttpResponse createFullHttpResponse(ChannelHandlerContext ctx, int responseStatusCode) {
             HttpResponseStatus httpResponseStatus = new HttpResponseStatus(responseStatusCode,
                     HttpResponseStatus.valueOf(responseStatusCode).reasonPhrase());
-            ByteBuf content =  Unpooled.wrappedBuffer(ctx.channel().id().asLongText().getBytes());
+            ByteBuf content =  Unpooled.wrappedBuffer(String.valueOf(channelActiveCount.get()).getBytes());
             FullHttpResponse response = new DefaultFullHttpResponse(HTTP_1_1, httpResponseStatus, content);
             response.headers().set(CONTENT_TYPE, "plain/text");
             response.headers().set(CONTENT_LENGTH, content.readableBytes());

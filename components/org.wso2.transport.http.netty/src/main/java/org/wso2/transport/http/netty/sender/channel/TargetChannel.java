@@ -82,15 +82,15 @@ public class TargetChannel {
         return this;
     }
 
-    public TargetHandler getTargetHandler() {
+    private TargetHandler getTargetHandler() {
         return targetHandler;
     }
 
-    public void setTargetHandler(TargetHandler targetHandler) {
+    private void setTargetHandler(TargetHandler targetHandler) {
         this.targetHandler = targetHandler;
     }
 
-    public HTTPClientInitializer getHttpClientInitializer() {
+    private HTTPClientInitializer getHttpClientInitializer() {
         return httpClientInitializer;
     }
 
@@ -147,10 +147,9 @@ public class TargetChannel {
         ChannelPipeline pipeline = this.getChannel().pipeline();
         SourceHandler srcHandler = this.getCorrelatedSource();
         if (srcHandler != null && pipeline.get(Constants.HTTP_TRACE_LOG_HANDLER) != null) {
-            HTTPTraceLoggingHandler loggingHandler = (HTTPTraceLoggingHandler) pipeline.get(
-                    Constants.HTTP_TRACE_LOG_HANDLER);
-            loggingHandler.setCorrelatedSourceId(
-                    srcHandler.getInboundChannelContext().channel().id().asShortText());
+            HTTPTraceLoggingHandler loggingHandler = (HTTPTraceLoggingHandler)
+                    pipeline.get(Constants.HTTP_TRACE_LOG_HANDLER);
+            loggingHandler.setCorrelatedSourceId(srcHandler.getInboundChannelContext().channel().id().asShortText());
         }
     }
 

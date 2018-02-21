@@ -57,7 +57,7 @@ public interface HttpResponseFuture {
     /**
      * Let make the async operation sync.
      * @return Status future
-     * @throws InterruptedException
+     * @throws InterruptedException throws when interrupted
      */
     HttpResponseFuture sync() throws InterruptedException;
 }

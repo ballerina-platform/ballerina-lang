@@ -84,7 +84,7 @@ public class ServerConnectorBootstrap {
 //            httpServerChannelInitializer.setServerConnectorFuture(serverConnector.getServerConnectorFuture());
     }
 
-    public boolean unBindInterface(HTTPServerConnector serverConnector) throws InterruptedException {
+    private boolean unBindInterface(HTTPServerConnector serverConnector) throws InterruptedException {
         if (!initialized) {
             log.error("ServerConnectorBootstrap is not initialized");
             return false;

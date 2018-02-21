@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -43,15 +43,15 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
-import static org.testng.Assert.assertEquals;
-import static org.testng.AssertJUnit.assertNotNull;
+import static org.testng.Assert.assertNotEquals;
+import static org.testng.Assert.assertNotNull;
 
 /**
  * Tests for connection pool implementation.
  */
-public class ConnectionPoolProxyTestCase {
+public class ConnectionPoolTimeoutProxyTestCase {
 
-    private static Logger logger = LoggerFactory.getLogger(ConnectionPoolProxyTestCase.class);
+    private static Logger logger = LoggerFactory.getLogger(ConnectionPoolTimeoutProxyTestCase.class);
 
     private HttpServer httpServer;
     private List<ServerConnector> serverConnectors;
@@ -64,32 +64,27 @@ public class ConnectionPoolProxyTestCase {
 
         httpServer = TestUtil
                 .startHTTPServer(TestUtil.HTTP_SERVER_PORT, new SendChannelIDServerInitializer(5000));
+
+        SenderConfiguration senderConfiguration = new SenderConfiguration();
+        senderConfiguration.setSocketIdleTimeout(2500);
         serverConnectors = TestUtil.startConnectors(transportsConfiguration,
-                new PassthroughMessageProcessorListener(new SenderConfiguration()));
+                new PassthroughMessageProcessorListener(senderConfiguration));
     }
 
-    @Test
-    public void testConnectionReuseForProxy() {
+    @Test (description = "when connection times out for TargetHandler, we need to invalidate the connection. "
+            + "This test case validates that.")
+    public void connectionPoolTimeoutProxyTestCase() {
         try {
             Future<String> requestOneResponse;
-            Future<String> requestThreeResponse;
+            Future<String> requestTwoResponse;
 
-            ClientWorker clientWorkerOne = new ClientWorker();
-            ClientWorker clientWorkerTwo = new ClientWorker();
-            ClientWorker clientWorkerThree = new ClientWorker();
+            ClientWorker clientWorker = new ClientWorker();
 
-            requestOneResponse = executor.submit(clientWorkerOne);
-
-            // While the first request is being processed by the back-end,
-            // we send the second request which forces the client connector to
-            // create a new connection.
-            Thread.sleep(2500);
-            executor.submit(clientWorkerTwo);
+            requestOneResponse = executor.submit(clientWorker);
             assertNotNull(requestOneResponse.get());
 
-            requestThreeResponse = executor.submit(clientWorkerThree);
-
-            assertEquals(requestOneResponse.get(), requestThreeResponse.get());
+            requestTwoResponse = executor.submit(clientWorker);
+            assertNotEquals(requestOneResponse.get(), requestTwoResponse.get());
         } catch (Exception e) {
             TestUtil.handleException("IOException occurred while running testConnectionReuseForProxy", e);
         }
@@ -112,6 +107,7 @@ public class ConnectionPoolProxyTestCase {
                         .request(baseURI, "/", HttpMethod.POST.name(), true);
                 urlConn.getOutputStream().write(TestUtil.smallEntity.getBytes());
                 response = TestUtil.getContent(urlConn);
+                urlConn.disconnect();
             } catch (IOException e) {
                 logger.error("Couldn't get the response", e);
             }

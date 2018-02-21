@@ -20,7 +20,6 @@
 package org.wso2.transport.http.netty.contentaware.listeners;
 
 import io.netty.handler.codec.http.DefaultHttpResponse;
-import io.netty.handler.codec.http.DefaultLastHttpContent;
 import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpHeaderValues;
@@ -63,7 +62,6 @@ public class ResponseStreamingWithoutBufferingListener implements HttpConnectorL
                 HttpContent httpContent = httpRequestMessage.getHttpContent();
                 cMsg.addHttpContent(httpContent);
                 if (httpContent instanceof LastHttpContent) {
-                    cMsg.addHttpContent(new DefaultLastHttpContent());
                     break;
                 }
             }

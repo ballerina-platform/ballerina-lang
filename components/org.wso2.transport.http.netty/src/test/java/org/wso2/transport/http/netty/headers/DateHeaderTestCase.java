@@ -26,7 +26,7 @@ import org.testng.annotations.Test;
 import org.wso2.carbon.messaging.exceptions.ServerConnectorException;
 import org.wso2.transport.http.netty.common.Constants;
 import org.wso2.transport.http.netty.config.ListenerConfiguration;
-import org.wso2.transport.http.netty.contentaware.listeners.EchoMessageListener;
+import org.wso2.transport.http.netty.contentaware.listeners.EchoStreamingMessageListener;
 import org.wso2.transport.http.netty.contract.HttpWsConnectorFactory;
 import org.wso2.transport.http.netty.contract.ServerConnector;
 import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
@@ -46,29 +46,26 @@ import java.util.HashMap;
 public class DateHeaderTestCase {
 
     private ServerConnector serverConnector;
-    private ListenerConfiguration listenerConfiguration;
-
-    private URI baseURI = URI.create(String.format("http://%s:%d", "localhost", TestUtil.SERVER_CONNECTOR_PORT));
 
     @BeforeClass
     public void setup() throws InterruptedException {
-        listenerConfiguration = new ListenerConfiguration();
+        ListenerConfiguration listenerConfiguration = new ListenerConfiguration();
         listenerConfiguration.setPort(TestUtil.SERVER_CONNECTOR_PORT);
-
         ServerBootstrapConfiguration serverBootstrapConfig = new ServerBootstrapConfiguration(new HashMap<>());
-        HttpWsConnectorFactory httpWsConnectorFactory = new HttpWsConnectorFactoryImpl();
 
+        HttpWsConnectorFactory httpWsConnectorFactory = new HttpWsConnectorFactoryImpl();
         serverConnector = httpWsConnectorFactory.createServerConnector(serverBootstrapConfig, listenerConfiguration);
         ServerConnectorFuture serverConnectorFuture = serverConnector.start();
-        serverConnectorFuture.setHttpConnectorListener(new EchoMessageListener());
+        serverConnectorFuture.setHttpConnectorListener(new EchoStreamingMessageListener());
 
         serverConnectorFuture.sync();
     }
 
     @Test
     public void testDateHeaderFormatAndExistence() throws IOException {
+        URI baseURI = URI.create(String.format("http://%s:%d", "localhost", TestUtil.SERVER_CONNECTOR_PORT));
         HttpURLConnection connection = TestUtil.request(baseURI, "/", HttpMethod.POST.name(), false);
-        connection.getOutputStream().write("Hello World!".getBytes());
+        connection.getOutputStream().write(TestUtil.smallEntity.getBytes());
         String date = connection.getHeaderField(Constants.DATE);
 
         Assert.assertEquals(connection.getResponseCode(), HttpURLConnection.HTTP_OK);

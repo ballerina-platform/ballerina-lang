@@ -24,6 +24,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.carbon.messaging.exceptions.ServerConnectorException;
 import org.wso2.transport.http.netty.common.Constants;
+import org.wso2.transport.http.netty.config.SenderConfiguration;
 import org.wso2.transport.http.netty.config.TransportsConfiguration;
 import org.wso2.transport.http.netty.config.YAMLTransportConfigurationBuilder;
 import org.wso2.transport.http.netty.contract.ServerConnector;
@@ -54,7 +55,7 @@ public class PassThroughHttpTestCase {
         TransportsConfiguration configuration = YAMLTransportConfigurationBuilder
                 .build(TestUtil.getAbsolutePath("/simple-test-config/netty-transports.yml"));
         serverConnectors = TestUtil.startConnectors(
-                configuration, new PassthroughMessageProcessorListener(configuration));
+                configuration, new PassthroughMessageProcessorListener(new SenderConfiguration()));
         httpServer = TestUtil.startHTTPServer(TestUtil.HTTP_SERVER_PORT,
                 new MockServerInitializer(testValue, Constants.TEXT_PLAIN, 200));
     }
