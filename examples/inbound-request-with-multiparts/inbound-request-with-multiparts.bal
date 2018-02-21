@@ -21,7 +21,7 @@ service<http> echo {
             println("============================PART "+ i +"================================");
             println("---------Content Type-------");
             println(part.contentType.toString());
-            println("------------Part Name-------");
+            println("----------Part Name---------");
             println(part.contentDisposition.name);
             println("------Body Part Content-----");
             handleContent(part);
