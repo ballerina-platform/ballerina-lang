@@ -84,7 +84,9 @@ public abstract class AbstractItemResolver {
     private CompletionItem populateBallerinaFunctionCompletionItem(SymbolInfo symbolInfo) {
         CompletionItem completionItem = new CompletionItem();
         BSymbol bSymbol = symbolInfo.getScopeEntry().symbol;
-        assert bSymbol instanceof BInvokableSymbol;
+        if (!(bSymbol instanceof BInvokableSymbol)) {
+            return null;
+        }
         BInvokableSymbol bInvokableSymbol = (BInvokableSymbol) bSymbol;
         if (bInvokableSymbol.getName().getValue().contains("<")
                 || bInvokableSymbol.getName().getValue().contains("<") ||
