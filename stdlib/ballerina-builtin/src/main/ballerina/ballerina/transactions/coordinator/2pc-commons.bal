@@ -172,14 +172,14 @@ function getVolatileAndDurableEndpoints (TwoPhaseCommitTransaction txn) returns
 }
 
 function prepare (TwoPhaseCommitTransaction txn, string[] participantURLs) returns (boolean successful) {
-    endpoint<ParticipantClient> participantEP {
+    endpoint<Participant2pcCoordinatorClient> participantEP {
     }
     string transactionId = txn.transactionId;
     // Let's set this to true and change it to false only if a participant aborted or an error occurred while trying
     // to prepare a participant
     successful = true;
     foreach participantURL in participantURLs {
-        ParticipantClient participantClient = create ParticipantClient();
+        Participant2pcCoordinatorClient participantClient = create Participant2pcCoordinatorClient();
         bind participantClient with participantEP;
 
         log:printInfo("Preparing participant: " + participantURL);
@@ -223,9 +223,9 @@ function notify (TwoPhaseCommitTransaction txn, string[] participantURLs, string
 }
 
 function notifyParticipant (string transactionId, string url, string message) returns (string, error) {
-    endpoint<ParticipantClient> participantEP {
+    endpoint<Participant2pcCoordinatorClient> participantEP {
     }
-    ParticipantClient participantClient = create ParticipantClient();
+    Participant2pcCoordinatorClient participantClient = create Participant2pcCoordinatorClient();
     bind participantClient with participantEP;
 
     log:printInfo("Notify(" + message + ") participant: " + url);

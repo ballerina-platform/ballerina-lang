@@ -21,6 +21,8 @@ import ballerina.net.http;
 import ballerina.util;
 
 const string TRANSACTION_CONTEXT_VERSION = "1.0";
+
+// The participant ID is of this participant
 string participantId = util:uuid();
 
 map transactions = {};
@@ -140,8 +142,8 @@ function createTransactionContext (string coordinationType) returns (Transaction
 
 // Registers a participant with the initiator's coordinator
 function registerParticipant (string transactionId, string registerAtURL) returns (error err) {
-    endpoint<CoordinatorClient> coordinatorEP {
-        create CoordinatorClient();
+    endpoint<InitiatorCoordinatorClient> coordinatorEP {
+        create InitiatorCoordinatorClient();
     }
 
     // Register with the coordinator only if you have not already done so

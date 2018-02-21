@@ -24,7 +24,7 @@ import ballerina.net.http;
     host:coordinatorHost,
     port:coordinatorPort
 }
-service<http> TwoPcParticipantCoordinator {
+service<http> Participant2pcCoordinatorService {
 
     // This resource is on the participant's coordinator. When the initiator's coordinator sends "prepare"
     // this resource on the participant will get called. This participant's coordinator will in turn call
