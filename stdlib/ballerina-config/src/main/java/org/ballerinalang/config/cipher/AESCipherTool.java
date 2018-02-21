@@ -28,28 +28,31 @@ import javax.crypto.NoSuchPaddingException;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 
+
 /**
- * Default implementation of {@link CipherTool}.
+ * This tools is used to encrypt and decrypt data using AES Algorithm.
  */
-public class DefaultCipherTool implements CipherTool {
+public class AESCipherTool {
 
     private final String algorithm = "AES";
     private final int keyLength = 16;
+    private final SecretKey secretKey;
 
-    // TODO: Remove main method
-    public static void main(String[] args)
-            throws NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException, BadPaddingException,
-                   IllegalBlockSizeException {
-        DefaultCipherTool defaultCipherTool = new DefaultCipherTool();
-        String encrypted = defaultCipherTool.encrypt("lakmal", "dfklfdgdlksgmdss'mfaklfd");
-        System.out.println(encrypted);
-        System.out.println(defaultCipherTool.decrypt(encrypted, "dfklfdgdlksgmdss'mfaklfd"));
+    /**
+     * @param secretKeyStr User secret String to encode and decode a value.
+     */
+    public AESCipherTool(String secretKeyStr) {
+        this.secretKey = new SecretKeySpec(fixSecretKeyLength(secretKeyStr, keyLength).getBytes(), algorithm);
     }
 
-    @Override
-    public String encrypt(String value, String encryptionKey) {
+    /**
+     * This method is used to encrypt a given value.
+     *
+     * @param value Value to be encrypted.
+     * @return Encrypted value.
+     */
+    public String encrypt(String value) {
         try {
-            SecretKey secretKey = new SecretKeySpec(fixSecretKeyLength(encryptionKey, keyLength).getBytes(), algorithm);
             Cipher encryptionCipher = Cipher.getInstance(algorithm);
             encryptionCipher.init(Cipher.ENCRYPT_MODE, secretKey);
             return encodeBase64(encryptionCipher.doFinal(value.getBytes()));
@@ -59,10 +62,14 @@ public class DefaultCipherTool implements CipherTool {
         }
     }
 
-    @Override
-    public String decrypt(String value, String decryptionKey) {
+    /**
+     * This method is used to decrypt a given encrypted value.
+     *
+     * @param value Encrypted value to be decrypted.
+     * @return Decrypted value.
+     */
+    public String decrypt(String value) {
         try {
-            SecretKey secretKey = new SecretKeySpec(fixSecretKeyLength(decryptionKey, keyLength).getBytes(), algorithm);
             Cipher decryptionCipher = Cipher.getInstance(algorithm);
             decryptionCipher.init(Cipher.DECRYPT_MODE, secretKey);
             return new String(decryptionCipher.doFinal(decodeBase64(value)));
