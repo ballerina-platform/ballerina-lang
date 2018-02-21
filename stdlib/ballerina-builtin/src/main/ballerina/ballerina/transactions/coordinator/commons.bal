@@ -21,6 +21,7 @@ import ballerina.net.http;
 import ballerina.util;
 
 const string TRANSACTION_CONTEXT_VERSION = "1.0";
+string participantId = util:uuid();
 
 map transactions = {};
 
@@ -148,7 +149,6 @@ function registerParticipant (string transactionId, string registerAtURL) return
         return;
     }
     log:printInfo("Registering for transaction: " + transactionId + " with coordinator: " + registerAtURL);
-    string participantId = util:uuid();
     var j, e = coordinatorEP.register(transactionId, participantId, registerAtURL);
     println(j);
     if (e != null) {

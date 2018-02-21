@@ -41,7 +41,7 @@ function getCoordinationTypeToProtocolsMap () returns (map m) {
     host:coordinatorHost,
     port:coordinatorPort
 }
-service<http> manager {
+service<http> Coordinator {
 
     @http:resourceConfig {
         path:registrationPath
