@@ -1,3 +1,42 @@
 /*******************************
          Site Overrides
 *******************************/
+
+.ui.inverted.segment {
+  background: @gray-800;
+  border-radius: 0;
+}
+
+.ui.inverted.segment > .ui.header {
+  color         : @gray-100;
+  font-wight    : 400;
+}
+
+.ui.inverted.form input[type="text"]{
+    background      : #66727d;
+}
+
+.ui.inverted.form label{
+    color           : @gray-300;
+    font-weight     : 400 !important;
+}
+
+.ui.inverted.form button{
+    background      : @gray-100;
+    color           : @defaultColor;
+}
+
+.ui.inverted.form textarea{
+    background      : #66727d;
+}
+
+.ui.inverted.form input{
+    background      : #66727d !important;
+}
+
+.ui.inverted.form .field{
+    .selection.dropdown{
+            border-radius   : 0;
+            background      : #66727d;
+        }
+}
