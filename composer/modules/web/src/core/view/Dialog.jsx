@@ -19,7 +19,7 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Modal, Button, Header } from 'semantic-ui-react';
+import { Modal, Button, Header, Message } from 'semantic-ui-react';
 
 /**
  * Base class for popup dialogs
@@ -64,7 +64,10 @@ class Dialog extends React.Component {
                 <Header icon={this.props.titleIcon} content={this.props.title} />
                 <Modal.Content>
                     {
-                        this.props.error
+                        this.props.error &&
+                        <Message negative>
+                            <Message.Header>{this.props.error}</Message.Header>
+                        </Message>
                     }
                     {this.props.children}
                 </Modal.Content>
@@ -102,7 +105,7 @@ Dialog.defaultProps = {
     actions: '',
     className: '',
     size: '',
-    titleIcon: '',
+    titleIcon: null,
 };
 
 export default Dialog;
