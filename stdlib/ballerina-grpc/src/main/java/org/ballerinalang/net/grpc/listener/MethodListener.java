@@ -52,6 +52,7 @@ abstract class MethodListener {
     BValue getConnectionParameter(StreamObserver<Message> responseObserver) {
         BStruct connection = ConnectorUtils.createStruct(resource,
                 MessageConstants.PROTOCOL_PACKAGE_GRPC, MessageConstants.CONNECTION);
+        connection.setIntField(0, responseObserver.hashCode());
         connection.addNativeData(MessageConstants.STREAM_OBSERVER, responseObserver);
         connection.addNativeData(MessageConstants.RESPONSE_MESSAGE_DEFINITION, methodDescriptor.getOutputType());
         return connection;

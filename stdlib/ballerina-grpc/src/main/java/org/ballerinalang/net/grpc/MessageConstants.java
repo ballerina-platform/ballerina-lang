@@ -65,8 +65,8 @@ public class MessageConstants {
         WIRE_TYPE_MAP = Collections.unmodifiableMap(wireMap);
     }
     // Server Streaming method resources.
-    public static final String ON_OPEN_RESOURCE = "OnOpen";
-    public static final String ON_COMPLETE_RESOURCE = "OnComplete";
-    public static final String ON_MESSAGE_RESOURCE = "OnMessage";
-    public static final String ON_ERROR_RESOURCE = "OnError";
+    public static final String ON_OPEN_RESOURCE = "onOpen";
+    public static final String ON_COMPLETE_RESOURCE = "onComplete";
+    public static final String ON_MESSAGE_RESOURCE = "onMessage";
+    public static final String ON_ERROR_RESOURCE = "onError";
 }

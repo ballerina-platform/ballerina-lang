@@ -6,8 +6,7 @@ public native function getHeader(string headerName) (string);
 @Field {value:"remoteHost: The server host name"}
 @Field {value:"port: The server port"}
 public struct Connection {
-    string remoteHost;
-    int port;
+    int id;
 }
 
 @Description { value:"Sends outbound response to the caller"}
