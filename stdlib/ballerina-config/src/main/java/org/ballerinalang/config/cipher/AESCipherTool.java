@@ -18,6 +18,7 @@
 
 package org.ballerinalang.config.cipher;
 
+import java.nio.charset.Charset;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.util.Base64;
@@ -34,15 +35,16 @@ import javax.crypto.spec.SecretKeySpec;
  */
 public class AESCipherTool {
 
-    private final String algorithm = "AES";
-    private final int keyLength = 16;
+    private static final String ALGORITHM = "AES";
+    private static final String UTF_8 = "UTF-8";
+    private static final int KEY_LENGTH = 16;
     private final SecretKey secretKey;
 
     /**
      * @param secretKeyStr User secret String to encode and decode a value.
      */
     public AESCipherTool(String secretKeyStr) {
-        this.secretKey = new SecretKeySpec(fixSecretKeyLength(secretKeyStr, keyLength).getBytes(), algorithm);
+        this.secretKey = new SecretKeySpec(getBytes(fixSecretKeyLength(secretKeyStr, KEY_LENGTH)), ALGORITHM);
     }
 
     /**
@@ -53,9 +55,9 @@ public class AESCipherTool {
      */
     public String encrypt(String value) {
         try {
-            Cipher encryptionCipher = Cipher.getInstance(algorithm);
+            Cipher encryptionCipher = Cipher.getInstance(ALGORITHM);
             encryptionCipher.init(Cipher.ENCRYPT_MODE, secretKey);
-            return encodeBase64(encryptionCipher.doFinal(value.getBytes()));
+            return encodeBase64(encryptionCipher.doFinal(getBytes(value)));
         } catch (NoSuchPaddingException | NoSuchAlgorithmException | InvalidKeyException | BadPaddingException |
                 IllegalBlockSizeException err) {
             throw new BallerinaSecurityException(err.getMessage(), err);
@@ -70,9 +72,9 @@ public class AESCipherTool {
      */
     public String decrypt(String value) {
         try {
-            Cipher decryptionCipher = Cipher.getInstance(algorithm);
+            Cipher decryptionCipher = Cipher.getInstance(ALGORITHM);
             decryptionCipher.init(Cipher.DECRYPT_MODE, secretKey);
-            return new String(decryptionCipher.doFinal(decodeBase64(value)));
+            return new String(decryptionCipher.doFinal(decodeBase64(value)), Charset.forName(UTF_8));
         } catch (NoSuchPaddingException | NoSuchAlgorithmException | InvalidKeyException | BadPaddingException |
                 IllegalBlockSizeException err) {
             throw new BallerinaSecurityException(err.getMessage(), err);
@@ -84,7 +86,11 @@ public class AESCipherTool {
     }
 
     private byte[] decodeBase64(String encodedValue) {
-        return Base64.getDecoder().decode(encodedValue.getBytes());
+        return Base64.getDecoder().decode(getBytes(encodedValue));
+    }
+
+    private byte[] getBytes(String value) {
+        return value.getBytes(Charset.forName(UTF_8));
     }
 
     private String fixSecretKeyLength(String key, int length) {

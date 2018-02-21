@@ -20,6 +20,9 @@ package org.ballerinalang.config.cipher;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
+/**
+ * This exception is thrown when a security related error occurs.
+ */
 public class BallerinaSecurityException extends BallerinaException {
 
     public BallerinaSecurityException() {

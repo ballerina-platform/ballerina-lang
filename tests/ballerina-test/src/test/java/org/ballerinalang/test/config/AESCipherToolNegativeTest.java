@@ -20,7 +20,6 @@ package org.ballerinalang.test.config;
 
 import org.ballerinalang.config.cipher.AESCipherTool;
 import org.ballerinalang.config.cipher.BallerinaSecurityException;
-import org.testng.Assert;
 import org.testng.annotations.Test;
 
 /**
