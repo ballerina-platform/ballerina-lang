@@ -89,7 +89,9 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
         HttpUtil.checkEntityAvailability(context, requestStruct);
         HttpUtil.enrichOutboundMessage(requestMsg, requestStruct);
         prepareOutboundRequest(bConnector, path, requestMsg);
-        requestMsg.setHeader(ACCEPT_ENCODING, ENCODING_DEFLATE + ", " + ENCODING_GZIP);
+        if (requestMsg.getHeader(ACCEPT_ENCODING) == null) {
+            requestMsg.setHeader(ACCEPT_ENCODING, ENCODING_DEFLATE + ", " + ENCODING_GZIP);
+        }
         return requestMsg;
     }
 
