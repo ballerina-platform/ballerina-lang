@@ -42,6 +42,7 @@ import org.ballerinalang.model.tree.VariableNode;
 import org.ballerinalang.model.tree.WorkerNode;
 import org.ballerinalang.model.tree.expressions.AnnotationAttachmentAttributeValueNode;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
+import org.ballerinalang.model.tree.expressions.SelectExpressionNode;
 import org.ballerinalang.model.tree.expressions.XMLAttributeNode;
 import org.ballerinalang.model.tree.expressions.XMLLiteralNode;
 import org.ballerinalang.model.tree.statements.BlockNode;
@@ -90,6 +91,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangRecordKey;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangRecordKeyValue;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangSelectExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangStringTemplateLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTernaryExpr;
@@ -224,6 +226,8 @@ public class BLangPackageBuilder {
     private Stack<GroupByNode> groupByClauseStack = new Stack<>();
 
     private Stack<HavingNode> havingClauseStack = new Stack<>();
+
+    private Stack<SelectExpressionNode> selectExpressionsStack = new Stack<>();
 
     private Set<BLangImportPackage> imports = new HashSet<>();
 
@@ -1886,6 +1890,22 @@ public class BLangPackageBuilder {
             throw new IllegalStateException("Expression stack cannot be empty in processing an having clause");
         }
         HavingNode havingNode = this.havingClauseStack.peek();
-        havingNode.setExpression(this.exprNodeStack.peek());
+        havingNode.setExpression(this.exprNodeStack.pop());
+    }
+
+    public void startSelectExpressionNode(DiagnosticPos pos, Set<Whitespace> ws) {
+        SelectExpressionNode selectExpr = TreeBuilder.createSelectExpressionNode();
+        ((BLangSelectExpression) selectExpr).pos = pos;
+        ((BLangSelectExpression) selectExpr).addWS(ws);
+        this.selectExpressionsStack.push(selectExpr);
+    }
+
+    public void endSelectExpressionNode(String identifier, DiagnosticPos pos, Set<Whitespace> ws) {
+        if (this.exprNodeStack.empty()) {
+            throw new IllegalStateException("Expression stack cannot be empty in processing an select expression");
+        }
+        SelectExpressionNode selectExpression = this.selectExpressionsStack.peek();
+        selectExpression.setExpression(exprNodeStack.pop());
+        selectExpression.setIdentifier(identifier);
     }
 }

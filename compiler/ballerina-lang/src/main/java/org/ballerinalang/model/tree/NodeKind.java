@@ -74,6 +74,9 @@ public enum NodeKind {
     XML_COMMENT_LITERAL,
     XML_PI_LITERAL,
 
+    /* streams/tables expressions */
+    SELECT_EXPRESSION,
+
     /* Statements */
     ABORT,
     ASSIGNMENT,
