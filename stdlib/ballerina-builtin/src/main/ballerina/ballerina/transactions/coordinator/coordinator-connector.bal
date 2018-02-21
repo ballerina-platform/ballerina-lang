@@ -40,7 +40,7 @@ function getParticipantPort () returns (int port) {
     return;
 }
 
-public connector CoordinatorClient () {
+connector CoordinatorClient () {
 
     action register (string transactionId, string participantId, string registerAtURL) returns
                                                                                        (json jsonRes, error err) {

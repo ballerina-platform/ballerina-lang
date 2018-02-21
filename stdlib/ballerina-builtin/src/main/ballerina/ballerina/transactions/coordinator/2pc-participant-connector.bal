@@ -18,7 +18,7 @@ package ballerina.transactions.coordinator;
 
 import ballerina.net.http;
 
-public connector ParticipantClient () {
+connector ParticipantClient () {
 
     action prepare (string transactionId, string participantURL) returns
                                                                  (string status, error err) {

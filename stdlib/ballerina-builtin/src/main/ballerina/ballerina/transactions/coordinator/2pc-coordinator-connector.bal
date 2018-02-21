@@ -19,7 +19,7 @@ package ballerina.transactions.coordinator;
 import ballerina.net.http;
 import ballerina.config;
 
-public connector TwoPhaseCommitCoordinatorClient () {
+connector TwoPhaseCommitCoordinatorClient () {
 
     action commitTransaction (CommitRequest commitReq) returns (json jsonRes, error err) {
         endpoint<http:HttpClient> coordinatorEP {

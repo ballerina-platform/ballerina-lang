@@ -18,9 +18,9 @@ package ballerina.transactions.coordinator;
 
 import ballerina.log;
 
-public const string PROTOCOL_COMPLETION = "completion";
-public const string PROTOCOL_VOLATILE = "volatile";
-public const string PROTOCOL_DURABLE = "durable";
+const string PROTOCOL_COMPLETION = "completion";
+const string PROTOCOL_VOLATILE = "volatile";
+const string PROTOCOL_DURABLE = "durable";
 
 enum Protocols {
     COMPLETION, DURABLE, VOLATILE

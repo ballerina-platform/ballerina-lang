@@ -16,142 +16,81 @@
 
 package ballerina.transactions.coordinator;
 
-import ballerina.net.http;
 import ballerina.log;
+import ballerina.net.http;
 
 @http:configuration {
     basePath:"/2pc",
     host:coordinatorHost,
     port:coordinatorPort
 }
-service<http> twoPcCoordinator {
+service<http> TwoPcParticipantCoordinator {
 
-    @http:resourceConfig {
-        path:"/commit"
-    }
-    resource commitTransaction (http:Connection conn, http:InRequest req) {
-        //The following command is used to end a micro-transaction successfully,
-        // i.e. committing all modifications of all participants. As a result, the coordinator
-        // will initiate a prepare() (see section 2.2.5) for each participant.
-        //
-        //                                                         commit(in: Micro-Transaction-Identifier,
-        //                                                         out: ( Committed | Aborted | Mixed )?,
-        //                                                         fault: ( Micro-Transaction-Unknown |
-        //                                                         Hazard-Outcome ? )
-        //
-        // The input parameter Micro-Transaction-Identifier is the globally unique identifier of the
-        // micro-transaction the participant requests to commit. If the joint outcome is “commit” the output will be
-        // Committed. If the joint outcome is “abort”, the output will be Aborted. In case at least one participant
-        // performed its commit processing before it had been asked to vote on the joint outcome (e.g. because it was
-        // blocking too long) but another participant voted “abort”, no joint outcome can be achieved and Mixed will be
-        // the output.
-
-        // If the Micro-Transaction-Identifier is not known to the coordinator, the following fault will be returned.
-        // Micro-Transaction-Unknown
-
-        // If at least one of the participants could not end its branch of the micro-transaction as requested
-        // (see section 2.2.6), the following fault will be returned:
-
-        // Hazard-Outcome
-
-        var commitReq, e = <CommitRequest>req.getJsonPayload();
+    // This resource is on the participant's coordinator. When the initiator's coordinator sends "prepare"
+    // this resource on the participant will get called. This participant's coordinator will in turn call
+    // prepare on all the resource managers registered with the respective transaction.
+    resource prepare (http:Connection conn, http:InRequest req) {
         http:OutResponse res;
-        if (e != null) {
-            res = respondToBadRequest("Malformed request");
-            var connError = conn.respond(res);
-            if (connError != null) {
-                log:printErrorCause("Sending response for malformed commit request failed", (error)connError);
-            }
+        var prepareReq, _ = <PrepareRequest>req.getJsonPayload();
+        string transactionId = prepareReq.transactionId;
+        log:printInfo("Prepare received for transaction: " + transactionId);
+        var txn, _ = (TwoPhaseCommitTransaction)transactions[transactionId];
+        if (txn == null) {
+            res = {statusCode:404};
+            PrepareResponse prepareRes = {message:"Transaction-Unknown"};
+            var j, _ = <json>prepareRes;
+            res.setJsonPayload(j);
         } else {
-            string txnId = commitReq.transactionId;
-            var txn, _ = (TwoPhaseCommitTransaction)transactions[txnId];
-            if (txn == null) {
-                res = respondToBadRequest("Transaction-Unknown. Invalid TID:" + txnId);
-                var connError = conn.respond(res);
-                if (connError != null) {
-                    log:printErrorCause("Sending response to commit request with null transaction ID failed",
-                                        (error)connError);
-                }
-            } else {
-                log:printInfo("Committing transaction: " + txnId);
-                // return response to the initiator. ( Committed | Aborted | Mixed )
-                var msg, err = twoPhaseCommit(txn);
-                if (err == null) {
-                    CommitResponse commitRes = {message:msg};
-                    var resPayload, _ = <json>commitRes;
-                    res = {statusCode:200};
-                    res.setJsonPayload(resPayload);
-                } else {
-                    res = {statusCode:500}; //TODO: Not sure about this status code
-                    var resPayload, _ = <json>err;
-                    res.setJsonPayload(resPayload);
-                }
-                transactions.remove(txnId);
-                var connError = conn.respond(res);
-                if (connError != null) {
-                    log:printErrorCause("Sending response for commit request for transaction " + txnId + " failed",
-                                        (error)connError);
-                }
-            }
+            // TODO: call prepare on the local resource manager, if the transaction manager returns OK, then return
+            // "Prepared" else return "Aborted"
+
+            res = {statusCode:200};
+            txn.state = TransactionState.PREPARED;
+            //PrepareResponse prepareRes = {message:"read-only"};
+            PrepareResponse prepareRes = {message:"prepared"};
+            log:printInfo("Prepared");
+            var j, _ = <json>prepareRes;
+            res.setJsonPayload(j);
         }
 
+        _ = conn.respond(res);
     }
 
-    @http:resourceConfig {
-        path:"/abort"
-    }
-    resource abortTransaction (http:Connection conn, http:InRequest req) {
-        var abortReq, e = <AbortRequest>req.getJsonPayload();
+    // This resource is on the participant's coordinator. When the initiator's coordinator sends
+    // "notify(commit | abort)" this resource on the participant will get called.
+    // This participant's coordinator will in turn call "commit" or "abort" on
+    // all the resource managers registered with the respective transaction.
+    resource notify (http:Connection conn, http:InRequest req) {
+        var notifyReq, _ = <NotifyRequest>req.getJsonPayload();
+        string transactionId = notifyReq.transactionId;
+        log:printInfo("Notify(" + notifyReq.message + ") received for transaction: " + transactionId);
         http:OutResponse res;
-        if (e != null) {
-            res = {statusCode:400};
-            RequestError err = {errorMessage:"Bad Request"};
-            var resPayload, _ = <json>err;
-            res.setJsonPayload(resPayload);
-            var connError = conn.respond(res);
-            if (connError != null) {
-                log:printErrorCause("Sending response for abort request with malformed transaction ID request failed",
-                                    (error)connError);
-            }
+
+        NotifyResponse notifyRes;
+        var txn, _ = (TwoPhaseCommitTransaction)transactions[transactionId];
+        if (txn == null) {
+            res = {statusCode:404};
+            notifyRes = {message:"Transaction-Unknown"};
         } else {
-            string txnId = abortReq.transactionId;
-            var txn, _ = (TwoPhaseCommitTransaction)transactions[txnId];
-            if (txn == null) {
-                res = respondToBadRequest("Transaction-Unknown. Invalid TID:" + txnId);
-                var connError = conn.respond(res);
-                if (connError != null) {
-                    log:printErrorCause("Sending response for abort request with null transaction ID failed",
-                                        (error)connError);
-                }
-            } else {
-                log:printInfo("Aborting transaction: " + txnId);
-                // return response to the initiator. ( Aborted | Mixed )
-                var msg, err = notifyAbort(txn);
-                if (err == null) {
-                    AbortResponse abortRes = {message:msg};
-                    var resPayload, _ = <json>abortRes;
-                    res = {statusCode:200};
-                    res.setJsonPayload(resPayload);
+            if (notifyReq.message == "commit") {
+                if (txn.state != TransactionState.PREPARED) {
+                    res = {statusCode:400};
+                    notifyRes = {message:"Not-Prepared"};
                 } else {
-                    res = {statusCode:500}; //TODO: Not sure about this status code
-                    var resPayload, _ = <json>err;
-                    res.setJsonPayload(resPayload);
+                    // TODO: Notify commit to the resource manager
+                    res = {statusCode:200};
+                    notifyRes = {message:"committed"};
+
                 }
-                transactions.remove(txnId);
-                var connError = conn.respond(res);
-                if (connError != null) {
-                    log:printErrorCause("Sending response for abort request for transaction " + txn.transactionId +
-                                        " failed",
-                                        (error)connError);
-                }
+            } else if (notifyReq.message == "abort") {
+                // TODO: Notify abort to the resource manager
+                res = {statusCode:200};
+                notifyRes = {message:"aborted"};
             }
+            transactions.remove(transactionId);
         }
-    }
-
-    @http:resourceConfig {
-        path:"/replay"
-    }
-    resource replay (http:Connection conn, http:InRequest req) {
-
+        var j, _ = <json>notifyRes;
+        res.setJsonPayload(j);
+        _ = conn.respond(res);
     }
 }

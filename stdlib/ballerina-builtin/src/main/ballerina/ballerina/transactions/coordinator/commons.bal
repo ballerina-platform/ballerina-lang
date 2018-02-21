@@ -16,21 +16,21 @@
 
 package ballerina.transactions.coordinator;
 
+import ballerina.log;
 import ballerina.net.http;
 import ballerina.util;
-import ballerina.log;
 
 const string TRANSACTION_CONTEXT_VERSION = "1.0";
 
 map transactions = {};
 
-public struct Transaction {
+struct Transaction {
     string transactionId;
     string coordinationType = "2pc";
     map participants;
 }
 
-public struct Participant {
+struct Participant {
     string participantId;
     Protocol[] participantProtocols;
     boolean isInitiator;
@@ -43,7 +43,7 @@ struct TransactionContext {
     string registerAtURL;
 }
 
-public struct Protocol {
+struct Protocol {
     string name;
     string url;
 }
@@ -95,7 +95,7 @@ function protocolCompatible (string coordinationType,
     return participantProtocolIsValid;
 }
 
-public function respondToBadRequest (string msg) returns (http:OutResponse res) {
+function respondToBadRequest (string msg) returns (http:OutResponse res) {
     log:printError(msg);
     res = {statusCode:400};
     RequestError err = {errorMessage:msg};
@@ -116,21 +116,14 @@ function createTransaction (string coordinationType) returns (Transaction txn) {
     return;
 }
 
-function createContext (string participantId, string coordinationType) returns (TransactionContext txnContext,
-                                                                                error e) {
+// The initiator will create a new transaction context by calling this function
+function createTransactionContext (string coordinationType) returns (TransactionContext txnContext, error e) {
     if (!isValidCoordinationType(coordinationType)) {
         string msg = "Invalid-Coordination-Type:" + coordinationType;
         log:printError(msg);
         e = {msg:msg};
     } else {
         Transaction txn = createTransaction(coordinationType);
-        //TODO: We may not need to make the initiator a participant
-        Participant participant = {participantId:participantId, isInitiator:true};
-        txn.participants = {};
-
-        // Add the initiator, who is also the first participant
-        txn.participants[participant.participantId] = participant;
-
         string txnId = txn.transactionId;
 
         // Add the map of participants for the transaction with ID tid to the transactions map
@@ -140,6 +133,30 @@ function createContext (string participantId, string coordinationType) returns (
                          registerAtURL:"http://" + coordinatorHost + ":" + coordinatorPort + basePath + registrationPath};
 
         log:printInfo("Created transaction: " + txnId);
+    }
+    return;
+}
+
+// Registers a participant with the initiator's coordinator
+function registerParticipant (string transactionId, string registerAtURL) returns (error err) {
+    endpoint<CoordinatorClient> coordinatorEP {
+        create CoordinatorClient();
+    }
+
+    // Register with the coordinator only if you have not already done so
+    if (transactions[transactionId] != null) {
+        return;
+    }
+    log:printInfo("Registering for transaction: " + transactionId + " with coordinator: " + registerAtURL);
+    string participantId = util:uuid();
+    var j, e = coordinatorEP.register(transactionId, participantId, registerAtURL);
+    println(j);
+    if (e != null) {
+        string msg = "Cannot register with coordinator for transaction: " + transactionId;
+        log:printErrorCause(msg, e);
+        err = {msg: msg};
+    } else {
+        log:printInfo("Registered with coordinator for transaction: " + transactionId);
     }
     return;
 }

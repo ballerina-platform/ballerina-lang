@@ -22,7 +22,8 @@ import ballerina.log;
 enum CoordinationType {
     TWO_PHASE_COMMIT
 }
-public const string TWO_PHASE_COMMIT = "2pc";
+
+const string TWO_PHASE_COMMIT = "2pc";
 
 string[] coordinationTypes = [TWO_PHASE_COMMIT];
 
@@ -41,12 +42,6 @@ function getCoordinationTypeToProtocolsMap () returns (map m) {
     port:coordinatorPort
 }
 service<http> manager {
-
-    resource hello (http:Connection conn, http:InRequest req) {
-        http:OutResponse res = {statusCode:200};
-        res.setStringPayload("Hello World !!!");
-        _ = conn.respond(res);
-    }
 
     @http:resourceConfig {
         path:registrationPath
