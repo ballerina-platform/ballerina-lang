@@ -1211,9 +1211,9 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             workerNames = ctx.Identifier().stream().map(TerminalNode::getText).collect(Collectors.toList());
         }
         int joinCount = 0;
-        if (ctx.DecimalIntegerLiteral() != null) {
+        if (ctx.integerLiteral().DecimalIntegerLiteral() != null) {
             try {
-                joinCount = Integer.valueOf(ctx.DecimalIntegerLiteral().getText());
+                joinCount = Integer.valueOf(ctx.integerLiteral().DecimalIntegerLiteral().getText());
             } catch (NumberFormatException ex) {
                 // When ctx.IntegerLiteral() is not a string or missing, compilation fails due to NumberFormatException.
                 // Hence catching the error and ignore. Still Parser complains about missing IntegerLiteral.
@@ -1803,8 +1803,20 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         TerminalNode node;
         DiagnosticPos pos = getCurrentPos(ctx);
         Set<Whitespace> ws = getWS(ctx);
-        if ((node = ctx.DecimalIntegerLiteral()) != null) {
-            this.pkgBuilder.addLiteralValue(pos, ws, TypeTags.INT, Long.parseLong(getNodeValue(ctx, node)));
+
+        if (ctx.integerLiteral() != null) {
+            if ((node = ctx.integerLiteral().DecimalIntegerLiteral()) != null) {
+                this.pkgBuilder.addLiteralValue(pos, ws, TypeTags.INT, Long.parseLong(getNodeValue(ctx, node)));
+            } else if ((node = ctx.integerLiteral().HexIntegerLiteral()) != null) {
+                this.pkgBuilder.addLiteralValue(pos, ws, TypeTags.INT, Long.parseLong(getNodeValue(ctx, node)
+                        .toLowerCase().replace("0x", ""), 16));
+            } else if ((node = ctx.integerLiteral().OctalIntegerLiteral()) != null) {
+                this.pkgBuilder.addLiteralValue(pos, ws, TypeTags.INT, Long.parseLong(getNodeValue(ctx, node)
+                        .replace("0_", ""), 8));
+            } else if ((node = ctx.integerLiteral().BinaryIntegerLiteral()) != null) {
+                this.pkgBuilder.addLiteralValue(pos, ws, TypeTags.INT, Long.parseLong(getNodeValue(ctx, node)
+                        .toLowerCase().replace("0b", ""), 2));
+            }
         } else if ((node = ctx.FloatingPointLiteral()) != null) {
             this.pkgBuilder.addLiteralValue(pos, ws, TypeTags.FLOAT, Double.parseDouble(getNodeValue(ctx, node)));
         } else if ((node = ctx.BooleanLiteral()) != null) {
@@ -1816,15 +1828,6 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             this.pkgBuilder.addLiteralValue(pos, ws, TypeTags.STRING, text);
         } else if (ctx.NullLiteral() != null) {
             this.pkgBuilder.addLiteralValue(pos, ws, TypeTags.NULL, null);
-        } else if ((node = ctx.HexIntegerLiteral()) != null) {
-            this.pkgBuilder.addLiteralValue(pos, ws, TypeTags.INT, Long.parseLong(getNodeValue(ctx, node).toLowerCase()
-                    .replace("0x", ""), 16));
-        } else if ((node = ctx.OctalIntegerLiteral()) != null) {
-            this.pkgBuilder.addLiteralValue(pos, ws, TypeTags.INT, Long.parseLong(getNodeValue(ctx, node)
-                    .replace("0_", ""), 8));
-        } else if ((node = ctx.BinaryIntegerLiteral()) != null) {
-            this.pkgBuilder.addLiteralValue(pos, ws, TypeTags.INT, Long.parseLong(getNodeValue(ctx, node).toLowerCase()
-                    .replace("0b", ""), 2));
         }
     }
 
