@@ -1,5 +1,5 @@
 /*
-*  Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+*  Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 *
 *  WSO2 Inc. licenses this file to you under the Apache License,
 *  Version 2.0 (the "License"); you may not use this file except
@@ -21,29 +21,21 @@ import org.antlr.v4.runtime.ParserRuleContext;
 import org.ballerinalang.langserver.DocumentServiceKeys;
 import org.ballerinalang.langserver.TextDocumentServiceContext;
 import org.ballerinalang.langserver.completions.util.CompletionItemResolver;
-import org.ballerinalang.model.AnnotationAttachment;
 import org.eclipse.lsp4j.CompletionItem;
 
 import java.util.ArrayList;
 
 /**
- * Completion item resolver for BLangResource context.
+ * Completion Item resolver for the BLangFunction context.
  */
-public class ResourceContextResolver extends AbstractItemResolver {
-
+public class FunctionContextResolver extends AbstractItemResolver {
     @Override
     public ArrayList<CompletionItem> resolveItems(TextDocumentServiceContext completionContext) {
-        ArrayList<CompletionItem> completionItems = new ArrayList<>();
         ParserRuleContext parserRuleContext = completionContext.get(DocumentServiceKeys.PARSER_RULE_CONTEXT_KEY);
-        AbstractItemResolver itemResolver = CompletionItemResolver.getResolverByClass(parserRuleContext.getClass());
-        
-        if (itemResolver != null) {
-            completionItems.addAll(itemResolver.resolveItems(completionContext));
-        } else if (this.isAnnotationContext(completionContext)) {
-            completionItems.addAll(CompletionItemResolver.getResolverByClass(AnnotationAttachment.class)
-                    .resolveItems(completionContext));
+        AbstractItemResolver contextResolver = CompletionItemResolver.getResolverByClass(parserRuleContext.getClass());
+        if (contextResolver != null) {
+            return contextResolver.resolveItems(completionContext);
         }
-
-        return completionItems;
+        return null;
     }
 }
