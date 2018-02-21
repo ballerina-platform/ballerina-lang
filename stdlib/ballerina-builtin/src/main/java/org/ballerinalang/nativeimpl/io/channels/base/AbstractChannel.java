@@ -22,8 +22,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.nio.channels.ByteChannel;
+import java.nio.channels.Channels;
 import java.nio.channels.WritableByteChannel;
 
 /**
@@ -40,7 +42,7 @@ import java.nio.channels.WritableByteChannel;
  *
  * @see Channel
  * @see CharacterChannel
- * @see TextRecordChannel
+ * @see DelimitedRecordChannel
  */
 public abstract class AbstractChannel {
 
@@ -173,5 +175,18 @@ public abstract class AbstractChannel {
             String message = "Error occurred while closing the connection. ";
             throw new BallerinaIOException(message, e);
         }
+    }
+
+    /**
+     * This will return {@link InputStream} from underlying {@link ByteChannel}.
+     *
+     * @return An {@link InputStream}
+     */
+    public InputStream getInputStream() {
+        if (!channel.isOpen()) {
+            String message = "Channel is already closed.";
+            throw new BallerinaIOException(message);
+        }
+        return Channels.newInputStream(channel);
     }
 }

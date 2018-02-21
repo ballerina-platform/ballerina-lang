@@ -29,6 +29,11 @@
     line-height: 30px;
 }
 
+.transform-expanded-func .fw-iterable-operations{
+    padding-left: 10px;
+    padding-right: 10px;
+}
+
 .transform-expanded-func .fw-function {
     padding-left: 10px;
     padding-right: 10px;

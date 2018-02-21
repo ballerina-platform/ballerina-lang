@@ -168,6 +168,7 @@ import static org.ballerinalang.plugins.idea.grammar.BallerinaLexer.NEXT;
 import static org.ballerinalang.plugins.idea.grammar.BallerinaLexer.NullLiteral;
 import static org.ballerinalang.plugins.idea.grammar.BallerinaLexer.PACKAGE;
 import static org.ballerinalang.plugins.idea.grammar.BallerinaLexer.PARAMETER;
+import static org.ballerinalang.plugins.idea.grammar.BallerinaLexer.PRIVATE;
 import static org.ballerinalang.plugins.idea.grammar.BallerinaLexer.PUBLIC;
 import static org.ballerinalang.plugins.idea.grammar.BallerinaLexer.QuotedStringLiteral;
 import static org.ballerinalang.plugins.idea.grammar.BallerinaLexer.RARROW;
@@ -234,7 +235,7 @@ public class BallerinaParserDefinition implements ParserDefinition {
     public static final TokenSet KEYWORDS = PSIElementTypeFactory.createTokenSet(BallerinaLanguage.INSTANCE,
             ABORT, ACTION, ALL, ANNOTATION, AS, ATTACH, BIND, BREAK, CATCH, CONNECTOR, CONST, CREATE, ELSE, ENDPOINT,
             ENUM, FAILED, FINALLY, FOREACH, FORK, FUNCTION, IF, IMPORT, IN, JOIN, LENGTHOF, LOCK, NATIVE, NEXT, PACKAGE,
-            PARAMETER, PUBLIC, RESOURCE, RETRIES, RETURN, RETURNS, SERVICE, SOME, STRUCT, THROW, TIMEOUT,
+            PARAMETER, PRIVATE, PUBLIC, RESOURCE, RETRIES, RETURN, RETURNS, SERVICE, SOME, STRUCT, THROW, TIMEOUT,
             TRANSACTION, TRANSFORMER, TRY, VAR, WHILE, WORKER, XMLNS, TYPEOF, TYPE_BOOL, TYPE_INT, TYPE_FLOAT,
             TYPE_STRING, TYPE_BLOB, TYPE_MAP, TYPE_XML, TYPE_JSON, TYPE_TABLE, TYPE_ANY, TYPE_TYPE, VERSION,
             WITH, BooleanLiteral, NullLiteral);
