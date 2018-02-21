@@ -26,8 +26,6 @@ import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.handler.codec.http2.Http2Connection;
-import io.netty.util.concurrent.Future;
-import io.netty.util.concurrent.GenericFutureListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.common.HttpRoute;
@@ -85,12 +83,7 @@ public class Http2ConnectionManager {
         String key = generateKey(httpRoute);
         clientConnections.put(key, targetChannel);
 
-        channelFuture.channel().closeFuture().addListener(new GenericFutureListener<Future<? super Void>>() {
-            @Override
-            public void operationComplete(Future<? super Void> future) throws Exception {
-                clientConnections.remove(key);
-            }
-        });
+        channelFuture.channel().closeFuture().addListener(future -> clientConnections.remove(key));
         return targetChannel;
     }
 

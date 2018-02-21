@@ -43,7 +43,6 @@ public class Http2ClientConnectorImpl implements Http2ClientConnector {
     private static final Logger log = LoggerFactory.getLogger(Http2ClientConnector.class);
     private SenderConfiguration senderConfiguration;
 
-
     public Http2ClientConnectorImpl(SenderConfiguration senderConfiguration) {
         this.senderConfiguration = senderConfiguration;
     }
@@ -57,50 +56,65 @@ public class Http2ClientConnectorImpl implements Http2ClientConnector {
     public HttpResponseFuture send(HTTPCarbonMessage httpOutboundRequest) {
 
         HttpResponseFuture httpResponseFuture = new DefaultHttpResponseFuture();
-        final HttpRoute route = getTargetRoute(httpOutboundRequest);
-
         try {
+            HttpRoute route = getTargetRoute(httpOutboundRequest);
             TargetChannel targetChannel =
                     Http2ConnectionManager.getInstance().borrowChannel(route, senderConfiguration);
-            targetChannel.getChannelFuture().addListener(new ChannelFutureListener() {
-                @Override
-                public void operationComplete(ChannelFuture channelFuture) throws Exception {
-                    if (isValidateChannel(channelFuture)) {
-                        targetChannel.getClientHandler().writeRequest(
-                                new OutboundHttpRequestHolder(httpOutboundRequest, httpResponseFuture));
-                    } else {
-                        notifyErrorState(channelFuture);
-                    }
-                }
-
-                private boolean isValidateChannel(ChannelFuture channelFuture) throws Exception {
-                    if (channelFuture.isDone() && channelFuture.isSuccess()) {
-                        if (log.isDebugEnabled()) {
-                            log.debug("Created the connection to address: {}",
-                                      route.toString() + " " + "Original Channel ID is : " + channelFuture.channel()
-                                              .id());
-                        }
-                        return true;
-                    }
-                    return false;
-                }
-
-                private void notifyErrorState(ChannelFuture channelFuture) {
-                    ClientConnectorException cause =
-                            new ClientConnectorException(
-                                    "Connection error, " + route.toString(), HttpResponseStatus.BAD_GATEWAY.code());
-                    if (channelFuture.cause() != null) {
-                        cause.initCause(channelFuture.cause());
-                    }
-
-                    httpResponseFuture.notifyHttpListener(cause);
-                }
-            });
+            targetChannel.getChannelFuture().addListener(
+                    new ConnectionAvailabilityListener(targetChannel, httpOutboundRequest, httpResponseFuture, route));
         } catch (Exception failedCause) {
             httpResponseFuture.notifyHttpListener(failedCause);
         }
 
         return httpResponseFuture;
+    }
+
+    static class ConnectionAvailabilityListener implements ChannelFutureListener {
+
+        TargetChannel targetChannel;
+        HTTPCarbonMessage httpOutboundRequest;
+        HttpResponseFuture httpResponseFuture;
+        HttpRoute route;
+
+        public ConnectionAvailabilityListener(TargetChannel targetChannel, HTTPCarbonMessage httpOutboundRequest,
+                                              HttpResponseFuture httpResponseFuture, HttpRoute route) {
+            this.targetChannel = targetChannel;
+            this.httpOutboundRequest = httpOutboundRequest;
+            this.httpResponseFuture = httpResponseFuture;
+            this.route = route;
+        }
+
+        public void operationComplete(ChannelFuture channelFuture) throws Exception {
+            if (isValidateChannel(channelFuture)) {
+                targetChannel.getClientHandler().writeRequest(
+                        new OutboundHttpRequestHolder(httpOutboundRequest, httpResponseFuture));
+            } else {
+                notifyErrorState(channelFuture);
+            }
+        }
+
+        private boolean isValidateChannel(ChannelFuture channelFuture) throws Exception {
+            if (channelFuture.isDone() && channelFuture.isSuccess()) {
+                if (log.isDebugEnabled()) {
+                    log.debug("Created the connection to address: {}",
+                              route.toString() + " " + "Original Channel ID is : " + channelFuture.channel()
+                                      .id());
+                }
+                return true;
+            }
+            return false;
+        }
+
+        private void notifyErrorState(ChannelFuture channelFuture) {
+            ClientConnectorException cause =
+                    new ClientConnectorException(
+                            "Connection error, " + route.toString(), HttpResponseStatus.BAD_GATEWAY.code());
+            if (channelFuture.cause() != null) {
+                cause.initCause(channelFuture.cause());
+            }
+
+            httpResponseFuture.notifyHttpListener(cause);
+        }
     }
 
     @Override
