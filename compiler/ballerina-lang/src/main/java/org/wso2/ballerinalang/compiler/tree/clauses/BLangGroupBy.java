@@ -23,8 +23,6 @@ import org.ballerinalang.model.tree.clauses.GroupByNode;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangVariableReference;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -34,11 +32,11 @@ import java.util.List;
  */
 public class BLangGroupBy extends BLangNode implements GroupByNode {
 
-    private List<BLangExpression> varRefs = new ArrayList<>();
+    private List<ExpressionNode> varRefs = new ArrayList<>();
 
     @Override
     public void addVariableReference(ExpressionNode varRef) {
-        varRefs.add((BLangVariableReference) varRef);
+        varRefs.add(varRef);
     }
 
     @Override
