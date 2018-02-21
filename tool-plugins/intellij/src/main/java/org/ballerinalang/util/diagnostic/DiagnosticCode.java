@@ -14,7 +14,7 @@
  *  limitations under the License.
  */
 
-package org.ballerinalang.plugins.idea.util;
+package org.ballerinalang.util.diagnostic;
 
 /**
  * This class contains a list of diagnostic codes.

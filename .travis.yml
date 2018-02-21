@@ -29,3 +29,4 @@ cache:
   directories:
   - $HOME/.m2
   - composer/modules/web/node_modules
+  - tool-plugins/vscode/node_modules

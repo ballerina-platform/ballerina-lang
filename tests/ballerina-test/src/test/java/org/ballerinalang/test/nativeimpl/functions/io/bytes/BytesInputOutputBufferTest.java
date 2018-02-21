@@ -27,10 +27,14 @@ import org.testng.Assert;
 import org.testng.annotations.BeforeSuite;
 import org.testng.annotations.Test;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.net.URISyntaxException;
 import java.nio.ByteBuffer;
 import java.nio.channels.ByteChannel;
+import java.util.stream.Collectors;
 
 /**
  * Defines the unit test to test the functionality of Byte I/O related use cases.
@@ -206,4 +210,31 @@ public class BytesInputOutputBufferTest {
         Assert.assertEquals(numberOfBytesWritten, bytes.length);
     }
 
+    @Test(description = "Get content via InputStream")
+    public void getContentViaInputStream() throws IOException, URISyntaxException {
+        ByteChannel byteChannel = TestUtil.openForReading("datafiles/io/text/6charfile.txt");
+        Channel channel = new MockByteChannel(byteChannel, 0);
+        final InputStream inputStream = channel.getInputStream();
+        try (BufferedReader buffer = new BufferedReader(new InputStreamReader(inputStream))) {
+            final String result = buffer.lines().collect(Collectors.joining("\n"));
+            Assert.assertEquals(result, "123456", "Did not get expected string output.");
+        }
+        inputStream.close();
+    }
+
+    @Test(description = "Validate getting InputStream from closed channel",
+            expectedExceptions = BallerinaIOException.class,
+            expectedExceptionsMessageRegExp = "Channel is already closed.")
+    public void checkChannelCloseStatus() throws IOException, URISyntaxException {
+        ByteChannel byteChannel = TestUtil.openForReading("datafiles/io/text/6charfile.txt");
+        Channel channel = new MockByteChannel(byteChannel, 0);
+        final InputStream inputStream = channel.getInputStream();
+        try (BufferedReader buffer = new BufferedReader(new InputStreamReader(inputStream))) {
+            final String result = buffer.lines().collect(Collectors.joining("\n"));
+            Assert.assertEquals(result, "123456", "Did not get expected string output.");
+        }
+        inputStream.close();
+        channel.close();
+        channel.getInputStream();
+    }
 }
