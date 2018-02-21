@@ -56,8 +56,8 @@ function writeToFile(io:ByteChannel byteChannel) {
     string dstFilePath = "./files/savedFile.ppt";
     io:ByteChannel destinationChannel = getByteChannel(dstFilePath, "w");
     blob readContent;
-    int numberOfBytesRead = 0;
-    while (numberOfBytesRead != -1) {
+    int numberOfBytesRead = 1;
+    while (numberOfBytesRead != 0) {
         readContent,numberOfBytesRead = byteChannel.readBytes(10000);
         int numberOfBytesWritten = destinationChannel.writeBytes(readContent, 0);
     }
