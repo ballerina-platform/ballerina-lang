@@ -41,7 +41,7 @@ import org.wso2.transport.http.netty.sender.channel.TargetChannel;
 import org.wso2.transport.http.netty.sender.channel.pool.ConnectionManager;
 
 /**
- * A class responsible for handling responses coming from BE. *
+ * A class responsible for handling responses coming from BE.
  */
 public class TargetHandler extends ChannelInboundHandlerAdapter {
     private static final Logger log = LoggerFactory.getLogger(TargetHandler.class);
@@ -52,8 +52,8 @@ public class TargetHandler extends ChannelInboundHandlerAdapter {
     private TargetChannel targetChannel;
     private HTTPCarbonMessage incomingMsg;
     private HandlerExecutor handlerExecutor;
-    private boolean isKeepAlive;
-    private boolean idleTimeout;
+    private boolean keepAlive;
+    private boolean idleTimeoutTriggered;
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
@@ -97,23 +97,20 @@ public class TargetHandler extends ChannelInboundHandlerAdapter {
                         }
                         this.targetRespMsg = null;
                         targetChannel.getChannel().pipeline().remove(Constants.IDLE_STATE_HANDLER);
-                        connectionManager.returnChannel(targetChannel);
 
-                        if (!isKeepAlive) {
+                        if (!keepAlive) {
                             closeChannel(ctx);
                         }
+
+                        connectionManager.returnChannel(targetChannel);
                     }
                 }
             }
         } else {
             if (msg instanceof HttpResponse) {
-                log.warn("Received a response for an obsolete request");
+                log.warn("Received a response for an obsolete request", msg.toString());
             }
             ReferenceCountUtil.release(msg);
-
-            if (!isKeepAlive) {
-                closeChannel(ctx);
-            }
         }
     }
 
@@ -141,17 +138,11 @@ public class TargetHandler extends ChannelInboundHandlerAdapter {
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
         if (log.isDebugEnabled()) {
-            log.debug("Channel " + ctx.channel().id() + " gets inactive so closing it from Target handler.");
+            log.debug("Channel " + ctx.channel().id() + " gets inactive so closing it from Target handler");
         }
 
         closeChannel(ctx);
-
-        if (targetChannel.isRequestWritten()) {
-            httpResponseFuture.notifyHttpListener(
-                    new ClientConnectorException(Constants.REMOTE_SERVER_CLOSE_RESPONSE_CONNECTION_AFTER_REQUEST_READ));
-        } else if (targetRespMsg != null && !idleTimeout) {
-            handleIncompleteInboundResponse(Constants.REMOTE_SERVER_ABRUPTLY_CLOSE_RESPONSE_CONNECTION);
-        }
+        handleErrorCloseScenarios(ctx.channel().id().asLongText());
 
         connectionManager.invalidateTargetChannel(targetChannel);
 
@@ -161,9 +152,20 @@ public class TargetHandler extends ChannelInboundHandlerAdapter {
         }
     }
 
+    private void handleErrorCloseScenarios(String channelID) {
+        if (!idleTimeoutTriggered) {
+            if (targetChannel.isRequestWritten()) {
+                httpResponseFuture.notifyHttpListener(new ClientConnectorException(channelID,
+                        Constants.REMOTE_SERVER_CLOSE_RESPONSE_CONNECTION_AFTER_REQUEST_READ));
+            } else if (targetRespMsg != null) {
+                handleIncompleteInboundResponse(Constants.REMOTE_SERVER_ABRUPTLY_CLOSE_RESPONSE_CONNECTION);
+            }
+        }
+    }
+
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
-        log.error("Exception occurred in TargetHandler.", cause);
+        log.error("Exception occurred in TargetHandler", cause);
 
         httpResponseFuture.notifyHttpListener(cause);
         if (targetRespMsg != null) {
@@ -177,21 +179,25 @@ public class TargetHandler extends ChannelInboundHandlerAdapter {
         if (evt instanceof IdleStateEvent) {
             IdleStateEvent event = (IdleStateEvent) evt;
             if (event.state() == IdleState.READER_IDLE || event.state() == IdleState.WRITER_IDLE) {
+                targetChannel.getChannel().pipeline().remove(Constants.IDLE_STATE_HANDLER);
+                this.idleTimeoutTriggered = true;
+                this.channelInactive(ctx);
+                handleErrorIdleScenarios(ctx.channel().id().asLongText());
 
                 log.warn("Timeout occurred in TargetHandler for channel ID : " + ctx.channel().id());
-
-                this.idleTimeout = true;
-                targetChannel.getChannel().pipeline().remove(Constants.IDLE_STATE_HANDLER);
-                targetChannel.setRequestWritten(false);
-
-                if (targetRespMsg == null) {
-                    httpResponseFuture.notifyHttpListener(new ClientConnectorException(
-                            Constants.IDLE_TIMEOUT_TRIGGERED_BEFORE_READING_INBOUND_RESPONSE,
-                            HttpResponseStatus.GATEWAY_TIMEOUT.code()));
-                } else {
-                    handleIncompleteInboundResponse(Constants.IDLE_TIMEOUT_TRIGGERED_WHILE_READING_INBOUND_RESPONSE);
-                }
             }
+        } else {
+            log.warn("Unexpected user event triggered", evt);
+        }
+    }
+
+    private void handleErrorIdleScenarios(String channelID) {
+        if (targetRespMsg == null) {
+            httpResponseFuture.notifyHttpListener(new ClientConnectorException(channelID,
+                    Constants.IDLE_TIMEOUT_TRIGGERED_BEFORE_READING_INBOUND_RESPONSE,
+                    HttpResponseStatus.GATEWAY_TIMEOUT.code()));
+        } else {
+            handleIncompleteInboundResponse(Constants.IDLE_TIMEOUT_TRIGGERED_WHILE_READING_INBOUND_RESPONSE);
         }
     }
 
@@ -228,7 +234,7 @@ public class TargetHandler extends ChannelInboundHandlerAdapter {
     }
 
     public void setKeepAlive(boolean keepAlive) {
-        isKeepAlive = keepAlive;
+        this.keepAlive = keepAlive;
     }
 
     public HttpResponseFuture getHttpResponseFuture() {

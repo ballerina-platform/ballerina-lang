@@ -19,12 +19,16 @@
 
 package org.wso2.transport.http.netty.passthrough;
 
+import io.netty.buffer.Unpooled;
+import io.netty.handler.codec.http.DefaultHttpResponse;
+import io.netty.handler.codec.http.DefaultLastHttpContent;
+import io.netty.handler.codec.http.HttpResponseStatus;
+import io.netty.handler.codec.http.HttpVersion;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.common.Constants;
 import org.wso2.transport.http.netty.config.SenderConfiguration;
-import org.wso2.transport.http.netty.config.TransportProperty;
-import org.wso2.transport.http.netty.config.TransportsConfiguration;
+import org.wso2.transport.http.netty.contract.ClientConnectorException;
 import org.wso2.transport.http.netty.contract.HttpClientConnector;
 import org.wso2.transport.http.netty.contract.HttpConnectorListener;
 import org.wso2.transport.http.netty.contract.HttpResponseFuture;
@@ -32,32 +36,27 @@ import org.wso2.transport.http.netty.contract.HttpWsConnectorFactory;
 import org.wso2.transport.http.netty.contract.ServerConnectorException;
 import org.wso2.transport.http.netty.contractimpl.HttpWsConnectorFactoryImpl;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
-import org.wso2.transport.http.netty.message.HTTPConnectorUtil;
+import org.wso2.transport.http.netty.message.HttpCarbonResponse;
 import org.wso2.transport.http.netty.util.TestUtil;
 
 import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.stream.Collectors;
 
 /**
- * A Message Processor class to be used for test pass through scenarios
+ * A Message Processor class to be used for test pass through scenarios.
  */
 public class PassthroughMessageProcessorListener implements HttpConnectorListener {
 
     private static final Logger logger = LoggerFactory.getLogger(PassthroughMessageProcessorListener.class);
     private ExecutorService executor = Executors.newSingleThreadExecutor();
-    private TransportsConfiguration transportsConfiguration;
     private HttpClientConnector clientConnector;
     private HttpWsConnectorFactory httpWsConnectorFactory;
-    private Map<String, Object> transportProperties;
+    private SenderConfiguration senderConfiguration;
 
-    public PassthroughMessageProcessorListener(TransportsConfiguration transportsConfiguration) {
-        this.transportsConfiguration = transportsConfiguration;
-        this.transportProperties = getTransportProperties();
+    public PassthroughMessageProcessorListener(SenderConfiguration senderConfiguration) {
         this.httpWsConnectorFactory = new HttpWsConnectorFactoryImpl();
+        this.senderConfiguration = senderConfiguration;
     }
 
     @Override
@@ -66,12 +65,8 @@ public class PassthroughMessageProcessorListener implements HttpConnectorListene
             httpRequestMessage.setProperty(Constants.HOST, TestUtil.TEST_HOST);
             httpRequestMessage.setProperty(Constants.PORT, TestUtil.HTTP_SERVER_PORT);
             try {
-                String scheme = (String) httpRequestMessage.getProperty(Constants.PROTOCOL);
-                SenderConfiguration senderConfiguration = HTTPConnectorUtil.getSenderConfiguration(
-                        transportsConfiguration, scheme);
-
                 clientConnector =
-                        httpWsConnectorFactory.createHttpClientConnector(transportProperties, senderConfiguration);
+                        httpWsConnectorFactory.createHttpClientConnector(new HashMap<>(), senderConfiguration);
                 HttpResponseFuture future = clientConnector.send(httpRequestMessage);
                 future.setHttpConnectorListener(new HttpConnectorListener() {
                     @Override
@@ -87,24 +82,30 @@ public class PassthroughMessageProcessorListener implements HttpConnectorListene
 
                     @Override
                     public void onError(Throwable throwable) {
+                        if (throwable instanceof ClientConnectorException) {
+                            ClientConnectorException connectorException = (ClientConnectorException) throwable;
+                            if (connectorException.getOutboundChannelID() != null) {
+                                sendTimeoutResponse(connectorException.getOutboundChannelID());
+                            }
+                        }
+                    }
 
+                    private void sendTimeoutResponse(String channelId) {
+                        HttpCarbonResponse outboundResponse = new HttpCarbonResponse(
+                                new DefaultHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.GATEWAY_TIMEOUT));
+                        outboundResponse.addHttpContent(new DefaultLastHttpContent(Unpooled.wrappedBuffer(
+                                channelId.getBytes())));
+                        try {
+                            httpRequestMessage.respond(outboundResponse);
+                        } catch (ServerConnectorException e) {
+                            logger.error("Error occurred while sending error-message", e);
+                        }
                     }
                 });
             } catch (Exception e) {
                 logger.error("Error occurred during message processing: ", e);
             }
         });
-    }
-
-    private Map<String, Object> getTransportProperties() {
-        Map<String, Object> transportProperties = new HashMap<>();
-        Set<TransportProperty> transportPropertiesSet = transportsConfiguration.getTransportProperties();
-        if (transportPropertiesSet != null && !transportPropertiesSet.isEmpty()) {
-            transportProperties = transportPropertiesSet.stream().collect(
-                    Collectors.toMap(TransportProperty::getName, TransportProperty::getValue));
-
-        }
-        return transportProperties;
     }
 
     @Override

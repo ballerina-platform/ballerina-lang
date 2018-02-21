@@ -21,6 +21,8 @@ package org.wso2.transport.http.netty.contractimpl;
 
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
+import org.wso2.transport.http.netty.common.Constants;
+import org.wso2.transport.http.netty.common.Util;
 import org.wso2.transport.http.netty.config.ListenerConfiguration;
 import org.wso2.transport.http.netty.config.SenderConfiguration;
 import org.wso2.transport.http.netty.contract.HttpClientConnector;
@@ -81,8 +83,10 @@ public class HttpWsConnectorFactoryImpl implements HttpWsConnectorFactory {
             Map<String, Object> transportProperties, SenderConfiguration senderConfiguration) {
         PoolConfiguration poolConfiguration = new PoolConfiguration(transportProperties);
         BootstrapConfiguration bootstrapConfig = new BootstrapConfiguration(transportProperties);
+        EventLoopGroup clientEventLoopGroup = new NioEventLoopGroup(
+                Util.getIntProperty(transportProperties, Constants.CLIENT_BOOTSTRAP_WORKER_GROUP_SIZE, 4));
         ConnectionManager connectionManager =
-                new ConnectionManager(poolConfiguration, transportProperties, bootstrapConfig);
+                new ConnectionManager(poolConfiguration, bootstrapConfig, clientEventLoopGroup);
         return new HttpClientConnectorImpl(connectionManager, senderConfiguration);
     }
 
