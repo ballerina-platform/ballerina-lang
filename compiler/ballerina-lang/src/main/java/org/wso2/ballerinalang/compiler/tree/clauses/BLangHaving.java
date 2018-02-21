@@ -16,24 +16,29 @@
  * under the License.
  */
 
-package org.wso2.ballerinalang.compiler.tree.statements;
+package org.wso2.ballerinalang.compiler.tree.clauses;
 
 import org.ballerinalang.model.tree.NodeKind;
+import org.ballerinalang.model.tree.clauses.HavingNode;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
-import org.ballerinalang.model.tree.statements.SelectExpressionNode;
+import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 
 /**
- * Implementation of {@link SelectExpressionNode}.
+ * Implementation of {@link HavingNode}.
+ * @see HavingNode
  */
-public class BLangSelectExpression extends BLangStatement implements SelectExpressionNode {
+public class BLangHaving extends BLangNode implements HavingNode {
 
-    private String identifier;
     private ExpressionNode expression;
+    @Override
+    public void accept(BLangNodeVisitor visitor) {
+        visitor.visit(this);
+    }
 
     @Override
-    public void setIdentifier(String identifier) {
-        this.identifier = identifier;
+    public NodeKind getKind() {
+        return NodeKind.HAVING;
     }
 
     @Override
@@ -42,22 +47,7 @@ public class BLangSelectExpression extends BLangStatement implements SelectExpre
     }
 
     @Override
-    public String getIdentifier() {
-        return this.identifier;
-    }
-
-    @Override
     public ExpressionNode getExpression() {
         return this.expression;
-    }
-
-    @Override
-    public void accept(BLangNodeVisitor visitor) {
-        visitor.visit(this);
-    }
-
-    @Override
-    public NodeKind getKind() {
-        return NodeKind.SELECT_EXPRESSION;
     }
 }

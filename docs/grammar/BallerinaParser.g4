@@ -652,9 +652,13 @@ orderByClause
     ;
 
 selectClause
-    :   SELECT (MUL| ( selectExpression (COMMA selectExpression)* ) )
+    :   SELECT (MUL| selectExpressionList )
             groupByClause?
             havingClause?
+    ;
+
+selectExpressionList
+    :   selectExpression (COMMA selectExpression)*
     ;
 
 selectExpression

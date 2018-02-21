@@ -16,13 +16,14 @@
  * under the License.
  */
 
-package org.wso2.ballerinalang.compiler.tree.statements;
+package org.wso2.ballerinalang.compiler.tree.clauses;
 
 import org.ballerinalang.model.tree.NodeKind;
-import org.ballerinalang.model.tree.statements.GroupByNode;
-import org.ballerinalang.model.tree.statements.HavingNode;
-import org.ballerinalang.model.tree.statements.SelectClauseNode;
-import org.ballerinalang.model.tree.statements.SelectExpressionNode;
+import org.ballerinalang.model.tree.clauses.GroupByNode;
+import org.ballerinalang.model.tree.clauses.HavingNode;
+import org.ballerinalang.model.tree.clauses.SelectClauseNode;
+import org.ballerinalang.model.tree.clauses.SelectExpressionNode;
+import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 
 import java.util.List;
@@ -30,7 +31,7 @@ import java.util.List;
 /**
  * Implementation of {@link SelectClauseNode}.
  */
-public class BLangSelectClause extends BLangStatement implements SelectClauseNode {
+public class BLangSelectClause extends BLangNode implements SelectClauseNode {
 
     private List<? extends SelectExpressionNode> selectExpressions;
     private boolean isSelectAll;

@@ -16,18 +16,20 @@
  * under the License.
  */
 
-package org.ballerinalang.model.tree.statements;
+package org.ballerinalang.model.tree.clauses;
 
+import org.ballerinalang.model.tree.Node;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
 
-import java.util.List;
-
 /**
- * The interface with the APIs to implement the "order by" in ballerina streams/table SQLish syntax.
+ * The interface which represents the "having" clause in streams/tables in SQLish syntax.
+ * <pre>E.g.
+ *     having age > 40
+ * </pre>
  */
-public interface GroupByNode extends StatementNode {
+public interface HavingNode extends Node {
 
-    public void addVariableReference(ExpressionNode varRef);
+    void setExpression(ExpressionNode expression);
 
-    public List<? extends ExpressionNode> getVariables();
+    ExpressionNode getExpression();
 }

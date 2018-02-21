@@ -16,11 +16,12 @@
  * under the License.
  */
 
-package org.wso2.ballerinalang.compiler.tree.statements;
+package org.wso2.ballerinalang.compiler.tree.clauses;
 
 import org.ballerinalang.model.tree.NodeKind;
+import org.ballerinalang.model.tree.clauses.GroupByNode;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
-import org.ballerinalang.model.tree.statements.GroupByNode;
+import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangVariableReference;
@@ -31,7 +32,7 @@ import java.util.List;
 /**
  * BLangGroupBy represents the "group by" clause in Ballerina streams/tables SQLish syntax.
  */
-public class BLangGroupBy extends BLangExpression implements GroupByNode {
+public class BLangGroupBy extends BLangNode implements GroupByNode {
 
     private List<BLangExpression> varRefs = new ArrayList<>();
 

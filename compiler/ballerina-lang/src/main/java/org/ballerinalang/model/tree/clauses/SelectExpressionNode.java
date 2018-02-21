@@ -16,19 +16,28 @@
  * under the License.
  */
 
-package org.ballerinalang.model.tree.statements;
+package org.ballerinalang.model.tree.clauses;
 
+import org.ballerinalang.model.tree.Node;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
 
 /**
- * The interface which represents the "having" clause in streams/tables in SQLish syntax.
+ * This interface represents the SelectExpression in grammar.
+ * <pre>Grammar:
+ *  (expression (AS Identifier)?)
+ * </pre>
+ *
  * <pre>E.g.
- *     having age > 40
+ *  logStream.timestamp AS time
  * </pre>
  */
-public interface HavingNode extends StatementNode {
+public interface SelectExpressionNode extends Node {
+
+    void setIdentifier(String identifier);
 
     void setExpression(ExpressionNode expression);
+
+    String getIdentifier();
 
     ExpressionNode getExpression();
 }

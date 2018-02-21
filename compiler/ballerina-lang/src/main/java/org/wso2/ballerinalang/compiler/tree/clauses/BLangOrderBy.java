@@ -16,12 +16,13 @@
  * under the License.
  */
 
-package org.wso2.ballerinalang.compiler.tree.statements;
+package org.wso2.ballerinalang.compiler.tree.clauses;
 
 import org.ballerinalang.model.tree.NodeKind;
+import org.ballerinalang.model.tree.clauses.OrderByNode;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
 import org.ballerinalang.model.tree.expressions.VariableReferenceNode;
-import org.ballerinalang.model.tree.statements.OrderByNode;
+import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangVariableReference;
 
@@ -32,7 +33,7 @@ import java.util.List;
  * Implementation of {@link OrderByNode}.
  * @see OrderByNode
  */
-public class BLangOrderBy extends BLangStatement implements OrderByNode {
+public class BLangOrderBy extends BLangNode implements OrderByNode {
 
     private List<VariableReferenceNode> varRefs = new ArrayList<>();
 

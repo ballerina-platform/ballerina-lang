@@ -16,27 +16,22 @@
  * under the License.
  */
 
-package org.ballerinalang.model.tree.statements;
+package org.ballerinalang.model.tree.clauses;
 
+import org.ballerinalang.model.tree.Node;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
 
+import java.util.List;
+
 /**
- * This interface represents the SelectExpression in grammar.
- * <pre>Grammar:
- *  (expression (AS Identifier)?)
- * </pre>
- *
- * <pre>E.g.
- *  logStream.timestamp AS time
+ * The interface with the APIs to implement the "order by" in ballerina streams/table SQLish syntax.
+ * <pre> E.g
+ * order by age, rank;
  * </pre>
  */
-public interface SelectExpressionNode extends StatementNode {
+public interface OrderByNode extends Node {
 
-    void setIdentifier(String identifier);
+    void addVariableReference(ExpressionNode varRef);
 
-    void setExpression(ExpressionNode expression);
-
-    String getIdentifier();
-
-    ExpressionNode getExpression();
+    List<? extends ExpressionNode> getVariables();
 }

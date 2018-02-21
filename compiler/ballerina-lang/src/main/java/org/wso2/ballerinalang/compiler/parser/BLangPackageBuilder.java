@@ -40,17 +40,17 @@ import org.ballerinalang.model.tree.StructNode;
 import org.ballerinalang.model.tree.TransformerNode;
 import org.ballerinalang.model.tree.VariableNode;
 import org.ballerinalang.model.tree.WorkerNode;
+import org.ballerinalang.model.tree.clauses.GroupByNode;
+import org.ballerinalang.model.tree.clauses.HavingNode;
+import org.ballerinalang.model.tree.clauses.OrderByNode;
+import org.ballerinalang.model.tree.clauses.SelectExpressionNode;
 import org.ballerinalang.model.tree.expressions.AnnotationAttachmentAttributeValueNode;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
 import org.ballerinalang.model.tree.expressions.XMLAttributeNode;
 import org.ballerinalang.model.tree.expressions.XMLLiteralNode;
 import org.ballerinalang.model.tree.statements.BlockNode;
 import org.ballerinalang.model.tree.statements.ForkJoinNode;
-import org.ballerinalang.model.tree.statements.GroupByNode;
-import org.ballerinalang.model.tree.statements.HavingNode;
 import org.ballerinalang.model.tree.statements.IfNode;
-import org.ballerinalang.model.tree.statements.OrderByNode;
-import org.ballerinalang.model.tree.statements.SelectExpressionNode;
 import org.ballerinalang.model.tree.statements.StatementNode;
 import org.ballerinalang.model.tree.statements.TransactionNode;
 import org.ballerinalang.model.tree.statements.VariableDefinitionNode;
@@ -76,6 +76,10 @@ import org.wso2.ballerinalang.compiler.tree.BLangTransformer;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangWorker;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangGroupBy;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangHaving;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangOrderBy;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangSelectExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAttachmentAttribute;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAttachmentAttributeValue;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrayLiteral;
@@ -116,14 +120,10 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangCatch;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForeach;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangGroupBy;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangHaving;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangLock;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangNext;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangOrderBy;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangSelectExpression;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangThrow;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTransaction;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTryCatchFinally;
@@ -228,6 +228,8 @@ public class BLangPackageBuilder {
     private Stack<HavingNode> havingClauseStack = new Stack<>();
 
     private Stack<SelectExpressionNode> selectExpressionsStack = new Stack<>();
+
+    private Stack<List<SelectExpressionNode>> selectExpressionsListStack = new Stack<>();
 
     private Set<BLangImportPackage> imports = new HashSet<>();
 
@@ -1872,7 +1874,7 @@ public class BLangPackageBuilder {
 
     public void endGroupByClauseNode(DiagnosticPos currentPos, Set<Whitespace> ws) {
         if (this.exprNodeListStack.empty()) {
-            throw new IllegalStateException("ExpressionList stack cannot be empty in processing an GroupBy");
+            throw new IllegalStateException("ExpressionList stack cannot be empty in processing a GroupBy");
         }
         GroupByNode groupByNode = this.groupByClauseStack.peek();
         this.exprNodeListStack.pop().forEach(groupByNode::addVariableReference);
@@ -1887,7 +1889,7 @@ public class BLangPackageBuilder {
 
     public void endHavingClauseNode(DiagnosticPos pos, Set<Whitespace> ws) {
         if (this.exprNodeStack.empty()) {
-            throw new IllegalStateException("Expression stack cannot be empty in processing an having clause");
+            throw new IllegalStateException("Expression stack cannot be empty in processing a having clause");
         }
         HavingNode havingNode = this.havingClauseStack.peek();
         havingNode.setExpression(this.exprNodeStack.pop());
@@ -1902,10 +1904,31 @@ public class BLangPackageBuilder {
 
     public void endSelectExpressionNode(String identifier, DiagnosticPos pos, Set<Whitespace> ws) {
         if (this.exprNodeStack.empty()) {
-            throw new IllegalStateException("Expression stack cannot be empty in processing an select expression");
+            throw new IllegalStateException("Expression stack cannot be empty in processing a select expression");
         }
         SelectExpressionNode selectExpression = this.selectExpressionsStack.peek();
         selectExpression.setExpression(exprNodeStack.pop());
         selectExpression.setIdentifier(identifier);
+    }
+
+    public void startSelectExpressionList() {
+        this.selectExpressionsListStack.push(new ArrayList<>());
+    }
+
+    public void endSelectExpressionList(Set<Whitespace> ws, int selectExprCount) {
+        List<SelectExpressionNode> selectExprList = this.selectExpressionsListStack.peek();
+        addSelectExprToSelectExprNodeList(selectExprList, selectExprCount);
+
+    }
+
+    private void addSelectExprToSelectExprNodeList(List<SelectExpressionNode> selectExprList, int n) {
+        if (this.selectExpressionsStack.isEmpty()) {
+            throw new IllegalStateException("Select expression stack cannot be empty in processing a SelectClause");
+        }
+        SelectExpressionNode expr = this.selectExpressionsStack.pop();
+        if (n > 1) {
+            addSelectExprToSelectExprNodeList(selectExprList, n - 1);
+        }
+        selectExprList.add(expr);
     }
 }

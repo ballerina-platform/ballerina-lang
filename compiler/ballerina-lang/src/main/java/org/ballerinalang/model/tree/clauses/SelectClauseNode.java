@@ -16,7 +16,9 @@
  * under the License.
  */
 
-package org.ballerinalang.model.tree.statements;
+package org.ballerinalang.model.tree.clauses;
+
+import org.ballerinalang.model.tree.Node;
 
 import java.util.List;
 
@@ -31,7 +33,7 @@ import java.util.List;
  * </pre>
  *
  */
-public interface SelectClauseNode extends StatementNode {
+public interface SelectClauseNode extends Node {
 
     void setSelectExpressions(List<? extends SelectExpressionNode> selectExpressions);
 
