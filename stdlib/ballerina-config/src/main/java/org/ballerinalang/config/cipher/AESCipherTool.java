@@ -38,7 +38,6 @@ import javax.crypto.spec.SecretKeySpec;
 public class AESCipherTool {
 
     private static final String ALGORITHM = "AES";
-    private static final int KEY_LENGTH = 16;
     private final Cipher encryptionCipher;
     private final Cipher decryptionCipher;
 
@@ -47,7 +46,7 @@ public class AESCipherTool {
      */
     public AESCipherTool(String userSecret) throws AESCipherToolException {
         try {
-            SecretKey secretKey = new SecretKeySpec(getBytes(fixSecretKeyLength(userSecret, KEY_LENGTH)), ALGORITHM);
+            SecretKey secretKey = new SecretKeySpec(getBytes(fixSecretKeyLength(userSecret)), ALGORITHM);
             this.encryptionCipher = Cipher.getInstance(ALGORITHM);
             this.encryptionCipher.init(Cipher.ENCRYPT_MODE, secretKey);
             this.decryptionCipher = Cipher.getInstance(ALGORITHM);
@@ -97,9 +96,26 @@ public class AESCipherTool {
         return value.getBytes(StandardCharsets.UTF_8);
     }
 
-    private String fixSecretKeyLength(String key, int length) {
-        int paddingLength = key.length() % length;
-        for (int i = 0; i < length - paddingLength; i++) {
+    /**
+     * AES key can be 16, 24 or 32 bytes. So a padding should be added to the key in order to fulfill the need.
+     *
+     * @param key key which need to be fixed.
+     * @return fixed key which
+     * @throws AESCipherToolException if the key length is longer than 32 bytes.
+     */
+    private String fixSecretKeyLength(String key) throws AESCipherToolException {
+        int keyLength = key.length();
+        if (keyLength > 32) {
+            throw new AESCipherToolException("Invalid AES key length: " + keyLength +
+                                                     " bytes. Maximum key length is 32 bytes");
+        }
+        int paddingLength;
+        if (keyLength < 16) {
+            paddingLength = 16 - keyLength;
+        } else {
+            paddingLength = 8 - (keyLength % 8);
+        }
+        for (int i = 0; i < paddingLength; i++) {
             key = key.concat(" ");
         }
         return key;
