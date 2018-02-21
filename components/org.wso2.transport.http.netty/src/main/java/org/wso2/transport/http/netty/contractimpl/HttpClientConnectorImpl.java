@@ -27,6 +27,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.common.Constants;
 import org.wso2.transport.http.netty.common.HttpRoute;
+import org.wso2.transport.http.netty.common.Util;
 import org.wso2.transport.http.netty.common.ssl.SSLConfig;
 import org.wso2.transport.http.netty.config.ChunkConfig;
 import org.wso2.transport.http.netty.config.SenderConfiguration;
@@ -53,6 +54,7 @@ public class HttpClientConnectorImpl implements HttpClientConnector {
     private String httpVersion;
     private ChunkConfig chunkConfig;
     private boolean keepAlive;
+    private boolean forwardedExtensionEnabled;
 
     public HttpClientConnectorImpl(ConnectionManager connectionManager, SenderConfiguration senderConfiguration) {
         this.connectionManager = connectionManager;
@@ -98,6 +100,9 @@ public class HttpClientConnectorImpl implements HttpClientConnector {
                             httpOutboundRequest.setHeader(Constants.CONNECTION, Constants.CONNECTION_CLOSE);
                         } else if (keepAlive && Float.valueOf(httpVersion) < Constants.HTTP_1_1) {
                             httpOutboundRequest.setHeader(Constants.CONNECTION, Constants.CONNECTION_KEEP_ALIVE);
+                        }
+                        if (forwardedExtensionEnabled) {
+                            Util.setForwardedExtension(httpOutboundRequest);
                         }
                         targetChannel.writeContent(httpOutboundRequest);
                     } else {
@@ -208,5 +213,6 @@ public class HttpClientConnectorImpl implements HttpClientConnector {
         this.socketIdleTimeout = senderConfiguration.getSocketIdleTimeout(Constants.ENDPOINT_TIMEOUT);
         this.sslConfig = senderConfiguration.getSSLConfig();
         this.keepAlive = senderConfiguration.isKeepAlive();
+        this.forwardedExtensionEnabled = senderConfiguration.isForwardedExtensionEnabled();
     }
 }

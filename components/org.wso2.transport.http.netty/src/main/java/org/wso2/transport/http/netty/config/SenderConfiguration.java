@@ -98,6 +98,7 @@ public class SenderConfiguration {
     private boolean validateCertEnabled;
     private int cacheSize = 50;
     private int cacheValidityPeriod = 15;
+    private boolean forwardedExtensionEnabled;
 
     public SenderConfiguration() {
     }
@@ -288,5 +289,13 @@ public class SenderConfiguration {
 
     public int getCacheValidityPeriod() {
         return cacheValidityPeriod;
+    }
+
+    public boolean isForwardedExtensionEnabled() {
+        return forwardedExtensionEnabled;
+    }
+
+    public void setForwardedExtensionEnabled(boolean forwardedExtensionEnabled) {
+        this.forwardedExtensionEnabled = forwardedExtensionEnabled;
     }
 }

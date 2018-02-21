@@ -525,4 +525,14 @@ public class Util {
                 (ChannelFutureListener) channelFuture -> log.warn("Failed to send " + status.reasonPhrase()));
         ctx.channel().close();
     }
+
+    /**
+     * Set forwarded/x-forwarded header to outbound request.
+     *
+     * @param httpOutboundRequest outbound request message
+     * @see <a href="https://tools.ietf.org/html/rfc7239">rfc7239</a>
+     */
+    public static void setForwardedExtension(HTTPCarbonMessage httpOutboundRequest) {
+        httpOutboundRequest.getHeader("");
+    }
 }
