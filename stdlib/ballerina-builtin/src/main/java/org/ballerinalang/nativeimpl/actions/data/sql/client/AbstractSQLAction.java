@@ -17,7 +17,6 @@
  */
 package org.ballerinalang.nativeimpl.actions.data.sql.client;
 
-import org.ballerinalang.bre.BallerinaTransactionContext;
 import org.ballerinalang.bre.BallerinaTransactionManager;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.connector.api.AbstractNativeAction;
@@ -51,6 +50,7 @@ import org.ballerinalang.nativeimpl.actions.data.sql.SQLTransactionContext;
 import org.ballerinalang.natives.exceptions.ArgumentOutOfRangeException;
 import org.ballerinalang.util.DistributedTxManagerProvider;
 import org.ballerinalang.util.exceptions.BallerinaException;
+import org.ballerinalang.util.transactions.BallerinaTransactionContext;
 
 import java.math.BigDecimal;
 import java.sql.Array;
