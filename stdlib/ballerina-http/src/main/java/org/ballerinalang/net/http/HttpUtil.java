@@ -246,7 +246,7 @@ public class HttpUtil {
 
         HttpUtil.checkEntityAvailability(context, outboundResponseStruct);
         HttpUtil.setKeepAliveHeader(context, outboundResponseMsg);
-        addHTTPSessionAndCorsHeaders(inboundRequestMsg, outboundResponseMsg);
+        HttpUtil.addHTTPSessionAndCorsHeaders(context, inboundRequestMsg, outboundResponseMsg);
         HttpUtil.enrichOutboundMessage(outboundResponseMsg, outboundResponseStruct);
     }
 
@@ -264,10 +264,24 @@ public class HttpUtil {
                 .findFirst().get().trim().substring(HttpConstants.SESSION_ID.length());
     }
 
-    public static void addHTTPSessionAndCorsHeaders(HTTPCarbonMessage requestMsg, HTTPCarbonMessage responseMsg) {
+    public static void addHTTPSessionAndCorsHeaders(Context context, HTTPCarbonMessage requestMsg,
+                                                    HTTPCarbonMessage responseMsg) {
         Session session = (Session) requestMsg.getProperty(HttpConstants.HTTP_SESSION);
         if (session != null) {
-            session.generateSessionHeader(responseMsg);
+            boolean isSecureRequest = false;
+            AnnAttachmentInfo configAnn = context.getServiceInfo().getAnnotationAttachmentInfo(
+                    HttpConstants.PROTOCOL_PACKAGE_HTTP, HttpConstants.ANN_NAME_CONFIG);
+            if (configAnn != null) {
+                AnnAttributeValue httpsPortAttrVal = configAnn
+                        .getAttributeValue(HttpConstants.ANN_CONFIG_ATTR_HTTPS_PORT);
+                if (httpsPortAttrVal != null) {
+                    Integer listenerPort = (Integer) requestMsg.getProperty(HttpConstants.LISTENER_PORT);
+                    if (listenerPort != null && httpsPortAttrVal.getIntValue() == listenerPort) {
+                        isSecureRequest = true;
+                    }
+                }
+            }
+            session.generateSessionHeader(responseMsg, isSecureRequest);
         }
         //Process CORS if exists.
         if (requestMsg.getHeader(HttpConstants.ORIGIN) != null) {
