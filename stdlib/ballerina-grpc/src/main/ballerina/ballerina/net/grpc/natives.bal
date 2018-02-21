@@ -9,6 +9,18 @@ public struct Connection {
     string remoteHost;
     int port;
 }
+@Description {value:"gRPC protobuf client connector for outbound gRPC requests"}
+@Param {value:"serviceUri: Url of the service"}
+@Param {value:"connectorOptions: connector options"}
+public connector GRPCConnector (string host, int port) {
+    @Description {value:"Connection."}
+    native action connect (string stubType,map describtorMap, json descriptorTree) (Connection, GRPCConnectorError);
+
+    @Description {value:"The execute action implementation of the gRPC Connector."}
+    @Param {value:"Connection stub."}
+    @Param {value:"Any type of request parameters."}
+    native action execute (Connection conn, any payload,int methodID) (any , GRPCConnectorError);
+}
 
 @Description { value:"Sends outbound response to the caller"}
 @Param { value:"conn: The server connector connection" }
