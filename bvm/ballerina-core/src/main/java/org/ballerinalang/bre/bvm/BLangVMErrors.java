@@ -44,7 +44,7 @@ public class BLangVMErrors {
 
 
     /**
-     * Create ballerina.lang.errors:Error Struct from given error message, which is men
+     * Create error Struct from given error message.
      *
      * @param context current Context
      * @param ip      current instruction pointer
@@ -56,7 +56,7 @@ public class BLangVMErrors {
     }
 
     /**
-     * Create ballerina.lang.errors:Error Struct from given error message.
+     * Create error Struct from given message.
      *
      * @param context         current Context
      * @param ip              current instruction pointer
@@ -69,7 +69,7 @@ public class BLangVMErrors {
     }
 
     /**
-     * Create ballerina.lang.errors:Error Struct from given error message.
+     * Create error Struct from given error message and cause.
      *
      * @param context         current Context
      * @param ip              current instruction pointer
@@ -83,7 +83,7 @@ public class BLangVMErrors {
     }
 
     /**
-     * Create Error Struct from given struct type and message.
+     * Create an error Struct from given struct type and message.
      *
      * @param context         current Context
      * @param ip              current instruction pointer
