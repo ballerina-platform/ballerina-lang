@@ -35,7 +35,8 @@ import java.util.Map;
         actionName = "execute",
         connectorName = "GRPCConnector",
         args = {
-                @Argument(name = "conn", type = TypeKind.STRUCT, structType = "Connection", structPackage = "ballerina.net.grpc"),
+                @Argument(name = "conn", type = TypeKind.STRUCT, structType = "Connection", structPackage =
+                        "ballerina.net.grpc"),
                 @Argument(name = "payload", type = TypeKind.ANY),
                 @Argument(name = "methodID", type = TypeKind.INT)
         },
@@ -62,7 +63,7 @@ public class Execute extends AbstractNativeAction {
         BStruct connectionStub;
         Integer methodId;
         try {
-            // TODO: 2/15/18 Check type and cast
+            // todo: 2/15/18 Check type and cast
             payloadBMap = (BStruct) getRefArgument(context, 2);
             connectionStub = (BStruct) getRefArgument(context, 1);
             methodId = getIntArgument(context, 0);
@@ -75,18 +76,19 @@ public class Execute extends AbstractNativeAction {
 //        for (Object key : payloadBMap.get) {
 //            
 //        }
-        // TODO: 2/15/18 typeee
-        payload.put("name",payloadBMap.getStringField(0));
+        // todo: 2/15/18 typeee
+        payload.put("name" , payloadBMap.getStringField(0));
         try {
             String fullName = GRPCClientStub.getGrpcServiceProto().getSet().getService(0)
                     .getMethodList().get(methodId)
                     .getInputType();
-            String reqMessageName = fullName.split("\\.")[fullName.split("\\.").length-1];
-            GRPCClientStub.GRPCBlockingStub grpcBlockingStub = (GRPCClientStub.GRPCBlockingStub) connectionStub.getNativeData("stub");
+            String reqMessageName = fullName.split("\\.")[fullName.split("\\.").length - 1];
+            GRPCClientStub.GRPCBlockingStub grpcBlockingStub = (GRPCClientStub.GRPCBlockingStub)
+                    connectionStub.getNativeData("stub");
             Message message = (Message) Message.newBuilder(reqMessageName).build();
             message.setFieldValues(payload);
             Message messageRes = grpcBlockingStub.executeBlockingUnary(message, methodId);
-            // TODO: 2/15/18 Check type and cast and pass
+            // todo: 2/15/18 Check type and cast and pass
             if (messageRes != null && messageRes.getDescriptor().getFields().size() == 0) {
                 ballerinaFuture.notifyReply(new BMap<>(), null);
             } else {
@@ -102,6 +104,7 @@ public class Execute extends AbstractNativeAction {
     }
 
     private BStruct createStruct(Context context) {
+
         PackageInfo httpPackageInfo = context.getProgramFile()
                 .getPackageInfo("ballerina.net.grpc");
         StructInfo structInfo = httpPackageInfo.getStructInfo("GRPCConnectorError");
@@ -162,7 +165,7 @@ public class Execute extends AbstractNativeAction {
 //        ballerinaFuture.notifyReply(null, httpConnectorError);
 //    }
 
-    // TODO: 2/12/18 support Strut & Enum Type
+    // todo: 2/12/18 support Strut & Enum Type
     private BValue getValue(String typeName, Object obj) {
 
         switch (typeName) {

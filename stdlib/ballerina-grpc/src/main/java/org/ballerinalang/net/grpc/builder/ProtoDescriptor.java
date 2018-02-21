@@ -3,16 +3,26 @@ package org.ballerinalang.net.grpc.builder;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * todo.
+ */
 public class ProtoDescriptor {
+
     private String name;
     private List protoDependencies;
 
     public ProtoDescriptor(String name) {
+
         this.name = name;
     }
 
-    public void addDependency(Object dependency){
-        if(protoDependencies == null){
+    /**
+     * todo.
+     * @param dependency
+     */
+    public void addDependency(Object dependency) {
+
+        if (protoDependencies == null) {
             protoDependencies = new ArrayList();
         }
         protoDependencies.add(dependency);

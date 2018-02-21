@@ -16,13 +16,16 @@ import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaAction;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.net.grpc.GRPCClientStub;
-import org.ballerinalang.net.grpc.definition.ServiceProto;
+import org.ballerinalang.net.grpc.proto.definition.ServiceProto;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.StructInfo;
 
 import java.util.ArrayList;
 import java.util.List;
 
+/**.
+ * .
+ */
 @BallerinaAction(
         packageName = "ballerina.net.grpc",
         actionName = "connect",
@@ -46,7 +49,8 @@ public class Connect extends AbstractNativeAction {
 
     @Override
     public ConnectorFuture execute(Context context) {
-        String host,stubType;
+
+        String host, stubType;
         BMap bMap;
         BJSON bjson;
         ServiceProto serviceProto;
@@ -60,16 +64,17 @@ public class Connect extends AbstractNativeAction {
                 port = (int) bConnector.getIntField(0);
                 stubType = getStringArgument(context, 0);
                 bMap = (BMap) getRefArgument(context, 1);
-                // TODO: 2/20/18 more depth structures
+                // todo: 2/20/18 more depth structures
                 //bjson = (BJSON) getRefArgument(context, 2);
                 List<byte[]> depDescriptorData = new ArrayList<>();
-                if(bMap.keySet().size()>1) {
+                if (bMap.keySet().size() > 1) {
                     for (Object key : bMap.keySet()) {
                         depDescriptorData.add(hexStringToByteArray(bMap.get(key).stringValue()));
                     }
                 }
-                serviceProto =new ServiceProto(hexStringToByteArray(bMap.get(context.getProgramFile().getEntryPkgName())
-                        .stringValue()),  depDescriptorData);
+                serviceProto = new ServiceProto(hexStringToByteArray(bMap.get(context.getProgramFile()
+                        .getEntryPkgName())
+                        .stringValue()), depDescriptorData);
             } catch (ArrayIndexOutOfBoundsException e) {
                 outboundError.setStringField(0, "gRPC Connector Error :" + e.getMessage());
                 ballerinaFuture.notifyReply(null, outboundError);
@@ -82,13 +87,13 @@ public class Connect extends AbstractNativeAction {
             BStruct outboundResponse = createStruct(context, "Connection");
             outboundResponse.setStringField(0, host);
             outboundResponse.setIntField(0, port);
-            if("blocking".equalsIgnoreCase(stubType)) {
+            if ("blocking".equalsIgnoreCase(stubType)) {
                 GRPCClientStub.GRPCBlockingStub grpcBlockingStub = grpcClientStub.newBlockingStub(channel);
                 outboundResponse.addNativeData("stub", grpcBlockingStub);
-            }  else if("non-blocking".equalsIgnoreCase(stubType)) {
+            } else if ("non-blocking".equalsIgnoreCase(stubType)) {
                 GRPCClientStub.GRPCNonBlockingStub nonBlockingStub = grpcClientStub.newNonBlockingStub(channel);
                 outboundResponse.addNativeData("stub", nonBlockingStub);
-            }else if("future".equalsIgnoreCase(stubType)) {
+            } else if ("future".equalsIgnoreCase(stubType)) {
                 GRPCClientStub.GRPCFutureStub grpcFutureStub = grpcClientStub.newFutureStub(channel);
                 outboundResponse.addNativeData("stub", grpcFutureStub);
             } else {
@@ -105,16 +110,20 @@ public class Connect extends AbstractNativeAction {
         }
 
     }
+
     private static byte[] hexStringToByteArray(String s) {
+
         int len = s.length();
         byte[] data = new byte[len / 2];
         for (int i = 0; i < len; i += 2) {
             data[i / 2] = (byte) ((Character.digit(s.charAt(i), 16) << 4)
-                    + Character.digit(s.charAt(i+1), 16));
+                    + Character.digit(s.charAt(i + 1), 16));
         }
         return data;
     }
+
     private BStruct createStruct(Context context, String structName) {
+
         PackageInfo httpPackageInfo = context.getProgramFile()
                 .getPackageInfo("ballerina.net.grpc");
         StructInfo structInfo = httpPackageInfo.getStructInfo(structName);

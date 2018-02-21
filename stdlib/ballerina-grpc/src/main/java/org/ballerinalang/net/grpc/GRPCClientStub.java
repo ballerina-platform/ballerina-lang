@@ -7,8 +7,9 @@ import io.grpc.MethodDescriptor;
 import io.grpc.ServerServiceDefinition;
 import io.grpc.ServiceDescriptor;
 import io.grpc.stub.ClientCalls;
-import org.ballerinalang.net.grpc.definition.ServiceProto;
 import org.ballerinalang.net.grpc.exception.GrpcServerException;
+import org.ballerinalang.net.grpc.proto.definition.ServiceProto;
+
 
 import java.util.HashMap;
 import java.util.List;
@@ -52,16 +53,17 @@ private static ServiceProto grpcServiceProto;
             String methodName = serviceDescriptor.getMethods().get(i).getName();
             String reqMessageName = serviceDescriptor.getMethods().get(i).getInputType().getName();
             String resMessageName = serviceDescriptor.getMethods().get(i).getOutputType().getName();
-            MethodDescriptor<Message, Message> methodExecute =
-                    MethodDescriptor.<Message, Message>newBuilder()
+            MethodDescriptor<Message , Message> methodExecute =
+                    MethodDescriptor.<Message , Message>newBuilder()
                             .setType(getMethodType(i))
                             .setFullMethodName(generateFullMethodName(
-                                    serviceFullName, methodName))
+                                    serviceFullName , methodName))
                             .setRequestMarshaller(io.grpc.protobuf.ProtoUtils.marshaller(
                                     (Message) Message.newBuilder(reqMessageName).build()))
                             .setResponseMarshaller(io.grpc.protobuf.ProtoUtils.marshaller(
                                     (Message) Message.newBuilder(resMessageName).build()))
-                            .setSchemaDescriptor(new MessageServiceMethodDescriptorSupplier(methodName, fileDescriptor))
+                            .setSchemaDescriptor(new MessageServiceMethodDescriptorSupplier(methodName ,
+                                    fileDescriptor))
                             .build();
             methodDescriptorMap.put(i, methodExecute);
         }
@@ -71,9 +73,9 @@ private static ServiceProto grpcServiceProto;
 
         com.google.protobuf.DescriptorProtos.MethodDescriptorProto proto = grpcServiceProto.getSet()
                 .getService(0).getMethodList().get(methodID);
-        if (proto.getClientStreaming() && proto.getServerStreaming())
+        if (proto.getClientStreaming() && proto.getServerStreaming()) {
             return MethodDescriptor.MethodType.BIDI_STREAMING;
-        else if (!(proto.getClientStreaming() || proto.getServerStreaming())) {
+        } else if (!(proto.getClientStreaming() || proto.getServerStreaming())) {
             return MethodDescriptor.MethodType.UNARY;
         } else if (proto.getServerStreaming()) {
             return MethodDescriptor.MethodType.SERVER_STREAMING;
@@ -85,7 +87,7 @@ private static ServiceProto grpcServiceProto;
     }
 
     /**
-     * Creates a new async stub that supports all call types for the service
+     * Creates a new async stub that supports all call types for the service.
      */
     public GRPCNonBlockingStub newNonBlockingStub(Channel channel) {
 
@@ -93,7 +95,7 @@ private static ServiceProto grpcServiceProto;
     }
 
     /**
-     * Creates a new blocking-style stub that supports unary and streaming output calls on the service
+     * Creates a new blocking-style stub that supports unary and streaming output calls on the service.
      */
     public GRPCBlockingStub newBlockingStub(Channel channel) {
 
@@ -101,7 +103,7 @@ private static ServiceProto grpcServiceProto;
     }
 
     /**
-     * Creates a new ListenableFuture-style stub that supports unary calls on the service
+     * Creates a new ListenableFuture-style stub that supports unary calls on the service.
      */
     public GRPCFutureStub newFutureStub(Channel channel) {
 
@@ -118,9 +120,12 @@ private static ServiceProto grpcServiceProto;
      * The stockquote service definition.
      * </pre>
      */
-    public static abstract class MessageServiceImplBase implements io.grpc.BindableService {
+    public abstract static class MessageServiceImplBase implements io.grpc.BindableService {
 
-        /**
+        /**.
+         * .
+         * @param request .
+         * @param methodID .
          */
         public void getMethod(Message request,
                               io.grpc.stub.StreamObserver<Message> responseObserver, int methodID) {
@@ -135,6 +140,10 @@ private static ServiceProto grpcServiceProto;
         }
 
         /**
+         * .
+         * @param responseObserver .
+         * @param methodID .
+         * @return .
          */
         public io.grpc.stub.StreamObserver<Message> getMethod(
                 io.grpc.stub.StreamObserver<Message> responseObserver, int methodID) {
@@ -236,10 +245,15 @@ private static ServiceProto grpcServiceProto;
                 io.grpc.stub.StreamObserver<Message> responseObserver, int methodID) {
 
             return asyncClientStreamingCall(
-                    getChannel().newCall((MethodDescriptor<Message, Message>) methodDescriptorMap.get(methodID), getCallOptions()), responseObserver);
+                    getChannel().newCall((MethodDescriptor<Message, Message>) methodDescriptorMap.get(methodID),
+                            getCallOptions()), responseObserver);
         }
 
         /**
+         * .
+         * @param request .
+         * @param responseObserver .
+         * @param methodID .
          */
         public void executeNonBlockingUnary(Message request,
                                             io.grpc.stub.StreamObserver<Message> responseObserver, int methodID) {
@@ -254,11 +268,19 @@ private static ServiceProto grpcServiceProto;
 
         }
 
+        /**
+         * .
+         * @param request .
+         * @param responseObserver .
+         * @param methodID .
+         */
         public void executeNonBlockingServerStreaming(Message request,
-                                                      io.grpc.stub.StreamObserver<Message> responseObserver, int methodID) {
+                                                      io.grpc.stub.StreamObserver<Message> responseObserver,
+                                                      int methodID) {
 
             asyncServerStreamingCall(
-                    getChannel().newCall((MethodDescriptor<Message, Message>) methodDescriptorMap.get(methodID), getCallOptions()), request, responseObserver);
+                    getChannel().newCall((MethodDescriptor<Message, Message>) methodDescriptorMap.get(methodID),
+                            getCallOptions()), request, responseObserver);
         }
     }
 
@@ -288,6 +310,10 @@ private static ServiceProto grpcServiceProto;
         }
 
         /**
+         * .
+         * @param request .
+         * @param methodID .
+         * @return .
          */
         public Message executeBlockingUnary(Message request, int methodID) {
 
@@ -330,6 +356,10 @@ private static ServiceProto grpcServiceProto;
         }
 
         /**
+         * .
+         * @param request .
+         * @param methodID .
+         * @return .
          */
         public com.google.common.util.concurrent.ListenableFuture<Message> getMethod(
                 Message request, int methodID) {
@@ -347,6 +377,11 @@ private static ServiceProto grpcServiceProto;
 
     }
 
+    /**
+     * .
+     * @param <Req> .
+     * @param <Resp> .
+     */
     private static final class MethodHandlers<Req, Resp> implements
             io.grpc.stub.ServerCalls.UnaryMethod<Req, Resp>,
             io.grpc.stub.ServerCalls.ServerStreamingMethod<Req, Resp>,
@@ -375,6 +410,11 @@ private static ServiceProto grpcServiceProto;
             }
         }
 
+        /**.
+         *
+         * @param responseObserver .
+         * @return .
+         */
         @Override
         @SuppressWarnings("unchecked")
         public io.grpc.stub.StreamObserver<Req> invoke(
@@ -390,7 +430,10 @@ private static ServiceProto grpcServiceProto;
         }
     }
 
-    private static abstract class MessageServiceBaseDescriptorSupplier
+    /**.
+     * .
+     */
+    private  abstract static class MessageServiceBaseDescriptorSupplier
             implements io.grpc.protobuf.ProtoFileDescriptorSupplier, io.grpc.protobuf.ProtoServiceDescriptorSupplier {
 
         Descriptors.FileDescriptor fileDescriptor;
@@ -441,8 +484,8 @@ private static ServiceProto grpcServiceProto;
                 try {
                     MessageRegistry.getInstance().addMessageDescriptor(descriptor.getName(), descriptor);
                 } catch (GrpcServerException e) {
-                    // TODO: 2/6/18 proper log
-                    e.printStackTrace();
+                    // todo: 2/6/18 proper log
+                   throw new RuntimeException(" Error ", e);
                 }
             }
         }

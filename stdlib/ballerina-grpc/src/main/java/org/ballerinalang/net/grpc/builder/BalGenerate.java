@@ -35,45 +35,22 @@ import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
 import java.util.Map;
 
+/**.
+ * .
+ */
 public class BalGenerate {
 
-    private static final String NEW_LINE_CHARACTER = System.getProperty("line.separator");
     public static final Logger LOG = LoggerFactory.getLogger(BalGenerate.class);
-
-    public void generate(byte[] rootDescriptor, byte[][] dependentDescriptors, String balOutPath) {
-
-        try {
-            BMap descriptorMap = generateDependencyMap(rootDescriptor, dependentDescriptors);
-            BJSON descritorTree = generateDependencyTree(rootDescriptor, descriptorMap);
-            generateBaaDefinitions(rootDescriptor, balOutPath, descriptorMap, descritorTree);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-    }
-
-    private BMap generateDependencyMap(byte[] rootDescriptor, byte[][] dependentDescriptors) throws IOException {
-
-        InputStream targetStream = new ByteArrayInputStream(rootDescriptor);
-        DescriptorProtos.FileDescriptorProto fileDescriptorSet = DescriptorProtos.FileDescriptorProto
-                .parseFrom(targetStream);
-        BMap<String, BString> descriptorMap = new BMap<String, BString>();
-        descriptorMap.put("\"" + fileDescriptorSet.getPackage() + "." + fileDescriptorSet.getName() + "\"", new BString("\"" + bytesToHex(rootDescriptor) + "\""));
-
-        for (byte[] str : dependentDescriptors) {
-            if (str.length > 0) {
-                targetStream = new ByteArrayInputStream(str);
-                fileDescriptorSet = DescriptorProtos.FileDescriptorProto
-                        .parseFrom(targetStream);
-                descriptorMap.put("\"" + fileDescriptorSet.getPackage() + "." + fileDescriptorSet.getName() + "\"", new BString("\"" + bytesToHex(str) + "\""));
-            }
-        }
-        return descriptorMap;
-    }
-
+    private static final String NEW_LINE_CHARACTER = System.getProperty("line.separator");
     private static final char[] HEX_ARRAY = "0123456789ABCDEF".toCharArray();
 
-    public static String bytesToHex(byte[] data) {
+    /**
+     * .
+     *
+     * @param data .
+     * @return .
+     */
+    private static String bytesToHex(byte[] data) {
 
         char[] hexChars = new char[data.length * 2];
         for (int j = 0; j < data.length; j++) {
@@ -84,32 +61,12 @@ public class BalGenerate {
         return new String(hexChars);
     }
 
-    private BJSON generateDependencyTree(byte[] rootDescriptor, BMap dependentDescriptors) throws IOException {
-
-        String payload = "";
-        Gson gson = new Gson();
-        InputStream targetStream = new ByteArrayInputStream(rootDescriptor);
-        DescriptorProtos.FileDescriptorProto fileDescriptorSet = DescriptorProtos.FileDescriptorProto
-                .parseFrom(targetStream);
-        ProtoDescriptor protoDescriptor = new ProtoDescriptor(fileDescriptorSet.getPackage() + "." + fileDescriptorSet.getName());
-        if (fileDescriptorSet.getDependencyCount() != 0) {
-            for (int i = 0; i < fileDescriptorSet.getDependencyCount(); i++) {
-                // TODO: 2/20/18 Move to recursive function
-                String descriptorString = dependentDescriptors.get("\"" + fileDescriptorSet.getDependency(i).replace("/", ".") + "\"").stringValue();
-                descriptorString = descriptorString.substring(1, descriptorString.length() - 1);
-                targetStream = new ByteArrayInputStream(hexStringToByteArray(descriptorString));
-                DescriptorProtos.FileDescriptorProto proto = DescriptorProtos.FileDescriptorProto.parseFrom(targetStream);
-                if (proto.getDependencyCount() == 0) {
-                    protoDescriptor.addDependency(new ProtoDescriptor(proto.getPackage() + proto.getName()));
-                } else {
-                    // TODO: 2/20/18
-                }
-            }
-        }
-        payload = gson.toJson(protoDescriptor);
-        return new BJSON(payload);
-    }
-
+    /**
+     * .
+     *
+     * @param s .
+     * @return .
+     */
     private static byte[] hexStringToByteArray(String s) {
 
         int len = s.length();
@@ -121,98 +78,17 @@ public class BalGenerate {
         return data;
     }
 
-    private void generateBaaDefinitions(byte[] rootDescriptor, String balOutPath, BMap descriptorMap,
-                                        BJSON descritorTree) {
-
-        try {
-            File targetFile = new File(balOutPath);
-            File parent = targetFile.getParentFile();
-            if (!parent.exists() && !parent.mkdirs()) {
-                throw new IllegalStateException("Couldn't create dir: " + parent);
-            }
-            InputStream targetStream = new ByteArrayInputStream(rootDescriptor);
-            DescriptorProtos.FileDescriptorProto fileDescriptorSet = DescriptorProtos.FileDescriptorProto
-                    .parseFrom(targetStream);
-            java.util.List<DescriptorProtos.DescriptorProto> list = fileDescriptorSet.getMessageTypeList();
-            java.util.List<DescriptorProtos.MethodDescriptorProto> methodList = fileDescriptorSet.getService(0)
-                    .getMethodList();
-            StringBuilder actionList = new StringBuilder();
-            int i = 0;
-            Map<String, DescriptorProtos.DescriptorProto> stringObjectMap = attrybuteList(fileDescriptorSet
-                    .getMessageTypeList());
-            for (DescriptorProtos.MethodDescriptorProto methodDescriptorProto : methodList) {
-                // TODO: 2/13/18 proper array
-                String strout = methodDescriptorProto.getOutputType().split("\\.")[methodDescriptorProto
-                        .getOutputType().split("\\.").length - 1];
-                String strIn = methodDescriptorProto.getInputType().split("\\.")[methodDescriptorProto
-                        .getInputType().split("\\.").length - 1];
-
-                if (fileDescriptorSet.getMessageTypeList().size() > 0) {
-                    actionList = actionList.append(NEW_LINE_CHARACTER).append(generateActions(methodDescriptorProto
-                                    .getName(), getMappingBalType(strIn), getMappingBalType
-                                    (strout), i, stringObjectMap.get(strIn).getFieldList().get(0).getName(),
-                            getTypeName(stringObjectMap.get(strIn).getFieldList().get(0)
-                                    .getType().getNumber())));
-                } else {
-                    actionList = actionList.append(NEW_LINE_CHARACTER).append(generateActions(methodDescriptorProto
-                            .getName(), getMappingBalType(strIn), getMappingBalType
-                            (strout), i, null, null));
-                }
-                i++;
-            }
-            StringBuilder structList = new StringBuilder();
-
-            for (DescriptorProtos.DescriptorProto descriptorProto : list) {
-                String[] attributesNameArr = new String[descriptorProto.getFieldCount()];
-                String[] attributesTypeArr = new String[descriptorProto.getFieldCount()];
-                int j = 0;
-                for (DescriptorProtos.FieldDescriptorProto fieldDescriptorProto : descriptorProto
-                        .getFieldList()) {
-                    attributesNameArr[j] = fieldDescriptorProto.getName();
-                    attributesTypeArr[j] = !fieldDescriptorProto.getTypeName().equals("") ? fieldDescriptorProto
-                            .getTypeName().split("\\.")[fieldDescriptorProto.getTypeName().split("\\.").length - 1] :
-                            getTypeName(fieldDescriptorProto.getType().getNumber());
-                    j++;
-                }
-                String attributeList = generateAttributes(attributesNameArr, attributesTypeArr);
-                structList = structList.append(NEW_LINE_CHARACTER).append(generateStruct(descriptorProto.getName(),
-                        attributeList));
-            }
-            String balPayload = generateConnector(actionList.toString(), fileDescriptorSet.getPackage(),
-                    fileDescriptorSet.getService(0).getName() + "_stub") + structList
-                    + NEW_LINE_CHARACTER + String.format("map descriptorMap ={%s};", mapToString(descriptorMap)) +
-                    NEW_LINE_CHARACTER + String.format("json descriptorTree = %s;", descritorTree.toString());
-            writeFile(balPayload, balOutPath);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    private Map<String, DescriptorProtos.DescriptorProto> attrybuteList(java.util.List<DescriptorProtos.DescriptorProto> list) {
-
-        Map<String, DescriptorProtos.DescriptorProto> stringObjectMap = new HashMap<>();
-        for (DescriptorProtos.DescriptorProto proto : list) {
-            stringObjectMap.put(proto.getName(), proto);
-        }
-        return stringObjectMap;
-    }
-
-    private String mapToString(BMap bMap) {
-
-        StringBuilder payload = new StringBuilder();
-        for (Object key : bMap.keySet()) {
-            payload.append(NEW_LINE_CHARACTER).append(key).append(":").append(bMap.get(key)).append(",");
-        }
-        return payload.substring(0, payload.length() - 1);
-    }
-
-    private void writeFile(String payload, String balOutPath) throws FileNotFoundException, UnsupportedEncodingException {
-
-        PrintWriter writer = new PrintWriter(balOutPath, "UTF-8");
-        writer.print(payload);
-        writer.close();
-    }
-
+    /**
+     * todo.
+     *
+     * @param methodName         .
+     * @param reqMessageName     .
+     * @param resMessageName     .
+     * @param methodID           .
+     * @param firstAttributeName .
+     * @param firstAttributeType .
+     * @return .
+     */
     private static String generateActions(String methodName, String reqMessageName, String resMessageName,
                                           int methodID, String firstAttributeName, String firstAttributeType) {
 
@@ -259,6 +135,14 @@ public class BalGenerate {
         return String.format(str, methodName, reqMessageName, str2, methodID, resMessageName);
     }
 
+    /**
+     * todo.
+     *
+     * @param actionList    .
+     * @param packageName   .
+     * @param connectorName .
+     * @return .
+     */
     private static String generateConnector(String actionList, String packageName, String connectorName) {
 
         String str = "package %s;" + NEW_LINE_CHARACTER +
@@ -286,6 +170,13 @@ public class BalGenerate {
         return String.format(str, packageName, connectorName, actionList);
     }
 
+    /**
+     * todo.
+     *
+     * @param name       .
+     * @param attributes .
+     * @return .
+     */
     private static String generateStruct(String name, String attributes) {
 
         String str = String.format(NEW_LINE_CHARACTER +
@@ -295,6 +186,13 @@ public class BalGenerate {
         return str;
     }
 
+    /**
+     * todo.
+     *
+     * @param attributesNameArr .
+     * @param attributesTypeArr .
+     * @return .
+     */
     private static String generateAttributes(String[] attributesNameArr, String[] attributesTypeArr) {
 
         String str = "";
@@ -304,6 +202,12 @@ public class BalGenerate {
         return str;
     }
 
+    /**
+     * todo.
+     *
+     * @param num .
+     * @return .
+     */
     private static String getTypeName(int num) {
 
         switch (num) {
@@ -320,15 +224,231 @@ public class BalGenerate {
                 return "boolean";
             }
             default: {
-                System.out.println("Field Types: " + num);
                 return "";
             }
         }
     }
 
+    /**
+     * .
+     * .
+     *
+     * @param rootDescriptor       .
+     * @param dependentDescriptors .
+     * @param balOutPath           .
+     */
+    public void generate(byte[] rootDescriptor, byte[][] dependentDescriptors, String balOutPath) {
+
+        try {
+            BMap descriptorMap = generateDependencyMap(rootDescriptor, dependentDescriptors);
+            BJSON descritorTree = generateDependencyTree(rootDescriptor, descriptorMap);
+            generateBaaDefinitions(rootDescriptor, balOutPath, descriptorMap, descritorTree);
+        } catch (IOException e) {
+            throw new RuntimeException(" Error ", e);
+        }
+
+    }
+
+    /**
+     * .
+     *
+     * @param rootDescriptor       .
+     * @param dependentDescriptors .
+     * @return .
+     * @throws IOException .
+     */
+    private BMap generateDependencyMap(byte[] rootDescriptor, byte[][] dependentDescriptors) throws IOException {
+
+        InputStream targetStream = new ByteArrayInputStream(rootDescriptor);
+        DescriptorProtos.FileDescriptorProto fileDescriptorSet = DescriptorProtos.FileDescriptorProto
+                .parseFrom(targetStream);
+        BMap<String, BString> descriptorMap = new BMap<String, BString>();
+        descriptorMap.put("\"" + fileDescriptorSet.getPackage() + "." + fileDescriptorSet.getName() + "\"",
+                new BString("\"" + bytesToHex(rootDescriptor) + "\""));
+
+        for (byte[] str : dependentDescriptors) {
+            if (str.length > 0) {
+                targetStream = new ByteArrayInputStream(str);
+                fileDescriptorSet = DescriptorProtos.FileDescriptorProto
+                        .parseFrom(targetStream);
+                descriptorMap.put("\"" + fileDescriptorSet.getPackage() + "." + fileDescriptorSet.getName() + "\"",
+                        new BString("\"" + bytesToHex(str) + "\""));
+            }
+        }
+        return descriptorMap;
+    }
+
+    /**
+     * .
+     *
+     * @param rootDescriptor       .
+     * @param dependentDescriptors .
+     * @return .
+     * @throws IOException .
+     */
+    private BJSON generateDependencyTree(byte[] rootDescriptor, BMap dependentDescriptors) throws IOException {
+
+        String payload = "";
+        Gson gson = new Gson();
+        InputStream targetStream = new ByteArrayInputStream(rootDescriptor);
+        DescriptorProtos.FileDescriptorProto fileDescriptorSet = DescriptorProtos.FileDescriptorProto
+                .parseFrom(targetStream);
+        ProtoDescriptor protoDescriptor = new ProtoDescriptor(fileDescriptorSet.getPackage() + "." +
+                fileDescriptorSet.getName());
+        if (fileDescriptorSet.getDependencyCount() != 0) {
+            for (int i = 0; i < fileDescriptorSet.getDependencyCount(); i++) {
+                // todo: 2/20/18 Move to recursive function
+                String descriptorString = dependentDescriptors.get("\"" + fileDescriptorSet.getDependency(i)
+                        .replace("/", ".") + "\"").stringValue();
+                descriptorString = descriptorString.substring(1, descriptorString.length() - 1);
+                targetStream = new ByteArrayInputStream(hexStringToByteArray(descriptorString));
+                DescriptorProtos.FileDescriptorProto proto = DescriptorProtos.FileDescriptorProto
+                        .parseFrom(targetStream);
+                if (proto.getDependencyCount() == 0) {
+                    protoDescriptor.addDependency(new ProtoDescriptor(proto.getPackage() + proto.getName()));
+                } else {
+                    // todo: 2/20/18
+                }
+            }
+        }
+        payload = gson.toJson(protoDescriptor);
+        return new BJSON(payload);
+    }
+
+    /**
+     * .
+     *
+     * @param rootDescriptor .
+     * @param balOutPath     .
+     * @param descriptorMap  .
+     * @param descritorTree  .
+     */
+    private void generateBaaDefinitions(byte[] rootDescriptor, String balOutPath, BMap descriptorMap,
+                                        BJSON descritorTree) {
+
+        try {
+            File targetFile = new File(balOutPath);
+            File parent = targetFile.getParentFile();
+            if (!parent.exists() && !parent.mkdirs()) {
+                throw new IllegalStateException("Couldn't create dir: " + parent);
+            }
+            InputStream targetStream = new ByteArrayInputStream(rootDescriptor);
+            DescriptorProtos.FileDescriptorProto fileDescriptorSet = DescriptorProtos.FileDescriptorProto
+                    .parseFrom(targetStream);
+            java.util.List<DescriptorProtos.DescriptorProto> list = fileDescriptorSet.getMessageTypeList();
+            java.util.List<DescriptorProtos.MethodDescriptorProto> methodList = fileDescriptorSet.getService(0)
+                    .getMethodList();
+            StringBuilder actionList = new StringBuilder();
+            int i = 0;
+            Map<String, DescriptorProtos.DescriptorProto> stringObjectMap = attrybuteList(fileDescriptorSet
+                    .getMessageTypeList());
+            for (DescriptorProtos.MethodDescriptorProto methodDescriptorProto : methodList) {
+                // todo: 2/13/18 proper array
+                String strout = methodDescriptorProto.getOutputType().split("\\.")[methodDescriptorProto
+                        .getOutputType().split("\\.").length - 1];
+                String strIn = methodDescriptorProto.getInputType().split("\\.")[methodDescriptorProto
+                        .getInputType().split("\\.").length - 1];
+
+                if (fileDescriptorSet.getMessageTypeList().size() > 0) {
+                    actionList = actionList.append(NEW_LINE_CHARACTER).append(generateActions(methodDescriptorProto
+                                    .getName(), getMappingBalType(strIn), getMappingBalType
+                                    (strout), i, stringObjectMap.get(strIn).getFieldList().get(0).getName(),
+                            getTypeName(stringObjectMap.get(strIn).getFieldList().get(0)
+                                    .getType().getNumber())));
+                } else {
+                    actionList = actionList.append(NEW_LINE_CHARACTER).append(generateActions(methodDescriptorProto
+                            .getName(), getMappingBalType(strIn), getMappingBalType
+                            (strout), i, null, null));
+                }
+                i++;
+            }
+            StringBuilder structList = new StringBuilder();
+
+            for (DescriptorProtos.DescriptorProto descriptorProto : list) {
+                String[] attributesNameArr = new String[descriptorProto.getFieldCount()];
+                String[] attributesTypeArr = new String[descriptorProto.getFieldCount()];
+                int j = 0;
+                for (DescriptorProtos.FieldDescriptorProto fieldDescriptorProto : descriptorProto
+                        .getFieldList()) {
+                    attributesNameArr[j] = fieldDescriptorProto.getName();
+                    attributesTypeArr[j] = !fieldDescriptorProto.getTypeName().equals("") ? fieldDescriptorProto
+                            .getTypeName().split("\\.")[fieldDescriptorProto.getTypeName().split("\\.")
+                            .length - 1] :
+                            getTypeName(fieldDescriptorProto.getType().getNumber());
+                    j++;
+                }
+                String attributeList = generateAttributes(attributesNameArr, attributesTypeArr);
+                structList = structList.append(NEW_LINE_CHARACTER).append(generateStruct(descriptorProto.getName(),
+                        attributeList));
+            }
+            String balPayload = generateConnector(actionList.toString(), fileDescriptorSet.getPackage(),
+                    fileDescriptorSet.getService(0).getName() + "_stub") + structList
+                    + NEW_LINE_CHARACTER + String.format("map descriptorMap ={%s};", mapToString(descriptorMap)) +
+                    NEW_LINE_CHARACTER + String.format("json descriptorTree = %s;", descritorTree.toString());
+            writeFile(balPayload, balOutPath);
+        } catch (IOException e) {
+            throw new RuntimeException("error ", e);
+        }
+    }
+
+    /**
+     * .
+     *
+     * @param list .
+     * @return .
+     */
+    private Map<String, DescriptorProtos.DescriptorProto> attrybuteList(java.util.List<DescriptorProtos
+            .DescriptorProto> list) {
+
+        Map<String, DescriptorProtos.DescriptorProto> stringObjectMap = new HashMap<>();
+        for (DescriptorProtos.DescriptorProto proto : list) {
+            stringObjectMap.put(proto.getName(), proto);
+        }
+        return stringObjectMap;
+    }
+
+    /**
+     * todo.
+     *
+     * @param bMap .
+     * @return .
+     */
+
+    private String mapToString(BMap bMap) {
+
+        StringBuilder payload = new StringBuilder();
+        for (Object key : bMap.keySet()) {
+            payload.append(NEW_LINE_CHARACTER).append(key).append(":").append(bMap.get(key)).append(",");
+        }
+        return payload.substring(0, payload.length() - 1);
+    }
+
+    /**
+     * todo.
+     *
+     * @param payload    .
+     * @param balOutPath .
+     * @throws FileNotFoundException
+     * @throws UnsupportedEncodingException
+     */
+    private void writeFile(String payload, String balOutPath) throws FileNotFoundException,
+            UnsupportedEncodingException {
+
+        PrintWriter writer = new PrintWriter(balOutPath, "UTF-8");
+        writer.print(payload);
+        writer.close();
+    }
+
+    /**
+     * todo.
+     *
+     * @param protoType .
+     * @return .
+     */
     private String getMappingBalType(String protoType) {
 
-        if (protoType.equalsIgnoreCase("DoubleValue") || protoType.equalsIgnoreCase("FloatValue")) {
+        if (protoType.equalsIgnoreCase("DoubleValue") || protoType
+                .equalsIgnoreCase("FloatValue")) {
             return "float";
         } else if (protoType.equalsIgnoreCase("Int32Value") || protoType
                 .equalsIgnoreCase("Int64Value") || protoType

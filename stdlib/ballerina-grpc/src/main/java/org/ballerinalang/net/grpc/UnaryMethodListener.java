@@ -79,7 +79,7 @@ public class UnaryMethodListener implements UnaryMethod<Object, Object> {
     }
 
     public BValue[] getSignatureParameters(Message requestMessage,  StreamObserver<Object> responseObserver) {
-        //TODO Think of keeping struct type globally rather than creating for each request
+        //todo Think of keeping struct type globally rather than creating for each request
         BStruct connection = ConnectorUtils.createStruct(resource,
                 MessageConstants.PROTOCOL_PACKAGE_GRPC, MessageConstants.CONNECTION);
         connection.addNativeData(MessageConstants.STREAM_OBSERVER, responseObserver);
