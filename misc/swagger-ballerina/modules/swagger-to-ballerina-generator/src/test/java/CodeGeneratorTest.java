@@ -53,7 +53,7 @@ public class CodeGeneratorTest {
                 Assert.fail("Service was not generated");
             }
         } catch (IOException e) {
-            Assert.fail("Error while generating the service");
+            Assert.fail("Error while generating the service. " + e.getMessage());
         }
     }
 
@@ -65,7 +65,7 @@ public class CodeGeneratorTest {
         try {
             generator.generate(GenType.SKELETON, definitionPath, null);
         } catch (IOException e) {
-            Assert.fail("Error while generating the service");
+            Assert.fail("Error while generating the service. " + e.getMessage());
         }
     }
 }

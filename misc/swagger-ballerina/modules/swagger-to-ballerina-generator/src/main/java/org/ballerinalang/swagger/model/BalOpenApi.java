@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.ballerinalang.swagger.utils;
+package org.ballerinalang.swagger.model;
 
 import io.swagger.oas.models.Components;
 import io.swagger.oas.models.ExternalDocumentation;
@@ -35,7 +35,7 @@ import java.util.Set;
  * Wrapper for <code>io.swagger.oas.models.OpenAPI</code>
  * <p>This class can be used to push additional context variables for handlebars</p>
  */
-public class OpenApiWrapper {
+public class BalOpenApi {
 
     private String apiPackage;
     private String openapi = "3.0.0";
@@ -51,8 +51,9 @@ public class OpenApiWrapper {
     private int port = 0;
     private int httpsPort = 0;
     private String basePath = null;
+    private String url = null;
 
-    public OpenApiWrapper buildFromOpenAPI(OpenAPI openAPI) throws MalformedURLException {
+    public BalOpenApi buildFromOpenAPI(OpenAPI openAPI) throws MalformedURLException {
         this.openapi = openAPI.getOpenapi();
         this.info = openAPI.getInfo();
         this.externalDocs = openAPI.getExternalDocs();
@@ -70,6 +71,7 @@ public class OpenApiWrapper {
             // We select the first server in the list as the Host of generated service
             // Other servers will be kept as extra information but will not be used within the service
             URL url = new URL(servers.get(0).getUrl());
+            this.url = servers.get(0).getUrl();
             host = url.getHost();
             basePath = url.getPath();
             boolean isHttps = "https".equalsIgnoreCase(url.getProtocol());
@@ -90,7 +92,7 @@ public class OpenApiWrapper {
         return apiPackage;
     }
 
-    public OpenApiWrapper apiPackage(String apiPackage) {
+    public BalOpenApi apiPackage(String apiPackage) {
         this.apiPackage = apiPackage;
         return this;
     }
@@ -145,5 +147,9 @@ public class OpenApiWrapper {
 
     public int getHttpsPort() {
         return httpsPort;
+    }
+
+    public String getUrl() {
+        return url;
     }
 }

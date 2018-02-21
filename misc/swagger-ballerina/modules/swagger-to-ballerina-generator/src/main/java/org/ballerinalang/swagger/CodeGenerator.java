@@ -25,9 +25,9 @@ import com.github.jknack.handlebars.io.ClassPathTemplateLoader;
 import com.github.jknack.handlebars.io.FileTemplateLoader;
 import io.swagger.oas.models.OpenAPI;
 import io.swagger.parser.v3.OpenAPIV3Parser;
+import org.ballerinalang.swagger.model.BalOpenApi;
 import org.ballerinalang.swagger.utils.GeneratorConstants;
 import org.ballerinalang.swagger.utils.GeneratorConstants.GenType;
-import org.ballerinalang.swagger.utils.OpenApiWrapper;
 
 import java.io.File;
 import java.io.IOException;
@@ -51,13 +51,12 @@ public class CodeGenerator {
      *                       </ul>
      * @param definitionPath Input Open Api Definition file path
      * @param outPath        Destination file path to save generated source files. If not provided
-     *                       <code>destinationPath</code> will be used as the default destination path
+     *                       <code>definitionPath</code> will be used as the default destination path
      * @throws IOException when file operations fail
      */
     public void generate(GenType type, String definitionPath, String outPath) throws IOException {
-
         OpenAPI api = new OpenAPIV3Parser().read(definitionPath);
-        OpenApiWrapper context = new OpenApiWrapper().buildFromOpenAPI(api).apiPackage(apiPackage);
+        BalOpenApi definitionContext = new BalOpenApi().buildFromOpenAPI(api).apiPackage(apiPackage);
 
         // Write output to the input definition location if no destination directory is provided
         if (outPath == null || outPath.isEmpty()) {
@@ -67,16 +66,17 @@ public class CodeGenerator {
         }
         switch (type) {
             case SKELETON:
-                writeBallerina(context, GeneratorConstants.DEFAULT_SKELETON_DIR,
+                // Write ballerina definition
+                writeBallerina(definitionContext, GeneratorConstants.DEFAULT_SKELETON_DIR,
                         GeneratorConstants.SKELETON_TEMPLATE_NAME, outPath);
                 break;
             case CONNECTOR:
-                writeBallerina(context, GeneratorConstants.DEFAULT_CONNECTOR_DIR,
+                writeBallerina(definitionContext, GeneratorConstants.DEFAULT_CONNECTOR_DIR,
                         GeneratorConstants.CONNECTOR_TEMPLATE_NAME, outPath);
                 break;
             case MOCK:
-                writeBallerina(context, GeneratorConstants.DEFAULT_MOCK_DIR, GeneratorConstants.MOCK_TEMPLATE_NAME,
-                        outPath);
+                writeBallerina(definitionContext, GeneratorConstants.DEFAULT_MOCK_DIR,
+                        GeneratorConstants.MOCK_TEMPLATE_NAME, outPath);
                 break;
             default:
                 return;

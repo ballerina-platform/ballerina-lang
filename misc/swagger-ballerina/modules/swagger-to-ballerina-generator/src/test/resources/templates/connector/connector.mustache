@@ -1,0 +1,125 @@
+{{#apiPackage}}package {{apiPackage}};
+
+import {{apiPackage}}.model;{{/apiPackage}}
+import ballerina.net.http;
+
+public connector {{cut info.title " "}} () {
+
+    endpoint <http:HttpClient> ep {
+        create http:HttpClient("{{url}}", {});
+    }
+    http:HttpConnectorError httpError;
+{{#paths}}{{#value}}{{#get}}
+    action {{operationId}} () (http:InResponse, error ) {
+        http:OutRequest request = {};
+        http:InResponse response = {};
+        error outError;
+
+        //Create sample json request as follows.
+        //http:Request request = {};
+        //request.setHeader("Content-Type", "application/json");
+        response, httpError = ep.get("", request);
+        if (httpError != null) {
+            outError = {msg:httpError.msg, cause:httpError.cause, stackTrace:httpError.stackTrace};
+        }
+
+        return response, outError;
+    }
+{{/get}}{{#post}}
+    action {{operationId}} () (http:InResponse, error ) {
+        http:OutRequest request = {};
+        http:InResponse response = {};
+        error outError;
+
+        //Create sample json request as follows.
+        //http:Request request = {};
+        //request.setHeader("Content-Type", "application/json");
+        response, httpError = ep.post("", request);
+        if (httpError != null) {
+            outError = {msg:httpError.msg, cause:httpError.cause, stackTrace:httpError.stackTrace};
+        }
+
+        return response, outError;
+    }
+{{/post}}{{#put}}
+    action {{operationId}} () (http:InResponse, error ) {
+        http:OutRequest request = {};
+        http:InResponse response = {};
+        error outError;
+
+        //Create sample json request as follows.
+        //http:Request request = {};
+        //request.setHeader("Content-Type", "application/json");
+        response, httpError = ep.put("", request);
+        if (httpError != null) {
+            outError = {msg:httpError.msg, cause:httpError.cause, stackTrace:httpError.stackTrace};
+        }
+
+        return response, outError;
+    }
+{{/put}}{{#delete}}
+    action {{operationId}} () (http:InResponse, error ) {
+        http:OutRequest request = {};
+        http:InResponse response = {};
+        error outError;
+
+        //Create sample json request as follows.
+        //http:Request request = {};
+        //request.setHeader("Content-Type", "application/json");
+        response, httpError = ep.delete("", request);
+        if (httpError != null) {
+            outError = {msg:httpError.msg, cause:httpError.cause, stackTrace:httpError.stackTrace};
+        }
+
+        return response, outError;
+    }
+{{/delete}}{{#options}}
+    action {{operationId}} () (http:InResponse, error ) {
+        http:OutRequest request = {};
+        http:InResponse response = {};
+        error outError;
+
+        //Create sample json request as follows.
+        //http:Request request = {};
+        //request.setHeader("Content-Type", "application/json");
+        response, httpError = ep.options("", request);
+        if (httpError != null) {
+            outError = {msg:httpError.msg, cause:httpError.cause, stackTrace:httpError.stackTrace};
+        }
+
+        return response, outError;
+    }
+{{/options}}{{#head}}
+    action {{operationId}} () (http:InResponse, error ) {
+        http:OutRequest request = {};
+        http:InResponse response = {};
+        error outError;
+
+        //Create sample json request as follows.
+        //http:Request request = {};
+        //request.setHeader("Content-Type", "application/json");
+        response, httpError = ep.head("", request);
+        if (httpError != null) {
+            outError = {msg:httpError.msg, cause:httpError.cause, stackTrace:httpError.stackTrace};
+        }
+
+        return response, outError;
+    }
+{{/head}}{{#patch}}
+    action {{operationId}} () (http:InResponse, error ) {
+        http:OutRequest request = {};
+        http:InResponse response = {};
+        error outError;
+
+        //Create sample json request as follows.
+        //http:Request request = {};
+        //request.setHeader("Content-Type", "application/json");
+        response, httpError = ep.patch("", request);
+        if (httpError != null) {
+            outError = {msg:httpError.msg, cause:httpError.cause, stackTrace:httpError.stackTrace};
+        }
+
+        return response, outError;
+    }
+{{/patch}}{{/value}}{{/paths}}
+}
