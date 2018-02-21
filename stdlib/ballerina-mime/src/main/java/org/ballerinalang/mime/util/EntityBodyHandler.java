@@ -61,7 +61,7 @@ import static org.ballerinalang.mime.util.Constants.SIZE_INDEX;
 /**
  * Entity body related operations are included here.
  *
- * @since 0.964.0
+ * @since 0.963.0
  */
 public class EntityBodyHandler {
 
