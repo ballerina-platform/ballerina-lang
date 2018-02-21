@@ -45,7 +45,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangJSONLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangMapLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangStructLiteral;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangSelectExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef.BLangFieldVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef.BLangFunctionVarRef;
@@ -82,6 +81,8 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangNext;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangOrderBy;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn.BLangWorkerReturn;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangSelectClause;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangSelectExpression;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangThrow;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTransaction;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTryCatchFinally;
@@ -279,8 +280,17 @@ public abstract class BLangNodeVisitor {
     public void visit(BLangGroupBy groupBy) {
         throw  new AssertionError();
     }
+
     public void visit(BLangHaving having) {
         throw  new AssertionError();
+    }
+
+    public void visit(BLangSelectExpression bLangSelectExpression) {
+        throw new AssertionError();
+    }
+
+    public void visit(BLangSelectClause bLangSelectClause) {
+        throw new AssertionError();
     }
 
     // Expressions
@@ -394,10 +404,6 @@ public abstract class BLangNodeVisitor {
     }
 
     public void visit(BLangIntRangeExpression intRangeExpression) {
-        throw new AssertionError();
-    }
-
-    public void visit(BLangSelectExpression bLangSelectExpression) {
         throw new AssertionError();
     }
 

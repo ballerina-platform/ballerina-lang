@@ -22,13 +22,12 @@ import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
 import org.ballerinalang.model.tree.statements.HavingNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 
 /**
  * Implementation of {@link HavingNode}.
  * @see HavingNode
  */
-public class BLangHaving extends BLangExpression implements HavingNode {
+public class BLangHaving extends BLangStatement implements HavingNode {
 
     private ExpressionNode expression;
     @Override

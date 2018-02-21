@@ -16,7 +16,9 @@
  * under the License.
  */
 
-package org.ballerinalang.model.tree.expressions;
+package org.ballerinalang.model.tree.statements;
+
+import org.ballerinalang.model.tree.expressions.ExpressionNode;
 
 /**
  * This interface represents the SelectExpression in grammar.
@@ -28,7 +30,7 @@ package org.ballerinalang.model.tree.expressions;
  *  logStream.timestamp AS time
  * </pre>
  */
-public interface SelectExpressionNode extends ExpressionNode {
+public interface SelectExpressionNode extends StatementNode {
 
     void setIdentifier(String identifier);
 

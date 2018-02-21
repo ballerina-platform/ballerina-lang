@@ -16,17 +16,17 @@
  * under the License.
  */
 
-package org.wso2.ballerinalang.compiler.tree.expressions;
+package org.wso2.ballerinalang.compiler.tree.statements;
 
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
-import org.ballerinalang.model.tree.expressions.SelectExpressionNode;
+import org.ballerinalang.model.tree.statements.SelectExpressionNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 
 /**
- * Implementation of {@link SelectExpressionNode}
+ * Implementation of {@link SelectExpressionNode}.
  */
-public class BLangSelectExpression extends BLangExpression implements SelectExpressionNode {
+public class BLangSelectExpression extends BLangStatement implements SelectExpressionNode {
 
     private String identifier;
     private ExpressionNode expression;

@@ -112,5 +112,6 @@ public enum NodeKind {
     /* Clauses */
     ORDER_BY,
     GROUP_BY,
-    HAVING
+    HAVING,
+    SELECT_CLAUSE,
 }
