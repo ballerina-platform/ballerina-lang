@@ -37,7 +37,7 @@ import java.util.Arrays;
  * synchronous.
  * </p>
  */
-public class TextRecordChannel {
+public class DelimitedRecordChannel {
 
     /**
      * Distinguishes the Record.
@@ -80,10 +80,10 @@ public class TextRecordChannel {
      */
     private int numberOfRecordsWrittenToChannel = 0;
 
-    private static final Logger log = LoggerFactory.getLogger(TextRecordChannel.class);
+    private static final Logger log = LoggerFactory.getLogger(DelimitedRecordChannel.class);
 
 
-    public TextRecordChannel(CharacterChannel channel, String recordSeparator, String fieldSeparator) {
+    public DelimitedRecordChannel(CharacterChannel channel, String recordSeparator, String fieldSeparator) {
         this.recordSeparator = recordSeparator;
         this.fieldSeparator = fieldSeparator;
         this.channel = channel;

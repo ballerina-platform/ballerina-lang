@@ -16,9 +16,10 @@
  * under the License.
  */
 
-package org.ballerinalang.mime.util;
+package org.ballerinalang.test.mime;
 
 import io.netty.handler.codec.http.HttpRequest;
+import org.ballerinalang.mime.util.Constants;
 
 import java.io.File;
 import java.io.InputStream;
@@ -27,7 +28,7 @@ import java.nio.charset.Charset;
 import static org.ballerinalang.mime.util.Constants.CONTENT_TRANSFER_ENCODING_7_BIT;
 
 /**
- * This class holds attributes required for creating a body part as a file upload.
+ * This class holds attributes required for creating a body part as a file upload for testing purpose.
  *
  * @since 0.96
  */
