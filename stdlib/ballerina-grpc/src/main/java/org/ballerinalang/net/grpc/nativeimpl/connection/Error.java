@@ -60,7 +60,7 @@ public class Error extends AbstractNativeFunction {
             BStruct responseStruct = (BStruct) responseValue;
             int statusCode = Integer.parseInt(String.valueOf(responseStruct.getIntField(0)));
             String errorMsg = responseStruct.getStringField(0);
-            StreamObserver<Object> responseObserver = MessageUtils.getStreamObserver(connectionStruct);
+            StreamObserver responseObserver = MessageUtils.getStreamObserver(connectionStruct);
             if (responseObserver == null) {
                 return getBValues(MessageUtils.getServerConnectorError(context, new StatusRuntimeException(Status
                         .fromCode(Status.INTERNAL.getCode()).withDescription("Error while sending the error. Response" +

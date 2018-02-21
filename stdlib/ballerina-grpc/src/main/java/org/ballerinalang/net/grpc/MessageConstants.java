@@ -15,8 +15,13 @@
  */
 package org.ballerinalang.net.grpc;
 
+import com.google.protobuf.DescriptorProtos;
 import io.grpc.Context;
 import io.grpc.Metadata;
+
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
 import static io.grpc.Metadata.ASCII_STRING_MARSHALLER;
 
@@ -38,8 +43,30 @@ public class MessageConstants {
 
     // Response Message index
     public static final int REQUEST_MESSAGE_INDEX = 1;
-    // Response Message index
-    public static final int RESPONSE_MESSAGE_INDEX = 2;
 
-
+    public static final Map<DescriptorProtos.FieldDescriptorProto.Type, Integer> WIRE_TYPE_MAP;
+    static {
+        Map<DescriptorProtos.FieldDescriptorProto.Type, Integer> wireMap = new HashMap<>();;
+        wireMap.put(DescriptorProtos.FieldDescriptorProto.Type.TYPE_DOUBLE, 1);
+        wireMap.put(DescriptorProtos.FieldDescriptorProto.Type.TYPE_FLOAT, 5);
+        wireMap.put(DescriptorProtos.FieldDescriptorProto.Type.TYPE_INT32, 0);
+        wireMap.put(DescriptorProtos.FieldDescriptorProto.Type.TYPE_INT64, 0);
+        wireMap.put(DescriptorProtos.FieldDescriptorProto.Type.TYPE_UINT32, 0);
+        wireMap.put(DescriptorProtos.FieldDescriptorProto.Type.TYPE_UINT64, 0);
+        wireMap.put(DescriptorProtos.FieldDescriptorProto.Type.TYPE_SINT32, 0);
+        wireMap.put(DescriptorProtos.FieldDescriptorProto.Type.TYPE_SINT64, 0);
+        wireMap.put(DescriptorProtos.FieldDescriptorProto.Type.TYPE_FIXED32, 5);
+        wireMap.put(DescriptorProtos.FieldDescriptorProto.Type.TYPE_FIXED64, 1);
+        wireMap.put(DescriptorProtos.FieldDescriptorProto.Type.TYPE_SFIXED32, 5);
+        wireMap.put(DescriptorProtos.FieldDescriptorProto.Type.TYPE_SFIXED64, 1);
+        wireMap.put(DescriptorProtos.FieldDescriptorProto.Type.TYPE_BOOL, 0);
+        wireMap.put(DescriptorProtos.FieldDescriptorProto.Type.TYPE_STRING, 2);
+        wireMap.put(DescriptorProtos.FieldDescriptorProto.Type.TYPE_BYTES, 2);
+        WIRE_TYPE_MAP = Collections.unmodifiableMap(wireMap);
+    }
+    // Server Streaming method resources.
+    public static final String ON_OPEN_RESOURCE = "OnOpen";
+    public static final String ON_COMPLETE_RESOURCE = "OnComplete";
+    public static final String ON_MESSAGE_RESOURCE = "OnMessage";
+    public static final String ON_ERROR_RESOURCE = "OnError";
 }

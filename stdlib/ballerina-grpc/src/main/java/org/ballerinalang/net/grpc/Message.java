@@ -77,7 +77,7 @@ public class Message extends GeneratedMessageV3 {
         this.fields = fieldValues;
     }
 
-    Map<String, Object> getFields() {
+    public Map<String, Object> getFields() {
         return fields;
     }
 

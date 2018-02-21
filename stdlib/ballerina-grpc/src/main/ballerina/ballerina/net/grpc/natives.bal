@@ -16,6 +16,16 @@ public struct Connection {
 @Return { value:"Error occured during HTTP server connector respond" }
 public native function <Connection conn> send (any res) (ConnectorError);
 
+@Description { value:"Informs the caller, server finished sending messages."}
+@Param { value:"conn: The server connector connection" }
+@Return { value:"Error occured during HTTP server connector respond" }
+public native function <Connection conn> complete () (ConnectorError);
+
+@Description { value:"Checks whether the connection is closed by the caller."}
+@Param { value:"conn: The server connector connection" }
+@Return { value:"Returns true if the connection is closed, false otherwise" }
+public native function <Connection conn> isCancelled () (boolean);
+
 @Description { value:"Forwards inbound response to the caller"}
 @Param { value:"conn: The server connector connection" }
 @Param { value:"res: The inbound response message" }

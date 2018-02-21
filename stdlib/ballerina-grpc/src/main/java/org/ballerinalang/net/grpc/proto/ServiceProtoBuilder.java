@@ -20,6 +20,7 @@ import java.util.List;
  */
 @SupportedAnnotations(
         value = {@AnnotationType(packageName = "ballerina.net.grpc", name = "serviceInfo"),
+                @AnnotationType(packageName = "ballerina.net.grpc", name = "serviceConfig"),
                 @AnnotationType(packageName = "ballerina.net.grpc", name = "methodInfo")
         }
 )

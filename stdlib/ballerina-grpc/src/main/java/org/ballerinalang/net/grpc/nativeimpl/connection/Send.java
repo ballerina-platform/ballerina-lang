@@ -62,7 +62,7 @@ public class Send extends AbstractNativeFunction {
         log.info("calling send...");
         BStruct connectionStruct = (BStruct) getRefArgument(context, 0);
         BValue responseValue = getRefArgument(context, 1);
-        StreamObserver<Object> responseObserver = MessageUtils.getStreamObserver(connectionStruct);
+        StreamObserver<Message> responseObserver = MessageUtils.getStreamObserver(connectionStruct);
         Descriptors.Descriptor outputType = (Descriptors.Descriptor) connectionStruct.getNativeData(MessageConstants
                 .RESPONSE_MESSAGE_DEFINITION);
 
@@ -70,18 +70,16 @@ public class Send extends AbstractNativeFunction {
             return new BValue[0];
         }
         try {
-            com.google.protobuf.Message responseMessage = generateProtoMessage(responseValue, outputType);
+            Message responseMessage = (Message) generateProtoMessage(responseValue, outputType);
             responseObserver.onNext(responseMessage);
             return new BValue[0];
         } catch (Throwable e) {
             log.error("Error while sending client response.", e);
             return getBValues(MessageUtils.getServerConnectorError(context, e));
-        } finally {
-            responseObserver.onCompleted();
         }
     }
 
-    public com.google.protobuf.Message generateProtoMessage(BValue responseValue, Descriptors.Descriptor outputType) {
+    private com.google.protobuf.Message generateProtoMessage(BValue responseValue, Descriptors.Descriptor outputType) {
         Message.Builder responseBuilder = Message.newBuilder(outputType.getName());
         int stringIndex = 0;
         int intIndex = 0;
