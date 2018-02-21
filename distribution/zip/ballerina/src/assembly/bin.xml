@@ -164,6 +164,7 @@
                 <include>org.atomikos.wso2:atomikos</include>
                 <include>org.quartz-scheduler:quartz</include>
                 <include>org.quartz-scheduler:quartz-jobs</include>
+                <include>org.jvnet.mimepull:mimepull</include>
             </includes>
         </dependencySet>
 

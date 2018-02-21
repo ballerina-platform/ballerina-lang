@@ -222,6 +222,11 @@
             </dependency>
             <dependency>
                 <groupId>org.ballerinalang</groupId>
+                <artifactId>swagger-to-ballerina-generator</artifactId>
+                <version>${ballerina.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
                 <artifactId>ballerina-container-support</artifactId>
                 <version>${ballerina.version}</version>
             </dependency>
@@ -661,6 +666,11 @@
                 <artifactId>awaitility</artifactId>
                 <version>${awaitility.version}</version>
                 <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.jvnet.mimepull</groupId>
+                <artifactId>mimepull</artifactId>
+                <version>${mimepull.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
@@ -1226,6 +1236,7 @@
         <commons-net.version>3.6</commons-net.version>
         <jackson-core.version>2.8.6</jackson-core.version>
         <apache.mina.core>2.0.16</apache.mina.core>
+        <mimepull.version>1.9.7</mimepull.version>
 
         <wso2.maven.compiler.source>1.8</wso2.maven.compiler.source>
         <wso2.maven.compiler.target>1.8</wso2.maven.compiler.target>
