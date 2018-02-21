@@ -53,6 +53,7 @@ import static org.ballerinalang.mime.util.Constants.ENTITY_BYTE_CHANNEL;
 import static org.ballerinalang.mime.util.Constants.FIRST_BODY_PART_INDEX;
 import static org.ballerinalang.mime.util.Constants.MESSAGE_DATA_SOURCE;
 import static org.ballerinalang.mime.util.Constants.MULTIPART_DATA_INDEX;
+import static org.ballerinalang.mime.util.Constants.READABLE_BUFFER_SIZE;
 import static org.ballerinalang.mime.util.Constants.SIZE_INDEX;
 
 /**
@@ -226,16 +227,6 @@ public class EntityBodyHandler {
     }
 
     /**
-     * Get the 'MessageDataSource' associated with a given entity.
-     *
-     * @param entity Represent a ballerina entity
-     * @return 'MessageDataSource' which represent the entity body
-     */
-    public static MessageDataSource readMessageDataSource(BStruct entity) {
-        return EntityBodyHandler.getMessageDataSource(entity);
-    }
-
-    /**
      * Set ballerina body parts to it's top level entity.
      *
      * @param entity    Represent top level message's entity
@@ -317,7 +308,7 @@ public class EntityBodyHandler {
      */
     public static void writeInputToOutputStream(OutputStream messageOutputStream, InputStream inputStream) throws
             IOException {
-        byte[] buffer = new byte[1024];
+        byte[] buffer = new byte[READABLE_BUFFER_SIZE];
         int len;
         while ((len = inputStream.read(buffer)) != -1) {
             messageOutputStream.write(buffer, 0, len);

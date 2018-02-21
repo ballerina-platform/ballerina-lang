@@ -64,7 +64,7 @@ public abstract class ConnectionAction extends AbstractNativeFunction {
         BStruct entityStruct = MimeUtil.extractEntity(outboundResponseStruct);
         HttpResponseFuture outboundRespStatusFuture = HttpUtil.sendOutboundResponse(requestMessage, responseMessage);
         if (entityStruct != null) {
-            MessageDataSource outboundMessageSource = EntityBodyHandler.readMessageDataSource(entityStruct);
+            MessageDataSource outboundMessageSource = EntityBodyHandler.getMessageDataSource(entityStruct);
                 serializeMsgDataSource(responseMessage, outboundMessageSource, outboundRespStatusFuture, entityStruct);
         }
         return handleResponseStatus(context, outboundRespStatusFuture);

@@ -273,7 +273,7 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
         BStruct requestStruct = ((BStruct) getRefArgument(context, 1));
         BStruct entityStruct = MimeUtil.extractEntity(requestStruct);
         if (entityStruct != null) {
-            MessageDataSource messageDataSource = EntityBodyHandler.readMessageDataSource(entityStruct);
+            MessageDataSource messageDataSource = EntityBodyHandler.getMessageDataSource(entityStruct);
             if (messageDataSource != null) {
                 OutputStream messageOutputStream = getOutputStream(outboundReqMsg, httpClientConnectorListener);
                 messageDataSource.serializeData(messageOutputStream);
