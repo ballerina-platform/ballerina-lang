@@ -1,3 +1,4 @@
+import ballerina.io;
 import ballerina.net.http;
 
 @http:configuration {basePath:"/customerservice"}
@@ -156,6 +157,6 @@ function populateSampleProducts () (map productsMap) {
     productsMap["123000"] = prod_1;
     productsMap["123001"] = prod_2;
     productsMap["123002"] = prod_3;
-    println("Sample products are added.");
+    io:println("Sample products are added.");
     return productsMap;
 }

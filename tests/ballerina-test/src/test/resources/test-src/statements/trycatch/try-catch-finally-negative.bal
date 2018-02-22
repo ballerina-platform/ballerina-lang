@@ -22,9 +22,8 @@ function funcReturnInt()(int){
 }
 
 public struct TestError {
-    string msg;
+    string message;
     error cause;
-    StackFrame[] stackTrace;
     string code;
 }
 

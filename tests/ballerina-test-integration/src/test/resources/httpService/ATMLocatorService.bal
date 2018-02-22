@@ -1,3 +1,4 @@
+import ballerina.io;
 import ballerina.net.http;
 
 @http:configuration {basePath:"/ABCBank"}
@@ -19,7 +20,7 @@ service<http> ATMLocator {
         json jsonLocatorReq = req.getJsonPayload();
         string zipCode;
         zipCode, _ = (string)jsonLocatorReq["ATMLocator"]["ZipCode"];
-        println("Zip Code " + zipCode);
+        io:println("Zip Code " + zipCode);
         json branchLocatorReq = {"BranchLocator":{"ZipCode":""}};
         branchLocatorReq.BranchLocator.ZipCode = zipCode;
         backendServiceReq.setJsonPayload(branchLocatorReq);
@@ -29,7 +30,7 @@ service<http> ATMLocator {
         json branchLocatorRes = locatorResponse.getJsonPayload();
         string branchCode;
         branchCode, _ = (string)branchLocatorRes.ABCBank.BranchCode;
-        println("Branch Code " + branchCode);
+        io:println("Branch Code " + branchCode);
         json bankInfoReq = {"BranchInfo":{"BranchCode":""}};
         bankInfoReq.BranchInfo.BranchCode = branchCode;
         backendServiceReq.setJsonPayload(bankInfoReq);

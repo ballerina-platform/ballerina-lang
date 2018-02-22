@@ -1,4 +1,5 @@
 import ballerina.data.sql;
+import ballerina.io;
 
 @Description {value:"This is the Employee struct. The field names of this should match column names of the table. The field types should match with the sql types."}
 struct Employee {
@@ -33,7 +34,7 @@ function main (string[] args) {
     //the data struct corresponding to each row.
     while (dt.hasNext()) {
         var rs, _ = (Employee)dt.getNext();
-        println("Employee:"+ rs.id + "|" + rs.name +  "|" + rs.salary + "|" + rs.status +
+        io:println("Employee:"+ rs.id + "|" + rs.name +  "|" + rs.salary + "|" + rs.status +
                 "|" + rs.birthdate + "|" + rs.birthtime + "|" + rs.updated);
     }
 
@@ -45,16 +46,16 @@ function main (string[] args) {
     //Convert a table to JSON.
     dt = testDB.select("SELECT id,name FROM EMPLOYEE", null, null);
     var jsonRes, _ = <json>dt;
-    println(jsonRes);
+    io:println(jsonRes);
 
     //Convert a table to XML.
     dt = testDB.select("SELECT id,name FROM EMPLOYEE", null, null);
     var xmlRes, _ = <xml>dt;
-    println(xmlRes);
+    io:println(xmlRes);
 
     //Drop the EMPLOYEE table.
     int ret = testDB.update("DROP TABLE EMPLOYEE", null);
-    println("Table drop status:" + ret);
+    io:println("Table drop status:" + ret);
 
     //Finally close the DB connection.
     testDB.close();

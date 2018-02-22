@@ -25,7 +25,7 @@ import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BValue;
-import org.testng.annotations.BeforeTest;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import java.util.Arrays;
 
@@ -39,7 +39,7 @@ public class CacheExpiryTest {
     private CompileResult compileResult;
     private static final Log log = LogFactory.getLog(CacheExpiryTest.class);
 
-    @BeforeTest
+    @BeforeClass
     public void setup() {
         compileResult = BCompileUtil.compileAndSetup("test-src/caching/cache-expiry-test.bal");
         printDiagnostics(compileResult);

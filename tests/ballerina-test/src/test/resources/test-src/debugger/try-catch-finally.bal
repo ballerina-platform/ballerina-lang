@@ -1,20 +1,17 @@
 public struct testError {
-    string msg;
+    string message;
     error cause;
-    StackFrame[] stackTrace;
     string code;
 }
 
 public struct testDataError {
-    string msg;
+    string message;
     error cause;
-    StackFrame[] stackTrace;
     string data;
 }
 public struct testInputError {
-    string msg;
+    string message;
     error cause;
-    StackFrame[] stackTrace;
     string input;
 }
 
@@ -34,11 +31,11 @@ function testTryCatch(int value)(string){
             path = path + "insideInnerTry ";
             if(value > 10){
                 path = path + "onError ";
-                testError tError = { msg : "error" , code : "test" };
+                testError tError = { message : "error" , code : "test" };
                 throw tError;
             } else if( value < 0 ) {
                 path = path + "onInputError " ;
-                testInputError tError = {msg : "error", input : "0"};
+                testInputError tError = {message : "error", input : "0"};
                 throw tError;
             }
 
@@ -47,7 +44,7 @@ function testTryCatch(int value)(string){
             path = path + "innerTestErrorCatch:" + ex.code + " ";
             throw ex;
         } catch (testDataError e){
-            path = path + "innerDataErrorCatch:" + e.msg + " ";
+            path = path + "innerDataErrorCatch:" + e.message + " ";
             throw e;
         } finally {
             path = path + "innerFinally ";
@@ -82,7 +79,7 @@ function testThrow(int a)(int) {
     return testNestedThrow(c);
 }
 function testNestedThrow(int a)(int){
-    error e  = {msg : "test message"};
+    error e  = {message : "test message"};
     if (e != null) {
         throw e;
     }
@@ -95,7 +92,7 @@ function mockFunction ()(string) {
 function testMethodCallInFinally ()(string) {
     string s = "start";
     try {
-        error e = {msg:"test"};
+        error e = {message:"test"};
         throw e;
     }finally {
         s = s + mockFunction();
