@@ -80,6 +80,7 @@ public class BLangScheduler {
     
     public static void workerExcepted(WorkerExecutionContext ctx, Throwable e) {
         System.out.println("Worker Exception: " + ctx + " -> " + e.getMessage());
+        e.printStackTrace();
     }
     
     /**

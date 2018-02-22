@@ -66,16 +66,17 @@ public class InvocableWorkerResponseContext implements WorkerResponseContext {
     }
     
     private void handleAlreadyReturned() {
-        System.out.println("ALREADY RETURNED");
+        //System.out.println("ALREADY RETURNED");
     }
     
     private WorkerExecutionContext doReturn(WorkerSignal signal) {
+        WorkerExecutionContext runInCallerCtx = null;
         if (this.fulfilled.getAndSet(true)) {
             this.handleAlreadyReturned();
-            return null;
+        } else {
+            this.currentSignal = signal;
+            runInCallerCtx = this.storeResponseInParentAndContinue();
         }
-        this.currentSignal = signal;
-        WorkerExecutionContext runInCallerCtx = this.storeResponseInParentAndContinue();
         BLangScheduler.workerDone(signal.getSourceContext());
         return runInCallerCtx;
     }
