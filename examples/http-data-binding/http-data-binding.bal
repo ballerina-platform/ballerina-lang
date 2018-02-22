@@ -1,4 +1,5 @@
 import ballerina.net.http;
+import ballerina.io;
 
 struct Student {
     string Name;
@@ -16,7 +17,7 @@ service<http> hello {
     resource bindJson (http:Connection conn, http:InRequest req, json order) {
         //Access JSON field values
         json details = order.Details;
-        println(details);
+        io:println(details);
 
         http:OutResponse res = {};
         res.setJsonPayload(details);
@@ -32,7 +33,7 @@ service<http> hello {
     resource bindXML (http:Connection conn, http:InRequest req, xml store) {
         //Access XML content.
         xml city = store.selectChildren("city");
-        println(city);
+        io:println(city);
 
         http:OutResponse res = {};
         res.setXmlPayload(city);
@@ -48,13 +49,13 @@ service<http> hello {
     resource bindStruct (http:Connection conn, http:InRequest req, Student student) {
         //Access Student struct fields
         string name = student.Name;
-        println(name);
+        io:println(name);
 
         int grade = student.Grade;
-        println(grade);
+        io:println(grade);
 
         map marks = student.Marks;
-        println(marks);
+        io:println(marks);
 
         http:OutResponse res = {};
         res.setJsonPayload({Name:name, Grade:grade});
