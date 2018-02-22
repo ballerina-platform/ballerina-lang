@@ -114,4 +114,5 @@ public enum NodeKind {
     GROUP_BY,
     HAVING,
     SELECT_CLAUSE,
+    WHERE,
 }
