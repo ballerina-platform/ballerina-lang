@@ -54,6 +54,7 @@ import org.ballerinalang.util.exceptions.BallerinaException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.messaging.exceptions.ServerConnectorException;
+import org.wso2.transport.http.netty.common.Constants;
 import org.wso2.transport.http.netty.config.ChunkConfig;
 import org.wso2.transport.http.netty.config.ListenerConfiguration;
 import org.wso2.transport.http.netty.config.Parameter;
@@ -245,8 +246,9 @@ public class HttpUtil {
                                                HTTPCarbonMessage outboundResponseMsg, BStruct outboundResponseStruct) {
 
         HttpUtil.checkEntityAvailability(context, outboundResponseStruct);
-        HttpUtil.setKeepAliveHeader(context, outboundResponseMsg);
+
         HttpUtil.addHTTPSessionAndCorsHeaders(context, inboundRequestMsg, outboundResponseMsg);
+        setKeepAliveAndCompressionHeaders(context, outboundResponseMsg);
         HttpUtil.enrichOutboundMessage(outboundResponseMsg, outboundResponseStruct);
     }
 
@@ -577,12 +579,12 @@ public class HttpUtil {
     }
 
     /**
-     * Set connection Keep-Alive headers to transport message.
+     * Set connection Keep-Alive and content-encoding headers to transport message.
      *
      * @param context ballerina context.
      * @param outboundMessage transport message.
      */
-    public static void setKeepAliveHeader(Context context, HTTPCarbonMessage outboundMessage) {
+    public static void setKeepAliveAndCompressionHeaders(Context context, HTTPCarbonMessage outboundMessage) {
         AnnAttachmentInfo configAnn = context.getServiceInfo().getAnnotationAttachmentInfo(
                 HttpConstants.PROTOCOL_PACKAGE_HTTP, HttpConstants.ANN_NAME_CONFIG);
         if (configAnn != null) {
@@ -594,6 +596,12 @@ public class HttpUtil {
                 // default behaviour: keepAlive = true
                 outboundMessage.setHeader(HttpConstants.CONNECTION_HEADER,
                                           HttpConstants.HEADER_VAL_CONNECTION_KEEP_ALIVE);
+            }
+            AnnAttributeValue compressionEnabled = configAnn.getAttributeValue(
+                    HttpConstants.ANN_CONFIG_ATTR_COMPRESSION_ENABLED);
+            if (compressionEnabled != null && !compressionEnabled.getBooleanValue()) {
+                outboundMessage.setHeader(HttpConstants.CONTENT_ENCODING_HEADER,
+                                              Constants.HTTP_TRANSFER_ENCODING_IDENTITY);
             }
         } else {
             // default behaviour: keepAlive = true
