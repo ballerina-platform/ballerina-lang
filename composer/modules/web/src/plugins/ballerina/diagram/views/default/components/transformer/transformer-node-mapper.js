@@ -1686,6 +1686,40 @@ class TransformerNodeMapper {
         });
         return kvp;
     }
+
+    /**
+     * Generate iterable operation to the given connection
+     * @param {object} connection where iterable operation should be added
+     * @param {string} type iterable operation type
+     * @param {boolean} isLamda is given iterable operation has a lambda function
+     */
+    addIterableOperator(connection, type, isLamda) {
+        this.getMappingStatements().forEach((stmt) => {
+            if (TreeUtil.isAssignment(stmt)) {
+                if ((stmt.getVariables()[0].getSource().trim() === connection.target.name
+                    || (connection.target.funcInv && connection.target.funcInv.iterableOperation)) &&
+                    (stmt.getExpression().getSource().trim() === connection.source.name
+                    || (connection.source.funcInv && connection.source.funcInv.iterableOperation))) {
+                    const sourceContent = stmt.getExpression().getSource().trim() === connection.source.name ?
+                    connection.source.name : connection.source.funcInv.getSource();
+                    let typeName = connection.source.type.replace('[]', '');
+                    if (typeName === '') {
+                        typeName = stmt.getExpression().argumentExpressions[0]
+                        .functionNode.getParameters()[0].getTypeNode().getTypeName().getValue();
+                    }
+                    stmt.setExpression(
+                        TransformerFactory.createIterableOperation(sourceContent,
+                            type, typeName, isLamda));
+                    stmt.trigger('tree-modified', {
+                        origin: stmt,
+                        type: 'variable-update',
+                        title: `Variable update ${connection.source.name}`,
+                        data: {},
+                    });
+                }
+            }
+        });
+    }
 }
 
 export default TransformerNodeMapper;
