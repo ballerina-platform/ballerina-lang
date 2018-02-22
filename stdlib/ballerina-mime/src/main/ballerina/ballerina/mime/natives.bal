@@ -192,7 +192,7 @@ public native function <MimeBase64Decoder decoder> decodeString (string content,
 @Return {value:"Return encoding value"}
 function getEncoding (MediaType contentType) (string) {
     var encoding = DEFAULT_CHARSET;
-    TypeCastError castErr;
+    error castErr;
     if (contentType != null) {
         encoding, castErr = (string)contentType.parameters.CHARSET;
         if (castErr != null) {

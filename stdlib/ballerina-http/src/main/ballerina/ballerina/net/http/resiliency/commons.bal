@@ -45,7 +45,7 @@ public function invokeEndpoint (string path, http:OutRequest outRequest, http:In
     } else {
         http:HttpConnectorError httpConnectorError = {};
         httpConnectorError.statusCode = 400;
-        httpConnectorError.msg = "Unsupported connector action received.";
+        httpConnectorError.message = "Unsupported connector action received.";
         return null, httpConnectorError;
     }
 }

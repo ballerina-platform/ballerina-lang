@@ -20,6 +20,7 @@
 const { workspace, commands, window, ExtensionContext, debug } = require('vscode');
 const { LanguageClient, LanguageClientOptions, ServerOptions } = require('vscode-languageclient');
 const path = require('path');
+const fs = require('fs');
 
 let oldConfig;
 
@@ -31,6 +32,16 @@ const debugConfigResolver = {
 			if (workspaceConfig.sdk) {
 				config['ballerina.sdk'] = workspaceConfig.sdk;
 			}
+		}
+
+		if (config['ballerina.sdk']) {
+			if (fs.readdirSync(config['ballerina.sdk']).indexOf('bin') < 0) {
+				const msg = "Couldn't find a bin directory inside the configured sdk path. Please set ballerina.sdk correctly."
+				window.showErrorMessage(msg);
+			}
+		} else {
+			const msg = "To start the debug server please set ballerina.sdk."
+			window.showErrorMessage(msg);
 		}
 
 		return config;

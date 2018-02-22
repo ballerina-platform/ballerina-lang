@@ -1,6 +1,7 @@
 package ballerina.net.http.resiliency;
 
 import ballerina.net.http;
+import ballerina.runtime;
 
 @Description {value:"Represents Failover connector retry configuration."}
 @Field {value:"failoverCodes: Array of http response status codes which required failover the requests."}
@@ -11,15 +12,14 @@ public struct FailoverConfig {
 }
 
 @Description {value:"Represents an error occurred in an action of the Failover connector."}
-@Field {value:"msg: An error message explaining about the error."}
+@Field {value:"message: An error message explaining about the error."}
 @Field {value:"cause: The error that caused HttpConnectorError to get thrown."}
 @Field {value:"stackTrace: Represents the invocation stack when FailoverConnectorError is thrown."}
 @Field {value:"statusCode: HTTP status code of the FailoverConnectorError."}
 @Field {value:"httpConnectorError: Array of HttpConnectorError error occurred at each endpoint."}
 public struct FailoverConnectorError {
-    string msg;
+    string message;
     error cause;
-    StackFrame[] stackTrace;
     int statusCode;
     http:HttpConnectorError[] httpConnectorError;
 }
@@ -177,7 +177,7 @@ function performFailoverAction (string path, http:OutRequest outRequest, http:In
 
         if (inResponse == null && httpConnectorError != null) {
             if (noOfEndpoints > currentIndex) {
-                sleep(failoverInterval);
+                runtime:sleepCurrentWorker(failoverInterval);
                 failoverConnectorError.httpConnectorError[currentIndex - 1] = httpConnectorError;
                 failoverClient = failoverClients[currentIndex];
             } else {
@@ -188,7 +188,7 @@ function performFailoverAction (string path, http:OutRequest outRequest, http:In
             int httpStatusCode = inResponse.statusCode;
             if (failoverCodeIndex[httpStatusCode] == true) {
                 if (noOfEndpoints > currentIndex) {
-                    sleep(failoverInterval);
+                    runtime:sleepCurrentWorker(failoverInterval);
                     failoverClient = failoverClients[currentIndex];
                     populateFailoverErrorHttpStatusCodes(inResponse, failoverConnectorError, currentIndex - 1);
                 } else {
@@ -208,8 +208,8 @@ function populateGenericFailoverConnectorError (FailoverConnectorError failoverC
 (http:InResponse, http:HttpConnectorError) {
     failoverConnectorErr.statusCode = 500;
     failoverConnectorErr.httpConnectorError[index] = httpConnectorError;
-    string lastErrorMsg = httpConnectorError.msg;
-    failoverConnectorErr.msg = "All the failover endpoints failed. Last error was " + lastErrorMsg;
+    string lastErrorMsg = httpConnectorError.message;
+    failoverConnectorErr.message = "All the failover endpoints failed. Last error was " + lastErrorMsg;
     return null, (http:HttpConnectorError) failoverConnectorErr;
 }
 
@@ -218,7 +218,7 @@ function populateGenericFailoverConnectorError (FailoverConnectorError failoverC
 function populateFailoverErrorHttpStatusCodes (http:InResponse inResponse,
                                                FailoverConnectorError failoverConnectorError, int index) {
     http:HttpConnectorError httpConnectorError = {};
-    httpConnectorError.msg = "Endpoint " + index + " returned response is: "
+    httpConnectorError.message = "Endpoint " + index + " returned response is: "
                                 + inResponse.statusCode + " " + inResponse.reasonPhrase;
     failoverConnectorError.httpConnectorError[index] = httpConnectorError;
 }
@@ -230,11 +230,11 @@ function populateErrorsFromLastResponse (http:InResponse inRsponse, FailoverConn
                                                                             (http:InResponse, http:HttpConnectorError) {
     http:HttpConnectorError lastHttpConnectorError = {};
     lastHttpConnectorError.statusCode = inRsponse.statusCode;
-    lastHttpConnectorError.msg = "Last endpoint returned response: " + inRsponse.statusCode + " "
+    lastHttpConnectorError.message = "Last endpoint returned response: " + inRsponse.statusCode + " "
                                         + inRsponse.reasonPhrase;
     failoverConnectorError.httpConnectorError[index] = lastHttpConnectorError;
     failoverConnectorError.statusCode = 500;
-    failoverConnectorError.msg = "All the failover endpoints failed. Last endpoint returned response is: "
+    failoverConnectorError.message = "All the failover endpoints failed. Last endpoint returned response is: "
                                         + inRsponse.statusCode + " " + inRsponse.reasonPhrase;
     httpConnectorError = (http:HttpConnectorError) failoverConnectorError;
     return null, httpConnectorError;

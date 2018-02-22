@@ -117,7 +117,7 @@ connector MockHttpFailOverClient (string serviceUri, http:Options connectorOptio
 
 function generateErrorResponse () (http:InResponse, http:HttpConnectorError) {
     http:HttpConnectorError err = {};
-    err.msg = "Connection refused";
+    err.message = "Connection refused";
     err.statusCode = 502;
     return null, err;
 }
@@ -127,7 +127,7 @@ function generateResponse (int count) (http:InResponse, http:HttpConnectorError)
     http:InResponse inResponse = {};
     http:HttpConnectorError err = {};
     if (count == 0) {
-        err.msg = "Connection refused";
+        err.message = "Connection refused";
         err.statusCode = 502;
         return null, err;
     } else {

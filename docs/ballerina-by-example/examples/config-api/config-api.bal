@@ -1,4 +1,5 @@
 import ballerina.config;
+import ballerina.io;
 
 function main(string[] args) {
     // Ballerina config API provides a mechanism for developers to look-up values from config files, CLI parameters,
@@ -13,8 +14,8 @@ function main(string[] args) {
     string user1Rights = config:getInstanceValue(users[0], "access.rights");
     string user2Rights = config:getInstanceValue(users[1], "access.rights");
 
-    println(users[0] + " has " + user1Rights + " access");
-    println(users[1] + " has " + user2Rights + " access");
+    io:println(users[0] + " has " + user1Rights + " access");
+    io:println(users[1] + " has " + user2Rights + " access");
     // A sample config file looks as follows: <br>
     // username.instances=john,peter <br>
     // [john] <br>

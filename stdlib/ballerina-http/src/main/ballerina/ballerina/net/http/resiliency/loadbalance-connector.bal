@@ -6,15 +6,14 @@ import ballerina.net.http;
 int nextIndex;
 
 @Description {value:"Represents an error occurred in an action of the Load Balance connector."}
-@Field {value:"msg: An error message explaining about the error."}
+@Field {value:"message: An error message explaining about the error."}
 @Field {value:"cause: The error that caused HttpConnectorError to get thrown."}
 @Field {value:"stackTrace: Represents the invocation stack when LoadBalanceConnectorError is thrown."}
 @Field {value:"statusCode: HTTP status code of the LoadBalanceConnectorError."}
 @Field {value:"httpConnectorError: Array of HttpConnectorError error occurred at each endpoint."}
 public struct LoadBalanceConnectorError {
-    string msg;
+    string message;
     error cause;
-    StackFrame[] stackTrace;
     int statusCode;
     http:HttpConnectorError[] httpConnectorError;
 }
@@ -129,7 +128,7 @@ function performLoadBalanceExecuteAction (string path, http:OutRequest outReques
     } else {
         http:HttpConnectorError httpConnectorError = {};
         httpConnectorError.statusCode = 400;
-        httpConnectorError.msg = "Unsupported connector action received.";
+        httpConnectorError.message = "Unsupported connector action received.";
         return null, httpConnectorError;
     }
 }
@@ -196,8 +195,8 @@ function populateGenericLoadBalanceConnectorError (LoadBalanceConnectorError loa
 (http:InResponse, http:HttpConnectorError) {
     loadBalanceConnectorError.statusCode = 500;
     loadBalanceConnectorError.httpConnectorError[index] = httpConnectorError;
-    string lastErrorMsg = httpConnectorError.msg;
-    loadBalanceConnectorError.msg = "All the load balance endpoints were failed. Last error was " + lastErrorMsg;
+    string lastErrorMsg = httpConnectorError.message;
+    loadBalanceConnectorError.message = "All the load balance endpoints were failed. Last error was " + lastErrorMsg;
     return null, (http:HttpConnectorError) loadBalanceConnectorError;
 }
 
