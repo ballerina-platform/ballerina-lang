@@ -36,6 +36,7 @@ import java.io.Writer;
 import java.nio.charset.Charset;
 import java.util.Set;
 
+import static org.ballerinalang.mime.util.Constants.BOUNDARY;
 import static org.ballerinalang.mime.util.Constants.CONTENT_DISPOSITION;
 import static org.ballerinalang.mime.util.Constants.CONTENT_ID;
 import static org.ballerinalang.mime.util.Constants.CONTENT_ID_INDEX;
@@ -51,8 +52,9 @@ import static org.ballerinalang.mime.util.Constants.MULTIPART_DATA_INDEX;
 public class MultipartDataSource extends BallerinaMessageDataSource {
     private static final Logger log = LoggerFactory.getLogger(MultipartDataSource.class);
 
-    private BRefValueArray bodyParts;
+    private BStruct bodyPart;
     private String boundaryString;
+    private OutputStream outputStream;
     private static final String DASH_BOUNDARY = "--";
     private static final String CRLF_POST_DASH = "\r\n--";
     private static final String CRLF_PRE_DASH = "--\r\n";
@@ -61,44 +63,48 @@ public class MultipartDataSource extends BallerinaMessageDataSource {
     private static final char COLON = ':';
     private static final char SPACE = ' ';
 
-    public MultipartDataSource(BRefValueArray bodyParts, String boundaryString) {
-        this.bodyParts = bodyParts;
+    public MultipartDataSource(BStruct entityStruct, String boundaryString) {
+        this.bodyPart = entityStruct;
         this.boundaryString = boundaryString;
     }
 
     @Override
     public void serializeData(OutputStream outputStream) {
+        this.outputStream = outputStream;
+        serializeBodyPart(outputStream, boundaryString, bodyPart);
+    }
+
+    private void serializeBodyPart(OutputStream outputStream, String parentBoundaryString, BStruct parentBodyPart) {
         final Writer writer = new BufferedWriter(new OutputStreamWriter(outputStream, Charset.defaultCharset()));
+        BRefValueArray bodyParts = parentBodyPart.getRefField(MULTIPART_DATA_INDEX) != null ?
+                (BRefValueArray) parentBodyPart.getRefField(MULTIPART_DATA_INDEX) : null;
         try {
-            if (bodyParts != null) {
-                boolean isFirst = true;
-                for (int i = 0; i < bodyParts.size(); i++) {
+            boolean isFirst = true;
+            for (int i = 0; i < bodyParts.size(); i++) {
+                BStruct bodyPart = (BStruct) bodyParts.get(i);
+                // Write leading boundary string
+                if (isFirst) {
+                    isFirst = false;
+                    writer.write(DASH_BOUNDARY);
 
-                    BStruct bodyPart = (BStruct) bodyParts.get(i);
-                    // Write leading boundary string
-                    if (isFirst) {
-                        isFirst = false;
-                        writer.write(DASH_BOUNDARY);
-
-                    } else {
-                        writer.write(CRLF_POST_DASH);
-                    }
-                    writer.write(boundaryString);
-                    writer.write(CRLF);
-
-                    writeBodyPartHeaders(writer, bodyPart);
-                    //Check for nested parts
-                    BRefValueArray nestedParts = bodyPart.getRefField(MULTIPART_DATA_INDEX) != null ?
-                            (BRefValueArray) bodyPart.getRefField(MULTIPART_DATA_INDEX) : null;
-                    if (nestedParts != null && nestedParts.size() > 0) {
-
-                       /* serializeMultipartDataSource(outboundRequestMsg, httpClientConnectorLister, boundaryString,
-                                nestedParts);*/
-                    }
-                    writeBodyContent(outputStream, bodyPart);
+                } else {
+                    writer.write(CRLF_POST_DASH);
                 }
+                writer.write(parentBoundaryString);
+                writer.write(CRLF);
+
+                writeBodyPartHeaders(writer, bodyPart);
+                //Check for nested parts
+                BRefValueArray nestedParts = bodyPart.getRefField(MULTIPART_DATA_INDEX) != null ?
+                        (BRefValueArray) bodyPart.getRefField(MULTIPART_DATA_INDEX) : null;
+                if (nestedParts != null && nestedParts.size() > 0) {
+                    String childBoundaryString = MimeUtil.getNewMultipartDelimiter();
+
+                    serializeBodyPart(this.outputStream, childBoundaryString, bodyPart);
+                }
+                writeBodyContent(outputStream, bodyPart);
             }
-            writeFinalBoundaryString(writer, boundaryString);
+            writeFinalBoundaryString(writer, parentBoundaryString);
         } catch (IOException e) {
             log.error("Error occurred while writing body parts to outputstream", e.getMessage());
         }

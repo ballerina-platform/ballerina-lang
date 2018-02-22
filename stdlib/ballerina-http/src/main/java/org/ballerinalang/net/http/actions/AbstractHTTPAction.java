@@ -236,7 +236,7 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
                         (BRefValueArray) entityStruct.getRefField(MULTIPART_DATA_INDEX) : null;
                 if (bodyParts != null && bodyParts.size() > 0) {
                     serializeMultipartDataSource(outboundRequestMsg, httpClientConnectorLister, boundaryString,
-                            bodyParts);
+                            entityStruct);
                 } else {
                     throw new BallerinaException("At least one body part is required for the mutlipart entity",
                             context);
@@ -253,11 +253,11 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
      * @param outboundRequestMsg        Outbound request message
      * @param httpClientConnectorLister Represent http client connector listener
      * @param boundaryString            Boundary string of multipart entity
-     * @param bodyParts                 Represent an array of body parts
+     * @param entityStruct              Represent ballerina entity struct
      */
     private void serializeMultipartDataSource(HTTPCarbonMessage outboundRequestMsg, HTTPClientConnectorListener
-            httpClientConnectorLister, String boundaryString, BRefValueArray bodyParts) {
-        MultipartDataSource multipartDataSource = new MultipartDataSource(bodyParts, boundaryString);
+            httpClientConnectorLister, String boundaryString, BStruct entityStruct) {
+        MultipartDataSource multipartDataSource = new MultipartDataSource(entityStruct, boundaryString);
         HttpMessageDataStreamer outboundMsgDataStreamer = new HttpMessageDataStreamer(outboundRequestMsg);
         OutputStream messageOutputStream = outboundMsgDataStreamer.getOutputStream();
         httpClientConnectorLister.setOutboundMsgDataStreamer(outboundMsgDataStreamer);
