@@ -36,6 +36,7 @@ definition
     |   functionDefinition
     |   connectorDefinition
     |   structDefinition
+    |   streamletDefinition
     |   enumDefinition
     |   constantDefinition
     |   annotationDefinition
@@ -95,6 +96,17 @@ structBody
     :   LEFT_BRACE fieldDefinition* privateStructBody? RIGHT_BRACE
     ;
 
+streamletDefinition
+    :   STREAMLET Identifier LEFT_PARENTHESIS parameterList? RIGHT_PARENTHESIS streamletBody
+    ;
+
+streamletBody
+    :   LEFT_BRACE streamingQueryDeclaration  RIGHT_BRACE
+    ;
+
+streamingQueryDeclaration
+    : (TYPE_STREAM (LT nameReference GT)?)* (streamingQueryStatement | queryDeclaration+)
+    ;
 
 privateStructBody
     :   PRIVATE COLON fieldDefinition*
@@ -128,6 +140,7 @@ attachmentPoint
      | ACTION                               # actionAttachPoint
      | FUNCTION                             # functionAttachPoint
      | STRUCT                               # structAttachPoint
+     | STREAMLET                            # streamletAttachPoint
      | ENUM                                 # enumAttachPoint
      | CONST                                # constAttachPoint
      | PARAMETER                            # parameterAttachPoint
@@ -680,11 +693,19 @@ streamingAction
     ;
 
 setClause
-    :   SET assignmentStatement (COMMA variableReference)*
+    :   SET setAssignmentClause (COMMA setAssignmentClause)*
+    ;
+
+setAssignmentClause
+    :   variableReference ASSIGN expression
     ;
 
 streamingInput
-    :   Identifier (whereClasue | functionClause)* windowClause? (whereClasue | functionClause)* (AS alias=Identifier)?
+    :   Identifier streamingConditionList  windowClause? streamingConditionList (AS alias=Identifier)?
+    ;
+
+streamingConditionList
+    :   (whereClasue | functionClause)*
     ;
 
 joinStreamingInput
@@ -715,3 +736,11 @@ functionClause
 windowClause
     :   WINDOW functionInvocation
     ;
+
+queryDeclaration
+     :   queryDefinition LEFT_BRACE streamingQueryStatement RIGHT_BRACE
+     ;
+
+queryDefinition
+     :   QUERY Identifier
+     ;
