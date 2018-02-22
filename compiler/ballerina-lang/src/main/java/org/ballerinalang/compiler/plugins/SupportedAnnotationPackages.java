@@ -15,7 +15,7 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.ballerinalang.annotation;
+package org.ballerinalang.compiler.plugins;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
@@ -25,27 +25,19 @@ import static java.lang.annotation.ElementType.TYPE;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 /**
- * {@code AnnotationType} annotation represents a Ballerina annotation
- * that the {@link AnnotationProcessor} supports.
+ * {@code SupportedAnnotations} annotation represents an array of
+ * support Ballerina annotation package names.
  *
  * @since 0.962.0
  */
 @Documented
 @Target(TYPE)
 @Retention(RUNTIME)
-public @interface AnnotationType {
-
+public @interface SupportedAnnotationPackages {
     /**
-     * Returns the package name of the supported Ballerina annotation.
+     * Returns an array of supported Ballerina annotation package names.
      *
-     * @return the package name of the supported Ballerina annotation
+     * @return an array of supported Ballerina annotation package names
      */
-    String packageName();
-
-    /**
-     * Returns the name of the supported Ballerina annotation.
-     *
-     * @return the name of the supported Ballerina annotation
-     */
-    String name();
+    String[] value() default {};
 }

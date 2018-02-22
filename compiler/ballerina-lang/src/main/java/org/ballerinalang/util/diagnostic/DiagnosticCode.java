@@ -151,8 +151,9 @@ public enum DiagnosticCode {
     ITERABLE_RETURN_TYPE_IGNORED("iterable.return.type.ignored"),
 
     //Error code related to annotation processors
+    ANN_PROC_NO_PACKAGE_FOUND("ann.proc.no.package.found"),
     ANN_PROC_NO_SUPPORTED_ANNOTATIONS_FOUND("ann.proc.no.supported.annotations.found"),
-    ANN_PROC_CANNOT_FIND_ANNOTATION("ann.proc.cannot.find.annotation"),
+    ANN_PROC_CANNOT_FIND_ANNOTATION("ann.proc.no.annotations.in.package"),
 
     // Parser error diagnostic codes
     INVALID_TOKEN("invalid.token"),

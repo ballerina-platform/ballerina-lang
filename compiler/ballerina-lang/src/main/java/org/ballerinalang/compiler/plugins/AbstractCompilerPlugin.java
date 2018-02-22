@@ -15,7 +15,7 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.ballerinalang.annotation;
+package org.ballerinalang.compiler.plugins;
 
 import org.ballerinalang.model.tree.ActionNode;
 import org.ballerinalang.model.tree.AnnotationAttachmentNode;
@@ -23,6 +23,7 @@ import org.ballerinalang.model.tree.AnnotationNode;
 import org.ballerinalang.model.tree.ConnectorNode;
 import org.ballerinalang.model.tree.EnumNode;
 import org.ballerinalang.model.tree.FunctionNode;
+import org.ballerinalang.model.tree.PackageNode;
 import org.ballerinalang.model.tree.ResourceNode;
 import org.ballerinalang.model.tree.ServiceNode;
 import org.ballerinalang.model.tree.StructNode;
@@ -30,17 +31,22 @@ import org.ballerinalang.model.tree.TransformerNode;
 import org.ballerinalang.model.tree.VariableNode;
 import org.ballerinalang.util.diagnostic.DiagnosticLog;
 
+import java.nio.file.Path;
 import java.util.List;
 
 /**
  * {@code AbstractAnnotationProcessor} provides convenient superclass
- * for {@link AnnotationProcessor} implementations.
+ * for {@link CompilerPlugin} implementations.
  *
  * @since 0.962.0
  */
-public abstract class AbstractAnnotationProcessor implements AnnotationProcessor {
+public abstract class AbstractCompilerPlugin implements CompilerPlugin {
 
     public abstract void init(DiagnosticLog diagnosticLog);
+
+    @Override
+    public void process(PackageNode packageNode) {
+    }
 
     @Override
     public void process(ServiceNode serviceNode, List<AnnotationAttachmentNode> annotations) {
@@ -80,5 +86,9 @@ public abstract class AbstractAnnotationProcessor implements AnnotationProcessor
 
     @Override
     public void process(TransformerNode transformerNode, List<AnnotationAttachmentNode> annotations) {
+    }
+
+    @Override
+    public void codeGenerated(Path binaryPath) {
     }
 }

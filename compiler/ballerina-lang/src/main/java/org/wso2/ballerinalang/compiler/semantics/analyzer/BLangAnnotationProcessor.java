@@ -17,18 +17,16 @@
  */
 package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
-import org.ballerinalang.annotation.AnnotationProcessor;
-import org.ballerinalang.annotation.AnnotationType;
-import org.ballerinalang.annotation.SupportedAnnotations;
 import org.ballerinalang.compiler.CompilerPhase;
+import org.ballerinalang.compiler.plugins.CompilerPlugin;
+import org.ballerinalang.compiler.plugins.SupportedAnnotationPackages;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.tree.AnnotationAttachmentNode;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.tree.BLangAction;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
@@ -47,7 +45,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangTransformer;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
-import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
@@ -62,7 +59,7 @@ import java.util.ServiceLoader;
 import java.util.function.BiConsumer;
 
 /**
- * Invoke {@link org.ballerinalang.annotation.AnnotationProcessor} extensions.
+ * Invoke {@link CompilerPlugin} plugins.
  * <p>
  * This class visit All the package-level nodes.
  *
@@ -73,12 +70,12 @@ public class BLangAnnotationProcessor extends BLangNodeVisitor {
             new CompilerContext.Key<>();
 
     private SymbolTable symTable;
-    private SymbolResolver symResolver;
     private Names names;
     private BLangDiagnosticLog dlog;
 
     private DiagnosticPos defaultPos;
-    private Map<AnnotationID, List<AnnotationProcessor>> processorMap;
+    private List<CompilerPlugin> pluginList;
+    private Map<AnnotationID, List<CompilerPlugin>> processorMap;
 
     public static BLangAnnotationProcessor getInstance(CompilerContext context) {
         BLangAnnotationProcessor annotationProcessor = context.get(ANNOTATION_PROCESSOR_KEY);
@@ -93,20 +90,17 @@ public class BLangAnnotationProcessor extends BLangNodeVisitor {
         context.put(ANNOTATION_PROCESSOR_KEY, this);
 
         this.symTable = SymbolTable.getInstance(context);
-        this.symResolver = SymbolResolver.getInstance(context);
         this.names = Names.getInstance(context);
         this.dlog = BLangDiagnosticLog.getInstance(context);
 
+        this.pluginList = new ArrayList<>();
         this.processorMap = new HashMap<>();
     }
 
     public BLangPackage analyze(BLangPackage pkgNode) {
         this.defaultPos = pkgNode.pos;
-        initProcessors();
-        if (!processorMap.isEmpty()) {
-            pkgNode.accept(this);
-        }
-
+        loadPlugins();
+        pkgNode.accept(this);
         return pkgNode;
     }
 
@@ -114,6 +108,8 @@ public class BLangAnnotationProcessor extends BLangNodeVisitor {
         if (pkgNode.completedPhases.contains(CompilerPhase.ANNOTATION_PROCESS)) {
             return;
         }
+
+        pluginList.forEach(plugin -> plugin.process(pkgNode));
 
         // Visit all the imported packages
         pkgNode.imports.forEach(importPkg -> importPkg.accept(this));
@@ -194,68 +190,63 @@ public class BLangAnnotationProcessor extends BLangNodeVisitor {
 
     // private methods
 
-    private void initProcessors() {
-        ServiceLoader<AnnotationProcessor> processorServiceLoader =
-                ServiceLoader.load(AnnotationProcessor.class);
-        processorServiceLoader.forEach(this::initProcessor);
+    private void loadPlugins() {
+        ServiceLoader<CompilerPlugin> processorServiceLoader =
+                ServiceLoader.load(CompilerPlugin.class);
+        processorServiceLoader.forEach(plugin -> {
+            pluginList.add(plugin);
+            initPlugin(plugin);
+        });
     }
 
-    private void initProcessor(AnnotationProcessor processor) {
-        SupportedAnnotations supportedAnnotations =
-                processor.getClass().getAnnotation(SupportedAnnotations.class);
-        if (supportedAnnotations == null) {
-            dlog.warning(defaultPos, DiagnosticCode.ANN_PROC_NO_SUPPORTED_ANNOTATIONS_FOUND,
-                    processor.getClass().getName());
+    private void initPlugin(CompilerPlugin plugin) {
+        SupportedAnnotationPackages supportedAnnotationPackages =
+                plugin.getClass().getAnnotation(SupportedAnnotationPackages.class);
+        if (supportedAnnotationPackages == null) {
             return;
         }
 
-        AnnotationType[] annotationTypes = supportedAnnotations.value();
-        if (annotationTypes.length == 0) {
-            dlog.warning(defaultPos, DiagnosticCode.ANN_PROC_NO_SUPPORTED_ANNOTATIONS_FOUND,
-                    processor.getClass().getName());
+        String[] annotationPkgs = supportedAnnotationPackages.value();
+        if (annotationPkgs.length == 0) {
             return;
         }
 
-        for (AnnotationType annType : annotationTypes) {
+        for (String annPackage : annotationPkgs) {
             // Check whether each annotation type definition is available in the AST.
-            if (!validateAnnotationType(annType)) {
-                continue;
-            }
-
-            AnnotationID annotationID = new AnnotationID(annType.packageName(), annType.name());
-            List<AnnotationProcessor> processorList = processorMap.computeIfAbsent(
-                    annotationID, k -> new ArrayList<>());
-            processorList.add(processor);
+            List<BAnnotationSymbol> annotationSymbols = getAnnotationSymbols(annPackage, plugin);
+            annotationSymbols.forEach(annSymbol -> {
+                AnnotationID annotationID = new AnnotationID(annSymbol.pkgID.name.value, annSymbol.name.value);
+                List<CompilerPlugin> processorList = processorMap.computeIfAbsent(
+                        annotationID, k -> new ArrayList<>());
+                processorList.add(plugin);
+            });
         }
 
-        processor.init(dlog);
+        plugin.init(dlog);
     }
 
-    private boolean validateAnnotationType(AnnotationType annType) {
-        PackageID pkdID = new PackageID(names.fromString(annType.packageName()), Names.EMPTY);
+    private List<BAnnotationSymbol> getAnnotationSymbols(String annPackage, CompilerPlugin plugin) {
+        List<BAnnotationSymbol> annotationSymbols = new ArrayList<>();
+        PackageID pkdID = new PackageID(names.fromString(annPackage), Names.EMPTY);
         BPackageSymbol pkgSymbol = this.symTable.pkgSymbolMap.get(pkdID);
         if (pkgSymbol == null) {
-            dlog.warning(defaultPos, DiagnosticCode.ANN_PROC_CANNOT_FIND_ANNOTATION,
-                    annType.name(), annType.packageName());
-            return false;
+            dlog.warning(defaultPos, DiagnosticCode.ANN_PROC_NO_PACKAGE_FOUND, annPackage, plugin.getClass().getName());
+            return annotationSymbols;
         }
 
-        Name annName = names.fromString(annType.name());
-        BSymbol annSymbol = symResolver.lookupMemberSymbol(defaultPos, pkgSymbol.scope,
-                symTable.pkgEnvMap.get(pkgSymbol), annName, SymTag.ANNOTATION);
-        if (annSymbol == symTable.notFoundSymbol) {
-            dlog.warning(defaultPos, DiagnosticCode.ANN_PROC_CANNOT_FIND_ANNOTATION,
-                    annType.name(), annType.packageName());
-            return false;
+        SymbolEnv pkgEnv = symTable.pkgEnvMap.get(pkgSymbol);
+        for (BLangAnnotation annotationNode : pkgEnv.enclPkg.annotations) {
+            annotationSymbols.add((BAnnotationSymbol) annotationNode.symbol);
         }
 
-        return true;
+        // TODO Return an error if there are no annotations in this package.
+        return annotationSymbols;
     }
 
     private void notifyProcessors(List<BLangAnnotationAttachment> attachments,
-                                  BiConsumer<AnnotationProcessor, List<AnnotationAttachmentNode>> notifier) {
+                                  BiConsumer<CompilerPlugin, List<AnnotationAttachmentNode>> notifier) {
 
-        Map<AnnotationProcessor, List<AnnotationAttachmentNode>> attachmentMap = new HashMap<>();
+        Map<CompilerPlugin, List<AnnotationAttachmentNode>> attachmentMap = new HashMap<>();
 
         for (BLangAnnotationAttachment attachment : attachments) {
             AnnotationID aID = new AnnotationID(attachment.annotationSymbol.pkgID.getName().value,
@@ -264,7 +255,7 @@ public class BLangAnnotationProcessor extends BLangNodeVisitor {
                 continue;
             }
 
-            List<AnnotationProcessor> procList = processorMap.get(aID);
+            List<CompilerPlugin> procList = processorMap.get(aID);
             procList.forEach(proc -> {
                 List<AnnotationAttachmentNode> attachmentNodes =
                         attachmentMap.computeIfAbsent(proc, k -> new ArrayList<>());
@@ -273,7 +264,7 @@ public class BLangAnnotationProcessor extends BLangNodeVisitor {
         }
 
 
-        for (AnnotationProcessor processor : attachmentMap.keySet()) {
+        for (CompilerPlugin processor : attachmentMap.keySet()) {
             notifier.accept(processor, Collections.unmodifiableList(attachmentMap.get(processor)));
         }
     }
