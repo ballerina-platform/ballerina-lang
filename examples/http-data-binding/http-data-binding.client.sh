@@ -9,6 +9,6 @@ $ curl -v http://localhost:9090/hello/bindXML -X POST -d "<h:Store id = \"AST\" 
 <h:city xmlns:h="http://www.test.com">94</h:city>
 
 # To invoke the bindStruct resource, use following client.
-$  curl -v http://localhost:9090/hello/bindStruct -X POST -d '{ "Name": "John", "Grade": 12, "Marks": {"English" : "85", "IT" : "100"}}' -H "Content-Type:application/json"
+$ curl -v http://localhost:9090/hello/bindStruct -X POST -d '{ "Name": "John", "Grade": 12, "Marks": {"English" : "85", "IT" : "100"}}' -H "Content-Type:application/json"
 # Server response:
 {"Name":"John","Grade":12}
