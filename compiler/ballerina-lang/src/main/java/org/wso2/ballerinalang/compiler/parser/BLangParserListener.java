@@ -2155,7 +2155,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
 
-        this.pkgBuilder.endSelectClauseNode(getCurrentPos(ctx), getWS(ctx));
+        this.pkgBuilder.endSelectClauseNode(ctx.MUL(), getCurrentPos(ctx), getWS(ctx));
     }
 
     @Override

@@ -17,6 +17,7 @@
 */
 package org.wso2.ballerinalang.compiler.parser;
 
+import org.antlr.v4.runtime.tree.TerminalNode;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.TreeUtils;
@@ -1957,7 +1958,15 @@ public class BLangPackageBuilder {
         this.selectClausesStack.push(selectClauseNode);
     }
 
-    public void endSelectClauseNode(DiagnosticPos pos, Set<Whitespace> ws) {
-
+    public void endSelectClauseNode(TerminalNode selectAllNode, DiagnosticPos pos, Set<Whitespace> ws) {
+        if (this.selectExpressionsListStack.empty()) {
+            throw new IllegalStateException("Select Expressions List stack cannot be empty when processing a select " +
+                    "clause");
+        }
+        SelectClauseNode selectClauseNode = this.selectClausesStack.peek();
+        selectClauseNode.setGroupBy(this.groupByClauseStack.pop());
+        selectClauseNode.setHaving(this.havingClauseStack.pop());
+        selectClauseNode.setSelectExpressions(this.selectExpressionsListStack.pop());
+        selectClauseNode.setSelectAll(selectAllNode == null ? false : true);
     }
 }
