@@ -23,7 +23,6 @@ import io.netty.channel.ChannelDuplexHandler;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.EmptyHttpHeaders;
-import io.netty.handler.codec.http.FullHttpMessage;
 import io.netty.handler.codec.http.HttpClientUpgradeHandler;
 import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http.HttpHeaders;
@@ -34,6 +33,7 @@ import io.netty.handler.codec.http2.EmptyHttp2Headers;
 import io.netty.handler.codec.http2.Http2CodecUtil;
 import io.netty.handler.codec.http2.Http2Connection;
 import io.netty.handler.codec.http2.Http2ConnectionEncoder;
+import io.netty.handler.codec.http2.Http2Exception;
 import io.netty.handler.codec.http2.Http2Headers;
 import io.netty.handler.codec.http2.HttpConversionUtil;
 import io.netty.util.ReferenceCountUtil;
@@ -99,30 +99,8 @@ public class Http2ClientHandler extends ChannelDuplexHandler {
 
     public void writeRequest(OutboundHttpRequestHolder outboundHttpRequestHolder) {
 
-        HTTPCarbonMessage httpOutboundRequest = outboundHttpRequestHolder.getHttpCarbonMessage();
-
         if (upgradedToHttp2) {
-            int streamId = getStreamId();
-            targetChannel.putInFlightMessage(streamId, outboundHttpRequestHolder);
-
-            HttpRequest httpRequest = Util.createHttpRequest(httpOutboundRequest);
-
-
-            // Write Headers
-            writeHttp2Headers(httpRequest, streamId, true);
-            // Write Content
-            httpOutboundRequest.getHttpContentAsync().
-                    setMessageListener((httpContent ->
-                                                this.targetChannel.getChannel().eventLoop().execute(() -> {
-                                                    try {
-                                                        writeHttp2Content(httpContent, streamId, true);
-                                                    } catch (Exception exception) {
-                                                        String errorMsg = "Failed to send the request : " +
-                                                                          exception.getMessage().
-                                                                                  toLowerCase(Locale.ENGLISH);
-                                                        log.error(errorMsg, exception);
-                                                    }
-                                                })));
+            new Http2RequestWriter(outboundHttpRequestHolder).writeContent();
         } else {
             new UpgradeRequestWriter(outboundHttpRequestHolder).writeContent();
         }
@@ -132,58 +110,115 @@ public class Http2ClientHandler extends ChannelDuplexHandler {
         return connection.local().incrementAndGetNextStreamId();
     }
 
-    private void writeHttp2Headers(HttpMessage httpMsg, int streamId, boolean validateHeaders) {
-        // Convert and write the headers.
-        httpMsg.headers().add(HttpConversionUtil.ExtensionHeaderNames.SCHEME.text(), "HTTP");
+    private class Http2RequestWriter {
 
-        Http2Headers http2Headers = HttpConversionUtil.toHttp2Headers(httpMsg, validateHeaders);
-        boolean endStream = httpMsg instanceof FullHttpMessage && !((FullHttpMessage) httpMsg).content().isReadable();
-        writeHeaders(streamId, httpMsg.headers(), http2Headers, endStream);
-    }
+        boolean isHeadersWritten = false;
+        HTTPCarbonMessage httpOutboundRequest;
+        OutboundHttpRequestHolder outboundHttpRequestHolder;
 
-    private void writeHttp2Content(HttpContent msg, int streamId, boolean validateHeaders) {
+        public Http2RequestWriter(OutboundHttpRequestHolder outboundHttpRequestHolder) {
+            this.outboundHttpRequestHolder = outboundHttpRequestHolder;
+            httpOutboundRequest = outboundHttpRequestHolder.getHttpCarbonMessage();
+        }
 
-        boolean release = true;
-        try {
-            boolean isLastContent = false;
-            HttpHeaders trailers = EmptyHttpHeaders.INSTANCE;
-            Http2Headers http2Trailers = EmptyHttp2Headers.INSTANCE;
-            if (msg instanceof LastHttpContent) {
-                isLastContent = true;
+        public void writeContent() {
+            int streamId = getStreamId();
+            targetChannel.putInFlightMessage(streamId, outboundHttpRequestHolder);
 
-                // Convert any trailing headers.
-                final LastHttpContent lastContent = (LastHttpContent) msg;
-                trailers = lastContent.trailingHeaders();
-                http2Trailers = HttpConversionUtil.toHttp2Headers(trailers, validateHeaders);
+            // Write Content
+            httpOutboundRequest.getHttpContentAsync().
+                    setMessageListener((httpContent ->
+                                                targetChannel.getChannel().eventLoop().execute(() -> {
+                                                    try {
+                                                        writeOutboundRequest(httpContent, streamId, true);
+                                                    } catch (Exception exception) {
+                                                        String errorMsg = "Failed to send the request : " +
+                                                                          exception.getMessage().
+                                                                                  toLowerCase(Locale.ENGLISH);
+                                                        log.error(errorMsg, exception);
+                                                    }
+                                                })));
+
+        }
+
+        private void writeOutboundRequest(HttpContent msg, int streamId, boolean validateHeaders) {
+
+            boolean endStream = false;
+            if (!isHeadersWritten) {
+                HttpRequest httpRequest = Util.createHttpRequest(httpOutboundRequest);
+
+                if (msg instanceof LastHttpContent && msg.content().capacity() == 0) {
+                    endStream = true;
+                }
+                // Write Headers
+                writeOutboundRequestHeaders(httpRequest, streamId, true, endStream);
+                isHeadersWritten = true;
+                if (endStream) {
+                    return;
+                }
             }
 
-            // Write the data
-            final ByteBuf content = ((HttpContent) msg).content();
-            boolean endStream = isLastContent && trailers.isEmpty();
-            release = false;
-            encoder.writeData(channelHandlerContext, streamId, content, 0, endStream,
-                              channelHandlerContext.newPromise());
-            channelHandlerContext.flush();
+            boolean release = true;
+            try {
+                boolean isLastContent = false;
+                HttpHeaders trailers = EmptyHttpHeaders.INSTANCE;
+                Http2Headers http2Trailers = EmptyHttp2Headers.INSTANCE;
+                if (msg instanceof LastHttpContent) {
+                    isLastContent = true;
 
-            if (!trailers.isEmpty()) {
-                // Write trailing headers.
-                writeHeaders(streamId, trailers, http2Trailers, true);
-            }
-        } finally {
-            if (release) {
-                ReferenceCountUtil.release(msg);
+                    // Convert any trailing headers.
+                    final LastHttpContent lastContent = (LastHttpContent) msg;
+                    trailers = lastContent.trailingHeaders();
+                    http2Trailers = HttpConversionUtil.toHttp2Headers(trailers, validateHeaders);
+                }
+
+                // Write the data
+                final ByteBuf content = msg.content();
+                endStream = isLastContent && trailers.isEmpty();
+                release = false;
+                encoder.writeData(channelHandlerContext, streamId, content, 0, endStream,
+                                  channelHandlerContext.newPromise());
+                try {
+                    encoder.flowController().writePendingBytes();
+                } catch (Http2Exception e) {
+                }
+                channelHandlerContext.flush();
+
+                if (!trailers.isEmpty()) {
+                    // Write trailing headers.
+                    writeHttp2Headers(streamId, trailers, http2Trailers, true);
+                }
+            } finally {
+                if (release) {
+                    ReferenceCountUtil.release(msg);
+                }
             }
         }
-    }
 
-    private void writeHeaders(int streamId, HttpHeaders headers, Http2Headers http2Headers, boolean endStream) {
-        int dependencyId = headers.getInt(
-                HttpConversionUtil.ExtensionHeaderNames.STREAM_DEPENDENCY_ID.text(), 0);
-        short weight = headers.getShort(
-                HttpConversionUtil.ExtensionHeaderNames.STREAM_WEIGHT.text(), Http2CodecUtil.DEFAULT_PRIORITY_WEIGHT);
-        encoder.writeHeaders(channelHandlerContext, streamId, http2Headers, dependencyId, weight, false,
-                             0, endStream, channelHandlerContext.newPromise());
-        channelHandlerContext.flush();
+        private void writeOutboundRequestHeaders(HttpMessage httpMsg, int streamId, boolean validateHeaders,
+                                                 boolean endStream) {
+            // Convert and write the headers.
+            httpMsg.headers().add(HttpConversionUtil.ExtensionHeaderNames.SCHEME.text(), "HTTP");
+
+            Http2Headers http2Headers = HttpConversionUtil.toHttp2Headers(httpMsg, validateHeaders);
+            writeHttp2Headers(streamId, httpMsg.headers(), http2Headers, endStream);
+        }
+
+        private void writeHttp2Headers(int streamId, HttpHeaders headers, Http2Headers http2Headers,
+                                       boolean endStream) {
+            int dependencyId = headers.getInt(
+                    HttpConversionUtil.ExtensionHeaderNames.STREAM_DEPENDENCY_ID.text(), 0);
+            short weight = headers.getShort(
+                    HttpConversionUtil.ExtensionHeaderNames.STREAM_WEIGHT.text(),
+                    Http2CodecUtil.DEFAULT_PRIORITY_WEIGHT);
+            encoder.writeHeaders(channelHandlerContext, streamId, http2Headers, dependencyId, weight, false,
+                                 0, endStream, channelHandlerContext.newPromise());
+            try {
+                encoder.flowController().writePendingBytes();
+                channelHandlerContext.flush();
+            } catch (Http2Exception e) {
+            }
+        }
     }
 
     private class UpgradeRequestWriter {
@@ -221,8 +256,6 @@ public class Http2ClientHandler extends ChannelDuplexHandler {
         private void writeOutboundRequest(HttpContent httpContent) throws Exception {
             if (Util.isLastHttpContent(httpContent)) {
                 if (!this.isRequestWritten) {
-                    // this means we need to send an empty payload
-                    // depending on the http verb
                     if (Util.isEntityBodyAllowed(getHttpMethod(httpOutboundRequest))) {
                         if (chunkConfig == ChunkConfig.ALWAYS && Util.isVersionCompatibleForChunking(httpVersion)) {
                             Util.setupChunkedRequest(httpOutboundRequest);
@@ -291,7 +324,6 @@ public class Http2ClientHandler extends ChannelDuplexHandler {
             }
             return httpMethod;
         }
-
     }
 
 }
