@@ -58,6 +58,7 @@ import static org.ballerinalang.mime.util.Constants.MESSAGE_ENTITY;
 import static org.ballerinalang.mime.util.Constants.MULTIPART_FORM_DATA;
 import static org.ballerinalang.mime.util.Constants.PARAMETER_MAP_INDEX;
 import static org.ballerinalang.mime.util.Constants.PRIMARY_TYPE_INDEX;
+import static org.ballerinalang.mime.util.Constants.READABLE_BUFFER_SIZE;
 import static org.ballerinalang.mime.util.Constants.SEMICOLON;
 import static org.ballerinalang.mime.util.Constants.SIZE_INDEX;
 import static org.ballerinalang.mime.util.Constants.STRUCT_GENERIC_ERROR;
@@ -95,7 +96,7 @@ public class MimeUtil {
      * @param entity Represent an 'Entity'
      * @return content-type in 'primarytype/subtype; key=value;' format
      */
-    public static String getContentTypeWithParameters(BStruct entity) {
+    static String getContentTypeWithParameters(BStruct entity) {
         String contentType = null;
         if (entity.getRefField(MEDIA_TYPE_INDEX) != null) {
             BStruct mediaType = (BStruct) entity.getRefField(MEDIA_TYPE_INDEX);
@@ -277,12 +278,7 @@ public class MimeUtil {
         try {
             File tempFile = File.createTempFile(fileName, TEMP_FILE_EXTENSION);
             outputStream = new FileOutputStream(tempFile.getAbsolutePath());
-            byte[] buffer = new byte[1024];
-            int bytesRead;
-            //read from inputstream to buffer
-            while ((bytesRead = inputStream.read(buffer)) != -1) {
-                outputStream.write(buffer, 0, bytesRead);
-            }
+            writeInputToOutputStream(inputStream, outputStream);
             inputStream.close();
             //flush OutputStream to write any buffered data to file
             outputStream.flush();
@@ -298,6 +294,22 @@ public class MimeUtil {
             } catch (IOException e) {
                 log.error("Error occured while closing outputstream in writeToTemporaryFile", e.getMessage());
             }
+        }
+    }
+
+    /**
+     * Write a given inputstream to a given outputstream.
+     *
+     * @param outputStream Represent the outputstream that the inputstream should be written to
+     * @param inputStream         Represent the inputstream that that needs to be written to outputstream
+     * @throws IOException When an error occurs while writing inputstream to outputstream
+     */
+    public static void writeInputToOutputStream(InputStream inputStream, OutputStream outputStream) throws
+            IOException {
+        byte[] buffer = new byte[READABLE_BUFFER_SIZE];
+        int len;
+        while ((len = inputStream.read(buffer)) != -1) {
+            outputStream.write(buffer, 0, len);
         }
     }
 
