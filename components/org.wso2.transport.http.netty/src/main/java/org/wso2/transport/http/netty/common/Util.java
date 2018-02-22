@@ -280,7 +280,6 @@ public class Util {
         File trustStore = new File(substituteVariables(trustStoreFilePath));
 
         sslConfig.setTrustStore(trustStore).setTrustStorePass(trustStorePass);
-        sslConfig.setClientMode(true);
         sslProtocol = sslProtocol != null ? sslProtocol : "TLS";
         sslConfig.setSSLProtocol(sslProtocol);
         tlsStoreType = tlsStoreType != null ? tlsStoreType : "JKS";
