@@ -581,7 +581,7 @@ class TransformerNodeMapper {
         } else {
             let defaultExp = TransformerFactory.createDefaultExpression();
             if (TreeUtil.isInvocation(parentNode)) {
-                if (parentDef && parentDef.type !== 'iterable') {
+                if (parentDef) {
                     const index = parentNode.getIndexOfArgumentExpressions(nodeExpression);
                     defaultExp = TransformerFactory.createDefaultExpression(parentDef.parameters[index].type);
                 }
@@ -1689,9 +1689,9 @@ class TransformerNodeMapper {
 
     /**
      * Generate iterable operation to the given connection
-     * @param {*} connection where iterable operation should be added
-     * @param {*} type iterable operation type
-     * @param {*} isLamda is given iterable operation has a lambda function
+     * @param {object} connection where iterable operation should be added
+     * @param {string} type iterable operation type
+     * @param {boolean} isLamda is given iterable operation has a lambda function
      */
     addIterableOperator(connection, type, isLamda) {
         this.getMappingStatements().forEach((stmt) => {

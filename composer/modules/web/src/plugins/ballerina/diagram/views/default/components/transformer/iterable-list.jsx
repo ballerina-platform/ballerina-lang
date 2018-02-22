@@ -24,6 +24,10 @@ import './iterable-list.css';
  */
 class IterableList extends React.Component {
 
+    /**
+     * IterableList extended component constructor
+     * @param {any} props props for the component
+     */
     constructor(props) {
         super(props);
         this.state = { showIterables: true };
@@ -39,6 +43,7 @@ class IterableList extends React.Component {
     componentDidMount() {
         document.addEventListener('mousedown', this.handleClickOutside);
     }
+
     /**
      * remove mouse down event bound  when mounting component
      */
@@ -76,6 +81,11 @@ class IterableList extends React.Component {
         }
     }
 
+    /**
+     * Handles add iterable click event
+     * @param {string} type iterable operation type
+     * @param {boolean} isLambda is given iterable operation has a lambda function
+     */
     addIterable(type, isLambda) {
         this.props.transformNodeManager.addIterableOperator(this.props.currrentConnection, type, isLambda);
         this.setState({ showIterables: false });

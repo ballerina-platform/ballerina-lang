@@ -252,25 +252,20 @@ class TransformerNodeManager {
         let parameters = [];
         let returnParams = [];
         let receiver;
-
         if (functionInvocationExpression.iterableOperation) {
             const inputParamName = `${functionInvocationExpression.getID()}:0:receiver`;
             const returnParamName = `${functionInvocationExpression.getID()}:0:return`;
-            type = 'iterable';
-
             let dataType = '[]';
             let dataReturnType = '[]';
+            type = 'iterable';
             if (functionInvocationExpression.getExpression().symbolType
                 && functionInvocationExpression.getExpression().symbolType.length > 0) {
                 dataType = functionInvocationExpression.getExpression().symbolType[0];
             }
-
             if (functionInvocationExpression.symbolType && functionInvocationExpression.symbolType.length > 0) {
                 dataReturnType = functionInvocationExpression.symbolType[0];
             }
-
-            const argType = dataType
-                                .replace('intermediate_collection', '[]');
+            const argType = dataType.replace('intermediate_collection', '[]');
             if (functionInvocationExpression.argumentExpressions.length === 0) {
                 receiver = {
                     name: inputParamName,

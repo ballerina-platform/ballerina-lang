@@ -75,6 +75,14 @@ class TransformerFactory {
         return variable;
     }
 
+    /**
+     * create a iterable operation for provided name and type
+     * @param {string} name collection name
+     * @param {string} type iterable operation type
+     * @param {string} sourceType source collection type
+     * @param {boolean} isLamda is given iterable operation has a lambda function
+     * @return {object} created iterable operation node
+     */
     static createIterableOperation(name, type, sourceType, isLamda) {
         let lambdaFunction = '';
         if (isLamda) {
@@ -88,6 +96,11 @@ class TransformerFactory {
         return exp;
     }
 
+    /**
+     * Update iterable flag recursive for chained iterable operations
+     * @param {object} node expression node
+     * @param {*} sourceType source collection type
+     */
     static updateItreableOperation(node, sourceType) {
         node.iterableOperation = true;
         node.symbolType[0] = sourceType;

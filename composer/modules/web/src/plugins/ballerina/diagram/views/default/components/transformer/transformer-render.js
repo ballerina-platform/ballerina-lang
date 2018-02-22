@@ -204,7 +204,7 @@ class TransformerRender {
                 outlineWidth: 2,
                 outlineStroke: '#ffe0b3',
             };
-            if (castType === 'array') {
+            if (castType === 'iterable') {
                 options.overlays = [['Custom', {
                     location: 0.75,
                     id: 'label',
@@ -234,7 +234,7 @@ class TransformerRender {
                         },
                     },
                 }]];
-            } 
+            }
         }
 
         this.jsPlumbInstance.connect(options);
