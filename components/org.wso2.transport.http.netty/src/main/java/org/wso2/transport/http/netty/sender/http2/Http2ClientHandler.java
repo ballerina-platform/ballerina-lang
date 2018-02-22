@@ -22,19 +22,27 @@ import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelDuplexHandler;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelHandlerContext;
+import io.netty.handler.codec.http.DefaultHttpContent;
+import io.netty.handler.codec.http.DefaultHttpResponse;
+import io.netty.handler.codec.http.DefaultLastHttpContent;
 import io.netty.handler.codec.http.EmptyHttpHeaders;
 import io.netty.handler.codec.http.HttpClientUpgradeHandler;
 import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.HttpMessage;
 import io.netty.handler.codec.http.HttpRequest;
+import io.netty.handler.codec.http.HttpResponse;
+import io.netty.handler.codec.http.HttpResponseStatus;
+import io.netty.handler.codec.http.HttpVersion;
 import io.netty.handler.codec.http.LastHttpContent;
 import io.netty.handler.codec.http2.EmptyHttp2Headers;
 import io.netty.handler.codec.http2.Http2CodecUtil;
 import io.netty.handler.codec.http2.Http2Connection;
 import io.netty.handler.codec.http2.Http2ConnectionEncoder;
+import io.netty.handler.codec.http2.Http2DataFrame;
 import io.netty.handler.codec.http2.Http2Exception;
 import io.netty.handler.codec.http2.Http2Headers;
+import io.netty.handler.codec.http2.Http2HeadersFrame;
 import io.netty.handler.codec.http2.HttpConversionUtil;
 import io.netty.util.ReferenceCountUtil;
 import org.apache.commons.logging.Log;
@@ -43,7 +51,10 @@ import org.wso2.transport.http.netty.common.Constants;
 import org.wso2.transport.http.netty.common.Util;
 import org.wso2.transport.http.netty.config.ChunkConfig;
 import org.wso2.transport.http.netty.contract.HttpResponseFuture;
+import org.wso2.transport.http.netty.message.EmptyLastHttpContent;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
+import org.wso2.transport.http.netty.message.HttpCarbonResponse;
+import org.wso2.transport.http.netty.message.PooledDataStreamerFactory;
 
 import java.io.IOException;
 import java.nio.channels.ClosedChannelException;
@@ -70,7 +81,25 @@ public class Http2ClientHandler extends ChannelDuplexHandler {
 
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) {
-        log.info("ClientHandler Channel read fired");
+        if (msg instanceof Http2HeadersFrame) {
+            Http2HeadersFrame frame = (Http2HeadersFrame) msg;
+            OutboundHttpRequestHolder outboundHttpRequestHolder = targetChannel.getInFlightMessage(frame.stream().id());
+            HTTPCarbonMessage responseMessage = setupResponseCarbonMessage(ctx, frame, outboundHttpRequestHolder);
+            outboundHttpRequestHolder.setResponseCarbonMessage(responseMessage);
+            if (frame.isEndStream()) {
+                responseMessage.addHttpContent(new EmptyLastHttpContent());
+            }
+            outboundHttpRequestHolder.getResponseFuture().notifyHttpListener(responseMessage);
+        } else if (msg instanceof Http2DataFrame) {
+            Http2DataFrame frame = (Http2DataFrame) msg;
+            OutboundHttpRequestHolder outboundHttpRequestHolder = targetChannel.getInFlightMessage(frame.stream().id());
+            HTTPCarbonMessage responseMessage = outboundHttpRequestHolder.getResponseCarbonMessage();
+            if (frame.isEndStream()) {
+                responseMessage.addHttpContent(new DefaultLastHttpContent(frame.content().retain()));
+            } else {
+                responseMessage.addHttpContent(new DefaultHttpContent(frame.content().retain()));
+            }
+        }
     }
 
     public void channelActive(ChannelHandlerContext channelHandlerContext) throws Exception {
@@ -118,7 +147,7 @@ public class Http2ClientHandler extends ChannelDuplexHandler {
 
         public Http2RequestWriter(OutboundHttpRequestHolder outboundHttpRequestHolder) {
             this.outboundHttpRequestHolder = outboundHttpRequestHolder;
-            httpOutboundRequest = outboundHttpRequestHolder.getHttpCarbonMessage();
+            httpOutboundRequest = outboundHttpRequestHolder.getRequestCarbonMessage();
         }
 
         public void writeContent() {
@@ -231,14 +260,17 @@ public class Http2ClientHandler extends ChannelDuplexHandler {
         ChunkConfig chunkConfig = ChunkConfig.AUTO;
         HTTPCarbonMessage httpOutboundRequest;
         HttpResponseFuture responseFuture;
+        OutboundHttpRequestHolder outboundHttpRequestHolder;
 
         public UpgradeRequestWriter(OutboundHttpRequestHolder outboundHttpRequestHolder) {
-            httpOutboundRequest = outboundHttpRequestHolder.getHttpCarbonMessage();
-            responseFuture = outboundHttpRequestHolder.getHttpInboundResponseFuture();
-
+            this.outboundHttpRequestHolder = outboundHttpRequestHolder;
+            httpOutboundRequest = outboundHttpRequestHolder.getRequestCarbonMessage();
+            responseFuture = outboundHttpRequestHolder.getResponseFuture();
         }
 
         public void writeContent() {
+
+            targetChannel.putInFlightMessage(1, outboundHttpRequestHolder);
 
             httpOutboundRequest.getHttpContentAsync().
                     setMessageListener((httpContent -> targetChannel.getChannel().eventLoop().execute(() -> {
@@ -324,6 +356,47 @@ public class Http2ClientHandler extends ChannelDuplexHandler {
             }
             return httpMethod;
         }
+    }
+
+
+    private HTTPCarbonMessage setupResponseCarbonMessage(ChannelHandlerContext ctx, Http2HeadersFrame headersFrame,
+                                                         OutboundHttpRequestHolder outboundHttpRequestHolder) {
+
+        Http2Headers http2Headers = headersFrame.headers();
+
+        CharSequence status = http2Headers.status();
+        HttpResponseStatus responseStatus;
+        try {
+            responseStatus = HttpConversionUtil.parseStatus(status);
+        } catch (Http2Exception e) {
+            responseStatus = HttpResponseStatus.BAD_GATEWAY;
+        }
+
+        HttpVersion version = new HttpVersion(Constants.HTTP_VERSION_2_0, true);
+
+        HttpResponse httpResponse = new DefaultHttpResponse(version, responseStatus);
+
+        try {
+            HttpConversionUtil.
+                    addHttp2ToHttpHeaders(headersFrame.stream().id(), http2Headers, httpResponse.headers(),
+                                          version, false, false);
+        } catch (Http2Exception e) {
+        }
+        HTTPCarbonMessage responseCarbonMsg = new HttpCarbonResponse(httpResponse);
+
+        responseCarbonMsg.setProperty(Constants.POOLED_BYTE_BUFFER_FACTORY, new PooledDataStreamerFactory(ctx.alloc()));
+
+        responseCarbonMsg.setProperty(org.wso2.carbon.messaging.Constants.DIRECTION,
+                                  org.wso2.carbon.messaging.Constants.DIRECTION_RESPONSE);
+        responseCarbonMsg.setProperty(Constants.HTTP_STATUS_CODE, httpResponse.status().code());
+
+        //copy required properties for service chaining from incoming carbon message to the response carbon message
+        //copy shared worker pool
+        responseCarbonMsg.setProperty(
+                Constants.EXECUTOR_WORKER_POOL,
+                outboundHttpRequestHolder.getRequestCarbonMessage().getProperty(Constants.EXECUTOR_WORKER_POOL));
+
+        return responseCarbonMsg;
     }
 
 }

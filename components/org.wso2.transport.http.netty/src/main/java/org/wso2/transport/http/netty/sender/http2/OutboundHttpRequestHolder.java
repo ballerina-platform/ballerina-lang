@@ -26,20 +26,30 @@ import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
  */
 public class OutboundHttpRequestHolder {
 
-    private HTTPCarbonMessage httpCarbonMessage;
-    private HttpResponseFuture httpInboundResponseFuture;
+    private HTTPCarbonMessage requestCarbonMessage;
+    private HTTPCarbonMessage responseCarbonMessage;
+
+    private HttpResponseFuture responseFuture;
 
     public OutboundHttpRequestHolder(HTTPCarbonMessage httpCarbonMessage,
-                                     HttpResponseFuture httpInboundResponseFuture) {
-        this.httpCarbonMessage = httpCarbonMessage;
-        this.httpInboundResponseFuture = httpInboundResponseFuture;
+                                     HttpResponseFuture responseFuture) {
+        this.requestCarbonMessage = httpCarbonMessage;
+        this.responseFuture = responseFuture;
     }
 
-    public HTTPCarbonMessage getHttpCarbonMessage() {
-        return httpCarbonMessage;
+    public HTTPCarbonMessage getRequestCarbonMessage() {
+        return requestCarbonMessage;
     }
 
-    public HttpResponseFuture getHttpInboundResponseFuture() {
-        return httpInboundResponseFuture;
+    public HttpResponseFuture getResponseFuture() {
+        return responseFuture;
+    }
+
+    public HTTPCarbonMessage getResponseCarbonMessage() {
+        return responseCarbonMessage;
+    }
+
+    public void setResponseCarbonMessage(HTTPCarbonMessage responseCarbonMessage) {
+        this.responseCarbonMessage = responseCarbonMessage;
     }
 }

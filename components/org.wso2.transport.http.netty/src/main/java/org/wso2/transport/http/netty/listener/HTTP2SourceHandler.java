@@ -179,7 +179,8 @@ public final class HTTP2SourceHandler extends Http2ConnectionHandler {
             }
 
             // Construct new HTTP carbon message and put into stream id request map
-            HttpRequest httpRequest = new DefaultHttpRequest(new HttpVersion("HTTP/2.0", true),
+            HttpRequest httpRequest = new DefaultHttpRequest(new HttpVersion(Constants.HTTP_VERSION_2_0,
+                                                                             true),
                                                              HttpMethod.valueOf(method), path);
             HTTPCarbonMessage sourceReqCMsg = new HttpCarbonRequest(httpRequest);
 

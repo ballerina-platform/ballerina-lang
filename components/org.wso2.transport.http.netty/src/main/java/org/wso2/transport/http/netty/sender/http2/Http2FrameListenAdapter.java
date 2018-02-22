@@ -24,8 +24,10 @@ import io.netty.handler.codec.http2.DefaultHttp2DataFrame;
 import io.netty.handler.codec.http2.DefaultHttp2HeadersFrame;
 import io.netty.handler.codec.http2.Http2EventAdapter;
 import io.netty.handler.codec.http2.Http2Exception;
+import io.netty.handler.codec.http2.Http2FrameStream;
 import io.netty.handler.codec.http2.Http2Headers;
 import io.netty.handler.codec.http2.Http2Settings;
+import io.netty.handler.codec.http2.Http2Stream;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -43,6 +45,7 @@ public class Http2FrameListenAdapter extends Http2EventAdapter {
             log.debug("Http2FrameListenAdapter.onDataRead()");
         }
         DefaultHttp2DataFrame frame = new DefaultHttp2DataFrame(data, endOfStream, padding);
+        frame.stream(new Stream(streamId));
         ctx.fireChannelRead(frame);
         return super.onDataRead(ctx, streamId, data, padding, endOfStream);
     }
@@ -56,6 +59,7 @@ public class Http2FrameListenAdapter extends Http2EventAdapter {
         }
 
         DefaultHttp2HeadersFrame frame = new DefaultHttp2HeadersFrame(headers, endStream, padding);
+        frame.stream(new Stream(streamId));
         ctx.fireChannelRead(frame);
         super.onHeadersRead(ctx, streamId, headers, streamDependency, weight, exclusive, padding,
                             endStream);
@@ -92,4 +96,24 @@ public class Http2FrameListenAdapter extends Http2EventAdapter {
         }
         super.onPushPromiseRead(ctx, streamId, promisedStreamId, headers, padding);
     }
+
+    static class Stream implements Http2FrameStream {
+
+        int streamId;
+
+        public Stream(int streamId) {
+            this.streamId = streamId;
+        }
+
+        @Override
+        public int id() {
+            return streamId;
+        }
+
+        @Override
+        public Http2Stream.State state() {
+            return null;
+        }
+    }
+
 }
