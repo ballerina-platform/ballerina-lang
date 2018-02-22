@@ -124,6 +124,13 @@
                     </execution>
                 </executions>
             </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>findbugs-maven-plugin</artifactId>
+                <configuration>
+                    <onlyAnalyze>org.wso2.ballerinalang.grpc.tool.Test</onlyAnalyze>
+                </configuration>
+            </plugin>
         </plugins>
     </build>
 

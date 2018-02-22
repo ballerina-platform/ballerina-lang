@@ -39,17 +39,17 @@ import java.util.Map;
  * Abstract Method listener.
  * This provide method for all method listener child classes.
  */
-abstract class MethodListener {
+public abstract class MethodListener {
 
     private Descriptors.MethodDescriptor methodDescriptor;
-    Resource resource;
+    public Resource resource;
 
     public MethodListener(Descriptors.MethodDescriptor methodDescriptor, Resource resource) {
         this.methodDescriptor = methodDescriptor;
         this.resource = resource;
     }
 
-    BValue getConnectionParameter(StreamObserver<Message> responseObserver) {
+    public BValue getConnectionParameter(StreamObserver<Message> responseObserver) {
         BStruct connection = ConnectorUtils.createStruct(resource,
                 MessageConstants.PROTOCOL_PACKAGE_GRPC, MessageConstants.CONNECTION);
         connection.setIntField(0, responseObserver.hashCode());
@@ -58,7 +58,7 @@ abstract class MethodListener {
         return connection;
     }
 
-    BValue getRequestParameter(Message requestMessage) {
+    public BValue getRequestParameter(Message requestMessage) {
         if (resource == null || resource.getParamDetails() == null || resource.getParamDetails().size() > 2) {
             throw new RuntimeException("Invalid resource input arguments. arguments must not be greater than two");
         }

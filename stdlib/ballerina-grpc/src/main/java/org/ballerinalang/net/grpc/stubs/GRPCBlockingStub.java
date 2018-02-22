@@ -6,6 +6,8 @@ import io.grpc.Channel;
 import io.grpc.MethodDescriptor;
 import org.ballerinalang.net.grpc.GRPCClientStub;
 
+import static io.grpc.stub.ClientCalls.asyncClientStreamingCall;
+import static io.grpc.stub.ClientCalls.blockingServerStreamingCall;
 import static io.grpc.stub.ClientCalls.blockingUnaryCall;
 
 /**.
@@ -27,19 +29,27 @@ public class GRPCBlockingStub extends io.grpc.stub.AbstractStub<GRPCBlockingStub
     }
     
     /**
+     */
+    public java.util.Iterator<com.google.protobuf.StringValue> executeServerStreaming(
+            Message request,int methodID) {
+        MethodDescriptor methodDescriptor =(MethodDescriptor<Message, Message>) GRPCClientStub
+                .getMethodDescriptorMap().get(methodID);
+        return blockingServerStreamingCall(
+                getChannel(), methodDescriptor, getCallOptions(), request);
+    }
+    /**
      * .
      * @param request .
      * @param methodID .
      * @return .
      */
-    public Message executeBlockingUnary(Message request, int methodID) {
+    public Message executeUnary(Message request, int methodID) {
         
         MethodDescriptor.MethodType methodType = GRPCClientStub.getMethodType(methodID);
         if (methodType.equals(MethodDescriptor.MethodType.UNARY)) {
             return blockingUnaryCall(
                     getChannel(), (MethodDescriptor<Message, Message>) GRPCClientStub.getMethodDescriptorMap()
-                            .get(methodID),
-                    getCallOptions(), request);
+                            .get(methodID), getCallOptions(), request);
         } else {
             throw new RuntimeException("invalid method type");
         }

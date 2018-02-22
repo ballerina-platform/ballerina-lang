@@ -1,6 +1,7 @@
 package org.ballerinalang.net.grpc.actions;
 
 import com.google.protobuf.DescriptorProtos;
+import io.grpc.MethodDescriptor;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.connector.api.AbstractNativeAction;
 import org.ballerinalang.connector.api.ConnectorFuture;
@@ -16,7 +17,11 @@ import org.ballerinalang.natives.annotations.BallerinaAction;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.net.grpc.GRPCClientStub;
 import org.ballerinalang.net.grpc.Message;
+import org.ballerinalang.net.grpc.observers.ClientStreamingObserver;
+import org.ballerinalang.net.grpc.observers.ServerStreamingObserver;
+import org.ballerinalang.net.grpc.observers.UnaryMethodObserver;
 import org.ballerinalang.net.grpc.stubs.GRPCBlockingStub;
+import org.ballerinalang.net.grpc.stubs.GRPCFutureStub;
 import org.ballerinalang.net.grpc.stubs.GRPCNonBlockingStub;
 import org.ballerinalang.net.grpc.utils.MessageUtil;
 import org.ballerinalang.util.codegen.PackageInfo;
@@ -47,9 +52,9 @@ import org.slf4j.LoggerFactory;
                 @Argument(name = "port", type = TypeKind.INT)
         }
 )
-public class Execute extends AbstractNativeAction {
+public class Execute2 extends AbstractNativeAction {
     
-    private static final Logger logger = LoggerFactory.getLogger(Execute.class);
+    private static final Logger logger = LoggerFactory.getLogger(Execute2.class);
     
     @Override
     public ConnectorFuture execute(Context context) {
@@ -80,11 +85,23 @@ public class Execute extends AbstractNativeAction {
             if (connectionStub.getNativeData("stub") instanceof GRPCBlockingStub) {
                 GRPCBlockingStub grpcBlockingStub = (GRPCBlockingStub)
                         connectionStub.getNativeData("stub");
-                messageRes = (Message) grpcBlockingStub.executeUnary(message, methodId);
+                if (getMethodType(methodId).equals(MethodDescriptor.MethodType.UNARY)) {
+                    messageRes = (Message) grpcBlockingStub.executeUnary(message, methodId);
+                } else if ((getMethodType(methodId).equals(MethodDescriptor.MethodType.SERVER_STREAMING))) {
+                    messageRes = (Message) grpcBlockingStub.executeServerStreaming(message, methodId);
+                }
             } else if (connectionStub.getNativeData("stub") instanceof GRPCNonBlockingStub) {
-            
-            } else if (connectionStub.getNativeData("stub") instanceof GRPCBlockingStub) {
-            
+                GRPCNonBlockingStub grpcNonBlockingStub = (GRPCNonBlockingStub)
+                        connectionStub.getNativeData("stub");
+                if (getMethodType(methodId).equals(MethodDescriptor.MethodType.UNARY)) {
+                    grpcNonBlockingStub.executeUnary(message, new UnaryMethodObserver(context), methodId);
+                } else if ((getMethodType(methodId).equals(MethodDescriptor.MethodType.SERVER_STREAMING))) {
+                    grpcNonBlockingStub.executeServerStreaming(message, new ServerStreamingObserver(context), methodId);
+                } else if ((getMethodType(methodId).equals(MethodDescriptor.MethodType.CLIENT_STREAMING))) {
+                    grpcNonBlockingStub.executeServerStreaming(message, new ClientStreamingObserver(context), methodId);
+                }
+            } else if (connectionStub.getNativeData("stub") instanceof GRPCFutureStub) {
+                // TODO: 2/22/18  
             } else {
                 throw new RuntimeException("Unsupported stub type.");
             }
@@ -131,8 +148,22 @@ public class Execute extends AbstractNativeAction {
             return context.getProgramFile().getEntryPackage().getStructInfo(reqMessageName).getType();
         }
     }
-
-
+    
+    public static MethodDescriptor.MethodType getMethodType(int methodID) {
+        com.google.protobuf.DescriptorProtos.MethodDescriptorProto proto = Connect.getServiceProto().getSet()
+                .getService(0).getMethodList().get(methodID);
+        if (proto.getClientStreaming() && proto.getServerStreaming()) {
+            return MethodDescriptor.MethodType.BIDI_STREAMING;
+        } else if (!(proto.getClientStreaming() || proto.getServerStreaming())) {
+            return MethodDescriptor.MethodType.UNARY;
+        } else if (proto.getServerStreaming()) {
+            return MethodDescriptor.MethodType.SERVER_STREAMING;
+        } else if (proto.getClientStreaming()) {
+            return MethodDescriptor.MethodType.CLIENT_STREAMING;
+        } else {
+            return MethodDescriptor.MethodType.UNKNOWN;
+        }
+    }
 //    /**
 //     * .
 //     *

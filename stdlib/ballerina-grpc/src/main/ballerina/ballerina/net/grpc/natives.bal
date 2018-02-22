@@ -20,6 +20,22 @@ public connector GRPCConnector (string host, int port) {
     @Param {value:"Connection stub."}
     @Param {value:"Any type of request parameters."}
     native action execute (Connection conn, any payload,int methodID) (any , ConnectorError);
+
+    @Description {value:"The execute action implementation of the gRPC Connector."}
+    @Param {value:"Connection stub."}
+    @Param {value:"Any type of request parameters."}
+    native action send (Connection conn, any res) (ConnectorError);
+
+    @Description {value:"The execute action implementation of the gRPC Connector."}
+    @Param {value:"Connection stub."}
+    @Param {value:"Any type of request parameters."}
+    native action complete (Connection conn) (ConnectorError);
+
+
+    @Description {value:"The execute action implementation of the gRPC Connector."}
+    @Param {value:"Connection stub."}
+    @Param {value:"Any type of request parameters."}
+    native action error (Connection conn, ServerError serverError) (ConnectorError);
 }
 
 @Description { value:"Sends outbound response to the caller"}

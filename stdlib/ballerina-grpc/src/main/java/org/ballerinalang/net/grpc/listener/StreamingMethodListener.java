@@ -25,9 +25,9 @@ import java.util.Map;
  * Abstract Streaming Method listener.
  * This provide method for all method listener child classes.
  */
-abstract class StreamingMethodListener extends MethodListener {
+public abstract class StreamingMethodListener extends MethodListener {
 
-    final Map<String, Resource> resourceMap;
+    public final Map<String, Resource> resourceMap;
 
     public StreamingMethodListener(Descriptors.MethodDescriptor methodDescriptor, Map<String, Resource> resourceMap) {
         super(methodDescriptor, resourceMap.get(MessageConstants.ON_MESSAGE_RESOURCE));

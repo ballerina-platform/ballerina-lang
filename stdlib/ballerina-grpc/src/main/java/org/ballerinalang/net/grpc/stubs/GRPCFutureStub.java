@@ -19,4 +19,5 @@ public class GRPCFutureStub extends io.grpc.stub.AbstractStub<GRPCFutureStub>  {
     protected GRPCFutureStub build(Channel channel, CallOptions callOptions) {
         return  new GRPCFutureStub(channel, callOptions);
     }
+    
 }
