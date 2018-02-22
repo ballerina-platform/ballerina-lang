@@ -70,6 +70,8 @@ HTTP to WebSocket Upgrade
 HTTP CORS
 HTTP Circuit Breaker
 HTTP Data Binding
+HTTP Failover
+HTTP Load Balancer
 Log API
 Function Pointers
 Lambda
