@@ -15,7 +15,7 @@
  */
 package org.ballerinalang.langserver.completions.util.positioning.resolvers;
 
-import org.ballerinalang.langserver.completions.TreeVisitor;
+import org.ballerinalang.langserver.completions.CompletionTreeVisitor;
 import org.ballerinalang.model.tree.Node;
 import org.wso2.ballerinalang.compiler.tree.BLangAction;
 import org.wso2.ballerinalang.compiler.tree.BLangConnector;
@@ -32,13 +32,14 @@ public class ConnectorScopeResolver extends ServiceScopeResolver {
     /**
      * Check whether the given node is within the scope and located after the last child node.
      * @param node          Current Node to evaluate
-     * @param treeVisitor   Operation Tree Visitor
+     * @param completionTreeVisitor   Operation Tree Visitor
      * @param curLine       line of the cursor                     
      * @param curCol        column of the cursor                     
      * @return              {@link Boolean} whether the last child node or not
      */
-    protected boolean isWithinScopeAfterLastChildNode(Node node, TreeVisitor treeVisitor, int curLine, int curCol) {
-        BLangConnector bLangConnector = (BLangConnector) treeVisitor.getBlockOwnerStack().peek();
+    protected boolean isWithinScopeAfterLastChildNode(Node node, CompletionTreeVisitor completionTreeVisitor,
+                                                      int curLine, int curCol) {
+        BLangConnector bLangConnector = (BLangConnector) completionTreeVisitor.getBlockOwnerStack().peek();
         List<BLangAction> actions = bLangConnector.actions;
         List<BLangVariableDef> variableDefs = bLangConnector.varDefs;
         int connectorEndLine = bLangConnector.pos.getEndLine();
@@ -58,7 +59,7 @@ public class ConnectorScopeResolver extends ServiceScopeResolver {
                 && (nodeEndLine < curLine || (nodeEndLine == curLine && nodeEndCol < curCol)));
 
         if (isWithinScope) {
-            treeVisitor.setPreviousNode((BLangNode) node);
+            completionTreeVisitor.setPreviousNode((BLangNode) node);
         }
 
         return isWithinScope;

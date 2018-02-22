@@ -17,7 +17,7 @@ package org.ballerinalang.langserver.completions.util.positioning.resolvers;
 
 import org.ballerinalang.langserver.common.constants.DocumentServiceKeys;
 import org.ballerinalang.langserver.common.context.TextDocumentServiceContext;
-import org.ballerinalang.langserver.completions.TreeVisitor;
+import org.ballerinalang.langserver.completions.CompletionTreeVisitor;
 import org.ballerinalang.model.tree.Node;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
@@ -49,7 +49,8 @@ public class BlockStatementScopeResolver extends CursorPositionResolver {
      * @return true|false
      */
     @Override
-    public boolean isCursorBeforeNode(DiagnosticPos nodePosition, Node node, TreeVisitor treeVisitor,
+    public boolean isCursorBeforeNode(DiagnosticPos nodePosition, Node node,
+                                      CompletionTreeVisitor completionTreeVisitor,
                                       TextDocumentServiceContext completionContext) {
         int line = completionContext.get(DocumentServiceKeys.POSITION_KEY).getPosition().getLine();
         int col = completionContext.get(DocumentServiceKeys.POSITION_KEY).getPosition().getCharacter();
@@ -61,38 +62,38 @@ public class BlockStatementScopeResolver extends CursorPositionResolver {
         int nodeELine = node instanceof BLangIf ? getIfElseNodeEndLine((BLangIf) node) : zeroBasedPos.eLine;
         int nodeECol = zeroBasedPos.eCol;
 
-        BLangBlockStmt bLangBlockStmt = treeVisitor.getBlockStmtStack().peek();
-        Node blockOwner = treeVisitor.getBlockOwnerStack().peek();
+        BLangBlockStmt bLangBlockStmt = completionTreeVisitor.getBlockStmtStack().peek();
+        Node blockOwner = completionTreeVisitor.getBlockOwnerStack().peek();
 
         boolean isLastStatement = this.isNodeLastStatement(bLangBlockStmt, blockOwner, node);
-        boolean isWithinScopeAfterLastChild = this.isWithinScopeAfterLastChildNode(treeVisitor, isLastStatement,
-                nodeELine, nodeECol, line, col, node);
+        boolean isWithinScopeAfterLastChild = this.isWithinScopeAfterLastChildNode(completionTreeVisitor,
+                isLastStatement, nodeELine, nodeECol, line, col, node);
 
         if (line < nodeSLine || (line == nodeSLine && col < nodeSCol) || isWithinScopeAfterLastChild) {
             Map<Name, Scope.ScopeEntry> visibleSymbolEntries =
-                    treeVisitor.resolveAllVisibleSymbols(treeVisitor.getSymbolEnv());
-            treeVisitor.populateSymbols(visibleSymbolEntries, null);
-            treeVisitor.setTerminateVisitor(true);
+                    completionTreeVisitor.resolveAllVisibleSymbols(completionTreeVisitor.getSymbolEnv());
+            completionTreeVisitor.populateSymbols(visibleSymbolEntries, null);
+            completionTreeVisitor.setTerminateVisitor(true);
             return true;
         }
 
         return false;
     }
     
-    private boolean isWithinScopeAfterLastChildNode(TreeVisitor treeVisitor, boolean lastChild,
+    private boolean isWithinScopeAfterLastChildNode(CompletionTreeVisitor completionTreeVisitor, boolean lastChild,
                                                     int nodeELine, int nodeECol, int line, int col, Node node) {
         if (!lastChild) {
             return false;
         } else {
-            BLangBlockStmt bLangBlockStmt = treeVisitor.getBlockStmtStack().peek();
-            Node blockOwner = treeVisitor.getBlockOwnerStack().peek();
+            BLangBlockStmt bLangBlockStmt = completionTreeVisitor.getBlockStmtStack().peek();
+            Node blockOwner = completionTreeVisitor.getBlockOwnerStack().peek();
             int blockOwnerELine = this.getBlockOwnerELine(blockOwner, bLangBlockStmt);
             int blockOwnerECol = this.getBlockOwnerECol(blockOwner, bLangBlockStmt);
             boolean isWithinScope = (line < blockOwnerELine || (line == blockOwnerELine && col <= blockOwnerECol)) &&
                     (line > nodeELine || (line == nodeELine && col > nodeECol));
             
             if (isWithinScope) {
-                treeVisitor.setPreviousNode((BLangNode) node);
+                completionTreeVisitor.setPreviousNode((BLangNode) node);
             }
             
             return isWithinScope;

@@ -23,7 +23,7 @@ import org.ballerinalang.langserver.common.constants.DocumentServiceKeys;
 import org.ballerinalang.langserver.common.context.TextDocumentServiceContext;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.completions.CompletionKeys;
-import org.ballerinalang.langserver.completions.TreeVisitor;
+import org.ballerinalang.langserver.completions.CompletionTreeVisitor;
 import org.ballerinalang.langserver.completions.resolvers.TopLevelResolver;
 import org.ballerinalang.langserver.completions.util.CompletionItemResolver;
 import org.ballerinalang.langserver.workspace.WorkspaceDocumentManagerImpl;
@@ -114,8 +114,8 @@ public class CompletionTestUtil {
         completionContext.put(DocumentServiceKeys.FILE_URI_KEY, pos.getTextDocument().getUri());
         BLangPackage bLangPackage = CommonUtil.getBLangPackage(completionContext, documentManager);
         // Visit the package to resolve the symbols
-        TreeVisitor treeVisitor = new TreeVisitor(completionContext);
-        bLangPackage.accept(treeVisitor);
+        CompletionTreeVisitor completionTreeVisitor = new CompletionTreeVisitor(completionContext);
+        bLangPackage.accept(completionTreeVisitor);
 
         BLangNode symbolEnvNode = completionContext.get(CompletionKeys.SYMBOL_ENV_NODE_KEY);
         if (symbolEnvNode == null) {

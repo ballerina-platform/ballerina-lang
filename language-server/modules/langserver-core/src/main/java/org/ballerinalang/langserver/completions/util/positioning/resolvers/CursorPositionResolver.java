@@ -16,7 +16,7 @@
 package org.ballerinalang.langserver.completions.util.positioning.resolvers;
 
 import org.ballerinalang.langserver.common.context.TextDocumentServiceContext;
-import org.ballerinalang.langserver.completions.TreeVisitor;
+import org.ballerinalang.langserver.completions.CompletionTreeVisitor;
 import org.ballerinalang.model.tree.Node;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
@@ -29,10 +29,11 @@ public abstract class CursorPositionResolver {
      * Check whether the cursor is positioned before the given node start.
      * @param nodePosition          Position of the node
      * @param node                  Node
-     * @param treeVisitor           {@link TreeVisitor} current tree visitor instance
+     * @param completionTreeVisitor           {@link CompletionTreeVisitor} current tree visitor instance
      * @param completionContext     Completion operation context
      * @return {@link Boolean}      Whether the cursor is before the node start or not
      */
-    public abstract boolean isCursorBeforeNode(DiagnosticPos nodePosition, Node node, TreeVisitor treeVisitor,
+    public abstract boolean isCursorBeforeNode(DiagnosticPos nodePosition, Node node,
+                                               CompletionTreeVisitor completionTreeVisitor,
                                                TextDocumentServiceContext completionContext);
 }

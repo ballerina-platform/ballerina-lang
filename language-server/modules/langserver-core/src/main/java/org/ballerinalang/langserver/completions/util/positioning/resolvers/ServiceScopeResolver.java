@@ -17,7 +17,7 @@ package org.ballerinalang.langserver.completions.util.positioning.resolvers;
 
 import org.ballerinalang.langserver.common.constants.DocumentServiceKeys;
 import org.ballerinalang.langserver.common.context.TextDocumentServiceContext;
-import org.ballerinalang.langserver.completions.TreeVisitor;
+import org.ballerinalang.langserver.completions.CompletionTreeVisitor;
 import org.ballerinalang.model.tree.Node;
 import org.eclipse.lsp4j.Position;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
@@ -38,7 +38,8 @@ import static org.ballerinalang.langserver.common.utils.CommonUtil.toZeroBasedPo
  */
 public class ServiceScopeResolver extends CursorPositionResolver {
     @Override
-    public boolean isCursorBeforeNode(DiagnosticPos nodePosition, Node node, TreeVisitor treeVisitor,
+    public boolean isCursorBeforeNode(DiagnosticPos nodePosition, Node node,
+                                      CompletionTreeVisitor completionTreeVisitor,
                                       TextDocumentServiceContext completionContext) {
         Position position = completionContext.get(DocumentServiceKeys.POSITION_KEY).getPosition();
         DiagnosticPos zeroBasedPo = toZeroBasedPosition(nodePosition);
@@ -49,11 +50,11 @@ public class ServiceScopeResolver extends CursorPositionResolver {
 
         if (line < nodeSLine
                 || (line == nodeSLine && col < nodeSCol)
-                || this.isWithinScopeAfterLastChildNode(node, treeVisitor, line, col)) {
+                || this.isWithinScopeAfterLastChildNode(node, completionTreeVisitor, line, col)) {
             Map<Name, Scope.ScopeEntry> visibleSymbolEntries =
-                    treeVisitor.resolveAllVisibleSymbols(treeVisitor.getSymbolEnv());
-            treeVisitor.populateSymbols(visibleSymbolEntries, null);
-            treeVisitor.setTerminateVisitor(true);
+                    completionTreeVisitor.resolveAllVisibleSymbols(completionTreeVisitor.getSymbolEnv());
+            completionTreeVisitor.populateSymbols(visibleSymbolEntries, null);
+            completionTreeVisitor.setTerminateVisitor(true);
             return true;
         }
 
@@ -63,13 +64,14 @@ public class ServiceScopeResolver extends CursorPositionResolver {
     /**
      * Check whether the given node is within the scope and located after the last child node.
      * @param node          Current Node to evaluate
-     * @param treeVisitor   Operation Tree Visitor
+     * @param completionTreeVisitor   Operation Tree Visitor
      * @param curLine       line of the cursor                     
      * @param curCol        column of the cursor                     
      * @return              {@link Boolean} whether the last child node or not
      */
-    protected boolean isWithinScopeAfterLastChildNode(Node node, TreeVisitor treeVisitor, int curLine, int curCol) {
-        BLangService bLangService = (BLangService) treeVisitor.getBlockOwnerStack().peek();
+    protected boolean isWithinScopeAfterLastChildNode(Node node, CompletionTreeVisitor completionTreeVisitor,
+                                                      int curLine, int curCol) {
+        BLangService bLangService = (BLangService) completionTreeVisitor.getBlockOwnerStack().peek();
         List<BLangResource> resources = bLangService.resources;
         List<BLangVariableDef> variableDefs = bLangService.vars;
         int serviceEndLine = bLangService.pos.getEndLine();
@@ -89,7 +91,7 @@ public class ServiceScopeResolver extends CursorPositionResolver {
                 && (nodeEndLine < curLine || (nodeEndLine == curLine && nodeEndCol < curCol)));
         
         if (isWithinScope) {
-            treeVisitor.setPreviousNode((BLangNode) node);
+            completionTreeVisitor.setPreviousNode((BLangNode) node);
         }
         
         return isWithinScope;
