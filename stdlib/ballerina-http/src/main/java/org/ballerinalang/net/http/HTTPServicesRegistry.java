@@ -22,7 +22,6 @@ package org.ballerinalang.net.http;
 import org.ballerinalang.connector.api.AnnAttrValue;
 import org.ballerinalang.connector.api.Annotation;
 import org.ballerinalang.connector.api.BallerinaConnectorException;
-import org.ballerinalang.connector.api.ParamDetail;
 import org.ballerinalang.connector.api.Resource;
 import org.ballerinalang.net.uri.DispatcherUtil;
 import org.ballerinalang.net.uri.URITemplateException;
@@ -167,7 +166,7 @@ public class HTTPServicesRegistry {
         List<HttpResource> resources = new ArrayList<>();
         for (Resource resource : httpService.getBalerinaService().getResources()) {
             HttpResource httpResource = buildHttpResource(resource);
-            validateResourceSignature(httpResource);
+            httpResource.prepareAndValidateSignatureParams();
             try {
                 httpService.getUriTemplate().parse(httpResource.getPath(), httpResource,
                                                    new HttpResourceElementFactory());
@@ -240,38 +239,11 @@ public class HTTPServicesRegistry {
                     .distinct().collect(Collectors.toList());
             httpResource.setProducesSubTypes(subAttributeValues);
         }
+        AnnAttrValue bodyAttrVal = resourceConfigAnnotation.getAnnAttrValue(HttpConstants.ANN_RESOURCE_ATTR_BODY);
+        if (bodyAttrVal != null) {
+            httpResource.setEntityBodyAttributeValue(bodyAttrVal.getStringValue());
+        }
         return httpResource;
-    }
-
-    private void validateResourceSignature(HttpResource resource) {
-        List<ParamDetail> paramDetails = resource.getParamDetails();
-
-        if (paramDetails.size() < 2) {
-            throw new BallerinaConnectorException("resource signature parameter count should be more than two");
-        }
-
-        if (!isValidResourceParam(paramDetails.get(0), HttpConstants.CONNECTION)) {
-            throw new BallerinaConnectorException("first parameter should be of type - "
-                    + HttpConstants.PROTOCOL_PACKAGE_HTTP + ":" + HttpConstants.CONNECTION);
-        }
-
-        if (!isValidResourceParam(paramDetails.get(1), HttpConstants.IN_REQUEST)) {
-            throw new BallerinaConnectorException("second parameter should be of type - "
-                    + HttpConstants.PROTOCOL_PACKAGE_HTTP + ":" + HttpConstants.IN_REQUEST);
-        }
-
-        for (int i = 2; i < paramDetails.size(); i++) {
-            ParamDetail paramDetail = paramDetails.get(i);
-            if (!paramDetail.getVarType().getName().equals(HttpConstants.TYPE_STRING)) {
-                throw new BallerinaConnectorException("incompatible resource signature parameter type");
-            }
-        }
-    }
-
-    private boolean isValidResourceParam(ParamDetail paramDetail, String varTypeName) {
-        return paramDetail.getVarType().getPackagePath() != null
-                && paramDetail.getVarType().getPackagePath().equals(HttpConstants.PROTOCOL_PACKAGE_HTTP)
-                && paramDetail.getVarType().getName().equals(varTypeName);
     }
 
     public String findTheMostSpecificBasePath(String requestURIPath, Map<String, HttpService> services) {
