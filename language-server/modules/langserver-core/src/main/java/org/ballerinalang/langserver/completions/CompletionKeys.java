@@ -17,7 +17,7 @@
 */
 package org.ballerinalang.langserver.completions;
 
-import org.ballerinalang.langserver.LanguageServerContext;
+import org.ballerinalang.langserver.common.context.LanguageServerContext;
 import org.ballerinalang.model.tree.Node;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 

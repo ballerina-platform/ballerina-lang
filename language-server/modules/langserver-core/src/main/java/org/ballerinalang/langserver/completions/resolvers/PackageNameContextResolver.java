@@ -20,9 +20,9 @@ package org.ballerinalang.langserver.completions.resolvers;
 
 import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.TokenStream;
-import org.ballerinalang.langserver.BLangPackageContext;
-import org.ballerinalang.langserver.DocumentServiceKeys;
-import org.ballerinalang.langserver.TextDocumentServiceContext;
+import org.ballerinalang.langserver.common.BLangPackageCache;
+import org.ballerinalang.langserver.common.constants.DocumentServiceKeys;
+import org.ballerinalang.langserver.common.context.TextDocumentServiceContext;
 import org.ballerinalang.model.elements.PackageID;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.CompletionItemKind;
@@ -79,7 +79,7 @@ public class PackageNameContextResolver extends AbstractItemResolver {
             }
         }
 
-        BLangPackageContext bLangPkgContext = completionContext.get(DocumentServiceKeys.B_LANG_PACKAGE_CONTEXT_KEY);
+        BLangPackageCache bLangPkgContext = completionContext.get(DocumentServiceKeys.B_LANG_PACKAGE_CONTEXT_KEY);
         ArrayList<PackageID> sdkPackages = bLangPkgContext
                 .getSDKPackages(completionContext.get(DocumentServiceKeys.COMPILER_CONTEXT_KEY));
 

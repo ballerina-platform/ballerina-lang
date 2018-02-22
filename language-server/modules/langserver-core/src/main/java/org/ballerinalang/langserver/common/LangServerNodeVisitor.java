@@ -96,7 +96,7 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangValueType;
 /**
  * Common node visitor to override and remove assertion errors from BLangNodeVisitor methods.
  */
-public class NodeVisitor extends BLangNodeVisitor {
+public class LangServerNodeVisitor extends BLangNodeVisitor {
     @Override
     public void visit(BLangPackage pkgNode) {
         // No implementation

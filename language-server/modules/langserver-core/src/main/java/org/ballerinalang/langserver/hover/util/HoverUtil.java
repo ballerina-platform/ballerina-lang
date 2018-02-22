@@ -15,11 +15,11 @@
  */
 package org.ballerinalang.langserver.hover.util;
 
-import org.ballerinalang.langserver.BLangPackageContext;
-import org.ballerinalang.langserver.DocumentServiceKeys;
-import org.ballerinalang.langserver.TextDocumentServiceContext;
+import org.ballerinalang.langserver.common.BLangPackageCache;
 import org.ballerinalang.langserver.common.constants.ContextConstants;
+import org.ballerinalang.langserver.common.constants.DocumentServiceKeys;
 import org.ballerinalang.langserver.common.constants.NodeContextKeys;
+import org.ballerinalang.langserver.common.context.TextDocumentServiceContext;
 import org.ballerinalang.langserver.common.position.PositionTreeVisitor;
 import org.eclipse.lsp4j.Hover;
 import org.eclipse.lsp4j.MarkedString;
@@ -170,7 +170,7 @@ public class HoverUtil {
      * @return return Hover object.
      */
     public static Hover getHoverContent(TextDocumentServiceContext hoverContext, BLangPackage currentBLangPackage,
-                                        BLangPackageContext packageContext) {
+                                        BLangPackageCache packageContext) {
         PositionTreeVisitor positionTreeVisitor = new PositionTreeVisitor(hoverContext);
         currentBLangPackage.accept(positionTreeVisitor);
         Hover hover;

@@ -16,12 +16,11 @@
 
 package org.ballerinalang.langserver.definition.util;
 
-import org.ballerinalang.langserver.BLangPackageContext;
-import org.ballerinalang.langserver.DocumentServiceKeys;
-import org.ballerinalang.langserver.TextDocumentServiceContext;
-import org.ballerinalang.langserver.TextDocumentServiceUtil;
+import org.ballerinalang.langserver.common.BLangPackageCache;
 import org.ballerinalang.langserver.common.constants.ContextConstants;
+import org.ballerinalang.langserver.common.constants.DocumentServiceKeys;
 import org.ballerinalang.langserver.common.constants.NodeContextKeys;
+import org.ballerinalang.langserver.common.context.TextDocumentServiceContext;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.definition.DefinitionTreeVisitor;
 import org.eclipse.lsp4j.Location;
@@ -46,11 +45,11 @@ public class DefinitionUtil {
      * Get definition position for the given definition context.
      *
      * @param definitionContext   context of the definition.
-     * @param bLangPackageContext package context for language server.
+     * @param bLangPackageCache package context for language server.
      * @return position
      */
     public static List<Location> getDefinitionPosition(TextDocumentServiceContext definitionContext,
-                                                       BLangPackageContext bLangPackageContext) {
+                                                       BLangPackageCache bLangPackageCache) {
         List<Location> contents = new ArrayList<>();
         if (definitionContext.get(NodeContextKeys.SYMBOL_KIND_OF_NODE_KEY) == null) {
             return contents;
@@ -58,7 +57,7 @@ public class DefinitionUtil {
         String nodeKind = definitionContext.get(NodeContextKeys.SYMBOL_KIND_OF_NODE_KEY);
 
         BLangPackage bLangPackage = getPackageOfTheOwner(definitionContext
-                .get(NodeContextKeys.NODE_OWNER_PACKAGE_KEY).name, definitionContext, bLangPackageContext);
+                .get(NodeContextKeys.NODE_OWNER_PACKAGE_KEY).name, definitionContext, bLangPackageCache);
         BLangNode bLangNode = null;
         switch (nodeKind) {
             case ContextConstants.FUNCTION:
@@ -124,7 +123,7 @@ public class DefinitionUtil {
 
         Location l = new Location();
         TextDocumentPositionParams position = definitionContext.get(DocumentServiceKeys.POSITION_KEY);
-        Path parentPath = TextDocumentServiceUtil.getPath(position.getTextDocument().getUri()).getParent();
+        Path parentPath = CommonUtil.getPath(position.getTextDocument().getUri()).getParent();
         if (parentPath != null) {
             String fileName = bLangNode.getPosition().getSource().getCompilationUnitName();
             Path filePath = Paths
@@ -151,8 +150,8 @@ public class DefinitionUtil {
      * Get the package of the owner of given node.
      */
     private static BLangPackage getPackageOfTheOwner(Name packageName, TextDocumentServiceContext definitionContext,
-                                                     BLangPackageContext bLangPackageContext) {
-        return bLangPackageContext
+                                                     BLangPackageCache bLangPackageCache) {
+        return bLangPackageCache
                 .getPackageByName(definitionContext.get(DocumentServiceKeys.COMPILER_CONTEXT_KEY), packageName);
     }
 }

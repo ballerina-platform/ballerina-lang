@@ -13,8 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.ballerinalang.langserver;
+package org.ballerinalang.langserver.common;
 
+import org.ballerinalang.langserver.common.utils.BallerinaPackageLoader;
 import org.ballerinalang.model.Name;
 import org.ballerinalang.model.elements.PackageID;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
@@ -32,13 +33,13 @@ import java.util.Set;
 /**
  * Package context to keep the builtin and the current package.
  */
-public class BLangPackageContext {
+public class BLangPackageCache {
 
     private Map<String, BLangPackage> packageMap = new HashMap<>();
     
     private ArrayList<PackageID> sdkPackages = new ArrayList<>();
 
-    public BLangPackageContext() {
+    public BLangPackageCache() {
         List<BLangPackage> builtInPackages = BallerinaPackageLoader.getBuiltinPackages();
         builtInPackages.forEach(this::addPackage);
     }

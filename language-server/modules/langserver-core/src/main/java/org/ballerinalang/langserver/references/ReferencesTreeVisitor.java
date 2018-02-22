@@ -15,11 +15,10 @@
  */
 package org.ballerinalang.langserver.references;
 
-import org.ballerinalang.langserver.DocumentServiceKeys;
-import org.ballerinalang.langserver.TextDocumentServiceContext;
-import org.ballerinalang.langserver.TextDocumentServiceUtil;
-import org.ballerinalang.langserver.common.NodeVisitor;
+import org.ballerinalang.langserver.common.LangServerNodeVisitor;
+import org.ballerinalang.langserver.common.constants.DocumentServiceKeys;
 import org.ballerinalang.langserver.common.constants.NodeContextKeys;
+import org.ballerinalang.langserver.common.context.TextDocumentServiceContext;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.eclipse.lsp4j.Location;
 import org.eclipse.lsp4j.Position;
@@ -69,7 +68,7 @@ import java.util.List;
 /**
  * Tree visitor for finding the references of a statement.
  */
-public class ReferencesTreeVisitor extends NodeVisitor {
+public class ReferencesTreeVisitor extends LangServerNodeVisitor {
     private boolean terminateVisitor = false;
     private TextDocumentServiceContext context;
     private List<Location> locations;
@@ -579,7 +578,7 @@ public class ReferencesTreeVisitor extends NodeVisitor {
         Location l = new Location();
         Range r = new Range();
         TextDocumentPositionParams position = this.context.get(DocumentServiceKeys.POSITION_KEY);
-        Path parentPath = TextDocumentServiceUtil.getPath(position.getTextDocument().getUri()).getParent();
+        Path parentPath = CommonUtil.getPath(position.getTextDocument().getUri()).getParent();
         if (parentPath != null) {
             String fileName = bLangNode.getPosition().getSource().getCompilationUnitName();
             Path filePath = Paths.get(CommonUtil

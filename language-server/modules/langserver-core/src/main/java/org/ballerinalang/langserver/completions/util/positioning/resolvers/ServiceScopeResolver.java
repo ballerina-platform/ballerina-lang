@@ -15,8 +15,8 @@
  */
 package org.ballerinalang.langserver.completions.util.positioning.resolvers;
 
-import org.ballerinalang.langserver.DocumentServiceKeys;
-import org.ballerinalang.langserver.TextDocumentServiceContext;
+import org.ballerinalang.langserver.common.constants.DocumentServiceKeys;
+import org.ballerinalang.langserver.common.context.TextDocumentServiceContext;
 import org.ballerinalang.langserver.completions.TreeVisitor;
 import org.ballerinalang.model.tree.Node;
 import org.eclipse.lsp4j.Position;
@@ -31,7 +31,7 @@ import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 import java.util.List;
 import java.util.Map;
 
-import static org.ballerinalang.langserver.TextDocumentServiceUtil.toZeroBasedPosition;
+import static org.ballerinalang.langserver.common.utils.CommonUtil.toZeroBasedPosition;
 
 /**
  * Service scope position resolver.

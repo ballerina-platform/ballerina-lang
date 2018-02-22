@@ -17,7 +17,7 @@
 */
 package org.ballerinalang.langserver.signature;
 
-import org.ballerinalang.langserver.LanguageServerContext;
+import org.ballerinalang.langserver.common.context.LanguageServerContext;
 import org.ballerinalang.langserver.completions.SymbolInfo;
 
 import java.util.List;

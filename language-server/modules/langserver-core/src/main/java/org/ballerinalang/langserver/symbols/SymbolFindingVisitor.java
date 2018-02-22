@@ -18,8 +18,8 @@
 
 package org.ballerinalang.langserver.symbols;
 
-import org.ballerinalang.langserver.DocumentServiceKeys;
-import org.ballerinalang.langserver.TextDocumentServiceContext;
+import org.ballerinalang.langserver.common.constants.DocumentServiceKeys;
+import org.ballerinalang.langserver.common.context.TextDocumentServiceContext;
 import org.eclipse.lsp4j.Location;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;

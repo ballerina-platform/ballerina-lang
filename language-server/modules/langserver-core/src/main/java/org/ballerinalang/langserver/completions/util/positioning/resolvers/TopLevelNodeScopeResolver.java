@@ -15,13 +15,13 @@
  */
 package org.ballerinalang.langserver.completions.util.positioning.resolvers;
 
-import org.ballerinalang.langserver.DocumentServiceKeys;
-import org.ballerinalang.langserver.TextDocumentServiceContext;
+import org.ballerinalang.langserver.common.constants.DocumentServiceKeys;
+import org.ballerinalang.langserver.common.context.TextDocumentServiceContext;
 import org.ballerinalang.langserver.completions.TreeVisitor;
 import org.ballerinalang.model.tree.Node;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
-import static org.ballerinalang.langserver.TextDocumentServiceUtil.toZeroBasedPosition;
+import static org.ballerinalang.langserver.common.utils.CommonUtil.toZeroBasedPosition;
 
 /**
  * Position resolver for the top level nodes.
