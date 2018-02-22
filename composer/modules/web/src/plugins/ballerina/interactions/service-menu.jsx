@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -56,27 +56,6 @@ class ServiceMenu extends React.Component {
             serviceDef.generateDefaultName(serviceDef, resource);
         } else if (serviceDef.getProtocolPackageIdentifier().value === 'ws') {
             this.setState({ wsList: true });
-            /* let bBox;
-            // Check if the node is a service
-            if (TreeUtil.isService(this.props.model)) {
-                bBox = this.props.model.viewState.components.transportLine;
-            } else {
-                const thisChildIndex = serviceDef.getIndexOfResources(this.props.model);
-                if (TreeUtil.isResource(this.props.model) &&
-                    (thisChildIndex !== serviceDef.getResources().length - 1)) {
-                    bBox = this.props.model.viewState.bBox;
-                }
-            }
-            const overlayComponents = {
-                kind: 'WebsocketResourceSelect',
-                props: {
-                    key: this.props.model.getID(),
-                    model: this.props.model,
-                    bBox,
-                },
-            };
-            this.props.model.viewState.showOverlayContainer = true;
-            this.props.model.viewState.overlayContainer = overlayComponents; */
         } else if (serviceDef.getProtocolPackageIdentifier().value === 'jms') {
             const resource = DefaultNodeFactory.createJMSResource();
             serviceDef.addResources(resource, thisNodeIndex, true);
