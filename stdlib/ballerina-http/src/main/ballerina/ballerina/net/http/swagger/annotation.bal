@@ -99,13 +99,14 @@ public annotation ParameterInfo {
     string parameterType;
     string format;
     string collectionFormat;
-    Item[] items;
+    Schema[] schemas;
 }
 
-public annotation Item {
+public annotation Schema {
     string itemType;
     string format;
-    string collectionFormat;
+    boolean isArray;
+    string ref;
     string items;
 }
 

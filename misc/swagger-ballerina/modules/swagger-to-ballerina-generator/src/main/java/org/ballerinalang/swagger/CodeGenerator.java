@@ -20,6 +20,8 @@ import com.github.jknack.handlebars.Context;
 import com.github.jknack.handlebars.Handlebars;
 import com.github.jknack.handlebars.Template;
 import com.github.jknack.handlebars.context.FieldValueResolver;
+import com.github.jknack.handlebars.context.JavaBeanValueResolver;
+import com.github.jknack.handlebars.context.MapValueResolver;
 import com.github.jknack.handlebars.helper.StringHelpers;
 import com.github.jknack.handlebars.io.ClassPathTemplateLoader;
 import com.github.jknack.handlebars.io.FileTemplateLoader;
@@ -64,19 +66,35 @@ public class CodeGenerator {
             outPath = definitionPath.substring(0, definitionPath.lastIndexOf(File.separator) + 1);
             outPath += fileName;
         }
+
+        String modelsOutPath = outPath.substring(0, outPath.lastIndexOf(File.separator) + 1);
+        modelsOutPath += GeneratorConstants.MODELS_FILE_NAME;
+
         switch (type) {
             case SKELETON:
                 // Write ballerina definition
                 writeBallerina(definitionContext, GeneratorConstants.DEFAULT_SKELETON_DIR,
                         GeneratorConstants.SKELETON_TEMPLATE_NAME, outPath);
+
+                // Write ballerina structs
+                writeBallerina(definitionContext, GeneratorConstants.DEFAULT_TEMPLATE_DIR,
+                        GeneratorConstants.MODELS_TEMPLATE_NAME, modelsOutPath);
                 break;
             case CONNECTOR:
                 writeBallerina(definitionContext, GeneratorConstants.DEFAULT_CONNECTOR_DIR,
                         GeneratorConstants.CONNECTOR_TEMPLATE_NAME, outPath);
+
+                // Write ballerina structs
+                writeBallerina(definitionContext, GeneratorConstants.DEFAULT_TEMPLATE_DIR,
+                        GeneratorConstants.MODELS_TEMPLATE_NAME, modelsOutPath);
                 break;
             case MOCK:
                 writeBallerina(definitionContext, GeneratorConstants.DEFAULT_MOCK_DIR,
                         GeneratorConstants.MOCK_TEMPLATE_NAME, outPath);
+
+                // Write ballerina structs
+                writeBallerina(definitionContext, GeneratorConstants.DEFAULT_TEMPLATE_DIR,
+                        GeneratorConstants.MODELS_TEMPLATE_NAME, modelsOutPath);
                 break;
             default:
                 return;
@@ -98,7 +116,10 @@ public class CodeGenerator {
 
         try {
             Template template = compileTemplate(templateDir, templateName);
-            Context context = Context.newBuilder(object).resolver(FieldValueResolver.INSTANCE).build();
+            Context context = Context.newBuilder(object).resolver(
+                    MapValueResolver.INSTANCE,
+                    JavaBeanValueResolver.INSTANCE,
+                    FieldValueResolver.INSTANCE).build();
             writer = new PrintWriter(outPath, "UTF-8");
             writer.println(template.apply(context));
         } finally {

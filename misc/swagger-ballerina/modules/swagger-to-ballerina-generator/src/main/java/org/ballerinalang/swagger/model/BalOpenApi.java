@@ -21,12 +21,15 @@ import io.swagger.oas.models.ExternalDocumentation;
 import io.swagger.oas.models.OpenAPI;
 import io.swagger.oas.models.PathItem;
 import io.swagger.oas.models.info.Info;
+import io.swagger.oas.models.media.Schema;
 import io.swagger.oas.models.security.SecurityRequirement;
 import io.swagger.oas.models.servers.Server;
 import io.swagger.oas.models.tags.Tag;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.AbstractMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -36,7 +39,6 @@ import java.util.Set;
  * <p>This class can be used to push additional context variables for handlebars</p>
  */
 public class BalOpenApi {
-
     private String apiPackage;
     private String openapi = "3.0.0";
     private Info info = null;
@@ -45,6 +47,7 @@ public class BalOpenApi {
     private List<SecurityRequirement> security = null;
     private List<Tag> tags = null;
     private Set<Map.Entry<String, PathItem>> paths = null;
+    private Set<Map.Entry<String, BalSchema>> schemas = null;
     private Components components = null;
     private Map<String, Object> extensions = null;
     private String host = null;
@@ -53,6 +56,15 @@ public class BalOpenApi {
     private String basePath = null;
     private String url = null;
 
+    /**
+     * Build a {@link BalOpenApi} object from a {@link OpenAPI} object.
+     * All non iterable objects using handlebars library is converted into
+     * supported iterable object types.
+     *
+     * @param openAPI {@link OpenAPI} type object to be converted
+     * @return Converted {@link BalOpenApi} object
+     * @throws MalformedURLException when API host url is not valid
+     */
     public BalOpenApi buildFromOpenAPI(OpenAPI openAPI) throws MalformedURLException {
         this.openapi = openAPI.getOpenapi();
         this.info = openAPI.getInfo();
@@ -63,6 +75,7 @@ public class BalOpenApi {
         this.components = openAPI.getComponents();
         this.extensions = openAPI.getExtensions();
         this.paths = openAPI.getPaths().entrySet();
+        this.schemas = new LinkedHashSet<>();
 
         // Swagger parser returns a server object with "/" url when no servers are defined
         // this check is to overcome possible errors due to that
@@ -83,6 +96,13 @@ public class BalOpenApi {
                 port = url.getPort();
                 port = port == -1 ? 80 : port;
             }
+        }
+
+        // populate schemas into a "Set"
+        Map<String, Schema> schemaMap = openAPI.getComponents().getSchemas();
+        for (Map.Entry entry : schemaMap.entrySet()) {
+            BalSchema schema = new BalSchema().buildFromSchema((Schema) entry.getValue(), schemaMap);
+            schemas.add(new AbstractMap.SimpleEntry<>((String) entry.getKey(), schema));
         }
 
         return this;
@@ -147,6 +167,10 @@ public class BalOpenApi {
 
     public int getHttpsPort() {
         return httpsPort;
+    }
+
+    public Set<Map.Entry<String, BalSchema>> getSchemas() {
+        return schemas;
     }
 
     public String getUrl() {
