@@ -28,7 +28,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * BLangGroupBy represents the "group by" clause in Ballerina streams/tables SQLish syntax.
+ * Implementation of {@link GroupByNode}.
  */
 public class BLangGroupBy extends BLangNode implements GroupByNode {
 
