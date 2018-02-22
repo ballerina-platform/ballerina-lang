@@ -16,6 +16,7 @@ NATIVE      : 'native' ;
 SERVICE     : 'service' ;
 RESOURCE    : 'resource' ;
 FUNCTION    : 'function' ;
+STREAMLET    : 'streamlet' { inSiddhi = true; } ;
 CONNECTOR   : 'connector' ;
 ACTION      : 'action' ;
 STRUCT      : 'struct' ;
@@ -46,6 +47,7 @@ DELETE      : {inSiddhi}? 'delete' { inSiddhi = false; } ;
 SET         : 'set' ;
 FOR         : 'for' ;
 WINDOW      : 'window' ;
+QUERY       : {inSiddhi}? 'query' { inSiddhi = false; }  ;
 
 
 TYPE_INT        : 'int' ;
