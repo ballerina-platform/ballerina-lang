@@ -3,6 +3,9 @@ package org.ballerinalang.net.grpc.stubs;
 import io.grpc.CallOptions;
 import io.grpc.Channel;
 
+/** .
+ * .
+ */
 public class GRPCNonBlockingStub extends io.grpc.stub.AbstractStub<GRPCNonBlockingStub>  {
     public GRPCNonBlockingStub(Channel channel) {
         super(channel);

@@ -26,6 +26,10 @@
         <Bug pattern="BC_UNCONFIRMED_CAST_OF_RETURN_VALUE"/>
     </Match>
     <Match>
+        <Class name="org.ballerinalang.net.grpc.actions.Connect"/>
+        <Bug pattern="ST_WRITE_TO_STATIC_FROM_INSTANCE_METHOD"/>
+    </Match>
+    <Match>
         <Class name="org.ballerinalang.net.grpc.proto.definition.ServiceProto"/>
         <Bug pattern="DMI_HARDCODED_ABSOLUTE_FILENAME"/>
     </Match>

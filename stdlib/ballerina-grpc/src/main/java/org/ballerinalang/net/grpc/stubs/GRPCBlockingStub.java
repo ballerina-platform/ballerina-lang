@@ -8,6 +8,9 @@ import org.ballerinalang.net.grpc.GRPCClientStub;
 
 import static io.grpc.stub.ClientCalls.blockingUnaryCall;
 
+/**.
+ * .
+ */
 public class GRPCBlockingStub extends io.grpc.stub.AbstractStub<GRPCBlockingStub> {
     
     public GRPCBlockingStub(Channel channel) {
@@ -34,7 +37,8 @@ public class GRPCBlockingStub extends io.grpc.stub.AbstractStub<GRPCBlockingStub
         MethodDescriptor.MethodType methodType = GRPCClientStub.getMethodType(methodID);
         if (methodType.equals(MethodDescriptor.MethodType.UNARY)) {
             return blockingUnaryCall(
-                    getChannel(), (MethodDescriptor<Message, Message>) GRPCClientStub.getMethodDescriptorMap().get(methodID),
+                    getChannel(), (MethodDescriptor<Message, Message>) GRPCClientStub.getMethodDescriptorMap()
+                            .get(methodID),
                     getCallOptions(), request);
         } else {
             throw new RuntimeException("invalid method type");

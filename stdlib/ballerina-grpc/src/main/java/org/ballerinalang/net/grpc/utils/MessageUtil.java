@@ -3,7 +3,6 @@ package org.ballerinalang.net.grpc.utils;
 import com.google.protobuf.DescriptorProtos;
 import com.google.protobuf.Descriptors;
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.connector.api.ConnectorUtils;
 import org.ballerinalang.model.types.BStructType;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.values.BBoolean;
@@ -16,13 +15,15 @@ import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.net.grpc.Message;
 import org.ballerinalang.net.grpc.MessageRegistry;
 import org.ballerinalang.net.grpc.exception.UnsupportedFieldTypeException;
-import org.ballerinalang.util.codegen.PackageInfo;
-import org.ballerinalang.util.codegen.StructInfo;
 
 import java.util.Map;
 
+/**.
+ * Util class for message operationss.
+ */
 public class MessageUtil {
-    public static com.google.protobuf.Message generateProtoMessage(BValue responseValue, Descriptors.Descriptor outputType) {
+    public static com.google.protobuf.Message generateProtoMessage(BValue responseValue,
+                                                                   Descriptors.Descriptor outputType) {
         Message.Builder responseBuilder = Message.newBuilder(outputType.getName());
         int stringIndex = 0;
         int intIndex = 0;
@@ -115,7 +116,8 @@ public class MessageUtil {
         }
         return responseBuilder.build();
     }
-    public static BValue generateRequestStruct(Message request, String fieldName, BType structType,Context context) {
+    
+    public static BValue generateRequestStruct(Message request, String fieldName, BType structType, Context context) {
         BValue bValue = null;
         int stringIndex = 0;
         int intIndex = 0;
@@ -124,7 +126,7 @@ public class MessageUtil {
         int refIndex = 0;
         
         if (structType instanceof BStructType) {
-            BStruct requestStruct = createStruct(context);
+            BStruct requestStruct = createStruct(context, fieldName);
             for (BStructType.StructField structField : ((BStructType) structType).getStructFields()) {
                 String structFieldName = structField.getFieldName();
                 if (structField.getFieldType() instanceof BRefType) {
@@ -132,7 +134,7 @@ public class MessageUtil {
                     if (MessageRegistry.getInstance().getMessageDescriptorMap().containsKey(bType.getName())) {
                         Message message = (Message) request.getFields().get(structFieldName);
                         requestStruct.setRefField(refIndex++, (BRefType) generateRequestStruct(message,
-                                structFieldName, structField.getFieldType(),context));
+                                structFieldName, structField.getFieldType(), context));
                     }
                 } else {
                     if (request.getFields().containsKey(structFieldName)) {
@@ -220,12 +222,9 @@ public class MessageUtil {
         
         return bValue;
     }
-    private static BStruct createStruct(Context context) {
-        
-        PackageInfo httpPackageInfo = context.getProgramFile()
-                .getPackageInfo("ballerina.net.grpc");
-        StructInfo structInfo = httpPackageInfo.getStructInfo("GRPCConnectorError");
-        BStructType structType = structInfo.getType();
+    
+    private static BStruct createStruct(Context context, String fieldName) {
+        BStructType structType = context.getProgramFile().getEntryPackage().getStructInfo(fieldName).getType();
         return new BStruct(structType);
     }
 }

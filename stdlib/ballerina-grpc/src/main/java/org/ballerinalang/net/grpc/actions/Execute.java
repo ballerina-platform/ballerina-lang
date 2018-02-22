@@ -24,9 +24,6 @@ import org.ballerinalang.util.codegen.StructInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.HashMap;
-import java.util.Map;
-
 /**
  * {@code Get} is the GET action implementation of the HTTP Connector.
  */
@@ -58,7 +55,7 @@ public class Execute extends AbstractNativeAction {
     public ConnectorFuture execute(Context context) {
         
         ClientConnectorFuture ballerinaFuture = new ClientConnectorFuture();
-        BStruct outboundError = createStruct(context,"ConnectorError");
+        BStruct outboundError = createStruct(context);
         BValue payloadBValue;
         BStruct connectionStub;
         Integer methodId;
@@ -72,34 +69,32 @@ public class Execute extends AbstractNativeAction {
             ballerinaFuture.notifyReply(null, outboundError);
             return ballerinaFuture;
         }
-        
-        com.google.protobuf.Message message = MessageUtil.generateProtoMessage(payloadBValue,GRPCClientStub
-                .getMethodDescriptorMap(methodId));
+        String methodName = GRPCClientStub.getGrpcServiceProto().getSet().getService(0)
+                .getMethodList().get(methodId).getName();
+        com.google.protobuf.Descriptors.MethodDescriptor methodDescriptor = GRPCClientStub.getMethodDescriptorMap
+                (methodName);
+        com.google.protobuf.Message message = MessageUtil.generateProtoMessage
+                (payloadBValue, methodDescriptor.getOutputType());
         try {
-    
-            String fullName = GRPCClientStub.getGrpcServiceProto().getSet().getService(0)
-                    .getMethodList().get(methodId)
-                    .getInputType();
-            String reqMessageName = fullName.split("\\.")[fullName.split("\\.").length - 1];
             Message messageRes = null;
-            if(connectionStub.getNativeData("stub") instanceof GRPCBlockingStub) {
+            if (connectionStub.getNativeData("stub") instanceof GRPCBlockingStub) {
                 GRPCBlockingStub grpcBlockingStub = (GRPCBlockingStub)
                         connectionStub.getNativeData("stub");
                 messageRes = (Message) grpcBlockingStub.executeBlockingUnary(message, methodId);
-            } else if(connectionStub.getNativeData("stub") instanceof GRPCNonBlockingStub) {
+            } else if (connectionStub.getNativeData("stub") instanceof GRPCNonBlockingStub) {
             
-            } else if(connectionStub.getNativeData("stub") instanceof GRPCBlockingStub) {
-    
+            } else if (connectionStub.getNativeData("stub") instanceof GRPCBlockingStub) {
+            
             } else {
                 throw new RuntimeException("Unsupported stub type.");
             }
             
             DescriptorProtos.MethodDescriptorProto methodDescriptorProto = Connect.getServiceProto().getSet()
                     .getService(0).getMethod(methodId);
-            String strIn = methodDescriptorProto.getInputType().split("\\.")[methodDescriptorProto
-                    .getInputType().split("\\.").length - 1];
-            BValue bValue = MessageUtil.generateRequestStruct(messageRes,reqMessageName, getBalType(strIn,context),
-                    context);
+            String resMessageName = methodDescriptorProto.getOutputType().split("\\.")[methodDescriptorProto
+                    .getOutputType().split("\\.").length - 1];
+            BValue bValue = MessageUtil.generateRequestStruct(messageRes, resMessageName,
+                    getBalType(resMessageName, context, resMessageName), context);
             ballerinaFuture.notifyReply(bValue, null);
             return ballerinaFuture;
         } catch (RuntimeException e) {
@@ -108,13 +103,14 @@ public class Execute extends AbstractNativeAction {
             return ballerinaFuture;
         }
     }
+    
     /**
      * todo.
      *
      * @param protoType .
      * @return .
      */
-    private BType getBalType(String protoType,Context context) {
+    private BType getBalType(String protoType, Context context, String reqMessageName) {
         
         if (protoType.equalsIgnoreCase("DoubleValue") || protoType
                 .equalsIgnoreCase("FloatValue")) {
@@ -131,30 +127,30 @@ public class Execute extends AbstractNativeAction {
         } else if (protoType.equalsIgnoreCase("BytesValue")) {
             return BTypes.typeBlob;
         } else {
-            
-            return  createStruct(context,"ConnectorError").getType();
+            // TODO: 2/22/18 enum
+            return context.getProgramFile().getEntryPackage().getStructInfo(reqMessageName).getType();
         }
     }
+
+
+//    /**
+//     * .
+//     *
+//     * @param list .
+//     * @return .
+//     */
+//    private Map<String, DescriptorProtos.DescriptorProto> attrybuteList(java.util.List<DescriptorProtos
+//            .DescriptorProto> list) {
+//
+//        Map<String, DescriptorProtos.DescriptorProto> stringObjectMap = new HashMap<>();
+//        for (DescriptorProtos.DescriptorProto proto : list) {
+//            stringObjectMap.put(proto.getName(), proto);
+//        }
+//        return stringObjectMap;
+//    }
     
     
-    /**
-     * .
-     *
-     * @param list .
-     * @return .
-     */
-    private Map<String, DescriptorProtos.DescriptorProto> attrybuteList(java.util.List<DescriptorProtos
-            .DescriptorProto> list) {
-        
-        Map<String, DescriptorProtos.DescriptorProto> stringObjectMap = new HashMap<>();
-        for (DescriptorProtos.DescriptorProto proto : list) {
-            stringObjectMap.put(proto.getName(), proto);
-        }
-        return stringObjectMap;
-    }
-    
-  
-    private BStruct createStruct(Context context,String strutName) {
+    private BStruct createStruct(Context context) {
         
         PackageInfo httpPackageInfo = context.getProgramFile()
                 .getPackageInfo("ballerina.net.grpc");

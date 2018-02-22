@@ -17,6 +17,7 @@ import java.util.Map;
 
 import static io.grpc.MethodDescriptor.generateFullMethodName;
 
+
 /**
  * <pre>
  * The stockquote service definition.
@@ -26,15 +27,16 @@ import static io.grpc.MethodDescriptor.generateFullMethodName;
         value = "by gRPC proto compiler (version 1.7.0)",
         comments = "Source: xx.proto")
 public final class GRPCClientStub {
-private static ServiceProto grpcServiceProto;
+    private static ServiceProto grpcServiceProto;
     private static Descriptors.FileDescriptor fileDescriptor;
     private static String serviceFullName;
     private static String serviceName;
     // Static method descriptors that strictly reflect the proto.
-    private static Map methodDescriptorMap = new HashMap<Integer, MethodDescriptor<Message, Message>>();
+    private static Map methodDescriptorMap = new HashMap<Integer, Descriptors.MethodDescriptor>();
     
-    public static Descriptors.Descriptor getMethodDescriptorMap(int methodID) {
-        return (Descriptors.Descriptor) methodDescriptorMap.get(methodID);
+    public static Descriptors.MethodDescriptor getMethodDescriptorMap(String methodName) {
+        return new MessageServiceMethodDescriptorSupplier(methodName,
+                fileDescriptor).getMethodDescriptor();
     }
     
     public GRPCClientStub(ServiceProto serviceProto) {
@@ -47,26 +49,26 @@ private static ServiceProto grpcServiceProto;
             String methodName = serviceDescriptor.getMethods().get(i).getName();
             String reqMessageName = serviceDescriptor.getMethods().get(i).getInputType().getName();
             String resMessageName = serviceDescriptor.getMethods().get(i).getOutputType().getName();
-            MethodDescriptor<Message , Message> methodExecute =
-                    MethodDescriptor.<Message , Message>newBuilder()
+            MethodDescriptor<Message, Message> methodExecute =
+                    MethodDescriptor.<Message, Message>newBuilder()
                             .setType(getMethodType(i))
                             .setFullMethodName(generateFullMethodName(
-                                    serviceFullName , methodName))
+                                    serviceFullName, methodName))
                             .setRequestMarshaller(io.grpc.protobuf.ProtoUtils.marshaller(
                                     (org.ballerinalang.net.grpc.Message) org.ballerinalang.net.grpc.Message
                                             .newBuilder(reqMessageName).build()))
                             .setResponseMarshaller(io.grpc.protobuf.ProtoUtils.marshaller(
                                     (org.ballerinalang.net.grpc.Message) org.ballerinalang.net.grpc.Message
                                             .newBuilder(resMessageName).build()))
-                            .setSchemaDescriptor(new MessageServiceMethodDescriptorSupplier(methodName ,
+                            .setSchemaDescriptor(new MessageServiceMethodDescriptorSupplier(methodName,
                                     fileDescriptor))
                             .build();
             methodDescriptorMap.put(i, methodExecute);
         }
     }
-
+    
     public static MethodDescriptor.MethodType getMethodType(int methodID) {
-
+        
         com.google.protobuf.DescriptorProtos.MethodDescriptorProto proto = grpcServiceProto.getSet()
                 .getService(0).getMethodList().get(methodID);
         if (proto.getClientStreaming() && proto.getServerStreaming()) {
@@ -81,20 +83,20 @@ private static ServiceProto grpcServiceProto;
             return MethodDescriptor.MethodType.UNKNOWN;
         }
     }
-
+    
     /**
      * Creates a new async stub that supports all call types for the service.
      */
     public GRPCNonBlockingStub newNonBlockingStub(Channel channel) {
-
+        
         return new GRPCNonBlockingStub(channel);
     }
-
+    
     /**
      * Creates a new blocking-style stub that supports unary and streaming output calls on the service.
      */
     public GRPCBlockingStub newBlockingStub(Channel channel) {
-
+        
         return new GRPCBlockingStub(channel);
     }
     
@@ -106,62 +108,66 @@ private static ServiceProto grpcServiceProto;
      * Creates a new ListenableFuture-style stub that supports unary calls on the service.
      */
     public GRPCFutureStub newFutureStub(Channel channel) {
-
+        
         return new GRPCFutureStub(channel);
     }
-
+    
     public static ServiceProto getGrpcServiceProto() {
-
+        
         return grpcServiceProto;
+    }
+    
+    /**
+     * .
+     * .
+     */
+    private abstract static class MessageServiceBaseDescriptorSupplier
+            implements io.grpc.protobuf.ProtoFileDescriptorSupplier, io.grpc.protobuf.ProtoServiceDescriptorSupplier {
+        
+        Descriptors.FileDescriptor fileDescriptor;
+        
+        public MessageServiceBaseDescriptorSupplier() {
+        
+        }
+        
+        MessageServiceBaseDescriptorSupplier(Descriptors.FileDescriptor fileDescriptor) {
+            
+            this.fileDescriptor = fileDescriptor;
+        }
+        
+        @Override
+        public Descriptors.FileDescriptor getFileDescriptor() {
+            
+            return this.fileDescriptor;
+        }
+        
+        @Override
+        public Descriptors.ServiceDescriptor getServiceDescriptor() {
+            
+            return getFileDescriptor().findServiceByName(serviceName);
+        }
+    }
+    
+    private static final class MessageServiceFileDescriptorSupplier
+            extends MessageServiceBaseDescriptorSupplier {
+        
+        MessageServiceFileDescriptorSupplier(Descriptors.FileDescriptor fileDescriptor) {
+        
+        }
     }
     
     /**.
      * .
      */
-    private  abstract static class MessageServiceBaseDescriptorSupplier
-            implements io.grpc.protobuf.ProtoFileDescriptorSupplier, io.grpc.protobuf.ProtoServiceDescriptorSupplier {
-
-        Descriptors.FileDescriptor fileDescriptor;
-
-        public MessageServiceBaseDescriptorSupplier() {
-
-        }
-
-        MessageServiceBaseDescriptorSupplier(Descriptors.FileDescriptor fileDescriptor) {
-
-            this.fileDescriptor = fileDescriptor;
-        }
-
-        @Override
-        public Descriptors.FileDescriptor getFileDescriptor() {
-
-            return this.fileDescriptor;
-        }
-
-        @Override
-        public Descriptors.ServiceDescriptor getServiceDescriptor() {
-
-            return getFileDescriptor().findServiceByName(serviceName);
-        }
-    }
-
-    private static final class MessageServiceFileDescriptorSupplier
-            extends MessageServiceBaseDescriptorSupplier {
-
-        MessageServiceFileDescriptorSupplier(Descriptors.FileDescriptor fileDescriptor) {
-
-        }
-    }
-
-    private static final class MessageServiceMethodDescriptorSupplier
+    public static final class MessageServiceMethodDescriptorSupplier
             extends MessageServiceBaseDescriptorSupplier
             implements io.grpc.protobuf.ProtoMethodDescriptorSupplier {
-
+        
         private final String methodName;
-
+        
         MessageServiceMethodDescriptorSupplier(String methodName,
                                                Descriptors.FileDescriptor fileDescriptor) {
-
+            
             this.fileDescriptor = fileDescriptor;
             this.methodName = methodName;
             List<Descriptors.Descriptor> messageDiscriptors = fileDescriptor.getMessageTypes();
@@ -170,22 +176,23 @@ private static ServiceProto grpcServiceProto;
                     MessageRegistry.getInstance().addMessageDescriptor(descriptor.getName(), descriptor);
                 } catch (GrpcServerException e) {
                     // todo: 2/6/18 proper log
-                   throw new RuntimeException(" Error ", e);
+                    throw new RuntimeException(" Error ", e);
                 }
             }
         }
-
+        
         @Override
         public Descriptors.MethodDescriptor getMethodDescriptor() {
-
+            
             return getServiceDescriptor().findMethodByName(methodName);
         }
+        
     }
-
+    
     private static volatile ServiceDescriptor serviceDescriptor;
-
+    
     public static ServiceDescriptor getServiceDescriptor() {
-
+        
         ServiceDescriptor result = serviceDescriptor;
         if (result == null) {
             synchronized (GRPCClientStub.class) {

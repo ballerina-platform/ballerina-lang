@@ -3,6 +3,9 @@ package org.ballerinalang.net.grpc.stubs;
 import io.grpc.CallOptions;
 import io.grpc.Channel;
 
+/**.
+ * .
+ */
 public class GRPCFutureStub extends io.grpc.stub.AbstractStub<GRPCFutureStub>  {
     public GRPCFutureStub(Channel channel) {
         super(channel);
