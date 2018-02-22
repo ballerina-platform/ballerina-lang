@@ -8,8 +8,11 @@ function main (string[] args) {
         create http:HttpClient(args[0], getConnectorConfigs(args[3], args[4], args[5], args[6]));
     }
     http:OutRequest req = {};
-    http:InResponse resp = {};
-    resp, _ = httpEndpoint.get("", req);
+    var resp, err = httpEndpoint.get("", req);
+    if (err != null) {
+        error err = {msg: err.msg};
+        throw err;
+    }
     if (resp.statusCode != 200) {
         println("Internal server error occured when pulling the ballerina package");
     } else {
