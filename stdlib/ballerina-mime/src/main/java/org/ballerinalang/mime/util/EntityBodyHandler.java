@@ -18,6 +18,7 @@
 
 package org.ballerinalang.mime.util;
 
+import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.BStructType;
 import org.ballerinalang.model.util.StringUtils;
 import org.ballerinalang.model.util.XMLUtils;
@@ -52,6 +53,7 @@ import static org.ballerinalang.mime.util.Constants.BALLERINA_TEMP_FILE;
 import static org.ballerinalang.mime.util.Constants.ENTITY_BYTE_CHANNEL;
 import static org.ballerinalang.mime.util.Constants.FIRST_BODY_PART_INDEX;
 import static org.ballerinalang.mime.util.Constants.MESSAGE_DATA_SOURCE;
+import static org.ballerinalang.mime.util.Constants.MULTIPART_AS_PRIMARY_TYPE;
 import static org.ballerinalang.mime.util.Constants.MULTIPART_DATA_INDEX;
 import static org.ballerinalang.mime.util.Constants.READABLE_BUFFER_SIZE;
 import static org.ballerinalang.mime.util.Constants.SIZE_INDEX;
@@ -59,7 +61,7 @@ import static org.ballerinalang.mime.util.Constants.SIZE_INDEX;
 /**
  * Entity body related operations are included here.
  *
- * @since 0.964.0
+ * @since 0.963.0
  */
 public class EntityBodyHandler {
 
@@ -313,5 +315,44 @@ public class EntityBodyHandler {
         while ((len = inputStream.read(buffer)) != -1) {
             messageOutputStream.write(buffer, 0, len);
         }
+    }
+
+    /**
+     * Decode a given entity body to get a set of child parts and set them to parent entity's multipart data field.
+     *
+     * @param context      Represent the ballerina context
+     * @param entityStruct Parent entity that the nested parts reside
+     * @param entityBody   Represent entity body which hold that actual content in a channel
+     */
+    public static void decodeEntityBody(Context context, BStruct entityStruct, EntityBody entityBody) {
+        if (entityBody == null) {
+            return;
+        }
+        String contentType = MimeUtil.getContentTypeWithParameters(entityStruct);
+        if (!MimeUtil.isNotNullAndEmpty(contentType) || !contentType.startsWith(MULTIPART_AS_PRIMARY_TYPE)) {
+            return;
+        }
+        if (entityBody.isStream()) {
+            if (entityBody.getEntityWrapper() != null) {
+                MultipartDecoder.parseBody(context, entityStruct, contentType, entityBody.getEntityWrapper().
+                        getInputStream());
+            }
+        } else {
+            FileIOChannel fileIOChannel = entityBody.getFileIOChannel();
+            if (fileIOChannel != null) {
+                MultipartDecoder.parseBody(context, entityStruct, contentType, fileIOChannel.getInputStream());
+            }
+        }
+    }
+
+    /**
+     * Extract body parts from a given entity.
+     *
+     * @param entityStruct Represent a ballerina entity
+     * @return An array of body parts
+     */
+    public static BRefValueArray getBodyPartArray(BStruct entityStruct) {
+        return entityStruct.getRefField(MULTIPART_DATA_INDEX) != null ?
+                (BRefValueArray) entityStruct.getRefField(MULTIPART_DATA_INDEX) : null;
     }
 }

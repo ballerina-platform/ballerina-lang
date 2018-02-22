@@ -40,7 +40,7 @@ import static org.ballerinalang.mime.util.Constants.PROTOCOL_PACKAGE_IO;
 /**
  * Get the entity body as a byte channel.
  *
- * @since 0.964.0
+ * @since 0.963.0
  */
 @BallerinaFunction(
         packageName = "ballerina.mime",

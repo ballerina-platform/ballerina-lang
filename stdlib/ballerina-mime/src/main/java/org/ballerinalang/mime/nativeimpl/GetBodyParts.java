@@ -19,53 +19,52 @@
 package org.ballerinalang.mime.nativeimpl;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.mime.util.EntityBody;
 import org.ballerinalang.mime.util.EntityBodyHandler;
+import org.ballerinalang.mime.util.MimeUtil;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BString;
+import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
-import org.ballerinalang.runtime.message.MessageDataSource;
-import org.ballerinalang.runtime.message.StringDataSource;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
 import static org.ballerinalang.mime.util.Constants.FIRST_PARAMETER_INDEX;
 
 /**
- * Get the entity body as a string.
+ * Extract body parts from a given entity.
  *
  * @since 0.963.0
  */
 @BallerinaFunction(
         packageName = "ballerina.mime",
-        functionName = "getText",
+        functionName = "getBodyParts",
         receiver = @Receiver(type = TypeKind.STRUCT, structType = "Entity", structPackage = "ballerina.mime"),
-        returnType = {@ReturnType(type = TypeKind.STRING)},
+        returnType = {@ReturnType(type = TypeKind.ARRAY)},
         isPublic = true
 )
-public class GetText extends AbstractNativeFunction {
+public class GetBodyParts extends AbstractNativeFunction {
 
     @Override
     public BValue[] execute(Context context) {
-        BString result = null;
+        BRefValueArray partsArray;
         try {
             BStruct entityStruct = (BStruct) this.getRefArgument(context, FIRST_PARAMETER_INDEX);
-            MessageDataSource dataSource = EntityBodyHandler.getMessageDataSource(entityStruct);
-            if (dataSource != null) {
-                result = new BString(dataSource.getMessageAsString());
-            } else {
-                StringDataSource stringDataSource = EntityBodyHandler.constructStringDataSource(entityStruct);
-                if (stringDataSource != null) {
-                    result = new BString(stringDataSource.getMessageAsString());
-                    EntityBodyHandler.addMessageDataSource(entityStruct, stringDataSource);
-                }
+            //Get the body parts from entity's multipart data field, if they've been already been decoded
+            partsArray = EntityBodyHandler.getBodyPartArray(entityStruct);
+            if (partsArray == null || partsArray.size() < 1) {
+                EntityBody entityBody = MimeUtil.constructEntityBody(entityStruct);
+                EntityBodyHandler.decodeEntityBody(context, entityStruct, entityBody);
+                //Check the body part availability for the second time, since the parts will be by this time populated
+                // from bytechannel
+                partsArray = EntityBodyHandler.getBodyPartArray(entityStruct);
             }
         } catch (Throwable e) {
-            throw new BallerinaException("Error occurred while retrieving text data from entity : " + e.getMessage());
+            throw new BallerinaException("Error occurred while extracting body parts from entity: " + e.getMessage());
         }
-        return this.getBValues(result);
+        return this.getBValues(partsArray);
     }
 }
