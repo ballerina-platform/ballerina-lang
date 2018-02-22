@@ -47,6 +47,7 @@ public class HttpConstants {
     public static final String HTTP_CONTENT_LENGTH = "Content-Length";
     public static final String USER_AGENT_HEADER = "User-Agent";
     public static final String CONTENT_TYPE_HEADER = "Content-Type";
+    public static final String CONTENT_ENCODING_HEADER = "content-encoding";
     public static final String ACCEPT_HEADER = "Accept";
     public static final String ALLOW = "Allow";
     public static final String SERVER_HEADER = "Server";
@@ -99,6 +100,7 @@ public class HttpConstants {
     public static final String ANN_CONFIG_ATTR_CIPHERS = "ciphers";
     public static final String ANN_CONFIG_ATTR_SSL_PROTOCOL = "sslProtocol";
     public static final String ANN_CONFIG_ATTR_VALIDATE_CERT_ENABLED = "validateCertEnabled";
+    public static final String ANN_CONFIG_ATTR_COMPRESSION_ENABLED = "compressionEnabled";
     public static final String ANN_CONFIG_ATTR_CACHE_SIZE = "cacheSize";
     public static final String ANN_CONFIG_ATTR_CACHE_VALIDITY_PERIOD = "cacheValidityPeriod";
     public static final String ANN_CONFIG_ATTR_WEBSOCKET = "webSocket";
