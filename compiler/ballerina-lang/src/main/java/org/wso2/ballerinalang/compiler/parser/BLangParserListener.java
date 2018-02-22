@@ -2198,6 +2198,61 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         this.pkgBuilder.endWhereClauseNode(getCurrentPos(ctx), getWS(ctx));
     }
 
+    @Override
+    public void enterSetAssignmentClause(BallerinaParser.SetAssignmentClauseContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+
+        this.pkgBuilder.startSetAssignmentClauseNode(getCurrentPos(ctx), getWS(ctx));
+    }
+
+    @Override
+    public void exitSetAssignmentClause(BallerinaParser.SetAssignmentClauseContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+
+        this.pkgBuilder.endSetAssignmentClauseNode(getCurrentPos(ctx), getWS(ctx));
+    }
+
+    @Override
+    public void enterSetClause(BallerinaParser.SetClauseContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+
+        this.pkgBuilder.startSetClauseNode();
+    }
+
+    @Override
+    public void exitSetClause(BallerinaParser.SetClauseContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+
+        this.pkgBuilder.endSetClauseNode(getWS(ctx), ctx.getChildCount() / 2);
+    }
+
+    @Override
+    public void enterStreamingAction(BallerinaParser.StreamingActionContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+
+        this.pkgBuilder.startStreamActionNode(getCurrentPos(ctx), getWS(ctx));
+    }
+
+    @Override
+    public void exitStreamingAction(BallerinaParser.StreamingActionContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+
+        this.pkgBuilder.endStreamActionNode(getCurrentPos(ctx), getWS(ctx), ctx.Identifier().getText(),
+                ctx.getChild(0).getText());
+    }
+
     private DiagnosticPos getCurrentPos(ParserRuleContext ctx) {
         int startLine = ctx.getStart().getLine();
         int startCol = ctx.getStart().getCharPositionInLine() + 1;

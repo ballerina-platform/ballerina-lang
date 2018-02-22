@@ -31,6 +31,7 @@ public class BTypes {
     public static BType typeXML = new BXMLType(TypeConstants.XML_TNAME, null);
     public static BType typeJSON = new BJSONType(TypeConstants.JSON_TNAME, null);
     public static BType typeTable = new BTableType(TypeConstants.TABLE_TNAME, null);
+    public static BType typeStream = new BStreamType(TypeConstants.STREAM_TNAME, null);
     public static BType typeAny = new BAnyType(TypeConstants.ANY_TNAME, null);
     public static BType typeType = new BTypeType(TypeConstants.TYPE_TNAME, null);
     public static BType typeMap = new BMapType(TypeConstants.MAP_TNAME, typeAny, null);
@@ -61,6 +62,8 @@ public class BTypes {
                 return typeMap;
             case TypeConstants.TABLE_TNAME:
                 return typeTable;
+            case TypeConstants.STREAM_TNAME:
+                return typeStream;
             default:
                 throw new IllegalStateException("Unknown type name");
         }

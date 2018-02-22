@@ -45,6 +45,8 @@ import org.ballerinalang.model.tree.clauses.GroupByNode;
 import org.ballerinalang.model.tree.clauses.HavingNode;
 import org.ballerinalang.model.tree.clauses.OrderByNode;
 import org.ballerinalang.model.tree.clauses.SelectExpressionNode;
+import org.ballerinalang.model.tree.clauses.SetAssignmentNode;
+import org.ballerinalang.model.tree.clauses.StreamActionNode;
 import org.ballerinalang.model.tree.expressions.AnnotationAttachmentAttributeValueNode;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
 import org.ballerinalang.model.tree.expressions.XMLAttributeNode;
@@ -82,6 +84,8 @@ import org.wso2.ballerinalang.compiler.tree.clauses.BLangGroupBy;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangHaving;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangOrderBy;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangSelectExpression;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangSetAssignment;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangStreamAction;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangWhere;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAttachmentAttribute;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAttachmentAttributeValue;
@@ -235,6 +239,12 @@ public class BLangPackageBuilder {
     private Stack<SelectExpressionNode> selectExpressionsStack = new Stack<>();
 
     private Stack<List<SelectExpressionNode>> selectExpressionsListStack = new Stack<>();
+
+    private Stack<SetAssignmentNode> setAssignmentStack = new Stack<>();
+
+    private Stack<List<SetAssignmentNode>> setAssignmentListStack = new Stack<>();
+
+    private Stack<StreamActionNode> streamActionNodeStack = new Stack<>();
 
     private Set<BLangImportPackage> imports = new HashSet<>();
 
@@ -1945,4 +1955,60 @@ public class BLangPackageBuilder {
         WhereNode whereNode = this.whereClauseStack.peek();
         whereNode.setExpression(exprNodeStack.pop());
     }
+
+    public void startSetAssignmentClauseNode(DiagnosticPos pos, Set<Whitespace> ws) {
+        SetAssignmentNode setAssignmentNode = TreeBuilder.createSetAssignmentNode();
+        ((BLangSetAssignment) setAssignmentNode).pos = pos;
+        ((BLangSetAssignment) setAssignmentNode).addWS(ws);
+        this.setAssignmentStack.push(setAssignmentNode);
+    }
+
+    public void endSetAssignmentClauseNode(DiagnosticPos currentPos, Set<Whitespace> ws) {
+        if (this.exprNodeStack.empty()) {
+            throw new IllegalStateException("Expression stack cannot be empty in processing a Set Assignment Clause");
+        }
+        SetAssignmentNode setAssignmentNode = this.setAssignmentStack.peek();
+        setAssignmentNode.setExpression(exprNodeStack.pop());
+        setAssignmentNode.setVariableReference(exprNodeStack.pop());
+    }
+
+    public void startSetClauseNode() {
+        this.setAssignmentListStack.push(new ArrayList<>());
+    }
+
+    public void endSetClauseNode(Set<Whitespace> ws, int selectExprCount) {
+        List<SetAssignmentNode> setAssignmentNodeList = this.setAssignmentListStack.peek();
+        addSetAssignmentToSelectAssignmentNodeList(setAssignmentNodeList, selectExprCount);
+    }
+
+    private void addSetAssignmentToSelectAssignmentNodeList(List<SetAssignmentNode> setAssignmentNodeList, int n) {
+        if (this.setAssignmentStack.isEmpty()) {
+            throw new IllegalStateException("Set expression stack cannot be empty in processing a SelectClause");
+        }
+        SetAssignmentNode expr = this.setAssignmentStack.pop();
+        if (n > 1) {
+            addSetAssignmentToSelectAssignmentNodeList(setAssignmentNodeList, n - 1);
+        }
+        setAssignmentNodeList.add(expr);
+    }
+
+    public void startStreamActionNode(DiagnosticPos pos, Set<Whitespace> ws) {
+        StreamActionNode streamActionNode = TreeBuilder.createStreamActionNode();
+        ((BLangStreamAction) streamActionNode).pos = pos;
+        ((BLangStreamAction) streamActionNode).addWS(ws);
+        this.streamActionNodeStack.push(streamActionNode);
+    }
+
+    public void endStreamActionNode(DiagnosticPos currentPos, Set<Whitespace> ws, String identifier, String action) {
+        if (this.exprNodeStack.empty()) {
+            throw new IllegalStateException("Expression stack cannot be empty in processing a Stream Action clause");
+        }
+        StreamActionNode streamActionNode = this.streamActionNodeStack.peek();
+
+        streamActionNode.setExpression(exprNodeStack.pop());
+        streamActionNode.setSetClause(setAssignmentListStack.pop());
+        streamActionNode.setIdentifier(identifier);
+        streamActionNode.setStreamActionType(action);
+    }
+
 }

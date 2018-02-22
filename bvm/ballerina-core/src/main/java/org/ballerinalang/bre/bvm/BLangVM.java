@@ -1963,6 +1963,9 @@ public class BLangVM {
             case InstructionCodes.ANY2DT:
                 handleAnyToRefTypeCast(sf, operands, BTypes.typeTable);
                 break;
+            case InstructionCodes.ANYSTM:
+                handleAnyToRefTypeCast(sf, operands, BTypes.typeStream);
+                break;
             case InstructionCodes.ANY2E:
             case InstructionCodes.ANY2T:
             case InstructionCodes.ANY2C:

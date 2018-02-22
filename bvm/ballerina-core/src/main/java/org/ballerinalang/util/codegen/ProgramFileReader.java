@@ -23,6 +23,7 @@ import org.ballerinalang.model.types.BConnectorType;
 import org.ballerinalang.model.types.BEnumType;
 import org.ballerinalang.model.types.BFunctionType;
 import org.ballerinalang.model.types.BJSONType;
+import org.ballerinalang.model.types.BStreamType;
 import org.ballerinalang.model.types.BStructType;
 import org.ballerinalang.model.types.BTableType;
 import org.ballerinalang.model.types.BType;
@@ -902,6 +903,12 @@ public class ProgramFileReader {
                     } else {
                         typeStack.push(new BTableType(packageInfoOfType.getStructInfo(name).getType()));
                     }
+                } else if (typeChar == 'H') {
+                    if (name.isEmpty()) {
+                        typeStack.push(BTypes.typeStream);
+                    } else {
+                        typeStack.push(new BStreamType(packageInfoOfType.getStructInfo(name).getType()));
+                    }
                 } else if (typeChar == 'E') {
                     typeStack.push(packageInfoOfType.getEnumInfo(name).getType());
                 } else {
@@ -948,6 +955,7 @@ public class ProgramFileReader {
             case 'J':
             case 'T':
             case 'E':
+            case 'H':
             case 'D':
                 String typeName = desc.substring(1, desc.length() - 1);
                 String[] parts = typeName.split(":");
@@ -969,6 +977,8 @@ public class ProgramFileReader {
                     return packageInfoOfType.getConnectorInfo(name).getType();
                 } else if (ch == 'D') {
                     return new BTableType(packageInfoOfType.getStructInfo(name).getType());
+                } else if (ch == 'H') {
+                    return new BStreamType(packageInfoOfType.getStructInfo(name).getType());
                 } else if (ch == 'E') {
                     return packageInfoOfType.getEnumInfo(name).getType();
                 } else {
@@ -1386,6 +1396,7 @@ public class ProgramFileReader {
                 case InstructionCodes.TR_END:
                 case InstructionCodes.NEWMAP:
                 case InstructionCodes.NEWTABLE:
+                case InstructionCodes.NEWSTREAM:
                     i = codeStream.readInt();
                     packageInfo.addInstruction(InstructionFactory.get(opcode, i));
                     break;

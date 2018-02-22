@@ -227,6 +227,7 @@ public class TypeChecker extends BLangNodeVisitor {
                 expTypeTag == TypeTags.MAP ||
                 expTypeTag == TypeTags.STRUCT ||
                 expTypeTag == TypeTags.NONE ||
+                expTypeTag == TypeTags.STREAM ||
                 expTypeTag == TypeTags.ANY) {
             recordLiteral.keyValuePairs.forEach(keyValuePair ->
                     checkRecLiteralKeyValue(keyValuePair, expTypes.get(0)));
@@ -452,6 +453,7 @@ public class TypeChecker extends BLangNodeVisitor {
             case TypeTags.BLOB:
             case TypeTags.XML:
             case TypeTags.MAP:
+            case TypeTags.STREAM:
             case TypeTags.TABLE:
                 checkFunctionInvocationExpr(iExpr, iExpr.expr.type);
                 break;
@@ -958,6 +960,7 @@ public class TypeChecker extends BLangNodeVisitor {
             case TypeTags.MAP:
             case TypeTags.JSON:
             case TypeTags.XML:
+            case TypeTags.STREAM:
             case TypeTags.TABLE:
             case TypeTags.TUPLE_COLLECTION:
                 return IterableKind.getFromString(iExpr.name.value) != IterableKind.UNDEFINED;

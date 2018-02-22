@@ -29,6 +29,7 @@ public class TypeDescriptor {
     public static final String SIG_REFTYPE = "R";
     public static final String SIG_JSON = "J";
     public static final String SIG_TABLE = "D";
+    public static final String SIG_STREAM = "H";
     public static final String SIG_CONNECTOR = "C";
     public static final String SIG_STRUCT = "T";
     public static final String SIG_ENUM = "E";

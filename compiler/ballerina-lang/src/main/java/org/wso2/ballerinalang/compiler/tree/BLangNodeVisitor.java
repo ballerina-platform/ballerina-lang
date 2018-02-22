@@ -25,6 +25,8 @@ import org.wso2.ballerinalang.compiler.tree.clauses.BLangHaving;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangOrderBy;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangSelectClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangSelectExpression;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangSetAssignment;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangStreamAction;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangWhere;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAttachmentAttribute;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAttachmentAttributeValue;
@@ -295,6 +297,14 @@ public abstract class BLangNodeVisitor {
     }
 
     public void visit(BLangWhere where) {
+        throw  new AssertionError();
+    }
+
+    public void visit(BLangSetAssignment setAssignmentClause) {
+        throw  new AssertionError();
+    }
+
+    public void visit(BLangStreamAction streamAction) {
         throw  new AssertionError();
     }
 

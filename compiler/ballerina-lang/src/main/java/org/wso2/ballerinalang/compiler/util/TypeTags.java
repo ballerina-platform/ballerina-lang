@@ -31,7 +31,8 @@ public class TypeTags {
     public static final int JSON = TYPE + 1;
     public static final int XML = JSON + 1;
     public static final int TABLE = XML + 1;
-    public static final int MAP = TABLE + 1;
+    public static final int STREAM = TABLE + 1;
+    public static final int MAP = STREAM + 1;
     public static final int ANY = MAP + 1;
     public static final int STRUCT = ANY + 1;
     public static final int CONNECTOR = STRUCT + 1;
