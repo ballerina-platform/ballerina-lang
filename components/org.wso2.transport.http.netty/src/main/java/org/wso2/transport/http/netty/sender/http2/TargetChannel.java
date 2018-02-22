@@ -23,6 +23,7 @@ import io.netty.channel.ChannelFuture;
 import io.netty.handler.codec.http2.Http2Connection;
 
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 /**
  * This class encapsulate the Channel associate with a particular connection.
@@ -36,12 +37,17 @@ public class TargetChannel {
     private Http2ClientInitializer http2ClientInitializer;
     private Http2Connection connection;
     private ChannelFuture channelFuture;
+    private UpgradeState upgradeState = UpgradeState.UPGRADE_NOT_ISSUED;
+    /* List which holds the pending message during the connection upgrade */
+    private ConcurrentLinkedQueue<OutboundHttpRequestHolder> pendingMessages;
+
 
     public TargetChannel(Http2ClientInitializer http2ClientInitializer, ChannelFuture channelFuture) {
         this.http2ClientInitializer = http2ClientInitializer;
         this.channelFuture = channelFuture;
         channel = channelFuture.channel();
         connection = http2ClientInitializer.getHttp2ClientHandler().getConnection();
+        pendingMessages = new ConcurrentLinkedQueue<>();
     }
 
     public Channel getChannel() {
@@ -76,8 +82,30 @@ public class TargetChannel {
         inFlightMessages.put(streamId, inFlightMessage);
     }
 
+    public void addPendingMessage(OutboundHttpRequestHolder pendingMessage) {
+        pendingMessages.add(pendingMessage);
+    }
+
+    public ConcurrentLinkedQueue<OutboundHttpRequestHolder> getPendingMessages() {
+        return pendingMessages;
+    }
+
     public OutboundHttpRequestHolder getInFlightMessage(int streamId) {
         return inFlightMessages.get(streamId);
     }
 
+    /**
+     * Lifecycle states of the Target Channel related to connection upgrade
+     */
+    public enum UpgradeState {
+        UPGRADE_NOT_ISSUED, UPGRADE_ISSUED, UPGRADED
+    }
+
+    public void updateUpgradeState(UpgradeState upgradeState) {
+        this.upgradeState = upgradeState;
+    }
+
+    public UpgradeState getUpgradeState() {
+        return upgradeState;
+    }
 }

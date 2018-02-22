@@ -61,6 +61,8 @@ import java.nio.channels.ClosedChannelException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * Sending requests and receiving responses from a backend server
@@ -71,8 +73,10 @@ public class Http2ClientHandler extends ChannelDuplexHandler {
     private ChannelHandlerContext channelHandlerContext;
     private Http2Connection connection;
     private Http2ConnectionEncoder encoder;
-    private boolean upgradedToHttp2 = false;
     private TargetChannel targetChannel;
+
+    /** Lock for synchronizing access */
+    private Lock lock = new ReentrantLock();
 
     public Http2ClientHandler(Http2Connection connection, Http2ConnectionEncoder encoder) {
         this.connection = connection;
@@ -121,22 +125,110 @@ public class Http2ClientHandler extends ChannelDuplexHandler {
         if (evt instanceof HttpClientUpgradeHandler.UpgradeEvent) {
             HttpClientUpgradeHandler.UpgradeEvent upgradeEvent = (HttpClientUpgradeHandler.UpgradeEvent) evt;
             if (HttpClientUpgradeHandler.UpgradeEvent.UPGRADE_SUCCESSFUL.name().equals(upgradeEvent.name())) {
-                upgradedToHttp2 = true;
+                lock.lock();
+                try {
+                    targetChannel.updateUpgradeState(TargetChannel.UpgradeState.UPGRADED);
+                } finally {
+                    lock.unlock();
+                }
+                flushPendingMessages();
+            } else if (HttpClientUpgradeHandler.UpgradeEvent.UPGRADE_REJECTED.name().equals(upgradeEvent.name())) {
+                // If upgrade fails, notify the listener and continue with the queued requests
+                // TODO: Revisit upgrade failure scenario
+                lock.lock();
+                try {
+                    targetChannel.updateUpgradeState(TargetChannel.UpgradeState.UPGRADE_NOT_ISSUED);
+                } finally {
+                    lock.unlock();
+                }
+                targetChannel.getInFlightMessage(1).getResponseFuture().notifyHttpListener(
+                        new Exception("HTTP/2 Upgrade failed"));
+                tryNextMessage();
             }
         }
     }
 
     public void writeRequest(OutboundHttpRequestHolder outboundHttpRequestHolder) {
 
-        if (upgradedToHttp2) {
+        TargetChannel.UpgradeState state = targetChannel.getUpgradeState();
+
+        if (state == TargetChannel.UpgradeState.UPGRADED) {
             new Http2RequestWriter(outboundHttpRequestHolder).writeContent();
         } else {
-            new UpgradeRequestWriter(outboundHttpRequestHolder).writeContent();
+            lock.lock();
+            try {
+                state = targetChannel.getUpgradeState();
+                if (state == TargetChannel.UpgradeState.UPGRADE_NOT_ISSUED) {
+                    targetChannel.updateUpgradeState(TargetChannel.UpgradeState.UPGRADE_ISSUED);
+                    new UpgradeRequestWriter(outboundHttpRequestHolder).writeContent();
+                } else if (state == TargetChannel.UpgradeState.UPGRADED) {
+                    new Http2RequestWriter(outboundHttpRequestHolder).writeContent();
+                } else if (state == TargetChannel.UpgradeState.UPGRADE_ISSUED) {
+                    targetChannel.addPendingMessage(outboundHttpRequestHolder);
+                }
+            } finally {
+                lock.unlock();
+            }
         }
     }
 
     private synchronized int getStreamId() {
         return connection.local().incrementAndGetNextStreamId();
+    }
+
+    private void flushPendingMessages() {
+
+        targetChannel.getPendingMessages().forEach(message -> {
+            new Http2RequestWriter(message).writeContent();
+        });
+        targetChannel.getPendingMessages().clear();
+    }
+
+    private void tryNextMessage() {
+        OutboundHttpRequestHolder nextMessage = targetChannel.getPendingMessages().poll();
+        if (nextMessage != null) {
+            new Http2RequestWriter(nextMessage).writeContent();
+        }
+    }
+
+    private HTTPCarbonMessage setupResponseCarbonMessage(ChannelHandlerContext ctx, Http2HeadersFrame headersFrame,
+                                                         OutboundHttpRequestHolder outboundHttpRequestHolder) {
+
+        Http2Headers http2Headers = headersFrame.headers();
+
+        CharSequence status = http2Headers.status();
+        HttpResponseStatus responseStatus;
+        try {
+            responseStatus = HttpConversionUtil.parseStatus(status);
+        } catch (Http2Exception e) {
+            responseStatus = HttpResponseStatus.BAD_GATEWAY;
+        }
+
+        HttpVersion version = new HttpVersion(Constants.HTTP_VERSION_2_0, true);
+
+        HttpResponse httpResponse = new DefaultHttpResponse(version, responseStatus);
+
+        try {
+            HttpConversionUtil.
+                    addHttp2ToHttpHeaders(headersFrame.stream().id(), http2Headers, httpResponse.headers(),
+                                          version, false, false);
+        } catch (Http2Exception e) {
+        }
+        HTTPCarbonMessage responseCarbonMsg = new HttpCarbonResponse(httpResponse);
+
+        responseCarbonMsg.setProperty(Constants.POOLED_BYTE_BUFFER_FACTORY, new PooledDataStreamerFactory(ctx.alloc()));
+
+        responseCarbonMsg.setProperty(org.wso2.carbon.messaging.Constants.DIRECTION,
+                                      org.wso2.carbon.messaging.Constants.DIRECTION_RESPONSE);
+        responseCarbonMsg.setProperty(Constants.HTTP_STATUS_CODE, httpResponse.status().code());
+
+        //copy required properties for service chaining from incoming carbon message to the response carbon message
+        //copy shared worker pool
+        responseCarbonMsg.setProperty(
+                Constants.EXECUTOR_WORKER_POOL,
+                outboundHttpRequestHolder.getRequestCarbonMessage().getProperty(Constants.EXECUTOR_WORKER_POOL));
+
+        return responseCarbonMsg;
     }
 
     private class Http2RequestWriter {
@@ -356,47 +448,6 @@ public class Http2ClientHandler extends ChannelDuplexHandler {
             }
             return httpMethod;
         }
-    }
-
-
-    private HTTPCarbonMessage setupResponseCarbonMessage(ChannelHandlerContext ctx, Http2HeadersFrame headersFrame,
-                                                         OutboundHttpRequestHolder outboundHttpRequestHolder) {
-
-        Http2Headers http2Headers = headersFrame.headers();
-
-        CharSequence status = http2Headers.status();
-        HttpResponseStatus responseStatus;
-        try {
-            responseStatus = HttpConversionUtil.parseStatus(status);
-        } catch (Http2Exception e) {
-            responseStatus = HttpResponseStatus.BAD_GATEWAY;
-        }
-
-        HttpVersion version = new HttpVersion(Constants.HTTP_VERSION_2_0, true);
-
-        HttpResponse httpResponse = new DefaultHttpResponse(version, responseStatus);
-
-        try {
-            HttpConversionUtil.
-                    addHttp2ToHttpHeaders(headersFrame.stream().id(), http2Headers, httpResponse.headers(),
-                                          version, false, false);
-        } catch (Http2Exception e) {
-        }
-        HTTPCarbonMessage responseCarbonMsg = new HttpCarbonResponse(httpResponse);
-
-        responseCarbonMsg.setProperty(Constants.POOLED_BYTE_BUFFER_FACTORY, new PooledDataStreamerFactory(ctx.alloc()));
-
-        responseCarbonMsg.setProperty(org.wso2.carbon.messaging.Constants.DIRECTION,
-                                  org.wso2.carbon.messaging.Constants.DIRECTION_RESPONSE);
-        responseCarbonMsg.setProperty(Constants.HTTP_STATUS_CODE, httpResponse.status().code());
-
-        //copy required properties for service chaining from incoming carbon message to the response carbon message
-        //copy shared worker pool
-        responseCarbonMsg.setProperty(
-                Constants.EXECUTOR_WORKER_POOL,
-                outboundHttpRequestHolder.getRequestCarbonMessage().getProperty(Constants.EXECUTOR_WORKER_POOL));
-
-        return responseCarbonMsg;
     }
 
 }
