@@ -193,6 +193,7 @@ public class HttpConstants {
     public static final int VALIDATE_CERT_ENABLED_INDEX = 0;
     public static final int CACHE_SIZE_INDEX = 0;
     public static final int CACHE_VALIDITY_PERIOD_INDEX = 1;
+    public static final int HOST_NAME_VERIFICATION_ENABLED_INDEX = 1;
 
     public static final int HTTP_MESSAGE_INDEX = 0;
     public static final int ENTITY_INDEX = 1;

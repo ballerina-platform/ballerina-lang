@@ -151,6 +151,9 @@ public class Init extends AbstractHTTPAction {
                     senderConfiguration.setCacheSize(cacheSize);
                 }
             }
+            boolean hostNameVerificationEnabled =
+                    ssl.getBooleanField(HttpConstants.HOST_NAME_VERIFICATION_ENABLED_INDEX) == TRUE;
+            senderConfiguration.setHostNameVerificationEnabled(hostNameVerificationEnabled);
             if (StringUtils.isNotBlank(trustStoreFile)) {
                 senderConfiguration.setTrustStoreFile(trustStoreFile);
             }
