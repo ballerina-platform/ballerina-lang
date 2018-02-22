@@ -1,6 +1,7 @@
 package ballerina.file;
 
 import ballerina.io;
+import ballerina.time;
 
 @Description { value:"The Read access mode"}
 public const string R = "R";
@@ -20,43 +21,35 @@ public struct File {
 }
 
 @Description { value: "Represents an I/O error which could occur when processing a file."}
-@Field { value : "msg: The error message"}
+@Field { value : "message: The error message"}
 @Field { value : "cause: The error which caused the I/O error"}
-@Field { value : "stackTrace: The stack trace of the error"}
 public struct IOError {
-    string msg;
+    string message;
     error cause;
-    StackFrame[] stackTrace;
 }
 
 @Description { value: "Represents an error which occurs when attempting to perform operations on a non-existent file."}
-@Field { value : "msg: The error message"}
+@Field { value : "message: The error message"}
 @Field { value : "cause: The error which caused the file not found error"}
-@Field { value : "stackTrace: The stack trace of the error"}
 public struct FileNotFoundError {
-    string msg;
+    string message;
     error cause;
-    StackFrame[] stackTrace;
 }
 
 @Description { value: "Represents an error which occurs when attempting to perform operations on a file without the required privileges."}
-@Field { value : "msg: The error message"}
+@Field { value : "message: The error message"}
 @Field { value : "cause: The error which caused the access denied error"}
-@Field { value : "stackTrace: The stack trace of the error"}
 public struct AccessDeniedError {
-    string msg;
+    string message;
     error cause;
-    StackFrame[] stackTrace;
 }
 
 @Description { value: "Represents an error which occurs when attempting to perform operations on a file without opening it."}
-@Field { value : "msg: The error message"}
+@Field { value : "message: The error message"}
 @Field { value : "cause: The error which caused the file not opened error"}
-@Field { value : "stackTrace: The stack trace of the error"}
 public struct FileNotOpenedError {
-    string msg;
+    string message;
     error cause;
-    StackFrame[] stackTrace;
 }
 
 @Description { value:"Closes a given file and its stream"}
@@ -104,7 +97,7 @@ public native function <File file> mkdirs () (boolean, AccessDeniedError, IOErro
 @Return {value:"Returns a Time struct"}
 @Return {value:"Returns an AccessDeniedError if the user does not have the necessary permissions to read the file"}
 @Return {value:"Returns an IOError if the file could not be read"}
-public native function <File file> getModifiedTime () (Time, AccessDeniedError, IOError);
+public native function <File file> getModifiedTime () (time:Time, AccessDeniedError, IOError);
 
 @Description {value:"Returns the name of the file"}
 @Param { value: "file: The file of which the name needs to be looked up"}

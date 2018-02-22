@@ -1361,11 +1361,9 @@ public class XMLNativeFunctionTest {
     public void testParseXMLCommentWithXMLDeclrEntity() {
         BValue[] returns = BRunUtil.invoke(result, "testParseXMLCommentWithXMLDeclrEntity");
         Assert.assertEquals(returns[0], null);
-        Assert.assertTrue(returns[1].stringValue().startsWith("{msg:\"failed to create xml: Unexpected EOF in prolog"));
-        Assert.assertTrue(returns[1].stringValue().endsWith("at [row,col {unknown-source}]:"
-                        + " [1,74]\", cause:null, stackTrace:[{caller:\"testParseXMLCommentWithXMLDeclrEntity\", "
-                        + "packageName:\".\", fileName:\"xml-native-functions.bal\", lineNumber:836}], sourceType:"
-                        + "\"string\", targetType:\"xml\"}"));
+        Assert.assertTrue(returns[1].stringValue().startsWith("{message:\"failed to create xml: " +
+                "Unexpected EOF in prolog"));
+        Assert.assertTrue(returns[1].stringValue().endsWith("at [row,col {unknown-source}]: [1,74]\", cause:null}"));
     }
 
     @Test

@@ -1,3 +1,4 @@
+import ballerina.runtime;
 
 int lockWithinLockInt1 = 0;
 
@@ -31,12 +32,12 @@ function lockWithinLockInWorkers() (int, string) {
             lock {
                 lockWithinLockInt1 = 66;
             }
-            sleep(100);
+            runtime:sleepCurrentWorker(100);
             lockWithinLockInt1 = 45;
         }
     }
     worker w2 {
-        sleep(20);
+        runtime:sleepCurrentWorker(20);
         lock {
             lockWithinLockString1 = "hello";
             lock {
@@ -46,7 +47,7 @@ function lockWithinLockInWorkers() (int, string) {
         }
     }
     worker w3 {
-        sleep(30);
+        runtime:sleepCurrentWorker(30);
         return lockWithinLockInt1, lockWithinLockString1;
     }
 }
@@ -59,12 +60,12 @@ function lockInsideWhileLoop() (int) {
                 lockWithinLockInt1 = lockWithinLockInt1 + 1;
             }
             i = i +1;
-            sleep(10);
+            runtime:sleepCurrentWorker(10);
         }
         return lockWithinLockInt1;
     }
     worker w2 {
-        sleep(10);
+        runtime:sleepCurrentWorker(10);
         lock {
             lockWithinLockInt1 = lockWithinLockInt1 + 50;
         }
@@ -74,7 +75,7 @@ function lockInsideWhileLoop() (int) {
 function throwErrorInsideLock() (int, string) {
     worker w1 {
         lock {
-            sleep(50);
+            runtime:sleepCurrentWorker(50);
             lockWithinLockInt1 = lockWithinLockInt1 + 1;
             lockWithinLockString1 = "hello";
             var ddd, err = <int>lockWithinLockString1;
@@ -84,7 +85,7 @@ function throwErrorInsideLock() (int, string) {
         }
     }
     worker w2 {
-        sleep(10);
+        runtime:sleepCurrentWorker(10);
         lock {
             lockWithinLockString1 = "second worker string";
             lockWithinLockInt1 = lockWithinLockInt1 + 50;
@@ -97,7 +98,7 @@ function throwErrorInsideLockInsideTryFinally() (int, string) {
     worker w1 {
         try {
             lock {
-                sleep(50);
+                runtime:sleepCurrentWorker(50);
                 lockWithinLockInt1 = lockWithinLockInt1 + 1;
                 lockWithinLockString1 = "hello";
                 var ddd, err = <int>lockWithinLockString1;
@@ -106,7 +107,7 @@ function throwErrorInsideLockInsideTryFinally() (int, string) {
                 }
             }
         } catch (error e) {
-            sleep (10);
+            runtime:sleepCurrentWorker(10);
             lock {
                 lockWithinLockInt1 = lockWithinLockInt1 + 1;
             }
@@ -118,7 +119,7 @@ function throwErrorInsideLockInsideTryFinally() (int, string) {
         return lockWithinLockInt1, lockWithinLockString1;
     }
     worker w2 {
-        sleep(10);
+        runtime:sleepCurrentWorker(10);
         lock {
             lockWithinLockString1 = "worker 2 sets the string value after try catch finally";
             lockWithinLockInt1 = lockWithinLockInt1 + 50;
@@ -130,7 +131,7 @@ function throwErrorInsideTryCatchFinallyInsideLock() (int, string) {
     worker w1 {
         lock {
             try {
-                sleep(50);
+                runtime:sleepCurrentWorker(50);
                 lockWithinLockInt1 = lockWithinLockInt1 + 1;
                 lockWithinLockString1 = "hello";
                 var ddd, err = <int>lockWithinLockString1;
@@ -139,7 +140,7 @@ function throwErrorInsideTryCatchFinallyInsideLock() (int, string) {
                 }
 
             } catch (error e) {
-                sleep (10);
+                runtime:sleepCurrentWorker(10);
                 lock {
                     lockWithinLockInt1 = lockWithinLockInt1 + 1;
                 }
@@ -149,11 +150,11 @@ function throwErrorInsideTryCatchFinallyInsideLock() (int, string) {
                 }
             }
         }
-        sleep(10);
+        runtime:sleepCurrentWorker(10);
         return lockWithinLockInt1, lockWithinLockString1;
     }
     worker w2 {
-        sleep(10);
+        runtime:sleepCurrentWorker(10);
         lock {
             lockWithinLockString1 = "worker 2 sets the string after try catch finally inside lock";
             lockWithinLockInt1 = lockWithinLockInt1 + 50;
@@ -165,7 +166,7 @@ function throwErrorInsideTryFinallyInsideLock() (int, string) {
     worker w1 {
         lock {
             try {
-                sleep(50);
+                runtime:sleepCurrentWorker(50);
                 lockWithinLockInt1 = lockWithinLockInt1 + 1;
                 lockWithinLockString1 = "hello";
                 var ddd, err = <int>lockWithinLockString1;
@@ -180,7 +181,7 @@ function throwErrorInsideTryFinallyInsideLock() (int, string) {
         }
     }
     worker w2 {
-        sleep(10);
+        runtime:sleepCurrentWorker(10);
         lock {
             lockWithinLockString1 = "worker 2 sets the string after try finally";
             lockWithinLockInt1 = lockWithinLockInt1 + 50;
@@ -193,7 +194,7 @@ function throwErrorInsideLockInsideTryCatch() (int, string) {
     worker w1 {
         try {
             lock {
-                sleep(50);
+                runtime:sleepCurrentWorker(50);
                 lockWithinLockInt1 = lockWithinLockInt1 + 1;
                 lockWithinLockString1 = "hello";
                 var ddd, err = <int>lockWithinLockString1;
@@ -202,7 +203,7 @@ function throwErrorInsideLockInsideTryCatch() (int, string) {
                 }
             }
         } catch (error e) {
-            sleep (10);
+            runtime:sleepCurrentWorker(10);
             lock {
                 lockWithinLockInt1 = lockWithinLockInt1 + 1;
             }
@@ -210,7 +211,7 @@ function throwErrorInsideLockInsideTryCatch() (int, string) {
         return lockWithinLockInt1, lockWithinLockString1;
     }
     worker w2 {
-        sleep(10);
+        runtime:sleepCurrentWorker(10);
         lock {
             lockWithinLockString1 = "worker 2 sets the string value after try catch";
             lockWithinLockInt1 = lockWithinLockInt1 + 50;
@@ -222,7 +223,7 @@ function throwErrorInsideTryCatchInsideLock() (int, string) {
     worker w1 {
         lock {
             try {
-                sleep(50);
+                runtime:sleepCurrentWorker(50);
                 lockWithinLockInt1 = lockWithinLockInt1 + 1;
                 lockWithinLockString1 = "hello";
                 var ddd, err = <int>lockWithinLockString1;
@@ -231,17 +232,17 @@ function throwErrorInsideTryCatchInsideLock() (int, string) {
                 }
 
             } catch (error e) {
-                sleep (10);
+                runtime:sleepCurrentWorker(10);
                 lock {
                     lockWithinLockInt1 = lockWithinLockInt1 + 1;
                 }
             }
         }
-        sleep(10);
+        runtime:sleepCurrentWorker(10);
         return lockWithinLockInt1, lockWithinLockString1;
     }
     worker w2 {
-        sleep(10);
+        runtime:sleepCurrentWorker(10);
         lock {
             lockWithinLockString1 = "worker 2 sets the string after try catch inside lock";
             lockWithinLockInt1 = lockWithinLockInt1 + 50;
@@ -259,11 +260,11 @@ function lockWithinLockInWorkersForBlobAndBoolean() (boolean, blob) {
             lock {
                 boolValue = true;
             }
-            sleep(100);
+            runtime:sleepCurrentWorker(100);
         }
     }
     worker w2 {
-        sleep(20);
+        runtime:sleepCurrentWorker(20);
         lock {
             boolValue = false;
             lock {
@@ -274,7 +275,7 @@ function lockWithinLockInWorkersForBlobAndBoolean() (boolean, blob) {
         }
     }
     worker w3 {
-        sleep(30);
+        runtime:sleepCurrentWorker(30);
         return boolValue, blobValue;
     }
 }
@@ -284,7 +285,7 @@ function returnInsideLock() (int, string) {
         string value = returnInsideLockPart();
     }
     worker w2 {
-        sleep(10);
+        runtime:sleepCurrentWorker(10);
         lock {
             if (lockWithinLockInt1 == 44) {
                 lockWithinLockString1 = "changed value11";
@@ -321,7 +322,7 @@ function breakInsideLock() (int, string) {
         }
     }
     worker w2 {
-        sleep(20);
+        runtime:sleepCurrentWorker(20);
         lock {
             if (lockWithinLockInt1 == 40) {
                 lockWithinLockInt1 = 657;
@@ -350,7 +351,7 @@ function nextInsideLock() (int, string) {
         }
     }
     worker w2 {
-        sleep(20);
+        runtime:sleepCurrentWorker(20);
         lock {
             if (lockWithinLockInt1 == 40) {
                 lockWithinLockInt1 = 657;

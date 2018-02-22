@@ -1,5 +1,6 @@
 package sample.websocket.client;
 
+import ballerina.io;
 import ballerina.net.ws;
 
 @ws:configuration {
@@ -19,7 +20,7 @@ service<ws> SimpleProxyServer {
             con.cancelHandshake(1001, "Cannot connect to remote server");
         } else {
             clientConnMap[con.connectionID] = clientConn;
-            println("Client connection sucessful");
+            io:println("Client connection sucessful");
         }
     }
 

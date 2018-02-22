@@ -1,8 +1,9 @@
 /*
- *  Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *  Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
- *  Licensed under the Apache License, Version 2.0 (the "License");
- *  you may not use this file except in compliance with the License.
+ *  WSO2 Inc. licenses this file to you under the Apache License,
+ *  Version 2.0 (the "License"); you may not use this file except
+ *  in compliance with the License.
  *  You may obtain a copy of the License at
  *
  *  http://www.apache.org/licenses/LICENSE-2.0
@@ -16,33 +17,26 @@
 package org.ballerinalang.nativeimpl.runtime;
 
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.model.types.TypeKind;
+import org.ballerinalang.bre.bvm.BLangVMErrors;
+import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.AbstractNativeFunction;
-import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 
 /**
- * Native function ballerina.runtime:sleepCurrentThread.
+ * Native implementation for get error's call stack.
  *
- * @since 0.94.1
+ * @since 0.963.0
  */
 @BallerinaFunction(
         packageName = "ballerina.runtime",
-        functionName = "sleepCurrentThread",
-        args = {@Argument(name = "millis", type = TypeKind.INT)},
-        isPublic = true
+        functionName = "getCallStack"
 )
-public class SleepCurrentThread extends AbstractNativeFunction {
+public class GetCallStack extends AbstractNativeFunction {
 
     @Override
     public BValue[] execute(Context context) {
-        long millis = getIntArgument(context, 0);
-        try {
-            Thread.sleep(millis);
-        } catch (InterruptedException e) {
-            // We ignore any interruptions.
-        }
-        return VOID_RETURN;
+        final BRefValueArray bRefValueArray = BLangVMErrors.generateCallStack(context, 0);
+        return new BValue[] {bRefValueArray};
     }
 }

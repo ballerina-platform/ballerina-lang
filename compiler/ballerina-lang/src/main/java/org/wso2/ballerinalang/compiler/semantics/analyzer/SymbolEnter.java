@@ -337,10 +337,9 @@ public class SymbolEnter extends BLangNodeVisitor {
         BSymbol structSymbol = Symbols.createStructSymbol(Flags.asMask(structNode.flagSet),
                 names.fromIdNode(structNode.name), env.enclPkg.symbol.pkgID, null, env.scope.owner);
         structNode.symbol = structSymbol;
-        defineSymbol(structNode.pos, structSymbol);
-
         // Create struct type
         structNode.symbol.type = new BStructType((BTypeSymbol) structNode.symbol);
+        defineSymbol(structNode.pos, structSymbol);
     }
 
     @Override

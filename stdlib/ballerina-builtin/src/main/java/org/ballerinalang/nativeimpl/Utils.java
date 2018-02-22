@@ -18,6 +18,7 @@
 package org.ballerinalang.nativeimpl;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.bre.bvm.BLangVMErrors;
 import org.ballerinalang.bre.bvm.BLangVMStructs;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.util.codegen.PackageInfo;
@@ -36,10 +37,9 @@ import java.util.TimeZone;
  */
 public class Utils {
 
-    public static final String PACKAGE_BUILTIN = "ballerina.builtin";
+    public static final String PACKAGE_TIME = "ballerina.time";
     public static final String STRUCT_TYPE_TIME = "Time";
     public static final String STRUCT_TYPE_TIMEZONE = "Timezone";
-    public static final String TYPE_CONVERSION_ERROR_STRUCT = "TypeConversionError";
 
     public static BStruct createTimeZone(StructInfo timezoneStructInfo, String zoneIdValue) {
         String zoneIdName;
@@ -63,18 +63,22 @@ public class Utils {
     }
 
     public static StructInfo getTimeZoneStructInfo(Context context) {
-        PackageInfo timePackageInfo = context.getProgramFile().getPackageInfo(PACKAGE_BUILTIN);
+        PackageInfo timePackageInfo = context.getProgramFile().getPackageInfo(PACKAGE_TIME);
+        if (timePackageInfo == null) {
+            return null;
+        }
         return timePackageInfo.getStructInfo(STRUCT_TYPE_TIMEZONE);
     }
 
     public static StructInfo getTimeStructInfo(Context context) {
-        PackageInfo timePackageInfo = context.getProgramFile().getPackageInfo(PACKAGE_BUILTIN);
+        PackageInfo timePackageInfo = context.getProgramFile().getPackageInfo(PACKAGE_TIME);
+        if (timePackageInfo == null) {
+            return null;
+        }
         return timePackageInfo.getStructInfo(STRUCT_TYPE_TIME);
     }
 
     public static BStruct createConversionError(Context context, String msg) {
-        PackageInfo filePkg = context.getProgramFile().getPackageInfo(PACKAGE_BUILTIN);
-        StructInfo accessErrInfo = filePkg.getStructInfo(TYPE_CONVERSION_ERROR_STRUCT);
-        return BLangVMStructs.createBStruct(accessErrInfo, msg);
+        return BLangVMErrors.createTypeConversionError(context, -1, msg);
     }
 }

@@ -1,3 +1,5 @@
+import ballerina.io;
+
 @Description {value:"Defining Person struct."}
 struct Person {
     string name;
@@ -14,7 +16,7 @@ function main (string[] args) {
     // We can access fields defined in the Person struct without any issue.
     person.age = 25;
     person.city = "Colombo";
-    println(person);
+    io:println(person);
 
     // We can assign this Constrained JSON to a JSON. This will allow us to
     // add new elements which are not in the struct.
@@ -22,5 +24,5 @@ function main (string[] args) {
 
     // After that, we can add new elements to the json.
     employee.profession = "Software Engineer";
-    println(employee);
+    io:println(employee);
 }

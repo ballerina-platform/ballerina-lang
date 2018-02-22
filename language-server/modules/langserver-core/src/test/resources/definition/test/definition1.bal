@@ -1,5 +1,7 @@
 package definition.test;
 
+import ballerina.io;
+
 string lastName;
 
 struct Employee {
@@ -23,13 +25,13 @@ function main (string[] args) {
 
     string[] fruits = ["apple", "banana", "cherry"];
     foreach v in fruits {
-        println(v);
+        io:println(v);
     }
 
     map words = {a:"apple",b:"banana", c:"cherry"};
     foreach k,v in words {
         var value,_ = (string)v;
-        println(string `words {{k}} : {{value}}`);
+        io:println(string `words {{k}} : {{value}}`);
     }
 
     Employee employee = {};
@@ -37,7 +39,7 @@ function main (string[] args) {
 
     foreach y,emp in employees {
         emp = {name:"kavith"};
-        println(string `name is {{emp.name}} {{lastName}}`);
+        io:println(string `name is {{emp.name}} {{lastName}}`);
     }
 
     funcInSeparateFile();

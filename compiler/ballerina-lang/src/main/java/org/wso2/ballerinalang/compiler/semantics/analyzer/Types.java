@@ -503,7 +503,7 @@ public class Types {
                                                          BType targetType,
                                                          boolean safe,
                                                          int opcode) {
-        return Symbols.createCastOperatorSymbol(sourceType, targetType, symTable.errTypeCastType,
+        return Symbols.createCastOperatorSymbol(sourceType, targetType, symTable.errStructType,
                 false, safe, opcode, null, null);
     }
 
@@ -511,7 +511,7 @@ public class Types {
                                                                      BType targetType,
                                                                      boolean safe,
                                                                      int opcode) {
-        return Symbols.createConversionOperatorSymbol(sourceType, targetType, symTable.errTypeConversionType, safe,
+        return Symbols.createConversionOperatorSymbol(sourceType, targetType, symTable.errStructType, safe,
                 opcode, null, null);
     }
 
