@@ -325,20 +325,22 @@ public class EntityBodyHandler {
      * @param entityBody   Represent entity body which hold that actual content in a channel
      */
     public static void decodeEntityBody(Context context, BStruct entityStruct, EntityBody entityBody) {
-        if (entityBody != null) {
-            String contentType = MimeUtil.getContentTypeWithParameters(entityStruct);
-            if (MimeUtil.isNotNullAndEmpty(contentType) && contentType.startsWith(MULTIPART_AS_PRIMARY_TYPE)) {
-                if (entityBody.isStream()) {
-                    if (entityBody.getEntityWrapper() != null) {
-                        MultipartDecoder.parseBody(context, entityStruct, contentType, entityBody.getEntityWrapper().
-                                getInputStream());
-                    }
-                } else {
-                    FileIOChannel fileIOChannel = entityBody.getFileIOChannel();
-                    if (fileIOChannel != null) {
-                        MultipartDecoder.parseBody(context, entityStruct, contentType, fileIOChannel.getInputStream());
-                    }
-                }
+        if (entityBody == null) {
+            return;
+        }
+        String contentType = MimeUtil.getContentTypeWithParameters(entityStruct);
+        if (!MimeUtil.isNotNullAndEmpty(contentType) || !contentType.startsWith(MULTIPART_AS_PRIMARY_TYPE)) {
+            return;
+        }
+        if (entityBody.isStream()) {
+            if (entityBody.getEntityWrapper() != null) {
+                MultipartDecoder.parseBody(context, entityStruct, contentType, entityBody.getEntityWrapper().
+                        getInputStream());
+            }
+        } else {
+            FileIOChannel fileIOChannel = entityBody.getFileIOChannel();
+            if (fileIOChannel != null) {
+                MultipartDecoder.parseBody(context, entityStruct, contentType, fileIOChannel.getInputStream());
             }
         }
     }
