@@ -65,6 +65,7 @@ struct NotifyResponse {
 
 struct AbortRequest {
     string transactionId;
+    string participantId;
 }
 
 struct AbortResponse {
@@ -172,14 +173,14 @@ function getVolatileAndDurableEndpoints (TwoPhaseCommitTransaction txn) returns
 }
 
 function prepare (TwoPhaseCommitTransaction txn, string[] participantURLs) returns (boolean successful) {
-    endpoint<Participant2pcCoordinatorClient> participantEP {
+    endpoint<Participant2pcClient> participantEP {
     }
     string transactionId = txn.transactionId;
     // Let's set this to true and change it to false only if a participant aborted or an error occurred while trying
     // to prepare a participant
     successful = true;
     foreach participantURL in participantURLs {
-        Participant2pcCoordinatorClient participantClient = create Participant2pcCoordinatorClient();
+        Participant2pcClient participantClient = create Participant2pcClient();
         bind participantClient with participantEP;
 
         log:printInfo("Preparing participant: " + participantURL);
@@ -223,10 +224,9 @@ function notify (TwoPhaseCommitTransaction txn, string[] participantURLs, string
 }
 
 function notifyParticipant (string transactionId, string url, string message) returns (string, error) {
-    endpoint<Participant2pcCoordinatorClient> participantEP {
+    endpoint<Participant2pcClient> participantEP {
+        create Participant2pcClient();
     }
-    Participant2pcCoordinatorClient participantClient = create Participant2pcCoordinatorClient();
-    bind participantClient with participantEP;
 
     log:printInfo("Notify(" + message + ") participant: " + url);
     var status, participantErr, communicationErr = participantEP.notify(transactionId, url, message);
@@ -249,8 +249,9 @@ function notifyParticipant (string transactionId, string url, string message) re
     return status, err;
 }
 
+// This function will be called by the initiator
 function commitTransaction (string transactionId) returns (string message, error e) {
-    var txn, _ = (TwoPhaseCommitTransaction)transactions[transactionId];
+    var txn, _ = (TwoPhaseCommitTransaction)initiatedTransactions[transactionId];
     if (txn == null) {
         string msg = "Transaction-Unknown. Invalid TID:" + transactionId;
         log:printError(msg);
@@ -264,13 +265,13 @@ function commitTransaction (string transactionId) returns (string message, error
         } else {
             e = err;
         }
-        transactions.remove(transactionId);
     }
     return;
 }
 
-function abortTransaction (string transactionId) returns (string message, error e) {
-    var txn, _ = (TwoPhaseCommitTransaction)transactions[transactionId];
+// This function will be called by the initiator
+function abortInitiatorTransaction (string transactionId) returns (string message, error e) {
+    var txn, _ = (TwoPhaseCommitTransaction)initiatedTransactions[transactionId];
     if (txn == null) {
         string msg = "Transaction-Unknown. Invalid TID:" + transactionId;
         log:printError(msg);
@@ -281,17 +282,83 @@ function abortTransaction (string transactionId) returns (string message, error 
         var msg, err = notifyAbort(txn);
         if (err == null) {
             message = msg;
+            txn.state = TransactionState.ABORTED;
         } else {
             e = err;
         }
-        transactions.remove(transactionId);
     }
     return;
 }
 
-native function prepareResourceManagers(string transactionId) returns (boolean prepareSuccessful);
+// The participant should notify the initiator that it aborted
+function abortLocalParticipantTransaction (string transactionId) returns (string message, error e) {
+    endpoint<Initiator2pcClient> coordinatorEP {
+        create Initiator2pcClient();
+    }
+    var txn, _ = (TwoPhaseCommitTransaction)participatedTransactions[transactionId];
+    if (txn == null) {
+        string msg = "Transaction-Unknown. Invalid TID:" + transactionId;
+        log:printError(msg);
+        e = {msg:msg};
+    } else {
+        message, e = coordinatorEP.abortTransaction(transactionId);
+        if (e == null) {
+            txn.state = TransactionState.ABORTED;
+        }
+    }
+    return;
+}
 
-native function commitResourceManagers(string transactionId) returns (boolean commitSuccessful);
+// If this is a new transaction, then this instance will become the initiator and will create a context
+// If this is part of an existing transaction, this this instance will register as a participant
+function beginTransaction (string transactionId, string registerAtUrl,
+                           string coordinationType) returns (TransactionContext txnCtx, error err) {
+    if (isInitiator(transactionId)) {
+        txnCtx, err = createTransactionContext(coordinationType);
+    } else {
+        err = registerParticipant(transactionId, registerAtUrl);
+        if (err == null) {
+            txnCtx = {transactionId:transactionId, coordinationType:coordinationType, registerAtURL:registerAtUrl};
+        }
+    }
+    return;
+}
 
-native function abortResourceManagers(string transactionId) returns (boolean abortSuccessful);
+// Depending on the state of the transaction, and whether this instance is the initiator or participant,
+// decide to commit or abort the transaction
+function endTransaction (string transactionId) returns (string msg, error e) {
+    if (isInitiator(transactionId)) {
+        var txn, _ = (TwoPhaseCommitTransaction)initiatedTransactions[transactionId];
+        if (txn.state != TransactionState.ABORTED) {
+            msg, e = commitTransaction(transactionId);
+            if (e == null) {
+                initiatedTransactions.remove(transactionId);
+            }
+        }
+    } // Nothing to do on endTransaction if you are a participant
+    return;
+}
+
+function abortTransaction (string transactionId) returns (string msg, error e) {
+    if (isInitiator(transactionId)) {
+        msg, e = abortInitiatorTransaction(transactionId);
+    } else {
+        msg, e = abortLocalParticipantTransaction(transactionId);
+    }
+    if (e == null) {
+        initiatedTransactions.remove(transactionId);
+    }
+
+    return;
+}
+
+function isInitiator (string transactionId) returns (boolean) {
+    return initiatedTransactions.hasKey(transactionId);
+}
+
+native function prepareResourceManagers (string transactionId) returns (boolean prepareSuccessful);
+
+native function commitResourceManagers (string transactionId) returns (boolean commitSuccessful);
+
+native function abortResourceManagers (string transactionId) returns (boolean abortSuccessful);
 

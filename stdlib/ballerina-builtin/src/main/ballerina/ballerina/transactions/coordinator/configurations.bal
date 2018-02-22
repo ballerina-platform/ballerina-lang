@@ -18,7 +18,10 @@ package ballerina.transactions.coordinator;
 
 import ballerina.config;
 
-const string basePath = "/txnmgr";
+const string basePath = "/balcoordinator";
+const string initiatorCoordinatorBasePath = basePath + "/initiator";
+const string initiator2pcCoordinatorBasePath = basePath + "/initiator/2pc";
+const string participant2pcCoordinatorBasePath = basePath + "/participant/2pc";
 const string registrationPath = "/register";
 
 const string coordinatorHost = getCoordinatorHost();

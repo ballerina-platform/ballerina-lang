@@ -47,7 +47,7 @@ connector InitiatorCoordinatorClient () {
         endpoint<http:HttpClient> coordinatorEP {
             create http:HttpClient(registerAtURL, {});
         }
-        RegistrationRequest regReq = {transactionId:transactionId, participantId:participantId};
+        RegistrationRequest regReq = {transactionId:transactionId, participantId:localParticipantId};
 
         //TODO: set the proper host and port
         Protocol[] protocols = [{name:"volatile", url:"http://" + participantHost + ":" + participantPort + "/"}];

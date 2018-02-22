@@ -25,6 +25,7 @@ import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
+import org.ballerinalang.util.transactions.TransactionResourceManager;
 
 /**
  * Native function ballerina.transactions.coordinator:prepareResourceManagers.
@@ -39,8 +40,8 @@ import org.ballerinalang.natives.annotations.ReturnType;
 public class BalPrepareResourceManagers extends AbstractNativeFunction {
 
     public BValue[] execute(Context ctx) {
-//        String transactionId = getStringArgument(ctx, 0);
-//        TransactionResourceManager.getInstance().prepare(transactionId);
+        String transactionId = getStringArgument(ctx, 0);
+        TransactionResourceManager.getInstance().prepare(transactionId);
         return getBValues();
     }
 }

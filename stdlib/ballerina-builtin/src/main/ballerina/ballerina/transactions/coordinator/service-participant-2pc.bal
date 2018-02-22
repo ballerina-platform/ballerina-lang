@@ -20,11 +20,11 @@ import ballerina.log;
 import ballerina.net.http;
 
 @http:configuration {
-    basePath:"/2pc",
+    basePath:participant2pcCoordinatorBasePath,
     host:coordinatorHost,
     port:coordinatorPort
 }
-service<http> Participant2pcCoordinatorService {
+service<http> Participant2pcService {
 
     // This resource is on the participant's coordinator. When the initiator's coordinator sends "prepare"
     // this resource on the participant will get called. This participant's coordinator will in turn call
@@ -35,7 +35,7 @@ service<http> Participant2pcCoordinatorService {
         string transactionId = prepareReq.transactionId;
         log:printInfo("Prepare received for transaction: " + transactionId);
         PrepareResponse prepareRes;
-        var txn, _ = (TwoPhaseCommitTransaction)transactions[transactionId];
+        var txn, _ = (TwoPhaseCommitTransaction)participatedTransactions[transactionId];
         if (txn == null) {
             res = {statusCode:404};
             prepareRes = {message:"Transaction-Unknown"};
@@ -51,11 +51,9 @@ service<http> Participant2pcCoordinatorService {
             } else {
                 res = {statusCode:500};
                 prepareRes = {message:"aborted"};
-                transactions.remove(transactionId);
+                participatedTransactions.remove(transactionId);
                 log:printInfo("Aborted transaction: " + transactionId);
             }
-            var j, _ = <json>prepareRes;
-            res.setJsonPayload(j);
         }
         var j, _ = <json>prepareRes;
         res.setJsonPayload(j);
@@ -73,7 +71,7 @@ service<http> Participant2pcCoordinatorService {
         http:OutResponse res;
 
         NotifyResponse notifyRes;
-        var txn, _ = (TwoPhaseCommitTransaction)transactions[transactionId];
+        var txn, _ = (TwoPhaseCommitTransaction)participatedTransactions[transactionId];
         if (txn == null) {
             res = {statusCode:404};
             notifyRes = {message:"Transaction-Unknown"};
@@ -104,7 +102,7 @@ service<http> Participant2pcCoordinatorService {
                     notifyRes = {message:"Failed-EOT"};
                 }
             }
-            transactions.remove(transactionId);
+            participatedTransactions.remove(transactionId);
         }
         var j, _ = <json>notifyRes;
         res.setJsonPayload(j);

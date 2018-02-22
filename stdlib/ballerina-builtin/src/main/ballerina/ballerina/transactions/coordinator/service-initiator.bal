@@ -16,8 +16,8 @@
 
 package ballerina.transactions.coordinator;
 
-import ballerina.net.http;
 import ballerina.log;
+import ballerina.net.http;
 
 enum CoordinationType {
     TWO_PHASE_COMMIT
@@ -37,11 +37,11 @@ function getCoordinationTypeToProtocolsMap () returns (map m) {
 }
 
 @http:configuration {
-    basePath:basePath,
+    basePath:initiatorCoordinatorBasePath,
     host:coordinatorHost,
     port:coordinatorPort
 }
-service<http> InitiatorCoordinatorService {
+service<http> InitiatorService {
 
     @http:resourceConfig {
         path:registrationPath
@@ -86,7 +86,7 @@ service<http> InitiatorCoordinatorService {
         } else {
             string participantId = registrationReq.participantId;
             string txnId = registrationReq.transactionId;
-            var txn, _ = (Transaction)transactions[txnId];
+            var txn, _ = (Transaction)initiatedTransactions[txnId];
 
             if (txn == null) {
                 res = respondToBadRequest("Transaction-Unknown. Invalid TID:" + txnId);

@@ -22,10 +22,11 @@ import ballerina.util;
 
 const string TRANSACTION_CONTEXT_VERSION = "1.0";
 
-// The participant ID is of this participant
-string participantId = util:uuid();
+// The participant ID of this participant
+string localParticipantId = util:uuid();
 
-map transactions = {};
+map initiatedTransactions = {};
+map participatedTransactions = {};
 
 struct Transaction {
     string transactionId;
@@ -129,8 +130,7 @@ function createTransactionContext (string coordinationType) returns (Transaction
         Transaction txn = createTransaction(coordinationType);
         string txnId = txn.transactionId;
 
-        // Add the map of participants for the transaction with ID tid to the transactions map
-        transactions[txnId] = txn;
+        initiatedTransactions[txnId] = txn;
         txnContext = {transactionId:txnId,
                          coordinationType:coordinationType,
                          registerAtURL:"http://" + coordinatorHost + ":" + coordinatorPort + basePath + registrationPath};
@@ -141,17 +141,18 @@ function createTransactionContext (string coordinationType) returns (Transaction
 }
 
 // Registers a participant with the initiator's coordinator
+// This function will be called by the participant
 function registerParticipant (string transactionId, string registerAtURL) returns (error err) {
     endpoint<InitiatorCoordinatorClient> coordinatorEP {
         create InitiatorCoordinatorClient();
     }
 
-    // Register with the coordinator only if you have not already done so
-    if (transactions[transactionId] != null) {
+    // Register with the coordinator only if the participant has not already done so
+    if (participatedTransactions[transactionId] != null) {
         return;
     }
     log:printInfo("Registering for transaction: " + transactionId + " with coordinator: " + registerAtURL);
-    var j, e = coordinatorEP.register(transactionId, participantId, registerAtURL);
+    var j, e = coordinatorEP.register(transactionId, localParticipantId, registerAtURL);
     println(j);
     if (e != null) {
         string msg = "Cannot register with coordinator for transaction: " + transactionId;
