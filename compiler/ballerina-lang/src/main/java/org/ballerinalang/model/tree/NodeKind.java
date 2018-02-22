@@ -115,4 +115,5 @@ public enum NodeKind {
     HAVING,
     SELECT_CLAUSE,
     WHERE,
+    FUNCTION_CLAUSE,
 }

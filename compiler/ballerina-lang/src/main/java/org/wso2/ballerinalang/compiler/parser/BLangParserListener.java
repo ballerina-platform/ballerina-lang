@@ -2155,7 +2155,8 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
 
-        this.pkgBuilder.endSelectClauseNode(ctx.MUL(), getCurrentPos(ctx), getWS(ctx));
+        boolean isSelectAll = ctx.MUL() == null ? false : true;
+        this.pkgBuilder.endSelectClauseNode(isSelectAll, getCurrentPos(ctx), getWS(ctx));
     }
 
     @Override
@@ -2192,6 +2193,24 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         }
 
         this.pkgBuilder.endWhereClauseNode(getCurrentPos(ctx), getWS(ctx));
+    }
+
+    @Override
+    public void enterFunctionClause(BallerinaParser.FunctionClauseContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+
+        this.pkgBuilder.startFunctionClauseNode(getCurrentPos(ctx), getWS(ctx));
+    }
+
+    @Override
+    public void exitFunctionClause(BallerinaParser.FunctionClauseContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+
+        this.pkgBuilder.endFunctionClauseNode(getCurrentPos(ctx), getWS(ctx));
     }
 
     private DiagnosticPos getCurrentPos(ParserRuleContext ctx) {

@@ -36,6 +36,7 @@ import org.ballerinalang.model.tree.TransformerNode;
 import org.ballerinalang.model.tree.VariableNode;
 import org.ballerinalang.model.tree.WorkerNode;
 import org.ballerinalang.model.tree.XMLNSDeclarationNode;
+import org.ballerinalang.model.tree.clauses.FunctionClauseNode;
 import org.ballerinalang.model.tree.clauses.HavingNode;
 import org.ballerinalang.model.tree.clauses.OrderByNode;
 import org.ballerinalang.model.tree.clauses.SelectClauseNode;
@@ -115,6 +116,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangTransformer;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangWorker;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangFunctionClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangGroupBy;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangHaving;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangOrderBy;
@@ -511,5 +513,9 @@ public class TreeBuilder {
 
     public static SelectClauseNode createSelectClauseNode() {
         return new BLangSelectClause();
+    }
+
+    public static FunctionClauseNode createFunctionClauseNode() {
+        return new BLangFunctionClause();
     }
 }
