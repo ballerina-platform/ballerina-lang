@@ -18,7 +18,6 @@
 package org.ballerinalang.test.service.http.sample;
 
 import org.ballerinalang.test.IntegrationTestCase;
-import org.ballerinalang.test.context.Constant;
 import org.ballerinalang.test.context.ServerInstance;
 import org.ballerinalang.test.util.HttpClientRequest;
 import org.ballerinalang.test.util.HttpResponse;
@@ -47,9 +46,8 @@ public class ServiceChainingSampleTestCase extends IntegrationTestCase {
     @BeforeClass
     private void setup() throws Exception {
         ballerinaServer = ServerInstance.initBallerinaServer();
-        String serviceSampleDir = ballerinaServer.getServerHome() + File.separator + Constant.SERVICE_SAMPLE_DIR;
-        String balFile = serviceSampleDir + File.separator + "serviceChaining"
-                + File.separator + "ATMLocatorService.balx";
+        String balFile = new File("src" + File.separator + "test" + File.separator + "resources"
+                + File.separator + "httpService" + File.separator + "ATMLocatorService.bal").getAbsolutePath();
         ballerinaServer.startBallerinaServer(balFile);
     }
 
