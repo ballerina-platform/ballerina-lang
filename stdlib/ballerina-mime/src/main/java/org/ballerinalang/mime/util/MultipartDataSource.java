@@ -41,6 +41,7 @@ import static org.ballerinalang.mime.util.Constants.CONTENT_ID;
 import static org.ballerinalang.mime.util.Constants.CONTENT_ID_INDEX;
 import static org.ballerinalang.mime.util.Constants.CONTENT_TYPE;
 import static org.ballerinalang.mime.util.Constants.ENTITY_HEADERS_INDEX;
+import static org.ballerinalang.mime.util.Constants.MULTIPART_DATA_INDEX;
 
 /**
  * Act as multipart encoder.
@@ -86,6 +87,14 @@ public class MultipartDataSource extends BallerinaMessageDataSource {
                     writer.write(CRLF);
 
                     writeBodyPartHeaders(writer, bodyPart);
+                    //Check for nested parts
+                    BRefValueArray nestedParts = bodyPart.getRefField(MULTIPART_DATA_INDEX) != null ?
+                            (BRefValueArray) bodyPart.getRefField(MULTIPART_DATA_INDEX) : null;
+                    if (nestedParts != null && nestedParts.size() > 0) {
+
+                       /* serializeMultipartDataSource(outboundRequestMsg, httpClientConnectorLister, boundaryString,
+                                nestedParts);*/
+                    }
                     writeBodyContent(outputStream, bodyPart);
                 }
             }
