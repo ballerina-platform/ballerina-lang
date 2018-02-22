@@ -73,7 +73,7 @@ public abstract class AbstractNativeFunction implements NativeUnit, Function {
 
     public BValue getRefArgument(Context context, int index) {
         if (index > -1) {
-            BValue result = context.getControlStack().getCurrentFrame().getRefRegs()[index];
+            BValue result = context.getLocalWorkerData().refRegs[index];
             if (result == null) {
                 throw new BallerinaException("argument " + index + " is null");
             }
@@ -85,7 +85,7 @@ public abstract class AbstractNativeFunction implements NativeUnit, Function {
 
     public byte[] getBlobArgument(Context context, int index) {
         if (index > -1) {
-            byte[] result = context.getControlStack().getCurrentFrame().getByteRegs()[index];
+            byte[] result = context.getLocalWorkerData().byteRegs[index];
             if (result == null) {
                 throw new BallerinaException("argument " + index + " is null");
             }
@@ -105,14 +105,14 @@ public abstract class AbstractNativeFunction implements NativeUnit, Function {
      */
     public long getIntArgument(Context context, int index) {
         if (index > -1) {
-            return context.getControlStack().getCurrentFrame().getLongRegs()[index];
+            return context.getLocalWorkerData().longRegs[index];
         }
         throw new ArgumentOutOfRangeException(index);
     }
 
     public String getStringArgument(Context context, int index) {
         if (index > -1) {
-            String str = context.getControlStack().getCurrentFrame().getStringRegs()[index];
+            String str = context.getLocalWorkerData().stringRegs[index];
             if (str == null) {
                 throw new BLangNullReferenceException();
             }
@@ -131,7 +131,7 @@ public abstract class AbstractNativeFunction implements NativeUnit, Function {
      */
     public double getFloatArgument(Context context, int index) {
         if (index > -1) {
-            return context.getControlStack().getCurrentFrame().getDoubleRegs()[index];
+            return context.getLocalWorkerData().doubleRegs[index];
         } else {
             throw new ArgumentOutOfRangeException(index);
         }
@@ -139,7 +139,7 @@ public abstract class AbstractNativeFunction implements NativeUnit, Function {
 
     public boolean getBooleanArgument(Context context, int index) {
         if (index > -1) {
-            return (context.getControlStack().getCurrentFrame().getIntRegs()[index] == 1);
+            return (context.getLocalWorkerData().intRegs[index] == 1);
         }
         throw new ArgumentOutOfRangeException(index);
     }
@@ -183,30 +183,6 @@ public abstract class AbstractNativeFunction implements NativeUnit, Function {
      * @return Native function return BValue arrays
      */
     public abstract BValue[] execute(Context context);
-
-    /**
-     * Execute this native function and set the values for return parameters.
-     *
-     * @param context Ballerina Context
-     */
-    public void executeNative(Context context) {
-        try {
-            BValue[] retVals = execute(context);
-            BValue[] returnRefs = context.getControlStack().getCurrentFrame().returnValues;
-
-            if (returnRefs.length != 0) {
-                for (int i = 0; i < returnRefs.length; i++) {
-                    if (i < retVals.length) {
-                        returnRefs[i] = retVals[i];
-                    } else {
-                        break;
-                    }
-                }
-            }
-        } catch (RuntimeException e) {
-            throw e;
-        }
-    }
 
     /**
      * Util method to construct BValue arrays.

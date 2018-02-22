@@ -19,6 +19,8 @@ package org.ballerinalang.bre.bvm;
 
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.ballerinalang.bre.BallerinaTransactionManager;
+import org.ballerinalang.bre.Context;
+import org.ballerinalang.bre.NativeCallContext;
 import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.BEnumType;
 import org.ballerinalang.model.types.BFunctionType;
@@ -95,9 +97,11 @@ import org.ballerinalang.util.codegen.cpentries.TypeRefCPEntry;
 import org.ballerinalang.util.debugger.DebugContext;
 import org.ballerinalang.util.debugger.Debugger;
 import org.ballerinalang.util.exceptions.BLangExceptionHelper;
+import org.ballerinalang.util.exceptions.BLangNullReferenceException;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.ballerinalang.util.exceptions.RuntimeErrors;
 import org.ballerinalang.util.program.BLangFunctions;
+import org.ballerinalang.util.program.BLangVMUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -2871,36 +2875,31 @@ public class CPU {
         return sb.toString();
     }
 
-    private static void invokeNativeFunction(WorkerExecutionContext ctx, FunctionInfo functionInfo, int[] argRegs, int[] retRegs) {
-        //TODO hard coded println for testing
-        System.out.println(ctx.workerLocal.refRegs[argRegs[0]]);
-//        WorkerData callerSF = ctx.workerLocal;
-//
-//        // TODO : Remove once we handle this properly for return values
-//        BType[] retTypes = functionInfo.getRetParamTypes();
-//        BValue[] returnValues = new BValue[retTypes.length];
-//
-//        WorkerData caleeSF = new WorkerData(functionInfo, functionInfo.getDefaultWorkerInfo(), ctx.ip, null, returnValues);
-//        copyArgValues(callerSF, caleeSF, argRegs, functionInfo.getParamTypes());
-//
-//        controlStack.pushFrame(caleeSF);
-//
-//        // Invoke Native function;
-//        AbstractNativeFunction nativeFunction = functionInfo.getNativeFunction();
-//        try {
-//            nativeFunction.executeNative(ctx);
-//        } catch (BLangNullReferenceException e) {
-//            ctx.setError(BLangVMErrors.createNullRefError(ctx, ctx.ip));
-//            handleError();
-//            return;
-//        } catch (Throwable e) {
-//            ctx.setError(BLangVMErrors.createError(this.ctx, ctx.ip, e.getMessage()));
-//            handleError();
-//            return;
-//        }
-//        // Copy return values to the callers stack
-//        controlStack.popFrame();
-//        handleReturnFromNativeCallableUnit(callerSF, retRegs, returnValues, retTypes);
+    private static void invokeNativeFunction(WorkerExecutionContext parentCtx, FunctionInfo functionInfo, 
+            int[] argRegs, int[] retRegs) {
+        WorkerData parentLocalData = parentCtx.workerLocal;
+        BType[] retTypes = functionInfo.getRetParamTypes();
+        WorkerData caleeSF = BLangVMUtils.createWorkerDataForLocal(functionInfo.getDefaultWorkerInfo(), 
+                parentCtx, argRegs, functionInfo.getParamTypes());
+        BLangVMUtils.copyArgValues(parentLocalData, caleeSF, argRegs, functionInfo.getParamTypes());
+        Context ctx = new NativeCallContext(parentCtx, caleeSF);
+        AbstractNativeFunction nativeFunction = functionInfo.getNativeFunction();
+        BLangScheduler.switchToWaitForResponse(parentCtx);
+        try {
+            BValue[] retVals = nativeFunction.execute(ctx);
+            BLangVMUtils.populateWorkerDataWithValues(parentLocalData, retRegs, retVals, retTypes);
+        } catch (BLangNullReferenceException e) {
+            e.printStackTrace();
+            parentCtx.setError(BLangVMErrors.createNullRefError(parentCtx, parentCtx.ip));
+            handleError();
+            return;
+        } catch (Throwable e) {
+            e.printStackTrace();
+            parentCtx.setError(BLangVMErrors.createError(parentCtx, parentCtx.ip, e.getMessage()));
+            handleError();
+            return;
+        }
+        BLangScheduler.resume(parentCtx, true);
     }
 
     private static void invokeNativeAction(ActionInfo actionInfo, int[] argRegs, int[] retRegs) {
@@ -2967,54 +2966,6 @@ public class CPU {
 //        } catch (Throwable e) {
 //            ctx.setError(BLangVMErrors.createError(this.ctx, ctx.ip, e.getMessage()));
 //            handleError();
-//        }
-        //TODO
-    }
-
-    public static void handleReturnFromNativeCallableUnit(WorkerData callerSF, int[] returnRegIndexes,
-                                                          BValue[] returnValues, BType[] retTypes) {
-//        for (int i = 0; i < returnValues.length; i++) {
-//            int callersRetRegIndex = returnRegIndexes[i];
-//            BType retType = retTypes[i];
-//            switch (retType.getTag()) {
-//                case TypeTags.INT_TAG:
-//                    if (returnValues[i] == null) {
-//                        callerSF.longRegs[callersRetRegIndex] = 0;
-//                        break;
-//                    }
-//                    callerSF.longRegs[callersRetRegIndex] = ((BInteger) returnValues[i]).intValue();
-//                    break;
-//                case TypeTags.FLOAT_TAG:
-//                    if (returnValues[i] == null) {
-//                        callerSF.doubleRegs[callersRetRegIndex] = 0;
-//                        break;
-//                    }
-//                    callerSF.doubleRegs[callersRetRegIndex] = ((BFloat) returnValues[i]).floatValue();
-//                    break;
-//                case TypeTags.STRING_TAG:
-//                    if (returnValues[i] == null) {
-//                        callerSF.stringRegs[callersRetRegIndex] = STRING_NULL_VALUE;
-//                        break;
-//                    }
-//                    callerSF.stringRegs[callersRetRegIndex] = returnValues[i].stringValue();
-//                    break;
-//                case TypeTags.BOOLEAN_TAG:
-//                    if (returnValues[i] == null) {
-//                        callerSF.intRegs[callersRetRegIndex] = 0;
-//                        break;
-//                    }
-//                    callerSF.intRegs[callersRetRegIndex] = ((BBoolean) returnValues[i]).booleanValue() ? 1 : 0;
-//                    break;
-//                case TypeTags.BLOB_TAG:
-//                    if (returnValues[i] == null) {
-//                        callerSF.byteRegs[callersRetRegIndex] = new byte[0];
-//                        break;
-//                    }
-//                    callerSF.byteRegs[callersRetRegIndex] = ((BBlob) returnValues[i]).blobValue();
-//                    break;
-//                default:
-//                    callerSF.refRegs[callersRetRegIndex] = (BRefType) returnValues[i];
-//            }
 //        }
         //TODO
     }

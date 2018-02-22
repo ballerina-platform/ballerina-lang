@@ -78,7 +78,8 @@ public class Timer {
                                             FunctionRefCPEntry onErrorFunction) {
         ProgramFile programFile = parentCtx.getProgramFile();
         //Create new instance of the context and set required properties.
-        Context newContext = new WorkerContext(programFile, parentCtx);
+        //Context newContext = new WorkerContext(programFile, parentCtx);
+        Context newContext = null;
         TaskExecutor.execute(fn, parentCtx, onTriggerFunction, onErrorFunction, programFile, newContext);
     }
 

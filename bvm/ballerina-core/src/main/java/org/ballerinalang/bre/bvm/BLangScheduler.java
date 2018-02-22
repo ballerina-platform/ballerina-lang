@@ -50,12 +50,11 @@ public class BLangScheduler {
     
     public static WorkerExecutionContext resume(WorkerExecutionContext ctx, boolean runInCaller) {
         ctx.state = WorkerState.READY;
-        ExecutorService executor = ThreadPoolFactory.getInstance().getWorkerExecutor();
         if (runInCaller) {
             ctx.restoreIP();
             return ctx;
         } else {
-            executor.submit(new WorkerExecutor(ctx, true));
+            ThreadPoolFactory.getInstance().getWorkerExecutor().submit(new WorkerExecutor(ctx, true));
             return null;
         }
     }
@@ -68,6 +67,10 @@ public class BLangScheduler {
     public static void switchToWaitForResponse(WorkerExecutionContext ctx) {
         ctx.state = WorkerState.WAITING_FOR_RESPONSE;
         ctx.backupIP();
+        /* the setting to -1 is needed, specially in situations like worker receive scenarios,
+         * where you need to return the current executing thread, where this is not critical 
+         * in function call scenario, where the calling thread is continued as the first callee
+         * worker */
         ctx.ip = -1;
     }
     

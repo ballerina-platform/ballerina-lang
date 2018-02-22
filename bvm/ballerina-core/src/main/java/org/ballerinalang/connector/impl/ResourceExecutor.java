@@ -73,7 +73,8 @@ public class ResourceExecutor {
         PackageInfo packageInfo = serviceInfo.getPackageInfo();
         ProgramFile programFile = packageInfo.getProgramFile();
 
-        Context context = new Context(programFile);
+        //Context context = new Context(programFile);
+        Context context = null;
         context.setServiceInfo(serviceInfo);
         context.setConnectorFuture(connectorFuture);
 

@@ -63,7 +63,7 @@ public abstract class AbstractNativeAction implements NativeUnit, Action {
 
     public BValue getRefArgument(Context context, int index) {
         if (index > -1) {
-            BValue result = context.getControlStack().getCurrentFrame().getRefRegs()[index];
+            BValue result = context.getLocalWorkerData().refRegs[index];
             if (result == null) {
                 throw new BallerinaException("argument " + index + " is null");
             }
@@ -75,35 +75,35 @@ public abstract class AbstractNativeAction implements NativeUnit, Action {
 
     public int getIntArgument(Context context, int index) {
         if (index > -1) {
-            return (int) context.getControlStack().getCurrentFrame().getLongRegs()[index];
+            return (int) context.getLocalWorkerData().longRegs[index];
         }
         throw new ArgumentOutOfRangeException(index);
     }
 
     public String getStringArgument(Context context, int index) {
         if (index > -1) {
-            return context.getControlStack().getCurrentFrame().getStringRegs()[index];
+            return context.getLocalWorkerData().stringRegs[index];
         }
         throw new ArgumentOutOfRangeException(index);
     }
 
     public long getLongArgument(Context context, int index) {
         if (index > -1) {
-            return (long) context.getControlStack().getCurrentFrame().getDoubleRegs()[index];
+            return context.getLocalWorkerData().longRegs[index];
         }
         throw new ArgumentOutOfRangeException(index);
     }
 
     public boolean getBooleanArgument(Context context, int index) {
         if (index > -1) {
-            return (context.getControlStack().getCurrentFrame().getIntRegs()[index] == 1);
+            return (context.getLocalWorkerData().intRegs[index] == 1);
         }
         throw new ArgumentOutOfRangeException(index);
     }
 
     public byte[] getBlobArgument(Context context, int index) {
         if (index > -1) {
-            return context.getControlStack().getCurrentFrame().getByteRegs()[index];
+            return context.getLocalWorkerData().byteRegs[index];
         }
         throw new ArgumentOutOfRangeException(index);
     }

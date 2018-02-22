@@ -51,7 +51,8 @@ public class AppointmentJob implements Job {
 
         ProgramFile programFile = balParentContext.getProgramFile();
         //Create new instance of the context and set required properties.
-        Context newContext = new WorkerContext(programFile, balParentContext);
+        //Context newContext = new WorkerContext(programFile, balParentContext);
+        Context newContext = null; //TODO
 
         TaskExecutor.execute(fn, balParentContext, onTriggerFunction, onErrorFunction, programFile, newContext);
     }

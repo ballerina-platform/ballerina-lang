@@ -180,13 +180,14 @@ public class BLangVM {
             handleError();
         } else if (isWaitingOnNonBlockingAction()) {
             // // TODO : Temporary to solution make non-blocking working.
-            BType[] retTypes = context.nonBlockingContext.actionInfo.getRetParamTypes();
+            //BType[] retTypes = context.nonBlockingContext.actionInfo.getRetParamTypes();
+            BType[] retTypes = null;
             StackFrame calleeSF = controlStack.popFrame();
             this.constPool = controlStack.currentFrame.packageInfo.getConstPoolEntries();
             this.code = controlStack.currentFrame.packageInfo.getInstructions();
-            handleReturnFromNativeCallableUnit(controlStack.currentFrame, context.nonBlockingContext.retRegs,
-                    calleeSF.returnValues, retTypes);
-            context.nonBlockingContext = null;
+//            handleReturnFromNativeCallableUnit(controlStack.currentFrame, context.nonBlockingContext.retRegs,
+//                    calleeSF.returnValues, retTypes);
+            //context.nonBlockingContext = null;
         }
 
         try {
@@ -2811,8 +2812,9 @@ public class BLangVM {
         Queue<WorkerResult> resultMsgs = new ConcurrentLinkedQueue<>();
         Map<String, BLangVMWorkers.WorkerExecutor> workers = new HashMap<>();
         for (WorkerInfo workerInfo : forkjoinInfo.getWorkerInfoMap().values()) {
-            Context workerContext = new WorkerContext(this.programFile, context);
-            workerContext.blockingInvocation = true;
+            Context workerContext = null;//TODO
+//            Context workerContext = new WorkerContext(this.programFile, context);
+//            workerContext.blockingInvocation = true;
             StackFrame callerSF = this.controlStack.currentFrame;
             int[] argRegs = forkjoinInfo.getArgRegs();
             ControlStack workerControlStack = workerContext.getControlStack();
@@ -2888,7 +2890,8 @@ public class BLangVM {
     private void handleWorkerReturn() {
         WorkerContext workerContext = (WorkerContext) this.context;
         if (workerContext.parentSF.tryReturn()) {
-            StackFrame workerCallerSF = workerContext.getControlStack().currentFrame;
+            //StackFrame workerCallerSF = workerContext.getControlStack().currentFrame;
+            StackFrame workerCallerSF = null;//TODO
             workerContext.parentSF.returnedWorker = workerCallerSF.workerInfo.getWorkerName();
 
             StackFrame parentSF = workerContext.parentSF;
@@ -3128,7 +3131,7 @@ public class BLangVM {
         // Invoke Native function;
         AbstractNativeFunction nativeFunction = functionInfo.getNativeFunction();
         try {
-            nativeFunction.executeNative(context);
+            //nativeFunction.executeNative(context);
         } catch (BLangNullReferenceException e) {
             context.setError(BLangVMErrors.createNullRefError(context, ip));
             handleError();
@@ -3163,8 +3166,9 @@ public class BLangVM {
         controlStack.pushFrame(caleeSF);
 
         try {
-            boolean nonBlocking = !context.isInTransaction() && nativeAction.isNonBlockingAction() &&
-                    !context.blockingInvocation;
+//          boolean nonBlocking = !context.isInTransaction() && nativeAction.isNonBlockingAction() &&
+//                    !context.blockingInvocation;
+            boolean nonBlocking = false;
             BClientConnectorFutureListener listener = new BClientConnectorFutureListener(context, nonBlocking);
             if (nonBlocking) {
                 // Enable non-blocking.
@@ -3173,7 +3177,7 @@ public class BLangVM {
                 if (caleeSF.packageInfo == null) {
                     caleeSF.packageInfo = actionInfo.getPackageInfo();
                 }
-                context.nonBlockingContext = new Context.NonBlockingContext(actionInfo, retRegs);
+                //context.nonBlockingContext = new Context.NonBlockingContext(actionInfo, retRegs);
 
                 ConnectorFuture future = nativeAction.execute(context);
                 if (future == null) {
@@ -3941,7 +3945,8 @@ public class BLangVM {
     }
 
     private boolean isWaitingOnNonBlockingAction() {
-        return context.nonBlockingContext != null;
+        //return context.nonBlockingContext != null;
+        return false;//TODO
     }
 
     private void calculateLength(int[] operands, StackFrame sf) {

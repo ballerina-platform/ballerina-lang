@@ -52,26 +52,26 @@ public class BLangVMWorkers {
 
     public static void invoke(ProgramFile programFile, CallableUnitInfo callableUnitInfo, Context parent,
                               Map<String, Object> properties) {
-        StackFrame callerSF = parent.getControlStack().currentFrame;
-        WorkerReturnIndex workerReturnIndex = calculateWorkerReturnIndex(callableUnitInfo.getRetParamTypes());
-
-        for (WorkerInfo workerInfo : callableUnitInfo.getWorkerInfoMap().values()) {
-            WorkerContext workerContext = new WorkerContext(programFile, parent);
-            workerContext.setStartIP(workerInfo.getCodeAttributeInfo().getCodeAddrs());
-
-            if (properties != null) {
-                properties.forEach(workerContext::setProperty);
-            }
-
-            populateWorkerStack(callableUnitInfo, workerInfo, workerContext, workerReturnIndex, callerSF);
-
-            BLangVM bLangVM = new BLangVM(programFile);
-            ExecutorService executor = ThreadPoolFactory.getInstance().getWorkerExecutor();
-            WorkerExecutor workerRunner = new WorkerExecutor(bLangVM, workerContext, workerInfo, 
-                    new ConcurrentLinkedQueue<>());
-            workerContext.startTrackWorker();
-            executor.submit(workerRunner);
-        }
+//        StackFrame callerSF = parent.getControlStack().currentFrame;
+//        WorkerReturnIndex workerReturnIndex = calculateWorkerReturnIndex(callableUnitInfo.getRetParamTypes());
+//
+//        for (WorkerInfo workerInfo : callableUnitInfo.getWorkerInfoMap().values()) {
+//            WorkerContext workerContext = new WorkerContext(programFile, parent);
+//            workerContext.setStartIP(workerInfo.getCodeAttributeInfo().getCodeAddrs());
+//
+//            if (properties != null) {
+//                properties.forEach(workerContext::setProperty);
+//            }
+//
+//            populateWorkerStack(callableUnitInfo, workerInfo, workerContext, workerReturnIndex, callerSF);
+//
+//            BLangVM bLangVM = new BLangVM(programFile);
+//            ExecutorService executor = ThreadPoolFactory.getInstance().getWorkerExecutor();
+//            WorkerExecutor workerRunner = new WorkerExecutor(bLangVM, workerContext, workerInfo, 
+//                    new ConcurrentLinkedQueue<>());
+//            workerContext.startTrackWorker();
+//            executor.submit(workerRunner);
+//        }
 
     }
 

@@ -19,6 +19,7 @@ package org.ballerinalang.bre;
 
 import org.ballerinalang.bre.bvm.ControlStack;
 import org.ballerinalang.bre.bvm.WorkerCounter;
+import org.ballerinalang.bre.bvm.WorkerData;
 import org.ballerinalang.connector.impl.BServerConnectorFuture;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.util.codegen.ActionInfo;
@@ -27,7 +28,6 @@ import org.ballerinalang.util.codegen.ServiceInfo;
 import org.ballerinalang.util.debugger.DebugContext;
 import org.wso2.carbon.messaging.CarbonMessage;
 
-import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -35,147 +35,64 @@ import java.util.Map;
  *
  * @since 0.8.0
  */
-public class Context {
+public interface Context {
 
-    //TODO: Rename this into BContext and move this to runtime package
-    private ControlStack controlStack;
-    //TODO remove below after jms and ftp full migration.
-    private CarbonMessage cMsg;
-    private BServerConnectorFuture connectorFuture;
-    protected Map<String, Object> properties = new HashMap<>();
-    private ServiceInfo serviceInfo;
-    private BallerinaTransactionManager ballerinaTransactionManager;
-    private DebugContext debugContext;
-
-    private int startIP;
-    private BStruct unhandledError;
-
-    protected WorkerCounter workerCounter;
-
-    public ProgramFile programFile;
-    // TODO : Temporary solution to make non-blocking working.
-    public NonBlockingContext nonBlockingContext;
-    // TODO : Fix this. Added this for fork-join. Issue #3718.
-    public boolean blockingInvocation;
-
-    @Deprecated
-    public Context() {
-        this.controlStack = new ControlStack();
-    }
-
-    public Context(ProgramFile programFile) {
-        this.programFile = programFile;
-        this.controlStack = new ControlStack();
-        this.workerCounter = new WorkerCounter();
-    }
-
-    public DebugContext getDebugContext() {
-        return debugContext;
-    }
+    public WorkerData getLocalWorkerData();
     
-    public void setDebugContext(DebugContext debugContext) {
-        this.debugContext = debugContext;
-    }
+    public DebugContext getDebugContext();
+    
+    public void setDebugContext(DebugContext debugContext);
 
-    public ControlStack getControlStack() {
-        return controlStack;
-    }
+    public ControlStack getControlStack();
 
-    public CarbonMessage getCarbonMessage() {
-        return this.cMsg;
-    }
+    public CarbonMessage getCarbonMessage();
 
-    public void setCarbonMessage(CarbonMessage cMsg) {
-        this.cMsg = cMsg;
-    }
+    public void setCarbonMessage(CarbonMessage cMsg);
 
-    public Object getProperty(String key) {
-        return this.properties.get(key);
-    }
+    public Object getProperty(String key);
+    
+    public Map<String, Object> getProperties();
 
-    public Map<String, Object> getProperties() {
-        return this.properties;
-    }
+    public void setProperty(String key, Object value);
 
-    public void setProperty(String key, Object value) {
-        this.properties.put(key, value);
-    }
+    public BServerConnectorFuture getConnectorFuture();
 
-    public BServerConnectorFuture getConnectorFuture() {
-        return connectorFuture;
-    }
+    public void setConnectorFuture(BServerConnectorFuture connectorFuture);
 
-    public void setConnectorFuture(BServerConnectorFuture connectorFuture) {
-        this.connectorFuture = connectorFuture;
-    }
+    public ServiceInfo getServiceInfo();
+    
+    public void setServiceInfo(ServiceInfo serviceInfo);
 
-    public ServiceInfo getServiceInfo() {
-        return this.serviceInfo;
-    }
+    public void setBallerinaTransactionManager(BallerinaTransactionManager ballerinaTransactionManager);
 
-    public void setServiceInfo(ServiceInfo serviceInfo) {
-        this.serviceInfo = serviceInfo;
-    }
+    public BallerinaTransactionManager getBallerinaTransactionManager();
 
-    public void setBallerinaTransactionManager(BallerinaTransactionManager ballerinaTransactionManager) {
-        this.ballerinaTransactionManager = ballerinaTransactionManager;
-    }
+    public boolean isInTransaction();
 
-    public BallerinaTransactionManager getBallerinaTransactionManager() {
-        return this.ballerinaTransactionManager;
-    }
+    public BStruct getError();
 
-    public boolean isInTransaction() {
-        return this.ballerinaTransactionManager != null;
-    }
+    public void setError(BStruct error);
 
-    public BStruct getError() {
-        if (controlStack.currentFrame != null) {
-            return controlStack.currentFrame.getErrorThrown();
-        }
-        return this.unhandledError;
-    }
+    public int getStartIP();
 
-    public void setError(BStruct error) {
-        if (controlStack.currentFrame != null) {
-            controlStack.currentFrame.setErrorThrown(error);
-        } else {
-            this.unhandledError = error;
-        }
-    }
+    public void setStartIP(int startIP);
 
-    public int getStartIP() {
-        return startIP;
-    }
-
-    public void setStartIP(int startIP) {
-        this.startIP = startIP;
-    }
-
-    public ProgramFile getProgramFile() {
-        return programFile;
-    }
+    public ProgramFile getProgramFile();
 
     /**
      * start tracking current worker.
      */
-    public void startTrackWorker() {
-        workerCounter.countUp();
-    }
+    public void startTrackWorker();
 
     /**
      * end tracking current worker.
      */
-    public void endTrackWorker() {
-        workerCounter.countDown();
-    }
-
+    public void endTrackWorker();
+    
     /**
      * Wait until all spawned workers are completed.
      */
-    public void await() {
-        workerCounter.await();
-    }
+    public void await();
 
     /**
      * Wait until all spawned worker are completed within the given waiting time.
@@ -183,24 +100,16 @@ public class Context {
      * @param timeout time out duration in seconds.
      * @return {@code true} if a all workers are completed within the given waiting time, else otherwise.
      */
-    public boolean await(int timeout) {
-        return workerCounter.await(timeout);
-    }
+    public boolean await(int timeout);
 
     /**
      * Mark this context is associated with a resource.
      */
-    public void setAsResourceContext() {
-        this.workerCounter.setResourceContext(this);
-    }
+    public void setAsResourceContext();
 
-    public void resetWorkerContextFlow() {
-        this.workerCounter = new WorkerCounter();
-    }
+    public void resetWorkerContextFlow();
 
-    public WorkerCounter getWorkerCounter() {
-        return workerCounter;
-    }
+    public WorkerCounter getWorkerCounter();
 
     /**
      * Data holder for Non-Blocking Action invocation.

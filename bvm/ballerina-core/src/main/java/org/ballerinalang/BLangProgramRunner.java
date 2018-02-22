@@ -55,44 +55,44 @@ import java.util.Map;
 public class BLangProgramRunner {
 
     public static void runService(ProgramFile programFile) {
-        if (!programFile.isServiceEPAvailable()) {
-            throw new BallerinaException("no services found in '" + programFile.getProgramFilePath() + "'");
-        }
-
-        // Get the service package
-        PackageInfo servicesPackage = programFile.getEntryPackage();
-        if (servicesPackage == null) {
-            throw new BallerinaException("no services found in '" + programFile.getProgramFilePath() + "'");
-        }
-
-        // This is required to invoke package/service init functions;
-        Context bContext = new Context(programFile);
-
-        Debugger debugger = new Debugger(programFile);
-        initDebugger(bContext, debugger);
-
-        // Invoke package init function
-        BLangFunctions.invokePackageInitFunction2(programFile, servicesPackage.getInitFunctionInfo(), bContext);
-
-        int serviceCount = 0;
-        for (ServiceInfo serviceInfo : servicesPackage.getServiceInfoEntries()) {
-            // Invoke service init function
-            //TODO check this to pass a Service
-            bContext.setServiceInfo(serviceInfo);
-            BLangFunctions.invokeFunction2(programFile, serviceInfo.getInitFunctionInfo(), bContext);
-            if (bContext.getError() != null) {
-                String stackTraceStr = BLangVMErrors.getPrintableStackTrace(bContext.getError());
-                throw new BLangRuntimeException("error: " + stackTraceStr);
-            }
-
-            // Deploy service
-            programFile.getServerConnectorRegistry().registerService(serviceInfo);
-            serviceCount++;
-        }
-
-        if (serviceCount == 0) {
-            throw new BallerinaException("no services found in '" + programFile.getProgramFilePath() + "'");
-        }
+//        if (!programFile.isServiceEPAvailable()) {
+//            throw new BallerinaException("no services found in '" + programFile.getProgramFilePath() + "'");
+//        }
+//
+//        // Get the service package
+//        PackageInfo servicesPackage = programFile.getEntryPackage();
+//        if (servicesPackage == null) {
+//            throw new BallerinaException("no services found in '" + programFile.getProgramFilePath() + "'");
+//        }
+//
+//        // This is required to invoke package/service init functions;
+//        Context bContext = new Context(programFile);
+//
+//        Debugger debugger = new Debugger(programFile);
+//        initDebugger(bContext, debugger);
+//
+//        // Invoke package init function
+//        BLangFunctions.invokePackageInitFunction2(programFile, servicesPackage.getInitFunctionInfo(), bContext);
+//
+//        int serviceCount = 0;
+//        for (ServiceInfo serviceInfo : servicesPackage.getServiceInfoEntries()) {
+//            // Invoke service init function
+//            //TODO check this to pass a Service
+//            bContext.setServiceInfo(serviceInfo);
+//            BLangFunctions.invokeFunction2(programFile, serviceInfo.getInitFunctionInfo(), bContext);
+//            if (bContext.getError() != null) {
+//                String stackTraceStr = BLangVMErrors.getPrintableStackTrace(bContext.getError());
+//                throw new BLangRuntimeException("error: " + stackTraceStr);
+//            }
+//
+//            // Deploy service
+//            programFile.getServerConnectorRegistry().registerService(serviceInfo);
+//            serviceCount++;
+//        }
+//
+//        if (serviceCount == 0) {
+//            throw new BallerinaException("no services found in '" + programFile.getProgramFilePath() + "'");
+//        }
     }
     
     public static void runMain(ProgramFile programFile, String[] args) {
@@ -116,59 +116,6 @@ public class BLangProgramRunner {
             arrayArgs.add(i, args[i]);
         }
         return new BValue[] { arrayArgs };
-    }
-
-    public static void runMain2(ProgramFile programFile, String[] args) {
-        if (!programFile.isMainEPAvailable()) {
-            throw new BallerinaException("main function not found in  '" + programFile.getProgramFilePath() + "'");
-        }
-
-        // Get the main entry package
-        PackageInfo mainPkgInfo = programFile.getEntryPackage();
-        if (mainPkgInfo == null) {
-            throw new BallerinaException("main function not found in  '" + programFile.getProgramFilePath() + "'");
-        }
-
-        // Non blocking is not supported in the main program flow..
-        Context bContext = new Context(programFile);
-
-        Debugger debugger = new Debugger(programFile);
-        initDebugger(bContext, debugger);
-
-        // Invoke package init function
-        FunctionInfo mainFuncInfo = getMainFunction(mainPkgInfo);
-        BLangFunctions.invokePackageInitFunction2(programFile, mainPkgInfo.getInitFunctionInfo(), bContext);
-
-        // Prepare main function arguments
-        BStringArray arrayArgs = new BStringArray();
-        for (int i = 0; i < args.length; i++) {
-            arrayArgs.add(i, args[i]);
-        }
-
-        WorkerInfo defaultWorkerInfo = mainFuncInfo.getDefaultWorkerInfo();
-
-        // Execute workers
-        StackFrame callerSF = new StackFrame(mainPkgInfo, -1, new int[0]);
-        callerSF.setRefRegs(new BRefType[1]);
-        callerSF.getRefRegs()[0] = arrayArgs;
-
-        StackFrame stackFrame = new StackFrame(mainFuncInfo, defaultWorkerInfo, -1, new int[0]);
-        stackFrame.getRefRegs()[0] = arrayArgs;
-        ControlStack controlStack = bContext.getControlStack();
-        controlStack.pushFrame(stackFrame);
-        bContext.startTrackWorker();
-        bContext.setStartIP(defaultWorkerInfo.getCodeAttributeInfo().getCodeAddrs());
-
-        BLangVM bLangVM = new BLangVM(programFile);
-        bLangVM.run(bContext);
-        bContext.await();
-        if (debugger.isDebugEnabled()) {
-            debugger.notifyExit();
-        }
-        if (bContext.getError() != null) {
-            String stackTraceStr = BLangVMErrors.getPrintableStackTrace(bContext.getError());
-            throw new BLangRuntimeException("error: " + stackTraceStr);
-        }
     }
 
     private static void initDebugger(Context bContext, Debugger debugger) {
