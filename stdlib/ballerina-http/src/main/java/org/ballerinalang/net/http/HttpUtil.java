@@ -23,6 +23,7 @@ import io.netty.handler.codec.http.DefaultHttpHeaders;
 import io.netty.handler.codec.http.DefaultHttpRequest;
 import io.netty.handler.codec.http.DefaultHttpResponse;
 import io.netty.handler.codec.http.DefaultLastHttpContent;
+import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.HttpMethod;
 import io.netty.handler.codec.http.HttpResponseStatus;
@@ -600,8 +601,8 @@ public class HttpUtil {
             AnnAttributeValue compressionEnabled = configAnn.getAttributeValue(
                     HttpConstants.ANN_CONFIG_ATTR_COMPRESSION_ENABLED);
             if (compressionEnabled != null && !compressionEnabled.getBooleanValue()) {
-                outboundMessage.setHeader(HttpConstants.CONTENT_ENCODING_HEADER,
-                                              Constants.HTTP_TRANSFER_ENCODING_IDENTITY);
+                outboundMessage.setHeader(HttpHeaderNames.CONTENT_ENCODING.toString(),
+                                          Constants.HTTP_TRANSFER_ENCODING_IDENTITY);
             }
         } else {
             // default behaviour: keepAlive = true
