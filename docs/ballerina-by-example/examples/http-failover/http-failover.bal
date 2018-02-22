@@ -1,30 +1,14 @@
 import ballerina.net.http;
 import ballerina.net.http.resiliency;
-import ballerina.mime;
 import ballerina.runtime;
 
 service<http> failoverService {
 
-    http:Retry retryConfiguration = {count:0};
-
-    // Set of HttpClient connectors to be failover.
-    http:HttpClient endPoint1 =
-            create http:HttpClient("http://localhost:909990/mock", {});
-    http:HttpClient endPoint2 =
-            create http:HttpClient("http://localhost:9090/echo",
-                                        {endpointTimeout:5000,
-                                         retryConfig:retryConfiguration});
-    http:HttpClient endPoint3 =
-            create http:HttpClient("http://localhost:9090/mock", {});
-
-    http:HttpClient[] failoverGroup = [endPoint1, endPoint2, endPoint3];
-
     // Set of Http Status codes needs to be failover.
-    int[] errorCodes = [400, 404, 500];
+    int[] failoverHttpStatusCodes = [400, 404, 500];
+    resiliency:FailoverConfig errorCode = {failoverCodes:failoverHttpStatusCodes};
 
-    resiliency:FailoverConfig errorCode = {failoverCodes:errorCodes};
-
-    @Description {value:"Requests which contain any HTTP method will be directed to passthrough resource."}
+    @Description {value:"Requests which contain any HTTP method will be directed to failoverPostResource resource."}
     @http:resourceConfig {
         path:"/"
     }
@@ -36,25 +20,30 @@ service<http> failoverService {
         //             int[] failoverCodes;
         //             int interval;
         //      }
-        endpoint<http:HttpClient> ep {
-            create resiliency:Failover(failoverGroup, errorCode);
+        endpoint<http:HttpClient> endPoint {
+            create resiliency:Failover(
+                    [create http:HttpClient("http://localhost:23456/mock", {}),
+                     create http:HttpClient("http://localhost:9090/echo",
+                                    {endpointTimeout:5000}),
+                     create http:HttpClient("http://localhost:9090/mock", {})],
+                     errorCode);
         }
 
-        http:InResponse clientResponse = {};
+        http:InResponse inResponse = {};
         http:HttpConnectorError err;
 
-        http:OutRequest outReq = {};
+        http:OutRequest outRequest = {};
         json requestPayload = {"name":"Ballerina"};
-        outReq.setJsonPayload(requestPayload);
-        clientResponse, err = ep.post("/", outReq);
+        outRequest.setJsonPayload(requestPayload);
+        inResponse, err = endPoint.post("/", outRequest);
 
-        http:OutResponse res = {};
+        http:OutResponse outResponse = {};
         if (err != null) {
-            res.statusCode = err.statusCode;
-            res.setStringPayload(err.message);
-            _ = conn.respond(res);
+            outResponse.statusCode = err.statusCode;
+            outResponse.setStringPayload(err.message);
+            _ = conn.respond(outResponse);
         } else {
-            _ = conn.forward(clientResponse);
+            _ = conn.forward(inResponse);
         }
     }
 
@@ -68,10 +57,10 @@ service<http> echo {
         path:"/"
     }
     resource echoResource (http:Connection conn, http:InRequest req) {
-        http:OutResponse res = {};
+        http:OutResponse outResponse = {};
         runtime:sleepCurrentWorker(30000);
-        res.setStringPayload("Resource is invoked");
-        _ = conn.respond(res);
+        outResponse.setStringPayload("Resource is invoked");
+        _ = conn.respond(outResponse);
     }
 }
 
@@ -81,9 +70,9 @@ service<http> mock {
         path:"/"
     }
     resource mockResource (http:Connection conn, http:InRequest req) {
-        http:OutResponse res = {};
-        res.statusCode = 200;
-        res.setStringPayload("Mock Resource is Invoked.");
-        _ = conn.respond(res);
+        http:OutResponse outResponse = {};
+        outResponse.statusCode = 200;
+        outResponse.setStringPayload("Mock Resource is Invoked.");
+        _ = conn.respond(outResponse);
     }
 }
