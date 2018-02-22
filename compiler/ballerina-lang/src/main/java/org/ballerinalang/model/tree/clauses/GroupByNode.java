@@ -24,7 +24,13 @@ import org.ballerinalang.model.tree.expressions.ExpressionNode;
 import java.util.List;
 
 /**
- * The interface with the APIs to implement the "order by" in ballerina streams/table SQLish syntax.
+ * The interface with the APIs to implement the "group by" in ballerina streams/table SQLish syntax.
+ * <pre>Grammar:
+ *     GROUP BY variableReferenceList
+ *
+ * E.g.
+ *      group by age, school
+ * </pre>
  */
 public interface GroupByNode extends Node {
 

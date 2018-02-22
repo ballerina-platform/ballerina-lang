@@ -25,8 +25,11 @@ import java.util.List;
 
 /**
  * The interface with the APIs to implement the "order by" in ballerina streams/table SQLish syntax.
- * <pre> E.g
- * order by age, rank;
+ * <pre> Grammar:
+ *      GROUP BY variableReferenceList
+ *
+ * E.g
+ *      order by age, rank;
  * </pre>
  */
 public interface OrderByNode extends Node {

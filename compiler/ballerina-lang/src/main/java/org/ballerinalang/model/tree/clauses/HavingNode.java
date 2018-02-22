@@ -23,7 +23,10 @@ import org.ballerinalang.model.tree.expressions.ExpressionNode;
 
 /**
  * The interface which represents the "having" clause in streams/tables in SQLish syntax.
- * <pre>E.g.
+ * <pre>Grammar:
+ *      HAVING expression
+ *
+ * E.g.
  *     having age > 40
  * </pre>
  */
