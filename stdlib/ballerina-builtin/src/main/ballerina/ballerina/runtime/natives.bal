@@ -1,8 +1,8 @@
 package ballerina.runtime;
 
-@Description {value:"Halts the current thread for a predefined amount of time."}
+@Description {value:"Halts the current worker for a predefined amount of time."}
 @Param {value:"millis: Amount of time to sleep in milliseconds"}
-public native function sleepCurrentThread (int millis);
+public native function sleepCurrentWorker (int millis);
 
 @Description {value:"Adds the given name, value pair to the system properties."}
 @Param {value:"name: Name of the property"}

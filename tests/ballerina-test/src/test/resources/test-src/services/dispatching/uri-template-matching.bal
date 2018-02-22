@@ -164,10 +164,10 @@ service<http> echo11 {
     }
     resource paramNeg (http:Connection conn, http:InRequest req) {
         map params = req.getQueryParams();
-        TypeCastError err;
+        error err;
         string bar;
         bar, err = (string)params.foo;
-        json responseJson = {"echo125":bar, "error":err.msg};
+        json responseJson = {"echo125":bar, "error":err.message};
 
         http:OutResponse res = {};
         res.setJsonPayload(responseJson);

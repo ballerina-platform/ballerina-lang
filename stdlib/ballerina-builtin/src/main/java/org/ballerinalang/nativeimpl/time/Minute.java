@@ -15,7 +15,7 @@
 * specific language governing permissions and limitations
 * under the License.
 */
-package org.ballerinalang.nativeimpl.builtin.timelib;
+package org.ballerinalang.nativeimpl.time;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeKind;
@@ -27,23 +27,23 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
 /**
- * Get the month value for the given time.
+ * Get the minute value for the given time.
  *
  * @since 0.89
  */
 @BallerinaFunction(
-        packageName = "ballerina.builtin",
-        functionName = "Time.month",
+        packageName = "ballerina.time",
+        functionName = "Time.minute",
         args = {@Argument(name = "time", type = TypeKind.STRUCT, structType = "Time",
-                          structPackage = "ballerina.builtin")},
+                          structPackage = "ballerina.time")},
         returnType = {@ReturnType(type = TypeKind.INT)},
         isPublic = true
 )
-public class Month extends AbstractTimeFunction {
+public class Minute extends AbstractTimeFunction {
 
     @Override
     public BValue[] execute(Context context) {
         BStruct timeStruct = ((BStruct) getRefArgument(context, 0));
-        return new BValue[]{new BInteger(getMonth(timeStruct))};
+        return new BValue[]{new BInteger(getMinute(timeStruct))};
     }
 }

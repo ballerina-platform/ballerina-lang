@@ -134,11 +134,12 @@ public class HTTPSession implements Session, Serializable {
     }
 
     @Override
-    public void generateSessionHeader(HTTPCarbonMessage message) {
+    public void generateSessionHeader(HTTPCarbonMessage message, boolean isSecureRequest) {
         //Add set Cookie only for the first response after the creation
         if (this.isNew()) {
             message.setHeader(HttpConstants.RESPONSE_COOKIE_HEADER, HttpConstants.SESSION_ID + this.getId() + "; "
-                    + HttpConstants.PATH + this.getPath() + ";");
+                    + HttpConstants.PATH + this.getPath() + ";" +
+                    (isSecureRequest ? " " + HttpConstants.SECURE + ";" : "") + " " + HttpConstants.HTTP_ONLY + ";");
         }
     }
 

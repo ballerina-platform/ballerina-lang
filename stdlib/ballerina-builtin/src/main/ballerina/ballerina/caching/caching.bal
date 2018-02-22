@@ -1,6 +1,7 @@
 package ballerina.caching;
 
 import ballerina.task;
+import ballerina.time;
 import ballerina.util;
 
 @Description {value:"Cache cleanup task starting delay in ms."}
@@ -45,17 +46,17 @@ struct CacheEntry {
 public function createCache (string name, int expiryTimeMillis, int capacity, float evictionFactor) returns (Cache) {
     // Cache expiry time must be a positive value.
     if (expiryTimeMillis <= 0) {
-        error e = {msg:"Expiry time must be greater than 0."};
+        error e = {message:"Expiry time must be greater than 0."};
         throw e;
     }
     // Cache capacity must be a positive value.
     if (capacity <= 0) {
-        error e = {msg:"Capacity must be greater than 0."};
+        error e = {message:"Capacity must be greater than 0."};
         throw e;
     }
     // Cache eviction factor must be between 0.0 (exclusive) and 1.0 (inclusive).
     if (evictionFactor <= 0 || evictionFactor > 1) {
-        error e = {msg:"Cache eviction factor must be between 0.0 (exclusive) and 1.0 (inclusive)."};
+        error e = {message:"Cache eviction factor must be between 0.0 (exclusive) and 1.0 (inclusive)."};
         throw e;
     }
 
@@ -84,7 +85,7 @@ public function <Cache cache> put (string key, any value) {
         cache.evictCache();
     }
     // Add the new entry.
-    int time = currentTime().time;
+    int time = time:currentTime().time;
     CacheEntry entry = {value:value, lastAccessedTime:time};
     cache.entries[key] = entry;
 }
@@ -114,7 +115,7 @@ public function <Cache cache> get (string key) returns (any) {
     if (e != null || entry == null) {
         return null;
     }
-    entry.lastAccessedTime = currentTime().time;
+    entry.lastAccessedTime = time:currentTime().time;
     return entry.value;
 }
 
@@ -152,7 +153,7 @@ function runCacheExpiry () returns (error) {
             // Get the corresponding entry from the cache.
             var entry, _ = (CacheEntry)currentCacheEntries[key];
             // Get the current system time.
-            int currentSystemTime = currentTime().time;
+            int currentSystemTime = time:currentTime().time;
             // Check whether the cache entry needs to be removed.
             if (currentSystemTime >= entry.lastAccessedTime + currentCacheExpiryTime) {
                 cachesToBeRemoved[cachesToBeRemovedIndex] = key;

@@ -46,7 +46,7 @@ public class ArrayAccessExprTest {
     //TODO try to validate all the lines in the exception message
     @Test(description = "Test access an non-initialized arrays",
             expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = "error: NullReferenceException.*")
+            expectedExceptionsMessageRegExp = "error:.*NullReferenceException.*")
     public void testNonInitArrayAccess() {
 //        CompileResult compileResult = BTestUtils.compile("test-src/statements/arrays/array-access-expr.bal");
         BRunUtil.invoke(compileResult, "testNonInitArrayAccess");
