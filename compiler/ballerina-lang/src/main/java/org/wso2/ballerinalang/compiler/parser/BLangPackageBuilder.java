@@ -55,6 +55,7 @@ import org.ballerinalang.model.tree.statements.IfNode;
 import org.ballerinalang.model.tree.statements.StatementNode;
 import org.ballerinalang.model.tree.statements.TransactionNode;
 import org.ballerinalang.model.tree.statements.VariableDefinitionNode;
+import org.ballerinalang.model.tree.statements.WhereNode;
 import org.ballerinalang.model.tree.types.TypeNode;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
 import org.wso2.ballerinalang.compiler.tree.BLangAction;
@@ -81,6 +82,7 @@ import org.wso2.ballerinalang.compiler.tree.clauses.BLangGroupBy;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangHaving;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangOrderBy;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangSelectExpression;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangWhere;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAttachmentAttribute;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAttachmentAttributeValue;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrayLiteral;
@@ -227,6 +229,8 @@ public class BLangPackageBuilder {
     private Stack<GroupByNode> groupByClauseStack = new Stack<>();
 
     private Stack<HavingNode> havingClauseStack = new Stack<>();
+
+    private Stack<WhereNode> whereClauseStack = new Stack<>();
 
     private Stack<SelectExpressionNode> selectExpressionsStack = new Stack<>();
 
@@ -433,7 +437,7 @@ public class BLangPackageBuilder {
         BLangStruct structNode = (BLangStruct) this.structStack.peek();
         structNode.addWS(wsForSemiColon);
         BLangVariable field = addVar(pos, ws, identifier, exprAvailable, annotCount);
-        
+
         if (!isPrivate) {
             field.flagSet.add(Flag.PUBLIC);
         }
@@ -1925,5 +1929,20 @@ public class BLangPackageBuilder {
             addSelectExprToSelectExprNodeList(selectExprList, n - 1);
         }
         selectExprList.add(expr);
+    }
+
+    public void startWhereClauseNode(DiagnosticPos pos, Set<Whitespace> ws) {
+        WhereNode whereNode = TreeBuilder.createWhereNode();
+        ((BLangWhere) whereNode).pos = pos;
+        ((BLangWhere) whereNode).addWS(ws);
+        this.whereClauseStack.push(whereNode);
+    }
+
+    public void endWhereClauseNode(DiagnosticPos currentPos, Set<Whitespace> ws) {
+        if (this.exprNodeStack.empty()) {
+            throw new IllegalStateException("Expression stack cannot be empty in processing a Where");
+        }
+        WhereNode whereNode = this.whereClauseStack.peek();
+        whereNode.setExpression(exprNodeStack.pop());
     }
 }

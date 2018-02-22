@@ -2150,7 +2150,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
 
-      //  this.pkgBuilder.startSelectClauseNode(getCurrentPos(ctx), getWS(ctx));
+        //  this.pkgBuilder.startSelectClauseNode(getCurrentPos(ctx), getWS(ctx));
     }
 
     @Override
@@ -2159,7 +2159,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
 
-    //    this.pkgBuilder.endSelectClauseNode(getCurrentPos(ctx), getWS(ctx));
+        //    this.pkgBuilder.endSelectClauseNode(getCurrentPos(ctx), getWS(ctx));
     }
 
     @Override
@@ -2178,6 +2178,24 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         }
 
         this.pkgBuilder.endSelectExpressionList(getWS(ctx), ctx.getChildCount() / 2 + 1);
+    }
+
+    @Override
+    public void enterWhereClasue(BallerinaParser.WhereClasueContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+
+        this.pkgBuilder.startWhereClauseNode(getCurrentPos(ctx), getWS(ctx));
+    }
+
+    @Override
+    public void exitWhereClasue(BallerinaParser.WhereClasueContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+
+        this.pkgBuilder.endWhereClauseNode(getCurrentPos(ctx), getWS(ctx));
     }
 
     private DiagnosticPos getCurrentPos(ParserRuleContext ctx) {
