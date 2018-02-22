@@ -1,0 +1,19 @@
+.iterable-menu {
+    opacity: 1;
+    background: #f1f1f1;
+    overflow: visible;
+    margin-left: 1px;
+    color: #333;
+    position: fixed;
+    z-index: 1001;
+}
+
+.iterable-menu-item {
+    color: #333 !important;
+    display: block;
+    line-height: 30px;
+    padding-left: 15px;
+    padding-right: 15px;
+    color: inherit;
+    cursor: pointer;
+}
