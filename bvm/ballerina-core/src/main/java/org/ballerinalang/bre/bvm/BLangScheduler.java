@@ -32,17 +32,32 @@ public class BLangScheduler {
 
     private static Set<WorkerExecutionContext> activeContexts = new HashSet<>();
 
-    public static void schedule(WorkerExecutionContext ctx) {
+    public static WorkerExecutionContext schedule(WorkerExecutionContext ctx) {
         ctx.state = WorkerState.READY;
         ExecutorService executor = ThreadPoolFactory.getInstance().getWorkerExecutor();
         activeContexts.add(ctx);
-        executor.submit(new WorkerExecutor(ctx, false));
+        if (ctx.runInCaller) {
+            return ctx;
+        } else {
+            executor.submit(new WorkerExecutor(ctx, false));
+            return null;
+        }
     }
     
-    public static void resume(WorkerExecutionContext ctx) {
+    public static WorkerExecutionContext resume(WorkerExecutionContext ctx) {
+        return resume(ctx, false);
+    }
+    
+    public static WorkerExecutionContext resume(WorkerExecutionContext ctx, boolean runInCaller) {
         ctx.state = WorkerState.READY;
         ExecutorService executor = ThreadPoolFactory.getInstance().getWorkerExecutor();
-        executor.submit(new WorkerExecutor(ctx, true));
+        if (runInCaller) {
+            ctx.restoreIP();
+            return ctx;
+        } else {
+            executor.submit(new WorkerExecutor(ctx, true));
+            return null;
+        }
     }
     
     public static void workerDone(WorkerExecutionContext ctx) {
@@ -89,6 +104,7 @@ public class BLangScheduler {
                     ctx.restoreIP();
                 }
                 ctx.state = WorkerState.RUNNING;
+                System.out.println("WorkerExecutor");
                 CPU.exec(ctx);
             } catch (Throwable e) {
                 ctx.state = WorkerState.EXCEPTED;

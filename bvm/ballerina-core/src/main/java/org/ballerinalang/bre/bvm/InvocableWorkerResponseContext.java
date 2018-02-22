@@ -49,7 +49,7 @@ public class InvocableWorkerResponseContext implements WorkerResponseContext {
     }
     
     @Override
-    public void signal(WorkerSignal signal) {
+    public WorkerExecutionContext signal(WorkerSignal signal) {
         switch (signal.getType()) {
         case BREAK:
             break;
@@ -58,25 +58,26 @@ public class InvocableWorkerResponseContext implements WorkerResponseContext {
         case MESSAGE:
             break;
         case RETURN:
-            this.doReturn(signal);
-            break;
+            return this.doReturn(signal);
         default:
             break;
         }
+        return null;
     }
     
     private void handleAlreadyReturned() {
         System.out.println("ALREADY RETURNED");
     }
     
-    private void doReturn(WorkerSignal signal) {
-//        if (this.fulfilled.getAndSet(true)) {
-//            this.handleAlreadyReturned();
-//            return;
-//        }
+    private WorkerExecutionContext doReturn(WorkerSignal signal) {
+        if (this.fulfilled.getAndSet(true)) {
+            this.handleAlreadyReturned();
+            return null;
+        }
         this.currentSignal = signal;
-        this.storeResponseInParentAndContinue();
+        WorkerExecutionContext runInCallerCtx = this.storeResponseInParentAndContinue();
         BLangScheduler.workerDone(signal.getSourceContext());
+        return runInCallerCtx;
     }
     
     private void mergeResultData(WorkerData sourceData, WorkerData targetData) {
@@ -114,18 +115,20 @@ public class InvocableWorkerResponseContext implements WorkerResponseContext {
         }
     }
 
-    private void storeResponseInParentAndContinue() {
+    private WorkerExecutionContext storeResponseInParentAndContinue() {
         if (this.retRegIndexes != null) {
             this.mergeResultData(this.currentSignal.getResult(), 
                     this.currentSignal.getSourceContext().parent.workerLocal);
             if (this.responseChecker != null) {
                 this.responseChecker.release();
             }
-            WorkerExecutionContext parentCtx = this.currentSignal.getSourceContext().parent;
+            WorkerExecutionContext ctx = this.currentSignal.getSourceContext();
+            WorkerExecutionContext parentCtx = ctx.parent;
             if (parentCtx.code != null) {
-                BLangScheduler.resume(parentCtx);
+                return BLangScheduler.resume(parentCtx, ctx.runInCaller);
             }
         }
+        return null;
     }
     
     @Override

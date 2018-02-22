@@ -134,6 +134,7 @@ public class CPU {
         TypeRefCPEntry typeRefCPEntry;
         FunctionInfo functionInfo;
         InstructionCALL callIns;
+        WorkerExecutionContext runInCallerCtx;
 
         //boolean debugEnabled = ctx.programFile.getDebugger().isDebugEnabled();
 
@@ -364,7 +365,11 @@ public class CPU {
                     break;
                 case InstructionCodes.CALL:
                     callIns = (InstructionCALL) instruction;
-                    invokeCallableUnit(ctx, callIns.functionInfo, callIns.argRegs, callIns.retRegs);
+                    runInCallerCtx = invokeCallableUnit(ctx, callIns.functionInfo, 
+                            callIns.argRegs, callIns.retRegs);
+                    if (runInCallerCtx != null) {
+                        ctx = runInCallerCtx;
+                    }
                     break;
                 case InstructionCodes.VCALL:
                     InstructionVCALL vcallIns = (InstructionVCALL) instruction;
@@ -401,7 +406,10 @@ public class CPU {
                     invokeForkJoin(forkJoinIns);
                     break;
                 case InstructionCodes.WRKRETURN:
-                    handleReturn(ctx);
+                    runInCallerCtx = handleReturn(ctx);
+                    if (runInCallerCtx != null) {
+                        ctx = runInCallerCtx;
+                    }
                     break;
                 case InstructionCodes.THROW:
 //                    i = operands[0];
@@ -631,7 +639,10 @@ public class CPU {
                     callersSF.refRegs[callersRetRegIndex] = currentSF.refRegs[j];
                     break;
                 case InstructionCodes.RET:
-                    handleReturn(ctx);
+                    runInCallerCtx = handleReturn(ctx);
+                    if (runInCallerCtx != null) {
+                        ctx = runInCallerCtx;
+                    }
                     break;
                 case InstructionCodes.XMLATTRSTORE:
                 case InstructionCodes.XMLATTRLOAD:
@@ -2632,12 +2643,14 @@ public class CPU {
         ballerinaTransactionManager.incrementCurrentRetryCount(transactionId);
     }
 
-    private static void invokeCallableUnit(WorkerExecutionContext ctx, CallableUnitInfo callableUnitInfo, int[] argRegs, int[] retRegs) {
+    private static WorkerExecutionContext invokeCallableUnit(WorkerExecutionContext ctx, CallableUnitInfo callableUnitInfo, int[] argRegs, int[] retRegs) {
         if (callableUnitInfo.isNative()) {
             invokeNativeFunction(ctx, (FunctionInfo) callableUnitInfo, argRegs, retRegs);
-            return;
+            return null;
         }
-        BLangFunctions.invokeFunction(ctx.programFile, callableUnitInfo, ctx, argRegs, retRegs, false);
+        WorkerExecutionContext runInCallerCtx = BLangFunctions.invokeFunction(ctx.programFile, callableUnitInfo, 
+                ctx, argRegs, retRegs, false);
+        return runInCallerCtx;
     }
 
     private static void invokeVirtualFunction(int receiver, FunctionInfo virtualFuncInfo, int[] argRegs, int[] retRegs) {
@@ -2798,8 +2811,8 @@ public class CPU {
         }
     }
 
-    private static void handleReturn(WorkerExecutionContext ctx) {
-        ctx.respCtx.signal(new WorkerSignal(ctx, SignalType.RETURN, ctx.workerResult));
+    private static WorkerExecutionContext handleReturn(WorkerExecutionContext ctx) {
+        return ctx.respCtx.signal(new WorkerSignal(ctx, SignalType.RETURN, ctx.workerResult));
     }
 
     private static void copyWorkersReturnValues(WorkerData workerSF, WorkerData parentsSF) {

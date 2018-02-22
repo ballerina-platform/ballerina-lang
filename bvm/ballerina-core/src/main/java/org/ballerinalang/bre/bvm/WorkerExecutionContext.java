@@ -71,6 +71,7 @@ public class WorkerExecutionContext {
     
     public WorkerExecutionContext() {
         this.globalProps = new HashMap<>();
+        this.runInCaller = true;
     }
     
     public WorkerExecutionContext(WorkerExecutionContext parent, WorkerResponseContext respCtx, 

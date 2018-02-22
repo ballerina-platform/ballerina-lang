@@ -21,6 +21,7 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BLangScheduler;
 import org.ballerinalang.bre.bvm.BLangVM;
 import org.ballerinalang.bre.bvm.BLangVMErrors;
+import org.ballerinalang.bre.bvm.CPU;
 import org.ballerinalang.bre.bvm.ControlStack;
 import org.ballerinalang.bre.bvm.StackFrame;
 import org.ballerinalang.bre.bvm.InvocableWorkerResponseContext;
@@ -49,9 +50,7 @@ import org.ballerinalang.util.codegen.attributes.LocalVariableAttributeInfo;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
 
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.Callable;
 
 /**
  * This class contains helper methods to invoke Ballerina functions.
@@ -437,33 +436,42 @@ public class BLangFunctions {
         return wdi.retRegs;
     }
     
-    public static void invokeFunction(ProgramFile programFile, CallableUnitInfo callableUnitInfo, 
+    public static WorkerExecutionContext invokeFunction(ProgramFile programFile, CallableUnitInfo callableUnitInfo, 
             WorkerExecutionContext parentCtx, int[] argRegs, int[] retRegs, boolean waitForResponse) {
         InvocableWorkerResponseContext respCtx = new InvocableWorkerResponseContext(
                 callableUnitInfo.getRetParamTypes(), waitForResponse);
         respCtx.updateParentWorkerResultLocation(retRegs);
         WorkerDataIndex wdi = calculateWorkerDataIndex(callableUnitInfo.getRetParamTypes());
         Map<String, Object> globalProps = parentCtx.globalProps;
-        if (!waitForResponse) {
-            BLangScheduler.switchToWaitForResponse(parentCtx);
-        }
-        for (WorkerInfo workerInfo : listWorkerInfos(callableUnitInfo)) {
-            executeWorker(respCtx, parentCtx, argRegs, callableUnitInfo, workerInfo, wdi, globalProps);
+        BLangScheduler.switchToWaitForResponse(parentCtx);
+        WorkerExecutionContext runInCallerCtx = null;
+        WorkerInfo[] workerInfos = listWorkerInfos(callableUnitInfo);
+        for (int i = 0; i < workerInfos.length; i++) {
+            if (i == 0) {
+                runInCallerCtx = executeWorker(respCtx, parentCtx, argRegs, callableUnitInfo, 
+                        workerInfos[i], wdi, globalProps, true);
+            } else {
+                executeWorker(respCtx, parentCtx, argRegs, callableUnitInfo, workerInfos[i], wdi, globalProps, false);
+            }
         }
         if (waitForResponse) {
+            if (runInCallerCtx != null) {
+                CPU.exec(runInCallerCtx);
+            }
             respCtx.waitForResponse();
         }
+        return runInCallerCtx;
     }
     
-    private static void executeWorker(WorkerResponseContext respCtx, WorkerExecutionContext parentCtx, int[] argRegs,
+    private static WorkerExecutionContext executeWorker(WorkerResponseContext respCtx, WorkerExecutionContext parentCtx, int[] argRegs,
             CallableUnitInfo callableUnitInfo, WorkerInfo workerInfo, WorkerDataIndex wdi, 
-            Map<String, Object> globalProps) {
+            Map<String, Object> globalProps, boolean runInCaller) {
         WorkerData workerLocal = createWorkerDataForLocal(workerInfo, parentCtx, argRegs,
                 callableUnitInfo.getParamTypes());
         WorkerData workerResult = createWorkerData(wdi);
         WorkerExecutionContext ctx = new WorkerExecutionContext(parentCtx, respCtx, callableUnitInfo, workerInfo,
-                workerLocal, workerResult, wdi.retRegs, globalProps, false);
-        BLangScheduler.schedule(ctx);
+                workerLocal, workerResult, wdi.retRegs, globalProps, runInCaller);
+        return BLangScheduler.schedule(ctx);
     }
     
     private static WorkerInfo[] listWorkerInfos(CallableUnitInfo callableUnitInfo) {

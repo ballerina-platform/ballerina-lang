@@ -22,7 +22,7 @@ package org.ballerinalang.bre.bvm;
  */
 public interface WorkerResponseContext {
     
-    public void signal(WorkerSignal signal);
+    public WorkerExecutionContext signal(WorkerSignal signal);
         
     public void checkAndRefreshFulfilledResponse();
     
