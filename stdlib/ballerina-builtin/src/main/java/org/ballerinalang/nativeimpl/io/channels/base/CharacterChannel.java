@@ -272,6 +272,7 @@ public class CharacterChannel {
      *
      * @return all content which is read.
      */
+    @Deprecated
     public String readAll() {
         StringBuilder response = new StringBuilder();
         String value;

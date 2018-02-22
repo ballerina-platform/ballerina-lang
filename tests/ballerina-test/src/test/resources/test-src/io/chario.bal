@@ -7,11 +7,6 @@ function initFileChannel(string filePath,string permission,string encoding){
     characterChannel = io:createCharacterChannel(channel, encoding);
 }
 
-function readAll()(string){
-    string characters = characterChannel.readAllCharacters();
-    return characters;
-}
-
 function readCharacters (int numberOfCharacters) (string) {
     string characters = characterChannel.readCharacters(numberOfCharacters);
     return characters;

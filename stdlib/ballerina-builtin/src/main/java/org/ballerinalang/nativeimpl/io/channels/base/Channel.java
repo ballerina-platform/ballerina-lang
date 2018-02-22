@@ -124,6 +124,7 @@ public abstract class Channel extends AbstractChannel {
      * @return all the bytes read.
      * @throws BallerinaException during I/O error.
      */
+    @Deprecated
     public byte[] readAll() throws BallerinaException {
         List<ByteBuffer> readBufferList = new ArrayList<>();
         int totalNumberOfBytes = 0;

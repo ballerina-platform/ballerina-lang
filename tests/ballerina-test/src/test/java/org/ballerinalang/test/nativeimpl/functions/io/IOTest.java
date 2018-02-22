@@ -103,23 +103,6 @@ public class IOTest {
         BRunUtil.invoke(bytesInputOutputProgramFile, "close");
     }
 
-    @Test(description = "Test 'readAllBytes' function in ballerina.io.package ")
-    public void testReadAllBytes() throws URISyntaxException {
-        String resourceToRead = "datafiles/io/text/6charfile.txt";
-        BBlob readBytes;
-
-        //Will initialize the channel
-        BValue[] args = {new BString(getAbsoluteFilePath(resourceToRead)), new BString("r")};
-        BRunUtil.invoke(bytesInputOutputProgramFile, "initFileChannel", args);
-
-        byte[] expectedBytes = "123456".getBytes();
-        BValue[] returns = BRunUtil.invoke(bytesInputOutputProgramFile, "readAll");
-        readBytes = (BBlob) returns[0];
-        Assert.assertEquals(expectedBytes, readBytes.blobValue());
-
-        BRunUtil.invoke(bytesInputOutputProgramFile, "close");
-    }
-
     @Test(description = "Test 'readCharacters' function in ballerina.io package")
     public void testReadCharacters() throws URISyntaxException {
         String resourceToRead = "datafiles/io/text/utf8file.txt";
@@ -153,24 +136,6 @@ public class IOTest {
 
         BRunUtil.invoke(characterInputOutputProgramFile, "close");
 
-    }
-
-    @Test(description = "Test 'readAllCharacters' function in ballerina.io package")
-    public void testReadAllCharacters() throws URISyntaxException {
-        String resourceToRead = "datafiles/io/text/utf8file.txt";
-        BString readCharacters;
-
-        //Will initialize the channel
-        BValue[] args = {new BString(getAbsoluteFilePath(resourceToRead)), new BString("r"), new BString("UTF-8")};
-        BRunUtil.invoke(characterInputOutputProgramFile, "initFileChannel", args);
-
-        String expectedCharacters = "aaabbǊ";
-        BValue[] returns = BRunUtil.invoke(characterInputOutputProgramFile, "readAll");
-        readCharacters = (BString) returns[0];
-
-        Assert.assertEquals(readCharacters.stringValue(), expectedCharacters);
-
-        BRunUtil.invoke(characterInputOutputProgramFile, "close");
     }
 
     @Test(description = "Test 'readRecords' function in ballerina.io package")

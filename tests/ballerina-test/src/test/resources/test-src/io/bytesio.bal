@@ -6,13 +6,6 @@ function initFileChannel(string filePath, string permission){
     channel = io:openFile(filePath, permission);
 }
 
-function readAll() (blob) {
-    blob bytes;
-    int numberOfBytesRead;
-    bytes,numberOfBytesRead = channel.readAllBytes();
-    return bytes;
-}
-
 function readBytes (int numberOfBytes) (blob) {
     blob bytes;
     int numberOfBytesRead;
