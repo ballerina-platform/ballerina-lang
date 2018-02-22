@@ -1,10 +1,13 @@
 {
-    "name": "Ballerina",
+    "name": "ballerina",
     "displayName": "Ballerina",
     "description": " Ballerina is a flexible, powerful, beautiful programming language designed for integration",
     "version": "0.961.1-SNAPSHOT",
     "publisher": "WSO2",
-    "repository": "https://github.com/ballerinalang/plugin-vscode",
+    "repository": {
+        "type" : "git",
+        "url" : "https://github.com/ballerina-lang/ballerina"
+    },
     "icon": "images/ballerina.png",
     "engines": {
         "vscode": "^1.0.0"

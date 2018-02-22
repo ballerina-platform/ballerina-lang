@@ -1,3 +1,5 @@
+import ballerina.io;
+
 function main (string[] args) {
     //Here you create integer array with with several integer elements.
     int[] intArray = [1, 2, 3];
@@ -6,7 +8,7 @@ function main (string[] args) {
 
     //Print the length of the created integer array calculated by the 'lengthof' unary operator.
     arrayLength = lengthof intArray;
-    println("Integer array size : " + arrayLength);
+    io:println("Integer array size : " + arrayLength);
 
 
     //Here you create JSON array with several JSON elements.
@@ -15,5 +17,5 @@ function main (string[] args) {
 
     //Print the length of the created JSON array calculated by the 'lengthof' unary operator.
     arrayLength = lengthof jsonArray;
-    println("JSON array size : " + arrayLength);
+    io:println("JSON array size : " + arrayLength);
 }

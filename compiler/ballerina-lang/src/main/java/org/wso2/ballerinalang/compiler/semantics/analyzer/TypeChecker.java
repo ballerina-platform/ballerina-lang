@@ -1308,7 +1308,7 @@ public class TypeChecker extends BLangNodeVisitor {
             BTransformerSymbol transformerSymbol = (BTransformerSymbol) symbol;
             conversionExpr.conversionSymbol = transformerSymbol;
             if (conversionExpr.conversionSymbol.safe) {
-                ((BInvokableType) transformerSymbol.type).retTypes.add(symTable.errTypeConversionType);
+                ((BInvokableType) transformerSymbol.type).retTypes.add(symTable.errStructType);
             }
             actualTypes = getActualTypesOfConversionExpr(conversionExpr, targetType, sourceType,
                     (BTransformerSymbol) transformerSymbol);

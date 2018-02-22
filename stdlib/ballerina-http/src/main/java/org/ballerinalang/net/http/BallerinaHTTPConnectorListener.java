@@ -47,23 +47,27 @@ public class BallerinaHTTPConnectorListener implements HttpConnectorListener {
 
     @Override
     public void onMessage(HTTPCarbonMessage httpCarbonMessage) {
-        HttpResource httpResource;
-        if (!isAccessed(httpCarbonMessage)) {
+        try {
+            HttpResource httpResource;
+            if (accessed(httpCarbonMessage)) {
+                httpResource = (HttpResource) httpCarbonMessage.getProperty(HTTP_RESOURCE);
+                extractPropertiesAndStartResourceExecution(httpCarbonMessage, httpResource);
+                return;
+            }
             httpResource = HttpDispatcher.findResource(httpServicesRegistry, httpCarbonMessage);
             if (HttpDispatcher.isDiffered(httpResource)) {
                 httpCarbonMessage.setProperty(HTTP_RESOURCE, httpResource);
-            } else {
-                extractPropertiesAndStartResourceExecution(httpCarbonMessage, httpResource);
+                return;
             }
-        } else {
-            httpResource = (HttpResource) httpCarbonMessage.getProperty(HTTP_RESOURCE);
             extractPropertiesAndStartResourceExecution(httpCarbonMessage, httpResource);
+        } catch (BallerinaException ex) {
+            HttpUtil.handleFailure(httpCarbonMessage, new BallerinaConnectorException(ex.getMessage(), ex.getCause()));
         }
     }
 
     @Override
     public void onError(Throwable throwable) {
-        log.error("Error in http server connector", throwable);
+        log.error("Error in http server connector" + throwable.getMessage(), throwable);
     }
 
     private void extractPropertiesAndStartResourceExecution(HTTPCarbonMessage httpCarbonMessage,
@@ -76,18 +80,13 @@ public class BallerinaHTTPConnectorListener implements HttpConnectorListener {
             properties = Collections.singletonMap(HttpConstants.SRC_HANDLER, srcHandler);
         }
         BValue[] signatureParams;
-        try {
-            signatureParams = HttpDispatcher.getSignatureParameters(httpResource, httpCarbonMessage);
-        } catch (BallerinaException ex) {
-            HttpUtil.handleFailure(httpCarbonMessage, new BallerinaConnectorException(ex.getMessage()));
-            return;
-        }
+        signatureParams = HttpDispatcher.getSignatureParameters(httpResource, httpCarbonMessage);
         ConnectorFuture future = Executor.submit(httpResource.getBalResource(), properties, signatureParams);
         ConnectorFutureListener futureListener = new HttpConnectorFutureListener(httpCarbonMessage);
         future.setConnectorFutureListener(futureListener);
     }
 
-    private boolean isAccessed(HTTPCarbonMessage httpCarbonMessage) {
+    private boolean accessed(HTTPCarbonMessage httpCarbonMessage) {
         return httpCarbonMessage.getProperty(HTTP_RESOURCE) != null;
     }
 }

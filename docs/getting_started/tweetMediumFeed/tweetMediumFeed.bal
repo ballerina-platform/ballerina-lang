@@ -1,3 +1,4 @@
+import ballerina.io;
 import ballerina.net.http;
 import ballerina.net.uri;
 import ballerina.security.crypto;
@@ -12,8 +13,8 @@ function main (string[] args) {
     }
     int argumentLength = lengthof args;
     if (argumentLength < 4) {
-        println("Incorrect number of arguments");
-        println("Please specify: consumerKey consumerSecret accessToken accessTokenSecret");
+        io:println("Incorrect number of arguments");
+        io:println("Please specify: consumerKey consumerSecret accessToken accessTokenSecret");
     } else {
         string consumerKey = args[0];
         string consumerSecret = args[1];
@@ -36,9 +37,9 @@ function main (string[] args) {
 
         int statusCd = response.statusCode;
         if (statusCd == 200) {
-            println("Successfully tweeted: '" + title + "'");
+            io:println("Successfully tweeted: '" + title + "'");
         } else {
-            println("Failed to do the tweet: " + statusCd);
+            io:println("Failed to do the tweet: " + statusCd);
         }
     }
 }

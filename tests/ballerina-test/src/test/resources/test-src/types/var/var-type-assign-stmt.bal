@@ -10,7 +10,7 @@ struct Person {
     boolean alive;
 }
 
-function testVarDeclarationWithAtLeaseOneNonDeclaredSymbol () (int, TypeConversionError) {
+function testVarDeclarationWithAtLeaseOneNonDeclaredSymbol () (int, error) {
     int a;
     string s = "10";
     var a, err = <int>s;
@@ -65,7 +65,7 @@ function testBooleanToVarAssignment() (boolean) {
     return isHappy;
 }
 
-function testAnyToStringWithErrors()(string, TypeCastError) {
+function testAnyToStringWithErrors()(string, error) {
     any a = 5;
 
     var s, err = (string) a;
@@ -73,7 +73,7 @@ function testAnyToStringWithErrors()(string, TypeCastError) {
     return s, err;
 }
 
-function testAnyNullToStringWithErrors()(string, TypeCastError) {
+function testAnyNullToStringWithErrors()(string, error) {
     any a = null;
 
     var s, err = (string) a;
@@ -81,7 +81,7 @@ function testAnyNullToStringWithErrors()(string, TypeCastError) {
     return s, err;
 }
 
-function testAnyToBooleanWithErrors()(boolean, TypeCastError) {
+function testAnyToBooleanWithErrors()(boolean, error) {
     any a = 5;
 
     var b, err = (boolean) a;
@@ -89,7 +89,7 @@ function testAnyToBooleanWithErrors()(boolean, TypeCastError) {
     return b, err;
 }
 
-function testAnyNullToBooleanWithErrors()(boolean, TypeCastError) {
+function testAnyNullToBooleanWithErrors()(boolean, error) {
     any a = null;
 
     var b, err = (boolean) a;
@@ -97,7 +97,7 @@ function testAnyNullToBooleanWithErrors()(boolean, TypeCastError) {
     return b, err;
 }
 
-function testAnyToIntWithErrors()(int, TypeCastError) {
+function testAnyToIntWithErrors()(int, error) {
     any a = "foo";
 
     var b, err = (int) a;
@@ -105,7 +105,7 @@ function testAnyToIntWithErrors()(int, TypeCastError) {
     return b, err;
 }
 
-function testAnyNullToIntWithErrors()(int, TypeCastError) {
+function testAnyNullToIntWithErrors()(int, error) {
     any a = null;
 
     var b, err = (int) a;
@@ -113,7 +113,7 @@ function testAnyNullToIntWithErrors()(int, TypeCastError) {
     return b, err;
 }
 
-function testAnyToFloatWithErrors()(float, TypeCastError) {
+function testAnyToFloatWithErrors()(float, error) {
     any a = "foo";
 
     var b, err = (float) a;
@@ -121,7 +121,7 @@ function testAnyToFloatWithErrors()(float, TypeCastError) {
     return b, err;
 }
 
-function testAnyNullToFloatWithErrors()(float, TypeCastError) {
+function testAnyNullToFloatWithErrors()(float, error) {
     any a = null;
 
     var b, err = (float) a;
@@ -129,7 +129,7 @@ function testAnyNullToFloatWithErrors()(float, TypeCastError) {
     return b, err;
 }
 
-function testAnyToMapWithErrors()(map, TypeCastError) {
+function testAnyToMapWithErrors()(map, error) {
     any a = "foo";
 
     var b, err = (map) a;
@@ -138,7 +138,7 @@ function testAnyToMapWithErrors()(map, TypeCastError) {
 }
 
 
-function testIncompatibleJsonToStructWithErrors() (Person, TypeConversionError) {
+function testIncompatibleJsonToStructWithErrors() (Person, error) {
     json j = { name:"Child",
                age:25,
                parent:{
@@ -162,7 +162,7 @@ struct PersonA {
     int age;
 }
 
-function testJsonToStructWithErrors() (PersonA, TypeConversionError) {
+function testJsonToStructWithErrors() (PersonA, error) {
     json j = {name:"supun", age:"25"};
 
     var person, err = <PersonA> j;
@@ -179,7 +179,7 @@ struct B {
     string x;
 }
 
-function testCompatibleStructForceCasting()(A, TypeCastError) {
+function testCompatibleStructForceCasting()(A, error) {
     A a = {x: "x-valueof-a", y:4};
     B b = {x: "x-valueof-b"};
 
@@ -191,7 +191,7 @@ function testCompatibleStructForceCasting()(A, TypeCastError) {
     return c, err;
 }
 
-function testInCompatibleStructForceCasting()(A, TypeCastError) {
+function testInCompatibleStructForceCasting()(A, error) {
     B b = {x: "x-valueof-b"};
 
     var a, err = (A) b;

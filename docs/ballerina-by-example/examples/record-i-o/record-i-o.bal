@@ -36,10 +36,10 @@ function main (string[] args) {
     //is new line and field separator is pipe.
     io:DelimitedRecordChannel dstRecordChannel =
     getFileRecordChannel(dstFileName, "w", "UTF-8", "\n", "|");
-    println("Start to process CSV file from " + srcFileName + " to text file in "
+    io:println("Start to process CSV file from " + srcFileName + " to text file in "
             + dstFileName);
     process(srcRecordChannel, dstRecordChannel);
-    println("Processing completed. The processed file could be located in "
+    io:println("Processing completed. The processed file could be located in "
             + dstFileName);
     //Close the text record channel.
     srcRecordChannel.closeTextRecordChannel();

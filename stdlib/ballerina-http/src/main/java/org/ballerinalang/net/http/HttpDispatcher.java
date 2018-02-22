@@ -217,7 +217,7 @@ public class HttpDispatcher {
             bValues[bValues.length - 1] = populateAndGetEntityBody(httpResource, inRequest, inRequestEntity,
                     signatureParams.getEntityBody().getVarType());
         } catch (BallerinaException ex) {
-            httpCarbonMessage.setProperty(HttpConstants.HTTP_STATUS_CODE, 400);
+            httpCarbonMessage.setProperty(HttpConstants.HTTP_STATUS_CODE, HttpConstants.HTTP_BAD_REQUEST);
             throw new BallerinaConnectorException("data binding failed: " + ex.getMessage());
         } catch (IOException ex) {
             throw new BallerinaException(ex.getMessage());

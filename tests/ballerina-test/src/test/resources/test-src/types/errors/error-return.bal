@@ -1,7 +1,6 @@
 public struct InvalidNameError {
-    string msg;
+    string message;
     error cause;
-    StackFrame[] stackTrace;
     string companyName;
 }
 
@@ -13,7 +12,7 @@ function getQuote(string name)( float , InvalidNameError ) {
         return 11.5, null;
     }
 
-    InvalidNameError err = { msg : "invalid name", companyName : name };
+    InvalidNameError err = { message: "invalid name", companyName : name };
     return -1.0, err;
 }
 
@@ -59,7 +58,7 @@ function testReturnAndThrowError()(string){
     try{
         checkAndThrow();
     }catch(error e){
-        return e.msg;
+        return e.message;
     }
     return "OK";
 }

@@ -31,19 +31,20 @@ import java.util.List;
  */
 public class SignatureParams {
 
+    private static final int compulsoryParamCount = 2;
     private HttpResource resource;
     private final List<ParamDetail> paramDetails;
     private ParamDetail entityBody;
     private List<ParamDetail> pathParams;
-    private int paramCount = 2;
+    private int paramCount = compulsoryParamCount;
 
-    public SignatureParams(HttpResource resource, List<ParamDetail> paramDetails) {
+    SignatureParams(HttpResource resource, List<ParamDetail> paramDetails) {
         this.resource = resource;
         this.paramDetails = paramDetails;
     }
 
-    public void validate() {
-        if (paramDetails.size() < 2) {
+    void validate() {
+        if (paramDetails.size() < compulsoryParamCount) {
             throw new BallerinaConnectorException("resource signature parameter count should be >= 2");
         }
         if (!isValidResourceParam(paramDetails.get(0), HttpConstants.CONNECTION)) {
@@ -54,22 +55,22 @@ public class SignatureParams {
             throw new BallerinaConnectorException("second parameter should be of type - "
                     + HttpConstants.PROTOCOL_PACKAGE_HTTP + ":" + HttpConstants.IN_REQUEST);
         }
-        if (paramDetails.size() == 2) {
+        if (paramDetails.size() == compulsoryParamCount) {
             return;
         }
 
         if (resource.getEntityBodyAttributeValue() == null) {
-            validatePathParam(paramDetails.subList(2, paramDetails.size()));
+            validatePathParam(paramDetails.subList(compulsoryParamCount, paramDetails.size()));
         } else {
             int lastParamIndex = paramDetails.size() - 1;
-            validatePathParam(paramDetails.subList(2, lastParamIndex));
+            validatePathParam(paramDetails.subList(compulsoryParamCount, lastParamIndex));
             validateEntityBodyParam(paramDetails.get(lastParamIndex));
         }
     }
 
     private boolean isValidResourceParam(ParamDetail paramDetail, String varTypeName) {
-        return paramDetail.getVarType().getPackagePath() != null
-                && paramDetail.getVarType().getPackagePath().equals(HttpConstants.PROTOCOL_PACKAGE_HTTP)
+        String packagePath = paramDetail.getVarType().getPackagePath();
+        return packagePath != null && packagePath.equals(HttpConstants.PROTOCOL_PACKAGE_HTTP)
                 && paramDetail.getVarType().getName().equals(varTypeName);
     }
 
@@ -100,15 +101,15 @@ public class SignatureParams {
         }
     }
 
-    public ParamDetail getEntityBody() {
+    ParamDetail getEntityBody() {
         return entityBody;
     }
 
-    public List<ParamDetail> getPathParams() {
+    List<ParamDetail> getPathParams() {
         return pathParams;
     }
 
-    public int getParamCount() {
+    int getParamCount() {
         return paramCount;
     }
 }
