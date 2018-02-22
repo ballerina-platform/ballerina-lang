@@ -124,7 +124,14 @@ function performLoadBalanceExecuteAction (string path, http:OutRequest outReques
                                string httpVerb, LoadBalanceInferredConfig loadBalanceInferredConfig)
 (http:InResponse, http:HttpConnectorError) {
     HttpOperation connctorAction = extractHttpOperation(httpVerb);
-    return performLoadBalanceAction(path, outRequest, inRequest, connctorAction, loadBalanceInferredConfig);
+    if (connctorAction != null) {
+        return performLoadBalanceAction(path, outRequest, inRequest, connctorAction, loadBalanceInferredConfig);
+    } else {
+        http:HttpConnectorError httpConnectorError = {};
+        httpConnectorError.statusCode = 400;
+        httpConnectorError.msg = "Unsupported connector action received.";
+        return null, httpConnectorError;
+    }
 }
 
 // Handles all the actions exposed through the Load Balance connector.
@@ -132,12 +139,8 @@ function performLoadBalanceAction (string path, http:OutRequest outRequest, http
                                    HttpOperation requestAction, LoadBalanceInferredConfig loadBalanceInferredConfig)
 (http:InResponse, http:HttpConnectorError) {
 
-    endpoint<http:HttpClient> endPoint {
-    }
+    http:HttpClient loadBalanceClient = loadBalanceInferredConfig.algorithm(loadBalanceInferredConfig.loadBalanceClientsArray);
 
-    http:HttpClient loadBlanceClient = loadBalanceInferredConfig.algorithm(loadBalanceInferredConfig.loadBalanceClientsArray);
-
-    bind loadBlanceClient with endPoint;
     // Tracks at which point failover within the load balancing should be terminated.
     int loadBalanceTermination;
     LoadBalanceConnectorError loadBalanceConnectorError = {};
@@ -151,13 +154,12 @@ function performLoadBalanceAction (string path, http:OutRequest outRequest, http
         blob binaryPayload = inRequest.getBinaryPayload();
     }
 
-    inResponse, httpConnectorError = invokeEndpoint(path, outRequest, inRequest, requestAction, loadBlanceClient);
+    inResponse, httpConnectorError = invokeEndpoint(path, outRequest, inRequest, requestAction, loadBalanceClient);
 
     while (httpConnectorError != null) {
         loadBalanceConnectorError.httpConnectorError[nextIndex] = httpConnectorError;
-        loadBlanceClient = loadBalanceInferredConfig.algorithm(loadBalanceInferredConfig.loadBalanceClientsArray);
-        bind loadBlanceClient with endPoint;
-        inResponse, httpConnectorError = invokeEndpoint(path, outRequest, inRequest, requestAction, loadBlanceClient);
+        loadBalanceClient = loadBalanceInferredConfig.algorithm(loadBalanceInferredConfig.loadBalanceClientsArray);
+        inResponse, httpConnectorError = invokeEndpoint(path, outRequest, inRequest, requestAction, loadBalanceClient);
         loadBalanceTermination = loadBalanceTermination + 1;
         if (loadBalanceTermination == (lengthof loadBalanceInferredConfig.loadBalanceClientsArray - 1) && inResponse == null) {
             loadBalanceTermination = 0;

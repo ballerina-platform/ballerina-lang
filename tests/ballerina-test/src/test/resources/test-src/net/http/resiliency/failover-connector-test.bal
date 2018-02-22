@@ -70,7 +70,6 @@ function testFailureScenario () (http:InResponse, http:HttpConnectorError) {
 connector MockHttpFailOverClient (string serviceUri, http:Options connectorOptions) {
 
     endpoint<http:HttpClient> endPoint {
-
     }
 
     int actualRequestNumber = 0;

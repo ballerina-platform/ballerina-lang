@@ -59,7 +59,8 @@ public class FailoverConnectorTest {
         if (res != null) {
             long statusCode = res.getIntField(0);
             BStruct messageEntity = (BStruct) res.getNativeData("message_entity");
-            String responseMsgContent = ((BXMLItem) messageEntity.getRefField(3)).getTextValue().stringValue();
+            String responseMsgContent = ((BXMLItem) messageEntity.getNativeData("message_datasource")).getTextValue()
+                    .stringValue();
             Assert.assertEquals(statusCode, expectedHttpSC);
             Assert.assertEquals(responseMsgContent, expectedMessageContent);
         }
