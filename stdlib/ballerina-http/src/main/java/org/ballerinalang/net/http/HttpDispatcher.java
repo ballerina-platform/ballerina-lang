@@ -19,8 +19,7 @@ package org.ballerinalang.net.http;
 
 import org.ballerinalang.connector.api.BallerinaConnectorException;
 import org.ballerinalang.connector.api.ConnectorUtils;
-import org.ballerinalang.mime.util.Constants;
-import org.ballerinalang.mime.util.MimeUtil;
+import org.ballerinalang.mime.util.EntityBodyHandler;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.values.BBlob;
@@ -28,12 +27,16 @@ import org.ballerinalang.model.values.BJSON;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.model.values.BXML;
 import org.ballerinalang.net.uri.URIUtil;
+import org.ballerinalang.runtime.message.BlobDataSource;
+import org.ballerinalang.runtime.message.StringDataSource;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URLDecoder;
@@ -216,55 +219,46 @@ public class HttpDispatcher {
         } catch (BallerinaException ex) {
             httpCarbonMessage.setProperty(HttpConstants.HTTP_STATUS_CODE, 400);
             throw new BallerinaConnectorException("data binding failed: " + ex.getMessage());
+        } catch (IOException ex) {
+            throw new BallerinaException(ex.getMessage());
         }
         return bValues;
     }
 
     private static BValue populateAndGetEntityBody(HttpResource httpResource, BStruct inRequest,
-                                                   BStruct inRequestEntity, BType entityBodyType) {
-
-        BStruct fileStruct = ConnectorUtils.createStruct(httpResource.getBalResource(), Constants.PROTOCOL_PACKAGE_FILE,
-                Constants.FILE);
-        inRequestEntity.setRefField(Constants.OVERFLOW_DATA_INDEX, fileStruct);
+                                                   BStruct inRequestEntity, BType entityBodyType) throws IOException {
         HttpUtil.populateEntityBody(null, inRequest, inRequestEntity, true);
-
-        BValue body = null;
         switch (entityBodyType.getTag()) {
             case TypeTags.STRING_TAG:
-                String stringPayload = MimeUtil.getTextPayload(inRequestEntity);
-                body = (stringPayload == null) ? null : new BString(stringPayload);
-                break;
+                StringDataSource stringDataSource = EntityBodyHandler.constructStringDataSource(inRequestEntity);
+                EntityBodyHandler.addMessageDataSource(inRequestEntity, stringDataSource);
+                return stringDataSource != null ? new BString(stringDataSource.getMessageAsString()) : null;
             case TypeTags.JSON_TAG:
-                body = MimeUtil.getJsonPayload(inRequestEntity);
-                break;
+                BJSON bjson = EntityBodyHandler.constructJsonDataSource(inRequestEntity);
+                EntityBodyHandler.addMessageDataSource(inRequestEntity, bjson);
+                return bjson;
             case TypeTags.XML_TAG:
-                body = MimeUtil.getXmlPayload(inRequestEntity);
-                break;
+                BXML bxml = EntityBodyHandler.constructXmlDataSource(inRequestEntity);
+                EntityBodyHandler.addMessageDataSource(inRequestEntity, bxml);
+                return bxml;
             case TypeTags.BLOB_TAG:
-                byte[] binaryPayload = MimeUtil.getBinaryPayload(inRequestEntity);
-                body = (binaryPayload == null) ? null : new BBlob(binaryPayload);
-                break;
+                BlobDataSource blobDataSource = EntityBodyHandler.constructBlobDataSource(inRequestEntity);
+                EntityBodyHandler.addMessageDataSource(inRequestEntity, blobDataSource);
+                return new BBlob(blobDataSource != null ? blobDataSource.getValue() : new byte[0]);
             case TypeTags.STRUCT_TAG:
-                BJSON bjson = MimeUtil.getJsonPayload(inRequestEntity);
-                if (bjson == null) {
-                    break;
-                }
+                bjson = EntityBodyHandler.constructJsonDataSource(inRequestEntity);
+                EntityBodyHandler.addMessageDataSource(inRequestEntity, bjson);
                 try {
-                    body = ConnectorUtils.convertJSONToStruct(httpResource.getBalResource(), bjson, entityBodyType);
+                    return ConnectorUtils.convertJSONToStruct(httpResource.getBalResource(), bjson, entityBodyType);
                 } catch (NullPointerException ex) {
                     throw new BallerinaConnectorException("cannot convert payload to struct type: " +
                             entityBodyType.getName());
                 }
-                break;
         }
-        if (body == null) {
-            throw new BallerinaConnectorException("incompatible entity body type: expected " +
-                    entityBodyType.getName());
-        }
-        return body;
+        return null;
     }
 
     public static boolean isDiffered(HttpResource httpResource) {
-        return httpResource.getSignatureParams().getEntityBody() != null;
+        return httpResource != null && httpResource.getSignatureParams().getEntityBody() != null;
     }
 }

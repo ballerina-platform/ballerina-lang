@@ -121,7 +121,7 @@ public class HTTPVerbsPassthruTestCases extends IntegrationTestCase {
 
     @Test(description = "Test HTTP data binding with incompatible payload with URL. /getQuote/employee")
     public void testDataBindingWithIncompatiblePayload() throws IOException {
-        String payload = "name:WSO2,team:ballerina}";
+        String payload = "name:WSO2,team:ballerina";
         Map<String, String> headers = new HashMap<>();
         headers.put(TestConstant.HEADER_CONTENT_TYPE, TestConstant.CONTENT_TYPE_TEXT_PLAIN);
         HttpResponse response = HttpClientRequest.doPost(ballerinaServer.getServiceURLHttp("getQuote/employee")
@@ -129,7 +129,8 @@ public class HTTPVerbsPassthruTestCases extends IntegrationTestCase {
 
         Assert.assertNotNull(response);
         Assert.assertEquals(response.getResponseCode(), 400, "Response code mismatched");
-        Assert.assertEquals(response.getData(), "data binding failed: incompatible entity body type: expected json");
+        Assert.assertTrue(response.getData()
+                .contains("data binding failed: failed to create json: unrecognized token 'name:WSO2,team:ballerina'"));
     }
 
     @AfterClass

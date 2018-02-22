@@ -31,7 +31,7 @@ service<http> echo {
     }
 
     @http:resourceConfig {
-        methods:["POST"],
+        methods:["GET","POST"],
         body:"person"
     }
     resource body3 (http:Connection conn, http:InRequest req, json person) {

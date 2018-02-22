@@ -135,64 +135,81 @@ public class DataBindingTest {
                 , "Age variable not set properly.");
     }
 
-    @Test(expectedExceptions = BallerinaConnectorException.class,
-            expectedExceptionsMessageRegExp = "data binding failed: incompatible entity body type: expected string")
-    public void testDataBindingWithoutPayload() {
-        HTTPTestRequest requestMsg = MessageUtils
-                .generateHTTPMessage("/echo/body1", "GET");
-        Services.invokeNew(compileResult, requestMsg);
-    }
-
-    @Test(expectedExceptions = BallerinaConnectorException.class,
-            expectedExceptionsMessageRegExp = "data binding failed: incompatible entity body type: expected string")
+    @Test(description = "Test data binding without content-type header")
     public void testDataBindingWithoutContentType() {
         HTTPTestRequest requestMsg = MessageUtils
                 .generateHTTPMessage("/echo/body1", "POST", "WSO2");
-        Services.invokeNew(compileResult, requestMsg);
+        HTTPCarbonMessage responseMsg = Services.invokeNew(compileResult, requestMsg);
+
+        Assert.assertNotNull(responseMsg, "responseMsg message not found");
+        BJSON bJson = new BJSON(new HttpMessageDataStreamer(responseMsg).getInputStream());
+        Assert.assertEquals(bJson.value().get("Person").asText(), "WSO2"
+                , "Person variable not set properly.");
     }
 
-    @Test(expectedExceptions = BallerinaConnectorException.class,
-            expectedExceptionsMessageRegExp = "data binding failed: incompatible entity body type: expected string")
-    public void testDataBindingIncompatibleStringPayload() {
+    @Test(description = "Test data binding with incompatible content-type")
+    public void testDataBindingIncompatibleJSONPayloadType() {
         HTTPTestRequest requestMsg = MessageUtils
-                .generateHTTPMessage("/echo/body1", "POST", "{'name':'WSO2', 'team':'ballerina'}");
-        requestMsg.setHeader(CONTENT_TYPE, APPLICATION_JSON);
-        Services.invokeNew(compileResult, requestMsg);
-    }
-
-    @Test(expectedExceptions = BallerinaConnectorException.class,
-            expectedExceptionsMessageRegExp = "data binding failed: incompatible entity body type: expected json")
-    public void testDataBindingIncompatibleJSONPayload() {
-        HTTPTestRequest requestMsg = MessageUtils
-                .generateHTTPMessage("/echo/body3", "POST", "{'name':'WSO2', 'team':'ballerina'}");
+                .generateHTTPMessage("/echo/body3", "POST", "{'name':'WSO2', 'team':'EI'}");
         requestMsg.setHeader(CONTENT_TYPE, TEXT_PLAIN);
-        Services.invokeNew(compileResult, requestMsg);
+        HTTPCarbonMessage responseMsg = Services.invokeNew(compileResult, requestMsg);
+
+        Assert.assertNotNull(responseMsg, "responseMsg message not found");
+        BJSON bJson = new BJSON(new HttpMessageDataStreamer(responseMsg).getInputStream());
+        Assert.assertEquals(bJson.value().get("Key").asText(), "WSO2"
+                , "Key variable not set properly.");
+        Assert.assertEquals(bJson.value().get("Team").asText(), "EI"
+                , "Team variable not set properly.");
     }
 
-    @Test(expectedExceptions = BallerinaConnectorException.class,
-            expectedExceptionsMessageRegExp = "data binding failed: incompatible entity body type: expected xml")
-    public void testDataBindingIncompatibleXMLPayload() {
-        HTTPTestRequest requestMsg = MessageUtils
-                .generateHTTPMessage("/echo/body4", "POST", "{'name':'WSO2', 'team':'ballerina'}");
-        requestMsg.setHeader(CONTENT_TYPE, APPLICATION_JSON);
-        Services.invokeNew(compileResult, requestMsg);
-    }
-
-    @Test(expectedExceptions = BallerinaConnectorException.class,
-            expectedExceptionsMessageRegExp = "data binding failed: incompatible entity body type: expected blob")
-    public void testDataBindingIncompatibleBinaryPayload() {
+    @Test(description = "Test data binding with compatible but type different payload")
+    public void testDataBindingCompatiblePayload() {
         HTTPTestRequest requestMsg = MessageUtils
                 .generateHTTPMessage("/echo/body5", "POST", "{'name':'WSO2', 'team':'ballerina'}");
         requestMsg.setHeader(CONTENT_TYPE, TEXT_PLAIN);
+        HTTPCarbonMessage responseMsg = Services.invokeNew(compileResult, requestMsg);
+
+        Assert.assertNotNull(responseMsg, "responseMsg message not found");
+        BJSON bJson = new BJSON(new HttpMessageDataStreamer(responseMsg).getInputStream());
+        Assert.assertEquals(bJson.value().get("Key").asText(), "{'name':'WSO2', 'team':'ballerina'}"
+                , "Key variable not set properly.");
+    }
+
+    @Test(description = "Test data binding without a payload")
+    public void testDataBindingWithoutPayload() {
+        HTTPTestRequest requestMsg = MessageUtils
+                .generateHTTPMessage("/echo/body1", "GET");
+        HTTPCarbonMessage responseMsg = Services.invokeNew(compileResult, requestMsg);
+
+        Assert.assertNotNull(responseMsg, "responseMsg message not found");
+        BJSON bJson = new BJSON(new HttpMessageDataStreamer(responseMsg).getInputStream());
+        Assert.assertEquals(bJson.value().get("Person").asText(), ""
+                , "Person variable not set properly.");
+    }
+
+    @Test(expectedExceptions = BallerinaConnectorException.class,
+            expectedExceptionsMessageRegExp = ".*data binding failed: Unexpected character.*")
+    public void testDataBindingIncompatibleXMLPayload() {
+        HTTPTestRequest requestMsg = MessageUtils
+                .generateHTTPMessage("/echo/body4", "POST", "name':'WSO2', 'team':'ballerina");
+        requestMsg.setHeader(CONTENT_TYPE, APPLICATION_JSON);
         Services.invokeNew(compileResult, requestMsg);
     }
 
     @Test(expectedExceptions = BallerinaConnectorException.class,
-            expectedExceptionsMessageRegExp = "data binding failed: incompatible entity body type: expected Person")
+            expectedExceptionsMessageRegExp = ".*failed to create json: unrecognized token 'ballerina'.*")
     public void testDataBindingIncompatibleStructPayload() {
         HTTPTestRequest requestMsg = MessageUtils
-                .generateHTTPMessage("/echo/body6", "POST", "{'name':'WSO2', 'team':'ballerina'}");
+                .generateHTTPMessage("/echo/body6", "POST", "ballerina");
         requestMsg.setHeader(CONTENT_TYPE, TEXT_PLAIN);
+        Services.invokeNew(compileResult, requestMsg);
+    }
+
+    @Test(expectedExceptions = BallerinaConnectorException.class,
+            expectedExceptionsMessageRegExp = ".*data binding failed: failed to create json: empty JSON document.*")
+    public void testDataBindingWithEmptyJsonPayload() {
+        HTTPTestRequest requestMsg = MessageUtils
+                .generateHTTPMessage("/echo/body3", "GET");
         Services.invokeNew(compileResult, requestMsg);
     }
 
