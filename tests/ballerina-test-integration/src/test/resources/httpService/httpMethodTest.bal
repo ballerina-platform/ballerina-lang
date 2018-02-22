@@ -10,7 +10,7 @@ service<http> headQuoteService {
         endpoint<http:HttpClient> endPoint {
             create http:HttpClient("http://localhost:9090", {});
         }
-        string method = req.getMethod();
+        string method = req.method;
         http:OutRequest clientRequest = {};
         http:InResponse clientResponse = {};
         clientResponse, _ = endPoint.execute(method, "/getQuote/stocks", clientRequest);
@@ -103,6 +103,16 @@ service<http> quoteService {
         http:OutResponse res = {};
         res.setHeader("Method", "any");
         res.setStringPayload("default");
+        _ = conn.respond(res);
+    }
+
+    @http:resourceConfig {
+        methods:["POST"],
+        body:"person"
+    }
+    resource employee (http:Connection conn, http:InRequest req, json person) {
+        http:OutResponse res = {};
+        res.setJsonPayload(person);
         _ = conn.respond(res);
     }
 }

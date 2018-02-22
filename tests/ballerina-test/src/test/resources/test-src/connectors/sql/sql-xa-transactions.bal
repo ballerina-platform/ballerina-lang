@@ -20,7 +20,7 @@ function testXAransactonSuccess () (int count1, int count2) {
         _ = testDB2.update("insert into Salary (id, value ) values (1, 1000)", null);
     }
     //check whether update action is performed
-    datatable dt = testDB1.select("Select COUNT(*) as countval from Customers where customerId = 1 ",
+    table dt = testDB1.select("Select COUNT(*) as countval from Customers where customerId = 1 ",
                                   null, typeof ResultCount);
     while (dt.hasNext()) {
         var rs, _ = (ResultCount)dt.getNext();
@@ -56,7 +56,7 @@ function testXAransactonFailed1 () (int count1, int count2) {
 
     }
     //check whether update action is performed
-    datatable dt = testDB1.select("Select COUNT(*) as countval from Customers where customerId = 2", null,
+    table dt = testDB1.select("Select COUNT(*) as countval from Customers where customerId = 2", null,
                                   typeof ResultCount);
     while (dt.hasNext()) {
         var rs, _ = (ResultCount)dt.getNext();
@@ -92,7 +92,7 @@ function testXAransactonFailed2 () (int count1, int count2) {
 
     }
     //check whether update action is performed
-    datatable dt = testDB1.select("Select COUNT(*) as countval from Customers where customerId = 2",
+    table dt = testDB1.select("Select COUNT(*) as countval from Customers where customerId = 2",
                                   null, typeof ResultCount);
     while (dt.hasNext()) {
         var rs, _ = (ResultCount)dt.getNext();
@@ -136,7 +136,7 @@ function testXAransactonRetry () (int count1, int count2) {
     } catch (error e) {
     }
     //check whether update action is performed
-    datatable dt = testDB1.select("Select COUNT(*) as countval from Customers where customerId = 4",
+    table dt = testDB1.select("Select COUNT(*) as countval from Customers where customerId = 4",
                                         null, typeof ResultCount);
     while (dt.hasNext()) {
         var rs, _ = (ResultCount)dt.getNext();

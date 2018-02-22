@@ -21,14 +21,13 @@
     <parent>
         <groupId>org.ballerinalang</groupId>
         <artifactId>ballerina-parent</artifactId>
-        <version>0.96.1-SNAPSHOT</version>
+        <version>0.961.1-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
     <artifactId>composer</artifactId>
     <packaging>pom</packaging>
-    <version>0.96.1-SNAPSHOT</version>
     <name>Ballerina - Composer</name>
 
     <dependencyManagement>
@@ -77,7 +76,6 @@
     </build>
 
     <properties>
-        <ballerina.version>${project.version}</ballerina.version>
         <msf4j.examples.version>2.1.0</msf4j.examples.version>
         <antlr.maven.plugin.version>4.5.1</antlr.maven.plugin.version>
         <maven.checkstyleplugin.excludes>**/parser/*,**/${native.constructs.provider.class}.java</maven.checkstyleplugin.excludes>

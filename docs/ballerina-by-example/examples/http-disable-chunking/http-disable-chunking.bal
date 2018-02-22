@@ -29,9 +29,9 @@ service<http> echo {
         string value;
         //Set response according to the request headers.
         if (req.getHeader("Content-Length") != null) {
-            value = "Lenght-" + req.getHeader("Content-Length").value;
+            value = "Lenght-" + req.getHeader("Content-Length");
         } else {
-            value = req.getHeader("Transfer-Encoding").value;
+            value = req.getHeader("Transfer-Encoding");
         }
         http:OutResponse res = {};
         res.setJsonPayload({"Outbound request content":value});

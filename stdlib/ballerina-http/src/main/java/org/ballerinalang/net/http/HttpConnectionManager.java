@@ -43,7 +43,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.CountDownLatch;
 import java.util.logging.LogManager;
 
 /**
@@ -61,8 +60,8 @@ public class HttpConnectionManager {
     private HttpWsConnectorFactory httpConnectorFactory = new HttpWsConnectorFactoryImpl();
 
     private HttpConnectionManager() {
-        String nettyConfigFile = System.getProperty(Constants.HTTP_TRANSPORT_CONF,
-                "conf" + File.separator + "transports" +
+        String nettyConfigFile = System.getProperty(HttpConstants.HTTP_TRANSPORT_CONF,
+                                                    "conf" + File.separator + "transports" +
                         File.separator + "netty-transports.yml");
         trpConfig = ConfigurationBuilder.getInstance().getConfiguration(nettyConfigFile);
         serverBootstrapConfiguration = HTTPConnectorUtil
@@ -137,7 +136,7 @@ public class HttpConnectionManager {
      */
     void startPendingHTTPConnectors(BallerinaHttpServerConnector httpServerConnector) throws ServerConnectorException {
         ConnectorStartupSynchronizer startupSyncer =
-                new ConnectorStartupSynchronizer(new CountDownLatch(startupDelayedHTTPServerConnectors.size()));
+                new ConnectorStartupSynchronizer(startupDelayedHTTPServerConnectors.size());
 
         for (Map.Entry<String, ServerConnector> serverConnectorEntry : startupDelayedHTTPServerConnectors.entrySet()) {
             ServerConnector serverConnector = serverConnectorEntry.getValue();
@@ -147,7 +146,7 @@ public class HttpConnectionManager {
         }
         try {
             // Wait for all the connectors to start
-            startupSyncer.getCountDownLatch().await();
+            startupSyncer.syncConnectors();
         } catch (InterruptedException e) {
             throw new BallerinaConnectorException("Error in starting HTTP server connector(s)");
         }
@@ -222,18 +221,21 @@ public class HttpConnectionManager {
     }
 
     private void validateConnectorStartup(ConnectorStartupSynchronizer startupSyncer) {
-        int noOfExceptions = startupSyncer.getExceptions().size();
+        int noOfExceptions = startupSyncer.getNoOfFailedConnectors();
         if (noOfExceptions <= 0) {
             return;
         }
         PrintStream console = System.err;
 
-        startupSyncer.getExceptions().forEach((connectorId, e) ->
-            console.println("ballerina: " + makeFirstLetterLowerCase(e.getMessage()) + ": [" + connectorId + "]"));
+        startupSyncer.failedConnectorsIterator()
+                .forEachRemaining(exceptionEntry -> console.println(
+                        "ballerina: " + makeFirstLetterLowerCase(exceptionEntry.getValue().getMessage())
+                                + ": [" + exceptionEntry.getKey() + "]"));
 
-        if (noOfExceptions == startupDelayedHTTPServerConnectors.size()) {
-            // If the no. of exceptions is equal to the no. of connectors to be started, then none of the
-            // connectors have started properly and we can terminate the runtime
+        if (noOfExceptions > 0) {
+            // If there are any exceptions, stop all the connectors which started correctly and terminate the runtime.
+            startupSyncer.inUseConnectorsIterator()
+                    .forEachRemaining(connectorId -> startupDelayedHTTPServerConnectors.get(connectorId).stop());
             throw new BallerinaConnectorException("failed to start the server connectors");
         }
     }

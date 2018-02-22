@@ -51,12 +51,16 @@ public class BallerinaLanguageServer implements LanguageServer, LanguageClientAw
     public CompletableFuture<InitializeResult> initialize(InitializeParams params) {
         final InitializeResult res = new InitializeResult(new ServerCapabilities());
         final SignatureHelpOptions signatureHelpOptions = new SignatureHelpOptions(Arrays.asList("(", ","));
-        res.getCapabilities().setCompletionProvider(new CompletionOptions());
+        final CompletionOptions completionOptions = new CompletionOptions();
+        completionOptions.setTriggerCharacters(Arrays.asList(":", "."));
+        
+        res.getCapabilities().setCompletionProvider(completionOptions);
         res.getCapabilities().setTextDocumentSync(TextDocumentSyncKind.Full);
         res.getCapabilities().setSignatureHelpProvider(signatureHelpOptions);
         res.getCapabilities().setHoverProvider(true);
         res.getCapabilities().setDocumentSymbolProvider(true);
         res.getCapabilities().setDefinitionProvider(true);
+        res.getCapabilities().setReferencesProvider(true);
 
         return CompletableFuture.supplyAsync(() -> res);
     }

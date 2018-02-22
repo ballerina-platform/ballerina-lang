@@ -18,9 +18,8 @@
 package org.ballerinalang.langserver.completions.resolvers.parsercontext;
 
 import org.ballerinalang.langserver.TextDocumentServiceContext;
-import org.ballerinalang.langserver.completions.consts.ItemResolverConstants;
-import org.ballerinalang.langserver.completions.consts.Priority;
 import org.ballerinalang.langserver.completions.resolvers.AbstractItemResolver;
+import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
 import org.eclipse.lsp4j.CompletionItem;
 
 import java.util.ArrayList;
@@ -32,23 +31,22 @@ public class ParserRuleAttachmentPointContextResolver extends AbstractItemResolv
     @Override
     public ArrayList<CompletionItem> resolveItems(TextDocumentServiceContext completionContext) {
         ArrayList<CompletionItem> completionItems = new ArrayList<>();
-        completionItems.add(populateCompletionItem(ItemResolverConstants.ACTION,
-                ItemResolverConstants.KEYWORD_TYPE, Priority.PRIORITY7.name(), ItemResolverConstants.ACTION));
+        completionItems.add(populateCompletionItem(ItemResolverConstants.ACTION, ItemResolverConstants.KEYWORD_TYPE,
+                ItemResolverConstants.ACTION));
         completionItems.add(populateCompletionItem(ItemResolverConstants.ANNOTATION,
-                ItemResolverConstants.KEYWORD_TYPE, Priority.PRIORITY7.name(),
-                ItemResolverConstants.ANNOTATION));
-        completionItems.add(populateCompletionItem(ItemResolverConstants.CONNECTOR,
-                ItemResolverConstants.KEYWORD_TYPE, Priority.PRIORITY7.name(), ItemResolverConstants.CONNECTOR));
-        completionItems.add(populateCompletionItem(ItemResolverConstants.CONST,
-                ItemResolverConstants.KEYWORD_TYPE, Priority.PRIORITY7.name(), ItemResolverConstants.CONST));
-        completionItems.add(populateCompletionItem(ItemResolverConstants.FUNCTION,
-                ItemResolverConstants.KEYWORD_TYPE, Priority.PRIORITY7.name(), ItemResolverConstants.FUNCTION));
-        completionItems.add(populateCompletionItem(ItemResolverConstants.RESOURCE,
-                ItemResolverConstants.KEYWORD_TYPE, Priority.PRIORITY7.name(), ItemResolverConstants.RESOURCE));
-        completionItems.add(populateCompletionItem(ItemResolverConstants.SERVICE,
-                ItemResolverConstants.KEYWORD_TYPE, Priority.PRIORITY7.name(), ItemResolverConstants.SERVICE));
-        completionItems.add(populateCompletionItem(ItemResolverConstants.STRUCT,
-                ItemResolverConstants.KEYWORD_TYPE, Priority.PRIORITY7.name(), ItemResolverConstants.STRUCT));
+                ItemResolverConstants.KEYWORD_TYPE, ItemResolverConstants.ANNOTATION));
+        completionItems.add(populateCompletionItem(ItemResolverConstants.CONNECTOR, ItemResolverConstants.KEYWORD_TYPE, 
+                ItemResolverConstants.CONNECTOR));
+        completionItems.add(populateCompletionItem(ItemResolverConstants.CONST, ItemResolverConstants.KEYWORD_TYPE, 
+                ItemResolverConstants.CONST));
+        completionItems.add(populateCompletionItem(ItemResolverConstants.FUNCTION, ItemResolverConstants.KEYWORD_TYPE, 
+                ItemResolverConstants.FUNCTION));
+        completionItems.add(populateCompletionItem(ItemResolverConstants.RESOURCE, ItemResolverConstants.KEYWORD_TYPE,
+                ItemResolverConstants.RESOURCE));
+        completionItems.add(populateCompletionItem(ItemResolverConstants.SERVICE, ItemResolverConstants.KEYWORD_TYPE,
+                ItemResolverConstants.SERVICE));
+        completionItems.add(populateCompletionItem(ItemResolverConstants.STRUCT, ItemResolverConstants.KEYWORD_TYPE,
+                ItemResolverConstants.STRUCT));
 
         return completionItems;
     }

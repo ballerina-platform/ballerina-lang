@@ -1,12 +1,20 @@
-package ballerina.builtin;
+// Copyright (c) 2017 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+//
+// WSO2 Inc. licenses this file to you under the Apache License,
+// Version 2.0 (the "License"); you may not use this file except
+// in compliance with the License.
+// You may obtain a copy of the License at
+//
+// http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing,
+// software distributed under the License is distributed on an
+// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+// KIND, either express or implied.  See the License for the
+// specific language governing permissions and limitations
+// under the License.
 
-@Description { value: "Options struct for XML to JSON conversion "}
-@Field {value:"attributePrefix:  prefix to add to the key to identify a XML attribute and namespaces, default value is '@'."}
-@Field {value:"preserveNamespaces: Indicate whether to preserve namespace prefixes when converting or not."}
-public struct xmlOptions {
-    string attributePrefix = "@";
-    boolean preserveNamespaces = true;
-}
+package ballerina.builtin;
 
 @Description { value:"Check whether the XML sequence contains only a single element."}
 @Param { value:"x: An XML object" }
@@ -85,7 +93,10 @@ public native function <xml x> setAttributes(map attributes);
 @Param { value:"x: A XML object" }
 @Param { value:"options: xmlOptions struct for XML to JSON conversion properties" }
 @Return { value:"JSON representation of the given XML" }
-public native function <xml x> toJSON (xmlOptions options) (json);
+public native function <xml x> toJSON (struct {
+                                           string attributePrefix = "@";
+                                           boolean preserveNamespaces = true;
+                                       } options) (json);
 
 @Description { value:"Searches in children recursively for elements matching the qualified name and returns a sequence containing them all. Does not search within a matched result." }
 @Param { value:"x: An XML object" }

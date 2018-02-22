@@ -22,7 +22,7 @@ import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaAction;
 import org.ballerinalang.natives.annotations.ReturnType;
-import org.ballerinalang.net.http.Constants;
+import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,7 +35,7 @@ import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 @BallerinaAction(
         packageName = "ballerina.net.http",
         actionName = "delete",
-        connectorName = Constants.CONNECTOR_NAME,
+        connectorName = HttpConstants.CONNECTOR_NAME,
         args = {
                 @Argument(name = "c", type = TypeKind.CONNECTOR),
                 @Argument(name = "path", type = TypeKind.STRING),
@@ -67,7 +67,7 @@ public class Delete extends AbstractHTTPAction {
             // Execute the operation
             return executeNonBlockingAction(context, createOutboundRequestMsg(context));
         } catch (ClientConnectorException clientConnectorException) {
-            throw new BallerinaException("Failed to invoke 'delete' action in " + Constants.CONNECTOR_NAME
+            throw new BallerinaException("Failed to invoke 'delete' action in " + HttpConstants.CONNECTOR_NAME
                     + ". " + clientConnectorException.getMessage(), context);
         }
     }
@@ -76,7 +76,7 @@ public class Delete extends AbstractHTTPAction {
     protected HTTPCarbonMessage createOutboundRequestMsg(Context context) {
         // Extract Argument values
         HTTPCarbonMessage cMsg = super.createOutboundRequestMsg(context);
-        cMsg.setProperty(Constants.HTTP_METHOD, Constants.HTTP_METHOD_DELETE);
+        cMsg.setProperty(HttpConstants.HTTP_METHOD, HttpConstants.HTTP_METHOD_DELETE);
         return cMsg;
     }
 }

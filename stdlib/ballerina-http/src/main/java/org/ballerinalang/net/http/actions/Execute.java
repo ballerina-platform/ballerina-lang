@@ -24,7 +24,7 @@ import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaAction;
 import org.ballerinalang.natives.annotations.ReturnType;
-import org.ballerinalang.net.http.Constants;
+import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.HttpUtil;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.slf4j.Logger;
@@ -34,13 +34,17 @@ import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 
 import java.util.Locale;
 
+import static org.wso2.transport.http.netty.common.Constants.ACCEPT_ENCODING;
+import static org.wso2.transport.http.netty.common.Constants.ENCODING_DEFLATE;
+import static org.wso2.transport.http.netty.common.Constants.ENCODING_GZIP;
+
 /**
  * {@code Execute} action can be used to invoke execute a http call with any httpVerb.
  */
 @BallerinaAction(
         packageName = "ballerina.net.http",
         actionName = "execute",
-        connectorName = Constants.CONNECTOR_NAME,
+        connectorName = HttpConstants.CONNECTOR_NAME,
         args = {
                 @Argument(name = "c", type = TypeKind.CONNECTOR),
                 @Argument(name = "httpVerb", type = TypeKind.STRING),
@@ -73,7 +77,7 @@ public class Execute extends AbstractHTTPAction {
             // Execute the operation
             return executeNonBlockingAction(context, createOutboundRequestMsg(context));
         } catch (ClientConnectorException clientConnectorException) {
-            throw new BallerinaException("Failed to invoke 'execute' action in " + Constants.CONNECTOR_NAME
+            throw new BallerinaException("Failed to invoke 'execute' action in " + HttpConstants.CONNECTOR_NAME
                     + ". " + clientConnectorException.getMessage(), context);
         }
     }
@@ -91,9 +95,12 @@ public class Execute extends AbstractHTTPAction {
 
         // If the verb is not specified, use the verb in incoming message
         if (httpVerb == null || "".equals(httpVerb)) {
-            httpVerb = (String) outboundRequestMsg.getProperty(Constants.HTTP_METHOD);
+            httpVerb = (String) outboundRequestMsg.getProperty(HttpConstants.HTTP_METHOD);
         }
-        outboundRequestMsg.setProperty(Constants.HTTP_METHOD, httpVerb.trim().toUpperCase(Locale.getDefault()));
+        outboundRequestMsg.setProperty(HttpConstants.HTTP_METHOD, httpVerb.trim().toUpperCase(Locale.getDefault()));
+        if (outboundRequestMsg.getHeader(ACCEPT_ENCODING) == null) {
+            outboundRequestMsg.setHeader(ACCEPT_ENCODING, ENCODING_DEFLATE + ", " + ENCODING_GZIP);
+        }
         return outboundRequestMsg;
     }
 }

@@ -59,7 +59,7 @@ public class BLangPackage extends BLangNode implements PackageNode {
     public BLangFunction initFunction;
     public Set<CompilerPhase> completedPhases;
     public List<BLangTransformer> transformers;
-    
+
     public BPackageSymbol symbol;
     public List<TopLevelNode> topLevelNodes;
 

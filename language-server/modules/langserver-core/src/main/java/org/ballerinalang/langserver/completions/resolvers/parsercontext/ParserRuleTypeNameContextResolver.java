@@ -18,10 +18,12 @@
 
 package org.ballerinalang.langserver.completions.resolvers.parsercontext;
 
-import org.ballerinalang.langserver.DocumentServiceKeys;
 import org.ballerinalang.langserver.TextDocumentServiceContext;
+import org.ballerinalang.langserver.completions.CompletionKeys;
 import org.ballerinalang.langserver.completions.resolvers.AbstractItemResolver;
 import org.ballerinalang.langserver.completions.util.filters.StatementTemplateFilter;
+import org.ballerinalang.langserver.completions.util.sorters.CompletionItemSorter;
+import org.ballerinalang.langserver.completions.util.sorters.ItemSorters;
 import org.eclipse.lsp4j.CompletionItem;
 
 import java.util.ArrayList;
@@ -38,7 +40,10 @@ public class ParserRuleTypeNameContextResolver extends AbstractItemResolver {
         StatementTemplateFilter statementTemplateFilter = new StatementTemplateFilter();
         // Add the statement templates
         completionItems.addAll(statementTemplateFilter.filterItems(completionContext));
-        this.populateBasicTypes(completionItems, completionContext.get(DocumentServiceKeys.SYMBOL_TABLE_KEY));
+        this.populateBasicTypes(completionItems, completionContext.get(CompletionKeys.VISIBLE_SYMBOLS_KEY));
+        CompletionItemSorter itemSorter = ItemSorters
+                .getSorterByClass(completionContext.get(CompletionKeys.SYMBOL_ENV_NODE_KEY).getClass());
+        itemSorter.sortItems(completionContext, completionItems);
         return completionItems;
     }
 }

@@ -24,7 +24,7 @@ import org.ballerinalang.launcher.util.BServiceUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.util.StringUtils;
 import org.ballerinalang.model.values.BJSON;
-import org.ballerinalang.net.http.Constants;
+import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.runtime.message.StringDataSource;
 import org.ballerinalang.test.services.testutils.HTTPTestRequest;
 import org.ballerinalang.test.services.testutils.MessageUtils;
@@ -226,7 +226,8 @@ public class ServiceTest {
         Assert.assertNotNull(responseMsg, "responseMsg message not found");
         BJSON bJson = new BJSON(new HttpMessageDataStreamer(responseMsg).getInputStream());
         Assert.assertNotNull(bJson);
-        Assert.assertNull(bJson.value().get("Name").stringValue());
+        Assert.assertEquals(bJson.value().get("Name").asText(), "WSO2"
+                , "Name variable not set properly.");
         Assert.assertNull(bJson.value().get("Team").stringValue());
     }
 
@@ -237,7 +238,7 @@ public class ServiceTest {
         HTTPCarbonMessage responseMsg = Services.invokeNew(compileResult, requestMsg);
 
         Assert.assertNotNull(responseMsg, "responseMsg message not found");
-        Assert.assertEquals(responseMsg.getProperty(Constants.HTTP_STATUS_CODE), 204);
+        Assert.assertEquals(responseMsg.getProperty(HttpConstants.HTTP_STATUS_CODE), 204);
     }
 
     @Test(description = "Test Http PATCH verb dispatching without a responseMsgPayload")
@@ -247,7 +248,7 @@ public class ServiceTest {
         HTTPCarbonMessage responseMsg = Services.invokeNew(compileResult, requestMsg);
 
         Assert.assertNotNull(responseMsg, "responseMsg message not found");
-        Assert.assertEquals(responseMsg.getProperty(Constants.HTTP_STATUS_CODE), 204);
+        Assert.assertEquals(responseMsg.getProperty(HttpConstants.HTTP_STATUS_CODE), 204);
     }
 
     //TODO: add more test cases

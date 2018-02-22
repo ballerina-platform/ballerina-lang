@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (c) 2017, WSO2 Inc. (http://wso2.com) All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,14 +15,17 @@
  */
 package org.ballerinalang.langserver;
 
+import org.ballerinalang.langserver.common.constants.NodeContextKeys;
+import org.ballerinalang.langserver.common.position.PositionTreeVisitor;
 import org.ballerinalang.langserver.completions.CompletionKeys;
 import org.ballerinalang.langserver.completions.TreeVisitor;
-import org.ballerinalang.langserver.completions.consts.CompletionItemResolver;
 import org.ballerinalang.langserver.completions.resolvers.TopLevelResolver;
+import org.ballerinalang.langserver.completions.util.CompletionItemResolver;
 import org.ballerinalang.langserver.definition.util.DefinitionUtil;
-import org.ballerinalang.langserver.hover.HoverTreeVisitor;
 import org.ballerinalang.langserver.hover.util.HoverUtil;
+import org.ballerinalang.langserver.references.util.ReferenceUtil;
 import org.ballerinalang.langserver.signature.SignatureHelpUtil;
+import org.ballerinalang.langserver.signature.SignatureTreeVisitor;
 import org.ballerinalang.langserver.symbols.SymbolFindingVisitor;
 import org.ballerinalang.langserver.util.Debouncer;
 import org.ballerinalang.langserver.workspace.WorkspaceDocumentManager;
@@ -172,17 +175,10 @@ public class BallerinaTextDocumentService implements TextDocumentService {
             SignatureHelp signatureHelp;
             try {
                 BLangPackage bLangPackage = TextDocumentServiceUtil.getBLangPackage(signatureContext, documentManager);
-                CompilerContext compilerContext = signatureContext.get(DocumentServiceKeys.COMPILER_CONTEXT_KEY);
-                // TODO: Gracefully handle this package loading with a proper API
-                
-                SignatureHelpUtil.getSystemPkgIDs().forEach(packageID -> {
-                    if (!bLangPackageContext.containsPackage(packageID)) {
-                        bLangPackageContext.addPackage(BallerinaPackageLoader
-                                .getPackageByName(compilerContext, packageID));
-                    }
-                });
-                bLangPackageContext.addPackage(bLangPackage);
-                signatureHelp = SignatureHelpUtil.getFunctionSignatureHelp(signatureContext, bLangPackageContext);
+                SignatureTreeVisitor signatureTreeVisitor = new SignatureTreeVisitor(signatureContext);
+                bLangPackage.accept(signatureTreeVisitor);
+                signatureContext.put(DocumentServiceKeys.B_LANG_PACKAGE_CONTEXT_KEY, bLangPackageContext);
+                signatureHelp = SignatureHelpUtil.getFunctionSignatureHelp(signatureContext);
             } catch (Exception e) {
                 signatureHelp = new SignatureHelp();
             }
@@ -192,21 +188,20 @@ public class BallerinaTextDocumentService implements TextDocumentService {
 
     @Override
     public CompletableFuture<List<? extends Location>> definition(TextDocumentPositionParams position) {
-
         return CompletableFuture.supplyAsync(() -> {
-            TextDocumentServiceContext hoverContext = new TextDocumentServiceContext();
-            hoverContext.put(DocumentServiceKeys.FILE_URI_KEY, position.getTextDocument().getUri());
-            hoverContext.put(DocumentServiceKeys.POSITION_KEY, position);
+            TextDocumentServiceContext definitionContext = new TextDocumentServiceContext();
+            definitionContext.put(DocumentServiceKeys.FILE_URI_KEY, position.getTextDocument().getUri());
+            definitionContext.put(DocumentServiceKeys.POSITION_KEY, position);
 
             BLangPackage currentBLangPackage =
-                    TextDocumentServiceUtil.getBLangPackage(hoverContext, documentManager);
+                    TextDocumentServiceUtil.getBLangPackage(definitionContext, documentManager);
             bLangPackageContext.addPackage(currentBLangPackage);
             List<Location> contents;
             try {
-                HoverTreeVisitor hoverTreeVisitor = new HoverTreeVisitor(hoverContext);
-                currentBLangPackage.accept(hoverTreeVisitor);
+                PositionTreeVisitor positionTreeVisitor = new PositionTreeVisitor(definitionContext);
+                currentBLangPackage.accept(positionTreeVisitor);
 
-                contents = DefinitionUtil.getDefinitionPosition(hoverContext, currentBLangPackage);
+                contents = DefinitionUtil.getDefinitionPosition(definitionContext, bLangPackageContext);
             } catch (Exception e) {
                 contents = new ArrayList<>();
             }
@@ -216,7 +211,27 @@ public class BallerinaTextDocumentService implements TextDocumentService {
 
     @Override
     public CompletableFuture<List<? extends Location>> references(ReferenceParams params) {
-        return CompletableFuture.supplyAsync(() -> null);
+        return CompletableFuture.supplyAsync(() -> {
+            TextDocumentServiceContext referenceContext = new TextDocumentServiceContext();
+            referenceContext.put(DocumentServiceKeys.FILE_URI_KEY, params.getTextDocument().getUri());
+            referenceContext.put(DocumentServiceKeys.POSITION_KEY, params);
+
+            BLangPackage currentBLangPackage =
+                    TextDocumentServiceUtil.getBLangPackage(referenceContext, documentManager);
+            bLangPackageContext.addPackage(currentBLangPackage);
+
+            List<Location> contents = new ArrayList<>();
+            referenceContext.put(NodeContextKeys.REFERENCE_NODES_KEY, contents);
+            try {
+                PositionTreeVisitor positionTreeVisitor = new PositionTreeVisitor(referenceContext);
+                currentBLangPackage.accept(positionTreeVisitor);
+                contents = ReferenceUtil.getReferences(referenceContext, bLangPackageContext);
+            } catch (Exception e) {
+                // Ignore
+            }
+
+            return contents;
+        });
     }
 
     @Override
@@ -228,7 +243,7 @@ public class BallerinaTextDocumentService implements TextDocumentService {
     @Override
     public CompletableFuture<List<? extends SymbolInformation>> documentSymbol(DocumentSymbolParams params) {
         String uri = params.getTextDocument().getUri();
-        List<SymbolInformation> symbols = new ArrayList<SymbolInformation>();
+        List<SymbolInformation> symbols = new ArrayList<>();
 
         TextDocumentServiceContext symbolsContext = new TextDocumentServiceContext();
         symbolsContext.put(DocumentServiceKeys.FILE_URI_KEY, uri);
@@ -252,10 +267,7 @@ public class BallerinaTextDocumentService implements TextDocumentService {
     public CompletableFuture<List<? extends Command>> codeAction(CodeActionParams params) {
         return CompletableFuture.supplyAsync(() ->
                 params.getContext().getDiagnostics().stream()
-                        .map(diagnostic -> {
-                            List<Command> res = new ArrayList<>();
-                            return res.stream();
-                        })
+                        .map(diagnostic -> new ArrayList<Command>().stream())
                         .flatMap(it -> it)
                         .collect(Collectors.toList())
         );
@@ -427,7 +439,7 @@ public class BallerinaTextDocumentService implements TextDocumentService {
         } catch (URISyntaxException | MalformedURLException e) {
             // Do Nothing
         }
-        
+
         return path;
     }
 }

@@ -15,12 +15,11 @@
   ~ specific language governing permissions and limitations
   ~ under the License.
   -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
         <groupId>org.ballerinalang</groupId>
         <artifactId>ballerina-parent</artifactId>
-        <version>0.96.1-SNAPSHOT</version>
+        <version>0.961.1-SNAPSHOT</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
 
@@ -28,7 +27,6 @@
 
     <groupId>org.ballerinalang</groupId>
     <artifactId>ballerina-maven-plugins</artifactId>
-    <version>0.96.1-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>Ballerina - Maven Plugins - Parent</name>
@@ -61,11 +59,6 @@
                 <version>4.8.2</version>
                 <scope>test</scope>
             </dependency>
-            <dependency>
-                <groupId>org.ballerinalang</groupId>
-                <artifactId>docerina</artifactId>
-                <version>${docerina.version}</version>
-            </dependency>
         </dependencies>
     </dependencyManagement>
 
@@ -81,6 +74,5 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <docerina.version>${project.version}</docerina.version>
     </properties>
 </project>

@@ -32,7 +32,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BAnyType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BBuiltInRefType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BConnectorType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BErrorType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
@@ -41,8 +40,10 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BNoType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BNullType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStructType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BXMLAttributesType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BXMLType;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Name;
@@ -78,8 +79,8 @@ public class SymbolTable {
     public final BType blobType = new BType(TypeTags.BLOB, null);
     public final BType typeType = new BType(TypeTags.TYPE, null);
     public final BType jsonType = new BJSONType(TypeTags.JSON, noType, null);
-    public final BType xmlType = new BBuiltInRefType(TypeTags.XML, null);
-    public final BType datatableType = new BBuiltInRefType(TypeTags.DATATABLE, null);
+    public final BType xmlType = new BXMLType(TypeTags.XML, null);
+    public final BType tableType = new BTableType(TypeTags.TABLE, noType, null);
     public final BType anyType = new BAnyType(TypeTags.ANY, null);
     public final BType mapType = new BMapType(TypeTags.MAP, anyType, null);
     public final BType nullType = new BNullType();
@@ -92,14 +93,11 @@ public class SymbolTable {
     public final BType errType;
 
     public BStructType errStructType;
-    public BStructType errTypeConversionType;
-    public BStructType errTypeCastType;
 
     public BPackageSymbol builtInPackageSymbol;
+    public BPackageSymbol runtimePackageSymbol;
 
     private Names names;
-
-    private CompilerContext context;
 
     public static SymbolTable getInstance(CompilerContext context) {
         SymbolTable symTable = context.get(SYM_TABLE_KEY);
@@ -111,8 +109,7 @@ public class SymbolTable {
     }
 
     private SymbolTable(CompilerContext context) {
-        this.context = context;
-        this.context.put(SYM_TABLE_KEY, this);
+        context.put(SYM_TABLE_KEY, this);
 
         this.names = Names.getInstance(context);
 
@@ -133,7 +130,7 @@ public class SymbolTable {
         initializeType(typeType, TypeKind.TYPE.typeName());
         initializeType(jsonType, TypeKind.JSON.typeName());
         initializeType(xmlType, TypeKind.XML.typeName());
-        initializeType(datatableType, TypeKind.DATATABLE.typeName());
+        initializeType(tableType, TypeKind.TABLE.typeName());
         initializeType(mapType, TypeKind.MAP.typeName());
         initializeType(anyType, TypeKind.ANY.typeName());
 
@@ -142,15 +139,15 @@ public class SymbolTable {
         this.errSymbol = new BTypeSymbol(SymTag.ERROR, Flags.PUBLIC, Names.INVALID,
                 rootPkgSymbol.pkgID, errType, rootPkgSymbol);
         defineType(errType, errSymbol);
-    }
 
-    public void createErrorTypes() {
-        this.errStructType = (BStructType) rootScope.lookup(Names.ERROR).symbol.type;
-        this.errTypeCastType = (BStructType) rootScope.lookup(Names.ERROR_TYPE_CAST).symbol.type;
-        this.errTypeConversionType = (BStructType) rootScope.lookup(Names.ERROR_TYPE_CONVERSION).symbol.type;
-    }
+        // Initialize Ballerina error struct type temporally.
+        BTypeSymbol errorStructSymbol = new BTypeSymbol(SymTag.STRUCT, Flags.PUBLIC, Names.ERROR,
+                rootPkgSymbol.pkgID, null, rootPkgSymbol);
+        this.errStructType = new BStructType(errorStructSymbol);
+        errorStructSymbol.type = this.errStructType;
+        errorStructSymbol.scope = new Scope(errorStructSymbol);
+        defineType(this.errStructType, errorStructSymbol);
 
-    public void loadOperators() {
         // Define all operators e.g. binary, unary, cast and conversion
         defineOperators();
     }
@@ -171,8 +168,8 @@ public class SymbolTable {
                 return jsonType;
             case TypeTags.XML:
                 return xmlType;
-            case TypeTags.DATATABLE:
-                return datatableType;
+            case TypeTags.TABLE:
+                return tableType;
             case TypeTags.NULL:
                 return nullType;
             default:
@@ -236,8 +233,8 @@ public class SymbolTable {
         defineBinaryOperator(OperatorKind.EQUAL, nullType, jsonType, booleanType, InstructionCodes.REQ);
         defineBinaryOperator(OperatorKind.EQUAL, xmlType, nullType, booleanType, InstructionCodes.REQ);
         defineBinaryOperator(OperatorKind.EQUAL, nullType, xmlType, booleanType, InstructionCodes.REQ);
-        defineBinaryOperator(OperatorKind.EQUAL, datatableType, nullType, booleanType, InstructionCodes.REQ);
-        defineBinaryOperator(OperatorKind.EQUAL, nullType, datatableType, booleanType, InstructionCodes.REQ);
+        defineBinaryOperator(OperatorKind.EQUAL, tableType, nullType, booleanType, InstructionCodes.REQ);
+        defineBinaryOperator(OperatorKind.EQUAL, nullType, tableType, booleanType, InstructionCodes.REQ);
         defineBinaryOperator(OperatorKind.EQUAL, anyType, nullType, booleanType, InstructionCodes.REQ);
         defineBinaryOperator(OperatorKind.EQUAL, nullType, anyType, booleanType, InstructionCodes.REQ);
         defineBinaryOperator(OperatorKind.EQUAL, mapType, nullType, booleanType, InstructionCodes.REQ);
@@ -258,8 +255,8 @@ public class SymbolTable {
         defineBinaryOperator(OperatorKind.NOT_EQUAL, nullType, jsonType, booleanType, InstructionCodes.RNE);
         defineBinaryOperator(OperatorKind.NOT_EQUAL, xmlType, nullType, booleanType, InstructionCodes.RNE);
         defineBinaryOperator(OperatorKind.NOT_EQUAL, nullType, xmlType, booleanType, InstructionCodes.RNE);
-        defineBinaryOperator(OperatorKind.NOT_EQUAL, datatableType, nullType, booleanType, InstructionCodes.RNE);
-        defineBinaryOperator(OperatorKind.NOT_EQUAL, nullType, datatableType, booleanType, InstructionCodes.RNE);
+        defineBinaryOperator(OperatorKind.NOT_EQUAL, tableType, nullType, booleanType, InstructionCodes.RNE);
+        defineBinaryOperator(OperatorKind.NOT_EQUAL, nullType, tableType, booleanType, InstructionCodes.RNE);
         defineBinaryOperator(OperatorKind.NOT_EQUAL, anyType, nullType, booleanType, InstructionCodes.RNE);
         defineBinaryOperator(OperatorKind.NOT_EQUAL, nullType, anyType, booleanType, InstructionCodes.RNE);
         defineBinaryOperator(OperatorKind.NOT_EQUAL, mapType, nullType, booleanType, InstructionCodes.RNE);
@@ -341,7 +338,7 @@ public class SymbolTable {
         defineExplicitCastOperator(anyType, jsonType, false, InstructionCodes.ANY2JSON);
         defineExplicitCastOperator(anyType, xmlType, false, InstructionCodes.ANY2XML);
         defineExplicitCastOperator(anyType, mapType, false, InstructionCodes.ANY2MAP);
-        defineExplicitCastOperator(anyType, datatableType, false, InstructionCodes.ANY2DT);
+        defineExplicitCastOperator(anyType, tableType, false, InstructionCodes.ANY2DT);
 
         defineExplicitCastOperator(jsonType, intType, false, InstructionCodes.JSON2I);
         defineExplicitCastOperator(jsonType, floatType, false, InstructionCodes.JSON2F);
@@ -363,8 +360,8 @@ public class SymbolTable {
         defineConversionOperator(booleanType, stringType, true, InstructionCodes.B2S);
         defineConversionOperator(booleanType, intType, true, InstructionCodes.B2I);
         defineConversionOperator(booleanType, floatType, true, InstructionCodes.B2F);
-        defineConversionOperator(datatableType, xmlType, false, InstructionCodes.DT2XML);
-        defineConversionOperator(datatableType, jsonType, false, InstructionCodes.DT2JSON);
+        defineConversionOperator(tableType, xmlType, false, InstructionCodes.DT2XML);
+        defineConversionOperator(tableType, jsonType, false, InstructionCodes.DT2JSON);
         defineConversionOperator(xmlAttributesType, mapType, true, InstructionCodes.XMLATTRS2MAP);
         defineConversionOperator(stringType, xmlType, false, InstructionCodes.S2XML);
         defineConversionOperator(xmlType, stringType, true, InstructionCodes.XML2S);
@@ -410,7 +407,7 @@ public class SymbolTable {
                                     boolean safe,
                                     int opcode) {
         List<BType> paramTypes = Lists.of(sourceType, targetType);
-        List<BType> retTypes = Lists.of(targetType, this.errTypeCastType);
+        List<BType> retTypes = Lists.of(targetType, this.errStructType);
         BInvokableType opType = new BInvokableType(paramTypes, retTypes, null);
         BCastOperatorSymbol symbol = new BCastOperatorSymbol(this.rootPkgSymbol.pkgID, opType, this.rootPkgSymbol,
                 implicit, safe, opcode);
@@ -427,7 +424,7 @@ public class SymbolTable {
         if (safe) {
             retTypes = Lists.of(targetType);
         } else {
-            retTypes = Lists.of(targetType, this.errTypeConversionType);
+            retTypes = Lists.of(targetType, this.errStructType);
         }
         BInvokableType opType = new BInvokableType(paramTypes, retTypes, null);
         BConversionOperatorSymbol symbol = new BConversionOperatorSymbol(this.rootPkgSymbol.pkgID, opType,

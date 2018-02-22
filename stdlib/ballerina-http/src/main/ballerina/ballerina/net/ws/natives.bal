@@ -47,6 +47,11 @@ public struct HandshakeConnection {
     map<string> upgradeHeaders;
 }
 
+@Description {value:"Gets the query parameters from the HandshakeConnection as a map"}
+@Param {value:"req: The HandshakeConnection struct" }
+@Return {value:"The map of query params" }
+public native function <HandshakeConnection conn> getQueryParams () (map);
+
 @Description {value:"Cancels the handshake"}
 @Param {value:"conn: A HandshakeConnection struct"}
 @Param {value:"statusCode: Status code for closing the connection"}
@@ -121,6 +126,10 @@ public native function <Connection conn> pong(blob data);
 @Param {value:"reason: Reason for closing the connection"}
 public native function <Connection conn> closeConnection(int statusCode, string reason);
 
+@Description {value:"Gets the query parameters from the Connection as a map"}
+@Param {value:"req: The Connection struct" }
+@Return {value:"The map of query params" }
+public native function <Connection conn> getQueryParams () (map);
 
 @Description {value:"Configuration struct for WebSocket client connection"}
 @Field {value: "subProtocols: Negotiable sub protocols for the client"}
@@ -135,13 +144,11 @@ public struct ClientConnectorConfig {
 }
 
 @Description {value: "Error struct for WebSocket connection errors"}
-@Field {value:"msg:  An error message explaining the error"}
+@Field {value:"message:  An error message explaining the error"}
 @Field {value:"cause: The error that caused HttpConnectorError to be returned"}
-@Field {value:"stackTrace: Represents the invocation stack if WsConnectorError is thrown"}
 public struct WsConnectorError {
-    string msg;
+    string message;
     error cause;
-    StackFrame[] stackTrace;
 }
 
 @Description {value:"WebSocket client connector for connecting to a WebSocket backend"}

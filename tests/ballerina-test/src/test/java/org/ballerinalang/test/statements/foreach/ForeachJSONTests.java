@@ -89,7 +89,7 @@ public class ForeachJSONTests {
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*error: NullReferenceException.*")
+            expectedExceptionsMessageRegExp = ".*error:.*NullReferenceException.*")
     public void testJSONNull() {
         String result = "";
         BValue[] returns = BRunUtil.invoke(program, "testJSONNull");

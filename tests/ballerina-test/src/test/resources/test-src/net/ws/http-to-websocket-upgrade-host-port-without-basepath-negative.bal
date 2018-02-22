@@ -1,3 +1,4 @@
+import ballerina.io;
 import ballerina.net.http;
 import ballerina.net.ws;
 
@@ -19,7 +20,7 @@ service<http> httpService {
 
         http:OutResponse resp = {};
         string payload = req.getStringPayload();
-        println(payload);
+        io:println(payload);
         resp.setStringPayload("I received");
         _ = conn.respond(resp);
     }
@@ -33,15 +34,15 @@ service<http> httpService {
 service<ws> wsService  {
 
     resource onOpen(ws:Connection conn) {
-        println("New WebSocket connection: " + conn.getID());
+        io:println("New WebSocket connection: " + conn.getID());
     }
 
     resource onTextMessage(ws:Connection conn, ws:TextFrame frame) {
-        println(frame.text);
+        io:println(frame.text);
         conn.pushText(frame.text);
     }
 
     resource onIdleTimeout(ws:Connection conn) {
-        println("Idle timeout: " + conn.getID());
+        io:println("Idle timeout: " + conn.getID());
     }
 }

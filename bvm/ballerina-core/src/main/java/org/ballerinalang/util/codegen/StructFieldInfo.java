@@ -36,15 +36,18 @@ public class StructFieldInfo implements AttributeInfoPool {
     private int signatureCPIndex;
     private String typeSignature;
 
+    public int flags;
+
     private BType fieldType;
 
     private Map<AttributeInfo.Kind, AttributeInfo> attributeInfoMap = new HashMap<>();
 
-    public StructFieldInfo(int nameCPIndex, String name, int signatureCPIndex, String typeSignature) {
+    public StructFieldInfo(int nameCPIndex, String name, int signatureCPIndex, String typeSignature, int flags) {
         this.nameCPIndex = nameCPIndex;
         this.name = name;
         this.signatureCPIndex = signatureCPIndex;
         this.typeSignature = typeSignature;
+        this.flags = flags;
     }
 
     public int getNameCPIndex() {

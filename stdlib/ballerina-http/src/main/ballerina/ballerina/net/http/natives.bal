@@ -41,7 +41,7 @@ public native function <Connection conn> getSession () (Session);
 @Field {value:"httpVersion: The version of HTTP"}
 @Field {value:"userAgent: User-Agent request header"}
 public struct InRequest {
-	string path;
+	string rawPath;
 	string method;
 	string httpVersion;
 	string userAgent;
@@ -63,16 +63,6 @@ native function <InRequest req> getEntityWithoutBody () (mime:Entity);
 @Return { value:"Entity of the request" }
 public native function <InRequest req> setEntity (mime:Entity entity);
 
-@Description { value:"Gets the request URL from the request"}
-@Param { value:"req: The inbound request message" }
-@Return { value:"The request URL value" }
-public native function <InRequest req> getRequestURL () (string);
-
-@Description { value:"Gets the HTTP method from the request"}
-@Param { value:"req: The inbound request message" }
-@Return { value:"The HTTP request method associated with the request" }
-public native function <InRequest req> getMethod () (string);
-
 @Description { value:"Gets the query parameters from the HTTP request as a map"}
 @Param { value:"req: The inbound request message" }
 @Return { value:"The map of query params" }
@@ -83,6 +73,12 @@ public native function <InRequest req> getQueryParams () (map);
 @Param { value:"propertyName: The name of the property" }
 @Return { value:"The property value" }
 public native function <InRequest req> getProperty (string propertyName) (string);
+
+@Description { value: "Get matrix parameters from the request"}
+@Param { value:"req: The inbound request message" }
+@Param { value: "path: Path to the location of matrix parameters"}
+@Return { value: "A map of matrix paramters which can be found for a given path"}
+public native function <InRequest req> getMatrixParams (string path) (map);
 
 @Description { value:"Represents an HTTP outbound request message"}
 public struct OutRequest {
@@ -140,11 +136,6 @@ native function <InResponse res> getEntityWithoutBody () (mime:Entity);
 @Return { value:"Entity of the response" }
 public native function <InResponse res> setEntity (mime:Entity entity);
 
-@Description { value:"Gets the HTTP status code from the response"}
-@Param { value:"res: The inbound response message" }
-@Return { value:"HTTP status code of the response" }
-public native function <InResponse res> getStatusCode () (int);
-
 @Description { value:"Retrieve a response property"}
 @Param { value:"res: The inbound response message" }
 @Param { value:"propertyName: The name of the property" }
@@ -185,6 +176,13 @@ public native function <OutResponse res> setProperty (string propertyName, strin
 @Param { value:"propertyName: The name of the property" }
 @Return { value:"The property value" }
 public native function <OutResponse res> getProperty (string propertyName) (string);
+
+@Description { value:"Parse headerValue and return value with parameter map"}
+@Param { value:"headerValue: The header value" }
+@Return { value:"The header value" }
+@Return { value:"The header value parameter map" }
+@Return { value:"Error occured during header parsing" }
+public native function parseHeader (string headerValue)(string, map, error);
 
 @Description { value:"Represents an HTTP Session"}
 public struct Session {
@@ -252,15 +250,13 @@ public native function <Session session> getMaxInactiveInterval () (int);
 public native function <Session session> setMaxInactiveInterval (int timeInterval);
 
 @Description { value:"HttpConnectorError struct represents an error occured during the HTTP client invocation" }
-@Field {value:"msg:  An error message explaining about the error"}
+@Field {value:"message:  An error message explaining about the error"}
 @Field {value:"cause: The error that caused HttpConnectorError to get thrown"}
-@Field {value:"stackTrace: Represents the invocation stack when HttpConnectorError is thrown"}
 @Field {value:"statusCode: HTTP status code"}
 public struct HttpConnectorError {
-	string msg;
-	error cause;
-	StackFrame[] stackTrace;
-	int statusCode;
+    string message;
+    error cause;
+    int statusCode;
 }
 
 @Description { value:"Retry struct represents retry related options for HTTP client invocation" }
@@ -279,6 +275,10 @@ public struct Retry {
 @Field {value:"sslEnabledProtocols: SSL/TLS protocols to be enabled. eg: TLSv1,TLSv1.1,TLSv1.2"}
 @Field {value:"ciphers: List of ciphers to be used. eg: TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA"}
 @Field {value:"sslProtocol: SSL Protocol to be used. eg: TLS1.2"}
+@Field {value:"validateCertEnabled: The status of validateCertEnabled {default value : false (disable)}"}
+@Field {value:"cacheSize: Maximum size of the cache"}
+@Field {value:"cacheValidityPeriod: Time duration of cache validity period"}
+@Field {value:"hostNameVerificationEnabled: Enable/disable host name verification. {default value : true (enable)}"}
 public struct SSL {
     string trustStoreFile;
     string trustStorePassword;
@@ -287,6 +287,10 @@ public struct SSL {
     string sslEnabledProtocols;
     string ciphers;
     string sslProtocol;
+    boolean validateCertEnabled;
+    int cacheSize;
+    int cacheValidityPeriod;
+    boolean hostNameVerificationEnabled;
 }
 
 @Description { value:"FollowRedirects struct represents HTTP redirect related options to be used for HTTP client invocation" }

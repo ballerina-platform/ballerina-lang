@@ -52,7 +52,7 @@ import java.util.Calendar;
 import java.util.List;
 
 /**
- * This iterator mainly wrap java.sql.ResultSet. This will provide datatable operations
+ * This iterator mainly wrap java.sql.ResultSet. This will provide table operations
  * related to ballerina.data.actions.sql connector.
  *
  * @since 0.8.0
@@ -452,7 +452,7 @@ public class SQLDataIterator implements DataIterator {
     }
 
     /**
-     * This represents a column definition for a column in a datatable.
+     * This represents a column definition for a column in a table.
      */
     public static class SQLColumnDefinition extends ColumnDefinition {
 

@@ -11,7 +11,7 @@ service<http> passthrough {
             create http:HttpClient("http://localhost:9090/echo", {});
         }
         //Extract HTTP method from the inbound request.
-        string method = req.getMethod();
+        string method = req.method;
         http:InResponse clientResponse = {};
         http:HttpConnectorError err;
         //Action forward() does a backend client call and returns the response. It includes endPoint, resource path and inbound request as parameters.
@@ -20,7 +20,7 @@ service<http> passthrough {
         http:OutResponse res = {};
         if (err != null) {
             res.statusCode = 500;
-            res.setStringPayload(err.msg);
+            res.setStringPayload(err.message);
             _ = conn.respond(res);
         } else {
             _ = conn.forward(clientResponse);

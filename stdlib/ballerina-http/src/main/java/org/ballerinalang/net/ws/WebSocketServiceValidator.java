@@ -24,6 +24,7 @@ import org.ballerinalang.connector.api.BallerinaConnectorException;
 import org.ballerinalang.connector.api.ParamDetail;
 import org.ballerinalang.connector.api.Resource;
 import org.ballerinalang.model.types.BStringType;
+import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.HttpUtil;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
@@ -35,20 +36,21 @@ import java.util.List;
 public class WebSocketServiceValidator {
 
     public static boolean validateClientService(WebSocketService wsService) {
-        if (HttpUtil.getServiceConfigAnnotation(wsService, Constants.PROTOCOL_PACKAGE_WS) != null) {
+        if (HttpUtil.getServiceConfigAnnotation(wsService, WebSocketConstants.PROTOCOL_PACKAGE_WS) != null) {
             throw new BallerinaException(
                     String.format("Cannot define %s:%s annotation for WebSocket client service",
-                                  Constants.PROTOCOL_PACKAGE_WS, Constants.ANNOTATION_CONFIGURATION));
+                                  WebSocketConstants.PROTOCOL_PACKAGE_WS, WebSocketConstants.ANNOTATION_CONFIGURATION));
         }
         return validateResources(wsService.getName(), wsService.getResources(), true);
     }
 
     public static boolean validateServiceEndpoint(WebSocketService wsService) {
-        if (wsService.getAnnotationList(Constants.PROTOCOL_PACKAGE_WS,
-                                        Constants.ANNOTATION_WEBSOCKET_CLIENT_SERVICE) != null) {
+        if (wsService.getAnnotationList(WebSocketConstants.PROTOCOL_PACKAGE_WS,
+                                        WebSocketConstants.ANNOTATION_WEBSOCKET_CLIENT_SERVICE) != null) {
             throw new BallerinaException(
                     String.format("Cannot define %s:%s annotation for WebSocket client service",
-                                  Constants.PROTOCOL_PACKAGE_WS, Constants.ANNOTATION_WEBSOCKET_CLIENT_SERVICE));
+                                  WebSocketConstants.PROTOCOL_PACKAGE_WS,
+                                  WebSocketConstants.ANNOTATION_WEBSOCKET_CLIENT_SERVICE));
         }
         validateConfigAnnotation(wsService);
         return validateResources(wsService.getName(), wsService.getResources(), false);
@@ -58,28 +60,28 @@ public class WebSocketServiceValidator {
         for (Resource resource : resources) {
             String resourceName = resource.getName();
             switch (resourceName) {
-                case Constants.RESOURCE_NAME_ON_HANDSHAKE:
+                case WebSocketConstants.RESOURCE_NAME_ON_HANDSHAKE:
                     validateOnHandshakeResource(serviceName, resource, isClientService);
                     break;
-                case Constants.RESOURCE_NAME_ON_OPEN:
+                case WebSocketConstants.RESOURCE_NAME_ON_OPEN:
                     validateOnOpenResource(serviceName, resource, isClientService);
                     break;
-                case Constants.RESOURCE_NAME_ON_TEXT_MESSAGE:
+                case WebSocketConstants.RESOURCE_NAME_ON_TEXT_MESSAGE:
                     validateOnTextMessageResource(serviceName, resource, isClientService);
                     break;
-                case Constants.RESOURCE_NAME_ON_BINARY_MESSAGE:
+                case WebSocketConstants.RESOURCE_NAME_ON_BINARY_MESSAGE:
                     validateOnBinaryMessageResource(serviceName, resource, isClientService);
                     break;
-                case Constants.RESOURCE_NAME_ON_PING:
+                case WebSocketConstants.RESOURCE_NAME_ON_PING:
                     validateOnPingResource(serviceName, resource, isClientService);
                     break;
-                case Constants.RESOURCE_NAME_ON_PONG:
+                case WebSocketConstants.RESOURCE_NAME_ON_PONG:
                     validateOnPongResource(serviceName, resource, isClientService);
                     break;
-                case Constants.RESOURCE_NAME_ON_IDLE_TIMEOUT:
+                case WebSocketConstants.RESOURCE_NAME_ON_IDLE_TIMEOUT:
                     validateOnIdleTimeoutResource(serviceName, resource, isClientService);
                     break;
-                case Constants.RESOURCE_NAME_ON_CLOSE:
+                case WebSocketConstants.RESOURCE_NAME_ON_CLOSE:
                     validateOnCloseResource(serviceName, resource, isClientService);
                     break;
                 default:
@@ -91,13 +93,13 @@ public class WebSocketServiceValidator {
 
     private static void validateConfigAnnotation(WebSocketService wsService) {
         Annotation configAnnotation =
-                HttpUtil.getServiceConfigAnnotation(wsService, Constants.PROTOCOL_PACKAGE_WS);
+                HttpUtil.getServiceConfigAnnotation(wsService, WebSocketConstants.PROTOCOL_PACKAGE_WS);
         if (configAnnotation == null) {
             return;
         }
-        AnnAttrValue basePath = configAnnotation.getAnnAttrValue(Constants.ANN_CONFIG_ATTR_BASE_PATH);
-        AnnAttrValue host = configAnnotation.getAnnAttrValue(Constants.ANN_CONFIG_ATTR_HOST);
-        AnnAttrValue port = configAnnotation.getAnnAttrValue(Constants.ANN_CONFIG_ATTR_PORT);
+        AnnAttrValue basePath = configAnnotation.getAnnAttrValue(HttpConstants.ANN_CONFIG_ATTR_BASE_PATH);
+        AnnAttrValue host = configAnnotation.getAnnAttrValue(HttpConstants.ANN_CONFIG_ATTR_HOST);
+        AnnAttrValue port = configAnnotation.getAnnAttrValue(HttpConstants.ANN_CONFIG_ATTR_PORT);
         if (basePath == null && (host != null || port != null)) {
             String msg = String.format("service %s: cannot define host, port configurations without base path",
                                        wsService.getName());
@@ -113,78 +115,78 @@ public class WebSocketServiceValidator {
      */
     public static boolean isWebSocketClientService(WebSocketService service) {
         List<Annotation> annotationList = service.getAnnotationList(
-                Constants.PROTOCOL_PACKAGE_WS, Constants.ANNOTATION_WEBSOCKET_CLIENT_SERVICE);
+                WebSocketConstants.PROTOCOL_PACKAGE_WS, WebSocketConstants.ANNOTATION_WEBSOCKET_CLIENT_SERVICE);
         return !(annotationList == null);
     }
 
     private static void validateOnHandshakeResource(String serviceName, Resource resource, boolean isClientService) {
         List<ParamDetail> paramDetails = resource.getParamDetails();
         validateParamDetailsSize(paramDetails, 1, serviceName, resource.getName(), isClientService);
-        validateStructType(resource.getName(), paramDetails.get(0), Constants.PROTOCOL_PACKAGE_WS,
-                           Constants.STRUCT_WEBSOCKET_HANDSHAKE_CONNECTION);
+        validateStructType(resource.getName(), paramDetails.get(0), WebSocketConstants.PROTOCOL_PACKAGE_WS,
+                           WebSocketConstants.STRUCT_WEBSOCKET_HANDSHAKE_CONNECTION);
     }
 
     private static void validateOnOpenResource(String serviceName, Resource resource, boolean isClientService) {
         List<ParamDetail> paramDetails = resource.getParamDetails();
         validateParamDetailsSize(paramDetails, 1, serviceName, resource.getName(), isClientService);
-        validateStructType(resource.getName(), paramDetails.get(0), Constants.PROTOCOL_PACKAGE_WS,
-                           Constants.STRUCT_WEBSOCKET_CONNECTION);
+        validateStructType(resource.getName(), paramDetails.get(0), WebSocketConstants.PROTOCOL_PACKAGE_WS,
+                           WebSocketConstants.STRUCT_WEBSOCKET_CONNECTION);
     }
 
     private static void validateOnTextMessageResource(String serviceName, Resource resource, boolean isClientService) {
         List<ParamDetail> paramDetails = resource.getParamDetails();
         validateParamDetailsSize(paramDetails, 2, serviceName, resource.getName(), isClientService);
-        validateStructType(resource.getName(), paramDetails.get(0), Constants.PROTOCOL_PACKAGE_WS,
-                           Constants.STRUCT_WEBSOCKET_CONNECTION);
-        validateStructType(resource.getName(), paramDetails.get(1), Constants.PROTOCOL_PACKAGE_WS,
-                           Constants.STRUCT_WEBSOCKET_TEXT_FRAME);
+        validateStructType(resource.getName(), paramDetails.get(0), WebSocketConstants.PROTOCOL_PACKAGE_WS,
+                           WebSocketConstants.STRUCT_WEBSOCKET_CONNECTION);
+        validateStructType(resource.getName(), paramDetails.get(1), WebSocketConstants.PROTOCOL_PACKAGE_WS,
+                           WebSocketConstants.STRUCT_WEBSOCKET_TEXT_FRAME);
     }
 
     private static void validateOnBinaryMessageResource(String serviceName, Resource resource,
                                                         boolean isClientService) {
         List<ParamDetail> paramDetails = resource.getParamDetails();
         validateParamDetailsSize(paramDetails, 2, serviceName, resource.getName(), isClientService);
-        validateStructType(resource.getName(), paramDetails.get(0), Constants.PROTOCOL_PACKAGE_WS,
-                           Constants.STRUCT_WEBSOCKET_CONNECTION);
-        validateStructType(resource.getName(), paramDetails.get(1), Constants.PROTOCOL_PACKAGE_WS,
-                           Constants.STRUCT_WEBSOCKET_BINARY_FRAME);
+        validateStructType(resource.getName(), paramDetails.get(0), WebSocketConstants.PROTOCOL_PACKAGE_WS,
+                           WebSocketConstants.STRUCT_WEBSOCKET_CONNECTION);
+        validateStructType(resource.getName(), paramDetails.get(1), WebSocketConstants.PROTOCOL_PACKAGE_WS,
+                           WebSocketConstants.STRUCT_WEBSOCKET_BINARY_FRAME);
 
     }
 
     private static void validateOnPingResource(String serviceName, Resource resource, boolean isClientService) {
         List<ParamDetail> paramDetails = resource.getParamDetails();
         validateParamDetailsSize(paramDetails, 2, serviceName, resource.getName(), isClientService);
-        validateStructType(resource.getName(), paramDetails.get(0), Constants.PROTOCOL_PACKAGE_WS,
-                           Constants.STRUCT_WEBSOCKET_CONNECTION);
-        validateStructType(resource.getName(), paramDetails.get(1), Constants.PROTOCOL_PACKAGE_WS,
-                           Constants.STRUCT_WEBSOCKET_PING_FRAME);
+        validateStructType(resource.getName(), paramDetails.get(0), WebSocketConstants.PROTOCOL_PACKAGE_WS,
+                           WebSocketConstants.STRUCT_WEBSOCKET_CONNECTION);
+        validateStructType(resource.getName(), paramDetails.get(1), WebSocketConstants.PROTOCOL_PACKAGE_WS,
+                           WebSocketConstants.STRUCT_WEBSOCKET_PING_FRAME);
 
     }
 
     private static void validateOnPongResource(String serviceName, Resource resource, boolean isClientService) {
         List<ParamDetail> paramDetails = resource.getParamDetails();
         validateParamDetailsSize(paramDetails, 2, serviceName, resource.getName(), isClientService);
-        validateStructType(resource.getName(), paramDetails.get(0), Constants.PROTOCOL_PACKAGE_WS,
-                           Constants.STRUCT_WEBSOCKET_CONNECTION);
-        validateStructType(resource.getName(), paramDetails.get(1), Constants.PROTOCOL_PACKAGE_WS,
-                           Constants.STRUCT_WEBSOCKET_PONG_FRAME);
+        validateStructType(resource.getName(), paramDetails.get(0), WebSocketConstants.PROTOCOL_PACKAGE_WS,
+                           WebSocketConstants.STRUCT_WEBSOCKET_CONNECTION);
+        validateStructType(resource.getName(), paramDetails.get(1), WebSocketConstants.PROTOCOL_PACKAGE_WS,
+                           WebSocketConstants.STRUCT_WEBSOCKET_PONG_FRAME);
 
     }
 
     private static void validateOnIdleTimeoutResource(String serviceName, Resource resource, boolean isClientService) {
         List<ParamDetail> paramDetails = resource.getParamDetails();
         validateParamDetailsSize(paramDetails, 1, serviceName, resource.getName(), isClientService);
-        validateStructType(resource.getName(), paramDetails.get(0), Constants.PROTOCOL_PACKAGE_WS,
-                           Constants.STRUCT_WEBSOCKET_CONNECTION);
+        validateStructType(resource.getName(), paramDetails.get(0), WebSocketConstants.PROTOCOL_PACKAGE_WS,
+                           WebSocketConstants.STRUCT_WEBSOCKET_CONNECTION);
     }
 
     private static void validateOnCloseResource(String serviceName, Resource resource, boolean isClientService) {
         List<ParamDetail> paramDetails = resource.getParamDetails();
         validateParamDetailsSize(paramDetails, 2, serviceName, resource.getName(), isClientService);
-        validateStructType(resource.getName(), paramDetails.get(0), Constants.PROTOCOL_PACKAGE_WS,
-                           Constants.STRUCT_WEBSOCKET_CONNECTION);
-        validateStructType(resource.getName(), paramDetails.get(1), Constants.PROTOCOL_PACKAGE_WS,
-                           Constants.STRUCT_WEBSOCKET_CLOSE_FRAME);
+        validateStructType(resource.getName(), paramDetails.get(0), WebSocketConstants.PROTOCOL_PACKAGE_WS,
+                           WebSocketConstants.STRUCT_WEBSOCKET_CONNECTION);
+        validateStructType(resource.getName(), paramDetails.get(1), WebSocketConstants.PROTOCOL_PACKAGE_WS,
+                           WebSocketConstants.STRUCT_WEBSOCKET_CLOSE_FRAME);
     }
 
     private static void validateParamDetailsSize(List<ParamDetail> paramDetails, int expectedSize, String serviceName,

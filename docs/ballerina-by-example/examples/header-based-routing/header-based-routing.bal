@@ -20,7 +20,7 @@ service<http> headerBasedRouting {
         http:InResponse clientResponse = {};
         http:HttpConnectorError err;
         //Native function getHeader() returns header value of a specified header name.
-        string nameString = req.getHeader("type").value;
+        string nameString = req.getHeader("type");
         if (nameString == "location") {
             //"post" represent the POST action of HTTP connector. Route payload to relevant service.
             clientResponse, err = locationEP.post("/v2/594e12271100001f13d6d3a6", newRequest);
@@ -33,7 +33,7 @@ service<http> headerBasedRouting {
         http:OutResponse res = {};
         if (err != null) {
             res.statusCode = 500;
-            res.setStringPayload(err.msg);
+            res.setStringPayload(err.message);
             _ = conn.respond(res);
         } else {
             _ = conn.forward(clientResponse);

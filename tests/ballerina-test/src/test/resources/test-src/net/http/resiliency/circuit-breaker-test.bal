@@ -1,5 +1,6 @@
 import ballerina.net.http;
 import ballerina.net.http.resiliency;
+import ballerina.runtime;
 
 const string TEST_SCENARIO_HEADER = "test-scenario";
 
@@ -25,7 +26,7 @@ function testTypicalScenario () (http:InResponse[], http:HttpConnectorError[]) {
 
         // To ensure the reset timeout period expires
         if (counter == 5) {
-            sleep(5000);
+            runtime:sleepCurrentWorker(5000);
         }
     }
 
@@ -50,7 +51,7 @@ function testTrialRunFailure () (http:InResponse[], http:HttpConnectorError[]) {
         counter = counter + 1;
 
         if (counter == 3) {
-            sleep(5000);
+            runtime:sleepCurrentWorker(5000);
         }
     }
 
@@ -90,7 +91,7 @@ connector MockHttpClient (string serviceUri, http:Options connectorOptions) {
         http:HttpConnectorError err;
         actualRequestNumber = actualRequestNumber + 1;
 
-        string scenario = req.getHeader(TEST_SCENARIO_HEADER).value;
+        string scenario = req.getHeader(TEST_SCENARIO_HEADER);
 
         if (scenario == SCENARIO_TYPICAL) {
             response, err = handleScenario1(actualRequestNumber);
@@ -134,19 +135,20 @@ function handleScenario2 (int counter) (http:InResponse, http:HttpConnectorError
 
 function getErrorStruct () (http:HttpConnectorError) {
     http:HttpConnectorError err = {};
-    err.msg = "Connection refused";
+    err.message = "Connection refused";
     err.statusCode = 502;
     return err;
 }
 
 function getResponse () (http:InResponse) {
     // TODO: The way the status code is set may need to be changed once struct fields can be made read-only
-    MockInResponse response = {};
+    http:InResponse response = {};
+  //  MockInResponse response = {};
     response.statusCode = 200;
-    return (http:InResponse) response;
+    return response;
 }
 
-struct MockInResponse {
+public struct MockInResponse {
     int statusCode;
     string reasonPhrase;
     string server;

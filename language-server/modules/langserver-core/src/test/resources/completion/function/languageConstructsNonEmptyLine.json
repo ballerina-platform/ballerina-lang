@@ -8,7 +8,7 @@
     {
       "label": "worker",
       "kind": 0,
-      "detail": "worker",
+      "detail": "Snippet",
       "documentation": null,
       "sortText": 6,
       "insertText": "worker ${1:name} {\n\t${2}\n}",
@@ -16,7 +16,7 @@
     }, {
       "label": "endpoint",
       "kind": 5,
-      "detail": "statement",
+      "detail": "Snippet",
       "documentation": null,
       "sortText": 6,
       "insertText": "endpoint \u003c${1:constraint}\u003e ${2:__endpoint} {\n\t${3}\n}",
@@ -24,7 +24,7 @@
     }, {
       "label": "fork",
       "kind": 5,
-      "detail": "statement",
+      "detail": "Statement",
       "documentation": null,
       "sortText": 6,
       "insertText": "fork {\n\t${1}\n} join (${2:all}) (map ${3:results}) {\n\t${4}\n}",
@@ -32,7 +32,7 @@
     }, {
       "label": "if",
       "kind": 5,
-      "detail": "statement",
+      "detail": "Statement",
       "documentation": null,
       "sortText": 6,
       "insertText": "if (${1:true}) {\n\t${2}\n}",
@@ -40,7 +40,7 @@
     }, {
       "label": "return",
       "kind": 5,
-      "detail": "statement",
+      "detail": "Statement",
       "documentation": null,
       "sortText": 6,
       "insertText": "return;",
@@ -48,7 +48,7 @@
     }, {
       "label": "transaction",
       "kind": 0,
-      "detail": "statement",
+      "detail": "Statement",
       "documentation": null,
       "sortText": 6,
       "insertText": "transaction with retries(${1}) {\n\t${2}\n} failed {\n\t${3}\n}",
@@ -56,7 +56,7 @@
     }, {
       "label": "try",
       "kind": 5,
-      "detail": "statement",
+      "detail": "Statement",
       "documentation": null,
       "sortText": 6,
       "insertText": "try {\n\t${1}\n} catch (${2:error} ${3:err}) {\n\t${4}\n}",
@@ -64,7 +64,7 @@
     }, {
       "label": "while",
       "kind": 5,
-      "detail": "statement",
+      "detail": "Statement",
       "documentation": null,
       "sortText": 6,
       "insertText": "while (${1:true}) {\n\t${2}\n}",

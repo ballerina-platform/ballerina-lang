@@ -1,20 +1,20 @@
 /*
-*  Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
-*
-*  WSO2 Inc. licenses this file to you under the Apache License,
-*  Version 2.0 (the "License"); you may not use this file except
-*  in compliance with the License.
-*  You may obtain a copy of the License at
-*
-*    http://www.apache.org/licenses/LICENSE-2.0
-*
-*  Unless required by applicable law or agreed to in writing,
-*  software distributed under the License is distributed on an
-*  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-*  KIND, either express or implied.  See the License for the
-*  specific language governing permissions and limitations
-*  under the License.
-*/
+ *  Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ *  WSO2 Inc. licenses this file to you under the Apache License,
+ *  Version 2.0 (the "License"); you may not use this file except
+ *  in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing,
+ *  software distributed under the License is distributed on an
+ *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ *  KIND, either express or implied.  See the License for the
+ *  specific language governing permissions and limitations
+ *  under the License.
+ */
 package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
 import org.ballerinalang.model.TreeBuilder;
@@ -24,6 +24,7 @@ import org.ballerinalang.util.diagnostic.DiagnosticCode;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.Types.RecordKind;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
+import org.wso2.ballerinalang.compiler.semantics.model.iterable.IterableKind;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BCastOperatorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConversionOperatorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BOperatorSymbol;
@@ -34,6 +35,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BXMLNSSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BConnectorType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BEndpointType;
@@ -87,7 +89,6 @@ import org.wso2.ballerinalang.util.Lists;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-
 import javax.xml.XMLConstants;
 
 /**
@@ -104,6 +105,7 @@ public class TypeChecker extends BLangNodeVisitor {
     private SymbolResolver symResolver;
     private Types types;
     private DiagnosticLog dlog;
+    private IterableAnalyzer iterableAnalyzer;
 
     private SymbolEnv env;
 
@@ -134,6 +136,7 @@ public class TypeChecker extends BLangNodeVisitor {
         this.symResolver = SymbolResolver.getInstance(context);
         this.types = Types.getInstance(context);
         this.dlog = DiagnosticLog.getInstance(context);
+        this.iterableAnalyzer = IterableAnalyzer.getInstance(context);
     }
 
     public List<BType> checkExpr(BLangExpression expr, SymbolEnv env) {
@@ -423,6 +426,12 @@ public class TypeChecker extends BLangNodeVisitor {
 
         // Find the variable reference expression type
         checkExpr(iExpr.expr, this.env, Lists.of(symTable.noType));
+        if (isIterableOperationInvocation(iExpr)) {
+            iExpr.iterableOperationInvocation = true;
+            iterableAnalyzer.handlerIterableOperation(iExpr, expTypes, env);
+            resultTypes = iExpr.iContext.operations.getLast().resultTypes;
+            return;
+        }
         switch (iExpr.expr.type.tag) {
             case TypeTags.STRUCT:
                 // Invoking a function bound to a struct
@@ -443,14 +452,18 @@ public class TypeChecker extends BLangNodeVisitor {
             case TypeTags.BLOB:
             case TypeTags.XML:
             case TypeTags.MAP:
-            case TypeTags.DATATABLE:
+            case TypeTags.TABLE:
                 checkFunctionInvocationExpr(iExpr, iExpr.expr.type);
                 break;
             case TypeTags.JSON:
                 checkFunctionInvocationExpr(iExpr, symTable.jsonType);
                 break;
             case TypeTags.ARRAY:
+            case TypeTags.TUPLE_COLLECTION:
                 dlog.error(iExpr.pos, DiagnosticCode.INVALID_FUNCTION_INVOCATION, iExpr.expr.type);
+                break;
+            case TypeTags.NONE:
+                dlog.error(iExpr.pos, DiagnosticCode.UNDEFINED_FUNCTION, iExpr.name);
                 break;
             default:
                 // TODO Handle this condition
@@ -639,7 +652,7 @@ public class TypeChecker extends BLangNodeVisitor {
                 actualTypes = getActualTypesOfConversionExpr(conversionExpr, targetType, sourceType, conversionSym);
             }
         } else {
-           actualTypes = checkNamedTransformerInvocation(conversionExpr, sourceType, targetType);
+            actualTypes = checkNamedTransformerInvocation(conversionExpr, sourceType, targetType);
         }
 
         resultTypes = types.checkTypes(conversionExpr, actualTypes, expTypes);
@@ -902,7 +915,8 @@ public class TypeChecker extends BLangNodeVisitor {
     }
 
     private void checkFunctionInvocationExpr(BLangInvocation iExpr, BStructType structType) {
-        Name funcName = getFuncSymbolName(iExpr, structType);
+        Name funcName = names.fromString(
+                Symbols.getAttachedFuncSymbolName(structType.tsymbol.name.value, iExpr.name.value));
         BPackageSymbol packageSymbol = (BPackageSymbol) structType.tsymbol.owner;
         BSymbol funcSymbol = symResolver.lookupMemberSymbol(iExpr.pos, packageSymbol.scope, this.env,
                 funcName, SymTag.FUNCTION);
@@ -923,7 +937,8 @@ public class TypeChecker extends BLangNodeVisitor {
     }
 
     private void checkFunctionInvocationExpr(BLangInvocation iExpr, BType bType) {
-        Name funcName = getFuncSymbolName(iExpr, bType);
+        Name funcName = names.fromString(
+                Symbols.getAttachedFuncSymbolName(bType.toString(), iExpr.name.value));
         BPackageSymbol packageSymbol = (BPackageSymbol) bType.tsymbol.owner;
         BSymbol funcSymbol = symResolver.lookupMemberSymbol(iExpr.pos, packageSymbol.scope, this.env,
                 funcName, SymTag.FUNCTION);
@@ -935,6 +950,19 @@ public class TypeChecker extends BLangNodeVisitor {
 
         iExpr.symbol = funcSymbol;
         checkInvocationParamAndReturnType(iExpr);
+    }
+
+    private boolean isIterableOperationInvocation(BLangInvocation iExpr) {
+        switch (iExpr.expr.type.tag) {
+            case TypeTags.ARRAY:
+            case TypeTags.MAP:
+            case TypeTags.JSON:
+            case TypeTags.XML:
+            case TypeTags.TABLE:
+            case TypeTags.TUPLE_COLLECTION:
+                return IterableKind.getFromString(iExpr.name.value) != IterableKind.UNDEFINED;
+        }
+        return false;
     }
 
     private void checkInvocationParamAndReturnType(BLangInvocation iExpr) {
@@ -1003,10 +1031,6 @@ public class TypeChecker extends BLangNodeVisitor {
         }
 
         resultTypes = types.checkTypes(iExpr, newActualTypes, newExpTypes);
-    }
-
-    private Name getFuncSymbolName(BLangInvocation iExpr, BType structType) {
-        return names.fromString(structType + Names.DOT.value + iExpr.name);
     }
 
     private void checkConnectorInitTypes(BLangConnectorInit iExpr, BType actualType, Name connName) {
@@ -1284,7 +1308,7 @@ public class TypeChecker extends BLangNodeVisitor {
             BTransformerSymbol transformerSymbol = (BTransformerSymbol) symbol;
             conversionExpr.conversionSymbol = transformerSymbol;
             if (conversionExpr.conversionSymbol.safe) {
-                ((BInvokableType) transformerSymbol.type).retTypes.add(symTable.errTypeConversionType);
+                ((BInvokableType) transformerSymbol.type).retTypes.add(symTable.errStructType);
             }
             actualTypes = getActualTypesOfConversionExpr(conversionExpr, targetType, sourceType,
                     (BTransformerSymbol) transformerSymbol);

@@ -26,9 +26,7 @@ import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
-import org.ballerinalang.util.exceptions.BallerinaException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.ballerinalang.net.http.HttpUtil;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
@@ -42,29 +40,28 @@ import java.net.URLEncoder;
         packageName = "ballerina.net.uri",
         functionName = "encode",
         args = {@Argument(name = "url", type = TypeKind.STRING)},
-        returnType = {@ReturnType(type = TypeKind.STRING)},
+        returnType = {@ReturnType(type = TypeKind.STRING),
+                      @ReturnType(type = TypeKind.STRUCT, structType = "Error")},
         isPublic = true
 )
 public class Encode extends AbstractNativeFunction {
 
-    private static final Logger log = LoggerFactory.getLogger(Encode.class);
-
     @Override
     public BValue[] execute(Context context) {
         String url = getStringArgument(context, 0);
-        String encodeURL = "";
+        String charset = getStringArgument(context, 1);
         try {
-            encodeURL = encode(url); //supporting percentage encoding
+            return getBValues(new BString(encode(url, charset)), null);
         } catch (Throwable e) {
-            throw new BallerinaException("Error while encoding the url. " + e.getMessage(), context);
+            return getBValues(null,
+                    HttpUtil.getGenericError(context, "Error occurred while encoding the url. " + e.getMessage()));
         }
-        return getBValues(new BString(encodeURL));
     }
 
-    private String encode(String url) throws UnsupportedEncodingException {
+    private String encode(String url, String charset) throws UnsupportedEncodingException {
         String encoded;
 
-        encoded = URLEncoder.encode(url, "UTF-8");
+        encoded = URLEncoder.encode(url, charset);
 
         StringBuilder buf = new StringBuilder(encoded.length());
         char focus;

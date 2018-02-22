@@ -1341,13 +1341,8 @@ class PositioningUtil {
         const transactionBody = node.transactionBody;
         const viewState = node.viewState;
         const bBox = viewState.bBox;
-        const newWidth = node.viewState.bBox.w;
 
         this.positionCompoundStatementComponents(node);
-
-        node.viewState.components['drop-zone'].w = newWidth;
-        node.viewState.components['statement-box'].w = newWidth;
-        node.viewState.components['block-header'].w = newWidth;
 
         let nextComponentY = node.viewState.components['drop-zone'].y
             + node.viewState.components['drop-zone'].h;
@@ -1358,15 +1353,15 @@ class PositioningUtil {
             transactionBody.viewState.bBox.y = nextComponentY + transactionBody.viewState.components['block-header'].h;
             this.positionCompoundStatementComponents(transactionBody);
             nextComponentY += transactionBody.viewState.components['statement-box'].h;
-            this.increaseNodeComponentWidth(transactionBody, newWidth);
         }
 
         // Set the position of the failed body
         if (failedBody) {
-            failedBody.viewState.bBox.x = bBox.x;
-            failedBody.viewState.bBox.y = nextComponentY + failedBody.viewState.components['block-header'].h;
+            failedBody.viewState.bBox.x = bBox.x + this.config.compoundStatement.gap.left +
+                transactionBody.viewState.bBox.w;
+            failedBody.viewState.bBox.y = transactionBody.viewState.bBox.y +
+                transactionBody.viewState.components['statement-box'].h - this.config.compoundStatement.padding.top;
             this.positionCompoundStatementComponents(failedBody);
-            this.increaseNodeComponentWidth(failedBody, newWidth);
         }
     }
 

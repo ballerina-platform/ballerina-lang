@@ -3,24 +3,22 @@ package ballerina.net.http;
 import ballerina.mime;
 import ballerina.file;
 
-@Description {value:"Gets the named HTTP header from the inbound response"}
+@Description {value:"Returns the header value with the specified header name. If there are more than one header value for the specified header name, the first value is returned."}
 @Param {value:"res: The inbound response struct"}
 @Param {value:"headerName: The header name"}
 @Return {value:"The first header value struct for the provided header name. Returns null if the header does not exist."}
-public function <InResponse res> getHeader (string headerName) (mime:HeaderValue) {
+public function <InResponse res> getHeader (string headerName) (string) {
     mime:Entity entity = res.getEntityWithoutBody();
-    mime:HeaderValue[] headerValues = getHeadersFromEntity(entity, headerName);
-    return headerValues != null ? headerValues[0] : null;
+    return getFirstHeaderFromEntity(entity, headerName);
 }
 
-@Description {value:"Gets the named HTTP header from the outbound response"}
+@Description {value:"Returns the header value with the specified header name. If there are more than one header value for the specified header name, the first value is returned."}
 @Param {value:"res: The outbound response struct"}
 @Param {value:"headerName: The header name"}
 @Return {value:"The first header value struct for the provided header name. Returns null if the header does not exist."}
-public function <OutResponse res> getHeader (string headerName) (mime:HeaderValue) {
+public function <OutResponse res> getHeader (string headerName) (string) {
     mime:Entity entity = res.getEntityWithoutBody();
-    mime:HeaderValue[] headerValues = getHeadersFromEntity(entity, headerName);
-    return headerValues != null ? headerValues[0] : null;
+    return getFirstHeaderFromEntity(entity, headerName);
 }
 
 @Description {value:"Adds the specified key/value pair as an HTTP header to the outbound response"}
@@ -36,7 +34,7 @@ public function <OutResponse res> addHeader (string headerName, string headerVal
 @Param {value:"res: The inbound response message"}
 @Param {value:"headerName: The header name"}
 @Return {value:"The header values struct array for a given header name"}
-public function <InResponse res> getHeaders (string headerName) (mime:HeaderValue[]) {
+public function <InResponse res> getHeaders (string headerName) (string[]) {
     mime:Entity entity = res.getEntityWithoutBody();
     return getHeadersFromEntity(entity, headerName);
 }
@@ -45,34 +43,18 @@ public function <InResponse res> getHeaders (string headerName) (mime:HeaderValu
 @Param {value:"res: The outbound response message"}
 @Param {value:"headerName: The header name"}
 @Return {value:"The header values struct array for a given header name"}
-public function <OutResponse res> getHeaders (string headerName) (mime:HeaderValue[]) {
+public function <OutResponse res> getHeaders (string headerName) (string[]) {
     mime:Entity entity = res.getEntityWithoutBody();
     return getHeadersFromEntity(entity, headerName);
 }
 
 @Description {value:"Sets the value of a transport header"}
 @Param {value:"res: The outbound response message"}
-@Param {value:"key: The header name"}
-@Param {value:"value: The header value"}
-public function <OutResponse res> setHeader (string key, string value) {
-    mime:Entity entity = res.getEntityWithoutBody();
-    if (entity.headers == null) {
-        entity.headers = {};
-    }
-    mime:HeaderValue[] header = [{value:value}];
-    entity.headers[key] = header;
-}
-
-@Description {value:"Sets the value of a transport header with multiple header values"}
-@Param {value:"res: The outbound response message"}
 @Param {value:"headerName: The header name"}
-@Param {value:"headerValues: An array of header values"}
-public function <OutResponse res> setHeaders (string headerName, mime:HeaderValue[] headerValues) {
+@Param {value:"headerValue: The header value"}
+public function <OutResponse res> setHeader (string headerName, string headerValue) {
     mime:Entity entity = res.getEntityWithoutBody();
-    if (entity.headers == null) {
-        entity.headers = {};
-    }
-    entity.headers[headerName] = headerValues;
+    setHeaderToEntity(entity, headerName, headerValue);
 }
 
 @Description {value:"Removes a transport header from the response"}
@@ -80,9 +62,6 @@ public function <OutResponse res> setHeaders (string headerName, mime:HeaderValu
 @Param {value:"key: The header name"}
 public function <OutResponse res> removeHeader (string key) {
     mime:Entity entity = res.getEntityWithoutBody();
-    if (entity.headers == null) {
-        return;
-    }
     entity.headers.remove(key);
 }
 
@@ -98,7 +77,18 @@ public function <OutResponse res> removeAllHeaders () {
 @Return {value:"length of the message"}
 public function <InResponse response> getContentLength () (int) {
     if (response.getHeader(CONTENT_LENGTH) != null) {
-        string strContentLength = response.getHeader(CONTENT_LENGTH).value;
+        string strContentLength = response.getHeader(CONTENT_LENGTH);
+        return getContentLengthIntValue(strContentLength);
+    }
+    return -1;
+}
+
+@Description {value:"Gets the Content-Length header value from the outbound response"}
+@Param {value:"response: The outbound response message"}
+@Return {value:"length of the message"}
+public function <OutResponse response> getContentLength () (int) {
+    if (response.getHeader(CONTENT_LENGTH) != null) {
+        string strContentLength = response.getHeader(CONTENT_LENGTH);
         return getContentLengthIntValue(strContentLength);
     }
     return -1;
@@ -109,7 +99,7 @@ public function <InResponse response> getContentLength () (int) {
 @Return {value:"The JSON reresentation of the message payload"}
 public function <InResponse response> getJsonPayload () (json) {
     mime:Entity entity = response.getEntity();
-    return mime:getJson(entity);
+    return entity.getJson();
 }
 
 @Description {value:"Gets the outbound response payload in JSON format"}
@@ -117,7 +107,7 @@ public function <InResponse response> getJsonPayload () (json) {
 @Return {value:"The JSON reresentation of the message payload"}
 public function <OutResponse response> getJsonPayload () (json) {
     mime:Entity entity = response.getEntity();
-    return mime:getJson(entity);
+    return entity.getJson();
 }
 
 @Description {value:"Gets the inbound response payload in XML format"}
@@ -125,7 +115,7 @@ public function <OutResponse response> getJsonPayload () (json) {
 @Return {value:"The XML representation of the message payload"}
 public function <InResponse response> getXmlPayload () (xml) {
     mime:Entity entity = response.getEntity();
-    return mime:getXml(entity);
+    return entity.getXml();
 }
 
 @Description {value:"Gets the outbound response payload in XML format"}
@@ -133,7 +123,7 @@ public function <InResponse response> getXmlPayload () (xml) {
 @Return {value:"The XML representation of the message payload"}
 public function <OutResponse response> getXmlPayload () (xml) {
     mime:Entity entity = response.getEntity();
-    return mime:getXml(entity);
+    return entity.getXml();
 }
 
 @Description {value:"Gets the inbound response payload as a string"}
@@ -141,7 +131,7 @@ public function <OutResponse response> getXmlPayload () (xml) {
 @Return {value:"The string representation of the message payload"}
 public function <InResponse response> getStringPayload () (string) {
     mime:Entity entity = response.getEntity();
-    return mime:getText(entity);
+    return entity.getText();
 }
 
 @Description {value:"Gets the outbound response payload as a string"}
@@ -149,7 +139,7 @@ public function <InResponse response> getStringPayload () (string) {
 @Return {value:"The string representation of the message payload"}
 public function <OutResponse response> getStringPayload () (string) {
     mime:Entity entity = response.getEntity();
-    return mime:getText(entity);
+    return entity.getText();
 }
 
 @Description {value:"Gets the inbound response payload in blob format"}
@@ -157,7 +147,7 @@ public function <OutResponse response> getStringPayload () (string) {
 @Return {value:"The blob representation of the message payload"}
 public function <InResponse response> getBinaryPayload () (blob) {
     mime:Entity entity = response.getEntity();
-    return mime:getBlob(entity);
+    return entity.getBlob();
 }
 
 @Description {value:"Gets the outbound response payload in blob format"}
@@ -165,7 +155,7 @@ public function <InResponse response> getBinaryPayload () (blob) {
 @Return {value:"The blob representation of the message payload"}
 public function <OutResponse response> getBinaryPayload () (blob) {
     mime:Entity entity = response.getEntity();
-    return mime:getBlob(entity);
+    return entity.getBlob();
 }
 
 @Description {value:"Sets a JSON as the outbound response payload"}
@@ -173,7 +163,7 @@ public function <OutResponse response> getBinaryPayload () (blob) {
 @Param {value:"payload: The JSON payload object"}
 public function <OutResponse response> setJsonPayload (json payload) {
     mime:Entity entity = response.getEntityWithoutBody();
-    entity.jsonData = payload;
+    entity.setJson(payload);
     mime:MediaType mediaType = mime:getMediaType(mime:APPLICATION_JSON);
     entity.contentType = mediaType;
     response.setEntity(entity);
@@ -184,7 +174,7 @@ public function <OutResponse response> setJsonPayload (json payload) {
 @Param {value:"payload: The XML payload object"}
 public function <OutResponse response> setXmlPayload (xml payload) {
     mime:Entity entity = response.getEntityWithoutBody();
-    entity.xmlData = payload;
+    entity.setXml(payload);
     mime:MediaType mediaType = mime:getMediaType(mime:APPLICATION_XML);
     entity.contentType = mediaType;
     response.setEntity(entity);
@@ -195,7 +185,7 @@ public function <OutResponse response> setXmlPayload (xml payload) {
 @Param { value:"payload: The payload to be set to the response as a string" }
 public function <OutResponse response> setStringPayload (string payload) {
     mime:Entity entity = response.getEntityWithoutBody();
-    entity.textData = payload;
+    entity.setText(payload);
     mime:MediaType mediaType = mime:getMediaType(mime:TEXT_PLAIN);
     entity.contentType = mediaType;
     response.setEntity(entity);
@@ -206,7 +196,7 @@ public function <OutResponse response> setStringPayload (string payload) {
 @Param {value:"payload: The blob representation of the message payload"}
 public function <OutResponse response> setBinaryPayload (blob payload) {
     mime:Entity entity = response.getEntityWithoutBody();
-    entity.byteData = payload;
+    entity.setBlob(payload);
     mime:MediaType mediaType = mime:getMediaType(mime:APPLICATION_OCTET_STREAM);
     entity.contentType = mediaType;
     response.setEntity(entity);
@@ -216,10 +206,10 @@ public function <OutResponse response> setBinaryPayload (blob payload) {
 @Param {value:"response: The outbound response message"}
 @Param {value:"content: File containing the actual content"}
 @Param {value:"contentType: Content-Type of the given data"}
-public function <OutResponse response> setEntityBody(file:File content, string contentType) {
+public function <OutResponse response> setFileAsPayload(file:File fileHandler, string contentType) {
     mime:MediaType mediaType = mime:getMediaType(contentType);
     mime:Entity entity = response.getEntityWithoutBody();
     entity.contentType = mediaType;
-    entity.overflowData = content;
+    entity.setFileAsEntityBody(fileHandler);
     response.setEntity(entity);
 }

@@ -6,24 +6,22 @@ import ballerina.file;
 const string HEADER_VAL_100_CONTINUE = "100-continue";
 const string HEADER_KEY_EXPECT = "Expect";
 
-@Description {value:"Gets a transport header from the inbound request"}
+@Description {value:"Returns the header value with the specified header name. If there are more than one header value for the specified header name, the first value is returned."}
 @Param {value:"req: A inbound request message"}
 @Param {value:"headerName: The header name"}
-@Return {value:"The first header value struct for the provided header name. Returns null if the header does not exist."}
-public function <InRequest req> getHeader (string headerName) (mime:HeaderValue) {
+@Return {value:"The first header value for the provided header name. Returns null if the header does not exist."}
+public function <InRequest req> getHeader (string headerName) (string) {
     mime:Entity entity = req.getEntityWithoutBody();
-    mime:HeaderValue[] headerValues = getHeadersFromEntity(entity, headerName);
-    return headerValues != null ? headerValues[0] : null;
+    return getFirstHeaderFromEntity(entity, headerName);
 }
 
-@Description {value:"Gets a transport header from the outbound request"}
+@Description {value:"Returns the header value with the specified header name. If there are more than one header value for the specified header name, the first value is returned."}
 @Param {value:"req: A outbound request message"}
 @Param {value:"headerName: The header name"}
-@Return {value:"The first header value struct for the provided header name. Returns null if the header does not exist."}
-public function <OutRequest req> getHeader (string headerName) (mime:HeaderValue) {
+@Return {value:"The first header value for the provided header name. Returns null if the header does not exist."}
+public function <OutRequest req> getHeader (string headerName) (string) {
     mime:Entity entity = req.getEntityWithoutBody();
-    mime:HeaderValue[] headerValues = getHeadersFromEntity(entity, headerName);
-    return headerValues != null ? headerValues[0] : null;
+    return getFirstHeaderFromEntity(entity, headerName);
 }
 
 @Description {value:"Adds the specified key/value pair as an HTTP header to the outbound request"}
@@ -39,7 +37,7 @@ public function <OutRequest req> addHeader (string headerName, string headerValu
 @Param {value:"req: A inbound request message"}
 @Param {value:"headerName: The header name"}
 @Return {value:"The header values struct array for a given header name"}
-public function <InRequest req> getHeaders (string headerName) (mime:HeaderValue[]) {
+public function <InRequest req> getHeaders (string headerName) (string[]) {
     mime:Entity entity = req.getEntityWithoutBody();
     return getHeadersFromEntity(entity, headerName);
 }
@@ -48,7 +46,7 @@ public function <InRequest req> getHeaders (string headerName) (mime:HeaderValue
 @Param {value:"req: A outbound request message"}
 @Param {value:"headerName: The header name"}
 @Return {value:"The header values struct array for a given header name"}
-public function <OutRequest req> getHeaders (string headerName) (mime:HeaderValue[]) {
+public function <OutRequest req> getHeaders (string headerName) (string[]) {
     mime:Entity entity = req.getEntityWithoutBody();
     return getHeadersFromEntity(entity, headerName);
 }
@@ -59,23 +57,7 @@ public function <OutRequest req> getHeaders (string headerName) (mime:HeaderValu
 @Param {value:"headerValue: The header value"}
 public function <OutRequest req> setHeader (string headerName, string headerValue) {
     mime:Entity entity = req.getEntityWithoutBody();
-    if (entity.headers == null) {
-        entity.headers = {};
-    }
-    mime:HeaderValue[] header = [{value:headerValue}];
-    entity.headers[headerName] = header;
-}
-
-@Description {value:"Sets the value of a transport header with multiple header values"}
-@Param {value:"req: A outbound request message"}
-@Param {value:"headerName: The header name"}
-@Param {value:"headerValues: An array of header values"}
-public function <OutRequest req> setHeaders (string headerName, mime:HeaderValue[] headerValues) {
-    mime:Entity entity = req.getEntityWithoutBody();
-    if (entity.headers == null) {
-        entity.headers = {};
-    }
-    entity.headers[headerName] = headerValues;
+    setHeaderToEntity(entity, headerName, headerValue);
 }
 
 @Description {value:"Removes a transport header from the outbound request"}
@@ -83,9 +65,6 @@ public function <OutRequest req> setHeaders (string headerName, mime:HeaderValue
 @Param {value:"key: The header name"}
 public function <OutRequest req> removeHeader (string key) {
     mime:Entity entity = req.getEntityWithoutBody();
-    if (entity.headers == null) {
-        return;
-    }
     entity.headers.remove(key);
 }
 
@@ -101,7 +80,7 @@ public function <OutRequest req> removeAllHeaders () {
 @Return {value:"Returns true if the client expects a 100-continue response. If not, returns false."}
 public function <InRequest req> expects100Continue () (boolean) {
     var expectHeader = req.getHeader(HEADER_KEY_EXPECT);
-    if (expectHeader != null && expectHeader.value == HEADER_VAL_100_CONTINUE) {
+    if (expectHeader != null && expectHeader == HEADER_VAL_100_CONTINUE) {
         return true;
     }
     return false;
@@ -112,7 +91,18 @@ public function <InRequest req> expects100Continue () (boolean) {
 @Return {value:"length of the message"}
 public function <InRequest request> getContentLength () (int) {
     if (request.getHeader(CONTENT_LENGTH) != null) {
-        string strContentLength = request.getHeader(CONTENT_LENGTH).value;
+        string strContentLength = request.getHeader(CONTENT_LENGTH);
+        return getContentLengthIntValue(strContentLength);
+    }
+    return -1;
+}
+
+@Description {value:"Gets the Content-Length header from the Outbound request"}
+@Param {value:"req: A Outbound request message"}
+@Return {value:"length of the message"}
+public function <OutRequest request> getContentLength () (int) {
+    if (request.getHeader(CONTENT_LENGTH) != null) {
+        string strContentLength = request.getHeader(CONTENT_LENGTH);
         return getContentLengthIntValue(strContentLength);
     }
     return -1;
@@ -123,7 +113,7 @@ public function <InRequest request> getContentLength () (int) {
 @Return {value:"The JSON reresentation of the message payload"}
 public function <InRequest request> getJsonPayload () (json) {
     mime:Entity entity = request.getEntity();
-    return mime:getJson(entity);
+    return entity.getJson();
 }
 
 @Description {value:"Gets the outbound request payload in JSON format"}
@@ -131,7 +121,7 @@ public function <InRequest request> getJsonPayload () (json) {
 @Return {value:"The JSON reresentation of the message payload"}
 public function <OutRequest request> getJsonPayload () (json) {
     mime:Entity entity = request.getEntity();
-    return mime:getJson(entity);
+    return entity.getJson();
 }
 
 @Description {value:"Gets the inbound request payload in XML format"}
@@ -139,7 +129,7 @@ public function <OutRequest request> getJsonPayload () (json) {
 @Return {value:"The XML representation of the message payload"}
 public function <InRequest request> getXmlPayload () (xml) {
     mime:Entity entity = request.getEntity();
-    return mime:getXml(entity);
+    return entity.getXml();
 }
 
 @Description {value:"Gets the outbound request payload in XML format"}
@@ -147,7 +137,7 @@ public function <InRequest request> getXmlPayload () (xml) {
 @Return {value:"The XML representation of the message payload"}
 public function <OutRequest request> getXmlPayload () (xml) {
     mime:Entity entity = request.getEntity();
-    return mime:getXml(entity);
+    return entity.getXml();
 }
 
 @Description {value:"Gets the inbound request payload as a string"}
@@ -155,7 +145,7 @@ public function <OutRequest request> getXmlPayload () (xml) {
 @Return {value:"The string representation of the message payload"}
 public function <InRequest request> getStringPayload () (string) {
     mime:Entity entity = request.getEntity();
-    return mime:getText(entity);
+    return entity.getText();
 }
 
 @Description {value:"Gets the outbound request payload as a string"}
@@ -163,7 +153,7 @@ public function <InRequest request> getStringPayload () (string) {
 @Return {value:"The string representation of the message payload"}
 public function <OutRequest request> getStringPayload () (string) {
     mime:Entity entity = request.getEntity();
-    return mime:getText(entity);
+    return entity.getText();
 }
 
 @Description {value:"Gets the inboundrequest payload in blob format"}
@@ -171,7 +161,7 @@ public function <OutRequest request> getStringPayload () (string) {
 @Return {value:"The blob representation of the message payload"}
 public function <InRequest request> getBinaryPayload () (blob) {
     mime:Entity entity = request.getEntity();
-    return mime:getBlob(entity);
+    return entity.getBlob();
 }
 
 @Description {value:"Gets the outbound request payload in blob format"}
@@ -179,7 +169,7 @@ public function <InRequest request> getBinaryPayload () (blob) {
 @Return {value:"The blob representation of the message payload"}
 public function <OutRequest request> getBinaryPayload () (blob) {
     mime:Entity entity = request.getEntity();
-    return mime:getBlob(entity);
+    return entity.getBlob();
 }
 
 @Description {value:"Gets the form parameters from the HTTP request as a map"}
@@ -187,7 +177,7 @@ public function <OutRequest request> getBinaryPayload () (blob) {
 @Return {value:"The map of form params"}
 public function <InRequest request> getFormParams () (map) {
     mime:Entity entity = request.getEntity();
-    string formData = mime:getText(entity);
+    string formData = entity.getText();
     map parameters = {};
     if (formData != null && formData != "") {
         string[] entries = formData.split("&");
@@ -229,7 +219,7 @@ public function <OutRequest request> getMultiparts () (mime:Entity[]) {
 @Param {value:"payload: The JSON payload to be set to the request"}
 public function <OutRequest request> setJsonPayload (json payload) {
     mime:Entity entity = request.getEntityWithoutBody();
-    entity.jsonData = payload;
+    entity.setJson(payload);
     mime:MediaType mediaType = mime:getMediaType(mime:APPLICATION_JSON);
     entity.contentType = mediaType;
     request.setEntity(entity);
@@ -240,7 +230,7 @@ public function <OutRequest request> setJsonPayload (json payload) {
 @Param {value:"payload: The XML payload object"}
 public function <OutRequest request> setXmlPayload (xml payload) {
     mime:Entity entity = request.getEntityWithoutBody();
-    entity.xmlData = payload;
+    entity.setXml(payload);
     mime:MediaType mediaType = mime:getMediaType(mime:APPLICATION_XML);
     entity.contentType = mediaType;
     request.setEntity(entity);
@@ -251,7 +241,7 @@ public function <OutRequest request> setXmlPayload (xml payload) {
 @Param {value:"payload: The payload to be set to the request as a string"}
 public function <OutRequest request> setStringPayload (string payload) {
     mime:Entity entity = request.getEntityWithoutBody();
-    entity.textData = payload;
+    entity.setText(payload);
     mime:MediaType mediaType = mime:getMediaType(mime:TEXT_PLAIN);
     entity.contentType = mediaType;
     request.setEntity(entity);
@@ -262,7 +252,7 @@ public function <OutRequest request> setStringPayload (string payload) {
 @Param {value:"payload: The blob representation of the message payload"}
 public function <OutRequest request> setBinaryPayload (blob payload) {
     mime:Entity entity = request.getEntityWithoutBody();
-    entity.byteData = payload;
+    entity.setBlob(payload);
     mime:MediaType mediaType = mime:getMediaType(mime:APPLICATION_OCTET_STREAM);
     entity.contentType = mediaType;
     request.setEntity(entity);
@@ -271,10 +261,14 @@ public function <OutRequest request> setBinaryPayload (blob payload) {
 @Description {value:"Set multiparts as the request payload"}
 @Param {value:"request: The request message"}
 @Param {value:"bodyParts: Represent body parts that needs to be set to the request"}
-public function <OutRequest request> setMultiparts (mime:Entity[] bodyParts) {
+@Param {value:"contentType: Content type of the top level message"}
+public function <OutRequest request> setMultiparts (mime:Entity[] bodyParts, string contentType) {
     mime:Entity entity = request.getEntityWithoutBody();
     entity.multipartData = bodyParts;
-    mime:MediaType mediaType = mime:getMediaType(mime:MULTIPART_FORM_DATA);
+    mime:MediaType mediaType = mime:getMediaType(mime:MULTIPART_MIXED);
+    if (contentType != null && contentType != "") {
+        mediaType = mime:getMediaType(contentType);
+    }
     entity.contentType = mediaType;
     request.setEntity(entity);
 }
@@ -283,10 +277,10 @@ public function <OutRequest request> setMultiparts (mime:Entity[] bodyParts) {
 @Param {value:"request: The outbound request message"}
 @Param {value:"content: File containing the actual content"}
 @Param {value:"contentType: Content-Type of the given data"}
-public function <OutRequest request> setEntityBody (file:File content, string contentType) {
+public function <OutRequest request> setFileAsPayload (file:File fileHandler, string contentType) {
     mime:MediaType mediaType = mime:getMediaType(contentType);
     mime:Entity entity = request.getEntityWithoutBody();
+    entity.setFileAsEntityBody(fileHandler);
     entity.contentType = mediaType;
-    entity.overflowData = content;
     request.setEntity(entity);
 }

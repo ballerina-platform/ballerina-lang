@@ -22,6 +22,7 @@ import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.TreeUtils;
 import org.ballerinalang.model.Whitespace;
 import org.ballerinalang.model.elements.Flag;
+import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.tree.ActionNode;
 import org.ballerinalang.model.tree.AnnotatableNode;
 import org.ballerinalang.model.tree.AnnotationAttachmentNode;
@@ -113,6 +114,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForeach;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangLock;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangNext;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangThrow;
@@ -176,6 +178,8 @@ public class BLangPackageBuilder {
 
     private Stack<Set<Whitespace>> commaWsStack = new Stack<>();
 
+    private Stack<Set<Whitespace>> invocationWsStack = new Stack<>();
+
     private Stack<BLangRecordLiteral> recordLiteralNodes = new Stack<>();
 
     private Stack<BLangTryCatchFinally> tryCatchFinallyNodesStack = new Stack<>();
@@ -209,27 +213,21 @@ public class BLangPackageBuilder {
     private Stack<XMLAttributeNode> xmlAttributeNodeStack = new Stack<>();
 
     private Stack<BLangAnnotationAttachmentPoint> attachmentPointStack = new Stack<>();
-    
+
     private Set<BLangImportPackage> imports = new HashSet<>();
 
     private Set<Whitespace> endpointVarWs;
 
     private Set<Whitespace> endpointKeywordWs;
 
-    /**
-     * Keep the number of anonymous structs found so far in the current package.
-     * This field is used to generate a name for an anonymous struct.
-     */
-    private int anonStructCount = 0;
-
-    protected int lambdaFunctionCount = 0;
-    
     private DiagnosticLog dlog;
+    private BLangAnonymousModelHelper anonymousModelHelper;
 
     private static final String PIPE = "|";
 
     public BLangPackageBuilder(CompilerContext context, CompilationUnitNode compUnit) {
         this.dlog = DiagnosticLog.getInstance(context);
+        this.anonymousModelHelper = BLangAnonymousModelHelper.getInstance(context);
         this.compUnit = compUnit;
     }
 
@@ -277,7 +275,7 @@ public class BLangPackageBuilder {
 
     public void addAnonStructType(DiagnosticPos pos, Set<Whitespace> ws) {
         // Generate a name for the anonymous struct
-        String genName = "$anonStruct$" + ++anonStructCount;
+        String genName = anonymousModelHelper.getNextAnonymousStructKey(pos.src.pkgID);
         IdentifierNode anonStructGenName = createIdentifier(genName);
 
         // Create an anonymous struct and add it to the list of structs in the current package.
@@ -410,12 +408,17 @@ public class BLangPackageBuilder {
                                Set<Whitespace> ws,
                                String identifier,
                                boolean exprAvailable,
-                               int annotCount) {
+                               int annotCount,
+                               boolean isPrivate) {
 
         Set<Whitespace> wsForSemiColon = removeNthFromLast(ws, 0);
         BLangStruct structNode = (BLangStruct) this.structStack.peek();
         structNode.addWS(wsForSemiColon);
-        addVar(pos, ws, identifier, exprAvailable, annotCount);
+        BLangVariable field = addVar(pos, ws, identifier, exprAvailable, annotCount);
+        
+        if (!isPrivate) {
+            field.flagSet.add(Flag.PUBLIC);
+        }
     }
 
     public void addVarToAnnotation(DiagnosticPos pos,
@@ -431,11 +434,11 @@ public class BLangPackageBuilder {
     }
 
 
-    public void addVar(DiagnosticPos pos,
-                       Set<Whitespace> ws,
-                       String identifier,
-                       boolean exprAvailable,
-                       int annotCount) {
+    public BLangVariable addVar(DiagnosticPos pos,
+                                Set<Whitespace> ws,
+                                String identifier,
+                                boolean exprAvailable,
+                                int annotCount) {
         BLangVariable var = (BLangVariable) this.generateBasicVarNode(pos, ws, identifier, exprAvailable);
         attachAnnotations(var, annotCount);
         var.pos = pos;
@@ -444,6 +447,8 @@ public class BLangPackageBuilder {
         } else {
             this.varListStack.peek().add(var);
         }
+
+        return var;
     }
 
     public void endCallableUnitSignature(Set<Whitespace> ws, String identifier, boolean paramsAvail,
@@ -472,10 +477,10 @@ public class BLangPackageBuilder {
         }
     }
 
-    public void startLambdaFunctionDef() {
+    public void startLambdaFunctionDef(PackageID pkgID) {
         startFunctionDef();
         BLangFunction lambdaFunction = (BLangFunction) this.invokableNodeStack.peek();
-        lambdaFunction.setName(createIdentifier("$lambda$" + lambdaFunctionCount++));
+        lambdaFunction.setName(createIdentifier(anonymousModelHelper.getNextAnonymousFunctionKey(pkgID)));
         lambdaFunction.addFlag(Flag.LAMBDA);
     }
 
@@ -697,10 +702,15 @@ public class BLangPackageBuilder {
         addExpressionNode(invocationNode);
     }
 
+    public void startInvocationNode(Set<Whitespace> ws) {
+        invocationWsStack.push(ws);
+    }
+
     public void createInvocationNode(DiagnosticPos pos, Set<Whitespace> ws, String invocation, boolean argsAvailable) {
         BLangInvocation invocationNode = (BLangInvocation) TreeBuilder.createInvocationNode();
         invocationNode.pos = pos;
         invocationNode.addWS(ws);
+        invocationNode.addWS(invocationWsStack.pop());
         if (argsAvailable) {
             List<ExpressionNode> exprNodes = exprNodeListStack.pop();
             exprNodes.forEach(exprNode -> invocationNode.argExprs.add((BLangExpression) exprNode));
@@ -825,6 +835,7 @@ public class BLangPackageBuilder {
 
         if (isReceiverAttached) {
             function.receiver = (BLangVariable) this.varStack.pop();
+            function.flagSet.add(Flag.ATTACHED);
         }
 
         this.compUnit.addTopLevelNode(function);
@@ -1041,7 +1052,7 @@ public class BLangPackageBuilder {
     }
 
     public void startConnectorBody() {
-        /* end of connector definition header, so let's populate 
+        /* end of connector definition header, so let's populate
          * the connector information before processing the body */
         ConnectorNode connectorNode = this.connectorNodeStack.peek();
         if (!this.varListStack.empty()) {
@@ -1302,6 +1313,20 @@ public class BLangPackageBuilder {
         whileBlock.pos = pos;
         whileNode.setBody(whileBlock);
         addStmtToCurrentBlock(whileNode);
+    }
+
+    public void startLockStmt() {
+        startBlock();
+    }
+
+    public void addLockStmt(DiagnosticPos pos, Set<Whitespace> ws) {
+        BLangLock lockNode = (BLangLock) TreeBuilder.createLockNode();
+        lockNode.pos = pos;
+        lockNode.addWS(ws);
+        BLangBlockStmt lockBlock = (BLangBlockStmt) this.blockNodeStack.pop();
+        lockBlock.pos = pos;
+        lockNode.setBody(lockBlock);
+        addStmtToCurrentBlock(lockNode);
     }
 
     public void addNextStatement(DiagnosticPos pos, Set<Whitespace> ws) {
@@ -1666,10 +1691,10 @@ public class BLangPackageBuilder {
     }
 
     public void endTransformerDef(DiagnosticPos pos,
-                               Set<Whitespace> ws,
-                               boolean publicFunc,
-                               String name,
-                               boolean paramsAvailable) {
+                                  Set<Whitespace> ws,
+                                  boolean publicFunc,
+                                  String name,
+                                  boolean paramsAvailable) {
 
         BLangTransformer transformer = (BLangTransformer) this.invokableNodeStack.pop();
         transformer.pos = pos;

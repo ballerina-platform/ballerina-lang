@@ -106,12 +106,12 @@ public class JSONLibraryTest {
     @Test
     public void testJsonUnicodeChars() throws IOException {
         String json = "{\"firstName\":\"Will\",\"lastName\":\"Smith\",\"info\":\"\\u2600\","
-                + "\"info2\":\"A\\u2655\\u2665B\"}";
+                + "\"info2\":\"A\\u2655\\u2665\\u266A\\u266aB\"}";
         String json2 = "{\"firstName\":\"Will\",\"lastName\":\"Smith\",\"info\":\"\u2600\","
-                + "\"info2\":\"A\u2655\u2665B\"}";
+                + "\"info2\":\"A\u2655\u2665\u266A\u266aB\"}";
         JsonNode node = JsonParser.parse(json);
         Assert.assertEquals(node.get("info").stringValue(), "☀");
-        Assert.assertEquals(node.get("info2").stringValue(), "A♕♥B");
+        Assert.assertEquals(node.get("info2").stringValue(), "A♕♥♪♪B");
         Assert.assertEquals(node.toString(), json2);
     }
 

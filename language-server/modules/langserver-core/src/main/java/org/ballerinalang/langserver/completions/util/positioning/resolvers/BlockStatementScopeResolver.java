@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.ballerinalang.langserver.completions.util.positioning.resolvers;
 
 import org.ballerinalang.langserver.DocumentServiceKeys;
@@ -21,6 +20,7 @@ import org.ballerinalang.langserver.TextDocumentServiceContext;
 import org.ballerinalang.langserver.completions.TreeVisitor;
 import org.ballerinalang.model.tree.Node;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
+import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangStruct;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
@@ -35,6 +35,8 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+
+import static org.ballerinalang.langserver.TextDocumentServiceUtil.toZeroBasedPosition;
 
 /**
  * Block statement scope position resolver.
@@ -51,7 +53,7 @@ public class BlockStatementScopeResolver extends CursorPositionResolver {
                                       TextDocumentServiceContext completionContext) {
         int line = completionContext.get(DocumentServiceKeys.POSITION_KEY).getPosition().getLine();
         int col = completionContext.get(DocumentServiceKeys.POSITION_KEY).getPosition().getCharacter();
-        DiagnosticPos zeroBasedPos = this.toZeroBasedPosition(nodePosition);
+        DiagnosticPos zeroBasedPos = toZeroBasedPosition(nodePosition);
         int nodeSLine = zeroBasedPos.sLine;
         int nodeSCol = zeroBasedPos.sCol;
         // node endLine for the BLangIf node has to calculate by considering the else node. End line of the BLangIf
@@ -61,14 +63,12 @@ public class BlockStatementScopeResolver extends CursorPositionResolver {
 
         BLangBlockStmt bLangBlockStmt = treeVisitor.getBlockStmtStack().peek();
         Node blockOwner = treeVisitor.getBlockOwnerStack().peek();
-        int blockOwnerELine = this.getBlockOwnerELine(blockOwner, bLangBlockStmt);
-        int blockOwnerECol = this.getBlockOwnerECol(blockOwner, bLangBlockStmt);
 
         boolean isLastStatement = this.isNodeLastStatement(bLangBlockStmt, blockOwner, node);
+        boolean isWithinScopeAfterLastChild = this.isWithinScopeAfterLastChildNode(treeVisitor, isLastStatement,
+                nodeELine, nodeECol, line, col, node);
 
-        if (line < nodeSLine || (line == nodeSLine && col < nodeSCol) ||
-                (isLastStatement && (line < blockOwnerELine || (line == blockOwnerELine && col <= blockOwnerECol)) &&
-                        (line > nodeELine || (line == nodeELine && col > nodeECol)))) {
+        if (line < nodeSLine || (line == nodeSLine && col < nodeSCol) || isWithinScopeAfterLastChild) {
             Map<Name, Scope.ScopeEntry> visibleSymbolEntries =
                     treeVisitor.resolveAllVisibleSymbols(treeVisitor.getSymbolEnv());
             treeVisitor.populateSymbols(visibleSymbolEntries, null);
@@ -77,6 +77,26 @@ public class BlockStatementScopeResolver extends CursorPositionResolver {
         }
 
         return false;
+    }
+    
+    private boolean isWithinScopeAfterLastChildNode(TreeVisitor treeVisitor, boolean lastChild,
+                                                    int nodeELine, int nodeECol, int line, int col, Node node) {
+        if (!lastChild) {
+            return false;
+        } else {
+            BLangBlockStmt bLangBlockStmt = treeVisitor.getBlockStmtStack().peek();
+            Node blockOwner = treeVisitor.getBlockOwnerStack().peek();
+            int blockOwnerELine = this.getBlockOwnerELine(blockOwner, bLangBlockStmt);
+            int blockOwnerECol = this.getBlockOwnerECol(blockOwner, bLangBlockStmt);
+            boolean isWithinScope = (line < blockOwnerELine || (line == blockOwnerELine && col <= blockOwnerECol)) &&
+                    (line > nodeELine || (line == nodeELine && col > nodeECol));
+            
+            if (isWithinScope) {
+                treeVisitor.setPreviousNode((BLangNode) node);
+            }
+            
+            return isWithinScope;
+        }
     }
 
     private boolean isNodeLastStatement(BLangBlockStmt bLangBlockStmt, Node blockOwner, Node node) {
@@ -100,7 +120,7 @@ public class BlockStatementScopeResolver extends CursorPositionResolver {
         } else if (blockOwner instanceof BLangTransaction) {
             return this.getTransactionBlockComponentEndLine((BLangTransaction) blockOwner, bLangBlockStmt);
         } else {
-            return this.toZeroBasedPosition((DiagnosticPos) blockOwner.getPosition()).getEndLine();
+            return toZeroBasedPosition((DiagnosticPos) blockOwner.getPosition()).getEndLine();
         }
     }
 
@@ -110,9 +130,9 @@ public class BlockStatementScopeResolver extends CursorPositionResolver {
         } else if (blockOwner == null) {
             // When the else node is evaluating, block owner is null and the block statement only present
             // This is because, else node is represented with a blocks statement only
-            return this.toZeroBasedPosition(bLangBlockStmt.getPosition()).getEndColumn();
+            return toZeroBasedPosition(bLangBlockStmt.getPosition()).getEndColumn();
         } else {
-            return this.toZeroBasedPosition((DiagnosticPos) blockOwner.getPosition()).getEndColumn();
+            return toZeroBasedPosition((DiagnosticPos) blockOwner.getPosition()).getEndColumn();
         }
     }
 

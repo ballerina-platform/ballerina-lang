@@ -1,20 +1,20 @@
 /*
-*  Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
-*
-*  WSO2 Inc. licenses this file to you under the Apache License,
-*  Version 2.0 (the "License"); you may not use this file except
-*  in compliance with the License.
-*  You may obtain a copy of the License at
-*
-*    http://www.apache.org/licenses/LICENSE-2.0
-*
-*  Unless required by applicable law or agreed to in writing,
-*  software distributed under the License is distributed on an
-*  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-*  KIND, either express or implied.  See the License for the
-*  specific language governing permissions and limitations
-*  under the License.
-*/
+ *  Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ *  WSO2 Inc. licenses this file to you under the Apache License,
+ *  Version 2.0 (the "License"); you may not use this file except
+ *  in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing,
+ *  software distributed under the License is distributed on an
+ *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ *  KIND, either express or implied.  See the License for the
+ *  specific language governing permissions and limitations
+ *  under the License.
+ */
 package org.wso2.ballerinalang.programfile;
 
 
@@ -266,16 +266,18 @@ public class ProgramFileWriter {
      * @throws IOException
      */
     private static void writeCallableUnitInfo(DataOutputStream dataOutStream,
-                                          CallableUnitInfo callableUnitInfo) throws IOException {
+                                              CallableUnitInfo callableUnitInfo) throws IOException {
         dataOutStream.writeInt(callableUnitInfo.nameCPIndex);
         dataOutStream.writeInt(callableUnitInfo.signatureCPIndex);
+        dataOutStream.writeInt(callableUnitInfo.flags);
+        boolean attached = (callableUnitInfo.flags & Flags.ATTACHED) == Flags.ATTACHED;
+        if (attached) {
+            dataOutStream.writeInt(callableUnitInfo.attachedToTypeCPIndex);
+        }
 
-        boolean b = (callableUnitInfo.flags & Flags.NATIVE) == Flags.NATIVE;
-        dataOutStream.writeByte(b ? 1 : 0);
-
-        WorkerDataChannelInfo[] workerDataChannelInfos = callableUnitInfo.getWorkerDataChannelInfo();
-        dataOutStream.writeShort(workerDataChannelInfos.length);
-        for (WorkerDataChannelInfo dataChannelInfo : workerDataChannelInfos) {
+        WorkerDataChannelInfo[] workerDataChannelInfoEntries = callableUnitInfo.getWorkerDataChannelInfo();
+        dataOutStream.writeShort(workerDataChannelInfoEntries.length);
+        for (WorkerDataChannelInfo dataChannelInfo : workerDataChannelInfoEntries) {
             writeWorkerDataChannelInfo(dataOutStream, dataChannelInfo);
         }
 
@@ -300,10 +302,18 @@ public class ProgramFileWriter {
     private static void writeStructInfo(DataOutputStream dataOutStream,
                                         StructInfo structInfo) throws IOException {
         dataOutStream.writeInt(structInfo.nameCPIndex);
-        StructFieldInfo[] structFieldInfoEntries = structInfo.fieldInfoEntries.toArray(new StructFieldInfo[0]);
-        dataOutStream.writeShort(structFieldInfoEntries.length);
-        for (StructFieldInfo structFieldInfoEntry : structFieldInfoEntries) {
+        dataOutStream.writeInt(structInfo.flags);
+
+        // Write struct field info entries
+        dataOutStream.writeShort(structInfo.fieldInfoEntries.size());
+        for (StructFieldInfo structFieldInfoEntry : structInfo.fieldInfoEntries) {
             writeStructFieldInfo(dataOutStream, structFieldInfoEntry);
+        }
+
+        // Write attached function info entries
+        dataOutStream.writeShort(structInfo.attachedFuncInfoEntries.size());
+        for (AttachedFunctionInfo attachedFuncInfo : structInfo.attachedFuncInfoEntries) {
+            writeAttachedFunctionInfo(dataOutStream, attachedFuncInfo);
         }
 
         // Write attribute info
@@ -313,6 +323,7 @@ public class ProgramFileWriter {
     private static void writeEnumInfo(DataOutputStream dataOutStream,
                                         EnumInfo enumInfo) throws IOException {
         dataOutStream.writeInt(enumInfo.nameCPIndex);
+        dataOutStream.writeInt(enumInfo.flags);
         EnumeratorInfo[] enumeratorInfoEntries = enumInfo.enumeratorInfoList.toArray(new EnumeratorInfo[0]);
         dataOutStream.writeShort(enumeratorInfoEntries.length);
         for (EnumeratorInfo enumeratorInfo : enumeratorInfoEntries) {
@@ -327,8 +338,8 @@ public class ProgramFileWriter {
     private static void writeConnectorInfo(DataOutputStream dataOutStream,
                                            ConnectorInfo connectorInfo) throws IOException {
         dataOutStream.writeInt(connectorInfo.nameCPIndex);
-        // TODO write property flags  e.g. public
-        dataOutStream.writeInt(connectorInfo.signatureCPIndex);
+        dataOutStream.writeInt(connectorInfo.flags);
+//        dataOutStream.writeInt(connectorInfo.signatureCPIndex);
     }
 
     private static void writeConnectorActionInfo(DataOutputStream dataOutStream,
@@ -346,6 +357,7 @@ public class ProgramFileWriter {
     private static void writeServiceInfo(DataOutputStream dataOutStream,
                                          ServiceInfo serviceInfo) throws IOException {
         dataOutStream.writeInt(serviceInfo.nameCPIndex);
+        dataOutStream.writeInt(serviceInfo.flags);
         dataOutStream.writeInt(serviceInfo.protocolPkgPathCPIndex);
 
         ResourceInfo[] resourceInfoEntries = serviceInfo.resourceInfoMap.values().toArray(new ResourceInfo[0]);
@@ -572,9 +584,17 @@ public class ProgramFileWriter {
                                              StructFieldInfo structFieldInfo) throws IOException {
         dataOutStream.writeInt(structFieldInfo.nameCPIndex);
         dataOutStream.writeInt(structFieldInfo.signatureCPIndex);
+        dataOutStream.writeInt(structFieldInfo.flags);
 
         // Write attribute info
         writeAttributeInfoEntries(dataOutStream, structFieldInfo.getAttributeInfoEntries());
+    }
+
+    private static void writeAttachedFunctionInfo(DataOutputStream dataOutStream,
+                                                  AttachedFunctionInfo attachedFuncInfo) throws IOException {
+        dataOutStream.writeInt(attachedFuncInfo.nameCPIndex);
+        dataOutStream.writeInt(attachedFuncInfo.signatureCPIndex);
+        dataOutStream.writeInt(attachedFuncInfo.flags);
     }
 
     private static void writeAnnAttachmentInfo(DataOutputStream dataOutStream,

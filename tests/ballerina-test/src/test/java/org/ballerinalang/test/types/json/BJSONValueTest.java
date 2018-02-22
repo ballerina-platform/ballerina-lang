@@ -53,10 +53,10 @@ public class BJSONValueTest {
         Assert.assertEquals(negativeResult.getErrorCount(), 6);
 
         // testJsonArrayWithUnsupportedtypes
-        BAssertUtil.validateError(negativeResult, 0, "incompatible types: expected 'json', found 'datatable'", 3, 30);
+        BAssertUtil.validateError(negativeResult, 0, "incompatible types: expected 'json', found 'table'", 3, 30);
 
         // testJsonInitWithUnsupportedtypes
-        BAssertUtil.validateError(negativeResult, 1, "incompatible types: expected 'json', found 'datatable'", 9, 39);
+        BAssertUtil.validateError(negativeResult, 1, "incompatible types: expected 'json', found 'table'", 9, 39);
 
         // testIntArrayToJsonAssignment
         BAssertUtil.validateError(negativeResult, 2, "incompatible types: expected 'json', found 'int[]'", 15, 14);
@@ -481,13 +481,13 @@ public class BJSONValueTest {
     }
 
     @Test(expectedExceptions = { BLangRuntimeException.class },
-            expectedExceptionsMessageRegExp = "error: NullReferenceException.*")
+            expectedExceptionsMessageRegExp = "error:.*NullReferenceException.*")
     public void testGetFromNull() {
         BRunUtil.invoke(compileResult, "testGetFromNull");
     }
 
     @Test(expectedExceptions = { BLangRuntimeException.class },
-            expectedExceptionsMessageRegExp = "error: NullReferenceException.*")
+            expectedExceptionsMessageRegExp = "error:.*NullReferenceException.*")
     public void testAddToNull() {
         BRunUtil.invoke(compileResult, "testAddToNull");
     }

@@ -18,7 +18,7 @@
 
 package org.ballerinalang.net.uri.parser;
 
-import org.ballerinalang.net.http.Constants;
+import org.ballerinalang.net.http.HttpConstants;
 
 import java.util.Collections;
 import java.util.LinkedList;
@@ -107,7 +107,7 @@ public abstract class Node<DataElementType extends DataElement> {
     }
 
     private void setUriPostFix(Map<String, String> variables, String subUriFragment) {
-        variables.putIfAbsent(Constants.EXTRA_PATH_INFO, "/" + subUriFragment);
+        variables.putIfAbsent(HttpConstants.EXTRA_PATH_INFO, "/" + subUriFragment);
     }
 
     abstract String expand(Map<String, String> variables);
