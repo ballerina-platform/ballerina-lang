@@ -38,6 +38,7 @@ import org.ballerinalang.model.tree.WorkerNode;
 import org.ballerinalang.model.tree.XMLNSDeclarationNode;
 import org.ballerinalang.model.tree.clauses.HavingNode;
 import org.ballerinalang.model.tree.clauses.OrderByNode;
+import org.ballerinalang.model.tree.clauses.SelectClauseNode;
 import org.ballerinalang.model.tree.clauses.SelectExpressionNode;
 import org.ballerinalang.model.tree.expressions.AnnotationAttachmentAttributeNode;
 import org.ballerinalang.model.tree.expressions.AnnotationAttachmentAttributeValueNode;
@@ -117,6 +118,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangGroupBy;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangHaving;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangOrderBy;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangSelectClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangSelectExpression;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangWhere;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAttachmentAttribute;
@@ -505,5 +507,9 @@ public class TreeBuilder {
 
     public static WhereNode createWhereNode() {
         return new BLangWhere();
+    }
+
+    public static SelectClauseNode createSelectClauseNode() {
+        return new BLangSelectClause();
     }
 }

@@ -2042,8 +2042,6 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         if (ctx.exception != null) {
             return;
         }
-
-
     }
 
     /**
@@ -2054,7 +2052,6 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         if (ctx.exception != null) {
             return;
         }
-
     }
 
     @Override
@@ -2064,7 +2061,6 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         }
 
         this.pkgBuilder.startOrderByClauseNode(getCurrentPos(ctx), getWS(ctx));
-
     }
 
     @Override
@@ -2150,7 +2146,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
 
-        //  this.pkgBuilder.startSelectClauseNode(getCurrentPos(ctx), getWS(ctx));
+        this.pkgBuilder.startSelectClauseNode(getCurrentPos(ctx), getWS(ctx));
     }
 
     @Override
@@ -2159,7 +2155,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
 
-        //    this.pkgBuilder.endSelectClauseNode(getCurrentPos(ctx), getWS(ctx));
+        this.pkgBuilder.endSelectClauseNode(getCurrentPos(ctx), getWS(ctx));
     }
 
     @Override

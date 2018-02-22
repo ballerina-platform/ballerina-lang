@@ -44,6 +44,7 @@ import org.ballerinalang.model.tree.WorkerNode;
 import org.ballerinalang.model.tree.clauses.GroupByNode;
 import org.ballerinalang.model.tree.clauses.HavingNode;
 import org.ballerinalang.model.tree.clauses.OrderByNode;
+import org.ballerinalang.model.tree.clauses.SelectClauseNode;
 import org.ballerinalang.model.tree.clauses.SelectExpressionNode;
 import org.ballerinalang.model.tree.expressions.AnnotationAttachmentAttributeValueNode;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
@@ -81,6 +82,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangGroupBy;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangHaving;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangOrderBy;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangSelectClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangSelectExpression;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangWhere;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAttachmentAttribute;
@@ -235,6 +237,8 @@ public class BLangPackageBuilder {
     private Stack<SelectExpressionNode> selectExpressionsStack = new Stack<>();
 
     private Stack<List<SelectExpressionNode>> selectExpressionsListStack = new Stack<>();
+
+    private Stack<SelectClauseNode> selectClausesStack = new Stack<>();
 
     private Set<BLangImportPackage> imports = new HashSet<>();
 
@@ -1944,5 +1948,16 @@ public class BLangPackageBuilder {
         }
         WhereNode whereNode = this.whereClauseStack.peek();
         whereNode.setExpression(exprNodeStack.pop());
+    }
+
+    public void startSelectClauseNode(DiagnosticPos pos, Set<Whitespace> ws) {
+        SelectClauseNode selectClauseNode = TreeBuilder.createSelectClauseNode();
+        ((BLangSelectClause) selectClauseNode).pos = pos;
+        ((BLangSelectClause) selectClauseNode).addWS(ws);
+        this.selectClausesStack.push(selectClauseNode);
+    }
+
+    public void endSelectClauseNode(DiagnosticPos pos, Set<Whitespace> ws) {
+
     }
 }
