@@ -61,12 +61,10 @@ class BallerinaDebugSession extends LoggingDebugSession {
 
     launchRequest(response, args) {
         if (!args['ballerina.sdk']) {
-            this.sendEvent(new OutputEvent(
-                "Couldn't start the debug server. Please set ballerina.sdk."));
-            this.sendEvent(new TerminatedEvent());
+            this.terminate("Couldn't start the debug server. Please set ballerina.sdk.");
             return;
         }
-        
+
         const openFile = args.script;
         let cwd = path.dirname(openFile);
         let fileName = path.basename(openFile);
@@ -90,27 +88,38 @@ class BallerinaDebugSession extends LoggingDebugSession {
         // find an open port 
         openport.find((err, port) => {
             if(err) { 
-                console.log(err);
+                this.terminate("Couldn't find an open port to start the debug server.");
                 return;
             }
-            const debugServer = this.debugServer = spawn(
+
+            let debugServer;
+            debugServer = this.debugServer = spawn(
                 executable,
                 ['run', fileName, '--debug', port],
                 { cwd }
             );
     
+            debugServer.on('error', (err) => {
+                this.terminate("Could not start the debug server.");
+            });
+            
             debugServer.stdout.on('data', (data) => {
-                if (`${data}`.indexOf('Ballerina remote debugger is activated on port') > -1){
+                if (`${data}`.indexOf('Ballerina remote debugger is activated on port') > -1) {
                     this.debugManager.connect(`ws://127.0.0.1:${port}/debug`, () => {
                         this.sendResponse(response);
                         this.sendEvent(new InitializedEvent());
                     });
                 }
-                
+
                 this.sendEvent(new OutputEvent(`${data}`));
             });
+
             debugServer.stderr.on('data', (data) => {
-                this.sendEvent(new OutputEvent(`${data}`));
+                if (`${data}`.indexOf('compilation contains errors') > -1) {
+                    this.terminate('Failed to compile.');
+                } else {
+                    this.sendEvent(new OutputEvent(`${data}`));
+                }
             });
         });
     }
@@ -134,7 +143,7 @@ class BallerinaDebugSession extends LoggingDebugSession {
             this.debugManager.addBreakPoint(bp.line, fileName, pkg);
             bps.push({id: i, line: bp.line, verified: true});
         });
-        
+
         response.body = {
             breakpoints: bps,
         };
@@ -247,6 +256,11 @@ class BallerinaDebugSession extends LoggingDebugSession {
             this.debugServer.kill();
         }
         this.sendResponse(response);
+    }
+
+    terminate(msg) {
+        this.sendEvent(new OutputEvent(msg));
+        this.sendEvent(new TerminatedEvent());
     }
 }
 

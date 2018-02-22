@@ -27,8 +27,6 @@ import org.ballerinalang.langserver.TextDocumentServiceContext;
 import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser;
 import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParserErrorStrategy;
 
-import java.util.ArrayList;
-
 /**
  * Capture possible errors from source.
  */
@@ -63,7 +61,6 @@ public class BallerinaCustomErrorStrategy extends BallerinaParserErrorStrategy {
         ParserRuleContext currentContext = parser.getContext();
         if (isCursorBetweenGivenTokenAndLastNonHiddenToken(currentToken, parser)) {
             this.context.put(DocumentServiceKeys.PARSER_RULE_CONTEXT_KEY, currentContext);
-            this.context.put(DocumentServiceKeys.POSSIBLE_TOKENS_KEY, new ArrayList<>());
             this.context.put(DocumentServiceKeys.TOKEN_STREAM_KEY, parser.getTokenStream());
             this.context.put(DocumentServiceKeys.VOCABULARY_KEY, parser.getVocabulary());
             this.context.put(DocumentServiceKeys.TOKEN_INDEX_KEY, parser.getCurrentToken().getTokenIndex());

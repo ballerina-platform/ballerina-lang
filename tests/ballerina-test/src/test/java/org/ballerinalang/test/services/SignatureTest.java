@@ -34,7 +34,7 @@ public class SignatureTest {
     private CompileResult compileResult;
 
     @Test(expectedExceptions = BallerinaConnectorException.class,
-            expectedExceptionsMessageRegExp = "resource signature parameter count should be more than two")
+            expectedExceptionsMessageRegExp = "resource signature parameter count should be >= 2")
     public void testSignatureWithSingleParam() {
         compileResult = BCompileUtil.compile(getClass().getClassLoader().getResource(
                 "test-src/services/signature/no-request-param.bal").getPath());
@@ -70,6 +70,22 @@ public class SignatureTest {
     public void testSignatureWithBooleanParamAsThirdParam() {
         compileResult = BCompileUtil.compile(getClass().getClassLoader().getResource(
                 "test-src/services/signature/boolean-param.bal").getPath());
+        BServiceUtil.runService(compileResult);
+    }
+
+    @Test(expectedExceptions = BallerinaConnectorException.class,
+            expectedExceptionsMessageRegExp = "incompatible entity-body type : int")
+    public void testSignatureWithInvalidBodyIntParam() {
+        compileResult = BCompileUtil.compile(getClass().getClassLoader().getResource(
+                "test-src/services/signature/invalid-body-param.bal").getPath());
+        BServiceUtil.runService(compileResult);
+    }
+
+    @Test(expectedExceptions = BallerinaConnectorException.class,
+            expectedExceptionsMessageRegExp = "expected 'person' as param name, but found 'ballerina'")
+    public void testSignatureWithMismatchedBodyParam() {
+        compileResult = BCompileUtil.compile(getClass().getClassLoader().getResource(
+                "test-src/services/signature/mismatched-body-param.bal").getPath());
         BServiceUtil.runService(compileResult);
     }
 }

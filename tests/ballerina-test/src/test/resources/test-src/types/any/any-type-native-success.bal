@@ -1,3 +1,4 @@
+import ballerina.io;
 function successfulXmlCasting()(string) {
   any abc = jsonReturnFunction();
   json jsonVal;
@@ -14,20 +15,20 @@ function jsonReturnFunction()(json) {
 
 function printlnAnyVal() {
     any val = jsonReturnFunction();
-    println(val);
+    io:println(val);
 }
 
 function printAnyVal() {
     any val = jsonReturnFunction();
-    print(val);
+    io:print(val);
 }
 
 function findBestNativeFunctionPrintln() {
     int val = 8;
-    println(val);
+    io:println(val);
 }
 
 function findBestNativeFunctionPrint() {
     int val = 7;
-    print(val);
+    io:print(val);
 }

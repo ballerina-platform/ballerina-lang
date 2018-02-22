@@ -1,3 +1,5 @@
+import ballerina.io;
+
 struct Person {
     int id;
     int age;
@@ -161,7 +163,7 @@ function testPrintData () {
     dt.add(p2);
     dt.add(p3);
 
-    println(dt);
+    io:println(dt);
 }
 
 function testTableDrop () {

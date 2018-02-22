@@ -1,4 +1,4 @@
-
+import ballerina.io;
 import ballerina.net.ftp;
 import ballerina.lang.files;
 import ballerina.lang.blobs;
@@ -12,7 +12,7 @@ function main (string[] args) {
     // Checking if a specified file exists.
     files:File target = {path:"ftp://127.0.0.1/ballerina-user/aa.txt"};
     boolean filesExists = ftpEp.exists(target);
-    println("File exists: " + filesExists);
+    io:println("File exists: " + filesExists);
 
     // Creating a new directory at a remote location.
     files:File newDir = {path:"ftp://127.0.0.1/ballerina-user/new-dir/"};
@@ -21,7 +21,7 @@ function main (string[] args) {
     // Reading a file in a remote directory.
     files:File txtFile = {path:"ftp://127.0.0.1/ballerina-user/bb.txt"};
     blob contentB = ftpEp.read(txtFile);
-    println(blobs:toString(contentB, "UTF-8"));
+    io:println(blobs:toString(contentB, "UTF-8"));
 
     // Copying a remote file to another location.
     files:File copyOfTxt = {path:

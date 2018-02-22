@@ -11,6 +11,6 @@ function testCastingWithTooManyReturns() {
     B b = {x: "x-valueof-b"};
     A a;
     int i;
-    TypeCastError err;
+    error err;
     a, err, i = (A) b;
 }

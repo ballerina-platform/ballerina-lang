@@ -1,3 +1,5 @@
+import ballerina.io;
+
 function main (string[] args) {
     //The vertical bar (|) character is used to demarcate the identifier name.
     //This is similar to string literals (using double quote characters to demarcate).
@@ -6,7 +8,7 @@ function main (string[] args) {
 
     //Invoking a function with identifier literal as a parameter.
     string name = |combine names|(|first name|, |last name|);
-    println(name);
+    io:println(name);
 }
 
 @Description {value:"Sample function defined with function name and input parameter using identifier literals."}

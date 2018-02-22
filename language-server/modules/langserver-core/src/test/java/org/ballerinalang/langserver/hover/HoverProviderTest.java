@@ -87,36 +87,36 @@ public class HoverProviderTest {
     @DataProvider(name = "hoverBuiltinFuncPosition")
     public Object[][] getBuiltinFunctionPositions() {
         return new Object[][]{
-                {new Position(39, 7), "builtin-function1.json"},
-                {new Position(40, 19), "builtin-function2.json"}
+                {new Position(41, 7), "builtin-function1.json"},
+                {new Position(42, 19), "builtin-function2.json"}
         };
     }
 
     @DataProvider(name = "hoverCurrentPackageFuncPosition")
     public Object[][] getCurrentPackageFunctionPositions() {
         return new Object[][]{
-                {new Position(41, 15), "currentPkg-function1.json"}
+                {new Position(43, 15), "currentPkg-function1.json"}
         };
     }
 
     @DataProvider(name = "hoverCurrentPackageEnumPosition")
     public Object[][] getCurrentPackageEnumPositions() {
         return new Object[][]{
-                {new Position(29, 20), "currentPkg-enum.json"},
-                {new Position(30, 7), "currentPkg-enum.json"},
-                {new Position(30, 20), "currentPkg-enum.json"},
-                {new Position(31, 12), "currentPkg-enum.json"},
-                {new Position(32, 8), "currentPkg-enum.json"},
-                {new Position(32, 14), "currentPkg-enum.json"}
+                {new Position(31, 20), "currentPkg-enum.json"},
+                {new Position(32, 7), "currentPkg-enum.json"},
+                {new Position(32, 20), "currentPkg-enum.json"},
+                {new Position(33, 12), "currentPkg-enum.json"},
+                {new Position(34, 8), "currentPkg-enum.json"},
+                {new Position(34, 14), "currentPkg-enum.json"}
         };
     }
 
     @DataProvider(name = "hoverCurrentPackageStructPosition")
     public Object[][] getCurrentPackageStructPositions() {
         return new Object[][]{
-                {new Position(42, 7), "currentPkg-struct.json"},
-                {new Position(47, 19), "currentPkg-struct.json"},
-                {new Position(48, 8), "currentPkg-struct.json"}
+                {new Position(44, 7), "currentPkg-struct.json"},
+                {new Position(49, 19), "currentPkg-struct.json"},
+                {new Position(50, 8), "currentPkg-struct.json"}
         };
     }
 

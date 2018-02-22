@@ -138,7 +138,22 @@ public class Init extends AbstractHTTPAction {
             String sslEnabledProtocols = ssl.getStringField(HttpConstants.SSL_ENABLED_PROTOCOLS_INDEX);
             String ciphers = ssl.getStringField(HttpConstants.CIPHERS_INDEX);
             String sslProtocol = ssl.getStringField(HttpConstants.SSL_PROTOCOL_INDEX);
+            boolean validateCertEnabled = ssl.getBooleanField(HttpConstants.VALIDATE_CERT_ENABLED_INDEX) == TRUE;
+            int cacheSize = (int) ssl.getIntField(HttpConstants.CACHE_SIZE_INDEX);
+            int cacheValidityPeriod = (int) ssl.getIntField(HttpConstants.CACHE_VALIDITY_PERIOD_INDEX);
 
+            if (validateCertEnabled) {
+                senderConfiguration.setValidateCertEnabled(validateCertEnabled);
+                if (cacheValidityPeriod != 0) {
+                    senderConfiguration.setCacheValidityPeriod(cacheValidityPeriod);
+                }
+                if (cacheSize != 0) {
+                    senderConfiguration.setCacheSize(cacheSize);
+                }
+            }
+            boolean hostNameVerificationEnabled =
+                    ssl.getBooleanField(HttpConstants.HOST_NAME_VERIFICATION_ENABLED_INDEX) == TRUE;
+            senderConfiguration.setHostNameVerificationEnabled(hostNameVerificationEnabled);
             if (StringUtils.isNotBlank(trustStoreFile)) {
                 senderConfiguration.setTrustStoreFile(trustStoreFile);
             }

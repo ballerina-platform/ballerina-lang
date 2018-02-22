@@ -22,7 +22,7 @@ import TreeView from 'react-treeview';
 import ReactJson from 'react-json-view';
 import JSON5 from 'json5';
 import 'react-treeview/react-treeview.css';
-import HtmlTree from 'react-htmltree';
+import HtmlTree from '@pahans/react-htmltree';
 import './frames.scss';
 /**
  *

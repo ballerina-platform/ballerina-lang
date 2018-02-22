@@ -35,10 +35,12 @@ import java.util.Properties;
 public class RuntimeTest {
 
     private CompileResult compileResult;
+    private CompileResult errorResult;
 
     @BeforeClass
     public void setup() {
         compileResult = BCompileUtil.compile("test-src/nativeimpl/functions/runtime-test.bal");
+        errorResult = BCompileUtil.compile("test-src/nativeimpl/functions/runtime-error.bal");
     }
 
     @Test
@@ -102,5 +104,26 @@ public class RuntimeTest {
         Assert.assertTrue(returns[0] instanceof BString);
         String expectedValue = System.getProperty("file.encoding");
         Assert.assertEquals(returns[0].stringValue(), expectedValue);
+    }
+
+    @Test
+    public void testGetCallStack() {
+        BValue[] returns = BRunUtil.invoke(errorResult, "testGetCallStack");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals(returns[0].stringValue(), "[{workerName:\"getCallStack\", " +
+                "packageName:\"ballerina.runtime\", fileName:\"<native>\", lineNumber:0}," +
+                " {workerName:\"level2Function\", packageName:\".\", fileName:\"runtime-error.bal\", lineNumber:12}," +
+                " {workerName:\"level1Function\", packageName:\".\", fileName:\"runtime-error.bal\", lineNumber:8}," +
+                " {workerName:\"testGetCallStack\", packageName:\".\", fileName:\"runtime-error.bal\", lineNumber:4}]");
+    }
+
+    @Test
+    public void testErrorStack() {
+        BValue[] returns = BRunUtil.invoke(errorResult, "testErrorStack");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals(returns[0].stringValue(), "[" +
+                "{workerName:\"level2Error\", packageName:\".\", fileName:\"runtime-error.bal\", lineNumber:32}, " +
+                "{workerName:\"level1Error\", packageName:\".\", fileName:\"runtime-error.bal\", lineNumber:25}, " +
+                "{workerName:\"testErrorStack\", packageName:\".\", fileName:\"runtime-error.bal\", lineNumber:17}]");
     }
 }
