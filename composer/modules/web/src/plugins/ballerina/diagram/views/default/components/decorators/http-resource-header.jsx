@@ -190,3 +190,4 @@ HttpResourceHeader.propTypes = {
 };
 
 export default HttpResourceHeader;
+
