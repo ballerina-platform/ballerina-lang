@@ -2519,15 +2519,7 @@ public class CPU {
 
     private static void handleTypeConversionError(WorkerExecutionContext ctx, WorkerData sf, int errorRegIndex, String errorMessage,
                                            String sourceTypeName, String targetTypeName) {
-        BStruct errorVal;
-        errorVal = BLangVMErrors.createTypeConversionError(ctx, ctx.ip, errorMessage, sourceTypeName, targetTypeName);
-        if (errorRegIndex == -1) {
-            ctx.setError(errorVal);
-            handleError();
-            return;
-        }
-
-        sf.refRegs[errorRegIndex] = errorVal;
+        //TODO
     }
 
     private static void createNewIntRange(int[] operands, WorkerData sf) {
@@ -2890,7 +2882,7 @@ public class CPU {
             BLangVMUtils.populateWorkerDataWithValues(parentLocalData, retRegs, retVals, retTypes);
         } catch (BLangNullReferenceException e) {
             e.printStackTrace();
-            parentCtx.setError(BLangVMErrors.createNullRefError(parentCtx, parentCtx.ip));
+            parentCtx.setError(BLangVMErrors.createNullRefException(parentCtx, parentCtx.ip));
             handleError();
             return;
         } catch (Throwable e) {
@@ -3590,7 +3582,7 @@ public class CPU {
     }
 
     private static void handleNullRefError(WorkerExecutionContext ctx) {
-        ctx.setError(BLangVMErrors.createNullRefError(ctx, ctx.ip));
+        ctx.setError(BLangVMErrors.createNullRefException(ctx, ctx.ip));
         handleError();
     }
 
