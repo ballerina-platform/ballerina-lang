@@ -72,7 +72,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import static org.ballerinalang.bre.bvm.BLangVMErrors.BUILTIN_PACKAGE;
+import static org.ballerinalang.bre.bvm.BLangVMErrors.PACKAGE_BUILTIN;
 import static org.ballerinalang.bre.bvm.BLangVMErrors.STRUCT_GENERIC_ERROR;
 import static org.ballerinalang.mime.util.Constants.CONTENT_TYPE;
 import static org.ballerinalang.mime.util.Constants.ENTITY_HEADERS_INDEX;
@@ -246,7 +246,7 @@ public class HttpUtil {
 
         HttpUtil.checkEntityAvailability(context, outboundResponseStruct);
         HttpUtil.setKeepAliveHeader(context, outboundResponseMsg);
-        addHTTPSessionAndCorsHeaders(inboundRequestMsg, outboundResponseMsg);
+        HttpUtil.addHTTPSessionAndCorsHeaders(context, inboundRequestMsg, outboundResponseMsg);
         HttpUtil.enrichOutboundMessage(outboundResponseMsg, outboundResponseStruct);
     }
 
@@ -264,10 +264,24 @@ public class HttpUtil {
                 .findFirst().get().trim().substring(HttpConstants.SESSION_ID.length());
     }
 
-    public static void addHTTPSessionAndCorsHeaders(HTTPCarbonMessage requestMsg, HTTPCarbonMessage responseMsg) {
+    public static void addHTTPSessionAndCorsHeaders(Context context, HTTPCarbonMessage requestMsg,
+                                                    HTTPCarbonMessage responseMsg) {
         Session session = (Session) requestMsg.getProperty(HttpConstants.HTTP_SESSION);
         if (session != null) {
-            session.generateSessionHeader(responseMsg);
+            boolean isSecureRequest = false;
+            AnnAttachmentInfo configAnn = context.getServiceInfo().getAnnotationAttachmentInfo(
+                    HttpConstants.PROTOCOL_PACKAGE_HTTP, HttpConstants.ANN_NAME_CONFIG);
+            if (configAnn != null) {
+                AnnAttributeValue httpsPortAttrVal = configAnn
+                        .getAttributeValue(HttpConstants.ANN_CONFIG_ATTR_HTTPS_PORT);
+                if (httpsPortAttrVal != null) {
+                    Integer listenerPort = (Integer) requestMsg.getProperty(HttpConstants.LISTENER_PORT);
+                    if (listenerPort != null && httpsPortAttrVal.getIntValue() == listenerPort) {
+                        isSecureRequest = true;
+                    }
+                }
+            }
+            session.generateSessionHeader(responseMsg, isSecureRequest);
         }
         //Process CORS if exists.
         if (requestMsg.getHeader(HttpConstants.ORIGIN) != null) {
@@ -910,7 +924,7 @@ public class HttpUtil {
      * @return Generic error message.
      */
     public static BStruct getGenericError(Context context, String errMsg) {
-        PackageInfo errorPackageInfo = context.getProgramFile().getPackageInfo(BUILTIN_PACKAGE);
+        PackageInfo errorPackageInfo = context.getProgramFile().getPackageInfo(PACKAGE_BUILTIN);
         StructInfo errorStructInfo = errorPackageInfo.getStructInfo(STRUCT_GENERIC_ERROR);
 
         BStruct genericError = new BStruct(errorStructInfo.getType());

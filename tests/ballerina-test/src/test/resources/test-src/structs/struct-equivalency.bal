@@ -246,7 +246,7 @@ function testRuntimeEqPrivateStructsInSamePackage () (string) {
     // This is a unsafe cast
     var uB, err = (userB)uA;
     if (err != null) {
-        return err.msg;
+        return err.message;
     }
     return uB.name;
 }
@@ -304,7 +304,7 @@ function testRuntimeEqPublicStructsInSamePackage () (string) {
     // This is a unsafe cast
     var uB, err = (userPB)uA;
     if (err != null) {
-        return err.msg;
+        return err.message;
     }
     return uB.name;
 }
@@ -318,7 +318,7 @@ function testRuntimeEqPublicStructs () (string) {
     // This is a unsafe cast
     var uB, err = (userPB)uA;
     if (err != null) {
-        return err.msg;
+        return err.message;
     }
     return uB.name;
 }
@@ -332,7 +332,7 @@ function testRuntimeEqPublicStructs1 () (string) {
     // This is a unsafe cast
     var uB, err = (req2:userPB)uA;
     if (err != null) {
-        return err.msg;
+        return err.message;
     }
     return uB.getName();
 }

@@ -1,3 +1,4 @@
+import ballerina.io;
 import ballerina.net.ws;
 
 @ws:configuration {
@@ -15,7 +16,7 @@ service<ws> SimpleProxyServer {
         ws:ClientConnectorConfig clientConnectorConfig = {parentConnectionID:con.connectionID};
         var clientConn, e = c.connect(clientConnectorConfig);
         if (e != null) {
-            println("Error occcurred : " + e.msg);
+            io:println("Error occcurred : " + e.message);
             con.cancelHandshake(1001, "Cannot connect to remote server");
         } else {
             clientConn.attributes["name"] = name;

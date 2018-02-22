@@ -1,3 +1,5 @@
+import ballerina.io;
+
 xmlns "http://ballerina.com/aa" as ns0;
 
 function main (string[] args) {
@@ -8,9 +10,9 @@ function main (string[] args) {
     xmlns "http://ballerina.com/default";
 
     // Namespaces can be used for XML qualified names.
-    println(ns0:foo);
+    io:println(ns0:foo);
 
     // Package level namespaces can be overridden at function level.
     xmlns "http://ballerina.com/updated" as ns0;
-    println(ns0:foo);
+    io:println(ns0:foo);
 }

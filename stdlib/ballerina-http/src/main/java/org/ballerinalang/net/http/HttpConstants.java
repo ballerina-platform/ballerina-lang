@@ -124,6 +124,8 @@ public class HttpConstants {
     public static final String PATH = "Path=";
     public static final String RESPONSE_COOKIE_HEADER = "Set-Cookie";
     public static final String SESSION = "Session";
+    public static final String HTTP_ONLY = "HttpOnly";
+    public static final String SECURE = "Secure";
 
     public static final String ORIGIN = "Origin";
     public static final String AC_REQUEST_METHOD = "Access-Control-Request-Method";
@@ -191,6 +193,7 @@ public class HttpConstants {
     public static final int VALIDATE_CERT_ENABLED_INDEX = 0;
     public static final int CACHE_SIZE_INDEX = 0;
     public static final int CACHE_VALIDITY_PERIOD_INDEX = 1;
+    public static final int HOST_NAME_VERIFICATION_ENABLED_INDEX = 1;
 
     public static final int HTTP_MESSAGE_INDEX = 0;
     public static final int ENTITY_INDEX = 1;

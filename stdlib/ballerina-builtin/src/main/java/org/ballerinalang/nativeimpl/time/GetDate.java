@@ -15,10 +15,11 @@
 * specific language governing permissions and limitations
 * under the License.
 */
-package org.ballerinalang.nativeimpl.builtin.timelib;
+package org.ballerinalang.nativeimpl.time;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeKind;
+import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.Argument;
@@ -26,26 +27,26 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
 /**
- * Change the timezone associated with the given time.
+ * Get the year,month and date value for the given time.
  *
  * @since 0.89
  */
 @BallerinaFunction(
-        packageName = "ballerina.builtin",
-        functionName = "Time.toTimezone",
+        packageName = "ballerina.time",
+        functionName = "Time.getDate",
         args = {@Argument(name = "time", type = TypeKind.STRUCT, structType = "Time",
-                          structPackage = "ballerina.builtin"),
-                @Argument(name = "zoneId", type = TypeKind.STRING)},
-        returnType = {@ReturnType(type = TypeKind.STRUCT, structType = "Time",
-                                  structPackage = "ballerina.builtin")},
+                          structPackage = "ballerina.time")},
+        returnType = {@ReturnType(type = TypeKind.INT),
+                      @ReturnType(type = TypeKind.INT),
+                      @ReturnType(type = TypeKind.INT)},
         isPublic = true
 )
-public class ToTimezone extends  AbstractTimeFunction {
+public class GetDate extends AbstractTimeFunction {
 
     @Override
     public BValue[] execute(Context context) {
         BStruct timeStruct = ((BStruct) getRefArgument(context, 0));
-        String zoneId = getStringArgument(context, 0);
-        return new BValue[] { changeTimezone(context, timeStruct, zoneId) };
+        return getBValues(new BInteger(getYear(timeStruct)), new BInteger(getMonth(timeStruct)),
+                new BInteger(getDay(timeStruct)));
     }
 }

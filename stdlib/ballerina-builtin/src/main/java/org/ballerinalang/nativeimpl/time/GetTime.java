@@ -15,7 +15,7 @@
 * specific language governing permissions and limitations
 * under the License.
 */
-package org.ballerinalang.nativeimpl.builtin.timelib;
+package org.ballerinalang.nativeimpl.time;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeKind;
@@ -27,23 +27,27 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
 /**
- * Get the year value for the given time.
+ * Get the hour, minute, second and millisecond value for the given time.
  *
  * @since 0.89
  */
 @BallerinaFunction(
-        packageName = "ballerina.builtin",
-        functionName = "Time.year",
+        packageName = "ballerina.time",
+        functionName = "Time.getTime",
         args = {@Argument(name = "time", type = TypeKind.STRUCT, structType = "Time",
-                          structPackage = "ballerina.builtin")},
-        returnType = {@ReturnType(type = TypeKind.INT)},
+                          structPackage = "ballerina.time")},
+        returnType = {@ReturnType(type = TypeKind.INT),
+                      @ReturnType(type = TypeKind.INT),
+                      @ReturnType(type = TypeKind.INT),
+                      @ReturnType(type = TypeKind.INT)},
         isPublic = true
 )
-public class Year extends AbstractTimeFunction {
+public class GetTime extends AbstractTimeFunction {
 
     @Override
     public BValue[] execute(Context context) {
         BStruct timeStruct = ((BStruct) getRefArgument(context, 0));
-        return new BValue[]{new BInteger(getYear(timeStruct))};
+        return getBValues(new BInteger(getHour(timeStruct)), new BInteger(getMinute(timeStruct)),
+                new BInteger(getSecond(timeStruct)), new BInteger(getMilliSecond(timeStruct)));
     }
 }
