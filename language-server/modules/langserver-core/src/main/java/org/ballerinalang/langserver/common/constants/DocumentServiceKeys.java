@@ -15,11 +15,13 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.ballerinalang.langserver;
+package org.ballerinalang.langserver.common.constants;
 
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.TokenStream;
 import org.antlr.v4.runtime.Vocabulary;
+import org.ballerinalang.langserver.common.BLangPackageCache;
+import org.ballerinalang.langserver.common.context.LanguageServerContext;
 import org.eclipse.lsp4j.SymbolInformation;
 import org.eclipse.lsp4j.TextDocumentPositionParams;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
@@ -52,6 +54,6 @@ public class DocumentServiceKeys {
             = new LanguageServerContext.Key<>();
     public static final LanguageServerContext.Key<List<SymbolInformation>> SYMBOL_LIST_KEY
             = new LanguageServerContext.Key<>();
-    public static final LanguageServerContext.Key<BLangPackageContext> B_LANG_PACKAGE_CONTEXT_KEY
+    public static final LanguageServerContext.Key<BLangPackageCache> B_LANG_PACKAGE_CONTEXT_KEY
             = new LanguageServerContext.Key<>();
 }

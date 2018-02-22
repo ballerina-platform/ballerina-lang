@@ -16,7 +16,7 @@
 
 package org.ballerinalang.langserver.completions.util.positioning.resolvers;
 
-import org.ballerinalang.langserver.TextDocumentServiceContext;
+import org.ballerinalang.langserver.common.context.TextDocumentServiceContext;
 import org.ballerinalang.langserver.completions.TreeVisitor;
 import org.ballerinalang.model.tree.Node;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;

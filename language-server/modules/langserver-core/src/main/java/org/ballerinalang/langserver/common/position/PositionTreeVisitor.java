@@ -16,11 +16,11 @@
 
 package org.ballerinalang.langserver.common.position;
 
-import org.ballerinalang.langserver.DocumentServiceKeys;
-import org.ballerinalang.langserver.TextDocumentServiceContext;
-import org.ballerinalang.langserver.common.NodeVisitor;
+import org.ballerinalang.langserver.common.LangServerNodeVisitor;
 import org.ballerinalang.langserver.common.constants.ContextConstants;
+import org.ballerinalang.langserver.common.constants.DocumentServiceKeys;
 import org.ballerinalang.langserver.common.constants.NodeContextKeys;
+import org.ballerinalang.langserver.common.context.TextDocumentServiceContext;
 import org.ballerinalang.langserver.hover.util.HoverUtil;
 import org.ballerinalang.model.tree.TopLevelNode;
 import org.eclipse.lsp4j.Position;
@@ -76,7 +76,7 @@ import java.util.stream.Collectors;
 /**
  * Tree visitor for finding the node at the given position.
  */
-public class PositionTreeVisitor extends NodeVisitor {
+public class PositionTreeVisitor extends LangServerNodeVisitor {
 
     private String fileName;
     private Position position;

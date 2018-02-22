@@ -17,7 +17,7 @@
 */
 package org.ballerinalang.langserver.completions.resolvers;
 
-import org.ballerinalang.langserver.TextDocumentServiceContext;
+import org.ballerinalang.langserver.common.context.TextDocumentServiceContext;
 import org.eclipse.lsp4j.CompletionItem;
 
 import java.util.ArrayList;

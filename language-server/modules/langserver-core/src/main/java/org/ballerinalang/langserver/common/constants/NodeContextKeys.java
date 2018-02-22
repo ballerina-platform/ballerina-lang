@@ -15,7 +15,7 @@
  */
 package org.ballerinalang.langserver.common.constants;
 
-import org.ballerinalang.langserver.LanguageServerContext;
+import org.ballerinalang.langserver.common.context.LanguageServerContext;
 import org.ballerinalang.model.elements.PackageID;
 import org.eclipse.lsp4j.Location;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;

@@ -16,11 +16,11 @@
 
 package org.ballerinalang.langserver.references.util;
 
-import org.ballerinalang.langserver.BLangPackageContext;
-import org.ballerinalang.langserver.BallerinaPackageLoader;
-import org.ballerinalang.langserver.DocumentServiceKeys;
-import org.ballerinalang.langserver.TextDocumentServiceContext;
+import org.ballerinalang.langserver.common.BLangPackageCache;
+import org.ballerinalang.langserver.common.constants.DocumentServiceKeys;
 import org.ballerinalang.langserver.common.constants.NodeContextKeys;
+import org.ballerinalang.langserver.common.context.TextDocumentServiceContext;
+import org.ballerinalang.langserver.common.utils.BallerinaPackageLoader;
 import org.ballerinalang.langserver.references.ReferencesTreeVisitor;
 import org.ballerinalang.model.elements.PackageID;
 import org.eclipse.lsp4j.Location;
@@ -37,17 +37,17 @@ public class ReferenceUtil {
      * Get definition position for the given definition context.
      *
      * @param referencesContext   context of the references.
-     * @param bLangPackageContext package context for language server.
+     * @param bLangPackageCache package context for language server.
      * @return position
      */
     public static List<Location> getReferences(TextDocumentServiceContext referencesContext,
-                                               BLangPackageContext bLangPackageContext) {
+                                               BLangPackageCache bLangPackageCache) {
         ReferencesTreeVisitor referencesTreeVisitor = new ReferencesTreeVisitor(referencesContext);
 
         for (Object o : BallerinaPackageLoader.getPackageList(referencesContext
                 .get(DocumentServiceKeys.COMPILER_CONTEXT_KEY), 15)) {
             PackageID packageID = (PackageID) o;
-            BLangPackage bLangPackage = getPackageOfTheOwner(packageID.name, referencesContext, bLangPackageContext);
+            BLangPackage bLangPackage = getPackageOfTheOwner(packageID.name, referencesContext, bLangPackageCache);
             bLangPackage.accept(referencesTreeVisitor);
         }
 
@@ -59,12 +59,12 @@ public class ReferenceUtil {
      *
      * @param packageName         name of the package
      * @param referencesContext   context for the references
-     * @param bLangPackageContext package context of language server
+     * @param bLangPackageCache package context of language server
      * @return ballerina language package
      */
     private static BLangPackage getPackageOfTheOwner(Name packageName, TextDocumentServiceContext referencesContext,
-                                                     BLangPackageContext bLangPackageContext) {
-        return bLangPackageContext
+                                                     BLangPackageCache bLangPackageCache) {
+        return bLangPackageCache
                 .getPackageByName(referencesContext.get(DocumentServiceKeys.COMPILER_CONTEXT_KEY), packageName);
     }
 }

@@ -15,34 +15,27 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.ballerinalang.langserver;
+package org.ballerinalang.langserver.common.context;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
- * Ballerina Language server context.
+ * Language server context for text document server.
  * @since 0.95.5
  */
-public interface LanguageServerContext {
+public class TextDocumentServiceContext implements LanguageServerContext {
 
-    /**
-     * Add new Context property.
-     * @param key   Property Key
-     * @param value Property value
-     * @param <V>   Key Type
-     */
-    <V> void put(Key<V> key, V value);
+    private Map<Key<?>, Object> props = new HashMap<>();
 
-    /**
-     * Get property by Key.
-     * @param key   Property Key
-     * @param <V>   Key Type
-     * @return {@link Object}   Property
-     */
-    <V> V get(Key<V> key);
+    @Override
+    public <V> void put(Key<V> key, V value) {
+        props.put(key, value);
+    }
 
-    /**
-     * @param <K>
-     * @since 0.95.5
-     */
-    class Key<K> {
+    @Override
+    @SuppressWarnings("unchecked")
+    public <V> V get(Key<V> key) {
+        return (V) props.get(key);
     }
 }

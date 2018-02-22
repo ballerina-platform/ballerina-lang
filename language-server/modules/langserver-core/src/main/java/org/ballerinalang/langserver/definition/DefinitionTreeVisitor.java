@@ -16,10 +16,10 @@
 
 package org.ballerinalang.langserver.definition;
 
-import org.ballerinalang.langserver.DocumentServiceKeys;
-import org.ballerinalang.langserver.TextDocumentServiceContext;
-import org.ballerinalang.langserver.common.NodeVisitor;
+import org.ballerinalang.langserver.common.LangServerNodeVisitor;
+import org.ballerinalang.langserver.common.constants.DocumentServiceKeys;
 import org.ballerinalang.langserver.common.constants.NodeContextKeys;
+import org.ballerinalang.langserver.common.context.TextDocumentServiceContext;
 import org.ballerinalang.model.tree.TopLevelNode;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
@@ -51,7 +51,7 @@ import java.util.stream.Collectors;
 /**
  * Tree visitor to find the definition of variables.
  */
-public class DefinitionTreeVisitor extends NodeVisitor {
+public class DefinitionTreeVisitor extends LangServerNodeVisitor {
 
     private boolean terminateVisitor = false;
     private TextDocumentServiceContext context;
