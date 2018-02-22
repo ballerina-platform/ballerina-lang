@@ -1,3 +1,5 @@
+import ballerina.io;
+
 struct Record {
     int id;
     string name;
@@ -6,10 +8,10 @@ struct Record {
 @Description {value:"Here's how you can throw an error. Next example shows you how to catch thrown errors."}
 function readRecord (Record value) {
     if (value == null) {
-        error err = {msg:"Record is null"};
+        error err = {message:"Record is null"};
         throw err;
     }
-    println("Record ID: " + value.id + ", value: " + value.name);
+    io:println("Record ID: " + value.id + ", value: " + value.name);
 }
 
 function main (string[] args) {

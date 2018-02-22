@@ -1,3 +1,5 @@
+import ballerina.io;
+
 function main (string[] args) {
 
     // Declare the fork-join statement.
@@ -5,14 +7,14 @@ function main (string[] args) {
         worker w1 {
             int i = 23;
             string s = "Colombo";
-            println("[w1] i: " + i + " s: " + s);
+            io:println("[w1] i: " + i + " s: " + s);
             // Reply to the join block from worker w1.
             i, s -> fork;
         }
 
         worker w2 {
             float f = 10.344;
-            println("[w2] f: " + f);
+            io:println("[w2] f: " + f);
             // Reply to the join block from worker w2.
             f -> fork;
         }
@@ -26,14 +28,14 @@ function main (string[] args) {
             var resW1, _ = (any[])results["w1"];
             var iW1, _ = (int)resW1[0];
             var sW1, _ = (string)resW1[1];
-            println("[join-block] iW1: " + iW1 + " sW1: " + sW1);
+            io:println("[join-block] iW1: " + iW1 + " sW1: " + sW1);
         }
 
         // Check whether the completed worker is 'w2'.
         if (results["w2"] != null) {
             var resW2, _ = (any[])results["w2"];
             var fW2, _ = (float)resW2[0];
-            println("[join-block] fW2: " + fW2);
+            io:println("[join-block] fW2: " + fW2);
         }
     }
 }
