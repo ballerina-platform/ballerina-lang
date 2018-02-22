@@ -49,7 +49,7 @@ import static org.ballerinalang.util.BLangConstants.USER_REPO_SRC_DIRNAME;
  */
 public class NetworkUtils {
     private static final Logger log = LoggerFactory.getLogger(NetworkUtils.class);
-    private static final String BALLERINA_CENTRAL_REPO_URL = "http://0.0.0.0:9090/p/";
+    private static final String BALLERINA_CENTRAL_REPO_URL = "https://staging.central.ballerina.io/p/";
     private static CompileResult compileResult;
 
     /**

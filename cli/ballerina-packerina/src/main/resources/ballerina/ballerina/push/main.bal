@@ -23,8 +23,11 @@ function main (string[] args) {
     topLevelEntity.multipartData = bodyParts;
     http:OutRequest request = {};
     request.setEntity(topLevelEntity);
-    http:InResponse resp1 = {};
-    resp1, _ = httpEndpoint.post("", request);
+    var resp1, err = httpEndpoint.post("", request);
+    if (err != null) {
+        error err = {msg: err.msg};
+        throw err;
+    }
     if (resp1.statusCode != 200) {
         println("Internal server error occured when pushing the package to the central repository");
     } else {
