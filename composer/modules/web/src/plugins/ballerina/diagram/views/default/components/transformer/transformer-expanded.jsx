@@ -53,10 +53,7 @@ class TransformerExpanded extends React.Component {
         super(props, context);
         this.state = {
             // vertices changes must re-render. Hence added as a state.
-            showIterables: false,
-            iterableX: 0,
-            iterableY: 0,
-            currrentConnection: {},
+            iterableOperationMenu : {},
             vertices: [],
             typedSource: '',
             typedTarget: '',
@@ -551,7 +548,7 @@ class TransformerExpanded extends React.Component {
                     }
                 }
             } else if (TreeUtil.isInvocation(expression)) {
-                if (expression.iterableOperation) {
+                if (expression.iterableOperation && !targetId.includes('receiver')) {
                     type = 'array';
                 } else {
                     type = this.getFunctionArgConversionType(expression.getArgumentExpressions(),
@@ -562,11 +559,14 @@ class TransformerExpanded extends React.Component {
                 type = 'array';
             }
         }
-
         const callback = (pageX, pageY, connection) => {
-            this.setState({ showIterables: true, iterableX: pageX, iterableY: pageY, currrentConnection: connection });
+            this.setState({ iterableOperationMenu: {
+                showIterables: true,
+                iterableX: pageX,
+                iterableY: pageY,
+                currrentConnection: connection,
+            } });
         };
-
         this.mapper.addConnection(sourceId, targetId, folded, type, callback);
     }
 
@@ -1373,11 +1373,16 @@ class TransformerExpanded extends React.Component {
                                         transformNodeManager={this.transformNodeManager}
                                     />
                                     <IterableList
-                                        showIterables={this.state.showIterables}
-                                        bBox={{ x: this.state.iterableX, y: this.state.iterableY, h: 0, w: 0 }}
-                                        currrentConnection={this.state.currrentConnection}
+                                        showIterables={this.state.iterableOperationMenu.showIterables}
+                                        bBox={{
+                                            x: this.state.iterableOperationMenu.iterableX,
+                                            y: this.state.iterableOperationMenu.iterableY,
+                                            h: 0,
+                                            w: 0,
+                                        }}
+                                        currrentConnection={this.state.iterableOperationMenu.currrentConnection}
                                         transformNodeManager={this.transformNodeManager}
-                                        callback={() => { this.setState({ showIterables: false }); }}
+                                        callback={() => { this.setState({ iterableOperationMenu: { showIterables: false } }); }}
                                     />
                                     <div className='right-content'>
                                         <div className='rightType'>

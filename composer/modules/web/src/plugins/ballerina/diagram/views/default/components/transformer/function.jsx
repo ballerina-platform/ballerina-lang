@@ -17,6 +17,7 @@
  */
 
 import React from 'react';
+import PropTypes from 'prop-types';
 import Tree from './tree.jsx';
 import './function.css';
 
@@ -85,7 +86,9 @@ export default class FunctionInv extends React.Component {
                         className={`fw ${foldIndicator} fold-indicator`}
                         onClick={() => this.props.onHeaderClick(funcInvID)}
                     />
-                    <i className={`fw fw-${func.type === 'iterable' ? 'iterable-operations' : 'function'} fw-inverse`} />
+                    <i className={`fw fw-${func.type === 'iterable'
+                        ? 'iterable-operations' : 'function'} fw-inverse`}
+                    />
                     <span className='func-name'>{funcInv.getFunctionName()}</span>
                     <span
                         onClick={(e) => {
@@ -97,9 +100,26 @@ export default class FunctionInv extends React.Component {
                     >
                         <i className='fw-delete fw-stack-1x fw-inverse' />
                     </span>
+                    { funcInv.iterableOperation
+                        && funcInv.getArgumentExpressions().length > 0 &&
+                        <span
+                            onClick={(e) => {
+                                const { editor } = this.context;
+                                editor.goToSource(funcInv.getArgumentExpressions()[0].functionNode);
+                            }}
+                            className='fw-stack fw-lg btn btn-remove-func'
+                            title='Jump to Source'
+                        >
+                            <i className='fw-edit fw-stack-1x fw-inverse' />
+                        </span>
+                    }
                 </div>
                 { !isCollapsed && functionBody }
             </div>
         );
     }
 }
+
+FunctionInv.contextTypes = {
+    editor: PropTypes.instanceOf(Object).isRequired,
+};

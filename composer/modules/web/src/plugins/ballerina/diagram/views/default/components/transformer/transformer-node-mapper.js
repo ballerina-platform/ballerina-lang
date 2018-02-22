@@ -581,7 +581,7 @@ class TransformerNodeMapper {
         } else {
             let defaultExp = TransformerFactory.createDefaultExpression();
             if (TreeUtil.isInvocation(parentNode)) {
-                if (parentDef) {
+                if (parentDef && parentDef.type !== 'iterable') {
                     const index = parentNode.getIndexOfArgumentExpressions(nodeExpression);
                     defaultExp = TransformerFactory.createDefaultExpression(parentDef.parameters[index].type);
                 }
@@ -1687,18 +1687,29 @@ class TransformerNodeMapper {
         return kvp;
     }
 
-    addIterator(connection, type, isLamda) {
+    /**
+     * Generate iterable operation to the given connection
+     * @param {*} connection where iterable operation should be added
+     * @param {*} type iterable operation type
+     * @param {*} isLamda is given iterable operation has a lambda function
+     */
+    addIterableOperator(connection, type, isLamda) {
         this.getMappingStatements().forEach((stmt) => {
             if (TreeUtil.isAssignment(stmt)) {
                 if ((stmt.getVariables()[0].getSource().trim() === connection.target.name
-                    || connection.target.funcInv.iterableOperation) &&
+                    || (connection.target.funcInv && connection.target.funcInv.iterableOperation)) &&
                     (stmt.getExpression().getSource().trim() === connection.source.name
-                    || connection.source.funcInv.iterableOperation)) {
+                    || (connection.source.funcInv && connection.source.funcInv.iterableOperation))) {
                     const sourceContent = stmt.getExpression().getSource().trim() === connection.source.name ?
                     connection.source.name : connection.source.funcInv.getSource();
+                    let typeName = connection.source.type.replace('[]', '');
+                    if (typeName === '') {
+                        typeName = stmt.getExpression().argumentExpressions[0]
+                        .functionNode.getParameters()[0].getTypeNode().getTypeName().getValue();
+                    }
                     stmt.setExpression(
                         TransformerFactory.createIterableOperation(sourceContent,
-                            type, connection.source.type.replace('[]', ''), isLamda));
+                            type, typeName, isLamda));
                     stmt.trigger('tree-modified', {
                         origin: stmt,
                         type: 'variable-update',

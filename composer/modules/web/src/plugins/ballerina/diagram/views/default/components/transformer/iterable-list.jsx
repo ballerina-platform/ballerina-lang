@@ -17,10 +17,6 @@
  */
 import React from 'react';
 import PropTypes from 'prop-types';
-import Button from '../../../../../interactions/button';
-import Item from '../../../../../interactions/item';
-import Area from '../../../../../interactions/area';
-import Menu from '../../../../../interactions/menu';
 import './iterable-list.css';
 
 /**
@@ -132,14 +128,6 @@ IterableList.propTypes = {
     currrentConnection: PropTypes.valueOf(PropTypes.object).isRequired,
     transformNodeManager: PropTypes.valueOf(PropTypes.object).isRequired,
     callback: PropTypes.valueOf(PropTypes.object).isRequired,
-};
-
-IterableList.defaultProps = {
-    
-};
-
-IterableList.contextTypes = {
-
 };
 
 export default IterableList;

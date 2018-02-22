@@ -174,7 +174,7 @@ class TransformerNodeManager {
     removeStatementEdge(connection) {
         const { source, target } = connection;
 
-        if (source.endpointKind === 'input' && target.endpointKind === 'output') {
+        if (source.endpointKind === 'input' && (target.endpointKind === 'output' || target.endpointKind === 'param')) {
             this._mapper.removeInputToOutputMapping(source.name, target.name);
             return;
         }
@@ -282,7 +282,9 @@ class TransformerNodeManager {
                     type: argType,
                     index: 0 }];
             }
-            returnParams = [{ name: returnParamName,
+            returnParams = [{
+                index: 0,
+                name: returnParamName,
                 type: dataReturnType.replace('intermediate_collection', '[]'),
                 funcInv: functionInvocationExpression }];
         } else if (!funcDef) {
@@ -579,9 +581,14 @@ class TransformerNodeManager {
         }
     }
 
+    /**
+     * Generate iterable operation to the given connection
+     * @param {*} connection where iterable operation should be added
+     * @param {*} type iterable operation type
+     * @param {*} isLamda is given iterable operation has a lambda function
+     */
     addIterableOperator(connection, type, isLamda) {
-        this._mapper
-        .addIterator(connection, type, isLamda);
+        this._mapper.addIterableOperator(connection, type, isLamda);
     }
  }
 
