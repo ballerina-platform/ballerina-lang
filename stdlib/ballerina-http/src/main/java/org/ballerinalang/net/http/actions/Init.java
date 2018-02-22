@@ -102,11 +102,21 @@ public class Init extends AbstractHTTPAction {
         BStruct options = (BStruct) connector.getRefField(HttpConstants.OPTIONS_STRUCT_INDEX);
         if (options != null) {
             populateSenderConfigurationOptions(senderConfiguration, options);
-            long maxActiveConnections = options.getIntField(HttpConstants.MAX_ACTIVE_CONNECTIONS_INDEX);
-            if (!isInteger(maxActiveConnections)) {
-                throw new BallerinaConnectorException("invalid maxActiveConnections value: " + maxActiveConnections);
+
+            if (options.getRefField(HttpConstants.CONNECTION_THROTTLING_STRUCT_INDEX) != null) {
+                BStruct connectionThrottling =
+                        (BStruct) options.getRefField(HttpConstants.CONNECTION_THROTTLING_STRUCT_INDEX);
+
+                long maxActiveConnections = options.getIntField(HttpConstants.MAX_ACTIVE_CONNECTIONS_INDEX);
+                if (!isInteger(maxActiveConnections)) {
+                    throw new BallerinaConnectorException("invalid maxActiveConnections value: "
+                                                                  + maxActiveConnections);
+                }
+                properties.put(HttpConstants.MAX_ACTIVE_CONNECTIONS_PER_POOL, (int) maxActiveConnections);
+
+                long waitTime = connectionThrottling.getIntField(HttpConstants.WAIT_TIME_INDEX);
+                properties.put(HttpConstants.MAX_WAIT_FOR_CLIENT_CONNECTION_POOL,  waitTime);
             }
-            properties.put(HttpConstants.MAX_ACTIVE_CONNECTIONS_PER_POOL, (int) maxActiveConnections);
         }
 
         HttpClientConnector httpClientConnector =

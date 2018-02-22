@@ -328,7 +328,6 @@ public struct Proxy {
 public struct Options {
     int port;
     int endpointTimeout = 60000;
-    int maxActiveConnections = -1;
     boolean keepAlive = true;
     string transferEncoding = "chunking";
     string chunking = "auto";
@@ -337,6 +336,12 @@ public struct Options {
     SSL ssl;
     Retry retryConfig;
     Proxy proxy;
+    ConnectionThrottling connectionThrottling;
+}
+
+public struct ConnectionThrottling {
+    int maxActiveConnections = -1;
+    int waitTime = 60000;
 }
 
 @Description { value:"HTTP client connector for outbound HTTP requests"}
