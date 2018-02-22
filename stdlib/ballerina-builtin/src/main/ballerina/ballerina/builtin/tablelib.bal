@@ -22,5 +22,21 @@ public native function <table dt> add (any data);
 @Description {value:"Remove data from the table."}
 @Param {value:"dt: The table object"}
 @Param {value:"func: The function pointer for delete crieteria"}
-public native function <table dt> remove (function (any) returns (boolean) func) (int);
+public function <table dt> remove (function (any) returns (boolean) func) (int) {
+    int deletedCount = 0;
+    while (dt.hasNext()) {
+        any data = dt.getNext();
+        boolean satisfied = func(data);
+        if (satisfied) {
+            dt.delete(data);
+            deletedCount = deletedCount + 1;
+        }
+    }
+    return deletedCount;
+}
+
+@Description {value:"Utility function to delete data from table."}
+@Param {value:"dt: The table object"}
+@Param {value:"data: A struct with data"}
+native function <table dt> delete (any data);
 

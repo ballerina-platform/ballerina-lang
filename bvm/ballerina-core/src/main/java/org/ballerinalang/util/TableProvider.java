@@ -55,11 +55,12 @@ public class TableProvider {
     }
 
     public static TableProvider getInstance() {
-        if (tableProvider == null) {
-            synchronized (TableProvider.class) {
-                if (tableProvider == null) {
-                    tableProvider = new TableProvider();
-                }
+        if (tableProvider != null) {
+            return tableProvider;
+        }
+        synchronized (TableProvider.class) {
+            if (tableProvider == null) {
+                tableProvider = new TableProvider();
             }
         }
         return tableProvider;
@@ -318,11 +319,15 @@ public class TableProvider {
             if (stmt != null) {
                 stmt.close();
             }
+        } catch (SQLException e) {
+            throw new BallerinaException("error in releasing table statement resource : " + e.getMessage());
+        }
+        try {
             if (conn != null && !conn.isClosed()) {
                 conn.close();
             }
         } catch (SQLException e) {
-            throw new BallerinaException("error in releasing table resources : " + e.getMessage());
+            throw new BallerinaException("error in releasing table connection resource : " + e.getMessage());
         }
     }
 }

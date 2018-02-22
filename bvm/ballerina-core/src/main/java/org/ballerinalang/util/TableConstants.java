@@ -19,10 +19,11 @@ package org.ballerinalang.util;
 
 /**
  * This file contains a list of constant values used by Table implementation.
+ *
+ * @since 0.963.0
  */
 public class TableConstants {
 
-    static final String DRIVER_CLASS_NAME = "org.h2.Driver";
     static final String DB_JDBC_URL = "jdbc:h2:mem:TABLEDB;DB_CLOSE_DELAY=-1";
     static final String DB_USER_NAME = "sa";
     static final String DB_PASSWORD = "";

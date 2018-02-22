@@ -42,6 +42,7 @@ public class BTable implements BRefType<Object>, BCollection {
     private TableProvider tableProvider;
     private String tableName;
     private BStructType constraintType;
+    private boolean isInMemoryTable;
 
     public BTable() {
         this.iterator = null;
@@ -50,6 +51,7 @@ public class BTable implements BRefType<Object>, BCollection {
         this.hasNextVal = false;
         this.tableName = null;
         this.constraintType = null;
+        this.isInMemoryTable = false;
     }
 
     public BTable(DataIterator dataIterator) {
@@ -59,6 +61,7 @@ public class BTable implements BRefType<Object>, BCollection {
         this.tableProvider = null;
         this.tableName = null;
         this.constraintType = null;
+        this.isInMemoryTable = false;
     }
 
     public BTable(BType type) {
@@ -68,6 +71,7 @@ public class BTable implements BRefType<Object>, BCollection {
         this.tableProvider = TableProvider.getInstance();
         this.tableName = tableProvider.createTable(type);
         this.constraintType = (BStructType) ((BTableType) type).getConstrainedType();
+        this.isInMemoryTable = true;
         generateIterator();
     }
 
@@ -78,7 +82,7 @@ public class BTable implements BRefType<Object>, BCollection {
 
     @Override
     public String stringValue() {
-        if (tableProvider == null) {
+        if (!this.isInMemoryTable) {
             return "";
         }
         StringBuilder sb = new StringBuilder();
@@ -120,7 +124,7 @@ public class BTable implements BRefType<Object>, BCollection {
 
     public void close(boolean isInTransaction) {
         iterator.close(isInTransaction);
-        if (tableProvider != null) {
+        if (this.isInMemoryTable) {
             generateIterator();
         }
     }
@@ -131,31 +135,29 @@ public class BTable implements BRefType<Object>, BCollection {
     }
 
     public void addData(BStruct data) {
-        if (tableProvider != null) {
-            if (data.getType() != this.constraintType) {
-                throw new BallerinaException("incompatible types: struct of type:" + data.getType().getName()
-                        + " cannot be added to a table with type:" + this.constraintType.getName());
-            }
-            tableProvider.insertData(tableName, data);
-            if (iterator != null) {
-                iterator.close(false);
-            }
-            generateIterator();
-        } else {
+        if (!this.isInMemoryTable) {
             throw new BallerinaException("data cannot be added to a table returned from a database");
         }
+        if (data.getType() != this.constraintType) {
+            throw new BallerinaException("incompatible types: struct of type:" + data.getType().getName()
+                    + " cannot be added to a table with type:" + this.constraintType.getName());
+        }
+        tableProvider.insertData(tableName, data);
+        if (iterator != null) {
+            iterator.close(false);
+        }
+        generateIterator();
     }
 
     public void removeData(BStruct data) {
-        if (tableProvider != null) {
-            tableProvider.deleteData(tableName, data);
-            if (iterator != null) {
-                iterator.close(false);
-            }
-            generateIterator();
-        } else {
+        if (!this.isInMemoryTable) {
             throw new BallerinaException("data cannot be deleted from a table returned from a database");
         }
+        tableProvider.deleteData(tableName, data);
+        if (iterator != null) {
+            iterator.close(false);
+        }
+        generateIterator();
     }
 
     public String getString(int columnIndex) {
@@ -212,7 +214,7 @@ public class BTable implements BRefType<Object>, BCollection {
 
     @Override
     protected void finalize() {
-        if (tableProvider != null) {
+        if (this.isInMemoryTable) {
             this.iterator.close(false);
             tableProvider.dropTable(this.tableName);
         }
