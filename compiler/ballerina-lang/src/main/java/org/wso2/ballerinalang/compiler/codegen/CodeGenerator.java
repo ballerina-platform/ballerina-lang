@@ -301,9 +301,10 @@ public class CodeGenerator extends BLangNodeVisitor {
     public ProgramFile generate(BLangPackage pkgNode) {
         programFile = new ProgramFile();
         // TODO: Fix this. Added temporally for codegen. Load this from VM side.
-        if (this.symTable.builtInPackageSymbol != null) {
-            genPackage(this.symTable.builtInPackageSymbol);
-        }
+        genPackage(this.symTable.builtInPackageSymbol);
+        genPackage(this.symTable.runtimePackageSymbol);
+
+        // Normal Flow.
         BPackageSymbol pkgSymbol = pkgNode.symbol;
         genPackage(pkgSymbol);
 

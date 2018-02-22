@@ -1,4 +1,5 @@
 import ballerina.data.sql;
+import ballerina.io;
 
 function main (string[] args) {
     endpoint<sql:ClientConnector> testDB {
@@ -22,7 +23,7 @@ function main (string[] args) {
         //This is the second action participate in the transaction.
         c = testDB.update("INSERT INTO SALARY (ID, MON_SALARY) VALUES (1, 2500)", null);
 
-        println("Inserted count:" + c);
+        io:println("Inserted count:" + c);
         //Anytime the transaction can be forcefully aborted using the abort keyword.
         if (c == 0) {
             abort;
@@ -34,11 +35,11 @@ function main (string[] args) {
         //The failed block will be executed if the transaction is failed due to an
         //exception or a throw statement. This block will execute each time
         //transaction is failed until retry count is reached.
-        println("Transaction failed");
+        io:println("Transaction failed");
         transactionSuccess = false;
     }
     if (transactionSuccess) {
-        println("Transaction committed");
+        io:println("Transaction committed");
     }
     //Close the connection pool.
     testDB.close();

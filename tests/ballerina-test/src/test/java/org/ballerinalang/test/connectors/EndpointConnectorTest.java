@@ -125,7 +125,7 @@ public class EndpointConnectorTest {
     }
 
     @Test(description = "Test empty endpoint invocation", expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = "error: NullReferenceException.*")
+            expectedExceptionsMessageRegExp = "error:.*NullReferenceException.*")
     public void testEmptyEndpointInvocation() {
         BRunUtil.invoke(result, "testEmptyEndpointInvocation");
     }

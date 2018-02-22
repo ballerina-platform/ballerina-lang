@@ -1,4 +1,6 @@
+import ballerina.io;
 import ballerina.net.http;
+import ballerina.runtime;
 
 function forkJoinWithTimeoutTest1() (map) {
     map m = {};
@@ -14,7 +16,7 @@ function forkJoinWithTimeoutTest1() (map) {
 	     int b = 15;
 	     a <- w1;
 	     b -> w1;
-	     sleep(5000);
+	     runtime:sleepCurrentWorker(5000);
 	   }
     } join (all) (map results) { m["x"] = 25; } timeout (1) (map results) { m["x"] = 15; }
     return m;
@@ -30,7 +32,7 @@ function forkJoinWithTimeoutTest2() (map) {
 	   worker w2 {
 	     int a = 0;
 	     int b = 15;
-	     sleep(100);
+	     runtime:sleepCurrentWorker(100);
 	   }
     } join (all) (map results) { m["x"] = 25; } timeout (5) (map results) { m["x"] = 15; }
     return m;
@@ -97,16 +99,16 @@ function forkJoinWithSomeSelectedJoin1() (map) {
 	   worker w2 {
 	     int a = 5;
 	     int b = 15;
-	     sleep(2000);
+	     runtime:sleepCurrentWorker(2000);
 	     m["x"] = a;
 	   }
 	   worker w3 {
 	     int a = 0;
 	     int b = 15;
-         sleep(1000);
+         runtime:sleepCurrentWorker(1000);
 	     m["x"] = b;
 	   }
-	} join (some 1 w2, w3) (map results) {  println(results);  }
+	} join (some 1 w2, w3) (map results) {  io:println(results);  }
 	return m;
 }
 
@@ -134,7 +136,7 @@ function forkJoinWithSomeSelectedJoin2() (map) {
 	     (a * 2) -> w1;
 	     a <- w2;
 	   }
-	} join (some 1 w1, w2, w3) (map results) {  println(results);  }
+	} join (some 1 w1, w2, w3) (map results) {  io:println(results);  }
 	return m;
 }
 
@@ -156,7 +158,7 @@ function forkJoinWithSomeSelectedJoin3() (map) {
 	     a <- w1;
 	     m["x"] = a;
 	     (a * 2) -> w3;
-	     sleep(1000);
+	     runtime:sleepCurrentWorker(1000);
 	   }
 	   worker w3 {
 	     int a = 0;
@@ -164,7 +166,7 @@ function forkJoinWithSomeSelectedJoin3() (map) {
 	     (a * 2) -> w1;
 	     m["x"] <- w2;
 	   }
-	} join (some 1 w2, w3) (map results) {  println(results);  }
+	} join (some 1 w2, w3) (map results) {  io:println(results);  }
 	return m;
 }
 
@@ -184,10 +186,10 @@ function forkJoinWithSomeSelectedJoin4() (map) {
 	   worker w3 {
 	     int a = 0;
 	     a <- w2;
-	     sleep(1000);
+	     runtime:sleepCurrentWorker(1000);
 	     m["x"] = a * 2;
 	   }
-	} join (some 2 w1, w2, w3) (map results) {  println(results);  }
+	} join (some 2 w1, w2, w3) (map results) {  io:println(results);  }
 	return m;
 }
 
@@ -208,7 +210,7 @@ function forkJoinWithSomeSelectedJoin5() (map) {
 	   worker w3 {
 	     int a = 0;
 	     a <- w2;
-	     sleep(5000);
+	     runtime:sleepCurrentWorker(5000);
 	     m["x"] = a * 2;
 	     a -> w2;
 	   }
@@ -234,7 +236,7 @@ function forkJoinWithAllSelectedJoin1() (map) {
 	     a <- w1;
 	     m["x"] = a;
 	     (a * 2) -> w3;
-	     sleep(1000);
+	     runtime:sleepCurrentWorker(1000);
 	     m["x"] = 33;
 	   }
 	   worker w3 {
@@ -243,7 +245,7 @@ function forkJoinWithAllSelectedJoin1() (map) {
 	     (a * 2) -> w1;
 	     m["x"] <- w2;
 	   }
-	} join (all w2, w3) (map results) {  println(results);  }
+	} join (all w2, w3) (map results) {  io:println(results);  }
 	return m;
 }
 
@@ -265,7 +267,7 @@ function forkJoinWithAllSelectedJoin2() (map) {
 	     a <- w1;
 	     m["x"] = a;
 	     (a * 2) -> w3;
-	     sleep(2000);
+	     runtime:sleepCurrentWorker(2000);
 	     m["x"] = 33;
 	   }
 	   worker w3 {
@@ -413,12 +415,12 @@ function forkJoinWithStruct () (string result) {
     fork {
         worker w1 {
             foo f = {x:1, y:"w1"};
-            println(f);
+            io:println(f);
             f -> fork;
         }
         worker w2 {
             float f = 10.344;
-            println("[w2] f: " + f);
+            io:println("[w2] f: " + f);
             f -> fork;
         }
     } join (all) (map results) {
@@ -449,7 +451,7 @@ function forkJoinWithSameWorkerContent () (string result) {
         }
 
     } join (all) (map results) {
-        println(results);
+        io:println(results);
     }
     fork {
         worker w1 {
@@ -479,6 +481,6 @@ function testWorkerStackCreation ()(int) {
         return 1;
     }
     worker w2 {
-        println("testWorkerStackCreation done.");
+        io:println("testWorkerStackCreation done.");
     }
 }

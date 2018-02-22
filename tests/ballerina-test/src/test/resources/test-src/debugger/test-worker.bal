@@ -1,7 +1,7 @@
-
+import ballerina.io;
 function main(string[] args) {
     simpleWorkers();
-    println("worker run finished");
+    io:println("worker run finished");
 }
 
 function simpleWorkers() {
@@ -10,7 +10,7 @@ function simpleWorkers() {
         int q = 5;
         // Invoke Some random Logic.
         int a = calculateExp1(p , q);
-        println("worker 1 - " + a);
+        io:println("worker 1 - " + a);
         a -> w2;
         a <- w2;
     }
@@ -20,7 +20,7 @@ function simpleWorkers() {
         int q = 5;
         // Invoke Some random Logic.
         int b = calculateExp3(p , q);
-        println("worker 2 - " + b);
+        io:println("worker 2 - " + b);
         a <- w1;
         b -> w1;
     }
