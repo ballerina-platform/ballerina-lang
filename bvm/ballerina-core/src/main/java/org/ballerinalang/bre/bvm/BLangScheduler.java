@@ -104,7 +104,6 @@ public class BLangScheduler {
                     ctx.restoreIP();
                 }
                 ctx.state = WorkerState.RUNNING;
-                System.out.println("WorkerExecutor");
                 CPU.exec(ctx);
             } catch (Throwable e) {
                 ctx.state = WorkerState.EXCEPTED;

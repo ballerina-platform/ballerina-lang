@@ -18,10 +18,12 @@
 package org.ballerinalang.util.codegen;
 
 import org.ballerinalang.model.types.BType;
+import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.util.codegen.attributes.AnnotationAttributeInfo;
 import org.ballerinalang.util.codegen.attributes.AttributeInfo;
 import org.ballerinalang.util.codegen.attributes.AttributeInfoPool;
 import org.ballerinalang.util.codegen.cpentries.WorkerInfoPool;
+import org.ballerinalang.util.program.WorkerDataIndex;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -58,7 +60,39 @@ public class CallableUnitInfo implements AttributeInfoPool, WorkerInfoPool {
     private PackageInfo packageInfo;
     protected WorkerInfo defaultWorkerInfo;
     protected Map<String, WorkerInfo> workerInfoMap = new HashMap<>();
+    
+    public WorkerDataIndex paramWorkerIndex;
+    public WorkerDataIndex retWorkerIndex;
 
+    private WorkerDataIndex calculateWorkerDataIndex(BType[] retTypes) {
+        WorkerDataIndex index = new WorkerDataIndex();
+        index.retRegs = new int[retTypes.length];
+        for (int i = 0; i < retTypes.length; i++) {
+            BType retType = retTypes[i];
+            switch (retType.getTag()) {
+            case TypeTags.INT_TAG:
+                index.retRegs[i] = index.longRegCount++;
+                break;
+            case TypeTags.FLOAT_TAG:
+                index.retRegs[i] = index.doubleRegCount++;
+                break;
+            case TypeTags.STRING_TAG:
+                index.retRegs[i] = index.stringRegCount++;
+                break;
+            case TypeTags.BOOLEAN_TAG:
+                index.retRegs[i] = index.intRegCount++;
+                break;
+            case TypeTags.BLOB_TAG:
+                index.retRegs[i] = index.byteRegCount++;
+                break;
+            default:
+                index.retRegs[i] = index.refRegCount++;
+                break;
+            }
+        }
+        return index;
+    }
+    
     public String getName() {
         return name;
     }
@@ -105,6 +139,7 @@ public class CallableUnitInfo implements AttributeInfoPool, WorkerInfoPool {
 
     public void setParamTypes(BType[] paramTypes) {
         this.paramTypes = paramTypes;
+        this.paramWorkerIndex = this.calculateWorkerDataIndex(this.paramTypes);
     }
 
     public BType[] getRetParamTypes() {
@@ -113,6 +148,7 @@ public class CallableUnitInfo implements AttributeInfoPool, WorkerInfoPool {
 
     public void setRetParamTypes(BType[] retParamType) {
         this.retParamTypes = retParamType;
+        this.retWorkerIndex = this.calculateWorkerDataIndex(this.retParamTypes);
     }
 
     public String getSignature() {
