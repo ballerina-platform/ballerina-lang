@@ -71,8 +71,10 @@ import static org.ballerinalang.mime.util.Constants.ENTITY_BYTE_CHANNEL;
 import static org.ballerinalang.mime.util.Constants.ENTITY_HEADERS_INDEX;
 import static org.ballerinalang.mime.util.Constants.MEDIA_TYPE;
 import static org.ballerinalang.mime.util.Constants.MESSAGE_ENTITY;
+import static org.ballerinalang.mime.util.Constants.MULTIPART_AS_PRIMARY_TYPE;
 import static org.ballerinalang.mime.util.Constants.MULTIPART_DATA_INDEX;
 import static org.ballerinalang.mime.util.Constants.MULTIPART_ENCODER;
+import static org.ballerinalang.mime.util.Constants.MULTIPART_MIXED;
 import static org.ballerinalang.mime.util.Constants.OCTET_STREAM;
 import static org.ballerinalang.mime.util.Constants.PROTOCOL_PACKAGE_IO;
 import static org.ballerinalang.mime.util.Constants.TEMP_FILE_EXTENSION;
@@ -289,6 +291,41 @@ public class Util {
                     e.getMessage());
         }
         return null;
+    }
+
+    static BStruct getMultipartEntity(CompileResult result) {
+        BStruct parentBodyPart = getEntityStruct(result);
+        ArrayList<BStruct> bodyParts = getMultipleBodyParts(result);
+        parentBodyPart.setRefField(MULTIPART_DATA_INDEX, Util.getArrayOfBodyParts(bodyParts));
+        return parentBodyPart;
+    }
+
+    static BStruct getNestedMultipartEntity(CompileResult result) {
+        BStruct nestedMultipartEntity = getEntityStruct(result);
+        ArrayList<BStruct> bodyParts = getEmptyBodyPartList(result);
+        for (BStruct bodyPart: bodyParts) {
+            MimeUtil.setContentType(getMediaTypeStruct(result), bodyPart, MULTIPART_MIXED);
+            bodyPart.setRefField(MULTIPART_DATA_INDEX, Util.getArrayOfBodyParts(getMultipleBodyParts(result)));
+        }
+        nestedMultipartEntity.setRefField(MULTIPART_DATA_INDEX, Util.getArrayOfBodyParts(bodyParts));
+        return nestedMultipartEntity;
+    }
+
+    private static ArrayList<BStruct> getMultipleBodyParts(CompileResult result) {
+        ArrayList<BStruct> bodyParts = new ArrayList<>();
+        bodyParts.add(getJsonBodyPart(result));
+        bodyParts.add(getXmlFilePart(result));
+        bodyParts.add(getTextBodyPart(result));
+        bodyParts.add(getBinaryFilePart(result));
+        return bodyParts;
+    }
+
+    private static ArrayList<BStruct> getEmptyBodyPartList(CompileResult result) {
+        ArrayList<BStruct> bodyParts = new ArrayList<>();
+        for (int i =0; i < 4; i++) {
+            bodyParts.add(getEntityStruct(result));
+        }
+        return bodyParts;
     }
 
     /**

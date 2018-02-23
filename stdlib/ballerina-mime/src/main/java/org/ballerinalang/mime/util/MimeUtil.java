@@ -96,7 +96,7 @@ public class MimeUtil {
      * @param entity Represent an 'Entity'
      * @return content-type in 'primarytype/subtype; key=value;' format
      */
-    static String getContentTypeWithParameters(BStruct entity) {
+    public static String getContentTypeWithParameters(BStruct entity) {
         String contentType = null;
         if (entity.getRefField(MEDIA_TYPE_INDEX) != null) {
             BStruct mediaType = (BStruct) entity.getRefField(MEDIA_TYPE_INDEX);
