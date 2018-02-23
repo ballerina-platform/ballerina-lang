@@ -1040,3 +1040,37 @@ function testMutltipleRowsWithForEach () (int i1, int i2) {
     testDB.close();
     return rs1.INT_TYPE, rs2.INT_TYPE;
 }
+
+function testTableAddInvalid () {
+    endpoint<sql:ClientConnector> testDB {
+        create sql:ClientConnector(sql:DB.HSQLDB_FILE, "./target/tempdb/",
+                                   0, "TEST_DATA_TABLE_DB", "SA", "", {maximumPoolSize:1});
+    }
+
+    table<ResultPrimitiveInt> dt = testDB.select("SELECT int_type from DataTableRep", null, typeof ResultPrimitiveInt);
+    try {
+        ResultPrimitiveInt row = {INT_TYPE:443};
+        dt.add(row);
+    } finally {
+        testDB.close();
+    }
+}
+
+function testTableRemoveInvalid () {
+    endpoint<sql:ClientConnector> testDB {
+        create sql:ClientConnector(sql:DB.HSQLDB_FILE, "./target/tempdb/",
+                                   0, "TEST_DATA_TABLE_DB", "SA", "", {maximumPoolSize:1});
+    }
+
+    table<ResultPrimitiveInt> dt = testDB.select("SELECT int_type from DataTableRep", null, typeof ResultPrimitiveInt);
+    try {
+        ResultPrimitiveInt row = {INT_TYPE:443};
+        _ = dt.remove(isDelete);
+    } finally {
+        testDB.close();
+    }
+}
+
+function isDelete (ResultPrimitiveInt p) (boolean) {
+    return p.INT_TYPE < 2000;
+}

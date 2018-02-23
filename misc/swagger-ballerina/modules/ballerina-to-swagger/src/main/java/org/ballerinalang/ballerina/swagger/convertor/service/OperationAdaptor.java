@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.ballerinalang.composer.service.ballerina.swagger.service;
+package org.ballerinalang.ballerina.swagger.convertor.service;
 
 import io.swagger.models.Operation;
 
