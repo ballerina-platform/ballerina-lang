@@ -29,6 +29,9 @@ service<http> Participant2pcService {
     // This resource is on the participant's coordinator. When the initiator's coordinator sends "prepare"
     // this resource on the participant will get called. This participant's coordinator will in turn call
     // prepare on all the resource managers registered with the respective transaction.
+    @http:resourceConfig {
+        methods:["POST"]
+    }
     resource prepare (http:Connection conn, http:InRequest req) {
         http:OutResponse res;
         var prepareReq, _ = <PrepareRequest>req.getJsonPayload();
@@ -57,13 +60,20 @@ service<http> Participant2pcService {
         }
         var j, _ = <json>prepareRes;
         res.setJsonPayload(j);
-        _ = conn.respond(res);
+        var connError = conn.respond(res);
+        if (connError != null) {
+            log:printErrorCause("Sending response for prepare request for transaction " + transactionId +
+                                " failed", (error)connError);
+        }
     }
 
     // This resource is on the participant's coordinator. When the initiator's coordinator sends
     // "notify(commit | abort)" this resource on the participant will get called.
     // This participant's coordinator will in turn call "commit" or "abort" on
     // all the resource managers registered with the respective transaction.
+    @http:resourceConfig {
+        methods:["POST"]
+    }
     resource notify (http:Connection conn, http:InRequest req) {
         var notifyReq, _ = <NotifyRequest>req.getJsonPayload();
         string transactionId = notifyReq.transactionId;
@@ -107,6 +117,10 @@ service<http> Participant2pcService {
         }
         var j, _ = <json>notifyRes;
         res.setJsonPayload(j);
-        _ = conn.respond(res);
+        var connError = conn.respond(res);
+        if (connError != null) {
+            log:printErrorCause("Sending response for notify request for transaction " + transactionId +
+                                " failed", (error)connError);
+        }
     }
 }

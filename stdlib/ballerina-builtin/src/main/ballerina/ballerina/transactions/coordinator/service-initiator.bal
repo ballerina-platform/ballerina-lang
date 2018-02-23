@@ -44,6 +44,7 @@ function getCoordinationTypeToProtocolsMap () returns (map m) {
 service<http> InitiatorService {
 
     @http:resourceConfig {
+        methods:["POST"],
         path:registrationPath
     }
     resource register (http:Connection conn, http:InRequest req) {
