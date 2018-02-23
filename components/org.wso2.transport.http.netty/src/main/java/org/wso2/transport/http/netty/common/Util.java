@@ -23,6 +23,7 @@ import io.netty.handler.codec.http.DefaultFullHttpResponse;
 import io.netty.handler.codec.http.DefaultHttpRequest;
 import io.netty.handler.codec.http.DefaultHttpResponse;
 import io.netty.handler.codec.http.HttpContent;
+import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpMethod;
 import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.HttpResponse;
@@ -34,8 +35,10 @@ import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.common.ssl.SSLConfig;
 import org.wso2.transport.http.netty.config.Parameter;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
+import org.wso2.transport.http.netty.sender.channel.TargetChannel;
 
 import java.io.File;
+import java.net.InetSocketAddress;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -530,9 +533,49 @@ public class Util {
      * Set forwarded/x-forwarded header to outbound request.
      *
      * @param httpOutboundRequest outbound request message
+     * @param targetChannel
      * @see <a href="https://tools.ietf.org/html/rfc7239">rfc7239</a>
      */
-    public static void setForwardedExtension(HTTPCarbonMessage httpOutboundRequest) {
-        httpOutboundRequest.getHeader("");
+    public static void setForwardedExtension(HTTPCarbonMessage httpOutboundRequest, TargetChannel targetChannel) {
+
+        String forwardedHeader = httpOutboundRequest.getHeader("Forwarded");
+        StringBuilder headerValue = null;
+        if (forwardedHeader == null) {
+            generateForwardedHeaderValue(httpOutboundRequest, targetChannel, headerValue);
+            return;
+        }
+        String[] parts = forwardedHeader.split(";");
+        String previousForValue = null;
+        String previousByValue = null;
+        StringBuilder extension = null;
+        for (String part: parts) {
+            if (part.toLowerCase().contains("for=")) {
+                previousForValue = part.trim();
+            } else if (part.toLowerCase().contains("by=")) {
+                previousByValue = part.trim().substring(3);
+            } else if (part.toLowerCase().contains("host=") || part.toLowerCase().contains("proto=")) {
+                continue;
+            } else {
+                extension.append(part);
+            }
+        }
+        if (previousForValue == null) {
+            previousForValue = previousByValue == null ? "" : "for=" + previousByValue;
+        } else {
+            previousForValue = previousByValue == null ? previousForValue : previousForValue + ", for=" + previousByValue;
+        }
+        headerValue.append(previousForValue + ";");
+        generateForwardedHeaderValue(httpOutboundRequest, targetChannel, headerValue);
+        headerValue.append(extension);
+    }
+
+    private static void generateForwardedHeaderValue(HTTPCarbonMessage httpOutboundRequest, TargetChannel targetChannel, StringBuilder headerValue) {
+        headerValue.append("by=" + ((InetSocketAddress) targetChannel.getChannel().localAddress()).getAddress());
+        String hostHeader = httpOutboundRequest.getHeader(HttpHeaderNames.HOST.toString());
+        if (hostHeader != null) {
+            headerValue.append(";host=" + hostHeader);
+        }
+        Object protocolHeader = httpOutboundRequest.getProperty(Constants.PROTOCOL);
+        headerValue.append(";proto=" + (protocolHeader != null ? protocolHeader.toString() : Constants.HTTP_SCHEME));
     }
 }

@@ -102,7 +102,7 @@ public class HttpClientConnectorImpl implements HttpClientConnector {
                             httpOutboundRequest.setHeader(Constants.CONNECTION, Constants.CONNECTION_KEEP_ALIVE);
                         }
                         if (forwardedExtensionEnabled) {
-                            Util.setForwardedExtension(httpOutboundRequest);
+                            Util.setForwardedExtension(httpOutboundRequest, targetChannel);
                         }
                         targetChannel.writeContent(httpOutboundRequest);
                     } else {
