@@ -20,12 +20,12 @@ package org.ballerinalang.nativeimpl.transactions;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeKind;
+import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
-import org.ballerinalang.util.transactions.TransactionResourceManager;
 
 /**
  * Native function ballerina.transactions.coordinator:prepareResourceManagers.
@@ -40,8 +40,9 @@ import org.ballerinalang.util.transactions.TransactionResourceManager;
 public class BalPrepareResourceManagers extends AbstractNativeFunction {
 
     public BValue[] execute(Context ctx) {
-        String transactionId = getStringArgument(ctx, 0);
-        TransactionResourceManager.getInstance().prepare(transactionId);
-        return getBValues();
+//        String transactionId = getStringArgument(ctx, 0);
+//        boolean prepareSuccessful = TransactionResourceManager.getInstance().prepare(transactionId);
+        boolean prepareSuccessful = true; // TODO: Fix me
+        return getBValues(new BBoolean(prepareSuccessful));
     }
 }
