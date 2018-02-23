@@ -272,6 +272,7 @@ public class SenderConfiguration {
 
     public boolean skipHttpToHttp2Upgrade() {
         return skipHttpToHttp2Upgrade;
+    }
 
     public void setValidateCertEnabled(boolean validateCertEnabled) {
         this.validateCertEnabled = validateCertEnabled;
