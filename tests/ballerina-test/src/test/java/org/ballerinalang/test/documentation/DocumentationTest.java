@@ -380,8 +380,8 @@ public class DocumentationTest {
         CompileResult compileResult = BCompileUtil.compile(this, "test-src", "documentation/doc_inline_triple.bal");
         Assert.assertEquals(0, compileResult.getWarnCount());
         PackageNode packageNode = compileResult.getAST();
-        BLangVariable connector = (BLangVariable) packageNode.getGlobalVariables().get(0);
-        List<BLangDocumentation> docNodes = connector.docAttachments;
+        BLangVariable constant = (BLangVariable) packageNode.getGlobalVariables().get(0);
+        List<BLangDocumentation> docNodes = constant.docAttachments;
         BLangDocumentation dNode = docNodes.get(0);
         Assert.assertNotNull(dNode);
         Assert.assertEquals(dNode.getAttributes().size(), 0);
@@ -628,6 +628,44 @@ public class DocumentationTest {
         Assert.assertEquals(dNode.getAttributes().get(0).documentationText.toString(),
                 " which represent successful or not");
 
+    }
+
+    @Test(description = "Test doc nested inline.")
+    public void testNestedInline() {
+        CompileResult compileResult = BCompileUtil.compile(this, "test-src", "documentation/nested_inline.bal");
+        Assert.assertEquals(0, compileResult.getWarnCount());
+        PackageNode packageNode = compileResult.getAST();
+        BLangVariable constant = (BLangVariable) packageNode.getGlobalVariables().get(0);
+        List<BLangDocumentation> docNodes = constant.docAttachments;
+        BLangDocumentation dNode = docNodes.get(0);
+        Assert.assertNotNull(dNode);
+        Assert.assertEquals(dNode.getAttributes().size(), 0);
+        Assert.assertEquals(dNode.documentationText.toString(), "\n" +
+                "  Example of a string template:\n" +
+                "  ``` This starts ends triple backtick  ``string s = string `hello {{name}}`;`` " +
+                "ends triple backtick```\n" +
+                "\n" +
+                "  Example for an xml literal:\n" +
+                "    ``xml x = xml `<{{tagName}}>hello</{{tagName}}>`;``\n");
+    }
+
+    @Test(description = "Test doc nested inline inside deprecated tag.")
+    public void testNestedInlineDeprecated() {
+        CompileResult compileResult = BCompileUtil.compile(this, "test-src",
+                "documentation/nested_inline_deprecated.bal");
+        Assert.assertEquals(0, compileResult.getWarnCount());
+        PackageNode packageNode = compileResult.getAST();
+        BLangVariable constant = (BLangVariable) packageNode.getGlobalVariables().get(0);
+        List<BLangDeprecatedNode> docNodes = constant.deprecatedAttachments;
+        BLangDeprecatedNode dNode = docNodes.get(0);
+        Assert.assertNotNull(dNode);
+        Assert.assertEquals(dNode.documentationText.toString(), "\n" +
+                "  Example of a string templates:\n" +
+                "  ``` This starts ends triple backtick  ``string s = string `hello {{name}}`;`` " +
+                "ends triple backtick```\n" +
+                "\n" +
+                "  Example for an xml literal:\n" +
+                "    ``xml x = xml `<{{tagName}}>hello</{{tagName}}>`;``\n");
     }
 
 }
