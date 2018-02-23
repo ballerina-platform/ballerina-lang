@@ -143,8 +143,8 @@ function createTransactionContext (string coordinationType) returns (Transaction
 // Registers a participant with the initiator's coordinator
 // This function will be called by the participant
 function registerParticipant (string transactionId, string registerAtURL) returns (error err) {
-    endpoint<InitiatorCoordinatorClient> coordinatorEP {
-        create InitiatorCoordinatorClient();
+    endpoint<InitiatorClient> coordinatorEP {
+        create InitiatorClient();
     }
 
     // Register with the coordinator only if the participant has not already done so

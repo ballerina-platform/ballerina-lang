@@ -83,6 +83,7 @@ service<http> Participant2pcService {
                 } else {
                     // Notify commit to the resource manager
                     boolean commitSuccessful = commitResourceManagers(transactionId);
+
                     if (commitSuccessful) {
                         res = {statusCode:200};
                         notifyRes = {message:"Committed"};
