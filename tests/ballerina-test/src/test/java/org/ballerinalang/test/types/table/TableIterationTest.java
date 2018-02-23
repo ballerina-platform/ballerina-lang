@@ -36,7 +36,7 @@ import java.io.File;
  */
 public class TableIterationTest {
 
-    CompileResult result;
+    private CompileResult result;
     private static final String DB_NAME = "TEST_DATA_TABLE__ITR_DB";
 
     @BeforeClass

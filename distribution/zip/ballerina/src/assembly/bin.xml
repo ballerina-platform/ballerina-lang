@@ -68,25 +68,6 @@
             </directory>
             <outputDirectory>src</outputDirectory>
         </fileSet>
-        <fileSet>
-            <directory>
-                ${project.build.directory}/extracted-distributions/ballerina-samples-zip/ballerina-samples-${project.version}
-            </directory>
-            <outputDirectory>samples</outputDirectory>
-            <excludes>
-                <exclude>target/**</exclude>
-                <exclude>scripts/**</exclude>
-                <exclude>pom.xml</exclude>
-                <exclude>README.txt</exclude>
-                <exclude>LICENSE.txt</exclude>
-                <exclude>release-notes.html</exclude>
-                <exclude>**/*.ipr</exclude>
-                <exclude>**/*.iwr</exclude>
-                <exclude>**/*.eclipse</exclude>
-                <exclude>**/*.iml</exclude>
-            </excludes>
-            <fileMode>644</fileMode>
-        </fileSet>
     </fileSets>
 
     <files>
@@ -115,19 +96,19 @@
             <fileMode>644</fileMode>
         </file>
         <file>
-            <source>LICENSE.txt</source>
+            <source>LICENSE</source>
             <outputDirectory>.</outputDirectory>
             <filtered>true</filtered>
             <fileMode>644</fileMode>
         </file>
         <file>
-            <source>../COPYRIGHT.txt</source>
+            <source>COPYRIGHT</source>
             <outputDirectory>.</outputDirectory>
             <filtered>true</filtered>
             <fileMode>644</fileMode>
         </file>
         <file>
-            <source>README.txt</source>
+            <source>README</source>
             <outputDirectory>.</outputDirectory>
             <filtered>true</filtered>
             <fileMode>644</fileMode>
@@ -184,6 +165,7 @@
                 <include>org.quartz-scheduler:quartz</include>
                 <include>org.quartz-scheduler:quartz-jobs</include>
                 <include>org.jvnet.mimepull:mimepull</include>
+                <include>com.h2database:h2</include>
             </includes>
         </dependencySet>
 

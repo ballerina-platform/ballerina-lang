@@ -32,7 +32,6 @@ function testForEachInTableWithStmt () (int id, int age, float salary, string na
     return;
 }
 
-
 function testForEachInTable () (int id, int age, float salary, string name) {
     endpoint<sql:ClientConnector> testDB {
         create sql:ClientConnector(sql:DB.HSQLDB_FILE, "./target/tempdb/",
@@ -53,7 +52,6 @@ function testForEachInTable () (int id, int age, float salary, string name) {
     testDB.close();
     return;
 }
-
 
 function testCountInTable () (int count) {
     endpoint<sql:ClientConnector> testDB {
@@ -96,7 +94,6 @@ function testFilterWithAnnonymousFuncOnTable () (int count, int id1, int id2) {
     return;
 }
 
-
 function testFilterTableWithCount () (int count) {
     endpoint<sql:ClientConnector> testDB {
         create sql:ClientConnector(sql:DB.HSQLDB_FILE, "./target/tempdb/",
@@ -108,7 +105,6 @@ function testFilterTableWithCount () (int count) {
     return;
 }
 
-
 function testMapTable () (string[] names) {
     endpoint<sql:ClientConnector> testDB {
         create sql:ClientConnector(sql:DB.HSQLDB_FILE, "./target/tempdb/",
@@ -119,7 +115,6 @@ function testMapTable () (string[] names) {
     testDB.close();
     return;
 }
-
 
 function testMapWithFilterTable () (string[] names) {
     endpoint<sql:ClientConnector> testDB {
@@ -153,7 +148,6 @@ function testFilterWithMapAndCountTable () (int count) {
     testDB.close();
     return;
 }
-
 
 function testAverageWithTable () (float avgSal) {
     endpoint<sql:ClientConnector> testDB {

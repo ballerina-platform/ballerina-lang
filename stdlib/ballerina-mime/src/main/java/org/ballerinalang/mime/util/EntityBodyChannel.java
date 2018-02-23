@@ -28,7 +28,7 @@ import java.nio.channels.ReadableByteChannel;
 /**
  * Represent entity body as a byte channel.
  *
- * @since 0.964.0
+ * @since 0.963.0
  */
 public class EntityBodyChannel implements ByteChannel {
     private InputStream inputStream;

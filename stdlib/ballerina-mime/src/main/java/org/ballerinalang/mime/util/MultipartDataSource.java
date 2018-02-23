@@ -45,7 +45,7 @@ import static org.ballerinalang.mime.util.Constants.ENTITY_HEADERS_INDEX;
 /**
  * Act as multipart encoder.
  *
- * @since 0.964.0
+ * @since 0.963.0
  */
 public class MultipartDataSource extends BallerinaMessageDataSource {
     private static final Logger log = LoggerFactory.getLogger(MultipartDataSource.class);

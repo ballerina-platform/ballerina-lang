@@ -36,7 +36,7 @@ import static org.ballerinalang.mime.util.Constants.FIRST_PARAMETER_INDEX;
 /**
  * Get the entity body in JSON form.
  *
- * @since 0.964.0
+ * @since 0.963.0
  */
 @BallerinaFunction(
         packageName = "ballerina.mime",
