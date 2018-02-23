@@ -24,6 +24,7 @@ import org.ballerinalang.bre.bvm.StackFrame;
 import org.ballerinalang.connector.api.Resource;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
+import org.ballerinalang.model.values.BBlob;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BRefType;
@@ -97,12 +98,14 @@ public class ResourceExecutor {
         int[] intRegs = new int[codeAttribInfo.getMaxIntRegs()];
         long[] longRegs = new long[codeAttribInfo.getMaxLongRegs()];
         double[] doubleRegs = new double[codeAttribInfo.getMaxDoubleRegs()];
+        byte[][] byteRegs = new byte[codeAttribInfo.getMaxByteRegs()][];
         BRefType[] refRegs = new BRefType[codeAttribInfo.getMaxRefRegs()];
 
         int stringParamCount = 0;
         int intParamCount = 0;
         int doubleParamCount = 0;
         int longParamCount = 0;
+        int byteParamCount = 0;
         int refParamCount = 0;
         BType[] bTypes = resourceInfo.getParamTypes();
 
@@ -130,9 +133,10 @@ public class ResourceExecutor {
                     doubleRegs[doubleParamCount++] = ((BFloat) value).floatValue();
                 } else if (btype == BTypes.typeInt) {
                     longRegs[longParamCount++] = ((BInteger) value).intValue();
-                } else if (value instanceof BStruct) {
-                    refRegs[refParamCount++] = (BRefType) value;
-                } else if (value instanceof BRefValueArray) {
+                } else if (btype == BTypes.typeBlob) {
+                    byteRegs[byteParamCount++] = ((BBlob) value).blobValue();
+                } else if (value instanceof BStruct || value instanceof BRefValueArray || btype == BTypes.typeJSON ||
+                        btype == BTypes.typeXML) {
                     refRegs[refParamCount++] = (BRefType) value;
                 } else {
                     connectorFuture.notifyFailure(new BallerinaException("unsupported " +
@@ -146,6 +150,7 @@ public class ResourceExecutor {
         calleeSF.setDoubleRegs(doubleRegs);
         calleeSF.setStringRegs(stringReg);
         calleeSF.setIntRegs(intRegs);
+        calleeSF.setByteRegs(byteRegs);
         calleeSF.setRefRegs(refRegs);
 
         // Execute workers

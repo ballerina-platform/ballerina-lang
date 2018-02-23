@@ -44,6 +44,17 @@
         </dependency>
     </dependencies>
 
+    <build>
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+                <excludes>
+                    <exclude>**/grammar/**</exclude>
+                </excludes>
+            </resource>
+        </resources>
+    </build>
+
     <properties>
         <mavan.findbugsplugin.exclude.file>findbugs-exclude.xml</mavan.findbugsplugin.exclude.file>
         <maven.checkstyleplugin.excludes>

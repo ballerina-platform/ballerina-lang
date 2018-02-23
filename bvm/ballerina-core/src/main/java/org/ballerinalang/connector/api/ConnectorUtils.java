@@ -20,6 +20,9 @@ package org.ballerinalang.connector.api;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.connector.impl.StructHelper;
 import org.ballerinalang.model.types.BStructType;
+import org.ballerinalang.model.types.BType;
+import org.ballerinalang.model.util.JSONUtils;
+import org.ballerinalang.model.values.BJSON;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
@@ -94,5 +97,18 @@ public class ConnectorUtils extends StructHelper {
     public static BallerinaServerConnector getBallerinaServerConnector(Context context, String protocolPkgPath) {
         ProgramFile programFile = context.getProgramFile();
         return getBallerinaServerConnector(programFile, protocolPkgPath);
+    }
+
+    /**
+     * This method is used to convert a JSON to struct given the resource, json and required struct type.
+     *
+     * @param resource   to get required details
+     * @param bJson      which needs to be converted
+     * @param structType of required struct
+     * @return converted struct
+     */
+    public static BStruct convertJSONToStruct(Resource resource, BJSON bJson, BType structType) {
+        PackageInfo packageInfo = getPackageInfo(resource);
+        return JSONUtils.convertJSONToStruct(bJson, (BStructType) structType, packageInfo);
     }
 }

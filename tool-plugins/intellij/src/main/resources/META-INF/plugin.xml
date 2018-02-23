@@ -1,7 +1,7 @@
 <idea-plugin>
     <id>org.ballerinalang</id>
     <name>Ballerina</name>
-    <version>0.962.0</version>
+    <version>0.963.0</version>
     <vendor email="ballerinalang@wso2.com" url="http://wso2.org">WSO2 Inc.</vendor>
 
     <description><![CDATA[
@@ -11,7 +11,8 @@
 
     <change-notes><![CDATA[
       <ul>
-        <li>Ballerina 0.962.0 grammar support.</li>
+        <li>Ballerina 0.963.0 grammar support.</li>
+        <li>File template updates.</li>
       </ul>
     ]]>
     </change-notes>
@@ -237,30 +238,37 @@
         <!--inspections-->
         <localInspection language="Ballerina" displayName="Wrong package statement" groupPath="Ballerina"
                          groupName="Probable bugs" enabledByDefault="true" level="WARNING"
+                         shortName="BallerinaWrongPackageStatement"
                          implementationClass="org.ballerinalang.plugins.idea.codeinspection.WrongPackageStatementInspection"/>
 
         <localInspection language="Ballerina" displayName="Unused import inspection" groupPath="Ballerina"
                          groupName="Declaration redundancy" enabledByDefault="true" level="WARNING"
+                         shortName="BallerinaUnusedImport"
                          implementationClass="org.ballerinalang.plugins.idea.codeinspection.UnusedImportInspection"/>
 
         <localInspection language="Ballerina" displayName="Unresolved reference inspection" groupPath="Ballerina"
                          groupName="General" enabledByDefault="true" level="ERROR"
+                         shortName="BallerinaUnresolvedReference"
                          implementationClass="org.ballerinalang.plugins.idea.codeinspection.BallerinaUnresolvedReferenceInspection"/>
 
         <localInspection language="Ballerina" displayName="Unused variable inspection" groupPath="Ballerina"
                          groupName="Declaration redundancy" enabledByDefault="true" level="WARNING"
+                         shortName="BallerinaUnusedVariable"
                          implementationClass="org.ballerinalang.plugins.idea.codeinspection.UnusedVariableInspection"/>
 
         <localInspection language="Ballerina" displayName="Unused constant inspection" groupPath="Ballerina"
                          groupName="Declaration redundancy" enabledByDefault="true" level="WARNING"
+                         shortName="BallerinaUnusedConstant"
                          implementationClass="org.ballerinalang.plugins.idea.codeinspection.UnusedConstantInspection"/>
 
         <localInspection language="Ballerina" displayName="Unused constant inspection" groupPath="Ballerina"
                          groupName="Declaration redundancy" enabledByDefault="true" level="WARNING"
+                         shortName="BallerinaUnusedGlobalVariable"
                          implementationClass="org.ballerinalang.plugins.idea.codeinspection.UnusedGlobalVariableInspection"/>
 
         <localInspection language="Ballerina" displayName="Unused constant inspection" groupPath="Ballerina"
                          groupName="Declaration redundancy" enabledByDefault="true" level="WARNING"
+                         shortName="BallerinaUnusedParameter"
                          implementationClass="org.ballerinalang.plugins.idea.codeinspection.UnusedParameterInspection"/>
 
         <externalAnnotator language="Ballerina"

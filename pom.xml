@@ -201,12 +201,6 @@
             </dependency>
             <dependency>
                 <groupId>org.ballerinalang</groupId>
-                <artifactId>ballerina-samples</artifactId>
-                <version>${ballerina.version}</version>
-                <type>zip</type>
-            </dependency>
-            <dependency>
-                <groupId>org.ballerinalang</groupId>
                 <artifactId>composer-server-distribution</artifactId>
                 <version>${ballerina.version}</version>
             </dependency>
@@ -490,7 +484,6 @@
                 <groupId>com.h2database</groupId>
                 <artifactId>h2</artifactId>
                 <version>${h2.version}</version>
-                <scope>test</scope>
             </dependency>
             <dependency>
                 <groupId>org.ballerinalang</groupId>
@@ -781,7 +774,6 @@
                 <module>language-server</module>
                 <module>misc/docerina</module>
                 <module>misc/ballerina-maven-plugins</module>
-                <module>misc/ballerina-samples</module>
                 <module>misc/swagger-ballerina</module>
                 <module>misc/testerina</module>
 
@@ -816,7 +808,6 @@
 
                 <module>misc/docerina</module>
                 <module>misc/ballerina-maven-plugins</module>
-                <module>misc/ballerina-samples</module>
 
                 <module>distribution/zip/ballerina</module>
 
@@ -845,7 +836,6 @@
 
                 <module>language-server</module>
                 <module>misc/ballerina-maven-plugins</module>
-                <module>misc/ballerina-samples</module>
                 <module>misc/docerina</module>
                 <module>misc/swagger-ballerina</module>
                 <module>misc/testerina</module>

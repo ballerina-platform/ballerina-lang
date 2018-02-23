@@ -34,6 +34,7 @@ import TreeUtil from '../../../../../model/tree-util';
 import DropZone from '../../../../../drag-drop/DropZone';
 import Button from '../../../../../interactions/transform-button';
 import './transformer-expanded.css';
+import IterableList from './iterable-list';
 
 /**
  * React component for transform expanded view
@@ -52,6 +53,7 @@ class TransformerExpanded extends React.Component {
         super(props, context);
         this.state = {
             // vertices changes must re-render. Hence added as a state.
+            iterableOperationMenu : {},
             vertices: [],
             typedSource: '',
             typedTarget: '',
@@ -546,11 +548,25 @@ class TransformerExpanded extends React.Component {
                     }
                 }
             } else if (TreeUtil.isInvocation(expression)) {
-                type = this.getFunctionArgConversionType(expression.getArgumentExpressions(),
-                                                          sourceId.split(':')[0]);
+                if (expression.iterableOperation && !targetId.includes('receiver')) {
+                    type = 'iterable';
+                } else {
+                    type = this.getFunctionArgConversionType(expression.getArgumentExpressions(),
+                    sourceId.split(':')[0]);
+                }
+            } else if (TreeUtil.isFieldBasedAccessExpr(expression) && (expression.symbolType[0].includes('[]'))) {
+                type = 'iterable';
             }
         }
-        this.mapper.addConnection(sourceId, targetId, folded, type);
+        const callback = (pageX, pageY, connection) => {
+            this.setState({ iterableOperationMenu: {
+                showIterables: true,
+                iterableX: pageX,
+                iterableY: pageY,
+                currrentConnection: connection,
+            } });
+        };
+        this.mapper.addConnection(sourceId, targetId, folded, type, callback);
     }
 
     /**
@@ -1343,10 +1359,23 @@ class TransformerExpanded extends React.Component {
                                         }
                                     </DropZone>
                                     <Button
+                                        className='transformer-button'
                                         bBox={{ x: 0, y: 0, h: 0, w: 300 }}
                                         showAlways
                                         model={this.props.model.getBody()}
                                         transformNodeManager={this.transformNodeManager}
+                                    />
+                                    <IterableList
+                                        showIterables={this.state.iterableOperationMenu.showIterables}
+                                        bBox={{
+                                            x: this.state.iterableOperationMenu.iterableX,
+                                            y: this.state.iterableOperationMenu.iterableY,
+                                            h: 0,
+                                            w: 0,
+                                        }}
+                                        currrentConnection={this.state.iterableOperationMenu.currrentConnection}
+                                        transformNodeManager={this.transformNodeManager}
+                                        callback={() => { this.setState({ iterableOperationMenu: { showIterables: false } }); }}
                                     />
                                     <div className='right-content'>
                                         <div className='rightType'>

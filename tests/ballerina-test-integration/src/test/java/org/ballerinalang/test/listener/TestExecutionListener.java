@@ -48,19 +48,18 @@ public class TestExecutionListener implements IExecutionListener {
         String serverZipPath = System.getProperty(Constant.SYSTEM_PROP_SERVER_ZIP);
 
         try {
-
-        newServer = new ServerInstance(serverZipPath) {
-            //config the service files need to be deployed
-            @Override
-            protected void configServer() {
-                //path of the sample bal file directory
-                String serviceSampleDir = this.getServerHome() + File.separator + Constant.SERVICE_SAMPLE_DIR;
-                //list of sample bal files to be deploy
-                String[] serviceFilesArr = listSamples(serviceSampleDir);
-                setArguments(serviceFilesArr);
-            }
-        };
-
+            newServer = new ServerInstance(serverZipPath) {
+                //config the service files need to be deployed
+                @Override
+                protected void configServer() {
+                    //path of the sample bal file directory
+                    String relativePath = new File("src" + File.separator + "test" + File.separator + "resources"
+                            + File.separator + "httpService" + File.separator + "echoService.bal").getAbsolutePath();
+                    //list of sample bal files to be deploy
+                    String[] serviceFilesArr = {relativePath};
+                    setArguments(serviceFilesArr);
+                }
+            };
             newServer.startServer();
         } catch (BallerinaTestException e) {
             log.error("Server failed to start. " + e.getMessage(), e);
@@ -125,39 +124,5 @@ public class TestExecutionListener implements IExecutionListener {
             }
         }
         return list.toArray(new String[]{});
-    }
-
-    /**
-     * List given samples ballerina services.
-     *
-     * @param sampleDir sample directory
-     * @return String arrays of file absolute paths
-     */
-    private static String[] listSamples(String sampleDir) {
-        String[] sampleFiles = {
-                sampleDir + File.separator + "echoService" + File.separator + "echoService.bal"
-//                sampleDir + File.separator + "helloWorldService" + File.separator + "helloWorldService.bal",
-//                sampleDir + File.separator + "passthroughService" + File.separator + "passthroughService.bsz",
-//                sampleDir + File.separator + "restfulService" + File.separator + "ecommerceService.bsz",
-//                sampleDir + File.separator + "routingServices" + File.separator + "routingServices.bsz",
-//                sampleDir + File.separator + "serviceChaining" + File.separator + "ATMLocatorService.bsz",
-//                sampleDir + File.separator + "websocket" + File.separator + "echoServer" + File.separator + "server" +
-//                        File.separator + "websocketEchoServer.bal",
-//                sampleDir + File.separator + "websocket" + File.separator + "connectionGroupSample" + File.separator +
-//                        "oddEvenHttpService.bal",
-//                sampleDir + File.separator + "websocket" + File.separator + "connectionGroupSample" + File.separator +
-//                        "oddEvenWebSocketService.bal",
-//                sampleDir + File.separator + "websocket" + File.separator + "connectionStoreSample" + File.separator +
-//                                        "websocketEndpoint.bal",
-//                sampleDir + File.separator + "websocket" + File.separator + "connectionStoreSample" + File.separator +
-//                                        "httpService.bal",
-//                new File("src" + File.separator + "test" + File.separator + "resources" + File.separator
-//                        + "httpService" + File.separator + "httpEchoService.bal").getAbsolutePath(),
-//                new File("src" + File.separator + "test" + File.separator + "resources" + File.separator
-//                        + "httpService" + File.separator + "httpsEchoService.bal").getAbsolutePath()
-
-
-        };
-        return sampleFiles;
     }
 }
