@@ -32,12 +32,12 @@ struct Transaction {
     string transactionId;
     string coordinationType = "2pc";
     map participants;
+    Protocol[] coordinatorProtocols;
 }
 
 struct Participant {
     string participantId;
     Protocol[] participantProtocols;
-    boolean isInitiator;
 }
 
 struct TransactionContext {
@@ -108,7 +108,7 @@ function respondToBadRequest (string msg) returns (http:OutResponse res) {
     return;
 }
 
-function createTransaction (string coordinationType) returns (Transaction txn) {
+function createNewTransaction (string coordinationType) returns (Transaction txn) {
     if (coordinationType == TWO_PHASE_COMMIT) {
         TwoPhaseCommitTransaction twopcTxn = {transactionId:util:uuid(), coordinationType:TWO_PHASE_COMMIT};
         var tx, _ = (Transaction)twopcTxn;
@@ -120,6 +120,16 @@ function createTransaction (string coordinationType) returns (Transaction txn) {
     return;
 }
 
+function getCoordinatorProtocolAt (string protocol) returns (string coordinatorProtocolAt) {
+    coordinatorProtocolAt = "http://" + coordinatorHost + ":" + coordinatorPort + initiator2pcCoordinatorBasePath;
+    return;
+}
+
+function getParticipantProtocolAt(string protocol) returns (string coordinatorProtocolAt) {
+    coordinatorProtocolAt = "http://" + coordinatorHost + ":" + coordinatorPort + participant2pcCoordinatorBasePath;
+    return;
+}
+
 // The initiator will create a new transaction context by calling this function
 function createTransactionContext (string coordinationType) returns (TransactionContext txnContext, error e) {
     if (!isValidCoordinationType(coordinationType)) {
@@ -127,7 +137,7 @@ function createTransactionContext (string coordinationType) returns (Transaction
         log:printError(msg);
         e = {msg:msg};
     } else {
-        Transaction txn = createTransaction(coordinationType);
+        Transaction txn = createNewTransaction(coordinationType);
         string txnId = txn.transactionId;
 
         initiatedTransactions[txnId] = txn;
@@ -142,7 +152,7 @@ function createTransactionContext (string coordinationType) returns (Transaction
 
 // Registers a participant with the initiator's coordinator
 // This function will be called by the participant
-function registerParticipant (string transactionId, string registerAtURL) returns (error err) {
+function registerParticipantWithRemoteCoordinator (string transactionId, string registerAtURL) returns (error err) {
     endpoint<InitiatorClient> coordinatorEP {
         create InitiatorClient();
     }
@@ -152,13 +162,16 @@ function registerParticipant (string transactionId, string registerAtURL) return
         return;
     }
     log:printInfo("Registering for transaction: " + transactionId + " with coordinator: " + registerAtURL);
-    var j, e = coordinatorEP.register(transactionId, localParticipantId, registerAtURL);
-    println(j);
+    var regRes, e = coordinatorEP.register(transactionId, registerAtURL);
     if (e != null) {
         string msg = "Cannot register with coordinator for transaction: " + transactionId;
         log:printErrorCause(msg, e);
-        err = {msg: msg};
+        err = {msg:msg};
     } else {
+        Protocol[] coordinatorProtocols = regRes.coordinatorProtocols;
+        TwoPhaseCommitTransaction twopcTxn = {transactionId:transactionId, coordinationType:TWO_PHASE_COMMIT};
+        twopcTxn.coordinatorProtocols = coordinatorProtocols;
+        participatedTransactions[transactionId] = twopcTxn;
         log:printInfo("Registered with coordinator for transaction: " + transactionId);
     }
     return;

@@ -16,8 +16,8 @@
 
 package ballerina.transactions.coordinator;
 
-import ballerina.net.http;
 import ballerina.config;
+import ballerina.net.http;
 
 const string participantHost = getParticipantHost();
 const int participantPort = getParticipantPort();
@@ -42,15 +42,16 @@ function getParticipantPort () returns (int port) {
 
 connector InitiatorClient () {
 
-    action register (string transactionId, string participantId, string registerAtURL) returns
-                                                                                       (json jsonRes, error err) {
+    action register (string transactionId, string registerAtURL) returns (RegistrationResponse registrationRes,
+                                                                          error err) {
         endpoint<http:HttpClient> coordinatorEP {
             create http:HttpClient(registerAtURL, {});
         }
         RegistrationRequest regReq = {transactionId:transactionId, participantId:localParticipantId};
 
-        //TODO: set the proper host and port
-        Protocol[] protocols = [{name:"volatile", url:"http://" + participantHost + ":" + participantPort + "/"}];
+        //TODO: set the proper protocol
+        string protocol = "durable";
+        Protocol[] protocols = [{name:"volatile", url:getParticipantProtocolAt(protocol)}];
         regReq.participantProtocols = protocols;
 
         var j, _ = <json>regReq;
@@ -60,7 +61,9 @@ connector InitiatorClient () {
         if (e == null) {
             int statusCode = res.statusCode;
             if (statusCode == 200) {
-                jsonRes = res.getJsonPayload();
+                var regRes, transformErr = <RegistrationResponse>res.getJsonPayload();
+                registrationRes = regRes;
+                err = (error)transformErr;
             } else {
                 var errMsg, _ = (string)res.getJsonPayload().errorMessage;
                 err = {msg:errMsg};

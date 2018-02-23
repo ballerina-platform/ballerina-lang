@@ -19,10 +19,9 @@ import ballerina.net.http;
 
 public connector Initiator2pcClient () {
 
-    action abortTransaction (string transactionId) returns (string msg, error err) {
-        //TODO: Pass the proper URL here
+    action abortTransaction (string transactionId, string coordinatorProtocolAt) returns (string msg, error err) {
         endpoint<http:HttpClient> coordinatorEP {
-            create http:HttpClient("http://localhost:9999/2pc/abort", {});
+            create http:HttpClient(coordinatorProtocolAt + "/abort", {});
         }
         AbortRequest abortReq = {transactionId:transactionId, participantId:localParticipantId};
         var j, _ = <json>abortReq;

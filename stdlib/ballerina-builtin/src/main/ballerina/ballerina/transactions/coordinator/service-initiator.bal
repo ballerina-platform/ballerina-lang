@@ -112,8 +112,7 @@ service<http> InitiatorService {
                 }
             } else {
                 Participant participant = {participantId:participantId,
-                                              participantProtocols:registrationReq.participantProtocols,
-                                              isInitiator:false};
+                                              participantProtocols:registrationReq.participantProtocols};
                 txn.participants[participantId] = participant;
 
                 // Send the response
@@ -121,10 +120,8 @@ service<http> InitiatorService {
                 Protocol[] coordinatorProtocols = [];
                 int i = 0;
                 foreach participantProtocol in participantProtocols {
-                    Protocol coordinatorProtocol =
-                    {name:participantProtocol.name,
-                        url:"http://" + coordinatorHost + ":" + coordinatorPort + "/protocol/" + participantProtocol.name};
-
+                    Protocol coordinatorProtocol = {name:participantProtocol.name,
+                                                       url:getCoordinatorProtocolAt(participantProtocol.name) };
                     coordinatorProtocols[i] = coordinatorProtocol;
                     i = i + 1;
                 }

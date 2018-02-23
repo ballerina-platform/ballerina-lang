@@ -34,6 +34,7 @@ struct TwoPhaseCommitTransaction {
     string transactionId;
     string coordinationType = "2pc";
     map participants;
+    Protocol[] coordinatorProtocols;
     TransactionState state;
     boolean possibleMixedOutcome;
 }
@@ -301,7 +302,7 @@ function abortLocalParticipantTransaction (string transactionId) returns (string
         log:printError(msg);
         e = {msg:msg};
     } else {
-        message, e = coordinatorEP.abortTransaction(transactionId);
+        message, e = coordinatorEP.abortTransaction(transactionId, txn.coordinatorProtocols[0].url);
         if (e == null) {
             txn.state = TransactionState.ABORTED;
         }
@@ -316,7 +317,7 @@ function beginTransaction (string transactionId, string registerAtUrl,
     if (isInitiator(transactionId)) {
         txnCtx, err = createTransactionContext(coordinationType);
     } else {
-        err = registerParticipant(transactionId, registerAtUrl);
+        err = registerParticipantWithRemoteCoordinator(transactionId, registerAtUrl);
         if (err == null) {
             txnCtx = {transactionId:transactionId, coordinationType:coordinationType, registerAtURL:registerAtUrl};
         }

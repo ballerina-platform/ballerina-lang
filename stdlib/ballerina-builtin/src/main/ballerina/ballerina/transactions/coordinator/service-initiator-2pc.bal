@@ -28,6 +28,10 @@ service<http> Initiator2pcService {
 
     // This resource is on the initiator's coordinator. When a participant wants to abort a transaction, it will make
     // a call to this resource
+    @http:resourceConfig {
+        methods:["POST"],
+        path:"/abort"
+    }
     resource abortTransaction (http:Connection conn, http:InRequest req) {
         http:OutResponse res;
         var abortReq, _ = <AbortRequest>req.getJsonPayload();
