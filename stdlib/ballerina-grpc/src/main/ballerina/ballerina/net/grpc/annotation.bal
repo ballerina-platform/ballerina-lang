@@ -17,6 +17,7 @@ public annotation resourceConfig attach resource {
 }
 
 public annotation serviceConfig attach service {
+    int port;
     string rpcEndpoint;
     string inputType;
     string outputType;

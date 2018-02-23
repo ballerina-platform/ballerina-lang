@@ -40,6 +40,7 @@ public class MessageConstants {
     public static final String CONNECTION = "Connection";
     public static final String RESPONSE_MESSAGE_DEFINITION = "response_msg_definition";
     public static final String HTTP2_CONNECTOR_ERROR = "HttpConnectorError";
+    public static final String ANN_NAME_CONFIG = "serviceConfig";
 
     // Response Message index
     public static final int REQUEST_MESSAGE_INDEX = 1;

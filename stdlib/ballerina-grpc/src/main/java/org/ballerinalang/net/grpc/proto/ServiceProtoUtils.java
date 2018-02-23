@@ -48,6 +48,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForeach;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangVariableDef;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangWhile;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -330,6 +331,14 @@ public class ServiceProtoUtils {
     private static BLangInvocation getInvocationExpression(BlockNode body) {
         for (StatementNode statementNode : body.getStatements()) {
             BLangExpression expression = null;
+            // example : conn.send inside while block.
+            if (statementNode instanceof BLangWhile) {
+                BLangWhile langWhile = (BLangWhile) statementNode;
+                BLangInvocation invocExp = getInvocationExpression(langWhile.getBody());
+                if (invocExp != null) {
+                    return invocExp;
+                }
+            }
             // example : conn.send inside for block.
             if (statementNode instanceof BLangForeach) {
                 BLangForeach langForeach = (BLangForeach) statementNode;

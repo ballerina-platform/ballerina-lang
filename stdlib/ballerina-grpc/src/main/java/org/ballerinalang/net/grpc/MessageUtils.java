@@ -19,6 +19,8 @@ import com.google.protobuf.Descriptors;
 import io.grpc.Metadata;
 import io.grpc.stub.StreamObserver;
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.connector.api.Annotation;
+import org.ballerinalang.connector.api.Service;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
@@ -26,8 +28,10 @@ import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.net.grpc.proto.ServiceProtoConstants;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.StructInfo;
+import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.util.Base64;
+import java.util.List;
 
 
 /**
@@ -118,6 +122,20 @@ public class MessageUtils {
         return object != null && object.getClass().isArray();
     }
 
+    public static Annotation getServiceConfigAnnotation(Service service, String pkgPath) {
+        List<Annotation> annotationList = service.getAnnotationList(pkgPath, MessageConstants.ANN_NAME_CONFIG);
+
+        if (annotationList == null) {
+            return null;
+        }
+
+        if (annotationList.size() > 1) {
+            throw new BallerinaException(
+                    "multiple service configuration annotations found in service: " + service.getName());
+        }
+
+        return annotationList.isEmpty() ? null : annotationList.get(0);
+    }
 /*    public static com.google.protobuf.Message generateProtoMessage(BStruct bValue, BStructType structType) {
         Message.Builder responseBuilder = Message.newBuilder(structType.getName());
         int stringIndex = 0;

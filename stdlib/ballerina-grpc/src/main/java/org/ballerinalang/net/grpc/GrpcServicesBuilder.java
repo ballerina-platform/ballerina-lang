@@ -54,9 +54,22 @@ public class GrpcServicesBuilder {
     private io.grpc.ServerBuilder serverBuilder = null;
 
     void registerService(Service service) throws GrpcServerException {
-        serverBuilder = NettyServerBuilder.forPort(9090)
-                .bossEventLoopGroup(new NioEventLoopGroup(Runtime.getRuntime().availableProcessors()))
-                .workerEventLoopGroup(new NioEventLoopGroup(Runtime.getRuntime().availableProcessors() * 2));
+        Annotation serviceAnnotation = MessageUtils.getServiceConfigAnnotation(service, MessageConstants
+                .PROTOCOL_PACKAGE_GRPC);
+        if (serviceAnnotation != null && serviceAnnotation.getAnnAttrValue("port") != null) {
+                     serverBuilder = NettyServerBuilder.forPort((int) serviceAnnotation.getAnnAttrValue("port")
+                             .getIntValue())
+                                       .bossEventLoopGroup(new NioEventLoopGroup(Runtime.getRuntime()
+                                               .availableProcessors()))
+                                       .workerEventLoopGroup(new NioEventLoopGroup(Runtime.getRuntime()
+                                               .availableProcessors() * 2));
+                 } else {
+                       serverBuilder = NettyServerBuilder.forPort(9090)
+                                        .bossEventLoopGroup(new NioEventLoopGroup(Runtime.getRuntime()
+                                                .availableProcessors()))
+                                      .workerEventLoopGroup(new NioEventLoopGroup(Runtime.getRuntime()
+                                              .availableProcessors() * 2));
+                   }
         try {
             serverBuilder.addService(ServerInterceptors.intercept(getServiceDefinition(service), new
                     ServerHeaderInterceptor()));
