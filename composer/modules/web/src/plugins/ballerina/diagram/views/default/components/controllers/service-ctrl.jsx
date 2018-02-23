@@ -20,14 +20,14 @@ import PropTypes from 'prop-types';
 import ControllerUtil from './controller-util';
 import LifelineTools from '../../../../../tool-palette/item-provider/lifeline-tools';
 import TreeUtil from './../../../../../model/tree-util';
-import LifelineButton from '../../../../../interactions/lifeline-button';
+import ServiceMenu from '../../../../../interactions/service-menu';
 
 /**
  * class to render Next statement.
  * @extends React.Component
- * @class FunctionCtrl
+ * @class ServiceCtrl
  * */
-class FunctionCtrl extends React.Component {
+class ServiceCtrl extends React.Component {
 
     /**
      * Render Function for the Next statement.
@@ -35,51 +35,23 @@ class FunctionCtrl extends React.Component {
      * */
     render() {
         const node = this.props.model;
-        const y = node.viewState.components.defaultWorker.y - 20;
-        let x = node.viewState.components.defaultWorker.x + node.viewState.components.defaultWorker.w +
-            this.context.config.lifeLine.gutter.h;
+        const y = node.viewState.bBox.y + 8;
+        const x = node.viewState.bBox.x - 3;
 
-        if (node.lambda) {
-            return null;
-        }
-
-        if (node.workers.length > 0) {
-            x = node.workers[node.workers.length - 1].viewState.bBox.x +
-                node.workers[node.workers.length - 1].viewState.bBox.w +
-                this.context.config.lifeLine.gutter.h;
-        }
-
-        if (node.viewState.collapsed) {
-            return null;
-        }
-        // Set the size of the connector declarations
-        const statements = node.body.statements;
-        if (statements instanceof Array) {
-            statements.forEach((statement) => {
-                if (TreeUtil.isEndpointTypeVariableDef(statement)) {
-                    x = statement.viewState.bBox.w + statement.viewState.bBox.x + this.context.config.lifeLine.gutter.h;
-                }
-            });
-        }
-
-        if (TreeUtil.isInitFunction(node)) {
-            return <span />;
-        }
-
-        const w = 50;
-        const h = 50;
+        const w = 20;
+        const h = 30;
 
         const items = ControllerUtil.convertToAddItems(LifelineTools, node);
 
-        return <LifelineButton bBox={{ x, y, w, h }} model={node} items={items} />;
+        return <ServiceMenu bBox={{ x, y, w, h }} model={node} items={items} />;
     }
 }
 
-FunctionCtrl.propTypes = {
+ServiceCtrl.propTypes = {
     model: PropTypes.instanceOf(Object).isRequired,
 };
 
-FunctionCtrl.contextTypes = {
+ServiceCtrl.contextTypes = {
     config: PropTypes.instanceOf(Object).isRequired,
     command: PropTypes.shape({
         on: PropTypes.func,
@@ -88,4 +60,4 @@ FunctionCtrl.contextTypes = {
     mode: PropTypes.string,
 };
 
-export default FunctionCtrl;
+export default ServiceCtrl;
