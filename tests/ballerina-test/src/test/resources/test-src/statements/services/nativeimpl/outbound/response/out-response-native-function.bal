@@ -87,7 +87,7 @@ function testSetXmlPayload (xml value) (http:OutResponse) {
 
 function testSetEntityBody(file:File content, string contentType) (http:OutResponse) {
     http:OutResponse res = {};
-    res.setEntityBody(content, contentType);
+    res.setFileAsPayload(content, contentType);
     return res;
 }
 

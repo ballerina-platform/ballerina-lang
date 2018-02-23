@@ -1,3 +1,5 @@
+import ballerina.io;
+
 @Description {value:"Defining Person struct."}
 struct Person {
     string name;
@@ -19,14 +21,14 @@ function main (string[] args) {
     // Declare a Person variable.
     Person p;
 
-    // Declare a type conversion error to accept any type conversion errors thrown.
-    TypeConversionError err;
+    // Declare an error to accept any type conversion errors thrown.
+    error err;
     // Convert JSON to a Person type variable.
     p, err = <Person>j;
 
     // Print if an error is thrown.
     if (err != null) {
-        println(err);
+        io:println(err);
     }
 
     // Define a constant city value as "London".
@@ -35,6 +37,6 @@ function main (string[] args) {
     // Convert p of type Person to the response JSON, using the transformer defined earlier.
     json<Person> response = <json<Person>, updateCity(city)> p;
 
-    println(response);
+    io:println(response);
 }
 

@@ -73,6 +73,7 @@ public final class Constants {
         public static final String HSQLDB_FILE = "HSQLDB_FILE";
         public static final String H2_SERVER = "H2_SERVER";
         public static final String H2_FILE = "H2_FILE";
+        public static final String H2_MEM = "H2_MEM";
         public static final String DERBY_SERVER = "DERBY_SERVER";
         public static final String DERBY_FILE = "DERBY_FILE";
     }
@@ -126,7 +127,7 @@ public final class Constants {
     public static final String TIMEZONE_UTC = "UTC";
     public static final String QUESTION_MARK = "?";
     public static final String STRUCT_TIME = "Time";
-    public static final String STRUCT_TIME_PACKAGE = "ballerina.builtin";
+    public static final String STRUCT_TIME_PACKAGE = "ballerina.time";
     public static final String URL = "url";
     public static final String USER = "user";
     public static final String PASSWORD = "password";

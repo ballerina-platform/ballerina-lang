@@ -26,13 +26,17 @@ public class TestConstant {
     public static final String HEADER_CONTENT_TYPE = "Content-Type";
     public static final String CONTENT_TYPE_JSON = "application/json";
     public static final String CONTENT_TYPE_TEXT_PLAIN = "text/plain";
-    public static final String CONTENT_LENGTH = "Content-Length";
+    public static final String HEADER_CONTENT_LENGTH = "Content-Length";
     public static final String ALLOW = "Allow";
     public static final String CHARSET_NAME = "UTF-8";
     public static final String HTTP_METHOD_GET = "GET";
     public static final String HTTP_METHOD_POST = "POST";
     public static final String HTTP_METHOD_OPTIONS = "OPTIONS";
     public static final String HTTP_METHOD_HEAD = "HEAD";
+    public static final String HEADER_ACCEPT_ENCODING = "Accept-Encoding";
+    public static final String HEADER_CONTENT_ENCODING = "content-encoding";
+    public static final String ENCODING_GZIP = "gzip";
+    public static final String HTTP_TRANSFER_ENCODING_IDENTITY = "identity";
 
     //HTTP2 related Constants
     public static final long HTTP2_RESPONSE_TIME_OUT = 10;

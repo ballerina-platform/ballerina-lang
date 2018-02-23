@@ -21,6 +21,7 @@ import org.ballerinalang.test.IntegrationTestCase;
 import org.ballerinalang.test.context.ServerInstance;
 import org.ballerinalang.test.util.HttpClientRequest;
 import org.ballerinalang.test.util.HttpResponse;
+import org.ballerinalang.test.util.TestConstant;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -103,6 +104,33 @@ public class HTTPVerbsPassthruTestCases extends IntegrationTestCase {
                 , "test", new HashMap<>());
         Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
         Assert.assertEquals(response.getData(), "ballerina", "Message content mismatched");
+    }
+
+    @Test(description = "Test HTTP data binding with JSON payload with URL. /getQuote/employee")
+    public void testDataBindingJsonPayload() throws IOException {
+        String payload = "{\"name\":\"WSO2\",\"team\":\"ballerina\"}";
+        Map<String, String> headers = new HashMap<>();
+        headers.put(TestConstant.HEADER_CONTENT_TYPE, TestConstant.CONTENT_TYPE_JSON);
+        HttpResponse response = HttpClientRequest.doPost(ballerinaServer.getServiceURLHttp("getQuote/employee")
+                , payload, headers);
+
+        Assert.assertNotNull(response);
+        Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
+        Assert.assertEquals(response.getData(), payload);
+    }
+
+    @Test(description = "Test HTTP data binding with incompatible payload with URL. /getQuote/employee")
+    public void testDataBindingWithIncompatiblePayload() throws IOException {
+        String payload = "name:WSO2,team:ballerina";
+        Map<String, String> headers = new HashMap<>();
+        headers.put(TestConstant.HEADER_CONTENT_TYPE, TestConstant.CONTENT_TYPE_TEXT_PLAIN);
+        HttpResponse response = HttpClientRequest.doPost(ballerinaServer.getServiceURLHttp("getQuote/employee")
+                , payload, headers);
+
+        Assert.assertNotNull(response);
+        Assert.assertEquals(response.getResponseCode(), 400, "Response code mismatched");
+        Assert.assertTrue(response.getData()
+                .contains("data binding failed: failed to create json: unrecognized token 'name:WSO2,team:ballerina'"));
     }
 
     @AfterClass

@@ -1,6 +1,7 @@
 package ballerina.net.http.resiliency;
 
 import ballerina.net.http;
+import ballerina.time;
 
 enum CircuitState {
     OPEN, CLOSED, HALF_OPEN
@@ -9,7 +10,7 @@ enum CircuitState {
 struct CircuitHealth {
     int requestCount;
     int errorCount;
-    Time lastErrorTime;
+    time:Time lastErrorTime;
 }
 
 @Description {value:"A Circuit Breaker implementation for to be used with the HTTP client connector to gracefully handle network errors"}
@@ -221,7 +222,7 @@ public connector CircuitBreaker (http:HttpClient httpClient, float failureThresh
 function updateCircuitState (CircuitHealth circuitHealth, CircuitState currentState, float failureThreshold,
                              int resetTimeout) (CircuitState) {
     if (currentState == CircuitState.OPEN) {
-        Time currentT = currentTime();
+        time:Time currentT = time:currentTime();
         int elapsedTime = currentT.time - circuitHealth.lastErrorTime.time;
 
         if (elapsedTime > resetTimeout) {
@@ -257,17 +258,17 @@ function updateCircuitHealth(CircuitHealth circuitHealth, http:HttpConnectorErro
 
     if (err != null) {
         circuitHealth.errorCount = circuitHealth.errorCount + 1;
-        circuitHealth.lastErrorTime = currentTime();
+        circuitHealth.lastErrorTime = time:currentTime();
     }
 }
 
 function handleOpenCircuit (CircuitHealth circuitHealth, int resetTimeout) (http:HttpConnectorError) {
-    Time currentT = currentTime();
+    time:Time currentT = time:currentTime();
     int timeDif = currentT.time - circuitHealth.lastErrorTime.time;
     int timeRemaining = resetTimeout - timeDif;
 
     http:HttpConnectorError err = {};
-    err.msg = "Upstream service unavailable. Requests to upstream service will be suspended for "
+    err.message = "Upstream service unavailable. Requests to upstream service will be suspended for "
               + timeRemaining + " milliseconds.";
     return err;
 }

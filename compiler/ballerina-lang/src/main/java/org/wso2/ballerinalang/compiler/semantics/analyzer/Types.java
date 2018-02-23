@@ -264,13 +264,15 @@ public class Types {
         }
 
         for (int i = 0; i < source.paramTypes.size(); i++) {
-            if (!isSameType(source.paramTypes.get(i), target.paramTypes.get(i))) {
+            if (target.paramTypes.get(i).tag != TypeTags.ANY && !isSameType(source.paramTypes.get(i),
+                    target.paramTypes.get(i))) {
                 return false;
             }
         }
 
         for (int i = 0; i < source.retTypes.size(); i++) {
-            if (!isSameType(source.retTypes.get(i), target.retTypes.get(i))) {
+            if (target.retTypes.get(i).tag != TypeTags.ANY && !isSameType(source.retTypes.get(i),
+                    target.retTypes.get(i))) {
                 return false;
             }
         }
@@ -503,7 +505,7 @@ public class Types {
                                                          BType targetType,
                                                          boolean safe,
                                                          int opcode) {
-        return Symbols.createCastOperatorSymbol(sourceType, targetType, symTable.errTypeCastType,
+        return Symbols.createCastOperatorSymbol(sourceType, targetType, symTable.errStructType,
                 false, safe, opcode, null, null);
     }
 
@@ -511,7 +513,7 @@ public class Types {
                                                                      BType targetType,
                                                                      boolean safe,
                                                                      int opcode) {
-        return Symbols.createConversionOperatorSymbol(sourceType, targetType, symTable.errTypeConversionType, safe,
+        return Symbols.createConversionOperatorSymbol(sourceType, targetType, symTable.errStructType, safe,
                 opcode, null, null);
     }
 

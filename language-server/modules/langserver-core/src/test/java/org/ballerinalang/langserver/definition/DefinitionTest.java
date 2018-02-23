@@ -98,10 +98,10 @@ public class DefinitionTest {
     @DataProvider(name = "localFuncPosition")
     public Object[][] getLocalFunctionPositions() {
         return new Object[][]{
-                {new Position(21, 7),
+                {new Position(23, 7),
                         new DefinitionTestDataModel("localFunctionInSameFile.json",
                                 Paths.get(balPath1).toUri().toString(), balPath1, balFile1Content)},
-                {new Position(42, 7),
+                {new Position(44, 7),
                         new DefinitionTestDataModel("localFunctionInAnotherFile.json",
                                 Paths.get(balPath2).toUri().toString(), balPath1, balFile1Content)}
         };
@@ -110,10 +110,10 @@ public class DefinitionTest {
     @DataProvider(name = "structPositions")
     public Object[][] getStructPositions() {
         return new Object[][]{
-                {new Position(34, 7),
+                {new Position(36, 7),
                         new DefinitionTestDataModel("structInSameFile.json",
                                 Paths.get(balPath1).toUri().toString(), balPath1, balFile1Content)},
-                {new Position(11, 7),
+                {new Position(13, 7),
                         new DefinitionTestDataModel("structInAnotherFile.json",
                                 Paths.get(balPath2).toUri().toString(), balPath1, balFile1Content)}
         };
@@ -122,10 +122,10 @@ public class DefinitionTest {
     @DataProvider(name = "globalVariablePositions")
     public Object[][] getGlobalVariablePositions() {
         return new Object[][]{
-                {new Position(39, 50),
+                {new Position(41, 53),
                         new DefinitionTestDataModel("globalVariableInSameFile.json",
                                 Paths.get(balPath1).toUri().toString(), balPath1, balFile1Content)},
-                {new Position(9, 15),
+                {new Position(11, 18),
                         new DefinitionTestDataModel("globalVariableInAnotherFile.json",
                                 Paths.get(balPath1).toUri().toString(), balPath2, balFile2Content)}
         };
@@ -134,19 +134,19 @@ public class DefinitionTest {
     @DataProvider(name = "localVariablePositions")
     public Object[][] getLocalVariablePositions() {
         return new Object[][]{
-                {new Position(45, 9),
+                {new Position(47, 9),
                         new DefinitionTestDataModel("localVariableInFunction.json",
                                 Paths.get(balPath1).toUri().toString(), balPath1, balFile1Content)},
-                {new Position(49, 12),
+                {new Position(51, 12),
                         new DefinitionTestDataModel("localVariableInIfStatement.json",
                                 Paths.get(balPath1).toUri().toString(), balPath1, balFile1Content)},
-                {new Position(38, 10),
+                {new Position(40, 10),
                         new DefinitionTestDataModel("localVariableInForeachStatement.json",
                                 Paths.get(balPath1).toUri().toString(), balPath1, balFile1Content)},
-                {new Position(37, 25),
+                {new Position(39, 25),
                         new DefinitionTestDataModel("localVariableOnForeachStatement.json",
                                 Paths.get(balPath1).toUri().toString(), balPath1, balFile1Content)},
-                {new Position(37, 25),
+                {new Position(39, 25),
                         new DefinitionTestDataModel("localVariableOfStruct.json",
                                 Paths.get(balPath1).toUri().toString(), balPath1, balFile1Content)}
         };

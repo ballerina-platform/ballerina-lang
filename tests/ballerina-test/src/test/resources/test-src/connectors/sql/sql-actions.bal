@@ -1,4 +1,5 @@
 import ballerina.data.sql;
+import ballerina.time;
 
 struct ResultCustomers {
     string FIRSTNAME;
@@ -510,7 +511,7 @@ function testDateTimeInParameters () (int[]) {
     returnValues[1] = insertCount2;
 
 
-    Time timeNow = currentTime();
+    time:Time timeNow = time:currentTime();
     para1 = {sqlType:sql:Type.INTEGER, value:300};
     para2 = {sqlType:sql:Type.DATE, value:timeNow};
     para3 = {sqlType:sql:Type.TIME, value:timeNow};

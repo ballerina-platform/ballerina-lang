@@ -21,8 +21,8 @@ import org.ballerinalang.launcher.util.BAssertUtil;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
+import org.ballerinalang.mime.util.EntityBodyHandler;
 import org.ballerinalang.mime.util.MimeUtil;
-import org.ballerinalang.model.values.BJSON;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
@@ -33,14 +33,12 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 
-import static org.ballerinalang.mime.util.Constants.APPLICATION_JSON;
+import static org.ballerinalang.mime.util.Constants.BYTE_CHANNEL_STRUCT;
 import static org.ballerinalang.mime.util.Constants.CONTENT_TYPE;
-import static org.ballerinalang.mime.util.Constants.IS_ENTITY_BODY_PRESENT;
-import static org.ballerinalang.mime.util.Constants.JSON_DATA_INDEX;
+import static org.ballerinalang.mime.util.Constants.IS_BODY_BYTE_CHANNEL_ALREADY_SET;
 import static org.ballerinalang.mime.util.Constants.MEDIA_TYPE;
 import static org.ballerinalang.mime.util.Constants.MESSAGE_ENTITY;
 import static org.ballerinalang.mime.util.Constants.PROTOCOL_PACKAGE_MIME;
-import static org.ballerinalang.mime.util.Constants.TEXT_DATA_INDEX;
 import static org.ballerinalang.mime.util.Constants.TEXT_PLAIN;
 
 /**
@@ -85,8 +83,13 @@ public class InResponseNativeFunctionNegativeTest {
         BStruct entity = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageMime, entityStruct);
         inResponse.addNativeData(MESSAGE_ENTITY, entity);
         BValue[] inputArg = {inResponse};
-        BValue[] returnVals = BRunUtil.invoke(result, "testGetJsonPayload", inputArg);
-        Assert.assertNull(returnVals[0]);
+        String error = null;
+        try {
+            BRunUtil.invoke(result, "testGetJsonPayload", inputArg);
+        } catch (Throwable e) {
+            error = e.getMessage();
+        }
+        Assert.assertTrue(error.contains("empty JSON document"));
     }
 
     @Test(description = "Test getEntity method on a response without a entity")
@@ -107,9 +110,9 @@ public class InResponseNativeFunctionNegativeTest {
 
         String payload = "ballerina";
         MimeUtil.setContentType(mediaType, entity, TEXT_PLAIN);
-        entity.setStringField(TEXT_DATA_INDEX, payload);
+        entity.addNativeData(BYTE_CHANNEL_STRUCT, EntityBodyHandler.getEntityWrapper(payload));
         inResponse.addNativeData(MESSAGE_ENTITY, entity);
-        inResponse.addNativeData(IS_ENTITY_BODY_PRESENT, true);
+        inResponse.addNativeData(IS_BODY_BYTE_CHANNEL_ALREADY_SET, true);
         BValue[] inputArg = {inResponse};
         BValue[] returnVals = BRunUtil.invoke(result, "testGetJsonPayload", inputArg);
         Assert.assertNull(returnVals[0]);
@@ -138,26 +141,7 @@ public class InResponseNativeFunctionNegativeTest {
         BValue[] returnVals = BRunUtil.invoke(result, "testGetStringPayload", inputArg);
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
                 "Invalid Return Values.");
-        Assert.assertNull(returnVals[0].stringValue());
-    }
-
-    @Test(description = "Test getStringPayload method with JSON payload")
-    public void testGetStringPayloadMethodWithJsonPayload() {
-        BStruct inResponse = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, inRespStruct);
-        BStruct entity = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageMime, entityStruct);
-        BStruct mediaType = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageMime, mediaTypeStruct);
-
-        String payload = "{\"code\":\"123\"}";
-        MimeUtil.setContentType(mediaType, entity, APPLICATION_JSON);
-        entity.setRefField(JSON_DATA_INDEX, new BJSON(payload));
-        inResponse.addNativeData(MESSAGE_ENTITY, entity);
-        inResponse.addNativeData(IS_ENTITY_BODY_PRESENT, true);
-
-        BValue[] inputArg = {inResponse};
-        BValue[] returnVals = BRunUtil.invoke(result, "testGetStringPayload", inputArg);
-        Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
-                "Invalid Return Values.");
-        Assert.assertNull(returnVals[0].stringValue());
+        Assert.assertEquals(returnVals[0].stringValue(), "");
     }
 
     @Test
@@ -166,8 +150,14 @@ public class InResponseNativeFunctionNegativeTest {
         BStruct entity = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageMime, entityStruct);
         inResponse.addNativeData(MESSAGE_ENTITY, entity);
         BValue[] inputArg = {inResponse};
-        BValue[] returnVals = BRunUtil.invoke(result, "testGetXmlPayload", inputArg);
-        Assert.assertNull(returnVals[0]);
+        String error = null;
+        try {
+            BRunUtil.invoke(result, "testGetXmlPayload", inputArg);
+        } catch (Throwable e) {
+            error = e.getMessage();
+        }
+        Assert.assertTrue(error.contains("error occurred while retrieving xml data from entity : " +
+                "Unexpected EOF in prolog"));
     }
 
     @Test

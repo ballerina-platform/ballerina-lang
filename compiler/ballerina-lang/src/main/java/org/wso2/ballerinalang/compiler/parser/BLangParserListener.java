@@ -263,7 +263,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
 
-        this.pkgBuilder.startLambdaFunctionDef();
+        this.pkgBuilder.startLambdaFunctionDef(diagnosticSrc.pkgID);
     }
 
     @Override

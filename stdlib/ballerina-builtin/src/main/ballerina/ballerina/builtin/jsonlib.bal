@@ -1,12 +1,20 @@
-package ballerina.builtin;
+// Copyright (c) 2017 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+//
+// WSO2 Inc. licenses this file to you under the Apache License,
+// Version 2.0 (the "License"); you may not use this file except
+// in compliance with the License.
+// You may obtain a copy of the License at
+//
+// http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing,
+// software distributed under the License is distributed on an
+// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+// KIND, either express or implied.  See the License for the
+// specific language governing permissions and limitations
+// under the License.
 
-@Description { value: "Options struct for JSON to XML conversion "}
-@Field {value:"attributePrefix: Prefix to identify XML attribute,default value is '@'."}
-@Field {value:"arrayEntryTag: The name of the tag to be added to each entry of JSON array."}
-public struct jsonOptions {
-    string attributePrefix = "@";
-    string arrayEntryTag = "item";
-}
+package ballerina.builtin;
 
 @Description { value:"Removes each element that matches the given key."}
 @Param { value:"j: A JSON object" }
@@ -27,4 +35,7 @@ public native function <json j> getKeys() (string[]);
 @Param { value:"j: A JSON object" }
 @Param { value:"options: jsonOptions struct for JSON to XML conversion properties" }
 @Return { value:"The XML representation of the JSON" }
-public native function <json j> toXML (jsonOptions options) (xml, TypeConversionError);
+public native function <json j> toXML (struct {
+                                           string attributePrefix = "@";
+                                           string arrayEntryTag = "item";
+                                       } options) (xml, error);

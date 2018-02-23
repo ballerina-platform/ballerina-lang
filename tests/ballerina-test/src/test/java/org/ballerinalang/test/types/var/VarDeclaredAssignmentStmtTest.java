@@ -259,12 +259,6 @@ public class VarDeclaredAssignmentStmtTest {
         BStruct error = (BStruct) returns[1];
         String errorMsg = error.getStringField(0);
         Assert.assertEquals(errorMsg, "'B' cannot be cast to 'A'");
-
-        String sourceType = error.getStringField(1);
-        Assert.assertEquals(sourceType, "B");
-
-        String targetType = error.getStringField(2);
-        Assert.assertEquals(targetType, "A");
     }
 
     @Test(description = "Test any to string with errors.")

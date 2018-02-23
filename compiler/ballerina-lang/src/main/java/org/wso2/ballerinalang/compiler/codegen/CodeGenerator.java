@@ -93,6 +93,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLang
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangRecordKey;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangRecordKeyValue;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangStructLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangTableLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef.BLangFieldVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef.BLangFunctionVarRef;
@@ -301,9 +302,10 @@ public class CodeGenerator extends BLangNodeVisitor {
     public ProgramFile generate(BLangPackage pkgNode) {
         programFile = new ProgramFile();
         // TODO: Fix this. Added temporally for codegen. Load this from VM side.
-        if (this.symTable.builtInPackageSymbol != null) {
-            genPackage(this.symTable.builtInPackageSymbol);
-        }
+        genPackage(this.symTable.builtInPackageSymbol);
+        genPackage(this.symTable.runtimePackageSymbol);
+
+        // Normal Flow.
         BPackageSymbol pkgSymbol = pkgNode.symbol;
         genPackage(pkgSymbol);
 
@@ -718,6 +720,13 @@ public class CodeGenerator extends BLangNodeVisitor {
             int opcode = getOpcode(key.fieldSymbol.type.tag, InstructionCodes.IFIELDSTORE);
             emit(opcode, structRegIndex, fieldIndex, keyValue.valueExpr.regIndex);
         }
+    }
+
+    @Override
+    public void visit(BLangTableLiteral tableLiteral) {
+        tableLiteral.regIndex = calcAndGetExprRegIndex(tableLiteral);
+        Operand typeCPIndex = getTypeCPIndex(tableLiteral.type);
+        emit(InstructionCodes.NEWTABLE, tableLiteral.regIndex, typeCPIndex);
     }
 
     @Override

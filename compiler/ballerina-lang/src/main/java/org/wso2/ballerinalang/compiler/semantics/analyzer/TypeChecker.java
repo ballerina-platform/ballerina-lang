@@ -227,6 +227,7 @@ public class TypeChecker extends BLangNodeVisitor {
         if (expTypeTag == TypeTags.JSON ||
                 expTypeTag == TypeTags.MAP ||
                 expTypeTag == TypeTags.STRUCT ||
+                expTypeTag == TypeTags.TABLE ||
                 expTypeTag == TypeTags.NONE ||
                 expTypeTag == TypeTags.ANY) {
             recordLiteral.keyValuePairs.forEach(keyValuePair ->
@@ -453,11 +454,13 @@ public class TypeChecker extends BLangNodeVisitor {
             case TypeTags.BLOB:
             case TypeTags.XML:
             case TypeTags.MAP:
-            case TypeTags.TABLE:
                 checkFunctionInvocationExpr(iExpr, iExpr.expr.type);
                 break;
             case TypeTags.JSON:
                 checkFunctionInvocationExpr(iExpr, symTable.jsonType);
+                break;
+            case TypeTags.TABLE:
+                checkFunctionInvocationExpr(iExpr, symTable.tableType);
                 break;
             case TypeTags.ARRAY:
             case TypeTags.TUPLE_COLLECTION:
@@ -1315,7 +1318,7 @@ public class TypeChecker extends BLangNodeVisitor {
             BTransformerSymbol transformerSymbol = (BTransformerSymbol) symbol;
             conversionExpr.conversionSymbol = transformerSymbol;
             if (conversionExpr.conversionSymbol.safe) {
-                ((BInvokableType) transformerSymbol.type).retTypes.add(symTable.errTypeConversionType);
+                ((BInvokableType) transformerSymbol.type).retTypes.add(symTable.errStructType);
             }
             actualTypes = getActualTypesOfConversionExpr(conversionExpr, targetType, sourceType,
                     (BTransformerSymbol) transformerSymbol);
