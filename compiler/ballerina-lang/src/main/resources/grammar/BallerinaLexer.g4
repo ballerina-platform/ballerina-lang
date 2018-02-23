@@ -714,15 +714,15 @@ DocumentationTemplateAttributeStart
     ;
 
 SBDocInlineCodeStart
-    :  DocBackTick                                                             -> pushMode(SINGLE_BACKTICK_INLINE_CODE)
+    :  AttributePrefix? DocBackTick                                            -> pushMode(SINGLE_BACKTICK_INLINE_CODE)
     ;
 
 DBDocInlineCodeStart
-    :  DocBackTick DocBackTick                                                 -> pushMode(DOUBLE_BACKTICK_INLINE_CODE)
+    :  AttributePrefix? DocBackTick DocBackTick                                -> pushMode(DOUBLE_BACKTICK_INLINE_CODE)
     ;
 
 TBDocInlineCodeStart
-    :  DocBackTick DocBackTick DocBackTick                                     -> pushMode(TRIPLE_BACKTICK_INLINE_CODE)
+    :  AttributePrefix? DocBackTick DocBackTick DocBackTick                    -> pushMode(TRIPLE_BACKTICK_INLINE_CODE)
     ;
 
 DocumentationTemplateText
@@ -755,7 +755,9 @@ DocumentationEscapedSequence
 
 fragment
 DocumentationValidCharSequence
-     :  [FPTRV] ~[{]
+     :  [FPTRV] ~[`{}\\]
+     |  [FPTRV] '\\' [{}`]
+     |  [FPTRV] '\\' ~[{}`]
      |  '\\' ~'\\'
      ;
 
