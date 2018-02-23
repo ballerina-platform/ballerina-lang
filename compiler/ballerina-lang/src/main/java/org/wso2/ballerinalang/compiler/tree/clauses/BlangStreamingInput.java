@@ -28,7 +28,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Implementation of {@link StreamingInput}
+ * Implementation of {@link StreamingInput}.
  */
 public class BlangStreamingInput extends BLangNode implements StreamingInput {
 
