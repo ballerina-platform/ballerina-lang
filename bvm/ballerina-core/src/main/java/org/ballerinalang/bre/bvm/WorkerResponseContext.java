@@ -26,6 +26,6 @@ public interface WorkerResponseContext {
         
     public void checkAndRefreshFulfilledResponse();
     
-    public void updateParentWorkerResultLocation(int[] retRegIndexes);
+    public void updateTargetContextInfo(WorkerExecutionContext targetCtx, int[] retRegIndexes);
     
 }

@@ -373,6 +373,7 @@ public class CPU {
                             callIns.argRegs, callIns.retRegs);
                     if (runInCallerCtx != null) {
                         ctx = runInCallerCtx;
+                        ctx.state = WorkerState.RUNNING;
                     }
                     break;
                 case InstructionCodes.VCALL:

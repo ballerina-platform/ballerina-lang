@@ -38,6 +38,8 @@ public class InvocableWorkerResponseContext implements WorkerResponseContext {
     
     private Semaphore responseChecker;
     
+    private WorkerExecutionContext targetCtx;
+    
     public InvocableWorkerResponseContext() { }
     
     public InvocableWorkerResponseContext(BType[] responseTypes, boolean checkResponse) {
@@ -54,6 +56,7 @@ public class InvocableWorkerResponseContext implements WorkerResponseContext {
         case BREAK:
             break;
         case ERROR:
+            this.doError(signal);
             break;
         case MESSAGE:
             break;
@@ -69,13 +72,21 @@ public class InvocableWorkerResponseContext implements WorkerResponseContext {
         //System.out.println("ALREADY RETURNED");
     }
     
+    private WorkerExecutionContext doError(WorkerSignal signal) {
+        //TODO
+        if (this.responseChecker != null) {
+            this.responseChecker.release();
+        }
+        return null;
+    }
+    
     private WorkerExecutionContext doReturn(WorkerSignal signal) {
         WorkerExecutionContext runInCallerCtx = null;
         if (this.fulfilled.getAndSet(true)) {
             this.handleAlreadyReturned();
         } else {
             this.currentSignal = signal;
-            runInCallerCtx = this.storeResponseInParentAndContinue();
+            runInCallerCtx = this.storeResponseInParentAndContinue(true);
         }
         BLangScheduler.workerDone(signal.getSourceContext());
         return runInCallerCtx;
@@ -116,31 +127,29 @@ public class InvocableWorkerResponseContext implements WorkerResponseContext {
         }
     }
 
-    private WorkerExecutionContext storeResponseInParentAndContinue() {
+    private WorkerExecutionContext storeResponseInParentAndContinue(boolean runInCaller) {
         if (this.retRegIndexes != null) {
-            this.mergeResultData(this.currentSignal.getResult(), 
-                    this.currentSignal.getSourceContext().parent.workerLocal);
+            this.mergeResultData(this.currentSignal.getResult(), this.targetCtx.workerLocal);
             if (this.responseChecker != null) {
                 this.responseChecker.release();
             }
-            WorkerExecutionContext ctx = this.currentSignal.getSourceContext();
-            WorkerExecutionContext parentCtx = ctx.parent;
-            if (parentCtx.code != null) {
-                return BLangScheduler.resume(parentCtx, ctx.runInCaller);
+            if (this.targetCtx.code != null) {
+                return BLangScheduler.resume(this.targetCtx, runInCaller);
             }
         }
         return null;
     }
     
     @Override
-    public void updateParentWorkerResultLocation(int[] retRegIndexes) {
+    public void updateTargetContextInfo(WorkerExecutionContext targetCtx, int[] retRegIndexes) {
+        this.targetCtx = targetCtx;
         this.retRegIndexes = retRegIndexes;
     }
 
     @Override
     public void checkAndRefreshFulfilledResponse() {
         if (this.fulfilled.get()) {
-            this.storeResponseInParentAndContinue();
+            this.storeResponseInParentAndContinue(false);
         }
     }
     
@@ -152,5 +161,5 @@ public class InvocableWorkerResponseContext implements WorkerResponseContext {
             this.responseChecker.acquire();
         } catch (InterruptedException ignore) { /* ignore */ }        
     }
-
+    
 }

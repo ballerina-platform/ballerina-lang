@@ -27,6 +27,7 @@ import org.ballerinalang.util.codegen.cpentries.ConstantPoolEntry;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -68,7 +69,7 @@ public class WorkerExecutionContext {
     public boolean runInCaller;
     
     private Lock executionLock;
-    
+        
     public WorkerExecutionContext() {
         this.globalProps = new HashMap<>();
         this.runInCaller = true;
@@ -136,6 +137,25 @@ public class WorkerExecutionContext {
         if (this.executionLock != null) {
             this.executionLock.unlock();
         }
+    }
+    
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+        builder.append("\n{ ID: " + this.hashCode() + "\n");
+        builder.append("Parent: " + (this.parent != null ? this.parent.hashCode() : "N/A") + "\n");
+        builder.append("Callable Unit: " + (this.callableUnitInfo != null ? this.callableUnitInfo.getName() : "N/A") + "\n");
+        builder.append("Worker ID: " + (this.workerInfo != null ? this.workerInfo.getWorkerName() : "N/A") + "\n");
+        builder.append("STATE: " + this.state + "\n");
+        builder.append("Run In Caller: " + this.runInCaller + "\n");
+        builder.append("IP: " + this.ip + "\n");
+        builder.append("Backup IP: " + this.backupIP + "} \n");
+        return builder.toString();
+    }
+    
+    @Override
+    public boolean equals(Object rhs) {
+        return this == rhs;
     }
     
 }

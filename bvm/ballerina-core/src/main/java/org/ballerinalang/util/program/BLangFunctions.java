@@ -391,7 +391,7 @@ public class BLangFunctions {
             WorkerExecutionContext parentCtx, int[] argRegs, int[] retRegs, boolean waitForResponse) {
         InvocableWorkerResponseContext respCtx = new InvocableWorkerResponseContext(
                 callableUnitInfo.getRetParamTypes(), waitForResponse);
-        respCtx.updateParentWorkerResultLocation(retRegs);
+        respCtx.updateTargetContextInfo(parentCtx, retRegs);
         WorkerDataIndex wdi = callableUnitInfo.retWorkerIndex;
         Map<String, Object> globalProps = parentCtx.globalProps;
         BLangScheduler.switchToWaitForResponse(parentCtx);

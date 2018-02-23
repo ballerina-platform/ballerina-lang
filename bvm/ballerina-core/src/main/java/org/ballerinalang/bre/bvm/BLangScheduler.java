@@ -62,6 +62,7 @@ public class BLangScheduler {
     public static void workerDone(WorkerExecutionContext ctx) {
         ctx.ip = -1;
         activeContexts.remove(ctx);
+        ctx.state = WorkerState.DONE;
     }
     
     public static void switchToWaitForResponse(WorkerExecutionContext ctx) {
