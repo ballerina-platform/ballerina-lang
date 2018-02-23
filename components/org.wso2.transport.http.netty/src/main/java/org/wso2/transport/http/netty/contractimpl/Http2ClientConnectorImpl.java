@@ -36,7 +36,7 @@ import org.wso2.transport.http.netty.sender.http2.OutboundMsgHolder;
 import org.wso2.transport.http.netty.sender.http2.TargetChannel;
 
 /**
- * Implementation of the client connector.
+ * {@code Http2ClientConnectorImpl} is the implementation of the {@code Http2ClientConnector}.
  */
 public class Http2ClientConnectorImpl implements Http2ClientConnector {
 
@@ -56,10 +56,7 @@ public class Http2ClientConnectorImpl implements Http2ClientConnector {
     public HttpResponseFuture send(HTTPCarbonMessage httpOutboundRequest) {
 
         HttpResponseFuture httpResponseFuture = new DefaultHttpResponseFuture();
-
-        OutboundMsgHolder outboundMsgHolder =
-                new OutboundMsgHolder(httpOutboundRequest, httpResponseFuture);
-
+        OutboundMsgHolder outboundMsgHolder = new OutboundMsgHolder(httpOutboundRequest, httpResponseFuture);
         try {
             HttpRoute route = getTargetRoute(httpOutboundRequest);
             TargetChannel targetChannel =
@@ -90,7 +87,12 @@ public class Http2ClientConnectorImpl implements Http2ClientConnector {
             if (isValidateChannel(channelFuture)) {
                 targetChannel.getClientHandler().writeRequest(outboundMsgHolder);
             } else {
-                notifyErrorState(channelFuture);
+                ClientConnectorException cause = new ClientConnectorException(
+                        "Connection error, " + route.toString(), HttpResponseStatus.BAD_GATEWAY.code());
+                if (channelFuture.cause() != null) {
+                    cause.initCause(channelFuture.cause());
+                }
+                outboundMsgHolder.getResponseFuture().notifyHttpListener(cause);
             }
         }
 
@@ -98,24 +100,13 @@ public class Http2ClientConnectorImpl implements Http2ClientConnector {
             if (channelFuture.isDone() && channelFuture.isSuccess()) {
                 if (log.isDebugEnabled()) {
                     log.debug("Created the connection to address: {}",
-                              route.toString() + " " + "Original Channel ID is : " + channelFuture.channel()
-                                      .id());
+                              route.toString() + " " + "Original Channel ID is : " + channelFuture.channel().id());
                 }
                 return true;
             }
             return false;
         }
 
-        private void notifyErrorState(ChannelFuture channelFuture) {
-            ClientConnectorException cause =
-                    new ClientConnectorException(
-                            "Connection error, " + route.toString(), HttpResponseStatus.BAD_GATEWAY.code());
-            if (channelFuture.cause() != null) {
-                cause.initCause(channelFuture.cause());
-            }
-
-            outboundMsgHolder.getResponseFuture().notifyHttpListener(cause);
-        }
     }
 
     @Override
@@ -125,35 +116,28 @@ public class Http2ClientConnectorImpl implements Http2ClientConnector {
 
 
     private HttpRoute getTargetRoute(HTTPCarbonMessage httpCarbonMessage) {
-        String host = fetchHost(httpCarbonMessage);
-        int port = fetchPort(httpCarbonMessage);
 
-        return new HttpRoute(host, port);
-    }
-
-    private int fetchPort(HTTPCarbonMessage httpCarbonMessage) {
-        int port;
-        Object intProperty = httpCarbonMessage.getProperty(Constants.PORT);
-        if (intProperty != null && intProperty instanceof Integer) {
-            port = (int) intProperty;
-        } else {
-            port = Constants.DEFAULT_HTTP_PORT;
-            httpCarbonMessage.setProperty(Constants.PORT, port);
-            log.debug("Cannot find property PORT of type integer, hence using " + port);
-        }
-        return port;
-    }
-
-    private String fetchHost(HTTPCarbonMessage httpCarbonMessage) {
-        String host;
+        // Fetch host
+        String host = Constants.LOCALHOST;
         Object hostProperty = httpCarbonMessage.getProperty(Constants.HOST);
         if (hostProperty != null && hostProperty instanceof String) {
             host = (String) hostProperty;
         } else {
-            host = Constants.LOCALHOST;
             httpCarbonMessage.setProperty(Constants.HOST, Constants.LOCALHOST);
             log.debug("Cannot find property HOST of type string, hence using localhost as the host");
         }
-        return host;
+
+        // Fetch Port
+        int port = Constants.DEFAULT_HTTP_PORT;
+        Object intProperty = httpCarbonMessage.getProperty(Constants.PORT);
+        if (intProperty != null && intProperty instanceof Integer) {
+            port = (int) intProperty;
+        } else {
+            httpCarbonMessage.setProperty(Constants.PORT, Constants.DEFAULT_HTTP_PORT);
+            log.debug("Cannot find property PORT of type integer, hence using " + port);
+        }
+
+        return new HttpRoute(host, port);
     }
 }
+
