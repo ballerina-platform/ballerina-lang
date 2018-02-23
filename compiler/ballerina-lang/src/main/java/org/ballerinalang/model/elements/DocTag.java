@@ -19,7 +19,7 @@
 package org.ballerinalang.model.elements;
 
 /**
- * @since 0.94
+ * @since 0.962.0
  */
 public enum DocTag {
     RETURN("R"),
