@@ -24,7 +24,6 @@ enum state {
     bars
 }
 
-
 documentation { Documentation for Test struct
 F{{a}} struct `field a` documentation
 F{{a}} struct `field a` documentation
@@ -35,7 +34,6 @@ struct Test {
     int b;
     int cdd;
 }
-
 
 documentation {
 Gets a access parameter value (`true` or `false`) for a given key. Please note that #foo will always be bigger than #bar.

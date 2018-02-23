@@ -4,9 +4,9 @@ documentation {
 Gets a access parameter value (`true` or `false`) for a given key. Please note that #foo will always be bigger than #bar.
 Example:
 ``SymbolEnv pkgEnv = symbolEnter.packageEnvs.get(pkgNode.symbol);``
-- #file file path ``C:\users\OddThinking\Documents\My Source\Widget\foo.src``
-- #accessMode read or write mode
-- #successful boolean `true` or `false`}
+T{{file}} file path ``C:\users\OddThinking\Documents\My Source\Widget\foo.src``
+P{{accessMode}} read or write mode
+R{{successful}} boolean `true` or `false`}
 deprecated {
   This function is deprecated use `openFile(string accessMode){}` instead.
 }
@@ -15,7 +15,7 @@ public function <File file> open (string accessMode) (boolean successful) {
 }
 
 documentation { Documentation for File struct
-- #path struct `field path` documentation}
+F{{path}} struct `field path` documentation}
 deprecated {
   This Struct is deprecated use `File2` instead.
 }
@@ -24,8 +24,8 @@ public struct File {
 }
 
 documentation { Documentation for state enum
-- #foo enum `field foo` documentation
-- #bar enum `field bar` documentation}
+F{{foo}} enum `field foo` documentation
+F{{bar}} enum `field bar` documentation}
 deprecated {
   This Enum is deprecated use `Enum2` instead.
 }
@@ -49,9 +49,9 @@ service<http> PizzaService {
 }
 
 documentation {Documentation for Test annotation
-- #a annotation `field a` documentation
-- #b annotation `field b` documentation
-- #c annotation `field c` documentation}
+F{{a}} annotation `field a` documentation
+F{{b}} annotation `field b` documentation
+F{{c}} annotation `field c` documentation}
 deprecated {
   This annotation is deprecated use `annotationTest{ string a; string b; string c; }` instead.
 }
@@ -62,7 +62,7 @@ annotation Test {
 }
 
 documentation {Test Connector
-- #url url for endpoint}
+P{{url}} url for endpoint}
 deprecated {
   This Connector is deprecated use `Connector(string url2){}` instead.
 }
@@ -79,6 +79,6 @@ connector TestConnector (string url) {
 }
 
 documentation { Documentation for testConst constant
-- #testConst constant variable `testConst`}
+V{{testConst}} constant variable `testConst`}
 deprecated {use ```const string testConst = "TestConstantDocumentation";``` instead}
 const string testConst = "TestConstantDocumentation";

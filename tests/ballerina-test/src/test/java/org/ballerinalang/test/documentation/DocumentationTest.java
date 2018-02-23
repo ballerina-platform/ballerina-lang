@@ -46,7 +46,7 @@ public class DocumentationTest {
     public void setup() {
     }
 
-    @Test(description = "Test annotation documentation.")
+    @Test(description = "Test doc annotation.")
     public void testDocAnnotation() {
         CompileResult compileResult = BCompileUtil.compile(this, "test-src", "documentation/annotation.bal");
         Assert.assertEquals(0, compileResult.getWarnCount());
@@ -67,7 +67,7 @@ public class DocumentationTest {
                 " annotation `field c` documentation");
     }
 
-    @Test(description = "Test annotation constant.")
+    @Test(description = "Test doc constant.")
     public void testDocConstant() {
         CompileResult compileResult = BCompileUtil.compile(this, "test-src", "documentation/constant.bal");
         Assert.assertEquals(0, compileResult.getWarnCount());
@@ -82,7 +82,7 @@ public class DocumentationTest {
                 " constant variable `testConst`");
     }
 
-    @Test(description = "Test annotation enum.")
+    @Test(description = "Test doc annotation enum.")
     public void testDocEnum() {
         CompileResult compileResult = BCompileUtil.compile(this, "test-src", "documentation/enum.bal");
         Assert.assertEquals(0, compileResult.getWarnCount());
@@ -100,7 +100,7 @@ public class DocumentationTest {
                 " enum `field bar` documentation");
     }
 
-    @Test(description = "Test annotation struct.")
+    @Test(description = "Test doc struct.")
     public void testDocStruct() {
         CompileResult compileResult = BCompileUtil.compile(this, "test-src", "documentation/struct.bal");
         Assert.assertEquals(0, compileResult.getWarnCount());
@@ -121,7 +121,7 @@ public class DocumentationTest {
                 " struct `field c` documentation");
     }
 
-    @Test(description = "Test annotation function.")
+    @Test(description = "Test doc function.")
     public void testDocFunction() {
         CompileResult compileResult = BCompileUtil.compile(this, "test-src", "documentation/function.bal");
         Assert.assertEquals(0, compileResult.getWarnCount());
@@ -156,7 +156,7 @@ public class DocumentationTest {
 
     }
 
-    @Test(description = "Test negative cases.")
+    @Test(description = "Test doc negative cases.")
     public void testDocumentationNegative() {
         CompileResult compileResult = BCompileUtil.compile(this, "test-src", "documentation/negative.bal");
         Assert.assertEquals(compileResult.getWarnCount(), 18);
@@ -169,36 +169,36 @@ public class DocumentationTest {
         BAssertUtil.validateWarning(compileResult, 3,
                 "no such documentable attribute 'bar' with doc prefix 'F' in enum 'state'", 21, 1);
         BAssertUtil.validateWarning(compileResult, 4,
-                "already documented attribute 'a' in struct 'Test'", 30, 1);
+                "already documented attribute 'a' in struct 'Test'", 29, 1);
         BAssertUtil.validateWarning(compileResult, 5,
-                "no such documentable attribute 'c' with doc prefix 'F' in struct 'Test'", 32, 1);
+                "no such documentable attribute 'c' with doc prefix 'F' in struct 'Test'", 31, 1);
         BAssertUtil.validateWarning(compileResult, 6,
-                "already documented attribute 'file' in function 'open'", 45, 1);
+                "already documented attribute 'file' in function 'open'", 43, 1);
         BAssertUtil.validateWarning(compileResult, 7,
-                "no such documentable attribute 'successfuls' with doc prefix 'R' in function 'open'", 47, 1);
+                "no such documentable attribute 'successfuls' with doc prefix 'R' in function 'open'", 45, 1);
         BAssertUtil.validateWarning(compileResult, 8,
-                "no such documentable attribute 'pa' with doc prefix 'T' in transformer 'Foo'", 62, 2);
+                "no such documentable attribute 'pa' with doc prefix 'T' in transformer 'Foo'", 60, 2);
         BAssertUtil.validateWarning(compileResult, 9,
-                "already documented attribute 'e' in transformer 'Foo'", 64, 2);
+                "already documented attribute 'e' in transformer 'Foo'", 62, 2);
         BAssertUtil.validateWarning(compileResult, 10,
-                "already documented attribute 'url' in connector 'TestConnector'", 88, 1);
+                "already documented attribute 'url' in connector 'TestConnector'", 86, 1);
         BAssertUtil.validateWarning(compileResult, 11,
-                "no such documentable attribute 'urls' with doc prefix 'P' in connector 'TestConnector'", 89, 1);
+                "no such documentable attribute 'urls' with doc prefix 'P' in connector 'TestConnector'", 87, 1);
         BAssertUtil.validateWarning(compileResult, 12,
-                "already documented attribute 's' in action 'testAction'", 94, 5);
+                "already documented attribute 's' in action 'testAction'", 92, 5);
         BAssertUtil.validateWarning(compileResult, 13,
-                "no such documentable attribute 'ssss' with doc prefix 'R' in action 'testAction'", 95, 5);
+                "no such documentable attribute 'ssss' with doc prefix 'R' in action 'testAction'", 93, 5);
         BAssertUtil.validateWarning(compileResult, 14,
-                "no such documentable attribute 'conn' with doc prefix 'P' in service 'PizzaService'", 103, 1);
+                "no such documentable attribute 'conn' with doc prefix 'P' in service 'PizzaService'", 101, 1);
         BAssertUtil.validateWarning(compileResult, 15,
-                "already documented attribute 'req' in resource 'orderPizza'", 110, 5);
+                "already documented attribute 'req' in resource 'orderPizza'", 108, 5);
         BAssertUtil.validateWarning(compileResult, 16,
-                "no such documentable attribute 'reqest' with doc prefix 'P' in resource 'orderPizza'", 111, 5);
+                "no such documentable attribute 'reqest' with doc prefix 'P' in resource 'orderPizza'", 109, 5);
         BAssertUtil.validateWarning(compileResult, 17,
-                "no such documentable attribute 'testConstd' with doc prefix 'V' in package", 119, 1);
+                "no such documentable attribute 'testConstd' with doc prefix 'V' in package", 117, 1);
     }
 
-    @Test(description = "Test annotation transformer.")
+    @Test(description = "Test doc transformer.")
     public void testDocTransformer() {
         CompileResult compileResult = BCompileUtil.compile(this, "test-src", "documentation/transformer.bal");
         Assert.assertEquals(0, compileResult.getWarnCount());
@@ -221,7 +221,7 @@ public class DocumentationTest {
                 " address which serves Eg: `POSTCODE 112`\n");
     }
 
-    @Test(description = "Test annotation service.")
+    @Test(description = "Test doc service.")
     public void testDocService() {
         CompileResult compileResult = BCompileUtil.compile(this, "test-src", "documentation/service.bal");
         Assert.assertEquals(0, compileResult.getWarnCount());
@@ -253,7 +253,7 @@ public class DocumentationTest {
                 " In request.");
     }
 
-    @Test(description = "Test annotation connector.")
+    @Test(description = "Test doc connector.")
     public void testDocConnector() {
         CompileResult compileResult = BCompileUtil.compile(this, "test-src", "documentation/connector.bal");
         Assert.assertEquals(0, compileResult.getWarnCount());
@@ -291,7 +291,7 @@ public class DocumentationTest {
                 " which represent successful or not");
     }
 
-    @Test(description = "Test annotation connector/function.")
+    @Test(description = "Test doc connector/function.")
     public void testDocConnectorFunction() {
         CompileResult compileResult = BCompileUtil.compile(this, "test-src", "documentation/connector_function.bal");
         Assert.assertEquals(0, compileResult.getWarnCount());
@@ -357,7 +357,7 @@ public class DocumentationTest {
                 " struct `field path` documentation\n");
     }
 
-    @Test(description = "Test inline code.")
+    @Test(description = "Test doc inline code.")
     public void testInlineCode() {
         CompileResult compileResult = BCompileUtil.compile(this, "test-src", "documentation/doc_inline.bal");
         Assert.assertEquals(0, compileResult.getWarnCount());
@@ -375,7 +375,7 @@ public class DocumentationTest {
                 "    ``xml x = xml `<{{tagName}}>hello</{{tagName}}>`;``\n");
     }
 
-    @Test(description = "Test inline code with triple backtics.")
+    @Test(description = "Test doc inline code with triple backtics.")
     public void testInlineCodeEnclosedTripleBackTicks() {
         CompileResult compileResult = BCompileUtil.compile(this, "test-src", "documentation/doc_inline_triple.bal");
         Assert.assertEquals(0, compileResult.getWarnCount());
@@ -393,7 +393,7 @@ public class DocumentationTest {
                 "    ```xml x = xml `<{{tagName}}>hello</{{tagName}}>`;```\n");
     }
 
-    @Test(description = "Test annotation multiple.")
+    @Test(description = "Test doc multiple.")
     public void testMultiple() {
         CompileResult compileResult = BCompileUtil.compile(this, "test-src", "documentation/multiple.bal");
         Assert.assertEquals(0, compileResult.getWarnCount());
@@ -470,7 +470,7 @@ public class DocumentationTest {
                 " In request.");
     }
 
-    @Test(description = "Test annotation deprecated function use.")
+    @Test(description = "Test doc deprecated function use.")
     public void testDeprecatedFunctionUse() {
         CompileResult compileResult = BCompileUtil.compile(this, "test-src",
                 "documentation/deprecate_function_use.bal");
@@ -479,9 +479,10 @@ public class DocumentationTest {
                 "usage of deprecated function 'randomNumber'", 10, 12);
     }
 
-    @Test(description = "Test annotation deprecated.")
+    @Test(description = "Test doc deprecated.")
     public void testDeprecated() {
         CompileResult compileResult = BCompileUtil.compile(this, "test-src", "documentation/deprecated.bal");
+        Assert.assertEquals(compileResult.getWarnCount(), 0);
         PackageNode packageNode = compileResult.getAST();
         List<BLangDeprecatedNode> dNodes = ((BLangFunction) packageNode.getFunctions().get(0)).deprecatedAttachments;
         BLangDeprecatedNode dNode = dNodes.get(0);
@@ -540,7 +541,7 @@ public class DocumentationTest {
 
     }
 
-    @Test(description = "Test annotation deprecated Transformer.")
+    @Test(description = "Test doc deprecated Transformer.")
     public void testDeprecatedTransformer() {
         CompileResult compileResult = BCompileUtil.compile(this, "test-src",
                 "documentation/deprecated_transformer.bal");
@@ -572,7 +573,7 @@ public class DocumentationTest {
                 " address which serves Eg: `POSTCODE 112`\n");
     }
 
-    @Test(description = "Test annotation native function.")
+    @Test(description = "Test doc native function.")
     public void testDocNativeFunction() {
         CompileResult compileResult = BCompileUtil.compile("test-src/documentation/native_function.bal",
                 CompilerPhase.TYPE_CHECK);
@@ -598,7 +599,7 @@ public class DocumentationTest {
 
     }
 
-    @Test(description = "Test native connector.")
+    @Test(description = "Test doc native connector.")
     public void testDocNativeConnector() {
         CompileResult compileResult = BCompileUtil.compile("test-src/documentation/native_action.bal",
                 CompilerPhase.TYPE_CHECK);
