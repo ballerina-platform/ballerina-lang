@@ -365,9 +365,8 @@ NullLiteral
     :   'null'
     ;
 
-// This is place before the Identifier lexer rule to break the tie case.
 DocumentationTemplateAttributeEnd
-    :   {inDocTemplate}? Identifier               ->  popMode
+    :   {inDocTemplate}? RIGHT_BRACE WS* RIGHT_BRACE               ->  popMode
     ;
 
 Identifier
@@ -711,7 +710,7 @@ DocumentationTemplateEnd
     ;
 
 DocumentationTemplateAttributeStart
-    :  DocNewLine WS? DocSub WS DocHash                                        -> pushMode(DEFAULT_MODE)
+    :   AttributePrefix ExpressionStart                                        -> pushMode(DEFAULT_MODE)
     ;
 
 SBDocInlineCodeStart
@@ -726,31 +725,27 @@ TBDocInlineCodeStart
     :  DocBackTick DocBackTick DocBackTick                                     -> pushMode(TRIPLE_BACKTICK_INLINE_CODE)
     ;
 
+DocumentationTemplateText
+    :   DocumentationTemplateStringChar+
+    ;
+
+fragment
 DocumentationTemplateStringChar
-    :   ~[`{}\\]
+    :   ~[`{}\\FPTRV]
+    |   [FPTRV] ~[{]
     |   '\\' [{}`]
     |   WS
     |   DocumentationEscapedSequence
     ;
 
 fragment
+AttributePrefix
+    :   [FPTRV]
+    ;
+
+fragment
 DocBackTick
     :   '`'
-    ;
-
-fragment
-DocHash
-    :   '#'
-    ;
-
-fragment
-DocSub
-    :  SUB
-    ;
-
-fragment
-DocNewLine
-    :  [\r\n\u000C]
     ;
 
 fragment
@@ -764,8 +759,15 @@ TripleBackTickInlineCodeEnd
     : BACKTICK BACKTICK BACKTICK              -> popMode
     ;
 
+TripleBackTickInlineCode
+    : TripleBackTickInlineCodeChar+
+    ;
+
+fragment
 TripleBackTickInlineCodeChar
-    :  .
+    :  ~[`]
+    |   [`] ~[`]
+    |   [`] [`] ~[`]
     ;
 
 mode DOUBLE_BACKTICK_INLINE_CODE;
@@ -774,8 +776,14 @@ DoubleBackTickInlineCodeEnd
     : BACKTICK BACKTICK                       -> popMode
     ;
 
+DoubleBackTickInlineCode
+    : DoubleBackTickInlineCodeChar+
+    ;
+
+fragment
 DoubleBackTickInlineCodeChar
-    :  .
+    :  ~[`]
+    |   [`] ~[`]
     ;
 
 mode SINGLE_BACKTICK_INLINE_CODE;
@@ -791,7 +799,6 @@ SingleBackTickInlineCode
 fragment
 SingleBackTickInlineCodeChar
     :  ~[`]
-    |  '\\' [`]
     ;
 
 mode DEPRECATED_TEMPLATE;
@@ -812,6 +819,11 @@ TBDeprecatedInlineCodeStart
     :  DeprecatedBackTick DeprecatedBackTick DeprecatedBackTick               -> pushMode(TRIPLE_BACKTICK_INLINE_CODE)
     ;
 
+DeprecatedTemplateText
+    :   DeprecatedTemplateStringChar+
+    ;
+
+fragment
 DeprecatedTemplateStringChar
     :   ~[`{}\\]
     |   '\\' [{}`]

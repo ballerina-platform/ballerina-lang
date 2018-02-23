@@ -1,7 +1,7 @@
 documentation { Documentation for Test annotation
-- #a annotation `field a` documentation
-- #b annotation `field b` documentation
-- #c annotation `field c` documentation}
+F{{a}} annotation `field a` documentation
+F{{b}} annotation `field b` documentation
+F{{c}} annotation `field c` documentation}
 annotation Test {
     string a;
     string b;

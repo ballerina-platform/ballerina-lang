@@ -14,9 +14,9 @@ struct Employee {
 
 documentation {
  Transformer Foo Person -> Employee
- - #p input struct Person source used for transformation
- - #e output struct Employee struct which Person transformed to
- - #defaultAddress address which serves Eg: `POSTCODE 112`
+ T{{p}} input struct Person source used for transformation
+ T{{e}} output struct Employee struct which Person transformed to
+ P{{defaultAddress}} address which serves Eg: `POSTCODE 112`
 }
 deprecated {
   This Transformer is deprecated use

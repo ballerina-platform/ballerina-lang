@@ -16,27 +16,40 @@
 *  under the License.
 */
 
-package org.ballerinalang.model.tree;
-
-import java.util.List;
+package org.ballerinalang.model.elements;
 
 /**
  * @since 0.94
  */
-public interface EnumNode extends TopLevelNode, AnnotatableNode, DocumentableNode {
+public enum DocTag {
+    RETURN("R"),
+    PARAM("P"),
+    RECEIVER("T"),
+    FIELD("F"),
+    VARIABLE("V");
 
-    IdentifierNode getName();
+    private String value;
 
-    void setName(IdentifierNode name);
-
-    List<? extends Enumerator> getEnumerators();
-
-    void addEnumerator(Enumerator enumField);
-
-    /**
-     * @since 0.95
-     */
-    interface Enumerator extends Node {
-        IdentifierNode getName();
+    DocTag(String value) {
+        this.value = value;
     }
+
+    public String getValue() {
+        return value;
+    }
+
+    @Override
+    public String toString() {
+        return value;
+    }
+
+    public static DocTag fromString(String text) {
+        for (DocTag val : DocTag.values()) {
+            if (val.value.equals(text)) {
+                return val;
+            }
+        }
+        return null;
+    }
+
 }

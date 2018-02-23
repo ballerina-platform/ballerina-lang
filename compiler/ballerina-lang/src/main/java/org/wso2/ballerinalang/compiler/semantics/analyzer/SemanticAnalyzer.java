@@ -32,6 +32,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationSymbol
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
@@ -206,6 +207,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                     new BLangAnnotationAttachmentPoint(BLangAnnotationAttachmentPoint.AttachmentPoint.FUNCTION, null);
             this.analyzeDef(annotationAttachment, funcEnv);
         });
+        funcNode.docAttachments.forEach(doc -> analyzeDef(doc, funcEnv));
 
         // Check for native functions
         if (Symbols.isNative(funcNode.symbol)) {
@@ -215,8 +217,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         analyzeStmt(funcNode.body, funcEnv);
 
         this.processWorkers(funcNode, funcEnv);
-
-        funcNode.docAttachments.forEach(doc -> analyzeDef(doc, funcEnv));
     }
 
     private void processWorkers(BLangInvokableNode invNode, SymbolEnv invEnv) {
@@ -237,22 +237,20 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                     new BLangAnnotationAttachmentPoint(BLangAnnotationAttachmentPoint.AttachmentPoint.STRUCT, null);
             annotationAttachment.accept(this);
         });
-
         structNode.docAttachments.forEach(doc -> analyzeDef(doc, structEnv));
     }
 
     @Override
     public void visit(BLangEnum enumNode) {
+        BSymbol enumSymbol = enumNode.symbol;
+        SymbolEnv enumEnv = SymbolEnv.createPkgLevelSymbolEnv(enumNode, enumSymbol.scope, env);
+
         enumNode.annAttachments.forEach(annotationAttachment -> {
             annotationAttachment.attachmentPoint = new BLangAnnotationAttachmentPoint(
                     BLangAnnotationAttachmentPoint.AttachmentPoint.ENUM, null);
             annotationAttachment.accept(this);
         });
-
-        BSymbol enumSymbol = enumNode.symbol;
-        SymbolEnv structEnv = SymbolEnv.createPkgLevelSymbolEnv(enumNode, enumSymbol.scope, env);
-
-        enumNode.docAttachments.forEach(doc -> analyzeDef(doc, structEnv));
+        enumNode.docAttachments.forEach(doc -> analyzeDef(doc, enumEnv));
     }
 
     @Override
@@ -265,11 +263,26 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                     .findAny();
 
             BSymbol owner = this.env.scope.owner;
-            String qualifiedName = owner.pkgID == null ||
-                    owner.pkgID == PackageID.DEFAULT || owner.pkgID.name == Names.BUILTIN_PACKAGE ?
-                    owner.name.getValue()
-                    : (owner.pkgID + ":" + owner.name);
-            String construct = this.env.node.getKind().name().toLowerCase() + " \'" + qualifiedName + "\'";
+            String construct;
+            if (this.env.node.getKind() == NodeKind.PACKAGE) {
+                construct = owner.pkgID == null ||
+                        owner.pkgID == PackageID.DEFAULT ?
+                        this.env.node.getKind().name().toLowerCase()
+                        : this.env.node.getKind().name().toLowerCase() + " " + owner.name;
+            } else if (this.env.node.getKind() == NodeKind.FUNCTION) {
+                String funcName = ((BLangFunction) this.env.node).name.getValue();
+                String qualifiedName = owner.pkgID == null ||
+                        owner.pkgID == PackageID.DEFAULT || owner.pkgID.name == Names.BUILTIN_PACKAGE ?
+                        funcName
+                        : (owner.pkgID + ":" + funcName);
+                construct = this.env.node.getKind().name().toLowerCase() + " \'" + qualifiedName + "\'";
+            } else {
+                String qualifiedName = owner.pkgID == null ||
+                        owner.pkgID == PackageID.DEFAULT || owner.pkgID.name == Names.BUILTIN_PACKAGE ?
+                        owner.name.getValue()
+                        : (owner.pkgID + ":" + owner.name);
+                construct = this.env.node.getKind().name().toLowerCase() + " \'" + qualifiedName + "\'";
+            }
 
             if (matchingAttribute.isPresent()) {
                 this.dlog.warning(attribute.pos, DiagnosticCode.DUPLICATE_DOCUMENTED_ATTRIBUTE,
@@ -282,16 +295,18 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             int ownerSymTag = env.scope.owner.tag;
             if ((ownerSymTag & SymTag.ANNOTATION) == SymTag.ANNOTATION) {
                 attributeSymbol = this.env.scope.lookup(attributeName).symbol;
-                if (attributeSymbol == null || attributeSymbol.tag != SymTag.ANNOTATION_ATTRIBUTE) {
+                if (attributeSymbol == null || attributeSymbol.tag != SymTag.ANNOTATION_ATTRIBUTE
+                        || ((BAnnotationAttributeSymbol) attributeSymbol).docTag != attribute.docTag) {
                     this.dlog.warning(attribute.pos, DiagnosticCode.NO_SUCH_DOCUMENTABLE_ATTRIBUTE,
-                            attribute.documentationField, construct);
+                            attribute.documentationField, attribute.docTag.getValue(), construct);
                     continue;
                 }
             } else {
                 attributeSymbol = this.env.scope.lookup(attributeName).symbol;
-                if (attributeSymbol == null || attributeSymbol.tag != SymTag.VARIABLE) {
+                if (attributeSymbol == null || attributeSymbol.tag != SymTag.VARIABLE
+                        || ((BVarSymbol) attributeSymbol).docTag != attribute.docTag) {
                     this.dlog.warning(attribute.pos, DiagnosticCode.NO_SUCH_DOCUMENTABLE_ATTRIBUTE,
-                            attribute.documentationField, construct);
+                            attribute.documentationField, attribute.docTag.getValue(), construct);
                     continue;
                 }
             }
@@ -321,7 +336,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                     new BLangAnnotationAttachmentPoint(BLangAnnotationAttachmentPoint.AttachmentPoint.ANNOTATION, null);
             annotationAttachment.accept(this);
         });
-
         annotationNode.docAttachments.forEach(doc -> analyzeDef(doc, annotationEnv));
     }
 
@@ -570,6 +584,18 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             }
         }
 
+        // Here we validate annotation attachments for package level variables.
+        varNode.annAttachments.forEach(a -> {
+            a.attachmentPoint =
+                    new BLangAnnotationAttachmentPoint(BLangAnnotationAttachmentPoint.AttachmentPoint.CONST,
+                            null);
+            a.accept(this);
+        });
+        // Here we validate document attachments for package level variables.
+        varNode.docAttachments.forEach(doc -> {
+            doc.accept(this);
+        });
+
         // Analyze the init expression
         if (varNode.expr != null) {
             // Here we create a new symbol environment to catch self references by keep the current
@@ -585,18 +611,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 typeChecker.checkExpr(varNode.expr, varInitEnv, Lists.of(varNode.symbol.type));
             }
 
-            if (varNode.symbol.flags == Flags.CONST) {
-                varNode.annAttachments.forEach(a -> {
-                    a.attachmentPoint =
-                            new BLangAnnotationAttachmentPoint(BLangAnnotationAttachmentPoint.AttachmentPoint.CONST,
-                                    null);
-                    this.analyzeDef(a, varInitEnv);
-                });
-            }
         }
-        varNode.docAttachments.forEach(doc -> {
-            doc.accept(this);
-        });
         varNode.type = varNode.symbol.type;
     }
 
@@ -728,14 +743,14 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                     new BLangAnnotationAttachmentPoint(BLangAnnotationAttachmentPoint.AttachmentPoint.CONNECTOR, null);
             this.analyzeDef(a, connectorEnv);
         });
+        connectorNode.docAttachments.forEach(doc -> analyzeDef(doc, connectorEnv));
+
         connectorNode.params.forEach(param -> this.analyzeDef(param, connectorEnv));
         connectorNode.varDefs.forEach(varDef -> this.analyzeDef(varDef, connectorEnv));
 
         this.analyzeDef(connectorNode.initFunction, connectorEnv);
         connectorNode.actions.forEach(action -> this.analyzeDef(action, connectorEnv));
         this.analyzeDef(connectorNode.initAction, connectorEnv);
-
-        connectorNode.docAttachments.forEach(doc -> analyzeDef(doc, connectorEnv));
     }
 
     public void visit(BLangAction actionNode) {
@@ -747,6 +762,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                     new BLangAnnotationAttachmentPoint(BLangAnnotationAttachmentPoint.AttachmentPoint.ACTION, null);
             this.analyzeDef(a, actionEnv);
         });
+        actionNode.docAttachments.forEach(doc -> analyzeDef(doc, actionEnv));
 
         if (Symbols.isNative(actionSymbol)) {
             return;
@@ -755,8 +771,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         actionNode.params.forEach(p -> this.analyzeDef(p, actionEnv));
         analyzeStmt(actionNode.body, actionEnv);
         this.processWorkers(actionNode, actionEnv);
-
-        actionNode.docAttachments.forEach(doc -> analyzeDef(doc, actionEnv));
     }
 
     public void visit(BLangService serviceNode) {
@@ -772,11 +786,11 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                             protocolPkg.pkgID.name.getValue());
             this.analyzeDef(a, serviceEnv);
         });
+        serviceNode.docAttachments.forEach(doc -> analyzeDef(doc, serviceEnv));
+
         serviceNode.vars.forEach(v -> this.analyzeDef(v, serviceEnv));
         this.analyzeDef(serviceNode.initFunction, serviceEnv);
         serviceNode.resources.forEach(r -> this.analyzeDef(r, serviceEnv));
-
-        serviceNode.docAttachments.forEach(doc -> analyzeDef(doc, serviceEnv));
     }
 
     public void visit(BLangResource resourceNode) {
@@ -787,12 +801,11 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                     new BLangAnnotationAttachmentPoint(BLangAnnotationAttachmentPoint.AttachmentPoint.RESOURCE, null);
             this.analyzeDef(a, resourceEnv);
         });
+        resourceNode.docAttachments.forEach(doc -> analyzeDef(doc, resourceEnv));
 
         resourceNode.params.forEach(p -> this.analyzeDef(p, resourceEnv));
         analyzeStmt(resourceNode.body, resourceEnv);
         this.processWorkers(resourceNode, resourceEnv);
-
-        resourceNode.docAttachments.forEach(doc -> analyzeDef(doc, resourceEnv));
     }
 
     public void visit(BLangTryCatchFinally tryCatchFinally) {
@@ -1024,6 +1037,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                     BLangAnnotationAttachmentPoint.AttachmentPoint.TRANSFORMER, null);
             this.analyzeDef(annotationAttachment, transformerEnv);
         });
+        transformerNode.docAttachments.forEach(doc -> analyzeDef(doc, transformerEnv));
 
         validateTransformerMappingType(transformerNode.source);
         validateTransformerMappingType(transformerNode.retParams.get(0));
@@ -1039,8 +1053,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         }
 
         this.processWorkers(transformerNode, transformerEnv);
-
-        transformerNode.docAttachments.forEach(doc -> analyzeDef(doc, transformerEnv));
     }
 
     BType analyzeNode(BLangNode node, SymbolEnv env, BType expType, DiagnosticCode diagCode) {

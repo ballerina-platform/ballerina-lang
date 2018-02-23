@@ -17,6 +17,7 @@
 */
 package org.wso2.ballerinalang.compiler.tree.expressions;
 
+import org.ballerinalang.model.elements.DocTag;
 import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.expressions.DocumentationAttributeNode;
@@ -32,6 +33,7 @@ public class BLangDocumentationAttribute extends
 
     public BLangIdentifier documentationField;
     public BLangExpression documentationText;
+    public DocTag docTag;
 
     @Override
     public BLangIdentifier getDocumentationField() {

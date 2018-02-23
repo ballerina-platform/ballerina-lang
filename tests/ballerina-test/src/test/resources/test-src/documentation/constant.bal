@@ -1,3 +1,3 @@
 documentation { Documentation for testConst constant
-- #testConst constant variable `testConst`}
+V{{testConst}} constant variable `testConst`}
 const string testConst = "TestConstantDocumentation";

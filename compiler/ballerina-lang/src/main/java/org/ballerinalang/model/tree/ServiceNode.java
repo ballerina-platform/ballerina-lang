@@ -24,7 +24,7 @@ import java.util.List;
 /**
  * @since 0.94
  */
-public interface ServiceNode extends AnnotatableNode, DocumentableNode, TopLevelNode, DeprecatableNode {
+public interface ServiceNode extends AnnotatableNode, DocumentableNode, TopLevelNode {
     
     IdentifierNode getName();
     

@@ -1,7 +1,7 @@
 documentation { Documentation for Test struct
-- #a struct `field a` documentation
-- #b struct `field b` documentation
-- #c struct `field c` documentation}
+F{{a}} struct `field a` documentation
+F{{b}} struct `field b` documentation
+F{{c}} struct `field c` documentation}
 struct Test {
     int a;
     int b;

@@ -32,4 +32,8 @@ public interface DocumentableNode  extends Node {
 
     void addDocumentationAttachment(DocumentationNode annAttachment);
 
+    List<? extends DeprecatedNode> getDeprecatedAttachments();
+
+    void addDeprecatedAttachment(DeprecatedNode deprecatedAttachment);
+
 }

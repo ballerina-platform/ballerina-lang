@@ -2032,18 +2032,6 @@ public class BallerinaParserBaseListener implements BallerinaParserListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterDeprecatedTemplateText(BallerinaParser.DeprecatedTemplateTextContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitDeprecatedTemplateText(BallerinaParser.DeprecatedTemplateTextContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
 	@Override public void enterDocumentationAttachment(BallerinaParser.DocumentationAttachmentContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -2135,42 +2123,6 @@ public class BallerinaParserBaseListener implements BallerinaParserListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitTripleBackTickDocInlineCode(BallerinaParser.TripleBackTickDocInlineCodeContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterDocumentationTemplateText(BallerinaParser.DocumentationTemplateTextContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitDocumentationTemplateText(BallerinaParser.DocumentationTemplateTextContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterDoubleBackTickInlineCode(BallerinaParser.DoubleBackTickInlineCodeContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitDoubleBackTickInlineCode(BallerinaParser.DoubleBackTickInlineCodeContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterTripleBackTickInlineCode(BallerinaParser.TripleBackTickInlineCodeContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitTripleBackTickInlineCode(BallerinaParser.TripleBackTickInlineCodeContext ctx) { }
 
 	/**
 	 * {@inheritDoc}

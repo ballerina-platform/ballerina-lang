@@ -2072,9 +2072,12 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         if (ctx.exception != null) {
             return;
         }
-        String attributeName = ctx.DocumentationTemplateAttributeEnd().getText();
-        String endText = ctx.docText() != null ? ctx.docText().getText().trim() : "";
-        this.pkgBuilder.createDocumentationAttribute(getCurrentPos(ctx), getWS(ctx), attributeName, endText);
+        String attributeStart = ctx.DocumentationTemplateAttributeStart().getText();
+        String docPrefix = attributeStart.substring(0, 1);
+        String attributeName = ctx.Identifier().getText();
+        String endText = ctx.docText() != null ? ctx.docText().getText() : "";
+        this.pkgBuilder.createDocumentationAttribute(getCurrentPos(ctx), getWS(ctx),
+                attributeName, endText, docPrefix);
     }
 
     /**

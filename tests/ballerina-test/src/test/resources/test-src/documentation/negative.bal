@@ -1,10 +1,10 @@
 import ballerina.net.http;
 
 documentation { Documentation for Test annotation
-- #a annotation `field a` documentation
-- #a annotation `field a` documentation
-- #b annotation `field b` documentation
-- #c annotation `field c` documentation}
+F{{a}} annotation `field a` documentation
+F{{a}} annotation `field a` documentation
+F{{b}} annotation `field b` documentation
+F{{c}} annotation `field c` documentation}
 annotation Test {
     string a;
     string b;
@@ -12,13 +12,13 @@ annotation Test {
 }
 
 documentation { Documentation for testConst constant
-- #testConst abc description}
+V{{testConst}} abc description}
 const string testConst = "TestConstantDocumentation";
 
 documentation { Documentation for state enum
-- #foo enum `field foo` documentation
-- #foo enum `field foo` documentation
-- #bar enum `field bar` documentation}
+F{{foo}} enum `field foo` documentation
+F{{foo}} enum `field foo` documentation
+F{{bar}} enum `field bar` documentation}
 enum state {
     foo,
     bars
@@ -26,10 +26,10 @@ enum state {
 
 
 documentation { Documentation for Test struct
-- #a struct `field a` documentation
-- #a struct `field a` documentation
-- #b struct `field b` documentation
-- #c struct `field c` documentation}
+F{{a}} struct `field a` documentation
+F{{a}} struct `field a` documentation
+F{{b}} struct `field b` documentation
+F{{c}} struct `field c` documentation}
 struct Test {
     int a;
     int b;
@@ -41,17 +41,17 @@ documentation {
 Gets a access parameter value (`true` or `false`) for a given key. Please note that #foo will always be bigger than #bar.
 Example:
 ``SymbolEnv pkgEnv = symbolEnter.packageEnvs.get(pkgNode.symbol);``
-- #file file path ``C:\users\OddThinking\Documents\My Source\Widget\foo.src``
-- #file file path ``C:\users\OddThinking\Documents\My Source\Widget\foo.src``
-- #accessMode read or write mode
-- #successfuls boolean `true` or `false`
+T{{file}} file path ``C:\users\OddThinking\Documents\My Source\Widget\foo.src``
+T{{file}} file path ``C:\users\OddThinking\Documents\My Source\Widget\foo.src``
+P{{accessMode}} read or write mode
+R{{successfuls}} boolean `true` or `false`
 }
 public function <File file> open (string accessMode) (boolean successful) {
     return successful;
 }
 
 documentation { Documentation for File struct
-- #path struct `field path` documentation
+F{{path}} struct `field path` documentation
 }
 public struct File {
     string path;
@@ -59,10 +59,10 @@ public struct File {
 
 documentation {
  Transformer Foo Person -> Employee
- - #pa input struct Person source used for transformation
- - #e output struct Employee struct which Person transformed to
- - #e output struct Employee struct which Person transformed to
- - #defaultAddress address which serves Eg: `POSTCODE 112`
+ T{{pa}} input struct Person source used for transformation
+ T{{e}} output struct Employee struct which Person transformed to
+ T{{e}} output struct Employee struct which Person transformed to
+ P{{defaultAddress}} address which serves Eg: `POSTCODE 112`
 }
 transformer <Person p, Employee e> Foo(any defaultAddress) {
     e.name = p.firstName;
@@ -84,15 +84,15 @@ struct Employee {
 
 documentation {
 Test Connector
-- #url url for endpoint
-- #url url for endpoint
-- #urls urls for endpoint}
+P{{url}} url for endpoint
+P{{url}} url for endpoint
+P{{urls}} urls for endpoint}
 connector TestConnector (string url) {
 
     documentation {Test Connector action testAction
-    - #s which represent successful or not
-    - #s which represent successful or not
-    - #ssss which represent successful or not}
+    R{{s}} which represent successful or not
+    R{{s}} which represent successful or not
+    R{{ssss}} which represent successful or not}
     action testAction() (boolean s) {
        boolean value;
        return value;
@@ -100,17 +100,21 @@ connector TestConnector (string url) {
 }
 
 documentation { PizzaService HTTP Service
-- #conn HTTP connection.}
+P{{conn}} HTTP connection.}
 service<http> PizzaService {
 
     documentation {
     Check orderPizza resource.
-    - #conn HTTP connection.
-    - #req In request.
-    - #req In request.
-    - #reqest In request.}
+    P{{conn}} HTTP connection.
+    P{{req}} In request.
+    P{{req}} In request.
+    P{{reqest}} In request.}
     resource orderPizza(http:Connection conn, http:InRequest req) {
         http:OutResponse res = {};
         _ = conn.respond(res);
     }
 }
+
+documentation { Documentation for testConst constant
+V{{testConstd}} abc description}
+const string testConsts = "TestConstantDocumentation";

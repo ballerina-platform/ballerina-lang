@@ -21,7 +21,7 @@ package org.ballerinalang.model.tree;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
 
 /**
- * Interface to extend to make a node Deprecatable.
+ * Represents a deprecated Node in Ballerina.
  *
  * @since 0.962.0
  */
