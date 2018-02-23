@@ -35,6 +35,7 @@ import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.common.Constants;
 
 import java.net.InetSocketAddress;
+import java.util.LinkedList;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
@@ -100,6 +101,24 @@ public class HttpClient {
             log.warn("Operation go interrupted before receiving the response");
         }
         return this.responseHandler.getHttpFullResponse();
+    }
+
+    public LinkedList<FullHttpResponse> sendTwoInPipeline(FullHttpRequest httpRequest) {
+        CountDownLatch latch = new CountDownLatch(2);
+        this.waitForConnectionClosureLatch = new CountDownLatch(2);
+        this.responseHandler.setLatch(latch);
+        this.responseHandler.setWaitForConnectionClosureLatch(this.waitForConnectionClosureLatch);
+
+        httpRequest.headers().set(Constants.HOST, host + ":" + port);
+        this.connectedChannel.writeAndFlush(httpRequest.copy());
+
+        this.connectedChannel.writeAndFlush(httpRequest);
+        try {
+            latch.await();
+        } catch (InterruptedException e) {
+            log.warn("Operation go interrupted before receiving the response");
+        }
+        return this.responseHandler.getHttpFullResponses();
     }
 
     public boolean waitForChannelClose() {

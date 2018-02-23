@@ -43,6 +43,8 @@
 
             <class name="org.wso2.transport.http.netty.proxyserver.ProxyServerTestCase" />
 
+            <class name="org.wso2.transport.http.netty.hostnameverfication.HostnameVerificationTest" />
+
             <class name="org.wso2.transport.http.netty.redirect.HTTPClientRedirectTestCase" />
 
             <class name="org.wso2.transport.http.netty.ClientConnectorTimeoutTestCase" />
@@ -55,11 +57,6 @@
             <class name="org.wso2.transport.http.netty.chunkdisable.ChunkAutoClientTestCase" />
             <class name="org.wso2.transport.http.netty.chunkdisable.ChunkEnableClientTestCase" />
             <class name="org.wso2.transport.http.netty.chunkdisable.ChunkDisableClientTestCase" />
-
-            <class name="org.wso2.transport.http.netty.connectionpool.ConnectionPoolProxyTestCase" />
-            <class name="org.wso2.transport.http.netty.connectionpool.ConnectionPoolMainTestCase" />
-            <class name="org.wso2.transport.http.netty.connectionpool.ConnectionPoolEvictionTestCase" />
-            <class name="org.wso2.transport.http.netty.connectionpool.ConnectionPoolMaxConnTestCase" />
 
             <class name="org.wso2.transport.http.netty.headers.DateHeaderTestCase" />
 
@@ -76,6 +73,12 @@
 
             <class name="org.wso2.transport.http.netty.compression.ServerRespCompressionTestCase"/>
             <class name="org.wso2.transport.http.netty.compression.ClientRespDecompressionTestCase"/>
+
+            <class name="org.wso2.transport.http.netty.connectionpool.ConnectionPoolProxyTestCase" />
+            <class name="org.wso2.transport.http.netty.connectionpool.ConnectionPoolEvictionTestCase" />
+            <class name="org.wso2.transport.http.netty.connectionpool.ConnectionPoolMaxConnTestCase" />
+            <class name="org.wso2.transport.http.netty.connectionpool.ConnectionPoolTimeoutProxyTestCase" />
+            <class name="org.wso2.transport.http.netty.connectionpool.ConnectionPoolMainTestCase" />
 
             <class name="org.wso2.transport.http.netty.websocket.WebSocketServerTestCase"/>
             <class name="org.wso2.transport.http.netty.websocket.WebSocketClientTestCase"/>

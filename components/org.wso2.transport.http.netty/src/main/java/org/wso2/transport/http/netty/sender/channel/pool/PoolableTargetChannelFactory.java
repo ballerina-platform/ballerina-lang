@@ -68,11 +68,15 @@ public class PoolableTargetChannelFactory implements PoolableObjectFactory {
         HTTPClientInitializer httpClientInitializer = instantiateAndConfigClientInitializer(senderConfiguration,
                 clientBootstrap, clientSslEngine, connectionManager);
         clientBootstrap.handler(httpClientInitializer);
+
         ChannelFuture channelFuture = clientBootstrap
                 .connect(new InetSocketAddress(httpRoute.getHost(), httpRoute.getPort()));
+
         TargetChannel targetChannel = new TargetChannel(httpClientInitializer, channelFuture);
         targetChannel.setHttpRoute(httpRoute);
+
         log.debug("Created channel: {}", httpRoute);
+
         return targetChannel;
     }
 
@@ -128,9 +132,12 @@ public class PoolableTargetChannelFactory implements PoolableObjectFactory {
         SSLEngine sslEngine = null;
         if (sslConfig != null) {
             SSLHandlerFactory sslHandlerFactory = new SSLHandlerFactory(sslConfig);
-            sslEngine = sslHandlerFactory.build();
+            sslEngine = sslHandlerFactory.buildClientSSLEngine(httpRoute.getHost(), httpRoute.getPort());
             sslEngine.setUseClientMode(true);
             sslHandlerFactory.setSNIServerNames(sslEngine, httpRoute.getHost());
+            if (senderConfiguration.hostNameVerificationEnabled()) {
+                sslHandlerFactory.setHostNameVerfication(sslEngine);
+            }
         }
 
         return sslEngine;

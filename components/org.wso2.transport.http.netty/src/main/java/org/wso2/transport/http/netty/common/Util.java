@@ -283,7 +283,6 @@ public class Util {
         File trustStore = new File(substituteVariables(trustStoreFilePath));
 
         sslConfig.setTrustStore(trustStore).setTrustStorePass(trustStorePass);
-        sslConfig.setClientMode(true);
         sslProtocol = sslProtocol != null ? sslProtocol : "TLS";
         sslConfig.setSSLProtocol(sslProtocol);
         tlsStoreType = tlsStoreType != null ? tlsStoreType : "JKS";
@@ -538,16 +537,17 @@ public class Util {
      */
     public static void setForwardedExtension(HTTPCarbonMessage httpOutboundRequest, TargetChannel targetChannel) {
 
-        String forwardedHeader = httpOutboundRequest.getHeader("Forwarded");
-        StringBuilder headerValue = null;
+        String forwardedHeader = httpOutboundRequest.getHeader(Constants.FORWARDED);
+        StringBuilder headerValue = new StringBuilder();
         if (forwardedHeader == null) {
             generateForwardedHeaderValue(httpOutboundRequest, targetChannel, headerValue);
+            httpOutboundRequest.setHeader(Constants.FORWARDED, headerValue.toString());
             return;
         }
         String[] parts = forwardedHeader.split(";");
         String previousForValue = null;
         String previousByValue = null;
-        StringBuilder extension = null;
+        StringBuilder extension = new StringBuilder();
         for (String part: parts) {
             if (part.toLowerCase().contains("for=")) {
                 previousForValue = part.trim();
@@ -567,10 +567,11 @@ public class Util {
         headerValue.append(previousForValue + ";");
         generateForwardedHeaderValue(httpOutboundRequest, targetChannel, headerValue);
         headerValue.append(extension);
+        httpOutboundRequest.setHeader(Constants.FORWARDED, headerValue.toString());
     }
 
     private static void generateForwardedHeaderValue(HTTPCarbonMessage httpOutboundRequest, TargetChannel targetChannel, StringBuilder headerValue) {
-        headerValue.append("by=" + ((InetSocketAddress) targetChannel.getChannel().localAddress()).getAddress());
+        headerValue.append("by=" + ((InetSocketAddress) targetChannel.getChannel().localAddress()).getAddress().getHostAddress());
         String hostHeader = httpOutboundRequest.getHeader(HttpHeaderNames.HOST.toString());
         if (hostHeader != null) {
             headerValue.append(";host=" + hostHeader);

@@ -122,6 +122,7 @@ public final class Constants {
     public static final String HTTP_SERVER_HEADER = "Server";
     public static final String LOCATION = "Location";
     public static final String DATE = "Date";
+    public static final String FORWARDED = "Forwarded";
 
     public static final String HTTP_GET_METHOD = "GET";
     public static final String HTTP_POST_METHOD = "POST";
@@ -271,6 +272,8 @@ public final class Constants {
             = "Remote host closed the connection without sending inbound response";
 
     public static final String JMX_AGENT_NAME = "jmx.agent.name";
+
+    public static final String HTTP_RESOURCE = "httpResource";
 
     private Constants() {
     }

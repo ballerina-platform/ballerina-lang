@@ -98,6 +98,7 @@ public class SenderConfiguration {
     private boolean validateCertEnabled;
     private int cacheSize = 50;
     private int cacheValidityPeriod = 15;
+    private boolean hostNameVerificationEnabled = true;
     private boolean forwardedExtensionEnabled;
 
     public SenderConfiguration() {
@@ -285,6 +286,14 @@ public class SenderConfiguration {
 
     public int getCacheSize() {
         return cacheSize;
+    }
+
+    public void setHostNameVerificationEnabled(boolean hostNameVerificationEnabled) {
+        this.hostNameVerificationEnabled = hostNameVerificationEnabled;
+    }
+
+    public boolean hostNameVerificationEnabled() {
+        return hostNameVerificationEnabled;
     }
 
     public int getCacheValidityPeriod() {
