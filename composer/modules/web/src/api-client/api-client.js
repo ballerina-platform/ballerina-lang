@@ -25,6 +25,10 @@ const CONTENT_TYPE_JSON_HEADER = {
     'content-type': 'application/json; charset=utf-8',
 };
 
+const CONTENT_TYPE_TEXT_PLAIN_HEADER = {
+    'content-type': 'text/plain; charset=utf-8',
+};
+
 // updating this with endpoints upon initial fetchConfigs()
 let endpoints = {};
 let pathSeparator = '/'; // Setting default value as '/'. This value will get overriden at fetchConfigs().
@@ -283,7 +287,7 @@ export function invokeTryIt(tryItPayload, protocol) {
     const endpoint = getServiceEndpoint('try-it') + '/' + protocol;
 
     return new Promise((resolve, reject) => {
-        axios.post(endpoint, tryItPayload, { headers: CONTENT_TYPE_JSON_HEADER })
+        axios.post(endpoint, tryItPayload, { headers: CONTENT_TYPE_TEXT_PLAIN_HEADER })
             .then((response) => {
                 resolve(response.data);
             }).catch(error => reject(error));
