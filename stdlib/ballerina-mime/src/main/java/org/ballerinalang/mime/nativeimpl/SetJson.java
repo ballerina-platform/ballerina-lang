@@ -35,7 +35,7 @@ import static org.ballerinalang.mime.util.Constants.SECOND_PARAMETER_INDEX;
 /**
  * Set the entity body with JSON data.
  *
- * @since 0.964.0
+ * @since 0.963.0
  */
 @BallerinaFunction(packageName = "ballerina.mime",
         functionName = "setJson",

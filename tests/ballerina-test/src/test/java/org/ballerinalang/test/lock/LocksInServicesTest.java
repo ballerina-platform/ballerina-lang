@@ -60,8 +60,8 @@ public class LocksInServicesTest {
         }
 
         try {
-            if (!semaphore.tryAcquire(500, TimeUnit.MILLISECONDS)) {
-                Assert.fail("request execution not finished within 100ms");
+            if (!semaphore.tryAcquire(2000, TimeUnit.MILLISECONDS)) {
+                Assert.fail("request execution not finished within 2s");
             }
             String path = "/sample/getCount";
             HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, "GET");
@@ -79,19 +79,19 @@ public class LocksInServicesTest {
 
     @Test(description = "Test locking service level variable complex")
     public void testServiceLvlVarLockComplex() {
-        Semaphore semaphore = new Semaphore(-29);
+        Semaphore semaphore = new Semaphore(-11);
 
         ExecutorService executor = TestThreadPool.getInstance().getExecutor();
 
-        for (int i = 0; i < 10; i++) {
+        for (int i = 0; i < 4; i++) {
             executor.submit(new TestRequestSender(compileResult, semaphore, "/sample1/echo"));
             executor.submit(new TestRequestSender(compileResult, semaphore, "/sample1/echo1"));
             executor.submit(new TestRequestSender(compileResult, semaphore, "/sample1/echo2"));
         }
 
         try {
-            if (!semaphore.tryAcquire(500, TimeUnit.MILLISECONDS)) {
-                Assert.fail("request execution not finished within 500ms");
+            if (!semaphore.tryAcquire(2000, TimeUnit.MILLISECONDS)) {
+                Assert.fail("request execution not finished within 2s");
             }
             String path = "/sample1/getResult";
             HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, "GET");
@@ -100,8 +100,8 @@ public class LocksInServicesTest {
             Assert.assertNotNull(response, "Response message not found");
             String responseMsgPayload = StringUtils.getStringFromInputStream(new HttpMessageDataStreamer(response)
                     .getInputStream());
-            Assert.assertEquals(responseMsgPayload, "3333333333333333333333333333333060.03255555555555555" +
-                    "555555555555555531.062.0777777777777777777777777777777", "incorrect request count");
+            Assert.assertEquals(responseMsgPayload, "3333333333331224.01455555555555513.026.0777777777777",
+                    "incorrect request count");
         } catch (InterruptedException e) {
             Assert.fail("thread interrupted before request execution finished - " + e.getMessage(), e);
         }
@@ -109,19 +109,19 @@ public class LocksInServicesTest {
 
     @Test(description = "Test locking service level and package level variable complex")
     public void testServiceLvlPkgLvlVarLockComplex() {
-        Semaphore semaphore = new Semaphore(-29);
+        Semaphore semaphore = new Semaphore(-11);
 
         ExecutorService executor = TestThreadPool.getInstance().getExecutor();
 
-        for (int i = 0; i < 10; i++) {
+        for (int i = 0; i < 4; i++) {
             executor.submit(new TestRequestSender(compileResult, semaphore, "/sample2/echo"));
             executor.submit(new TestRequestSender(compileResult, semaphore, "/sample2/echo1"));
             executor.submit(new TestRequestSender(compileResult, semaphore, "/sample2/echo2"));
         }
 
         try {
-            if (!semaphore.tryAcquire(500, TimeUnit.MILLISECONDS)) {
-                Assert.fail("request execution not finished within 500ms");
+            if (!semaphore.tryAcquire(2000, TimeUnit.MILLISECONDS)) {
+                Assert.fail("request execution not finished within 2s");
             }
             String path = "/sample2/getResult";
             HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, "GET");
@@ -130,8 +130,8 @@ public class LocksInServicesTest {
             Assert.assertNotNull(response, "Response message not found");
             String responseMsgPayload = StringUtils.getStringFromInputStream(new HttpMessageDataStreamer(response)
                     .getInputStream());
-            Assert.assertEquals(responseMsgPayload, "3333333333333333333333333333333060.03255555555555555" +
-                    "555555555555555531.062.0777777777777777777777777777777", "incorrect request count");
+            Assert.assertEquals(responseMsgPayload, "3333333333331224.01455555555555513.026.0777777777777",
+                    "incorrect request count");
         } catch (InterruptedException e) {
             Assert.fail("thread interrupted before request execution finished - " + e.getMessage(), e);
         }

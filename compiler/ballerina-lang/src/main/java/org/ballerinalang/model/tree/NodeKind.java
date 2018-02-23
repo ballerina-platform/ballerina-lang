@@ -115,6 +115,7 @@ public enum NodeKind {
     HAVING,
     SELECT_CLAUSE,
     WHERE,
+    FUNCTION_CLAUSE,
     SET_ASSIGNMENT_CLAUSE,
     SET,
     STREAM_ACTION,

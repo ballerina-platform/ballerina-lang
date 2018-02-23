@@ -20,6 +20,7 @@ package org.wso2.ballerinalang.compiler.tree;
 import org.wso2.ballerinalang.compiler.tree.BLangEnum.BLangEnumerator;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS.BLangLocalXMLNS;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS.BLangPackageXMLNS;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangFunctionClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangGroupBy;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangHaving;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangOrderBy;
@@ -288,16 +289,20 @@ public abstract class BLangNodeVisitor {
         throw  new AssertionError();
     }
 
-    public void visit(BLangSelectExpression bLangSelectExpression) {
+    public void visit(BLangSelectExpression selectExpression) {
         throw new AssertionError();
     }
 
-    public void visit(BLangSelectClause bLangSelectClause) {
+    public void visit(BLangSelectClause selectClause) {
         throw new AssertionError();
     }
 
     public void visit(BLangWhere where) {
         throw  new AssertionError();
+    }
+
+    public void visit(BLangFunctionClause functionClause) {
+        throw new AssertionError();
     }
 
     public void visit(BLangSetAssignment setAssignmentClause) {

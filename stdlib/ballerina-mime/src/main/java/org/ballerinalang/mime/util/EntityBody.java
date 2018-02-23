@@ -24,7 +24,7 @@ import org.ballerinalang.nativeimpl.io.channels.FileIOChannel;
  * Represent an entity body before the message data source is constructed. It can either be an EntityBodyChannel
  * or a FileIOChannel.
  *
- * @since 0.964.0
+ * @since 0.963.0
  */
 public class EntityBody {
     private boolean isStream;

@@ -17,6 +17,7 @@
 */
 package org.wso2.ballerinalang.compiler.parser;
 
+import org.antlr.v4.runtime.tree.TerminalNode;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.TreeUtils;
@@ -41,9 +42,11 @@ import org.ballerinalang.model.tree.StructNode;
 import org.ballerinalang.model.tree.TransformerNode;
 import org.ballerinalang.model.tree.VariableNode;
 import org.ballerinalang.model.tree.WorkerNode;
+import org.ballerinalang.model.tree.clauses.FunctionClauseNode;
 import org.ballerinalang.model.tree.clauses.GroupByNode;
 import org.ballerinalang.model.tree.clauses.HavingNode;
 import org.ballerinalang.model.tree.clauses.OrderByNode;
+import org.ballerinalang.model.tree.clauses.SelectClauseNode;
 import org.ballerinalang.model.tree.clauses.SelectExpressionNode;
 import org.ballerinalang.model.tree.clauses.SetAssignmentNode;
 import org.ballerinalang.model.tree.clauses.StreamActionNode;
@@ -80,9 +83,11 @@ import org.wso2.ballerinalang.compiler.tree.BLangTransformer;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangWorker;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangFunctionClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangGroupBy;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangHaving;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangOrderBy;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangSelectClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangSelectExpression;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangSetAssignment;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangStreamAction;
@@ -239,6 +244,10 @@ public class BLangPackageBuilder {
     private Stack<SelectExpressionNode> selectExpressionsStack = new Stack<>();
 
     private Stack<List<SelectExpressionNode>> selectExpressionsListStack = new Stack<>();
+
+    private Stack<SelectClauseNode> selectClausesStack = new Stack<>();
+
+    private Stack<FunctionClauseNode> functionClausesStack = new Stack<>();
 
     private Stack<SetAssignmentNode> setAssignmentStack = new Stack<>();
 
@@ -1948,12 +1957,52 @@ public class BLangPackageBuilder {
         this.whereClauseStack.push(whereNode);
     }
 
-    public void endWhereClauseNode(DiagnosticPos currentPos, Set<Whitespace> ws) {
+    public void endWhereClauseNode(DiagnosticPos pos, Set<Whitespace> ws) {
         if (this.exprNodeStack.empty()) {
             throw new IllegalStateException("Expression stack cannot be empty in processing a Where");
         }
         WhereNode whereNode = this.whereClauseStack.peek();
+        ((BLangWhere) whereNode).pos = pos;
+        ((BLangWhere) whereNode).addWS(ws);
         whereNode.setExpression(exprNodeStack.pop());
+    }
+
+    public void startSelectClauseNode(DiagnosticPos pos, Set<Whitespace> ws) {
+        SelectClauseNode selectClauseNode = TreeBuilder.createSelectClauseNode();
+        ((BLangSelectClause) selectClauseNode).pos = pos;
+        ((BLangSelectClause) selectClauseNode).addWS(ws);
+        this.selectClausesStack.push(selectClauseNode);
+    }
+
+    public void endSelectClauseNode(boolean isSelectAll, DiagnosticPos pos, Set<Whitespace> ws) {
+        if (this.selectExpressionsListStack.empty()) {
+            throw new IllegalStateException("Select Expressions List stack cannot be empty when processing a select " +
+                    "clause");
+        }
+        SelectClauseNode selectClauseNode = this.selectClausesStack.peek();
+        ((BLangSelectClause) selectClauseNode).pos = pos;
+        ((BLangSelectClause) selectClauseNode).addWS(ws);
+        selectClauseNode.setGroupBy(this.groupByClauseStack.pop());
+        selectClauseNode.setHaving(this.havingClauseStack.pop());
+        if (!isSelectAll) {
+            selectClauseNode.setSelectExpressions(this.selectExpressionsListStack.pop());
+        } else {
+            selectClauseNode.setSelectAll(true);
+        }
+    }
+
+    public void startFunctionClauseNode(DiagnosticPos pos, Set<Whitespace> ws) {
+        FunctionClauseNode functionClauseNode = TreeBuilder.createFunctionClauseNode();
+        ((BLangFunctionClause) functionClauseNode).pos = pos;
+        ((BLangFunctionClause) functionClauseNode).addWS(ws);
+        this.functionClausesStack.push(functionClauseNode);
+    }
+
+    public void endFunctionClauseNode(DiagnosticPos pos, Set<Whitespace> ws) {
+        FunctionClauseNode functionClauseNode = this.functionClausesStack.peek();
+        ((BLangFunctionClause) functionClauseNode).pos = pos;
+        ((BLangFunctionClause) functionClauseNode).addWS(ws);
+        functionClauseNode.setFunctionInvocation(this.exprNodeStack.pop());
     }
 
     public void startSetAssignmentClauseNode(DiagnosticPos pos, Set<Whitespace> ws) {
