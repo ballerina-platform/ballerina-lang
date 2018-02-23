@@ -32,7 +32,7 @@ import org.wso2.transport.http.netty.contract.Http2ClientConnector;
 import org.wso2.transport.http.netty.contract.HttpResponseFuture;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 import org.wso2.transport.http.netty.sender.http2.Http2ConnectionManager;
-import org.wso2.transport.http.netty.sender.http2.OutboundHttp2MessageHolder;
+import org.wso2.transport.http.netty.sender.http2.OutboundMsgHolder;
 import org.wso2.transport.http.netty.sender.http2.TargetChannel;
 
 /**
@@ -56,12 +56,16 @@ public class Http2ClientConnectorImpl implements Http2ClientConnector {
     public HttpResponseFuture send(HTTPCarbonMessage httpOutboundRequest) {
 
         HttpResponseFuture httpResponseFuture = new DefaultHttpResponseFuture();
+
+        OutboundMsgHolder outboundMsgHolder =
+                new OutboundMsgHolder(httpOutboundRequest, httpResponseFuture);
+
         try {
             HttpRoute route = getTargetRoute(httpOutboundRequest);
             TargetChannel targetChannel =
                     Http2ConnectionManager.getInstance().borrowChannel(route, senderConfiguration);
             targetChannel.getChannelFuture().addListener(
-                    new ConnectionAvailabilityListener(targetChannel, httpOutboundRequest, httpResponseFuture, route));
+                    new ConnectionAvailabilityListener(targetChannel, outboundMsgHolder, route));
         } catch (Exception failedCause) {
             httpResponseFuture.notifyHttpListener(failedCause);
         }
@@ -72,22 +76,19 @@ public class Http2ClientConnectorImpl implements Http2ClientConnector {
     static class ConnectionAvailabilityListener implements ChannelFutureListener {
 
         TargetChannel targetChannel;
-        HTTPCarbonMessage httpOutboundRequest;
-        HttpResponseFuture httpResponseFuture;
+        OutboundMsgHolder outboundMsgHolder;
         HttpRoute route;
 
-        public ConnectionAvailabilityListener(TargetChannel targetChannel, HTTPCarbonMessage httpOutboundRequest,
-                                              HttpResponseFuture httpResponseFuture, HttpRoute route) {
+        public ConnectionAvailabilityListener(TargetChannel targetChannel,
+                                              OutboundMsgHolder outboundMsgHolder, HttpRoute route) {
             this.targetChannel = targetChannel;
-            this.httpOutboundRequest = httpOutboundRequest;
-            this.httpResponseFuture = httpResponseFuture;
             this.route = route;
+            this.outboundMsgHolder = outboundMsgHolder;
         }
 
         public void operationComplete(ChannelFuture channelFuture) throws Exception {
             if (isValidateChannel(channelFuture)) {
-                targetChannel.getClientHandler().
-                        writeRequest(new OutboundHttp2MessageHolder(httpOutboundRequest, httpResponseFuture));
+                targetChannel.getClientHandler().writeRequest(outboundMsgHolder);
             } else {
                 notifyErrorState(channelFuture);
             }
@@ -113,7 +114,7 @@ public class Http2ClientConnectorImpl implements Http2ClientConnector {
                 cause.initCause(channelFuture.cause());
             }
 
-            httpResponseFuture.notifyHttpListener(cause);
+            outboundMsgHolder.getResponseFuture().notifyHttpListener(cause);
         }
     }
 

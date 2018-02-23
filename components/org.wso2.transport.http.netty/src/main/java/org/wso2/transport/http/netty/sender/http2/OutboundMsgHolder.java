@@ -22,9 +22,9 @@ import org.wso2.transport.http.netty.contract.HttpResponseFuture;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 
 /**
- * {@code OutboundHttp2MessageHolder} holds data related to a single outbound invocation
+ * {@code OutboundMsgHolder} holds data related to a single outbound invocation
  */
-public class OutboundHttp2MessageHolder {
+public class OutboundMsgHolder {
 
     /* Outbound request HTTPCarbonMessage */
     private HTTPCarbonMessage requestCarbonMessage;
@@ -37,8 +37,8 @@ public class OutboundHttp2MessageHolder {
      * @param httpCarbonMessage outbound request message
      * @param responseFuture    the Future used to notify the response listener
      */
-    public OutboundHttp2MessageHolder(HTTPCarbonMessage httpCarbonMessage,
-                                      HttpResponseFuture responseFuture) {
+    public OutboundMsgHolder(HTTPCarbonMessage httpCarbonMessage,
+                             HttpResponseFuture responseFuture) {
         this.requestCarbonMessage = httpCarbonMessage;
         this.responseFuture = responseFuture;
     }
