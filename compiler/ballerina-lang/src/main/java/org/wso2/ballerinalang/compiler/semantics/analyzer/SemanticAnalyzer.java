@@ -265,20 +265,20 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             BSymbol owner = this.env.scope.owner;
             String construct;
             if (this.env.node.getKind() == NodeKind.PACKAGE) {
-                construct = owner.pkgID == null ||
-                        owner.pkgID == PackageID.DEFAULT ?
+                construct = (owner.pkgID == null ||
+                        owner.pkgID == PackageID.DEFAULT) ?
                         this.env.node.getKind().name().toLowerCase()
-                        : this.env.node.getKind().name().toLowerCase() + " " + owner.name;
+                        : this.env.node.getKind().name().toLowerCase() + " \'" + owner.name + "\'";
             } else if (this.env.node.getKind() == NodeKind.FUNCTION) {
                 String funcName = ((BLangFunction) this.env.node).name.getValue();
-                String qualifiedName = owner.pkgID == null ||
-                        owner.pkgID == PackageID.DEFAULT || owner.pkgID.name == Names.BUILTIN_PACKAGE ?
+                String qualifiedName = (owner.pkgID == null ||
+                        owner.pkgID == PackageID.DEFAULT || owner.pkgID.name == Names.BUILTIN_PACKAGE) ?
                         funcName
                         : (owner.pkgID + ":" + funcName);
                 construct = this.env.node.getKind().name().toLowerCase() + " \'" + qualifiedName + "\'";
             } else {
-                String qualifiedName = owner.pkgID == null ||
-                        owner.pkgID == PackageID.DEFAULT || owner.pkgID.name == Names.BUILTIN_PACKAGE ?
+                String qualifiedName = (owner.pkgID == null ||
+                        owner.pkgID == PackageID.DEFAULT || owner.pkgID.name == Names.BUILTIN_PACKAGE) ?
                         owner.name.getValue()
                         : (owner.pkgID + ":" + owner.name);
                 construct = this.env.node.getKind().name().toLowerCase() + " \'" + qualifiedName + "\'";
