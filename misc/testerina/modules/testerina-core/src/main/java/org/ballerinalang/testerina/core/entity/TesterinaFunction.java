@@ -26,6 +26,9 @@ import org.ballerinalang.util.debugger.Debugger;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.ballerinalang.util.program.BLangFunctions;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * TesterinaFunction entity class.
  */
@@ -35,14 +38,16 @@ public class TesterinaFunction {
     private Type type;
     private FunctionInfo bFunction;
     private ProgramFile programFile;
-    private TesterinaAnnotation testerinaAnnotation;
+    private boolean runTest = true;
 
-    private static final int WORKER_TIMEOUT = 10;
+    // Annotation info
+    private List<String> groups = new ArrayList<>();
+    private List<String[]> valueSet = new ArrayList<>();
 
-    public static final String PREFIX_TEST = "TEST";
-    public static final String PREFIX_BEFORETEST = "BEFORETEST";
-    public static final String PREFIX_AFTERTEST = "AFTERTEST";
-    public static final String INIT_SUFFIX = ".<INIT>";
+    static final String PREFIX_TEST = "TEST";
+    static final String PREFIX_BEFORETEST = "BEFORETEST";
+    static final String PREFIX_AFTERTEST = "AFTERTEST";
+    static final String INIT_SUFFIX = ".<INIT>";
 
     /**
      * Prefixes for the test function names.
@@ -61,51 +66,27 @@ public class TesterinaFunction {
         }
     }
 
-    /**
-     * Testerina annotation names.
-     */
-    public enum Annotations {
-        TEST_FUNCTION("testFunction"),
-        BEFORE_TEST("beforeTest"),
-        AFTER_TEST("afterTest"),
-        TEST_GROUP("group"),
-        TEST_VALUE_SET("valueSet");
-
-        String annotationName;
-
-        Annotations(String annotationName) {
-            this.annotationName = annotationName;
-        }
-
-        @Override public String toString() {
-            return annotationName;
-        }
-    }
-
-    TesterinaFunction(ProgramFile programFile, FunctionInfo bFunction, Type type,
-                      TesterinaAnnotation testerinaAnnotation) {
+    public TesterinaFunction(ProgramFile programFile, FunctionInfo bFunction, Type type) {
         this.name = bFunction.getName();
         this.type = type;
         this.bFunction = bFunction;
         this.programFile = programFile;
-        this.testerinaAnnotation = testerinaAnnotation;
     }
 
-    public BValue[] invoke() throws BallerinaException {
-        return invoke(new BValue[] {});
+    public void invoke() throws BallerinaException {
+        invoke(new BValue[] {});
     }
 
     /**
      * Invokes a ballerina test function, in blocking mode.
      *
      * @param args function arguments
-     * @return values returned by the ballerina function
      */
-    public BValue[] invoke(BValue[] args) {
+    public void invoke(BValue[] args) {
         Context ctx = new Context(programFile);
         Debugger debugger = new Debugger(programFile);
         initDebugger(ctx, debugger);
-        return BLangFunctions
+        BLangFunctions
                 .invokeNew(programFile, bFunction.getPackageInfo().getPkgPath(), bFunction.getName(), args, ctx);
     }
 
@@ -125,20 +106,28 @@ public class TesterinaFunction {
         this.type = type;
     }
 
-    public FunctionInfo getbFunction() {
-        return this.bFunction;
+    public List<String> getGroups() {
+        return groups;
     }
 
-    public void setbFunctionInfo(FunctionInfo bFunction) {
-        this.bFunction = bFunction;
+    public void setGroups(List<String> groups) {
+        this.groups = groups;
     }
 
-    public TesterinaAnnotation getTesterinaAnnotation() {
-        return testerinaAnnotation;
+    public List<String[]> getValueSet() {
+        return valueSet;
     }
 
-    public void setTesterinaAnnotation(TesterinaAnnotation testerinaAnnotation) {
-        this.testerinaAnnotation = testerinaAnnotation;
+    public void setValueSet(List<String[]> valueSet) {
+        this.valueSet = valueSet;
+    }
+
+    public boolean getRunTest() {
+        return runTest;
+    }
+
+    public void setRunTest() {
+        this.runTest = false;
     }
 
     private static void initDebugger(Context bContext, Debugger debugger) {

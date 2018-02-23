@@ -19,12 +19,17 @@
 package org.ballerinalang.testerina.core;
 
 import org.ballerinalang.testerina.core.entity.TesterinaAnnotation;
+import org.ballerinalang.testerina.core.entity.TesterinaFunction;
 import org.ballerinalang.util.codegen.AnnAttachmentInfo;
+import org.ballerinalang.util.codegen.AnnAttributeValue;
 import org.ballerinalang.util.codegen.FunctionInfo;
+import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.codegen.attributes.AnnotationAttributeInfo;
 import org.ballerinalang.util.codegen.attributes.AttributeInfo;
 
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import java.util.stream.Collectors;
 
 /**
@@ -37,55 +42,94 @@ public class AnnotationProcessor {
     private static final String CONFIG_ANNOTATION_NAME = "config";
     private static final String DEFAULT_TEST_GROUP_NAME = "default";
 
+    private static final String GROUP_ANNOTATION_NAME = "groups";
+    private static final String VALUE_SET_ANNOTATION_NAME = "valueSets";
+    private static final String TEST_DISABLE_ANNOTATION_NAME = "disabled";
+
     /**
      * Takes @{@link FunctionInfo} as a input and process annotations attached to the function.
+     * Processor only returns the tFunctions that should only be executed.
+     * All the test function that are excluded due to disabling or group filtering will not be returned.
      *
+     * @param programFile  Ballerina program file
      * @param functionInfo ballerina FunctionInfo object
      * @return @{@link TesterinaAnnotation} object containing annotation information
      */
-    public static TesterinaAnnotation processAnnotations(FunctionInfo functionInfo) {
-        TesterinaAnnotation testerinaAnnotation = new TesterinaAnnotation();
+    public static TesterinaFunction processAnnotations(ProgramFile programFile,
+                                                       FunctionInfo functionInfo, List<String> groups,
+                                                       boolean excludeGroups) {
 
+        TesterinaFunction tFunction = new TesterinaFunction(programFile, functionInfo,
+                TesterinaFunction.Type.TEST);
         AnnotationAttributeInfo attributeInfo = (AnnotationAttributeInfo) functionInfo
                 .getAttributeInfo(AttributeInfo.Kind.ANNOTATIONS_ATTRIBUTE);
 
-        // If no annotations present set default group
         if (attributeInfo.getAttachmentInfoEntries().length == 0) {
-            testerinaAnnotation.setGroups(Arrays.asList(DEFAULT_TEST_GROUP_NAME));
+            if ((groups != null) && (isGroupAvailable(groups, Collections.singletonList(DEFAULT_TEST_GROUP_NAME))
+                                     == excludeGroups)) {
+                tFunction.setRunTest();
+            }
         } else {
             for (AnnAttachmentInfo attachmentInfo : attributeInfo.getAttachmentInfoEntries()) {
+                // Only reads the config annotation related to testerina
                 if (!attachmentInfo.getName().equals(CONFIG_ANNOTATION_NAME)) {
                     continue;
                 }
                 // Check if disabled property is present in the annotation
                 if (attachmentInfo
-                            .getAttributeValue(TesterinaAnnotation.ConfigAnnotationProps.TEST_DISABLED.getName())
-                    != null) {
-                    testerinaAnnotation.setDisabled(attachmentInfo
-                            .getAttributeValue(TesterinaAnnotation.ConfigAnnotationProps.TEST_DISABLED.getName())
-                            .getBooleanValue());
+                            .getAttributeValue(TEST_DISABLE_ANNOTATION_NAME)
+                    != null && attachmentInfo.getAttributeValue(TEST_DISABLE_ANNOTATION_NAME).getBooleanValue()) {
+                    // If disable property is present disable the test, no further processing is needed
+                    tFunction.setRunTest();
+                    continue;
                 }
-                // check if groups are present in the annotation
-                if (attachmentInfo.getAttributeValue(TesterinaAnnotation.ConfigAnnotationProps.TEST_GROUP.getName())
-                    != null) {
-                    testerinaAnnotation.setGroups(Arrays.stream(attachmentInfo
-                            .getAttributeValue(TesterinaAnnotation.ConfigAnnotationProps.TEST_GROUP.getName())
-                            .getAttributeValueArray()).map(f -> f.getStringValue()).collect(Collectors.toList()));
-                } else {
-                    // If groups are not present add it to a default group
-                    testerinaAnnotation.setGroups(Arrays.asList(DEFAULT_TEST_GROUP_NAME));
+                // Check whether user has provided a group list
+                if (groups != null) {
+                    // check if groups attribute is present in the annotation
+                    if (attachmentInfo.getAttributeValue(GROUP_ANNOTATION_NAME) != null) {
+                        // Check whether function is included in group filter
+                        // against the user provided flag to include or exclude groups
+                        if (isGroupAvailable(groups,
+                                Arrays.stream(attachmentInfo.getAttributeValue(GROUP_ANNOTATION_NAME)
+                                        .getAttributeValueArray()).map(AnnAttributeValue::getStringValue)
+                                        .collect(Collectors.toList())) == excludeGroups) {
+                            tFunction.setRunTest();
+                        }
+                        // If groups are not present this belongs to default group
+                        // check whether user provided groups has default group
+                    } else if (isGroupAvailable(groups, Arrays.asList(DEFAULT_TEST_GROUP_NAME)) == excludeGroups) {
+                        tFunction.setRunTest();
+                    }
                 }
-                if (attachmentInfo
-                            .getAttributeValue(TesterinaAnnotation.ConfigAnnotationProps.TEST_VALUE_SET.getName())
-                    != null) {
-                    testerinaAnnotation.setValueSet(Arrays.stream(attachmentInfo
-                            .getAttributeValue(TesterinaAnnotation.ConfigAnnotationProps.TEST_VALUE_SET.getName())
+                // Check the availability of value sets
+                if (attachmentInfo.getAttributeValue(VALUE_SET_ANNOTATION_NAME) != null) {
+                    // extracts the value sets
+                    tFunction.setValueSet(Arrays.stream(attachmentInfo
+                            .getAttributeValue(VALUE_SET_ANNOTATION_NAME)
                             .getAttributeValueArray()).map(f -> f.getStringValue().split(","))
                             .collect(Collectors.toList()));
                 }
                 break;
             }
         }
-        return testerinaAnnotation;
+        return tFunction;
+    }
+
+    /**
+     * Check whether there is a common element in two Lists.
+     *
+     * @param inputGroups    String @{@link List} to match
+     * @param functionGroups String @{@link List} to match agains
+     * @return true if a match is found
+     */
+    private static boolean isGroupAvailable(List<String> inputGroups, List<String> functionGroups) {
+        for (String group : inputGroups) {
+            for (String funcGroup : functionGroups) {
+                if (group.equals(funcGroup)) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 }
