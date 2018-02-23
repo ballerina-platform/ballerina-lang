@@ -60,6 +60,7 @@ class FileDeleteConfirmDialog extends React.Component {
                 show={this.state.showDialog}
                 title={`Delete ${this.props.isFolder ? 'Folder' : 'File'} From Disk`}
                 titleIcon='warning circle'
+                size='small'
                 actions={
                 [
                     <Button

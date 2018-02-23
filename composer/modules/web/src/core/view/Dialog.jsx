@@ -19,7 +19,7 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Modal, Button, Header, Message } from 'semantic-ui-react';
+import { Modal, Header, Message } from 'semantic-ui-react';
 
 /**
  * Base class for popup dialogs
@@ -59,7 +59,7 @@ class Dialog extends React.Component {
                 open={this.props.show}
                 onClose={this.close}
                 closeIcon
-                small={this.props.size}
+                size={this.props.size}
             >
                 <Header icon={this.props.titleIcon} content={this.props.title} />
                 <Modal.Content>
@@ -73,10 +73,6 @@ class Dialog extends React.Component {
                 </Modal.Content>
                 <Modal.Actions>
                     {this.props.actions}
-                    {
-                        this.props.closeAction &&
-                        <Button onClick={this.close} secondary>Cancel</Button>
-                    }
                 </Modal.Actions>
             </Modal>
         );
@@ -85,7 +81,6 @@ class Dialog extends React.Component {
 
 Dialog.propTypes = {
     show: PropTypes.bool,
-    closeAction: PropTypes.bool,
     onHide: PropTypes.func,
     onAfterHide: PropTypes.func.isRequired,
     title: PropTypes.node.isRequired,
@@ -98,13 +93,12 @@ Dialog.propTypes = {
 
 Dialog.defaultProps = {
     show: true,
-    closeAction: false,
     onHide: () => { },
     onAfterHide: () => { },
     error: '',
     actions: '',
     className: '',
-    size: '',
+    size: 'tiny',
     titleIcon: null,
 };
 

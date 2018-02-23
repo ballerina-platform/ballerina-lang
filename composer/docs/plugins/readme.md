@@ -590,7 +590,7 @@ class FileOpenDialog extends React.Component {
                 title="Open File"
                 actions={
                     <Button
-                        bsStyle="primary"
+                        primary
                         onClick={this.onFileOpen}
                         disabled={this.state.filePath === ''}
                     >

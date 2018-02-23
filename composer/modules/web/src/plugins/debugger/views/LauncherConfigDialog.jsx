@@ -18,7 +18,7 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Button, Form, FormGroup, FormControl, InputGroup } from 'react-bootstrap';
+import { Button, Form, Input } from 'semantic-ui-react';
 import Dialog from 'core/view/Dialog';
 import './LauncherConfigDialog.scss';
 /**
@@ -104,10 +104,10 @@ class LauncherConfigDialog extends React.Component {
         return (
             <Dialog
                 show={this.state.showDialog}
-                title="Configure Application Arguments"
+                title='Configure Application Arguments'
                 actions={
                     <Button
-                        bsStyle="primary"
+                        primary
                         onClick={this.saveConfigs}
                     >
                         Save
@@ -121,39 +121,39 @@ class LauncherConfigDialog extends React.Component {
 
                     {this.state.configArguments.map((config, idx) => {
                         return (
-                            <FormGroup key={idx}>
-                                <InputGroup>
-                                    <FormControl
-                                        autoFocus
-                                        value={config}
-                                        onChange={event => this.onChangeArgument(idx, event)}
-                                        type="text"
+                            <Form.Group key={idx}>
+                                <Form.Input
+                                    autoFocus
+                                    value={config}
+                                    onChange={event => this.onChangeArgument(idx, event)}
+                                    type='text'
+                                />
+                                <Input
+                                    primary
+                                    onClick={() => this.onDeleteArgument(idx)}
+                                    className='launcher-config-delete'
+                                    icon='fw fw-delete'
+                                    action
+                                >
+                                    <Button
+                                        primary
+                                        onClick={() => this.onDeleteArgument(idx)}
+                                        className='launcher-config-delete'
                                     />
-                                    <InputGroup.Button>
-                                        <Button
-                                            bsStyle="primary"
-                                            onClick={() => this.onDeleteArgument(idx)}
-                                            className="launcher-config-delete"
-                                        >
-                                            <i className="fw fw-delete" />
-                                        </Button>
-                                    </InputGroup.Button>
-                                </InputGroup>
-                            </FormGroup>
+                                </Input>
+                            </Form.Group>
                         );
                     })}
 
-                    <FormGroup>
-                        <Button
-                            bsStyle="primary"
-                            onClick={this.onAddArgument}
-                        >
-                            <i className="fw fw-add" />
-                            &nbsp; Add argument
-                        </Button>
-
-
-                    </FormGroup>
+                    <Form.Group>
+                        <Input
+                            primary
+                            onClick={() => this.onDeleteArgument(idx)}
+                            icon='fw fw-add'
+                            label='Add argument'
+                            action
+                        />
+                    </Form.Group>
                 </Form>
             </Dialog>
         );

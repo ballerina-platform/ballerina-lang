@@ -18,7 +18,7 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Button, Form, FormGroup, FormControl, ControlLabel, Col } from 'react-bootstrap';
+import { Button, Form } from 'semantic-ui-react';
 import Dialog from 'core/view/Dialog';
 import FileTree from 'core/view/tree-view/FileTree';
 import { exists as checkPathExists } from 'core/workspace/fs-util';
@@ -132,10 +132,10 @@ class ImportSwaggerDialog extends React.Component {
         return (
             <Dialog
                 show={this.state.showDialog}
-                title="Import Swagger Definition"
+                title='Import Swagger Definition'
                 actions={
                     <Button
-                        bsStyle="primary"
+                        primary
                         onClick={this.onFileOpen}
                         disabled={!this.props.extensions.includes(this.state.filePath.split('.').pop().toLowerCase())}
                     >
@@ -147,42 +147,30 @@ class ImportSwaggerDialog extends React.Component {
                 error={this.state.error}
             >
                 <Form
-                    horizontal
-                    onSubmit={(e) => {
-                        e.preventDefault();
+                    widths='equal'
+                    onSubmit={() => {
+                        this.onFileOpen();
                     }}
                 >
-                    <FormGroup controlId="filePath">
-                        <Col componentClass={ControlLabel} sm={2}>
-                            File Path
-                        </Col>
-                        <Col sm={10}>
-                            <FormControl
-                                value={this.state.filePath}
-                                onKeyDown={(e) => {
-                                    if (e.key === 'Enter') {
-                                        this.onFileOpen();
-                                    } else if (e.key === 'Escape') {
-                                        this.onDialogHide();
-                                    }
-                                }}
-                                onChange={(evt) => {
-                                    this.updateState({
-                                        error: '',
-                                        filePath: evt.target.value,
-                                        selectedNode: undefined,
-                                    });
-                                }}
-                                type="text"
-                                placeholder="eg: /home/user/ballerina-services/swagger.json"
-                            />
-                        </Col>
-                    </FormGroup>
+                    <Form.Group controlId='filePath'>
+                        <Form.Input
+                            value={this.state.filePath}
+                            fluid
+                            label='File Path'
+                            onChange={(evt) => {
+                                this.updateState({
+                                    error: '',
+                                    filePath: evt.target.value,
+                                    selectedNode: undefined,
+                                });
+                            }}
+                            placeholder='eg: /home/user/ballerina-services/swagger.json'
+                        />
+                    </Form.Group>
                 </Form>
                 <ScrollBarsWithContextAPI
                     style={{
-                        width: 608,
-                        height: 500,
+                        height: 300,
                     }}
                     autoHide
                 >

@@ -170,8 +170,7 @@ class FileOpenDialog extends React.Component {
                 </Form>
                 <ScrollBarsWithContextAPI
                     style={{
-                        margin: '15px 0 15px 40px',
-                        height: 500,
+                        height: 300,
                     }}
                     autoHide
                 >

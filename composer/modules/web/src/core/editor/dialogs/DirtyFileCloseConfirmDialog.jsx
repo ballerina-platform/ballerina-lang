@@ -59,20 +59,7 @@ class DirtyFileCloseConfirmDialog extends React.Component {
                 show={this.state.showDialog}
                 title='Save Unsaved Content'
                 titleIcon='warning circle'
-                actions={
-                [
-                    <Button
-                        key='dirty-file-close-confirm-dialog-dont-save'
-                        primary
-                        onClick={(evt) => {
-                            this.onDialogHide();
-                            this.props.onConfirm();
-                            evt.stopPropagation();
-                            evt.preventDefault();
-                        }}
-                    >
-                            Don&#39;t Save
-                    </Button>,
+                actions={[
                     <Button
                         key='dirty-file-close-confirm-dialog-save'
                         primary
@@ -83,14 +70,25 @@ class DirtyFileCloseConfirmDialog extends React.Component {
                             evt.preventDefault();
                         }}
                     >
-                            Save
+                        Save
+                    </Button>,
+                    <Button
+                        key='dirty-file-close-confirm-dialog-dont-save'
+                        secondary
+                        onClick={(evt) => {
+                            this.onDialogHide();
+                            this.props.onConfirm();
+                            evt.stopPropagation();
+                            evt.preventDefault();
+                        }}
+                    >
+                        Don&#39;t Save
                     </Button>,
                 ]}
                 closeAction
                 onHide={this.onDialogHide}
                 onAfterHide={this.props.onAfterHide}
                 error={this.state.error}
-                size='small'
             >
                 <h4>
                     Do you want to save the changes you made to
