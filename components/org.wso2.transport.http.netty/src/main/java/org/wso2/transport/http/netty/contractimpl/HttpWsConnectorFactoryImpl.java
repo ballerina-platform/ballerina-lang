@@ -70,6 +70,7 @@ public class HttpWsConnectorFactoryImpl implements HttpWsConnectorFactory {
             serverConnectorBootstrap.addCacheSize(listenerConfig.getCacheSize());
         }
         serverConnectorBootstrap.addIdleTimeout(listenerConfig.getSocketIdleTimeout(120000));
+        serverConnectorBootstrap.setHttp2Enabled(listenerConfig.isHttp2());
         serverConnectorBootstrap.addHttpTraceLogHandler(listenerConfig.isHttpTraceLogEnabled());
         serverConnectorBootstrap.addThreadPools(bossGroup, workerGroup);
         serverConnectorBootstrap.addHeaderAndEntitySizeValidation(listenerConfig.getRequestSizeValidationConfig());

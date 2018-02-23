@@ -65,7 +65,7 @@ public class HTTPServerChannelInitializer extends ChannelInitializer<SocketChann
     private SSLConfig sslConfig;
     private ServerConnectorFuture serverConnectorFuture;
     private RequestSizeValidationConfig reqSizeValidationConfig;
-    private boolean isHttp2Enabled = true;
+    private boolean isHttp2Enabled = false;
     private boolean validateCertEnabled;
     private int cacheDelay;
     private int cacheSize;
@@ -212,6 +212,10 @@ public class HTTPServerChannelInitializer extends ChannelInitializer<SocketChann
 
     public void setServerName(String serverName) {
         this.serverName = serverName;
+    }
+
+    public void setHttp2Enabled(boolean http2Enabled) {
+        isHttp2Enabled = http2Enabled;
     }
 
     class H2PipelineConfigurator extends ApplicationProtocolNegotiationHandler {
