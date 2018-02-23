@@ -365,10 +365,6 @@ NullLiteral
     :   'null'
     ;
 
-DocumentationTemplateAttributeEnd
-    :   {inDocTemplate}? RIGHT_BRACE WS* RIGHT_BRACE               ->  popMode
-    ;
-
 Identifier
     :   ( Letter LetterOrDigit* )
     |   IdentifierLiteral
@@ -410,6 +406,10 @@ DeprecatedTemplateStart
 
 ExpressionEnd
     :   {inTemplate}? RIGHT_BRACE WS* RIGHT_BRACE   ->  popMode
+    ;
+
+DocumentationTemplateAttributeEnd
+    :   {inDocTemplate}? RIGHT_BRACE WS* RIGHT_BRACE               ->  popMode
     ;
 
 // Whitespace and comments
@@ -726,13 +726,13 @@ TBDocInlineCodeStart
     ;
 
 DocumentationTemplateText
-    :   DocumentationTemplateStringChar+
+    :   DocumentationValidCharSequence? (DocumentationTemplateStringChar DocumentationValidCharSequence?)+
+    |   DocumentationValidCharSequence  (DocumentationTemplateStringChar DocumentationValidCharSequence?)*
     ;
 
 fragment
 DocumentationTemplateStringChar
     :   ~[`{}\\FPTRV]
-    |   [FPTRV] ~[{]
     |   '\\' [{}`]
     |   WS
     |   DocumentationEscapedSequence
@@ -752,6 +752,12 @@ fragment
 DocumentationEscapedSequence
     :   '\\\\'
     ;
+
+fragment
+DocumentationValidCharSequence
+     :  [FPTRV] ~[{]
+     |  '\\' ~'\\'
+     ;
 
 mode TRIPLE_BACKTICK_INLINE_CODE;
 
@@ -820,7 +826,8 @@ TBDeprecatedInlineCodeStart
     ;
 
 DeprecatedTemplateText
-    :   DeprecatedTemplateStringChar+
+    :   DeprecatedValidCharSequence? (DeprecatedTemplateStringChar DeprecatedValidCharSequence?)+
+    |   DeprecatedValidCharSequence (DeprecatedTemplateStringChar DeprecatedValidCharSequence?)*
     ;
 
 fragment
@@ -840,6 +847,11 @@ fragment
 DeprecatedEscapedSequence
     :   '\\\\'
     ;
+
+fragment
+DeprecatedValidCharSequence
+     :  '\\' ~'\\'
+     ;
 
 mode STRING_TEMPLATE;
 
