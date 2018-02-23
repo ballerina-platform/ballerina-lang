@@ -188,6 +188,9 @@
                         <additionalClasspathElement>${basedir}/target/classes/org/wso2/ballerina/nativeimpl
                             /repository/BallerinaBuiltinPackageRepository.class</additionalClasspathElement>
                     </additionalClasspathElements>
+                    <suiteXmlFiles>
+                        <suiteXmlFile>src/test/resources/testng.xml</suiteXmlFile>
+                    </suiteXmlFiles>
                 </configuration>
             </plugin>
         </plugins>

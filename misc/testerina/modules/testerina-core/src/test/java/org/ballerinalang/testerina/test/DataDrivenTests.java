@@ -53,7 +53,7 @@ public class DataDrivenTests {
         testRunner.runTest(filePathsGrouped, groupList);
         Assert.assertEquals(testRunner.getTesterinaReport().getPassedTestCount(), 2);
         Assert.assertEquals(testRunner.getTesterinaReport().getFailedTestCount(), 2);
-        Assert.assertEquals(testRunner.getTesterinaReport().getSkippedTestCount(), 0);
+        Assert.assertEquals(testRunner.getTesterinaReport().getSkippedTestCount(), 4);
     }
 
     @Test

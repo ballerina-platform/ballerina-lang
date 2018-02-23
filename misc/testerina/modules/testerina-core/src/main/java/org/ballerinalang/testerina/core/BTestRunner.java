@@ -71,9 +71,8 @@ public class BTestRunner {
     public void runTest(Path[] sourceFilePaths, List<String> groups, boolean ignoreGroups) {
         ProgramFile[] programFiles = Arrays.stream(sourceFilePaths).map(BTestRunner::buildTestModel)
                 .toArray(ProgramFile[]::new);
-        Arrays.stream(programFiles).forEachOrdered(programFile -> {
-            TesterinaRegistry.getInstance().addProgramFile(programFile);
-        });
+        Arrays.stream(programFiles)
+                .forEachOrdered(programFile -> TesterinaRegistry.getInstance().addProgramFile(programFile));
 
         executeTestFunctions(programFiles, groups, ignoreGroups);
         tReport.printTestSummary();
@@ -99,8 +98,8 @@ public class BTestRunner {
         return progFile;
     }
 
-    private void executeTestFunctions(ProgramFile[] programFiles, List<String> groups, boolean disableGroups) {
-        TesterinaContext tFile = new TesterinaContext(programFiles);
+    private void executeTestFunctions(ProgramFile[] programFiles, List<String> groups, boolean excludeGroups) {
+        TesterinaContext tFile = new TesterinaContext(programFiles, groups, excludeGroups);
         ArrayList<TesterinaFunction> testFunctions = tFile.getTestFunctions();
         ArrayList<TesterinaFunction> beforeTestFunctions = tFile.getBeforeTestFunctions();
         ArrayList<TesterinaFunction> afterTestFunctions = tFile.getAfterTestFunctions();
@@ -119,30 +118,20 @@ public class BTestRunner {
             }
         }
 
-        //test
+        // Executing Tests
         for (TesterinaFunction tFunction : testFunctions) {
-            boolean isTestPassed = true;
-            String errorMessage = null;
 
-            // Check whether the test is disabled.
-            if (tFunction.getTesterinaAnnotation().isDisabled()) {
+            boolean isTestPassed = true;
+            // Check whether the function is disabled
+            if (!tFunction.getRunTest()) {
                 tReport.incrementSkipCount();
                 continue;
             }
-            // Filtering the test functions by group
-            if (groups != null) {
-                // If provided groups matches and the provided flag is to disable groups the function is skipped
-                if ((isGroupAvailable(groups, tFunction.getTesterinaAnnotation().getGroups()) && disableGroups) || (
-                        !isGroupAvailable(groups, tFunction.getTesterinaAnnotation().getGroups())
-                        && !disableGroups)) {
-                    tReport.incrementSkipCount();
-                    continue;
-                }
-            }
 
-            // Check whether valueSets are attached to the test function
-            List<String[]> valueSets = tFunction.getTesterinaAnnotation().getValueSet();
-            if (valueSets != null && valueSets.size() > 0) {
+            // check whether value set is present and execute tests
+            List<String[]> valueSets = tFunction.getValueSet();
+            String errorMessage = "";
+            if (tFunction.getValueSet().size() > 0) {
                 for (String[] valueSet : valueSets) {
                     isTestPassed = true;
                     try {
@@ -157,7 +146,7 @@ public class BTestRunner {
                         errorMessage = "valueSet: " + Arrays.toString(valueSet) + " " + e.getMessage();
                         outStream.println("test '" + tFunction.getName() + "' has an error: " + errorMessage);
                     }
-                    // Adding results to the report
+                    // if there are no exception thrown, test is passed
                     TesterinaResult functionResult = new TesterinaResult(tFunction.getName(), isTestPassed,
                             errorMessage);
                     tReport.addFunctionResult(functionResult);
@@ -200,21 +189,4 @@ public class BTestRunner {
         return tReport;
     }
 
-    /**
-     * Check whether there is a common element in two Lists.
-     *
-     * @param inputGroups    String @{@link List} to match
-     * @param functionGroups String @{@link List} to match agains
-     * @return true if a match is found
-     */
-    private static boolean isGroupAvailable(List<String> inputGroups, List<String> functionGroups) {
-        for (String group : inputGroups) {
-            for (String funcGroup : functionGroups) {
-                if (group.equals(funcGroup)) {
-                    return true;
-                }
-            }
-        }
-        return false;
-    }
 }

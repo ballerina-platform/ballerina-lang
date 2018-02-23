@@ -24,6 +24,7 @@ import org.ballerinalang.util.codegen.ProgramFile;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Locale;
 
 /**
@@ -34,10 +35,12 @@ public class TesterinaContext {
     private ArrayList<TesterinaFunction> testFunctions = new ArrayList<>();
     private ArrayList<TesterinaFunction> beforeTestFunctions = new ArrayList<>();
     private ArrayList<TesterinaFunction> afterTestFunctions = new ArrayList<>();
+    private List<String> groups;
+    private boolean excludeGroups = false;
 
-    public static final String ASSERTION_EXCEPTION_CATEGORY = "assert-failure";
-
-    public TesterinaContext(ProgramFile[] programFiles) {
+    public TesterinaContext(ProgramFile[] programFiles, List<String> groups, boolean excludeGroups) {
+        this.groups = groups;
+        this.excludeGroups = excludeGroups;
         Arrays.stream(programFiles).forEach(this::extractTestFunctions);
     }
 
@@ -85,18 +88,19 @@ public class TesterinaContext {
         if (nameUpperCase.startsWith(TesterinaFunction.PREFIX_TEST) && !nameUpperCase
                 .endsWith(TesterinaFunction.INIT_SUFFIX)) {
 
-            TesterinaFunction tFunction = new TesterinaFunction(programFile, functionInfo, TesterinaFunction.Type.TEST,
-                    AnnotationProcessor.processAnnotations(functionInfo));
+            TesterinaFunction tFunction = AnnotationProcessor
+                    .processAnnotations(programFile, functionInfo, groups, excludeGroups);
+
             this.testFunctions.add(tFunction);
         } else if (nameUpperCase.startsWith(TesterinaFunction.PREFIX_BEFORETEST) && !nameUpperCase
                 .endsWith(TesterinaFunction.INIT_SUFFIX)) {
             TesterinaFunction tFunction = new TesterinaFunction(programFile, functionInfo,
-                    TesterinaFunction.Type.BEFORE_TEST, null);
+                    TesterinaFunction.Type.BEFORE_TEST);
             this.beforeTestFunctions.add(tFunction);
         } else if (nameUpperCase.startsWith(TesterinaFunction.PREFIX_AFTERTEST) && !nameUpperCase
                 .endsWith(TesterinaFunction.INIT_SUFFIX)) {
             TesterinaFunction tFunction = new TesterinaFunction(programFile, functionInfo,
-                    TesterinaFunction.Type.AFTER_TEST, null);
+                    TesterinaFunction.Type.AFTER_TEST);
             this.afterTestFunctions.add(tFunction);
         }
     }

@@ -28,7 +28,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Test class to test grouping
+ * Test class to test grouping.
  */
 public class GroupFilterTest {
 
