@@ -3,8 +3,8 @@ import ballerina.io;
 
 function main (string[] args) {
     endpoint<sql:ClientConnector> testDB {
-        create sql:ClientConnector(
-        sql:DB.MYSQL, "localhost", 3306, "testdb", "root", "root", {maximumPoolSize:5});
+          create sql:ClientConnector(
+          sql:DB.MYSQL, "localhost", 3306, "testdb", "root", "root", {maximumPoolSize:5});
     }
     //Create a DB table using updateQuery action.If the DDL
     //statement execution is success updateQuery action returns 0.
@@ -44,7 +44,7 @@ function main (string[] args) {
     //Select data using select action. Select action returns a datatable
     //and see datatables section for more details on how to access data.
     params = [para1];
-    datatable dt = testDB.selectQuery("SELECT * FROM STUDENT WHERE AGE = ?", params, null);
+    table dt = testDB.selectQuery("SELECT * FROM STUDENT WHERE AGE = ?", params, null);
     var jsonRes, err = <json>dt;
     io:println(jsonRes);
 
@@ -64,8 +64,8 @@ function main (string[] args) {
     //A stored procedure can be invoked via call action. The direction is
     //used to specify in/out/inout parameters.
     sql:Parameter pAge = {sqlType:sql:Type.INTEGER, value:10};
-    sql:Parameter pCount = {sqlType:sql:Type.INTEGER, direction: sql:Direction.IN};
-    sql:Parameter pId = {sqlType:sql:Type.INTEGER, value:1, direction: sql:Direction.OUT};
+    sql:Parameter pCount = {sqlType:sql:Type.INTEGER, direction:sql:Direction.IN};
+    sql:Parameter pId = {sqlType:sql:Type.INTEGER, value:1, direction:sql:Direction.OUT};
     params = [pAge, pCount, pId];
     var results = testDB.call("{CALL GETCOUNT(?,?,?)}", params, null);
     var countValue, _ = (int)pCount.value;
