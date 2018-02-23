@@ -117,9 +117,11 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangLock;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangNext;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangTaint;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangThrow;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTransaction;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTryCatchFinally;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangUntaint;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWhile;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWorkerReceive;
@@ -140,6 +142,7 @@ import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticLog;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -438,8 +441,12 @@ public class BLangPackageBuilder {
                                 Set<Whitespace> ws,
                                 String identifier,
                                 boolean exprAvailable,
-                                int annotCount) {
+                                int annotCount,
+                                Flag... flags) {
         BLangVariable var = (BLangVariable) this.generateBasicVarNode(pos, ws, identifier, exprAvailable);
+        if (flags != null) {
+            var.flagSet.addAll(Arrays.asList(flags));
+        }
         attachAnnotations(var, annotCount);
         var.pos = pos;
         if (this.varListStack.empty()) {
@@ -671,7 +678,6 @@ public class BLangPackageBuilder {
         }
         exprList.add(expr);
     }
-
 
     public void createSimpleVariableReference(DiagnosticPos pos, Set<Whitespace> ws) {
         BLangNameReference nameReference = nameReferenceStack.pop();
@@ -1731,6 +1737,24 @@ public class BLangPackageBuilder {
         intRangeExpr.includeStart = includeStart;
         intRangeExpr.includeEnd = includeEnd;
         exprNodeStack.push(intRangeExpr);
+    }
+
+    public void addTaintStmt(DiagnosticPos pos, Set<Whitespace> ws) {
+        BLangTaint taintNode = (BLangTaint) TreeBuilder.createTaintNode();
+        taintNode.pos = pos;
+        taintNode.addWS(ws);
+        List<ExpressionNode> exprList = exprNodeListStack.pop();
+        exprList.forEach(expressionNode -> taintNode.varRefs.add((BLangVariableReference) expressionNode));
+        addStmtToCurrentBlock(taintNode);
+    }
+
+    public void addUntaintStmt(DiagnosticPos pos, Set<Whitespace> ws) {
+        BLangUntaint untaintNode = (BLangUntaint) TreeBuilder.createUntaintNode();
+        untaintNode.pos = pos;
+        untaintNode.addWS(ws);
+        List<ExpressionNode> exprList = exprNodeListStack.pop();
+        exprList.forEach(expressionNode -> untaintNode.varRefs.add((BLangVariableReference) expressionNode));
+        addStmtToCurrentBlock(untaintNode);
     }
 
     // Private methods
