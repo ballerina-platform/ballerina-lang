@@ -20,7 +20,6 @@ package org.ballerinalang.model.tree.clauses;
 
 import org.ballerinalang.model.tree.Node;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
-import org.ballerinalang.model.tree.statements.WhereNode;
 
 /**
  * The interface with the APIs to implement the "pattern" in ballerina streams/table SQLish syntax.

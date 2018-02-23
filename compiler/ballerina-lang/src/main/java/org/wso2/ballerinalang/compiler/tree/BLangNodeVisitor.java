@@ -32,7 +32,6 @@ import org.wso2.ballerinalang.compiler.tree.clauses.BLangStreamAction;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangWhere;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangWindow;
 import org.wso2.ballerinalang.compiler.tree.clauses.BlangStreamingInput;
-import org.wso2.ballerinalang.compiler.tree.clauses.BLangWindow;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAttachmentAttribute;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAttachmentAttributeValue;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrayLiteral;
@@ -283,15 +282,15 @@ public abstract class BLangNodeVisitor {
     }
 
     public void visit(BLangOrderBy orderBy) {
-        throw  new AssertionError();
+        throw new AssertionError();
     }
 
     public void visit(BLangGroupBy groupBy) {
-        throw  new AssertionError();
+        throw new AssertionError();
     }
 
     public void visit(BLangHaving having) {
-        throw  new AssertionError();
+        throw new AssertionError();
     }
 
     public void visit(BLangSelectExpression selectExpression) {
@@ -303,7 +302,7 @@ public abstract class BLangNodeVisitor {
     }
 
     public void visit(BLangWhere whereClause) {
-        throw  new AssertionError();
+        throw new AssertionError();
     }
 
     public void visit(BLangFunctionClause functionClause) {
@@ -311,15 +310,15 @@ public abstract class BLangNodeVisitor {
     }
 
     public void visit(BLangSetAssignment setAssignmentClause) {
-        throw  new AssertionError();
+        throw new AssertionError();
     }
 
     public void visit(BLangStreamAction streamAction) {
-        throw  new AssertionError();
+        throw new AssertionError();
     }
 
     public void visit(BLangPatternStreamingEdgeInput patternStreamingEdgeInput) {
-        throw  new AssertionError();
+        throw new AssertionError();
     }
 
     public void visit(BLangWindow windowClause) {
@@ -544,11 +543,11 @@ public abstract class BLangNodeVisitor {
     public void visit(BLangJSONAccessExpr jsonAccessExpr) {
         throw new AssertionError();
     }
-    
+
     public void visit(BLangLocalXMLNS xmlnsNode) {
         throw new AssertionError();
     }
-    
+
     public void visit(BLangPackageXMLNS xmlnsNode) {
         throw new AssertionError();
     }

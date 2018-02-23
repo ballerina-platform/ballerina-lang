@@ -20,8 +20,8 @@ package org.wso2.ballerinalang.compiler.tree.clauses;
 
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.clauses.PatternStreamingEdgeInputNode;
+import org.ballerinalang.model.tree.clauses.WhereNode;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
-import org.ballerinalang.model.tree.statements.WhereNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 

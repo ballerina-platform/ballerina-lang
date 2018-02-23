@@ -2196,24 +2196,6 @@ public class BLangParserListener extends BallerinaParserBaseListener {
     }
 
     @Override
-    public void enterWindowClause(BallerinaParser.WindowClauseContext ctx) {
-        if (ctx.exception != null) {
-            return;
-        }
-
-        this.pkgBuilder.startWindowClauseNode(getCurrentPos(ctx), getWS(ctx));
-    }
-
-    @Override
-    public void exitWindowClause(BallerinaParser.WindowClauseContext ctx) {
-        if (ctx.exception != null) {
-            return;
-        }
-
-        this.pkgBuilder.endWindowsClauseNode(getCurrentPos(ctx), getWS(ctx));
-    }
-
-    @Override
     public void enterStreamingInput(BallerinaParser.StreamingInputContext ctx) {
         if (ctx.exception != null) {
             return;
@@ -2314,14 +2296,17 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         if (ctx.exception != null) {
             return;
         }
-        this.pkgBuilder.startWindowNode(getCurrentPos(ctx), getWS(ctx));
+
+        this.pkgBuilder.startWindowClauseNode(getCurrentPos(ctx), getWS(ctx));
     }
 
-    @Override public void exitWindowClause(BallerinaParser.WindowClauseContext ctx) {
+    @Override
+    public void exitWindowClause(BallerinaParser.WindowClauseContext ctx) {
         if (ctx.exception != null) {
             return;
         }
-        this.pkgBuilder.endWindowNode(getCurrentPos(ctx), getWS(ctx));
+
+        this.pkgBuilder.endWindowsClauseNode(getCurrentPos(ctx), getWS(ctx));
     }
 
     private DiagnosticPos getCurrentPos(ParserRuleContext ctx) {

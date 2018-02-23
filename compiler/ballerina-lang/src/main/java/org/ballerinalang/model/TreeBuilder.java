@@ -42,12 +42,11 @@ import org.ballerinalang.model.tree.clauses.OrderByNode;
 import org.ballerinalang.model.tree.clauses.PatternStreamingEdgeInputNode;
 import org.ballerinalang.model.tree.clauses.SelectClauseNode;
 import org.ballerinalang.model.tree.clauses.SelectExpressionNode;
+import org.ballerinalang.model.tree.clauses.SetAssignmentNode;
+import org.ballerinalang.model.tree.clauses.StreamActionNode;
 import org.ballerinalang.model.tree.clauses.StreamingInput;
 import org.ballerinalang.model.tree.clauses.WhereNode;
 import org.ballerinalang.model.tree.clauses.WindowClauseNode;
-import org.ballerinalang.model.tree.clauses.SetAssignmentNode;
-import org.ballerinalang.model.tree.clauses.StreamActionNode;
-import org.ballerinalang.model.tree.clauses.WindowNode;
 import org.ballerinalang.model.tree.expressions.AnnotationAttachmentAttributeNode;
 import org.ballerinalang.model.tree.expressions.AnnotationAttachmentAttributeValueNode;
 import org.ballerinalang.model.tree.expressions.ArrayLiteralNode;
@@ -134,7 +133,6 @@ import org.wso2.ballerinalang.compiler.tree.clauses.BLangStreamAction;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangWhere;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangWindow;
 import org.wso2.ballerinalang.compiler.tree.clauses.BlangStreamingInput;
-import org.wso2.ballerinalang.compiler.tree.clauses.BLangWindow;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAttachmentAttribute;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAttachmentAttributeValue;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrayLiteral;
@@ -193,7 +191,7 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangValueType;
 
 /**
  * This contains the functionality of building the nodes in the AST.
- * 
+ *
  * @since 0.94
  */
 public class TreeBuilder {
@@ -201,39 +199,39 @@ public class TreeBuilder {
     public static CompilationUnitNode createCompilationUnit() {
         return new BLangCompilationUnit();
     }
-    
+
     public static PackageNode createPackageNode() {
         return new BLangPackage();
     }
-    
+
     public static PackageDeclarationNode createPackageDeclarationNode() {
         return new BLangPackageDeclaration();
     }
-    
+
     public static IdentifierNode createIdentifierNode() {
         return new BLangIdentifier();
     }
-    
+
     public static ImportPackageNode createImportPackageNode() {
         return new BLangImportPackage();
     }
-    
+
     public static XMLNSDeclarationNode createXMLNSNode() {
         return new BLangXMLNS();
     }
-    
+
     public static XMLNSDeclStatementNode createXMLNSDeclrStatementNode() {
         return new BLangXMLNSStatement();
     }
-    
+
     public static VariableNode createVariableNode() {
         return new BLangVariable();
     }
-    
+
     public static FunctionNode createFunctionNode() {
         return new BLangFunction();
     }
-    
+
     public static BlockNode createBlockNode() {
         return new BLangBlockStmt();
     }
@@ -273,7 +271,7 @@ public class TreeBuilder {
     public static VariableDefinitionNode createVariableDefinitionNode() {
         return new BLangVariableDef();
     }
-    
+
     public static ValueTypeNode createValueTypeNode() {
         return new BLangValueType();
     }
@@ -365,7 +363,7 @@ public class TreeBuilder {
     public static ConnectorNode createConnectorNode() {
         return new BLangConnector();
     }
-    
+
     public static ActionNode createActionNode() {
         return new BLangAction();
     }
@@ -414,11 +412,11 @@ public class TreeBuilder {
     public static IfNode createIfElseStatementNode() {
         return new BLangIf();
     }
-    
+
     public static ServiceNode createServiceNode() {
         return new BLangService();
     }
-    
+
     public static ResourceNode createResourceNode() {
         return new BLangResource();
     }
