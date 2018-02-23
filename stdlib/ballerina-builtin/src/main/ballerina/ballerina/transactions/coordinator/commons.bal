@@ -40,7 +40,7 @@ struct Participant {
     Protocol[] participantProtocols;
 }
 
-struct TransactionContext {
+public struct TransactionContext {
     string contextVersion = "1.0";
     string transactionId;
     string coordinationType;
@@ -111,6 +111,7 @@ function respondToBadRequest (string msg) returns (http:OutResponse res) {
 function createNewTransaction (string coordinationType) returns (Transaction txn) {
     if (coordinationType == TWO_PHASE_COMMIT) {
         TwoPhaseCommitTransaction twopcTxn = {transactionId:util:uuid(), coordinationType:TWO_PHASE_COMMIT};
+        twopcTxn.participants = {};
         var tx, _ = (Transaction)twopcTxn;
         txn = tx;
     } else {
@@ -143,7 +144,8 @@ function createTransactionContext (string coordinationType) returns (Transaction
         initiatedTransactions[txnId] = txn;
         txnContext = {transactionId:txnId,
                          coordinationType:coordinationType,
-                         registerAtURL:"http://" + coordinatorHost + ":" + coordinatorPort + basePath + registrationPath};
+                         registerAtURL:"http://" + coordinatorHost + ":" + coordinatorPort +
+                                       initiatorCoordinatorBasePath + registrationPath};
 
         log:printInfo("Created transaction: " + txnId);
     }

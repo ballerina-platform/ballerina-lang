@@ -157,6 +157,9 @@ function getVolatileAndDurableEndpoints (TwoPhaseCommitTransaction txn) returns
     volatileEndpoints = [];
     durableEndpoints = [];
     map participants = txn.participants;
+    if(participants == null) {
+        return;
+    }
     foreach _, p in participants {
         var participant, _ = (Participant)p;
         Protocol[] protocols = participant.participantProtocols;
@@ -312,8 +315,8 @@ function abortLocalParticipantTransaction (string transactionId) returns (string
 
 // If this is a new transaction, then this instance will become the initiator and will create a context
 // If this is part of an existing transaction, this this instance will register as a participant
-function beginTransaction (string transactionId, string registerAtUrl,
-                           string coordinationType) returns (TransactionContext txnCtx, error err) {
+public function beginTransaction (string transactionId, string registerAtUrl,
+                                  string coordinationType) returns (TransactionContext txnCtx, error err) {
     if (isInitiator(transactionId)) {
         txnCtx, err = createTransactionContext(coordinationType);
     } else {
@@ -327,7 +330,7 @@ function beginTransaction (string transactionId, string registerAtUrl,
 
 // Depending on the state of the transaction, and whether this instance is the initiator or participant,
 // decide to commit or abort the transaction
-function endTransaction (string transactionId) returns (string msg, error e) {
+public function endTransaction (string transactionId) returns (string msg, error e) {
     if (isInitiator(transactionId)) {
         var txn, _ = (TwoPhaseCommitTransaction)initiatedTransactions[transactionId];
         if (txn.state != TransactionState.ABORTED) {
@@ -340,7 +343,7 @@ function endTransaction (string transactionId) returns (string msg, error e) {
     return;
 }
 
-function abortTransaction (string transactionId) returns (string msg, error e) {
+public function abortTransaction (string transactionId) returns (string msg, error e) {
     if (isInitiator(transactionId)) {
         msg, e = abortInitiatorTransaction(transactionId);
     } else {
@@ -354,7 +357,7 @@ function abortTransaction (string transactionId) returns (string msg, error e) {
 }
 
 function isInitiator (string transactionId) returns (boolean) {
-    return initiatedTransactions.hasKey(transactionId);
+    return transactionId == null || initiatedTransactions.hasKey(transactionId);
 }
 
 native function prepareResourceManagers (string transactionId) returns (boolean prepareSuccessful);
