@@ -54,6 +54,7 @@ import org.ballerinalang.model.tree.clauses.WhereNode;
 import org.ballerinalang.model.tree.clauses.WindowClauseNode;
 import org.ballerinalang.model.tree.expressions.AnnotationAttachmentAttributeValueNode;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
+import org.ballerinalang.model.tree.expressions.TableQueryExpression;
 import org.ballerinalang.model.tree.expressions.XMLAttributeNode;
 import org.ballerinalang.model.tree.expressions.XMLLiteralNode;
 import org.ballerinalang.model.tree.statements.BlockNode;
@@ -111,6 +112,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLang
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangRecordKeyValue;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangStringTemplateLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableQueryExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTernaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeCastExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
@@ -2078,5 +2080,12 @@ public class BLangPackageBuilder {
         if (isOrderByClauseAvailable) {
             tableQuery.setOrderByClause(this.orderByClauseStack.pop());
         }
+    }
+
+    public void addTableQueryExpression(DiagnosticPos pos, Set<Whitespace> ws) {
+        TableQueryExpression tableQueryExpression = TreeBuilder.createTableQueryExpression();
+        ((BLangTableQueryExpression) tableQueryExpression).pos = pos;
+        ((BLangTableQueryExpression) tableQueryExpression).addWS(ws);
+        this.exprNodeStack.push(tableQueryExpression);
     }
 }

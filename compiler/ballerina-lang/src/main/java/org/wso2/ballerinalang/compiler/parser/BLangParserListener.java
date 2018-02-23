@@ -2052,6 +2052,8 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         if (ctx.exception != null) {
             return;
         }
+
+        this.pkgBuilder.addTableQueryExpression(getCurrentPos(ctx), getWS(ctx));
     }
 
     @Override

@@ -76,6 +76,7 @@ public enum NodeKind {
 
     /* streams/tables expressions */
     SELECT_EXPRESSION,
+    TABLE_QUERY_EXPRESSION,
 
     /* Statements */
     ABORT,
