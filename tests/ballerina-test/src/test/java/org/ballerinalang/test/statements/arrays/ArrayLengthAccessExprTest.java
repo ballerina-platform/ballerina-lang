@@ -196,7 +196,7 @@ public class ArrayLengthAccessExprTest {
 
     @Test(description = "Test array length access expression when array is null.",
           expectedExceptions = {BLangRuntimeException.class },
-          expectedExceptionsMessageRegExp = "error: NullReferenceException.*")
+          expectedExceptionsMessageRegExp = ".*error:.*NullReferenceException.*")
     public void testArrayLengthAccessExpArrayNullCase() {
         BValue[] args = {new BInteger(100), new BInteger(5)};
         BRunUtil.invoke(compilerResult, "arrayLengthAccessNullArrayCase", args);

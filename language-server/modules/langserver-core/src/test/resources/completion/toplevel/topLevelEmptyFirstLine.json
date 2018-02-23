@@ -34,7 +34,7 @@
       "kind": 0,
       "detail": "Snippet",
       "sortText": 7,
-      "insertText": "service<${1:http}> ${2:serviceName}{\n\tresource ${3:resourceName} (http:Connection conn, http:InRequest inRequest) {\n\t}\n}"
+      "insertText": "service<${1:http}> ${2:serviceName}{\n\tresource ${3:resourceName} (http:Connection conn, http:InRequest req) {\n\t}\n}"
     }, {
       "label": "transformer",
       "kind": 0,

@@ -1,3 +1,19 @@
+// Copyright (c) 2018 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+//
+// WSO2 Inc. licenses this file to you under the Apache License,
+// Version 2.0 (the "License"); you may not use this file except
+// in compliance with the License.
+// You may obtain a copy of the License at
+//
+// http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing,
+// software distributed under the License is distributed on an
+// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+// KIND, either express or implied.  See the License for the
+// specific language governing permissions and limitations
+// under the License.
+
 package ballerina.collections;
 
 @Description { value: "Vector is a resizable collection type which provides list operations."}
@@ -8,13 +24,11 @@ public struct Vector {
 }
 
 @Description { value: "An error which is returned when the user attempts to access an element which is out of the Vector's range."}
-@Field { value : "msg: The error message"}
+@Field { value : "message: The error message"}
 @Field { value : "cause: The cause for the error"}
-@Field { value : "stackTrace: The stack trace of the error"}
 public struct IndexOutOfRangeError {
-    string msg;
+    string message;
     error cause;
-    StackFrame[] stackTrace;
 }
 
 @Description { value:"Adds the specified element to the end of the vector."}
@@ -112,7 +126,7 @@ function shiftLeft (Vector v, int index) {
 
 function validateRange (int vectorSize, int index) {
     if (index >= vectorSize || index < 0) {
-        IndexOutOfRangeError err = {msg:"Index out of range: " + index};
+        IndexOutOfRangeError err = {message:"Index out of range: " + index};
         throw err;
     }
 }

@@ -1,4 +1,5 @@
 import ballerina.task;
+import ballerina.io;
 
 int w1Count;
 int w2Count;
@@ -42,31 +43,31 @@ returns (string w1TaskId, string w2TaskId) {
 
 function onTriggerW1 () returns (error e) {
     w1Count = w1Count + 1;
-    println("w1:onTriggerW1");
+    io:println("w1:onTriggerW1");
     if(errorMsgW1 != "") {
-        println("w1:onTriggerW1 returning error");
-        e = {msg:errorMsgW1};
+        io:println("w1:onTriggerW1 returning error");
+        e = {message:errorMsgW1};
     }
     return;
 }
 
 function onErrorW1(error e) {
-    println("w1:onErrorW1");
+    io:println("w1:onErrorW1");
     errorW1 = e;
 }
 
 function onTriggerW2 () returns (error e) {
     w2Count = w2Count + 1;
-    println("w2:onTriggerW2");
+    io:println("w2:onTriggerW2");
     if(errorMsgW2 != "") {
-        println("w2:onTriggerW2 returning error");
-        e = {msg:errorMsgW2};
+        io:println("w2:onTriggerW2 returning error");
+        e = {message:errorMsgW2};
     }
     return;
 }
 
 function onErrorW2(error e) {
-    println("w2:onErrorW2");
+    io:println("w2:onErrorW2");
     errorW2 = e;
 }
 
@@ -76,10 +77,10 @@ function getCounts () returns (int, int) {
 
 function getErrors() returns (string w1ErrMsg, string w2ErrMsg) {
     if(errorW1 != null) {
-        w1ErrMsg = errorW1.msg;
+        w1ErrMsg = errorW1.message;
     }
     if(errorW2 != null) {
-        w2ErrMsg = errorW2.msg;
+        w2ErrMsg = errorW2.message;
     }
     return;
 }

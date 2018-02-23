@@ -8,7 +8,7 @@ Find the plugin in the visual studio [marketplace](https://marketplace.visualstu
 
 If you plan on using ballerina libraries other than the ones in the standard ballerina distribution you should set the `ballerina.sdk` setting to the path to the directory of extracted ballerina distribution.
 
-To get to the settings in vscode use `Ctrl` + `,` in Windows and Linux and `⌘` + `,` in macOS. [More info](https://code.visualstudio.com/docs/getstarted/settings).
+To get to the settings in vscode use <kbd>CTRL</kbd> + <kbd>,</kbd> in Windows and Linux and <kbd>⌘</kbd> + <kbd>,</kbd> in macOS. [More info](https://code.visualstudio.com/docs/getstarted/settings).
 
 ![set sdk](docs/set-sdk.png)
 
@@ -32,20 +32,20 @@ To get to the settings in vscode use `Ctrl` + `,` in Windows and Linux and `⌘`
 
 This will create a `.vscode/launch.json` file in your workspace, containing default ballerina debug configurations.
 
-![opening debug config](https://github.com/ballerina-lang/ballerina/blob/master/tool-plugins/vscode/docs/debugger-open-config.gif)
+![opening debug config](https://github.com/ballerina-lang/ballerina/blob/master/tool-plugins/vscode/docs/debugger-open-config.gif?raw=true)
 
 There are two configurations with type `"ballerina"`. One with `"request"` set to `"launch"` and the other to `"attach"`. The second is used for remote debugging.
 
 To launch the debugger, the path to the ballerina sdk needs to be configured. In the `"launch"` configurations add a new config named `"ballerina.sdk"` and provide the path to the sdk.
 
-![setting ballerina sdk](https://github.com/ballerina-lang/ballerina/blob/master/tool-plugins/vscode/docs/debugger-ballerina-sdk.gif)
+![setting ballerina sdk](https://github.com/ballerina-lang/ballerina/blob/master/tool-plugins/vscode/docs/debugger-ballerina-sdk.gif?raw=true)
 
 #### Using the debugger
 
 * Add necessary debug points.
 * Select 'Ballerina Debug' from the config menu. And do Debug -> Start Debugging.
 
-![using debugger](https://github.com/ballerina-lang/ballerina/blob/master/tool-plugins/vscode/docs/debugger-using.gif)
+![using debugger](https://github.com/ballerina-lang/ballerina/blob/master/tool-plugins/vscode/docs/debugger-using.gif?raw=true)
 
 ## Contributing
 

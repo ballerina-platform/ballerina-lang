@@ -1,3 +1,5 @@
+import ballerina.io;
+
 function main (string[] args) {
     //Here you create 'any' typed variable.
     any variable;
@@ -12,8 +14,8 @@ function main (string[] args) {
 
     //Check for runtime type equivalency of 'any' typed variable.
     if (typeOfVariable == intType) {
-        println("This 'variable' is an integer typed variable.");
+        io:println("This 'variable' is an integer typed variable.");
     } else {
-        println("This 'variable' is 'NOT' an integer typed variable.");
+        io:println("This 'variable' is 'NOT' an integer typed variable.");
     }
 }

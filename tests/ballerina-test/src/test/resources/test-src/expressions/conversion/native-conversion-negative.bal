@@ -45,7 +45,7 @@ struct Info {
 function testStructWithIncompatibleTypeMapToJson () (json) {
     Info info = {};
     json j;
-    TypeConversionError err;
+    error err;
     j, err = <json>info;
     if (err != null) {
         throw err;

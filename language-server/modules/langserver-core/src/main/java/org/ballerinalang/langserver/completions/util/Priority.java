@@ -21,18 +21,18 @@ package org.ballerinalang.langserver.completions.util;
  * Completion Item Priority enum.
  */
 public enum  Priority {
-    PRIORITY10(10),
-    PRIORITY20(20),
-    PRIORITY30(30),
-    PRIORITY40(40),
-    PRIORITY50(50),
-    PRIORITY60(60),
-    PRIORITY70(70),
-    PRIORITY80(80),
-    PRIORITY90(90),
-    PRIORITY100(100),
     PRIORITY110(110),
-    PRIORITY120(120);
+    PRIORITY120(120),
+    PRIORITY130(130),
+    PRIORITY140(140),
+    PRIORITY150(150),
+    PRIORITY160(160),
+    PRIORITY170(170),
+    PRIORITY180(180),
+    PRIORITY190(190),
+    PRIORITY200(200),
+    PRIORITY210(210),
+    PRIORITY220(220);
 
     private int priority;
 
@@ -46,5 +46,15 @@ public enum  Priority {
     
     public String toString() {
         return Integer.toString(this.priority);
+    }
+
+    /**
+     * Shift the base priority from the base priority and get the shifted new priority value.
+     * @param basePriority  Base priority
+     * @param offset        Offset to shift the base priority to get the new value
+     * @return              {@link String} calculated new priority value
+     */
+    public static String shiftPriority(String basePriority, int offset) {
+        return String.valueOf(Integer.parseInt(basePriority) + offset);
     }
 }

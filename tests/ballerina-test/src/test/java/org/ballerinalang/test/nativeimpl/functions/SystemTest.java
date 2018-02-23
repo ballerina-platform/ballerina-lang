@@ -75,15 +75,6 @@ public class SystemTest {
     }
 
     @Test
-    public void testSleep() {
-        BValueType[] args = {new BInteger(5000)};
-        long start = System.currentTimeMillis();
-        BRunUtil.invoke(compileResult, "testSleep", args);
-        long end = System.currentTimeMillis();
-        Assert.assertTrue(end - start >= 5000);
-    }
-
-    @Test
     public void testIntPrintAndPrintln() throws IOException {
         ByteArrayOutputStream outContent = new ByteArrayOutputStream();
         try {

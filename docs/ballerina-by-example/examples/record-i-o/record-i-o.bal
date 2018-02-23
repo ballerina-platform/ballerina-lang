@@ -1,18 +1,15 @@
-import ballerina.file;
 import ballerina.io;
 
 @Description{value:"This function will return a DelimitedRecordChannel from a given file location.The encoding is character represenation of the content in file i.e UTF-8 ASCCI. The rs is record seperator i.e newline etc. and fs is field seperator i.e comma etc."}
 function getFileRecordChannel (string filePath, string permission, string encoding,
                                string rs, string fs) (io:DelimitedRecordChannel) {
-    file:File src = {path:filePath};
     //First we get the ByteChannel representation of the file.
-    io:ByteChannel channel = src.openChannel(permission);
-    //Then we convert the byte channel to character channel to read content as text.
-    io:CharacterChannel characterChannel = channel.toCharacterChannel(encoding);
+    io:ByteChannel channel = io:openFile(filePath, permission);
+    //Then we create a character channel from the byte channel to read content as text.
+    io:CharacterChannel characterChannel = io:createCharacterChannel(channel, encoding);
     //Finally we convert the character channel to record channel
     //to read content as records.
-    io:DelimitedRecordChannel delimitedRecordChannel = characterChannel.
-                                                             toTextRecordChannel(rs, fs);
+    io:DelimitedRecordChannel delimitedRecordChannel = io:createDelimitedRecordChannel(characterChannel, rs, fs);
     return delimitedRecordChannel;
 }
 
@@ -39,10 +36,10 @@ function main (string[] args) {
     //is new line and field separator is pipe.
     io:DelimitedRecordChannel dstRecordChannel =
     getFileRecordChannel(dstFileName, "w", "UTF-8", "\n", "|");
-    println("Start to process CSV file from " + srcFileName + " to text file in "
+    io:println("Start to process CSV file from " + srcFileName + " to text file in "
             + dstFileName);
     process(srcRecordChannel, dstRecordChannel);
-    println("Processing completed. The processed file could be located in "
+    io:println("Processing completed. The processed file could be located in "
             + dstFileName);
     //Close the text record channel.
     srcRecordChannel.closeTextRecordChannel();

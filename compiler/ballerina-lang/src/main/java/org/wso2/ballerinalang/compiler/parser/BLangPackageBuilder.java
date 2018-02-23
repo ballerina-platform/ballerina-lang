@@ -22,6 +22,7 @@ import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.TreeUtils;
 import org.ballerinalang.model.Whitespace;
 import org.ballerinalang.model.elements.Flag;
+import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.tree.ActionNode;
 import org.ballerinalang.model.tree.AnnotatableNode;
 import org.ballerinalang.model.tree.AnnotationAttachmentNode;
@@ -219,20 +220,14 @@ public class BLangPackageBuilder {
 
     private Set<Whitespace> endpointKeywordWs;
 
-    /**
-     * Keep the number of anonymous structs found so far in the current package.
-     * This field is used to generate a name for an anonymous struct.
-     */
-    private int anonStructCount = 0;
-
-    protected int lambdaFunctionCount = 0;
-
     private DiagnosticLog dlog;
+    private BLangAnonymousModelHelper anonymousModelHelper;
 
     private static final String PIPE = "|";
 
     public BLangPackageBuilder(CompilerContext context, CompilationUnitNode compUnit) {
         this.dlog = DiagnosticLog.getInstance(context);
+        this.anonymousModelHelper = BLangAnonymousModelHelper.getInstance(context);
         this.compUnit = compUnit;
     }
 
@@ -280,7 +275,7 @@ public class BLangPackageBuilder {
 
     public void addAnonStructType(DiagnosticPos pos, Set<Whitespace> ws) {
         // Generate a name for the anonymous struct
-        String genName = "$anonStruct$" + ++anonStructCount;
+        String genName = anonymousModelHelper.getNextAnonymousStructKey(pos.src.pkgID);
         IdentifierNode anonStructGenName = createIdentifier(genName);
 
         // Create an anonymous struct and add it to the list of structs in the current package.
@@ -482,10 +477,10 @@ public class BLangPackageBuilder {
         }
     }
 
-    public void startLambdaFunctionDef() {
+    public void startLambdaFunctionDef(PackageID pkgID) {
         startFunctionDef();
         BLangFunction lambdaFunction = (BLangFunction) this.invokableNodeStack.peek();
-        lambdaFunction.setName(createIdentifier("$lambda$" + lambdaFunctionCount++));
+        lambdaFunction.setName(createIdentifier(anonymousModelHelper.getNextAnonymousFunctionKey(pkgID)));
         lambdaFunction.addFlag(Flag.LAMBDA);
     }
 

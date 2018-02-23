@@ -58,7 +58,7 @@ public class ServiceContextItemSorter extends CompletionItemSorter {
             } else {
                 this.setPriorities(completionItems);
                 CompletionItem resItem = this.getResourceSnippet();
-                resItem.setSortText(Priority.PRIORITY60.toString());
+                resItem.setSortText(Priority.PRIORITY160.toString());
                 completionItems.add(resItem);
             }
         } else if (previousNode instanceof BLangResource) {
@@ -72,8 +72,8 @@ public class ServiceContextItemSorter extends CompletionItemSorter {
         CompletionItem resSnippet = this.getResourceSnippet();
         this.setPriorities(completionItems);
 
-        epSnippet.setSortText(Priority.PRIORITY50.toString());
-        resSnippet.setSortText(Priority.PRIORITY60.toString());
+        epSnippet.setSortText(Priority.PRIORITY150.toString());
+        resSnippet.setSortText(Priority.PRIORITY160.toString());
         completionItems.add(epSnippet);
         completionItems.add(resSnippet);
     }

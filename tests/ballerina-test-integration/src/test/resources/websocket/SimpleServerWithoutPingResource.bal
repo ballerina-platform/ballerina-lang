@@ -1,3 +1,4 @@
+import ballerina.io;
 import ballerina.net.ws;
 
 @ws:configuration {
@@ -6,6 +7,6 @@ import ballerina.net.ws;
 }
 service<ws> SimpleProxyServer {
     resource onOpen(ws:Connection conn) {
-        println("New Client Connected");
+        io:println("New Client Connected");
     }
 }
