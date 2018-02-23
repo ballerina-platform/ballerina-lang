@@ -31,7 +31,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
  */
 public class TargetChannel {
 
-    private static ConcurrentHashMap<Integer, OutboundHttpRequestHolder> inFlightMessages = new ConcurrentHashMap<>();
+    private static ConcurrentHashMap<Integer, OutboundHttp2MessageHolder> inFlightMessages = new ConcurrentHashMap<>();
     private Channel channel;
     private Http2ClientHandler clientHandler;
     private Http2ClientInitializer http2ClientInitializer;
@@ -39,7 +39,7 @@ public class TargetChannel {
     private ChannelFuture channelFuture;
     private UpgradeState upgradeState = UpgradeState.UPGRADE_NOT_ISSUED;
     /* List which holds the pending message during the connection upgrade */
-    private ConcurrentLinkedQueue<OutboundHttpRequestHolder> pendingMessages;
+    private ConcurrentLinkedQueue<OutboundHttp2MessageHolder> pendingMessages;
 
 
     public TargetChannel(Http2ClientInitializer http2ClientInitializer, ChannelFuture channelFuture) {
@@ -78,19 +78,19 @@ public class TargetChannel {
         return channelFuture;
     }
 
-    public void putInFlightMessage(int streamId, OutboundHttpRequestHolder inFlightMessage) {
+    public void putInFlightMessage(int streamId, OutboundHttp2MessageHolder inFlightMessage) {
         inFlightMessages.put(streamId, inFlightMessage);
     }
 
-    public void addPendingMessage(OutboundHttpRequestHolder pendingMessage) {
+    public void addPendingMessage(OutboundHttp2MessageHolder pendingMessage) {
         pendingMessages.add(pendingMessage);
     }
 
-    public ConcurrentLinkedQueue<OutboundHttpRequestHolder> getPendingMessages() {
+    public ConcurrentLinkedQueue<OutboundHttp2MessageHolder> getPendingMessages() {
         return pendingMessages;
     }
 
-    public OutboundHttpRequestHolder getInFlightMessage(int streamId) {
+    public OutboundHttp2MessageHolder getInFlightMessage(int streamId) {
         return inFlightMessages.get(streamId);
     }
 

@@ -22,33 +22,60 @@ import org.wso2.transport.http.netty.contract.HttpResponseFuture;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 
 /**
- * This class holds the objects related to a single request
+ * {@code OutboundHttp2MessageHolder} holds data related to a single outbound invocation
  */
-public class OutboundHttpRequestHolder {
+public class OutboundHttp2MessageHolder {
 
+    /* Outbound request HTTPCarbonMessage */
     private HTTPCarbonMessage requestCarbonMessage;
+    /* Intended response received for the request */
     private HTTPCarbonMessage responseCarbonMessage;
-
+    /* Future which is used to notify the response listener upon response receive */
     private HttpResponseFuture responseFuture;
 
-    public OutboundHttpRequestHolder(HTTPCarbonMessage httpCarbonMessage,
-                                     HttpResponseFuture responseFuture) {
+    /**
+     * @param httpCarbonMessage outbound request message
+     * @param responseFuture    the Future used to notify the response listener
+     */
+    public OutboundHttp2MessageHolder(HTTPCarbonMessage httpCarbonMessage,
+                                      HttpResponseFuture responseFuture) {
         this.requestCarbonMessage = httpCarbonMessage;
         this.responseFuture = responseFuture;
     }
 
-    public HTTPCarbonMessage getRequestCarbonMessage() {
+    /**
+     * Get Outbound request HTTPCarbonMessage
+     *
+     * @return request HTTPCarbonMessage
+     */
+    public HTTPCarbonMessage getRequest() {
         return requestCarbonMessage;
     }
 
+    /**
+     * Get the Future which is used to notify the response listener upon response receive
+     *
+     * @return the Future used to notify the response listener
+     */
     public HttpResponseFuture getResponseFuture() {
         return responseFuture;
     }
 
-    public HTTPCarbonMessage getResponseCarbonMessage() {
+
+    /**
+     * Get the intended response received for the request
+     *
+     * @return response message
+     */
+    public HTTPCarbonMessage getResponse() {
         return responseCarbonMessage;
     }
 
+    /**
+     * Set the intended response for the request
+     *
+     * @param responseCarbonMessage response Carbon Message
+     */
     public void setResponseCarbonMessage(HTTPCarbonMessage responseCarbonMessage) {
         this.responseCarbonMessage = responseCarbonMessage;
     }

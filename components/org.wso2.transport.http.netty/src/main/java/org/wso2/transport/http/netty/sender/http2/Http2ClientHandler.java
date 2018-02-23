@@ -87,17 +87,17 @@ public class Http2ClientHandler extends ChannelDuplexHandler {
     public void channelRead(ChannelHandlerContext ctx, Object msg) {
         if (msg instanceof Http2HeadersFrame) {
             Http2HeadersFrame frame = (Http2HeadersFrame) msg;
-            OutboundHttpRequestHolder outboundHttpRequestHolder = targetChannel.getInFlightMessage(frame.stream().id());
-            HTTPCarbonMessage responseMessage = setupResponseCarbonMessage(ctx, frame, outboundHttpRequestHolder);
-            outboundHttpRequestHolder.setResponseCarbonMessage(responseMessage);
+            OutboundHttp2MessageHolder outboundHttp2MessageHolder = targetChannel.getInFlightMessage(frame.stream().id());
+            HTTPCarbonMessage responseMessage = setupResponseCarbonMessage(ctx, frame, outboundHttp2MessageHolder);
+            outboundHttp2MessageHolder.setResponseCarbonMessage(responseMessage);
             if (frame.isEndStream()) {
                 responseMessage.addHttpContent(new EmptyLastHttpContent());
             }
-            outboundHttpRequestHolder.getResponseFuture().notifyHttpListener(responseMessage);
+            outboundHttp2MessageHolder.getResponseFuture().notifyHttpListener(responseMessage);
         } else if (msg instanceof Http2DataFrame) {
             Http2DataFrame frame = (Http2DataFrame) msg;
-            OutboundHttpRequestHolder outboundHttpRequestHolder = targetChannel.getInFlightMessage(frame.stream().id());
-            HTTPCarbonMessage responseMessage = outboundHttpRequestHolder.getResponseCarbonMessage();
+            OutboundHttp2MessageHolder outboundHttp2MessageHolder = targetChannel.getInFlightMessage(frame.stream().id());
+            HTTPCarbonMessage responseMessage = outboundHttp2MessageHolder.getResponse();
             if (frame.isEndStream()) {
                 responseMessage.addHttpContent(new DefaultLastHttpContent(frame.content().retain()));
             } else {
@@ -148,23 +148,23 @@ public class Http2ClientHandler extends ChannelDuplexHandler {
         }
     }
 
-    public void writeRequest(OutboundHttpRequestHolder outboundHttpRequestHolder) {
+    public void writeRequest(OutboundHttp2MessageHolder outboundHttp2MessageHolder) {
 
         TargetChannel.UpgradeState state = targetChannel.getUpgradeState();
 
         if (state == TargetChannel.UpgradeState.UPGRADED) {
-            new Http2RequestWriter(outboundHttpRequestHolder).writeContent();
+            new Http2RequestWriter(outboundHttp2MessageHolder).writeContent();
         } else {
             lock.lock();
             try {
                 state = targetChannel.getUpgradeState();
                 if (state == TargetChannel.UpgradeState.UPGRADE_NOT_ISSUED) {
                     targetChannel.updateUpgradeState(TargetChannel.UpgradeState.UPGRADE_ISSUED);
-                    new UpgradeRequestWriter(outboundHttpRequestHolder).writeContent();
+                    new UpgradeRequestWriter(outboundHttp2MessageHolder).writeContent();
                 } else if (state == TargetChannel.UpgradeState.UPGRADED) {
-                    new Http2RequestWriter(outboundHttpRequestHolder).writeContent();
+                    new Http2RequestWriter(outboundHttp2MessageHolder).writeContent();
                 } else if (state == TargetChannel.UpgradeState.UPGRADE_ISSUED) {
-                    targetChannel.addPendingMessage(outboundHttpRequestHolder);
+                    targetChannel.addPendingMessage(outboundHttp2MessageHolder);
                 }
             } finally {
                 lock.unlock();
@@ -185,14 +185,14 @@ public class Http2ClientHandler extends ChannelDuplexHandler {
     }
 
     private void tryNextMessage() {
-        OutboundHttpRequestHolder nextMessage = targetChannel.getPendingMessages().poll();
+        OutboundHttp2MessageHolder nextMessage = targetChannel.getPendingMessages().poll();
         if (nextMessage != null) {
             new Http2RequestWriter(nextMessage).writeContent();
         }
     }
 
     private HTTPCarbonMessage setupResponseCarbonMessage(ChannelHandlerContext ctx, Http2HeadersFrame headersFrame,
-                                                         OutboundHttpRequestHolder outboundHttpRequestHolder) {
+                                                         OutboundHttp2MessageHolder outboundHttp2MessageHolder) {
 
         Http2Headers http2Headers = headersFrame.headers();
 
@@ -226,7 +226,7 @@ public class Http2ClientHandler extends ChannelDuplexHandler {
         //copy shared worker pool
         responseCarbonMsg.setProperty(
                 Constants.EXECUTOR_WORKER_POOL,
-                outboundHttpRequestHolder.getRequestCarbonMessage().getProperty(Constants.EXECUTOR_WORKER_POOL));
+                outboundHttp2MessageHolder.getRequest().getProperty(Constants.EXECUTOR_WORKER_POOL));
 
         return responseCarbonMsg;
     }
@@ -235,16 +235,16 @@ public class Http2ClientHandler extends ChannelDuplexHandler {
 
         boolean isHeadersWritten = false;
         HTTPCarbonMessage httpOutboundRequest;
-        OutboundHttpRequestHolder outboundHttpRequestHolder;
+        OutboundHttp2MessageHolder outboundHttp2MessageHolder;
 
-        public Http2RequestWriter(OutboundHttpRequestHolder outboundHttpRequestHolder) {
-            this.outboundHttpRequestHolder = outboundHttpRequestHolder;
-            httpOutboundRequest = outboundHttpRequestHolder.getRequestCarbonMessage();
+        public Http2RequestWriter(OutboundHttp2MessageHolder outboundHttp2MessageHolder) {
+            this.outboundHttp2MessageHolder = outboundHttp2MessageHolder;
+            httpOutboundRequest = outboundHttp2MessageHolder.getRequest();
         }
 
         public void writeContent() {
             int streamId = getStreamId();
-            targetChannel.putInFlightMessage(streamId, outboundHttpRequestHolder);
+            targetChannel.putInFlightMessage(streamId, outboundHttp2MessageHolder);
 
             // Write Content
             httpOutboundRequest.getHttpContentAsync().
@@ -352,17 +352,17 @@ public class Http2ClientHandler extends ChannelDuplexHandler {
         ChunkConfig chunkConfig = ChunkConfig.AUTO;
         HTTPCarbonMessage httpOutboundRequest;
         HttpResponseFuture responseFuture;
-        OutboundHttpRequestHolder outboundHttpRequestHolder;
+        OutboundHttp2MessageHolder outboundHttp2MessageHolder;
 
-        public UpgradeRequestWriter(OutboundHttpRequestHolder outboundHttpRequestHolder) {
-            this.outboundHttpRequestHolder = outboundHttpRequestHolder;
-            httpOutboundRequest = outboundHttpRequestHolder.getRequestCarbonMessage();
-            responseFuture = outboundHttpRequestHolder.getResponseFuture();
+        public UpgradeRequestWriter(OutboundHttp2MessageHolder outboundHttp2MessageHolder) {
+            this.outboundHttp2MessageHolder = outboundHttp2MessageHolder;
+            httpOutboundRequest = outboundHttp2MessageHolder.getRequest();
+            responseFuture = outboundHttp2MessageHolder.getResponseFuture();
         }
 
         public void writeContent() {
 
-            targetChannel.putInFlightMessage(1, outboundHttpRequestHolder);
+            targetChannel.putInFlightMessage(1, outboundHttp2MessageHolder);
 
             httpOutboundRequest.getHttpContentAsync().
                     setMessageListener((httpContent -> targetChannel.getChannel().eventLoop().execute(() -> {
