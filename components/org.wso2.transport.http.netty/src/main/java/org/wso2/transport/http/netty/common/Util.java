@@ -15,9 +15,11 @@
 
 package org.wso2.transport.http.netty.common;
 
+import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
+import io.netty.handler.codec.http.DefaultFullHttpResponse;
 import io.netty.handler.codec.http.DefaultHttpRequest;
 import io.netty.handler.codec.http.DefaultHttpResponse;
 import io.netty.handler.codec.http.HttpContent;
@@ -34,6 +36,8 @@ import org.wso2.transport.http.netty.config.Parameter;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 
 import java.io.File;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -72,6 +76,28 @@ public class Util {
         HttpResponseStatus httpResponseStatus = getHttpResponseStatus(outboundResponseMsg);
         HttpResponse outboundNettyResponse = new DefaultHttpResponse(httpVersion, httpResponseStatus, false);
 
+        setOutboundRespHeaders(outboundResponseMsg, inboundReqHttpVersion, serverName, keepAlive,
+                outboundNettyResponse);
+
+        return outboundNettyResponse;
+    }
+
+    public static HttpResponse createFullHttpResponse(HTTPCarbonMessage outboundResponseMsg,
+            String inboundReqHttpVersion, String serverName, boolean keepAlive, ByteBuf fullContent) {
+
+        HttpVersion httpVersion = new HttpVersion(Constants.HTTP_VERSION_PREFIX + inboundReqHttpVersion, true);
+        HttpResponseStatus httpResponseStatus = getHttpResponseStatus(outboundResponseMsg);
+        HttpResponse outboundNettyResponse =
+                new DefaultFullHttpResponse(httpVersion, httpResponseStatus, fullContent, false);
+
+        setOutboundRespHeaders(outboundResponseMsg, inboundReqHttpVersion, serverName, keepAlive,
+                outboundNettyResponse);
+
+        return outboundNettyResponse;
+    }
+
+    private static void setOutboundRespHeaders(HTTPCarbonMessage outboundResponseMsg, String inboundReqHttpVersion,
+            String serverName, boolean keepAlive, HttpResponse outboundNettyResponse) {
         if (!keepAlive && (Float.valueOf(inboundReqHttpVersion) >= Constants.HTTP_1_1)) {
             outboundResponseMsg.setHeader(Constants.HTTP_CONNECTION, Constants.CONNECTION_CLOSE);
         } else if (keepAlive && (Float.valueOf(inboundReqHttpVersion) < Constants.HTTP_1_1)) {
@@ -84,9 +110,12 @@ public class Util {
             outboundResponseMsg.setHeader(Constants.HTTP_SERVER_HEADER, serverName);
         }
 
-        outboundNettyResponse.headers().add(outboundResponseMsg.getHeaders());
+        if (outboundResponseMsg.getHeader(Constants.DATE) == null) {
+            outboundResponseMsg.setHeader(Constants.DATE,
+                                          ZonedDateTime.now().format(DateTimeFormatter.RFC_1123_DATE_TIME));
+        }
 
-        return outboundNettyResponse;
+        outboundNettyResponse.headers().add(outboundResponseMsg.getHeaders());
     }
 
     private static HttpResponseStatus getHttpResponseStatus(HTTPCarbonMessage msg) {
@@ -106,7 +135,6 @@ public class Util {
         outboundNettyRequest.setMethod(httpMethod);
         outboundNettyRequest.setProtocolVersion(httpVersion);
         outboundNettyRequest.setUri(requestPath);
-
         outboundNettyRequest.headers().add(outboundRequestMsg.getHeaders());
 
         return outboundNettyRequest;
@@ -251,7 +279,6 @@ public class Util {
         File trustStore = new File(substituteVariables(trustStoreFilePath));
 
         sslConfig.setTrustStore(trustStore).setTrustStorePass(trustStorePass);
-        sslConfig.setClientMode(true);
         sslProtocol = sslProtocol != null ? sslProtocol : "TLS";
         sslConfig.setSSLProtocol(sslProtocol);
         tlsStoreType = tlsStoreType != null ? tlsStoreType : "JKS";

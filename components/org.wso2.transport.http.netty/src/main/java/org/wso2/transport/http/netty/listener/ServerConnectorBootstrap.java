@@ -84,7 +84,7 @@ public class ServerConnectorBootstrap {
 //            httpServerChannelInitializer.setServerConnectorFuture(serverConnector.getServerConnectorFuture());
     }
 
-    public boolean unBindInterface(HTTPServerConnector serverConnector) throws InterruptedException {
+    private boolean unBindInterface(HTTPServerConnector serverConnector) throws InterruptedException {
         if (!initialized) {
             log.error("ServerConnectorBootstrap is not initialized");
             return false;
@@ -145,6 +145,18 @@ public class ServerConnectorBootstrap {
 
     public void addHeaderAndEntitySizeValidation(RequestSizeValidationConfig requestSizeValidationConfig) {
         httpServerChannelInitializer.setReqSizeValidationConfig(requestSizeValidationConfig);
+    }
+
+    public void addcertificateRevocationVerifier(Boolean validateCertEnabled) {
+        httpServerChannelInitializer.setValidateCertEnabled(validateCertEnabled);
+    }
+
+    public void addCacheDelay(int cacheDelay) {
+        httpServerChannelInitializer.setCacheDelay(cacheDelay);
+    }
+
+    public void addCacheSize(int cacheSize) {
+        httpServerChannelInitializer.setCacheSize(cacheSize);
     }
 
     public void addChunkingBehaviour(ChunkConfig chunkConfig) {

@@ -59,9 +59,8 @@ import java.util.concurrent.ConcurrentHashMap;
 public class SourceHandler extends ChannelInboundHandlerAdapter {
     private static Logger log = LoggerFactory.getLogger(SourceHandler.class);
 
-    protected ChannelHandlerContext ctx;
-    protected HTTPCarbonMessage sourceReqCmsg;
-    protected HandlerExecutor handlerExecutor;
+    HTTPCarbonMessage sourceReqCmsg;
+    HandlerExecutor handlerExecutor;
     private Map<String, GenericObjectPool> targetChannelPool;
     private ServerConnectorFuture serverConnectorFuture;
     private ChunkConfig chunkConfig;
@@ -69,6 +68,7 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
     private String interfaceId;
     private String serverName;
     private boolean idleTimeout;
+    protected ChannelHandlerContext ctx;
 
     public SourceHandler(ServerConnectorFuture serverConnectorFuture, String interfaceId, ChunkConfig chunkConfig,
             String serverName) {
@@ -115,6 +115,9 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
                         if (handlerExecutor != null) {
                             handlerExecutor.executeAtSourceRequestSending(sourceReqCmsg);
                         }
+                        if (isDiffered(sourceReqCmsg)) {
+                            this.serverConnectorFuture.notifyHttpListener(sourceReqCmsg);
+                        }
                         httpOutboundRespFuture = sourceReqCmsg.getHttpOutboundRespStatusFuture();
                         sourceReqCmsg = null;
                     }
@@ -123,94 +126,6 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
                 log.warn("Inconsistent state detected : sourceReqCmsg is null for channel read event");
             }
         }
-    }
-
-    protected void notifyRequestListener(HTTPCarbonMessage httpRequestMsg, ChannelHandlerContext ctx)
-            throws URISyntaxException {
-
-        if (handlerExecutor != null) {
-            handlerExecutor.executeAtSourceRequestReceiving(httpRequestMsg);
-        }
-
-//        if (HTTPTransportContextHolder.getInstance().getHandlerExecutor() != null) {
-//
-//            continueRequest = HTTPTransportContextHolder.getInstance().getHandlerExecutor()
-//                    .executeRequestContinuationValidator(httpRequestMsg, carbonMessage -> {
-//                        CarbonCallback responseCallback = (CarbonCallback) httpRequestMsg
-//                                .getProperty(org.wso2.carbon.messaging.Constants.CALL_BACK);
-//                        responseCallback.done(carbonMessage);
-//                    });
-//
-//        }
-
-        boolean continueRequest = true;
-        if (continueRequest) {
-            if (serverConnectorFuture != null) {
-                try {
-                    ServerConnectorFuture outboundRespFuture = httpRequestMsg.getHttpResponseFuture();
-                    outboundRespFuture
-                            .setHttpConnectorListener(new HttpOutboundRespListener(ctx, httpRequestMsg,
-                                    chunkConfig, serverName));
-                    this.serverConnectorFuture.notifyHttpListener(httpRequestMsg);
-                } catch (Exception e) {
-                    log.error("Error while notifying listeners", e);
-                }
-            } else {
-                log.error("Cannot find registered listener to forward the message");
-            }
-        }
-    }
-
-    @Override
-    public void channelInactive(ChannelHandlerContext ctx) throws Exception {
-        // Stop the connector timer
-        ctx.close();
-        if (handlerExecutor != null) {
-            handlerExecutor.executeAtSourceConnectionTermination(Integer.toString(ctx.hashCode()));
-            handlerExecutor = null;
-        }
-
-        if (sourceReqCmsg != null && !idleTimeout) {
-            handleIncompleteInboundRequest(Constants.REMOTE_CLIENT_ABRUPTLY_CLOSE_CONNECTION);
-        }
-
-        closeTargetChannels();
-    }
-
-    private void closeTargetChannels() {
-        targetChannelPool.forEach((k, genericObjectPool) -> {
-            try {
-                targetChannelPool.remove(k).close();
-            } catch (Exception e) {
-                log.error("Couldn't close target channel socket connections", e);
-            }
-        });
-    }
-
-    @Override
-    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
-        if (ctx != null && ctx.channel().isActive()) {
-            ctx.writeAndFlush(Unpooled.EMPTY_BUFFER).addListener(ChannelFutureListener.CLOSE);
-        }
-        if (sourceReqCmsg != null) {
-            handleIncompleteInboundRequest(Constants.EXCEPTION_CAUGHT_WHILE_READING_REQUEST);
-        }
-        serverConnectorFuture.notifyErrorListener(cause);
-    }
-
-    private void handleIncompleteInboundRequest(String errorMessage) {
-        LastHttpContent lastHttpContent = new DefaultLastHttpContent();
-        lastHttpContent.setDecoderResult(DecoderResult.failure(new DecoderException(errorMessage)));
-        sourceReqCmsg.addHttpContent(lastHttpContent);
-        log.warn(errorMessage);
-    }
-
-    public Map<String, GenericObjectPool> getTargetChannelPool() {
-        return targetChannelPool;
-    }
-
-    public ChannelHandlerContext getInboundChannelContext() {
-        return ctx;
     }
 
     HTTPCarbonMessage setupCarbonMessage(HttpMessage httpMessage, ChannelHandlerContext ctx)
@@ -254,22 +169,109 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
         return sourceReqCmsg;
     }
 
+    void notifyRequestListener(HTTPCarbonMessage httpRequestMsg, ChannelHandlerContext ctx)
+            throws URISyntaxException {
+
+        if (handlerExecutor != null) {
+            handlerExecutor.executeAtSourceRequestReceiving(httpRequestMsg);
+        }
+
+        if (serverConnectorFuture != null) {
+            try {
+                ServerConnectorFuture outboundRespFuture = httpRequestMsg.getHttpResponseFuture();
+                outboundRespFuture
+                        .setHttpConnectorListener(new HttpOutboundRespListener(ctx, httpRequestMsg,
+                                chunkConfig, serverName));
+                this.serverConnectorFuture.notifyHttpListener(httpRequestMsg);
+            } catch (Exception e) {
+                log.error("Error while notifying listeners", e);
+            }
+        } else {
+            log.error("Cannot find registered listener to forward the message");
+        }
+    }
+
+    @Override
+    public void channelInactive(ChannelHandlerContext ctx) throws Exception {
+        // Stop the connector timer
+        ctx.close();
+        handleErrorCloseScenario(ctx);
+        closeTargetChannels();
+    }
+
+    private void handleErrorCloseScenario(ChannelHandlerContext ctx) {
+        if (handlerExecutor != null) {
+            handlerExecutor.executeAtSourceConnectionTermination(Integer.toString(ctx.hashCode()));
+            handlerExecutor = null;
+        }
+
+        if (sourceReqCmsg != null && !idleTimeout) {
+            handleIncompleteInboundRequest(Constants.REMOTE_CLIENT_ABRUPTLY_CLOSE_CONNECTION);
+        }
+    }
+
+    private void closeTargetChannels() {
+        targetChannelPool.forEach((hostPortKey, genericObjectPool) -> {
+            try {
+                targetChannelPool.remove(hostPortKey).close();
+            } catch (Exception e) {
+                log.error("Couldn't close target channel socket connections", e);
+            }
+        });
+    }
+
+    @Override
+    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
+        if (ctx != null && ctx.channel().isActive()) {
+            ctx.writeAndFlush(Unpooled.EMPTY_BUFFER).addListener(ChannelFutureListener.CLOSE);
+        }
+        if (sourceReqCmsg != null) {
+            handleIncompleteInboundRequest(Constants.EXCEPTION_CAUGHT_WHILE_READING_REQUEST);
+        }
+        serverConnectorFuture.notifyErrorListener(cause);
+    }
+
+    private void handleIncompleteInboundRequest(String errorMessage) {
+        LastHttpContent lastHttpContent = new DefaultLastHttpContent();
+        lastHttpContent.setDecoderResult(DecoderResult.failure(new DecoderException(errorMessage)));
+        sourceReqCmsg.addHttpContent(lastHttpContent);
+        log.warn(errorMessage);
+    }
+
+    public Map<String, GenericObjectPool> getTargetChannelPool() {
+        return targetChannelPool;
+    }
+
+    public ChannelHandlerContext getInboundChannelContext() {
+        return ctx;
+    }
+
     @Override
     public void userEventTriggered(ChannelHandlerContext ctx, Object evt) throws Exception {
         if (evt instanceof IdleStateEvent) {
             this.idleTimeout = true;
+            this.channelInactive(ctx);
+            handleIdleErrorScenario();
 
-            if (sourceReqCmsg == null) {
-                // This means we have received last http content of this particular request
-                httpOutboundRespFuture.notifyHttpListener(
-                        new ServerConnectorException(
-                                Constants.IDLE_TIMEOUT_TRIGGERED_BEFORE_WRITING_OUTBOUND_RESPONSE));
-            } else {
-                handleIncompleteInboundRequest(Constants.IDLE_TIMEOUT_TRIGGERED_WHILE_READING_INBOUND_REQUEST);
-            }
-
-            ctx.close();
             log.warn("Idle timeout has reached hence closing the connection");
+        } else {
+            log.warn("Unexpected user event triggered", evt);
         }
+    }
+
+    private void handleIdleErrorScenario() {
+        if (sourceReqCmsg == null) {
+            // This means we have received last http content of this particular request
+            httpOutboundRespFuture.notifyHttpListener(
+                    new ServerConnectorException(
+                            Constants.IDLE_TIMEOUT_TRIGGERED_BEFORE_WRITING_OUTBOUND_RESPONSE));
+        } else {
+            handleIncompleteInboundRequest(Constants.IDLE_TIMEOUT_TRIGGERED_WHILE_READING_INBOUND_REQUEST);
+        }
+    }
+
+    private boolean isDiffered(HTTPCarbonMessage sourceReqCmsg) {
+        //Http resource stored in the HTTPCarbonMessage means execution waits till payload.
+        return sourceReqCmsg.getProperty(Constants.HTTP_RESOURCE) != null;
     }
 }

@@ -17,6 +17,7 @@ package org.wso2.transport.http.netty.sender;
 
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.socket.SocketChannel;
+import io.netty.handler.codec.http.HttpContentDecompressor;
 import io.netty.handler.codec.http.HttpRequestEncoder;
 import io.netty.handler.codec.http.HttpResponseDecoder;
 import io.netty.handler.proxy.HttpProxyHandler;
@@ -27,7 +28,6 @@ import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.common.Constants;
 import org.wso2.transport.http.netty.common.ProxyServerConfiguration;
 import org.wso2.transport.http.netty.config.SenderConfiguration;
-import org.wso2.transport.http.netty.listener.CustomHttpContentCompressor;
 import org.wso2.transport.http.netty.listener.HTTPTraceLoggingHandler;
 import org.wso2.transport.http.netty.sender.channel.pool.ConnectionManager;
 
@@ -44,7 +44,10 @@ public class HTTPClientInitializer extends ChannelInitializer<SocketChannel> {
     private TargetHandler targetHandler;
     private boolean httpTraceLogEnabled;
     private boolean followRedirect;
+    private boolean validateCertEnabled;
     private int maxRedirectCount;
+    private int cacheSize;
+    private int cacheDelay;
     private boolean isKeepAlive;
     private ProxyServerConfiguration proxyServerConfiguration;
     private ConnectionManager connectionManager;
@@ -58,6 +61,9 @@ public class HTTPClientInitializer extends ChannelInitializer<SocketChannel> {
         this.isKeepAlive = senderConfiguration.isKeepAlive();
         this.proxyServerConfiguration = senderConfiguration.getProxyServerConfiguration();
         this.connectionManager = connectionManager;
+        this.validateCertEnabled = senderConfiguration.validateCertEnabled();
+        this.cacheDelay = senderConfiguration.getCacheValidityPeriod();
+        this.cacheSize = senderConfiguration.getCacheSize();
     }
 
     @Override
@@ -80,10 +86,13 @@ public class HTTPClientInitializer extends ChannelInitializer<SocketChannel> {
             log.debug("adding ssl handler");
             ch.pipeline().addLast("ssl", new SslHandler(this.sslEngine));
         }
-
-        ch.pipeline().addLast("compressor", new CustomHttpContentCompressor());
+        if (validateCertEnabled && sslEngine != null) {
+            ch.pipeline().addLast("certificateValidation",
+                    new CertificateValidationHandler(this.sslEngine, this.cacheDelay, this.cacheSize));
+        }
         ch.pipeline().addLast("decoder", new HttpResponseDecoder());
         ch.pipeline().addLast("encoder", new HttpRequestEncoder());
+        ch.pipeline().addLast("decompressor", new HttpContentDecompressor());
         ch.pipeline().addLast("chunkWriter", new ChunkedWriteHandler());
         if (httpTraceLogEnabled) {
             ch.pipeline().addLast(Constants.HTTP_TRACE_LOG_HANDLER,

@@ -27,6 +27,7 @@ import io.netty.handler.ssl.SslContext;
 import io.netty.handler.ssl.SslContextBuilder;
 import io.netty.handler.ssl.SslProvider;
 import io.netty.handler.ssl.SupportedCipherSuiteFilter;
+import org.wso2.transport.http.netty.common.Constants;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -60,7 +61,7 @@ import javax.net.ssl.TrustManagerFactory;
 public class SSLHandlerFactory {
 
     private String protocol = null;
-    private final SSLContext serverContext;
+    private final SSLContext sslContext;
     private SSLConfig sslConfig;
     private boolean needClientAuth;
     private KeyManagerFactory kmf;
@@ -92,12 +93,12 @@ public class SSLHandlerFactory {
                 tmf.init(tks);
                 trustManagers = tmf.getTrustManagers();
             }
-            serverContext = SSLContext.getInstance(protocol);
-            serverContext.init(keyManagers, trustManagers, null);
+            sslContext = SSLContext.getInstance(protocol);
+            sslContext.init(keyManagers, trustManagers, null);
 
         } catch (UnrecoverableKeyException | KeyManagementException |
                 NoSuchAlgorithmException | KeyStoreException | IOException e) {
-            throw new IllegalArgumentException("Failed to initialize the server-side SSLContext", e);
+            throw new IllegalArgumentException("Failed to initialize the SSLContext", e);
         }
     }
 
@@ -118,10 +119,33 @@ public class SSLHandlerFactory {
     /**
      * @return instance of {@code SslHandler}
      */
-    public SSLEngine build() {
-        SSLEngine engine = serverContext.createSSLEngine();
+    public SSLEngine buildServerSSLEngine() {
+        SSLEngine engine = sslContext.createSSLEngine();
+        engine.setUseClientMode(false);
         engine.setNeedClientAuth(needClientAuth);
-        engine.setUseClientMode(sslConfig.isClientMode());
+        return addCommonConfigs(engine);
+    }
+
+    /**
+     * Build ssl engine for client side.
+     *
+     * @param host peer host
+     * @param port peer port
+     * @return client ssl engine
+     */
+    public SSLEngine buildClientSSLEngine(String host, int port) {
+        SSLEngine engine = sslContext.createSSLEngine(host, port);
+        engine.setUseClientMode(true);
+        return addCommonConfigs(engine);
+    }
+
+    /**
+     * Add common configs for both client and server ssl engines.
+     *
+     * @param engine client/server ssl engine.
+     * @return sslEngine
+     */
+    public SSLEngine addCommonConfigs(SSLEngine engine) {
         if (sslConfig.getCipherSuites() != null && sslConfig.getCipherSuites().length > 0) {
             engine.setEnabledCipherSuites(sslConfig.getCipherSuites());
         }
@@ -178,5 +202,11 @@ public class SSLHandlerFactory {
         serverNames.add(new SNIHostName(peerHost));
         sslParameters.setServerNames(serverNames);
         sslEngine.setSSLParameters(sslParameters);
+    }
+
+    public void setHostNameVerfication(SSLEngine sslEngine) {
+        SSLParameters sslParams = sslEngine.getSSLParameters();
+        sslParams.setEndpointIdentificationAlgorithm(Constants.HTTPS_SCHEME);
+        sslEngine.setSSLParameters(sslParams);
     }
 }

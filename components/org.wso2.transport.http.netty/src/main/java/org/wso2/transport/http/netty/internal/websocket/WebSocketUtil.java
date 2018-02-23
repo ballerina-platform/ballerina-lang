@@ -19,12 +19,20 @@
 
 package org.wso2.transport.http.netty.internal.websocket;
 
+import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
-import io.netty.handler.codec.http.HttpHeaders;
-import io.netty.handler.codec.http.HttpRequest;
-import org.wso2.transport.http.netty.common.Constants;
+import io.netty.handler.codec.http.websocketx.BinaryWebSocketFrame;
+import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
+import io.netty.handler.codec.http.websocketx.WebSocketFrame;
+import org.wso2.transport.http.netty.contract.websocket.WebSocketControlMessage;
+import org.wso2.transport.http.netty.contract.websocket.WebSocketControlSignal;
+import org.wso2.transport.http.netty.contractimpl.websocket.WebSocketMessageImpl;
+import org.wso2.transport.http.netty.contractimpl.websocket.message.WebSocketBinaryMessageImpl;
+import org.wso2.transport.http.netty.contractimpl.websocket.message.WebSocketControlMessageImpl;
+import org.wso2.transport.http.netty.contractimpl.websocket.message.WebSocketTextMessageImpl;
 
 import java.net.URISyntaxException;
+import java.nio.ByteBuffer;
 
 /**
  * Utility class for WebSocket client connector.
@@ -40,11 +48,39 @@ public class WebSocketUtil {
         return new WebSocketSessionImpl(ctx, isSecured, uri, getSessionID(ctx));
     }
 
-    public static String getSubProtocol(HttpRequest request) {
-        HttpHeaders headers = request.headers();
-        if (headers.contains(Constants.WEBSOCKET_HEADER_SUBPROTOCOL)) {
-            return headers.get(Constants.WEBSOCKET_HEADER_SUBPROTOCOL);
-        }
-        return null;
+    public static WebSocketControlMessage getWebsocketControlMessage(WebSocketFrame webSocketFrame,
+                                                                     WebSocketControlSignal controlSignal) {
+        ByteBuf content = webSocketFrame.content();
+        ByteBuffer clonedContent = getClonedByteBuf(content);
+        WebSocketControlMessage webSocketControlMessage = new WebSocketControlMessageImpl(controlSignal, clonedContent);
+        webSocketFrame.release();
+        return webSocketControlMessage;
+    }
+
+    public static WebSocketMessageImpl getWebSocketMessage(TextWebSocketFrame textWebSocketFrame) {
+        String text = textWebSocketFrame.text();
+        boolean isFinalFragment = textWebSocketFrame.isFinalFragment();
+        WebSocketMessageImpl webSocketTextMessage = new WebSocketTextMessageImpl(text, isFinalFragment);
+        textWebSocketFrame.release();
+        return webSocketTextMessage;
+    }
+
+    public static WebSocketMessageImpl getWebSocketMessage(BinaryWebSocketFrame binaryWebSocketFrame) {
+        ByteBuf content = binaryWebSocketFrame.content();
+        ByteBuffer clonedContent = getClonedByteBuf(content);
+        boolean finalFragment = binaryWebSocketFrame.isFinalFragment();
+        WebSocketMessageImpl webSocketBinaryMessage = new WebSocketBinaryMessageImpl(clonedContent, finalFragment);
+        binaryWebSocketFrame.release();
+        return webSocketBinaryMessage;
+    }
+
+    private static ByteBuffer getClonedByteBuf(ByteBuf buf) {
+        ByteBuffer originalContent = buf.nioBuffer();
+        ByteBuffer clonedContent = ByteBuffer.allocate(originalContent.capacity());
+        originalContent.rewind();
+        clonedContent.put(originalContent);
+        originalContent.rewind();
+        clonedContent.flip();
+        return clonedContent;
     }
 }

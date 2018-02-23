@@ -98,6 +98,10 @@ public class SenderConfiguration {
     private String tlsStoreType;
     private String httpVersion = "1.1";
     private ProxyServerConfiguration proxyServerConfiguration;
+    private boolean validateCertEnabled;
+    private int cacheSize = 50;
+    private int cacheValidityPeriod = 15;
+    private boolean hostNameVerificationEnabled = true;
 
     public SenderConfiguration() {
     }
@@ -268,5 +272,36 @@ public class SenderConfiguration {
 
     public boolean skipHttpToHttp2Upgrade() {
         return skipHttpToHttp2Upgrade;
+
+    public void setValidateCertEnabled(boolean validateCertEnabled) {
+        this.validateCertEnabled = validateCertEnabled;
+    }
+
+    public void setCacheSize(int cacheSize) {
+        this.cacheSize = cacheSize;
+    }
+
+    public void setCacheValidityPeriod(int cacheValidityPeriod) {
+        this.cacheValidityPeriod = cacheValidityPeriod;
+    }
+
+    public boolean validateCertEnabled() {
+        return validateCertEnabled;
+    }
+
+    public int getCacheSize() {
+        return cacheSize;
+    }
+
+    public void setHostNameVerificationEnabled(boolean hostNameVerificationEnabled) {
+        this.hostNameVerificationEnabled = hostNameVerificationEnabled;
+    }
+
+    public boolean hostNameVerificationEnabled() {
+        return hostNameVerificationEnabled;
+    }
+
+    public int getCacheValidityPeriod() {
+        return cacheValidityPeriod;
     }
 }

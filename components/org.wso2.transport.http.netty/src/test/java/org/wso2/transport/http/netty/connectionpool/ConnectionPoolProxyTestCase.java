@@ -25,6 +25,7 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.carbon.messaging.exceptions.ServerConnectorException;
+import org.wso2.transport.http.netty.config.SenderConfiguration;
 import org.wso2.transport.http.netty.config.TransportsConfiguration;
 import org.wso2.transport.http.netty.contract.ServerConnector;
 import org.wso2.transport.http.netty.passthrough.PassthroughMessageProcessorListener;
@@ -54,7 +55,6 @@ public class ConnectionPoolProxyTestCase {
 
     private HttpServer httpServer;
     private List<ServerConnector> serverConnectors;
-    private URI baseURI = URI.create(String.format("http://%s:%d", "localhost", TestUtil.SERVER_CONNECTOR_PORT));
     private ExecutorService executor = Executors.newFixedThreadPool(2);
 
     @BeforeClass
@@ -65,7 +65,7 @@ public class ConnectionPoolProxyTestCase {
         httpServer = TestUtil
                 .startHTTPServer(TestUtil.HTTP_SERVER_PORT, new SendChannelIDServerInitializer(5000));
         serverConnectors = TestUtil.startConnectors(transportsConfiguration,
-                new PassthroughMessageProcessorListener(transportsConfiguration));
+                new PassthroughMessageProcessorListener(new SenderConfiguration()));
     }
 
     @Test
@@ -107,8 +107,10 @@ public class ConnectionPoolProxyTestCase {
         @Override
         public String call() throws Exception {
             try {
+                URI baseURI = URI.create(String.format("http://%s:%d", "localhost", TestUtil.SERVER_CONNECTOR_PORT));
                 HttpURLConnection urlConn = TestUtil
                         .request(baseURI, "/", HttpMethod.POST.name(), true);
+                urlConn.getOutputStream().write(TestUtil.smallEntity.getBytes());
                 response = TestUtil.getContent(urlConn);
             } catch (IOException e) {
                 logger.error("Couldn't get the response", e);

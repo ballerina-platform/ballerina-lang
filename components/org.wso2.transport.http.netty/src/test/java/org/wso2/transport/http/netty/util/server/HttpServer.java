@@ -57,12 +57,14 @@ public class HttpServer implements TestServer {
         bossGroup = new NioEventLoopGroup(this.bossGroupSize);
         workerGroup = new NioEventLoopGroup(this.workerGroupSize);
         try {
-            ServerBootstrap b = new ServerBootstrap();
-            b.option(ChannelOption.SO_BACKLOG, 100);
-            b.childOption(ChannelOption.TCP_NODELAY, true);
-            b.option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 15000);
-            b.group(bossGroup, workerGroup).channel(NioServerSocketChannel.class).childHandler(channelInitializer);
-            ChannelFuture ch = b.bind(new InetSocketAddress(TestUtil.TEST_HOST, port));
+            ServerBootstrap serverBootstrap = new ServerBootstrap();
+            serverBootstrap.option(ChannelOption.SO_BACKLOG, 100);
+            serverBootstrap.option(ChannelOption.SO_REUSEADDR, true);
+            serverBootstrap.option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 15000);
+            serverBootstrap.childOption(ChannelOption.TCP_NODELAY, true);
+            serverBootstrap.group(bossGroup, workerGroup)
+                    .channel(NioServerSocketChannel.class).childHandler(channelInitializer);
+            ChannelFuture ch = serverBootstrap.bind(new InetSocketAddress(TestUtil.TEST_HOST, port));
             ch.sync();
             logger.info("HttpServer started on port " + port);
         } catch (InterruptedException e) {

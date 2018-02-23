@@ -25,7 +25,7 @@
     <packaging>pom</packaging>
     <groupId>org.wso2.transport.http</groupId>
     <artifactId>http-parent</artifactId>
-    <version>6.0.82-SNAPSHOT</version>
+    <version>6.0.91-SNAPSHOT</version>
     <name>WSO2 Carbon Transport Parent</name>
 
     <modules>
@@ -182,6 +182,16 @@
                 <version>${slf4j.version}</version>
                 <scope>test</scope>
             </dependency>
+            <dependency>
+                <groupId>org.bouncycastle</groupId>
+                <artifactId>bcprov-jdk15on</artifactId>
+                <version>${bcprov-jdk15on.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.bouncycastle</groupId>
+                <artifactId>bcpkix-jdk15on</artifactId>
+                <version>${bcpkix-jdk15on.version}</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
@@ -309,6 +319,8 @@
         <jsch.version>0.1.51.wso2v1</jsch.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <org.atomikos.wso2.version>3.8.0.wso2v1</org.atomikos.wso2.version>
+        <bcprov-jdk15on.version>1.59</bcprov-jdk15on.version>
+        <bcpkix-jdk15on.version>1.59</bcpkix-jdk15on.version>
     </properties>
 
 </project>

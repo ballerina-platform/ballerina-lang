@@ -16,7 +16,9 @@
 package org.wso2.transport.http.netty.redirect;
 
 import io.netty.buffer.Unpooled;
+import io.netty.channel.EventLoopGroup;
 import io.netty.channel.embedded.EmbeddedChannel;
+import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.handler.codec.http.DefaultFullHttpResponse;
 import io.netty.handler.codec.http.DefaultHttpRequest;
 import io.netty.handler.codec.http.HttpHeaderNames;
@@ -31,6 +33,7 @@ import io.netty.handler.timeout.IdleStateHandler;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.transport.http.netty.common.Constants;
+import org.wso2.transport.http.netty.common.Util;
 import org.wso2.transport.http.netty.config.SenderConfiguration;
 import org.wso2.transport.http.netty.config.TransportsConfiguration;
 import org.wso2.transport.http.netty.contract.HttpClientConnector;
@@ -78,12 +81,12 @@ public class HTTPClientRedirectTestCase {
     private HttpWsConnectorFactory connectorFactory;
     private TransportsConfiguration transportsConfiguration;
     private ConnectionManager connectionManager;
-    public static final String FINAL_DESTINATION = "http://localhost:9092/destination";
-    public static final int DESTINATION_PORT1 = 9091;
-    public static final int DESTINATION_PORT2 = 9092;
-    public static final int DESTINATION_PORT3 = 9093;
-    public static final String URL1 = "http://www.mocky.io/v2/59d590762700000a049cd694";
-    public static final String URL2 = "http://www.mocky.io/v3/59d590762700000a049cd694";
+    private static final String FINAL_DESTINATION = "http://localhost:9092/destination";
+    private static final int DESTINATION_PORT1 = 9091;
+    private static final int DESTINATION_PORT2 = 9092;
+    private static final int DESTINATION_PORT3 = 9093;
+    private static final String URL1 = "http://www.mocky.io/v2/59d590762700000a049cd694";
+    private static final String URL2 = "http://www.mocky.io/v3/59d590762700000a049cd694";
 
     private String testValue = "Test Message";
     private String testValueForLoopRedirect = "Test Loop";
@@ -104,9 +107,9 @@ public class HTTPClientRedirectTestCase {
 
         PoolConfiguration poolConfiguration = new PoolConfiguration(transportProperties);
         BootstrapConfiguration bootstrapConfig = new BootstrapConfiguration(transportProperties);
-        ConnectionManager connectionManager =
-                new ConnectionManager(poolConfiguration, transportProperties, bootstrapConfig);
-        this.connectionManager = connectionManager;
+        EventLoopGroup clientEventLoopGroup = new NioEventLoopGroup(
+                Util.getIntProperty(transportProperties, Constants.CLIENT_BOOTSTRAP_WORKER_GROUP_SIZE, 4));
+        this.connectionManager = new ConnectionManager(poolConfiguration, bootstrapConfig, clientEventLoopGroup);
 
         httpClientConnector = connectorFactory
                 .createHttpClientConnector(HTTPConnectorUtil.getTransportProperties(transportsConfiguration),
@@ -500,7 +503,7 @@ public class HTTPClientRedirectTestCase {
             Throwable response = listener.getHttpErrorMessage();
             assertNotNull(response);
             String result = response.getMessage();
-            assertEquals(Constants.IDLE_TIMEOUT_TRIGGERED_BEFORE_READING_INBOUND_RESPONSE, result);
+            assertEquals(result, Constants.IDLE_TIMEOUT_TRIGGERED_BEFORE_READING_INBOUND_RESPONSE);
             redirectServer2.shutdown();
             httpServer.shutdown();
         } catch (Exception e) {
