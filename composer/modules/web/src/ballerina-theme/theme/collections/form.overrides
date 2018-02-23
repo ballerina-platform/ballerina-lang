@@ -6,9 +6,7 @@
     background      : @off-white;
 }
 
-.ui.form input[type="text"]:focus{
-    border-color    : @orange ;
-}
+
 
 .ui.form textarea:focus{
     border-color    : @orange ;
@@ -29,3 +27,11 @@
     border-radius   : 0;
     background      : @off-white;
 }
+
+.ui.form input:not([type]):focus, .ui.form input[type="date"]:focus, .ui.form input[type="datetime-local"]:focus,
+ .ui.form input[type="email"]:focus, .ui.form input[type="number"]:focus, .ui.form input[type="password"]:focus,
+ .ui.form input[type="search"]:focus,
+ .ui.form input[type="tel"]:focus, .ui.form input[type="time"]:focus, .ui.form input[type="text"]:focus,
+ .ui.form input[type="file"]:focus, .ui.form input[type="url"]:focus{
+  border-color    : @orange ;
+ }

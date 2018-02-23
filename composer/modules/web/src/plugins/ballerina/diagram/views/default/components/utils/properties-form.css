@@ -27,12 +27,14 @@
     border: 0;
     border-bottom:1px solid #999;
     height: 25px;
+
 }
 
 .property-dialog-form-control::-webkit-input-placeholder { /* Chrome */
     color: #222;
     opacity: 0.4;
     font-style: italic;
+    margin-top: 10px;
 }
 .property-dialog-form-control:-ms-input-placeholder { /* IE 10+ */
     color: #222;
@@ -52,15 +54,16 @@
 
 /*Tags Input*/
 #property-modal #ulContainer {
-    padding: 5px;
+    padding: 0;
     border-radius: 5px;
 }
 
 #property-modal .tagItems {
-    display: inline-block;
-    padding: 2px;
-    border: 2px solid #9E9E9E;
-    border-radius: 5px;
+    display: flex;
+    flex-flow: wrap;
+    padding: 0 0 0 5px;
+    border: 1px solid #9E9E9E;
+    border-radius: 0;
     margin-right: 5px;
     cursor: pointer;
     margin-bottom: 3px;
@@ -70,7 +73,9 @@
     outline: none;
     border: none;
     color: #222;
-    width: 88%;
+    width: 100%;
+    border: 1px solid rgba(34, 36, 38, 0.15);
+    text-align: left;
 }
 
 #property-modal .tagLabel{
@@ -133,15 +138,16 @@
 }
 
 #property-modal .deleteSpan{
-    background-color: #a7a0a0;
+    background-color: #e4e4e4;
     margin-left: 9px;
-    display: inline-block;
+    display: flex;
     width: 15px;
+    opacity: 0.5;
 }
 
 #property-modal .iconDelete{
-    font-size: 11px;
-    margin-left: 2px;
+    font-size: 9px;
+    margin-left: 3px;
 }
 
 /*New popup window*/
@@ -151,6 +157,11 @@
     width: 40%;
     box-shadow:  0 3px 10px rgba(0, 0, 0, 0.42);
     z-index: 60;
+    padding: 0 10px;
+}
+#property-modal> .ui form{
+    margin: 0 0 0 30px;
+    width :90%;
 }
 
 #property-modal .formHeader{
@@ -165,7 +176,7 @@
 }
 
 #property-modal .formFooter{
-    text-align: center;
+    text-align: right;
     margin: 0;
     padding: 10px;
     width: 100%;
@@ -281,7 +292,11 @@
 }
 
 #property-modal #dismissBtn {
-    padding-right: 10px;
+    float: right;
+    background: none;
+    border: 0;
+    margin: -12px -15px;
+    font-size: 17px;
 }
 
 #property-modal #viewOptionParams{
@@ -310,6 +325,8 @@
 #property-modal .formContainer{
     height: 293px;
     overflow-y: scroll;
+    margin-top: 0;
+    margin-bottom: 0;
 }
 
 /*Breadcrumb*/
