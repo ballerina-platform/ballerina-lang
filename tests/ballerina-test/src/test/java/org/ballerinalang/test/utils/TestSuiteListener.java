@@ -38,11 +38,10 @@ public class TestSuiteListener implements ISuiteListener {
     @Override
     public void onStart(ISuite iSuite) {
         ((BLogManager) LogManager.getLogManager()).loadUserProvidedLogConfiguration();
-        log.info("BLogManager initialized...");
+        log.info("Logging initialized...");
     }
 
     @Override
     public void onFinish(ISuite iSuite) {
-
     }
 }
