@@ -1,4 +1,3 @@
-// Generated from /home/mohan/ballerina/git-new/ballerina/compiler/ballerina-lang/src/main/resources/grammar/BallerinaParser.g4 by ANTLR 4.5.3
 package org.wso2.ballerinalang.compiler.parser.antlr4;
 import org.antlr.v4.runtime.tree.ParseTreeListener;
 
@@ -1910,25 +1909,25 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 */
 	void exitJoinStreamingInput(BallerinaParser.JoinStreamingInputContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link BallerinaParser#pattenStreamingInput}.
+	 * Enter a parse tree produced by {@link BallerinaParser#patternStreamingInput}.
 	 * @param ctx the parse tree
 	 */
-	void enterPattenStreamingInput(BallerinaParser.PattenStreamingInputContext ctx);
+	void enterPatternStreamingInput(BallerinaParser.PatternStreamingInputContext ctx);
 	/**
-	 * Exit a parse tree produced by {@link BallerinaParser#pattenStreamingInput}.
+	 * Exit a parse tree produced by {@link BallerinaParser#patternStreamingInput}.
 	 * @param ctx the parse tree
 	 */
-	void exitPattenStreamingInput(BallerinaParser.PattenStreamingInputContext ctx);
+	void exitPatternStreamingInput(BallerinaParser.PatternStreamingInputContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link BallerinaParser#pattenStreamingEdgeInput}.
+	 * Enter a parse tree produced by {@link BallerinaParser#patternStreamingEdgeInput}.
 	 * @param ctx the parse tree
 	 */
-	void enterPattenStreamingEdgeInput(BallerinaParser.PattenStreamingEdgeInputContext ctx);
+	void enterPatternStreamingEdgeInput(BallerinaParser.PatternStreamingEdgeInputContext ctx);
 	/**
-	 * Exit a parse tree produced by {@link BallerinaParser#pattenStreamingEdgeInput}.
+	 * Exit a parse tree produced by {@link BallerinaParser#patternStreamingEdgeInput}.
 	 * @param ctx the parse tree
 	 */
-	void exitPattenStreamingEdgeInput(BallerinaParser.PattenStreamingEdgeInputContext ctx);
+	void exitPatternStreamingEdgeInput(BallerinaParser.PatternStreamingEdgeInputContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link BallerinaParser#whereClause}.
 	 * @param ctx the parse tree

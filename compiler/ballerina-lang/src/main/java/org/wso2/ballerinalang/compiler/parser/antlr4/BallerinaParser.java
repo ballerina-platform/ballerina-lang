@@ -1,4 +1,3 @@
-// Generated from /home/mohan/ballerina/git-new/ballerina/compiler/ballerina-lang/src/main/resources/grammar/BallerinaParser.g4 by ANTLR 4.5.3
 package org.wso2.ballerinalang.compiler.parser.antlr4;
 import org.antlr.v4.runtime.atn.*;
 import org.antlr.v4.runtime.dfa.DFA;
@@ -93,7 +92,7 @@ public class BallerinaParser extends Parser {
 		RULE_selectClause = 130, RULE_selectExpressionList = 131, RULE_selectExpression = 132, 
 		RULE_groupByClause = 133, RULE_havingClause = 134, RULE_streamingAction = 135, 
 		RULE_setClause = 136, RULE_setAssignmentClause = 137, RULE_streamingInput = 138, 
-		RULE_joinStreamingInput = 139, RULE_pattenStreamingInput = 140, RULE_pattenStreamingEdgeInput = 141, 
+		RULE_joinStreamingInput = 139, RULE_patternStreamingInput = 140, RULE_patternStreamingEdgeInput = 141, 
 		RULE_whereClause = 142, RULE_functionClause = 143, RULE_windowClause = 144, 
 		RULE_queryDeclaration = 145;
 	public static final String[] ruleNames = {
@@ -130,7 +129,7 @@ public class BallerinaParser extends Parser {
 		"reservedWord", "tableQuery", "aggregationQuery", "streamingQueryStatement", 
 		"orderByClause", "selectClause", "selectExpressionList", "selectExpression", 
 		"groupByClause", "havingClause", "streamingAction", "setClause", "setAssignmentClause", 
-		"streamingInput", "joinStreamingInput", "pattenStreamingInput", "pattenStreamingEdgeInput", 
+		"streamingInput", "joinStreamingInput", "patternStreamingInput", "patternStreamingEdgeInput", 
 		"whereClause", "functionClause", "windowClause", "queryDeclaration"
 	};
 
@@ -10487,8 +10486,8 @@ public class BallerinaParser extends Parser {
 		public StreamingInputContext streamingInput() {
 			return getRuleContext(StreamingInputContext.class,0);
 		}
-		public PattenStreamingInputContext pattenStreamingInput() {
-			return getRuleContext(PattenStreamingInputContext.class,0);
+		public PatternStreamingInputContext patternStreamingInput() {
+			return getRuleContext(PatternStreamingInputContext.class,0);
 		}
 		public SelectClauseContext selectClause() {
 			return getRuleContext(SelectClauseContext.class,0);
@@ -10543,7 +10542,7 @@ public class BallerinaParser extends Parser {
 			case 2:
 				{
 				setState(1671);
-				pattenStreamingInput(0);
+				patternStreamingInput(0);
 				}
 				break;
 			}
@@ -11309,22 +11308,22 @@ public class BallerinaParser extends Parser {
 		return _localctx;
 	}
 
-	public static class PattenStreamingInputContext extends ParserRuleContext {
+	public static class PatternStreamingInputContext extends ParserRuleContext {
 		public TerminalNode LEFT_PARENTHESIS() { return getToken(BallerinaParser.LEFT_PARENTHESIS, 0); }
-		public List<PattenStreamingInputContext> pattenStreamingInput() {
-			return getRuleContexts(PattenStreamingInputContext.class);
+		public List<PatternStreamingInputContext> patternStreamingInput() {
+			return getRuleContexts(PatternStreamingInputContext.class);
 		}
-		public PattenStreamingInputContext pattenStreamingInput(int i) {
-			return getRuleContext(PattenStreamingInputContext.class,i);
+		public PatternStreamingInputContext patternStreamingInput(int i) {
+			return getRuleContext(PatternStreamingInputContext.class,i);
 		}
 		public TerminalNode RIGHT_PARENTHESIS() { return getToken(BallerinaParser.RIGHT_PARENTHESIS, 0); }
 		public TerminalNode FOREACH() { return getToken(BallerinaParser.FOREACH, 0); }
 		public TerminalNode NOT() { return getToken(BallerinaParser.NOT, 0); }
-		public List<PattenStreamingEdgeInputContext> pattenStreamingEdgeInput() {
-			return getRuleContexts(PattenStreamingEdgeInputContext.class);
+		public List<PatternStreamingEdgeInputContext> patternStreamingEdgeInput() {
+			return getRuleContexts(PatternStreamingEdgeInputContext.class);
 		}
-		public PattenStreamingEdgeInputContext pattenStreamingEdgeInput(int i) {
-			return getRuleContext(PattenStreamingEdgeInputContext.class,i);
+		public PatternStreamingEdgeInputContext patternStreamingEdgeInput(int i) {
+			return getRuleContext(PatternStreamingEdgeInputContext.class,i);
 		}
 		public TerminalNode AND() { return getToken(BallerinaParser.AND, 0); }
 		public TerminalNode FOR() { return getToken(BallerinaParser.FOR, 0); }
@@ -11332,31 +11331,31 @@ public class BallerinaParser extends Parser {
 		public TerminalNode OR() { return getToken(BallerinaParser.OR, 0); }
 		public TerminalNode FOLLOWED() { return getToken(BallerinaParser.FOLLOWED, 0); }
 		public TerminalNode BY() { return getToken(BallerinaParser.BY, 0); }
-		public PattenStreamingInputContext(ParserRuleContext parent, int invokingState) {
+		public PatternStreamingInputContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
 		}
-		@Override public int getRuleIndex() { return RULE_pattenStreamingInput; }
+		@Override public int getRuleIndex() { return RULE_patternStreamingInput; }
 		@Override
 		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof BallerinaParserListener ) ((BallerinaParserListener)listener).enterPattenStreamingInput(this);
+			if ( listener instanceof BallerinaParserListener ) ((BallerinaParserListener)listener).enterPatternStreamingInput(this);
 		}
 		@Override
 		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof BallerinaParserListener ) ((BallerinaParserListener)listener).exitPattenStreamingInput(this);
+			if ( listener instanceof BallerinaParserListener ) ((BallerinaParserListener)listener).exitPatternStreamingInput(this);
 		}
 	}
 
-	public final PattenStreamingInputContext pattenStreamingInput() throws RecognitionException {
-		return pattenStreamingInput(0);
+	public final PatternStreamingInputContext patternStreamingInput() throws RecognitionException {
+		return patternStreamingInput(0);
 	}
 
-	private PattenStreamingInputContext pattenStreamingInput(int _p) throws RecognitionException {
+	private PatternStreamingInputContext patternStreamingInput(int _p) throws RecognitionException {
 		ParserRuleContext _parentctx = _ctx;
 		int _parentState = getState();
-		PattenStreamingInputContext _localctx = new PattenStreamingInputContext(_ctx, _parentState);
-		PattenStreamingInputContext _prevctx = _localctx;
+		PatternStreamingInputContext _localctx = new PatternStreamingInputContext(_ctx, _parentState);
+		PatternStreamingInputContext _prevctx = _localctx;
 		int _startState = 280;
-		enterRecursionRule(_localctx, 280, RULE_pattenStreamingInput, _p);
+		enterRecursionRule(_localctx, 280, RULE_patternStreamingInput, _p);
 		int _la;
 		try {
 			int _alt;
@@ -11370,7 +11369,7 @@ public class BallerinaParser extends Parser {
 				setState(1771);
 				match(LEFT_PARENTHESIS);
 				setState(1772);
-				pattenStreamingInput(0);
+				patternStreamingInput(0);
 				setState(1773);
 				match(RIGHT_PARENTHESIS);
 				}
@@ -11380,7 +11379,7 @@ public class BallerinaParser extends Parser {
 				setState(1775);
 				match(FOREACH);
 				setState(1776);
-				pattenStreamingInput(4);
+				patternStreamingInput(4);
 				}
 				break;
 			case 3:
@@ -11388,7 +11387,7 @@ public class BallerinaParser extends Parser {
 				setState(1777);
 				match(NOT);
 				setState(1778);
-				pattenStreamingEdgeInput();
+				patternStreamingEdgeInput();
 				setState(1783);
 				switch (_input.LA(1)) {
 				case AND:
@@ -11396,7 +11395,7 @@ public class BallerinaParser extends Parser {
 					setState(1779);
 					match(AND);
 					setState(1780);
-					pattenStreamingEdgeInput();
+					patternStreamingEdgeInput();
 					}
 					break;
 				case FOR:
@@ -11415,7 +11414,7 @@ public class BallerinaParser extends Parser {
 			case 4:
 				{
 				setState(1785);
-				pattenStreamingEdgeInput();
+				patternStreamingEdgeInput();
 				setState(1786);
 				_la = _input.LA(1);
 				if ( !(_la==AND || _la==OR) ) {
@@ -11424,13 +11423,13 @@ public class BallerinaParser extends Parser {
 					consume();
 				}
 				setState(1787);
-				pattenStreamingEdgeInput();
+				patternStreamingEdgeInput();
 				}
 				break;
 			case 5:
 				{
 				setState(1789);
-				pattenStreamingEdgeInput();
+				patternStreamingEdgeInput();
 				}
 				break;
 			}
@@ -11444,8 +11443,8 @@ public class BallerinaParser extends Parser {
 					_prevctx = _localctx;
 					{
 					{
-					_localctx = new PattenStreamingInputContext(_parentctx, _parentState);
-					pushNewRecursionContext(_localctx, _startState, RULE_pattenStreamingInput);
+					_localctx = new PatternStreamingInputContext(_parentctx, _parentState);
+					pushNewRecursionContext(_localctx, _startState, RULE_patternStreamingInput);
 					setState(1792);
 					if (!(precpred(_ctx, 6))) throw new FailedPredicateException(this, "precpred(_ctx, 6)");
 					setState(1793);
@@ -11453,7 +11452,7 @@ public class BallerinaParser extends Parser {
 					setState(1794);
 					match(BY);
 					setState(1795);
-					pattenStreamingInput(7);
+					patternStreamingInput(7);
 					}
 					} 
 				}
@@ -11474,7 +11473,7 @@ public class BallerinaParser extends Parser {
 		return _localctx;
 	}
 
-	public static class PattenStreamingEdgeInputContext extends ParserRuleContext {
+	public static class PatternStreamingEdgeInputContext extends ParserRuleContext {
 		public Token alias;
 		public List<TerminalNode> Identifier() { return getTokens(BallerinaParser.Identifier); }
 		public TerminalNode Identifier(int i) {
@@ -11487,23 +11486,23 @@ public class BallerinaParser extends Parser {
 			return getRuleContext(IntRangeExpressionContext.class,0);
 		}
 		public TerminalNode AS() { return getToken(BallerinaParser.AS, 0); }
-		public PattenStreamingEdgeInputContext(ParserRuleContext parent, int invokingState) {
+		public PatternStreamingEdgeInputContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
 		}
-		@Override public int getRuleIndex() { return RULE_pattenStreamingEdgeInput; }
+		@Override public int getRuleIndex() { return RULE_patternStreamingEdgeInput; }
 		@Override
 		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof BallerinaParserListener ) ((BallerinaParserListener)listener).enterPattenStreamingEdgeInput(this);
+			if ( listener instanceof BallerinaParserListener ) ((BallerinaParserListener)listener).enterPatternStreamingEdgeInput(this);
 		}
 		@Override
 		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof BallerinaParserListener ) ((BallerinaParserListener)listener).exitPattenStreamingEdgeInput(this);
+			if ( listener instanceof BallerinaParserListener ) ((BallerinaParserListener)listener).exitPatternStreamingEdgeInput(this);
 		}
 	}
 
-	public final PattenStreamingEdgeInputContext pattenStreamingEdgeInput() throws RecognitionException {
-		PattenStreamingEdgeInputContext _localctx = new PattenStreamingEdgeInputContext(_ctx, getState());
-		enterRule(_localctx, 282, RULE_pattenStreamingEdgeInput);
+	public final PatternStreamingEdgeInputContext patternStreamingEdgeInput() throws RecognitionException {
+		PatternStreamingEdgeInputContext _localctx = new PatternStreamingEdgeInputContext(_ctx, getState());
+		enterRule(_localctx, 282, RULE_patternStreamingEdgeInput);
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
@@ -11537,7 +11536,7 @@ public class BallerinaParser extends Parser {
 				setState(1808);
 				match(AS);
 				setState(1809);
-				((PattenStreamingEdgeInputContext)_localctx).alias = match(Identifier);
+				((PatternStreamingEdgeInputContext)_localctx).alias = match(Identifier);
 				}
 				break;
 			}
@@ -11740,7 +11739,7 @@ public class BallerinaParser extends Parser {
 		case 99:
 			return expression_sempred((ExpressionContext)_localctx, predIndex);
 		case 140:
-			return pattenStreamingInput_sempred((PattenStreamingInputContext)_localctx, predIndex);
+			return patternStreamingInput_sempred((PatternStreamingInputContext)_localctx, predIndex);
 		}
 		return true;
 	}
@@ -11785,7 +11784,7 @@ public class BallerinaParser extends Parser {
 		}
 		return true;
 	}
-	private boolean pattenStreamingInput_sempred(PattenStreamingInputContext _localctx, int predIndex) {
+	private boolean patternStreamingInput_sempred(PatternStreamingInputContext _localctx, int predIndex) {
 		switch (predIndex) {
 		case 13:
 			return precpred(_ctx, 6);

@@ -654,7 +654,7 @@ aggregationQuery
     ;
 
 streamingQueryStatement
-    :   FROM (streamingInput (joinStreamingInput)?  | pattenStreamingInput)
+    :   FROM (streamingInput (joinStreamingInput)?  | patternStreamingInput)
         selectClause?
         orderByClause?
         streamingAction
@@ -708,16 +708,16 @@ joinStreamingInput
     :   JOIN streamingInput ON expression
     ;
 
-pattenStreamingInput
-    :   pattenStreamingInput FOLLOWED BY pattenStreamingInput
-    |   LEFT_PARENTHESIS pattenStreamingInput RIGHT_PARENTHESIS
-    |   FOREACH pattenStreamingInput
-    |   NOT pattenStreamingEdgeInput (AND pattenStreamingEdgeInput | FOR StringTemplateText)
-    |   pattenStreamingEdgeInput (AND | OR ) pattenStreamingEdgeInput
-    |   pattenStreamingEdgeInput
+patternStreamingInput
+    :   patternStreamingInput FOLLOWED BY patternStreamingInput
+    |   LEFT_PARENTHESIS patternStreamingInput RIGHT_PARENTHESIS
+    |   FOREACH patternStreamingInput
+    |   NOT patternStreamingEdgeInput (AND patternStreamingEdgeInput | FOR StringTemplateText)
+    |   patternStreamingEdgeInput (AND | OR ) patternStreamingEdgeInput
+    |   patternStreamingEdgeInput
     ;
 
-pattenStreamingEdgeInput
+patternStreamingEdgeInput
     :   Identifier whereClause? intRangeExpression? (AS alias=Identifier)?
     ;
 

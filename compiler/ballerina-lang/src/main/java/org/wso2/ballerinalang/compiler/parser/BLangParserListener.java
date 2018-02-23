@@ -2269,7 +2269,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
     }
 
     @Override
-    public void enterPattenStreamingEdgeInput(BallerinaParser.PattenStreamingEdgeInputContext ctx) {
+    public void enterPatternStreamingEdgeInput(BallerinaParser.PatternStreamingEdgeInputContext ctx) {
         if (ctx.exception != null) {
             return;
         }
@@ -2277,7 +2277,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
     }
 
     @Override
-    public void exitPattenStreamingEdgeInput(BallerinaParser.PattenStreamingEdgeInputContext ctx) {
+    public void exitPatternStreamingEdgeInput(BallerinaParser.PatternStreamingEdgeInputContext ctx) {
         if (ctx.exception != null) {
             return;
         }
@@ -2307,6 +2307,20 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         }
 
         this.pkgBuilder.endWindowsClauseNode(getCurrentPos(ctx), getWS(ctx));
+    }
+
+    @Override
+    public void enterPatternStreamingInput(BallerinaParser.PatternStreamingInputContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+    }
+
+    @Override public void exitPatternStreamingInput(BallerinaParser.PatternStreamingInputContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+
     }
 
     private DiagnosticPos getCurrentPos(ParserRuleContext ctx) {
