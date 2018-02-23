@@ -73,7 +73,7 @@ public class Message extends GeneratedMessageV3 {
         return headers.get(headerName);
     }
 
-    void setFieldValues(Map<String, Object> fieldValues) {
+    public void setFieldValues(Map<String, Object> fieldValues) {
         this.fields = fieldValues;
     }
 

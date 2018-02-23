@@ -6,7 +6,36 @@ public native function getHeader(string headerName) (string);
 @Field {value:"remoteHost: The server host name"}
 @Field {value:"port: The server port"}
 public struct Connection {
-    int id;
+    int port;
+    string host;
+}
+@Description {value:"gRPC protobuf client connector for outbound gRPC requests"}
+@Param {value:"serviceUri: Url of the service"}
+@Param {value:"connectorOptions: connector options"}
+public connector GRPCConnector (string host, int port) {
+    @Description {value:"Connection."}
+    native action connect (string stubType,map describtorMap) (Connection, ConnectorError);
+
+    @Description {value:"The execute action implementation of the gRPC Connector."}
+    @Param {value:"Connection stub."}
+    @Param {value:"Any type of request parameters."}
+    native action execute (Connection conn, any payload,int methodID) (any , ConnectorError);
+
+    @Description {value:"The execute action implementation of the gRPC Connector."}
+    @Param {value:"Connection stub."}
+    @Param {value:"Any type of request parameters."}
+    native action send (Connection conn, any res) (ConnectorError);
+
+    @Description {value:"The execute action implementation of the gRPC Connector."}
+    @Param {value:"Connection stub."}
+    @Param {value:"Any type of request parameters."}
+    native action complete (Connection conn) (ConnectorError);
+
+
+    @Description {value:"The execute action implementation of the gRPC Connector."}
+    @Param {value:"Connection stub."}
+    @Param {value:"Any type of request parameters."}
+    native action error (Connection conn, ServerError serverError) (ConnectorError);
 }
 
 @Description { value:"Sends outbound response to the caller"}

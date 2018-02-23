@@ -1,24 +1,8 @@
-/*
- *  Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
- *
- *  Licensed under the Apache License, Version 2.0 (the "License");
- *  you may not use this file except in compliance with the License.
- *  You may obtain a copy of the License at
- *
- *  http://www.apache.org/licenses/LICENSE-2.0
- *
- *  Unless required by applicable law or agreed to in writing, software
- *  distributed under the License is distributed on an "AS IS" BASIS,
- *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *  See the License for the specific language governing permissions and
- *  limitations under the License.
- */
-package org.ballerinalang.net.grpc.listener;
+package org.ballerinalang.net.grpc.utils;
 
+import com.google.protobuf.DescriptorProtos;
 import com.google.protobuf.Descriptors;
-import io.grpc.stub.StreamObserver;
-import org.ballerinalang.connector.api.ConnectorUtils;
-import org.ballerinalang.connector.api.Resource;
+import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.BStructType;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.values.BBoolean;
@@ -29,62 +13,120 @@ import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.net.grpc.Message;
-import org.ballerinalang.net.grpc.MessageConstants;
 import org.ballerinalang.net.grpc.MessageRegistry;
 import org.ballerinalang.net.grpc.exception.UnsupportedFieldTypeException;
 
 import java.util.Map;
 
-/**
- * Abstract Method listener.
- * This provide method for all method listener child classes.
+/**.
+ * Util class for message operationss.
  */
-public abstract class MethodListener {
-
-    private Descriptors.MethodDescriptor methodDescriptor;
-    public Resource resource;
-
-    public MethodListener(Descriptors.MethodDescriptor methodDescriptor, Resource resource) {
-        this.methodDescriptor = methodDescriptor;
-        this.resource = resource;
-    }
-
-    public BValue getConnectionParameter(StreamObserver<Message> responseObserver) {
-        BStruct connection = ConnectorUtils.createStruct(resource,
-                MessageConstants.PROTOCOL_PACKAGE_GRPC, MessageConstants.CONNECTION);
-        connection.setIntField(0, responseObserver.hashCode());
-        connection.addNativeData(MessageConstants.STREAM_OBSERVER, responseObserver);
-        connection.addNativeData(MessageConstants.RESPONSE_MESSAGE_DEFINITION, methodDescriptor.getOutputType());
-        return connection;
-    }
-
-    public BValue getRequestParameter(Message requestMessage) {
-        if (resource == null || resource.getParamDetails() == null || resource.getParamDetails().size() > 2) {
-            throw new RuntimeException("Invalid resource input arguments. arguments must not be greater than two");
+public class MessageUtil {
+    public static com.google.protobuf.Message generateProtoMessage(BValue responseValue,
+                                                                   Descriptors.Descriptor outputType) {
+        Message.Builder responseBuilder = Message.newBuilder(outputType.getName());
+        int stringIndex = 0;
+        int intIndex = 0;
+        int floatIndex = 0;
+        int boolIndex = 0;
+        int refIndex = 0;
+        for (Descriptors.FieldDescriptor fieldDescriptor : outputType.getFields()) {
+            String fieldName = fieldDescriptor.getName();
+            switch (fieldDescriptor.getType().toProto().getNumber()) {
+                case DescriptorProtos.FieldDescriptorProto.Type.TYPE_DOUBLE_VALUE: {
+                    double value = 0F;
+                    if (responseValue instanceof BStruct) {
+                        value = ((BStruct) responseValue).getFloatField(floatIndex++);
+                    } else {
+                        if (responseValue instanceof BFloat) {
+                            value = ((BFloat) responseValue).value();
+                        }
+                    }
+                    responseBuilder.addField(fieldName, value);
+                    break;
+                }
+                case DescriptorProtos.FieldDescriptorProto.Type.TYPE_FLOAT_VALUE: {
+                    float value = 0F;
+                    if (responseValue instanceof BStruct) {
+                        value = Float.parseFloat(String.valueOf(((BStruct) responseValue).getFloatField(floatIndex++)));
+                    } else {
+                        if (responseValue instanceof BFloat) {
+                            value = Float.parseFloat(String.valueOf(((BFloat) responseValue).value()));
+                        }
+                    }
+                    responseBuilder.addField(fieldName, value);
+                    break;
+                }
+                case DescriptorProtos.FieldDescriptorProto.Type.TYPE_INT64_VALUE:
+                case DescriptorProtos.FieldDescriptorProto.Type.TYPE_UINT64_VALUE:
+                case DescriptorProtos.FieldDescriptorProto.Type.TYPE_FIXED64_VALUE: {
+                    long value = 0;
+                    if (responseValue instanceof BStruct) {
+                        value = ((BStruct) responseValue).getIntField(intIndex++);
+                    } else {
+                        if (responseValue instanceof BInteger) {
+                            value = ((BInteger) responseValue).value();
+                        }
+                    }
+                    responseBuilder.addField(fieldName, value);
+                    break;
+                }
+                case DescriptorProtos.FieldDescriptorProto.Type.TYPE_INT32_VALUE:
+                case DescriptorProtos.FieldDescriptorProto.Type.TYPE_FIXED32_VALUE: {
+                    int value = 0;
+                    if (responseValue instanceof BStruct) {
+                        value = Integer.parseInt(String.valueOf(((BStruct) responseValue).getIntField(intIndex++)));
+                    } else {
+                        if (responseValue instanceof BInteger) {
+                            value = Integer.parseInt(String.valueOf(((BInteger) responseValue).value()));
+                        }
+                    }
+                    responseBuilder.addField(fieldName, value);
+                    break;
+                }
+                case DescriptorProtos.FieldDescriptorProto.Type.TYPE_BOOL_VALUE: {
+                    boolean value = false;
+                    if (responseValue instanceof BStruct) {
+                        value = ((BStruct) responseValue).getBooleanField(boolIndex++) > 0;
+                    } else {
+                        if (responseValue instanceof BBoolean) {
+                            value = ((BBoolean) responseValue).value();
+                        }
+                    }
+                    responseBuilder.addField(fieldName, value);
+                    break;
+                }
+                case DescriptorProtos.FieldDescriptorProto.Type.TYPE_STRING_VALUE: {
+                    String value = null;
+                    if (responseValue instanceof BStruct) {
+                        value = ((BStruct) responseValue).getStringField(stringIndex++);
+                    } else {
+                        if (responseValue instanceof BString) {
+                            value = ((BString) responseValue).value();
+                        }
+                    }
+                    responseBuilder.addField(fieldName, value);
+                    break;
+                }
+                default: {
+                    throw new UnsupportedFieldTypeException("Error while decoding request message. Field " +
+                            "type is not supported : " + fieldDescriptor.getType());
+                }
+            }
         }
-
-        if (resource.getParamDetails().size() == 2) {
-            BType requestType = resource.getParamDetails().get(MessageConstants.REQUEST_MESSAGE_INDEX)
-                    .getVarType();
-            String requestName = resource.getParamDetails().get(MessageConstants.REQUEST_MESSAGE_INDEX).getVarName();
-
-            return generateRequestStruct(requestMessage, requestName, requestType);
-        } else {
-            return null;
-        }
+        return responseBuilder.build();
     }
-
-    private BValue generateRequestStruct(Message request, String fieldName, BType structType) {
+    
+    public static BValue generateRequestStruct(Message request, String fieldName, BType structType, Context context) {
         BValue bValue = null;
         int stringIndex = 0;
         int intIndex = 0;
         int floatIndex = 0;
         int boolIndex = 0;
         int refIndex = 0;
-
+        
         if (structType instanceof BStructType) {
-            BStruct requestStruct = ConnectorUtils.createStruct(resource, structType.getPackagePath(), structType
-                    .getName());
+            BStruct requestStruct = createStruct(context, fieldName);
             for (BStructType.StructField structField : ((BStructType) structType).getStructFields()) {
                 String structFieldName = structField.getFieldName();
                 if (structField.getFieldType() instanceof BRefType) {
@@ -92,7 +134,7 @@ public abstract class MethodListener {
                     if (MessageRegistry.getInstance().getMessageDescriptorMap().containsKey(bType.getName())) {
                         Message message = (Message) request.getFields().get(structFieldName);
                         requestStruct.setRefField(refIndex++, (BRefType) generateRequestStruct(message,
-                                structFieldName, structField.getFieldType()));
+                                structFieldName, structField.getFieldType(), context));
                     }
                 } else {
                     if (request.getFields().containsKey(structFieldName)) {
@@ -177,7 +219,12 @@ public abstract class MethodListener {
                 }
             }
         }
-
+        
         return bValue;
+    }
+    
+    private static BStruct createStruct(Context context, String fieldName) {
+        BStructType structType = context.getProgramFile().getEntryPackage().getStructInfo(fieldName).getType();
+        return new BStruct(structType);
     }
 }
