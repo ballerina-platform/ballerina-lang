@@ -78,7 +78,7 @@ public class MultipartEncoderTest {
                     multipartDataBoundary, inputStream);
             Assert.assertEquals(mimeParts.size(), 4);
             BStruct bodyPart = Util.getEntityStruct(result);
-            testBodyParts(mimeParts, bodyPart);
+            validateBodyPartContent(mimeParts, bodyPart);
         } catch (MimeTypeParseException e) {
             log.error("Error occurred while testing mulitpart/mixed encoding", e.getMessage());
         } catch (IOException e) {
@@ -99,7 +99,7 @@ public class MultipartEncoderTest {
                     multipartDataBoundary, inputStream);
             Assert.assertEquals(mimeParts.size(), 4);
             BStruct bodyPart = Util.getEntityStruct(result);
-            testBodyParts(mimeParts, bodyPart);
+            validateBodyPartContent(mimeParts, bodyPart);
         } catch (MimeTypeParseException e) {
             log.error("Error occurred while testing mulitpart/mixed encoding", e.getMessage());
         } catch (IOException e) {
@@ -107,7 +107,7 @@ public class MultipartEncoderTest {
         }
     }
 
-    @Test(description = "Test whether the nested body parts get correctly encoded")
+    @Test(description = "Test whether the nested body parts within a multipart entity can be properly encoded")
     public void testNestedParts() {
         BStruct nestedMultipartEntity = Util.getNestedMultipartEntity(result);
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
@@ -120,31 +120,36 @@ public class MultipartEncoderTest {
                     multipartDataBoundary, inputStream);
             Assert.assertEquals(mimeParts.size(), 4);
             for (MIMEPart mimePart : mimeParts) {
-                testChildPartContent(mimePart);
+                testNestedPartContent(mimePart);
             }
-        } catch (MimeTypeParseException e) {
-            log.error("Error occurred while testing nested part decoding", e.getMessage());
-        } catch (IOException e) {
-            log.error("Error occurred while testing decoding of nested parts", e.getMessage());
+        } catch (MimeTypeParseException | IOException e) {
+            log.error("Error occurred while testing encoded nested parts", e.getMessage());
         }
     }
 
-    private void testChildPartContent(MIMEPart mimePart) throws MimeTypeParseException, IOException {
-        List<MIMEPart> mimeParts = MultipartDecoder.decodeBodyParts(mimePart.getContentType(),
+    /**
+     * When nested parts have been properly encoded, decoding should work as it should.
+     *
+     * @param mimePart MIMEPart that contains nested parts
+     * @throws MimeTypeParseException When an error occurs while parsing body content
+     * @throws IOException            When an error occurs while validating body content
+     */
+    private void testNestedPartContent(MIMEPart mimePart) throws MimeTypeParseException, IOException {
+        List<MIMEPart> nestedParts = MultipartDecoder.decodeBodyParts(mimePart.getContentType(),
                 mimePart.readOnce());
-        Assert.assertEquals(mimeParts.size(), 4);
-        BStruct childPart = Util.getEntityStruct(result);
-        testBodyParts(mimeParts, childPart);
+        Assert.assertEquals(nestedParts.size(), 4);
+        BStruct ballerinaBodyPart = Util.getEntityStruct(result);
+        validateBodyPartContent(nestedParts, ballerinaBodyPart);
     }
 
     /**
-     * When the encoding has been done properly, decoding should work as it should.
+     * Validate that the decoded body part content matches with the encoded content.
      *
      * @param mimeParts List of decoded body parts
      * @param bodyPart  Ballerina body part
      * @throws IOException When an exception occurs during binary data decoding
      */
-    private void testBodyParts(List<MIMEPart> mimeParts, BStruct bodyPart) throws IOException {
+    private void validateBodyPartContent(List<MIMEPart> mimeParts, BStruct bodyPart) throws IOException {
         EntityBodyHandler.populateBodyContent(bodyPart, mimeParts.get(0));
         BJSON jsonData = EntityBodyHandler.constructJsonDataSource(bodyPart);
         Assert.assertNotNull(jsonData);

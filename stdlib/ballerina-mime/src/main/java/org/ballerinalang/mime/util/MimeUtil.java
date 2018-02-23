@@ -55,6 +55,8 @@ import static org.ballerinalang.mime.util.Constants.ENTITY_BYTE_CHANNEL;
 import static org.ballerinalang.mime.util.Constants.IS_BODY_BYTE_CHANNEL_ALREADY_SET;
 import static org.ballerinalang.mime.util.Constants.MEDIA_TYPE_INDEX;
 import static org.ballerinalang.mime.util.Constants.MESSAGE_ENTITY;
+import static org.ballerinalang.mime.util.Constants.MULTIPART_AS_PRIMARY_TYPE;
+import static org.ballerinalang.mime.util.Constants.MULTIPART_DATA_INDEX;
 import static org.ballerinalang.mime.util.Constants.MULTIPART_FORM_DATA;
 import static org.ballerinalang.mime.util.Constants.PARAMETER_MAP_INDEX;
 import static org.ballerinalang.mime.util.Constants.PRIMARY_TYPE_INDEX;
@@ -96,7 +98,7 @@ public class MimeUtil {
      * @param entity Represent an 'Entity'
      * @return content-type in 'primarytype/subtype; key=value;' format
      */
-    public static String getContentTypeWithParameters(BStruct entity) {
+    static String getContentTypeWithParameters(BStruct entity) {
         String contentType = null;
         if (entity.getRefField(MEDIA_TYPE_INDEX) != null) {
             BStruct mediaType = (BStruct) entity.getRefField(MEDIA_TYPE_INDEX);
@@ -301,7 +303,7 @@ public class MimeUtil {
      * Write a given inputstream to a given outputstream.
      *
      * @param outputStream Represent the outputstream that the inputstream should be written to
-     * @param inputStream         Represent the inputstream that that needs to be written to outputstream
+     * @param inputStream  Represent the inputstream that that needs to be written to outputstream
      * @throws IOException When an error occurs while writing inputstream to outputstream
      */
     public static void writeInputToOutputStream(InputStream inputStream, OutputStream outputStream) throws
@@ -317,12 +319,12 @@ public class MimeUtil {
      * Given an input stream, get a byte array.
      *
      * @param input Represent an input stream
-     * @return a byte array
+     * @return A byte array
      * @throws IOException In case an error occurs while reading input stream
      */
     static byte[] getByteArray(InputStream input) throws IOException {
         try (ByteArrayOutputStream output = new ByteArrayOutputStream()) {
-            byte[] buffer = new byte[4096];
+            byte[] buffer = new byte[READABLE_BUFFER_SIZE];
             for (int len; (len = input.read(buffer)) != -1; ) {
                 output.write(buffer, 0, len);
             }
@@ -357,6 +359,18 @@ public class MimeUtil {
      */
     public static EntityBody constructEntityBody(BStruct entityStruct) {
         return EntityBodyHandler.getEntityBody(entityStruct.getNativeData(ENTITY_BYTE_CHANNEL));
+    }
+
+    /**
+     * Given a body part, check whether any nested parts are available.
+     *
+     * @param bodyPart Represent a ballerina body part
+     * @return A boolean indicating nested parts availability
+     */
+    static boolean isNestedPartsAvailable(BStruct bodyPart) {
+        String contentTypeOfChildPart = MimeUtil.getContentType(bodyPart);
+        return contentTypeOfChildPart != null && contentTypeOfChildPart.startsWith(MULTIPART_AS_PRIMARY_TYPE) &&
+                bodyPart.getRefField(MULTIPART_DATA_INDEX) != null;
     }
 
     /**

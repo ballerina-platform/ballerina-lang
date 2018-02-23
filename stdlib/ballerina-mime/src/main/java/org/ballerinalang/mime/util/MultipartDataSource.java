@@ -38,13 +38,7 @@ import java.nio.charset.Charset;
 import java.util.Set;
 
 import static org.ballerinalang.mime.util.Constants.BOUNDARY;
-import static org.ballerinalang.mime.util.Constants.CONTENT_DISPOSITION;
-import static org.ballerinalang.mime.util.Constants.CONTENT_ID;
-import static org.ballerinalang.mime.util.Constants.CONTENT_ID_INDEX;
-import static org.ballerinalang.mime.util.Constants.CONTENT_TYPE;
-import static org.ballerinalang.mime.util.Constants.ENTITY_HEADERS_INDEX;
 import static org.ballerinalang.mime.util.Constants.MEDIA_TYPE_INDEX;
-import static org.ballerinalang.mime.util.Constants.MULTIPART_AS_PRIMARY_TYPE;
 import static org.ballerinalang.mime.util.Constants.MULTIPART_DATA_INDEX;
 import static org.ballerinalang.mime.util.Constants.PARAMETER_MAP_INDEX;
 
@@ -117,7 +111,7 @@ public class MultipartDataSource extends BallerinaMessageDataSource {
 
     /**
      * If child part has nested parts, get a new boundary string and set it to Content-Type. After that write the
-     * child part headers to outputstream and serialize its nested parts if any.
+     * child part headers to outputstream and serialize its nested parts if it has any.
      *
      * @param writer    Represent the outputstream writer
      * @param childPart Represent a child part
@@ -125,20 +119,16 @@ public class MultipartDataSource extends BallerinaMessageDataSource {
      */
     private void checkForNestedParts(Writer writer, BStruct childPart) throws IOException {
         String childBoundaryString = null;
-        String contentTypeOfChildPart = MimeUtil.getContentType(childPart);
-        if (contentTypeOfChildPart != null && contentTypeOfChildPart.startsWith(MULTIPART_AS_PRIMARY_TYPE) &&
-                childPart.getRefField(MULTIPART_DATA_INDEX) != null) {
+        if (MimeUtil.isNestedPartsAvailable(childPart)) {
             childBoundaryString = MimeUtil.getNewMultipartDelimiter();
             BStruct mediaType = (BStruct) childPart.getRefField(MEDIA_TYPE_INDEX);
-            BMap<String, BValue> paramMap = (BMap<String, BValue>) mediaType.getRefField(PARAMETER_MAP_INDEX);
-            if (paramMap == null) {
-                paramMap = new BMap<>();
-            }
+            BMap<String, BValue> paramMap = (mediaType.getRefField(PARAMETER_MAP_INDEX) != null) ?
+                    (BMap<String, BValue>) mediaType.getRefField(PARAMETER_MAP_INDEX) : new BMap<>();
             paramMap.put(BOUNDARY, new BString(childBoundaryString));
             mediaType.setRefField(PARAMETER_MAP_INDEX, paramMap);
         }
         writeBodyPartHeaders(writer, childPart);
-        //Check for nested parts
+        //Serialize nested parts
         if (childBoundaryString != null) {
             BRefValueArray nestedParts = (BRefValueArray) childPart.getRefField(MULTIPART_DATA_INDEX);
             if (nestedParts != null && nestedParts.size() > 0) {
@@ -155,10 +145,10 @@ public class MultipartDataSource extends BallerinaMessageDataSource {
      * @throws IOException When an error occurs while writing body part headers
      */
     private void writeBodyPartHeaders(Writer writer, BStruct bodyPart) throws IOException {
-        BMap<String, BValue> entityHeaders = getBodyPartHeaderMap(bodyPart);
-        setContentTypeHeader(bodyPart, entityHeaders);
-        setContentDispositionHeader(bodyPart, entityHeaders);
-        setContentIdHeader(bodyPart, entityHeaders);
+        BMap<String, BValue> entityHeaders = HeaderUtil.getEntityHeaderMap(bodyPart);
+        HeaderUtil.setContentTypeHeader(bodyPart, entityHeaders);
+        HeaderUtil.setContentDispositionHeader(bodyPart, entityHeaders);
+        HeaderUtil.setContentIdHeader(bodyPart, entityHeaders);
         Set<String> keys = entityHeaders.keySet();
         for (String key : keys) {
             BStringArray headerValues = (BStringArray) entityHeaders.get(key);
@@ -181,50 +171,18 @@ public class MultipartDataSource extends BallerinaMessageDataSource {
         writer.flush();
     }
 
-    private BMap<String, BValue> getBodyPartHeaderMap(BStruct bodyPart) {
-        BMap<String, BValue> entityHeaders = bodyPart.getRefField(ENTITY_HEADERS_INDEX) != null ?
-                (BMap) bodyPart.getRefField(ENTITY_HEADERS_INDEX) : null;
-        if (entityHeaders == null) {
-            entityHeaders = new BMap<>();
-        }
-        return entityHeaders;
-    }
-
     /**
-     * Add content type info while is in MediaType struct as an entity header.
+     * Write the final boundary string.
      *
-     * @param bodyPart      Represent a ballerina body part
-     * @param entityHeaders Map of entity headers
+     * @param writer         Represent an outputstream writer
+     * @param boundaryString Represent the boundary as a string
+     * @throws IOException When an error occurs while writing final boundary string
      */
-    private void setContentTypeHeader(BStruct bodyPart, BMap<String, BValue> entityHeaders) {
-        String contentType = MimeUtil.getContentTypeWithParameters(bodyPart);
-        HeaderUtil.addToEntityHeaders(entityHeaders, CONTENT_TYPE, contentType);
-    }
-
-    /**
-     * Add content disposition info while is in ContentDisposition struct as an entity header.
-     *
-     * @param bodyPart      Represent a ballerina body part
-     * @param entityHeaders Map of entity headers
-     */
-    private void setContentDispositionHeader(BStruct bodyPart, BMap<String, BValue> entityHeaders) {
-        String contentDisposition = MimeUtil.getContentDisposition(bodyPart);
-        if (MimeUtil.isNotNullAndEmpty(contentDisposition)) {
-            HeaderUtil.addToEntityHeaders(entityHeaders, CONTENT_DISPOSITION, contentDisposition);
-        }
-    }
-
-    /**
-     * Add content id as an entity header.
-     *
-     * @param bodyPart      Represent a ballerina body part
-     * @param entityHeaders Map of entity headers
-     */
-    private void setContentIdHeader(BStruct bodyPart, BMap<String, BValue> entityHeaders) {
-        String contentId = bodyPart.getStringField(CONTENT_ID_INDEX);
-        if (MimeUtil.isNotNullAndEmpty(contentId)) {
-            HeaderUtil.addToEntityHeaders(entityHeaders, CONTENT_ID, contentId);
-        }
+    private void writeFinalBoundaryString(Writer writer, String boundaryString) throws IOException {
+        writer.write(CRLF_POST_DASH);
+        writer.write(boundaryString);
+        writer.write(CRLF_PRE_DASH);
+        writer.flush();
     }
 
     /**
@@ -241,19 +199,5 @@ public class MultipartDataSource extends BallerinaMessageDataSource {
         } else {
             EntityBodyHandler.writeByteChannelToOutputStream(bodyPart, outputStream);
         }
-    }
-
-    /**
-     * Write the final boundary string.
-     *
-     * @param writer         Represent an outputstream writer
-     * @param boundaryString Represent the boundary as a string
-     * @throws IOException When an error occurs while writing final boundary string
-     */
-    private void writeFinalBoundaryString(Writer writer, String boundaryString) throws IOException {
-        writer.write(CRLF_POST_DASH);
-        writer.write(boundaryString);
-        writer.write(CRLF_PRE_DASH);
-        writer.flush();
     }
 }
