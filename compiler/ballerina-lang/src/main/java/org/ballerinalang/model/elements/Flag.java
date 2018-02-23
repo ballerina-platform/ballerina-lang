@@ -56,7 +56,7 @@ public enum Flag {
      */
     SENSITIVE,
     /**
-     * Indicates Flagged node is a tainted node
+     * Indicates Flagged node is a tainted node.
      */
     TAINTED
 }
