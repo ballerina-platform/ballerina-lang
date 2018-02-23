@@ -70,6 +70,9 @@ public class Http2ClientConnectorImpl implements Http2ClientConnector {
         return httpResponseFuture;
     }
 
+    /**
+     * Listener which wait until connection to be established before sending the message
+     */
     static class ConnectionAvailabilityListener implements ChannelFutureListener {
 
         TargetChannel targetChannel;
@@ -115,25 +118,31 @@ public class Http2ClientConnectorImpl implements Http2ClientConnector {
     }
 
 
-    private HttpRoute getTargetRoute(HTTPCarbonMessage httpCarbonMessage) {
+    /**
+     * Get the {@code HttpRoute} where message need to be sent
+     *
+     * @param message request HTTPCarbonMessage
+     * @return  HTTP route where message need to be sent
+     */
+    private HttpRoute getTargetRoute(HTTPCarbonMessage message) {
 
         // Fetch host
         String host = Constants.LOCALHOST;
-        Object hostProperty = httpCarbonMessage.getProperty(Constants.HOST);
+        Object hostProperty = message.getProperty(Constants.HOST);
         if (hostProperty != null && hostProperty instanceof String) {
             host = (String) hostProperty;
         } else {
-            httpCarbonMessage.setProperty(Constants.HOST, Constants.LOCALHOST);
+            message.setProperty(Constants.HOST, Constants.LOCALHOST);
             log.debug("Cannot find property HOST of type string, hence using localhost as the host");
         }
 
         // Fetch Port
         int port = Constants.DEFAULT_HTTP_PORT;
-        Object intProperty = httpCarbonMessage.getProperty(Constants.PORT);
+        Object intProperty = message.getProperty(Constants.PORT);
         if (intProperty != null && intProperty instanceof Integer) {
             port = (int) intProperty;
         } else {
-            httpCarbonMessage.setProperty(Constants.PORT, Constants.DEFAULT_HTTP_PORT);
+            message.setProperty(Constants.PORT, Constants.DEFAULT_HTTP_PORT);
             log.debug("Cannot find property PORT of type integer, hence using " + port);
         }
 
