@@ -116,4 +116,5 @@ public enum NodeKind {
     SELECT_CLAUSE,
     WHERE,
     FUNCTION_CLAUSE,
+    WINDOW_CLAUSE,
 }

@@ -22,12 +22,14 @@ import org.ballerinalang.model.tree.Node;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
 
 /**
- * This interface represents the function clause in streams/tables SQLish syntax.
+ * This interface represents the "window" clause in streams SQLish syntax.
  * <pre>Grammar:
- *      FUNCTION functionInvocation
+ *      WINDOW functionInvocation
+ * E.g.
+ *      window timeBatch(5 sec)
  * </pre>
  */
-public interface FunctionClauseNode extends Node {
+public interface WindowClauseNode extends Node {
 
     void setFunctionInvocation(ExpressionNode functionInvocation);
 

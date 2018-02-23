@@ -17,7 +17,6 @@
 */
 package org.wso2.ballerinalang.compiler.parser;
 
-import org.antlr.v4.runtime.tree.TerminalNode;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.TreeUtils;
@@ -48,6 +47,7 @@ import org.ballerinalang.model.tree.clauses.HavingNode;
 import org.ballerinalang.model.tree.clauses.OrderByNode;
 import org.ballerinalang.model.tree.clauses.SelectClauseNode;
 import org.ballerinalang.model.tree.clauses.SelectExpressionNode;
+import org.ballerinalang.model.tree.clauses.WindowClauseNode;
 import org.ballerinalang.model.tree.expressions.AnnotationAttachmentAttributeValueNode;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
 import org.ballerinalang.model.tree.expressions.XMLAttributeNode;
@@ -81,13 +81,13 @@ import org.wso2.ballerinalang.compiler.tree.BLangTransformer;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangWorker;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
-import org.wso2.ballerinalang.compiler.tree.clauses.BLangFunctionClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangGroupBy;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangHaving;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangOrderBy;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangSelectClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangSelectExpression;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangWhere;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangWindow;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAttachmentAttribute;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAttachmentAttributeValue;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrayLiteral;
@@ -244,6 +244,8 @@ public class BLangPackageBuilder {
     private Stack<SelectClauseNode> selectClausesStack = new Stack<>();
 
     private Stack<FunctionClauseNode> functionClausesStack = new Stack<>();
+
+    private Stack<WindowClauseNode> windowClausesStack = new Stack<>();
 
     private Set<BLangImportPackage> imports = new HashSet<>();
 
@@ -1981,17 +1983,18 @@ public class BLangPackageBuilder {
         }
     }
 
-    public void startFunctionClauseNode(DiagnosticPos pos, Set<Whitespace> ws) {
-        FunctionClauseNode functionClauseNode = TreeBuilder.createFunctionClauseNode();
-        ((BLangFunctionClause) functionClauseNode).pos = pos;
-        ((BLangFunctionClause) functionClauseNode).addWS(ws);
-        this.functionClausesStack.push(functionClauseNode);
+    public void startWindowClauseNode(DiagnosticPos pos, Set<Whitespace> ws) {
+        WindowClauseNode windowClauseNode = TreeBuilder.createWindowClauseNode();
+        ((BLangWindow) windowClauseNode).pos = pos;
+        ((BLangWindow) windowClauseNode).addWS(ws);
+        this.windowClausesStack.push(windowClauseNode);
     }
 
-    public void endFunctionClauseNode(DiagnosticPos pos, Set<Whitespace> ws) {
-        FunctionClauseNode functionClauseNode = this.functionClausesStack.peek();
-        ((BLangFunctionClause) functionClauseNode).pos = pos;
-        ((BLangFunctionClause) functionClauseNode).addWS(ws);
-        functionClauseNode.setFunctionInvocation(this.exprNodeStack.pop());
+
+    public void endWindowsClauseNode(DiagnosticPos pos, Set<Whitespace> ws) {
+        WindowClauseNode windowClauseNode = this.windowClausesStack.peek();
+        ((BLangWindow) windowClauseNode).pos = pos;
+        ((BLangWindow) windowClauseNode).addWS(ws);
+        windowClauseNode.setFunctionInvocation(this.exprNodeStack.pop());
     }
 }

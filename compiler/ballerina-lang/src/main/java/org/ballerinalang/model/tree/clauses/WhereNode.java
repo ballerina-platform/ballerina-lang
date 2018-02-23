@@ -37,5 +37,4 @@ public interface WhereNode extends Node {
     void setExpression(ExpressionNode expression);
 
     ExpressionNode getExpression();
-
 }

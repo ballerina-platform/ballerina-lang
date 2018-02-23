@@ -701,11 +701,7 @@ setAssignmentClause
     ;
 
 streamingInput
-    :   Identifier streamingConditionList  windowClause? streamingConditionList (AS alias=Identifier)?
-    ;
-
-streamingConditionList
-    :   (whereClasue | functionClause)*
+    :   Identifier whereClause?  windowClause? whereClause? (AS alias=Identifier)?
     ;
 
 joinStreamingInput
@@ -722,10 +718,10 @@ pattenStreamingInput
     ;
 
 pattenStreamingEdgeInput
-    :   Identifier (whereClasue | functionClause)* intRangeExpression? (AS alias=Identifier)?
+    :   Identifier whereClause? intRangeExpression? (AS alias=Identifier)?
     ;
 
-whereClasue
+whereClause
     :   WHERE expression
     ;
 

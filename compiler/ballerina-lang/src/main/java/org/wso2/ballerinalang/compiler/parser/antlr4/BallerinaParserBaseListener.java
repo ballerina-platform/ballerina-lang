@@ -1,4 +1,4 @@
-// Generated from /home/mohan/ballerina/git-new/ballerina/docs/grammar/BallerinaParser.g4 by ANTLR 4.5.3
+// Generated from BallerinaLexer.g4 by ANTLR 4.5.3
 package org.wso2.ballerinalang.compiler.parser.antlr4;
 
 import org.antlr.v4.runtime.ParserRuleContext;
@@ -2176,18 +2176,6 @@ public class BallerinaParserBaseListener implements BallerinaParserListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterStreamingConditionList(BallerinaParser.StreamingConditionListContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitStreamingConditionList(BallerinaParser.StreamingConditionListContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
 	@Override public void enterJoinStreamingInput(BallerinaParser.JoinStreamingInputContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -2224,13 +2212,13 @@ public class BallerinaParserBaseListener implements BallerinaParserListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterWhereClasue(BallerinaParser.WhereClasueContext ctx) { }
+	@Override public void enterWhereClause(BallerinaParser.WhereClauseContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitWhereClasue(BallerinaParser.WhereClasueContext ctx) { }
+	@Override public void exitWhereClause(BallerinaParser.WhereClauseContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
