@@ -19,28 +19,38 @@
 package org.wso2.ballerinalang.compiler.tree.clauses;
 
 import org.ballerinalang.model.tree.NodeKind;
+import org.ballerinalang.model.tree.clauses.JoinStreamingInput;
 import org.ballerinalang.model.tree.clauses.StreamingInput;
-import org.ballerinalang.model.tree.clauses.WhereNode;
+import org.ballerinalang.model.tree.expressions.ExpressionNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 
-import java.util.ArrayList;
-import java.util.List;
-
 /**
- * Implementation of {@link StreamingInput}.
+ * The implementation of {@link JoinStreamingInput}.
  */
-public class BlangStreamingInput extends BLangNode implements StreamingInput {
+public class BLangJoinStreamingInput extends BLangNode implements JoinStreamingInput {
 
-    private List<WhereNode> streamingConditions = new ArrayList<>();
+    private StreamingInput streamingInput;
+    private ExpressionNode onExpression;
+
     @Override
-    public void addStreamingCondition(WhereNode where) {
-        this.streamingConditions.add(where);
+    public void setStreamingInput(StreamingInput streamingInput) {
+        this.streamingInput = streamingInput;
     }
 
     @Override
-    public List<WhereNode> getStreamingConditions() {
-        return this.streamingConditions;
+    public StreamingInput getStreamingInput() {
+        return this.streamingInput;
+    }
+
+    @Override
+    public void setOnExpression(ExpressionNode expression) {
+        this.onExpression = expression;
+    }
+
+    @Override
+    public ExpressionNode getOnExpression() {
+        return this.onExpression;
     }
 
     @Override
@@ -50,6 +60,6 @@ public class BlangStreamingInput extends BLangNode implements StreamingInput {
 
     @Override
     public NodeKind getKind() {
-        return NodeKind.STREAMING_INPUT;
+        return NodeKind.JOIN_STREAMING_INPUT;
     }
 }

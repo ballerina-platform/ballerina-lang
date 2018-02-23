@@ -118,4 +118,5 @@ public enum NodeKind {
     FUNCTION_CLAUSE,
     WINDOW_CLAUSE,
     STREAMING_INPUT,
+    JOIN_STREAMING_INPUT,
 }

@@ -2228,7 +2228,38 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
 
-        this.pkgBuilder.endStreamingInputNode(getCurrentPos(ctx), getWS(ctx));
+        boolean isWindowAvailable = false;
+        boolean isfirstWhereClauseAvailable = false;
+        boolean isSecondWhereClauseAvailable = false;
+        isWindowAvailable = ctx.windowClause() == null ? false : true;
+        isfirstWhereClauseAvailable = ctx.whereClause(0) == null ? false : true;
+        isSecondWhereClauseAvailable = ctx.whereClause(1) == null ? false : true;
+        String identifier = ctx.Identifier(0).getText();
+        String alias = null;
+        if (ctx.alias != null) {
+            alias = ctx.alias.getText();
+        }
+
+        this.pkgBuilder.endStreamingInputNode(isfirstWhereClauseAvailable, isSecondWhereClauseAvailable,
+                isWindowAvailable, identifier, alias, getCurrentPos(ctx), getWS(ctx));
+    }
+
+    @Override
+    public void enterJoinStreamingInput(BallerinaParser.JoinStreamingInputContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+
+        this.pkgBuilder.startJoinStreamingInputNode(getCurrentPos(ctx), getWS(ctx));
+    }
+
+    @Override
+    public void exitJoinStreamingInput(BallerinaParser.JoinStreamingInputContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+
+        this.pkgBuilder.endJoinStreamingInputNode(getCurrentPos(ctx), getWS(ctx));
     }
 
     private DiagnosticPos getCurrentPos(ParserRuleContext ctx) {
