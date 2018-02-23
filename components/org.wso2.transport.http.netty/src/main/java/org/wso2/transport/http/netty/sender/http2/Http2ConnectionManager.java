@@ -32,15 +32,18 @@ import org.wso2.transport.http.netty.common.HttpRoute;
 import org.wso2.transport.http.netty.config.SenderConfiguration;
 
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 /**
- * Mange HTTP/2 connections
+ * {@code Http2ConnectionManager} Manages HTTP/2 connections
  */
 public class Http2ConnectionManager {
 
     private static final Logger log = LoggerFactory.getLogger(Http2ConnectionManager.class);
-
     private static ConcurrentHashMap<String, TargetChannel> clientConnections = new ConcurrentHashMap<>();
+    /* Lock for synchronizing access */
+    private Lock lock = new ReentrantLock();
 
     private static Http2ConnectionManager instance = new Http2ConnectionManager();
 
@@ -56,7 +59,16 @@ public class Http2ConnectionManager {
         String key = generateKey(httpRoute);
         TargetChannel channel = fetchConnectionFromPool(key);
         if (channel == null) {
-            channel = createNewConnection(httpRoute, senderConfig);
+            // double locking is to prevent 2 connections get created for same host:port pair under concurrency
+            lock.lock();
+            try {
+                channel = fetchConnectionFromPool(key);
+                if (channel == null) {
+                    channel = createNewConnection(httpRoute, senderConfig);
+                }
+            } finally {
+                lock.unlock();
+            }
         }
         return channel;
     }
@@ -64,6 +76,8 @@ public class Http2ConnectionManager {
     private TargetChannel createNewConnection(HttpRoute httpRoute, SenderConfiguration senderConfig) {
 
         Http2ClientInitializer initializer = new Http2ClientInitializer(senderConfig);
+
+        // Bootstrapping
         EventLoopGroup workerGroup = new NioEventLoopGroup();
         Bootstrap clientBootstrap = new Bootstrap();
         clientBootstrap.group(workerGroup);
@@ -72,30 +86,47 @@ public class Http2ConnectionManager {
         clientBootstrap.remoteAddress(httpRoute.getHost(), httpRoute.getPort());
         clientBootstrap.handler(initializer);
 
-        // Start the client.
+        // Start the client
         ChannelFuture channelFuture = clientBootstrap.connect();
-
         log.debug("Created channel: {}", httpRoute);
+
+        // Create data holders which stores connection information
         TargetChannel targetChannel = new TargetChannel(initializer, channelFuture);
         Http2ClientHandler clientHandler = initializer.getHttp2ClientHandler();
-        targetChannel.setClientHandler(clientHandler);
         clientHandler.setTargetChannel(targetChannel);
-
         String key = generateKey(httpRoute);
         clientConnections.put(key, targetChannel);
 
+        // Configure a listener to remove connection from pool when it is closed
         channelFuture.channel().closeFuture().addListener(future -> clientConnections.remove(key));
         return targetChannel;
     }
 
+    /**
+     * Fetch a connection from the pool
+     *
+     * No need to remove from the pool when fetching as same connection can be shared across multiple requests
+     * (HTTP/2 Multiplexing)
+     *
+     * @param key host:port combination key
+     * @return  TargetChannel already available in the pool
+     */
     private TargetChannel fetchConnectionFromPool(String key) {
 
         TargetChannel targetChannel = null;
         if (clientConnections.containsKey(key)) {
+            log.debug("Fetched connection for : {} route from the pool", key);
             targetChannel = clientConnections.get(key);
             Channel channel = targetChannel.getChannel();
             Http2Connection.Endpoint localEndpoint = targetChannel.getConnection().local();
-            if (!(channel.isActive() && localEndpoint.canOpenStream())) {
+            if (!channel.isActive()) {
+                log.debug("Channel available for : {} route in the pool is not active, hence removing", key);
+                clientConnections.remove(key);
+                return null;
+            }
+
+            if (!localEndpoint.canOpenStream()) {
+                log.debug("Channel available for : {} route in the pool cannot have more streams, hence removing", key);
                 clientConnections.remove(key);
                 return null;
             }

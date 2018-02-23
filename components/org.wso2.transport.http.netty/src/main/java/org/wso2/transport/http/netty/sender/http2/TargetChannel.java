@@ -47,6 +47,7 @@ public class TargetChannel {
         this.channelFuture = channelFuture;
         channel = channelFuture.channel();
         connection = http2ClientInitializer.getHttp2ClientHandler().getConnection();
+        clientHandler = http2ClientInitializer.getHttp2ClientHandler();
         pendingMessages = new ConcurrentLinkedQueue<>();
     }
 
@@ -56,14 +57,6 @@ public class TargetChannel {
 
     public Http2ClientHandler getClientHandler() {
         return clientHandler;
-    }
-
-    public void setClientHandler(Http2ClientHandler clientHandler) {
-        this.clientHandler = clientHandler;
-    }
-
-    public Http2ClientInitializer getHttp2ClientInitializer() {
-        return http2ClientInitializer;
     }
 
     public Http2Connection getConnection() {

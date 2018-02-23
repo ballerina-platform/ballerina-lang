@@ -75,7 +75,7 @@ public class Http2ClientHandler extends ChannelDuplexHandler {
     private Http2ConnectionEncoder encoder;
     private TargetChannel targetChannel;
 
-    /** Lock for synchronizing access */
+    /* Lock for synchronizing access */
     private Lock lock = new ReentrantLock();
 
     public Http2ClientHandler(Http2Connection connection, Http2ConnectionEncoder encoder) {
