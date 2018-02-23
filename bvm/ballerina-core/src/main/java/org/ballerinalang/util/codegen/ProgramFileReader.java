@@ -1395,7 +1395,6 @@ public class ProgramFileReader {
                 case InstructionCodes.ERRSTORE:
                 case InstructionCodes.TR_END:
                 case InstructionCodes.NEWMAP:
-                case InstructionCodes.NEWTABLE:
                 case InstructionCodes.NEWSTREAM:
                     i = codeStream.readInt();
                     packageInfo.addInstruction(InstructionFactory.get(opcode, i));
@@ -1465,6 +1464,7 @@ public class ProgramFileReader {
                 case InstructionCodes.SEQ_NULL:
                 case InstructionCodes.SNE_NULL:
                 case InstructionCodes.NEWJSON:
+                case InstructionCodes.NEWTABLE:
                     i = codeStream.readInt();
                     j = codeStream.readInt();
                     packageInfo.addInstruction(InstructionFactory.get(opcode, i, j));

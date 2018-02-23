@@ -1900,16 +1900,6 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 */
 	void exitStreamingInput(BallerinaParser.StreamingInputContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link BallerinaParser#streamingConditionList}.
-	 * @param ctx the parse tree
-	 */
-	void enterStreamingConditionList(BallerinaParser.StreamingConditionListContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link BallerinaParser#streamingConditionList}.
-	 * @param ctx the parse tree
-	 */
-	void exitStreamingConditionList(BallerinaParser.StreamingConditionListContext ctx);
-	/**
 	 * Enter a parse tree produced by {@link BallerinaParser#joinStreamingInput}.
 	 * @param ctx the parse tree
 	 */

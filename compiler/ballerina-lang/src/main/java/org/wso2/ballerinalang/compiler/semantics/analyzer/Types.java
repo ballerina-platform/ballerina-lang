@@ -269,13 +269,15 @@ public class Types {
         }
 
         for (int i = 0; i < source.paramTypes.size(); i++) {
-            if (!isSameType(source.paramTypes.get(i), target.paramTypes.get(i))) {
+            if (target.paramTypes.get(i).tag != TypeTags.ANY && !isSameType(source.paramTypes.get(i),
+                    target.paramTypes.get(i))) {
                 return false;
             }
         }
 
         for (int i = 0; i < source.retTypes.size(); i++) {
-            if (!isSameType(source.retTypes.get(i), target.retTypes.get(i))) {
+            if (target.retTypes.get(i).tag != TypeTags.ANY && !isSameType(source.retTypes.get(i),
+                    target.retTypes.get(i))) {
                 return false;
             }
         }

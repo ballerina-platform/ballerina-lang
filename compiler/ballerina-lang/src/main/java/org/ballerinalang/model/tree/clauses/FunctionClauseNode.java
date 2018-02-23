@@ -32,5 +32,4 @@ public interface FunctionClauseNode extends Node {
     void setFunctionInvocation(ExpressionNode functionInvocation);
 
     ExpressionNode getFunctionInvocation();
-
 }

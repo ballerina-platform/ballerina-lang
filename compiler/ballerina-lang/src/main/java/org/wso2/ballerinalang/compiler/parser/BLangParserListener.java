@@ -2196,21 +2196,39 @@ public class BLangParserListener extends BallerinaParserBaseListener {
     }
 
     @Override
-    public void enterFunctionClause(BallerinaParser.FunctionClauseContext ctx) {
+    public void enterWindowClause(BallerinaParser.WindowClauseContext ctx) {
         if (ctx.exception != null) {
             return;
         }
 
-        this.pkgBuilder.startFunctionClauseNode(getCurrentPos(ctx), getWS(ctx));
+        this.pkgBuilder.startWindowClauseNode(getCurrentPos(ctx), getWS(ctx));
     }
 
     @Override
-    public void exitFunctionClause(BallerinaParser.FunctionClauseContext ctx) {
+    public void exitWindowClause(BallerinaParser.WindowClauseContext ctx) {
         if (ctx.exception != null) {
             return;
         }
 
-        this.pkgBuilder.endFunctionClauseNode(getCurrentPos(ctx), getWS(ctx));
+        this.pkgBuilder.endWindowsClauseNode(getCurrentPos(ctx), getWS(ctx));
+    }
+
+    @Override
+    public void enterStreamingInput(BallerinaParser.StreamingInputContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+
+        this.pkgBuilder.startStreamingInputNode(getCurrentPos(ctx), getWS(ctx));
+    }
+
+    @Override
+    public void exitStreamingInput(BallerinaParser.StreamingInputContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+
+        this.pkgBuilder.endStreamingInputNode(getCurrentPos(ctx), getWS(ctx));
     }
 
     @Override

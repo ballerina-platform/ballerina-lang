@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.ballerinalang.composer.service.ballerina.swagger.service;
+package org.ballerinalang.ballerina.swagger.convertor.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -32,8 +32,8 @@ import io.swagger.models.auth.In;
 import io.swagger.models.auth.OAuth2Definition;
 import io.swagger.models.auth.SecuritySchemeDefinition;
 import io.swagger.util.Json;
-import org.ballerinalang.composer.service.ballerina.swagger.service.model.Developer;
-import org.ballerinalang.composer.service.ballerina.swagger.service.model.Organization;
+import org.ballerinalang.ballerina.swagger.convertor.service.model.Developer;
+import org.ballerinalang.ballerina.swagger.convertor.service.model.Organization;
 import org.ballerinalang.model.tree.AnnotationAttachmentNode;
 import org.ballerinalang.model.tree.ServiceNode;
 import org.ballerinalang.model.tree.expressions.AnnotationAttachmentAttributeNode;

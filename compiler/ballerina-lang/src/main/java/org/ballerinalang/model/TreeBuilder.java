@@ -42,6 +42,9 @@ import org.ballerinalang.model.tree.clauses.OrderByNode;
 import org.ballerinalang.model.tree.clauses.PatternStreamingEdgeInputNode;
 import org.ballerinalang.model.tree.clauses.SelectClauseNode;
 import org.ballerinalang.model.tree.clauses.SelectExpressionNode;
+import org.ballerinalang.model.tree.clauses.StreamingInput;
+import org.ballerinalang.model.tree.clauses.WhereNode;
+import org.ballerinalang.model.tree.clauses.WindowClauseNode;
 import org.ballerinalang.model.tree.clauses.SetAssignmentNode;
 import org.ballerinalang.model.tree.clauses.StreamActionNode;
 import org.ballerinalang.model.tree.clauses.WindowNode;
@@ -88,7 +91,6 @@ import org.ballerinalang.model.tree.statements.ThrowNode;
 import org.ballerinalang.model.tree.statements.TransactionNode;
 import org.ballerinalang.model.tree.statements.TryCatchFinallyNode;
 import org.ballerinalang.model.tree.statements.VariableDefinitionNode;
-import org.ballerinalang.model.tree.statements.WhereNode;
 import org.ballerinalang.model.tree.statements.WhileNode;
 import org.ballerinalang.model.tree.statements.WorkerReceiveNode;
 import org.ballerinalang.model.tree.statements.WorkerSendNode;
@@ -130,6 +132,8 @@ import org.wso2.ballerinalang.compiler.tree.clauses.BLangSelectExpression;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangSetAssignment;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangStreamAction;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangWhere;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangWindow;
+import org.wso2.ballerinalang.compiler.tree.clauses.BlangStreamingInput;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangWindow;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAttachmentAttribute;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAttachmentAttributeValue;
@@ -527,6 +531,14 @@ public class TreeBuilder {
         return new BLangFunctionClause();
     }
 
+    public static WindowClauseNode createWindowClauseNode() {
+        return new BLangWindow();
+    }
+
+    public static StreamingInput createStreamingInputNode() {
+        return new BlangStreamingInput();
+    }
+
     public static SetAssignmentNode createSetAssignmentNode() {
         return new BLangSetAssignment();
     }
@@ -537,9 +549,5 @@ public class TreeBuilder {
 
     public static PatternStreamingEdgeInputNode createPatternStreamingEdgeInputNode() {
         return new BLangPatternStreamingEdgeInput();
-    }
-
-    public static WindowNode createWindowNode() {
-        return new BLangWindow();
     }
 }

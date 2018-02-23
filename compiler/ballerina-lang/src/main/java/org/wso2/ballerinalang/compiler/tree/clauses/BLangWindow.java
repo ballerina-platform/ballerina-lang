@@ -19,19 +19,27 @@
 package org.wso2.ballerinalang.compiler.tree.clauses;
 
 import org.ballerinalang.model.tree.NodeKind;
-import org.ballerinalang.model.tree.clauses.WindowNode;
+import org.ballerinalang.model.tree.clauses.WindowClauseNode;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 
 /**
- * Implementation of {@link WindowNode}.
- *
- * @see WindowNode
+ * Implementation of {@link WindowClauseNode}.
  */
-public class BLangWindow extends BLangNode implements WindowNode {
+public class BLangWindow extends BLangNode implements WindowClauseNode {
 
-    private ExpressionNode function;
+    private ExpressionNode functionInvocation;
+
+    @Override
+    public void setFunctionInvocation(ExpressionNode functionInvocation) {
+        this.functionInvocation = functionInvocation;
+    }
+
+    @Override
+    public ExpressionNode getFunctionInvocation() {
+        return this.functionInvocation;
+    }
 
     @Override
     public void accept(BLangNodeVisitor visitor) {
@@ -40,16 +48,6 @@ public class BLangWindow extends BLangNode implements WindowNode {
 
     @Override
     public NodeKind getKind() {
-        return NodeKind.WINDOW;
-    }
-
-    @Override
-    public void setFunction(ExpressionNode function) {
-        this.function = function;
-    }
-
-    @Override
-    public ExpressionNode getFunction() {
-        return function;
+        return NodeKind.WINDOW_CLAUSE;
     }
 }

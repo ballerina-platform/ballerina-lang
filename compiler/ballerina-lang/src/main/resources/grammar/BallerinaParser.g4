@@ -701,11 +701,7 @@ setAssignmentClause
     ;
 
 streamingInput
-    :   Identifier streamingConditionList  windowClause? streamingConditionList (AS alias=Identifier)?
-    ;
-
-streamingConditionList
-    :   (whereClause | functionClause)*
+    :   Identifier whereClause?  windowClause? whereClause? (AS alias=Identifier)?
     ;
 
 joinStreamingInput
@@ -740,4 +736,3 @@ windowClause
 queryDeclaration
      :   QUERY Identifier LEFT_BRACE streamingQueryStatement RIGHT_BRACE
      ;
-
