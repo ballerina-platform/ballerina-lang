@@ -2178,7 +2178,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
     }
 
     @Override
-    public void enterWhereClasue(BallerinaParser.WhereClasueContext ctx) {
+    public void enterWhereClause(BallerinaParser.WhereClauseContext ctx) {
         if (ctx.exception != null) {
             return;
         }
@@ -2187,7 +2187,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
     }
 
     @Override
-    public void exitWhereClasue(BallerinaParser.WhereClasueContext ctx) {
+    public void exitWhereClause(BallerinaParser.WhereClauseContext ctx) {
         if (ctx.exception != null) {
             return;
         }
@@ -2266,6 +2266,44 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
         this.pkgBuilder.endStreamActionNode(getCurrentPos(ctx), getWS(ctx), ctx.Identifier().getText(),
                 ctx.getChild(0).getText());
+    }
+
+    @Override
+    public void enterPattenStreamingEdgeInput(BallerinaParser.PattenStreamingEdgeInputContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+        this.pkgBuilder.startPatternStreamingEdgeInputNode(getCurrentPos(ctx), getWS(ctx));
+    }
+
+    @Override
+    public void exitPattenStreamingEdgeInput(BallerinaParser.PattenStreamingEdgeInputContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+
+        String alias = null;
+        if (ctx.Identifier().size() == 2) {
+            alias = ctx.Identifier().get(1).getText();
+        }
+
+        this.pkgBuilder.endPatternStreamingEdgeInputNode(getCurrentPos(ctx), getWS(ctx),
+                ctx.Identifier().get(0).getText(), alias);
+    }
+
+    @Override
+    public void enterWindowClause(BallerinaParser.WindowClauseContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+        this.pkgBuilder.startWindowNode(getCurrentPos(ctx), getWS(ctx));
+    }
+
+    @Override public void exitWindowClause(BallerinaParser.WindowClauseContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+        this.pkgBuilder.endWindowNode(getCurrentPos(ctx), getWS(ctx));
     }
 
     private DiagnosticPos getCurrentPos(ParserRuleContext ctx) {

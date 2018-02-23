@@ -16,40 +16,38 @@
  * under the License.
  */
 
-package org.wso2.ballerinalang.compiler.tree.clauses;
+package org.ballerinalang.model.tree.clauses;
 
-import org.ballerinalang.model.tree.NodeKind;
+import org.ballerinalang.model.tree.Node;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
 import org.ballerinalang.model.tree.statements.WhereNode;
-import org.wso2.ballerinalang.compiler.tree.BLangNode;
-import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 
 /**
- * Implementation of {@link WhereNode}.
- * @see WhereNode
+ * The interface with the APIs to implement the "pattern" in ballerina streams/table SQLish syntax.
+ * <pre>Grammar:
+ *     Identifier whereClause? intRangeExpression? (AS alias=Identifier)?
+ *
+ * E.g.
+ *      TempStream where e1.roomNo==roomNo [1..5) as e2
+ * </pre>
  */
-public class BLangWhere extends BLangNode implements WhereNode {
 
-    private ExpressionNode expression;
+public interface PatternStreamingEdgeInputNode extends Node {
 
-    @Override
-    public void accept(BLangNodeVisitor visitor) {
-        visitor.visit(this);
-    }
 
-    @Override
-    public NodeKind getKind() {
-        return NodeKind.WHERE;
-    }
+    void setIdentifier(String identifier);
 
-    @Override
-    public void setExpression(ExpressionNode expression) {
-        this.expression = expression;
-    }
+    void setWhereClause(WhereNode whereNode);
 
-    @Override
-    public ExpressionNode getExpression() {
-        return this.expression;
-    }
+    void setExpression(ExpressionNode expressionNode);
 
+    String getIdentifier();
+
+    WhereNode getWhereClause();
+
+    ExpressionNode getExpression();
+
+    void setAliasIdentifier (String alias);
+
+    String getAliasIdentifier();
 }

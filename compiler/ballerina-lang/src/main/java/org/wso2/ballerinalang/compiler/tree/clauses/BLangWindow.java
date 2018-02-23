@@ -19,18 +19,19 @@
 package org.wso2.ballerinalang.compiler.tree.clauses;
 
 import org.ballerinalang.model.tree.NodeKind;
+import org.ballerinalang.model.tree.clauses.WindowNode;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
-import org.ballerinalang.model.tree.statements.WhereNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 
 /**
- * Implementation of {@link WhereNode}.
- * @see WhereNode
+ * Implementation of {@link WindowNode}.
+ *
+ * @see WindowNode
  */
-public class BLangWhere extends BLangNode implements WhereNode {
+public class BLangWindow extends BLangNode implements WindowNode {
 
-    private ExpressionNode expression;
+    private ExpressionNode function;
 
     @Override
     public void accept(BLangNodeVisitor visitor) {
@@ -39,17 +40,16 @@ public class BLangWhere extends BLangNode implements WhereNode {
 
     @Override
     public NodeKind getKind() {
-        return NodeKind.WHERE;
+        return NodeKind.WINDOW;
     }
 
     @Override
-    public void setExpression(ExpressionNode expression) {
-        this.expression = expression;
+    public void setFunction(ExpressionNode function) {
+        this.function = function;
     }
 
     @Override
-    public ExpressionNode getExpression() {
-        return this.expression;
+    public ExpressionNode getFunction() {
+        return function;
     }
-
 }

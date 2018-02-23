@@ -119,4 +119,6 @@ public enum NodeKind {
     SET_ASSIGNMENT_CLAUSE,
     SET,
     STREAM_ACTION,
+    PATTERN_STREAMING_EDGE_INPUT,
+    WINDOW,
 }

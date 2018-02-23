@@ -1,4 +1,4 @@
-// Generated from /home/mohan/ballerina/git-new/ballerina/docs/grammar/BallerinaParser.g4 by ANTLR 4.5.3
+// Generated from /home/mohan/ballerina/git-new/ballerina/compiler/ballerina-lang/src/main/resources/grammar/BallerinaParser.g4 by ANTLR 4.5.3
 package org.wso2.ballerinalang.compiler.parser.antlr4;
 
 import org.antlr.v4.runtime.ParserRuleContext;
@@ -2224,13 +2224,13 @@ public class BallerinaParserBaseListener implements BallerinaParserListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterWhereClasue(BallerinaParser.WhereClasueContext ctx) { }
+	@Override public void enterWhereClause(BallerinaParser.WhereClauseContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitWhereClasue(BallerinaParser.WhereClasueContext ctx) { }
+	@Override public void exitWhereClause(BallerinaParser.WhereClauseContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
@@ -2267,18 +2267,6 @@ public class BallerinaParserBaseListener implements BallerinaParserListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitQueryDeclaration(BallerinaParser.QueryDeclarationContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterQueryDefinition(BallerinaParser.QueryDefinitionContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitQueryDefinition(BallerinaParser.QueryDefinitionContext ctx) { }
 
 	/**
 	 * {@inheritDoc}

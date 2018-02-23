@@ -19,18 +19,24 @@
 package org.wso2.ballerinalang.compiler.tree.clauses;
 
 import org.ballerinalang.model.tree.NodeKind;
+import org.ballerinalang.model.tree.clauses.PatternStreamingEdgeInputNode;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
 import org.ballerinalang.model.tree.statements.WhereNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 
 /**
- * Implementation of {@link WhereNode}.
- * @see WhereNode
+ * Implementation of {@link PatternStreamingEdgeInputNode}.
  */
-public class BLangWhere extends BLangNode implements WhereNode {
+public class BLangPatternStreamingEdgeInput extends BLangNode implements PatternStreamingEdgeInputNode {
 
-    private ExpressionNode expression;
+    private String identifierName;
+
+    private String alias;
+
+    private ExpressionNode expressionNode;
+
+    private WhereNode whereNode;
 
     @Override
     public void accept(BLangNodeVisitor visitor) {
@@ -39,17 +45,48 @@ public class BLangWhere extends BLangNode implements WhereNode {
 
     @Override
     public NodeKind getKind() {
-        return NodeKind.WHERE;
+        return NodeKind.PATTERN_STREAMING_EDGE_INPUT;
     }
 
     @Override
-    public void setExpression(ExpressionNode expression) {
-        this.expression = expression;
+    public void setIdentifier(String identifier) {
+        this.identifierName = identifier;
+    }
+
+    @Override
+    public void setWhereClause(WhereNode whereNode) {
+        this.whereNode = whereNode;
+    }
+
+    @Override
+    public void setExpression(ExpressionNode expressionNode) {
+        this.expressionNode = expressionNode;
+    }
+
+    @Override
+    public String getIdentifier() {
+        return identifierName;
+    }
+
+    @Override
+    public WhereNode getWhereClause() {
+        return whereNode;
     }
 
     @Override
     public ExpressionNode getExpression() {
-        return this.expression;
+        return expressionNode;
     }
+
+    @Override
+    public void setAliasIdentifier(String alias) {
+        this.alias = alias;
+    }
+
+    @Override
+    public String getAliasIdentifier() {
+        return alias;
+    }
+
 
 }

@@ -17,7 +17,6 @@
 */
 package org.wso2.ballerinalang.compiler.parser;
 
-import org.antlr.v4.runtime.tree.TerminalNode;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.TreeUtils;
@@ -46,10 +45,12 @@ import org.ballerinalang.model.tree.clauses.FunctionClauseNode;
 import org.ballerinalang.model.tree.clauses.GroupByNode;
 import org.ballerinalang.model.tree.clauses.HavingNode;
 import org.ballerinalang.model.tree.clauses.OrderByNode;
+import org.ballerinalang.model.tree.clauses.PatternStreamingEdgeInputNode;
 import org.ballerinalang.model.tree.clauses.SelectClauseNode;
 import org.ballerinalang.model.tree.clauses.SelectExpressionNode;
 import org.ballerinalang.model.tree.clauses.SetAssignmentNode;
 import org.ballerinalang.model.tree.clauses.StreamActionNode;
+import org.ballerinalang.model.tree.clauses.WindowNode;
 import org.ballerinalang.model.tree.expressions.AnnotationAttachmentAttributeValueNode;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
 import org.ballerinalang.model.tree.expressions.XMLAttributeNode;
@@ -87,11 +88,13 @@ import org.wso2.ballerinalang.compiler.tree.clauses.BLangFunctionClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangGroupBy;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangHaving;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangOrderBy;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangPatternStreamingEdgeInput;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangSelectClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangSelectExpression;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangSetAssignment;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangStreamAction;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangWhere;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangWindow;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAttachmentAttribute;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAttachmentAttributeValue;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrayLiteral;
@@ -254,6 +257,10 @@ public class BLangPackageBuilder {
     private Stack<List<SetAssignmentNode>> setAssignmentListStack = new Stack<>();
 
     private Stack<StreamActionNode> streamActionNodeStack = new Stack<>();
+
+    private Stack<PatternStreamingEdgeInputNode> patternStreamingEdgeInputStack = new Stack<>();
+
+    private Stack<WindowNode> windowClauseStack = new Stack<>();
 
     private Set<BLangImportPackage> imports = new HashSet<>();
 
@@ -2012,11 +2019,15 @@ public class BLangPackageBuilder {
         this.setAssignmentStack.push(setAssignmentNode);
     }
 
-    public void endSetAssignmentClauseNode(DiagnosticPos currentPos, Set<Whitespace> ws) {
+    public void endSetAssignmentClauseNode(DiagnosticPos pos, Set<Whitespace> ws) {
         if (this.exprNodeStack.empty()) {
             throw new IllegalStateException("Expression stack cannot be empty in processing a Set Assignment Clause");
         }
         SetAssignmentNode setAssignmentNode = this.setAssignmentStack.peek();
+
+        ((BLangSetAssignment) setAssignmentNode).pos = pos;
+        ((BLangSetAssignment) setAssignmentNode).addWS(ws);
+
         setAssignmentNode.setExpression(exprNodeStack.pop());
         setAssignmentNode.setVariableReference(exprNodeStack.pop());
     }
@@ -2048,16 +2059,60 @@ public class BLangPackageBuilder {
         this.streamActionNodeStack.push(streamActionNode);
     }
 
-    public void endStreamActionNode(DiagnosticPos currentPos, Set<Whitespace> ws, String identifier, String action) {
-        if (this.exprNodeStack.empty()) {
-            throw new IllegalStateException("Expression stack cannot be empty in processing a Stream Action clause");
-        }
+    public void endStreamActionNode(DiagnosticPos pos, Set<Whitespace> ws, String identifier, String action) {
         StreamActionNode streamActionNode = this.streamActionNodeStack.peek();
+
+        ((BLangStreamAction) streamActionNode).pos = pos;
+        ((BLangStreamAction) streamActionNode).addWS(ws);
 
         streamActionNode.setExpression(exprNodeStack.pop());
         streamActionNode.setSetClause(setAssignmentListStack.pop());
         streamActionNode.setIdentifier(identifier);
         streamActionNode.setStreamActionType(action);
+    }
+
+    public void startPatternStreamingEdgeInputNode(DiagnosticPos pos, Set<Whitespace> ws) {
+        PatternStreamingEdgeInputNode patternStreamingEdgeInputNode = TreeBuilder.createPatternStreamingEdgeInputNode();
+        ((BLangPatternStreamingEdgeInput) patternStreamingEdgeInputNode).pos = pos;
+        ((BLangPatternStreamingEdgeInput) patternStreamingEdgeInputNode).addWS(ws);
+        this.patternStreamingEdgeInputStack.push(patternStreamingEdgeInputNode);
+    }
+
+    public void endPatternStreamingEdgeInputNode(DiagnosticPos pos, Set<Whitespace> ws, String identifier,
+                                                 String alias) {
+
+        PatternStreamingEdgeInputNode patternStreamingEdgeInputNode = this.patternStreamingEdgeInputStack.peek();
+
+        ((BLangPatternStreamingEdgeInput) patternStreamingEdgeInputNode).pos = pos;
+        ((BLangPatternStreamingEdgeInput) patternStreamingEdgeInputNode).addWS(ws);
+
+
+        if (!exprNodeStack.isEmpty()) {
+            patternStreamingEdgeInputNode.setExpression(exprNodeStack.pop());
+        }
+
+        if (!whereClauseStack.isEmpty()) {
+            patternStreamingEdgeInputNode.setWhereClause(whereClauseStack.pop());
+        }
+        patternStreamingEdgeInputNode.setIdentifier(identifier);
+        patternStreamingEdgeInputNode.setAliasIdentifier(alias);
+    }
+
+    public void startWindowNode(DiagnosticPos pos, Set<Whitespace> ws) {
+        WindowNode windowNode = TreeBuilder.createWindowNode();
+        ((BLangWindow) windowNode).pos = pos;
+        ((BLangWindow) windowNode).addWS(ws);
+        this.windowClauseStack.push(windowNode);
+    }
+
+    public void endWindowNode(DiagnosticPos pos, Set<Whitespace> ws) {
+        WindowNode windowNode = this.windowClauseStack.peek();
+        ((BLangWindow) windowNode).pos = pos;
+        ((BLangWindow) windowNode).addWS(ws);
+
+        if (!exprNodeStack.isEmpty()) {
+            windowNode.setFunction(this.exprNodeStack.pop());
+        }
     }
 
 }

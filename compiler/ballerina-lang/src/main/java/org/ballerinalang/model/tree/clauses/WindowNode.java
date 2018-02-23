@@ -15,25 +15,25 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.ballerinalang.model.tree.statements;
+package org.ballerinalang.model.tree.clauses;
 
 import org.ballerinalang.model.tree.Node;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
 
 /**
- * The interface with the APIs to implement the "where" in ballerina streams/table SQLish syntax.
+ * The interface with the APIs to implement the "window" in ballerina streams/table SQLish syntax.
  * <pre> Grammar:
- *      where expressionList
+ *      window functionInvocation
  *
  * E.g
- *      where age > 20;
+ *      window time(20min)
  * </pre>
  */
 
-public interface WhereNode extends Node {
+public interface WindowNode extends Node {
 
-    void setExpression(ExpressionNode expression);
+    void setFunction(ExpressionNode function);
 
-    ExpressionNode getExpression();
+    ExpressionNode getFunction();
 
 }

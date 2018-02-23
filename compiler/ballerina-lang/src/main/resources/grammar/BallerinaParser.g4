@@ -705,7 +705,7 @@ streamingInput
     ;
 
 streamingConditionList
-    :   (whereClasue | functionClause)*
+    :   (whereClause | functionClause)*
     ;
 
 joinStreamingInput
@@ -722,10 +722,10 @@ pattenStreamingInput
     ;
 
 pattenStreamingEdgeInput
-    :   Identifier (whereClasue | functionClause)* intRangeExpression? (AS alias=Identifier)?
+    :   Identifier whereClause? intRangeExpression? (AS alias=Identifier)?
     ;
 
-whereClasue
+whereClause
     :   WHERE expression
     ;
 
@@ -738,9 +738,6 @@ windowClause
     ;
 
 queryDeclaration
-     :   queryDefinition LEFT_BRACE streamingQueryStatement RIGHT_BRACE
+     :   QUERY Identifier LEFT_BRACE streamingQueryStatement RIGHT_BRACE
      ;
 
-queryDefinition
-     :   QUERY Identifier
-     ;
