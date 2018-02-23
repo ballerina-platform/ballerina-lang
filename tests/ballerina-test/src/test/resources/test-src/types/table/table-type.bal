@@ -1047,7 +1047,8 @@ function testTableAddInvalid () {
                                    0, "TEST_DATA_TABLE_DB", "SA", "", {maximumPoolSize:1});
     }
 
-    table<ResultPrimitiveInt> dt = testDB.select("SELECT int_type from DataTableRep", null, typeof ResultPrimitiveInt);
+    table<ResultPrimitiveInt> dt = testDB.selectQuery("SELECT int_type from DataTableRep", null, typeof
+            ResultPrimitiveInt);
     try {
         ResultPrimitiveInt row = {INT_TYPE:443};
         dt.add(row);
@@ -1062,7 +1063,8 @@ function testTableRemoveInvalid () {
                                    0, "TEST_DATA_TABLE_DB", "SA", "", {maximumPoolSize:1});
     }
 
-    table<ResultPrimitiveInt> dt = testDB.select("SELECT int_type from DataTableRep", null, typeof ResultPrimitiveInt);
+    table<ResultPrimitiveInt> dt = testDB.selectQuery("SELECT int_type from DataTableRep", null, typeof
+            ResultPrimitiveInt);
     try {
         ResultPrimitiveInt row = {INT_TYPE:443};
         _ = dt.remove(isDelete);

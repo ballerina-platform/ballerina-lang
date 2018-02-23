@@ -117,4 +117,5 @@ public enum NodeKind {
     WHERE,
     FUNCTION_CLAUSE,
     WINDOW_CLAUSE,
+    STREAMING_INPUT,
 }

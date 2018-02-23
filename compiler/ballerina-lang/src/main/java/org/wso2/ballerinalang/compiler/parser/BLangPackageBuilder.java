@@ -47,6 +47,8 @@ import org.ballerinalang.model.tree.clauses.HavingNode;
 import org.ballerinalang.model.tree.clauses.OrderByNode;
 import org.ballerinalang.model.tree.clauses.SelectClauseNode;
 import org.ballerinalang.model.tree.clauses.SelectExpressionNode;
+import org.ballerinalang.model.tree.clauses.StreamingInput;
+import org.ballerinalang.model.tree.clauses.WhereNode;
 import org.ballerinalang.model.tree.clauses.WindowClauseNode;
 import org.ballerinalang.model.tree.expressions.AnnotationAttachmentAttributeValueNode;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
@@ -58,7 +60,6 @@ import org.ballerinalang.model.tree.statements.IfNode;
 import org.ballerinalang.model.tree.statements.StatementNode;
 import org.ballerinalang.model.tree.statements.TransactionNode;
 import org.ballerinalang.model.tree.statements.VariableDefinitionNode;
-import org.ballerinalang.model.tree.statements.WhereNode;
 import org.ballerinalang.model.tree.types.TypeNode;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
 import org.wso2.ballerinalang.compiler.tree.BLangAction;
@@ -88,6 +89,7 @@ import org.wso2.ballerinalang.compiler.tree.clauses.BLangSelectClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangSelectExpression;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangWhere;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangWindow;
+import org.wso2.ballerinalang.compiler.tree.clauses.BlangStreamingInput;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAttachmentAttribute;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAttachmentAttributeValue;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrayLiteral;
@@ -246,6 +248,8 @@ public class BLangPackageBuilder {
     private Stack<FunctionClauseNode> functionClausesStack = new Stack<>();
 
     private Stack<WindowClauseNode> windowClausesStack = new Stack<>();
+
+    private Stack<StreamingInput> streamingInputStack = new Stack<>();
 
     private Set<BLangImportPackage> imports = new HashSet<>();
 
@@ -1996,5 +2000,19 @@ public class BLangPackageBuilder {
         ((BLangWindow) windowClauseNode).pos = pos;
         ((BLangWindow) windowClauseNode).addWS(ws);
         windowClauseNode.setFunctionInvocation(this.exprNodeStack.pop());
+    }
+
+    public void startStreamingInputNode(DiagnosticPos pos, Set<Whitespace> ws) {
+        StreamingInput streamingInput = TreeBuilder.createStreamingInputNode();
+        ((BlangStreamingInput) streamingInput).pos = pos;
+        ((BlangStreamingInput) streamingInput).addWS(ws);
+        this.streamingInputStack.push(streamingInput);
+    }
+
+    public void endStreamingInputNode(DiagnosticPos pos, Set<Whitespace> ws) {
+        StreamingInput streamingInput = this.streamingInputStack.peek();
+        ((BlangStreamingInput) streamingInput).pos = pos;
+        ((BlangStreamingInput) streamingInput).addWS(ws);
+
     }
 }

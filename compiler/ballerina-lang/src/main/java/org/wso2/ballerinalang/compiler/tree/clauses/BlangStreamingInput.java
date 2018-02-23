@@ -19,18 +19,29 @@
 package org.wso2.ballerinalang.compiler.tree.clauses;
 
 import org.ballerinalang.model.tree.NodeKind;
+import org.ballerinalang.model.tree.clauses.StreamingInput;
 import org.ballerinalang.model.tree.clauses.WhereNode;
-import org.ballerinalang.model.tree.expressions.ExpressionNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 
-/**
- * Implementation of {@link WhereNode}.
- * @see WhereNode
- */
-public class BLangWhere extends BLangNode implements WhereNode {
+import java.util.ArrayList;
+import java.util.List;
 
-    private ExpressionNode expression;
+/**
+ * Implementation of {@link StreamingInput}
+ */
+public class BlangStreamingInput extends BLangNode implements StreamingInput {
+
+    private List<WhereNode> streamingConditions = new ArrayList<>();
+    @Override
+    public void addStreamingCondition(WhereNode where) {
+        this.streamingConditions.add(where);
+    }
+
+    @Override
+    public List<WhereNode> getStreamingConditions() {
+        return this.streamingConditions;
+    }
 
     @Override
     public void accept(BLangNodeVisitor visitor) {
@@ -39,21 +50,6 @@ public class BLangWhere extends BLangNode implements WhereNode {
 
     @Override
     public NodeKind getKind() {
-        return NodeKind.WHERE;
-    }
-
-    @Override
-    public void setExpression(ExpressionNode expression) {
-        this.expression = expression;
-    }
-
-    @Override
-    public ExpressionNode getExpression() {
-        return this.expression;
-    }
-
-    @Override
-    public ExpressionNode getExpressions() {
-        return null;
+        return NodeKind.STREAMING_INPUT;
     }
 }

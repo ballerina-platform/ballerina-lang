@@ -2218,6 +2218,8 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         if (ctx.exception != null) {
             return;
         }
+
+        this.pkgBuilder.startStreamingInputNode(getCurrentPos(ctx), getWS(ctx));
     }
 
     @Override
@@ -2225,6 +2227,8 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         if (ctx.exception != null) {
             return;
         }
+
+        this.pkgBuilder.endStreamingInputNode(getCurrentPos(ctx), getWS(ctx));
     }
 
     private DiagnosticPos getCurrentPos(ParserRuleContext ctx) {
