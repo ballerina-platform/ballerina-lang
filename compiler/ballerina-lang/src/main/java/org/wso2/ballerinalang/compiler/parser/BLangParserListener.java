@@ -2262,6 +2262,27 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         this.pkgBuilder.endJoinStreamingInputNode(getCurrentPos(ctx), getWS(ctx));
     }
 
+    @Override
+    public void enterTableQuery(BallerinaParser.TableQueryContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+
+        this.pkgBuilder.startTableQueryNode(getCurrentPos(ctx), getWS(ctx));
+    }
+
+    @Override
+    public void exitTableQuery(BallerinaParser.TableQueryContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+        boolean isSelectClauseAvailable = ctx.selectClause() == null ? false : true;
+        boolean isOrderByClauseAvailable = ctx.orderByClause() == null ? false : true;
+        boolean isJoinClauseAvailable = ctx.joinStreamingInput() == null ? false : true;
+        this.pkgBuilder.endTableQueryNode(isJoinClauseAvailable, isSelectClauseAvailable, isOrderByClauseAvailable,
+                getCurrentPos(ctx), getWS(ctx));
+    }
+
     private DiagnosticPos getCurrentPos(ParserRuleContext ctx) {
         int startLine = ctx.getStart().getLine();
         int startCol = ctx.getStart().getCharPositionInLine() + 1;

@@ -119,4 +119,5 @@ public enum NodeKind {
     WINDOW_CLAUSE,
     STREAMING_INPUT,
     JOIN_STREAMING_INPUT,
+    TABLE_QUERY,
 }

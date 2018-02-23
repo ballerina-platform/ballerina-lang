@@ -49,6 +49,7 @@ import org.ballerinalang.model.tree.clauses.OrderByNode;
 import org.ballerinalang.model.tree.clauses.SelectClauseNode;
 import org.ballerinalang.model.tree.clauses.SelectExpressionNode;
 import org.ballerinalang.model.tree.clauses.StreamingInput;
+import org.ballerinalang.model.tree.clauses.TableQuery;
 import org.ballerinalang.model.tree.clauses.WhereNode;
 import org.ballerinalang.model.tree.clauses.WindowClauseNode;
 import org.ballerinalang.model.tree.expressions.AnnotationAttachmentAttributeValueNode;
@@ -90,6 +91,7 @@ import org.wso2.ballerinalang.compiler.tree.clauses.BLangOrderBy;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangSelectClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangSelectExpression;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangStreamingInput;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangTableQuery;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangWhere;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangWindow;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAttachmentAttribute;
@@ -254,6 +256,8 @@ public class BLangPackageBuilder {
     private Stack<StreamingInput> streamingInputStack = new Stack<>();
 
     private Stack<JoinStreamingInput> joinStreamingInputsStack = new Stack<>();
+
+    private Stack<TableQuery> tableQueriesStack = new Stack<>();
 
     private Set<BLangImportPackage> imports = new HashSet<>();
 
@@ -2050,5 +2054,29 @@ public class BLangPackageBuilder {
         ((BLangJoinStreamingInput) joinStreamingInput).addWS(ws);
         joinStreamingInput.setStreamingInput(this.streamingInputStack.pop());
         joinStreamingInput.setOnExpression(this.exprNodeStack.pop());
+    }
+
+    public void startTableQueryNode(DiagnosticPos pos, Set<Whitespace> ws) {
+        TableQuery tableQuery = TreeBuilder.createTableQueryNode();
+        ((BLangTableQuery) tableQuery).pos = pos;
+        ((BLangTableQuery) tableQuery).addWS(ws);
+        this.tableQueriesStack.push(tableQuery);
+    }
+
+    public void endTableQueryNode(boolean isJoinClauseAvailable, boolean isSelectClauseAvailable,
+                                  boolean isOrderByClauseAvailable, DiagnosticPos pos, Set<Whitespace> ws) {
+        BLangTableQuery tableQuery = (BLangTableQuery) this.tableQueriesStack.peek();
+        tableQuery.pos = pos;
+        tableQuery.addWS(ws);
+        tableQuery.setStreamingInput(this.streamingInputStack.pop());
+        if (isJoinClauseAvailable) {
+            tableQuery.setJoinStreamingInput(this.joinStreamingInputsStack.pop());
+        }
+        if (isSelectClauseAvailable) {
+            tableQuery.setSelectClause(this.selectClausesStack.pop());
+        }
+        if (isOrderByClauseAvailable) {
+            tableQuery.setOrderByClause(this.orderByClauseStack.pop());
+        }
     }
 }
