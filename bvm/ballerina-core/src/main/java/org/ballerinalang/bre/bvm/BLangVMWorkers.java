@@ -30,7 +30,6 @@ import org.ballerinalang.model.values.BRefType;
 import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.runtime.threadpool.ThreadPoolFactory;
 import org.ballerinalang.util.codegen.CallableUnitInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.codegen.WorkerInfo;
@@ -39,8 +38,6 @@ import org.ballerinalang.util.exceptions.BallerinaException;
 import java.io.PrintStream;
 import java.util.Map;
 import java.util.Queue;
-import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Semaphore;
 
 /**
@@ -157,7 +154,8 @@ public class BLangVMWorkers {
             }
 
             if (workerInfo.getWorkerDataChannelInfoForForkJoin() != null) {
-                BValue[] results = (BValue[]) workerInfo.getWorkerDataChannelInfoForForkJoin().tryTakeData(null);
+                //BValue[] results = (BValue[]) workerInfo.getWorkerDataChannelInfoForForkJoin().tryTakeData(null);
+                BValue[] results = null;
                 BType[] types = workerInfo.getWorkerDataChannelInfoForForkJoin().getTypes();
                 for (int i = 0; i < types.length; i++) {
                     BType paramType = types[i];

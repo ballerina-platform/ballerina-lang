@@ -19,23 +19,19 @@ package org.ballerinalang.bre.bvm;
 
 import org.ballerinalang.runtime.threadpool.ThreadPoolFactory;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.io.PrintStream;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
 
 /**
  * This represents the Ballerina worker scheduling functionality. 
- * @since 0.963.0
+ * @since 0.964.0
  */
 public class BLangScheduler {
-
-    private static Set<WorkerExecutionContext> activeContexts = new HashSet<>();
 
     public static WorkerExecutionContext schedule(WorkerExecutionContext ctx) {
         ctx.state = WorkerState.READY;
         ExecutorService executor = ThreadPoolFactory.getInstance().getWorkerExecutor();
-        activeContexts.add(ctx);
         if (ctx.runInCaller) {
             return ctx;
         } else {
@@ -61,7 +57,6 @@ public class BLangScheduler {
     
     public static void workerDone(WorkerExecutionContext ctx) {
         ctx.ip = -1;
-        activeContexts.remove(ctx);
         ctx.state = WorkerState.DONE;
     }
     
@@ -83,8 +78,17 @@ public class BLangScheduler {
     }
     
     public static void workerExcepted(WorkerExecutionContext ctx, Throwable e) {
-        System.out.println("Worker Exception: " + ctx + " -> " + e.getMessage());
-        e.printStackTrace();
+        PrintStream out = System.out;
+        out.println("Worker Exception: " + ctx + " -> " + e.getMessage());
+    }
+    
+    public static void dumpCallStack(WorkerExecutionContext ctx) {
+        PrintStream out = System.out;
+        while (ctx != null && ctx.code != null) {
+            out.println(ctx.callableUnitInfo.getPkgPath() + "." + ctx.callableUnitInfo.getName() + "[worker="
+                    + ctx.workerInfo.getWorkerName() + "][state=" + ctx.state + "]");
+            ctx = ctx.parent;
+        }
     }
     
     /**

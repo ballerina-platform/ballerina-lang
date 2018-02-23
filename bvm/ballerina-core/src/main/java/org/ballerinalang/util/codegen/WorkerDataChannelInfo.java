@@ -17,13 +17,7 @@
 */
 package org.ballerinalang.util.codegen;
 
-import org.ballerinalang.bre.bvm.BLangScheduler;
-import org.ballerinalang.bre.bvm.WorkerExecutionContext;
 import org.ballerinalang.model.types.BType;
-import org.ballerinalang.util.exceptions.BallerinaException;
-
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.LinkedBlockingQueue;
 
 /**
  * {@code WorkerDataChannelInfo} represents data channels used in Ballerina in order to communicate between workers.
@@ -34,57 +28,24 @@ public class WorkerDataChannelInfo {
     
     private int sourceCPIndex;
     private String source;
-
     private int targetCPIndex;
     private String target;
-
     private int uniqueNameCPIndex;
     private String uniqueName;
-
     private int dataChannelRefIndex;
-
-    private BlockingQueue<Object[]> channel;
     private BType[] types;
+    private String channelName;
     
-    private WorkerExecutionContext pendingCtx;
-
     public WorkerDataChannelInfo(int sourceCPIndex, String source, int targetCPIndex, String target) {
         this.sourceCPIndex = sourceCPIndex;
         this.source = source;
         this.targetCPIndex = targetCPIndex;
         this.target = target;
-        this.channel = new LinkedBlockingQueue<>();
-    }
-
-    public synchronized void putData(Object[] data) {
-        try {
-            if (data != null) {
-                channel.put(data);
-                if (this.pendingCtx != null) {
-                    BLangScheduler.resume(this.pendingCtx);
-                    this.pendingCtx = null;
-                }
-            }
-        } catch (InterruptedException e) {
-            throw new BallerinaException(e);
-        }
-    }
-
-    public synchronized Object[] tryTakeData(WorkerExecutionContext ctx) {
-        Object[] data = channel.peek();
-        if (data != null) {
-            channel.remove();
-            return data;
-        } else {
-            this.pendingCtx = ctx;
-            ctx.ip--; // we are going to execute the same worker receive operation later
-            BLangScheduler.switchToWaitForResponse(ctx);
-            return null;
-        }
+        this.channelName = source + "->" + target;
     }
 
     public String getChannelName() {
-        return source + "->" + target;
+        return channelName;
     }
 
     public int getSourceCPIndex() {

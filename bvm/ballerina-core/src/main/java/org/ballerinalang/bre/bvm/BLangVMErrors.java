@@ -83,7 +83,8 @@ public class BLangVMErrors {
      * @param cause           caused error struct
      * @return generated ballerina.lang.errors:Error struct
      */
-    public static BStruct createError(Context context, int ip, boolean attachCallStack, String message, BStruct cause) {
+    public static BStruct createError(Context context, int ip, boolean attachCallStack, String message, 
+            BStruct cause) {
         return generateError(context, ip, attachCallStack, message, cause);
     }
 
@@ -118,7 +119,8 @@ public class BLangVMErrors {
         return createError(context, ip, false, errorMsg);
     }
     
-    public static BStruct createTypeCastError(WorkerExecutionContext context, int ip, String sourceType, String targetType) {
+    public static BStruct createTypeCastError(WorkerExecutionContext context, int ip, String sourceType, 
+            String targetType) {
         //TODO
         return null;
     }

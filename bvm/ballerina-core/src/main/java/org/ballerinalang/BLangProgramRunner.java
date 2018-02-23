@@ -19,33 +19,19 @@ package org.ballerinalang;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BLangScheduler;
-import org.ballerinalang.bre.bvm.BLangVM;
-import org.ballerinalang.bre.bvm.BLangVMErrors;
-import org.ballerinalang.bre.bvm.ControlStack;
-import org.ballerinalang.bre.bvm.StackFrame;
-import org.ballerinalang.bre.bvm.InvocableWorkerResponseContext;
-import org.ballerinalang.bre.bvm.WorkerData;
 import org.ballerinalang.bre.bvm.WorkerExecutionContext;
-import org.ballerinalang.bre.bvm.WorkerResponseContext;
 import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
-import org.ballerinalang.model.values.BRefType;
 import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.codegen.FunctionInfo;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
-import org.ballerinalang.util.codegen.ServiceInfo;
-import org.ballerinalang.util.codegen.WorkerInfo;
 import org.ballerinalang.util.debugger.DebugContext;
 import org.ballerinalang.util.debugger.Debugger;
-import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.ballerinalang.util.program.BLangFunctions;
-
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * This class contains utilities to execute Ballerina main and service programs.

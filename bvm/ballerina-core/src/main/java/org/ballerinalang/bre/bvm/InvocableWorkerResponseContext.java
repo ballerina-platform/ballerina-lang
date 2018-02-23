@@ -20,6 +20,9 @@ package org.ballerinalang.bre.bvm;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.TypeTags;
 
+import java.io.PrintStream;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -39,6 +42,8 @@ public class InvocableWorkerResponseContext implements WorkerResponseContext {
     private Semaphore responseChecker;
     
     private WorkerExecutionContext targetCtx;
+    
+    private Map<String, WorkerDataChannel> workerDataChannels;
     
     public InvocableWorkerResponseContext() { }
     
@@ -69,7 +74,9 @@ public class InvocableWorkerResponseContext implements WorkerResponseContext {
     }
     
     private void handleAlreadyReturned() {
-        //System.out.println("ALREADY RETURNED");
+        PrintStream out = System.out;
+        out.println("Callable already returned");
+        //TODO
     }
     
     private WorkerExecutionContext doError(WorkerSignal signal) {
@@ -160,6 +167,19 @@ public class InvocableWorkerResponseContext implements WorkerResponseContext {
         try {
             this.responseChecker.acquire();
         } catch (InterruptedException ignore) { /* ignore */ }        
+    }
+
+    @Override
+    public synchronized WorkerDataChannel getWorkerDataChannel(String name) {
+        if (this.workerDataChannels == null) {
+            this.workerDataChannels = new HashMap<>();
+        }
+        WorkerDataChannel channel = this.workerDataChannels.get(name);
+        if (channel == null) {
+            channel = new WorkerDataChannel();
+            this.workerDataChannels.put(name, channel);
+        }
+        return channel;
     }
     
 }

@@ -15,19 +15,17 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.ballerinalang.bre.bvm;
+package org.ballerinalang.util.program;
 
 /**
- * This represents a result context of a group of workers.
+ * This class stores index values related to worker data.
  */
-public interface WorkerResponseContext {
-    
-    public WorkerExecutionContext signal(WorkerSignal signal);
-        
-    public void checkAndRefreshFulfilledResponse();
-    
-    public void updateTargetContextInfo(WorkerExecutionContext targetCtx, int[] retRegIndexes);
-    
-    public WorkerDataChannel getWorkerDataChannel(String name);
-    
+public class WorkerDataIndex {
+    public int[] retRegs;
+    public int longRegCount = 0;
+    public int doubleRegCount = 0;
+    public int stringRegCount = 0;
+    public int intRegCount = 0;
+    public int refRegCount = 0;
+    public int byteRegCount = 0;
 }

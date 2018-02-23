@@ -25,9 +25,9 @@ import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.codegen.WorkerInfo;
 import org.ballerinalang.util.codegen.cpentries.ConstantPoolEntry;
 
+import java.io.PrintStream;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.UUID;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -107,6 +107,8 @@ public class WorkerExecutionContext {
     
     public void setError(BStruct error) {
         //TODO
+        PrintStream out = System.out;
+        out.println("Error: " + error);
     }
     
     public BStruct getError() {
@@ -144,7 +146,8 @@ public class WorkerExecutionContext {
         StringBuilder builder = new StringBuilder();
         builder.append("\n{ ID: " + this.hashCode() + "\n");
         builder.append("Parent: " + (this.parent != null ? this.parent.hashCode() : "N/A") + "\n");
-        builder.append("Callable Unit: " + (this.callableUnitInfo != null ? this.callableUnitInfo.getName() : "N/A") + "\n");
+        builder.append("Callable Unit: " + (this.callableUnitInfo != null ? 
+                this.callableUnitInfo.getName() : "N/A") + "\n");
         builder.append("Worker ID: " + (this.workerInfo != null ? this.workerInfo.getWorkerName() : "N/A") + "\n");
         builder.append("STATE: " + this.state + "\n");
         builder.append("Run In Caller: " + this.runInCaller + "\n");

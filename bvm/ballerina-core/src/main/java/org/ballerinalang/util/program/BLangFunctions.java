@@ -23,8 +23,8 @@ import org.ballerinalang.bre.bvm.BLangVM;
 import org.ballerinalang.bre.bvm.BLangVMErrors;
 import org.ballerinalang.bre.bvm.CPU;
 import org.ballerinalang.bre.bvm.ControlStack;
-import org.ballerinalang.bre.bvm.StackFrame;
 import org.ballerinalang.bre.bvm.InvocableWorkerResponseContext;
+import org.ballerinalang.bre.bvm.StackFrame;
 import org.ballerinalang.bre.bvm.WorkerData;
 import org.ballerinalang.bre.bvm.WorkerExecutionContext;
 import org.ballerinalang.bre.bvm.WorkerResponseContext;
@@ -414,9 +414,9 @@ public class BLangFunctions {
         return runInCallerCtx;
     }
     
-    private static WorkerExecutionContext executeWorker(WorkerResponseContext respCtx, WorkerExecutionContext parentCtx, int[] argRegs,
-            CallableUnitInfo callableUnitInfo, WorkerInfo workerInfo, WorkerDataIndex wdi, 
-            Map<String, Object> globalProps, boolean runInCaller) {
+    private static WorkerExecutionContext executeWorker(WorkerResponseContext respCtx, 
+            WorkerExecutionContext parentCtx, int[] argRegs, CallableUnitInfo callableUnitInfo, 
+            WorkerInfo workerInfo, WorkerDataIndex wdi, Map<String, Object> globalProps, boolean runInCaller) {
         WorkerData workerLocal = BLangVMUtils.createWorkerDataForLocal(workerInfo, parentCtx, argRegs,
                 callableUnitInfo.getParamTypes());
         WorkerData workerResult = createWorkerData(wdi);

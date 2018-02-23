@@ -2796,7 +2796,7 @@ public class BLangVM {
 
         //populateArgumentValuesForWorker(expressions, arguments);
         workerDataChannel.setTypes(types);
-        workerDataChannel.putData(arguments);
+        //workerDataChannel.putData(arguments);
     }
 
     public void invokeForkJoin(InstructionFORKJOIN forkJoinIns) {
@@ -2809,7 +2809,7 @@ public class BLangVM {
         Queue<WorkerResult> resultMsgs = new ConcurrentLinkedQueue<>();
         Map<String, BLangVMWorkers.WorkerExecutor> workers = new HashMap<>();
         for (WorkerInfo workerInfo : forkjoinInfo.getWorkerInfoMap().values()) {
-            Context workerContext = null;//TODO
+            Context workerContext = null; //TODO
 //            Context workerContext = new WorkerContext(this.programFile, context);
 //            workerContext.blockingInvocation = true;
             StackFrame callerSF = this.controlStack.currentFrame;
@@ -2888,7 +2888,7 @@ public class BLangVM {
         WorkerContext workerContext = (WorkerContext) this.context;
         if (workerContext.parentSF.tryReturn()) {
             //StackFrame workerCallerSF = workerContext.getControlStack().currentFrame;
-            StackFrame workerCallerSF = null;//TODO
+            StackFrame workerCallerSF = null; //TODO
             workerContext.parentSF.returnedWorker = workerCallerSF.workerInfo.getWorkerName();
 
             StackFrame parentSF = workerContext.parentSF;
@@ -2909,9 +2909,9 @@ public class BLangVM {
     }
 
     public void handleWorkerReceive(WorkerDataChannelInfo workerDataChannel, BType[] types, int[] regs) {
-        BValue[] passedInValues = (BValue[]) workerDataChannel.tryTakeData(null);
-        StackFrame currentFrame = controlStack.currentFrame;
-        copyArgValuesForWorkerReceive(currentFrame, regs, types, passedInValues);
+//        BValue[] passedInValues = (BValue[]) workerDataChannel.tryTakeData(null);
+//        StackFrame currentFrame = controlStack.currentFrame;
+//        copyArgValuesForWorkerReceive(currentFrame, regs, types, passedInValues);
     }
 
     public static void copyArgValuesForWorkerSend(StackFrame callerSF, int[] argRegs,
@@ -3943,7 +3943,7 @@ public class BLangVM {
 
     private boolean isWaitingOnNonBlockingAction() {
         //return context.nonBlockingContext != null;
-        return false;//TODO
+        return false; //TODO
     }
 
     private void calculateLength(int[] operands, StackFrame sf) {

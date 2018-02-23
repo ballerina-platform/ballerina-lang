@@ -449,9 +449,11 @@ public class CPU {
                     funcRefCPEntry = ((BFunctionPointer) sf.refRegs[i]).value();
                     functionInfo = funcRefCPEntry.getFunctionInfo();
                     if (functionInfo.isNative()) {
-                        invokeNativeFunction(ctx, functionInfo, funcCallCPEntry.getArgRegs(), funcCallCPEntry.getRetRegs());
+                        invokeNativeFunction(ctx, functionInfo, funcCallCPEntry.getArgRegs(),
+                                funcCallCPEntry.getRetRegs());
                     } else {
-                        invokeCallableUnit(ctx, functionInfo, funcCallCPEntry.getArgRegs(), funcCallCPEntry.getRetRegs());
+                        invokeCallableUnit(ctx, functionInfo, funcCallCPEntry.getArgRegs(),
+                                funcCallCPEntry.getRetRegs());
                     }
                     break;
                 case InstructionCodes.FPLOAD:
@@ -1930,7 +1932,8 @@ public class CPU {
         }
     }
 
-    private static void execTypeConversionOpcodes(WorkerExecutionContext ctx, WorkerData sf, int opcode, int[] operands) {
+    private static void execTypeConversionOpcodes(WorkerExecutionContext ctx, WorkerData sf, int opcode, 
+            int[] operands) {
         int i;
         int j;
         int k;
@@ -2478,7 +2481,8 @@ public class CPU {
 //        }
 //    }
 
-    private static void handleAnyToRefTypeCast(WorkerExecutionContext ctx, WorkerData sf, int[] operands, BType targetType) {
+    private static void handleAnyToRefTypeCast(WorkerExecutionContext ctx, WorkerData sf, int[] operands, 
+            BType targetType) {
         int i = operands[0];
         int j = operands[1];
         int k = operands[2];
@@ -2496,11 +2500,13 @@ public class CPU {
         }
     }
 
-    private static void handleTypeCastError(WorkerExecutionContext ctx, WorkerData sf, int errorRegIndex, BType sourceType, BType targetType) {
+    private static void handleTypeCastError(WorkerExecutionContext ctx, WorkerData sf, int errorRegIndex, 
+            BType sourceType, BType targetType) {
         handleTypeCastError(ctx, sf, errorRegIndex, sourceType.toString(), targetType.toString());
     }
 
-    private static void handleTypeCastError(WorkerExecutionContext ctx, WorkerData sf, int errorRegIndex, String sourceType, String targetType) {
+    private static void handleTypeCastError(WorkerExecutionContext ctx, WorkerData sf, int errorRegIndex, 
+            String sourceType, String targetType) {
         BStruct errorVal;
         errorVal = BLangVMErrors.createTypeCastError(ctx, ctx.ip, sourceType.toString(), targetType.toString());
         if (errorRegIndex == -1) {
@@ -2518,8 +2524,8 @@ public class CPU {
         handleTypeConversionError(ctx, sf, errorRegIndex, errorMsg, sourceTypeName, targetTypeName);
     }
 
-    private static void handleTypeConversionError(WorkerExecutionContext ctx, WorkerData sf, int errorRegIndex, String errorMessage,
-                                           String sourceTypeName, String targetTypeName) {
+    private static void handleTypeConversionError(WorkerExecutionContext ctx, WorkerData sf, int errorRegIndex, 
+            String errorMessage, String sourceTypeName, String targetTypeName) {
         //TODO
     }
 
@@ -2640,7 +2646,8 @@ public class CPU {
         ballerinaTransactionManager.incrementCurrentRetryCount(transactionId);
     }
 
-    private static WorkerExecutionContext invokeCallableUnit(WorkerExecutionContext ctx, CallableUnitInfo callableUnitInfo, int[] argRegs, int[] retRegs) {
+    private static WorkerExecutionContext invokeCallableUnit(WorkerExecutionContext ctx, 
+            CallableUnitInfo callableUnitInfo, int[] argRegs, int[] retRegs) {
         if (callableUnitInfo.isNative()) {
             invokeNativeFunction(ctx, (FunctionInfo) callableUnitInfo, argRegs, retRegs);
             return null;
@@ -2650,7 +2657,8 @@ public class CPU {
         return runInCallerCtx;
     }
 
-    private static void invokeVirtualFunction(int receiver, FunctionInfo virtualFuncInfo, int[] argRegs, int[] retRegs) {
+    private static void invokeVirtualFunction(int receiver, FunctionInfo virtualFuncInfo, 
+            int[] argRegs, int[] retRegs) {
 //        BStruct structVal = (BStruct) ctx.workerLocal.refRegs[receiver];
 //        if (structVal == null) {
 //            ctx.setError(BLangVMErrors.createNullRefError(this.ctx, ctx.ip));
@@ -2686,10 +2694,14 @@ public class CPU {
         //TODO
     }
 
-    private static void handleWorkerSend(WorkerExecutionContext ctx, WorkerDataChannelInfo workerDataChannel, 
+    private static void handleWorkerSend(WorkerExecutionContext ctx, WorkerDataChannelInfo workerDataChannelInfo, 
             BType[] types, int[] regs) {
         BValue[] vals = extractValues(ctx.workerLocal, types, regs);
-        workerDataChannel.putData(vals);
+        getWorkerChannel(ctx, workerDataChannelInfo.getChannelName()).putData(vals);
+    }
+    
+    private static WorkerDataChannel getWorkerChannel(WorkerExecutionContext ctx, String name) {
+        return ctx.respCtx.getWorkerDataChannel(name);
     }
     
     private static BValue[] extractValues(WorkerData data, BType[] types, int[] regs) {
@@ -2729,8 +2741,10 @@ public class CPU {
         return false;
     }
 
-    private static void handleWorkerReceive(WorkerExecutionContext ctx, WorkerDataChannelInfo workerDataChannel, BType[] types, int[] regs) {
-        BValue[] passedInValues = (BValue[]) workerDataChannel.tryTakeData(ctx);
+    private static void handleWorkerReceive(WorkerExecutionContext ctx, WorkerDataChannelInfo workerDataChannelInfo,
+            BType[] types, int[] regs) {
+        BValue[] passedInValues = (BValue[]) getWorkerChannel(
+                ctx, workerDataChannelInfo.getChannelName()).tryTakeData(ctx);
         if (passedInValues != null) {
             WorkerData currentFrame = ctx.workerLocal;
             copyArgValuesForWorkerReceive(currentFrame, regs, types, passedInValues);
@@ -2882,12 +2896,10 @@ public class CPU {
             BValue[] retVals = nativeFunction.execute(ctx);
             BLangVMUtils.populateWorkerDataWithValues(parentLocalData, retRegs, retVals, retTypes);
         } catch (BLangNullReferenceException e) {
-            e.printStackTrace();
             parentCtx.setError(BLangVMErrors.createNullRefException(parentCtx, parentCtx.ip));
             handleError();
             return;
         } catch (Throwable e) {
-            e.printStackTrace();
             parentCtx.setError(BLangVMErrors.createError(parentCtx, parentCtx.ip, e.getMessage()));
             handleError();
             return;
