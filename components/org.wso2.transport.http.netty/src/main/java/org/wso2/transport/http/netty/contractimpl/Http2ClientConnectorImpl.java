@@ -62,7 +62,7 @@ public class Http2ClientConnectorImpl implements Http2ClientConnector {
             TargetChannel targetChannel =
                     Http2ConnectionManager.getInstance().borrowChannel(route, senderConfiguration);
             targetChannel.getChannelFuture().addListener(
-                    new ConnectionAvailabilityListener(targetChannel, outboundMsgHolder, route));
+                    new ConnectionAvailabilityListener(outboundMsgHolder, route));
         } catch (Exception failedCause) {
             httpResponseFuture.notifyHttpListener(failedCause);
         }
@@ -70,59 +70,16 @@ public class Http2ClientConnectorImpl implements Http2ClientConnector {
         return httpResponseFuture;
     }
 
-    /**
-     * Listener which wait until connection to be established before sending the message
-     */
-    static class ConnectionAvailabilityListener implements ChannelFutureListener {
-
-        TargetChannel targetChannel;
-        OutboundMsgHolder outboundMsgHolder;
-        HttpRoute route;
-
-        public ConnectionAvailabilityListener(TargetChannel targetChannel,
-                                              OutboundMsgHolder outboundMsgHolder, HttpRoute route) {
-            this.targetChannel = targetChannel;
-            this.route = route;
-            this.outboundMsgHolder = outboundMsgHolder;
-        }
-
-        public void operationComplete(ChannelFuture channelFuture) throws Exception {
-            if (isValidateChannel(channelFuture)) {
-                targetChannel.getClientHandler().writeRequest(outboundMsgHolder);
-            } else {
-                ClientConnectorException cause = new ClientConnectorException(
-                        "Connection error, " + route.toString(), HttpResponseStatus.BAD_GATEWAY.code());
-                if (channelFuture.cause() != null) {
-                    cause.initCause(channelFuture.cause());
-                }
-                outboundMsgHolder.getResponseFuture().notifyHttpListener(cause);
-            }
-        }
-
-        private boolean isValidateChannel(ChannelFuture channelFuture) throws Exception {
-            if (channelFuture.isDone() && channelFuture.isSuccess()) {
-                if (log.isDebugEnabled()) {
-                    log.debug("Created the connection to address: {}",
-                              route.toString() + " " + "Original Channel ID is : " + channelFuture.channel().id());
-                }
-                return true;
-            }
-            return false;
-        }
-
-    }
-
     @Override
     public boolean close() {
         return false;
     }
 
-
     /**
      * Get the {@code HttpRoute} where message need to be sent
      *
      * @param message request HTTPCarbonMessage
-     * @return  HTTP route where message need to be sent
+     * @return HTTP route where message need to be sent
      */
     private HttpRoute getTargetRoute(HTTPCarbonMessage message) {
 
@@ -147,6 +104,45 @@ public class Http2ClientConnectorImpl implements Http2ClientConnector {
         }
 
         return new HttpRoute(host, port);
+    }
+
+    /**
+     * Listener which wait until connection to be established before sending the message
+     */
+    static class ConnectionAvailabilityListener implements ChannelFutureListener {
+
+        OutboundMsgHolder outboundMsgHolder;
+        HttpRoute route;
+
+        public ConnectionAvailabilityListener(OutboundMsgHolder outboundMsgHolder, HttpRoute route) {
+            this.route = route;
+            this.outboundMsgHolder = outboundMsgHolder;
+        }
+
+        public void operationComplete(ChannelFuture channelFuture) throws Exception {
+            if (isValidateChannel(channelFuture)) {
+                channelFuture.channel().write(outboundMsgHolder);
+            } else {
+                ClientConnectorException cause = new ClientConnectorException(
+                        "Connection error, " + route.toString(), HttpResponseStatus.BAD_GATEWAY.code());
+                if (channelFuture.cause() != null) {
+                    cause.initCause(channelFuture.cause());
+                }
+                outboundMsgHolder.getResponseFuture().notifyHttpListener(cause);
+            }
+        }
+
+        private boolean isValidateChannel(ChannelFuture channelFuture) throws Exception {
+            if (channelFuture.isDone() && channelFuture.isSuccess()) {
+                if (log.isDebugEnabled()) {
+                    log.debug("Created the connection to address: {}",
+                              route.toString() + " " + "Original Channel ID is : " + channelFuture.channel().id());
+                }
+                return true;
+            }
+            return false;
+        }
+
     }
 }
 

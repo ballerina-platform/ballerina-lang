@@ -42,10 +42,9 @@ public class Http2ConnectionManager {
 
     private static final Logger log = LoggerFactory.getLogger(Http2ConnectionManager.class);
     private static ConcurrentHashMap<String, TargetChannel> clientConnections = new ConcurrentHashMap<>();
+    private static Http2ConnectionManager instance = new Http2ConnectionManager();
     /* Lock for synchronizing access */
     private Lock lock = new ReentrantLock();
-
-    private static Http2ConnectionManager instance = new Http2ConnectionManager();
 
     private Http2ConnectionManager() {
     }
@@ -91,8 +90,8 @@ public class Http2ConnectionManager {
         log.debug("Created channel: {}", httpRoute);
 
         // Create data holders which stores connection information
-        TargetChannel targetChannel = new TargetChannel(initializer, channelFuture);
         Http2ClientHandler clientHandler = initializer.getHttp2ClientHandler();
+        TargetChannel targetChannel = new TargetChannel(clientHandler.getConnection(), channelFuture);
         clientHandler.setTargetChannel(targetChannel);
         String key = generateKey(httpRoute);
         clientConnections.put(key, targetChannel);
@@ -104,12 +103,12 @@ public class Http2ConnectionManager {
 
     /**
      * Fetch a connection from the pool
-     *
+     * <p>
      * No need to remove from the pool when fetching as same connection can be shared across multiple requests
      * (HTTP/2 Multiplexing)
      *
      * @param key host:port combination key
-     * @return  TargetChannel already available in the pool
+     * @return TargetChannel already available in the pool
      */
     private TargetChannel fetchConnectionFromPool(String key) {
 

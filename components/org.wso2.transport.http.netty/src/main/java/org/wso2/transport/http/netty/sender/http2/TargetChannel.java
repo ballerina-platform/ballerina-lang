@@ -33,8 +33,6 @@ public class TargetChannel {
 
     private static ConcurrentHashMap<Integer, OutboundMsgHolder> inFlightMessages = new ConcurrentHashMap<>();
     private Channel channel;
-    private Http2ClientHandler clientHandler;
-    private Http2ClientInitializer http2ClientInitializer;
     private Http2Connection connection;
     private ChannelFuture channelFuture;
     private UpgradeState upgradeState = UpgradeState.UPGRADE_NOT_ISSUED;
@@ -42,12 +40,10 @@ public class TargetChannel {
     private ConcurrentLinkedQueue<OutboundMsgHolder> pendingMessages;
 
 
-    public TargetChannel(Http2ClientInitializer http2ClientInitializer, ChannelFuture channelFuture) {
-        this.http2ClientInitializer = http2ClientInitializer;
+    public TargetChannel(Http2Connection connection, ChannelFuture channelFuture) {
         this.channelFuture = channelFuture;
         channel = channelFuture.channel();
-        connection = http2ClientInitializer.getHttp2ClientHandler().getConnection();
-        clientHandler = http2ClientInitializer.getHttp2ClientHandler();
+        this.connection = connection;
         pendingMessages = new ConcurrentLinkedQueue<>();
     }
 
@@ -55,16 +51,8 @@ public class TargetChannel {
         return channel;
     }
 
-    public Http2ClientHandler getClientHandler() {
-        return clientHandler;
-    }
-
     public Http2Connection getConnection() {
         return connection;
-    }
-
-    public void setConnection(Http2Connection connection) {
-        this.connection = connection;
     }
 
     public ChannelFuture getChannelFuture() {
@@ -87,18 +75,18 @@ public class TargetChannel {
         return inFlightMessages.get(streamId);
     }
 
-    /**
-     * Lifecycle states of the Target Channel related to connection upgrade
-     */
-    public enum UpgradeState {
-        UPGRADE_NOT_ISSUED, UPGRADE_ISSUED, UPGRADED
-    }
-
     public void updateUpgradeState(UpgradeState upgradeState) {
         this.upgradeState = upgradeState;
     }
 
     public UpgradeState getUpgradeState() {
         return upgradeState;
+    }
+
+    /**
+     * Lifecycle states of the Target Channel related to connection upgrade
+     */
+    public enum UpgradeState {
+        UPGRADE_NOT_ISSUED, UPGRADE_ISSUED, UPGRADED
     }
 }

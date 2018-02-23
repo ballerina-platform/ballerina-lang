@@ -22,6 +22,7 @@ import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelDuplexHandler;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelHandlerContext;
+import io.netty.channel.ChannelPromise;
 import io.netty.handler.codec.http.DefaultHttpContent;
 import io.netty.handler.codec.http.DefaultHttpResponse;
 import io.netty.handler.codec.http.DefaultLastHttpContent;
@@ -84,6 +85,40 @@ public class Http2ClientHandler extends ChannelDuplexHandler {
     }
 
     @Override
+    public void channelActive(ChannelHandlerContext channelHandlerContext) throws Exception {
+        this.channelHandlerContext = channelHandlerContext;
+    }
+
+    @Override
+    public void write(ChannelHandlerContext ctx, Object msg, ChannelPromise promise) throws Exception {
+        if (msg instanceof OutboundMsgHolder) {
+            OutboundMsgHolder outboundMsgHolder = (OutboundMsgHolder) msg;
+            TargetChannel.UpgradeState state = targetChannel.getUpgradeState();
+
+            if (state == TargetChannel.UpgradeState.UPGRADED) {
+                new Http2RequestWriter(outboundMsgHolder).writeContent();
+            } else {
+                lock.lock();
+                try {
+                    state = targetChannel.getUpgradeState();
+                    if (state == TargetChannel.UpgradeState.UPGRADE_NOT_ISSUED) {
+                        targetChannel.updateUpgradeState(TargetChannel.UpgradeState.UPGRADE_ISSUED);
+                        new UpgradeRequestWriter(outboundMsgHolder).writeContent();
+                    } else if (state == TargetChannel.UpgradeState.UPGRADED) {
+                        new Http2RequestWriter(outboundMsgHolder).writeContent();
+                    } else if (state == TargetChannel.UpgradeState.UPGRADE_ISSUED) {
+                        targetChannel.addPendingMessage(outboundMsgHolder);
+                    }
+                } finally {
+                    lock.unlock();
+                }
+            }
+        } else {
+            ctx.write(msg, promise);
+        }
+    }
+
+    @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) {
         if (msg instanceof Http2HeadersFrame) {
             Http2HeadersFrame frame = (Http2HeadersFrame) msg;
@@ -104,18 +139,6 @@ public class Http2ClientHandler extends ChannelDuplexHandler {
                 responseMessage.addHttpContent(new DefaultHttpContent(frame.content().retain()));
             }
         }
-    }
-
-    public void channelActive(ChannelHandlerContext channelHandlerContext) throws Exception {
-        this.channelHandlerContext = channelHandlerContext;
-    }
-
-    public Http2Connection getConnection() {
-        return connection;
-    }
-
-    public void setTargetChannel(TargetChannel targetChannel) {
-        this.targetChannel = targetChannel;
     }
 
     @Override
@@ -148,28 +171,12 @@ public class Http2ClientHandler extends ChannelDuplexHandler {
         }
     }
 
-    public void writeRequest(OutboundMsgHolder outboundMsgHolder) {
+    public Http2Connection getConnection() {
+        return connection;
+    }
 
-        TargetChannel.UpgradeState state = targetChannel.getUpgradeState();
-
-        if (state == TargetChannel.UpgradeState.UPGRADED) {
-            new Http2RequestWriter(outboundMsgHolder).writeContent();
-        } else {
-            lock.lock();
-            try {
-                state = targetChannel.getUpgradeState();
-                if (state == TargetChannel.UpgradeState.UPGRADE_NOT_ISSUED) {
-                    targetChannel.updateUpgradeState(TargetChannel.UpgradeState.UPGRADE_ISSUED);
-                    new UpgradeRequestWriter(outboundMsgHolder).writeContent();
-                } else if (state == TargetChannel.UpgradeState.UPGRADED) {
-                    new Http2RequestWriter(outboundMsgHolder).writeContent();
-                } else if (state == TargetChannel.UpgradeState.UPGRADE_ISSUED) {
-                    targetChannel.addPendingMessage(outboundMsgHolder);
-                }
-            } finally {
-                lock.unlock();
-            }
-        }
+    public void setTargetChannel(TargetChannel targetChannel) {
+        this.targetChannel = targetChannel;
     }
 
     private synchronized int getStreamId() {
