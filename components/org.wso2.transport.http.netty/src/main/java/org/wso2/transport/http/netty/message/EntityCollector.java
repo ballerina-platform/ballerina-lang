@@ -22,7 +22,6 @@ import io.netty.buffer.ByteBuf;
 import io.netty.handler.codec.http.HttpContent;
 
 import java.nio.ByteBuffer;
-import java.util.List;
 
 /**
  * Collects entity of the request/response
@@ -54,12 +53,6 @@ public interface EntityCollector {
     void addMessageBody(ByteBuffer msgBody);
 
     /**
-     * Get the full message body
-     * @return complete message body
-     */
-    List<ByteBuffer> getFullMessageBody();
-
-    /**
      * Check if the queue is empty.
      * @return true or false
      */
@@ -72,35 +65,12 @@ public interface EntityCollector {
     int getFullMessageLength();
 
     /**
-     * Check if the last message is added to the queue.
-     * @return true or false
+     * Complete the message.
      */
-    boolean isEndOfMsgAdded();
-
-    /**
-     * Mark end of message.
-     */
-    void markMessageEnd();
-
-    /**
-     * Set end of message
-     * @param endOfMsgAdded indicated using true or false
-     */
-    void setEndOfMsgAdded(boolean endOfMsgAdded);
-
-    /**
-     * Release the allocated netty buffers
-     */
-    void release();
+    void completeMessage();
 
     /**
      * This is need to release content before GC
      */
     void waitAndReleaseAllEntities();
-
-    /**
-     * Peek the head of the queue
-     * @return An HttpContent instance
-     */
-    HttpContent peek();
 }

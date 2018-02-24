@@ -17,6 +17,7 @@ package org.wso2.transport.http.netty.listener;
 
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelPipeline;
+import io.netty.channel.group.ChannelGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.handler.codec.http.HttpRequestDecoder;
 import io.netty.handler.codec.http.HttpResponseEncoder;
@@ -42,10 +43,10 @@ import javax.net.ssl.SSLEngine;
 /**
  * A class that responsible for build server side channels.
  */
-public class HTTPServerChannelInitializer extends ChannelInitializer<SocketChannel>
+public class HttpServerChannelInitializer extends ChannelInitializer<SocketChannel>
         implements CarbonTransportInitializer {
 
-    private static final Logger log = LoggerFactory.getLogger(HTTPServerChannelInitializer.class);
+    private static final Logger log = LoggerFactory.getLogger(HttpServerChannelInitializer.class);
 
     private int socketIdleTimeout;
     private boolean httpTraceLogEnabled;
@@ -59,6 +60,7 @@ public class HTTPServerChannelInitializer extends ChannelInitializer<SocketChann
     private int cacheDelay;
     private int cacheSize;
     private SSLEngine sslEngine;
+    private ChannelGroup allChannels;
 
     @Override
     public void setup(Map<String, String> parameters) {
@@ -70,22 +72,22 @@ public class HTTPServerChannelInitializer extends ChannelInitializer<SocketChann
             log.debug("Initializing source channel pipeline");
         }
 
-        ChannelPipeline pipeline = ch.pipeline();
+        ChannelPipeline serverPipeline = ch.pipeline();
 
         if (sslConfig != null) {
             sslEngine = new SSLHandlerFactory(sslConfig).build();
-            pipeline.addLast(Constants.SSL_HANDLER, new SslHandler(sslEngine));
+            serverPipeline.addLast(Constants.SSL_HANDLER, new SslHandler(sslEngine));
         }
 
         if (validateCertEnabled) {
             ch.pipeline().addLast("certificateValidation",
                     new CertificateValidationHandler(sslEngine, cacheDelay, cacheSize));
         }
-        pipeline.addLast("encoder", new HttpResponseEncoder());
-        configureHTTPPipeline(pipeline);
+        serverPipeline.addLast("encoder", new HttpResponseEncoder());
+        configureHTTPPipeline(serverPipeline);
 
         if (socketIdleTimeout > 0) {
-            pipeline.addBefore(
+            serverPipeline.addBefore(
                     Constants.HTTP_SOURCE_HANDLER, Constants.IDLE_STATE_HANDLER,
                     new IdleStateHandler(socketIdleTimeout, socketIdleTimeout, socketIdleTimeout,
                                          TimeUnit.MILLISECONDS));
@@ -95,31 +97,31 @@ public class HTTPServerChannelInitializer extends ChannelInitializer<SocketChann
     /**
      * Configure the pipeline if user sent HTTP requests
      *
-     * @param pipeline Channel
+     * @param serverPipeline Channel
      */
-    public void configureHTTPPipeline(ChannelPipeline pipeline) {
+    private void configureHTTPPipeline(ChannelPipeline serverPipeline) {
 
-        pipeline.addLast("decoder",
+        serverPipeline.addLast("decoder",
                 new HttpRequestDecoder(reqSizeValidationConfig.getMaxUriLength(),
                         reqSizeValidationConfig.getMaxHeaderSize(), reqSizeValidationConfig.getMaxChunkSize()));
-        pipeline.addLast("compressor", new CustomHttpContentCompressor());
-        pipeline.addLast("chunkWriter", new ChunkedWriteHandler());
+        serverPipeline.addLast("compressor", new CustomHttpContentCompressor());
+        serverPipeline.addLast("chunkWriter", new ChunkedWriteHandler());
 
         if (httpTraceLogEnabled) {
-            pipeline.addLast(Constants.HTTP_TRACE_LOG_HANDLER,
+            serverPipeline.addLast(Constants.HTTP_TRACE_LOG_HANDLER,
                              new HTTPTraceLoggingHandler("tracelog.http.downstream"));
         }
 
-        pipeline.addLast("uriLengthValidator", new UriAndHeaderLengthValidator(this.serverName));
+        serverPipeline.addLast("uriLengthValidator", new UriAndHeaderLengthValidator(this.serverName));
         if (reqSizeValidationConfig.getMaxEntityBodySize() > -1) {
-            pipeline.addLast("maxEntityBodyValidator", new MaxEntityBodyValidator(this.serverName,
+            serverPipeline.addLast("maxEntityBodyValidator", new MaxEntityBodyValidator(this.serverName,
                     reqSizeValidationConfig.getMaxEntityBodySize()));
         }
 
-        pipeline.addLast(Constants.WEBSOCKET_SERVER_HANDSHAKE_HANDLER,
+        serverPipeline.addLast(Constants.WEBSOCKET_SERVER_HANDSHAKE_HANDLER,
                          new WebSocketServerHandshakeHandler(this.serverConnectorFuture, this.interfaceId));
-        pipeline.addLast(Constants.HTTP_SOURCE_HANDLER, new SourceHandler(this.serverConnectorFuture,
-                this.interfaceId, this.chunkConfig, this.serverName));
+        serverPipeline.addLast(Constants.HTTP_SOURCE_HANDLER, new SourceHandler(this.serverConnectorFuture,
+                this.interfaceId, this.chunkConfig, this.serverName, this.allChannels));
     }
 
     @Override
@@ -131,23 +133,23 @@ public class HTTPServerChannelInitializer extends ChannelInitializer<SocketChann
         this.serverConnectorFuture = serverConnectorFuture;
     }
 
-    public void setIdleTimeout(int idleTimeout) {
+    void setIdleTimeout(int idleTimeout) {
         this.socketIdleTimeout = idleTimeout;
     }
 
-    public void setHttpTraceLogEnabled(boolean httpTraceLogEnabled) {
+    void setHttpTraceLogEnabled(boolean httpTraceLogEnabled) {
         this.httpTraceLogEnabled = httpTraceLogEnabled;
     }
 
-    public void setInterfaceId(String interfaceId) {
+    void setInterfaceId(String interfaceId) {
         this.interfaceId = interfaceId;
     }
 
-    public void setSslConfig(SSLConfig sslConfig) {
+    void setSslConfig(SSLConfig sslConfig) {
         this.sslConfig = sslConfig;
     }
 
-    public void setReqSizeValidationConfig(RequestSizeValidationConfig reqSizeValidationConfig) {
+    void setReqSizeValidationConfig(RequestSizeValidationConfig reqSizeValidationConfig) {
         this.reqSizeValidationConfig = reqSizeValidationConfig;
     }
 
@@ -155,19 +157,23 @@ public class HTTPServerChannelInitializer extends ChannelInitializer<SocketChann
         this.chunkConfig = chunkConfig;
     }
 
-    public void setValidateCertEnabled(boolean validateCertEnabled) {
+    void setValidateCertEnabled(boolean validateCertEnabled) {
         this.validateCertEnabled = validateCertEnabled;
     }
 
-    public void setCacheDelay(int cacheDelay) {
+    void setCacheDelay(int cacheDelay) {
         this.cacheDelay = cacheDelay;
     }
 
-    public void setCacheSize(int cacheSize) {
+    void setCacheSize(int cacheSize) {
         this.cacheSize = cacheSize;
     }
 
-    public void setServerName(String serverName) {
+    void setServerName(String serverName) {
         this.serverName = serverName;
+    }
+
+    public void setAllChannels(ChannelGroup allChannels) {
+        this.allChannels = allChannels;
     }
 }

@@ -27,7 +27,7 @@ import org.wso2.transport.http.netty.contract.HttpResponseFuture;
 import org.wso2.transport.http.netty.contract.HttpWsConnectorFactory;
 import org.wso2.transport.http.netty.contract.ServerConnector;
 import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
-import org.wso2.transport.http.netty.contractimpl.HttpWsConnectorFactoryImpl;
+import org.wso2.transport.http.netty.contractimpl.DefaultHttpWsConnectorFactory;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 import org.wso2.transport.http.netty.message.HTTPConnectorUtil;
 import org.wso2.transport.http.netty.message.HttpMessageDataStreamer;
@@ -75,7 +75,7 @@ public class PKCSTest {
             }
         });
 
-        HttpWsConnectorFactory factory = new HttpWsConnectorFactoryImpl();
+        HttpWsConnectorFactory factory = new DefaultHttpWsConnectorFactory();
 
         ListenerConfiguration listenerConfiguration = ListenerConfiguration.getDefault();
         listenerConfiguration.setPort(serverPort);

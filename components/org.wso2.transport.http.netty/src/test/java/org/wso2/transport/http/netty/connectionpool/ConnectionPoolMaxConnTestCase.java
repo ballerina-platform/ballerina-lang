@@ -28,7 +28,7 @@ import org.wso2.transport.http.netty.common.Constants;
 import org.wso2.transport.http.netty.config.TransportsConfiguration;
 import org.wso2.transport.http.netty.contract.HttpClientConnector;
 import org.wso2.transport.http.netty.contract.HttpWsConnectorFactory;
-import org.wso2.transport.http.netty.contractimpl.HttpWsConnectorFactoryImpl;
+import org.wso2.transport.http.netty.contractimpl.DefaultHttpWsConnectorFactory;
 import org.wso2.transport.http.netty.message.HTTPConnectorUtil;
 import org.wso2.transport.http.netty.util.HTTPConnectorListener;
 import org.wso2.transport.http.netty.util.TestUtil;
@@ -55,12 +55,13 @@ public class ConnectionPoolMaxConnTestCase {
 
     private HttpServer httpServer;
     private HttpClientConnector httpClientConnector;
+    private HttpWsConnectorFactory connectorFactory;
 
     @BeforeClass
     public void setup() {
         httpServer = TestUtil.startHTTPServer(TestUtil.HTTP_SERVER_PORT, new SendChannelIDServerInitializer(1000));
 
-        HttpWsConnectorFactory connectorFactory = new HttpWsConnectorFactoryImpl();
+        connectorFactory = new DefaultHttpWsConnectorFactory();
         TransportsConfiguration transportsConfiguration = TestUtil.getConfiguration(
                 "/simple-test-config" + File.separator + "netty-transports.yml");
         Map<String, Object> transportProperties = HTTPConnectorUtil.getTransportProperties(transportsConfiguration);
@@ -101,7 +102,7 @@ public class ConnectionPoolMaxConnTestCase {
 
     @AfterClass
     public void cleanUp() throws ServerConnectorException {
-        TestUtil.cleanUp(new ArrayList<>(), httpServer);
+        TestUtil.cleanUp(new ArrayList<>(), httpServer, connectorFactory);
     }
 
     private CountDownLatch[] getLatchesArray(int n) {

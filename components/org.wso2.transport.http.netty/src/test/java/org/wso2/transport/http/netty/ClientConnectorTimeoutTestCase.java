@@ -30,7 +30,7 @@ import org.wso2.transport.http.netty.config.TransportsConfiguration;
 import org.wso2.transport.http.netty.contract.HttpClientConnector;
 import org.wso2.transport.http.netty.contract.HttpResponseFuture;
 import org.wso2.transport.http.netty.contract.HttpWsConnectorFactory;
-import org.wso2.transport.http.netty.contractimpl.HttpWsConnectorFactoryImpl;
+import org.wso2.transport.http.netty.contractimpl.DefaultHttpWsConnectorFactory;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 import org.wso2.transport.http.netty.message.HTTPConnectorUtil;
 import org.wso2.transport.http.netty.util.HTTPConnectorListener;
@@ -54,7 +54,7 @@ public class ClientConnectorTimeoutTestCase {
 
     private HttpServer httpServer;
     private HttpClientConnector httpClientConnector;
-    private HttpWsConnectorFactory connectorFactory = new HttpWsConnectorFactoryImpl();
+    private HttpWsConnectorFactory connectorFactory;
 
     @BeforeClass
     public void setup() {
@@ -66,6 +66,7 @@ public class ClientConnectorTimeoutTestCase {
                 .getSenderConfiguration(transportsConfiguration, Constants.HTTP_SCHEME);
         senderConfiguration.setSocketIdleTimeout(3000);
 
+        connectorFactory = new DefaultHttpWsConnectorFactory();
         httpClientConnector = connectorFactory.createHttpClientConnector(
                 HTTPConnectorUtil.getTransportProperties(transportsConfiguration),
                 senderConfiguration);
@@ -97,6 +98,7 @@ public class ClientConnectorTimeoutTestCase {
     public void cleanUp() throws ServerConnectorException {
         try {
             httpServer.shutdown();
+            connectorFactory.shutdown();
         } catch (InterruptedException e) {
             logger.error("Failed to shutdown the test server");
         }

@@ -33,7 +33,7 @@ import org.wso2.transport.http.netty.internal.HandlerExecutor;
 import org.wso2.transport.http.netty.listener.HTTPTraceLoggingHandler;
 import org.wso2.transport.http.netty.listener.SourceHandler;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
-import org.wso2.transport.http.netty.sender.HTTPClientInitializer;
+import org.wso2.transport.http.netty.sender.HttpClientChannelInitializer;
 import org.wso2.transport.http.netty.sender.TargetHandler;
 import org.wso2.transport.http.netty.sender.channel.pool.ConnectionManager;
 
@@ -53,7 +53,7 @@ public class TargetChannel {
 
     private Channel channel;
     private TargetHandler targetHandler;
-    private HTTPClientInitializer httpClientInitializer;
+    private HttpClientChannelInitializer httpClientChannelInitializer;
     private HttpRoute httpRoute;
     private SourceHandler correlatedSource;
     private ChannelFuture channelFuture;
@@ -67,8 +67,8 @@ public class TargetChannel {
     private List<HttpContent> contentList = new ArrayList<>();
     private int contentLength = 0;
 
-    public TargetChannel(HTTPClientInitializer httpClientInitializer, ChannelFuture channelFuture) {
-        this.httpClientInitializer = httpClientInitializer;
+    public TargetChannel(HttpClientChannelInitializer httpClientChannelInitializer, ChannelFuture channelFuture) {
+        this.httpClientChannelInitializer = httpClientChannelInitializer;
         this.channelFuture = channelFuture;
         this.handlerExecutor = HTTPTransportContextHolder.getInstance().getHandlerExecutor();
     }
@@ -90,8 +90,8 @@ public class TargetChannel {
         this.targetHandler = targetHandler;
     }
 
-    private HTTPClientInitializer getHttpClientInitializer() {
-        return httpClientInitializer;
+    private HttpClientChannelInitializer getHttpClientChannelInitializer() {
+        return httpClientChannelInitializer;
     }
 
     public HttpRoute getHttpRoute() {
@@ -127,7 +127,7 @@ public class TargetChannel {
     }
 
     public void configTargetHandler(HTTPCarbonMessage httpCarbonMessage, HttpResponseFuture httpInboundResponseFuture) {
-        this.setTargetHandler(this.getHttpClientInitializer().getTargetHandler());
+        this.setTargetHandler(this.getHttpClientChannelInitializer().getTargetHandler());
         TargetHandler targetHandler = this.getTargetHandler();
         targetHandler.setHttpResponseFuture(httpInboundResponseFuture);
         targetHandler.setIncomingMsg(httpCarbonMessage);

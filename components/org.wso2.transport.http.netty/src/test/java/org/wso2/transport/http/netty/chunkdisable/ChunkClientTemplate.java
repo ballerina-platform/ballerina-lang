@@ -25,7 +25,7 @@ import org.wso2.transport.http.netty.common.Constants;
 import org.wso2.transport.http.netty.config.SenderConfiguration;
 import org.wso2.transport.http.netty.contract.HttpClientConnector;
 import org.wso2.transport.http.netty.contract.HttpWsConnectorFactory;
-import org.wso2.transport.http.netty.contractimpl.HttpWsConnectorFactoryImpl;
+import org.wso2.transport.http.netty.contractimpl.DefaultHttpWsConnectorFactory;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 import org.wso2.transport.http.netty.message.HttpMessageDataStreamer;
 import org.wso2.transport.http.netty.util.HTTPConnectorListener;
@@ -53,7 +53,7 @@ public class ChunkClientTemplate {
 
     public void setUp() {
         httpServer = TestUtil.startHTTPServer(TestUtil.HTTP_SERVER_PORT, new EchoServerInitializer());
-        HttpWsConnectorFactory httpWsConnectorFactory = new HttpWsConnectorFactoryImpl();
+        HttpWsConnectorFactory httpWsConnectorFactory = new DefaultHttpWsConnectorFactory();
         clientConnector = httpWsConnectorFactory.createHttpClientConnector(new HashMap<>(), senderConfiguration);
     }
 

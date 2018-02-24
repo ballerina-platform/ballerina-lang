@@ -72,17 +72,17 @@
             <class name="org.wso2.transport.http.netty.compression.ServerRespCompressionTestCase"/>
             <class name="org.wso2.transport.http.netty.compression.ClientRespDecompressionTestCase"/>
 
-            <class name="org.wso2.transport.http.netty.connectionpool.ConnectionPoolProxyTestCase" />
-            <class name="org.wso2.transport.http.netty.connectionpool.ConnectionPoolEvictionTestCase" />
-            <class name="org.wso2.transport.http.netty.connectionpool.ConnectionPoolMaxConnTestCase" />
-            <class name="org.wso2.transport.http.netty.connectionpool.ConnectionPoolTimeoutProxyTestCase" />
-            <class name="org.wso2.transport.http.netty.connectionpool.ConnectionPoolMainTestCase" />
-
             <class name="org.wso2.transport.http.netty.websocket.WebSocketServerTestCase"/>
             <class name="org.wso2.transport.http.netty.websocket.WebSocketClientTestCase"/>
             <!--<class name="org.wso2.transport.http.netty.websocket.WebSocketPassThroughTestCase"/>-->
             <class name="org.wso2.transport.http.netty.websocket.WebSocketMessagePropertiesTestCase"/>
             <class name="org.wso2.transport.http.netty.websocket.HttpToWsProtocolSwitchTestCase"/>
+
+            <class name="org.wso2.transport.http.netty.connectionpool.ConnectionPoolProxyTestCase" />
+            <class name="org.wso2.transport.http.netty.connectionpool.ConnectionPoolEvictionTestCase" />
+            <class name="org.wso2.transport.http.netty.connectionpool.ConnectionPoolMaxConnTestCase" />
+            <class name="org.wso2.transport.http.netty.connectionpool.ConnectionPoolTimeoutProxyTestCase" />
+            <class name="org.wso2.transport.http.netty.connectionpool.ConnectionPoolMainTestCase" />
         </classes>
     </test>
 </suite>

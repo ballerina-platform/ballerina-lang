@@ -127,7 +127,7 @@ public class HTTP2ResponseCallback implements CarbonCallback {
 //            MessageDataSource messageDataSource = cMsg.getMessageDataSource();
 //            if (messageDataSource != null) {
 //                messageDataSource.serializeData();
-//                cMsg.setEndOfMsgAdded(true);
+//                cMsg.completeMessage(true);
 //                cMsg.getHeaders().remove(Constants.HTTP_CONTENT_LENGTH);
 //            } else {
 //                logger.error("Message is already built but cannot find the MessageDataSource");
