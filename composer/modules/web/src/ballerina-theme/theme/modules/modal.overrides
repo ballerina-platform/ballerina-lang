@@ -1,29 +1,12 @@
 /*******************************
          Site Overrides
 *******************************/
-
 .ui.modal.inverted{
-    background  : @invertedBackgroundColor;
-}
-.ui.modal.inverted > .header{
-    background  : @invertedBackgroundColor;
-    color       : @off-white;
-}
-
-.ui.modal.inverted {
-    .header {
-        background      : @invertedBackgroundColor;
-        color           : @off-white;
-        border-bottom   :1px solid #7e7e7e;
-    }
-} 
-
-.ui.modal.inverted, .ui.modal.inverted {
-    .content, .actions{
+    .content, .actions, .header{
         background  : @invertedBackgroundColor;
     }
-} 
-
-@media only screen and (max-width: 991px) .ui.modal > .close {
-    color: #FFF;
+    .header {
+        color           : @off-white;
+        border-bottom   : 1px solid #7e7e7e;
+    }
 }
