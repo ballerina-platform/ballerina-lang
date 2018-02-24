@@ -26,6 +26,7 @@ import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
+import org.ballerinalang.util.transactions.TransactionResourceManager;
 
 /**
  * Native function ballerina.transactions.coordinator:abortResourceManagers.
@@ -39,9 +40,9 @@ import org.ballerinalang.natives.annotations.ReturnType;
 public class BalAbortResourceManagers extends AbstractNativeFunction {
 
     public BValue[] execute(Context ctx) {
-//        String transactionId = getStringArgument(ctx, 0);
-//        boolean abortSuccessful = TransactionResourceManager.getInstance().notifyAbort(transactionId);
-        boolean abortSuccessful = true; //TODO: Fixme
+        String transactionId = getStringArgument(ctx, 0);
+        boolean abortSuccessful = TransactionResourceManager.getInstance().notifyAbort(transactionId);
+//        boolean abortSuccessful = true; //TODO: Fixme
         return getBValues(new BBoolean(abortSuccessful));
     }
 }

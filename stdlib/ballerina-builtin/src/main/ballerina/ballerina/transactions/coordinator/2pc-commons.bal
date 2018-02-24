@@ -76,6 +76,15 @@ struct AbortResponse {
 function twoPhaseCommit (TwoPhaseCommitTransaction txn) returns (string message, error err) {
     log:printInfo("Running 2-phase commit for transaction: " + txn.transactionId);
 
+    string transactionId = txn.transactionId;
+
+    // Prepare local resource managers
+    boolean localPrepareSuccessful = prepareResourceManagers(transactionId);
+    if(!localPrepareSuccessful) {
+        message = "aborted";
+        return;
+    }
+
     // Prepare phase & commit phase
     // First call prepare on all volatile participants
     boolean prepareVolatilesSuccessful = prepareParticipants(txn, PROTOCOL_VOLATILE);
@@ -92,6 +101,7 @@ function twoPhaseCommit (TwoPhaseCommitTransaction txn) returns (string message,
                 // return Hazard outcome if a participant cannot successfully end its branch of the transaction
                 err = {msg:"Hazard-Outcome"};
             }
+            _ = commitResourceManagers(transactionId);
         } else {
             // If some durable participants voted NO, next call notify(abort) on all durable participants
             // and return aborted to the initiator
@@ -106,6 +116,7 @@ function twoPhaseCommit (TwoPhaseCommitTransaction txn) returns (string message,
                 // return Hazard outcome if a participant cannot successfully end its branch of the transaction
                 err = {msg:"Hazard-Outcome"};
             }
+            _ = abortResourceManagers(transactionId);
         }
     } else {
         boolean notifySuccessful = notifyAbortToVolatileParticipants(txn);
@@ -119,6 +130,7 @@ function twoPhaseCommit (TwoPhaseCommitTransaction txn) returns (string message,
             // return Hazard outcome if a participant cannot successfully end its branch of the transaction
             err = {msg:"Hazard-Outcome"};
         }
+        _ = abortResourceManagers(transactionId);
     }
     return;
 }
