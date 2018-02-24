@@ -116,6 +116,7 @@ import org.ballerinalang.util.exceptions.BallerinaException;
 import org.ballerinalang.util.exceptions.RuntimeErrors;
 import org.ballerinalang.util.program.BLangFunctions;
 import org.ballerinalang.util.transactions.LocalTransactionInfo;
+import org.ballerinalang.util.transactions.TransactionConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.ballerinalang.util.Lists;
@@ -2682,7 +2683,7 @@ public class BLangVM {
 
     private void beginTransaction(int transactionId, int retryCountRegIndex) {
         //Transaction is attempted three times by default to improve resiliency
-        int retryCount = 3;
+        int retryCount = TransactionConstants.DEFAULT_RETRY_COUNT;
         if (retryCountRegIndex != -1) {
             retryCount = (int) controlStack.currentFrame.getLongRegs()[retryCountRegIndex];
             if (retryCount < 0) {
@@ -2704,7 +2705,7 @@ public class BLangVM {
     }
 
     private LocalTransactionInfo getTransactionInfo() {
-        BValue[] returns = notifyTransactionBegin(null, null, "2pc");
+        BValue[] returns = notifyTransactionBegin(null, null, TransactionConstants.DEFAULT_COORDINATION_TYPE);
         BStruct txDataStruct = (BStruct) returns[0];
         String transactionId = txDataStruct.getStringField(1);
         String protocol = txDataStruct.getStringField(2);
@@ -2727,15 +2728,16 @@ public class BLangVM {
     private void endTransaction(int transactionId, int status) {
         LocalTransactionInfo localTransactionInfo = context.getLocalTransactionInfo();
         try {
-            if (status == TransactionStatus.SUCCESS.value()) {
-                //Nothing to do
-            } else if (status == TransactionStatus.FAILED.value()) {
+            //In success case no need to do anything as with the transaction end phase it will be committed.
+            if (status == TransactionStatus.FAILED.value()) {
                 int currentCount = localTransactionInfo.getCurrentRetryCount(transactionId);
                 int allowedCount = localTransactionInfo.getAllowedRetryCount(transactionId);
+                //local retry is attempted without notifying the coordinator. If all the attempts are failed, notify
+                //the coordinator with transaction abort.
                 if (currentCount == allowedCount) {
                     notifyTransactionAbort(localTransactionInfo.getGlobalTransactionId());
                 }
-            } else { //status = 1 Transaction end
+            } else if (status == TransactionStatus.END.value()) { //status = 1 Transaction end
                 localTransactionInfo.endTransactionBlock();
                 if (localTransactionInfo.isOuterTransaction()) {
                     notifyTransactionEnd(localTransactionInfo.getGlobalTransactionId());
@@ -2755,22 +2757,22 @@ public class BLangVM {
 
     private BValue[] notifyTransactionBegin(String glbalTransactionId, String url, String protocol) {
         BValue[] args = { new BString(glbalTransactionId), new BString(url), new BString(protocol) };
-        return invokeCoordinatorFunction("beginTransaction", args);
+        return invokeCoordinatorFunction(TransactionConstants.COORDINATOR_BEGIN_TRANSACTION, args);
     }
 
     private void notifyTransactionEnd(String globalTransactionId) {
         BValue[] args = { new BString(globalTransactionId) };
-        invokeCoordinatorFunction("endTransaction", args);
+        invokeCoordinatorFunction(TransactionConstants.COORDINATOR_END_TRANSACTION, args);
     }
 
     private void notifyTransactionAbort(String globalTransactionId) {
         BValue[] args = { new BString(globalTransactionId) };
-        invokeCoordinatorFunction("abortTransaction", args);
+        invokeCoordinatorFunction(TransactionConstants.COORDINATOR_ABORT_TRANSACTION, args);
     }
 
     private BValue[] invokeCoordinatorFunction(String functionName, BValue[] args) {
         Context newContext = new WorkerContext(context.getProgramFile(), context);
-        PackageInfo packageInfo = context.getProgramFile().getPackageInfo("ballerina.transactions.coordinator");
+        PackageInfo packageInfo = context.getProgramFile().getPackageInfo(TransactionConstants.COORDINATOR_PACKAGE);
         FunctionInfo functionInfo = packageInfo.getFunctionInfo(functionName);
         return BLangFunctions.invokeFunction(context.getProgramFile(), functionInfo, args, newContext);
     }

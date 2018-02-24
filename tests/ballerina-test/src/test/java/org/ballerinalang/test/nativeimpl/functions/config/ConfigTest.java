@@ -144,7 +144,7 @@ public class ConfigTest {
 
     @Test(description = "test instance method with runtime, custom and default config file properties")
     public void testGetInstanceValuesWithAllProperties() throws IOException {
-g
+
         BString id = new BString("http1");
         BString key = new BString("ballerina.http.port");
         BValue[] inputArg = {id, key};
