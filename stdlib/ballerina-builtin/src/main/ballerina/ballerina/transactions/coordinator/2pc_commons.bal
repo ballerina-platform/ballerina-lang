@@ -80,8 +80,8 @@ function twoPhaseCommit (TwoPhaseCommitTransaction txn) returns (string message,
 
     // Prepare local resource managers
     boolean localPrepareSuccessful = prepareResourceManagers(transactionId);
-    if(!localPrepareSuccessful) {
-        message = "aborted";
+    if (!localPrepareSuccessful) {
+        err = {msg:"Local prepare failed"};
         return;
     }
 
@@ -101,7 +101,10 @@ function twoPhaseCommit (TwoPhaseCommitTransaction txn) returns (string message,
                 // return Hazard outcome if a participant cannot successfully end its branch of the transaction
                 err = {msg:"Hazard-Outcome"};
             }
-            _ = commitResourceManagers(transactionId);
+            boolean localCommitSuccessful = commitResourceManagers(transactionId);
+            if (!localCommitSuccessful) {
+                err = {msg:"Local commit failed"};
+            }
         } else {
             // If some durable participants voted NO, next call notify(abort) on all durable participants
             // and return aborted to the initiator
@@ -116,7 +119,10 @@ function twoPhaseCommit (TwoPhaseCommitTransaction txn) returns (string message,
                 // return Hazard outcome if a participant cannot successfully end its branch of the transaction
                 err = {msg:"Hazard-Outcome"};
             }
-            _ = abortResourceManagers(transactionId);
+            boolean localAbortSuccessful = abortResourceManagers(transactionId);
+            if (!localAbortSuccessful) {
+                err = {msg:"Local abort failed"};
+            }
         }
     } else {
         boolean notifySuccessful = notifyAbortToVolatileParticipants(txn);
@@ -130,7 +136,10 @@ function twoPhaseCommit (TwoPhaseCommitTransaction txn) returns (string message,
             // return Hazard outcome if a participant cannot successfully end its branch of the transaction
             err = {msg:"Hazard-Outcome"};
         }
-        _ = abortResourceManagers(transactionId);
+        boolean localAbortSuccessful = abortResourceManagers(transactionId);
+        if (!localAbortSuccessful) {
+            err = {msg:"Local abort failed"};
+        }
     }
     return;
 }
