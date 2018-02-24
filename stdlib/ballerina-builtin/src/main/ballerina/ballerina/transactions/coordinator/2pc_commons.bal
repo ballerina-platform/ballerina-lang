@@ -358,8 +358,8 @@ function abortLocalParticipantTransaction (string transactionId) returns (string
 
 // If this is a new transaction, then this instance will become the initiator and will create a context
 // If this is part of an existing transaction, this this instance will register as a participant
-public function beginTransaction (string transactionId, string registerAtUrl,
-                                  string coordinationType) returns (TransactionContext txnCtx, error err) {
+function beginTransaction (string transactionId, string registerAtUrl,
+                           string coordinationType) returns (TransactionContext txnCtx, error err) {
     if (isInitiator(transactionId)) {
         txnCtx, err = createTransactionContext(coordinationType);
     } else {
@@ -373,7 +373,7 @@ public function beginTransaction (string transactionId, string registerAtUrl,
 
 // Depending on the state of the transaction, and whether this instance is the initiator or participant,
 // decide to commit or abort the transaction
-public function endTransaction (string transactionId) returns (string msg, error e) {
+function endTransaction (string transactionId) returns (string msg, error e) {
     if (isInitiator(transactionId)) {
         var txn, _ = (TwoPhaseCommitTransaction)initiatedTransactions[transactionId];
         if (txn.state != TransactionState.ABORTED) {
@@ -386,7 +386,7 @@ public function endTransaction (string transactionId) returns (string msg, error
     return;
 }
 
-public function abortTransaction (string transactionId) returns (string msg, error e) {
+function abortTransaction (string transactionId) returns (string msg, error e) {
     if (isInitiator(transactionId)) {
         msg, e = abortInitiatorTransaction(transactionId);
     } else {
