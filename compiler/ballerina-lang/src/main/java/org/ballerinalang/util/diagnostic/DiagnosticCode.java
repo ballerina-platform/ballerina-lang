@@ -100,6 +100,8 @@ public enum DiagnosticCode {
     FUNC_DEFINED_ON_NON_LOCAL_TYPE("func.defined.on.non.local.type"),
     STRUCT_FIELD_AND_FUNC_WITH_SAME_NAME("struct.field.and.func.with.same.name"),
     INVALID_STRUCT_INITIALIZER_FUNCTION("invalid.struct.initializer.function"),
+    ATTEMPT_CREATE_NON_PUBLIC_INITIALIZER("attempt.to.create.struct.non.public.initializer"),
+    STRUCT_INITIALIZER_INVOKED("explicit.invocation.of.struct.init.is.not.allowed"),
     PKG_ALIAS_NOT_ALLOWED_HERE("pkg.alias.not.allowed.here"),
 
     MULTI_VALUE_RETURN_EXPECTED("multi.value.return.expected"),

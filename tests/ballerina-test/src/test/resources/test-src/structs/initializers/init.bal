@@ -22,7 +22,7 @@ public struct student{
     string address;
 }
 
-function <student p> employee() {
+function <student p> student() {
     p.age = 10;
     p.name = "James";
 }

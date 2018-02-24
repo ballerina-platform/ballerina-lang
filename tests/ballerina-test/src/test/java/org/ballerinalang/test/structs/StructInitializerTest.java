@@ -17,6 +17,7 @@
  */
 package org.ballerinalang.test.structs;
 
+import org.ballerinalang.launcher.util.BAssertUtil;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
@@ -37,7 +38,7 @@ public class StructInitializerTest {
         compileResult = BCompileUtil.compile("test-src/structs/struct-initializer.bal");
     }
 
-    @Test(description = "Test equivalence of structs initializers that are in the same package")
+    @Test(description = "Test struct initializers that are in the same package")
     public void testStructInitializerInSamePackage1() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testStructInitializerInSamePackage1");
 
@@ -45,12 +46,25 @@ public class StructInitializerTest {
         Assert.assertEquals(returns[1].stringValue(), "Charles");
     }
 
-    @Test(description = "Test equivalence of structs initializers that are in different packages")
+    @Test(description = "Test struct initializers that are in different packages")
     public void testStructInitializerInAnotherPackage() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testStructInitializerInAnotherPackage");
 
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 10);
         Assert.assertEquals(returns[1].stringValue(), "James");
+    }
+
+    @Test(description = "Test negative structs initializers scenarios")
+    public void testInvalidStructLiteralKey() {
+        CompileResult result = BCompileUtil.compile("test-src/structs/struct-initializer-negative.bal");
+
+        Assert.assertEquals(2, result.getErrorCount());
+        BAssertUtil.validateError(result, 0,
+                "explicit invocation of 'person' struct initializer is not allowed",
+                22, 5);
+        BAssertUtil.validateError(result, 1,
+                "attempt to create a struct with a non-public initializer ", 26, 21);
+
     }
 }
 
