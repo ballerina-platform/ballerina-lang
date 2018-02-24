@@ -34,9 +34,9 @@ import org.apache.commons.logging.LogFactory;
 /**
  * Listen HTTP2 Events and Creating appropriate HTTP2 frames
  */
-public class Http2FrameListenAdapter extends Http2EventAdapter {
+public class Http2FrameListenerAdapter extends Http2EventAdapter {
 
-    private final Log log = LogFactory.getLog(Http2FrameListenAdapter.class);
+    private final Log log = LogFactory.getLog(Http2FrameListenerAdapter.class);
 
     @Override
     public int onDataRead(ChannelHandlerContext ctx, int streamId, ByteBuf data, int padding,
