@@ -35,46 +35,47 @@ import org.wso2.transport.http.netty.config.SenderConfiguration;
 import static io.netty.handler.logging.LogLevel.DEBUG;
 
 /**
- * This is responsible for initializing a connection with a backend service
+ * {@code ClientInitializer} is responsible for initializing the channel handlers
+ * and setting up handlers for the initial pipeline
  */
 public class ClientInitializer extends ChannelInitializer<SocketChannel> {
 
-    private static final Http2FrameLogger logger =
-            new Http2FrameLogger(DEBUG,  //change mode to INFO for logging frames
-                                 ClientInitializer.class);
+    private static final Http2FrameLogger logger = new Http2FrameLogger(DEBUG, ClientInitializer.class);
+    // Change mode to INFO for logging frames
 
     private ClientOutboundHandler clientOutboundHandler;
+    private ClientInboundHandler clientInboundHandler;
     private UpgradeRequestHandler upgradeRequestHandler;
     private Http2ConnectionHandler connectionHandler;
-    private Http2FrameListener listener;
-    private boolean skipHttpToHttp2Upgrade = false;
+    private Http2FrameListener frameListener;
     private Http2Connection connection;
-    private ClientInboundHandler clientFrameListener;
+
+    /* Whether to skip the upgrade and directly use HTTP/2 Frames for communication */
+    private boolean skipHttpToHttp2Upgrade = false;
 
     public ClientInitializer(SenderConfiguration senderConfiguration) {
-        skipHttpToHttp2Upgrade = senderConfiguration.skipHttpToHttp2Upgrade();
         connection = new DefaultHttp2Connection(false);
-        clientFrameListener = new ClientInboundHandler();
-        listener = new DelegatingDecompressorFrameListener(connection, clientFrameListener);
+        clientInboundHandler = new ClientInboundHandler();
+        frameListener = new DelegatingDecompressorFrameListener(connection, clientInboundHandler);
         connectionHandler =
-                new Http2ConnectionHandlerBuilder().connection(connection).frameLogger(logger)
-                        .frameListener(listener).build();
+                new Http2ConnectionHandlerBuilder().
+                        connection(connection).frameLogger(logger).frameListener(frameListener).build();
         clientOutboundHandler = new ClientOutboundHandler(connection, connectionHandler.encoder());
         upgradeRequestHandler = new UpgradeRequestHandler(clientOutboundHandler);
-    }
-
-    public void setTargetChannel(TargetChannel targetChannel) {
-        clientOutboundHandler.setTargetChannel(targetChannel);
-        upgradeRequestHandler.setTargetChannel(targetChannel);
-        clientFrameListener.setTargetChannel(targetChannel);
+        skipHttpToHttp2Upgrade = senderConfiguration.skipHttpToHttp2Upgrade();
     }
 
     /**
-     * Initiate Http2 connection as clearText or TCP secured
+     * Set the {@code TargetChannel} associated with the ClientInitializer
      *
-     * @param socketChannel
-     * @throws Exception
+     * @param targetChannel associated TargetChannel
      */
+    public void setTargetChannel(TargetChannel targetChannel) {
+        clientOutboundHandler.setTargetChannel(targetChannel);
+        upgradeRequestHandler.setTargetChannel(targetChannel);
+        clientInboundHandler.setTargetChannel(targetChannel);
+    }
+
     @Override
     public void initChannel(SocketChannel socketChannel) throws Exception {
 
@@ -85,6 +86,11 @@ public class ClientInitializer extends ChannelInitializer<SocketChannel> {
         }
     }
 
+    /**
+     * Get the associated {@code ClientOutboundHandler}
+     *
+     * @return associated ClientOutboundHandler
+     */
     public ClientOutboundHandler getClientOutboundHandler() {
         return clientOutboundHandler;
     }
@@ -93,9 +99,8 @@ public class ClientInitializer extends ChannelInitializer<SocketChannel> {
         HttpClientCodec sourceCodec = new HttpClientCodec();
         Http2ClientUpgradeCodec upgradeCodec = new Http2ClientUpgradeCodec(connectionHandler);
         HttpClientUpgradeHandler upgradeHandler =
-                new HttpClientUpgradeHandler(sourceCodec, upgradeCodec, 65536);
-        socketChannel.pipeline()
-                .addLast(sourceCodec, upgradeHandler, upgradeRequestHandler);
+                new HttpClientUpgradeHandler(sourceCodec, upgradeCodec, Integer.MAX_VALUE);
+        socketChannel.pipeline().addLast(sourceCodec, upgradeHandler, upgradeRequestHandler);
     }
 
 }

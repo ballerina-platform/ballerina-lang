@@ -32,6 +32,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * {@code TargetChannel} encapsulate the Channel associate with a particular connection.
+ *
  * This shouldn't have anything related to a single message.
  */
 public class TargetChannel {
@@ -58,49 +59,105 @@ public class TargetChannel {
         this.connection = connection;
         this.httpRoute = httpRoute;
         pendingMessages = new ConcurrentLinkedQueue<>();
-        this.connection.addListener(new ConnectionListener(this));
+        this.connection.addListener(new StreamCloseListener(this));
     }
 
+    /**
+     * Get the netty channel associated with this TargetChannel
+     *
+     * @return channel which represent the connection
+     */
     public Channel getChannel() {
         return channel;
     }
 
+    /**
+     * Get the HTTP/2 connection associated with this TargetChannel
+     *
+     * @return associated HTTP/2 connection
+     */
     public Http2Connection getConnection() {
         return connection;
     }
 
+    /**
+     * Get the {@code ChannelFuture} associated with this TargetChannel
+     *
+     * @return associated ChannelFuture
+     */
     public ChannelFuture getChannelFuture() {
         return channelFuture;
     }
 
+    /**
+     * Add a in-flight message
+     *
+     * @param streamId  stream id
+     * @param inFlightMessage  {@code OutboundMsgHolder} which holds the in-flight message
+     */
     public void putInFlightMessage(int streamId, OutboundMsgHolder inFlightMessage) {
         inFlightMessages.put(streamId, inFlightMessage);
     }
 
-    public void addPendingMessage(OutboundMsgHolder pendingMessage) {
-        pendingMessages.add(pendingMessage);
-    }
-
-    public ConcurrentLinkedQueue<OutboundMsgHolder> getPendingMessages() {
-        return pendingMessages;
-    }
-
+    /**
+     * Get the in-flight message associated with the a particular stream id
+     *
+     * @param streamId stream id
+     * @return  in-flight message associated with the a particular stream id
+     */
     public OutboundMsgHolder getInFlightMessage(int streamId) {
         return inFlightMessages.get(streamId);
     }
 
+    /**
+     * Store a message until connection upgrade is done.
+     * When a connection upgrade is in progress, subsequent messages should kept on-hold until the process is over
+     *
+     * @param pendingMessage a message to be hold until connection upgrade is done
+     */
+    public void addPendingMessage(OutboundMsgHolder pendingMessage) {
+        pendingMessages.add(pendingMessage);
+    }
+
+    /**
+     * Get all messages was on-hold due to the connection upgrade process
+     *
+     * @return queue of pending messages to be delivered to the backend service
+     */
+    public ConcurrentLinkedQueue<OutboundMsgHolder> getPendingMessages() {
+        return pendingMessages;
+    }
+
+    /**
+     * Update the connection upgrade status
+     *
+     * @param upgradeState status of the connection upgrade
+     */
     public void updateUpgradeState(UpgradeState upgradeState) {
         this.upgradeState = upgradeState;
     }
 
+    /**
+     * Get the current state of the connection upgrade process
+     *
+     * @return state of the connection upgrade process
+     */
     public UpgradeState getUpgradeState() {
         return upgradeState;
     }
 
+    /**
+     * Increment and get the active streams count
+     *
+     * @return number of active streams count
+     */
     public int incrementActiveStreamCount() {
         return activeStreams.incrementAndGet();
     }
 
+    /**
+     * Mark the TargetChannel has reached the maximum number of active streams
+     */
     public void markAsExhausted() {
         isExhausted.set(true);
     }
@@ -112,15 +169,17 @@ public class TargetChannel {
         UPGRADE_NOT_ISSUED, UPGRADE_ISSUED, UPGRADED
     }
 
-    private class ConnectionListener extends Http2EventAdapter {
+    /* Listener which listen to the stream closure event */
+    private class StreamCloseListener extends Http2EventAdapter {
 
         private TargetChannel targetChannel;
 
-        public ConnectionListener(TargetChannel targetChannel) {
+        public StreamCloseListener(TargetChannel targetChannel) {
             this.targetChannel = targetChannel;
         }
 
         public void onStreamClosed(Http2Stream stream) {
+            // TargetChannel is no longer exhausted, so we can return it back to the pool
             activeStreams.decrementAndGet();
             if (isExhausted.getAndSet(false)) {
                 connectionManager.returnTargetChannel(httpRoute, targetChannel);

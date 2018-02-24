@@ -40,7 +40,11 @@ import org.wso2.transport.http.netty.message.HttpCarbonResponse;
 import org.wso2.transport.http.netty.message.PooledDataStreamerFactory;
 
 /**
- * Listen HTTP2 Events and Creating appropriate HTTP2 frames
+ * {@code ClientInboundHandler} listen to HTTP/2 Events received from the HTTP/2 backend service
+ * and construct response messages.
+ *
+ * And also this is responsible for notifying the HTTP Response Listener as well.
+ *
  */
 public class ClientInboundHandler extends Http2EventAdapter {
 
@@ -80,10 +84,12 @@ public class ClientInboundHandler extends Http2EventAdapter {
 
         OutboundMsgHolder outboundMsgHolder = targetChannel.getInFlightMessage(streamId);
         HTTPCarbonMessage responseMessage = setupResponseCarbonMessage(ctx, streamId, headers, outboundMsgHolder);
+        // Create response carbon message
         outboundMsgHolder.setResponseCarbonMessage(responseMessage);
         if (endStream) {
             responseMessage.addHttpContent(new EmptyLastHttpContent());
         }
+        // Notify the response listener
         outboundMsgHolder.getResponseFuture().notifyHttpListener(responseMessage);
     }
 
@@ -106,6 +112,7 @@ public class ClientInboundHandler extends Http2EventAdapter {
                                                          Http2Headers http2Headers,
                                                          OutboundMsgHolder outboundMsgHolder) {
 
+        // Create HTTP Response
         CharSequence status = http2Headers.status();
         HttpResponseStatus responseStatus;
         try {
@@ -113,33 +120,40 @@ public class ClientInboundHandler extends Http2EventAdapter {
         } catch (Http2Exception e) {
             responseStatus = HttpResponseStatus.BAD_GATEWAY;
         }
-
         HttpVersion version = new HttpVersion(Constants.HTTP_VERSION_2_0, true);
-
         HttpResponse httpResponse = new DefaultHttpResponse(version, responseStatus);
 
+        // Set headers
         try {
             HttpConversionUtil.addHttp2ToHttpHeaders(
                     streamId, http2Headers, httpResponse.headers(), version, false, false);
         } catch (Http2Exception e) {
+            outboundMsgHolder.getResponseFuture().
+                    notifyHttpListener(new Exception("Error while setting http headers", e));
         }
+
+        // Create HTTP Carbon Response
         HTTPCarbonMessage responseCarbonMsg = new HttpCarbonResponse(httpResponse);
 
+        // Setting properties of the HTTP Carbon Response
         responseCarbonMsg.setProperty(Constants.POOLED_BYTE_BUFFER_FACTORY, new PooledDataStreamerFactory(ctx.alloc()));
-
         responseCarbonMsg.setProperty(org.wso2.carbon.messaging.Constants.DIRECTION,
                                       org.wso2.carbon.messaging.Constants.DIRECTION_RESPONSE);
         responseCarbonMsg.setProperty(Constants.HTTP_STATUS_CODE, httpResponse.status().code());
 
         //copy required properties for service chaining from incoming carbon message to the response carbon message
         //copy shared worker pool
-        responseCarbonMsg.setProperty(
-                Constants.EXECUTOR_WORKER_POOL,
-                outboundMsgHolder.getRequest().getProperty(Constants.EXECUTOR_WORKER_POOL));
+        responseCarbonMsg.setProperty(Constants.EXECUTOR_WORKER_POOL,
+                                      outboundMsgHolder.getRequest().getProperty(Constants.EXECUTOR_WORKER_POOL));
 
         return responseCarbonMsg;
     }
 
+    /**
+     * Set the {@code TargetChannel} associated with the ClientInboundHandler
+     *
+     * @param targetChannel associated TargetChannel
+     */
     public void setTargetChannel(TargetChannel targetChannel) {
         this.targetChannel = targetChannel;
     }
