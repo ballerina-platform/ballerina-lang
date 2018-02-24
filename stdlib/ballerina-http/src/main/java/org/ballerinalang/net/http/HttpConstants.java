@@ -232,4 +232,6 @@ public class HttpConstants {
     public static final String HEADER_VAL_CONNECTION_KEEP_ALIVE = "Keep-Alive";
     public static final String EXPECT_HEADER = "Expect";
     public static final String HEADER_VAL_100_CONTINUE = "100-continue";
+    public static final String HEADER_X_XID = "X-XID";
+    public static final String HEADER_X_REGISTER_AT_URL = "X-Register-At-URL";
 }
