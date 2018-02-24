@@ -45,7 +45,6 @@ public class Context {
     private BServerConnectorFuture connectorFuture;
     protected Map<String, Object> properties = new HashMap<>();
     private ServiceInfo serviceInfo;
-    private BallerinaTransactionManager ballerinaTransactionManager; //TODO:Remove this
     private LocalTransactionInfo localTransactionInfo;
     private DebugContext debugContext;
 
@@ -117,14 +116,6 @@ public class Context {
 
     public void setServiceInfo(ServiceInfo serviceInfo) {
         this.serviceInfo = serviceInfo;
-    }
-
-    public void setBallerinaTransactionManager(BallerinaTransactionManager ballerinaTransactionManager) {
-        this.ballerinaTransactionManager = ballerinaTransactionManager;
-    }
-
-    public BallerinaTransactionManager getBallerinaTransactionManager() {
-        return this.ballerinaTransactionManager;
     }
 
     public boolean isInTransaction() {

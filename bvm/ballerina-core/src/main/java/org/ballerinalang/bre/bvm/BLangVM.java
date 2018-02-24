@@ -2704,7 +2704,7 @@ public class BLangVM {
     }
 
     private LocalTransactionInfo getTransactionInfo() {
-        BValue[] returns = notifyTransactionBegin("", "", "2pc");
+        BValue[] returns = notifyTransactionBegin(null, null, "2pc");
         BStruct txDataStruct = (BStruct) returns[0];
         String transactionId = txDataStruct.getStringField(1);
         String protocol = txDataStruct.getStringField(2);

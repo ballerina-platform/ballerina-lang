@@ -55,41 +55,53 @@ public class TransactionResourceManager {
     }
 
     public boolean prepare(String transactionId) {
-        /*List<BallerinaTransactionContext> txContextList = resourceRegistry.get(transactionId);
-        for (BallerinaTransactionContext ctx : txContextList) {
-            try {
-                ctx.getXAResource().prepare(null); //TODO:Pass valid xid
-            } catch (XAException e) {
-                log.error("error in prepare the transaction, " + transactionId + ":" + e.getMessage(), e);
-                return false;
+        List<BallerinaTransactionContext> txContextList = resourceRegistry.get(transactionId);
+        if (txContextList != null) {
+            for (BallerinaTransactionContext ctx : txContextList) {
+//                try {
+//                    ctx.getXAResource().prepare(null); //TODO:Pass valid xid
+//                } catch (XAException e) {
+//                    log.error("error in prepare the transaction, " + transactionId + ":" + e.getMessage(), e);
+//                    return false;
+//                }
             }
-        }*/
+        } else {
+            log.info("no transacted actions registered for prepare : " + transactionId);
+        }
         return true;
     }
 
     public boolean notifyCommit(String transactionId) {
-        /*List<BallerinaTransactionContext> txContextList = resourceRegistry.get(transactionId);
-        for (BallerinaTransactionContext ctx : txContextList) {
-            try {
-                ctx.getXAResource().commit(null, false); //TODO:Pass valid xid and phase
-            } catch (XAException e) {
-                log.error("error in commit the transaction, " + transactionId + ":" + e.getMessage(), e);
-                return false;
+        List<BallerinaTransactionContext> txContextList = resourceRegistry.get(transactionId);
+        if (txContextList != null) {
+            for (BallerinaTransactionContext ctx : txContextList) {
+//                try {
+//                    ctx.getXAResource().commit(null, false); //TODO:Pass valid xid and phase
+//                } catch (XAException e) {
+//                    log.error("error in commit the transaction, " + transactionId + ":" + e.getMessage(), e);
+//                    return false;
+//                }
             }
-        }*/
+        } else {
+            log.info("no transacted actions registered for commit : " + transactionId);
+        }
         return true;
     }
 
     public boolean notifyAbort(String transactionId) {
-        /*List<BallerinaTransactionContext> txContextList = resourceRegistry.get(transactionId);
-        for (BallerinaTransactionContext ctx : txContextList) {
-            try {
-                ctx.getXAResource().rollback(null); //TODO:Pass valid xid
-            } catch (XAException e) {
-                log.error("error in abort the transaction, " + transactionId + ":" + e.getMessage(), e);
-                return false;
+        List<BallerinaTransactionContext> txContextList = resourceRegistry.get(transactionId);
+        if (txContextList != null) {
+            for (BallerinaTransactionContext ctx : txContextList) {
+//                try {
+//                    ctx.getXAResource().rollback(null); //TODO:Pass valid xid
+//                } catch (XAException e) {
+//                    log.error("error in abort the transaction, " + transactionId + ":" + e.getMessage(), e);
+//                    return false;
+//                }
             }
-        }*/
+        } else {
+            log.info("no transacted actions registered for rollback : " + transactionId);
+        }
         return true;
     }
 }
