@@ -25,6 +25,7 @@ import org.ballerinalang.util.codegen.ActionInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.codegen.ServiceInfo;
 import org.ballerinalang.util.debugger.DebugContext;
+import org.ballerinalang.util.transactions.LocalTransactionInfo;
 import org.wso2.carbon.messaging.CarbonMessage;
 
 import java.util.HashMap;
@@ -44,7 +45,8 @@ public class Context {
     private BServerConnectorFuture connectorFuture;
     protected Map<String, Object> properties = new HashMap<>();
     private ServiceInfo serviceInfo;
-    private BallerinaTransactionManager ballerinaTransactionManager;
+    private BallerinaTransactionManager ballerinaTransactionManager; //TODO:Remove this
+    private LocalTransactionInfo localTransactionInfo;
     private DebugContext debugContext;
 
     private int startIP;
@@ -126,7 +128,19 @@ public class Context {
     }
 
     public boolean isInTransaction() {
-        return this.ballerinaTransactionManager != null;
+        return this.localTransactionInfo != null;
+    }
+
+    public void setLocalTransactionInfo(LocalTransactionInfo localTransactionInfo) {
+        this.localTransactionInfo = localTransactionInfo;
+    }
+
+    public LocalTransactionInfo getLocalTransactionInfo() {
+        return this.localTransactionInfo;
+    }
+
+    public boolean isInActiveTransaction() {
+        return this.localTransactionInfo != null;
     }
 
     public BStruct getError() {

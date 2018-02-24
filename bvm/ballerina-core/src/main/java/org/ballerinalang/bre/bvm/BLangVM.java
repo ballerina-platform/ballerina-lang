@@ -18,7 +18,6 @@
 package org.ballerinalang.bre.bvm;
 
 import org.apache.commons.lang3.StringEscapeUtils;
-import org.ballerinalang.bre.BallerinaTransactionManager;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.connector.api.AbstractNativeAction;
 import org.ballerinalang.connector.api.ConnectorFuture;
@@ -115,6 +114,8 @@ import org.ballerinalang.util.exceptions.BLangExceptionHelper;
 import org.ballerinalang.util.exceptions.BLangNullReferenceException;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.ballerinalang.util.exceptions.RuntimeErrors;
+import org.ballerinalang.util.program.BLangFunctions;
+import org.ballerinalang.util.transactions.LocalTransactionInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.ballerinalang.util.Lists;
@@ -487,7 +488,8 @@ public class BLangVM {
                     break;
                 case InstructionCodes.TR_END:
                     i = operands[0];
-                    endTransaction(i);
+                    j = operands[1];
+                    endTransaction(i, j);
                     break;
                 case InstructionCodes.WRKSEND:
                     InstructionWRKSendReceive wrkSendIns = (InstructionWRKSendReceive) instruction;
@@ -2678,28 +2680,6 @@ public class BLangVM {
         sf.refRegs[i] = bStruct;
     }
 
-    private void endTransaction(int status) {
-        BallerinaTransactionManager ballerinaTransactionManager = context.getBallerinaTransactionManager();
-        if (ballerinaTransactionManager != null) {
-            try {
-                if (status == TransactionStatus.SUCCESS.value()) {
-                    ballerinaTransactionManager.commitTransactionBlock();
-                } else if (status == TransactionStatus.FAILED.value()) {
-                    ballerinaTransactionManager.rollbackTransactionBlock();
-                } else { //status = 1 Transaction end
-                    ballerinaTransactionManager.endTransactionBlock();
-                    if (ballerinaTransactionManager.isOuterTransaction()) {
-                        context.setBallerinaTransactionManager(null);
-                    }
-                }
-            } catch (Throwable e) {
-                context.setError(BLangVMErrors.createError(this.context, ip, e.getMessage()));
-                handleError();
-                return;
-            }
-        }
-    }
-
     private void beginTransaction(int transactionId, int retryCountRegIndex) {
         //Transaction is attempted three times by default to improve resiliency
         int retryCount = 3;
@@ -2712,25 +2692,87 @@ public class BLangVM {
                 return;
             }
         }
-        BallerinaTransactionManager ballerinaTransactionManager = context.getBallerinaTransactionManager();
-        if (ballerinaTransactionManager == null) {
-            ballerinaTransactionManager = new BallerinaTransactionManager();
-            context.setBallerinaTransactionManager(ballerinaTransactionManager);
+        LocalTransactionInfo localTransactionInfo = context.getLocalTransactionInfo();
+        if (localTransactionInfo == null) {
+            localTransactionInfo = getTransactionInfo();
+            context.setLocalTransactionInfo(localTransactionInfo);
+        } else {
+            notifyTransactionBegin(localTransactionInfo.getGlobalTransactionId(), localTransactionInfo.getURL(),
+                    localTransactionInfo.getProtocol());
         }
-        ballerinaTransactionManager.beginTransactionBlock(transactionId, retryCount);
+        localTransactionInfo.beginTransactionBlock(transactionId, retryCount);
+    }
 
+    private LocalTransactionInfo getTransactionInfo() {
+        BValue[] returns = notifyTransactionBegin("", "", "2pc");
+        BStruct txDataStruct = (BStruct) returns[0];
+        String transactionId = txDataStruct.getStringField(1);
+        String protocol = txDataStruct.getStringField(2);
+        String url = txDataStruct.getStringField(3);
+        return new LocalTransactionInfo(transactionId, url, protocol);
     }
 
     private void retryTransaction(int transactionId, int startOfAbortIP) {
-        BallerinaTransactionManager ballerinaTransactionManager = context.getBallerinaTransactionManager();
-        int allowedRetryCount = ballerinaTransactionManager.getAllowedRetryCount(transactionId);
-        int currentRetryCount = ballerinaTransactionManager.getCurrentRetryCount(transactionId);
+        LocalTransactionInfo localTransactionInfo = context.getLocalTransactionInfo();
+        int allowedRetryCount = localTransactionInfo.getAllowedRetryCount(transactionId);
+        int currentRetryCount = localTransactionInfo.getCurrentRetryCount(transactionId);
         if (currentRetryCount >= allowedRetryCount) {
             if (currentRetryCount != 0) {
                 ip = startOfAbortIP;
             }
         }
-        ballerinaTransactionManager.incrementCurrentRetryCount(transactionId);
+        localTransactionInfo.incrementCurrentRetryCount(transactionId);
+    }
+
+    private void endTransaction(int transactionId, int status) {
+        LocalTransactionInfo localTransactionInfo = context.getLocalTransactionInfo();
+        try {
+            if (status == TransactionStatus.SUCCESS.value()) {
+                //Nothing to do
+            } else if (status == TransactionStatus.FAILED.value()) {
+                int currentCount = localTransactionInfo.getCurrentRetryCount(transactionId);
+                int allowedCount = localTransactionInfo.getAllowedRetryCount(transactionId);
+                if (currentCount == allowedCount) {
+                    notifyTransactionAbort(localTransactionInfo.getGlobalTransactionId());
+                }
+            } else { //status = 1 Transaction end
+                localTransactionInfo.endTransactionBlock();
+                if (localTransactionInfo.isOuterTransaction()) {
+                    notifyTransactionEnd(localTransactionInfo.getGlobalTransactionId());
+                    clearLocalTransactionInfo(localTransactionInfo);
+                }
+            }
+        } catch (Throwable e) {
+            context.setError(BLangVMErrors.createError(this.context, ip, e.getMessage()));
+            handleError();
+        }
+    }
+
+    private void clearLocalTransactionInfo(LocalTransactionInfo localTransactionInfo) {
+        localTransactionInfo.clear();
+        context.setLocalTransactionInfo(null);
+    }
+
+    private BValue[] notifyTransactionBegin(String glbalTransactionId, String url, String protocol) {
+        BValue[] args = { new BString(glbalTransactionId), new BString(url), new BString(protocol) };
+        return invokeCoordinatorFunction("beginTransaction", args);
+    }
+
+    private void notifyTransactionEnd(String globalTransactionId) {
+        BValue[] args = { new BString(globalTransactionId) };
+        invokeCoordinatorFunction("endTransaction", args);
+    }
+
+    private void notifyTransactionAbort(String globalTransactionId) {
+        BValue[] args = { new BString(globalTransactionId) };
+        invokeCoordinatorFunction("abortTransaction", args);
+    }
+
+    private BValue[] invokeCoordinatorFunction(String functionName, BValue[] args) {
+        Context newContext = new WorkerContext(context.getProgramFile(), context);
+        PackageInfo packageInfo = context.getProgramFile().getPackageInfo("ballerina.transactions.coordinator");
+        FunctionInfo functionInfo = packageInfo.getFunctionInfo(functionName);
+        return BLangFunctions.invokeFunction(context.getProgramFile(), functionInfo, args, newContext);
     }
 
     private void invokeCallableUnit(CallableUnitInfo callableUnitInfo, int[] argRegs, int[] retRegs) {

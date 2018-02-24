@@ -1,3 +1,5 @@
+import ballerina.transactions.coordinator;
+
 public struct TrxError {
     string msg;
     error cause;

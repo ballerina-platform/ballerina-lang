@@ -1383,7 +1383,6 @@ public class ProgramFileReader {
                 case InstructionCodes.GOTO:
                 case InstructionCodes.THROW:
                 case InstructionCodes.ERRSTORE:
-                case InstructionCodes.TR_END:
                 case InstructionCodes.NEWMAP:
                 case InstructionCodes.NEWTABLE:
                     i = codeStream.readInt();
@@ -1426,6 +1425,7 @@ public class ProgramFileReader {
                 case InstructionCodes.BR_FALSE:
                 case InstructionCodes.TR_RETRY:
                 case InstructionCodes.TR_BEGIN:
+                case InstructionCodes.TR_END:
                 case InstructionCodes.FPLOAD:
                 case InstructionCodes.ARRAYLEN:
                 case InstructionCodes.INEWARRAY:
