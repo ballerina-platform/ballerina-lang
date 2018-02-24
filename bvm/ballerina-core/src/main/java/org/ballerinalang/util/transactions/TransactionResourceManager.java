@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import javax.transaction.xa.XAResource;
 
 /**
  * {@code TransactionResourceManager} registry for transaction contexts.
@@ -58,12 +59,15 @@ public class TransactionResourceManager {
         List<BallerinaTransactionContext> txContextList = resourceRegistry.get(transactionId);
         if (txContextList != null) {
             for (BallerinaTransactionContext ctx : txContextList) {
-//                try {
-//                    ctx.getXAResource().prepare(null); //TODO:Pass valid xid
-//                } catch (XAException e) {
-//                    log.error("error in prepare the transaction, " + transactionId + ":" + e.getMessage(), e);
-//                    return false;
-//                }
+                try {
+                    XAResource xaResource = ctx.getXAResource();
+                    if (xaResource != null) {
+                        xaResource.prepare(null); //TODO:Pass valid xid
+                    }
+                } catch (Throwable e) {
+                    log.error("error in prepare the transaction, " + transactionId + ":" + e.getMessage(), e);
+                    return false;
+                }
             }
         } else {
             log.info("no transacted actions registered for prepare : " + transactionId);
@@ -75,12 +79,17 @@ public class TransactionResourceManager {
         List<BallerinaTransactionContext> txContextList = resourceRegistry.get(transactionId);
         if (txContextList != null) {
             for (BallerinaTransactionContext ctx : txContextList) {
-//                try {
-//                    ctx.getXAResource().commit(null, false); //TODO:Pass valid xid and phase
-//                } catch (XAException e) {
-//                    log.error("error in commit the transaction, " + transactionId + ":" + e.getMessage(), e);
-//                    return false;
-//                }
+                try {
+                    XAResource xaResource = ctx.getXAResource();
+                    if (xaResource != null) {
+                        xaResource.commit(null, false); //TODO:Pass valid xid and phase
+                    } else {
+                        ctx.commit();
+                    }
+                } catch (Throwable e) {
+                    log.error("error in commit the transaction, " + transactionId + ":" + e.getMessage(), e);
+                    return false;
+                }
             }
         } else {
             log.info("no transacted actions registered for commit : " + transactionId);
@@ -92,12 +101,17 @@ public class TransactionResourceManager {
         List<BallerinaTransactionContext> txContextList = resourceRegistry.get(transactionId);
         if (txContextList != null) {
             for (BallerinaTransactionContext ctx : txContextList) {
-//                try {
-//                    ctx.getXAResource().rollback(null); //TODO:Pass valid xid
-//                } catch (XAException e) {
-//                    log.error("error in abort the transaction, " + transactionId + ":" + e.getMessage(), e);
-//                    return false;
-//                }
+                try {
+                    XAResource xaResource = ctx.getXAResource();
+                    if (xaResource != null) {
+                        ctx.getXAResource().rollback(null); //TODO:Pass valid xid
+                    } else {
+                        ctx.rollback();
+                    }
+                } catch (Throwable e) {
+                    log.error("error in abort the transaction, " + transactionId + ":" + e.getMessage(), e);
+                    return false;
+                }
             }
         } else {
             log.info("no transacted actions registered for rollback : " + transactionId);
