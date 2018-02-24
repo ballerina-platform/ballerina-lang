@@ -56,10 +56,11 @@ public abstract class AbstractItemResolver {
 
         symbolInfoList.forEach(symbolInfo -> {
             CompletionItem completionItem = null;
-            BSymbol bSymbol = symbolInfo.getScopeEntry().symbol;
-            if (bSymbol instanceof BInvokableSymbol
+            BSymbol bSymbol = symbolInfo.getScopeEntry() != null ? symbolInfo.getScopeEntry().symbol : null;
+            if ((bSymbol instanceof BInvokableSymbol
                     && ((BInvokableSymbol) bSymbol).kind != null
-                    && !((BInvokableSymbol) bSymbol).kind.equals(SymbolKind.WORKER)) {
+                    && !((BInvokableSymbol) bSymbol).kind.equals(SymbolKind.WORKER))
+                    || symbolInfo.isIterableOperation())  {
                 completionItem = this.populateBallerinaFunctionCompletionItem(symbolInfo);
             } else if (!(bSymbol instanceof BInvokableSymbol)
                     && bSymbol instanceof BVarSymbol) {
@@ -82,21 +83,32 @@ public abstract class AbstractItemResolver {
      * @return completion item
      */
     private CompletionItem populateBallerinaFunctionCompletionItem(SymbolInfo symbolInfo) {
+        String insertText;
+        String label;
         CompletionItem completionItem = new CompletionItem();
-        BSymbol bSymbol = symbolInfo.getScopeEntry().symbol;
-        if (!(bSymbol instanceof BInvokableSymbol)) {
-            return null;
+        
+        if (symbolInfo.isIterableOperation()) {
+            insertText = symbolInfo.getIterableOperationSignature().getInsertText();
+            label = symbolInfo.getIterableOperationSignature().getLabel();
+        } else {
+            BSymbol bSymbol = symbolInfo.getScopeEntry().symbol;
+            if (!(bSymbol instanceof BInvokableSymbol)) {
+                return null;
+            }
+            BInvokableSymbol bInvokableSymbol = (BInvokableSymbol) bSymbol;
+            if (bInvokableSymbol.getName().getValue().contains("<")
+                    || bInvokableSymbol.getName().getValue().contains("<") ||
+                    bInvokableSymbol.getName().getValue().equals("main")) {
+                return null;
+            }
+            FunctionSignature functionSignature = getFunctionSignature(bInvokableSymbol);
+            
+            insertText = functionSignature.getInsertText();
+            label = functionSignature.getLabel();
         }
-        BInvokableSymbol bInvokableSymbol = (BInvokableSymbol) bSymbol;
-        if (bInvokableSymbol.getName().getValue().contains("<")
-                || bInvokableSymbol.getName().getValue().contains("<") ||
-                bInvokableSymbol.getName().getValue().equals("main")) {
-            return null;
-        }
-        FunctionSignature functionSignature = getFunctionSignature(bInvokableSymbol);
         completionItem.setInsertTextFormat(InsertTextFormat.Snippet);
-        completionItem.setLabel(functionSignature.getLabel());
-        completionItem.setInsertText(functionSignature.getInsertText());
+        completionItem.setLabel(label);
+        completionItem.setInsertText(insertText);
         completionItem.setDetail(ItemResolverConstants.FUNCTION_TYPE);
         completionItem.setKind(CompletionItemKind.Function);
 
