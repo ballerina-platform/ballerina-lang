@@ -110,6 +110,15 @@ public class TargetChannel {
     }
 
     /**
+     * Remove in-flight message
+     *
+     * @param streamId stream id
+     */
+    public void removeInFlightMessage(int streamId) {
+        inFlightMessages.remove(streamId);
+    }
+
+    /**
      * Store a message until connection upgrade is done.
      * When a connection upgrade is in progress, subsequent messages should kept on-hold until the process is over
      *

@@ -62,6 +62,7 @@ public class ClientInboundHandler extends Http2EventAdapter {
         HTTPCarbonMessage responseMessage = outboundMsgHolder.getResponse();
         if (endOfStream) {
             responseMessage.addHttpContent(new DefaultLastHttpContent(data.retain()));
+            targetChannel.removeInFlightMessage(streamId);
         } else {
             responseMessage.addHttpContent(new DefaultHttpContent(data.retain()));
         }
@@ -88,6 +89,7 @@ public class ClientInboundHandler extends Http2EventAdapter {
         outboundMsgHolder.setResponseCarbonMessage(responseMessage);
         if (endStream) {
             responseMessage.addHttpContent(new EmptyLastHttpContent());
+            targetChannel.removeInFlightMessage(streamId);
         }
         // Notify the response listener
         outboundMsgHolder.getResponseFuture().notifyHttpListener(responseMessage);
