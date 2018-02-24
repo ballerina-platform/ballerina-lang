@@ -21,12 +21,17 @@ package org.wso2.transport.http.netty.sender.http2;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.handler.codec.http2.Http2Connection;
+import io.netty.handler.codec.http2.Http2EventAdapter;
+import io.netty.handler.codec.http2.Http2Stream;
+import org.wso2.transport.http.netty.common.HttpRoute;
 
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
- * This class encapsulate the Channel associate with a particular connection.
+ * {@code TargetChannel} encapsulate the Channel associate with a particular connection.
  * This shouldn't have anything related to a single message.
  */
 public class TargetChannel {
@@ -38,13 +43,22 @@ public class TargetChannel {
     private UpgradeState upgradeState = UpgradeState.UPGRADE_NOT_ISSUED;
     /* List which holds the pending message during the connection upgrade */
     private ConcurrentLinkedQueue<OutboundMsgHolder> pendingMessages;
+    private HttpRoute httpRoute;
+    private Http2ConnectionManager connectionManager = Http2ConnectionManager.getInstance();
 
+    /* Whether channel is operates with maximum number of allowed streams */
+    private AtomicBoolean isExhausted = new AtomicBoolean(false);
 
-    public TargetChannel(Http2Connection connection, ChannelFuture channelFuture) {
+    /* Number of active streams. Need to start from 1 to prevent someone stealing the connection from the creator */
+    private AtomicInteger activeStreams = new AtomicInteger(1);
+
+    public TargetChannel(Http2Connection connection, HttpRoute httpRoute, ChannelFuture channelFuture) {
         this.channelFuture = channelFuture;
         channel = channelFuture.channel();
         this.connection = connection;
+        this.httpRoute = httpRoute;
         pendingMessages = new ConcurrentLinkedQueue<>();
+        this.connection.addListener(new ConnectionListener(this));
     }
 
     public Channel getChannel() {
@@ -83,10 +97,35 @@ public class TargetChannel {
         return upgradeState;
     }
 
+    public int incrementActiveStreamCount() {
+        return activeStreams.incrementAndGet();
+    }
+
+    public void markAsExhausted() {
+        isExhausted.set(true);
+    }
+
     /**
      * Lifecycle states of the Target Channel related to connection upgrade
      */
     public enum UpgradeState {
         UPGRADE_NOT_ISSUED, UPGRADE_ISSUED, UPGRADED
     }
+
+    private class ConnectionListener extends Http2EventAdapter {
+
+        private TargetChannel targetChannel;
+
+        public ConnectionListener(TargetChannel targetChannel) {
+            this.targetChannel = targetChannel;
+        }
+
+        public void onStreamClosed(Http2Stream stream) {
+            activeStreams.decrementAndGet();
+            if (isExhausted.getAndSet(false)) {
+                connectionManager.returnTargetChannel(httpRoute, targetChannel);
+            }
+        }
+    }
+
 }

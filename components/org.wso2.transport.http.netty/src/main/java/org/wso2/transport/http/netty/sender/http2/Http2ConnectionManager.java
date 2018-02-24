@@ -25,13 +25,14 @@ import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioSocketChannel;
-import io.netty.handler.codec.http2.Http2Connection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.common.HttpRoute;
 import org.wso2.transport.http.netty.config.SenderConfiguration;
 
+import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -41,10 +42,14 @@ import java.util.concurrent.locks.ReentrantLock;
 public class Http2ConnectionManager {
 
     private static final Logger log = LoggerFactory.getLogger(Http2ConnectionManager.class);
-    private static ConcurrentHashMap<String, TargetChannel> clientConnections = new ConcurrentHashMap<>();
-    private static Http2ConnectionManager instance = new Http2ConnectionManager();
+
+    /* Per route connection pools */
+    private static ConcurrentHashMap<String, PerRouteConnectionPool> connectionPools = new ConcurrentHashMap<>();
+
     /* Lock for synchronizing access */
     private Lock lock = new ReentrantLock();
+
+    private static Http2ConnectionManager instance = new Http2ConnectionManager();
 
     private Http2ConnectionManager() {
     }
@@ -53,23 +58,45 @@ public class Http2ConnectionManager {
         return instance;
     }
 
-    public synchronized TargetChannel borrowChannel(HttpRoute httpRoute, SenderConfiguration senderConfig) {
+    /**
+     * Borrow a {@code TargetChannel} for a given http route
+     *
+     * @param httpRoute    http route
+     * @param senderConfig client connector sender configuration
+     * @return TargetChannel
+     */
+    public TargetChannel borrowChannel(HttpRoute httpRoute, SenderConfiguration senderConfig) {
 
         String key = generateKey(httpRoute);
-        TargetChannel channel = fetchConnectionFromPool(key);
-        if (channel == null) {
+        PerRouteConnectionPool perRouteConnectionPool = fetchConnectionPool(key);
+        TargetChannel targetChannel = null;
+        if (perRouteConnectionPool != null) {
+            targetChannel = perRouteConnectionPool.fetchTargetChannel();
+        }
+
+        if (targetChannel == null) {
             // double locking is to prevent 2 connections get created for same host:port pair under concurrency
             lock.lock();
             try {
-                channel = fetchConnectionFromPool(key);
-                if (channel == null) {
-                    channel = createNewConnection(httpRoute, senderConfig);
+                perRouteConnectionPool = fetchConnectionPool(key);
+                if (perRouteConnectionPool != null) {
+                    targetChannel = perRouteConnectionPool.fetchTargetChannel();
+                }
+
+                if (targetChannel == null) {
+                    targetChannel = createNewConnection(httpRoute, senderConfig);
+                    if (perRouteConnectionPool == null) {
+                        perRouteConnectionPool = new PerRouteConnectionPool(targetChannel);
+                        registerConnectionPool(key, perRouteConnectionPool);
+                    } else {
+                        perRouteConnectionPool.addChannel(targetChannel);
+                    }
                 }
             } finally {
                 lock.unlock();
             }
         }
-        return channel;
+        return targetChannel;
     }
 
     private TargetChannel createNewConnection(HttpRoute httpRoute, SenderConfiguration senderConfig) {
@@ -91,50 +118,104 @@ public class Http2ConnectionManager {
 
         // Create data holders which stores connection information
         Http2ClientHandler clientHandler = initializer.getHttp2ClientHandler();
-        TargetChannel targetChannel = new TargetChannel(clientHandler.getConnection(), channelFuture);
+        TargetChannel targetChannel = new TargetChannel(clientHandler.getConnection(), httpRoute, channelFuture);
         clientHandler.setTargetChannel(targetChannel);
         String key = generateKey(httpRoute);
-        clientConnections.put(key, targetChannel);
 
         // Configure a listener to remove connection from pool when it is closed
-        channelFuture.channel().closeFuture().addListener(future -> clientConnections.remove(key));
+        channelFuture.channel().closeFuture().
+                addListener(future -> {
+                                PerRouteConnectionPool perRouteConnectionPool = connectionPools.get(key);
+                                if (perRouteConnectionPool != null) {
+                                    perRouteConnectionPool.removeChannel(targetChannel);
+                                }
+                            }
+                );
         return targetChannel;
     }
 
-    /**
-     * Fetch a connection from the pool
-     * <p>
-     * No need to remove from the pool when fetching as same connection can be shared across multiple requests
-     * (HTTP/2 Multiplexing)
-     *
-     * @param key host:port combination key
-     * @return TargetChannel already available in the pool
-     */
-    private TargetChannel fetchConnectionFromPool(String key) {
+    private PerRouteConnectionPool fetchConnectionPool(String key) {
+        return connectionPools.get(key);
+    }
 
-        TargetChannel targetChannel = null;
-        if (clientConnections.containsKey(key)) {
-            log.debug("Fetched connection for : {} route from the pool", key);
-            targetChannel = clientConnections.get(key);
-            Channel channel = targetChannel.getChannel();
-            Http2Connection.Endpoint localEndpoint = targetChannel.getConnection().local();
-            if (!channel.isActive()) {
-                log.debug("Channel available for : {} route in the pool is not active, hence removing", key);
-                clientConnections.remove(key);
-                return null;
-            }
-
-            if (!localEndpoint.canOpenStream()) {
-                log.debug("Channel available for : {} route in the pool cannot have more streams, hence removing", key);
-                clientConnections.remove(key);
-                return null;
-            }
-        }
-        return targetChannel;
+    private void registerConnectionPool(String key, PerRouteConnectionPool perRouteConnectionPool) {
+        connectionPools.put(key, perRouteConnectionPool);
     }
 
     private String generateKey(HttpRoute httpRoute) {
         return httpRoute.getHost() + ":" + httpRoute.getPort();
+    }
+
+    /* Entity which holds the pool of connections for a given http route */
+    private static class PerRouteConnectionPool {
+
+        private BlockingQueue<TargetChannel> targetChannels = new LinkedBlockingQueue<>();
+
+        /* Maximum number of allowed active streams */
+        private int maxActiveStreams;
+
+        public PerRouteConnectionPool(TargetChannel targetChannel) {
+            targetChannels.add(targetChannel);
+            maxActiveStreams = Integer.MAX_VALUE;
+        }
+
+        public PerRouteConnectionPool(TargetChannel targetChannel, int maxActiveStreams) {
+            targetChannels.add(targetChannel);
+            this.maxActiveStreams = maxActiveStreams;
+        }
+
+        /**
+         * Fetch active {@code TargetChannel} from the pool
+         *
+         * @return active TargetChannel
+         */
+        public TargetChannel fetchTargetChannel() {
+
+            if (targetChannels.size() != 0) {
+                TargetChannel targetChannel = targetChannels.peek();
+                Channel channel = targetChannel.getChannel();
+                if (!channel.isActive()) {  // if channel is not active, forget it and fetch next one
+                    targetChannels.remove(targetChannel);
+                    return fetchTargetChannel();
+                }
+                // increment and get active stream count
+                int activeSteamCount = targetChannel.incrementActiveStreamCount();
+
+                if (activeSteamCount < maxActiveStreams) {  // safe to fetch the Target Channel
+                    return targetChannel;
+                } else if (activeSteamCount == maxActiveStreams) {  // no more streams except this one can be opened
+                    targetChannel.markAsExhausted();
+                    targetChannels.remove(targetChannel);
+                    return targetChannel;
+                } else {
+                    targetChannels.remove(targetChannel);
+                    return fetchTargetChannel();    // fetch the next one from the queue
+                }
+            }
+            return null;
+        }
+
+        public void addChannel(TargetChannel targetChannel) {
+            targetChannels.add(targetChannel);
+        }
+
+        public void removeChannel(TargetChannel targetChannel) {
+            targetChannels.remove(targetChannel);
+        }
+    }
+
+    /**
+     * Return the previously exhausted {@code TargetChannel} back to the pool after
+     *
+     * @param httpRoute http route
+     * @param targetChannel previously exhausted TargetChannel
+     */
+    public void returnTargetChannel(HttpRoute httpRoute, TargetChannel targetChannel) {
+        String key = generateKey(httpRoute);
+        PerRouteConnectionPool perRouteConnectionPool = fetchConnectionPool(key);
+        if (perRouteConnectionPool != null) {
+            perRouteConnectionPool.addChannel(targetChannel);
+        }
     }
 
 }
