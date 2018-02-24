@@ -84,7 +84,8 @@ public class ConnectionManager {
                 if (targetChannel == null) {
                     targetChannel = createNewConnection(httpRoute, senderConfig);
                     if (perRouteConnectionPool == null) {
-                        perRouteConnectionPool = new PerRouteConnectionPool(targetChannel);
+                        perRouteConnectionPool =
+                                new PerRouteConnectionPool(targetChannel, senderConfig.getHttp2MaxActiveStreams());
                         registerConnectionPool(key, perRouteConnectionPool);
                     } else {
                         perRouteConnectionPool.addChannel(targetChannel);

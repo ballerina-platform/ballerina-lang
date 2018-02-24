@@ -95,6 +95,9 @@ public class SenderConfiguration {
     @XmlAttribute
     private boolean skipHttpToHttp2Upgrade = false;
 
+    @XmlAttribute
+    private int http2MaxActiveStreams = Integer.MAX_VALUE;
+
     private String tlsStoreType;
     private String httpVersion = "1.1";
     private ProxyServerConfiguration proxyServerConfiguration;
@@ -272,6 +275,18 @@ public class SenderConfiguration {
 
     public boolean skipHttpToHttp2Upgrade() {
         return skipHttpToHttp2Upgrade;
+    }
+
+    public void setSkipHttpToHttp2Upgrade(boolean skipHttpToHttp2Upgrade) {
+        this.skipHttpToHttp2Upgrade = skipHttpToHttp2Upgrade;
+    }
+
+    public int getHttp2MaxActiveStreams() {
+        return http2MaxActiveStreams;
+    }
+
+    public void setHttp2MaxActiveStreams(int http2MaxActiveStreams) {
+        this.http2MaxActiveStreams = http2MaxActiveStreams;
     }
 
     public void setValidateCertEnabled(boolean validateCertEnabled) {
