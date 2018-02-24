@@ -38,7 +38,7 @@ import javax.xml.bind.annotation.XmlElementWrapper;
 @XmlAccessorType(XmlAccessType.FIELD)
 public class SenderConfiguration {
 
-    public static final String DEFAULT_KEY = "netty";
+    private static final String DEFAULT_KEY = "netty";
 
     @Deprecated
     public static SenderConfiguration getDefault() {

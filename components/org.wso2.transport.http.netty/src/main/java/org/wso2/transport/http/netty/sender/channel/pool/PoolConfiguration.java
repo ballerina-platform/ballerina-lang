@@ -30,8 +30,6 @@ public class PoolConfiguration {
 
     private static final Logger logger = LoggerFactory.getLogger(PoolConfiguration.class);
 
-    private static PoolConfiguration poolConfiguration;
-
     private int maxActivePerPool = -1;
 
     private int minIdlePerPool;
@@ -93,11 +91,6 @@ public class PoolConfiguration {
         logger.debug(Constants.TIME_BETWEEN_EVICTION_RUNS + ":" + timeBetweenEvictionRuns);
         logger.debug("Pool exhausted action" + ":" + exhaustedAction);
         logger.debug("Event group executor threads : " + eventGroupExecutorThreads);
-    }
-
-    public static PoolConfiguration getInstance() {
-        return poolConfiguration;
-
     }
 
     public int getMaxActivePerPool() {
