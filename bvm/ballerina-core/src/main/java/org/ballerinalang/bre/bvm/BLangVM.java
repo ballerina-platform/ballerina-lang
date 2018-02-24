@@ -2706,6 +2706,10 @@ public class BLangVM {
 
     private LocalTransactionInfo getTransactionInfo() {
         BValue[] returns = notifyTransactionBegin(null, null, TransactionConstants.DEFAULT_COORDINATION_TYPE);
+        //Check if error occurs during registration
+        if (returns[1] != null) {
+            throw new BallerinaException("error in transaction start"); //TODO add eroor cause
+        }
         BStruct txDataStruct = (BStruct) returns[0];
         String transactionId = txDataStruct.getStringField(1);
         String protocol = txDataStruct.getStringField(2);
@@ -2736,6 +2740,8 @@ public class BLangVM {
                 //the coordinator with transaction abort.
                 if (currentCount == allowedCount) {
                     notifyTransactionAbort(localTransactionInfo.getGlobalTransactionId());
+                } else {
+                    //TODO clear the maps - after closing the connections
                 }
             } else if (status == TransactionStatus.END.value()) { //status = 1 Transaction end
                 localTransactionInfo.endTransactionBlock();
@@ -2762,7 +2768,10 @@ public class BLangVM {
 
     private void notifyTransactionEnd(String globalTransactionId) {
         BValue[] args = { new BString(globalTransactionId) };
-        invokeCoordinatorFunction(TransactionConstants.COORDINATOR_END_TRANSACTION, args);
+        BValue[] returns = invokeCoordinatorFunction(TransactionConstants.COORDINATOR_END_TRANSACTION, args);
+        if (returns[1] != null) {
+            throw new BallerinaException("error in transaction end"); //TODO add error details
+        }
     }
 
     private void notifyTransactionAbort(String globalTransactionId) {
