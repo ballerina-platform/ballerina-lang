@@ -99,6 +99,7 @@ public enum DiagnosticCode {
     FUNC_DEFINED_ON_NOT_SUPPORTED_TYPE("func.defined.on.not.supported.type"),
     FUNC_DEFINED_ON_NON_LOCAL_TYPE("func.defined.on.non.local.type"),
     STRUCT_FIELD_AND_FUNC_WITH_SAME_NAME("struct.field.and.func.with.same.name"),
+    INVALID_STRUCT_INITIALIZER_FUNCTION("invalid.struct.initializer.function"),
     PKG_ALIAS_NOT_ALLOWED_HERE("pkg.alias.not.allowed.here"),
 
     MULTI_VALUE_RETURN_EXPECTED("multi.value.return.expected"),
