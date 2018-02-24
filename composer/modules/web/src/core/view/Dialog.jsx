@@ -60,7 +60,7 @@ class Dialog extends React.Component {
                 onClose={this.close}
                 closeIcon
                 size={this.props.size}
-                className='inverted'
+                className={`inverted ${this.props.className}`}
             >
                 <Header icon={this.props.titleIcon} content={this.props.title} />
                 <Modal.Content>
@@ -92,6 +92,7 @@ Dialog.propTypes = {
     error: PropTypes.node,
     size: PropTypes.string,
     titleIcon: PropTypes.string,
+    className: PropTypes.string,
 };
 
 Dialog.defaultProps = {

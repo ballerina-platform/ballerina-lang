@@ -9,7 +9,7 @@
 @primaryColor   : @orange;
 @secondaryColor : @gray-100;
 @defaultColor   : #626262;
-@invertColor    : #343a40;
+@invertedBackgroundColor    : #222;
 @red            : #f44336;
 @orange         : #F1772A;
 @yellow         : #FFEB3B;

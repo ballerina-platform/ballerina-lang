@@ -3,7 +3,7 @@
 *******************************/
 
 .ui.inverted.segment {
-  background: @gray-800;
+  background: @invertedBackgroundColor;
   border-radius: 0;
 }
 

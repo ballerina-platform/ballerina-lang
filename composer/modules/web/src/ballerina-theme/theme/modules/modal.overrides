@@ -3,23 +3,27 @@
 *******************************/
 
 .ui.modal.inverted{
-    background  : #343a40;
+    background  : @invertedBackgroundColor;
 }
 .ui.modal.inverted > .header{
-    background  : #343a40;
+    background  : @invertedBackgroundColor;
     color       : @off-white;
 }
 
 .ui.modal.inverted {
     .header {
-        background      : #343a40;
+        background      : @invertedBackgroundColor;
         color           : @off-white;
-        border-bottom   :1px solid @off-white;
+        border-bottom   :1px solid #7e7e7e;
     }
 } 
 
 .ui.modal.inverted, .ui.modal.inverted {
     .content, .actions{
-        background  : #343a40;
+        background  : @invertedBackgroundColor;
     }
 } 
+
+@media only screen and (max-width: 991px) .ui.modal > .close {
+    color: #FFF;
+}
