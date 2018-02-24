@@ -157,6 +157,7 @@ public class Compiler {
     }
 
     private void gen(BLangPackage pkgNode) {
+        // TODO based on the -c flag we can generate the BALO
         programFile = this.codeGenerator.generate(pkgNode);
     }
 

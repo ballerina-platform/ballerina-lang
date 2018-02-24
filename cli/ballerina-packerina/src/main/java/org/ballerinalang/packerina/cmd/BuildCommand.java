@@ -42,6 +42,9 @@ public class BuildCommand implements BLauncherCmd {
 
     private JCommander parentCmdParser;
 
+    @Parameter(names = {"-c"}, description = "build a compiled package")
+    private String buildCompiledPkg;
+
     @Parameter(names = {"-o"}, description = "write output to the given file")
     private String outputFileName;
 
