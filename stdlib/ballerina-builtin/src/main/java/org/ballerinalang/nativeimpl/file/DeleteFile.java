@@ -41,7 +41,7 @@ import java.io.File;
                 structPackage = "ballerina.file")},
         isPublic = true
 )
-public class Delete extends AbstractNativeFunction {
+public class DeleteFile extends AbstractNativeFunction {
 
     @Override 
     public BValue[] execute(Context context) {

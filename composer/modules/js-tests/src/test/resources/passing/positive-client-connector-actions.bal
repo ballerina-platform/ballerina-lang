@@ -16,7 +16,7 @@ function isExist (string url) (boolean) {
 function readContent (string url) (string) {
     endpoint<ftp:FTPClient> c { create ftp:FTPClient();}
     file:File textFile = {path:url};
-    blob contentB = c.read(textFile);
+    blob contentB = c.readFile(textFile);
     return contentB.toString("UTF-8");
 }
 
@@ -24,14 +24,14 @@ function copyFiles (string source, string destination) {
     endpoint<ftp:FTPClient> c { create ftp:FTPClient();}
     file:File txtFile = {path:source};
     file:File copyOfTxt = {path:destination};
-    c.copy(txtFile, copyOfTxt);
+    c.copyFile(txtFile, copyOfTxt);
 }
 
 function moveFile (string source, string destination) {
     endpoint<ftp:FTPClient> c { create ftp:FTPClient();}
     file:File txtFile = {path:source};
     file:File copyOfTxt = {path:destination};
-    c.move(txtFile, copyOfTxt);
+    c.moveFile(txtFile, copyOfTxt);
 }
 
 function write (string source, string content) {
@@ -44,5 +44,5 @@ function write (string source, string content) {
 function fileDelete (string source) {
     endpoint<ftp:FTPClient> c { create ftp:FTPClient();}
     file:File del = {path:source};
-    c.delete(del);
+    c.deleteFile(del);
 }

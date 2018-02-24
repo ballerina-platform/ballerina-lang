@@ -30,7 +30,7 @@ function testInsertTableData () (int) {
     sql:ClientConnector testDB = create sql:ClientConnector(sql:HSQLDB_FILE, "./target/tempdb/",
                                                             0, "TEST_SQL_CONNECTOR", "SA", "", {maximumPoolSize:1});
 
-    int insertCount = testDB.update ("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
+    int insertCount = testDB.updateQuery("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
                                      values ('James', 'Clerk', 2, 5000.75, 'USA')", null);
     testDB.close ();
     return insertCount;
@@ -40,7 +40,7 @@ function testCreateTable () (int) {
     sql:ClientConnector testDB = create sql:ClientConnector(sql:HSQLDB_FILE, "./target/tempdb/",
                                                             0, "TEST_SQL_CONNECTOR", "SA", "", {maximumPoolSize:1});
 
-    int returnValue = testDB.update ("CREATE TABLE IF NOT EXISTS Students(studentID int, LastName varchar(255))",
+    int returnValue = testDB.updateQuery("CREATE TABLE IF NOT EXISTS Students(studentID int, LastName varchar(255))",
                                      null);
     testDB.close ();
     return returnValue;
@@ -51,7 +51,7 @@ function testUpdateTableData () (int) {
                                                             0, "TEST_SQL_CONNECTOR", "SA", "", {maximumPoolSize:1});
 
     sql:Parameter[] parameters = [];
-    int updateCount = testDB.update ("Update Customers set country = 'UK' where registrationID = 1", parameters);
+    int updateCount = testDB.updateQuery("Update Customers set country = 'UK' where registrationID = 1", parameters);
     testDB.close ();
     return updateCount;
 }
@@ -62,7 +62,7 @@ function testGeneratedKeyOnInsert () (string) {
 
     int insertCount;
     string[] generatedID;
-    insertCount, generatedID = testDB.updateWithGeneratedKeys ("insert into Customers (firstName,lastName,
+    insertCount, generatedID = testDB.updateWithGeneratedKeysQuery("insert into Customers (firstName,lastName,
                              registrationID,creditLimit,country) values ('Mary', 'Williams', 3, 5000.75, 'USA')",
                                                                null, null);
     testDB.close ();
@@ -77,7 +77,7 @@ function testGeneratedKeyWithColumn () (string) {
     string[] generatedID;
     string[] keyColumns;
     keyColumns = ["CUSTOMERID"];
-    insertCount, generatedID = testDB.updateWithGeneratedKeys ("insert into Customers (firstName,lastName,
+    insertCount, generatedID = testDB.updateWithGeneratedKeysQuery("insert into Customers (firstName,lastName,
                                registrationID,creditLimit,country) values ('Kathy', 'Williams', 4, 5000.75, 'USA')",
                                                                null, keyColumns);
     testDB.close ();
@@ -96,7 +96,7 @@ function testInsertTableDataWithParameters () (int) {
     sql:Parameter para5 = {sqlType:"varchar", value:"UK", direction:0};
     sql:Parameter[] parameters = [para1, para2, para3, para4, para5];
 
-    int insertCount = testDB.update ("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
+    int insertCount = testDB.updateQuery("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
                                      values (?,?,?,?,?)", parameters);
     testDB.close ();
     return insertCount;
@@ -182,7 +182,7 @@ function testINParameters () (int) {
 
     sql:Parameter[] parameters = [paraID, paraInt, paraLong, paraFloat, paraDouble, paraBool, paraString, paraNumeric,
                                   paraDecimal, paraReal, paraTinyInt, paraSmallInt, paraClob, paraBlob, paraBinary];
-    int insertCount = testDB.update ("INSERT INTO DataTypeTable (row_id,int_type, long_type,
+    int insertCount = testDB.updateQuery("INSERT INTO DataTypeTable (row_id,int_type, long_type,
             float_type, double_type, boolean_type, string_type, numeric_type, decimal_type, real_type, tinyint_type,
             smallint_type, clob_type, blob_type, binary_type) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)", parameters);
     testDB.close ();
@@ -211,7 +211,7 @@ function testNullINParameterValues () (int) {
 
     sql:Parameter[] parameters = [paraID, paraInt, paraLong, paraFloat, paraDouble, paraBool, paraString, paraNumeric,
                                   paraDecimal, paraReal, paraTinyInt, paraSmallInt, paraClob, paraBlob, paraBinary];
-    int insertCount = testDB.update ("INSERT INTO DataTypeTable (row_id, int_type, long_type,
+    int insertCount = testDB.updateQuery("INSERT INTO DataTypeTable (row_id, int_type, long_type,
             float_type, double_type, boolean_type, string_type, numeric_type, decimal_type, real_type, tinyint_type,
             smallint_type, clob_type, blob_type, binary_type) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)", parameters);
     testDB.close ();
@@ -226,7 +226,7 @@ function testNullINParameters () (int) {
 
     sql:Parameter[] parameters = [paraID, null, null, null, null, null, null, null,
                                   null, null, null, null, null, null, null];
-    int insertCount = testDB.update ("INSERT INTO DataTypeTable (row_id,int_type, long_type,
+    int insertCount = testDB.updateQuery("INSERT INTO DataTypeTable (row_id,int_type, long_type,
     float_type, double_type, boolean_type, string_type, numeric_type, decimal_type, real_type, tinyint_type,
     smallint_type, clob_type, blob_type, binary_type) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)", parameters);
     testDB.close ();
@@ -255,7 +255,7 @@ function testINOutParameters () (any, any, any, any, any, any, any, any, any, an
 
     sql:Parameter[] parameters = [paraID, paraInt, paraLong, paraFloat, paraDouble, paraBool, paraString, paraNumeric,
                                   paraDecimal, paraReal, paraTinyInt, paraSmallInt, paraClob, paraBlob, paraBinary];
-    testDB.call ("{call TestINOUTParams(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)}", parameters);
+    testDB.callQuery("{call TestINOUTParams(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)}", parameters);
     testDB.close ();
     return paraInt.value, paraLong.value, paraFloat.value, paraDouble.value, paraBool.value, paraString.value,
            paraNumeric.value, paraDecimal.value, paraReal.value, paraTinyInt.value, paraSmallInt.value, paraClob.value,
@@ -285,7 +285,7 @@ function testNullINOutParameters ()
 
     sql:Parameter[] parameters = [paraID, paraInt, paraLong, paraFloat, paraDouble, paraBool, paraString, paraNumeric,
                                   paraDecimal, paraReal, paraTinyInt, paraSmallInt, paraClob, paraBlob, paraBinary];
-    testDB.call ("{call TestINOUTParams(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)}", parameters);
+    testDB.callQuery("{call TestINOUTParams(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)}", parameters);
     testDB.close ();
     return paraInt.value, paraLong.value, paraFloat.value, paraDouble.value, paraBool.value, paraString.value,
            paraNumeric.value, paraDecimal.value, paraReal.value, paraTinyInt.value, paraSmallInt.value, paraClob.value,
@@ -298,8 +298,8 @@ function testEmptySQLType () (int) {
 
     sql:Parameter para1 = {value:"Anne", direction:0};
     sql:Parameter[] parameters = [para1];
-    int insertCount = testDB.update ("Insert into Customers (firstName) values (?)", parameters);
-    testDB.close ();
+    int insertCount = testDB.updateQuery("Insert into Customers (firstName) values (?)", parameters);
+    testDB.close();
     return insertCount;
 }
 
@@ -315,8 +315,8 @@ function testArrayOutParameters () (any, any, any, any, any, any) {
     sql:Parameter para5 = {sqlType:"array", direction:1};
     sql:Parameter para6 = {sqlType:"array", direction:1};
     sql:Parameter[] parameters = [para1, para2, para3, para4, para5, para6];
-    testDB.call ("{call TestArrayOutParams(?,?,?,?,?,?)}", parameters);
-    testDB.close ();
+    testDB.callQuery("{call TestArrayOutParams(?,?,?,?,?,?)}", parameters);
+    testDB.close();
     return para1.value, para2.value, para3.value, para4.value, para5.value, para6.value;
 }
 
@@ -334,8 +334,8 @@ function testArrayInOutParameters () (any, any, any, any, any, any, any) {
     sql:Parameter para8 = {sqlType:"array", value:"Hello,Ballerina,Lang", direction:2};
     sql:Parameter[] parameters = [para1, para2, para3, para4, para5, para6, para7, para8];
 
-    testDB.call ("{call TestArrayInOutParams(?,?,?,?,?,?,?,?)}", parameters);
-    testDB.close ();
+    testDB.callQuery("{call TestArrayInOutParams(?,?,?,?,?,?,?,?)}", parameters);
+    testDB.close();
     return para2.value, para3.value, para4.value, para5.value, para6.value, para7.value, para8.value;
 }
 
@@ -361,7 +361,7 @@ function testBatchUpdate () (int[]) {
     sql:Parameter[][] parameters = [parameters1, parameters2];
 
     int[] updateCount;
-    updateCount = testDB.batchUpdate("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
+    updateCount = testDB.batchUpdateQuery("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
                                      values (?,?,?,?,?)", parameters);
     testDB.close();
     return updateCount;
@@ -410,12 +410,12 @@ function testBatchUpdateWithFailure () (int[] updateCount, int count) {
 
     sql:Parameter[][] parameters = [parameters1, parameters2, parameters3,parameters4];
 
-    updateCount = testDB.batchUpdate("Insert into Customers (customerId, firstName,lastName,registrationID,creditLimit,
+    updateCount = testDB.batchUpdateQuery("Insert into Customers (customerId, firstName,lastName,registrationID,creditLimit,
         country) values (?,?,?,?,?,?)", parameters);
 
 
     sql:Parameter[] params = [];
-    datatable dt = testDB.select ("SELECT count(*) as countval from Customers where customerId in (111,222,333)",
+    datatable dt = testDB.selectQuery("SELECT count(*) as countval from Customers where customerId in (111,222,333)",
                                   params);
     ResultCount rs;
     while (datatables:hasNext(dt)) {
@@ -440,7 +440,7 @@ function testDateTimeInParameters () (int[]) {
     sql:Parameter para5 = {sqlType:"datetime", value:"2017-01-30T13:27:01.999999Z", direction:0};
     sql:Parameter[] parameters = [para1, para2, para3, para4, para5];
 
-    int insertCount1 = testDB.update(stmt, parameters);
+    int insertCount1 = testDB.updateQuery(stmt, parameters);
     returnValues[0] = insertCount1;
 
     para1 = {sqlType:"integer", value:2, direction:0};
@@ -450,7 +450,7 @@ function testDateTimeInParameters () (int[]) {
     para5 = {sqlType:"datetime", value:"-2017-01-30T13:27:01.999999-08:30", direction:0};
     parameters = [para1, para2, para3, para4, para5];
 
-    int insertCount2 = testDB.update(stmt, parameters);
+    int insertCount2 = testDB.updateQuery(stmt, parameters);
     returnValues[1] = insertCount2;
 
 
@@ -462,7 +462,7 @@ function testDateTimeInParameters () (int[]) {
     para5 = {sqlType:"datetime", value:currentTime};
     parameters = [para1, para2, para3, para4, para5];
 
-    int insertCount3 = testDB.update(stmt, parameters);
+    int insertCount3 = testDB.updateQuery(stmt, parameters);
     returnValues[2] = insertCount3;
 
     testDB.close();
@@ -476,7 +476,7 @@ function testSelectIntFloatData () (int int_type, int long_type, float float_typ
     sql:Parameter[] parameters = [];
     TypeCastError err;
     ResultDataType rs;
-    datatable dt = testDB.select ("SELECT  int_type, long_type, float_type, double_type from DataTypeTable
+    datatable dt = testDB.selectQuery("SELECT  int_type, long_type, float_type, double_type from DataTypeTable
                                    where row_id = 1", parameters);
     while (datatables:hasNext(dt)) {
         any dataStruct = datatables:getNext(dt);
@@ -494,7 +494,7 @@ function testSelectData () (string firstName) {
     sql:ClientConnector testDB = create sql:ClientConnector(sql:HSQLDB_FILE, "./target/tempdb/",
                                                             0, "TEST_SQL_CONNECTOR", "SA", "", {maximumPoolSize:1});
 
-    datatable dt = testDB.select ("SELECT  FirstName from Customers where registrationID = 1", null);
+    datatable dt = testDB.selectQuery("SELECT  FirstName from Customers where registrationID = 1", null);
     TypeCastError err;
     ResultCustomers rs;
     while (datatables:hasNext(dt)) {
@@ -511,7 +511,7 @@ function testCallProcedure () (string firstName) {
                                                             0, "TEST_SQL_CONNECTOR", "SA", "", {maximumPoolSize:1});
 
     testDB.call ("{call InsertPersonData(100,'James')}", null);
-    datatable dt = testDB.select ("SELECT  FirstName from Customers where registrationID = 100", null);
+    datatable dt = testDB.selectQuery("SELECT  FirstName from Customers where registrationID = 100", null);
     TypeCastError err;
     ResultCustomers rs;
     while (datatables:hasNext(dt)) {
@@ -528,7 +528,7 @@ function testCallProcedureWithResultSet () (string firstName) {
                                                             0, "TEST_SQL_CONNECTOR", "SA", "", {maximumPoolSize:1});
 
     sql:Parameter[] parameters = [];
-    datatable dt = testDB.call ("{call SelectPersonData()}", parameters);
+    datatable dt = testDB.callQuery("{call SelectPersonData()}", parameters);
     TypeCastError err;
     ResultCustomers rs;
     while (datatables:hasNext(dt)) {
@@ -546,7 +546,7 @@ function testQueryParameters () (string firstName) {
 
     sql:Parameter para1 = {sqlType:"integer", value:1, direction:0};
     sql:Parameter[] parameters = [para1];
-    datatable dt = testDB.select ("SELECT  FirstName from Customers where registrationID = ?", parameters);
+    datatable dt = testDB.selectQuery("SELECT  FirstName from Customers where registrationID = ?", parameters);
     TypeCastError err;
     ResultCustomers rs;
     while (datatables:hasNext(dt)) {
@@ -566,7 +566,7 @@ function testArrayofQueryParameters () (string firstName) {
     sql:Parameter para0 = {sqlType:"varchar", value:"John", direction:0};
     sql:Parameter para1 = {sqlType:"integer", value:dataArray, direction:0};
     sql:Parameter[] parameters = [para0,para1];
-    datatable dt = testDB.select ("SELECT  FirstName from Customers where FirstName = ? or registrationID in(?)",
+    datatable dt = testDB.selectQuery("SELECT  FirstName from Customers where FirstName = ? or registrationID in(?)",
                                   parameters);
     TypeCastError err;
     ResultCustomers rs;
@@ -599,11 +599,11 @@ function testArrayInParameters () (int insertCount, map int_arr, map long_arr, m
     sql:Parameter para7 = {sqlType:"array", value:stringArray, direction:0};
     sql:Parameter[] parameters = [para1, para2, para3, para4, para5, para6, para7];
 
-    insertCount = testDB.update ("INSERT INTO ArrayTypes (row_id, int_array, long_array,
+    insertCount = testDB.updateQuery("INSERT INTO ArrayTypes (row_id, int_array, long_array,
         float_array, double_array, boolean_array, string_array) values (?,?,?,?,?,?,?)", parameters);
 
     sql:Parameter[] params = [];
-    datatable dt = testDB.select ("SELECT int_array, long_array, double_array, boolean_array,
+    datatable dt = testDB.selectQuery("SELECT int_array, long_array, double_array, boolean_array,
         string_array, float_array from ArrayTypes where row_id = 2", params);
     ResultArrayType rs;
     while (datatables:hasNext(dt)) {
@@ -637,10 +637,10 @@ function testDateTimeOutParams (int time, int date, int timestamp) (int count) {
 
     sql:Parameter[] parameters = [para1, para2, para3, para4, para5, para6, para7, para8, para9];
 
-    testDB.call("{call TestDateTimeOutParams(?,?,?,?,?,?,?,?,?)}", parameters);
+    testDB.callQuery("{call TestDateTimeOutParams(?,?,?,?,?,?,?,?,?)}", parameters);
 
     sql:Parameter[] emptyParam = [];
-    datatable dt = testDB.select("SELECT count(*) as countval from DateTimeTypes where row_id = 10", emptyParam);
+    datatable dt = testDB.selectQuery("SELECT count(*) as countval from DateTimeTypes where row_id = 10", emptyParam);
     ResultCount rs;
     while (datatables:hasNext(dt)) {
         any dataStruct = datatables:getNext(dt);
@@ -656,7 +656,7 @@ function testStructOutParameters() (any) {
                                                             0, "TEST_SQL_CONNECTOR", "SA", "", {maximumPoolSize:1});
     sql:Parameter para1 = {sqlType:"struct", direction:1};
     sql:Parameter[] parameters = [para1];
-    testDB.call("{call TestStructOut(?)}", parameters);
+    testDB.callQuery("{call TestStructOut(?)}", parameters);
     testDB.close();
     return para1.value;
 }
@@ -665,7 +665,7 @@ function testCloseConnectionPool () (int count) {
     sql:ClientConnector testDB = create sql:ClientConnector(sql:HSQLDB_FILE, "./target/tempdb/",
                                                             0, "TEST_SQL_CONNECTOR", "SA", "", {maximumPoolSize:1});
     sql:Parameter[] parameters = [];
-    datatable dt = testDB.select ("SELECT COUNT(*) as countVal FROM INFORMATION_SCHEMA.SYSTEM_SESSIONS", parameters);
+    datatable dt = testDB.selectQuery("SELECT COUNT(*) as countVal FROM INFORMATION_SCHEMA.SYSTEM_SESSIONS", parameters);
     TypeCastError err;
     ResultCount rs;
     while (datatables:hasNext(dt)) {

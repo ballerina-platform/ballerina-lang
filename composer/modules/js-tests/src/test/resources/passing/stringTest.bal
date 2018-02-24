@@ -36,8 +36,8 @@ function replaceFirst(string s, string source, string target) (string) {
     return strings:replaceFirst(s, source, target);
 }
 
-function subString(string s, int from, int to) (string) {
-    return strings:subString(s, from, to);
+function subString(string s, int startIndex, int endIndex) (string) {
+    return strings:subString(s, startIndex, endIndex);
 }
 
 function toLowerCase(string s) (string) {

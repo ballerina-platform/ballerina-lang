@@ -40,7 +40,7 @@ import org.ballerinalang.util.exceptions.BallerinaException;
  */
 @BallerinaAction(
         packageName = "ballerina.data.sql",
-        actionName = "select",
+        actionName = "selectQuery",
         connectorName = Constants.CONNECTOR_NAME,
         args = {@Argument(name = "c", type = TypeKind.CONNECTOR),
                 @Argument(name = "query", type = TypeKind.STRING),
@@ -50,7 +50,7 @@ import org.ballerinalang.util.exceptions.BallerinaException;
         connectorArgs = {
                 @Argument(name = "options", type = TypeKind.MAP)
         })
-public class Select extends AbstractSQLAction {
+public class SelectQuery extends AbstractSQLAction {
 
     @Override
     public ConnectorFuture execute(Context context) {

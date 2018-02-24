@@ -40,7 +40,7 @@ import org.ballerinalang.util.exceptions.BallerinaException;
  */
 @BallerinaAction(
         packageName = "ballerina.data.sql",
-        actionName = "updateWithGeneratedKeys",
+        actionName = "updateWithGeneratedKeysQuery",
         connectorName = Constants.CONNECTOR_NAME,
         args = {@Argument(name = "c", type = TypeKind.CONNECTOR),
                 @Argument(name = "query", type = TypeKind.STRING),
@@ -52,7 +52,7 @@ import org.ballerinalang.util.exceptions.BallerinaException;
         connectorArgs = {
                 @Argument(name = "options", type = TypeKind.MAP)
         })
-public class UpdateWithGeneratedKeys extends AbstractSQLAction {
+public class UpdateWithGeneratedKeysQuery extends AbstractSQLAction {
 
     @Override
     public ConnectorFuture execute(Context context) {
