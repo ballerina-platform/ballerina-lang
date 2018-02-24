@@ -28,6 +28,9 @@ public class TestConstant {
     public static final String CONTENT_TYPE_TEXT_PLAIN = "text/plain";
     public static final String CONTENT_LENGTH = "Content-Length";
     public static final String ALLOW = "Allow";
+    public static final String HEADER_X_XID = "X-XID";
+    public static final String HEADER_X_REGISTER_AT_URL = "X-Register-At-URL";
+
     public static final String CHARSET_NAME = "UTF-8";
     public static final String HTTP_METHOD_GET = "GET";
     public static final String HTTP_METHOD_POST = "POST";
