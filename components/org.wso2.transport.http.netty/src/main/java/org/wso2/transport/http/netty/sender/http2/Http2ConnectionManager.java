@@ -45,11 +45,9 @@ public class Http2ConnectionManager {
 
     /* Per route connection pools */
     private static ConcurrentHashMap<String, PerRouteConnectionPool> connectionPools = new ConcurrentHashMap<>();
-
+    private static Http2ConnectionManager instance = new Http2ConnectionManager();
     /* Lock for synchronizing access */
     private Lock lock = new ReentrantLock();
-
-    private static Http2ConnectionManager instance = new Http2ConnectionManager();
 
     private Http2ConnectionManager() {
     }
@@ -119,7 +117,7 @@ public class Http2ConnectionManager {
         // Create data holders which stores connection information
         Http2ClientHandler clientHandler = initializer.getHttp2ClientHandler();
         TargetChannel targetChannel = new TargetChannel(clientHandler.getConnection(), httpRoute, channelFuture);
-        clientHandler.setTargetChannel(targetChannel);
+        initializer.setTargetChannel(targetChannel);
         String key = generateKey(httpRoute);
 
         // Configure a listener to remove connection from pool when it is closed
@@ -144,6 +142,20 @@ public class Http2ConnectionManager {
 
     private String generateKey(HttpRoute httpRoute) {
         return httpRoute.getHost() + ":" + httpRoute.getPort();
+    }
+
+    /**
+     * Return the previously exhausted {@code TargetChannel} back to the pool after
+     *
+     * @param httpRoute     http route
+     * @param targetChannel previously exhausted TargetChannel
+     */
+    public void returnTargetChannel(HttpRoute httpRoute, TargetChannel targetChannel) {
+        String key = generateKey(httpRoute);
+        PerRouteConnectionPool perRouteConnectionPool = fetchConnectionPool(key);
+        if (perRouteConnectionPool != null) {
+            perRouteConnectionPool.addChannel(targetChannel);
+        }
     }
 
     /* Entity which holds the pool of connections for a given http route */
@@ -201,20 +213,6 @@ public class Http2ConnectionManager {
 
         public void removeChannel(TargetChannel targetChannel) {
             targetChannels.remove(targetChannel);
-        }
-    }
-
-    /**
-     * Return the previously exhausted {@code TargetChannel} back to the pool after
-     *
-     * @param httpRoute http route
-     * @param targetChannel previously exhausted TargetChannel
-     */
-    public void returnTargetChannel(HttpRoute httpRoute, TargetChannel targetChannel) {
-        String key = generateKey(httpRoute);
-        PerRouteConnectionPool perRouteConnectionPool = fetchConnectionPool(key);
-        if (perRouteConnectionPool != null) {
-            perRouteConnectionPool.addChannel(targetChannel);
         }
     }
 

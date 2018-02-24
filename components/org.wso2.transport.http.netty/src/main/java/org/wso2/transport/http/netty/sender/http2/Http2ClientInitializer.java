@@ -44,6 +44,7 @@ public class Http2ClientInitializer extends ChannelInitializer<SocketChannel> {
                                  Http2ClientInitializer.class);
 
     private Http2ClientHandler http2ClientHandler;
+    private UpgradeRequestHandler upgradeRequestHandler;
     private Http2ConnectionHandler connectionHandler;
     private Http2FrameListener listener;
     private boolean skipHttpToHttp2Upgrade = false;
@@ -59,6 +60,12 @@ public class Http2ClientInitializer extends ChannelInitializer<SocketChannel> {
                 new Http2ConnectionHandlerBuilder().connection(connection).frameLogger(logger)
                         .frameListener(listener).build();
         http2ClientHandler = new Http2ClientHandler(connection, connectionHandler.encoder());
+        upgradeRequestHandler = new UpgradeRequestHandler(http2ClientHandler);
+    }
+
+    public void setTargetChannel(TargetChannel targetChannel) {
+        http2ClientHandler.setTargetChannel(targetChannel);
+        upgradeRequestHandler.setTargetChannel(targetChannel);
     }
 
     /**
@@ -87,7 +94,7 @@ public class Http2ClientInitializer extends ChannelInitializer<SocketChannel> {
         HttpClientUpgradeHandler upgradeHandler =
                 new HttpClientUpgradeHandler(sourceCodec, upgradeCodec, 65536);
         socketChannel.pipeline()
-                .addLast(sourceCodec, upgradeHandler, http2ClientHandler);
+                .addLast(sourceCodec, upgradeHandler, upgradeRequestHandler);
     }
 
 }

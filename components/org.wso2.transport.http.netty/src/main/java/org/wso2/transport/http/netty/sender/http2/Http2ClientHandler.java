@@ -20,14 +20,12 @@ package org.wso2.transport.http.netty.sender.http2;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelDuplexHandler;
-import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelPromise;
 import io.netty.handler.codec.http.DefaultHttpContent;
 import io.netty.handler.codec.http.DefaultHttpResponse;
 import io.netty.handler.codec.http.DefaultLastHttpContent;
 import io.netty.handler.codec.http.EmptyHttpHeaders;
-import io.netty.handler.codec.http.HttpClientUpgradeHandler;
 import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.HttpMessage;
@@ -50,17 +48,11 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.transport.http.netty.common.Constants;
 import org.wso2.transport.http.netty.common.Util;
-import org.wso2.transport.http.netty.config.ChunkConfig;
-import org.wso2.transport.http.netty.contract.HttpResponseFuture;
 import org.wso2.transport.http.netty.message.EmptyLastHttpContent;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 import org.wso2.transport.http.netty.message.HttpCarbonResponse;
 import org.wso2.transport.http.netty.message.PooledDataStreamerFactory;
 
-import java.io.IOException;
-import java.nio.channels.ClosedChannelException;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -71,7 +63,6 @@ import java.util.concurrent.locks.ReentrantLock;
 public class Http2ClientHandler extends ChannelDuplexHandler {
 
     private static final Log log = LogFactory.getLog(Http2ClientHandler.class);
-    private ChannelHandlerContext channelHandlerContext;
     private Http2Connection connection;
     private Http2ConnectionEncoder encoder;
     private TargetChannel targetChannel;
@@ -85,34 +76,10 @@ public class Http2ClientHandler extends ChannelDuplexHandler {
     }
 
     @Override
-    public void channelActive(ChannelHandlerContext channelHandlerContext) throws Exception {
-        this.channelHandlerContext = channelHandlerContext;
-    }
-
-    @Override
     public void write(ChannelHandlerContext ctx, Object msg, ChannelPromise promise) throws Exception {
         if (msg instanceof OutboundMsgHolder) {
             OutboundMsgHolder outboundMsgHolder = (OutboundMsgHolder) msg;
-            TargetChannel.UpgradeState state = targetChannel.getUpgradeState();
-
-            if (state == TargetChannel.UpgradeState.UPGRADED) {
-                new Http2RequestWriter(outboundMsgHolder).writeContent();
-            } else {
-                lock.lock();
-                try {
-                    state = targetChannel.getUpgradeState();
-                    if (state == TargetChannel.UpgradeState.UPGRADE_NOT_ISSUED) {
-                        targetChannel.updateUpgradeState(TargetChannel.UpgradeState.UPGRADE_ISSUED);
-                        new UpgradeRequestWriter(outboundMsgHolder).writeContent();
-                    } else if (state == TargetChannel.UpgradeState.UPGRADED) {
-                        new Http2RequestWriter(outboundMsgHolder).writeContent();
-                    } else if (state == TargetChannel.UpgradeState.UPGRADE_ISSUED) {
-                        targetChannel.addPendingMessage(outboundMsgHolder);
-                    }
-                } finally {
-                    lock.unlock();
-                }
-            }
+            new Http2RequestWriter(outboundMsgHolder).writeContent(ctx);
         } else {
             ctx.write(msg, promise);
         }
@@ -141,36 +108,6 @@ public class Http2ClientHandler extends ChannelDuplexHandler {
         }
     }
 
-    @Override
-    public void userEventTriggered(ChannelHandlerContext ctx, Object evt) throws Exception {
-        ctx.fireUserEventTriggered(evt);
-
-        if (evt instanceof HttpClientUpgradeHandler.UpgradeEvent) {
-            HttpClientUpgradeHandler.UpgradeEvent upgradeEvent = (HttpClientUpgradeHandler.UpgradeEvent) evt;
-            if (HttpClientUpgradeHandler.UpgradeEvent.UPGRADE_SUCCESSFUL.name().equals(upgradeEvent.name())) {
-                lock.lock();
-                try {
-                    targetChannel.updateUpgradeState(TargetChannel.UpgradeState.UPGRADED);
-                } finally {
-                    lock.unlock();
-                }
-                flushPendingMessages();
-            } else if (HttpClientUpgradeHandler.UpgradeEvent.UPGRADE_REJECTED.name().equals(upgradeEvent.name())) {
-                // If upgrade fails, notify the listener and continue with the queued requests
-                // TODO: Revisit upgrade failure scenario
-                lock.lock();
-                try {
-                    targetChannel.updateUpgradeState(TargetChannel.UpgradeState.UPGRADE_NOT_ISSUED);
-                } finally {
-                    lock.unlock();
-                }
-                targetChannel.getInFlightMessage(1).getResponseFuture().notifyHttpListener(
-                        new Exception("HTTP/2 Upgrade failed"));
-                tryNextMessage();
-            }
-        }
-    }
-
     public Http2Connection getConnection() {
         return connection;
     }
@@ -181,21 +118,6 @@ public class Http2ClientHandler extends ChannelDuplexHandler {
 
     private synchronized int getStreamId() {
         return connection.local().incrementAndGetNextStreamId();
-    }
-
-    private void flushPendingMessages() {
-
-        targetChannel.getPendingMessages().forEach(message -> {
-            new Http2RequestWriter(message).writeContent();
-        });
-        targetChannel.getPendingMessages().clear();
-    }
-
-    private void tryNextMessage() {
-        OutboundMsgHolder nextMessage = targetChannel.getPendingMessages().poll();
-        if (nextMessage != null) {
-            new Http2RequestWriter(nextMessage).writeContent();
-        }
     }
 
     private HTTPCarbonMessage setupResponseCarbonMessage(ChannelHandlerContext ctx, Http2HeadersFrame headersFrame,
@@ -249,7 +171,7 @@ public class Http2ClientHandler extends ChannelDuplexHandler {
             httpOutboundRequest = outboundMsgHolder.getRequest();
         }
 
-        public void writeContent() {
+        public void writeContent(ChannelHandlerContext ctx) {
             int streamId = getStreamId();
             targetChannel.putInFlightMessage(streamId, outboundMsgHolder);
 
@@ -258,7 +180,7 @@ public class Http2ClientHandler extends ChannelDuplexHandler {
                     setMessageListener((httpContent ->
                                                 targetChannel.getChannel().eventLoop().execute(() -> {
                                                     try {
-                                                        writeOutboundRequest(httpContent, streamId, true);
+                                                        writeOutboundRequest(ctx, httpContent, streamId, true);
                                                     } catch (Exception exception) {
                                                         String errorMsg = "Failed to send the request : " +
                                                                           exception.getMessage().
@@ -269,7 +191,8 @@ public class Http2ClientHandler extends ChannelDuplexHandler {
 
         }
 
-        private void writeOutboundRequest(HttpContent msg, int streamId, boolean validateHeaders) {
+        private void writeOutboundRequest(ChannelHandlerContext ctx, HttpContent msg, int streamId,
+                                          boolean validateHeaders) {
 
             boolean endStream = false;
             if (!isHeadersWritten) {
@@ -279,7 +202,7 @@ public class Http2ClientHandler extends ChannelDuplexHandler {
                     endStream = true;
                 }
                 // Write Headers
-                writeOutboundRequestHeaders(httpRequest, streamId, true, endStream);
+                writeOutboundRequestHeaders(ctx, httpRequest, streamId, true, endStream);
                 isHeadersWritten = true;
                 if (endStream) {
                     return;
@@ -304,17 +227,17 @@ public class Http2ClientHandler extends ChannelDuplexHandler {
                 final ByteBuf content = msg.content();
                 endStream = isLastContent && trailers.isEmpty();
                 release = false;
-                encoder.writeData(channelHandlerContext, streamId, content, 0, endStream,
-                                  channelHandlerContext.newPromise());
+                encoder.writeData(ctx, streamId, content, 0, endStream,
+                                  ctx.newPromise());
                 try {
                     encoder.flowController().writePendingBytes();
                 } catch (Http2Exception e) {
                 }
-                channelHandlerContext.flush();
+                ctx.flush();
 
                 if (!trailers.isEmpty()) {
                     // Write trailing headers.
-                    writeHttp2Headers(streamId, trailers, http2Trailers, true);
+                    writeHttp2Headers(ctx, streamId, trailers, http2Trailers, true);
                 }
             } finally {
                 if (release) {
@@ -323,137 +246,29 @@ public class Http2ClientHandler extends ChannelDuplexHandler {
             }
         }
 
-        private void writeOutboundRequestHeaders(HttpMessage httpMsg, int streamId, boolean validateHeaders,
-                                                 boolean endStream) {
+        private void writeOutboundRequestHeaders(ChannelHandlerContext ctx, HttpMessage httpMsg, int streamId,
+                                                 boolean validateHeaders, boolean endStream) {
             // Convert and write the headers.
             httpMsg.headers().add(HttpConversionUtil.ExtensionHeaderNames.SCHEME.text(), "HTTP");
 
             Http2Headers http2Headers = HttpConversionUtil.toHttp2Headers(httpMsg, validateHeaders);
-            writeHttp2Headers(streamId, httpMsg.headers(), http2Headers, endStream);
+            writeHttp2Headers(ctx, streamId, httpMsg.headers(), http2Headers, endStream);
         }
 
-        private void writeHttp2Headers(int streamId, HttpHeaders headers, Http2Headers http2Headers,
-                                       boolean endStream) {
+        private void writeHttp2Headers(ChannelHandlerContext ctx, int streamId, HttpHeaders headers,
+                                       Http2Headers http2Headers, boolean endStream) {
             int dependencyId = headers.getInt(
                     HttpConversionUtil.ExtensionHeaderNames.STREAM_DEPENDENCY_ID.text(), 0);
             short weight = headers.getShort(
                     HttpConversionUtil.ExtensionHeaderNames.STREAM_WEIGHT.text(),
                     Http2CodecUtil.DEFAULT_PRIORITY_WEIGHT);
-            encoder.writeHeaders(channelHandlerContext, streamId, http2Headers, dependencyId, weight, false,
-                                 0, endStream, channelHandlerContext.newPromise());
+            encoder.writeHeaders(ctx, streamId, http2Headers, dependencyId, weight, false,
+                                 0, endStream, ctx.newPromise());
             try {
                 encoder.flowController().writePendingBytes();
-                channelHandlerContext.flush();
+                ctx.flush();
             } catch (Http2Exception e) {
             }
-        }
-    }
-
-    private class UpgradeRequestWriter {
-
-        List<HttpContent> contentList = new ArrayList<>();
-        int contentLength = 0;
-
-        boolean isRequestWritten = false;
-        String httpVersion = "1.1";
-        ChunkConfig chunkConfig = ChunkConfig.AUTO;
-        HTTPCarbonMessage httpOutboundRequest;
-        HttpResponseFuture responseFuture;
-        OutboundMsgHolder outboundMsgHolder;
-
-        public UpgradeRequestWriter(OutboundMsgHolder outboundMsgHolder) {
-            this.outboundMsgHolder = outboundMsgHolder;
-            httpOutboundRequest = outboundMsgHolder.getRequest();
-            responseFuture = outboundMsgHolder.getResponseFuture();
-        }
-
-        public void writeContent() {
-
-            targetChannel.putInFlightMessage(1, outboundMsgHolder);
-
-            httpOutboundRequest.getHttpContentAsync().
-                    setMessageListener((httpContent -> targetChannel.getChannel().eventLoop().execute(() -> {
-                        try {
-                            writeOutboundRequest(httpContent);
-                        } catch (Exception exception) {
-                            String errorMsg = "Failed to send the request : "
-                                              + exception.getMessage().toLowerCase(Locale.ENGLISH);
-                            log.error(errorMsg, exception);
-                            responseFuture.notifyHttpListener(exception);
-                        }
-                    })));
-        }
-
-        private void writeOutboundRequest(HttpContent httpContent) throws Exception {
-            if (Util.isLastHttpContent(httpContent)) {
-                if (!this.isRequestWritten) {
-                    if (Util.isEntityBodyAllowed(getHttpMethod(httpOutboundRequest))) {
-                        if (chunkConfig == ChunkConfig.ALWAYS && Util.isVersionCompatibleForChunking(httpVersion)) {
-                            Util.setupChunkedRequest(httpOutboundRequest);
-                        } else {
-                            contentLength += httpContent.content().readableBytes();
-                            Util.setupContentLengthRequest(httpOutboundRequest, contentLength);
-                        }
-                    }
-                    writeOutboundRequestHeaders(httpOutboundRequest);
-                }
-
-                writeOutboundRequestBody(httpContent);
-            } else {
-                if ((chunkConfig == ChunkConfig.ALWAYS || chunkConfig == ChunkConfig.AUTO)
-                    && Util.isVersionCompatibleForChunking(httpVersion)) {
-                    if (!this.isRequestWritten) {
-                        Util.setupChunkedRequest(httpOutboundRequest);
-                        writeOutboundRequestHeaders(httpOutboundRequest);
-                    }
-                    ChannelFuture outboundRequestChannelFuture =
-                            channelHandlerContext.channel().writeAndFlush(httpContent);
-                    notifyIfFailure(outboundRequestChannelFuture);
-                } else {
-                    this.contentList.add(httpContent);
-                    contentLength += httpContent.content().readableBytes();
-                }
-            }
-        }
-
-        private void writeOutboundRequestHeaders(HTTPCarbonMessage httpOutboundRequest) {
-            httpOutboundRequest.setProperty(Constants.HTTP_VERSION, httpVersion);
-            HttpRequest httpRequest = Util.createHttpRequest(httpOutboundRequest);
-            isRequestWritten = true;
-            targetChannel.getChannel().write(httpRequest);
-        }
-
-        private void writeOutboundRequestBody(HttpContent lastHttpContent) {
-            if (chunkConfig == ChunkConfig.NEVER || !Util.isVersionCompatibleForChunking(httpVersion)) {
-                for (HttpContent cachedHttpContent : contentList) {
-                    ChannelFuture outboundRequestChannelFuture =
-                            channelHandlerContext.channel().writeAndFlush(cachedHttpContent);
-                    notifyIfFailure(outboundRequestChannelFuture);
-                }
-            }
-            ChannelFuture outboundRequestChannelFuture = targetChannel.getChannel().writeAndFlush(lastHttpContent);
-            notifyIfFailure(outboundRequestChannelFuture);
-        }
-
-        private void notifyIfFailure(ChannelFuture outboundRequestChannelFuture) {
-            outboundRequestChannelFuture.addListener(writeOperationPromise -> {
-                if (writeOperationPromise.cause() != null) {
-                    Throwable throwable = writeOperationPromise.cause();
-                    if (throwable instanceof ClosedChannelException) {
-                        throwable = new IOException(Constants.REMOTE_SERVER_ABRUPTLY_CLOSE_REQUEST_CONNECTION);
-                    }
-                    log.error(Constants.REMOTE_SERVER_ABRUPTLY_CLOSE_REQUEST_CONNECTION, throwable);
-                    responseFuture.notifyHttpListener(throwable);
-                }
-            });
-        }
-
-        private String getHttpMethod(HTTPCarbonMessage httpOutboundRequest) throws Exception {
-            String httpMethod = (String) httpOutboundRequest.getProperty(Constants.HTTP_METHOD);
-            if (httpMethod == null) {
-                throw new Exception("Couldn't get the HTTP method from the outbound request");
-            }
-            return httpMethod;
         }
     }
 
