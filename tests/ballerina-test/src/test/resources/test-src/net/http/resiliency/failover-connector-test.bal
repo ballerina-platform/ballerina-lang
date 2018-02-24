@@ -34,7 +34,7 @@ function testSuccessScenario () (http:InResponse, http:HttpConnectorError) {
     int counter = 0;
 
     while (counter < 2) {
-        clientResponse, err = ep.post("/", outReq);
+        clientResponse, err = ep.doPost("/", outReq);
         counter = counter + 1;
     }
 
@@ -60,7 +60,7 @@ function testFailureScenario () (http:InResponse, http:HttpConnectorError) {
     int counter = 0;
 
     while (counter < 1) {
-        clientResponse, err = ep.post("/", outReq);
+        clientResponse, err = ep.doPost("/", outReq);
         counter = counter + 1;
     }
 
@@ -74,7 +74,7 @@ connector MockHttpFailOverClient (string serviceUri, http:Options connectorOptio
 
     int actualRequestNumber = 0;
 
-    action post (string path, http:OutRequest request) (http:InResponse, http:HttpConnectorError) {
+    action doPost (string path, http:OutRequest request) (http:InResponse, http:HttpConnectorError) {
         http:InResponse response;
         http:HttpConnectorError err;
         response, err = generateResponse(actualRequestNumber);
@@ -86,23 +86,23 @@ connector MockHttpFailOverClient (string serviceUri, http:Options connectorOptio
         return null, null;
     }
 
-    action put (string path, http:OutRequest req) (http:InResponse, http:HttpConnectorError) {
+    action doPut (string path, http:OutRequest req) (http:InResponse, http:HttpConnectorError) {
         return null, null;
     }
 
-    action execute (string httpVerb, string path, http:OutRequest req) (http:InResponse, http:HttpConnectorError) {
+    action doExecute (string httpVerb, string path, http:OutRequest req) (http:InResponse, http:HttpConnectorError) {
         return null, null;
     }
 
-    action patch (string path, http:OutRequest req) (http:InResponse, http:HttpConnectorError) {
+    action doPatch (string path, http:OutRequest req) (http:InResponse, http:HttpConnectorError) {
         return null, null;
     }
 
-    action delete (string path, http:OutRequest req) (http:InResponse, http:HttpConnectorError) {
+    action doDelete (string path, http:OutRequest req) (http:InResponse, http:HttpConnectorError) {
         return null, null;
     }
 
-    action get (string path, http:OutRequest req) (http:InResponse, http:HttpConnectorError) {
+    action doGet (string path, http:OutRequest req) (http:InResponse, http:HttpConnectorError) {
         return null, null;
     }
 
@@ -110,7 +110,7 @@ connector MockHttpFailOverClient (string serviceUri, http:Options connectorOptio
         return null, null;
     }
 
-    action forward (string path, http:InRequest req) (http:InResponse, http:HttpConnectorError) {
+    action doForward (string path, http:InRequest req) (http:InResponse, http:HttpConnectorError) {
         return null, null;
     }
 }

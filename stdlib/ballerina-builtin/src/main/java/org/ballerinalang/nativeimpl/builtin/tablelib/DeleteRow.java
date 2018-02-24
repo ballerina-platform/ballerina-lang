@@ -32,14 +32,14 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
  * @since 0.963.0
  */
 @BallerinaFunction(packageName = "ballerina.builtin",
-                   functionName = "table.delete",
+                   functionName = "table.deleteRow",
                    args = {
                            @Argument(name = "dt",
                                      type = TypeKind.TABLE),
                            @Argument(name = "data",
                                      type = TypeKind.ANY)
                    })
-public class Delete extends AbstractNativeFunction {
+public class DeleteRow extends AbstractNativeFunction {
 
     @Override
     public BValue[] execute(Context context) {

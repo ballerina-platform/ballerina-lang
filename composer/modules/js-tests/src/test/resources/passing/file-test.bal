@@ -3,13 +3,13 @@ import ballerina.lang.files;
 function testCopy(string sourcePath, string destPath) {
     files:File source = {path : sourcePath};
     files:File dest = {path : destPath};
-    files:copy(source, dest);
+    files:copyFile(source, dest);
 }
 
 function testMove(string sourcePath, string destPath) {
     files:File source = {path : sourcePath};
     files:File dest = {path : destPath};
-    files:move(source, dest);
+    files:moveFile(source, dest);
 }
 
 function testExists(string targetPath) (boolean) {
@@ -20,12 +20,12 @@ function testExists(string targetPath) (boolean) {
 
 function testDelete(string targetPath) {
     files:File target = {path : targetPath};
-    files:delete(target);
+    files:deleteFile(target);
 }
 
 function testOpen(string sourcePath, string accessMode) (files:File) {
     files:File source = {path : sourcePath};
-    files:open(source, accessMode);
+    files:openFile(source, accessMode);
     return source;
 }
 
@@ -37,7 +37,7 @@ function testWrite(blob content, string targetPath) {
 
 function testWriteNewLine(blob content, string targetPath) {
     files:File target = {path : targetPath};
-    files:open(target, "w");
+    files:openFile(target, "w");
     files:writeln(content, target);
 }
 
@@ -48,18 +48,18 @@ function testWriteWithoutOpening(blob content, string targetPath) {
 
 function testRead(string sourcePath, int bytes)(blob, int) {
     files:File source = {path : sourcePath};
-    files:open(source, "r");
+    files:openFile(source, "r");
     return files:read(source, bytes);
 }
 
 function testReadWithoutOpening(string sourcePath, int bytes)(blob, int) {
     files:File source = {path : sourcePath};
-    return files:read(source, bytes);
+    return files:readFile(source, bytes);
 }
 
 function testClose(string sourcePath) (files:File) {
     files:File source = {path : sourcePath};
-    files:open(source, "rw");
-    files:close(source);
+    files:openFile(source, "rw");
+    files:closeFile(source);
     return source;
 }

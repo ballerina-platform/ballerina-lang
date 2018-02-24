@@ -21,7 +21,7 @@ function testTypicalScenario () (http:InResponse[], http:HttpConnectorError[]) {
     while (counter < 8) {
         request = {};
         request.setHeader(TEST_SCENARIO_HEADER, SCENARIO_TYPICAL);
-        responses[counter], errs[counter] = circuitBreakerEP.get("/hello", request);
+        responses[counter], errs[counter] = circuitBreakerEP.doGet("/hello", request);
         counter = counter + 1;
 
         // To ensure the reset timeout period expires
@@ -47,7 +47,7 @@ function testTrialRunFailure () (http:InResponse[], http:HttpConnectorError[]) {
     while (counter < 6) {
         request = {};
         request.setHeader(TEST_SCENARIO_HEADER, SCENARIO_TRIAL_RUN_FAILURE);
-        responses[counter], errs[counter] = circuitBreakerEP.get("/hello", request);
+        responses[counter], errs[counter] = circuitBreakerEP.doGet("/hello", request);
         counter = counter + 1;
 
         if (counter == 3) {
@@ -62,7 +62,7 @@ connector MockHttpClient (string serviceUri, http:Options connectorOptions) {
 
     int actualRequestNumber = 0;
 
-    action post (string path, http:OutRequest req) (http:InResponse, http:HttpConnectorError) {
+    action doPost (string path, http:OutRequest req) (http:InResponse, http:HttpConnectorError) {
         return null, null;
     }
 
@@ -70,23 +70,23 @@ connector MockHttpClient (string serviceUri, http:Options connectorOptions) {
         return null, null;
     }
 
-    action put (string path, http:OutRequest req) (http:InResponse, http:HttpConnectorError) {
+    action doPut (string path, http:OutRequest req) (http:InResponse, http:HttpConnectorError) {
         return null, null;
     }
 
-    action execute (string httpVerb, string path, http:OutRequest req) (http:InResponse, http:HttpConnectorError) {
+    action doExecute (string httpVerb, string path, http:OutRequest req) (http:InResponse, http:HttpConnectorError) {
         return null, null;
     }
 
-    action patch (string path, http:OutRequest req) (http:InResponse, http:HttpConnectorError) {
+    action doPatch (string path, http:OutRequest req) (http:InResponse, http:HttpConnectorError) {
         return null, null;
     }
 
-    action delete (string path, http:OutRequest req) (http:InResponse, http:HttpConnectorError) {
+    action doDelete (string path, http:OutRequest req) (http:InResponse, http:HttpConnectorError) {
         return null, null;
     }
 
-    action get (string path, http:OutRequest req) (http:InResponse, http:HttpConnectorError) {
+    action doGet (string path, http:OutRequest req) (http:InResponse, http:HttpConnectorError) {
         http:InResponse response;
         http:HttpConnectorError err;
         actualRequestNumber = actualRequestNumber + 1;
@@ -106,7 +106,7 @@ connector MockHttpClient (string serviceUri, http:Options connectorOptions) {
         return null, null;
     }
 
-    action forward (string path, http:InRequest req) (http:InResponse, http:HttpConnectorError) {
+    action doForward (string path, http:InRequest req) (http:InResponse, http:HttpConnectorError) {
         return null, null;
     }
 }

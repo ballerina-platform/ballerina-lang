@@ -27,19 +27,19 @@ public function invokeEndpoint (string path, http:OutRequest outRequest, http:In
     bind httpClient with endPoint;
 
     if (HttpOperation.GET == requestAction) {
-        return endPoint.get(path, outRequest);
+        return endPoint.doGet(path, outRequest);
     } else if (HttpOperation.POST == requestAction) {
-        return endPoint.post(path, outRequest);
+        return endPoint.doPost(path, outRequest);
     } else if (HttpOperation.OPTIONS == requestAction) {
         return endPoint.options(path, outRequest);
     } else if (HttpOperation.PUT == requestAction) {
-        return endPoint.put(path, outRequest);
+        return endPoint.doPut(path, outRequest);
     } else if (HttpOperation.DELETE == requestAction) {
-        return endPoint.delete(path, outRequest);
+        return endPoint.doDelete(path, outRequest);
     } else if (HttpOperation.PATCH == requestAction) {
-        return endPoint.patch(path, outRequest);
+        return endPoint.doPatch(path, outRequest);
     } else if (HttpOperation.FORWARD == requestAction) {
-        return endPoint.forward(path, inRequest);
+        return endPoint.doForward(path, inRequest);
     } else if (HttpOperation.HEAD == requestAction) {
         return endPoint.head(path, outRequest);
     } else {

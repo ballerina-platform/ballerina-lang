@@ -18,10 +18,10 @@ service<http> contentBasedRouting {
         var nameString, _ = (string) jsonMsg.name;
         message response = {};
         if (nameString == nyseString) {
-            response = nyseEP.post("/stocks", m);
+            response = nyseEP.doPost("/stocks", m);
         }
         else {
-            response = nasdaqEP.post("/stocks", m);
+            response = nasdaqEP.doPost("/stocks", m);
         }
         response:send(response);
         

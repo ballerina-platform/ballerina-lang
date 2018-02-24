@@ -64,12 +64,12 @@ function testAddData () (int count1, int count2, int count3, int[] dt1data, int[
     table<Person> dt2 = {};
     table<Company> ct1 = {};
 
-    dt1.add(p1);
-    dt1.add(p2);
+    dt1.addRow(p1);
+    dt1.addRow(p2);
 
-    dt2.add(p3);
+    dt2.addRow(p3);
 
-    ct1.add(c1);
+    ct1.addRow(c1);
 
     count1 = dt1.count();
     dt1data = dt1.map(getPersonId);
@@ -85,7 +85,7 @@ function testAddData () (int count1, int count2, int count3, int[] dt1data, int[
 function testTableAddInvalid () {
     Company c1 = {id:100, name:"ABC"};
     table<Person> dt1 = {};
-    dt1.add(c1);
+    dt1.addRow(c1);
 }
 
 function testMultipleAccess () (int count1, int count2, int[] dtdata1, int[] dtdata2) {
@@ -94,9 +94,9 @@ function testMultipleAccess () (int count1, int count2, int[] dtdata1, int[] dtd
     Person p3 = {id:3, age:32, salary:100.50, name:"john", married:false};
 
     table<Person> dt1 = {};
-    dt1.add(p1);
-    dt1.add(p2);
-    dt1.add(p3);
+    dt1.addRow(p1);
+    dt1.addRow(p2);
+    dt1.addRow(p3);
 
     count1 = dt1.count();
     dtdata1 = dt1.map(getPersonId);
@@ -112,9 +112,9 @@ function testLoopingTable () (string) {
     Person p3 = {id:3, age:32, salary:100.50, name:"john", married:false};
 
     table<Person> dt = {};
-    dt.add(p1);
-    dt.add(p2);
-    dt.add(p3);
+    dt.addRow(p1);
+    dt.addRow(p2);
+    dt.addRow(p3);
 
     string names = "";
 
@@ -131,9 +131,9 @@ function testToJson () (json) {
     Person p3 = {id:3, age:32, salary:100.50, name:"john", married:false};
 
     table<Person> dt = {};
-    dt.add(p1);
-    dt.add(p2);
-    dt.add(p3);
+    dt.addRow(p1);
+    dt.addRow(p2);
+    dt.addRow(p3);
 
     var j, _ = <json>dt;
     return j;
@@ -145,9 +145,9 @@ function testToXML () (xml) {
     Person p3 = {id:3, age:32, salary:100.50, name:"john", married:false};
 
     table<Person> dt = {};
-    dt.add(p1);
-    dt.add(p2);
-    dt.add(p3);
+    dt.addRow(p1);
+    dt.addRow(p2);
+    dt.addRow(p3);
 
     var x, _ = <xml>dt;
     return x;
@@ -159,9 +159,9 @@ function testPrintData () {
     Person p3 = {id:3, age:32, salary:100.50, name:"john", married:false};
 
     table<Person> dt = {};
-    dt.add(p1);
-    dt.add(p2);
-    dt.add(p3);
+    dt.addRow(p1);
+    dt.addRow(p2);
+    dt.addRow(p3);
 
     io:println(dt);
 }
@@ -170,7 +170,7 @@ function testTableDrop () {
     Person p1 = {id:1, age:30, salary:300.50, name:"jane", married:true};
 
     table<Person> dt = {};
-    dt.add(p1);
+    dt.addRow(p1);
 }
 
 function testTableWithAllDataToJson () (json) {
@@ -180,8 +180,8 @@ function testTableWithAllDataToJson () (json) {
     TypeTest t2 = {id:2, jsonData:j1, xmlData:x1};
 
     table<TypeTest> dt1 = {};
-    dt1.add(t1);
-    dt1.add(t2);
+    dt1.addRow(t1);
+    dt1.addRow(t2);
 
     var j, _ = <json>dt1;
     return j;
@@ -194,8 +194,8 @@ function testTableWithAllDataToXml () (xml) {
     TypeTest t2 = {id:2, jsonData:j1, xmlData:x1};
 
     table<TypeTest> dt1 = {};
-    dt1.add(t1);
-    dt1.add(t2);
+    dt1.addRow(t1);
+    dt1.addRow(t2);
 
     var x, _ = <xml>dt1;
     return x;
@@ -208,7 +208,7 @@ function testTableWithAllDataToStruct () (json jData, xml xData) {
     TypeTest t1 = {id:1, jsonData:j1, xmlData:x1};
 
     table<TypeTest> dt1 = {};
-    dt1.add(t1);
+    dt1.addRow(t1);
 
     while (dt1.hasNext()) {
         var x, _ = (TypeTest)dt1.getNext();
@@ -224,7 +224,7 @@ function testTableWithBlobDataToJson () (json) {
     BlobTypeTest t1 = {id:1, blobData:content};
 
     table<BlobTypeTest> dt1 = {};
-    dt1.add(t1);
+    dt1.addRow(t1);
 
     var j, _ = <json>dt1;
     return j;
@@ -236,7 +236,7 @@ function testTableWithBlobDataToXml () (xml) {
     BlobTypeTest t1 = {id:1, blobData:content};
 
     table<BlobTypeTest> dt1 = {};
-    dt1.add(t1);
+    dt1.addRow(t1);
 
     var x, _ = <xml>dt1;
     return x;
@@ -248,7 +248,7 @@ function testTableWithBlobDataToStruct () (blob bData) {
     BlobTypeTest t1 = {id:1, blobData:content};
 
     table<BlobTypeTest> dt1 = {};
-    dt1.add(t1);
+    dt1.addRow(t1);
 
     while (dt1.hasNext()) {
         var x, _ = (BlobTypeTest)dt1.getNext();
@@ -261,7 +261,7 @@ function testTableWithAnyDataToJson () (json) {
     AnyTypeTest t1 = {id:1, anyData:"Sample Text"};
 
     table<AnyTypeTest> dt1 = {};
-    dt1.add(t1);
+    dt1.addRow(t1);
 
     var j, _ = <json>dt1;
     return j;
@@ -270,7 +270,7 @@ function testTableWithAnyDataToJson () (json) {
 function testStructWithDefaultDataToJson () (json) {
     Person p1 = {id:1};
     table<Person> dt1 = {};
-    dt1.add(p1);
+    dt1.addRow(p1);
 
     var j, _ = <json>dt1;
     return j;
@@ -279,7 +279,7 @@ function testStructWithDefaultDataToJson () (json) {
 function testStructWithDefaultDataToXml () (xml) {
     Person p1 = {id:1};
     table<Person> dt1 = {};
-    dt1.add(p1);
+    dt1.addRow(p1);
 
     var x, _ = <xml>dt1;
     return x;
@@ -289,7 +289,7 @@ function testStructWithDefaultDataToXml () (xml) {
 function testStructWithDefaultDataToStruct () (int iData, float fData, string sData, boolean bData) {
     Person p1 = {id:1};
     table<Person> dt1 = {};
-    dt1.add(p1);
+    dt1.addRow(p1);
 
     while (dt1.hasNext()) {
         var x, _ = (Person)dt1.getNext();
@@ -317,8 +317,8 @@ function testTableWithArrayDataToJson () (json) {
                           booleanArrData:boolArray2};
 
     table<ArraTypeTest> dt1 = {};
-    dt1.add(t1);
-    dt1.add(t2);
+    dt1.addRow(t1);
+    dt1.addRow(t2);
 
     var j, _ = <json>dt1;
     return j;
@@ -340,8 +340,8 @@ function testTableWithArrayDataToXml () (xml) {
                           booleanArrData:boolArray2};
 
     table<ArraTypeTest> dt1 = {};
-    dt1.add(t1);
-    dt1.add(t2);
+    dt1.addRow(t1);
+    dt1.addRow(t2);
 
     var x, _ = <xml>dt1;
     return x;
@@ -356,7 +356,7 @@ function testTableWithArrayDataToStruct () (int[] intArr, float[] floatArr, stri
                           booleanArrData:boolArray};
 
     table<ArraTypeTest> dt1 = {};
-    dt1.add(t1);
+    dt1.addRow(t1);
 
     while (dt1.hasNext()) {
         var x, _ = (ArraTypeTest)dt1.getNext();
@@ -374,11 +374,11 @@ function testTableRemoveSuccess () (int count, json j) {
     Person p3 = {id:3, age:32, salary:100.50, name:"john", married:false};
 
     table<Person> dt = {};
-    dt.add(p1);
-    dt.add(p2);
-    dt.add(p3);
+    dt.addRow(p1);
+    dt.addRow(p2);
+    dt.addRow(p3);
 
-    count = dt.remove(isBellow35);
+    count = dt.removeRow(isBellow35);
     j, _ = <json>dt;
     return;
 }
@@ -389,11 +389,11 @@ function testTableRemoveSuccessMultipleMatch () (int count, json j) {
     Person p3 = {id:3, age:32, salary:100.50, name:"john", married:false};
 
     table<Person> dt = {};
-    dt.add(p1);
-    dt.add(p2);
-    dt.add(p3);
+    dt.addRow(p1);
+    dt.addRow(p2);
+    dt.addRow(p3);
 
-    count = dt.remove(isJohn);
+    count = dt.removeRow(isJohn);
     j, _ = <json>dt;
     return;
 }
@@ -404,11 +404,11 @@ function testTableRemoveFailed () (int count, json j) {
     Person p3 = {id:3, age:42, salary:100.50, name:"john", married:false};
 
     table<Person> dt = {};
-    dt.add(p1);
-    dt.add(p2);
-    dt.add(p3);
+    dt.addRow(p1);
+    dt.addRow(p2);
+    dt.addRow(p3);
 
-    count = dt.remove(isBellow35);
+    count = dt.removeRow(isBellow35);
     j, _ = <json>dt;
     return;
 }

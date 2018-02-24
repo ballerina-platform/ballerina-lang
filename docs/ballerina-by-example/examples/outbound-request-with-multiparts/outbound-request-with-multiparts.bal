@@ -46,7 +46,7 @@ service<http> echo {
         request.setMultiparts(bodyParts, mime:MULTIPART_FORM_DATA);
 
         http:InResponse resp1 = {};
-        resp1, _ = httpEndpoint.post("/foo/receivableParts", request);
+        resp1, _ = httpEndpoint.doPost("/foo/receivableParts", request);
 
         _ = conn.forward(resp1);
     }

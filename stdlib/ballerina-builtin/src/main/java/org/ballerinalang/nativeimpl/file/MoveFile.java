@@ -34,14 +34,14 @@ import java.io.File;
  */
 @BallerinaFunction(
         packageName = "ballerina.file",
-        functionName = "move",
+        functionName = "moveFile",
         args = {@Argument(name = "source", type = TypeKind.STRUCT, structType = "File",
                 structPackage = "ballerina.file"),
                 @Argument(name = "destination", type = TypeKind.STRUCT, structType = "File",
                         structPackage = "ballerina.file")},
         isPublic = true
 )
-public class Move extends AbstractNativeFunction {
+public class MoveFile extends AbstractNativeFunction {
 
     @Override 
     public BValue[] execute(Context context) {

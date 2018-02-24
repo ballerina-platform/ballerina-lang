@@ -34,7 +34,7 @@ function main (string[] args) {
     system:println("file copied: /tmp/result.txt to /tmp/copy.txt");
 
     //How to delete a file.
-    files:delete(destination);
+    files:deleteFile(destination);
     system:println("file deleted: /tmp/copy.txt");
 
     //Move source file to destination
@@ -42,6 +42,6 @@ function main (string[] args) {
     files:move(source, destination);
     system:println("file moved: /tmp/result.txt to /tmp/move.txt");
 
-    files:delete(destination);
+    files:deleteFile(destination);
     system:println("file deleted: /tmp/move.txt");
 }

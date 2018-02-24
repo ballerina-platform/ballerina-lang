@@ -30,11 +30,11 @@ import org.wso2.transport.http.netty.contract.ClientConnectorException;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 
 /**
- * {@code Delete} is the DELETE action implementation of the HTTP Connector.
+ * {@code Get} is the GET action implementation of the HTTP Connector.
  */
 @BallerinaAction(
         packageName = "ballerina.net.http",
-        actionName = "delete",
+        actionName = "doGet",
         connectorName = HttpConstants.CONNECTOR_NAME,
         args = {
                 @Argument(name = "c", type = TypeKind.CONNECTOR),
@@ -53,30 +53,27 @@ import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
                           structPackage = "ballerina.net.http")
         }
 )
-public class Delete extends AbstractHTTPAction {
+public class DoGet extends AbstractHTTPAction {
 
-    private static final Logger logger = LoggerFactory.getLogger(Delete.class);
+    private static final Logger logger = LoggerFactory.getLogger(DoGet.class);
 
     @Override
     public ConnectorFuture execute(Context context) {
-
         if (logger.isDebugEnabled()) {
             logger.debug("Executing Native Action : {}", this.getName());
         }
         try {
-            // Execute the operation
             return executeNonBlockingAction(context, createOutboundRequestMsg(context));
         } catch (ClientConnectorException clientConnectorException) {
-            throw new BallerinaException("Failed to invoke 'delete' action in " + HttpConstants.CONNECTOR_NAME
+            // This is should be a JavaError. Need to handle this properly.
+            throw new BallerinaException("Failed to invoke 'get' action in " + HttpConstants.CONNECTOR_NAME
                     + ". " + clientConnectorException.getMessage(), context);
         }
     }
 
-
     protected HTTPCarbonMessage createOutboundRequestMsg(Context context) {
-        // Extract Argument values
-        HTTPCarbonMessage cMsg = super.createOutboundRequestMsg(context);
-        cMsg.setProperty(HttpConstants.HTTP_METHOD, HttpConstants.HTTP_METHOD_DELETE);
-        return cMsg;
+        HTTPCarbonMessage outboundReqMsg = super.createOutboundRequestMsg(context);
+        outboundReqMsg.setProperty(HttpConstants.HTTP_METHOD, HttpConstants.HTTP_METHOD_GET);
+        return outboundReqMsg;
     }
 }

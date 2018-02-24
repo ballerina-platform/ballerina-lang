@@ -39,7 +39,7 @@ import org.ballerinalang.util.exceptions.BallerinaException;
  */
 @BallerinaAction(
         packageName = "ballerina.data.sql",
-        actionName = "update",
+        actionName = "updateQuery",
         connectorName = Constants.CONNECTOR_NAME,
         args = {@Argument(name = "c", type = TypeKind.CONNECTOR),
                 @Argument(name = "query", type = TypeKind.STRING),
@@ -49,7 +49,7 @@ import org.ballerinalang.util.exceptions.BallerinaException;
         connectorArgs = {
                 @Argument(name = "options", type = TypeKind.MAP)
         })
-public class Update extends AbstractSQLAction {
+public class UpdateQuery extends AbstractSQLAction {
 
     @Override
     public ConnectorFuture execute(Context context) {

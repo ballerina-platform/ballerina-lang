@@ -41,16 +41,16 @@ import java.io.OutputStream;
  */
 @BallerinaFunction(
         packageName = "ballerina.file",
-        functionName = "copy",
+        functionName = "copyFile",
         args = {@Argument(name = "source", type = TypeKind.STRUCT, structType = "File",
                 structPackage = "ballerina.file"),
                 @Argument(name = "destination", type = TypeKind.STRUCT, structType = "File",
                         structPackage = "ballerina.file")},
         isPublic = true
 )
-public class Copy extends AbstractNativeFunction {
+public class CopyFile extends AbstractNativeFunction {
 
-    private static final Logger logger = LoggerFactory.getLogger(Copy.class);
+    private static final Logger logger = LoggerFactory.getLogger(CopyFile.class);
     
     @Override
     public BValue[] execute(Context context) {

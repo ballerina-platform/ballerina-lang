@@ -33,7 +33,7 @@ public connector CircuitBreaker (http:HttpClient httpClient, float failureThresh
     @Param {value:"request: An OutRequest struct"}
     @Return {value:"The InResponse struct"}
     @Return {value:"Error occurred during the action invocation, if any"}
-    action post (string path, http:OutRequest request) (http:InResponse, http:HttpConnectorError) {
+    action doPost (string path, http:OutRequest request) (http:InResponse, http:HttpConnectorError) {
         currentState = updateCircuitState(circuitHealth, currentState, failureThreshold, resetTimeout);
         http:InResponse response;
         http:HttpConnectorError err;
@@ -42,7 +42,7 @@ public connector CircuitBreaker (http:HttpClient httpClient, float failureThresh
             // TODO: Allow the user to handle this scenario. Maybe through a user provided function
             err = handleOpenCircuit(circuitHealth, resetTimeout);
         } else {
-            response, err = httpEP.post(path, request);
+            response, err = httpEP.doPost(path, request);
             updateCircuitHealth(circuitHealth, err);
         }
 
@@ -75,7 +75,7 @@ public connector CircuitBreaker (http:HttpClient httpClient, float failureThresh
     @Param {value:"request: An OutRequest struct"}
     @Return {value:"The InResponse struct"}
     @Return {value:"Error occurred during the action invocation, if any"}
-    action put (string path, http:OutRequest request) (http:InResponse, http:HttpConnectorError) {
+    action doPut (string path, http:OutRequest request) (http:InResponse, http:HttpConnectorError) {
         currentState = updateCircuitState(circuitHealth, currentState, failureThreshold, resetTimeout);
         http:InResponse response;
         http:HttpConnectorError err;
@@ -84,7 +84,7 @@ public connector CircuitBreaker (http:HttpClient httpClient, float failureThresh
             // TODO: Allow the user to handle this scenario. Maybe through a user provided function
             err = handleOpenCircuit(circuitHealth, resetTimeout);
         } else {
-            response, err = httpEP.put(path, request);
+            response, err = httpEP.doPut(path, request);
             updateCircuitHealth(circuitHealth, err);
         }
 
@@ -97,7 +97,7 @@ public connector CircuitBreaker (http:HttpClient httpClient, float failureThresh
     @Param {value:"request: An OutRequest struct"}
     @Return {value:"The InResponse struct"}
     @Return {value:"Error occurred during the action invocation, if any"}
-    action execute (string httpVerb, string path, http:OutRequest request) (http:InResponse, http:HttpConnectorError) {
+    action doExecute (string httpVerb, string path, http:OutRequest request) (http:InResponse, http:HttpConnectorError) {
         currentState = updateCircuitState(circuitHealth, currentState, failureThreshold, resetTimeout);
         http:InResponse response;
         http:HttpConnectorError err;
@@ -106,7 +106,7 @@ public connector CircuitBreaker (http:HttpClient httpClient, float failureThresh
             // TODO: Allow the user to handle this scenario. Maybe through a user provided function
             err = handleOpenCircuit(circuitHealth, resetTimeout);
         } else {
-            response, err = httpEP.execute(httpVerb, path, request);
+            response, err = httpEP.doExecute(httpVerb, path, request);
             updateCircuitHealth(circuitHealth, err);
         }
 
@@ -118,7 +118,7 @@ public connector CircuitBreaker (http:HttpClient httpClient, float failureThresh
     @Param {value:"request: An OutRequest struct"}
     @Return {value:"The InResponse struct"}
     @Return {value:"Error occurred during the action invocation, if any"}
-    action patch (string path, http:OutRequest request) (http:InResponse, http:HttpConnectorError) {
+    action doPatch (string path, http:OutRequest request) (http:InResponse, http:HttpConnectorError) {
         currentState = updateCircuitState(circuitHealth, currentState, failureThreshold, resetTimeout);
         http:InResponse response;
         http:HttpConnectorError err;
@@ -127,7 +127,7 @@ public connector CircuitBreaker (http:HttpClient httpClient, float failureThresh
             // TODO: Allow the user to handle this scenario. Maybe through a user provided function
             err = handleOpenCircuit(circuitHealth, resetTimeout);
         } else {
-            response, err = httpEP.patch(path, request);
+            response, err = httpEP.doPatch(path, request);
             updateCircuitHealth(circuitHealth, err);
         }
 
@@ -139,7 +139,7 @@ public connector CircuitBreaker (http:HttpClient httpClient, float failureThresh
     @Param {value:"request: An OutRequest struct"}
     @Return {value:"The InResponse struct"}
     @Return {value:"Error occurred during the action invocation, if any"}
-    action delete (string path, http:OutRequest request) (http:InResponse, http:HttpConnectorError) {
+    action doDelete (string path, http:OutRequest request) (http:InResponse, http:HttpConnectorError) {
         currentState = updateCircuitState(circuitHealth, currentState, failureThreshold, resetTimeout);
         http:InResponse response;
         http:HttpConnectorError err;
@@ -148,7 +148,7 @@ public connector CircuitBreaker (http:HttpClient httpClient, float failureThresh
             // TODO: Allow the user to handle this scenario. Maybe through a user provided function
             err = handleOpenCircuit(circuitHealth, resetTimeout);
         } else {
-            response, err = httpEP.delete(path, request);
+            response, err = httpEP.doDelete(path, request);
             updateCircuitHealth(circuitHealth, err);
         }
 
@@ -181,7 +181,7 @@ public connector CircuitBreaker (http:HttpClient httpClient, float failureThresh
     @Param {value:"request: An InRequest struct"}
     @Return {value:"The InResponse struct"}
     @Return {value:"Error occurred during the action invocation, if any"}
-    action forward (string path, http:InRequest request) (http:InResponse, http:HttpConnectorError) {
+    action doForward (string path, http:InRequest request) (http:InResponse, http:HttpConnectorError) {
         currentState = updateCircuitState(circuitHealth, currentState, failureThreshold, resetTimeout);
         http:InResponse response;
         http:HttpConnectorError err;
@@ -190,7 +190,7 @@ public connector CircuitBreaker (http:HttpClient httpClient, float failureThresh
             // TODO: Allow the user to handle this scenario. Maybe through a user provided function
             err = handleOpenCircuit(circuitHealth, resetTimeout);
         } else {
-            response, err = httpEP.forward(path, request);
+            response, err = httpEP.doForward(path, request);
             updateCircuitHealth(circuitHealth, err);
         }
 
@@ -202,7 +202,7 @@ public connector CircuitBreaker (http:HttpClient httpClient, float failureThresh
     @Param {value:"request: An OutRequest struct"}
     @Return {value:"The InResponse struct"}
     @Return {value:"Error occurred during the action invocation, if any"}
-    action get (string path, http:OutRequest request) (http:InResponse, http:HttpConnectorError) {
+    action doGet (string path, http:OutRequest request) (http:InResponse, http:HttpConnectorError) {
         currentState = updateCircuitState(circuitHealth, currentState, failureThreshold, resetTimeout);
         http:InResponse response;
         http:HttpConnectorError err;
@@ -211,7 +211,7 @@ public connector CircuitBreaker (http:HttpClient httpClient, float failureThresh
             // TODO: Allow the user to handle this scenario. Maybe through a user provided function
             err = handleOpenCircuit(circuitHealth, resetTimeout);
         } else {
-            response, err = httpEP.get(path, request);
+            response, err = httpEP.doGet(path, request);
             updateCircuitHealth(circuitHealth, err);
         }
 

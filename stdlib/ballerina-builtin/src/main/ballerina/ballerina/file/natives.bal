@@ -70,22 +70,22 @@ public struct FileNotOpenedError {
 
 @Description { value:"Closes a given file and its stream"}
 @Param { value: "file: The file to be closed"}
-public native function <File file> close ();
+public native function <File file> closeFile ();
 
 @Description { value:"Retrieves the stream from a local file"}
 @Param { value:"file: The file which needs to be opened" }
 @Param { value:"accessMode: The file access mode used when opening the file" }
-public native function <File file> open (string accessMode);
+public native function <File file> openFile (string accessMode);
 
 @Description { value:"Copies a file from a given location to another"}
 @Param { value:"source: File/Directory that should be copied" }
 @Param { value:"destination: Destination directory or path to which the source should be copied" }
-public native function copy (File source, File destination);
+public native function copyFile (File source, File destination);
 
 @Description { value:"Moves a file from a given location to another"}
 @Param { value:"target: File/Directory that should be moved" }
 @Param { value:"destination: Location where the File/Directory should be moved to" }
-public native function move (File target, File destination);
+public native function moveFile (File target, File destination);
 
 @Description {value:"Checks whether the file exists"}
 @Param { value: "file: The file to be checked for existence"}
@@ -94,7 +94,7 @@ public native function <File file> exists () (boolean);
 
 @Description { value:"Deletes a file from a given location"}
 @Param { value: "file: The file to be deleted"}
-public native function <File file> delete ();
+public native function <File file> deleteFile ();
 
 @Description {value:"Checks whether the file is a directory"}
 @Param { value: "file: The file to be checked to determine whether it is a directory"}
@@ -142,7 +142,7 @@ public native function <File file> createNewFile () (boolean, AccessDeniedError,
 @Return {value:"Returns an array of File structs if successful"}
 @Return {value:"Returns an AccessDeniedError if the user does not have the necessary permissions to read the directory"}
 @Return {value:"Returns an IOError if the directory could not be opened due to an I/O error"}
-public native function <File file> list () (File[], AccessDeniedError, IOError);
+public native function <File file> listFiles () (File[], AccessDeniedError, IOError);
 
 @Description {value:"Function to return a ByteChannel related to the file. This ByteChannel can then be used to read/write from/to the file."}
 @Param { value: "file: The file to which a channel needs to be opened"}

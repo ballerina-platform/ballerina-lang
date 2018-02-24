@@ -20,9 +20,9 @@ service<http> contentBasedRouting {
         http:HttpConnectorError err;
         if (nameString == "sanFrancisco") {
             //"post" represent the POST action of HTTP connector. Route payload to relevant service as the server accept the entity enclosed.
-            clientResponse, err = locationEP.post("/v2/594e018c1100002811d6d39a", {});
+            clientResponse, err = locationEP.doPost("/v2/594e018c1100002811d6d39a", {});
         } else {
-            clientResponse, err = locationEP.post("/v2/594e026c1100004011d6d39c", {});
+            clientResponse, err = locationEP.doPost("/v2/594e026c1100004011d6d39c", {});
         }
         //Native function "forward" sends back the clientResponse to the caller.
         http:OutResponse res = {};

@@ -38,16 +38,16 @@ import java.io.IOException;
  */
 @BallerinaFunction(
         packageName = "ballerina.file",
-        functionName = "close",
+        functionName = "closeFile",
         receiver = @Receiver(type = TypeKind.STRUCT, structType = "File",
                              structPackage = "ballerina.file"),
         args = {@Argument(name = "file", type = TypeKind.STRUCT, structType = "File",
                 structPackage = "ballerina.file")},
         isPublic = true
 )
-public class Close extends AbstractNativeFunction {
+public class CloseFile extends AbstractNativeFunction {
 
-    private static final Logger log = LoggerFactory.getLogger(Close.class);
+    private static final Logger log = LoggerFactory.getLogger(CloseFile.class);
 
     @Override
     public BValue[] execute(Context context) {

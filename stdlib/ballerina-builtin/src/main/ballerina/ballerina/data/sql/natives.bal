@@ -191,13 +191,13 @@ public connector ClientConnector (DB dbType, string hostOrPath, int port, string
 	@Param { value:"query: SQL query to execute" }
 	@Param { value:"parameters: Parameter array used with the SQL query" }
 	@Return { value:"Result set for the given query" }
-	native action call (string query, Parameter[] parameters, type structType) (table);
+	native action callQuery (string sqlQuery, Parameter[] parameters, type structType) (table);
 
 	@Description { value:"The select action implementation for SQL connector to select data from tables."}
 	@Param { value:"query: SQL query to execute" }
 	@Param { value:"parameters: Parameter array used with the SQL query" }
 	@Return { value:"Result set for the given query" }
-	native action select (string query, Parameter[] parameters, type structType) (table);
+	native action selectQuery (string sqlQuery, Parameter[] parameters, type structType) (table);
 
 	@Description { value:"The close action implementation for SQL connector to shutdown the connection pool."}
 	native action close ();
@@ -206,13 +206,13 @@ public connector ClientConnector (DB dbType, string hostOrPath, int port, string
 	@Param { value:"query: SQL query to execute" }
 	@Param { value:"parameters: Parameter array used with the SQL query" }
 	@Return { value:"Updated row count" }
-	native action update (string query, Parameter[] parameters) (int);
+	native action updateQuery (string sqlQuery, Parameter[] parameters) (int);
 
 	@Description { value:"The batchUpdate action implementation for SQL connector to batch data insert."}
 	@Param { value:"query: SQL query to execute" }
 	@Param { value:"parameters: Parameter array used with the SQL query" }
 	@Return { value:"Array of update counts" }
-	native action batchUpdate (string query, Parameter[][] parameters) (int[]);
+	native action batchUpdateQuery (string sqlQuery, Parameter[][] parameters) (int[]);
 
 	@Description { value:"The updateWithGeneratedKeys action implementation for SQL connector which returns the auto generated keys during the update action."}
 	@Param { value:"query: SQL query to execute" }
@@ -220,7 +220,7 @@ public connector ClientConnector (DB dbType, string hostOrPath, int port, string
 	@Param { value:"keyColumns: Names of auto generated columns for which the auto generated key values are returned" }
 	@Return { value:"Updated row count during the query exectuion" }
 	@Return { value:"Array of auto generated key values during the query execution" }
-	native action updateWithGeneratedKeys (string query, Parameter[] parameters, string[] keyColumns) (int, string[]);
+	native action updateWithGeneratedKeysQuery (string sqlQuery, Parameter[] parameters, string[] keyColumns) (int, string[]);
 
 }
 

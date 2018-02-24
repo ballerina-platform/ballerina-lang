@@ -349,7 +349,7 @@ public connector HttpClient (string serviceUri, Options connectorOptions) {
 	@Param { value:"req: An HTTP outbound request message" }
 	@Return { value:"The inbound response message" }
 	@Return { value:"Error occured during HTTP client invocation" }
-	native action post (string path, OutRequest req) (InResponse, HttpConnectorError);
+	native action doPost (string path, OutRequest req) (InResponse, HttpConnectorError);
 
 	@Description { value:"The HEAD action implementation of the HTTP Connector."}
 	@Param { value:"path: Resource path " }
@@ -363,7 +363,7 @@ public connector HttpClient (string serviceUri, Options connectorOptions) {
 	@Param { value:"req: An HTTP outbound request message" }
 	@Return { value:"The inbound response message" }
 	@Return { value:"Error occured during HTTP client invocation" }
-	native action put (string path, OutRequest req) (InResponse, HttpConnectorError);
+	native action doPut (string path, OutRequest req) (InResponse, HttpConnectorError);
 
 	@Description { value:"Invokes an HTTP call with the specified HTTP verb."}
 	@Param { value:"httpVerb: HTTP verb value" }
@@ -371,28 +371,28 @@ public connector HttpClient (string serviceUri, Options connectorOptions) {
 	@Param { value:"req: An HTTP outbound request message" }
 	@Return { value:"The inbound response message" }
 	@Return { value:"Error occured during HTTP client invocation" }
-	native action execute (string httpVerb, string path, OutRequest req) (InResponse, HttpConnectorError);
+	native action doExecute (string httpVerb, string path, OutRequest req) (InResponse, HttpConnectorError);
 
 	@Description { value:"The PATCH action implementation of the HTTP Connector."}
 	@Param { value:"path: Resource path " }
 	@Param { value:"req: An HTTP outbound request message" }
 	@Return { value:"The inbound response message" }
 	@Return { value:"Error occured during HTTP client invocation" }
-	native action patch (string path, OutRequest req) (InResponse, HttpConnectorError);
+	native action doPatch (string path, OutRequest req) (InResponse, HttpConnectorError);
 
 	@Description { value:"The DELETE action implementation of the HTTP connector"}
 	@Param { value:"path: Resource path " }
 	@Param { value:"req: An HTTP outbound request message" }
 	@Return { value:"The inbound response message" }
 	@Return { value:"Error occured during HTTP client invocation" }
-	native action delete (string path, OutRequest req) (InResponse, HttpConnectorError);
+	native action doDelete (string path, OutRequest req) (InResponse, HttpConnectorError);
 
 	@Description { value:"GET action implementation of the HTTP Connector"}
 	@Param { value:"path: Request path" }
 	@Param { value:"req: An HTTP outbound request message" }
 	@Return { value:"The inbound response message" }
 	@Return { value:"Error occured during HTTP client invocation" }
-	native action get (string path, OutRequest req) (InResponse, HttpConnectorError);
+	native action doGet (string path, OutRequest req) (InResponse, HttpConnectorError);
 
 	@Description { value:"OPTIONS action implementation of the HTTP Connector"}
 	@Param { value:"path: Request path" }
@@ -406,5 +406,5 @@ public connector HttpClient (string serviceUri, Options connectorOptions) {
 	@Param { value:"req: An HTTP inbound request message" }
 	@Return { value:"The inbound response message" }
 	@Return { value:"Error occured during HTTP client invocation" }
-	native action forward (string path, InRequest req) (InResponse, HttpConnectorError);
+	native action doForward (string path, InRequest req) (InResponse, HttpConnectorError);
 }

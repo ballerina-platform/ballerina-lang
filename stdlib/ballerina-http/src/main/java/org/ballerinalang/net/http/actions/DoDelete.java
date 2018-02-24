@@ -1,18 +1,18 @@
 /*
-* Copyright (c) 2016, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
-*
-* Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance with the License.
-* You may obtain a copy of the License at
-*
-* http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
-* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions and
-* limitations under the License.
-*/
+ * Copyright (c) 2016, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 package org.ballerinalang.net.http.actions;
 
@@ -30,11 +30,11 @@ import org.wso2.transport.http.netty.contract.ClientConnectorException;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 
 /**
- * {@code Patch} is the PATCH action implementation of the HTTP Connector.
+ * {@code Delete} is the DELETE action implementation of the HTTP Connector.
  */
 @BallerinaAction(
         packageName = "ballerina.net.http",
-        actionName = "patch",
+        actionName = "doDelete",
         connectorName = HttpConstants.CONNECTOR_NAME,
         args = {
                 @Argument(name = "c", type = TypeKind.CONNECTOR),
@@ -53,9 +53,9 @@ import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
                           structPackage = "ballerina.net.http")
         }
 )
-public class Patch extends AbstractHTTPAction {
+public class DoDelete extends AbstractHTTPAction {
 
-    private static final Logger logger = LoggerFactory.getLogger(Patch.class);
+    private static final Logger logger = LoggerFactory.getLogger(DoDelete.class);
 
     @Override
     public ConnectorFuture execute(Context context) {
@@ -63,20 +63,20 @@ public class Patch extends AbstractHTTPAction {
         if (logger.isDebugEnabled()) {
             logger.debug("Executing Native Action : {}", this.getName());
         }
-
         try {
             // Execute the operation
             return executeNonBlockingAction(context, createOutboundRequestMsg(context));
         } catch (ClientConnectorException clientConnectorException) {
-            throw new BallerinaException("Failed to invoke 'patch' action in " + HttpConstants.CONNECTOR_NAME
+            throw new BallerinaException("Failed to invoke 'delete' action in " + HttpConstants.CONNECTOR_NAME
                     + ". " + clientConnectorException.getMessage(), context);
         }
     }
 
-    protected HTTPCarbonMessage createOutboundRequestMsg(Context context) {
-        HTTPCarbonMessage outboundRequestMsg = super.createOutboundRequestMsg(context);
-        outboundRequestMsg.setProperty(HttpConstants.HTTP_METHOD, HttpConstants.HTTP_METHOD_PATCH);
-        return outboundRequestMsg;
-    }
 
+    protected HTTPCarbonMessage createOutboundRequestMsg(Context context) {
+        // Extract Argument values
+        HTTPCarbonMessage cMsg = super.createOutboundRequestMsg(context);
+        cMsg.setProperty(HttpConstants.HTTP_METHOD, HttpConstants.HTTP_METHOD_DELETE);
+        return cMsg;
+    }
 }

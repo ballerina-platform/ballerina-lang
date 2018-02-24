@@ -33,18 +33,18 @@ public native function <table dt> getNext () (any);
 @Description {value:"Add struct to the table."}
 @Param {value:"dt: The table object"}
 @Param {value:"data: A struct with data"}
-public native function <table dt> add (any data);
+public native function <table dt> addRow (any data);
 
 @Description {value:"Remove data from the table."}
 @Param {value:"dt: The table object"}
 @Param {value:"func: The function pointer for delete crieteria"}
-public function <table dt> remove (function (any) returns (boolean) func) (int) {
+public function <table dt> removeRow (function (any) returns (boolean) func) (int) {
     int deletedCount = 0;
     while (dt.hasNext()) {
         any data = dt.getNext();
         boolean satisfied = func(data);
         if (satisfied) {
-            dt.delete(data);
+            dt.deleteRow(data);
             deletedCount = deletedCount + 1;
         }
     }
@@ -54,5 +54,5 @@ public function <table dt> remove (function (any) returns (boolean) func) (int) 
 @Description {value:"Utility function to delete data from table."}
 @Param {value:"dt: The table object"}
 @Param {value:"data: A struct with data"}
-native function <table dt> delete (any data);
+native function <table dt> deleteRow (any data);
 

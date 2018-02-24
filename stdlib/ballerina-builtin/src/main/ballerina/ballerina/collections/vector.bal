@@ -55,11 +55,11 @@ public function <Vector v> get (int index) (any) {
     return v.vec[index];
 }
 
-@Description { value:"Inserts the given element at the position specified. All the elements (including the one currently in the position specified) to the right of the specified position are shifted to the right."}
-@Param { value: "v: The vector to which the element will be inserted"}
-@Param { value: "element: The element to insert"}
-@Param { value: "index: The position to insert the element to"}
-public function <Vector v> insert (any element, int index) {
+@Description { value:"Adds the given element at the position specified. All the elements (including the one currently in the position specified) to the right of the specified position are shifted to the right."}
+@Param { value: "v: The vector to which the element will be added"}
+@Param { value: "element: The element to be added"}
+@Param { value: "index: The position to add the element to"}
+public function <Vector v> addByIndex (any element, int index) {
     validateRange(v.vectorSize + 1, index); // range validated for the new vector size
     shiftRight(v, index);
     v.vec[index] = element;
