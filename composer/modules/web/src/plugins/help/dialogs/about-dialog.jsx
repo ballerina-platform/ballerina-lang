@@ -65,7 +65,7 @@ class AboutDialog extends React.Component {
                             />
                             <span className='appname'>Composer</span>
                         </div>
-                        <div className="version">v0.96.1.SNAPSHOT</div>
+                        <div className='version'>v0.96.1.SNAPSHOT</div>
                     </div>
                 }
                 onHide={this.onDialogHide}
@@ -79,7 +79,7 @@ class AboutDialog extends React.Component {
                             rel='noopener noreferrer'
                             target='_blank'
                         >
-                            <i className='fw fw-wso2 icon' /> Inc.
+                            <i className='fw fw-wso2' /> Inc.
                         </a>
                     </div>
 

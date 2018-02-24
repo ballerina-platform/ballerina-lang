@@ -19,7 +19,7 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Modal, Header, Message } from 'semantic-ui-react';
+import { Modal, Header, Message, Segment } from 'semantic-ui-react';
 
 /**
  * Base class for popup dialogs
@@ -60,16 +60,19 @@ class Dialog extends React.Component {
                 onClose={this.close}
                 closeIcon
                 size={this.props.size}
+                className='inverted'
             >
                 <Header icon={this.props.titleIcon} content={this.props.title} />
                 <Modal.Content>
-                    {
-                        this.props.error &&
-                        <Message negative>
-                            <Message.Header>{this.props.error}</Message.Header>
-                        </Message>
-                    }
-                    {this.props.children}
+                    <Segment inverted>
+                        {
+                            this.props.error &&
+                            <Message negative>
+                                <Message.Header>{this.props.error}</Message.Header>
+                            </Message>
+                        }
+                        {this.props.children}
+                    </Segment>
                 </Modal.Content>
                 <Modal.Actions>
                     {this.props.actions}

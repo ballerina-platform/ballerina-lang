@@ -1,3 +1,25 @@
 /*******************************
          Site Overrides
 *******************************/
+
+.ui.modal.inverted{
+    background  : #343a40;
+}
+.ui.modal.inverted > .header{
+    background  : #343a40;
+    color       : @off-white;
+}
+
+.ui.modal.inverted {
+    .header {
+        background      : #343a40;
+        color           : @off-white;
+        border-bottom   :1px solid @off-white;
+    }
+} 
+
+.ui.modal.inverted, .ui.modal.inverted {
+    .content, .actions{
+        background  : #343a40;
+    }
+} 

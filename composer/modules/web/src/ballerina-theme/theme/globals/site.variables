@@ -9,6 +9,7 @@
 @primaryColor   : @orange;
 @secondaryColor : @gray-100;
 @defaultColor   : #626262;
+@invertColor    : #343a40;
 @red            : #f44336;
 @orange         : #F1772A;
 @yellow         : #FFEB3B;
@@ -23,7 +24,6 @@
 @grey           : #607D8B;
 @black          : #000000;
 @off-white      : #f1f1f1;
-
 
 /*---- Shades of Gray ----*/
 

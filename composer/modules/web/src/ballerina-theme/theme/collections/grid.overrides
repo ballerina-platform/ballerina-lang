@@ -4,10 +4,10 @@
 
 
 #property-modal> .ui .grid{
-        width: 142%;
+    width: 142%;
 }
 
 #property-modal> .ui .grid > .row{
-        padding-top:10px;
-        text-align: left;
-        }
+    padding-top:10px;
+    text-align: left;
+}

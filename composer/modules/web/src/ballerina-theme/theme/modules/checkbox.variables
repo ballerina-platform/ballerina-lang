@@ -1,7 +1,6 @@
 /*******************************
     User Variable Overrides
 *******************************/
-
 @checkboxActiveBackground: @primaryColor;
 @checkboxActiveBorderColor: @primaryColor;
 @checkboxActiveCheckColor: @white;

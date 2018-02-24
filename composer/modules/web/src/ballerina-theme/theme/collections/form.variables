@@ -2,11 +2,8 @@
     User Variable Overrides
 *******************************/
 
-@inputBorderRadius          : 0;
-@selectBorderRadius         : 0;
-@inputFocusBorderRadius     : 0;
-@textAreaFocusBorderRadius  : 0;
-@inputErrorBorderRadius     : 0;
-
-
-
+@inputBorderRadius      : 0;
+@selectBorderRadius     : 0;
+@inputFocusBorderRadius : 0;
+@textAreaFocusBorderRadius : 0;
+@inputErrorBorderRadius : 0;
