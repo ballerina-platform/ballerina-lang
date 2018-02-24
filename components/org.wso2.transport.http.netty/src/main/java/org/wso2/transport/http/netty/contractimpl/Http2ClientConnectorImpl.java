@@ -31,7 +31,7 @@ import org.wso2.transport.http.netty.contract.ClientConnectorException;
 import org.wso2.transport.http.netty.contract.Http2ClientConnector;
 import org.wso2.transport.http.netty.contract.HttpResponseFuture;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
-import org.wso2.transport.http.netty.sender.http2.Http2ConnectionManager;
+import org.wso2.transport.http.netty.sender.http2.ConnectionManager;
 import org.wso2.transport.http.netty.sender.http2.OutboundMsgHolder;
 import org.wso2.transport.http.netty.sender.http2.TargetChannel;
 
@@ -60,7 +60,7 @@ public class Http2ClientConnectorImpl implements Http2ClientConnector {
         try {
             HttpRoute route = getTargetRoute(httpOutboundRequest);
             TargetChannel targetChannel =
-                    Http2ConnectionManager.getInstance().borrowChannel(route, senderConfiguration);
+                    ConnectionManager.getInstance().borrowChannel(route, senderConfiguration);
             targetChannel.getChannelFuture().addListener(
                     new ConnectionAvailabilityListener(outboundMsgHolder, route));
         } catch (Exception failedCause) {

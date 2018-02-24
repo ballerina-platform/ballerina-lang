@@ -37,35 +37,36 @@ import static io.netty.handler.logging.LogLevel.DEBUG;
 /**
  * This is responsible for initializing a connection with a backend service
  */
-public class Http2ClientInitializer extends ChannelInitializer<SocketChannel> {
+public class ClientInitializer extends ChannelInitializer<SocketChannel> {
 
     private static final Http2FrameLogger logger =
             new Http2FrameLogger(DEBUG,  //change mode to INFO for logging frames
-                                 Http2ClientInitializer.class);
+                                 ClientInitializer.class);
 
-    private Http2ClientHandler http2ClientHandler;
+    private ClientOutboundHandler clientOutboundHandler;
     private UpgradeRequestHandler upgradeRequestHandler;
     private Http2ConnectionHandler connectionHandler;
     private Http2FrameListener listener;
     private boolean skipHttpToHttp2Upgrade = false;
     private Http2Connection connection;
-    private Http2FrameListenerAdapter clientFrameListener;
+    private ClientInboundHandler clientFrameListener;
 
-    public Http2ClientInitializer(SenderConfiguration senderConfiguration) {
+    public ClientInitializer(SenderConfiguration senderConfiguration) {
         skipHttpToHttp2Upgrade = senderConfiguration.skipHttpToHttp2Upgrade();
         connection = new DefaultHttp2Connection(false);
-        clientFrameListener = new Http2FrameListenerAdapter();
+        clientFrameListener = new ClientInboundHandler();
         listener = new DelegatingDecompressorFrameListener(connection, clientFrameListener);
         connectionHandler =
                 new Http2ConnectionHandlerBuilder().connection(connection).frameLogger(logger)
                         .frameListener(listener).build();
-        http2ClientHandler = new Http2ClientHandler(connection, connectionHandler.encoder());
-        upgradeRequestHandler = new UpgradeRequestHandler(http2ClientHandler);
+        clientOutboundHandler = new ClientOutboundHandler(connection, connectionHandler.encoder());
+        upgradeRequestHandler = new UpgradeRequestHandler(clientOutboundHandler);
     }
 
     public void setTargetChannel(TargetChannel targetChannel) {
-        http2ClientHandler.setTargetChannel(targetChannel);
+        clientOutboundHandler.setTargetChannel(targetChannel);
         upgradeRequestHandler.setTargetChannel(targetChannel);
+        clientFrameListener.setTargetChannel(targetChannel);
     }
 
     /**
@@ -78,14 +79,14 @@ public class Http2ClientInitializer extends ChannelInitializer<SocketChannel> {
     public void initChannel(SocketChannel socketChannel) throws Exception {
 
         if (skipHttpToHttp2Upgrade) {
-            socketChannel.pipeline().addLast(connectionHandler, http2ClientHandler);
+            socketChannel.pipeline().addLast(connectionHandler, clientOutboundHandler);
         } else {
             configureClearTextUpgrade(socketChannel);
         }
     }
 
-    public Http2ClientHandler getHttp2ClientHandler() {
-        return http2ClientHandler;
+    public ClientOutboundHandler getClientOutboundHandler() {
+        return clientOutboundHandler;
     }
 
     private void configureClearTextUpgrade(SocketChannel socketChannel) {

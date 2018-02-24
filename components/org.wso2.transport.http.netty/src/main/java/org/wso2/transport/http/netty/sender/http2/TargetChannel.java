@@ -44,7 +44,7 @@ public class TargetChannel {
     /* List which holds the pending message during the connection upgrade */
     private ConcurrentLinkedQueue<OutboundMsgHolder> pendingMessages;
     private HttpRoute httpRoute;
-    private Http2ConnectionManager connectionManager = Http2ConnectionManager.getInstance();
+    private ConnectionManager connectionManager = ConnectionManager.getInstance();
 
     /* Whether channel is operates with maximum number of allowed streams */
     private AtomicBoolean isExhausted = new AtomicBoolean(false);

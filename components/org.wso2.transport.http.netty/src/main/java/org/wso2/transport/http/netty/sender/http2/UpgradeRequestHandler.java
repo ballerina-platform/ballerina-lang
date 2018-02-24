@@ -51,9 +51,9 @@ public class UpgradeRequestHandler extends ChannelDuplexHandler {
     /* Lock for synchronizing access */
     private Lock lock = new ReentrantLock();
 
-    private Http2ClientHandler clientHandler;
+    private ClientOutboundHandler clientHandler;
 
-    public UpgradeRequestHandler(Http2ClientHandler clientHandler) {
+    public UpgradeRequestHandler(ClientOutboundHandler clientHandler) {
         this.clientHandler = clientHandler;
     }
 

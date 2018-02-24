@@ -39,20 +39,20 @@ import java.util.concurrent.locks.ReentrantLock;
 /**
  * {@code Http2ConnectionManager} Manages HTTP/2 connections
  */
-public class Http2ConnectionManager {
+public class ConnectionManager {
 
-    private static final Logger log = LoggerFactory.getLogger(Http2ConnectionManager.class);
+    private static final Logger log = LoggerFactory.getLogger(ConnectionManager.class);
 
     /* Per route connection pools */
     private static ConcurrentHashMap<String, PerRouteConnectionPool> connectionPools = new ConcurrentHashMap<>();
-    private static Http2ConnectionManager instance = new Http2ConnectionManager();
+    private static ConnectionManager instance = new ConnectionManager();
     /* Lock for synchronizing access */
     private Lock lock = new ReentrantLock();
 
-    private Http2ConnectionManager() {
+    private ConnectionManager() {
     }
 
-    public static Http2ConnectionManager getInstance() {
+    public static ConnectionManager getInstance() {
         return instance;
     }
 
@@ -99,7 +99,7 @@ public class Http2ConnectionManager {
 
     private TargetChannel createNewConnection(HttpRoute httpRoute, SenderConfiguration senderConfig) {
 
-        Http2ClientInitializer initializer = new Http2ClientInitializer(senderConfig);
+        ClientInitializer initializer = new ClientInitializer(senderConfig);
 
         // Bootstrapping
         EventLoopGroup workerGroup = new NioEventLoopGroup();
@@ -115,7 +115,7 @@ public class Http2ConnectionManager {
         log.debug("Created channel: {}", httpRoute);
 
         // Create data holders which stores connection information
-        Http2ClientHandler clientHandler = initializer.getHttp2ClientHandler();
+        ClientOutboundHandler clientHandler = initializer.getClientOutboundHandler();
         TargetChannel targetChannel = new TargetChannel(clientHandler.getConnection(), httpRoute, channelFuture);
         initializer.setTargetChannel(targetChannel);
         String key = generateKey(httpRoute);
