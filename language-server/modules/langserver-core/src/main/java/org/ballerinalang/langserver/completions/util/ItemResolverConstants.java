@@ -81,5 +81,15 @@ public class ItemResolverConstants {
     // Keyword constants
     public static final String VAR_KEYWORD = "var";
     public static final String CREATE_KEYWORD = "create";
+    
+    // Iterable operators completion item labels
+    public static final String ITR_FOREACH_LABEL = "foreach(<@lambda:function>)";
+    public static final String ITR_MAP_LABEL = "map(<@lambda:function>)";
+    public static final String ITR_FILTER_LABEL = "filter(<@lambda:function>)";
+    public static final String ITR_COUNT_LABEL = "count()";
+    public static final String ITR_MIN_LABEL = "min()";
+    public static final String ITR_MAX_LABEL = "max()";
+    public static final String ITR_AVERAGE_LABEL = "average()";
+    public static final String ITR_SUM_LABEL = "sum()";
 
 }
