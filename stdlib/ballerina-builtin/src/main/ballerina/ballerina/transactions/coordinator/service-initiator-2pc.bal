@@ -44,6 +44,9 @@ service<http> Initiator2pcService {
             res = {statusCode:404};
             abortRes = {message:"Transaction-Unknown"};
         } else {
+            // Remove the participant who sent the abort since we don't want to do a notify(Abort) to that
+            // participant
+            txn.participants.remove(participantId);
             var msg, err = abortInitiatorTransaction(transactionId);
             if (err == null) {
                 res = {statusCode:500};

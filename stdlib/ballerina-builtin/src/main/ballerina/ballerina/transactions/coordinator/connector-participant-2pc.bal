@@ -18,13 +18,12 @@ package ballerina.transactions.coordinator;
 
 import ballerina.net.http;
 
-connector Participant2pcClient () {
+connector Participant2pcClient (string participantURL) {
+    endpoint<http:HttpClient> participantEP {
+        create http:HttpClient(participantURL, {});
+    }
 
-    action prepare (string transactionId, string participantURL) returns
-                                                                 (string status, error err) {
-        endpoint<http:HttpClient> participantEP {
-            create http:HttpClient(participantURL, {});
-        }
+    action prepare (string transactionId) returns (string status, error err) {
         http:OutRequest req = {};
         PrepareRequest prepareReq = {transactionId:transactionId};
         var j, _ = <json>prepareReq;
@@ -51,13 +50,9 @@ connector Participant2pcClient () {
         return;
     }
 
-    action notify (string transactionId, string participantURL, string message) returns
-                                                                                (string status,
-                                                                                 error participantErr,
-                                                                                 error communicationErr) {
-        endpoint<http:HttpClient> participantEP {
-            create http:HttpClient(participantURL, {});
-        }
+    action notify (string transactionId, string message) returns (string status,
+                                                                  error participantErr,
+                                                                  error communicationErr) {
         http:OutRequest req = {};
         NotifyRequest notifyReq = {transactionId:transactionId, message:message};
         var j, _ = <json>notifyReq;

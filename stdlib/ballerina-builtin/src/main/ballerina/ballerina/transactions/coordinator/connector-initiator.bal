@@ -40,13 +40,13 @@ function getParticipantPort () returns (int port) {
     return;
 }
 
-connector InitiatorClient () {
+connector InitiatorClient (string registerAtURL) {
+    endpoint<http:HttpClient> coordinatorEP {
+        create http:HttpClient(registerAtURL, {});
+    }
 
-    action register (string transactionId, string registerAtURL) returns (RegistrationResponse registrationRes,
+    action register (string transactionId) returns (RegistrationResponse registrationRes,
                                                                           error err) {
-        endpoint<http:HttpClient> coordinatorEP {
-            create http:HttpClient(registerAtURL, {});
-        }
         RegistrationRequest regReq = {transactionId:transactionId, participantId:localParticipantId};
 
         //TODO: set the proper protocol

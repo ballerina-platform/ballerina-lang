@@ -34,8 +34,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
         packageName = "ballerina.transactions.coordinator",
         functionName = "commitResourceManagers",
         args = {@Argument(name = "transactionId", type = TypeKind.STRING)},
-        returnType = {@ReturnType(type = TypeKind.BOOLEAN)},
-        isPublic = false
+        returnType = {@ReturnType(type = TypeKind.BOOLEAN)}
 )
 public class BalCommitResourceManagers extends AbstractNativeFunction {
 

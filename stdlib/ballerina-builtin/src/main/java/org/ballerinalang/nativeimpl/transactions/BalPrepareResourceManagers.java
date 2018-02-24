@@ -34,15 +34,14 @@ import org.ballerinalang.natives.annotations.ReturnType;
         packageName = "ballerina.transactions.coordinator",
         functionName = "prepareResourceManagers",
         args = {@Argument(name = "transactionId", type = TypeKind.STRING)},
-        returnType = {@ReturnType(type = TypeKind.BOOLEAN)},
-        isPublic = false
+        returnType = {@ReturnType(type = TypeKind.BOOLEAN)}
 )
 public class BalPrepareResourceManagers extends AbstractNativeFunction {
 
     public BValue[] execute(Context ctx) {
 //        String transactionId = getStringArgument(ctx, 0);
 //        boolean prepareSuccessful = TransactionResourceManager.getInstance().prepare(transactionId);
-        boolean prepareSuccessful = true; // TODO: Fix me
+        boolean prepareSuccessful = true; // TODO: Fixme
         return getBValues(new BBoolean(prepareSuccessful));
     }
 }

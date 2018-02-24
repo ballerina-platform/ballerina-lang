@@ -76,20 +76,17 @@ struct AbortResponse {
 function twoPhaseCommit (TwoPhaseCommitTransaction txn) returns (string message, error err) {
     log:printInfo("Running 2-phase commit for transaction: " + txn.transactionId);
 
-    var volatileEndpoints, durableEndpoints = getVolatileAndDurableEndpoints(txn);
-
     // Prepare phase & commit phase
     // First call prepare on all volatile participants
-    boolean prepareVolatilesSuccessful = prepare(txn, volatileEndpoints);
+    boolean prepareVolatilesSuccessful = prepareParticipants(txn, PROTOCOL_VOLATILE);
     if (prepareVolatilesSuccessful) {
         // if all volatile participants voted YES, Next call prepare on all durable participants
-        boolean prepareDurablesSuccessful = prepare(txn, durableEndpoints);
+        boolean prepareDurablesSuccessful = prepareParticipants(txn, PROTOCOL_DURABLE);
         if (prepareDurablesSuccessful) {
             // If all durable participants voted YES (PREPARED or READONLY), next call notify(commit) on all
             // (durable & volatile) participants and return committed to the initiator
-            boolean notifyDurablesSuccessful = notify(txn, durableEndpoints, "commit");
-            boolean notifyVolatilesSuccessful = notify(txn, volatileEndpoints, "commit");
-            if (notifyDurablesSuccessful && notifyVolatilesSuccessful) {
+            boolean notifyCommitSuccessful = notify(txn, "commit");
+            if (notifyCommitSuccessful) {
                 message = "committed";
             } else {
                 // return Hazard outcome if a participant cannot successfully end its branch of the transaction
@@ -98,9 +95,8 @@ function twoPhaseCommit (TwoPhaseCommitTransaction txn) returns (string message,
         } else {
             // If some durable participants voted NO, next call notify(abort) on all durable participants
             // and return aborted to the initiator
-            boolean notifyDurablesSuccessful = notify(txn, durableEndpoints, "abort");
-            boolean notifyVolatilesSuccessful = notify(txn, volatileEndpoints, "abort");
-            if (notifyDurablesSuccessful && notifyVolatilesSuccessful) {
+            boolean notifyAbortSuccessful = notify(txn, "abort");
+            if (notifyAbortSuccessful) {
                 if (txn.possibleMixedOutcome) {
                     message = "mixed";
                 } else {
@@ -112,7 +108,7 @@ function twoPhaseCommit (TwoPhaseCommitTransaction txn) returns (string message,
             }
         }
     } else {
-        boolean notifySuccessful = notify(txn, volatileEndpoints, "abort");
+        boolean notifySuccessful = notifyAbortToVolatileParticipants(txn);
         if (notifySuccessful) {
             if (txn.possibleMixedOutcome) {
                 message = "mixed";
@@ -127,16 +123,36 @@ function twoPhaseCommit (TwoPhaseCommitTransaction txn) returns (string message,
     return;
 }
 
+function notifyAbortToVolatileParticipants (TwoPhaseCommitTransaction txn) returns (boolean successful) {
+    map participants = txn.participants;
+    foreach _, p in participants {
+        var participant, _ = (Participant)p;
+        Protocol[] protocols = participant.participantProtocols;
+        if (protocols != null) {
+            foreach proto in protocols {
+                if (proto.name == PROTOCOL_VOLATILE) {
+                    var _, e = notifyParticipant(txn, participant, "abort");
+                    if (e != null) {
+                        successful = false;
+                        return;
+                    }
+                }
+            }
+        }
+    }
+    successful = true;
+    return;
+}
+
 function notifyAbort (TwoPhaseCommitTransaction txn) returns (string message, error err) {
     map participants = txn.participants;
-    string transactionId = txn.transactionId;
     message = "aborted";
     foreach _, p in participants {
         var participant, _ = (Participant)p;
         Protocol[] protocols = participant.participantProtocols;
         if (protocols != null) {
             foreach proto in protocols {
-                var status, e = notifyParticipant(transactionId, proto.url, "abort");
+                var status, e = notifyParticipant(txn, participant, "abort");
                 if (e != null) {
                     err = {msg:"Hazard-Outcome"};
                     return;
@@ -151,106 +167,111 @@ function notifyAbort (TwoPhaseCommitTransaction txn) returns (string message, er
     return;
 }
 
-function getVolatileAndDurableEndpoints (TwoPhaseCommitTransaction txn) returns
-                                                                        (string[] volatileEndpoints,
-                                                                         string[] durableEndpoints) {
-    volatileEndpoints = [];
-    durableEndpoints = [];
-    map participants = txn.participants;
-    if(participants == null) {
-        return;
-    }
-    foreach _, p in participants {
+function prepareParticipants (TwoPhaseCommitTransaction txn, string protocol) returns (boolean successful) {
+    foreach _, p in txn.participants {
         var participant, _ = (Participant)p;
         Protocol[] protocols = participant.participantProtocols;
         if (protocols != null) {
             foreach proto in protocols {
-                if (proto.name == PROTOCOL_VOLATILE) {
-                    volatileEndpoints[lengthof volatileEndpoints] = proto.url;
-                } else if (proto.name == PROTOCOL_DURABLE) {
-                    durableEndpoints[lengthof durableEndpoints] = proto.url;
+                if (proto.name == protocol) {
+                    if (!prepareParticipant(txn, participant, proto.url)) {
+                        successful = false;
+                        return;
+                    }
                 }
             }
         }
     }
+    successful = true;
     return;
 }
 
-function prepare (TwoPhaseCommitTransaction txn, string[] participantURLs) returns (boolean successful) {
+function prepareParticipant (TwoPhaseCommitTransaction txn,
+                             Participant participant, string protocolURL) returns (boolean successful) {
     endpoint<Participant2pcClient> participantEP {
+        create Participant2pcClient(protocolURL);
     }
     string transactionId = txn.transactionId;
     // Let's set this to true and change it to false only if a participant aborted or an error occurred while trying
     // to prepare a participant
     successful = true;
-    foreach participantURL in participantURLs {
-        Participant2pcClient participantClient = create Participant2pcClient();
-        bind participantClient with participantEP;
+    string participantId = participant.participantId;
 
-        log:printInfo("Preparing participant: " + participantURL);
-        // If a participant voted NO then abort
-        var status, e = participantEP.prepare(transactionId, participantURL);
-        if (e != null || status == "aborted") {
-            log:printInfo("Participant: " + participantURL + " failed or aborted");
-            successful = false;
-            return;
-        } else if (status == "committed") {
-            log:printInfo("Participant: " + participantURL + " committed");
-            // If one or more participants returns "committed" and the overall prepare fails, we have to
-            // report a mixed-outcome to the initiator
-            txn.possibleMixedOutcome = true;
-            // Don't send notify to this participant because it is has already committed. We can forget about this participant.
-            participantURL = null; //TODO: Nulling this out because there is no way to remove an element from an array
-        } else if (status == "read-only") {
-            log:printInfo("Participant: " + participantURL + " read-only");
-            // Don't send notify to this participant because it is read-only. We can forget about this participant.
-            participantURL = null; //TODO: Nulling this out because there is no way to remove an element from an array
-        } else {
-            log:printInfo("Participant: " + participantURL + ", status: " + status);
-        }
+    log:printInfo("Preparing participant: " + participantId);
+    // If a participant voted NO then abort
+    var status, e = participantEP.prepare(transactionId);
+    if (e != null || status == "aborted") {
+        log:printInfo("Participant: " + participantId + " failed or aborted");
+        // Remove the participant who sent the abort since we don't want to do a notify(Abort) to that
+        // participant
+        txn.participants.remove(participantId);
+        successful = false;
+    } else if (status == "committed") {
+        log:printInfo("Participant: " + participantId + " committed");
+        // If one or more participants returns "committed" and the overall prepare fails, we have to
+        // report a mixed-outcome to the initiator
+        txn.possibleMixedOutcome = true;
+        // Don't send notify to this participant because it is has already committed. We can forget about this participant.
+        txn.participants.remove(participantId);
+    } else if (status == "read-only") {
+        log:printInfo("Participant: " + participantId + " read-only");
+        // Don't send notify to this participant because it is read-only. We can forget about this participant.
+        txn.participants.remove(participantId);
+    } else {
+        log:printInfo("Participant: " + participantId + ", status: " + status);
     }
     return;
 }
 
-function notify (TwoPhaseCommitTransaction txn, string[] participantURLs, string message) returns (boolean successful) {
-    string transactionId = txn.transactionId;
-    successful = true;
-    foreach participantURL in participantURLs {
-        if (participantURL != null) {
-            var _, err = notifyParticipant(transactionId, participantURL, message);
-            if (err != null) {
-                successful = false;
-                return;
+function notify (TwoPhaseCommitTransaction txn, string message) returns (boolean successful) {
+    foreach _, p in txn.participants {
+        var participant, _ = (Participant)p;
+        Protocol[] protocols = participant.participantProtocols;
+        if (protocols != null) {
+            foreach proto in protocols {
+                var _, e = notifyParticipant(txn, participant, message);
+                if (e != null) {
+                    successful = false;
+                    return;
+                }
             }
         }
     }
+    successful = true;
     return;
 }
 
-function notifyParticipant (string transactionId, string url, string message) returns (string, error) {
+function notifyParticipant (TwoPhaseCommitTransaction txn,
+                            Participant participant, string message) returns (string status, error err) {
     endpoint<Participant2pcClient> participantEP {
-        create Participant2pcClient();
     }
 
-    log:printInfo("Notify(" + message + ") participant: " + url);
-    var status, participantErr, communicationErr = participantEP.notify(transactionId, url, message);
+    string participantId = participant.participantId;
+    string transactionId = txn.transactionId;
+    log:printInfo("Notify(" + message + ") participant: " + participantId);
 
-    error err;
-    if (communicationErr != null) {
-        if (message != "abort") {
-            err = communicationErr;
+    foreach protocol in participant.participantProtocols {
+        string protoURL = protocol.url;
+        Participant2pcClient participant2pcClient = create Participant2pcClient(protoURL);
+        bind participant2pcClient with participantEP;
+        var notificationStatus, participantErr, communicationErr = participantEP.notify(transactionId, message);
+        status = notificationStatus;
+        if (communicationErr != null) {
+            if (message != "abort") {
+                err = communicationErr;
+            }
+            log:printErrorCause("Communication error occurred while notify(" + message + ") participant: " + protoURL +
+                                " for transaction: " + transactionId, communicationErr);
+        } else if (participantErr != null) { // participant may return "Transaction-Unknown", "Not-Prepared" or "Failed-EOT"
+            log:printErrorCause("Participant replied with an error", participantErr);
+            err = participantErr;
+        } else if (notificationStatus == "aborted") {
+            log:printInfo("Participant: " + participantId + " aborted");
+        } else if (notificationStatus == "committed") {
+            log:printInfo("Participant: " + participantId + " committed");
         }
-        log:printErrorCause("Communication error occurred while notify(" + message + ") participant: " + url +
-                            " for transaction: " + transactionId, communicationErr);
-    } else if (participantErr != null) { // participant may return "Transaction-Unknown", "Not-Prepared" or "Failed-EOT"
-        log:printErrorCause("Participant replied with an error", participantErr);
-        err = participantErr;
-    } else if (status == "aborted") {
-        log:printInfo("Participant: " + url + " aborted");
-    } else if (status == "committed") {
-        log:printInfo("Participant: " + url + " committed");
     }
-    return status, err;
+    return;
 }
 
 // This function will be called by the initiator
@@ -295,6 +316,7 @@ function abortInitiatorTransaction (string transactionId) returns (string messag
 }
 
 // The participant should notify the initiator that it aborted
+// This function is called by the participant
 function abortLocalParticipantTransaction (string transactionId) returns (string message, error e) {
     endpoint<Initiator2pcClient> coordinatorEP {
         create Initiator2pcClient();

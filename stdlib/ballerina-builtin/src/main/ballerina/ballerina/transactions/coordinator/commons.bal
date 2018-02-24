@@ -156,7 +156,7 @@ function createTransactionContext (string coordinationType) returns (Transaction
 // This function will be called by the participant
 function registerParticipantWithRemoteCoordinator (string transactionId, string registerAtURL) returns (error err) {
     endpoint<InitiatorClient> coordinatorEP {
-        create InitiatorClient();
+        create InitiatorClient(registerAtURL);
     }
 
     // Register with the coordinator only if the participant has not already done so
@@ -164,7 +164,7 @@ function registerParticipantWithRemoteCoordinator (string transactionId, string 
         return;
     }
     log:printInfo("Registering for transaction: " + transactionId + " with coordinator: " + registerAtURL);
-    var regRes, e = coordinatorEP.register(transactionId, registerAtURL);
+    var regRes, e = coordinatorEP.register(transactionId);
     if (e != null) {
         string msg = "Cannot register with coordinator for transaction: " + transactionId;
         log:printErrorCause(msg, e);

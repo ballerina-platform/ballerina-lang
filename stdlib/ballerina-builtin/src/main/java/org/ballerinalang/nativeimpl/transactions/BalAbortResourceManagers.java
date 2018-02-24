@@ -34,15 +34,14 @@ import org.ballerinalang.natives.annotations.ReturnType;
         packageName = "ballerina.transactions.coordinator",
         functionName = "abortResourceManagers",
         args = {@Argument(name = "transactionId", type = TypeKind.STRING)},
-        returnType = {@ReturnType(type = TypeKind.BOOLEAN)},
-        isPublic = false
+        returnType = {@ReturnType(type = TypeKind.BOOLEAN)}
 )
 public class BalAbortResourceManagers extends AbstractNativeFunction {
 
     public BValue[] execute(Context ctx) {
 //        String transactionId = getStringArgument(ctx, 0);
 //        boolean abortSuccessful = TransactionResourceManager.getInstance().notifyAbort(transactionId);
-        boolean abortSuccessful = true; //TODO: Fix this
+        boolean abortSuccessful = true; //TODO: Fixme
         return getBValues(new BBoolean(abortSuccessful));
     }
 }
