@@ -215,16 +215,95 @@ public class CharacterChannel {
         ByteBuffer byteBuffer = contentBuffer.get(numberOfBytesRequired, channel);
         charBuffer = bytesDecoder.decode(byteBuffer);
         int numberOfCharsProcessed = charBuffer.limit();
+        processChars(numberOfCharsRequired, byteBuffer, numberOfCharsProcessed);
+    }
+
+    /**
+     * Reads bytes asynchronously from the channel.
+     *
+     * @param numberOfBytesRequired number of bytes required from the channel.
+     * @param numberOfCharsRequired number of characters required.
+     */
+    private void asyncReadBytesFromChannel(int numberOfBytesRequired,int numberOfCharsRequired)
+            throws CharacterCodingException {
+        ByteBuffer buffer;
+        int numberOfCharsProcessed;
+        do {
+            buffer = contentBuffer.asyncGet(numberOfBytesRequired, channel);
+            charBuffer = bytesDecoder.decode(buffer);
+            numberOfCharsProcessed = charBuffer.limit();
+        }while (!channel.hasReachedEnd() && numberOfCharsProcessed < numberOfCharsRequired);
+        processChars(numberOfCharsRequired, buffer, numberOfCharsProcessed);
+    }
+
+    /**
+     * <p>
+     * When processing characters, there will be instances where due to unavailability of bytes the characters gets
+     * marked as malformed.
+     * <p>
+     * There will also be instances where the actual characters in the original content is malformed.
+     * <p>
+     * This function will distinguished between these two, if the last character processed is malformed this will
+     * return the character as malformed. Since there will be no more bytes left to be read from the channel.
+     *
+     * If the channel does not return EoL there will be a possibility where conjunction between the remaining bytes
+     * will produce the content required.
+     * </p>
+     *
+     * @param numberOfCharsRequired  total number of characters required.
+     * @param buffer                 the buffer which will hold the content.
+     * @param numberOfCharsProcessed number of characters processed.
+     */
+    private void processChars(int numberOfCharsRequired, ByteBuffer buffer, int numberOfCharsProcessed) {
         final int minimumNumberOfCharsRequired = 0;
         if (numberOfCharsProcessed > minimumNumberOfCharsRequired) {
             int lastCharacterIndex = numberOfCharsProcessed - 1;
             char lastCharacterProcessed = charBuffer.get(lastCharacterIndex);
             if (numberOfCharsRequired < numberOfCharsProcessed && isMalformedCharacter(lastCharacterProcessed)) {
                 int numberOfBytesWithoutTheLastChar = getNumberOfBytesInContent(lastCharacterIndex);
-                int numberOfBytesAllocatedForLastChar = byteBuffer.capacity() - numberOfBytesWithoutTheLastChar;
+                int numberOfBytesAllocatedForLastChar = buffer.capacity() - numberOfBytesWithoutTheLastChar;
                 contentBuffer.reverse(numberOfBytesAllocatedForLastChar);
             }
         }
+    }
+
+    /**
+     * Read asynchronously from channel.
+     *
+     * @param numberOfCharacters number of characters which needs to be read.
+     * @return characters which were read.
+     */
+    public String readAsync(int numberOfCharacters) {
+        StringBuilder content;
+        try {
+            //Will identify the number of characters required
+            int charsRequiredToBeReadFromChannel;
+            content = new StringBuilder(numberOfCharacters);
+            int numberOfBytesRequired = numberOfCharacters * MAX_BYTES_PER_CHAR;
+            //First the remaining buffer would be get and the characters remaining in the buffer will be written
+            appendRemainingCharacters(content);
+            //Content capacity would give the total size of the string builder (number of chars)
+            //Content length will give the number of characters appended to the builder through the function
+            //call appendRemainingCharacters(..)
+            charsRequiredToBeReadFromChannel = content.capacity() - content.length();
+            if (charsRequiredToBeReadFromChannel == 0) {
+                //This means there's no requirement to get the characters from channel
+                return content.toString();
+            }
+            if (log.isDebugEnabled()) {
+                log.debug("Number of chars required to be get from the channel " + charsRequiredToBeReadFromChannel);
+            }
+            asyncReadBytesFromChannel(numberOfBytesRequired, numberOfCharacters);
+            //We need to ensure that the required amount of characters are available in the buffer
+            if (charBuffer.limit() < charsRequiredToBeReadFromChannel) {
+                //This means the amount of chars required are not available
+                charsRequiredToBeReadFromChannel = charBuffer.limit();
+            }
+            appendCharsToString(content, charsRequiredToBeReadFromChannel);
+        } catch (IOException e) {
+            throw new BallerinaIOException("Error occurred while reading characters from buffer", e);
+        }
+        return content.toString();
     }
 
     /**

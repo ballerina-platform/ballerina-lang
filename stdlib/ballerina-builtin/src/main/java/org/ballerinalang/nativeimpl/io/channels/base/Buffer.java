@@ -22,7 +22,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.nio.ByteBuffer;
-import java.util.Arrays;
 
 /**
  * <p>
@@ -108,24 +107,26 @@ public class Buffer {
      * <p>
      * Resize the buffer for the specified size.
      * </p>
+     * <p>
+     * If a larger buffer was selected
+     * </p>
      *
-     * @param srcBuffer buffer which requires resizing.
-     * @param size      the number of bytes which should be in the buffer.
+     * @param srcBuffer             buffer which requires resizing.
+     * @param requiredNumberOfBytes the number of bytes which should be in the buffer.
      * @return the buffer which is resized.
      */
-    private ByteBuffer resizeAndCopy(ByteBuffer srcBuffer, int size) {
-        ByteBuffer resizedBuffer;
-        if (srcBuffer.hasRemaining()) {
-            int limit = srcBuffer.limit();
-            if (limit < size) {
-                size = limit;
-            }
-            byte[] resizedContent = Arrays.copyOfRange(srcBuffer.array(), 0, size);
-            resizedBuffer = ByteBuffer.wrap(resizedContent);
-            byteBuffer.position(resizedContent.length);
-        } else {
-            resizedBuffer = ByteBuffer.wrap(new byte[0]);
+    private ByteBuffer resize(ByteBuffer srcBuffer, int requiredNumberOfBytes) {
+        srcBuffer.flip();
+        int totalBytesRead = srcBuffer.limit();
+        if (totalBytesRead > requiredNumberOfBytes) {
+            //If the size exceeds the required amount we need to narrow it down
+            srcBuffer.limit(requiredNumberOfBytes);
         }
+        ByteBuffer resizedBuffer = srcBuffer.slice();
+        //After slicing we rest the limit
+        srcBuffer.limit(totalBytesRead);
+        //We need to move the cursor forward of the main buffer and mark it as read
+        srcBuffer.position(resizedBuffer.capacity());
         return resizedBuffer;
     }
 
@@ -178,6 +179,28 @@ public class Buffer {
 
     /**
      * <p>
+     * Retrieves the required content from the existing buffer.
+     * </p>
+     * <p>
+     * In this case it will not be required to do another channel call.
+     * </p>
+     *
+     * @param numberOfBytesRequested number of bytes required.
+     * @param content                buffer which holds the content.
+     * @return buffer which contains the required amount of bytes.
+     */
+    private ByteBuffer copyRemainingContent(int numberOfBytesRequested, ByteBuffer content) {
+        int capacity;//If there is excess bytes we need only a sub-set of them
+        content.limit(numberOfBytesRequested);
+        ByteBuffer slicedBuffer = content.slice();
+        capacity = slicedBuffer.capacity();
+        int offset = slicedBuffer.arrayOffset();
+        byteBuffer.position(offset + capacity);
+        return deepCopy(slicedBuffer);
+    }
+
+    /**
+     * <p>
      * Get readable byte buffer.
      * </p>
      * <p>
@@ -190,52 +213,54 @@ public class Buffer {
      * of the current buffer. The buffer will be re-sized.
      * </p>
      * <p>
-     * If no bytes are available an empty buffer with the required size will be returned.
+     * The operation will return slice of the bytes requested. The size of the buffer returned would be =
+     * numberOfBytesRequested. If numberOfBytesRequested < minimumSizeOfBuffer the size of the buffer will be
+     * minimumSizeOfBuffer
      * </p>
      *
      * @param numberOfBytesRequested number of bytes requested from the buffer.
      * @param channel                byte channel which will perform I/O ops necessary for reading.
-     * @return New byte buffer which contains the requested amount of bytes.
+     * @return buffer which will contain bytes >= numberOfBytesRequested
      */
     public ByteBuffer get(int numberOfBytesRequested, AbstractChannel channel) throws BallerinaIOException {
         ByteBuffer remainingContent = remainingContent(numberOfBytesRequested);
-        int capacity = 0;
-        if (null != remainingContent) {
-            capacity = remainingContent.capacity();
-        }
-        if (null != remainingContent && capacity >= numberOfBytesRequested) {
-            //If there is excess bytes we need only a sub-set of them
-            remainingContent.limit(numberOfBytesRequested);
-            ByteBuffer slicedBuffer = remainingContent.slice();
-            capacity = slicedBuffer.capacity();
-            int offset = slicedBuffer.arrayOffset();
-            byteBuffer.position(offset + capacity);
-            return deepCopy(slicedBuffer);
+        if (null != remainingContent && remainingContent.capacity() >= numberOfBytesRequested) {
+            return copyRemainingContent(numberOfBytesRequested, remainingContent);
         } else {
             if (null != remainingContent && remainingContent.hasRemaining()) {
                 remainingContent = deepCopy(remainingContent);
             }
             if (byteBuffer != null && byteBuffer.capacity() >= numberOfBytesRequested) {
-                //In this case we do not need to expand the buffer
+                //TODO we can use compact() method here
+                //If the required amount of bytes > than the current buffer size we enlarge the buffer
                 byteBuffer.clear();
-                if (null != remainingContent && remainingContent.hasRemaining()) {
-                    byteBuffer.put(remainingContent);
-                }
-                channel.readFromChannel(byteBuffer);
-                byteBuffer.flip();
             } else {
                 //In this case we re-allocate
                 byteBuffer = allocate(numberOfBytesRequested);
-                if (null != remainingContent) {
-                    byteBuffer.put(remainingContent);
-                }
-                channel.readFromChannel(byteBuffer);
-                //We make the ByteBuffer ready to read
-                byteBuffer.flip();
             }
-            return resizeAndCopy(byteBuffer, numberOfBytesRequested);
+            if (null != remainingContent && remainingContent.hasRemaining()) {
+                byteBuffer.put(remainingContent);
+            }
+            channel.readFull(byteBuffer);
+            return resize(byteBuffer, numberOfBytesRequested);
         }
+    }
 
+    /**
+     * <p>
+     * Will asynchronously get all the bytes required from the channel.
+     * </p>
+     * <p>
+     * This operation would not guarantee that all the bytes required to be collected.
+     * </p>
+     * @param numberOfBytesRequested number of bytes required.
+     * @param channel source to collect the bytes.
+     * @return contains the number of bytes collected.
+     */
+    ByteBuffer asyncGet(int numberOfBytesRequested, AbstractChannel channel){
+        byteBuffer = allocate(numberOfBytesRequested);
+        channel.read(byteBuffer);
+        return byteBuffer;
     }
 
 }

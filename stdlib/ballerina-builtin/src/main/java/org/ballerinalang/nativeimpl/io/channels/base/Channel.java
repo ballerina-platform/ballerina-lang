@@ -25,6 +25,7 @@ import org.slf4j.LoggerFactory;
 import java.nio.ByteBuffer;
 import java.nio.channels.ByteChannel;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -65,6 +66,10 @@ public abstract class Channel extends AbstractChannel {
         contentBuffer = new Buffer(size);
     }
 
+    public Channel(ByteChannel channel) {
+        super(channel);
+    }
+
     /**
      * <p>
      * Merge the list of buffers together into one.
@@ -102,20 +107,14 @@ public abstract class Channel extends AbstractChannel {
      */
     public byte[] read(int numberOfBytes) throws BallerinaIOException {
         ByteBuffer readBuffer = contentBuffer.get(numberOfBytes, this);
-        return readBuffer.array();
-    }
-
-    /**
-     * <p>
-     * Async read content from the channel. This operation however will not guarantee the entire array will be filled.
-     * </p>
-     *
-     * @param content the array which should hold the read content.
-     * @return the number of bytes read.
-     */
-    public int read(byte [] content){
-        ByteBuffer buffer = ByteBuffer.wrap(content);
-        return read(buffer);
+        byte [] content = readBuffer.array();
+        int contentLength = readBuffer.capacity();
+        if(content.length > numberOfBytes || contentLength < numberOfBytes){
+            //We need to collect the bytes only belonging to the offset, since the number of bytes returned can be < the
+            //required amount of bytes
+            content = Arrays.copyOfRange(content, 0, contentLength);
+        }
+        return content;
     }
 
     /**

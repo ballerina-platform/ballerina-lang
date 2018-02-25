@@ -92,7 +92,7 @@ public abstract class AbstractChannel {
      *
      * @param inputBuffer the source to read bytes from.
      */
-    void readFromChannel(ByteBuffer inputBuffer) throws BallerinaIOException {
+    void readFull(ByteBuffer inputBuffer) throws BallerinaIOException {
         try {
             if (!hasReachedToEnd) {
                 if (log.isDebugEnabled()) {
@@ -137,25 +137,34 @@ public abstract class AbstractChannel {
      * @param buffer the buffer which will hold the content.
      * @return the number of bytes read.
      */
-    int read(ByteBuffer buffer) throws BallerinaIOException{
+    public int read(ByteBuffer buffer) throws BallerinaIOException {
         int numberOfBytesRead = 0;
         try {
-            if(!hasReachedToEnd){
-                int channelEndOfStreamFlag = -1;
-                numberOfBytesRead = channel.read(buffer);
-                //If the EoF has reached we do not want to get anymore
-                if (numberOfBytesRead == channelEndOfStreamFlag) {
-                    if (log.isDebugEnabled()) {
-                        log.debug("The channel " + channel.hashCode() + " reached EoF");
-                    }
-                    hasReachedToEnd = true;
+            int channelEndOfStreamFlag = 0;
+            numberOfBytesRead = channel.read(buffer);
+            //If the EoF has reached we do not want to get anymore
+            if (numberOfBytesRead <= channelEndOfStreamFlag) {
+                if (log.isDebugEnabled()) {
+                    log.debug("The channel " + channel.hashCode() + " reached EoF");
                 }
+                hasReachedToEnd = true;
+            }else {
+                hasReachedToEnd = false;
             }
         } catch (IOException e) {
             String message = "Error occurred while reading from channel ";
             throw new BallerinaIOException(message, e);
         }
         return numberOfBytesRead;
+    }
+
+    /**
+     * Specifies whether the channel has reached to it's end.
+     *
+     * @return true if the channel has reached to it's end
+     */
+    boolean hasReachedEnd() {
+        return hasReachedToEnd;
     }
 
     /**

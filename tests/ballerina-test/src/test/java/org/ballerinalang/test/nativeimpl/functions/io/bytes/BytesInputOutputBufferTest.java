@@ -21,6 +21,7 @@ import org.ballerinalang.nativeimpl.io.BallerinaIOException;
 import org.ballerinalang.nativeimpl.io.IOConstants;
 import org.ballerinalang.nativeimpl.io.channels.base.Buffer;
 import org.ballerinalang.nativeimpl.io.channels.base.Channel;
+import org.ballerinalang.test.nativeimpl.functions.AsyncTestByteChannel;
 import org.ballerinalang.test.nativeimpl.functions.io.MockByteChannel;
 import org.ballerinalang.test.nativeimpl.functions.io.util.TestUtil;
 import org.testng.Assert;
@@ -51,6 +52,19 @@ public class BytesInputOutputBufferTest {
         currentDirectoryPath = System.getProperty("user.dir") + "/target/";
     }
 
+    /**
+     * Fills the buffer with the specified limit.
+     *
+     * @param channel will be used to source the bytes
+     * @param content contains the bytes which will be read through the channel.
+     */
+    private void read(Channel channel, ByteBuffer content) {
+        int numberOfBytesRead = 0;
+        while (content.hasRemaining() && numberOfBytesRead != -1) {
+            numberOfBytesRead = channel.read(content);
+        }
+    }
+
     @Test(description = "Reads files into multiple iterations")
     public void multiReadFile() throws IOException, URISyntaxException {
         int initialReadLimit = 3;
@@ -79,8 +93,38 @@ public class BytesInputOutputBufferTest {
         Assert.assertEquals(readBytes.length, thirdLapReadLimitExpected);
     }
 
+    @Test(description = "reads bytes from the channel asynchronously")
+    public void asyncMultiRead() throws IOException, URISyntaxException {
+        int initialReadLimit = 3;
+        int secondLapReadLimit = 3;
+        int thirdLapReadLimit = 3;
+        //During the 3rd lap all the bytes were get
+        int thirdLapReadLimitExpected = 0;
+
+        //Number of characters in this file would be 6
+        ByteChannel byteChannel = TestUtil.openForReading("datafiles/io/text/6charfile.txt");
+        ByteBuffer content = ByteBuffer.allocate(initialReadLimit);
+        Channel channel = new AsyncTestByteChannel(byteChannel);
+        //Fill the buffer with bytes
+        read(channel, content);
+        //This should hold the number of bytes get
+        Assert.assertFalse(content.hasRemaining());
+
+        content = ByteBuffer.allocate(secondLapReadLimit);
+        read(channel, content);
+        //This should hold the number of bytes get
+        Assert.assertFalse(content.hasRemaining());
+
+        content = ByteBuffer.allocate(thirdLapReadLimit);
+        read(channel, content);
+        //This should hold the number of bytes get
+        Assert.assertTrue(content.position() == thirdLapReadLimitExpected);
+
+        channel.close();
+    }
+
     @Test(description = "Read all bytes from file with larger buffer size")
-    public void excessBufferAllocation() throws IOException, URISyntaxException{
+    public void excessBufferAllocation() throws IOException, URISyntaxException {
         int initialReadLimit = 3;
         int secondLapReadLimit = 3;
         int thirdLapReadLimit = 3;
@@ -207,25 +251,6 @@ public class BytesInputOutputBufferTest {
         byte[] readBytes = channel.read(requestedLimit);
         channel.close();
         Assert.assertEquals(readBytes.length, expectedLimit);
-    }
-
-    @Test(description = "Read bytes asynchronously")
-    public void asyncReadBytes() throws IOException, URISyntaxException {
-        final int numberOfBytesInFile = 45613;
-
-        ByteChannel byteChannel = TestUtil.openForReading("datafiles/io/images/ballerina.png");
-        Channel channel = new MockByteChannel(byteChannel, 0);
-        ByteChannel writeByteChannel = TestUtil.openForWriting(currentDirectoryPath + "ballerinaCopy.png");
-        Channel writeChannel = new MockByteChannel(writeByteChannel, 0);
-        byte [] content = new byte[numberOfBytesInFile];
-        int numberOfBytesRead = channel.read(content);
-        int numberOfBytesWritten = writeChannel.write(content, 0);
-
-        Assert.assertEquals(content.length, numberOfBytesInFile);
-        Assert.assertEquals(content.length, numberOfBytesWritten);
-
-        channel.close();
-        writeChannel.close();
     }
 
     @Test(description = "Write bytes to file")
