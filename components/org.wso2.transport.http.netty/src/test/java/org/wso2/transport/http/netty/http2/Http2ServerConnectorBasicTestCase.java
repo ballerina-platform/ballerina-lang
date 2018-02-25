@@ -6,7 +6,7 @@
  * in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *   http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -22,12 +22,15 @@ import io.netty.handler.codec.http.HttpMethod;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-import org.wso2.carbon.messaging.exceptions.ServerConnectorException;
 import org.wso2.transport.http.netty.common.Constants;
+import org.wso2.transport.http.netty.config.ListenerConfiguration;
 import org.wso2.transport.http.netty.config.TransportsConfiguration;
+import org.wso2.transport.http.netty.contentaware.listeners.EchoMessageListener;
 import org.wso2.transport.http.netty.contract.Http2ClientConnector;
 import org.wso2.transport.http.netty.contract.HttpResponseFuture;
 import org.wso2.transport.http.netty.contract.HttpWsConnectorFactory;
+import org.wso2.transport.http.netty.contract.ServerConnector;
+import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
 import org.wso2.transport.http.netty.contractimpl.HttpWsConnectorFactoryImpl;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 import org.wso2.transport.http.netty.message.HTTPConnectorUtil;
@@ -35,8 +38,6 @@ import org.wso2.transport.http.netty.message.HttpMessageDataStreamer;
 import org.wso2.transport.http.netty.util.HTTPConnectorListener;
 import org.wso2.transport.http.netty.util.TestUtil;
 import org.wso2.transport.http.netty.util.client.http2.RequestGenerator;
-import org.wso2.transport.http.netty.util.server.HttpServer;
-import org.wso2.transport.http.netty.util.server.initializers.Http2EchoServerInitializer;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -49,33 +50,36 @@ import static org.testng.Assert.assertEquals;
 import static org.testng.AssertJUnit.assertNotNull;
 
 /* This contains basic test cases for HTTP2 Client connector */
-public class Http2ClientConnectorBasicTestCase {
-
-    private HttpServer http2Server;
-    private Http2ClientConnector http2ClientConnector;
+public class Http2ServerConnectorBasicTestCase {
+    private static Http2ClientConnector http2ClientConnector;
+    private static ServerConnector serverConnector;
 
     @BeforeClass
-    public void setup() {
-        TransportsConfiguration transportsConfiguration = TestUtil.getConfiguration(
-                "/simple-test-config" + File.separator + "netty-transports.yml");
+    public void setup() throws InterruptedException {
 
-        http2Server = TestUtil.startHTTPServer(TestUtil.HTTP_SERVER_PORT, new Http2EchoServerInitializer());
-        HttpWsConnectorFactory connectorFactory = new HttpWsConnectorFactoryImpl();
-        http2ClientConnector = connectorFactory.createHttp2ClientConnector(
-                HTTPConnectorUtil.getTransportProperties(transportsConfiguration),
-                HTTPConnectorUtil.getSenderConfiguration(transportsConfiguration, Constants.HTTP_SCHEME));
-    }
+        TransportsConfiguration transportsConfiguration = TestUtil
+                .getConfiguration("/simple-test-config" + File.separator + "netty-transports.yml");
 
-    @Test
-    public void testHttp2Get() {
-        HTTPCarbonMessage httpCarbonMessage = RequestGenerator.generateRequest(HttpMethod.GET, null);
-        HTTPCarbonMessage response = sendMessage(httpCarbonMessage);
-        assertNotNull(response);
+        HttpWsConnectorFactory factory = new HttpWsConnectorFactoryImpl();
+        ListenerConfiguration listenerConfiguration = new ListenerConfiguration();
+        listenerConfiguration.setPort(TestUtil.HTTP_SERVER_PORT);
+        listenerConfiguration.setScheme(Constants.HTTP_SCHEME);
+        listenerConfiguration.setHttp2(true);
+        serverConnector = factory
+                .createServerConnector(TestUtil.getDefaultServerBootstrapConfig(), listenerConfiguration);
+        ServerConnectorFuture future = serverConnector.start();
+        future.setHttpConnectorListener(new EchoMessageListener());
+        future.sync();
+
+        http2ClientConnector = factory
+                .createHttp2ClientConnector(HTTPConnectorUtil.getTransportProperties(transportsConfiguration),
+                                            HTTPConnectorUtil.getSenderConfiguration(transportsConfiguration,
+                                                                                     Constants.HTTP_SCHEME));
     }
 
     @Test
     public void testHttp2Post() {
-        String testValue = "Test Message";
+        String testValue = "Test Http2 Message";
         HTTPCarbonMessage httpCarbonMessage = RequestGenerator.generateRequest(HttpMethod.POST, testValue);
         HTTPCarbonMessage response = sendMessage(httpCarbonMessage);
         assertNotNull(response);
@@ -85,22 +89,13 @@ public class Http2ClientConnectorBasicTestCase {
         assertEquals(testValue, result);
     }
 
-    @AfterClass
-    public void cleanUp() throws ServerConnectorException {
-        try {
-            http2Server.shutdown();
-        } catch (InterruptedException e) {
-            TestUtil.handleException("Failed to shutdown the test server", e);
-        }
-    }
-
     private HTTPCarbonMessage sendMessage(HTTPCarbonMessage httpCarbonMessage) {
         try {
-            CountDownLatch latch = new CountDownLatch(1);
-            HTTPConnectorListener listener = new HTTPConnectorListener(latch);
+            CountDownLatch countDownLatch = new CountDownLatch(1);
+            HTTPConnectorListener listener = new HTTPConnectorListener(countDownLatch);
             HttpResponseFuture responseFuture = http2ClientConnector.send(httpCarbonMessage);
             responseFuture.setHttpConnectorListener(listener);
-            latch.await(5, TimeUnit.SECONDS);
+            countDownLatch.await(10, TimeUnit.SECONDS);
             return listener.getHttpResponseMessage();
         } catch (Exception e) {
             TestUtil.handleException("Exception occurred while sending a message", e);
@@ -108,5 +103,10 @@ public class Http2ClientConnectorBasicTestCase {
         return null;
     }
 
+    @AfterClass
+    public void cleanUp() {
+        http2ClientConnector.close();
+        serverConnector.stop();
+    }
 }
 

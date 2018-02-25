@@ -31,6 +31,7 @@ import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.common.Util;
 import org.wso2.transport.http.netty.contract.HttpConnectorListener;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
+import org.wso2.transport.http.netty.message.HttpCarbonResponse;
 
 import java.util.Locale;
 
@@ -94,7 +95,12 @@ public class Http2OutboundRespListener implements HttpConnectorListener {
 
     private void writeHeaders(HTTPCarbonMessage outboundResponseMsg) throws Http2Exception {
         outboundResponseMsg.getHeaders().add(HttpConversionUtil.ExtensionHeaderNames.SCHEME.text(), "HTTP");
-        HttpMessage httpMessage = outboundResponseMsg.getNettyHttpResponse();
+        HttpMessage httpMessage;
+        if (outboundResponseMsg instanceof HttpCarbonResponse) {
+            httpMessage = outboundResponseMsg.getNettyHttpResponse();
+        } else {
+            httpMessage = outboundResponseMsg.getNettyHttpRequest();
+        }
         // Construct Http2 headers
         Http2Headers http2Headers = HttpConversionUtil.toHttp2Headers(httpMessage, true);
 
