@@ -46,6 +46,7 @@ import org.ballerinalang.model.tree.clauses.GroupByNode;
 import org.ballerinalang.model.tree.clauses.HavingNode;
 import org.ballerinalang.model.tree.clauses.OrderByNode;
 import org.ballerinalang.model.tree.clauses.PatternStreamingEdgeInputNode;
+import org.ballerinalang.model.tree.clauses.PatternStreamingInputNode;
 import org.ballerinalang.model.tree.clauses.SelectClauseNode;
 import org.ballerinalang.model.tree.clauses.SelectExpressionNode;
 import org.ballerinalang.model.tree.clauses.SetAssignmentNode;
@@ -89,6 +90,7 @@ import org.wso2.ballerinalang.compiler.tree.clauses.BLangGroupBy;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangHaving;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangOrderBy;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangPatternStreamingEdgeInput;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangPatternStreamingInput;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangSelectClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangSelectExpression;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangSetAssignment;
@@ -264,6 +266,8 @@ public class BLangPackageBuilder {
     private Stack<StreamActionNode> streamActionNodeStack = new Stack<>();
 
     private Stack<PatternStreamingEdgeInputNode> patternStreamingEdgeInputStack = new Stack<>();
+
+    private Stack<PatternStreamingInputNode> patternStreamingInputStack = new Stack<>();
 
     private Set<BLangImportPackage> imports = new HashSet<>();
 
@@ -2114,6 +2118,26 @@ public class BLangPackageBuilder {
         }
         patternStreamingEdgeInputNode.setIdentifier(identifier);
         patternStreamingEdgeInputNode.setAliasIdentifier(alias);
+    }
+
+    public void startPatternStreamingInputNode(DiagnosticPos pos, Set<Whitespace> ws) {
+        PatternStreamingInputNode patternStreamingInputNode = TreeBuilder.createPatternStreamingInputNode();
+        ((BLangPatternStreamingInput) patternStreamingInputNode).pos = pos;
+        ((BLangPatternStreamingInput) patternStreamingInputNode).addWS(ws);
+        this.patternStreamingInputStack.push(patternStreamingInputNode);
+    }
+
+    public void endPatternStreamingInputNode(DiagnosticPos pos, Set<Whitespace> ws) {
+        PatternStreamingInputNode patternStreamingInputNode = this.patternStreamingInputStack.peek();
+
+        ((BLangPatternStreamingInput) patternStreamingInputNode).pos = pos;
+        ((BLangPatternStreamingInput) patternStreamingInputNode).addWS(ws);
+
+        if(patternStreamingInputStack.capacity() == 1) {
+            patternStreamingInputNode.setLHSPatternStreamingInput(patternStreamingInputStack.pop());
+        } else if(patternStreamingInputStack.capacity() == 2) {
+            patternStreamingInputNode.setRHSPatternStreamingInput(patternStreamingInputStack.pop());
+        }
     }
 
 }

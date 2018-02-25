@@ -25,6 +25,7 @@ import org.wso2.ballerinalang.compiler.tree.clauses.BLangGroupBy;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangHaving;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangOrderBy;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangPatternStreamingEdgeInput;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangPatternStreamingInput;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangSelectClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangSelectExpression;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangSetAssignment;
@@ -326,6 +327,10 @@ public abstract class BLangNodeVisitor {
     }
 
     public void visit(BlangStreamingInput streamingInput) {
+        throw new AssertionError();
+    }
+
+    public void visit(BLangPatternStreamingInput patternStreamingInput) {
         throw new AssertionError();
     }
 

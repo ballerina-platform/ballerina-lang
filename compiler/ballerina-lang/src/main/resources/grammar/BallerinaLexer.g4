@@ -60,7 +60,7 @@ TYPE_JSON       : 'json' ;
 TYPE_XML        : 'xml' ;
 TYPE_TABLE      : 'table' ;
 TYPE_STREAM     : 'stream' ;
-TYPE_AGGREGTION : 'aggergation' ;
+TYPE_AGGREGATION : 'aggregation' ;
 TYPE_ANY        : 'any' ;
 TYPE_TYPE       : 'type' ;
 
