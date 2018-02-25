@@ -21,6 +21,7 @@ package org.wso2.transport.http.netty.config;
 import org.wso2.transport.http.netty.common.ProxyServerConfiguration;
 import org.wso2.transport.http.netty.common.Util;
 import org.wso2.transport.http.netty.common.ssl.SSLConfig;
+import org.wso2.transport.http.netty.sender.channel.pool.PoolConfiguration;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -95,12 +96,14 @@ public class SenderConfiguration {
     private String tlsStoreType;
     private String httpVersion = "1.1";
     private ProxyServerConfiguration proxyServerConfiguration;
+    private PoolConfiguration poolConfiguration;
     private boolean validateCertEnabled;
     private int cacheSize = 50;
     private int cacheValidityPeriod = 15;
     private boolean hostNameVerificationEnabled = true;
 
     public SenderConfiguration() {
+        this.poolConfiguration = new PoolConfiguration();
     }
 
     public SenderConfiguration(String id) {
@@ -297,5 +300,13 @@ public class SenderConfiguration {
 
     public int getCacheValidityPeriod() {
         return cacheValidityPeriod;
+    }
+
+    public PoolConfiguration getPoolConfiguration() {
+        return poolConfiguration;
+    }
+
+    public void setPoolConfiguration(PoolConfiguration poolConfiguration) {
+        this.poolConfiguration = poolConfiguration;
     }
 }

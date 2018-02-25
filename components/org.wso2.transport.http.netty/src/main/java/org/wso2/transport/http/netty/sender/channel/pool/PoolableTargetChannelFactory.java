@@ -83,11 +83,10 @@ public class PoolableTargetChannelFactory implements PoolableObjectFactory {
     @Override
     public void destroyObject(Object o) throws Exception {
         TargetChannel targetChannel = (TargetChannel) o;
-        log.debug("Destroying channel: {}", o);
+        if (log.isDebugEnabled()) {
+            log.debug("Destroying channel: {}", targetChannel.getChannel().id());
+        }
         if (targetChannel.getChannel().isOpen()) {
-            if (log.isDebugEnabled()) {
-                log.debug("And channel id is : " + targetChannel.getChannel().id());
-            }
             targetChannel.getChannel().close();
         }
     }

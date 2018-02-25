@@ -194,7 +194,7 @@ public class ConnectionManager {
         config.timeBetweenEvictionRunsMillis = poolConfiguration.getTimeBetweenEvictionRuns();
         config.minEvictableIdleTimeMillis = poolConfiguration.getMinEvictableIdleTime();
         config.whenExhaustedAction = poolConfiguration.getExhaustedAction();
-        config.maxWait = poolConfiguration.getMaxWait();
+        config.maxWait = poolConfiguration.getMaxWaitTime();
 
         if (log.isDebugEnabled()) {
             log.debug("Creating a pool with {}", config.toString());

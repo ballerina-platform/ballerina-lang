@@ -105,7 +105,7 @@ public class HTTPClientRedirectTestCase {
 
         Map<String, Object> transportProperties = HTTPConnectorUtil.getTransportProperties(transportsConfiguration);
 
-        PoolConfiguration poolConfiguration = new PoolConfiguration(transportProperties);
+        PoolConfiguration poolConfiguration = new PoolConfiguration();
         BootstrapConfiguration bootstrapConfig = new BootstrapConfiguration(transportProperties);
         EventLoopGroup clientEventLoopGroup = new NioEventLoopGroup(
                 Util.getIntProperty(transportProperties, Constants.CLIENT_BOOTSTRAP_WORKER_GROUP_SIZE, 4));

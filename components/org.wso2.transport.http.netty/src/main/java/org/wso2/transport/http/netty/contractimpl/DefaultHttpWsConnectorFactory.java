@@ -38,7 +38,6 @@ import org.wso2.transport.http.netty.listener.ServerBootstrapConfiguration;
 import org.wso2.transport.http.netty.listener.ServerConnectorBootstrap;
 import org.wso2.transport.http.netty.sender.channel.BootstrapConfiguration;
 import org.wso2.transport.http.netty.sender.channel.pool.ConnectionManager;
-import org.wso2.transport.http.netty.sender.channel.pool.PoolConfiguration;
 
 import java.util.Map;
 
@@ -85,12 +84,11 @@ public class DefaultHttpWsConnectorFactory implements HttpWsConnectorFactory {
     @Override
     public HttpClientConnector createHttpClientConnector(
             Map<String, Object> transportProperties, SenderConfiguration senderConfiguration) {
-        PoolConfiguration poolConfiguration = new PoolConfiguration(transportProperties);
         BootstrapConfiguration bootstrapConfig = new BootstrapConfiguration(transportProperties);
         EventLoopGroup clientEventLoopGroup = new NioEventLoopGroup(
                 Util.getIntProperty(transportProperties, Constants.CLIENT_BOOTSTRAP_WORKER_GROUP_SIZE, 4));
-        ConnectionManager connectionManager =
-                new ConnectionManager(poolConfiguration, bootstrapConfig, clientEventLoopGroup);
+        ConnectionManager connectionManager = new ConnectionManager(senderConfiguration.getPoolConfiguration(),
+                bootstrapConfig, clientEventLoopGroup);
         return new HttpClientConnectorImpl(connectionManager, senderConfiguration);
     }
 

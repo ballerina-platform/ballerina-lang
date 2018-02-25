@@ -15,8 +15,12 @@
 
 package org.wso2.transport.http.netty.pkcs;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+import org.wso2.carbon.messaging.exceptions.ServerConnectorException;
 import org.wso2.transport.http.netty.common.Constants;
 import org.wso2.transport.http.netty.config.ListenerConfiguration;
 import org.wso2.transport.http.netty.config.SenderConfiguration;
@@ -50,14 +54,15 @@ import static org.testng.AssertJUnit.assertNotNull;
  */
 public class PKCSTest {
 
+    private static Logger log = LoggerFactory.getLogger(PKCSTest.class);
+
     private static HttpClientConnector httpClientConnector;
-    private static String testValue = "Test";
-    private String keyStoreFile = "/simple-test-config/wso2carbon.p12";
     private String trustStoreFile = "/simple-test-config/client-truststore.p12";
     private String password = "ballerina";
-    private String scheme = "https";
     private String tlsStoreType = "PKCS12";
     private static int serverPort = 5431;
+    private HttpWsConnectorFactory httpConnectorFactory;
+    private ServerConnector serverConnector;
 
     @BeforeClass
     public void setup() throws InterruptedException {
@@ -75,31 +80,38 @@ public class PKCSTest {
             }
         });
 
-        HttpWsConnectorFactory factory = new DefaultHttpWsConnectorFactory();
+        httpConnectorFactory = new DefaultHttpWsConnectorFactory();
 
-        ListenerConfiguration listenerConfiguration = ListenerConfiguration.getDefault();
-        listenerConfiguration.setPort(serverPort);
-        //set PKCS12 keystore to ballerina server.
-        listenerConfiguration.setKeyStoreFile(TestUtil.getAbsolutePath(keyStoreFile));
-        listenerConfiguration.setKeyStorePass(password);
-        listenerConfiguration.setCertPass(password);
-        listenerConfiguration.setScheme(scheme);
-        listenerConfiguration.setTLSStoreType(tlsStoreType);
-
-        ServerConnector connector = factory
+        ListenerConfiguration listenerConfiguration = getListenerConfiguration();
+        serverConnector = httpConnectorFactory
                 .createServerConnector(TestUtil.getDefaultServerBootstrapConfig(), listenerConfiguration);
-        ServerConnectorFuture future = connector.start();
+        ServerConnectorFuture future = serverConnector.start();
         future.setHttpConnectorListener(new EchoMessageListener());
         future.sync();
 
-        httpClientConnector = factory
+        httpClientConnector = httpConnectorFactory
                 .createHttpClientConnector(HTTPConnectorUtil.getTransportProperties(transportsConfiguration),
                         HTTPConnectorUtil.getSenderConfiguration(transportsConfiguration, Constants.HTTPS_SCHEME));
+    }
+
+    private ListenerConfiguration getListenerConfiguration() {
+        ListenerConfiguration listenerConfiguration = ListenerConfiguration.getDefault();
+        listenerConfiguration.setPort(serverPort);
+        //set PKCS12 keystore to ballerina server.
+        String keyStoreFile = "/simple-test-config/wso2carbon.p12";
+        listenerConfiguration.setKeyStoreFile(TestUtil.getAbsolutePath(keyStoreFile));
+        listenerConfiguration.setKeyStorePass(password);
+        listenerConfiguration.setCertPass(password);
+        String scheme = "https";
+        listenerConfiguration.setScheme(scheme);
+        listenerConfiguration.setTLSStoreType(tlsStoreType);
+        return listenerConfiguration;
     }
 
     @Test
     public void testPKCS12() {
         try {
+            String testValue = "Test";
             HTTPCarbonMessage msg = TestUtil.createHttpsPostReq(serverPort, testValue, "");
 
             CountDownLatch latch = new CountDownLatch(1);
@@ -117,6 +129,15 @@ public class PKCSTest {
             assertEquals(testValue, result);
         } catch (Exception e) {
             TestUtil.handleException("Exception occurred while running testPKCS12", e);
+        }
+    }
+    @AfterClass
+    public void cleanUp() throws ServerConnectorException {
+        serverConnector.stop();
+        try {
+            httpConnectorFactory.shutdown();
+        } catch (InterruptedException e) {
+            log.warn("Interrupted while waiting for HttpWsFactory to close");
         }
     }
 }

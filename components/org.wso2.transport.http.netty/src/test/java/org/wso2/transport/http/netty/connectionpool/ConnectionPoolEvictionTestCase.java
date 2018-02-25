@@ -22,7 +22,6 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.carbon.messaging.exceptions.ServerConnectorException;
-import org.wso2.transport.http.netty.common.Constants;
 import org.wso2.transport.http.netty.config.SenderConfiguration;
 import org.wso2.transport.http.netty.contract.HttpClientConnector;
 import org.wso2.transport.http.netty.contract.HttpWsConnectorFactory;
@@ -34,7 +33,6 @@ import org.wso2.transport.http.netty.util.server.initializers.SendChannelIDServe
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 
 import static org.testng.Assert.assertFalse;
@@ -50,19 +48,13 @@ public class ConnectionPoolEvictionTestCase {
 
     @BeforeClass
     public void setup() {
-        connectorFactory = new DefaultHttpWsConnectorFactory();
-
-//        TransportsConfiguration transportsConfiguration = TestUtil.getConfiguration(
-//                "/simple-test-config" + File.separator + "netty-transports.yml");
-
-        Map<String, Object> transportProperties = new HashMap<>();
-        transportProperties.put(Constants.MIN_EVICTION_IDLE_TIME, 2000);
-        transportProperties.put(Constants.TIME_BETWEEN_EVICTION_RUNS, 1000);
-
         httpServer = TestUtil.startHTTPServer(TestUtil.HTTP_SERVER_PORT, new SendChannelIDServerInitializer(0));
 
-        httpClientConnector = connectorFactory
-                .createHttpClientConnector(transportProperties, new SenderConfiguration());
+        connectorFactory = new DefaultHttpWsConnectorFactory();
+        SenderConfiguration senderConfiguration = new SenderConfiguration();
+        senderConfiguration.getPoolConfiguration().setMinEvictableIdleTime(2000);
+        senderConfiguration.getPoolConfiguration().setTimeBetweenEvictionRuns(1000);
+        httpClientConnector = connectorFactory.createHttpClientConnector(new HashMap<>(), senderConfiguration);
     }
 
     @Test

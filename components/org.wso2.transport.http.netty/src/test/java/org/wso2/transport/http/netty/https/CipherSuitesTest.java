@@ -133,7 +133,7 @@ public class CipherSuitesTest {
         httpClientConnector.close();
     }
 
-    public void testCiphersuites(boolean hasException, int serverPort) {
+    private void testCiphersuites(boolean hasException, int serverPort) {
         try {
             HTTPCarbonMessage msg = TestUtil.createHttpsPostReq(serverPort, testValue, "");
 

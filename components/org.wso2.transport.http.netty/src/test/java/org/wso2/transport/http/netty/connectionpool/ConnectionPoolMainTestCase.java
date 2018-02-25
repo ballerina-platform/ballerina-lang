@@ -54,6 +54,8 @@ public class ConnectionPoolMainTestCase {
 
         connectorFactory = new DefaultHttpWsConnectorFactory();
         SenderConfiguration senderConfiguration = new SenderConfiguration();
+        senderConfiguration.getPoolConfiguration().setMaxIdlePerPool(1);
+        senderConfiguration.getPoolConfiguration().setMaxActivePerPool(2);
         httpClientConnector = connectorFactory.createHttpClientConnector(new HashMap<>(), senderConfiguration);
     }
 
