@@ -400,7 +400,7 @@ function abortTransaction (string transactionId) returns (string msg, error e) {
 }
 
 function isInitiator (string transactionId) returns (boolean) {
-    return transactionId == null || initiatedTransactions.hasKey(transactionId);
+    return transactionId == null;
 }
 
 native function prepareResourceManagers (string transactionId) returns (boolean prepareSuccessful);
