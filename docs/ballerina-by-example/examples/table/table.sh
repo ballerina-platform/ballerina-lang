@@ -1,6 +1,11 @@
-$ ballerina run table.bal
-Employee:1|John|1050.5|false|1990-12-31+05:30|11:30:45.000+05:30|2007-05-23T09:15:28.000+05:30
-Employee:2|Anne|4060.5|true|1999-12-31+06:00|13:40:24.000+05:30|2017-05-23T09:15:28.000+05:30
-[{"id":1,"name":"John"},{"id":2,"name":"Anne"}]
-<results><result><id>1</id><name>John</name></result><result><id>2</id><name>Anne</name></result></results>
-Table drop status:0
+$ ballerina run table-with-sql-connector.bal
+Table Data:{data: [{id:1, name:"Jane", salary:300.5}, {id:2, name:"Anne", salary:100.5}, {id:3, name:"John", salary:400.5}, {id:4, name:"Peter", salary:150.0}]}
+Name: Jane
+Name: Anne
+Name: John
+Name: Peter
+Average of Low salary:125.25
+Deleted row count:2
+After Delete:{data: [{id:1, name:"Jane", salary:300.5}, {id:3, name:"John", salary:400.5}]}
+JSON:[{"id":1,"name":"Jane","salary":300.5},{"id":3,"name":"John","salary":400.5}]
+XML:<results><result><id>1</id><name>Jane</name><salary>300.5</salary></result><result><id>3</id><name>John</name><salary>400.5</salary></result></results>

@@ -1,5 +1,5 @@
 import ballerina.lang.messages;
-
+import ballerina.io;
 import ballerina.net.jms;
 
 @Description{value : "Add the subscriptionId when connecting to a topic to create a durable topic subscription."}
@@ -20,6 +20,6 @@ service<jms> jmsService {
         string stringPayload = messages:getStringPayload(m);
 
         // Print the retrieved payload.
-        println("Payload: " + stringPayload);
+        io:println("Payload: " + stringPayload);
     }
 }

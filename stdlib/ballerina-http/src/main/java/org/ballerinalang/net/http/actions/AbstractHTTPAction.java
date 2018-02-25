@@ -19,12 +19,15 @@
 package org.ballerinalang.net.http.actions;
 
 import io.netty.handler.codec.http.HttpHeaders;
-import io.netty.handler.codec.http.multipart.HttpPostRequestEncoder;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.connector.api.AbstractNativeAction;
 import org.ballerinalang.connector.api.BallerinaConnectorException;
+import org.ballerinalang.mime.util.EntityBodyHandler;
+import org.ballerinalang.mime.util.MimeUtil;
+import org.ballerinalang.mime.util.MultipartDataSource;
 import org.ballerinalang.model.types.BStructType;
 import org.ballerinalang.model.values.BConnector;
+import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.nativeimpl.actions.ClientConnectorFuture;
 import org.ballerinalang.net.http.HttpConstants;
@@ -51,10 +54,12 @@ import java.net.URL;
 import javax.activation.MimeType;
 import javax.activation.MimeTypeParseException;
 
+import static org.ballerinalang.mime.util.Constants.BOUNDARY;
 import static org.ballerinalang.mime.util.Constants.CONTENT_TYPE;
 import static org.ballerinalang.mime.util.Constants.MEDIA_TYPE;
-import static org.ballerinalang.mime.util.Constants.MULTIPART_ENCODER;
-import static org.ballerinalang.mime.util.Constants.MULTIPART_FORM_DATA;
+import static org.ballerinalang.mime.util.Constants.MESSAGE_ENTITY;
+import static org.ballerinalang.mime.util.Constants.MULTIPART_AS_PRIMARY_TYPE;
+import static org.ballerinalang.mime.util.Constants.MULTIPART_DATA_INDEX;
 import static org.ballerinalang.mime.util.Constants.PROTOCOL_PACKAGE_MIME;
 import static org.ballerinalang.runtime.Constants.BALLERINA_VERSION;
 import static org.wso2.transport.http.netty.common.Constants.ACCEPT_ENCODING;
@@ -85,18 +90,9 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
         HttpUtil.checkEntityAvailability(context, requestStruct);
         HttpUtil.enrichOutboundMessage(requestMsg, requestStruct);
         prepareOutboundRequest(context, bConnector, path, requestMsg);
-        try {
-            String contentType = requestMsg.getHeader(CONTENT_TYPE);
-            if (contentType != null) {
-                if (MULTIPART_FORM_DATA.equals(new MimeType(contentType).getBaseType())) {
-                    HttpUtil.prepareRequestWithMultiparts(requestMsg, requestStruct);
-                }
-            }
-        } catch (MimeTypeParseException e) {
-            logger.error("Error occurred while parsing Content-Type header in createOutboundRequestMsg",
-                    e.getMessage());
+        if (requestMsg.getHeader(ACCEPT_ENCODING) == null) {
+            requestMsg.setHeader(ACCEPT_ENCODING, ENCODING_DEFLATE + ", " + ENCODING_GZIP);
         }
-        requestMsg.setHeader(ACCEPT_ENCODING, ENCODING_DEFLATE + ", " + ENCODING_GZIP);
         return requestMsg;
     }
 
@@ -228,34 +224,79 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
         BConnector bConnector = (BConnector) getRefArgument(context, 0);
         HttpClientConnector clientConnector =
                 (HttpClientConnector) bConnector.getnativeData(HttpConstants.CONNECTOR_NAME);
-
+        String contentType = getContentType(outboundRequestMsg);
+        String boundaryString = null;
+        if (contentType != null && contentType.startsWith(MULTIPART_AS_PRIMARY_TYPE)) {
+            boundaryString = MimeUtil.getNewMultipartDelimiter();
+            outboundRequestMsg.setHeader(CONTENT_TYPE, contentType + "; " + BOUNDARY + "=" + boundaryString);
+        }
         HttpResponseFuture future = clientConnector.send(outboundRequestMsg);
         future.setHttpConnectorListener(httpClientConnectorLister);
-        if (isMultiPartRequest(outboundRequestMsg)) {
+
+        if (contentType != null && contentType.startsWith(MULTIPART_AS_PRIMARY_TYPE)) {
             BStruct requestStruct = ((BStruct) getRefArgument(context, 1));
-            HttpUtil.addMultipartsToCarbonMessage(outboundRequestMsg,
-                    (HttpPostRequestEncoder) requestStruct.getNativeData(MULTIPART_ENCODER));
+            BStruct entityStruct = requestStruct.getNativeData(MESSAGE_ENTITY) != null ?
+                    (BStruct) requestStruct.getNativeData(MESSAGE_ENTITY) : null;
+            if (entityStruct != null) {
+                BRefValueArray bodyParts = entityStruct.getRefField(MULTIPART_DATA_INDEX) != null ?
+                        (BRefValueArray) entityStruct.getRefField(MULTIPART_DATA_INDEX) : null;
+                if (bodyParts != null && bodyParts.size() > 0) {
+                    serializeMultipartDataSource(outboundRequestMsg, httpClientConnectorLister, boundaryString,
+                            bodyParts);
+                } else {
+                    throw new BallerinaException("At least one body part is required for the mutlipart entity",
+                            context);
+                }
+            }
         } else {
             serializeDataSource(context, outboundRequestMsg, httpClientConnectorLister);
         }
     }
 
-    private boolean isMultiPartRequest(HTTPCarbonMessage outboundRequestMsg) throws MimeTypeParseException {
-        return outboundRequestMsg.getHeader(CONTENT_TYPE) != null &&
-                MULTIPART_FORM_DATA.equals(new MimeType(outboundRequestMsg.getHeader(CONTENT_TYPE)).getBaseType());
+    /**
+     * Serialize multipart content.
+     *
+     * @param outboundRequestMsg        Outbound request message
+     * @param httpClientConnectorLister Represent http client connector listener
+     * @param boundaryString            Boundary string of multipart entity
+     * @param bodyParts                 Represent an array of body parts
+     */
+    private void serializeMultipartDataSource(HTTPCarbonMessage outboundRequestMsg, HTTPClientConnectorListener
+            httpClientConnectorLister, String boundaryString, BRefValueArray bodyParts) {
+        MultipartDataSource multipartDataSource = new MultipartDataSource(bodyParts, boundaryString);
+        HttpMessageDataStreamer outboundMsgDataStreamer = new HttpMessageDataStreamer(outboundRequestMsg);
+        OutputStream messageOutputStream = outboundMsgDataStreamer.getOutputStream();
+        httpClientConnectorLister.setOutboundMsgDataStreamer(outboundMsgDataStreamer);
+        multipartDataSource.serializeData(messageOutputStream);
+        HttpUtil.closeMessageOutputStream(messageOutputStream);
+    }
+
+    private String getContentType(HTTPCarbonMessage outboundRequestMsg) throws MimeTypeParseException {
+        return outboundRequestMsg.getHeader(CONTENT_TYPE) != null ?
+                new MimeType(outboundRequestMsg.getHeader(CONTENT_TYPE)).getBaseType() : null;
     }
 
     private void serializeDataSource(Context context, HTTPCarbonMessage outboundReqMsg,
                                      HTTPClientConnectorListener httpClientConnectorListener) {
         BStruct requestStruct = ((BStruct) getRefArgument(context, 1));
-        MessageDataSource messageDataSource = HttpUtil.readMessageDataSource(requestStruct);
-        if (messageDataSource != null) {
-            HttpMessageDataStreamer outboundMsgDataStreamer = new HttpMessageDataStreamer(outboundReqMsg);
-            OutputStream messageOutputStream = outboundMsgDataStreamer.getOutputStream();
-            httpClientConnectorListener.setOutboundMsgDataStreamer(outboundMsgDataStreamer);
-            messageDataSource.serializeData(messageOutputStream);
-            HttpUtil.closeMessageOutputStream(messageOutputStream);
+        BStruct entityStruct = MimeUtil.extractEntity(requestStruct);
+        if (entityStruct != null) {
+            MessageDataSource messageDataSource = EntityBodyHandler.getMessageDataSource(entityStruct);
+            if (messageDataSource != null) {
+                OutputStream messageOutputStream = getOutputStream(outboundReqMsg, httpClientConnectorListener);
+                messageDataSource.serializeData(messageOutputStream);
+                HttpUtil.closeMessageOutputStream(messageOutputStream);
+            }
         }
+    }
+
+
+    private static OutputStream getOutputStream(HTTPCarbonMessage outboundReqMsg, HTTPClientConnectorListener
+            httpClientConnectorListener) {
+        HttpMessageDataStreamer outboundMsgDataStreamer = new HttpMessageDataStreamer(outboundReqMsg);
+        OutputStream messageOutputStream = outboundMsgDataStreamer.getOutputStream();
+        httpClientConnectorListener.setOutboundMsgDataStreamer(outboundMsgDataStreamer);
+        return messageOutputStream;
     }
 
     private RetryConfig getRetryConfiguration(Context context) {

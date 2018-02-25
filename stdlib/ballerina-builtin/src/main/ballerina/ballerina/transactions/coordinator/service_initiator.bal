@@ -18,6 +18,7 @@ package ballerina.transactions.coordinator;
 
 import ballerina.log;
 import ballerina.net.http;
+import ballerina.io;
 
 enum CoordinationType {
     TWO_PHASE_COMMIT
@@ -75,8 +76,8 @@ service<http> InitiatorService {
 
         // Micro-Transaction-Unknown
 
-        println("Registering for transaction...");
-        println(req.getJsonPayload());
+        io:println("Registering for transaction...");
+        io:println(req.getJsonPayload());
         var registrationReq, e = <RegistrationRequest>req.getJsonPayload();
         http:OutResponse res;
         if (e != null || registrationReq == null) {

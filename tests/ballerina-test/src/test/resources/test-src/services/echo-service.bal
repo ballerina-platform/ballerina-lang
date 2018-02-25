@@ -2,6 +2,11 @@ import ballerina.net.http;
 
 const string constPath = getConstPath();
 
+struct Person {
+    string name;
+    int age;
+}
+
 @http:configuration {basePath:"/echo"}
 service<http> echo {
 

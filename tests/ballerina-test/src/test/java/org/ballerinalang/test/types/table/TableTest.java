@@ -30,6 +30,7 @@ import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BXML;
 import org.ballerinalang.test.utils.SQLDBUtils;
+import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.Assert;
 import org.testng.annotations.AfterSuite;
 import org.testng.annotations.BeforeClass;
@@ -49,7 +50,7 @@ import java.util.Calendar;
  */
 public class TableTest {
 
-    CompileResult result;
+    private CompileResult result;
     private static final String DB_NAME = "TEST_DATA_TABLE_DB";
 
     @BeforeClass
@@ -569,6 +570,22 @@ public class TableTest {
         BValue[] returns = BRunUtil.invoke(result, "testMutltipleRowsWithForEach");
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 100);
         Assert.assertEquals(((BInteger) returns[1]).intValue(), 200);
+    }
+
+    @Test(groups = "TableTest",
+          description = "Test adding data to database table",
+          expectedExceptions = { BLangRuntimeException.class },
+          expectedExceptionsMessageRegExp = ".*message: data cannot be added to a table returned from a database.*")
+    public void testTableAddInvalid() {
+        BRunUtil.invoke(result, "testTableAddInvalid");
+    }
+
+    @Test(groups = "TableTest",
+          description = "Test deleting data from a database table",
+          expectedExceptions = { BLangRuntimeException.class },
+          expectedExceptionsMessageRegExp = ".*message: data cannot be deleted from a table returned from a database.*")
+    public void testTableRemoveInvalid() {
+        BRunUtil.invoke(result, "testTableRemoveInvalid");
     }
 
     @AfterSuite

@@ -99,6 +99,12 @@ public class DefinitionUtil {
                                 .equals(definitionContext.get(NodeContextKeys.NAME_OF_NODE_KEY)))
                         .findAny().orElse(null);
                 break;
+            case ContextConstants.TRANSFORMER:
+                bLangNode = bLangPackage.transformers.stream()
+                        .filter(bTransformer -> bTransformer.name.getValue()
+                                .equals(definitionContext.get(NodeContextKeys.NAME_OF_NODE_KEY)))
+                        .findAny().orElse(null);
+                break;
             case ContextConstants.VARIABLE:
                 bLangNode = bLangPackage.globalVars.stream()
                         .filter(globalVar -> globalVar.name.getValue()

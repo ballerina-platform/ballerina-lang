@@ -35,12 +35,17 @@ import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangResource;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
+import org.wso2.ballerinalang.compiler.tree.BLangStruct;
+import org.wso2.ballerinalang.compiler.tree.BLangTransformer;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangWorker;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLambdaFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeCastExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCatch;
@@ -53,6 +58,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangTransaction;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTryCatchFinally;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWhile;
+import org.wso2.ballerinalang.compiler.tree.types.BLangEndpointTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
 import org.wso2.ballerinalang.compiler.util.Name;
 
@@ -268,6 +274,10 @@ public class ReferencesTreeVisitor extends NodeVisitor {
 
     @Override
     public void visit(BLangIf ifNode) {
+        if (ifNode.expr != null) {
+            this.acceptNode(ifNode.expr);
+        }
+
         if (ifNode.body != null) {
             this.acceptNode(ifNode.body);
         }
@@ -290,6 +300,10 @@ public class ReferencesTreeVisitor extends NodeVisitor {
 
     @Override
     public void visit(BLangWhile whileNode) {
+        if (whileNode.expr != null) {
+            this.acceptNode(whileNode.expr);
+        }
+
         if (whileNode.body != null) {
             this.acceptNode(whileNode.body);
         }
@@ -345,6 +359,10 @@ public class ReferencesTreeVisitor extends NodeVisitor {
 
     @Override
     public void visit(BLangSimpleVarRef varRefExpr) {
+        varRefExpr.getPosition().eCol = varRefExpr.getPosition().sCol
+                + varRefExpr.variableName.value.length()
+                + (!varRefExpr.pkgAlias.value.isEmpty() ? (varRefExpr.pkgAlias.value + ":").length() : 0);
+
         if (this.context.get(NodeContextKeys.VAR_NAME_OF_NODE_KEY) != null && varRefExpr.variableName.getValue()
                 .equals(this.context.get(NodeContextKeys.VAR_NAME_OF_NODE_KEY))) {
 
@@ -430,6 +448,11 @@ public class ReferencesTreeVisitor extends NodeVisitor {
 
     @Override
     public void visit(BLangUserDefinedType userDefinedType) {
+        userDefinedType.getPosition().sCol += (this.context.get(NodeContextKeys.PREVIOUSLY_VISITED_NODE_KEY)
+                instanceof BLangEndpointTypeNode ? "endpoint<".length() : 0);
+        userDefinedType.getPosition().eCol = userDefinedType.getPosition().sCol
+                + userDefinedType.typeName.value.length()
+                + (!userDefinedType.pkgAlias.value.isEmpty() ? (userDefinedType.pkgAlias.value + ":").length() : 0);
         if (userDefinedType.typeName.getValue().equals(this.context.get(NodeContextKeys.NAME_OF_NODE_KEY)) &&
                 userDefinedType.type.tsymbol.owner.name.getValue()
                         .equals(this.context.get(NodeContextKeys.NODE_OWNER_KEY)) &&
@@ -437,6 +460,98 @@ public class ReferencesTreeVisitor extends NodeVisitor {
                         .equals(this.context.get(NodeContextKeys.NODE_OWNER_PACKAGE_KEY).name.getValue())) {
             this.locations.add(getLocation(userDefinedType, userDefinedType.type.tsymbol.owner.pkgID.nameComps,
                     userDefinedType.pos.getSource().pkgID.nameComps));
+        }
+    }
+
+    @Override
+    public void visit(BLangBinaryExpr binaryExpr) {
+        if (binaryExpr.lhsExpr != null) {
+            acceptNode(binaryExpr.lhsExpr);
+        }
+
+        if (binaryExpr.rhsExpr != null) {
+            acceptNode(binaryExpr.rhsExpr);
+        }
+    }
+
+    @Override
+    public void visit(BLangStruct structNode) {
+        if (structNode.symbol.owner.name.getValue().equals(this.context.get(NodeContextKeys.NODE_OWNER_KEY)) &&
+                structNode.symbol.owner.pkgID.name.getValue()
+                        .equals(this.context.get(NodeContextKeys.NODE_OWNER_PACKAGE_KEY).name.getValue()) &&
+                this.context.get(NodeContextKeys.PACKAGE_OF_NODE_KEY).name.getValue()
+                        .equals(structNode.symbol.pkgID.name.getValue()) &&
+                this.context.get(NodeContextKeys.NAME_OF_NODE_KEY).equals(structNode.name.getValue())) {
+            this.locations.add(getLocation(structNode, structNode.symbol.owner.pkgID.nameComps,
+                    structNode.pos.getSource().pkgID.nameComps));
+        }
+        if (!structNode.fields.isEmpty()) {
+            structNode.fields.forEach(this::acceptNode);
+        }
+    }
+
+    @Override
+    public void visit(BLangEndpointTypeNode endpointType) {
+        if (endpointType.constraint != null) {
+            acceptNode(endpointType.constraint);
+        }
+    }
+
+    @Override
+    public void visit(BLangTransformer transformerNode) {
+        if (transformerNode.symbol.owner.name.getValue().equals(this.context.get(NodeContextKeys.NODE_OWNER_KEY)) &&
+                transformerNode.symbol.owner.pkgID.name.getValue()
+                        .equals(this.context.get(NodeContextKeys.NODE_OWNER_PACKAGE_KEY).name.getValue()) &&
+                this.context.get(NodeContextKeys.PACKAGE_OF_NODE_KEY).name.getValue()
+                        .equals(transformerNode.symbol.pkgID.name.getValue()) &&
+                this.context.get(NodeContextKeys.NAME_OF_NODE_KEY).equals(transformerNode.name.getValue())) {
+            this.locations.add(getLocation(transformerNode, transformerNode.symbol.owner.pkgID.nameComps,
+                    transformerNode.pos.getSource().pkgID.nameComps));
+        }
+        if (transformerNode.source != null) {
+            acceptNode(transformerNode.source);
+        }
+
+        if (!transformerNode.params.isEmpty()) {
+            transformerNode.params.forEach(this::acceptNode);
+        }
+
+        if (!transformerNode.retParams.isEmpty()) {
+            transformerNode.retParams.forEach(this::acceptNode);
+        }
+
+        if (transformerNode.body != null) {
+            acceptNode(transformerNode.body);
+        }
+
+        if (!transformerNode.workers.isEmpty()) {
+            transformerNode.workers.forEach(this::acceptNode);
+        }
+    }
+
+    @Override
+    public void visit(BLangTypeCastExpr castExpr) {
+        if (castExpr.typeNode != null) {
+            this.acceptNode(castExpr.typeNode);
+        }
+
+        if (castExpr.expr != null) {
+            this.acceptNode(castExpr.expr);
+        }
+    }
+
+    @Override
+    public void visit(BLangTypeConversionExpr conversionExpr) {
+        if (conversionExpr.expr != null) {
+            acceptNode(conversionExpr.expr);
+        }
+
+        if (conversionExpr.typeNode != null) {
+            acceptNode(conversionExpr.typeNode);
+        }
+
+        if (conversionExpr.transformerInvocation != null) {
+            acceptNode(conversionExpr.transformerInvocation);
         }
     }
 

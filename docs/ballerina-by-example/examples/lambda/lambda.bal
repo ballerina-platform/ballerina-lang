@@ -1,3 +1,5 @@
+import ballerina.io;
+
 function main (string[] args) {
     // Define lambda function in-line to function pointer var.
     function (string, string) returns (string) lambda =
@@ -5,5 +7,5 @@ function main (string[] args) {
                 r = x + y;
                 return;
             };
-    println("Output: " + lambda("Hello ", "world.!!!"));
+    io:println("Output: " + lambda("Hello ", "world.!!!"));
 }

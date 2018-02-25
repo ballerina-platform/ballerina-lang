@@ -1,3 +1,5 @@
+import ballerina.io;
+
 @Description {value:"These names are treated as variables defined at the top of the function."}
 function divideBy10 (int d) (int quotient, int remainder) {
     return d / 10, d % 10;
@@ -19,10 +21,10 @@ function getDefaultValues () (int a, float b,
 
 function main (string[] args) {
     var q1, r1 = divideBy10(93);
-    println("93/10: " + "quotient=" + q1 + " " + "remainder=" + r1);
+    io:println("93/10: " + "quotient=" + q1 + " " + "remainder=" + r1);
 
     var q2, r2 = divideBy5(93);
-    println("93/5: " + "quotient=" + q2 + " " + "remainder=" + r2);
+    io:println("93/5: " + "quotient=" + q2 + " " + "remainder=" + r2);
 
     int a;
     float b;
@@ -30,8 +32,8 @@ function main (string[] args) {
     string d;
     a, b, c, d = getDefaultValues();
 
-    println("a: " + a);
-    println("b: " + b);
-    println("c: " + c);
-    println("d: " + d);
+    io:println("a: " + a);
+    io:println("b: " + b);
+    io:println("c: " + c);
+    io:println("d: " + d);
 }

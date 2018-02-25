@@ -1,3 +1,5 @@
+import ballerina.runtime;
+
 function test1 (int value) (int x) {
     x = value > 10 ? 15 : 5;
     return;
@@ -77,7 +79,7 @@ function test11 (int input) (string) {
             if (i == 3) {
                 break;
             }
-        } catch (NullReferenceException e) {
+        } catch (runtime:NullReferenceException e) {
             output = output + "NullException";
         } catch (error e) {
             output = output + "Error";
@@ -98,7 +100,7 @@ function test12 (int input) (string) {
             if (i == 3) {
                 return output;
             }
-        } catch (NullReferenceException e) {
+        } catch (runtime:NullReferenceException e) {
             output = output + "NullException";
         } catch (error e) {
             output = output + "Error";
