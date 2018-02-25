@@ -31,8 +31,8 @@ import io.netty.handler.codec.http2.Http2Exception;
 import io.netty.handler.codec.http2.Http2Headers;
 import io.netty.handler.codec.http2.Http2Settings;
 import io.netty.handler.codec.http2.HttpConversionUtil;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.common.Constants;
 import org.wso2.transport.http.netty.message.EmptyLastHttpContent;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
@@ -42,13 +42,12 @@ import org.wso2.transport.http.netty.message.PooledDataStreamerFactory;
 /**
  * {@code ClientInboundHandler} listen to HTTP/2 Events received from the HTTP/2 backend service
  * and construct response messages.
- *
+ * <p>
  * And also this is responsible for notifying the HTTP Response Listener as well.
- *
  */
 public class ClientInboundHandler extends Http2EventAdapter {
 
-    private final Log log = LogFactory.getLog(ClientInboundHandler.class);
+    private static final Logger log = LoggerFactory.getLogger(ClientInboundHandler.class);
 
     private TargetChannel targetChannel;
 

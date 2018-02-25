@@ -36,8 +36,8 @@ import io.netty.handler.codec.http2.Http2Exception;
 import io.netty.handler.codec.http2.Http2Headers;
 import io.netty.handler.codec.http2.HttpConversionUtil;
 import io.netty.util.ReferenceCountUtil;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.common.Util;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 
@@ -48,7 +48,7 @@ import java.util.Locale;
  */
 public class ClientOutboundHandler extends ChannelOutboundHandlerAdapter {
 
-    private static final Log log = LogFactory.getLog(ClientOutboundHandler.class);
+    private static final Logger log = LoggerFactory.getLogger(ClientOutboundHandler.class);
     private Http2Connection connection;
     /* Encoder associated with the HTTP2ConnectionHandler */
     private Http2ConnectionEncoder encoder;

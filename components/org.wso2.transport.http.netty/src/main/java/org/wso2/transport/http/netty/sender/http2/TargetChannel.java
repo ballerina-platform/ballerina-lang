@@ -32,7 +32,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * {@code TargetChannel} encapsulate the Channel associate with a particular connection.
- *
+ * <p>
  * This shouldn't have anything related to a single message.
  */
 public class TargetChannel {
@@ -92,8 +92,8 @@ public class TargetChannel {
     /**
      * Add a in-flight message
      *
-     * @param streamId  stream id
-     * @param inFlightMessage  {@code OutboundMsgHolder} which holds the in-flight message
+     * @param streamId        stream id
+     * @param inFlightMessage {@code OutboundMsgHolder} which holds the in-flight message
      */
     public void putInFlightMessage(int streamId, OutboundMsgHolder inFlightMessage) {
         inFlightMessages.put(streamId, inFlightMessage);
@@ -103,7 +103,7 @@ public class TargetChannel {
      * Get the in-flight message associated with the a particular stream id
      *
      * @param streamId stream id
-     * @return  in-flight message associated with the a particular stream id
+     * @return in-flight message associated with the a particular stream id
      */
     public OutboundMsgHolder getInFlightMessage(int streamId) {
         return inFlightMessages.get(streamId);

@@ -25,8 +25,8 @@ import io.netty.channel.ChannelPromise;
 import io.netty.handler.codec.http.HttpClientUpgradeHandler;
 import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http.HttpRequest;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.common.Constants;
 import org.wso2.transport.http.netty.common.Util;
 import org.wso2.transport.http.netty.config.ChunkConfig;
@@ -140,17 +140,14 @@ public class UpgradeRequestHandler extends ChannelDuplexHandler {
     {@code TargetChannel} of http client, we may refactor this later to prevent duplicate logic */
     private class UpgradeRequestWriter {
 
-        private final Log log = LogFactory.getLog(UpgradeRequestWriter.class);
-
+        private final Logger log = LoggerFactory.getLogger(UpgradeRequestWriter.class);
+        int contentLength = 0;
         private List<HttpContent> contentList = new ArrayList<>();
         private String httpVersion = senderConfiguration.getHttpVersion();
         private ChunkConfig chunkConfig = senderConfiguration.getChunkingConfig();
-
         private HTTPCarbonMessage outboundRequest;
         private HttpResponseFuture responseFuture;
         private OutboundMsgHolder outboundMsgHolder;
-
-        int contentLength = 0;
         private boolean isRequestWritten = false;
 
         public UpgradeRequestWriter(OutboundMsgHolder outboundMsgHolder) {
