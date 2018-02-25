@@ -43,6 +43,8 @@
 
             <class name="org.wso2.transport.http.netty.proxyserver.ProxyServerTestCase" />
 
+            <class name="org.wso2.transport.http.netty.hostnameverfication.HostnameVerificationTest" />
+
             <class name="org.wso2.transport.http.netty.redirect.HTTPClientRedirectTestCase" />
 
             <class name="org.wso2.transport.http.netty.ClientConnectorTimeoutTestCase" />

@@ -75,7 +75,7 @@ public class HttpServerChannelInitializer extends ChannelInitializer<SocketChann
         ChannelPipeline serverPipeline = ch.pipeline();
 
         if (sslConfig != null) {
-            sslEngine = new SSLHandlerFactory(sslConfig).build();
+            sslEngine = new SSLHandlerFactory(sslConfig).buildServerSSLEngine();
             serverPipeline.addLast(Constants.SSL_HANDLER, new SslHandler(sslEngine));
         }
 
@@ -173,7 +173,7 @@ public class HttpServerChannelInitializer extends ChannelInitializer<SocketChann
         this.serverName = serverName;
     }
 
-    public void setAllChannels(ChannelGroup allChannels) {
+    void setAllChannels(ChannelGroup allChannels) {
         this.allChannels = allChannels;
     }
 }
