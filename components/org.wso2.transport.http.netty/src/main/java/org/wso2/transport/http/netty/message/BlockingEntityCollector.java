@@ -45,19 +45,14 @@ public class BlockingEntityCollector implements EntityCollector {
     private static final Logger LOG = LoggerFactory.getLogger(BlockingEntityCollector.class);
 
     private int soTimeOut;
-
-//    private AtomicBoolean expectingEntity;
-//    private AtomicBoolean consumed;
     private EntityBodyState state;
 
     private BlockingQueue<HttpContent> httpContentQueue;
     private Lock readWriteLock;
     private Condition readCondition;
 
-    public BlockingEntityCollector(int soTimeOut) {
+    BlockingEntityCollector(int soTimeOut) {
         this.soTimeOut = soTimeOut;
-//        this.expectingEntity = new AtomicBoolean(false);
-//        this.consumed = new AtomicBoolean(false);
         this.state = EntityBodyState.EXPECTING;
         this.readWriteLock = new ReentrantLock();
         this.httpContentQueue = new LinkedBlockingQueue<>();
@@ -67,12 +62,8 @@ public class BlockingEntityCollector implements EntityCollector {
     public void addHttpContent(HttpContent httpContent) {
         try {
             readWriteLock.lock();
-
-//            consumed.set(false);
-//            expectingEntity.set(false);
             state = EntityBodyState.CONSUMABLE;
             httpContentQueue.add(httpContent);
-
             readCondition.signalAll();
         } catch (Exception e) {
             LOG.error("Cannot put content to queue", e);
@@ -88,13 +79,11 @@ public class BlockingEntityCollector implements EntityCollector {
     public HttpContent getHttpContent() {
         try {
             readWriteLock.lock();
-            // Consumed but expecting entity.
             if (state == EntityBodyState.CONSUMABLE || state == EntityBodyState.EXPECTING) {
                 waitForEntity();
                 HttpContent httpContent = httpContentQueue.poll();
 
                 if (httpContent instanceof LastHttpContent) {
-//                    consumed.set(true);
                     state = EntityBodyState.CONSUMED;
                     httpContentQueue.clear();
                 }
@@ -122,13 +111,11 @@ public class BlockingEntityCollector implements EntityCollector {
         try {
             readWriteLock.lock();
             List<HttpContent> contentList = new ArrayList<>();
-            boolean isEndOfMessageProcessed = false;
             while (state == EntityBodyState.CONSUMABLE || state == EntityBodyState.EXPECTING) {
                 try {
                     waitForEntity();
                     HttpContent httpContent = httpContentQueue.poll();
                     if ((httpContent instanceof LastHttpContent)) {
-                        isEndOfMessageProcessed = true;
                         state = EntityBodyState.CONSUMED;
                     }
                     contentList.add(httpContent);
@@ -176,7 +163,6 @@ public class BlockingEntityCollector implements EntityCollector {
 
                         if (httpContent instanceof LastHttpContent) {
                             isEndOfMessageProcessed = true;
-//                            consumed.set(true);
                             state = EntityBodyState.CONSUMED;
                         }
                         httpContent.release();
@@ -185,7 +171,6 @@ public class BlockingEntityCollector implements EntityCollector {
                     }
                 }
             }
-//            expectingEntity.set(true);
             state = EntityBodyState.EXPECTING;
         } catch (Exception e) {
             LOG.error("Error while waiting and releasing the content", e);
