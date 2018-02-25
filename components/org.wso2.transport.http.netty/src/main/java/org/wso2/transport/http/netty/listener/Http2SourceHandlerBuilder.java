@@ -28,27 +28,27 @@ import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
 /**
  * {@code HTTP2SourceHandlerBuilder} is used to build the HTTP2SourceHandler
  */
-public final class HTTP2SourceHandlerBuilder
-        extends AbstractHttp2ConnectionHandlerBuilder<HTTP2SourceHandler, HTTP2SourceHandlerBuilder> {
+public final class Http2SourceHandlerBuilder
+        extends AbstractHttp2ConnectionHandlerBuilder<Http2SourceHandler, Http2SourceHandlerBuilder> {
 
     private String interfaceId;
     private ServerConnectorFuture serverConnectorFuture;
 
-    public HTTP2SourceHandlerBuilder(String interfaceId, ServerConnectorFuture serverConnectorFuture) {
+    public Http2SourceHandlerBuilder(String interfaceId, ServerConnectorFuture serverConnectorFuture) {
         this.interfaceId = interfaceId;
         this.serverConnectorFuture = serverConnectorFuture;
     }
 
     @Override
-    public HTTP2SourceHandler build() {
+    public Http2SourceHandler build() {
         return super.build();
     }
 
     @Override
-    protected HTTP2SourceHandler build(Http2ConnectionDecoder decoder, Http2ConnectionEncoder encoder,
+    protected Http2SourceHandler build(Http2ConnectionDecoder decoder, Http2ConnectionEncoder encoder,
                                        Http2Settings initialSettings) {
-        HTTP2SourceHandler handler =
-                new HTTP2SourceHandler(decoder, encoder, initialSettings, interfaceId, serverConnectorFuture);
+        Http2SourceHandler handler =
+                new Http2SourceHandler(decoder, encoder, initialSettings, interfaceId, serverConnectorFuture);
         frameListener(handler.getHttp2FrameListener());
         connection(new DefaultHttp2Connection(true));
         return handler;

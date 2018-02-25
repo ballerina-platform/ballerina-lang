@@ -152,7 +152,7 @@ public class HTTPServerChannelInitializer extends ChannelInitializer<SocketChann
         final HttpServerUpgradeHandler.UpgradeCodecFactory upgradeCodecFactory = protocol -> {
             if (AsciiString.contentEquals(Http2CodecUtil.HTTP_UPGRADE_PROTOCOL_NAME, protocol)) {
                 return new Http2ServerUpgradeCodec(Constants.HTTP2_SOURCE_HANDLER,
-                                                   new HTTP2SourceHandlerBuilder(
+                                                   new Http2SourceHandlerBuilder(
                                                            this.interfaceId, this.serverConnectorFuture).build());
             } else {
                 return null;
@@ -239,7 +239,7 @@ public class HTTPServerChannelInitializer extends ChannelInitializer<SocketChann
             if (ApplicationProtocolNames.HTTP_2.equals(protocol)) {
                 // handles pipeline for HTTP/2 requests after SSL handshake
                 ctx.pipeline().addLast(Constants.HTTP2_SOURCE_HANDLER,
-                                       new HTTP2SourceHandlerBuilder(interfaceId, serverConnectorFuture).build());
+                                       new Http2SourceHandlerBuilder(interfaceId, serverConnectorFuture).build());
             } else if (ApplicationProtocolNames.HTTP_1_1.equals(protocol)) {
                 // handles pipeline for HTTP/1 requests after SSL handshake
                 configureHTTPPipeline(ctx.pipeline());

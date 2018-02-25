@@ -55,9 +55,9 @@ import java.util.Map;
  * {@code HTTP2SourceHandler} read the Http2 binary frames sent from client through the channel
  * and build carbon messages deliver to the listener.
  */
-public final class HTTP2SourceHandler extends Http2ConnectionHandler {
+public final class Http2SourceHandler extends Http2ConnectionHandler {
 
-    private static final Logger log = LoggerFactory.getLogger(HTTP2SourceHandler.class);
+    private static final Logger log = LoggerFactory.getLogger(Http2SourceHandler.class);
 
     /* streamIdRequestMap contains mapping of http carbon messages vs stream id to support multiplexing */
     private Map<Integer, HTTPCarbonMessage> streamIdRequestMap = PlatformDependent.newConcurrentHashMap();
@@ -66,7 +66,7 @@ public final class HTTP2SourceHandler extends Http2ConnectionHandler {
     private String interfaceId;
     private ServerConnectorFuture serverConnectorFuture;
 
-    public HTTP2SourceHandler(Http2ConnectionDecoder decoder, Http2ConnectionEncoder encoder,
+    public Http2SourceHandler(Http2ConnectionDecoder decoder, Http2ConnectionEncoder encoder,
                               Http2Settings initialSettings,
                               String interfaceId, ServerConnectorFuture serverConnectorFuture) {
         super(decoder, encoder, initialSettings);
