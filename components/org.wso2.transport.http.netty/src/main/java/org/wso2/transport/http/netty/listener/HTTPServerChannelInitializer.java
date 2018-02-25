@@ -143,8 +143,10 @@ public class HTTPServerChannelInitializer extends ChannelInitializer<SocketChann
                 this.interfaceId, this.chunkConfig, this.serverName));
     }
 
-    public void configureH2cPipeline(ChannelPipeline pipeline) {
-        // Add http2 upgrade decoder and upgrade handler for check http version
+    /* Configure HTTP/2 ClearText pipeline */
+    private void configureH2cPipeline(ChannelPipeline pipeline) {
+
+        // Add http2 upgrade decoder and upgrade handler
         final HttpServerCodec sourceCodec = new HttpServerCodec();
 
         final HttpServerUpgradeHandler.UpgradeCodecFactory upgradeCodecFactory = protocol -> {
@@ -214,17 +216,22 @@ public class HTTPServerChannelInitializer extends ChannelInitializer<SocketChann
         this.serverName = serverName;
     }
 
+    /**
+     * Set whether HTTP/2.0 is enabled for the connection
+     *
+     * @param http2Enabled whether HTTP/2.0 is enabled
+     */
     public void setHttp2Enabled(boolean http2Enabled) {
         isHttp2Enabled = http2Enabled;
     }
 
+    /* Handler which handles ALPN */
     class H2PipelineConfigurator extends ApplicationProtocolNegotiationHandler {
 
         public H2PipelineConfigurator() {
             super(ApplicationProtocolNames.HTTP_1_1);
         }
 
-        @Override
         /**
          *  Configure pipeline after SSL handshake
          */

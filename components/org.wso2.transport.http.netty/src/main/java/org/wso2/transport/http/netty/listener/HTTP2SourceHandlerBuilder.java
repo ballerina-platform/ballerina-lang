@@ -26,8 +26,7 @@ import io.netty.handler.codec.http2.Http2Settings;
 import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
 
 /**
- * {@code HTTP2SourceHandlerBuilder} is used to build the http2 response handler with frame listener and connection
- * manager.
+ * {@code HTTP2SourceHandlerBuilder} is used to build the HTTP2SourceHandler
  */
 public final class HTTP2SourceHandlerBuilder
         extends AbstractHttp2ConnectionHandlerBuilder<HTTP2SourceHandler, HTTP2SourceHandlerBuilder> {

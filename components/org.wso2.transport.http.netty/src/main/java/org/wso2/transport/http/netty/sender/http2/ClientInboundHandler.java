@@ -66,7 +66,7 @@ public class ClientInboundHandler extends Http2EventAdapter {
         } else {
             responseMessage.addHttpContent(new DefaultHttpContent(data.retain()));
         }
-        return data.capacity() + padding;
+        return data.readableBytes() + padding;
     }
 
     @Override
@@ -113,7 +113,6 @@ public class ClientInboundHandler extends Http2EventAdapter {
     private HTTPCarbonMessage setupResponseCarbonMessage(ChannelHandlerContext ctx, int streamId,
                                                          Http2Headers http2Headers,
                                                          OutboundMsgHolder outboundMsgHolder) {
-
         // Create HTTP Response
         CharSequence status = http2Headers.status();
         HttpResponseStatus responseStatus;
