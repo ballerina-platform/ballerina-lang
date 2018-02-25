@@ -89,7 +89,7 @@ class AboutDialog extends React.Component {
                     </a>
                     &nbsp; tracker for reporting issues.
                 </p>
-                <div className='pull-right'>
+                <div className='pull-right modal-footer'>
                     © {new Date().getFullYear()}
                     &nbsp;
                     <a
