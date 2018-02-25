@@ -135,14 +135,14 @@ public class Http2ClientConnectorImpl implements Http2ClientConnector {
         private boolean isValidateChannel(ChannelFuture channelFuture) throws Exception {
             if (channelFuture.isDone() && channelFuture.isSuccess()) {
                 if (log.isDebugEnabled()) {
-                    log.debug("Created the connection to address: {}",
-                              route.toString() + " " + "Original Channel ID is : " + channelFuture.channel().id());
+                    log.debug("Created the connection to address: {}, Original Channel ID is : {}", route.toString(),
+                              channelFuture.channel().id());
                 }
                 return true;
             }
             return false;
         }
-
     }
 }
+
 

@@ -30,6 +30,7 @@ import org.apache.commons.logging.LogFactory;
 import org.wso2.transport.http.netty.common.Constants;
 import org.wso2.transport.http.netty.common.Util;
 import org.wso2.transport.http.netty.config.ChunkConfig;
+import org.wso2.transport.http.netty.config.SenderConfiguration;
 import org.wso2.transport.http.netty.contract.HttpResponseFuture;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 
@@ -51,31 +52,33 @@ public class UpgradeRequestHandler extends ChannelDuplexHandler {
     /* Lock for synchronizing access */
     private Lock lock = new ReentrantLock();
 
-    private ClientOutboundHandler clientHandler;
+    /* Outbound handler to be engaged after the upgrade */
+    private ClientOutboundHandler http2ClientOutboundHandler;
+    private SenderConfiguration senderConfiguration;
 
-    public UpgradeRequestHandler(ClientOutboundHandler clientHandler) {
-        this.clientHandler = clientHandler;
+    public UpgradeRequestHandler(SenderConfiguration senderConfiguration, ClientOutboundHandler clientHandler) {
+        this.senderConfiguration = senderConfiguration;
+        this.http2ClientOutboundHandler = clientHandler;
     }
 
     public void write(ChannelHandlerContext ctx, Object msg, ChannelPromise promise) throws Exception {
         if (msg instanceof OutboundMsgHolder) {
             OutboundMsgHolder outboundMsgHolder = (OutboundMsgHolder) msg;
-
-            lock.lock();
+            lock.lock();            // Locking is required to prevent two requests issuing the upgrade
             try {
                 TargetChannel.UpgradeState state = targetChannel.getUpgradeState();
                 if (state == TargetChannel.UpgradeState.UPGRADE_NOT_ISSUED) {
                     targetChannel.updateUpgradeState(TargetChannel.UpgradeState.UPGRADE_ISSUED);
                     new UpgradeRequestWriter(outboundMsgHolder).writeContent(ctx);
-                } else if (state == TargetChannel.UpgradeState.UPGRADED) {
-                    ctx.write(msg, promise);
                 } else if (state == TargetChannel.UpgradeState.UPGRADE_ISSUED) {
+                    // if upgrade request is already issued, we need to queue the subsequent messages
                     targetChannel.addPendingMessage(outboundMsgHolder);
+                } else {
+                    ctx.write(msg, promise);
                 }
             } finally {
                 lock.unlock();
             }
-
         } else {
             ctx.write(msg, promise);
         }
@@ -96,7 +99,7 @@ public class UpgradeRequestHandler extends ChannelDuplexHandler {
                 try {
                     targetChannel.updateUpgradeState(TargetChannel.UpgradeState.UPGRADED);
                     ctx.pipeline().remove(this);
-                    ctx.pipeline().addLast(clientHandler);
+                    ctx.pipeline().addLast(http2ClientOutboundHandler);
                 } finally {
                     lock.unlock();
                 }
@@ -116,6 +119,7 @@ public class UpgradeRequestHandler extends ChannelDuplexHandler {
         }
     }
 
+    /* Flush the messages queued during the upgrading process */
     private void flushPendingMessages(ChannelHandlerContext ctx, ChannelPromise promise) {
 
         targetChannel.getPendingMessages().forEach(message -> {
@@ -124,6 +128,7 @@ public class UpgradeRequestHandler extends ChannelDuplexHandler {
         targetChannel.getPendingMessages().clear();
     }
 
+    /* Try the updrade with the next queued message if the initial upgrade fail */
     private void tryNextMessage(ChannelHandlerContext ctx, ChannelPromise promise) {
         OutboundMsgHolder nextMessage = targetChannel.getPendingMessages().poll();
         if (nextMessage != null) {
@@ -131,29 +136,35 @@ public class UpgradeRequestHandler extends ChannelDuplexHandler {
         }
     }
 
+    /* Responsible for writing initial upgrade request in HTTP/1.1. Writing logic is very much same as
+    {@code TargetChannel} of http client, we may refactor this later to prevent duplicate logic */
     private class UpgradeRequestWriter {
 
         private final Log log = LogFactory.getLog(UpgradeRequestWriter.class);
-        List<HttpContent> contentList = new ArrayList<>();
+
+        private List<HttpContent> contentList = new ArrayList<>();
+        private String httpVersion = senderConfiguration.getHttpVersion();
+        private ChunkConfig chunkConfig = senderConfiguration.getChunkingConfig();
+
+        private HTTPCarbonMessage outboundRequest;
+        private HttpResponseFuture responseFuture;
+        private OutboundMsgHolder outboundMsgHolder;
+
         int contentLength = 0;
-        boolean isRequestWritten = false;
-        String httpVersion = "1.1";
-        ChunkConfig chunkConfig = ChunkConfig.AUTO;
-        HTTPCarbonMessage httpOutboundRequest;
-        HttpResponseFuture responseFuture;
-        OutboundMsgHolder outboundMsgHolder;
+        private boolean isRequestWritten = false;
 
         public UpgradeRequestWriter(OutboundMsgHolder outboundMsgHolder) {
             this.outboundMsgHolder = outboundMsgHolder;
-            httpOutboundRequest = outboundMsgHolder.getRequest();
+            outboundRequest = outboundMsgHolder.getRequest();
             responseFuture = outboundMsgHolder.getResponseFuture();
         }
 
         public void writeContent(ChannelHandlerContext ctx) {
 
+            // Response for the upgrade request will arrive in stream 1, so use 1 as the stream id
             targetChannel.putInFlightMessage(1, outboundMsgHolder);
 
-            httpOutboundRequest.getHttpContentAsync().
+            outboundRequest.getHttpContentAsync().
                     setMessageListener((httpContent -> targetChannel.getChannel().eventLoop().execute(() -> {
                         try {
                             writeOutboundRequest(ctx, httpContent);
@@ -168,30 +179,30 @@ public class UpgradeRequestHandler extends ChannelDuplexHandler {
 
         private void writeOutboundRequest(ChannelHandlerContext ctx, HttpContent httpContent) throws Exception {
             if (Util.isLastHttpContent(httpContent)) {
-                if (!this.isRequestWritten) {
-                    if (Util.isEntityBodyAllowed(getHttpMethod(httpOutboundRequest))) {
+                if (!isRequestWritten) {
+                    if (Util.isEntityBodyAllowed(getHttpMethod(outboundRequest))) {
                         if (chunkConfig == ChunkConfig.ALWAYS && Util.isVersionCompatibleForChunking(httpVersion)) {
-                            Util.setupChunkedRequest(httpOutboundRequest);
+                            Util.setupChunkedRequest(outboundRequest);
                         } else {
                             contentLength += httpContent.content().readableBytes();
-                            Util.setupContentLengthRequest(httpOutboundRequest, contentLength);
+                            Util.setupContentLengthRequest(outboundRequest, contentLength);
                         }
                     }
-                    writeOutboundRequestHeaders(httpOutboundRequest);
+                    writeOutboundRequestHeaders(outboundRequest);
                 }
 
                 writeOutboundRequestBody(ctx, httpContent);
             } else {
                 if ((chunkConfig == ChunkConfig.ALWAYS || chunkConfig == ChunkConfig.AUTO)
                     && Util.isVersionCompatibleForChunking(httpVersion)) {
-                    if (!this.isRequestWritten) {
-                        Util.setupChunkedRequest(httpOutboundRequest);
-                        writeOutboundRequestHeaders(httpOutboundRequest);
+                    if (!isRequestWritten) {
+                        Util.setupChunkedRequest(outboundRequest);
+                        writeOutboundRequestHeaders(outboundRequest);
                     }
                     ChannelFuture outboundRequestChannelFuture = ctx.channel().writeAndFlush(httpContent);
                     notifyIfFailure(outboundRequestChannelFuture);
                 } else {
-                    this.contentList.add(httpContent);
+                    contentList.add(httpContent);
                     contentLength += httpContent.content().readableBytes();
                 }
             }

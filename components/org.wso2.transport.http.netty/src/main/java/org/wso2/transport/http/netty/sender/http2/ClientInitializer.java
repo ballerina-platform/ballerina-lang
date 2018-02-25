@@ -61,7 +61,7 @@ public class ClientInitializer extends ChannelInitializer<SocketChannel> {
                 new Http2ConnectionHandlerBuilder().
                         connection(connection).frameLogger(logger).frameListener(frameListener).build();
         clientOutboundHandler = new ClientOutboundHandler(connection, connectionHandler.encoder());
-        upgradeRequestHandler = new UpgradeRequestHandler(clientOutboundHandler);
+        upgradeRequestHandler = new UpgradeRequestHandler(senderConfiguration, clientOutboundHandler);
         skipHttpToHttp2Upgrade = senderConfiguration.skipHttpToHttp2Upgrade();
     }
 
