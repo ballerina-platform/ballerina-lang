@@ -282,6 +282,14 @@ public abstract class BLangNodeVisitor {
         throw new AssertionError();
     }
 
+    public void visit(BLangWorkerSend workerSendNode) {
+        throw new AssertionError();
+    }
+
+    public void visit(BLangWorkerReceive workerReceiveNode) {
+        throw new AssertionError();
+    }
+
 
     // Expressions
 
@@ -374,14 +382,6 @@ public abstract class BLangNodeVisitor {
     }
 
     public void visit(BLangStringTemplateLiteral stringTemplateLiteral) {
-        throw new AssertionError();
-    }
-
-    public void visit(BLangWorkerSend workerSendNode) {
-        throw new AssertionError();
-    }
-
-    public void visit(BLangWorkerReceive workerReceiveNode) {
         throw new AssertionError();
     }
 
