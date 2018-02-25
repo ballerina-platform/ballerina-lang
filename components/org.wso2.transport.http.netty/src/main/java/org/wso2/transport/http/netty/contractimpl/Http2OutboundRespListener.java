@@ -21,20 +21,18 @@ package org.wso2.transport.http.netty.contractimpl;
 
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.HttpContent;
-import io.netty.handler.codec.http2.DefaultHttp2Headers;
+import io.netty.handler.codec.http.HttpMessage;
 import io.netty.handler.codec.http2.Http2ConnectionEncoder;
 import io.netty.handler.codec.http2.Http2Exception;
 import io.netty.handler.codec.http2.Http2Headers;
+import io.netty.handler.codec.http2.HttpConversionUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.transport.http.netty.common.Constants;
 import org.wso2.transport.http.netty.common.Util;
 import org.wso2.transport.http.netty.contract.HttpConnectorListener;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 
 import java.util.Locale;
-
-import static io.netty.handler.codec.http.HttpResponseStatus.OK;
 
 /**
  * {@code Http2OutboundRespListener} is responsible for listening for
@@ -95,10 +93,11 @@ public class Http2OutboundRespListener implements HttpConnectorListener {
     }
 
     private void writeHeaders(HTTPCarbonMessage outboundResponseMsg) throws Http2Exception {
-        Http2Headers http2Headers = new DefaultHttp2Headers().status(OK.codeAsText());
-        removeUnwantedHeaders(outboundResponseMsg);
-        outboundResponseMsg.getHeaders().entries().forEach(
-                header -> http2Headers.set(header.getKey().toLowerCase(), header.getValue()));
+        outboundResponseMsg.getHeaders().add(HttpConversionUtil.ExtensionHeaderNames.SCHEME.text(), "HTTP");
+        HttpMessage httpMessage = outboundResponseMsg.getNettyHttpResponse();
+        // Construct Http2 headers
+        Http2Headers http2Headers = HttpConversionUtil.toHttp2Headers(httpMessage, true);
+
         isHeaderWritten = true;
         encoder.writeHeaders(ctx, streamId, http2Headers, 0, false, ctx.newPromise());
         encoder.flowController().writePendingBytes();
@@ -109,11 +108,6 @@ public class Http2OutboundRespListener implements HttpConnectorListener {
         encoder.writeData(ctx, streamId, httpContent.content().retain(), 0, endStream, ctx.newPromise());
         encoder.flowController().writePendingBytes();
         ctx.flush();
-    }
-
-    private void removeUnwantedHeaders(HTTPCarbonMessage outboundResponseMsg) {
-        outboundResponseMsg.removeHeader(Constants.CONNECTION);
-        outboundResponseMsg.removeHeader(Constants.HTTP_TRANSFER_ENCODING);
     }
 
 }
