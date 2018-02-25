@@ -329,6 +329,10 @@ public class TypeChecker extends BLangNodeVisitor {
 
                 break;
             case TypeTags.XML:
+                if (fieldAccessExpr.lhsVar) {
+                    dlog.error(fieldAccessExpr.pos, DiagnosticCode.CANNOT_UPDATE_XML_SEQUENCE);
+                    break;
+                }
                 actualType = symTable.xmlType;
                 break;
             case TypeTags.ERROR:

@@ -6,3 +6,9 @@ function testInvalidXMLAccessWithIndex() (xml) {
 
     return x2; 
 }
+
+function testUpdatingGetAllChildren() {
+    xml x1 = xml `<name>supun</name>`;
+    xml x2 = xml `<fruit>apple</fruit>`;
+    x1.* = x2;
+}
