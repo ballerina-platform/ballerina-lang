@@ -122,9 +122,7 @@ public class UpgradeRequestHandler extends ChannelDuplexHandler {
     /* Flush the messages queued during the upgrading process */
     private void flushPendingMessages(ChannelHandlerContext ctx, ChannelPromise promise) {
 
-        targetChannel.getPendingMessages().forEach(message -> {
-            ctx.write(message, promise);
-        });
+        targetChannel.getPendingMessages().forEach(message -> ctx.write(message, promise));
         targetChannel.getPendingMessages().clear();
     }
 

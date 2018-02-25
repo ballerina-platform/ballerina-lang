@@ -47,16 +47,14 @@ public class ClientInitializer extends ChannelInitializer<SocketChannel> {
     private ClientInboundHandler clientInboundHandler;
     private UpgradeRequestHandler upgradeRequestHandler;
     private Http2ConnectionHandler connectionHandler;
-    private Http2FrameListener frameListener;
-    private Http2Connection connection;
 
     /* Whether to skip the upgrade and directly use HTTP/2 Frames for communication */
     private boolean skipHttpToHttp2Upgrade = false;
 
     public ClientInitializer(SenderConfiguration senderConfiguration) {
-        connection = new DefaultHttp2Connection(false);
+        Http2Connection connection = new DefaultHttp2Connection(false);
         clientInboundHandler = new ClientInboundHandler();
-        frameListener = new DelegatingDecompressorFrameListener(connection, clientInboundHandler);
+        Http2FrameListener frameListener = new DelegatingDecompressorFrameListener(connection, clientInboundHandler);
         connectionHandler =
                 new Http2ConnectionHandlerBuilder().
                         connection(connection).frameLogger(logger).frameListener(frameListener).build();
@@ -91,7 +89,7 @@ public class ClientInitializer extends ChannelInitializer<SocketChannel> {
      *
      * @return associated ClientOutboundHandler
      */
-    public ClientOutboundHandler getClientOutboundHandler() {
+    ClientOutboundHandler getClientOutboundHandler() {
         return clientOutboundHandler;
     }
 

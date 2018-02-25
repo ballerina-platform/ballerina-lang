@@ -117,7 +117,7 @@ public final class Http2SourceHandler extends Http2ConnectionHandler {
      *
      * @return the {@code Http2FrameListener}
      */
-    public Http2FrameListener getHttp2FrameListener() {
+    Http2FrameListener getHttp2FrameListener() {
         return http2FrameListener;
     }
 

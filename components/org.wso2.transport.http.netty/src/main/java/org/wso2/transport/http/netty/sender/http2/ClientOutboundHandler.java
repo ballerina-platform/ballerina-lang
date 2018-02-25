@@ -115,7 +115,7 @@ public class ClientOutboundHandler extends ChannelOutboundHandlerAdapter {
                                                 targetChannel.getChannel().eventLoop().execute(() -> {
                                                     try {
                                                         writeOutboundRequest(
-                                                                ctx, httpContent, streamId, true);
+                                                                ctx, httpContent, streamId);
                                                     } catch (Exception exception) {
                                                         String errorMsg = "Failed to send the request : " +
                                                                           exception.getMessage().
@@ -125,8 +125,8 @@ public class ClientOutboundHandler extends ChannelOutboundHandlerAdapter {
                                                 })));
         }
 
-        private void writeOutboundRequest(ChannelHandlerContext ctx, HttpContent msg, int streamId,
-                                          boolean validateHeaders) throws Http2Exception {
+        private void writeOutboundRequest(ChannelHandlerContext ctx, HttpContent msg, int streamId)
+                throws Http2Exception {
 
             boolean endStream = false;
             if (!isHeadersWritten) {
@@ -136,7 +136,7 @@ public class ClientOutboundHandler extends ChannelOutboundHandlerAdapter {
                     endStream = true;
                 }
                 // Write Headers
-                writeOutboundRequestHeaders(ctx, httpRequest, streamId, true, endStream);
+                writeOutboundRequestHeaders(ctx, httpRequest, streamId, endStream);
                 isHeadersWritten = true;
                 if (endStream) {
                     return;
@@ -154,7 +154,7 @@ public class ClientOutboundHandler extends ChannelOutboundHandlerAdapter {
                     // Convert any trailing headers.
                     final LastHttpContent lastContent = (LastHttpContent) msg;
                     trailers = lastContent.trailingHeaders();
-                    http2Trailers = HttpConversionUtil.toHttp2Headers(trailers, validateHeaders);
+                    http2Trailers = HttpConversionUtil.toHttp2Headers(trailers, true);
                 }
 
                 // Write the data
@@ -177,10 +177,10 @@ public class ClientOutboundHandler extends ChannelOutboundHandlerAdapter {
         }
 
         private void writeOutboundRequestHeaders(ChannelHandlerContext ctx, HttpMessage httpMsg, int streamId,
-                                                 boolean validateHeaders, boolean endStream) throws Http2Exception {
+                                                 boolean endStream) throws Http2Exception {
             // Convert and write the headers.
             httpMsg.headers().add(HttpConversionUtil.ExtensionHeaderNames.SCHEME.text(), "HTTP");
-            Http2Headers http2Headers = HttpConversionUtil.toHttp2Headers(httpMsg, validateHeaders);
+            Http2Headers http2Headers = HttpConversionUtil.toHttp2Headers(httpMsg, true);
             writeHttp2Headers(ctx, streamId, httpMsg.headers(), http2Headers, endStream);
         }
 

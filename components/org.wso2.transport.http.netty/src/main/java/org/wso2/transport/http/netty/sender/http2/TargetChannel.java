@@ -114,7 +114,7 @@ public class TargetChannel {
      *
      * @param streamId stream id
      */
-    public void removeInFlightMessage(int streamId) {
+    void removeInFlightMessage(int streamId) {
         inFlightMessages.remove(streamId);
     }
 
@@ -124,7 +124,7 @@ public class TargetChannel {
      *
      * @param pendingMessage a message to be hold until connection upgrade is done
      */
-    public void addPendingMessage(OutboundMsgHolder pendingMessage) {
+    void addPendingMessage(OutboundMsgHolder pendingMessage) {
         pendingMessages.add(pendingMessage);
     }
 
@@ -133,7 +133,7 @@ public class TargetChannel {
      *
      * @return queue of pending messages to be delivered to the backend service
      */
-    public ConcurrentLinkedQueue<OutboundMsgHolder> getPendingMessages() {
+    ConcurrentLinkedQueue<OutboundMsgHolder> getPendingMessages() {
         return pendingMessages;
     }
 
@@ -142,7 +142,7 @@ public class TargetChannel {
      *
      * @param upgradeState status of the connection upgrade
      */
-    public void updateUpgradeState(UpgradeState upgradeState) {
+    void updateUpgradeState(UpgradeState upgradeState) {
         this.upgradeState = upgradeState;
     }
 
@@ -151,7 +151,7 @@ public class TargetChannel {
      *
      * @return state of the connection upgrade process
      */
-    public UpgradeState getUpgradeState() {
+    UpgradeState getUpgradeState() {
         return upgradeState;
     }
 
@@ -160,14 +160,14 @@ public class TargetChannel {
      *
      * @return number of active streams count
      */
-    public int incrementActiveStreamCount() {
+    int incrementActiveStreamCount() {
         return activeStreams.incrementAndGet();
     }
 
     /**
      * Mark the TargetChannel has reached the maximum number of active streams
      */
-    public void markAsExhausted() {
+    void markAsExhausted() {
         isExhausted.set(true);
     }
 

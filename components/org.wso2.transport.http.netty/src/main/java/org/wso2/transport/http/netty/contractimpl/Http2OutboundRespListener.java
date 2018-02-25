@@ -59,19 +59,17 @@ public class Http2OutboundRespListener implements HttpConnectorListener {
 
     @Override
     public void onMessage(HTTPCarbonMessage outboundResponseMsg) {
-        ctx.channel().eventLoop().execute(() -> {
-            outboundResponseMsg.getHttpContentAsync().setMessageListener(
-                    httpContent -> ctx.channel().eventLoop().execute(() -> {
-                        try {
-                            writeOutboundResponse(outboundResponseMsg, httpContent);
-                        } catch (Http2Exception ex) {
-                            String errorMsg = "Failed to send the outbound response : " +
-                                              ex.getMessage().toLowerCase(Locale.ENGLISH);
-                            log.error(errorMsg, ex);
-                            inboundRequestMsg.getHttpOutboundRespStatusFuture().notifyHttpListener(ex);
-                        }
-                    }));
-        });
+        ctx.channel().eventLoop().execute(() -> outboundResponseMsg.getHttpContentAsync().setMessageListener(
+                httpContent -> ctx.channel().eventLoop().execute(() -> {
+                    try {
+                        writeOutboundResponse(outboundResponseMsg, httpContent);
+                    } catch (Http2Exception ex) {
+                        String errorMsg = "Failed to send the outbound response : " +
+                                          ex.getMessage().toLowerCase(Locale.ENGLISH);
+                        log.error(errorMsg, ex);
+                        inboundRequestMsg.getHttpOutboundRespStatusFuture().notifyHttpListener(ex);
+                    }
+                })));
     }
 
     @Override

@@ -182,7 +182,7 @@ public class ConnectionManager {
          *
          * @return active TargetChannel
          */
-        public TargetChannel fetchTargetChannel() {
+        TargetChannel fetchTargetChannel() {
 
             if (targetChannels.size() != 0) {
                 TargetChannel targetChannel = targetChannels.peek();
@@ -208,11 +208,11 @@ public class ConnectionManager {
             return null;
         }
 
-        public void addChannel(TargetChannel targetChannel) {
+        void addChannel(TargetChannel targetChannel) {
             targetChannels.add(targetChannel);
         }
 
-        public void removeChannel(TargetChannel targetChannel) {
+        void removeChannel(TargetChannel targetChannel) {
             targetChannels.remove(targetChannel);
         }
     }

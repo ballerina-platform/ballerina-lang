@@ -76,7 +76,7 @@ public class OutboundMsgHolder {
      *
      * @param responseCarbonMessage response Carbon Message
      */
-    public void setResponseCarbonMessage(HTTPCarbonMessage responseCarbonMessage) {
+    void setResponseCarbonMessage(HTTPCarbonMessage responseCarbonMessage) {
         this.responseCarbonMessage = responseCarbonMessage;
     }
 }
