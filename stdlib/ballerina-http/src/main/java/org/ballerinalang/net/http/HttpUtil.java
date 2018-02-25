@@ -23,6 +23,7 @@ import io.netty.handler.codec.http.DefaultHttpHeaders;
 import io.netty.handler.codec.http.DefaultHttpRequest;
 import io.netty.handler.codec.http.DefaultHttpResponse;
 import io.netty.handler.codec.http.DefaultLastHttpContent;
+import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.HttpMethod;
 import io.netty.handler.codec.http.HttpResponseStatus;
@@ -54,6 +55,7 @@ import org.ballerinalang.util.exceptions.BallerinaException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.messaging.exceptions.ServerConnectorException;
+import org.wso2.transport.http.netty.common.Constants;
 import org.wso2.transport.http.netty.config.ChunkConfig;
 import org.wso2.transport.http.netty.config.ListenerConfiguration;
 import org.wso2.transport.http.netty.config.Parameter;
@@ -189,13 +191,14 @@ public class HttpUtil {
      * @param entity            Represent an entity
      * @param isRequest         boolean representing whether the message is a request or a response
      */
-    private static void populateEntityBody(Context context, BStruct httpMessageStruct, BStruct entity,
-                                          boolean isRequest) {
+    protected static void populateEntityBody(Context context, BStruct httpMessageStruct, BStruct entity,
+                                             boolean isRequest) {
         HTTPCarbonMessage httpCarbonMessage = HttpUtil
                 .getCarbonMsg(httpMessageStruct, HttpUtil.createHttpCarbonMessage(isRequest));
         HttpMessageDataStreamer httpMessageDataStreamer = new HttpMessageDataStreamer(httpCarbonMessage);
         String contentType = httpCarbonMessage.getHeader(CONTENT_TYPE);
-        if (isRequest && MimeUtil.isNotNullAndEmpty(contentType) && contentType.startsWith(MULTIPART_AS_PRIMARY_TYPE)) {
+        if (isRequest && MimeUtil.isNotNullAndEmpty(contentType) && contentType.startsWith(MULTIPART_AS_PRIMARY_TYPE)
+                && context != null) {
             MultipartDecoder.parseBody(context, entity, contentType, httpMessageDataStreamer.getInputStream());
         } else {
             int contentLength = NO_CONTENT_LENGTH_FOUND;
@@ -245,8 +248,9 @@ public class HttpUtil {
                                                HTTPCarbonMessage outboundResponseMsg, BStruct outboundResponseStruct) {
 
         HttpUtil.checkEntityAvailability(context, outboundResponseStruct);
-        HttpUtil.setKeepAliveHeader(context, outboundResponseMsg);
+
         HttpUtil.addHTTPSessionAndCorsHeaders(context, inboundRequestMsg, outboundResponseMsg);
+        setKeepAliveAndCompressionHeaders(context, outboundResponseMsg);
         HttpUtil.enrichOutboundMessage(outboundResponseMsg, outboundResponseStruct);
     }
 
@@ -315,6 +319,8 @@ public class HttpUtil {
         if (payload != null) {
             payload = lowerCaseTheFirstLetter(payload);
             response.addHttpContent(new DefaultLastHttpContent(Unpooled.wrappedBuffer(payload.getBytes())));
+        } else {
+            response.addHttpContent(new DefaultLastHttpContent());
         }
         setHttpStatusCodes(statusCode, response);
 
@@ -382,7 +388,7 @@ public class HttpUtil {
                                                         HTTPCarbonMessage inboundRequestMsg) {
         if (inboundRequestMsg.getHeader(HttpConstants.USER_AGENT_HEADER) != null) {
             inboundRequestStruct.setStringField(HttpConstants.IN_REQUEST_USER_AGENT_INDEX,
-                                                inboundRequestMsg.getHeader(HttpConstants.USER_AGENT_HEADER));
+                    inboundRequestMsg.getHeader(HttpConstants.USER_AGENT_HEADER));
             inboundRequestMsg.removeHeader(HttpConstants.USER_AGENT_HEADER);
         }
     }
@@ -390,32 +396,32 @@ public class HttpUtil {
     private static void enrichWithInboundRequestInfo(BStruct inboundRequestStruct,
                                                      HTTPCarbonMessage inboundRequestMsg) {
         inboundRequestStruct.setStringField(HttpConstants.IN_REQUEST_RAW_PATH_INDEX,
-                                            (String) inboundRequestMsg.getProperty(HttpConstants.REQUEST_URL));
+                (String) inboundRequestMsg.getProperty(HttpConstants.REQUEST_URL));
         inboundRequestStruct.setStringField(HttpConstants.IN_REQUEST_METHOD_INDEX,
-                                            (String) inboundRequestMsg.getProperty(HttpConstants.HTTP_METHOD));
+                (String) inboundRequestMsg.getProperty(HttpConstants.HTTP_METHOD));
         inboundRequestStruct.setStringField(HttpConstants.IN_REQUEST_VERSION_INDEX,
-                                            (String) inboundRequestMsg.getProperty(HttpConstants.HTTP_VERSION));
+                (String) inboundRequestMsg.getProperty(HttpConstants.HTTP_VERSION));
         Map<String, String> resourceArgValues =
                 (Map<String, String>) inboundRequestMsg.getProperty(HttpConstants.RESOURCE_ARGS);
         inboundRequestStruct.setStringField(HttpConstants.IN_REQUEST_EXTRA_PATH_INFO_INDEX,
-                                            resourceArgValues.get(HttpConstants.EXTRA_PATH_INFO));
+                resourceArgValues.get(HttpConstants.EXTRA_PATH_INFO));
     }
 
     public static void enrichConnectionInfo(BStruct connection, HTTPCarbonMessage cMsg) {
         connection.addNativeData(HttpConstants.TRANSPORT_MESSAGE, cMsg);
         connection.setStringField(HttpConstants.CONNECTION_HOST_INDEX,
-                                  ((InetSocketAddress) cMsg.getProperty(HttpConstants.LOCAL_ADDRESS)).getHostName());
+                ((InetSocketAddress) cMsg.getProperty(HttpConstants.LOCAL_ADDRESS)).getHostName());
         connection.setIntField(HttpConstants.CONNECTION_PORT_INDEX,
-                               (Integer) cMsg.getProperty(HttpConstants.LISTENER_PORT));
+                (Integer) cMsg.getProperty(HttpConstants.LISTENER_PORT));
     }
 
     /**
      * Populate inbound response with headers and entity.
      *
-     * @param inboundResponse  Ballerina struct to represent response
-     * @param entity    Entity of the response
-     * @param mediaType Content type of the response
-     * @param inboundResponseMsg      Represent carbon message.
+     * @param inboundResponse    Ballerina struct to represent response
+     * @param entity             Entity of the response
+     * @param mediaType          Content type of the response
+     * @param inboundResponseMsg Represent carbon message.
      */
     public static void populateInboundResponse(BStruct inboundResponse, BStruct entity, BStruct mediaType,
                                                HTTPCarbonMessage inboundResponseMsg) {
@@ -423,11 +429,11 @@ public class HttpUtil {
         int statusCode = (Integer) inboundResponseMsg.getProperty(HttpConstants.HTTP_STATUS_CODE);
         inboundResponse.setIntField(HttpConstants.IN_RESPONSE_STATUS_CODE_INDEX, statusCode);
         inboundResponse.setStringField(HttpConstants.IN_RESPONSE_REASON_PHRASE_INDEX,
-                                       HttpResponseStatus.valueOf(statusCode).reasonPhrase());
+                HttpResponseStatus.valueOf(statusCode).reasonPhrase());
 
         if (inboundResponseMsg.getHeader(HttpConstants.SERVER_HEADER) != null) {
             inboundResponse.setStringField(HttpConstants.IN_RESPONSE_SERVER_INDEX,
-                                           inboundResponseMsg.getHeader(HttpConstants.SERVER_HEADER));
+                    inboundResponseMsg.getHeader(HttpConstants.SERVER_HEADER));
             inboundResponseMsg.removeHeader(HttpConstants.SERVER_HEADER);
         }
         populateEntity(entity, mediaType, inboundResponseMsg);
@@ -462,7 +468,7 @@ public class HttpUtil {
                 BStringArray valueArray = (BStringArray) headerMap.get(header.getKey());
                 valueArray.add(valueArray.size(), header.getValue());
             } else {
-                BStringArray valueArray = new BStringArray(new String[] {header.getValue()});
+                BStringArray valueArray = new BStringArray(new String[]{header.getValue()});
                 headerMap.put(header.getKey(), valueArray);
             }
         }
@@ -472,8 +478,8 @@ public class HttpUtil {
     /**
      * Set headers and properties of request/response struct to the outbound transport message.
      *
-     * @param outboundMsg transport Http carbon message.
-     * @param outboundStruct      req/resp struct.
+     * @param outboundMsg    transport Http carbon message.
+     * @param outboundStruct req/resp struct.
      */
     public static void enrichOutboundMessage(HTTPCarbonMessage outboundMsg, BStruct outboundStruct) {
         setHeadersToTransportMessage(outboundMsg, outboundStruct);
@@ -517,12 +523,12 @@ public class HttpUtil {
         if (isInboundRequestStruct(struct)) {
             if (!struct.getStringField(HttpConstants.IN_REQUEST_USER_AGENT_INDEX).isEmpty()) {
                 transportHeaders.add(HttpConstants.USER_AGENT_HEADER,
-                                     struct.getStringField(HttpConstants.IN_REQUEST_USER_AGENT_INDEX));
+                        struct.getStringField(HttpConstants.IN_REQUEST_USER_AGENT_INDEX));
             }
         } else {
             if (!struct.getStringField(HttpConstants.IN_RESPONSE_SERVER_INDEX).isEmpty()) {
                 transportHeaders.add(HttpConstants.SERVER_HEADER,
-                                     struct.getStringField(HttpConstants.IN_RESPONSE_SERVER_INDEX));
+                        struct.getStringField(HttpConstants.IN_RESPONSE_SERVER_INDEX));
             }
         }
     }
@@ -535,7 +541,7 @@ public class HttpUtil {
             }
             if (!struct.getStringField(HttpConstants.OUT_RESPONSE_REASON_PHRASE_INDEX).isEmpty()) {
                 outboundResponseMsg.setProperty(HttpConstants.HTTP_REASON_PHRASE,
-                                                struct.getStringField(HttpConstants.OUT_RESPONSE_REASON_PHRASE_INDEX));
+                        struct.getStringField(HttpConstants.OUT_RESPONSE_REASON_PHRASE_INDEX));
             }
         }
     }
@@ -551,7 +557,7 @@ public class HttpUtil {
      * Check the existence of entity. Set new entity of not present.
      *
      * @param context ballerina context.
-     * @param struct request/response struct.
+     * @param struct  request/response struct.
      */
     public static void checkEntityAvailability(Context context, BStruct struct) {
         BStruct entity = (BStruct) struct.getNativeData(MESSAGE_ENTITY);
@@ -564,7 +570,7 @@ public class HttpUtil {
      * Set new entity to in/out request/response struct.
      *
      * @param context ballerina context.
-     * @param struct request/response struct.
+     * @param struct  request/response struct.
      */
     public static BStruct createNewEntity(Context context, BStruct struct) {
         BStruct entity = ConnectorUtils.createAndGetStruct(context
@@ -577,12 +583,12 @@ public class HttpUtil {
     }
 
     /**
-     * Set connection Keep-Alive headers to transport message.
+     * Set connection Keep-Alive and content-encoding headers to transport message.
      *
-     * @param context ballerina context.
+     * @param context         ballerina context.
      * @param outboundMessage transport message.
      */
-    public static void setKeepAliveHeader(Context context, HTTPCarbonMessage outboundMessage) {
+    public static void setKeepAliveAndCompressionHeaders(Context context, HTTPCarbonMessage outboundMessage) {
         AnnAttachmentInfo configAnn = context.getServiceInfo().getAnnotationAttachmentInfo(
                 HttpConstants.PROTOCOL_PACKAGE_HTTP, HttpConstants.ANN_NAME_CONFIG);
         if (configAnn != null) {
@@ -593,7 +599,13 @@ public class HttpUtil {
             } else {
                 // default behaviour: keepAlive = true
                 outboundMessage.setHeader(HttpConstants.CONNECTION_HEADER,
-                                          HttpConstants.HEADER_VAL_CONNECTION_KEEP_ALIVE);
+                        HttpConstants.HEADER_VAL_CONNECTION_KEEP_ALIVE);
+            }
+            AnnAttributeValue compressionEnabled = configAnn.getAttributeValue(
+                    HttpConstants.ANN_CONFIG_ATTR_COMPRESSION_ENABLED);
+            if (compressionEnabled != null && !compressionEnabled.getBooleanValue()) {
+                outboundMessage.setHeader(HttpHeaderNames.CONTENT_ENCODING.toString(),
+                                          Constants.HTTP_TRANSFER_ENCODING_IDENTITY);
             }
         } else {
             // default behaviour: keepAlive = true
@@ -813,7 +825,7 @@ public class HttpUtil {
             Parameter serverCiphers;
             if (sslEnabledProtocolsAttrVal != null && sslEnabledProtocolsAttrVal.getStringValue() != null) {
                 serverCiphers = new Parameter(HttpConstants.ANN_CONFIG_ATTR_SSL_ENABLED_PROTOCOLS,
-                                              sslEnabledProtocolsAttrVal.getStringValue());
+                        sslEnabledProtocolsAttrVal.getStringValue());
                 serverParams.add(serverCiphers);
             }
 
