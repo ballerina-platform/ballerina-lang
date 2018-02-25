@@ -1,4 +1,5 @@
 import ballerina.net.http;
+import ballerina.io;
 import ballerina.transactions.coordinator;
 
 service<http> initiator1 {
@@ -15,7 +16,7 @@ service<http> initiator1 {
         transaction {
             clientResponse1, _ = endPoint.get("/", newReq);
         } failed {
-            println("Failed");
+            io:println("Failed");
         }
         _ = conn.forward(clientResponse1);
     }
@@ -37,7 +38,7 @@ service<http> participant1 {
             var clientResponse1, _ = endPoint.forward("/task1", req);
             clientResponse2, _ = endPoint.get("/task2", newReq);
         } failed {
-            println("Failed");
+            io:println("Failed");
         }
         _ = conn.forward(clientResponse2);
     }
