@@ -1,5 +1,5 @@
 import ballerina.lang.messages;
-
+import ballerina.io;
 import ballerina.net.jms;
 
 @jms:configuration {
@@ -19,7 +19,7 @@ service<jms> jmsService {
         // Read a message property.
         string myProperty = messages:getProperty(m, "MyProperty");
         // Print the property values.
-        println("myProperty value " + myProperty);
+        io:println("myProperty value " + myProperty);
 
         message responseMessage = {};
         // Set a custom message property. This value will be treated as a JMS 

@@ -1,3 +1,4 @@
+import ballerina.io;
 import ballerina.net.ftp;
 import ballerina.lang.messages;
 import ballerina.lang.files;
@@ -26,8 +27,8 @@ service<ftp> ftpServerConnector {
         string content =txt.toString("UTF-8");
 
         // Print the content of the file to the console.
-        println("Content of the file at: " + url);
-        println(content);
+        io:println("Content of the file at: " + url);
+        io:println(content);
 
         // Append to the content and convert it to a blob.
         content = content + "ballerina";

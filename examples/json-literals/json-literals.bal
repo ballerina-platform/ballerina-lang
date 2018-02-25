@@ -1,3 +1,5 @@
+import ballerina.io;
+
 function main (string[] args) {
 
     //Creates an empty JSON Object.
@@ -7,20 +9,20 @@ function main (string[] args) {
     //Create a JSON object. Keys can be defined with or without quotes.
     //Values can be any expression.
     json p = {fname:"John", lname:"Stallone", "age":age};
-    println(p);
+    io:println(p);
 
     //You can access the object values by using dot (.) notation or array index notation.
     json firstName = p.fname;
-    println(firstName);
+    io:println(firstName);
 
     //Array index notation allows you use any string valued expression as the index.
     json lastName = p["lname"];
-    println(lastName);
+    io:println(lastName);
 
     //Add or change object values.
     p.lname = "Silva";
     p["age"] = 31;
-    println(p);
+    io:println(p);
 
     //Nested JSON objects.
     json p2 = {
@@ -33,8 +35,8 @@ function main (string[] args) {
                               country:"Sri Lanka"
                           }
               };
-    println(p2);
+    io:println(p2);
 
     p2.address.province = "Western";
-    println(p2);
+    io:println(p2);
 }

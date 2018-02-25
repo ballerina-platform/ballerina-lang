@@ -32,9 +32,9 @@ function main (string[] args) {
     getFileCharacterChannel("./files/sample.txt", "r", "UTF-8");
     io:CharacterChannel destinationChannel =
     getFileCharacterChannel("./files/sampleResponse1.txt", "w", "UTF-8");
-    println("Started to process the file.");
+    io:println("Started to process the file.");
     process(sourceChannel, destinationChannel);
-    println("File processing complete.");
+    io:println("File processing complete.");
     //Close the created connections.
     sourceChannel.closeCharacterChannel();
     destinationChannel.closeCharacterChannel();
@@ -44,10 +44,10 @@ function main (string[] args) {
     getFileCharacterChannel("./files/sample.txt", "r", "UTF-8");
     destinationChannel =
     getFileCharacterChannel("./files/sampleResponse2.txt", "w", "UTF-8");
-    println("Started to read all characters in file.");
+    io:println("Started to read all characters in file.");
     string sourceContent = sourceChannel.readAllCharacters();
     _ = destinationChannel.writeCharacters(sourceContent,0);
-    println("All characters are read and copied.");
+    io:println("All characters are read and copied.");
     //Close the created connections.
     sourceChannel.closeCharacterChannel();
     destinationChannel.closeCharacterChannel();

@@ -1,5 +1,5 @@
 import ballerina.lang.messages;
-
+import ballerina.io;
 import ballerina.net.jms;
 
 @Description{value : "Service level annotation to provide connection details. Connection factory type can be either queue or topic depending on the requirement. "}
@@ -19,6 +19,6 @@ service<jms> jmsService {
         string stringPayload = messages:getStringPayload(m);
 
         // Print the retrieved payload.
-        println("Payload: " + stringPayload);
+        io:println("Payload: " + stringPayload);
     }
 }
