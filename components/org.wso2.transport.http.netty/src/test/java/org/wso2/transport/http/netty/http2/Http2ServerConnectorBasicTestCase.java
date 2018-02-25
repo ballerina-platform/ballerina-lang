@@ -27,7 +27,6 @@ import org.wso2.transport.http.netty.config.ListenerConfiguration;
 import org.wso2.transport.http.netty.config.TransportsConfiguration;
 import org.wso2.transport.http.netty.contentaware.listeners.EchoMessageListener;
 import org.wso2.transport.http.netty.contract.Http2ClientConnector;
-import org.wso2.transport.http.netty.contract.HttpResponseFuture;
 import org.wso2.transport.http.netty.contract.HttpWsConnectorFactory;
 import org.wso2.transport.http.netty.contract.ServerConnector;
 import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
@@ -35,16 +34,11 @@ import org.wso2.transport.http.netty.contractimpl.HttpWsConnectorFactoryImpl;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 import org.wso2.transport.http.netty.message.HTTPConnectorUtil;
 import org.wso2.transport.http.netty.message.HttpMessageDataStreamer;
-import org.wso2.transport.http.netty.util.HTTPConnectorListener;
 import org.wso2.transport.http.netty.util.TestUtil;
+import org.wso2.transport.http.netty.util.client.http2.MessageSender;
 import org.wso2.transport.http.netty.util.client.http2.RequestGenerator;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.InputStreamReader;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 
 import static org.testng.Assert.assertEquals;
 import static org.testng.AssertJUnit.assertNotNull;
@@ -81,26 +75,10 @@ public class Http2ServerConnectorBasicTestCase {
     public void testHttp2Post() {
         String testValue = "Test Http2 Message";
         HTTPCarbonMessage httpCarbonMessage = RequestGenerator.generateRequest(HttpMethod.POST, testValue);
-        HTTPCarbonMessage response = sendMessage(httpCarbonMessage);
+        HTTPCarbonMessage response = MessageSender.sendMessage(httpCarbonMessage, http2ClientConnector);
         assertNotNull(response);
-        String result = new BufferedReader(
-                new InputStreamReader(new HttpMessageDataStreamer(
-                        response).getInputStream())).lines().collect(Collectors.joining("\n"));
+        String result = TestUtil.getStringFromInputStream(new HttpMessageDataStreamer(response).getInputStream());
         assertEquals(testValue, result);
-    }
-
-    private HTTPCarbonMessage sendMessage(HTTPCarbonMessage httpCarbonMessage) {
-        try {
-            CountDownLatch countDownLatch = new CountDownLatch(1);
-            HTTPConnectorListener listener = new HTTPConnectorListener(countDownLatch);
-            HttpResponseFuture responseFuture = http2ClientConnector.send(httpCarbonMessage);
-            responseFuture.setHttpConnectorListener(listener);
-            countDownLatch.await(10, TimeUnit.SECONDS);
-            return listener.getHttpResponseMessage();
-        } catch (Exception e) {
-            TestUtil.handleException("Exception occurred while sending a message", e);
-        }
-        return null;
     }
 
     @AfterClass

@@ -26,24 +26,18 @@ import org.wso2.carbon.messaging.exceptions.ServerConnectorException;
 import org.wso2.transport.http.netty.common.Constants;
 import org.wso2.transport.http.netty.config.TransportsConfiguration;
 import org.wso2.transport.http.netty.contract.Http2ClientConnector;
-import org.wso2.transport.http.netty.contract.HttpResponseFuture;
 import org.wso2.transport.http.netty.contract.HttpWsConnectorFactory;
 import org.wso2.transport.http.netty.contractimpl.HttpWsConnectorFactoryImpl;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 import org.wso2.transport.http.netty.message.HTTPConnectorUtil;
 import org.wso2.transport.http.netty.message.HttpMessageDataStreamer;
-import org.wso2.transport.http.netty.util.HTTPConnectorListener;
 import org.wso2.transport.http.netty.util.TestUtil;
+import org.wso2.transport.http.netty.util.client.http2.MessageSender;
 import org.wso2.transport.http.netty.util.client.http2.RequestGenerator;
 import org.wso2.transport.http.netty.util.server.HttpServer;
 import org.wso2.transport.http.netty.util.server.initializers.Http2EchoServerInitializer;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.InputStreamReader;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 
 import static org.testng.Assert.assertEquals;
 import static org.testng.AssertJUnit.assertNotNull;
@@ -69,7 +63,7 @@ public class Http2ClientConnectorBasicTestCase {
     @Test
     public void testHttp2Get() {
         HTTPCarbonMessage httpCarbonMessage = RequestGenerator.generateRequest(HttpMethod.GET, null);
-        HTTPCarbonMessage response = sendMessage(httpCarbonMessage);
+        HTTPCarbonMessage response = MessageSender.sendMessage(httpCarbonMessage, http2ClientConnector);
         assertNotNull(response);
     }
 
@@ -77,11 +71,9 @@ public class Http2ClientConnectorBasicTestCase {
     public void testHttp2Post() {
         String testValue = "Test Message";
         HTTPCarbonMessage httpCarbonMessage = RequestGenerator.generateRequest(HttpMethod.POST, testValue);
-        HTTPCarbonMessage response = sendMessage(httpCarbonMessage);
+        HTTPCarbonMessage response = MessageSender.sendMessage(httpCarbonMessage, http2ClientConnector);
         assertNotNull(response);
-        String result = new BufferedReader(
-                new InputStreamReader(new HttpMessageDataStreamer(
-                        response).getInputStream())).lines().collect(Collectors.joining("\n"));
+        String result = TestUtil.getStringFromInputStream(new HttpMessageDataStreamer(response).getInputStream());
         assertEquals(testValue, result);
     }
 
@@ -92,20 +84,6 @@ public class Http2ClientConnectorBasicTestCase {
         } catch (InterruptedException e) {
             TestUtil.handleException("Failed to shutdown the test server", e);
         }
-    }
-
-    private HTTPCarbonMessage sendMessage(HTTPCarbonMessage httpCarbonMessage) {
-        try {
-            CountDownLatch latch = new CountDownLatch(1);
-            HTTPConnectorListener listener = new HTTPConnectorListener(latch);
-            HttpResponseFuture responseFuture = http2ClientConnector.send(httpCarbonMessage);
-            responseFuture.setHttpConnectorListener(listener);
-            latch.await(5, TimeUnit.SECONDS);
-            return listener.getHttpResponseMessage();
-        } catch (Exception e) {
-            TestUtil.handleException("Exception occurred while sending a message", e);
-        }
-        return null;
     }
 
 }
