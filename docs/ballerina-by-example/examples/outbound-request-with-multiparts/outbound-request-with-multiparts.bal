@@ -2,13 +2,13 @@ import ballerina.net.http;
 import ballerina.mime;
 import ballerina.file;
 
-@http:configuration {basePath:"/foo", port:9092}
+@http:configuration {basePath:"/multiparts", port:9092}
 service<http> echo {
     @http:resourceConfig {
         methods:["POST"],
-        path:"/multiparts"
+        path:"/encoder"
     }
-    resource echo (http:Connection conn, http:InRequest req) {
+    resource encodeMultiparts (http:Connection conn, http:InRequest req) {
         endpoint<http:HttpClient> httpEndpoint {
             create http:HttpClient("http://localhost:9090", {});
         }
@@ -46,7 +46,7 @@ service<http> echo {
         request.setMultiparts(bodyParts, mime:MULTIPART_FORM_DATA);
 
         http:InResponse resp1 = {};
-        resp1, _ = httpEndpoint.post("/foo/receivableParts", request);
+        resp1, _ = httpEndpoint.post("/multiparts/receivableParts", request);
 
         _ = conn.forward(resp1);
     }
