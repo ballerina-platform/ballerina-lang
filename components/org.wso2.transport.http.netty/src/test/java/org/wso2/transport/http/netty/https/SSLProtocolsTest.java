@@ -18,8 +18,12 @@
 
 package org.wso2.transport.http.netty.https;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
+import org.wso2.carbon.messaging.exceptions.ServerConnectorException;
 import org.wso2.transport.http.netty.common.Constants;
 import org.wso2.transport.http.netty.config.ListenerConfiguration;
 import org.wso2.transport.http.netty.config.Parameter;
@@ -56,7 +60,11 @@ import static org.testng.AssertJUnit.assertNotNull;
  */
 public class SSLProtocolsTest {
 
+    private static Logger logger = LoggerFactory.getLogger(SSLProtocolsTest.class);
+
     private static HttpClientConnector httpClientConnector;
+    private static HttpWsConnectorFactory httpWsConnectorFactory;
+    private static ServerConnector serverConnector;
 
     @DataProvider(name = "protocols")
 
@@ -99,16 +107,16 @@ public class SSLProtocolsTest {
             }
         });
 
-        HttpWsConnectorFactory factory = new DefaultHttpWsConnectorFactory();
+        httpWsConnectorFactory = new DefaultHttpWsConnectorFactory();
         ListenerConfiguration listenerConfiguration = getListenerConfiguration(serverPort, severParams);
 
-        ServerConnector serverConnector = factory
+        serverConnector = httpWsConnectorFactory
                 .createServerConnector(TestUtil.getDefaultServerBootstrapConfig(), listenerConfiguration);
         ServerConnectorFuture future = serverConnector.start();
         future.setHttpConnectorListener(new EchoMessageListener());
         future.sync();
 
-        httpClientConnector = factory
+        httpClientConnector = httpWsConnectorFactory
                 .createHttpClientConnector(HTTPConnectorUtil.getTransportProperties(transportsConfiguration),
                         HTTPConnectorUtil.getSenderConfiguration(transportsConfiguration, Constants.HTTPS_SCHEME));
 
@@ -163,6 +171,16 @@ public class SSLProtocolsTest {
             }
         } catch (Exception e) {
             TestUtil.handleException("Exception occurred while running testSSLProtocols", e);
+        }
+    }
+
+    @AfterClass
+    public void cleanUp() throws ServerConnectorException {
+        try {
+            serverConnector.stop();
+            httpWsConnectorFactory.shutdown();
+        } catch (Exception e) {
+            logger.warn("Interrupted while waiting for response two", e);
         }
     }
 }
