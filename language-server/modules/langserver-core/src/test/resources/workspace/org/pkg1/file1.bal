@@ -1,5 +1,7 @@
 package org.pkg1;
 
+import ballerina.io;
+
 public function sayHello() {
-    println("Hello, World!");
+    io:println("Hello, World!");
 }

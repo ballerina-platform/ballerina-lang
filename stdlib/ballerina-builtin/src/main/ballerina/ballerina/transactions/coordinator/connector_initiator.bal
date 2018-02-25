@@ -66,7 +66,7 @@ connector InitiatorClient (string registerAtURL) {
                 err = (error)transformErr;
             } else {
                 var errMsg, _ = (string)res.getJsonPayload().errorMessage;
-                err = {msg:errMsg};
+                err = {message:errMsg};
             }
         } else {
             err = (error)e;

@@ -81,7 +81,7 @@ function twoPhaseCommit (TwoPhaseCommitTransaction txn) returns (string message,
     // Prepare local resource managers
     boolean localPrepareSuccessful = prepareResourceManagers(transactionId);
     if (!localPrepareSuccessful) {
-        err = {msg:"Local prepare failed"};
+        err = {message:"Local prepare failed"};
         return;
     }
 
@@ -99,11 +99,11 @@ function twoPhaseCommit (TwoPhaseCommitTransaction txn) returns (string message,
                 message = "committed";
             } else {
                 // return Hazard outcome if a participant cannot successfully end its branch of the transaction
-                err = {msg:"Hazard-Outcome"};
+                err = {message:"Hazard-Outcome"};
             }
             boolean localCommitSuccessful = commitResourceManagers(transactionId);
             if (!localCommitSuccessful) {
-                err = {msg:"Local commit failed"};
+                err = {message:"Local commit failed"};
             }
         } else {
             // If some durable participants voted NO, next call notify(abort) on all durable participants
@@ -117,11 +117,11 @@ function twoPhaseCommit (TwoPhaseCommitTransaction txn) returns (string message,
                 }
             } else {
                 // return Hazard outcome if a participant cannot successfully end its branch of the transaction
-                err = {msg:"Hazard-Outcome"};
+                err = {message:"Hazard-Outcome"};
             }
             boolean localAbortSuccessful = abortResourceManagers(transactionId);
             if (!localAbortSuccessful) {
-                err = {msg:"Local abort failed"};
+                err = {message:"Local abort failed"};
             }
         }
     } else {
@@ -134,11 +134,11 @@ function twoPhaseCommit (TwoPhaseCommitTransaction txn) returns (string message,
             }
         } else {
             // return Hazard outcome if a participant cannot successfully end its branch of the transaction
-            err = {msg:"Hazard-Outcome"};
+            err = {message:"Hazard-Outcome"};
         }
         boolean localAbortSuccessful = abortResourceManagers(transactionId);
         if (!localAbortSuccessful) {
-            err = {msg:"Local abort failed"};
+            err = {message:"Local abort failed"};
         }
     }
     return;
@@ -175,7 +175,7 @@ function notifyAbort (TwoPhaseCommitTransaction txn) returns (string message, er
             foreach proto in protocols {
                 var status, e = notifyParticipant(txn, participant, "abort");
                 if (e != null) {
-                    err = {msg:"Hazard-Outcome"};
+                    err = {message:"Hazard-Outcome"};
                     return;
                 } else if (status == "committed") {
                     txn.possibleMixedOutcome = true;
@@ -301,7 +301,7 @@ function commitTransaction (string transactionId) returns (string message, error
     if (txn == null) {
         string msg = "Transaction-Unknown. Invalid TID:" + transactionId;
         log:printError(msg);
-        e = {msg:msg};
+        e = {message:msg};
     } else {
         log:printInfo("Committing transaction: " + transactionId);
         // return response to the initiator. ( Committed | Aborted | Mixed )
@@ -321,7 +321,7 @@ function abortInitiatorTransaction (string transactionId) returns (string messag
     if (txn == null) {
         string msg = "Transaction-Unknown. Invalid TID:" + transactionId;
         log:printError(msg);
-        e = {msg:msg};
+        e = {message:msg};
     } else {
         log:printInfo("Aborting transaction: " + transactionId);
         // return response to the initiator. ( Aborted | Mixed )
@@ -346,7 +346,7 @@ function abortLocalParticipantTransaction (string transactionId) returns (string
     if (txn == null) {
         string msg = "Transaction-Unknown. Invalid TID:" + transactionId;
         log:printError(msg);
-        e = {msg:msg};
+        e = {message:msg};
     } else {
         message, e = coordinatorEP.abortTransaction(transactionId, txn.coordinatorProtocols[0].url);
         if (e == null) {

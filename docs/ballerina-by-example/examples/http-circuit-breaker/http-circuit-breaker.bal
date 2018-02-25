@@ -1,5 +1,7 @@
+import ballerina.io;
 import ballerina.net.http;
 import ballerina.net.http.resiliency;
+import ballerina.runtime;
 
 @http:configuration {basePath:"/cb"}
 service<http> circuitBreakerDemo {
@@ -24,15 +26,15 @@ service<http> circuitBreakerDemo {
         clientRes, err = circuitBreakerEP.forward("/hello", req);
 
         if (err != null) {
-            println(err);
+            io:println(err);
             if (clientRes == null) {
                 http:OutResponse res = {};
                 res.statusCode = 500;
-                res.setStringPayload(err.msg);
+                res.setStringPayload(err.message);
                 _ = conn.respond(res);
             }
         } else {
-            println(clientRes.getStringPayload());
+            io:println(clientRes.getStringPayload());
             _ = conn.forward(clientRes);
         }
     }
@@ -51,7 +53,7 @@ service<http> helloWorld {
     }
     resource sayHello (http:Connection conn, http:InRequest req) {
         if (counter % 3 == 0) {
-            sleep(5000);
+            runtime:sleepCurrentWorker(5000);
         }
         counter = counter + 1;
         http:OutResponse res = {};

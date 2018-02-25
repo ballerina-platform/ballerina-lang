@@ -1,3 +1,4 @@
+import ballerina.io;
 import ballerina.net.http;
 
 @http:configuration {
@@ -22,7 +23,7 @@ service<http> echo {
         http:OutResponse res = {};
         res.setStringPayload("hello world");
         _ = conn.respond(res);
-        println("successful");
+        io:println("successful");
     }
 }
 

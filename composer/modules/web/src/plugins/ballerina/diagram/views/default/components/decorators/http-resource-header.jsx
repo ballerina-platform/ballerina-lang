@@ -32,7 +32,7 @@ class HttpResourceHeader extends React.Component {
     /**
      * Get base path of the resource
      * @returns string - base path
-    */
+     */
     getResourcePath() {
         let annotationAttachment = this.props.model.filterAnnotationAttachments((attachment) => {
             return attachment.getAnnotationName().value === 'resourceConfig';
@@ -50,14 +50,14 @@ class HttpResourceHeader extends React.Component {
     /**
      * Get Name of the resource
      * @returns string - resource name
-    */
+     */
     getServiceName() {
         return this.props.model.getName().value;
     }
     /**
      * Get Name of the resource
      * @returns string - resource name
-    */
+     */
     getResourceName() {
         return this.props.model.getName().value;
     }
@@ -110,50 +110,53 @@ class HttpResourceHeader extends React.Component {
         return (
             <g className='http-resource-header'>
                 {methods.length === 0 &&
-                    (<g className='http-methods'>
-                        <rect
-                            x={x - 15}
-                            y={y + 5}
-                            width={20}
-                            height={20}
-                            fill='#e2e2e2'
-                            rx='3'
-                            ry='3'
-                        />
-                        <text
-                            style={{ dominantBaseline: 'central' }}
-                            x={x - 8}
-                            y={basePathY}
-                            className='editable-text-label'
-                        >
-                            {'*'}
-                        </text>
-                    </g>)
+                (<g className='http-methods'>
+                    <rect
+                        x={x - 15}
+                        y={y + 5}
+                        width={20}
+                        height={20}
+                        fill='#e2e2e2'
+                        rx='3'
+                        ry='3'
+                    />
+                    <text
+                        style={{ dominantBaseline: 'central' }}
+                        x={x - 8}
+                        y={basePathY}
+                        className='editable-text-label'
+                    >
+                        {'*'}
+                    </text>
+                </g>)
 
                 }
                 {methods.length > 0 && methods.map((method) => {
-                    return (
-                        <g className='http-methods'>
-                            <rect
-                                x={x + dimensions[method].offset - 15}
-                                y={y + 5}
-                                width={dimensions[method].w}
-                                height={20}
-                                fill='#e2e2e2'
-                                rx='3'
-                                ry='3'
-                                className={method.toLowerCase()}
-                            />
-                            <text
-                                style={{ dominantBaseline: 'central' }}
-                                x={x + dimensions[method].offset - 10}
-                                y={basePathY}
-                                className={`editable-text-label ${method.toLowerCase()}`}
-                            >
-                                {method}
-                            </text>
-                        </g>
-                    );
+                    if (typeof method === 'string') {
+                        return (
+                            <g className='http-methods'>
+                                <rect
+                                    x={x + dimensions[method].offset - 15}
+                                    y={y + 5}
+                                    width={dimensions[method].w}
+                                    height={20}
+                                    fill='#e2e2e2'
+                                    rx='3'
+                                    ry='3'
+                                    className={method.toLowerCase()}
+                                />
+                                <text
+                                    style={{ dominantBaseline: 'central' }}
+                                    x={x + dimensions[method].offset - 10}
+                                    y={basePathY}
+                                    className={`editable-text-label ${method.toLowerCase()}`}
+                                >
+                                    {method}
+                                </text>
+                            </g>
+                        );
+                    }
+                    return null;
                 })}
                 <text
                     style={{ dominantBaseline: 'central' }}

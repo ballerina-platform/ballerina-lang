@@ -37,9 +37,9 @@ connector Participant2pcClient (string participantURL) {
                 if (statusCode == 200) {
                     status = msg;
                 } else if (statusCode == 404 && msg == "Transaction-Unknown") {
-                    err = {msg:msg};
+                    err = {message:msg};
                 } else {
-                    err = {msg:"Prepare failed. Transaction: " + transactionId + ", Participant: " + participantURL};
+                    err = {message:"Prepare failed. Transaction: " + transactionId + ", Participant: " + participantURL};
                 }
             } else {
                 err = (error)transformErr;
@@ -72,9 +72,9 @@ connector Participant2pcClient (string participantURL) {
                 } else if ((statusCode == 400 && msg == "Not-Prepared") ||
                            (statusCode == 404 && msg == "Transaction-Unknown") ||
                            (statusCode == 500 && msg == "Failed-EOT")) {
-                    participantErr = {msg:msg};
+                    participantErr = {message:msg};
                 } else {
-                    participantErr = {msg:"Notify failed. Transaction: " + transactionId + ", Participant: " + participantURL};
+                    participantErr = {message:"Notify failed. Transaction: " + transactionId + ", Participant: " + participantURL};
                 }
             } else {
                 communicationErr = (error)transformErr;

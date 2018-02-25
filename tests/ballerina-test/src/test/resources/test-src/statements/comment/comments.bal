@@ -1,5 +1,5 @@
 // Year 2017
-
+import ballerina.io;
 import ballerina.net.http; // importing http package
 
 function testComments () {
@@ -13,22 +13,22 @@ function testComments () {
         xml `<{{startName}}>hello</{{startName}}>`;
 
 
-    println(x);
+    io:println(x);
     fooFunc("hello","world");
     
     Day day = Day.MONDAY;
     if (day == Day.TUESDAY) {
-        println("day is wrong!");
+        io:println("day is wrong!");
     }
 }
 
 function fooFunc(string a, // foo function
     string b) {
     // printing a
-    println(a);
+    io:println(a);
 
     // printing b
-    println(b);
+    io:println(b);
     return;
 }
 

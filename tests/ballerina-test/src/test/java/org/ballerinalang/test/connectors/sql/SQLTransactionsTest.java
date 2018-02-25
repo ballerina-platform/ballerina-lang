@@ -34,7 +34,7 @@ import java.io.File;
  */
 public class SQLTransactionsTest {
 
-    CompileResult result;
+    private CompileResult result;
     private static final String DB_NAME = "TEST_SQL_CONNECTOR_TR";
 
     @BeforeClass

@@ -1,3 +1,4 @@
+import ballerina.io;
 import ballerina.net.ws;
 
 @ws:configuration {
@@ -23,7 +24,7 @@ service<ws> ChatApp {
 
     resource onTextMessage(ws:Connection con, ws:TextFrame frame, string name) {
         string msg = string `{{name}}: {{frame.text}}`;
-        println(msg);
+        io:println(msg);
         broadcast(consMap, msg);
     }
 

@@ -17,6 +17,7 @@
 package ballerina.transactions.coordinator;
 
 import ballerina.config;
+import ballerina.io;
 
 const string basePath = "/balcoordinator";
 const string initiatorCoordinatorBasePath = basePath + "/initiator";
@@ -32,7 +33,7 @@ function getCoordinatorHost () returns (string host) {
     if (host == null || host == "") {
         host = "localhost";
     }
-    println("Coordinator host: " + host);
+    io:println("Coordinator host: " + host);
     return;
 }
 
@@ -43,6 +44,6 @@ function getCoordinatorPort () returns (int port) {
     } else {
         port = p;
     }
-    println("Coordinator port: " + port);
+    io:println("Coordinator port: " + port);
     return;
 }

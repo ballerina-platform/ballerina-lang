@@ -115,7 +115,7 @@ function createNewTransaction (string coordinationType) returns (Transaction txn
         var tx, _ = (Transaction)twopcTxn;
         txn = tx;
     } else {
-        error e = {msg:"Unknown coordination type: " + coordinationType};
+        error e = {message:"Unknown coordination type: " + coordinationType};
         throw e;
     }
     return;
@@ -136,7 +136,7 @@ function createTransactionContext (string coordinationType) returns (Transaction
     if (!isValidCoordinationType(coordinationType)) {
         string msg = "Invalid-Coordination-Type:" + coordinationType;
         log:printError(msg);
-        e = {msg:msg};
+        e = {message:msg};
     } else {
         Transaction txn = createNewTransaction(coordinationType);
         string txnId = txn.transactionId;
@@ -168,7 +168,7 @@ function registerParticipantWithRemoteCoordinator (string transactionId, string 
     if (e != null) {
         string msg = "Cannot register with coordinator for transaction: " + transactionId;
         log:printErrorCause(msg, e);
-        err = {msg:msg};
+        err = {message:msg};
     } else {
         Protocol[] coordinatorProtocols = regRes.coordinatorProtocols;
         TwoPhaseCommitTransaction twopcTxn = {transactionId:transactionId, coordinationType:TWO_PHASE_COMMIT};

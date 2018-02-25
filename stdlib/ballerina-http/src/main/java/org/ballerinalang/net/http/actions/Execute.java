@@ -98,7 +98,9 @@ public class Execute extends AbstractHTTPAction {
             httpVerb = (String) outboundRequestMsg.getProperty(HttpConstants.HTTP_METHOD);
         }
         outboundRequestMsg.setProperty(HttpConstants.HTTP_METHOD, httpVerb.trim().toUpperCase(Locale.getDefault()));
-        outboundRequestMsg.setHeader(ACCEPT_ENCODING, ENCODING_DEFLATE + ", " + ENCODING_GZIP);
+        if (outboundRequestMsg.getHeader(ACCEPT_ENCODING) == null) {
+            outboundRequestMsg.setHeader(ACCEPT_ENCODING, ENCODING_DEFLATE + ", " + ENCODING_GZIP);
+        }
         return outboundRequestMsg;
     }
 }
