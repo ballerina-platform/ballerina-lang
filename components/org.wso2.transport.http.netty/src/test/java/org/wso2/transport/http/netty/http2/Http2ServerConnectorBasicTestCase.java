@@ -51,8 +51,8 @@ import static org.testng.AssertJUnit.assertNotNull;
 
 /* This contains basic test cases for HTTP2 Client connector */
 public class Http2ServerConnectorBasicTestCase {
-    private static Http2ClientConnector http2ClientConnector;
-    private static ServerConnector serverConnector;
+    private Http2ClientConnector http2ClientConnector;
+    private ServerConnector serverConnector;
 
     @BeforeClass
     public void setup() throws InterruptedException {
