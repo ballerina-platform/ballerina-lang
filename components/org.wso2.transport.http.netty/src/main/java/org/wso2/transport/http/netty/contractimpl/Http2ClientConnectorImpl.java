@@ -120,7 +120,7 @@ public class Http2ClientConnectorImpl implements Http2ClientConnector {
         }
 
         public void operationComplete(ChannelFuture channelFuture) throws Exception {
-            if (isValidateChannel(channelFuture)) {
+            if (isValidChannel(channelFuture)) {
                 channelFuture.channel().write(outboundMsgHolder);
             } else {
                 ClientConnectorException cause = new ClientConnectorException(
@@ -132,7 +132,7 @@ public class Http2ClientConnectorImpl implements Http2ClientConnector {
             }
         }
 
-        private boolean isValidateChannel(ChannelFuture channelFuture) throws Exception {
+        private boolean isValidChannel(ChannelFuture channelFuture) throws Exception {
             if (channelFuture.isDone() && channelFuture.isSuccess()) {
                 if (log.isDebugEnabled()) {
                     log.debug("Created the connection to address: {}, Original Channel ID is : {}", route.toString(),
