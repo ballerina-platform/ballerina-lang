@@ -16,6 +16,7 @@
 package org.ballerinalang.composer.service.ballerina.swagger.service;
 
 import com.google.gson.JsonObject;
+import org.ballerinalang.ballerina.swagger.convertor.service.SwaggerConverterUtils;
 import org.ballerinalang.composer.server.core.ServerConstants;
 import org.ballerinalang.composer.server.spi.ComposerService;
 import org.ballerinalang.composer.server.spi.ServiceInfo;

@@ -278,6 +278,7 @@ public struct Retry {
 @Field {value:"validateCertEnabled: The status of validateCertEnabled {default value : false (disable)}"}
 @Field {value:"cacheSize: Maximum size of the cache"}
 @Field {value:"cacheValidityPeriod: Time duration of cache validity period"}
+@Field {value:"hostNameVerificationEnabled: Enable/disable host name verification. {default value : true (enable)}"}
 public struct SSL {
     string trustStoreFile;
     string trustStorePassword;
@@ -289,6 +290,7 @@ public struct SSL {
     boolean validateCertEnabled;
     int cacheSize;
     int cacheValidityPeriod;
+    boolean hostNameVerificationEnabled;
 }
 
 @Description { value:"FollowRedirects struct represents HTTP redirect related options to be used for HTTP client invocation" }

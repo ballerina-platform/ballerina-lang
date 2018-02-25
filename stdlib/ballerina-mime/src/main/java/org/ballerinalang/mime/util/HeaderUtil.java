@@ -39,7 +39,7 @@ import static org.ballerinalang.mime.util.Constants.SEMICOLON;
 /**
  * Utility methods for parsing headers.
  *
- * @since 0.964.0
+ * @since 0.963.0
  */
 public class HeaderUtil {
 

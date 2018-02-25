@@ -28,6 +28,8 @@ public class SymbolInfo {
     private String symbolName;
     private BLangSymbol symbol;
     private Scope.ScopeEntry scopeEntry;
+    private boolean isIterableOperation;
+    private IterableOperationSignature iterableOperationSignature;
 
     public SymbolInfo(String symbolName, BLangSymbol symbol) {
         this.symbolName = symbolName;
@@ -37,6 +39,9 @@ public class SymbolInfo {
     public SymbolInfo(String symbolName, Scope.ScopeEntry scopeEntry) {
         this.symbolName = symbolName;
         this.scopeEntry = scopeEntry;
+    }
+    
+    public SymbolInfo() {
     }
 
     public String getSymbolName() {
@@ -57,5 +62,42 @@ public class SymbolInfo {
 
     public Scope.ScopeEntry getScopeEntry() {
         return scopeEntry;
+    }
+
+    public boolean isIterableOperation() {
+        return isIterableOperation;
+    }
+
+    public void setIterableOperation(boolean iterableOperation) {
+        isIterableOperation = iterableOperation;
+    }
+
+    public IterableOperationSignature getIterableOperationSignature() {
+        return iterableOperationSignature;
+    }
+
+    public void setIterableOperationSignature(IterableOperationSignature iterableOperationSignature) {
+        this.iterableOperationSignature = iterableOperationSignature;
+    }
+
+    /**
+     * Holds the iterable operation signature information.
+     */
+    public static class IterableOperationSignature {
+        String label;
+        String insertText;
+
+        public IterableOperationSignature(String label, String insertText) {
+            this.label = label;
+            this.insertText = insertText;
+        }
+
+        public String getLabel() {
+            return label;
+        }
+
+        public String getInsertText() {
+            return insertText;
+        }
     }
 }

@@ -76,6 +76,40 @@ class TransformerFactory {
     }
 
     /**
+     * create a iterable operation for provided name and type
+     * @param {string} name collection name
+     * @param {string} type iterable operation type
+     * @param {string} sourceType source collection type
+     * @param {boolean} isLamda is given iterable operation has a lambda function
+     * @return {object} created iterable operation node
+     */
+    static createIterableOperation(name, type, sourceType, isLamda) {
+        let lambdaFunction = '';
+        if (isLamda) {
+            lambdaFunction = `function(${sourceType} item)(boolean){ return true; }`;
+        }
+        const fragment = FragmentUtils.createExpressionFragment(`${name}.${type}(${lambdaFunction})`);
+        const parsedJson = FragmentUtils.parseFragment(fragment);
+        const exp = TreeBuilder.build(parsedJson).getVariable().getInitialExpression();
+        TransformerFactory.updateItreableOperation(exp, sourceType);
+        exp.clearWS();
+        return exp;
+    }
+
+    /**
+     * Update iterable flag recursive for chained iterable operations
+     * @param {object} node expression node
+     * @param {*} sourceType source collection type
+     */
+    static updateItreableOperation(node, sourceType) {
+        node.iterableOperation = true;
+        node.symbolType[0] = sourceType;
+        if (TreeUtil.isInvocation(node.getExpression())) {
+            TransformerFactory.updateItreableOperation(node.getExpression(), sourceType);
+        }
+    }
+
+    /**
      * Create default expression based on argument type
      * @static
      * @param {any} type type

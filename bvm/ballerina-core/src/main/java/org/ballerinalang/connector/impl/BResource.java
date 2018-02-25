@@ -73,7 +73,7 @@ public class BResource extends AbstractServiceResource  implements Resource {
     public List<ParamDetail> getParamDetails() {
         LocalVariableAttributeInfo attributeInfo = (LocalVariableAttributeInfo) resourceInfo.getAttributeInfo
                 (AttributeInfo.Kind.LOCAL_VARIABLES_ATTRIBUTE);
-        List<ParamDetail> paramDetails = new ArrayList();
+        List<ParamDetail> paramDetails = new ArrayList<>();
         for (LocalVariableInfo variableInfo : attributeInfo.getLocalVariableInfoEntries()) {
             paramDetails.add(new ParamDetail(variableInfo.getVariableType(), variableInfo.getVariableName()));
         }

@@ -22,7 +22,7 @@
     <groupId>org.ballerinalang</groupId>
     <artifactId>ballerina-parent</artifactId>
     <packaging>pom</packaging>
-    <version>0.961.1-SNAPSHOT</version>
+    <version>0.963.1-SNAPSHOT</version>
     <name>Ballerina - Parent</name>
 
     <description>
@@ -198,12 +198,6 @@
                 <groupId>org.ballerinalang</groupId>
                 <artifactId>language-server-core</artifactId>
                 <version>${ballerina.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.ballerinalang</groupId>
-                <artifactId>ballerina-samples</artifactId>
-                <version>${ballerina.version}</version>
-                <type>zip</type>
             </dependency>
             <dependency>
                 <groupId>org.ballerinalang</groupId>
@@ -490,7 +484,6 @@
                 <groupId>com.h2database</groupId>
                 <artifactId>h2</artifactId>
                 <version>${h2.version}</version>
-                <scope>test</scope>
             </dependency>
             <dependency>
                 <groupId>org.ballerinalang</groupId>
@@ -781,7 +774,6 @@
                 <module>language-server</module>
                 <module>misc/docerina</module>
                 <module>misc/ballerina-maven-plugins</module>
-                <module>misc/ballerina-samples</module>
                 <module>misc/swagger-ballerina</module>
                 <module>misc/testerina</module>
 
@@ -816,7 +808,6 @@
 
                 <module>misc/docerina</module>
                 <module>misc/ballerina-maven-plugins</module>
-                <module>misc/ballerina-samples</module>
 
                 <module>distribution/zip/ballerina</module>
 
@@ -845,7 +836,6 @@
 
                 <module>language-server</module>
                 <module>misc/ballerina-maven-plugins</module>
-                <module>misc/ballerina-samples</module>
                 <module>misc/docerina</module>
                 <module>misc/swagger-ballerina</module>
                 <module>misc/testerina</module>
@@ -1168,7 +1158,7 @@
     </build>
 
     <properties>
-        <ballerina.version>0.961.1-SNAPSHOT</ballerina.version>
+        <ballerina.version>0.963.1-SNAPSHOT</ballerina.version>
         <npm.executable>npm</npm.executable>
         <ballerina.package.export.version>0.8.0</ballerina.package.export.version>
 
@@ -1193,7 +1183,7 @@
         <equinox.osgi.version>3.10.2.v20150203-1939</equinox.osgi.version>
         <equinox.osgi.services.version>3.4.0.v20140312-2051</equinox.osgi.services.version>
         <carbon.kernel.version>5.1.0</carbon.kernel.version>
-        <transport.http.version>6.0.87</transport.http.version>
+        <transport.http.version>6.0.90</transport.http.version>
         <carbon.messaging.version>2.3.7</carbon.messaging.version>
         <carbon.deployment.version>5.0.0</carbon.deployment.version>
         <carbon.config.version>2.1.2</carbon.config.version>
