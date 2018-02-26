@@ -40,7 +40,7 @@ public class ClientSocketTest {
 
     private CompileResult socketClient;
     private MockSocketServer server;
-    private int port = 41297;
+    private int port = ThreadLocalRandom.current().nextInt(49152, 65535);
 
     @BeforeClass
     public void setup() {
@@ -86,7 +86,7 @@ public class ClientSocketTest {
     @Test(dependsOnMethods = "testClosure",
           description = "Test connection open with properties")
     public void testOpenWithProperties() {
-        int port = ThreadLocalRandom.current().nextInt(33000, 44000);
+        int port = ThreadLocalRandom.current().nextInt(33000, 46000);
         PackageInfo ioPackageInfo = socketClient.getProgFile().getPackageInfo("ballerina.io");
         StructInfo socketProperties = ioPackageInfo.getStructInfo("SocketProperties");
         BStruct propertyStruct = BLangVMStructs.createBStruct(socketProperties, port);

@@ -52,8 +52,8 @@ public class CloseSocket extends AbstractNativeFunction {
             BStruct byteChannelStruct = (BStruct) socket.getRefField(0);
             AbstractChannel byteChannel = (AbstractChannel) byteChannelStruct
                     .getNativeData(IOConstants.BYTE_CHANNEL_NAME);
-            byteChannel.close();
             socketChannel.close();
+            byteChannel.close();
         } catch (Throwable e) {
             String message = "Failed to close the socket:" + e.getMessage();
             throw new BallerinaException(message, e, context);
