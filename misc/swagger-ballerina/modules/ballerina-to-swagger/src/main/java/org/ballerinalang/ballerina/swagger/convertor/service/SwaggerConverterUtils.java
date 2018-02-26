@@ -17,6 +17,9 @@
 package org.ballerinalang.ballerina.swagger.convertor.service;
 
 import io.swagger.models.Swagger;
+import io.swagger.v3.core.util.Yaml;
+import io.swagger.v3.parser.converter.SwaggerConverter;
+
 import org.apache.commons.lang3.StringUtils;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.composer.service.ballerina.parser.service.model.BFile;
@@ -119,7 +122,51 @@ public class SwaggerConverterUtils {
     
         return swaggerSource;
     }
-    
+
+
+    /**
+     * This method will generate open API 3.X specification for given ballerina service. Since we will need to
+     * support both swagger 2.0 and OAS 3.0 it was implemented to convert to swagger by default and convert it
+     * to OAS on demand.
+     *
+     * @param ballerinaSource ballerina source to be converted to swagger/OAS definition
+     * @param serviceName specific service name within ballerina source that need to map OAS
+     * @return Generated OAS3 string output.
+     * @throws IOException When error occurs while converting, parsing input source.
+     */
+    public static String generateOAS3Definitions(String ballerinaSource, String serviceName) throws IOException {
+        // Get the ballerina model using the ballerina source code.
+        BFile balFile = new BFile();
+        balFile.setContent(ballerinaSource);
+        //Create empty swagger object.
+        Swagger swaggerDefinition = new Swagger();
+        BLangCompilationUnit topCompilationUnit = SwaggerConverterUtils.getTopLevelNodeFromBallerinaFile(balFile);
+        String httpAlias = getAlias(topCompilationUnit, "ballerina.net.http");
+        String swaggerAlias = getAlias(topCompilationUnit, "ballerina.net.http.swagger");
+        SwaggerServiceMapper swaggerServiceMapper = new SwaggerServiceMapper(httpAlias, swaggerAlias);
+        String swaggerSource = StringUtils.EMPTY;
+        for (TopLevelNode topLevelNode : topCompilationUnit.getTopLevelNodes()) {
+            if (topLevelNode instanceof BLangService) {
+                ServiceNode serviceDefinition = (ServiceNode) topLevelNode;
+                // Generate swagger string for the mentioned service name.
+                if (StringUtils.isNotBlank(serviceName)) {
+                    if (serviceDefinition.getName().getValue().equals(serviceName)) {
+                        swaggerDefinition = swaggerServiceMapper.convertServiceToSwagger(serviceDefinition);
+                        break;
+                    }
+                } else {
+                    // If no service name mentioned, then generate swagger definition for the first service.
+                    swaggerDefinition = swaggerServiceMapper.convertServiceToSwagger(serviceDefinition);
+                    break;
+                }
+            }
+        }
+        swaggerSource = swaggerServiceMapper.generateSwaggerString(swaggerDefinition);
+        SwaggerConverter converter = new SwaggerConverter();
+        return Yaml.pretty(converter.readContents(swaggerSource, null, null).getOpenAPI());
+    }
+
+
     /**
      * Gets the alias for a given package from a bLang file root node.
      * @param topCompilationUnit The root node.
