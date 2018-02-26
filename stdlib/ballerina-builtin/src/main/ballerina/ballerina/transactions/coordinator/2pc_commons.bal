@@ -360,7 +360,7 @@ function abortLocalParticipantTransaction (string transactionId) returns (string
 // If this is part of an existing transaction, this this instance will register as a participant
 function beginTransaction (string transactionId, string registerAtUrl,
                            string coordinationType) returns (TransactionContext txnCtx, error err) {
-    if (isInitiator(transactionId)) {
+    if (transactionId == null) {
         txnCtx, err = createTransactionContext(coordinationType);
     } else {
         err = registerParticipantWithRemoteCoordinator(transactionId, registerAtUrl);
@@ -374,7 +374,7 @@ function beginTransaction (string transactionId, string registerAtUrl,
 // Depending on the state of the transaction, and whether this instance is the initiator or participant,
 // decide to commit or abort the transaction
 function endTransaction (string transactionId) returns (string msg, error e) {
-    if (isInitiator(transactionId)) {
+    if (initiatedTransactions.containsKey(transactionId)) {
         var txn, _ = (TwoPhaseCommitTransaction)initiatedTransactions[transactionId];
         if (txn.state != TransactionState.ABORTED) {
             msg, e = commitTransaction(transactionId);
@@ -387,7 +387,7 @@ function endTransaction (string transactionId) returns (string msg, error e) {
 }
 
 function abortTransaction (string transactionId) returns (string msg, error e) {
-    if (isInitiator(transactionId)) {
+    if (initiatedTransactions.containsKey(transactionId)) {
         msg, e = abortInitiatorTransaction(transactionId);
     } else {
         msg, e = abortLocalParticipantTransaction(transactionId);
@@ -397,10 +397,6 @@ function abortTransaction (string transactionId) returns (string msg, error e) {
     }
 
     return;
-}
-
-function isInitiator (string transactionId) returns (boolean) {
-    return transactionId == null;
 }
 
 native function prepareResourceManagers (string transactionId) returns (boolean prepareSuccessful);
