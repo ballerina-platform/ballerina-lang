@@ -33,31 +33,27 @@ import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 /**
- * Blocking entity collector
+ * Blocking entity collector.
  */
 public class BlockingEntityCollector implements EntityCollector {
 
     private static final Logger LOG = LoggerFactory.getLogger(BlockingEntityCollector.class);
 
     private int soTimeOut;
-    private AtomicBoolean endOfMsgAdded;
-    private AtomicBoolean isExpectingEntity;
-    private AtomicBoolean isConsumed;
+    private EntityBodyState state;
+
     private BlockingQueue<HttpContent> httpContentQueue;
     private Lock readWriteLock;
     private Condition readCondition;
 
-    public BlockingEntityCollector(int soTimeOut) {
+    BlockingEntityCollector(int soTimeOut) {
         this.soTimeOut = soTimeOut;
-        this.endOfMsgAdded = new AtomicBoolean(false);
-        this.isExpectingEntity = new AtomicBoolean(false);
-        this.isConsumed = new AtomicBoolean(false);
+        this.state = EntityBodyState.EXPECTING;
         this.readWriteLock = new ReentrantLock();
         this.httpContentQueue = new LinkedBlockingQueue<>();
         this.readCondition = readWriteLock.newCondition();
@@ -66,11 +62,8 @@ public class BlockingEntityCollector implements EntityCollector {
     public void addHttpContent(HttpContent httpContent) {
         try {
             readWriteLock.lock();
-
-            isConsumed.set(false);
-            isExpectingEntity.set(false);
+            state = EntityBodyState.CONSUMABLE;
             httpContentQueue.add(httpContent);
-
             readCondition.signalAll();
         } catch (Exception e) {
             LOG.error("Cannot put content to queue", e);
@@ -83,24 +76,15 @@ public class BlockingEntityCollector implements EntityCollector {
         addHttpContent(new DefaultHttpContent(Unpooled.copiedBuffer(msgBody)));
     }
 
-    public ByteBuf getMessageBody() {
-        HttpContent httpContent = getHttpContent();
-        if (httpContent != null) {
-            return httpContent.content();
-        }
-        return null;
-    }
-
     public HttpContent getHttpContent() {
         try {
             readWriteLock.lock();
-            // Consumed but expecting entity.
-            if (!isConsumed.get() || isExpectingEntity.get()) {
+            if (state == EntityBodyState.CONSUMABLE || state == EntityBodyState.EXPECTING) {
                 waitForEntity();
                 HttpContent httpContent = httpContentQueue.poll();
 
                 if (httpContent instanceof LastHttpContent) {
-                    isConsumed.set(true);
+                    state = EntityBodyState.CONSUMED;
                     httpContentQueue.clear();
                 }
 
@@ -114,21 +98,27 @@ public class BlockingEntityCollector implements EntityCollector {
         return null;
     }
 
+    public ByteBuf getMessageBody() {
+        HttpContent httpContent = getHttpContent();
+        if (httpContent != null) {
+            return httpContent.content();
+        }
+        return null;
+    }
+
     public int getFullMessageLength() {
         int size = 0;
         try {
             readWriteLock.lock();
             List<HttpContent> contentList = new ArrayList<>();
-            boolean isEndOfMessageProcessed = false;
-            while (isExpectingEntity.get() || (!isConsumed.get() && !isEndOfMessageProcessed)) {
+            while (state == EntityBodyState.CONSUMABLE || state == EntityBodyState.EXPECTING) {
                 try {
                     waitForEntity();
                     HttpContent httpContent = httpContentQueue.poll();
                     if ((httpContent instanceof LastHttpContent)) {
-                        isEndOfMessageProcessed = true;
+                        state = EntityBodyState.CONSUMED;
                     }
                     contentList.add(httpContent);
-
                 } catch (InterruptedException e) {
                     LOG.warn("Error while getting full message length", e);
                 }
@@ -138,6 +128,7 @@ public class BlockingEntityCollector implements EntityCollector {
                 size += httpContent.content().readableBytes();
                 httpContentQueue.add(httpContent);
             }
+            state = EntityBodyState.CONSUMABLE;
         } catch (Exception e) {
             LOG.error("Error while retrieving http content length", e);
         } finally {
@@ -158,7 +149,7 @@ public class BlockingEntityCollector implements EntityCollector {
     public void waitAndReleaseAllEntities() {
         try {
             readWriteLock.lock();
-            if (!isConsumed.get()) {
+            if (state == EntityBodyState.CONSUMABLE) {
                 boolean isEndOfMessageProcessed = false;
                 while (!isEndOfMessageProcessed) {
                     try {
@@ -172,7 +163,7 @@ public class BlockingEntityCollector implements EntityCollector {
 
                         if (httpContent instanceof LastHttpContent) {
                             isEndOfMessageProcessed = true;
-                            isConsumed.set(true);
+                            state = EntityBodyState.CONSUMED;
                         }
                         httpContent.release();
                     } catch (InterruptedException e) {
@@ -180,7 +171,7 @@ public class BlockingEntityCollector implements EntityCollector {
                     }
                 }
             }
-            isExpectingEntity.set(true);
+            state = EntityBodyState.EXPECTING;
         } catch (Exception e) {
             LOG.error("Error while waiting and releasing the content", e);
         } finally {
@@ -188,59 +179,13 @@ public class BlockingEntityCollector implements EntityCollector {
         }
     }
 
-    @Deprecated
-    public List<ByteBuffer> getFullMessageBody() {
-        List<ByteBuffer> byteBufferList = new ArrayList<>();
-
-        if (!isConsumed.get()) {
-            boolean isEndOfMessageProcessed = false;
-            while (!isEndOfMessageProcessed) {
-                try {
-                    HttpContent httpContent = httpContentQueue.poll(soTimeOut, TimeUnit.SECONDS);
-                    // This check is to make sure we add the last http content after getClone and avoid adding
-                    // empty content to bytebuf list again and again
-                    if (httpContent instanceof EmptyLastHttpContent) {
-                        break;
-                    }
-
-                    if (httpContent instanceof LastHttpContent) {
-                        isEndOfMessageProcessed = true;
-                        isConsumed.set(true);
-                        httpContentQueue.clear();
-                    }
-                    ByteBuf buf = httpContent.content();
-                    byteBufferList.add(buf.nioBuffer());
-                } catch (InterruptedException e) {
-                    LOG.error("Error while getting full message body", e);
-                }
-            }
-        }
-
-        return byteBufferList;
-    }
-
     public boolean isEmpty() {
         return this.httpContentQueue.isEmpty();
     }
 
-    public boolean isEndOfMsgAdded() {
-        return endOfMsgAdded.get();
-    }
-
-    public void markMessageEnd() {
-        httpContentQueue.add(new EmptyLastHttpContent());
-    }
-
-    public void setEndOfMsgAdded(boolean endOfMsgAdded) {
-        this.endOfMsgAdded.compareAndSet(false, endOfMsgAdded);
-        this.addHttpContent(new DefaultLastHttpContent());
-    }
-
-    public HttpContent peek() {
-        return this.httpContentQueue.peek();
-    }
-
-    @Deprecated
-    public synchronized void release() {
+    public void completeMessage() {
+        if (state == EntityBodyState.EXPECTING) {
+            this.addHttpContent(new DefaultLastHttpContent());
+        }
     }
 }

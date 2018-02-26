@@ -30,7 +30,7 @@ import org.wso2.transport.http.netty.config.TransportsConfiguration;
 import org.wso2.transport.http.netty.contract.HttpClientConnector;
 import org.wso2.transport.http.netty.contract.HttpResponseFuture;
 import org.wso2.transport.http.netty.contract.HttpWsConnectorFactory;
-import org.wso2.transport.http.netty.contractimpl.HttpWsConnectorFactoryImpl;
+import org.wso2.transport.http.netty.contractimpl.DefaultHttpWsConnectorFactory;
 import org.wso2.transport.http.netty.http2.HTTP2MessageProcessor;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 import org.wso2.transport.http.netty.message.HTTPConnectorUtil;
@@ -60,6 +60,7 @@ public class HTTPSClientTestCase {
 
     private HttpsServer httpsServer;
     private HttpClientConnector httpClientConnector;
+    private HttpWsConnectorFactory connectorFactory;
     private String testValue = "Test Message";
 
     @BeforeClass
@@ -75,7 +76,7 @@ public class HTTPSClientTestCase {
 
         httpsServer = TestUtil.startHttpsServer(TestUtil.HTTPS_SERVER_PORT,
                 new MockServerInitializer(testValue, "text/plain", 200));
-        HttpWsConnectorFactory connectorFactory = new HttpWsConnectorFactoryImpl();
+        connectorFactory = new DefaultHttpWsConnectorFactory();
         httpClientConnector = connectorFactory.createHttpClientConnector(
                 HTTPConnectorUtil.getTransportProperties(transportsConfiguration),
                 HTTPConnectorUtil.getSenderConfiguration(transportsConfiguration, Constants.HTTPS_SCHEME));
@@ -109,6 +110,7 @@ public class HTTPSClientTestCase {
     public void cleanUp() throws ServerConnectorException {
         try {
             httpsServer.shutdown();
+            connectorFactory.shutdown();
         } catch (InterruptedException e) {
             logger.error("Failed to shutdown the test server");
         }

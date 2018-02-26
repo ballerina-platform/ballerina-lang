@@ -45,7 +45,7 @@ public class HttpToWsProtocolSwitchHttpListener implements HttpConnectorListener
         executor.execute(() -> {
             try {
                 int length = httpRequest.getFullMessageLength();
-                HTTPCarbonMessage cMsg = httpRequest.cloneCarbonMessageWithData();
+                HTTPCarbonMessage cMsg = httpRequest;
                 cMsg.setHeader(HttpHeaderNames.CONNECTION.toString(), HttpHeaderValues.KEEP_ALIVE.toString());
                 cMsg.setHeader(HttpHeaderNames.CONTENT_LENGTH.toString(), String.valueOf(length));
                 cMsg.setHeader(HttpHeaderNames.CONTENT_TYPE.toString(), HttpHeaderValues.TEXT_PLAIN.toString());
@@ -53,9 +53,6 @@ public class HttpToWsProtocolSwitchHttpListener implements HttpConnectorListener
                 httpRequest.respond(cMsg);
             } catch (ServerConnectorException e) {
                 logger.error("Error occurred during message notification: " + e.getMessage());
-            } finally {
-                // Calling the release method to make sure that there won't be any memory leaks from netty
-                httpRequest.release();
             }
         });
     }

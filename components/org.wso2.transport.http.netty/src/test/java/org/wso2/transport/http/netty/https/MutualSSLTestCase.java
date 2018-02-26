@@ -18,8 +18,12 @@
 
 package org.wso2.transport.http.netty.https;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+import org.wso2.carbon.messaging.exceptions.ServerConnectorException;
 import org.wso2.transport.http.netty.common.Constants;
 import org.wso2.transport.http.netty.config.ListenerConfiguration;
 import org.wso2.transport.http.netty.config.SenderConfiguration;
@@ -30,7 +34,7 @@ import org.wso2.transport.http.netty.contract.HttpResponseFuture;
 import org.wso2.transport.http.netty.contract.HttpWsConnectorFactory;
 import org.wso2.transport.http.netty.contract.ServerConnector;
 import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
-import org.wso2.transport.http.netty.contractimpl.HttpWsConnectorFactoryImpl;
+import org.wso2.transport.http.netty.contractimpl.DefaultHttpWsConnectorFactory;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 import org.wso2.transport.http.netty.message.HTTPConnectorUtil;
 import org.wso2.transport.http.netty.message.HttpMessageDataStreamer;
@@ -54,9 +58,10 @@ import static org.testng.AssertJUnit.assertNotNull;
 
 public class MutualSSLTestCase {
 
+    private static Logger logger = LoggerFactory.getLogger(MutualSSLTestCase.class);
+
     private static HttpClientConnector httpClientConnector;
-    private static String testValue = "Test";
-    private String verifyClient = "require";
+    private HttpWsConnectorFactory factory;
     private static int serverPort = 9095;
 
     @BeforeClass
@@ -72,17 +77,9 @@ public class MutualSSLTestCase {
             }
         });
 
-        HttpWsConnectorFactory factory = new HttpWsConnectorFactoryImpl();
+        factory = new DefaultHttpWsConnectorFactory();
 
-        ListenerConfiguration listenerConfiguration = ListenerConfiguration.getDefault();
-        listenerConfiguration.setPort(serverPort);
-        listenerConfiguration.setVerifyClient(verifyClient);
-        listenerConfiguration.setTrustStoreFile(TestUtil.getAbsolutePath(TestUtil.TRUST_STORE_FILE_PATH));
-        listenerConfiguration.setKeyStoreFile(TestUtil.getAbsolutePath(TestUtil.KEY_STORE_FILE_PATH));
-        listenerConfiguration.setTrustStorePass(TestUtil.KEY_STORE_PASSWORD);
-        listenerConfiguration.setKeyStorePass(TestUtil.KEY_STORE_PASSWORD);
-        listenerConfiguration.setCertPass(TestUtil.KEY_STORE_PASSWORD);
-        listenerConfiguration.setScheme(Constants.HTTPS_SCHEME);
+        ListenerConfiguration listenerConfiguration = getListenerConfiguration();
 
         ServerConnector connector = factory
                 .createServerConnector(TestUtil.getDefaultServerBootstrapConfig(), listenerConfiguration);
@@ -95,9 +92,24 @@ public class MutualSSLTestCase {
                         HTTPConnectorUtil.getSenderConfiguration(transportsConfiguration, Constants.HTTPS_SCHEME));
     }
 
+    private ListenerConfiguration getListenerConfiguration() {
+        ListenerConfiguration listenerConfiguration = ListenerConfiguration.getDefault();
+        listenerConfiguration.setPort(serverPort);
+        String verifyClient = "require";
+        listenerConfiguration.setVerifyClient(verifyClient);
+        listenerConfiguration.setTrustStoreFile(TestUtil.getAbsolutePath(TestUtil.TRUST_STORE_FILE_PATH));
+        listenerConfiguration.setKeyStoreFile(TestUtil.getAbsolutePath(TestUtil.KEY_STORE_FILE_PATH));
+        listenerConfiguration.setTrustStorePass(TestUtil.KEY_STORE_PASSWORD);
+        listenerConfiguration.setKeyStorePass(TestUtil.KEY_STORE_PASSWORD);
+        listenerConfiguration.setCertPass(TestUtil.KEY_STORE_PASSWORD);
+        listenerConfiguration.setScheme(Constants.HTTPS_SCHEME);
+        return listenerConfiguration;
+    }
+
     @Test
     public void testHttpsPost() {
         try {
+            String testValue = "Test";
             HTTPCarbonMessage msg = TestUtil.createHttpsPostReq(serverPort, testValue, "");
 
             CountDownLatch latch = new CountDownLatch(1);
@@ -115,6 +127,15 @@ public class MutualSSLTestCase {
             assertEquals(testValue, result);
         } catch (Exception e) {
             TestUtil.handleException("Exception occurred while running httpsGetTest", e);
+        }
+    }
+
+    @AfterClass
+    public void cleanUp() throws ServerConnectorException {
+        try {
+            factory.shutdown();
+        } catch (Exception e) {
+            logger.warn("Interrupted while waiting for response two", e);
         }
     }
 }

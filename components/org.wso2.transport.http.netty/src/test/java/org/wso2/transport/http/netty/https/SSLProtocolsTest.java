@@ -18,8 +18,12 @@
 
 package org.wso2.transport.http.netty.https;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
+import org.wso2.carbon.messaging.exceptions.ServerConnectorException;
 import org.wso2.transport.http.netty.common.Constants;
 import org.wso2.transport.http.netty.config.ListenerConfiguration;
 import org.wso2.transport.http.netty.config.Parameter;
@@ -31,7 +35,7 @@ import org.wso2.transport.http.netty.contract.HttpResponseFuture;
 import org.wso2.transport.http.netty.contract.HttpWsConnectorFactory;
 import org.wso2.transport.http.netty.contract.ServerConnector;
 import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
-import org.wso2.transport.http.netty.contractimpl.HttpWsConnectorFactoryImpl;
+import org.wso2.transport.http.netty.contractimpl.DefaultHttpWsConnectorFactory;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 import org.wso2.transport.http.netty.message.HTTPConnectorUtil;
 import org.wso2.transport.http.netty.message.HttpMessageDataStreamer;
@@ -56,10 +60,11 @@ import static org.testng.AssertJUnit.assertNotNull;
  */
 public class SSLProtocolsTest {
 
+    private static Logger logger = LoggerFactory.getLogger(SSLProtocolsTest.class);
+
     private static HttpClientConnector httpClientConnector;
+    private static HttpWsConnectorFactory httpWsConnectorFactory;
     private static ServerConnector serverConnector;
-    private static String testValue = "Test";
-    private String verifyClient = "require";
 
     @DataProvider(name = "protocols")
 
@@ -102,9 +107,26 @@ public class SSLProtocolsTest {
             }
         });
 
-        HttpWsConnectorFactory factory = new HttpWsConnectorFactoryImpl();
+        httpWsConnectorFactory = new DefaultHttpWsConnectorFactory();
+        ListenerConfiguration listenerConfiguration = getListenerConfiguration(serverPort, severParams);
+
+        serverConnector = httpWsConnectorFactory
+                .createServerConnector(TestUtil.getDefaultServerBootstrapConfig(), listenerConfiguration);
+        ServerConnectorFuture future = serverConnector.start();
+        future.setHttpConnectorListener(new EchoMessageListener());
+        future.sync();
+
+        httpClientConnector = httpWsConnectorFactory
+                .createHttpClientConnector(HTTPConnectorUtil.getTransportProperties(transportsConfiguration),
+                        HTTPConnectorUtil.getSenderConfiguration(transportsConfiguration, Constants.HTTPS_SCHEME));
+
+        testSSLProtocols(hasException, serverPort);
+    }
+
+    private ListenerConfiguration getListenerConfiguration(int serverPort, List<Parameter> severParams) {
         ListenerConfiguration listenerConfiguration = ListenerConfiguration.getDefault();
         listenerConfiguration.setPort(serverPort);
+        String verifyClient = "require";
         listenerConfiguration.setVerifyClient(verifyClient);
         listenerConfiguration.setTrustStoreFile(TestUtil.getAbsolutePath(TestUtil.TRUST_STORE_FILE_PATH));
         listenerConfiguration.setKeyStoreFile(TestUtil.getAbsolutePath(TestUtil.KEY_STORE_FILE_PATH));
@@ -112,22 +134,12 @@ public class SSLProtocolsTest {
         listenerConfiguration.setKeyStorePass(TestUtil.KEY_STORE_PASSWORD);
         listenerConfiguration.setScheme(Constants.HTTPS_SCHEME);
         listenerConfiguration.setParameters(severParams);
-
-        serverConnector = factory
-                .createServerConnector(TestUtil.getDefaultServerBootstrapConfig(), listenerConfiguration);
-        ServerConnectorFuture future = serverConnector.start();
-        future.setHttpConnectorListener(new EchoMessageListener());
-        future.sync();
-
-        httpClientConnector = factory
-                .createHttpClientConnector(HTTPConnectorUtil.getTransportProperties(transportsConfiguration),
-                        HTTPConnectorUtil.getSenderConfiguration(transportsConfiguration, Constants.HTTPS_SCHEME));
-
-        testSSLProtocols(hasException, serverPort);
+        return listenerConfiguration;
     }
 
-    public void testSSLProtocols(boolean hasException, int serverPort) {
+    private void testSSLProtocols(boolean hasException, int serverPort) {
         try {
+            String testValue = "Test";
             HTTPCarbonMessage msg = TestUtil.createHttpsPostReq(serverPort, testValue, "");
 
             CountDownLatch latch = new CountDownLatch(1);
@@ -159,6 +171,16 @@ public class SSLProtocolsTest {
             }
         } catch (Exception e) {
             TestUtil.handleException("Exception occurred while running testSSLProtocols", e);
+        }
+    }
+
+    @AfterClass
+    public void cleanUp() throws ServerConnectorException {
+        try {
+            serverConnector.stop();
+            httpWsConnectorFactory.shutdown();
+        } catch (Exception e) {
+            logger.warn("Interrupted while waiting for response two", e);
         }
     }
 }

@@ -23,6 +23,7 @@ import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
+import io.netty.channel.group.ChannelGroup;
 import io.netty.handler.codec.DecoderException;
 import io.netty.handler.codec.DecoderResult;
 import io.netty.handler.codec.http.DefaultLastHttpContent;
@@ -59,8 +60,8 @@ import java.util.concurrent.ConcurrentHashMap;
 public class SourceHandler extends ChannelInboundHandlerAdapter {
     private static Logger log = LoggerFactory.getLogger(SourceHandler.class);
 
-    HTTPCarbonMessage sourceReqCmsg;
-    HandlerExecutor handlerExecutor;
+    private HTTPCarbonMessage sourceReqCmsg;
+    private HandlerExecutor handlerExecutor;
     private Map<String, GenericObjectPool> targetChannelPool;
     private ServerConnectorFuture serverConnectorFuture;
     private ChunkConfig chunkConfig;
@@ -68,16 +69,18 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
     private String interfaceId;
     private String serverName;
     private boolean idleTimeout;
+    private ChannelGroup allChannels;
     protected ChannelHandlerContext ctx;
 
     public SourceHandler(ServerConnectorFuture serverConnectorFuture, String interfaceId, ChunkConfig chunkConfig,
-            String serverName) {
+            String serverName, ChannelGroup allChannels) {
         this.serverConnectorFuture = serverConnectorFuture;
         this.interfaceId = interfaceId;
         this.chunkConfig = chunkConfig;
         this.targetChannelPool = new ConcurrentHashMap<>();
         this.idleTimeout = false;
         this.serverName = serverName;
+        this.allChannels = allChannels;
     }
 
     @Override
@@ -87,6 +90,7 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
 
     @Override
     public void channelActive(final ChannelHandlerContext ctx) throws Exception {
+        allChannels.add(ctx.channel());
         // Start the server connection Timer
         this.handlerExecutor = HTTPTransportContextHolder.getInstance().getHandlerExecutor();
         if (this.handlerExecutor != null) {
@@ -128,7 +132,7 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
         }
     }
 
-    HTTPCarbonMessage setupCarbonMessage(HttpMessage httpMessage, ChannelHandlerContext ctx)
+    private HTTPCarbonMessage setupCarbonMessage(HttpMessage httpMessage, ChannelHandlerContext ctx)
             throws URISyntaxException {
 
         if (handlerExecutor != null) {
@@ -169,7 +173,7 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
         return sourceReqCmsg;
     }
 
-    void notifyRequestListener(HTTPCarbonMessage httpRequestMsg, ChannelHandlerContext ctx)
+    private void notifyRequestListener(HTTPCarbonMessage httpRequestMsg, ChannelHandlerContext ctx)
             throws URISyntaxException {
 
         if (handlerExecutor != null) {
@@ -253,9 +257,9 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
             this.channelInactive(ctx);
             handleIdleErrorScenario();
 
-            log.warn("Idle timeout has reached hence closing the connection");
+            log.warn("Idle timeout has reached hence closing the connection {}", ctx.channel().id().asShortText());
         } else {
-            log.warn("Unexpected user event triggered", evt);
+            log.warn("Unexpected user event triggered", evt.toString());
         }
     }
 

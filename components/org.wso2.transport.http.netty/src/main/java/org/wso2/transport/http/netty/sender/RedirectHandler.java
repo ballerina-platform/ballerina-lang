@@ -335,7 +335,7 @@ public class RedirectHandler extends ChannelInboundHandlerAdapter {
             LOG.debug("Mark end of the message and reset channel attributes for channel : " + ctx.channel().id());
         }
         targetRespMsg.addHttpContent(httpContent);
-        targetRespMsg.setEndOfMsgAdded(true);
+        targetRespMsg.completeMessage();
         targetRespMsg = null;
         currentRedirectCount = 0;
         TargetChannel targetChannel = ctx.channel().attr(Constants.TARGET_CHANNEL_REFERENCE).get();
@@ -619,7 +619,7 @@ public class RedirectHandler extends ChannelInboundHandlerAdapter {
             host.append(Constants.COLON).append(locationUrl.getPort());
         }
         httpCarbonRequest.setHeader(Constants.HOST, host.toString());
-        httpCarbonRequest.setEndOfMsgAdded(true);
+        httpCarbonRequest.completeMessage();
         return httpCarbonRequest;
     }
 

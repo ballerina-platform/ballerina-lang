@@ -35,7 +35,7 @@ import org.wso2.transport.http.netty.contract.HttpClientConnector;
 import org.wso2.transport.http.netty.contract.HttpWsConnectorFactory;
 import org.wso2.transport.http.netty.contract.ServerConnector;
 import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
-import org.wso2.transport.http.netty.contractimpl.HttpWsConnectorFactoryImpl;
+import org.wso2.transport.http.netty.contractimpl.DefaultHttpWsConnectorFactory;
 import org.wso2.transport.http.netty.listener.ServerBootstrapConfiguration;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 import org.wso2.transport.http.netty.message.HttpMessageDataStreamer;
@@ -69,7 +69,7 @@ public class ClientRespDecompressionTestCase {
     @BeforeClass
     public void setUp() {
         latch = new CountDownLatch(1);
-        HttpWsConnectorFactory httpWsConnectorFactory = new HttpWsConnectorFactoryImpl();
+        HttpWsConnectorFactory httpWsConnectorFactory = new DefaultHttpWsConnectorFactory();
 
         listenerConfiguration.setPort(TestUtil.SERVER_CONNECTOR_PORT);
         ServerBootstrapConfiguration serverBootstrapConfig = new ServerBootstrapConfiguration(new HashMap<>());
