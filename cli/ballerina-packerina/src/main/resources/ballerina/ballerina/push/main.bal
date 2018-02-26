@@ -3,6 +3,7 @@ package ballerina.push;
 import ballerina.compression;
 import ballerina.mime;
 import ballerina.net.http;
+import ballerina.io;
 
 function main (string[] args) {
 
@@ -17,21 +18,21 @@ function main (string[] args) {
     mime:Entity filePart = {};
     mime:MediaType contentTypeOfFilePart = mime:getMediaType(mime:APPLICATION_OCTET_STREAM);
     filePart.contentType = contentTypeOfFilePart;
-    filePart.byteData = compressedContent;
+    filePart.setBlob(compressedContent);
     mime:Entity[] bodyParts = [filePart];
 
     topLevelEntity.multipartData = bodyParts;
     http:OutRequest request = {};
     request.setEntity(topLevelEntity);
-    var resp1, err = httpEndpoint.post("", request);
-    if (err != null) {
-        error err = {msg: err.msg};
+    var resp1, errRes = httpEndpoint.post("", request);
+    if (errRes != null) {
+        error err = {message: errRes.message};
         throw err;
     }
     if (resp1.statusCode != 200) {
-        println("Internal server error occured when pushing the package to the central repository");
+        io:println("Internal server error occured when pushing the package to the central repository");
     } else {
-        println("Ballerina package pushed successfully");
+        io:println("Ballerina package pushed successfully");
     }
 }
 

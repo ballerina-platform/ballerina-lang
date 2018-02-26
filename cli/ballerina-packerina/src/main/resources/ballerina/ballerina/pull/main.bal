@@ -2,22 +2,23 @@ package ballerina.pull;
 
 import ballerina.net.http;
 import ballerina.compression;
+import ballerina.io;
 
 function main (string[] args) {
     endpoint<http:HttpClient> httpEndpoint {
         create http:HttpClient(args[0], getConnectorConfigs(args[3], args[4], args[5], args[6]));
     }
     http:OutRequest req = {};
-    var resp, err = httpEndpoint.get("", req);
-    if (err != null) {
-        error err = {msg: err.msg};
+    var resp, errRes = httpEndpoint.get("", req);
+    if (errRes != null) {
+        error err = {message: errRes.message};
         throw err;
     }
     if (resp.statusCode != 200) {
-        println("Internal server error occured when pulling the ballerina package");
+        io:println("Internal server error occured when pulling the ballerina package");
     } else {
         compression:unzipBytes(resp.getBinaryPayload(), args[1], args[2]);
-        println("Ballerina package pulled successfully");
+        io:println("Ballerina package pulled successfully");
     }
 }
 
