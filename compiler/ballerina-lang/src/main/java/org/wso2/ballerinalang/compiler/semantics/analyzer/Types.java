@@ -218,6 +218,10 @@ public class Types {
             }
         }
 
+        if (source.tag == TypeTags.STRUCT && target.tag == TypeTags.STRUCT) {
+            return checkStructEquivalency(source, target);
+        }
+
         return source.tag == TypeTags.ARRAY && target.tag == TypeTags.ARRAY &&
                 isArrayTypesAssignable(source, target);
     }
@@ -264,15 +268,17 @@ public class Types {
         }
 
         for (int i = 0; i < source.paramTypes.size(); i++) {
-            if (target.paramTypes.get(i).tag != TypeTags.ANY && !isSameType(source.paramTypes.get(i),
-                    target.paramTypes.get(i))) {
+            if (target.paramTypes.get(i).tag != TypeTags.ANY
+                    && !isSameType(source.paramTypes.get(i), target.paramTypes.get(i))
+                    && !isAssignable(source.paramTypes.get(i), target.paramTypes.get(i))) {
                 return false;
             }
         }
 
         for (int i = 0; i < source.retTypes.size(); i++) {
-            if (target.retTypes.get(i).tag != TypeTags.ANY && !isSameType(source.retTypes.get(i),
-                    target.retTypes.get(i))) {
+            if (target.retTypes.get(i).tag != TypeTags.ANY
+                    && !isSameType(source.retTypes.get(i), target.retTypes.get(i))
+                    && !isAssignable(source.retTypes.get(i), target.retTypes.get(i))) {
                 return false;
             }
         }
@@ -996,7 +1002,7 @@ public class Types {
                                                        BAttachedFunction lhsFunc) {
         return rhsFuncList.stream()
                 .filter(rhsFunc -> lhsFunc.funcName.equals(rhsFunc.funcName))
-                .filter(rhsFunc -> checkFunctionTypeEquality(lhsFunc.type, rhsFunc.type))
+                .filter(rhsFunc -> checkFunctionTypeEquality(rhsFunc.type, lhsFunc.type))
                 .findFirst()
                 .orElse(null);
     }
