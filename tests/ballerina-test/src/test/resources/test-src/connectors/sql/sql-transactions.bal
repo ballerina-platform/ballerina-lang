@@ -1,3 +1,4 @@
+import ballerina.transactions.coordinator;
 import ballerina.data.sql;
 
 struct ResultCount {
@@ -337,5 +338,20 @@ function testLocalTransactonFailedWithNextupdate () (int i) {
         i = rs.COUNTVAL;
     }
     testDB2.close();
+    return;
+}
+
+function testCloseConnectionPool () (int count) {
+    endpoint<sql:ClientConnector> testDB {
+        create sql:ClientConnector(sql:DB.HSQLDB_FILE, "./target/tempdb/",
+                                   0, "TEST_SQL_CONNECTOR_TR", "SA", "", {maximumPoolSize:1});
+    }
+    table dt = testDB.select("SELECT COUNT(*) as countVal FROM INFORMATION_SCHEMA.SYSTEM_SESSIONS", null,
+                             typeof ResultCount);
+    while (dt.hasNext()) {
+        var rs, err = (ResultCount)dt.getNext();
+        count = rs.COUNTVAL;
+    }
+    testDB.close();
     return;
 }

@@ -23,7 +23,12 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import javax.transaction.xa.XAException;
 import javax.transaction.xa.XAResource;
+import javax.transaction.xa.Xid;
+
+import static javax.transaction.xa.XAResource.TMNOFLAGS;
+import static javax.transaction.xa.XAResource.TMSUCCESS;
 
 /**
  * {@code TransactionResourceManager} registry for transaction contexts.
@@ -35,9 +40,11 @@ public class TransactionResourceManager {
     private static TransactionResourceManager transactionResourceManager = null;
     private static final Logger log = LoggerFactory.getLogger(TransactionResourceManager.class);
     private Map<String, List<BallerinaTransactionContext>> resourceRegistry;
+    private Map<String, Xid> xidRegistry;
 
     private TransactionResourceManager() {
         resourceRegistry = new HashMap<>();
+        xidRegistry = new HashMap<>();
     }
 
     public static TransactionResourceManager getInstance() {
@@ -61,8 +68,9 @@ public class TransactionResourceManager {
             for (BallerinaTransactionContext ctx : txContextList) {
                 try {
                     XAResource xaResource = ctx.getXAResource();
+                    Xid xid = xidRegistry.get(transactionId);
                     if (xaResource != null) {
-                        xaResource.prepare(null); //TODO:Pass valid xid
+                        xaResource.prepare(xid);
                     }
                 } catch (Throwable e) {
                     log.error("error in prepare the transaction, " + transactionId + ":" + e.getMessage(), e);
@@ -76,46 +84,96 @@ public class TransactionResourceManager {
     }
 
     public boolean notifyCommit(String transactionId) {
+        boolean commitSuccess = true;
         List<BallerinaTransactionContext> txContextList = resourceRegistry.get(transactionId);
         if (txContextList != null) {
             for (BallerinaTransactionContext ctx : txContextList) {
                 try {
                     XAResource xaResource = ctx.getXAResource();
+                    Xid xid = xidRegistry.get(transactionId);
                     if (xaResource != null) {
-                        xaResource.commit(null, false); //TODO:Pass valid xid and phase
+                        xaResource.commit(xid, false);
                     } else {
                         ctx.commit();
                     }
                 } catch (Throwable e) {
                     log.error("error in commit the transaction, " + transactionId + ":" + e.getMessage(), e);
-                    return false;
+                    commitSuccess = false;
+                } finally {
+                    ctx.close();
                 }
             }
         } else {
             log.info("no transacted actions registered for commit : " + transactionId);
         }
-        return true;
+        removeContextsFromRegistry(transactionId);
+        return commitSuccess;
     }
 
     public boolean notifyAbort(String transactionId) {
+        boolean abortSuccess = true;
         List<BallerinaTransactionContext> txContextList = resourceRegistry.get(transactionId);
         if (txContextList != null) {
             for (BallerinaTransactionContext ctx : txContextList) {
                 try {
                     XAResource xaResource = ctx.getXAResource();
+                    Xid xid = xidRegistry.get(transactionId);
                     if (xaResource != null) {
-                        ctx.getXAResource().rollback(null); //TODO:Pass valid xid
+                        ctx.getXAResource().rollback(xid);
                     } else {
                         ctx.rollback();
                     }
                 } catch (Throwable e) {
                     log.error("error in abort the transaction, " + transactionId + ":" + e.getMessage(), e);
-                    return false;
+                    abortSuccess = false;
+                } finally {
+                    ctx.close();
                 }
             }
         } else {
             log.info("no transacted actions registered for rollback : " + transactionId);
         }
-        return true;
+        removeContextsFromRegistry(transactionId);
+        return abortSuccess;
+    }
+
+    public void removeContextsFromRegistry(String transactionId) {
+        resourceRegistry.remove(transactionId);
+    }
+
+    public void beginXATransaction(String transactionId, XAResource xaResource) {
+        Xid xid = xidRegistry.get(transactionId);
+        if (xid == null) {
+            xid = XIDGenerator.createXID();
+            xidRegistry.put(transactionId, xid);
+        }
+        try {
+            xaResource.start(xid, TMNOFLAGS);
+        } catch (XAException e) {
+            int i = 0;
+        }
+    }
+
+    public void endXATransaction(String transactionId) {
+        Xid xid = xidRegistry.get(transactionId);
+        if (xid != null) {
+            List<BallerinaTransactionContext> txContextList = resourceRegistry.get(transactionId);
+            if (txContextList != null) {
+                for (BallerinaTransactionContext ctx : txContextList) {
+                    try {
+                        XAResource xaResource = ctx.getXAResource();
+                        if (xaResource != null) {
+                            ctx.getXAResource().end(xid, TMSUCCESS);
+                        } else {
+                            ctx.rollback();
+                        }
+                    } catch (Throwable e) {
+                        int i = 0;
+                    }
+                }
+            } else {
+                log.info("no transacted actions registered for rollback : " + transactionId);
+            }
+        }
     }
 }

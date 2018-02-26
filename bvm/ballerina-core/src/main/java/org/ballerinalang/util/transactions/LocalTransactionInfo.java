@@ -93,6 +93,14 @@ public class LocalTransactionInfo {
         transactionContextStore.put(connectorid, txContext);
     }
 
+    public void rollbackAndClearTransactionContextRegistry() {
+        transactionContextStore.forEach((k, v) -> {
+            v.rollback();
+            v.close();
+        });
+        transactionContextStore.clear();
+    }
+
     public boolean isOuterTransaction() {
         return transactionLevel == 0;
     }

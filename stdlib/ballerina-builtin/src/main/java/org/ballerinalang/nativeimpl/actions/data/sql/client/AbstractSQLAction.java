@@ -772,6 +772,7 @@ public abstract class AbstractSQLAction extends AbstractNativeAction {
             if (isXAConnection) {
                 XAConnection xaConn = datasource.getXADataSource().getXAConnection();
                 XAResource xaResource = xaConn.getXAResource();
+                TransactionResourceManager.getInstance().beginXATransaction(globalTxID, xaResource);
                 conn = xaConn.getConnection();
                 txContext = new SQLTransactionContext(conn, xaResource);
             } else {

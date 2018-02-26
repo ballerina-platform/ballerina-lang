@@ -2616,7 +2616,8 @@ public class CodeGenerator extends BLangNodeVisitor {
 
         ErrorTableAttributeInfo errorTable = createErrorTableIfAbsent(currentPkgInfo);
         Operand transStmtEndAddr = getOperand(-1);
-        Instruction gotoFailedTransBlockEnd = InstructionFactory.get(InstructionCodes.GOTO, transStmtEndAddr);
+        Operand transStmtAbortEndAddr = getOperand(-1);
+        Instruction gotoFailedTransBlockEnd = InstructionFactory.get(InstructionCodes.GOTO, transStmtAbortEndAddr);
         abortInstructions.push(gotoFailedTransBlockEnd);
 
         //start transaction
@@ -2653,6 +2654,9 @@ public class CodeGenerator extends BLangNodeVisitor {
         ErrorTableEntry errorTableEntry = new ErrorTableEntry(transBlockStartAddr.value,
                 transBlockEndAddr, errorTargetIP, 0, -1);
         errorTable.addErrorTableEntry(errorTableEntry);
+
+        transStmtAbortEndAddr.value = nextIP();
+        emit(InstructionCodes.TR_END, getOperand(transactionIndex), getOperand(TransactionStatus.ABORTED.value()));
 
         transStmtEndAddr.value = nextIP();
         emit(InstructionCodes.TR_END, getOperand(transactionIndex), getOperand(TransactionStatus.END.value()));

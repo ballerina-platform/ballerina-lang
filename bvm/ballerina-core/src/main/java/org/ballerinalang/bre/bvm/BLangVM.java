@@ -117,6 +117,7 @@ import org.ballerinalang.util.exceptions.RuntimeErrors;
 import org.ballerinalang.util.program.BLangFunctions;
 import org.ballerinalang.util.transactions.LocalTransactionInfo;
 import org.ballerinalang.util.transactions.TransactionConstants;
+import org.ballerinalang.util.transactions.TransactionResourceManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.ballerinalang.util.Lists;
@@ -2740,10 +2741,16 @@ public class BLangVM {
                 if (currentCount == allowedCount) {
                     notifyTransactionAbort(localTransactionInfo.getGlobalTransactionId());
                 } else {
-                    //TODO clear the maps - after closing the connections
+                    localTransactionInfo.rollbackAndClearTransactionContextRegistry();
+                    TransactionResourceManager.getInstance()
+                            .removeContextsFromRegistry(localTransactionInfo.getGlobalTransactionId());
                 }
+            } else if (status == TransactionStatus.ABORTED.value()) {
+                notifyTransactionAbort(localTransactionInfo.getGlobalTransactionId());
             } else if (status == TransactionStatus.END.value()) { //status = 1 Transaction end
                 localTransactionInfo.endTransactionBlock();
+                TransactionResourceManager.getInstance()
+                        .endXATransaction(localTransactionInfo.getGlobalTransactionId());
                 if (localTransactionInfo.isOuterTransaction()) {
                     notifyTransactionEnd(localTransactionInfo.getGlobalTransactionId());
                     clearLocalTransactionInfo(localTransactionInfo);
