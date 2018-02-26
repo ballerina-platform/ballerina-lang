@@ -20,12 +20,12 @@ package org.ballerinalang.nativeimpl.io;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BLangVMStructs;
+import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.nativeimpl.io.channels.base.AbstractChannel;
 import org.ballerinalang.nativeimpl.io.channels.base.CharacterChannel;
-import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
@@ -49,7 +49,7 @@ import org.ballerinalang.util.exceptions.BallerinaException;
                 structPackage = "ballerina.io")},
         isPublic = true
 )
-public class CreateCharacterChannel extends AbstractNativeFunction {
+public class CreateCharacterChannel extends BlockingNativeCallableUnit {
     /**
      * Specifies the index of the character channel in ballerina.io#createCharacterChannel.
      */
@@ -93,26 +93,25 @@ public class CreateCharacterChannel extends AbstractNativeFunction {
      * {@inheritDoc}
      */
     @Override
-    public BValue[] execute(Context context) {
+    public void execute(Context context) {
         BStruct characterChannelInfo;
         BStruct characterChannel;
         BValue[] bValues;
         String encoding;
         try {
             //File which holds access to the channel information
-            characterChannelInfo = (BStruct) getRefArgument(context, CHAR_CHANNEL_INDEX);
-            encoding = getStringArgument(context, ENCODING_INDEX);
+            characterChannelInfo = (BStruct) context.getRefArgument(CHAR_CHANNEL_INDEX);
+            encoding = context.getStringArgument(ENCODING_INDEX);
             characterChannel = BLangVMStructs.createBStruct(getCharacterChannelStructInfo(context));
             //Will get the relevant byte channel and will create a character channel
             AbstractChannel byteChannel = (AbstractChannel) characterChannelInfo.getNativeData(IOConstants
                     .BYTE_CHANNEL_NAME);
             CharacterChannel bCharacterChannel = new CharacterChannel(byteChannel, encoding);
             characterChannel.addNativeData(IOConstants.CHARACTER_CHANNEL_NAME, bCharacterChannel);
-            bValues = getBValues(characterChannel);
+            context.setReturnValues(characterChannel);
         } catch (Throwable e) {
             String message = "Error occurred while converting byte channel to character channel:" + e.getMessage();
             throw new BallerinaException(message, context);
         }
-        return bValues;
     }
 }

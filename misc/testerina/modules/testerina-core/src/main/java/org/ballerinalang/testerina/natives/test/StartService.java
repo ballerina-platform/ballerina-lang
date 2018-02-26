@@ -71,7 +71,7 @@ import java.util.stream.Collectors;
 @BallerinaAnnotation(annotationName = "Param",
                      attributes = { @Attribute(name = "serviceName",
                                                value = "Name of the service to start") })
-public class StartService extends AbstractNativeFunction {
+public class StartService extends AbstractNativeCallableUnit {
 
     private static final String MSG_PREFIX = "test:startService: ";
     private static final String DEFAULT_HOSTNAME = "0.0.0.0";
@@ -92,8 +92,8 @@ public class StartService extends AbstractNativeFunction {
      *
      */
     @Override
-    public BValue[] execute(Context ctx) {
-        String serviceName = getStringArgument(ctx, 0);
+    public void execute(Context ctx) {
+        String serviceName = ctx.getStringArgument(0);
 
         ServiceInfo matchingService = null;
         for (ProgramFile programFile : TesterinaRegistry.getInstance().getProgramFiles()) {
@@ -116,7 +116,7 @@ public class StartService extends AbstractNativeFunction {
 
         // 6) return the service url
         BString str = new BString(getServiceURL(matchingService));
-        return getBValues(str);
+        context.setReturnValues(str);
     }
 
     private void startService(ProgramFile programFile, ServiceInfo matchingService) {

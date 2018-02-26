@@ -3116,101 +3116,101 @@ public class BLangVM {
     }
 
     private void invokeNativeFunction(FunctionInfo functionInfo, int[] argRegs, int[] retRegs) {
-        StackFrame callerSF = controlStack.currentFrame;
-
-        // TODO : Remove once we handle this properly for return values
-        BType[] retTypes = functionInfo.getRetParamTypes();
-        BValue[] returnValues = new BValue[retTypes.length];
-
-        StackFrame caleeSF = new StackFrame(functionInfo, functionInfo.getDefaultWorkerInfo(), ip, null, returnValues);
-        copyArgValues(callerSF, caleeSF, argRegs, functionInfo.getParamTypes());
-
-        controlStack.pushFrame(caleeSF);
-
-        // Invoke Native function;
-        AbstractNativeFunction nativeFunction = functionInfo.getNativeFunction();
-        try {
-            //nativeFunction.executeNative(context);
-        } catch (BLangNullReferenceException e) {
-            context.setError(BLangVMErrors.createNullRefException(context, ip));
-            handleError();
-            return;
-        } catch (Throwable e) {
-            context.setError(BLangVMErrors.createError(this.context, ip, e.getMessage()));
-            handleError();
-            return;
-        }
-        // Copy return values to the callers stack
-        controlStack.popFrame();
-        handleReturnFromNativeCallableUnit(callerSF, retRegs, returnValues, retTypes);
+//        StackFrame callerSF = controlStack.currentFrame;
+//
+//        // TODO : Remove once we handle this properly for return values
+//        BType[] retTypes = functionInfo.getRetParamTypes();
+//        BValue[] returnValues = new BValue[retTypes.length];
+//
+//        StackFrame caleeSF = new StackFrame(functionInfo, functionInfo.getDefaultWorkerInfo(), ip, null, returnValues);
+//        copyArgValues(callerSF, caleeSF, argRegs, functionInfo.getParamTypes());
+//
+//        controlStack.pushFrame(caleeSF);
+//
+//        // Invoke Native function;
+//        AbstractNativeFunction nativeFunction = functionInfo.getNativeFunction();
+//        try {
+//            //nativeFunction.executeNative(context);
+//        } catch (BLangNullReferenceException e) {
+//            context.setError(BLangVMErrors.createNullRefException(context, ip));
+//            handleError();
+//            return;
+//        } catch (Throwable e) {
+//            context.setError(BLangVMErrors.createError(this.context, ip, e.getMessage()));
+//            handleError();
+//            return;
+//        }
+//        // Copy return values to the callers stack
+//        controlStack.popFrame();
+//        handleReturnFromNativeCallableUnit(callerSF, retRegs, returnValues, retTypes);
     }
 
     private void invokeNativeAction(ActionInfo actionInfo, int[] argRegs, int[] retRegs) {
-        StackFrame callerSF = controlStack.currentFrame;
-
-        WorkerInfo defaultWorkerInfo = actionInfo.getDefaultWorkerInfo();
-        AbstractNativeAction nativeAction = actionInfo.getNativeAction();
-
-        if (nativeAction == null) {
-            return;
-        }
-
-        // TODO : Remove once we handle this properly for return values
-        BType[] retTypes = actionInfo.getRetParamTypes();
-        BValue[] returnValues = new BValue[retTypes.length];
-
-        StackFrame caleeSF = new StackFrame(actionInfo, defaultWorkerInfo, ip, null, returnValues);
-        copyArgValues(callerSF, caleeSF, argRegs, actionInfo.getParamTypes());
-
-        controlStack.pushFrame(caleeSF);
-
-        try {
-//          boolean nonBlocking = !context.isInTransaction() && nativeAction.isNonBlockingAction() &&
-//                    !context.blockingInvocation;
-            boolean nonBlocking = false;
-            BClientConnectorFutureListener listener = new BClientConnectorFutureListener(context, nonBlocking);
-            if (nonBlocking) {
-                // Enable non-blocking.
-                //context.setStartIP(ip);
-                // TODO : Temporary solution to make non-blocking working.
-                if (caleeSF.packageInfo == null) {
-                    caleeSF.packageInfo = actionInfo.getPackageInfo();
-                }
-                //context.nonBlockingContext = new Context.NonBlockingContext(actionInfo, retRegs);
-
-                ConnectorFuture future = nativeAction.execute(context);
-                if (future == null) {
-                    throw new BallerinaException("Native action doesn't provide a future object to sync");
-                }
-                future.setConnectorFutureListener(listener);
-
-                ip = -1;
-            } else {
-                ConnectorFuture future = nativeAction.execute(context);
-                if (future == null) {
-                    throw new BallerinaException("Native action doesn't provide a future object to sync");
-                }
-                future.setConnectorFutureListener(listener);
-                //default nonBlocking timeout 5 mins
-                long timeout = 300000;
-                boolean res = listener.sync(timeout);
-                if (!res) {
-                    //non blocking execution timed out.
-                    throw new BallerinaException("Action execution timed out, timeout period - " + timeout
-                            + ", Action - " + nativeAction.getPackagePath() + ":" + nativeAction.getName());
-                }
-                if (context.getError() != null) {
-                    handleError();
-                }
-                // Copy return values to the callers stack
-                controlStack.popFrame();
-                handleReturnFromNativeCallableUnit(callerSF, retRegs, returnValues, retTypes);
-
-            }
-        } catch (Throwable e) {
-            context.setError(BLangVMErrors.createError(this.context, ip, e.getMessage()));
-            handleError();
-        }
+//        StackFrame callerSF = controlStack.currentFrame;
+//
+//        WorkerInfo defaultWorkerInfo = actionInfo.getDefaultWorkerInfo();
+//        AbstractNativeAction nativeAction = actionInfo.getNativeAction();
+//
+//        if (nativeAction == null) {
+//            return;
+//        }
+//
+//        // TODO : Remove once we handle this properly for return values
+//        BType[] retTypes = actionInfo.getRetParamTypes();
+//        BValue[] returnValues = new BValue[retTypes.length];
+//
+//        StackFrame caleeSF = new StackFrame(actionInfo, defaultWorkerInfo, ip, null, returnValues);
+//        copyArgValues(callerSF, caleeSF, argRegs, actionInfo.getParamTypes());
+//
+//        controlStack.pushFrame(caleeSF);
+//
+//        try {
+////          boolean nonBlocking = !context.isInTransaction() && nativeAction.isNonBlockingAction() &&
+////                    !context.blockingInvocation;
+//            boolean nonBlocking = false;
+//            BClientConnectorFutureListener listener = new BClientConnectorFutureListener(context, nonBlocking);
+//            if (nonBlocking) {
+//                // Enable non-blocking.
+//                //context.setStartIP(ip);
+//                // TODO : Temporary solution to make non-blocking working.
+//                if (caleeSF.packageInfo == null) {
+//                    caleeSF.packageInfo = actionInfo.getPackageInfo();
+//                }
+//                //context.nonBlockingContext = new Context.NonBlockingContext(actionInfo, retRegs);
+//
+//                ConnectorFuture future = nativeAction.execute(context);
+//                if (future == null) {
+//                    throw new BallerinaException("Native action doesn't provide a future object to sync");
+//                }
+//                future.setConnectorFutureListener(listener);
+//
+//                ip = -1;
+//            } else {
+//                ConnectorFuture future = nativeAction.execute(context);
+//                if (future == null) {
+//                    throw new BallerinaException("Native action doesn't provide a future object to sync");
+//                }
+//                future.setConnectorFutureListener(listener);
+//                //default nonBlocking timeout 5 mins
+//                long timeout = 300000;
+//                boolean res = listener.sync(timeout);
+//                if (!res) {
+//                    //non blocking execution timed out.
+//                    throw new BallerinaException("Action execution timed out, timeout period - " + timeout
+//                            + ", Action - " + nativeAction.getPackagePath() + ":" + nativeAction.getName());
+//                }
+//                if (context.getError() != null) {
+//                    handleError();
+//                }
+//                // Copy return values to the callers stack
+//                controlStack.popFrame();
+//                handleReturnFromNativeCallableUnit(callerSF, retRegs, returnValues, retTypes);
+//
+//            }
+//        } catch (Throwable e) {
+//            context.setError(BLangVMErrors.createError(this.context, ip, e.getMessage()));
+//            handleError();
+//        }
     }
 
     public static void handleReturnFromNativeCallableUnit(StackFrame callerSF, int[] returnRegIndexes,
@@ -3911,7 +3911,9 @@ public class BLangVM {
                 return;
             }
 
-            BServerConnectorFuture connectorFuture = context.getConnectorFuture();
+            // FIXME
+            // BServerConnectorFuture connectorFuture = context.getConnectorFuture();
+            BServerConnectorFuture connectorFuture = new BServerConnectorFuture();
             try {
                 connectorFuture.notifyFailure(new BallerinaException(BLangVMErrors
                         .getPrintableStackTrace(context.getError())));

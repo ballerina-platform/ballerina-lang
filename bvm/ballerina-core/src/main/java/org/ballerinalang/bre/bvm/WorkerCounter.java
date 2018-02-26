@@ -47,10 +47,11 @@ public class WorkerCounter {
     public void countDown() {
         if (count.decrementAndGet() == 0) {
             lock.release();
-            if (resourceContext != null && resourceContext.getConnectorFuture() != null) {
-                // Asynchronously notify the resource.
-                resourceContext.getConnectorFuture().notifySuccess();
-            }
+            // FIXME
+//            if (resourceContext != null && resourceContext.getConnectorFuture() != null) {
+//                // Asynchronously notify the resource.
+//                resourceContext.getConnectorFuture().notifySuccess();
+//            }
         }
     }
 

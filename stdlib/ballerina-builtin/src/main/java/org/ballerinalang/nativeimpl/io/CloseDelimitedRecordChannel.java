@@ -18,11 +18,10 @@
 package org.ballerinalang.nativeimpl.io;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BStruct;
-import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.nativeimpl.io.channels.base.DelimitedRecordChannel;
-import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.util.exceptions.BallerinaException;
@@ -40,7 +39,7 @@ import org.ballerinalang.util.exceptions.BallerinaException;
                 structPackage = "ballerina.io"),
         isPublic = true
 )
-public class CloseDelimitedRecordChannel extends AbstractNativeFunction {
+public class CloseDelimitedRecordChannel extends BlockingNativeCallableUnit {
 
     /**
      * The index of the DelimitedRecordChannel in ballerina.io#closeDelimitedRecordChannel().
@@ -55,10 +54,10 @@ public class CloseDelimitedRecordChannel extends AbstractNativeFunction {
      * {@inheritDoc}
      */
     @Override
-    public BValue[] execute(Context context) {
+    public void execute(Context context) {
         BStruct channel;
         try {
-            channel = (BStruct) getRefArgument(context, RECORD_CHANNEL_INDEX);
+            channel = (BStruct) context.getRefArgument(RECORD_CHANNEL_INDEX);
             DelimitedRecordChannel charChannel = (DelimitedRecordChannel)
                     channel.getNativeData(IOConstants.TXT_RECORD_CHANNEL_NAME);
             charChannel.close();
@@ -66,6 +65,6 @@ public class CloseDelimitedRecordChannel extends AbstractNativeFunction {
             String message = "Failed to close the text record channel:" + e.getMessage();
             throw new BallerinaException(message, context);
         }
-        return VOID_RETURN;
+        context.setReturnValues();
     }
 }

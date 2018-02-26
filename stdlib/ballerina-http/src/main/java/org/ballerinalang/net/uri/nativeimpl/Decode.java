@@ -18,18 +18,17 @@
 
 package org.ballerinalang.net.uri.nativeimpl;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
+
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BString;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.net.http.HttpUtil;
-
-import java.io.UnsupportedEncodingException;
-import java.net.URLDecoder;
 
 /**
  * Native function to decode URLs.
@@ -44,16 +43,16 @@ import java.net.URLDecoder;
                       @ReturnType(type = TypeKind.STRUCT, structType = "Error")},
         isPublic = true
 )
-public class Decode extends AbstractNativeFunction {
+public class Decode extends BlockingNativeCallableUnit {
 
     @Override
-    public BValue[] execute(Context context) {
-        String url = getStringArgument(context, 0);
-        String charset = getStringArgument(context, 1);
+    public void execute(Context context) {
+        String url = context.getStringArgument(0);
+        String charset = context.getStringArgument(1);
         try {
-            return getBValues(new BString(URLDecoder.decode(url, charset)), null);
+            context.setReturnValues(new BString(URLDecoder.decode(url, charset)), null);
         } catch (UnsupportedEncodingException e) {
-            return getBValues(null,
+            context.setReturnValues(null,
                     HttpUtil.getGenericError(context, "Error occurred while decoding the url. " + e.getMessage()));
         }
     }

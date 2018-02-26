@@ -18,21 +18,6 @@
 
 package org.ballerinalang.mime.util;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.connector.api.ConnectorUtils;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BStruct;
-import org.ballerinalang.util.exceptions.BallerinaException;
-import org.jvnet.mimepull.MIMEConfig;
-import org.jvnet.mimepull.MIMEMessage;
-import org.jvnet.mimepull.MIMEPart;
-
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.List;
-import javax.activation.MimeType;
-import javax.activation.MimeTypeParseException;
-
 import static org.ballerinalang.mime.util.Constants.BOUNDARY;
 import static org.ballerinalang.mime.util.Constants.BYTE_LIMIT;
 import static org.ballerinalang.mime.util.Constants.CONTENT_DISPOSITION;
@@ -45,6 +30,22 @@ import static org.ballerinalang.mime.util.Constants.FIRST_ELEMENT;
 import static org.ballerinalang.mime.util.Constants.MEDIA_TYPE;
 import static org.ballerinalang.mime.util.Constants.NO_CONTENT_LENGTH_FOUND;
 import static org.ballerinalang.mime.util.Constants.PROTOCOL_PACKAGE_MIME;
+
+import org.ballerinalang.bre.Context;
+import org.ballerinalang.connector.api.ConnectorUtils;
+import org.ballerinalang.model.values.BMap;
+import org.ballerinalang.model.values.BStruct;
+import org.ballerinalang.util.exceptions.BallerinaException;
+import org.jvnet.mimepull.MIMEConfig;
+import org.jvnet.mimepull.MIMEMessage;
+import org.jvnet.mimepull.MIMEPart;
+
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.activation.MimeType;
+import javax.activation.MimeTypeParseException;
 
 /**
  * Responsible for decoding an inputstream to get a set of multiparts.

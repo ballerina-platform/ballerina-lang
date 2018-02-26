@@ -18,12 +18,11 @@
 package org.ballerinalang.nativeimpl.io;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStruct;
-import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.nativeimpl.io.channels.base.CharacterChannel;
-import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
@@ -43,7 +42,7 @@ import org.ballerinalang.util.exceptions.BallerinaException;
         returnType = {@ReturnType(type = TypeKind.STRING)},
         isPublic = true
 )
-public class ReadCharacters extends AbstractNativeFunction {
+public class ReadCharacters extends BlockingNativeCallableUnit {
 
     /**
      * Specifies the index which contains the character channel in ballerina.lo#readCharacters.
@@ -63,13 +62,13 @@ public class ReadCharacters extends AbstractNativeFunction {
      * {@inheritDoc}
      */
     @Override
-    public BValue[] execute(Context context) {
+    public void execute(Context context) {
         BStruct channel;
         long numberOfCharacters;
         BString content;
         try {
-            channel = (BStruct) getRefArgument(context, CHAR_CHANNEL_INDEX);
-            numberOfCharacters = getIntArgument(context, NUMBER_OF_CHARS_INDEX);
+            channel = (BStruct) context.getRefArgument(CHAR_CHANNEL_INDEX);
+            numberOfCharacters = context.getIntArgument(NUMBER_OF_CHARS_INDEX);
             CharacterChannel characterChannel = (CharacterChannel) channel.getNativeData(IOConstants
                     .CHARACTER_CHANNEL_NAME);
             String readBytes = characterChannel.read((int) numberOfCharacters);
@@ -78,6 +77,6 @@ public class ReadCharacters extends AbstractNativeFunction {
             String message = "Error occurred while reading characters:" + e.getMessage();
             throw new BallerinaException(message, context);
         }
-        return getBValues(content);
+        context.setReturnValues(content);
     }
 }

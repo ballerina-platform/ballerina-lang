@@ -17,15 +17,13 @@
 package org.ballerinalang.net.http.actions;
 
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.connector.api.ConnectorFuture;
+import org.ballerinalang.bre.bvm.CallableUnitCallback;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaAction;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.util.exceptions.BallerinaException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.contract.ClientConnectorException;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 
@@ -55,18 +53,12 @@ import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 )
 public class Put extends AbstractHTTPAction {
 
-    private static final Logger logger = LoggerFactory.getLogger(Put.class);
-
     @Override
-    public ConnectorFuture execute(Context context) {
-
-        if (logger.isDebugEnabled()) {
-            logger.debug("Executing Native Action : {}", this.getName());
-        }
+    public void execute(Context context, CallableUnitCallback callback) {
 
         try {
             // Execute the operation
-            return executeNonBlockingAction(context, createOutboundRequestMsg(context));
+            executeNonBlockingAction(context, createOutboundRequestMsg(context), callback);
         } catch (ClientConnectorException clientConnectorException) {
             throw new BallerinaException("Failed to invoke 'put' action in " + HttpConstants.CONNECTOR_NAME
                     + ". " + clientConnectorException.getMessage(), context);

@@ -19,13 +19,13 @@ package org.ballerinalang.net.http.actions;
 
 
 import org.apache.commons.lang3.StringUtils;
+import org.ballerinalang.bre.BLangCallableUnitCallback;
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.bre.bvm.CallableUnitCallback;
 import org.ballerinalang.connector.api.BallerinaConnectorException;
-import org.ballerinalang.connector.api.ConnectorFuture;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BConnector;
 import org.ballerinalang.model.values.BStruct;
-import org.ballerinalang.nativeimpl.actions.ClientConnectorFuture;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaAction;
 import org.ballerinalang.net.http.HttpConnectionManager;
@@ -70,8 +70,8 @@ public class Init extends AbstractHTTPAction {
     private HttpWsConnectorFactory httpConnectorFactory = new HttpWsConnectorFactoryImpl();
 
     @Override
-    public ConnectorFuture execute(Context context) {
-        BConnector connector = (BConnector) getRefArgument(context, 0);
+    public void execute(Context context, CallableUnitCallback callback) {
+        BConnector connector = (BConnector) context.getRefArgument(0);
         String url = connector.getStringField(0);
         if (url.endsWith("/")) {
             url = url.substring(0, url.length() - 1);
@@ -113,10 +113,7 @@ public class Init extends AbstractHTTPAction {
                 httpConnectorFactory.createHttpClientConnector(properties, senderConfiguration);
         connector.setNativeData(HttpConstants.CONNECTOR_NAME, httpClientConnector);
 
-        ClientConnectorFuture ballerinaFuture = new ClientConnectorFuture();
-        ballerinaFuture.notifySuccess();
-
-        return ballerinaFuture;
+        callback.notifySuccess();
     }
 
     private void populateSenderConfigurationOptions(SenderConfiguration senderConfiguration, BStruct options) {

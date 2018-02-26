@@ -1,5 +1,5 @@
 /*
-*  Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+*  Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 *
 *  WSO2 Inc. licenses this file to you under the Apache License,
 *  Version 2.0 (the "License"); you may not use this file except
@@ -15,27 +15,25 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.ballerinalang.nativeimpl.actions;
+package org.ballerinalang.bre;
 
+import org.ballerinalang.bre.bvm.CallableUnitCallback;
+import org.ballerinalang.bre.bvm.CallableUnitFutureListener;
 import org.ballerinalang.connector.api.BallerinaConnectorException;
-import org.ballerinalang.connector.api.ConnectorFuture;
-import org.ballerinalang.connector.api.ConnectorFutureListener;
 import org.ballerinalang.model.values.BValue;
 
 /**
- * {@code ClientConnectorFuture} This connector future will be provided to the ballerina side to get notifications
- * from client connections.
- *
- * @since 0.94
+ * @since 0.964
+ * FIXME
  */
-public class ClientConnectorFuture implements ConnectorFuture {
-    private ConnectorFutureListener listener;
+public class BLangCallableUnitCallback implements CallableUnitCallback {
+    private CallableUnitFutureListener listener;
     private boolean success = false;
     private BValue[] value;
     private BallerinaConnectorException exception;
 
     @Override
-    public void setConnectorFutureListener(ConnectorFutureListener futureListener) {
+    public void setCallableUnitFutureListener(CallableUnitFutureListener futureListener) {
         this.listener = futureListener;
         if (value != null) {
             listener.notifyReply(value);
@@ -67,11 +65,11 @@ public class ClientConnectorFuture implements ConnectorFuture {
         this.value = value;
     }
 
-    public void notifyFailure(BallerinaConnectorException ex) {
+    public void notifyFailure(Exception ex) {
         if (listener != null) {
             listener.notifyFailure(ex);
             return;
         }
-        this.exception = ex;
+        this.exception = (BallerinaConnectorException) ex;
     }
 }

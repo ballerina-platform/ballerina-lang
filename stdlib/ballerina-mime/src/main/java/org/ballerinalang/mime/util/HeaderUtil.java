@@ -18,6 +18,11 @@
 
 package org.ballerinalang.mime.util;
 
+import static org.ballerinalang.mime.util.Constants.ASSIGNMENT;
+import static org.ballerinalang.mime.util.Constants.ENTITY_HEADERS_INDEX;
+import static org.ballerinalang.mime.util.Constants.FIRST_ELEMENT;
+import static org.ballerinalang.mime.util.Constants.SEMICOLON;
+
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStringArray;
@@ -30,11 +35,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
-
-import static org.ballerinalang.mime.util.Constants.ASSIGNMENT;
-import static org.ballerinalang.mime.util.Constants.ENTITY_HEADERS_INDEX;
-import static org.ballerinalang.mime.util.Constants.FIRST_ELEMENT;
-import static org.ballerinalang.mime.util.Constants.SEMICOLON;
 
 /**
  * Utility methods for parsing headers.

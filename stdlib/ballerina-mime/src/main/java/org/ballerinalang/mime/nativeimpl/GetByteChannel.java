@@ -19,15 +19,14 @@
 package org.ballerinalang.mime.nativeimpl;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.connector.api.ConnectorUtils;
 import org.ballerinalang.mime.util.EntityBody;
 import org.ballerinalang.mime.util.MimeUtil;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BStruct;
-import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.nativeimpl.io.IOConstants;
 import org.ballerinalang.nativeimpl.io.channels.base.Channel;
-import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
@@ -49,13 +48,13 @@ import static org.ballerinalang.mime.util.Constants.PROTOCOL_PACKAGE_IO;
         returnType = {@ReturnType(type = TypeKind.STRUCT)},
         isPublic = true
 )
-public class GetByteChannel extends AbstractNativeFunction {
+public class GetByteChannel extends BlockingNativeCallableUnit {
 
     @Override
-    public BValue[] execute(Context context) {
+    public void execute(Context context) {
         BStruct byteChannelStruct;
         try {
-            BStruct entityStruct = (BStruct) this.getRefArgument(context, FIRST_PARAMETER_INDEX);
+            BStruct entityStruct = (BStruct) context.getRefArgument(FIRST_PARAMETER_INDEX);
             EntityBody entityBody = MimeUtil.constructEntityBody(entityStruct);
             Channel byteChannel = null;
             if (entityBody != null) {
@@ -71,6 +70,6 @@ public class GetByteChannel extends AbstractNativeFunction {
             throw new BallerinaException("Error occurred while constructing byte channel from entity body : "
                     + e.getMessage());
         }
-        return this.getBValues(byteChannelStruct);
+        context.setReturnValues(byteChannelStruct);
     }
 }

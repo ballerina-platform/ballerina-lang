@@ -41,7 +41,8 @@ public class Appointment {
         TaskRegistry.getInstance().addAppointment(this);
 
         try {
-            balParentContext.startTrackWorker();
+            // FIXME
+//            balParentContext.startTrackWorker();
             AppointmentManager.getInstance().
                     schedule(id, fn, AppointmentJob.class,
                             balParentContext, onTriggerFunction, onErrorFunction, cronExpression);
@@ -57,6 +58,7 @@ public class Appointment {
     public void stop() throws TaskException {
         AppointmentManager.getInstance().stop(id);
         TaskRegistry.getInstance().remove(id);
-        balParentContext.endTrackWorker();
+        // FIXME
+//        balParentContext.endTrackWorker();
     }
 }

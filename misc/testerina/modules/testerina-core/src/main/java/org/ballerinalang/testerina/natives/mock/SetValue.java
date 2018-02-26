@@ -47,7 +47,7 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 @BallerinaAnnotation(annotationName = "Param",
                      attributes = { @Attribute(name = "value",
                                                value = "Mock value to set (e.g.: endpoint URL)") })
-public class SetValue extends AbstractNativeFunction {
+public class SetValue extends AbstractNativeCallableUnit {
 
 //   private static final String COULD_NOT_FIND_MATCHING_CONNECTOR =
 //                                                      "Could not find a matching connector for the name ";
@@ -65,7 +65,7 @@ public class SetValue extends AbstractNativeFunction {
 
     //TODO: Improve this to support modification of local variables as well
     @Override
-    public BValue[] execute(Context ctx) {
+    public void execute(Context ctx) {
 //
 //        //Set the global connector instance as given by names in the path array.
 //        //keep traversing the path array until the last connector (element - 1).
@@ -119,7 +119,7 @@ public class SetValue extends AbstractNativeFunction {
 //        String fieldType = fieldTypes[mockCnctrPath.indexOfMockField].getName();
 //        setVarValue(connector, mockCnctrPath.terminalVarName, fieldType, mockCnctrPath.mockValue, varTypeIndex);
 
-        return VOID_RETURN;
+        ctx.setReturnValues();
     }
 
 //    private ServiceInfo getMatchingService(String serviceName) {
@@ -149,8 +149,8 @@ public class SetValue extends AbstractNativeFunction {
 //    }
 //
 //    private MockConnectorPath parseMockConnectorPath(Context ctx) {
-//        String mockCntrPathString = getStringArgument(ctx, 0);
-//        String mockValue = getStringArgument(ctx, 1);
+//        String mockCntrPathString = ctx.getStringArgument(0);
+//        String mockValue = ctx.getStringArgument(1);
 //        String[] mockCntrPathArr = mockCntrPathString.split("\\.");
 //        if (mockCntrPathArr.length < 2) {
 //            throw new BallerinaException(

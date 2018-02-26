@@ -18,8 +18,10 @@
 
 package org.ballerinalang.net.http.actions;
 
+import java.util.Locale;
+
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.connector.api.ConnectorFuture;
+import org.ballerinalang.bre.bvm.CallableUnitCallback;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BConnector;
 import org.ballerinalang.model.values.BStruct;
@@ -29,11 +31,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.HttpUtil;
 import org.ballerinalang.util.exceptions.BallerinaException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
-
-import java.util.Locale;
 
 /**
  * {@code Forward} action can be used to invoke an http call with incoming request httpVerb.
@@ -61,17 +59,12 @@ import java.util.Locale;
 )
 public class Forward extends AbstractHTTPAction {
 
-    private static final Logger logger = LoggerFactory.getLogger(Forward.class);
-
     @Override
-    public ConnectorFuture execute(Context context) {
+    public void execute(Context context, CallableUnitCallback callback) {
 
-        if (logger.isDebugEnabled()) {
-            logger.debug("Executing Native Action : {}", this.getName());
-        }
         try {
             // Execute the operation
-            return executeNonBlockingAction(context, createOutboundRequestMsg(context));
+            executeNonBlockingAction(context, createOutboundRequestMsg(context), callback);
         } catch (Throwable t) {
             throw new BallerinaException("Failed to invoke 'forward' action in " + HttpConstants.CONNECTOR_NAME
                     + ". " + t.getMessage(), context);
@@ -79,9 +72,9 @@ public class Forward extends AbstractHTTPAction {
     }
 
     protected HTTPCarbonMessage createOutboundRequestMsg(Context context) {
-        BConnector bConnector = (BConnector) getRefArgument(context, 0);
-        String path = getStringArgument(context, 0);
-        BStruct requestStruct = ((BStruct) getRefArgument(context, 1));
+        BConnector bConnector = (BConnector) context.getRefArgument(0);
+        String path = context.getStringArgument(0);
+        BStruct requestStruct = ((BStruct) context.getRefArgument(1));
 
         if (requestStruct.getNativeData(HttpConstants.IN_REQUEST) == null) {
             throw new BallerinaException("invalid inbound request parameter");

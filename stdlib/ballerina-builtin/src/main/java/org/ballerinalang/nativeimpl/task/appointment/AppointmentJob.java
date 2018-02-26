@@ -19,7 +19,6 @@
 package org.ballerinalang.nativeimpl.task.appointment;
 
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.WorkerContext;
 import org.ballerinalang.nativeimpl.task.TaskExecutor;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.util.codegen.ProgramFile;

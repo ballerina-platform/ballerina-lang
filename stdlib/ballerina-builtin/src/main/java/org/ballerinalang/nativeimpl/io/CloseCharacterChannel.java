@@ -18,11 +18,10 @@
 package org.ballerinalang.nativeimpl.io;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BStruct;
-import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.nativeimpl.io.channels.base.CharacterChannel;
-import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.util.exceptions.BallerinaException;
@@ -38,7 +37,7 @@ import org.ballerinalang.util.exceptions.BallerinaException;
         receiver = @Receiver(type = TypeKind.STRUCT, structType = "CharacterChannel", structPackage = "ballerina.io"),
         isPublic = true
 )
-public class CloseCharacterChannel extends AbstractNativeFunction {
+public class CloseCharacterChannel extends BlockingNativeCallableUnit {
 
     /**
      * The index of the CharacterChannel in ballerina.io#closeCharacterChannel().
@@ -53,16 +52,16 @@ public class CloseCharacterChannel extends AbstractNativeFunction {
      * {@inheritDoc}
      */
     @Override
-    public BValue[] execute(Context context) {
+    public void execute(Context context) {
         BStruct channel;
         try {
-            channel = (BStruct) getRefArgument(context, CHARACTER_CHANNEL_INDEX);
+            channel = (BStruct) context.getRefArgument(CHARACTER_CHANNEL_INDEX);
             CharacterChannel charChannel = (CharacterChannel) channel.getNativeData(IOConstants.CHARACTER_CHANNEL_NAME);
             charChannel.close();
         } catch (Throwable e) {
             String message = "Failed to close the character channel:" + e.getMessage();
             throw new BallerinaException(message, context);
         }
-        return VOID_RETURN;
+        context.setReturnValues();
     }
 }

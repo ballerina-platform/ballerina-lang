@@ -37,23 +37,22 @@ public class TaskExecutor {
                                FunctionRefCPEntry onErrorFunction, ProgramFile programFile, Context newContext) {
         boolean isErrorFnCalled = false;
         try {
-            //Invoke the onTrigger function.
-            BValue[] results =
-                    BLangFunctions.
-                            invokeFunction(programFile, onTriggerFunction.getFunctionInfo(), null, newContext);
+            // Invoke the onTrigger function.
+            BValue[] results = BLangFunctions.invokeCallable(onTriggerFunction.getFunctionInfo(), new BValue[0]);
             // If there are results, that mean an error has been returned
             if (onErrorFunction != null && results.length > 0 && results[0] != null) {
                 isErrorFnCalled = true;
-                BLangFunctions.invokeFunction(programFile, onErrorFunction.getFunctionInfo(), results, newContext);
+                BLangFunctions.invokeCallable(onErrorFunction.getFunctionInfo(), results);
             }
         } catch (BLangRuntimeException e) {
 
             //Call the onError function in case of error.
             if (onErrorFunction != null && !isErrorFnCalled) {
-                BLangFunctions.invokeFunction(programFile, onErrorFunction.getFunctionInfo(),
-                        fn.getBValues(BLangVMErrors.createError(parentCtx, 0, e.getMessage())), newContext);
+                BLangFunctions.invokeCallable(onErrorFunction.getFunctionInfo(),
+                        new BValue[] { BLangVMErrors.createError(parentCtx, 0, e.getMessage()) });
             }
-            parentCtx.endTrackWorker();
+            // FIXME
+            // parentCtx.endTrackWorker();
         }
     }
 }

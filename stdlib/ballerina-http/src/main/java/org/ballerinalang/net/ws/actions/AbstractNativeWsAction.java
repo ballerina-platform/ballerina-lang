@@ -19,7 +19,7 @@
 package org.ballerinalang.net.ws.actions;
 
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.connector.api.AbstractNativeAction;
+import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.BStructType;
 import org.ballerinalang.model.values.BConnector;
 import org.ballerinalang.model.values.BMap;
@@ -34,12 +34,13 @@ import org.ballerinalang.util.codegen.StructInfo;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+
 import javax.websocket.Session;
 
 /**
  * Abstract class for WebSocket actions.
  */
-public abstract class AbstractNativeWsAction extends AbstractNativeAction {
+public abstract class AbstractNativeWsAction extends BlockingNativeCallableUnit {
 
     public BStruct createWsConnectionStruct(WebSocketService wsService, Session session, String parentConnectionID) {
         BStruct wsConnection = wsService.createConnectionStruct();

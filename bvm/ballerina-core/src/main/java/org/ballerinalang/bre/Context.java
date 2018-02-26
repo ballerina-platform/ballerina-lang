@@ -21,6 +21,7 @@ import org.ballerinalang.bre.bvm.WorkerData;
 import org.ballerinalang.bre.bvm.WorkerExecutionContext;
 import org.ballerinalang.connector.impl.BServerConnectorFuture;
 import org.ballerinalang.model.values.BStruct;
+import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.codegen.ActionInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.codegen.ServiceInfo;
@@ -36,25 +37,21 @@ import java.util.Map;
 public interface Context {
 
     public WorkerExecutionContext getParentWorkerExecutionContext();
-    
+
     public WorkerData getLocalWorkerData();
-    
+
     public DebugContext getDebugContext();
-    
+
     public void setDebugContext(DebugContext debugContext);
 
     public Object getProperty(String key);
-    
+
     public Map<String, Object> getProperties();
 
     public void setProperty(String key, Object value);
 
-    public BServerConnectorFuture getConnectorFuture();
-
-    public void setConnectorFuture(BServerConnectorFuture connectorFuture);
-
     public ServiceInfo getServiceInfo();
-    
+
     public void setServiceInfo(ServiceInfo serviceInfo);
 
     public void setBallerinaTransactionManager(BallerinaTransactionManager ballerinaTransactionManager);
@@ -68,6 +65,30 @@ public interface Context {
     public void setError(BStruct error);
 
     public ProgramFile getProgramFile();
+
+    public long getIntArgument(int index);
+
+    public String getStringArgument(int index);
+
+    public String getNullableStringArgument(int index);
+
+    public double getFloatArgument(int index);
+
+    public boolean getBooleanArgument(int index);
+
+    public byte[] getBlobArgument(int index);
+
+    public BValue getRefArgument(int index);
+
+    public BValue getNullableRefArgument(int index);
+
+    public void setReturnValues(BValue... values);
+
+    public void setReturnValue(int index, BValue value);
+
+    public BValue[] getReturnValues();
+
+    public void setConnectorFuture(BServerConnectorFuture connectorFuture);
 
     /**
      * Data holder for Non-Blocking Action invocation.

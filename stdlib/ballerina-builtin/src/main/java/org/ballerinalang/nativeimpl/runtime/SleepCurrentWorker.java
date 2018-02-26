@@ -16,9 +16,8 @@
 package org.ballerinalang.nativeimpl.runtime;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 
@@ -33,16 +32,16 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
         args = {@Argument(name = "millis", type = TypeKind.INT)},
         isPublic = true
 )
-public class SleepCurrentWorker extends AbstractNativeFunction {
+public class SleepCurrentWorker extends BlockingNativeCallableUnit {
 
     @Override
-    public BValue[] execute(Context context) {
-        long millis = getIntArgument(context, 0);
+    public void execute(Context context) {
+        long millis = context.getIntArgument(0);
         try {
             Thread.sleep(millis);
         } catch (InterruptedException e) {
             // We ignore any interruptions.
         }
-        return VOID_RETURN;
+        context.setReturnValues();
     }
 }

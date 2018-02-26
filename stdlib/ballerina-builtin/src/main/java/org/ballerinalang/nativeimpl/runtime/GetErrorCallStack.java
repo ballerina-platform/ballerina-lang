@@ -18,10 +18,10 @@ package org.ballerinalang.nativeimpl.runtime;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BLangVMErrors;
+import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 
 /**
@@ -33,12 +33,12 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
         packageName = "ballerina.runtime",
         functionName = "getErrorCallStack"
 )
-public class GetErrorCallStack extends AbstractNativeFunction {
+public class GetErrorCallStack extends BlockingNativeCallableUnit {
 
     @Override
-    public BValue[] execute(Context context) {
-        final BStruct errorStruct = (BStruct) getRefArgument(context, 0);
+    public void execute(Context context) {
+        final BStruct errorStruct = (BStruct) context.getRefArgument(0);
         BRefValueArray callStack = (BRefValueArray) errorStruct.getNativeData(BLangVMErrors.CALL_STACK);
-        return new BValue[] {callStack};
+        context.setReturnValues(callStack);
     }
 }

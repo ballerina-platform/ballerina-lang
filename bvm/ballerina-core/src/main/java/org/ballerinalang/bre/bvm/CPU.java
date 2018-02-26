@@ -18,9 +18,11 @@
 package org.ballerinalang.bre.bvm;
 
 import org.apache.commons.lang3.StringEscapeUtils;
+import org.ballerinalang.bre.BLangCallableUnitCallback;
 import org.ballerinalang.bre.BallerinaTransactionManager;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.NativeCallContext;
+import org.ballerinalang.model.NativeCallableUnit;
 import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.BEnumType;
 import org.ballerinalang.model.types.BFunctionType;
@@ -63,7 +65,6 @@ import org.ballerinalang.model.values.BXML;
 import org.ballerinalang.model.values.BXMLAttributes;
 import org.ballerinalang.model.values.BXMLQName;
 import org.ballerinalang.model.values.StructureType;
-import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.util.TransactionStatus;
 import org.ballerinalang.util.codegen.ActionInfo;
 import org.ballerinalang.util.codegen.CallableUnitInfo;
@@ -2890,11 +2891,18 @@ public class CPU {
                 parentCtx, argRegs, functionInfo.getParamTypes());
         BLangVMUtils.copyArgValues(parentLocalData, caleeSF, argRegs, functionInfo.getParamTypes());
         Context ctx = new NativeCallContext(parentCtx, caleeSF);
-        AbstractNativeFunction nativeFunction = functionInfo.getNativeFunction();
+        NativeCallableUnit nativeFunction = functionInfo.getNativeFunction();
         BLangScheduler.switchToWaitForResponse(parentCtx);
         try {
-            BValue[] retVals = nativeFunction.execute(ctx);
-            BLangVMUtils.populateWorkerDataWithValues(parentLocalData, retRegs, retVals, retTypes);
+            if (nativeFunction.isBlocking()) {
+                ((BlockingNativeCallableUnit) nativeFunction).execute(ctx);
+                BLangVMUtils.populateWorkerDataWithValues(parentLocalData, retRegs, ctx.getReturnValues(), retTypes);
+            } else {
+                BLangCallableUnitCallback callback = new BLangCallableUnitCallback();
+                nativeFunction.execute(ctx, callback);
+                // FIXME
+                BLangVMUtils.populateWorkerDataWithValues(parentLocalData, retRegs, ctx.getReturnValues(), retTypes);
+            }
         } catch (BLangNullReferenceException e) {
             parentCtx.setError(BLangVMErrors.createNullRefException(parentCtx, parentCtx.ip));
             handleError();

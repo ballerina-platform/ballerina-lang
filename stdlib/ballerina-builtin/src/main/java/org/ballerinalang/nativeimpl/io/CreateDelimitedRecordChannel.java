@@ -19,12 +19,12 @@ package org.ballerinalang.nativeimpl.io;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BLangVMStructs;
+import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.nativeimpl.io.channels.base.CharacterChannel;
 import org.ballerinalang.nativeimpl.io.channels.base.DelimitedRecordChannel;
-import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
@@ -49,7 +49,7 @@ import org.ballerinalang.util.exceptions.BallerinaException;
                 structPackage = "ballerina.io")},
         isPublic = true
 )
-public class CreateDelimitedRecordChannel extends AbstractNativeFunction {
+public class CreateDelimitedRecordChannel extends BlockingNativeCallableUnit {
 
     /**
      * The index od the text record channel in ballerina.io#createDelimitedRecordChannel().
@@ -95,7 +95,7 @@ public class CreateDelimitedRecordChannel extends AbstractNativeFunction {
      * {@inheritDoc}
      */
     @Override
-    public BValue[] execute(Context context) {
+    public void execute(Context context) {
         BStruct textRecordChannelInfo;
         BStruct textRecordChannel;
         BValue[] bValues;
@@ -103,9 +103,9 @@ public class CreateDelimitedRecordChannel extends AbstractNativeFunction {
         String fieldSeparator;
         try {
             //File which holds access to the channel information
-            textRecordChannelInfo = (BStruct) getRefArgument(context, RECORD_CHANNEL_INDEX);
-            recordSeparator = getStringArgument(context, RECORD_SEPARATOR_INDEX);
-            fieldSeparator = getStringArgument(context, FIELD_SEPARATOR_INDEX);
+            textRecordChannelInfo = (BStruct) context.getRefArgument(RECORD_CHANNEL_INDEX);
+            recordSeparator = context.getStringArgument(RECORD_SEPARATOR_INDEX);
+            fieldSeparator = context.getStringArgument(FIELD_SEPARATOR_INDEX);
 
             textRecordChannel = BLangVMStructs.createBStruct(getCharacterChannelStructInfo(context));
 
@@ -115,12 +115,11 @@ public class CreateDelimitedRecordChannel extends AbstractNativeFunction {
             DelimitedRecordChannel bCharacterChannel = new DelimitedRecordChannel(characterChannel, recordSeparator,
                     fieldSeparator);
             textRecordChannel.addNativeData(IOConstants.TXT_RECORD_CHANNEL_NAME, bCharacterChannel);
-            bValues = getBValues(textRecordChannel);
+            context.setReturnValues(textRecordChannel);
         } catch (Throwable e) {
             String message = "Error occurred while converting character channel to textRecord channel:"
                     + e.getMessage();
             throw new BallerinaException(message, context);
         }
-        return bValues;
     }
 }

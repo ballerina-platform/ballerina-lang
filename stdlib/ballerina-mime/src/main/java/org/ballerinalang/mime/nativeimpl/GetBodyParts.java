@@ -19,14 +19,13 @@
 package org.ballerinalang.mime.nativeimpl;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.mime.util.EntityBody;
 import org.ballerinalang.mime.util.EntityBodyHandler;
 import org.ballerinalang.mime.util.MimeUtil;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BStruct;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
@@ -46,13 +45,13 @@ import static org.ballerinalang.mime.util.Constants.FIRST_PARAMETER_INDEX;
         returnType = {@ReturnType(type = TypeKind.ARRAY)},
         isPublic = true
 )
-public class GetBodyParts extends AbstractNativeFunction {
+public class GetBodyParts extends BlockingNativeCallableUnit {
 
     @Override
-    public BValue[] execute(Context context) {
+    public void execute(Context context) {
         BRefValueArray partsArray;
         try {
-            BStruct entityStruct = (BStruct) this.getRefArgument(context, FIRST_PARAMETER_INDEX);
+            BStruct entityStruct = (BStruct) context.getRefArgument(FIRST_PARAMETER_INDEX);
             //Get the body parts from entity's multipart data field, if they've been already been decoded
             partsArray = EntityBodyHandler.getBodyPartArray(entityStruct);
             if (partsArray == null || partsArray.size() < 1) {
@@ -65,6 +64,6 @@ public class GetBodyParts extends AbstractNativeFunction {
         } catch (Throwable e) {
             throw new BallerinaException("Error occurred while extracting body parts from entity: " + e.getMessage());
         }
-        return this.getBValues(partsArray);
+        context.setReturnValues(partsArray);
     }
 }

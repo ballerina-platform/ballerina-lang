@@ -18,11 +18,10 @@
 package org.ballerinalang.nativeimpl.io;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BStruct;
-import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.nativeimpl.io.channels.base.AbstractChannel;
-import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.util.exceptions.BallerinaException;
@@ -38,7 +37,7 @@ import org.ballerinalang.util.exceptions.BallerinaException;
         receiver = @Receiver(type = TypeKind.STRUCT, structType = "ByteChannel", structPackage = "ballerina.io"),
         isPublic = true
 )
-public class Close extends AbstractNativeFunction {
+public class Close extends BlockingNativeCallableUnit {
 
     /**
      * The index of the ByteChannel in ballerina.io#close().
@@ -52,16 +51,16 @@ public class Close extends AbstractNativeFunction {
      * {@inheritDoc}
      */
     @Override
-    public BValue[] execute(Context context) {
+    public void execute(Context context) {
         BStruct channel;
         try {
-            channel = (BStruct) getRefArgument(context, BYTE_CHANNEL_INDEX);
+            channel = (BStruct) context.getRefArgument(BYTE_CHANNEL_INDEX);
             AbstractChannel byteChannel = (AbstractChannel) channel.getNativeData(IOConstants.BYTE_CHANNEL_NAME);
             byteChannel.close();
         } catch (Throwable e) {
             String message = "Failed to close the channel:" + e.getMessage();
             throw new BallerinaException(message, context);
         }
-        return VOID_RETURN;
+        context.setReturnValues();
     }
 }

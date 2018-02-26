@@ -19,7 +19,6 @@
 package org.ballerinalang.nativeimpl.task.timer;
 
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.WorkerContext;
 import org.ballerinalang.nativeimpl.task.SchedulingException;
 import org.ballerinalang.nativeimpl.task.TaskException;
 import org.ballerinalang.nativeimpl.task.TaskExecutor;
@@ -28,6 +27,7 @@ import org.ballerinalang.nativeimpl.task.TaskRegistry;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.codegen.cpentries.FunctionRefCPEntry;
+
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -60,7 +60,9 @@ public class Timer {
         final Runnable schedulerFunc = () -> {
             callTriggerFunction(fn, ctx, onTriggerFunction, onErrorFunction);
         };
-        ctx.startTrackWorker();
+        
+        // FIXME
+        // ctx.startTrackWorker();
         this.context = ctx;
         executorService.scheduleWithFixedDelay(schedulerFunc, delay, interval, TimeUnit.MILLISECONDS);
         TaskRegistry.getInstance().addTimer(this);
@@ -90,7 +92,9 @@ public class Timer {
     public void stop() throws TaskException {
         executorService.shutdown();
         TaskRegistry.getInstance().remove(id);
-        context.endTrackWorker();
+        
+        // FIXME
+        // context.endTrackWorker();
     }
 
 

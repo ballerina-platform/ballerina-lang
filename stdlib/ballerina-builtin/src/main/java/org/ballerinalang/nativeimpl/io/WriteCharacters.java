@@ -18,12 +18,11 @@
 package org.ballerinalang.nativeimpl.io;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BStruct;
-import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.nativeimpl.io.channels.base.CharacterChannel;
-import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
@@ -44,7 +43,7 @@ import org.ballerinalang.util.exceptions.BallerinaException;
         returnType = {@ReturnType(type = TypeKind.INT)},
         isPublic = true
 )
-public class WriteCharacters extends AbstractNativeFunction {
+public class WriteCharacters extends BlockingNativeCallableUnit {
     /**
      * Index of the content provided in ballerina.io#writeCharacters.
      */
@@ -66,15 +65,15 @@ public class WriteCharacters extends AbstractNativeFunction {
      * {@inheritDoc}
      */
     @Override
-    public BValue[] execute(Context context) {
+    public void execute(Context context) {
         BStruct channel;
         String content;
         long startOffset;
         int numberOfCharactersWritten;
         try {
-            channel = (BStruct) getRefArgument(context, CHAR_CHANNEL_INDEX);
-            content = getStringArgument(context, CONTENT_INDEX);
-            startOffset = getIntArgument(context, START_OFFSET_INDEX);
+            channel = (BStruct) context.getRefArgument(CHAR_CHANNEL_INDEX);
+            content = context.getStringArgument(CONTENT_INDEX);
+            startOffset = context.getIntArgument(START_OFFSET_INDEX);
 
             CharacterChannel characterChannel = (CharacterChannel) channel.getNativeData(IOConstants
                     .CHARACTER_CHANNEL_NAME);
@@ -84,6 +83,6 @@ public class WriteCharacters extends AbstractNativeFunction {
             String message = "Error occurred while writing characters:" + e.getMessage();
             throw new BallerinaException(message, context);
         }
-        return getBValues(new BInteger(numberOfCharactersWritten));
+        context.setReturnValues(new BInteger(numberOfCharactersWritten));
     }
 }

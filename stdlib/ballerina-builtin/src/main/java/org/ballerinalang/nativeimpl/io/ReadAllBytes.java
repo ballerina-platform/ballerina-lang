@@ -18,13 +18,12 @@
 package org.ballerinalang.nativeimpl.io;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BBlob;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BStruct;
-import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.nativeimpl.io.channels.base.Channel;
-import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
@@ -43,7 +42,7 @@ import org.ballerinalang.util.exceptions.BallerinaException;
                 @ReturnType(type = TypeKind.INT)},
         isPublic = true
 )
-public class ReadAllBytes extends AbstractNativeFunction {
+public class ReadAllBytes extends BlockingNativeCallableUnit {
     /**
      * Specifies the index which contains the byte channel in ballerina.lo#readAllBytes.
      */
@@ -57,12 +56,12 @@ public class ReadAllBytes extends AbstractNativeFunction {
      * {@inheritDoc}
      */
     @Override
-    public BValue[] execute(Context context) {
+    public void execute(Context context) {
         BStruct channel;
         BBlob readByteBlob;
         BInteger numberOfReadBytes;
         try {
-            channel = (BStruct) getRefArgument(context, BYTE_CHANNEL_INDEX);
+            channel = (BStruct) context.getRefArgument(BYTE_CHANNEL_INDEX);
             Channel byteChannel = (Channel) channel.getNativeData(IOConstants.BYTE_CHANNEL_NAME);
             byte[] readBytes = byteChannel.readAll();
             readByteBlob = new BBlob(readBytes);
@@ -71,6 +70,6 @@ public class ReadAllBytes extends AbstractNativeFunction {
             String message = "Error occurred while reading bytes:" + e.getMessage();
             throw new BallerinaException(message, context);
         }
-        return getBValues(readByteBlob, numberOfReadBytes);
+        context.setReturnValues(readByteBlob, numberOfReadBytes);
     }
 }

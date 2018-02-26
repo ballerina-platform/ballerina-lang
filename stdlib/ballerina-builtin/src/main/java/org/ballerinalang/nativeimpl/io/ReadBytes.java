@@ -19,13 +19,12 @@
 package org.ballerinalang.nativeimpl.io;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BBlob;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BStruct;
-import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.nativeimpl.io.channels.base.Channel;
-import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
@@ -46,7 +45,7 @@ import org.ballerinalang.util.exceptions.BallerinaException;
                 @ReturnType(type = TypeKind.INT)},
         isPublic = true
 )
-public class ReadBytes extends AbstractNativeFunction {
+public class ReadBytes extends BlockingNativeCallableUnit {
 
     /**
      * Specifies the index which holds the number of bytes in ballerina.lo#readBytes.
@@ -66,14 +65,14 @@ public class ReadBytes extends AbstractNativeFunction {
      * {@inheritDoc}
      */
     @Override
-    public BValue[] execute(Context context) {
+    public void execute(Context context) {
         BStruct channel;
         int numberOfBytes;
         BBlob readByteBlob;
         BInteger numberOfReadBytes;
         try {
-            channel = (BStruct) getRefArgument(context, BYTE_CHANNEL_INDEX);
-            numberOfBytes = (int) getIntArgument(context, NUMBER_OF_BYTES_INDEX);
+            channel = (BStruct) context.getRefArgument(BYTE_CHANNEL_INDEX);
+            numberOfBytes = (int) context.getIntArgument(NUMBER_OF_BYTES_INDEX);
             Channel byteChannel = (Channel) channel.getNativeData(IOConstants.BYTE_CHANNEL_NAME);
             byte[] readBytes = byteChannel.read(numberOfBytes);
             readByteBlob = new BBlob(readBytes);
@@ -82,6 +81,6 @@ public class ReadBytes extends AbstractNativeFunction {
             String message = "Error occurred while reading bytes:" + e.getMessage();
             throw new BallerinaException(message, context);
         }
-        return getBValues(readByteBlob, numberOfReadBytes);
+        context.setReturnValues(readByteBlob, numberOfReadBytes);
     }
 }

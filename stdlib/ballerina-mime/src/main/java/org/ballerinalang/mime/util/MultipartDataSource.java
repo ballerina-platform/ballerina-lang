@@ -18,6 +18,12 @@
 
 package org.ballerinalang.mime.util;
 
+import static org.ballerinalang.mime.util.Constants.CONTENT_DISPOSITION;
+import static org.ballerinalang.mime.util.Constants.CONTENT_ID;
+import static org.ballerinalang.mime.util.Constants.CONTENT_ID_INDEX;
+import static org.ballerinalang.mime.util.Constants.CONTENT_TYPE;
+import static org.ballerinalang.mime.util.Constants.ENTITY_HEADERS_INDEX;
+
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BStringArray;
@@ -35,12 +41,6 @@ import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.nio.charset.Charset;
 import java.util.Set;
-
-import static org.ballerinalang.mime.util.Constants.CONTENT_DISPOSITION;
-import static org.ballerinalang.mime.util.Constants.CONTENT_ID;
-import static org.ballerinalang.mime.util.Constants.CONTENT_ID_INDEX;
-import static org.ballerinalang.mime.util.Constants.CONTENT_TYPE;
-import static org.ballerinalang.mime.util.Constants.ENTITY_HEADERS_INDEX;
 
 /**
  * Act as multipart encoder.

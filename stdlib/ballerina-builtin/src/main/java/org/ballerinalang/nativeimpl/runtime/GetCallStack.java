@@ -18,9 +18,9 @@ package org.ballerinalang.nativeimpl.runtime;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BLangVMErrors;
+import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 
 /**
@@ -32,11 +32,11 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
         packageName = "ballerina.runtime",
         functionName = "getCallStack"
 )
-public class GetCallStack extends AbstractNativeFunction {
+public class GetCallStack extends BlockingNativeCallableUnit {
 
     @Override
-    public BValue[] execute(Context context) {
+    public void execute(Context context) {
         final BRefValueArray bRefValueArray = BLangVMErrors.generateCallStack(context, 0);
-        return new BValue[] {bRefValueArray};
+        context.setReturnValues(bRefValueArray);
     }
 }

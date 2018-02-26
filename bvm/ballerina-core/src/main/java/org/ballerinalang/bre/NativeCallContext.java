@@ -21,9 +21,13 @@ import org.ballerinalang.bre.bvm.WorkerData;
 import org.ballerinalang.bre.bvm.WorkerExecutionContext;
 import org.ballerinalang.connector.impl.BServerConnectorFuture;
 import org.ballerinalang.model.values.BStruct;
+import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.natives.exceptions.ArgumentOutOfRangeException;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.codegen.ServiceInfo;
 import org.ballerinalang.util.debugger.DebugContext;
+import org.ballerinalang.util.exceptions.BLangNullReferenceException;
+import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.util.Map;
 
@@ -34,36 +38,36 @@ public class NativeCallContext implements Context {
 
     private static final String SERVICE_INFO_KEY = "SERVICE_INFO";
 
-    private static final String CONNECTOR_FUTURE_KEY = "CONNECTOR_FUTURE";
-
     private WorkerExecutionContext parentCtx;
-    
+
     private WorkerData workerLocal;
-    
+
+    private BValue[] returnValues;
+
     public NativeCallContext(WorkerExecutionContext parentCtx, WorkerData workerLocal) {
         this.parentCtx = parentCtx;
         this.workerLocal = workerLocal;
     }
-    
+
     @Override
     public WorkerExecutionContext getParentWorkerExecutionContext() {
         return parentCtx;
     }
-    
+
     public WorkerData getLocalWorkerData() {
         return workerLocal;
     }
-    
+
     @Override
     public DebugContext getDebugContext() {
-        // TODO Auto-generated method stub
+        // TODO
         return null;
     }
 
     @Override
     public void setDebugContext(DebugContext debugContext) {
-        // TODO Auto-generated method stub
-        
+        // TODO
+
     }
 
     @Override
@@ -79,16 +83,6 @@ public class NativeCallContext implements Context {
     @Override
     public void setProperty(String key, Object value) {
         this.parentCtx.globalProps.put(key, value);
-    }
-
-    @Override
-    public BServerConnectorFuture getConnectorFuture() {
-        return (BServerConnectorFuture) this.getProperty(CONNECTOR_FUTURE_KEY);
-    }
-
-    @Override
-    public void setConnectorFuture(BServerConnectorFuture connectorFuture) {
-        this.setProperty(CONNECTOR_FUTURE_KEY, connectorFuture);        
     }
 
     @Override
@@ -125,10 +119,114 @@ public class NativeCallContext implements Context {
     public void setError(BStruct error) {
         this.parentCtx.setError(error);
     }
-    
+
     @Override
     public ProgramFile getProgramFile() {
         return this.parentCtx.programFile;
     }
 
+    @Override
+    public long getIntArgument(int index) {
+        if (index < 0) {
+            throw new ArgumentOutOfRangeException(index);
+        }
+
+        return workerLocal.longRegs[index];
+    }
+
+    @Override
+    public String getStringArgument(int index) {
+        if (index < 0) {
+            throw new ArgumentOutOfRangeException(index);
+        }
+        String str = workerLocal.stringRegs[index];
+        if (str == null) {
+            throw new BLangNullReferenceException();
+        }
+        return str;
+    }
+
+    @Override
+    public String getNullableStringArgument(int index) {
+        if (index < 0) {
+            throw new ArgumentOutOfRangeException(index);
+        }
+
+        return workerLocal.stringRegs[index];
+    }
+
+    @Override
+    public double getFloatArgument(int index) {
+        if (index < 0) {
+            throw new ArgumentOutOfRangeException(index);
+        }
+
+        return workerLocal.doubleRegs[index];
+    }
+
+    @Override
+    public boolean getBooleanArgument(int index) {
+        if (index < 0) {
+            throw new ArgumentOutOfRangeException(index);
+        }
+
+        return (workerLocal.intRegs[index] == 1);
+    }
+
+    @Override
+    public byte[] getBlobArgument(int index) {
+        if (index < 0) {
+            throw new ArgumentOutOfRangeException(index);
+        }
+
+        byte[] result = workerLocal.byteRegs[index];
+        if (result == null) {
+            throw new BallerinaException("argument " + index + " is null");
+        }
+
+        return result;
+    }
+
+    @Override
+    public BValue getRefArgument(int index) {
+        if (index < 0) {
+            throw new ArgumentOutOfRangeException(index);
+        }
+
+        BValue result = workerLocal.refRegs[index];
+        if (result == null) {
+            throw new BallerinaException("argument " + index + " is null");
+        }
+
+        return result;
+    }
+
+    @Override
+    public BValue getNullableRefArgument(int index) {
+        if (index < 0) {
+            throw new ArgumentOutOfRangeException(index);
+        }
+
+        return workerLocal.refRegs[index];
+    }
+
+    @Override
+    public BValue[] getReturnValues() {
+        return this.returnValues;
+    }
+
+    @Override
+    public void setReturnValues(BValue... values) {
+        this.returnValues = values;
+    }
+
+    @Override
+    public void setReturnValue(int index, BValue value) {
+        // FIXME
+    }
+
+    @Override
+    public void setConnectorFuture(BServerConnectorFuture connectorFuture) {
+        // FIXME: remove
+    }
 }

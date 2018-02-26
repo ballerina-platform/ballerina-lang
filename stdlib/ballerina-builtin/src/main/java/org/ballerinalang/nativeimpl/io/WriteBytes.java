@@ -19,12 +19,11 @@
 package org.ballerinalang.nativeimpl.io;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BStruct;
-import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.nativeimpl.io.channels.base.Channel;
-import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
@@ -45,7 +44,7 @@ import org.ballerinalang.util.exceptions.BallerinaException;
         returnType = {@ReturnType(type = TypeKind.INT)},
         isPublic = true
 )
-public class WriteBytes extends AbstractNativeFunction {
+public class WriteBytes extends BlockingNativeCallableUnit {
 
     /**
      * Index which holds the byte channel in ballerina.io#writeBytes.
@@ -68,21 +67,21 @@ public class WriteBytes extends AbstractNativeFunction {
      * {@inheritDoc}
      */
     @Override
-    public BValue[] execute(Context context) {
+    public void execute(Context context) {
         BStruct channel;
         byte[] content;
         int startOffset;
         int numberOfBytesWritten;
         try {
-            channel = (BStruct) getRefArgument(context, BYTE_CHANNEL_INDEX);
-            content = getBlobArgument(context, CONTENT_INDEX);
-            startOffset = (int) getIntArgument(context, START_OFFSET_INDEX);
+            channel = (BStruct) context.getRefArgument(BYTE_CHANNEL_INDEX);
+            content = context.getBlobArgument(CONTENT_INDEX);
+            startOffset = (int) context.getIntArgument(START_OFFSET_INDEX);
             Channel byteChannel = (Channel) channel.getNativeData(IOConstants.BYTE_CHANNEL_NAME);
             numberOfBytesWritten = byteChannel.write(content, startOffset);
         } catch (Throwable e) {
             String message = "Error occurred while writing bytes:" + e.getMessage();
             throw new BallerinaException(message, context);
         }
-        return getBValues(new BInteger(numberOfBytesWritten));
+        context.setReturnValues(new BInteger(numberOfBytesWritten));
     }
 }

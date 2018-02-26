@@ -18,6 +18,7 @@
 package org.ballerinalang.net.http.nativeimpl;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.mime.util.HeaderUtil;
 import org.ballerinalang.mime.util.MimeUtil;
 import org.ballerinalang.model.types.TypeKind;
@@ -48,34 +49,31 @@ import static org.ballerinalang.mime.util.Constants.SEMICOLON;
                 @ReturnType(type = TypeKind.STRUCT, structType = "Error")},
         isPublic = true
 )
-public class ParseHeader extends AbstractNativeFunction {
+public class ParseHeader extends BlockingNativeCallableUnit {
 
     @Override
-    public BValue[] execute(Context context) {
+    public void execute(Context context) {
         String errMsg;
         try {
-            String headerValue = getStringArgument(context, 0);
+            String headerValue = context.getStringArgument(0);
             if (headerValue.contains(COMMA)) {
                 headerValue = headerValue.substring(0, headerValue.indexOf(COMMA));
             }
-            return getValueAndParamMap(headerValue);
+
+            // Set value and param map
+            String value = headerValue.trim();
+            if (headerValue.contains(SEMICOLON)) {
+                value = HeaderUtil.getHeaderValue(value);
+            }
+            context.setReturnValues(new BString(value), HeaderUtil.getParamMap(headerValue));
+            return;
         } catch (BLangNullReferenceException ex) {
             errMsg = PARSER_ERROR + "header value cannot be null";
         } catch (BallerinaException ex) {
             errMsg = PARSER_ERROR + ex.getMessage();
         }
-        return getParserError(context, errMsg);
-    }
 
-    private BValue[] getValueAndParamMap(String headerValue) {
-        String value = headerValue.trim();
-        if (headerValue.contains(SEMICOLON)) {
-            value = HeaderUtil.getHeaderValue(value);
-        }
-        return getBValues(new BString(value), HeaderUtil.getParamMap(headerValue));
-    }
-
-    private BValue[] getParserError(Context context, String errMsg) {
-        return getBValues(null, null, MimeUtil.getParserError(context, errMsg));
+        // set parse error
+        context.setReturnValues(null, null, MimeUtil.getParserError(context, errMsg));
     }
 }

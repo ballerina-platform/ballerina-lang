@@ -19,12 +19,11 @@
 package org.ballerinalang.mime.nativeimpl;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.mime.util.EntityBodyHandler;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BJSON;
 import org.ballerinalang.model.values.BStruct;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
@@ -45,13 +44,13 @@ import static org.ballerinalang.mime.util.Constants.FIRST_PARAMETER_INDEX;
         returnType = {@ReturnType(type = TypeKind.JSON)},
         isPublic = true
 )
-public class GetJson extends AbstractNativeFunction {
+public class GetJson extends BlockingNativeCallableUnit {
 
     @Override
-    public BValue[] execute(Context context) {
+    public void execute(Context context) {
         BJSON result;
         try {
-            BStruct entityStruct = (BStruct) this.getRefArgument(context, FIRST_PARAMETER_INDEX);
+            BStruct entityStruct = (BStruct) context.getRefArgument(FIRST_PARAMETER_INDEX);
             MessageDataSource dataSource = EntityBodyHandler.getMessageDataSource(entityStruct);
             if (dataSource != null) {
                 if (dataSource instanceof BJSON) {
@@ -67,6 +66,6 @@ public class GetJson extends AbstractNativeFunction {
         } catch (Throwable e) {
             throw new BallerinaException("Error occurred while extracting json data from entity: " + e.getMessage());
         }
-        return this.getBValues(result);
+        context.setReturnValues(result);
     }
 }

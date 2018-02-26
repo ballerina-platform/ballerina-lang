@@ -95,56 +95,50 @@ public class HttpUtil {
     private static final String METHOD_ACCESSED = "isMethodAccessed";
     private static final String IO_EXCEPTION_OCCURED = "I/O exception occurred";
 
-    public static BValue[] getProperty(Context context,
-                                       AbstractNativeFunction abstractNativeFunction, boolean isRequest) {
-        BStruct httpMessageStruct = (BStruct) abstractNativeFunction.getRefArgument(context, 0);
+    public static BValue[] getProperty(Context context, boolean isRequest) {
+        BStruct httpMessageStruct = (BStruct) context.getRefArgument(0);
         HTTPCarbonMessage httpCarbonMessage = HttpUtil
                 .getCarbonMsg(httpMessageStruct, HttpUtil.createHttpCarbonMessage(isRequest));
-        String propertyName = abstractNativeFunction.getStringArgument(context, 0);
+        String propertyName = context.getStringArgument(0);
 
         Object propertyValue = httpCarbonMessage.getProperty(propertyName);
 
         if (propertyValue == null) {
-            return AbstractNativeFunction.VOID_RETURN;
+            return new BValue[0];
         }
 
         if (propertyValue instanceof String) {
-            return abstractNativeFunction.getBValues(new BString((String) propertyValue));
+            return new BValue[] { new BString((String) propertyValue) };
         } else {
             throw new BallerinaException("Property value is of unknown type : " + propertyValue.getClass().getName());
         }
     }
 
-    public static BValue[] setProperty(Context context,
-                                       AbstractNativeFunction abstractNativeFunction, boolean isRequest) {
-        BStruct httpMessageStruct = (BStruct) abstractNativeFunction.getRefArgument(context, 0);
-        String propertyName = abstractNativeFunction.getStringArgument(context, 0);
-        String propertyValue = abstractNativeFunction.getStringArgument(context, 1);
+    public static void setProperty(Context context, boolean isRequest) {
+        BStruct httpMessageStruct = (BStruct) context.getRefArgument(0);
+        String propertyName = context.getStringArgument(0);
+        String propertyValue = context.getStringArgument(1);
 
         if (propertyName != null && propertyValue != null) {
             HTTPCarbonMessage httpCarbonMessage = HttpUtil
                     .getCarbonMsg(httpMessageStruct, HttpUtil.createHttpCarbonMessage(isRequest));
             httpCarbonMessage.setProperty(propertyName, propertyValue);
         }
-        return AbstractNativeFunction.VOID_RETURN;
     }
 
     /**
      * Set the given entity to request or response message.
      *
      * @param context                Ballerina context
-     * @param abstractNativeFunction Reference to abstract native ballerina function
      * @param isRequest              boolean representing whether the message is a request or a response
-     * @return void return
      */
-    public static BValue[] setEntity(Context context, AbstractNativeFunction abstractNativeFunction,
-                                     boolean isRequest) {
-        BStruct httpMessageStruct = (BStruct) abstractNativeFunction.getRefArgument(context, HTTP_MESSAGE_INDEX);
+    public static void setEntity(Context context, boolean isRequest) {
+        BStruct httpMessageStruct = (BStruct) context.getRefArgument(HTTP_MESSAGE_INDEX);
 
         HTTPCarbonMessage httpCarbonMessage = HttpUtil
                 .getCarbonMsg(httpMessageStruct, HttpUtil.createHttpCarbonMessage(isRequest));
         httpCarbonMessage.waitAndReleaseAllEntities();
-        BStruct entity = (BStruct) abstractNativeFunction.getRefArgument(context, ENTITY_INDEX);
+        BStruct entity = (BStruct) context.getRefArgument(ENTITY_INDEX);
         String baseType = MimeUtil.getContentType(entity);
         if (baseType == null) {
             baseType = OCTET_STREAM;
@@ -153,21 +147,18 @@ public class HttpUtil {
         httpMessageStruct.addNativeData(MESSAGE_ENTITY, entity);
         httpMessageStruct.addNativeData(IS_BODY_BYTE_CHANNEL_ALREADY_SET, EntityBodyHandler
                 .checkEntityBodyAvailability(entity));
-        return AbstractNativeFunction.VOID_RETURN;
     }
 
     /**
      * Get the entity from request or response.
      *
      * @param context                Ballerina context
-     * @param abstractNativeFunction Reference to abstract native ballerina function
      * @param isRequest              boolean representing whether the message is a request or a response
      * @param isEntityBodyRequired   boolean representing whether the entity body is required
      * @return Entity of the request or response
      */
-    public static BValue[] getEntity(Context context, AbstractNativeFunction abstractNativeFunction, boolean isRequest,
-                                     boolean isEntityBodyRequired) {
-        BStruct httpMessageStruct = (BStruct) abstractNativeFunction.getRefArgument(context, HTTP_MESSAGE_INDEX);
+    public static BValue[] getEntity(Context context, boolean isRequest, boolean isEntityBodyRequired) {
+        BStruct httpMessageStruct = (BStruct) context.getRefArgument(HTTP_MESSAGE_INDEX);
         BStruct entity = (BStruct) httpMessageStruct.getNativeData(MESSAGE_ENTITY);
         boolean isByteChannelAlreadySet = false;
 
@@ -180,7 +171,7 @@ public class HttpUtil {
         if (entity == null) {
             entity = createNewEntity(context, httpMessageStruct);
         }
-        return abstractNativeFunction.getBValues(entity);
+        return new BValue[] { entity };
     }
 
     /**

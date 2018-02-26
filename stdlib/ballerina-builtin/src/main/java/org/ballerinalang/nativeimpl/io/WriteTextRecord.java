@@ -18,12 +18,11 @@
 package org.ballerinalang.nativeimpl.io;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BStruct;
-import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.nativeimpl.io.channels.base.DelimitedRecordChannel;
-import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
@@ -43,7 +42,7 @@ import org.ballerinalang.util.exceptions.BallerinaException;
         args = {@Argument(name = "content", type = TypeKind.ARRAY, elementType = TypeKind.STRING)},
         isPublic = true
 )
-public class WriteTextRecord extends AbstractNativeFunction {
+public class WriteTextRecord extends BlockingNativeCallableUnit {
 
     /**
      * Index of the record channel in ballerina.io#writeTextRecord.
@@ -61,12 +60,12 @@ public class WriteTextRecord extends AbstractNativeFunction {
      * {@inheritDoc}
      */
     @Override
-    public BValue[] execute(Context context) {
+    public void execute(Context context) {
         BStruct channel;
         BStringArray content;
         try {
-            channel = (BStruct) getRefArgument(context, RECORD_CHANNEL_INDEX);
-            content = (BStringArray) getRefArgument(context, CONTENT_INDEX);
+            channel = (BStruct) context.getRefArgument(RECORD_CHANNEL_INDEX);
+            content = (BStringArray) context.getRefArgument(CONTENT_INDEX);
             DelimitedRecordChannel delimitedRecordChannel = (DelimitedRecordChannel) channel.getNativeData(IOConstants
                     .TXT_RECORD_CHANNEL_NAME);
             delimitedRecordChannel.write(content);
@@ -74,6 +73,6 @@ public class WriteTextRecord extends AbstractNativeFunction {
             String message = "Error occurred while writing text record:" + e.getMessage();
             throw new BallerinaException(message, context);
         }
-        return VOID_RETURN;
+        context.setReturnValues();
     }
 }

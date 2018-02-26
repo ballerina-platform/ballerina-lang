@@ -18,6 +18,15 @@
 
 package org.ballerinalang.mime.util;
 
+import static org.ballerinalang.mime.util.Constants.BALLERINA_TEMP_FILE;
+import static org.ballerinalang.mime.util.Constants.ENTITY_BYTE_CHANNEL;
+import static org.ballerinalang.mime.util.Constants.FIRST_BODY_PART_INDEX;
+import static org.ballerinalang.mime.util.Constants.MESSAGE_DATA_SOURCE;
+import static org.ballerinalang.mime.util.Constants.MULTIPART_AS_PRIMARY_TYPE;
+import static org.ballerinalang.mime.util.Constants.MULTIPART_DATA_INDEX;
+import static org.ballerinalang.mime.util.Constants.READABLE_BUFFER_SIZE;
+import static org.ballerinalang.mime.util.Constants.SIZE_INDEX;
+
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.BStructType;
 import org.ballerinalang.model.util.StringUtils;
@@ -48,15 +57,6 @@ import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
-
-import static org.ballerinalang.mime.util.Constants.BALLERINA_TEMP_FILE;
-import static org.ballerinalang.mime.util.Constants.ENTITY_BYTE_CHANNEL;
-import static org.ballerinalang.mime.util.Constants.FIRST_BODY_PART_INDEX;
-import static org.ballerinalang.mime.util.Constants.MESSAGE_DATA_SOURCE;
-import static org.ballerinalang.mime.util.Constants.MULTIPART_AS_PRIMARY_TYPE;
-import static org.ballerinalang.mime.util.Constants.MULTIPART_DATA_INDEX;
-import static org.ballerinalang.mime.util.Constants.READABLE_BUFFER_SIZE;
-import static org.ballerinalang.mime.util.Constants.SIZE_INDEX;
 
 /**
  * Entity body related operations are included here.

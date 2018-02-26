@@ -18,8 +18,9 @@
 
 package org.ballerinalang.nativeimpl.log;
 
+import org.ballerinalang.bre.Context;
+import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.logging.BLogManager;
-import org.ballerinalang.natives.AbstractNativeFunction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,7 +31,7 @@ import java.util.logging.LogManager;
  *
  * @since 0.95.0
  */
-public abstract class AbstractLogFunction extends AbstractNativeFunction {
+public abstract class AbstractLogFunction extends BlockingNativeCallableUnit {
 
     protected static final BLogManager LOG_MANAGER = (BLogManager) LogManager.getLogManager();
 
@@ -43,5 +44,11 @@ public abstract class AbstractLogFunction extends AbstractNativeFunction {
             // TODO: Refactor this later
             return LoggerFactory.getLogger(ballerinaRootLogger.getName() + "." + pkg);
         }
+    }
+    
+    protected String getPackagePath(Context ctx) {
+        // FIXME
+//        ctx.getControlStack().currentFrame.prevStackFrame.getCallableUnitInfo().getPackageInfo().getPkgPath();
+        return null;
     }
 }

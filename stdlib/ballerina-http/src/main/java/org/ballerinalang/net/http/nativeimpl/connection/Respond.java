@@ -45,7 +45,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
 public class Respond extends ConnectionAction {
 
     @Override
-    public BValue[] execute(Context context) {
-        return super.execute(context);
+    public void execute(Context context) {
+        super.execute(context);
     }
 }
