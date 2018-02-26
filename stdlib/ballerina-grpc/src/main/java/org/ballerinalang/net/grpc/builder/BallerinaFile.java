@@ -41,8 +41,7 @@ import static org.ballerinalang.net.grpc.builder.utils.BalGenerationUtils.getTyp
 import static org.ballerinalang.net.grpc.builder.utils.BalGenerationUtils.writeFile;
 
 /**
- * .
- * .
+ * Class is responsible of generating the ballerina stub which is mapping proto definition.
  */
 public class BallerinaFile {
     

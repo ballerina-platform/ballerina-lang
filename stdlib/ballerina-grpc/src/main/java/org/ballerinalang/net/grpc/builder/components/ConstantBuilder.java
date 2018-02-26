@@ -61,16 +61,16 @@ public class ConstantBuilder {
                         new BString("\"" + bytesToHex(str) + "\""));
             }
         }
-        return mapToString(descriptorMap);
+        return generateAttributeNameType(descriptorMap);
     }
     
     /**
-     * todo.
+     * Following method generate the attributeType attributeName; format of struct.
      *
-     * @param bMap .
-     * @return .
+     * @param bMap attribute type and name map.
+     * @return formated string of attribute type and name.
      */
-    private String mapToString(BMap bMap) {
+    private String generateAttributeNameType(BMap bMap) {
         
         StringBuilder payload = new StringBuilder();
         for (Object key : bMap.keySet()) {
@@ -80,7 +80,7 @@ public class ConstantBuilder {
     }
     
     /**
-     * todo.
+     * Following method build root descriptor key which is packageName+service proto name.
      *
      * @return .
      */

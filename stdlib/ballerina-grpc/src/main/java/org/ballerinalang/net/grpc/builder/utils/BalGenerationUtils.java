@@ -29,13 +29,13 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static org.ballerinalang.net.grpc.builder.BalGeneratorConstants.FILE_SEPERATOR;
+import static org.ballerinalang.net.grpc.builder.BalGeneratorConstants.HEX_ARRAY;
 
 /**
  * Util functions which are use when generating . bal stub
  */
 public class BalGenerationUtils {
-    private static final String NEW_LINE_CHARACTER = System.getProperty("line.separator");
-    private static final char[] HEX_ARRAY = "0123456789ABCDEF".toCharArray();
+    
     
     /**
      * Convert byte array to readable byte string.
@@ -89,7 +89,7 @@ public class BalGenerationUtils {
     
     
     /**
-     * todo.
+     * Method is responsible of writing the bal string payload to .bal file.
      *
      * @param payload    .
      * @param balOutPath .
@@ -98,7 +98,6 @@ public class BalGenerationUtils {
      */
     public static void writeFile(String payload, String fileName, Path balOutPath) throws FileNotFoundException,
             UnsupportedEncodingException {
-        // TODO: 2/26/18 get from system
         Path path = Paths.get(balOutPath.toString() + FILE_SEPERATOR + fileName);
         PrintWriter writer = new PrintWriter(path.toFile(), "UTF-8");
         writer.print(payload);
@@ -106,8 +105,7 @@ public class BalGenerationUtils {
     }
     
     /**
-     * .
-     *
+     * Method is responsible for convert globally defined struct List to map.
      * @param list .
      * @return .
      */
@@ -122,7 +120,7 @@ public class BalGenerationUtils {
     }
     
     /**
-     * todo.
+     * Method is for getting ballerina data type which is map to the .proto data type.
      *
      * @param num .
      * @return .
