@@ -17,19 +17,14 @@
 */
 package org.ballerinalang.model.tree;
 
-import java.util.List;
-
 /**
  * @since 0.94
  */
-public interface StructNode extends AnnotatableNode, TopLevelNode {
-    
+public interface StreamletNode extends AnnotatableNode, TopLevelNode {
+
     IdentifierNode getName();
-    
+
     void setName(IdentifierNode name);
 
-    List<? extends VariableNode> getFields();
-    
-    void addField(VariableNode field);
-    
+
 }

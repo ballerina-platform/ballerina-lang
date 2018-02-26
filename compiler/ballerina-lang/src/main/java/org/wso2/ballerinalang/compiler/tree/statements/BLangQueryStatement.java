@@ -19,26 +19,17 @@
 package org.wso2.ballerinalang.compiler.tree.statements;
 
 import org.ballerinalang.model.tree.NodeKind;
-import org.ballerinalang.model.tree.clauses.JoinStreamingInput;
-import org.ballerinalang.model.tree.clauses.OrderByNode;
-import org.ballerinalang.model.tree.clauses.PatternStreamingInputNode;
-import org.ballerinalang.model.tree.clauses.SelectClauseNode;
-import org.ballerinalang.model.tree.clauses.StreamActionNode;
-import org.ballerinalang.model.tree.clauses.StreamingInput;
+import org.ballerinalang.model.tree.statements.QueryStatementNode;
 import org.ballerinalang.model.tree.statements.StreamingQueryStatementNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 
 /**
  * @since 0.94
  */
-public class BLangStreamingQueryStatement extends BLangStatement implements StreamingQueryStatementNode {
+public class BLangQueryStatement extends BLangStatement implements QueryStatementNode {
 
-    private StreamingInput streamingInput;
-    private JoinStreamingInput joinStreamingInput;
-    private PatternStreamingInputNode patternStreamingInputNode;
-    private SelectClauseNode selectClauseNode;
-    private OrderByNode orderByNode;
-    private StreamActionNode streamActionNode;
+    String queryIdentifier;
+    StreamingQueryStatementNode streamingQueryStatementNode;
 
     @Override
     public void accept(BLangNodeVisitor visitor) {
@@ -47,66 +38,26 @@ public class BLangStreamingQueryStatement extends BLangStatement implements Stre
 
     @Override
     public NodeKind getKind() {
-        return NodeKind.STREAMING_QUERY;
+        return NodeKind.QUERY;
     }
 
     @Override
-    public void setStreamingInput(StreamingInput streamingInput) {
-        this.streamingInput = streamingInput;
+    public void setIdentifier(String identifier) {
+        this.queryIdentifier = identifier;
     }
 
     @Override
-    public void setJoinStreamingInput(JoinStreamingInput joinStreamingInput) {
-        this.joinStreamingInput = joinStreamingInput;
+    public void setStreamingQueryStatement(StreamingQueryStatementNode streamingQueryStatement) {
+        this.streamingQueryStatementNode = streamingQueryStatement;
     }
 
     @Override
-    public void setPatternStreamingInput(PatternStreamingInputNode patternStreamingInputNode) {
-        this.patternStreamingInputNode = patternStreamingInputNode;
+    public String getIdentifier() {
+        return queryIdentifier;
     }
 
     @Override
-    public void setSelectClause(SelectClauseNode selectClause) {
-        this.selectClauseNode = selectClause;
-    }
-
-    @Override
-    public void setOrderByClause(OrderByNode orderByClause) {
-        this.orderByNode = orderByClause;
-    }
-
-    @Override
-    public void setStreamingAction(StreamActionNode streamingAction) {
-        this.streamActionNode = streamingAction;
-    }
-
-    @Override
-    public StreamingInput getStreamingInput() {
-        return streamingInput;
-    }
-
-    @Override
-    public JoinStreamingInput getJoiningInput() {
-        return joinStreamingInput;
-    }
-
-    @Override
-    public PatternStreamingInputNode getPatternStreamingInput() {
-        return patternStreamingInputNode;
-    }
-
-    @Override
-    public SelectClauseNode getSelectClause() {
-        return selectClauseNode;
-    }
-
-    @Override
-    public OrderByNode getOrderbyClause() {
-        return orderByNode;
-    }
-
-    @Override
-    public StreamActionNode getStreamingAction() {
-        return streamActionNode;
+    public StreamingQueryStatementNode getStreamingQueryStatement() {
+        return streamingQueryStatementNode;
     }
 }

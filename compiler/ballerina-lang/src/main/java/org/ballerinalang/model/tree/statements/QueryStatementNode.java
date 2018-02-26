@@ -16,37 +16,33 @@
  * under the License.
  */
 
-package org.ballerinalang.model.tree.clauses;
-
-import org.ballerinalang.model.tree.Node;
-import org.ballerinalang.model.tree.expressions.ExpressionNode;
+package org.ballerinalang.model.tree.statements;
 
 /**
- * The interface with the APIs to implement the "pattern" in ballerina streams/table SQLish syntax.
+ * The interface with the APIs to implement the "Query" in ballerina streams SQLish syntax.
  * <pre>Grammar:
- *     Identifier whereClause? intRangeExpression? (AS alias=Identifier)?
+ *     QUERY Identifier LEFT_BRACE streamingQueryStatement RIGHT_BRACE
  *
  * E.g.
- *      TempStream where e1.roomNo==roomNo [1..5) as e2
+ * query q1{
+ *          from testStream
+ *          where x > 50
+ *          select 10 as mo
+ *          group by mo
+ *          insert into test1
+ *      }
  * </pre>
  */
 
-public interface PatternStreamingEdgeInputNode extends Node {
-
+public interface QueryStatementNode extends StatementNode {
 
     void setIdentifier(String identifier);
 
-    void setWhereClause(WhereNode whereNode);
-
-    void setExpression(ExpressionNode expressionNode);
+    void setStreamingQueryStatement(StreamingQueryStatementNode streamingQueryStatement);
 
     String getIdentifier();
 
-    WhereNode getWhereClause();
+    StreamingQueryStatementNode getStreamingQueryStatement();
 
-    ExpressionNode getExpression();
 
-    void setAliasIdentifier (String alias);
-
-    String getAliasIdentifier();
 }

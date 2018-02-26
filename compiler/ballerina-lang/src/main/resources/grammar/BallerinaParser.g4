@@ -105,7 +105,7 @@ streamletBody
     ;
 
 streamingQueryDeclaration
-    : (TYPE_STREAM (LT nameReference GT)?)* (streamingQueryStatement | queryDeclaration+)
+    : (TYPE_STREAM (LT nameReference GT)?)* (streamingQueryStatement | queryStatement+)
     ;
 
 privateStructBody
@@ -208,7 +208,7 @@ builtInReferenceTypeName
     |   TYPE_JSON (LT nameReference GT)?
     |   TYPE_TABLE (LT nameReference GT)?
     |   TYPE_STREAM (LT nameReference GT)?
-    |   TYPE_AGGREGTION (LT nameReference GT)?
+    |   TYPE_AGGREGATION (LT nameReference GT)?
     |   functionTypeName
     ;
 
@@ -733,6 +733,6 @@ windowClause
     :   WINDOW functionInvocation
     ;
 
-queryDeclaration
+queryStatement
      :   QUERY Identifier LEFT_BRACE streamingQueryStatement RIGHT_BRACE
      ;

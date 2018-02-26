@@ -64,7 +64,9 @@ import org.ballerinalang.model.tree.expressions.XMLLiteralNode;
 import org.ballerinalang.model.tree.statements.BlockNode;
 import org.ballerinalang.model.tree.statements.ForkJoinNode;
 import org.ballerinalang.model.tree.statements.IfNode;
+import org.ballerinalang.model.tree.statements.QueryStatementNode;
 import org.ballerinalang.model.tree.statements.StatementNode;
+import org.ballerinalang.model.tree.statements.StreamingQueryStatementNode;
 import org.ballerinalang.model.tree.statements.TransactionNode;
 import org.ballerinalang.model.tree.statements.VariableDefinitionNode;
 import org.ballerinalang.model.tree.types.TypeNode;
@@ -97,10 +99,10 @@ import org.wso2.ballerinalang.compiler.tree.clauses.BLangPatternStreamingEdgeInp
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangPatternStreamingInput;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangSelectClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangSelectExpression;
-import org.wso2.ballerinalang.compiler.tree.clauses.BLangStreamingInput;
-import org.wso2.ballerinalang.compiler.tree.clauses.BLangTableQuery;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangSetAssignment;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangStreamAction;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangStreamingInput;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangTableQuery;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangWhere;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangWindow;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAttachmentAttribute;
@@ -147,7 +149,9 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangLock;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangNext;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangQueryStatement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangStreamingQueryStatement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangThrow;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTransaction;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTryCatchFinally;
@@ -278,6 +282,10 @@ public class BLangPackageBuilder {
     private Stack<PatternStreamingEdgeInputNode> patternStreamingEdgeInputStack = new Stack<>();
 
     private Stack<PatternStreamingInputNode> patternStreamingInputStack = new Stack<>();
+
+    private Stack<StreamingQueryStatementNode> streamingQueryStatementStack = new Stack<>();
+
+    private Stack<QueryStatementNode> queryStatementStack = new Stack<>();
 
     private Set<BLangImportPackage> imports = new HashSet<>();
 
@@ -1998,7 +2006,8 @@ public class BLangPackageBuilder {
         this.selectClausesStack.push(selectClauseNode);
     }
 
-    public void endSelectClauseNode(boolean isSelectAll, DiagnosticPos pos, Set<Whitespace> ws) {
+    public void endSelectClauseNode(boolean isSelectAll, boolean isGroupByAvailable, boolean isHavingAvailable,
+                                    DiagnosticPos pos, Set<Whitespace> ws) {
         if (this.selectExpressionsListStack.empty()) {
             throw new IllegalStateException("Select Expressions List stack cannot be empty when processing a select " +
                     "clause");
@@ -2006,8 +2015,12 @@ public class BLangPackageBuilder {
         SelectClauseNode selectClauseNode = this.selectClausesStack.peek();
         ((BLangSelectClause) selectClauseNode).pos = pos;
         ((BLangSelectClause) selectClauseNode).addWS(ws);
-        selectClauseNode.setGroupBy(this.groupByClauseStack.pop());
-        selectClauseNode.setHaving(this.havingClauseStack.pop());
+        if (isGroupByAvailable) {
+            selectClauseNode.setGroupBy(this.groupByClauseStack.pop());
+        }
+        if (isHavingAvailable) {
+            selectClauseNode.setHaving(this.havingClauseStack.pop());
+        }
         if (!isSelectAll) {
             selectClauseNode.setSelectExpressions(this.selectExpressionsListStack.pop());
         } else {
@@ -2038,7 +2051,8 @@ public class BLangPackageBuilder {
     }
 
     public void endStreamingInputNode(boolean isFirstWhereAvailable, boolean isSecondWhereAvailable,
-            boolean isWindowAvailable, String identifier, String alias, DiagnosticPos pos, Set<Whitespace> ws) {
+                                      boolean isWindowAvailable, String identifier, String alias, DiagnosticPos pos,
+                                      Set<Whitespace> ws) {
         BLangStreamingInput streamingInput = (BLangStreamingInput) this.streamingInputStack.peek();
         streamingInput.pos = pos;
         streamingInput.addWS(ws);
@@ -2160,8 +2174,13 @@ public class BLangPackageBuilder {
         ((BLangStreamAction) streamActionNode).pos = pos;
         ((BLangStreamAction) streamActionNode).addWS(ws);
 
-        streamActionNode.setExpression(exprNodeStack.pop());
-        streamActionNode.setSetClause(setAssignmentListStack.pop());
+        if (!exprNodeStack.isEmpty()) {
+            streamActionNode.setExpression(exprNodeStack.pop());
+        }
+
+        if (!setAssignmentListStack.isEmpty()) {
+            streamActionNode.setSetClause(setAssignmentListStack.pop());
+        }
         streamActionNode.setIdentifier(identifier);
         streamActionNode.setStreamActionType(action);
     }
@@ -2206,11 +2225,63 @@ public class BLangPackageBuilder {
         ((BLangPatternStreamingInput) patternStreamingInputNode).pos = pos;
         ((BLangPatternStreamingInput) patternStreamingInputNode).addWS(ws);
 
-        if(patternStreamingInputStack.capacity() == 1) {
+        if (patternStreamingInputStack.capacity() == 1) {
             patternStreamingInputNode.setLHSPatternStreamingInput(patternStreamingInputStack.pop());
-        } else if(patternStreamingInputStack.capacity() == 2) {
+        } else if (patternStreamingInputStack.capacity() == 2) {
             patternStreamingInputNode.setRHSPatternStreamingInput(patternStreamingInputStack.pop());
         }
+    }
+
+    public void startStreamingQueryStatementNode(DiagnosticPos pos, Set<Whitespace> ws) {
+        StreamingQueryStatementNode streamingQueryStatementNode = TreeBuilder.createStreamingQueryStatementNode();
+        ((BLangStreamingQueryStatement) streamingQueryStatementNode).pos = pos;
+        ((BLangStreamingQueryStatement) streamingQueryStatementNode).addWS(ws);
+        this.streamingQueryStatementStack.push(streamingQueryStatementNode);
+    }
+
+    public void endStreamingQueryStatementNode(DiagnosticPos pos, Set<Whitespace> ws) {
+        StreamingQueryStatementNode streamingQueryStatementNode = this.streamingQueryStatementStack.peek();
+
+        ((BLangStreamingQueryStatement) streamingQueryStatementNode).pos = pos;
+        ((BLangStreamingQueryStatement) streamingQueryStatementNode).addWS(ws);
+
+        if (!streamingInputStack.isEmpty()) {
+            streamingQueryStatementNode.setStreamingInput(streamingInputStack.pop());
+
+            if (!joinStreamingInputsStack.isEmpty()) {
+                streamingQueryStatementNode.setJoinStreamingInput(joinStreamingInputsStack.pop());
+            }
+        } else if (!patternStreamingInputStack.isEmpty()) {
+            streamingQueryStatementNode.setPatternStreamingInput(patternStreamingInputStack.pop());
+        }
+
+        if (!selectClausesStack.isEmpty()) {
+            streamingQueryStatementNode.setSelectClause(selectClausesStack.pop());
+        }
+
+        if (!orderByClauseStack.isEmpty()) {
+            streamingQueryStatementNode.setOrderByClause(orderByClauseStack.pop());
+        }
+
+        streamingQueryStatementNode.setStreamingAction(streamActionNodeStack.pop());
+    }
+
+    public void startQueryStatementNode(DiagnosticPos pos, Set<Whitespace> ws) {
+        QueryStatementNode queryStatementNode = TreeBuilder.createQueryStatementNode();
+        ((BLangQueryStatement) queryStatementNode).pos = pos;
+        ((BLangQueryStatement) queryStatementNode).addWS(ws);
+        this.queryStatementStack.push(queryStatementNode);
+    }
+
+    public void endQueryStatementNode(DiagnosticPos pos, Set<Whitespace> ws, String identifier) {
+
+        QueryStatementNode queryStatementNode = this.queryStatementStack.peek();
+
+        ((BLangQueryStatement) queryStatementNode).pos = pos;
+        ((BLangQueryStatement) queryStatementNode).addWS(ws);
+
+        queryStatementNode.setIdentifier(identifier);
+        queryStatementNode.setStreamingQueryStatement(streamingQueryStatementStack.pop());
     }
 
 }

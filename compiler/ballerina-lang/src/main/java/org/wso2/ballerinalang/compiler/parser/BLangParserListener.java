@@ -2095,20 +2095,6 @@ public class BLangParserListener extends BallerinaParserBaseListener {
     }
 
     @Override
-    public void enterStreamingQueryStatement(BallerinaParser.StreamingQueryStatementContext ctx) {
-        if (ctx.exception != null) {
-            return;
-        }
-    }
-
-    @Override
-    public void exitStreamingQueryStatement(BallerinaParser.StreamingQueryStatementContext ctx) {
-        if (ctx.exception != null) {
-            return;
-        }
-    }
-
-    @Override
     public void enterHavingClause(BallerinaParser.HavingClauseContext ctx) {
         if (ctx.exception != null) {
             return;
@@ -2158,9 +2144,11 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         if (ctx.exception != null) {
             return;
         }
-
         boolean isSelectAll = ctx.MUL() == null ? false : true;
-        this.pkgBuilder.endSelectClauseNode(isSelectAll, getCurrentPos(ctx), getWS(ctx));
+        boolean isGroupByClauseAvailable = ctx.groupByClause() == null ? false : true;
+        boolean isHavingClauseAvailable = ctx.havingClause() == null ? false : true;
+        this.pkgBuilder.endSelectClauseNode(isGroupByClauseAvailable, isHavingClauseAvailable, isSelectAll,
+                getCurrentPos(ctx), getWS(ctx));
     }
 
     @Override
@@ -2298,19 +2286,20 @@ public class BLangParserListener extends BallerinaParserBaseListener {
     @Override
     public void enterPatternStreamingInput(BallerinaParser.PatternStreamingInputContext ctx) {
         if (ctx.exception != null) {
-            System.out.println("XXXXXXXXXX");
+            System.out.printf("XXXXXXXXXX");
             return;
         }
-        System.out.println("AAAA" + ++count);
+        System.out.printf("AAAA" + ++count + "\n");
         this.pkgBuilder.startPatternStreamingInputNode(getCurrentPos(ctx), getWS(ctx));
     }
 
-    @Override public void exitPatternStreamingInput(BallerinaParser.PatternStreamingInputContext ctx) {
+    @Override
+    public void exitPatternStreamingInput(BallerinaParser.PatternStreamingInputContext ctx) {
         if (ctx.exception != null) {
-            System.out.println("XXXXXXXXXX");
+            System.out.printf("XXXXXXXXXX");
             return;
         }
-        System.out.println("BBBB" + count);
+        System.out.printf("BBBB" + count + "\n");
         this.pkgBuilder.endPatternStreamingInputNode(getCurrentPos(ctx), getWS(ctx));
     }
 
@@ -2384,6 +2373,56 @@ public class BLangParserListener extends BallerinaParserBaseListener {
                 getCurrentPos(ctx), getWS(ctx));
     }
 
+    @Override
+    public void enterStreamingQueryStatement(BallerinaParser.StreamingQueryStatementContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+
+        this.pkgBuilder.startStreamingQueryStatementNode(getCurrentPos(ctx), getWS(ctx));
+    }
+
+    @Override
+    public void exitStreamingQueryStatement(BallerinaParser.StreamingQueryStatementContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+
+        this.pkgBuilder.endStreamingQueryStatementNode(getCurrentPos(ctx), getWS(ctx));
+    }
+
+    @Override
+    public void enterQueryStatement(BallerinaParser.QueryStatementContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+
+        this.pkgBuilder.startQueryStatementNode(getCurrentPos(ctx), getWS(ctx));
+    }
+
+    @Override
+    public void exitQueryStatement(BallerinaParser.QueryStatementContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+
+        this.pkgBuilder.endQueryStatementNode(getCurrentPos(ctx), getWS(ctx),
+                ctx.Identifier().getText());
+    }
+
+    @Override
+    public void enterStreamletBody(BallerinaParser.StreamletBodyContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+    }
+
+    @Override
+    public void exitStreamletBody(BallerinaParser.StreamletBodyContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+    }
 
     private DiagnosticPos getCurrentPos(ParserRuleContext ctx) {
         int startLine = ctx.getStart().getLine();

@@ -31,7 +31,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 /**
  * @since 0.94
  */
-public class BLangStreamingQuery extends BLangStatement implements StreamingQueryStatementNode {
+public class BLangStreamingQueryStatement extends BLangStatement implements StreamingQueryStatementNode {
 
     private StreamingInput streamingInput;
     private JoinStreamingInput joinStreamingInput;

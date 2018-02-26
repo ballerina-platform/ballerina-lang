@@ -24,7 +24,7 @@ public class BallerinaLexer extends Lexer {
 		BY=28, HAVING=29, ORDER=30, WHERE=31, FOLLOWED=32, INSERT=33, INTO=34, 
 		UPDATE=35, DELETE=36, SET=37, FOR=38, WINDOW=39, QUERY=40, TYPE_INT=41, 
 		TYPE_FLOAT=42, TYPE_BOOL=43, TYPE_STRING=44, TYPE_BLOB=45, TYPE_MAP=46, 
-		TYPE_JSON=47, TYPE_XML=48, TYPE_TABLE=49, TYPE_STREAM=50, TYPE_AGGREGTION=51, 
+		TYPE_JSON=47, TYPE_XML=48, TYPE_TABLE=49, TYPE_STREAM=50, TYPE_AGGREGATION=51, 
 		TYPE_ANY=52, TYPE_TYPE=53, VAR=54, CREATE=55, ATTACH=56, IF=57, ELSE=58, 
 		FOREACH=59, WHILE=60, NEXT=61, BREAK=62, FORK=63, JOIN=64, SOME=65, ALL=66, 
 		TIMEOUT=67, TRY=68, CATCH=69, FINALLY=70, THROW=71, RETURN=72, TRANSACTION=73, 
@@ -67,7 +67,7 @@ public class BallerinaLexer extends Lexer {
 		"ORDER", "WHERE", "FOLLOWED", "INSERT", "INTO", "UPDATE", "DELETE", "SET", 
 		"FOR", "WINDOW", "QUERY", "TYPE_INT", "TYPE_FLOAT", "TYPE_BOOL", "TYPE_STRING", 
 		"TYPE_BLOB", "TYPE_MAP", "TYPE_JSON", "TYPE_XML", "TYPE_TABLE", "TYPE_STREAM", 
-		"TYPE_AGGREGTION", "TYPE_ANY", "TYPE_TYPE", "VAR", "CREATE", "ATTACH", 
+		"TYPE_AGGREGATION", "TYPE_ANY", "TYPE_TYPE", "VAR", "CREATE", "ATTACH", 
 		"IF", "ELSE", "FOREACH", "WHILE", "NEXT", "BREAK", "FORK", "JOIN", "SOME", 
 		"ALL", "TIMEOUT", "TRY", "CATCH", "FINALLY", "THROW", "RETURN", "TRANSACTION", 
 		"ABORT", "FAILED", "RETRIES", "LENGTHOF", "TYPEOF", "WITH", "BIND", "IN", 
@@ -113,7 +113,7 @@ public class BallerinaLexer extends Lexer {
 		"'from'", "'on'", "'select'", "'group'", "'by'", "'having'", "'order'", 
 		"'where'", "'followed'", null, "'into'", "'update'", null, "'set'", "'for'", 
 		"'window'", null, "'int'", "'float'", "'boolean'", "'string'", "'blob'", 
-		"'map'", "'json'", "'xml'", "'table'", "'stream'", "'aggergation'", "'any'", 
+		"'map'", "'json'", "'xml'", "'table'", "'stream'", "'aggregation'", "'any'", 
 		"'type'", "'var'", "'create'", "'attach'", "'if'", "'else'", "'foreach'", 
 		"'while'", "'next'", "'break'", "'fork'", "'join'", "'some'", "'all'", 
 		"'timeout'", "'try'", "'catch'", "'finally'", "'throw'", "'return'", "'transaction'", 
@@ -134,7 +134,7 @@ public class BallerinaLexer extends Lexer {
 		"HAVING", "ORDER", "WHERE", "FOLLOWED", "INSERT", "INTO", "UPDATE", "DELETE", 
 		"SET", "FOR", "WINDOW", "QUERY", "TYPE_INT", "TYPE_FLOAT", "TYPE_BOOL", 
 		"TYPE_STRING", "TYPE_BLOB", "TYPE_MAP", "TYPE_JSON", "TYPE_XML", "TYPE_TABLE", 
-		"TYPE_STREAM", "TYPE_AGGREGTION", "TYPE_ANY", "TYPE_TYPE", "VAR", "CREATE", 
+		"TYPE_STREAM", "TYPE_AGGREGATION", "TYPE_ANY", "TYPE_TYPE", "VAR", "CREATE", 
 		"ATTACH", "IF", "ELSE", "FOREACH", "WHILE", "NEXT", "BREAK", "FORK", "JOIN", 
 		"SOME", "ALL", "TIMEOUT", "TRY", "CATCH", "FINALLY", "THROW", "RETURN", 
 		"TRANSACTION", "ABORT", "FAILED", "RETRIES", "LENGTHOF", "TYPEOF", "WITH", 
@@ -755,8 +755,8 @@ public class BallerinaLexer extends Lexer {
 		"\7c\2\2\u0327\u0328\7d\2\2\u0328\u0329\7n\2\2\u0329\u032a\7g\2\2\u032a"+
 		"k\3\2\2\2\u032b\u032c\7u\2\2\u032c\u032d\7v\2\2\u032d\u032e\7t\2\2\u032e"+
 		"\u032f\7g\2\2\u032f\u0330\7c\2\2\u0330\u0331\7o\2\2\u0331m\3\2\2\2\u0332"+
-		"\u0333\7c\2\2\u0333\u0334\7i\2\2\u0334\u0335\7i\2\2\u0335\u0336\7g\2\2"+
-		"\u0336\u0337\7t\2\2\u0337\u0338\7i\2\2\u0338\u0339\7c\2\2\u0339\u033a"+
+		"\u0333\7c\2\2\u0333\u0334\7i\2\2\u0334\u0335\7i\2\2\u0335\u0336\7t\2\2"+
+		"\u0336\u0337\7g\2\2\u0337\u0338\7i\2\2\u0338\u0339\7c\2\2\u0339\u033a"+
 		"\7v\2\2\u033a\u033b\7k\2\2\u033b\u033c\7q\2\2\u033c\u033d\7p\2\2\u033d"+
 		"o\3\2\2\2\u033e\u033f\7c\2\2\u033f\u0340\7p\2\2\u0340\u0341\7{\2\2\u0341"+
 		"q\3\2\2\2\u0342\u0343\7v\2\2\u0343\u0344\7{\2\2\u0344\u0345\7r\2\2\u0345"+

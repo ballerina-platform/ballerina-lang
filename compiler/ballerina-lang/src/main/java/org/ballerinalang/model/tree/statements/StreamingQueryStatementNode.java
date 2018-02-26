@@ -1,5 +1,5 @@
 /*
-*  Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+*  Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 *
 *  WSO2 Inc. licenses this file to you under the Apache License,
 *  Version 2.0 (the "License"); you may not use this file except
@@ -15,22 +15,57 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
+
 package org.ballerinalang.model.tree.statements;
 
-import org.ballerinalang.model.tree.expressions.ExpressionNode;
+import org.ballerinalang.model.tree.clauses.JoinStreamingInput;
+import org.ballerinalang.model.tree.clauses.OrderByNode;
+import org.ballerinalang.model.tree.clauses.PatternStreamingInputNode;
+import org.ballerinalang.model.tree.clauses.SelectClauseNode;
+import org.ballerinalang.model.tree.clauses.StreamActionNode;
+import org.ballerinalang.model.tree.clauses.StreamingInput;
 
 /**
- * while(true) {.
- *     body.
- * }.
- * @since 0.94
+ * This class represents the streaming query statement in streams SQLish syntax.
+ * <pre>Grammar:
+ *      FROM (streamingInput (joinStreamingInput)?  | patternStreamingInput)
+ *      selectClause?
+ *      orderByClause?
+ *      streamingAction
+ *
+ * E.g.
+ *      from testStream
+ *      where x > 50
+ *      select 10 as mo
+ *      group by mo
+ *      insert into test1
+ * </pre>
  */
-public interface WhileNode extends StatementNode {
-    ExpressionNode getCondition();
 
-    BlockNode getBody();
+public interface StreamingQueryStatementNode extends StatementNode {
 
-    void setCondition(ExpressionNode condition);
+    void setStreamingInput(StreamingInput streamingInput);
 
-    void setBody(BlockNode body);
+    void setJoinStreamingInput(JoinStreamingInput joinStreamingInput);
+
+    void setPatternStreamingInput(PatternStreamingInputNode patternStreamingInputNode);
+
+    void setSelectClause(SelectClauseNode selectClause);
+
+    void setOrderByClause(OrderByNode orderByClause);
+
+    void setStreamingAction(StreamActionNode streamingAction);
+
+    StreamingInput getStreamingInput();
+
+    JoinStreamingInput getJoiningInput();
+
+    PatternStreamingInputNode getPatternStreamingInput();
+
+    SelectClauseNode getSelectClause();
+
+    OrderByNode getOrderbyClause();
+
+    StreamActionNode getStreamingAction();
+
 }
