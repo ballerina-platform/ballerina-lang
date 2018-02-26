@@ -46,8 +46,8 @@ import java.util.Calendar;
 public class SQLActionsTest {
 
     private static final double DELTA = 0.01;
-    CompileResult result;
-    CompileResult resultNegative;
+    private CompileResult result;
+    private CompileResult resultNegative;
     private static final String DB_NAME = "TEST_SQL_CONNECTOR";
 
     @BeforeClass

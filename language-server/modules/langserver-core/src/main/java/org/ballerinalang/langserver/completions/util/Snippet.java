@@ -51,7 +51,22 @@ public enum Snippet {
     WORKER("worker ${1:name} {\n\t${2}\n}"),
     XML_ATTRIBUTE_REFERENCE("\"${1}\"@[\"${2}\"]"),
     VAR_KEYWORD_SNIPPET("var "),
-    CREATE_KEYWORD_SNIPPET("create ");    
+    CREATE_KEYWORD_SNIPPET("create "),
+    
+    // Constants for the Iterable operators
+    ITR_FOREACH("foreach(function (%params%) {\n\t${1}\n});"),
+    ITR_MAP("map(function (%params%) (any){\n\t${1}\n});"),
+    ITR_FILTER("filter(function (%params%) (boolean){\n\t${1}\n});"),
+    ITR_COUNT("count();"),
+    ITR_MIN("min();"),
+    ITR_MAX("max();"),
+    ITR_AVERAGE("average();"),
+    ITR_SUM("sum();"),
+    
+    // Iterable operators' lambda function parameters
+    ITR_ON_MAP_PARAMS("string k, any v"),
+    ITR_ON_JSON_PARAMS("json v"),
+    ITR_ON_XML_PARAMS("xml v");
 
     private String value;
 

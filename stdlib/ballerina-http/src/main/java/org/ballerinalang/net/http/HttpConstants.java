@@ -80,6 +80,7 @@ public class HttpConstants {
     public static final String ANN_NAME_RESOURCE_CONFIG = "resourceConfig";
     public static final String ANN_RESOURCE_ATTR_METHODS = "methods";
     public static final String ANN_RESOURCE_ATTR_PATH = "path";
+    public static final String ANN_RESOURCE_ATTR_BODY = "body";
     public static final String ANN_RESOURCE_ATTR_CONSUMES = "consumes";
     public static final String ANN_RESOURCE_ATTR_PRODUCES = "produces";
     public static final String ANN_NAME_CONFIG = "configuration";
@@ -237,4 +238,7 @@ public class HttpConstants {
     public static final String HEADER_VAL_CONNECTION_KEEP_ALIVE = "Keep-Alive";
     public static final String EXPECT_HEADER = "Expect";
     public static final String HEADER_VAL_100_CONTINUE = "100-continue";
+
+    //Response codes
+    public static final String HTTP_BAD_REQUEST = "400";
 }

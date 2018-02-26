@@ -23,17 +23,23 @@ import org.ballerinalang.langserver.DocumentServiceKeys;
 import org.ballerinalang.langserver.TextDocumentServiceContext;
 import org.ballerinalang.langserver.completions.CompletionKeys;
 import org.ballerinalang.langserver.completions.SymbolInfo;
+import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
+import org.ballerinalang.langserver.completions.util.Snippet;
 import org.ballerinalang.model.types.Type;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BConnectorType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BEndpointType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BEnumType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BStructType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BJSONType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleCollectionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BXMLType;
 import org.wso2.ballerinalang.compiler.util.Name;
 
 import java.util.ArrayList;
@@ -55,6 +61,8 @@ public class PackageActionFunctionAndTypesFilter extends AbstractSymbolFilter {
     private static final String DOT_SYMBOL_KEY = ".";
 
     private static final String CONNECTOR_KIND = "CONNECTOR";
+    
+    private static final String ITR_OP_LAMBDA_PARAM_REPLACE_TOKEN = "%params%";
 
     @Override
     public List<SymbolInfo> filterItems(TextDocumentServiceContext completionContext) {
@@ -163,6 +171,7 @@ public class PackageActionFunctionAndTypesFilter extends AbstractSymbolFilter {
         SymbolTable symbolTable = context.get(DocumentServiceKeys.SYMBOL_TABLE_KEY);
         String variableName = tokenStream.get(delimiterIndex - 1).getText();
         SymbolInfo variable = this.getVariableByName(variableName, symbols);
+        String builtinPkgName = symbolTable.builtInPackageSymbol.name.getValue();
         Map<Name, Scope.ScopeEntry> entries = new HashMap<>();
         String constraintTypeName = null;
 
@@ -179,11 +188,13 @@ public class PackageActionFunctionAndTypesFilter extends AbstractSymbolFilter {
             packageID = ((BConnectorType) constraint).tsymbol.pkgID.toString();
             constraintTypeName = constraint.toString();
             bTypeValue = constraint.toString();
+        } else if (bType instanceof BArrayType) {
+            packageID = ((BArrayType) bType).eType.tsymbol.pkgID.toString();
+            bTypeValue = bType.toString();
         } else {
-            packageID = variable.getScopeEntry().symbol.getType().tsymbol.pkgID.toString();
-            bTypeValue = bType.tsymbol.name.getValue();
+            packageID = bType.tsymbol.pkgID.toString();
+            bTypeValue = bType.toString();
         }
-        String builtinPkgName = symbolTable.builtInPackageSymbol.name.getValue();
 
         // Extract the package symbol. This is used to extract the entries of the particular package
         SymbolInfo packageSymbolInfo = symbols.stream().filter(item -> {
@@ -195,9 +206,8 @@ public class PackageActionFunctionAndTypesFilter extends AbstractSymbolFilter {
         if (packageSymbolInfo == null && packageID.equals(builtinPkgName)) {
             // If the packageID is ballerina.builtin, we extract entries of builtin package
             entries = symbolTable.builtInPackageSymbol.scope.entries;
-        } else if (packageSymbolInfo == null && (bType instanceof BEnumType || bType instanceof BStructType)) {
-            // If the bType is an enum/ struct, we extract the fields of the enum
-            entries = this.getScopeEntries(bTypeValue, context);
+        } else if (packageSymbolInfo == null && packageID.equals(".")) {
+            entries = this.getScopeEntries(bType, context);
         } else if (packageSymbolInfo != null) {
             // If the package exist, we extract particular entries from package
             entries = packageSymbolInfo.getScopeEntry().symbol.scope.entries;
@@ -213,29 +223,32 @@ public class PackageActionFunctionAndTypesFilter extends AbstractSymbolFilter {
                 entries = ((Scope.ScopeEntry) filteredEntry.getValue()).symbol.scope.entries;
             }
         }
+        
+        entries.forEach((name, scopeEntry) -> {
+            if (scopeEntry.symbol instanceof BInvokableSymbol
+                    && ((BInvokableSymbol) scopeEntry.symbol).receiverSymbol != null) {
+                String symbolBoundedName = ((BInvokableSymbol) scopeEntry.symbol)
+                        .receiverSymbol.getType().toString();
 
-        if (bType instanceof BEnumType) {
-            entries.forEach((name, scopeEntry) -> {
-                SymbolInfo actionFunctionSymbol = new SymbolInfo(name.toString(), scopeEntry);
-                actionFunctionList.add(actionFunctionSymbol);
-            });
-        } else {
-            entries.forEach((name, scopeEntry) -> {
-                if (scopeEntry.symbol instanceof BInvokableSymbol
-                        && ((BInvokableSymbol) scopeEntry.symbol).receiverSymbol != null) {
-                    String symbolBoundedName = ((BInvokableSymbol) scopeEntry.symbol)
-                            .receiverSymbol.getType().tsymbol.name.getValue();
-
-                    if (symbolBoundedName.equals(bTypeValue)) {
-                        // TODO: Need to handle the name in a proper manner
-                        String[] nameComponents = name.toString().split("\\.");
-                        SymbolInfo actionFunctionSymbol =
-                                new SymbolInfo(nameComponents[nameComponents.length - 1], scopeEntry);
-                        actionFunctionList.add(actionFunctionSymbol);
-                    }
+                if (symbolBoundedName.equals(bTypeValue)) {
+                    // TODO: Need to handle the name in a proper manner
+                    String[] nameComponents = name.toString().split("\\.");
+                    SymbolInfo actionFunctionSymbol =
+                            new SymbolInfo(nameComponents[nameComponents.length - 1], scopeEntry);
+                    actionFunctionList.add(actionFunctionSymbol);
                 }
-            });
-        }
+            } else if ((scopeEntry.symbol instanceof BTypeSymbol)
+                    && bTypeValue.equals(scopeEntry.symbol.type.toString())) {
+                // Get the struct fields
+                Map<Name, Scope.ScopeEntry> fields = scopeEntry.symbol.scope.entries;
+                fields.forEach((fieldName, fieldScopeEntry) -> {
+                    actionFunctionList.add(new SymbolInfo(fieldName.getValue(), fieldScopeEntry));
+                });
+            }
+        });
+        
+        // Populate possible iterable operators over the variable
+        populateIterableOperations(variable, actionFunctionList);
 
         return actionFunctionList;
     }
@@ -296,17 +309,143 @@ public class PackageActionFunctionAndTypesFilter extends AbstractSymbolFilter {
 
     /**
      * Get the scope entries.
-     * @param bTypeName         Name of the bType 
+     * @param bType             BType 
      * @param completionCtx     Completion context
      * @return                  {@link Map} Scope entries map
      */
-    private Map<Name, Scope.ScopeEntry> getScopeEntries(String bTypeName, TextDocumentServiceContext completionCtx) {
-        SymbolInfo enumSymbolInfo = completionCtx.get(CompletionKeys.VISIBLE_SYMBOLS_KEY)
+    private Map<Name, Scope.ScopeEntry> getScopeEntries(BType bType, TextDocumentServiceContext completionCtx) {
+        SymbolInfo filteredSymbolInfo = completionCtx.get(CompletionKeys.VISIBLE_SYMBOLS_KEY)
                 .stream()
-                .filter(symbolInfo -> symbolInfo.getSymbolName().equals(bTypeName))
+                .filter(symbolInfo -> symbolInfo.getScopeEntry().symbol instanceof BTypeSymbol
+                        && symbolInfo.getScopeEntry().symbol.getType() != null 
+                        && symbolInfo.getScopeEntry().symbol.getType().toString().equals(bType.toString()))
                 .findFirst()
                 .orElse(null);
 
-        return enumSymbolInfo.getScopeEntry().symbol.scope.entries;
+        HashMap<Name, Scope.ScopeEntry> returnMap = new HashMap<>();
+        returnMap.put(filteredSymbolInfo.getScopeEntry().symbol.getName(), filteredSymbolInfo.getScopeEntry());
+        return returnMap;
+    }
+    
+    private void populateIterableOperations(SymbolInfo variable, List<SymbolInfo> symbolInfoList) {
+        BType bType = variable.getScopeEntry().symbol.getType();
+
+        if (bType instanceof BArrayType || bType instanceof BMapType || bType instanceof BJSONType
+                || bType instanceof BXMLType || bType instanceof BTableType || bType instanceof BTupleCollectionType) {
+            fillForeachIterableOperation(bType, symbolInfoList);
+            fillMapIterableOperation(bType, symbolInfoList);
+            fillFilterIterableOperation(bType, symbolInfoList);
+            fillCountIterableOperation(symbolInfoList);
+            if (bType instanceof BArrayType && (((BArrayType) bType).eType.toString().equals("int")
+                    || ((BArrayType) bType).eType.toString().equals("float"))) {
+                fillMinIterableOperation(symbolInfoList);
+                fillMaxIterableOperation(symbolInfoList);
+                fillAverageIterableOperation(symbolInfoList);
+                fillSumIterableOperation(symbolInfoList);
+            }
+            
+            // TODO: Add support for Table and Tuple collection
+        }
+    }
+    
+    private void fillForeachIterableOperation(BType bType, List<SymbolInfo> symbolInfoList) {
+        String params = getIterableOpLambdaParam(bType);
+        
+        String lambdaSignature = Snippet.ITR_FOREACH.toString().replace(ITR_OP_LAMBDA_PARAM_REPLACE_TOKEN, params);
+        SymbolInfo.IterableOperationSignature signature =
+                new SymbolInfo.IterableOperationSignature(ItemResolverConstants.ITR_FOREACH_LABEL, lambdaSignature);
+        SymbolInfo forEachSymbolInfo = new SymbolInfo();
+        forEachSymbolInfo.setIterableOperation(true);
+        forEachSymbolInfo.setIterableOperationSignature(signature);
+        symbolInfoList.add(forEachSymbolInfo);
+    }
+    
+    private void fillMapIterableOperation(BType bType, List<SymbolInfo> symbolInfoList) {
+        String params = getIterableOpLambdaParam(bType);
+
+        String lambdaSignature = Snippet.ITR_MAP.toString().replace(ITR_OP_LAMBDA_PARAM_REPLACE_TOKEN, params);
+        SymbolInfo.IterableOperationSignature signature =
+                new SymbolInfo.IterableOperationSignature(ItemResolverConstants.ITR_MAP_LABEL, lambdaSignature);
+        SymbolInfo forEachSymbolInfo = new SymbolInfo();
+        forEachSymbolInfo.setIterableOperation(true);
+        forEachSymbolInfo.setIterableOperationSignature(signature);
+        symbolInfoList.add(forEachSymbolInfo);
+    }
+
+    private void fillFilterIterableOperation(BType bType, List<SymbolInfo> symbolInfoList) {
+        String params = getIterableOpLambdaParam(bType);
+
+        String lambdaSignature = Snippet.ITR_FILTER.toString().replace(ITR_OP_LAMBDA_PARAM_REPLACE_TOKEN, params);
+        SymbolInfo.IterableOperationSignature signature =
+                new SymbolInfo.IterableOperationSignature(ItemResolverConstants.ITR_FILTER_LABEL, lambdaSignature);
+        SymbolInfo forEachSymbolInfo = new SymbolInfo();
+        forEachSymbolInfo.setIterableOperation(true);
+        forEachSymbolInfo.setIterableOperationSignature(signature);
+        symbolInfoList.add(forEachSymbolInfo);
+    }
+
+    private void fillCountIterableOperation(List<SymbolInfo> symbolInfoList) {
+        String lambdaSignature = Snippet.ITR_COUNT.toString();
+        SymbolInfo.IterableOperationSignature signature =
+                new SymbolInfo.IterableOperationSignature(ItemResolverConstants.ITR_COUNT_LABEL, lambdaSignature);
+        SymbolInfo forEachSymbolInfo = new SymbolInfo();
+        forEachSymbolInfo.setIterableOperation(true);
+        forEachSymbolInfo.setIterableOperationSignature(signature);
+        symbolInfoList.add(forEachSymbolInfo);
+    }
+
+    private void fillMinIterableOperation(List<SymbolInfo> symbolInfoList) {
+        String lambdaSignature = Snippet.ITR_MIN.toString();
+        SymbolInfo.IterableOperationSignature signature =
+                new SymbolInfo.IterableOperationSignature(ItemResolverConstants.ITR_MIN_LABEL, lambdaSignature);
+        SymbolInfo forEachSymbolInfo = new SymbolInfo();
+        forEachSymbolInfo.setIterableOperation(true);
+        forEachSymbolInfo.setIterableOperationSignature(signature);
+        symbolInfoList.add(forEachSymbolInfo);
+    }
+
+    private void fillMaxIterableOperation(List<SymbolInfo> symbolInfoList) {
+        String lambdaSignature = Snippet.ITR_MAX.toString();
+        SymbolInfo.IterableOperationSignature signature =
+                new SymbolInfo.IterableOperationSignature(ItemResolverConstants.ITR_MAX_LABEL, lambdaSignature);
+        SymbolInfo forEachSymbolInfo = new SymbolInfo();
+        forEachSymbolInfo.setIterableOperation(true);
+        forEachSymbolInfo.setIterableOperationSignature(signature);
+        symbolInfoList.add(forEachSymbolInfo);
+    }
+
+    private void fillAverageIterableOperation(List<SymbolInfo> symbolInfoList) {
+        String lambdaSignature = Snippet.ITR_AVERAGE.toString();
+        SymbolInfo.IterableOperationSignature signature =
+                new SymbolInfo.IterableOperationSignature(ItemResolverConstants.ITR_AVERAGE_LABEL, lambdaSignature);
+        SymbolInfo forEachSymbolInfo = new SymbolInfo();
+        forEachSymbolInfo.setIterableOperation(true);
+        forEachSymbolInfo.setIterableOperationSignature(signature);
+        symbolInfoList.add(forEachSymbolInfo);
+    }
+
+    private void fillSumIterableOperation(List<SymbolInfo> symbolInfoList) {
+        String lambdaSignature = Snippet.ITR_SUM.toString();
+        SymbolInfo.IterableOperationSignature signature =
+                new SymbolInfo.IterableOperationSignature(ItemResolverConstants.ITR_SUM_LABEL, lambdaSignature);
+        SymbolInfo forEachSymbolInfo = new SymbolInfo();
+        forEachSymbolInfo.setIterableOperation(true);
+        forEachSymbolInfo.setIterableOperationSignature(signature);
+        symbolInfoList.add(forEachSymbolInfo);
+    }
+    
+    private String getIterableOpLambdaParam(BType bType) {
+        String params = "";
+        if (bType instanceof BMapType) {
+            params = Snippet.ITR_ON_MAP_PARAMS.toString();
+        } else if (bType instanceof BArrayType) {
+            params = ((BArrayType) bType).eType.toString() + " v";
+        } else if (bType instanceof BJSONType) {
+            params = Snippet.ITR_ON_JSON_PARAMS.toString();
+        } else if (bType instanceof BXMLType) {
+            params = Snippet.ITR_ON_XML_PARAMS.toString();
+        }
+        
+        return params;
     }
 }
