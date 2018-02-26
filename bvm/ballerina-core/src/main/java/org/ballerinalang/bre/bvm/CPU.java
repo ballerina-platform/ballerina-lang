@@ -592,7 +592,7 @@ public class CPU {
                     break;
                 case InstructionCodes.NEWTABLE:
                     i = operands[0];
-                    sf.refRegs[i] = new BTable(null);
+                    //sf.refRegs[i] = new BTable(null);
                     break;
                 case InstructionCodes.NEW_INT_RANGE:
                     createNewIntRange(operands, sf);
