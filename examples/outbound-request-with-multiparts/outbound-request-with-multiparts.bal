@@ -2,8 +2,8 @@ import ballerina.net.http;
 import ballerina.mime;
 import ballerina.file;
 
-@http:configuration {basePath:"/multiparts", port:9092}
-service<http> echo {
+@http:configuration {port:9092}
+service<http> multiparts {
     @http:resourceConfig {
         methods:["POST"],
         path:"/encoder"
@@ -13,14 +13,14 @@ service<http> echo {
             create http:HttpClient("http://localhost:9090", {});
         }
 
-        //Create a json body part
+        //Create a json body part.
         mime:Entity jsonBodyPart = {};
         mime:MediaType contentTypeOfJsonPart = mime:getMediaType(mime:APPLICATION_JSON);
         jsonBodyPart.contentType = contentTypeOfJsonPart;
         jsonBodyPart.contentDisposition = getContentDispositionForFormData("json part");
         jsonBodyPart.setJson({"name":"wso2"});
 
-        //Create a xml body part as a file upload
+        //Create a xml body part as a file upload.
         mime:Entity xmlFilePart = {};
         mime:MediaType contentTypeOfFilePart = mime:getMediaType(mime:TEXT_XML);
         xmlFilePart.contentType = contentTypeOfFilePart;
@@ -28,7 +28,7 @@ service<http> echo {
         file:File fileHandler = {path:"/home/user/Downloads/test.xml"};
         xmlFilePart.setFileAsEntityBody(fileHandler);
 
-        //Create a xml body part
+        //Create a xml body part.
         mime:Entity xmlBodyPart = {};
         mime:MediaType contentType = mime:getMediaType(mime:APPLICATION_XML);
         xmlBodyPart.contentType = contentType;
@@ -36,13 +36,13 @@ service<http> echo {
         xml xmlContent= xml `<name>Ballerina</name>`;
         xmlBodyPart.setXml(xmlContent);
 
-        //Create an array to hold all the body parts
+        //Create an array to hold all the body parts.
         mime:Entity[] bodyParts = [xmlBodyPart, xmlFilePart, jsonBodyPart];
 
         http:OutRequest request = {};
         //Set body parts to request. Here the content-type is set as multipart form data. This also works with any other
         //multipart media type. eg:- multipart/mixed, multipart/related etc... Just pass the content type that suit
-        //your requirement
+        //your requirement.
         request.setMultiparts(bodyParts, mime:MULTIPART_FORM_DATA);
 
         http:InResponse resp1 = {};
