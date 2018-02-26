@@ -781,10 +781,10 @@ class PropertyWindow extends React.Component {
                                             } else if (key.bType === 'enum') {
                                                 return this.renderSelectBox(key);
                                             } else if (key.isConnector) {
-                                            return this.renderConnectorProps(key);
-                                        } else { // If not any of the types render a simple text box
-                                            return this.renderTextInputs(key);
-                                        }
+                                                return this.renderConnectorProps(key);
+                                            } else { // If not any of the types render a simple text box
+                                                return this.renderTextInputs(key);
+                                            }
                                         })}
                                     </div>
                                 </Form.Group>

@@ -401,7 +401,7 @@ class ExportDiagramDialog extends React.Component {
                             this.onFileSave();
                         }}
                     >
-                        <Form.Group controlId='filePath' size='small'>
+                        <Form.Group controlId='filePath'>
                             <Form.Input
                                 fluid
                                 label='File Path'
@@ -416,7 +416,7 @@ class ExportDiagramDialog extends React.Component {
                                 }}
                             />
                         </Form.Group>
-                        <Form.Group controlId='fileName' inline size='tiny'>
+                        <Form.Group controlId='fileName' inline >
                             <Form.Field width={3} htmlFor='fileName'>
                                 <label>File Name</label>
                             </Form.Field>
