@@ -86,6 +86,9 @@
                 &:hover{
                     color: #bebebe;
                 }
+                &:active{
+                    outline: none;
+                }
             }
         }
         .rc-tabs-tabpane {
