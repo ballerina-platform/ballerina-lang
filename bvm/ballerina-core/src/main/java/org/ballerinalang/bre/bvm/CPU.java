@@ -2652,8 +2652,8 @@ public class CPU {
             invokeNativeFunction(ctx, (FunctionInfo) callableUnitInfo, argRegs, retRegs);
             return null;
         }
-        WorkerExecutionContext runInCallerCtx = BLangFunctions.invokeFunction(ctx.programFile, callableUnitInfo, 
-                ctx, argRegs, retRegs, false);
+        WorkerExecutionContext runInCallerCtx = BLangFunctions.invokeCallable(callableUnitInfo, ctx, argRegs, 
+                retRegs, false);
         return runInCallerCtx;
     }
 

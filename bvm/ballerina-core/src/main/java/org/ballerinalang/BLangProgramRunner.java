@@ -91,7 +91,7 @@ public class BLangProgramRunner {
         }
         FunctionInfo mainFuncInfo = getMainFunction(mainPkgInfo);
         WorkerExecutionContext context = new WorkerExecutionContext();
-        BLangFunctions.invokePackageInitFunction(programFile, mainPkgInfo.getInitFunctionInfo(), context);
+        BLangFunctions.invokePackageInitFunction(mainPkgInfo.getInitFunctionInfo(), context);
         BLangFunctions.invokeFunction(programFile, mainFuncInfo, extractMainArgs(args));
         BLangScheduler.waitForCompletion();
     }

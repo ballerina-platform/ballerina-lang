@@ -293,14 +293,14 @@ public class BLangFunctions {
 
     public static void invokeFunction(ProgramFile programFile, FunctionInfo functionInfo, 
             WorkerExecutionContext parentCtx) {
-        invokeFunction(programFile, functionInfo, parentCtx, new int[0], new int[0], false);
+        invokeCallable(functionInfo, parentCtx, new int[0], new int[0], false);
     }
     
     public static BValue[] invokeFunction(ProgramFile programFile, CallableUnitInfo callableUnitInfo, BValue[] args) {
         WorkerExecutionContext parentCtx = new WorkerExecutionContext();
         int[] argRegs = populateArgData(parentCtx, callableUnitInfo, args);
         int[] retRegs = createReturnData(parentCtx, callableUnitInfo);
-        invokeFunction(programFile, callableUnitInfo, parentCtx, argRegs, retRegs, true);
+        invokeCallable(callableUnitInfo, parentCtx, argRegs, retRegs, true);
         return populateReturnData(parentCtx, callableUnitInfo);
     }
     
@@ -387,7 +387,7 @@ public class BLangFunctions {
         return wdi.retRegs;
     }
     
-    public static WorkerExecutionContext invokeFunction(ProgramFile programFile, CallableUnitInfo callableUnitInfo, 
+    public static WorkerExecutionContext invokeCallable(CallableUnitInfo callableUnitInfo, 
             WorkerExecutionContext parentCtx, int[] argRegs, int[] retRegs, boolean waitForResponse) {
         InvocableWorkerResponseContext respCtx = new InvocableWorkerResponseContext(
                 callableUnitInfo.getRetParamTypes(), waitForResponse);
@@ -395,20 +395,14 @@ public class BLangFunctions {
         WorkerDataIndex wdi = callableUnitInfo.retWorkerIndex;
         Map<String, Object> globalProps = parentCtx.globalProps;
         BLangScheduler.switchToWaitForResponse(parentCtx);
-        WorkerExecutionContext runInCallerCtx = null;
         WorkerInfo[] workerInfos = listWorkerInfos(callableUnitInfo);
-        for (int i = 0; i < workerInfos.length; i++) {
-            if (i == 0) {
-                runInCallerCtx = executeWorker(respCtx, parentCtx, argRegs, callableUnitInfo, 
-                        workerInfos[i], wdi, globalProps, true);
-            } else {
-                executeWorker(respCtx, parentCtx, argRegs, callableUnitInfo, workerInfos[i], wdi, globalProps, false);
-            }
+        for (int i = 1; i < workerInfos.length; i++) {
+            executeWorker(respCtx, parentCtx, argRegs, callableUnitInfo, workerInfos[i], wdi, globalProps, false);
         }
+        WorkerExecutionContext runInCallerCtx = executeWorker(respCtx, parentCtx, argRegs, callableUnitInfo, 
+                workerInfos[0], wdi, globalProps, true);
         if (waitForResponse) {
-            if (runInCallerCtx != null) {
-                CPU.exec(runInCallerCtx);
-            }
+            CPU.exec(runInCallerCtx);
             respCtx.waitForResponse();
         }
         return runInCallerCtx;
@@ -446,13 +440,13 @@ public class BLangFunctions {
         context.resetWorkerContextFlow();
     }
 
-    public static void invokePackageInitFunction(ProgramFile programFile, FunctionInfo initFuncInfo, 
-            WorkerExecutionContext context) {
-        invokeFunction(programFile, initFuncInfo, context, new int[0], new int[0], true);
+    public static void invokePackageInitFunction(FunctionInfo initFuncInfo, WorkerExecutionContext context) {
+        invokeCallable(initFuncInfo, context, new int[0], new int[0], true);
         if (context.getError() != null) {
             String stackTraceStr = BLangVMErrors.getPrintableStackTrace(context.getError());
             throw new BLangRuntimeException("error: " + stackTraceStr);
         }
+        ProgramFile programFile = initFuncInfo.getPackageInfo().getProgramFile();
         if (programFile.getUnresolvedAnnAttrValues() == null) {
             return;
         }
