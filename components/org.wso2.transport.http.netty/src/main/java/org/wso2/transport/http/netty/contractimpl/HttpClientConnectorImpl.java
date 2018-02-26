@@ -38,6 +38,8 @@ import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 import org.wso2.transport.http.netty.sender.channel.TargetChannel;
 import org.wso2.transport.http.netty.sender.channel.pool.ConnectionManager;
 
+import java.util.NoSuchElementException;
+
 /**
  * Implementation of the client connector.
  */
@@ -140,6 +142,10 @@ public class HttpClientConnectorImpl implements HttpClientConnector {
                 }
             });
         } catch (Exception failedCause) {
+            if (failedCause instanceof NoSuchElementException
+                    && "Timeout waiting for idle object".equals(failedCause.getMessage())) {
+                failedCause = new NoSuchElementException(Constants.TIMEOUT_WAITING_FOR_IDLE_CONNECTION);
+            }
             httpResponseFuture.notifyHttpListener(failedCause);
         }
 
