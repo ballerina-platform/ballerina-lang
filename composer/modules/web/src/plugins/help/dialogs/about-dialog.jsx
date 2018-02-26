@@ -18,7 +18,6 @@
  */
 
 import React from 'react';
-import PropTypes from 'prop-types';
 import Dialog from './../../../core/view/Dialog';
 
 /**
@@ -65,7 +64,7 @@ class AboutDialog extends React.Component {
                             />
                             <span className='appname'>Composer</span>
                         </div>
-                        <div className="version">v0.96.1.SNAPSHOT</div>
+                        <div className='version'>v0.963.1.SNAPSHOT</div>
                     </div>
                 }
                 onHide={this.onDialogHide}
@@ -86,12 +85,13 @@ class AboutDialog extends React.Component {
                 }
             >
                 <p>
-                    Ballerina Composer provides a flexible and powerful browser-based tool for creating your Ballerina
-                    programs. You can build your integrations by creating sequence diagrams, dragging elements from a tool
-                    palette onto a canvas. As you build the diagrams, the underlying code is written for you, which you can
-                    work with in the Source view. You can also use the Swagger view to define services by writing Swagger
-                    definitions. You can switch seamlessly between the Design view, Source view, and Swagger view and create
-                    your programs in the way that you like to work.
+                    Ballerina Composer provides a flexible and powerful browser-based tool for creating your
+                    Ballerina programs. You can build your integrations by creating sequence diagrams, dragging
+                    elements from a tool palette onto a canvas. As you build the diagrams, the underlying code
+                    is written for you, which you can work with in the Source view. You can also use the Swagger
+                    view to define services by writing Swagger definitions. You can switch seamlessly between
+                    the Design view, Source view, and Swagger view and create your programs in the way that
+                    you like to work.
                     <br /><br />
                     Please use &nbsp;
                     <a
