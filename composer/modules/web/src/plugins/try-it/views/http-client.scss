@@ -112,20 +112,167 @@
     border-top: 1px solid #575757;
     margin-top: 20px;
     clear: both;
+}
 
+.http-client-main-wrapper {
+    background-color: #333;
+    padding:10px 10px 10px 15px;
+    width:auto;
+    margin-left: 5px;
+    margin-bottom: 15px;
+    max-width: 900px;
+    &:before{
+        content: " ";
+        display: table;
+    }
+    &:after{
+        clear: both;
+        content: " ";
+        display: table;
+    }
+    .main-wrapper-top {
+        height: 45px;
+        .http-client-request-method-wrapper {
+            float: left;
+            @include autosuggest-dropdown();
+            .react-autosuggest__container {
+                .inputContainer {
+                    padding: 6px;
+                    height: 33px;
+                    input[type=text]{
+                        color: #fff;
+                        background-color: #333;
+                        border: 0 solid #333;
+                        width: 85px;
+                    }
+                }
+            }
+        }
+        .http-method-container{
+            padding-top: 0.5em;
+        }
+        .http-client-request-url {
+            float: left;
+            padding: 5px 10px 0px 10px;
+            color: #616161;
+
+            .input-group{
+                display: table;
+            }
+        }
+        .selectors {
+            float: left;
+            .dropdown-wrapper {
+                @include bootstrap-dropdown();
+            }
+        }
+        .url-separator {
+            float: left;
+            padding-top: 2px;
+            color: #616161;
+            font-size: 23px;
+        }
+        .http-method-separator {
+            float: left;
+            color: #616161;
+            font-size: 26px;
+            padding-left: 12px;
+        }
+    }
+    .main-wrapper-bottom {
+        padding-left: 14em !important;
+        .http-client-request-url {
+            float: left;
+            padding: 8px 0 7px 7px;
+            color: #616161;
+            border-bottom: 1px solid #555;
+        }
+        .http-client-path-container {
+            float: left;
+            padding-top:1px ;
+            display: table;
+            .http-client-path {
+                width: 435px;
+                color: #fcfcfc;
+                height: 33px;
+                padding:5px 0 7px 1px;
+                background-color: #333333;
+                border: none;
+                border-bottom: 1px solid #555;
+                box-shadow: none;
+                display: table-cell;
+                float: left;
+            }
+            .ui.button {
+                display: table-cell;
+                width: auto;
+                float: left;
+                padding-left: 20px;
+            }
+            .send-request {
+                color: #fcfcfc;
+                border: none;
+                padding: 6px 20px;
+                background-color: #398B72;
+                border-color: #398B72;
+            }
+            .cancel-request {
+                color: #000;
+                border: none;
+                padding: 6px 20px;
+                background-color: #eb6526;
+                border-color: #eb6526;
+                span {
+                    padding-left: 5px;
+                }
+            }
+            .copy-url-wrapper {
+                position: relative;
+                display: table-cell;
+                float: left;
+                padding: 8px 6px 4px 6px;
+                font-size: 16px;
+                background-color: #1c1c1c;
+                cursor: pointer;
+                color: #ddd;
+                .copy-url-notification {
+                    position: absolute;
+                    width: 79px;
+                    bottom: 36px;
+                    left: -22px;
+                    background: #3b3b3b;
+                    padding: 4px;
+                    border: 1px solid black;
+                    border-radius: 5px;
+                    font-size: 10px;
+                }
+            }
+        }
+    }
+    input[type=text].header-input{
+        margin-left: 5px;
+        border: 0.5px solid #333333;
+        height: 22px;
+        background-color: #333333;
+        margin-bottom: 3px;
+        width: 46%;
+        margin-right: 2px;
+    }
+
+    input[type=text]::-webkit-input-placeholder{
+        color: #ccc;
+    }
 }
 
  .http-client-request {
-     padding-left: 20px;
+     padding: 20px;
      height: 100%;
-     margin-top: 15px;
+     width: 100%;
      background: #434343;
      border-top: 1px solid #333;
-     width: 49%;
-     float: left;
      margin-right: 20px;
 
-    h3{
+    .header{
         width: 73px;
         padding-bottom: 3px;
         color: #dcdcdc;
@@ -133,12 +280,10 @@
         font-size: 22px;
     }
     input[type=text].header-input{
-        margin-left: 5px;
         border: 0.5px solid #333;
         height: 30px;
         background-color: #333;
         margin-bottom: 3px;
-        width: 46%;
         margin-right: 2px;
     }
 
@@ -150,6 +295,7 @@
         border: none;
         box-shadow: none;
         border-bottom: 1px solid #555;
+        outline: none;
     }
     .request-header-input{
         margin-bottom: 3px;
@@ -210,11 +356,6 @@
     }
 }
 
-.http-client-action-wrapper .input-group-btn .btn, .http-client-action-wrapper .input-group-btn .btn:hover,
-.http-client-action-wrapper .input-group-btn .btn:focus{
-    border: 0;
-    box-shadow: none;
-}
 
 .http-client-response {
     padding-left: 20px;
@@ -226,12 +367,10 @@
     color: #dcdcdc;
 
     input[type=text].header-input{
-        margin-left: 5px;
         border: 0.5px solid #333;
         height: 30px;
         background-color: #333;
         margin-bottom: 3px;
-        width: 46%;
         margin-right: 2px;
     }
 
@@ -243,7 +382,7 @@
         border: none;
     }
 
-    h3{
+    .header{
         width: 90px;
         padding-bottom: 3px;
         color: #dcdcdc;
@@ -256,11 +395,13 @@
     font-size: 14px;
     font-weight: 400;
     color: #1abc9c;
+    display: block;
 }
 
 .http-client-headers-wrapper, .http-client-body-wrapper {
     padding-top: 10px;
     margin-bottom: 30px;
+    width: 98%
 }
 
 .http-client-body-wrapper{
@@ -326,7 +467,7 @@
                 }
             }
             .request-headers {
-                padding-left: 80px;
+                padding-left: 50px;
             }
             .response-header-title, .request-headers-title {
                 font-size: 14px;
@@ -344,6 +485,7 @@
 }
 
 .http-client-response-attributes {
+    width: 96%;
     span {
         padding-top: 5px;
     }
@@ -395,134 +537,7 @@ hr{
         }
 }
 
-.http-client-main-wrapper {
-    background-color: #333;
-    padding:10px 10px 10px 15px;
-    width:auto;
-    margin-left: 5px;
-    margin-bottom: 15px;
-    max-width: 900px;
-    .main-wrapper-top {
-        height: 45px;
-        .http-client-request-method-wrapper {
-            float: left;
-            @include autosuggest-dropdown();
-            .react-autosuggest__container {
-                .inputContainer {
-                    padding: 6px;
-                    height: 33px;
-                    input[type=text]{
-                        color: #fff;
-                        background-color: #333;
-                        border: 0 solid #333;
-                        width: 85px;
-                    }
-                }
-            }
-        }
-        .http-client-request-url {
-            float: left;
-            padding: 9px 10px 0px 10px;
-            color: #616161;
-        }
-        .selectors {
-            float: left;
-            .dropdown-wrapper {
-                @include bootstrap-dropdown();
-            }
-        }
-        .url-separator {
-            float: left;
-            padding-top: 2px;
-            color: #616161;
-            font-size: 23px;
-        }
-        .http-method-separator {
-            float: left;
-            color: #616161;
-            font-size: 26px;
-            padding-left: 12px;
-        }
-    }
-    .main-wrapper-bottom {
-        padding-left: 131px;
-        .http-client-request-url {
-            float: left;
-            padding: 8px 0 7px 7px;
-            color: #616161;
-            border-bottom: 1px solid #555;
-        }
-        .input-group {
-            float: left;
-            padding-top:1px ;
-            .http-client-path {
-                width: 459px;
-                color: #fcfcfc;
-                height: 33px;
-                padding:5px 0 7px 1px;
-                background-color: #333333;
-                border: none;
-                border-bottom: 1px solid #555;
-                box-shadow: none;
-            }
-            .input-group-btn {
-                width: auto;
-                float: left;
-                padding-left: 20px;
-                .btn-success {
-                    color: #fcfcfc;
-                    padding-left: 20px;
-                    padding-right: 20px;
-                    background-color: #398B72;
-                    border-color: #398B72;
-                }
-                .btn-cancel {
-                    color: #000;
-                    padding-left: 20px;
-                    padding-right: 20px;
-                    background-color: #eb6526;
-                    border-color: #eb6526;
-                    span {
-                        padding-left: 5px;
-                    }
-                }
-            }
-            .copy-url-wrapper {
-                position: relative;
-                float: left;
-                padding: 8px 7px 2px 7px;
-                font-size: 16px;
-                background-color: #1c1c1c;
-                cursor: pointer;
-                color: #ddd;
-                .copy-url-notification {
-                    position: absolute;
-                    width: 79px;
-                    bottom: 36px;
-                    left: -22px;
-                    background: #3b3b3b;
-                    padding: 4px;
-                    border: 1px solid black;
-                    border-radius: 5px;
-                    font-size: 10px;
-                }
-            }
-        }
-    }
-    input[type=text].header-input{
-        margin-left: 5px;
-        border: 0.5px solid #333333;
-        height: 22px;
-        background-color: #333333;
-        margin-bottom: 3px;
-        width: 46%;
-        margin-right: 2px;
-    }
 
-    input[type=text]::-webkit-input-placeholder{
-        color: #ccc;
-    }
-}
 .response-header-input{
     margin-left: 5px;
     height: 30px;
@@ -536,8 +551,4 @@ hr{
     border: none;
     box-shadow: none;
     cursor: none;
-}
-.btn-cancel{
-    background-color: #f17b31;
-    border: 1px solid #f17b31;
 }
