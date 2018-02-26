@@ -21,6 +21,7 @@ import org.ballerinalang.connector.api.ConnectorFuture;
 import org.ballerinalang.connector.api.ConnectorFutureListener;
 import org.ballerinalang.connector.api.Executor;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.util.tracer.TraceConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.contract.HttpConnectorListener;
@@ -28,6 +29,7 @@ import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 
 import java.util.Collections;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * HTTP connector listener for Ballerina.
@@ -52,10 +54,16 @@ public class BallerinaHTTPConnectorListener implements HttpConnectorListener {
             Object srcHandler = httpCarbonMessage.getProperty(HttpConstants.SRC_HANDLER);
             properties = Collections.singletonMap(HttpConstants.SRC_HANDLER, srcHandler);
         }
+
+        Map<String, String> traceContext = httpCarbonMessage.getHeaders()
+                .entries().stream().filter(c -> c.getKey().startsWith(TraceConstants.TRACE_PREFIX))
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+
         BValue[] signatureParams = HttpDispatcher.getSignatureParameters(httpResource, httpCarbonMessage);
-        ConnectorFuture future = Executor.submit(httpResource.getBalResource(), properties, signatureParams);
+        ConnectorFuture future = Executor.submit(httpResource.getBalResource(), properties, traceContext,
+                signatureParams);
         ConnectorFutureListener futureListener = new HttpConnectorFutureListener(httpCarbonMessage);
-        future.setConnectorFutureListener(futureListener);
+        future.registerConnectorFutureListener(futureListener);
     }
 
     @Override

@@ -33,16 +33,18 @@ public class BallerinaWorkerThread implements Runnable {
     private BValue[] bValues;
     private BServerConnectorFuture connectorFuture;
     private Map<String, Object> properties;
+    private Map<String, String> traceContext;
 
     public BallerinaWorkerThread(Resource resource, BServerConnectorFuture connectorFuture,
-                                 Map<String, Object> properties, BValue... bValues) {
+                                 Map<String, Object> properties, Map<String, String> traceContext, BValue... bValues) {
         this.resource = resource;
         this.connectorFuture = connectorFuture;
         this.properties = properties;
+        this.traceContext = traceContext;
         this.bValues = bValues;
     }
 
     public void run() {
-        ResourceExecutor.execute(resource, connectorFuture, properties, bValues);
+        ResourceExecutor.execute(resource, connectorFuture, properties, traceContext, bValues);
     }
 }

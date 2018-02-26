@@ -57,9 +57,9 @@ public class Services {
             properties = Collections.singletonMap(HttpConstants.SRC_HANDLER, srcHandler);
         }
         BValue[] signatureParams = HttpDispatcher.getSignatureParameters(resource, request);
-        ConnectorFuture future = Executor.submit(resource.getBalResource(), properties, signatureParams);
+        ConnectorFuture future = Executor.submit(resource.getBalResource(), properties, null, signatureParams);
         futureListener.setRequestStruct(signatureParams[0]);
-        future.setConnectorFutureListener(futureListener);
+        future.registerConnectorFutureListener(futureListener);
         futureListener.sync();
         return futureListener.getResponseMsg();
     }

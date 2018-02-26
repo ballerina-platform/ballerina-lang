@@ -89,8 +89,8 @@ public class BallerinaWsServerConnectorListener implements WebSocketConnectorLis
             BValue[] bValues = new BValue[paramDetails.size()];
             bValues[0] = handshakeStruct;
             WebSocketDispatcher.setPathParams(bValues, paramDetails, variables, 1);
-            ConnectorFuture future = Executor.execute(onHandshakeResource, null, bValues);
-            future.setConnectorFutureListener(new ConnectorFutureListener() {
+            ConnectorFuture future = Executor.execute(onHandshakeResource, null, null, bValues);
+            future.registerConnectorFutureListener(new ConnectorFutureListener() {
                 @Override
                 public void notifySuccess() {
                     isResourceExeSuccessful.set(true);
@@ -184,8 +184,8 @@ public class BallerinaWsServerConnectorListener implements WebSocketConnectorLis
                 BValue[] bValues = new BValue[paramDetails.size()];
                 bValues[0] = wsConnection;
                 WebSocketDispatcher.setPathParams(bValues, paramDetails, variables, 1);
-                ConnectorFuture future = Executor.submit(onOpenResource, null, bValues);
-                future.setConnectorFutureListener(new WebSocketEmptyConnFutureListener());
+                ConnectorFuture future = Executor.submit(onOpenResource, null, null, bValues);
+                future.registerConnectorFutureListener(new WebSocketEmptyConnFutureListener());
             }
 
             @Override

@@ -23,43 +23,48 @@ import org.ballerinalang.connector.api.ConnectorFutureListener;
 import org.ballerinalang.services.ErrorHandlerUtils;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * {@code BConnectorFuture} This is the implementation for the {@code ConnectorFuture} API.
  *
  * @since 0.94
  */
 public class BServerConnectorFuture implements ConnectorFuture {
-    private ConnectorFutureListener connectorFutureListener;
+    private List<ConnectorFutureListener> connectorFutureListeners = new ArrayList<>();
 
     private BallerinaException exception;
     private boolean success = false;
 
     @Override
-    public void setConnectorFutureListener(ConnectorFutureListener futureListener) {
-        this.connectorFutureListener = futureListener;
-        if (exception != null) {
-            connectorFutureListener.notifyFailure(new BallerinaConnectorException(exception.getMessage(), exception));
-            success = false; //double check this.
+    public void registerConnectorFutureListener(ConnectorFutureListener futureListener) {
+        if (futureListener != null) {
+            connectorFutureListeners.add(futureListener);
+            if (exception != null) {
+                futureListener.notifyFailure(new BallerinaConnectorException(exception.getMessage(), exception));
+                success = false; //double check this.
+            }
+            if (success) {
+                futureListener.notifySuccess();
+            }
         }
-        if (success) {
-            connectorFutureListener.notifySuccess();
-        }
-        exception = null;
     }
 
     public void notifySuccess() {
-        //if the future listener already exist, notify right away. if not store until listener registration.
-        if (connectorFutureListener != null) {
-            connectorFutureListener.notifySuccess();
+        //if future listeners already exist, notify right away. if not store until listener registration.
+        if (!connectorFutureListeners.isEmpty()) {
+            connectorFutureListeners.forEach(ConnectorFutureListener::notifySuccess);
         } else {
             this.success = true;
         }
     }
 
     public void notifyFailure(BallerinaException exception) {
-        //if the future listener already exist, notify right away. if not store until listener registration.
-        if (connectorFutureListener != null) {
-            connectorFutureListener.notifyFailure(new BallerinaConnectorException(exception.getMessage(), exception));
+        //if future listeners already exist, notify right away. if not store until listener registration.
+        if (!connectorFutureListeners.isEmpty()) {
+            connectorFutureListeners.forEach(listener ->
+                    listener.notifyFailure(new BallerinaConnectorException(exception.getMessage(), exception)));
         } else {
             ErrorHandlerUtils.printError(exception);
             this.exception = exception;

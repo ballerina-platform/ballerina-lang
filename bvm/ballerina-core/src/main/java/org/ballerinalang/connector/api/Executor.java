@@ -43,9 +43,10 @@ public class Executor {
      * @param values    required for the resource.
      * @return future object to listen to events if any.
      */
-    public static ConnectorFuture execute(Resource resource, Map<String, Object> properties, BValue... values) {
+    public static ConnectorFuture execute(Resource resource, Map<String, Object> properties,
+                                          Map<String, String> traceContext, BValue... values) {
         BServerConnectorFuture connectorFuture = new BServerConnectorFuture();
-        ResourceExecutor.execute(resource, connectorFuture, properties, values);
+        ResourceExecutor.execute(resource, connectorFuture, properties, traceContext, values);
         return connectorFuture;
     }
 
@@ -59,10 +60,11 @@ public class Executor {
      * @param values    required for the resource.
      * @return future object to listen to events if any.
      */
-    public static ConnectorFuture submit(Resource resource, Map<String, Object> properties, BValue... values) {
+    public static ConnectorFuture submit(Resource resource, Map<String, Object> properties,
+                                         Map<String, String> traceContext, BValue... values) {
         BServerConnectorFuture connectorFuture = new BServerConnectorFuture();
         ThreadPoolFactory.getInstance().getExecutor().
-                execute(new BallerinaWorkerThread(resource, connectorFuture, properties, values));
+                execute(new BallerinaWorkerThread(resource, connectorFuture, properties, traceContext, values));
         return connectorFuture;
     }
 

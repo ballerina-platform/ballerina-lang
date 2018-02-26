@@ -22,6 +22,9 @@ import org.ballerinalang.connector.api.ConnectorFuture;
 import org.ballerinalang.connector.api.ConnectorFutureListener;
 import org.ballerinalang.model.values.BValue;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * {@code ClientConnectorFuture} This connector future will be provided to the ballerina side to get notifications
  * from client connections.
@@ -29,48 +32,44 @@ import org.ballerinalang.model.values.BValue;
  * @since 0.94
  */
 public class ClientConnectorFuture implements ConnectorFuture {
-    private ConnectorFutureListener listener;
+    private List<ConnectorFutureListener> listeners = new ArrayList<>();
     private boolean success = false;
     private BValue[] value;
     private BallerinaConnectorException exception;
 
     @Override
-    public void setConnectorFutureListener(ConnectorFutureListener futureListener) {
-        this.listener = futureListener;
-        if (value != null) {
-            listener.notifyReply(value);
-        } else if (exception != null) {
-            listener.notifyFailure(exception);
-            success = false; //double check this.
+    public void registerConnectorFutureListener(ConnectorFutureListener futureListener) {
+        if (futureListener != null) {
+            this.listeners.add(futureListener);
+            if (value != null) {
+                futureListener.notifyReply(value);
+            } else if (exception != null) {
+                futureListener.notifyFailure(exception);
+                success = false; //double check this.
+            }
+            if (success) {
+                futureListener.notifySuccess();
+            }
         }
-        if (success) {
-            listener.notifySuccess();
-        }
-        value = null;
-        exception = null;
-        success = false;
     }
 
     public void notifySuccess() {
-        if (listener != null) {
-            listener.notifySuccess();
-            return;
+        if (!listeners.isEmpty()) {
+            listeners.forEach(ConnectorFutureListener::notifySuccess);
         }
         this.success = true;
     }
 
     public void notifyReply(BValue... value) {
-        if (listener != null) {
-            listener.notifyReply(value);
-            return;
+        if (!listeners.isEmpty()) {
+            listeners.forEach(l -> l.notifyReply(value));
         }
         this.value = value;
     }
 
     public void notifyFailure(BallerinaConnectorException ex) {
-        if (listener != null) {
-            listener.notifyFailure(ex);
-            return;
+        if (!listeners.isEmpty()) {
+            listeners.forEach(l -> l.notifyFailure(ex));
         }
         this.exception = ex;
     }

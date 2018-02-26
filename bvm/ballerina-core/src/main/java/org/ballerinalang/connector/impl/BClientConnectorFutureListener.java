@@ -25,6 +25,7 @@ import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.runtime.threadpool.ResponseWorkerThread;
 import org.ballerinalang.runtime.threadpool.ThreadPoolFactory;
+import org.ballerinalang.util.tracer.BallerinaTracerManager;
 
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
@@ -37,6 +38,7 @@ import java.util.concurrent.TimeUnit;
 public class BClientConnectorFutureListener implements ConnectorFutureListener {
 
     private Context context;
+    private String traceSpanId;
     private boolean nonBlocking = false;
     private volatile Semaphore executionWaitSem;
 
@@ -44,6 +46,7 @@ public class BClientConnectorFutureListener implements ConnectorFutureListener {
         this.context = context;
         this.nonBlocking = nonBlocking;
         this.executionWaitSem = new Semaphore(0);
+        this.traceSpanId = BallerinaTracerManager.getInstance().buildSpan(context);
     }
 
     @Override
@@ -70,9 +73,10 @@ public class BClientConnectorFutureListener implements ConnectorFutureListener {
     private void done() {
         if (nonBlocking) {
             ThreadPoolFactory.getInstance().getExecutor()
-                    .execute(new ResponseWorkerThread(context));
+                    .execute(new ResponseWorkerThread(context, traceSpanId));
         } else {
             executionWaitSem.release();
+            BallerinaTracerManager.getInstance().finishSpan(context, traceSpanId);
 //            synchronized (context) {
 //                context.notifyAll();
 //            }

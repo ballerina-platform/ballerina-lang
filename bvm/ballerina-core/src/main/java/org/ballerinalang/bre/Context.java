@@ -43,6 +43,8 @@ public class Context {
     private CarbonMessage cMsg;
     private BServerConnectorFuture connectorFuture;
     protected Map<String, Object> properties = new HashMap<>();
+    public Map<String, String> traceContext = new HashMap<>();
+
     private ServiceInfo serviceInfo;
     private BallerinaTransactionManager ballerinaTransactionManager;
     private DebugContext debugContext;

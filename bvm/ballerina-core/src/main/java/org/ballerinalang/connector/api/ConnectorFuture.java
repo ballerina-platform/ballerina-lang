@@ -33,5 +33,5 @@ public interface ConnectorFuture {
      *
      * @param futureListener to listen to future events.
      */
-    void setConnectorFutureListener(ConnectorFutureListener futureListener);
+    void registerConnectorFutureListener(ConnectorFutureListener futureListener);
 }

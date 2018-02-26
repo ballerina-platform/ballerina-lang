@@ -3176,7 +3176,7 @@ public class BLangVM {
                 if (future == null) {
                     throw new BallerinaException("Native action doesn't provide a future object to sync");
                 }
-                future.setConnectorFutureListener(listener);
+                future.registerConnectorFutureListener(listener);
 
                 ip = -1;
             } else {
@@ -3184,7 +3184,7 @@ public class BLangVM {
                 if (future == null) {
                     throw new BallerinaException("Native action doesn't provide a future object to sync");
                 }
-                future.setConnectorFutureListener(listener);
+                future.registerConnectorFutureListener(listener);
                 //default nonBlocking timeout 5 mins
                 long timeout = 300000;
                 boolean res = listener.sync(timeout);
