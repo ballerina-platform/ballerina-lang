@@ -110,4 +110,11 @@ public class StructEquivalencyTest {
         Assert.assertEquals(returns[1].stringValue(), "1CMB");
         Assert.assertEquals(returns[2].stringValue(), "ENG2CMB");
     }
+
+    @Test(description = "Test struct equivalency with function type which has structs")
+    public void testStructEquivalencyWithFunctionType() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testStructEquivalencyWithFunctionType");
+        Assert.assertEquals(returns[0].stringValue(), "anyStruct{\"s\":\"sss\"}");
+        Assert.assertEquals(returns[1].stringValue(), "someStruct{\"s\":\"sss\"}");
+    }
 }

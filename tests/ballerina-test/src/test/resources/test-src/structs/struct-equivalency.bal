@@ -385,3 +385,48 @@ function testStructEquivalencyWithArguments() returns (string, string, string){
     string result3 = p.getAddress();
     return result1, result2, result3;
 }
+
+function testStructEquivalencyWithFunctionType () returns (string s1, string s2) {
+    SomeOtherStruct x = {s:"sss"};
+    AnyStruct aa = {};
+    s1 = aa.shout(x);
+    _ = aa.call();
+
+    SomeStruct ss = {s:"s"};
+    AnyStruct aaa = ss;
+    s2 = aaa.shout(x);
+    _ = aaa.call();
+    return;
+}
+
+struct AnyStruct {
+}
+
+function <AnyStruct a> shout (AnotherAnyStruct aa) returns (string) {
+    var j, _ = <json>aa;
+    return "anyStruct" + j.toString();
+}
+
+function <AnyStruct a> call () returns (AnotherAnyStruct aa) {
+    return {} ;
+}
+
+struct SomeStruct {
+    string s;
+}
+
+function <SomeStruct b> shout (SomeOtherStruct aa) returns (string) {
+    var j, _ = <json>aa;
+    return "someStruct" + j.toString();
+}
+
+function <SomeStruct b> call () returns (SomeOtherStruct aa) {
+    return { s : "return"};
+}
+
+struct SomeOtherStruct {
+    string s;
+}
+
+struct AnotherAnyStruct {
+}
