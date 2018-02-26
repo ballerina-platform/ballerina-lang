@@ -30,3 +30,15 @@
     background: #f8f9fa;
     color: #626262;
 }
+.debug-buttons{
+    background : @left-panel !important ;
+    margin      :0 !important;
+    .debug-button{
+        background      : @left-panel !important;
+        text-align      : left !important;
+        &:hover{
+            color       : @off-white;
+            background  : #444 !important;
+        }
+    }
+}

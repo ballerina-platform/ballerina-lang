@@ -45,3 +45,5 @@
 @placeholderBackgroundOpacity: 0.7;
 
 @highlightBackground : @orange;
+
+@left-panel: #252525;
