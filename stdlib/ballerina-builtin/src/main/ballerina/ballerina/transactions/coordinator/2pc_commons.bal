@@ -374,7 +374,7 @@ function beginTransaction (string transactionId, string registerAtUrl,
 // Depending on the state of the transaction, and whether this instance is the initiator or participant,
 // decide to commit or abort the transaction
 function endTransaction (string transactionId) returns (string msg, error e) {
-    if (initiatedTransactions.containsKey(transactionId)) {
+    if (initiatedTransactions.hasKey(transactionId)) {
         var txn, _ = (TwoPhaseCommitTransaction)initiatedTransactions[transactionId];
         if (txn.state != TransactionState.ABORTED) {
             msg, e = commitTransaction(transactionId);
@@ -387,7 +387,7 @@ function endTransaction (string transactionId) returns (string msg, error e) {
 }
 
 function abortTransaction (string transactionId) returns (string msg, error e) {
-    if (initiatedTransactions.containsKey(transactionId)) {
+    if (initiatedTransactions.hasKey(transactionId)) {
         msg, e = abortInitiatorTransaction(transactionId);
     } else {
         msg, e = abortLocalParticipantTransaction(transactionId);
