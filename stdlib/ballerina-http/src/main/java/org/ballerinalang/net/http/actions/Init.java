@@ -108,7 +108,7 @@ public class Init extends AbstractHTTPAction {
                         (BStruct) options.getRefField(HttpConstants.CONNECTION_THROTTLING_STRUCT_INDEX);
 
                 long maxActiveConnections = connectionThrottling
-                        .getIntField(HttpConstants.CONNECTION_THROTTLING_STRUCT_MAX_ACTIVE_CONNECTIONS_INDEX);
+                        .getIntField(HttpConstants.CONNECTION_THROTTLING_MAX_ACTIVE_CONNECTIONS_INDEX);
                 if (!isInteger(maxActiveConnections)) {
                     throw new BallerinaConnectorException("invalid maxActiveConnections value: "
                                                                   + maxActiveConnections);
@@ -116,7 +116,7 @@ public class Init extends AbstractHTTPAction {
                 properties.put(HttpConstants.MAX_ACTIVE_CONNECTIONS_PER_POOL, (int) maxActiveConnections);
 
                 long waitTime = connectionThrottling
-                        .getIntField(HttpConstants.CONNECTION_THROTTLING_STRUCT_WAIT_TIME_INDEX);
+                        .getIntField(HttpConstants.CONNECTION_THROTTLING_WAIT_TIME_INDEX);
                 if (!isInteger(waitTime)) {
                     throw new BallerinaConnectorException("invalid waitTime value: " + waitTime);
                 }
