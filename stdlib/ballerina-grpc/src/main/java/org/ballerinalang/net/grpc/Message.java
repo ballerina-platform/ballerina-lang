@@ -20,7 +20,6 @@ import com.google.protobuf.Descriptors;
 import com.google.protobuf.GeneratedMessageV3;
 import com.google.protobuf.MessageLite;
 import io.grpc.Metadata;
-import org.ballerinalang.net.grpc.exception.GrpcServerException;
 import org.ballerinalang.net.grpc.exception.UnsupportedFieldTypeException;
 
 import java.util.HashMap;
@@ -29,7 +28,7 @@ import java.util.Map;
 import static io.grpc.Metadata.ASCII_STRING_MARSHALLER;
 
 /**
- * Proto Message.
+ * Generic Proto3 Message.
  */
 public class Message extends GeneratedMessageV3 {
     private static final long serialVersionUID = 0L;
@@ -73,7 +72,7 @@ public class Message extends GeneratedMessageV3 {
         return headers.get(headerName);
     }
 
-    public void setFieldValues(Map<String, Object> fieldValues) {
+    void setFieldValues(Map<String, Object> fieldValues) {
         this.fields = fieldValues;
     }
 
@@ -183,16 +182,10 @@ public class Message extends GeneratedMessageV3 {
     }
 
     public com.google.protobuf.Descriptors.Descriptor getDescriptor() {
-        try {
-            return MessageRegistry.getInstance().getMessageDecriptor(messageName);
-        } catch (GrpcServerException e) {
-            throw new RuntimeException("Error while retrieving message descrptor ", e);
-        }
+        return MessageRegistry.getInstance().getMessageDecriptor(messageName);
     }
 
     protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable internalGetFieldAccessorTable() {
-/*        return new com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
-                getDescriptor(), new String[] {"Name",});*/
         throw new UnsupportedOperationException("Operation is not supported");
     }
 
@@ -584,11 +577,7 @@ public class Message extends GeneratedMessageV3 {
         }
 
         private Descriptors.Descriptor getDescriptor() {
-            try {
-                return MessageRegistry.getInstance().getMessageDecriptor(messageName);
-            } catch (GrpcServerException e) {
-                throw new RuntimeException("Error while retrieving Message Descriptor. ", e);
-            }
+            return MessageRegistry.getInstance().getMessageDecriptor(messageName);
         }
 
         public Builder clear() {

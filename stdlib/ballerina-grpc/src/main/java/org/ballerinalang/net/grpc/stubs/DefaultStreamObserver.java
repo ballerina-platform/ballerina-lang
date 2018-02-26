@@ -13,40 +13,40 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.ballerinalang.net.grpc.observers;
+package org.ballerinalang.net.grpc.stubs;
 
 import io.grpc.stub.StreamObserver;
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.net.grpc.builder.BalGenerate;
+import org.ballerinalang.connector.api.ConnectorUtils;
+import org.ballerinalang.net.grpc.BallerinaGrpcServerConnector;
+import org.ballerinalang.net.grpc.MessageConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * This is Client Streaming Method Implementation for gRPC Service Call.
+ * This is Stream Observer Implementation for gRPC Client Call.
  */
-public class ClientStreamingObserver implements StreamObserver<com.google.protobuf.Message> {
-    public static final Logger LOG = LoggerFactory.getLogger(BalGenerate.class);
-    private Context context;
+public class DefaultStreamObserver implements StreamObserver<com.google.protobuf.Message> {
+    public static final Logger logger = LoggerFactory.getLogger(DefaultStreamObserver.class);
     
-    public ClientStreamingObserver(Context context) {
-        this.context = context;
+    public DefaultStreamObserver(Context context) {
+        BallerinaGrpcServerConnector grpcServerConnector = (BallerinaGrpcServerConnector) ConnectorUtils.
+                getBallerinaServerConnector(context, MessageConstants.PROTOCOL_PACKAGE_GRPC);
     }
-    
     
     @Override
     public void onNext(com.google.protobuf.Message value) {
-        LOG.info(value.toString());
-//        BallerinaGrpcServerConnector grpcServerConnector = (BallerinaGrpcServerConnector) ConnectorUtils.
-//                getBallerinaServerConnector(context, "ballerina.net.grpc");
+        logger.info(value.toString());
+
     }
     
     @Override
     public void onError(Throwable t) {
-        LOG.info("Err 2");
+        logger.info("Err 2");
     }
     
     @Override
     public void onCompleted() {
-        LOG.info("Done...2");
+        logger.info("Done...2");
     }
 }

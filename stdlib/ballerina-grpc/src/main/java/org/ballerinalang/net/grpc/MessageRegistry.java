@@ -16,7 +16,6 @@
 package org.ballerinalang.net.grpc;
 
 import com.google.protobuf.Descriptors;
-import org.ballerinalang.net.grpc.exception.GrpcServerException;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -24,10 +23,13 @@ import java.util.Map;
 
 /**
  * Proto Message Registry.
+ * Contains message descriptor against message name.
+ * Contains method descriptor against method name.
  */
 public class MessageRegistry {
 
     private Map<String, Descriptors.Descriptor> messageDescriptors = new HashMap<>();
+    private Map<String, Descriptors.MethodDescriptor> methodDescriptors = new HashMap<>();
 
     private static volatile MessageRegistry messageRegistry = new MessageRegistry();
 
@@ -37,25 +39,27 @@ public class MessageRegistry {
         return messageRegistry;
     }
 
-    void addMessageDescriptor(String messageName, Descriptors.Descriptor messageDescriptor) throws
-            GrpcServerException {
-        if (messageName == null) {
-            throw new GrpcServerException("Message name cannot be null");
-        }
-        if (messageDescriptor == null) {
-            throw new GrpcServerException("Message Descriptor cannot be null");
-        }
+    void addMessageDescriptor(String messageName, Descriptors.Descriptor messageDescriptor) {
         messageDescriptors.put(messageName, messageDescriptor);
     }
 
-    Descriptors.Descriptor getMessageDecriptor(String messageName) throws GrpcServerException {
-        if (messageName == null) {
-            throw new GrpcServerException("Message name cannot be null");
-        }
+    public Descriptors.Descriptor getMessageDecriptor(String messageName) {
         return messageDescriptors.get(messageName);
     }
 
     public Map<String, Descriptors.Descriptor> getMessageDescriptorMap() {
         return Collections.unmodifiableMap(messageDescriptors);
+    }
+
+    public Descriptors.MethodDescriptor getMethodDescriptor(String messageName) {
+        return methodDescriptors.get(messageName);
+    }
+
+    public Map<String, Descriptors.MethodDescriptor> getMethodDescriptorMap() {
+        return Collections.unmodifiableMap(methodDescriptors);
+    }
+
+    void addMethodDescriptor(String methodName, Descriptors.MethodDescriptor methodDescriptor) {
+        methodDescriptors.put(methodName, methodDescriptor);
     }
 }

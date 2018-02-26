@@ -49,7 +49,7 @@ public abstract class MethodListener {
         this.resource = resource;
     }
 
-    public BValue getConnectionParameter(StreamObserver<Message> responseObserver) {
+    BValue getConnectionParameter(StreamObserver<Message> responseObserver) {
         BStruct connection = ConnectorUtils.createStruct(resource,
                 MessageConstants.PROTOCOL_PACKAGE_GRPC, MessageConstants.CONNECTION);
         connection.setIntField(0, responseObserver.hashCode());
@@ -58,7 +58,7 @@ public abstract class MethodListener {
         return connection;
     }
 
-    public BValue getRequestParameter(Message requestMessage) {
+    BValue getRequestParameter(Message requestMessage) {
         if (resource == null || resource.getParamDetails() == null || resource.getParamDetails().size() > 2) {
             throw new RuntimeException("Invalid resource input arguments. arguments must not be greater than two");
         }
@@ -141,33 +141,33 @@ public abstract class MethodListener {
             if (fields.size() == 1 && fields.containsKey("value")) {
                 fieldName = "value";
             }
-            if (request.getFields().containsKey(fieldName)) {
+            if (fields.containsKey(fieldName)) {
                 String fieldType = structType.getName();
                 switch (fieldType) {
                     case "string": {
-                        bValue = new BString((String) request.getFields().get(fieldName));
+                        bValue = new BString((String) fields.get(fieldName));
                         break;
                     }
                     case "int": {
-                        bValue = new BInteger((Long) request.getFields().get(fieldName));
+                        bValue = new BInteger((Long) fields.get(fieldName));
                         break;
                     }
                     case "float": {
-                        Float value = (Float) request.getFields().get(fieldName);
+                        Float value = (Float) fields.get(fieldName);
                         if (value != null) {
                             bValue = new BFloat(Double.parseDouble(value.toString()));
                         }
                         break;
                     }
                     case "double": {
-                        Double value = (Double) request.getFields().get(fieldName);
+                        Double value = (Double) fields.get(fieldName);
                         if (value != null) {
                             bValue = new BFloat(Double.parseDouble(value.toString()));
                         }
                         break;
                     }
                     case "boolean": {
-                        bValue = new BBoolean((Boolean) request.getFields().get(fieldName));
+                        bValue = new BBoolean((Boolean) fields.get(fieldName));
                         break;
                     }
                     default: {

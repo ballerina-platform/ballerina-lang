@@ -29,6 +29,7 @@ import org.ballerinalang.model.tree.expressions.ExpressionNode;
 import org.ballerinalang.model.tree.statements.BlockNode;
 import org.ballerinalang.model.tree.statements.StatementNode;
 import org.ballerinalang.net.grpc.MessageConstants;
+import org.ballerinalang.net.grpc.builder.BalGenerate;
 import org.ballerinalang.net.grpc.exception.GrpcServerException;
 import org.ballerinalang.net.grpc.proto.definition.Field;
 import org.ballerinalang.net.grpc.proto.definition.File;
@@ -526,6 +527,8 @@ public class ServiceProtoUtils {
             byte[] fileDescriptor = protoFileDefinition.getFileDescriptorProto().toByteArray();
             Path descFilePath = Paths.get(filename + ServiceProtoConstants.DESC_FILE_EXTENSION);
             Files.write(descFilePath, fileDescriptor);
+            new BalGenerate().generate(fileDescriptor, new byte[][] {com.google.protobuf.WrappersProto.getDescriptor
+                    ().toProto().toByteArray()}, filename + ".pb.bal");
         } catch (IOException e) {
             throw new GrpcServerException("Error while writing file descriptor to file.", e);
         }

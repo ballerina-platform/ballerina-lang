@@ -36,6 +36,7 @@ import org.ballerinalang.net.grpc.Message;
 import org.ballerinalang.net.grpc.MessageConstants;
 import org.ballerinalang.net.grpc.MessageUtils;
 import org.ballerinalang.net.grpc.exception.UnsupportedFieldTypeException;
+import org.ballerinalang.net.grpc.utils.MessageUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -70,7 +71,7 @@ public class Send extends AbstractNativeFunction {
             return new BValue[0];
         }
         try {
-            Message responseMessage = (Message) generateProtoMessage(responseValue, outputType);
+            Message responseMessage = (Message) MessageUtil.generateProtoMessage(responseValue, outputType);
             responseObserver.onNext(responseMessage);
             return new BValue[0];
         } catch (Throwable e) {

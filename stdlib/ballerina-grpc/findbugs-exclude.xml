@@ -18,7 +18,7 @@
 <FindBugsFilter>
     <!-- TODO Fix following findbug issues-->
     <Match>
-        <Class name="org.ballerinalang.net.grpc.GRPCClientStub"/>
+        <Class name="org.ballerinalang.net.grpc.ClientConnectorFactory"/>
         <Bug pattern="ST_WRITE_TO_STATIC_FROM_INSTANCE_METHOD"/>
     </Match>
     <Match>
@@ -30,11 +30,11 @@
         <Bug pattern="ST_WRITE_TO_STATIC_FROM_INSTANCE_METHOD"/>
     </Match>
     <Match>
-        <Class name="org.ballerinalang.net.grpc.proto.definition.ServiceProto"/>
+        <Class name="org.ballerinalang.net.grpc.stubs.ProtoFileDefinition"/>
         <Bug pattern="DMI_HARDCODED_ABSOLUTE_FILENAME"/>
     </Match>
     <Match>
-        <Class name="org.ballerinalang.net.grpc.proto.definition.ServiceProto"/>
+        <Class name="org.ballerinalang.net.grpc.stubs.ProtoFileDefinition"/>
         <Bug pattern="EI_EXPOSE_REP2"/>
     </Match>
 </FindBugsFilter>

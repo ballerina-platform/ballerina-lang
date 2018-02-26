@@ -28,6 +28,7 @@ import io.grpc.netty.NettyServerBuilder;
 import io.grpc.protobuf.ProtoUtils;
 import io.grpc.stub.ServerCalls;
 import io.netty.channel.nio.NioEventLoopGroup;
+import org.ballerinalang.connector.api.AnnAttrValue;
 import org.ballerinalang.connector.api.Annotation;
 import org.ballerinalang.connector.api.Resource;
 import org.ballerinalang.connector.api.Service;
@@ -42,7 +43,6 @@ import org.ballerinalang.net.grpc.proto.ServiceProtoUtils;
 
 import java.io.IOException;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -87,13 +87,21 @@ public class GrpcServicesBuilder {
         // Write protobuf file definition to .proto file.
         //ServiceProtoUtils.writeServiceFiles(protobufFileDefinition, service.getName());
         // we are registering one service. So there will be only one service in file descriptor.
-        List<Annotation> annotationList = service.getAnnotationList(MessageConstants.PROTOCOL_PACKAGE_GRPC,
-                "serviceConfig");
-        if (annotationList != null && !annotationList.isEmpty()) {
+        Annotation serviceAnnotation = MessageUtils.getServiceConfigAnnotation(service, MessageConstants
+                .PROTOCOL_PACKAGE_GRPC);
+        if (isStreamService(serviceAnnotation)) {
             return getStreamingServiceDefinition(service, serviceDescriptor);
         } else {
             return getUnaryServiceDefinition(service, serviceDescriptor);
         }
+    }
+
+    private boolean isStreamService(Annotation serviceAnnotation) {
+        if (serviceAnnotation == null) {
+            return false;
+        }
+        AnnAttrValue clientStreamValue = serviceAnnotation.getAnnAttrValue("clientStreaming");
+        return clientStreamValue != null && clientStreamValue.getBooleanValue();
     }
 
     private ServerServiceDefinition getUnaryServiceDefinition(Service service, Descriptors.ServiceDescriptor

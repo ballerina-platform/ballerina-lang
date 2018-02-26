@@ -31,10 +31,14 @@ import java.util.Map;
 /**
  * This is Client Streaming Method Implementation for gRPC Service Call.
  */
-public class ClientStreamingListener extends StreamingMethodListener implements ServerCalls
+public class ClientStreamingListener extends MethodListener implements ServerCalls
         .ClientStreamingMethod<Message, Message> {
+
+    public final Map<String, Resource> resourceMap;
+
     public ClientStreamingListener(Descriptors.MethodDescriptor methodDescriptor, Map<String, Resource> resourceMap) {
-        super(methodDescriptor, resourceMap);
+        super(methodDescriptor, resourceMap.get(MessageConstants.ON_MESSAGE_RESOURCE));
+        this.resourceMap = resourceMap;
     }
 
     @Override

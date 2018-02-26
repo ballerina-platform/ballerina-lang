@@ -1,6 +1,25 @@
+/*
+ *  Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ *  WSO2 Inc. licenses this file to you under the Apache License,
+ *  Version 2.0 (the "License"); you may not use this file except
+ *  in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *  http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing,
+ *  software distributed under the License is distributed on an
+ *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ *  KIND, either express or implied.  See the License for the
+ *  specific language governing permissions and limitations
+ *  under the License.
+ */
 package org.ballerinalang.net.grpc.actions;
 
 import com.google.protobuf.DescriptorProtos;
+import com.google.protobuf.Descriptors;
+import io.grpc.MethodDescriptor;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.connector.api.AbstractNativeAction;
 import org.ballerinalang.connector.api.ConnectorFuture;
@@ -14,10 +33,12 @@ import org.ballerinalang.nativeimpl.actions.ClientConnectorFuture;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaAction;
 import org.ballerinalang.natives.annotations.ReturnType;
-import org.ballerinalang.net.grpc.GRPCClientStub;
 import org.ballerinalang.net.grpc.Message;
-import org.ballerinalang.net.grpc.stubs.GRPCBlockingStub;
-import org.ballerinalang.net.grpc.stubs.GRPCNonBlockingStub;
+import org.ballerinalang.net.grpc.MessageRegistry;
+import org.ballerinalang.net.grpc.exception.GrpcClientException;
+import org.ballerinalang.net.grpc.stubs.DefaultStreamObserver;
+import org.ballerinalang.net.grpc.stubs.GrpcBlockingStub;
+import org.ballerinalang.net.grpc.stubs.GrpcNonBlockingStub;
 import org.ballerinalang.net.grpc.utils.MessageUtil;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.StructInfo;
@@ -25,7 +46,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * {@code Get} is the GET action implementation of the HTTP Connector.
+ * {@code Execute} is the Execute action implementation of the gRPC Connector.
  */
 @BallerinaAction(
         packageName = "ballerina.net.grpc",
@@ -53,51 +74,58 @@ public class Execute extends AbstractNativeAction {
     
     @Override
     public ConnectorFuture execute(Context context) {
-        
         ClientConnectorFuture ballerinaFuture = new ClientConnectorFuture();
         BStruct outboundError = createStruct(context);
         BValue payloadBValue;
         BStruct connectionStub;
-        Integer methodId;
+        String methodName;
         try {
-            // todo: 2/15/18 Check type and cast
             payloadBValue = getRefArgument(context, 2);
             connectionStub = (BStruct) getRefArgument(context, 1);
-            methodId = getIntArgument(context, 0);
+            methodName = getStringArgument(context, 0);
         } catch (ArrayIndexOutOfBoundsException e) {
             outboundError.setStringField(0, "gRPC Connector Error :" + e.getMessage());
             ballerinaFuture.notifyReply(null, outboundError);
             return ballerinaFuture;
         }
-        String methodName = GRPCClientStub.getGrpcServiceProto().getSet().getService(0)
-                .getMethodList().get(methodId).getName();
-        com.google.protobuf.Descriptors.MethodDescriptor methodDescriptor = GRPCClientStub.getMethodDescriptorMap
-                (methodName);
-        com.google.protobuf.Message message = MessageUtil.generateProtoMessage
-                (payloadBValue, methodDescriptor.getOutputType());
+
         try {
+            com.google.protobuf.Descriptors.MethodDescriptor methodDescriptor = MessageRegistry.getInstance()
+                    .getMethodDescriptor(methodName);
+            com.google.protobuf.Message message = MessageUtil.generateProtoMessage
+                    (payloadBValue, methodDescriptor.getInputType());
             Message messageRes = null;
-            if (connectionStub.getNativeData("stub") instanceof GRPCBlockingStub) {
-                GRPCBlockingStub grpcBlockingStub = (GRPCBlockingStub)
+            if (connectionStub.getNativeData("stub") instanceof GrpcBlockingStub) {
+                GrpcBlockingStub grpcBlockingStub = (GrpcBlockingStub)
                         connectionStub.getNativeData("stub");
-                messageRes = (Message) grpcBlockingStub.executeUnary(message, methodId);
-            } else if (connectionStub.getNativeData("stub") instanceof GRPCNonBlockingStub) {
-            
-            } else if (connectionStub.getNativeData("stub") instanceof GRPCBlockingStub) {
-            
+                if (getMethodType(methodDescriptor).equals(MethodDescriptor.MethodType.UNARY)) {
+                    messageRes = (Message) grpcBlockingStub.executeUnary(message, methodName);
+                } else if ((getMethodType(methodDescriptor).equals(MethodDescriptor.MethodType.SERVER_STREAMING))) {
+                    messageRes = (Message) grpcBlockingStub.executeServerStreaming(message, methodName);
+                }
+            } else if (connectionStub.getNativeData("stub") instanceof GrpcNonBlockingStub) {
+                GrpcNonBlockingStub grpcNonBlockingStub = (GrpcNonBlockingStub)
+                        connectionStub.getNativeData("stub");
+                if (getMethodType(methodDescriptor).equals(MethodDescriptor.MethodType.UNARY)) {
+                    grpcNonBlockingStub.executeUnary(message, new DefaultStreamObserver(context), methodName);
+                } else if ((getMethodType(methodDescriptor).equals(MethodDescriptor.MethodType.SERVER_STREAMING))) {
+                    grpcNonBlockingStub.executeServerStreaming(message, new DefaultStreamObserver(context),
+                            methodName);
+                } else if ((getMethodType(methodDescriptor).equals(MethodDescriptor.MethodType.CLIENT_STREAMING))) {
+                    grpcNonBlockingStub.executeServerStreaming(message, new DefaultStreamObserver(context),
+                            methodName);
+                }
             } else {
                 throw new RuntimeException("Unsupported stub type.");
             }
-            
-            DescriptorProtos.MethodDescriptorProto methodDescriptorProto = Connect.getServiceProto().getSet()
-                    .getService(0).getMethod(methodId);
-            String resMessageName = methodDescriptorProto.getOutputType().split("\\.")[methodDescriptorProto
-                    .getOutputType().split("\\.").length - 1];
-            BValue bValue = MessageUtil.generateRequestStruct(messageRes, resMessageName,
-                    getBalType(resMessageName, context, resMessageName), context);
+
+            Descriptors.Descriptor outputDescriptor = methodDescriptor.getOutputType();
+
+            BValue bValue = MessageUtil.generateRequestStruct(messageRes, outputDescriptor.getName(),
+                    getBalType(outputDescriptor.getName(), context), context);
             ballerinaFuture.notifyReply(bValue, null);
             return ballerinaFuture;
-        } catch (RuntimeException e) {
+        } catch (RuntimeException | GrpcClientException e) {
             outboundError.setStringField(0, "gRPC Connector Error :" + e.getMessage());
             ballerinaFuture.notifyReply(null, outboundError);
             return ballerinaFuture;
@@ -105,12 +133,13 @@ public class Execute extends AbstractNativeAction {
     }
     
     /**
-     * todo.
+     * Returns corresponding Ballerina type for the proto buffer type.
      *
-     * @param protoType .
+     * @param protoType Protocol buffer type
+     * @param context Ballerina Context
      * @return .
      */
-    private BType getBalType(String protoType, Context context, String reqMessageName) {
+    private BType getBalType(String protoType, Context context) {
         
         if (protoType.equalsIgnoreCase("DoubleValue") || protoType
                 .equalsIgnoreCase("FloatValue")) {
@@ -128,27 +157,28 @@ public class Execute extends AbstractNativeAction {
             return BTypes.typeBlob;
         } else {
             // TODO: 2/22/18 enum
-            return context.getProgramFile().getEntryPackage().getStructInfo(reqMessageName).getType();
+            return context.getProgramFile().getEntryPackage().getStructInfo(protoType).getType();
         }
     }
-
-
-//    /**
-//     * .
-//     *
-//     * @param list .
-//     * @return .
-//     */
-//    private Map<String, DescriptorProtos.DescriptorProto> attrybuteList(java.util.List<DescriptorProtos
-//            .DescriptorProto> list) {
-//
-//        Map<String, DescriptorProtos.DescriptorProto> stringObjectMap = new HashMap<>();
-//        for (DescriptorProtos.DescriptorProto proto : list) {
-//            stringObjectMap.put(proto.getName(), proto);
-//        }
-//        return stringObjectMap;
-//    }
     
+    public static MethodDescriptor.MethodType getMethodType(Descriptors.MethodDescriptor
+                                                                    methodDescriptor) throws GrpcClientException {
+        if (methodDescriptor == null) {
+            throw new GrpcClientException("Method descriptor cannot be null.");
+        }
+        DescriptorProtos.MethodDescriptorProto methodDescriptorProto = methodDescriptor.toProto();
+        if (methodDescriptorProto.getClientStreaming() && methodDescriptorProto.getServerStreaming()) {
+            return MethodDescriptor.MethodType.BIDI_STREAMING;
+        } else if (!(methodDescriptorProto.getClientStreaming() || methodDescriptorProto.getServerStreaming())) {
+            return MethodDescriptor.MethodType.UNARY;
+        } else if (methodDescriptorProto.getServerStreaming()) {
+            return MethodDescriptor.MethodType.SERVER_STREAMING;
+        } else if (methodDescriptorProto.getClientStreaming()) {
+            return MethodDescriptor.MethodType.CLIENT_STREAMING;
+        } else {
+            return MethodDescriptor.MethodType.UNKNOWN;
+        }
+    }
     
     private BStruct createStruct(Context context) {
         

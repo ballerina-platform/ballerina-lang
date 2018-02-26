@@ -31,12 +31,15 @@ import java.util.Map;
 /**
  * This is Bidirectional Streaming Method Implementation for gRPC Service Call.
  */
-public class BidirectionalStreamingListener extends StreamingMethodListener implements ServerCalls
+public class BidirectionalStreamingListener extends MethodListener implements ServerCalls
         .BidiStreamingMethod<Message, Message> {
 
+    public final Map<String, Resource> resourceMap;
+
     public BidirectionalStreamingListener(Descriptors.MethodDescriptor methodDescriptor, Map<String, Resource>
-            resource) {
-        super(methodDescriptor, resource);
+            resourceMap) {
+        super(methodDescriptor, resourceMap.get(MessageConstants.ON_MESSAGE_RESOURCE));
+        this.resourceMap = resourceMap;
     }
 
     @Override
