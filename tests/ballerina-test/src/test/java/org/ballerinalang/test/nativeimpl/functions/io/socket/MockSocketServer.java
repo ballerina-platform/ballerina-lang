@@ -66,7 +66,7 @@ public class MockSocketServer {
                 log.error(e.getMessage(), e);
             }
         });
-
+        waitTillPortOpen();
     }
 
     public void stop() {
@@ -95,5 +95,18 @@ public class MockSocketServer {
             }
         }
         executorService.shutdownNow();
+    }
+
+    private void waitTillPortOpen() {
+        for (int counter = 0; !(serverSocket != null && serverSocket.isBound()); counter++) {
+            if (counter > 10) {
+                break;
+            }
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException ie) {
+                // Do nothing.
+            }
+        }
     }
 }
