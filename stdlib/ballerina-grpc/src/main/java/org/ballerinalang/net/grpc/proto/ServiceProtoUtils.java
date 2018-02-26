@@ -29,6 +29,7 @@ import org.ballerinalang.model.tree.expressions.ExpressionNode;
 import org.ballerinalang.model.tree.statements.BlockNode;
 import org.ballerinalang.model.tree.statements.StatementNode;
 import org.ballerinalang.net.grpc.MessageConstants;
+import org.ballerinalang.net.grpc.builder.BallerinaFile;
 import org.ballerinalang.net.grpc.exception.GrpcServerException;
 import org.ballerinalang.net.grpc.proto.definition.Field;
 import org.ballerinalang.net.grpc.proto.definition.File;
@@ -54,6 +55,8 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
 
 
 /**
@@ -526,8 +529,11 @@ public class ServiceProtoUtils {
             byte[] fileDescriptor = protoFileDefinition.getFileDescriptorProto().toByteArray();
             Path descFilePath = Paths.get(filename + ServiceProtoConstants.DESC_FILE_EXTENSION);
             Files.write(descFilePath, fileDescriptor);
-/*            new BalGenerate().generate(fileDescriptor, new byte[][] {com.google.protobuf.WrappersProto.getDescriptor
-                    ().toProto().toByteArray()}, filename + ".pb.bal");*/
+            List<byte[]> dependentDescriptorsList = new ArrayList<>();
+            dependentDescriptorsList.add(com.google.protobuf.WrappersProto.getDescriptor
+                    ().toProto().toByteArray());
+            Path path = Paths.get(filename + ".pb.bal");
+            new BallerinaFile(fileDescriptor, dependentDescriptorsList, path).build();
         } catch (IOException e) {
             throw new GrpcServerException("Error while writing file descriptor to file.", e);
         }
