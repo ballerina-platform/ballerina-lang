@@ -41,10 +41,10 @@ import org.wso2.transport.http.netty.sender.http2.TargetChannel;
 public class Http2ClientConnectorImpl implements Http2ClientConnector {
 
     private static final Logger log = LoggerFactory.getLogger(Http2ClientConnector.class);
-    private SenderConfiguration senderConfiguration;
+    private ConnectionManager connectionManager;
 
     public Http2ClientConnectorImpl(SenderConfiguration senderConfiguration) {
-        this.senderConfiguration = senderConfiguration;
+        connectionManager = new ConnectionManager(senderConfiguration);
     }
 
     @Override
@@ -59,8 +59,7 @@ public class Http2ClientConnectorImpl implements Http2ClientConnector {
         OutboundMsgHolder outboundMsgHolder = new OutboundMsgHolder(httpOutboundRequest, httpResponseFuture);
         try {
             HttpRoute route = getTargetRoute(httpOutboundRequest);
-            TargetChannel targetChannel =
-                    ConnectionManager.getInstance().borrowChannel(route, senderConfiguration);
+            TargetChannel targetChannel = connectionManager.borrowChannel(route);
             targetChannel.getChannelFuture().addListener(
                     new ConnectionAvailabilityListener(outboundMsgHolder, route));
         } catch (Exception failedCause) {

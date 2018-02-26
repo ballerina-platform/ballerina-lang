@@ -45,25 +45,21 @@ public class ConnectionManager {
 
     // Per route connection pools
     private static ConcurrentHashMap<String, PerRouteConnectionPool> connectionPools = new ConcurrentHashMap<>();
-    private static ConnectionManager instance = new ConnectionManager();
     // Lock for synchronizing access
     private Lock lock = new ReentrantLock();
+    private SenderConfiguration senderConfig;
 
-    private ConnectionManager() {
-    }
-
-    public static ConnectionManager getInstance() {
-        return instance;
+    public ConnectionManager(SenderConfiguration senderConfig) {
+        this.senderConfig = senderConfig;
     }
 
     /**
      * Borrow a {@code TargetChannel} for a given http route
      *
      * @param httpRoute    http route
-     * @param senderConfig client connector sender configuration
      * @return TargetChannel
      */
-    public TargetChannel borrowChannel(HttpRoute httpRoute, SenderConfiguration senderConfig) {
+    public TargetChannel borrowChannel(HttpRoute httpRoute) {
 
         String key = generateKey(httpRoute);
         PerRouteConnectionPool perRouteConnectionPool = fetchConnectionPool(key);
@@ -82,7 +78,7 @@ public class ConnectionManager {
                 }
 
                 if (targetChannel == null) {
-                    targetChannel = createNewConnection(httpRoute, senderConfig);
+                    targetChannel = createNewConnection(httpRoute);
                     if (perRouteConnectionPool == null) {
                         perRouteConnectionPool =
                                 new PerRouteConnectionPool(targetChannel, senderConfig.getHttp2MaxActiveStreams());
@@ -98,7 +94,7 @@ public class ConnectionManager {
         return targetChannel;
     }
 
-    private TargetChannel createNewConnection(HttpRoute httpRoute, SenderConfiguration senderConfig) {
+    private TargetChannel createNewConnection(HttpRoute httpRoute) {
 
         ClientInitializer initializer = new ClientInitializer(senderConfig);
 
@@ -117,7 +113,8 @@ public class ConnectionManager {
 
         // Create data holders which stores connection information
         ClientOutboundHandler clientHandler = initializer.getClientOutboundHandler();
-        TargetChannel targetChannel = new TargetChannel(clientHandler.getConnection(), httpRoute, channelFuture);
+        TargetChannel targetChannel =
+                new TargetChannel(this, clientHandler.getConnection(), httpRoute, channelFuture);
         initializer.setTargetChannel(targetChannel);
         String key = generateKey(httpRoute);
 

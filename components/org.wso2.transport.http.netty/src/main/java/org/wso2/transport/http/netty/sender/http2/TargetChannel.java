@@ -45,15 +45,16 @@ public class TargetChannel {
     // List which holds the pending message during the connection upgrade
     private ConcurrentLinkedQueue<OutboundMsgHolder> pendingMessages;
     private HttpRoute httpRoute;
-    private ConnectionManager connectionManager = ConnectionManager.getInstance();
-
+    private ConnectionManager connectionManager;
     // Whether channel is operates with maximum number of allowed streams
     private AtomicBoolean isExhausted = new AtomicBoolean(false);
 
     // Number of active streams. Need to start from 1 to prevent someone stealing the connection from the creator
     private AtomicInteger activeStreams = new AtomicInteger(1);
 
-    public TargetChannel(Http2Connection connection, HttpRoute httpRoute, ChannelFuture channelFuture) {
+    public TargetChannel(ConnectionManager connectionManager, Http2Connection connection, HttpRoute httpRoute,
+                         ChannelFuture channelFuture) {
+        this.connectionManager = connectionManager;
         this.channelFuture = channelFuture;
         channel = channelFuture.channel();
         this.connection = connection;

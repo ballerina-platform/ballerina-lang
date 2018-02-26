@@ -40,8 +40,9 @@ import static io.netty.handler.logging.LogLevel.DEBUG;
  */
 public class ClientInitializer extends ChannelInitializer<SocketChannel> {
 
-    private static final Http2FrameLogger logger = new Http2FrameLogger(DEBUG, ClientInitializer.class);
-    // Change mode to INFO for logging frames
+    private static final Http2FrameLogger logger =
+            new Http2FrameLogger(DEBUG,     // Change mode to INFO for logging frames
+                                 ClientInitializer.class);
 
     private ClientOutboundHandler clientOutboundHandler;
     private ClientInboundHandler clientInboundHandler;
