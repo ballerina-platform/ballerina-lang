@@ -316,7 +316,6 @@ public struct Proxy {
 @Description { value:"Options struct represents options to be used for HTTP client invocation" }
 @Field {value:"port: Port number of the remote service"}
 @Field {value:"endpointTimeout: Endpoint timeout value in millisecond (default value: 60000 milliseconds)"}
-@Field {value:"maxActiveConnections: The maximum number of active connections the connector can create (default value: -1, indicates that the number of connections is not restricted)"}
 @Field {value:"keepAlive: Keep the connection or close it (default value: true)"}
 @Field {value:"transferEncoding: The types of encoding applied to the request (default value: chunking)"}
 @Field {value:"chunking: The chunking behaviour of the request"}
@@ -339,6 +338,9 @@ public struct Options {
     ConnectionThrottling connectionThrottling;
 }
 
+@Description { value:"This struct represent the options to be used for connection throttling" }
+@Field {value:"maxActiveConnections: No of maximum active connections for connection throttling. Default value is -1, indicated the no of connections are not restricted"}
+@Field {value:"waitTime: Maximum waiting time for request to grab a idle connection from the client connector (default value: 6000 milliseconds)"}
 public struct ConnectionThrottling {
     int maxActiveConnections = -1;
     int waitTime = 60000;

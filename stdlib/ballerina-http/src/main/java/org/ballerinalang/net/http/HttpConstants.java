@@ -230,8 +230,8 @@ public class HttpConstants {
 
     //Connection Throttling struct indexes
     public static final int CONNECTION_THROTTLING_STRUCT_INDEX = 4;
-    public static final int MAX_ACTIVE_CONNECTIONS_INDEX = 0;
-    public static final int WAIT_TIME_INDEX = 1;
+    public static final int CONNECTION_THROTTLING_STRUCT_MAX_ACTIVE_CONNECTIONS_INDEX = 0;
+    public static final int CONNECTION_THROTTLING_STRUCT_WAIT_TIME_INDEX = 1;
 
     //Retry Struct indexes
     public static final int RETRY_STRUCT_INDEX = 2;
