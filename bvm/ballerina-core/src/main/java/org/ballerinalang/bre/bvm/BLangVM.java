@@ -3151,24 +3151,6 @@ public class BLangVM {
         }
     }
 
-    private String getOperandsLine(int[] operands) {
-        if (operands.length == 0) {
-            return "";
-        }
-
-        if (operands.length == 1) {
-            return "" + operands[0];
-        }
-
-        StringBuilder sb = new StringBuilder();
-        sb.append(operands[0]);
-        for (int i = 1; i < operands.length; i++) {
-            sb.append(" ");
-            sb.append(operands[i]);
-        }
-        return sb.toString();
-    }
-
     private void invokeNativeFunction(FunctionInfo functionInfo, int[] argRegs, int[] retRegs) {
         StackFrame callerSF = controlStack.currentFrame;
 

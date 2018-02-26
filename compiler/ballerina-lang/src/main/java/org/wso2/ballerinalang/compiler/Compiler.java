@@ -1,26 +1,29 @@
 /*
-*  Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
-*
-*  WSO2 Inc. licenses this file to you under the Apache License,
-*  Version 2.0 (the "License"); you may not use this file except
-*  in compliance with the License.
-*  You may obtain a copy of the License at
-*
-*    http://www.apache.org/licenses/LICENSE-2.0
-*
-*  Unless required by applicable law or agreed to in writing,
-*  software distributed under the License is distributed on an
-*  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-*  KIND, either express or implied.  See the License for the
-*  specific language governing permissions and limitations
-*  under the License.
-*/
+ *  Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ *  WSO2 Inc. licenses this file to you under the Apache License,
+ *  Version 2.0 (the "License"); you may not use this file except
+ *  in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing,
+ *  software distributed under the License is distributed on an
+ *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ *  KIND, either express or implied.  See the License for the
+ *  specific language governing permissions and limitations
+ *  under the License.
+ */
 package org.wso2.ballerinalang.compiler;
 
 import org.ballerinalang.compiler.CompilerOptionName;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.model.Name;
 import org.ballerinalang.model.tree.PackageNode;
+import org.wso2.ballerinalang.CompiledBinaryFile;
+import org.wso2.ballerinalang.CompiledBinaryFile.PackageFile;
+import org.wso2.ballerinalang.CompiledBinaryFile.ProgramFile;
 import org.wso2.ballerinalang.compiler.codegen.CodeGenerator;
 import org.wso2.ballerinalang.compiler.desugar.Desugar;
 import org.wso2.ballerinalang.compiler.parser.BLangParserException;
@@ -32,7 +35,6 @@ import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticLog;
-import org.wso2.ballerinalang.programfile.ProgramFile;
 
 /**
  * @since 0.94
@@ -52,7 +54,7 @@ public class Compiler {
     private CodeGenerator codeGenerator;
 
     private CompilerPhase compilerPhase;
-    private ProgramFile programFile;
+    private CompiledBinaryFile compiledBinaryFile;
     private BLangPackage pkgNode;
 
     // TODO: separate the 'parse' and 'define' phases to properly fix this
@@ -120,12 +122,11 @@ public class Compiler {
     }
 
     public ProgramFile getCompiledProgram() {
-        return programFile;
+        return (ProgramFile) compiledBinaryFile;
     }
 
-    public ProgramFile getCompiledPackage() {
-        // TODO
-        return null;
+    public PackageFile getCompiledPackage() {
+        return (PackageFile) compiledBinaryFile;
     }
 
     public PackageNode getAST() {
@@ -157,8 +158,12 @@ public class Compiler {
     }
 
     private void gen(BLangPackage pkgNode) {
-        // TODO based on the -c flag we can generate the BALO
-        programFile = this.codeGenerator.generateBALX(pkgNode);
+        boolean buildCompiledPkg = Boolean.parseBoolean(options.get(CompilerOptionName.BUILD_COMPILED_PACKAGE));
+        if (buildCompiledPkg) {
+            compiledBinaryFile = this.codeGenerator.generateBALO(pkgNode);
+        } else {
+            compiledBinaryFile = this.codeGenerator.generateBALX(pkgNode);
+        }
     }
 
     private CompilerPhase getCompilerPhase() {

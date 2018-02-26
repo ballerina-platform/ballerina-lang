@@ -25,6 +25,7 @@ import org.ballerinalang.testerina.core.entity.TesterinaReport;
 import org.ballerinalang.testerina.core.entity.TesterinaResult;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.exceptions.BallerinaException;
+import org.wso2.ballerinalang.CompiledBinaryFile;
 import org.wso2.ballerinalang.compiler.Compiler;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
@@ -73,7 +74,7 @@ public class BTestRunner {
         Compiler compiler = Compiler.getInstance(context);
         compiler.compile(sourceFilePath.toString());
 
-        org.wso2.ballerinalang.programfile.ProgramFile programFile = compiler.getCompiledProgram();
+        CompiledBinaryFile.ProgramFile programFile = compiler.getCompiledProgram();
 
         if (programFile == null) {
             throw new BallerinaException("compilation contains errors");

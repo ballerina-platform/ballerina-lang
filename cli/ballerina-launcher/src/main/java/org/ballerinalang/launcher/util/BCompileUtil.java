@@ -27,6 +27,7 @@ import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.codegen.StructInfo;
 import org.ballerinalang.util.diagnostic.Diagnostic;
 import org.ballerinalang.util.diagnostic.DiagnosticListener;
+import org.wso2.ballerinalang.CompiledBinaryFile;
 import org.wso2.ballerinalang.compiler.Compiler;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
@@ -207,7 +208,7 @@ public class BCompileUtil {
         // compile
         Compiler compiler = Compiler.getInstance(context);
         compiler.compile(packageName);
-        org.wso2.ballerinalang.programfile.ProgramFile programFile = compiler.getCompiledProgram();
+        CompiledBinaryFile.ProgramFile programFile = compiler.getCompiledProgram();
         if (programFile != null) {
             comResult.setProgFile(LauncherUtils.getExecutableProgram(programFile));
         }
@@ -343,7 +344,7 @@ public class BCompileUtil {
         // compile
         Compiler compiler = Compiler.getInstance(context);
         compiler.compile(fileName);
-        org.wso2.ballerinalang.programfile.ProgramFile programFile = compiler.getCompiledProgram();
+        CompiledBinaryFile.ProgramFile programFile = compiler.getCompiledProgram();
         if (programFile != null) {
             comResult.setProgFile(LauncherUtils.getExecutableProgram(programFile));
         }

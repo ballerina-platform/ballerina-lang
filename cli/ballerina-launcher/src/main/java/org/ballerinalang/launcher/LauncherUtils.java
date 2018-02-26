@@ -29,6 +29,7 @@ import org.ballerinalang.util.BLangConstants;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.codegen.ProgramFileReader;
 import org.ballerinalang.util.exceptions.BallerinaException;
+import org.wso2.ballerinalang.CompiledBinaryFile;
 import org.wso2.ballerinalang.compiler.Compiler;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
@@ -229,7 +230,7 @@ public class LauncherUtils {
         // compile
         Compiler compiler = Compiler.getInstance(context);
         compiler.compile(sourcePath.toString());
-        org.wso2.ballerinalang.programfile.ProgramFile programFile = compiler.getCompiledProgram();
+        CompiledBinaryFile.ProgramFile programFile = compiler.getCompiledProgram();
 
         if (programFile == null) {
             throw createLauncherException("compilation contains errors");
@@ -242,12 +243,12 @@ public class LauncherUtils {
 
     /**
      * Get the executable program ({@link ProgramFile}) given the compiled program 
-     * ({@link org.wso2.ballerinalang.programfile.ProgramFile}).
+     * ({@link CompiledBinaryFile.ProgramFile}).
      * 
      * @param programFile Compiled program
      * @return Executable program
      */
-    public static ProgramFile getExecutableProgram(org.wso2.ballerinalang.programfile.ProgramFile programFile) {
+    public static ProgramFile getExecutableProgram(CompiledBinaryFile.ProgramFile programFile) {
         ByteArrayInputStream byteIS = null;
         ByteArrayOutputStream byteOutStream = new ByteArrayOutputStream();
         try {

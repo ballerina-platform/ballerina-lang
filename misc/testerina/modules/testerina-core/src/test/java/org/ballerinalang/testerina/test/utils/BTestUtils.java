@@ -32,6 +32,7 @@ import org.ballerinalang.util.diagnostic.Diagnostic;
 import org.ballerinalang.util.diagnostic.DiagnosticListener;
 import org.ballerinalang.util.program.BLangFunctions;
 import org.testng.Assert;
+import org.wso2.ballerinalang.CompiledBinaryFile;
 import org.wso2.ballerinalang.compiler.Compiler;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
@@ -148,7 +149,7 @@ public class BTestUtils {
         // compile
         Compiler compiler = Compiler.getInstance(context);
         compiler.compile(packageName);
-        org.wso2.ballerinalang.programfile.ProgramFile programFile = compiler.getCompiledProgram();
+        CompiledBinaryFile.ProgramFile programFile = compiler.getCompiledProgram();
         if (programFile != null) {
             comResult.setProgFile(LauncherUtils.getExecutableProgram(programFile));
         }

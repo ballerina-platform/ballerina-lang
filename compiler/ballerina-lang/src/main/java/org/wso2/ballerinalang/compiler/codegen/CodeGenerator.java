@@ -23,8 +23,9 @@ import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.OperatorKind;
-import org.ballerinalang.model.tree.TopLevelNode;
 import org.ballerinalang.util.TransactionStatus;
+import org.wso2.ballerinalang.CompiledBinaryFile.PackageFile;
+import org.wso2.ballerinalang.CompiledBinaryFile.ProgramFile;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolEnter;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
@@ -153,6 +154,7 @@ import org.wso2.ballerinalang.programfile.EnumeratorInfo;
 import org.wso2.ballerinalang.programfile.ErrorTableEntry;
 import org.wso2.ballerinalang.programfile.ForkjoinInfo;
 import org.wso2.ballerinalang.programfile.FunctionInfo;
+import org.wso2.ballerinalang.programfile.ImportPackageInfo;
 import org.wso2.ballerinalang.programfile.Instruction;
 import org.wso2.ballerinalang.programfile.Instruction.Operand;
 import org.wso2.ballerinalang.programfile.Instruction.RegIndex;
@@ -162,7 +164,6 @@ import org.wso2.ballerinalang.programfile.LineNumberInfo;
 import org.wso2.ballerinalang.programfile.LocalVariableInfo;
 import org.wso2.ballerinalang.programfile.PackageInfo;
 import org.wso2.ballerinalang.programfile.PackageVarInfo;
-import org.wso2.ballerinalang.programfile.ProgramFile;
 import org.wso2.ballerinalang.programfile.ResourceInfo;
 import org.wso2.ballerinalang.programfile.ServiceInfo;
 import org.wso2.ballerinalang.programfile.StructFieldDefaultValue;
@@ -257,7 +258,9 @@ public class CodeGenerator extends BLangNodeVisitor {
     private SymbolEnter symEnter;
     private SymbolTable symTable;
 
+    private boolean buildCompiledPackage;
     private ProgramFile programFile;
+    private PackageFile packageFile;
 
     private PackageInfo currentPkgInfo;
     private PackageID currentPkgID;
@@ -318,12 +321,20 @@ public class CodeGenerator extends BLangNodeVisitor {
 
         // Create Global variable attribute info
         addVarCountAttrInfo(programFile, programFile, pvIndexes);
-
         return programFile;
     }
 
-    public void generateBALO(BLangPackage pkgNode) {
+    public PackageFile generateBALO(BLangPackage pkgNode) {
+        this.buildCompiledPackage = true;
+        this.packageFile = new PackageFile();
+        genPackage(pkgNode.symbol);
 
+        // Add global variable indexes to the ProgramFile
+        prepareIndexes(pvIndexes);
+
+        // Create Global variable attribute info
+        addVarCountAttrInfo(this.packageFile, this.packageFile, pvIndexes);
+        return this.packageFile;
     }
 
     private static void setEntryPoints(ProgramFile programFile, BLangPackage pkgNode) {
@@ -362,23 +373,32 @@ public class CodeGenerator extends BLangNodeVisitor {
             return;
         }
 
-//        if ()
-
-        // first visit all the imports
-        pkgNode.imports.forEach(impPkgNode -> genNode(impPkgNode, this.env));
+        // TODO Improve this design without if/else
+        PackageInfo packageInfo = new PackageInfo();
+        if (buildCompiledPackage) {
+            // Generating the BALO
+            pkgNode.imports.forEach(impPkgNode -> {
+                int impPkgNameCPIndex = addUTF8CPEntry(packageInfo, impPkgNode.symbol.name.value);
+                // TODO Improve the import package version once it is available
+                int impPkgVersionCPIndex = addUTF8CPEntry(packageInfo, PackageID.DEFAULT.version.value);
+                ImportPackageInfo importPkgInfo = new ImportPackageInfo(impPkgNameCPIndex, impPkgVersionCPIndex);
+                packageInfo.importPkgInfoSet.add(importPkgInfo);
+                packageFile.packageInfo = packageInfo;
+            });
+        } else {
+            // Generating a BALX
+            // first visit all the imports
+            pkgNode.imports.forEach(impPkgNode -> genNode(impPkgNode, this.env));
+            // TODO We need to create identifier for both name and the version
+            programFile.packageInfoMap.put(pkgNode.symbol.pkgID.name.value, packageInfo);
+        }
 
         // Add the current package to the program file
         BPackageSymbol pkgSymbol = pkgNode.symbol;
         currentPkgID = pkgSymbol.pkgID;
-        currentPkgInfo = new PackageInfo();
+        currentPkgInfo = packageInfo;
         currentPkgInfo.nameCPIndex = addUTF8CPEntry(currentPkgInfo, currentPkgID.name.value);
         currentPkgInfo.versionCPIndex = addUTF8CPEntry(currentPkgInfo, currentPkgID.version.value);
-
-        // TODO We need to create identifier for both name and the version
-        programFile.packageInfoMap.put(currentPkgID.name.value, currentPkgInfo);
-
-        // Insert the package reference to the constant pool of the Ballerina program
-        addPackageRefCPEntry(programFile, currentPkgID);
 
         // Insert the package reference to the constant pool of the current package
         currentPackageRefCPIndex = addPackageRefCPEntry(currentPkgInfo, currentPkgID);
@@ -410,12 +430,10 @@ public class CodeGenerator extends BLangNodeVisitor {
         // Visit package init function
         genNode(pkgInitFunc, this.env);
 
-        for (TopLevelNode pkgLevelNode : pkgNode.topLevelNodes) {
-            if (pkgLevelNode.getKind() == NodeKind.VARIABLE || pkgLevelNode.getKind() == NodeKind.XMLNS) {
-                continue;
-            }
-            genNode((BLangNode) pkgLevelNode, this.env);
-        }
+        pkgNode.topLevelNodes.stream()
+                .filter(pkgLevelNode -> pkgLevelNode.getKind() != NodeKind.VARIABLE &&
+                        pkgLevelNode.getKind() != NodeKind.XMLNS)
+                .forEach(pkgLevelNode -> genNode((BLangNode) pkgLevelNode, this.env));
 
         currentPkgInfo.addAttributeInfo(AttributeInfo.Kind.LINE_NUMBER_TABLE_ATTRIBUTE, lineNoAttrInfo);
         currentPackageRefCPIndex = -1;
