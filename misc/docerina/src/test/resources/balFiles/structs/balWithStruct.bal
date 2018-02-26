@@ -1,3 +1,5 @@
+import ballerina.io;
+
 @Description{value:"an Argument"}
 @Field{value:"text: a string"}
 @Field{value:"argumentId: an id"}
@@ -16,5 +18,5 @@ function main (string[] args) {
 @Description{value:"Test struct data type"}
 @Param{value:"argument: Incoming argument"}
 function testStruct(Argument argument) {
-    println("Hello, World!");
+    io:println("Hello, World!");
 }
