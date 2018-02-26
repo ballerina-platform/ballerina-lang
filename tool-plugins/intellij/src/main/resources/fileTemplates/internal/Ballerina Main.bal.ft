@@ -2,6 +2,8 @@
 package ${PACKAGE_NAME};
 #end
 
+import ballerina.io;
+
 public function main (string[] args) {
-    println("Hello, World!");
+    io:println("Hello, World!");
 }

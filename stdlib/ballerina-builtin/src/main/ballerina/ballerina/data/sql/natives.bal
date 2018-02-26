@@ -1,3 +1,19 @@
+// Copyright (c) 2017 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+//
+// WSO2 Inc. licenses this file to you under the Apache License,
+// Version 2.0 (the "License"); you may not use this file except
+// in compliance with the License.
+// You may obtain a copy of the License at
+//
+// http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing,
+// software distributed under the License is distributed on an
+// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+// KIND, either express or implied.  See the License for the
+// specific language governing permissions and limitations
+// under the License.
+
 package ballerina.data.sql;
 
 @Description { value: "Parameter struct represents a query parameter for the SQL queries specified in connector actions"}
@@ -67,6 +83,7 @@ public struct ConnectionProperties {
 @Field { value:"HSQLDB_FILE: HSQL Server with connection url in the format of jdbc:hsqldb:file:[path]/[database]"}
 @Field { value:"H2_SERVER: H2 Server DB with connection url in the format of jdbc:h2:tcp://[HOST]:[PORT]/[database]"}
 @Field { value:"H2_FILE: H2 File DB with connection url in the format of jdbc:h2:file://[path]/[database]"}
+@Field { value:"H2_MEM: H2 in memory DB with connection url in the format of jdbc:h2:mem:[database]"}
 @Field { value:"DERBY_SERVER: DERBY server DB with connection url in the format of jdbc:derby://[HOST]:[PORT]/[database]"}
 @Field { value:"DERBY_FILE: Derby file DB with connection url in the format of jdbc:derby://[path]/[database]"}
 @Field { value:"GENERIC: Custom DB connection with given connection url"}
@@ -81,6 +98,7 @@ public enum DB {
 	HSQLDB_FILE,
 	H2_SERVER,
 	H2_FILE,
+	H2_MEM,
 	DERBY_SERVER,
 	DERBY_FILE,
 	GENERIC

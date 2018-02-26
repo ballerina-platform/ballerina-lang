@@ -17,7 +17,6 @@
 */
 package org.ballerinalang.net.http;
 
-import org.ballerinalang.connector.api.ParamDetail;
 import org.ballerinalang.connector.api.Resource;
 
 import java.util.ArrayList;
@@ -32,10 +31,12 @@ public class HttpResource {
     private Resource balResource;
     private List<String> methods;
     private String path;
+    private String entityBodyAttribute;
     private List<String> consumes;
     private List<String> produces;
     private List<String> producesSubTypes;
     private CorsHeaders corsHeaders;
+    private SignatureParams signatureParams;
 
     public HttpResource(Resource resource) {
         this.balResource = resource;
@@ -50,8 +51,13 @@ public class HttpResource {
         return balResource.getServiceName();
     }
 
-    public List<ParamDetail> getParamDetails() {
-        return balResource.getParamDetails();
+    public SignatureParams getSignatureParams() {
+        return signatureParams;
+    }
+
+    public void prepareAndValidateSignatureParams() {
+        signatureParams = new SignatureParams(this, balResource.getParamDetails());
+        signatureParams.validate();
     }
 
     public Resource getBalResource() {
@@ -104,5 +110,13 @@ public class HttpResource {
 
     public void setCorsHeaders(CorsHeaders corsHeaders) {
         this.corsHeaders = corsHeaders;
+    }
+
+    public String getEntityBodyAttributeValue() {
+        return entityBodyAttribute;
+    }
+
+    public void setEntityBodyAttributeValue(String entityBodyAttribute) {
+        this.entityBodyAttribute = entityBodyAttribute;
     }
 }

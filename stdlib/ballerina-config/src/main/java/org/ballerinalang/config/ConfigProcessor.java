@@ -23,6 +23,8 @@ import org.ballerinalang.config.utils.parser.ConfigFileParser;
 import org.ballerinalang.config.utils.parser.ConfigParamParser;
 
 import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
@@ -35,9 +37,8 @@ import java.util.Map;
 public class ConfigProcessor {
 
     private static final String BALLERINA_CONF = "ballerina.conf";
-    private static final String USER_DIR = "user.dir";
-    private static final String BALLERINA_CONF_DEFAULT_PATH = System.getProperty(USER_DIR) + File.separator +
-                                                                                                    BALLERINA_CONF;
+
+    private Path ballerinaConfDefaultPath;
     private Map<String, String> runtimeParams = new HashMap<>();
     private Map<String, String> resolvedGlobalConfigs = new HashMap<>();
     private Map<String, Map<String, String>> resolvedInstanceConfigs = new HashMap<>();
@@ -54,6 +55,15 @@ public class ConfigProcessor {
      */
     public void setRuntimeConfiguration(Map<String, String> params) {
         this.runtimeParams = params;
+    }
+
+    /**
+     * Sets the given path as the path of the default ballerina.conf file.
+     *
+     * @param path The default path for ballerina.conf - i.e: {SOURCE_ROOT}/ballerina.conf
+     */
+    public void setBallerinaConfDefaultPath(Path path) {
+        this.ballerinaConfDefaultPath = path;
     }
 
     /**
@@ -156,10 +166,10 @@ public class ConfigProcessor {
                 throw new RuntimeException("failed to start ballerina runtime: file not found: " + fileLocation);
             }
         } else {
-            confFile = new File(BALLERINA_CONF_DEFAULT_PATH);
-            if (!confFile.exists()) {
+            if (ballerinaConfDefaultPath == null || !Files.exists(ballerinaConfDefaultPath)) {
                 return null;
             }
+            confFile = ballerinaConfDefaultPath.toFile();
         }
         return confFile;
     }
