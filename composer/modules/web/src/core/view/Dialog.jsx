@@ -69,7 +69,7 @@ class Dialog extends React.Component {
                             {
                                 this.props.error &&
                                 <Message negative>
-                                    <Message.Header>{this.props.error}</Message.Header>
+                                    <p>{this.props.error}</p>
                                 </Message>
                             }
                             {this.props.children}
