@@ -56,44 +56,45 @@ public class ClientSocketTest {
 
     @Test(description = "Open client socket connection to the remote server that started in 9999")
     public void testOpenClientSocket() {
-        BValue[] args = {new BString("localhost"), new BInteger(port)};
+        BValue[] args = { new BString("localhost"), new BInteger(port) };
         BRunUtil.invoke(socketClient, "openSocketConnection", args);
     }
 
-    @Test(dependsOnMethods = "testOpenClientSocket", description = "Test content read/write")
+    @Test(dependsOnMethods = "testOpenClientSocket",
+          description = "Test content read/write")
     public void testWriteReadContent() {
         String content = "Hello World\n";
-        BValue[] args = {new BBlob(content.getBytes())};
+        BValue[] args = { new BBlob(content.getBytes()) };
         final BValue[] writeReturns = BRunUtil.invoke(socketClient, "write", args);
         BInteger returnedSize = (BInteger) writeReturns[0];
         Assert.assertEquals(returnedSize.intValue(), content.length(), "Write content size is not match.");
-        args = new BValue[]{new BInteger(content.length())};
+        args = new BValue[] { new BInteger(content.length()) };
         final BValue[] readReturns = BRunUtil.invoke(socketClient, "read", args);
         final BBlob readContent = (BBlob) readReturns[0];
         returnedSize = (BInteger) readReturns[1];
 
-        Assert.assertEquals(readContent.stringValue(), content,
-                "Return content are not match with written content.");
-        Assert.assertEquals(returnedSize.intValue(), content.length(),
-                "Read size not match with the request size");
+        Assert.assertEquals(readContent.stringValue(), content, "Return content are not match with written content.");
+        Assert.assertEquals(returnedSize.intValue(), content.length(), "Read size not match with the request size");
     }
 
-    @Test(dependsOnMethods = "testWriteReadContent", description = "Test the connection closure")
+    @Test(dependsOnMethods = "testWriteReadContent",
+          description = "Test the connection closure")
     public void testClosure() {
         BRunUtil.invoke(socketClient, "closeSocket");
     }
 
-    @Test(dependsOnMethods = "testClosure", description = "Test connection open with properties")
+    @Test(dependsOnMethods = "testClosure",
+          description = "Test connection open with properties")
     public void testOpenWithProperties() {
         int port = ThreadLocalRandom.current().nextInt(33000, 44000);
         PackageInfo ioPackageInfo = socketClient.getProgFile().getPackageInfo("ballerina.io");
         StructInfo socketProperties = ioPackageInfo.getStructInfo("SocketProperties");
         BStruct propertyStruct = BLangVMStructs.createBStruct(socketProperties, port);
-        BValue[] args = {new BString("localhost"), new BInteger(port), propertyStruct};
+        BValue[] args = { new BString("localhost"), new BInteger(port), propertyStruct };
         final BValue[] returns = BRunUtil.invoke(socketClient, "openSocketConnectionWithProps", args);
         final BStruct socket = (BStruct) returns[0];
         Assert.assertEquals(socket.getIntField(1), port, "Client port didn't bind to assign port.");
-        args = new BValue[]{socket};
+        args = new BValue[] { socket };
         BRunUtil.invoke(socketClient, "close", args);
     }
 }
