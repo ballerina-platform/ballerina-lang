@@ -24,7 +24,7 @@ import TagInput from './tag-input';
 import FragmentUtils from './../../../../../utils/fragment-utils';
 import TreeBuilder from './../../../../../model/tree-builder';
 import TreeUtils from './../../../../../model/tree-util';
-import {Button, Checkbox, Form, Grid} from 'semantic-ui-react';
+import { Button, Checkbox, Form, Grid } from 'semantic-ui-react';
 
 /**
  * React component for a service definition.
@@ -290,7 +290,7 @@ class PropertyWindow extends React.Component {
                         </label>
                     </Grid.Column>
                     <Grid.Column
-                        width={(this.isVarDefEnabled ? '' : ' content-disabled' + ' ten') }
+                        width={(this.isVarDefEnabled ? '' : ' content-disabled' + ' ten')}
                     >
                         <input
                             id='vardef'
@@ -317,11 +317,11 @@ class PropertyWindow extends React.Component {
             <Grid key={key.identifier}>
                 <Grid.Row>
                     <Grid.Column width={6}>
-                            <label
-                                htmlFor={key.identifier}
-                            >
-                                {_.startCase(key.identifier)}
-                            </label>
+                        <label
+                            htmlFor={key.identifier}
+                        >
+                            {_.startCase(key.identifier)}
+                        </label>
                     </Grid.Column>
                     <Grid.Column width={10}>
                         <Checkbox
@@ -495,10 +495,10 @@ class PropertyWindow extends React.Component {
                 // If the value is a Literal Node
                 if (TreeUtils.isLiteral(element.getValue())
                     || TreeUtils.isSimpleVariableRef(element.getValue())) {
-                    const obj = _.find(fields, {identifier: key});
+                    const obj = _.find(fields, { identifier: key });
                     obj.value = (this.getAddedValueOfProp(element.getValue()));
                 } else if (TreeUtils.isRecordLiteralExpr(element.getValue())) {
-                    const propName = _.find(fields, {identifier: key});
+                    const propName = _.find(fields, { identifier: key });
                     this.getValueOfStructs(element.getValue(), propName.fields);
                     propName.value = this.getStringifiedMap(propName.fields);
                 }
@@ -517,29 +517,29 @@ class PropertyWindow extends React.Component {
                             htmlFor={key.identifier}
                         >
                             {_.startCase(key.identifier)}
-                            </label>
+                        </label>
                     </Grid.Column>
                     <Grid.Column width={10}>
-                            <input
-                                id={key.identifier}
-                                name={key.identifier}
-                                type='text'
-                                placeholder='Defined option object or a method'
-                                value={key.value}
-                                onChange={event => this.onChange(event, key)}
-                            />
-                            <span className='input-group-btn'>
-                                <Button
-                                    id='viewOptionParams'
-                                    onClick={() => {
-                                        this.toggleConnectorParamProperties(key.identifier, key.connectorParams);
-                                    }}
-                                >
-                                    <i
-                                        className='fw fw-configurations connector-init-configure'
-                                    />
-                                </Button>
-                            </span>
+                        <input
+                            id={key.identifier}
+                            name={key.identifier}
+                            type='text'
+                            placeholder='Defined option object or a method'
+                            value={key.value}
+                            onChange={event => this.onChange(event, key)}
+                        />
+                        <span className='input-group-btn'>
+                            <Button
+                                id='viewOptionParams'
+                                onClick={() => {
+                                    this.toggleConnectorParamProperties(key.identifier, key.connectorParams);
+                                }}
+                            >
+                                <i
+                                    className='fw fw-configurations connector-init-configure'
+                                />
+                            </Button>
+                        </span>
                     </Grid.Column>
                 </Grid.Row>
             </Grid>);
@@ -647,7 +647,7 @@ class PropertyWindow extends React.Component {
                         />
                     </Grid.Column>
                 </Grid.Row>
-        </Grid>);
+            </Grid>);
     }
 
     /**
@@ -658,7 +658,7 @@ class PropertyWindow extends React.Component {
     onTagsAdded(event, key) {
         if (event.keyCode === 13 || event.keyCode === 188) {
             event.preventDefault();
-            const {value} = event.target;
+            const { value } = event.target;
             if (!key.value) {
                 key.value = [];
             }
@@ -756,37 +756,37 @@ class PropertyWindow extends React.Component {
                             <Form size='small'>
                                 <Form.Group>
 
-                                {!_.isNil(this.isVarDefEnabled) &&
+                                    {!_.isNil(this.isVarDefEnabled) &&
                                 this.renderVariableReferenceSection(this.varDefInitRef)}
-                                <div
-                                    className={this.isVarDefEnabled ? 'content-disabled' : ''}
-                                >
-                                    {this.state.properties.map((key) => {
-                                        if (key.bType === 'int') {
-                                            return this.renderNumericInputs(key);
-                                        } else if (key.bType === 'string') {
-                                            return this.renderTextInputs(key);
-                                        } else if (key.bType === 'boolean') {
-                                            let booleanValue = false;
-                                            if (key.value) {
-                                                booleanValue = JSON.parse(key.value);
-                                            }
-                                            return this.renderBooleanInputs(key, booleanValue);
-                                        } else if (key.bType === 'array') {
-                                            return this.renderTagInputs(key);
-                                        } else if (key.bType === 'map') {
-                                            return this.renderTextInputs(key);
-                                        } else if (key.bType === 'struct') {
-                                            return this.renderStructs(key);
-                                        } else if (key.bType === 'enum') {
-                                            return this.renderSelectBox(key);
-                                        } else if (key.isConnector) {
+                                    <div
+                                        className={this.isVarDefEnabled ? 'content-disabled' : ''}
+                                    >
+                                        {this.state.properties.map((key) => {
+                                            if (key.bType === 'int') {
+                                                return this.renderNumericInputs(key);
+                                            } else if (key.bType === 'string') {
+                                                return this.renderTextInputs(key);
+                                            } else if (key.bType === 'boolean') {
+                                                let booleanValue = false;
+                                                if (key.value) {
+                                                    booleanValue = JSON.parse(key.value);
+                                                }
+                                                return this.renderBooleanInputs(key, booleanValue);
+                                            } else if (key.bType === 'array') {
+                                                return this.renderTagInputs(key);
+                                            } else if (key.bType === 'map') {
+                                                return this.renderTextInputs(key);
+                                            } else if (key.bType === 'struct') {
+                                                return this.renderStructs(key);
+                                            } else if (key.bType === 'enum') {
+                                                return this.renderSelectBox(key);
+                                            } else if (key.isConnector) {
                                             return this.renderConnectorProps(key);
                                         } else { // If not any of the types render a simple text box
                                             return this.renderTextInputs(key);
                                         }
-                                    })}
-                                </div>
+                                        })}
+                                    </div>
                                 </Form.Group>
                             </Form>
                         </Grid.Row>
@@ -798,7 +798,7 @@ class PropertyWindow extends React.Component {
                             // className='btn propWindowBackBtn'
                             type='button'
                             onClick={this.goToPreviousView}
-                        > <i className='fw fw-left propWindowBackIcon'/> Back </Button>
+                        > <i className='fw fw-left propWindowBackIcon' /> Back </Button>
                                 }
                         {this.props.propertiesExist &&
                         <Button

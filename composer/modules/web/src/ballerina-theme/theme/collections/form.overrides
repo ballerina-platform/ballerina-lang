@@ -38,4 +38,21 @@
  .ui.form input[type="tel"]:focus, .ui.form input[type="time"]:focus, .ui.form input[type="text"]:focus,
  .ui.form input[type="file"]:focus, .ui.form input[type="url"]:focus{
   border-color    : @orange ;
- }
+}
+
+.ui.input.inverted, .ui.fluid.input, .field.inverted {
+
+    input[type="text"], .ui.compact.selection.dropdown {
+        background  : #3a3a3a !important;
+        color       : @off-white ;
+    }
+
+    .ui.compact.selection.dropdown{
+        width   : 100% !important;
+        margin  : 0 !important;
+
+        i.dropdown.icon{
+            color   : @off-white ;
+        }
+    }
+}
