@@ -27,7 +27,7 @@ import org.wso2.transport.http.netty.common.Constants;
 import org.wso2.transport.http.netty.config.TransportsConfiguration;
 import org.wso2.transport.http.netty.contract.Http2ClientConnector;
 import org.wso2.transport.http.netty.contract.HttpWsConnectorFactory;
-import org.wso2.transport.http.netty.contractimpl.HttpWsConnectorFactoryImpl;
+import org.wso2.transport.http.netty.contractimpl.DefaultHttpWsConnectorFactory;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 import org.wso2.transport.http.netty.message.HTTPConnectorUtil;
 import org.wso2.transport.http.netty.message.HttpMessageDataStreamer;
@@ -54,7 +54,7 @@ public class Http2ClientConnectorBasicTestCase {
                 "/simple-test-config" + File.separator + "netty-transports.yml");
 
         http2Server = TestUtil.startHTTPServer(TestUtil.HTTP_SERVER_PORT, new Http2EchoServerInitializer());
-        HttpWsConnectorFactory connectorFactory = new HttpWsConnectorFactoryImpl();
+        HttpWsConnectorFactory connectorFactory = new DefaultHttpWsConnectorFactory();
         http2ClientConnector = connectorFactory.createHttp2ClientConnector(
                 HTTPConnectorUtil.getTransportProperties(transportsConfiguration),
                 HTTPConnectorUtil.getSenderConfiguration(transportsConfiguration, Constants.HTTP_SCHEME));
