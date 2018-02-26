@@ -332,6 +332,10 @@ function abortInitiatorTransaction (string transactionId) returns (string messag
         } else {
             e = err;
         }
+        boolean localAbortSuccessful = abortResourceManagers(transactionId);
+        if(!localAbortSuccessful) {
+            log:printError("Aborting local resource managers failed");
+        }
     }
     return;
 }
