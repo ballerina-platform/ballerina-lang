@@ -20,6 +20,7 @@ package org.ballerinalang.config;
 
 import org.ballerinalang.config.utils.ConfigFileParserException;
 
+import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -51,9 +52,11 @@ public class ConfigRegistry {
      * Prepares for parsing and loading the configurations by initializing the config processor.
      *
      * @param runtimeParams The Ballerina runtime parameters (-B params)
+     * @param ballerinaConfPath Path to the default ballerina.conf file
      */
-    public void initRegistry(Map<String, String> runtimeParams) {
+    public void initRegistry(Map<String, String> runtimeParams, Path ballerinaConfPath) {
         confProcessor.setRuntimeConfiguration(runtimeParams);
+        confProcessor.setBallerinaConfDefaultPath(ballerinaConfPath);
     }
 
     /**
