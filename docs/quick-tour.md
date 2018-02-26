@@ -67,8 +67,8 @@ Once you have accessed the composer, you can have a look around using the availa
     
     ![alt text](images/echoServiceNew1.png "Echo Service program")
 
-    Notice that on the top you have a add button containing the various constructs that you'll use to build your integration. When you select a construct it will be drawn in the canvas. This is where you build your sequence diagrams that define your integration logic. 
-    
+    Notice that on the top you have an add button containing the various constructs that you'll use to build your integration. When you select a construct it is drawn in the canvas. This is where you build your sequence diagrams that define your integration logic.
+        
     ![alt text](images/ConstructsNew1.png "Constructs")
     
     Some constructs have a **life line** of execution where you program the statements to be executed. This defines the flow of execution. The life line is represented by a vertical line in the default program or any other construct of the **echoService**.
