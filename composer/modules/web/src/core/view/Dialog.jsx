@@ -19,7 +19,7 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Modal, Header, Message, Segment } from 'semantic-ui-react';
+import { Modal, Header, Message, Segment, Transition } from 'semantic-ui-react';
 
 /**
  * Base class for popup dialogs
@@ -55,29 +55,31 @@ class Dialog extends React.Component {
      */
     render() {
         return (
-            <Modal
-                open={this.props.show}
-                onClose={this.close}
-                closeIcon
-                size={this.props.size}
-                className={`inverted ${this.props.className}`}
-            >
-                <Header icon={this.props.titleIcon} content={this.props.title} />
-                <Modal.Content>
-                    <Segment inverted>
-                        {
-                            this.props.error &&
-                            <Message negative>
-                                <Message.Header>{this.props.error}</Message.Header>
-                            </Message>
-                        }
-                        {this.props.children}
-                    </Segment>
-                </Modal.Content>
-                <Modal.Actions>
-                    {this.props.actions}
-                </Modal.Actions>
-            </Modal>
+            <Transition animation='fade down' duration={500} transitionOnMount unmountOnHide>
+                <Modal
+                    open={this.props.show}
+                    onClose={this.close}
+                    closeIcon
+                    size={this.props.size}
+                    className={`inverted ${this.props.className}`}
+                >
+                    <Header icon={this.props.titleIcon} content={this.props.title} />
+                    <Modal.Content>
+                        <Segment inverted>
+                            {
+                                this.props.error &&
+                                <Message negative>
+                                    <Message.Header>{this.props.error}</Message.Header>
+                                </Message>
+                            }
+                            {this.props.children}
+                        </Segment>
+                    </Modal.Content>
+                    <Modal.Actions>
+                        {this.props.actions}
+                    </Modal.Actions>
+                </Modal>
+            </Transition>
         );
     }
 }
