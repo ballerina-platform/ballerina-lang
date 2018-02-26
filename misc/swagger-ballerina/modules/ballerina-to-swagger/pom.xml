@@ -78,7 +78,7 @@
         <dependency>
         <groupId>io.swagger.parser.v3</groupId>
         <artifactId>swagger-parser-v2-converter</artifactId>
-        <version>2.0.0-rc3</version>
+        <version>${swagger.parser.v2.converter.version}</version>
     </dependency>
 
     <dependency>
