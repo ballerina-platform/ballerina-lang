@@ -19,35 +19,28 @@
 package org.ballerinalang.model.tree.clauses;
 
 import org.ballerinalang.model.tree.Node;
-
-import java.util.List;
+import org.ballerinalang.model.tree.expressions.ExpressionNode;
 
 /**
- * This class represents the streaming input clause in streams/tables' SQLish syntax.
+ * This interface represents the "join" clause of table/streams SQLish syntax.
  * <pre>Grammar:
- *      Identifier whereClause?  windowClause? whereClause? (AS alias=Identifier)?
+ *      JOIN streamingInput ON expression
  *
  * E.g.
- *      LogStream where timestamp == 1506756543
+ *      join LogStream where timestamp == 1506756543
  *                  window time(3 sec)
  *                      where tenantId == -1234 as tempStream
+ *                          on tempStream.component == anotherStream.component
+ *
  * </pre>
  */
-public interface StreamingInput extends Node {
+public interface JoinStreamingInput extends Node {
 
-    void addStreamingCondition(WhereNode where);
+    void setStreamingInput(StreamingInput streamingInput);
 
-    List<WhereNode> getStreamingConditions();
+    StreamingInput getStreamingInput();
 
-    void setWindowClause(WindowClauseNode windowClause);
+    void setOnExpression(ExpressionNode expression);
 
-    WindowClauseNode getWindowClause();
-
-    void setIdentifier(String identifier);
-
-    String getIdentifier();
-
-    void setAlias(String alias);
-
-    String getAlias();
+    ExpressionNode getOnExpression();
 }

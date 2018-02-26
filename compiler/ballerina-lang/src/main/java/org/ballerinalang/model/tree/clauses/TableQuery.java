@@ -20,34 +20,31 @@ package org.ballerinalang.model.tree.clauses;
 
 import org.ballerinalang.model.tree.Node;
 
-import java.util.List;
-
 /**
- * This class represents the streaming input clause in streams/tables' SQLish syntax.
+ * This interface represents syntax for querying tables in stream/tables' SQL syntax.
  * <pre>Grammar:
- *      Identifier whereClause?  windowClause? whereClause? (AS alias=Identifier)?
+ *      FROM streamingInput joinStreamingInput? selectClause? orderByClause?
  *
  * E.g.
- *      LogStream where timestamp == 1506756543
- *                  window time(3 sec)
- *                      where tenantId == -1234 as tempStream
+ *      from studentTable where age > 4 as tempTable join soccerPlayerTable
+ *              on tempTable.name = soccerPlayerTable.name select name, age, school order by name.
  * </pre>
  */
-public interface StreamingInput extends Node {
+public interface TableQuery extends Node {
 
-    void addStreamingCondition(WhereNode where);
+    void setStreamingInput(StreamingInput streampingInput);
 
-    List<WhereNode> getStreamingConditions();
+    StreamingInput getStreamingInput();
 
-    void setWindowClause(WindowClauseNode windowClause);
+    void setJoinStreamingInput(JoinStreamingInput joinStreamingInput);
 
-    WindowClauseNode getWindowClause();
+    JoinStreamingInput getJoinStreamingInput();
 
-    void setIdentifier(String identifier);
+    void setSelectClause(SelectClauseNode selectClause);
 
-    String getIdentifier();
+    SelectClauseNode getSelectClauseNode();
 
-    void setAlias(String alias);
+    void setOrderByClause(OrderByNode orderByClause);
 
-    String getAlias();
+    OrderByNode getOrderByNode();
 }

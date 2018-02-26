@@ -16,31 +16,28 @@
  * under the License.
  */
 
-package org.wso2.ballerinalang.compiler.tree.clauses;
+package org.wso2.ballerinalang.compiler.tree.expressions;
 
 import org.ballerinalang.model.tree.NodeKind;
-import org.ballerinalang.model.tree.clauses.StreamingInput;
-import org.ballerinalang.model.tree.clauses.WhereNode;
-import org.wso2.ballerinalang.compiler.tree.BLangNode;
+import org.ballerinalang.model.tree.clauses.TableQuery;
+import org.ballerinalang.model.tree.expressions.TableQueryExpression;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 
-import java.util.ArrayList;
-import java.util.List;
-
 /**
- * Implementation of {@link StreamingInput}.
+ * The Implementation of {@link TableQueryExpression}.
  */
-public class BlangStreamingInput extends BLangNode implements StreamingInput {
+public class BLangTableQueryExpression extends BLangExpression implements TableQueryExpression {
 
-    private List<WhereNode> streamingConditions = new ArrayList<>();
+    private TableQuery tableQuery;
+
     @Override
-    public void addStreamingCondition(WhereNode where) {
-        this.streamingConditions.add(where);
+    public void setTableQuery(TableQuery tableQuery) {
+        this.tableQuery = tableQuery;
     }
 
     @Override
-    public List<WhereNode> getStreamingConditions() {
-        return this.streamingConditions;
+    public TableQuery getTableQuery() {
+        return this.tableQuery;
     }
 
     @Override
@@ -50,6 +47,6 @@ public class BlangStreamingInput extends BLangNode implements StreamingInput {
 
     @Override
     public NodeKind getKind() {
-        return NodeKind.STREAMING_INPUT;
+        return NodeKind.TABLE_QUERY_EXPRESSION;
     }
 }

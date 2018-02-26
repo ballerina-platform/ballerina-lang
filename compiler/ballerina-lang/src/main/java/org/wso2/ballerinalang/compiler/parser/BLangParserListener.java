@@ -2054,6 +2054,8 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         if (ctx.exception != null) {
             return;
         }
+
+        this.pkgBuilder.addTableQueryExpression(getCurrentPos(ctx), getWS(ctx));
     }
 
     @Override
@@ -2198,24 +2200,6 @@ public class BLangParserListener extends BallerinaParserBaseListener {
     }
 
     @Override
-    public void enterStreamingInput(BallerinaParser.StreamingInputContext ctx) {
-        if (ctx.exception != null) {
-            return;
-        }
-
-        this.pkgBuilder.startStreamingInputNode(getCurrentPos(ctx), getWS(ctx));
-    }
-
-    @Override
-    public void exitStreamingInput(BallerinaParser.StreamingInputContext ctx) {
-        if (ctx.exception != null) {
-            return;
-        }
-
-        this.pkgBuilder.endStreamingInputNode(getCurrentPos(ctx), getWS(ctx));
-    }
-
-    @Override
     public void enterSetAssignmentClause(BallerinaParser.SetAssignmentClauseContext ctx) {
         if (ctx.exception != null) {
             return;
@@ -2328,8 +2312,78 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         }
         System.out.println("BBBB" + count);
         this.pkgBuilder.endPatternStreamingInputNode(getCurrentPos(ctx), getWS(ctx));
-
     }
+
+    @Override
+    public void enterStreamingInput(BallerinaParser.StreamingInputContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+
+        this.pkgBuilder.startStreamingInputNode(getCurrentPos(ctx), getWS(ctx));
+    }
+
+    @Override
+    public void exitStreamingInput(BallerinaParser.StreamingInputContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+
+        boolean isWindowAvailable = false;
+        boolean isfirstWhereClauseAvailable = false;
+        boolean isSecondWhereClauseAvailable = false;
+        isWindowAvailable = ctx.windowClause() == null ? false : true;
+        isfirstWhereClauseAvailable = ctx.whereClause(0) == null ? false : true;
+        isSecondWhereClauseAvailable = ctx.whereClause(1) == null ? false : true;
+        String identifier = ctx.Identifier(0).getText();
+        String alias = null;
+        if (ctx.alias != null) {
+            alias = ctx.alias.getText();
+        }
+
+        this.pkgBuilder.endStreamingInputNode(isfirstWhereClauseAvailable, isSecondWhereClauseAvailable,
+                isWindowAvailable, identifier, alias, getCurrentPos(ctx), getWS(ctx));
+    }
+
+    @Override
+    public void enterJoinStreamingInput(BallerinaParser.JoinStreamingInputContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+
+        this.pkgBuilder.startJoinStreamingInputNode(getCurrentPos(ctx), getWS(ctx));
+    }
+
+    @Override
+    public void exitJoinStreamingInput(BallerinaParser.JoinStreamingInputContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+
+        this.pkgBuilder.endJoinStreamingInputNode(getCurrentPos(ctx), getWS(ctx));
+    }
+
+    @Override
+    public void enterTableQuery(BallerinaParser.TableQueryContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+
+        this.pkgBuilder.startTableQueryNode(getCurrentPos(ctx), getWS(ctx));
+    }
+
+    @Override
+    public void exitTableQuery(BallerinaParser.TableQueryContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+        boolean isSelectClauseAvailable = ctx.selectClause() == null ? false : true;
+        boolean isOrderByClauseAvailable = ctx.orderByClause() == null ? false : true;
+        boolean isJoinClauseAvailable = ctx.joinStreamingInput() == null ? false : true;
+        this.pkgBuilder.endTableQueryNode(isJoinClauseAvailable, isSelectClauseAvailable, isOrderByClauseAvailable,
+                getCurrentPos(ctx), getWS(ctx));
+    }
+
 
     private DiagnosticPos getCurrentPos(ParserRuleContext ctx) {
         int startLine = ctx.getStart().getLine();

@@ -76,6 +76,7 @@ public enum NodeKind {
 
     /* streams/tables expressions */
     SELECT_EXPRESSION,
+    TABLE_QUERY_EXPRESSION,
 
     /* Statements */
     ABORT,
@@ -118,6 +119,8 @@ public enum NodeKind {
     FUNCTION_CLAUSE,
     WINDOW_CLAUSE,
     STREAMING_INPUT,
+    JOIN_STREAMING_INPUT,
+    TABLE_QUERY,
     SET_ASSIGNMENT_CLAUSE,
     SET,
     STREAM_ACTION,

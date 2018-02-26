@@ -44,6 +44,7 @@ import org.ballerinalang.model.tree.WorkerNode;
 import org.ballerinalang.model.tree.clauses.FunctionClauseNode;
 import org.ballerinalang.model.tree.clauses.GroupByNode;
 import org.ballerinalang.model.tree.clauses.HavingNode;
+import org.ballerinalang.model.tree.clauses.JoinStreamingInput;
 import org.ballerinalang.model.tree.clauses.OrderByNode;
 import org.ballerinalang.model.tree.clauses.PatternStreamingEdgeInputNode;
 import org.ballerinalang.model.tree.clauses.PatternStreamingInputNode;
@@ -52,10 +53,12 @@ import org.ballerinalang.model.tree.clauses.SelectExpressionNode;
 import org.ballerinalang.model.tree.clauses.SetAssignmentNode;
 import org.ballerinalang.model.tree.clauses.StreamActionNode;
 import org.ballerinalang.model.tree.clauses.StreamingInput;
+import org.ballerinalang.model.tree.clauses.TableQuery;
 import org.ballerinalang.model.tree.clauses.WhereNode;
 import org.ballerinalang.model.tree.clauses.WindowClauseNode;
 import org.ballerinalang.model.tree.expressions.AnnotationAttachmentAttributeValueNode;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
+import org.ballerinalang.model.tree.expressions.TableQueryExpression;
 import org.ballerinalang.model.tree.expressions.XMLAttributeNode;
 import org.ballerinalang.model.tree.expressions.XMLLiteralNode;
 import org.ballerinalang.model.tree.statements.BlockNode;
@@ -88,16 +91,18 @@ import org.wso2.ballerinalang.compiler.tree.BLangWorker;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangGroupBy;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangHaving;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangJoinStreamingInput;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangOrderBy;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangPatternStreamingEdgeInput;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangPatternStreamingInput;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangSelectClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangSelectExpression;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangStreamingInput;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangTableQuery;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangSetAssignment;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangStreamAction;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangWhere;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangWindow;
-import org.wso2.ballerinalang.compiler.tree.clauses.BlangStreamingInput;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAttachmentAttribute;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAttachmentAttributeValue;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrayLiteral;
@@ -115,6 +120,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLang
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangRecordKeyValue;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangStringTemplateLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableQueryExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTernaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeCastExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
@@ -258,6 +264,10 @@ public class BLangPackageBuilder {
     private Stack<WindowClauseNode> windowClausesStack = new Stack<>();
 
     private Stack<StreamingInput> streamingInputStack = new Stack<>();
+
+    private Stack<JoinStreamingInput> joinStreamingInputsStack = new Stack<>();
+
+    private Stack<TableQuery> tableQueriesStack = new Stack<>();
 
     private Stack<SetAssignmentNode> setAssignmentStack = new Stack<>();
 
@@ -2022,16 +2032,79 @@ public class BLangPackageBuilder {
 
     public void startStreamingInputNode(DiagnosticPos pos, Set<Whitespace> ws) {
         StreamingInput streamingInput = TreeBuilder.createStreamingInputNode();
-        ((BlangStreamingInput) streamingInput).pos = pos;
-        ((BlangStreamingInput) streamingInput).addWS(ws);
+        ((BLangStreamingInput) streamingInput).pos = pos;
+        ((BLangStreamingInput) streamingInput).addWS(ws);
         this.streamingInputStack.push(streamingInput);
     }
 
-    public void endStreamingInputNode(DiagnosticPos pos, Set<Whitespace> ws) {
-        StreamingInput streamingInput = this.streamingInputStack.peek();
-        ((BlangStreamingInput) streamingInput).pos = pos;
-        ((BlangStreamingInput) streamingInput).addWS(ws);
+    public void endStreamingInputNode(boolean isFirstWhereAvailable, boolean isSecondWhereAvailable,
+            boolean isWindowAvailable, String identifier, String alias, DiagnosticPos pos, Set<Whitespace> ws) {
+        BLangStreamingInput streamingInput = (BLangStreamingInput) this.streamingInputStack.peek();
+        streamingInput.pos = pos;
+        streamingInput.addWS(ws);
+        if (isSecondWhereAvailable) {
+            streamingInput.addStreamingCondition(this.whereClauseStack.pop());
+        }
+        if (isFirstWhereAvailable) {
+            streamingInput.addStreamingCondition(this.whereClauseStack.pop());
+        }
+        if (isWindowAvailable) {
+            streamingInput.setWindowClause(this.windowClausesStack.pop());
+        }
+        streamingInput.setIdentifier(identifier);
+        streamingInput.setAlias(alias);
+    }
 
+    public void startJoinStreamingInputNode(DiagnosticPos pos, Set<Whitespace> ws) {
+        JoinStreamingInput joinStreamingInput = TreeBuilder.createJoinStreamingInputNode();
+        ((BLangJoinStreamingInput) joinStreamingInput).pos = pos;
+        ((BLangJoinStreamingInput) joinStreamingInput).addWS(ws);
+        this.joinStreamingInputsStack.push(joinStreamingInput);
+    }
+
+    public void endJoinStreamingInputNode(DiagnosticPos pos, Set<Whitespace> ws) {
+        if (this.streamingInputStack.empty()) {
+            throw new IllegalStateException("Streaming input cannot be empty when processing a Join clause");
+        }
+        if (this.exprNodeStack.empty()) {
+            throw new IllegalStateException("On expression cannot be empty when processing a Join clause");
+        }
+        JoinStreamingInput joinStreamingInput = this.joinStreamingInputsStack.peek();
+        ((BLangJoinStreamingInput) joinStreamingInput).pos = pos;
+        ((BLangJoinStreamingInput) joinStreamingInput).addWS(ws);
+        joinStreamingInput.setStreamingInput(this.streamingInputStack.pop());
+        joinStreamingInput.setOnExpression(this.exprNodeStack.pop());
+    }
+
+    public void startTableQueryNode(DiagnosticPos pos, Set<Whitespace> ws) {
+        TableQuery tableQuery = TreeBuilder.createTableQueryNode();
+        ((BLangTableQuery) tableQuery).pos = pos;
+        ((BLangTableQuery) tableQuery).addWS(ws);
+        this.tableQueriesStack.push(tableQuery);
+    }
+
+    public void endTableQueryNode(boolean isJoinClauseAvailable, boolean isSelectClauseAvailable,
+                                  boolean isOrderByClauseAvailable, DiagnosticPos pos, Set<Whitespace> ws) {
+        BLangTableQuery tableQuery = (BLangTableQuery) this.tableQueriesStack.peek();
+        tableQuery.pos = pos;
+        tableQuery.addWS(ws);
+        tableQuery.setStreamingInput(this.streamingInputStack.pop());
+        if (isJoinClauseAvailable) {
+            tableQuery.setJoinStreamingInput(this.joinStreamingInputsStack.pop());
+        }
+        if (isSelectClauseAvailable) {
+            tableQuery.setSelectClause(this.selectClausesStack.pop());
+        }
+        if (isOrderByClauseAvailable) {
+            tableQuery.setOrderByClause(this.orderByClauseStack.pop());
+        }
+    }
+
+    public void addTableQueryExpression(DiagnosticPos pos, Set<Whitespace> ws) {
+        TableQueryExpression tableQueryExpression = TreeBuilder.createTableQueryExpression();
+        ((BLangTableQueryExpression) tableQueryExpression).pos = pos;
+        ((BLangTableQueryExpression) tableQueryExpression).addWS(ws);
+        this.exprNodeStack.push(tableQueryExpression);
     }
 
     public void startSetAssignmentClauseNode(DiagnosticPos pos, Set<Whitespace> ws) {
