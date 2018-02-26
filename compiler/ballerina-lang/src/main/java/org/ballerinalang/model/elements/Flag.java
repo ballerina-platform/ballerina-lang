@@ -50,5 +50,13 @@ public enum Flag {
      * TODO need to fix this in a better way.
      * this is needed for composer to identify whether user defined type is a connector or not.
      */
-    CONNECTOR
+    CONNECTOR,
+    /**
+     * Indicates Flagged node is a sensitive node and tainted data should not be passed into the node.
+     */
+    SENSITIVE,
+    /**
+     * Indicates Flagged node is a tainted node.
+     */
+    TAINTED
 }

@@ -96,6 +96,8 @@ public enum NodeKind {
     LOCK,
     WORKER_RECEIVE,
     WORKER_SEND,
+    TAINT,
+    UNTAINT,
 
     /* Types */
     ARRAY_TYPE,
