@@ -87,6 +87,16 @@ public class LauncherUtils {
             throw new RuntimeException("failed to start ballerina runtime: " + e.getMessage(), e);
         }
 
+        /**
+         * This is to register service irrespective of whether program file has main function or not.
+         * There are cases in websocket and gRPC streaming where we need to register listener services to setup
+         * non-blocking connection.
+         */
+        ServerConnectorRegistry serverConnectorRegistry = new ServerConnectorRegistry();
+        programFile.setServerConnectorRegistry(serverConnectorRegistry);
+        serverConnectorRegistry.initServerConnectors();
+        BLangProgramRunner.runService(programFile);
+
         if (runServices || !programFile.isMainEPAvailable()) {
             if (args.length > 0) {
                 throw LauncherUtils.createUsageException("too many arguments");
@@ -110,15 +120,8 @@ public class LauncherUtils {
 
     public static void runServices(ProgramFile programFile) {
         PrintStream outStream = System.out;
-
-        ServerConnectorRegistry serverConnectorRegistry = new ServerConnectorRegistry();
-        programFile.setServerConnectorRegistry(serverConnectorRegistry);
-        serverConnectorRegistry.initServerConnectors();
-
         outStream.println("ballerina: deploying service(s) in '" + programFile.getProgramFilePath() + "'");
-        BLangProgramRunner.runService(programFile);
-
-        serverConnectorRegistry.deploymentComplete();
+        programFile.getServerConnectorRegistry().deploymentComplete();
     }
 
     public static Path getSourceRootPath(String sourceRoot) {

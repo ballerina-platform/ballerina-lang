@@ -24,3 +24,6 @@ public annotation serviceConfig attach service {
     boolean clientStreaming;
     boolean serverStreaming;
 }
+
+public annotation messageListener attach service {
+}

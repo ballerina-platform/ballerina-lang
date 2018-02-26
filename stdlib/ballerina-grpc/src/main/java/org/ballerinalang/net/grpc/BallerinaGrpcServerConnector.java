@@ -19,6 +19,7 @@ package org.ballerinalang.net.grpc;
 
 import io.grpc.Server;
 import org.ballerinalang.annotation.JavaSPIService;
+import org.ballerinalang.connector.api.Annotation;
 import org.ballerinalang.connector.api.BallerinaConnectorException;
 import org.ballerinalang.connector.api.BallerinaServerConnector;
 import org.ballerinalang.connector.api.Service;
@@ -52,8 +53,14 @@ public class BallerinaGrpcServerConnector implements BallerinaServerConnector {
     public void serviceRegistered(Service service) throws BallerinaConnectorException {
         if (PROTOCOL_PACKAGE_GRPC.equals(service.getProtocolPackage())) {
             try {
-                servicesBuilder.registerService(service);
-                serviceMap.put(service.getName(), service);
+                Annotation serviceAnnotation = MessageUtils.getMessageListenerAnnotation(service, MessageConstants
+                        .PROTOCOL_PACKAGE_GRPC);
+                if (serviceAnnotation != null) {
+                    serviceMap.put(service.getName(), service);
+                } else {
+                    servicesBuilder.registerService(service);
+                    serviceMap.put(service.getName(), service);
+                }
             } catch (GrpcServerException e) {
                 throw new BallerinaConnectorException("Error while registering the service : " + service.getName(), e);
             }

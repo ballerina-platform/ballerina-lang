@@ -22,8 +22,7 @@ import java.util.Map;
  * Util class for message operationss.
  */
 public class MessageUtil {
-    public static Message generateProtoMessage(BValue responseValue,
-                                                                   Descriptors.Descriptor outputType) {
+    public static Message generateProtoMessage(BValue responseValue, Descriptors.Descriptor outputType) {
         Message.Builder responseBuilder = Message.newBuilder(outputType.getName());
         int stringIndex = 0;
         int intIndex = 0;

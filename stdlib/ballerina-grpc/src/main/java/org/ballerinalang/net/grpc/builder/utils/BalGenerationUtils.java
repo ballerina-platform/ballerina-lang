@@ -28,8 +28,6 @@ import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.ballerinalang.net.grpc.builder.BalGeneratorConstants.FILE_SEPERATOR;
-
 /**
  * Util functions which are use when generating . bal stub
  */
@@ -98,8 +96,7 @@ public class BalGenerationUtils {
      */
     public static void writeFile(String payload, String fileName, Path balOutPath) throws FileNotFoundException,
             UnsupportedEncodingException {
-        // TODO: 2/26/18 get from system
-        Path path = Paths.get(balOutPath.toString() + FILE_SEPERATOR + fileName);
+        Path path = Paths.get(balOutPath.toString(), fileName);
         PrintWriter writer = new PrintWriter(path.toFile(), "UTF-8");
         writer.print(payload);
         writer.close();
@@ -113,7 +110,6 @@ public class BalGenerationUtils {
      */
     public static Map<String, DescriptorProtos.DescriptorProto> attributeListToMap(java.util.List<DescriptorProtos
             .DescriptorProto> list) {
-        
         Map<String, DescriptorProtos.DescriptorProto> stringObjectMap = new HashMap<>();
         for (DescriptorProtos.DescriptorProto proto : list) {
             stringObjectMap.put(proto.getName(), proto);

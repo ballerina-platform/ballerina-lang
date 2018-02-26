@@ -506,19 +506,6 @@ public class ServiceProtoUtils {
      * @throws GrpcServerException when error occur while writing content to file.
      */
     public static void writeServiceFiles(File protoFileDefinition, String filename) throws GrpcServerException {
-/*        java.io.File configDir = new java.io.File(ServiceProtoConstants.PROTO_BUF_DIRECTORY);
-
-        // create protobuf contract directory.
-        if (!configDir.exists() && !configDir.mkdirs()) {
-            throw new GrpcServerException("Error while creating protobuf contract directory.");
-        }*/
-
-/*        try (PrintWriter out = new PrintWriter(new java.io.File(filename
-                + ServiceProtoConstants.PROTO_FILE_EXTENSION), ServiceProtoConstants.UTF_8_CHARSET)) {
-            out.println(protoFileDefinition.getFileDefinition());
-        } catch (FileNotFoundException | UnsupportedEncodingException e) {
-            throw new GrpcServerException("Error while creating new contract file.", e);
-        }*/
         try {
             // write the proto string to the file in protobuf contract directory
             Path protoFilePath = Paths.get(filename + ServiceProtoConstants.PROTO_FILE_EXTENSION);
@@ -532,7 +519,7 @@ public class ServiceProtoUtils {
             List<byte[]> dependentDescriptorsList = new ArrayList<>();
             dependentDescriptorsList.add(com.google.protobuf.WrappersProto.getDescriptor
                     ().toProto().toByteArray());
-            Path path = Paths.get(filename + ".pb.bal");
+            Path path = Paths.get("");
             new BallerinaFile(fileDescriptor, dependentDescriptorsList, path).build();
         } catch (IOException e) {
             throw new GrpcServerException("Error while writing file descriptor to file.", e);
