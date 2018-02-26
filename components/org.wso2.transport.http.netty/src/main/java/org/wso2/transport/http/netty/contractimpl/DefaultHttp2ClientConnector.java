@@ -36,14 +36,14 @@ import org.wso2.transport.http.netty.sender.http2.OutboundMsgHolder;
 import org.wso2.transport.http.netty.sender.http2.TargetChannel;
 
 /**
- * {@code Http2ClientConnectorImpl} is the implementation of the {@code Http2ClientConnector}.
+ * {@code DefaultHttp2ClientConnector} is the implementation of the {@code Http2ClientConnector}.
  */
-public class Http2ClientConnectorImpl implements Http2ClientConnector {
+public class DefaultHttp2ClientConnector implements Http2ClientConnector {
 
     private static final Logger log = LoggerFactory.getLogger(Http2ClientConnector.class);
     private ConnectionManager connectionManager;
 
-    public Http2ClientConnectorImpl(SenderConfiguration senderConfiguration) {
+    public DefaultHttp2ClientConnector(SenderConfiguration senderConfiguration) {
         connectionManager = new ConnectionManager(senderConfiguration);
     }
 

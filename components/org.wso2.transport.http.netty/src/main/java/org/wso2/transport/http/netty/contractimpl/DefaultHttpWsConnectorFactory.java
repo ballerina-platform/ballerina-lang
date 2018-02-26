@@ -97,7 +97,7 @@ public class DefaultHttpWsConnectorFactory implements HttpWsConnectorFactory {
     @Override
     public Http2ClientConnector createHttp2ClientConnector(
             Map<String, Object> transportProperties, SenderConfiguration senderConfiguration) {
-        return new Http2ClientConnectorImpl(senderConfiguration);
+        return new DefaultHttp2ClientConnector(senderConfiguration);
     }
 
     @Override
