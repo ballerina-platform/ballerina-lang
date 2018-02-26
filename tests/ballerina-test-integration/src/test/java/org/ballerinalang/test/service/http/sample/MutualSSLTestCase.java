@@ -24,7 +24,6 @@ import org.ballerinalang.test.context.LogLeecher;
 import org.ballerinalang.test.context.ServerInstance;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.Test;
-
 import java.io.File;
 
 /**
@@ -36,7 +35,7 @@ public class MutualSSLTestCase extends IntegrationTestCase {
     private ServerInstance ballerinaClient;
     private String serverZipPath;
 
-    @Test
+    @Test(enabled = false)
     public void setUp() throws BallerinaTestException {
         String serverBal = new File(
                 "src" + File.separator + "test" + File.separator + "resources" + File.separator + "MutualSSL"
@@ -45,7 +44,7 @@ public class MutualSSLTestCase extends IntegrationTestCase {
         ballerinaServer.startBallerinaServer(serverBal);
     }
 
-    @Test(description = "Test mutual ssl")
+    @Test(description = "Test mutual ssl", enabled = false)
     public void testMutualSSL() throws Exception {
         serverZipPath = System.getProperty(Constant.SYSTEM_PROP_SERVER_ZIP);
         String serverMessage = "successful";
