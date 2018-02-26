@@ -24,6 +24,7 @@
 @grey                       : #607D8B;
 @black                      : #000000;
 @off-white                  : #f1f1f1;
+@linkColor                  : #f17b31;
 
 /*---- Shades of Gray ----*/
 
