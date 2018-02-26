@@ -23,9 +23,9 @@ import com.google.protobuf.Message;
 import io.grpc.Channel;
 import io.grpc.MethodDescriptor;
 import org.ballerinalang.net.grpc.exception.GrpcClientException;
-import org.ballerinalang.net.grpc.stubs.ProtoFileDefinition;
 import org.ballerinalang.net.grpc.stubs.GrpcBlockingStub;
 import org.ballerinalang.net.grpc.stubs.GrpcNonBlockingStub;
+import org.ballerinalang.net.grpc.stubs.ProtoFileDefinition;
 
 import java.util.Collections;
 import java.util.HashMap;

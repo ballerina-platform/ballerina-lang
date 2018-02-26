@@ -34,9 +34,9 @@ import org.ballerinalang.natives.annotations.BallerinaAction;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.net.grpc.ClientConnectorFactory;
 import org.ballerinalang.net.grpc.exception.GrpcClientException;
-import org.ballerinalang.net.grpc.stubs.ProtoFileDefinition;
 import org.ballerinalang.net.grpc.stubs.GrpcBlockingStub;
 import org.ballerinalang.net.grpc.stubs.GrpcNonBlockingStub;
+import org.ballerinalang.net.grpc.stubs.ProtoFileDefinition;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.StructInfo;
 

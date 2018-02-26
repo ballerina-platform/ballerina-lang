@@ -18,6 +18,7 @@
 package org.ballerinalang.net.grpc.proto.definition;
 
 import com.google.protobuf.DescriptorProtos;
+import org.ballerinalang.net.grpc.proto.ServiceProtoConstants;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -48,7 +49,8 @@ public class Field {
             fieldDefinition.append(fieldLabel).append(" ");
         }
         fieldDefinition.append(fieldType).append(" ").append(fieldDescriptorProto
-                .getName()).append(" = ").append(fieldDescriptorProto.getNumber()).append(";\n");
+                .getName()).append(" = ").append(fieldDescriptorProto.getNumber()).append(";").append
+                (ServiceProtoConstants.NEW_LINE_CHARACTER);
         return fieldDefinition.toString();
 
     }

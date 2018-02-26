@@ -27,7 +27,7 @@ import org.slf4j.LoggerFactory;
  * This is Stream Observer Implementation for gRPC Client Call.
  */
 public class DefaultStreamObserver implements StreamObserver<com.google.protobuf.Message> {
-    public static final Logger logger = LoggerFactory.getLogger(DefaultStreamObserver.class);
+    public static final Logger LOGGER = LoggerFactory.getLogger(DefaultStreamObserver.class);
     
     public DefaultStreamObserver(Context context) {
         BallerinaGrpcServerConnector grpcServerConnector = (BallerinaGrpcServerConnector) ConnectorUtils.
@@ -36,17 +36,17 @@ public class DefaultStreamObserver implements StreamObserver<com.google.protobuf
     
     @Override
     public void onNext(com.google.protobuf.Message value) {
-        logger.info(value.toString());
+        LOGGER.info(value.toString());
 
     }
     
     @Override
     public void onError(Throwable t) {
-        logger.info("Err 2");
+        LOGGER.info("Err 2");
     }
     
     @Override
     public void onCompleted() {
-        logger.info("Done...2");
+        LOGGER.info("Done...2");
     }
 }

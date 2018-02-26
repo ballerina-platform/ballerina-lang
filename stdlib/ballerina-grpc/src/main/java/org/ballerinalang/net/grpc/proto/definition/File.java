@@ -20,6 +20,7 @@ package org.ballerinalang.net.grpc.proto.definition;
 import com.google.protobuf.DescriptorProtos;
 import com.google.protobuf.Descriptors;
 import org.ballerinalang.net.grpc.exception.GrpcServerException;
+import org.ballerinalang.net.grpc.proto.ServiceProtoConstants;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -69,10 +70,13 @@ public class File {
     public String getFileDefinition() {
         StringBuilder fileDefinition = new StringBuilder();
 
-        fileDefinition.append("syntax = \"").append(fileDescriptorProto.getSyntax()).append("\";\n");
-        fileDefinition.append("package ").append(fileDescriptorProto.getPackage()).append(";\n");
+        fileDefinition.append("syntax = \"").append(fileDescriptorProto.getSyntax()).append("\";").append
+                (ServiceProtoConstants.NEW_LINE_CHARACTER);
+        fileDefinition.append("package ").append(fileDescriptorProto.getPackage()).append(";").append
+                (ServiceProtoConstants.NEW_LINE_CHARACTER);
         for (String dependency : dependencyList) {
-            fileDefinition.append("import \"").append(dependency).append("\";\n");
+            fileDefinition.append("import \"").append(dependency).append("\";").append(ServiceProtoConstants
+                    .NEW_LINE_CHARACTER);
         }
         for (Service service : serviceList) {
             fileDefinition.append(service.getServiceDefinition());

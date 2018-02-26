@@ -28,6 +28,8 @@ public class ServiceProtoConstants {
     // Embedded messages, packed repeated fields wire type.
     public static final int MESSAGE_WIRE_TYPE = 2;
     public static final String UTF_8_CHARSET = "UTF-8";
+    // New line character constant.
+    public static final String NEW_LINE_CHARACTER = System.getProperty("line.separator");
 
 
     // proto wrapper message constants

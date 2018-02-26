@@ -18,6 +18,7 @@
 package org.ballerinalang.net.grpc.proto.definition;
 
 import com.google.protobuf.DescriptorProtos;
+import org.ballerinalang.net.grpc.proto.ServiceProtoConstants;
 
 /**
  * Method Definition Builder.
@@ -42,7 +43,7 @@ public class Method {
         methodDefinition.append("\trpc ").append(methodDescriptor.getName()).append("(").append(methodDescriptor
                 .getClientStreaming() ? "stream " : "").append(methodDescriptor.getInputType()).append(") returns (")
                 .append(methodDescriptor.getServerStreaming() ? "stream " : "").append(methodDescriptor.getOutputType())
-                .append(")").append(";\n");
+                .append(")").append(";").append(ServiceProtoConstants.NEW_LINE_CHARACTER);
         return methodDefinition.toString();
     }
 

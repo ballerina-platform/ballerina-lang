@@ -18,6 +18,7 @@
 package org.ballerinalang.net.grpc.proto.definition;
 
 import com.google.protobuf.DescriptorProtos;
+import org.ballerinalang.net.grpc.proto.ServiceProtoConstants;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -44,12 +45,13 @@ public class Service {
 
     public String getServiceDefinition() {
         StringBuilder serviceDefinition = new StringBuilder();
-        serviceDefinition.append("service ").append(serviceDescriptor.getName()).append(" {\n");
+        serviceDefinition.append("service ").append(serviceDescriptor.getName()).append(" {").append
+                (ServiceProtoConstants.NEW_LINE_CHARACTER);
 
         for (Method method : methodList) {
             serviceDefinition.append("\t").append(method.getMethodDefinition());
         }
-        serviceDefinition.append("}\n");
+        serviceDefinition.append("}").append(ServiceProtoConstants.NEW_LINE_CHARACTER);
         return serviceDefinition.toString();
     }
 
