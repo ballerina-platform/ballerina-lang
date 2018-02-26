@@ -120,7 +120,7 @@ public class DelimitedRecordChannel {
             }
         } while (record == null && !readCharacters.isEmpty());
 
-        if (null == record && readCharacters.isEmpty()) {
+        if (null == record) {
             record = readFinalRecord();
         }
         return record;
@@ -233,7 +233,7 @@ public class DelimitedRecordChannel {
                 log.debug("Reading record " + numberOfRecordsReadThroughChannel + " from " + channel.hashCode());
             }
             String record = readRecord();
-            if (null != record) {
+            if (!record.isEmpty() || remaining) {
                 fields = getFields(record);
                 numberOfRecordsReadThroughChannel++;
                 if (log.isDebugEnabled()) {

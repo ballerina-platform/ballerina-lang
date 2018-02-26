@@ -70,6 +70,39 @@ public class RecordInputOutputTest {
         recordChannel.close();
     }
 
+    @Test(description = "Processors records in sequence with hasNext()")
+    public void processRecordSequence() throws IOException, URISyntaxException {
+        int expectedFieldCount = 3;
+        boolean hasNext = false;
+        //Number of characters in this file would be 6
+        ByteChannel byteChannel = TestUtil.openForReading("datafiles/io/records/sample.csv");
+        Channel channel = new MockByteChannel(byteChannel, 0);
+        CharacterChannel characterChannel = new CharacterChannel(channel, StandardCharsets.UTF_8.name());
+        DelimitedRecordChannel recordChannel = new DelimitedRecordChannel(characterChannel, "\n", ",");
+
+        hasNext = recordChannel.hasNext();
+        String[] readRecord = recordChannel.read();
+        Assert.assertEquals(readRecord.length, expectedFieldCount);
+        Assert.assertTrue(hasNext);
+
+        hasNext = recordChannel.hasNext();
+        readRecord = recordChannel.read();
+        Assert.assertEquals(readRecord.length, expectedFieldCount);
+        Assert.assertTrue(hasNext);
+
+        hasNext = recordChannel.hasNext();
+        readRecord = recordChannel.read();
+        Assert.assertEquals(readRecord.length, expectedFieldCount);
+        Assert.assertTrue(hasNext);
+
+        hasNext = recordChannel.hasNext();
+        readRecord = recordChannel.read();
+        Assert.assertEquals(readRecord.length, 0);
+        Assert.assertFalse(hasNext);
+
+        recordChannel.close();
+    }
+
     @Test(description = "Read lengthy records")
     public void readLongRecord() throws IOException, URISyntaxException {
         int expectedFieldCount = 18;
