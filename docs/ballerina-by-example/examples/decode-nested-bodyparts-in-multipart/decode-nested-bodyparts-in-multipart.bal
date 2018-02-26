@@ -2,18 +2,18 @@ import ballerina.net.http;
 import ballerina.mime;
 import ballerina.io;
 
-@http:configuration {basePath:"/nestedparts", port:9093}
-service<http> echo {
+@http:configuration {port:9093}
+service<http> nestedparts {
     @http:resourceConfig {
         methods:["POST"],
         path:"/decoder"
     }
     resource nestedPartReceiver (http:Connection conn, http:InRequest req) {
-        //Extract multiparts from the inbound request
+        //Extract multiparts from the inbound request.
         mime:Entity[] parentParts = req.getMultiparts();
         int i = 0;
         io:println("Hello!");
-        //Loop through parent parts
+        //Loop through parent parts.
         while (i < lengthof parentParts) {
             mime:Entity parentPart = parentParts[i];
             handleNestedParts(parentPart);
@@ -25,7 +25,7 @@ service<http> echo {
     }
 }
 
-//Given a parent part, get it's child parts
+//Given a parent part, get it's child parts.
 function handleNestedParts (mime:Entity parentPart) {
     mime:Entity[] childParts = parentPart.getBodyParts();
     int i = 0;
@@ -37,38 +37,38 @@ function handleNestedParts (mime:Entity parentPart) {
             i = i + 1;
         }
     } else {
-        //When there are no nested parts in a body part, handle the body content directly
+        //When there are no nested parts in a body part, handle the body content directly.
         io:println("Parent doesn't have children. So handling the body content directly...");
-        handleContent (parentPart);
+        handleContent(parentPart);
     }
 }
 
-//Handling body part content logic varies according to user's requirement
+//Handling body part content logic varies according to user's requirement.
 function handleContent (mime:Entity bodyPart) {
     string contentType = bodyPart.contentType.toString();
     if (mime:APPLICATION_XML == contentType || mime:TEXT_XML == contentType) {
-        //Extract xml data from body part and print
+        //Extract xml data from body part and print.
         io:println(bodyPart.getXml());
     } else if (mime:APPLICATION_JSON == contentType) {
-        //Extract json data from body part and print
+        //Extract json data from body part and print.
         io:println(bodyPart.getJson());
-    } else if (mime:TEXT_PLAIN == contentType){
-        //Extract text data from body part and print
+    } else if (mime:TEXT_PLAIN == contentType) {
+        //Extract text data from body part and print.
         io:println(bodyPart.getText());
     } else if ("application/vnd.ms-powerpoint" == contentType) {
-        //Get a byte channel from body part and write content to a file
+        //Get a byte channel from body part and write content to a file.
         writeToFile(bodyPart.getByteChannel());
         io:println("Content saved to file");
     }
 }
 
-function writeToFile(io:ByteChannel byteChannel) {
+function writeToFile (io:ByteChannel byteChannel) {
     string dstFilePath = "./files/savedFile.ppt";
     io:ByteChannel destinationChannel = getByteChannel(dstFilePath, "w");
     blob readContent;
     int numberOfBytesRead = 1;
     while (numberOfBytesRead != 0) {
-        readContent,numberOfBytesRead = byteChannel.readBytes(10000);
+        readContent, numberOfBytesRead = byteChannel.readBytes(10000);
         int numberOfBytesWritten = destinationChannel.writeBytes(readContent, 0);
     }
 }
