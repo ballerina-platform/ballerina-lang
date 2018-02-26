@@ -92,7 +92,7 @@ public class BLangProgramRunner {
         FunctionInfo mainFuncInfo = getMainFunction(mainPkgInfo);
         WorkerExecutionContext context = new WorkerExecutionContext();
         BLangFunctions.invokePackageInitFunction(mainPkgInfo.getInitFunctionInfo(), context);
-        BLangFunctions.invokeCallable(programFile, mainFuncInfo, extractMainArgs(args));
+        BLangFunctions.invokeCallable(mainFuncInfo, extractMainArgs(args));
         BLangScheduler.waitForCompletion();
     }
     
