@@ -21,7 +21,6 @@ import org.ballerinalang.nativeimpl.io.BallerinaIOException;
 import org.ballerinalang.nativeimpl.io.IOConstants;
 import org.ballerinalang.nativeimpl.io.channels.base.Buffer;
 import org.ballerinalang.nativeimpl.io.channels.base.Channel;
-import org.ballerinalang.test.nativeimpl.functions.AsyncTestByteChannel;
 import org.ballerinalang.test.nativeimpl.functions.io.MockByteChannel;
 import org.ballerinalang.test.nativeimpl.functions.io.util.TestUtil;
 import org.testng.Assert;
@@ -93,6 +92,7 @@ public class BytesInputOutputBufferTest {
         Assert.assertEquals(readBytes.length, thirdLapReadLimitExpected);
     }
 
+/*
     @Test(description = "reads bytes from the channel asynchronously")
     public void asyncMultiRead() throws IOException, URISyntaxException {
         int initialReadLimit = 3;
@@ -122,6 +122,7 @@ public class BytesInputOutputBufferTest {
 
         channel.close();
     }
+*/
 
     @Test(description = "Read all bytes from file with larger buffer size")
     public void excessBufferAllocation() throws IOException, URISyntaxException {

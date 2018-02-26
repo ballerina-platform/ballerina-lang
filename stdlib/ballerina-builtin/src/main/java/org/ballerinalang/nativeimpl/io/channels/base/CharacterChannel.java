@@ -201,7 +201,7 @@ public class CharacterChannel {
         return bytes.length;
     }
 
-    /**
+/*    *//**
      * <p>
      * Reads the required number of bytes into the buffer from channel.
      * </p>
@@ -209,14 +209,14 @@ public class CharacterChannel {
      * @param numberOfBytesRequired the number of bytes which should be read.
      * @param numberOfCharsRequired number of characters which is expected from the read.
      * @throws CharacterCodingException when an error occurs during encoding.
-     */
+     *//*
     private void readBytesIntoBufferFromChannel(int numberOfBytesRequired, int numberOfCharsRequired)
             throws CharacterCodingException {
         ByteBuffer byteBuffer = contentBuffer.get(numberOfBytesRequired, channel);
         charBuffer = bytesDecoder.decode(byteBuffer);
         int numberOfCharsProcessed = charBuffer.limit();
         processChars(numberOfCharsRequired, byteBuffer, numberOfCharsProcessed);
-    }
+    }*/
 
     /**
      * Reads bytes asynchronously from the channel.
@@ -224,15 +224,21 @@ public class CharacterChannel {
      * @param numberOfBytesRequired number of bytes required from the channel.
      * @param numberOfCharsRequired number of characters required.
      */
-    private void asyncReadBytesFromChannel(int numberOfBytesRequired,int numberOfCharsRequired)
+    private void asyncReadBytesFromChannel(int numberOfBytesRequired, int numberOfCharsRequired)
             throws CharacterCodingException {
         ByteBuffer buffer;
-        int numberOfCharsProcessed;
+        int numberOfCharsProcessed = 0;
+        CharBuffer intermediateCharacterBuffer;
+        //Provided at this point any remaining character left in the buffer is copied
+        charBuffer = CharBuffer.allocate(numberOfBytesRequired);
         do {
-            buffer = contentBuffer.asyncGet(numberOfBytesRequired, channel);
-            charBuffer = bytesDecoder.decode(buffer);
-            numberOfCharsProcessed = charBuffer.limit();
-        }while (!channel.hasReachedEnd() && numberOfCharsProcessed < numberOfCharsRequired);
+            buffer = contentBuffer.get(numberOfBytesRequired, channel);
+            intermediateCharacterBuffer = bytesDecoder.decode(buffer);
+            numberOfCharsProcessed = numberOfCharsProcessed + intermediateCharacterBuffer.limit();
+            charBuffer.put(intermediateCharacterBuffer);
+        } while (!channel.hasReachedEnd() && numberOfCharsProcessed < numberOfCharsRequired);
+        //We make the char buffer ready to read
+        charBuffer.flip();
         processChars(numberOfCharsRequired, buffer, numberOfCharsProcessed);
     }
 
@@ -245,7 +251,7 @@ public class CharacterChannel {
      * <p>
      * This function will distinguished between these two, if the last character processed is malformed this will
      * return the character as malformed. Since there will be no more bytes left to be read from the channel.
-     *
+     * <p>
      * If the channel does not return EoL there will be a possibility where conjunction between the remaining bytes
      * will produce the content required.
      * </p>
@@ -273,7 +279,7 @@ public class CharacterChannel {
      * @param numberOfCharacters number of characters which needs to be read.
      * @return characters which were read.
      */
-    public String readAsync(int numberOfCharacters) {
+    public String read(int numberOfCharacters) {
         StringBuilder content;
         try {
             //Will identify the number of characters required
@@ -306,13 +312,16 @@ public class CharacterChannel {
         return content.toString();
     }
 
-    /**
+/*
+    */
+/**
      * Reads specified number of characters from a given channel.
      *
      * @param numberOfCharacters the number of characters which should be retrieved.
      * @return the sequence of characters as a string.
      * @throws BallerinaIOException I/O errors.
-     */
+     *//*
+
     public String read(int numberOfCharacters) throws BallerinaIOException {
         StringBuilder content;
         try {
@@ -345,6 +354,7 @@ public class CharacterChannel {
         }
         return content.toString();
     }
+*/
 
     /**
      * Reads all content from the I/O source.

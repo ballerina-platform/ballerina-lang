@@ -53,11 +53,11 @@ public class CharacterInputOutputBufferTest {
         CharacterChannel characterChannel = new CharacterChannel(channel, StandardCharsets.UTF_8.name());
 
         String readCharacters = characterChannel.read(numberOfCharactersToRead);
-        Assert.assertEquals("aa", readCharacters);
+        Assert.assertEquals(readCharacters,"aa");
 
         numberOfCharactersToRead = 4;
         readCharacters = characterChannel.read(numberOfCharactersToRead);
-        Assert.assertEquals("abbǊ", readCharacters);
+        Assert.assertEquals(readCharacters,"abbǊ");
 
         readCharacters = characterChannel.read(numberOfCharactersToRead);
         Assert.assertEquals(readCharacters.length(), 0);

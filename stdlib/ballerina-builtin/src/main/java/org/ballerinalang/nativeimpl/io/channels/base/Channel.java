@@ -18,6 +18,7 @@
 package org.ballerinalang.nativeimpl.io.channels.base;
 
 import org.ballerinalang.nativeimpl.io.BallerinaIOException;
+import org.ballerinalang.nativeimpl.io.channels.base.readers.Reader;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -61,13 +62,13 @@ public abstract class Channel extends AbstractChannel {
 
     private static final Logger log = LoggerFactory.getLogger(Channel.class);
 
-    public Channel(ByteChannel channel, int size) throws BallerinaIOException {
-        super(channel);
+    public Channel(ByteChannel channel, Reader reader, int size) throws BallerinaIOException {
+        super(channel, reader);
         contentBuffer = new Buffer(size);
     }
 
-    public Channel(ByteChannel channel) {
-        super(channel);
+    public Channel(ByteChannel channel, Reader reader) {
+        super(channel, reader);
     }
 
     /**
@@ -107,14 +108,28 @@ public abstract class Channel extends AbstractChannel {
      */
     public byte[] read(int numberOfBytes) throws BallerinaIOException {
         ByteBuffer readBuffer = contentBuffer.get(numberOfBytes, this);
-        byte [] content = readBuffer.array();
+        byte[] content = readBuffer.array();
         int contentLength = readBuffer.capacity();
-        if(content.length > numberOfBytes || contentLength < numberOfBytes){
+        if (content.length > numberOfBytes || contentLength < numberOfBytes) {
             //We need to collect the bytes only belonging to the offset, since the number of bytes returned can be < the
             //required amount of bytes
             content = Arrays.copyOfRange(content, 0, contentLength);
         }
         return content;
+    }
+
+    /**
+     * Reads bytes into the array.
+     *
+     * @param content initialized array that will hold the read content.
+     * @param offset  if the content should be read by setting an offset.
+     * @return the number of bytes read.
+     */
+    public int read(byte[] content, int offset) {
+        ByteBuffer buffer = ByteBuffer.wrap(content);
+        //We need to write by setting an offset
+        buffer.position(offset);
+        return read(buffer);
     }
 
     /**

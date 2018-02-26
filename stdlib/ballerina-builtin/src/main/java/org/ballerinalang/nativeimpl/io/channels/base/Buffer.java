@@ -162,7 +162,7 @@ public class Buffer {
 
     /**
      * <p>
-     *  Deep copies a byte buffer with it's underlying array.
+     * Deep copies a byte buffer with it's underlying array.
      * </p>
      *
      * @param srcBuffer the source buffer which should be copied.
@@ -190,7 +190,8 @@ public class Buffer {
      * @return buffer which contains the required amount of bytes.
      */
     private ByteBuffer copyRemainingContent(int numberOfBytesRequested, ByteBuffer content) {
-        int capacity;//If there is excess bytes we need only a sub-set of them
+        //If there is excess bytes we need only a sub-set of them
+        int capacity;
         content.limit(numberOfBytesRequested);
         ByteBuffer slicedBuffer = content.slice();
         capacity = slicedBuffer.capacity();
@@ -241,26 +242,9 @@ public class Buffer {
             if (null != remainingContent && remainingContent.hasRemaining()) {
                 byteBuffer.put(remainingContent);
             }
-            channel.readFull(byteBuffer);
+            channel.read(byteBuffer);
             return resize(byteBuffer, numberOfBytesRequested);
         }
-    }
-
-    /**
-     * <p>
-     * Will asynchronously get all the bytes required from the channel.
-     * </p>
-     * <p>
-     * This operation would not guarantee that all the bytes required to be collected.
-     * </p>
-     * @param numberOfBytesRequested number of bytes required.
-     * @param channel source to collect the bytes.
-     * @return contains the number of bytes collected.
-     */
-    ByteBuffer asyncGet(int numberOfBytesRequested, AbstractChannel channel){
-        byteBuffer = allocate(numberOfBytesRequested);
-        channel.read(byteBuffer);
-        return byteBuffer;
     }
 
 }

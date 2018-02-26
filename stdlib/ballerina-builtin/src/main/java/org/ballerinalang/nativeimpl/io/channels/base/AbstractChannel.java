@@ -18,6 +18,7 @@
 package org.ballerinalang.nativeimpl.io.channels.base;
 
 import org.ballerinalang.nativeimpl.io.BallerinaIOException;
+import org.ballerinalang.nativeimpl.io.channels.base.readers.Reader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -52,6 +53,11 @@ public abstract class AbstractChannel {
     private ByteChannel channel;
 
     /**
+     * Specifies how the content should be read from the channel.
+     */
+    private Reader reader;
+
+    /**
      * Specifies whether the channel has reached EoF.
      */
     private boolean hasReachedToEnd = false;
@@ -63,9 +69,10 @@ public abstract class AbstractChannel {
      *
      * @param channel the channel to source/sink bytes.
      */
-    public AbstractChannel(ByteChannel channel) throws BallerinaIOException {
+    public AbstractChannel(ByteChannel channel, Reader reader) throws BallerinaIOException {
         if (null != channel) {
             this.channel = channel;
+            this.reader = reader;
             if (log.isDebugEnabled()) {
                 log.debug("Initializing ByteChannel with ref id " + channel.hashCode());
             }
@@ -87,50 +94,6 @@ public abstract class AbstractChannel {
 
     /**
      * <p>
-     * Reads data from the channel until the given buffer is filled.
-     * </p>
-     *
-     * @param inputBuffer the source to read bytes from.
-     */
-    void readFull(ByteBuffer inputBuffer) throws BallerinaIOException {
-        try {
-            if (!hasReachedToEnd) {
-                if (log.isDebugEnabled()) {
-                    log.debug("Reading from channel " + channel.hashCode());
-                }
-                //We will need to allocate a buffer per each call, reusing this will not be an option
-                // a - the size of the buffer would very based on the requested number of bytes
-                // b - the bytes getByteArray should be re-used
-                int numberOfReadBytes = 0;
-                int channelEndOfStreamFlag = -1;
-                //Fills the inputBuffer with the
-                while (inputBuffer.hasRemaining() && numberOfReadBytes > channelEndOfStreamFlag) {
-                    numberOfReadBytes = channel.read(inputBuffer);
-                    if (log.isDebugEnabled()) {
-                        log.debug("Read from channel " + numberOfReadBytes + " from " + channel.hashCode());
-                    }
-                }
-                //If the EoF has reached we do not want to get anymore
-                if (numberOfReadBytes == channelEndOfStreamFlag) {
-                    if (log.isDebugEnabled()) {
-                        log.debug("The channel " + channel.hashCode() + " reached EoF");
-                    }
-                    hasReachedToEnd = true;
-                }
-            } else {
-                if (log.isDebugEnabled()) {
-                    log.debug("The channel " + channel.hashCode() + " reached EoF hence  will not be get from the " +
-                            "channel");
-                }
-            }
-        } catch (IOException e) {
-            String message = "Error occurred while reading from channel ";
-            throw new BallerinaIOException(message, e);
-        }
-    }
-
-    /**
-     * <p>
      * Async read bytes from the channel.
      * </p>
      *
@@ -138,24 +101,11 @@ public abstract class AbstractChannel {
      * @return the number of bytes read.
      */
     public int read(ByteBuffer buffer) throws BallerinaIOException {
-        int numberOfBytesRead = 0;
-        try {
-            int channelEndOfStreamFlag = 0;
-            numberOfBytesRead = channel.read(buffer);
-            //If the EoF has reached we do not want to get anymore
-            if (numberOfBytesRead <= channelEndOfStreamFlag) {
-                if (log.isDebugEnabled()) {
-                    log.debug("The channel " + channel.hashCode() + " reached EoF");
-                }
-                hasReachedToEnd = true;
-            }else {
-                hasReachedToEnd = false;
-            }
-        } catch (IOException e) {
-            String message = "Error occurred while reading from channel ";
-            throw new BallerinaIOException(message, e);
+        int readBytes = reader.read(buffer, channel);
+        if (readBytes <= 0) {
+            hasReachedToEnd = true;
         }
-        return numberOfBytesRead;
+        return readBytes;
     }
 
     /**
