@@ -17,8 +17,6 @@
  */
 package org.ballerinalang.bre;
 
-import org.ballerinalang.bre.bvm.ControlStack;
-import org.ballerinalang.bre.bvm.WorkerCounter;
 import org.ballerinalang.bre.bvm.WorkerData;
 import org.ballerinalang.bre.bvm.WorkerExecutionContext;
 import org.ballerinalang.connector.impl.BServerConnectorFuture;
@@ -26,7 +24,6 @@ import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.codegen.ServiceInfo;
 import org.ballerinalang.util.debugger.DebugContext;
-import org.wso2.carbon.messaging.CarbonMessage;
 
 import java.util.Map;
 
@@ -35,6 +32,10 @@ import java.util.Map;
  */
 public class NativeCallContext implements Context {
 
+    private static final String SERVICE_INFO_KEY = "SERVICE_INFO";
+
+    private static final String CONNECTOR_FUTURE_KEY = "CONNECTOR_FUTURE";
+
     private WorkerExecutionContext parentCtx;
     
     private WorkerData workerLocal;
@@ -42,6 +43,11 @@ public class NativeCallContext implements Context {
     public NativeCallContext(WorkerExecutionContext parentCtx, WorkerData workerLocal) {
         this.parentCtx = parentCtx;
         this.workerLocal = workerLocal;
+    }
+    
+    @Override
+    public WorkerExecutionContext getParentWorkerExecutionContext() {
+        return parentCtx;
     }
     
     public WorkerData getLocalWorkerData() {
@@ -56,24 +62,6 @@ public class NativeCallContext implements Context {
 
     @Override
     public void setDebugContext(DebugContext debugContext) {
-        // TODO Auto-generated method stub
-        
-    }
-
-    @Override
-    public ControlStack getControlStack() {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    @Override
-    public CarbonMessage getCarbonMessage() {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    @Override
-    public void setCarbonMessage(CarbonMessage cMsg) {
         // TODO Auto-generated method stub
         
     }
@@ -95,26 +83,22 @@ public class NativeCallContext implements Context {
 
     @Override
     public BServerConnectorFuture getConnectorFuture() {
-        // TODO Auto-generated method stub
-        return null;
+        return (BServerConnectorFuture) this.getProperty(CONNECTOR_FUTURE_KEY);
     }
 
     @Override
     public void setConnectorFuture(BServerConnectorFuture connectorFuture) {
-        // TODO Auto-generated method stub
-        
+        this.setProperty(CONNECTOR_FUTURE_KEY, connectorFuture);        
     }
 
     @Override
     public ServiceInfo getServiceInfo() {
-        // TODO Auto-generated method stub
-        return null;
+        return (ServiceInfo) this.getProperty(SERVICE_INFO_KEY);
     }
 
     @Override
     public void setServiceInfo(ServiceInfo serviceInfo) {
-        // TODO Auto-generated method stub
-        
+        this.setProperty(SERVICE_INFO_KEY, serviceInfo);
     }
 
     @Override
@@ -141,64 +125,10 @@ public class NativeCallContext implements Context {
     public void setError(BStruct error) {
         this.parentCtx.setError(error);
     }
-
-    @Override
-    public int getStartIP() {
-        // TODO Auto-generated method stub
-        return 0;
-    }
-
-    @Override
-    public void setStartIP(int startIP) {
-        // TODO Auto-generated method stub
-        
-    }
-
+    
     @Override
     public ProgramFile getProgramFile() {
         return this.parentCtx.programFile;
-    }
-
-    @Override
-    public void startTrackWorker() {
-        // TODO Auto-generated method stub
-        
-    }
-
-    @Override
-    public void endTrackWorker() {
-        // TODO Auto-generated method stub
-        
-    }
-
-    @Override
-    public void await() {
-        // TODO Auto-generated method stub
-        
-    }
-
-    @Override
-    public boolean await(int timeout) {
-        // TODO Auto-generated method stub
-        return false;
-    }
-
-    @Override
-    public void setAsResourceContext() {
-        // TODO Auto-generated method stub
-        
-    }
-
-    @Override
-    public void resetWorkerContextFlow() {
-        // TODO Auto-generated method stub
-        
-    }
-
-    @Override
-    public WorkerCounter getWorkerCounter() {
-        // TODO Auto-generated method stub
-        return null;
     }
 
 }

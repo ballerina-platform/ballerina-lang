@@ -78,7 +78,7 @@ public class BLangVMWorkers {
 
     private static void populateWorkerStack(CallableUnitInfo callableUnitInfo, WorkerInfo workerInfo, Context ctx,
                                             WorkerReturnIndex returnIndex, StackFrame callerSF) {
-        ControlStack controlStack = ctx.getControlStack();
+        ControlStack controlStack = null; // = ctx.getControlStack();
         StackFrame startSF = new StackFrame(callableUnitInfo.getPackageInfo(), -1, new int[0]);
         controlStack.pushFrame(startSF);
 

@@ -17,16 +17,14 @@
 */
 package org.ballerinalang.bre;
 
-import org.ballerinalang.bre.bvm.ControlStack;
-import org.ballerinalang.bre.bvm.WorkerCounter;
 import org.ballerinalang.bre.bvm.WorkerData;
+import org.ballerinalang.bre.bvm.WorkerExecutionContext;
 import org.ballerinalang.connector.impl.BServerConnectorFuture;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.util.codegen.ActionInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.codegen.ServiceInfo;
 import org.ballerinalang.util.debugger.DebugContext;
-import org.wso2.carbon.messaging.CarbonMessage;
 
 import java.util.Map;
 
@@ -37,17 +35,13 @@ import java.util.Map;
  */
 public interface Context {
 
+    public WorkerExecutionContext getParentWorkerExecutionContext();
+    
     public WorkerData getLocalWorkerData();
     
     public DebugContext getDebugContext();
     
     public void setDebugContext(DebugContext debugContext);
-
-    public ControlStack getControlStack();
-
-    public CarbonMessage getCarbonMessage();
-
-    public void setCarbonMessage(CarbonMessage cMsg);
 
     public Object getProperty(String key);
     
@@ -73,43 +67,7 @@ public interface Context {
 
     public void setError(BStruct error);
 
-    public int getStartIP();
-
-    public void setStartIP(int startIP);
-
     public ProgramFile getProgramFile();
-
-    /**
-     * start tracking current worker.
-     */
-    public void startTrackWorker();
-
-    /**
-     * end tracking current worker.
-     */
-    public void endTrackWorker();
-    
-    /**
-     * Wait until all spawned workers are completed.
-     */
-    public void await();
-
-    /**
-     * Wait until all spawned worker are completed within the given waiting time.
-     *
-     * @param timeout time out duration in seconds.
-     * @return {@code true} if a all workers are completed within the given waiting time, else otherwise.
-     */
-    public boolean await(int timeout);
-
-    /**
-     * Mark this context is associated with a resource.
-     */
-    public void setAsResourceContext();
-
-    public void resetWorkerContextFlow();
-
-    public WorkerCounter getWorkerCounter();
 
     /**
      * Data holder for Non-Blocking Action invocation.

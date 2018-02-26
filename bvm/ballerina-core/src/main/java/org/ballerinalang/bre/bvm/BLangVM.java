@@ -168,13 +168,13 @@ public class BLangVM {
     }
 
     public void run(Context ctx) {
-        StackFrame currentFrame = ctx.getControlStack().getCurrentFrame();
-        this.constPool = currentFrame.packageInfo.getConstPoolEntries();
-        this.code = currentFrame.packageInfo.getInstructions();
-
-        this.context = ctx;
-        this.controlStack = context.getControlStack();
-        this.ip = context.getStartIP();
+//        StackFrame currentFrame = ctx.getControlStack().getCurrentFrame();
+//        this.constPool = currentFrame.packageInfo.getConstPoolEntries();
+//        this.code = currentFrame.packageInfo.getInstructions();
+//
+//        this.context = ctx;
+//        this.controlStack = context.getControlStack();
+//        this.ip = context.getStartIP();
 
         if (context.getError() != null) {
             handleError();
@@ -210,13 +210,13 @@ public class BLangVM {
             if (!isWaitingOnNonBlockingAction() || context.getError() != null) {
                 // end of the active worker from the VM. ( graceful or forced exit on unhandled error. )
                 // Doesn't count non-blocking action invocation.
-                ctx.endTrackWorker();
+                //ctx.endTrackWorker();
             }
         }
     }
 
     public void execWorker(Context context, int startIP) {
-        context.setStartIP(startIP);
+        //context.setStartIP(startIP);
         Debugger debugger = programFile.getDebugger();
         if (debugger.isDebugEnabled() && debugger.isClientSessionActive()) {
             DebuggerUtil.initDebugContext(context, debugger);
@@ -2814,16 +2814,16 @@ public class BLangVM {
 //            workerContext.blockingInvocation = true;
             StackFrame callerSF = this.controlStack.currentFrame;
             int[] argRegs = forkjoinInfo.getArgRegs();
-            ControlStack workerControlStack = workerContext.getControlStack();
+            ControlStack workerControlStack;// = workerContext.getControlStack();
             StackFrame calleeSF = new StackFrame(this.controlStack.currentFrame.getCallableUnitInfo(),
                     workerInfo, -1, new int[1]);
-            workerControlStack.pushFrame(calleeSF);
+            //workerControlStack.pushFrame(calleeSF);
             BLangVM.copyValuesForForkJoin(callerSF, calleeSF, argRegs);
             BLangVM bLangVM = new BLangVM(this.programFile);
             BLangVMWorkers.WorkerExecutor workerRunner = new BLangVMWorkers.WorkerExecutor(bLangVM,
                     workerContext, workerInfo, resultMsgs);
             workerRunnerList.add(workerRunner);
-            workerContext.startTrackWorker();
+            //workerContext.startTrackWorker();
             workers.put(workerInfo.getWorkerName(), workerRunner);
         }
         Set<String> joinWorkerNames = new LinkedHashSet<>(Lists.of(forkjoinInfo.getJoinWorkerNames()));
@@ -2896,7 +2896,7 @@ public class BLangVM {
             copyWorkersReturnValues(workerCallerSF, parentSF);
             // Switch to parent context
             this.context = workerContext.parent;
-            this.controlStack = this.context.getControlStack();
+            //this.controlStack = this.context.getControlStack();
             controlStack.popFrame();
             this.constPool = this.controlStack.currentFrame.packageInfo.getConstPoolEntries();
             this.code = this.controlStack.currentFrame.packageInfo.getInstructions();
@@ -3169,7 +3169,7 @@ public class BLangVM {
             BClientConnectorFutureListener listener = new BClientConnectorFutureListener(context, nonBlocking);
             if (nonBlocking) {
                 // Enable non-blocking.
-                context.setStartIP(ip);
+                //context.setStartIP(ip);
                 // TODO : Temporary solution to make non-blocking working.
                 if (caleeSF.packageInfo == null) {
                     caleeSF.packageInfo = actionInfo.getPackageInfo();

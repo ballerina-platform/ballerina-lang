@@ -235,12 +235,12 @@ public class BLangVMErrors {
         BRefValueArray callStack = new BRefValueArray();
         PackageInfo runtimePackage = context.getProgramFile().getPackageInfo(PACKAGE_RUNTIME);
         StructInfo callStackElement = runtimePackage.getStructInfo(STRUCT_CALL_STACK_ELEMENT);
-        ControlStack controlStack = context.getControlStack();
+        //ControlStack controlStack = context.getControlStack();
 
         int currentIP = ip - 1;
         Object[] values;
         int stackTraceLocation = 0;
-        StackFrame stackFrame = controlStack.currentFrame;
+        StackFrame stackFrame = null; // = controlStack.currentFrame;
         while (stackFrame != null) {
             values = new Object[4];
             CallableUnitInfo callableUnitInfo = stackFrame.callableUnitInfo;
