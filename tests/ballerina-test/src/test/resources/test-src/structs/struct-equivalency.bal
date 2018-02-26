@@ -336,3 +336,52 @@ function testRuntimeEqPublicStructs1 () (string) {
     }
     return uB.getName();
 }
+
+struct personC {
+    string name;
+    addressStruct address;
+}
+
+function <personC p> setContact(addressStruct ad){
+    p.address = ad;
+}
+
+function <personC p> getAddress() returns (string){
+    return p.address.toString();
+}
+
+struct addressStruct {
+    int no;
+    string city;
+}
+
+function <addressStruct ad> toString() returns (string){
+    return ad.no + ad.city;
+}
+
+struct officeAddressStruct {
+    int no;
+    string city;
+    string department;
+}
+
+function <officeAddressStruct ad> toString() returns (string){
+    return ad.department + ad.no + ad.city;
+}
+
+function testStructEquivalencyWithArguments() returns (string, string, string){
+    personC p = { name : "tom" };
+    addressStruct a = { no: 1, city: "CMB"};
+    officeAddressStruct o = { no: 2, city: "CMB", department: "ENG"};
+    // testing assignment.
+    addressStruct b = o;
+    string result1 = b.toString();
+
+    p.setContact(a);
+    string result2 = p.getAddress();
+
+    // testing value passing.
+    p.setContact(o);
+    string result3 = p.getAddress();
+    return result1, result2, result3;
+}

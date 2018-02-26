@@ -218,6 +218,10 @@ public class Types {
             }
         }
 
+        if (source.tag == TypeTags.STRUCT && target.tag == TypeTags.STRUCT) {
+            return checkStructEquivalency(source, target);
+        }
+
         return source.tag == TypeTags.ARRAY && target.tag == TypeTags.ARRAY &&
                 isArrayTypesAssignable(source, target);
     }
