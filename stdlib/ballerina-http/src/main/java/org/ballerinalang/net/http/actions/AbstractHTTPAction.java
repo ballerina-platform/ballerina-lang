@@ -23,6 +23,7 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.connector.api.AbstractNativeAction;
 import org.ballerinalang.connector.api.BallerinaConnectorException;
 import org.ballerinalang.mime.util.EntityBodyHandler;
+import org.ballerinalang.mime.util.HeaderUtil;
 import org.ballerinalang.mime.util.MimeUtil;
 import org.ballerinalang.mime.util.MultipartDataSource;
 import org.ballerinalang.model.types.BStructType;
@@ -50,15 +51,10 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
-import javax.activation.MimeType;
-import javax.activation.MimeTypeParseException;
 
-import static org.ballerinalang.mime.util.Constants.BOUNDARY;
-import static org.ballerinalang.mime.util.Constants.CONTENT_TYPE;
+import static org.ballerinalang.mime.util.Constants.BODY_PARTS;
 import static org.ballerinalang.mime.util.Constants.MEDIA_TYPE;
 import static org.ballerinalang.mime.util.Constants.MESSAGE_ENTITY;
-import static org.ballerinalang.mime.util.Constants.MULTIPART_AS_PRIMARY_TYPE;
-import static org.ballerinalang.mime.util.Constants.MULTIPART_DATA_INDEX;
 import static org.ballerinalang.mime.util.Constants.PROTOCOL_PACKAGE_MIME;
 import static org.ballerinalang.runtime.Constants.BALLERINA_VERSION;
 import static org.wso2.transport.http.netty.common.Constants.ACCEPT_ENCODING;
@@ -218,22 +214,20 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
         BConnector bConnector = (BConnector) getRefArgument(context, 0);
         HttpClientConnector clientConnector =
                 (HttpClientConnector) bConnector.getnativeData(HttpConstants.CONNECTOR_NAME);
-        String contentType = getContentType(outboundRequestMsg);
+        String contentType = HttpUtil.getContentTypeFromTransportMessage(outboundRequestMsg);
         String boundaryString = null;
-        if (contentType != null && contentType.startsWith(MULTIPART_AS_PRIMARY_TYPE)) {
-            boundaryString = MimeUtil.getNewMultipartDelimiter();
-            outboundRequestMsg.setHeader(CONTENT_TYPE, contentType + "; " + BOUNDARY + "=" + boundaryString);
+        if (HeaderUtil.isMultipart(contentType)) {
+            boundaryString = HttpUtil.addBoundaryString(outboundRequestMsg, contentType);
         }
         HttpResponseFuture future = clientConnector.send(outboundRequestMsg);
         future.setHttpConnectorListener(httpClientConnectorLister);
-
-        if (contentType != null && contentType.startsWith(MULTIPART_AS_PRIMARY_TYPE)) {
+        if (boundaryString != null) {
             BStruct requestStruct = ((BStruct) getRefArgument(context, 1));
             BStruct entityStruct = requestStruct.getNativeData(MESSAGE_ENTITY) != null ?
                     (BStruct) requestStruct.getNativeData(MESSAGE_ENTITY) : null;
             if (entityStruct != null) {
-                BRefValueArray bodyParts = entityStruct.getRefField(MULTIPART_DATA_INDEX) != null ?
-                        (BRefValueArray) entityStruct.getRefField(MULTIPART_DATA_INDEX) : null;
+                BRefValueArray bodyParts = entityStruct.getNativeData(BODY_PARTS) != null ?
+                        (BRefValueArray) entityStruct.getNativeData(BODY_PARTS) : null;
                 if (bodyParts != null && bodyParts.size() > 0) {
                     serializeMultipartDataSource(outboundRequestMsg, httpClientConnectorLister, boundaryString,
                             entityStruct);
@@ -263,11 +257,6 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
         httpClientConnectorLister.setOutboundMsgDataStreamer(outboundMsgDataStreamer);
         multipartDataSource.serializeData(messageOutputStream);
         HttpUtil.closeMessageOutputStream(messageOutputStream);
-    }
-
-    private String getContentType(HTTPCarbonMessage outboundRequestMsg) throws MimeTypeParseException {
-        return outboundRequestMsg.getHeader(CONTENT_TYPE) != null ?
-                new MimeType(outboundRequestMsg.getHeader(CONTENT_TYPE)).getBaseType() : null;
     }
 
     private void serializeDataSource(Context context, HTTPCarbonMessage outboundReqMsg,

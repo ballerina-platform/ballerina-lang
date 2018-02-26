@@ -43,6 +43,7 @@ import javax.activation.MimeTypeParameterList;
 import javax.activation.MimeTypeParseException;
 
 import static org.ballerinalang.mime.util.Constants.ASSIGNMENT;
+import static org.ballerinalang.mime.util.Constants.BODY_PARTS;
 import static org.ballerinalang.mime.util.Constants.BUILTIN_PACKAGE;
 import static org.ballerinalang.mime.util.Constants.CONTENT_DISPOSITION_FILENAME_INDEX;
 import static org.ballerinalang.mime.util.Constants.CONTENT_DISPOSITION_FILE_NAME;
@@ -56,7 +57,6 @@ import static org.ballerinalang.mime.util.Constants.IS_BODY_BYTE_CHANNEL_ALREADY
 import static org.ballerinalang.mime.util.Constants.MEDIA_TYPE_INDEX;
 import static org.ballerinalang.mime.util.Constants.MESSAGE_ENTITY;
 import static org.ballerinalang.mime.util.Constants.MULTIPART_AS_PRIMARY_TYPE;
-import static org.ballerinalang.mime.util.Constants.MULTIPART_DATA_INDEX;
 import static org.ballerinalang.mime.util.Constants.MULTIPART_FORM_DATA;
 import static org.ballerinalang.mime.util.Constants.PARAMETER_MAP_INDEX;
 import static org.ballerinalang.mime.util.Constants.PRIMARY_TYPE_INDEX;
@@ -82,7 +82,7 @@ public class MimeUtil {
      * @param entity Represent an 'Entity'
      * @return content-type in 'primarytype/subtype' format
      */
-    public static String getContentType(BStruct entity) {
+    public static String getBaseType(BStruct entity) {
         if (entity.getRefField(MEDIA_TYPE_INDEX) != null) {
             BStruct mediaType = (BStruct) entity.getRefField(MEDIA_TYPE_INDEX);
             if (mediaType != null) {
@@ -98,7 +98,7 @@ public class MimeUtil {
      * @param entity Represent an 'Entity'
      * @return content-type in 'primarytype/subtype; key=value;' format
      */
-    static String getContentTypeWithParameters(BStruct entity) {
+    public static String getContentTypeWithParameters(BStruct entity) {
         String contentType = null;
         if (entity.getRefField(MEDIA_TYPE_INDEX) != null) {
             BStruct mediaType = (BStruct) entity.getRefField(MEDIA_TYPE_INDEX);
@@ -106,9 +106,12 @@ public class MimeUtil {
                 contentType = mediaType.getStringField(PRIMARY_TYPE_INDEX) + "/" +
                         mediaType.getStringField(SUBTYPE_INDEX);
                 if (mediaType.getRefField(PARAMETER_MAP_INDEX) != null) {
-                    BMap map = (BMap) mediaType.getRefField(PARAMETER_MAP_INDEX);
-                    contentType = contentType + SEMICOLON;
-                    return HeaderUtil.appendHeaderParams(new StringBuilder(contentType), map);
+                    BMap map = mediaType.getRefField(PARAMETER_MAP_INDEX) != null ?
+                            (BMap) mediaType.getRefField(PARAMETER_MAP_INDEX) : null;
+                    if (map != null && !map.isEmpty()) {
+                        contentType = contentType + SEMICOLON;
+                        return HeaderUtil.appendHeaderParams(new StringBuilder(contentType), map);
+                    }
                 }
             }
         }
@@ -215,7 +218,7 @@ public class MimeUtil {
             if (contentDispositionStruct != null) {
                 String disposition = contentDispositionStruct.getStringField(DISPOSITION_INDEX);
                 if (disposition == null || disposition.isEmpty()) {
-                    String contentType = getContentType(entity);
+                    String contentType = getBaseType(entity);
                     if (contentType != null && contentType.equals(MULTIPART_FORM_DATA)) {
                         dispositionBuilder.append(MULTIPART_FORM_DATA);
                     }
@@ -368,9 +371,9 @@ public class MimeUtil {
      * @return A boolean indicating nested parts availability
      */
     static boolean isNestedPartsAvailable(BStruct bodyPart) {
-        String contentTypeOfChildPart = MimeUtil.getContentType(bodyPart);
+        String contentTypeOfChildPart = MimeUtil.getBaseType(bodyPart);
         return contentTypeOfChildPart != null && contentTypeOfChildPart.startsWith(MULTIPART_AS_PRIMARY_TYPE) &&
-                bodyPart.getRefField(MULTIPART_DATA_INDEX) != null;
+                bodyPart.getNativeData(BODY_PARTS) != null;
     }
 
     /**

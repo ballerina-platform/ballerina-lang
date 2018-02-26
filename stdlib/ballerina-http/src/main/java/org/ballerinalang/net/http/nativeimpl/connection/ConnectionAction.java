@@ -20,7 +20,10 @@ package org.ballerinalang.net.http.nativeimpl.connection;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.mime.util.EntityBodyHandler;
+import org.ballerinalang.mime.util.HeaderUtil;
 import org.ballerinalang.mime.util.MimeUtil;
+import org.ballerinalang.mime.util.MultipartDataSource;
+import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.AbstractNativeFunction;
@@ -34,6 +37,8 @@ import org.wso2.transport.http.netty.message.HttpMessageDataStreamer;
 
 import java.io.IOException;
 import java.io.OutputStream;
+
+import static org.ballerinalang.mime.util.Constants.BODY_PARTS;
 
 /**
  * {@code {@link ConnectionAction}} represents a Abstract implementation of Native Ballerina Connection Function.
@@ -61,11 +66,29 @@ public abstract class ConnectionAction extends AbstractNativeFunction {
 
     private BValue[] sendOutboundResponseRobust(Context context, HTTPCarbonMessage requestMessage,
                                                 BStruct outboundResponseStruct, HTTPCarbonMessage responseMessage) {
-        BStruct entityStruct = MimeUtil.extractEntity(outboundResponseStruct);
+        String contentType = HttpUtil.getContentTypeFromTransportMessage(responseMessage);
+        String boundaryString = null;
+        if (HeaderUtil.isMultipart(contentType)) {
+             boundaryString = HttpUtil.addBoundaryString(responseMessage, contentType);
+        }
         HttpResponseFuture outboundRespStatusFuture = HttpUtil.sendOutboundResponse(requestMessage, responseMessage);
-        if (entityStruct != null) {
+        BStruct entityStruct = MimeUtil.extractEntity(outboundResponseStruct);
+        if (entityStruct == null) {
+            return handleResponseStatus(context, outboundRespStatusFuture);
+        }
+        if (boundaryString != null) {
+            BRefValueArray bodyParts = entityStruct.getNativeData(BODY_PARTS) != null ?
+                    (BRefValueArray) entityStruct.getNativeData(BODY_PARTS) : null;
+            if (bodyParts != null && bodyParts.size() > 0) {
+                MultipartDataSource multipartDataSource = new MultipartDataSource(entityStruct, boundaryString);
+                serializeMsgDataSource(responseMessage, multipartDataSource, outboundRespStatusFuture,
+                        entityStruct);
+            } else {
+                throw new BallerinaException("At least one body part is required for the mutlipart entity", context);
+            }
+        } else {
             MessageDataSource outboundMessageSource = EntityBodyHandler.getMessageDataSource(entityStruct);
-                serializeMsgDataSource(responseMessage, outboundMessageSource, outboundRespStatusFuture, entityStruct);
+            serializeMsgDataSource(responseMessage, outboundMessageSource, outboundRespStatusFuture, entityStruct);
         }
         return handleResponseStatus(context, outboundRespStatusFuture);
     }

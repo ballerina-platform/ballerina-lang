@@ -203,7 +203,7 @@ public function <InRequest request> getFormParams () (map) {
 @Return {value:"Returns the body parts as an array of entities"}
 public function <InRequest request> getMultiparts () (mime:Entity[]) {
     mime:Entity entity = request.getEntity();
-    return entity.multipartData;
+    return entity.getBodyParts();
 }
 
 @Description {value:"Get multiparts from outbound request"}
@@ -211,7 +211,7 @@ public function <InRequest request> getMultiparts () (mime:Entity[]) {
 @Return {value:"Returns the body parts as an array of entities"}
 public function <OutRequest request> getMultiparts () (mime:Entity[]) {
     mime:Entity entity = request.getEntity();
-    return entity.multipartData;
+    return entity.getBodyParts();
 }
 
 @Description {value:"Sets a JSON as the outbound request payload"}
@@ -264,12 +264,12 @@ public function <OutRequest request> setBinaryPayload (blob payload) {
 @Param {value:"contentType: Content type of the top level message"}
 public function <OutRequest request> setMultiparts (mime:Entity[] bodyParts, string contentType) {
     mime:Entity entity = request.getEntityWithoutBody();
-    entity.multipartData = bodyParts;
     mime:MediaType mediaType = mime:getMediaType(mime:MULTIPART_MIXED);
     if (contentType != null && contentType != "") {
         mediaType = mime:getMediaType(contentType);
     }
     entity.contentType = mediaType;
+    entity.setBodyParts(bodyParts);
     request.setEntity(entity);
 }
 

@@ -50,11 +50,11 @@ import java.util.HashSet;
 import java.util.Set;
 
 import static org.ballerinalang.mime.util.Constants.BALLERINA_TEMP_FILE;
+import static org.ballerinalang.mime.util.Constants.BODY_PARTS;
 import static org.ballerinalang.mime.util.Constants.ENTITY_BYTE_CHANNEL;
 import static org.ballerinalang.mime.util.Constants.FIRST_BODY_PART_INDEX;
 import static org.ballerinalang.mime.util.Constants.MESSAGE_DATA_SOURCE;
 import static org.ballerinalang.mime.util.Constants.MULTIPART_AS_PRIMARY_TYPE;
-import static org.ballerinalang.mime.util.Constants.MULTIPART_DATA_INDEX;
 import static org.ballerinalang.mime.util.Constants.SIZE_INDEX;
 
 /**
@@ -217,14 +217,15 @@ public class EntityBodyHandler {
     }
 
     /**
-     * Check whether the entity body is present. Entity body can either be a byte channel or fully constructed
-     * message data source.
+     * Check whether the entity body is present. Entity body can either be a byte channel, fully constructed
+     * message data source or a set of body parts.
      *
      * @param entityStruct Represent an 'Entity'
      * @return a boolean indicating entity body availability
      */
     public static boolean checkEntityBodyAvailability(BStruct entityStruct) {
-        return entityStruct.getNativeData(ENTITY_BYTE_CHANNEL) != null || getMessageDataSource(entityStruct) != null;
+        return entityStruct.getNativeData(ENTITY_BYTE_CHANNEL) != null || getMessageDataSource(entityStruct) != null
+                || entityStruct.getNativeData(BODY_PARTS) != null;
     }
 
     /**
@@ -238,7 +239,7 @@ public class EntityBodyHandler {
             BStructType typeOfBodyPart = bodyParts.get(FIRST_BODY_PART_INDEX).getType();
             BStruct[] result = bodyParts.toArray(new BStruct[bodyParts.size()]);
             BRefValueArray partsArray = new BRefValueArray(result, typeOfBodyPart);
-            entity.setRefField(MULTIPART_DATA_INDEX, partsArray);
+            entity.addNativeData(BODY_PARTS, partsArray);
         }
     }
 
@@ -335,7 +336,7 @@ public class EntityBodyHandler {
      * @return An array of body parts
      */
     public static BRefValueArray getBodyPartArray(BStruct entityStruct) {
-        return entityStruct.getRefField(MULTIPART_DATA_INDEX) != null ?
-                (BRefValueArray) entityStruct.getRefField(MULTIPART_DATA_INDEX) : null;
+        return entityStruct.getNativeData(BODY_PARTS) != null ?
+                (BRefValueArray) entityStruct.getNativeData(BODY_PARTS) : null;
     }
 }

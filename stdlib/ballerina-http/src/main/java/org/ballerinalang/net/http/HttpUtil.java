@@ -76,6 +76,7 @@ import java.util.Set;
 
 import static org.ballerinalang.bre.bvm.BLangVMErrors.PACKAGE_BUILTIN;
 import static org.ballerinalang.bre.bvm.BLangVMErrors.STRUCT_GENERIC_ERROR;
+import static org.ballerinalang.mime.util.Constants.BOUNDARY;
 import static org.ballerinalang.mime.util.Constants.CONTENT_TYPE;
 import static org.ballerinalang.mime.util.Constants.ENTITY_HEADERS_INDEX;
 import static org.ballerinalang.mime.util.Constants.IS_BODY_BYTE_CHANNEL_ALREADY_SET;
@@ -145,11 +146,11 @@ public class HttpUtil {
                 .getCarbonMsg(httpMessageStruct, HttpUtil.createHttpCarbonMessage(isRequest));
         httpCarbonMessage.waitAndReleaseAllEntities();
         BStruct entity = (BStruct) abstractNativeFunction.getRefArgument(context, ENTITY_INDEX);
-        String baseType = MimeUtil.getContentType(entity);
-        if (baseType == null) {
-            baseType = OCTET_STREAM;
+        String contentType = MimeUtil.getContentTypeWithParameters(entity);
+        if (contentType == null) {
+            contentType = OCTET_STREAM;
         }
-        HttpUtil.setHeaderToEntity(entity, CONTENT_TYPE, baseType);
+        HttpUtil.setHeaderToEntity(entity, CONTENT_TYPE, contentType);
         httpMessageStruct.addNativeData(MESSAGE_ENTITY, entity);
         httpMessageStruct.addNativeData(IS_BODY_BYTE_CHANNEL_ALREADY_SET, EntityBodyHandler
                 .checkEntityBodyAvailability(entity));
@@ -197,7 +198,7 @@ public class HttpUtil {
                 .getCarbonMsg(httpMessageStruct, HttpUtil.createHttpCarbonMessage(isRequest));
         HttpMessageDataStreamer httpMessageDataStreamer = new HttpMessageDataStreamer(httpCarbonMessage);
         String contentType = httpCarbonMessage.getHeader(CONTENT_TYPE);
-        if (isRequest && MimeUtil.isNotNullAndEmpty(contentType) && contentType.startsWith(MULTIPART_AS_PRIMARY_TYPE)
+        if (MimeUtil.isNotNullAndEmpty(contentType) && contentType.startsWith(MULTIPART_AS_PRIMARY_TYPE)
                 && context != null) {
             MultipartDecoder.parseBody(context, entity, contentType, httpMessageDataStreamer.getInputStream());
         } else {
@@ -926,6 +927,19 @@ public class HttpUtil {
         }
 
         return intVal;
+    }
+
+    public static String getContentTypeFromTransportMessage(HTTPCarbonMessage transportMessage) {
+        return transportMessage.getHeader(CONTENT_TYPE) != null ? transportMessage.getHeader(CONTENT_TYPE) : null;
+    }
+
+    public static String addBoundaryString(HTTPCarbonMessage transportMessage, String contentType) {
+        String boundaryString = null;
+        if (contentType != null && contentType.startsWith(MULTIPART_AS_PRIMARY_TYPE)) {
+            boundaryString = MimeUtil.getNewMultipartDelimiter();
+            transportMessage.setHeader(CONTENT_TYPE, contentType + "; " + BOUNDARY + "=" + boundaryString);
+        }
+        return boundaryString;
     }
 
     /**

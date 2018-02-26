@@ -63,6 +63,7 @@ import java.util.UUID;
 
 import static org.ballerinalang.mime.util.Constants.APPLICATION_JSON;
 import static org.ballerinalang.mime.util.Constants.APPLICATION_XML;
+import static org.ballerinalang.mime.util.Constants.BODY_PARTS;
 import static org.ballerinalang.mime.util.Constants.BYTE_CHANNEL_STRUCT;
 import static org.ballerinalang.mime.util.Constants.CONTENT_DISPOSITION_NAME;
 import static org.ballerinalang.mime.util.Constants.CONTENT_DISPOSITION_STRUCT;
@@ -71,7 +72,6 @@ import static org.ballerinalang.mime.util.Constants.ENTITY_BYTE_CHANNEL;
 import static org.ballerinalang.mime.util.Constants.ENTITY_HEADERS_INDEX;
 import static org.ballerinalang.mime.util.Constants.MEDIA_TYPE;
 import static org.ballerinalang.mime.util.Constants.MESSAGE_ENTITY;
-import static org.ballerinalang.mime.util.Constants.MULTIPART_DATA_INDEX;
 import static org.ballerinalang.mime.util.Constants.MULTIPART_ENCODER;
 import static org.ballerinalang.mime.util.Constants.MULTIPART_MIXED;
 import static org.ballerinalang.mime.util.Constants.OCTET_STREAM;
@@ -312,7 +312,7 @@ public class Util {
     static BStruct getMultipartEntity(CompileResult result) {
         BStruct multipartEntity = getEntityStruct(result);
         ArrayList<BStruct> bodyParts = getMultipleBodyParts(result);
-        multipartEntity.setRefField(MULTIPART_DATA_INDEX, Util.getArrayOfBodyParts(bodyParts));
+        multipartEntity.addNativeData(BODY_PARTS, Util.getArrayOfBodyParts(bodyParts));
         return multipartEntity;
     }
 
@@ -327,9 +327,9 @@ public class Util {
         ArrayList<BStruct> bodyParts = getEmptyBodyPartList(result);
         for (BStruct bodyPart : bodyParts) {
             MimeUtil.setContentType(getMediaTypeStruct(result), bodyPart, MULTIPART_MIXED);
-            bodyPart.setRefField(MULTIPART_DATA_INDEX, Util.getArrayOfBodyParts(getMultipleBodyParts(result)));
+            bodyPart.addNativeData(BODY_PARTS, Util.getArrayOfBodyParts(getMultipleBodyParts(result)));
         }
-        nestedMultipartEntity.setRefField(MULTIPART_DATA_INDEX, Util.getArrayOfBodyParts(bodyParts));
+        nestedMultipartEntity.addNativeData(BODY_PARTS, Util.getArrayOfBodyParts(bodyParts));
         return nestedMultipartEntity;
     }
 
@@ -395,7 +395,7 @@ public class Util {
         HTTPTestRequest cMsg = (HTTPTestRequest) messageMap.get(CARBON_MESSAGE);
         BStruct request = (BStruct) messageMap.get(BALLERINA_REQUEST);
         BStruct entity = (BStruct) messageMap.get(MULTIPART_ENTITY);
-        entity.setRefField(MULTIPART_DATA_INDEX, bodyParts);
+        entity.addNativeData(BODY_PARTS, bodyParts);
         request.addNativeData(MESSAGE_ENTITY, entity);
         setCarbonMessageWithMultiparts(request, cMsg);
         return cMsg;
@@ -443,8 +443,8 @@ public class Util {
         BStruct entityStruct = requestStruct.getNativeData(MESSAGE_ENTITY) != null ?
                 (BStruct) requestStruct.getNativeData(MESSAGE_ENTITY) : null;
         if (entityStruct != null) {
-            BRefValueArray bodyParts = entityStruct.getRefField(MULTIPART_DATA_INDEX) != null ?
-                    (BRefValueArray) entityStruct.getRefField(MULTIPART_DATA_INDEX) : null;
+            BRefValueArray bodyParts = entityStruct.getNativeData(BODY_PARTS) != null ?
+                    (BRefValueArray) entityStruct.getNativeData(BODY_PARTS) : null;
             if (bodyParts != null) {
                 HttpDataFactory dataFactory = new DefaultHttpDataFactory(DefaultHttpDataFactory.MINSIZE);
                 setDataFactory(dataFactory);
@@ -483,7 +483,7 @@ public class Util {
             contentHolder.setRequest(httpRequest);
             contentHolder.setBodyPartName(getBodyPartName(bodyPart));
             contentHolder.setFileName(TEMP_FILE_NAME + TEMP_FILE_EXTENSION);
-            contentHolder.setContentType(MimeUtil.getContentType(bodyPart));
+            contentHolder.setContentType(MimeUtil.getBaseType(bodyPart));
             contentHolder.setBodyPartFormat(org.ballerinalang.mime.util.Constants.BodyPartForm.INPUTSTREAM);
             String contentTransferHeaderValue = HeaderUtil.getHeaderValue(bodyPart, CONTENT_TRANSFER_ENCODING);
             if (contentTransferHeaderValue != null) {

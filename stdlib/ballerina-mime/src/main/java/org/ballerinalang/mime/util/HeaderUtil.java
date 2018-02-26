@@ -38,6 +38,7 @@ import static org.ballerinalang.mime.util.Constants.CONTENT_ID_INDEX;
 import static org.ballerinalang.mime.util.Constants.CONTENT_TYPE;
 import static org.ballerinalang.mime.util.Constants.ENTITY_HEADERS_INDEX;
 import static org.ballerinalang.mime.util.Constants.FIRST_ELEMENT;
+import static org.ballerinalang.mime.util.Constants.MULTIPART_AS_PRIMARY_TYPE;
 import static org.ballerinalang.mime.util.Constants.SEMICOLON;
 
 /**
@@ -247,5 +248,9 @@ public class HeaderUtil {
         if (MimeUtil.isNotNullAndEmpty(contentId)) {
             addToEntityHeaders(entityHeaders, CONTENT_ID, contentId);
         }
+    }
+
+    public static boolean isMultipart(String contentType) {
+        return contentType != null && contentType.startsWith(MULTIPART_AS_PRIMARY_TYPE);
     }
 }

@@ -158,6 +158,22 @@ public function <OutResponse response> getBinaryPayload () (blob) {
     return entity.getBlob();
 }
 
+@Description {value:"Get multiparts from inbound response"}
+@Param {value:"req: The response message"}
+@Return {value:"Returns the body parts as an array of entities"}
+public function <InResponse response> getMultiparts () (mime:Entity[]) {
+    mime:Entity entity = response.getEntity();
+    return entity.getBodyParts();
+}
+
+@Description {value:"Get multiparts from outbound response"}
+@Param {value:"req: The response message"}
+@Return {value:"Returns the body parts as an array of entities"}
+public function <OutResponse response> getMultiparts () (mime:Entity[]) {
+    mime:Entity entity = response.getEntity();
+    return entity.getBodyParts();
+}
+
 @Description {value:"Sets a JSON as the outbound response payload"}
 @Param {value:"response: The outbound response message"}
 @Param {value:"payload: The JSON payload object"}
@@ -199,6 +215,21 @@ public function <OutResponse response> setBinaryPayload (blob payload) {
     entity.setBlob(payload);
     mime:MediaType mediaType = mime:getMediaType(mime:APPLICATION_OCTET_STREAM);
     entity.contentType = mediaType;
+    response.setEntity(entity);
+}
+
+@Description {value:"Set multiparts as the request payload"}
+@Param {value:"response: The response message"}
+@Param {value:"bodyParts: Represent body parts that needs to be set to the response"}
+@Param {value:"contentType: Content type of the top level message"}
+public function <OutResponse response> setMultiparts (mime:Entity[] bodyParts, string contentType) {
+    mime:Entity entity = response.getEntityWithoutBody();
+    mime:MediaType mediaType = mime:getMediaType(mime:MULTIPART_MIXED);
+    if (contentType != null && contentType != "") {
+        mediaType = mime:getMediaType(contentType);
+    }
+    entity.contentType = mediaType;
+    entity.setBodyParts(bodyParts);
     response.setEntity(entity);
 }
 
