@@ -82,7 +82,6 @@ public class UnzipBytes extends AbstractNativeFunction {
                 name = entry.getName();
                 if (!folderToUnzip.isEmpty() && name.startsWith(folderToUnzip)) {
                     int index = name.lastIndexOf('/') + 1;
-                    // str.substring(str.lastIndexOf("/") + 1)
                     name = name.substring(index);
                 }
                     if (entry.isDirectory()) {
