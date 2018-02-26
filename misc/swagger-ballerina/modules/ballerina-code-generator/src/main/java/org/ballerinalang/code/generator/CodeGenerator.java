@@ -46,7 +46,6 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 
 
 /**
@@ -76,21 +75,17 @@ public class CodeGenerator {
         String output = "";
         switch (type) {
             case CLIENT:
-                output = getConvertedString(context, GeneratorConstants.DEFAULT_CLIENT_DIR,
+                return getConvertedString(context, GeneratorConstants.DEFAULT_CLIENT_DIR,
                         GeneratorConstants.CLIENT_TEMPLATE_NAME);
-                break;
             case OPENAPI:
-                output = getConvertedString(context, GeneratorConstants.DEFAULT_OPEN_API_DIR,
+                return getConvertedString(context, GeneratorConstants.DEFAULT_OPEN_API_DIR,
                         GeneratorConstants.OPEN_API_TEMPLATE_NAME);
-                break;
             case SWAGGER:
-                output = getConvertedString(context, GeneratorConstants.DEFAULT_SWAGGER_DIR,
+                return getConvertedString(context, GeneratorConstants.DEFAULT_SWAGGER_DIR,
                         GeneratorConstants.SWAGGER_TEMPLATE_NAME);
-                break;
             default:
                 return output;
         }
-        return output;
     }
 
     /**
@@ -104,27 +99,21 @@ public class CodeGenerator {
      */
     public void writeGeneratedSource(Object object, String templateDir, String templateName, String outPath)
             throws CodeGeneratorException {
-        PrintWriter writer = null;
 
-        try {
+        try (PrintWriter writer = new PrintWriter(outPath, "UTF-8")) {
             Template template = compileTemplate(templateDir, templateName);
             Context context = Context.newBuilder(object).resolver(FieldValueResolver.INSTANCE).build();
             try {
-                writer = new PrintWriter(outPath, "UTF-8");
                 writer.println(template.apply(context));
-            } catch (FileNotFoundException e) {
-                throw new CodeGeneratorException("Error while writing converted string due to output file not found",
-                        e);
-            } catch (UnsupportedEncodingException e) {
-                throw new CodeGeneratorException("Error while writing converted string due to unsupported encoding",
-                        e);
             } catch (IOException e) {
                 throw new CodeGeneratorException("Error while writing converted string", e);
             }
-        } finally {
-            if (writer != null) {
-                writer.close();
-            }
+        } catch (FileNotFoundException e) {
+            throw new CodeGeneratorException("Error while writing converted string due to output file not found",
+                    e);
+        } catch (UnsupportedEncodingException e) {
+            throw new CodeGeneratorException("Error while writing converted string due to unsupported encoding",
+                    e);
         }
     }
 
@@ -186,8 +175,7 @@ public class CodeGenerator {
         try {
             return handlebars.compile(templateName);
         } catch (IOException e) {
-            throw new CodeGeneratorException("Error while compiling template",
-                    e);
+            throw new CodeGeneratorException("Error while compiling template", e);
         }
     }
 
@@ -204,8 +192,7 @@ public class CodeGenerator {
      * @throws CodeGeneratorException when error occurs while conversion happens.
      */
     public String generate(GeneratorConstants.GenType genType, String ballerinaSource, String serviceName,
-                           String outPath)
-            throws CodeGeneratorException {
+                           String outPath) throws CodeGeneratorException {
         // Get the ballerina model using the ballerina source code.
         BFile balFile = new BFile();
         balFile.setContent(ballerinaSource);
@@ -237,8 +224,7 @@ public class CodeGenerator {
      * @return ballerina file created from ballerina string definition
      * @throws CodeGeneratorException IO exception
      */
-    public static BLangCompilationUnit getTopLevelNodeFromBallerinaFile(BFile bFile)
-            throws CodeGeneratorException {
+    public static BLangCompilationUnit getTopLevelNodeFromBallerinaFile(BFile bFile) throws CodeGeneratorException {
 
         String filePath = bFile.getFilePath();
         String fileName = bFile.getFileName();
@@ -260,9 +246,10 @@ public class CodeGenerator {
         final Map<String, ModelPackage> modelPackage = new HashMap<>();
         ParserUtils.loadPackageMap("Current Package", model, modelPackage);
 
-        Optional<BLangCompilationUnit> compilationUnit = model.getCompilationUnits().stream()
+
+        return model.getCompilationUnits().stream()
                 .filter(compUnit -> fileName.equals(compUnit.getName()))
-                .findFirst();
-        return compilationUnit.orElse(null);
+                .findFirst()
+                .orElse(null);
     }
 }
