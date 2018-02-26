@@ -270,7 +270,8 @@ public final class Constants {
     public static final String REMOTE_SERVER_CLOSE_RESPONSE_CONNECTION_AFTER_REQUEST_READ
             = "Remote host closed the connection without sending inbound response";
 
-    public static final String TIMEOUT_WAITING_FOR_IDLE_CONNECTION = "Timeout waiting for idle connection";
+    public static final String MAXIMUM_WAIT_TIME_EXCEED =
+            "Maximum wait time exceeds. Cannot obtain a connection to send the request.";
 
     public static final String JMX_AGENT_NAME = "jmx.agent.name";
 

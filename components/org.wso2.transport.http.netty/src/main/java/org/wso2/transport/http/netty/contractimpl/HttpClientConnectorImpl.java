@@ -144,7 +144,7 @@ public class HttpClientConnectorImpl implements HttpClientConnector {
         } catch (Exception failedCause) {
             if (failedCause instanceof NoSuchElementException
                     && "Timeout waiting for idle object".equals(failedCause.getMessage())) {
-                failedCause = new NoSuchElementException(Constants.TIMEOUT_WAITING_FOR_IDLE_CONNECTION);
+                failedCause = new NoSuchElementException(Constants.MAXIMUM_WAIT_TIME_EXCEED);
             }
             httpResponseFuture.notifyHttpListener(failedCause);
         }

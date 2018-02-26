@@ -91,7 +91,7 @@ public class ConnectionPoolWaitingTimeoutTestCase {
 
             Assert.assertTrue(channelIds.size() <= MAX_ACTIVE_CONNECTIONS);
             Assert.assertTrue(throwable instanceof NoSuchElementException);
-            Assert.assertEquals(throwable.getMessage(), Constants.TIMEOUT_WAITING_FOR_IDLE_CONNECTION);
+            Assert.assertEquals(throwable.getMessage(), Constants.MAXIMUM_WAIT_TIME_EXCEED);
         } catch (Exception e) {
             TestUtil.handleException("IOException occurred while running testMaxActiveConnectionsPerPool", e);
         }
