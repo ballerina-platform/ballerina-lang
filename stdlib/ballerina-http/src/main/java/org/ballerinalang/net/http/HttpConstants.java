@@ -213,6 +213,7 @@ public class HttpConstants {
     public static final int IN_RESPONSE_REASON_PHRASE_INDEX = 0;
     public static final int IN_RESPONSE_SERVER_INDEX = 1;
     public static final int IN_RESPONSE_CACHE_CONTROL_INDEX = 0;
+    public static final int IN_RESPONSE_RECEIVED_TIME_INDEX = 1;
 
     //OutResponse struct indexes
     public static final int OUT_RESPONSE_STATUS_CODE_INDEX = 0;

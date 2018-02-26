@@ -50,6 +50,7 @@ import org.ballerinalang.model.values.BXML;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.net.http.caching.CacheControlDirective;
 import org.ballerinalang.net.http.caching.CacheControlParser;
+import org.ballerinalang.net.http.caching.ResponseCacheControlStruct;
 import org.ballerinalang.net.http.session.Session;
 import org.ballerinalang.net.ws.WebSocketConstants;
 import org.ballerinalang.runtime.message.BlobDataSource;
@@ -114,6 +115,7 @@ import static org.ballerinalang.net.http.HttpConstants.HTTP_STATUS_CODE;
 import static org.ballerinalang.net.http.HttpConstants.IN_REQUEST;
 import static org.ballerinalang.net.http.HttpConstants.IN_RESPONSE_CACHE_CONTROL_INDEX;
 import static org.ballerinalang.net.http.HttpConstants.IN_RESPONSE_REASON_PHRASE_INDEX;
+import static org.ballerinalang.net.http.HttpConstants.IN_RESPONSE_RECEIVED_TIME_INDEX;
 import static org.ballerinalang.net.http.HttpConstants.IN_RESPONSE_SERVER_INDEX;
 import static org.ballerinalang.net.http.HttpConstants.IN_RESPONSE_STATUS_CODE_INDEX;
 import static org.ballerinalang.net.http.HttpConstants.SERVER_HEADER;
@@ -123,12 +125,14 @@ import static org.ballerinalang.net.http.HttpConstants.TRANSPORT_MESSAGE;
  * Utility class providing utility methods.
  */
 public class HttpUtil {
+
+    public static final int TRUE = 1;
+    public static final int FALSE = 0;
+
     private static final Logger log = LoggerFactory.getLogger(HttpUtil.class);
 
     private static final String METHOD_ACCESSED = "isMethodAccessed";
     private static final String IO_EXCEPTION_OCCURED = "I/O exception occurred";
-    private static final int TRUE = 1;
-    private static final int FALSE = 0;
 
     public static BValue[] getProperty(Context context,
                                        AbstractNativeFunction abstractNativeFunction, boolean isRequest) {
@@ -534,8 +538,7 @@ public class HttpUtil {
 
     /**
      * Populate inbound response with headers and entity.
-     *
-     * @param inboundResponse  Ballerina struct to represent response
+     *  @param inboundResponse  Ballerina struct to represent response
      * @param entity    Entity of the response
      * @param mediaType Content type of the response
      * @param responseCacheControl  Cache control struct which holds the cache control directives related to the
@@ -543,9 +546,11 @@ public class HttpUtil {
      * @param inboundResponseMsg      Represent carbon message.
      */
     public static void populateInboundResponse(BStruct inboundResponse, BStruct entity, BStruct mediaType,
-                                               BStruct responseCacheControl, HTTPCarbonMessage inboundResponseMsg) {
+                                               ResponseCacheControlStruct responseCacheControl,
+                                               HTTPCarbonMessage inboundResponseMsg) {
         inboundResponse.addNativeData(TRANSPORT_MESSAGE, inboundResponseMsg);
         int statusCode = (Integer) inboundResponseMsg.getProperty(HTTP_STATUS_CODE);
+        inboundResponse.setIntField(IN_RESPONSE_RECEIVED_TIME_INDEX, System.currentTimeMillis());
         inboundResponse.setIntField(IN_RESPONSE_STATUS_CODE_INDEX, statusCode);
         inboundResponse.setStringField(IN_RESPONSE_REASON_PHRASE_INDEX,
                                        HttpResponseStatus.valueOf(statusCode).reasonPhrase());
@@ -556,8 +561,8 @@ public class HttpUtil {
         }
 
         if (inboundResponseMsg.getHeader(CACHE_CONTROL_HEADER) != null) {
-            populateResponseCacheControlStruct(responseCacheControl, inboundResponseMsg);
-            inboundResponse.setRefField(IN_RESPONSE_CACHE_CONTROL_INDEX, responseCacheControl);
+            responseCacheControl.populateStruct(inboundResponseMsg.getHeader(CACHE_CONTROL_HEADER));
+            inboundResponse.setRefField(IN_RESPONSE_CACHE_CONTROL_INDEX, responseCacheControl.getStruct());
         }
 
         populateEntity(entity, mediaType, inboundResponseMsg);
@@ -597,51 +602,6 @@ public class HttpUtil {
             }
         }
         return headerMap;
-    }
-
-    private static void populateResponseCacheControlStruct(BStruct responseCacheControl, HTTPCarbonMessage response) {
-        Map<CacheControlDirective, String> controlDirectives =
-                CacheControlParser.parse(response.getHeader(CACHE_CONTROL_HEADER));
-
-        controlDirectives.forEach((directive, value) -> {
-            switch (directive) {
-                case MUST_REVALIDATE:
-                    responseCacheControl.setBooleanField(CACHE_CONTROL_MUST_REVALIDATE_INDEX, TRUE);
-                    break;
-                case NO_CACHE:
-                    responseCacheControl.setBooleanField(CACHE_CONTROL_NO_CACHE_INDEX, TRUE);
-                    if (value != null) {
-                        responseCacheControl.setRefField(CACHE_CONTROL_NO_CACHE_FIELDS_INDEX,
-                                                         new BStringArray(value.split(",")));
-                    }
-                    break;
-                case NO_STORE:
-                    responseCacheControl.setBooleanField(CACHE_CONTROL_NO_STORE_INDEX, TRUE);
-                    break;
-                case NO_TRANSFORM:
-                    responseCacheControl.setBooleanField(CACHE_CONTROL_NO_TRANSFORM_INDEX, TRUE);
-                    break;
-                case PRIVATE:
-                    responseCacheControl.setBooleanField(CACHE_CONTROL_IS_PRIVATE_INDEX, TRUE);
-                    if (value != null) {
-                        responseCacheControl.setRefField(CACHE_CONTROL_PRIVATE_FIELDS_INDEX,
-                                                         new BStringArray(value.split(",")));
-                    }
-                    break;
-                case PUBLIC:
-                    responseCacheControl.setBooleanField(CACHE_CONTROL_IS_PRIVATE_INDEX, FALSE);
-                    break;
-                case PROXY_REVALIDATE:
-                    responseCacheControl.setBooleanField(CACHE_CONTROL_PROXY_REVALIDATE_INDEX, TRUE);
-                    break;
-                case MAX_AGE:
-                    responseCacheControl.setIntField(CACHE_CONTROL_MAX_AGE_INDEX, Long.parseLong(value));
-                    break;
-                case S_MAXAGE:
-                    responseCacheControl.setIntField(CACHE_CONTROL_S_MAXAGE_INDEX, Long.parseLong(value));
-                    break;
-            }
-        });
     }
 
     public static BMap<String, BValue> createParamBMap(List<String> paramList) {

@@ -30,6 +30,7 @@ import org.ballerinalang.nativeimpl.actions.ClientConnectorFuture;
 import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.HttpUtil;
 import org.ballerinalang.net.http.RetryConfig;
+import org.ballerinalang.net.http.caching.ResponseCacheControlStruct;
 import org.ballerinalang.runtime.message.MessageDataSource;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.StructInfo;
@@ -298,7 +299,10 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
                                                    PROTOCOL_PACKAGE_HTTP);
             BStruct entity = createStruct(this.context, HttpConstants.ENTITY, PROTOCOL_PACKAGE_MIME);
             BStruct mediaType = createStruct(this.context, MEDIA_TYPE, PROTOCOL_PACKAGE_MIME);
-            BStruct responseCacheControl = createStruct(this.context, RESPONSE_CACHE_CONTROL, PROTOCOL_PACKAGE_HTTP);
+            ResponseCacheControlStruct responseCacheControl
+                    = new ResponseCacheControlStruct(context.getProgramFile()
+                            .getPackageInfo(PROTOCOL_PACKAGE_HTTP)
+                            .getStructInfo(RESPONSE_CACHE_CONTROL));
             HttpUtil.populateInboundResponse(inboundResponse, entity, mediaType, responseCacheControl,
                                              httpCarbonMessage);
             ballerinaFuture.notifyReply(inboundResponse);

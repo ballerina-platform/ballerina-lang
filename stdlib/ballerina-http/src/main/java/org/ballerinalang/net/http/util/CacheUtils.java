@@ -73,7 +73,6 @@ public class CacheUtils {
 
         String lastModified = outboundResponse.getHeader(LAST_MODIFIED_HEADER);
         if (lastModified == null) {
-
             return false;
         }
 

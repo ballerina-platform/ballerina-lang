@@ -32,6 +32,7 @@ import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BXMLItem;
 import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.HttpUtil;
+import org.ballerinalang.net.http.caching.ResponseCacheControlStruct;
 import org.ballerinalang.test.services.testutils.HTTPTestRequest;
 import org.ballerinalang.test.services.testutils.MessageUtils;
 import org.ballerinalang.test.services.testutils.Services;
@@ -107,8 +108,10 @@ public class InResponseNativeFunctionSuccessTest {
 
         BStruct entity = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageMime, entityStruct);
         BStruct mediaType = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageMime, mediaTypeStruct);
-        BStruct cacheControl = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp,
-                                                               cacheControlStruct);
+        ResponseCacheControlStruct cacheControl
+                = new ResponseCacheControlStruct(result.getProgFile()
+                                                         .getPackageInfo(protocolPackageHttp)
+                                                         .getStructInfo(cacheControlStruct));
         HttpUtil.populateInboundResponse(inResponse, entity, mediaType, cacheControl, inResponseMsg);
 
         BValue[] inputArg = {inResponse};
@@ -128,8 +131,10 @@ public class InResponseNativeFunctionSuccessTest {
 
         BStruct entity = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageMime, entityStruct);
         BStruct mediaType = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageMime, mediaTypeStruct);
-        BStruct cacheControl = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp,
-                                                               cacheControlStruct);
+        ResponseCacheControlStruct cacheControl
+                = new ResponseCacheControlStruct(result.getProgFile()
+                                                         .getPackageInfo(protocolPackageHttp)
+                                                         .getStructInfo(cacheControlStruct));
         HttpUtil.populateInboundResponse(inResponse, entity, mediaType, cacheControl, inResponseMsg);
 
         BString key = new BString(CONTENT_TYPE);
@@ -151,8 +156,10 @@ public class InResponseNativeFunctionSuccessTest {
         inResponseMsg.setProperty(HttpConstants.HTTP_STATUS_CODE, 200);
         BStruct entity = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageMime, entityStruct);
         BStruct mediaType = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageMime, mediaTypeStruct);
-        BStruct cacheControl = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp,
-                                                               cacheControlStruct);
+        ResponseCacheControlStruct cacheControl
+                = new ResponseCacheControlStruct(result.getProgFile()
+                                                         .getPackageInfo(protocolPackageHttp)
+                                                         .getStructInfo(cacheControlStruct));
         HttpUtil.populateInboundResponse(inResponse, entity, mediaType, cacheControl, inResponseMsg);
 
         BString key = new BString("test-header");
