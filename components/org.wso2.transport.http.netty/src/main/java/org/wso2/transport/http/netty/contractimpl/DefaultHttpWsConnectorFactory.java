@@ -20,7 +20,10 @@
 package org.wso2.transport.http.netty.contractimpl;
 
 import io.netty.channel.EventLoopGroup;
+import io.netty.channel.group.ChannelGroup;
+import io.netty.channel.group.DefaultChannelGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
+import io.netty.util.concurrent.GlobalEventExecutor;
 import org.wso2.transport.http.netty.common.Constants;
 import org.wso2.transport.http.netty.common.Util;
 import org.wso2.transport.http.netty.config.ListenerConfiguration;
@@ -36,24 +39,24 @@ import org.wso2.transport.http.netty.listener.ServerBootstrapConfiguration;
 import org.wso2.transport.http.netty.listener.ServerConnectorBootstrap;
 import org.wso2.transport.http.netty.sender.channel.BootstrapConfiguration;
 import org.wso2.transport.http.netty.sender.channel.pool.ConnectionManager;
-import org.wso2.transport.http.netty.sender.channel.pool.PoolConfiguration;
 
 import java.util.Map;
 
 /**
- * Implementation of HttpWsConnectorFactory interface
+ * Implementation of HttpWsConnectorFactory interface.
  */
-public class HttpWsConnectorFactoryImpl implements HttpWsConnectorFactory {
+public class DefaultHttpWsConnectorFactory implements HttpWsConnectorFactory {
 
-    private EventLoopGroup bossGroup;
-    private EventLoopGroup workerGroup;
+    private final EventLoopGroup bossGroup;
+    private final EventLoopGroup workerGroup;
+    private final ChannelGroup allChannels = new DefaultChannelGroup(GlobalEventExecutor.INSTANCE);
 
-    public HttpWsConnectorFactoryImpl() {
+    public DefaultHttpWsConnectorFactory() {
         bossGroup = new NioEventLoopGroup(Runtime.getRuntime().availableProcessors());
         workerGroup = new NioEventLoopGroup(Runtime.getRuntime().availableProcessors() * 2);
     }
 
-    public HttpWsConnectorFactoryImpl(int serverSocketThreads, int childSocketThreads) {
+    public DefaultHttpWsConnectorFactory(int serverSocketThreads, int childSocketThreads) {
         bossGroup = new NioEventLoopGroup(serverSocketThreads);
         workerGroup = new NioEventLoopGroup(childSocketThreads);
     }
@@ -61,7 +64,7 @@ public class HttpWsConnectorFactoryImpl implements HttpWsConnectorFactory {
     @Override
     public ServerConnector createServerConnector(ServerBootstrapConfiguration serverBootstrapConfiguration,
             ListenerConfiguration listenerConfig) {
-        ServerConnectorBootstrap serverConnectorBootstrap = new ServerConnectorBootstrap();
+        ServerConnectorBootstrap serverConnectorBootstrap = new ServerConnectorBootstrap(allChannels);
         serverConnectorBootstrap.addSocketConfiguration(serverBootstrapConfiguration);
         serverConnectorBootstrap.addSecurity(listenerConfig.getSSLConfig());
         if (listenerConfig.validateCertEnabled()) {
@@ -83,12 +86,11 @@ public class HttpWsConnectorFactoryImpl implements HttpWsConnectorFactory {
     @Override
     public HttpClientConnector createHttpClientConnector(
             Map<String, Object> transportProperties, SenderConfiguration senderConfiguration) {
-        PoolConfiguration poolConfiguration = new PoolConfiguration(transportProperties);
         BootstrapConfiguration bootstrapConfig = new BootstrapConfiguration(transportProperties);
         EventLoopGroup clientEventLoopGroup = new NioEventLoopGroup(
                 Util.getIntProperty(transportProperties, Constants.CLIENT_BOOTSTRAP_WORKER_GROUP_SIZE, 4));
-        ConnectionManager connectionManager =
-                new ConnectionManager(poolConfiguration, bootstrapConfig, clientEventLoopGroup);
+        ConnectionManager connectionManager = new ConnectionManager(senderConfiguration.getPoolConfiguration(),
+                bootstrapConfig, clientEventLoopGroup);
         return new HttpClientConnectorImpl(connectionManager, senderConfiguration);
     }
 
@@ -101,5 +103,12 @@ public class HttpWsConnectorFactoryImpl implements HttpWsConnectorFactory {
     @Override
     public WebSocketClientConnector createWsClientConnector(WsClientConnectorConfig clientConnectorConfig) {
         return new WebSocketClientConnectorImpl(clientConnectorConfig);
+    }
+
+    @Override
+    public void shutdown() throws InterruptedException {
+        this.allChannels.close().sync();
+        this.workerGroup.shutdownGracefully().sync();
+        this.bossGroup.shutdownGracefully().sync();
     }
 }

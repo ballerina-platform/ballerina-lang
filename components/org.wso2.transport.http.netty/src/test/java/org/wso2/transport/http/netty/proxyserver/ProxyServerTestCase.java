@@ -24,6 +24,8 @@ import io.netty.handler.codec.http.DefaultLastHttpContent;
 import io.netty.handler.codec.http.HttpMethod;
 import io.netty.handler.codec.http.HttpVersion;
 import org.mockserver.integration.ClientAndProxy;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -38,11 +40,12 @@ import org.wso2.transport.http.netty.contract.HttpResponseFuture;
 import org.wso2.transport.http.netty.contract.HttpWsConnectorFactory;
 import org.wso2.transport.http.netty.contract.ServerConnector;
 import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
-import org.wso2.transport.http.netty.contractimpl.HttpWsConnectorFactoryImpl;
+import org.wso2.transport.http.netty.contractimpl.DefaultHttpWsConnectorFactory;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 import org.wso2.transport.http.netty.message.HTTPConnectorUtil;
 import org.wso2.transport.http.netty.message.HttpCarbonRequest;
 import org.wso2.transport.http.netty.message.HttpMessageDataStreamer;
+import org.wso2.transport.http.netty.pipeline.PipelineProxyTestCase;
 import org.wso2.transport.http.netty.util.HTTPConnectorListener;
 import org.wso2.transport.http.netty.util.TestUtil;
 
@@ -64,19 +67,18 @@ import static org.testng.AssertJUnit.assertNotNull;
 /**
  * Tests for proxy server
  */
-
 public class ProxyServerTestCase {
+    private static Logger log = LoggerFactory.getLogger(PipelineProxyTestCase.class);
+
     private static HttpClientConnector httpClientConnector;
     private static ServerConnector serverConnector;
-    private static String testValue = "Test";
-    private static int serverPort = 8081;
     private ClientAndProxy proxy;
-    private String password = "wso2carbon";
-    private int proxyPort = 15427;
+    private HttpWsConnectorFactory httpWsConnectorFactory;
 
     @BeforeClass
     public void setup() throws InterruptedException {
         //Start proxy server.
+        int proxyPort = 15427;
         proxy = startClientAndProxy(proxyPort);
         ProxyServerConfiguration proxyServerConfiguration = null;
 
@@ -98,27 +100,35 @@ public class ProxyServerTestCase {
             config.setProxyServerConfiguration(proxyServerConfiguration);
         }
 
-        HttpWsConnectorFactory factory = new HttpWsConnectorFactoryImpl();
-        ListenerConfiguration listenerConfiguration = ListenerConfiguration.getDefault();
-        listenerConfiguration.setPort(serverPort);
-        listenerConfiguration.setScheme(Constants.HTTPS_SCHEME);
-        listenerConfiguration.setKeyStoreFile(TestUtil.getAbsolutePath(TestUtil.KEY_STORE_FILE_PATH));
-        listenerConfiguration.setKeyStorePass(password);
-        serverConnector = factory
+        httpWsConnectorFactory = new DefaultHttpWsConnectorFactory();
+        ListenerConfiguration listenerConfiguration = getListenerConfiguration();
+        serverConnector = httpWsConnectorFactory
                 .createServerConnector(TestUtil.getDefaultServerBootstrapConfig(), listenerConfiguration);
         ServerConnectorFuture future = serverConnector.start();
         future.setHttpConnectorListener(new EchoMessageListener());
         future.sync();
 
-        httpClientConnector = factory
+        httpClientConnector = httpWsConnectorFactory
                 .createHttpClientConnector(HTTPConnectorUtil.getTransportProperties(transportsConfiguration),
                         HTTPConnectorUtil.getSenderConfiguration(transportsConfiguration, Constants.HTTPS_SCHEME));
+    }
+
+    private ListenerConfiguration getListenerConfiguration() {
+        ListenerConfiguration listenerConfiguration = ListenerConfiguration.getDefault();
+        int serverPort = 8081;
+        listenerConfiguration.setPort(serverPort);
+        listenerConfiguration.setScheme(Constants.HTTPS_SCHEME);
+        listenerConfiguration.setKeyStoreFile(TestUtil.getAbsolutePath(TestUtil.KEY_STORE_FILE_PATH));
+        String password = "wso2carbon";
+        listenerConfiguration.setKeyStorePass(password);
+        return listenerConfiguration;
     }
 
     @Test
     public void testProxyServer() {
 
         try {
+            String testValue = "Test";
             ByteBuffer byteBuffer = ByteBuffer.wrap(testValue.getBytes(Charset.forName("UTF-8")));
             HTTPCarbonMessage msg = new HttpCarbonRequest(
                     new DefaultHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.GET, "https://localhost:8081"));
@@ -148,6 +158,11 @@ public class ProxyServerTestCase {
     public void cleanUp() {
         httpClientConnector.close();
         serverConnector.stop();
+        try {
+            httpWsConnectorFactory.shutdown();
+        } catch (InterruptedException e) {
+            log.warn("Interrupted while waiting for HttpWsFactory to close");
+        }
         proxy.stop();
     }
 }

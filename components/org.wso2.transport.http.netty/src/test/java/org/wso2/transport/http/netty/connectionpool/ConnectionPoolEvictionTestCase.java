@@ -22,20 +22,17 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.carbon.messaging.exceptions.ServerConnectorException;
-import org.wso2.transport.http.netty.common.Constants;
-import org.wso2.transport.http.netty.config.TransportsConfiguration;
+import org.wso2.transport.http.netty.config.SenderConfiguration;
 import org.wso2.transport.http.netty.contract.HttpClientConnector;
 import org.wso2.transport.http.netty.contract.HttpWsConnectorFactory;
-import org.wso2.transport.http.netty.contractimpl.HttpWsConnectorFactoryImpl;
-import org.wso2.transport.http.netty.message.HTTPConnectorUtil;
+import org.wso2.transport.http.netty.contractimpl.DefaultHttpWsConnectorFactory;
 import org.wso2.transport.http.netty.util.HTTPConnectorListener;
 import org.wso2.transport.http.netty.util.TestUtil;
 import org.wso2.transport.http.netty.util.server.HttpServer;
 import org.wso2.transport.http.netty.util.server.initializers.SendChannelIDServerInitializer;
 
-import java.io.File;
 import java.util.ArrayList;
-import java.util.Map;
+import java.util.HashMap;
 import java.util.concurrent.CountDownLatch;
 
 import static org.testng.Assert.assertFalse;
@@ -47,22 +44,17 @@ public class ConnectionPoolEvictionTestCase {
 
     private HttpServer httpServer;
     private HttpClientConnector httpClientConnector;
+    private HttpWsConnectorFactory connectorFactory;
 
     @BeforeClass
     public void setup() {
-        TransportsConfiguration transportsConfiguration = TestUtil.getConfiguration(
-                "/simple-test-config" + File.separator + "netty-transports.yml");
-
-        Map<String, Object> transportProperties = HTTPConnectorUtil.getTransportProperties(transportsConfiguration);
-        transportProperties.put(Constants.MIN_EVICTION_IDLE_TIME, 2000);
-        transportProperties.put(Constants.TIME_BETWEEN_EVICTION_RUNS, 1000);
-
         httpServer = TestUtil.startHTTPServer(TestUtil.HTTP_SERVER_PORT, new SendChannelIDServerInitializer(0));
 
-        HttpWsConnectorFactory connectorFactory = new HttpWsConnectorFactoryImpl();
-
-        httpClientConnector = connectorFactory.createHttpClientConnector(transportProperties,
-                HTTPConnectorUtil.getSenderConfiguration(transportsConfiguration, Constants.HTTP_SCHEME));
+        connectorFactory = new DefaultHttpWsConnectorFactory();
+        SenderConfiguration senderConfiguration = new SenderConfiguration();
+        senderConfiguration.getPoolConfiguration().setMinEvictableIdleTime(2000);
+        senderConfiguration.getPoolConfiguration().setTimeBetweenEvictionRuns(1000);
+        httpClientConnector = connectorFactory.createHttpClientConnector(new HashMap<>(), senderConfiguration);
     }
 
     @Test
@@ -89,6 +81,6 @@ public class ConnectionPoolEvictionTestCase {
 
     @AfterClass
     public void cleanUp() throws ServerConnectorException {
-        TestUtil.cleanUp(new ArrayList<>(), httpServer);
+        TestUtil.cleanUp(new ArrayList<>(), httpServer, connectorFactory);
     }
 }

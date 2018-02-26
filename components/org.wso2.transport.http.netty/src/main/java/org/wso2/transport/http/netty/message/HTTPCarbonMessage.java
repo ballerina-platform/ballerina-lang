@@ -27,7 +27,6 @@ import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.HttpMessage;
 import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.HttpResponse;
-import org.wso2.carbon.messaging.MessageUtil;
 import org.wso2.transport.http.netty.common.Constants;
 import org.wso2.transport.http.netty.contract.HttpResponseFuture;
 import org.wso2.transport.http.netty.contract.ServerConnectorException;
@@ -39,7 +38,6 @@ import java.nio.ByteBuffer;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 /**
  * HTTP based representation for HTTPCarbonMessage.
@@ -97,15 +95,6 @@ public class HTTPCarbonMessage {
     }
 
     /**
-     * Returns the full content of HttpCarbonMessage. This is a blocking method.
-     *
-     * @return entire payload.
-     */
-    public List<ByteBuffer> getFullMessageBody() {
-        return blockingEntityCollector.getFullMessageBody();
-    }
-
-    /**
      * Check if the payload empty.
      *
      * @return true or false.
@@ -123,22 +112,12 @@ public class HTTPCarbonMessage {
     }
 
     @Deprecated
-    public boolean isEndOfMsgAdded() {
-        return blockingEntityCollector.isEndOfMsgAdded();
-    }
-
-    @Deprecated
     public void addMessageBody(ByteBuffer msgBody) {
         blockingEntityCollector.addMessageBody(msgBody);
     }
 
-    private void markMessageEnd() {
-        blockingEntityCollector.markMessageEnd();
-    }
-
-    @Deprecated
-    public void setEndOfMsgAdded(boolean endOfMsgAdded) {
-        blockingEntityCollector.setEndOfMsgAdded(endOfMsgAdded);
+    public void completeMessage() {
+        blockingEntityCollector.completeMessage();
     }
 
     /**
@@ -212,11 +191,6 @@ public class HTTPCarbonMessage {
         this.blockingEntityCollector = blockingEntityCollector;
     }
 
-    @Deprecated
-    public void release() {
-        blockingEntityCollector.release();
-    }
-
     /**
      * Returns the future responsible for sending back the response.
      *
@@ -280,31 +254,6 @@ public class HTTPCarbonMessage {
         HTTPCarbonMessage httpCarbonMessage = new HTTPCarbonMessage(newHttpMessage);
         httpCarbonMessage.getHeaders().set(httpHeaders);
         return httpCarbonMessage;
-    }
-
-    /**
-     * Copy the Full carbon message with data.
-     *
-     * @return carbonMessage.
-     */
-    public HTTPCarbonMessage cloneCarbonMessageWithData() {
-        HTTPCarbonMessage httpCarbonMessage = getNewHttpCarbonMessage();
-
-        Map<String, Object> propertiesMap = this.getProperties();
-        propertiesMap.forEach(httpCarbonMessage::setProperty);
-
-        this.getCopyOfFullMessageBody().forEach(httpCarbonMessage::addMessageBody);
-        httpCarbonMessage.setEndOfMsgAdded(true);
-        return httpCarbonMessage;
-    }
-
-    private List<ByteBuffer> getCopyOfFullMessageBody() {
-        List<ByteBuffer> fullMessageBody = getFullMessageBody();
-        List<ByteBuffer> newCopy = fullMessageBody.stream().map(MessageUtil::deepCopy)
-                .collect(Collectors.toList());
-        fullMessageBody.forEach(this::addMessageBody);
-        markMessageEnd();
-        return newCopy;
     }
 
     /**

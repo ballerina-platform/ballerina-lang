@@ -40,7 +40,7 @@ import org.wso2.transport.http.netty.contract.HttpClientConnector;
 import org.wso2.transport.http.netty.contract.HttpResponseFuture;
 import org.wso2.transport.http.netty.contract.HttpWsConnectorFactory;
 import org.wso2.transport.http.netty.contractimpl.DefaultHttpResponseFuture;
-import org.wso2.transport.http.netty.contractimpl.HttpWsConnectorFactoryImpl;
+import org.wso2.transport.http.netty.contractimpl.DefaultHttpWsConnectorFactory;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 import org.wso2.transport.http.netty.message.HTTPConnectorUtil;
 import org.wso2.transport.http.netty.message.HttpMessageDataStreamer;
@@ -96,7 +96,7 @@ public class HTTPClientRedirectTestCase {
         transportsConfiguration = TestUtil
                 .getConfiguration("/simple-test-config" + File.separator + "netty-transports.yml");
 
-        connectorFactory = new HttpWsConnectorFactoryImpl();
+        connectorFactory = new DefaultHttpWsConnectorFactory();
 
         SenderConfiguration senderConfiguration = HTTPConnectorUtil
                 .getSenderConfiguration(transportsConfiguration, Constants.HTTP_SCHEME);
@@ -105,7 +105,7 @@ public class HTTPClientRedirectTestCase {
 
         Map<String, Object> transportProperties = HTTPConnectorUtil.getTransportProperties(transportsConfiguration);
 
-        PoolConfiguration poolConfiguration = new PoolConfiguration(transportProperties);
+        PoolConfiguration poolConfiguration = new PoolConfiguration();
         BootstrapConfiguration bootstrapConfig = new BootstrapConfiguration(transportProperties);
         EventLoopGroup clientEventLoopGroup = new NioEventLoopGroup(
                 Util.getIntProperty(transportProperties, Constants.CLIENT_BOOTSTRAP_WORKER_GROUP_SIZE, 4));
@@ -551,7 +551,7 @@ public class HTTPClientRedirectTestCase {
         if (requestUrl != null) {
             msg.setProperty(Constants.REQUEST_URL, requestUrl);
         }
-        msg.setEndOfMsgAdded(true);
+        msg.completeMessage();
         return msg;
     }
 
@@ -575,7 +575,7 @@ public class HTTPClientRedirectTestCase {
 
         httpCarbonRequest.setHeader(Constants.HOST, locationUrl.getHost());
         httpCarbonRequest.setHeader(Constants.PORT, Integer.toString(locationUrl.getPort()));
-        httpCarbonRequest.setEndOfMsgAdded(true);
+        httpCarbonRequest.completeMessage();
         return httpCarbonRequest;
     }
 }

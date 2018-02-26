@@ -36,9 +36,9 @@ import javax.net.ssl.SSLEngine;
 /**
  * A class that responsible for initialize target server pipeline.
  */
-public class HTTPClientInitializer extends ChannelInitializer<SocketChannel> {
+public class HttpClientChannelInitializer extends ChannelInitializer<SocketChannel> {
 
-    private static final Logger log = LoggerFactory.getLogger(HTTPClientInitializer.class);
+    private static final Logger log = LoggerFactory.getLogger(HttpClientChannelInitializer.class);
 
     private SSLEngine sslEngine;
     private TargetHandler targetHandler;
@@ -52,7 +52,7 @@ public class HTTPClientInitializer extends ChannelInitializer<SocketChannel> {
     private ProxyServerConfiguration proxyServerConfiguration;
     private ConnectionManager connectionManager;
 
-    public HTTPClientInitializer(SenderConfiguration senderConfiguration, SSLEngine sslEngine,
+    public HttpClientChannelInitializer(SenderConfiguration senderConfiguration, SSLEngine sslEngine,
             ConnectionManager connectionManager) {
         this.sslEngine = sslEngine;
         this.httpTraceLogEnabled = senderConfiguration.isHttpTraceLogEnabled();
@@ -92,7 +92,7 @@ public class HTTPClientInitializer extends ChannelInitializer<SocketChannel> {
         }
         ch.pipeline().addLast("decoder", new HttpResponseDecoder());
         ch.pipeline().addLast("encoder", new HttpRequestEncoder());
-        ch.pipeline().addLast("decompressor", new HttpContentDecompressor());
+        ch.pipeline().addLast("deCompressor", new HttpContentDecompressor());
         ch.pipeline().addLast("chunkWriter", new ChunkedWriteHandler());
         if (httpTraceLogEnabled) {
             ch.pipeline().addLast(Constants.HTTP_TRACE_LOG_HANDLER,
