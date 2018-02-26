@@ -34,10 +34,8 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BConnectorType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BEndpointType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BEnumType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BJSONType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BStructType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleCollectionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
@@ -173,6 +171,7 @@ public class PackageActionFunctionAndTypesFilter extends AbstractSymbolFilter {
         SymbolTable symbolTable = context.get(DocumentServiceKeys.SYMBOL_TABLE_KEY);
         String variableName = tokenStream.get(delimiterIndex - 1).getText();
         SymbolInfo variable = this.getVariableByName(variableName, symbols);
+        String builtinPkgName = symbolTable.builtInPackageSymbol.name.getValue();
         Map<Name, Scope.ScopeEntry> entries = new HashMap<>();
         String constraintTypeName = null;
 
@@ -196,7 +195,6 @@ public class PackageActionFunctionAndTypesFilter extends AbstractSymbolFilter {
             packageID = bType.tsymbol.pkgID.toString();
             bTypeValue = bType.toString();
         }
-        String builtinPkgName = symbolTable.builtInPackageSymbol.name.getValue();
 
         // Extract the package symbol. This is used to extract the entries of the particular package
         SymbolInfo packageSymbolInfo = symbols.stream().filter(item -> {
@@ -208,9 +206,8 @@ public class PackageActionFunctionAndTypesFilter extends AbstractSymbolFilter {
         if (packageSymbolInfo == null && packageID.equals(builtinPkgName)) {
             // If the packageID is ballerina.builtin, we extract entries of builtin package
             entries = symbolTable.builtInPackageSymbol.scope.entries;
-        } else if (packageSymbolInfo == null && (bType instanceof BEnumType || bType instanceof BStructType)) {
-            // If the bType is an enum/ struct, we extract the fields of the enum
-            entries = this.getScopeEntries(bTypeValue, context);
+        } else if (packageSymbolInfo == null && packageID.equals(".")) {
+            entries = this.getScopeEntries(bType, context);
         } else if (packageSymbolInfo != null) {
             // If the package exist, we extract particular entries from package
             entries = packageSymbolInfo.getScopeEntry().symbol.scope.entries;
@@ -226,29 +223,29 @@ public class PackageActionFunctionAndTypesFilter extends AbstractSymbolFilter {
                 entries = ((Scope.ScopeEntry) filteredEntry.getValue()).symbol.scope.entries;
             }
         }
+        
+        entries.forEach((name, scopeEntry) -> {
+            if (scopeEntry.symbol instanceof BInvokableSymbol
+                    && ((BInvokableSymbol) scopeEntry.symbol).receiverSymbol != null) {
+                String symbolBoundedName = ((BInvokableSymbol) scopeEntry.symbol)
+                        .receiverSymbol.getType().toString();
 
-        if (bType instanceof BEnumType) {
-            entries.forEach((name, scopeEntry) -> {
-                SymbolInfo actionFunctionSymbol = new SymbolInfo(name.toString(), scopeEntry);
-                actionFunctionList.add(actionFunctionSymbol);
-            });
-        } else {
-            entries.forEach((name, scopeEntry) -> {
-                if (scopeEntry.symbol instanceof BInvokableSymbol
-                        && ((BInvokableSymbol) scopeEntry.symbol).receiverSymbol != null) {
-                    String symbolBoundedName = ((BInvokableSymbol) scopeEntry.symbol)
-                            .receiverSymbol.getType().tsymbol.name.getValue();
-
-                    if (symbolBoundedName.equals(bTypeValue)) {
-                        // TODO: Need to handle the name in a proper manner
-                        String[] nameComponents = name.toString().split("\\.");
-                        SymbolInfo actionFunctionSymbol =
-                                new SymbolInfo(nameComponents[nameComponents.length - 1], scopeEntry);
-                        actionFunctionList.add(actionFunctionSymbol);
-                    }
+                if (symbolBoundedName.equals(bTypeValue)) {
+                    // TODO: Need to handle the name in a proper manner
+                    String[] nameComponents = name.toString().split("\\.");
+                    SymbolInfo actionFunctionSymbol =
+                            new SymbolInfo(nameComponents[nameComponents.length - 1], scopeEntry);
+                    actionFunctionList.add(actionFunctionSymbol);
                 }
-            });
-        }
+            } else if ((scopeEntry.symbol instanceof BTypeSymbol)
+                    && bTypeValue.equals(scopeEntry.symbol.type.toString())) {
+                // Get the struct fields
+                Map<Name, Scope.ScopeEntry> fields = scopeEntry.symbol.scope.entries;
+                fields.forEach((fieldName, fieldScopeEntry) -> {
+                    actionFunctionList.add(new SymbolInfo(fieldName.getValue(), fieldScopeEntry));
+                });
+            }
+        });
         
         // Populate possible iterable operators over the variable
         populateIterableOperations(variable, actionFunctionList);
@@ -312,18 +309,22 @@ public class PackageActionFunctionAndTypesFilter extends AbstractSymbolFilter {
 
     /**
      * Get the scope entries.
-     * @param bTypeName         Name of the bType 
+     * @param bType             BType 
      * @param completionCtx     Completion context
      * @return                  {@link Map} Scope entries map
      */
-    private Map<Name, Scope.ScopeEntry> getScopeEntries(String bTypeName, TextDocumentServiceContext completionCtx) {
-        SymbolInfo enumSymbolInfo = completionCtx.get(CompletionKeys.VISIBLE_SYMBOLS_KEY)
+    private Map<Name, Scope.ScopeEntry> getScopeEntries(BType bType, TextDocumentServiceContext completionCtx) {
+        SymbolInfo filteredSymbolInfo = completionCtx.get(CompletionKeys.VISIBLE_SYMBOLS_KEY)
                 .stream()
-                .filter(symbolInfo -> symbolInfo.getSymbolName().equals(bTypeName))
+                .filter(symbolInfo -> symbolInfo.getScopeEntry().symbol instanceof BTypeSymbol
+                        && symbolInfo.getScopeEntry().symbol.getType() != null 
+                        && symbolInfo.getScopeEntry().symbol.getType().toString().equals(bType.toString()))
                 .findFirst()
                 .orElse(null);
 
-        return enumSymbolInfo.getScopeEntry().symbol.scope.entries;
+        HashMap<Name, Scope.ScopeEntry> returnMap = new HashMap<>();
+        returnMap.put(filteredSymbolInfo.getScopeEntry().symbol.getName(), filteredSymbolInfo.getScopeEntry());
+        return returnMap;
     }
     
     private void populateIterableOperations(SymbolInfo variable, List<SymbolInfo> symbolInfoList) {
