@@ -406,6 +406,7 @@ class ExportDiagramDialog extends React.Component {
                                 fluid
                                 label='File Path'
                                 placeholder='eg: /home/user/diagrams'
+                                className='inverted'
                                 value={this.state.filePath}
                                 onChange={(evt) => {
                                     this.setState({
@@ -415,11 +416,14 @@ class ExportDiagramDialog extends React.Component {
                                 }}
                             />
                         </Form.Group>
-                        <Form.Group controlId='fileName' inline>
-                            <label width={4} htmlFor='fileName'>File Name</label>
-                            <Form.Field width={6}>
+                        <Form.Group controlId='fileName' inline >
+                            <Form.Field width={3} htmlFor='fileName'>
+                                <label>File Name</label>
+                            </Form.Field>
+                            <Form.Field width={10}>
                                 <Input
                                     type='text'
+                                    className='inverted'
                                     value={this.state.fileName}
                                     onChange={(evt) => {
                                         this.setState({
@@ -429,9 +433,10 @@ class ExportDiagramDialog extends React.Component {
                                     }}
                                 />
                             </Form.Field>
-                            <Select
+                            <Form.Select
                                 placeholder='Type'
-                                width={6}
+                                className='inverted'
+                                width={3}
                                 compact
                                 options={[{ text: 'SVG', value: 'SVG' }, { text: 'PNG', value: 'PNG' }]}
                             />
