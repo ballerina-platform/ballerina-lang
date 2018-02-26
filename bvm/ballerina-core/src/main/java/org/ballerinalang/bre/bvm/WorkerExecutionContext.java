@@ -70,6 +70,12 @@ public class WorkerExecutionContext {
     
     private Lock executionLock;
         
+    public WorkerExecutionContext(ProgramFile programFile) {
+        this.programFile = programFile;
+        this.globalProps = new HashMap<>();
+        this.runInCaller = true;
+    }
+    
     public WorkerExecutionContext() {
         this.globalProps = new HashMap<>();
         this.runInCaller = true;

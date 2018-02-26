@@ -75,7 +75,7 @@ public class DebuggerExecutor implements Runnable {
         ProgramFile programFile = result.getProgFile();
 
         // Non blocking is not supported in the main program flow..
-        Context bContext = new Context(programFile);
+        Context bContext = null; // = new Context(programFile);
 
         programFile.setDebugger(debugger);
         DebugContext debugContext = new DebugContext();
@@ -88,7 +88,7 @@ public class DebuggerExecutor implements Runnable {
 
         // Invoke package init function
         FunctionInfo mainFuncInfo = BLangProgramRunner.getMainFunction(mainPkgInfo);
-        BLangFunctions.invokePackageInitFunction2(programFile, mainPkgInfo.getInitFunctionInfo(), bContext);
+        //BLangFunctions.invokePackageInitFunction2(programFile, mainPkgInfo.getInitFunctionInfo(), bContext);
 
         // Prepare main function arguments
         BStringArray arrayArgs = new BStringArray();
@@ -105,14 +105,14 @@ public class DebuggerExecutor implements Runnable {
 
         StackFrame stackFrame = new StackFrame(mainFuncInfo, defaultWorkerInfo, -1, new int[0]);
         stackFrame.getRefRegs()[0] = arrayArgs;
-        ControlStack controlStack = bContext.getControlStack();
+        ControlStack controlStack = null; // = bContext.getControlStack();
         controlStack.pushFrame(stackFrame);
-        bContext.startTrackWorker();
-        bContext.setStartIP(defaultWorkerInfo.getCodeAttributeInfo().getCodeAddrs());
+        //bContext.startTrackWorker();
+        //bContext.setStartIP(defaultWorkerInfo.getCodeAttributeInfo().getCodeAddrs());
 
         BLangVM bLangVM = new BLangVM(programFile);
         bLangVM.run(bContext);
-        bContext.await();
+        //bContext.await();
         debugger.notifyExit();
     }
 }

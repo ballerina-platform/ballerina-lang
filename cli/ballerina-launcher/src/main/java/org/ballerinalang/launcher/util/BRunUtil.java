@@ -17,7 +17,7 @@
  */
 package org.ballerinalang.launcher.util;
 
-import org.ballerinalang.bre.Context;
+import org.ballerinalang.bre.bvm.WorkerExecutionContext;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.codegen.FunctionInfo;
 import org.ballerinalang.util.codegen.PackageInfo;
@@ -99,7 +99,7 @@ public class BRunUtil {
         if (functionInfo.getParamTypes().length != args.length) {
             throw new RuntimeException("Size of input argument arrays is not equal to size of function parameters");
         }
-        return BLangFunctions.invokeFunction(programFile, functionInfo, args, compileResult.getContext());
+        return BLangFunctions.invokeCallable(functionInfo, compileResult.getContext(), args);
     }
 
 //    Package init helpers
@@ -127,11 +127,11 @@ public class BRunUtil {
         }
         ProgramFile programFile = compileResult.getProgFile();
         PackageInfo packageInfo = programFile.getPackageInfo(packageName);
-        Context context = new Context(programFile);
+        WorkerExecutionContext context = new WorkerExecutionContext(programFile);
         Debugger debugger = new Debugger(programFile);
         programFile.setDebugger(debugger);
         compileResult.setContext(context);
-        BLangFunctions.invokePackageInitFunction2(programFile, packageInfo.getInitFunctionInfo(), context);
+        BLangFunctions.invokePackageInitFunction(packageInfo.getInitFunctionInfo(), context);
     }
 
     /**
@@ -193,7 +193,8 @@ public class BRunUtil {
      * @param context       context for function invocation
      * @return return values of the function
      */
-    public static BValue[] invoke(CompileResult compileResult, String functionName, BValue[] args, Context context) {
+    public static BValue[] invoke(CompileResult compileResult, String functionName, BValue[] args, 
+            WorkerExecutionContext context) {
         if (compileResult.getErrorCount() > 0) {
             throw new IllegalStateException("compilation contains errors.");
         }
@@ -222,9 +223,10 @@ public class BRunUtil {
      * @param initFuncInfo Function to invoke.
      * @param context invocation context.
      */
-    public static void invoke(CompileResult compileResult, FunctionInfo initFuncInfo, Context context) {
+    public static void invoke(CompileResult compileResult, FunctionInfo initFuncInfo, 
+            WorkerExecutionContext context) {
         Debugger debugger = new Debugger(compileResult.getProgFile());
         compileResult.getProgFile().setDebugger(debugger);
-        BLangFunctions.invokeFunction2(compileResult.getProgFile(), initFuncInfo, context);
+        BLangFunctions.invokeCallable(initFuncInfo, context);
     }
 }
