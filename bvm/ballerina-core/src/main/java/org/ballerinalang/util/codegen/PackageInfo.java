@@ -36,8 +36,8 @@ import java.util.Map;
  */
 public class PackageInfo implements ConstantPool, AttributeInfoPool {
 
-    private int pkgNameCPIndex;
-    private String pkgPath;
+    public int nameCPIndex;
+    public String pkgPath;
     private FunctionInfo initFunctionInfo;
 
     private ConstantPoolEntry[] constPool;
@@ -69,13 +69,8 @@ public class PackageInfo implements ConstantPool, AttributeInfoPool {
     // cache values.
     ProgramFile programFile;
 
-    public PackageInfo(int packageNameCPIndex, String packageName) {
-        this.pkgNameCPIndex = packageNameCPIndex;
-        this.pkgPath = packageName;
-    }
-
     public int getPkgNameCPIndex() {
-        return pkgNameCPIndex;
+        return nameCPIndex;
     }
 
     public String getPkgPath() {

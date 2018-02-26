@@ -80,14 +80,6 @@ public class ErrorTableEntry {
 //        this.error = (StructInfo) structureRefCPEntry.getStructureTypeInfo();
     }
 
-    public StructInfo getError() {
-        return error;
-    }
-
-    public void setError(StructInfo error) {
-        this.error = error;
-    }
-
     public boolean matchRange(int currentIP) {
         if (currentIP >= ipFrom && currentIP <= ipTo) {
             return true;

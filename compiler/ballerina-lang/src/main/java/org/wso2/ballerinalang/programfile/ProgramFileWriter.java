@@ -182,8 +182,8 @@ public class ProgramFileWriter {
 
     private static void writePackageInfo(DataOutputStream dataOutStream,
                                          PackageInfo packageInfo) throws IOException {
-        dataOutStream.writeInt(packageInfo.nameCPIndex);
         writeCP(dataOutStream, packageInfo.getConstPoolEntries());
+        dataOutStream.writeInt(packageInfo.nameCPIndex);
 
         // Emit struct info entries
         StructInfo[] structTypeInfoEntries = packageInfo.getStructInfoEntries();

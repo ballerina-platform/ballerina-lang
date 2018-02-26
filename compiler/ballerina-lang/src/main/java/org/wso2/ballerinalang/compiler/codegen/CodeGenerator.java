@@ -300,7 +300,7 @@ public class CodeGenerator extends BLangNodeVisitor {
         this.symTable = SymbolTable.getInstance(context);
     }
 
-    public ProgramFile generate(BLangPackage pkgNode) {
+    public ProgramFile generateBALX(BLangPackage pkgNode) {
         programFile = new ProgramFile();
         // TODO: Fix this. Added temporally for codegen. Load this from VM side.
         genPackage(this.symTable.builtInPackageSymbol);
@@ -320,6 +320,10 @@ public class CodeGenerator extends BLangNodeVisitor {
         addVarCountAttrInfo(programFile, programFile, pvIndexes);
 
         return programFile;
+    }
+
+    public void generateBALO(BLangPackage pkgNode) {
+
     }
 
     private static void setEntryPoints(ProgramFile programFile, BLangPackage pkgNode) {
@@ -357,15 +361,18 @@ public class CodeGenerator extends BLangNodeVisitor {
         if (pkgNode.completedPhases.contains(CompilerPhase.CODE_GEN)) {
             return;
         }
+
+//        if ()
+
         // first visit all the imports
         pkgNode.imports.forEach(impPkgNode -> genNode(impPkgNode, this.env));
 
         // Add the current package to the program file
         BPackageSymbol pkgSymbol = pkgNode.symbol;
         currentPkgID = pkgSymbol.pkgID;
-        int pkgNameCPIndex = addUTF8CPEntry(programFile, currentPkgID.name.value);
-        int pkgVersionCPIndex = addUTF8CPEntry(programFile, currentPkgID.version.value);
-        currentPkgInfo = new PackageInfo(pkgNameCPIndex, pkgVersionCPIndex);
+        currentPkgInfo = new PackageInfo();
+        currentPkgInfo.nameCPIndex = addUTF8CPEntry(currentPkgInfo, currentPkgID.name.value);
+        currentPkgInfo.versionCPIndex = addUTF8CPEntry(currentPkgInfo, currentPkgID.version.value);
 
         // TODO We need to create identifier for both name and the version
         programFile.packageInfoMap.put(currentPkgID.name.value, currentPkgInfo);
@@ -1441,7 +1448,6 @@ public class CodeGenerator extends BLangNodeVisitor {
                     constPkg, constNameCPIndex, constName);
             attribValue.setConstVarExpr(true);
 
-            programFile.addUnresolvedAnnAttrValue(attribValue);
         } else if (attributeNode.value != null) {
             // Annotation attribute value is another annotation attachment
             BLangAnnotationAttachment attachment = (BLangAnnotationAttachment) attributeNode.value;
@@ -2921,10 +2927,7 @@ public class CodeGenerator extends BLangNodeVisitor {
             int structNameCPIndex = addUTF8CPEntry(currentPkgInfo, structSymbol.name.value);
             StructureRefCPEntry structureRefCPEntry = new StructureRefCPEntry(pkgCPIndex, structNameCPIndex);
             int structCPEntryIndex = currentPkgInfo.addCPEntry(structureRefCPEntry);
-            StructInfo errorStructInfo = this.programFile.getPackageInfo(packageSymbol.name.value)
-                    .getStructInfo(structSymbol.name.value);
             ErrorTableEntry errorTableEntry = new ErrorTableEntry(fromIP, toIP, targetIP, order++, structCPEntryIndex);
-            errorTableEntry.setError(errorStructInfo);
             errorTable.addErrorTableEntry(errorTableEntry);
         }
 
