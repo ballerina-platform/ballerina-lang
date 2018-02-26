@@ -38,12 +38,20 @@ class FunctionCtrl extends React.Component {
         const y = node.viewState.components.defaultWorker.y - 20;
         let x = node.viewState.components.defaultWorker.x + node.viewState.components.defaultWorker.w +
             this.context.config.lifeLine.gutter.h;
+
+        if (node.lambda) {
+            return null;
+        }
+
         if (node.workers.length > 0) {
             x = node.workers[node.workers.length - 1].viewState.bBox.x +
                 node.workers[node.workers.length - 1].viewState.bBox.w +
                 this.context.config.lifeLine.gutter.h;
         }
 
+        if (node.viewState.collapsed) {
+            return null;
+        }
         // Set the size of the connector declarations
         const statements = node.body.statements;
         if (statements instanceof Array) {

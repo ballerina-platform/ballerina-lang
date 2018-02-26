@@ -21,6 +21,7 @@ Maps
 Arrays
 Array of Arrays
 Vector
+Table
 Lengthof
 Identifier Literals
 JSON
@@ -43,7 +44,7 @@ Fork/Join
 Fork/Join Condition Some
 Fork/Join Variable Access
 SQL Connector
-Table
+Table with SQL Connector
 Transactions
 Distributed Transactions
 Transformers

@@ -127,7 +127,7 @@ public class TableJSONDataSource implements JSONDataSource {
             objNode.set(name, getStructData(df.getStruct(index), structFields, index));
             break;
         case XML:
-            /* not supported */
+            objNode.set(name, df.getString(index));
             break;
         default:
             objNode.set(name, df.getString(index));

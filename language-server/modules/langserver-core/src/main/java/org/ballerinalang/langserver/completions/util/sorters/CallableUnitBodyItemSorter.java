@@ -66,7 +66,8 @@ class CallableUnitBodyItemSorter extends CompletionItemSorter {
             BType bLangType = ((BLangVariableDef) previousNode).var.type;
             if (bLangType instanceof BEndpointType) {
                 this.populateWhenCursorBeforeOrAfterEp(completionItems);
-            } else {
+            } else if (ctx.get(CompletionKeys.INVOCATION_STATEMENT_KEY) == null
+                    || !ctx.get(CompletionKeys.INVOCATION_STATEMENT_KEY)) {
                 CompletionItem workerItem = this.getWorkerSnippet();
                 workerItem.setSortText(Priority.PRIORITY160.toString());
                 completionItems.add(workerItem);

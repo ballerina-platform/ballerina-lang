@@ -71,7 +71,6 @@ service<http> mock {
     }
     resource mockResource (http:Connection conn, http:InRequest req) {
         http:OutResponse outResponse = {};
-        outResponse.statusCode = 200;
         outResponse.setStringPayload("Mock Resource is Invoked.");
         _ = conn.respond(outResponse);
     }
