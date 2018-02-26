@@ -93,14 +93,11 @@ public class SymbolTable {
     public final BType errType;
 
     public BStructType errStructType;
-    public BStructType errTypeConversionType;
-    public BStructType errTypeCastType;
 
     public BPackageSymbol builtInPackageSymbol;
+    public BPackageSymbol runtimePackageSymbol;
 
     private Names names;
-
-    private CompilerContext context;
 
     public static SymbolTable getInstance(CompilerContext context) {
         SymbolTable symTable = context.get(SYM_TABLE_KEY);
@@ -112,8 +109,7 @@ public class SymbolTable {
     }
 
     private SymbolTable(CompilerContext context) {
-        this.context = context;
-        this.context.put(SYM_TABLE_KEY, this);
+        context.put(SYM_TABLE_KEY, this);
 
         this.names = Names.getInstance(context);
 
@@ -143,15 +139,15 @@ public class SymbolTable {
         this.errSymbol = new BTypeSymbol(SymTag.ERROR, Flags.PUBLIC, Names.INVALID,
                 rootPkgSymbol.pkgID, errType, rootPkgSymbol);
         defineType(errType, errSymbol);
-    }
 
-    public void createErrorTypes() {
-        this.errStructType = (BStructType) rootScope.lookup(Names.ERROR).symbol.type;
-        this.errTypeCastType = (BStructType) rootScope.lookup(Names.ERROR_TYPE_CAST).symbol.type;
-        this.errTypeConversionType = (BStructType) rootScope.lookup(Names.ERROR_TYPE_CONVERSION).symbol.type;
-    }
+        // Initialize Ballerina error struct type temporally.
+        BTypeSymbol errorStructSymbol = new BTypeSymbol(SymTag.STRUCT, Flags.PUBLIC, Names.ERROR,
+                rootPkgSymbol.pkgID, null, rootPkgSymbol);
+        this.errStructType = new BStructType(errorStructSymbol);
+        errorStructSymbol.type = this.errStructType;
+        errorStructSymbol.scope = new Scope(errorStructSymbol);
+        defineType(this.errStructType, errorStructSymbol);
 
-    public void loadOperators() {
         // Define all operators e.g. binary, unary, cast and conversion
         defineOperators();
     }
@@ -411,7 +407,7 @@ public class SymbolTable {
                                     boolean safe,
                                     int opcode) {
         List<BType> paramTypes = Lists.of(sourceType, targetType);
-        List<BType> retTypes = Lists.of(targetType, this.errTypeCastType);
+        List<BType> retTypes = Lists.of(targetType, this.errStructType);
         BInvokableType opType = new BInvokableType(paramTypes, retTypes, null);
         BCastOperatorSymbol symbol = new BCastOperatorSymbol(this.rootPkgSymbol.pkgID, opType, this.rootPkgSymbol,
                 implicit, safe, opcode);
@@ -428,7 +424,7 @@ public class SymbolTable {
         if (safe) {
             retTypes = Lists.of(targetType);
         } else {
-            retTypes = Lists.of(targetType, this.errTypeConversionType);
+            retTypes = Lists.of(targetType, this.errStructType);
         }
         BInvokableType opType = new BInvokableType(paramTypes, retTypes, null);
         BConversionOperatorSymbol symbol = new BConversionOperatorSymbol(this.rootPkgSymbol.pkgID, opType,

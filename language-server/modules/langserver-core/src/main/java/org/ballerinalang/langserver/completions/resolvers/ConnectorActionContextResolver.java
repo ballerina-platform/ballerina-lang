@@ -19,8 +19,8 @@ package org.ballerinalang.langserver.completions.resolvers;
 
 import org.ballerinalang.langserver.TextDocumentServiceContext;
 import org.ballerinalang.langserver.completions.util.CompletionItemResolver;
-import org.ballerinalang.model.AnnotationAttachment;
 import org.eclipse.lsp4j.CompletionItem;
+import org.wso2.ballerinalang.compiler.tree.BLangResource;
 
 import java.util.ArrayList;
 
@@ -30,15 +30,7 @@ import java.util.ArrayList;
 public class ConnectorActionContextResolver extends AbstractItemResolver {
     @Override
     public ArrayList<CompletionItem> resolveItems(TextDocumentServiceContext completionContext) {
-
-        ArrayList<CompletionItem> completionItems = new ArrayList<>();
-
-        if (this.isAnnotationContext(completionContext)) {
-            completionItems.addAll(
-                    CompletionItemResolver
-                            .getResolverByClass(AnnotationAttachment.class).resolveItems(completionContext)
-            );
-        }
-        return completionItems;
+        // Same item resolving logic is used for both the BLangResource and the BLangAction
+        return CompletionItemResolver.getResolverByClass(BLangResource.class).resolveItems(completionContext);
     }
 }

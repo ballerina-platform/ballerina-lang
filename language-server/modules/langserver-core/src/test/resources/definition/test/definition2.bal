@@ -1,5 +1,7 @@
 package definition.test;
 
+import ballerina.io;
+
 struct Person {
     string name;
     int id;
@@ -7,5 +9,5 @@ struct Person {
 }
 
 function funcInSeparateFile () {
-    println(lastName);
+    io:println(lastName);
 }

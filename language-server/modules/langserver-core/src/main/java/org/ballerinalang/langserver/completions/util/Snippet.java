@@ -37,10 +37,10 @@ public enum Snippet {
     MAIN_FUNCTION("function main (string[] args) {\n\t${1}\n}"),
     NAMESPACE_DECLARATION("xmlns \"${1}\" as ${2:ns};"),
     NEXT("next;"),
-    RESOURCE("resource ${1:name} (http:Connection conn, http:InRequest inRequest) {\n\t${2}\n}"),
+    RESOURCE("resource ${1:name} (http:Connection conn, http:InRequest req) {\n\t${2}\n}"),
     RETURN("return;"),
     SERVICE("service<${1:http}> ${2:serviceName}{\n\tresource ${3:resourceName}" +
-            " (http:Connection conn, http:InRequest inRequest) {\n\t}\n}"),
+            " (http:Connection conn, http:InRequest req) {\n\t}\n}"),
     STRUCT_DEFINITION("struct ${1:name}{\n\t${2}\n}"),
     TRANSACTION("transaction with retries(${1}) {\n\t${2}\n} failed {\n\t${3}\n}"),
     TRANSFORMER("transformer<${1:Source} ${2:a},${3:Target} ${4:b}>{\n\t${5}\n}"),
@@ -51,7 +51,22 @@ public enum Snippet {
     WORKER("worker ${1:name} {\n\t${2}\n}"),
     XML_ATTRIBUTE_REFERENCE("\"${1}\"@[\"${2}\"]"),
     VAR_KEYWORD_SNIPPET("var "),
-    CREATE_KEYWORD_SNIPPET("create ");    
+    CREATE_KEYWORD_SNIPPET("create "),
+    
+    // Constants for the Iterable operators
+    ITR_FOREACH("foreach(function (%params%) {\n\t${1}\n});"),
+    ITR_MAP("map(function (%params%) (any){\n\t${1}\n});"),
+    ITR_FILTER("filter(function (%params%) (boolean){\n\t${1}\n});"),
+    ITR_COUNT("count();"),
+    ITR_MIN("min();"),
+    ITR_MAX("max();"),
+    ITR_AVERAGE("average();"),
+    ITR_SUM("sum();"),
+    
+    // Iterable operators' lambda function parameters
+    ITR_ON_MAP_PARAMS("string k, any v"),
+    ITR_ON_JSON_PARAMS("json v"),
+    ITR_ON_XML_PARAMS("xml v");
 
     private String value;
 

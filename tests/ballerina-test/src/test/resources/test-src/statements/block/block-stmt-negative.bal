@@ -95,15 +95,14 @@ function testUnreachableBreak()(string){
 }
 
 public struct testError {
-    string msg;
+    string message;
     error cause;
-    StackFrame[] stackTrace;
     string code;
 }
 
 function testUnreachableThrow (int value) (string) {
     if (value > 10) {
-        testError tError = {msg:"error", code:"test"};
+        testError tError = {message:"error", code:"test"};
         return "unreachable throw";
         throw tError;
     }

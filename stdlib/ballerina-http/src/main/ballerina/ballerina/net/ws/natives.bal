@@ -144,13 +144,11 @@ public struct ClientConnectorConfig {
 }
 
 @Description {value: "Error struct for WebSocket connection errors"}
-@Field {value:"msg:  An error message explaining the error"}
+@Field {value:"message:  An error message explaining the error"}
 @Field {value:"cause: The error that caused HttpConnectorError to be returned"}
-@Field {value:"stackTrace: Represents the invocation stack if WsConnectorError is thrown"}
 public struct WsConnectorError {
-    string msg;
+    string message;
     error cause;
-    StackFrame[] stackTrace;
 }
 
 @Description {value:"WebSocket client connector for connecting to a WebSocket backend"}

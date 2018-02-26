@@ -221,7 +221,7 @@ public class LengthOfOperatorTest {
 
     @Test(description = "Test lengthof unary expression when array is null.",
             expectedExceptions = {BLangRuntimeException.class},
-            expectedExceptionsMessageRegExp = "error: NullReferenceException.*")
+            expectedExceptionsMessageRegExp = ".*error:.*NullReferenceException.*")
     public void testArrayLengthAccessExpArrayNullCase() {
         BValue[] args = {new BInteger(100), new BInteger(5)};
         BRunUtil.invoke(resNegative, "arrayLengthAccessNullArrayCase", args);
@@ -229,7 +229,7 @@ public class LengthOfOperatorTest {
 
     @Test(description = "Test lengthof unary expression when reference point to json null.",
             expectedExceptions = {BLangRuntimeException.class},
-            expectedExceptionsMessageRegExp = "error: NullReferenceException.*")
+            expectedExceptionsMessageRegExp = ".*error:.*NullReferenceException.*")
     public void testArrayLengthAccessTestJSONArrayNegativeNullCase() {
         BValue[] args = {new BInteger(100), new BInteger(5)};
         BRunUtil.invoke(resNegative, "arrayLengthAccessTestJSONArrayNegativeNullCase", args);
@@ -237,7 +237,7 @@ public class LengthOfOperatorTest {
 
     @Test(description = "Test lengthof unary expression when reference point to null map.",
             expectedExceptions = {BLangRuntimeException.class},
-            expectedExceptionsMessageRegExp = "error: NullReferenceException.*")
+            expectedExceptionsMessageRegExp = ".*error:.*NullReferenceException.*")
     public void testArrayLengthAccessTestMapNegativeNullCase() {
         BValue[] args = {new BInteger(100), new BInteger(5)};
         BRunUtil.invoke(resNegative, "arrayLengthAccessNullMapCase", args);
@@ -286,7 +286,7 @@ public class LengthOfOperatorTest {
 
     @Test(description = "Test lengthof string", 
             expectedExceptions = { BLangRuntimeException.class },
-            expectedExceptionsMessageRegExp = "error: NullReferenceException.*")
+            expectedExceptionsMessageRegExp = ".*error:.*NullReferenceException.*")
     public void lengthOfNullString() {
         BRunUtil.invoke(result, "lengthOfNullString");
     }
