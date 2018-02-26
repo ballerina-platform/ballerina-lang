@@ -40,7 +40,7 @@
                 background-color:#f9f9f9;
                 color: #7D7D7D;
                 .close-tab {
-                    color: #7D7D7D;
+                    background: #f9f9f9 !important;
                     &:hover{
                         color: #474747;
                     }
@@ -49,3 +49,4 @@
         }
     }
 }
+
