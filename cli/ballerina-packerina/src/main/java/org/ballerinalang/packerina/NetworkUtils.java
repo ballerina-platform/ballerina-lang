@@ -42,14 +42,13 @@ import java.util.Arrays;
 import java.util.stream.Stream;
 
 import static org.ballerinalang.util.BLangConstants.USER_REPO_ARTIFACTS_DIRNAME;
-import static org.ballerinalang.util.BLangConstants.USER_REPO_SRC_DIRNAME;
 
 /**
  * Util class for network calls.
  */
 public class NetworkUtils {
     private static final Logger log = LoggerFactory.getLogger(NetworkUtils.class);
-    private static final String BALLERINA_CENTRAL_REPO_URL = "https://staging.central.ballerina.io/p/";
+    private static final String BALLERINA_CENTRAL_REPO_URL = "http://0.0.0.0:9090/p/";
     private static CompileResult compileResult;
 
     /**
@@ -76,11 +75,11 @@ public class NetworkUtils {
      */
     public static void pullPackages(String resourceName) {
         compileResult = compileBalFile("ballerina.pull");
-        Path targetDirectoryPath = UserRepositoryUtils.initializeUserRepository()
-                .resolve(USER_REPO_ARTIFACTS_DIRNAME).resolve(USER_REPO_SRC_DIRNAME);
+        Path targetDirectoryPath = UserRepositoryUtils.initializeUserRepository().resolve(USER_REPO_ARTIFACTS_DIRNAME);
 
         // Make directories
-        String[] resourceArr = resourceName.split("/");
+        String targetPath = resourceName.concat("/src");
+        String[] resourceArr = targetPath.split("/");
         for (String aResourceArr : resourceArr) {
             targetDirectoryPath = targetDirectoryPath.resolve(aResourceArr);
             if (!Files.exists(targetDirectoryPath)) {
@@ -98,7 +97,7 @@ public class NetworkUtils {
         String dstPath = targetDirectoryPath + File.separator;
         String resourcePath = BALLERINA_CENTRAL_REPO_URL + resourceName;
         String[] proxyConfigs = readProxyConfigurations();
-        String[] arguments = new String[]{resourcePath, dstPath, pkgName};
+        String[] arguments = new String[]{resourcePath, dstPath, pkgName.substring(pkgName.indexOf('/') + 1)};
         arguments = Stream.concat(Arrays.stream(arguments), Arrays.stream(proxyConfigs))
                 .toArray(String[]::new);
         LauncherUtils.runMain(compileResult.getProgFile(), arguments);
@@ -117,7 +116,8 @@ public class NetworkUtils {
         if (manifest != null && manifest.getName() != null && manifest.getVersion() != null) {
             String orgName = removeQuotationsFromValue(manifest.getName());
             String version = removeQuotationsFromValue(manifest.getVersion());
-            String resourcePath = BALLERINA_CENTRAL_REPO_URL + Paths.get(packageName).resolve(version);
+            String resourcePath = BALLERINA_CENTRAL_REPO_URL + Paths.get(orgName).resolve(packageName)
+                    .resolve(version);
             String[] proxyConfigs = readProxyConfigurations();
             String[] arguments = new String[]{resourcePath, packageName};
             arguments = Stream.concat(Arrays.stream(arguments), Arrays.stream(proxyConfigs))
