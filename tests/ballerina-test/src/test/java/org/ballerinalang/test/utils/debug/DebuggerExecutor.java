@@ -32,7 +32,6 @@ import org.ballerinalang.util.codegen.WorkerInfo;
 import org.ballerinalang.util.debugger.DebugContext;
 import org.ballerinalang.util.debugger.dto.BreakPointDTO;
 import org.ballerinalang.util.exceptions.BallerinaException;
-import org.ballerinalang.util.program.BLangFunctions;
 
 import java.util.List;
 
