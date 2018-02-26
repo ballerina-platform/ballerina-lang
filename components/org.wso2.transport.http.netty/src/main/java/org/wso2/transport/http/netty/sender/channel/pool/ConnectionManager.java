@@ -19,6 +19,8 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import org.apache.commons.pool.impl.GenericObjectPool;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.common.HttpRoute;
 import org.wso2.transport.http.netty.config.SenderConfiguration;
 import org.wso2.transport.http.netty.listener.SourceHandler;
@@ -32,6 +34,8 @@ import java.util.concurrent.ConcurrentHashMap;
  * A class which handles connection pool management.
  */
 public class ConnectionManager {
+
+    private static final Logger log = LoggerFactory.getLogger(ConnectionManager.class);
 
     private EventLoopGroup clientEventGroup;
     private PoolConfiguration poolConfiguration;
@@ -139,12 +143,17 @@ public class ConnectionManager {
 
     private void releaseChannelToPool(TargetChannel targetChannel, GenericObjectPool pool) throws Exception {
         try {
-            // Need a null check because SourceHandler side could timeout before TargetHandler side.
+            String channelID = targetChannel.getChannel().id().asShortText();
             if (targetChannel.getChannel().isActive() && pool != null) {
+                if (log.isDebugEnabled()) {
+                    log.debug("Returning connection {} to the pool", channelID);
+                }
                 pool.returnObject(targetChannel);
+            } else {
+                log.warn("Channel {} is inactive hence not returning to connection pool", channelID);
             }
         } catch (Exception e) {
-            throw new Exception("Cannot return channel to pool", e);
+            throw new Exception("Couldn't return channel {} to pool", e);
         }
     }
 
@@ -154,8 +163,13 @@ public class ConnectionManager {
             Map<String, GenericObjectPool> objectPoolMap = targetChannel.getCorrelatedSource().getTargetChannelPool();
             try {
                 // Need a null check because SourceHandler side could timeout before TargetHandler side.
-                if (objectPoolMap.get(targetChannel.getHttpRoute().toString()) != null) {
-                    objectPoolMap.get(targetChannel.getHttpRoute().toString()).invalidateObject(targetChannel);
+                String httpRoute = targetChannel.getHttpRoute().toString();
+                if (objectPoolMap.get(httpRoute) != null) {
+                    if (log.isDebugEnabled()) {
+                        log.debug("Invalidating connection {} to the pool",
+                                targetChannel.getChannel().id().asShortText());
+                    }
+                    objectPoolMap.get(httpRoute).invalidateObject(targetChannel);
                 }
             } catch (Exception e) {
                 throw new Exception("Cannot invalidate channel from pool", e);
@@ -180,8 +194,11 @@ public class ConnectionManager {
         config.timeBetweenEvictionRunsMillis = poolConfiguration.getTimeBetweenEvictionRuns();
         config.minEvictableIdleTimeMillis = poolConfiguration.getMinEvictableIdleTime();
         config.whenExhaustedAction = poolConfiguration.getExhaustedAction();
-        config.maxWait = poolConfiguration.getMaxWait();
+        config.maxWait = poolConfiguration.getMaxWaitTime();
 
+        if (log.isDebugEnabled()) {
+            log.debug("Creating a pool with {}", config.toString());
+        }
         return config;
     }
 

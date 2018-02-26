@@ -38,9 +38,10 @@ import org.wso2.transport.http.netty.config.YAMLTransportConfigurationBuilder;
 import org.wso2.transport.http.netty.contract.HttpClientConnector;
 import org.wso2.transport.http.netty.contract.HttpConnectorListener;
 import org.wso2.transport.http.netty.contract.HttpResponseFuture;
+import org.wso2.transport.http.netty.contract.HttpWsConnectorFactory;
 import org.wso2.transport.http.netty.contract.ServerConnector;
 import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
-import org.wso2.transport.http.netty.contractimpl.HttpWsConnectorFactoryImpl;
+import org.wso2.transport.http.netty.contractimpl.DefaultHttpWsConnectorFactory;
 import org.wso2.transport.http.netty.listener.ServerBootstrapConfiguration;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 import org.wso2.transport.http.netty.message.HttpMessageDataStreamer;
@@ -99,26 +100,7 @@ public class TestUtil {
 
     private static List<ServerConnector> connectors;
     private static List<ServerConnectorFuture> futures;
-
-    public static void cleanUp(List<ServerConnector> serverConnectors, HttpServer httpServer)
-            throws ServerConnectorException {
-        for (ServerConnector httpServerConnector : serverConnectors) {
-            httpServerConnector.stop();
-        }
-
-        try {
-            httpServer.shutdown();
-        } catch (InterruptedException e) {
-            log.error("Thread Interrupted while sleeping ", e);
-        }
-    }
-
-    public static void cleanUpServerConnectors(List<ServerConnector> serverConnectors)
-            throws ServerConnectorException {
-        for (ServerConnector httpServerConnector : serverConnectors) {
-            httpServerConnector.stop();
-        }
-    }
+    private static final DefaultHttpWsConnectorFactory httpConnectorFactory = new DefaultHttpWsConnectorFactory();
 
     public static List<ServerConnector> startConnectors(TransportsConfiguration transportsConfiguration,
                                                             HttpConnectorListener httpConnectorListener) {
@@ -132,7 +114,6 @@ public class TestUtil {
         connectors = new ArrayList<>();
         futures = new ArrayList<>();
 
-        HttpWsConnectorFactoryImpl httpConnectorFactory = new HttpWsConnectorFactoryImpl();
         listenerConfigurationSet.forEach(config -> {
             ServerConnector serverConnector = httpConnectorFactory.createServerConnector(serverBootstrapConfiguration,
                     config);
@@ -293,6 +274,40 @@ public class TestUtil {
         HttpResponseFuture responseFuture = httpClientConnector.send(httpsPostReq);
         responseFuture.setHttpConnectorListener(requestListener);
         return requestListener;
+    }
+
+    public static void cleanUp(List<ServerConnector> serverConnectors, HttpServer httpServer)
+            throws ServerConnectorException {
+        for (ServerConnector httpServerConnector : serverConnectors) {
+            if (!httpServerConnector.stop()) {
+                log.warn("Couldn't stop server connectors successfully");
+            }
+        }
+
+
+        try {
+            httpConnectorFactory.shutdown();
+            httpServer.shutdown();
+        } catch (InterruptedException e) {
+            log.error("Thread Interrupted while sleeping ", e);
+        }
+    }
+
+    public static void cleanUp(List<ServerConnector> serverConnectors, HttpServer httpServer,
+            HttpWsConnectorFactory factory)
+            throws ServerConnectorException {
+        for (ServerConnector httpServerConnector : serverConnectors) {
+            if (!httpServerConnector.stop()) {
+                log.warn("Couldn't stop server connectors successfully");
+            }
+        }
+
+        try {
+            factory.shutdown();
+            httpServer.shutdown();
+        } catch (InterruptedException e) {
+            log.error("Thread Interrupted while sleeping ", e);
+        }
     }
 
     /**

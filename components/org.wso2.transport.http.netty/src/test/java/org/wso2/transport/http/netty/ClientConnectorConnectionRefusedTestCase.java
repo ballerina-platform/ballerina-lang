@@ -18,21 +18,22 @@
 
 package org.wso2.transport.http.netty;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-import org.wso2.transport.http.netty.common.Constants;
+import org.wso2.carbon.messaging.exceptions.ServerConnectorException;
 import org.wso2.transport.http.netty.config.SenderConfiguration;
-import org.wso2.transport.http.netty.config.TransportsConfiguration;
 import org.wso2.transport.http.netty.contract.HttpClientConnector;
 import org.wso2.transport.http.netty.contract.HttpResponseFuture;
 import org.wso2.transport.http.netty.contract.HttpWsConnectorFactory;
-import org.wso2.transport.http.netty.contractimpl.HttpWsConnectorFactoryImpl;
+import org.wso2.transport.http.netty.contractimpl.DefaultHttpWsConnectorFactory;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
-import org.wso2.transport.http.netty.message.HTTPConnectorUtil;
 import org.wso2.transport.http.netty.util.HTTPConnectorListener;
 import org.wso2.transport.http.netty.util.TestUtil;
 
-import java.io.File;
+import java.util.HashMap;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
@@ -44,21 +45,17 @@ import static org.testng.AssertJUnit.assertNotNull;
  */
 public class ClientConnectorConnectionRefusedTestCase {
 
+    private static Logger log = LoggerFactory.getLogger(ClientConnectorConnectionRefusedTestCase.class);
+
     private HttpClientConnector httpClientConnector;
-    private HttpWsConnectorFactory connectorFactory = new HttpWsConnectorFactoryImpl();
+    private HttpWsConnectorFactory connectorFactory;
 
     @BeforeClass
     public void setup() {
-        TransportsConfiguration transportsConfiguration =
-                TestUtil.getConfiguration(
-                        "/simple-test-config" + File.separator + "netty-transports.yml");
-        SenderConfiguration senderConfiguration = HTTPConnectorUtil
-                .getSenderConfiguration(transportsConfiguration, Constants.HTTP_SCHEME);
+        connectorFactory = new DefaultHttpWsConnectorFactory();
+        SenderConfiguration senderConfiguration = new SenderConfiguration();
         senderConfiguration.setSocketIdleTimeout(3000);
-
-        httpClientConnector = connectorFactory.createHttpClientConnector(
-                HTTPConnectorUtil.getTransportProperties(transportsConfiguration),
-                senderConfiguration);
+        httpClientConnector = connectorFactory.createHttpClientConnector(new HashMap<>(), senderConfiguration);
     }
 
     @Test
@@ -80,6 +77,16 @@ public class ClientConnectorConnectionRefusedTestCase {
             assertTrue(result.contains("Connection refused"), result);
         } catch (Exception e) {
             TestUtil.handleException("Exception occurred while running httpsGetTest", e);
+        }
+    }
+
+    @AfterClass
+    public void cleanUp() throws ServerConnectorException {
+        httpClientConnector.close();
+        try {
+            connectorFactory.shutdown();
+        } catch (InterruptedException e) {
+            log.error("Failed to shutdown the test server");
         }
     }
 }

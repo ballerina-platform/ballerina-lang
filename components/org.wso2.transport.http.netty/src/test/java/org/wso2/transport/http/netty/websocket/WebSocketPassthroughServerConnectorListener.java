@@ -33,7 +33,7 @@ import org.wso2.transport.http.netty.contract.websocket.WebSocketControlMessage;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketInitMessage;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketTextMessage;
 import org.wso2.transport.http.netty.contract.websocket.WsClientConnectorConfig;
-import org.wso2.transport.http.netty.contractimpl.HttpWsConnectorFactoryImpl;
+import org.wso2.transport.http.netty.contractimpl.DefaultHttpWsConnectorFactory;
 import org.wso2.transport.http.netty.util.TestUtil;
 
 import java.io.IOException;
@@ -46,7 +46,7 @@ public class WebSocketPassthroughServerConnectorListener implements WebSocketCon
 
     private static final Logger logger = LoggerFactory.getLogger(WebSocketPassthroughServerConnectorListener.class);
 
-    private final HttpWsConnectorFactory connectorFactory = new HttpWsConnectorFactoryImpl();
+    private final HttpWsConnectorFactory connectorFactory = new DefaultHttpWsConnectorFactory();
 
     @Override
     public void onMessage(WebSocketInitMessage initMessage) {

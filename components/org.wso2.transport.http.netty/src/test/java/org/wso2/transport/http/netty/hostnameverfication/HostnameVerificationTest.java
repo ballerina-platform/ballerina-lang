@@ -17,6 +17,8 @@
  */
 package org.wso2.transport.http.netty.hostnameverfication;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -31,7 +33,7 @@ import org.wso2.transport.http.netty.contract.HttpResponseFuture;
 import org.wso2.transport.http.netty.contract.HttpWsConnectorFactory;
 import org.wso2.transport.http.netty.contract.ServerConnector;
 import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
-import org.wso2.transport.http.netty.contractimpl.HttpWsConnectorFactoryImpl;
+import org.wso2.transport.http.netty.contractimpl.DefaultHttpWsConnectorFactory;
 import org.wso2.transport.http.netty.https.SSLConnectorListener;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 import org.wso2.transport.http.netty.message.HTTPConnectorUtil;
@@ -56,22 +58,24 @@ import static org.testng.AssertJUnit.assertNotNull;
  */
 public class HostnameVerificationTest {
 
+    private static final Logger log = LoggerFactory.getLogger(HostnameVerificationTest.class);
+
     private HttpClientConnector httpClientConnector;
-    private String testValue = "Test";
-    private String keyStoreFilePath = "/simple-test-config/localcrt.p12";
-    private String keyStorePassword = "localpwd";
-    private String trustStoreFilePath = "/simple-test-config/cacerts.p12";
-    private String trustStorePassword = "cacertspassword";
-    private String keyStoreFileWithCN = "/simple-test-config/wso2carbon.p12";
-    private String trustStoreFileWithCN = "/simple-test-config/client-truststore.p12";
     private ServerConnector serverConnector;
+    private HttpWsConnectorFactory factory;
     private String tlsStoreType = "PKCS12";
-    private String password = "ballerina";
 
     @DataProvider(name = "configurations")
     private Object[][] configurations() {
         // true = expecting a SSL hand shake failure.
         // false = expecting no errors.
+        String keyStoreFilePath = "/simple-test-config/localcrt.p12";
+        String keyStorePassword = "localpwd";
+        String trustStoreFilePath = "/simple-test-config/cacerts.p12";
+        String trustStorePassword = "cacertspassword";
+        String keyStoreFileWithCN = "/simple-test-config/wso2carbon.p12";
+        String trustStoreFileWithCN = "/simple-test-config/client-truststore.p12";
+        String password = "ballerina";
         return new Object[][] {
                 { keyStoreFilePath, keyStorePassword, trustStoreFilePath, trustStorePassword, true, 9098 },
                 { keyStoreFileWithCN, password, trustStoreFileWithCN, password, false, 9099 } };
@@ -103,7 +107,7 @@ public class HostnameVerificationTest {
             }
         });
 
-        HttpWsConnectorFactory factory = new HttpWsConnectorFactoryImpl();
+        factory = new DefaultHttpWsConnectorFactory();
 
         serverConnector = factory.createServerConnector(TestUtil.getDefaultServerBootstrapConfig(),
                 setListenerConfiguration(serverPort, keyStoreFilePath, keyStorePassword));
@@ -120,6 +124,7 @@ public class HostnameVerificationTest {
 
     public void sendRequest(boolean hasException, int serverPort) {
         try {
+            String testValue = "Test";
             HTTPCarbonMessage msg = TestUtil.createHttpsPostReq(serverPort, testValue, "");
             CountDownLatch latch = new CountDownLatch(1);
             SSLConnectorListener listener = new SSLConnectorListener(latch);
@@ -165,6 +170,11 @@ public class HostnameVerificationTest {
     public void cleanUp() throws ServerConnectorException {
         httpClientConnector.close();
         serverConnector.stop();
+        try {
+            factory.shutdown();
+        } catch (InterruptedException e) {
+            log.error("Interrupted while waiting for HttpWsFactory to shutdown", e);
+        }
     }
 }
 

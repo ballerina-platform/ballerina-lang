@@ -36,7 +36,7 @@ import org.wso2.transport.http.netty.contentaware.listeners.EchoStreamingMessage
 import org.wso2.transport.http.netty.contract.HttpWsConnectorFactory;
 import org.wso2.transport.http.netty.contract.ServerConnector;
 import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
-import org.wso2.transport.http.netty.contractimpl.HttpWsConnectorFactoryImpl;
+import org.wso2.transport.http.netty.contractimpl.DefaultHttpWsConnectorFactory;
 import org.wso2.transport.http.netty.listener.ServerBootstrapConfiguration;
 import org.wso2.transport.http.netty.util.TestUtil;
 import org.wso2.transport.http.netty.util.client.http.HttpClient;
@@ -57,6 +57,7 @@ public class HttpOnePointZeroServerConnectorTestCase {
 
     protected ServerConnector serverConnector;
     protected ListenerConfiguration listenerConfiguration;
+    protected HttpWsConnectorFactory httpWsConnectorFactory;
 
     HttpOnePointZeroServerConnectorTestCase() {
         this.listenerConfiguration = new ListenerConfiguration();
@@ -68,7 +69,7 @@ public class HttpOnePointZeroServerConnectorTestCase {
         listenerConfiguration.setServerHeader(TestUtil.TEST_SERVER);
 
         ServerBootstrapConfiguration serverBootstrapConfig = new ServerBootstrapConfiguration(new HashMap<>());
-        HttpWsConnectorFactory httpWsConnectorFactory = new HttpWsConnectorFactoryImpl();
+        httpWsConnectorFactory = new DefaultHttpWsConnectorFactory();
 
         serverConnector = httpWsConnectorFactory.createServerConnector(serverBootstrapConfig, listenerConfiguration);
         ServerConnectorFuture serverConnectorFuture = serverConnector.start();
@@ -119,5 +120,10 @@ public class HttpOnePointZeroServerConnectorTestCase {
     @AfterClass
     public void cleanUp() throws ServerConnectorException {
         serverConnector.stop();
+        try {
+            httpWsConnectorFactory.shutdown();
+        } catch (InterruptedException e) {
+            log.warn("Interrupted while waiting for HttpWsFactory to close");
+        }
     }
 }

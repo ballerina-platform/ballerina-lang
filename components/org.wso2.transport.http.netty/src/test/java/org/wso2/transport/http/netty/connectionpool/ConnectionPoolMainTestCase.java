@@ -25,7 +25,7 @@ import org.wso2.carbon.messaging.exceptions.ServerConnectorException;
 import org.wso2.transport.http.netty.config.SenderConfiguration;
 import org.wso2.transport.http.netty.contract.HttpClientConnector;
 import org.wso2.transport.http.netty.contract.HttpWsConnectorFactory;
-import org.wso2.transport.http.netty.contractimpl.HttpWsConnectorFactoryImpl;
+import org.wso2.transport.http.netty.contractimpl.DefaultHttpWsConnectorFactory;
 import org.wso2.transport.http.netty.util.HTTPConnectorListener;
 import org.wso2.transport.http.netty.util.TestUtil;
 import org.wso2.transport.http.netty.util.server.HttpServer;
@@ -37,6 +37,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 import static org.testng.Assert.assertEquals;
+import static org.wso2.transport.http.netty.util.TestUtil.sendRequestAsync;
 
 /**
  * Tests for connection pool implementation.
@@ -45,13 +46,16 @@ public class ConnectionPoolMainTestCase {
 
     private HttpServer httpServer;
     private HttpClientConnector httpClientConnector;
+    private HttpWsConnectorFactory connectorFactory;
 
     @BeforeClass
     public void setup() {
         httpServer = TestUtil.startHTTPServer(TestUtil.HTTP_SERVER_PORT, new SendChannelIDServerInitializer(5000));
 
-        HttpWsConnectorFactory connectorFactory = new HttpWsConnectorFactoryImpl();
+        connectorFactory = new DefaultHttpWsConnectorFactory();
         SenderConfiguration senderConfiguration = new SenderConfiguration();
+        senderConfiguration.getPoolConfiguration().setMaxIdlePerPool(1);
+        senderConfiguration.getPoolConfiguration().setMaxActivePerPool(2);
         httpClientConnector = connectorFactory.createHttpClientConnector(new HashMap<>(), senderConfiguration);
     }
 
@@ -64,17 +68,17 @@ public class ConnectionPoolMainTestCase {
 
             HTTPConnectorListener responseListener;
 
-            responseListener = TestUtil.sendRequestAsync(requestOneLatch, httpClientConnector);
+            responseListener = sendRequestAsync(requestOneLatch, httpClientConnector);
 
             // While the first request is being processed by the back-end,
             // we send the second request which forces the client connector to
             // create a new connection.
             Thread.sleep(2500);
-            TestUtil.sendRequestAsync(requestTwoLatch, httpClientConnector);
+            sendRequestAsync(requestTwoLatch, httpClientConnector);
 
             String responseOne = TestUtil.waitAndGetStringEntity(requestOneLatch, responseListener);
 
-            responseListener = TestUtil.sendRequestAsync(requestThreeLatch, httpClientConnector);
+            responseListener = sendRequestAsync(requestThreeLatch, httpClientConnector);
             String responseThree = TestUtil.waitAndGetStringEntity(requestThreeLatch, responseListener);
 
             assertEquals(responseOne, responseThree);
@@ -88,6 +92,6 @@ public class ConnectionPoolMainTestCase {
 
     @AfterClass
     public void cleanUp() throws ServerConnectorException {
-        TestUtil.cleanUp(new ArrayList<>(), httpServer);
+        TestUtil.cleanUp(new ArrayList<>(), httpServer, connectorFactory);
     }
 }

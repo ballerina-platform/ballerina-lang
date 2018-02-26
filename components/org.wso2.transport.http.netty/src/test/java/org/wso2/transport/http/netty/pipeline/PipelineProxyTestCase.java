@@ -35,7 +35,7 @@ import org.wso2.transport.http.netty.config.ListenerConfiguration;
 import org.wso2.transport.http.netty.config.SenderConfiguration;
 import org.wso2.transport.http.netty.contract.ServerConnector;
 import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
-import org.wso2.transport.http.netty.contractimpl.HttpWsConnectorFactoryImpl;
+import org.wso2.transport.http.netty.contractimpl.DefaultHttpWsConnectorFactory;
 import org.wso2.transport.http.netty.listener.ServerBootstrapConfiguration;
 import org.wso2.transport.http.netty.passthrough.PassthroughMessageProcessorListener;
 import org.wso2.transport.http.netty.util.TestUtil;
@@ -53,10 +53,11 @@ import static org.testng.Assert.assertEquals;
  */
 public class PipelineProxyTestCase {
 
-    private static Logger logger = LoggerFactory.getLogger(PipelineProxyTestCase.class);
+    private static Logger log = LoggerFactory.getLogger(PipelineProxyTestCase.class);
 
     private HttpServer httpServer;
     private ServerConnector serverConnector;
+    private DefaultHttpWsConnectorFactory httpConnectorFactory;
 
     @BeforeClass
     public void setup() {
@@ -65,7 +66,7 @@ public class PipelineProxyTestCase {
 
         ListenerConfiguration listenerConfiguration = new ListenerConfiguration();
         listenerConfiguration.setPort(TestUtil.SERVER_CONNECTOR_PORT);
-        HttpWsConnectorFactoryImpl httpConnectorFactory = new HttpWsConnectorFactoryImpl();
+        httpConnectorFactory = new DefaultHttpWsConnectorFactory();
         serverConnector = httpConnectorFactory.createServerConnector(new ServerBootstrapConfiguration(new HashMap<>()),
                 listenerConfiguration);
         ServerConnectorFuture serverConnectorFuture = serverConnector.start();
@@ -74,7 +75,7 @@ public class PipelineProxyTestCase {
         try {
             serverConnectorFuture.sync();
         } catch (InterruptedException e) {
-            logger.warn("Interrupted while waiting for server connector to start");
+            log.warn("Interrupted while waiting for server connector to start");
         }
     }
 
@@ -96,6 +97,11 @@ public class PipelineProxyTestCase {
     @AfterClass
     public void cleanUp() throws ServerConnectorException {
         serverConnector.stop();
+        try {
+            httpConnectorFactory.shutdown();
+        } catch (InterruptedException e) {
+            log.warn("Interrupted while waiting for HttpWsFactory to close");
+        }
         TestUtil.cleanUp(new LinkedList<>(), httpServer);
     }
 }

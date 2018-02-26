@@ -21,7 +21,7 @@ package org.wso2.transport.http.netty.encoding;
 
 import com.google.common.io.ByteStreams;
 import io.netty.buffer.Unpooled;
-import io.netty.handler.codec.http.DefaultHttpContent;
+import io.netty.handler.codec.http.DefaultLastHttpContent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.contract.HttpConnectorListener;
@@ -53,9 +53,9 @@ public class ContentReadingListener implements HttpConnectorListener {
                 String alteredContent = "Altered " + response + " content";
 
                 HTTPCarbonMessage newMsg = httpMessage.cloneCarbonMessageWithOutData();
-                newMsg.addHttpContent(new DefaultHttpContent(
+                newMsg.addHttpContent(new DefaultLastHttpContent(
                         Unpooled.wrappedBuffer(alteredContent.getBytes(Charset.defaultCharset()))));
-                newMsg.setEndOfMsgAdded(true);
+                newMsg.completeMessage();
 
                 httpMessage.respond(newMsg);
             } catch (IOException | ServerConnectorException e) {
