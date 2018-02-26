@@ -54,16 +54,16 @@ public class BClientConnectorFutureListener implements ConnectorFutureListener {
     @Override
     public void notifyReply(BValue... response) {
         for (int i = 0; i < response.length; i++) {
-            context.getControlStack().currentFrame.returnValues[i] = response[i];
+            //context.getControlStack().currentFrame.returnValues[i] = response[i];
         }
         done();
     }
 
     @Override
     public void notifyFailure(BallerinaConnectorException ex) {
-        BStruct err = BLangVMErrors.createError(context, context.getStartIP() - 1,
-                ex.getMessage());
-        context.setError(err);
+//        BStruct err = BLangVMErrors.createError(context, context.getStartIP() - 1,
+//                ex.getMessage());
+//        context.setError(err);
         done();
     }
 

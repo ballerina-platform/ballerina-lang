@@ -83,7 +83,7 @@ public class ResourceExecutor {
             properties.forEach(context::setProperty);
         }
 
-        ControlStack controlStack = context.getControlStack();
+        ControlStack controlStack = null; // = context.getControlStack();
 
         // Now create callee's stack-frame
         WorkerInfo defaultWorkerInfo = resourceInfo.getDefaultWorkerInfo();
@@ -91,7 +91,7 @@ public class ResourceExecutor {
         controlStack.pushFrame(calleeSF);
 
         CodeAttributeInfo codeAttribInfo = defaultWorkerInfo.getCodeAttributeInfo();
-        context.setStartIP(codeAttribInfo.getCodeAddrs());
+        //context.setStartIP(codeAttribInfo.getCodeAddrs());
 
         String[] stringReg = new String[codeAttribInfo.getMaxStringRegs()];
         Arrays.fill(stringReg, BLangConstants.STRING_NULL_VALUE);
@@ -157,8 +157,8 @@ public class ResourceExecutor {
         callerSF.getRefRegs()[0] = refRegs[0];
 
         BLangVM bLangVM = new BLangVM(packageInfo.getProgramFile());
-        context.setAsResourceContext();
-        context.startTrackWorker();
+        //context.setAsResourceContext();
+        //context.startTrackWorker();
         Debugger debugger = programFile.getDebugger();
         if (debugger.isDebugEnabled()) {
             DebuggerUtil.initDebugContext(context, debugger);
