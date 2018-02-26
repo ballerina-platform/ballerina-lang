@@ -59,7 +59,7 @@ public final class Http2SourceHandler extends Http2ConnectionHandler {
 
     private static final Logger log = LoggerFactory.getLogger(Http2SourceHandler.class);
 
-    /* streamIdRequestMap contains mapping of http carbon messages vs stream id to support multiplexing */
+    // streamIdRequestMap contains mapping of http carbon messages vs stream id to support multiplexing
     private Map<Integer, HTTPCarbonMessage> streamIdRequestMap = PlatformDependent.newConcurrentHashMap();
     private ChannelHandlerContext ctx;
     private Http2FrameListener http2FrameListener;
@@ -121,7 +121,12 @@ public final class Http2SourceHandler extends Http2ConnectionHandler {
         return http2FrameListener;
     }
 
-    /* Notify the registered listeners which listen for the incoming carbon messages */
+    /**
+     * Notify the registered listeners which listen for the incoming carbon messages
+     *
+     * @param httpRequestMsg http request message
+     * @param streamId stream id
+     */
     private void notifyRequestListener(HTTPCarbonMessage httpRequestMsg, int streamId) {
 
         if (serverConnectorFuture != null) {
@@ -139,7 +144,9 @@ public final class Http2SourceHandler extends Http2ConnectionHandler {
         }
     }
 
-    /* listener which listen to the HTTP/2 frames */
+    /**
+     * listener which listen to the HTTP/2 frames
+     */
     private class Http2FrameListener extends Http2EventAdapter {
 
         @Override
@@ -181,7 +188,12 @@ public final class Http2SourceHandler extends Http2ConnectionHandler {
             return data.readableBytes() + padding;
         }
 
-        /* Setup carbon message for HTTP2 request */
+        /**
+         * Setup carbon message for HTTP2 request
+         *
+         * @param headers Http2 headers
+         * @return a HTTPCarbonMessage
+         */
         private HTTPCarbonMessage setupHttp2CarbonMsg(Http2Headers headers) {
 
             String method = Constants.HTTP_GET_METHOD;
@@ -210,7 +222,12 @@ public final class Http2SourceHandler extends Http2ConnectionHandler {
         }
     }
 
-    /* Setup CarbonRequest from HttpRequest */
+    /**
+     * Setup CarbonRequest from HttpRequest
+     *
+     * @param httpRequest HTTPRequest message
+     * @return CarbonRequest Message created from given HttpRequest
+     */
     private HttpCarbonRequest setupCarbonRequest(HttpRequest httpRequest) {
 
         HttpCarbonRequest sourceReqCMsg = new HttpCarbonRequest(httpRequest);

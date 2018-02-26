@@ -42,15 +42,15 @@ public class TargetChannel {
     private Http2Connection connection;
     private ChannelFuture channelFuture;
     private UpgradeState upgradeState = UpgradeState.UPGRADE_NOT_ISSUED;
-    /* List which holds the pending message during the connection upgrade */
+    // List which holds the pending message during the connection upgrade
     private ConcurrentLinkedQueue<OutboundMsgHolder> pendingMessages;
     private HttpRoute httpRoute;
     private ConnectionManager connectionManager = ConnectionManager.getInstance();
 
-    /* Whether channel is operates with maximum number of allowed streams */
+    // Whether channel is operates with maximum number of allowed streams
     private AtomicBoolean isExhausted = new AtomicBoolean(false);
 
-    /* Number of active streams. Need to start from 1 to prevent someone stealing the connection from the creator */
+    // Number of active streams. Need to start from 1 to prevent someone stealing the connection from the creator
     private AtomicInteger activeStreams = new AtomicInteger(1);
 
     public TargetChannel(Http2Connection connection, HttpRoute httpRoute, ChannelFuture channelFuture) {
@@ -178,7 +178,9 @@ public class TargetChannel {
         UPGRADE_NOT_ISSUED, UPGRADE_ISSUED, UPGRADED
     }
 
-    /* Listener which listen to the stream closure event */
+    /**
+     * Listener which listen to the stream closure event
+     */
     private class StreamCloseListener extends Http2EventAdapter {
 
         private TargetChannel targetChannel;

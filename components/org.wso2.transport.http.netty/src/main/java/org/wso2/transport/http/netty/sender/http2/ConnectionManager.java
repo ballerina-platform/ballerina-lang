@@ -43,10 +43,10 @@ public class ConnectionManager {
 
     private static final Logger log = LoggerFactory.getLogger(ConnectionManager.class);
 
-    /* Per route connection pools */
+    // Per route connection pools
     private static ConcurrentHashMap<String, PerRouteConnectionPool> connectionPools = new ConcurrentHashMap<>();
     private static ConnectionManager instance = new ConnectionManager();
-    /* Lock for synchronizing access */
+    // Lock for synchronizing access
     private Lock lock = new ReentrantLock();
 
     private ConnectionManager() {
@@ -159,12 +159,14 @@ public class ConnectionManager {
         }
     }
 
-    /* Entity which holds the pool of connections for a given http route */
+    /**
+     * Entity which holds the pool of connections for a given http route
+     */
     private static class PerRouteConnectionPool {
 
         private BlockingQueue<TargetChannel> targetChannels = new LinkedBlockingQueue<>();
 
-        /* Maximum number of allowed active streams */
+        // Maximum number of allowed active streams
         private int maxActiveStreams;
 
         public PerRouteConnectionPool(TargetChannel targetChannel) {

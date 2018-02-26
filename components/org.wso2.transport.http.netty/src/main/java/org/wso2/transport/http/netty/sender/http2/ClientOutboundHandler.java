@@ -50,7 +50,7 @@ public class ClientOutboundHandler extends ChannelOutboundHandlerAdapter {
 
     private static final Logger log = LoggerFactory.getLogger(ClientOutboundHandler.class);
     private Http2Connection connection;
-    /* Encoder associated with the HTTP2ConnectionHandler */
+    // Encoder associated with the HTTP2ConnectionHandler
     private Http2ConnectionEncoder encoder;
     private TargetChannel targetChannel;
 
@@ -87,15 +87,21 @@ public class ClientOutboundHandler extends ChannelOutboundHandlerAdapter {
         this.targetChannel = targetChannel;
     }
 
-    /* Get the next available stream id */
+    /**
+     * Get the next available stream id
+     *
+     * @return next available stream id
+     */
     private synchronized int getStreamId() {
         return connection.local().incrementAndGetNextStreamId();
     }
 
-    /* This is used to write Http2 content to the connection */
+    /**
+     * This is used to write Http2 content to the connection
+     */
     private class Http2RequestWriter {
 
-        /* whether headers are written already */
+        // whether headers are written already
         boolean isHeadersWritten = false;
         HTTPCarbonMessage httpOutboundRequest;
         OutboundMsgHolder outboundMsgHolder;

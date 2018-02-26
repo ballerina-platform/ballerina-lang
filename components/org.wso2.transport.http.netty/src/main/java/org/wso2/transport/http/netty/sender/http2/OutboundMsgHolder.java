@@ -26,11 +26,11 @@ import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
  */
 public class OutboundMsgHolder {
 
-    /* Outbound request HTTPCarbonMessage */
+    // Outbound request HTTPCarbonMessage
     private HTTPCarbonMessage requestCarbonMessage;
-    /* Intended response received for the request */
+    // Intended response received for the request
     private HTTPCarbonMessage responseCarbonMessage;
-    /* Future which is used to notify the response listener upon response receive */
+    // Future which is used to notify the response listener upon response receive
     private HttpResponseFuture responseFuture;
 
     /**

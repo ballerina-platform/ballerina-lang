@@ -49,10 +49,10 @@ public class UpgradeRequestHandler extends ChannelDuplexHandler {
 
     private TargetChannel targetChannel;
 
-    /* Lock for synchronizing access */
+    // Lock for synchronizing access
     private Lock lock = new ReentrantLock();
 
-    /* Outbound handler to be engaged after the upgrade */
+    // Outbound handler to be engaged after the upgrade
     private ClientOutboundHandler http2ClientOutboundHandler;
     private SenderConfiguration senderConfiguration;
 
@@ -119,14 +119,23 @@ public class UpgradeRequestHandler extends ChannelDuplexHandler {
         }
     }
 
-    /* Flush the messages queued during the upgrading process */
+    /**
+     * Flush the messages queued during the upgrading process
+     *
+     * @param ctx     channel handler context
+     * @param promise channel promise
+     */
     private void flushPendingMessages(ChannelHandlerContext ctx, ChannelPromise promise) {
-
         targetChannel.getPendingMessages().forEach(message -> ctx.write(message, promise));
         targetChannel.getPendingMessages().clear();
     }
 
-    /* Try the updrade with the next queued message if the initial upgrade fail */
+    /**
+     * Try the upgrade with the next queued message if the initial upgrade fail
+     *
+     * @param ctx     channel handler context
+     * @param promise channel promise
+     */
     private void tryNextMessage(ChannelHandlerContext ctx, ChannelPromise promise) {
         OutboundMsgHolder nextMessage = targetChannel.getPendingMessages().poll();
         if (nextMessage != null) {
@@ -134,8 +143,10 @@ public class UpgradeRequestHandler extends ChannelDuplexHandler {
         }
     }
 
-    /* Responsible for writing initial upgrade request in HTTP/1.1. Writing logic is very much same as
-    {@code TargetChannel} of http client, we may refactor this later to prevent duplicate logic */
+    /**
+     * Responsible for writing initial upgrade request in HTTP/1.1. Writing logic is very much same as
+     * {@code TargetChannel} of http client, we may refactor this later to prevent duplicate logic
+     */
     private class UpgradeRequestWriter {
 
         private final Logger log = LoggerFactory.getLogger(UpgradeRequestWriter.class);

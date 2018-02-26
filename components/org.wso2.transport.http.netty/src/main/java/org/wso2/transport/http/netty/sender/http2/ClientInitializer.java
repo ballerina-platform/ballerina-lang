@@ -48,7 +48,7 @@ public class ClientInitializer extends ChannelInitializer<SocketChannel> {
     private UpgradeRequestHandler upgradeRequestHandler;
     private Http2ConnectionHandler connectionHandler;
 
-    /* Whether to skip the upgrade and directly use HTTP/2 Frames for communication */
+    // Whether to skip the upgrade and directly use HTTP/2 Frames for communication
     private boolean skipHttpToHttp2Upgrade = false;
 
     public ClientInitializer(SenderConfiguration senderConfiguration) {
