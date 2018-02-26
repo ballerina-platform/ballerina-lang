@@ -33,6 +33,7 @@ import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaAction;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.net.grpc.ClientConnectorFactory;
+import org.ballerinalang.net.grpc.MessageConstants;
 import org.ballerinalang.net.grpc.exception.GrpcClientException;
 import org.ballerinalang.net.grpc.stubs.GrpcBlockingStub;
 import org.ballerinalang.net.grpc.stubs.GrpcNonBlockingStub;
@@ -56,9 +57,10 @@ import java.util.List;
                 @Argument(name = "descriptorKey", type = TypeKind.STRING)
         },
         returnType = {
-                @ReturnType(type = TypeKind.STRUCT, structType = "Connection", structPackage = "ballerina.net.grpc"),
+                @ReturnType(type = TypeKind.STRUCT, structType = MessageConstants.CLIENT_CONNECTION, structPackage =
+                        MessageConstants.PROTOCOL_PACKAGE_GRPC),
                 @ReturnType(type = TypeKind.STRUCT, structType = "ConnectorError",
-                        structPackage = "ballerina.net.grpc"),
+                        structPackage = MessageConstants.PROTOCOL_PACKAGE_GRPC),
         },
         connectorArgs = {
                 @Argument(name = "host", type = TypeKind.STRING),
@@ -105,7 +107,7 @@ public class Connect extends AbstractNativeAction {
                     .usePlaintext(true)
                     .build();
             ClientConnectorFactory clientConnectorFactory = new ClientConnectorFactory(protoFileDefinition);
-            BStruct outboundResponse = createStruct(context, "Connection");
+            BStruct outboundResponse = createStruct(context, MessageConstants.CLIENT_CONNECTION);
             outboundResponse.setStringField(0, host);
             outboundResponse.setIntField(0, port);
 
@@ -142,7 +144,7 @@ public class Connect extends AbstractNativeAction {
     
     private BStruct createStruct(Context context, String structName) {
         PackageInfo httpPackageInfo = context.getProgramFile()
-                .getPackageInfo("ballerina.net.grpc");
+                .getPackageInfo(MessageConstants.PROTOCOL_PACKAGE_GRPC);
         StructInfo structInfo = httpPackageInfo.getStructInfo(structName);
         BStructType structType = structInfo.getType();
         return new BStruct(structType);

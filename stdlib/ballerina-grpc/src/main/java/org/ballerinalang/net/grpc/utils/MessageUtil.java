@@ -22,7 +22,7 @@ import java.util.Map;
  * Util class for message operationss.
  */
 public class MessageUtil {
-    public static com.google.protobuf.Message generateProtoMessage(BValue responseValue,
+    public static Message generateProtoMessage(BValue responseValue,
                                                                    Descriptors.Descriptor outputType) {
         Message.Builder responseBuilder = Message.newBuilder(outputType.getName());
         int stringIndex = 0;

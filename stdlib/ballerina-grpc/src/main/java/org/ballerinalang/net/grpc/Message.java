@@ -595,15 +595,15 @@ public class Message extends GeneratedMessageV3 {
             return new Message(messageName);
         }
 
-        public com.google.protobuf.Message build() {
-            com.google.protobuf.Message result = buildPartial();
+        public Message build() {
+            Message result = buildPartial();
             if (!result.isInitialized()) {
                 throw newUninitializedMessageException(result);
             }
             return result;
         }
 
-        public com.google.protobuf.Message buildPartial() {
+        public Message buildPartial() {
             Message result = new Message(this);
             if (!fields.isEmpty()) {
                 result.setFieldValues(fields);
