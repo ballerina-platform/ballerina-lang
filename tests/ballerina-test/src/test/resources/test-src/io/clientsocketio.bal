@@ -9,14 +9,6 @@ function openSocketConnectionWithProps (string host, int port, io:SocketProperti
     return io:openSocket(host, port, prop);
 }
 
-function isConnected () (boolean) {
-    return socket.isConnected();
-}
-
-function isClosed () (boolean) {
-    return socket.isClosed();
-}
-
 function closeSocket () {
     socket.closeSocket();
 }

@@ -139,16 +139,6 @@ public native function openFile (string path, string accessMode) (ByteChannel);
 @Return {value:"Socket which will allow to communicate with a remote server"}
 public native function openSocket (string host, int port, SocketProperties options) (Socket);
 
-@Description {value:"Checks whether a client/server connection is open"}
-@Param {value:"socket: The client socket connection to be checked for connectivity"}
-@Return {value:"Returns true if the connection is open"}
-public native function <Socket socket> isConnected () (boolean);
-
-@Description {value:"Checks whether a client/server connection is close"}
-@Param {value:"socket: The client socket connection to be checked for closure"}
-@Return {value:"Returns true if the connection is close"}
-public native function <Socket socket> isClosed () (boolean);
-
 @Description {value:"Close the socket connection with the remote server"}
 @Param {value:"socket: The client socket connection to be to be closed"}
 public native function <Socket socket> closeSocket ();

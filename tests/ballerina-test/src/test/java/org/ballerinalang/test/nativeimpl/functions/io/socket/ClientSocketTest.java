@@ -23,7 +23,6 @@ import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BBlob;
-import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStruct;
@@ -41,7 +40,7 @@ public class ClientSocketTest {
 
     private CompileResult socketClient;
     private MockSocketServer server;
-    private int port = 9999;
+    private int port = 41297;
 
     @BeforeClass
     public void setup() {
@@ -59,10 +58,6 @@ public class ClientSocketTest {
     public void testOpenClientSocket() {
         BValue[] args = {new BString("localhost"), new BInteger(port)};
         BRunUtil.invoke(socketClient, "openSocketConnection", args);
-
-        final BValue[] returns = BRunUtil.invoke(socketClient, "isConnected");
-        final BBoolean isConnected = (BBoolean) returns[0];
-        Assert.assertTrue(isConnected.booleanValue(), "Server/client socket connection not succeed.");
     }
 
     @Test(dependsOnMethods = "testOpenClientSocket", description = "Test content read/write")
@@ -85,28 +80,12 @@ public class ClientSocketTest {
 
     @Test(dependsOnMethods = "testWriteReadContent", description = "Test the connection closure")
     public void testClosure() {
-        BValue[] returns = BRunUtil.invoke(socketClient, "isConnected");
-        BBoolean isConnected = (BBoolean) returns[0];
-        Assert.assertTrue(isConnected.booleanValue(), "Connection should be open.");
-
-        returns = BRunUtil.invoke(socketClient, "isClosed");
-        BBoolean isClosed = (BBoolean) returns[0];
-        Assert.assertFalse(isClosed.booleanValue(), "Connection shouldn't close.");
-
         BRunUtil.invoke(socketClient, "closeSocket");
-
-        returns = BRunUtil.invoke(socketClient, "isConnected");
-        isConnected = (BBoolean) returns[0];
-        Assert.assertFalse(isConnected.booleanValue(), "Connection should be close.");
-
-        returns = BRunUtil.invoke(socketClient, "isClosed");
-        isClosed = (BBoolean) returns[0];
-        Assert.assertTrue(isClosed.booleanValue(), "Connection shouldn't open.");
     }
 
     @Test(dependsOnMethods = "testClosure", description = "Test connection open with properties")
     public void testOpenWithProperties() {
-        int port = ThreadLocalRandom.current().nextInt(33000, 44000);;
+        int port = ThreadLocalRandom.current().nextInt(33000, 44000);
         PackageInfo ioPackageInfo = socketClient.getProgFile().getPackageInfo("ballerina.io");
         StructInfo socketProperties = ioPackageInfo.getStructInfo("SocketProperties");
         BStruct propertyStruct = BLangVMStructs.createBStruct(socketProperties, port);
