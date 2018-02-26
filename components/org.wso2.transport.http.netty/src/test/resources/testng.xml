@@ -79,6 +79,7 @@
             <class name="org.wso2.transport.http.netty.connectionpool.ConnectionPoolMaxConnTestCase" />
             <class name="org.wso2.transport.http.netty.connectionpool.ConnectionPoolTimeoutProxyTestCase" />
             <class name="org.wso2.transport.http.netty.connectionpool.ConnectionPoolMainTestCase" />
+            <class name="org.wso2.transport.http.netty.connectionpool.ConnectionPoolWaitingTimeoutTestCase" />
 
             <class name="org.wso2.transport.http.netty.websocket.WebSocketServerTestCase"/>
             <class name="org.wso2.transport.http.netty.websocket.WebSocketClientTestCase"/>
