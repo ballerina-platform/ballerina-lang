@@ -53,9 +53,9 @@ public class HttpConstants {
     public static final String HTTP_DEFAULT_HOST = "0.0.0.0";
     public static final String TLS_STORE_TYPE = "tlsStoreType";
     public static final String PKCS_STORE_TYPE = "PKCS12";
-    public static final String CHUNKING_AUTO = "auto";
-    public static final String CHUNKING_ALWAYS = "always";
-    public static final String CHUNKING_NEVER = "never";
+    public static final String AUTO = "auto";
+    public static final String ALWAYS = "always";
+    public static final String NEVER = "never";
     public static final String FORWARDED_ENABLE = "enable";
     public static final String FORWARDED_TRANSITION = "transition";
     public static final String FORWARDED_DISABLE = "disable";
