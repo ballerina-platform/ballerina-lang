@@ -86,7 +86,7 @@ public class ResourceExecutor {
             if (properties.get(Constants.GLOBAL_TRANSACTION_ID) != null) {
                 context.setLocalTransactionInfo(new LocalTransactionInfo(
                         properties.get(Constants.GLOBAL_TRANSACTION_ID).toString(),
-                        properties.get(Constants.TRANSACTION_URL).toString(), "2pc"));
+                        properties.get(Constants.TRANSACTION_URL).toString(), Constants.TRANSACTION_PROTOCOL_2PC));
             }
         }
 

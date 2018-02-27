@@ -130,10 +130,6 @@ public class Context {
         return this.localTransactionInfo;
     }
 
-    public boolean isInActiveTransaction() {
-        return this.localTransactionInfo != null;
-    }
-
     public BStruct getError() {
         if (controlStack.currentFrame != null) {
             return controlStack.currentFrame.getErrorThrown();
