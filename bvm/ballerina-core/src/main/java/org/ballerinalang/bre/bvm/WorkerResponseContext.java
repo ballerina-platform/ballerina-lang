@@ -30,4 +30,6 @@ public interface WorkerResponseContext {
     
     public WorkerDataChannel getWorkerDataChannel(String name);
     
+    public void waitForResponse();
+    
 }

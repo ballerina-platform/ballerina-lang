@@ -89,7 +89,7 @@ public class WorkerExecutionContext {
         this.respCtx = respCtx;
         this.callableUnitInfo = callableUnitInfo;
         this.workerInfo = workerInfo;
-        this.programFile = callableUnitInfo.getPackageInfo().getProgramFile();
+        this.programFile = parent.programFile;
         this.constPool = callableUnitInfo.getPackageInfo().getConstPoolEntries();
         this.code = callableUnitInfo.getPackageInfo().getInstructions();
         this.workerLocal = workerLocal;

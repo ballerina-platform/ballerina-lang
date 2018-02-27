@@ -139,10 +139,12 @@ public class NativeCallContext implements Context {
         if (index < 0) {
             throw new ArgumentOutOfRangeException(index);
         }
+
         String str = workerLocal.stringRegs[index];
         if (str == null) {
             throw new BLangNullReferenceException();
         }
+
         return str;
     }
 
@@ -218,17 +220,6 @@ public class NativeCallContext implements Context {
     @Override
     public void setReturnValues(BValue... values) {
         this.returnValues = values;
-    }
-
-    @Override
-    public void setReturnValue(int index, BValue value) {
-        if (returnValues == null) {
-            synchronized (NativeCallContext.class) {
-                if (returnValues == null) {
-                    returnValues = new BValue[0];
-                }
-            }
-        }
     }
 
     @Override
