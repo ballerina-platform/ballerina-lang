@@ -18,8 +18,6 @@
 
 package org.ballerinalang.net.http.actions;
 
-import java.util.Locale;
-
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
 import org.ballerinalang.model.types.TypeKind;
@@ -32,6 +30,8 @@ import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.HttpUtil;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
+
+import java.util.Locale;
 
 /**
  * {@code Forward} action can be used to invoke an http call with incoming request httpVerb.

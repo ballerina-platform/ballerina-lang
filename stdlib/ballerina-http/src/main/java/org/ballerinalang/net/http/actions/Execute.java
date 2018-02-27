@@ -16,12 +16,6 @@
 
 package org.ballerinalang.net.http.actions;
 
-import static org.wso2.transport.http.netty.common.Constants.ACCEPT_ENCODING;
-import static org.wso2.transport.http.netty.common.Constants.ENCODING_DEFLATE;
-import static org.wso2.transport.http.netty.common.Constants.ENCODING_GZIP;
-
-import java.util.Locale;
-
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
 import org.ballerinalang.model.types.TypeKind;
@@ -35,6 +29,12 @@ import org.ballerinalang.net.http.HttpUtil;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.wso2.transport.http.netty.contract.ClientConnectorException;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
+
+import java.util.Locale;
+
+import static org.wso2.transport.http.netty.common.Constants.ACCEPT_ENCODING;
+import static org.wso2.transport.http.netty.common.Constants.ENCODING_DEFLATE;
+import static org.wso2.transport.http.netty.common.Constants.ENCODING_GZIP;
 
 /**
  * {@code Execute} action can be used to invoke execute a http call with any httpVerb.

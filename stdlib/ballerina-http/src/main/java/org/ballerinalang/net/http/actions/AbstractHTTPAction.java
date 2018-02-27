@@ -18,17 +18,7 @@
 
 package org.ballerinalang.net.http.actions;
 
-import static org.ballerinalang.mime.util.Constants.BOUNDARY;
-import static org.ballerinalang.mime.util.Constants.CONTENT_TYPE;
-import static org.ballerinalang.mime.util.Constants.MEDIA_TYPE;
-import static org.ballerinalang.mime.util.Constants.MESSAGE_ENTITY;
-import static org.ballerinalang.mime.util.Constants.MULTIPART_AS_PRIMARY_TYPE;
-import static org.ballerinalang.mime.util.Constants.MULTIPART_DATA_INDEX;
-import static org.ballerinalang.mime.util.Constants.PROTOCOL_PACKAGE_MIME;
-import static org.ballerinalang.runtime.Constants.BALLERINA_VERSION;
-import static org.wso2.transport.http.netty.common.Constants.ACCEPT_ENCODING;
-import static org.wso2.transport.http.netty.common.Constants.ENCODING_DEFLATE;
-import static org.wso2.transport.http.netty.common.Constants.ENCODING_GZIP;
+import io.netty.handler.codec.http.HttpHeaders;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
@@ -65,7 +55,17 @@ import java.net.URL;
 import javax.activation.MimeType;
 import javax.activation.MimeTypeParseException;
 
-import io.netty.handler.codec.http.HttpHeaders;
+import static org.ballerinalang.mime.util.Constants.BOUNDARY;
+import static org.ballerinalang.mime.util.Constants.CONTENT_TYPE;
+import static org.ballerinalang.mime.util.Constants.MEDIA_TYPE;
+import static org.ballerinalang.mime.util.Constants.MESSAGE_ENTITY;
+import static org.ballerinalang.mime.util.Constants.MULTIPART_AS_PRIMARY_TYPE;
+import static org.ballerinalang.mime.util.Constants.MULTIPART_DATA_INDEX;
+import static org.ballerinalang.mime.util.Constants.PROTOCOL_PACKAGE_MIME;
+import static org.ballerinalang.runtime.Constants.BALLERINA_VERSION;
+import static org.wso2.transport.http.netty.common.Constants.ACCEPT_ENCODING;
+import static org.wso2.transport.http.netty.common.Constants.ENCODING_DEFLATE;
+import static org.wso2.transport.http.netty.common.Constants.ENCODING_GZIP;
 
 /**
  * {@code AbstractHTTPAction} is the base class for all HTTP Connector Actions.

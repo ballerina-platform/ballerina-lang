@@ -18,10 +18,6 @@
  */
 package org.ballerinalang.nativeimpl.task.appointment;
 
-import static org.quartz.CronScheduleBuilder.cronSchedule;
-import static org.quartz.JobBuilder.newJob;
-import static org.quartz.TriggerBuilder.newTrigger;
-
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.NativeCallableUnit;
 import org.ballerinalang.util.codegen.cpentries.FunctionRefCPEntry;
@@ -36,6 +32,10 @@ import org.quartz.impl.StdSchedulerFactory;
 
 import java.util.HashMap;
 import java.util.Map;
+
+import static org.quartz.CronScheduleBuilder.cronSchedule;
+import static org.quartz.JobBuilder.newJob;
+import static org.quartz.TriggerBuilder.newTrigger;
 
 /**
  * Manages appointments.

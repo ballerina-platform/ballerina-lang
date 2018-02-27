@@ -47,6 +47,7 @@ public class GetMultivaluedEnv extends BlockingNativeCallableUnit {
         if (value == null || separator == null) {
             BStringArray valueArray = new BStringArray();
             context.setReturnValues(valueArray);
+            return;
         }
         String[] values = value.split(separator);
         BStringArray valueArray = new BStringArray(values);

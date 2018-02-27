@@ -19,7 +19,6 @@ package org.ballerinalang.net.http.actions;
 
 
 import org.apache.commons.lang3.StringUtils;
-import org.ballerinalang.bre.BLangCallableUnitCallback;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
 import org.ballerinalang.connector.api.BallerinaConnectorException;

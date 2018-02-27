@@ -18,11 +18,6 @@
 
 package org.ballerinalang.nativeimpl.file;
 
-import static org.ballerinalang.nativeimpl.Utils.getTimeStructInfo;
-import static org.ballerinalang.nativeimpl.Utils.getTimeZoneStructInfo;
-import static org.ballerinalang.nativeimpl.file.utils.FileUtils.createAccessDeniedError;
-import static org.ballerinalang.nativeimpl.file.utils.FileUtils.createIOError;
-
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
@@ -39,6 +34,12 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.attribute.FileTime;
 import java.time.ZonedDateTime;
+
+import static org.ballerinalang.nativeimpl.Utils.getTimeStructInfo;
+import static org.ballerinalang.nativeimpl.Utils.getTimeZoneStructInfo;
+import static org.ballerinalang.nativeimpl.file.utils.FileUtils.createAccessDeniedError;
+import static org.ballerinalang.nativeimpl.file.utils.FileUtils.createIOError;
+
 /**
  * Retrieves the last modified time of the specified file.
  *

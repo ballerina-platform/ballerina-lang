@@ -34,7 +34,7 @@ import org.ballerinalang.util.program.BLangFunctions;
 public class TaskExecutor {
 
     public static void execute(NativeCallableUnit fn, Context parentCtx, FunctionRefCPEntry onTriggerFunction,
-                               FunctionRefCPEntry onErrorFunction, ProgramFile programFile, Context newContext) {
+                               FunctionRefCPEntry onErrorFunction, ProgramFile programFile) {
         boolean isErrorFnCalled = false;
         try {
             // Invoke the onTrigger function.
@@ -52,8 +52,6 @@ public class TaskExecutor {
                 BLangFunctions.invokeCallable(programFile, onErrorFunction.getFunctionInfo(),
                         new BValue[] { BLangVMErrors.createError(parentCtx, 0, e.getMessage()) });
             }
-            // FIXME
-            // parentCtx.endTrackWorker();
         }
     }
 }

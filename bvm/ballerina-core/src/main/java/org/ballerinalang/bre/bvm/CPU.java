@@ -156,7 +156,7 @@ public class CPU {
 
         WorkerData currentSF, callersSF;
         int callersRetRegIndex;
-        
+
         checkErrors(ctx);
 
         while (ctx.ip >= 0) {
@@ -2924,7 +2924,7 @@ public class CPU {
                 nativeFunction.execute(ctx, callback);
             }
         } catch (BLangNullReferenceException e) {
-            parentCtx.setError(BLangVMErrors.createNullRefException(parentCtx, parentCtx.ip));
+            parentCtx.setError(BLangVMErrors.createNullRefException(parentCtx));
             handleError(parentCtx);
             return;
         } catch (Throwable e) {
@@ -3622,7 +3622,7 @@ public class CPU {
     }
 
     private static void handleNullRefError(WorkerExecutionContext ctx) {
-        ctx.setError(BLangVMErrors.createNullRefException(ctx, ctx.ip));
+        ctx.setError(BLangVMErrors.createNullRefException(ctx));
         handleError(ctx);
     }
 

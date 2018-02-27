@@ -32,17 +32,13 @@ import org.quartz.SchedulerException;
  */
 public class Appointment {
     private String id = TaskIdGenerator.generate();
-    private Context balParentContext;
 
     Appointment(NativeCallableUnit fn, Context balParentContext,
                 String cronExpression, FunctionRefCPEntry onTriggerFunction,
                 FunctionRefCPEntry onErrorFunction) throws SchedulingException {
-        this.balParentContext = balParentContext;
         TaskRegistry.getInstance().addAppointment(this);
 
         try {
-            // FIXME
-//            balParentContext.startTrackWorker();
             AppointmentManager.getInstance().
                     schedule(id, fn, AppointmentJob.class,
                             balParentContext, onTriggerFunction, onErrorFunction, cronExpression);
@@ -58,7 +54,5 @@ public class Appointment {
     public void stop() throws TaskException {
         AppointmentManager.getInstance().stop(id);
         TaskRegistry.getInstance().remove(id);
-        // FIXME
-//        balParentContext.endTrackWorker();
     }
 }

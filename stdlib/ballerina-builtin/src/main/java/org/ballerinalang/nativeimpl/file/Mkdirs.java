@@ -18,9 +18,6 @@
 
 package org.ballerinalang.nativeimpl.file;
 
-import static org.ballerinalang.nativeimpl.file.utils.FileUtils.createAccessDeniedError;
-import static org.ballerinalang.nativeimpl.file.utils.FileUtils.createIOError;
-
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
@@ -34,6 +31,9 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.nio.file.Paths;
+
+import static org.ballerinalang.nativeimpl.file.utils.FileUtils.createAccessDeniedError;
+import static org.ballerinalang.nativeimpl.file.utils.FileUtils.createIOError;
 
 /**
  * This function creates the directory structure denoted by the given File struct.
