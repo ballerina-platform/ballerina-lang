@@ -46,7 +46,7 @@ connector InitiatorClient (string registerAtURL) {
     }
 
     action register (string transactionId) returns (RegistrationResponse registrationRes,
-                                                                          error err) {
+                                                    error err) {
         RegistrationRequest regReq = {transactionId:transactionId, participantId:localParticipantId};
 
         //TODO: set the proper protocol
@@ -65,8 +65,13 @@ connector InitiatorClient (string registerAtURL) {
                 registrationRes = regRes;
                 err = (error)transformErr;
             } else {
-                var errMsg, _ = (string)res.getJsonPayload().errorMessage;
-                err = {message:errMsg};
+                json payload = res.getJsonPayload();
+                if (payload == null) {
+                    err = {message:res.getStringPayload()};
+                } else {
+                    var errMsg, _ = (string)payload.errorMessage;
+                    err = {message:errMsg};
+                }
             }
         } else {
             err = (error)e;
