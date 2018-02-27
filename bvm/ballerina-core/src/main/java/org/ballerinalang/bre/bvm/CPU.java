@@ -137,6 +137,10 @@ public class CPU {
         }
     }
     
+    private static WorkerExecutionContext codeFinished(WorkerExecutionContext ctx) {
+        return ctx.respCtx.signal(new WorkerSignal(ctx, SignalType.DONE, null));
+    }
+    
     public static void exec(WorkerExecutionContext ctx) {
         int i;
         int j;
@@ -155,11 +159,19 @@ public class CPU {
         
         checkErrors(ctx);
 
-        while (ctx.ip >= 0 && ctx.ip < ctx.code.length) {
+        while (ctx.ip >= 0) {
 //            if (debugEnabled) {
 //                debug();
 //            }
             //TODO
+            if (ctx.ip >= ctx.code.length) {
+                runInCallerCtx = codeFinished(ctx);
+                if (runInCallerCtx != null) {
+                    continue;
+                } else {
+                    break;
+                }
+            }
             Instruction instruction = ctx.code[ctx.ip];
             int opcode = instruction.getOpcode();
             int[] operands = instruction.getOperands();

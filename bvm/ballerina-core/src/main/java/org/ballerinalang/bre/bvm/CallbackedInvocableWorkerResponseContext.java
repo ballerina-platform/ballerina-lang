@@ -41,9 +41,17 @@ public class CallbackedInvocableWorkerResponseContext extends InvocableWorkerRes
         return retCtx;
     }
     
+    @Override
     protected void onFinalizedError(BStruct error) {
         super.onFinalizedError(error);
         this.responseCallback.notifyFailure(error);
+    }
+    
+    @Override
+    protected WorkerExecutionContext onDoneFinalized() {
+        WorkerExecutionContext retCtx = super.onDoneFinalized();
+        this.responseCallback.notifySuccess();
+        return retCtx;
     }
 
 }
