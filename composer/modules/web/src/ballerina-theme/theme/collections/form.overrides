@@ -39,40 +39,46 @@
  .ui.form input[type="file"]:focus, .ui.form input[type="url"]:focus{
   border-color    : @orange ;
 }
-.ui.form{
-    .ui.input.inverted, .field.inverted {
 
-        input[type="text"], .ui.compact.selection.dropdown {
+
+.inverted{
+    .ui.form .fields .field .ui.input input, .ui.form .field .ui.input input, .ui.form textarea{
+        color   : @off-white !important;
+    }
+    .ui .fluid input{
+        background  : #3a3a3a !important;
+        color   : @off-white ;
+    }
+
+    input[type="text"], .ui.compact.selection.dropdown {
+        background  : #3a3a3a !important;
+        color   : @off-white ;
+    }
+    .ui.compact.selection.dropdown{
+        width   : 100% !important;
+        margin  : 0 !important;
+
+        i.dropdown.icon{
+            color   : @off-white ;
+        }
+
+        .ui.selection.active.dropdown .menu{
             background  : #3a3a3a !important;
-            color       : @off-white ;
+            color   : @off-white ;
         }
+    }
+    .ui.dropdown .menu {
+        .item{
+            background  : #3a3a3a !important;
+            border: 1px solid #333;
 
-        .ui.compact.selection.dropdown{
-            width   : 100% !important;
-            margin  : 0 !important;
-
-            i.dropdown.icon{
-                color   : @off-white ;
+            &:hover{
+                background : #444 !important;
             }
-
-            .ui.selection.active.dropdown .menu{
-                background  : #3a3a3a !important;
-            }
-        }
-        .ui.dropdown .menu {
-             .item{
-                background  : #3a3a3a !important;
-                border: 1px solid #333;
-
-                &:hover{
-                    background : #444 !important;
-                }
-             }
-
         }
 
     }
-
 }
+
 
 

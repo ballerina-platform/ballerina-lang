@@ -20,10 +20,18 @@
             background: #444;
             color: @off-white;
             border:0;
+
+            &:hover{
+                opacity: 0.4 !important;
+            }
         }
         .ui.primary.button{
             background: @primaryColor ;
             color: @off-white;
+
+            &:hover{
+                opacity: 0.4 !important;
+            }
         }
     }
 }
