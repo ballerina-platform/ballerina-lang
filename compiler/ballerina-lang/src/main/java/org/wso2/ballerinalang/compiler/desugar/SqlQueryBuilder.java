@@ -254,7 +254,7 @@ public class SqlQueryBuilder extends BLangNodeVisitor {
         selectExpr = new StringBuilder();
         expr.accept(this);
         selectExpr.append(varRef);
-        String identifier  =selectExpression.getIdentifier();
+        String identifier  = selectExpression.getIdentifier();
         if (identifier != null) {
             selectExpr.append(" as ").append(identifier);
         }
