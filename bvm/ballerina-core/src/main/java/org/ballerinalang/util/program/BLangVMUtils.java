@@ -268,7 +268,8 @@ public class BLangVMUtils {
             LocalVariableAttributeInfo localVariableAttributeInfo = (LocalVariableAttributeInfo) packageInfo
                     .getAttributeInfo(AttributeInfo.Kind.LOCAL_VARIABLES_ATTRIBUTE);
 
-            LocalVariableInfo localVariableInfo = localVariableAttributeInfo.getLocalVarialbeDetails(entry.getConstName());
+            LocalVariableInfo localVariableInfo = localVariableAttributeInfo.getLocalVarialbeDetails(
+                    entry.getConstName());
 
             switch (localVariableInfo.getVariableType().getTag()) {
                 case TypeTags.BOOLEAN_TAG:
@@ -291,7 +292,8 @@ public class BLangVMUtils {
         });
     }
     
-    public static void mergeResultData(WorkerData sourceData, WorkerData targetData, BType[] types, int[] regIndexes) {
+    public static void mergeResultData(WorkerData sourceData, WorkerData targetData, BType[] types, 
+            int[] regIndexes) {
         int callersRetRegIndex;
         int longRegCount = 0;
         int doubleRegCount = 0;

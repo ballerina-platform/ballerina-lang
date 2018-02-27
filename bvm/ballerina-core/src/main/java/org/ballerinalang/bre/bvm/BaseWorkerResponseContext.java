@@ -153,8 +153,7 @@ public abstract class BaseWorkerResponseContext implements WorkerResponseContext
         }
         try {
             this.responseChecker.acquire();
-        } catch (InterruptedException ignore) {
-            /* ignore */ }
+        } catch (InterruptedException ignore) { /* ignore */ }
     }
 
     @Override
