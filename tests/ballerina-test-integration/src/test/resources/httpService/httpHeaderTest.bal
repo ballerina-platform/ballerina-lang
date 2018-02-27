@@ -11,7 +11,7 @@ service<http> headerService {
         http:InResponse clientResponse = {};
         clientRequest.setHeader("core", "aaa");
         clientRequest.addHeader("core", "bbb");
-        clientResponse, _ = endPoint.get("/sample/stocks", clientRequest);
+        clientResponse, _ = endPoint.doGet("/sample/stocks", clientRequest);
         _ = conn.forward(clientResponse);
     }
 
@@ -19,7 +19,7 @@ service<http> headerService {
         endpoint<http:HttpClient> endPoint {
             create http:HttpClient("http://localhost:9090", {});
         }
-        var clientResponse, _ = endPoint.forward("/sample/customers", req);
+        var clientResponse, _ = endPoint.doForward("/sample/customers", req);
         string[] headers = clientResponse.getHeaders("person");
         json payload = {header1:headers[0] , header2:headers[1]};
         http:OutResponse res = {};

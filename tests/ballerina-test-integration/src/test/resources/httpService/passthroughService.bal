@@ -12,7 +12,7 @@ service<http> passthrough {
             create http:HttpClient("http://localhost:9090", {});
         }
         http:OutRequest clientRequest = {};
-        var clientResponse, _ = nyseEP.get("/nyseStock/stocks", clientRequest);
+        var clientResponse, _ = nyseEP.doGet("/nyseStock/stocks", clientRequest);
         _ = conn.forward(clientResponse);
     }
 }

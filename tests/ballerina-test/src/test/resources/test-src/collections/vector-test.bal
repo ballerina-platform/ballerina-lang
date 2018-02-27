@@ -40,7 +40,7 @@ function testInsert (int[] values, int[] indices, int size) (collections:Vector)
 
     int i = 0;
     while (i < lengthof values) {
-        vector.insert(values[i], indices[i]);
+        vector.addByIndex(values[i], indices[i]);
         i = i + 1;
     }
 
@@ -87,7 +87,7 @@ function testSize (int[] addElems, int[] insertElems, int[] replaceElems, int nR
 
     i = 0;
     while (i < lengthof insertElems) {
-        vector.insert(insertElems[i], 8);
+        vector.addByIndex(insertElems[i], 8);
         i = i + 1;
     }
     vecSizes[sizesIndex] = vector.size();
@@ -166,7 +166,7 @@ function testInsertIndexOutOfRange (int[] values, int[] indices, int size) (coll
 
     while (i < lengthof values) {
         try {
-            vector.insert(values[i], indices[i]);
+            vector.addByIndex(values[i], indices[i]);
         } catch (collections:IndexOutOfRangeError e) {
             errs[i] = e;
             errIndex = errIndex + 1;

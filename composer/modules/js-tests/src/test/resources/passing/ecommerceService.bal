@@ -13,7 +13,7 @@ service<http> Ecommerce {
     }
     resource productsInfo(http:Request req, http:Response res, string prodId) {
         string reqPath = "/productsservice/" + prodId;
-        res = productsService.get(reqPath, req);
+        res = productsService.doGet(reqPath, req);
         response:send(res);
     }
 
@@ -22,7 +22,7 @@ service<http> Ecommerce {
         path:"/products"
     }
     resource productMgt (http:Request req, http:Response res) {
-        res = productsService.post("/productsservice", req);
+        res = productsService.doPost("/productsservice", req);
         response:send(res);
     }
 
@@ -32,7 +32,7 @@ service<http> Ecommerce {
     }
     resource ordersInfo (http:Request req, http:Response res) {
         http:ClientConnector productsService = create http:ClientConnector("http://localhost:9090");
-        res = productsService.get("/orderservice/orders", req);
+        res = productsService.doGet("/orderservice/orders", req);
         response:send(res);
     }
 
@@ -41,7 +41,7 @@ service<http> Ecommerce {
         path:"/orders"
     }
     resource ordersMgt (http:Request req, http:Response res) {
-        res = productsService.post("/orderservice/orders", req);
+        res = productsService.doPost("/orderservice/orders", req);
         response:send(res);
     }
 
@@ -50,7 +50,7 @@ service<http> Ecommerce {
         path:"/customers"
     }
     resource customersInfo (http:Request req, http:Response res) {
-        res = productsService.get("/customerservice/customers", req);
+        res = productsService.doGet("/customerservice/customers", req);
         response:send(res);
     }
 
@@ -59,7 +59,7 @@ service<http> Ecommerce {
         path:"/customers"
     }
     resource customerMgt (http:Request req, http:Response res) {
-        res = productsService.post("/customerservice/customers", req);
+        res = productsService.doPost("/customerservice/customers", req);
         response:send(res);
     }
     

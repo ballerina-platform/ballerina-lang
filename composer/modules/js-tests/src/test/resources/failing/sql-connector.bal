@@ -7,12 +7,12 @@ function main (string[] args) {
     }
     //Create a DB table using update action.If the DDL
     //statement execution is success update action returns 0.
-    int ret = testDB.update("CREATE TABLE STUDENT(ID INT AUTO_INCREMENT, AGE INT,
+    int ret = testDB.updateQuery("CREATE TABLE STUDENT(ID INT AUTO_INCREMENT, AGE INT,
                                 NAME VARCHAR(255), PRIMARY KEY (ID))", null);
     println("Table creation status:" + ret);
 
     //Create a stored procedure using update action.
-    ret = testDB.update("CREATE PROCEDURE GETCOUNT (IN pAge INT, OUT pCount INT,
+    ret = testDB.updateQuery("CREATE PROCEDURE GETCOUNT (IN pAge INT, OUT pCount INT,
                          INOUT pInt INT)
                          BEGIN SELECT COUNT(*) INTO pCount FROM STUDENT
                               WHERE AGE = pAge; SELECT COUNT(*) INTO pInt FROM
@@ -26,7 +26,7 @@ function main (string[] args) {
     sql:Parameter para1 = {sqlType:"integer", value:8};
     sql:Parameter para2 = {sqlType:"varchar", value:"Sam"};
     params = [para1, para2];
-    ret = testDB.update("INSERT INTO STUDENT (AGE,NAME) VALUES (?,?)", params);
+    ret = testDB.updateQuery("INSERT INTO STUDENT (AGE,NAME) VALUES (?,?)", params);
     println("Inserted row count:" + ret);
 
     //Column values generated during the update can be retrieved via
@@ -35,7 +35,7 @@ function main (string[] args) {
     //names should be given as an array. The values of the auto incremented
     //column and the auto generated columns are returned as string array.
     //Similar to the update action, the inserted row count is also returned.
-    var count, ids = testDB.updateWithGeneratedKeys("INSERT INTO STUDENT
+    var count, ids = testDB.updateWithGeneratedKeysQuery("INSERT INTO STUDENT
                       (AGE,NAME) VALUES (?, ?)", params, null);
     println("Inserted row count:" + count);
     println("Generated key:" + ids[0]);
@@ -43,7 +43,7 @@ function main (string[] args) {
     //Select data using select action. Select action returns a datatable
     //and see datatables section for more details on how to access data.
     params = [para1];
-    datatable dt = testDB.select("SELECT * FROM STUDENT WHERE AGE = ?", params);
+    datatable dt = testDB.selectQuery("SELECT * FROM STUDENT WHERE AGE = ?", params);
     var jsonRes, err = <json>dt;
     println(jsonRes);
 
@@ -56,7 +56,7 @@ function main (string[] args) {
     sql:Parameter p4 = {sqlType:"varchar", value:"John"};
     sql:Parameter[] item2 = [p3, p4];
     sql:Parameter[][] bPara = [item1, item2];
-    int[] c = testDB.batchUpdate("INSERT INTO STUDENT (AGE,NAME) VALUES (?, ?)", bPara);
+    int[] c = testDB.batchUpdateQuery("INSERT INTO STUDENT (AGE,NAME) VALUES (?, ?)", bPara);
     println("Batch item 1 status:" + c[0]);
     println("Batch item 2 status:" + c[1]);
 
@@ -67,18 +67,18 @@ function main (string[] args) {
     sql:Parameter pCount = {sqlType:"integer", direction:1};
     sql:Parameter pId = {sqlType:"integer", value:1, direction:2};
     params = [pAge, pCount, pId];
-    var results = testDB.call("{CALL GETCOUNT(?,?,?)}", params);
+    var results = testDB.callQuery("{CALL GETCOUNT(?,?,?)}", params);
     var countValue, _ = (int)pCount.value;
     println("Age 10 count:" + countValue);
     var idValue, _ = (int)pId.value;
     println("Id 1 count:" + idValue);
 
     //Drop the STUDENT table.
-    ret = testDB.update("DROP TABLE STUDENT", null);
+    ret = testDB.updateQuery("DROP TABLE STUDENT", null);
     println("Table drop status:" + ret);
 
     //Drop the GETCOUNT procedure.
-    ret = testDB.update("DROP PROCEDURE GETCOUNT", null);
+    ret = testDB.updateQuery("DROP PROCEDURE GETCOUNT", null);
     println("Procedure drop status:" + ret);
 
     //Finally close the connection pool.

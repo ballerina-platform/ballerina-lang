@@ -23,7 +23,7 @@ service<http> ATMLocator {
         branchLocatorReq.BranchLocator.ZipCode = zipCode;
         messages:setJsonPayload(backendServiceReq, branchLocatorReq);
         
-        message response = branchLocatorService.post("", backendServiceReq);
+        message response = branchLocatorService.doPost("", backendServiceReq);
         json branchLocatorRes = messages:getJsonPayload(response);
         string branchCode;
         branchCode, _ = (string) branchLocatorRes.ABCBank.BranchCode;
@@ -31,7 +31,7 @@ service<http> ATMLocator {
         json bankInfoReq = {"BranchInfo": {"BranchCode":""}};
         bankInfoReq.BranchInfo.BranchCode = branchCode;
         messages:setJsonPayload(backendServiceReq, bankInfoReq);
-        response = bankInfoService.post("", backendServiceReq);
+        response = bankInfoService.doPost("", backendServiceReq);
         
         response:send(response);
     

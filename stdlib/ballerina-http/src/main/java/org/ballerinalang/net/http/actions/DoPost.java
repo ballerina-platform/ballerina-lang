@@ -30,11 +30,11 @@ import org.wso2.transport.http.netty.contract.ClientConnectorException;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 
 /**
- * {@code Get} is the GET action implementation of the HTTP Connector.
+ * {@code Post} is the POST action implementation of the HTTP Connector.
  */
 @BallerinaAction(
         packageName = "ballerina.net.http",
-        actionName = "get",
+        actionName = "doPost",
         connectorName = HttpConstants.CONNECTOR_NAME,
         args = {
                 @Argument(name = "c", type = TypeKind.CONNECTOR),
@@ -53,27 +53,28 @@ import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
                           structPackage = "ballerina.net.http")
         }
 )
-public class Get extends AbstractHTTPAction {
+public class DoPost extends AbstractHTTPAction {
 
-    private static final Logger logger = LoggerFactory.getLogger(Get.class);
+    private static final Logger logger = LoggerFactory.getLogger(DoPost.class);
 
     @Override
     public ConnectorFuture execute(Context context) {
+
         if (logger.isDebugEnabled()) {
             logger.debug("Executing Native Action : {}", this.getName());
         }
         try {
+            // Execute the operation
             return executeNonBlockingAction(context, createOutboundRequestMsg(context));
         } catch (ClientConnectorException clientConnectorException) {
-            // This is should be a JavaError. Need to handle this properly.
-            throw new BallerinaException("Failed to invoke 'get' action in " + HttpConstants.CONNECTOR_NAME
+            throw new BallerinaException("Failed to invoke 'post' action in " + HttpConstants.CONNECTOR_NAME
                     + ". " + clientConnectorException.getMessage(), context);
         }
     }
 
     protected HTTPCarbonMessage createOutboundRequestMsg(Context context) {
-        HTTPCarbonMessage outboundReqMsg = super.createOutboundRequestMsg(context);
-        outboundReqMsg.setProperty(HttpConstants.HTTP_METHOD, HttpConstants.HTTP_METHOD_GET);
-        return outboundReqMsg;
+        HTTPCarbonMessage outboundRequestMsg = super.createOutboundRequestMsg(context);
+        outboundRequestMsg.setProperty(HttpConstants.HTTP_METHOD, HttpConstants.HTTP_METHOD_POST);
+        return outboundRequestMsg;
     }
 }

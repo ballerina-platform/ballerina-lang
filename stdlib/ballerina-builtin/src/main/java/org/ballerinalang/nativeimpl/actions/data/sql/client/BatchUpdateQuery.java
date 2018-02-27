@@ -19,7 +19,6 @@ package org.ballerinalang.nativeimpl.actions.data.sql.client;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.connector.api.ConnectorFuture;
-import org.ballerinalang.model.types.BStructType;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BConnector;
 import org.ballerinalang.model.values.BMap;
@@ -34,30 +33,32 @@ import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
 /**
- * {@code Call} is the Call action implementation of the SQL Connector.
+ * {@code BatchUpdate} is the Batch update action implementation of the SQL Connector.
  *
- * @since 0.8.0
+ * @since 0.8.6
  */
 @BallerinaAction(
         packageName = "ballerina.data.sql",
-        actionName = "call",
+        actionName = "batchUpdateQuery",
         connectorName = Constants.CONNECTOR_NAME,
         args = {@Argument(name = "c", type = TypeKind.CONNECTOR),
                 @Argument(name = "query", type = TypeKind.STRING),
-                @Argument(name = "parameters", type = TypeKind.ARRAY, elementType = TypeKind.STRUCT,
-                          structType = "Parameter")},
-        returnType = { @ReturnType(type = TypeKind.TABLE) },
+                @Argument(name = "parameters",
+                          type = TypeKind.ARRAY,
+                          elementType = TypeKind.STRUCT,
+                          arrayDimensions = 2,
+                          structType = "Parameter")
+        },
+        returnType = { @ReturnType(type = TypeKind.ARRAY, elementType = TypeKind.INT) },
         connectorArgs = {
                 @Argument(name = "options", type = TypeKind.MAP)
         })
-public class Call extends AbstractSQLAction {
-
+public class BatchUpdateQuery extends AbstractSQLAction {
     @Override
     public ConnectorFuture execute(Context context) {
         BConnector bConnector = (BConnector) getRefArgument(context, 0);
         String query = getStringArgument(context, 0);
         BRefValueArray parameters = (BRefValueArray) getRefArgument(context, 1);
-        BStructType structType = getStructType(context);
         BMap sharedMap = (BMap) bConnector.getRefField(2);
         SQLDatasource datasource = null;
         if (sharedMap.get(new BString(Constants.DATASOURCE_KEY)) != null) {
@@ -66,7 +67,7 @@ public class Call extends AbstractSQLAction {
             throw new BallerinaException("Datasource have not been initialized properly at " +
                     "Init native action invocation.");
         }
-        executeProcedure(context, datasource, query, parameters, structType);
+        executeBatchUpdate(context, datasource, query, parameters);
         ClientConnectorFuture future = new ClientConnectorFuture();
         future.notifySuccess();
         return future;

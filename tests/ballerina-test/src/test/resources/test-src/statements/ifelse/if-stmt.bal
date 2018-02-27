@@ -22,13 +22,13 @@ function testIfStmt(int a, int b, int c) (int, int) {
 }
 
 function testAgeGroup(int age) (string) {
-    string group;
+    string ageGroup;
     if (age > 18) {
-        group = "elder";
+        ageGroup = "elder";
     } else {
-        group = "minor";
+        ageGroup = "minor";
     }
-    return group;
+    return ageGroup;
 }
 
 function ifElseScope(int number)(int) {

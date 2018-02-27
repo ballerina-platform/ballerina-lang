@@ -32,7 +32,7 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
  * @since 0.963.0
  */
 @BallerinaFunction(packageName = "ballerina.builtin",
-                   functionName = "table.add",
+                   functionName = "table.addRow",
                    args = {
                            @Argument(name = "dt",
                                      type = TypeKind.TABLE),
@@ -40,7 +40,7 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
                                      type = TypeKind.ANY)
                    },
                    isPublic = true)
-public class Add extends AbstractNativeFunction {
+public class AddRow extends AbstractNativeFunction {
     @Override
     public BValue[] execute(Context context) {
         BTable table = (BTable) getRefArgument(context, 0);

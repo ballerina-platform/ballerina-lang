@@ -21,7 +21,7 @@ function testForEachInTableWithStmt () (int id, int age, float salary, string na
         create sql:ClientConnector(sql:DB.HSQLDB_FILE, "./target/tempdb/",
                                    0, "TEST_DATA_TABLE__ITR_DB", "SA", "", {maximumPoolSize:1});
     }
-    table<Person> dt = testDB.select("SELECT * from Person where id = 1", null, typeof Person);
+    table<Person> dt = testDB.selectQuery("SELECT * from Person where id = 1", null, typeof Person);
     foreach x in dt {
         id = x.id;
         age = x.age;
@@ -37,7 +37,7 @@ function testForEachInTable () (int id, int age, float salary, string name) {
         create sql:ClientConnector(sql:DB.HSQLDB_FILE, "./target/tempdb/",
                                    0, "TEST_DATA_TABLE__ITR_DB", "SA", "", {maximumPoolSize:1});
     }
-    table<Person> dt = testDB.select("SELECT * from Person where id = 1", null, typeof Person);
+    table<Person> dt = testDB.selectQuery("SELECT * from Person where id = 1", null, typeof Person);
     dt.foreach (function (Person p) {
                     idValue = p.id;
                     ageValue = p.age;
@@ -58,7 +58,7 @@ function testCountInTable () (int count) {
         create sql:ClientConnector(sql:DB.HSQLDB_FILE, "./target/tempdb/",
                                    0, "TEST_DATA_TABLE__ITR_DB", "SA", "", {maximumPoolSize:1});
     }
-    table<Person> dt = testDB.select("SELECT * from Person where id < 10", null, typeof Person);
+    table<Person> dt = testDB.selectQuery("SELECT * from Person where id < 10", null, typeof Person);
     count = dt.count();
     testDB.close();
     return;
@@ -69,7 +69,7 @@ function testFilterTable () (int count, int id1, int id2) {
         create sql:ClientConnector(sql:DB.HSQLDB_FILE, "./target/tempdb/",
                                    0, "TEST_DATA_TABLE__ITR_DB", "SA", "", {maximumPoolSize:1});
     }
-    table<Person> dt = testDB.select("SELECT * from Person", null, typeof Person);
+    table<Person> dt = testDB.selectQuery("SELECT * from Person", null, typeof Person);
     Person[] personBelow35 = dt.filter(isBellow35);
     count = lengthof personBelow35;
     id1 = personBelow35[0].id;
@@ -83,7 +83,7 @@ function testFilterWithAnnonymousFuncOnTable () (int count, int id1, int id2) {
         create sql:ClientConnector(sql:DB.HSQLDB_FILE, "./target/tempdb/",
                                    0, "TEST_DATA_TABLE__ITR_DB", "SA", "", {maximumPoolSize:1});
     }
-    table<Person> dt = testDB.select("SELECT * from Person", null, typeof Person);
+    table<Person> dt = testDB.selectQuery("SELECT * from Person", null, typeof Person);
     Person[] personBelow35 = dt.filter(function (Person p) (boolean) {
                                            return p.age < 35;
                                        });
@@ -99,7 +99,7 @@ function testFilterTableWithCount () (int count) {
         create sql:ClientConnector(sql:DB.HSQLDB_FILE, "./target/tempdb/",
                                    0, "TEST_DATA_TABLE__ITR_DB", "SA", "", {maximumPoolSize:1});
     }
-    table<Person> dt = testDB.select("SELECT * from Person", null, typeof Person);
+    table<Person> dt = testDB.selectQuery("SELECT * from Person", null, typeof Person);
     count = dt.filter(isBellow35).count();
     testDB.close();
     return;
@@ -110,7 +110,7 @@ function testMapTable () (string[] names) {
         create sql:ClientConnector(sql:DB.HSQLDB_FILE, "./target/tempdb/",
                                    0, "TEST_DATA_TABLE__ITR_DB", "SA", "", {maximumPoolSize:1});
     }
-    table<Person> dt = testDB.select("SELECT * from Person order by id", null, typeof Person);
+    table<Person> dt = testDB.selectQuery("SELECT * from Person order by id", null, typeof Person);
     names = dt.map(getName);
     testDB.close();
     return;
@@ -121,7 +121,7 @@ function testMapWithFilterTable () (string[] names) {
         create sql:ClientConnector(sql:DB.HSQLDB_FILE, "./target/tempdb/",
                                    0, "TEST_DATA_TABLE__ITR_DB", "SA", "", {maximumPoolSize:1});
     }
-    table<Person> dt = testDB.select("SELECT * from Person order by id", null, typeof Person);
+    table<Person> dt = testDB.selectQuery("SELECT * from Person order by id", null, typeof Person);
     names = dt.map(getName).filter(isGeraterThan4String);
     testDB.close();
     return;
@@ -132,7 +132,7 @@ function testFilterWithMapTable () (string[] names) {
         create sql:ClientConnector(sql:DB.HSQLDB_FILE, "./target/tempdb/",
                                    0, "TEST_DATA_TABLE__ITR_DB", "SA", "", {maximumPoolSize:1});
     }
-    table<Person> dt = testDB.select("SELECT * from Person order by id", null, typeof Person);
+    table<Person> dt = testDB.selectQuery("SELECT * from Person order by id", null, typeof Person);
     names = dt.filter(isGeraterThan4).map(getName);
     testDB.close();
     return;
@@ -143,7 +143,7 @@ function testFilterWithMapAndCountTable () (int count) {
         create sql:ClientConnector(sql:DB.HSQLDB_FILE, "./target/tempdb/",
                                    0, "TEST_DATA_TABLE__ITR_DB", "SA", "", {maximumPoolSize:1});
     }
-    table<Person> dt = testDB.select("SELECT * from Person order by id", null, typeof Person);
+    table<Person> dt = testDB.selectQuery("SELECT * from Person order by id", null, typeof Person);
     count = dt.filter(isGeraterThan4).map(getName).count();
     testDB.close();
     return;
@@ -154,7 +154,7 @@ function testAverageWithTable () (float avgSal) {
         create sql:ClientConnector(sql:DB.HSQLDB_FILE, "./target/tempdb/",
                                    0, "TEST_DATA_TABLE__ITR_DB", "SA", "", {maximumPoolSize:1});
     }
-    table<Person> dt = testDB.select("SELECT * from Person order by id", null, typeof Person);
+    table<Person> dt = testDB.selectQuery("SELECT * from Person order by id", null, typeof Person);
     avgSal = dt.map(getSalary).average();
     testDB.close();
     return;
@@ -165,7 +165,7 @@ function testMinWithTable () (float avgSal) {
         create sql:ClientConnector(sql:DB.HSQLDB_FILE, "./target/tempdb/",
                                    0, "TEST_DATA_TABLE__ITR_DB", "SA", "", {maximumPoolSize:1});
     }
-    table<Person> dt = testDB.select("SELECT * from Person order by id", null, typeof Person);
+    table<Person> dt = testDB.selectQuery("SELECT * from Person order by id", null, typeof Person);
     avgSal = dt.map(getSalary).min();
     testDB.close();
     return;
@@ -176,7 +176,7 @@ function testMaxWithTable () (float avgSal) {
         create sql:ClientConnector(sql:DB.HSQLDB_FILE, "./target/tempdb/",
                                    0, "TEST_DATA_TABLE__ITR_DB", "SA", "", {maximumPoolSize:1});
     }
-    table<Person> dt = testDB.select("SELECT * from Person order by id", null, typeof Person);
+    table<Person> dt = testDB.selectQuery("SELECT * from Person order by id", null, typeof Person);
     avgSal = dt.map(getSalary).max();
     testDB.close();
     return;
@@ -187,7 +187,7 @@ function testSumWithTable () (float avgSal) {
         create sql:ClientConnector(sql:DB.HSQLDB_FILE, "./target/tempdb/",
                                    0, "TEST_DATA_TABLE__ITR_DB", "SA", "", {maximumPoolSize:1});
     }
-    table<Person> dt = testDB.select("SELECT * from Person order by id", null, typeof Person);
+    table<Person> dt = testDB.selectQuery("SELECT * from Person order by id", null, typeof Person);
     avgSal = dt.map(getSalary).sum();
     testDB.close();
     return;
@@ -198,7 +198,7 @@ function testCloseConnectionPool () (int count) {
         create sql:ClientConnector(sql:DB.HSQLDB_FILE, "./target/tempdb/",
                                    0, "TEST_DATA_TABLE__ITR_DB", "SA", "", {maximumPoolSize:1});
     }
-    table dt = testDB.select ("SELECT COUNT(*) as countVal FROM INFORMATION_SCHEMA.SYSTEM_SESSIONS", null,
+    table dt = testDB.selectQuery("SELECT COUNT(*) as countVal FROM INFORMATION_SCHEMA.SYSTEM_SESSIONS", null,
                               typeof ResultCount);
     while (dt.hasNext()) {
         var rs, _ = (ResultCount) dt.getNext();

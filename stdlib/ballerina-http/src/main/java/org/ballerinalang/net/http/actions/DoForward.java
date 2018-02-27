@@ -40,7 +40,7 @@ import java.util.Locale;
  */
 @BallerinaAction(
         packageName = "ballerina.net.http",
-        actionName = "forward",
+        actionName = "doForward",
         connectorName = HttpConstants.CONNECTOR_NAME,
         args = {
                 @Argument(name = "c", type = TypeKind.CONNECTOR),
@@ -59,9 +59,9 @@ import java.util.Locale;
                         structPackage = "ballerina.net.http")
         }
 )
-public class Forward extends AbstractHTTPAction {
+public class DoForward extends AbstractHTTPAction {
 
-    private static final Logger logger = LoggerFactory.getLogger(Forward.class);
+    private static final Logger logger = LoggerFactory.getLogger(DoForward.class);
 
     @Override
     public ConnectorFuture execute(Context context) {

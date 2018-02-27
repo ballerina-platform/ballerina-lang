@@ -9,7 +9,7 @@ function main (string[] args) {
     http:OutRequest req = {};
     http:InResponse resp = {};
     log:printInfo("Sending request");
-    resp, _ = connectorEP.get("/echo/", req);
+    resp, _ = connectorEP.doGet("/echo/", req);
     log:printInfo("response received");
     io:println(resp.getStringPayload());
 }

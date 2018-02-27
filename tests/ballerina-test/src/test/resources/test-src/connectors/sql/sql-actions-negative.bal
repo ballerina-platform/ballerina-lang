@@ -7,7 +7,7 @@ function testSelectData () (string firstName) {
                                                    0, "TEST_SQL_CONNECTOR", "SA", "", {maximumPoolSize:5});
         bind con with testDB;
 
-        table dt = testDB.select("SELECT Name from Customers where registrationID = 1", null, null);
+        table dt = testDB.selectQuery("SELECT Name from Customers where registrationID = 1", null, null);
         var j, _ = <json>dt;
         firstName = j.toString();
     } finally {
@@ -27,7 +27,7 @@ function testGeneratedKeyOnInsert () (string) {
         bind con with testDB;
 
         int insertCount;
-        insertCount, generatedID = testDB.updateWithGeneratedKeys("insert into Customers (name,lastName,
+        insertCount, generatedID = testDB.updateWithGeneratedKeysQuery("insert into Customers (name,lastName,
                              registrationID,creditLimit,country) values ('Mary', 'Williams', 3, 5000.75, 'USA')",
                                                                   null, null);
         id = generatedID[0];
@@ -45,8 +45,8 @@ function testCallProcedure () (string firstName) {
                                                    0, "TEST_SQL_CONNECTOR", "SA", "", {maximumPoolSize:1});
         bind con with testDB;
 
-        _ = testDB.call("{call InsertPersonDataInfo(100,'James')}", null, null);
-        table dt = testDB.select("SELECT  FirstName from Customers where registrationID = 100", null, null);
+        _ = testDB.callQuery("{call InsertPersonDataInfo(100,'James')}", null, null);
+        table dt = testDB.selectQuery("SELECT  FirstName from Customers where registrationID = 100", null, null);
         var j, _ = <json>dt;
         firstName = j.toString();
     } finally {
@@ -80,7 +80,7 @@ function testBatchUpdate () (int[]) {
         sql:Parameter[] parameters2 = [para1, para2, para3, para4, para5];
         sql:Parameter[][] parameters = [parameters1, parameters2];
 
-        updateCount = testDB.batchUpdate("Insert into CustData (firstName,lastName,registrationID,creditLimit,country)
+        updateCount = testDB.batchUpdateQuery("Insert into CustData (firstName,lastName,registrationID,creditLimit,country)
                                      values (?,?,?,?,?)", parameters);
     } finally {
         testDB.close();
@@ -99,7 +99,7 @@ function testInvalidArrayofQueryParameters () (string value) {
         xml[] xmlDataArray = [x1, x2];
         sql:Parameter para0 = {sqlType:sql:Type.INTEGER, value:xmlDataArray};
         sql:Parameter[] parameters = [para0];
-        table dt = testDB.select("SELECT FirstName from Customers where registrationID in (?)", parameters, null);
+        table dt = testDB.selectQuery("SELECT FirstName from Customers where registrationID in (?)", parameters, null);
         var j, _ = <json>dt;
         value = j.toString();
     } finally {

@@ -34,7 +34,7 @@ public connector ClientConnector (string consumerKey, string consumerSecret, str
                             accessTokenSecret, parameters);
         tweetPath = tweetPath + "?" + urlParams;
 
-        http:Response response = twitterEP.post(tweetPath, request);
+        http:Response response = twitterEP.doPost(tweetPath, request);
 
         return response;
     }
@@ -50,7 +50,7 @@ public connector ClientConnector (string consumerKey, string consumerSecret, str
         constructRequestHeaders(request, "POST", tweetPath, consumerKey, consumerSecret, accessToken,
                             accessTokenSecret, parameters);
 
-        http:Response response = twitterEP.post(tweetPath, request);
+        http:Response response = twitterEP.doPost(tweetPath, request);
 
         return response;
     }
@@ -66,7 +66,7 @@ public connector ClientConnector (string consumerKey, string consumerSecret, str
         constructRequestHeaders(request, "POST", tweetPath, consumerKey, consumerSecret, accessToken,
                             accessTokenSecret, parameters);
 
-        http:Response response = twitterEP.post(tweetPath, request);
+        http:Response response = twitterEP.doPost(tweetPath, request);
 
         return response;
     }
@@ -74,19 +74,19 @@ public connector ClientConnector (string consumerKey, string consumerSecret, str
     @doc:Description{ value : "Search for tweets."}
     @doc:Param{ value : "query: Query string to retrieve the related tweets."}
     @doc:Return{ value : "Response object."}
-    action search(string query) (http:Response) {
+    action search(string searchQuery) (http:Response) {
         http:Request request = {};
         map parameters = {};
         string urlParams;
         string tweetPath = "/1.1/search/tweets.json";
-        query = uri:encode(query);
-        parameters["q"] = query;
-        urlParams = "q=" + query;
+        searchQuery = uri:encode(searchQuery);
+        parameters["q"] = searchQuery;
+        urlParams = "q=" + searchQuery;
         constructRequestHeaders(request, "GET", tweetPath, consumerKey, consumerSecret, accessToken,
                             accessTokenSecret, parameters);
         tweetPath = tweetPath + "?" + urlParams;
 
-        http:Response response = twitterEP.get(tweetPath, request);
+        http:Response response = twitterEP.doGet(tweetPath, request);
 
         return response;
     }
@@ -106,7 +106,7 @@ public connector ClientConnector (string consumerKey, string consumerSecret, str
                             accessTokenSecret, parameters);
         tweetPath = tweetPath + "?" + urlParams;
 
-        http:Response response = twitterEP.get(tweetPath, request);
+        http:Response response = twitterEP.doGet(tweetPath, request);
 
         return response;
     }
@@ -122,7 +122,7 @@ public connector ClientConnector (string consumerKey, string consumerSecret, str
         constructRequestHeaders(request, "POST", tweetPath, consumerKey, consumerSecret, accessToken,
                             accessTokenSecret, parameters);
 
-        http:Response response = twitterEP.post(tweetPath, request);
+        http:Response response = twitterEP.doPost(tweetPath, request);
 
         return response;
     }
@@ -145,7 +145,7 @@ public connector ClientConnector (string consumerKey, string consumerSecret, str
                             accessTokenSecret, parameters);
         tweetPath = tweetPath + "?" + strings:subString(urlParams, 1, strings:length(urlParams));
 
-        http:Response response = twitterEP.get(tweetPath, request);
+        http:Response response = twitterEP.doGet(tweetPath, request);
 
         return response;
     }
@@ -165,7 +165,7 @@ public connector ClientConnector (string consumerKey, string consumerSecret, str
                             accessTokenSecret, parameters);
         tweetPath = tweetPath + "?" + urlParams;
 
-        http:Response response = twitterEP.get(tweetPath, request);
+        http:Response response = twitterEP.doGet(tweetPath, request);
 
         return response;
     }

@@ -34,7 +34,7 @@ import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
  */
 @BallerinaAction(
         packageName = "ballerina.net.http",
-        actionName = "put",
+        actionName = "doPut",
         connectorName = HttpConstants.CONNECTOR_NAME,
         args = {
                 @Argument(name = "c", type = TypeKind.CONNECTOR),
@@ -53,9 +53,9 @@ import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
                           structPackage = "ballerina.net.http")
         }
 )
-public class Put extends AbstractHTTPAction {
+public class DoPut extends AbstractHTTPAction {
 
-    private static final Logger logger = LoggerFactory.getLogger(Put.class);
+    private static final Logger logger = LoggerFactory.getLogger(DoPut.class);
 
     @Override
     public ConnectorFuture execute(Context context) {

@@ -26,7 +26,7 @@ service<http> ATMLocator {
         backendServiceReq.setJsonPayload(branchLocatorReq);
 
         http:InResponse locatorResponse = {};
-        locatorResponse, err = branchLocatorService.post("", backendServiceReq);
+        locatorResponse, err = branchLocatorService.doPost("", backendServiceReq);
         json branchLocatorRes = locatorResponse.getJsonPayload();
         string branchCode;
         branchCode, _ = (string)branchLocatorRes.ABCBank.BranchCode;
@@ -36,7 +36,7 @@ service<http> ATMLocator {
         backendServiceReq.setJsonPayload(bankInfoReq);
 
         http:InResponse infoResponse = {};
-        infoResponse, err = bankInfoService.post("", backendServiceReq);
+        infoResponse, err = bankInfoService.doPost("", backendServiceReq);
         _ = conn.forward(infoResponse);
     }
 }

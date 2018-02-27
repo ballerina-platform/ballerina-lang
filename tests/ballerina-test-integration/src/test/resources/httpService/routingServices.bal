@@ -22,9 +22,9 @@ service<http> contentBasedRouting {
         http:InResponse clientResponse = {};
         http:HttpConnectorError err;
         if (nameString == nyseString) {
-            clientResponse, err = nyseEP.post("/stocks", clientRequest);
+            clientResponse, err = nyseEP.doPost("/stocks", clientRequest);
         } else {
-            clientResponse, err = nasdaqEP.post("/stocks", clientRequest);
+            clientResponse, err = nasdaqEP.doPost("/stocks", clientRequest);
         }
         _ = conn.forward(clientResponse);
     }
@@ -51,9 +51,9 @@ service<http> headerBasedRouting {
         http:InResponse clientResponse = {};
         http:HttpConnectorError err;
         if (nameString == nyseString) {
-            clientResponse, err = nyseEP.post("/stocks", clientRequest);
+            clientResponse, err = nyseEP.doPost("/stocks", clientRequest);
         } else {
-            clientResponse, err = nasdaqEP.post("/stocks", clientRequest);
+            clientResponse, err = nasdaqEP.doPost("/stocks", clientRequest);
         }
         _ = conn.forward(clientResponse);
     }

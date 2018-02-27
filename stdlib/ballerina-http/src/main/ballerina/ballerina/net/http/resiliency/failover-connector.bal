@@ -49,7 +49,7 @@ public connector Failover (http:HttpClient[] failoverClientsArray, FailoverConfi
     @Param {value:"request: An OutRequest struct"}
     @Return {value:"The InResponse struct"}
     @Return {value:"Error occurred during the action invocation, if any"}
-    action post (string path, http:OutRequest request) (http:InResponse, http:HttpConnectorError) {
+    action doPost (string path, http:OutRequest request) (http:InResponse, http:HttpConnectorError) {
         return performFailoverAction(path, request, null, HttpOperation.POST, failoverInferredConfig);
     }
 
@@ -67,7 +67,7 @@ public connector Failover (http:HttpClient[] failoverClientsArray, FailoverConfi
     @Param {value:"request: An OutRequest struct"}
     @Return {value:"The InResponse struct"}
     @Return {value:"Error occurred during the action invocation, if any"}
-    action patch (string path, http:OutRequest request) (http:InResponse, http:HttpConnectorError) {
+    action doPatch (string path, http:OutRequest request) (http:InResponse, http:HttpConnectorError) {
         return performFailoverAction(path, request, null, HttpOperation.PATCH, failoverInferredConfig);
     }
 
@@ -76,7 +76,7 @@ public connector Failover (http:HttpClient[] failoverClientsArray, FailoverConfi
     @Param {value:"request: An OutRequest struct"}
     @Return {value:"The InResponse struct"}
     @Return {value:"Error occurred during the action invocation, if any"}
-    action put (string path, http:OutRequest request) (http:InResponse, http:HttpConnectorError) {
+    action doPut (string path, http:OutRequest request) (http:InResponse, http:HttpConnectorError) {
         return performFailoverAction(path, request, null, HttpOperation.PUT, failoverInferredConfig);
     }
 
@@ -94,7 +94,7 @@ public connector Failover (http:HttpClient[] failoverClientsArray, FailoverConfi
     @Param {value:"request: An InRequest struct"}
     @Return {value:"The InResponse struct"}
     @Return {value:"Error occurred during the action invocation, if any"}
-    action forward (string path, http:InRequest request) (http:InResponse, http:HttpConnectorError) {
+    action doForward (string path, http:InRequest request) (http:InResponse, http:HttpConnectorError) {
         return performFailoverAction(path, null, request, HttpOperation.FORWARD, failoverInferredConfig);
     }
 
@@ -104,7 +104,7 @@ public connector Failover (http:HttpClient[] failoverClientsArray, FailoverConfi
     @Param {value:"request: An OutRequest struct"}
     @Return {value:"The InResponse struct"}
     @Return {value:"Error occurred during the action invocation, if any"}
-    action execute (string httpVerb, string path, http:OutRequest request) (http:InResponse, http:HttpConnectorError) {
+    action doExecute (string httpVerb, string path, http:OutRequest request) (http:InResponse, http:HttpConnectorError) {
         return performExecuteAction(path, request, null, httpVerb, failoverInferredConfig);
     }
 
@@ -113,7 +113,7 @@ public connector Failover (http:HttpClient[] failoverClientsArray, FailoverConfi
     @Param {value:"request: An OutRequest struct"}
     @Return {value:"The InResponse struct"}
     @Return {value:"Error occurred during the action invocation, if any"}
-    action delete (string path, http:OutRequest request) (http:InResponse, http:HttpConnectorError) {
+    action doDelete (string path, http:OutRequest request) (http:InResponse, http:HttpConnectorError) {
         return performFailoverAction(path, request, null, HttpOperation.DELETE, failoverInferredConfig);
     }
 
@@ -122,7 +122,7 @@ public connector Failover (http:HttpClient[] failoverClientsArray, FailoverConfi
     @Param {value:"request: An OutRequest struct"}
     @Return {value:"The InResponse struct"}
     @Return {value:"Error occurred during the action invocation, if any"}
-    action get (string path, http:OutRequest request) (http:InResponse, http:HttpConnectorError) {
+    action doGet (string path, http:OutRequest request) (http:InResponse, http:HttpConnectorError) {
         return performFailoverAction(path, request, null, HttpOperation.GET, failoverInferredConfig);
     }
 }

@@ -34,8 +34,8 @@ function replaceFirst(string s, string source, string target) (string) {
     return s.replaceFirst(source, target);
 }
 
-function subString(string s, int from, int to) (string) {
-    return s.subString(from, to);
+function subString(string s, int startIndex, int endIndex) (string) {
+    return s.subString(startIndex, endIndex);
 }
 
 function toLowerCase(string s) (string) {

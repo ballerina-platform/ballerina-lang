@@ -37,7 +37,7 @@ service<http> Ecommerce {
     resource productsInfo (http:Connection conn, http:InRequest req, string prodId) {
         string reqPath = "/productsservice/" + prodId;
         http:OutRequest clientRequest = {};
-        var clientResponse, _ = productsService.get(reqPath, clientRequest);
+        var clientResponse, _ = productsService.doGet(reqPath, clientRequest);
         _ = conn.forward(clientResponse);
     }
 
@@ -49,7 +49,7 @@ service<http> Ecommerce {
         http:OutRequest clientRequest = {};
         json jsonReq = req.getJsonPayload();
         clientRequest.setJsonPayload(jsonReq);
-        var clientResponse, _ = productsService.post("/productsservice", clientRequest);
+        var clientResponse, _ = productsService.doPost("/productsservice", clientRequest);
         _ = conn.forward(clientResponse);
     }
 
@@ -59,7 +59,7 @@ service<http> Ecommerce {
     }
     resource ordersInfo (http:Connection conn, http:InRequest req) {
         http:OutRequest clientRequest = {};
-        var clientResponse, _ = productsService.get("/orderservice/orders", clientRequest);
+        var clientResponse, _ = productsService.doGet("/orderservice/orders", clientRequest);
         _ = conn.forward(clientResponse);
     }
 
@@ -69,7 +69,7 @@ service<http> Ecommerce {
     }
     resource ordersMgt (http:Connection conn, http:InRequest req) {
         http:OutRequest clientRequest = {};
-        var clientResponse, _ = productsService.post("/orderservice/orders", clientRequest);
+        var clientResponse, _ = productsService.doPost("/orderservice/orders", clientRequest);
         _ = conn.forward(clientResponse);
     }
 
@@ -79,7 +79,7 @@ service<http> Ecommerce {
     }
     resource customersInfo (http:Connection conn, http:InRequest req) {
         http:OutRequest clientRequest = {};
-        var clientResponse, _ = productsService.get("/customerservice/customers", clientRequest);
+        var clientResponse, _ = productsService.doGet("/customerservice/customers", clientRequest);
         _ = conn.forward(clientResponse);
     }
 
@@ -89,7 +89,7 @@ service<http> Ecommerce {
     }
     resource customerMgt (http:Connection conn, http:InRequest req) {
         http:OutRequest clientRequest = {};
-        var clientResponse, _ = productsService.post("/customerservice/customers", clientRequest);
+        var clientResponse, _ = productsService.doPost("/customerservice/customers", clientRequest);
         _ = conn.forward(clientResponse);
     }
 }

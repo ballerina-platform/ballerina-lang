@@ -42,16 +42,16 @@ import java.util.Locale;
  */
 @BallerinaFunction(
         packageName = "ballerina.file",
-        functionName = "open",
+        functionName = "openFile",
         receiver = @Receiver(type = TypeKind.STRUCT, structType = "File",
                              structPackage = "ballerina.file"),
         args = {@Argument(name = "file", type = TypeKind.STRUCT, structType = "File",
                 structPackage = "ballerina.file"), @Argument(name = "accessMode", type = TypeKind.STRING)},
         isPublic = true
 )
-public class Open extends AbstractNativeFunction {
+public class OpenFile extends AbstractNativeFunction {
 
-    private static final Logger log = LoggerFactory.getLogger(Open.class);
+    private static final Logger log = LoggerFactory.getLogger(OpenFile.class);
     
     @Override 
     public BValue[] execute(Context context) {

@@ -15,6 +15,7 @@ NATIVE      : 'native' ;
 SERVICE     : 'service' ;
 RESOURCE    : 'resource' ;
 FUNCTION    : 'function' ;
+STREAMLET    : 'streamlet' ;
 CONNECTOR   : 'connector' ;
 ACTION      : 'action' ;
 STRUCT      : 'struct' ;
@@ -29,6 +30,25 @@ XMLNS       : 'xmlns' ;
 RETURNS     : 'returns';
 VERSION     : 'version';
 
+FROM        : 'from' ;
+ON          : 'on' ;
+SELECT      : 'select' ;
+GROUP       : 'group' ;
+BY          : 'by' ;
+HAVING      : 'having' ;
+ORDER       : 'order' ;
+WHERE       : 'where' ;
+FOLLOWED    : 'followed' ;
+INSERT      : 'insert' ;
+INTO        : 'into' ;
+UPDATE      : 'update' ;
+DELETE      : 'delete' ;
+SET         : 'set' ;
+FOR         : 'for' ;
+WINDOW      : 'window' ;
+QUERY       : 'query' ;
+
+
 TYPE_INT        : 'int' ;
 TYPE_FLOAT      : 'float' ;
 TYPE_BOOL       : 'boolean' ;
@@ -38,6 +58,8 @@ TYPE_MAP        : 'map' ;
 TYPE_JSON       : 'json' ;
 TYPE_XML        : 'xml' ;
 TYPE_TABLE      : 'table' ;
+TYPE_STREAM     : 'stream' ;
+TYPE_AGGREGATION : 'aggregation' ;
 TYPE_ANY        : 'any' ;
 TYPE_TYPE       : 'type' ;
 

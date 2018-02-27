@@ -13,7 +13,7 @@ service<http> headQuoteService {
         string method = req.method;
         http:OutRequest clientRequest = {};
         http:InResponse clientResponse = {};
-        clientResponse, _ = endPoint.execute(method, "/getQuote/stocks", clientRequest);
+        clientResponse, _ = endPoint.doExecute(method, "/getQuote/stocks", clientRequest);
         _ = conn.forward(clientResponse);
     }
 
@@ -25,7 +25,7 @@ service<http> headQuoteService {
               create http:HttpClient("http://localhost:9090", {});
         }
         http:InResponse clientResponse = {};
-        clientResponse, _ = endPoint.forward("/getQuote/stocks", req);
+        clientResponse, _ = endPoint.doForward("/getQuote/stocks", req);
         _ = conn.forward(clientResponse);
     }
 
@@ -37,7 +37,7 @@ service<http> headQuoteService {
               create http:HttpClient("http://localhost:9090", {});
         }
         http:InResponse clientResponse = {};
-        clientResponse, _ = endPoint.forward("/getQuote/stocks", req);
+        clientResponse, _ = endPoint.doForward("/getQuote/stocks", req);
         _ = conn.forward(clientResponse);
     }
 
@@ -50,7 +50,7 @@ service<http> headQuoteService {
         }
         http:OutRequest clientRequest = {};
         http:InResponse clientResponse = {};
-        clientResponse, _ = endPoint.execute(method, "/getQuote/stocks", clientRequest);
+        clientResponse, _ = endPoint.doExecute(method, "/getQuote/stocks", clientRequest);
         _ = conn.forward(clientResponse);
     }
 }
@@ -68,7 +68,7 @@ service<http> testClientConHEAD {
         }
         http:OutRequest clientRequest = {};
         http:InResponse clientResponse = {};
-        clientResponse, _ = quoteEP.get("/getQuote/stocks", clientRequest);
+        clientResponse, _ = quoteEP.doGet("/getQuote/stocks", clientRequest);
         _ = conn.forward(clientResponse);
     }
 }

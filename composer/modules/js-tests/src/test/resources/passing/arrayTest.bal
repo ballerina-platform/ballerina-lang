@@ -109,39 +109,39 @@ function testMessageArrayCopy(message[] arg)(message[]){
     return defined;
 }
 
-function testFloatArrayCopyRange(float[] arg, int from, int to)(float[]){
+function testFloatArrayCopyRange(float[] arg, int startIndex, int endIndex) (float[]) {
     float[] defined = [];
-    arrays:copyOfRange(arg, defined, from, to);
+    arrays:copyOfRange(arg, defined, startIndex, endIndex);
     return defined;
 }
 
-function testIntArrayCopyRange(int[] arg, int from, int to)(int[]){
+function testIntArrayCopyRange(int[] arg, int startIndex, int endIndex) (int[]) {
     int[] defined = [];
-    arrays:copyOfRange(arg, defined, from, to);
+    arrays:copyOfRange(arg, defined, startIndex, endIndex);
     return defined;
 }
 
-function testStringArrayCopyRange(string[] arg, int from, int to)(string[]){
+function testStringArrayCopyRange(string[] arg, int startIndex, int endIndex) (string[]) {
     string[] defined = [];
-    arrays:copyOfRange(arg, defined, from, to);
+    arrays:copyOfRange(arg, defined, startIndex, endIndex);
     return defined;
 }
 
-function testXMLArrayCopyRange(xml[] arg, int from, int to)(xml[]){
+function testXMLArrayCopyRange(xml[] arg, int startIndex, int endIndex) (xml[]) {
     xml[] defined = [];
-    arrays:copyOfRange(arg, defined, from, to);
+    arrays:copyOfRange(arg, defined, startIndex, endIndex);
     return defined;
 }
 
-function testJSONArrayCopyRange(json[] arg, int from, int to)(json[]){
+function testJSONArrayCopyRange(json[] arg, int startIndex, int endIndex) (json[]) {
     json[] defined = [];
-    arrays:copyOfRange(arg, defined, from, to);
+    arrays:copyOfRange(arg, defined, startIndex, endIndex);
     return defined;
 }
 
-function testMessageArrayCopyRange(message[] arg, int from, int to)(message[]){
+function testMessageArrayCopyRange(message[] arg, int startIndex, int endIndex) (message[]) {
     message[] defined = [];
-    arrays:copyOfRange(arg, defined, from, to);
+    arrays:copyOfRange(arg, defined, startIndex, endIndex);
     return defined;
 }
 

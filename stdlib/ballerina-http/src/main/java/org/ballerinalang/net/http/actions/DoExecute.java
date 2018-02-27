@@ -43,7 +43,7 @@ import static org.wso2.transport.http.netty.common.Constants.ENCODING_GZIP;
  */
 @BallerinaAction(
         packageName = "ballerina.net.http",
-        actionName = "execute",
+        actionName = "doExecute",
         connectorName = HttpConstants.CONNECTOR_NAME,
         args = {
                 @Argument(name = "c", type = TypeKind.CONNECTOR),
@@ -63,9 +63,9 @@ import static org.wso2.transport.http.netty.common.Constants.ENCODING_GZIP;
                           structPackage = "ballerina.net.http")
         }
 )
-public class Execute extends AbstractHTTPAction {
+public class DoExecute extends AbstractHTTPAction {
 
-    private static final Logger logger = LoggerFactory.getLogger(Execute.class);
+    private static final Logger logger = LoggerFactory.getLogger(DoExecute.class);
 
     @Override
     public ConnectorFuture execute(Context context) {
