@@ -17,6 +17,8 @@
  */
 package org.ballerinalang.net.grpc.builder.components;
 
+import io.grpc.MethodDescriptor;
+import org.ballerinalang.net.grpc.builder.utils.BalGenerationUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,10 +37,12 @@ public class ActionBuilder {
     private String reqStructFieldType;
     private String resStructFieldName;
     private String resStructFieldType;
+    private MethodDescriptor.MethodType methodType;
+    
     
     public ActionBuilder(String methodName, String reqMessageName, String resMessageName, String methodID,
                          String reqStructFieldName, String reqStructFieldType,
-                         String resStructFieldName, String resStructFieldType) {
+                         String resStructFieldName, String resStructFieldType, MethodDescriptor.MethodType isStream) {
         this.methodName = methodName;
         this.reqMessageName = reqMessageName;
         this.resMessageName = resMessageName;
@@ -47,25 +51,47 @@ public class ActionBuilder {
         this.reqStructFieldType = reqStructFieldType;
         this.resStructFieldName = resStructFieldName;
         this.resStructFieldType = resStructFieldType;
+        this.methodType = isStream;
     }
     
     
     public String build() {
         String templPrt1 = "", templPrt2 = "";
-        String template =
-                "    action %s (grpc:ClientConnection conn, any req) (any, error) {" + NEW_LINE_CHARACTER +
-                        "" + NEW_LINE_CHARACTER +
+        String unaryTemplate =
+                "    action %s (%s req) (%s, error) {" + NEW_LINE_CHARACTER +
                         "        %s" + NEW_LINE_CHARACTER +
-                        "" + NEW_LINE_CHARACTER +
-                        "        var res, err3 = ep.execute(conn, value, \"%s\");" + NEW_LINE_CHARACTER +
+                        "        var res, err3 = ep.execute(%s, \"%s\", \"\");" + NEW_LINE_CHARACTER +
                         "        if (err3 != null) {" + NEW_LINE_CHARACTER +
                         "            error e = {msg:err3.msg};" + NEW_LINE_CHARACTER +
                         "            return null, e;" + NEW_LINE_CHARACTER +
                         "        }" + NEW_LINE_CHARACTER +
-                        "" + NEW_LINE_CHARACTER +
+                        "        %s" + NEW_LINE_CHARACTER +
+                        "        return %s, null;" + NEW_LINE_CHARACTER +
+                        "    }";
+        String clientStreamTemplate =
+                "    action %s (string serviceName) (grpc:ClientConnection, error) {" + NEW_LINE_CHARACTER +
+                        "        var res, err3 = ep.execute(\"\", \"%s\", \"serviceName\");" + NEW_LINE_CHARACTER +
+                        "        if (err3 != null) {" + NEW_LINE_CHARACTER +
+                        "            error e = {msg:err3.msg};" + NEW_LINE_CHARACTER +
+                        "            return null, e;" + NEW_LINE_CHARACTER +
+                        "        }" + NEW_LINE_CHARACTER +
+                        "        var response, err4 = (grpc:ClientConnection)res;" + NEW_LINE_CHARACTER +
+                        "        if (err4 != null) {" + NEW_LINE_CHARACTER +
+                        "            error e = {msg:err4.msg};" + NEW_LINE_CHARACTER +
+                        "            return null,e;" + NEW_LINE_CHARACTER +
+                        "        }" + NEW_LINE_CHARACTER +
+                        "        return response,null;;" + NEW_LINE_CHARACTER +
+                        "    }";
+        String serverStreamTemplate =
+                "    action %s (%s req, string serviceName) (error) {" + NEW_LINE_CHARACTER +
                         "        %s" + NEW_LINE_CHARACTER +
                         "" + NEW_LINE_CHARACTER +
-                        "        return value, null;" + NEW_LINE_CHARACTER +
+                        "        var res, err3 = ep.execute(%s, \"%s\", \"serviceName\");" + NEW_LINE_CHARACTER +
+                        "        if (err3 != null) {" + NEW_LINE_CHARACTER +
+                        "            error e = {msg:err3.msg};" + NEW_LINE_CHARACTER +
+                        "            return e;" + NEW_LINE_CHARACTER +
+                        "        }" + NEW_LINE_CHARACTER +
+                        "        return null;" + NEW_LINE_CHARACTER +
                         "    }";
         
         if (resStructFieldName != null) {
@@ -106,28 +132,34 @@ public class ActionBuilder {
                     reqStructFieldType, reqStructFieldName, reqStructFieldName);
         }
         if (reqStructFieldName == null) {
-            String template3 =
-                    "var request, err = (%s)req;" + NEW_LINE_CHARACTER +
-                            "        any value;" + NEW_LINE_CHARACTER +
-                            "        if (err != null) {" + NEW_LINE_CHARACTER +
-                            "            error e = {msg:err.msg};" + NEW_LINE_CHARACTER +
-                            "            return null, e;" + NEW_LINE_CHARACTER +
-                            "        } else {" + NEW_LINE_CHARACTER +
-                            "            value = request;" + NEW_LINE_CHARACTER +
-                            "        }" + NEW_LINE_CHARACTER;
-            templPrt1 = String.format(template3, reqMessageName);
+            templPrt1 = "";
         }
         if (resStructFieldName == null) {
-            String template4 =
-                    "var response, err4 = (%s)res;" + NEW_LINE_CHARACTER +
-                            "        if (err4 != null) {" + NEW_LINE_CHARACTER +
-                            "            error e = {msg:err4.msg};" + NEW_LINE_CHARACTER +
-                            "            return null, e;" + NEW_LINE_CHARACTER +
-                            "        } else {" + NEW_LINE_CHARACTER +
-                            "            value = response;" + NEW_LINE_CHARACTER +
-                            "        }" + NEW_LINE_CHARACTER;
-            templPrt2 = String.format(template4, resMessageName);
+            templPrt2 = "";
         }
-        return String.format(template, methodName, templPrt1, methodID, templPrt2);
+        String connectorIn, connectorOut, executeIn, executeOut;
+        if (!BalGenerationUtils.isStructType(reqMessageName)) {
+            connectorIn = reqMessageName;
+            executeIn = "req";
+        } else {
+            connectorIn = "any";
+            executeIn = "value";
+        }
+        if (!BalGenerationUtils.isStructType(resMessageName)) {
+            connectorOut = reqMessageName;
+            executeOut = "res";
+        } else {
+            connectorOut = "any";
+            executeOut = "value";
+        }
+        if (methodType.equals(MethodDescriptor.MethodType.SERVER_STREAMING)) {
+            return String.format(serverStreamTemplate, methodName, connectorIn, templPrt1, executeIn, methodID);
+        } else if (methodType.equals(MethodDescriptor.MethodType.CLIENT_STREAMING) ||
+                methodType.equals(MethodDescriptor.MethodType.BIDI_STREAMING)) {
+            return String.format(clientStreamTemplate, methodName, methodID);
+        } else {
+            return String.format(unaryTemplate, methodName, connectorIn, connectorOut, templPrt1, executeIn,
+                    methodID, templPrt2, executeOut);
+        }
     }
 }

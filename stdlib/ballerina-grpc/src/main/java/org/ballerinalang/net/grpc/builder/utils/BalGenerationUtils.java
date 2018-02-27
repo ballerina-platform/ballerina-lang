@@ -87,6 +87,26 @@ public class BalGenerationUtils {
         }
     }
     
+    /**
+     * This function returns the ballerina data type which is mapped to  protobuff data type.
+     *
+     * @param protoType .proto data type
+     * @return Ballerina data type.
+     */
+    public static boolean isStructType(String protoType) {
+        switch (protoType) {
+            case "float":
+            case "int":
+            case "boolean":
+            case "string":
+            case "blob": {
+                return false;
+            }
+            default: { // to handle structs
+                return true;
+            }
+        }
+    }
     
     /**
      * Method is responsible of writing the bal string payload to .bal file.
@@ -112,6 +132,7 @@ public class BalGenerationUtils {
     
     /**
      * Method is responsible for convert globally defined struct List to map.
+     *
      * @param list .
      * @return .
      */

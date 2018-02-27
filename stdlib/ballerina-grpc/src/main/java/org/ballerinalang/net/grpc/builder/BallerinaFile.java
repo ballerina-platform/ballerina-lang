@@ -126,7 +126,8 @@ public class BallerinaFile {
                     resMessageName = getMappingBalType(typeOut);
                 }
                 actionBuilder = new ActionBuilder(methodName, reqMessageName, resMessageName
-                        , methodID, reqStructFieldName, reqStructFieldType, resStructFieldName, resStructFieldType);
+                        , methodID, reqStructFieldName, reqStructFieldType, resStructFieldName, resStructFieldType,
+                        methodType);
                 if (methodType.equals(MethodDescriptor.MethodType.UNARY)) {
                     blockingActionList = blockingActionList.append(NEW_LINE_CHARACTER).append(actionBuilder.build());
                 } else {
@@ -156,12 +157,13 @@ public class BallerinaFile {
             
             String blockingConnectorList = new ConnectorBuilder(blockingActionList.toString(),
                     fileDescriptorSet.getPackage(),
-                    fileDescriptorSet.getService(SERVICE_INDEX).getName() + "StubBlocking").build();
+                    fileDescriptorSet.getService(SERVICE_INDEX).getName() + "StubBlocking",
+                    "blocking").build();
             String balBlockingPayload = blockingConnectorList + structList + NEW_LINE_CHARACTER + descriptorKey +
                     String.format("map descriptorMap ={%s};", descriptorMapString) + NEW_LINE_CHARACTER;
             String streamingConnectorList = new ConnectorBuilder(streamingActionList.toString(),
                     fileDescriptorSet.getPackage(), fileDescriptorSet.getService(
-                            SERVICE_INDEX).getName() + "StubNonBlocking").build();
+                    SERVICE_INDEX).getName() + "StubNonBlocking", "non-blocking").build();
             String balStreamingPayload = streamingConnectorList + structList + NEW_LINE_CHARACTER + descriptorKey +
                     String.format("map descriptorMap ={%s};", descriptorMapString) + NEW_LINE_CHARACTER;
             

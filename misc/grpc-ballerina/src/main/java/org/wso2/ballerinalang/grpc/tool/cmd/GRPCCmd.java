@@ -30,6 +30,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.PrintStream;
 import java.net.URL;
 import java.nio.file.Files;
@@ -112,6 +113,18 @@ public class GRPCCmd implements BLauncherCmd {
         }
         StringBuilder msg = new StringBuilder("Successfully generated initial files." + NEW_LINE_CHARACTER);
         ClassLoader classLoader = this.getClass().getClassLoader();
+        // TODO: 2/27/18 get to property file
+        String[] protoFiles = {"any.proto", "api.proto", "descriptor.proto", "duration.proto", "empty.proto",
+                "field_mask.proto", "source_context.proto", "struct.proto", "timestamp.proto", "type.proto",
+                "wrappers.proto", "compiler/plugin.proto"};
+        try {
+            for (String file : protoFiles) {
+                exportResource("google/protobuf/" + file, classLoader);
+            }
+            
+        } catch (Exception e) {
+            LOG.error("Error ", e);
+        }
         byte[] root = DescriptorsGenerator.getRootByteArray(this.exePath, this.protoPath, descriptorPath);
         msg.append("Successfully generated root descriptor.").append(NEW_LINE_CHARACTER);
         List<byte[]> dependant = DescriptorsGenerator.getDependentByteArray(this.exePath, descriptorPath,
@@ -122,14 +135,66 @@ public class GRPCCmd implements BLauncherCmd {
         new BallerinaFile(root, dependant, balPath).build();
         msg.append("Successfully generated ballerina file.").append(NEW_LINE_CHARACTER);
         File directory = new File("desc_gen");
+        File directory2 = new File("google");
         if (directory.exists()) {
             delete(directory);
+            delete(directory2);
         }
         msg.append("Successfully deleted temporary files.").append(NEW_LINE_CHARACTER);
         outStream.println(msg.toString());
     }
     
+    /**
+     * Export a resource embedded into a Jar file to the local file path.
+     *
+     * @param resourceName ie.: "/SmartLibrary.dll"
+     * @return The path to the exported resource
+     * @throws Exception
+     */
+    static String exportResource(String resourceName, ClassLoader classLoader) throws Exception {
+        InputStream stream = null;
+        OutputStream resStreamOut = null;
+        String jarFolder;
+        
+        try {
+            File targetFile = new File("google/protobuf/compiler/plugin.proto");
+            File parent = targetFile.getParentFile();
+            if (!parent.exists() && !parent.mkdirs()) {
+                throw new IllegalStateException("Couldn't create dir: " + parent);
+            }
+            File parent2 = parent.getParentFile();
+            if (!parent2.exists() && !parent2.mkdirs()) {
+                throw new IllegalStateException("Couldn't create dir: " + parent);
+            }
+            File parent3 = parent2.getParentFile();
+            if (!parent3.exists() && !parent3.mkdirs()) {
+                throw new IllegalStateException("Couldn't create dir: " + parent);
+            }
+            InputStream initialStream = classLoader.getResourceAsStream(resourceName);
+            if (initialStream == null) {
+                throw new Exception("Cannot get resource \"" + resourceName + "\" from Jar file.");
+            }
+            stream = initialStream;
+            int readBytes;
+            byte[] buffer = new byte[4096];
+            jarFolder = new File(GRPCCmd.class.getProtectionDomain().getCodeSource().getLocation().toURI().getPath())
+                    .getParentFile().getPath().replace('\\', '/');
+            resStreamOut = new FileOutputStream(resourceName);
+            
+            while ((readBytes = stream.read(buffer)) > 0) {
+                resStreamOut.write(buffer, 0, readBytes);
+            }
+        } catch (Exception ex) {
+            throw ex;
+        } finally {
+            stream.close();
+            resStreamOut.close();
+        }
+        return jarFolder + resourceName;
+    }
+    
     private void downloadProtoCexe() {
+        outStream.println("Downloading proc executor ...");
         if (exePath == null) {
             exePath = "protoc-" + OSDetector.getDetectedClassifier() + ".exe";
             File exeFile = new File(exePath);
@@ -159,8 +224,17 @@ public class GRPCCmd implements BLauncherCmd {
                 } catch (IOException e) {
                     throw new BalGenToolException("Exception occurred while writing protoc executable to file. ", e);
                 }
+            } else {
+                boolean isExecutable = exeFile.setExecutable(true);
+                boolean isReadable = exeFile.setReadable(true);
+                boolean isWritable = exeFile.setWritable(true);
+                if (isExecutable && isReadable && isWritable) {
+                    LOG.debug("Successfully grated permission for new protoc exe file" + exePath);
+                }
+                
             }
         }
+        outStream.println("Download successfully completed!");
     }
     
     private static void delete(File file) {
