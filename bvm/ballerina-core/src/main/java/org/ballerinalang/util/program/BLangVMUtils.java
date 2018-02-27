@@ -291,6 +291,40 @@ public class BLangVMUtils {
         });
     }
     
+    public static void mergeResultData(WorkerData sourceData, WorkerData targetData, BType[] types, int[] regIndexes) {
+        int callersRetRegIndex;
+        int longRegCount = 0;
+        int doubleRegCount = 0;
+        int stringRegCount = 0;
+        int intRegCount = 0;
+        int refRegCount = 0;
+        int byteRegCount = 0;
+        for (int i = 0; i < types.length; i++) {
+            BType retType = types[i];
+            callersRetRegIndex = regIndexes[i];
+            switch (retType.getTag()) {
+            case TypeTags.INT_TAG:
+                targetData.longRegs[callersRetRegIndex] = sourceData.longRegs[longRegCount++];
+                break;
+            case TypeTags.FLOAT_TAG:
+                targetData.doubleRegs[callersRetRegIndex] = sourceData.doubleRegs[doubleRegCount++];
+                break;
+            case TypeTags.STRING_TAG:
+                targetData.stringRegs[callersRetRegIndex] = sourceData.stringRegs[stringRegCount++];
+                break;
+            case TypeTags.BOOLEAN_TAG:
+                targetData.intRegs[callersRetRegIndex] = sourceData.intRegs[intRegCount++];
+                break;
+            case TypeTags.BLOB_TAG:
+                targetData.byteRegs[callersRetRegIndex] = sourceData.byteRegs[byteRegCount++];
+                break;
+            default:
+                targetData.refRegs[callersRetRegIndex] = sourceData.refRegs[refRegCount++];
+                break;
+            }
+        }
+    }
+    
     public static BStruct createErrorStruct(Throwable e) {
         //TODO
         return null;
