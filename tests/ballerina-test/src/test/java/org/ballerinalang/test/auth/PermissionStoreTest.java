@@ -47,15 +47,13 @@ public class PermissionStoreTest {
     private static final String BALLERINA_CONF = "ballerina.conf";
     private CompileResult compileResult;
     private String resourceRoot;
-    private Path sourceRoot;
-    private Path ballerinaConfPath;
     private Path ballerinaConfCopyPath;
 
     @BeforeClass
     public void setup() throws Exception {
         resourceRoot = getClass().getProtectionDomain().getCodeSource().getLocation().getPath();
-        sourceRoot = Paths.get(resourceRoot, "test-src", "auth");
-        ballerinaConfPath = Paths
+        Path sourceRoot = Paths.get(resourceRoot, "test-src", "auth");
+        Path ballerinaConfPath = Paths
                 .get(resourceRoot, "datafiles", "config", "auth", "authorization", "permissionstore", BALLERINA_CONF);
         ballerinaConfCopyPath = sourceRoot.resolve(BALLERINA_CONF);
 
@@ -77,21 +75,21 @@ public class PermissionStoreTest {
         return runtimeConfigs;
     }
 
-    @Test
+    @Test(description = "Test case for creating permission store")
     public void testCreatePermissionstore() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testCreatePermissionstore");
         Assert.assertTrue(returns != null);
         Assert.assertTrue(returns[0] instanceof BStruct);
     }
 
-    @Test
+    @Test(description = "Test case for reading groups of non-existing scope")
     public void testReadGroupsForNonExistingScope() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testReadGroupsForNonExistingScope");
         Assert.assertTrue(returns != null);
         Assert.assertNull(returns[0].stringValue());
     }
 
-    @Test
+    @Test(description = "Test case for reading groups of a scope")
     public void testReadGroupsForScope() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testReadGroupsForScope");
         Assert.assertTrue(returns != null);
@@ -101,14 +99,14 @@ public class PermissionStoreTest {
         Assert.assertEquals(groups.stringValue(), "xyz,pqr");
     }
 
-    @Test
+    @Test(description = "Test case for reading groups of non-existing user")
     public void testReadGroupsForNonExistingUser() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testReadGroupsForNonExistingUser");
         Assert.assertTrue(returns != null);
         Assert.assertNull(returns[0].stringValue());
     }
 
-    @Test
+    @Test(description = "Test case for reading groups of a user")
     public void testReadGroupsForUser() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testReadGroupsForUser");
         Assert.assertTrue(returns != null);

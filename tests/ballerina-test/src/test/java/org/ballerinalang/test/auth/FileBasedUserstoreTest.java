@@ -48,15 +48,13 @@ public class FileBasedUserstoreTest {
     private static final String BALLERINA_CONF = "ballerina.conf";
     private CompileResult compileResult;
     private String resourceRoot;
-    private Path sourceRoot;
-    private Path ballerinaConfPath;
     private Path ballerinaConfCopyPath;
 
     @BeforeClass
     public void setup() throws Exception {
         resourceRoot = getClass().getProtectionDomain().getCodeSource().getLocation().getPath();
-        sourceRoot = Paths.get(resourceRoot, "test-src", "auth");
-        ballerinaConfPath = Paths
+        Path sourceRoot = Paths.get(resourceRoot, "test-src", "auth");
+        Path ballerinaConfPath = Paths
                 .get(resourceRoot, "datafiles", "config", "auth", "basicauth", "userstore", BALLERINA_CONF);
         ballerinaConfCopyPath = sourceRoot.resolve(BALLERINA_CONF);
 
@@ -78,42 +76,42 @@ public class FileBasedUserstoreTest {
         return runtimeConfigs;
     }
 
-    @Test
+    @Test(description = "Test case for creating file based userstore")
     public void testCreateFileBasedUserstore() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testCreateFileBasedUserstore");
         Assert.assertTrue(returns != null);
         Assert.assertTrue(returns[0] instanceof BStruct);
     }
 
-    @Test
+    @Test(description = "Test case for authenticating non-existing user")
     public void testAuthenticationOfNonExistingUser() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testAuthenticationOfNonExistingUser");
         Assert.assertTrue(returns != null);
         Assert.assertFalse(((BBoolean) returns[0]).booleanValue());
     }
 
-    @Test
+    @Test(description = "Test case for authenticating with invalid password")
     public void testAuthenticationOfNonExistingPassword() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testAuthenticationOfNonExistingPassword");
         Assert.assertTrue(returns != null);
         Assert.assertFalse(((BBoolean) returns[0]).booleanValue());
     }
 
-    @Test
+    @Test(description = "Test case for successful authentication")
     public void testAuthentication() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testAuthentication");
         Assert.assertTrue(returns != null);
         Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
     }
 
-    @Test
+    @Test(description = "Test case for reading groups of non-existing user")
     public void testReadGroupsOfNonExistingUser() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testReadGroupsOfNonExistingUser");
         Assert.assertTrue(returns != null);
         Assert.assertNull(returns[0].stringValue());
     }
 
-    @Test
+    @Test(description = "Test case for reading groups of a user")
     public void testReadGroupsOfUser() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testReadGroupsOfUser");
         Assert.assertTrue(returns != null);

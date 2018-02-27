@@ -49,15 +49,13 @@ public class AuthorizationTest {
     private static final String BALLERINA_CONF = "ballerina.conf";
     private CompileResult compileResult;
     private String resourceRoot;
-    private Path sourceRoot;
-    private Path ballerinaConfPath;
     private Path ballerinaConfCopyPath;
 
     @BeforeClass
     public void setup() throws Exception {
         resourceRoot = getClass().getProtectionDomain().getCodeSource().getLocation().getPath();
-        sourceRoot = Paths.get(resourceRoot, "test-src", "auth");
-        ballerinaConfPath = Paths
+        Path sourceRoot = Paths.get(resourceRoot, "test-src", "auth");
+        Path ballerinaConfPath = Paths
                 .get(resourceRoot, "datafiles", "config", "auth", "authorization", "permissionstore", BALLERINA_CONF);
         ballerinaConfCopyPath = sourceRoot.resolve(BALLERINA_CONF);
 
@@ -79,7 +77,7 @@ public class AuthorizationTest {
         return runtimeConfigs;
     }
 
-    @Test
+    @Test(description = "Test case for creating authz checker without a cache")
     public void testCreateAuthzCheckerWithoutCache() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testAuthzCheckerCreationWithoutCache");
         Assert.assertTrue(returns != null);
@@ -89,7 +87,7 @@ public class AuthorizationTest {
         Assert.assertTrue(returns[2] == null);
     }
 
-    @Test
+    @Test(description = "Test case for creating authz checker with cache")
     public void testCreateAuthzCheckerWithCache() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testAuthzCheckerCreationWithCache");
         Assert.assertTrue(returns != null);
@@ -99,26 +97,27 @@ public class AuthorizationTest {
         Assert.assertTrue(returns[2] != null);
     }
 
-    @Test(expectedExceptions = BLangRuntimeException.class)
-    public void testCreateBasicAuthenticatorWithoutPermissionstore() {
-        BRunUtil.invoke(compileResult, "testCreateBasicAuthenticatorWithoutPermissionstore");
+    @Test(description = "Test case for creating authz checker without permission store", expectedExceptions =
+            BLangRuntimeException.class)
+    public void testAuthzCheckerWithoutPermissionstore() {
+        BRunUtil.invoke(compileResult, "testAuthzCheckerWithoutPermissionstore");
     }
 
-    @Test
+    @Test(description = "Test case for checking authorization for non existing user")
     public void testAuthorizationForNonExistingUser() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testAuthorizationForNonExistingUser");
         Assert.assertTrue(returns[0] instanceof BBoolean);
         Assert.assertFalse(((BBoolean) returns[0]).booleanValue());
     }
 
-    @Test
+    @Test(description = "Test case for checking authorization for non existing scope")
     public void testAuthorizationForNonExistingScope() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testAuthorizationForNonExistingScope");
         Assert.assertTrue(returns[0] instanceof BBoolean);
         Assert.assertFalse(((BBoolean) returns[0]).booleanValue());
     }
 
-    @Test
+    @Test(description = "Test case for checking authorization success")
     public void testAuthorizationSuccess() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testAuthorizationSuccess");
         Assert.assertTrue(returns[0] instanceof BBoolean);

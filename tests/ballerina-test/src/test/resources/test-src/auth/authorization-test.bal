@@ -20,7 +20,7 @@ function testAuthzCheckerCreationWithCache () (authz:AuthzChecker,
     return checker, checker.permissionstore, checker.authzCache;
 }
 
-function testCreateBasicAuthenticatorWithoutPermissionstore () {
+function testAuthzCheckerWithoutPermissionstore () {
     _ = authz:createChecker(null, null);
 }
 

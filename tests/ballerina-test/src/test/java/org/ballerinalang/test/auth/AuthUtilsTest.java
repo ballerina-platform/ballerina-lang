@@ -46,15 +46,13 @@ public class AuthUtilsTest {
     private static final String BALLERINA_CONF = "ballerina.conf";
     private CompileResult compileResult;
     private String resourceRoot;
-    private Path sourceRoot;
-    private Path ballerinaConfPath;
     private Path ballerinaConfCopyPath;
 
     @BeforeClass
     public void setup() throws Exception {
         resourceRoot = getClass().getProtectionDomain().getCodeSource().getLocation().getPath();
-        sourceRoot = Paths.get(resourceRoot, "test-src", "auth");
-        ballerinaConfPath = Paths.get(resourceRoot, "datafiles", "config", "auth", "caching", BALLERINA_CONF);
+        Path sourceRoot = Paths.get(resourceRoot, "test-src", "auth");
+        Path ballerinaConfPath = Paths.get(resourceRoot, "datafiles", "config", "auth", "caching", BALLERINA_CONF);
         ballerinaConfCopyPath = sourceRoot.resolve(BALLERINA_CONF);
 
         // Copy the ballerina.conf to the source root before starting the tests
@@ -74,7 +72,7 @@ public class AuthUtilsTest {
         return runtimeConfigs;
     }
 
-    @Test
+    @Test(description = "Test case for creating a cache which is disabled from configs")
     public void testCreateDisabledBasicAuthCache() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testCreateDisabledBasicAuthCache");
         Assert.assertTrue(returns != null);
@@ -82,7 +80,7 @@ public class AuthUtilsTest {
         Assert.assertTrue(returns[0] == null);
     }
 
-    @Test
+    @Test(description = "Test case for creating a cache")
     public void testCreateAuthzCache() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testCreateAuthzCache");
         Assert.assertTrue(returns != null);
@@ -90,7 +88,7 @@ public class AuthUtilsTest {
         Assert.assertTrue(returns[0] != null);
     }
 
-    @Test
+    @Test(description = "Test case for extracting credentials from invalid header")
     public void testExtractBasicAuthCredentialsFromInvalidHeader() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testExtractBasicAuthCredentialsFromInvalidHeader");
         Assert.assertTrue(returns != null);
@@ -100,7 +98,7 @@ public class AuthUtilsTest {
         Assert.assertTrue(returns[2] != null);
     }
 
-    @Test
+    @Test(description = "Test case for extracting credentials from basic auth header")
     public void testExtractBasicAuthCredentials() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testExtractBasicAuthCredentials");
         Assert.assertTrue(returns != null);
@@ -111,7 +109,7 @@ public class AuthUtilsTest {
         Assert.assertTrue(returns[2] == null);
     }
 
-    @Test
+    @Test(description = "Test case for extracting invalid basic auth header value")
     public void testExtractInvalidBasicAuthHeaderValue() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testExtractInvalidBasicAuthHeaderValue");
         Assert.assertTrue(returns != null);
@@ -121,7 +119,7 @@ public class AuthUtilsTest {
         Assert.assertTrue(returns[1] != null);
     }
 
-    @Test
+    @Test(description = "Test case for extracting basic auth header value")
     public void testExtractBasicAuthHeaderValue() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testExtractBasicAuthHeaderValue");
         Assert.assertTrue(returns != null);

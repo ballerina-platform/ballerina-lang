@@ -48,15 +48,13 @@ public class BasicAuthenticationTest {
     private static final String BALLERINA_CONF = "ballerina.conf";
     private CompileResult compileResult;
     private String resourceRoot;
-    private Path sourceRoot;
-    private Path ballerinaConfPath;
     private Path ballerinaConfCopyPath;
 
     @BeforeClass
     public void setup() throws Exception {
         resourceRoot = getClass().getProtectionDomain().getCodeSource().getLocation().getPath();
-        sourceRoot = Paths.get(resourceRoot, "test-src", "auth");
-        ballerinaConfPath = Paths
+        Path sourceRoot = Paths.get(resourceRoot, "test-src", "auth");
+        Path ballerinaConfPath = Paths
                 .get(resourceRoot, "datafiles", "config", "auth", "basicauth", "userstore", BALLERINA_CONF);
         ballerinaConfCopyPath = sourceRoot.resolve(BALLERINA_CONF);
 
@@ -78,7 +76,7 @@ public class BasicAuthenticationTest {
         return runtimeConfigs;
     }
 
-    @Test
+    @Test(description = "Test case for creating basic authenticator without a cache")
     public void testCreateBasicAuthenticatorWithoutCache() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testBasicAuthenticatorCreationWithoutCache");
         Assert.assertTrue(returns != null);
@@ -88,7 +86,7 @@ public class BasicAuthenticationTest {
         Assert.assertTrue(returns[2] == null);
     }
 
-    @Test
+    @Test(description = "Test case for creating basic authenticator with a cache")
     public void testCreateBasicAuthenticatorWithCache() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testBasicAuthenticatorCreationWithCache");
         Assert.assertTrue(returns != null);
@@ -98,25 +96,27 @@ public class BasicAuthenticationTest {
         Assert.assertTrue(returns[2] != null);
     }
 
-    @Test(expectedExceptions = BLangRuntimeException.class)
+    @Test(description = "Test case for creating basic authenticator without userstore", expectedExceptions =
+            BLangRuntimeException.class)
     public void testCreateBasicAuthenticatorWithoutUserstore() {
         BRunUtil.invoke(compileResult, "testCreateBasicAuthenticatorWithoutUserstore");
     }
 
-    @Test public void testAuthenticationForNonExistingUser() {
+    @Test(description = "Test case for authenticating non-existing user")
+    public void testAuthenticationForNonExistingUser() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testAuthenticationForNonExistingUser");
         Assert.assertTrue(returns[0] instanceof BBoolean);
         Assert.assertFalse(((BBoolean) returns[0]).booleanValue());
     }
 
-    @Test
+    @Test(description = "Test case for authenticaing with invalid password")
     public void testAuthenticationWithWrongPassword() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testAuthenticationWithWrongPassword");
         Assert.assertTrue(returns[0] instanceof BBoolean);
         Assert.assertFalse(((BBoolean) returns[0]).booleanValue());
     }
 
-    @Test
+    @Test(description = "Test authentication success")
     public void testAuthenticationSuccess() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testAuthenticationSuccess");
         Assert.assertTrue(returns[0] instanceof BBoolean);
