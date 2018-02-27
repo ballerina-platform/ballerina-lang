@@ -123,73 +123,10 @@ public class DeepEquals extends AbstractNativeFunction {
                 if (!Arrays.equals(lhsStructType.getFieldTypeCount(), rhsStructType.getFieldTypeCount())) {
                     return false;
                 }
-                
-                BStruct lhsStruct = (BStruct) lhsValue;
-                BStruct rhStruct = (BStruct) rhsValue;
-                
-                // Checking equality for integer fields.
-                for (int i = 0; i < lhsStructType.getFieldTypeCount()[0]; i++) {
-                    if (lhsStruct.getIntField(i) != rhStruct.getIntField(i)) {
-                        return false;
-                    }
-                }
     
-                // Checking equality for float fields.
-                for (int i = 0; i < lhsStructType.getFieldTypeCount()[1]; i++) {
-                    if (Double.compare(lhsStruct.getFloatField(i), rhStruct.getFloatField(i)) != 0) {
-                        return false;
-                    }
-                }
-                
-                // Checking equality for string fields.
-                for (int i = 0; i < lhsStructType.getFieldTypeCount()[2]; i++) {
-                    if (!lhsStruct.getStringField(i).equals(rhStruct.getStringField(i))) {
-                        return false;
-                    }
-                }
-                
-                // Checking equality for boolean fields.
-                for (int i = 0; i < lhsStructType.getFieldTypeCount()[3]; i++) {
-                    if (lhsStruct.getBooleanField(i) != rhStruct.getBooleanField(i)) {
-                        return false;
-                    }
-                }
-                
-                // Checking equality for byte fields.
-                for (int i = 0; i < lhsStructType.getFieldTypeCount()[4]; i++) {
-                    if (!Arrays.equals(lhsStruct.getBlobField(i), rhStruct.getBlobField(i))) {
-                        return false;
-                    }
-                }
-                
-                // Checking equality for refs fields.
-                for (int i = 0; i < lhsStructType.getFieldTypeCount()[5]; i++) {
-                    if (!isDeepEqual(lhsStruct.getRefField(i), rhStruct.getRefField(i))) {
-                        return false;
-                    }
-                }
-                break;
+                return !isDeepEqual((BStruct) lhsValue, (BStruct) rhsValue, lhsStructType);
             case TypeTags.MAP_TAG:
-                BMap lhsMap = (BMap) lhsValue;
-                BMap rhsMap = (BMap) rhsValue;
-                // Check if size is same.
-                if (lhsMap.size() != rhsMap.size()) {
-                    return false;
-                }
-                
-                // Check if key set is equal.
-                if (!lhsMap.keySet().containsAll(rhsMap.keySet())) {
-                    return false;
-                }
-                
-                List<String> keys = Arrays.stream(lhsMap.keySet().toArray()).map(String.class::cast).collect
-                        (Collectors.toList());
-                for (int i = 0; i < lhsMap.size(); i++) {
-                    if (!isDeepEqual(lhsMap.get(keys.get(i)), rhsMap.get(keys.get(i)))) {
-                        return false;
-                    }
-                }
-                break;
+                return !isDeepEqual((BMap) lhsValue, (BMap) rhsValue);
             case TypeTags.ARRAY_TAG:
             case TypeTags.ANY_TAG:
                 // TODO: This block should ideally be in the ARRAY_TAG case only. Not ANY_TAG. #4505.
@@ -215,6 +152,85 @@ public class DeepEquals extends AbstractNativeFunction {
         }
         
         return true;
+    }
+    
+    /**
+     * Check if Structs are deeply equals.
+     * @param lhsStruct Left hand side struct value.
+     * @param rhsStruct Rigth hand side struct value.
+     * @param structType Struct type.
+     * @return True if deeply equals, else false.
+     */
+    private boolean isDeepEqual(BStruct lhsStruct, BStruct rhsStruct, BStructType structType) {
+        // Checking equality for integer fields.
+        for (int i = 0; i < structType.getFieldTypeCount()[0]; i++) {
+            if (lhsStruct.getIntField(i) != rhsStruct.getIntField(i)) {
+                return true;
+            }
+        }
+        
+        // Checking equality for float fields.
+        for (int i = 0; i < structType.getFieldTypeCount()[1]; i++) {
+            if (Double.compare(lhsStruct.getFloatField(i), rhsStruct.getFloatField(i)) != 0) {
+                return true;
+            }
+        }
+        
+        // Checking equality for string fields.
+        for (int i = 0; i < structType.getFieldTypeCount()[2]; i++) {
+            if (!lhsStruct.getStringField(i).equals(rhsStruct.getStringField(i))) {
+                return true;
+            }
+        }
+        
+        // Checking equality for boolean fields.
+        for (int i = 0; i < structType.getFieldTypeCount()[3]; i++) {
+            if (lhsStruct.getBooleanField(i) != rhsStruct.getBooleanField(i)) {
+                return true;
+            }
+        }
+        
+        // Checking equality for byte fields.
+        for (int i = 0; i < structType.getFieldTypeCount()[4]; i++) {
+            if (!Arrays.equals(lhsStruct.getBlobField(i), rhsStruct.getBlobField(i))) {
+                return true;
+            }
+        }
+        
+        // Checking equality for refs fields.
+        for (int i = 0; i < structType.getFieldTypeCount()[5]; i++) {
+            if (!isDeepEqual(lhsStruct.getRefField(i), rhsStruct.getRefField(i))) {
+                return true;
+            }
+        }
+        return false;
+    }
+    
+    /**
+     * Check if a map is deeply equals.
+     * @param lhsMap Left hand side map.
+     * @param rhsMap Right hand side map.
+     * @return Return if maps are deeply equal.
+     */
+    private boolean isDeepEqual(BMap lhsMap, BMap rhsMap) {
+        // Check if size is same.
+        if (lhsMap.size() != rhsMap.size()) {
+            return true;
+        }
+        
+        // Check if key set is equal.
+        if (!lhsMap.keySet().containsAll(rhsMap.keySet())) {
+            return true;
+        }
+        
+        List<String> keys = Arrays.stream(lhsMap.keySet().toArray()).map(String.class::cast).collect
+                (Collectors.toList());
+        for (int i = 0; i < lhsMap.size(); i++) {
+            if (!isDeepEqual(lhsMap.get(keys.get(i)), rhsMap.get(keys.get(i)))) {
+                return true;
+            }
+        }
+        return false;
     }
     
     /**
