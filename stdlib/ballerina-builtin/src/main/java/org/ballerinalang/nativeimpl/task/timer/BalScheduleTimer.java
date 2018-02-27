@@ -53,6 +53,7 @@ public class BalScheduleTimer extends BlockingNativeCallableUnit {
         } else {
             ctx.setReturnValues(new BString(""),
                     BLangVMErrors.createError(ctx, 0, "The onTrigger function is not provided"));
+            return;
         }
         if (ctx.getLocalWorkerData().refRegs[1] != null &&
                 ctx.getLocalWorkerData().refRegs[1] instanceof BFunctionPointer) {

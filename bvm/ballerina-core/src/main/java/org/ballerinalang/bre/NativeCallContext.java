@@ -222,7 +222,13 @@ public class NativeCallContext implements Context {
 
     @Override
     public void setReturnValue(int index, BValue value) {
-        // FIXME
+        if (returnValues == null) {
+            synchronized (NativeCallContext.class) {
+                if (returnValues == null) {
+                    returnValues = new BValue[0];
+                }
+            }
+        }
     }
 
     @Override

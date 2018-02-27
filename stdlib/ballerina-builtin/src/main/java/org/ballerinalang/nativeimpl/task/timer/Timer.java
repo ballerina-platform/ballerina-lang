@@ -19,6 +19,7 @@
 package org.ballerinalang.nativeimpl.task.timer;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.model.NativeCallableUnit;
 import org.ballerinalang.nativeimpl.task.SchedulingException;
 import org.ballerinalang.nativeimpl.task.TaskException;
 import org.ballerinalang.nativeimpl.task.TaskExecutor;
@@ -49,7 +50,7 @@ public class Timer {
      * @param onTriggerFunction The main function which will be triggered by the task.
      * @param onErrorFunction   The function which will be triggered in the error situation.
      */
-    public Timer(AbstractNativeFunction fn, Context ctx, long delay, long interval,
+    public Timer(NativeCallableUnit fn, Context ctx, long delay, long interval,
                  FunctionRefCPEntry onTriggerFunction,
                  FunctionRefCPEntry onErrorFunction) throws SchedulingException {
 
@@ -75,7 +76,7 @@ public class Timer {
      * @param onTriggerFunction The main function which will be triggered by the task.
      * @param onErrorFunction   The function which will be triggered in the error situation.
      */
-    private static void callTriggerFunction(AbstractNativeFunction fn, Context parentCtx,
+    private static void callTriggerFunction(NativeCallableUnit fn, Context parentCtx,
                                             FunctionRefCPEntry onTriggerFunction,
                                             FunctionRefCPEntry onErrorFunction) {
         ProgramFile programFile = parentCtx.getProgramFile();

@@ -23,7 +23,7 @@ import static org.quartz.JobBuilder.newJob;
 import static org.quartz.TriggerBuilder.newTrigger;
 
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.natives.AbstractNativeFunction;
+import org.ballerinalang.model.NativeCallableUnit;
 import org.ballerinalang.util.codegen.cpentries.FunctionRefCPEntry;
 import org.quartz.CronTrigger;
 import org.quartz.Job;
@@ -61,7 +61,7 @@ public class AppointmentManager {
         return instance;
     }
 
-    void schedule(String taskId, AbstractNativeFunction fn, Class<? extends Job> jobClass,
+    void schedule(String taskId, NativeCallableUnit fn, Class<? extends Job> jobClass,
                   Context balParentContext, FunctionRefCPEntry onTriggerFunction,
                   FunctionRefCPEntry onErrorFunction, String cronExpression) throws SchedulerException {
         JobDataMap jobData = new JobDataMap();
