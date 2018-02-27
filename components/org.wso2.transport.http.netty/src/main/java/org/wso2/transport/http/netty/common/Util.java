@@ -37,6 +37,7 @@ import org.wso2.transport.http.netty.config.Parameter;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 
 import java.io.File;
+import java.net.InetSocketAddress;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -538,6 +539,11 @@ public class Util {
         String forwardedHeader = httpOutboundRequest.getHeader(Constants.FORWARDED);
         StringBuilder headerValue = new StringBuilder();
         if (forwardedHeader == null) {
+            Object remoteAddressProperty = httpOutboundRequest.getProperty(Constants.REMOTE_ADDRESS);
+            if (remoteAddressProperty != null) {
+                String remoteAddress = ((InetSocketAddress) remoteAddressProperty).getAddress().getHostAddress();
+                headerValue.append("for=" + resolveIP(remoteAddress) + ";");
+            }
             headerValue.append("by=" + resolveIP(localAddress));
             String hostHeader = httpOutboundRequest.getHeader(HttpHeaderNames.HOST.toString());
             if (hostHeader != null) {
@@ -559,7 +565,7 @@ public class Util {
             if (part.toLowerCase().contains("for=")) {
                 previousForValue = part.trim();
             } else if (part.toLowerCase().contains("by=")) {
-                previousByValue = URLvalidate(part.trim().substring(3));
+                previousByValue = part.trim().substring(3);
             } else if (part.toLowerCase().contains("host=")) {
                 previousHostValue = part.substring(5);
             } else if (part.toLowerCase().contains("proto=")) {

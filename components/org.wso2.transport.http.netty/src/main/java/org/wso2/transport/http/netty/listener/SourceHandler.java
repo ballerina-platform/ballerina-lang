@@ -49,6 +49,7 @@ import org.wso2.transport.http.netty.message.HttpCarbonRequest;
 import org.wso2.transport.http.netty.message.PooledDataStreamerFactory;
 
 import java.net.InetSocketAddress;
+import java.net.SocketAddress;
 import java.net.URISyntaxException;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -69,6 +70,7 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
     private String serverName;
     private boolean idleTimeout;
     protected ChannelHandlerContext ctx;
+    private SocketAddress remoteAddress;
 
     public SourceHandler(ServerConnectorFuture serverConnectorFuture, String interfaceId, ChunkConfig chunkConfig,
             String serverName) {
@@ -93,6 +95,7 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
             this.handlerExecutor.executeAtSourceConnectionInitiation(Integer.toString(ctx.hashCode()));
         }
         this.ctx = ctx;
+        this.remoteAddress = ctx.channel().remoteAddress();
     }
 
     @SuppressWarnings("unchecked")
@@ -162,6 +165,7 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
         sourceReqCmsg.setProperty(Constants.IS_SECURED_CONNECTION, isSecuredConnection);
 
         sourceReqCmsg.setProperty(Constants.LOCAL_ADDRESS, ctx.channel().localAddress());
+        sourceReqCmsg.setProperty(Constants.REMOTE_ADDRESS, remoteAddress);
         sourceReqCmsg.setProperty(Constants.REQUEST_URL, httpRequest.uri());
         sourceReqCmsg.setProperty(Constants.TO, httpRequest.uri());
         //Added protocol name as a string
