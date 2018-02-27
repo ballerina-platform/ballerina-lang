@@ -97,8 +97,8 @@ public class BallerinaFile {
                 reqMessageName = getMappingBalType(typeIn);
                 resMessageName = getMappingBalType(typeOut);
                 if ((descriptorProtoMap.get(typeIn) != null) && (descriptorProtoMap.get(typeOut) != null) &&
-                        (descriptorProtoMap.get(typeIn).getFieldList().size() == 0) &&
-                        (descriptorProtoMap.get(typeOut).getFieldList().size() == 0)) {
+                        (descriptorProtoMap.get(typeIn).getFieldList().size() != 0) &&
+                        (descriptorProtoMap.get(typeOut).getFieldList().size() != 0)) {
                     reqStructFieldName = descriptorProtoMap.get(typeIn).getFieldList().get(0).getName();
                     reqStructFieldType = getTypeName(descriptorProtoMap.get(typeIn).getFieldList().get(0)
                             .getType().getNumber());
