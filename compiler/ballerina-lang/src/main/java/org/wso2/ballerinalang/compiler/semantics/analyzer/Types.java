@@ -23,6 +23,8 @@ import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BCastOperatorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConversionOperatorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BStructSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BStructSymbol.BAttachedFunction;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BAnyType;
@@ -36,7 +38,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BJSONType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStructType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BStructType.BAttachedFunction;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStructType.BStructField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
@@ -321,8 +322,10 @@ public class Types {
         //RHS type should have at least all the fields as well attached functions of LHS type.
         BStructType lhsStructType = (BStructType) lhsType;
         BStructType rhsStructType = (BStructType) rhsType;
+
         if (lhsStructType.fields.size() > rhsStructType.fields.size() ||
-                lhsStructType.attachedFuncs.size() > rhsStructType.attachedFuncs.size()) {
+                ((BStructSymbol) lhsStructType.tsymbol).attachedFuncs.size() >
+                        ((BStructSymbol) rhsStructType.tsymbol).attachedFuncs.size()) {
             return false;
         }
 
@@ -940,8 +943,8 @@ public class Types {
             return false;
         }
 
-        List<BAttachedFunction> lhsFuncs = lhsType.attachedFuncs;
-        List<BAttachedFunction> rhsFuncs = rhsType.attachedFuncs;
+        List<BAttachedFunction> lhsFuncs = ((BStructSymbol) lhsType.tsymbol).attachedFuncs;
+        List<BAttachedFunction> rhsFuncs = ((BStructSymbol) rhsType.tsymbol).attachedFuncs;
         for (BAttachedFunction lhsFunc : lhsFuncs) {
             BAttachedFunction rhsFunc = getMatchingInvokableType(rhsFuncs, lhsFunc);
             if (rhsFunc == null) {
@@ -975,8 +978,8 @@ public class Types {
             }
         }
 
-        List<BAttachedFunction> lhsFuncs = lhsType.attachedFuncs;
-        List<BAttachedFunction> rhsFuncs = rhsType.attachedFuncs;
+        List<BAttachedFunction> lhsFuncs = ((BStructSymbol) lhsType.tsymbol).attachedFuncs;
+        List<BAttachedFunction> rhsFuncs = ((BStructSymbol) rhsType.tsymbol).attachedFuncs;
         for (BAttachedFunction lhsFunc : lhsFuncs) {
             if (Symbols.isPrivate(lhsFunc.symbol)) {
                 return false;
