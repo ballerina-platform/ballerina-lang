@@ -597,7 +597,6 @@ class FileOpenDialog extends React.Component {
                         Open
                     </Button>
                 }
-                closeAction
                 onHide={this.onDialogHide}
                 error={this.state.error}
             >
