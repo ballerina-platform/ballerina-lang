@@ -2,6 +2,7 @@ package ballerina.net.http;
 
 import ballerina.mime;
 import ballerina.file;
+import ballerina.io;
 
 const string HEADER_VAL_100_CONTINUE = "100-continue";
 const string HEADER_KEY_EXPECT = "Expect";
@@ -156,7 +157,7 @@ public function <OutRequest request> getStringPayload () (string) {
     return entity.getText();
 }
 
-@Description {value:"Gets the inboundrequest payload in blob format"}
+@Description {value:"Gets the inbound request payload in blob format"}
 @Param {value:"request: The inbound request message"}
 @Return {value:"The blob representation of the message payload"}
 public function <InRequest request> getBinaryPayload () (blob) {
@@ -164,12 +165,29 @@ public function <InRequest request> getBinaryPayload () (blob) {
     return entity.getBlob();
 }
 
+
 @Description {value:"Gets the outbound request payload in blob format"}
 @Param {value:"request: The outbound request message"}
 @Return {value:"The blob representation of the message payload"}
 public function <OutRequest request> getBinaryPayload () (blob) {
     mime:Entity entity = request.getEntity();
     return entity.getBlob();
+}
+
+@Description {value:"Gets the inbound request payload as a byte channel"}
+@Param {value:"request: The inbound request message"}
+@Return {value:"A byte channel as the message payload"}
+public function <InRequest request> getByteChannel () (io:ByteChannel) {
+    mime:Entity entity = request.getEntity();
+    return entity.getByteChannel();
+}
+
+@Description {value:"Gets the outbound request payload as a byte channel"}
+@Param {value:"request: outbound request message"}
+@Return {value:"A byte channel as the message payload"}
+public function <OutRequest request> getByteChannel () (io:ByteChannel) {
+    mime:Entity entity = request.getEntity();
+    return entity.getByteChannel();
 }
 
 @Description {value:"Gets the form parameters from the HTTP request as a map"}
@@ -281,6 +299,17 @@ public function <OutRequest request> setFileAsPayload (file:File fileHandler, st
     mime:MediaType mediaType = mime:getMediaType(contentType);
     mime:Entity entity = request.getEntityWithoutBody();
     entity.setFileAsEntityBody(fileHandler);
+    entity.contentType = mediaType;
+    request.setEntity(entity);
+}
+
+@Description {value:"Sets a byte channel as the outbound request payload"}
+@Param {value:"request: outbound request message"}
+@Param {value:"payload: The byte channel representation of the message payload"}
+public function <OutRequest request> setByteChannel (io:ByteChannel byteChannel) {
+    mime:Entity entity = request.getEntityWithoutBody();
+    entity.setByteChannel(byteChannel);
+    mime:MediaType mediaType = mime:getMediaType(mime:APPLICATION_OCTET_STREAM);
     entity.contentType = mediaType;
     request.setEntity(entity);
 }

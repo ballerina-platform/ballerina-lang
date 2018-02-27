@@ -19,6 +19,7 @@
 package org.ballerinalang.test.mime;
 
 import org.ballerinalang.launcher.util.BCompileUtil;
+import org.ballerinalang.launcher.util.BServiceUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.mime.util.EntityBodyHandler;
 import org.ballerinalang.mime.util.MimeUtil;
@@ -27,14 +28,20 @@ import org.ballerinalang.mime.util.MultipartDecoder;
 import org.ballerinalang.model.values.BJSON;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BXML;
+import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.runtime.message.BlobDataSource;
 import org.ballerinalang.runtime.message.StringDataSource;
+import org.ballerinalang.test.services.testutils.HTTPTestRequest;
+import org.ballerinalang.test.services.testutils.MessageUtils;
+import org.ballerinalang.test.services.testutils.Services;
 import org.jvnet.mimepull.MIMEPart;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
+import org.wso2.transport.http.netty.message.HttpMessageDataStreamer;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -46,6 +53,7 @@ import javax.activation.MimeTypeParseException;
 import static org.ballerinalang.mime.util.Constants.CONTENT_DISPOSITION_FILENAME_INDEX;
 import static org.ballerinalang.mime.util.Constants.CONTENT_DISPOSITION_INDEX;
 import static org.ballerinalang.mime.util.Constants.CONTENT_DISPOSITION_NAME_INDEX;
+import static org.ballerinalang.mime.util.Constants.CONTENT_TYPE;
 import static org.ballerinalang.mime.util.Constants.DISPOSITION_INDEX;
 
 /**
@@ -56,13 +64,15 @@ import static org.ballerinalang.mime.util.Constants.DISPOSITION_INDEX;
 public class MultipartEncoderTest {
     private static final Logger log = LoggerFactory.getLogger(MultipartEncoderTest.class);
 
-    private CompileResult result;
+    private CompileResult result, serviceResult;
 
     @BeforeClass
     public void setup() {
         //Used only to get an instance of CompileResult.
         String sourceFilePath = "test-src/mime/dummy.bal";
         result = BCompileUtil.compile(sourceFilePath);
+        String sourceFilePathForServices = "test-src/mime/multipart-response.bal";
+        serviceResult = BServiceUtil.setupProgramFile(this, sourceFilePathForServices);
     }
 
     @Test(description = "Test whether the body parts get correctly encoded for multipart/mixed")
@@ -183,5 +193,44 @@ public class MultipartEncoderTest {
                 "\"filepart\"");
         Assert.assertEquals(contentDisposition.getStringField(DISPOSITION_INDEX),
                 "form-data");
+    }
+
+    @Test(description = "Test whether the encoded body parts can be sent through OutResponse, with a given boundary")
+    public void testMultipartsInOutResponse() {
+        String path = "/multipart/encode_out_response";
+        HTTPTestRequest inRequestMsg = MessageUtils.generateHTTPMessage(path, HttpConstants.HTTP_METHOD_GET);
+        HTTPCarbonMessage response = Services.invokeNew(serviceResult, inRequestMsg);
+        Assert.assertNotNull(response, "Response message not found");
+        InputStream inputStream = new HttpMessageDataStreamer(response).getInputStream();
+        try {
+            List<MIMEPart> mimeParts = MultipartDecoder.decodeBodyParts("multipart/mixed; boundary=" +
+                    "e3a0b9ad7b4e7cdb", inputStream);
+            Assert.assertEquals(mimeParts.size(), 4);
+            BStruct bodyPart = Util.getEntityStruct(result);
+            validateBodyPartContent(mimeParts, bodyPart);
+        } catch (MimeTypeParseException e) {
+            log.error("Error occurred while testing mulitpart/mixed encoding", e.getMessage());
+        } catch (IOException e) {
+            log.error("Error occurred while decoding binary part", e.getMessage());
+        }
+    }
+
+    @Test(description = "Retrieve body parts from the InRequest and send it across OutResponse")
+    public void testNestedPartsInOutResponse() {
+        String path = "/multipart/nested_parts_in_outresponse";
+        HTTPTestRequest inRequestMsg = Util.createNestedPartRequest(path);
+        HTTPCarbonMessage response = Services.invokeNew(serviceResult, inRequestMsg);
+        Assert.assertNotNull(response, "Response message not found");
+        InputStream inputStream = new HttpMessageDataStreamer(response).getInputStream();
+        try {
+            List<MIMEPart> mimeParts = MultipartDecoder.decodeBodyParts(inRequestMsg.getHeader(CONTENT_TYPE),
+                    inputStream);
+            Assert.assertEquals(mimeParts.size(), 2);
+            List<MIMEPart> childParts = MultipartDecoder.decodeBodyParts(mimeParts.get(1).getContentType(),
+                    inputStream);
+            Assert.assertEquals(childParts.size(), 2);
+        } catch (MimeTypeParseException e) {
+            log.error("Error occurred while testing mulitpart/mixed encoding", e.getMessage());
+        }
     }
 }

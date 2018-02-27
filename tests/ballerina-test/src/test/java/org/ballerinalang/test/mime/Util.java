@@ -25,6 +25,7 @@ import io.netty.handler.codec.http.multipart.FileUpload;
 import io.netty.handler.codec.http.multipart.HttpDataFactory;
 import io.netty.handler.codec.http.multipart.HttpPostRequestEncoder;
 import io.netty.handler.codec.http.multipart.InterfaceHttpData;
+import io.netty.util.internal.StringUtil;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.mime.util.EntityBodyChannel;
@@ -48,6 +49,7 @@ import org.ballerinalang.test.services.testutils.HTTPTestRequest;
 import org.ballerinalang.test.services.testutils.MessageUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.wso2.carbon.messaging.Header;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 
 import java.io.BufferedWriter;
@@ -58,6 +60,7 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -68,6 +71,7 @@ import static org.ballerinalang.mime.util.Constants.BYTE_CHANNEL_STRUCT;
 import static org.ballerinalang.mime.util.Constants.CONTENT_DISPOSITION_NAME;
 import static org.ballerinalang.mime.util.Constants.CONTENT_DISPOSITION_STRUCT;
 import static org.ballerinalang.mime.util.Constants.CONTENT_TRANSFER_ENCODING;
+import static org.ballerinalang.mime.util.Constants.CONTENT_TYPE;
 import static org.ballerinalang.mime.util.Constants.ENTITY_BYTE_CHANNEL;
 import static org.ballerinalang.mime.util.Constants.ENTITY_HEADERS_INDEX;
 import static org.ballerinalang.mime.util.Constants.MEDIA_TYPE;
@@ -562,6 +566,47 @@ public class Util {
         } else {
             return getRandomString();
         }
+    }
+
+    /**
+     * Two body parts have been wrapped inside multipart/mixed which in turn acts as the child part for the parent
+     * multipart/form-data.
+     *
+     * @param path Resource path
+     * @return HTTPTestRequest with nested parts as the entity body
+     */
+    static HTTPTestRequest createNestedPartRequest(String path) {
+        List<Header> headers = new ArrayList<>();
+        String multipartDataBoundary = MimeUtil.getNewMultipartDelimiter();
+        String multipartMixedBoundary = MimeUtil.getNewMultipartDelimiter();
+        headers.add(new Header(CONTENT_TYPE, "multipart/form-data; boundary=" + multipartDataBoundary));
+        String multipartBodyWithNestedParts = "--" + multipartDataBoundary + "\r\n" +
+                "Content-Disposition: form-data; name=\"parent1\"" + "\r\n" +
+                "Content-Type: text/plain; charset=UTF-8" + "\r\n" +
+                "\r\n" +
+                "Parent Part" + "\r\n" +
+                "--" + multipartDataBoundary + "\r\n" +
+                "Content-Disposition: form-data; name=\"parent2\"" + "\r\n" +
+                "Content-Type: multipart/mixed; boundary=" + multipartMixedBoundary + "\r\n" +
+                "\r\n" +
+                "--" + multipartMixedBoundary + "\r\n" +
+                "Content-Disposition: attachment; filename=\"file-02.txt\"" + "\r\n" +
+                "Content-Type: text/plain" + "\r\n" +
+                "Content-Transfer-Encoding: binary" + "\r\n" +
+                "\r\n" +
+                "Child Part 1" + StringUtil.NEWLINE +
+                "\r\n" +
+                "--" + multipartMixedBoundary + "\r\n" +
+                "Content-Disposition: attachment; filename=\"file-02.txt\"" + "\r\n" +
+                "Content-Type: text/plain" + "\r\n" +
+                "Content-Transfer-Encoding: binary" + "\r\n" +
+                "\r\n" +
+                "Child Part 2" + StringUtil.NEWLINE +
+                "\r\n" +
+                "--" + multipartMixedBoundary + "--" + "\r\n" +
+                "--" + multipartDataBoundary + "--" + "\r\n";
+        return MessageUtils.generateHTTPMessage(path, HttpConstants.HTTP_METHOD_POST, headers,
+                multipartBodyWithNestedParts);
     }
 
     private static String getRandomString() {
