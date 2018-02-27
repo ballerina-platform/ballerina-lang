@@ -26,20 +26,9 @@ import java.util.List;
  */
 public class Test {
 
-    List<TesterinaFunction> beforeEachFunctions = new ArrayList<>();
     List<TesterinaFunction> beforeTestFunctions = new ArrayList<>();
     TesterinaFunction testFunctions;
-    List<TesterinaFunction> afterEachFunctions = new ArrayList<>();
     List<TesterinaFunction> afterTestFunctions = new ArrayList<>();
-
-    public List<TesterinaFunction> getBeforeEachFunctions() {
-        return beforeEachFunctions;
-    }
-
-    public void setBeforeEachFunctions(
-            List<TesterinaFunction> beforeEachFunctions) {
-        this.beforeEachFunctions = beforeEachFunctions;
-    }
 
     public List<TesterinaFunction> getBeforeTestFunctions() {
         return beforeTestFunctions;
@@ -56,15 +45,6 @@ public class Test {
 
     public void setTestFunctions(TesterinaFunction testFunctions) {
         this.testFunctions = testFunctions;
-    }
-
-    public List<TesterinaFunction> getAfterEachFunctions() {
-        return afterEachFunctions;
-    }
-
-    public void setAfterEachFunctions(
-            List<TesterinaFunction> afterEachFunctions) {
-        this.afterEachFunctions = afterEachFunctions;
     }
 
     public List<TesterinaFunction> getAfterTestFunctions() {

@@ -31,6 +31,8 @@ public class TestSuite {
     private List<Test> tests = new ArrayList<>();
     private List<TesterinaFunction> beforeSuiteFunctions = new ArrayList<>();
     private List<TesterinaFunction> afterSuiteFunctions = new ArrayList<>();
+    private List<TesterinaFunction> beforeEachFunctions = new ArrayList<>();
+    private List<TesterinaFunction> afterEachFunctions = new ArrayList<>();
 
     public TestSuite(String suiteName) {
         this.suiteName = suiteName;
@@ -65,12 +67,20 @@ public class TestSuite {
         this.beforeSuiteFunctions = beforeSuiteFunctions;
     }
 
-    public void addBeforeSuiteFunction (TesterinaFunction function){
+    public void addBeforeSuiteFunction(TesterinaFunction function) {
         this.beforeSuiteFunctions.add(function);
     }
 
-    public void addAfterSuiteFunction (TesterinaFunction function){
+    public void addAfterSuiteFunction(TesterinaFunction function) {
         this.afterSuiteFunctions.add(function);
+    }
+
+    public void addBeforeEachFunction(TesterinaFunction function) {
+        this.beforeEachFunctions.add(function);
+    }
+
+    public void addAfterEachFunction(TesterinaFunction function) {
+        this.afterEachFunctions.add(function);
     }
 
     public List<TesterinaFunction> getAfterSuiteFunctions() {
