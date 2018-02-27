@@ -65,6 +65,9 @@ public class HttpConstants {
     public static final String CHUNKING_ALWAYS = "always";
     public static final String CHUNKING_NEVER = "never";
     public static final String MAX_ACTIVE_CONNECTIONS_PER_POOL = "client.max.active.connections.per.pool";
+    public static final String FORWARDED_ENABLE = "enable";
+    public static final String FORWARDED_TRANSITION = "transition";
+    public static final String FORWARDED_DISABLE = "disable";
 
     public static final String HTTP_PACKAGE_PATH = "ballerina.net.http";
 
@@ -181,7 +184,7 @@ public class HttpConstants {
     public static final int TRANSFER_ENCODING = 0;
     public static final int ENABLE_CHUNKING_INDEX = 1;
     public static final int IS_KEEP_ALIVE_INDEX = 0;
-    public static final int FORWARDED_EXTENSION_ENABLED_INDEX = 1;
+    public static final int FORWARDED_EXTENSION_INDEX = 1;
     public static final int HTTP_VERSION_STRUCT_INDEX = 2;
     public static final int SSL_STRUCT_INDEX = 1;
     public static final int FOLLOW_REDIRECT_STRUCT_INDEX = 0;

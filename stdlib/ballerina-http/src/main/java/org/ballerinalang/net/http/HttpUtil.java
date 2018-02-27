@@ -733,6 +733,20 @@ public class HttpUtil {
         return chunkConfig;
     }
 
+    public static ChunkConfig getForwardedExtensionConfig(String forwarded) {
+        ChunkConfig chunkConfig;
+        if (HttpConstants.CHUNKING_AUTO.equalsIgnoreCase(chunking)) {
+            chunkConfig = ChunkConfig.AUTO;
+        } else if (HttpConstants.CHUNKING_ALWAYS.equalsIgnoreCase(chunking)) {
+            chunkConfig = ChunkConfig.ALWAYS;
+        } else if (HttpConstants.CHUNKING_NEVER.equalsIgnoreCase(chunking)) {
+            chunkConfig = ChunkConfig.NEVER;
+        } else {
+            throw new BallerinaConnectorException("Invalid configuration found for Transfer-Encoding : " + chunking);
+        }
+        return chunkConfig;
+    }
+
     private static void extractHttpsConfig(Annotation configInfo, Set<ListenerConfiguration> listenerConfSet) {
         // Retrieve secure port from either http of ws configuration annotation.
         AnnAttrValue httpsPortAttrVal;
