@@ -271,7 +271,7 @@ public final class Constants {
             = "Remote host closed the connection without sending inbound response";
 
     public static final String MAXIMUM_WAIT_TIME_EXCEED =
-            "Maximum wait time exceeds. Cannot obtain a connection to send the request.";
+            "Cannot obtain a connection within maximum wait time";
 
     public static final String JMX_AGENT_NAME = "jmx.agent.name";
 
