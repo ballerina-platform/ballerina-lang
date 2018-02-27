@@ -38,7 +38,6 @@ import org.wso2.carbon.messaging.Header;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 import org.wso2.transport.http.netty.message.HttpMessageDataStreamer;
 
-import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
 
