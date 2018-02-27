@@ -88,8 +88,6 @@ public class ServiceProtoUtils {
                 continue;
             }
             String rpcEndpoint = null;
-            String inputType = null;
-            String outputType = null;
             boolean clientStreaming = false;
             boolean serverStreaming = false;
             for (AnnotationAttachmentAttributeNode attributeNode : annotationNode.getAttributes()) {
@@ -103,14 +101,6 @@ public class ServiceProtoUtils {
                 switch (attributeName) {
                     case "rpcEndpoint": {
                         rpcEndpoint = (String) attributeValue;
-                        break;
-                    }
-                    case "inputType": {
-                        inputType = (String) attributeValue;
-                        break;
-                    }
-                    case "outputType": {
-                        outputType = (String) attributeValue;
                         break;
                     }
                     case "clientStreaming": {
@@ -127,7 +117,7 @@ public class ServiceProtoUtils {
                 }
             }
             if (rpcEndpoint != null && (clientStreaming || serverStreaming)) {
-                serviceConfig = new ServiceConfig(rpcEndpoint, inputType, outputType, clientStreaming, serverStreaming);
+                serviceConfig = new ServiceConfig(rpcEndpoint, clientStreaming, serverStreaming);
             }
         }
         return serviceConfig;

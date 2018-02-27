@@ -28,6 +28,7 @@ import org.ballerinalang.model.types.BStructType;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.types.TypeKind;
+import org.ballerinalang.model.values.BConnector;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.nativeimpl.actions.ClientConnectorFuture;
@@ -81,13 +82,14 @@ public class Execute extends AbstractNativeAction {
     
     @Override
     public ConnectorFuture execute(Context context) {
+        BConnector bConnector = (BConnector) getRefArgument(context, 0);
         ClientConnectorFuture ballerinaFuture = new ClientConnectorFuture();
-        BStruct outboundError = createStruct(context);
+        BStruct outboundError = createStruct(context, "ConnectorError");
         BValue payloadBValue;
-        BStruct connectionStub;
+        Object connectionStub;
         String methodName;
         try {
-            connectionStub = (BStruct) getRefArgument(context, 1);
+            connectionStub = bConnector.getnativeData("stub");
             methodName = getStringArgument(context, 0);
         } catch (ArrayIndexOutOfBoundsException e) {
             outboundError.setStringField(0, "gRPC Connector Error :" + e.getMessage());
@@ -101,10 +103,10 @@ public class Execute extends AbstractNativeAction {
             Message requestMsg;
             Message responseMsg = null;
             BValue responseBValue = null;
-            if (connectionStub.getNativeData("stub") instanceof GrpcBlockingStub) {
-                payloadBValue = getRefArgument(context, 2);
+            if (connectionStub instanceof GrpcBlockingStub) {
+                payloadBValue = getRefArgument(context, 1);
                 requestMsg = MessageUtil.generateProtoMessage(payloadBValue, methodDescriptor.getInputType());
-                GrpcBlockingStub grpcBlockingStub = (GrpcBlockingStub) connectionStub.getNativeData("stub");
+                GrpcBlockingStub grpcBlockingStub = (GrpcBlockingStub) connectionStub;
                 if (getMethodType(methodDescriptor).equals(MethodDescriptor.MethodType.UNARY)) {
                     responseMsg = grpcBlockingStub.executeUnary(requestMsg, methodName);
                 } else if ((getMethodType(methodDescriptor).equals(MethodDescriptor.MethodType.SERVER_STREAMING))) {
@@ -117,16 +119,16 @@ public class Execute extends AbstractNativeAction {
                 Descriptors.Descriptor outputDescriptor = methodDescriptor.getOutputType();
                 responseBValue = MessageUtil.generateRequestStruct(responseMsg, outputDescriptor.getName(),
                         getBalType(outputDescriptor.getName(), context), context);
-            } else if (connectionStub.getNativeData("stub") instanceof GrpcNonBlockingStub) {
-                GrpcNonBlockingStub grpcNonBlockingStub = (GrpcNonBlockingStub) connectionStub.getNativeData("stub");
+            } else if (connectionStub instanceof GrpcNonBlockingStub) {
+                GrpcNonBlockingStub grpcNonBlockingStub = (GrpcNonBlockingStub) connectionStub;
                 if (getMethodType(methodDescriptor).equals(MethodDescriptor.MethodType.UNARY)) {
-                    payloadBValue = getRefArgument(context, 2);
+                    payloadBValue = getRefArgument(context, 1);
                     requestMsg = MessageUtil.generateProtoMessage(payloadBValue, methodDescriptor.getInputType());
                     String listenerService = getStringArgument(context, 1);
                     grpcNonBlockingStub.executeUnary(requestMsg, new DefaultStreamObserver(context, listenerService),
                             methodName);
                 } else if ((getMethodType(methodDescriptor).equals(MethodDescriptor.MethodType.SERVER_STREAMING))) {
-                    payloadBValue = getRefArgument(context, 2);
+                    payloadBValue = getRefArgument(context, 1);
                     requestMsg = MessageUtil.generateProtoMessage(payloadBValue, methodDescriptor.getInputType());
                     String listenerService = getStringArgument(context, 1);
                     grpcNonBlockingStub.executeServerStreaming(requestMsg, new DefaultStreamObserver(context,
@@ -137,17 +139,26 @@ public class Execute extends AbstractNativeAction {
                     StreamObserver<Message> requestSender = grpcNonBlockingStub.executeClientStreaming
                             (responseObserver, methodName);
                     responseObserver.registerRequestSender(requestSender, methodDescriptor.getInputType());
+                    BStruct connStruct = createStruct(context, "ClientConnection");
+                    connStruct.addNativeData(MessageConstants.STREAM_OBSERVER, requestSender);
+                    connStruct.addNativeData(MessageConstants.REQUEST_MESSAGE_DEFINITION, methodDescriptor
+                            .getInputType());
+                    responseBValue = connStruct;
                 } else if ((getMethodType(methodDescriptor).equals(MethodDescriptor.MethodType.BIDI_STREAMING))) {
                     String listenerService = getStringArgument(context, 1);
                     DefaultStreamObserver responseObserver = new DefaultStreamObserver(context, listenerService);
                     StreamObserver<Message> requestSender = grpcNonBlockingStub.executeBidiStreaming
                             (responseObserver, methodName);
                     responseObserver.registerRequestSender(requestSender, methodDescriptor.getInputType());
+                    BStruct connStruct = createStruct(context, "ClientConnection");
+                    connStruct.addNativeData(MessageConstants.STREAM_OBSERVER, requestSender);
+                    connStruct.addNativeData(MessageConstants.REQUEST_MESSAGE_DEFINITION, methodDescriptor
+                            .getInputType());
+                    responseBValue = connStruct;
                 }
             } else {
                 throw new RuntimeException("Unsupported stub type.");
             }
-
 
             ballerinaFuture.notifyReply(responseBValue, null);
             return ballerinaFuture;
@@ -206,11 +217,11 @@ public class Execute extends AbstractNativeAction {
         }
     }
     
-    private BStruct createStruct(Context context) {
+    private BStruct createStruct(Context context, String structName) {
         
         PackageInfo httpPackageInfo = context.getProgramFile()
                 .getPackageInfo(MessageConstants.PROTOCOL_PACKAGE_GRPC);
-        StructInfo structInfo = httpPackageInfo.getStructInfo("ConnectorError");
+        StructInfo structInfo = httpPackageInfo.getStructInfo(structName);
         BStructType structType = structInfo.getType();
         return new BStruct(structType);
     }

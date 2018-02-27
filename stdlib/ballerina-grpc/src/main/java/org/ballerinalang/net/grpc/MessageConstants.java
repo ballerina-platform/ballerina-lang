@@ -40,7 +40,7 @@ public class MessageConstants {
     public static final String SERVER_CONNECTION = "ServerConnection";
     public static final String CLIENT_CONNECTION = "ClientConnection";
     public static final String RESPONSE_MESSAGE_DEFINITION = "response_msg_definition";
-    public static final String REQUEST_MESSAGE_DEFINITION = "response_msg_definition";
+    public static final String REQUEST_MESSAGE_DEFINITION = "request_msg_definition";
     public static final String HTTP2_CONNECTOR_ERROR = "HttpConnectorError";
     public static final String ANN_NAME_CONFIG = "serviceConfig";
     public static final String ANN_MESSAGE_LISTENER = "messageListener";

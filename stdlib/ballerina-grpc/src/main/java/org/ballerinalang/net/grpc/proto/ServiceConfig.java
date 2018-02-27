@@ -22,30 +22,17 @@ package org.ballerinalang.net.grpc.proto;
  */
 public class ServiceConfig {
     private String rpcEndpoint;
-    private String inputType;
-    private String outputType;
     private boolean clientStreaming;
     private boolean serverStreaming;
 
-    public ServiceConfig(String rpcEndpoint, String inputType, String outputType, boolean clientStreaming, boolean
-            serverStreaming) {
+    public ServiceConfig(String rpcEndpoint, boolean clientStreaming, boolean serverStreaming) {
         this.rpcEndpoint = rpcEndpoint;
-        this.inputType = inputType;
-        this.outputType = outputType;
         this.clientStreaming = clientStreaming;
         this.serverStreaming = serverStreaming;
     }
 
     public String getRpcEndpoint() {
         return rpcEndpoint;
-    }
-
-    public String getInputType() {
-        return inputType;
-    }
-
-    public String getOutputType() {
-        return outputType;
     }
 
     public boolean isClientStreaming() {

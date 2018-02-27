@@ -19,9 +19,8 @@ import java.util.List;
  * @since 1.0
  */
 @SupportedAnnotations(
-        value = {@AnnotationType(packageName = "ballerina.net.grpc", name = "serviceInfo"),
-                @AnnotationType(packageName = "ballerina.net.grpc", name = "serviceConfig"),
-                @AnnotationType(packageName = "ballerina.net.grpc", name = "methodInfo")
+        value = {
+                @AnnotationType(packageName = "ballerina.net.grpc", name = "serviceConfig")
         }
 )
 public class ServiceProtoBuilder extends AbstractAnnotationProcessor {
@@ -43,7 +42,5 @@ public class ServiceProtoBuilder extends AbstractAnnotationProcessor {
         } catch (GrpcServerException e) {
             dlog.logDiagnostic(Diagnostic.Kind.WARNING, serviceNode.getPosition(), e.getMessage());
         }
-
-        // This is how you can report compilation errors, warnings, and messages.
     }
 }

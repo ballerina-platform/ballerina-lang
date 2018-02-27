@@ -71,12 +71,20 @@ public class DefaultStreamObserver implements StreamObserver<Message> {
 
     public void registerRequestSender(StreamObserver<Message> requestSender, Descriptors.Descriptor requestType)
             throws GrpcClientException {
-        if (requestType != null && requestSender != null) {
+        if (requestType == null && requestSender == null) {
             throw new GrpcClientException("Error while building the connection. request type and request sender " +
                     "does not exist");
         }
         this.requestSender = requestSender;
         this.requestType = requestType;
+    }
+
+    public StreamObserver<Message> getRequestSender() {
+        return requestSender;
+    }
+
+    public Descriptors.Descriptor getRequestType() {
+        return requestType;
     }
 
     private BValue getConnectionParameter(StreamObserver<Message> requestSender, Resource resource, Descriptors

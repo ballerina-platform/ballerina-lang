@@ -92,10 +92,12 @@ public class LauncherUtils {
          * There are cases in websocket and gRPC streaming where we need to register listener services to setup
          * non-blocking connection.
          */
-        ServerConnectorRegistry serverConnectorRegistry = new ServerConnectorRegistry();
-        programFile.setServerConnectorRegistry(serverConnectorRegistry);
-        serverConnectorRegistry.initServerConnectors();
-        BLangProgramRunner.runService(programFile);
+        if (programFile.isServiceEPAvailable()) {
+            ServerConnectorRegistry serverConnectorRegistry = new ServerConnectorRegistry();
+            programFile.setServerConnectorRegistry(serverConnectorRegistry);
+            serverConnectorRegistry.initServerConnectors();
+            BLangProgramRunner.runService(programFile);
+        }
 
         if (runServices || !programFile.isMainEPAvailable()) {
             if (args.length > 0) {

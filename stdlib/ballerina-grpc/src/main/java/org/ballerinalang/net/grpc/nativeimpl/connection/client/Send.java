@@ -56,16 +56,16 @@ public class Send extends AbstractNativeFunction {
         log.info("calling send...");
         BStruct connectionStruct = (BStruct) getRefArgument(context, 0);
         BValue responseValue = getRefArgument(context, 1);
-        StreamObserver<Message> responseObserver = MessageUtils.getStreamObserver(connectionStruct);
+        StreamObserver requestSender = MessageUtils.getStreamObserver(connectionStruct);
+        if (requestSender == null) {
+            return new BValue[0];
+        }
         Descriptors.Descriptor inputType = (Descriptors.Descriptor) connectionStruct.getNativeData(MessageConstants
                 .REQUEST_MESSAGE_DEFINITION);
 
-        if (responseObserver == null) {
-            return new BValue[0];
-        }
         try {
-            Message responseMessage = MessageUtil.generateProtoMessage(responseValue, inputType);
-            responseObserver.onNext(responseMessage);
+            Message requestMessage = MessageUtil.generateProtoMessage(responseValue, inputType);
+            requestSender.onNext(requestMessage);
             return new BValue[0];
         } catch (Throwable e) {
             log.error("Error while sending client response.", e);

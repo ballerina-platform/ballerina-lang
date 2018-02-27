@@ -48,12 +48,12 @@ public class Complete extends AbstractNativeFunction {
     @Override
     public BValue[] execute(Context context) {
         BStruct connectionStruct = (BStruct) getRefArgument(context, 0);
-        StreamObserver responseObserver = MessageUtils.getStreamObserver(connectionStruct);
-        if (responseObserver == null) {
+        StreamObserver requestSender = MessageUtils.getStreamObserver(connectionStruct);
+        if (requestSender == null) {
             return new BValue[0];
         }
         try {
-            responseObserver.onCompleted();
+            requestSender.onCompleted();
         } catch (Throwable e) {
             log.error("Error while sending client response.", e);
             return getBValues(MessageUtils.getServerConnectorError(context, e));

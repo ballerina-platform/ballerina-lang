@@ -2,7 +2,6 @@ package ballerina.net.grpc;
 
 public native function getHeader(string headerName) (string);
 
-
 @Description { value:"Represents the gRPC client connector connection"}
 @Field {value:"host: The server host name"}
 @Field {value:"port: The server port"}
@@ -14,15 +13,12 @@ string host;
 @Description {value:"gRPC protobuf client connector for outbound gRPC requests"}
 @Param {value:"serviceUri: Url of the service"}
 @Param {value:"connectorOptions: connector options"}
-public connector GRPCConnector (string host, int port) {
-@Description {value:"Connection."}
-native action connect (string stubType,map describtorMap, string descriptorKey) (ClientConnection, ConnectorError);
+public connector GRPCConnector (string host, int port, string subType, string descriptorKey, map describtorMap) {
 
 @Description {value:"The execute action implementation of the gRPC Connector."}
 @Param {value:"Connection stub."}
 @Param {value:"Any type of request parameters."}
-native action execute (ClientConnection conn, any payload,string methodID, string listenerService) (any ,
-                                                                                                    ConnectorError);
+native action execute (any payload,string methodID, string listenerService) (any , ConnectorError);
 }
 
 @Description { value:"Sends outbound response to the caller"}
@@ -35,11 +31,6 @@ public native function <ClientConnection conn> send (any res) (ConnectorError);
 @Param { value:"conn: The server connector connection" }
 @Return { value:"Error occured during HTTP server connector respond" }
 public native function <ClientConnection conn> complete () (ConnectorError);
-
-@Description { value:"Checks whether the connection is closed by the caller."}
-@Param { value:"conn: The server connector connection" }
-@Return { value:"Returns true if the connection is closed, false otherwise" }
-public native function <ClientConnection conn> isCancelled () (boolean);
 
 @Description { value:"Forwards inbound response to the caller"}
 @Param { value:"conn: The server connector connection" }
