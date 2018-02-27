@@ -21,6 +21,7 @@ import org.ballerinalang.bre.bvm.BLangScheduler;
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
 import org.ballerinalang.bre.bvm.WorkerExecutionContext;
 import org.ballerinalang.model.types.BType;
+import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.util.program.BLangVMUtils;
 
 /**
@@ -54,8 +55,8 @@ public class BLangCallableUnitCallback implements CallableUnitCallback {
     }
 
     @Override
-    public void notifyFailure(Exception ex) {
-        BLangScheduler.workerExcepted(this.parentCtx, ex);
+    public void notifyFailure(BStruct error) {
+        BLangScheduler.workerExcepted(this.parentCtx, error);
     }
 
 }

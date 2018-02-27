@@ -97,7 +97,6 @@ public class Connect extends AbstractNativeWsAction {
             clientConnectorConfig.setIdleTimeoutInMillis(idleTimeoutInSeconds * 1000);
         }
 
-        BLangCallableUnitCallback connectorFuture = new BLangCallableUnitCallback();
         HttpWsConnectorFactory connectorFactory = new HttpWsConnectorFactoryImpl();
         WebSocketClientConnector clientConnector =
                 connectorFactory.createWsClientConnector(clientConnectorConfig);
@@ -111,14 +110,12 @@ public class Connect extends AbstractNativeWsAction {
                 WsOpenConnectionInfo connectionInfo =
                         new WsOpenConnectionInfo(wsService, wsConnection, new HashMap<>());
                 clientConnectorListener.setConnectionInfo(connectionInfo);
-                connectorFuture.notifySuccess();
             }
 
             @Override
             public void onError(Throwable t) {
                 BStruct wsError = createWsErrorStruct(context, t);
                 context.setReturnValue(1, wsError);
-                connectorFuture.notifySuccess();
             }
         });
     }

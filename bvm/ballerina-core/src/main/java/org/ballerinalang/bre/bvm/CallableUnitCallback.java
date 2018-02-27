@@ -17,6 +17,8 @@
 */
 package org.ballerinalang.bre.bvm;
 
+import org.ballerinalang.model.values.BStruct;
+
 /**
  * @since 0.964
  */
@@ -24,6 +26,6 @@ public interface CallableUnitCallback {
 
     public void notifySuccess();
 
-    public void notifyFailure(Exception ex);
+    public void notifyFailure(BStruct error);
 
 }

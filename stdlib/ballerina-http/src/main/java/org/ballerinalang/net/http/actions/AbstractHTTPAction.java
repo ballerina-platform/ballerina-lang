@@ -338,7 +338,8 @@ public abstract class AbstractHTTPAction implements NativeCallableUnit {
             BStruct entity = createStruct(this.context, HttpConstants.ENTITY, PROTOCOL_PACKAGE_MIME);
             BStruct mediaType = createStruct(this.context, MEDIA_TYPE, PROTOCOL_PACKAGE_MIME);
             HttpUtil.populateInboundResponse(inboundResponse, entity, mediaType, httpCarbonMessage);
-            connectorCallback.notifyReply(inboundResponse);
+            this.context.setReturnValues(inboundResponse);
+            connectorCallback.notifySuccess();
         }
 
         @Override
@@ -374,8 +375,7 @@ public abstract class AbstractHTTPAction implements NativeCallableUnit {
                 ClientConnectorException clientConnectorException = (ClientConnectorException) throwable;
                 httpConnectorError.setIntField(0, clientConnectorException.getHttpStatusCode());
             }
-
-            connectorCallback.notifyReply(null, httpConnectorError);
+            connectorCallback.notifyFailure(httpConnectorError);
         }
 
         private BStruct createStruct(Context context, String structName, String protocolPackage) {

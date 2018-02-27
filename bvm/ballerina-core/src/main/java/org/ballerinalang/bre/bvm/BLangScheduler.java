@@ -17,7 +17,9 @@
 */
 package org.ballerinalang.bre.bvm;
 
+import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.runtime.threadpool.ThreadPoolFactory;
+import org.ballerinalang.util.program.BLangVMUtils;
 
 import java.io.PrintStream;
 import java.util.concurrent.ExecutorService;
@@ -77,9 +79,9 @@ public class BLangScheduler {
         } catch (InterruptedException ignore) { /* ignore */ }
     }
     
-    public static void workerExcepted(WorkerExecutionContext ctx, Throwable e) {
+    public static void workerExcepted(WorkerExecutionContext ctx, BStruct error) {
         PrintStream out = System.out;
-        out.println("Worker Exception: " + ctx + " -> " + e.getMessage());
+        out.println("Worker Exception: " + ctx + " -> " + error);
     }
     
     public static void dumpCallStack(WorkerExecutionContext ctx) {
@@ -116,7 +118,7 @@ public class BLangScheduler {
                 CPU.exec(ctx);
             } catch (Throwable e) {
                 ctx.state = WorkerState.EXCEPTED;
-                BLangScheduler.workerExcepted(this.ctx, e);
+                BLangScheduler.workerExcepted(this.ctx, BLangVMUtils.createErrorStruct(e));
             } finally {
                 ctx.unlockExecution();
             }
