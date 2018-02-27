@@ -17,9 +17,7 @@
  */
 package org.ballerinalang.testerina.core.entity;
 
-import org.ballerinalang.testerina.core.AnnotationProcessor;
 import org.ballerinalang.testerina.core.TAnnotProcessor;
-import org.ballerinalang.util.codegen.FunctionInfo;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
 
@@ -27,7 +25,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 
 /**
@@ -46,6 +43,8 @@ public class TesterinaContext {
         this.groups = groups;
         this.excludeGroups = excludeGroups;
         Arrays.stream(programFiles).forEach(this::processProgramFiles);
+        assert groups == null;
+        assert excludeGroups == true;
     }
 
     /**
@@ -75,42 +74,42 @@ public class TesterinaContext {
         return this.afterTestFunctions;
     }
 
-    /**
-     * Get the list of 'test/beforeTest' functions, parsed from the *.bal file.
-     *
-     * @param programFile {@link ProgramFile}.
-     */
-    private void extractTestFunctions(ProgramFile programFile) {
-        Arrays.stream(programFile.getPackageInfoEntries()).map(PackageInfo::getFunctionInfoEntries)
-                .flatMap(Arrays::stream).forEachOrdered(f -> addTestFunctions(programFile, f));
-    }
+    //    /**
+    //     * Get the list of 'test/beforeTest' functions, parsed from the *.bal file.
+    //     *
+    //     * @param programFile {@link ProgramFile}.
+    //     */
+    //    private void extractTestFunctions(ProgramFile programFile) {
+    //        Arrays.stream(programFile.getPackageInfoEntries()).map(PackageInfo::getFunctionInfoEntries)
+    //                .flatMap(Arrays::stream).forEachOrdered(f -> addTestFunctions(programFile, f));
+    //    }
 
-    private void addTestFunctions(ProgramFile programFile, FunctionInfo functionInfo) {
-        //TODO : We need exclude builtin packages in ballerina when searching for test functions
-        String nameUpperCase = functionInfo.getName().toUpperCase(Locale.ENGLISH);
+    //    private void addTestFunctions(ProgramFile programFile, FunctionInfo functionInfo) {
+    //        //TODO : We need exclude builtin packages in ballerina when searching for test functions
+    //        String nameUpperCase = functionInfo.getName().toUpperCase(Locale.ENGLISH);
+    //
+    //        if (nameUpperCase.startsWith(TesterinaFunction.PREFIX_TEST) && !nameUpperCase
+    //                .endsWith(TesterinaFunction.INIT_SUFFIX)) {
+    //
+    //            TesterinaFunction tFunction = AnnotationProcessor
+    //                    .processAnnotations(programFile, functionInfo, groups, excludeGroups);
+    //
+    //            this.testFunctions.add(tFunction);
+    //        } else if (nameUpperCase.startsWith(TesterinaFunction.PREFIX_BEFORETEST) && !nameUpperCase
+    //                .endsWith(TesterinaFunction.INIT_SUFFIX)) {
+    //            TesterinaFunction tFunction = new TesterinaFunction(programFile, functionInfo,
+    //                    TesterinaFunction.Type.BEFORE_TEST);
+    //            this.beforeTestFunctions.add(tFunction);
+    //        } else if (nameUpperCase.startsWith(TesterinaFunction.PREFIX_AFTERTEST) && !nameUpperCase
+    //                .endsWith(TesterinaFunction.INIT_SUFFIX)) {
+    //            TesterinaFunction tFunction = new TesterinaFunction(programFile, functionInfo,
+    //                    TesterinaFunction.Type.AFTER_TEST);
+    //            this.afterTestFunctions.add(tFunction);
+    //        }
+    //    }
 
-        if (nameUpperCase.startsWith(TesterinaFunction.PREFIX_TEST) && !nameUpperCase
-                .endsWith(TesterinaFunction.INIT_SUFFIX)) {
-
-            TesterinaFunction tFunction = AnnotationProcessor
-                    .processAnnotations(programFile, functionInfo, groups, excludeGroups);
-
-            this.testFunctions.add(tFunction);
-        } else if (nameUpperCase.startsWith(TesterinaFunction.PREFIX_BEFORETEST) && !nameUpperCase
-                .endsWith(TesterinaFunction.INIT_SUFFIX)) {
-            TesterinaFunction tFunction = new TesterinaFunction(programFile, functionInfo,
-                    TesterinaFunction.Type.BEFORE_TEST);
-            this.beforeTestFunctions.add(tFunction);
-        } else if (nameUpperCase.startsWith(TesterinaFunction.PREFIX_AFTERTEST) && !nameUpperCase
-                .endsWith(TesterinaFunction.INIT_SUFFIX)) {
-            TesterinaFunction tFunction = new TesterinaFunction(programFile, functionInfo,
-                    TesterinaFunction.Type.AFTER_TEST);
-            this.afterTestFunctions.add(tFunction);
-        }
-    }
-
-    private void processProgramFiles (ProgramFile programFile) {
-        for (PackageInfo packageInfo : programFile.getPackageInfoEntries()){
+    private void processProgramFiles(ProgramFile programFile) {
+        for (PackageInfo packageInfo : programFile.getPackageInfoEntries()) {
             if (packageInfo.getPkgPath().startsWith("ballerina")) {
                 // skip this
             } else {
@@ -119,9 +118,8 @@ public class TesterinaContext {
                     testSuites.put(packageInfo.getPkgPath(), new TestSuite(packageInfo.getPkgPath()));
                     //processTestSuites
                 }
-                TAnnotProcessor.processAnnotations(programFile, packageInfo, testSuites);
+                TAnnotProcessor.processAnnotations(programFile, packageInfo, testSuites.get(packageInfo.getPkgPath()));
             }
-
         }
     }
 }

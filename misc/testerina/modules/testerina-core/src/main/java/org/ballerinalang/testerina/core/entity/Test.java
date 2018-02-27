@@ -55,4 +55,12 @@ public class Test {
             List<TesterinaFunction> afterTestFunctions) {
         this.afterTestFunctions = afterTestFunctions;
     }
+
+    public void addBeforeTestFunctions(TesterinaFunction function) {
+        this.beforeTestFunctions.add(function);
+    }
+
+    public void addAfterTestFunctions(TesterinaFunction function) {
+        this.afterTestFunctions.add(function);
+    }
 }

@@ -28,7 +28,7 @@ import java.util.List;
  */
 public class TContext {
 
-    List <TestSuite> testSuites = new ArrayList<>();
+    List<TestSuite> testSuites = new ArrayList<>();
 
     public List<TestSuite> getTestSuites() {
         return testSuites;

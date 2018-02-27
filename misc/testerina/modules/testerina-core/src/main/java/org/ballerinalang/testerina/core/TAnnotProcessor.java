@@ -22,18 +22,11 @@ import org.ballerinalang.testerina.core.entity.Test;
 import org.ballerinalang.testerina.core.entity.TestSuite;
 import org.ballerinalang.testerina.core.entity.TesterinaFunction;
 import org.ballerinalang.util.codegen.AnnAttachmentInfo;
-import org.ballerinalang.util.codegen.AnnAttributeValue;
 import org.ballerinalang.util.codegen.FunctionInfo;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.codegen.attributes.AnnotationAttributeInfo;
 import org.ballerinalang.util.codegen.attributes.AttributeInfo;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 /**
  * Created by yasassri on 2/27/18.
@@ -42,7 +35,7 @@ public class TAnnotProcessor {
 
     private static final String TEST_ANNOTATION_NAME = "config";
     private static final String BEFORE_SUITE_ANNOTATION_NAME = "beforeSuite";
-    private static final String AFTER_SUITE_ANNOTATION_NAME = "beforeSuite";
+    private static final String AFTER_SUITE_ANNOTATION_NAME = "afterSuite";
     private static final String BEFORE_TEST_ANNOTATION_NAME = "before";
     private static final String AFTER_TEST_ANNOTATION_NAME = "after";
     private static final String BEFORE_EACH_ANNOTATION_NAME = "beforeEach";
@@ -50,87 +43,77 @@ public class TAnnotProcessor {
 
     public static void processAnnotations(ProgramFile programFile,
                                           PackageInfo packageInfo,
-                                          Map<String, TestSuite> testSuites) {
+                                          TestSuite suite) {
 
-        TestSuite suite = testSuites.get(packageInfo.getPkgPath());
+        FunctionInfo functionInfo[] = packageInfo.getFunctionInfoEntries();
+        for (int k = 0; k < functionInfo.length; k++) {
 
-        for (FunctionInfo functionInfo : packageInfo.getFunctionInfoEntries()) {
-
-            AnnotationAttributeInfo attributeInfo = (AnnotationAttributeInfo) functionInfo
+            AnnotationAttributeInfo attributeInfo = (AnnotationAttributeInfo) functionInfo[k]
                     .getAttributeInfo(AttributeInfo.Kind.ANNOTATIONS_ATTRIBUTE);
 
             if (attributeInfo.getAttachmentInfoEntries().length == 0) {
                 // NO Annotations present so do nothing.
                 continue;
             } else {
-                Test test = new Test();
-                for ( AnnAttachmentInfo attachmentInfo : attributeInfo.getAttachmentInfoEntries()) {
+                for (AnnAttachmentInfo attachmentInfo : attributeInfo.getAttachmentInfoEntries()) {
                     if (attachmentInfo.getName().equals(BEFORE_SUITE_ANNOTATION_NAME)) {
                         // modify the type
-                        suite.addBeforeSuiteFunction(new TesterinaFunction(programFile, functionInfo, TesterinaFunction.Type.TEST));
-                    }
-
-                    if (attachmentInfo.getName().equals(AFTER_SUITE_ANNOTATION_NAME)) {
+                        suite.addBeforeSuiteFunction(
+                                new TesterinaFunction(programFile, functionInfo[k], TesterinaFunction.Type.TEST));
+                    } else if (attachmentInfo.getName().equals(AFTER_SUITE_ANNOTATION_NAME)) {
                         // modify the type
-                        suite.addAfterSuiteFunction(new TesterinaFunction(programFile, functionInfo, TesterinaFunction.Type.TEST));
-                    }
-
-                    if (attachmentInfo.getName().equals(AFTER_SUITE_ANNOTATION_NAME)) {
+                        suite.addAfterSuiteFunction(
+                                new TesterinaFunction(programFile, functionInfo[k], TesterinaFunction.Type.TEST));
+                    } else if (attachmentInfo.getName().equals(BEFORE_EACH_ANNOTATION_NAME)) {
                         // modify the type
-                        suite.addAfterSuiteFunction(new TesterinaFunction(programFile, functionInfo, TesterinaFunction.Type.TEST));
-                    }
-                }
-            }
+                        suite.addBeforeEachFunction(
+                                new TesterinaFunction(programFile, functionInfo[k], TesterinaFunction.Type.TEST));
+                    } else if (attachmentInfo.getName().equals(AFTER_EACH_ANNOTATION_NAME)) {
+                        // modify the type
+                        suite.addAfterEachFunction(
+                                new TesterinaFunction(programFile, functionInfo[k], TesterinaFunction.Type.TEST));
+                    } else {
+                        if (attachmentInfo.getName().equals(TEST_ANNOTATION_NAME)) {
+                            Test test = new Test();
+                            test.setTestFunctions(
+                                    new TesterinaFunction(programFile, functionInfo[k], TesterinaFunction.Type.TEST));
+                            int j = k - 1;
+                            while (j >= 0) {
+                                AnnotationAttributeInfo attributeInfo2 = (AnnotationAttributeInfo) functionInfo[j]
+                                        .getAttributeInfo(AttributeInfo.Kind.ANNOTATIONS_ATTRIBUTE);
 
-        }
+                                for (AnnAttachmentInfo attachmentInfo2 : attributeInfo2.getAttachmentInfoEntries()) {
+                                    if (attachmentInfo2.getName().equals(BEFORE_TEST_ANNOTATION_NAME)) {
+                                        test.addBeforeTestFunctions(new TesterinaFunction(programFile, functionInfo[j],
+                                                TesterinaFunction.Type.TEST));
+                                    } else {
+                                        break;
+                                    }
+                                }
+                                j--;
+                            }
 
-        List<TestSuite> suites = new ArrayList<>();
+                            int l = k + 1;
+                            while (l < functionInfo.length) {
+                                AnnotationAttributeInfo attributeInfo2 = (AnnotationAttributeInfo) functionInfo[l]
+                                        .getAttributeInfo(AttributeInfo.Kind.ANNOTATIONS_ATTRIBUTE);
 
-        if (attributeInfo.getAttachmentInfoEntries().length == 0) {
-            // NO Annotations present so do nothing.
-        } else {
-            for (AnnAttachmentInfo attachmentInfo : attributeInfo.getAttachmentInfoEntries()) {
-                // Only reads the config annotation related to testerina
-                if (!attachmentInfo.getName().equals()) {
-                    continue;
-                }
-                // Check if disabled property is present in the annotation
-                if (attachmentInfo
-                            .getAttributeValue(TEST_DISABLE_ANNOTATION_NAME)
-                    != null && attachmentInfo.getAttributeValue(TEST_DISABLE_ANNOTATION_NAME).getBooleanValue()) {
-                    // If disable property is present disable the test, no further processing is needed
-                    tFunction.setRunTest();
-                    continue;
-                }
-                // Check whether user has provided a group list
-                if (groups != null) {
-                    // check if groups attribute is present in the annotation
-                    if (attachmentInfo.getAttributeValue(GROUP_ANNOTATION_NAME) != null) {
-                        // Check whether function is included in group filter
-                        // against the user provided flag to include or exclude groups
-                        if (isGroupAvailable(groups,
-                                Arrays.stream(attachmentInfo.getAttributeValue(GROUP_ANNOTATION_NAME)
-                                        .getAttributeValueArray()).map(AnnAttributeValue::getStringValue)
-                                        .collect(Collectors.toList())) == excludeGroups) {
-                            tFunction.setRunTest();
+                                for (AnnAttachmentInfo attachmentInfo2 : attributeInfo2.getAttachmentInfoEntries()) {
+                                    if (attachmentInfo2.getName().equals(AFTER_TEST_ANNOTATION_NAME)) {
+                                        test.addAfterTestFunctions(new TesterinaFunction(programFile, functionInfo[l],
+                                                TesterinaFunction.Type.TEST));
+                                        k = l;
+                                    } else {
+                                        break;
+                                    }
+                                }
+                                l--;
+                            }
+                            suite.addTests(test);
                         }
-                        // If groups are not present this belongs to default group
-                        // check whether user provided groups has default group
-                    } else if (isGroupAvailable(groups, Arrays.asList(DEFAULT_TEST_GROUP_NAME)) == excludeGroups) {
-                        tFunction.setRunTest();
                     }
                 }
-                // Check the availability of value sets
-                if (attachmentInfo.getAttributeValue(VALUE_SET_ANNOTATION_NAME) != null) {
-                    // extracts the value sets
-                    tFunction.setValueSet(Arrays.stream(attachmentInfo
-                            .getAttributeValue(VALUE_SET_ANNOTATION_NAME)
-                            .getAttributeValueArray()).map(f -> f.getStringValue().split(","))
-                            .collect(Collectors.toList()));
-                }
-                break;
             }
         }
-        return tFunction;
     }
 }
