@@ -17,7 +17,6 @@
  */
 package org.ballerinalang.net.grpc;
 
-import com.google.protobuf.DescriptorProtos;
 import com.google.protobuf.Descriptors;
 import io.grpc.Channel;
 import io.grpc.MethodDescriptor;
@@ -25,6 +24,7 @@ import org.ballerinalang.net.grpc.exception.GrpcClientException;
 import org.ballerinalang.net.grpc.stubs.GrpcBlockingStub;
 import org.ballerinalang.net.grpc.stubs.GrpcNonBlockingStub;
 import org.ballerinalang.net.grpc.stubs.ProtoFileDefinition;
+import org.ballerinalang.net.grpc.utils.MessageUtil;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -66,7 +66,7 @@ public final class ClientConnectorFactory {
             String fullMethodName = generateFullMethodName(serviceFullName, methodName);
             MethodDescriptor<Message, Message> descriptor =
                     MethodDescriptor.<Message, Message>newBuilder()
-                            .setType(getMethodType(methodDescriptor.toProto()))
+                            .setType(MessageUtil.getMethodType(methodDescriptor.toProto()))
                             .setFullMethodName(fullMethodName)
                             .setRequestMarshaller(io.grpc.protobuf.ProtoUtils.marshaller(
                                     org.ballerinalang.net.grpc.Message
@@ -83,21 +83,6 @@ public final class ClientConnectorFactory {
             messageRegistry.addMessageDescriptor(resMessage.getName(), resMessage);
         }
         methodDescriptorMap = Collections.unmodifiableMap(descriptorMap);
-    }
-
-    private static MethodDescriptor.MethodType getMethodType(DescriptorProtos.MethodDescriptorProto
-                                                                     methodDescriptorProto) {
-        if (methodDescriptorProto.getClientStreaming() && methodDescriptorProto.getServerStreaming()) {
-            return MethodDescriptor.MethodType.BIDI_STREAMING;
-        } else if (!(methodDescriptorProto.getClientStreaming() || methodDescriptorProto.getServerStreaming())) {
-            return MethodDescriptor.MethodType.UNARY;
-        } else if (methodDescriptorProto.getServerStreaming()) {
-            return MethodDescriptor.MethodType.SERVER_STREAMING;
-        } else if (methodDescriptorProto.getClientStreaming()) {
-            return MethodDescriptor.MethodType.CLIENT_STREAMING;
-        } else {
-            return MethodDescriptor.MethodType.UNKNOWN;
-        }
     }
     
     /**

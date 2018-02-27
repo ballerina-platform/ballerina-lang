@@ -2,6 +2,7 @@ package org.ballerinalang.net.grpc.utils;
 
 import com.google.protobuf.DescriptorProtos;
 import com.google.protobuf.Descriptors;
+import io.grpc.MethodDescriptor;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.BStructType;
 import org.ballerinalang.model.types.BType;
@@ -225,5 +226,25 @@ public class MessageUtil {
     private static BStruct createStruct(Context context, String fieldName) {
         BStructType structType = context.getProgramFile().getEntryPackage().getStructInfo(fieldName).getType();
         return new BStruct(structType);
+    }
+    
+    /**
+     * Util method to get method type.
+     * @param methodDescriptorProto
+     * @return
+     */
+    public static MethodDescriptor.MethodType getMethodType(DescriptorProtos.MethodDescriptorProto
+                                                                    methodDescriptorProto) {
+        if (methodDescriptorProto.getClientStreaming() && methodDescriptorProto.getServerStreaming()) {
+            return MethodDescriptor.MethodType.BIDI_STREAMING;
+        } else if (!(methodDescriptorProto.getClientStreaming() || methodDescriptorProto.getServerStreaming())) {
+            return MethodDescriptor.MethodType.UNARY;
+        } else if (methodDescriptorProto.getServerStreaming()) {
+            return MethodDescriptor.MethodType.SERVER_STREAMING;
+        } else if (methodDescriptorProto.getClientStreaming()) {
+            return MethodDescriptor.MethodType.CLIENT_STREAMING;
+        } else {
+            return MethodDescriptor.MethodType.UNKNOWN;
+        }
     }
 }

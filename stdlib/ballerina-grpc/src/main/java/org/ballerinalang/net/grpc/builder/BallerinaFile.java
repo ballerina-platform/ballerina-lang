@@ -18,11 +18,13 @@
 package org.ballerinalang.net.grpc.builder;
 
 import com.google.protobuf.DescriptorProtos;
+import io.grpc.MethodDescriptor;
 import org.ballerinalang.net.grpc.builder.components.ActionBuilder;
 import org.ballerinalang.net.grpc.builder.components.ConnectorBuilder;
 import org.ballerinalang.net.grpc.builder.components.ConstantBuilder;
 import org.ballerinalang.net.grpc.builder.components.StructBuilder;
 import org.ballerinalang.net.grpc.exception.BalGenerationException;
+import org.ballerinalang.net.grpc.utils.MessageUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,16 +35,15 @@ import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
 
-import static org.ballerinalang.net.grpc.builder.BalGeneratorConstants.NEW_LINE_CHARACTER;
-import static org.ballerinalang.net.grpc.builder.BalGeneratorConstants.SERVICE_INDEX;
+import static org.ballerinalang.net.grpc.builder.BalGenConstants.NEW_LINE_CHARACTER;
+import static org.ballerinalang.net.grpc.builder.BalGenConstants.SERVICE_INDEX;
 import static org.ballerinalang.net.grpc.builder.utils.BalGenerationUtils.attributeListToMap;
 import static org.ballerinalang.net.grpc.builder.utils.BalGenerationUtils.getMappingBalType;
 import static org.ballerinalang.net.grpc.builder.utils.BalGenerationUtils.getTypeName;
 import static org.ballerinalang.net.grpc.builder.utils.BalGenerationUtils.writeFile;
 
 /**
- * .
- * .
+ * Class is responsible of generating the ballerina stub which is mapping proto definition.
  */
 public class BallerinaFile {
     
@@ -72,7 +73,8 @@ public class BallerinaFile {
             
             String descriptorMapString = constantBuilder.buildMap();
             String descriptorKey = constantBuilder.buildKey();
-            StringBuilder actionList = new StringBuilder();
+            StringBuilder streamingActionList = new StringBuilder();
+            StringBuilder blockingActionList = new StringBuilder();
             int i = 0;
             String methodName = null;
             String reqMessageName;
@@ -84,6 +86,7 @@ public class BallerinaFile {
             String resStructFieldType = null;
             ActionBuilder actionBuilder;
             for (DescriptorProtos.MethodDescriptorProto methodDescriptorProto : methodList) {
+                MethodDescriptor.MethodType methodType = MessageUtil.getMethodType(methodDescriptorProto);
                 String[] outputTypes = methodDescriptorProto.getOutputType().split("\\.");
                 String typeOut = outputTypes[outputTypes.length - 1];
                 String[] inputTypes = methodDescriptorProto.getInputType().split("\\.");
@@ -123,8 +126,13 @@ public class BallerinaFile {
                     resMessageName = getMappingBalType(typeOut);
                 }
                 actionBuilder = new ActionBuilder(methodName, reqMessageName, resMessageName
-                        , methodID, reqStructFieldName, reqStructFieldType, resStructFieldName, resStructFieldType);
-                actionList = actionList.append(NEW_LINE_CHARACTER).append(actionBuilder.build());
+                        , methodID, reqStructFieldName, reqStructFieldType, resStructFieldName, resStructFieldType,
+                        methodType);
+                if (methodType.equals(MethodDescriptor.MethodType.UNARY)) {
+                    blockingActionList = blockingActionList.append(NEW_LINE_CHARACTER).append(actionBuilder.build());
+                } else {
+                    streamingActionList = streamingActionList.append(NEW_LINE_CHARACTER).append(actionBuilder.build());
+                }
                 i++;
             }
             
@@ -138,8 +146,7 @@ public class BallerinaFile {
                     attributesNameArr[j] = fieldDescriptorProto.getName();
                     attributesTypeArr[j] = !fieldDescriptorProto.getTypeName().equals("") ? fieldDescriptorProto
                             .getTypeName().split("\\.")[fieldDescriptorProto.getTypeName().split("\\.")
-                            .length - 1] :
-                            getTypeName(fieldDescriptorProto.getType().getNumber());
+                            .length - 1] : getTypeName(fieldDescriptorProto.getType().getNumber());
                     j++;
                 }
                 StructBuilder structBuilder = new StructBuilder(attributesNameArr, attributesTypeArr,
@@ -148,14 +155,22 @@ public class BallerinaFile {
                 structList = structList.append(NEW_LINE_CHARACTER).append(structs);
             }
             
-            String connectorList = new ConnectorBuilder(actionList.toString(), fileDescriptorSet.getPackage(),
-                    fileDescriptorSet.getService(SERVICE_INDEX).getName() + "Stub{{stubType}}").build();
-            String balPayload = connectorList + structList + NEW_LINE_CHARACTER + descriptorKey +
+            String blockingConnectorList = new ConnectorBuilder(blockingActionList.toString(),
+                    fileDescriptorSet.getPackage(),
+                    fileDescriptorSet.getService(SERVICE_INDEX).getName() + "StubBlocking",
+                    "blocking").build();
+            String balBlockingPayload = blockingConnectorList + structList + NEW_LINE_CHARACTER + descriptorKey +
                     String.format("map descriptorMap ={%s};", descriptorMapString) + NEW_LINE_CHARACTER;
-            writeFile(balPayload.replace("{{stubType}}", "Blocking"),
+            String streamingConnectorList = new ConnectorBuilder(streamingActionList.toString(),
+                    fileDescriptorSet.getPackage(), fileDescriptorSet.getService(
+                    SERVICE_INDEX).getName() + "StubNonBlocking", "non-blocking").build();
+            String balStreamingPayload = streamingConnectorList + structList + NEW_LINE_CHARACTER + descriptorKey +
+                    String.format("map descriptorMap ={%s};", descriptorMapString) + NEW_LINE_CHARACTER;
+            
+            writeFile(balBlockingPayload.replace("{{stubType}}", "Blocking"),
                     fileDescriptorSet.getService(SERVICE_INDEX).getName() + "." + "blocking" + ".pb.bal",
                     balOutPath);
-            writeFile(balPayload.replace("{{stubType}}", "NonBlocking"),
+            writeFile(balStreamingPayload.replace("{{stubType}}", "NonBlocking"),
                     fileDescriptorSet.getService(SERVICE_INDEX).getName() + "." + "nonBlocking" + ".pb.bal",
                     balOutPath);
         } catch (IOException e) {
