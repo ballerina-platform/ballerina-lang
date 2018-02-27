@@ -100,7 +100,7 @@ public class NetworkUtils {
         Path currentDirPath = Paths.get(".").toAbsolutePath().normalize();
         String currentProjectPath = null;
         if (ballerinaTomlExists(currentDirPath)) {
-            Path projectDestDirectoryPath = Paths.get(currentDirPath.toString()).resolve(cacheDir)
+            Path projectDestDirectoryPath = currentDirPath.resolve(".ballerina").resolve(cacheDir)
                     .resolve(fullPathOfPkg);
             createDirectories(projectDestDirectoryPath);
             currentProjectPath = projectDestDirectoryPath.toString();
