@@ -17,16 +17,18 @@
  */
 package org.ballerinalang.net.grpc.stubs;
 
-import com.google.protobuf.Message;
+
 import io.grpc.CallOptions;
 import io.grpc.Channel;
 import io.grpc.MethodDescriptor;
-import io.grpc.stub.ClientCalls;
+import org.ballerinalang.net.grpc.Message;
 
 import java.util.Map;
 
+import static io.grpc.stub.ClientCalls.asyncBidiStreamingCall;
 import static io.grpc.stub.ClientCalls.asyncClientStreamingCall;
 import static io.grpc.stub.ClientCalls.asyncServerStreamingCall;
+import static io.grpc.stub.ClientCalls.asyncUnaryCall;
 
 /**
  * This class handles Non Blocking client connector.
@@ -64,9 +66,17 @@ public class GrpcNonBlockingStub extends io.grpc.stub.AbstractStub<GrpcNonBlocki
 
     public void executeUnary(Message request,
                              io.grpc.stub.StreamObserver<Message> responseObserver, String methodID) {
-            ClientCalls.asyncUnaryCall(
+            asyncUnaryCall(
                     getChannel().newCall(descriptorMap.get(methodID),
                             getCallOptions()), request, responseObserver);
-
     }
+
+    public io.grpc.stub.StreamObserver<Message> executeBidiStreaming(io.grpc.stub.StreamObserver<Message>
+                                                                               responseObserver, String methodID) {
+        MethodDescriptor<Message, Message> methodDescriptor = descriptorMap.get(methodID);
+        return asyncBidiStreamingCall(
+                getChannel().newCall(methodDescriptor, getCallOptions()), responseObserver);
+    }
+
+
 }

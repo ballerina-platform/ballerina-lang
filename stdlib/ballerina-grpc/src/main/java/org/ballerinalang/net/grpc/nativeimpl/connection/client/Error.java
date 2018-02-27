@@ -13,8 +13,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-
-package org.ballerinalang.net.grpc.nativeimpl.connection;
+package org.ballerinalang.net.grpc.nativeimpl.connection.client;
 
 import io.grpc.Status;
 import io.grpc.StatusRuntimeException;
@@ -28,6 +27,7 @@ import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
+import org.ballerinalang.net.grpc.MessageConstants;
 import org.ballerinalang.net.grpc.MessageUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,14 +38,14 @@ import org.slf4j.LoggerFactory;
  * @since 0.96.1
  */
 @BallerinaFunction(
-        packageName = "ballerina.net.grpc",
+        packageName = MessageConstants.PROTOCOL_PACKAGE_GRPC,
         functionName = "error",
-        receiver = @Receiver(type = TypeKind.STRUCT, structType = "Connection",
-                structPackage = "ballerina.net.grpc"),
-        args = {@Argument(name = "serverError", type = TypeKind.STRUCT, structType = "GrpcServerError",
-                structPackage = "ballerina.net.grpc")},
-        returnType = @ReturnType(type = TypeKind.STRUCT, structType = "Http2ConnectorError",
-                structPackage = "ballerina.net.grpc"),
+        receiver = @Receiver(type = TypeKind.STRUCT, structType = MessageConstants.CLIENT_CONNECTION,
+                structPackage = MessageConstants.PROTOCOL_PACKAGE_GRPC),
+        args = {@Argument(name = "serverError", type = TypeKind.STRUCT, structType = "ServerError",
+                structPackage = MessageConstants.PROTOCOL_PACKAGE_GRPC)},
+        returnType = @ReturnType(type = TypeKind.STRUCT, structType = "ConnectorError",
+                structPackage = MessageConstants.PROTOCOL_PACKAGE_GRPC),
         isPublic = true
 )
 public class Error extends AbstractNativeFunction {

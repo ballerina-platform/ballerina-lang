@@ -18,7 +18,6 @@
 package org.ballerinalang.net.grpc;
 
 import com.google.protobuf.Descriptors;
-import com.google.protobuf.Message;
 import io.grpc.Channel;
 import io.grpc.MethodDescriptor;
 import org.ballerinalang.net.grpc.exception.GrpcClientException;
@@ -77,9 +76,9 @@ public final class ClientConnectorFactory {
                                             .newBuilder(resMessage.getName()).build()))
                             .setSchemaDescriptor(methodDescriptor)
                             .build();
-            descriptorMap.put(methodName, descriptor);
+            descriptorMap.put(fullMethodName, descriptor);
             MessageRegistry messageRegistry = MessageRegistry.getInstance();
-            messageRegistry.addMethodDescriptor(methodName, methodDescriptor);
+            messageRegistry.addMethodDescriptor(fullMethodName, methodDescriptor);
             messageRegistry.addMessageDescriptor(reqMessage.getName(), reqMessage);
             messageRegistry.addMessageDescriptor(resMessage.getName(), resMessage);
         }

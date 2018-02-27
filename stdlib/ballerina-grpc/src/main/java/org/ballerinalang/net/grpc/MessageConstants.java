@@ -37,10 +37,13 @@ public class MessageConstants {
     public static final String PROTO_MESSAGE = "proto_message";
     public static final String STREAM_OBSERVER = "stream_observer";
     public static final String PROTOCOL_PACKAGE_GRPC = "ballerina.net.grpc";
-    public static final String CONNECTION = "Connection";
+    public static final String SERVER_CONNECTION = "ServerConnection";
+    public static final String CLIENT_CONNECTION = "ClientConnection";
     public static final String RESPONSE_MESSAGE_DEFINITION = "response_msg_definition";
+    public static final String REQUEST_MESSAGE_DEFINITION = "request_msg_definition";
     public static final String HTTP2_CONNECTOR_ERROR = "HttpConnectorError";
     public static final String ANN_NAME_CONFIG = "serviceConfig";
+    public static final String ANN_MESSAGE_LISTENER = "messageListener";
 
     // Response Message index
     public static final int REQUEST_MESSAGE_INDEX = 1;

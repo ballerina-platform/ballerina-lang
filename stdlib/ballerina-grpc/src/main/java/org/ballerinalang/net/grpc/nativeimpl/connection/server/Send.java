@@ -13,8 +13,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-
-package org.ballerinalang.net.grpc.nativeimpl.connection;
+package org.ballerinalang.net.grpc.nativeimpl.connection.server;
 
 import com.google.protobuf.DescriptorProtos;
 import com.google.protobuf.Descriptors;
@@ -48,11 +47,11 @@ import org.slf4j.LoggerFactory;
 @BallerinaFunction(
         packageName = "ballerina.net.grpc",
         functionName = "send",
-        receiver = @Receiver(type = TypeKind.STRUCT, structType = "Connection",
-                structPackage = "ballerina.net.grpc"),
+        receiver = @Receiver(type = TypeKind.STRUCT, structType = MessageConstants.SERVER_CONNECTION,
+                structPackage = MessageConstants.PROTOCOL_PACKAGE_GRPC),
         args = {@Argument(name = "response", type = TypeKind.STRING)},
         returnType = @ReturnType(type = TypeKind.STRUCT, structType = "ConnectorError",
-                structPackage = "ballerina.net.grpc"),
+                structPackage = MessageConstants.PROTOCOL_PACKAGE_GRPC),
         isPublic = true
 )
 public class Send extends AbstractNativeFunction {

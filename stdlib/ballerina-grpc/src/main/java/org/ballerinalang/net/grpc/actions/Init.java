@@ -21,67 +21,52 @@ import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.connector.api.AbstractNativeAction;
+import org.ballerinalang.connector.api.BallerinaConnectorException;
 import org.ballerinalang.connector.api.ConnectorFuture;
-import org.ballerinalang.model.types.BStructType;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BConnector;
 import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.nativeimpl.actions.ClientConnectorFuture;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaAction;
-import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.net.grpc.ClientConnectorFactory;
-import org.ballerinalang.net.grpc.MessageConstants;
 import org.ballerinalang.net.grpc.exception.GrpcClientException;
 import org.ballerinalang.net.grpc.stubs.GrpcBlockingStub;
 import org.ballerinalang.net.grpc.stubs.GrpcNonBlockingStub;
 import org.ballerinalang.net.grpc.stubs.ProtoFileDefinition;
-import org.ballerinalang.util.codegen.PackageInfo;
-import org.ballerinalang.util.codegen.StructInfo;
 
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- * {@code Connect} is the Connect action implementation of the gRPC Connector.
+ * {@code Init} is the Init action implementation of the gRPC Connector.
  */
 @BallerinaAction(
         packageName = "ballerina.net.grpc",
-        actionName = "connect",
+        actionName = "<init>",
         connectorName = "GRPCConnector",
-        args = {
-                @Argument(name = "stubType", type = TypeKind.ANY),
-                @Argument(name = "descriptorMap", type = TypeKind.MAP),
-                @Argument(name = "descriptorKey", type = TypeKind.STRING)
-        },
-        returnType = {
-                @ReturnType(type = TypeKind.STRUCT, structType = MessageConstants.CLIENT_CONNECTION, structPackage =
-                        MessageConstants.PROTOCOL_PACKAGE_GRPC),
-                @ReturnType(type = TypeKind.STRUCT, structType = "ConnectorError",
-                        structPackage = MessageConstants.PROTOCOL_PACKAGE_GRPC),
-        },
+        args = {@Argument(name = "c", type = TypeKind.CONNECTOR)},
         connectorArgs = {
                 @Argument(name = "host", type = TypeKind.STRING),
-                @Argument(name = "port", type = TypeKind.INT)
-        }
-)
-public class Connect extends AbstractNativeAction {
+                @Argument(name = "port", type = TypeKind.INT),
+                @Argument(name = "type", type = TypeKind.STRING),
+                @Argument(name = "descriptorKey", type = TypeKind.STRING),
+                @Argument(name = "descriptorMap", type = TypeKind.MAP)
+        })
+public class Init extends AbstractNativeAction {
 
     @Override
     public ConnectorFuture execute(Context context) {
         BConnector bConnector = (BConnector) getRefArgument(context, 0);
-        if (bConnector == null) {
-            throw new RuntimeException("Error while establishing the connection. BConnector is null.");
-        }
         int port = (int) bConnector.getIntField(0);
         String host = bConnector.getStringField(0);
-        String stubType = getStringArgument(context, 0);
-        String descriptorKey = getStringArgument(context, 1);
-        BMap<String, BValue> descriptorMap = (BMap<String, BValue>) getRefArgument(context, 1);
-        BStruct outboundError = createStruct(context, "ConnectorError");
-        ClientConnectorFuture ballerinaFuture = new ClientConnectorFuture();
+        String subtype = bConnector.getStringField(1);
+        //EnumNode.Enumerator enumerator = (EnumNode.Enumerator) bConnector.getRefField(1);
+        String descriptorKey = bConnector.getStringField(2);
+        BMap<String, BValue> descriptorMap = (BMap<String, BValue>) bConnector.getRefField(0);
+        ClientConnectorFuture future = new ClientConnectorFuture();
+
         try {
             // If there are more than one descriptors exist, other descriptors are considered as dependent
             // descriptors.  client supported only one depth descriptor dependency.
@@ -107,31 +92,25 @@ public class Connect extends AbstractNativeAction {
                     .usePlaintext(true)
                     .build();
             ClientConnectorFactory clientConnectorFactory = new ClientConnectorFactory(protoFileDefinition);
-            BStruct outboundResponse = createStruct(context, MessageConstants.CLIENT_CONNECTION);
-            outboundResponse.setStringField(0, host);
-            outboundResponse.setIntField(0, port);
 
-            if ("blocking".equalsIgnoreCase(stubType)) {
+            if ("blocking".equalsIgnoreCase(subtype)) {
                 GrpcBlockingStub grpcBlockingStub = clientConnectorFactory.newBlockingStub(channel);
-                outboundResponse.addNativeData("stub", grpcBlockingStub);
-            } else if ("non-blocking".equalsIgnoreCase(stubType)) {
+                bConnector.setNativeData("stub", grpcBlockingStub);
+                future.notifySuccess();
+            } else if ("non-blocking".equalsIgnoreCase(subtype)) {
                 GrpcNonBlockingStub nonBlockingStub = clientConnectorFactory.newNonBlockingStub(channel);
-                outboundResponse.addNativeData("stub", nonBlockingStub);
+                bConnector.setNativeData("stub", nonBlockingStub);
+                future.notifySuccess();
             } else {
-                outboundError.setStringField(0, "gRPC Connector Error : Invalid stub type");
-                ballerinaFuture.notifyReply(null, outboundError);
-                return ballerinaFuture;
+                future.notifyFailure(new BallerinaConnectorException("gRPC Connector Error : Invalid stub type"));
             }
-            ballerinaFuture.notifyReply(outboundResponse, null);
-            return ballerinaFuture;
+            return future;
         } catch (RuntimeException | GrpcClientException e) {
-            outboundError.setStringField(0, "gRPC Connector Error :" + e.getMessage());
-            ballerinaFuture.notifyReply(null, outboundError);
-            return ballerinaFuture;
+            future.notifyFailure(new BallerinaConnectorException("gRPC Connector Error.", e));
+            return future;
         }
-
     }
-    
+
     private static byte[] hexStringToByteArray(String s) {
         int len = s.length();
         byte[] data = new byte[len / 2];
@@ -140,13 +119,5 @@ public class Connect extends AbstractNativeAction {
                     + Character.digit(s.charAt(i + 1), 16));
         }
         return data;
-    }
-    
-    private BStruct createStruct(Context context, String structName) {
-        PackageInfo httpPackageInfo = context.getProgramFile()
-                .getPackageInfo(MessageConstants.PROTOCOL_PACKAGE_GRPC);
-        StructInfo structInfo = httpPackageInfo.getStructInfo(structName);
-        BStructType structType = structInfo.getType();
-        return new BStruct(structType);
     }
 }

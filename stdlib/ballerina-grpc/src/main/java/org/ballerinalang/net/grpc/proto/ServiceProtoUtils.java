@@ -63,7 +63,7 @@ import java.util.List;
  * Utility class providing utility methods.
  */
 public class ServiceProtoUtils {
-    
+
     public static File generateProtoDefinition(ServiceNode serviceNode) throws GrpcServerException {
         // Protobuf file definition builder.
         File.Builder fileBuilder = File.newBuilder(serviceNode.getName() + ServiceProtoConstants.PROTO_FILE_EXTENSION)
@@ -76,11 +76,11 @@ public class ServiceProtoUtils {
         } else {
             serviceDefinition = getUnaryServiceDefinition(serviceNode, fileBuilder);
         }
-        
+
         fileBuilder.setService(serviceDefinition);
         return fileBuilder.build();
     }
-    
+
     private static ServiceConfig getServiceConfiguration(ServiceNode serviceNode) {
         ServiceConfig serviceConfig = null;
         for (AnnotationAttachmentNode annotationNode : serviceNode.getAnnotationAttachments()) {
@@ -88,8 +88,6 @@ public class ServiceProtoUtils {
                 continue;
             }
             String rpcEndpoint = null;
-            String inputType = null;
-            String outputType = null;
             boolean clientStreaming = false;
             boolean serverStreaming = false;
             for (AnnotationAttachmentAttributeNode attributeNode : annotationNode.getAttributes()) {
@@ -99,18 +97,10 @@ public class ServiceProtoUtils {
                 if (attributeValueNode instanceof BLangLiteral) {
                     attributeValue = ((BLangLiteral) attributeValueNode).getValue();
                 }
-                
+
                 switch (attributeName) {
                     case "rpcEndpoint": {
                         rpcEndpoint = (String) attributeValue;
-                        break;
-                    }
-                    case "inputType": {
-                        inputType = (String) attributeValue;
-                        break;
-                    }
-                    case "outputType": {
-                        outputType = (String) attributeValue;
                         break;
                     }
                     case "clientStreaming": {
@@ -127,17 +117,17 @@ public class ServiceProtoUtils {
                 }
             }
             if (rpcEndpoint != null && (clientStreaming || serverStreaming)) {
-                serviceConfig = new ServiceConfig(rpcEndpoint, inputType, outputType, clientStreaming, serverStreaming);
+                serviceConfig = new ServiceConfig(rpcEndpoint, clientStreaming, serverStreaming);
             }
         }
         return serviceConfig;
     }
-    
+
     private static Service getUnaryServiceDefinition(ServiceNode serviceNode, File.Builder fileBuilder) throws
             GrpcServerException {
         // Protobuf service definition builder.
         Service.Builder serviceBuilder = Service.newBuilder(serviceNode.getName().getValue());
-        
+
         for (ResourceNode resourceNode : serviceNode.getResources()) {
             Message requestMessage = getRequestMessage(resourceNode);
             if (requestMessage.getMessageKind() == MessageKind.USER_DEFINED) {
@@ -151,11 +141,11 @@ public class ServiceProtoUtils {
                 }
             }
             Message responseMessage = getResponseMessage(resourceNode);
-            
+
             if (responseMessage == null) {
                 throw new GrpcServerException("Connection send expression not found in resource body");
             }
-            
+
             if (responseMessage.getMessageKind() == MessageKind.USER_DEFINED) {
                 if (!fileBuilder.getRegisteredMessages().contains(responseMessage.getDescriptorProto())) {
                     fileBuilder.setMessage(responseMessage);
@@ -166,7 +156,7 @@ public class ServiceProtoUtils {
                     fileBuilder.setDependeny(responseMessage.getDependency());
                 }
             }
-            
+
             boolean serverStreaming = isServerStreaming(resourceNode);
             Method resourceMethod = Method.newBuilder(resourceNode.getName().getValue())
                     .setClientStreaming(false)
@@ -178,7 +168,7 @@ public class ServiceProtoUtils {
         }
         return serviceBuilder.build();
     }
-    
+
     private static Service getStreamingServiceDefinition(ServiceNode serviceNode, ServiceConfig serviceConfig, File
             .Builder fileBuilder) throws GrpcServerException {
         // Protobuf service definition builder.
@@ -193,12 +183,12 @@ public class ServiceProtoUtils {
                     break;
                 }
             }
-            
+
             if ("onComplete".equals(resourceNode.getName().getValue())) {
                 responseMessage = getResponseMessage(resourceNode);
             }
         }
-        
+
         if (requestMessage == null) {
             throw new GrpcServerException("Cannot find request message definition for streaming service: " +
                     serviceNode.getName().getValue());
@@ -207,7 +197,7 @@ public class ServiceProtoUtils {
             throw new GrpcServerException("Cannot find response message definition for streaming service: " +
                     serviceNode.getName().getValue());
         }
-        
+
         if (requestMessage.getMessageKind() == MessageKind.USER_DEFINED) {
             if (!fileBuilder.getRegisteredMessages().contains(requestMessage.getDescriptorProto())) {
                 fileBuilder.setMessage(requestMessage);
@@ -218,13 +208,13 @@ public class ServiceProtoUtils {
                 fileBuilder.setDependeny(requestMessage.getDependency());
             }
         }
-        
+
         if (responseMessage.getDependency() != null) {
             if (!fileBuilder.getRegisteredDependencies().contains(responseMessage.getDependency())) {
                 fileBuilder.setDependeny(responseMessage.getDependency());
             }
         }
-        
+
         Method resourceMethod = Method.newBuilder(serviceConfig.getRpcEndpoint())
                 .setClientStreaming(serviceConfig.isClientStreaming())
                 .setServerStreaming(serviceConfig.isServerStreaming())
@@ -234,7 +224,7 @@ public class ServiceProtoUtils {
         serviceBuilder.addMethod(resourceMethod);
         return serviceBuilder.build();
     }
-    
+
     private static boolean isServerStreaming(ResourceNode resourceNode) {
         boolean serverStreaming = false;
         for (AnnotationAttachmentNode annotationNode : resourceNode.getAnnotationAttachments()) {
@@ -250,7 +240,7 @@ public class ServiceProtoUtils {
         }
         return serverStreaming;
     }
-    
+
     private static Message getResponseMessage(ResourceNode resourceNode) throws GrpcServerException {
         Message responseMessage = null;
         BLangInvocation sendExpression = getInvocationExpression(resourceNode.getBody());
@@ -260,7 +250,7 @@ public class ServiceProtoUtils {
         }
         return responseMessage;
     }
-    
+
     private static Message getRequestMessage(ResourceNode resourceNode) throws GrpcServerException {
         VariableNode requestVariable = resourceNode.getParameters().get(MessageConstants.REQUEST_MESSAGE_INDEX);
         org.wso2.ballerinalang.compiler.semantics.model.types.BType requestType;
@@ -271,7 +261,7 @@ public class ServiceProtoUtils {
         }
         return generateMessageDefinition(requestType);
     }
-    
+
     /**
      * Returns protobuf message definition from ballerina struct type.
      *
@@ -313,7 +303,7 @@ public class ServiceProtoUtils {
         }
         return message;
     }
-    
+
     private static Message getStructMessage(
             org.wso2.ballerinalang.compiler.semantics.model.types.BStructType messageType) throws GrpcServerException {
         UserDefinedMessage.Builder messageBuilder = UserDefinedMessage.newBuilder(messageType.toString());
@@ -330,7 +320,7 @@ public class ServiceProtoUtils {
         }
         return messageBuilder.build();
     }
-    
+
     private static BLangInvocation getInvocationExpression(BlockNode body) {
         for (StatementNode statementNode : body.getStatements()) {
             BLangExpression expression = null;
@@ -373,7 +363,7 @@ public class ServiceProtoUtils {
                 BLangVariable variable = variableDef.getVariable();
                 expression = variable.getInitialExpression();
             }
-            
+
             if (expression != null && expression instanceof BLangInvocation) {
                 BLangInvocation invocation = (BLangInvocation) expression;
                 if ("send".equals(invocation.getName().getValue())) {
@@ -383,7 +373,7 @@ public class ServiceProtoUtils {
         }
         return null;
     }
-    
+
     private static org.wso2.ballerinalang.compiler.semantics.model.types.BType getReturnType(BLangInvocation invocation)
             throws GrpcServerException {
         if (invocation.getArgumentExpressions() != null &&
@@ -404,7 +394,7 @@ public class ServiceProtoUtils {
             return null;
         }
     }
-    
+
     /**
      * Returns protobuf file definition from Ballerina Service.
      *
@@ -453,7 +443,7 @@ public class ServiceProtoUtils {
         fileBuilder.setService(grpcService);
         return fileBuilder.build();
     }*/
-    
+
     /**
      * Returns protobuf message definition from ballerina struct type.
      * <p>
@@ -484,20 +474,20 @@ public class ServiceProtoUtils {
     }*/
     public static com.google.protobuf.Descriptors.FileDescriptor getDescriptor(org.ballerinalang.connector.api
                                                                                        .Service service) {
-        
+
         try {
             Path path = Paths.get(service.getName() + ServiceProtoConstants.DESC_FILE_EXTENSION);
             byte[] descriptor = Files.readAllBytes(path);
-            
+
             DescriptorProtos.FileDescriptorProto proto = DescriptorProtos.FileDescriptorProto.parseFrom(descriptor);
-            return Descriptors.FileDescriptor.buildFrom(proto, new com.google.protobuf.Descriptors.FileDescriptor[] {
+            return Descriptors.FileDescriptor.buildFrom(proto, new com.google.protobuf.Descriptors.FileDescriptor[]{
                     com.google.protobuf.WrappersProto.getDescriptor(),
             });
         } catch (IOException | Descriptors.DescriptorValidationException e) {
             throw new RuntimeException("Error : ", e);
         }
     }
-    
+
     /**
      * Write protobuf file definition content to the filename.
      *
@@ -506,25 +496,12 @@ public class ServiceProtoUtils {
      * @throws GrpcServerException when error occur while writing content to file.
      */
     public static void writeServiceFiles(File protoFileDefinition, String filename) throws GrpcServerException {
-/*        java.io.File configDir = new java.io.File(ServiceProtoConstants.PROTO_BUF_DIRECTORY);
-
-        // create protobuf contract directory.
-        if (!configDir.exists() && !configDir.mkdirs()) {
-            throw new GrpcServerException("Error while creating protobuf contract directory.");
-        }*/
-
-/*        try (PrintWriter out = new PrintWriter(new java.io.File(filename
-                + ServiceProtoConstants.PROTO_FILE_EXTENSION), ServiceProtoConstants.UTF_8_CHARSET)) {
-            out.println(protoFileDefinition.getFileDefinition());
-        } catch (FileNotFoundException | UnsupportedEncodingException e) {
-            throw new GrpcServerException("Error while creating new contract file.", e);
-        }*/
         try {
             // write the proto string to the file in protobuf contract directory
             Path protoFilePath = Paths.get(filename + ServiceProtoConstants.PROTO_FILE_EXTENSION);
             Files.write(protoFilePath, protoFileDefinition.getFileDefinition().getBytes(ServiceProtoConstants
                     .UTF_8_CHARSET));
-            
+
             // write the proto descriptor byte array to the file in protobuf contract directory
             byte[] fileDescriptor = protoFileDefinition.getFileDescriptorProto().toByteArray();
             Path descFilePath = Paths.get(filename + ServiceProtoConstants.DESC_FILE_EXTENSION);
@@ -532,16 +509,16 @@ public class ServiceProtoUtils {
             List<byte[]> dependentDescriptorsList = new ArrayList<>();
             dependentDescriptorsList.add(com.google.protobuf.WrappersProto.getDescriptor
                     ().toProto().toByteArray());
-            Path path = Paths.get(filename + ".pb.bal");
+            Path path = Paths.get("");
             new BallerinaFile(fileDescriptor, dependentDescriptorsList, path).build();
         } catch (IOException e) {
             throw new GrpcServerException("Error while writing file descriptor to file.", e);
         }
     }
-    
-    
+
+
     private static final char[] HEX_ARRAY = "0123456789ABCDEF".toCharArray();
-    
+
     public static String bytesToHex(byte[] data) {
         char[] hexChars = new char[data.length * 2];
         for (int j = 0; j < data.length; j++) {

@@ -34,7 +34,7 @@ import java.util.Map;
 public class ClientStreamingListener extends MethodListener implements ServerCalls
         .ClientStreamingMethod<Message, Message> {
 
-    public final Map<String, Resource> resourceMap;
+    private final Map<String, Resource> resourceMap;
 
     public ClientStreamingListener(Descriptors.MethodDescriptor methodDescriptor, Map<String, Resource> resourceMap) {
         super(methodDescriptor, resourceMap.get(MessageConstants.ON_MESSAGE_RESOURCE));

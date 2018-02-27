@@ -136,6 +136,21 @@ public class MessageUtils {
 
         return annotationList.isEmpty() ? null : annotationList.get(0);
     }
+
+    public static Annotation getMessageListenerAnnotation(Service service, String pkgPath) {
+        List<Annotation> annotationList = service.getAnnotationList(pkgPath, MessageConstants.ANN_MESSAGE_LISTENER);
+
+        if (annotationList == null) {
+            return null;
+        }
+
+        if (annotationList.size() > 1) {
+            throw new BallerinaException(
+                    "multiple service configuration annotations found in service: " + service.getName());
+        }
+
+        return annotationList.isEmpty() ? null : annotationList.get(0);
+    }
 /*    public static com.google.protobuf.Message generateProtoMessage(BStruct bValue, BStructType structType) {
         Message.Builder responseBuilder = Message.newBuilder(structType.getName());
         int stringIndex = 0;

@@ -20,6 +20,7 @@ package org.ballerinalang.net.grpc.actions;
 import com.google.protobuf.DescriptorProtos;
 import com.google.protobuf.Descriptors;
 import io.grpc.MethodDescriptor;
+import io.grpc.stub.StreamObserver;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.connector.api.AbstractNativeAction;
 import org.ballerinalang.connector.api.ConnectorFuture;
@@ -27,6 +28,7 @@ import org.ballerinalang.model.types.BStructType;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.types.TypeKind;
+import org.ballerinalang.model.values.BConnector;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.nativeimpl.actions.ClientConnectorFuture;
@@ -34,8 +36,10 @@ import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaAction;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.net.grpc.Message;
+import org.ballerinalang.net.grpc.MessageConstants;
 import org.ballerinalang.net.grpc.MessageRegistry;
 import org.ballerinalang.net.grpc.exception.GrpcClientException;
+import org.ballerinalang.net.grpc.exception.UnsupportedFieldTypeException;
 import org.ballerinalang.net.grpc.stubs.DefaultStreamObserver;
 import org.ballerinalang.net.grpc.stubs.GrpcBlockingStub;
 import org.ballerinalang.net.grpc.stubs.GrpcNonBlockingStub;
@@ -45,6 +49,8 @@ import org.ballerinalang.util.codegen.StructInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Iterator;
+
 /**
  * {@code Execute} is the Execute action implementation of the gRPC Connector.
  */
@@ -53,10 +59,12 @@ import org.slf4j.LoggerFactory;
         actionName = "execute",
         connectorName = "GRPCConnector",
         args = {
-                @Argument(name = "conn", type = TypeKind.STRUCT, structType = "Connection", structPackage =
-                        "ballerina.net.grpc"),
+                @Argument(name = "conn", type = TypeKind.STRUCT, structType = MessageConstants.CLIENT_CONNECTION,
+                        structPackage = MessageConstants.PROTOCOL_PACKAGE_GRPC),
                 @Argument(name = "payload", type = TypeKind.ANY),
-                @Argument(name = "methodID", type = TypeKind.INT)
+                @Argument(name = "methodID", type = TypeKind.STRING),
+                @Argument(name = "listenerService", type = TypeKind.STRING)
+
         },
         returnType = {
                 @ReturnType(type = TypeKind.ANY),
@@ -74,14 +82,14 @@ public class Execute extends AbstractNativeAction {
     
     @Override
     public ConnectorFuture execute(Context context) {
+        BConnector bConnector = (BConnector) getRefArgument(context, 0);
         ClientConnectorFuture ballerinaFuture = new ClientConnectorFuture();
-        BStruct outboundError = createStruct(context);
+        BStruct outboundError = createStruct(context, "ConnectorError");
         BValue payloadBValue;
-        BStruct connectionStub;
+        Object connectionStub;
         String methodName;
         try {
-            payloadBValue = getRefArgument(context, 2);
-            connectionStub = (BStruct) getRefArgument(context, 1);
+            connectionStub = bConnector.getnativeData("stub");
             methodName = getStringArgument(context, 0);
         } catch (ArrayIndexOutOfBoundsException e) {
             outboundError.setStringField(0, "gRPC Connector Error :" + e.getMessage());
@@ -92,38 +100,67 @@ public class Execute extends AbstractNativeAction {
         try {
             com.google.protobuf.Descriptors.MethodDescriptor methodDescriptor = MessageRegistry.getInstance()
                     .getMethodDescriptor(methodName);
-            com.google.protobuf.Message message = MessageUtil.generateProtoMessage
-                    (payloadBValue, methodDescriptor.getInputType());
-            Message messageRes = null;
-            if (connectionStub.getNativeData("stub") instanceof GrpcBlockingStub) {
-                GrpcBlockingStub grpcBlockingStub = (GrpcBlockingStub)
-                        connectionStub.getNativeData("stub");
+            Message requestMsg;
+            Message responseMsg = null;
+            BValue responseBValue = null;
+            if (connectionStub instanceof GrpcBlockingStub) {
+                payloadBValue = getRefArgument(context, 1);
+                requestMsg = MessageUtil.generateProtoMessage(payloadBValue, methodDescriptor.getInputType());
+                GrpcBlockingStub grpcBlockingStub = (GrpcBlockingStub) connectionStub;
                 if (getMethodType(methodDescriptor).equals(MethodDescriptor.MethodType.UNARY)) {
-                    messageRes = (Message) grpcBlockingStub.executeUnary(message, methodName);
+                    responseMsg = grpcBlockingStub.executeUnary(requestMsg, methodName);
                 } else if ((getMethodType(methodDescriptor).equals(MethodDescriptor.MethodType.SERVER_STREAMING))) {
-                    messageRes = (Message) grpcBlockingStub.executeServerStreaming(message, methodName);
+                    java.util.Iterator<Message> messageIterator = grpcBlockingStub.executeServerStreaming
+                            (requestMsg, methodName);
+                } else {
+                    throw new UnsupportedFieldTypeException("Error while executing the client call, called method " +
+                            "type is unknown");
                 }
-            } else if (connectionStub.getNativeData("stub") instanceof GrpcNonBlockingStub) {
-                GrpcNonBlockingStub grpcNonBlockingStub = (GrpcNonBlockingStub)
-                        connectionStub.getNativeData("stub");
+                Descriptors.Descriptor outputDescriptor = methodDescriptor.getOutputType();
+                responseBValue = MessageUtil.generateRequestStruct(responseMsg, outputDescriptor.getName(),
+                        getBalType(outputDescriptor.getName(), context), context);
+            } else if (connectionStub instanceof GrpcNonBlockingStub) {
+                GrpcNonBlockingStub grpcNonBlockingStub = (GrpcNonBlockingStub) connectionStub;
                 if (getMethodType(methodDescriptor).equals(MethodDescriptor.MethodType.UNARY)) {
-                    grpcNonBlockingStub.executeUnary(message, new DefaultStreamObserver(context), methodName);
+                    payloadBValue = getRefArgument(context, 1);
+                    requestMsg = MessageUtil.generateProtoMessage(payloadBValue, methodDescriptor.getInputType());
+                    String listenerService = getStringArgument(context, 1);
+                    grpcNonBlockingStub.executeUnary(requestMsg, new DefaultStreamObserver(context, listenerService),
+                            methodName);
                 } else if ((getMethodType(methodDescriptor).equals(MethodDescriptor.MethodType.SERVER_STREAMING))) {
-                    grpcNonBlockingStub.executeServerStreaming(message, new DefaultStreamObserver(context),
-                            methodName);
+                    payloadBValue = getRefArgument(context, 1);
+                    requestMsg = MessageUtil.generateProtoMessage(payloadBValue, methodDescriptor.getInputType());
+                    String listenerService = getStringArgument(context, 1);
+                    grpcNonBlockingStub.executeServerStreaming(requestMsg, new DefaultStreamObserver(context,
+                            listenerService), methodName);
                 } else if ((getMethodType(methodDescriptor).equals(MethodDescriptor.MethodType.CLIENT_STREAMING))) {
-                    grpcNonBlockingStub.executeServerStreaming(message, new DefaultStreamObserver(context),
-                            methodName);
+                    String listenerService = getStringArgument(context, 1);
+                    DefaultStreamObserver responseObserver = new DefaultStreamObserver(context, listenerService);
+                    StreamObserver<Message> requestSender = grpcNonBlockingStub.executeClientStreaming
+                            (responseObserver, methodName);
+                    responseObserver.registerRequestSender(requestSender, methodDescriptor.getInputType());
+                    BStruct connStruct = createStruct(context, "ClientConnection");
+                    connStruct.addNativeData(MessageConstants.STREAM_OBSERVER, requestSender);
+                    connStruct.addNativeData(MessageConstants.REQUEST_MESSAGE_DEFINITION, methodDescriptor
+                            .getInputType());
+                    responseBValue = connStruct;
+                } else if ((getMethodType(methodDescriptor).equals(MethodDescriptor.MethodType.BIDI_STREAMING))) {
+                    String listenerService = getStringArgument(context, 1);
+                    DefaultStreamObserver responseObserver = new DefaultStreamObserver(context, listenerService);
+                    StreamObserver<Message> requestSender = grpcNonBlockingStub.executeBidiStreaming
+                            (responseObserver, methodName);
+                    responseObserver.registerRequestSender(requestSender, methodDescriptor.getInputType());
+                    BStruct connStruct = createStruct(context, "ClientConnection");
+                    connStruct.addNativeData(MessageConstants.STREAM_OBSERVER, requestSender);
+                    connStruct.addNativeData(MessageConstants.REQUEST_MESSAGE_DEFINITION, methodDescriptor
+                            .getInputType());
+                    responseBValue = connStruct;
                 }
             } else {
                 throw new RuntimeException("Unsupported stub type.");
             }
 
-            Descriptors.Descriptor outputDescriptor = methodDescriptor.getOutputType();
-
-            BValue bValue = MessageUtil.generateRequestStruct(messageRes, outputDescriptor.getName(),
-                    getBalType(outputDescriptor.getName(), context), context);
-            ballerinaFuture.notifyReply(bValue, null);
+            ballerinaFuture.notifyReply(responseBValue, null);
             return ballerinaFuture;
         } catch (RuntimeException | GrpcClientException e) {
             outboundError.setStringField(0, "gRPC Connector Error :" + e.getMessage());
@@ -180,11 +217,11 @@ public class Execute extends AbstractNativeAction {
         }
     }
     
-    private BStruct createStruct(Context context) {
+    private BStruct createStruct(Context context, String structName) {
         
         PackageInfo httpPackageInfo = context.getProgramFile()
-                .getPackageInfo("ballerina.net.grpc");
-        StructInfo structInfo = httpPackageInfo.getStructInfo("ConnectorError");
+                .getPackageInfo(MessageConstants.PROTOCOL_PACKAGE_GRPC);
+        StructInfo structInfo = httpPackageInfo.getStructInfo(structName);
         BStructType structType = structInfo.getType();
         return new BStruct(structType);
     }

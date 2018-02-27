@@ -53,20 +53,19 @@ public final class ProtoFileDefinition {
         int i = 0;
         for (byte[] dis : dependentDescriptorData) {
             try {
-                DescriptorProtos.FileDescriptorSet desSet = DescriptorProtos.FileDescriptorSet.parseFrom(dis);
-                depSet[i] = Descriptors.FileDescriptor.buildFrom((DescriptorProtos.FileDescriptorProto)
-                        desSet.getFileOrBuilder(0), new Descriptors.FileDescriptor[]{});
+                DescriptorProtos.FileDescriptorProto fileDescriptorSet = DescriptorProtos.FileDescriptorProto
+                        .parseFrom(dis);
+                depSet[i] = Descriptors.FileDescriptor.buildFrom(fileDescriptorSet, new Descriptors.FileDescriptor[]{});
                 i++;
             } catch (InvalidProtocolBufferException | Descriptors.DescriptorValidationException e) {
-                throw new RuntimeException("Error while generating depend descriptors. ", e);
+                throw new RuntimeException("Error while gen erating depend descriptors. ", e);
             }
         }
 
         try (InputStream targetStream = new ByteArrayInputStream(rootDescriptorData)) {
             DescriptorProtos.FileDescriptorProto descriptorProto = DescriptorProtos.FileDescriptorProto.parseFrom
                     (targetStream);
-            return fileDescriptor = Descriptors.FileDescriptor.buildFrom(descriptorProto, new com.google.protobuf
-                    .Descriptors.FileDescriptor[]{com.google.protobuf.WrappersProto.getDescriptor(), });
+            return fileDescriptor = Descriptors.FileDescriptor.buildFrom(descriptorProto, depSet);
         } catch (IOException | Descriptors.DescriptorValidationException e) {
             throw new RuntimeException("Error while generating service descriptor : ", e);
         }

@@ -118,13 +118,7 @@ public class BalGenerationUtils {
      */
     public static void writeFile(String payload, String fileName, Path balOutPath) throws FileNotFoundException,
             UnsupportedEncodingException {
-        String filePath;
-        if ("".equals(balOutPath.toString())) {
-            filePath = balOutPath.toString() + fileName;
-        } else {
-            filePath = balOutPath.toString() + FILE_SEPERATOR + fileName;
-        }
-        Path path = Paths.get(filePath);
+        Path path = Paths.get(balOutPath.toString(), fileName);
         PrintWriter writer = new PrintWriter(path.toFile(), "UTF-8");
         writer.print(payload);
         writer.close();
@@ -138,7 +132,6 @@ public class BalGenerationUtils {
      */
     public static Map<String, DescriptorProtos.DescriptorProto> attributeListToMap(java.util.List<DescriptorProtos
             .DescriptorProto> list) {
-        
         Map<String, DescriptorProtos.DescriptorProto> stringObjectMap = new HashMap<>();
         for (DescriptorProtos.DescriptorProto proto : list) {
             stringObjectMap.put(proto.getName(), proto);

@@ -17,10 +17,10 @@
  */
 package org.ballerinalang.net.grpc.stubs;
 
-import com.google.protobuf.Message;
 import io.grpc.CallOptions;
 import io.grpc.Channel;
 import io.grpc.MethodDescriptor;
+import org.ballerinalang.net.grpc.Message;
 
 import java.util.Map;
 
