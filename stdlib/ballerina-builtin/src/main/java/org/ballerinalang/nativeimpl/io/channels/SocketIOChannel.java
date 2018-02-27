@@ -20,6 +20,8 @@ package org.ballerinalang.nativeimpl.io.channels;
 
 import org.ballerinalang.nativeimpl.io.BallerinaIOException;
 import org.ballerinalang.nativeimpl.io.channels.base.Channel;
+import org.ballerinalang.nativeimpl.io.channels.base.readers.BlockingReader;
+import org.ballerinalang.nativeimpl.io.channels.base.writers.BlockingWriter;
 
 import java.nio.channels.ByteChannel;
 import java.nio.channels.WritableByteChannel;
@@ -32,7 +34,7 @@ import java.nio.channels.WritableByteChannel;
 public class SocketIOChannel extends Channel {
 
     public SocketIOChannel(ByteChannel channel, int size) throws BallerinaIOException {
-        super(channel, size);
+        super(channel, new BlockingReader(), new BlockingWriter(), size);
     }
 
     /**
