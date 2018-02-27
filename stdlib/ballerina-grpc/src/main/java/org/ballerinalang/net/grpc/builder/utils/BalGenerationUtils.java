@@ -28,7 +28,6 @@ import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.ballerinalang.net.grpc.builder.BalGenConstants.FILE_SEPERATOR;
 import static org.ballerinalang.net.grpc.builder.BalGenConstants.HEX_ARRAY;
 
 /**
