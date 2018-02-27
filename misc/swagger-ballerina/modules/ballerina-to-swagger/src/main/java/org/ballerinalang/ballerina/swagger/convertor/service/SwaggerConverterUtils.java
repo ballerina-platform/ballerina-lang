@@ -21,6 +21,7 @@ import io.swagger.v3.core.util.Yaml;
 import io.swagger.v3.parser.converter.SwaggerConverter;
 
 import org.apache.commons.lang3.StringUtils;
+import org.ballerinalang.ballerina.swagger.convertor.Constants;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.composer.service.ballerina.parser.service.model.BFile;
 import org.ballerinalang.composer.service.ballerina.parser.service.model.BallerinaFile;
@@ -74,7 +75,7 @@ public class SwaggerConverterUtils {
         }
     
         final Map<String, ModelPackage> modelPackage = new HashMap<>();
-        ParserUtils.loadPackageMap("Current Package", model, modelPackage);
+        ParserUtils.loadPackageMap(Constants.CURRENT_PACKAGE_NAME, model, modelPackage);
     
         Optional<BLangCompilationUnit> compilationUnit = model.getCompilationUnits().stream()
                 .filter(compUnit -> fileName.equals(compUnit.getName()))
@@ -97,8 +98,8 @@ public class SwaggerConverterUtils {
         BFile balFile = new BFile();
         balFile.setContent(ballerinaSource);
         BLangCompilationUnit topCompilationUnit = SwaggerConverterUtils.getTopLevelNodeFromBallerinaFile(balFile);
-        String httpAlias = getAlias(topCompilationUnit, "ballerina.net.http");
-        String swaggerAlias = getAlias(topCompilationUnit, "ballerina.net.http.swagger");
+        String httpAlias = getAlias(topCompilationUnit, Constants.BALLERINA_HTTP_PACKAGE_NAME);
+        String swaggerAlias = getAlias(topCompilationUnit, Constants.SWAGGER_PACKAGE_NAME);
         SwaggerServiceMapper swaggerServiceMapper = new SwaggerServiceMapper(httpAlias, swaggerAlias);
         String swaggerSource = StringUtils.EMPTY;
         for (TopLevelNode topLevelNode : topCompilationUnit.getTopLevelNodes()) {
@@ -141,8 +142,8 @@ public class SwaggerConverterUtils {
         //Create empty swagger object.
         Swagger swaggerDefinition = new Swagger();
         BLangCompilationUnit topCompilationUnit = SwaggerConverterUtils.getTopLevelNodeFromBallerinaFile(balFile);
-        String httpAlias = getAlias(topCompilationUnit, "ballerina.net.http");
-        String swaggerAlias = getAlias(topCompilationUnit, "ballerina.net.http.swagger");
+        String httpAlias = getAlias(topCompilationUnit, Constants.BALLERINA_HTTP_PACKAGE_NAME);
+        String swaggerAlias = getAlias(topCompilationUnit, Constants.SWAGGER_PACKAGE_NAME);
         SwaggerServiceMapper swaggerServiceMapper = new SwaggerServiceMapper(httpAlias, swaggerAlias);
         String swaggerSource = StringUtils.EMPTY;
         for (TopLevelNode topLevelNode : topCompilationUnit.getTopLevelNodes()) {
