@@ -132,28 +132,31 @@ class HttpResourceHeader extends React.Component {
 
                 }
                 {methods.length > 0 && methods.map((method) => {
-                    return (
-                        <g className='http-methods'>
-                            <rect
-                                x={x + dimensions[method].offset - 15}
-                                y={y + 5}
-                                width={dimensions[method].w}
-                                height={20}
-                                fill='#e2e2e2'
-                                rx='3'
-                                ry='3'
-                                className={method.toLowerCase()}
-                            />
-                            <text
-                                style={{ dominantBaseline: 'central' }}
-                                x={x + dimensions[method].offset - 10}
-                                y={basePathY}
-                                className={`editable-text-label ${method.toLowerCase()}`}
-                            >
-                                {method}
-                            </text>
-                        </g>
-                    );
+                    if (typeof method === 'string') {
+                        return (
+                            <g className='http-methods'>
+                                <rect
+                                    x={x + dimensions[method].offset - 15}
+                                    y={y + 5}
+                                    width={dimensions[method].w}
+                                    height={20}
+                                    fill='#e2e2e2'
+                                    rx='3'
+                                    ry='3'
+                                    className={method.toLowerCase()}
+                                />
+                                <text
+                                    style={{ dominantBaseline: 'central' }}
+                                    x={x + dimensions[method].offset - 10}
+                                    y={basePathY}
+                                    className={`editable-text-label ${method.toLowerCase()}`}
+                                >
+                                    {method}
+                                </text>
+                            </g>
+                        );
+                    }
+                    return null;
                 })}
                 <text
                     style={{ dominantBaseline: 'central' }}

@@ -167,7 +167,7 @@ public class TryCatchThrowStmtTest {
 
     @Test()
     public void testDuplicateCatchBlock() {
-        BAssertUtil.validateError(compileResultNegative, 3, "error 'TestError' already caught in catch block", 39, 14);
+        BAssertUtil.validateError(compileResultNegative, 3, "error 'TestError' already caught in catch block", 38, 14);
     }
 
 }

@@ -22,6 +22,74 @@ import Environment from '../env/environment';
 import DefaultNodes from './default-nodes';
 import ConnectorHelper from './../env/helpers/connector-helper';
 
+
+export const WsResources = [
+    {
+        resourceName: 'onHandshake',
+        fragment: `
+        resource onHandshake(ws:HandshakeConnection conn) {
+
+        }
+    `,
+    },
+    {
+        resourceName: 'onOpen',
+        fragment: `
+        resource onOpen(ws:Connection conn) {
+
+        }
+    `,
+    },
+    {
+        resourceName: 'onTextMessage',
+        fragment: `
+        resource onTextMessage(ws:Connection conn, ws:TextFrame frame) {
+
+        }
+    `,
+    },
+    {
+        resourceName: 'onBinaryMessage',
+        fragment: `
+        resource onBinaryMessage(ws:Connection conn, ws:BinaryFrame frame) {
+
+        }
+    `,
+    },
+    {
+        resourceName: 'onClose',
+        fragment: `
+        resource onClose(ws:Connection conn, ws:CloseFrame frame) {
+
+        }
+    `,
+    },
+    {
+        resourceName: 'onIdleTimeOut',
+        fragment: `
+        resource onIdleTimeOut(ws:Connection conn) {
+
+        }
+    `,
+    },
+    {
+        resourceName: 'onPing',
+        fragment: `
+        resource onPing(ws:Connection conn, ws:PingFrame frame) {
+
+        }
+    `,
+    },
+    {
+        resourceName: 'onPong',
+        fragment: `
+        resource onPong(ws:Connection conn, ws:PongFrame frame) {
+
+        }
+    `,
+    },
+];
+
 /**
  * Creates the node instance for given source fragment
  *

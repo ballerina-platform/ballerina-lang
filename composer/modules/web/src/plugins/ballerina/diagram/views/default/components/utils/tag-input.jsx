@@ -40,7 +40,7 @@ class TagInput extends React.Component {
 
     render() {
         return (
-            <label className='tagLabel'>
+            <label >
                 <ul id='ulContainer'>
                     {this.props.taggedElements && this.props.taggedElements.map((item, i) =>
                         (<li
@@ -49,7 +49,7 @@ class TagInput extends React.Component {
                             onClick={() => { this.handleRemoveItem(i); }}
                         >
                             {item}
-                            <span className='deleteSpan'><i className='fw fw-delete iconDelete' /></span>
+                            <span className='deleteSpan'><i className='fw fw-cancel iconDelete' /></span>
                         </li>))
                     }
                     <input

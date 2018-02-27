@@ -42,4 +42,6 @@ public class CompletionKeys {
             = new LanguageServerContext.Key<>();
     public static final LanguageServerContext.Key<Integer> TRANSACTION_COUNT_KEY
             = new LanguageServerContext.Key<>();
+    public static final LanguageServerContext.Key<Boolean> INVOCATION_STATEMENT_KEY
+            = new LanguageServerContext.Key<>();
 }

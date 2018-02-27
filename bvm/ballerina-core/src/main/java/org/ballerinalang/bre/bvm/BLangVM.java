@@ -516,7 +516,7 @@ public class BLangVM {
                             break;
                         }
 
-                        BLangVMErrors.setStackTrace(context, ip, error);
+                        BLangVMErrors.attachCallStack(error, context, ip);
                         context.setError(error);
                     }
                     handleError();
@@ -679,7 +679,9 @@ public class BLangVM {
                     break;
                 case InstructionCodes.NEWTABLE:
                     i = operands[0];
-                    sf.refRegs[i] = new BTable(null);
+                    cpIndex = operands[1];
+                    typeRefCPEntry = (TypeRefCPEntry) constPool[cpIndex];
+                    sf.refRegs[i] = new BTable(typeRefCPEntry.getType());
                     break;
                 case InstructionCodes.NEW_INT_RANGE:
                     createNewIntRange(operands, sf);
@@ -2211,8 +2213,7 @@ public class BLangVM {
                     sf.refRegs[k] = null;
                 } catch (BallerinaException e) {
                     sf.refRegs[j] = null;
-                    handleTypeConversionError(sf, k, e.getMessage(), TypeConstants.STRING_TNAME,
-                            TypeConstants.XML_TNAME);
+                    handleTypeConversionError(sf, k, e.getMessage());
                 }
                 break;
             case InstructionCodes.S2JSONX:
@@ -2226,8 +2227,7 @@ public class BLangVM {
                     sf.refRegs[k] = null;
                 } catch (BallerinaException e) {
                     sf.refRegs[j] = null;
-                    handleTypeConversionError(sf, k, e.getMessage(), TypeConstants.STRING_TNAME,
-                            TypeConstants.JSON_TNAME);
+                    handleTypeConversionError(sf, k, e.getMessage());
                 }
                 break;
             case InstructionCodes.XML2S:
@@ -2587,7 +2587,7 @@ public class BLangVM {
 
     private void handleTypeCastError(StackFrame sf, int errorRegIndex, String sourceType, String targetType) {
         BStruct errorVal;
-        errorVal = BLangVMErrors.createTypeCastError(context, ip, sourceType.toString(), targetType.toString());
+        errorVal = BLangVMErrors.createTypeCastError(context, ip, sourceType, targetType);
         if (errorRegIndex == -1) {
             context.setError(errorVal);
             handleError();
@@ -2600,13 +2600,12 @@ public class BLangVM {
     private void handleTypeConversionError(StackFrame sf, int errorRegIndex,
                                            String sourceTypeName, String targetTypeName) {
         String errorMsg = "'" + sourceTypeName + "' cannot be converted to '" + targetTypeName + "'";
-        handleTypeConversionError(sf, errorRegIndex, errorMsg, sourceTypeName, targetTypeName);
+        handleTypeConversionError(sf, errorRegIndex, errorMsg);
     }
 
-    private void handleTypeConversionError(StackFrame sf, int errorRegIndex, String errorMessage,
-                                           String sourceTypeName, String targetTypeName) {
+    private void handleTypeConversionError(StackFrame sf, int errorRegIndex, String errorMessage) {
         BStruct errorVal;
-        errorVal = BLangVMErrors.createTypeConversionError(context, ip, errorMessage, sourceTypeName, targetTypeName);
+        errorVal = BLangVMErrors.createTypeConversionError(context, ip, errorMessage);
         if (errorRegIndex == -1) {
             context.setError(errorVal);
             handleError();
@@ -2758,7 +2757,7 @@ public class BLangVM {
     private void invokeVirtualFunction(int receiver, FunctionInfo virtualFuncInfo, int[] argRegs, int[] retRegs) {
         BStruct structVal = (BStruct) controlStack.currentFrame.refRegs[receiver];
         if (structVal == null) {
-            context.setError(BLangVMErrors.createNullRefError(this.context, ip));
+            context.setError(BLangVMErrors.createNullRefException(this.context, ip));
             handleError();
             return;
         }
@@ -2772,7 +2771,7 @@ public class BLangVM {
     public void invokeAction(String actionName, int[] argRegs, int[] retRegs) {
         StackFrame callerSF = controlStack.currentFrame;
         if (callerSF.refRegs[argRegs[0]] == null) {
-            context.setError(BLangVMErrors.createNullRefError(this.context, ip));
+            context.setError(BLangVMErrors.createNullRefException(this.context, ip));
             handleError();
             return;
         }
@@ -3130,7 +3129,7 @@ public class BLangVM {
         try {
             nativeFunction.executeNative(context);
         } catch (BLangNullReferenceException e) {
-            context.setError(BLangVMErrors.createNullRefError(context, ip));
+            context.setError(BLangVMErrors.createNullRefException(context, ip));
             handleError();
             return;
         } catch (Throwable e) {
@@ -3742,7 +3741,7 @@ public class BLangVM {
             sf.refRegs[j] = null;
             String errorMsg = "cannot convert '" + bStruct.getType() + "' to type '" + BTypes.typeJSON + "': " +
                     e.getMessage();
-            handleTypeConversionError(sf, k, errorMsg, bStruct.getType().toString(), TypeConstants.JSON_TNAME);
+            handleTypeConversionError(sf, k, errorMsg);
         }
     }
 
@@ -3841,7 +3840,7 @@ public class BLangVM {
                 sf.refRegs[j] = null;
                 String errorMsg = "cannot convert '" + bMap.getType() + "' to type '" + structType + ": " +
                         e.getMessage();
-                handleTypeConversionError(sf, k, errorMsg, TypeConstants.MAP_TNAME, structType.toString());
+                handleTypeConversionError(sf, k, errorMsg);
                 return;
             }
         }
@@ -3871,12 +3870,12 @@ public class BLangVM {
             sf.refRegs[j] = null;
             String errorMsg = "cannot convert '" + TypeConstants.JSON_TNAME + "' to type '" +
                     typeRefCPEntry.getType() + "': " + e.getMessage();
-            handleTypeConversionError(sf, k, errorMsg, TypeConstants.JSON_TNAME, typeRefCPEntry.getType().toString());
+            handleTypeConversionError(sf, k, errorMsg);
         }
     }
 
     private void handleNullRefError() {
-        context.setError(BLangVMErrors.createNullRefError(context, ip));
+        context.setError(BLangVMErrors.createNullRefException(context, ip));
         handleError();
     }
 

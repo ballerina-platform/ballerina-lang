@@ -30,6 +30,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangResource;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
+import org.wso2.ballerinalang.compiler.tree.BLangTransformer;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangWorker;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLambdaFunction;
@@ -63,6 +64,7 @@ public class DefinitionTreeVisitor extends NodeVisitor {
         this.context.put(NodeContextKeys.NODE_KEY, null);
     }
 
+    @Override
     public void visit(BLangPackage pkgNode) {
         // Then visit each top-level element sorted using the compilation unit
         List<TopLevelNode> topLevelNodes = pkgNode.topLevelNodes.stream().filter(node ->
@@ -77,6 +79,7 @@ public class DefinitionTreeVisitor extends NodeVisitor {
         }
     }
 
+    @Override
     public void visit(BLangFunction funcNode) {
         // Check for native functions
         BSymbol funcSymbol = funcNode.symbol;
@@ -103,6 +106,7 @@ public class DefinitionTreeVisitor extends NodeVisitor {
         }
     }
 
+    @Override
     public void visit(BLangService serviceNode) {
         if (serviceNode.name.getValue()
                 .equals(this.context.get(NodeContextKeys.NODE_OWNER_KEY))) {
@@ -116,6 +120,7 @@ public class DefinitionTreeVisitor extends NodeVisitor {
         }
     }
 
+    @Override
     public void visit(BLangResource resourceNode) {
         if (resourceNode.name.getValue()
                 .equals(this.context.get(NodeContextKeys.NODE_OWNER_KEY))) {
@@ -133,6 +138,7 @@ public class DefinitionTreeVisitor extends NodeVisitor {
         }
     }
 
+    @Override
     public void visit(BLangConnector connectorNode) {
         if (connectorNode.name.getValue()
                 .equals(this.context.get(NodeContextKeys.NODE_OWNER_KEY))) {
@@ -150,6 +156,7 @@ public class DefinitionTreeVisitor extends NodeVisitor {
         }
     }
 
+    @Override
     public void visit(BLangAction actionNode) {
         if (actionNode.name.getValue()
                 .equals(this.context.get(NodeContextKeys.NODE_OWNER_KEY))) {
@@ -171,6 +178,7 @@ public class DefinitionTreeVisitor extends NodeVisitor {
         }
     }
 
+    @Override
     public void visit(BLangVariable varNode) {
         if (varNode.name.getValue()
                 .equals(this.context.get(NodeContextKeys.VAR_NAME_OF_NODE_KEY))) {
@@ -179,6 +187,7 @@ public class DefinitionTreeVisitor extends NodeVisitor {
         }
     }
 
+    @Override
     public void visit(BLangWorker workerNode) {
         if (workerNode.body != null) {
             this.acceptNode(workerNode.body);
@@ -189,24 +198,28 @@ public class DefinitionTreeVisitor extends NodeVisitor {
         }
     }
 
+    @Override
     public void visit(BLangBlockStmt blockNode) {
         if (!blockNode.stmts.isEmpty()) {
             blockNode.stmts.forEach(this::acceptNode);
         }
     }
 
+    @Override
     public void visit(BLangVariableDef varDefNode) {
         if (varDefNode.getVariable() != null) {
             this.acceptNode(varDefNode.getVariable());
         }
     }
 
+    @Override
     public void visit(BLangAssignment assignNode) {
         if (!assignNode.varRefs.isEmpty()) {
             assignNode.varRefs.forEach(this::acceptNode);
         }
     }
 
+    @Override
     public void visit(BLangIf ifNode) {
         if (ifNode.body != null) {
             this.acceptNode(ifNode.body);
@@ -217,6 +230,7 @@ public class DefinitionTreeVisitor extends NodeVisitor {
         }
     }
 
+    @Override
     public void visit(BLangForeach foreach) {
         if (!foreach.varRefs.isEmpty()) {
             foreach.varRefs.forEach(this::acceptNode);
@@ -227,12 +241,14 @@ public class DefinitionTreeVisitor extends NodeVisitor {
         }
     }
 
+    @Override
     public void visit(BLangWhile whileNode) {
         if (whileNode.body != null) {
             this.acceptNode(whileNode.body);
         }
     }
 
+    @Override
     public void visit(BLangTransaction transactionNode) {
         if (transactionNode.transactionBody != null) {
             this.acceptNode(transactionNode.transactionBody);
@@ -243,6 +259,7 @@ public class DefinitionTreeVisitor extends NodeVisitor {
         }
     }
 
+    @Override
     public void visit(BLangTryCatchFinally tryNode) {
         if (tryNode.tryBody != null) {
             this.acceptNode(tryNode.tryBody);
@@ -257,12 +274,14 @@ public class DefinitionTreeVisitor extends NodeVisitor {
         }
     }
 
+    @Override
     public void visit(BLangCatch catchNode) {
         if (catchNode.body != null) {
             this.acceptNode(catchNode.body);
         }
     }
 
+    @Override
     public void visit(BLangForkJoin forkJoin) {
         if (!forkJoin.getWorkers().isEmpty()) {
             forkJoin.getWorkers().forEach(this::acceptNode);
@@ -277,6 +296,7 @@ public class DefinitionTreeVisitor extends NodeVisitor {
         }
     }
 
+    @Override
     public void visit(BLangSimpleVarRef varRefExpr) {
         if (varRefExpr.variableName.getValue()
                 .equals(this.context.get(NodeContextKeys.VAR_NAME_OF_NODE_KEY))) {
@@ -285,9 +305,33 @@ public class DefinitionTreeVisitor extends NodeVisitor {
         }
     }
 
+    @Override
     public void visit(BLangLambdaFunction bLangLambdaFunction) {
         if (bLangLambdaFunction.function != null) {
             this.acceptNode(bLangLambdaFunction.function);
+        }
+    }
+
+    @Override
+    public void visit(BLangTransformer transformerNode) {
+        if (transformerNode.source != null) {
+            acceptNode(transformerNode.source);
+        }
+
+        if (!transformerNode.params.isEmpty()) {
+            transformerNode.params.forEach(this::acceptNode);
+        }
+
+        if (!transformerNode.retParams.isEmpty()) {
+            transformerNode.retParams.forEach(this::acceptNode);
+        }
+
+        if (transformerNode.body != null) {
+            acceptNode(transformerNode.body);
+        }
+
+        if (!transformerNode.workers.isEmpty()) {
+            transformerNode.workers.forEach(this::acceptNode);
         }
     }
 

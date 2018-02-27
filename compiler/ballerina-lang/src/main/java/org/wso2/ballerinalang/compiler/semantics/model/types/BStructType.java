@@ -19,7 +19,6 @@ package org.wso2.ballerinalang.compiler.semantics.model.types;
 
 import org.ballerinalang.model.types.StructType;
 import org.ballerinalang.model.types.TypeKind;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.util.Name;
@@ -37,14 +36,11 @@ import java.util.List;
  * @since 0.94
  */
 public class BStructType extends BType implements StructType {
-
     public List<BStructField> fields;
-    public List<BAttachedFunction> attachedFuncs;
 
     public BStructType(BTypeSymbol tSymbol) {
         super(TypeTags.STRUCT, tSymbol);
         this.fields = new ArrayList<>();
-        this.attachedFuncs = new ArrayList<>(0);
     }
 
     public String getDesc() {
@@ -98,21 +94,4 @@ public class BStructType extends BType implements StructType {
         }
     }
 
-    /**
-     * A wrapper class which hold an attached function of a struct.
-     *
-     * @since 0.95.7
-     */
-    public static class BAttachedFunction {
-        public Name funcName;
-        public BInvokableType type;
-        public BInvokableSymbol symbol;
-
-        public BAttachedFunction(Name funcName, BInvokableSymbol symbol,
-                                 BInvokableType type) {
-            this.funcName = funcName;
-            this.type = type;
-            this.symbol = symbol;
-        }
-    }
 }

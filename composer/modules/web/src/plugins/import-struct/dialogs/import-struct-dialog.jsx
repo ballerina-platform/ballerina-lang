@@ -18,7 +18,7 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Button } from 'react-bootstrap';
+import { Button } from 'semantic-ui-react';
 import Dialog from 'core/view/Dialog';
 import AceEditor from 'react-ace';
 
@@ -109,10 +109,10 @@ class ImportStructDialog extends React.Component {
         return (
             <Dialog
                 show={this.state.showDialog}
-                title="Import from JSON"
+                title='Import from JSON'
                 actions={
                     <Button
-                        bsStyle="primary"
+                        primary
                         onClick={this.onImportJson}
                         disabled={this.state.json === ''}
                     >

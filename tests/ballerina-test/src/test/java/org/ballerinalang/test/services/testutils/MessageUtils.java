@@ -25,6 +25,7 @@ import org.ballerinalang.net.http.HttpConstants;
 import org.wso2.carbon.messaging.CarbonMessage;
 import org.wso2.carbon.messaging.DefaultCarbonMessage;
 import org.wso2.carbon.messaging.Header;
+import org.wso2.transport.http.netty.message.EmptyLastHttpContent;
 
 import java.net.InetSocketAddress;
 import java.util.HashMap;
@@ -62,7 +63,7 @@ public class MessageUtils {
         if (payload != null) {
             carbonMessage.addHttpContent(new DefaultLastHttpContent(Unpooled.wrappedBuffer(payload.getBytes())));
         } else {
-            carbonMessage.setEndOfMsgAdded(true);
+            carbonMessage.addHttpContent(new EmptyLastHttpContent());
         }
         return carbonMessage;
     }

@@ -105,4 +105,14 @@ service<http> quoteService {
         res.setStringPayload("default");
         _ = conn.respond(res);
     }
+
+    @http:resourceConfig {
+        methods:["POST"],
+        body:"person"
+    }
+    resource employee (http:Connection conn, http:InRequest req, json person) {
+        http:OutResponse res = {};
+        res.setJsonPayload(person);
+        _ = conn.respond(res);
+    }
 }

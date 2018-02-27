@@ -243,7 +243,7 @@ public class BallerinaTextDocumentService implements TextDocumentService {
     @Override
     public CompletableFuture<List<? extends SymbolInformation>> documentSymbol(DocumentSymbolParams params) {
         String uri = params.getTextDocument().getUri();
-        List<SymbolInformation> symbols = new ArrayList<SymbolInformation>();
+        List<SymbolInformation> symbols = new ArrayList<>();
 
         TextDocumentServiceContext symbolsContext = new TextDocumentServiceContext();
         symbolsContext.put(DocumentServiceKeys.FILE_URI_KEY, uri);
@@ -267,10 +267,7 @@ public class BallerinaTextDocumentService implements TextDocumentService {
     public CompletableFuture<List<? extends Command>> codeAction(CodeActionParams params) {
         return CompletableFuture.supplyAsync(() ->
                 params.getContext().getDiagnostics().stream()
-                        .map(diagnostic -> {
-                            List<Command> res = new ArrayList<>();
-                            return res.stream();
-                        })
+                        .map(diagnostic -> new ArrayList<Command>().stream())
                         .flatMap(it -> it)
                         .collect(Collectors.toList())
         );
