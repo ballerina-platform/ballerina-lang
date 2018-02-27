@@ -111,7 +111,8 @@ public class BLangFunctions {
     public static WorkerExecutionContext invokeCallable(CallableUnitInfo callableUnitInfo, 
             WorkerExecutionContext parentCtx, int[] argRegs, int[] retRegs, boolean waitForResponse) {
         WorkerInfo[] workerInfos = listWorkerInfos(callableUnitInfo);
-        InvocableWorkerResponseContext respCtx = new InvocableWorkerResponseContext(callableUnitInfo.getRetParamTypes(), 
+        InvocableWorkerResponseContext respCtx = new InvocableWorkerResponseContext(
+                callableUnitInfo.getRetParamTypes(), 
                 workerInfos.length, waitForResponse);
         respCtx.updateTargetContextInfo(parentCtx, retRegs);
         WorkerDataIndex wdi = callableUnitInfo.retWorkerIndex;
