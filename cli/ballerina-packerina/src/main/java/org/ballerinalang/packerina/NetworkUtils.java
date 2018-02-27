@@ -49,7 +49,6 @@ import java.util.stream.Stream;
 public class NetworkUtils {
     private static final Logger log = LoggerFactory.getLogger(NetworkUtils.class);
     private static CompileResult compileResult;
-    private static Settings settings = readSettings();
 
     /**
      * Compile the bal file.
@@ -87,7 +86,7 @@ public class NetworkUtils {
         int indexOfColon = pkgNameWithVersion.indexOf(":");
         String pkgName = pkgNameWithVersion.substring(0, indexOfColon);
         String pkgVersion = pkgNameWithVersion.substring(indexOfColon + 1);
-        targetDirectoryPath = targetDirectoryPath.resolve(orgName).resolve(pkgName).resolve(pkgVersion);
+        targetDirectoryPath = targetDirectoryPath.resolve(orgName).resolve(pkgName).resolve(pkgVersion).resolve("src");
 
         // Create the target directories
         createDirectories(targetDirectoryPath);
@@ -139,9 +138,10 @@ public class NetworkUtils {
      */
     public static void pushPackages(String packageName, String ballerinaCentralURL) {
         compileResult = compileBalFile("ballerina.push");
-        // Get the org-name and version by reading Ballerina.toml
+        
+        // Get the org-name and version by reading Ballerina.toml inside the project
         Manifest manifest = readManifestConfigurations();
-        if (manifest != null && manifest.getName() != null && manifest.getVersion() != null) {
+        if (manifest.getName() != null && manifest.getVersion() != null) {
             String orgName = removeQuotationsFromValue(manifest.getName());
             String version = removeQuotationsFromValue(manifest.getVersion());
             String resourcePath = ballerinaCentralURL + Paths.get(orgName).resolve(packageName)
@@ -167,14 +167,11 @@ public class NetworkUtils {
      */
     private static Manifest readManifestConfigurations() {
         String tomlFilePath = Paths.get(".").toAbsolutePath().normalize().resolve("Ballerina.toml").toString();
-        Manifest manifest = null;
         try {
-            manifest = ManifestProcessor.parseTomlContentFromFile(tomlFilePath);
+            return ManifestProcessor.parseTomlContentFromFile(tomlFilePath);
         } catch (IOException e) {
-            log.debug("I/O Exception when processing Ballerina.toml ", e);
-            log.error("I/O Exception when processing Ballerina.toml " + e.getMessage());
+            return new Manifest();
         }
-        return manifest;
     }
 
     /**
@@ -187,13 +184,12 @@ public class NetworkUtils {
                 + File.separator + "Settings.toml");
         if (cliTomlFile.exists()) {
             try {
-                settings = SettingsProcessor.parseTomlContentFromFile(cliTomlFile.toString());
+                return SettingsProcessor.parseTomlContentFromFile(cliTomlFile.toString());
             } catch (IOException e) {
-                log.debug("I/O Exception when processing the toml file ", e);
-                log.error("I/O Exception when processing the toml file " + e.getMessage());
+                return new Settings();
             }
         }
-        return settings;
+        return new Settings();
     }
 
     /**
@@ -204,7 +200,8 @@ public class NetworkUtils {
     private static String[] readProxyConfigurations() {
         String host = "", port = "", username = "", password = "";
         String proxyConfigArr[] = new String[]{host, port, username, password};
-        if (settings != null) {
+        Settings settings = readSettings();
+        if (settings.getProxy() != null) {
             if (settings.getProxy().getHost() != null) {
                 host = removeQuotationsFromValue(settings.getProxy().getHost());
                 proxyConfigArr[0] = host;
