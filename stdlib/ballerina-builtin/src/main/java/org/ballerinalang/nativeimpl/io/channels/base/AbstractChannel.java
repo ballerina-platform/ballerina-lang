@@ -19,6 +19,7 @@ package org.ballerinalang.nativeimpl.io.channels.base;
 
 import org.ballerinalang.nativeimpl.io.BallerinaIOException;
 import org.ballerinalang.nativeimpl.io.channels.base.readers.Reader;
+import org.ballerinalang.nativeimpl.io.channels.base.writers.Writer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -58,6 +59,11 @@ public abstract class AbstractChannel {
     private Reader reader;
 
     /**
+     * Specifies how the content should be written to a channel.
+     */
+    private Writer writer;
+
+    /**
      * Specifies whether the channel has reached EoF.
      */
     private boolean hasReachedToEnd = false;
@@ -69,10 +75,11 @@ public abstract class AbstractChannel {
      *
      * @param channel the channel to source/sink bytes.
      */
-    public AbstractChannel(ByteChannel channel, Reader reader) throws BallerinaIOException {
+    public AbstractChannel(ByteChannel channel, Reader reader, Writer writer) throws BallerinaIOException {
         if (null != channel) {
             this.channel = channel;
             this.reader = reader;
+            this.writer = writer;
             if (log.isDebugEnabled()) {
                 log.debug("Initializing ByteChannel with ref id " + channel.hashCode());
             }
@@ -122,31 +129,12 @@ public abstract class AbstractChannel {
      * Writes provided buffer content to the channel.
      * </p>
      *
-     * @param contentBuffer the buffer which holds the content.
+     * @param content the buffer which holds the content.
      * @return the number of bytes written to the channel.
      * @throws BallerinaIOException during I/O error.
      */
-    int write(ByteBuffer contentBuffer) throws BallerinaIOException {
-        int numberOfBytesWritten;
-        try {
-            //There's no guarantee in a single write all the bytes will be written
-            //Hence we need to check iteratively whether all the bytes in the buffer were written until the EoF is
-            // reached
-            while (contentBuffer.hasRemaining()) {
-                int write = channel.write(contentBuffer);
-                if (log.isTraceEnabled()) {
-                    log.trace("Number of bytes " + write + " written to channel " + channel.hashCode());
-                }
-            }
-            numberOfBytesWritten = contentBuffer.position();
-            if (log.isDebugEnabled()) {
-                log.debug("Number of bytes " + numberOfBytesWritten + " to the channel " + channel.hashCode());
-            }
-        } catch (IOException e) {
-            String message = "Error occurred while writing to channel ";
-            throw new BallerinaIOException(message, e);
-        }
-        return numberOfBytesWritten;
+    int write(ByteBuffer content) throws BallerinaIOException {
+        return writer.write(content, channel);
     }
 
     /**

@@ -110,7 +110,8 @@ public class OpenFile extends AbstractNativeChannel {
                 }
             }
             FileChannel byteChannel = FileChannel.open(path, opts);
-            channel = new FileIOChannel(byteChannel, IOConstants.CHANNEL_BUFFER_SIZE);
+           // channel = new FileIOChannel(byteChannel, IOConstants.CHANNEL_BUFFER_SIZE);
+            channel = new FileIOChannel(byteChannel);
         } catch (AccessDeniedException e) {
             throw new BallerinaException("Do not have access to write file: " + path, e);
         } catch (Throwable e) {

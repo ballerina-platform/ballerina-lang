@@ -53,11 +53,11 @@ public class CharacterInputOutputBufferTest {
         CharacterChannel characterChannel = new CharacterChannel(channel, StandardCharsets.UTF_8.name());
 
         String readCharacters = characterChannel.read(numberOfCharactersToRead);
-        Assert.assertEquals(readCharacters,"aa");
+        Assert.assertEquals(readCharacters, "aa");
 
         numberOfCharactersToRead = 4;
         readCharacters = characterChannel.read(numberOfCharactersToRead);
-        Assert.assertEquals(readCharacters,"abbǊ");
+        Assert.assertEquals(readCharacters, "abbǊ");
 
         readCharacters = characterChannel.read(numberOfCharactersToRead);
         Assert.assertEquals(readCharacters.length(), 0);
@@ -159,7 +159,7 @@ public class CharacterInputOutputBufferTest {
     public void writeCharacters() throws IOException {
         //Number of characters in this file would be 6
         ByteChannel byteChannel = TestUtil.openForWriting(currentDirectoryPath + "write.txt");
-        AbstractChannel channel = new MockByteChannel(byteChannel, 10);
+        AbstractChannel channel = new MockByteChannel(byteChannel);
         CharacterChannel characterChannel = new CharacterChannel(channel, StandardCharsets.UTF_8.name());
 
         String text = "HelloǊ";

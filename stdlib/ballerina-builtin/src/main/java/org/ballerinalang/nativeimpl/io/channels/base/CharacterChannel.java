@@ -201,23 +201,6 @@ public class CharacterChannel {
         return bytes.length;
     }
 
-/*    *//**
-     * <p>
-     * Reads the required number of bytes into the buffer from channel.
-     * </p>
-     *
-     * @param numberOfBytesRequired the number of bytes which should be read.
-     * @param numberOfCharsRequired number of characters which is expected from the read.
-     * @throws CharacterCodingException when an error occurs during encoding.
-     *//*
-    private void readBytesIntoBufferFromChannel(int numberOfBytesRequired, int numberOfCharsRequired)
-            throws CharacterCodingException {
-        ByteBuffer byteBuffer = contentBuffer.get(numberOfBytesRequired, channel);
-        charBuffer = bytesDecoder.decode(byteBuffer);
-        int numberOfCharsProcessed = charBuffer.limit();
-        processChars(numberOfCharsRequired, byteBuffer, numberOfCharsProcessed);
-    }*/
-
     /**
      * Reads bytes asynchronously from the channel.
      *
@@ -312,50 +295,6 @@ public class CharacterChannel {
         return content.toString();
     }
 
-/*
-    */
-/**
-     * Reads specified number of characters from a given channel.
-     *
-     * @param numberOfCharacters the number of characters which should be retrieved.
-     * @return the sequence of characters as a string.
-     * @throws BallerinaIOException I/O errors.
-     *//*
-
-    public String read(int numberOfCharacters) throws BallerinaIOException {
-        StringBuilder content;
-        try {
-            //Will identify the number of characters required
-            int charsRequiredToBeReadFromChannel;
-            content = new StringBuilder(numberOfCharacters);
-            int numberOfBytesRequired = numberOfCharacters * MAX_BYTES_PER_CHAR;
-            //First the remaining buffer would be get and the characters remaining in the buffer will be written
-            appendRemainingCharacters(content);
-            //Content capacity would give the total size of the string builder (number of chars)
-            //Content length will give the number of characters appended to the builder through the function
-            //call appendRemainingCharacters(..)
-            charsRequiredToBeReadFromChannel = content.capacity() - content.length();
-            if (charsRequiredToBeReadFromChannel == 0) {
-                //This means there's no requirement to get the characters from channel
-                return content.toString();
-            }
-            if (log.isDebugEnabled()) {
-                log.debug("Number of chars required to be get from the channel " + charsRequiredToBeReadFromChannel);
-            }
-            readBytesIntoBufferFromChannel(numberOfBytesRequired, numberOfCharacters);
-            //We need to ensure that the required amount of characters are available in the buffer
-            if (charBuffer.limit() < charsRequiredToBeReadFromChannel) {
-                //This means the amount of chars required are not available
-                charsRequiredToBeReadFromChannel = charBuffer.limit();
-            }
-            appendCharsToString(content, charsRequiredToBeReadFromChannel);
-        } catch (IOException e) {
-            throw new BallerinaIOException("Error occurred while reading characters from buffer", e);
-        }
-        return content.toString();
-    }
-*/
-
     /**
      * Reads all content from the I/O source.
      *
@@ -382,13 +321,15 @@ public class CharacterChannel {
      */
     public int write(String content, int offset) throws BallerinaIOException {
         try {
-            int numberOfBytesWritten = -1;
+            int numberOfBytesWritten = 0;
             if (channel != null) {
                 char[] characters = content.toCharArray();
                 CharBuffer characterBuffer = CharBuffer.wrap(characters);
                 characterBuffer.position(offset);
                 ByteBuffer encodedBuffer = byteEncoder.encode(characterBuffer);
-                numberOfBytesWritten = channel.write(encodedBuffer);
+                do {
+                    numberOfBytesWritten = numberOfBytesWritten + channel.write(encodedBuffer);
+                } while (encodedBuffer.hasRemaining());
             } else {
                 log.warn("The channel has already being closed");
             }

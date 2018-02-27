@@ -21,6 +21,8 @@ import org.ballerinalang.nativeimpl.io.BallerinaIOException;
 import org.ballerinalang.nativeimpl.io.channels.base.Channel;
 import org.ballerinalang.nativeimpl.io.channels.base.readers.AsyncReader;
 import org.ballerinalang.nativeimpl.io.channels.base.readers.BlockingReader;
+import org.ballerinalang.nativeimpl.io.channels.base.writers.AsyncWriter;
+import org.ballerinalang.nativeimpl.io.channels.base.writers.BlockingWriter;
 
 import java.io.IOException;
 import java.nio.channels.FileChannel;
@@ -39,12 +41,12 @@ public class FileIOChannel extends Channel {
     private FileChannel channel;
 
     public FileIOChannel(FileChannel channel, int size) throws BallerinaIOException {
-        super(channel, new BlockingReader(), size);
+        super(channel, new BlockingReader(), new BlockingWriter(), size);
         this.channel = channel;
     }
 
     public FileIOChannel(FileChannel channel) throws BallerinaIOException {
-        super(channel, new AsyncReader());
+        super(channel, new AsyncReader(), new AsyncWriter());
     }
 
     /**

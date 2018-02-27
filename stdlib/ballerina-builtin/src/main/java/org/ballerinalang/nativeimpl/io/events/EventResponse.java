@@ -15,24 +15,21 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.ballerinalang.nativeimpl.io.channels.base.readers;
 
-import org.ballerinalang.nativeimpl.io.BallerinaIOException;
-
-import java.nio.ByteBuffer;
-import java.nio.channels.ByteChannel;
+package org.ballerinalang.nativeimpl.io.events;
 
 /**
- * Represents how the bytes will be read through the channel.
+ * Represents the I/O event response.
+ *
+ * @param <K> return type of the event response.
  */
-public interface Reader {
+public interface EventResponse<K> {
     /**
-     * Reads bytes into the provided buffer.
+     * <p>
+     * Returns the response returned from the event.
+     * </p>
      *
-     * @param content the buffer which will hold the read content.
-     * @param channel the source channel where the content will be read from.
-     * @return the number of bytes read.
-     * @throws BallerinaIOException during i/o error while reading.
+     * @return Response from I/O source.
      */
-    int read(ByteBuffer content, ByteChannel channel) throws BallerinaIOException;
+    K getResponse();
 }

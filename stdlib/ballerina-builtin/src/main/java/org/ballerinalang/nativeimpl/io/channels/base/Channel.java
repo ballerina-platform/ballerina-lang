@@ -19,6 +19,7 @@ package org.ballerinalang.nativeimpl.io.channels.base;
 
 import org.ballerinalang.nativeimpl.io.BallerinaIOException;
 import org.ballerinalang.nativeimpl.io.channels.base.readers.Reader;
+import org.ballerinalang.nativeimpl.io.channels.base.writers.Writer;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -62,13 +63,13 @@ public abstract class Channel extends AbstractChannel {
 
     private static final Logger log = LoggerFactory.getLogger(Channel.class);
 
-    public Channel(ByteChannel channel, Reader reader, int size) throws BallerinaIOException {
-        super(channel, reader);
+    public Channel(ByteChannel channel, Reader reader, Writer writer, int size) throws BallerinaIOException {
+        super(channel, reader, writer);
         contentBuffer = new Buffer(size);
     }
 
-    public Channel(ByteChannel channel, Reader reader) {
-        super(channel, reader);
+    public Channel(ByteChannel channel, Reader reader, Writer writer) {
+        super(channel, reader, writer);
     }
 
     /**

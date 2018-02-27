@@ -1,19 +1,3 @@
-// Copyright (c) 2017 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
-//
-// WSO2 Inc. licenses this file to you under the Apache License,
-// Version 2.0 (the "License"); you may not use this file except
-// in compliance with the License.
-// You may obtain a copy of the License at
-//
-// http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing,
-// software distributed under the License is distributed on an
-// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-// KIND, either express or implied.  See the License for the
-// specific language governing permissions and limitations
-// under the License.
-
 package ballerina.io;
 
 @Description {value:"Ballerina ByteChannel represents a channel which will allow I/O operations to be done"}
@@ -26,6 +10,24 @@ public struct CharacterChannel {
 
 @Description {value:"Ballerina DelimitedRecordChannel represents a channel which will allow to read/write text records"}
 public struct DelimitedRecordChannel {
+}
+
+@Description {value:"Represents an error thrown when the channel is already closed"}
+public struct AlreadyClosedChannelError {
+    string message;
+    error cause;
+}
+
+@Description{value:"Represents an error if the channel is not readable"}
+public struct NonReadableChannelError{
+    string message;
+    error cause;
+}
+
+@Description{value:"Represents an error which will occur while reading/writing"}
+public struct IOError{
+    string message;
+    error cause;
 }
 
 @Description {value:"Represents a client socket connection. This can be used to communicate with a remote machine"}
@@ -116,6 +118,10 @@ public native function <CharacterChannel channel> closeCharacterChannel ();
 @Return {value:"The bytes which were read"}
 @Return {value:"Number of bytes read"}
 public native function <ByteChannel channel> readBytes (int numberOfBytes) (blob, int);
+
+public native function <ByteChannel channel> read(blob content,
+                                                  int offset)
+                                             (int, AlreadyClosedChannelError, NonReadableChannelError, IOError);
 
 @Description {value:"Function to write bytes"}
 @Param {value:"channel: The ByteChannel to write bytes to"}

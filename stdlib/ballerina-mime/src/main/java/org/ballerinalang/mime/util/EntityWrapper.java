@@ -22,6 +22,7 @@ import org.ballerinalang.nativeimpl.io.BallerinaIOException;
 import org.ballerinalang.nativeimpl.io.IOConstants;
 import org.ballerinalang.nativeimpl.io.channels.base.Channel;
 import org.ballerinalang.nativeimpl.io.channels.base.readers.BlockingReader;
+import org.ballerinalang.nativeimpl.io.channels.base.writers.BlockingWriter;
 
 import java.nio.channels.WritableByteChannel;
 
@@ -34,7 +35,7 @@ import java.nio.channels.WritableByteChannel;
 public class EntityWrapper extends Channel {
 
     public EntityWrapper(EntityBodyChannel channel) throws BallerinaIOException {
-        super(channel, new BlockingReader(), IOConstants.CHANNEL_BUFFER_SIZE);
+        super(channel, new BlockingReader(), new BlockingWriter(), IOConstants.CHANNEL_BUFFER_SIZE);
     }
 
     @Override
