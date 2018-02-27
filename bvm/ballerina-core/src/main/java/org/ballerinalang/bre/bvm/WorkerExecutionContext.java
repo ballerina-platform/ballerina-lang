@@ -25,7 +25,6 @@ import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.codegen.WorkerInfo;
 import org.ballerinalang.util.codegen.cpentries.ConstantPoolEntry;
 
-import java.io.PrintStream;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.locks.Lock;
@@ -67,9 +66,11 @@ public class WorkerExecutionContext {
     public WorkerResponseContext respCtx;
     
     public boolean runInCaller;
-    
+
     private Lock executionLock;
-        
+
+    private BStruct error;
+
     public WorkerExecutionContext(ProgramFile programFile) {
         this.programFile = programFile;
         this.globalProps = new HashMap<>();
@@ -112,14 +113,11 @@ public class WorkerExecutionContext {
     }
     
     public void setError(BStruct error) {
-        //TODO
-        PrintStream out = System.out;
-        out.println("Error: " + error);
+        this.error = error;
     }
     
     public BStruct getError() {
-        //TODO
-        return null;
+        return error;
     }
 
     public boolean isInTransaction() {

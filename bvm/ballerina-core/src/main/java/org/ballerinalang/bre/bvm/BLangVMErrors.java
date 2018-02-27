@@ -41,7 +41,7 @@ public class BLangVMErrors {
     private static final String STRUCT_ILLEGAL_STATE_EXCEPTION = "IllegalStateException";
     private static final String STRUCT_CALL_STACK_ELEMENT = "CallStackElement";
     public static final String CALL_STACK = "CallStack";
-
+    private static final String STRUCT_CALL_FAILED_EXCEPTION = "CallFailedException";
 
     /**
      * Create error Struct from given error message.
@@ -157,9 +157,16 @@ public class BLangVMErrors {
         return createError(context, ip, true, errorStructInfo, "");
     }
     
-    public static BStruct createNullRefException(WorkerExecutionContext context, int ip) {
-        //TODO
-        return null;
+    public static BStruct createNullRefException(WorkerExecutionContext context) {
+        PackageInfo errorPackageInfo = context.programFile.getPackageInfo(PACKAGE_RUNTIME);
+        StructInfo errorStructInfo = errorPackageInfo.getStructInfo(STRUCT_NULL_REF_EXCEPTION);
+        return BLangVMStructs.createBStruct(errorStructInfo);
+    }
+
+    public static BStruct createCallFailedException(WorkerExecutionContext context) {
+        PackageInfo errorPackageInfo = context.programFile.getPackageInfo(PACKAGE_RUNTIME);
+        StructInfo errorStructInfo = errorPackageInfo.getStructInfo(STRUCT_CALL_FAILED_EXCEPTION);
+        return BLangVMStructs.createBStruct(errorStructInfo);
     }
 
     /**

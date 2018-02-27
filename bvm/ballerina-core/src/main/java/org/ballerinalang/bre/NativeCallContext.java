@@ -224,6 +224,6 @@ public class NativeCallContext implements Context {
 
     @Override
     public void setConnectorFuture(BServerConnectorFuture connectorFuture) {
-        // FIXME: remove
+        // TODO: remove
     }
 }

@@ -20,9 +20,6 @@ package org.ballerinalang.bre.bvm;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.ballerinalang.bre.BallerinaTransactionManager;
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.connector.api.AbstractNativeAction;
-import org.ballerinalang.connector.api.ConnectorFuture;
-import org.ballerinalang.connector.impl.BClientConnectorFutureListener;
 import org.ballerinalang.connector.impl.BServerConnectorFuture;
 import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.BConnectorType;
@@ -68,7 +65,6 @@ import org.ballerinalang.model.values.BXMLAttributes;
 import org.ballerinalang.model.values.BXMLQName;
 import org.ballerinalang.model.values.LockableStructureType;
 import org.ballerinalang.model.values.StructureType;
-import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.runtime.threadpool.ThreadPoolFactory;
 import org.ballerinalang.util.TransactionStatus;
 import org.ballerinalang.util.codegen.ActionInfo;
@@ -112,7 +108,6 @@ import org.ballerinalang.util.debugger.DebugContext;
 import org.ballerinalang.util.debugger.Debugger;
 import org.ballerinalang.util.debugger.DebuggerUtil;
 import org.ballerinalang.util.exceptions.BLangExceptionHelper;
-import org.ballerinalang.util.exceptions.BLangNullReferenceException;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.ballerinalang.util.exceptions.RuntimeErrors;
 import org.slf4j.Logger;
@@ -2816,7 +2811,7 @@ public class BLangVM {
 //            workerContext.blockingInvocation = true;
             StackFrame callerSF = this.controlStack.currentFrame;
             int[] argRegs = forkjoinInfo.getArgRegs();
-            ControlStack workerControlStack;// = workerContext.getControlStack();
+            ControlStack workerControlStack; // = workerContext.getControlStack();
             StackFrame calleeSF = new StackFrame(this.controlStack.currentFrame.getCallableUnitInfo(),
                     workerInfo, -1, new int[1]);
             //workerControlStack.pushFrame(calleeSF);
@@ -3122,7 +3117,8 @@ public class BLangVM {
 //        BType[] retTypes = functionInfo.getRetParamTypes();
 //        BValue[] returnValues = new BValue[retTypes.length];
 //
-//        StackFrame caleeSF = new StackFrame(functionInfo, functionInfo.getDefaultWorkerInfo(), ip, null, returnValues);
+//         StackFrame caleeSF = new StackFrame(functionInfo, functionInfo.getDefaultWorkerInfo(), ip, null,
+//         returnValues);
 //        copyArgValues(callerSF, caleeSF, argRegs, functionInfo.getParamTypes());
 //
 //        controlStack.pushFrame(caleeSF);
@@ -3911,7 +3907,6 @@ public class BLangVM {
                 return;
             }
 
-            // FIXME
             // BServerConnectorFuture connectorFuture = context.getConnectorFuture();
             BServerConnectorFuture connectorFuture = new BServerConnectorFuture();
             try {

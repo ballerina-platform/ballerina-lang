@@ -18,16 +18,16 @@
 
 package org.ballerinalang.nativeimpl.file.utils;
 
-import static org.ballerinalang.nativeimpl.file.utils.Constants.ACCESS_DENIED_ERROR;
-import static org.ballerinalang.nativeimpl.file.utils.Constants.FILE_PACKAGE;
-import static org.ballerinalang.nativeimpl.file.utils.Constants.FILE_STRUCT;
-import static org.ballerinalang.nativeimpl.file.utils.Constants.IO_ERROR;
-
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BLangVMStructs;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.StructInfo;
+
+import static org.ballerinalang.nativeimpl.file.utils.Constants.ACCESS_DENIED_ERROR;
+import static org.ballerinalang.nativeimpl.file.utils.Constants.FILE_PACKAGE;
+import static org.ballerinalang.nativeimpl.file.utils.Constants.FILE_STRUCT;
+import static org.ballerinalang.nativeimpl.file.utils.Constants.IO_ERROR;
 
 /**
  * A util class for handling struct creation.

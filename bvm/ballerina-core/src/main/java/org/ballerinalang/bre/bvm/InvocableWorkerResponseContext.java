@@ -94,18 +94,17 @@ public class InvocableWorkerResponseContext implements WorkerResponseContext {
         BStruct error = sourceCtx.getError();
         this.workerErrors.put(sourceCtx.workerInfo.getWorkerName(), error);
         if (this.workerErrors.size() >= this.workerCount) {
-            BLangScheduler.errorThrown(this.targetCtx, this.createCallFailedError(this.workerErrors));
+            BLangScheduler.errorThrown(this.targetCtx, this.createCallFailedError(sourceCtx, this.workerErrors));
             if (this.responseChecker != null) {
                 this.responseChecker.release();
             }
         }        
     }
-    
-    private BStruct createCallFailedError(Map<String, BStruct> errors) {
-        //TODO
-        return null;
+
+    private BStruct createCallFailedError(WorkerExecutionContext context, Map<String, BStruct> errors) {
+        return BLangVMErrors.createCallFailedException(context);
     }
-    
+
     private WorkerExecutionContext doReturn(WorkerSignal signal) {
         WorkerExecutionContext runInCallerCtx = null;
         if (this.fulfilled.getAndSet(true)) {

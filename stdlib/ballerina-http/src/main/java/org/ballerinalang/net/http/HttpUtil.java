@@ -43,7 +43,6 @@ import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.net.http.session.Session;
 import org.ballerinalang.net.ws.WebSocketConstants;
 import org.ballerinalang.services.ErrorHandlerUtils;

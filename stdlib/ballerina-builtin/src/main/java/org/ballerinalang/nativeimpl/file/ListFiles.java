@@ -18,10 +18,6 @@
 
 package org.ballerinalang.nativeimpl.file;
 
-import static org.ballerinalang.nativeimpl.file.utils.FileUtils.createAccessDeniedError;
-import static org.ballerinalang.nativeimpl.file.utils.FileUtils.createFileStruct;
-import static org.ballerinalang.nativeimpl.file.utils.FileUtils.createIOError;
-
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
@@ -39,6 +35,10 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+
+import static org.ballerinalang.nativeimpl.file.utils.FileUtils.createAccessDeniedError;
+import static org.ballerinalang.nativeimpl.file.utils.FileUtils.createFileStruct;
+import static org.ballerinalang.nativeimpl.file.utils.FileUtils.createIOError;
 
 /**
  * Lists the files in the specified directory.

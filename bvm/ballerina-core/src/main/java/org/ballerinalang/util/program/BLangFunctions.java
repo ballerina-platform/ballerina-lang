@@ -24,6 +24,7 @@ import org.ballerinalang.bre.bvm.InvocableWorkerResponseContext;
 import org.ballerinalang.bre.bvm.WorkerData;
 import org.ballerinalang.bre.bvm.WorkerExecutionContext;
 import org.ballerinalang.bre.bvm.WorkerResponseContext;
+import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.codegen.CallableUnitInfo;
 import org.ballerinalang.util.codegen.FunctionInfo;
@@ -82,8 +83,8 @@ public class BLangFunctions {
     public static WorkerExecutionContext invokeCallable(CallableUnitInfo callableUnitInfo, 
             WorkerExecutionContext parentCtx, int[] argRegs, int[] retRegs, boolean waitForResponse) {
         WorkerInfo[] workerInfos = listWorkerInfos(callableUnitInfo);
-        InvocableWorkerResponseContext respCtx = new InvocableWorkerResponseContext(callableUnitInfo.getRetParamTypes(), 
-                workerInfos.length, waitForResponse);
+        InvocableWorkerResponseContext respCtx = new InvocableWorkerResponseContext(
+                callableUnitInfo.getRetParamTypes(), workerInfos.length, waitForResponse);
         respCtx.updateTargetContextInfo(parentCtx, retRegs);
         WorkerDataIndex wdi = callableUnitInfo.retWorkerIndex;
         Map<String, Object> globalProps = parentCtx.globalProps;
@@ -96,6 +97,14 @@ public class BLangFunctions {
         if (waitForResponse) {
             CPU.exec(runInCallerCtx);
             respCtx.waitForResponse();
+
+            // An error in the context at this point means an unhandled runtime error has propagated
+            // all the way up to the entry point. Hence throw a {@link BLangRuntimeException} and
+            // terminate the execution.
+            BStruct error = runInCallerCtx.getError();
+            if (error != null) {
+                throw new BLangRuntimeException("error: " + BLangVMErrors.getPrintableStackTrace(error));
+            }
         }
         return runInCallerCtx;
     }
@@ -132,5 +141,4 @@ public class BLangFunctions {
         BLangVMUtils.processUnresolvedAnnAttrValues(programFile);
         programFile.setUnresolvedAnnAttrValues(null);
     }
-    
 }

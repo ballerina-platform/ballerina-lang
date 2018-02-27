@@ -45,6 +45,6 @@ public class ToTimezone extends  AbstractTimeFunction {
     public void execute(Context context) {
         BStruct timeStruct = ((BStruct) context.getRefArgument(0));
         String zoneId = context.getStringArgument(0);
-        context.setReturnValues( changeTimezone(context, timeStruct, zoneId));
+        context.setReturnValues(changeTimezone(context, timeStruct, zoneId));
     }
 }
