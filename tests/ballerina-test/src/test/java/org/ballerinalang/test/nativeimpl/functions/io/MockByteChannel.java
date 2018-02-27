@@ -33,11 +33,11 @@ import java.nio.channels.WritableByteChannel;
 public class MockByteChannel extends Channel {
 
     public MockByteChannel(ByteChannel channel, int fixedBufferSize) {
-        super(channel, new BlockingReader(), new BlockingWriter(),fixedBufferSize);
+        super(channel, new BlockingReader(), new BlockingWriter(), fixedBufferSize);
     }
 
     public MockByteChannel(ByteChannel channel) {
-        super(channel, new AsyncReader(),new AsyncWriter());
+        super(channel, new AsyncReader(), new AsyncWriter());
     }
 
     /**
