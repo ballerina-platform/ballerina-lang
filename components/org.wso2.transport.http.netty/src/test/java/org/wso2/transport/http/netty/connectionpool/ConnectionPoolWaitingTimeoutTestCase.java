@@ -34,10 +34,8 @@ public class ConnectionPoolWaitingTimeoutTestCase {
     private HttpServer httpServer;
     private HttpClientConnector httpClientConnector;
     private HttpWsConnectorFactory connectorFactory;
-
     private static final int MAX_ACTIVE_CONNECTIONS = 2;
     private static final int MAX_WAIT_TIME_FOR_CONNECTION_POOL = 1000;
-
 
     @BeforeClass
     public void setup() {
@@ -98,8 +96,9 @@ public class ConnectionPoolWaitingTimeoutTestCase {
     }
 
     @AfterClass
-    public void cleanUp() throws ServerConnectorException {
+    public void cleanUp() throws ServerConnectorException, InterruptedException {
         TestUtil.cleanUp(new ArrayList<>(), httpServer);
+        connectorFactory.shutdown();
     }
 
 }
