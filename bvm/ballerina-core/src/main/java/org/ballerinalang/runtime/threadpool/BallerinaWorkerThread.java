@@ -21,6 +21,7 @@ import org.ballerinalang.connector.api.Resource;
 import org.ballerinalang.connector.impl.BServerConnectorFuture;
 import org.ballerinalang.connector.impl.ResourceExecutor;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.util.tracer.TraceContext;
 
 import java.util.Map;
 
@@ -33,10 +34,10 @@ public class BallerinaWorkerThread implements Runnable {
     private BValue[] bValues;
     private BServerConnectorFuture connectorFuture;
     private Map<String, Object> properties;
-    private Map<String, String> traceContext;
+    private TraceContext traceContext;
 
     public BallerinaWorkerThread(Resource resource, BServerConnectorFuture connectorFuture,
-                                 Map<String, Object> properties, Map<String, String> traceContext, BValue... bValues) {
+                                 Map<String, Object> properties, TraceContext traceContext, BValue... bValues) {
         this.resource = resource;
         this.connectorFuture = connectorFuture;
         this.properties = properties;

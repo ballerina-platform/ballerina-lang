@@ -63,6 +63,8 @@ public class BLangVMWorkers {
                 properties.forEach(workerContext::setProperty);
             }
 
+            workerContext.setTraceContext(parent.getTraceContext().copy());
+
             populateWorkerStack(callableUnitInfo, workerInfo, workerContext, workerReturnIndex, callerSF);
 
             BLangVM bLangVM = new BLangVM(programFile);

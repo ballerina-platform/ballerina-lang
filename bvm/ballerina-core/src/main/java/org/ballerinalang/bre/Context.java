@@ -25,6 +25,7 @@ import org.ballerinalang.util.codegen.ActionInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.codegen.ServiceInfo;
 import org.ballerinalang.util.debugger.DebugContext;
+import org.ballerinalang.util.tracer.TraceContext;
 import org.wso2.carbon.messaging.CarbonMessage;
 
 import java.util.HashMap;
@@ -43,11 +44,11 @@ public class Context {
     private CarbonMessage cMsg;
     private BServerConnectorFuture connectorFuture;
     protected Map<String, Object> properties = new HashMap<>();
-    public Map<String, String> traceContext = new HashMap<>();
 
     private ServiceInfo serviceInfo;
     private BallerinaTransactionManager ballerinaTransactionManager;
     private DebugContext debugContext;
+    private TraceContext traceContext;
 
     private int startIP;
     private BStruct unhandledError;
@@ -77,6 +78,14 @@ public class Context {
     
     public void setDebugContext(DebugContext debugContext) {
         this.debugContext = debugContext;
+    }
+
+    public TraceContext getTraceContext() {
+        return traceContext;
+    }
+
+    public void setTraceContext(TraceContext traceContext) {
+        this.traceContext = traceContext;
     }
 
     public ControlStack getControlStack() {

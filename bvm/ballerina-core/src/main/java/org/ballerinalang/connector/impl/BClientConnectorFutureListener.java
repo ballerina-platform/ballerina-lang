@@ -46,7 +46,7 @@ public class BClientConnectorFutureListener implements ConnectorFutureListener {
         this.context = context;
         this.nonBlocking = nonBlocking;
         this.executionWaitSem = new Semaphore(0);
-        this.traceSpanId = BallerinaTracerManager.getInstance().buildSpan(context);
+        this.traceSpanId = BallerinaTracerManager.getInstance().buildSpan(context, true);
     }
 
     @Override

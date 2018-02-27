@@ -22,6 +22,7 @@ import org.ballerinalang.connector.impl.ResourceExecutor;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.runtime.threadpool.BallerinaWorkerThread;
 import org.ballerinalang.runtime.threadpool.ThreadPoolFactory;
+import org.ballerinalang.util.tracer.TraceContext;
 
 import java.util.Map;
 
@@ -44,7 +45,7 @@ public class Executor {
      * @return future object to listen to events if any.
      */
     public static ConnectorFuture execute(Resource resource, Map<String, Object> properties,
-                                          Map<String, String> traceContext, BValue... values) {
+                                          TraceContext traceContext, BValue... values) {
         BServerConnectorFuture connectorFuture = new BServerConnectorFuture();
         ResourceExecutor.execute(resource, connectorFuture, properties, traceContext, values);
         return connectorFuture;
@@ -61,7 +62,7 @@ public class Executor {
      * @return future object to listen to events if any.
      */
     public static ConnectorFuture submit(Resource resource, Map<String, Object> properties,
-                                         Map<String, String> traceContext, BValue... values) {
+                                         TraceContext traceContext, BValue... values) {
         BServerConnectorFuture connectorFuture = new BServerConnectorFuture();
         ThreadPoolFactory.getInstance().getExecutor().
                 execute(new BallerinaWorkerThread(resource, connectorFuture, properties, traceContext, values));

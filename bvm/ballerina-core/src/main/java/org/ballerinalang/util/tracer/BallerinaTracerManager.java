@@ -20,7 +20,6 @@ package org.ballerinalang.util.tracer;
 
 import org.ballerinalang.bre.Context;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
@@ -50,32 +49,33 @@ public class BallerinaTracerManager {
         return instance;
     }
 
-    public String buildSpan(Context context) {
+    public String buildSpan(Context context, boolean isClient) {
         if (enabled) {
-            if (context.traceContext.isEmpty()) {
-                context.traceContext.put(TraceConstants.TRACE_PREFIX + TraceConstants.TRACE_PROPERTY_INVOCATION_ID,
-                        String.valueOf(RANDOM.nextLong()));
+            if (context.getTraceContext() == null) {
+                context.setTraceContext(new TraceContext());
             }
 
-            Long invocationId = Long.valueOf(context.traceContext
+            if (context.getTraceContext().getProperties().isEmpty()) {
+                context.getTraceContext().getProperties().put(TraceConstants.TRACE_PREFIX +
+                        TraceConstants.TRACE_PROPERTY_INVOCATION_ID, String.valueOf(RANDOM.nextLong()));
+            }
+
+            Long invocationId = Long.valueOf(context.getTraceContext().getProperties()
                     .get(TraceConstants.TRACE_PREFIX + TraceConstants.TRACE_PROPERTY_INVOCATION_ID));
             String serviceId = (String) context.getProperty(TraceConstants.TRACE_PROPERTY_SERVICE);
             serviceId = (serviceId == null || serviceId.isEmpty()) ? "ballerina" : serviceId;
             String resourceId = (String) context.getProperty(TraceConstants.TRACE_PROPERTY_RESOURCE);
             resourceId = (resourceId == null || resourceId.isEmpty()) ? "default" : resourceId;
 
-            Map<String, String> tags = new HashMap<>();
-            tags.put("span.kind", "server-receive");
-            tags.put("invocationId", String.valueOf(invocationId));
-            tags.put("serviceId", serviceId);
-            tags.put("resourceId", resourceId);
+            context.getTraceContext().addTag("span.kind", (isClient) ? "client" : "server");
 
-            Map<String, String> spanHeaders = context.traceContext.entrySet().stream()
+            Map<String, String> spanHeaders = context.getTraceContext().getProperties().entrySet().stream()
                     .collect(Collectors.toMap(Map.Entry::getKey, e -> String.valueOf(e.getValue())));
             Map<String, Object> spanContext = manager.extract(null, removeTracePrefix(spanHeaders), serviceId);
-            List<Object> spanList = manager.buildSpan(invocationId, resourceId, spanContext, tags, true, serviceId);
+            List<Object> spanList = manager.buildSpan(invocationId, resourceId, spanContext,
+                    context.getTraceContext().getTags(), true, serviceId);
             Map<String, String> tContext = manager.inject(manager.getActiveSpanMap(serviceId), null, serviceId);
-            context.traceContext.putAll(addTracePrefix(tContext));
+            context.getTraceContext().getProperties().putAll(addTracePrefix(tContext));
 
             if (spanContext != null && !spanContext.isEmpty()) {
                 return SpanHolder.getInstance().onBuildSpan(String.valueOf(invocationId), spanList, spanContext);
@@ -88,7 +88,7 @@ public class BallerinaTracerManager {
 
     public void finishSpan(Context context, String spanId) {
         if (enabled) {
-            Long invocationId = Long.valueOf(context.traceContext
+            Long invocationId = Long.valueOf(context.getTraceContext().getProperties()
                     .get(TraceConstants.TRACE_PREFIX + TraceConstants.TRACE_PROPERTY_INVOCATION_ID));
             String serviceId = (String) context.getProperty(TraceConstants.TRACE_PROPERTY_SERVICE);
             serviceId = (serviceId == null || serviceId.isEmpty()) ? "ballerina" : serviceId;

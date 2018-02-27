@@ -29,6 +29,9 @@ import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.contract.ClientConnectorException;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * {@code Get} is the GET action implementation of the HTTP Connector.
  */
@@ -74,7 +77,18 @@ public class Get extends AbstractHTTPAction {
     protected HTTPCarbonMessage createOutboundRequestMsg(Context context) {
         HTTPCarbonMessage outboundReqMsg = super.createOutboundRequestMsg(context);
         outboundReqMsg.setProperty(HttpConstants.HTTP_METHOD, HttpConstants.HTTP_METHOD_GET);
-        context.traceContext.forEach((key, value) -> outboundReqMsg.setHeader(key, String.valueOf(value)));
+        context.getTraceContext().getProperties().forEach((key, value) ->
+                outboundReqMsg.setHeader(key, String.valueOf(value)));
+
+        Map<String, String> traceTags = new HashMap<>();
+        traceTags.put("component", "ballerina");
+        traceTags.put("http.method", String.valueOf(outboundReqMsg.getProperty("HTTP_METHOD")));
+        traceTags.put("protocol", String.valueOf(outboundReqMsg.getProperty("PROTOCOL")));
+        traceTags.put("http.url", String.valueOf(outboundReqMsg.getProperty("TO")));
+        traceTags.put("http.host", String.valueOf(outboundReqMsg.getProperty("Host")));
+        traceTags.put("http.port", String.valueOf(outboundReqMsg.getProperty("PORT")));
+
+        context.getTraceContext().setTags(traceTags);
         return outboundReqMsg;
     }
 }

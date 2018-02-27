@@ -44,6 +44,7 @@ import org.ballerinalang.util.exceptions.BallerinaException;
 import org.ballerinalang.util.tracer.BallerinaTracerManager;
 import org.ballerinalang.util.tracer.TraceConnectorFutureListener;
 import org.ballerinalang.util.tracer.TraceConstants;
+import org.ballerinalang.util.tracer.TraceContext;
 
 import java.util.Arrays;
 import java.util.Map;
@@ -66,7 +67,7 @@ public class ResourceExecutor {
      * @param bValues         for parameters.
      */
     public static void execute(Resource resource, BServerConnectorFuture connectorFuture,
-                               Map<String, Object> properties, Map<String, String> traceContext, BValue... bValues) {
+                               Map<String, Object> properties, TraceContext traceContext, BValue... bValues) {
         if (resource == null) {
             connectorFuture.notifyFailure(new BallerinaException("trying to execute a null resource"));
             return;
@@ -90,11 +91,11 @@ public class ResourceExecutor {
         context.setProperty(TraceConstants.TRACE_PROPERTY_SERVICE, serviceInfo.getName());
 
         if (traceContext != null) {
-            context.traceContext = traceContext;
+            context.setTraceContext(traceContext);
         }
 
         TraceConnectorFutureListener listener = new TraceConnectorFutureListener(context,
-                BallerinaTracerManager.getInstance().buildSpan(context));
+                BallerinaTracerManager.getInstance().buildSpan(context, false));
         connectorFuture.registerConnectorFutureListener(listener);
 
         ControlStack controlStack = context.getControlStack();

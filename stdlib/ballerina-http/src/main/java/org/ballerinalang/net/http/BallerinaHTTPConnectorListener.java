@@ -24,14 +24,15 @@ import org.ballerinalang.connector.api.Executor;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.ballerinalang.util.tracer.TraceConstants;
+import org.ballerinalang.util.tracer.TraceContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.contract.HttpConnectorListener;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 /**
  * HTTP connector listener for Ballerina.
@@ -82,9 +83,19 @@ public class BallerinaHTTPConnectorListener implements HttpConnectorListener {
             properties = Collections.singletonMap(HttpConstants.SRC_HANDLER, srcHandler);
         }
 
-        Map<String, String> traceContext = httpCarbonMessage.getHeaders()
-                .entries().stream().filter(c -> c.getKey().startsWith(TraceConstants.TRACE_PREFIX))
-                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+        TraceContext traceContext = new TraceContext();
+        httpCarbonMessage.getHeaders().entries().stream()
+                .filter(c -> c.getKey().startsWith(TraceConstants.TRACE_PREFIX))
+                .forEach(e -> traceContext.addProperty(e.getKey(), e.getValue()));
+
+        // TODO: add tags here
+        Map<String, String> traceTags = new HashMap<>();
+        traceTags.put("component", "ballerina");
+        traceTags.put("http.method", (String) httpCarbonMessage.getProperty("HTTP_METHOD"));
+        traceTags.put("protocol", (String) httpCarbonMessage.getProperty("PROTOCOL"));
+        traceTags.put("http.url", (String) httpCarbonMessage.getProperty("REQUEST_URL"));
+
+        traceContext.setTags(traceTags);
 
         BValue[] signatureParams;
         signatureParams = HttpDispatcher.getSignatureParameters(httpResource, httpCarbonMessage);
