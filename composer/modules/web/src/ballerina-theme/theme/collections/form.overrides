@@ -2,8 +2,6 @@
          Site Overrides
 *******************************/
 
-
-
 .ui.form .fields .field .ui.input input, .ui.form .field .ui.input input, .ui.form textarea{
     background      : @off-white;
 }
@@ -39,7 +37,6 @@
  .ui.form input[type="file"]:focus, .ui.form input[type="url"]:focus{
   border-color    : @orange ;
 }
-
 
 .inverted{
     .ui.form .fields .field .ui.input input, .ui.form .field .ui.input input, .ui.form textarea{
