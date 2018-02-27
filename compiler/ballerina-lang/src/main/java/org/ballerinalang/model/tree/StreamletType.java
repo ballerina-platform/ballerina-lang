@@ -15,36 +15,14 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.ballerinalang.model.symbols;
+package org.ballerinalang.model.tree;
+
+import org.ballerinalang.model.types.ReferenceType;
 
 /**
+ * {@code {@link StreamletType}} represents the type of a streamlet in Ballerina.
+ *
  * @since 0.94
  */
-public enum SymbolKind {
-    PACKAGE,
-    STRUCT,
-    ENUM,
-    CONNECTOR,
-    STREAMLET,
-    ACTION,
-    SERVICE,
-    RESOURCE,
-    FUNCTION,
-    WORKER,
-    ANNOTATION,
-    ANNOTATION_ATTRIBUTE,
-    CONSTANT,
-    PACKAGE_VARIABLE,
-    TRANSFORMER,
-
-    PARAMETER,
-    LOCAL_VARIABLE,
-    SERVICE_VARIABLE,
-    CONNECTOR_VARIABLE,
-
-    CAST_OPERATOR,
-    CONVERSION_OPERATOR,
-
-    XMLNS,
-    OTHER
+public interface StreamletType extends ReferenceType {
 }

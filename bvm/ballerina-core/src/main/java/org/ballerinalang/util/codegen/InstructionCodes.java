@@ -253,6 +253,7 @@ public interface InstructionCodes {
     int NEWMAP = 212;
     int NEWJSON = 213;
     int NEWTABLE = 215;
+    int NEWSTREAMLET = 216;
     int NEWSTREAM = 217;
 
     int NEW_INT_RANGE = 219;

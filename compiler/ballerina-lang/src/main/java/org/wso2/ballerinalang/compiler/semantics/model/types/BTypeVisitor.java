@@ -45,6 +45,8 @@ public interface BTypeVisitor<T, R> {
 
     R visit(BConnectorType t, T s);
 
+    R visit(BStreamletType t, T s);
+
     R visit(BEnumType t, T s);
 
     R visit(BInvokableType t, T s);

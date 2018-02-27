@@ -215,6 +215,7 @@ public interface InstructionCodes {
     int ANY2DT = 174;
     int ANYSTM = 175;
 
+    int ANY2M = 176;
     int ANY2E = 177;
     int ANY2T = 178;
     int ANY2C = 179;
@@ -253,6 +254,8 @@ public interface InstructionCodes {
     int NEWMAP = 212;
     int NEWJSON = 213;
     int NEWTABLE = 215;
+    int NEWSTREAMLET = 216;
+    int NEWSTREAM = 217;
 
     int NEW_INT_RANGE = 219;
     int ITR_NEW = 220;

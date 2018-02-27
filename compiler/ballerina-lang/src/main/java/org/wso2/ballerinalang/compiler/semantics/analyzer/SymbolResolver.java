@@ -181,6 +181,7 @@ public class SymbolResolver extends BLangNodeVisitor {
         if (lhsType.tag == TypeTags.NULL &&
                 (rhsType.tag == TypeTags.STRUCT ||
                         rhsType.tag == TypeTags.CONNECTOR ||
+                        rhsType.tag == TypeTags.STREAMLET ||
                         rhsType.tag == TypeTags.ENUM)) {
             List<BType> paramTypes = Lists.of(lhsType, rhsType);
             List<BType> retTypes = Lists.of(symTable.booleanType);
@@ -190,6 +191,7 @@ public class SymbolResolver extends BLangNodeVisitor {
 
         if ((lhsType.tag == TypeTags.STRUCT ||
                 lhsType.tag == TypeTags.CONNECTOR ||
+                lhsType.tag == TypeTags.STREAMLET ||
                 lhsType.tag == TypeTags.ENUM)
                 && rhsType.tag == TypeTags.NULL) {
             List<BType> paramTypes = Lists.of(lhsType, rhsType);
@@ -530,6 +532,7 @@ public class SymbolResolver extends BLangNodeVisitor {
             resultType = symTable.errType;
             return;
         }
+
         if (symbol.kind == SymbolKind.CONNECTOR) {
             userDefinedTypeNode.flagSet = EnumSet.of(Flag.CONNECTOR);
         }

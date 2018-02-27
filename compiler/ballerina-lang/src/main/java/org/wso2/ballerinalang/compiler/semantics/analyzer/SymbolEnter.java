@@ -47,6 +47,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BAnnotationType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BConnectorType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BEnumType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamletType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStructType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStructType.BAttachedFunction;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStructType.BStructField;
@@ -68,6 +69,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangPackageDeclaration;
 import org.wso2.ballerinalang.compiler.tree.BLangResource;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
+import org.wso2.ballerinalang.compiler.tree.BLangStreamlet;
 import org.wso2.ballerinalang.compiler.tree.BLangStruct;
 import org.wso2.ballerinalang.compiler.tree.BLangTransformer;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
@@ -198,6 +200,12 @@ public class SymbolEnter extends BLangNodeVisitor {
 
         // Define connector params and type.
         defineConnectorParams(pkgNode.connectors, pkgEnv);
+
+        // Define streamlet nodes.
+        pkgNode.streamlets.forEach(con -> defineNode(con, pkgEnv));
+
+        // Define streamlet params and type.
+        defineStreamletParams(pkgNode.streamlets, pkgEnv);
 
         // Define transformer nodes.
         pkgNode.transformers.forEach(tansformer -> defineNode(tansformer, pkgEnv));
@@ -379,6 +387,14 @@ public class SymbolEnter extends BLangNodeVisitor {
                 names.fromIdNode(connectorNode.name), env.enclPkg.symbol.pkgID, null, env.scope.owner);
         connectorNode.symbol = conSymbol;
         defineSymbol(connectorNode.pos, conSymbol);
+    }
+
+    @Override
+    public void visit(BLangStreamlet streamletNode) {
+        BTypeSymbol conSymbol = Symbols.createStreamletSymbol(Flags.asMask(streamletNode.flagSet),
+                names.fromIdNode(streamletNode.name), env.enclPkg.symbol.pkgID, null, env.scope.owner);
+        streamletNode.symbol = conSymbol;
+        defineSymbol(streamletNode.pos, conSymbol);
     }
 
     @Override
@@ -621,6 +637,9 @@ public class SymbolEnter extends BLangNodeVisitor {
             case CONNECTOR:
                 pkgNode.connectors.add((BLangConnector) node);
                 break;
+            case STREAMLET:
+                pkgNode.streamlets.add((BLangStreamlet) node);
+                break;
             case SERVICE:
                 pkgNode.services.add((BLangService) node);
                 break;
@@ -669,6 +688,13 @@ public class SymbolEnter extends BLangNodeVisitor {
         connectors.forEach(connector -> {
             SymbolEnv conEnv = SymbolEnv.createConnectorEnv(connector, connector.symbol.scope, pkgEnv);
             defineConnectorSymbolParams(connector, connector.symbol, conEnv);
+        });
+    }
+
+    private void defineStreamletParams(List<BLangStreamlet> streamlets, SymbolEnv pkgEnv) {
+        streamlets.forEach(streamlet -> {
+            SymbolEnv conEnv = SymbolEnv.createStreamletEnv(streamlet, streamlet.symbol.scope, pkgEnv);
+            defineStreamletSymbolParams(streamlet, streamlet.symbol, conEnv);
         });
     }
 
@@ -736,6 +762,24 @@ public class SymbolEnter extends BLangNodeVisitor {
                 .collect(Collectors.toList());
 
         symbol.type = new BConnectorType(paramTypes, symbol);
+    }
+
+    private void defineStreamletSymbolParams(BLangStreamlet streamletNode, BTypeSymbol symbol,
+                                             SymbolEnv streamletEnv) {
+        List<BVarSymbol> paramSymbols =
+                streamletNode.params.stream()
+                        .peek(varNode -> defineNode(varNode, streamletEnv))
+                        .map(varNode -> varNode.symbol)
+                        .collect(Collectors.toList());
+
+        symbol.params = paramSymbols;
+
+        // Create streamlet type
+        List<BType> paramTypes = paramSymbols.stream()
+                .map(paramSym -> paramSym.type)
+                .collect(Collectors.toList());
+
+        symbol.type = new BStreamletType(paramTypes, symbol);
     }
 
     private void defineSymbol(DiagnosticPos pos, BSymbol symbol) {

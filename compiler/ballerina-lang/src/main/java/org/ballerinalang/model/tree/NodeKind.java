@@ -44,6 +44,7 @@ public enum NodeKind {
     WORKER,
     XMLNS,
     TRANSFORMER,
+    STREAMLET,
 
     /* Expressions */
     ANNOTATION_ATTACHMENT_ATTRIBUTE,
@@ -128,4 +129,5 @@ public enum NodeKind {
     PATTERN_STREAMING_INPUT,
     STREAMING_QUERY,
     QUERY,
+    STREAMING_QUERY_DECLARATION,
 }

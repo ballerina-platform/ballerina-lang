@@ -37,6 +37,7 @@ import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.OperatorKind;
 import org.ballerinalang.model.tree.ResourceNode;
 import org.ballerinalang.model.tree.ServiceNode;
+import org.ballerinalang.model.tree.StreamletNode;
 import org.ballerinalang.model.tree.StructNode;
 import org.ballerinalang.model.tree.TransformerNode;
 import org.ballerinalang.model.tree.VariableNode;
@@ -53,6 +54,7 @@ import org.ballerinalang.model.tree.clauses.SelectExpressionNode;
 import org.ballerinalang.model.tree.clauses.SetAssignmentNode;
 import org.ballerinalang.model.tree.clauses.StreamActionNode;
 import org.ballerinalang.model.tree.clauses.StreamingInput;
+import org.ballerinalang.model.tree.clauses.StreamingQueryDeclarationNode;
 import org.ballerinalang.model.tree.clauses.TableQuery;
 import org.ballerinalang.model.tree.clauses.WhereNode;
 import org.ballerinalang.model.tree.clauses.WindowClauseNode;
@@ -86,6 +88,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangNameReference;
 import org.wso2.ballerinalang.compiler.tree.BLangPackageDeclaration;
 import org.wso2.ballerinalang.compiler.tree.BLangResource;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
+import org.wso2.ballerinalang.compiler.tree.BLangStreamlet;
 import org.wso2.ballerinalang.compiler.tree.BLangStruct;
 import org.wso2.ballerinalang.compiler.tree.BLangTransformer;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
@@ -102,6 +105,7 @@ import org.wso2.ballerinalang.compiler.tree.clauses.BLangSelectExpression;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangSetAssignment;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangStreamAction;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangStreamingInput;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangStreamingQueryDeclaration;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangTableQuery;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangWhere;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangWindow;
@@ -286,6 +290,10 @@ public class BLangPackageBuilder {
     private Stack<StreamingQueryStatementNode> streamingQueryStatementStack = new Stack<>();
 
     private Stack<QueryStatementNode> queryStatementStack = new Stack<>();
+
+    private Stack<StreamingQueryDeclarationNode> streamingQueryDeclarationNodeStack = new Stack<>();
+
+    private Stack<StreamletNode> streamletNodeStack = new Stack<>();
 
     private Set<BLangImportPackage> imports = new HashSet<>();
 
@@ -2276,7 +2284,6 @@ public class BLangPackageBuilder {
     public void endQueryStatementNode(DiagnosticPos pos, Set<Whitespace> ws, String identifier) {
 
         QueryStatementNode queryStatementNode = this.queryStatementStack.peek();
-
         ((BLangQueryStatement) queryStatementNode).pos = pos;
         ((BLangQueryStatement) queryStatementNode).addWS(ws);
 
@@ -2284,4 +2291,46 @@ public class BLangPackageBuilder {
         queryStatementNode.setStreamingQueryStatement(streamingQueryStatementStack.pop());
     }
 
+    public void startStreamingQueryDeclarationNode(DiagnosticPos pos, Set<Whitespace> ws) {
+        StreamingQueryDeclarationNode streamingQueryDeclarationNode = TreeBuilder.createStreamingQueryDeclarationNode();
+        ((BLangStreamingQueryDeclaration) streamingQueryDeclarationNode).pos = pos;
+        ((BLangStreamingQueryDeclaration) streamingQueryDeclarationNode).addWS(ws);
+        this.streamingQueryDeclarationNodeStack.push(streamingQueryDeclarationNode);
+    }
+
+    public void endStreamingQueryDeclarationNode(DiagnosticPos pos, Set<Whitespace> ws) {
+
+        StreamingQueryDeclarationNode streamingQueryDeclarationNode = this.streamingQueryDeclarationNodeStack.peek();
+        ((BLangStreamingQueryDeclaration) streamingQueryDeclarationNode).pos = pos;
+        ((BLangStreamingQueryDeclaration) streamingQueryDeclarationNode).addWS(ws);
+
+        if (!streamingQueryStatementStack.isEmpty()) {
+            streamingQueryDeclarationNode.setStreamingQuery(streamingQueryStatementStack.pop());
+        }
+
+        while (!queryStatementStack.isEmpty()) {
+            streamingQueryDeclarationNode.addQueryStatement(queryStatementStack.pop());
+        }
+    }
+
+    public void startStreamletNode(DiagnosticPos pos, Set<Whitespace> ws) {
+        StreamletNode streamletNode = TreeBuilder.createStreamletNode();
+        ((BLangStreamlet) streamletNode).pos = pos;
+        ((BLangStreamlet) streamletNode).addWS(ws);
+        this.streamletNodeStack.push(streamletNode);
+    }
+
+    public void endStreamletNode(DiagnosticPos pos, Set<Whitespace> ws, String identifier) {
+
+        StreamletNode streamletNode = this.streamletNodeStack.peek();
+        ((BLangStreamlet) streamletNode).pos = pos;
+        ((BLangStreamlet) streamletNode).addWS(ws);
+
+        streamletNode.setName(this.createIdentifier(identifier));
+        streamletNode.setStreamingQueryDeclaration(streamingQueryDeclarationNodeStack.pop());
+
+        if (!this.varListStack.empty()) {
+            this.varListStack.pop().forEach(streamletNode::addParameter);
+        }
+    }
 }

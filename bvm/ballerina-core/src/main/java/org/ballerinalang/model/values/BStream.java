@@ -27,6 +27,8 @@ import org.ballerinalang.model.types.BTypes;
  *
  * @since 0.8.0
  */
+
+//TODO Check this file and refine
 public class BStream implements BRefType<Object> {
 
 

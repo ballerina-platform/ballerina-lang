@@ -36,6 +36,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BJSONType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamletType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStructType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStructType.BAttachedFunction;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStructType.BStructField;
@@ -361,6 +362,12 @@ public class Types {
                 return false;
             }
         }
+        return true;
+    }
+
+    public boolean checkStremletEquivalency(BType actualType, BType expType) {
+
+        //TODO just a temporary hack
         return true;
     }
 
@@ -748,6 +755,17 @@ public class Types {
         }
 
         @Override
+        public BSymbol visit(BStreamletType t, BType s) {
+            if (s == symTable.anyType) {
+                return createCastOperatorSymbol(s, t, false, InstructionCodes.ANY2M);
+            } else if (s.tag == TypeTags.STREAMLET && checkStremletEquivalency(s, t)) {
+                return createCastOperatorSymbol(s, t, true, InstructionCodes.NOP);
+            }
+
+            return symTable.notFoundSymbol;
+        }
+
+        @Override
         public BSymbol visit(BEnumType t, BType s) {
             if (s == symTable.anyType) {
                 return createCastOperatorSymbol(s, t, false, InstructionCodes.ANY2E);
@@ -844,6 +862,11 @@ public class Types {
         }
 
         @Override
+        public BSymbol visit(BStreamletType t, BType s) {
+            return symTable.notFoundSymbol;
+        }
+
+        @Override
         public BSymbol visit(BEnumType t, BType s) {
             return symTable.notFoundSymbol;
         }
@@ -923,6 +946,11 @@ public class Types {
 
         @Override
         public Boolean visit(BConnectorType t, BType s) {
+            return t == s;
+        }
+
+        @Override
+        public Boolean visit(BStreamletType t, BType s) {
             return t == s;
         }
 

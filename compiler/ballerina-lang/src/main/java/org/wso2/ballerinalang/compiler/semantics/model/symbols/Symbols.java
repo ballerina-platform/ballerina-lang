@@ -92,6 +92,17 @@ public class Symbols {
         return typeSymbol;
     }
 
+    public static BTypeSymbol createStreamletSymbol(int flags,
+                                                    Name name,
+                                                    PackageID pkgID,
+                                                    BType type,
+                                                    BSymbol owner) {
+        BTypeSymbol typeSymbol = createTypeSymbol(SymTag.STREAMLET, flags, name, pkgID, type, owner);
+        typeSymbol.kind = SymbolKind.STREAMLET;
+        return typeSymbol;
+    }
+
+
     public static BTypeSymbol createServiceSymbol(int flags,
                                                   Name name,
                                                   PackageID pkgID,

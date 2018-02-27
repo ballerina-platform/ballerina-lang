@@ -2147,7 +2147,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         boolean isSelectAll = ctx.MUL() == null ? false : true;
         boolean isGroupByClauseAvailable = ctx.groupByClause() == null ? false : true;
         boolean isHavingClauseAvailable = ctx.havingClause() == null ? false : true;
-        this.pkgBuilder.endSelectClauseNode(isGroupByClauseAvailable, isHavingClauseAvailable, isSelectAll,
+        this.pkgBuilder.endSelectClauseNode(isSelectAll, isGroupByClauseAvailable, isHavingClauseAvailable,
                 getCurrentPos(ctx), getWS(ctx));
     }
 
@@ -2406,8 +2406,25 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
 
-        this.pkgBuilder.endQueryStatementNode(getCurrentPos(ctx), getWS(ctx),
-                ctx.Identifier().getText());
+        this.pkgBuilder.endQueryStatementNode(getCurrentPos(ctx), getWS(ctx), ctx.Identifier().getText());
+    }
+
+    @Override
+    public void enterStreamingQueryDeclaration(BallerinaParser.StreamingQueryDeclarationContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+
+        this.pkgBuilder.startStreamingQueryDeclarationNode(getCurrentPos(ctx), getWS(ctx));
+    }
+
+    @Override
+    public void exitStreamingQueryDeclaration(BallerinaParser.StreamingQueryDeclarationContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+
+        this.pkgBuilder.endStreamingQueryDeclarationNode(getCurrentPos(ctx), getWS(ctx));
     }
 
     @Override
@@ -2415,6 +2432,8 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         if (ctx.exception != null) {
             return;
         }
+
+        this.pkgBuilder.startStreamletNode(getCurrentPos(ctx), getWS(ctx));
     }
 
     @Override
@@ -2422,6 +2441,8 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         if (ctx.exception != null) {
             return;
         }
+
+        this.pkgBuilder.endStreamletNode(getCurrentPos(ctx), getWS(ctx), ctx.getParent().getChild(1).getText());
     }
 
     private DiagnosticPos getCurrentPos(ParserRuleContext ctx) {

@@ -17,6 +17,10 @@
 */
 package org.ballerinalang.model.tree;
 
+import org.ballerinalang.model.tree.clauses.StreamingQueryDeclarationNode;
+
+import java.util.List;
+
 /**
  * @since 0.94
  */
@@ -26,5 +30,17 @@ public interface StreamletNode extends AnnotatableNode, TopLevelNode {
 
     void setName(IdentifierNode name);
 
+    void setStreamingQueryDeclaration(StreamingQueryDeclarationNode streamingQueryDeclaration);
+
+    StreamingQueryDeclarationNode getStreamingQueryDeclaration();
+
+    List<? extends VariableNode> getParameters();
+
+    void addParameter(VariableNode param);
+
+    void setInitFunction(FunctionNode function);
+
+    FunctionNode getInitFunction();
 
 }
+
