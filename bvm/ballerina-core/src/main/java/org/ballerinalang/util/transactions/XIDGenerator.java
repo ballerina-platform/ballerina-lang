@@ -18,6 +18,7 @@
 package org.ballerinalang.util.transactions;
 
 import java.util.Random;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Generates XID for the distributed transactions.
@@ -25,6 +26,7 @@ import java.util.Random;
 public class XIDGenerator {
 
     private static final Random rand = new Random();
+    private static final AtomicInteger formatIdIdGenerator = new AtomicInteger();
 
     private static byte[] randomBytes() {
         final byte[] bytes = new byte[48];
@@ -35,7 +37,6 @@ public class XIDGenerator {
     static XATransactionID createXID() {
         final byte[] branchQualifier = randomBytes();
         final byte[] globalTransactionId = randomBytes();
-        int formatId = rand.nextInt();
-        return new XATransactionID(formatId, branchQualifier, globalTransactionId);
+        return new XATransactionID(formatIdIdGenerator.incrementAndGet(), branchQualifier, globalTransactionId);
     }
 }

@@ -26,7 +26,7 @@ import org.ballerinalang.test.utils.SQLDBUtils;
 import org.testng.Assert;
 import org.testng.annotations.AfterSuite;
 import org.testng.annotations.BeforeClass;
-//import org.testng.annotations.Test;
+import org.testng.annotations.Test;
 
 import java.io.File;
 
@@ -47,28 +47,28 @@ public class SQLXATransactionsTest {
         SQLDBUtils.initH2Database(SQLDBUtils.DB_DIRECTORY_H2_2, DB_NAME2, "datafiles/sql/SQLH2SalaryTableCreate.sql");
     }
 
-    //@Test
+    @Test
     public void testXAransactonSuccess() {
         BValue[] returns = BRunUtil.invoke(result, "testXAransactonSuccess");
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 1);
         Assert.assertEquals(((BInteger) returns[1]).intValue(), 1);
     }
 
-    //@Test
+    @Test
     public void testXAransactonFailed1() {
         BValue[] returns = BRunUtil.invoke(result, "testXAransactonFailed1");
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 0);
         Assert.assertEquals(((BInteger) returns[1]).intValue(), 0);
     }
 
-    //@Test
+    @Test
     public void testXAransactonFailed2() {
         BValue[] returns = BRunUtil.invoke(result, "testXAransactonFailed2");
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 0);
         Assert.assertEquals(((BInteger) returns[1]).intValue(), 0);
     }
 
-    //@Test
+    @Test
     public void testXAransactonRetry() {
         BValue[] returns = BRunUtil.invoke(result, "testXAransactonRetry");
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 1);
@@ -79,7 +79,5 @@ public class SQLXATransactionsTest {
     public void cleanup() {
         SQLDBUtils.deleteDirectory(new File(SQLDBUtils.DB_DIRECTORY_H2_1));
         SQLDBUtils.deleteDirectory(new File(SQLDBUtils.DB_DIRECTORY_H2_2));
-        SQLDBUtils.deleteFiles(new File("."), "tmlog");
-        SQLDBUtils.deleteFiles(new File("."), "epoch");
     }
 }

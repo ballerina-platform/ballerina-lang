@@ -117,7 +117,6 @@ import org.ballerinalang.util.exceptions.RuntimeErrors;
 import org.ballerinalang.util.program.BLangFunctions;
 import org.ballerinalang.util.transactions.LocalTransactionInfo;
 import org.ballerinalang.util.transactions.TransactionConstants;
-import org.ballerinalang.util.transactions.TransactionResourceManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.ballerinalang.util.Lists;
@@ -2708,7 +2707,7 @@ public class BLangVM {
         BValue[] returns = notifyTransactionBegin(null, null, TransactionConstants.DEFAULT_COORDINATION_TYPE);
         //Check if error occurs during registration
         if (returns[1] != null) {
-            throw new BallerinaException("error in transaction start"); //TODO add eroor cause
+            throw new BallerinaException("error in transaction start"); //TODO add error cause
         }
         BStruct txDataStruct = (BStruct) returns[0];
         String transactionId = txDataStruct.getStringField(1);
@@ -2719,52 +2718,38 @@ public class BLangVM {
 
     private void retryTransaction(int transactionId, int startOfAbortIP) {
         LocalTransactionInfo localTransactionInfo = context.getLocalTransactionInfo();
-        int allowedRetryCount = localTransactionInfo.getAllowedRetryCount(transactionId);
-        int currentRetryCount = localTransactionInfo.getCurrentRetryCount(transactionId);
-        if (currentRetryCount >= allowedRetryCount) {
-            if (currentRetryCount != 0) {
-                ip = startOfAbortIP;
-            }
+        if (localTransactionInfo.isRetryPossible(transactionId)) {
+            ip = startOfAbortIP;
         }
         localTransactionInfo.incrementCurrentRetryCount(transactionId);
     }
 
     private void endTransaction(int transactionId, int status) {
         LocalTransactionInfo localTransactionInfo = context.getLocalTransactionInfo();
+        boolean notifyCoorinator = false;
         try {
             //In success case no need to do anything as with the transaction end phase it will be committed.
             if (status == TransactionStatus.FAILED.value()) {
-                int currentCount = localTransactionInfo.getCurrentRetryCount(transactionId);
-                int allowedCount = localTransactionInfo.getAllowedRetryCount(transactionId);
-                //local retry is attempted without notifying the coordinator. If all the attempts are failed, notify
-                //the coordinator with transaction abort.
-                if (currentCount == allowedCount) {
+                notifyCoorinator = localTransactionInfo.onTransactionFailed(transactionId);
+                if (notifyCoorinator) {
                     notifyTransactionAbort(localTransactionInfo.getGlobalTransactionId());
-                } else {
-                    localTransactionInfo.rollbackAndClearTransactionContextRegistry();
-                    TransactionResourceManager.getInstance()
-                            .removeContextsFromRegistry(localTransactionInfo.getGlobalTransactionId());
                 }
             } else if (status == TransactionStatus.ABORTED.value()) {
-                notifyTransactionAbort(localTransactionInfo.getGlobalTransactionId());
+                notifyCoorinator = localTransactionInfo.onTransactionAbort();
+                if (notifyCoorinator) {
+                    notifyTransactionAbort(localTransactionInfo.getGlobalTransactionId());
+                }
             } else if (status == TransactionStatus.END.value()) { //status = 1 Transaction end
-                localTransactionInfo.endTransactionBlock();
-                TransactionResourceManager.getInstance()
-                        .endXATransaction(localTransactionInfo.getGlobalTransactionId());
-                if (localTransactionInfo.isOuterTransaction()) {
+                notifyCoorinator = localTransactionInfo.onTransactionEnd();
+                if (notifyCoorinator) {
                     notifyTransactionEnd(localTransactionInfo.getGlobalTransactionId());
-                    clearLocalTransactionInfo(localTransactionInfo);
+                    context.setLocalTransactionInfo(null);
                 }
             }
         } catch (Throwable e) {
             context.setError(BLangVMErrors.createError(this.context, ip, e.getMessage()));
             handleError();
         }
-    }
-
-    private void clearLocalTransactionInfo(LocalTransactionInfo localTransactionInfo) {
-        localTransactionInfo.clear();
-        context.setLocalTransactionInfo(null);
     }
 
     private BValue[] notifyTransactionBegin(String glbalTransactionId, String url, String protocol) {

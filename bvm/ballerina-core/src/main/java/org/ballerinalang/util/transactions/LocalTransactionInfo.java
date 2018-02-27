@@ -46,12 +46,6 @@ public class LocalTransactionInfo {
         this.transactionContextStore = new HashMap<>();
     }
 
-    public void clear() {
-        allowedTransactionRetryCounts.clear();
-        currentTransactionRetryCounts.clear();
-        transactionContextStore.clear();
-    }
-
     public String getGlobalTransactionId() {
         return this.globalTransactionId;
     }
@@ -77,14 +71,6 @@ public class LocalTransactionInfo {
         currentTransactionRetryCounts.put(localTransactionID, count + 1);
     }
 
-    public int getAllowedRetryCount(int localTransactionID) {
-        return allowedTransactionRetryCounts.get(localTransactionID);
-    }
-
-    public int getCurrentRetryCount(int localTransactionID) {
-        return currentTransactionRetryCounts.get(localTransactionID);
-    }
-
     public BallerinaTransactionContext getTransactionContext(String connectorid) {
         return transactionContextStore.get(connectorid);
     }
@@ -93,19 +79,62 @@ public class LocalTransactionInfo {
         transactionContextStore.put(connectorid, txContext);
     }
 
-    public void rollbackAndClearTransactionContextRegistry() {
-        transactionContextStore.forEach((k, v) -> {
-            v.rollback();
-            v.close();
-        });
-        transactionContextStore.clear();
+    public boolean isRetryPossible(int transactionId) {
+        boolean retryPossible = false;
+        int allowedRetryCount = getAllowedRetryCount(transactionId);
+        int currentRetryCount = getCurrentRetryCount(transactionId);
+        if (currentRetryCount >= allowedRetryCount) {
+            if (currentRetryCount != 0) {
+                retryPossible = true;
+            }
+        }
+        return retryPossible;
     }
 
-    public boolean isOuterTransaction() {
-        return transactionLevel == 0;
+    public boolean onTransactionFailed(int transactionId) {
+        boolean bNotifyCoordinator = false;
+        if (transactionLevel == 1) {
+            int currentCount = getCurrentRetryCount(transactionId);
+            int allowedCount = getAllowedRetryCount(transactionId);
+            //local retry is attempted without notifying the coordinator. If all the attempts are failed, notify
+            //the coordinator with transaction abort.
+            if (currentCount == allowedCount) {
+                bNotifyCoordinator = true;
+            } else {
+                transactionContextStore.clear();
+                TransactionResourceManager.getInstance().rollbackTransaction(globalTransactionId);
+            }
+        }
+        return bNotifyCoordinator;
     }
 
-    public void endTransactionBlock() {
+    public boolean onTransactionAbort() {
+        return (transactionLevel == 1);
+    }
+
+    public boolean onTransactionEnd() {
+        boolean bNotifyCoordinator = false;
         --transactionLevel;
+        if (transactionLevel == 0) {
+            TransactionResourceManager.getInstance().endXATransaction(globalTransactionId);
+            resetTransactionInfo();
+            bNotifyCoordinator = true;
+        }
+        return bNotifyCoordinator;
+
+    }
+
+    private int getAllowedRetryCount(int localTransactionID) {
+        return allowedTransactionRetryCounts.get(localTransactionID);
+    }
+
+    private int getCurrentRetryCount(int localTransactionID) {
+        return currentTransactionRetryCounts.get(localTransactionID);
+    }
+
+    private void resetTransactionInfo() {
+        allowedTransactionRetryCounts.clear();
+        currentTransactionRetryCounts.clear();
+        transactionContextStore.clear();
     }
 }
