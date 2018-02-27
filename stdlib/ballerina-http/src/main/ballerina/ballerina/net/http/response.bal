@@ -21,6 +21,11 @@ public function <OutResponse res> getHeader (string headerName) (string) {
     return getFirstHeaderFromEntity(entity, headerName);
 }
 
+function <InResponse res> addHeader (string headerName, string headerValue) {
+    mime:Entity entity = res.getEntityWithoutBody();
+    addHeaderToEntity(entity, headerName, headerValue);
+}
+
 @Description {value:"Adds the specified key/value pair as an HTTP header to the outbound response"}
 @Param {value:"res: The outbound response message"}
 @Param {value:"headerName: The header name"}
@@ -39,6 +44,13 @@ public function <InResponse res> getHeaders (string headerName) (string[]) {
     return getHeadersFromEntity(entity, headerName);
 }
 
+@Description {value:"Gets all the HTTP headers of the inbound response"}
+@Param {value:"res: The inbound response message"}
+@Return {value:"The headers map of the response"}
+public function <InResponse res> getAllHeaders() (map) {
+    return res.getEntityWithoutBody().headers;
+}
+
 @Description {value:"Gets the HTTP headers from the outbound response"}
 @Param {value:"res: The outbound response message"}
 @Param {value:"headerName: The header name"}
@@ -46,6 +58,18 @@ public function <InResponse res> getHeaders (string headerName) (string[]) {
 public function <OutResponse res> getHeaders (string headerName) (string[]) {
     mime:Entity entity = res.getEntityWithoutBody();
     return getHeadersFromEntity(entity, headerName);
+}
+
+@Description {value:"Gets all the HTTP headers of the outbound response"}
+@Param {value:"res: The outbound response message"}
+@Return {value:"The headers map of the response"}
+public function <OutResponse res> getAllHeaders() (map) {
+    return res.getEntityWithoutBody().headers;
+}
+
+function <InResponse res> setHeader (string headerName, string headerValue) {
+    mime:Entity entity = res.getEntityWithoutBody();
+    setHeaderToEntity(entity, headerName, headerValue);
 }
 
 @Description {value:"Sets the value of a transport header"}
@@ -61,6 +85,11 @@ public function <OutResponse res> setHeader (string headerName, string headerVal
 @Param {value:"res: The response message"}
 @Param {value:"key: The header name"}
 public function <OutResponse res> removeHeader (string key) {
+    mime:Entity entity = res.getEntityWithoutBody();
+    entity.headers.remove(key);
+}
+
+function <InResponse res> removeHeader (string key) {
     mime:Entity entity = res.getEntityWithoutBody();
     entity.headers.remove(key);
 }
