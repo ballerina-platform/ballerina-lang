@@ -87,8 +87,15 @@ public class BLangFunctions {
         invokeCallable(callableUnitInfo, parentCtx, regs[0], regs[1], responseCallback);
     }
     
+    /**
+     * This method does not short circuit the execution of the first worker to execute in the 
+     * same calling thread, but rather executes all the workers in their own separate threads.
+     * This is specifically useful in executing service resources, where the calling transport
+     * threads shouldn't be blocked, but rather the worker threads should be used.
+     */
     public static void invokeCallable(CallableUnitInfo callableUnitInfo, 
-            WorkerExecutionContext parentCtx, int[] argRegs, int[] retRegs, CallableUnitCallback responseCallback) {
+            WorkerExecutionContext parentCtx, int[] argRegs, int[] retRegs, 
+            CallableUnitCallback responseCallback) {
         WorkerInfo[] workerInfos = listWorkerInfos(callableUnitInfo);
         InvocableWorkerResponseContext respCtx = new CallbackedInvocableWorkerResponseContext(
                 callableUnitInfo.getRetParamTypes(), workerInfos.length, false, responseCallback);
@@ -96,12 +103,9 @@ public class BLangFunctions {
         WorkerDataIndex wdi = callableUnitInfo.retWorkerIndex;
         Map<String, Object> globalProps = parentCtx.globalProps;
         BLangScheduler.switchToWaitForResponse(parentCtx);
-        for (int i = 1; i < workerInfos.length; i++) {
+        for (int i = 0; i < workerInfos.length; i++) {
             executeWorker(respCtx, parentCtx, argRegs, callableUnitInfo, workerInfos[i], wdi, globalProps, false);
         }
-        WorkerExecutionContext runInCallerCtx = executeWorker(respCtx, parentCtx, argRegs, callableUnitInfo, 
-                workerInfos[0], wdi, globalProps, true);
-        CPU.exec(runInCallerCtx);
     }
     
     public static WorkerExecutionContext invokeCallable(CallableUnitInfo callableUnitInfo, 
