@@ -2,6 +2,7 @@
 package ${PACKAGE_NAME};
 #end
 
+import ballerina.io;
 import ballerina.net.http;
 
 connector MyClient (string url) {
@@ -10,17 +11,17 @@ connector MyClient (string url) {
         create http:HttpClient(url, {});
     }
 
-    action connect (string path) (http:Response) {
-        http:Response response;
+    action connect (string path) (http:InResponse) {
+        http:InResponse response;
         response, _ = clientConnectorEP.get(path, {});
         return response;
     }
 }
 
 function main (string[] args) {
-    endpoint<MyClient> myClientEP{
+    endpoint<MyClient> myClientEP {
         create MyClient("http://example.com");
     }
-    http:Response response = myClientEP.connect("");
-    println(response.getStringPayload());
+    http:InResponse response = myClientEP.connect("");
+    io:println(response.getStringPayload());
 }

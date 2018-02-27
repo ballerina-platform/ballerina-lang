@@ -21,7 +21,7 @@ import React from 'react';
 import classnames from 'classnames';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
-import { Tab, Nav, NavItem } from 'react-bootstrap';
+import { Tab, Menu } from 'semantic-ui-react';
 import ScrollBarsWithContextAPI from './../../view/scroll-bars/ScrollBarsWithContextAPI';
 import ActivityBar from './ActivityBar';
 import { HISTORY, COMMANDS } from './../constants';
@@ -71,7 +71,7 @@ class PanelActions extends React.Component {
      */
     render() {
         return (
-            <div className="panel-actions">{
+            <div className='panel-actions'>{
                 this.props.actions.map(({ icon, isActive, handleAction, description }, index) => {
                     const isActionactive = _.isFunction(isActive) ? isActive() : true;
                     return (
@@ -150,21 +150,21 @@ class LeftPanelTab extends React.Component {
         return (
             <div>
                 <div>
-                    <div className="panel-title">
+                    <div className='panel-title'>
                         {panelTitle}
                     </div>
                     <PanelActions actions={panelActions} />
                 </div>
                 <ScrollBarsWithContextAPI
                     style={dimensions}
-                    className="panel-content-scroll-container"
+                    className='panel-content-scroll-container'
                     ref={(ref) => {
                         this.scroller = ref;
                     }}
                     autoHide // Hide delay in ms
                     autoHideTimeout={1000}
                 >
-                    <div className="panel-content" style={{ width: width - activityBarWidth }}>
+                    <div className='panel-content' style={{ width: width - activityBarWidth }}>
                         {
                             createViewFromViewDef(viewDef, viewProps)
                         }
@@ -209,47 +209,58 @@ class LeftPanel extends React.Component {
                         panelTitle,
                         activityBarIcon,
                     },
-                  } = viewDef;
-            tabs.push((
-                <NavItem key={id} eventKey={id} title={panelTitle}>
-                    <i className={`fw fw-${activityBarIcon} fw-lg`} />
-                </NavItem>
-            ));
+            } = viewDef;
             const propsForTab = {
                 viewDef,
                 ...restProps,
                 isActive: this.props.show && activeViewPrev === id,
             };
+            tabs.push((
+                <Menu.Item
+                    active={propsForTab.isActive}
+                    name={panelTitle}
+                    key={id}
+                    eventKey={id}
+                    title={panelTitle}
+                    onClick={() => {
+                        const activeView = activeViewPrev !== id ? id : null;
+                        // if same tab is selected, disable tabs
+                        this.context.history.put(HISTORY.ACTIVE_LEFT_PANEL_VIEW, activeView);
+                        onActiveViewChange(activeView);
+                    }}
+                >
+                    <i className={`fw fw-${activityBarIcon} fw-lg`} />
+                </Menu.Item>
+            ));
+
             panes.push((
-                <Tab.Pane key={id} eventKey={id}>
+                <Tab.Pane key={id} eventKey={id} active={propsForTab.isActive}>
                     <LeftPanelTab {...propsForTab} />
                 </Tab.Pane>
             ));
         });
         return (
-            <div className="left-panel">
-                <div>
-                    <Tab.Container
-                        id="activity-bar-tabs"
-                        activeKey={this.props.show ? activeViewPrev : ''}
-                        onSelect={(key) => {
-                            const activeView = activeViewPrev !== key ? key : null;
-                            // if same tab is selected, disable tabs
-                            this.context.history.put(HISTORY.ACTIVE_LEFT_PANEL_VIEW, activeView);
-                            onActiveViewChange(activeView);
-                        }}
-                    >
-                        <div>
-                            <ActivityBar>
-                                <Nav bsStyle="tabs">
-                                    {tabs}
-                                </Nav>
-                            </ActivityBar>
-                            <Tab.Content animation>
-                                {this.props.show && panes}
-                            </Tab.Content>
+            <div className='left-panel'>
+                <div
+                    id='activity-bar-tabs'
+                    activekey={this.props.show ? activeViewPrev : ''}
+                    onSelect={(key) => {
+                        const activeView = activeViewPrev !== key ? key : null;
+                        // if same tab is selected, disable tabs
+                        this.context.history.put(HISTORY.ACTIVE_LEFT_PANEL_VIEW, activeView);
+                        onActiveViewChange(activeView);
+                    }}
+                >
+                    <div>
+                        <ActivityBar>
+                            <Menu fluid vertical tabular>
+                                {tabs}
+                            </Menu>
+                        </ActivityBar>
+                        <div className='tab-content'>
+                            {this.props.show && panes}
                         </div>
-                    </Tab.Container>
+                    </div>
                 </div>
             </div>
         );

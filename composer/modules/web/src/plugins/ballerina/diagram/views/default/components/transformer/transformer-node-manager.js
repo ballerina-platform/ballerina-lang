@@ -174,7 +174,7 @@ class TransformerNodeManager {
     removeStatementEdge(connection) {
         const { source, target } = connection;
 
-        if (source.endpointKind === 'input' && target.endpointKind === 'output') {
+        if (source.endpointKind === 'input' && (target.endpointKind === 'output' || target.endpointKind === 'param')) {
             this._mapper.removeInputToOutputMapping(source.name, target.name);
             return;
         }
@@ -255,9 +255,17 @@ class TransformerNodeManager {
         if (functionInvocationExpression.iterableOperation) {
             const inputParamName = `${functionInvocationExpression.getID()}:0:receiver`;
             const returnParamName = `${functionInvocationExpression.getID()}:0:return`;
+            let dataType = '[]';
+            let dataReturnType = '[]';
             type = 'iterable';
-            const argType = functionInvocationExpression.getExpression().symbolType[0]
-                                .replace('intermediate_collection', '[]');
+            if (functionInvocationExpression.getExpression().symbolType
+                && functionInvocationExpression.getExpression().symbolType.length > 0) {
+                dataType = functionInvocationExpression.getExpression().symbolType[0];
+            }
+            if (functionInvocationExpression.symbolType && functionInvocationExpression.symbolType.length > 0) {
+                dataReturnType = functionInvocationExpression.symbolType[0];
+            }
+            const argType = dataType.replace('intermediate_collection', '[]');
             if (functionInvocationExpression.argumentExpressions.length === 0) {
                 receiver = {
                     name: inputParamName,
@@ -269,8 +277,10 @@ class TransformerNodeManager {
                     type: argType,
                     index: 0 }];
             }
-            returnParams = [{ name: returnParamName,
-                type: functionInvocationExpression.symbolType[0].replace('intermediate_collection', '[]'),
+            returnParams = [{
+                index: 0,
+                name: returnParamName,
+                type: dataReturnType.replace('intermediate_collection', '[]'),
                 funcInv: functionInvocationExpression }];
         } else if (!funcDef) {
             log.error('Cannot find function definition for ' + functionInvocationExpression.getFunctionName());
@@ -564,6 +574,16 @@ class TransformerNodeManager {
         } else {
             return false;
         }
+    }
+
+    /**
+     * Generate iterable operation to the given connection
+     * @param {*} connection where iterable operation should be added
+     * @param {*} type iterable operation type
+     * @param {*} isLamda is given iterable operation has a lambda function
+     */
+    addIterableOperator(connection, type, isLamda) {
+        this._mapper.addIterableOperator(connection, type, isLamda);
     }
  }
 

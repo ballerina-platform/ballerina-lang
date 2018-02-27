@@ -749,14 +749,8 @@ public class ParserUtils {
         SemanticAnalyzer semAnalyzer = SemanticAnalyzer.getInstance(context);
         CodeAnalyzer codeAnalyzer = CodeAnalyzer.getInstance(context);
         Desugar desugar = Desugar.getInstance(context);
-
-        BLangPackage builtInCorePkg = desugar.perform(codeAnalyzer.analyze(semAnalyzer.analyze(
-                pkgLoader.loadEntryPackage(Names.BUILTIN_CORE_PACKAGE.value))));
-        symbolTable.createErrorTypes();
-        symbolTable.loadOperators();
         BLangPackage builtInPkg = desugar.perform(codeAnalyzer.analyze(semAnalyzer.analyze(
                 pkgLoader.loadEntryPackage(Names.BUILTIN_PACKAGE.value))));
-        builtInCorePkg.getStructs().forEach(s -> builtInPkg.getStructs().add(s));
         symbolTable.builtInPackageSymbol = builtInPkg.symbol;
         return builtInPkg;
     }

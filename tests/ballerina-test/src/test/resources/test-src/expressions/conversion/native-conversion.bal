@@ -30,7 +30,7 @@ function testStructToMap () (map) {
     return m;
 }
 
-function testMapToStruct () (Person, TypeConversionError) {
+function testMapToStruct () (Person, error) {
     int[] marks = [87, 94, 72];
     Person parent = {
                         name:"Parent",
@@ -73,7 +73,7 @@ function testStructToJson () (json) {
     return j;
 }
 
-function testJsonToStruct () (Person, TypeConversionError) {
+function testJsonToStruct () (Person, error) {
     json j = {name:"Child",
                  age:25,
                  parent:{
@@ -109,7 +109,7 @@ function testIncompatibleMapToStruct () (Person) {
                 marks:marks
             };
     Person p;
-    TypeConversionError e;
+    error e;
     p, e = <Person>m;
     if (e != null) {
         throw e;
@@ -125,7 +125,7 @@ function testMapWithMissingFieldsToStruct () (Person) {
                 marks:marks
             };
     Person p;
-    TypeConversionError e;
+    error e;
     p, e = <Person>m;
     if (e != null) {
         throw e;
@@ -158,7 +158,7 @@ function testMapWithIncompatibleArrayToStruct () (Person) {
                 alive:true
             };
     Person p;
-    TypeConversionError e;
+    error e;
     p, e = <Person>m;
     if (e != null) {
         throw e;
@@ -201,7 +201,7 @@ function testJsonToStructWithMissingFields () (Person) {
                  marks:[87, 94, 72]
              };
     Person p;
-    TypeConversionError e;
+    error e;
     p, e = <Person>j;
     if (e != null) {
         throw e;
@@ -217,7 +217,7 @@ function testIncompatibleJsonToStruct () (Person) {
                  marks:[87, 94, 72]
              };
     Person p;
-    TypeConversionError e;
+    error e;
     p, e = <Person>j;
     if (e != null) {
         throw e;
@@ -241,7 +241,7 @@ function testJsonWithIncompatibleMapToStruct () (Person) {
                  marks:[87, 94, 72]
              };
     Person p;
-    TypeConversionError e;
+    error e;
     p, e = <Person>j;
     if (e != null) {
         throw e;
@@ -265,7 +265,7 @@ function testJsonWithIncompatibleTypeToStruct () (Person) {
                  marks:[87, 94, 72]
              };
     Person p;
-    TypeConversionError e;
+    error e;
     p, e = <Person>j;
     if (e != null) {
         throw e;
@@ -289,7 +289,7 @@ function testJsonWithIncompatibleStructToStruct () (Person) {
                  marks:[87, 94, 72]
              };
     Person p;
-    TypeConversionError e;
+    error e;
     p, e = <Person>j;
     if (e != null) {
         throw e;
@@ -300,7 +300,7 @@ function testJsonWithIncompatibleStructToStruct () (Person) {
 function testJsonArrayToStruct () (Person) {
     json j = [87, 94, 72];
     Person p;
-    TypeConversionError e;
+    error e;
     p, e = <Person>j;
     if (e != null) {
         throw e;
@@ -318,7 +318,7 @@ function testStructWithIncompatibleTypeMapToJson () (json) {
     Info info = {foo:m};
 
     json j;
-    TypeConversionError err;
+    error err;
     j, err = <json>info;
     if (err != null) {
         throw err;
@@ -421,7 +421,7 @@ struct XmlArray {
 function testJsonToXmlArray () (XmlArray) {
     json j = {a:["a", "b", "c"]};
     XmlArray a;
-    TypeConversionError e;
+    error e;
     a, e = <XmlArray>j;
     if (e != null) {
         throw e;
@@ -446,7 +446,7 @@ function testNullJsonToArray () (StringArray) {
 function testNonArrayJsonToArray () (StringArray) {
     json j = {a:"im not an array"};
     StringArray a;
-    TypeConversionError e;
+    error e;
     a, e = <StringArray>j;
     if (e != null) {
         throw e;
@@ -513,7 +513,7 @@ function testNullStructToMap () (map) {
     return m;
 }
 
-function testIncompatibleJsonToStructWithErrors () (Person, TypeConversionError) {
+function testIncompatibleJsonToStructWithErrors () (Person, error) {
     json j = {name:"Child",
                  age:25,
                  parent:{
@@ -528,7 +528,7 @@ function testIncompatibleJsonToStructWithErrors () (Person, TypeConversionError)
                  info:{status:"single"},
                  marks:[87, 94, 72]
              };
-    TypeConversionError err;
+    error err;
     Person p;
     p, err = <Person>j;
     return p, err;
@@ -539,8 +539,8 @@ struct PersonA {
     int age;
 }
 
-function JsonToStructWithErrors () (PersonA, TypeConversionError) {
-    TypeConversionError err;
+function JsonToStructWithErrors () (PersonA, error) {
+    error err;
     PersonA pA;
     json j = {name:"supun"};
 
@@ -600,7 +600,7 @@ struct StructWithDefaults {
     blob blb;
 }
 
-function testEmptyJSONtoStructWithDefaults () (StructWithDefaults, TypeConversionError) {
+function testEmptyJSONtoStructWithDefaults () (StructWithDefaults, error) {
     json j = {};
     var testStruct, e = <StructWithDefaults>j;
 
@@ -616,7 +616,7 @@ struct StructWithoutDefaults {
     blob blb;
 }
 
-function testEmptyJSONtoStructWithoutDefaults () (StructWithoutDefaults, TypeConversionError) {
+function testEmptyJSONtoStructWithoutDefaults () (StructWithoutDefaults, error) {
     json j = {};
     var testStruct, e = <StructWithoutDefaults>j;
 
@@ -644,7 +644,7 @@ function testSameTypeConversion() (int) {
     return i;
 }
 
-function testErrorOnConversions() (TypeConversionError, TypeConversionError, TypeConversionError) {
+function testErrorOnConversions() (error, error, error) {
     string s1 = "4";
 
     // string to int
@@ -659,11 +659,11 @@ function testErrorOnConversions() (TypeConversionError, TypeConversionError, Typ
     return err1, err2, err3;
 }
 
-function testNullStringToOtherTypes() (int, TypeConversionError, 
-                                       float, TypeConversionError,
-                                       boolean, TypeConversionError,
-                                       json, TypeConversionError,
-                                       xml, TypeConversionError) {
+function testNullStringToOtherTypes() (int, error,
+                                       float, error,
+                                       boolean, error,
+                                       json, error,
+                                       xml, error) {
     string s;
     var i, err1 = <int> s;
     var f, err2 = <float> s;
@@ -674,7 +674,7 @@ function testNullStringToOtherTypes() (int, TypeConversionError,
     return i, err1, f, err2, b, err3, j, err4, x, err5;
 }
 
-function structWithComplexMapToJson() (json, TypeConversionError) {
+function structWithComplexMapToJson() (json, error) {
     int a = 4;
     float b = 2.5;
     boolean c = true;
@@ -699,7 +699,7 @@ struct ComplexArrayStruct{
     json[] g;
 }
 
-function structWithComplexArraysToJson() (json, TypeConversionError) {
+function structWithComplexArraysToJson() (json, error) {
     ComplexArrayStruct t = {"a":[4, 6, 9], "b":[4.6, 7.5], "c":[true, true, false], "d":["apple", "orange"], "e":[{}, {}], "f":[{}, {}], "g":[{"foo":"bar"}]};
     var js, err = <json> t;
     return js, err;

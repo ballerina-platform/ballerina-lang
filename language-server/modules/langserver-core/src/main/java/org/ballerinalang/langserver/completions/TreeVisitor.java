@@ -18,6 +18,9 @@
 
 package org.ballerinalang.langserver.completions;
 
+import org.antlr.v4.runtime.ParserRuleContext;
+import org.antlr.v4.runtime.Token;
+import org.antlr.v4.runtime.TokenStream;
 import org.ballerinalang.langserver.DocumentServiceKeys;
 import org.ballerinalang.langserver.TextDocumentServiceContext;
 import org.ballerinalang.langserver.completions.util.ScopeResolverConstants;
@@ -30,6 +33,8 @@ import org.ballerinalang.langserver.completions.util.positioning.resolvers.TopLe
 import org.ballerinalang.model.tree.Node;
 import org.ballerinalang.model.tree.TopLevelNode;
 import org.ballerinalang.model.tree.statements.StatementNode;
+import org.eclipse.lsp4j.Position;
+import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolEnter;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolResolver;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
@@ -119,6 +124,8 @@ import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Stack;
@@ -128,6 +135,11 @@ import java.util.stream.Collectors;
  * @since 0.94
  */
 public class TreeVisitor extends BLangNodeVisitor {
+    private static final String NODE_TYPE_FUNCTION = "function";
+    private static final String NODE_TYPE_ACTION = "action";
+    private static final String NODE_TYPE_RESOURCE = "resource";
+    private static final String NODE_TYPE_CONNECTOR = "connector";
+    
     private boolean terminateVisitor = false;
     private int loopCount = 0;
     private int transactionCount = 0;
@@ -191,15 +203,20 @@ public class TreeVisitor extends BLangNodeVisitor {
     }
 
     public void visit(BLangFunction funcNode) {
-        if (!ScopeResolverConstants.getResolverByClass(cursorPositionResolver)
-                .isCursorBeforeNode(funcNode.getPosition(), funcNode, this, this.documentServiceContext)) {
-            // Check for native functions
-            BSymbol funcSymbol = funcNode.symbol;
-            if (Symbols.isNative(funcSymbol)) {
-                return;
-            }
-            SymbolEnv funcEnv = SymbolEnv.createFunctionEnv(funcNode, funcSymbol.scope, symbolEnv);
+        // Check for native functions
+        BSymbol funcSymbol = funcNode.symbol;
+        if (Symbols.isNative(funcSymbol)) {
+            return;
+        }
 
+        String functionName = funcNode.getName().getValue();
+        SymbolEnv funcEnv = SymbolEnv.createFunctionEnv(funcNode, funcSymbol.scope, symbolEnv);
+        
+        if (isWithinParameterContext(functionName, NODE_TYPE_FUNCTION)) {
+            this.populateSymbols(this.resolveAllVisibleSymbols(funcEnv), funcEnv);
+            setTerminateVisitor(true);
+        } else if (!ScopeResolverConstants.getResolverByClass(cursorPositionResolver)
+                .isCursorBeforeNode(funcNode.getPosition(), funcNode, this, this.documentServiceContext)) {
             this.blockOwnerStack.push(funcNode);
             // Cursor position is calculated against the Block statement scope resolver
             cursorPositionResolver = BlockStatementScopeResolver.class;
@@ -210,6 +227,7 @@ public class TreeVisitor extends BLangNodeVisitor {
             if (terminateVisitor && !funcNode.workers.isEmpty()) {
                 this.setTerminateVisitor(false);
             }
+            
             funcNode.workers.forEach(e -> this.symbolEnter.defineNode(e, funcEnv));
             funcNode.workers.forEach(e -> this.acceptNode(e, funcEnv));
         }
@@ -349,10 +367,15 @@ public class TreeVisitor extends BLangNodeVisitor {
     }
 
     public void visit(BLangConnector connectorNode) {
-        if (!ScopeResolverConstants.getResolverByClass(cursorPositionResolver)
+        String connectorName = connectorNode.getName().getValue();
+        BSymbol connectorSymbol = connectorNode.symbol;
+        SymbolEnv connectorEnv = SymbolEnv.createConnectorEnv(connectorNode, connectorSymbol.scope, symbolEnv);
+        
+        if (isWithinParameterContext(connectorName, NODE_TYPE_CONNECTOR)) {
+            this.populateSymbols(this.resolveAllVisibleSymbols(connectorEnv), connectorEnv);
+            setTerminateVisitor(true);
+        } else if (!ScopeResolverConstants.getResolverByClass(cursorPositionResolver)
                 .isCursorBeforeNode(connectorNode.getPosition(), connectorNode, this, this.documentServiceContext)) {
-            BSymbol connectorSymbol = connectorNode.symbol;
-            SymbolEnv connectorEnv = SymbolEnv.createConnectorEnv(connectorNode, connectorSymbol.scope, symbolEnv);
 
             // Reset the previous node
             this.setPreviousNode(null);
@@ -382,10 +405,15 @@ public class TreeVisitor extends BLangNodeVisitor {
     }
 
     public void visit(BLangAction actionNode) {
-        if (!ScopeResolverConstants.getResolverByClass(cursorPositionResolver)
+        String actionName = actionNode.getName().getValue();
+        BSymbol actionSymbol = actionNode.symbol;
+        SymbolEnv actionEnv = SymbolEnv.createResourceActionSymbolEnv(actionNode, actionSymbol.scope, symbolEnv);
+        
+        if (this.isWithinParameterContext(actionName, NODE_TYPE_ACTION)) {
+            this.populateSymbols(this.resolveAllVisibleSymbols(actionEnv), actionEnv);
+            setTerminateVisitor(true);
+        } else if (!ScopeResolverConstants.getResolverByClass(cursorPositionResolver)
                 .isCursorBeforeNode(actionNode.getPosition(), actionNode, this, this.documentServiceContext)) {
-            BSymbol actionSymbol = actionNode.symbol;
-            SymbolEnv actionEnv = SymbolEnv.createResourceActionSymbolEnv(actionNode, actionSymbol.scope, symbolEnv);
 
             // TODO: Handle Annotation attachments
             // Cursor position is calculated against the resource parameter scope resolver since both are similar
@@ -430,11 +458,15 @@ public class TreeVisitor extends BLangNodeVisitor {
     }
 
     public void visit(BLangResource resourceNode) {
-        if (!ScopeResolverConstants.getResolverByClass(cursorPositionResolver)
+        String resourceName = resourceNode.getName().getValue();
+        BSymbol resourceSymbol = resourceNode.symbol;
+        SymbolEnv resourceEnv = SymbolEnv.createResourceActionSymbolEnv(resourceNode, resourceSymbol.scope, symbolEnv);
+
+        if (isWithinParameterContext(resourceName, NODE_TYPE_RESOURCE)) {
+            this.populateSymbols(this.resolveAllVisibleSymbols(resourceEnv), resourceEnv);
+            setTerminateVisitor(true);
+        } else if (!ScopeResolverConstants.getResolverByClass(cursorPositionResolver)
                 .isCursorBeforeNode(resourceNode.getPosition(), resourceNode, this, this.documentServiceContext)) {
-            BSymbol resourceSymbol = resourceNode.symbol;
-            SymbolEnv resourceEnv = SymbolEnv.createResourceActionSymbolEnv(resourceNode,
-                    resourceSymbol.scope, symbolEnv);
 
             // TODO:Handle Annotation attachments
             // Cursor position is calculated against the resource parameter scope resolver
@@ -1036,8 +1068,100 @@ public class TreeVisitor extends BLangNodeVisitor {
                 || (line == nodeSLine && line == nodeELine && column > nodeSCol && column < nodeECol);
     }
 
-    public BLangNode getPreviousNode() {
-        return previousNode;
+    /**
+     * Check whether the cursor resides within the given node type's parameter context.
+     * Node name is used to identify the correct node
+     * @param nodeName              Name of the node
+     * @param nodeType              Node type (Function, Resource, Action or Connector)
+     * @return {@link Boolean}      Whether the cursor is within the parameter context
+     */
+    private boolean isWithinParameterContext(String nodeName, String nodeType) {
+        ParserRuleContext parserRuleContext = documentServiceContext.get(DocumentServiceKeys.PARSER_RULE_CONTEXT_KEY);
+        TokenStream tokenStream = documentServiceContext.get(DocumentServiceKeys.TOKEN_STREAM_KEY);
+        String terminalToken = "";
+        
+        // If the parser rule context is not parameter context or parameter list context, we skipp the calculation
+        if (!(parserRuleContext instanceof BallerinaParser.ParameterContext
+                || parserRuleContext instanceof BallerinaParser.ParameterListContext)) {
+            return false;
+        }
+        
+        int startTokenIndex = parserRuleContext.getStart().getTokenIndex();
+        ArrayList<String> terminalKeywords = new ArrayList<>(
+                Arrays.asList(NODE_TYPE_ACTION, NODE_TYPE_CONNECTOR, NODE_TYPE_FUNCTION, NODE_TYPE_RESOURCE)
+        );
+        ArrayList<Token> filteredTokens = new ArrayList<>();
+        Token openBracket = null;
+        boolean isWithinParams = false;
+        
+        // Find the index of the closing bracket
+        while (true) {
+            if (startTokenIndex > tokenStream.size()) {
+                // In the ideal case, should not reach this point
+                startTokenIndex = -1;
+                break;
+            }
+            Token token = tokenStream.get(startTokenIndex);
+            String tokenString = token.getText();
+            if (tokenString.equals(")")) {
+                break;
+            }
+            startTokenIndex++;
+        }
+        
+        // Backtrack the token stream to find a terminal token
+        while (true) {
+            if (startTokenIndex < 0) {
+                break;
+            }
+            Token token = tokenStream.get(startTokenIndex);
+            String tokenString = token.getText();
+            if (terminalKeywords.contains(tokenString)) {
+                terminalToken = tokenString;
+                break;
+            }
+            if (token.getChannel() == Token.DEFAULT_CHANNEL) {
+                filteredTokens.add(token);
+            }
+            startTokenIndex--;
+        }
+
+        Collections.reverse(filteredTokens);
+        
+        /*
+        This particular logic identifies a matching pair of closing and opening bracket and then check whether the
+        cursor is within those bracket pair
+         */
+        if (nodeName.equals(filteredTokens.get(0).getText()) && terminalToken.equals(nodeType)) {
+            String tokenText;
+            for (Token token : filteredTokens) {
+                tokenText = token.getText();
+                if (tokenText.equals("(")) {
+                    openBracket = token;
+                } else if (tokenText.equals(")") && openBracket != null) {
+                    Position cursorPos = documentServiceContext.get(DocumentServiceKeys.POSITION_KEY).getPosition();
+                    int openBLine = openBracket.getLine() - 1;
+                    int openBCol = openBracket.getCharPositionInLine();
+                    int closeBLine = token.getLine() - 1;
+                    int closeBCol = token.getCharPositionInLine();
+                    int cursorLine = cursorPos.getLine();
+                    int cursorCol = cursorPos.getCharacter();
+                    
+                    isWithinParams =  (cursorLine > openBLine && cursorLine < closeBLine)
+                            || (cursorLine == openBLine && cursorCol > openBCol && cursorLine < closeBLine)
+                            || (cursorLine > openBLine && cursorCol < closeBCol && cursorLine == closeBLine)
+                            || (cursorLine == openBLine && cursorLine == closeBLine && cursorCol >= openBCol
+                            && cursorCol <= closeBCol);
+                    if (isWithinParams) {
+                        break;
+                    } else {
+                        openBracket = null;
+                    }
+                }
+            }
+        }
+        
+        return isWithinParams;
     }
 
     public void setPreviousNode(BLangNode previousNode) {

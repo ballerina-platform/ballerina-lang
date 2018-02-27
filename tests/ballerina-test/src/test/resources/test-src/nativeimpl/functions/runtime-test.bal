@@ -1,7 +1,7 @@
 import ballerina.runtime;
 
 function testSleepCurrentThread () {
-    runtime:sleepCurrentThread(1000);
+    runtime:sleepCurrentWorker(1000);
 }
 
 function testSetProperty (string name, string value) {

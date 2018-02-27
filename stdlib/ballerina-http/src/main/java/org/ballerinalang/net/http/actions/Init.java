@@ -17,7 +17,6 @@
  */
 package org.ballerinalang.net.http.actions;
 
-
 import org.apache.commons.lang3.StringUtils;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.connector.api.BallerinaConnectorException;
@@ -37,7 +36,6 @@ import org.wso2.transport.http.netty.config.Parameter;
 import org.wso2.transport.http.netty.config.SenderConfiguration;
 import org.wso2.transport.http.netty.contract.HttpClientConnector;
 import org.wso2.transport.http.netty.contract.HttpWsConnectorFactory;
-import org.wso2.transport.http.netty.contractimpl.HttpWsConnectorFactoryImpl;
 import org.wso2.transport.http.netty.message.HTTPConnectorUtil;
 
 import java.net.UnknownHostException;
@@ -67,7 +65,7 @@ public class Init extends AbstractHTTPAction {
     private static final int FALSE = 0;
     private static final int DEFAULT_MAX_REDIRECT_COUNT = 5;
 
-    private HttpWsConnectorFactory httpConnectorFactory = new HttpWsConnectorFactoryImpl();
+    private HttpWsConnectorFactory httpConnectorFactory = HttpUtil.createHttpWsConnectionFactory();
 
     @Override
     public ConnectorFuture execute(Context context) {
@@ -151,6 +149,9 @@ public class Init extends AbstractHTTPAction {
                     senderConfiguration.setCacheSize(cacheSize);
                 }
             }
+            boolean hostNameVerificationEnabled =
+                    ssl.getBooleanField(HttpConstants.HOST_NAME_VERIFICATION_ENABLED_INDEX) == TRUE;
+            senderConfiguration.setHostNameVerificationEnabled(hostNameVerificationEnabled);
             if (StringUtils.isNotBlank(trustStoreFile)) {
                 senderConfiguration.setTrustStoreFile(trustStoreFile);
             }

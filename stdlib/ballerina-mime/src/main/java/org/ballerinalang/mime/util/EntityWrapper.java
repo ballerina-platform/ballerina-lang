@@ -28,7 +28,7 @@ import java.nio.channels.WritableByteChannel;
  * Wrap EntityBodyChannel using ballerina specific channel wrapper, so that ballerina IO operations work with the
  * entity body channel.
  *
- * @since 0.964.0
+ * @since 0.963.0
  */
 public class EntityWrapper extends Channel {
 

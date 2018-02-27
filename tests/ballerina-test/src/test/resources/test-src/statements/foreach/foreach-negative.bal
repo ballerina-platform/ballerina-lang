@@ -1,7 +1,8 @@
+import ballerina.io;
 function test1(){
     string[] data = ["mon", "tue", "wed", "thu", "fri"];
     foreach i, s, f in data {
-        println(i + " " + s + " " + f);
+        io:println(i + " " + s + " " + f);
     }
 }
 
@@ -10,23 +11,23 @@ function test2(){
     float i = 10;
     boolean s = true;
     foreach i, s in data {
-        println(i + " " + s);
+        io:println(i + " " + s);
     }
 }
 
 function test3(){
     string[] data = ["mon", "tue", "wed", "thu", "fri"];
     foreach i, _ in data {
-        println(i + " ");
+        io:println(i + " ");
     }
-    println(i);
+    io:println(i);
 }
 
 function test4(){
     string vals = "values";
     foreach s in vals {
         string s1 = s + s;
-        println(s1);
+        io:println(s1);
     }
 }
 
@@ -39,20 +40,20 @@ function test5(){
     person p = {};
     foreach p.id, s in data {
         string s1 = s + s;
-        println(s1);
+        io:println(s1);
     }
 }
 
 function test6(){
     string[] data = ["mon", "tue", "wed", "thu", "fri"];
     foreach _, _, _ in data {
-        println("hello");
+        io:println("hello");
     }
 }
 
 function test7(){
     foreach i in "a".."z" {
-        println(i);
+        io:println(i);
     }
 }
 
@@ -60,27 +61,27 @@ function test8(){
     json j = ["a" , "b", "c"];
     var a,_ = <json[]> j;
     foreach x,y in a {
-        print(x);
-        println(y);
+        io:print(x);
+        io:println(y);
     }
 }
 
 function test9(){
     string[] slist = ["a" , "b", "c"];
     foreach v in slist {
-        println(v);
+        io:println(v);
         break;
-        println(v);
+        io:println(v);
     }
     foreach y in slist {
-        println(y);
+        io:println(y);
         next;
-        println(y);
+        io:println(y);
     }
     next;
-    println("done");
+    io:println("done");
 }
 
 function main () {
-   println("done");
+    io:println("done");
 }

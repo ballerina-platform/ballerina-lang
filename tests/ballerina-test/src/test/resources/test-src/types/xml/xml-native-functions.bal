@@ -639,43 +639,36 @@ function testSetChildrenToElemntInDefaultNameSpace() (xml) {
 
 
 function testToJsonForValue() (json) {
-    xmlOptions options = {};
     var x, _ = <xml> "value";
-    return x.toJSON(options);
+    return x.toJSON({});
 }
 
 function testToJsonForEmptyValue() (json) {
-    xmlOptions options = {};
     var x, _ = <xml> "";
-    return x.toJSON(options);
+    return x.toJSON({});
 }
 
 function testToJsonForComment() (json) {
-    xmlOptions options = {};
     var x, _ = <xml> "<!-- value -->";
-    return x.toJSON(options);
+    return x.toJSON({});
 }
 
 function testToJsonForPI() (json) {
-    xmlOptions options = {};
     var x, _ = <xml> "<?doc document=\"book.doc\"?>";
-    return x.toJSON(options);
+    return x.toJSON({});
 }
 
 
 function testToJSON(xml msg) (json) {
-    xmlOptions options = {};
-    return msg.toJSON(options);
+    return msg.toJSON({});
 }
 
 function testToJSONWithOptions(xml msg) (json) {
-    xmlOptions options = {attributePrefix : "#"};
-    return msg.toJSON(options);
+    return msg.toJSON({attributePrefix : "#"});
 }
 
 function testToJSONWithoutNamespace(xml msg) (json) {
-    xmlOptions options = {preserveNamespaces : false};
-    return msg.toJSON(options);
+    return msg.toJSON({preserveNamespaces : false});
 }
 
 function testToJSONWithSequenceDistinctKeys() (json) {
@@ -683,8 +676,7 @@ function testToJSONWithSequenceDistinctKeys() (json) {
     var x2, _ = <xml> "<key2>value2</key2>";
     xml x3 = x1 + x2;
 
-    xmlOptions options = {preserveNamespaces : false};
-    return x3.toJSON(options);
+    return x3.toJSON({preserveNamespaces : false});
 }
 
 function testToJSONWithSequenceSimilarKeys() (json) {
@@ -693,8 +685,7 @@ function testToJSONWithSequenceSimilarKeys() (json) {
     var x3, _ = <xml> "<key>value3</key>";
     xml x = x1 + x2 + x3;
 
-    xmlOptions options = {preserveNamespaces : false};
-    return x.toJSON(options);
+    return x.toJSON({preserveNamespaces : false});
 }
 
 function testToJSONWithSequenceWithValueArray() (json) {
@@ -703,8 +694,7 @@ function testToJSONWithSequenceWithValueArray() (json) {
     var x3, _ = <xml> "c";
     xml x = x1 + x2 + x3;
 
-    xmlOptions options = {preserveNamespaces : false};
-    return x.toJSON(options);
+    return x.toJSON({preserveNamespaces : false});
 }
 
 function testToJSONWithSequenceWithMultipleElements() (json) {
@@ -712,8 +702,7 @@ function testToJSONWithSequenceWithMultipleElements() (json) {
     var x2, _ = <xml> "<metadata>5</metadata>";
     xml x = x1 + x2;
 
-    xmlOptions options = {preserveNamespaces : false};
-    return x.toJSON(options);
+    return x.toJSON({preserveNamespaces : false});
 }
 
 function testToJSONWithSequenceWithElementAndText() (json) {
@@ -722,8 +711,7 @@ function testToJSONWithSequenceWithElementAndText() (json) {
     var x3, _ = <xml> "<key>value3</key>";
     xml x = x1 + x2 + x3;
 
-    xmlOptions options = {preserveNamespaces : false};
-    return x.toJSON(options);
+    return x.toJSON({preserveNamespaces : false});
 }
 
 function testToJSONWithSequenceWithElementAndTextArray() (json) {
@@ -734,8 +722,7 @@ function testToJSONWithSequenceWithElementAndTextArray() (json) {
     var x5, _ = <xml> "<key>value4</key>";
     xml x = x1 + x2 + x3 + x4 + x5;
 
-    xmlOptions options = {preserveNamespaces : false};
-    return x.toJSON(options);
+    return x.toJSON({preserveNamespaces : false});
 }
 
 function testToJSONWithSequenceWithDifferentElements()(json) {
@@ -752,8 +739,7 @@ function testToJSONWithSequenceWithDifferentElements()(json) {
 
     xml x = x1 + x2 + x3 + x4 + x5 + x6 + x7 + x8 + x8 + x10;
 
-    xmlOptions options = {preserveNamespaces : false};
-    return x.toJSON(options);
+    return x.toJSON({preserveNamespaces : false});
 }
 
 function testToJSONWithSequenceWithDifferentComplexElements()(json) {
@@ -766,8 +752,7 @@ function testToJSONWithSequenceWithDifferentComplexElements()(json) {
 
     xml x = x1 + x2 + x3 + x4;
 
-    xmlOptions options = {preserveNamespaces : false};
-    return x.toJSON(options);
+    return x.toJSON({preserveNamespaces : false});
 }
 
 function testSelectChildrenWithEmptyNs() (xml, xml) {
@@ -832,7 +817,7 @@ function testParseXMLElementWithXMLDeclrEntity() (xml) {
     return x;
 }
 
-function testParseXMLCommentWithXMLDeclrEntity() (xml, TypeConversionError) {
+function testParseXMLCommentWithXMLDeclrEntity() (xml, error) {
     var x, e = <xml> "<?xml version='1.0' encoding='UTF-8' standalone='no'?><!-- comment node-->";
     return x, e;
 }
