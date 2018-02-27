@@ -19,7 +19,7 @@ service<http> contentBasedRouting {
         http:InResponse clientResponse;
         http:HttpConnectorError err;
         if (nameString == "sanFrancisco") {
-            //"post" represent the POST action of HTTP connector. Route payload to relevant service as the server accept the entity enclosed.
+            //"post" represents the POST action of HTTP connector. This routes the payload to the relevant service as the server accepts the entity enclosed.
             clientResponse, err = locationEP.post("/v2/594e018c1100002811d6d39a", {});
         } else {
             clientResponse, err = locationEP.post("/v2/594e026c1100004011d6d39c", {});
