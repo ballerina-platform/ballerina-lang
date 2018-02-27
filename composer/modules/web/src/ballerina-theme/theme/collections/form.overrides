@@ -75,6 +75,10 @@
         }
 
     }
+
+    .wide.field:last-child{
+        padding-right: 0 !important;
+    }
 }
 
 
