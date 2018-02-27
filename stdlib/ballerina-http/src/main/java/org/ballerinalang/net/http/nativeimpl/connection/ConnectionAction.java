@@ -37,7 +37,7 @@ import org.wso2.transport.http.netty.message.HttpMessageDataStreamer;
 import java.io.IOException;
 import java.io.OutputStream;
 
-import static org.ballerinalang.mime.util.Constants.IS_ENTITY_BODY_PRESENT;
+import static org.ballerinalang.mime.util.Constants.IS_BODY_BYTE_CHANNEL_ALREADY_SET;
 import static org.ballerinalang.mime.util.Constants.MESSAGE_ENTITY;
 import static org.ballerinalang.net.http.HttpConstants.CONTENT_TYPE_HEADER;
 import static org.ballerinalang.net.http.HttpConstants.HTTP_STATUS_CODE;
@@ -63,7 +63,7 @@ public abstract class ConnectionAction extends AbstractNativeFunction {
 
         if (CacheUtils.isValidCachedResponse(outboundResponseMsg, inboundRequestMsg)) {
             // Setting to false to prevent a data source being built
-            outboundResponseStruct.addNativeData(IS_ENTITY_BODY_PRESENT, Boolean.FALSE);
+            outboundResponseStruct.addNativeData(IS_BODY_BYTE_CHANNEL_ALREADY_SET, Boolean.FALSE);
             // Remove the payload
             outboundResponseStruct.addNativeData(MESSAGE_ENTITY, null);
             // Removing the content-type header since this caused the response to hang

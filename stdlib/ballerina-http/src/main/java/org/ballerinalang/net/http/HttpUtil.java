@@ -44,8 +44,6 @@ import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.AbstractNativeFunction;
-import org.ballerinalang.net.http.caching.CacheControlDirective;
-import org.ballerinalang.net.http.caching.CacheControlParser;
 import org.ballerinalang.net.http.caching.ResponseCacheControlStruct;
 import org.ballerinalang.net.http.session.Session;
 import org.ballerinalang.net.ws.WebSocketConstants;
@@ -86,25 +84,13 @@ import static org.ballerinalang.mime.util.Constants.MESSAGE_ENTITY;
 import static org.ballerinalang.mime.util.Constants.MULTIPART_AS_PRIMARY_TYPE;
 import static org.ballerinalang.mime.util.Constants.NO_CONTENT_LENGTH_FOUND;
 import static org.ballerinalang.mime.util.Constants.OCTET_STREAM;
-import static org.ballerinalang.mime.util.Constants.TEXT_PLAIN;
 import static org.ballerinalang.net.http.HttpConstants.CACHE_CONTROL_HEADER;
-import static org.ballerinalang.net.http.HttpConstants.CACHE_CONTROL_IS_PRIVATE_INDEX;
-import static org.ballerinalang.net.http.HttpConstants.CACHE_CONTROL_MAX_AGE_INDEX;
-import static org.ballerinalang.net.http.HttpConstants.CACHE_CONTROL_MUST_REVALIDATE_INDEX;
-import static org.ballerinalang.net.http.HttpConstants.CACHE_CONTROL_NO_CACHE_FIELDS_INDEX;
-import static org.ballerinalang.net.http.HttpConstants.CACHE_CONTROL_NO_CACHE_INDEX;
-import static org.ballerinalang.net.http.HttpConstants.CACHE_CONTROL_NO_STORE_INDEX;
-import static org.ballerinalang.net.http.HttpConstants.CACHE_CONTROL_NO_TRANSFORM_INDEX;
-import static org.ballerinalang.net.http.HttpConstants.CACHE_CONTROL_PRIVATE_FIELDS_INDEX;
-import static org.ballerinalang.net.http.HttpConstants.CACHE_CONTROL_PROXY_REVALIDATE_INDEX;
-import static org.ballerinalang.net.http.HttpConstants.CACHE_CONTROL_S_MAXAGE_INDEX;
 import static org.ballerinalang.net.http.HttpConstants.ENTITY_INDEX;
 import static org.ballerinalang.net.http.HttpConstants.HTTP_MESSAGE_INDEX;
 import static org.ballerinalang.net.http.HttpConstants.HTTP_STATUS_CODE;
 import static org.ballerinalang.net.http.HttpConstants.IN_REQUEST;
 import static org.ballerinalang.net.http.HttpConstants.IN_RESPONSE_CACHE_CONTROL_INDEX;
 import static org.ballerinalang.net.http.HttpConstants.IN_RESPONSE_REASON_PHRASE_INDEX;
-import static org.ballerinalang.net.http.HttpConstants.IN_RESPONSE_RECEIVED_TIME_INDEX;
 import static org.ballerinalang.net.http.HttpConstants.IN_RESPONSE_SERVER_INDEX;
 import static org.ballerinalang.net.http.HttpConstants.IN_RESPONSE_STATUS_CODE_INDEX;
 import static org.ballerinalang.net.http.HttpConstants.SERVER_HEADER;
@@ -457,7 +443,6 @@ public class HttpUtil {
                                                HTTPCarbonMessage inboundResponseMsg) {
         inboundResponse.addNativeData(TRANSPORT_MESSAGE, inboundResponseMsg);
         int statusCode = (Integer) inboundResponseMsg.getProperty(HTTP_STATUS_CODE);
-        inboundResponse.setIntField(IN_RESPONSE_RECEIVED_TIME_INDEX, System.currentTimeMillis());
         inboundResponse.setIntField(IN_RESPONSE_STATUS_CODE_INDEX, statusCode);
         inboundResponse.setStringField(IN_RESPONSE_REASON_PHRASE_INDEX,
                                        HttpResponseStatus.valueOf(statusCode).reasonPhrase());
@@ -469,8 +454,8 @@ public class HttpUtil {
 
         if (inboundResponseMsg.getHeader(CACHE_CONTROL_HEADER) != null) {
             responseCacheControl.populateStruct(inboundResponseMsg.getHeader(CACHE_CONTROL_HEADER));
-            inboundResponse.setRefField(IN_RESPONSE_CACHE_CONTROL_INDEX, responseCacheControl.getStruct());
         }
+        inboundResponse.setRefField(IN_RESPONSE_CACHE_CONTROL_INDEX, responseCacheControl.getStruct());
 
         populateEntity(entity, mediaType, inboundResponseMsg);
         inboundResponse.addNativeData(MESSAGE_ENTITY, entity);

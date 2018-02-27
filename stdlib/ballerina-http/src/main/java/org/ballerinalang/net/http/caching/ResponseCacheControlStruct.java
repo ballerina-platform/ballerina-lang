@@ -25,7 +25,6 @@ import org.ballerinalang.util.codegen.StructInfo;
 
 import java.util.Map;
 
-import static org.ballerinalang.net.http.HttpConstants.CACHE_CONTROL_HEADER;
 import static org.ballerinalang.net.http.HttpConstants.CACHE_CONTROL_IS_PRIVATE_INDEX;
 import static org.ballerinalang.net.http.HttpConstants.CACHE_CONTROL_MAX_AGE_INDEX;
 import static org.ballerinalang.net.http.HttpConstants.CACHE_CONTROL_MUST_REVALIDATE_INDEX;
@@ -40,7 +39,10 @@ import static org.ballerinalang.net.http.HttpUtil.FALSE;
 import static org.ballerinalang.net.http.HttpUtil.TRUE;
 
 /**
- * Created by pubudu on 2/20/18.
+ * An abstraction for the ResponseCacheControl struct. This can be used for creating and populating
+ * ResponseCacheControl structs based on the Cache-Control header.
+ *
+ * @since 0.964.0
  */
 public class ResponseCacheControlStruct {
 
@@ -48,6 +50,12 @@ public class ResponseCacheControlStruct {
 
     public ResponseCacheControlStruct(StructInfo structInfo) {
         responseCacheControl = BLangVMStructs.createBStruct(structInfo);
+
+        // Initialize the struct fields to default values we use
+        responseCacheControl.setBooleanField(CACHE_CONTROL_NO_TRANSFORM_INDEX, 1);
+        responseCacheControl.setIntField(CACHE_CONTROL_MAX_AGE_INDEX, -1);
+        responseCacheControl.setIntField(CACHE_CONTROL_S_MAXAGE_INDEX, -1);
+
     }
 
     public BStruct getStruct() {
