@@ -17,8 +17,6 @@
 */
 package org.ballerinalang.bre.bvm;
 
-import org.ballerinalang.model.values.BValue;
-
 /**
  * @since 0.964
  */
@@ -26,9 +24,6 @@ public interface CallableUnitCallback {
 
     public void notifySuccess();
 
-    public void notifyReply(BValue... value);
-
     public void notifyFailure(Exception ex);
 
-    void setCallableUnitFutureListener(CallableUnitFutureListener futureListener);
 }

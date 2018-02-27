@@ -2895,13 +2895,12 @@ public class CPU {
         BLangScheduler.switchToWaitForResponse(parentCtx);
         try {
             if (nativeFunction.isBlocking()) {
-                ((BlockingNativeCallableUnit) nativeFunction).execute(ctx);
+                nativeFunction.execute(ctx, null);
                 BLangVMUtils.populateWorkerDataWithValues(parentLocalData, retRegs, ctx.getReturnValues(), retTypes);
+                BLangScheduler.resume(parentCtx, true);
             } else {
-                BLangCallableUnitCallback callback = new BLangCallableUnitCallback();
+                BLangCallableUnitCallback callback = new BLangCallableUnitCallback(ctx, parentCtx, retRegs, retTypes);
                 nativeFunction.execute(ctx, callback);
-                // FIXME
-                BLangVMUtils.populateWorkerDataWithValues(parentLocalData, retRegs, ctx.getReturnValues(), retTypes);
             }
         } catch (BLangNullReferenceException e) {
             parentCtx.setError(BLangVMErrors.createNullRefException(parentCtx, parentCtx.ip));
@@ -2912,7 +2911,6 @@ public class CPU {
             handleError();
             return;
         }
-        BLangScheduler.resume(parentCtx, true);
     }
 
     private static void invokeNativeAction(ActionInfo actionInfo, int[] argRegs, int[] retRegs) {

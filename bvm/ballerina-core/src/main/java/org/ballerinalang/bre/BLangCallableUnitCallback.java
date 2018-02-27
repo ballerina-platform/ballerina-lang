@@ -17,59 +17,45 @@
 */
 package org.ballerinalang.bre;
 
+import org.ballerinalang.bre.bvm.BLangScheduler;
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
-import org.ballerinalang.bre.bvm.CallableUnitFutureListener;
-import org.ballerinalang.connector.api.BallerinaConnectorException;
-import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.bre.bvm.WorkerExecutionContext;
+import org.ballerinalang.model.types.BType;
+import org.ballerinalang.util.program.BLangVMUtils;
 
 /**
+ * This class represents the callback functionality for non-blocking native calls.
+ * 
  * @since 0.964
- * FIXME
  */
 public class BLangCallableUnitCallback implements CallableUnitCallback {
-    private CallableUnitFutureListener listener;
-    private boolean success = false;
-    private BValue[] value;
-    private BallerinaConnectorException exception;
+
+    private WorkerExecutionContext parentCtx;
+    
+    Context nativeCallCtx;
+    
+    private int[] retRegs;
+    
+    private BType[] retTypes;
+    
+    public BLangCallableUnitCallback(Context nativeCallCtx, WorkerExecutionContext parentCtx, 
+            int[] retRegs, BType[] retTypes) {
+        this.parentCtx = parentCtx;
+        this.nativeCallCtx = nativeCallCtx;
+        this.retRegs = retRegs;
+        this.retTypes = retTypes;
+    }
+    
+    @Override
+    public void notifySuccess() {
+        BLangVMUtils.populateWorkerDataWithValues(this.parentCtx.workerLocal, this.retRegs, 
+                this.nativeCallCtx.getReturnValues(), this.retTypes);
+        BLangScheduler.resume(this.parentCtx);
+    }
 
     @Override
-    public void setCallableUnitFutureListener(CallableUnitFutureListener futureListener) {
-        this.listener = futureListener;
-        if (value != null) {
-            listener.notifyReply(value);
-        } else if (exception != null) {
-            listener.notifyFailure(exception);
-            success = false; //double check this.
-        }
-        if (success) {
-            listener.notifySuccess();
-        }
-        value = null;
-        exception = null;
-        success = false;
-    }
-
-    public void notifySuccess() {
-        if (listener != null) {
-            listener.notifySuccess();
-            return;
-        }
-        this.success = true;
-    }
-
-    public void notifyReply(BValue... value) {
-        if (listener != null) {
-            listener.notifyReply(value);
-            return;
-        }
-        this.value = value;
-    }
-
     public void notifyFailure(Exception ex) {
-        if (listener != null) {
-            listener.notifyFailure(ex);
-            return;
-        }
-        this.exception = (BallerinaConnectorException) ex;
+        BLangScheduler.workerExcepted(this.parentCtx, ex);
     }
+
 }
