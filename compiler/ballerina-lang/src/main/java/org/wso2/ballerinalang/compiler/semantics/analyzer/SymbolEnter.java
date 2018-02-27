@@ -1,20 +1,20 @@
 /*
-*  Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
-*
-*  WSO2 Inc. licenses this file to you under the Apache License,
-*  Version 2.0 (the "License"); you may not use this file except
-*  in compliance with the License.
-*  You may obtain a copy of the License at
-*
-*    http://www.apache.org/licenses/LICENSE-2.0
-*
-*  Unless required by applicable law or agreed to in writing,
-*  software distributed under the License is distributed on an
-*  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-*  KIND, either express or implied.  See the License for the
-*  specific language governing permissions and limitations
-*  under the License.
-*/
+ *  Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ *  WSO2 Inc. licenses this file to you under the Apache License,
+ *  Version 2.0 (the "License"); you may not use this file except
+ *  in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing,
+ *  software distributed under the License is distributed on an
+ *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ *  KIND, either express or implied.  See the License for the
+ *  specific language governing permissions and limitations
+ *  under the License.
+ */
 package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
 import org.ballerinalang.compiler.CompilerOptionName;
@@ -35,6 +35,8 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationAttrib
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BStructSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BStructSymbol.BAttachedFunction;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTransformerSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
@@ -48,7 +50,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BConnectorType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BEnumType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStructType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BStructType.BAttachedFunction;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStructType.BStructField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangAction;
@@ -396,31 +397,10 @@ public class SymbolEnter extends BLangNodeVisitor {
                 getFuncSymbolName(funcNode), env.enclPkg.symbol.pkgID, null, env.scope.owner);
         SymbolEnv invokableEnv = SymbolEnv.createFunctionEnv(funcNode, funcSymbol.scope, env);
         defineInvokableSymbol(funcNode, funcSymbol, invokableEnv);
-        BInvokableType funcType = (BInvokableType) funcSymbol.type;
 
         // Define function receiver if any.
         if (funcNode.receiver != null) {
-            BTypeSymbol structSymbol = funcNode.receiver.type.tsymbol;
-
-            // Check whether there exists a struct field with the same name as the function name.
-            if (structSymbol.tag == SymTag.STRUCT) {
-                BSymbol symbol = symResolver.lookupMemberSymbol(
-                        funcNode.receiver.pos, structSymbol.scope, invokableEnv,
-                        names.fromIdNode(funcNode.name), SymTag.VARIABLE);
-                if (symbol != symTable.notFoundSymbol) {
-                    dlog.error(funcNode.pos, DiagnosticCode.STRUCT_FIELD_AND_FUNC_WITH_SAME_NAME,
-                            funcNode.name.value, funcNode.receiver.type.toString());
-                } else {
-                    BStructType structType = (BStructType) funcNode.receiver.type;
-                    BAttachedFunction attachedFunc = new BAttachedFunction(
-                            names.fromIdNode(funcNode.name), funcSymbol, funcType);
-                    structType.attachedFuncs.add(attachedFunc);
-                }
-            }
-
-            defineNode(funcNode.receiver, invokableEnv);
-            funcSymbol.receiverSymbol = funcNode.receiver.symbol;
-            funcType.setReceiverType(funcNode.receiver.symbol.type);
+            defineAttachedFunctions(funcNode, funcSymbol, invokableEnv);
         }
     }
 
@@ -455,7 +435,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         // Define transformer source.
         defineNode(transformerNode.source, transformerEnv);
     }
-    
+
     @Override
     public void visit(BLangAction actionNode) {
         BInvokableSymbol actionSymbol = Symbols
@@ -805,6 +785,51 @@ public class SymbolEnter extends BLangNodeVisitor {
         service.initFunction = initFunction;
         defineNode(service.initFunction, conEnv);
 //        service.symbol.initFunctionSymbol = service.initFunction.symbol;
+    }
+
+    private void defineAttachedFunctions(BLangFunction funcNode, BInvokableSymbol funcSymbol, SymbolEnv invokableEnv) {
+        BInvokableType funcType = (BInvokableType) funcSymbol.type;
+        BTypeSymbol typeSymbol = funcNode.receiver.type.tsymbol;
+
+        // Check whether there exists a struct field with the same name as the function name.
+        if (typeSymbol.tag == SymTag.STRUCT) {
+            validateFunctionsAttachedToStructs(funcNode, funcSymbol, invokableEnv);
+        }
+
+        defineNode(funcNode.receiver, invokableEnv);
+        funcSymbol.receiverSymbol = funcNode.receiver.symbol;
+        funcType.setReceiverType(funcNode.receiver.symbol.type);
+    }
+
+    private void validateFunctionsAttachedToStructs(BLangFunction funcNode, BInvokableSymbol funcSymbol,
+                                                    SymbolEnv invokableEnv) {
+        BInvokableType funcType = (BInvokableType) funcSymbol.type;
+        BStructSymbol structSymbol = (BStructSymbol) funcNode.receiver.type.tsymbol;
+        BSymbol symbol = symResolver.lookupMemberSymbol(
+                funcNode.receiver.pos, structSymbol.scope, invokableEnv,
+                names.fromIdNode(funcNode.name), SymTag.VARIABLE);
+        if (symbol != symTable.notFoundSymbol) {
+            dlog.error(funcNode.pos, DiagnosticCode.STRUCT_FIELD_AND_FUNC_WITH_SAME_NAME,
+                    funcNode.name.value, funcNode.receiver.type.toString());
+            return;
+        }
+
+        BStructType structType = (BStructType) funcNode.receiver.type;
+        BAttachedFunction attachedFunc = new BAttachedFunction(
+                names.fromIdNode(funcNode.name), funcSymbol, funcType);
+        structSymbol.attachedFuncs.add(attachedFunc);
+
+        // Check whether this attached function is a struct initializer.
+        if (!structType.tsymbol.name.value.equals(funcNode.name.value)) {
+            // Not a struct initializer.
+            return;
+        }
+
+        if (!funcNode.params.isEmpty() || !funcNode.retParams.isEmpty()) {
+            dlog.error(funcNode.pos, DiagnosticCode.INVALID_STRUCT_INITIALIZER_FUNCTION,
+                    funcNode.name.value, funcNode.receiver.type.toString());
+        }
+        structSymbol.initializerFunc = attachedFunc;
     }
 
     private StatementNode createAssignmentStmt(BLangVariable variable) {

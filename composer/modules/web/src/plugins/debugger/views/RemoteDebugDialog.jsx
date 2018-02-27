@@ -17,8 +17,7 @@
  */
 
 import React from 'react';
-import PropTypes from 'prop-types';
-import { Button, Form, FormGroup, FormControl, InputGroup } from 'react-bootstrap';
+import { Button, Form, Input } from 'semantic-ui-react';
 import Dialog from 'core/view/Dialog';
 import './RemoteDebugDialog.scss';
 import DebugManager from './../DebugManager';
@@ -106,39 +105,39 @@ class RemoteDebugDialog extends React.Component {
         return (
             <Dialog
                 show={this.state.showDialog}
-                title="Remote Debug"
+                title='Remote Debug'
                 actions={
                     <Button
-                        bsStyle="primary"
+                        primary
                         onClick={this.connectDebugger}
                         disabled={!url.length || this.state.connecting}
                     >
-                       { this.state.connecting ? 'Connecting' : 'Debug' }
+                        {this.state.connecting ? 'Connecting' : 'Debug'}
                     </Button>
                 }
                 closeAction
                 onHide={this.onDialogHide}
-                error={this.state.error}
-                className="remote-debug-dialog"
+                error={error}
+                className='remote-debug-dialog'
             >
-                <Form horizontal>
-                    <FormGroup>
-                        <div className="help-block">
-                            <span>Add <strong>--debug PORT_NUMBER </strong> to your ballerina command to enable remote debugging</span>
-                            <div>Example: </div>
-                            <span><code>ballerina run helloWorld.bal --debug 5006</code></span>
-                        </div>
-                        <InputGroup>
-                            <InputGroup.Addon>
-                                ws://
-                            </InputGroup.Addon>
-                            <FormControl
-                                value={this.state.url}
-                                onChange={this.onChangeUrl}
-                                type="text"
-                            />
-                        </InputGroup>
-                    </FormGroup>
+                <Form
+                    onSubmit={(e) => {
+                        this.connectDebugger();
+                    }}
+                >
+                    <div className='help-block'>
+                        <span>Add <strong>--debug PORT_NUMBER </strong>
+                            to your ballerina command to enable remote debugging</span>
+                        <div>Example: </div>
+                        <span><code>ballerina run helloWorld.bal --debug 5006</code></span>
+                    </div>
+                    <Input
+                        style={{ marginTop: 20 }}
+                        fluid
+                        label='ws://'
+                        value={this.state.url}
+                        onChange={this.onChangeUrl}
+                    />
                 </Form>
             </Dialog>
         );
