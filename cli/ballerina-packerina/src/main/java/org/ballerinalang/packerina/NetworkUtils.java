@@ -91,26 +91,6 @@ public class NetworkUtils {
 
         // Create the target directories
         createDirectories(targetDirectoryPath);
-
-
-        // targetDirectoryPath = targetDirectoryPath.resolve(aResourceArr);
-
-        // String[] resourceArr = resourceName.split("/");
-        // for (String aResourceArr : resourceArr) {
-
-            /*if (!Files.exists(targetDirectoryPath)) {
-                try {
-                    Files.createDirectories(targetDirectoryPath);
-                } catch (IOException e) {
-                    log.debug("I/O Exception when creating the directory ", e);
-                    log.error("I/O Exception when creating the directory" + e.getMessage());
-                }
-            }*/
-        // }
-
-        // int index = resourceName.lastIndexOf('/');
-        // String pkgName = resourceName.substring(0, index);
-
         String dstPath = targetDirectoryPath + File.separator;
         String pkgPath = Paths.get(orgName).resolve(pkgName).resolve(pkgVersion).toString();
         String resourcePath = ballerinaCentralURL + pkgPath;
@@ -123,6 +103,7 @@ public class NetworkUtils {
 
     /**
      * Create target/output directories which contains the pulled packages.
+     *
      * @param targetDirectoryPath target directory path
      */
     private static void createDirectories(Path targetDirectoryPath) {
@@ -138,6 +119,7 @@ public class NetworkUtils {
 
     /**
      * Extract the host name from ballerina central URL.
+     *
      * @param ballerinaCentralURL URL of ballerina central
      * @return host
      */
@@ -152,13 +134,11 @@ public class NetworkUtils {
     /**
      * Push/Uploads packages to the central repository.
      *
-     * @param packageName                path of the package folder to be pushed
+     * @param packageName         path of the package folder to be pushed
      * @param ballerinaCentralURL URL of ballerina central
      */
     public static void pushPackages(String packageName, String ballerinaCentralURL) {
         compileResult = compileBalFile("ballerina.push");
-        // Get the access token
-        String accessToken = getAccessTokenOfCLI() != null ? removeQuotationsFromValue(getAccessTokenOfCLI()) : null;
         // Get the org-name and version by reading Ballerina.toml
         Manifest manifest = readManifestConfigurations();
         if (manifest != null && manifest.getName() != null && manifest.getVersion() != null) {
@@ -167,7 +147,7 @@ public class NetworkUtils {
             String resourcePath = ballerinaCentralURL + Paths.get(orgName).resolve(packageName)
                     .resolve(version);
             String[] proxyConfigs = readProxyConfigurations();
-            String[] arguments = new String[]{accessToken, resourcePath, packageName};
+            String[] arguments = new String[]{resourcePath, packageName};
             arguments = Stream.concat(Arrays.stream(arguments), Arrays.stream(proxyConfigs))
                     .toArray(String[]::new);
             LauncherUtils.runMain(compileResult.getProgFile(), arguments);
@@ -243,21 +223,6 @@ public class NetworkUtils {
             }
         }
         return proxyConfigArr;
-    }
-
-    /**
-     * Read the access token generated for the CLI.
-     *
-     * @return access token for generated for the CLI
-     */
-    private static String getAccessTokenOfCLI() {
-        if (settings != null) {
-            if (settings.getCentral() != null) {
-                return settings.getCentral().getAccessToken();
-            }
-            return null;
-        }
-        return null;
     }
 
     /**
