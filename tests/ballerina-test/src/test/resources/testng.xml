@@ -49,6 +49,7 @@ under the License.
             <package name="org.ballerinalang.test.caching.*"/>
             <package name="org.ballerinalang.test.mime.*"/>
             <package name="org.ballerinalang.test.collections.*"/>
+            <package name="org.ballerinalang.test.security.*"/>
         </packages>
     </test>
 </suite>
