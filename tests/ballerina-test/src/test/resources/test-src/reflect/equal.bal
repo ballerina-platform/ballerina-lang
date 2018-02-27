@@ -6,25 +6,25 @@ import ballerina.reflect;
 function testNullTruePositive() (boolean) {
     string s1 = null;
     string s2 = null;
-    return reflect:deepEquals(s1,s2);
+    return reflect:equals(s1,s2);
 }
 
 function testNullTrueNegative() (boolean) {
     string s1 = null;
     string s2 = "b";
-    return reflect:deepEquals(s1,s2);
+    return reflect:equals(s1,s2);
 }
 
 function testNullFalseNegative() (boolean) {
     string s1 = null;
     string s2 = null;
-    return !reflect:deepEquals(s1,s2);
+    return !reflect:equals(s1,s2);
 }
 
 function testNullFalsePositive() (boolean) {
     string s1 = null;
     string s2 = "b";
-    return !reflect:deepEquals(s1,s2);
+    return !reflect:equals(s1,s2);
 }
 
 // End Nulls
@@ -34,25 +34,25 @@ function testNullFalsePositive() (boolean) {
 function testStringTruePositive() (boolean) {
     string s1 = "a";
     string s2 = "a";
-    return reflect:deepEquals(s1,s2);
+    return reflect:equals(s1,s2);
 }
 
 function testStringTrueNegative() (boolean) {
     string s1 = "a";
     string s2 = "b";
-    return reflect:deepEquals(s1,s2);
+    return reflect:equals(s1,s2);
 }
 
 function testStringFalseNegative() (boolean) {
     string s1 = "a";
     string s2 = "a";
-    return !reflect:deepEquals(s1,s2);
+    return !reflect:equals(s1,s2);
 }
 
 function testStringFalsePositive() (boolean) {
     string s1 = "a";
     string s2 = "b";
-    return !reflect:deepEquals(s1,s2);
+    return !reflect:equals(s1,s2);
 }
 
 // End Strings
@@ -62,25 +62,25 @@ function testStringFalsePositive() (boolean) {
 function testIntTruePositive() (boolean) {
     int i1 = 5;
     int i2 = 5;
-    return reflect:deepEquals(i1,i2);
+    return reflect:equals(i1,i2);
 }
 
 function testIntTrueNegative() (boolean) {
     int i1 = 5;
     int i2 = 10;
-    return reflect:deepEquals(i1,i2);
+    return reflect:equals(i1,i2);
 }
 
 function testIntFalseNegative() (boolean) {
     int i1 = 5;
     int i2 = 5;
-    return !reflect:deepEquals(i1,i2);
+    return !reflect:equals(i1,i2);
 }
 
 function testIntFalsePositive() (boolean) {
     int i1 = 5;
     int i2 = 10;
-    return !reflect:deepEquals(i1,i2);
+    return !reflect:equals(i1,i2);
 }
 
 // End Int
@@ -90,25 +90,25 @@ function testIntFalsePositive() (boolean) {
 function testFloatTruePositive() (boolean) {
     float f1 = 2.0;
     float f2 = 2.0;
-    return reflect:deepEquals(f1,f2);
+    return reflect:equals(f1,f2);
 }
 
 function testFloatTrueNegative() (boolean) {
     float f1 = 2.0;
     float f2 = 5.0;
-    return reflect:deepEquals(f1,f2);
+    return reflect:equals(f1,f2);
 }
 
 function testFloatFalseNegative() (boolean) {
     float f1 = 2.0;
     float f2 = 2.0;
-    return !reflect:deepEquals(f1,f2);
+    return !reflect:equals(f1,f2);
 }
 
 function testFloatFalsePositive() (boolean) {
     float f1 = 2.0;
     float f2 = 5.0;
-    return !reflect:deepEquals(f1,f2);
+    return !reflect:equals(f1,f2);
 }
 
 // End Float
@@ -118,25 +118,25 @@ function testFloatFalsePositive() (boolean) {
 function testBooleanTruePositive() (boolean) {
     boolean b1 = true;
     boolean b2 = true;
-    return reflect:deepEquals(b1,b2);
+    return reflect:equals(b1,b2);
 }
 
 function testBooleanTrueNegative() (boolean) {
     boolean b1 = true;
     boolean b2 = false;
-    return reflect:deepEquals(b1,b2);
+    return reflect:equals(b1,b2);
 }
 
 function testBooleanFalseNegative() (boolean) {
     boolean b1 = true;
     boolean b2 = true;
-    return !reflect:deepEquals(b1,b2);
+    return !reflect:equals(b1,b2);
 }
 
 function testBooleanFalsePositive() (boolean) {
     boolean b1 = true;
     boolean b2 = false;
-    return !reflect:deepEquals(b1,b2);
+    return !reflect:equals(b1,b2);
 }
 
 // End Boolean
@@ -146,25 +146,25 @@ function testBooleanFalsePositive() (boolean) {
 function testTypeTruePositive() (boolean) {
     type t1 = (typeof int);
     type t2 = (typeof int);
-    return reflect:deepEquals(t1,t2);
+    return reflect:equals(t1,t2);
 }
 
 function testTypeTrueNegative() (boolean) {
     type t1 = (typeof int);
     type t2 = (typeof string);
-    return reflect:deepEquals(t1,t2);
+    return reflect:equals(t1,t2);
 }
 
 function testTypeFalseNegative() (boolean) {
     type t1 = (typeof int);
     type t2 = (typeof int);
-    return !reflect:deepEquals(t1,t2);
+    return !reflect:equals(t1,t2);
 }
 
 function testTypeFalsePositive() (boolean) {
     type t1 = (typeof int);
     type t2 = (typeof string);
-    return !reflect:deepEquals(t1,t2);
+    return !reflect:equals(t1,t2);
 }
 
 // End Type
@@ -174,25 +174,25 @@ function testTypeFalsePositive() (boolean) {
 function testStringArrayTruePositive() (boolean) {
     string[] s1 = ["a", "b"];
     string[] s2 = ["a", "b"];
-    return reflect:deepEquals(s1,s2);
+    return reflect:equals(s1,s2);
 }
 
 function testStringArrayTrueNegative() (boolean) {
     string[] s1 = ["a", "b"];
     string[] s2 = ["a", "c"];
-    return reflect:deepEquals(s1,s2);
+    return reflect:equals(s1,s2);
 }
 
 function testStringArrayFalseNegative() (boolean) {
     string[] s1 = ["a", "b"];
     string[] s2 = ["a", "b"];
-    return !reflect:deepEquals(s1,s2);
+    return !reflect:equals(s1,s2);
 }
 
 function testStringArrayFalsePositive() (boolean) {
     string[] s1 = ["a", "b"];
     string[] s2 = ["a", "c"];
-    return !reflect:deepEquals(s1,s2);
+    return !reflect:equals(s1,s2);
 }
 
 // End String Arrays
@@ -202,25 +202,25 @@ function testStringArrayFalsePositive() (boolean) {
 function testIntArrayTruePositive() (boolean) {
     int[] i1 = [5, 10];
     int[] i2 = [5, 10];
-    return reflect:deepEquals(i1,i2);
+    return reflect:equals(i1,i2);
 }
 
 function testIntArrayTrueNegative() (boolean) {
     int[] i1 = [5, 10];
     int[] i2 = [10, 10];
-    return reflect:deepEquals(i1,i2);
+    return reflect:equals(i1,i2);
 }
 
 function testIntArrayFalseNegative() (boolean) {
     int[] i1 = [5, 10];
     int[] i2 = [5, 10];
-    return !reflect:deepEquals(i1,i2);
+    return !reflect:equals(i1,i2);
 }
 
 function testIntArrayFalsePositive() (boolean) {
     int[] i1 = [5, 10];
     int[] i2 = [10, 10];
-    return !reflect:deepEquals(i1,i2);
+    return !reflect:equals(i1,i2);
 }
 
 // End Int Arrays
@@ -230,25 +230,25 @@ function testIntArrayFalsePositive() (boolean) {
 function testFloatArrayTruePositive() (boolean) {
     float[] f1 = [2.0, 20.5];
     float[] f2 = [2.0, 20.5];
-    return reflect:deepEquals(f1,f2);
+    return reflect:equals(f1,f2);
 }
 
 function testFloatArrayTrueNegative() (boolean) {
     float[] f1 = [2.0, 20.5];
     float[] f2 = [7.5, 20.5];
-    return reflect:deepEquals(f1,f2);
+    return reflect:equals(f1,f2);
 }
 
 function testFloatArrayFalseNegative() (boolean) {
     float[] f1 = [2.0, 20.5];
     float[] f2 = [2.0, 20.5];
-    return !reflect:deepEquals(f1,f2);
+    return !reflect:equals(f1,f2);
 }
 
 function testFloatArrayFalsePositive() (boolean) {
     float[] f1 = [2.0, 20.5];
     float[] f2 = [7.5, 20.5];
-    return !reflect:deepEquals(f1,f2);
+    return !reflect:equals(f1,f2);
 }
 
 // End Float Arrays
@@ -258,25 +258,25 @@ function testFloatArrayFalsePositive() (boolean) {
 function testBooleanArrayTruePositive() (boolean) {
     boolean[] b1 = [true, true];
     boolean[] b2 = [true, true];
-    return reflect:deepEquals(b1,b2);
+    return reflect:equals(b1,b2);
 }
 
 function testBooleanArrayTrueNegative() (boolean) {
     boolean[] b1 = [true, true];
     boolean[] b2 = [true, false];
-    return reflect:deepEquals(b1,b2);
+    return reflect:equals(b1,b2);
 }
 
 function testBooleanArrayFalseNegative() (boolean) {
     boolean[] b1 = [true, true];
     boolean[] b2 = [true, true];
-    return !reflect:deepEquals(b1,b2);
+    return !reflect:equals(b1,b2);
 }
 
 function testBooleanArrayFalsePositive() (boolean) {
     boolean[] b1 = [true, true];
     boolean[] b2 = [true, false];
-    return !reflect:deepEquals(b1,b2);
+    return !reflect:equals(b1,b2);
 }
 
 // End Boolean Arrays
@@ -286,25 +286,25 @@ function testBooleanArrayFalsePositive() (boolean) {
 function testTypeArrayTruePositive() (boolean) {
     type[] t1 = [(typeof int), (typeof string)];
     type[] t2 = [(typeof int), (typeof string)];
-    return reflect:deepEquals(t1,t2);
+    return reflect:equals(t1,t2);
 }
 
 function testTypeArrayTrueNegative() (boolean) {
     type[] t1 = [(typeof int), (typeof string)];
     type[] t2 = [(typeof int), (typeof map)];
-    return reflect:deepEquals(t1,t2);
+    return reflect:equals(t1,t2);
 }
 
 function testTypeArrayFalseNegative() (boolean) {
     type[] t1 = [(typeof int), (typeof string)];
     type[] t2 = [(typeof int), (typeof string)];
-    return !reflect:deepEquals(t1,t2);
+    return !reflect:equals(t1,t2);
 }
 
 function testTypeArrayFalsePositive() (boolean) {
     type[] t1 = [(typeof int), (typeof string)];
     type[] t2 = [(typeof int), (typeof map)];
-    return !reflect:deepEquals(t1,t2);
+    return !reflect:equals(t1,t2);
 }
 
 // End Type Arrays

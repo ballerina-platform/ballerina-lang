@@ -15,12 +15,12 @@ function testPrimitiveStructs() (boolean) {
     SimplePerson spUnmatchInt = {name: "Nick", age: 20, married: true};
     SimplePerson spUnmatchBoolean = {name: "Nick", age: 25, married: false};
 
-    return reflect:deepEquals(sp1,sp2) &&
-           !reflect:deepEquals(sp1,spUnmatchString) &&
-           !reflect:deepEquals(sp1,spUnmatchInt) &&
-           !reflect:deepEquals(sp1,spUnmatchBoolean) &&
-           !reflect:deepEquals(sp1,null) &&
-           !reflect:deepEquals(null,sp1);
+    return reflect:equals(sp1,sp2) &&
+           !reflect:equals(sp1,spUnmatchString) &&
+           !reflect:equals(sp1,spUnmatchInt) &&
+           !reflect:equals(sp1,spUnmatchBoolean) &&
+           !reflect:equals(sp1,null) &&
+           !reflect:equals(null,sp1);
 }
 
 public struct ArrayedPerson {
@@ -37,11 +37,11 @@ function testStructsWithArrays() (boolean) {
     ArrayedPerson apUnmatch = {name: "Jack", married: true, address: ["20", "Duplication Road"]};
     ArrayedPerson apUnordered = {name: "Nick", married: true, address: ["Palm Grove", "20"]};
 
-    return reflect:deepEquals(ap1,ap2) &&
-           !reflect:deepEquals(ap1,apUnmatch) &&
-           !reflect:deepEquals(ap1,apUnordered) &&
-           !reflect:deepEquals(ap1,null) &&
-           !reflect:deepEquals(null,ap1);
+    return reflect:equals(ap1,ap2) &&
+           !reflect:equals(ap1,apUnmatch) &&
+           !reflect:equals(ap1,apUnordered) &&
+           !reflect:equals(ap1,null) &&
+           !reflect:equals(null,ap1);
 }
 
 public struct Wheel {
@@ -76,12 +76,12 @@ public function testNestedStructs() (boolean) {
                         engine: {model: "v8", capacity: 2000},
                         wheels: [{pressure: 29}, {pressure: 31}, {pressure: 28}, {pressure: 29}]};
 
-    return reflect:deepEquals(c1,c2) &&
-           !reflect:deepEquals(c1,c3Unmatch) &&
-           !reflect:deepEquals(c1,c4Unmatch) &&
-           !reflect:deepEquals(c1,c5Unmatch) &&
-           !reflect:deepEquals(c1,null) &&
-           !reflect:deepEquals(null,c1);
+    return reflect:equals(c1,c2) &&
+           !reflect:equals(c1,c3Unmatch) &&
+           !reflect:equals(c1,c4Unmatch) &&
+           !reflect:equals(c1,c5Unmatch) &&
+           !reflect:equals(c1,null) &&
+           !reflect:equals(null,c1);
 }
 
 // End Structs
@@ -94,10 +94,10 @@ public function testArraysOfArrays() (boolean) {
 
     int[][] aaUnmatch = [[1, 2, 3], [10, 99, 30], [5, 6, 7]];
 
-    return reflect:deepEquals(aa1,aa2) &&
-           !reflect:deepEquals(aa1,aaUnmatch) &&
-           !reflect:deepEquals(aa1,null) &&
-           !reflect:deepEquals(null,aa1);
+    return reflect:equals(aa1,aa2) &&
+           !reflect:equals(aa1,aaUnmatch) &&
+           !reflect:equals(aa1,null) &&
+           !reflect:equals(null,aa1);
 }
 
 // End Array of Arrays
@@ -122,13 +122,13 @@ public function testMaps () (boolean) {
     map mMissingKeys = {line1:"No. 20",
                            city:"Colombo 03", country:"Sri Lanka", checkinsTimes: ["0900", 2230]};
 
-    return reflect:deepEquals(m1,m2) &&
-            reflect:deepEquals(m1,mUnorder) &&
-           !reflect:deepEquals(m1,mArrayUnorder) &&
-           !reflect:deepEquals(m1,mStringValueMismatch) &&
-           !reflect:deepEquals(m1,mMissingKeys) &&
-           !reflect:deepEquals(m1,null) &&
-           !reflect:deepEquals(null,m1);
+    return reflect:equals(m1,m2) &&
+            reflect:equals(m1,mUnorder) &&
+           !reflect:equals(m1,mArrayUnorder) &&
+           !reflect:equals(m1,mStringValueMismatch) &&
+           !reflect:equals(m1,mMissingKeys) &&
+           !reflect:equals(m1,null) &&
+           !reflect:equals(null,m1);
 }
 
 // End Maps
@@ -145,14 +145,14 @@ public function testAnyType() (boolean) {
     any aUnmatch4 = {num: 20, lane:"Palm Grove"};
     any aUnmatch5 = false;
 
-    return reflect:deepEquals(a1,a2) &&
-           !reflect:deepEquals(a1,aUnmatch1) &&
-           !reflect:deepEquals(a1,aUnmatch2) &&
-           !reflect:deepEquals(a1,aUnmatch3) &&
-           !reflect:deepEquals(a1,aUnmatch4) &&
-           !reflect:deepEquals(a1,aUnmatch5) &&
-           !reflect:deepEquals(a1,null) &&
-           !reflect:deepEquals(null,a1);
+    return reflect:equals(a1,a2) &&
+           !reflect:equals(a1,aUnmatch1) &&
+           !reflect:equals(a1,aUnmatch2) &&
+           !reflect:equals(a1,aUnmatch3) &&
+           !reflect:equals(a1,aUnmatch4) &&
+           !reflect:equals(a1,aUnmatch5) &&
+           !reflect:equals(a1,null) &&
+           !reflect:equals(null,a1);
 }
 
 // End Any
@@ -178,46 +178,46 @@ json empty1 = {};
 json empty2 = {};
 
 public function testJSONString() (boolean) {
-    return reflect:deepEquals(jString1,jString2) &&
-           !reflect:deepEquals(jString1,jStringUnmatch) &&
-           !reflect:deepEquals(jString1,jIntUnmatch) &&
-           !reflect:deepEquals(jString1,jBooleanUnmatch) &&
-           !reflect:deepEquals(jString1,jNull1) &&
-           !reflect:deepEquals(jString1,empty1);
+    return reflect:equals(jString1,jString2) &&
+           !reflect:equals(jString1,jStringUnmatch) &&
+           !reflect:equals(jString1,jIntUnmatch) &&
+           !reflect:equals(jString1,jBooleanUnmatch) &&
+           !reflect:equals(jString1,jNull1) &&
+           !reflect:equals(jString1,empty1);
 }
 
 public function testJSONInt() (boolean) {
-    return reflect:deepEquals(jInt1,jInt2) &&
-           !reflect:deepEquals(jInt1,jStringUnmatch) &&
-           !reflect:deepEquals(jInt1,jIntUnmatch) &&
-           !reflect:deepEquals(jInt1,jBooleanUnmatch) &&
-           !reflect:deepEquals(jInt1,jNull1) &&
-           !reflect:deepEquals(jInt1,empty1);
+    return reflect:equals(jInt1,jInt2) &&
+           !reflect:equals(jInt1,jStringUnmatch) &&
+           !reflect:equals(jInt1,jIntUnmatch) &&
+           !reflect:equals(jInt1,jBooleanUnmatch) &&
+           !reflect:equals(jInt1,jNull1) &&
+           !reflect:equals(jInt1,empty1);
 }
 
 public function testJSONBoolean() (boolean) {
-    return reflect:deepEquals(jBoolean1,jBoolean2) &&
-           !reflect:deepEquals(jBoolean1,jStringUnmatch) &&
-           !reflect:deepEquals(jBoolean1,jIntUnmatch) &&
-           !reflect:deepEquals(jBoolean1,jBooleanUnmatch) &&
-           !reflect:deepEquals(jBoolean1,jNull1) &&
-           !reflect:deepEquals(jBoolean1,empty1);
+    return reflect:equals(jBoolean1,jBoolean2) &&
+           !reflect:equals(jBoolean1,jStringUnmatch) &&
+           !reflect:equals(jBoolean1,jIntUnmatch) &&
+           !reflect:equals(jBoolean1,jBooleanUnmatch) &&
+           !reflect:equals(jBoolean1,jNull1) &&
+           !reflect:equals(jBoolean1,empty1);
 }
 
 public function testJSONNull() (boolean) {
-    return reflect:deepEquals(jNull1,jNull2) &&
-           !reflect:deepEquals(jNull1,jStringUnmatch) &&
-           !reflect:deepEquals(jNull1,jIntUnmatch) &&
-           !reflect:deepEquals(jNull1,jBooleanUnmatch) &&
-           !reflect:deepEquals(jNull1,empty1);
+    return reflect:equals(jNull1,jNull2) &&
+           !reflect:equals(jNull1,jStringUnmatch) &&
+           !reflect:equals(jNull1,jIntUnmatch) &&
+           !reflect:equals(jNull1,jBooleanUnmatch) &&
+           !reflect:equals(jNull1,empty1);
 }
 
 public function testJSONEmpty() (boolean) {
-    return reflect:deepEquals(empty1,empty2) &&
-           !reflect:deepEquals(empty1,jStringUnmatch) &&
-           !reflect:deepEquals(empty1,jIntUnmatch) &&
-           !reflect:deepEquals(empty1,jBooleanUnmatch) &&
-           !reflect:deepEquals(empty1,jNull1);
+    return reflect:equals(empty1,empty2) &&
+           !reflect:equals(empty1,jStringUnmatch) &&
+           !reflect:equals(empty1,jIntUnmatch) &&
+           !reflect:equals(empty1,jBooleanUnmatch) &&
+           !reflect:equals(empty1,jNull1);
 }
 
 public function testJSONObjects() (boolean) {
@@ -228,12 +228,12 @@ public function testJSONObjects() (boolean) {
     json jObjUnmatch1 = {price: 40.50, new: true, name:"orange"};
     json jObjUnmatch2 = {price: 20.00, new: true, name:"apple"};
 
-    return reflect:deepEquals(jObj1,jObj2) &&
-            reflect:deepEquals(jObj1,jObjUnordered) &&
-           !reflect:deepEquals(jObj1,jObjUnmatch1) &&
-           !reflect:deepEquals(jObj1,jObjUnmatch2) &&
-           !reflect:deepEquals(jObj1,null) &&
-           !reflect:deepEquals(null,jObj1);
+    return reflect:equals(jObj1,jObj2) &&
+            reflect:equals(jObj1,jObjUnordered) &&
+           !reflect:equals(jObj1,jObjUnmatch1) &&
+           !reflect:equals(jObj1,jObjUnmatch2) &&
+           !reflect:equals(jObj1,null) &&
+           !reflect:equals(null,jObj1);
 
 }
 
@@ -245,10 +245,10 @@ public function testJSONArray() (boolean) {
     json jArrMissing = {primeNumebers: [2, 3, 5, 11, 13]};
     json jArrUnmatch = {primeNumebers: ["test"]};
 
-    return reflect:deepEquals(jArr1,jArr2) &&
-           !reflect:deepEquals(jArr1,jArrUnordered) &&
-           !reflect:deepEquals(jArr1,jArrMissing) &&
-           !reflect:deepEquals(jArr1,jArrUnmatch);
+    return reflect:equals(jArr1,jArr2) &&
+           !reflect:equals(jArr1,jArrUnordered) &&
+           !reflect:equals(jArr1,jArrMissing) &&
+           !reflect:equals(jArr1,jArrUnmatch);
 
 }
 
@@ -357,16 +357,16 @@ public function testJSONNested() (boolean) {
 
     json jObjUnmatch8 = {};
 
-    return reflect:deepEquals(jObj1,jObj2) &&
-            reflect:deepEquals(jObj1,jObjUnordered) &&
-           !reflect:deepEquals(jObj1,jObjUnmatch1) &&
-           !reflect:deepEquals(jObj1,jObjUnmatch2) &&
-           !reflect:deepEquals(jObj1,jObjUnmatch3) &&
-           !reflect:deepEquals(jObj1,jObjUnmatch4) &&
-           !reflect:deepEquals(jObj1,jObjUnmatch5) &&
-           !reflect:deepEquals(jObj1,jObjUnmatch6) &&
-           !reflect:deepEquals(jObj1,jObjUnmatch7) &&
-           !reflect:deepEquals(jObj1,jObjUnmatch8);
+    return reflect:equals(jObj1,jObj2) &&
+            reflect:equals(jObj1,jObjUnordered) &&
+           !reflect:equals(jObj1,jObjUnmatch1) &&
+           !reflect:equals(jObj1,jObjUnmatch2) &&
+           !reflect:equals(jObj1,jObjUnmatch3) &&
+           !reflect:equals(jObj1,jObjUnmatch4) &&
+           !reflect:equals(jObj1,jObjUnmatch5) &&
+           !reflect:equals(jObj1,jObjUnmatch6) &&
+           !reflect:equals(jObj1,jObjUnmatch7) &&
+           !reflect:equals(jObj1,jObjUnmatch8);
 }
 
 

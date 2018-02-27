@@ -43,23 +43,22 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
- * The deep equals function which checks equality among 2 values. Currently supports string, int, float, boolean, type,
- * structs, maps, arrays, any, JSON.
+ * The ballerina.reflect:equals function which checks equality among 2 values. Currently supports string, int, float,
+ * boolean, type, structs, maps, arrays, any, JSON.
  */
 @BallerinaFunction(packageName = "ballerina.reflect",
-                   functionName = "deepEquals",
+                   functionName = "equals",
                    args = {@Argument(name = "value1", type = TypeKind.ANY),
                            @Argument(name = "value2", type = TypeKind.ANY)},
                    returnType = {@ReturnType(type = TypeKind.BOOLEAN)},
                    isPublic = true)
-public class DeepEquals extends AbstractNativeFunction {
+public class Equals extends AbstractNativeFunction {
     
     @Override
     public BValue[] execute(Context context) {
         BValue value1 = context.getControlStack().getCurrentFrame().getRefRegs()[0];
         BValue value2 = context.getControlStack().getCurrentFrame().getRefRegs()[1];
-        boolean isDeepEqual = isDeepEqual(value1, value2);
-        return getBValues(new BBoolean(isDeepEqual));
+        return getBValues(new BBoolean(isEqual(value1, value2)));
     }
     
     /**
@@ -69,7 +68,7 @@ public class DeepEquals extends AbstractNativeFunction {
      * @param rhsValue The value on the right side.
      * @return True if values are equal, else false.
      */
-    private boolean isDeepEqual(BValue lhsValue, BValue rhsValue) {
+    private boolean isEqual(BValue lhsValue, BValue rhsValue) {
         if (null == lhsValue && null == rhsValue) {
             return true;
         }
@@ -97,7 +96,7 @@ public class DeepEquals extends AbstractNativeFunction {
         if (lhsValue instanceof BJSON && rhsValue instanceof BJSON) {
             JsonNode lhsJSON = ((BJSON) lhsValue).value();
             JsonNode rhsJSON = ((BJSON) rhsValue).value();
-            return isDeepEqual(lhsJSON, rhsJSON);
+            return isEqual(lhsJSON, rhsJSON);
         }
         
         switch (lhsValue.getType().getTag()) {
@@ -124,9 +123,9 @@ public class DeepEquals extends AbstractNativeFunction {
                     return false;
                 }
     
-                return !isDeepEqual((BStruct) lhsValue, (BStruct) rhsValue, lhsStructType);
+                return !isEqual((BStruct) lhsValue, (BStruct) rhsValue, lhsStructType);
             case TypeTags.MAP_TAG:
-                return !isDeepEqual((BMap) lhsValue, (BMap) rhsValue);
+                return !isEqual((BMap) lhsValue, (BMap) rhsValue);
             case TypeTags.ARRAY_TAG:
             case TypeTags.ANY_TAG:
                 // TODO: This block should ideally be in the ARRAY_TAG case only. Not ANY_TAG. #4505.
@@ -138,7 +137,7 @@ public class DeepEquals extends AbstractNativeFunction {
                     }
                     
                     for (int i = 0; i < lhsArray.size(); i++) {
-                        if (!isDeepEqual(lhsArray.getBValue(i), rhsArray.getBValue(i))) {
+                        if (!isEqual(lhsArray.getBValue(i), rhsArray.getBValue(i))) {
                             return false;
                         }
                     }
@@ -161,7 +160,7 @@ public class DeepEquals extends AbstractNativeFunction {
      * @param structType Struct type.
      * @return True if deeply equals, else false.
      */
-    private boolean isDeepEqual(BStruct lhsStruct, BStruct rhsStruct, BStructType structType) {
+    private boolean isEqual(BStruct lhsStruct, BStruct rhsStruct, BStructType structType) {
         // Checking equality for integer fields.
         for (int i = 0; i < structType.getFieldTypeCount()[0]; i++) {
             if (lhsStruct.getIntField(i) != rhsStruct.getIntField(i)) {
@@ -199,7 +198,7 @@ public class DeepEquals extends AbstractNativeFunction {
         
         // Checking equality for refs fields.
         for (int i = 0; i < structType.getFieldTypeCount()[5]; i++) {
-            if (!isDeepEqual(lhsStruct.getRefField(i), rhsStruct.getRefField(i))) {
+            if (!isEqual(lhsStruct.getRefField(i), rhsStruct.getRefField(i))) {
                 return true;
             }
         }
@@ -212,7 +211,7 @@ public class DeepEquals extends AbstractNativeFunction {
      * @param rhsMap Right hand side map.
      * @return Return if maps are deeply equal.
      */
-    private boolean isDeepEqual(BMap lhsMap, BMap rhsMap) {
+    private boolean isEqual(BMap lhsMap, BMap rhsMap) {
         // Check if size is same.
         if (lhsMap.size() != rhsMap.size()) {
             return true;
@@ -226,7 +225,7 @@ public class DeepEquals extends AbstractNativeFunction {
         List<String> keys = Arrays.stream(lhsMap.keySet().toArray()).map(String.class::cast).collect
                 (Collectors.toList());
         for (int i = 0; i < lhsMap.size(); i++) {
-            if (!isDeepEqual(lhsMap.get(keys.get(i)), rhsMap.get(keys.get(i)))) {
+            if (!isEqual(lhsMap.get(keys.get(i)), rhsMap.get(keys.get(i)))) {
                 return true;
             }
         }
@@ -240,7 +239,7 @@ public class DeepEquals extends AbstractNativeFunction {
      * @param rhsJson The right side value.
      * @return True if values are equal, else false.
      */
-    private boolean isDeepEqual(JsonNode lhsJson, JsonNode rhsJson) {
+    private boolean isEqual(JsonNode lhsJson, JsonNode rhsJson) {
         if (lhsJson.getType() == JsonNode.Type.OBJECT) {
             // Converting iterators to maps as iterators are ordered.
             Iterator<Map.Entry<String, JsonNode>> lhJsonFieldsIterator = lhsJson.fields();
@@ -264,7 +263,7 @@ public class DeepEquals extends AbstractNativeFunction {
     
             if (lhJsonFields.size() > 0) {
                 for (Map.Entry<String, JsonNode> entry : lhJsonFields.entrySet()) {
-                    if (!rhJsonFields.keySet().contains(entry.getKey()) || !isDeepEqual(entry.getValue(),
+                    if (!rhJsonFields.keySet().contains(entry.getKey()) || !isEqual(entry.getValue(),
                             rhJsonFields.get(entry.getKey()))) {
                         return false;
                     }
@@ -278,7 +277,7 @@ public class DeepEquals extends AbstractNativeFunction {
             }
             
             for (int i = 0; i < lhsJson.size(); i++) {
-                if (!isDeepEqual(lhsJson.get(i), rhsJson.get(i))) {
+                if (!isEqual(lhsJson.get(i), rhsJson.get(i))) {
                     return false;
                 }
             }

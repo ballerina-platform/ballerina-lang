@@ -35,16 +35,16 @@ import java.util.Arrays;
 import java.util.Optional;
 
 /**
- * Test cases for ballerina.reflect:deepEquals() function.
+ * Test cases for ballerina.reflect:equals() function.
  */
-public class DeepEqualsTest {
+public class ReflectEqualsTest {
     private CompileResult compileResultForPrimitives;
     private CompileResult compileResultForComplex;
     
     @BeforeClass
     public void setup() {
-        compileResultForPrimitives = BCompileUtil.compile("test-src/reflect/deep-equal.bal");
-        compileResultForComplex = BCompileUtil.compile("test-src/reflect/deep-equal-complex.bal");
+        compileResultForPrimitives = BCompileUtil.compile("test-src/reflect/equal.bal");
+        compileResultForComplex = BCompileUtil.compile("test-src/reflect/equal-complex.bal");
     }
     
     /**
@@ -52,7 +52,7 @@ public class DeepEqualsTest {
      * @return FunctionInfo of the bal file..
      * @throws FileNotFoundException Unable to find test bal file.
      */
-    @DataProvider(name = "DeepEqualsValidFunctionInfos")
+    @DataProvider(name = "ReflectEqualsValidFunctionInfos")
     public Object[][] functionNames() throws FileNotFoundException {
         Optional<PackageInfo> assertFilePackage = Arrays.stream(
                 compileResultForPrimitives.getProgFile().getPackageInfoEntries())
@@ -75,8 +75,8 @@ public class DeepEqualsTest {
      * Validating assertEquals functions.
      * @param testFunction The FunctionInfo object.
      */
-    @Test(dataProvider = "DeepEqualsValidFunctionInfos")
-    public void testPrimitivesDeepEqual(FunctionInfo testFunction) {
+    @Test(dataProvider = "ReflectEqualsValidFunctionInfos")
+    public void testPrimitivesReflectEqual(FunctionInfo testFunction) {
         BValue[] returns = BRunUtil.invoke(compileResultForPrimitives, testFunction.getName());
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BBoolean.class);
@@ -89,7 +89,7 @@ public class DeepEqualsTest {
     }
     
     @Test
-    public void testStructsDeepEqual() {
+    public void testStructsReflectEqual() {
         BValue[] returns = BRunUtil.invoke(compileResultForComplex, "testStructsWithArrays");
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BBoolean.class);
@@ -110,7 +110,7 @@ public class DeepEqualsTest {
     }
     
     @Test
-    public void testArraysOfArraysDeepEqual() {
+    public void testArraysOfArraysReflectEqual() {
         BValue[] returns = BRunUtil.invoke(compileResultForComplex, "testArraysOfArrays");
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BBoolean.class);
@@ -119,7 +119,7 @@ public class DeepEqualsTest {
     }
     
     @Test
-    public void testMapsDeepEqual() {
+    public void testMapsReflectEqual() {
         BValue[] returns = BRunUtil.invoke(compileResultForComplex, "testMaps");
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BBoolean.class);
@@ -128,7 +128,7 @@ public class DeepEqualsTest {
     }
     
     @Test
-    public void testAnyTypeDeepEqual() {
+    public void testAnyTypeReflectEqual() {
         BValue[] returns = BRunUtil.invoke(compileResultForComplex, "testAnyType");
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BBoolean.class);
@@ -137,7 +137,7 @@ public class DeepEqualsTest {
     }
     
     @Test
-    public void testJsonStringDeepEqual() {
+    public void testJsonStringReflectEqual() {
         BValue[] returns = BRunUtil.invoke(compileResultForComplex, "testJSONString");
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BBoolean.class);
@@ -146,7 +146,7 @@ public class DeepEqualsTest {
     }
     
     @Test
-    public void testJsonIntDeepEqual() {
+    public void testJsonIntReflectEqual() {
         BValue[] returns = BRunUtil.invoke(compileResultForComplex, "testJSONInt");
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BBoolean.class);
@@ -155,7 +155,7 @@ public class DeepEqualsTest {
     }
     
     @Test
-    public void testJsonBooleanDeepEqual() {
+    public void testJsonBooleanReflectEqual() {
         BValue[] returns = BRunUtil.invoke(compileResultForComplex, "testJSONBoolean");
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BBoolean.class);
@@ -164,7 +164,7 @@ public class DeepEqualsTest {
     }
     
     @Test
-    public void testJsonNullDeepEqual() {
+    public void testJsonNullReflectEqual() {
         BValue[] returns = BRunUtil.invoke(compileResultForComplex, "testJSONNull");
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BBoolean.class);
@@ -173,7 +173,7 @@ public class DeepEqualsTest {
     }
     
     @Test
-    public void testJsonEmptyDeepEqual() {
+    public void testJsonEmptyReflectEqual() {
         BValue[] returns = BRunUtil.invoke(compileResultForComplex, "testJSONEmpty");
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BBoolean.class);
@@ -182,7 +182,7 @@ public class DeepEqualsTest {
     }
     
     @Test
-    public void testJsonObjectDeepEqual() {
+    public void testJsonObjectReflectEqual() {
         BValue[] returns = BRunUtil.invoke(compileResultForComplex, "testJSONObjects");
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BBoolean.class);
@@ -191,7 +191,7 @@ public class DeepEqualsTest {
     }
     
     @Test
-    public void testJsonArrayDeepEqual() {
+    public void testJsonArrayReflectEqual() {
         BValue[] returns = BRunUtil.invoke(compileResultForComplex, "testJSONArray");
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BBoolean.class);
@@ -200,7 +200,7 @@ public class DeepEqualsTest {
     }
     
     @Test
-    public void testJsonNestedDeepEqual() {
+    public void testJsonNestedReflectEqual() {
         BValue[] returns = BRunUtil.invoke(compileResultForComplex, "testJSONNested");
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BBoolean.class);
