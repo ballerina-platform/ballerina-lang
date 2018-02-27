@@ -27,9 +27,9 @@ import io.netty.handler.codec.http.multipart.HttpPostRequestEncoder;
 import io.netty.handler.codec.http.multipart.InterfaceHttpData;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.CompileResult;
-import org.ballerinalang.mime.util.EntityBody;
 import org.ballerinalang.mime.util.EntityBodyChannel;
 import org.ballerinalang.mime.util.EntityBodyHandler;
+import org.ballerinalang.mime.util.EntityBodyStream;
 import org.ballerinalang.mime.util.EntityWrapper;
 import org.ballerinalang.mime.util.HeaderUtil;
 import org.ballerinalang.mime.util.MimeUtil;
@@ -478,7 +478,7 @@ public class Util {
                                        BStruct bodyPart) throws HttpPostRequestEncoder.ErrorDataEncoderException {
         try {
             InterfaceHttpData encodedData;
-            EntityBody entityBodyReader = MimeUtil.constructEntityBody(bodyPart);
+            EntityBodyStream entityBodyReader = MimeUtil.constructEntityBody(bodyPart);
             FileUploadContentHolder contentHolder = new FileUploadContentHolder();
             contentHolder.setRequest(httpRequest);
             contentHolder.setBodyPartName(getBodyPartName(bodyPart));
@@ -489,12 +489,12 @@ public class Util {
             if (contentTransferHeaderValue != null) {
                 contentHolder.setContentTransferEncoding(contentTransferHeaderValue);
             }
-            if (entityBodyReader.isStream()) {
-                contentHolder.setContentStream(entityBodyReader.getEntityWrapper().getInputStream());
-                encodedData = getFileUpload(contentHolder);
-            } else {
+            if (entityBodyReader.isFileChannel()) {
                 FileIOChannel fileIOChannel = entityBodyReader.getFileIOChannel();
                 contentHolder.setContentStream(fileIOChannel.getInputStream());
+                encodedData = getFileUpload(contentHolder);
+            } else {
+                contentHolder.setContentStream(entityBodyReader.getEntityWrapper().getInputStream());
                 encodedData = getFileUpload(contentHolder);
             }
 

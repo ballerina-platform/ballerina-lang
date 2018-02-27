@@ -32,6 +32,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static org.ballerinalang.mime.util.Constants.ASSIGNMENT;
+import static org.ballerinalang.mime.util.Constants.BOUNDARY;
 import static org.ballerinalang.mime.util.Constants.CONTENT_DISPOSITION;
 import static org.ballerinalang.mime.util.Constants.CONTENT_ID;
 import static org.ballerinalang.mime.util.Constants.CONTENT_ID_INDEX;
@@ -252,5 +253,19 @@ public class HeaderUtil {
 
     public static boolean isMultipart(String contentType) {
         return contentType != null && contentType.startsWith(MULTIPART_AS_PRIMARY_TYPE);
+    }
+
+    /**
+     * Given a Content-Type, extract the boundary parameter value out of it.
+     *
+     * @param contentType Represent the value of Content-Type header inclusing parameters
+     * @return A ballerina string that has the boundary parameter value
+     */
+    public static BString extractBoundaryParameter(String contentType) {
+        BMap<String, BValue> paramMap = HeaderUtil.getParamMap(contentType);
+        if (paramMap != null) {
+            return paramMap.get(BOUNDARY) != null ? (BString) paramMap.get(BOUNDARY) : null;
+        }
+        return null;
     }
 }

@@ -143,13 +143,17 @@ public class EntityBodyHandler {
      * @throws IOException In case an error occurred while creating blob data source
      */
     public static BlobDataSource constructBlobDataSource(BStruct entityStruct) throws IOException {
-        EntityBody entityBody = MimeUtil.constructEntityBody(entityStruct);
+        EntityBodyStream entityBody = MimeUtil.constructEntityBody(entityStruct);
         if (entityBody != null) {
-            if (entityBody.isStream()) {
-                return new BlobDataSource(MimeUtil.getByteArray(entityBody.getEntityWrapper().getInputStream()));
-            } else {
+            if (entityBody.isFileChannel()) {
                 FileIOChannel fileIOChannel = entityBody.getFileIOChannel();
-                return new BlobDataSource(MimeUtil.getByteArray(fileIOChannel.getInputStream()));
+                if (fileIOChannel != null) {
+                    return new BlobDataSource(MimeUtil.getByteArray(fileIOChannel.getInputStream()));
+                }
+            } else {
+                if (entityBody.getEntityWrapper() != null) {
+                    return new BlobDataSource(MimeUtil.getByteArray(entityBody.getEntityWrapper().getInputStream()));
+                }
             }
         }
         return null;
@@ -162,13 +166,17 @@ public class EntityBodyHandler {
      * @return BJSON data source which is kept in memory
      */
     public static BJSON constructJsonDataSource(BStruct entityStruct) {
-        EntityBody entityBody = MimeUtil.constructEntityBody(entityStruct);
+        EntityBodyStream entityBody = MimeUtil.constructEntityBody(entityStruct);
         if (entityBody != null) {
-            if (entityBody.isStream()) {
-                return new BJSON(entityBody.getEntityWrapper().getInputStream());
-            } else {
+            if (entityBody.isFileChannel()) {
                 FileIOChannel fileIOChannel = entityBody.getFileIOChannel();
-                return new BJSON(fileIOChannel.getInputStream());
+                if (fileIOChannel != null) {
+                    return new BJSON(fileIOChannel.getInputStream());
+                }
+            } else {
+                if (entityBody.getEntityWrapper() != null) {
+                    return new BJSON(entityBody.getEntityWrapper().getInputStream());
+                }
             }
         }
         return null;
@@ -181,13 +189,17 @@ public class EntityBodyHandler {
      * @return BXML data source which is kept in memory
      */
     public static BXML constructXmlDataSource(BStruct entityStruct) {
-        EntityBody entityBody = MimeUtil.constructEntityBody(entityStruct);
+        EntityBodyStream entityBody = MimeUtil.constructEntityBody(entityStruct);
         if (entityBody != null) {
-            if (entityBody.isStream()) {
-                return XMLUtils.parse(entityBody.getEntityWrapper().getInputStream());
-            } else {
+            if (entityBody.isFileChannel()) {
                 FileIOChannel fileIOChannel = entityBody.getFileIOChannel();
-                return XMLUtils.parse(fileIOChannel.getInputStream());
+                if (fileIOChannel != null) {
+                    return XMLUtils.parse(fileIOChannel.getInputStream());
+                }
+            } else {
+                if (entityBody.getEntityWrapper() != null) {
+                    return XMLUtils.parse(entityBody.getEntityWrapper().getInputStream());
+                }
             }
         }
         return null;
@@ -200,17 +212,21 @@ public class EntityBodyHandler {
      * @return StringDataSource which represent the entity body which is kept in memory
      */
     public static StringDataSource constructStringDataSource(BStruct entityStruct) {
-        EntityBody entityBodyReader = MimeUtil.constructEntityBody(entityStruct);
-        if (entityBodyReader != null) {
+        EntityBodyStream entityBodyStream = MimeUtil.constructEntityBody(entityStruct);
+        if (entityBodyStream != null) {
             String textContent;
-            if (entityBodyReader.isStream()) {
-                textContent = StringUtils.getStringFromInputStream(entityBodyReader.getEntityWrapper()
-                        .getInputStream());
-                return new StringDataSource(textContent);
+            if (entityBodyStream.isFileChannel()) {
+                FileIOChannel fileIOChannel = entityBodyStream.getFileIOChannel();
+                if (fileIOChannel != null) {
+                    textContent = StringUtils.getStringFromInputStream(fileIOChannel.getInputStream());
+                    return new StringDataSource(textContent);
+                }
             } else {
-                FileIOChannel fileIOChannel = entityBodyReader.getFileIOChannel();
-                textContent = StringUtils.getStringFromInputStream(fileIOChannel.getInputStream());
-                return new StringDataSource(textContent);
+                if (entityBodyStream.getEntityWrapper() != null) {
+                    textContent = StringUtils.getStringFromInputStream(entityBodyStream.getEntityWrapper()
+                            .getInputStream());
+                    return new StringDataSource(textContent);
+                }
             }
         }
         return null;
@@ -257,23 +273,23 @@ public class EntityBodyHandler {
 
     /**
      * Given a channel as Object, convert it to correct channel type and get the high level representation of
-     * EntityBody.
+     * EntityBodyStream.
      *
      * @param channel Channel as an object
      * @return Channel wrapped as entity body
      */
-    public static EntityBody getEntityBody(Object channel) {
-        EntityBody entityBody = null;
+    public static EntityBodyStream getEntityBodyStream(Object channel) {
+        EntityBodyStream entityBody = null;
         if (channel != null) {
             if (channel instanceof EntityWrapper) {
-                entityBody = new EntityBody((EntityWrapper) channel, true);
+                entityBody = new EntityBodyStream((EntityWrapper) channel, false);
             } else if (channel instanceof EntityBodyChannel) {
-                entityBody = new EntityBody(new EntityWrapper((EntityBodyChannel) channel), true);
+                entityBody = new EntityBodyStream(new EntityWrapper((EntityBodyChannel) channel), false);
             } else if (channel instanceof FileIOChannel) {
-                entityBody = new EntityBody((FileIOChannel) channel, false);
+                entityBody = new EntityBodyStream((FileIOChannel) channel, true);
             } else if (channel instanceof FileChannel) {
-                entityBody = new EntityBody(new FileIOChannel((FileChannel) channel,
-                        IOConstants.CHANNEL_BUFFER_SIZE), false);
+                entityBody = new EntityBodyStream(new FileIOChannel((FileChannel) channel,
+                        IOConstants.CHANNEL_BUFFER_SIZE), true);
             }
         }
         return entityBody;
@@ -288,14 +304,14 @@ public class EntityBodyHandler {
      */
     public static void writeByteChannelToOutputStream(BStruct entityStruct, OutputStream messageOutputStream)
             throws IOException {
-        EntityBody entityBody = MimeUtil.constructEntityBody(entityStruct);
+        EntityBodyStream entityBody = MimeUtil.constructEntityBody(entityStruct);
         if (entityBody != null) {
             InputStream inputStream;
-            if (entityBody.isStream()) {
-                inputStream = entityBody.getEntityWrapper().getInputStream();
-            } else {
+            if (entityBody.isFileChannel()) {
                 FileIOChannel fileIOChannel = entityBody.getFileIOChannel();
                 inputStream = fileIOChannel.getInputStream();
+            } else {
+                inputStream = entityBody.getEntityWrapper().getInputStream();
             }
             MimeUtil.writeInputToOutputStream(inputStream, messageOutputStream);
         }
@@ -308,7 +324,7 @@ public class EntityBodyHandler {
      * @param entityStruct Parent entity that the nested parts reside
      * @param entityBody   Represent entity body which hold that actual content in a channel
      */
-    public static void decodeEntityBody(Context context, BStruct entityStruct, EntityBody entityBody) {
+    public static void decodeEntityBody(Context context, BStruct entityStruct, EntityBodyStream entityBody) {
         if (entityBody == null) {
             return;
         }
@@ -316,15 +332,15 @@ public class EntityBodyHandler {
         if (!MimeUtil.isNotNullAndEmpty(contentType) || !contentType.startsWith(MULTIPART_AS_PRIMARY_TYPE)) {
             return;
         }
-        if (entityBody.isStream()) {
-            if (entityBody.getEntityWrapper() != null) {
-                MultipartDecoder.parseBody(context, entityStruct, contentType, entityBody.getEntityWrapper().
-                        getInputStream());
-            }
-        } else {
+        if (entityBody.isFileChannel()) {
             FileIOChannel fileIOChannel = entityBody.getFileIOChannel();
             if (fileIOChannel != null) {
                 MultipartDecoder.parseBody(context, entityStruct, contentType, fileIOChannel.getInputStream());
+            }
+        } else {
+            if (entityBody.getEntityWrapper() != null) {
+                MultipartDecoder.parseBody(context, entityStruct, contentType, entityBody.getEntityWrapper().
+                        getInputStream());
             }
         }
     }

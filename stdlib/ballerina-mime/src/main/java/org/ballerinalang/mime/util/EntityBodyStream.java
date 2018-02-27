@@ -21,28 +21,27 @@ package org.ballerinalang.mime.util;
 import org.ballerinalang.nativeimpl.io.channels.FileIOChannel;
 
 /**
- * Represent an entity body before the message data source is constructed. It can either be an EntityBodyChannel
- * or a FileIOChannel.
+ * Represent an entity body as a stream which can either contain an EntityBodyChannel or a FileIOChannel.
  *
  * @since 0.963.0
  */
-public class EntityBody {
-    private boolean isStream;
+public class EntityBodyStream {
+    private boolean isFileChannel;
     private EntityWrapper entityWrapper;
     private FileIOChannel fileIOChannel;
 
-    EntityBody(EntityWrapper entityWrapper, boolean isStream) {
+    EntityBodyStream(EntityWrapper entityWrapper, boolean isFileChannel) {
         this.entityWrapper = entityWrapper;
-        this.isStream = isStream;
+        this.isFileChannel = isFileChannel;
     }
 
-    EntityBody(FileIOChannel fileIOChannel, boolean isStream) {
+    EntityBodyStream(FileIOChannel fileIOChannel, boolean isFileChannel) {
         this.fileIOChannel = fileIOChannel;
-        this.isStream = isStream;
+        this.isFileChannel = isFileChannel;
     }
 
-    public boolean isStream() {
-        return isStream;
+    public boolean isFileChannel() {
+        return isFileChannel;
     }
 
     public EntityWrapper getEntityWrapper() {

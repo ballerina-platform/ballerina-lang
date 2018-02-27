@@ -20,7 +20,7 @@ package org.ballerinalang.mime.nativeimpl;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.connector.api.ConnectorUtils;
-import org.ballerinalang.mime.util.EntityBody;
+import org.ballerinalang.mime.util.EntityBodyStream;
 import org.ballerinalang.mime.util.MimeUtil;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BStruct;
@@ -56,13 +56,13 @@ public class GetByteChannel extends AbstractNativeFunction {
         BStruct byteChannelStruct;
         try {
             BStruct entityStruct = (BStruct) this.getRefArgument(context, FIRST_PARAMETER_INDEX);
-            EntityBody entityBody = MimeUtil.constructEntityBody(entityStruct);
+            EntityBodyStream entityBody = MimeUtil.constructEntityBody(entityStruct);
             Channel byteChannel = null;
             if (entityBody != null) {
-                if (entityBody.isStream()) {
-                    byteChannel = entityBody.getEntityWrapper();
-                } else {
+                if (entityBody.isFileChannel()) {
                     byteChannel = entityBody.getFileIOChannel();
+                } else {
+                    byteChannel = entityBody.getEntityWrapper();
                 }
             }
             byteChannelStruct = ConnectorUtils.createAndGetStruct(context, PROTOCOL_PACKAGE_IO, BYTE_CHANNEL_STRUCT);

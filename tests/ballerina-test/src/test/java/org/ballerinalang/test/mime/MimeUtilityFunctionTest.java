@@ -22,8 +22,8 @@ import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.BServiceUtil;
 import org.ballerinalang.launcher.util.CompileResult;
-import org.ballerinalang.mime.util.EntityBody;
 import org.ballerinalang.mime.util.EntityBodyHandler;
+import org.ballerinalang.mime.util.EntityBodyStream;
 import org.ballerinalang.mime.util.MimeUtil;
 import org.ballerinalang.model.util.StringUtils;
 import org.ballerinalang.model.util.XMLUtils;
@@ -300,7 +300,7 @@ public class MimeUtilityFunctionTest {
             BValue[] returns = BRunUtil.invoke(compileResult, "testGetByteChannel", args);
             Assert.assertEquals(returns.length, 1);
             BStruct returnByteChannelStruct = (BStruct) returns[0];
-            EntityBody entityBody = EntityBodyHandler.getEntityBody(returnByteChannelStruct.getNativeData
+            EntityBodyStream entityBody = EntityBodyHandler.getEntityBodyStream(returnByteChannelStruct.getNativeData
                     (IOConstants.BYTE_CHANNEL_NAME));
             FileIOChannel fileIOChannel = entityBody.getFileIOChannel();
             Assert.assertEquals(StringUtils.getStringFromInputStream(new ByteArrayInputStream(fileIOChannel.readAll())),

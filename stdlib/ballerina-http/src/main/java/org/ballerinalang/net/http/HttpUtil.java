@@ -36,6 +36,7 @@ import org.ballerinalang.connector.api.ConnectorUtils;
 import org.ballerinalang.connector.api.Resource;
 import org.ballerinalang.connector.api.Service;
 import org.ballerinalang.mime.util.EntityBodyHandler;
+import org.ballerinalang.mime.util.HeaderUtil;
 import org.ballerinalang.mime.util.MimeUtil;
 import org.ballerinalang.mime.util.MultipartDecoder;
 import org.ballerinalang.model.values.BMap;
@@ -933,7 +934,30 @@ public class HttpUtil {
         return transportMessage.getHeader(CONTENT_TYPE) != null ? transportMessage.getHeader(CONTENT_TYPE) : null;
     }
 
-    public static String addBoundaryString(HTTPCarbonMessage transportMessage, String contentType) {
+    /**
+     * If the given Content-Type header value doesn't have a boundary parameter value, get a new boundary string and
+     * append it to Content-Type and set it to transport message.
+     *
+     * @param transportMessage Represent transport message
+     * @param contentType      Represent the Content-Type header value
+     * @return The boundary string that was extracted from header or the newly generated one
+     */
+    public static String addBoundaryIfNotExist(HTTPCarbonMessage transportMessage, String contentType) {
+        String boundaryString;
+        BString boundaryValue = HeaderUtil.extractBoundaryParameter(contentType);
+        boundaryString = boundaryValue != null ? boundaryValue.toString() :
+                HttpUtil.addBoundaryParameter(transportMessage, contentType);
+        return boundaryString;
+    }
+
+    /**
+     * Generate a new boundary string and append it Content-Type and set that to transport message.
+     *
+     * @param transportMessage Represent transport message
+     * @param contentType      Represent the Content-Type header value
+     * @return The newly generated boundary string
+     */
+    private static String addBoundaryParameter(HTTPCarbonMessage transportMessage, String contentType) {
         String boundaryString = null;
         if (contentType != null && contentType.startsWith(MULTIPART_AS_PRIMARY_TYPE)) {
             boundaryString = MimeUtil.getNewMultipartDelimiter();

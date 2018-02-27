@@ -355,13 +355,13 @@ public class MimeUtil {
     }
 
     /**
-     * Wrap the byte channel associated with the given entity as the EntityBody.
+     * Wrap the byte channel associated with the given entity as the EntityBodyStream.
      *
      * @param entityStruct Represent an entity struct
-     * @return EntityBody which wraps the underline byte channel
+     * @return EntityBodyStream which wraps the underline byte channel
      */
-    public static EntityBody constructEntityBody(BStruct entityStruct) {
-        return EntityBodyHandler.getEntityBody(entityStruct.getNativeData(ENTITY_BYTE_CHANNEL));
+    public static EntityBodyStream constructEntityBody(BStruct entityStruct) {
+        return EntityBodyHandler.getEntityBodyStream(entityStruct.getNativeData(ENTITY_BYTE_CHANNEL));
     }
 
     /**
