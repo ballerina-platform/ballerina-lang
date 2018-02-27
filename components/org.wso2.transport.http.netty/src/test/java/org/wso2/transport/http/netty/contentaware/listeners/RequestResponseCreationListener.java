@@ -32,15 +32,15 @@ import org.wso2.transport.http.netty.contract.HttpConnectorListener;
 import org.wso2.transport.http.netty.contract.HttpResponseFuture;
 import org.wso2.transport.http.netty.contract.HttpWsConnectorFactory;
 import org.wso2.transport.http.netty.contract.ServerConnectorException;
-import org.wso2.transport.http.netty.contractimpl.HttpWsConnectorFactoryImpl;
+import org.wso2.transport.http.netty.contractimpl.DefaultHttpWsConnectorFactory;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 import org.wso2.transport.http.netty.message.HTTPConnectorUtil;
+import org.wso2.transport.http.netty.message.HttpMessageDataStreamer;
 import org.wso2.transport.http.netty.util.TestUtil;
 
 import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
@@ -66,11 +66,8 @@ public class RequestResponseCreationListener implements HttpConnectorListener {
     public void onMessage(HTTPCarbonMessage httpRequest) {
         executor.execute(() -> {
             try {
-                int length = httpRequest.getFullMessageLength();
-                List<ByteBuffer> byteBufferList = httpRequest.getFullMessageBody();
-                ByteBuffer byteBuffer = ByteBuffer.allocate(length);
-                byteBufferList.forEach(byteBuffer::put);
-                String requestValue = new String(byteBuffer.array());
+                String requestValue = TestUtil
+                        .getStringFromInputStream(new HttpMessageDataStreamer(httpRequest).getInputStream());
                 byte[] arry = responseValue.getBytes("UTF-8");
 
                 HTTPCarbonMessage newMsg = httpRequest.cloneCarbonMessageWithOutData();
@@ -96,7 +93,7 @@ public class RequestResponseCreationListener implements HttpConnectorListener {
                 SenderConfiguration senderConfiguration = HTTPConnectorUtil
                         .getSenderConfiguration(configuration, scheme);
 
-                HttpWsConnectorFactory httpWsConnectorFactory = new HttpWsConnectorFactoryImpl();
+                HttpWsConnectorFactory httpWsConnectorFactory = new DefaultHttpWsConnectorFactory();
                 HttpClientConnector clientConnector =
                         httpWsConnectorFactory.createHttpClientConnector(transportProperties, senderConfiguration);
 
@@ -105,13 +102,9 @@ public class RequestResponseCreationListener implements HttpConnectorListener {
                     @Override
                     public void onMessage(HTTPCarbonMessage httpResponse) {
                         executor.execute(() -> {
-                            int length = httpResponse.getFullMessageLength();
-                            List<ByteBuffer> byteBufferList = httpResponse.getFullMessageBody();
-
-                            ByteBuffer byteBuffer = ByteBuffer.allocate(length);
-                            byteBufferList.forEach(byteBuffer::put);
-
-                            String responseStringValue = new String(byteBuffer.array()) + ":" + requestValue;
+                            String responseValue = TestUtil.getStringFromInputStream(
+                                    new HttpMessageDataStreamer(httpResponse).getInputStream());
+                            String responseStringValue = responseValue + ":" + requestValue;
 
                             byte[] responseByteValues = null;
                             try {

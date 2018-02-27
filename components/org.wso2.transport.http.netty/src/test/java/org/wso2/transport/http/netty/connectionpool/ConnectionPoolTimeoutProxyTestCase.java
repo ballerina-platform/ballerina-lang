@@ -25,19 +25,22 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.carbon.messaging.exceptions.ServerConnectorException;
+import org.wso2.transport.http.netty.config.ListenerConfiguration;
 import org.wso2.transport.http.netty.config.SenderConfiguration;
-import org.wso2.transport.http.netty.config.TransportsConfiguration;
+import org.wso2.transport.http.netty.contract.HttpWsConnectorFactory;
 import org.wso2.transport.http.netty.contract.ServerConnector;
+import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
+import org.wso2.transport.http.netty.contractimpl.DefaultHttpWsConnectorFactory;
+import org.wso2.transport.http.netty.listener.ServerBootstrapConfiguration;
 import org.wso2.transport.http.netty.passthrough.PassthroughMessageProcessorListener;
 import org.wso2.transport.http.netty.util.TestUtil;
 import org.wso2.transport.http.netty.util.server.HttpServer;
 import org.wso2.transport.http.netty.util.server.initializers.SendChannelIDServerInitializer;
 
-import java.io.File;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URI;
-import java.util.List;
+import java.util.HashMap;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -53,22 +56,33 @@ public class ConnectionPoolTimeoutProxyTestCase {
 
     private static Logger logger = LoggerFactory.getLogger(ConnectionPoolTimeoutProxyTestCase.class);
 
-    private HttpServer httpServer;
-    private List<ServerConnector> serverConnectors;
     private ExecutorService executor = Executors.newFixedThreadPool(2);
+    private HttpWsConnectorFactory httpWsConnectorFactory;
+    private ServerConnector serverConnector;
+    private HttpServer httpServer;
+
 
     @BeforeClass
     public void setup() {
-        TransportsConfiguration transportsConfiguration = TestUtil.getConfiguration(
-                "/simple-test-config" + File.separator + "netty-transports.yml");
-
         httpServer = TestUtil
                 .startHTTPServer(TestUtil.HTTP_SERVER_PORT, new SendChannelIDServerInitializer(5000));
 
+        httpWsConnectorFactory = new DefaultHttpWsConnectorFactory();
+
+        ListenerConfiguration listenerConfiguration = new ListenerConfiguration();
+        listenerConfiguration.setPort(TestUtil.SERVER_CONNECTOR_PORT);
+        serverConnector = httpWsConnectorFactory
+                .createServerConnector(new ServerBootstrapConfiguration(new HashMap<>()), listenerConfiguration);
+
         SenderConfiguration senderConfiguration = new SenderConfiguration();
         senderConfiguration.setSocketIdleTimeout(2500);
-        serverConnectors = TestUtil.startConnectors(transportsConfiguration,
-                new PassthroughMessageProcessorListener(senderConfiguration));
+        ServerConnectorFuture serverConnectorFuture = serverConnector.start();
+        serverConnectorFuture.setHttpConnectorListener(new PassthroughMessageProcessorListener(senderConfiguration));
+        try {
+            serverConnectorFuture.sync();
+        } catch (InterruptedException e) {
+            logger.warn("Interrupted while waiting for server connector to start");
+        }
     }
 
     @Test (description = "when connection times out for TargetHandler, we need to invalidate the connection. "
@@ -92,7 +106,13 @@ public class ConnectionPoolTimeoutProxyTestCase {
 
     @AfterClass
     public void cleanUp() throws ServerConnectorException {
-        TestUtil.cleanUp(serverConnectors, httpServer);
+        try {
+            serverConnector.stop();
+            httpServer.shutdown();
+            httpWsConnectorFactory.shutdown();
+        } catch (Exception e) {
+            logger.warn("Interrupted while waiting for response two", e);
+        }
     }
 
     private class ClientWorker implements Callable<String> {

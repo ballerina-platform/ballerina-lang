@@ -82,7 +82,7 @@ public class HTTPProtocolNegotiationHandler extends ApplicationProtocolNegotiati
             try {
                 // TODO: Properly fix this part once we start HTTP2 integration
                 p.addLast("handler", new SourceHandler(
-                        new HttpWsServerConnectorFuture(null), null, null, null));
+                        new HttpWsServerConnectorFuture(null), null, null, null, null));
             } catch (Exception e) {
                 log.error("Cannot Create SourceHandler ", e);
             }

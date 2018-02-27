@@ -19,6 +19,8 @@
 package org.wso2.transport.http.netty.headers;
 
 import io.netty.handler.codec.http.HttpMethod;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -30,7 +32,7 @@ import org.wso2.transport.http.netty.contentaware.listeners.EchoStreamingMessage
 import org.wso2.transport.http.netty.contract.HttpWsConnectorFactory;
 import org.wso2.transport.http.netty.contract.ServerConnector;
 import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
-import org.wso2.transport.http.netty.contractimpl.HttpWsConnectorFactoryImpl;
+import org.wso2.transport.http.netty.contractimpl.DefaultHttpWsConnectorFactory;
 import org.wso2.transport.http.netty.listener.ServerBootstrapConfiguration;
 import org.wso2.transport.http.netty.util.TestUtil;
 
@@ -45,7 +47,10 @@ import java.util.HashMap;
  */
 public class DateHeaderTestCase {
 
+    private static final Logger log = LoggerFactory.getLogger(DateHeaderTestCase.class);
+
     private ServerConnector serverConnector;
+    private HttpWsConnectorFactory httpWsConnectorFactory;
 
     @BeforeClass
     public void setup() throws InterruptedException {
@@ -53,7 +58,7 @@ public class DateHeaderTestCase {
         listenerConfiguration.setPort(TestUtil.SERVER_CONNECTOR_PORT);
         ServerBootstrapConfiguration serverBootstrapConfig = new ServerBootstrapConfiguration(new HashMap<>());
 
-        HttpWsConnectorFactory httpWsConnectorFactory = new HttpWsConnectorFactoryImpl();
+        httpWsConnectorFactory = new DefaultHttpWsConnectorFactory();
         serverConnector = httpWsConnectorFactory.createServerConnector(serverBootstrapConfig, listenerConfiguration);
         ServerConnectorFuture serverConnectorFuture = serverConnector.start();
         serverConnectorFuture.setHttpConnectorListener(new EchoStreamingMessageListener());
@@ -75,5 +80,10 @@ public class DateHeaderTestCase {
     @AfterClass
     public void cleanUp() throws ServerConnectorException {
         serverConnector.stop();
+        try {
+            httpWsConnectorFactory.shutdown();
+        } catch (InterruptedException e) {
+            log.error("Interrupted while waiting for HttpWsFactory to shutdown", e);
+        }
     }
 }

@@ -138,7 +138,7 @@ public class TargetHandler extends ChannelInboundHandlerAdapter {
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
         if (log.isDebugEnabled()) {
-            log.debug("Channel " + ctx.channel().id() + " gets inactive so closing it from Target handler");
+            log.debug("Channel " + ctx.channel().id() + " got inactive so closing it from TargetHandler");
         }
 
         closeChannel(ctx);
@@ -165,7 +165,7 @@ public class TargetHandler extends ChannelInboundHandlerAdapter {
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
-        log.error("Exception occurred in TargetHandler", cause);
+        log.error("Exception occurred in TargetHandler for channel " + ctx.channel().id().asLongText(), cause);
 
         httpResponseFuture.notifyHttpListener(cause);
         if (targetRespMsg != null) {
@@ -184,10 +184,10 @@ public class TargetHandler extends ChannelInboundHandlerAdapter {
                 this.channelInactive(ctx);
                 handleErrorIdleScenarios(ctx.channel().id().asLongText());
 
-                log.warn("Timeout occurred in TargetHandler for channel ID : " + ctx.channel().id());
+                log.warn("Idle timeout has reached hence closing the connection {}", ctx.channel().id());
             }
         } else {
-            log.warn("Unexpected user event triggered", evt);
+            log.warn("Unexpected user event triggered", evt.toString());
         }
     }
 

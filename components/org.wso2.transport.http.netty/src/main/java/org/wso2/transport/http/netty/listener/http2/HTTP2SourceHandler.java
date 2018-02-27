@@ -113,7 +113,7 @@ public final class HTTP2SourceHandler extends Http2ConnectionHandler implements 
         if (cMsg != null) {
             cMsg.addHttpContent(new DefaultLastHttpContent(data.retain()));
             if (endOfStream) {
-                cMsg.setEndOfMsgAdded(true);
+                cMsg.completeMessage();
 //                if (HTTPTransportContextHolder.getInstance().getHandlerExecutor() != null) {
 //                    HTTPTransportContextHolder.getInstance().getHandlerExecutor().executeAtSourceRequestSending(cMsg);
 //                }
@@ -128,7 +128,7 @@ public final class HTTP2SourceHandler extends Http2ConnectionHandler implements 
 
         HTTPCarbonMessage cMsg = publishToMessageProcessor(streamId, headers);
         if (endOfStream) {
-            cMsg.setEndOfMsgAdded(true);
+            cMsg.completeMessage();
 //            if (HTTPTransportContextHolder.getInstance().getHandlerExecutor() != null) {
 //                HTTPTransportContextHolder.getInstance().getHandlerExecutor().executeAtSourceRequestSending(cMsg);
 //            }
