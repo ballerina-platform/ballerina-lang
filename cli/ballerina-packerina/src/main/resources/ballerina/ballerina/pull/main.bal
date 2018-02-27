@@ -6,7 +6,7 @@ import ballerina.io;
 
 function main (string[] args) {
     endpoint<http:HttpClient> httpEndpoint {
-        create http:HttpClient(args[0], getConnectorConfigs(args[3], args[4], args[5], args[6]));
+        create http:HttpClient(args[0], getConnectorConfigs(args[4], args[5], args[6], args[7]));
     }
     http:OutRequest req = {};
     var resp, errRes = httpEndpoint.get("", req);
@@ -18,7 +18,12 @@ function main (string[] args) {
         io:println("Internal server error occured when pulling the ballerina package");
     } else {
         compression:unzipBytes(resp.getBinaryPayload(), args[1], args[2]);
-        io:println("Ballerina package pulled successfully");
+        io:println("Ballerina package pulled successfully to the user repository");
+
+        if (args[3] != null){
+            compression:unzipBytes(resp.getBinaryPayload(), args[3], args[2]);
+            io:println("Ballerina package pulled successfully to the project directory");
+        }
     }
 }
 
