@@ -53,7 +53,6 @@ public class ConnectionPoolWaitingTimeoutTestCase {
         try {
             int noOfRequests = 3;
 
-            // Create countdown latches
             CountDownLatch[] countDownLatches = new CountDownLatch[noOfRequests];
             for (int i = 0; i < noOfRequests; i++) {
                 countDownLatches[i] = new CountDownLatch(1);
@@ -65,7 +64,7 @@ public class ConnectionPoolWaitingTimeoutTestCase {
                 responseListeners[i] = TestUtil.sendRequestAsync(countDownLatches[i], httpClientConnector);
             }
 
-            // Wait for the response
+            // Wait for the responses
             for (CountDownLatch countDownLatch : countDownLatches) {
                 countDownLatch.await(10, TimeUnit.SECONDS);
             }
