@@ -357,4 +357,21 @@ public class InRequestNativeFunctionSuccessTest {
                 "Invalid Return Values.");
         Assert.assertEquals(returnVals[0].stringValue(), payload);
     }
+
+    @Test(description = "Test GetByteChannel function within a service. Send a json content as a request " +
+            "and then get a byte channel from the InRequest and set that ByteChannel as the response content")
+    public void testServiceGetByteChannel() {
+        String key = "lang";
+        String value = "ballerina";
+        String path = "/hello/GetByteChannel";
+        String jsonString = "{\"" + key + "\":\"" + value + "\"}";
+        List<Header> headers = new ArrayList<>();
+        headers.add(new Header("Content-Type", APPLICATION_JSON));
+        HTTPTestRequest inRequestMsg = MessageUtils
+                .generateHTTPMessage(path, HttpConstants.HTTP_METHOD_POST, headers, jsonString);
+        HTTPCarbonMessage response = Services.invokeNew(serviceResult, inRequestMsg);
+        Assert.assertNotNull(response, "Response message not found");
+        BJSON bJson = new BJSON(new HttpMessageDataStreamer(response).getInputStream());
+        Assert.assertEquals(bJson.value().get(key).asText(), value);
+    }
 }

@@ -1,7 +1,6 @@
 import ballerina.net.http;
 import ballerina.mime;
 import ballerina.file;
-import ballerina.io;
 
 service<http> multipart {
     @http:resourceConfig {
@@ -31,7 +30,7 @@ service<http> multipart {
 
         //Create another body part with a text file.
         mime:Entity bodyPart4 = {};
-        mime:MediaType contentTypeOfFilePart = mime:getMediaType(mime:TEXT_XML);
+        mime:MediaType contentTypeOfFilePart = mime:getMediaType(mime:APPLICATION_OCTET_STREAM);
         bodyPart4.contentType = contentTypeOfFilePart;
         file:File textFile = {path:"src/test/resources/datafiles/mime/test.tmp"};
         bodyPart4.setFileAsEntityBody(textFile);
@@ -60,5 +59,3 @@ service<http> multipart {
         _ = conn.respond(outResponse);
     }
 }
-
-

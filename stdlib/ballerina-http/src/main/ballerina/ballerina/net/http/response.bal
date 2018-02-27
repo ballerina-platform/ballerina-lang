@@ -269,7 +269,5 @@ public function <OutResponse response> setFileAsPayload(file:File fileHandler, s
 public function <OutResponse response> setByteChannel (io:ByteChannel byteChannel) {
     mime:Entity entity = response.getEntityWithoutBody();
     entity.setByteChannel(byteChannel);
-    mime:MediaType mediaType = mime:getMediaType(mime:APPLICATION_OCTET_STREAM);
-    entity.contentType = mediaType;
     response.setEntity(entity);
 }
