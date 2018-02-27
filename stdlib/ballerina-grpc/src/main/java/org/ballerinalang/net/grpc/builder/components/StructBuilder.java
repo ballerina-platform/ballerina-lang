@@ -39,7 +39,7 @@ public class StructBuilder {
         
         StringBuilder str = new StringBuilder();
         for (int i = 0; i < attributesNameArr.length; i++) {
-            str.append(String.format(NEW_LINE_CHARACTER + "%s %s;", attributesTypeArr[i], attributesNameArr[i]));
+            str.append(String.format(NEW_LINE_CHARACTER + "  %s %s;", attributesTypeArr[i], attributesNameArr[i]));
         }
         attributeList = str.toString();
     }
@@ -47,8 +47,8 @@ public class StructBuilder {
     public String buildStructs() {
         buildAttributes();
         return String.format(NEW_LINE_CHARACTER +
-                "struct %s {" + NEW_LINE_CHARACTER +
-                "%s" + NEW_LINE_CHARACTER +
+                "struct %s {" +
+                "  %s" + NEW_LINE_CHARACTER +
                 "}" + NEW_LINE_CHARACTER, name, attributeList);
     }
 }

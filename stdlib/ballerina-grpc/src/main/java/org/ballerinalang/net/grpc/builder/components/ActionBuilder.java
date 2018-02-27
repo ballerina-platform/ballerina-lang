@@ -83,7 +83,7 @@ public class ActionBuilder {
                         "            error e = {msg:err2.msg};" + NEW_LINE_CHARACTER +
                         "            return null,e;" + NEW_LINE_CHARACTER +
                         "        }" + NEW_LINE_CHARACTER +
-                        "        return response,null;;" + NEW_LINE_CHARACTER +
+                        "        return response,null;" + NEW_LINE_CHARACTER +
                         "    }";
         String serverStreamTemplate =
                 "    action %s (%s req, string serviceName) (error) {" + NEW_LINE_CHARACTER +
