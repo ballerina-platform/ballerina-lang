@@ -225,7 +225,6 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
             outboundRequestMsg.setHeader(CONTENT_TYPE, contentType + "; " + BOUNDARY + "=" + boundaryString);
         }
 
-        outboundRequestMsg.waitAndReleaseAllEntities();
         HttpResponseFuture future = clientConnector.send(outboundRequestMsg);
         future.setHttpConnectorListener(httpClientConnectorLister);
         if (isMultipart(contentType)) {
