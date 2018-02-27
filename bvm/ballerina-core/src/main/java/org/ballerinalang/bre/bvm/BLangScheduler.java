@@ -32,9 +32,13 @@ import java.util.concurrent.TimeUnit;
 public class BLangScheduler {
 
     public static WorkerExecutionContext schedule(WorkerExecutionContext ctx) {
+        return schedule(ctx, ctx.runInCaller);
+    }
+    
+    public static WorkerExecutionContext schedule(WorkerExecutionContext ctx, boolean runInCaller) {
         ctx.state = WorkerState.READY;
         ExecutorService executor = ThreadPoolFactory.getInstance().getWorkerExecutor();
-        if (ctx.runInCaller) {
+        if (runInCaller) {
             return ctx;
         } else {
             executor.submit(new WorkerExecutor(ctx, false));
@@ -55,6 +59,11 @@ public class BLangScheduler {
             ThreadPoolFactory.getInstance().getWorkerExecutor().submit(new WorkerExecutor(ctx, true));
             return null;
         }
+    }
+    
+    public static void errorThrown(WorkerExecutionContext ctx, BStruct error) {
+        ctx.setError(error);
+        schedule(ctx, false);
     }
     
     public static void workerDone(WorkerExecutionContext ctx) {
@@ -79,9 +88,9 @@ public class BLangScheduler {
         } catch (InterruptedException ignore) { /* ignore */ }
     }
     
-    public static void workerExcepted(WorkerExecutionContext ctx, BStruct error) {
-        PrintStream out = System.out;
-        out.println("Worker Exception: " + ctx + " -> " + error);
+    public static void workerExcepted(WorkerExecutionContext ctx) {
+        ctx.ip = -1;
+        ctx.state = WorkerState.EXCEPTED;
     }
     
     public static void dumpCallStack(WorkerExecutionContext ctx) {
@@ -110,15 +119,16 @@ public class BLangScheduler {
         @Override
         public void run() {
             try {
-                ctx.lockExecution();
+                this.ctx.lockExecution();
                 if (this.restoreIP) {
                     ctx.restoreIP();
                 }
-                ctx.state = WorkerState.RUNNING;
-                CPU.exec(ctx);
+                this.ctx.state = WorkerState.RUNNING;
+                CPU.exec(this.ctx);
             } catch (Throwable e) {
-                ctx.state = WorkerState.EXCEPTED;
-                BLangScheduler.workerExcepted(this.ctx, BLangVMUtils.createErrorStruct(e));
+                this.ctx.setError(BLangVMUtils.createErrorStruct(e));
+                this.ctx.respCtx.signal(new WorkerSignal(this.ctx, SignalType.ERROR, null));
+                BLangScheduler.workerExcepted(this.ctx);
             } finally {
                 ctx.unlockExecution();
             }

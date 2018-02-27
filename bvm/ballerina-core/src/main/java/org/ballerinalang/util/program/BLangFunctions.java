@@ -81,13 +81,13 @@ public class BLangFunctions {
     
     public static WorkerExecutionContext invokeCallable(CallableUnitInfo callableUnitInfo, 
             WorkerExecutionContext parentCtx, int[] argRegs, int[] retRegs, boolean waitForResponse) {
-        InvocableWorkerResponseContext respCtx = new InvocableWorkerResponseContext(
-                callableUnitInfo.getRetParamTypes(), waitForResponse);
+        WorkerInfo[] workerInfos = listWorkerInfos(callableUnitInfo);
+        InvocableWorkerResponseContext respCtx = new InvocableWorkerResponseContext(callableUnitInfo.getRetParamTypes(), 
+                workerInfos.length, waitForResponse);
         respCtx.updateTargetContextInfo(parentCtx, retRegs);
         WorkerDataIndex wdi = callableUnitInfo.retWorkerIndex;
         Map<String, Object> globalProps = parentCtx.globalProps;
         BLangScheduler.switchToWaitForResponse(parentCtx);
-        WorkerInfo[] workerInfos = listWorkerInfos(callableUnitInfo);
         for (int i = 1; i < workerInfos.length; i++) {
             executeWorker(respCtx, parentCtx, argRegs, callableUnitInfo, workerInfos[i], wdi, globalProps, false);
         }

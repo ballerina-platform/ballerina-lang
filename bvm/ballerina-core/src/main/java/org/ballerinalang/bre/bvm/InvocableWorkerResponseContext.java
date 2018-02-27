@@ -19,6 +19,7 @@ package org.ballerinalang.bre.bvm;
 
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.TypeTags;
+import org.ballerinalang.model.values.BStruct;
 
 import java.io.PrintStream;
 import java.util.HashMap;
@@ -45,11 +46,16 @@ public class InvocableWorkerResponseContext implements WorkerResponseContext {
     
     private Map<String, WorkerDataChannel> workerDataChannels;
     
+    private Map<String, BStruct> workerErrors;
+    
+    private int workerCount;
+    
     public InvocableWorkerResponseContext() { }
     
-    public InvocableWorkerResponseContext(BType[] responseTypes, boolean checkResponse) {
+    public InvocableWorkerResponseContext(BType[] responseTypes, int workerCount, boolean checkResponse) {
         this.fulfilled = new AtomicBoolean();
         this.responseTypes = responseTypes;
+        this.workerCount = workerCount;
         if (checkResponse) {
             this.responseChecker = new Semaphore(0);
         }
@@ -79,11 +85,24 @@ public class InvocableWorkerResponseContext implements WorkerResponseContext {
         //TODO
     }
     
-    private WorkerExecutionContext doError(WorkerSignal signal) {
-        //TODO
-        if (this.responseChecker != null) {
-            this.responseChecker.release();
+    private synchronized void doError(WorkerSignal signal) {
+        if (this.workerErrors == null) {
+            this.workerErrors = new HashMap<>();
         }
+        WorkerExecutionContext sourceCtx = signal.getSourceContext();
+        BLangScheduler.workerExcepted(sourceCtx);
+        BStruct error = sourceCtx.getError();
+        this.workerErrors.put(sourceCtx.workerInfo.getWorkerName(), error);
+        if (this.workerErrors.size() >= this.workerCount) {
+            BLangScheduler.errorThrown(this.targetCtx, this.createCallFailedError(this.workerErrors));
+            if (this.responseChecker != null) {
+                this.responseChecker.release();
+            }
+        }        
+    }
+    
+    private BStruct createCallFailedError(Map<String, BStruct> errors) {
+        //TODO
         return null;
     }
     
