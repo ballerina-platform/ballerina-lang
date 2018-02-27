@@ -18,11 +18,11 @@ function main (string[] args) {
         io:println("Internal server error occured when pulling the ballerina package");
     } else {
         compression:unzipBytes(resp.getBinaryPayload(), args[1], args[2]);
-        io:println("Ballerina package pulled successfully to the user repository");
+        io:println("[remote -> home-cache] " + args[2]);
 
         if (args[3] != null){
             compression:unzipBytes(resp.getBinaryPayload(), args[3], args[2]);
-            io:println("Ballerina package pulled successfully to the project directory");
+            io:println("[remote -> project-cache] " + args[2]);
         }
     }
 }
