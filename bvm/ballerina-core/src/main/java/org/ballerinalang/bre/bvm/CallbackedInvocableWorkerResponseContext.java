@@ -48,8 +48,8 @@ public class CallbackedInvocableWorkerResponseContext extends InvocableWorkerRes
     }
     
     @Override
-    protected WorkerExecutionContext onDoneFinalized() {
-        WorkerExecutionContext retCtx = super.onDoneFinalized();
+    protected WorkerExecutionContext onHaltFinalized() {
+        WorkerExecutionContext retCtx = super.onHaltFinalized();
         this.responseCallback.notifySuccess();
         return retCtx;
     }

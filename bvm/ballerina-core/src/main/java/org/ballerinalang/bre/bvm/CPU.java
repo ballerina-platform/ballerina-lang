@@ -137,8 +137,8 @@ public class CPU {
         }
     }
     
-    private static WorkerExecutionContext codeFinished(WorkerExecutionContext ctx) {
-        return ctx.respCtx.signal(new WorkerSignal(ctx, SignalType.DONE, null));
+    private static WorkerExecutionContext handleHalt(WorkerExecutionContext ctx) {
+        return ctx.respCtx.signal(new WorkerSignal(ctx, SignalType.HALT, null));
     }
     
     public static void exec(WorkerExecutionContext ctx) {
@@ -164,14 +164,6 @@ public class CPU {
 //                debug();
 //            }
             //TODO
-            if (ctx.ip >= ctx.code.length) {
-                runInCallerCtx = codeFinished(ctx);
-                if (runInCallerCtx != null) {
-                    continue;
-                } else {
-                    break;
-                }
-            }
             Instruction instruction = ctx.code[ctx.ip];
             int opcode = instruction.getOpcode();
             int[] operands = instruction.getOperands();
@@ -364,7 +356,12 @@ public class CPU {
                     }
                     sf.refRegs[j] = new BTypeValue(sf.refRegs[i].getType());
                     break;
-
+                case InstructionCodes.HALT:
+                    BLangScheduler.workerDone(ctx);
+                    runInCallerCtx = handleHalt(ctx);
+                    if (runInCallerCtx != null) {
+                        ctx = runInCallerCtx;
+                    }
                 case InstructionCodes.IGT:
                 case InstructionCodes.FGT:
                 case InstructionCodes.IGE:
@@ -378,7 +375,6 @@ public class CPU {
                 case InstructionCodes.BR_TRUE:
                 case InstructionCodes.BR_FALSE:
                 case InstructionCodes.GOTO:
-                case InstructionCodes.HALT:
                 case InstructionCodes.SEQ_NULL:
                 case InstructionCodes.SNE_NULL:
                     execCmpAndBranchOpcodes(ctx, sf, opcode, operands);
@@ -815,9 +811,6 @@ public class CPU {
             case InstructionCodes.GOTO:
                 i = operands[0];
                 ctx.ip = i;
-                break;
-            case InstructionCodes.HALT:
-                ctx.ip = -1;
                 break;
             default:
                 throw new UnsupportedOperationException();

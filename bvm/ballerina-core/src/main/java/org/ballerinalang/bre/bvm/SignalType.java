@@ -22,6 +22,6 @@ package org.ballerinalang.bre.bvm;
  */
 public enum SignalType {
 
-    BREAK, MESSAGE, RETURN, ERROR, DONE
+    BREAK, MESSAGE, RETURN, ERROR, HALT
     
 }

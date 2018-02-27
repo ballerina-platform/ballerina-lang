@@ -48,7 +48,7 @@ public abstract class BaseWorkerResponseContext implements WorkerResponseContext
 
     protected Map<String, BStruct> workerErrors;
     
-    protected int doneCount;
+    protected int haltCount;
 
     protected int workerCount;
 
@@ -71,8 +71,8 @@ public abstract class BaseWorkerResponseContext implements WorkerResponseContext
             break;
         case MESSAGE:
             break;
-        case DONE:
-            return this.doDone();
+        case HALT:
+            return this.doHalt();
         case RETURN:
             return this.doReturn(signal);
         default:
@@ -87,15 +87,15 @@ public abstract class BaseWorkerResponseContext implements WorkerResponseContext
         // TODO
     }
 
-    protected synchronized WorkerExecutionContext doDone() {
-        this.doneCount++;
-        if (this.isDoneFinalized()) {
-            return this.onDoneFinalized();
+    protected synchronized WorkerExecutionContext doHalt() {
+        this.haltCount++;
+        if (this.isHaltFinalized()) {
+            return this.onHaltFinalized();
         }
         return null;
     }
     
-    protected WorkerExecutionContext onDoneFinalized() {
+    protected WorkerExecutionContext onHaltFinalized() {
         if (this.responseChecker != null) {
             this.responseChecker.release();
         }
@@ -105,8 +105,8 @@ public abstract class BaseWorkerResponseContext implements WorkerResponseContext
         return null;
     }
     
-    protected boolean isDoneFinalized() {
-        return this.responseTypes.length == 0 && this.doneCount > 0;
+    protected boolean isHaltFinalized() {
+        return this.responseTypes.length == 0 && this.haltCount > 0;
     }
     
     protected synchronized void doError(WorkerSignal signal) {
@@ -123,7 +123,7 @@ public abstract class BaseWorkerResponseContext implements WorkerResponseContext
     }
     
     protected boolean isFinalizedError() {
-        return (this.workerErrors.size() - this.doneCount) >= this.workerCount;
+        return (this.workerErrors.size() - this.haltCount) >= this.workerCount;
     }
     
     protected void onFinalizedError(BStruct error) {
