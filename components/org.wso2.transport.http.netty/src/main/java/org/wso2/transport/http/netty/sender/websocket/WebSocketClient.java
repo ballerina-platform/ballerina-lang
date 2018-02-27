@@ -119,28 +119,28 @@ public class WebSocketClient {
                     uri, WebSocketVersion.V13, subProtocols, true, httpHeaders);
             handler = new WebSocketTargetHandler(websocketHandshaker, ssl, url, target, connectorListener);
 
-            Bootstrap bootstrap = new Bootstrap();
-            bootstrap.group(group)
+            Bootstrap clientBootstrap = new Bootstrap();
+            clientBootstrap.group(group)
                     .channel(NioSocketChannel.class)
                     .handler(new ChannelInitializer<SocketChannel>() {
                         @Override
                         protected void initChannel(SocketChannel ch) {
-                            ChannelPipeline p = ch.pipeline();
+                            ChannelPipeline pipeline = ch.pipeline();
                             if (sslCtx != null) {
-                                p.addLast(sslCtx.newHandler(ch.alloc(), host, port));
+                                pipeline.addLast(sslCtx.newHandler(ch.alloc(), host, port));
                             }
-                            p.addLast(new HttpClientCodec());
-                            p.addLast(new HttpObjectAggregator(8192));
-                            p.addLast(WebSocketClientCompressionHandler.INSTANCE);
+                            pipeline.addLast(new HttpClientCodec());
+                            pipeline.addLast(new HttpObjectAggregator(8192));
+                            pipeline.addLast(WebSocketClientCompressionHandler.INSTANCE);
                             if (idleTimeout > 0) {
-                                p.addLast(new IdleStateHandler(idleTimeout, idleTimeout,
+                                pipeline.addLast(new IdleStateHandler(idleTimeout, idleTimeout,
                                                                idleTimeout, TimeUnit.MILLISECONDS));
                             }
-                            p.addLast(handler);
+                            pipeline.addLast(handler);
                         }
                     });
 
-            bootstrap.connect(uri.getHost(), port).sync();
+            clientBootstrap.connect(uri.getHost(), port).sync();
             ChannelFuture future = handler.handshakeFuture().addListener(new ChannelFutureListener() {
                 @Override
                 public void operationComplete(ChannelFuture future) {
@@ -168,12 +168,13 @@ public class WebSocketClient {
     private int getPort(URI uri) {
         String scheme = uri.getScheme();
         if (uri.getPort() == -1) {
-            if ("ws".equalsIgnoreCase(scheme)) {
-                return  80;
-            } else if ("wss".equalsIgnoreCase(scheme)) {
-                return  443;
-            } else {
-                return -1;
+            switch (scheme) {
+                case "ws":
+                    return 80;
+                case "wss":
+                    return 443;
+                default:
+                    return -1;
             }
         } else {
             return uri.getPort();
