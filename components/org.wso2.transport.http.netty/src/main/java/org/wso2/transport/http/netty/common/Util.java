@@ -23,7 +23,6 @@ import io.netty.handler.codec.http.DefaultFullHttpResponse;
 import io.netty.handler.codec.http.DefaultHttpRequest;
 import io.netty.handler.codec.http.DefaultHttpResponse;
 import io.netty.handler.codec.http.HttpContent;
-import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpMethod;
 import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.HttpResponse;
@@ -37,7 +36,6 @@ import org.wso2.transport.http.netty.config.Parameter;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 
 import java.io.File;
-import java.net.InetSocketAddress;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -525,140 +523,5 @@ public class Util {
         outboundRespFuture.addListener(
                 (ChannelFutureListener) channelFuture -> log.warn("Failed to send " + status.reasonPhrase()));
         ctx.channel().close();
-    }
-
-    /**
-     * Set forwarded/x-forwarded header to outbound request.
-     *
-     * @param httpOutboundRequest outbound request message
-     * @param localAddress local IP address
-     * @see <a href="https://tools.ietf.org/html/rfc7239">rfc7239</a>
-     */
-    public static void setForwardedHeader(HTTPCarbonMessage httpOutboundRequest, String localAddress) {
-
-        String forwardedHeader = httpOutboundRequest.getHeader(Constants.FORWARDED);
-        StringBuilder headerValue = new StringBuilder();
-        if (forwardedHeader == null) {
-            Object remoteAddressProperty = httpOutboundRequest.getProperty(Constants.REMOTE_ADDRESS);
-            if (remoteAddressProperty != null) {
-                String remoteAddress = ((InetSocketAddress) remoteAddressProperty).getAddress().getHostAddress();
-                headerValue.append("for=" + resolveIP(remoteAddress) + ";");
-            }
-            headerValue.append("by=" + resolveIP(localAddress));
-            String hostHeader = httpOutboundRequest.getHeader(HttpHeaderNames.HOST.toString());
-            if (hostHeader != null) {
-                headerValue.append("; host=" + hostHeader);
-            }
-            //TODO this not null
-            Object protocolHeader = httpOutboundRequest.getProperty(Constants.PROTOCOL);
-            headerValue.append("; proto=" + (protocolHeader != null ? protocolHeader.toString() : Constants.HTTP_SCHEME));
-            httpOutboundRequest.setHeader(Constants.FORWARDED, headerValue.toString());
-            return;
-        }
-        //"Forwarded: for=192.0.2.43, for=198.51.100.17;by=203.0.113.60;proto=http;host=example.com"
-        String[] parts = forwardedHeader.split(";");
-        String previousForValue = null;
-        String previousByValue = null;
-        String previousHostValue = null;
-        String previousProtoValue = null;
-        for (String part : parts) {
-            if (part.toLowerCase().contains("for=")) {
-                previousForValue = part.trim();
-            } else if (part.toLowerCase().contains("by=")) {
-                previousByValue = part.trim().substring(3);
-            } else if (part.toLowerCase().contains("host=")) {
-                previousHostValue = part.substring(5);
-            } else if (part.toLowerCase().contains("proto=")) {
-                previousProtoValue = part.substring(6);
-            }
-        }
-        if (previousForValue == null) {
-            previousForValue = previousByValue != null ? "for=" + previousByValue : null;
-        } else {
-            previousForValue = previousByValue == null ? previousForValue : previousForValue + ", for=" + previousByValue;
-        }
-        headerValue.append(previousForValue != null ? previousForValue + "; " : null);
-        headerValue.append("by=" + resolveIP(localAddress));
-
-        if (previousHostValue != null) {
-            headerValue.append("; host=" + previousHostValue);
-        }
-        if (previousProtoValue != null) {
-            headerValue.append("; proto=" + previousProtoValue);
-        }
-        httpOutboundRequest.setHeader(Constants.FORWARDED, headerValue.toString());
-    }
-
-    public static void transformAndSetForwardedHeader(HTTPCarbonMessage httpOutboundRequest, String localAddress) {
-        String forwardedHeader = httpOutboundRequest.getHeader(Constants.FORWARDED);
-        String xForwardedForHeader = httpOutboundRequest.getHeader(Constants.X_FORWARDED_FOR);
-        String xForwardedByHeader = httpOutboundRequest.getHeader(Constants.X_FORWARDED_BY);
-        String xForwardedHostHeader = httpOutboundRequest.getHeader(Constants.X_FORWARDED_HOST);
-        String xForwardedProtoHeader = httpOutboundRequest.getHeader(Constants.X_FORWARDED_PROTO);
-        StringBuilder headerValue = new StringBuilder();
-
-        if (forwardedHeader != null) {
-            //if both forwarded and x-forwarded headers are available,
-            //ignore transition with x-Forwarded header and only update forwarded header
-            setForwardedHeader(httpOutboundRequest, localAddress);
-            log.info("Header transition is not done as both Forwarded and X-Forwarded-- headers are present.");
-            return;
-        }
-
-        if (xForwardedForHeader == null && xForwardedByHeader == null &&
-                xForwardedHostHeader == null && xForwardedProtoHeader == null) {
-            //if forwarded and all x-forwarded are not set, then it is the first proxy
-            setForwardedHeader(httpOutboundRequest, localAddress);
-            return;
-        }
-
-        if (xForwardedForHeader != null && xForwardedByHeader != null) {
-            //transition is not done, as it's not possible to know in which order the existing fields were added.
-            log.info("Header transition is not done as both X-Forwarded-For and X-Forwarded-By headers are present.");
-            return;
-        }
-
-        if (xForwardedForHeader != null) {
-            String[] parts = xForwardedForHeader.split(",");
-            for (String part : parts) {
-                headerValue.append("for=" + resolveIP(part.trim()) + ", ");
-            }
-            headerValue.replace(headerValue.length() - 2, headerValue.length(), "; ");
-            httpOutboundRequest.removeHeader(Constants.X_FORWARDED_FOR);
-        }
-        if (xForwardedByHeader != null) {
-            headerValue.append("for=" + resolveIP(xForwardedByHeader.trim()) + "; ");
-            httpOutboundRequest.removeHeader(Constants.X_FORWARDED_BY);
-        }
-
-        headerValue.append("by=" + resolveIP(localAddress));
-        if (xForwardedHostHeader != null) {
-            headerValue.append("; host=" + xForwardedHostHeader);
-            httpOutboundRequest.removeHeader(Constants.X_FORWARDED_HOST);
-        }
-        if (xForwardedProtoHeader != null) {
-            headerValue.append("; proto=" + xForwardedProtoHeader);
-            httpOutboundRequest.removeHeader(Constants.X_FORWARDED_PROTO);
-        }
-        httpOutboundRequest.setHeader(Constants.FORWARDED, headerValue.toString());
-    }
-
-    private static String resolveIP(String ipString) {
-        //The client's IP address can have an optional port number
-        String[] parts = ipString.split(":");
-        //IPv4 literal i.e 192.0.2.43 or 192.0.2.43:47011
-        if (parts.length <= 2) {
-            return ipString;
-        }
-        //IPv6 literal with port. i.e [2001:db8:cafe::17]:47011
-        if (ipString.startsWith("[")) {
-            return "\"" + ipString + "\"";
-        }
-        //IPv6 literal host. i.e 2001:db8:cafe::17
-        if (ipString.contains(":")) {
-            return "\"[" + ipString + "]\"";
-        }
-        //Obfuscated Identifier. i.e _SEVKISEK
-        return ipString;
     }
 }

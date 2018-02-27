@@ -34,6 +34,7 @@ import org.wso2.transport.http.netty.internal.HandlerExecutor;
 import org.wso2.transport.http.netty.listener.HTTPTraceLoggingHandler;
 import org.wso2.transport.http.netty.listener.SourceHandler;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
+import org.wso2.transport.http.netty.sender.ForwardedHeaderUpdater;
 import org.wso2.transport.http.netty.sender.HttpClientChannelInitializer;
 import org.wso2.transport.http.netty.sender.TargetHandler;
 import org.wso2.transport.http.netty.sender.channel.pool.ConnectionManager;
@@ -270,11 +271,24 @@ public class TargetChannel {
     }
 
     public void setForwardedExtension(ForwardedExtensionConfig forwardedConfig, HTTPCarbonMessage httpOutboundRequest) {
-        String localAddress = ((InetSocketAddress) this.getChannel().localAddress()).getAddress().getHostAddress();
-        if (forwardedConfig == ForwardedExtensionConfig.ENABLE) {
-            Util.setForwardedHeader(httpOutboundRequest, localAddress);
-        } else if (forwardedConfig == ForwardedExtensionConfig.TRANSITION) {
-            Util.transformAndSetForwardedHeader(httpOutboundRequest, localAddress);
+        if (forwardedConfig == ForwardedExtensionConfig.DISABLE) {
+            return;
         }
+        String localAddress = ((InetSocketAddress) this.getChannel().localAddress()).getAddress().getHostAddress();
+        ForwardedHeaderUpdater headerUpdater = new ForwardedHeaderUpdater(httpOutboundRequest, localAddress);
+        if (headerUpdater.isTypeForwarded()) {
+            headerUpdater.setForwardedHeader();
+            return;
+        }
+        if (headerUpdater.isTypeXForwarded()) {
+            if (forwardedConfig == ForwardedExtensionConfig.ENABLE) {
+                headerUpdater.setDefactoForwardedHeaders();
+                return;
+            }
+            headerUpdater.transformAndSetForwardedHeader();
+            return;
+        }
+        log.warn("Both Forwarded and X-Forwarded-- headers are present. Hence updating only the forwarded header");
+        headerUpdater.setForwardedHeader();
     }
 }

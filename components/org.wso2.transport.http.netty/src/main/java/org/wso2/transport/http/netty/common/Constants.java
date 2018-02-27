@@ -168,6 +168,7 @@ public final class Constants {
     public static final String REMOTE_HOST = "REMOTE_HOST";
     public static final String REMOTE_PORT = "REMOTE_PORT";
     public static final String REQUEST_URL = "REQUEST_URL";
+    public static final String ORIGIN_HOST = "ORIGIN_HOST";
 
     public static final String CHANNEL_ID = "CHANNEL_ID";
 
