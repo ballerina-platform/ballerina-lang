@@ -21,9 +21,9 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.launcher.LauncherUtils;
 import org.ballerinalang.launcher.toml.model.Manifest;
-import org.ballerinalang.launcher.toml.model.Proxy;
+import org.ballerinalang.launcher.toml.model.Settings;
 import org.ballerinalang.launcher.toml.parser.ManifestProcessor;
-import org.ballerinalang.launcher.toml.parser.ProxyProcessor;
+import org.ballerinalang.launcher.toml.parser.SettingsProcessor;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.util.codegen.PackageInfo;
@@ -35,21 +35,21 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.stream.Stream;
 
-import static org.ballerinalang.util.BLangConstants.USER_REPO_ARTIFACTS_DIRNAME;
-
 /**
  * Util class for network calls.
  */
 public class NetworkUtils {
     private static final Logger log = LoggerFactory.getLogger(NetworkUtils.class);
-    private static final String BALLERINA_CENTRAL_REPO_URL = "http://0.0.0.0:9090/p/";
     private static CompileResult compileResult;
+    private static Settings settings = readSettings();
 
     /**
      * Compile the bal file.
@@ -71,55 +71,103 @@ public class NetworkUtils {
     /**
      * Pull/Downloads packages from the package repository.
      *
-     * @param resourceName package name to be pulled
+     * @param resourceName        package name to be pulled
+     * @param ballerinaCentralURL URL of ballerina central
      */
-    public static void pullPackages(String resourceName) {
+    public static void pullPackages(String resourceName, String ballerinaCentralURL) {
         compileResult = compileBalFile("ballerina.pull");
-        Path targetDirectoryPath = UserRepositoryUtils.initializeUserRepository().resolve(USER_REPO_ARTIFACTS_DIRNAME);
+        String host = getHost(ballerinaCentralURL);
+        Path targetDirectoryPath = UserRepositoryUtils.initializeUserRepository().resolve("caches").
+                resolve(host);
 
-        // Make directories
-        String targetPath = resourceName.concat("/src");
-        String[] resourceArr = targetPath.split("/");
-        for (String aResourceArr : resourceArr) {
-            targetDirectoryPath = targetDirectoryPath.resolve(aResourceArr);
-            if (!Files.exists(targetDirectoryPath)) {
+        int indexOfSlash = resourceName.indexOf("/");
+        String orgName = resourceName.substring(0, indexOfSlash);
+        String pkgNameWithVersion = resourceName.substring(indexOfSlash + 1);
+
+        int indexOfColon = pkgNameWithVersion.indexOf(":");
+        String pkgName = pkgNameWithVersion.substring(0, indexOfColon);
+        String pkgVersion = pkgNameWithVersion.substring(indexOfColon + 1);
+        targetDirectoryPath = targetDirectoryPath.resolve(orgName).resolve(pkgName).resolve(pkgVersion);
+
+        // Create the target directories
+        createDirectories(targetDirectoryPath);
+
+
+        // targetDirectoryPath = targetDirectoryPath.resolve(aResourceArr);
+
+        // String[] resourceArr = resourceName.split("/");
+        // for (String aResourceArr : resourceArr) {
+
+            /*if (!Files.exists(targetDirectoryPath)) {
                 try {
                     Files.createDirectories(targetDirectoryPath);
                 } catch (IOException e) {
                     log.debug("I/O Exception when creating the directory ", e);
                     log.error("I/O Exception when creating the directory" + e.getMessage());
                 }
-            }
-        }
-        int index = resourceName.lastIndexOf('/');
-        String pkgName = resourceName.substring(0, index);
+            }*/
+        // }
+
+        // int index = resourceName.lastIndexOf('/');
+        // String pkgName = resourceName.substring(0, index);
 
         String dstPath = targetDirectoryPath + File.separator;
-        String resourcePath = BALLERINA_CENTRAL_REPO_URL + resourceName;
+        String pkgPath = Paths.get(orgName).resolve(pkgName).resolve(pkgVersion).toString();
+        String resourcePath = ballerinaCentralURL + pkgPath;
         String[] proxyConfigs = readProxyConfigurations();
-        String[] arguments = new String[]{resourcePath, dstPath, pkgName.substring(pkgName.indexOf('/') + 1)};
+        String[] arguments = new String[]{resourcePath, dstPath, pkgName};
         arguments = Stream.concat(Arrays.stream(arguments), Arrays.stream(proxyConfigs))
                 .toArray(String[]::new);
         LauncherUtils.runMain(compileResult.getProgFile(), arguments);
     }
 
     /**
+     * Create target/output directories which contains the pulled packages.
+     * @param targetDirectoryPath target directory path
+     */
+    private static void createDirectories(Path targetDirectoryPath) {
+        if (!Files.exists(targetDirectoryPath)) {
+            try {
+                Files.createDirectories(targetDirectoryPath);
+            } catch (IOException e) {
+                log.debug("I/O Exception when creating the directory ", e);
+                log.error("I/O Exception when creating the directory" + e.getMessage());
+            }
+        }
+    }
+
+    /**
+     * Extract the host name from ballerina central URL.
+     * @param ballerinaCentralURL URL of ballerina central
+     * @return host
+     */
+    private static String getHost(String ballerinaCentralURL) {
+        try {
+            return new URL(ballerinaCentralURL).getHost();
+        } catch (MalformedURLException e) {
+            return ballerinaCentralURL.replaceAll("[^A-Za-z0-9.]", "");
+        }
+    }
+
+    /**
      * Push/Uploads packages to the central repository.
      *
-     * @param packageName path of the package folder to be pushed
+     * @param packageName                path of the package folder to be pushed
+     * @param ballerinaCentralURL URL of ballerina central
      */
-    public static void pushPackages(String packageName) {
+    public static void pushPackages(String packageName, String ballerinaCentralURL) {
         compileResult = compileBalFile("ballerina.push");
-
+        // Get the access token
+        String accessToken = getAccessTokenOfCLI() != null ? removeQuotationsFromValue(getAccessTokenOfCLI()) : null;
         // Get the org-name and version by reading Ballerina.toml
         Manifest manifest = readManifestConfigurations();
         if (manifest != null && manifest.getName() != null && manifest.getVersion() != null) {
             String orgName = removeQuotationsFromValue(manifest.getName());
             String version = removeQuotationsFromValue(manifest.getVersion());
-            String resourcePath = BALLERINA_CENTRAL_REPO_URL + Paths.get(orgName).resolve(packageName)
+            String resourcePath = ballerinaCentralURL + Paths.get(orgName).resolve(packageName)
                     .resolve(version);
             String[] proxyConfigs = readProxyConfigurations();
-            String[] arguments = new String[]{resourcePath, packageName};
+            String[] arguments = new String[]{accessToken, resourcePath, packageName};
             arguments = Stream.concat(Arrays.stream(arguments), Arrays.stream(proxyConfigs))
                     .toArray(String[]::new);
             LauncherUtils.runMain(compileResult.getProgFile(), arguments);
@@ -150,41 +198,66 @@ public class NetworkUtils {
     }
 
     /**
-     * Read proxy configurations from the Settings.toml file
+     * Read Settings.toml to populate the configurations.
      *
-     * @return array with proxy configurations
+     * @return settings object
      */
-    private static String[] readProxyConfigurations() {
+    private static Settings readSettings() {
         File cliTomlFile = new File(UserRepositoryUtils.initializeUserRepository().toString()
                 + File.separator + "Settings.toml");
-        String host = "", port = "", username = "", password = "";
-        String proxyConfigArr[] = new String[]{host, port, username, password};
         if (cliTomlFile.exists()) {
             try {
-                Proxy proxy = ProxyProcessor.parseTomlContentFromFile(cliTomlFile.toString());
-
-                if (proxy.getHost() != null) {
-                    host = removeQuotationsFromValue(proxy.getHost());
-                    proxyConfigArr[0] = host;
-                }
-                if (proxy.getPort() != null) {
-                    port = removeQuotationsFromValue(proxy.getPort());
-                    proxyConfigArr[1] = port;
-                }
-                if (proxy.getUserName() != null) {
-                    username = removeQuotationsFromValue(proxy.getUserName());
-                    proxyConfigArr[2] = username;
-                }
-                if (proxy.getPassword() != null) {
-                    password = removeQuotationsFromValue(proxy.getPassword());
-                    proxyConfigArr[3] = password;
-                }
+                settings = SettingsProcessor.parseTomlContentFromFile(cliTomlFile.toString());
             } catch (IOException e) {
                 log.debug("I/O Exception when processing the toml file ", e);
                 log.error("I/O Exception when processing the toml file " + e.getMessage());
             }
         }
+        return settings;
+    }
+
+    /**
+     * Read proxy configurations from the SettingHeaders.toml file.
+     *
+     * @return array with proxy configurations
+     */
+    private static String[] readProxyConfigurations() {
+        String host = "", port = "", username = "", password = "";
+        String proxyConfigArr[] = new String[]{host, port, username, password};
+        if (settings != null) {
+            if (settings.getProxy().getHost() != null) {
+                host = removeQuotationsFromValue(settings.getProxy().getHost());
+                proxyConfigArr[0] = host;
+            }
+            if (settings.getProxy().getPort() != null) {
+                port = removeQuotationsFromValue(settings.getProxy().getPort());
+                proxyConfigArr[1] = port;
+            }
+            if (settings.getProxy().getUserName() != null) {
+                username = removeQuotationsFromValue(settings.getProxy().getUserName());
+                proxyConfigArr[2] = username;
+            }
+            if (settings.getProxy().getPassword() != null) {
+                password = removeQuotationsFromValue(settings.getProxy().getPassword());
+                proxyConfigArr[3] = password;
+            }
+        }
         return proxyConfigArr;
+    }
+
+    /**
+     * Read the access token generated for the CLI.
+     *
+     * @return access token for generated for the CLI
+     */
+    private static String getAccessTokenOfCLI() {
+        if (settings != null) {
+            if (settings.getCentral() != null) {
+                return settings.getCentral().getAccessToken();
+            }
+            return null;
+        }
+        return null;
     }
 
     /**

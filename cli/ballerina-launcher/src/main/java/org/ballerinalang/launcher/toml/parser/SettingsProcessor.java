@@ -21,15 +21,15 @@ import org.antlr.v4.runtime.ANTLRFileStream;
 import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.tree.ParseTreeWalker;
-import org.ballerinalang.launcher.toml.model.Proxy;
+import org.ballerinalang.launcher.toml.model.Settings;
 import org.ballerinalang.launcher.toml.util.TomlProcessor;
 
 import java.io.IOException;
 
 /**
- * Proxy Processor which processes the proxy configuration toml file parsed and populate the Proxy POJO.
+ * SettingHeaders Processor which processes the settings toml file parsed and populate the SettingHeaders POJO.
  */
-public class ProxyProcessor {
+public class SettingsProcessor {
 
     /**
      * Get the char stream of the content from file.
@@ -38,9 +38,9 @@ public class ProxyProcessor {
      * @return charstream object
      * @throws IOException exception if the file cannot be found
      */
-    public static Proxy parseTomlContentFromFile(String fileName) throws IOException {
+    public static Settings parseTomlContentFromFile(String fileName) throws IOException {
         ANTLRFileStream in = new ANTLRFileStream(fileName);
-        return getProxyConfig(in);
+        return getSettings(in);
     }
 
     /**
@@ -49,21 +49,21 @@ public class ProxyProcessor {
      * @param content toml file content as a string
      * @return charstream object
      */
-    public static Proxy parseTomlContentFromString(String content) {
+    public static Settings parseTomlContentFromString(String content) {
         ANTLRInputStream in = new ANTLRInputStream(content);
-        return getProxyConfig(in);
+        return getSettings(in);
     }
 
     /**
-     * Get the proxy config object by passing the proxy configuration toml file.
+     * Get the settings config object by passing the settings toml file.
      *
      * @param charStream toml file content as a char stream
-     * @return proxy config object
+     * @return settings object
      */
-    public static Proxy getProxyConfig(CharStream charStream) {
-        Proxy proxy = new Proxy();
+    public static Settings getSettings(CharStream charStream) {
+        Settings settings = new Settings();
         ParseTreeWalker walker = new ParseTreeWalker();
-        walker.walk(new ProxyBuildListener(proxy), TomlProcessor.parseTomlContent(charStream));
-        return proxy;
+        walker.walk(new SettingsBuildListener(settings), TomlProcessor.parseTomlContent(charStream));
+        return settings;
     }
 }
