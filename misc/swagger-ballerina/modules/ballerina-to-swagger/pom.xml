@@ -20,7 +20,7 @@
     <parent>
         <artifactId>swagger-ballerina</artifactId>
         <groupId>org.ballerinalang</groupId>
-        <version>0.961.1-SNAPSHOT</version>
+        <version>0.963.1-SNAPSHOT</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
     <modelVersion>4.0.0</modelVersion>
@@ -75,6 +75,12 @@
         <artifactId>composer-ballerina-parser-service</artifactId>
         <version>${project.version}</version>
     </dependency>
+        <dependency>
+        <groupId>io.swagger.parser.v3</groupId>
+        <artifactId>swagger-parser-v2-converter</artifactId>
+        <version>${swagger.parser.v2.converter.version}</version>
+    </dependency>
+
     <dependency>
         <groupId>org.testng</groupId>
         <artifactId>testng</artifactId>

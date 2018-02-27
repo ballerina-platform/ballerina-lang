@@ -1,0 +1,85 @@
+/*******************************
+         Site Overrides
+*******************************/
+
+.ui.form .fields .field .ui.input input, .ui.form .field .ui.input input, .ui.form textarea{
+    background      : @off-white;
+}
+
+.ui.form input[type="text"]:focus{
+    border-color    : @orange ;
+}
+
+.ui.form textarea:focus{
+    border-color    : @orange ;
+}
+
+.ui.selection.dropdown:focus .menu{
+    border-color    : @orange ;
+}
+
+.ui.form .field {
+    .selection.dropdown{
+        border-radius   : 0;
+        background      : @off-white;
+    }
+}
+
+.ui.form .field.error .ui.dropdown{
+    border-radius   : 0;
+    background      : @off-white;
+}
+
+.ui.form input:not([type]):focus, .ui.form input[type="date"]:focus, .ui.form input[type="datetime-local"]:focus,
+ .ui.form input[type="email"]:focus, .ui.form input[type="number"]:focus, .ui.form input[type="password"]:focus,
+ .ui.form input[type="search"]:focus,
+ .ui.form input[type="tel"]:focus, .ui.form input[type="time"]:focus, .ui.form input[type="text"]:focus,
+ .ui.form input[type="file"]:focus, .ui.form input[type="url"]:focus{
+  border-color    : @orange ;
+}
+
+.inverted{
+    .ui.form .fields .field .ui.input input, .ui.form .field .ui.input input, .ui.form textarea{
+        color   : @off-white !important;
+    }
+    .ui .fluid input{
+        background  : #3a3a3a !important;
+        color   : @off-white ;
+    }
+
+    input[type="text"], .ui.compact.selection.dropdown {
+        background  : #3a3a3a !important;
+        color   : @off-white ;
+    }
+    .ui.compact.selection.dropdown{
+        width   : 100% !important;
+        margin  : 0 !important;
+
+        i.dropdown.icon{
+            color   : @off-white ;
+        }
+
+        .ui.selection.active.dropdown .menu{
+            background  : #3a3a3a !important;
+            color   : @off-white ;
+        }
+    }
+    .ui.dropdown .menu {
+        .item{
+            background  : #3a3a3a !important;
+            border: 1px solid #333;
+
+            &:hover{
+                background : #444 !important;
+            }
+        }
+
+    }
+
+    .wide.field:last-child{
+        padding-right: 0 !important;
+    }
+}
+
+
+

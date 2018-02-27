@@ -61,6 +61,8 @@ import org.wso2.transport.http.netty.config.ListenerConfiguration;
 import org.wso2.transport.http.netty.config.Parameter;
 import org.wso2.transport.http.netty.config.RequestSizeValidationConfig;
 import org.wso2.transport.http.netty.contract.HttpResponseFuture;
+import org.wso2.transport.http.netty.contract.HttpWsConnectorFactory;
+import org.wso2.transport.http.netty.contractimpl.DefaultHttpWsConnectorFactory;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 import org.wso2.transport.http.netty.message.HttpMessageDataStreamer;
 
@@ -867,12 +869,11 @@ public class HttpUtil {
         if (isRequest) {
             httpCarbonMessage = new HTTPCarbonMessage(
                     new DefaultHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.GET, ""));
-            httpCarbonMessage.setEndOfMsgAdded(true);
         } else {
             httpCarbonMessage = new HTTPCarbonMessage(
                     new DefaultHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.OK));
-            httpCarbonMessage.setEndOfMsgAdded(true);
         }
+        httpCarbonMessage.completeMessage();
         return httpCarbonMessage;
     }
 
@@ -956,6 +957,10 @@ public class HttpUtil {
         BStruct genericError = new BStruct(errorStructInfo.getType());
         genericError.setStringField(0, errMsg);
         return genericError;
+    }
+
+    public static HttpWsConnectorFactory createHttpWsConnectionFactory() {
+        return new DefaultHttpWsConnectorFactory();
     }
 }
 

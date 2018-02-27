@@ -19,7 +19,7 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Button, Form, FormGroup, FormControl, ControlLabel, Col } from 'react-bootstrap';
+import { Button, Form } from 'semantic-ui-react';
 import { getUserHome } from 'api-client/api-client';
 import ScrollBarsWithContextAPI from './../../view/scroll-bars/ScrollBarsWithContextAPI';
 import Dialog from './../../view/Dialog';
@@ -133,10 +133,10 @@ class FolderOpenDialog extends React.Component {
         return (
             <Dialog
                 show={this.state.showDialog}
-                title="Open Program Directory"
+                title='Open Program Directory'
                 actions={
                     <Button
-                        bsStyle="primary"
+                        primary
                         onClick={this.onFolderOpen}
                         disabled={this.state.folderPath === ''}
                     >
@@ -148,43 +148,30 @@ class FolderOpenDialog extends React.Component {
                 error={this.state.error}
             >
                 <Form
-                    horizontal
+                    widths='equal'
                     onSubmit={(e) => {
-                        e.preventDefault();
+                        this.onFolderOpen();
                     }}
                 >
-                    <FormGroup controlId="folderPath">
-                        <Col componentClass={ControlLabel} sm={2}>
-                            Location
-                        </Col>
-                        <Col sm={10}>
-                            <FormControl
-                                value={this.state.folderPath}
-                                onKeyDown={(e) => {
-                                    if (e.key === 'Enter') {
-                                        this.onFolderOpen();
-                                    } else if (e.key === 'Escape') {
-                                        this.onDialogHide();
-                                    }
-                                }}
-                                onChange={(evt) => {
-                                    this.updateState({
-                                        error: '',
-                                        folderPath: evt.target.value,
-                                        selectedNode: undefined,
-                                    });
-                                }}
-                                type="text"
-                                placeholder="eg: /home/user/ballerina-services/routing"
-                            />
-                        </Col>
-                    </FormGroup>
+                    <Form.Group controlId='folderPath'>
+                        <Form.Input
+                            fluid
+                            value={this.state.folderPath}
+                            label='Location'
+                            onChange={(evt) => {
+                                this.updateState({
+                                    error: '',
+                                    folderPath: evt.target.value,
+                                    selectedNode: undefined,
+                                });
+                            }}
+                            placeholder='eg: /home/user/ballerina-services/routing'
+                        />
+                    </Form.Group>
                 </Form>
                 <ScrollBarsWithContextAPI
                     style={{
-                        margin: '15px 0 15px 40px',
-                        width: 608,
-                        height: 500,
+                        height: 300,
                     }}
                     autoHide
                 >
