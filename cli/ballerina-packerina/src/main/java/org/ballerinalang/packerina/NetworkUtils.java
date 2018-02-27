@@ -33,10 +33,10 @@ import org.ballerinalang.util.program.BLangFunctions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -75,9 +75,12 @@ public class NetworkUtils {
      */
     public static void pullPackages(String resourceName, String ballerinaCentralURL) {
         compileResult = compileBalFile("ballerina.pull");
+
         String host = getHost(ballerinaCentralURL);
-        Path targetDirectoryPath = UserRepositoryUtils.initializeUserRepository().resolve("caches").
-                resolve(host);
+        Path cacheDir = Paths.get("caches").resolve(host);
+
+        // target directory path to .ballerina/cache
+        Path targetDirectoryPath = UserRepositoryUtils.initializeUserRepository().resolve(cacheDir);
 
         int indexOfSlash = resourceName.indexOf("/");
         String orgName = resourceName.substring(0, indexOfSlash);
@@ -86,18 +89,50 @@ public class NetworkUtils {
         int indexOfColon = pkgNameWithVersion.indexOf(":");
         String pkgName = pkgNameWithVersion.substring(0, indexOfColon);
         String pkgVersion = pkgNameWithVersion.substring(indexOfColon + 1);
-        targetDirectoryPath = targetDirectoryPath.resolve(orgName).resolve(pkgName).resolve(pkgVersion).resolve("src");
 
-        // Create the target directories
+        Path fullPathOfPkg = Paths.get(orgName).resolve(pkgName).resolve(pkgVersion).resolve("src");
+
+        targetDirectoryPath = targetDirectoryPath.resolve(fullPathOfPkg);
         createDirectories(targetDirectoryPath);
-        String dstPath = targetDirectoryPath + File.separator;
+        String dstPath = targetDirectoryPath.toString();
+
+        // Get the current directory path to check if the user is pulling a package from inside a project directory
+        Path currentDirPath = Paths.get(".").toAbsolutePath().normalize();
+        String currentProjectPath = null;
+        if (ballerinaTomlExists(currentDirPath)) {
+            Path projectDestDirectoryPath = Paths.get(currentDirPath.toString()).resolve(cacheDir)
+                    .resolve(fullPathOfPkg);
+            createDirectories(projectDestDirectoryPath);
+            currentProjectPath = projectDestDirectoryPath.toString();
+        }
+
         String pkgPath = Paths.get(orgName).resolve(pkgName).resolve(pkgVersion).toString();
         String resourcePath = ballerinaCentralURL + pkgPath;
         String[] proxyConfigs = readProxyConfigurations();
-        String[] arguments = new String[]{resourcePath, dstPath, pkgName};
+        String[] arguments = new String[]{resourcePath, dstPath, pkgName, currentProjectPath};
         arguments = Stream.concat(Arrays.stream(arguments), Arrays.stream(proxyConfigs))
                 .toArray(String[]::new);
         LauncherUtils.runMain(compileResult.getProgFile(), arguments);
+    }
+
+    /**
+     * Check if Ballerina.toml exists in the current directory that the pull command is executed, to
+     * verify that its from a project directory
+     *
+     * @param currentDirPath path of the current directory
+     * @return true if Ballerina.toml exists, else false
+     */
+    private static boolean ballerinaTomlExists(Path currentDirPath) {
+        try (DirectoryStream<Path> directoryStream = Files.newDirectoryStream(Paths.get(currentDirPath.toString()))) {
+            for (Path path : directoryStream) {
+                if ("Ballerina.toml".equals(path.getFileName().toString())) {
+                    return true;
+                }
+            }
+        } catch (IOException ex) {
+            return false;
+        }
+        return false;
     }
 
     /**
@@ -138,7 +173,7 @@ public class NetworkUtils {
      */
     public static void pushPackages(String packageName, String ballerinaCentralURL) {
         compileResult = compileBalFile("ballerina.push");
-        
+
         // Get the org-name and version by reading Ballerina.toml inside the project
         Manifest manifest = readManifestConfigurations();
         if (manifest.getName() != null && manifest.getVersion() != null) {
@@ -180,16 +215,12 @@ public class NetworkUtils {
      * @return settings object
      */
     private static Settings readSettings() {
-        File cliTomlFile = new File(UserRepositoryUtils.initializeUserRepository().toString()
-                + File.separator + "Settings.toml");
-        if (cliTomlFile.exists()) {
-            try {
-                return SettingsProcessor.parseTomlContentFromFile(cliTomlFile.toString());
-            } catch (IOException e) {
-                return new Settings();
-            }
+        String tomlFilePath = UserRepositoryUtils.initializeUserRepository().resolve("Settings.toml").toString();
+        try {
+            return SettingsProcessor.parseTomlContentFromFile(tomlFilePath);
+        } catch (IOException e) {
+            return new Settings();
         }
-        return new Settings();
     }
 
     /**
