@@ -46,7 +46,9 @@ public class ActionDefinition extends CompletionTest {
                 {"enumSuggestAssignment1.json", "action"},
                 {"enumSuggestAssignment2.json", "action"},
                 {"enumSuggestVarDef1.json", "action"},
-                {"enumSuggestVarDef2.json", "action"}
+                {"enumSuggestVarDef2.json", "action"},
+                {"structFields.json", "action"},
+                {"structBoundFunctionsAndFields.json", "action"},
         };
     }
 }

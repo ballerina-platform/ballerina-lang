@@ -21,6 +21,7 @@ package org.ballerinalang.net.http;
 import org.ballerinalang.connector.api.BallerinaConnectorException;
 import org.ballerinalang.net.uri.DispatcherUtil;
 import org.ballerinalang.net.uri.URITemplateException;
+import org.wso2.transport.http.netty.message.EmptyLastHttpContent;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 
 import java.util.HashMap;
@@ -85,7 +86,7 @@ public class HTTPResourceDispatcher {
         }
         CorsHeaderGenerator.process(cMsg, response, false);
         response.setProperty(HttpConstants.HTTP_STATUS_CODE, 200);
-        response.setEndOfMsgAdded(true);
+        response.addHttpContent(new EmptyLastHttpContent());
         HttpUtil.sendOutboundResponse(cMsg, response);
     }
 }

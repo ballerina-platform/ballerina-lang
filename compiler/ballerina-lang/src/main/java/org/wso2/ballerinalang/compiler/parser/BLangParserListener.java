@@ -2127,7 +2127,8 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
 
-        this.pkgBuilder.endSelectExpressionNode(ctx.Identifier().getText(), getCurrentPos(ctx), getWS(ctx));
+        String identifier = ctx.Identifier() == null ? null : ctx.Identifier().getText();
+        this.pkgBuilder.endSelectExpressionNode(identifier, getCurrentPos(ctx), getWS(ctx));
     }
 
     @Override

@@ -37,6 +37,9 @@ public class BLangTableQuery extends BLangNode implements TableQuery {
     private SelectClauseNode selectClauseNode;
     private OrderByNode orderByNode;
 
+    //This will be generated in desugar phase
+    private String sqlQuery;
+
     @Override
     public void setStreamingInput(StreamingInput streamingInput) {
         this.streamingInput = streamingInput;
@@ -85,5 +88,13 @@ public class BLangTableQuery extends BLangNode implements TableQuery {
     @Override
     public NodeKind getKind() {
         return NodeKind.TABLE_QUERY;
+    }
+
+    public String getSqlQuery() {
+        return sqlQuery;
+    }
+
+    public void setSqlQuery(String sqlQuery) {
+        this.sqlQuery = sqlQuery;
     }
 }

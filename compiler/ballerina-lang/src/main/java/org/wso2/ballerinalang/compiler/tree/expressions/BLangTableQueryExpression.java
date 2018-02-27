@@ -30,6 +30,9 @@ public class BLangTableQueryExpression extends BLangExpression implements TableQ
 
     private TableQuery tableQuery;
 
+    //This will be generated in desugar phase
+    private String sqlQuery;
+
     @Override
     public void setTableQuery(TableQuery tableQuery) {
         this.tableQuery = tableQuery;
@@ -48,5 +51,13 @@ public class BLangTableQueryExpression extends BLangExpression implements TableQ
     @Override
     public NodeKind getKind() {
         return NodeKind.TABLE_QUERY_EXPRESSION;
+    }
+
+    public String getSqlQuery() {
+        return sqlQuery;
+    }
+
+    public void setSqlQuery(String sqlQuery) {
+        this.sqlQuery = sqlQuery;
     }
 }

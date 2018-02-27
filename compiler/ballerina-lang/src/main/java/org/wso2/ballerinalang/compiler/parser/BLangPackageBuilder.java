@@ -2123,9 +2123,13 @@ public class BLangPackageBuilder {
     }
 
     public void addTableQueryExpression(DiagnosticPos pos, Set<Whitespace> ws) {
+        if (this.tableQueriesStack.empty()) {
+            throw new IllegalStateException("Table query cannot be empty when processing a table query expression");
+        }
         TableQueryExpression tableQueryExpression = TreeBuilder.createTableQueryExpression();
         ((BLangTableQueryExpression) tableQueryExpression).pos = pos;
         ((BLangTableQueryExpression) tableQueryExpression).addWS(ws);
+        tableQueryExpression.setTableQuery(tableQueriesStack.pop());
         this.exprNodeStack.push(tableQueryExpression);
     }
 

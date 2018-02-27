@@ -23,6 +23,8 @@ import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BCastOperatorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConversionOperatorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BStructSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BStructSymbol.BAttachedFunction;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BAnyType;
@@ -38,7 +40,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamletType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStructType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BStructType.BAttachedFunction;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStructType.BStructField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
@@ -224,6 +225,10 @@ public class Types {
             }
         }
 
+        if (source.tag == TypeTags.STRUCT && target.tag == TypeTags.STRUCT) {
+            return checkStructEquivalency(source, target);
+        }
+
         return source.tag == TypeTags.ARRAY && target.tag == TypeTags.ARRAY &&
                 isArrayTypesAssignable(source, target);
     }
@@ -270,15 +275,17 @@ public class Types {
         }
 
         for (int i = 0; i < source.paramTypes.size(); i++) {
-            if (target.paramTypes.get(i).tag != TypeTags.ANY && !isSameType(source.paramTypes.get(i),
-                    target.paramTypes.get(i))) {
+            if (target.paramTypes.get(i).tag != TypeTags.ANY
+                    && !isSameType(source.paramTypes.get(i), target.paramTypes.get(i))
+                    && !isAssignable(source.paramTypes.get(i), target.paramTypes.get(i))) {
                 return false;
             }
         }
 
         for (int i = 0; i < source.retTypes.size(); i++) {
-            if (target.retTypes.get(i).tag != TypeTags.ANY && !isSameType(source.retTypes.get(i),
-                    target.retTypes.get(i))) {
+            if (target.retTypes.get(i).tag != TypeTags.ANY
+                    && !isSameType(source.retTypes.get(i), target.retTypes.get(i))
+                    && !isAssignable(source.retTypes.get(i), target.retTypes.get(i))) {
                 return false;
             }
         }
@@ -321,8 +328,10 @@ public class Types {
         //RHS type should have at least all the fields as well attached functions of LHS type.
         BStructType lhsStructType = (BStructType) lhsType;
         BStructType rhsStructType = (BStructType) rhsType;
+
         if (lhsStructType.fields.size() > rhsStructType.fields.size() ||
-                lhsStructType.attachedFuncs.size() > rhsStructType.attachedFuncs.size()) {
+                ((BStructSymbol) lhsStructType.tsymbol).attachedFuncs.size() >
+                        ((BStructSymbol) rhsStructType.tsymbol).attachedFuncs.size()) {
             return false;
         }
 
@@ -982,8 +991,8 @@ public class Types {
             return false;
         }
 
-        List<BAttachedFunction> lhsFuncs = lhsType.attachedFuncs;
-        List<BAttachedFunction> rhsFuncs = rhsType.attachedFuncs;
+        List<BAttachedFunction> lhsFuncs = ((BStructSymbol) lhsType.tsymbol).attachedFuncs;
+        List<BAttachedFunction> rhsFuncs = ((BStructSymbol) rhsType.tsymbol).attachedFuncs;
         for (BAttachedFunction lhsFunc : lhsFuncs) {
             BAttachedFunction rhsFunc = getMatchingInvokableType(rhsFuncs, lhsFunc);
             if (rhsFunc == null) {
@@ -1017,8 +1026,8 @@ public class Types {
             }
         }
 
-        List<BAttachedFunction> lhsFuncs = lhsType.attachedFuncs;
-        List<BAttachedFunction> rhsFuncs = rhsType.attachedFuncs;
+        List<BAttachedFunction> lhsFuncs = ((BStructSymbol) lhsType.tsymbol).attachedFuncs;
+        List<BAttachedFunction> rhsFuncs = ((BStructSymbol) rhsType.tsymbol).attachedFuncs;
         for (BAttachedFunction lhsFunc : lhsFuncs) {
             if (Symbols.isPrivate(lhsFunc.symbol)) {
                 return false;
@@ -1044,7 +1053,7 @@ public class Types {
                                                        BAttachedFunction lhsFunc) {
         return rhsFuncList.stream()
                 .filter(rhsFunc -> lhsFunc.funcName.equals(rhsFunc.funcName))
-                .filter(rhsFunc -> checkFunctionTypeEquality(lhsFunc.type, rhsFunc.type))
+                .filter(rhsFunc -> checkFunctionTypeEquality(rhsFunc.type, lhsFunc.type))
                 .findFirst()
                 .orElse(null);
     }
