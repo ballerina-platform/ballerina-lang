@@ -22,6 +22,7 @@ import { invokeTryIt, getTryItUrl } from 'api-client/api-client';
 import cn from 'classnames';
 import AceEditor from 'react-ace';
 import { DropdownButton, MenuItem } from 'react-bootstrap';
+import { Container, Grid, Form, Item, Button, Message, Divider } from 'semantic-ui-react';
 import copy from 'copy-to-clipboard';
 import AutoSuggest from 'plugins/ballerina/diagram/views/default/components/decorators/autosuggest-html';
 import PropTypes from 'prop-types';
@@ -649,70 +650,87 @@ class HttpClient extends React.Component {
             const servicesDropdown = this.renderServicesDropdown();
             const resourceDropdown = this.renderResourcesDropdown();
 
-            return (<div className='row http-client-main-wrapper'>
-                <div className='main-wrapper-top'>
-                    <div className='http-client-request-method-wrapper'>
-                        <AutoSuggest
-                            items={this.state.httpMethods}
-                            onSuggestionSelected={this.onHttpMethodSelected}
-                            onChange={this.onHttpMethodChanged}
-                            disableAutoFocus
-                            initialValue={this.state.httpMethod}
-                            showAllAtStart
-                            alwaysRenderSuggestions
-                            renderInputComponent={this.renderInputComponent}
-                        />
-                    </div>
-                    <span className='http-method-separator'>|</span>
-                    <div className='http-client-request-url'>
-                        {httpBaseUrl}
-                    </div>
-                    <span className='url-separator'>/</span>
-                    <div className='selectors service-selector'>
-                        {servicesDropdown}
-                    </div>
-                    <span className='url-separator'>/</span>
-                    <div className='selectors resource-selector'>
-                        {resourceDropdown}
-                    </div>
-                </div>
-                <div className='main-wrapper-bottom'>
-                    <div className='http-client-request-url'>
-                        {httpBaseUrl}
-                    </div>
-                    <div className='input-group'>
-                        <input
-                            className='http-client-path form-control'
-                            type='text'
-                            value={this.state.appendUrl}
-                            onChange={this.onAppendUrlChange}
-                        />
-                        <span className='input-group-btn'> {sendOrCancelButton} </span>
-                        <div
-                            className='copy-url-wrapper'
-                            title='Copy URL'
-                            onClick={() => {
-                                copy(`${httpBaseUrl}${this.state.appendUrl}`);
-                                this.setState({
-                                    showCopyUrlNotification: true,
-                                });
-                            }}
-                            onMouseLeave={() => {
-                                this.setState({
-                                    showCopyUrlNotification: false,
-                                });
-                            }}
-                        >
-                            <i className='fw fw-copy-link' />
-                            <div
-                                className={cn('copy-url-notification', { hide: !this.state.showCopyUrlNotification })}
-                            >
-                                URL Copied !
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>);
+            return (
+                <Grid>
+                    <Grid.Row className='http-client-main-wrapper'>
+                        <Grid.Column>
+                            <Item.Group>
+                                <Item>
+                                    <Item.Content>
+                                        <Form>
+                                            <Form.Group className='main-wrapper-top'>
+                                                <Form.Field width={3}>
+                                                    <div className='http-client-request-method-wrapper'>
+                                                        <AutoSuggest
+                                                            items={this.state.httpMethods}
+                                                            onSuggestionSelected={this.onHttpMethodSelected}
+                                                            onChange={this.onHttpMethodChanged}
+                                                            disableAutoFocus
+                                                            initialValue={this.state.httpMethod}
+                                                            showAllAtStart
+                                                            alwaysRenderSuggestions
+                                                            renderInputComponent={this.renderInputComponent}
+                                                        />
+                                                    </div>
+                                                </Form.Field>
+                                                <Form.Field className='http-method-container' width={13}>
+                                                    <span className='http-method-separator'>|</span>
+                                                    <div className='http-client-request-url'>
+                                                        {httpBaseUrl}
+                                                    </div>
+                                                    <span className='url-separator'>/</span>
+                                                    <div className='selectors service-selector'>
+                                                        {servicesDropdown}
+                                                    </div>
+                                                    <span className='url-separator'>/</span>
+                                                    <div className='selectors resource-selector'>
+                                                        {resourceDropdown}
+                                                    </div>
+                                                </Form.Field>
+                                            </Form.Group>
+                                        </Form>
+                                    </Item.Content>
+                                </Item>
+                                <Item className='main-wrapper-bottom'>
+                                    <div className='http-client-request-url'>
+                                        {httpBaseUrl}
+                                    </div>
+                                    <Form.Group className='http-client-path-container'>
+                                        <input
+                                            className='http-client-path form-control'
+                                            type='text'
+                                            value={this.state.appendUrl}
+                                            onChange={this.onAppendUrlChange}
+                                        />
+                                        {sendOrCancelButton}
+                                        <div
+                                            className='copy-url-wrapper'
+                                            title='Copy URL'
+                                            onClick={() => {
+                                                copy(`${httpBaseUrl}${this.state.appendUrl}`);
+                                                this.setState({
+                                                    showCopyUrlNotification: true,
+                                                });
+                                            }}
+                                            onMouseLeave={() => {
+                                                this.setState({
+                                                    showCopyUrlNotification: false,
+                                                });
+                                            }}
+                                        >
+                                            <i className='fw fw-copy-link' />
+                                            <div
+                                                className={cn('copy-url-notification', { hide: !this.state.showCopyUrlNotification })}
+                                            >
+                                                URL Copied !
+                                            </div>
+                                        </div>
+                                    </Form.Group>
+                                </Item>
+                            </Item.Group>
+                        </Grid.Column>
+                    </Grid.Row>
+                </Grid>);
         } else {
             return (null);
         }
@@ -725,12 +743,12 @@ class HttpClient extends React.Component {
      */
     renderSendOrCancelButton() {
         if (this.state.waitingForResponse === false) {
-            return (<button onClick={this.onInvoke} className='btn btn-success' type='button'>Send</button>);
+            return (<Button className='send-request' onClick={this.onInvoke} >Send</Button>);
         } else {
-            return (<button onClick={this.onInvokeCancel} className='btn btn-cancel' type='button'>
+            return (<Button className='cancel-request' onClick={this.onInvokeCancel} >
                 <i className='fw fw-loader5 fw-spin fw-1x' />
                 <span>Cancel</span>
-            </button>);
+            </Button>);
         }
     }
 
@@ -741,35 +759,39 @@ class HttpClient extends React.Component {
      */
     renderRequestHeaders() {
         return this.state.requestHeaders.map((header) => {
-            return (<div key={`${header.id}`} className='form-inline'>
-                <input
-                    key={`key-${header.id}`}
-                    ref={(ref) => {
-                        if (header.key === '' && header.value === '') {
-                            this.headerKey = ref;
-                        }
-                    }}
-                    placeholder='Key'
-                    type='text'
-                    className='header-input form-control'
-                    value={header.key}
-                    onChange={e => this.onHeaderKeyChange(header.value, e)}
-                    onBlur={() => { this.focusTarget = undefined; }}
-                    readOnly
-                />
-                :
-                <input
-                    key={`value-${header.id}`}
-                    placeholder='Value'
-                    type='text'
-                    className='header-input form-control'
-                    value={header.value}
-                    onChange={e => this.onHeaderValueChange(header.key, e)}
-                    onBlur={() => { this.focusTarget = undefined; }}
-                    onKeyDown={this.onHeaderValueKeyDown}
-                />
-                <i className='fw fw-delete' onClick={() => this.onHeaderDelete(header.key)} />
-            </div>);
+            return ([
+                (<Form.Field key={`${header.id}`} width={7}>
+                    <input
+                        key={`key-${header.id}`}
+                        ref={(ref) => {
+                            if (header.key === '' && header.value === '') {
+                                this.headerKey = ref;
+                            }
+                        }}
+                        placeholder='Key'
+                        type='text'
+                        className='header-input form-control'
+                        value={header.key}
+                        onChange={e => this.onHeaderKeyChange(header.value, e)}
+                        onBlur={() => { this.focusTarget = undefined; }}
+                        readOnly
+                    />
+                </Form.Field>),
+                (<Form.Field width={7}>
+                    <input
+                        key={`value-${header.id}`}
+                        placeholder='Value'
+                        type='text'
+                        className='header-input form-control'
+                        value={header.value}
+                        onChange={e => this.onHeaderValueChange(header.key, e)}
+                        onBlur={() => { this.focusTarget = undefined; }}
+                        onKeyDown={this.onHeaderValueKeyDown}
+                    />
+                </Form.Field>),
+                (<Form.Field width={2}>
+                    <i className='fw fw-delete' onClick={() => this.onHeaderDelete(header.key)} />
+                </Form.Field>)]);
         });
     }
 
@@ -805,153 +827,189 @@ class HttpClient extends React.Component {
         const requestHeaders = this.renderRequestHeaders();
         const mainControlComponent = this.renderMainControlComponent();
         const contentTypesControl = this.renderContentTypes();
-        return (<div className='container-fluid'>
-            {mainControlComponent}
-            <div className='row http-client-wrapper'>
-                <div className='http-client-request'>
-                    <h3>Request</h3>
-                    <hr />
-                    <div className='form-horizontal'>
-                        <div className='form-group http-client-content-type-wrapper'>
-                            <span className='col-sm-2 control-label'>Content-Type : </span>
-                            <div className='col-sm-10'>
-                                {contentTypesControl}
-                            </div>
-                        </div>
-                        <div className='http-client-headers-wrapper'>
-                            <span className='section-header'>Headers</span>
-                            <hr />
-                            <div className='current-headers'>
-                                {requestHeaders}
-                            </div>
-                        </div>
-                        <div className='http-client-body-wrapper'>
-                            <span className='section-header'>Body</span>
-                            <hr />
-                            <div className='ACE-editor-wrapper'>
-                                <AceEditor
-                                    mode={this.getRequestBodyMode()}
-                                    theme='monokai'
-                                    onChange={this.onRequestBodyChange}
-                                    value={this.state.requestBody}
-                                    name='RequestBody'
-                                    editorProps={{
-                                        $blockScrolling: Infinity,
-                                    }}
-                                    setOptions={{
-                                        showLineNumbers: false,
-                                    }}
-                                    maxLines={Infinity}
-                                    minLines={10}
-                                    width='auto'
-                                    showPrintMargin={false}
-                                />
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div className='http-client-response'>
-                    <h3>Response</h3>
-                    <hr />
-                    <div className='http-client-response-attributes'>
-                        <strong>Request URL :
-                            <span className={cn('attribute-value', this.getStatusCodeClass(this.state.responseCode))}>
-                                {this.state.requestUrl}
-                            </span>
-                        </strong>
-                        <br />
-                        <strong>Reponse Code :
-                            <span className={cn('attribute-value', this.getStatusCodeClass(this.state.responseCode))}>
-                                {this.state.responseCode}
-                            </span>
-                        </strong>
-                        <br />
-                        <strong>Request HTTP Method :
-                            <span className={cn('attribute-value', this.getStatusCodeClass(this.state.responseCode))}>
-                                {this.state.responseHttpMethod}
-                            </span>
-                        </strong>
-                        <br />
-                        <strong>Time Consumed :
-                            <span className={cn('attribute-value', this.getStatusCodeClass(this.state.responseCode))}>
-                                {this.state.timeConsumed} ms
-                            </span>
-                        </strong>
-                    </div>
-                    <div className='http-client-response-content'>
-                        <div className='header-wrapper'>
-                            <div className='header-title section-header'>Headers</div>
-                            <div className='header-content'>
-                                <div className='response-headers'>
-                                    <span className='response-header-title'>Response Headers</span>
-                                    {this.state.responseHeaders.length > 0 ? (
-                                        <div>
-                                            {
-                                        Object.entries(JSON.parse(this.state.responseHeaders)).map(([key, value]) => {
-                                            return (<div className='header-attribute' key={`response-${key}`}>
-                                                <div className='key'>{key}</div>
-                                                    :
-                                                <div className='value'>{value}</div>
-                                            </div>);
-                                        })}
-                                        </div>
-                                    ) : (
-                                        <div className='try-it-message message message-warning'>
-                                            <p> <i className='icon fw fw-warning' />
-                                                Hit the send button to see the headers. </p>
-                                        </div>
-                                        )}
+        return (
+            <Container fluid>
+                {mainControlComponent}
+                <Grid>
+                    <Grid.Row className='http-client-wrapper'>
+                        <Grid.Column width={8}>
+                            <Item.Group>
+                                <Item>
+                                    <div className='http-client-request'>
+                                        <Item.Content>
+                                            <Item.Header >Request</Item.Header>
+                                            <Divider />
+                                            <Form>
+                                                <Form.Group>
+                                                    <Form.Field className='http-client-content-type-wrapper'>
+                                                        <label>Content-Type : </label>
+                                                        <div>
+                                                            {contentTypesControl}
+                                                        </div>
+                                                    </Form.Field>
+                                                </Form.Group>
+                                                <Form.Group>
+                                                    <Form.Field width={16}>
+                                                        <span className='section-header'>Headers</span>
+                                                        <Divider />
+                                                        <div className='current-headers'>
+                                                            <Form.Group width={16}>
+                                                                {requestHeaders}
+                                                            </Form.Group>
+                                                        </div>
+                                                    </Form.Field>
+                                                </Form.Group>
+                                                <Form.Group>
+                                                    <Form.Field className='http-client-body-wrapper'>
+                                                        <label>Body</label>
+                                                        <Divider />
+                                                        <div className='ACE-editor-wrapper'>
+                                                            <AceEditor
+                                                                mode={this.getRequestBodyMode()}
+                                                                theme='monokai'
+                                                                onChange={this.onRequestBodyChange}
+                                                                value={this.state.requestBody}
+                                                                name='RequestBody'
+                                                                editorProps={{
+                                                                    $blockScrolling: Infinity,
+                                                                }}
+                                                                setOptions={{
+                                                                    showLineNumbers: false,
+                                                                }}
+                                                                maxLines={Infinity}
+                                                                minLines={10}
+                                                                width='auto'
+                                                                showPrintMargin={false}
+                                                            />
+                                                        </div>
+                                                    </Form.Field>
+                                                </Form.Group>
+                                            </Form>
+                                        </Item.Content>
+                                    </div>
+                                </Item>
+                            </Item.Group>
+                        </Grid.Column>
+                        <Grid.Column width={8}>
+                            <Item.Group>
+                                <Item>
+                                    <div className='http-client-request'>
+                                        <Item.Content>
+                                            <Item.Header >Response</Item.Header>
+                                            <Divider />
+                                            <Form>
+                                                <Form.Group>
+                                                    <Form.Field className='http-client-response-attributes'>
+                                                        <strong>Request URL :
+                                                            <span className={cn('attribute-value', this.getStatusCodeClass(this.state.responseCode))}>
+                                                                {this.state.requestUrl}
+                                                            </span>
+                                                        </strong>
+                                                        <strong>Reponse Code :
+                                                            <span className={cn('attribute-value', this.getStatusCodeClass(this.state.responseCode))}>
+                                                                {this.state.responseCode}
+                                                            </span>
+                                                        </strong>
+                                                        <strong>Request HTTP Method :
+                                                            <span className={cn('attribute-value', this.getStatusCodeClass(this.state.responseCode))}>
+                                                                {this.state.responseHttpMethod}
+                                                            </span>
+                                                        </strong>
+                                                        <strong>Time Consumed :
+                                                            <span className={cn('attribute-value', this.getStatusCodeClass(this.state.responseCode))}>
+                                                                {this.state.timeConsumed} ms
+                                                            </span>
+                                                        </strong>
+                                                    </Form.Field>
+                                                </Form.Group>
+                                                <Form.Group>
+                                                    <Form.Field className='http-client-response-content'>
+                                                        <div className='header-wrapper'>
+                                                            <div className='header-title section-header'>Headers</div>
+                                                            <div className='header-content'>
+                                                                <div className='response-headers'>
+                                                                    <span className='response-header-title'>Response Headers</span>
+                                                                    {this.state.responseHeaders.length > 0 ? (
+                                                                        <div>
+                                                                            {
+                                                                        Object.entries(JSON.parse(this.state.responseHeaders)).map(([key, value]) => {
+                                                                            return (<div className='header-attribute' key={`response-${key}`}>
+                                                                                <div className='key'>{key}</div>
+                                                                                    :
+                                                                                <div className='value'>{value}</div>
+                                                                            </div>);
+                                                                        })}
+                                                                        </div>
+                                                                    ) : (
+                                                                        <Message
+                                                                            warning
+                                                                            list={[
+                                                                                'Hit the send button to see the headers.',
+                                                                            ]}
+                                                                        />
+                                                                        )}
 
-                                </div>
-                                <div className='request-headers'>
-                                    <span className='request-headers-title'>Request Headers</span>
-                                    {this.state.returnedRequestHeaders.length > 0 ? (
-                                        <div>
-                                            {
-                                Object.entries(JSON.parse(this.state.returnedRequestHeaders)).map(([key, value]) => {
-                                    return (<div className='header-attribute' key={`returned-request-${key}`}>
-                                        <div className='key'>{key}</div>
-                                            :
-                                        <div className='value'>{value}</div>
-                                    </div>);
-                                })}
-                                        </div>
-                                    ) : (
-                                        <div className='try-it-message message message-warning'>
-                                            <p><i className='icon fw fw-warning' />
-                                                Hit the send button to see the headers.</p>
-                                        </div>
-                                        )}
-                                </div>
-                            </div>
-                        </div>
-                        <div className='response-body-wrapper'>
-                            <div className='body-title section-header'>Body</div>
-                            <hr />
-                            <div className='body-content'>
-                                <AceEditor
-                                    mode={this.getResponseBodyMode()}
-                                    theme='monokai'
-                                    name='ResponseBody'
-                                    value={this.state.responseBody}
-                                    editorProps={{
-                                        $blockScrolling: Infinity,
-                                    }}
-                                    setOptions={{
-                                        showLineNumbers: false,
-                                    }}
-                                    maxLines={Infinity}
-                                    minLines={10}
-                                    readOnly
-                                    width='auto'
-                                    showPrintMargin={false}
-                                />
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>);
+                                                                </div>
+                                                                <div className='request-headers'>
+                                                                    <span className='request-headers-title'>Request Headers</span>
+                                                                    {this.state.returnedRequestHeaders.length > 0 ? (
+                                                                        <div>
+                                                                            {
+                                                                Object.entries(JSON.parse(this.state.returnedRequestHeaders)).map(([key, value]) => {
+                                                                    return (<div className='header-attribute' key={`returned-request-${key}`}>
+                                                                        <div className='key'>{key}</div>
+                                                                            :
+                                                                        <div className='value'>{value}</div>
+                                                                    </div>);
+                                                                })}
+                                                                        </div>
+                                                                    ) : (
+                                                                        <Message
+                                                                            warning
+                                                                            list={[
+                                                                                'Hit the send button to see the headers.',
+                                                                            ]}
+                                                                        />
+                                                                        )}
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </Form.Field>
+                                                </Form.Group>
+                                                <Form.Group>
+                                                    <Form.Field className='http-client-response-attributes'>
+                                                        <label>Body</label>
+                                                        <Divider />
+                                                        <div className='body-content'>
+                                                            <AceEditor
+                                                                mode={this.getResponseBodyMode()}
+                                                                theme='monokai'
+                                                                name='ResponseBody'
+                                                                value={this.state.responseBody}
+                                                                editorProps={{
+                                                                    $blockScrolling: Infinity,
+                                                                }}
+                                                                setOptions={{
+                                                                    showLineNumbers: false,
+                                                                }}
+                                                                maxLines={Infinity}
+                                                                minLines={10}
+                                                                readOnly
+                                                                width='auto'
+                                                                showPrintMargin={false}
+                                                            />
+                                                        </div>
+                                                    </Form.Field>
+                                                </Form.Group>
+                                            </Form>
+                                        </Item.Content>
+                                    </div>
+                                </Item>
+                            </Item.Group>
+                        </Grid.Column>
+                    </Grid.Row>
+                </Grid>
+            </Container>);
     }
 }
 
