@@ -30,6 +30,8 @@ import org.ballerinalang.util.transactions.TransactionResourceManager;
 
 /**
  * Native function ballerina.transactions.coordinator:commitResourceManagers.
+ *
+ * @since 0.964.0
  */
 @BallerinaFunction(
         packageName = "ballerina.transactions.coordinator",

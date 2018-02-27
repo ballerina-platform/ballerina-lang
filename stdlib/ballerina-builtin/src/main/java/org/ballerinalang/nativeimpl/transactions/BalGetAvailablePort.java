@@ -30,6 +30,8 @@ import java.net.ServerSocket;
 
 /**
  * Native function ballerina.transactions.coordinator:getAvailablePort.
+ *
+ * @since 0.964.0
  */
 @BallerinaFunction(
         packageName = "ballerina.transactions.coordinator",

@@ -21,6 +21,8 @@ import javax.transaction.xa.Xid;
 
 /**
  * Represents unique id for distributed transactions.
+ *
+ * @since 0.964.0
  */
 public class XATransactionID implements Xid {
 

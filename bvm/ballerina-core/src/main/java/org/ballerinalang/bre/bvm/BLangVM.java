@@ -2694,7 +2694,7 @@ public class BLangVM {
         }
         LocalTransactionInfo localTransactionInfo = context.getLocalTransactionInfo();
         if (localTransactionInfo == null) {
-            localTransactionInfo = getTransactionInfo();
+            localTransactionInfo = createTransactionInfo();
             context.setLocalTransactionInfo(localTransactionInfo);
         } else {
             notifyTransactionBegin(localTransactionInfo.getGlobalTransactionId(), localTransactionInfo.getURL(),
@@ -2703,11 +2703,11 @@ public class BLangVM {
         localTransactionInfo.beginTransactionBlock(transactionId, retryCount);
     }
 
-    private LocalTransactionInfo getTransactionInfo() {
+    private LocalTransactionInfo createTransactionInfo() {
         BValue[] returns = notifyTransactionBegin(null, null, TransactionConstants.DEFAULT_COORDINATION_TYPE);
         //Check if error occurs during registration
         if (returns[1] != null) {
-            throw new BallerinaException("error in transaction start"); //TODO add error cause
+            throw new BallerinaException("error in transaction start: " + ((BStruct) returns[1]).getStringField(0));
         }
         BStruct txDataStruct = (BStruct) returns[0];
         String transactionId = txDataStruct.getStringField(1);
@@ -2761,7 +2761,7 @@ public class BLangVM {
         BValue[] args = { new BString(globalTransactionId) };
         BValue[] returns = invokeCoordinatorFunction(TransactionConstants.COORDINATOR_END_TRANSACTION, args);
         if (returns[1] != null) {
-            throw new BallerinaException("error in transaction end"); //TODO add error details
+            throw new BallerinaException("error in transaction end: " + ((BStruct) returns[1]).getStringField(0));
         }
     }
 

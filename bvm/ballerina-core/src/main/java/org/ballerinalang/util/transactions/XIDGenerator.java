@@ -22,6 +22,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Generates XID for the distributed transactions.
+ *
+ * @since 0.964.0
  */
 public class XIDGenerator {
 

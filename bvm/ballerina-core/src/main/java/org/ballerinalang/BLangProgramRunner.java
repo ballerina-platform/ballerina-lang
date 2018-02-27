@@ -100,7 +100,7 @@ public class BLangProgramRunner {
         BLangFunctions.invokeFunction(programFile, serviceInfo.getInitFunctionInfo(), bContext);
         if (bContext.getError() != null) {
             String stackTraceStr = BLangVMErrors.getPrintableStackTrace(bContext.getError());
-            throw new BLangRuntimeException("error: " + stackTraceStr);
+            throw new BLangRuntimeException("error in deploying service: " + stackTraceStr);
         }
 
         // Deploy service

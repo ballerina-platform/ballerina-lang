@@ -125,6 +125,35 @@ public class SQLTransactionsTest {
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 1);
     }
 
+    @Test(groups = "TransactionTest")
+    public void testNestedTwoLevelTransactonSuccess() {
+        BValue[] returns = BRunUtil.invoke(result, "testNestedTwoLevelTransactonSuccess");
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 0);
+        Assert.assertEquals(((BInteger) returns[1]).intValue(), 2);
+    }
+
+    @Test(groups = "TransactionTest")
+    public void testNestedThreeLevelTransactonSuccess() {
+        BValue[] returns = BRunUtil.invoke(result, "testNestedThreeLevelTransactonSuccess");
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 0);
+        Assert.assertEquals(((BInteger) returns[1]).intValue(), 3);
+    }
+
+    @Test(groups = "TransactionTest")
+    public void testNestedThreeLevelTransactonFailed() {
+        BValue[] returns = BRunUtil.invoke(result, "testNestedThreeLevelTransactonFailed");
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), -1);
+        Assert.assertEquals(((BInteger) returns[1]).intValue(), 0);
+    }
+
+    @Test(groups = "TransactionTest")
+    public void testNestedThreeLevelTransactonFailedWithRetrySuccess() {
+        BValue[] returns = BRunUtil.invoke(result, "testNestedThreeLevelTransactonFailedWithRetrySuccess");
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 0);
+        Assert.assertEquals(((BInteger) returns[1]).intValue(), 3);
+        Assert.assertEquals(returns[2].stringValue(), "start txL1 txL2 txL3 txL3_Else txL3_Failed txL3 txL3_If");
+    }
+
     @Test(dependsOnGroups = "TransactionTest")
     public void testCloseConnectionPool() {
         BValue[] returns = BRunUtil.invoke(result, "testCloseConnectionPool");

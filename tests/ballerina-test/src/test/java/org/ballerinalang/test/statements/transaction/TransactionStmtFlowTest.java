@@ -37,7 +37,7 @@ public class TransactionStmtFlowTest {
 
     @BeforeClass
     public void setup() {
-        programFile = BCompileUtil.compile("test-src/statements/transaction/");
+        programFile = BCompileUtil.compile("test-src/statements/transaction/transaction-stmt.bal");
         resultNegative = BCompileUtil.compile("test-src/statements/transaction/transaction-stmt-negative.bal");
     }
 
