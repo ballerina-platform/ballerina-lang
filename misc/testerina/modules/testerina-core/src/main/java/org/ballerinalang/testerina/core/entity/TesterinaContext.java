@@ -18,20 +18,24 @@
 package org.ballerinalang.testerina.core.entity;
 
 import org.ballerinalang.testerina.core.AnnotationProcessor;
+import org.ballerinalang.testerina.core.TAnnotProcessor;
 import org.ballerinalang.util.codegen.FunctionInfo;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 /**
  * TesterinaContext entity class.
  */
 public class TesterinaContext {
 
+    private Map<String, TestSuite> testSuites = new HashMap<>();
     private ArrayList<TesterinaFunction> testFunctions = new ArrayList<>();
     private ArrayList<TesterinaFunction> beforeTestFunctions = new ArrayList<>();
     private ArrayList<TesterinaFunction> afterTestFunctions = new ArrayList<>();
@@ -41,7 +45,7 @@ public class TesterinaContext {
     public TesterinaContext(ProgramFile[] programFiles, List<String> groups, boolean excludeGroups) {
         this.groups = groups;
         this.excludeGroups = excludeGroups;
-        Arrays.stream(programFiles).forEach(this::extractTestFunctions);
+        Arrays.stream(programFiles).forEach(this::processProgramFiles);
     }
 
     /**
@@ -102,6 +106,22 @@ public class TesterinaContext {
             TesterinaFunction tFunction = new TesterinaFunction(programFile, functionInfo,
                     TesterinaFunction.Type.AFTER_TEST);
             this.afterTestFunctions.add(tFunction);
+        }
+    }
+
+    private void processProgramFiles (ProgramFile programFile) {
+        for (PackageInfo packageInfo : programFile.getPackageInfoEntries()){
+            if (packageInfo.getPkgPath().startsWith("ballerina")) {
+                // skip this
+            } else {
+                if (testSuites.get(packageInfo.getPkgPath()) == null) {
+                    // create a new suite instance
+                    testSuites.put(packageInfo.getPkgPath(), new TestSuite(packageInfo.getPkgPath()));
+                    //processTestSuites
+                }
+                TAnnotProcessor.processAnnotations(programFile, packageInfo, testSuites);
+            }
+
         }
     }
 }

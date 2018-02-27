@@ -7,5 +7,24 @@ package ballerina.test;
 public annotation config attach function {
     boolean disabled;
     string[] groups;
-    string[] valueSets;
+    string dataProvider;
 }
+
+@Description { value:"Identoifies beforeSuite function."}
+public annotation beforeSuite attach function {}
+
+@Description { value:"Identoifies afterSuite function."}
+public annotation afterSuite attach function {}
+
+@Description { value:"Identoifies beforeTest function."}
+public annotation before attach function {}
+
+@Description { value:"Identoifies afterTest function."}
+public annotation after attach function {}
+
+@Description { value:"Identoifies beforeTest function."}
+public annotation beforeEach attach function {}
+
+@Description { value:"Identoifies afterTest function."}
+public annotation afterEach attach function {}
+
