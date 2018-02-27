@@ -366,14 +366,6 @@
     float: left;
     color: #dcdcdc;
 
-    input[type=text].header-input{
-        border: 0.5px solid #333;
-        height: 30px;
-        background-color: #333;
-        margin-bottom: 3px;
-        margin-right: 2px;
-    }
-
     input[type=text]{
         color: #fff;
         height: 33px;
@@ -486,6 +478,10 @@
 
 .http-client-response-attributes {
     width: 96%;
+    strong{
+        margin-bottom: 5px;
+        display: block;
+    }
     span {
         padding-top: 5px;
     }

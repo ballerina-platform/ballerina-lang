@@ -22,7 +22,7 @@ import { invokeTryIt, getTryItUrl } from 'api-client/api-client';
 import cn from 'classnames';
 import AceEditor from 'react-ace';
 import { DropdownButton, MenuItem } from 'react-bootstrap';
-import { Container, Grid, Form, Item, Button, Message } from 'semantic-ui-react';
+import { Container, Grid, Form, Item, Button, Message, Divider } from 'semantic-ui-react';
 import copy from 'copy-to-clipboard';
 import AutoSuggest from 'plugins/ballerina/diagram/views/default/components/decorators/autosuggest-html';
 import PropTypes from 'prop-types';
@@ -838,7 +838,7 @@ class HttpClient extends React.Component {
                                     <div className='http-client-request'>
                                         <Item.Content>
                                             <Item.Header >Request</Item.Header>
-                                            <hr />
+                                            <Divider />
                                             <Form>
                                                 <Form.Group>
                                                     <Form.Field className='http-client-content-type-wrapper'>
@@ -851,7 +851,7 @@ class HttpClient extends React.Component {
                                                 <Form.Group>
                                                     <Form.Field width={16}>
                                                         <span className='section-header'>Headers</span>
-                                                        <hr />
+                                                        <Divider />
                                                         <div className='current-headers'>
                                                             <Form.Group width={16}>
                                                                 {requestHeaders}
@@ -862,7 +862,7 @@ class HttpClient extends React.Component {
                                                 <Form.Group>
                                                     <Form.Field className='http-client-body-wrapper'>
                                                         <label>Body</label>
-                                                        <hr />
+                                                        <Divider />
                                                         <div className='ACE-editor-wrapper'>
                                                             <AceEditor
                                                                 mode={this.getRequestBodyMode()}
@@ -896,7 +896,7 @@ class HttpClient extends React.Component {
                                     <div className='http-client-request'>
                                         <Item.Content>
                                             <Item.Header >Response</Item.Header>
-                                            <hr />
+                                            <Divider />
                                             <Form>
                                                 <Form.Group>
                                                     <Form.Field className='http-client-response-attributes'>
@@ -905,19 +905,16 @@ class HttpClient extends React.Component {
                                                                 {this.state.requestUrl}
                                                             </span>
                                                         </strong>
-                                                        <br />
                                                         <strong>Reponse Code :
                                                             <span className={cn('attribute-value', this.getStatusCodeClass(this.state.responseCode))}>
                                                                 {this.state.responseCode}
                                                             </span>
                                                         </strong>
-                                                        <br />
                                                         <strong>Request HTTP Method :
                                                             <span className={cn('attribute-value', this.getStatusCodeClass(this.state.responseCode))}>
                                                                 {this.state.responseHttpMethod}
                                                             </span>
                                                         </strong>
-                                                        <br />
                                                         <strong>Time Consumed :
                                                             <span className={cn('attribute-value', this.getStatusCodeClass(this.state.responseCode))}>
                                                                 {this.state.timeConsumed} ms
@@ -982,7 +979,7 @@ class HttpClient extends React.Component {
                                                 <Form.Group>
                                                     <Form.Field className='http-client-response-attributes'>
                                                         <label>Body</label>
-                                                        <hr />
+                                                        <Divider />
                                                         <div className='body-content'>
                                                             <AceEditor
                                                                 mode={this.getResponseBodyMode()}
