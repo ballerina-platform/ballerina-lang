@@ -41,5 +41,3 @@ function testHandleHttpBasicAuth () (boolean) {
     inRequest.setEntity(requestEntity);
     return interceptor.handle(inRequest);
 }
-
-

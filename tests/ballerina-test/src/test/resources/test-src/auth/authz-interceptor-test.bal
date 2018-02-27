@@ -21,4 +21,3 @@ function testHandleAuthz () (boolean) {
     inRequest.setEntity(requestEntity);
     return interceptor.handle(inRequest, "scope2", "/sayHello");
 }
-

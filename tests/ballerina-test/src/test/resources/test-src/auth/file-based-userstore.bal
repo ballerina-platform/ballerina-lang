@@ -29,4 +29,3 @@ function testReadGroupsOfUser () (string) {
     userstore:FilebasedUserstore fileBasedUserstore = {};
     return fileBasedUserstore.readGroupsOfUser("ishara");
 }
-
