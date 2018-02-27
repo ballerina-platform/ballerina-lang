@@ -1980,7 +1980,8 @@ public class BLangPackageBuilder {
         this.selectClausesStack.push(selectClauseNode);
     }
 
-    public void endSelectClauseNode(boolean isSelectAll, DiagnosticPos pos, Set<Whitespace> ws) {
+    public void endSelectClauseNode(boolean isSelectAll, boolean isGroupByAvailable, boolean isHavingAvailable,
+            DiagnosticPos pos, Set<Whitespace> ws) {
         if (this.selectExpressionsListStack.empty()) {
             throw new IllegalStateException("Select Expressions List stack cannot be empty when processing a select " +
                     "clause");
@@ -1988,8 +1989,12 @@ public class BLangPackageBuilder {
         SelectClauseNode selectClauseNode = this.selectClausesStack.peek();
         ((BLangSelectClause) selectClauseNode).pos = pos;
         ((BLangSelectClause) selectClauseNode).addWS(ws);
-        selectClauseNode.setGroupBy(this.groupByClauseStack.pop());
-        selectClauseNode.setHaving(this.havingClauseStack.pop());
+        if (isGroupByAvailable) {
+            selectClauseNode.setGroupBy(this.groupByClauseStack.pop());
+        }
+        if (isHavingAvailable) {
+            selectClauseNode.setHaving(this.havingClauseStack.pop());
+        }
         if (!isSelectAll) {
             selectClauseNode.setSelectExpressions(this.selectExpressionsListStack.pop());
         } else {
@@ -2083,9 +2088,13 @@ public class BLangPackageBuilder {
     }
 
     public void addTableQueryExpression(DiagnosticPos pos, Set<Whitespace> ws) {
+        if (this.tableQueriesStack.empty()) {
+            throw new IllegalStateException("Table query cannot be empty when processing a table query expression");
+        }
         TableQueryExpression tableQueryExpression = TreeBuilder.createTableQueryExpression();
         ((BLangTableQueryExpression) tableQueryExpression).pos = pos;
         ((BLangTableQueryExpression) tableQueryExpression).addWS(ws);
+        tableQueryExpression.setTableQuery(tableQueriesStack.pop());
         this.exprNodeStack.push(tableQueryExpression);
     }
 }

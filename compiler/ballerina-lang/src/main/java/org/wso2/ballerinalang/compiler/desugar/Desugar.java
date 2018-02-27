@@ -52,6 +52,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangWorker;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS.BLangLocalXMLNS;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS.BLangPackageXMLNS;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangTableQuery;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrayLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrayLiteral.BLangJSONArrayLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
@@ -84,6 +85,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef.BLangF
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef.BLangLocalVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef.BLangPackageVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangStringTemplateLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableQueryExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTernaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeCastExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
@@ -146,6 +148,7 @@ public class Desugar extends BLangNodeVisitor {
     private SymbolResolver symResolver;
     private SymbolEnter symbolEnter;
     private IterableCodeDesugar iterableCodeDesugar;
+    private SqlQueryBuilder sqlQueryBuilder;
 
     private BLangNode result;
 
@@ -170,6 +173,7 @@ public class Desugar extends BLangNodeVisitor {
         this.symResolver = SymbolResolver.getInstance(context);
         this.symbolEnter = SymbolEnter.getInstance(context);
         this.iterableCodeDesugar = IterableCodeDesugar.getInstance(context);
+        this.sqlQueryBuilder = SqlQueryBuilder.getInstance(context);
     }
 
     public BLangPackage perform(BLangPackage pkgNode) {
@@ -914,6 +918,11 @@ public class Desugar extends BLangNodeVisitor {
         intRangeExpression.startExpr = rewriteExpr(intRangeExpression.startExpr);
         intRangeExpression.endExpr = rewriteExpr(intRangeExpression.endExpr);
         result = intRangeExpression;
+    }
+
+    @Override
+    public void visit(BLangTableQueryExpression tableQueryExpression) {
+        sqlQueryBuilder.visit(tableQueryExpression);
     }
 
     // private functions

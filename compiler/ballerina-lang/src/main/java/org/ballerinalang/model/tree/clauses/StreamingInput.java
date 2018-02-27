@@ -37,7 +37,7 @@ public interface StreamingInput extends Node {
 
     void addStreamingCondition(WhereNode where);
 
-    List<WhereNode> getStreamingConditions();
+    List<? extends WhereNode> getStreamingConditions();
 
     void setWindowClause(WindowClauseNode windowClause);
 

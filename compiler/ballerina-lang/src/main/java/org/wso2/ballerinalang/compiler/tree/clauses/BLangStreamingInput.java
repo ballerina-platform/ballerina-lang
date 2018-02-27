@@ -42,7 +42,7 @@ public class BLangStreamingInput extends BLangNode implements StreamingInput {
     }
 
     @Override
-    public List<WhereNode> getStreamingConditions() {
+    public List<? extends WhereNode> getStreamingConditions() {
         return this.streamingConditions;
     }
 

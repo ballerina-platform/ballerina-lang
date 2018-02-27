@@ -2139,7 +2139,8 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
 
-        this.pkgBuilder.endSelectExpressionNode(ctx.Identifier().getText(), getCurrentPos(ctx), getWS(ctx));
+        String identifier = ctx.Identifier() == null ? null : ctx.Identifier().getText();
+        this.pkgBuilder.endSelectExpressionNode(identifier, getCurrentPos(ctx), getWS(ctx));
     }
 
     @Override
@@ -2158,7 +2159,10 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         }
 
         boolean isSelectAll = ctx.MUL() == null ? false : true;
-        this.pkgBuilder.endSelectClauseNode(isSelectAll, getCurrentPos(ctx), getWS(ctx));
+        boolean isGroupByClauseAvailable = ctx.groupByClause() == null ? false : true;
+        boolean isHavingClauseAvailable = ctx.havingClause() == null ? false : true;
+        this.pkgBuilder.endSelectClauseNode(isSelectAll, isGroupByClauseAvailable, isHavingClauseAvailable,
+                getCurrentPos(ctx), getWS(ctx));
     }
 
     @Override

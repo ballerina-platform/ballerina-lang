@@ -61,6 +61,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLang
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangRecordKeyValue;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangStringTemplateLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableQueryExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTernaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeCastExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
@@ -812,6 +813,11 @@ public class TypeChecker extends BLangNodeVisitor {
         checkExpr(intRangeExpression.startExpr, env, Lists.of(symTable.intType));
         checkExpr(intRangeExpression.endExpr, env, Lists.of(symTable.intType));
         resultTypes = Lists.of(new BArrayType(symTable.intType));
+    }
+
+    @Override
+    public void visit(BLangTableQueryExpression tableQueryExpression) {
+        // To be implemented
     }
 
     // Private methods
