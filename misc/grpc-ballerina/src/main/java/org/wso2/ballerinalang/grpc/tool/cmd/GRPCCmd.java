@@ -26,16 +26,19 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.ballerinalang.grpc.tool.exception.BalGenToolException;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.PrintStream;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -118,18 +121,23 @@ public class GRPCCmd implements BLauncherCmd {
         }
         StringBuilder msg = new StringBuilder("Successfully generated initial files." + NEW_LINE_CHARACTER);
         ClassLoader classLoader = this.getClass().getClassLoader();
-        // TODO: 2/27/18 get to property file
-        String[] protoFiles = {"any.proto", "api.proto", "descriptor.proto", "duration.proto", "empty.proto",
-                "field_mask.proto", "source_context.proto", "struct.proto", "timestamp.proto", "type.proto",
-                "wrappers.proto", "compiler/plugin.proto"};
+        List<String> protoFiles = readProperties(classLoader);
         try {
             File targetFile = new File("google/protobuf/compiler/plugin.proto");
-            File parent = targetFile.getParentFile().getParentFile().getParentFile();
-            if (!parent.exists() && !parent.mkdirs()) {
-                throw new IllegalStateException("Couldn't create dir: " + parent);
+            File parent1 = targetFile.getParentFile();
+            File parent2 = targetFile.getParentFile().getParentFile();
+            File parent3 = targetFile.getParentFile().getParentFile().getParentFile();
+            if (!parent1.exists() && !parent1.mkdirs()) {
+                throw new IllegalStateException("Couldn't create dir: " + parent1);
+            }
+            if (!parent2.exists() && !parent2.mkdirs()) {
+                throw new IllegalStateException("Couldn't create dir: " + parent2);
+            }
+            if (!parent3.exists() && !parent3.mkdirs()) {
+                throw new IllegalStateException("Couldn't create dir: " + parent3);
             }
             for (String file : protoFiles) {
-                exportResource("google/protobuf/" + file, classLoader);
+                exportResource(file, classLoader);
             }
             
         } catch (Exception e) {
@@ -181,10 +189,10 @@ public class GRPCCmd implements BLauncherCmd {
             while ((readBytes = stream.read(buffer)) > 0) {
                 resStreamOut.write(buffer, 0, readBytes);
             }
-        } catch (Exception ex) {
-            throw ex;
         } finally {
+            assert stream != null;
             stream.close();
+            assert resStreamOut != null;
             resStreamOut.close();
         }
         return jarFolder + resourceName;
@@ -312,4 +320,34 @@ public class GRPCCmd implements BLauncherCmd {
     public void setSelfCmdParser(JCommander selfCmdParser) {
     
     }
+    
+    private List<String> readProperties(ClassLoader classLoader) {
+        InputStream initialStream;
+        List<String> protoFilesList = new ArrayList<>();
+        try {
+            initialStream = classLoader.getResourceAsStream("standardProtos.properties");
+            if (initialStream == null) {
+                throw new Exception("Cannot get resource standardProtos.properties from Jar file.");
+            }
+            try {
+                String fileName;
+                BufferedReader reader = new BufferedReader(new InputStreamReader(initialStream));
+                while ((fileName = reader.readLine()) != null) {
+                    protoFilesList.add(fileName);
+                }
+                
+            } finally {
+                try {
+                    initialStream.close();
+                } catch (Throwable e) {
+                    LOG.error("", e);
+                }
+            }
+        } catch (Exception e) {
+            LOG.error("", e);
+        }
+        return protoFilesList;
+    }
 }
+
+
