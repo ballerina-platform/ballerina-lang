@@ -123,6 +123,10 @@ public final class Constants {
     public static final String LOCATION = "Location";
     public static final String DATE = "Date";
     public static final String FORWARDED = "Forwarded";
+    public static final String X_FORWARDED_FOR = "X-Forwarded-For";
+    public static final String X_FORWARDED_BY = "X-Forwarded-By";
+    public static final String X_FORWARDED_HOST = "X-Forwarded-Host";
+    public static final String X_FORWARDED_PROTO = "X-Forwarded-Proto";
 
     public static final String HTTP_GET_METHOD = "GET";
     public static final String HTTP_POST_METHOD = "POST";

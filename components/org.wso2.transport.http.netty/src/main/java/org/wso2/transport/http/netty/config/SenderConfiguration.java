@@ -99,7 +99,7 @@ public class SenderConfiguration {
     private int cacheSize = 50;
     private int cacheValidityPeriod = 15;
     private boolean hostNameVerificationEnabled = true;
-    private boolean forwardedExtensionEnabled;
+    private ForwardedExtensionConfig forwardedExtensionConfig;
 
     public SenderConfiguration() {
     }
@@ -300,11 +300,11 @@ public class SenderConfiguration {
         return cacheValidityPeriod;
     }
 
-    public boolean isForwardedExtensionEnabled() {
-        return forwardedExtensionEnabled;
+    public ForwardedExtensionConfig getForwardedExtensionConfig() {
+        return forwardedExtensionConfig;
     }
 
-    public void setForwardedExtensionEnabled(boolean forwardedExtensionEnabled) {
-        this.forwardedExtensionEnabled = forwardedExtensionEnabled;
+    public void setForwardedExtensionConfig(ForwardedExtensionConfig forwardedExtensionEnabled) {
+        this.forwardedExtensionConfig = forwardedExtensionEnabled;
     }
 }

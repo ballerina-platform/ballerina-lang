@@ -30,6 +30,7 @@ import org.wso2.transport.http.netty.common.HttpRoute;
 import org.wso2.transport.http.netty.common.Util;
 import org.wso2.transport.http.netty.common.ssl.SSLConfig;
 import org.wso2.transport.http.netty.config.ChunkConfig;
+import org.wso2.transport.http.netty.config.ForwardedExtensionConfig;
 import org.wso2.transport.http.netty.config.SenderConfiguration;
 import org.wso2.transport.http.netty.contract.ClientConnectorException;
 import org.wso2.transport.http.netty.contract.HttpClientConnector;
@@ -54,7 +55,7 @@ public class HttpClientConnectorImpl implements HttpClientConnector {
     private String httpVersion;
     private ChunkConfig chunkConfig;
     private boolean keepAlive;
-    private boolean forwardedExtensionEnabled;
+    private ForwardedExtensionConfig forwardedExtensionConfig;
 
     public HttpClientConnectorImpl(ConnectionManager connectionManager, SenderConfiguration senderConfiguration) {
         this.connectionManager = connectionManager;
@@ -101,9 +102,7 @@ public class HttpClientConnectorImpl implements HttpClientConnector {
                         } else if (keepAlive && Float.valueOf(httpVersion) < Constants.HTTP_1_1) {
                             httpOutboundRequest.setHeader(Constants.CONNECTION, Constants.CONNECTION_KEEP_ALIVE);
                         }
-                        if (forwardedExtensionEnabled) {
-                            Util.setForwardedExtension(httpOutboundRequest, targetChannel);
-                        }
+                        targetChannel.setForwardedExtension(forwardedExtensionConfig, httpOutboundRequest);
                         targetChannel.writeContent(httpOutboundRequest);
                     } else {
                         notifyErrorState(channelFuture);
@@ -213,6 +212,6 @@ public class HttpClientConnectorImpl implements HttpClientConnector {
         this.socketIdleTimeout = senderConfiguration.getSocketIdleTimeout(Constants.ENDPOINT_TIMEOUT);
         this.sslConfig = senderConfiguration.getSSLConfig();
         this.keepAlive = senderConfiguration.isKeepAlive();
-        this.forwardedExtensionEnabled = senderConfiguration.isForwardedExtensionEnabled();
+        this.forwardedExtensionConfig = senderConfiguration.getForwardedExtensionConfig();
     }
 }

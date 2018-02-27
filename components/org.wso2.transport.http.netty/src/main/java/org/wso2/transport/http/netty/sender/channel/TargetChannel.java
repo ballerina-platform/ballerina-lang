@@ -27,6 +27,7 @@ import org.wso2.transport.http.netty.common.Constants;
 import org.wso2.transport.http.netty.common.HttpRoute;
 import org.wso2.transport.http.netty.common.Util;
 import org.wso2.transport.http.netty.config.ChunkConfig;
+import org.wso2.transport.http.netty.config.ForwardedExtensionConfig;
 import org.wso2.transport.http.netty.contract.HttpResponseFuture;
 import org.wso2.transport.http.netty.internal.HTTPTransportContextHolder;
 import org.wso2.transport.http.netty.internal.HandlerExecutor;
@@ -265,5 +266,13 @@ public class TargetChannel {
 
     private void setHttpVersionProperty(HTTPCarbonMessage httpOutboundRequest) {
         httpOutboundRequest.setProperty(Constants.HTTP_VERSION, httpVersion);
+    }
+
+    public void setForwardedExtension(ForwardedExtensionConfig forwardedConfig, HTTPCarbonMessage httpOutboundRequest) {
+        if (forwardedConfig == ForwardedExtensionConfig.ENABLE) {
+            Util.setForwardedHeader(httpOutboundRequest, this);
+        } else if (forwardedConfig == ForwardedExtensionConfig.TRANSITION) {
+            Util.transformAndSetForwardedHeader(httpOutboundRequest, this);
+        }
     }
 }
