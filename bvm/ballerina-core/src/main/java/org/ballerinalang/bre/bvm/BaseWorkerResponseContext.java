@@ -92,10 +92,14 @@ public abstract class BaseWorkerResponseContext implements WorkerResponseContext
         BStruct error = sourceCtx.getError();
         this.workerErrors.put(sourceCtx.workerInfo.getWorkerName(), error);
         if (this.workerErrors.size() >= this.workerCount) {
-            BLangScheduler.errorThrown(this.targetCtx, this.createCallFailedError(this.workerErrors));
-            if (this.responseChecker != null) {
-                this.responseChecker.release();
-            }
+            this.onFinalizedError(this.createCallFailedError(this.workerErrors));
+        }
+    }
+    
+    protected void onFinalizedError(BStruct error) {
+        BLangScheduler.errorThrown(this.targetCtx, error);
+        if (this.responseChecker != null) {
+            this.responseChecker.release();
         }
     }
 
@@ -110,13 +114,13 @@ public abstract class BaseWorkerResponseContext implements WorkerResponseContext
             this.handleAlreadyReturned();
         } else {
             this.currentSignal = signal;
-            runInCallerCtx = this.storeResponseInParentAndContinue(true);
+            runInCallerCtx = this.onFinalizedReturn(true);
         }
         BLangScheduler.workerDone(signal.getSourceContext());
         return runInCallerCtx;
     }
 
-    private WorkerExecutionContext storeResponseInParentAndContinue(boolean runInCaller) {
+    protected WorkerExecutionContext onFinalizedReturn(boolean runInCaller) {
         if (this.retRegIndexes != null) {
             BLangVMUtils.mergeResultData(this.currentSignal.getResult(), this.targetCtx.workerLocal, 
                     this.responseTypes, this.retRegIndexes);
@@ -139,7 +143,7 @@ public abstract class BaseWorkerResponseContext implements WorkerResponseContext
     @Override
     public void checkAndRefreshFulfilledResponse() {
         if (this.fulfilled.get()) {
-            this.storeResponseInParentAndContinue(false);
+            this.onFinalizedReturn(false);
         }
     }
 
