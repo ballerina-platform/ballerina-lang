@@ -1,3 +1,20 @@
+/*
+ *  Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ *  WSO2 Inc. licenses this file to you under the Apache License,
+ *  Version 2.0 (the "License"); you may not use this file except
+ *  in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *  http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing,
+ *  software distributed under the License is distributed on an
+ *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ *  KIND, either express or implied.  See the License for the
+ *  specific language governing permissions and limitations
+ *  under the License.
+ */
 package org.wso2.ballerinalang.grpc.tool.cmd;
 
 import com.google.protobuf.DescriptorProtos;
@@ -18,19 +35,20 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
-/**.
- *.
+/**
+ * Class for generate file descriptors for proto files.
  */
 public class DescriptorsGenerator {
     private static final Logger LOG = LoggerFactory.getLogger(DescriptorsGenerator.class);
-
-
+    
+    
     public static List<byte[]> getDependentByteArray(String exePath, String rootPath, String rootProto,
                                                      String dependencyDescLocation, ClassLoader classLoader) {
         List<byte[]> newList = new ArrayList<>();
         return dependentDescriptorGenerator(rootPath, rootProto, newList, dependencyDescLocation, exePath, classLoader);
-
+        
     }
+    
     private static List<byte[]> dependentDescriptorGenerator(String parentDescPath, String parentProtoPath,
                                                              List<byte[]> list, String dependencyDescLocation,
                                                              String exePath, ClassLoader classLoader) {
@@ -56,11 +74,11 @@ public class DescriptorsGenerator {
                     protoPath = new File(new File(parentProtoPath.substring(0, parentProtoPath
                             .lastIndexOf('/'))).toURI().getPath() + descSet.getFile(0)
                             .getDependency(i)).toURI().getPath();
-                } else  {
+                } else {
                     //Get file from resources folder
                     InputStream initialStream = classLoader.getResourceAsStream(depPath);
                     byte[] buffer = new byte[initialStream.available()];
-                    initialStream.read(buffer);
+                    int read = initialStream.read(buffer);
                     File dd = new File("desc_gen/" + depPath);
                     File pa = dd.getParentFile();
                     if (!pa.exists() && !pa.mkdirs()) {
@@ -80,12 +98,12 @@ public class DescriptorsGenerator {
                         .toLowerCase().startsWith("windows");
                 ProcessBuilder builder = new ProcessBuilder();
                 if (isWindows) {
-                    builder.command("cmd.exe", "/c", "dir");
+                    ProcessBuilder dir = builder.command("cmd.exe", "/c", "dir");
                 } else {
                     builder.command("sh", "-c", command);
                 }
                 builder.directory(new File(System.getProperty("user.home")));
-                Process process = null;
+                Process process;
                 try {
                     process = builder.start();
                     new BufferedReader(new InputStreamReader(process.getInputStream())).lines()
@@ -97,7 +115,7 @@ public class DescriptorsGenerator {
                     if (childDescSet.getFile(0).getDependencyCount() != 0) {
                         List<byte[]> newList = new ArrayList<>();
                         dependentDescriptorGenerator(path, protoPath, newList, dependencyDescLocation,
-                                 exePath, classLoader);
+                                exePath, classLoader);
                     } else {
                         initialFile = new File(path);
                         targetStream = new FileInputStream(initialFile);
@@ -110,12 +128,13 @@ public class DescriptorsGenerator {
                     LOG.error("Error in file reading in dependencies:  ", e);
                 }
             }
-
+            
         } catch (IOException e) {
-
+        
         }
-        return  list;
+        return list;
     }
+    
     public static byte[] getRootByteArray(String exePath, String protoPath, String descriptorPath) {
         String command = exePath + " \\\n" +
                 "--proto_path=" + protoPath.substring(0, protoPath.lastIndexOf('/')) + " \\\n" +
@@ -139,7 +158,11 @@ public class DescriptorsGenerator {
             File initialFile = new File(descriptorPath);
             InputStream targetStream = new FileInputStream(initialFile);
             DescriptorProtos.FileDescriptorSet set = DescriptorProtos.FileDescriptorSet.parseFrom(targetStream);
-            return set.getFile(0).toByteArray();
+            if (set.getFileList().size() > 0) {
+                return set.getFile(0).toByteArray();
+            } else {
+                return null;
+            }
         } catch (IOException e) {
             LOG.error("Error in file reading: ", e);
         } catch (InterruptedException e) {

@@ -20,7 +20,7 @@ package org.ballerinalang.net.grpc.builder.components;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static org.ballerinalang.net.grpc.builder.BalGeneratorConstants.NEW_LINE_CHARACTER;
+import static org.ballerinalang.net.grpc.builder.BalGenConstants.NEW_LINE_CHARACTER;
 
 /**
  * This class is responsible for generating ballerina actions.

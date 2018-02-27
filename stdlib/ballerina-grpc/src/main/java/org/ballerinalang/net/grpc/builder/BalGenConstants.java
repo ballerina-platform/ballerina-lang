@@ -20,7 +20,7 @@ package org.ballerinalang.net.grpc.builder;
 /**
  * Constants that use in .bal file generation.
  */
-public class BalGeneratorConstants {
+public class BalGenConstants {
     public static final String NEW_LINE_CHARACTER = System.getProperty("line.separator");
     
     public static final String FILE_SEPERATOR = System.getProperty("file.separator");

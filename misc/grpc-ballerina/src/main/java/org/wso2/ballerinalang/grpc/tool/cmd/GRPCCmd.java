@@ -21,6 +21,10 @@ import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.Parameters;
 import org.ballerinalang.launcher.BLauncherCmd;
+import org.ballerinalang.net.grpc.builder.BallerinaFile;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.wso2.ballerinalang.grpc.tool.exception.BalGenToolException;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -32,15 +36,17 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * Class to implement "grpc" command for ballerina.
- * Ex: ballerina grpc  (grpcFile) -p(package name) -d(output directory name)
+ * Ex: ballerina grpc  --proto_path (proto-file-path)  --exe_path (protoc-executor-path)
  */
-//ballerina grpc --proto_path=src/main/proto/helloWorld.proto --descriptor_set_out=out
 @Parameters(commandNames = "grpc", commandDescription = "DescriptorGenerate connector/service using grpc definition")
 public class GRPCCmd implements BLauncherCmd {
+    private static final Logger LOG = LoggerFactory.getLogger(BLauncherCmd.class);
     private static final String FILE_SEPERATOR = System.getProperty("file.separator");
+    private static final String NEW_LINE_CHARACTER = System.getProperty("line.separator");
     private static final PrintStream outStream = System.err;
     private JCommander parentCmdParser;
     
@@ -60,11 +66,6 @@ public class GRPCCmd implements BLauncherCmd {
     )
     private String exePath;
     
-    @Parameter(names = {"--descriptor_set_out"},
-            description = "Output file location of descriptor file"
-    )
-    private String descriptorPath;
-    
     @Parameter(names = {"-h", "--help"}, hidden = true)
     private boolean helpFlag;
     
@@ -76,42 +77,16 @@ public class GRPCCmd implements BLauncherCmd {
     
     @Override
     public void execute() {
+        try {
+            downloadProtoCexe();
+        } catch (BalGenToolException e) {
+            LOG.error("Error while generating protoc executable. ", e);
+            throw new BalGenToolException("Error while generating protoc executable. ", e);
+        }
         
-        if (exePath == null) {
-            exePath = "protoc-" + OSDetector.getDetectedClassifier() + ".exe";
-            File yourFile = new File(exePath);
-            exePath = yourFile.getAbsolutePath(); // if file already exists will do nothing
-            if (!yourFile.isFile()) {
-                try {
-                    yourFile.createNewFile();
-                } catch (IOException e) {
-                    throw new RuntimeException("Error: ", e);
-                }
-                // TODO: 2/13/18 check this condition
-                String url = "http://repo1.maven.org/maven2/com/google/protobuf/protoc/3.4.0/" +
-                        "protoc-3.4.0-" + OSDetector.getDetectedClassifier() + ".exe";
-                try {
-                    URL url2 = new URL(url);
-                    saveFile(url2, exePath);
-                    File file = new File(exePath);
-                    //set application user permissions to 455
-                    file.setExecutable(true);
-                    file.setReadable(true);
-                    file.setWritable(true);
-                } catch (IOException e) {
-                    throw new RuntimeException("Error: ", e);
-                }
-            }
-        } else {
-            //assume user has downloaded correct exe and has given the path
-            // TODO: 2/12/18 check file permission
-        }
-        // TODO: 2/12/18 assign default to descriptor file
-        if (descriptorPath == null) {
-            descriptorPath = "desc_gen/" + getProtoFileName() + "-descriptor" + ".desc";
-        } else if (!descriptorPath.contains(".desc")) {
-            //log error
-        }
+        
+        String descriptorPath = "desc_gen/" + getProtoFileName() + "-descriptor" + ".desc";
+        // since this is temperary no need to get as user input
         File yourFile = new File(descriptorPath);
         String path = yourFile.getAbsolutePath().substring(0, yourFile.getAbsolutePath().lastIndexOf('/'));
         File folderPath = new File(path);
@@ -124,65 +99,97 @@ public class GRPCCmd implements BLauncherCmd {
             Path file = Paths.get(descriptorPath);
             Files.write(file, data);
         } catch (IOException e) {
-            throw new RuntimeException("Error: ", e);
+            throw new BalGenToolException("Error creating " + descriptorPath + " file.", e);
         }
+        
         if (balOutPath == null) {
-            balOutPath = getProtoFileName() + "-client-stub.bal";
-        }
-        yourFile = new File(balOutPath);
-        try {
-            yourFile.createNewFile(); // if file already exists will do nothing
-            balOutPath = yourFile.getAbsolutePath();
-        } catch (IOException e) {
-            throw new RuntimeException("Error: ", e);
+            balOutPath = ""; //jar execution location
         }
         if (helpFlag) {
             String commandUsageInfo = BLauncherCmd.getCommandUsageInfo(parentCmdParser, "build");
             outStream.println(commandUsageInfo);
             return;
         }
-        StringBuilder msg = new StringBuilder("successfully generated descriptor ");
+        StringBuilder msg = new StringBuilder("Successfully generated initial files." + NEW_LINE_CHARACTER);
         ClassLoader classLoader = this.getClass().getClassLoader();
-        byte[] root = DescriptorsGenerator.getRootByteArray(this.exePath, this.protoPath, this.descriptorPath);
-        List<byte[]> dependant = DescriptorsGenerator.getDependentByteArray(this.exePath, this.descriptorPath,
+        byte[] root = DescriptorsGenerator.getRootByteArray(this.exePath, this.protoPath, descriptorPath);
+        msg.append("Successfully generated root descriptor.").append(NEW_LINE_CHARACTER);
+        List<byte[]> dependant = DescriptorsGenerator.getDependentByteArray(this.exePath, descriptorPath,
                 this.protoPath, descriptorPath.substring(0, descriptorPath.lastIndexOf('/'))
                         + "/dependencies/", classLoader);
-        new BalGenerate().generate(root, dependant, balOutPath);
+        msg.append("Successfully generated dependent descriptor.").append(NEW_LINE_CHARACTER);
+        Path balPath = Paths.get(balOutPath);
+        new BallerinaFile(root, dependant, balPath).build();
+        msg.append("Successfully generated ballerina file.").append(NEW_LINE_CHARACTER);
         File directory = new File("desc_gen");
-        if (!directory.exists()) {
-            //
-        } else {
-            try {
-                delete(directory);
-            } catch (IOException e) {
-                throw new RuntimeException("Error: ", e);
-            }
+        if (directory.exists()) {
+            delete(directory);
         }
+        msg.append("Successfully deleted temporary files.").append(NEW_LINE_CHARACTER);
         outStream.println(msg.toString());
     }
     
-    private static void delete(File file)
-            throws IOException {
-        if (file.isDirectory()) {
-            //directory is empty, then delete it
-            if (file.list().length == 0) {
-                file.delete();
-            } else {
-                //list all the directory contents
-                String files[] = file.list();
-                for (String temp : files) {
-                    //construct the file structure
-                    File fileDelete = new File(file, temp);
-                    //recursive delete
-                    delete(fileDelete);
+    private void downloadProtoCexe() {
+        if (exePath == null) {
+            exePath = "protoc-" + OSDetector.getDetectedClassifier() + ".exe";
+            File exeFile = new File(exePath);
+            exePath = exeFile.getAbsolutePath(); // if file already exists will do nothing
+            if (!exeFile.isFile()) {
+                try {
+                    boolean newFile = exeFile.createNewFile();
+                    if (newFile) {
+                        LOG.debug("Successfully created new protoc exe file" + exePath);
+                    }
+                } catch (IOException e) {
+                    throw new BalGenToolException("Exception occurred while creating new file for protoc exe. ", e);
                 }
-                //check the directory again, if empty then delete it
-                if (file.list().length == 0) {
-                    file.delete();
+                String url = "http://repo1.maven.org/maven2/com/google/protobuf/protoc/3.4.0/" +
+                        "protoc-3.4.0-" + OSDetector.getDetectedClassifier() + ".exe";
+                try {
+                    URL url2 = new URL(url);
+                    saveFile(url2, exePath);
+                    File file = new File(exePath);
+                    //set application user permissions to 455
+                    boolean isExecutable = file.setExecutable(true);
+                    boolean isReadable = file.setReadable(true);
+                    boolean isWritable = file.setWritable(true);
+                    if (isExecutable && isReadable && isWritable) {
+                        LOG.debug("Successfully grated permission for new protoc exe file" + exePath);
+                    }
+                } catch (IOException e) {
+                    throw new BalGenToolException("Exception occurred while writing protoc executable to file. ", e);
+                }
+            }
+        }
+    }
+    
+    private static void delete(File file) {
+        if (file.isDirectory()) {
+            if (Objects.requireNonNull(file.list()).length == 0) {
+                boolean isDelete = file.delete();
+                if (isDelete) {
+                    LOG.debug("Successfully deleted file " + file.toString());
+                }
+            } else {
+                String files[] = file.list();
+                if (files != null) {
+                    for (String temp : files) {
+                        File fileDelete = new File(file, temp);
+                        delete(fileDelete);
+                    }
+                }
+                if (Objects.requireNonNull(file.list()).length == 0) {
+                    boolean isDelete = file.delete();
+                    if (isDelete) {
+                        LOG.debug("Successfully deleted file " + file.toString());
+                    }
                 }
             }
         } else {
-            file.delete();
+            boolean isDelete = file.delete();
+            if (isDelete) {
+                LOG.debug("Successfully deleted file " + file.toString());
+            }
         }
     }
     
@@ -191,9 +198,8 @@ public class GRPCCmd implements BLauncherCmd {
         InputStream in = url.openStream();
         FileOutputStream fos = new FileOutputStream(new File(file));
         
-        int length = -1;
+        int length;
         byte[] buffer = new byte[1024]; // buffer for portion of data from
-        // connection
         while ((length = in.read(buffer)) > -1) {
             fos.write(buffer, 0, length);
         }
@@ -203,34 +209,31 @@ public class GRPCCmd implements BLauncherCmd {
     
     @Override
     public String getName() {
-        
         return "grpc";
     }
     
     @Override
     public void printLongDesc(StringBuilder out) {
         
-        out.append("Generates ballerina connector, service skeleton and mock service" + System.lineSeparator());
-        out.append("for a given grpc definition" + System.lineSeparator());
+        out.append("Generates ballerina grRPC client stub for gRPC service").append(System.lineSeparator());
+        out.append("for a given grpc protoc definition").append(System.lineSeparator());
         out.append(System.lineSeparator());
     }
     
     @Override
     public void printUsage(StringBuilder stringBuilder) {
         
-        stringBuilder.append("  ballerina grpc <connector | skeleton | mock> <grpcFile> -p<package name> " +
-                "-d<output directory name>\n");
+        stringBuilder.append("  ballerina grpc --proto_path <<proto-file-path>>  --exe_path " +
+                "<<protoc-executor-path>> \n");
     }
     
     private String getProtoFileName() {
-        // TODO: 2/13/18
         String[] arr = protoPath.split(FILE_SEPERATOR);
         return arr[arr.length - 1].replace(".proto", "");
     }
     
     @Override
     public void setParentCmdParser(JCommander parentCmdParser) {
-        
         this.parentCmdParser = parentCmdParser;
     }
     

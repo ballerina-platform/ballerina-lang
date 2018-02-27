@@ -17,7 +17,7 @@
  */
 package org.ballerinalang.net.grpc.builder.components;
 
-import static org.ballerinalang.net.grpc.builder.BalGeneratorConstants.NEW_LINE_CHARACTER;
+import static org.ballerinalang.net.grpc.builder.BalGenConstants.NEW_LINE_CHARACTER;
 
 /**
  * Class that responsible of generating grpc connector at .bal stub
