@@ -39,6 +39,7 @@ import org.wso2.transport.http.netty.sender.TargetHandler;
 import org.wso2.transport.http.netty.sender.channel.pool.ConnectionManager;
 
 import java.io.IOException;
+import java.net.InetSocketAddress;
 import java.nio.channels.ClosedChannelException;
 import java.util.ArrayList;
 import java.util.List;
@@ -269,10 +270,11 @@ public class TargetChannel {
     }
 
     public void setForwardedExtension(ForwardedExtensionConfig forwardedConfig, HTTPCarbonMessage httpOutboundRequest) {
+        String localAddress = ((InetSocketAddress) this.getChannel().localAddress()).getAddress().getHostAddress();
         if (forwardedConfig == ForwardedExtensionConfig.ENABLE) {
-            Util.setForwardedHeader(httpOutboundRequest, this);
+            Util.setForwardedHeader(httpOutboundRequest, localAddress);
         } else if (forwardedConfig == ForwardedExtensionConfig.TRANSITION) {
-            Util.transformAndSetForwardedHeader(httpOutboundRequest, this);
+            Util.transformAndSetForwardedHeader(httpOutboundRequest, localAddress);
         }
     }
 }
