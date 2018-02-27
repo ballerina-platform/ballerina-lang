@@ -20,6 +20,8 @@ package org.ballerinalang.util.program;
 import org.ballerinalang.bre.bvm.BLangScheduler;
 import org.ballerinalang.bre.bvm.BLangVMErrors;
 import org.ballerinalang.bre.bvm.CPU;
+import org.ballerinalang.bre.bvm.CallableUnitCallback;
+import org.ballerinalang.bre.bvm.CallbackedInvocableWorkerResponseContext;
 import org.ballerinalang.bre.bvm.InvocableWorkerResponseContext;
 import org.ballerinalang.bre.bvm.WorkerData;
 import org.ballerinalang.bre.bvm.WorkerExecutionContext;
@@ -77,6 +79,29 @@ public class BLangFunctions {
         int[][] regs = BLangVMUtils.populateArgAndReturnData(parentCtx, callableUnitInfo, args);
         invokeCallable(callableUnitInfo, parentCtx, regs[0], regs[1], true);
         return BLangVMUtils.populateReturnData(parentCtx, callableUnitInfo, regs[1]);
+    }
+    
+    public static void invokeCallable(CallableUnitInfo callableUnitInfo, WorkerExecutionContext parentCtx, 
+            BValue[] args, CallableUnitCallback responseCallback) {
+        int[][] regs = BLangVMUtils.populateArgAndReturnData(parentCtx, callableUnitInfo, args);
+        invokeCallable(callableUnitInfo, parentCtx, regs[0], regs[1], responseCallback);
+    }
+    
+    public static void invokeCallable(CallableUnitInfo callableUnitInfo, 
+            WorkerExecutionContext parentCtx, int[] argRegs, int[] retRegs, CallableUnitCallback responseCallback) {
+        WorkerInfo[] workerInfos = listWorkerInfos(callableUnitInfo);
+        InvocableWorkerResponseContext respCtx = new CallbackedInvocableWorkerResponseContext(
+                callableUnitInfo.getRetParamTypes(), workerInfos.length, false, responseCallback);
+        respCtx.updateTargetContextInfo(parentCtx, retRegs);
+        WorkerDataIndex wdi = callableUnitInfo.retWorkerIndex;
+        Map<String, Object> globalProps = parentCtx.globalProps;
+        BLangScheduler.switchToWaitForResponse(parentCtx);
+        for (int i = 1; i < workerInfos.length; i++) {
+            executeWorker(respCtx, parentCtx, argRegs, callableUnitInfo, workerInfos[i], wdi, globalProps, false);
+        }
+        WorkerExecutionContext runInCallerCtx = executeWorker(respCtx, parentCtx, argRegs, callableUnitInfo, 
+                workerInfos[0], wdi, globalProps, true);
+        CPU.exec(runInCallerCtx);
     }
     
     public static WorkerExecutionContext invokeCallable(CallableUnitInfo callableUnitInfo, 
