@@ -103,8 +103,8 @@ public class CommandExecutor {
                     fileContent.substring(0, fileContent.indexOf(contentComponents[endLine])).length()
                             + contentComponents[endLine].length() + 1;
             String remainingTextToReplace = fileContent.substring(contentLengthToLastImport);
-            String editText = "\nimport " + pkgName + ";"
-                    + (remainingTextToReplace.startsWith("\n") || remainingTextToReplace.startsWith("\r") ? "" : "\n")
+            String editText = "\r\nimport " + pkgName + ";"
+                    + (remainingTextToReplace.startsWith("\n") || remainingTextToReplace.startsWith("\r") ? "" : "\r\n")
                     + remainingTextToReplace;
             Range range = new Range(new Position(endLine, endCol + 1), new Position(totalLines + 1, lastCharCol));
             TextEdit textEdit = new TextEdit(range, editText);
