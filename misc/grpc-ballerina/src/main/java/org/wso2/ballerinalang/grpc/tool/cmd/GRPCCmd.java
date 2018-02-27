@@ -67,6 +67,11 @@ public class GRPCCmd implements BLauncherCmd {
     )
     private String exePath;
     
+    @Parameter(names = {"--protoc_version"},
+            description = "Full path of the .exe file"
+    )
+    private String protocVerstion = "3.4.0";
+    
     @Parameter(names = {"-h", "--help"}, hidden = true)
     private boolean helpFlag;
     
@@ -118,6 +123,11 @@ public class GRPCCmd implements BLauncherCmd {
                 "field_mask.proto", "source_context.proto", "struct.proto", "timestamp.proto", "type.proto",
                 "wrappers.proto", "compiler/plugin.proto"};
         try {
+            File targetFile = new File("google/protobuf/compiler/plugin.proto");
+            File parent = targetFile.getParentFile().getParentFile().getParentFile();
+            if (!parent.exists() && !parent.mkdirs()) {
+                throw new IllegalStateException("Couldn't create dir: " + parent);
+            }
             for (String file : protoFiles) {
                 exportResource("google/protobuf/" + file, classLoader);
             }
@@ -157,19 +167,6 @@ public class GRPCCmd implements BLauncherCmd {
         String jarFolder;
         
         try {
-            File targetFile = new File("google/protobuf/compiler/plugin.proto");
-            File parent = targetFile.getParentFile();
-            if (!parent.exists() && !parent.mkdirs()) {
-                throw new IllegalStateException("Couldn't create dir: " + parent);
-            }
-            File parent2 = parent.getParentFile();
-            if (!parent2.exists() && !parent2.mkdirs()) {
-                throw new IllegalStateException("Couldn't create dir: " + parent);
-            }
-            File parent3 = parent2.getParentFile();
-            if (!parent3.exists() && !parent3.mkdirs()) {
-                throw new IllegalStateException("Couldn't create dir: " + parent);
-            }
             InputStream initialStream = classLoader.getResourceAsStream(resourceName);
             if (initialStream == null) {
                 throw new Exception("Cannot get resource \"" + resourceName + "\" from Jar file.");
@@ -209,7 +206,7 @@ public class GRPCCmd implements BLauncherCmd {
                     throw new BalGenToolException("Exception occurred while creating new file for protoc exe. ", e);
                 }
                 String url = "http://repo1.maven.org/maven2/com/google/protobuf/protoc/3.4.0/" +
-                        "protoc-3.4.0-" + OSDetector.getDetectedClassifier() + ".exe";
+                        "protoc-" + protocVerstion + "-" + OSDetector.getDetectedClassifier() + ".exe";
                 try {
                     URL url2 = new URL(url);
                     saveFile(url2, exePath);

@@ -97,8 +97,8 @@ public class BallerinaFile {
                 reqMessageName = getMappingBalType(typeIn);
                 resMessageName = getMappingBalType(typeOut);
                 if ((descriptorProtoMap.get(typeIn) != null) && (descriptorProtoMap.get(typeOut) != null) &&
-                        (descriptorProtoMap.get(typeIn).getFieldList().size() == 0) &&
-                        (descriptorProtoMap.get(typeOut).getFieldList().size() == 0)) {
+                        (descriptorProtoMap.get(typeIn).getFieldList().size() != 0) &&
+                        (descriptorProtoMap.get(typeOut).getFieldList().size() != 0)) {
                     reqStructFieldName = descriptorProtoMap.get(typeIn).getFieldList().get(0).getName();
                     reqStructFieldType = getTypeName(descriptorProtoMap.get(typeIn).getFieldList().get(0)
                             .getType().getNumber());
@@ -157,22 +157,25 @@ public class BallerinaFile {
             
             String blockingConnectorList = new ConnectorBuilder(blockingActionList.toString(),
                     fileDescriptorSet.getPackage(),
-                    fileDescriptorSet.getService(SERVICE_INDEX).getName() + "StubBlocking",
+                    fileDescriptorSet.getService(SERVICE_INDEX).getName() + "BlockingStub",
                     "blocking").build();
             String balBlockingPayload = blockingConnectorList + structList + NEW_LINE_CHARACTER + descriptorKey +
                     String.format("map descriptorMap ={%s};", descriptorMapString) + NEW_LINE_CHARACTER;
             String streamingConnectorList = new ConnectorBuilder(streamingActionList.toString(),
                     fileDescriptorSet.getPackage(), fileDescriptorSet.getService(
-                    SERVICE_INDEX).getName() + "StubNonBlocking", "non-blocking").build();
+                    SERVICE_INDEX).getName() + "NonBlockingStub", "non-blocking").build();
             String balStreamingPayload = streamingConnectorList + structList + NEW_LINE_CHARACTER + descriptorKey +
                     String.format("map descriptorMap ={%s};", descriptorMapString) + NEW_LINE_CHARACTER;
-            
-            writeFile(balBlockingPayload.replace("{{stubType}}", "Blocking"),
-                    fileDescriptorSet.getService(SERVICE_INDEX).getName() + "." + "blocking" + ".pb.bal",
-                    balOutPath);
-            writeFile(balStreamingPayload.replace("{{stubType}}", "NonBlocking"),
-                    fileDescriptorSet.getService(SERVICE_INDEX).getName() + "." + "nonBlocking" + ".pb.bal",
-                    balOutPath);
+            if (!"".equals(blockingActionList.toString())) {
+                writeFile(balBlockingPayload,
+                        fileDescriptorSet.getService(SERVICE_INDEX).getName() + "." + "blocking" + ".pb.bal",
+                        balOutPath);
+            }
+            if (!"".equals(streamingActionList.toString())) {
+                writeFile(balStreamingPayload,
+                        fileDescriptorSet.getService(SERVICE_INDEX).getName() + "." + "nonBlocking" + ".pb.bal",
+                        balOutPath);
+            }
         } catch (IOException e) {
             throw new BalGenerationException("Error while generating .bal file.", e);
         }
