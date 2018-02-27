@@ -32,30 +32,20 @@ public class ActionBuilder {
     private String reqMessageName;
     private String resMessageName;
     private String methodID;
-    private String reqStructFieldName;
-    private String reqStructFieldType;
-    private String resStructFieldName;
-    private String resStructFieldType;
     private MethodDescriptor.MethodType methodType;
     
     
     public ActionBuilder(String methodName, String reqMessageName, String resMessageName, String methodID,
-                         String reqStructFieldName, String reqStructFieldType,
-                         String resStructFieldName, String resStructFieldType, MethodDescriptor.MethodType isStream) {
+                         MethodDescriptor.MethodType isStream) {
         this.methodName = methodName;
         this.reqMessageName = reqMessageName;
         this.resMessageName = resMessageName;
         this.methodID = methodID;
-        this.reqStructFieldName = reqStructFieldName;
-        this.reqStructFieldType = reqStructFieldType;
-        this.resStructFieldName = resStructFieldName;
-        this.resStructFieldType = resStructFieldType;
         this.methodType = isStream;
     }
     
     
     public String build() {
-//        String templPrt2 = "";
         String unaryTemplate =
                 "    action %s (%s req) (%s, error) {" + NEW_LINE_CHARACTER +
                         "        %s" + NEW_LINE_CHARACTER +
@@ -96,41 +86,6 @@ public class ActionBuilder {
                         "        }" + NEW_LINE_CHARACTER +
                         "        return null;" + NEW_LINE_CHARACTER +
                         "    }";
-//        if (reqStructFieldName != null) {
-//            String template2 =
-//                    "var request, err = (%s)req;" + NEW_LINE_CHARACTER +
-//                            "        any value;" + NEW_LINE_CHARACTER +
-//                            "        if (err != null) {" + NEW_LINE_CHARACTER +
-//                            "            %s reqObj = {};" + NEW_LINE_CHARACTER +
-//                            "            var %s, err2 = (%s)req;" + NEW_LINE_CHARACTER +
-//                            "            if (err2 != null) {" + NEW_LINE_CHARACTER +
-//                            "                error e = {msg:err2.msg};" + NEW_LINE_CHARACTER +
-//                            "                return null, e;" + NEW_LINE_CHARACTER +
-//                            "            }" + NEW_LINE_CHARACTER +
-//                            "            reqObj.%s = %s;" + NEW_LINE_CHARACTER +
-//                            "            value = reqObj;" + NEW_LINE_CHARACTER +
-//                            "        } else {" + NEW_LINE_CHARACTER +
-//                            "            value = request;" + NEW_LINE_CHARACTER +
-//                            "        }" + NEW_LINE_CHARACTER;
-//            templPrt1 = String.format(template2, reqMessageName, reqMessageName, reqStructFieldName,
-//                    reqStructFieldType, reqStructFieldName, reqStructFieldName);
-//        }
-//        if (reqStructFieldName == null) {
-//            templPrt1 = "";
-//        }
-//        templPrt2 = String.format("var response, err2 = (%s)res;" + NEW_LINE_CHARACTER +
-//                "        if (err2 != null) {" + NEW_LINE_CHARACTER +
-//                "            error e = {msg:err2.msg};" + NEW_LINE_CHARACTER +
-//                "            return null, e;" + NEW_LINE_CHARACTER +
-//                "        }" + NEW_LINE_CHARACTER, resMessageName);
-//        String connectorIn, executeIn;
-//        if (!BalGenerationUtils.isStructType(reqMessageName)) {
-//            connectorIn = reqMessageName;
-//            executeIn = "req";
-//        } else {
-//            connectorIn = "any";
-//            executeIn = "value";
-//        }
         if (methodType.equals(MethodDescriptor.MethodType.SERVER_STREAMING)) {
             return String.format(serverStreamTemplate, methodName, reqMessageName, "", "req", methodID);
         } else if (methodType.equals(MethodDescriptor.MethodType.CLIENT_STREAMING) ||
