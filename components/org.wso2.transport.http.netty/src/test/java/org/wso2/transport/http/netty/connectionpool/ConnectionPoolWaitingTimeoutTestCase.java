@@ -58,7 +58,6 @@ public class ConnectionPoolWaitingTimeoutTestCase {
                 countDownLatches[i] = new CountDownLatch(1);
             }
 
-            // Send multiple requests asynchronously to force the creation of multiple connections
             HTTPConnectorListener[] responseListeners = new HTTPConnectorListener[noOfRequests];
             for (int i = 0; i < countDownLatches.length; i++) {
                 responseListeners[i] = TestUtil.sendRequestAsync(countDownLatches[i], httpClientConnector);
