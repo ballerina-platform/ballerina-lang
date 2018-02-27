@@ -123,9 +123,9 @@ public class Equals extends AbstractNativeFunction {
                     return false;
                 }
     
-                return !isEqual((BStruct) lhsValue, (BStruct) rhsValue, lhsStructType);
+                return isEqual((BStruct) lhsValue, (BStruct) rhsValue, lhsStructType);
             case TypeTags.MAP_TAG:
-                return !isEqual((BMap) lhsValue, (BMap) rhsValue);
+                return isEqual((BMap) lhsValue, (BMap) rhsValue);
             case TypeTags.ARRAY_TAG:
             case TypeTags.ANY_TAG:
                 // TODO: This block should ideally be in the ARRAY_TAG case only. Not ANY_TAG. #4505.
@@ -164,45 +164,45 @@ public class Equals extends AbstractNativeFunction {
         // Checking equality for integer fields.
         for (int i = 0; i < structType.getFieldTypeCount()[0]; i++) {
             if (lhsStruct.getIntField(i) != rhsStruct.getIntField(i)) {
-                return true;
+                return false;
             }
         }
         
         // Checking equality for float fields.
         for (int i = 0; i < structType.getFieldTypeCount()[1]; i++) {
             if (Double.compare(lhsStruct.getFloatField(i), rhsStruct.getFloatField(i)) != 0) {
-                return true;
+                return false;
             }
         }
         
         // Checking equality for string fields.
         for (int i = 0; i < structType.getFieldTypeCount()[2]; i++) {
             if (!lhsStruct.getStringField(i).equals(rhsStruct.getStringField(i))) {
-                return true;
+                return false;
             }
         }
         
         // Checking equality for boolean fields.
         for (int i = 0; i < structType.getFieldTypeCount()[3]; i++) {
             if (lhsStruct.getBooleanField(i) != rhsStruct.getBooleanField(i)) {
-                return true;
+                return false;
             }
         }
         
         // Checking equality for byte fields.
         for (int i = 0; i < structType.getFieldTypeCount()[4]; i++) {
             if (!Arrays.equals(lhsStruct.getBlobField(i), rhsStruct.getBlobField(i))) {
-                return true;
+                return false;
             }
         }
         
         // Checking equality for refs fields.
         for (int i = 0; i < structType.getFieldTypeCount()[5]; i++) {
             if (!isEqual(lhsStruct.getRefField(i), rhsStruct.getRefField(i))) {
-                return true;
+                return false;
             }
         }
-        return false;
+        return true;
     }
     
     /**
@@ -214,22 +214,22 @@ public class Equals extends AbstractNativeFunction {
     private boolean isEqual(BMap lhsMap, BMap rhsMap) {
         // Check if size is same.
         if (lhsMap.size() != rhsMap.size()) {
-            return true;
+            return false;
         }
         
         // Check if key set is equal.
         if (!lhsMap.keySet().containsAll(rhsMap.keySet())) {
-            return true;
+            return false;
         }
         
         List<String> keys = Arrays.stream(lhsMap.keySet().toArray()).map(String.class::cast).collect
                 (Collectors.toList());
         for (int i = 0; i < lhsMap.size(); i++) {
             if (!isEqual(lhsMap.get(keys.get(i)), rhsMap.get(keys.get(i)))) {
-                return true;
+                return false;
             }
         }
-        return false;
+        return true;
     }
     
     /**

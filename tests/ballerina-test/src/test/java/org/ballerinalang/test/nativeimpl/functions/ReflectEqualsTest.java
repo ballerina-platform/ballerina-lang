@@ -71,10 +71,6 @@ public class ReflectEqualsTest {
         }
     }
     
-    /**
-     * Validating assertEquals functions.
-     * @param testFunction The FunctionInfo object.
-     */
     @Test(dataProvider = "ReflectEqualsValidFunctionInfos")
     public void testPrimitivesReflectEqual(FunctionInfo testFunction) {
         BValue[] returns = BRunUtil.invoke(compileResultForPrimitives, testFunction.getName());
