@@ -1,58 +1,14 @@
-#run_application, #run_service{
-    text-align: left;
-}
-
-.panel-content .btn-debug-activate{
-    position: relative;
-    float: left;
-    height: 30px;
-    text-align: left;
-    color: white;
-    padding-left: 30px;
-    font-weight: 300;
-}
-.btn-debug-activate:hover{
-    font-weight: 500;
-}
-
- .panel-content .btn-debug-activate:hover,
-.panel-content .btn-debug-activate:active, 
-.panel-content .btn-debug-activate:focus {
-    background: #444;
-    transition: all 250ms ease 0s;
-    color: #fff;
-}
-
-.panel-content .col-xs-12 {
-    padding:0;
-    margin: 0;
-}
-
-.panel-content .btn-group > .btn, .btn-group-vertical > .btn {
-    position: relative;
-    float: left;
-    padding-left: 30px;
-}
-
-
-.panel-content .btn-debug-activate .launch-label, .panel-content .btn-debug-activate .btn-config{
-    position: absolute;
-    top: 50%;
-    transform: translateY(-50%);
-}
-
-
-.panel-content .btn-debug-activate .btn-config{
-    padding: 5px;
-    right: 5px;
-    background-color: #333;
-    color: white;
-    width: 25px;
-}
-
-.panel-content .reconnect-container{
-    text-align: center;
-    .btn-retry{
-        margin: 10px;
+.debug-buttons{
+    background : #252525;
+    margin      :0;
+    .ui.button.debug-button{
+        background      : #252525;
+        text-align      : left;
+        color : #f1f1f1!important;
+        background  : #252525; 
+        &:hover{
+            color       : #f1f1f1!important;
+            background  : #444!important;
+        }
     }
 }
