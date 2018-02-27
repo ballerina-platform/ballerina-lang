@@ -20,28 +20,49 @@ package org.ballerinalang.nativeimpl.transactions;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BBoolean;
+import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.AbstractNativeFunction;
-import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
-import org.ballerinalang.util.transactions.TransactionResourceManager;
+import java.io.IOException;
+import java.net.ServerSocket;
 
 /**
- * Native function ballerina.transactions.coordinator:prepareResourceManagers.
+ * Native function ballerina.transactions.coordinator:getAvailablePort.
  */
 @BallerinaFunction(
         packageName = "ballerina.transactions.coordinator",
-        functionName = "prepareResourceManagers",
-        args = {@Argument(name = "transactionId", type = TypeKind.STRING)},
-        returnType = {@ReturnType(type = TypeKind.BOOLEAN)}
+        functionName = "getAvailablePort",
+        returnType = {@ReturnType(type = TypeKind.INT)}
 )
-public class BalPrepareResourceManagers extends AbstractNativeFunction {
+public class BalGetAvailablePort extends AbstractNativeFunction {
 
     public BValue[] execute(Context ctx) {
-        String transactionId = getStringArgument(ctx, 0);
-        boolean prepareSuccessful = TransactionResourceManager.getInstance().prepare(transactionId);
-        return getBValues(new BBoolean(prepareSuccessful));
+        return getBValues(new BInteger(findFreePort()));
+    }
+
+    private int findFreePort() {
+        ServerSocket socket = null;
+        try {
+            socket = new ServerSocket(0);
+            socket.setReuseAddress(true);
+            int port = socket.getLocalPort();
+            try {
+                socket.close();
+            } catch (IOException e) {
+                // Ignore IOException on close()
+            }
+            return port;
+        } catch (IOException ignored) {
+        } finally {
+            if (socket != null) {
+                try {
+                    socket.close();
+                } catch (IOException ignored) {
+                }
+            }
+        }
+        throw new IllegalStateException("Could not find a free TCP/IP port");
     }
 }

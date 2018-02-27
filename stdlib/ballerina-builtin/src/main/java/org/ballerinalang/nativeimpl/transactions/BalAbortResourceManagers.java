@@ -42,7 +42,6 @@ public class BalAbortResourceManagers extends AbstractNativeFunction {
     public BValue[] execute(Context ctx) {
         String transactionId = getStringArgument(ctx, 0);
         boolean abortSuccessful = TransactionResourceManager.getInstance().notifyAbort(transactionId);
-//        boolean abortSuccessful = true; //TODO: Fixme
         return getBValues(new BBoolean(abortSuccessful));
     }
 }

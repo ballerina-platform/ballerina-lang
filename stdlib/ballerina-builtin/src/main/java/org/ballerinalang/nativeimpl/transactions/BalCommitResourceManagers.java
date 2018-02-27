@@ -42,7 +42,6 @@ public class BalCommitResourceManagers extends AbstractNativeFunction {
     public BValue[] execute(Context ctx) {
         String transactionId = getStringArgument(ctx, 0);
         boolean commitSuccessful = TransactionResourceManager.getInstance().notifyCommit(transactionId);
-//        boolean commitSuccessful = true; // TODO: Fixme
         return getBValues(new BBoolean(commitSuccessful));
     }
 }

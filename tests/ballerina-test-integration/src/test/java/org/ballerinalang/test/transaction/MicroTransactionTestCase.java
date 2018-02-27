@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.ballerinalang.test.service.http.sample;
+package org.ballerinalang.test.transaction;
 
 import org.ballerinalang.test.context.ServerInstance;
 import org.ballerinalang.test.util.HttpClientRequest;
@@ -25,7 +25,6 @@ import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-
 import java.io.File;
 import java.io.IOException;
 
@@ -33,26 +32,39 @@ import java.io.IOException;
  * Testing micro transaction header behaviour.
  */
 public class MicroTransactionTestCase {
-    private ServerInstance ballerinaServer;
+    private ServerInstance initiator;
+    private ServerInstance participant1;
+    private ServerInstance participant2;
 
     @BeforeClass
     private void setup() throws Exception {
-        ballerinaServer = ServerInstance.initBallerinaServer();
-        String balFile = new File("src" + File.separator + "test" + File.separator + "resources"
-                + File.separator + "httpService" + File.separator + "microTransactionTest.bal").getAbsolutePath();
-        ballerinaServer.startBallerinaServer(balFile);
+        initiator = ServerInstance.initBallerinaServer(8888);
+        initiator.
+                startBallerinaServer(new File("src" + File.separator + "test" + File.separator + "resources"
+                        + File.separator + "transaction" + File.separator + "initiator.bal").getAbsolutePath());
+
+        participant1 = ServerInstance.initBallerinaServer(8889);
+        participant1.
+                startBallerinaServer(new File("src" + File.separator + "test" + File.separator + "resources"
+                        + File.separator + "transaction" + File.separator + "participant1.bal").getAbsolutePath());
+
+        participant2 = ServerInstance.initBallerinaServer(8890);
+        participant2.
+                startBallerinaServer(new File("src" + File.separator + "test" + File.separator + "resources"
+                        + File.separator + "transaction" + File.separator + "participant2.bal").getAbsolutePath());
     }
 
-    @Test(description = "Test participant transaction id")
+    @Test(description = "Test participant1 transaction id")
     public void testParticipantTransactionId() throws IOException {
-        HttpResponse response = HttpClientRequest.doGet(
-                ballerinaServer.getServiceURLHttp("initiator1/"));
+        HttpResponse response = HttpClientRequest.doGet(initiator.getServiceURLHttp(""));
         Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
         Assert.assertEquals(response.getData(), "equal id", "payload mismatched");
     }
 
     @AfterClass
     private void cleanup() throws Exception {
-        ballerinaServer.stopServer();
+        initiator.stopServer();
+        participant1.stopServer();
+        participant2.stopServer();
     }
 }

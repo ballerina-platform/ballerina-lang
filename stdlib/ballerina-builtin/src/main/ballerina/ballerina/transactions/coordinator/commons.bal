@@ -178,3 +178,7 @@ function registerParticipantWithRemoteCoordinator (string transactionId, string 
     }
     return;
 }
+
+native function getAvailablePort() returns (int port);
+
+native function getHostAddress() returns (string address);
