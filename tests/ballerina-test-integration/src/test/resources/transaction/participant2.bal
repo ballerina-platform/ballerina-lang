@@ -30,8 +30,10 @@ service<http> participant2 {
     resource task2 (http:Connection conn, http:InRequest req) {
         http:OutResponse res = {};
         string result = "incorrect id";
-        if (req.getHeader("X-XID") == req.getHeader("participant-id")) {
-            result = "equal id";
+        transaction {
+            if (req.getHeader("X-XID") == req.getHeader("participant-id")) {
+                result = "equal id";
+            }
         }
         res.setStringPayload(result);
         _ = conn.respond(res);
