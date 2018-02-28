@@ -23,7 +23,6 @@ import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.model.values.BXMLItem;
 import org.testng.Assert;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
@@ -49,7 +48,6 @@ public class FailoverConnectorTest {
     @Test(description = "Test case for failover connector for at least one endpoint send success response.")
     public void testSuccessScenario() {
         long expectedHttpSC = 200;
-        String expectedMessageContent = "Ballerina";
         BValue[] returnVals = BRunUtil.invoke(compileResult, "testSuccessScenario");
 
         Assert.assertNotNull(returnVals);
@@ -58,11 +56,7 @@ public class FailoverConnectorTest {
 
         if (res != null) {
             long statusCode = res.getIntField(0);
-            BStruct messageEntity = (BStruct) res.getNativeData("message_entity");
-            String responseMsgContent = ((BXMLItem) messageEntity.getNativeData("message_datasource")).getTextValue()
-                    .stringValue();
             Assert.assertEquals(statusCode, expectedHttpSC);
-            Assert.assertEquals(responseMsgContent, expectedMessageContent);
         }
     }
 
