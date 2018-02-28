@@ -45,6 +45,7 @@ public annotation configuration attach service<> {
     string ciphers;
     string sslProtocol;
     boolean validateCertEnabled;
+    boolean ocspStaplingEnabled;
     boolean compressionEnabled;
     int cacheSize;
     int cacheValidityPeriod;

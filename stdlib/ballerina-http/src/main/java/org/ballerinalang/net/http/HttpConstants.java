@@ -101,6 +101,7 @@ public class HttpConstants {
     public static final String ANN_CONFIG_ATTR_CIPHERS = "ciphers";
     public static final String ANN_CONFIG_ATTR_SSL_PROTOCOL = "sslProtocol";
     public static final String ANN_CONFIG_ATTR_VALIDATE_CERT_ENABLED = "validateCertEnabled";
+    public static final String ANN_CONFIG_ATTR_OCSP_STAPLING_ENABLED = "ocspStaplingEnabled";
     public static final String ANN_CONFIG_ATTR_COMPRESSION_ENABLED = "compressionEnabled";
     public static final String ANN_CONFIG_ATTR_CACHE_SIZE = "cacheSize";
     public static final String ANN_CONFIG_ATTR_CACHE_VALIDITY_PERIOD = "cacheValidityPeriod";
@@ -197,6 +198,7 @@ public class HttpConstants {
     public static final int CACHE_SIZE_INDEX = 0;
     public static final int CACHE_VALIDITY_PERIOD_INDEX = 1;
     public static final int HOST_NAME_VERIFICATION_ENABLED_INDEX = 1;
+    public static final int OCSP_STAPLING_ENABLED_INDEX = 2;
 
     public static final int HTTP_MESSAGE_INDEX = 0;
     public static final int ENTITY_INDEX = 1;

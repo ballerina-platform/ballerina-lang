@@ -763,6 +763,8 @@ public class HttpUtil {
         AnnAttrValue cacheSizeAttrValue = configInfo.getAnnAttrValue(HttpConstants.ANN_CONFIG_ATTR_CACHE_SIZE);
         AnnAttrValue cacheValidityPeriodAttrValue = configInfo
                 .getAnnAttrValue(HttpConstants.ANN_CONFIG_ATTR_CACHE_VALIDITY_PERIOD);
+        AnnAttrValue ocspStaplingEnabledValue = configInfo
+                .getAnnAttrValue(HttpConstants.ANN_CONFIG_ATTR_OCSP_STAPLING_ENABLED);
 
         ListenerConfiguration listenerConfiguration = new ListenerConfiguration();
         if (httpsPortAttrVal != null && httpsPortAttrVal.getIntValue() > 0) {
@@ -813,15 +815,17 @@ public class HttpUtil {
             if (trustStorePasswordAttrVal != null) {
                 listenerConfiguration.setTrustStorePass(trustStorePasswordAttrVal.getStringValue());
             }
-            if (certificateValidationEnabledAttrValue != null && certificateValidationEnabledAttrValue
-                    .getBooleanValue()) {
+            if (certificateValidationEnabledAttrValue != null) {
                 listenerConfiguration.setValidateCertEnabled(certificateValidationEnabledAttrValue.getBooleanValue());
-                if (cacheSizeAttrValue != null) {
-                    listenerConfiguration.setCacheSize((int) cacheSizeAttrValue.getIntValue());
-                }
-                if (cacheValidityPeriodAttrValue != null) {
-                    listenerConfiguration.setCacheValidityPeriod((int) cacheValidityPeriodAttrValue.getIntValue());
-                }
+            }
+            if (cacheSizeAttrValue != null) {
+                listenerConfiguration.setCacheSize((int) cacheSizeAttrValue.getIntValue());
+            }
+            if (cacheValidityPeriodAttrValue != null) {
+                listenerConfiguration.setCacheValidityPeriod((int) cacheValidityPeriodAttrValue.getIntValue());
+            }
+            if (ocspStaplingEnabledValue != null) {
+                listenerConfiguration.setOcspStaplingEnabled(ocspStaplingEnabledValue.getBooleanValue());
             }
             List<Parameter> serverParams = new ArrayList<>();
             Parameter serverCiphers;

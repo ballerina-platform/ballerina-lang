@@ -279,6 +279,7 @@ public struct Retry {
 @Field {value:"cacheSize: Maximum size of the cache"}
 @Field {value:"cacheValidityPeriod: Time duration of cache validity period"}
 @Field {value:"hostNameVerificationEnabled: Enable/disable host name verification. {default value : true (enable)}"}
+@Field {value:"ocspStaplingEnabled: Enable/disable ocsp stapling. {default value : false (disable)}"}
 public struct SSL {
     string trustStoreFile;
     string trustStorePassword;
@@ -291,6 +292,7 @@ public struct SSL {
     int cacheSize;
     int cacheValidityPeriod;
     boolean hostNameVerificationEnabled;
+    boolean ocspStaplingEnabled;
 }
 
 @Description { value:"FollowRedirects struct represents HTTP redirect related options to be used for HTTP client invocation" }
