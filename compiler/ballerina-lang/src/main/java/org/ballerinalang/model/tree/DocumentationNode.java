@@ -19,7 +19,6 @@
 package org.ballerinalang.model.tree;
 
 import org.ballerinalang.model.tree.expressions.DocumentationAttributeNode;
-import org.ballerinalang.model.tree.expressions.ExpressionNode;
 
 import java.util.List;
 
@@ -30,9 +29,9 @@ import java.util.List;
  */
 public interface DocumentationNode extends Node {
 
-    ExpressionNode getDocumentationText();
+    String getDocumentationText();
 
-    void setDocumentationText(ExpressionNode documentationText);
+    void setDocumentationText(String documentationText);
 
     List<? extends DocumentationAttributeNode> getAttributes();
 

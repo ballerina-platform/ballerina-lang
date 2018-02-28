@@ -54,16 +54,16 @@ public class DocumentationTest {
         List<BLangDocumentation> docNodes = ((BLangAnnotation) packageNode.getAnnotations().get(0)).docAttachments;
         BLangDocumentation dNode = docNodes.get(0);
         Assert.assertNotNull(dNode);
-        Assert.assertEquals(dNode.documentationText.toString(), " Documentation for Test annotation\n");
+        Assert.assertEquals(dNode.documentationText, " Documentation for Test annotation\n");
         Assert.assertEquals(dNode.getAttributes().size(), 3);
         Assert.assertEquals(dNode.getAttributes().get(0).documentationField.getValue(), "a");
-        Assert.assertEquals(dNode.getAttributes().get(0).documentationText.toString(),
+        Assert.assertEquals(dNode.getAttributes().get(0).documentationText,
                 " annotation `field a` documentation\n");
         Assert.assertEquals(dNode.getAttributes().get(1).documentationField.getValue(), "b");
-        Assert.assertEquals(dNode.getAttributes().get(1).documentationText.toString(),
+        Assert.assertEquals(dNode.getAttributes().get(1).documentationText,
                 " annotation `field b` documentation\n");
         Assert.assertEquals(dNode.getAttributes().get(2).documentationField.getValue(), "c");
-        Assert.assertEquals(dNode.getAttributes().get(2).documentationText.toString(),
+        Assert.assertEquals(dNode.getAttributes().get(2).documentationText,
                 " annotation `field c` documentation");
     }
 
@@ -75,10 +75,10 @@ public class DocumentationTest {
         List<BLangDocumentation> docNodes = ((BLangVariable) packageNode.getGlobalVariables().get(0)).docAttachments;
         BLangDocumentation dNode = docNodes.get(0);
         Assert.assertNotNull(dNode);
-        Assert.assertEquals(dNode.documentationText.toString(), " Documentation for testConst constant\n");
+        Assert.assertEquals(dNode.documentationText, " Documentation for testConst constant\n");
         Assert.assertEquals(dNode.getAttributes().size(), 1);
         Assert.assertEquals(dNode.getAttributes().get(0).documentationField.getValue(), "testConst");
-        Assert.assertEquals(dNode.getAttributes().get(0).documentationText.toString(),
+        Assert.assertEquals(dNode.getAttributes().get(0).documentationText,
                 " constant variable `testConst`");
     }
 
@@ -90,13 +90,13 @@ public class DocumentationTest {
         List<BLangDocumentation> docNodes = ((BLangEnum) packageNode.getEnums().get(0)).docAttachments;
         BLangDocumentation dNode = docNodes.get(0);
         Assert.assertNotNull(dNode);
-        Assert.assertEquals(dNode.documentationText.toString(), " Documentation for state enum\n");
+        Assert.assertEquals(dNode.documentationText, " Documentation for state enum\n");
         Assert.assertEquals(dNode.getAttributes().size(), 2);
         Assert.assertEquals(dNode.getAttributes().get(0).documentationField.getValue(), "foo");
-        Assert.assertEquals(dNode.getAttributes().get(0).documentationText.toString(),
+        Assert.assertEquals(dNode.getAttributes().get(0).documentationText,
                 " enum `field foo` documentation\n");
         Assert.assertEquals(dNode.getAttributes().get(1).documentationField.getValue(), "bar");
-        Assert.assertEquals(dNode.getAttributes().get(1).documentationText.toString(),
+        Assert.assertEquals(dNode.getAttributes().get(1).documentationText,
                 " enum `field bar` documentation");
     }
 
@@ -108,16 +108,16 @@ public class DocumentationTest {
         List<BLangDocumentation> docNodes = ((BLangStruct) packageNode.getStructs().get(0)).docAttachments;
         BLangDocumentation dNode = docNodes.get(0);
         Assert.assertNotNull(dNode);
-        Assert.assertEquals(dNode.documentationText.toString(), " Documentation for Test struct\n");
+        Assert.assertEquals(dNode.documentationText, " Documentation for Test struct\n");
         Assert.assertEquals(dNode.getAttributes().size(), 3);
         Assert.assertEquals(dNode.getAttributes().get(0).documentationField.getValue(), "a");
-        Assert.assertEquals(dNode.getAttributes().get(0).documentationText.toString(),
+        Assert.assertEquals(dNode.getAttributes().get(0).documentationText,
                 " struct `field a` documentation\n");
         Assert.assertEquals(dNode.getAttributes().get(1).documentationField.getValue(), "b");
-        Assert.assertEquals(dNode.getAttributes().get(1).documentationText.toString(),
+        Assert.assertEquals(dNode.getAttributes().get(1).documentationText,
                 " struct `field b` documentation\n");
         Assert.assertEquals(dNode.getAttributes().get(2).documentationField.getValue(), "c");
-        Assert.assertEquals(dNode.getAttributes().get(2).documentationText.toString(),
+        Assert.assertEquals(dNode.getAttributes().get(2).documentationText,
                 " struct `field c` documentation");
     }
 
@@ -129,29 +129,29 @@ public class DocumentationTest {
         List<BLangDocumentation> docNodes = ((BLangFunction) packageNode.getFunctions().get(0)).docAttachments;
         BLangDocumentation dNode = docNodes.get(0);
         Assert.assertNotNull(dNode);
-        Assert.assertEquals(dNode.documentationText.toString(), "\n" +
+        Assert.assertEquals(dNode.documentationText, "\n" +
                 "Gets a access parameter value (`true` or `false`) for a given key. " +
                 "Please note that #foo will always be bigger than #bar.\n" +
                 "Example:\n" +
                 "``SymbolEnv pkgEnv = symbolEnter.packageEnvs.get(pkgNode.symbol);``\n");
         Assert.assertEquals(dNode.getAttributes().size(), 3);
         Assert.assertEquals(dNode.getAttributes().get(0).documentationField.getValue(), "file");
-        Assert.assertEquals(dNode.getAttributes().get(0).documentationText.toString(),
+        Assert.assertEquals(dNode.getAttributes().get(0).documentationText,
                 " file path ``C:\\users\\OddThinking\\Documents\\My Source\\Widget\\foo.src``\n");
         Assert.assertEquals(dNode.getAttributes().get(1).documentationField.getValue(), "accessMode");
-        Assert.assertEquals(dNode.getAttributes().get(1).documentationText.toString(),
+        Assert.assertEquals(dNode.getAttributes().get(1).documentationText,
                 " read or write mode\n");
         Assert.assertEquals(dNode.getAttributes().get(2).documentationField.getValue(), "successful");
-        Assert.assertEquals(dNode.getAttributes().get(2).documentationText.toString(),
+        Assert.assertEquals(dNode.getAttributes().get(2).documentationText,
                 " boolean `true` or `false`\n");
 
         docNodes = ((BLangStruct) packageNode.getStructs().get(0)).docAttachments;
         dNode = docNodes.get(0);
         Assert.assertNotNull(dNode);
-        Assert.assertEquals(dNode.documentationText.toString(), " Documentation for File struct\n");
+        Assert.assertEquals(dNode.documentationText, " Documentation for File struct\n");
         Assert.assertEquals(dNode.getAttributes().size(), 1);
         Assert.assertEquals(dNode.getAttributes().get(0).documentationField.getValue(), "path");
-        Assert.assertEquals(dNode.getAttributes().get(0).documentationText.toString(),
+        Assert.assertEquals(dNode.getAttributes().get(0).documentationText,
                 " struct `field path` documentation\n");
 
     }
@@ -161,41 +161,41 @@ public class DocumentationTest {
         CompileResult compileResult = BCompileUtil.compile(this, "test-src", "documentation/negative.bal");
         Assert.assertEquals(compileResult.getWarnCount(), 18);
         BAssertUtil.validateWarning(compileResult, 0,
-                "already documented attribute 'a' in annotation 'Test'", 5, 1);
+                "already documented attribute 'a'", 5, 1);
         BAssertUtil.validateWarning(compileResult, 1,
-                "no such documentable attribute 'c' with doc prefix 'F' in annotation 'Test'", 7, 1);
+                "no such documentable attribute 'c' with doc prefix 'F'", 7, 1);
         BAssertUtil.validateWarning(compileResult, 2,
-                "already documented attribute 'foo' in enum 'state'", 20, 1);
+                "already documented attribute 'foo'", 20, 1);
         BAssertUtil.validateWarning(compileResult, 3,
-                "no such documentable attribute 'bar' with doc prefix 'F' in enum 'state'", 21, 1);
+                "no such documentable attribute 'bar' with doc prefix 'F'", 21, 1);
         BAssertUtil.validateWarning(compileResult, 4,
-                "already documented attribute 'a' in struct 'Test'", 29, 1);
+                "already documented attribute 'a'", 29, 1);
         BAssertUtil.validateWarning(compileResult, 5,
-                "no such documentable attribute 'c' with doc prefix 'F' in struct 'Test'", 31, 1);
+                "no such documentable attribute 'c' with doc prefix 'F'", 31, 1);
         BAssertUtil.validateWarning(compileResult, 6,
-                "already documented attribute 'file' in function 'open'", 43, 1);
+                "already documented attribute 'file'", 43, 1);
         BAssertUtil.validateWarning(compileResult, 7,
-                "no such documentable attribute 'successfuls' with doc prefix 'R' in function 'open'", 45, 1);
+                "no such documentable attribute 'successfuls' with doc prefix 'R'", 45, 1);
         BAssertUtil.validateWarning(compileResult, 8,
-                "no such documentable attribute 'pa' with doc prefix 'T' in transformer 'Foo'", 60, 2);
+                "no such documentable attribute 'pa' with doc prefix 'T'", 60, 2);
         BAssertUtil.validateWarning(compileResult, 9,
-                "already documented attribute 'e' in transformer 'Foo'", 62, 2);
+                "already documented attribute 'e'", 62, 2);
         BAssertUtil.validateWarning(compileResult, 10,
-                "already documented attribute 'url' in connector 'TestConnector'", 86, 1);
+                "already documented attribute 'url'", 86, 1);
         BAssertUtil.validateWarning(compileResult, 11,
-                "no such documentable attribute 'urls' with doc prefix 'P' in connector 'TestConnector'", 87, 1);
+                "no such documentable attribute 'urls' with doc prefix 'P'", 87, 1);
         BAssertUtil.validateWarning(compileResult, 12,
-                "already documented attribute 's' in action 'testAction'", 92, 5);
+                "already documented attribute 's'", 92, 5);
         BAssertUtil.validateWarning(compileResult, 13,
-                "no such documentable attribute 'ssss' with doc prefix 'R' in action 'testAction'", 93, 5);
+                "no such documentable attribute 'ssss' with doc prefix 'R'", 93, 5);
         BAssertUtil.validateWarning(compileResult, 14,
-                "no such documentable attribute 'conn' with doc prefix 'P' in service 'PizzaService'", 101, 1);
+                "no such documentable attribute 'conn' with doc prefix 'P'", 101, 1);
         BAssertUtil.validateWarning(compileResult, 15,
-                "already documented attribute 'req' in resource 'orderPizza'", 108, 5);
+                "already documented attribute 'req'", 108, 5);
         BAssertUtil.validateWarning(compileResult, 16,
-                "no such documentable attribute 'reqest' with doc prefix 'P' in resource 'orderPizza'", 109, 5);
+                "no such documentable attribute 'reqest' with doc prefix 'P'", 109, 5);
         BAssertUtil.validateWarning(compileResult, 17,
-                "no such documentable attribute 'testConstd' with doc prefix 'V' in package", 117, 1);
+                "no such documentable attribute 'testConstd' with doc prefix 'V'", 117, 1);
     }
 
     @Test(description = "Test doc transformer.")
@@ -206,18 +206,18 @@ public class DocumentationTest {
         List<BLangDocumentation> docNodes = ((BLangTransformer) packageNode.getTransformers().get(0)).docAttachments;
         BLangDocumentation dNode = docNodes.get(0);
         Assert.assertNotNull(dNode);
-        Assert.assertEquals(dNode.documentationText.toString(), "\n" +
+        Assert.assertEquals(dNode.documentationText, "\n" +
                 " Transformer Foo Person -> Employee\n" +
                 " ");
         Assert.assertEquals(dNode.getAttributes().size(), 3);
         Assert.assertEquals(dNode.getAttributes().get(0).documentationField.getValue(), "p");
-        Assert.assertEquals(dNode.getAttributes().get(0).documentationText.toString(),
+        Assert.assertEquals(dNode.getAttributes().get(0).documentationText,
                 " input struct Person source used for transformation\n ");
         Assert.assertEquals(dNode.getAttributes().get(1).documentationField.getValue(), "e");
-        Assert.assertEquals(dNode.getAttributes().get(1).documentationText.toString(),
+        Assert.assertEquals(dNode.getAttributes().get(1).documentationText,
                 " output struct Employee struct which Person transformed to\n ");
         Assert.assertEquals(dNode.getAttributes().get(2).documentationField.getValue(), "defaultAddress");
-        Assert.assertEquals(dNode.getAttributes().get(2).documentationText.toString(),
+        Assert.assertEquals(dNode.getAttributes().get(2).documentationText,
                 " address which serves Eg: `POSTCODE 112`\n");
     }
 
@@ -230,26 +230,26 @@ public class DocumentationTest {
         List<BLangDocumentation> docNodes = service.docAttachments;
         BLangDocumentation dNode = docNodes.get(0);
         Assert.assertNotNull(dNode);
-        Assert.assertEquals(dNode.documentationText.toString(), "PizzaService HTTP Service");
+        Assert.assertEquals(dNode.documentationText, "PizzaService HTTP Service");
 
         dNode = service.getResources().get(0).docAttachments.get(0);
         Assert.assertEquals(dNode.getAttributes().size(), 2);
-        Assert.assertEquals(dNode.documentationText.toString(), "Check orderPizza resource. ");
+        Assert.assertEquals(dNode.documentationText, "Check orderPizza resource. ");
         Assert.assertEquals(dNode.getAttributes().get(0).documentationField.getValue(), "conn");
-        Assert.assertEquals(dNode.getAttributes().get(0).documentationText.toString(),
+        Assert.assertEquals(dNode.getAttributes().get(0).documentationText,
                 " HTTP connection. ");
         Assert.assertEquals(dNode.getAttributes().get(1).documentationField.getValue(), "req");
-        Assert.assertEquals(dNode.getAttributes().get(1).documentationText.toString(),
+        Assert.assertEquals(dNode.getAttributes().get(1).documentationText,
                 " In request.");
 
         dNode = service.getResources().get(1).docAttachments.get(0);
-        Assert.assertEquals(dNode.documentationText.toString(), "Check status resource. ");
+        Assert.assertEquals(dNode.documentationText, "Check status resource. ");
         Assert.assertEquals(dNode.getAttributes().size(), 2);
         Assert.assertEquals(dNode.getAttributes().get(0).documentationField.getValue(), "conn");
-        Assert.assertEquals(dNode.getAttributes().get(0).documentationText.toString(),
+        Assert.assertEquals(dNode.getAttributes().get(0).documentationText,
                 " HTTP connection. ");
         Assert.assertEquals(dNode.getAttributes().get(1).documentationField.getValue(), "req");
-        Assert.assertEquals(dNode.getAttributes().get(1).documentationText.toString(),
+        Assert.assertEquals(dNode.getAttributes().get(1).documentationText,
                 " In request.");
     }
 
@@ -263,31 +263,31 @@ public class DocumentationTest {
         BLangDocumentation dNode = docNodes.get(0);
         Assert.assertNotNull(dNode);
         Assert.assertEquals(dNode.getAttributes().size(), 2);
-        Assert.assertEquals(dNode.documentationText.toString(), "Test Connector\n");
+        Assert.assertEquals(dNode.documentationText, "Test Connector\n");
         Assert.assertEquals(dNode.getAttributes().get(0).documentationField.getValue(), "url");
-        Assert.assertEquals(dNode.getAttributes().get(0).documentationText.toString(),
+        Assert.assertEquals(dNode.getAttributes().get(0).documentationText,
                 " url for endpoint\n");
         Assert.assertEquals(dNode.getAttributes().get(1).documentationField.getValue(), "path");
-        Assert.assertEquals(dNode.getAttributes().get(1).documentationText.toString(),
+        Assert.assertEquals(dNode.getAttributes().get(1).documentationText,
                 " path for endpoint\n");
 
         dNode = connector.getActions().get(0).docAttachments.get(0);
         Assert.assertEquals(dNode.getAttributes().size(), 1);
-        Assert.assertEquals(dNode.documentationText.toString(),
+        Assert.assertEquals(dNode.documentationText,
                 "Test Connector action testAction ");
         Assert.assertEquals(dNode.getAttributes().get(0).documentationField.getValue(), "s");
-        Assert.assertEquals(dNode.getAttributes().get(0).documentationText.toString(),
+        Assert.assertEquals(dNode.getAttributes().get(0).documentationText,
                 " which represent successful or not");
 
         dNode = connector.getActions().get(1).docAttachments.get(0);
-        Assert.assertEquals(dNode.documentationText.toString(),
+        Assert.assertEquals(dNode.documentationText,
                 "Test Connector action testSend ");
         Assert.assertEquals(dNode.getAttributes().size(), 2);
         Assert.assertEquals(dNode.getAttributes().get(0).documentationField.getValue(), "ep");
-        Assert.assertEquals(dNode.getAttributes().get(0).documentationText.toString(),
+        Assert.assertEquals(dNode.getAttributes().get(0).documentationText,
                 " which represent successful or not ");
         Assert.assertEquals(dNode.getAttributes().get(1).documentationField.getValue(), "s");
-        Assert.assertEquals(dNode.getAttributes().get(1).documentationText.toString(),
+        Assert.assertEquals(dNode.getAttributes().get(1).documentationText,
                 " which represent successful or not");
     }
 
@@ -301,59 +301,59 @@ public class DocumentationTest {
         BLangDocumentation dNode = docNodes.get(0);
         Assert.assertNotNull(dNode);
         Assert.assertEquals(dNode.getAttributes().size(), 2);
-        Assert.assertEquals(dNode.documentationText.toString(), "Test Connector\n");
+        Assert.assertEquals(dNode.documentationText, "Test Connector\n");
         Assert.assertEquals(dNode.getAttributes().get(0).documentationField.getValue(), "url");
-        Assert.assertEquals(dNode.getAttributes().get(0).documentationText.toString(),
+        Assert.assertEquals(dNode.getAttributes().get(0).documentationText,
                 " url for endpoint\n");
         Assert.assertEquals(dNode.getAttributes().get(1).documentationField.getValue(), "path");
-        Assert.assertEquals(dNode.getAttributes().get(1).documentationText.toString(),
+        Assert.assertEquals(dNode.getAttributes().get(1).documentationText,
                 " path for endpoint\n");
 
         dNode = connector.getActions().get(0).docAttachments.get(0);
         Assert.assertEquals(dNode.getAttributes().size(), 1);
-        Assert.assertEquals(dNode.documentationText.toString(),
+        Assert.assertEquals(dNode.documentationText,
                 "Test Connector action testAction ");
         Assert.assertEquals(dNode.getAttributes().get(0).documentationField.getValue(), "s");
-        Assert.assertEquals(dNode.getAttributes().get(0).documentationText.toString(),
+        Assert.assertEquals(dNode.getAttributes().get(0).documentationText,
                 " which represent successful or not");
 
         dNode = connector.getActions().get(1).docAttachments.get(0);
-        Assert.assertEquals(dNode.documentationText.toString(),
+        Assert.assertEquals(dNode.documentationText,
                 "Test Connector action testSend ");
         Assert.assertEquals(dNode.getAttributes().size(), 2);
         Assert.assertEquals(dNode.getAttributes().get(0).documentationField.getValue(), "ep");
-        Assert.assertEquals(dNode.getAttributes().get(0).documentationText.toString(),
+        Assert.assertEquals(dNode.getAttributes().get(0).documentationText,
                 " which represent successful or not ");
         Assert.assertEquals(dNode.getAttributes().get(1).documentationField.getValue(), "s");
-        Assert.assertEquals(dNode.getAttributes().get(1).documentationText.toString(),
+        Assert.assertEquals(dNode.getAttributes().get(1).documentationText,
                 " which represent successful or not");
 
         docNodes = ((BLangFunction) packageNode.getFunctions().get(0)).docAttachments;
         dNode = docNodes.get(0);
         Assert.assertNotNull(dNode);
-        Assert.assertEquals(dNode.documentationText.toString(), "\n" +
+        Assert.assertEquals(dNode.documentationText, "\n" +
                 "Gets a access parameter value (`true` or `false`) for a given key. " +
                 "Please note that #foo will always be bigger than #bar.\n" +
                 "Example:\n" +
                 "``SymbolEnv pkgEnv = symbolEnter.packageEnvs.get(pkgNode.symbol);``\n");
         Assert.assertEquals(dNode.getAttributes().size(), 3);
         Assert.assertEquals(dNode.getAttributes().get(0).documentationField.getValue(), "file");
-        Assert.assertEquals(dNode.getAttributes().get(0).documentationText.toString(),
+        Assert.assertEquals(dNode.getAttributes().get(0).documentationText,
                 " file path ``C:\\users\\OddThinking\\Documents\\My Source\\Widget\\foo.src``\n");
         Assert.assertEquals(dNode.getAttributes().get(1).documentationField.getValue(), "accessMode");
-        Assert.assertEquals(dNode.getAttributes().get(1).documentationText.toString(),
+        Assert.assertEquals(dNode.getAttributes().get(1).documentationText,
                 " read or write mode\n");
         Assert.assertEquals(dNode.getAttributes().get(2).documentationField.getValue(), "successful");
-        Assert.assertEquals(dNode.getAttributes().get(2).documentationText.toString(),
+        Assert.assertEquals(dNode.getAttributes().get(2).documentationText,
                 " boolean `true` or `false`\n");
 
         docNodes = ((BLangStruct) packageNode.getStructs().get(0)).docAttachments;
         dNode = docNodes.get(0);
         Assert.assertNotNull(dNode);
-        Assert.assertEquals(dNode.documentationText.toString(), " Documentation for File struct\n");
+        Assert.assertEquals(dNode.documentationText, " Documentation for File struct\n");
         Assert.assertEquals(dNode.getAttributes().size(), 1);
         Assert.assertEquals(dNode.getAttributes().get(0).documentationField.getValue(), "path");
-        Assert.assertEquals(dNode.getAttributes().get(0).documentationText.toString(),
+        Assert.assertEquals(dNode.getAttributes().get(0).documentationText,
                 " struct `field path` documentation\n");
     }
 
@@ -367,7 +367,7 @@ public class DocumentationTest {
         BLangDocumentation dNode = docNodes.get(0);
         Assert.assertNotNull(dNode);
         Assert.assertEquals(dNode.getAttributes().size(), 0);
-        Assert.assertEquals(dNode.documentationText.toString(), "\n" +
+        Assert.assertEquals(dNode.documentationText, "\n" +
                 "  Example of a string template:\n" +
                 "    ``string s = string `hello {{name}}`;``\n" +
                 "\n" +
@@ -385,7 +385,7 @@ public class DocumentationTest {
         BLangDocumentation dNode = docNodes.get(0);
         Assert.assertNotNull(dNode);
         Assert.assertEquals(dNode.getAttributes().size(), 0);
-        Assert.assertEquals(dNode.documentationText.toString(), "\n" +
+        Assert.assertEquals(dNode.documentationText, "\n" +
                 "  Example of a string template:\n" +
                 "    ```string s = string `hello {{name}}`;```\n" +
                 "\n" +
@@ -402,71 +402,71 @@ public class DocumentationTest {
         List<BLangDocumentation> docNodes = ((BLangAnnotation) packageNode.getAnnotations().get(0)).docAttachments;
         BLangDocumentation dNode = docNodes.get(0);
         Assert.assertNotNull(dNode);
-        Assert.assertEquals(dNode.documentationText.toString(), " Documentation for Test annotation\n");
+        Assert.assertEquals(dNode.documentationText, " Documentation for Test annotation\n");
         Assert.assertEquals(dNode.getAttributes().size(), 3);
         Assert.assertEquals(dNode.getAttributes().get(0).documentationField.getValue(), "a");
-        Assert.assertEquals(dNode.getAttributes().get(0).documentationText.toString(),
+        Assert.assertEquals(dNode.getAttributes().get(0).documentationText,
                 " annotation `field a` documentation\n");
         Assert.assertEquals(dNode.getAttributes().get(1).documentationField.getValue(), "b");
-        Assert.assertEquals(dNode.getAttributes().get(1).documentationText.toString(),
+        Assert.assertEquals(dNode.getAttributes().get(1).documentationText,
                 " annotation `field b` documentation\n");
         Assert.assertEquals(dNode.getAttributes().get(2).documentationField.getValue(), "c");
-        Assert.assertEquals(dNode.getAttributes().get(2).documentationText.toString(),
+        Assert.assertEquals(dNode.getAttributes().get(2).documentationText,
                 " annotation `field c` documentation");
 
         docNodes = ((BLangEnum) packageNode.getEnums().get(0)).docAttachments;
         dNode = docNodes.get(0);
         Assert.assertNotNull(dNode);
-        Assert.assertEquals(dNode.documentationText.toString(), " Documentation for state enum\n");
+        Assert.assertEquals(dNode.documentationText, " Documentation for state enum\n");
         Assert.assertEquals(dNode.getAttributes().size(), 2);
         Assert.assertEquals(dNode.getAttributes().get(0).documentationField.getValue(), "foo");
-        Assert.assertEquals(dNode.getAttributes().get(0).documentationText.toString(),
+        Assert.assertEquals(dNode.getAttributes().get(0).documentationText,
                 " enum `field foo` documentation\n");
         Assert.assertEquals(dNode.getAttributes().get(1).documentationField.getValue(), "bar");
-        Assert.assertEquals(dNode.getAttributes().get(1).documentationText.toString(),
+        Assert.assertEquals(dNode.getAttributes().get(1).documentationText,
                 " enum `field bar` documentation");
 
         docNodes = ((BLangTransformer) packageNode.getTransformers().get(0)).docAttachments;
         dNode = docNodes.get(0);
         Assert.assertNotNull(dNode);
-        Assert.assertEquals(dNode.documentationText.toString(), "\n" +
+        Assert.assertEquals(dNode.documentationText, "\n" +
                 " Transformer Foo Person -> Employee\n" +
                 " ");
         Assert.assertEquals(dNode.getAttributes().size(), 3);
         Assert.assertEquals(dNode.getAttributes().get(0).documentationField.getValue(), "p");
-        Assert.assertEquals(dNode.getAttributes().get(0).documentationText.toString(),
+        Assert.assertEquals(dNode.getAttributes().get(0).documentationText,
                 " input struct Person source used for transformation\n ");
         Assert.assertEquals(dNode.getAttributes().get(1).documentationField.getValue(), "e");
-        Assert.assertEquals(dNode.getAttributes().get(1).documentationText.toString(),
+        Assert.assertEquals(dNode.getAttributes().get(1).documentationText,
                 " output struct Employee struct which Person transformed to\n ");
         Assert.assertEquals(dNode.getAttributes().get(2).documentationField.getValue(), "defaultAddress");
-        Assert.assertEquals(dNode.getAttributes().get(2).documentationText.toString(),
+        Assert.assertEquals(dNode.getAttributes().get(2).documentationText,
                 " address which serves Eg: `POSTCODE 112`\n");
 
         BLangService service = (BLangService) packageNode.getServices().get(0);
         docNodes = service.docAttachments;
         dNode = docNodes.get(0);
         Assert.assertNotNull(dNode);
-        Assert.assertEquals(dNode.documentationText.toString(), "PizzaService HTTP Service");
+        Assert.assertEquals(dNode.documentationText, "PizzaService HTTP Service");
 
         dNode = service.getResources().get(0).docAttachments.get(0);
         Assert.assertEquals(dNode.getAttributes().size(), 2);
-        Assert.assertEquals(dNode.documentationText.toString(), "Check orderPizza resource. ");
+        Assert.assertEquals(dNode.documentationText, "Check orderPizza resource. ");
         Assert.assertEquals(dNode.getAttributes().get(0).documentationField.getValue(), "conn");
-        Assert.assertEquals(dNode.getAttributes().get(0).documentationText.toString(),
+        Assert.assertEquals(dNode.getAttributes().get(0).documentationText,
                 " HTTP connection. ");
         Assert.assertEquals(dNode.getAttributes().get(1).documentationField.getValue(), "req");
-        Assert.assertEquals(dNode.getAttributes().get(1).documentationText.toString(),
+        Assert.assertEquals(dNode.getAttributes().get(1).documentationText,
                 " In request.");
 
         dNode = service.getResources().get(1).docAttachments.get(0);
-        Assert.assertEquals(dNode.documentationText.toString(), "Check status resource. ");
+        Assert.assertEquals(dNode.documentationText, "Check status resource. ");
         Assert.assertEquals(dNode.getAttributes().size(), 2);
         Assert.assertEquals(dNode.getAttributes().get(0).documentationField.getValue(), "conn");
-        Assert.assertEquals(dNode.getAttributes().get(0).documentationText.toString(),
+        Assert.assertEquals(dNode.getAttributes().get(0).documentationText,
                 " HTTP connection. ");
         Assert.assertEquals(dNode.getAttributes().get(1).documentationField.getValue(), "req");
-        Assert.assertEquals(dNode.getAttributes().get(1).documentationText.toString(),
+        Assert.assertEquals(dNode.getAttributes().get(1).documentationText,
                 " In request.");
     }
 
@@ -487,56 +487,56 @@ public class DocumentationTest {
         List<BLangDeprecatedNode> dNodes = ((BLangFunction) packageNode.getFunctions().get(0)).deprecatedAttachments;
         BLangDeprecatedNode dNode = dNodes.get(0);
         Assert.assertNotNull(dNode);
-        Assert.assertEquals(dNode.documentationText.toString(), "\n" +
+        Assert.assertEquals(dNode.documentationText, "\n" +
                 "  This function is deprecated use `openFile(string accessMode){}` instead.\n");
 
         dNodes = ((BLangStruct) packageNode.getStructs().get(0)).deprecatedAttachments;
         dNode = dNodes.get(0);
         Assert.assertNotNull(dNode);
-        Assert.assertEquals(dNode.documentationText.toString(), "\n" +
+        Assert.assertEquals(dNode.documentationText, "\n" +
                 "  This Struct is deprecated use `File2` instead.\n");
 
         dNodes = ((BLangEnum) packageNode.getEnums().get(0)).deprecatedAttachments;
         dNode = dNodes.get(0);
         Assert.assertNotNull(dNode);
-        Assert.assertEquals(dNode.documentationText.toString(), "\n" +
+        Assert.assertEquals(dNode.documentationText, "\n" +
                 "  This Enum is deprecated use `Enum2` instead.\n");
 
         dNodes = ((BLangEnum) packageNode.getEnums().get(0)).deprecatedAttachments;
         dNode = dNodes.get(0);
         Assert.assertNotNull(dNode);
-        Assert.assertEquals(dNode.documentationText.toString(), "\n" +
+        Assert.assertEquals(dNode.documentationText, "\n" +
                 "  This Enum is deprecated use `Enum2` instead.\n");
 
         dNodes = ((BLangVariable) packageNode.getGlobalVariables().get(0)).deprecatedAttachments;
         dNode = dNodes.get(0);
         Assert.assertNotNull(dNode);
-        Assert.assertEquals(dNode.documentationText.toString(), "use ```const string testConst = " +
+        Assert.assertEquals(dNode.documentationText, "use ```const string testConst = " +
                 "\"TestConstantDocumentation\";``` instead");
 
         dNodes = ((BLangConnector) packageNode.getConnectors().get(0)).deprecatedAttachments;
         dNode = dNodes.get(0);
         Assert.assertNotNull(dNode);
-        Assert.assertEquals(dNode.documentationText.toString(), "\n" +
+        Assert.assertEquals(dNode.documentationText, "\n" +
                 "  This Connector is deprecated use `Connector(string url2){}` instead.\n");
 
         dNodes = ((BLangConnector) packageNode.getConnectors().get(0)).getActions().get(0).deprecatedAttachments;
         dNode = dNodes.get(0);
         Assert.assertNotNull(dNode);
-        Assert.assertEquals(dNode.documentationText.toString(), "\n" +
+        Assert.assertEquals(dNode.documentationText, "\n" +
                 "      This action is deprecated use `Connector.test(string url2){}` instead.\n" +
                 "    ");
 
         dNodes = ((BLangService) packageNode.getServices().get(0)).deprecatedAttachments;
         dNode = dNodes.get(0);
         Assert.assertNotNull(dNode);
-        Assert.assertEquals(dNode.documentationText.toString(), "\n" +
+        Assert.assertEquals(dNode.documentationText, "\n" +
                 "  This Service is deprecated use `PizzaHutService{}` instead.\n");
 
         dNodes = ((BLangService) packageNode.getServices().get(0)).getResources().get(0).deprecatedAttachments;
         dNode = dNodes.get(0);
         Assert.assertNotNull(dNode);
-        Assert.assertEquals(dNode.documentationText.toString(),
+        Assert.assertEquals(dNode.documentationText,
                 "This Resource is deprecated use `PizzaHutService.orderFromPizza()` instead.");
 
     }
@@ -551,7 +551,7 @@ public class DocumentationTest {
                 .getTransformers().get(0)).deprecatedAttachments;
         BLangDeprecatedNode dNode = dNodes.get(0);
         Assert.assertNotNull(dNode);
-        Assert.assertEquals(dNode.documentationText.toString(), "\n" +
+        Assert.assertEquals(dNode.documentationText, "\n" +
                 "  This Transformer is deprecated use\n" +
                 "  `transformer <Person p, Employee e> Bar(any defaultAddress) { e.name = p.firstName; }\n" +
                 "  ` instead.\n");
@@ -560,16 +560,16 @@ public class DocumentationTest {
                 .getTransformers().get(0)).docAttachments;
         BLangDocumentation docNode = docNodes.get(0);
         Assert.assertNotNull(docNode);
-        Assert.assertEquals(docNode.documentationText.toString(), "\n Transformer Foo Person -> Employee\n ");
+        Assert.assertEquals(docNode.documentationText, "\n Transformer Foo Person -> Employee\n ");
         Assert.assertEquals(docNode.getAttributes().size(), 3);
         Assert.assertEquals(docNode.getAttributes().get(0).documentationField.getValue(), "p");
-        Assert.assertEquals(docNode.getAttributes().get(0).documentationText.toString(),
+        Assert.assertEquals(docNode.getAttributes().get(0).documentationText,
                 " input struct Person source used for transformation\n ");
         Assert.assertEquals(docNode.getAttributes().get(1).documentationField.getValue(), "e");
-        Assert.assertEquals(docNode.getAttributes().get(1).documentationText.toString(),
+        Assert.assertEquals(docNode.getAttributes().get(1).documentationText,
                 " output struct Employee struct which Person transformed to\n ");
         Assert.assertEquals(docNode.getAttributes().get(2).documentationField.getValue(), "defaultAddress");
-        Assert.assertEquals(docNode.getAttributes().get(2).documentationText.toString(),
+        Assert.assertEquals(docNode.getAttributes().get(2).documentationText,
                 " address which serves Eg: `POSTCODE 112`\n");
     }
 
@@ -579,22 +579,22 @@ public class DocumentationTest {
                 CompilerPhase.TYPE_CHECK);
         Assert.assertEquals(1, compileResult.getWarnCount());
         BAssertUtil.validateWarning(compileResult, 0,
-                "no such documentable attribute 'successful' with doc prefix 'P' in function 'open'", 6, 1);
+                "no such documentable attribute 'successful' with doc prefix 'P'", 6, 1);
         PackageNode packageNode = compileResult.getAST();
         List<BLangDocumentation> docNodes = ((BLangFunction) packageNode.getFunctions().get(0)).docAttachments;
         BLangDocumentation dNode = docNodes.get(0);
         Assert.assertNotNull(dNode);
-        Assert.assertEquals(dNode.documentationText.toString(), "\n" +
+        Assert.assertEquals(dNode.documentationText, "\n" +
                 "Gets a access parameter value (`true` or `false`) for a given key. " +
                 "Please note that #foo will always be bigger than #bar.\n" +
                 "Example:\n" +
                 "``SymbolEnv pkgEnv = symbolEnter.packageEnvs.get(pkgNode.symbol);``\n");
         Assert.assertEquals(dNode.getAttributes().size(), 2);
         Assert.assertEquals(dNode.getAttributes().get(0).documentationField.getValue(), "accessMode");
-        Assert.assertEquals(dNode.getAttributes().get(0).documentationText.toString(),
+        Assert.assertEquals(dNode.getAttributes().get(0).documentationText,
                 " read or write mode\n");
         Assert.assertEquals(dNode.getAttributes().get(1).documentationField.getValue(), "successful");
-        Assert.assertEquals(dNode.getAttributes().get(1).documentationText.toString(),
+        Assert.assertEquals(dNode.getAttributes().get(1).documentationText,
                 " boolean `true` or `false`\n");
 
     }
@@ -605,27 +605,27 @@ public class DocumentationTest {
                 CompilerPhase.TYPE_CHECK);
         Assert.assertEquals(1, compileResult.getWarnCount());
         BAssertUtil.validateWarning(compileResult, 0,
-                "no such documentable attribute 's' with doc prefix 'P' in action 'testAction'", 7, 53);
+                "no such documentable attribute 's' with doc prefix 'P'", 7, 53);
         PackageNode packageNode = compileResult.getAST();
         BLangConnector connector = (BLangConnector) packageNode.getConnectors().get(0);
         List<BLangDocumentation> docNodes = connector.docAttachments;
         BLangDocumentation dNode = docNodes.get(0);
         Assert.assertNotNull(dNode);
         Assert.assertEquals(dNode.getAttributes().size(), 2);
-        Assert.assertEquals(dNode.documentationText.toString(), "Test Connector\n");
+        Assert.assertEquals(dNode.documentationText, "Test Connector\n");
         Assert.assertEquals(dNode.getAttributes().get(0).documentationField.getValue(), "url");
-        Assert.assertEquals(dNode.getAttributes().get(0).documentationText.toString(),
+        Assert.assertEquals(dNode.getAttributes().get(0).documentationText,
                 " url for endpoint\n");
         Assert.assertEquals(dNode.getAttributes().get(1).documentationField.getValue(), "path");
-        Assert.assertEquals(dNode.getAttributes().get(1).documentationText.toString(),
+        Assert.assertEquals(dNode.getAttributes().get(1).documentationText,
                 " path for endpoint\n");
 
         dNode = connector.getActions().get(0).docAttachments.get(0);
         Assert.assertEquals(dNode.getAttributes().size(), 1);
-        Assert.assertEquals(dNode.documentationText.toString(),
+        Assert.assertEquals(dNode.documentationText,
                 "Test Connector action testAction ");
         Assert.assertEquals(dNode.getAttributes().get(0).documentationField.getValue(), "s");
-        Assert.assertEquals(dNode.getAttributes().get(0).documentationText.toString(),
+        Assert.assertEquals(dNode.getAttributes().get(0).documentationText,
                 " which represent successful or not");
 
     }
@@ -640,7 +640,7 @@ public class DocumentationTest {
         BLangDocumentation dNode = docNodes.get(0);
         Assert.assertNotNull(dNode);
         Assert.assertEquals(dNode.getAttributes().size(), 0);
-        Assert.assertEquals(dNode.documentationText.toString(), "\n" +
+        Assert.assertEquals(dNode.documentationText, "\n" +
                 "  Example of a string template:\n" +
                 "  ``` This starts ends triple backtick  ``string s = string `hello {{name}}`;`` " +
                 "ends triple backtick```\n" +
@@ -659,7 +659,7 @@ public class DocumentationTest {
         List<BLangDeprecatedNode> docNodes = constant.deprecatedAttachments;
         BLangDeprecatedNode dNode = docNodes.get(0);
         Assert.assertNotNull(dNode);
-        Assert.assertEquals(dNode.documentationText.toString(), "\n" +
+        Assert.assertEquals(dNode.documentationText, "\n" +
                 "  Example of a string templates:\n" +
                 "  ``` This starts ends triple backtick  ``string s = string `hello {{name}}`;`` " +
                 "ends triple backtick```\n" +

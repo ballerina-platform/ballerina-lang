@@ -20,27 +20,25 @@ package org.wso2.ballerinalang.compiler.tree;
 
 import org.ballerinalang.model.tree.DeprecatedNode;
 import org.ballerinalang.model.tree.NodeKind;
-import org.ballerinalang.model.tree.expressions.ExpressionNode;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 
 /**
  * @since 0.962.0
  */
 public class BLangDeprecatedNode extends BLangNode implements DeprecatedNode {
 
-    public BLangExpression documentationText;
+    public String documentationText;
 
     public BLangDeprecatedNode() {
     }
 
     @Override
-    public BLangExpression getDocumentationText() {
+    public String getDocumentationText() {
         return documentationText;
     }
 
     @Override
-    public void setDocumentationText(ExpressionNode documentationText) {
-        this.documentationText = (BLangExpression) documentationText;
+    public void setDocumentationText(String documentationText) {
+        this.documentationText = documentationText;
     }
 
     @Override

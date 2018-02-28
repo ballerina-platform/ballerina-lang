@@ -21,9 +21,7 @@ package org.wso2.ballerinalang.compiler.tree;
 import org.ballerinalang.model.tree.DocumentationNode;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.expressions.DocumentationAttributeNode;
-import org.ballerinalang.model.tree.expressions.ExpressionNode;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangDocumentationAttribute;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,7 +31,7 @@ import java.util.List;
  */
 public class BLangDocumentation extends BLangNode implements DocumentationNode {
 
-    public BLangExpression documentationText;
+    public String documentationText;
     public List<BLangDocumentationAttribute> attributes;
 
 
@@ -50,13 +48,13 @@ public class BLangDocumentation extends BLangNode implements DocumentationNode {
     }
 
     @Override
-    public BLangExpression getDocumentationText() {
+    public String getDocumentationText() {
         return documentationText;
     }
 
     @Override
-    public void setDocumentationText(ExpressionNode documentationText) {
-        this.documentationText = (BLangExpression) documentationText;
+    public void setDocumentationText(String documentationText) {
+        this.documentationText = documentationText;
     }
 
     @Override

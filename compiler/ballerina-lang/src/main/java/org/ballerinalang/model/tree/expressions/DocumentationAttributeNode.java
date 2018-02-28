@@ -30,8 +30,8 @@ public interface DocumentationAttributeNode extends ExpressionNode {
 
     void setDocumentationField(IdentifierNode field);
 
-    ExpressionNode getDocumentationText();
+    String getDocumentationText();
 
-    void setDocumentationText(ExpressionNode documentationText);
+    void setDocumentationText(String documentationText);
 
 }

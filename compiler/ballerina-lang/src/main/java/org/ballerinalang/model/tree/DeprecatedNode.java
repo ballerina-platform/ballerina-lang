@@ -18,7 +18,6 @@
 
 package org.ballerinalang.model.tree;
 
-import org.ballerinalang.model.tree.expressions.ExpressionNode;
 
 /**
  * Represents a deprecated Node in Ballerina.
@@ -27,8 +26,8 @@ import org.ballerinalang.model.tree.expressions.ExpressionNode;
  */
 public interface DeprecatedNode {
 
-    ExpressionNode getDocumentationText();
+    String getDocumentationText();
 
-    void setDocumentationText(ExpressionNode documentationText);
+    void setDocumentationText(String documentationText);
 
 }

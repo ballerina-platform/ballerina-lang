@@ -1220,8 +1220,7 @@ public class BLangPackageBuilder {
         DocumentationNode  docAttachmentNode = docAttachmentStack.peek();
         docAttachmentNode.addWS(ws);
 
-        addLiteralValue(pos, ws, TypeTags.STRING, contentText);
-        docAttachmentNode.setDocumentationText(exprNodeStack.pop());
+        docAttachmentNode.setDocumentationText(contentText);
     }
 
     public void createDocumentationAttribute(DiagnosticPos pos,
@@ -1232,8 +1231,7 @@ public class BLangPackageBuilder {
                 (BLangDocumentationAttribute) TreeBuilder.createDocumentationAttributeNode();
         attrib.documentationField = (BLangIdentifier) createIdentifier(attributeName);
 
-        addLiteralValue(pos, ws, TypeTags.STRING, endText);
-        attrib.documentationText = (BLangExpression) exprNodeStack.pop();
+        attrib.documentationText = endText;
         attrib.docTag = DocTag.fromString(docPrefix);
 
         attrib.pos = pos;
@@ -1249,8 +1247,7 @@ public class BLangPackageBuilder {
         deprecatedNode.pos = pos;
         deprecatedNode.addWS(ws);
 
-        addLiteralValue(pos, ws, TypeTags.STRING, content);
-        deprecatedNode.documentationText = (BLangExpression) exprNodeStack.pop();
+        deprecatedNode.documentationText = content;
         deprecatedAttachmentStack.push(deprecatedNode);
     }
 

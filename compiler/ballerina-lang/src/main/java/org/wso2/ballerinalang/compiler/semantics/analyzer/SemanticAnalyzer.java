@@ -19,7 +19,6 @@ package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.model.TreeBuilder;
-import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.statements.StatementNode;
 import org.ballerinalang.model.tree.types.BuiltInReferenceTypeNode;
@@ -102,8 +101,10 @@ import org.wso2.ballerinalang.util.Lists;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -255,58 +256,33 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangDocumentation docNode) {
-        List<BLangIdentifier> tempAttributes = new ArrayList<>();
+        Set<BLangIdentifier> visitedAttributes = new HashSet<>();
         for (BLangDocumentationAttribute attribute : docNode.attributes) {
-            Optional<BLangIdentifier> matchingAttribute = tempAttributes
-                    .stream()
-                    .filter(identifier -> identifier.equals(attribute.documentationField))
-                    .findAny();
-
-            BSymbol owner = this.env.scope.owner;
-            String construct;
-            if (this.env.node.getKind() == NodeKind.PACKAGE) {
-                construct = (owner.pkgID == null ||
-                        owner.pkgID == PackageID.DEFAULT) ?
-                        this.env.node.getKind().name().toLowerCase()
-                        : this.env.node.getKind().name().toLowerCase() + " \'" + owner.name + "\'";
-            } else if (this.env.node.getKind() == NodeKind.FUNCTION) {
-                String funcName = ((BLangFunction) this.env.node).name.getValue();
-                String qualifiedName = (owner.pkgID == null ||
-                        owner.pkgID == PackageID.DEFAULT || owner.pkgID.name == Names.BUILTIN_PACKAGE) ?
-                        funcName
-                        : (owner.pkgID + ":" + funcName);
-                construct = this.env.node.getKind().name().toLowerCase() + " \'" + qualifiedName + "\'";
-            } else {
-                String qualifiedName = (owner.pkgID == null ||
-                        owner.pkgID == PackageID.DEFAULT || owner.pkgID.name == Names.BUILTIN_PACKAGE) ?
-                        owner.name.getValue()
-                        : (owner.pkgID + ":" + owner.name);
-                construct = this.env.node.getKind().name().toLowerCase() + " \'" + qualifiedName + "\'";
-            }
-
-            if (matchingAttribute.isPresent()) {
+            if (!visitedAttributes.add(attribute.documentationField)) {
                 this.dlog.warning(attribute.pos, DiagnosticCode.DUPLICATE_DOCUMENTED_ATTRIBUTE,
-                        attribute.documentationField, construct);
+                        attribute.documentationField);
+                continue;
             }
-            tempAttributes.add(attribute.documentationField);
-
-            BSymbol attributeSymbol;
             Name attributeName = names.fromIdNode(attribute.documentationField);
+            BSymbol attributeSymbol = this.env.scope.lookup(attributeName).symbol;
+            if (attributeSymbol == null) {
+                this.dlog.warning(attribute.pos, DiagnosticCode.NO_SUCH_DOCUMENTABLE_ATTRIBUTE,
+                        attribute.documentationField, attribute.docTag.getValue());
+                continue;
+            }
             int ownerSymTag = env.scope.owner.tag;
             if ((ownerSymTag & SymTag.ANNOTATION) == SymTag.ANNOTATION) {
-                attributeSymbol = this.env.scope.lookup(attributeName).symbol;
-                if (attributeSymbol == null || attributeSymbol.tag != SymTag.ANNOTATION_ATTRIBUTE
+                if (attributeSymbol.tag != SymTag.ANNOTATION_ATTRIBUTE
                         || ((BAnnotationAttributeSymbol) attributeSymbol).docTag != attribute.docTag) {
                     this.dlog.warning(attribute.pos, DiagnosticCode.NO_SUCH_DOCUMENTABLE_ATTRIBUTE,
-                            attribute.documentationField, attribute.docTag.getValue(), construct);
+                            attribute.documentationField, attribute.docTag.getValue());
                     continue;
                 }
             } else {
-                attributeSymbol = this.env.scope.lookup(attributeName).symbol;
-                if (attributeSymbol == null || attributeSymbol.tag != SymTag.VARIABLE
+                if (attributeSymbol.tag != SymTag.VARIABLE
                         || ((BVarSymbol) attributeSymbol).docTag != attribute.docTag) {
                     this.dlog.warning(attribute.pos, DiagnosticCode.NO_SUCH_DOCUMENTABLE_ATTRIBUTE,
-                            attribute.documentationField, attribute.docTag.getValue(), construct);
+                            attribute.documentationField, attribute.docTag.getValue());
                     continue;
                 }
             }
