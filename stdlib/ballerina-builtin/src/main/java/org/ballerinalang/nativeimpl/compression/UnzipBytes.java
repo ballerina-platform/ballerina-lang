@@ -39,7 +39,7 @@ import java.util.zip.ZipInputStream;
 /**
  * Native function ballerina.compression:unzipBytes.
  *
- * @since 0.962.0
+ * @since 0.964
  */
 @BallerinaFunction(
         packageName = "ballerina.compression",
@@ -69,7 +69,7 @@ public class UnzipBytes extends AbstractNativeFunction {
      * Decompress/unzip byte arrays/blob.
      *  @param fileContentAsByteArray file content as a byte arry
      * @param outputFolder           destination folder
-     * @param folderToUnzip
+     * @param folderToUnzip folder to unzip
      */
     protected static void decompress(byte[] fileContentAsByteArray, String outputFolder, String folderToUnzip) {
         ZipInputStream zin = null;
@@ -124,7 +124,7 @@ public class UnzipBytes extends AbstractNativeFunction {
         try {
             Path resourcePath = Paths.get(outdir.toString()).resolve(name);
             out = new BufferedOutputStream(new FileOutputStream(resourcePath.toString()));
-            int count = -1;
+            int count;
             while ((count = in.read(buffer)) != -1) {
                 out.write(buffer, 0, count);
             }

@@ -25,6 +25,8 @@ import java.util.function.BiConsumer;
 
 /**
  * Dependency object fields.
+ *
+ * @since 0.964
  */
 public enum DependencyField {
     NAME(Dependency::setPackageName),

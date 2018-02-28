@@ -31,6 +31,8 @@ import java.util.List;
 
 /**
  * Custom listener which is extended from the Toml listener with our own custom logic.
+ *
+ * @since 0.964
  */
 public class SettingsBuildListener extends TomlBaseListener {
     private final Settings settings;
