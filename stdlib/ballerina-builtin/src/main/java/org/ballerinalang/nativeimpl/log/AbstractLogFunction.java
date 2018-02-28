@@ -47,8 +47,7 @@ public abstract class AbstractLogFunction extends BlockingNativeCallableUnit {
     }
     
     protected String getPackagePath(Context ctx) {
-        // FIXME
-//        ctx.getControlStack().currentFrame.prevStackFrame.getCallableUnitInfo().getPackageInfo().getPkgPath();
+        // TODO
         return null;
     }
 }

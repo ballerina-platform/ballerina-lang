@@ -70,6 +70,7 @@ import org.ballerinalang.util.codegen.ActionInfo;
 import org.ballerinalang.util.codegen.AttachedFunctionInfo;
 import org.ballerinalang.util.codegen.CallableUnitInfo;
 import org.ballerinalang.util.codegen.ConnectorInfo;
+import org.ballerinalang.util.codegen.ErrorTableEntry;
 import org.ballerinalang.util.codegen.FunctionInfo;
 import org.ballerinalang.util.codegen.Instruction;
 import org.ballerinalang.util.codegen.Instruction.InstructionACALL;
@@ -131,6 +132,16 @@ public class CPU {
         }
     }
     
+    private static void checkErrors(WorkerExecutionContext ctx) {
+        if (ctx.getError() != null) {
+            handleError(ctx);
+        }
+    }
+
+    private static WorkerExecutionContext handleHalt(WorkerExecutionContext ctx) {
+        return ctx.respCtx.signal(new WorkerSignal(ctx, SignalType.HALT, null));
+    }
+
     public static void exec(WorkerExecutionContext ctx) {
         int i;
         int j;
@@ -147,7 +158,9 @@ public class CPU {
         WorkerData currentSF, callersSF;
         int callersRetRegIndex;
 
-        while (ctx.ip >= 0 && ctx.ip < ctx.code.length) {
+        checkErrors(ctx);
+
+        while (ctx.ip >= 0) {
 //            if (debugEnabled) {
 //                debug();
 //            }
@@ -344,7 +357,12 @@ public class CPU {
                     }
                     sf.refRegs[j] = new BTypeValue(sf.refRegs[i].getType());
                     break;
-
+                case InstructionCodes.HALT:
+                    BLangScheduler.workerDone(ctx);
+                    runInCallerCtx = handleHalt(ctx);
+                    if (runInCallerCtx != null) {
+                        ctx = runInCallerCtx;
+                    }
                 case InstructionCodes.IGT:
                 case InstructionCodes.FGT:
                 case InstructionCodes.IGE:
@@ -358,7 +376,6 @@ public class CPU {
                 case InstructionCodes.BR_TRUE:
                 case InstructionCodes.BR_FALSE:
                 case InstructionCodes.GOTO:
-                case InstructionCodes.HALT:
                 case InstructionCodes.SEQ_NULL:
                 case InstructionCodes.SNE_NULL:
                     execCmpAndBranchOpcodes(ctx, sf, opcode, operands);
@@ -435,7 +452,7 @@ public class CPU {
 //                        ctx.setError(error);
 //                    }
                     //TODO
-                    handleError();
+                    handleError(ctx);
                     break;
                 case InstructionCodes.ERRSTORE:
 //                    i = operands[0];
@@ -800,9 +817,6 @@ public class CPU {
                 i = operands[0];
                 ctx.ip = i;
                 break;
-            case InstructionCodes.HALT:
-                ctx.ip = -1;
-                break;
             default:
                 throw new UnsupportedOperationException();
         }
@@ -869,7 +883,7 @@ public class CPU {
                     sf.longRegs[k] = bIntArray.get(sf.longRegs[j]);
                 } catch (Exception e) {
                     ctx.setError(BLangVMErrors.createError(ctx, ctx.ip, e.getMessage()));
-                    handleError();
+                    handleError(ctx);
                 }
                 break;
             case InstructionCodes.FALOAD:
@@ -886,7 +900,7 @@ public class CPU {
                     sf.doubleRegs[k] = bFloatArray.get(sf.longRegs[j]);
                 } catch (Exception e) {
                     ctx.setError(BLangVMErrors.createError(ctx, ctx.ip, e.getMessage()));
-                    handleError();
+                    handleError(ctx);
                 }
                 break;
             case InstructionCodes.SALOAD:
@@ -903,7 +917,7 @@ public class CPU {
                     sf.stringRegs[k] = bStringArray.get(sf.longRegs[j]);
                 } catch (Exception e) {
                     ctx.setError(BLangVMErrors.createError(ctx, ctx.ip, e.getMessage()));
-                    handleError();
+                    handleError(ctx);
                 }
                 break;
             case InstructionCodes.BALOAD:
@@ -920,7 +934,7 @@ public class CPU {
                     sf.intRegs[k] = bBooleanArray.get(sf.longRegs[j]);
                 } catch (Exception e) {
                     ctx.setError(BLangVMErrors.createError(ctx, ctx.ip, e.getMessage()));
-                    handleError();
+                    handleError(ctx);
                 }
                 break;
             case InstructionCodes.LALOAD:
@@ -937,7 +951,7 @@ public class CPU {
                     sf.byteRegs[k] = bBlobArray.get(sf.longRegs[j]);
                 } catch (Exception e) {
                     ctx.setError(BLangVMErrors.createError(ctx, ctx.ip, e.getMessage()));
-                    handleError();
+                    handleError(ctx);
                 }
                 break;
             case InstructionCodes.RALOAD:
@@ -954,7 +968,7 @@ public class CPU {
                     sf.refRegs[k] = bArray.get(sf.longRegs[j]);
                 } catch (Exception e) {
                     ctx.setError(BLangVMErrors.createError(ctx, ctx.ip, e.getMessage()));
-                    handleError();
+                    handleError(ctx);
                 }
                 break;
             case InstructionCodes.JSONALOAD:
@@ -971,7 +985,7 @@ public class CPU {
                     sf.refRegs[k] = JSONUtils.getArrayElement(jsonVal, sf.longRegs[j]);
                 } catch (Exception e) {
                     ctx.setError(BLangVMErrors.createError(ctx, ctx.ip, e.getMessage()));
-                    handleError();
+                    handleError(ctx);
                 }
                 break;
             case InstructionCodes.IGLOAD:
@@ -1179,7 +1193,7 @@ public class CPU {
                     bIntArray.add(sf.longRegs[j], sf.longRegs[k]);
                 } catch (Exception e) {
                     ctx.setError(BLangVMErrors.createError(ctx, ctx.ip, e.getMessage()));
-                    handleError();
+                    handleError(ctx);
                 }
                 break;
             case InstructionCodes.FASTORE:
@@ -1196,7 +1210,7 @@ public class CPU {
                     bFloatArray.add(sf.longRegs[j], sf.doubleRegs[k]);
                 } catch (Exception e) {
                     ctx.setError(BLangVMErrors.createError(ctx, ctx.ip, e.getMessage()));
-                    handleError();
+                    handleError(ctx);
                 }
                 break;
             case InstructionCodes.SASTORE:
@@ -1213,7 +1227,7 @@ public class CPU {
                     bStringArray.add(sf.longRegs[j], sf.stringRegs[k]);
                 } catch (Exception e) {
                     ctx.setError(BLangVMErrors.createError(ctx, ctx.ip, e.getMessage()));
-                    handleError();
+                    handleError(ctx);
                 }
                 break;
             case InstructionCodes.BASTORE:
@@ -1230,7 +1244,7 @@ public class CPU {
                     bBooleanArray.add(sf.longRegs[j], sf.intRegs[k]);
                 } catch (Exception e) {
                     ctx.setError(BLangVMErrors.createError(ctx, ctx.ip, e.getMessage()));
-                    handleError();
+                    handleError(ctx);
                 }
                 break;
             case InstructionCodes.LASTORE:
@@ -1247,7 +1261,7 @@ public class CPU {
                     bBlobArray.add(sf.longRegs[j], sf.byteRegs[k]);
                 } catch (Exception e) {
                     ctx.setError(BLangVMErrors.createError(ctx, ctx.ip, e.getMessage()));
-                    handleError();
+                    handleError(ctx);
                 }
                 break;
             case InstructionCodes.RASTORE:
@@ -1264,7 +1278,7 @@ public class CPU {
                     bArray.add(sf.longRegs[j], sf.refRegs[k]);
                 } catch (Exception e) {
                     ctx.setError(BLangVMErrors.createError(ctx, ctx.ip, e.getMessage()));
-                    handleError();
+                    handleError(ctx);
                 }
                 break;
             case InstructionCodes.JSONASTORE:
@@ -1281,7 +1295,7 @@ public class CPU {
                     JSONUtils.setArrayElement(jsonVal, sf.longRegs[j], (BJSON) sf.refRegs[k]);
                 } catch (Exception e) {
                     ctx.setError(BLangVMErrors.createError(ctx, ctx.ip, e.getMessage()));
-                    handleError();
+                    handleError(ctx);
                 }
                 break;
             case InstructionCodes.IGSTORE:
@@ -1488,7 +1502,7 @@ public class CPU {
                 k = operands[2];
                 if (sf.longRegs[j] == 0) {
                     ctx.setError(BLangVMErrors.createError(ctx, ctx.ip, " / by zero"));
-                    handleError();
+                    handleError(ctx);
                     break;
                 }
 
@@ -1500,7 +1514,7 @@ public class CPU {
                 k = operands[2];
                 if (sf.doubleRegs[j] == 0) {
                     ctx.setError(BLangVMErrors.createError(ctx, ctx.ip, " / by zero"));
-                    handleError();
+                    handleError(ctx);
                     break;
                 }
 
@@ -1512,7 +1526,7 @@ public class CPU {
                 k = operands[2];
                 if (sf.longRegs[j] == 0) {
                     ctx.setError(BLangVMErrors.createError(ctx, ctx.ip, " / by zero"));
-                    handleError();
+                    handleError(ctx);
                     break;
                 }
 
@@ -1524,7 +1538,7 @@ public class CPU {
                 k = operands[2];
                 if (sf.doubleRegs[j] == 0) {
                     ctx.setError(BLangVMErrors.createError(ctx, ctx.ip, " / by zero"));
-                    handleError();
+                    handleError(ctx);
                     break;
                 }
 
@@ -2248,7 +2262,7 @@ public class CPU {
                     sf.refRegs[i] = XMLUtils.createXMLElement(startTagName, endTagName, sf.stringRegs[l]);
                 } catch (Exception e) {
                     ctx.setError(BLangVMErrors.createError(ctx, ctx.ip, e.getMessage()));
-                    handleError();
+                    handleError(ctx);
                 }
                 break;
             case InstructionCodes.NEWXMLCOMMENT:
@@ -2259,7 +2273,7 @@ public class CPU {
                     sf.refRegs[i] = XMLUtils.createXMLComment(sf.stringRegs[j]);
                 } catch (Exception e) {
                     ctx.setError(BLangVMErrors.createError(ctx, ctx.ip, e.getMessage()));
-                    handleError();
+                    handleError(ctx);
                 }
                 break;
             case InstructionCodes.NEWXMLTEXT:
@@ -2270,7 +2284,7 @@ public class CPU {
                     sf.refRegs[i] = XMLUtils.createXMLText(sf.stringRegs[j]);
                 } catch (Exception e) {
                     ctx.setError(BLangVMErrors.createError(ctx, ctx.ip, e.getMessage()));
-                    handleError();
+                    handleError(ctx);
                 }
                 break;
             case InstructionCodes.NEWXMLPI:
@@ -2282,7 +2296,7 @@ public class CPU {
                     sf.refRegs[i] = XMLUtils.createXMLProcessingInstruction(sf.stringRegs[j], sf.stringRegs[k]);
                 } catch (Exception e) {
                     ctx.setError(BLangVMErrors.createError(ctx, ctx.ip, e.getMessage()));
-                    handleError();
+                    handleError(ctx);
                 }
                 break;
             case InstructionCodes.XMLSTORE:
@@ -2517,7 +2531,7 @@ public class CPU {
         errorVal = BLangVMErrors.createTypeCastError(ctx, ctx.ip, sourceType.toString(), targetType.toString());
         if (errorRegIndex == -1) {
             ctx.setError(errorVal);
-            handleError();
+            handleError(ctx);
             return;
         }
 
@@ -2613,7 +2627,7 @@ public class CPU {
                 }
             } catch (Throwable e) {
                 ctx.setError(BLangVMErrors.createError(ctx, ctx.ip, e.getMessage()));
-                handleError();
+                handleError(ctx);
                 return;
             }
         }
@@ -2627,7 +2641,7 @@ public class CPU {
             if (retryCount < 0) {
                 ctx.setError(BLangVMErrors.createError(ctx, ctx.ip,
                         BLangExceptionHelper.getErrorMessage(RuntimeErrors.INVALID_RETRY_COUNT)));
-                handleError();
+                handleError(ctx);
                 return;
             }
         }
@@ -2658,8 +2672,8 @@ public class CPU {
             invokeNativeFunction(ctx, (FunctionInfo) callableUnitInfo, argRegs, retRegs);
             return null;
         }
-        WorkerExecutionContext runInCallerCtx = BLangFunctions.invokeCallable(callableUnitInfo, ctx, argRegs, 
-                retRegs, false);
+        WorkerExecutionContext runInCallerCtx =
+                BLangFunctions.invokeCallable(callableUnitInfo, ctx, argRegs, retRegs, false);
         return runInCallerCtx;
     }
 
@@ -2682,7 +2696,7 @@ public class CPU {
 //        WorkerData callerSF = ctx.workerLocal;
 //        if (callerSF.refRegs[argRegs[0]] == null) {
 //            ctx.setError(BLangVMErrors.createNullRefError(this.ctx, ctx.ip));
-//            handleError();
+//            handleError(ctx);
 //            return;
 //        }
 //
@@ -2907,12 +2921,12 @@ public class CPU {
                 nativeFunction.execute(ctx, callback);
             }
         } catch (BLangNullReferenceException e) {
-            parentCtx.setError(BLangVMErrors.createNullRefException(parentCtx, parentCtx.ip));
-            handleError();
+            parentCtx.setError(BLangVMErrors.createNullRefException(parentCtx));
+            handleError(parentCtx);
             return;
         } catch (Throwable e) {
             parentCtx.setError(BLangVMErrors.createError(parentCtx, parentCtx.ip, e.getMessage()));
-            handleError();
+            handleError(parentCtx);
             return;
         }
     }
@@ -2971,7 +2985,7 @@ public class CPU {
 //                            + ", Action - " + nativeAction.getPackagePath() + ":" + nativeAction.getName());
 //                }
 //                if (ctx.getError() != null) {
-//                    handleError();
+//                    handleError(ctx);
 //                }
 //                // Copy return values to the callers stack
 //                controlStack.popFrame();
@@ -2980,7 +2994,7 @@ public class CPU {
 //            }
 //        } catch (Throwable e) {
 //            ctx.setError(BLangVMErrors.createError(this.ctx, ctx.ip, e.getMessage()));
-//            handleError();
+//            handleError(ctx);
 //        }
         //TODO
     }
@@ -3219,7 +3233,7 @@ public class CPU {
             String errorMsg = BLangExceptionHelper.getErrorMessage(RuntimeErrors.CASTING_FAILED_WITH_CAUSE,
                     BTypes.typeJSON, BTypes.typeInt, e.getMessage());
             ctx.setError(BLangVMErrors.createError(ctx, ctx.ip, errorMsg));
-            handleError();
+            handleError(ctx);
             return;
         }
 
@@ -3251,7 +3265,7 @@ public class CPU {
             String errorMsg = BLangExceptionHelper.getErrorMessage(RuntimeErrors.CASTING_FAILED_WITH_CAUSE,
                     BTypes.typeJSON, BTypes.typeFloat, e.getMessage());
             ctx.setError(BLangVMErrors.createError(ctx, ctx.ip, errorMsg));
-            handleError();
+            handleError(ctx);
             return;
         }
 
@@ -3284,7 +3298,7 @@ public class CPU {
             String errorMsg = BLangExceptionHelper.getErrorMessage(RuntimeErrors.CASTING_FAILED_WITH_CAUSE,
                     BTypes.typeJSON, BTypes.typeString, e.getMessage());
             ctx.setError(BLangVMErrors.createError(ctx, ctx.ip, errorMsg));
-            handleError();
+            handleError(ctx);
             return;
         }
 
@@ -3316,7 +3330,7 @@ public class CPU {
             String errorMsg = BLangExceptionHelper.getErrorMessage(RuntimeErrors.CASTING_FAILED_WITH_CAUSE,
                     BTypes.typeJSON, BTypes.typeBoolean, e.getMessage());
             ctx.setError(BLangVMErrors.createError(ctx, ctx.ip, errorMsg));
-            handleError();
+            handleError(ctx);
             return;
         }
 
@@ -3605,60 +3619,18 @@ public class CPU {
     }
 
     private static void handleNullRefError(WorkerExecutionContext ctx) {
-        ctx.setError(BLangVMErrors.createNullRefException(ctx, ctx.ip));
-        handleError();
+        ctx.setError(BLangVMErrors.createNullRefException(ctx));
+        handleError(ctx);
     }
 
-    private static void handleError() {
-//        int currentIP = ip - 1;
-//        StackFrame currentFrame = controlStack.currentFrame;
-//        ErrorTableEntry match = null;
-//
-//        while (controlStack.currentFrame != null) {
-//            match = ErrorTableEntry.getMatch(currentFrame.packageInfo, currentIP, context.getError());
-//            if (match != null) {
-//                break;
-//            }
-//
-//            controlStack.popFrame();
-//            context.setError(currentFrame.errorThrown);
-//            if (controlStack.currentFrame == null) {
-//                break;
-//            }
-//
-//            currentIP = currentFrame.retAddrs - 1;
-//            currentFrame = controlStack.currentFrame;
-//        }
-//
-//        if (controlStack.currentFrame == null) {
-//            // root level error handling.
-//            ip = -1;
-//            if (context.getServiceInfo() == null) {
-//                return;
-//            }
-//
-//            BServerConnectorFuture connectorFuture = context.getConnectorFuture();
-//            try {
-//                connectorFuture.notifyFailure(new BallerinaException(BLangVMErrors
-//                        .getPrintableStackTrace(context.getError())));
-//            } catch (Exception e) {
-//                logger.error("cannot handle error using the error handler: " + e.getMessage(), e);
-//            }
-//            return;
-//        }
-//
-//        // match should be not null at this point.
-//        if (match != null) {
-//            PackageInfo packageInfo = currentFrame.packageInfo;
-//            this.constPool = packageInfo.getConstPoolEntries();
-//            this.code = packageInfo.getInstructions();
-//            ip = match.getIpTarget();
-//            return;
-//        }
-//
-//        ip = -1;
-//        logger.error("fatal error. incorrect error table entry.");
-        //TODO
+    private static void handleError(WorkerExecutionContext ctx) {
+        ErrorTableEntry match = ErrorTableEntry.getMatch(ctx.callableUnitInfo.getPackageInfo(), ctx.ip,
+                ctx.getError());
+        if (match != null) {
+            ctx.ip = match.getIpTarget();
+        } else {
+            ctx.respCtx.signal(new WorkerSignal(ctx, SignalType.ERROR, ctx.workerResult));
+        }
     }
 
     private static AttributeInfo getAttributeInfo(AttributeInfoPool attrInfoPool, AttributeInfo.Kind attrInfoKind) {

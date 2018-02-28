@@ -34,25 +34,24 @@ import org.ballerinalang.util.program.BLangFunctions;
 public class TaskExecutor {
 
     public static void execute(NativeCallableUnit fn, Context parentCtx, FunctionRefCPEntry onTriggerFunction,
-                               FunctionRefCPEntry onErrorFunction, ProgramFile programFile, Context newContext) {
+                               FunctionRefCPEntry onErrorFunction, ProgramFile programFile) {
         boolean isErrorFnCalled = false;
         try {
             // Invoke the onTrigger function.
-            BValue[] results = BLangFunctions.invokeCallable(onTriggerFunction.getFunctionInfo(), new BValue[0]);
+            BValue[] results = BLangFunctions.invokeCallable(programFile, onTriggerFunction.getFunctionInfo(), 
+                    new BValue[0]);
             // If there are results, that mean an error has been returned
             if (onErrorFunction != null && results.length > 0 && results[0] != null) {
                 isErrorFnCalled = true;
-                BLangFunctions.invokeCallable(onErrorFunction.getFunctionInfo(), results);
+                BLangFunctions.invokeCallable(programFile, onErrorFunction.getFunctionInfo(), results);
             }
         } catch (BLangRuntimeException e) {
 
             //Call the onError function in case of error.
             if (onErrorFunction != null && !isErrorFnCalled) {
-                BLangFunctions.invokeCallable(onErrorFunction.getFunctionInfo(),
+                BLangFunctions.invokeCallable(programFile, onErrorFunction.getFunctionInfo(),
                         new BValue[] { BLangVMErrors.createError(parentCtx, 0, e.getMessage()) });
             }
-            // FIXME
-            // parentCtx.endTrackWorker();
         }
     }
 }

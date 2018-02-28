@@ -106,7 +106,7 @@ public abstract class AbstractSQLAction extends BlockingNativeCallableUnit {
             stmt = getPreparedStatement(conn, datasource, processedQuery);
             createProcessedStatement(conn, stmt, parameters);
             rs = stmt.executeQuery();
-            context.setReturnValue(0, constructTable(context, rs, stmt, conn, structType));
+            context.setReturnValues(constructTable(context, rs, stmt, conn, structType));
         } catch (Throwable e) {
             SQLDatasourceUtils.cleanupConnection(rs, stmt, conn, isInTransaction);
             throw new BallerinaException("execute query failed: " + e.getMessage(), e);
@@ -123,8 +123,7 @@ public abstract class AbstractSQLAction extends BlockingNativeCallableUnit {
             stmt = conn.prepareStatement(processedQuery);
             createProcessedStatement(conn, stmt, parameters);
             int count = stmt.executeUpdate();
-            BInteger updatedCount = new BInteger(count);
-            context.setReturnValue(0, updatedCount);
+            context.setReturnValues(new BInteger(count));
         } catch (SQLException e) {
             throw new BallerinaException("execute update failed: " + e.getMessage(), e);
         } finally {
@@ -157,14 +156,14 @@ public abstract class AbstractSQLAction extends BlockingNativeCallableUnit {
             createProcessedStatement(conn, stmt, parameters);
             int count = stmt.executeUpdate();
             BInteger updatedCount = new BInteger(count);
-            context.setReturnValue(0, updatedCount);
             rs = stmt.getGeneratedKeys();
             /*The result set contains the auto generated keys. There can be multiple auto generated columns
             in a table.*/
+            BStringArray generatedKeys = null;
             if (rs.next()) {
-                BStringArray generatedKeys = getGeneratedKeys(rs);
-                context.setReturnValue(1, generatedKeys);
+                generatedKeys = getGeneratedKeys(rs);
             }
+            context.setReturnValues(updatedCount, generatedKeys);
         } catch (SQLException e) {
             throw new BallerinaException("execute update with generated keys failed: " + e.getMessage(), e);
         } finally {
@@ -185,7 +184,7 @@ public abstract class AbstractSQLAction extends BlockingNativeCallableUnit {
             rs = executeStoredProc(stmt);
             setOutParameters(stmt, parameters);
             if (rs != null) {
-                context.setReturnValue(0, constructTable(context, rs, stmt, conn, structType));
+                context.setReturnValues(constructTable(context, rs, stmt, conn, structType));
             } else {
                 SQLDatasourceUtils.cleanupConnection(null, stmt, conn, isInTransaction);
             }
@@ -238,7 +237,7 @@ public abstract class AbstractSQLAction extends BlockingNativeCallableUnit {
                 countArray.add(i, updatedCount[i]);
             }
         }
-        context.setReturnValue(0, countArray);
+        context.setReturnValues(countArray);
     }
 
     protected BStructType getStructType(Context context) {

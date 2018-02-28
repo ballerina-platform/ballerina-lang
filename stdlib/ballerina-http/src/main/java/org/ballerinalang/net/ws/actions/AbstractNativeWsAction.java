@@ -66,8 +66,7 @@ public abstract class AbstractNativeWsAction extends BlockingNativeCallableUnit 
 
     public String[] getSubProtocols(BRefType<BString[]> bSubProtocolsRefType) {
         BString[] bSubProtocols = bSubProtocolsRefType.value();
-        String[] arr = Arrays.stream(bSubProtocols).map(BString::stringValue).toArray(String[]::new);
-        return arr;
+        return Arrays.stream(bSubProtocols).map(BString::stringValue).toArray(String[]::new);
     }
 
     public Map<String, String> getCustomHeaders(BRefType<BMap<BString, BString>> bCustomHeaders) {

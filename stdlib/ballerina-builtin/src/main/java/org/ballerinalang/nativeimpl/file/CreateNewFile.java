@@ -18,9 +18,6 @@
 
 package org.ballerinalang.nativeimpl.file;
 
-import static org.ballerinalang.nativeimpl.file.utils.FileUtils.createAccessDeniedError;
-import static org.ballerinalang.nativeimpl.file.utils.FileUtils.createIOError;
-
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
@@ -36,6 +33,9 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+
+import static org.ballerinalang.nativeimpl.file.utils.FileUtils.createAccessDeniedError;
+import static org.ballerinalang.nativeimpl.file.utils.FileUtils.createIOError;
 
 /**
  * Creates the file at the path specified in the File struct.

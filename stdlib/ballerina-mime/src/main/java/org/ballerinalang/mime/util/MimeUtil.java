@@ -18,29 +18,7 @@
 
 package org.ballerinalang.mime.util;
 
-import static org.ballerinalang.mime.util.Constants.ASSIGNMENT;
-import static org.ballerinalang.mime.util.Constants.BUILTIN_PACKAGE;
-import static org.ballerinalang.mime.util.Constants.CONTENT_DISPOSITION_FILENAME_INDEX;
-import static org.ballerinalang.mime.util.Constants.CONTENT_DISPOSITION_FILE_NAME;
-import static org.ballerinalang.mime.util.Constants.CONTENT_DISPOSITION_INDEX;
-import static org.ballerinalang.mime.util.Constants.CONTENT_DISPOSITION_NAME;
-import static org.ballerinalang.mime.util.Constants.CONTENT_DISPOSITION_NAME_INDEX;
-import static org.ballerinalang.mime.util.Constants.CONTENT_DISPOSITION_PARA_MAP_INDEX;
-import static org.ballerinalang.mime.util.Constants.DISPOSITION_INDEX;
-import static org.ballerinalang.mime.util.Constants.ENTITY_BYTE_CHANNEL;
-import static org.ballerinalang.mime.util.Constants.IS_BODY_BYTE_CHANNEL_ALREADY_SET;
-import static org.ballerinalang.mime.util.Constants.MEDIA_TYPE_INDEX;
-import static org.ballerinalang.mime.util.Constants.MESSAGE_ENTITY;
-import static org.ballerinalang.mime.util.Constants.MULTIPART_FORM_DATA;
-import static org.ballerinalang.mime.util.Constants.PARAMETER_MAP_INDEX;
-import static org.ballerinalang.mime.util.Constants.PRIMARY_TYPE_INDEX;
-import static org.ballerinalang.mime.util.Constants.SEMICOLON;
-import static org.ballerinalang.mime.util.Constants.SIZE_INDEX;
-import static org.ballerinalang.mime.util.Constants.STRUCT_GENERIC_ERROR;
-import static org.ballerinalang.mime.util.Constants.SUBTYPE_INDEX;
-import static org.ballerinalang.mime.util.Constants.SUFFIX_INDEX;
-import static org.ballerinalang.mime.util.Constants.TEMP_FILE_EXTENSION;
-
+import io.netty.util.internal.PlatformDependent;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
@@ -65,7 +43,28 @@ import javax.activation.MimeType;
 import javax.activation.MimeTypeParameterList;
 import javax.activation.MimeTypeParseException;
 
-import io.netty.util.internal.PlatformDependent;
+import static org.ballerinalang.mime.util.Constants.ASSIGNMENT;
+import static org.ballerinalang.mime.util.Constants.BUILTIN_PACKAGE;
+import static org.ballerinalang.mime.util.Constants.CONTENT_DISPOSITION_FILENAME_INDEX;
+import static org.ballerinalang.mime.util.Constants.CONTENT_DISPOSITION_FILE_NAME;
+import static org.ballerinalang.mime.util.Constants.CONTENT_DISPOSITION_INDEX;
+import static org.ballerinalang.mime.util.Constants.CONTENT_DISPOSITION_NAME;
+import static org.ballerinalang.mime.util.Constants.CONTENT_DISPOSITION_NAME_INDEX;
+import static org.ballerinalang.mime.util.Constants.CONTENT_DISPOSITION_PARA_MAP_INDEX;
+import static org.ballerinalang.mime.util.Constants.DISPOSITION_INDEX;
+import static org.ballerinalang.mime.util.Constants.ENTITY_BYTE_CHANNEL;
+import static org.ballerinalang.mime.util.Constants.IS_BODY_BYTE_CHANNEL_ALREADY_SET;
+import static org.ballerinalang.mime.util.Constants.MEDIA_TYPE_INDEX;
+import static org.ballerinalang.mime.util.Constants.MESSAGE_ENTITY;
+import static org.ballerinalang.mime.util.Constants.MULTIPART_FORM_DATA;
+import static org.ballerinalang.mime.util.Constants.PARAMETER_MAP_INDEX;
+import static org.ballerinalang.mime.util.Constants.PRIMARY_TYPE_INDEX;
+import static org.ballerinalang.mime.util.Constants.SEMICOLON;
+import static org.ballerinalang.mime.util.Constants.SIZE_INDEX;
+import static org.ballerinalang.mime.util.Constants.STRUCT_GENERIC_ERROR;
+import static org.ballerinalang.mime.util.Constants.SUBTYPE_INDEX;
+import static org.ballerinalang.mime.util.Constants.SUFFIX_INDEX;
+import static org.ballerinalang.mime.util.Constants.TEMP_FILE_EXTENSION;
 
 /**
  * Mime utility functions are included in here.

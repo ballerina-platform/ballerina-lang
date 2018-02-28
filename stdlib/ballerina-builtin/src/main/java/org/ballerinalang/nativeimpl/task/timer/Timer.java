@@ -25,7 +25,6 @@ import org.ballerinalang.nativeimpl.task.TaskException;
 import org.ballerinalang.nativeimpl.task.TaskExecutor;
 import org.ballerinalang.nativeimpl.task.TaskIdGenerator;
 import org.ballerinalang.nativeimpl.task.TaskRegistry;
-import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.codegen.cpentries.FunctionRefCPEntry;
 
@@ -39,7 +38,6 @@ import java.util.concurrent.TimeUnit;
 public class Timer {
     private String id = TaskIdGenerator.generate();
     private ScheduledExecutorService executorService = Executors.newScheduledThreadPool(1);
-    private Context context;
 
     /**
      * Triggers the timer.
@@ -62,9 +60,6 @@ public class Timer {
             callTriggerFunction(fn, ctx, onTriggerFunction, onErrorFunction);
         };
         
-        // FIXME
-        // ctx.startTrackWorker();
-        this.context = ctx;
         executorService.scheduleWithFixedDelay(schedulerFunc, delay, interval, TimeUnit.MILLISECONDS);
         TaskRegistry.getInstance().addTimer(this);
     }
@@ -80,10 +75,7 @@ public class Timer {
                                             FunctionRefCPEntry onTriggerFunction,
                                             FunctionRefCPEntry onErrorFunction) {
         ProgramFile programFile = parentCtx.getProgramFile();
-        //Create new instance of the context and set required properties.
-        //Context newContext = new WorkerContext(programFile, parentCtx);
-        Context newContext = null;
-        TaskExecutor.execute(fn, parentCtx, onTriggerFunction, onErrorFunction, programFile, newContext);
+        TaskExecutor.execute(fn, parentCtx, onTriggerFunction, onErrorFunction, programFile);
     }
 
     public String getId() {
@@ -93,9 +85,6 @@ public class Timer {
     public void stop() throws TaskException {
         executorService.shutdown();
         TaskRegistry.getInstance().remove(id);
-        
-        // FIXME
-        // context.endTrackWorker();
     }
 
 

@@ -36,3 +36,8 @@ public struct CallStackElement {
 public native function getCallStack ()(CallStackElement[]);
 
 public native function getErrorCallStack (error e)(CallStackElement[]);
+
+public struct CallFailedException {
+    string message;
+    error cause;
+}

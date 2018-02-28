@@ -20,10 +20,13 @@ package org.ballerinalang.util.program;
 import org.ballerinalang.bre.bvm.BLangScheduler;
 import org.ballerinalang.bre.bvm.BLangVMErrors;
 import org.ballerinalang.bre.bvm.CPU;
+import org.ballerinalang.bre.bvm.CallableUnitCallback;
+import org.ballerinalang.bre.bvm.CallbackedInvocableWorkerResponseContext;
 import org.ballerinalang.bre.bvm.InvocableWorkerResponseContext;
 import org.ballerinalang.bre.bvm.WorkerData;
 import org.ballerinalang.bre.bvm.WorkerExecutionContext;
 import org.ballerinalang.bre.bvm.WorkerResponseContext;
+import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.codegen.CallableUnitInfo;
 import org.ballerinalang.util.codegen.FunctionInfo;
@@ -43,8 +46,9 @@ public class BLangFunctions {
 
     private BLangFunctions() { }
 
-    public static BValue[] invokeNew(ProgramFile bLangProgram, String packageName, String functionName, BValue[] args) {
-        return invokeNew(bLangProgram, packageName, functionName, args, new WorkerExecutionContext());
+    public static BValue[] invokeNew(ProgramFile bLangProgram, String packageName, String functionName,
+            BValue[] args) {
+        return invokeNew(bLangProgram, packageName, functionName, args, new WorkerExecutionContext(bLangProgram));
     }
 
     public static BValue[] invokeNew(ProgramFile bLangProgram, String packageName, String functionName,
@@ -68,8 +72,9 @@ public class BLangFunctions {
         invokeCallable(callableUnitInfo, parentCtx, new int[0], new int[0], false);
     }
     
-    public static BValue[] invokeCallable(CallableUnitInfo callableUnitInfo, BValue[] args) {
-        return invokeCallable(callableUnitInfo, new WorkerExecutionContext(), args);
+    public static BValue[] invokeCallable(ProgramFile bLangProgram, CallableUnitInfo callableUnitInfo,
+            BValue[] args) {
+        return invokeCallable(callableUnitInfo, new WorkerExecutionContext(bLangProgram), args);
     }
     
     public static BValue[] invokeCallable(CallableUnitInfo callableUnitInfo, WorkerExecutionContext parentCtx, 
@@ -79,15 +84,43 @@ public class BLangFunctions {
         return BLangVMUtils.populateReturnData(parentCtx, callableUnitInfo, regs[1]);
     }
     
-    public static WorkerExecutionContext invokeCallable(CallableUnitInfo callableUnitInfo, 
-            WorkerExecutionContext parentCtx, int[] argRegs, int[] retRegs, boolean waitForResponse) {
-        InvocableWorkerResponseContext respCtx = new InvocableWorkerResponseContext(
-                callableUnitInfo.getRetParamTypes(), waitForResponse);
+    public static void invokeCallable(CallableUnitInfo callableUnitInfo, WorkerExecutionContext parentCtx,
+            BValue[] args, CallableUnitCallback responseCallback) {
+        int[][] regs = BLangVMUtils.populateArgAndReturnData(parentCtx, callableUnitInfo, args);
+        invokeCallable(callableUnitInfo, parentCtx, regs[0], regs[1], responseCallback);
+    }
+
+    /**
+     * This method does not short circuit the execution of the first worker to execute in the
+     * same calling thread, but rather executes all the workers in their own separate threads.
+     * This is specifically useful in executing service resources, where the calling transport
+     * threads shouldn't be blocked, but rather the worker threads should be used.
+     */
+    public static void invokeCallable(CallableUnitInfo callableUnitInfo,
+            WorkerExecutionContext parentCtx, int[] argRegs, int[] retRegs,
+            CallableUnitCallback responseCallback) {
+        WorkerInfo[] workerInfos = listWorkerInfos(callableUnitInfo);
+        InvocableWorkerResponseContext respCtx = new CallbackedInvocableWorkerResponseContext(
+                callableUnitInfo.getRetParamTypes(), workerInfos.length, false, responseCallback);
         respCtx.updateTargetContextInfo(parentCtx, retRegs);
         WorkerDataIndex wdi = callableUnitInfo.retWorkerIndex;
         Map<String, Object> globalProps = parentCtx.globalProps;
         BLangScheduler.switchToWaitForResponse(parentCtx);
+        for (int i = 0; i < workerInfos.length; i++) {
+            executeWorker(respCtx, parentCtx, argRegs, callableUnitInfo, workerInfos[i], wdi, globalProps, false);
+        }
+    }
+
+    public static WorkerExecutionContext invokeCallable(CallableUnitInfo callableUnitInfo,
+            WorkerExecutionContext parentCtx, int[] argRegs, int[] retRegs, boolean waitForResponse) {
         WorkerInfo[] workerInfos = listWorkerInfos(callableUnitInfo);
+        InvocableWorkerResponseContext respCtx = new InvocableWorkerResponseContext(
+                callableUnitInfo.getRetParamTypes(),
+                workerInfos.length, waitForResponse);
+        respCtx.updateTargetContextInfo(parentCtx, retRegs);
+        WorkerDataIndex wdi = callableUnitInfo.retWorkerIndex;
+        Map<String, Object> globalProps = parentCtx.globalProps;
+        BLangScheduler.switchToWaitForResponse(parentCtx);
         for (int i = 1; i < workerInfos.length; i++) {
             executeWorker(respCtx, parentCtx, argRegs, callableUnitInfo, workerInfos[i], wdi, globalProps, false);
         }
@@ -96,6 +129,14 @@ public class BLangFunctions {
         if (waitForResponse) {
             CPU.exec(runInCallerCtx);
             respCtx.waitForResponse();
+
+            // An error in the context at this point means an unhandled runtime error has propagated
+            // all the way up to the entry point. Hence throw a {@link BLangRuntimeException} and
+            // terminate the execution.
+            BStruct error = runInCallerCtx.getError();
+            if (error != null) {
+                throw new BLangRuntimeException("error: " + BLangVMErrors.getPrintableStackTrace(error));
+            }
         }
         return runInCallerCtx;
     }

@@ -33,7 +33,7 @@ public class BLangCallableUnitCallback implements CallableUnitCallback {
 
     private WorkerExecutionContext parentCtx;
     
-    Context nativeCallCtx;
+    private Context nativeCallCtx;
     
     private int[] retRegs;
     
@@ -56,7 +56,7 @@ public class BLangCallableUnitCallback implements CallableUnitCallback {
 
     @Override
     public void notifyFailure(BStruct error) {
-        BLangScheduler.workerExcepted(this.parentCtx, error);
+        BLangScheduler.errorThrown(this.parentCtx, error);
     }
 
 }

@@ -84,8 +84,6 @@ public interface Context {
 
     public void setReturnValues(BValue... values);
 
-    public void setReturnValue(int index, BValue value);
-
     public BValue[] getReturnValues();
 
     public void setConnectorFuture(BServerConnectorFuture connectorFuture);

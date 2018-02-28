@@ -49,10 +49,6 @@ public class AppointmentJob implements Job {
                 (FunctionRefCPEntry) jobDataMap.get(AppointmentConstants.BALLERINA_ON_ERROR_FUNCTION);
 
         ProgramFile programFile = balParentContext.getProgramFile();
-        //Create new instance of the context and set required properties.
-        //Context newContext = new WorkerContext(programFile, balParentContext);
-        Context newContext = null; //TODO
-
-        TaskExecutor.execute(fn, balParentContext, onTriggerFunction, onErrorFunction, programFile, newContext);
+        TaskExecutor.execute(fn, balParentContext, onTriggerFunction, onErrorFunction, programFile);
     }
 }

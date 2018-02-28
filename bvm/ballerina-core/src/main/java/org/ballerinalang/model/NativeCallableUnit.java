@@ -20,6 +20,17 @@ package org.ballerinalang.model;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
 
+/**
+ * Class represents native callable constructs.
+ * Known constructs:
+ * <ul>
+ * <li>Native Functions</li>
+ * <li>Native Actions</li>
+ * </ul>
+ * 
+ * @since 0.946.0
+ *
+ */
 public interface NativeCallableUnit {
 
     /**
@@ -37,4 +48,5 @@ public interface NativeCallableUnit {
      * @return Flag indicating whether the callable unit is executed in blocking manner or not.
      */
     public boolean isBlocking();
+    
 }

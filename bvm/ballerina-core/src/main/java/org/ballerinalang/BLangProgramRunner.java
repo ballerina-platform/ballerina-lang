@@ -87,8 +87,9 @@ public class BLangProgramRunner {
             throw new BallerinaException("main function not found in  '" + programFile.getProgramFilePath() + "'");
         }
         FunctionInfo mainFuncInfo = getMainFunction(mainPkgInfo);
-        BLangFunctions.invokePackageInitFunction(mainPkgInfo.getInitFunctionInfo());
-        BLangFunctions.invokeCallable(mainFuncInfo, extractMainArgs(args));
+        WorkerExecutionContext context = new WorkerExecutionContext();
+        BLangFunctions.invokePackageInitFunction(mainPkgInfo.getInitFunctionInfo(), context);
+        BLangFunctions.invokeCallable(programFile, mainFuncInfo, extractMainArgs(args));
         BLangScheduler.waitForCompletion();
     }
     
