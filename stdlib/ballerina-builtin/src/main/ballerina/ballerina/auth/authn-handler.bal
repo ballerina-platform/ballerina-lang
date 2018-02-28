@@ -18,16 +18,16 @@ package ballerina.auth;
 
 import ballerina.net.http;
 
-@Description {value:"Representation of Authentication interceptor for HTTP traffic. Any authention interceptor for
+@Description {value:"Representation of Authentication handler for HTTP traffic. Any authention interceptor for
 basic authentication should be struct-wise similar to HttpAuthnInterceptor"}
-public struct HttpAuthnInterceptor {
+public struct HttpAuthnHandler {
     // TODO
 }
 
 @Description {value:"Intercepts a HTTP request for authentication"}
 @Param {value:"req: InRequest object"}
 @Return {value:"boolean: true if authentication is a success, else false"}
-public function <HttpAuthnInterceptor authnIntercpetor> canHandle (http:InRequest req) (boolean) {
+public function <HttpAuthnHandler authnHandler> canHandle (http:InRequest req) (boolean) {
     error e = {message:"Not implemented"};
     throw e;
     return false;
@@ -36,7 +36,7 @@ public function <HttpAuthnInterceptor authnIntercpetor> canHandle (http:InReques
 @Description {value:"Checks if the provided HTTP request can be authenticated with basic auth"}
 @Param {value:"req: InRequest object"}
 @Return {value:"boolean: true if its possible authenticate with basic auth, else false"}
-public function <HttpAuthnInterceptor authnIntercpetor> handle (http:InRequest req) (boolean) {
+public function <HttpAuthnHandler authnHandler> handle (http:InRequest req) (boolean) {
     error e = {message:"Not implemented"};
     throw e;
     return false;

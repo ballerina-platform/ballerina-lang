@@ -31,8 +31,8 @@ const string AUTH_SCHEME = "Basic";
 @Description {value:"AuthorizationChecker instance"}
 AuthzChecker authzChecker;
 
-@Description {value:"Representation of Authorization Interceptor"}
-public struct HttpAuthzInterceptor {
+@Description {value:"Representation of Authorization Handler"}
+public struct HttpAuthzHandler {
     // TODO
 }
 
@@ -41,7 +41,7 @@ public struct HttpAuthzInterceptor {
 @Param {value:"scopeName: name of the scope"}
 @Param {value:"resourceName: name of the resource which is being accessed"}
 @Return {value:"boolean: true if authorization check is a success, else false"}
-public function <HttpAuthzInterceptor httpAuthzInterceptor> handle (http:InRequest req,
+public function <HttpAuthzHandler httpAuthzHandler> handle (http:InRequest req,
                                                                     string scopeName, string resourceName) (boolean) {
 
     // TODO: extracting username and passwords are not required once the Ballerina SecurityContext is available
@@ -93,7 +93,7 @@ public function <HttpAuthzInterceptor httpAuthzInterceptor> handle (http:InReque
 @Description {value:"Checks if the provided request can be authorized"}
 @Param {value:"req: InRequest object"}
 @Return {value:"boolean: true if its possible authorize, else false"}
-public function <HttpAuthzInterceptor httpAuthzInterceptor> canHandle (http:InRequest req) (boolean) {
+public function <HttpAuthzHandler httpAuthzHandler> canHandle (http:InRequest req) (boolean) {
     string basicAuthHeader = req.getHeader(AUTH_HEADER);
     if (basicAuthHeader != null && basicAuthHeader.hasPrefix(AUTH_SCHEME)) {
         return true;

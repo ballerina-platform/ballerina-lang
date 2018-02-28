@@ -16,6 +16,7 @@
 *  under the License.
 */
 
+
 package org.ballerinalang.test.auth;
 
 import org.ballerinalang.config.ConfigRegistry;
@@ -39,7 +40,7 @@ import java.util.Map;
 
 import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 
-public class AuthnInterceptorTest {
+public class AuthzHandlerTest {
     private static final String BALLERINA_CONF = "ballerina.conf";
     private CompileResult compileResult;
     private String resourceRoot;
@@ -50,12 +51,12 @@ public class AuthnInterceptorTest {
         resourceRoot = getClass().getProtectionDomain().getCodeSource().getLocation().getPath();
         Path sourceRoot = Paths.get(resourceRoot, "test-src", "auth");
         Path ballerinaConfPath = Paths
-                .get(resourceRoot, "datafiles", "config", "auth", "basicauth", "userstore", BALLERINA_CONF);
+                .get(resourceRoot, "datafiles", "config", "auth", "authorization", "permissionstore", BALLERINA_CONF);
         ballerinaConfCopyPath = sourceRoot.resolve(BALLERINA_CONF);
 
         // Copy the ballerina.conf to the source root before starting the tests
         Files.copy(ballerinaConfPath, ballerinaConfCopyPath, new CopyOption[] { REPLACE_EXISTING });
-        compileResult = BCompileUtil.compile(sourceRoot.resolve("authn-interceptor-test.bal").toString());
+        compileResult = BCompileUtil.compile(sourceRoot.resolve("authz-handler-test.bal").toString());
 
         // load configs
         ConfigRegistry registry = ConfigRegistry.getInstance();
@@ -66,35 +67,21 @@ public class AuthnInterceptorTest {
     private Map<String, String> getRuntimeProperties() {
         Map<String, String> runtimeConfigs = new HashMap<>();
         runtimeConfigs.put(BALLERINA_CONF,
-                Paths.get(resourceRoot, "datafiles", "config", "auth", "basicauth", "userstore", BALLERINA_CONF)
-                        .toString());
+                Paths.get(resourceRoot, "datafiles", "config", "auth", "authorization", "permissionstore",
+                        BALLERINA_CONF).toString());
         return runtimeConfigs;
     }
 
-    @Test(description = "Test case for basic auth interceptor canHandle method, without the basic auth header")
-    public void testCanHandleHttpBasicAuthWithoutHeader() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testCanHandleHttpBasicAuthWithoutHeader");
+    @Test(description = "Test case for authorization failure")
+    public void testHandleHttpAuthzFailure() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testHandleHttpAuthzFailure");
         Assert.assertTrue(returns[0] instanceof BBoolean);
         Assert.assertFalse(((BBoolean) returns[0]).booleanValue());
     }
 
-    @Test(description = "Test case for basic auth interceptor canHandle method")
-    public void testCanHandleHttpBasicAuth() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testCanHandleHttpBasicAuth");
-        Assert.assertTrue(returns[0] instanceof BBoolean);
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
-    }
-
-    @Test(description = "Test case for basic auth interceptor authentication failure")
-    public void testHandleHttpBasicAuthFailure() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testHandleHttpBasicAuthFailure");
-        Assert.assertTrue(returns[0] instanceof BBoolean);
-        Assert.assertFalse(((BBoolean) returns[0]).booleanValue());
-    }
-
-    @Test(description = "Test case for basic auth interceptor authentication success")
-    public void testHandleHttpBasicAuth() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testHandleHttpBasicAuth");
+    @Test(description = "Test case for authorization success")
+    public void testHandleAuthz() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testHandleAuthz");
         Assert.assertTrue(returns[0] instanceof BBoolean);
         Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
     }

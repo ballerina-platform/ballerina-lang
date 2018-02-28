@@ -26,7 +26,7 @@ under the License.
     </listeners>
 
     <!-- Ballerina language Test Cases. -->
-    <test name="ballerina-lang-test-suite" preserve-order="true" parallel="false">
+    <!--test name="ballerina-lang-test-suite" preserve-order="true" parallel="false">
         <packages>
             <package name="org.ballerinalang.test.vm.*"/>
             <package name="org.ballerinalang.test.annotations.*"/>
@@ -51,7 +51,7 @@ under the License.
             <package name="org.ballerinalang.test.mime.*"/>
             <package name="org.ballerinalang.test.collections.*"/>
         </packages>
-    </test>
+    </test-->
     <test name="ballerina-security-test-suite" preserve-order="true" parallel="false">
         <packages>
             <package name="org.ballerinalang.test.auth.*"/>

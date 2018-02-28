@@ -32,15 +32,15 @@ const string AUTH_SCHEME = "Basic";
 @Description {value:"Basic authenticator instance"}
 BasicAuthenticator authenticator;
 
-@Description {value:"Representation of Basic Auth interceptor for HTTP traffic"}
-public struct HttpBasicAuthInterceptor {
+@Description {value:"Representation of Basic Auth handler for HTTP traffic"}
+public struct HttpBasicAuthnHandler {
     // TODO
 }
 
 @Description {value:"Intercepts a request for authentication"}
 @Param {value:"req: InRequest object"}
 @Return {value:"boolean: true if authentication is a success, else false"}
-public function <HttpBasicAuthInterceptor basicAuthInterceptor> handle (http:InRequest req) (boolean) {
+public function <HttpBasicAuthnHandler basicAuthnHandler> handle (http:InRequest req) (boolean) {
 
     // extract the header value
     var basicAuthHeaderValue, err = utils:extractBasicAuthHeaderValue(req);
@@ -92,7 +92,7 @@ public function <HttpBasicAuthInterceptor basicAuthInterceptor> handle (http:InR
 @Description {value:"Checks if the provided request can be authenticated with basic auth"}
 @Param {value:"req: InRequest object"}
 @Return {value:"boolean: true if its possible authenticate with basic auth, else false"}
-public function <HttpBasicAuthInterceptor basicAuthInterceptor> canHandle (http:InRequest req) (boolean) {
+public function <HttpBasicAuthnHandler basicAuthnHandler> canHandle (http:InRequest req) (boolean) {
     string basicAuthHeader = req.getHeader(AUTH_HEADER);
     if (basicAuthHeader != null && basicAuthHeader.hasPrefix(AUTH_SCHEME)) {
         return true;
