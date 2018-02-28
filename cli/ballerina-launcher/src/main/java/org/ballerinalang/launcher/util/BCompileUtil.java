@@ -192,7 +192,7 @@ public class BCompileUtil {
     public static CompileResult compile(String sourceRoot, String packageName, CompilerPhase compilerPhase) {
         CompilerContext context = new CompilerContext();
         CompilerOptions options = CompilerOptions.getInstance(context);
-        options.put(SOURCE_ROOT, resourceDir.resolve(sourceRoot).toString());
+        options.put(SOURCE_ROOT, sourceRoot);
         options.put(COMPILER_PHASE, compilerPhase.toString());
         options.put(PRESERVE_WHITESPACE, "false");
 
