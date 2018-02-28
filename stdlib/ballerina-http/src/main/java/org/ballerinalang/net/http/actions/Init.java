@@ -111,14 +111,14 @@ public class Init extends AbstractHTTPAction {
                     throw new BallerinaConnectorException("invalid maxActiveConnections value: "
                                                                   + maxActiveConnections);
                 }
-                properties.put(HttpConstants.MAX_ACTIVE_CONNECTIONS_PER_POOL, (int) maxActiveConnections);
+                senderConfiguration.getPoolConfiguration().setMaxActivePerPool((int) maxActiveConnections);
 
                 long waitTime = connectionThrottling
                         .getIntField(HttpConstants.CONNECTION_THROTTLING_WAIT_TIME_INDEX);
                 if (!isInteger(waitTime)) {
                     throw new BallerinaConnectorException("invalid waitTime value: " + waitTime);
                 }
-                properties.put(HttpConstants.MAX_WAIT_FOR_CLIENT_CONNECTION_POOL, (int) waitTime);
+                senderConfiguration.getPoolConfiguration().setMaxWaitTime(waitTime);
             }
         }
 
