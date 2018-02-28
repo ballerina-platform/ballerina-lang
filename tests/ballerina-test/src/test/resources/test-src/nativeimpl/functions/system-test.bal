@@ -37,7 +37,7 @@ function testPrintAndPrintlnFunctionPointer() {
 }
 
 function testSprintf(string fmtStr, any[] fmtArgs) (string) {
-    return sprintf(fmtStr, fmtArgs);
+    return io:sprintf(fmtStr, fmtArgs);
 }
 
 function printNewline() {
