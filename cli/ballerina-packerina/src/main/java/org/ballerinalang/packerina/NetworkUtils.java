@@ -45,6 +45,7 @@ import java.util.stream.Stream;
 
 /**
  * Util class for network calls.
+ * @since 0.964
  */
 public class NetworkUtils {
     private static final Logger log = LoggerFactory.getLogger(NetworkUtils.class);
@@ -87,9 +88,14 @@ public class NetworkUtils {
         String pkgNameWithVersion = resourceName.substring(indexOfSlash + 1);
 
         int indexOfColon = pkgNameWithVersion.indexOf(":");
-        String pkgName = pkgNameWithVersion.substring(0, indexOfColon);
-        String pkgVersion = pkgNameWithVersion.substring(indexOfColon + 1);
-
+        String pkgVersion, pkgName;
+        if (indexOfColon != -1) {
+            pkgVersion = pkgNameWithVersion.substring(indexOfColon + 1);
+            pkgName = pkgNameWithVersion.substring(0, indexOfColon);
+        } else {
+            pkgVersion = "*";
+            pkgName = pkgNameWithVersion;
+        }
         Path fullPathOfPkg = Paths.get(orgName).resolve(pkgName).resolve(pkgVersion).resolve("src");
 
         targetDirectoryPath = targetDirectoryPath.resolve(fullPathOfPkg);
@@ -107,7 +113,7 @@ public class NetworkUtils {
         String pkgPath = Paths.get(orgName).resolve(pkgName).resolve(pkgVersion).toString();
         String resourcePath = ballerinaCentralURL + pkgPath;
         String[] proxyConfigs = readProxyConfigurations();
-        String[] arguments = new String[]{resourcePath, dstPath, pkgName, currentProjectPath, resourceName};
+        String[] arguments = new String[]{resourcePath, dstPath, pkgName, currentProjectPath, resourceName, pkgVersion};
         arguments = Stream.concat(Arrays.stream(arguments), Arrays.stream(proxyConfigs))
                 .toArray(String[]::new);
         LauncherUtils.runMain(compileResult.getProgFile(), arguments);
