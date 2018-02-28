@@ -60,7 +60,6 @@ public class WebSocketClient {
     private static final Logger log = LoggerFactory.getLogger(WebSocketClient.class);
 
     private WebSocketTargetHandler handler;
-    private EventLoopGroup group;
 
     private final String url;
     private final String subProtocols;
@@ -99,18 +98,7 @@ public class WebSocketClient {
             URI uri = new URI(url);
             String scheme = uri.getScheme() == null ? "ws" : uri.getScheme();
             final String host = uri.getHost() == null ? "127.0.0.1" : uri.getHost();
-            final int port;
-            if (uri.getPort() == -1) {
-                if ("ws".equalsIgnoreCase(scheme)) {
-                    port = 80;
-                } else if ("wss".equalsIgnoreCase(scheme)) {
-                    port = 443;
-                } else {
-                    port = -1;
-                }
-            } else {
-                port = uri.getPort();
-            }
+            final int port = getPort(uri);
 
             if (!"ws".equalsIgnoreCase(scheme) && !"wss".equalsIgnoreCase(scheme)) {
                 log.error("Only WS(S) is supported.");
@@ -118,52 +106,41 @@ public class WebSocketClient {
             }
 
             final boolean ssl = "wss".equalsIgnoreCase(scheme);
-            final SslContext sslCtx;
-            if (ssl) {
-                sslCtx = SslContextBuilder.forClient()
-                        .trustManager(InsecureTrustManagerFactory.INSTANCE).build();
-            } else {
-                sslCtx = null;
-            }
-
-            group = new NioEventLoopGroup();
+            final SslContext sslCtx = getSslContext(ssl);
+            EventLoopGroup group = new NioEventLoopGroup();
             HttpHeaders httpHeaders = new DefaultHttpHeaders();
 
             // Adding custom headers to the handshake request.
-
             if (headers != null) {
-                headers.entrySet().forEach(
-                        entry -> httpHeaders.add(entry.getKey(), entry.getValue())
-                );
+                headers.forEach(httpHeaders::add);
             }
 
             WebSocketClientHandshaker websocketHandshaker = WebSocketClientHandshakerFactory.newHandshaker(
                     uri, WebSocketVersion.V13, subProtocols, true, httpHeaders);
             handler = new WebSocketTargetHandler(websocketHandshaker, ssl, url, target, connectorListener);
 
-
-            Bootstrap b = new Bootstrap();
-            b.group(group)
+            Bootstrap clientBootstrap = new Bootstrap();
+            clientBootstrap.group(group)
                     .channel(NioSocketChannel.class)
                     .handler(new ChannelInitializer<SocketChannel>() {
                         @Override
                         protected void initChannel(SocketChannel ch) {
-                            ChannelPipeline p = ch.pipeline();
+                            ChannelPipeline pipeline = ch.pipeline();
                             if (sslCtx != null) {
-                                p.addLast(sslCtx.newHandler(ch.alloc(), host, port));
+                                pipeline.addLast(sslCtx.newHandler(ch.alloc(), host, port));
                             }
-                            p.addLast(new HttpClientCodec());
-                            p.addLast(new HttpObjectAggregator(8192));
-                            p.addLast(WebSocketClientCompressionHandler.INSTANCE);
+                            pipeline.addLast(new HttpClientCodec());
+                            pipeline.addLast(new HttpObjectAggregator(8192));
+                            pipeline.addLast(WebSocketClientCompressionHandler.INSTANCE);
                             if (idleTimeout > 0) {
-                                p.addLast(new IdleStateHandler(idleTimeout, idleTimeout,
+                                pipeline.addLast(new IdleStateHandler(idleTimeout, idleTimeout,
                                                                idleTimeout, TimeUnit.MILLISECONDS));
                             }
-                            p.addLast(handler);
+                            pipeline.addLast(handler);
                         }
                     });
 
-            b.connect(uri.getHost(), port).sync();
+            clientBootstrap.connect(uri.getHost(), port).sync();
             ChannelFuture future = handler.handshakeFuture().addListener(new ChannelFutureListener() {
                 @Override
                 public void operationComplete(ChannelFuture future) {
@@ -186,5 +163,28 @@ public class WebSocketClient {
         }
 
         return handshakeFuture;
+    }
+
+    private int getPort(URI uri) {
+        String scheme = uri.getScheme();
+        if (uri.getPort() == -1) {
+            switch (scheme) {
+                case "ws":
+                    return 80;
+                case "wss":
+                    return 443;
+                default:
+                    return -1;
+            }
+        } else {
+            return uri.getPort();
+        }
+    }
+
+    private SslContext getSslContext(boolean ssl) throws SSLException {
+        if (ssl) {
+            return SslContextBuilder.forClient().trustManager(InsecureTrustManagerFactory.INSTANCE).build();
+        }
+        return null;
     }
 }
