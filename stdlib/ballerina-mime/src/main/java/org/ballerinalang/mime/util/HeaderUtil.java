@@ -258,7 +258,7 @@ public class HeaderUtil {
     /**
      * Given a Content-Type, extract the boundary parameter value out of it.
      *
-     * @param contentType Represent the value of Content-Type header inclusing parameters
+     * @param contentType Represent the value of Content-Type header including parameters
      * @return A ballerina string that has the boundary parameter value
      */
     public static BString extractBoundaryParameter(String contentType) {

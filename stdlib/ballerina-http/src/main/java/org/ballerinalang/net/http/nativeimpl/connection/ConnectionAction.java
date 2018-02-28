@@ -102,10 +102,11 @@ public abstract class ConnectionAction extends AbstractNativeFunction {
             OutputStream messageOutputStream = getOutputStream(responseMessage, outboundRespStatusFuture);
             try {
                 EntityBodyHandler.writeByteChannelToOutputStream(entityStruct, messageOutputStream);
-                HttpUtil.closeMessageOutputStream(messageOutputStream);
             } catch (IOException e) {
                 throw new BallerinaException("Error occurred while serializing byte channel content : " +
                         e.getMessage());
+            } finally {
+                HttpUtil.closeMessageOutputStream(messageOutputStream);
             }
         }
     }
@@ -132,9 +133,10 @@ public abstract class ConnectionAction extends AbstractNativeFunction {
             } else { //When the entity body is a byte channel
                 EntityBodyHandler.writeByteChannelToOutputStream(entityStruct, messageOutputStream);
             }
-            HttpUtil.closeMessageOutputStream(messageOutputStream);
         } catch (IOException e) {
             throw new BallerinaException("Error occurred while serializing message data source : " + e.getMessage());
+        } finally {
+            HttpUtil.closeMessageOutputStream(messageOutputStream);
         }
     }
 

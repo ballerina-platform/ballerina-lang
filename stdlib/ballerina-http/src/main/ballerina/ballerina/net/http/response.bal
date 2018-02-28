@@ -177,7 +177,6 @@ public function <OutResponse response> getByteChannel () (io:ByteChannel) {
     return entity.getByteChannel();
 }
 
-
 @Description {value:"Get multiparts from inbound response"}
 @Param {value:"req: The response message"}
 @Return {value:"Returns the body parts as an array of entities"}
