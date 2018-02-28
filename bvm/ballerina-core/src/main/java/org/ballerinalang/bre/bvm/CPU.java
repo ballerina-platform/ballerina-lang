@@ -2681,8 +2681,8 @@ public class CPU {
                                               int[] argRegs, int[] retRegs) {
         BStruct structVal = (BStruct) ctx.workerLocal.refRegs[receiver];
         if (structVal == null) {
-            ctx.setError(BLangVMErrors.createNullRefException(ctx, ctx.ip));
-            handleError();
+            ctx.setError(BLangVMErrors.createNullRefException(ctx));
+            handleError(ctx);
             return null;
         }
 
