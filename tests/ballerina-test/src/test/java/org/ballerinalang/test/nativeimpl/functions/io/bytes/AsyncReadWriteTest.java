@@ -89,10 +89,20 @@ public class AsyncReadWriteTest {
         return numberOfBytesRead;
     }
 
+    /**
+     * Asynchronously writes bytes to a channel.
+     *
+     * @param content content which should be written.
+     * @param channel the channel the bytes should be written.
+     * @return the number of bytes written to the channel.
+     * @throws ExecutionException   errors which occur during execution.
+     * @throws InterruptedException during interrupt error.
+     */
     private int writeAsync(byte[] content, Channel channel) throws ExecutionException, InterruptedException {
         int numberOfBytesWritten = 0;
         do {
-            WriteBytesEvent writeBytesEvent = new WriteBytesEvent(channel, content, numberOfBytesWritten);
+            int arrayLength = content.length;
+            WriteBytesEvent writeBytesEvent = new WriteBytesEvent(channel, content, numberOfBytesWritten, arrayLength);
             Future<EventResponse> future = eventManager.publish(writeBytesEvent);
             EventResponse eventResponse = future.get();
             numberOfBytesWritten = numberOfBytesWritten + (Integer) eventResponse.getResponse();
@@ -139,10 +149,5 @@ public class AsyncReadWriteTest {
         int numberOfBytesWritten = writeAsync(bytes, channel);
         Assert.assertEquals(numberOfBytesWritten, bytes.length);
     }
-
-/*    @DataProvider(name = "ByteAllocation")
-    public static Object[][] bytes() {
-        return new Object[][]{{new byte[2], 0}, {new byte[4], 0}};
-    }*/
 
 }

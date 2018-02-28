@@ -138,7 +138,7 @@ public abstract class Channel {
      * @param buffer the buffer which will hold the content.
      * @return the number of bytes read.
      */
-    public int read(ByteBuffer buffer) throws BallerinaIOException {
+     public int read(ByteBuffer buffer) throws BallerinaIOException {
         int readBytes = reader.read(buffer, channel);
         if (readBytes <= 0) {
             hasReachedToEnd = true;
@@ -161,7 +161,8 @@ public abstract class Channel {
      * @return bytes which are retrieved from the channel.
      * @throws BallerinaIOException during I/O error.
      */
-    public byte[] read(int numberOfBytes) throws BallerinaIOException {
+    @Deprecated
+    public byte[] readFull(int numberOfBytes) throws BallerinaIOException {
         ByteBuffer readBuffer = contentBuffer.get(numberOfBytes, this);
         byte[] content = readBuffer.array();
         int contentLength = readBuffer.capacity();
@@ -172,21 +173,6 @@ public abstract class Channel {
         }
         return content;
     }
-
-    /**
-     * Reads bytes into the array.
-     *
-     * @param content initialized array that will hold the read content.
-     * @param offset  if the content should be read by setting an offset.
-     * @return the number of bytes read.
-     */
-    public int read(byte[] content, int offset) {
-        ByteBuffer buffer = ByteBuffer.wrap(content);
-        //We need to write by setting an offset
-        buffer.position(offset);
-        return read(buffer);
-    }
-
 
     /**
      * Specifies whether the channel has reached to it's end.
@@ -227,7 +213,6 @@ public abstract class Channel {
         }
         return write(outputBuffer);
     }
-
 
     /**
      * Closes the given channel.

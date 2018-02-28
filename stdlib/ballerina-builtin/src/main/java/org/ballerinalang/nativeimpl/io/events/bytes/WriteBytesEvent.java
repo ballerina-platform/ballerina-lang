@@ -38,11 +38,12 @@ public class WriteBytesEvent implements Event {
      */
     private ByteBuffer writeBuffer;
 
-    public WriteBytesEvent(Channel byteChannel, byte[] content, int startOffset) {
+    public WriteBytesEvent(Channel byteChannel, byte[] content, int startOffset, int size) {
         this.byteChannel = byteChannel;
         writeBuffer = ByteBuffer.wrap(content);
         //If a larger position is set, the position would be disregarded
         writeBuffer.position(startOffset);
+        writeBuffer.limit(size);
     }
 
     @Override

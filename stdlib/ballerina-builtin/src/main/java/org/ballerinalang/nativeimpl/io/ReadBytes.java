@@ -75,7 +75,7 @@ public class ReadBytes extends AbstractNativeFunction {
             channel = (BStruct) getRefArgument(context, BYTE_CHANNEL_INDEX);
             numberOfBytes = (int) getIntArgument(context, NUMBER_OF_BYTES_INDEX);
             Channel byteChannel = (Channel) channel.getNativeData(IOConstants.BYTE_CHANNEL_NAME);
-            byte[] readBytes = byteChannel.read(numberOfBytes);
+            byte[] readBytes = byteChannel.readFull(numberOfBytes);
             readByteBlob = new BBlob(readBytes);
             numberOfReadBytes = new BInteger(readBytes.length);
         } catch (Throwable e) {

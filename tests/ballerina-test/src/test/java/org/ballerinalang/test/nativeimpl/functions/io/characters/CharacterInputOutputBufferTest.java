@@ -49,7 +49,7 @@ public class CharacterInputOutputBufferTest {
         int numberOfCharactersToRead = 2;
         //Number of characters in this file would be 6
         ByteChannel byteChannel = TestUtil.openForReading("datafiles/io/text/utf8file.txt");
-        Channel channel = new MockByteChannel(byteChannel, 10);
+        Channel channel = new MockByteChannel(byteChannel);
         CharacterChannel characterChannel = new CharacterChannel(channel, StandardCharsets.UTF_8.name());
 
         String readCharacters = characterChannel.read(numberOfCharactersToRead);
@@ -69,7 +69,7 @@ public class CharacterInputOutputBufferTest {
         int numberOfCharactersToRead = 2;
         //Number of characters in this file would be 6
         ByteChannel byteChannel = TestUtil.openForReading("datafiles/io/text/longChars.txt");
-        Channel channel = new MockByteChannel(byteChannel, 10);
+        Channel channel = new MockByteChannel(byteChannel);
         CharacterChannel characterChannel = new CharacterChannel(channel, StandardCharsets.UTF_8.name());
 
         String readCharacters = characterChannel.read(numberOfCharactersToRead);
@@ -91,7 +91,7 @@ public class CharacterInputOutputBufferTest {
         int numberOfCharactersToRead;
         //Number of characters in this file would be 6
         ByteChannel byteChannel = TestUtil.openForReading("datafiles/io/text/corruptedText");
-        Channel channel = new MockByteChannel(byteChannel, 10);
+        Channel channel = new MockByteChannel(byteChannel);
         CharacterChannel characterChannel = new CharacterChannel(channel, StandardCharsets.UTF_8.name());
 
         numberOfCharactersToRead = 2;
@@ -117,7 +117,7 @@ public class CharacterInputOutputBufferTest {
         int numberOfCharactersToRead;
         //Number of characters in this file would be 6
         ByteChannel byteChannel = TestUtil.openForReading("datafiles/io/text/corruptedText2");
-        Channel channel = new MockByteChannel(byteChannel, 10);
+        Channel channel = new MockByteChannel(byteChannel);
         CharacterChannel characterChannel = new CharacterChannel(channel, StandardCharsets.UTF_8.name());
 
         numberOfCharactersToRead = 3;
@@ -139,7 +139,7 @@ public class CharacterInputOutputBufferTest {
         int numberOfCharactersToRead = 2;
         //Number of characters in this file would be 6
         ByteChannel byteChannel = TestUtil.openForReading("datafiles/io/text/6charfile.txt");
-        Channel channel = new MockByteChannel(byteChannel, 10);
+        Channel channel = new MockByteChannel(byteChannel);
         CharacterChannel characterChannel = new CharacterChannel(channel, StandardCharsets.UTF_8.name());
 
         String readCharacters = characterChannel.read(numberOfCharactersToRead);
