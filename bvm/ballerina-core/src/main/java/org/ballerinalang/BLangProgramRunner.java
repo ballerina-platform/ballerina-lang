@@ -89,7 +89,7 @@ public class BLangProgramRunner {
         }
         FunctionInfo mainFuncInfo = getMainFunction(mainPkgInfo);
         BLangFunctions.invokePackageInitFunction(mainPkgInfo.getInitFunctionInfo());
-        BLangFunctions.invokeCallable(programFile, mainFuncInfo, extractMainArgs(args));
+        BLangFunctions.invokeCallable(mainFuncInfo, extractMainArgs(args));
         BLangScheduler.waitForCompletion();
     }
     

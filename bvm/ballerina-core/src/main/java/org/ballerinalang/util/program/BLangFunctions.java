@@ -48,7 +48,7 @@ public class BLangFunctions {
 
     public static BValue[] invokeNew(ProgramFile bLangProgram, String packageName, String functionName,
             BValue[] args) {
-        return invokeNew(bLangProgram, packageName, functionName, args, new WorkerExecutionContext(bLangProgram));
+        return invokeNew(bLangProgram, packageName, functionName, args, new WorkerExecutionContext());
     }
 
     public static BValue[] invokeNew(ProgramFile bLangProgram, String packageName, String functionName,
@@ -72,9 +72,8 @@ public class BLangFunctions {
         invokeCallable(callableUnitInfo, parentCtx, new int[0], new int[0], false);
     }
     
-    public static BValue[] invokeCallable(ProgramFile bLangProgram, CallableUnitInfo callableUnitInfo,
-            BValue[] args) {
-        return invokeCallable(callableUnitInfo, new WorkerExecutionContext(bLangProgram), args);
+    public static BValue[] invokeCallable(CallableUnitInfo callableUnitInfo, BValue[] args) {
+        return invokeCallable(callableUnitInfo, new WorkerExecutionContext(), args);
     }
     
     public static BValue[] invokeCallable(CallableUnitInfo callableUnitInfo, WorkerExecutionContext parentCtx, 

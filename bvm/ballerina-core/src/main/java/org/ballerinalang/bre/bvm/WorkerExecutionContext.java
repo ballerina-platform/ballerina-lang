@@ -71,12 +71,6 @@ public class WorkerExecutionContext {
 
     private BStruct error;
 
-    public WorkerExecutionContext(ProgramFile programFile) {
-        this.programFile = programFile;
-        this.globalProps = new HashMap<>();
-        this.runInCaller = true;
-    }
-    
     public WorkerExecutionContext() {
         this.globalProps = new HashMap<>();
         this.runInCaller = true;
@@ -90,7 +84,7 @@ public class WorkerExecutionContext {
         this.respCtx = respCtx;
         this.callableUnitInfo = callableUnitInfo;
         this.workerInfo = workerInfo;
-        this.programFile = parent.programFile;
+        this.programFile = callableUnitInfo.getPackageInfo().getProgramFile();
         this.constPool = callableUnitInfo.getPackageInfo().getConstPoolEntries();
         this.code = callableUnitInfo.getPackageInfo().getInstructions();
         this.workerLocal = workerLocal;

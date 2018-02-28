@@ -38,18 +38,18 @@ public class TaskExecutor {
         boolean isErrorFnCalled = false;
         try {
             // Invoke the onTrigger function.
-            BValue[] results = BLangFunctions.invokeCallable(programFile, onTriggerFunction.getFunctionInfo(), 
+            BValue[] results = BLangFunctions.invokeCallable(onTriggerFunction.getFunctionInfo(),
                     new BValue[0]);
             // If there are results, that mean an error has been returned
             if (onErrorFunction != null && results.length > 0 && results[0] != null) {
                 isErrorFnCalled = true;
-                BLangFunctions.invokeCallable(programFile, onErrorFunction.getFunctionInfo(), results);
+                BLangFunctions.invokeCallable(onErrorFunction.getFunctionInfo(), results);
             }
         } catch (BLangRuntimeException e) {
 
             //Call the onError function in case of error.
             if (onErrorFunction != null && !isErrorFnCalled) {
-                BLangFunctions.invokeCallable(programFile, onErrorFunction.getFunctionInfo(),
+                BLangFunctions.invokeCallable(onErrorFunction.getFunctionInfo(),
                         new BValue[] { BLangVMErrors.createError(parentCtx, 0, e.getMessage()) });
             }
         }
