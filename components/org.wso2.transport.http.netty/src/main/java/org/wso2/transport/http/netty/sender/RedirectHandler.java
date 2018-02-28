@@ -278,7 +278,7 @@ public class RedirectHandler extends ChannelInboundHandlerAdapter {
                 if (LOG.isDebugEnabled()) {
                     LOG.debug("Getting ready for actual redirection for channel " + ctx.channel().id());
                 }
-                URL locationUrl = new URL(redirectState.get(Constants.LOCATION));
+                URL locationUrl = new URL(redirectState.get(HttpHeaderNames.LOCATION.toString()));
                 HTTPCarbonMessage httpCarbonRequest = createHttpCarbonRequest();
                 HttpRequest httpRequest = Util.createHttpRequest(httpCarbonRequest);
 
@@ -385,8 +385,8 @@ public class RedirectHandler extends ChannelInboundHandlerAdapter {
      * @return boolean indicating redirect eligibility
      */
     private boolean isRedirectEligible() {
-        return redirectState != null && !redirectState.isEmpty() && redirectState.get(Constants.LOCATION) != null
-                && redirectState.get(Constants.HTTP_METHOD) != null;
+        return redirectState != null && !redirectState.isEmpty() && redirectState.get(
+                HttpHeaderNames.LOCATION.toString()) != null && redirectState.get(Constants.HTTP_METHOD) != null;
     }
 
     /**
@@ -448,7 +448,7 @@ public class RedirectHandler extends ChannelInboundHandlerAdapter {
                 if (Constants.HTTP_GET_METHOD.equals(originalRequestMethod) || Constants.HTTP_HEAD_METHOD
                         .equals(originalRequestMethod)) {
                     redirectState.put(Constants.HTTP_METHOD, originalRequestMethod);
-                    redirectState.put(Constants.LOCATION, getLocationURI(location, originalRequest));
+                    redirectState.put(HttpHeaderNames.LOCATION.toString(), getLocationURI(location, originalRequest));
                 }
                 break;
             case 301:
@@ -456,12 +456,12 @@ public class RedirectHandler extends ChannelInboundHandlerAdapter {
                 if (Constants.HTTP_GET_METHOD.equals(originalRequestMethod) || Constants.HTTP_HEAD_METHOD
                         .equals(originalRequestMethod)) {
                     redirectState.put(Constants.HTTP_METHOD, Constants.HTTP_GET_METHOD);
-                    redirectState.put(Constants.LOCATION, getLocationURI(location, originalRequest));
+                    redirectState.put(HttpHeaderNames.LOCATION.toString(), getLocationURI(location, originalRequest));
                 }
                 break;
             case 303:
                 redirectState.put(Constants.HTTP_METHOD, Constants.HTTP_GET_METHOD);
-                redirectState.put(Constants.LOCATION, getLocationURI(location, originalRequest));
+                redirectState.put(HttpHeaderNames.LOCATION.toString(), getLocationURI(location, originalRequest));
                 break;
             default:
                 return null;
@@ -493,14 +493,15 @@ public class RedirectHandler extends ChannelInboundHandlerAdapter {
                 String protocol = originalRequest != null ?
                         (String) originalRequest.getProperty(Constants.PROTOCOL) :
                         Constants.HTTP_SCHEME;
-                String host = originalRequest != null ? (String) originalRequest.getProperty(Constants.HOST) : null;
+                String host = originalRequest != null ? (String) originalRequest.getProperty(Constants.HTTP_HOST) :
+                        null;
                 if (host == null) {
                     return null;
                 }
                 int defaultPort = getDefaultPort(protocol);
                 Integer port = originalRequest != null ?
-                        originalRequest.getProperty(Constants.PORT) != null ?
-                                (Integer) originalRequest.getProperty(Constants.PORT) :
+                        originalRequest.getProperty(Constants.HTTP_PORT) != null ?
+                                (Integer) originalRequest.getProperty(Constants.HTTP_PORT) :
                                 defaultPort :
                         defaultPort;
                 return buildRedirectURL(requestPath, location, protocol, host, port);
@@ -560,10 +561,11 @@ public class RedirectHandler extends ChannelInboundHandlerAdapter {
                 URL locationUrl = new URL(location);
                 String protocol =
                         originalRequest != null ? (String) originalRequest.getProperty(Constants.PROTOCOL) : null;
-                String host = originalRequest != null ? (String) originalRequest.getProperty(Constants.HOST) : null;
+                String host = originalRequest != null ? (String) originalRequest.getProperty(Constants.HTTP_HOST) :
+                        null;
                 String port = originalRequest != null ?
-                        originalRequest.getProperty(Constants.PORT) != null ?
-                                Integer.toString((Integer) originalRequest.getProperty(Constants.PORT)) :
+                        originalRequest.getProperty(Constants.HTTP_PORT) != null ?
+                                Integer.toString((Integer) originalRequest.getProperty(Constants.HTTP_PORT)) :
                                 null :
                         null;
                 if (locationUrl.getProtocol().equals(protocol) && locationUrl.getHost().equals(host)
@@ -600,15 +602,15 @@ public class RedirectHandler extends ChannelInboundHandlerAdapter {
         if (LOG.isDebugEnabled()) {
             LOG.debug("Create redirect request with http method  : " + redirectState.get(Constants.HTTP_METHOD));
         }
-        URL locationUrl = new URL(redirectState.get(Constants.LOCATION));
+        URL locationUrl = new URL(redirectState.get(HttpHeaderNames.LOCATION.toString()));
 
         HttpMethod httpMethod = new HttpMethod(redirectState.get(Constants.HTTP_METHOD));
         HTTPCarbonMessage httpCarbonRequest = new HTTPCarbonMessage(
                 new DefaultHttpRequest(HttpVersion.HTTP_1_1, httpMethod, ""));
-        httpCarbonRequest.setProperty(Constants.PORT,
+        httpCarbonRequest.setProperty(Constants.HTTP_PORT,
                 locationUrl.getPort() != -1 ? locationUrl.getPort() : getDefaultPort(locationUrl.getProtocol()));
         httpCarbonRequest.setProperty(Constants.PROTOCOL, locationUrl.getProtocol());
-        httpCarbonRequest.setProperty(Constants.HOST, locationUrl.getHost());
+        httpCarbonRequest.setProperty(Constants.HTTP_HOST, locationUrl.getHost());
         httpCarbonRequest.setProperty(Constants.HTTP_METHOD, redirectState.get(Constants.HTTP_METHOD));
         httpCarbonRequest.setProperty(Constants.REQUEST_URL, locationUrl.getPath());
         httpCarbonRequest.setProperty(Constants.TO, locationUrl.getPath());
@@ -618,7 +620,8 @@ public class RedirectHandler extends ChannelInboundHandlerAdapter {
                 && locationUrl.getPort() != Constants.DEFAULT_HTTPS_PORT) {
             host.append(Constants.COLON).append(locationUrl.getPort());
         }
-        httpCarbonRequest.setHeader(Constants.HOST, host.toString());
+
+        httpCarbonRequest.setHeader(HttpHeaderNames.HOST.toString(), host.toString());
         httpCarbonRequest.completeMessage();
         return httpCarbonRequest;
     }

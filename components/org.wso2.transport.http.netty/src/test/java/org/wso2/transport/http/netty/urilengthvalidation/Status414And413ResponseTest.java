@@ -22,6 +22,7 @@ import io.netty.buffer.Unpooled;
 import io.netty.handler.codec.http.DefaultFullHttpRequest;
 import io.netty.handler.codec.http.FullHttpRequest;
 import io.netty.handler.codec.http.FullHttpResponse;
+import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpMethod;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.codec.http.HttpVersion;
@@ -94,12 +95,12 @@ public class Status414And413ResponseTest {
 
             urlConn = sendExtraLongUri();
             assertEquals(HttpResponseStatus.REQUEST_URI_TOO_LONG.code(), urlConn.getResponseCode());
-            assertEquals(TestUtil.TEST_SERVER, urlConn.getHeaderField(Constants.HTTP_SERVER_HEADER));
+            assertEquals(TestUtil.TEST_SERVER, urlConn.getHeaderField(HttpHeaderNames.SERVER.toString()));
 
             urlConn = sendShortUri();
             String content = TestUtil.getContent(urlConn);
             assertEquals(HttpResponseStatus.OK.code(), urlConn.getResponseCode());
-            assertEquals(TestUtil.TEST_SERVER, urlConn.getHeaderField(Constants.HTTP_SERVER_HEADER));
+            assertEquals(TestUtil.TEST_SERVER, urlConn.getHeaderField(HttpHeaderNames.SERVER.toString()));
             assertEquals(testValue, content);
 
             urlConn.disconnect();
@@ -128,7 +129,7 @@ public class Status414And413ResponseTest {
 
             assertEquals(testValue, payload);
             assertEquals(HttpResponseStatus.OK.code(), httpResponse.status().code());
-            assertEquals(TestUtil.TEST_SERVER, httpResponse.headers().get(Constants.HTTP_SERVER_HEADER));
+            assertEquals(TestUtil.TEST_SERVER, httpResponse.headers().get(HttpHeaderNames.SERVER.toString()));
 
         } catch (Exception e) {
             TestUtil.handleException("IOException occurred while running largeHeaderTest", e);
@@ -156,7 +157,7 @@ public class Status414And413ResponseTest {
                     HttpMethod.POST, "/", Unpooled.wrappedBuffer(TestUtil.smallEntity.getBytes()));
             httpResponse = httpClient.sendRequest(httpRequest);
             assertEquals(HttpResponseStatus.OK.code(), httpResponse.status().code());
-            assertEquals(TestUtil.TEST_SERVER, httpResponse.headers().get(Constants.HTTP_SERVER_HEADER));
+            assertEquals(TestUtil.TEST_SERVER, httpResponse.headers().get(HttpHeaderNames.SERVER));
 
         } catch (Exception e) {
             TestUtil.handleException("IOException occurred while running largeEntityBodyTest", e);
@@ -165,8 +166,8 @@ public class Status414And413ResponseTest {
 
     private void assertEntityTooLargeResponse(FullHttpResponse httpResponse) {
         assertEquals(HttpResponseStatus.REQUEST_ENTITY_TOO_LARGE.code(), httpResponse.status().code());
-        assertEquals(Constants.CONNECTION_CLOSE, httpResponse.headers().get(Constants.HTTP_CONNECTION));
-        assertEquals(TestUtil.TEST_SERVER, httpResponse.headers().get(Constants.HTTP_SERVER_HEADER));
+        assertEquals(Constants.CONNECTION_CLOSE, httpResponse.headers().get(HttpHeaderNames.CONNECTION.toString()));
+        assertEquals(TestUtil.TEST_SERVER, httpResponse.headers().get(HttpHeaderNames.SERVER));
     }
 
     private String getLargeHeader() {

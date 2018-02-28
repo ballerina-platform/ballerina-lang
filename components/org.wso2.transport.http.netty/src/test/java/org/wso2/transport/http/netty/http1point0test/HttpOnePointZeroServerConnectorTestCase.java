@@ -22,6 +22,7 @@ import io.netty.buffer.Unpooled;
 import io.netty.handler.codec.http.DefaultFullHttpRequest;
 import io.netty.handler.codec.http.FullHttpRequest;
 import io.netty.handler.codec.http.FullHttpResponse;
+import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpMethod;
 import io.netty.handler.codec.http.HttpVersion;
 import org.slf4j.Logger;
@@ -92,7 +93,7 @@ public class HttpOnePointZeroServerConnectorTestCase {
 
             assertTrue(httpClient.waitForChannelClose());
             assertEquals(TestUtil.largeEntity, TestUtil.getEntityBodyFrom(httpResponse));
-            assertNotNull(httpResponse.headers().get(Constants.HTTP_CONTENT_LENGTH));
+            assertNotNull(httpResponse.headers().get(HttpHeaderNames.CONTENT_LENGTH));
         } catch (Exception e) {
             TestUtil.handleException("IOException occurred while running largeHeaderTest", e);
         }
@@ -105,13 +106,13 @@ public class HttpOnePointZeroServerConnectorTestCase {
 
             FullHttpRequest httpRequest = new DefaultFullHttpRequest(HttpVersion.HTTP_1_0,
                     HttpMethod.POST, "/", Unpooled.wrappedBuffer(TestUtil.largeEntity.getBytes()));
-            httpRequest.headers().set(Constants.HTTP_CONNECTION, Constants.CONNECTION_KEEP_ALIVE);
+            httpRequest.headers().set(HttpHeaderNames.CONNECTION, Constants.CONNECTION_KEEP_ALIVE);
             FullHttpResponse httpResponse = httpClient.sendRequest(httpRequest);
 
             assertFalse(httpClient.waitForChannelClose());
             assertEquals(TestUtil.largeEntity, TestUtil.getEntityBodyFrom(httpResponse));
-            assertEquals(Constants.CONNECTION_KEEP_ALIVE, httpResponse.headers().get(Constants.CONNECTION));
-            assertNotNull(httpResponse.headers().get(Constants.HTTP_CONTENT_LENGTH));
+            assertEquals(Constants.CONNECTION_KEEP_ALIVE, httpResponse.headers().get(HttpHeaderNames.CONNECTION));
+            assertNotNull(httpResponse.headers().get(HttpHeaderNames.CONTENT_LENGTH));
         } catch (Exception e) {
             TestUtil.handleException("IOException occurred while running largeHeaderTest", e);
         }

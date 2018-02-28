@@ -18,6 +18,7 @@
 
 package org.wso2.transport.http.netty.headers;
 
+import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpMethod;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,7 +27,6 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.carbon.messaging.exceptions.ServerConnectorException;
-import org.wso2.transport.http.netty.common.Constants;
 import org.wso2.transport.http.netty.config.ListenerConfiguration;
 import org.wso2.transport.http.netty.contentaware.listeners.EchoStreamingMessageListener;
 import org.wso2.transport.http.netty.contract.HttpWsConnectorFactory;
@@ -70,8 +70,9 @@ public class DateHeaderTestCase {
     public void testDateHeaderFormatAndExistence() throws IOException {
         URI baseURI = URI.create(String.format("http://%s:%d", "localhost", TestUtil.SERVER_CONNECTOR_PORT));
         HttpURLConnection connection = TestUtil.request(baseURI, "/", HttpMethod.POST.name(), false);
+
         connection.getOutputStream().write(TestUtil.smallEntity.getBytes());
-        String date = connection.getHeaderField(Constants.DATE);
+        String date = connection.getHeaderField(HttpHeaderNames.DATE.toString());
 
         Assert.assertEquals(connection.getResponseCode(), HttpURLConnection.HTTP_OK);
         Assert.assertNotNull(DateTimeFormatter.RFC_1123_DATE_TIME.parse(date));
