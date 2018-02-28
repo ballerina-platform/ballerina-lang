@@ -107,9 +107,10 @@
     transition-timing-function: ease-out;
     -webkit-transition-duration: 0.5s;
     transition-duration: 0.5s;
-    -webkit-clip-path: circle(390px at 225px 24px);
-    clip-path: circle(390px at 150px 24px);
+    -webkit-clip-path: circle(590px at 225px 24px);
+    clip-path: circle(590px at 150px 24px);
     width:241px;
+
 }
 
 .interaction-menu-area-hidden .interaction-menu {
@@ -125,6 +126,7 @@
     overflow: visible;
     margin-left: 1px;
     color: #333;
+    padding-bottom: 0;
 }
 
 .interaction-menu-area:hover .interaction-menu-item, .interaction-menu-area-clicked .interaction-menu-item {
@@ -200,7 +202,6 @@
 
 .connector-select {
     width:224px;
-    overflow-y: hidden;
     opacity: 1;
 	transition-property: all;
 	transition-duration: 0.4s;
@@ -223,8 +224,9 @@
 .connector-select input{
     width:214px;
     margin: 5px;
-    background-color: #f1f1f1;
-    border: 1px solid #f1f1f1;
+    background-color: #fff;
+    border: 1px solid #ddd;
+    padding: 10px;
 }
 
 .connector-select ul{
@@ -243,6 +245,9 @@
 
 .connector-select, .react-autosuggest__suggestions-container {
     width: 224px;
+    //height:300px;
+    //overflow-y: scroll;
+    //overflow-x: hidden;
 }
 
 .react-autosuggest__suggestion--highlighted{
