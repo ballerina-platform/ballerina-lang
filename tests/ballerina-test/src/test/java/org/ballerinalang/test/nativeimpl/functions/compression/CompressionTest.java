@@ -46,6 +46,7 @@ import java.util.zip.ZipFile;
 
 /**
  * Test Native functions in ballerina.compression.
+ * @since 0.964
  */
 public class CompressionTest {
 

@@ -28,6 +28,8 @@ import java.io.IOException;
 
 /**
  * Manifest Processor which processes the toml file parsed and populate the Manifest POJO.
+ *
+ * @since 0.964
  */
 public class ManifestProcessor {
 
@@ -60,7 +62,7 @@ public class ManifestProcessor {
      * @param charStream toml file content as a char stream
      * @return manifest object
      */
-    public static Manifest getManifest(CharStream charStream) {
+    private static Manifest getManifest(CharStream charStream) {
         Manifest manifest = new Manifest();
         ParseTreeWalker walker = new ParseTreeWalker();
         walker.walk(new ManifestBuildListener(manifest), TomlProcessor.parseTomlContent(charStream));

@@ -32,7 +32,7 @@ import static org.ballerinalang.runtime.Constants.SYSTEM_PROP_BAL_DEBUG;
 /**
  * This class represents the "ballerina pull" command.
  *
- * @since 0.961
+ * @since 0.964
  */
 @Parameters(commandNames = "pull", commandDescription = " downloads the package source and binaries from a " +
         "remote repository,")

@@ -32,7 +32,7 @@ import static org.ballerinalang.runtime.Constants.SYSTEM_PROP_BAL_DEBUG;
 /**
  * This class represents the "ballerina push" command.
  *
- * @since 0.961
+ * @since 0.964
  */
 @Parameters(commandNames = "push", commandDescription = " uploads/pushes a package source and binaries available" +
         "locally to the ballerina central repository,")

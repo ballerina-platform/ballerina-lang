@@ -31,12 +31,12 @@ import java.io.File;
 
 /**
  * Testing ballerina pull command
+ * @since 0.964
  */
 public class BallerinaPullCmdTestCase extends IntegrationTestCase {
 
     private ServerInstance ballerinaServer;
     private ServerInstance ballerinaClient;
-    private String serverZipPath;
 
     @Test
     public void setUp() throws BallerinaTestException {
@@ -49,7 +49,7 @@ public class BallerinaPullCmdTestCase extends IntegrationTestCase {
 
     @Test(description = "Test ballerina pull cmd")
     public void testBallerinaPullCmd() throws Exception {
-        serverZipPath = System.getProperty(Constant.SYSTEM_PROP_SERVER_ZIP);
+        String serverZipPath = System.getProperty(Constant.SYSTEM_PROP_SERVER_ZIP);
         String srcDirPath = new File("src" + File.separator + "test" + File.separator + "resources"
                 + File.separator + "ballerinaPull" + File.separator + "files" + File.separator
                 + "hello.zip").getAbsolutePath();

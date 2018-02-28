@@ -39,7 +39,7 @@ import java.util.zip.ZipOutputStream;
 /**
  * Native function ballerina.compression:ZipToBytes.
  *
- * @since 0.962.0
+ * @since 0.964
  */
 @BallerinaFunction(
         packageName = "ballerina.compression",

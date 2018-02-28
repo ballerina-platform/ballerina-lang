@@ -25,6 +25,8 @@ import java.util.function.BiConsumer;
 
 /**
  * Proxy object fields.
+ *
+ * @since 0.964
  */
 public enum ProxyField {
     HOST(Proxy::setHost),

@@ -25,6 +25,8 @@ import java.util.function.BiConsumer;
 
 /**
  * Central object fields.
+ *
+ * @since 0.964
  */
 public enum CentralField {
     ACCESSTOKEN(Central::setAccessToken);
