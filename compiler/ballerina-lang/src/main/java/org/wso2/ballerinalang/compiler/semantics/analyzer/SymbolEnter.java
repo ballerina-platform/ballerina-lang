@@ -20,6 +20,7 @@ package org.wso2.ballerinalang.compiler.semantics.analyzer;
 import org.ballerinalang.compiler.CompilerOptionName;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.model.TreeBuilder;
+import org.ballerinalang.model.elements.DocTag;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.tree.IdentifierNode;
@@ -258,6 +259,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         BAnnotationAttributeSymbol annotationAttributeSymbol = Symbols.createAnnotationAttributeSymbol(names.
                         fromIdNode(annotationAttribute.name), env.enclPkg.symbol.pkgID,
                 null, env.scope.owner);
+        annotationAttributeSymbol.docTag = DocTag.FIELD;
         annotationAttributeSymbol.expr = annotationAttribute.expr;
         annotationAttribute.symbol = annotationAttributeSymbol;
         ((BAnnotationSymbol) env.scope.owner).attributes.add(annotationAttributeSymbol);
@@ -358,6 +360,7 @@ public class SymbolEnter extends BLangNodeVisitor {
             BLangEnumerator enumerator = enumNode.enumerators.get(i);
             BVarSymbol enumeratorSymbol = new BVarSymbol(Flags.PUBLIC,
                     names.fromIdNode(enumerator.name), enumSymbol.pkgID, enumType, enumSymbol);
+            enumeratorSymbol.docTag = DocTag.FIELD;
             enumerator.symbol = enumeratorSymbol;
 
             if (symResolver.checkForUniqueSymbol(enumerator.pos, enumEnv, enumeratorSymbol, enumeratorSymbol.tag)) {
@@ -476,8 +479,10 @@ public class SymbolEnter extends BLangNodeVisitor {
             // e.g. function foo() (int);
             return;
         }
-
-        varNode.symbol = defineVarSymbol(varNode.pos, varNode.flagSet, varNode.type, varName, env);
+        BVarSymbol varSymbol = defineVarSymbol(varNode.pos, varNode.flagSet,
+                varNode.type, varName, env);
+        varSymbol.docTag = varNode.docTag;
+        varNode.symbol = varSymbol;
     }
 
     public void visit(BLangXMLAttribute bLangXMLAttribute) {

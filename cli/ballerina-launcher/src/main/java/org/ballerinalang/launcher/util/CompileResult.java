@@ -17,6 +17,7 @@
 package org.ballerinalang.launcher.util;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.model.tree.PackageNode;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.diagnostic.Diagnostic;
 
@@ -31,6 +32,7 @@ import java.util.List;
 public class CompileResult {
 
     private List<Diagnostic> diagnostics;
+    private PackageNode pkgNode;
     private ProgramFile progFile;
     //Used for stateful function invocation.
     private Context context;
@@ -73,6 +75,14 @@ public class CompileResult {
 
     public void setProgFile(ProgramFile progFile) {
         this.progFile = progFile;
+    }
+
+    public PackageNode getAST() {
+        return pkgNode;
+    }
+
+    public void setAST(PackageNode pkgNode) {
+        this.pkgNode = pkgNode;
     }
 
     public Context getContext() {
