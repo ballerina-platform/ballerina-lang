@@ -56,7 +56,6 @@ public class Executor {
      * @param resource  to be executed.
      * @param properties to be passed to context.
      * @param values    required for the resource.
-     * @return future object to listen to events if any.
      */
     public static void submit(Resource resource, CallableUnitCallback responseCallback, Map<String, Object> properties,
                               BValue... values) throws BallerinaConnectorException {

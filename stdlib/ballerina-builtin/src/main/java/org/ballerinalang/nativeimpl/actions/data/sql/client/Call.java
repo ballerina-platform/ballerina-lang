@@ -54,7 +54,7 @@ public class Call extends AbstractSQLAction {
     public void execute(Context context) {
         BConnector bConnector = (BConnector) context.getRefArgument(0);
         String query = context.getStringArgument(0);
-        BRefValueArray parameters = (BRefValueArray) context.getRefArgument(1);
+        BRefValueArray parameters = (BRefValueArray) context.getNullableRefArgument(1);
         BStructType structType = getStructType(context);
         BMap sharedMap = (BMap) bConnector.getRefField(2);
         SQLDatasource datasource = null;

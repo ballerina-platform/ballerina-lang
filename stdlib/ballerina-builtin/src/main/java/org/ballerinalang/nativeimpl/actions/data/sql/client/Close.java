@@ -55,5 +55,6 @@ public class Close extends AbstractSQLAction {
                     "Init native action invocation.");
         }
         closeConnections((SQLDatasource) datasource);
+        context.setReturnValues();
     }
 }

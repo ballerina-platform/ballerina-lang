@@ -17,35 +17,15 @@
 */
 package org.ballerinalang.connector.impl;
 
-import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
-import org.ballerinalang.bre.bvm.ControlStack;
-import org.ballerinalang.bre.bvm.StackFrame;
 import org.ballerinalang.bre.bvm.WorkerExecutionContext;
 import org.ballerinalang.connector.api.BallerinaConnectorException;
 import org.ballerinalang.connector.api.Resource;
-import org.ballerinalang.model.types.BType;
-import org.ballerinalang.model.types.BTypes;
-import org.ballerinalang.model.values.BBlob;
-import org.ballerinalang.model.values.BFloat;
-import org.ballerinalang.model.values.BInteger;
-import org.ballerinalang.model.values.BRefType;
-import org.ballerinalang.model.values.BRefValueArray;
-import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.util.BLangConstants;
-import org.ballerinalang.util.codegen.PackageInfo;
-import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.codegen.ResourceInfo;
-import org.ballerinalang.util.codegen.ServiceInfo;
-import org.ballerinalang.util.codegen.WorkerInfo;
-import org.ballerinalang.util.codegen.attributes.CodeAttributeInfo;
-import org.ballerinalang.util.debugger.Debugger;
-import org.ballerinalang.util.debugger.DebuggerUtil;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.ballerinalang.util.program.BLangFunctions;
 
-import java.util.Arrays;
 import java.util.Map;
 
 /**
@@ -74,7 +54,7 @@ public class ResourceExecutor {
         ResourceInfo resourceInfo = ((BResource) resource).getResourceInfo();
         WorkerExecutionContext context = new WorkerExecutionContext();
         if (properties != null) {
-            properties.forEach((k, v) -> context.globalProps.put(k,v));
+            properties.forEach((k, v) -> context.globalProps.put(k, v));
         }
         BLangFunctions.invokeCallable(resourceInfo, context, bValues);
 //        ServiceInfo serviceInfo = resourceInfo.getServiceInfo();
@@ -187,7 +167,7 @@ public class ResourceExecutor {
         ResourceInfo resourceInfo = ((BResource) resource).getResourceInfo();
         WorkerExecutionContext context = new WorkerExecutionContext();
         if (properties != null) {
-            properties.forEach((k, v) -> context.globalProps.put(k,v));
+            properties.forEach((k, v) -> context.globalProps.put(k, v));
         }
         BLangFunctions.invokeCallable(resourceInfo, context, bValues, responseCallback);
     }

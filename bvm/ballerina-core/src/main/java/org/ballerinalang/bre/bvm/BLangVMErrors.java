@@ -211,13 +211,12 @@ public class BLangVMErrors {
         return error;
     }
 
-
     /**
      * Attach CallStack to given Error Struct.
      *
-     * @param error   error struct
-     * @param context current Context
-     * @param ip      current instruction pointer
+     * @param error error struct
+     * @param progFile Program file
+     * @param ip current instruction pointer
      */
     public static void attachCallStack(BStruct error, ProgramFile progFile, int ip) {
         error.addNativeData(CALL_STACK, generateCallStack(progFile, ip));
