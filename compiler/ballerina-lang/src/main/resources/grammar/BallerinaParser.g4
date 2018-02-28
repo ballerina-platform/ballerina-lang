@@ -105,8 +105,7 @@ privateStructBody
     ;
 
 annotationDefinition
-    : (PUBLIC)? ANNOTATION Identifier (ATTACH attachmentPoint (COMMA attachmentPoint)*)? annotationBody
-
+    : (PUBLIC)? ANNOTATION  (LT attachmentPoint (COMMA attachmentPoint)* GT)?  Identifier userDefineTypeName? SEMICOLON
     ;
 
 enumDefinition
@@ -138,10 +137,6 @@ attachmentPoint
      | ANNOTATION                           # annotationAttachPoint
      | TRANSFORMER                          # transformerAttachPoint
      ;
-
-annotationBody
-    :  LEFT_BRACE fieldDefinition* RIGHT_BRACE
-    ;
 
 constantDefinition
     :   (PUBLIC)? CONST valueTypeName Identifier ASSIGN expression SEMICOLON
@@ -213,28 +208,9 @@ xmlLocalName
     :   Identifier
     ;
 
- annotationAttachment
-     :   AT nameReference LEFT_BRACE annotationAttributeList? RIGHT_BRACE
-     ;
-
- annotationAttributeList
-     :   annotationAttribute (COMMA annotationAttribute)*
-     ;
-
- annotationAttribute
-     :    Identifier COLON annotationAttributeValue
-     ;
-
- annotationAttributeValue
-     :   simpleLiteral
-     |   nameReference
-     |   annotationAttachment
-     |   annotationAttributeArray
-     ;
-
- annotationAttributeArray
-     :   LEFT_BRACKET (annotationAttributeValue (COMMA annotationAttributeValue)*)? RIGHT_BRACKET
-     ;
+annotationAttachment
+    :   AT nameReference recordLiteral
+    ;
 
  //============================================================================================================
 // STATEMENTS / BLOCKS

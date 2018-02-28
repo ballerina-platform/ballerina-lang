@@ -47,7 +47,6 @@ TYPE_TYPE       : 'type' ;
 
 VAR         : 'var' ;
 CREATE      : 'create' ;
-ATTACH      : 'attach' ;
 IF          : 'if' ;
 ELSE        : 'else' ;
 FOREACH     : 'foreach' ;

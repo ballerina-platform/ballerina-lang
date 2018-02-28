@@ -390,16 +390,6 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 */
 	void exitTransformerAttachPoint(BallerinaParser.TransformerAttachPointContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link BallerinaParser#annotationBody}.
-	 * @param ctx the parse tree
-	 */
-	void enterAnnotationBody(BallerinaParser.AnnotationBodyContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link BallerinaParser#annotationBody}.
-	 * @param ctx the parse tree
-	 */
-	void exitAnnotationBody(BallerinaParser.AnnotationBodyContext ctx);
-	/**
 	 * Enter a parse tree produced by {@link BallerinaParser#constantDefinition}.
 	 * @param ctx the parse tree
 	 */
@@ -539,46 +529,6 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitAnnotationAttachment(BallerinaParser.AnnotationAttachmentContext ctx);
-	/**
-	 * Enter a parse tree produced by {@link BallerinaParser#annotationAttributeList}.
-	 * @param ctx the parse tree
-	 */
-	void enterAnnotationAttributeList(BallerinaParser.AnnotationAttributeListContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link BallerinaParser#annotationAttributeList}.
-	 * @param ctx the parse tree
-	 */
-	void exitAnnotationAttributeList(BallerinaParser.AnnotationAttributeListContext ctx);
-	/**
-	 * Enter a parse tree produced by {@link BallerinaParser#annotationAttribute}.
-	 * @param ctx the parse tree
-	 */
-	void enterAnnotationAttribute(BallerinaParser.AnnotationAttributeContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link BallerinaParser#annotationAttribute}.
-	 * @param ctx the parse tree
-	 */
-	void exitAnnotationAttribute(BallerinaParser.AnnotationAttributeContext ctx);
-	/**
-	 * Enter a parse tree produced by {@link BallerinaParser#annotationAttributeValue}.
-	 * @param ctx the parse tree
-	 */
-	void enterAnnotationAttributeValue(BallerinaParser.AnnotationAttributeValueContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link BallerinaParser#annotationAttributeValue}.
-	 * @param ctx the parse tree
-	 */
-	void exitAnnotationAttributeValue(BallerinaParser.AnnotationAttributeValueContext ctx);
-	/**
-	 * Enter a parse tree produced by {@link BallerinaParser#annotationAttributeArray}.
-	 * @param ctx the parse tree
-	 */
-	void enterAnnotationAttributeArray(BallerinaParser.AnnotationAttributeArrayContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link BallerinaParser#annotationAttributeArray}.
-	 * @param ctx the parse tree
-	 */
-	void exitAnnotationAttributeArray(BallerinaParser.AnnotationAttributeArrayContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link BallerinaParser#statement}.
 	 * @param ctx the parse tree
