@@ -1,16 +1,14 @@
 import ballerina.net.http;
 import ballerina.mime;
 import ballerina.io;
-import ballerina.file;
 
-@http:configuration {basePath:"/foo"}
-service<http> echo {
+service<http> multiparts {
     @http:resourceConfig {
         methods:["POST"],
         path:"/receivableParts"
     }
-    resource echo (http:Connection conn, http:InRequest req) {
-        //Extract multiparts from the inbound request
+    resource receiveMultiparts (http:Connection conn, http:InRequest req) {
+        //Extract multiparts from the inbound request.
         mime:Entity[] bodyParts = req.getMultiparts();
         int i = 0;
 
@@ -33,20 +31,20 @@ service<http> echo {
     }
 }
 
-//Handling body part content logic varies according to user's requirement
+//Handling body part content logic varies according to user's requirement.
 function handleContent (mime:Entity bodyPart) {
     string contentType = bodyPart.contentType.toString();
     if (mime:APPLICATION_XML == contentType || mime:TEXT_XML == contentType) {
-        //Extract xml data from body part and print
+        //Extract xml data from body part and print.
         io:println(bodyPart.getXml());
     } else if (mime:APPLICATION_JSON == contentType) {
-        //Extract json data from body part and print
+        //Extract json data from body part and print.
         io:println(bodyPart.getJson());
     } else if (mime:TEXT_PLAIN == contentType){
-        //Extract text data from body part and print
+        //Extract text data from body part and print.
         io:println(bodyPart.getText());
     } else if ("application/vnd.ms-powerpoint" == contentType) {
-        //Get a byte channel from body part and write content to a file
+        //Get a byte channel from body part and write content to a file.
         writeToFile(bodyPart.getByteChannel());
         io:println("Content saved to file");
     }

@@ -168,9 +168,6 @@ class ConnectorNode extends React.Component {
                     rightComponents={rightComponents}
                     argumentParams={argumentParameters}
                 >
-                    {this.state.addAction &&
-                    <AddActionNode model={model} />
-                    }
                     {blockNode}
                     {connectors}
                 </PanelDecorator>

@@ -73,6 +73,7 @@ import static org.ballerinalang.mime.util.Constants.MEDIA_TYPE;
 import static org.ballerinalang.mime.util.Constants.MESSAGE_ENTITY;
 import static org.ballerinalang.mime.util.Constants.MULTIPART_DATA_INDEX;
 import static org.ballerinalang.mime.util.Constants.MULTIPART_ENCODER;
+import static org.ballerinalang.mime.util.Constants.MULTIPART_MIXED;
 import static org.ballerinalang.mime.util.Constants.OCTET_STREAM;
 import static org.ballerinalang.mime.util.Constants.PROTOCOL_PACKAGE_IO;
 import static org.ballerinalang.mime.util.Constants.TEMP_FILE_EXTENSION;
@@ -113,6 +114,7 @@ public class Util {
     /**
      * Get a text body part from a given text content.
      *
+     * @param result Result of ballerina file compilation
      * @return A ballerina struct that represent a body part
      */
     static BStruct getTextBodyPart(CompileResult result) {
@@ -126,7 +128,8 @@ public class Util {
     /**
      * Get a text body part as a file upload.
      *
-     * @return a body part with text content in a file
+     * @param result Result of ballerina file compilation
+     * @return A body part with text content in a file
      */
     static BStruct getTextFilePart(CompileResult result) {
         try {
@@ -150,6 +153,9 @@ public class Util {
     /**
      * Get a text body part from a given text content and content transfer encoding.
      *
+     * @param contentTransferEncoding Content transfer encoding value
+     * @param message                 String that needs to be written to temp file
+     * @param result                  Result of ballerina file compilation
      * @return A ballerina struct that represent a body part
      */
     static BStruct getTextFilePartWithEncoding(String contentTransferEncoding, String message, CompileResult result) {
@@ -178,6 +184,7 @@ public class Util {
     /**
      * Get a json body part from a given json content.
      *
+     * @param result Result of ballerina file compilation
      * @return A ballerina struct that represent a body part
      */
     static BStruct getJsonBodyPart(CompileResult result) {
@@ -194,7 +201,8 @@ public class Util {
     /**
      * Get a json body part as a file upload.
      *
-     * @return a body part with json content in a file
+     * @param result Result of ballerina file compilation
+     * @return A body part with json content in a file
      */
     static BStruct getJsonFilePart(CompileResult result) {
         try {
@@ -218,6 +226,7 @@ public class Util {
     /**
      * Get a xml body part from a given xml content.
      *
+     * @param result Result of ballerina file compilation
      * @return A ballerina struct that represent a body part
      */
     static BStruct getXmlBodyPart(CompileResult result) {
@@ -233,7 +242,8 @@ public class Util {
     /**
      * Get a xml body part as a file upload.
      *
-     * @return a body part with xml content in a file
+     * @param result Result of ballerina file compilation
+     * @return A body part with xml content in a file
      */
     static BStruct getXmlFilePart(CompileResult result) {
         try {
@@ -257,6 +267,7 @@ public class Util {
     /**
      * Get a binary body part from a given blob content.
      *
+     * @param result Result of ballerina file compilation
      * @return A ballerina struct that represent a body part
      */
     static BStruct getBinaryBodyPart(CompileResult result) {
@@ -270,7 +281,8 @@ public class Util {
     /**
      * Get a binary body part as a file upload.
      *
-     * @return a body part with blob content in a file
+     * @param result Result of ballerina file compilation
+     * @return A body part with blob content in a file
      */
     static BStruct getBinaryFilePart(CompileResult result) {
         try {
@@ -292,9 +304,70 @@ public class Util {
     }
 
     /**
+     * Get a multipart entity with four different body parts included in it.
+     *
+     * @param result Result of ballerina file compilation
+     * @return A ballerina entity with four body parts in it
+     */
+    static BStruct getMultipartEntity(CompileResult result) {
+        BStruct multipartEntity = getEntityStruct(result);
+        ArrayList<BStruct> bodyParts = getMultipleBodyParts(result);
+        multipartEntity.setRefField(MULTIPART_DATA_INDEX, Util.getArrayOfBodyParts(bodyParts));
+        return multipartEntity;
+    }
+
+    /**
+     * Get a multipart entity with four other multipart entities, each containing four different other body parts.
+     *
+     * @param result Result of ballerina file compilation
+     * @return A nested multipart entity
+     */
+    static BStruct getNestedMultipartEntity(CompileResult result) {
+        BStruct nestedMultipartEntity = getEntityStruct(result);
+        ArrayList<BStruct> bodyParts = getEmptyBodyPartList(result);
+        for (BStruct bodyPart : bodyParts) {
+            MimeUtil.setContentType(getMediaTypeStruct(result), bodyPart, MULTIPART_MIXED);
+            bodyPart.setRefField(MULTIPART_DATA_INDEX, Util.getArrayOfBodyParts(getMultipleBodyParts(result)));
+        }
+        nestedMultipartEntity.setRefField(MULTIPART_DATA_INDEX, Util.getArrayOfBodyParts(bodyParts));
+        return nestedMultipartEntity;
+    }
+
+    /**
+     * Get a list of four different body parts.
+     *
+     * @param result Result of ballerina file compilation
+     * @return A list of different body parts
+     */
+    private static ArrayList<BStruct> getMultipleBodyParts(CompileResult result) {
+        ArrayList<BStruct> bodyParts = new ArrayList<>();
+        bodyParts.add(getJsonBodyPart(result));
+        bodyParts.add(getXmlFilePart(result));
+        bodyParts.add(getTextBodyPart(result));
+        bodyParts.add(getBinaryFilePart(result));
+        return bodyParts;
+    }
+
+    /**
+     * Get an empty body part list.
+     *
+     * @param result Result of ballerina file compilation
+     * @return A list of empty body parts
+     */
+    private static ArrayList<BStruct> getEmptyBodyPartList(CompileResult result) {
+        ArrayList<BStruct> bodyParts = new ArrayList<>();
+        for (int i = 0; i < 4; i++) {
+            bodyParts.add(getEntityStruct(result));
+        }
+        return bodyParts;
+    }
+
+    /**
      * Create prerequisite messages that are needed to proceed with the test cases.
      *
-     * @param path Represent path to the resource
+     * @param path                Represent path to the ballerina resource
+     * @param topLevelContentType Content type that needs to be set to the top level message
+     * @param result              Result of ballerina file compilation
      * @return A map of relevant messages
      */
     static Map<String, Object> createPrerequisiteMessages(String path, String topLevelContentType,
@@ -469,7 +542,7 @@ public class Util {
      * Get the body part name and if the user hasn't set a name set a random string as the part name.
      *
      * @param bodyPart Represent a ballerina body part
-     * @return a string denoting the body part's name
+     * @return A string denoting the body part's name
      */
     private static String getBodyPartName(BStruct bodyPart) {
         String contentDisposition = MimeUtil.getContentDisposition(bodyPart);

@@ -42,6 +42,6 @@ function main (string[] args) {
     io:println("Processing completed. The processed file could be located in "
             + dstFileName);
     //Close the text record channel.
-    srcRecordChannel.closeTextRecordChannel();
-    dstRecordChannel.closeTextRecordChannel();
+    srcRecordChannel.closeDelimitedRecordChannel();
+    dstRecordChannel.closeDelimitedRecordChannel();
 }

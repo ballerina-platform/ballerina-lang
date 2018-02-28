@@ -56,7 +56,6 @@ service<http> mock2 {
     }
     resource mock2Resource (http:Connection conn, http:InRequest req) {
         http:OutResponse outResponse = {};
-        outResponse.statusCode = 200;
         outResponse.setStringPayload("Mock2 Resource is Invoked.");
         _ = conn.respond(outResponse);
     }
@@ -69,7 +68,6 @@ service<http> mock3 {
     }
     resource mock3Resource (http:Connection conn, http:InRequest req) {
         http:OutResponse outResponse = {};
-        outResponse.statusCode = 200;
         outResponse.setStringPayload("Mock3 Resource is Invoked.");
         _ = conn.respond(outResponse);
     }
