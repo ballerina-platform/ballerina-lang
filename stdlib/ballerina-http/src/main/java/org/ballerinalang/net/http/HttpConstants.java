@@ -157,6 +157,8 @@ public class HttpConstants {
 
     public static final String REQUEST_URL = "REQUEST_URL";
     public static final String SRC_HANDLER = "SRC_HANDLER";
+    public static final String REMOTE_ADDRESS = "REMOTE_ADDRESS";
+    public static final String ORIGIN_HOST = "ORIGIN_HOST";
 
     /* Annotations */
     public static final String ANNOTATION_NAME_SOURCE = "Source";
@@ -184,8 +186,8 @@ public class HttpConstants {
     public static final int TRANSFER_ENCODING = 0;
     public static final int ENABLE_CHUNKING_INDEX = 1;
     public static final int IS_KEEP_ALIVE_INDEX = 0;
-    public static final int FORWARDED_EXTENSION_INDEX = 1;
     public static final int HTTP_VERSION_STRUCT_INDEX = 2;
+    public static final int FORWARDED_EXTENSION_INDEX = 3;
     public static final int SSL_STRUCT_INDEX = 1;
     public static final int FOLLOW_REDIRECT_STRUCT_INDEX = 0;
     public static final int FOLLOW_REDIRECT_INDEX = 0;

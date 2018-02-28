@@ -57,6 +57,7 @@ import org.slf4j.LoggerFactory;
 import org.wso2.carbon.messaging.exceptions.ServerConnectorException;
 import org.wso2.transport.http.netty.common.Constants;
 import org.wso2.transport.http.netty.config.ChunkConfig;
+import org.wso2.transport.http.netty.config.ForwardedExtensionConfig;
 import org.wso2.transport.http.netty.config.ListenerConfiguration;
 import org.wso2.transport.http.netty.config.Parameter;
 import org.wso2.transport.http.netty.config.RequestSizeValidationConfig;
@@ -735,18 +736,18 @@ public class HttpUtil {
         return chunkConfig;
     }
 
-    public static ChunkConfig getForwardedExtensionConfig(String forwarded) {
-        ChunkConfig chunkConfig;
-        if (HttpConstants.CHUNKING_AUTO.equalsIgnoreCase(chunking)) {
-            chunkConfig = ChunkConfig.AUTO;
-        } else if (HttpConstants.CHUNKING_ALWAYS.equalsIgnoreCase(chunking)) {
-            chunkConfig = ChunkConfig.ALWAYS;
-        } else if (HttpConstants.CHUNKING_NEVER.equalsIgnoreCase(chunking)) {
-            chunkConfig = ChunkConfig.NEVER;
+    public static ForwardedExtensionConfig getForwardedExtensionConfig(String forwarded) {
+        ForwardedExtensionConfig forwardedConfig;
+        if (HttpConstants.FORWARDED_ENABLE.equalsIgnoreCase(forwarded)) {
+            forwardedConfig = ForwardedExtensionConfig.ENABLE;
+        } else if (HttpConstants.FORWARDED_TRANSITION.equalsIgnoreCase(forwarded)) {
+            forwardedConfig = ForwardedExtensionConfig.TRANSITION;
+        } else if (HttpConstants.FORWARDED_DISABLE.equalsIgnoreCase(forwarded)) {
+            forwardedConfig = ForwardedExtensionConfig.DISABLE;
         } else {
-            throw new BallerinaConnectorException("Invalid configuration found for Transfer-Encoding : " + chunking);
+            throw new BallerinaConnectorException("Invalid configuration found for Forwarded : " + forwarded);
         }
-        return chunkConfig;
+        return forwardedConfig;
     }
 
     private static void extractHttpsConfig(Annotation configInfo, Set<ListenerConfiguration> listenerConfSet) {
