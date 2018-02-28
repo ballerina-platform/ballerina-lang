@@ -27,6 +27,8 @@ import java.util.function.BiConsumer;
 
 /**
  * Fields defined in the manifest "package" header.
+ *
+ * @since 0.964
  */
 public enum PackageField {
     NAME(Manifest::setName),

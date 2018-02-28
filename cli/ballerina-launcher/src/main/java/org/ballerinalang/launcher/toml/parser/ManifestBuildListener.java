@@ -33,6 +33,8 @@ import java.util.stream.Collectors;
 
 /**
  * Custom listener which is extended from the Toml listener with our own custom logic.
+ *
+ * @since 0.964
  */
 public class ManifestBuildListener extends TomlBaseListener {
     private final Manifest manifest;

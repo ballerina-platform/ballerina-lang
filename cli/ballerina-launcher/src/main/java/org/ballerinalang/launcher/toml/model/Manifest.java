@@ -23,6 +23,8 @@ import java.util.stream.Collectors;
 
 /**
  * Defines the manifest object which is created using the toml file configs.
+ *
+ * @since 0.964
  */
 public class Manifest {
     private String name;

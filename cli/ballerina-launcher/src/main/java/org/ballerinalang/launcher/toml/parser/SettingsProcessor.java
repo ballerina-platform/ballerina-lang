@@ -28,6 +28,8 @@ import java.io.IOException;
 
 /**
  * SettingHeaders Processor which processes the settings toml file parsed and populate the SettingHeaders POJO.
+ *
+ * @since 0.964
  */
 public class SettingsProcessor {
 
@@ -60,7 +62,7 @@ public class SettingsProcessor {
      * @param charStream toml file content as a char stream
      * @return settings object
      */
-    public static Settings getSettings(CharStream charStream) {
+    private static Settings getSettings(CharStream charStream) {
         Settings settings = new Settings();
         ParseTreeWalker walker = new ParseTreeWalker();
         walker.walk(new SettingsBuildListener(settings), TomlProcessor.parseTomlContent(charStream));

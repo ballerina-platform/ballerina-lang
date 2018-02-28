@@ -21,6 +21,9 @@ import org.ballerinalang.launcher.toml.util.SingletonStack;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
+/**
+ * Class to test the singleton stack used to handle the keys (properties) in the toml file
+ */
 public class SingletonStackTest {
     @Test(description = "The value in the stack should be retrieved/popped out if a value is present")
     public void testPopWithValue() {

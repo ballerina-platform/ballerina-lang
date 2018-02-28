@@ -28,6 +28,8 @@ import java.util.List;
 
 /**
  * Custom listener which is extended from the Toml listener with our own custom logic.
+ *
+ * @since 0.964
  */
 public class ProxyBuildListener extends TomlBaseListener {
     private final Proxy proxy;

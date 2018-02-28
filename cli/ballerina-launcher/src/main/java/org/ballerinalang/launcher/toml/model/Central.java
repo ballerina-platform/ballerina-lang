@@ -19,6 +19,8 @@ package org.ballerinalang.launcher.toml.model;
 
 /**
  * Defines the properties used in central.
+ *
+ * @since 0.964
  */
 public class Central {
     private String accessToken;

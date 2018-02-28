@@ -23,6 +23,9 @@ import org.testng.annotations.Test;
 
 import java.io.IOException;
 
+/**
+ * Test class to populate a Manifest object from a toml file.
+ */
 public class TomlFileToManifestTest {
     private static final String userDir = System.getProperty("user.dir");
     private static final String resource_dir = userDir + "/src/test/resources/";

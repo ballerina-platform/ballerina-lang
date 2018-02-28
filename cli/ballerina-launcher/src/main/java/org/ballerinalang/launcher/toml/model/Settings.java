@@ -19,6 +19,8 @@ package org.ballerinalang.launcher.toml.model;
 
 /**
  * Defines the settings object which is created using the toml file configs.
+ *
+ * @since 0.964
  */
 public class Settings {
     private Proxy proxy;

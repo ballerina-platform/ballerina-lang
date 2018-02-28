@@ -7,12 +7,14 @@ import org.ballerinalang.launcher.toml.antlr4.TomlLexer;
 import org.ballerinalang.launcher.toml.antlr4.TomlParser;
 
 /**
- * Util methods for toml processor
+ * Util methods for toml processor.
+ *
+ * @since 0.964
  */
 public class TomlProcessor {
 
     /**
-     * Generate the proxy object by passing in the toml file
+     * Generate the proxy object by passing in the toml file.
      *
      * @param stream charstream object containing the content
      * @return proxy object
@@ -25,8 +27,6 @@ public class TomlProcessor {
 
         // Pass the tokens to the parser
         TomlParser parser = new TomlParser(tokens);
-        ParseTree tree = parser.toml();
-
-        return tree;
+        return parser.toml();
     }
 }
