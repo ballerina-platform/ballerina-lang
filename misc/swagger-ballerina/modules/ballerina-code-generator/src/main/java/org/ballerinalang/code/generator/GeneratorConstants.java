@@ -40,7 +40,7 @@ public class GeneratorConstants {
         }
     }
 
-    public static final String CLIENT_TEMPLATE_NAME = "skeleton";
+    public static final String CLIENT_TEMPLATE_NAME = "client";
     public static final String OPEN_API_TEMPLATE_NAME = "skeleton";
     public static final String SWAGGER_TEMPLATE_NAME = "skeleton";
 

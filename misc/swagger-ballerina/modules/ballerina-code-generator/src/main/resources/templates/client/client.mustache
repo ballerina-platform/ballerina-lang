@@ -1,0 +1,38 @@
+import ballerina.net.http;
+
+public connector {{name}} () {
+
+    endpoint <http:HttpClient> ep {
+        create http:HttpClient("{{url}}", {});
+    }
+    http:HttpConnectorError httpError;
+{{#operations}}
+    action {{name}} () (http:InResponse, error ) {
+        http:OutRequest request = {};
+        http:InResponse response = {};
+        error outError;
+
+        //Create the required request as needed
+        //request.setHeader("Content-Type", "application/json");
+        response, httpError = ep.{{lower method}}("{{path}}", request);
+        if (httpError != null) {
+            outError = {message:httpError.message, cause:httpError.cause};
+        }
+
+        return response, outError;
+    }
+{{/operations}}
+}
+
+function main (string[] args) {
+    endpoint<{{name}}> connectorEp{
+        create {{name}}();
+    }
+
+    http:InResponse resp;
+    error err;
+    {{#operations}}
+    // sample invocation of {{name}} resource
+    resp, err = connectorEp.{{name}}();
+    {{/operations}}
+}

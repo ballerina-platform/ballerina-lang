@@ -26,6 +26,7 @@ import com.github.jknack.handlebars.io.FileTemplateLoader;
 
 import org.apache.commons.lang3.StringUtils;
 import org.ballerinalang.code.generator.exception.CodeGeneratorException;
+import org.ballerinalang.code.generator.util.ClientContextHolder;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.composer.service.ballerina.parser.service.model.BFile;
 import org.ballerinalang.composer.service.ballerina.parser.service.model.BallerinaFile;
@@ -59,19 +60,16 @@ public class CodeGenerator {
      *
      * @param type        Output type. Following types are supported
      *                    <ul>
-     *                    <li>oas3</li>
-     *                    <li>swagger</li>
      *                    <li>client</li>
+     *                    <li>openapi</li>
+     *                    <li>swagger</li>
      *                    </ul>
-     * @param serviceNode Input Ballerina Service node to be process.
-     * @param outPath     Destination file path to save generated source files. If not provided
-     *                    <code>destinationPath</code> will be used as the default destination path'
+     * @param context Context details for generating the client
      * @throws CodeGeneratorException when file operations fail
      * @Return generated source is string representation of generated source.
      */
-    public String generateOutput(GeneratorConstants.GenType type, ServiceNode serviceNode, String outPath)
+    public String generateOutput(GeneratorConstants.GenType type, ClientContextHolder context)
             throws CodeGeneratorException {
-        ServiceNode context = serviceNode;
         String output = "";
         switch (type) {
             case CLIENT:
@@ -89,31 +87,28 @@ public class CodeGenerator {
     }
 
     /**
-     * Write generated definition of a <code>object</code> to a file as described by <code>template.</code>
+     * Write generated source of a given <code>context</code> to a file at <code>outpath</code>.
      *
-     * @param object       Context object to be used by the template parser
-     * @param templateDir  Directory with all the templates required for generating the source file
-     * @param templateName Name of the parent template to be used
-     * @param outPath      Destination path for writing the resulting source file
-     * @throws CodeGeneratorException when file operations fail
+     * @param type    Generator Type to be used. Following types are supported.
+     *                <ul>
+     *                <li>client</li>
+     *                <li>openapi</li>
+     *                <li>swagger</li>
+     *                </ul>
+     * @param context Definition object containing required properties to be extracted for code generation
+     * @param outPath resulting file path
+     * @throws CodeGeneratorException when error occurred while generating the code
      */
-    public void writeGeneratedSource(Object object, String templateDir, String templateName, String outPath)
+    public void writeGeneratedSource(GeneratorConstants.GenType type, ClientContextHolder context, String outPath)
             throws CodeGeneratorException {
 
         try (PrintWriter writer = new PrintWriter(outPath, "UTF-8")) {
-            Template template = compileTemplate(templateDir, templateName);
-            Context context = Context.newBuilder(object).resolver(FieldValueResolver.INSTANCE).build();
-            try {
-                writer.println(template.apply(context));
-            } catch (IOException e) {
-                throw new CodeGeneratorException("Error while writing converted string", e);
-            }
+            String generatedSource = generateOutput(type, context);
+            writer.println(generatedSource);
         } catch (FileNotFoundException e) {
-            throw new CodeGeneratorException("Error while writing converted string due to output file not found",
-                    e);
+            throw new CodeGeneratorException("Error while writing converted string due to output file not found", e);
         } catch (UnsupportedEncodingException e) {
-            throw new CodeGeneratorException("Error while writing converted string due to unsupported encoding",
-                    e);
+            throw new CodeGeneratorException("Error while writing converted string due to unsupported encoding", e);
         }
     }
 
@@ -121,7 +116,7 @@ public class CodeGenerator {
     /**
      * Get converted string for given service definition.
      *
-     * @param object       Object to be build as parsable context
+     * @param object       Object to be built as parsable context
      * @param templateDir  Template directory which contains templates for specific output type.
      * @param templateName Name of the template to be use for code generation.
      * @return generated string representation of passed object(ballerina service node)
@@ -201,13 +196,14 @@ public class CodeGenerator {
         for (TopLevelNode topLevelNode : topCompilationUnit.getTopLevelNodes()) {
             if (topLevelNode instanceof BLangService) {
                 ServiceNode serviceDefinition = (ServiceNode) topLevelNode;
+                ClientContextHolder contextHolder = new ClientContextHolder().buildContext(serviceDefinition);
                 // Generate swagger string for the mentioned service name.
                 if (StringUtils.isNotBlank(serviceName)) {
                     if (serviceDefinition.getName().getValue().equals(serviceName)) {
-                        swaggerSource = generateOutput(genType, serviceDefinition, outPath);
+                        swaggerSource = generateOutput(genType, contextHolder);
                     }
                 } else {
-                    swaggerSource = generateOutput(genType, serviceDefinition, outPath);
+                    swaggerSource = generateOutput(genType, contextHolder);
                     break;
                 }
             }
