@@ -208,6 +208,7 @@ class FileSaveDialog extends React.Component {
                             <Form.Input
                                 fluid
                                 label='File Path'
+                                className='inverted'
                                 placeholder='eg: /home/user/ballerina-services'
                                 value={this.state.filePath}
                                 onChange={(evt) => {
@@ -223,6 +224,7 @@ class FileSaveDialog extends React.Component {
                             <Form.Input
                                 fluid
                                 label='File Name'
+                                className='inverted'
                                 placeholder='eg: routing.bal'
                                 value={this.state.fileName}
                                 onChange={(evt) => {

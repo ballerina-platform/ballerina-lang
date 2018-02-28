@@ -24,6 +24,7 @@ import org.ballerinalang.launcher.util.BServiceUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.mime.util.EntityBody;
 import org.ballerinalang.mime.util.EntityBodyHandler;
+import org.ballerinalang.mime.util.MimeUtil;
 import org.ballerinalang.model.util.StringUtils;
 import org.ballerinalang.model.util.XMLUtils;
 import org.ballerinalang.model.values.BBlob;
@@ -343,7 +344,7 @@ public class MimeUtilityFunctionTest {
             InputStream inputStream = fileIOChannel.getInputStream();
             Assert.assertNotNull(inputStream);
             ByteArrayOutputStream result = new ByteArrayOutputStream();
-            EntityBodyHandler.writeInputToOutputStream(result, inputStream);
+            MimeUtil.writeInputToOutputStream(inputStream, result);
             Assert.assertEquals(result.toString("UTF-8"), "File Content");
         } catch (IOException e) {
             log.error("Error occurred in testTempFileDeletion", e.getMessage());
@@ -366,13 +367,9 @@ public class MimeUtilityFunctionTest {
             Assert.assertNotNull(response, "Response message not found");
             InputStream inputStream = new HttpMessageDataStreamer(response).getInputStream();
             Assert.assertNotNull(inputStream, "Inputstream is null");
-            ByteArrayOutputStream out = new ByteArrayOutputStream();
-            byte[] bytes = new byte[1024];
-            int count;
-            while ((count = inputStream.read(bytes)) > 0) {
-                out.write(bytes, 0, count);
-            }
-            Assert.assertEquals(out.size(), 2323779);
+            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+            MimeUtil.writeInputToOutputStream(inputStream, outputStream);
+            Assert.assertEquals(outputStream.size(), 2323779);
         } catch (IOException | URISyntaxException e) {
             log.error("Error occurred in testLargePayload", e.getMessage());
         }
