@@ -42,8 +42,8 @@ public class RequestGenerator {
                 new DefaultHttpRequest(new HttpVersion(Constants.HTTP_VERSION_2_0, true), httpMethod,
                                        "http://" + TestUtil.TEST_HOST + ":" + TestUtil.HTTP_SERVER_PORT));
         httpCarbonMessage.setProperty(Constants.HTTP_METHOD, httpMethod.toString());
-        httpCarbonMessage.setProperty(Constants.HOST, TestUtil.TEST_HOST);
-        httpCarbonMessage.setProperty(Constants.PORT, TestUtil.HTTP_SERVER_PORT);
+        httpCarbonMessage.setProperty(Constants.HTTP_HOST, TestUtil.TEST_HOST);
+        httpCarbonMessage.setProperty(Constants.HTTP_PORT, TestUtil.HTTP_SERVER_PORT);
         httpCarbonMessage.setHeader("Host", TestUtil.TEST_HOST + ":" + TestUtil.HTTP_SERVER_PORT);
         if (payload != null) {
             ByteBuffer byteBuffer = ByteBuffer.wrap(payload.getBytes(Charset.forName("UTF-8")));
