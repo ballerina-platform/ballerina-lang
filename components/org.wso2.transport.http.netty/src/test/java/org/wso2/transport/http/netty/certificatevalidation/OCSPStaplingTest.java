@@ -1,6 +1,23 @@
+/*
+ * Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+
 package org.wso2.transport.http.netty.certificatevalidation;
 
-import org.bouncycastle.cert.ocsp.OCSPResp;
 import org.testng.annotations.Test;
 import org.wso2.transport.http.netty.common.certificatevalidation.CertificateVerificationException;
 import org.wso2.transport.http.netty.common.certificatevalidation.ocsp.OCSPVerifier;
@@ -24,7 +41,7 @@ import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
 
 /**
- * Created by bhashinee on 2/27/18.
+ * Contains test cases for getting AIA locations from the certificate and to test OCSPResponse when CA fails to respond.
  */
 public class OCSPStaplingTest {
 
@@ -32,8 +49,10 @@ public class OCSPStaplingTest {
     private String keyStorePassword = "localpwd";
     private String tlsStoreType = "PKCS12";
     private X509Certificate userCertificate;
-    private X509Certificate issuer;
     private List<String> ocspUrlList = new ArrayList<String>();
+    private int cacheSize = 51;
+    private int cacheDelay = 2;
+    private String ocspUrl = "http://127.0.0.1:8080";
 
     @Test
     public void testRetrievingAIALocations()
@@ -52,11 +71,9 @@ public class OCSPStaplingTest {
         if (isAliasWithPrivateKey) {
             Certificate[] certificateChain = keyStore.getCertificateChain(alias);
             userCertificate = (X509Certificate) certificateChain[0];
-            issuer = (X509Certificate) certificateChain[certificateChain.length - 1];
             ocspUrlList = OCSPVerifier.getAIALocations(userCertificate);
         }
-        assertEquals(ocspUrlList.get(0).toString(), "http://127.0.0.1:8080",
-                "Failed to list the correct AIA locations");
+        assertEquals(ocspUrlList.get(0).toString(), ocspUrl, "Failed to list the correct AIA locations");
     }
 
     @Test
@@ -64,15 +81,16 @@ public class OCSPStaplingTest {
             throws NoSuchAlgorithmException, CertificateVerificationException, UnrecoverableEntryException,
             KeyStoreException, IOException {
         SSLConfig sslConfig = new SSLConfig(new File(TestUtil.getAbsolutePath(keyStoreFilePath)), keyStorePassword);
-        sslConfig.setTLSStoreType("PKCS12");
+        sslConfig.setTLSStoreType(tlsStoreType);
         Throwable throwable = null;
         try {
-            OCSPResp ocspResp = OCSPResponseBuilder.getOcspResponse(sslConfig, 51, 2);
+            OCSPResponseBuilder.getOcspResponse(sslConfig, cacheSize, cacheDelay);
         } catch (CertificateVerificationException e) {
             throwable = e;
         }
         boolean hasException = false;
-        if (throwable.getMessage().contains("Unable to get OCSP responses from CA")) {
+        if (throwable.getMessage().contains("Failed to get OCSP responses from CA") || throwable.getMessage()
+                .contains("Cannot get OCSP Response from url")) {
             hasException = true;
         }
         assertTrue(hasException, "Process has failed before getting the OCSP response");

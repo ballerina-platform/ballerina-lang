@@ -82,11 +82,9 @@ public class HttpServerChannelInitializer extends ChannelInitializer<SocketChann
         if (ocspStaplingEnabled && sslConfig != null) {
 
             OCSPResp response = OCSPResponseBuilder.getOcspResponse(sslConfig, cacheSize, cacheDelay);
-
             if (!OpenSsl.isAvailable()) {
                 throw new IllegalStateException("OpenSSL is not available!");
             }
-
             if (!OpenSsl.isOcspSupported()) {
                 throw new IllegalStateException("OCSP is not supported!");
             }

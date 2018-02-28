@@ -66,11 +66,9 @@ public class DefaultHttpWsConnectorFactory implements HttpWsConnectorFactory {
         ServerConnectorBootstrap serverConnectorBootstrap = new ServerConnectorBootstrap(allChannels);
         serverConnectorBootstrap.addSocketConfiguration(serverBootstrapConfiguration);
         serverConnectorBootstrap.addSecurity(listenerConfig.getSSLConfig());
-        if (listenerConfig.validateCertEnabled()) {
-            serverConnectorBootstrap.addcertificateRevocationVerifier(listenerConfig.validateCertEnabled());
-            serverConnectorBootstrap.addCacheDelay(listenerConfig.getCacheValidityPeriod());
-            serverConnectorBootstrap.addCacheSize(listenerConfig.getCacheSize());
-        }
+        serverConnectorBootstrap.addcertificateRevocationVerifier(listenerConfig.validateCertEnabled());
+        serverConnectorBootstrap.addCacheDelay(listenerConfig.getCacheValidityPeriod());
+        serverConnectorBootstrap.addCacheSize(listenerConfig.getCacheSize());
         serverConnectorBootstrap.addOcspStapling(listenerConfig.isOcspStaplingEnabled());
         serverConnectorBootstrap.addIdleTimeout(listenerConfig.getSocketIdleTimeout(120000));
         serverConnectorBootstrap.addHttpTraceLogHandler(listenerConfig.isHttpTraceLogEnabled());

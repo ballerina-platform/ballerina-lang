@@ -61,7 +61,6 @@ public class PoolableTargetChannelFactory implements PoolableObjectFactory {
     public Object makeObject() throws Exception {
         Bootstrap clientBootstrap = instantiateAndConfigBootStrap(eventLoopGroup,
                 eventLoopClass, bootstrapConfiguration);
-        //SSLEngine clientSslEngine = instantiateAndConfigSSL(senderConfiguration.getSSLConfig());
         HttpClientChannelInitializer httpClientChannelInitializer = instantiateAndConfigClientInitializer(
                 senderConfiguration, clientBootstrap, httpRoute, connectionManager);
         clientBootstrap.handler(httpClientChannelInitializer);
@@ -121,23 +120,6 @@ public class PoolableTargetChannelFactory implements PoolableObjectFactory {
         clientBootstrap.option(ChannelOption.CONNECT_TIMEOUT_MILLIS, bootstrapConfiguration.getConnectTimeOut());
         return clientBootstrap;
     }
-
-    // TODO: Maybe we can move this to the client initializer?
-//    private SSLEngine instantiateAndConfigSSL(SSLConfig sslConfig) {
-//        // set the pipeline factory, which creates the pipeline for each newly created channels
-//        SSLEngine sslEngine = null;
-//        if (sslConfig != null) {
-//            SSLHandlerFactory sslHandlerFactory = new SSLHandlerFactory(sslConfig);
-//            sslEngine = sslHandlerFactory.buildClientSSLEngine(httpRoute.getHost(), httpRoute.getPort());
-//            sslEngine.setUseClientMode(true);
-//            sslHandlerFactory.setSNIServerNames(sslEngine, httpRoute.getHost());
-//            if (senderConfiguration.hostNameVerificationEnabled()) {
-//                sslHandlerFactory.setHostNameVerfication(sslEngine);
-//            }
-//        }
-//
-//        return sslEngine;
-//    }
 
     private HttpClientChannelInitializer instantiateAndConfigClientInitializer(SenderConfiguration senderConfiguration,
                                                                         Bootstrap clientBootstrap,

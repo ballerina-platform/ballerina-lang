@@ -47,6 +47,7 @@ public class OCSPStaplingHandler extends OcspClientHandler {
     @Override
     protected boolean verify(ChannelHandlerContext ctx, ReferenceCountedOpenSslEngine engine)
             throws Exception {
+        //Get the stapled ocsp response from the ssl engine.
         byte[] staple = engine.getOcspResponse();
         if (staple == null) {
             throw new IllegalStateException("Server didn't provide an OCSP staple!");
@@ -62,21 +63,20 @@ public class OCSPStaplingHandler extends OcspClientHandler {
         BigInteger certSerial = chain[0].getSerialNumber();
 
         BasicOCSPResp basicResponse = (BasicOCSPResp) response.getResponseObject();
-        SingleResp first = basicResponse.getResponses()[0];
+        SingleResp singleResp = basicResponse.getResponses()[0];
 
-        // ATTENTION: CertificateStatus.GOOD is actually a null value! Do not use
-        // equals() or you'll NPE!
-        CertificateStatus status = first.getCertStatus();
-        BigInteger ocspSerial = first.getCertID().getSerialNumber();
-        String message = new StringBuilder().append("OCSP status of ").append(ctx.channel().remoteAddress())
-                .append("\n  Status: ").append(status == CertificateStatus.GOOD ? "Good" : status)
-                .append("\n  This Update: ").append(first.getThisUpdate()).append("\n  Next Update: ")
-                .append(first.getNextUpdate()).append("\n  Cert Serial: ").append(certSerial)
-                .append("\n  OCSP Serial: ").append(ocspSerial).toString();
+        CertificateStatus status = singleResp.getCertStatus();
+        BigInteger ocspSerial = singleResp.getCertID().getSerialNumber();
         if (log.isDebugEnabled()) {
+            String message = new StringBuilder().append("OCSP status of ").append(ctx.channel().remoteAddress())
+                    .append("\n  Status: ").append(status == CertificateStatus.GOOD ? "Good" : status)
+                    .append("\n  This Update: ").append(singleResp.getThisUpdate()).append("\n  Next Update: ")
+                    .append(singleResp.getNextUpdate()).append("\n  Cert Serial: ").append(certSerial)
+                    .append("\n  OCSP Serial: ").append(ocspSerial).toString();
             log.debug(message);
         }
-
+        //For a OCSP response to be valid, certificate serial number should be equal to the ocsp serial number.
         return status == CertificateStatus.GOOD && certSerial.equals(ocspSerial);
     }
 }
+

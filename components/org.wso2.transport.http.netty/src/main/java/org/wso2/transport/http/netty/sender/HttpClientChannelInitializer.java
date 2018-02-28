@@ -93,17 +93,16 @@ public class HttpClientChannelInitializer extends ChannelInitializer<SocketChann
             }
         }
         if (senderConfiguration.isOcspStaplingEnabled()) {
-
             SSLHandlerFactory sslHandlerFactory = new SSLHandlerFactory(sslConfig);
             ReferenceCountedOpenSslContext referenceCountedOpenSslContext = sslHandlerFactory
                     .buildClientReferenceCountedOpenSslContext();
+
             if (referenceCountedOpenSslContext != null) {
                 SslHandler sslHandler = referenceCountedOpenSslContext.newHandler(ch.alloc());
                 ReferenceCountedOpenSslEngine engine = (ReferenceCountedOpenSslEngine) sslHandler.engine();
                 ch.pipeline().addLast(sslHandler);
                 ch.pipeline().addLast(new OCSPStaplingHandler(engine));
             }
-
         } else if (sslConfig != null) {
             log.debug("adding ssl handler");
             ch.pipeline().addLast("ssl", new SslHandler(instantiateAndConfigSSL(sslConfig)));

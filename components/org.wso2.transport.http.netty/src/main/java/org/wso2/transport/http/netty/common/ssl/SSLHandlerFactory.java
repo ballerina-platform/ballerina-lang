@@ -29,6 +29,7 @@ import io.netty.handler.ssl.SslContextBuilder;
 import io.netty.handler.ssl.SslProvider;
 import io.netty.handler.ssl.SupportedCipherSuiteFilter;
 import org.wso2.transport.http.netty.common.Constants;
+import org.wso2.transport.http.netty.common.certificatevalidation.CertificateVerificationException;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -131,16 +132,13 @@ public class SSLHandlerFactory {
         return addCommonConfigs(engine);
     }
 
-    public ReferenceCountedOpenSslContext getServerReferenceCountedOpenSslContext() throws SSLException {
-        try {
-            ReferenceCountedOpenSslContext context = (ReferenceCountedOpenSslContext) SslContextBuilder
-                    .forServer(keyManagerFactory).sslProvider(SslProvider.OPENSSL).enableOcsp(true)
-                    .keyManager(keyManagerFactory).trustManager(trustManagerFactory)
-                    .protocols(sslConfig.getEnableProtocols()).build();
-            return context;
-        } catch (SSLException e) {
-            throw new SSLException("Unable to create ReferenceCountedOpenSslContext", e);
-        }
+    public ReferenceCountedOpenSslContext getServerReferenceCountedOpenSslContext()
+            throws SSLException, CertificateVerificationException {
+        ReferenceCountedOpenSslContext context = (ReferenceCountedOpenSslContext) SslContextBuilder
+                .forServer(keyManagerFactory).sslProvider(SslProvider.OPENSSL).enableOcsp(true)
+                .keyManager(keyManagerFactory).trustManager(trustManagerFactory)
+                .protocols(sslConfig.getEnableProtocols()).build();
+        return context;
     }
 
     /**
@@ -176,16 +174,11 @@ public class SSLHandlerFactory {
     }
 
     public ReferenceCountedOpenSslContext buildClientReferenceCountedOpenSslContext()
-            throws SSLException {
-        ReferenceCountedOpenSslContext context = null;
-        try {
-            context = (ReferenceCountedOpenSslContext) SslContextBuilder.forClient().sslProvider(SslProvider.OPENSSL)
-                    .enableOcsp(true).keyManager(keyManagerFactory).trustManager(trustManagerFactory)
-                    .protocols(sslConfig.getEnableProtocols()).build();
-            return context;
-        } catch (SSLException e) {
-            throw new SSLException("Unable to get the ReferenceCountedSSL engine", e);
-        }
+            throws SSLException, CertificateVerificationException {
+        ReferenceCountedOpenSslContext context = (ReferenceCountedOpenSslContext) SslContextBuilder.forClient()
+                .sslProvider(SslProvider.OPENSSL).enableOcsp(true).keyManager(keyManagerFactory)
+                .trustManager(trustManagerFactory).protocols(sslConfig.getEnableProtocols()).build();
+        return context;
     }
 
     /**
