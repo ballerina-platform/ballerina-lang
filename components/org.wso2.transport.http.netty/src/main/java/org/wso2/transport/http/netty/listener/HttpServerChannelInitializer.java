@@ -147,7 +147,6 @@ public class HttpServerChannelInitializer extends ChannelInitializer<SocketChann
 
     /* Configure HTTP/2 ClearText pipeline */
     private void configureH2cPipeline(ChannelPipeline pipeline) {
-
         // Add http2 upgrade decoder and upgrade handler
         final HttpServerCodec sourceCodec = new HttpServerCodec();
 
