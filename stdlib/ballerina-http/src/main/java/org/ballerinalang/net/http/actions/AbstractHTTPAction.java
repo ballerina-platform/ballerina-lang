@@ -37,6 +37,7 @@ import org.ballerinalang.runtime.message.MessageDataSource;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.StructInfo;
 import org.ballerinalang.util.exceptions.BallerinaException;
+import org.ballerinalang.util.transactions.LocalTransactionInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.contract.ClientConnectorException;
@@ -88,16 +89,21 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
 
         HttpUtil.checkEntityAvailability(context, requestStruct);
         HttpUtil.enrichOutboundMessage(requestMsg, requestStruct);
-        prepareOutboundRequest(bConnector, path, requestMsg);
+        prepareOutboundRequest(context, bConnector, path, requestMsg);
         if (requestMsg.getHeader(ACCEPT_ENCODING) == null) {
             requestMsg.setHeader(ACCEPT_ENCODING, ENCODING_DEFLATE + ", " + ENCODING_GZIP);
         }
         return requestMsg;
     }
 
-    protected void prepareOutboundRequest(BConnector connector, String path, HTTPCarbonMessage outboundRequest) {
-
+    protected void prepareOutboundRequest(Context context, BConnector connector, String path,
+                                          HTTPCarbonMessage outboundRequest) {
         validateParams(connector);
+        if (context.isInTransaction()) {
+            LocalTransactionInfo localTransactionInfo = context.getLocalTransactionInfo();
+            outboundRequest.setHeader(HttpConstants.HEADER_X_XID, localTransactionInfo.getGlobalTransactionId());
+            outboundRequest.setHeader(HttpConstants.HEADER_X_REGISTER_AT_URL, localTransactionInfo.getURL());
+        }
         try {
             String uri = connector.getStringField(0) + path;
             URL url = new URL(uri);

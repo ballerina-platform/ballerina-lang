@@ -244,4 +244,6 @@ public class HttpConstants {
 
     //Response codes
     public static final String HTTP_BAD_REQUEST = "400";
+    public static final String HEADER_X_XID = "X-XID";
+    public static final String HEADER_X_REGISTER_AT_URL = "X-Register-At-URL";
 }
