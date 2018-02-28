@@ -275,8 +275,8 @@ public function <OutRequest request> setMultiparts (mime:Entity[] bodyParts, str
 
 @Description {value:"Sets the entity body of the outbound request with the given file content"}
 @Param {value:"request: The outbound request message"}
-@Param {value:"content: File containing the actual content"}
-@Param {value:"contentType: Content-Type of the given data"}
+@Param {value:"fileHandler: File that needs to be set to the payload"}
+@Param {value:"contentType: Content-Type of the given file"}
 public function <OutRequest request> setFileAsPayload (file:File fileHandler, string contentType) {
     mime:MediaType mediaType = mime:getMediaType(contentType);
     mime:Entity entity = request.getEntityWithoutBody();
