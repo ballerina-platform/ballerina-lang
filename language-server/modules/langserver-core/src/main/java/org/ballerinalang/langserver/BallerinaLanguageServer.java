@@ -15,7 +15,10 @@
  */
 package org.ballerinalang.langserver;
 
+import org.ballerinalang.langserver.common.constants.CommandConstants;
+import org.ballerinalang.langserver.workspace.WorkspaceDocumentManagerImpl;
 import org.eclipse.lsp4j.CompletionOptions;
+import org.eclipse.lsp4j.ExecuteCommandOptions;
 import org.eclipse.lsp4j.InitializeParams;
 import org.eclipse.lsp4j.InitializeResult;
 import org.eclipse.lsp4j.ServerCapabilities;
@@ -28,6 +31,7 @@ import org.eclipse.lsp4j.services.TextDocumentService;
 import org.eclipse.lsp4j.services.WorkspaceService;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.concurrent.CompletableFuture;
 
 /**
@@ -40,8 +44,10 @@ public class BallerinaLanguageServer implements LanguageServer, LanguageClientAw
     private int shutdown = 1;
 
     public BallerinaLanguageServer() {
-        textService = new BallerinaTextDocumentService(this);
-        workspaceService = new BallerinaWorkspaceService();
+        WorkspaceDocumentManagerImpl documentManager = new WorkspaceDocumentManagerImpl();
+        BLangPackageContext bLangPackageContext = new BLangPackageContext();
+        textService = new BallerinaTextDocumentService(this, documentManager, bLangPackageContext);
+        workspaceService = new BallerinaWorkspaceService(this, documentManager, bLangPackageContext);
     }
 
     public LanguageClient getClient() {
@@ -53,6 +59,8 @@ public class BallerinaLanguageServer implements LanguageServer, LanguageClientAw
         final SignatureHelpOptions signatureHelpOptions = new SignatureHelpOptions(Arrays.asList("(", ","));
         final CompletionOptions completionOptions = new CompletionOptions();
         completionOptions.setTriggerCharacters(Arrays.asList(":", "."));
+        final ExecuteCommandOptions executeCommandOptions =
+                new ExecuteCommandOptions(Collections.singletonList(CommandConstants.CMD_IMPORT_PACKAGE));
         
         res.getCapabilities().setCompletionProvider(completionOptions);
         res.getCapabilities().setTextDocumentSync(TextDocumentSyncKind.Full);
@@ -61,6 +69,8 @@ public class BallerinaLanguageServer implements LanguageServer, LanguageClientAw
         res.getCapabilities().setDocumentSymbolProvider(true);
         res.getCapabilities().setDefinitionProvider(true);
         res.getCapabilities().setReferencesProvider(true);
+        res.getCapabilities().setCodeActionProvider(true);
+        res.getCapabilities().setExecuteCommandProvider(executeCommandOptions);
 
         return CompletableFuture.supplyAsync(() -> res);
     }

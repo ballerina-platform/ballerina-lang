@@ -48,7 +48,7 @@ public struct Entity {
 }
 
 @Description {value:"Set the entity body with a given file handler"}
-@Param {value:"entity: Represent a MIME Entity"}
+@Param {value:"entity: Represent a MIME entity"}
 @Param {value:"fileHandler: Represent a file"}
 public function <Entity entity> setFileAsEntityBody (file:File fileHandler) {
     io:ByteChannel byteChannel = fileHandler.openChannel(READ_PERMISSION);
@@ -56,22 +56,22 @@ public function <Entity entity> setFileAsEntityBody (file:File fileHandler) {
 }
 
 @Description {value:"Set the entity body with the given json content"}
-@Param {value:"entity: Represent a MIME Entity"}
+@Param {value:"entity: Represent a MIME entity"}
 @Param {value:"jsonContent: Json content that needs to be set to entity"}
 public native function <Entity entity> setJson (json jsonContent);
 
 @Description {value:"Given an entity, get the entity body in json form."}
-@Param {value:"entity: Represent a MIME Entity"}
+@Param {value:"entity: Represent a MIME entity"}
 @Return {value:"Return json data"}
 public native function <Entity entity> getJson () (json);
 
 @Description {value:"Set the entity body with the given xml content"}
-@Param {value:"entity: Represent a MIME Entity"}
+@Param {value:"entity: Represent a MIME entity"}
 @Param {value:"xmlContent: Xml content that needs to be set to entity"}
 public native function <Entity entity> setXml (xml xmlContent);
 
 @Description {value:"Given an entity, get the entity body in xml form."}
-@Param {value:"entity: Represent a MIME Entity"}
+@Param {value:"entity: Represent a MIME entity"}
 @Return {value:"Return xml data"}
 public native function <Entity entity> getXml () (xml);
 
@@ -80,7 +80,7 @@ public native function <Entity entity> getXml () (xml);
 public native function <Entity entity> setText (string textContent);
 
 @Description {value:"Given an entity, get the entity body in text form."}
-@Param {value:"entity: Represent a MIME Entity"}
+@Param {value:"entity: Represent a MIME entity"}
 @Return {value:"Return text data"}
 public native function <Entity entity> getText () (string);
 
@@ -91,24 +91,31 @@ public native function <Entity entity> setBlob (blob blobContent);
 
 @Description {value:"Given an entity, get the entity body as a blob. If the entity size is considerably large consider
 using getEntityWrapper() method instead"}
-@Param {value:"entity: Represent a MIME Entity"}
+@Param {value:"entity: Represent a MIME entity"}
 @Return {value:"Return a blob"}
 public native function <Entity entity> getBlob () (blob);
 
 @Description {value:"Set the entity body with the given byte channel content"}
-@Param {value:"entity: Represent a MIME Entity"}
+@Param {value:"entity: Represent a MIME entity"}
 @Param {value:"byteChannel: Byte channel that needs to be set to entity"}
 public native function <Entity entity> setByteChannel (io:ByteChannel byteChannel);
 
 @Description {value:"Given an entity, get the entity body as a byte channel."}
-@Param {value:"entity: Represent a MIME Entity"}
+@Param {value:"entity: Represent a MIME entity"}
 @Return {value:"Return a byte channel"}
 public native function <Entity entity> getByteChannel () (io:ByteChannel);
 
 @Description {value:"Given an entity, get its body parts."}
-@Param {value:"entity: Represent a MIME Entity"}
+@Param {value:"entity: Represent a MIME entity"}
 @Return {value:"Return an array of entities which represent its body parts"}
 public native function <Entity entity> getBodyParts () (Entity[]);
+
+@Description {value:"Set body parts to entity"}
+@Param {value:"entity: Represent a MIME entity"}
+@Param {value:"bodyParts: Represent the body parts that needs to be set to the entity"}
+public function <Entity entity> setBodyParts (Entity[] bodyParts) {
+    entity.multipartData = bodyParts;
+}
 
 @Description {value:"Given the Content-Type in string, get the MediaType struct populated with it."}
 @Param {value:"contentType: Content-Type in string"}
@@ -198,7 +205,7 @@ public native function <MimeBase64Decoder decoder> decodeString (string content,
 function getEncoding (MediaType contentType) (string) {
     var encoding = DEFAULT_CHARSET;
     error castErr;
-    if (contentType != null) {
+    if (contentType != null && contentType.parameters != null) {
         encoding, castErr = (string)contentType.parameters.CHARSET;
         if (castErr != null) {
             encoding = DEFAULT_CHARSET;
