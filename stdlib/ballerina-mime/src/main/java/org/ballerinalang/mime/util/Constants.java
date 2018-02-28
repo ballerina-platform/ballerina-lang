@@ -78,6 +78,11 @@ public class Constants {
      */
     public static final String MULTIPART_FORM_DATA = "multipart/form-data";
 
+    /**
+     * Content-type multipart/mixed.
+     */
+    public static final String MULTIPART_MIXED = "multipart/mixed";
+
     public static final String MULTIPART_AS_PRIMARY_TYPE = "multipart/";
     public static final String BOUNDARY = "boundary";
 

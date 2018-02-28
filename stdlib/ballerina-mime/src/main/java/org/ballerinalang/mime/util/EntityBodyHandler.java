@@ -55,7 +55,6 @@ import static org.ballerinalang.mime.util.Constants.FIRST_BODY_PART_INDEX;
 import static org.ballerinalang.mime.util.Constants.MESSAGE_DATA_SOURCE;
 import static org.ballerinalang.mime.util.Constants.MULTIPART_AS_PRIMARY_TYPE;
 import static org.ballerinalang.mime.util.Constants.MULTIPART_DATA_INDEX;
-import static org.ballerinalang.mime.util.Constants.READABLE_BUFFER_SIZE;
 import static org.ballerinalang.mime.util.Constants.SIZE_INDEX;
 
 /**
@@ -297,23 +296,7 @@ public class EntityBodyHandler {
                 FileIOChannel fileIOChannel = entityBody.getFileIOChannel();
                 inputStream = fileIOChannel.getInputStream();
             }
-            writeInputToOutputStream(messageOutputStream, inputStream);
-        }
-    }
-
-    /**
-     * Write a given inputstream to a given outputstream.
-     *
-     * @param messageOutputStream Represent the outputstream that the inputstream should be written to
-     * @param inputStream         Represent the inputstream that that needs to be written to outputstream
-     * @throws IOException When an error occurs while writing inputstream to outputstream
-     */
-    public static void writeInputToOutputStream(OutputStream messageOutputStream, InputStream inputStream) throws
-            IOException {
-        byte[] buffer = new byte[READABLE_BUFFER_SIZE];
-        int len;
-        while ((len = inputStream.read(buffer)) != -1) {
-            messageOutputStream.write(buffer, 0, len);
+            MimeUtil.writeInputToOutputStream(inputStream, messageOutputStream);
         }
     }
 

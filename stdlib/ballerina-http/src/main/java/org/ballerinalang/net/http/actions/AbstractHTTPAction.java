@@ -195,8 +195,7 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
 
         Object sourceHandler = outboundRequestMsg.getProperty(HttpConstants.SRC_HANDLER);
         if (sourceHandler == null) {
-            outboundRequestMsg.setProperty(HttpConstants.SRC_HANDLER,
-                                           context.getProperty(HttpConstants.SRC_HANDLER));
+            outboundRequestMsg.setProperty(HttpConstants.SRC_HANDLER, context.getProperty(HttpConstants.SRC_HANDLER));
         }
         sendOutboundRequest(context, outboundRequestMsg, httpClientConnectorLister);
         return ballerinaFuture;
@@ -218,32 +217,42 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
         BConnector bConnector = (BConnector) getRefArgument(context, 0);
         HttpClientConnector clientConnector =
                 (HttpClientConnector) bConnector.getnativeData(HttpConstants.CONNECTOR_NAME);
+
         String contentType = getContentType(outboundRequestMsg);
         String boundaryString = null;
-        if (contentType != null && contentType.startsWith(MULTIPART_AS_PRIMARY_TYPE)) {
+        if (isMultipart(contentType)) {
             boundaryString = MimeUtil.getNewMultipartDelimiter();
             outboundRequestMsg.setHeader(CONTENT_TYPE, contentType + "; " + BOUNDARY + "=" + boundaryString);
         }
+
         HttpResponseFuture future = clientConnector.send(outboundRequestMsg);
         future.setHttpConnectorListener(httpClientConnectorLister);
-
-        if (contentType != null && contentType.startsWith(MULTIPART_AS_PRIMARY_TYPE)) {
-            BStruct requestStruct = ((BStruct) getRefArgument(context, 1));
-            BStruct entityStruct = requestStruct.getNativeData(MESSAGE_ENTITY) != null ?
-                    (BStruct) requestStruct.getNativeData(MESSAGE_ENTITY) : null;
-            if (entityStruct != null) {
-                BRefValueArray bodyParts = entityStruct.getRefField(MULTIPART_DATA_INDEX) != null ?
-                        (BRefValueArray) entityStruct.getRefField(MULTIPART_DATA_INDEX) : null;
-                if (bodyParts != null && bodyParts.size() > 0) {
-                    serializeMultipartDataSource(outboundRequestMsg, httpClientConnectorLister, boundaryString,
-                            bodyParts);
-                } else {
-                    throw new BallerinaException("At least one body part is required for the mutlipart entity",
-                            context);
-                }
-            }
+        if (isMultipart(contentType)) {
+            handleMultiPart(context, outboundRequestMsg, httpClientConnectorLister, boundaryString);
         } else {
             serializeDataSource(context, outboundRequestMsg, httpClientConnectorLister);
+        }
+    }
+
+    private boolean isMultipart(String contentType) {
+        return contentType != null && contentType.startsWith(MULTIPART_AS_PRIMARY_TYPE);
+    }
+
+    private void handleMultiPart(Context context, HTTPCarbonMessage outboundRequestMsg,
+            HTTPClientConnectorListener httpClientConnectorLister, String boundaryString) {
+        BStruct requestStruct = ((BStruct) getRefArgument(context, 1));
+        BStruct entityStruct = requestStruct.getNativeData(MESSAGE_ENTITY) != null ?
+                (BStruct) requestStruct.getNativeData(MESSAGE_ENTITY) : null;
+        if (entityStruct != null) {
+            BRefValueArray bodyParts = entityStruct.getRefField(MULTIPART_DATA_INDEX) != null ?
+                    (BRefValueArray) entityStruct.getRefField(MULTIPART_DATA_INDEX) : null;
+            if (bodyParts != null && bodyParts.size() > 0) {
+                serializeMultipartDataSource(outboundRequestMsg, httpClientConnectorLister, boundaryString,
+                        entityStruct);
+            } else {
+                throw new BallerinaException("At least one body part is required for the multipart entity",
+                        context);
+            }
         }
     }
 
@@ -253,11 +262,11 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
      * @param outboundRequestMsg        Outbound request message
      * @param httpClientConnectorLister Represent http client connector listener
      * @param boundaryString            Boundary string of multipart entity
-     * @param bodyParts                 Represent an array of body parts
+     * @param entityStruct              Represent ballerina entity struct
      */
     private void serializeMultipartDataSource(HTTPCarbonMessage outboundRequestMsg, HTTPClientConnectorListener
-            httpClientConnectorLister, String boundaryString, BRefValueArray bodyParts) {
-        MultipartDataSource multipartDataSource = new MultipartDataSource(bodyParts, boundaryString);
+            httpClientConnectorLister, String boundaryString, BStruct entityStruct) {
+        MultipartDataSource multipartDataSource = new MultipartDataSource(entityStruct, boundaryString);
         HttpMessageDataStreamer outboundMsgDataStreamer = new HttpMessageDataStreamer(outboundRequestMsg);
         OutputStream messageOutputStream = outboundMsgDataStreamer.getOutputStream();
         httpClientConnectorLister.setOutboundMsgDataStreamer(outboundMsgDataStreamer);
