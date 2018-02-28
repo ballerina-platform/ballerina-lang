@@ -8,7 +8,7 @@ import ballerina.io;
 function main (string[] args) {
 
     endpoint<http:HttpClient> httpEndpoint {
-        create http:HttpClient(args[0], getConnectorConfigs(args[2], args[3], args[4], args[5]));
+        create http:HttpClient(args[0], getConnectorConfigs(args));
     }
     mime:Entity topLevelEntity = {};
     mime:MediaType mediaType = mime:getMediaType(mime:MULTIPART_FORM_DATA);
@@ -36,20 +36,24 @@ function main (string[] args) {
     }
 }
 
-function getConnectorConfigs(string host, string port, string username, string password) (http:Options) {
+function getConnectorConfigs(string [] args) (http:Options) {
+    string proxyHost = args[2];
+    string proxyPort = args[3];
+    string proxyUsername = args[4];
+    string proxyPassword = args[5];
     http:Options option;
     int portInt = 0;
-    if (host != ""){
-        if (port != ""){
-            var portI, _ = <int> port;
+    if (proxyHost != ""){
+        if (proxyPort != ""){
+            var portI, _ = <int> proxyPort;
             portInt = portI;
         }
         option = {
                      proxy:{
-                               host:host,
+                               host:proxyHost,
                                port:portInt,
-                               userName:username,
-                               password:password
+                               userName:proxyUsername,
+                               password:proxyPassword
                            }
                  };
     } else {
