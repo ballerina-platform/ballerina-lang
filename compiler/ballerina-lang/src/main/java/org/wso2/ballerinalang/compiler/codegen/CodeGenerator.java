@@ -28,8 +28,10 @@ import org.ballerinalang.util.TransactionStatus;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolEnter;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConnectorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BServiceSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BStructSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BStructSymbol.BAttachedFunction;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
@@ -1006,10 +1008,10 @@ public class CodeGenerator extends BLangNodeVisitor {
 
     public void visit(BLangConnectorInit cIExpr) {
         BConnectorType connectorType = (BConnectorType) cIExpr.type;
-        BTypeSymbol connectorSymbol = connectorType.tsymbol;
+        BConnectorSymbol connectorSymbol = (BConnectorSymbol) connectorType.tsymbol;
 
         int pkgRefCPIndex = addPackageRefCPEntry(currentPkgInfo, connectorSymbol.pkgID);
-        int connNameCPIndex = addUTF8CPEntry(currentPkgInfo, connectorType.tsymbol.name.value);
+        int connNameCPIndex = addUTF8CPEntry(currentPkgInfo, connectorSymbol.name.value);
         StructureRefCPEntry structureRefCPEntry = new StructureRefCPEntry(pkgRefCPIndex, connNameCPIndex);
         Operand structureRefCPIndex = getOperand(currentPkgInfo.addCPEntry(structureRefCPEntry));
 
@@ -1021,7 +1023,7 @@ public class CodeGenerator extends BLangNodeVisitor {
         for (int i = 0; i < argExprs.size(); i++) {
             BLangExpression argExpr = argExprs.get(i);
             genNode(argExpr, this.env);
-            BVarSymbol paramSymbol = connectorType.tsymbol.params.get(i);
+            BVarSymbol paramSymbol = connectorSymbol.params.get(i);
             int opcode = getOpcode(paramSymbol.type.tag, InstructionCodes.IFIELDSTORE);
             emit(opcode, connectorRegIndex, paramSymbol.varIndex, argExpr.regIndex);
         }
@@ -1975,7 +1977,7 @@ public class CodeGenerator extends BLangNodeVisitor {
         // Add service name as an UTFCPEntry to the constant pool
         int serviceNameCPIndex = addUTF8CPEntry(currentPkgInfo, serviceNode.name.value);
         //Create service info
-        PackageID protocolPkgId = ((BTypeSymbol) serviceNode.symbol).protocolPkgId;
+        PackageID protocolPkgId = ((BServiceSymbol) serviceNode.symbol).protocolPkgId;
         if (protocolPkgId != null) {
             String protocolPkg = protocolPkgId.getName().value;
             int protocolPkgCPIndex = addUTF8CPEntry(currentPkgInfo, protocolPkg);

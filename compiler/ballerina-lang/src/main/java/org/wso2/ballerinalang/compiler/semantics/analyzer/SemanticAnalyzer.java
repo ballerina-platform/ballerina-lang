@@ -29,8 +29,8 @@ import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationAttributeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BServiceSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
@@ -755,7 +755,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         BSymbol protocolPkg = symResolver.resolvePkgSymbol(serviceNode.pos,
                 serviceEnv, names.fromIdNode(serviceNode.protocolPkgIdentifier));
         //TODO validate protocol package existance
-        ((BTypeSymbol) serviceSymbol).protocolPkgId = protocolPkg.pkgID;
+        ((BServiceSymbol) serviceSymbol).protocolPkgId = protocolPkg.pkgID;
         serviceNode.annAttachments.forEach(a -> {
             a.attachmentPoint =
                     new BLangAnnotationAttachmentPoint(BLangAnnotationAttachmentPoint.AttachmentPoint.SERVICE,
