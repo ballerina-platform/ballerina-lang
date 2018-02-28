@@ -19,14 +19,14 @@
 package org.ballerinalang.test.nativeimpl.functions.io.bytes;
 
 import org.ballerinalang.nativeimpl.io.channels.base.Channel;
-import org.ballerinalang.nativeimpl.io.connection.DummyFuture;
-import org.ballerinalang.nativeimpl.io.connection.EventManager;
+import org.ballerinalang.nativeimpl.io.events.EventManager;
 import org.ballerinalang.nativeimpl.io.events.EventResponse;
-import org.ballerinalang.nativeimpl.io.events.ReadBytesEvent;
+import org.ballerinalang.nativeimpl.io.events.bytes.ReadBytesEvent;
+import org.ballerinalang.nativeimpl.io.events.bytes.WriteBytesEvent;
 import org.ballerinalang.test.nativeimpl.functions.io.MockByteChannel;
 import org.ballerinalang.test.nativeimpl.functions.io.util.TestUtil;
 import org.testng.Assert;
-import org.testng.annotations.DataProvider;
+import org.testng.annotations.BeforeSuite;
 import org.testng.annotations.Test;
 
 import java.io.IOException;
@@ -40,6 +40,21 @@ import java.util.concurrent.Future;
  * Tests operations through the async io framework
  */
 public class AsyncReadWriteTest {
+
+    /**
+     * Specifies the default directory path.
+     */
+    private String currentDirectoryPath = "/tmp/";
+
+    /**
+     * Will be the I/O event handler
+     */
+    private EventManager eventManager = EventManager.getInstance();
+
+    @BeforeSuite
+    public void setup() {
+        currentDirectoryPath = System.getProperty("user.dir") + "/target/";
+    }
 
     /**
      * Wraps byte [] to a buffer.
@@ -66,8 +81,7 @@ public class AsyncReadWriteTest {
         int numberOfBytesRead = 0;
         do {
             ByteBuffer contentBuffer = wrapByteArray(content, numberOfBytesRead);
-            ReadBytesEvent event = new ReadBytesEvent(contentBuffer, channel, new DummyFuture());
-            EventManager eventManager = EventManager.getInstance();
+            ReadBytesEvent event = new ReadBytesEvent(contentBuffer, channel);
             Future<EventResponse> future = eventManager.publish(event);
             EventResponse eventResponse = future.get();
             numberOfBytesRead = numberOfBytesRead + (Integer) eventResponse.getResponse();
@@ -75,7 +89,18 @@ public class AsyncReadWriteTest {
         return numberOfBytesRead;
     }
 
-    @Test(description = "Read into fixed buffer using async io")
+    private int writeAsync(byte[] content, Channel channel) throws ExecutionException, InterruptedException {
+        int numberOfBytesWritten = 0;
+        do {
+            WriteBytesEvent writeBytesEvent = new WriteBytesEvent(channel, content, numberOfBytesWritten);
+            Future<EventResponse> future = eventManager.publish(writeBytesEvent);
+            EventResponse eventResponse = future.get();
+            numberOfBytesWritten = numberOfBytesWritten + (Integer) eventResponse.getResponse();
+        } while (numberOfBytesWritten < content.length);
+        return numberOfBytesWritten;
+    }
+
+    @Test(description = "Read into fixed byte[] using async io framework")
     public void readBytes() throws IOException, URISyntaxException, ExecutionException,
             InterruptedException {
         byte[] content = new byte[2];
@@ -104,9 +129,20 @@ public class AsyncReadWriteTest {
         Assert.assertEquals(expected, content);
     }
 
-    @DataProvider(name = "ByteAllocation")
+    @Test(description = "Write into a channel using async io framework")
+    public void writeBytes() throws IOException, URISyntaxException, ExecutionException, InterruptedException {
+        //Number of characters in this file would be 6
+        ByteChannel byteChannel = TestUtil.openForWriting(currentDirectoryPath + "write.txt");
+        Channel channel = new MockByteChannel(byteChannel, 0);
+        byte[] bytes = "hello".getBytes();
+
+        int numberOfBytesWritten = writeAsync(bytes, channel);
+        Assert.assertEquals(numberOfBytesWritten, bytes.length);
+    }
+
+/*    @DataProvider(name = "ByteAllocation")
     public static Object[][] bytes() {
         return new Object[][]{{new byte[2], 0}, {new byte[4], 0}};
-    }
+    }*/
 
 }

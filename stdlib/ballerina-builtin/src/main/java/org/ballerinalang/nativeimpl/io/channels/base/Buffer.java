@@ -223,7 +223,7 @@ public class Buffer {
      * @param channel                byte channel which will perform I/O ops necessary for reading.
      * @return buffer which will contain bytes >= numberOfBytesRequested
      */
-    public ByteBuffer get(int numberOfBytesRequested, AbstractChannel channel) throws BallerinaIOException {
+    public ByteBuffer get(int numberOfBytesRequested, Channel channel) throws BallerinaIOException {
         ByteBuffer remainingContent = remainingContent(numberOfBytesRequested);
         if (null != remainingContent && remainingContent.capacity() >= numberOfBytesRequested) {
             return copyRemainingContent(numberOfBytesRequested, remainingContent);

@@ -46,7 +46,7 @@ public class CharacterChannel {
     /**
      * Channel implementation to read/write characters.
      */
-    private AbstractChannel channel;
+    private Channel channel;
 
     /**
      * Decodes the specified bytes when reading.
@@ -95,7 +95,7 @@ public class CharacterChannel {
     private static final int MAX_CHAR_COUNT_PER_READ = 1024;
 
 
-    public CharacterChannel(AbstractChannel channel, String encoding) {
+    public CharacterChannel(Channel channel, String encoding) {
         this.channel = channel;
         bytesDecoder = Charset.forName(encoding).newDecoder();
         byteEncoder = Charset.forName(encoding).newEncoder();

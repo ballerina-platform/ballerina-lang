@@ -119,10 +119,6 @@ public native function <CharacterChannel channel> closeCharacterChannel ();
 @Return {value:"Number of bytes read"}
 public native function <ByteChannel channel> readBytes (int numberOfBytes) (blob, int);
 
-public native function <ByteChannel channel> read(blob content,
-                                                  int offset)
-                                             (int, AlreadyClosedChannelError, NonReadableChannelError, IOError);
-
 @Description {value:"Function to write bytes"}
 @Param {value:"channel: The ByteChannel to write bytes to"}
 @Param {value:"content: Bytes which should be written"}

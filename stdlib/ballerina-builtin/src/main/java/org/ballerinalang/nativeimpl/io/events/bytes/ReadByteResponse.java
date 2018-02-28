@@ -16,7 +16,9 @@
  * under the License.
  */
 
-package org.ballerinalang.nativeimpl.io.events;
+package org.ballerinalang.nativeimpl.io.events.bytes;
+
+import org.ballerinalang.nativeimpl.io.events.EventResponse;
 
 /**
  * Response returned after reading bytes.

@@ -16,10 +16,11 @@
  * under the License.
  */
 
-package org.ballerinalang.nativeimpl.io.events;
+package org.ballerinalang.nativeimpl.io.events.bytes;
 
 import org.ballerinalang.nativeimpl.io.channels.base.Channel;
-import org.ballerinalang.nativeimpl.io.connection.DummyFuture;
+import org.ballerinalang.nativeimpl.io.events.Event;
+import org.ballerinalang.nativeimpl.io.events.EventResponse;
 
 import java.nio.ByteBuffer;
 
@@ -37,14 +38,9 @@ public class ReadBytesEvent implements Event {
      */
     private Channel channel;
 
-    /**
-     * Will be used to notify back on the response.
-     */
-    private DummyFuture callback;
 
-    public ReadBytesEvent(ByteBuffer content, Channel channel, DummyFuture callback) {
+    public ReadBytesEvent(ByteBuffer content, Channel channel) {
         this.content = content;
-        this.callback = callback;
         this.channel = channel;
     }
 
@@ -54,9 +50,6 @@ public class ReadBytesEvent implements Event {
     @Override
     public EventResponse<Integer> call() throws Exception {
         int read = channel.read(content);
-        ReadByteResponse response = new ReadByteResponse(read);
-        //This is the point we call the future reference
-        callback.notifyBallerina();
-        return response;
+        return new ReadByteResponse(read);
     }
 }

@@ -16,10 +16,8 @@
  * under the License.
  */
 
-package org.ballerinalang.nativeimpl.io.connection;
+package org.ballerinalang.nativeimpl.io.events;
 
-import org.ballerinalang.nativeimpl.io.events.Event;
-import org.ballerinalang.nativeimpl.io.events.EventResponse;
 import org.ballerinalang.runtime.threadpool.BLangThreadFactory;
 
 import java.util.concurrent.ExecutorService;
