@@ -18,6 +18,7 @@
 
 package org.wso2.transport.http.netty.chunkdisable;
 
+import io.netty.handler.codec.http.HttpHeaderNames;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.transport.http.netty.common.Constants;
@@ -44,10 +45,10 @@ public class ChunkEnableServerTestCase extends ChunkServerTemplate {
     public void postTest() {
         try {
             HttpURLConnection urlConn = sendEntityBody(TestUtil.largeEntity);
-            assertEquals(urlConn.getHeaderField(Constants.HTTP_TRANSFER_ENCODING), Constants.CHUNKED);
+            assertEquals(urlConn.getHeaderField(HttpHeaderNames.TRANSFER_ENCODING.toString()), Constants.CHUNKED);
 
             urlConn = sendEntityBody(TestUtil.smallEntity);
-            assertEquals(urlConn.getHeaderField(Constants.HTTP_TRANSFER_ENCODING), Constants.CHUNKED);
+            assertEquals(urlConn.getHeaderField(HttpHeaderNames.TRANSFER_ENCODING.toString()), Constants.CHUNKED);
 
             urlConn.disconnect();
         } catch (IOException e) {

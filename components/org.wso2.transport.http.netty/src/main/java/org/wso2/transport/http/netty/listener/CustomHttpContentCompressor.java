@@ -2,6 +2,7 @@ package org.wso2.transport.http.netty.listener;
 
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.HttpContentCompressor;
+import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpMethod;
 import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.HttpResponse;
@@ -21,8 +22,8 @@ public class CustomHttpContentCompressor extends HttpContentCompressor {
 
     @Override
     protected Result beginEncode(HttpResponse headers, String acceptEncoding) throws Exception {
-        String allowHeader = headers.headers().get("Allow");
-        String contentLength = headers.headers().get("Content-Length");
+        String allowHeader = headers.headers().get(HttpHeaderNames.ALLOW);
+        String contentLength = headers.headers().get(HttpHeaderNames.CONTENT_LENGTH);
         if (method == HttpMethod.OPTIONS && allowHeader != null && contentLength.equals("0")) {
             return null;
         }

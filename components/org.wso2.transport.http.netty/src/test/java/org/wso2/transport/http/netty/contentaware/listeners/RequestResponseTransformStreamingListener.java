@@ -69,8 +69,8 @@ public class RequestResponseTransformStreamingListener implements HttpConnectorL
                 byte[] bytes = IOUtils.toByteArray(inputStream);
                 outputStream.write(bytes);
                 outputStream.close();
-                httpRequestMessage.setProperty(Constants.HOST, TestUtil.TEST_HOST);
-                httpRequestMessage.setProperty(Constants.PORT, TestUtil.HTTP_SERVER_PORT);
+                httpRequestMessage.setProperty(Constants.HTTP_HOST, TestUtil.TEST_HOST);
+                httpRequestMessage.setProperty(Constants.HTTP_PORT, TestUtil.HTTP_SERVER_PORT);
 
                 Map<String, Object> transportProperties = new HashMap<>();
                 Set<TransportProperty> transportPropertiesSet = configuration.getTransportProperties();
