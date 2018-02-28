@@ -3,13 +3,23 @@
 *******************************/
 
 /*-------------------
+       Fonts
+--------------------*/
+
+@fontName          : 'Roboto';
+@fontSmoothing     : antialiased;
+
+@headerFont        : @fontName, 'Helvetica Neue', Arial, Helvetica, sans-serif;
+@pageFont          : @fontName, 'Helvetica Neue', Arial, Helvetica, sans-serif;
+
+/*-------------------
       Colors
 --------------------*/
 
 @primaryColor               : @orange;
 @secondaryColor             : @gray-100;
 @defaultColor               : #626262;
-@invertedBackgroundColor    : #222;
+
 @red                        : #f44336;
 @orange                     : #F1772A;
 @yellow                     : #FFEB3B;
@@ -39,9 +49,19 @@
 @gray-900   : #212529;
 
 
-@fontName           : @fontFamily: Roboto, Arial, Helvetica, sans-serif;
-@pageBackground     : @off-white;
+/*---- Inverted Colors  ----*/
 
-@placeholderBackgroundOpacity: 0.7;
+@invertedBackgroundColor        : #222;
+@invertedInputBackgroundColor   : #3a3a3a;
+@selectionInvertedBorderColor   : @orange;
+@selectionInvertedTextColor     : @off-white;
+@selectionInvertItemDivider     : @defaultColor;
 
-@highlightBackground : @orange;
+@pageBackground                 : @off-white;
+
+@placeholderBackgroundOpacity   : 0.7;
+
+@highlightBackground            : @orange;
+
+@selectionBorderRadius          : 0;
+@borderRadius          : 0;
