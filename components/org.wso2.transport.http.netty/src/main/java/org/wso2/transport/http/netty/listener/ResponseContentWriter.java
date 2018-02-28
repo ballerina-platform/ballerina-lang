@@ -24,10 +24,10 @@ import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.DefaultHttpContent;
+import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.LastHttpContent;
 import org.wso2.carbon.messaging.CarbonMessage;
 import org.wso2.carbon.messaging.Writer;
-import org.wso2.transport.http.netty.common.Constants;
 
 import java.nio.ByteBuffer;
 
@@ -55,11 +55,7 @@ public class ResponseContentWriter implements Writer {
     @Override
     public void writeLastContent(CarbonMessage carbonMessage) {
         ChannelFuture future = channelHandlerContext.writeAndFlush(LastHttpContent.EMPTY_LAST_CONTENT);
-//        if (HTTPTransportContextHolder.getInstance().getHandlerExecutor() != null) {
-//            HTTPTransportContextHolder.getInstance().getHandlerExecutor().
-//                    executeAtSourceResponseSending(carbonMessage);
-//        }
-        String connection = carbonMessage.getHeader(Constants.HTTP_CONNECTION);
+        String connection = carbonMessage.getHeader(HttpHeaderNames.CONNECTION.toString());
         if (connection != null && HTTP_CONNECTION_CLOSE.equalsIgnoreCase(connection)) {
             future.addListener(ChannelFutureListener.CLOSE);
         }

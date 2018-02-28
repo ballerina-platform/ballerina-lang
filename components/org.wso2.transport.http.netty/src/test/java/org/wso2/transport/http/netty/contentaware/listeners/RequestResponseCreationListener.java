@@ -21,6 +21,7 @@ package org.wso2.transport.http.netty.contentaware.listeners;
 
 import io.netty.buffer.Unpooled;
 import io.netty.handler.codec.http.DefaultLastHttpContent;
+import io.netty.handler.codec.http.HttpHeaderNames;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.common.Constants;
@@ -71,15 +72,15 @@ public class RequestResponseCreationListener implements HttpConnectorListener {
                 byte[] arry = responseValue.getBytes("UTF-8");
 
                 HTTPCarbonMessage newMsg = httpRequest.cloneCarbonMessageWithOutData();
-                if (newMsg.getHeader(Constants.HTTP_TRANSFER_ENCODING) == null) {
-                    newMsg.setHeader(Constants.HTTP_CONTENT_LENGTH, String.valueOf(arry.length));
+                if (newMsg.getHeader(HttpHeaderNames.TRANSFER_ENCODING.toString()) == null) {
+                    newMsg.setHeader(HttpHeaderNames.CONTENT_LENGTH.toString(), String.valueOf(arry.length));
                 }
                 ByteBuffer byteBuffer1 = ByteBuffer.allocate(arry.length);
                 byteBuffer1.put(arry);
                 byteBuffer1.flip();
                 newMsg.addHttpContent(new DefaultLastHttpContent(Unpooled.wrappedBuffer(byteBuffer1)));
-                newMsg.setProperty(Constants.HOST, TestUtil.TEST_HOST);
-                newMsg.setProperty(Constants.PORT, TestUtil.HTTP_SERVER_PORT);
+                newMsg.setProperty(Constants.HTTP_HOST, TestUtil.TEST_HOST);
+                newMsg.setProperty(Constants.HTTP_PORT, TestUtil.HTTP_SERVER_PORT);
 
                 Map<String, Object> transportProperties = new HashMap<>();
                 Set<TransportProperty> transportPropertiesSet = configuration.getTransportProperties();
@@ -117,8 +118,8 @@ public class RequestResponseCreationListener implements HttpConnectorListener {
 
                             HTTPCarbonMessage httpCarbonMessage = httpResponse
                                     .cloneCarbonMessageWithOutData();
-                            if (httpCarbonMessage.getHeader(Constants.HTTP_TRANSFER_ENCODING) == null) {
-                                httpCarbonMessage.setHeader(Constants.HTTP_CONTENT_LENGTH,
+                            if (httpCarbonMessage.getHeader(HttpHeaderNames.TRANSFER_ENCODING.toString()) == null) {
+                                httpCarbonMessage.setHeader(HttpHeaderNames.CONTENT_LENGTH.toString(),
                                         String.valueOf(responseByteValues.length));
                             }
                             httpCarbonMessage.addHttpContent(

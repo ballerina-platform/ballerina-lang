@@ -29,6 +29,7 @@ import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.handler.codec.http.FullHttpRequest;
 import io.netty.handler.codec.http.FullHttpResponse;
 import io.netty.handler.codec.http.HttpClientCodec;
+import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpObjectAggregator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -78,12 +79,12 @@ public class HttpClient {
     }
 
     public FullHttpResponse sendChunkRequest(FullHttpRequest httpRequest) {
-        httpRequest.headers().set(Constants.HTTP_TRANSFER_ENCODING, Constants.CHUNKED);
+        httpRequest.headers().set(HttpHeaderNames.TRANSFER_ENCODING, Constants.CHUNKED);
         return send(httpRequest);
     }
 
     public FullHttpResponse sendRequest(FullHttpRequest httpRequest) {
-        httpRequest.headers().set(Constants.HTTP_CONTENT_LENGTH, httpRequest.content().readableBytes());
+        httpRequest.headers().set(HttpHeaderNames.CONTENT_LENGTH, httpRequest.content().readableBytes());
         return send(httpRequest);
     }
 
@@ -93,7 +94,7 @@ public class HttpClient {
         this.responseHandler.setLatch(latch);
         this.responseHandler.setWaitForConnectionClosureLatch(this.waitForConnectionClosureLatch);
 
-        httpRequest.headers().set(Constants.HOST, host + ":" + port);
+        httpRequest.headers().set(HttpHeaderNames.HOST, host + ":" + port);
         this.connectedChannel.writeAndFlush(httpRequest);
         try {
             latch.await();
@@ -109,7 +110,7 @@ public class HttpClient {
         this.responseHandler.setLatch(latch);
         this.responseHandler.setWaitForConnectionClosureLatch(this.waitForConnectionClosureLatch);
 
-        httpRequest.headers().set(Constants.HOST, host + ":" + port);
+        httpRequest.headers().set(HttpHeaderNames.HOST, host + ":" + port);
         this.connectedChannel.writeAndFlush(httpRequest.copy());
 
         this.connectedChannel.writeAndFlush(httpRequest);
