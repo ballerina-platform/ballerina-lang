@@ -49,7 +49,7 @@ struct CircuitBreakerInferredConfig {
 CircuitHealth circuitHealth = {};
 CircuitState currentCircuitState;
 
-@Description {value:"A Circuit Breaker implementation for to be used with the HTTP client connector to gracefully handle network errors."}
+@Description {value:"Circuit Breaker implementation for to be used with the HTTP client connector to gracefully handle network errors."}
 @Param {value:"circuitBreakerConfig: Circuit Breaker configuration struct which contains the circuit handling options."}
 public connector CircuitBreaker (http:HttpClient httpClient, CircuitBreakerConfig circuitBreakerConfig) {
 

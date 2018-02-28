@@ -125,12 +125,12 @@ public class CircuitBreakerTest {
 
     /**
      * Test case scenario:
-     * * Initially the circuit is healthy and functioning normally.
-     * * Backend service respond with HTTP status code configured to consider as failures responses.
-     * * eventually the failure threshold is exceeded.
-     * * Requests afterwards are immediately failed, with a 503 response.
-     * * After the reset timeout expires, the circuit goes to HALF_OPEN state and a trial request is sent.
-     * * The backend service is not available and therefore, the request fails again and the circuit goes back to OPEN.
+     * - Initially the circuit is healthy and functioning normally.
+     * - Backend service respond with HTTP status code configured to consider as failures responses.
+     *   eventually the failure threshold is exceeded.
+     * - Requests afterwards are immediately failed, with a 503 response.
+     * - After the reset timeout expires, the circuit goes to HALF_OPEN state and a trial request is sent.
+     * - The backend service is not available and therefore, the request fails again and the circuit goes back to OPEN.
      */
     @Test(description = "Test case for Circuit Breaker HTTP status codes.")
     public void testHttpStatusCodeFailure() {

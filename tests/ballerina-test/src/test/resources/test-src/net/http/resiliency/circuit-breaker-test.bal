@@ -139,11 +139,11 @@ connector MockHttpClient (string serviceUri, http:Options connectorOptions) {
         string scenario = req.getHeader(TEST_SCENARIO_HEADER);
 
         if (scenario == SCENARIO_TYPICAL) {
-            response, err = handleScenario1(actualRequestNumber);
+            response, err = handleBackendFailureScenario(actualRequestNumber);
         } else if (scenario == SCENARIO_TRIAL_RUN_FAILURE) {
-            response, err = handleScenario2(actualRequestNumber);
+            response, err = handleTrialRunFailureScenario(actualRequestNumber);
         } else if (scenario == SCENARIO_HTTP_SC_FAILURE) {
-            response, err = handleScenario3(actualRequestNumber);
+            response, err = handleHTTPStatusCodeErrorScenario(actualRequestNumber);
         }
 
         return response, err;
@@ -158,7 +158,7 @@ connector MockHttpClient (string serviceUri, http:Options connectorOptions) {
     }
 }
 
-function handleScenario1 (int requesetNo) (http:InResponse, http:HttpConnectorError) {
+function handleBackendFailureScenario (int requesetNo) (http:InResponse, http:HttpConnectorError) {
     // Deliberately fail a request
     if (requesetNo == 3) {
         http:HttpConnectorError err = getErrorStruct();
@@ -169,7 +169,7 @@ function handleScenario1 (int requesetNo) (http:InResponse, http:HttpConnectorEr
     return response, null;
 }
 
-function handleScenario2 (int counter) (http:InResponse, http:HttpConnectorError) {
+function handleTrialRunFailureScenario (int counter) (http:InResponse, http:HttpConnectorError) {
     // Fail a request. Then, fail the trial request sent while in the HALF_OPEN state as well.
     if (counter == 2 || counter == 3) {
         http:HttpConnectorError err = getErrorStruct();
@@ -180,7 +180,7 @@ function handleScenario2 (int counter) (http:InResponse, http:HttpConnectorError
     return response, null;
 }
 
-function handleScenario3 (int counter) (http:InResponse, http:HttpConnectorError) {
+function handleHTTPStatusCodeErrorScenario (int counter) (http:InResponse, http:HttpConnectorError) {
     // Fail a request. Then, fail the trial request sent while in the HALF_OPEN state as well.
     if (counter == 2 || counter == 3) {
         http:HttpConnectorError err = getMockErrorStruct();
