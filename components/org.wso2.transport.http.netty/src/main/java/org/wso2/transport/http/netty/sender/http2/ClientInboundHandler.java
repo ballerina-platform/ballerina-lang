@@ -36,6 +36,8 @@ import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.common.Constants;
 import org.wso2.transport.http.netty.message.EmptyLastHttpContent;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
+import org.wso2.transport.http.netty.message.Http2PushPromise;
+import org.wso2.transport.http.netty.message.Http2Response;
 import org.wso2.transport.http.netty.message.HttpCarbonResponse;
 import org.wso2.transport.http.netty.message.PooledDataStreamerFactory;
 
@@ -58,7 +60,11 @@ public class ClientInboundHandler extends Http2EventAdapter {
         log.debug("Http2FrameListenAdapter.onDataRead()");
 
         OutboundMsgHolder outboundMsgHolder = targetChannel.getInFlightMessage(streamId);
-        HTTPCarbonMessage responseMessage = outboundMsgHolder.getResponse();
+        if (outboundMsgHolder == null) {
+            log.warn("Data Frame received over invalid stream");
+            return 0;
+        }
+        HTTPCarbonMessage responseMessage = outboundMsgHolder.getResponse().getResponse();
         if (endOfStream) {
             responseMessage.addHttpContent(new DefaultLastHttpContent(data.retain()));
             targetChannel.removeInFlightMessage(streamId);
@@ -83,9 +89,25 @@ public class ClientInboundHandler extends Http2EventAdapter {
         log.debug("Http2FrameListenAdapter.onHeadersRead()");
 
         OutboundMsgHolder outboundMsgHolder = targetChannel.getInFlightMessage(streamId);
-        HTTPCarbonMessage responseMessage = setupResponseCarbonMessage(ctx, streamId, headers, outboundMsgHolder);
+        boolean isServerPush = false;
+        if (outboundMsgHolder == null) {
+            outboundMsgHolder = targetChannel.getPromisedMessage(streamId);
+            if (outboundMsgHolder != null) {
+                isServerPush = true;
+            } else {
+                log.warn("Header Frame received over invalid stream");
+                return;
+            }
+        }
+
+        HttpCarbonResponse responseMessage = setupResponseCarbonMessage(ctx, streamId, headers, outboundMsgHolder);
         // Create response carbon message
-        outboundMsgHolder.setResponseCarbonMessage(responseMessage);
+        Http2Response http2Response = outboundMsgHolder.getResponse();
+        if (http2Response == null) {
+            http2Response = new Http2Response();
+        }
+        http2Response.setResponse(responseMessage);
+        outboundMsgHolder.setHttp2Response(http2Response);
         if (endStream) {
             responseMessage.addHttpContent(new EmptyLastHttpContent());
             targetChannel.removeInFlightMessage(streamId);
@@ -106,10 +128,16 @@ public class ClientInboundHandler extends Http2EventAdapter {
     public void onPushPromiseRead(ChannelHandlerContext ctx, int streamId, int promisedStreamId,
                                   Http2Headers headers, int padding) throws Http2Exception {
         log.debug("Http2FrameListenAdapter.onPushPromiseRead()");
-        super.onPushPromiseRead(ctx, streamId, promisedStreamId, headers, padding);
+        OutboundMsgHolder outboundMsgHolder = targetChannel.getInFlightMessage(streamId);
+        Http2Response http2Response = outboundMsgHolder.getResponse();
+        if (http2Response == null) {
+            http2Response = new Http2Response();
+        }
+        http2Response.addPromise(new Http2PushPromise(streamId, promisedStreamId, headers));
+        targetChannel.putPromisedMessage(promisedStreamId, outboundMsgHolder);
     }
 
-    private HTTPCarbonMessage setupResponseCarbonMessage(ChannelHandlerContext ctx, int streamId,
+    private HttpCarbonResponse setupResponseCarbonMessage(ChannelHandlerContext ctx, int streamId,
                                                          Http2Headers http2Headers,
                                                          OutboundMsgHolder outboundMsgHolder) {
         // Create HTTP Response
@@ -133,7 +161,7 @@ public class ClientInboundHandler extends Http2EventAdapter {
         }
 
         // Create HTTP Carbon Response
-        HTTPCarbonMessage responseCarbonMsg = new HttpCarbonResponse(httpResponse);
+        HttpCarbonResponse responseCarbonMsg = new HttpCarbonResponse(httpResponse);
 
         // Setting properties of the HTTP Carbon Response
         responseCarbonMsg.setProperty(Constants.POOLED_BYTE_BUFFER_FACTORY, new PooledDataStreamerFactory(ctx.alloc()));

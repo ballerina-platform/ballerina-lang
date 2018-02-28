@@ -38,6 +38,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class TargetChannel {
 
     private static ConcurrentHashMap<Integer, OutboundMsgHolder> inFlightMessages = new ConcurrentHashMap<>();
+    private static ConcurrentHashMap<Integer, OutboundMsgHolder> promisedMessages = new ConcurrentHashMap<>();
     private Channel channel;
     private Http2Connection connection;
     private ChannelFuture channelFuture;
@@ -117,6 +118,35 @@ public class TargetChannel {
      */
     void removeInFlightMessage(int streamId) {
         inFlightMessages.remove(streamId);
+    }
+
+    /**
+     * Add a promised message
+     *
+     * @param streamId        stream id
+     * @param promisedMessage {@code OutboundMsgHolder} which holds the promised message
+     */
+    public void putPromisedMessage(int streamId, OutboundMsgHolder promisedMessage) {
+        promisedMessages.put(streamId, promisedMessage);
+    }
+
+    /**
+     * Get the promised message associated with the a particular stream id
+     *
+     * @param streamId stream id
+     * @return promised message associated with the a particular stream id
+     */
+    public OutboundMsgHolder getPromisedMessage(int streamId) {
+        return promisedMessages.get(streamId);
+    }
+
+    /**
+     * Remove promised message
+     *
+     * @param streamId stream id
+     */
+    void removePromisedMessage(int streamId) {
+        promisedMessages.remove(streamId);
     }
 
     /**
