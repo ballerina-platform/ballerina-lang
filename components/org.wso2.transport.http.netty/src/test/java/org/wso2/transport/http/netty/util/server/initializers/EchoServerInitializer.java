@@ -23,6 +23,7 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.handler.codec.http.DefaultHttpResponse;
 import io.netty.handler.codec.http.HttpContent;
+import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpHeaderValues;
 import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.HttpResponse;
@@ -31,7 +32,6 @@ import io.netty.handler.codec.http.HttpUtil;
 import io.netty.handler.codec.http.LastHttpContent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.transport.http.netty.common.Constants;
 
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -117,7 +117,7 @@ public class EchoServerInitializer extends HTTPServerInitializer {
 
         private void writeHeadersAndEntity(ChannelHandlerContext ctx, HttpContent lastHttpContent) {
             contentLength += lastHttpContent.content().readableBytes();
-            httpResponse.headers().set(Constants.HTTP_CONTENT_LENGTH, contentLength);
+            httpResponse.headers().set(HttpHeaderNames.CONTENT_LENGTH, contentLength);
             ctx.write(httpResponse);
 
             while (!content.isEmpty()) {
@@ -133,7 +133,7 @@ public class EchoServerInitializer extends HTTPServerInitializer {
         }
 
         private void checkAndSetEncodingHeader(HttpRequest req) {
-            if (req.headers().get(Constants.HTTP_CONTENT_LENGTH) != null) {
+            if (req.headers().get(HttpHeaderNames.CONTENT_LENGTH) != null) {
                 chunked = false;
             } else {
                 httpResponse.headers().set(TRANSFER_ENCODING, "chunked");

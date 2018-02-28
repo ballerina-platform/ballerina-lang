@@ -21,6 +21,7 @@ package org.wso2.transport.http.netty.listener;
 
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
+import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.HttpRequest;
 import org.slf4j.Logger;
@@ -57,7 +58,7 @@ public class WebSocketServerHandshakeHandler extends ChannelInboundHandlerAdapte
             HttpHeaders headers = httpRequest.headers();
             String httpMethod = httpRequest.method().name();
             if (httpMethod.equalsIgnoreCase("GET") && isConnectionUpgrade(headers) &&
-                    Constants.WEBSOCKET_UPGRADE.equalsIgnoreCase(headers.get(Constants.UPGRADE))) {
+                    Constants.WEBSOCKET_UPGRADE.equalsIgnoreCase(headers.get(HttpHeaderNames.UPGRADE))) {
                 log.debug("Upgrading the connection from Http to WebSocket for " +
                                   "channel : " + ctx.channel());
                 handleWebSocketHandshake(httpRequest, ctx);
@@ -75,13 +76,13 @@ public class WebSocketServerHandshakeHandler extends ChannelInboundHandlerAdapte
      * @return true if the "Connection" header contains value "Upgrade".
      */
     protected boolean isConnectionUpgrade(HttpHeaders headers) {
-        if (!headers.contains(Constants.CONNECTION)) {
+        if (!headers.contains(HttpHeaderNames.CONNECTION)) {
             return false;
         }
 
-        String connectionHeaderValues = headers.get(Constants.CONNECTION);
+        String connectionHeaderValues = headers.get(HttpHeaderNames.CONNECTION);
         for (String connectionValue: connectionHeaderValues.split(",")) {
-            if (Constants.UPGRADE.equalsIgnoreCase(connectionValue.trim())) {
+            if (HttpHeaderNames.UPGRADE.toString().equalsIgnoreCase(connectionValue.trim())) {
                 return true;
             }
         }

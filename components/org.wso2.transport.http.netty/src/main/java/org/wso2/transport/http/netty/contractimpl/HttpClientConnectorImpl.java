@@ -22,6 +22,7 @@ package org.wso2.transport.http.netty.contractimpl;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
+import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,6 +39,8 @@ import org.wso2.transport.http.netty.listener.SourceHandler;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 import org.wso2.transport.http.netty.sender.channel.TargetChannel;
 import org.wso2.transport.http.netty.sender.channel.pool.ConnectionManager;
+
+import java.util.NoSuchElementException;
 
 /**
  * Implementation of the client connector.
@@ -97,9 +100,11 @@ public class HttpClientConnectorImpl implements HttpClientConnector {
                                                  targetChannel);
                         }
                         if (!keepAlive && Float.valueOf(httpVersion) >= Constants.HTTP_1_1) {
-                            httpOutboundRequest.setHeader(Constants.CONNECTION, Constants.CONNECTION_CLOSE);
+                            httpOutboundRequest.setHeader(HttpHeaderNames.CONNECTION.toString(),
+                                                          Constants.CONNECTION_CLOSE);
                         } else if (keepAlive && Float.valueOf(httpVersion) < Constants.HTTP_1_1) {
-                            httpOutboundRequest.setHeader(Constants.CONNECTION, Constants.CONNECTION_KEEP_ALIVE);
+                            httpOutboundRequest.setHeader(HttpHeaderNames.CONNECTION.toString(),
+                                                          Constants.CONNECTION_KEEP_ALIVE);
                         }
                         targetChannel.setForwardedExtension(forwardedExtensionConfig, httpOutboundRequest);
                         targetChannel.writeContent(httpOutboundRequest);
@@ -143,6 +148,10 @@ public class HttpClientConnectorImpl implements HttpClientConnector {
                 }
             });
         } catch (Exception failedCause) {
+            if (failedCause instanceof NoSuchElementException
+                    && "Timeout waiting for idle object".equals(failedCause.getMessage())) {
+                failedCause = new NoSuchElementException(Constants.MAXIMUM_WAIT_TIME_EXCEED);
+            }
             httpResponseFuture.notifyHttpListener(failedCause);
         }
 
@@ -163,12 +172,12 @@ public class HttpClientConnectorImpl implements HttpClientConnector {
 
     private int fetchPort(HTTPCarbonMessage httpCarbonMessage) {
         int port;
-        Object intProperty = httpCarbonMessage.getProperty(Constants.PORT);
+        Object intProperty = httpCarbonMessage.getProperty(Constants.HTTP_PORT);
         if (intProperty != null && intProperty instanceof Integer) {
             port = (int) intProperty;
         } else {
             port = sslConfig != null ? Constants.DEFAULT_HTTPS_PORT : Constants.DEFAULT_HTTP_PORT;
-            httpCarbonMessage.setProperty(Constants.PORT, port);
+            httpCarbonMessage.setProperty(Constants.HTTP_PORT, port);
             log.debug("Cannot find property PORT of type integer, hence using " + port);
         }
         return port;
@@ -176,12 +185,12 @@ public class HttpClientConnectorImpl implements HttpClientConnector {
 
     private String fetchHost(HTTPCarbonMessage httpCarbonMessage) {
         String host;
-        Object hostProperty = httpCarbonMessage.getProperty(Constants.HOST);
+        Object hostProperty = httpCarbonMessage.getProperty(Constants.HTTP_HOST);
         if (hostProperty != null && hostProperty instanceof String) {
             host = (String) hostProperty;
         } else {
             host = Constants.LOCALHOST;
-            httpCarbonMessage.setProperty(Constants.HOST, Constants.LOCALHOST);
+            httpCarbonMessage.setProperty(Constants.HTTP_HOST, Constants.LOCALHOST);
             log.debug("Cannot find property HOST of type string, hence using localhost as the host");
         }
         return host;

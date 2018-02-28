@@ -91,7 +91,6 @@ public final class Constants {
     public static final String TRUSTSTOREFILE = "trustStoreFile";
     public static final String TRUSTSTOREPASS = "trustStorePass";
 
-    public static final String PORT = "PORT";
 
     public static final int DEFAULT_HTTP_PORT = 80;
     public static final int DEFAULT_HTTPS_PORT = 443;
@@ -109,19 +108,9 @@ public final class Constants {
     public static final String ENCODING_DEFLATE = "deflate";
     public static final String HTTP_TRANSFER_ENCODING_IDENTITY = "identity";
 
-    // TODO: Move string constants for HTTP headers and header values to their own class
-    public static final String HTTP_CONNECTION = "Connection";
+    // TODO: Move string constants for HTTP header values to their own class
     public static final String CONNECTION_KEEP_ALIVE = "keep-alive";
     public static final String CONNECTION_CLOSE = "close";
-    public static final String ACCEPT_ENCODING = "Accept-Encoding";
-    public static final String CONTENT_ENCODING = "Content-Encoding";
-    public static final String HTTP_CONTENT_TYPE = "Content-Type";
-    public static final String HTTP_CONTENT_LENGTH = "Content-Length";
-    public static final String HTTP_TRANSFER_ENCODING = "Transfer-Encoding";
-    public static final String HOST = "Host";
-    public static final String HTTP_SERVER_HEADER = "Server";
-    public static final String LOCATION = "Location";
-    public static final String DATE = "Date";
     public static final String FORWARDED = "Forwarded";
     public static final String X_FORWARDED_FOR = "X-Forwarded-For";
     public static final String X_FORWARDED_BY = "X-Forwarded-By";
@@ -176,8 +165,6 @@ public final class Constants {
 
     public static final String LOCALHOST = "localhost";
 
-    public static final String CONNECTION = "Connection";
-    public static final String UPGRADE = "Upgrade";
 
     public static final String WEBSOCKET_SERVER_SESSION = "WEBSOCKET_SERVER_SESSION";
     public static final String WEBSOCKET_CLIENT_SESSION = "WEBSOCKET_CLIENT_SESSION";
@@ -275,6 +262,8 @@ public final class Constants {
 
     public static final String REMOTE_SERVER_CLOSE_RESPONSE_CONNECTION_AFTER_REQUEST_READ
             = "Remote host closed the connection without sending inbound response";
+
+    public static final String MAXIMUM_WAIT_TIME_EXCEED = "Could not obtain a connection within maximum wait time";
 
     public static final String JMX_AGENT_NAME = "jmx.agent.name";
 
