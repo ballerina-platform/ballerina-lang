@@ -73,8 +73,8 @@ class BallerinaFileEditor extends React.Component {
             parseFailed: true,
             syntaxErrors: [],
             model: undefined,
-            activeView: SPLIT_VIEW,
-            splitSize: (this.props.width / 2),
+            activeView: this.fetchState('activeView', SPLIT_VIEW),
+            splitSize: this.fetchState('splitSize', (this.props.width / 2)),
             lastRenderedTimestamp: undefined,
         };
         this.skipLoadingOverlay = false;
@@ -540,6 +540,31 @@ class BallerinaFileEditor extends React.Component {
         this.state.model.addImport(TreeBuilder.build(parsedJson));
     }
 
+
+    /**
+     * Save editor state in to localstorage.
+     *
+     * @memberof BallerinaFileEditor
+     */
+    persistState() {
+        const appContext = this.props.ballerinaPlugin.appContext;
+        appContext.pref.put(this.props.file.id, {
+            activeView: this.state.activeView,
+            splitSize: this.state.splitSize,
+        });
+    }
+
+    /**
+     * Fetch editor active state if stored in localstorage.
+     *
+     * @memberof BallerinaFileEditor
+     */
+    fetchState(attribute, defaultVal = undefined) {
+        const appContext = this.props.ballerinaPlugin.appContext;
+        const data = appContext.pref.get(this.props.file.id);
+        return (data && data[attribute]) ? data[attribute] : defaultVal;
+    }
+
     resetSwaggerView() {
         this.hideSwaggerAceEditor = false;
     }
@@ -549,6 +574,8 @@ class BallerinaFileEditor extends React.Component {
      * @memberof BallerinaFileEditor
      */
     render() {
+        // persist state before render
+        this.persistState();
         // Decision on which view to show, depends on several factors.
         // Even-though we have a state called activeView, we cannot simply decide on that value.
         // For example, for swagger-view to be active, we need to make sure
@@ -712,6 +739,7 @@ class BallerinaFileEditor extends React.Component {
 BallerinaFileEditor.propTypes = {
     editorModel: PropTypes.objectOf(Object).isRequired,
     file: PropTypes.instanceOf(File).isRequired,
+    ballerinaPlugin: PropTypes.objectOf(Object).isRequired,
     isActive: PropTypes.func.isRequired,
     commandProxy: PropTypes.shape({
         on: PropTypes.func.isRequired,
