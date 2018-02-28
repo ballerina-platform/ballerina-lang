@@ -21,7 +21,7 @@ package org.ballerinalang.mime.util;
 import org.jvnet.mimepull.MIMEPart;
 
 /**
- * Wrap body part stream as a ballerina specific byte channel. A reference is kept for 'MIMEPart' for temp file
+ * Wrap body part stream as a ballerina specific byte channel. A reference has been kept for 'MIMEPart' for temp file
  * deletion purpose.
  *
  * @since 0.964.0

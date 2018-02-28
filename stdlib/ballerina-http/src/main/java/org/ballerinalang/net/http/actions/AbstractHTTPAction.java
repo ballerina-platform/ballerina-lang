@@ -297,10 +297,11 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
             } else { //When the entity body is a byte channel
                 try {
                     EntityBodyHandler.writeByteChannelToOutputStream(entityStruct, messageOutputStream);
-                    HttpUtil.closeMessageOutputStream(messageOutputStream);
                 } catch (IOException e) {
                     throw new BallerinaException("An error occurred while writing byte channel content to outputstream",
                             context);
+                } finally {
+                    HttpUtil.closeMessageOutputStream(messageOutputStream);
                 }
             }
         }
