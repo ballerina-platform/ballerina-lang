@@ -276,11 +276,11 @@ public class TargetChannel {
         }
         String localAddress = ((InetSocketAddress) this.getChannel().localAddress()).getAddress().getHostAddress();
         ForwardedHeaderUpdater headerUpdater = new ForwardedHeaderUpdater(httpOutboundRequest, localAddress);
-        if (headerUpdater.isTypeForwarded()) {
+        if (headerUpdater.isForwardedHeaderRequired()) {
             headerUpdater.setForwardedHeader();
             return;
         }
-        if (headerUpdater.isTypeXForwarded()) {
+        if (headerUpdater.isXForwardedHeaderRequired()) {
             if (forwardedConfig == ForwardedExtensionConfig.ENABLE) {
                 headerUpdater.setDefactoForwardedHeaders();
                 return;

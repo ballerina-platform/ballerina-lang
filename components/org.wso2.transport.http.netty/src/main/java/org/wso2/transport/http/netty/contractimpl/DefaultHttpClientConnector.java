@@ -45,7 +45,7 @@ import java.util.NoSuchElementException;
 /**
  * Implementation of the client connector.
  */
-public class HttpClientConnectorImpl implements HttpClientConnector {
+public class DefaultHttpClientConnector implements HttpClientConnector {
 
     private static final Logger log = LoggerFactory.getLogger(HttpClientConnector.class);
 
@@ -59,7 +59,7 @@ public class HttpClientConnectorImpl implements HttpClientConnector {
     private boolean keepAlive;
     private ForwardedExtensionConfig forwardedExtensionConfig;
 
-    public HttpClientConnectorImpl(ConnectionManager connectionManager, SenderConfiguration senderConfiguration) {
+    public DefaultHttpClientConnector(ConnectionManager connectionManager, SenderConfiguration senderConfiguration) {
         this.connectionManager = connectionManager;
         this.senderConfiguration = senderConfiguration;
         initTargetChannelProperties(senderConfiguration);

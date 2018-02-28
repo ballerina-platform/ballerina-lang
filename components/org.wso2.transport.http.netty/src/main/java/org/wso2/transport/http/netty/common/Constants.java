@@ -111,11 +111,11 @@ public final class Constants {
     // TODO: Move string constants for HTTP header values to their own class
     public static final String CONNECTION_KEEP_ALIVE = "keep-alive";
     public static final String CONNECTION_CLOSE = "close";
-    public static final String FORWARDED = "Forwarded";
-    public static final String X_FORWARDED_FOR = "X-Forwarded-For";
-    public static final String X_FORWARDED_BY = "X-Forwarded-By";
-    public static final String X_FORWARDED_HOST = "X-Forwarded-Host";
-    public static final String X_FORWARDED_PROTO = "X-Forwarded-Proto";
+    public static final String FORWARDED = "forwarded";
+    public static final String X_FORWARDED_FOR = "x-forwarded-for";
+    public static final String X_FORWARDED_BY = "x-forwarded-by";
+    public static final String X_FORWARDED_HOST = "x-forwarded-host";
+    public static final String X_FORWARDED_PROTO = "x-forwarded-proto";
 
     public static final String HTTP_GET_METHOD = "GET";
     public static final String HTTP_POST_METHOD = "POST";

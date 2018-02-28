@@ -36,6 +36,9 @@ public class ForwardedHeaderUpdater {
     private static final String BY = "by=";
     private static final String HOST = "host=";
     private static final String PROTO = "proto=";
+    private static final String SEMI_COLON = ";";
+    private static final String COMMA = ",";
+    private static final String COLON = ":";
 
     private final String localAddress;
     private final String forwardedHeader;
@@ -56,21 +59,23 @@ public class ForwardedHeaderUpdater {
     }
 
     /**
-     * Check header values and return true if Forwarded header needs to be set.
+     * Check header values and return true if Forwarded header needs to be set. Forwarded header is set,
+     * when both Forwarded or X-Forwarded-- headers not present or only the Forwarded header is present.
      *
      * @return a boolean to denote the required header
      */
-    public boolean isTypeForwarded() {
+    public boolean isForwardedHeaderRequired() {
         return xForwardedForHeader == null && xForwardedByHeader == null && xForwardedHostHeader == null &&
                 xForwardedProtoHeader == null;
     }
 
     /**
-     * Check header values and return true if X-Forwarded-- headers need to be set.
+     * Check header values and return true if X-Forwarded-- headers need to be set. X-Forwarded-- headers are set,
+     * when only the X-Forwarded-- headers are present.
      *
      * @return a boolean to denote the required header
      */
-    public boolean isTypeXForwarded() {
+    public boolean isXForwardedHeaderRequired() {
         return forwardedHeader == null && (xForwardedForHeader != null || xForwardedByHeader != null ||
                 xForwardedHostHeader != null || xForwardedProtoHeader != null);
     }
@@ -86,21 +91,21 @@ public class ForwardedHeaderUpdater {
             Object remoteAddressProperty = httpOutboundRequest.getProperty(Constants.REMOTE_ADDRESS);
             if (remoteAddressProperty != null) {
                 String remoteAddress = ((InetSocketAddress) remoteAddressProperty).getAddress().getHostAddress();
-                headerValue.append(FOR + resolveIP(remoteAddress) + "; ");
+                headerValue.append(FOR + resolveIP(remoteAddress) + SEMI_COLON + " ");
             }
             headerValue.append(BY + resolveIP(localAddress));
             Object hostHeader = httpOutboundRequest.getProperty(Constants.ORIGIN_HOST);
             if (hostHeader != null) {
-                headerValue.append("; " + HOST + hostHeader.toString());
+                headerValue.append(SEMI_COLON + " " + HOST + hostHeader.toString());
             }
             Object protocolHeader = httpOutboundRequest.getProperty(Constants.PROTOCOL);
             if (protocolHeader != null) {
-                headerValue.append("; " + PROTO + protocolHeader.toString());
+                headerValue.append(SEMI_COLON + " " + PROTO + protocolHeader.toString());
             }
             httpOutboundRequest.setHeader(Constants.FORWARDED, headerValue.toString());
             return;
         }
-        String[] parts = forwardedHeader.split(";");
+        String[] parts = forwardedHeader.split(SEMI_COLON);
         String previousForValue = null;
         String previousByValue = null;
         String previousHostValue = null;
@@ -120,16 +125,16 @@ public class ForwardedHeaderUpdater {
             previousForValue = previousByValue != null ? FOR + previousByValue : null;
         } else {
             previousForValue =
-                    previousByValue == null ? previousForValue : previousForValue + ", " + FOR + previousByValue;
+                    previousByValue == null ? previousForValue : previousForValue + COMMA + " " + FOR + previousByValue;
         }
-        headerValue.append(previousForValue != null ? previousForValue + "; " : null);
+        headerValue.append(previousForValue != null ? previousForValue + SEMI_COLON + " " : null);
         headerValue.append(BY + resolveIP(localAddress));
 
         if (previousHostValue != null) {
-            headerValue.append("; " + HOST + previousHostValue);
+            headerValue.append(SEMI_COLON + " " + HOST + previousHostValue);
         }
         if (previousProtoValue != null) {
-            headerValue.append("; " + PROTO + previousProtoValue);
+            headerValue.append(SEMI_COLON + " " + PROTO + previousProtoValue);
         }
         httpOutboundRequest.setHeader(Constants.FORWARDED, headerValue.toString());
     }
@@ -147,24 +152,24 @@ public class ForwardedHeaderUpdater {
         }
         StringBuilder headerValue = new StringBuilder();
         if (xForwardedForHeader != null) {
-            String[] parts = xForwardedForHeader.split(",");
+            String[] parts = xForwardedForHeader.split(COMMA);
             for (String part : parts) {
-                headerValue.append(FOR + resolveIP(part.trim()) + ", ");
+                headerValue.append(FOR + resolveIP(part.trim()) + COMMA + " ");
             }
-            headerValue.replace(headerValue.length() - 2, headerValue.length(), "; ");
+            headerValue.replace(headerValue.length() - 2, headerValue.length(), SEMI_COLON + " ");
             httpOutboundRequest.removeHeader(Constants.X_FORWARDED_FOR);
         }
         if (xForwardedByHeader != null) {
-            headerValue.append(FOR + resolveIP(xForwardedByHeader.trim()) + "; ");
+            headerValue.append(FOR + resolveIP(xForwardedByHeader.trim()) + SEMI_COLON + " ");
             httpOutboundRequest.removeHeader(Constants.X_FORWARDED_BY);
         }
         headerValue.append(BY + resolveIP(localAddress));
         if (xForwardedHostHeader != null) {
-            headerValue.append("; " + HOST + xForwardedHostHeader);
+            headerValue.append(SEMI_COLON + " " + HOST + xForwardedHostHeader);
             httpOutboundRequest.removeHeader(Constants.X_FORWARDED_HOST);
         }
         if (xForwardedProtoHeader != null) {
-            headerValue.append("; " + PROTO + xForwardedProtoHeader);
+            headerValue.append(SEMI_COLON + " " + PROTO + xForwardedProtoHeader);
             httpOutboundRequest.removeHeader(Constants.X_FORWARDED_PROTO);
         }
         httpOutboundRequest.setHeader(Constants.FORWARDED, headerValue.toString());
@@ -176,7 +181,7 @@ public class ForwardedHeaderUpdater {
     public void setDefactoForwardedHeaders() {
         if (xForwardedForHeader != null && xForwardedByHeader != null) {
             httpOutboundRequest.setHeader(Constants.X_FORWARDED_FOR,
-                    xForwardedForHeader.trim() + ", " + xForwardedByHeader.trim());
+                    xForwardedForHeader.trim() + COMMA + " " + xForwardedByHeader.trim());
         } else if (xForwardedByHeader != null) {
             httpOutboundRequest.setHeader(Constants.X_FORWARDED_FOR, xForwardedByHeader.trim());
         }
@@ -185,7 +190,7 @@ public class ForwardedHeaderUpdater {
 
     private static String resolveIP(String ipString) {
         //The client's IP address can have an optional port number
-        String[] parts = ipString.split(":");
+        String[] parts = ipString.split(COLON);
         //IPv4 literal i.e 192.0.2.43 or 192.0.2.43:47011
         if (parts.length <= 2) {
             return ipString;
@@ -195,7 +200,7 @@ public class ForwardedHeaderUpdater {
             return "\"" + ipString + "\"";
         }
         //IPv6 literal host. i.e 2001:db8:cafe::17
-        if (ipString.contains(":")) {
+        if (ipString.contains(COLON)) {
             return "\"[" + ipString + "]\"";
         }
         //Obfuscated Identifier. i.e _SEVKISEK
