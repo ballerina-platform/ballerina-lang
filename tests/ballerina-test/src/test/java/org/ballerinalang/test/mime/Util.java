@@ -30,7 +30,6 @@ import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.mime.util.EntityBodyChannel;
 import org.ballerinalang.mime.util.EntityBodyHandler;
-import org.ballerinalang.mime.util.EntityBodyStream;
 import org.ballerinalang.mime.util.EntityWrapper;
 import org.ballerinalang.mime.util.HeaderUtil;
 import org.ballerinalang.mime.util.MimeUtil;
@@ -42,7 +41,7 @@ import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BXMLItem;
-import org.ballerinalang.nativeimpl.io.channels.FileIOChannel;
+import org.ballerinalang.nativeimpl.io.channels.base.Channel;
 import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.HttpUtil;
 import org.ballerinalang.test.services.testutils.HTTPTestRequest;
@@ -482,7 +481,7 @@ public class Util {
                                        BStruct bodyPart) throws HttpPostRequestEncoder.ErrorDataEncoderException {
         try {
             InterfaceHttpData encodedData;
-            EntityBodyStream entityBodyReader = MimeUtil.constructEntityBody(bodyPart);
+            Channel byteChannel = EntityBodyHandler.getByteChannel(bodyPart);
             FileUploadContentHolder contentHolder = new FileUploadContentHolder();
             contentHolder.setRequest(httpRequest);
             contentHolder.setBodyPartName(getBodyPartName(bodyPart));
@@ -493,17 +492,12 @@ public class Util {
             if (contentTransferHeaderValue != null) {
                 contentHolder.setContentTransferEncoding(contentTransferHeaderValue);
             }
-            if (entityBodyReader.isFileChannel()) {
-                FileIOChannel fileIOChannel = entityBodyReader.getFileIOChannel();
-                contentHolder.setContentStream(fileIOChannel.getInputStream());
+            if (byteChannel != null) {
+                contentHolder.setContentStream(byteChannel.getInputStream());
                 encodedData = getFileUpload(contentHolder);
-            } else {
-                contentHolder.setContentStream(entityBodyReader.getEntityWrapper().getInputStream());
-                encodedData = getFileUpload(contentHolder);
-            }
-
-            if (encodedData != null) {
-                nettyEncoder.addBodyHttpData(encodedData);
+                if (encodedData != null) {
+                    nettyEncoder.addBodyHttpData(encodedData);
+                }
             }
         } catch (IOException e) {
             log.error("Error occurred while encoding body part in ", e.getMessage());

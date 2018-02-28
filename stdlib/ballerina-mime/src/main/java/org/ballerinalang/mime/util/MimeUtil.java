@@ -52,7 +52,6 @@ import static org.ballerinalang.mime.util.Constants.CONTENT_DISPOSITION_NAME;
 import static org.ballerinalang.mime.util.Constants.CONTENT_DISPOSITION_NAME_INDEX;
 import static org.ballerinalang.mime.util.Constants.CONTENT_DISPOSITION_PARA_MAP_INDEX;
 import static org.ballerinalang.mime.util.Constants.DISPOSITION_INDEX;
-import static org.ballerinalang.mime.util.Constants.ENTITY_BYTE_CHANNEL;
 import static org.ballerinalang.mime.util.Constants.IS_BODY_BYTE_CHANNEL_ALREADY_SET;
 import static org.ballerinalang.mime.util.Constants.MEDIA_TYPE_INDEX;
 import static org.ballerinalang.mime.util.Constants.MESSAGE_ENTITY;
@@ -352,16 +351,6 @@ public class MimeUtil {
      */
     public static String getNewMultipartDelimiter() {
         return Long.toHexString(PlatformDependent.threadLocalRandom().nextLong());
-    }
-
-    /**
-     * Wrap the byte channel associated with the given entity as the EntityBodyStream.
-     *
-     * @param entityStruct Represent an entity struct
-     * @return EntityBodyStream which wraps the underline byte channel
-     */
-    public static EntityBodyStream constructEntityBody(BStruct entityStruct) {
-        return EntityBodyHandler.getEntityBodyStream(entityStruct.getNativeData(ENTITY_BYTE_CHANNEL));
     }
 
     /**

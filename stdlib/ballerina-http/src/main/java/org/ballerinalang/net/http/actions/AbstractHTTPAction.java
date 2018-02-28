@@ -90,7 +90,7 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
         return requestMsg;
     }
 
-    protected void prepareOutboundRequest(BConnector connector, String path, HTTPCarbonMessage outboundRequest) {
+    void prepareOutboundRequest(BConnector connector, String path, HTTPCarbonMessage outboundRequest) {
 
         validateParams(connector);
         try {
@@ -407,7 +407,7 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
             return new BStruct(structType);
         }
 
-        public void setOutboundMsgDataStreamer(HttpMessageDataStreamer outboundMsgDataStreamer) {
+        void setOutboundMsgDataStreamer(HttpMessageDataStreamer outboundMsgDataStreamer) {
             this.outboundMsgDataStreamer = outboundMsgDataStreamer;
         }
     }
