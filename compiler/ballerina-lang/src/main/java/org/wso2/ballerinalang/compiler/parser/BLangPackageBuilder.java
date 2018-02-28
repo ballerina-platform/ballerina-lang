@@ -460,28 +460,10 @@ public class BLangPackageBuilder {
         invNode.setName(this.createIdentifier(identifier));
         invNode.addWS(ws);
         if (retParamsAvail) {
-<<<<<<< HEAD
-            this.varListStack.pop().forEach(invNode::addReturnParameter);
-=======
-            if (retParamTypeOnly) {
-                this.typeNodeListStack.pop().forEach(e -> {
-                    VariableNode var = TreeBuilder.createVariableNode();
-                    var.setTypeNode(e);
-
-                    // Create an empty name node
-                    IdentifierNode nameNode = TreeBuilder.createIdentifierNode();
-                    nameNode.setValue("");
-                    var.setName(nameNode);
-                    ((BLangVariable) var).docTag = DocTag.RETURN;
-                    invNode.addReturnParameter(var);
-                });
-            } else {
-                this.varListStack.pop().forEach(variableNode -> {
-                    ((BLangVariable) variableNode).docTag = DocTag.RETURN;
-                    invNode.addReturnParameter(variableNode);
-                });
-            }
->>>>>>> upstream/master
+            this.varListStack.pop().forEach(variableNode -> {
+                ((BLangVariable) variableNode).docTag = DocTag.RETURN;
+                invNode.addReturnParameter(variableNode);
+            });
         }
         if (paramsAvail) {
             this.varListStack.pop().forEach(variableNode -> {
