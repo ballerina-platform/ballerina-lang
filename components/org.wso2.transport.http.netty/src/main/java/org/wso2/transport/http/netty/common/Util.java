@@ -23,6 +23,7 @@ import io.netty.handler.codec.http.DefaultFullHttpResponse;
 import io.netty.handler.codec.http.DefaultHttpRequest;
 import io.netty.handler.codec.http.DefaultHttpResponse;
 import io.netty.handler.codec.http.HttpContent;
+import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpMethod;
 import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.HttpResponse;
@@ -99,19 +100,19 @@ public class Util {
     private static void setOutboundRespHeaders(HTTPCarbonMessage outboundResponseMsg, String inboundReqHttpVersion,
             String serverName, boolean keepAlive, HttpResponse outboundNettyResponse) {
         if (!keepAlive && (Float.valueOf(inboundReqHttpVersion) >= Constants.HTTP_1_1)) {
-            outboundResponseMsg.setHeader(Constants.HTTP_CONNECTION, Constants.CONNECTION_CLOSE);
+            outboundResponseMsg.setHeader(HttpHeaderNames.CONNECTION.toString(), Constants.CONNECTION_CLOSE);
         } else if (keepAlive && (Float.valueOf(inboundReqHttpVersion) < Constants.HTTP_1_1)) {
-            outboundResponseMsg.setHeader(Constants.HTTP_CONNECTION, Constants.CONNECTION_KEEP_ALIVE);
+            outboundResponseMsg.setHeader(HttpHeaderNames.CONNECTION.toString(), Constants.CONNECTION_KEEP_ALIVE);
         } else {
-            outboundResponseMsg.removeHeader(Constants.HTTP_CONNECTION);
+            outboundResponseMsg.removeHeader(HttpHeaderNames.CONNECTION.toString());
         }
 
-        if (outboundResponseMsg.getHeader(Constants.HTTP_SERVER_HEADER) == null) {
-            outboundResponseMsg.setHeader(Constants.HTTP_SERVER_HEADER, serverName);
+        if (outboundResponseMsg.getHeader(HttpHeaderNames.SERVER.toString()) == null) {
+            outboundResponseMsg.setHeader(HttpHeaderNames.SERVER.toString(), serverName);
         }
 
-        if (outboundResponseMsg.getHeader(Constants.DATE) == null) {
-            outboundResponseMsg.setHeader(Constants.DATE,
+        if (outboundResponseMsg.getHeader(HttpHeaderNames.DATE.toString()) == null) {
+            outboundResponseMsg.setHeader(HttpHeaderNames.DATE.toString(),
                                           ZonedDateTime.now().format(DateTimeFormatter.RFC_1123_DATE_TIME));
         }
 
@@ -170,20 +171,20 @@ public class Util {
     }
 
     public static void setupChunkedRequest(HTTPCarbonMessage httpOutboundRequest) {
-        httpOutboundRequest.removeHeader(Constants.HTTP_CONTENT_LENGTH);
+        httpOutboundRequest.removeHeader(HttpHeaderNames.CONTENT_LENGTH.toString());
         setTransferEncodingHeader(httpOutboundRequest);
     }
 
     public static void setupContentLengthRequest(HTTPCarbonMessage httpOutboundRequest, int contentLength) {
-        httpOutboundRequest.removeHeader(Constants.HTTP_TRANSFER_ENCODING);
-        if (httpOutboundRequest.getHeader(Constants.HTTP_CONTENT_LENGTH) == null) {
-            httpOutboundRequest.setHeader(Constants.HTTP_CONTENT_LENGTH, String.valueOf(contentLength));
+        httpOutboundRequest.removeHeader(HttpHeaderNames.TRANSFER_ENCODING.toString());
+        if (httpOutboundRequest.getHeader(HttpHeaderNames.CONTENT_LENGTH.toString()) == null) {
+            httpOutboundRequest.setHeader(HttpHeaderNames.CONTENT_LENGTH.toString(), String.valueOf(contentLength));
         }
     }
 
     private static void setTransferEncodingHeader(HTTPCarbonMessage httpOutboundRequest) {
-        if (httpOutboundRequest.getHeader(Constants.HTTP_TRANSFER_ENCODING) == null) {
-            httpOutboundRequest.setHeader(Constants.HTTP_TRANSFER_ENCODING, Constants.CHUNKED);
+        if (httpOutboundRequest.getHeader(HttpHeaderNames.TRANSFER_ENCODING.toString()) == null) {
+            httpOutboundRequest.setHeader(HttpHeaderNames.TRANSFER_ENCODING.toString(), Constants.CHUNKED);
         }
     }
 
@@ -516,9 +517,9 @@ public class Util {
     public static void sendAndCloseNoEntityBodyResp(ChannelHandlerContext ctx, HttpResponseStatus status,
             HttpVersion httpVersion, String serverName) {
         HttpResponse outboundResponse = new DefaultHttpResponse(httpVersion, status);
-        outboundResponse.headers().set(Constants.HTTP_CONTENT_LENGTH, 0);
-        outboundResponse.headers().set(Constants.HTTP_CONNECTION, Constants.CONNECTION_CLOSE);
-        outboundResponse.headers().set(Constants.HTTP_SERVER_HEADER, serverName);
+        outboundResponse.headers().set(HttpHeaderNames.CONTENT_LENGTH, 0);
+        outboundResponse.headers().set(HttpHeaderNames.CONNECTION.toString(), Constants.CONNECTION_CLOSE);
+        outboundResponse.headers().set(HttpHeaderNames.SERVER.toString(), serverName);
         ChannelFuture outboundRespFuture = ctx.channel().writeAndFlush(outboundResponse);
         outboundRespFuture.addListener(
                 (ChannelFutureListener) channelFuture -> log.warn("Failed to send " + status.reasonPhrase()));

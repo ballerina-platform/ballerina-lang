@@ -75,7 +75,7 @@ import static org.testng.AssertJUnit.assertNotNull;
 /**
  * Test cases for redirection scenarios
  */
-public class HTTPClientRedirectTestCase {
+public class HttpClientRedirectTestCase {
 
     private HttpClientConnector httpClientConnector;
     private HttpWsConnectorFactory connectorFactory;
@@ -544,9 +544,9 @@ public class HTTPClientRedirectTestCase {
 
     private HTTPCarbonMessage createHttpCarbonRequest(String requestUrl, int destinationPort) {
         HTTPCarbonMessage msg = new HTTPCarbonMessage(new DefaultHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.GET, ""));
-        msg.setProperty(Constants.PORT, destinationPort);
+        msg.setProperty(Constants.HTTP_PORT, destinationPort);
         msg.setProperty(Constants.PROTOCOL, "http");
-        msg.setProperty(Constants.HOST, "localhost");
+        msg.setProperty(Constants.HTTP_HOST, "localhost");
         msg.setProperty(Constants.HTTP_METHOD, Constants.HTTP_GET_METHOD);
         if (requestUrl != null) {
             msg.setProperty(Constants.REQUEST_URL, requestUrl);
@@ -566,15 +566,15 @@ public class HTTPClientRedirectTestCase {
         HttpMethod httpMethod = new HttpMethod(method);
         HTTPCarbonMessage httpCarbonRequest = new HTTPCarbonMessage(
                 new DefaultHttpRequest(HttpVersion.HTTP_1_1, httpMethod, ""));
-        httpCarbonRequest.setProperty(Constants.PORT, locationUrl.getPort());
+        httpCarbonRequest.setProperty(Constants.HTTP_PORT, locationUrl.getPort());
         httpCarbonRequest.setProperty(Constants.PROTOCOL, locationUrl.getProtocol());
-        httpCarbonRequest.setProperty(Constants.HOST, locationUrl.getHost());
+        httpCarbonRequest.setProperty(Constants.HTTP_HOST, locationUrl.getHost());
         httpCarbonRequest.setProperty(Constants.HTTP_METHOD, method);
         httpCarbonRequest.setProperty(Constants.REQUEST_URL, locationUrl.getPath());
         httpCarbonRequest.setProperty(Constants.TO, locationUrl.getPath());
 
-        httpCarbonRequest.setHeader(Constants.HOST, locationUrl.getHost());
-        httpCarbonRequest.setHeader(Constants.PORT, Integer.toString(locationUrl.getPort()));
+        httpCarbonRequest.setHeader(HttpHeaderNames.HOST.toString(), locationUrl.getHost());
+        httpCarbonRequest.setHeader(Constants.HTTP_PORT, Integer.toString(locationUrl.getPort()));
         httpCarbonRequest.completeMessage();
         return httpCarbonRequest;
     }

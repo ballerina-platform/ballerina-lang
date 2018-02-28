@@ -240,9 +240,9 @@ public class TestUtil {
     public static HTTPCarbonMessage createHttpsPostReq(int serverPort, String payload, String path) {
         HTTPCarbonMessage httpPostRequest = new HTTPCarbonMessage(
                 new DefaultHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.GET, path));
-        httpPostRequest.setProperty(Constants.PORT, serverPort);
+        httpPostRequest.setProperty(Constants.HTTP_PORT, serverPort);
         httpPostRequest.setProperty(Constants.PROTOCOL, Constants.HTTPS_SCHEME);
-        httpPostRequest.setProperty(Constants.HOST, TestUtil.TEST_HOST);
+        httpPostRequest.setProperty(Constants.HTTP_HOST, TestUtil.TEST_HOST);
         httpPostRequest.setProperty(Constants.HTTP_METHOD, Constants.HTTP_POST_METHOD);
 
         ByteBuffer byteBuffer = ByteBuffer.wrap(payload.getBytes(Charset.forName("UTF-8")));
