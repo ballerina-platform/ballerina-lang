@@ -23,6 +23,7 @@ import org.ballerinalang.model.types.BConnectorType;
 import org.ballerinalang.model.types.BEnumType;
 import org.ballerinalang.model.types.BFunctionType;
 import org.ballerinalang.model.types.BJSONType;
+import org.ballerinalang.model.types.BServiceType;
 import org.ballerinalang.model.types.BStructType;
 import org.ballerinalang.model.types.BTableType;
 import org.ballerinalang.model.types.BType;
@@ -336,14 +337,17 @@ public class ProgramFileReader {
         // Read connector info entries
         readConnectorInfoEntries(dataInStream, packageInfo);
 
-        // Read connector info entries
-        readConnectorActionInfoEntries(dataInStream, packageInfo);
-
         // Read service info entries
         readServiceInfoEntries(dataInStream, packageInfo);
 
         // Resolve user-defined type i.e. structs and connectors
         resolveUserDefinedTypes(packageInfo);
+
+        // Read connector action info entries
+        readConnectorActionInfoEntries(dataInStream, packageInfo);
+
+        // Read resource info entries.
+        readResourceInfoEntries(dataInStream, packageInfo);
 
         // Read constant info entries
         readConstantInfoEntries(dataInStream, packageInfo);
@@ -493,18 +497,6 @@ public class ProgramFileReader {
             connectorInfo.setType(bConnectorType);
         }
 
-        for (ConstantPoolEntry cpEntry : unresolvedCPEntries) {
-            switch (cpEntry.getEntryType()) {
-                case CP_ENTRY_TYPE_REF:
-                    TypeRefCPEntry typeRefCPEntry = (TypeRefCPEntry) cpEntry;
-                    String typeSig = typeRefCPEntry.getTypeSig();
-                    BType bType = getBTypeFromDescriptor(typeSig);
-                    typeRefCPEntry.setType(bType);
-                    break;
-                default:
-                    break;
-            }
-        }
     }
 
     private void readConnectorActionInfoEntries(DataInputStream dataInStream,
@@ -581,7 +573,13 @@ public class ProgramFileReader {
                     serviceProtocolCPIndex, serviceProtocolUTF8Entry.getValue());
             serviceInfo.setPackageInfo(packageInfo);
             packageInfo.addServiceInfo(serviceInfo.getName(), serviceInfo);
+            serviceInfo.setType(new BServiceType(serviceInfo.getName(), packageInfo.getPkgPath()));
+        }
+    }
 
+    private void readResourceInfoEntries(DataInputStream dataInStream,
+                                         PackageInfo packageInfo) throws IOException {
+        for (ServiceInfo serviceInfo : packageInfo.getServiceInfoEntries()) {
             int actionCount = dataInStream.readShort();
             for (int j = 0; j < actionCount; j++) {
                 // Read action name;
@@ -951,6 +949,7 @@ public class ProgramFileReader {
             case 'R':
                 return BTypes.getTypeFromName(desc.substring(1, desc.length() - 1));
             case 'C':
+            case 'X':
             case 'J':
             case 'T':
             case 'E':
@@ -973,6 +972,8 @@ public class ProgramFileReader {
                     return new BJSONType(packageInfoOfType.getStructInfo(name).getType());
                 } else if (ch == 'C') {
                     return packageInfoOfType.getConnectorInfo(name).getType();
+                } else if (ch == 'X') {
+                    return packageInfoOfType.getServiceInfo(name).getType();
                 } else if (ch == 'D') {
                     return new BTableType(packageInfoOfType.getStructInfo(name).getType());
                 } else if (ch == 'E') {
@@ -1768,6 +1769,19 @@ public class ProgramFileReader {
                 }
             }
             structType.setAttachedFunctions(attachedFunctions);
+        }
+
+        for (ConstantPoolEntry cpEntry : unresolvedCPEntries) {
+            switch (cpEntry.getEntryType()) {
+                case CP_ENTRY_TYPE_REF:
+                    TypeRefCPEntry typeRefCPEntry = (TypeRefCPEntry) cpEntry;
+                    String typeSig = typeRefCPEntry.getTypeSig();
+                    BType bType = getBTypeFromDescriptor(typeSig);
+                    typeRefCPEntry.setType(bType);
+                    break;
+                default:
+                    break;
+            }
         }
     }
 

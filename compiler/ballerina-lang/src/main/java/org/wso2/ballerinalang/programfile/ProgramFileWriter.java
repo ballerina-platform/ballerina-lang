@@ -206,15 +206,19 @@ public class ProgramFileWriter {
             writeConnectorInfo(dataOutStream, connectorInfo);
         }
 
-        for (ConnectorInfo connectorInfo : connectorInfoEntries) {
-            writeConnectorActionInfo(dataOutStream, connectorInfo);
-        }
-
         // TODO Emit service info entries
         ServiceInfo[] serviceInfoEntries = packageInfo.getServiceInfoEntries();
         dataOutStream.writeShort(serviceInfoEntries.length);
         for (ServiceInfo serviceInfo : serviceInfoEntries) {
             writeServiceInfo(dataOutStream, serviceInfo);
+        }
+
+        for (ConnectorInfo connectorInfo : connectorInfoEntries) {
+            writeConnectorActionInfo(dataOutStream, connectorInfo);
+        }
+
+        for (ServiceInfo serviceInfo : serviceInfoEntries) {
+            writeResourceInfo(dataOutStream, serviceInfo);
         }
 
         // Emit constant info entries
@@ -359,7 +363,10 @@ public class ProgramFileWriter {
         dataOutStream.writeInt(serviceInfo.nameCPIndex);
         dataOutStream.writeInt(serviceInfo.flags);
         dataOutStream.writeInt(serviceInfo.protocolPkgPathCPIndex);
+    }
 
+    private static void writeResourceInfo(DataOutputStream dataOutStream,
+                                          ServiceInfo serviceInfo) throws IOException {
         ResourceInfo[] resourceInfoEntries = serviceInfo.resourceInfoMap.values().toArray(new ResourceInfo[0]);
         dataOutStream.writeShort(resourceInfoEntries.length);
         for (ResourceInfo resourceInfo : resourceInfoEntries) {

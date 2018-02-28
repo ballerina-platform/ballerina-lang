@@ -17,6 +17,7 @@
 */
 package org.ballerinalang.util.codegen;
 
+import org.ballerinalang.model.types.BServiceType;
 import org.ballerinalang.util.codegen.attributes.AnnotationAttributeInfo;
 import org.ballerinalang.util.codegen.attributes.AttributeInfo;
 
@@ -31,6 +32,7 @@ import java.util.Objects;
  */
 public class ServiceInfo extends StructureTypeInfo {
 
+    private BServiceType serviceType;
     private int protocolPkgPathCPIndex;
     private String protocolPkgPath;
 
@@ -73,6 +75,14 @@ public class ServiceInfo extends StructureTypeInfo {
 
     public void setInitFunctionInfo(FunctionInfo initFuncInfo) {
         this.initFuncInfo = initFuncInfo;
+    }
+
+    public BServiceType getType() {
+        return serviceType;
+    }
+
+    public void setType(BServiceType serviceType) {
+        this.serviceType = serviceType;
     }
 
     @Override
