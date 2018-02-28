@@ -76,6 +76,7 @@ public class EchoServerInitializer extends HTTPServerInitializer {
                 checkAndSetEncodingHeader(req);
                 setConnectionKeepAliveHeader(req);
                 keepAlive = HttpUtil.isKeepAlive(req);
+                setForwardedHeader(req);
 
                 if (chunked) {
                     ctx.writeAndFlush(httpResponse);
@@ -159,5 +160,24 @@ public class EchoServerInitializer extends HTTPServerInitializer {
                 logger.debug("Setting connection keep-alive header");
             }
         }
+
+        private void setForwardedHeader(HttpRequest req) {
+            if (req.headers().get(Constants.FORWARDED) != null) {
+                httpResponse.headers().set(Constants.FORWARDED, req.headers().get(Constants.FORWARDED));
+            }
+            if (req.headers().get(Constants.X_FORWARDED_FOR) != null) {
+                httpResponse.headers().set(Constants.X_FORWARDED_FOR, req.headers().get(Constants.X_FORWARDED_FOR));
+            }
+            if (req.headers().get(Constants.X_FORWARDED_BY) != null) {
+                httpResponse.headers().set(Constants.X_FORWARDED_BY, req.headers().get(Constants.X_FORWARDED_BY));
+            }
+            if (req.headers().get(Constants.X_FORWARDED_HOST) != null) {
+                httpResponse.headers().set(Constants.X_FORWARDED_HOST, req.headers().get(Constants.X_FORWARDED_HOST));
+            }
+            if (req.headers().get(Constants.X_FORWARDED_PROTO) != null) {
+                httpResponse.headers().set(Constants.X_FORWARDED_PROTO, req.headers().get(Constants.X_FORWARDED_PROTO));
+            }
+        }
+
     }
 }
