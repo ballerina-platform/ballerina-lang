@@ -5,73 +5,73 @@ import ballerina.time;
 import ballerina.io;
 import ballerina.log;
 
-@Description { value:"HTTP client connector for outbound HTTP requests"}
-@Param { value:"serviceUri: URI of the service" }
-@Param { value:"connectorOptions: connector options" }
+@Description {value:"HTTP client connector for outbound HTTP requests"}
+@Param {value:"serviceUri: URI of the service"}
+@Param {value:"connectorOptions: connector options"}
 public connector HttpClient (string serviceUri, Options connectorOptions) {
 
-    @Description { value:"The POST action implementation of the HTTP Connector."}
-    @Param { value:"path: Resource path " }
-    @Param { value:"req: An HTTP outbound request message" }
-    @Return { value:"The inbound response message" }
-    @Return { value:"Error occured during HTTP client invocation" }
+    @Description {value:"The POST action implementation of the HTTP Connector."}
+    @Param {value:"path: Resource path "}
+    @Param {value:"req: An HTTP outbound request message"}
+    @Return {value:"The inbound response message"}
+    @Return {value:"Error occured during HTTP client invocation"}
     native action post (string path, OutRequest req) (InResponse, HttpConnectorError);
 
-    @Description { value:"The HEAD action implementation of the HTTP Connector."}
-    @Param { value:"path: Resource path " }
-    @Param { value:"req: An HTTP outbound request message" }
-    @Return { value:"The inbound response message" }
-    @Return { value:"Error occured during HTTP client invocation" }
+    @Description {value:"The HEAD action implementation of the HTTP Connector."}
+    @Param {value:"path: Resource path "}
+    @Param {value:"req: An HTTP outbound request message"}
+    @Return {value:"The inbound response message"}
+    @Return {value:"Error occured during HTTP client invocation"}
     native action head (string path, OutRequest req) (InResponse, HttpConnectorError);
 
-    @Description { value:"The PUT action implementation of the HTTP Connector."}
-    @Param { value:"path: Resource path " }
-    @Param { value:"req: An HTTP outbound request message" }
-    @Return { value:"The inbound response message" }
-    @Return { value:"Error occured during HTTP client invocation" }
+    @Description {value:"The PUT action implementation of the HTTP Connector."}
+    @Param {value:"path: Resource path "}
+    @Param {value:"req: An HTTP outbound request message"}
+    @Return {value:"The inbound response message"}
+    @Return {value:"Error occured during HTTP client invocation"}
     native action put (string path, OutRequest req) (InResponse, HttpConnectorError);
 
-    @Description { value:"Invokes an HTTP call with the specified HTTP verb."}
-    @Param { value:"httpVerb: HTTP verb value" }
-    @Param { value:"path: Resource path " }
-    @Param { value:"req: An HTTP outbound request message" }
-    @Return { value:"The inbound response message" }
-    @Return { value:"Error occured during HTTP client invocation" }
+    @Description {value:"Invokes an HTTP call with the specified HTTP verb."}
+    @Param {value:"httpVerb: HTTP verb value"}
+    @Param {value:"path: Resource path "}
+    @Param {value:"req: An HTTP outbound request message"}
+    @Return {value:"The inbound response message"}
+    @Return {value:"Error occured during HTTP client invocation"}
     native action execute (string httpVerb, string path, OutRequest req) (InResponse, HttpConnectorError);
 
-    @Description { value:"The PATCH action implementation of the HTTP Connector."}
-    @Param { value:"path: Resource path " }
-    @Param { value:"req: An HTTP outbound request message" }
-    @Return { value:"The inbound response message" }
-    @Return { value:"Error occured during HTTP client invocation" }
+    @Description {value:"The PATCH action implementation of the HTTP Connector."}
+    @Param {value:"path: Resource path "}
+    @Param {value:"req: An HTTP outbound request message"}
+    @Return {value:"The inbound response message"}
+    @Return {value:"Error occured during HTTP client invocation"}
     native action patch (string path, OutRequest req) (InResponse, HttpConnectorError);
 
-    @Description { value:"The DELETE action implementation of the HTTP connector"}
-    @Param { value:"path: Resource path " }
-    @Param { value:"req: An HTTP outbound request message" }
-    @Return { value:"The inbound response message" }
-    @Return { value:"Error occured during HTTP client invocation" }
+    @Description {value:"The DELETE action implementation of the HTTP connector"}
+    @Param {value:"path: Resource path "}
+    @Param {value:"req: An HTTP outbound request message"}
+    @Return {value:"The inbound response message"}
+    @Return {value:"Error occured during HTTP client invocation"}
     native action delete (string path, OutRequest req) (InResponse, HttpConnectorError);
 
-    @Description { value:"GET action implementation of the HTTP Connector"}
-    @Param { value:"path: Request path" }
-    @Param { value:"req: An HTTP outbound request message" }
-    @Return { value:"The inbound response message" }
-    @Return { value:"Error occured during HTTP client invocation" }
+    @Description {value:"GET action implementation of the HTTP Connector"}
+    @Param {value:"path: Request path"}
+    @Param {value:"req: An HTTP outbound request message"}
+    @Return {value:"The inbound response message"}
+    @Return {value:"Error occured during HTTP client invocation"}
     native action get (string path, OutRequest req) (InResponse, HttpConnectorError);
 
-    @Description { value:"OPTIONS action implementation of the HTTP Connector"}
-    @Param { value:"path: Request path" }
-    @Param { value:"req: An HTTP outbound request message" }
-    @Return { value:"The inbound response message" }
-    @Return { value:"Error occured during HTTP client invocation" }
+    @Description {value:"OPTIONS action implementation of the HTTP Connector"}
+    @Param {value:"path: Request path"}
+    @Param {value:"req: An HTTP outbound request message"}
+    @Return {value:"The inbound response message"}
+    @Return {value:"Error occured during HTTP client invocation"}
     native action options (string path, OutRequest req) (InResponse, HttpConnectorError);
 
-    @Description { value:"Forward action can be used to invoke an HTTP call with inbound request's HTTP verb"}
-    @Param { value:"path: Request path" }
-    @Param { value:"req: An HTTP inbound request message" }
-    @Return { value:"The inbound response message" }
-    @Return { value:"Error occured during HTTP client invocation" }
+    @Description {value:"Forward action can be used to invoke an HTTP call with inbound request's HTTP verb"}
+    @Param {value:"path: Request path"}
+    @Param {value:"req: An HTTP inbound request message"}
+    @Return {value:"The inbound response message"}
+    @Return {value:"Error occured during HTTP client invocation"}
     native action forward (string path, InRequest req) (InResponse, HttpConnectorError);
 }
 
@@ -102,7 +102,7 @@ public connector HttpCachingClient (HttpClient httpClient, boolean isShared) {
     @Return {value:"The inbound response message"}
     @Return {value:"Error occured during HTTP client invocation"}
     action post (string path, OutRequest req) (InResponse, HttpConnectorError) {
-        return null, null;
+        return httpEP.post(path, req);
     }
 
     @Description {value:"The HEAD action implementation of the HTTP Connector."}
@@ -111,7 +111,7 @@ public connector HttpCachingClient (HttpClient httpClient, boolean isShared) {
     @Return {value:"The inbound response message"}
     @Return {value:"Error occured during HTTP client invocation"}
     action head (string path, OutRequest req) (InResponse, HttpConnectorError) {
-        return null, null;
+        return httpEP.head(path, req);
     }
 
     @Description {value:"The PUT action implementation of the HTTP Connector."}
@@ -120,7 +120,7 @@ public connector HttpCachingClient (HttpClient httpClient, boolean isShared) {
     @Return {value:"The inbound response message"}
     @Return {value:"Error occured during HTTP client invocation"}
     action put (string path, OutRequest req) (InResponse, HttpConnectorError) {
-        return null, null;
+        return httpEP.put(path, req);
     }
 
     @Description {value:"Invokes an HTTP call with the specified HTTP verb."}
@@ -130,7 +130,7 @@ public connector HttpCachingClient (HttpClient httpClient, boolean isShared) {
     @Return {value:"The inbound response message"}
     @Return {value:"Error occured during HTTP client invocation"}
     action execute (string httpVerb, string path, OutRequest req) (InResponse, HttpConnectorError) {
-        return null, null;
+        return httpEP.execute(httpVerb, path, req);
     }
 
     @Description {value:"The PATCH action implementation of the HTTP Connector."}
@@ -139,7 +139,7 @@ public connector HttpCachingClient (HttpClient httpClient, boolean isShared) {
     @Return {value:"The inbound response message"}
     @Return {value:"Error occured during HTTP client invocation"}
     action patch (string path, OutRequest req) (InResponse, HttpConnectorError) {
-        return null, null;
+        return httpEP.patch(path, req);
     }
 
     @Description {value:"The DELETE action implementation of the HTTP connector"}
@@ -148,7 +148,7 @@ public connector HttpCachingClient (HttpClient httpClient, boolean isShared) {
     @Return {value:"The inbound response message"}
     @Return {value:"Error occured during HTTP client invocation"}
     action delete (string path, OutRequest req) (InResponse, HttpConnectorError) {
-        return null, null;
+        return httpEP.delete(path, req);
     }
 
     @Description {value:"GET action implementation of the HTTP Connector"}
@@ -163,116 +163,52 @@ public connector HttpCachingClient (HttpClient httpClient, boolean isShared) {
 
         // Based on https://tools.ietf.org/html/rfc7234#section-4
         if (cachedResponse != null) {
-            log:printInfo("Cached response found");
+            log:printInfo("Cached response found for: GET " + path);
+            io:println("");
+            io:println(req);
+            io:println("");
+            io:println(cachedResponse);
 
-            // If the no-cache directive is not set, responses can be served straight from the cache, without validating
-            // with the origin server.
-            if (!req.cacheControl.noCache && !cachedResponse.cacheControl.noCache && (req.getHeader(PRAGMA) == null)) {
-                log:printInfo("Cached response can be served without validating with origin server");
-                if (isFreshResponse(cachedResponse, isShared)) {
+            if (isFreshResponse(cachedResponse, isShared)) {
+                // If the no-cache directive is not set, responses can be served straight from the cache, without validating
+                // with the origin server.
+                if (!req.cacheControl.noCache && !cachedResponse.cacheControl.noCache && (req.getHeader(PRAGMA) == null)) {
+                    log:printInfo("Serving a cached fresh response without validating with the origin server");
                     setAgeHeader(cachedResponse);
-                    log:printInfo("Serving a fresh response");
                     return cachedResponse, null;
-                }
-
-                // If a fresh response is not available, serve a stale response, provided that it is not prohibited by
-                // a directive and is explicitly allowed in the request.
-                if (isAllowedToBeServedStale(req, cachedResponse, isShared)) {
-                    setAgeHeader(cachedResponse);
-                    cachedResponse.setHeader(WARNING, WARNING_110_RESPONSE_IS_STALE);
-                    log:printInfo("Serving a stale response");
-                    return cachedResponse, null;
-                }
-                log:printInfo("Failed to serve either a fresh or a stale response without validating with origin server");
-            } else {
-                // If the no-cache directive is set, always validate the response before serving
-                InResponse validationResponse;
-                HttpConnectorError validationErr;
-                log:printInfo("Sending validation request");
-                validationResponse, validationErr = sendValidationRequest(httpClient, path, cachedResponse);
-
-                // Based on https://tools.ietf.org/html/rfc7234#section-4.2.4
-                // This behaviour is based on the fact that currently HttpConnectorError structs are returned only
-                // if the connection is refused or the connection times out.
-                if (validationErr != null) {
-                    // TODO: Verify that this behaviour is valid: returning a fresh response when 'no-cache' is present
-                    // and origin server couldn't be reached.
-                    log:printInfo("Cannot reach origin server");
-                    if (isFreshResponse(cachedResponse, isShared)) {
-                        setAgeHeader(cachedResponse);
-                        log:printInfo("Cannot reach origin server. Sending fresh response");
-                        return cachedResponse, null;
-                    }
-
-                    // If the origin server cannot be reached and a fresh response is unavailable, serve a stale
-                    // response (unless it is prohibited through a directive).
-                    if (!isServingStaleProhibited(req, cachedResponse)) {
-                        setAgeHeader(cachedResponse);
-                        cachedResponse.setHeader(WARNING, WARNING_111_REVALIDATION_FAILED);
-                        log:printInfo("Cannot reach origin server. Sending stale response");
-                        return cachedResponse, null;
-                    }
-
-                    return null, validationErr;
-                }
-
-                log:printInfo("Response for validation request received");
-                // Based on https://tools.ietf.org/html/rfc7234#section-4.3.3
-                if (validationResponse.statusCode == 304) {
-                    // Use stored response
-                    log:printInfo("304 response received");
-                    string etag = validationResponse.getHeader(ETAG);
-                    if (isAStrongValidator(etag)) {
-                        // Assuming only ETags are strong validators
-                        InResponse[] matchingCachedResponses = cache.getAllByETag(etag);
-
-                        foreach resp in matchingCachedResponses {
-                            updateResponse(resp, validationResponse);
-                        }
-                        log:printInfo("304 response received. Strong validator. Response(s) updated");
-                        return cachedResponse, null;
-                    } else if (hasAWeakValidator(validationResponse, etag)) {
-                        // The weak validator should be either an ETag or a last modified date. Precedence given to ETag
-                        if (etag != null) {
-                            InResponse[] matchingCachedResponses = cache.getAllByWeakETag(etag);
-
-                            foreach resp in matchingCachedResponses {
-                                updateResponse(resp, validationResponse);
-                            }
-                            log:printInfo("304 response received. Weak validator. Response(s) updated");
-                            return cachedResponse, null;
-                        }
-
-                        // TODO: check if last modified date can be used here
-                    }
-
-                    if ((cachedResponse.getHeader(ETAG) == null) && (cachedResponse.getHeader(LAST_MODIFIED) == null)) {
-                        updateResponse(cachedResponse, validationResponse);
-                    }
-                    log:printInfo("304 response received. No validators. Returning cached response");
-                    // TODO: Check if this behaviour is the expected one
-                    return cachedResponse, null;
-                } else if (validationResponse.statusCode >= 500 && validationResponse.statusCode < 600) {
-                    // May forward the response or act as if the origin server failed to respond and serve a
-                    // stored response
-                    // TODO: Make the above mentioned behaviour user-configurable
-                    return validationResponse, null;
                 } else {
-                    // Forward the received response and replace the stored responses
-                    validationResponse.requestTime = currentT.time;
-                    cache.put("GET", path, req, validationResponse);
-                    log:printInfo("Received a full response. Storing it in cache and forwarding to the client");
-                    return validationResponse, null;
+                    log:printInfo("Serving a cached fresh response after validating with the origin server");
+                    return getValidationResponse(httpClient, req, cachedResponse, cache, currentT, path, true);
                 }
             }
+
+            // If a fresh response is not available, serve a stale response, provided that it is not prohibited by
+            // a directive and is explicitly allowed in the request.
+            if (isAllowedToBeServedStale(req, cachedResponse, isShared)) {
+
+                // If the no-cache directive is not set, responses can be served straight from the cache, without
+                // validating with the origin server.
+                if (!req.cacheControl.noCache && !cachedResponse.cacheControl.noCache
+                                                  && (req.getHeader(PRAGMA) == null)) {
+                    log:printInfo("Serving cached stale response without validating with the origin server");
+                    setAgeHeader(cachedResponse);
+                    cachedResponse.setHeader(WARNING, WARNING_110_RESPONSE_IS_STALE);
+                    return cachedResponse, null;
+                }
+            }
+
+            log:printInfo("Validating a stale response with the origin server.");
+            return getValidationResponse(httpClient, req, cachedResponse, cache, currentT, path, false);
         }
 
         HttpConnectorError err;
         log:printInfo("Sending new request");
         cachedResponse, err = httpEP.get(path, req);
-        cachedResponse.requestTime = currentT.time;
-        cachedResponse.receivedTime = time:currentTime().time;
-        cache.put("GET", path, req, cachedResponse);
+        if (cachedResponse != null) {
+            cachedResponse.requestTime = currentT.time;
+            cachedResponse.receivedTime = time:currentTime().time;
+            cache.put("GET", path, req, cachedResponse);
+        }
         return cachedResponse, err;
     }
 
@@ -282,7 +218,7 @@ public connector HttpCachingClient (HttpClient httpClient, boolean isShared) {
     @Return {value:"The inbound response message"}
     @Return {value:"Error occured during HTTP client invocation"}
     action options (string path, OutRequest req) (InResponse, HttpConnectorError) {
-        return null, null;
+        return httpEP.options(path, req);
     }
 
     @Description {value:"Forward action can be used to invoke an HTTP call with inbound request's HTTP verb"}
@@ -291,8 +227,97 @@ public connector HttpCachingClient (HttpClient httpClient, boolean isShared) {
     @Return {value:"The inbound response message"}
     @Return {value:"Error occured during HTTP client invocation"}
     action forward (string path, InRequest req) (InResponse, HttpConnectorError) {
-        return null, null;
+        return httpEP.forward(path, req);
     }
+}
+
+function getValidationResponse (HttpClient httpClient, OutRequest req, InResponse cachedResponse, HttpCache cache,
+                                time:Time currentT, string path, boolean isFreshResponse)
+(InResponse, HttpConnectorError) {
+    // If the no-cache directive is set, always validate the response before serving
+    InResponse validationResponse;
+    HttpConnectorError validationErr;
+
+    if(isFreshResponse) {
+        log:printInfo("Sending validation request for a fresh response");
+    } else {
+        log:printInfo("Sending validation request for a stale response");
+    }
+
+    validationResponse, validationErr = sendValidationRequest(httpClient, path, cachedResponse);
+
+    // Based on https://tools.ietf.org/html/rfc7234#section-4.2.4
+    // This behaviour is based on the fact that currently HttpConnectorError structs are returned only
+    // if the connection is refused or the connection times out.
+    if (validationErr != null) {
+        // TODO: Verify that this behaviour is valid: returning a fresh response when 'no-cache' is present
+        // and origin server couldn't be reached.
+        setAgeHeader(cachedResponse);
+        if (!isFreshResponse) {
+            // If the origin server cannot be reached and a fresh response is unavailable, serve a stale
+            // response (unless it is prohibited through a directive).
+            cachedResponse.setHeader(WARNING, WARNING_111_REVALIDATION_FAILED);
+            log:printInfo("Cannot reach origin server. Serving a stale response");
+        } else {
+            log:printInfo("Cannot reach origin server. Serving a fresh response");
+        }
+        return cachedResponse, validationErr;
+    }
+
+    log:printInfo("Response for validation request received");
+    // Based on https://tools.ietf.org/html/rfc7234#section-4.3.3
+    if (validationResponse.statusCode == 304) {
+        // Use stored response
+        return handle304Response(validationResponse, cachedResponse, cache);
+    } else if (validationResponse.statusCode >= 500 && validationResponse.statusCode < 600) {
+        // May forward the response or act as if the origin server failed to respond and serve a
+        // stored response
+        // TODO: Make the above mentioned behaviour user-configurable
+        return validationResponse, null;
+    } else {
+        // Forward the received response and replace the stored responses
+        validationResponse.requestTime = currentT.time;
+        cache.put("GET", path, req, validationResponse);
+        log:printInfo("Received a full response. Storing it in cache and forwarding to the client");
+        return validationResponse, null;
+    }
+}
+
+// Based on https://tools.ietf.org/html/rfc7234#section-4.3.4
+function handle304Response (InResponse validationResponse, InResponse cachedResponse, HttpCache cache)
+(InResponse, HttpConnectorError) {
+    log:printInfo("304 response received");
+    string etag = validationResponse.getHeader(ETAG);
+    if (isAStrongValidator(etag)) {
+        // Assuming ETags are the only strong validators
+        InResponse[] matchingCachedResponses = cache.getAllByETag(etag);
+
+        foreach resp in matchingCachedResponses {
+            updateResponse(resp, validationResponse);
+        }
+        log:printInfo("304 response received. Strong validator. Response(s) updated");
+        return cachedResponse, null;
+    } else if (hasAWeakValidator(validationResponse, etag)) {
+        // The weak validator should be either an ETag or a last modified date. Precedence given to ETag
+        if (etag != null) {
+            InResponse[] matchingCachedResponses = cache.getAllByWeakETag(etag);
+
+            foreach resp in matchingCachedResponses {
+                updateResponse(resp, validationResponse);
+            }
+            log:printInfo("304 response received. Weak validator. Response(s) updated");
+            return cachedResponse, null;
+        }
+
+        // TODO: check if last modified date can be used here as a weak validator
+    }
+
+    if ((cachedResponse.getHeader(ETAG) == null) && (cachedResponse.getHeader(LAST_MODIFIED) == null)) {
+        updateResponse(cachedResponse, validationResponse);
+    }
+    log:printInfo("304 response received. No validators. Returning cached response");
+    // TODO: Check if this behaviour is the expected one
+    return cachedResponse, null;
 }
 
 // Based on https://tools.ietf.org/html/rfc7234#section-4.2.1
@@ -331,7 +356,6 @@ function isAllowedToBeServedStale (OutRequest clientRequest, InResponse cachedRe
     if (isServingStaleProhibited(clientRequest, cachedResponse)) {
         return false;
     }
-
     return isStaleResponseAccepted(clientRequest, cachedResponse, isSharedCache);
 }
 
@@ -349,7 +373,7 @@ function isServingStaleProhibited (OutRequest clientRequest, InResponse cachedRe
 function isStaleResponseAccepted (OutRequest clientRequest, InResponse cachedResponse, boolean isSharedCache) (boolean) {
     if (clientRequest.cacheControl.maxStale == MAX_STALE_ANY_AGE) {
         return true;
-    } else if (clientRequest.cacheControl.maxStale >
+    } else if (clientRequest.cacheControl.maxStale >=
                (getAgeValue(cachedResponse.getHeader(AGE)) - getFreshnessLifetime(cachedResponse, isSharedCache))) {
         return true;
     }

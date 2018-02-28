@@ -56,8 +56,6 @@ public function <OutRequest request> setCacheControlHeader () {
     request.setHeader(CACHE_CONTROL, directives);
 }
 
-// TODO: add a function for parsing cache-control header in OutRequest
-
 public function <OutResponse response> setCacheControlHeader () {
     if (response.cacheControl == null) {
         response.cacheControl = {};
