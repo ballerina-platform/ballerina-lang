@@ -80,7 +80,6 @@ public class HttpServerChannelInitializer extends ChannelInitializer<SocketChann
         ChannelPipeline serverPipeline = ch.pipeline();
 
         if (ocspStaplingEnabled && sslConfig != null) {
-
             OCSPResp response = OCSPResponseBuilder.getOcspResponse(sslConfig, cacheSize, cacheDelay);
             if (!OpenSsl.isAvailable()) {
                 throw new IllegalStateException("OpenSSL is not available!");

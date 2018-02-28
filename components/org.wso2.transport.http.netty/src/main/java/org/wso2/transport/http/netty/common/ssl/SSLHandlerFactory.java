@@ -132,8 +132,7 @@ public class SSLHandlerFactory {
         return addCommonConfigs(engine);
     }
 
-    public ReferenceCountedOpenSslContext getServerReferenceCountedOpenSslContext()
-            throws SSLException, CertificateVerificationException {
+    public ReferenceCountedOpenSslContext getServerReferenceCountedOpenSslContext() throws SSLException {
         ReferenceCountedOpenSslContext context = (ReferenceCountedOpenSslContext) SslContextBuilder
                 .forServer(keyManagerFactory).sslProvider(SslProvider.OPENSSL).enableOcsp(true)
                 .keyManager(keyManagerFactory).trustManager(trustManagerFactory)
@@ -173,8 +172,7 @@ public class SSLHandlerFactory {
         return engine;
     }
 
-    public ReferenceCountedOpenSslContext buildClientReferenceCountedOpenSslContext()
-            throws SSLException, CertificateVerificationException {
+    public ReferenceCountedOpenSslContext buildClientReferenceCountedOpenSslContext() throws SSLException {
         ReferenceCountedOpenSslContext context = (ReferenceCountedOpenSslContext) SslContextBuilder.forClient()
                 .sslProvider(SslProvider.OPENSSL).enableOcsp(true).keyManager(keyManagerFactory)
                 .trustManager(trustManagerFactory).protocols(sslConfig.getEnableProtocols()).build();
