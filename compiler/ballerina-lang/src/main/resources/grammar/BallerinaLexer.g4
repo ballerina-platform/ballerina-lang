@@ -70,6 +70,7 @@ WITH        : 'with' ;
 BIND        : 'bind' ;
 IN          : 'in' ;
 LOCK        : 'lock' ;
+UNTAINT     : 'untaint' ;
 
 // Separators
 

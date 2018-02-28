@@ -162,8 +162,6 @@ public class BLangPackageBuilder {
 
     private Stack<TypeNode> typeNodeStack = new Stack<>();
 
-    private Stack<List<TypeNode>> typeNodeListStack = new Stack<>();
-
     private Stack<BlockNode> blockNodeStack = new Stack<>();
 
     private Stack<VariableNode> varStack = new Stack<>();
@@ -345,19 +343,11 @@ public class BLangPackageBuilder {
 
         if (retParamsAvail) {
             functionTypeNode.addWS(commaWsStack.pop());
-            if (retParamTypeOnly) {
-                functionTypeNode.returnParamTypeNodes.addAll(this.typeNodeListStack.pop());
-            } else {
-                this.varListStack.pop().forEach(v -> functionTypeNode.returnParamTypeNodes.add(v.getTypeNode()));
-            }
+            this.varListStack.pop().forEach(v -> functionTypeNode.returnParamTypeNodes.add(v.getTypeNode()));
         }
         if (paramsAvail) {
             functionTypeNode.addWS(commaWsStack.pop());
-            if (paramsTypeOnly) {
-                functionTypeNode.paramTypeNodes.addAll(this.typeNodeListStack.pop());
-            } else {
-                this.varListStack.pop().forEach(v -> functionTypeNode.paramTypeNodes.add(v.getTypeNode()));
-            }
+            this.varListStack.pop().forEach(v -> functionTypeNode.paramTypeNodes.add(v.getTypeNode()));
         }
 
         functionTypeNode.addWS(ws);
@@ -457,20 +447,7 @@ public class BLangPackageBuilder {
         invNode.setName(this.createIdentifier(identifier));
         invNode.addWS(ws);
         if (retParamsAvail) {
-            if (retParamTypeOnly) {
-                this.typeNodeListStack.pop().forEach(e -> {
-                    VariableNode var = TreeBuilder.createVariableNode();
-                    var.setTypeNode(e);
-
-                    // Create an empty name node
-                    IdentifierNode nameNode = TreeBuilder.createIdentifierNode();
-                    nameNode.setValue("");
-                    var.setName(nameNode);
-                    invNode.addReturnParameter(var);
-                });
-            } else {
-                this.varListStack.pop().forEach(invNode::addReturnParameter);
-            }
+            this.varListStack.pop().forEach(invNode::addReturnParameter);
         }
         if (paramsAvail) {
             this.varListStack.pop().forEach(invNode::addParameter);
@@ -1104,21 +1081,6 @@ public class BLangPackageBuilder {
 
         attachAnnotations(actionNode, annotCount);
         this.connectorNodeStack.peek().addAction(actionNode);
-    }
-
-    public void startProcessingTypeNodeList() {
-        this.typeNodeListStack.push(new ArrayList<>());
-    }
-
-    public void endProcessingTypeNodeList(int size) {
-        for (int i = 0; i < size; i++) {
-            this.typeNodeListStack.peek().add(0, typeNodeStack.pop());
-        }
-    }
-
-    public void endProcessingTypeNodeList(Set<Whitespace> ws, int size) {
-        commaWsStack.push(ws);
-        endProcessingTypeNodeList(size);
     }
 
     public void startAnnotationDef(DiagnosticPos pos) {

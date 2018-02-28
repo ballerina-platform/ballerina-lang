@@ -198,7 +198,7 @@ builtInReferenceTypeName
     ;
 
 functionTypeName
-    :   FUNCTION LEFT_PARENTHESIS (parameterList | typeList)? RIGHT_PARENTHESIS returnParameters?
+    :   FUNCTION LEFT_PARENTHESIS (parameterList | parameterTypeNameList)? RIGHT_PARENTHESIS returnParameters?
     ;
 
 xmlNamespaceName
@@ -489,7 +489,7 @@ expression
     |   LEFT_PARENTHESIS typeName RIGHT_PARENTHESIS expression              # typeCastingExpression
     |   LT typeName (COMMA functionInvocation)? GT expression               # typeConversionExpression
     |   TYPEOF builtInTypeName                                              # typeAccessExpression
-    |   (ADD | SUB | NOT | LENGTHOF | TYPEOF) expression                    # unaryExpression
+    |   (ADD | SUB | NOT | LENGTHOF | TYPEOF | UNTAINT) expression          # unaryExpression
     |   LEFT_PARENTHESIS expression RIGHT_PARENTHESIS                       # bracedExpression
     |   expression POW expression                                           # binaryPowExpression
     |   expression (DIV | MUL | MOD) expression                             # binaryDivMulModExpression
@@ -508,11 +508,15 @@ nameReference
     ;
 
 returnParameters
-    : RETURNS? LEFT_PARENTHESIS (parameterList | typeList) RIGHT_PARENTHESIS
+    : RETURNS? LEFT_PARENTHESIS (parameterList | parameterTypeNameList) RIGHT_PARENTHESIS
     ;
 
-typeList
-    :   typeName (COMMA typeName)*
+parameterTypeNameList
+    :   parameterTypeName (COMMA parameterTypeName)*
+    ;
+
+parameterTypeName
+    :   annotationAttachment* typeName
     ;
 
 parameterList
