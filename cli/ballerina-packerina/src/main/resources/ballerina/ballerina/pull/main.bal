@@ -21,7 +21,8 @@ function main (string[] args) {
         throw err;
     }
     if (resp.statusCode != 200) {
-        io:println("Internal server error occured when pulling the ballerina package");
+        json jsonResponse = resp.getJsonPayload();
+        io:println(jsonResponse.msg.toString());
     } else {
         string homeRepoDirPath = args[1];
         string pkgName = args[2];
