@@ -174,7 +174,7 @@ public function <OutRequest request> getBinaryPayload () (blob) {
     return entity.getBlob();
 }
 
-@Description {value:"Get the inbound request payload as a byte channel"}
+@Description {value:"Get the inbound request payload as a byte channel. This can be consumed only once."}
 @Param {value:"request: The inbound request message"}
 @Return {value:"A byte channel as the message payload"}
 public function <InRequest request> getByteChannel () (io:ByteChannel) {
@@ -182,7 +182,7 @@ public function <InRequest request> getByteChannel () (io:ByteChannel) {
     return entity.getByteChannel();
 }
 
-@Description {value:"Get the outbound request payload as a byte channel"}
+@Description {value:"Get the outbound request payload as a byte channel. This can be consumed only once."}
 @Param {value:"request: outbound request message"}
 @Return {value:"A byte channel as the message payload"}
 public function <OutRequest request> getByteChannel () (io:ByteChannel) {

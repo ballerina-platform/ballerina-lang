@@ -92,4 +92,6 @@ Config API
 String Template
 Inbound Request with Multiparts
 Outbound Request with Multiparts
+Encode Nested BodyParts in Multipart
+Decode Nested BodyParts in Multipart
 HTTP Redirects

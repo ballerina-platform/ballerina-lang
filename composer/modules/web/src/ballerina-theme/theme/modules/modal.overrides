@@ -1,0 +1,33 @@
+/*******************************
+         Site Overrides
+*******************************/
+.ui.modal.inverted{
+
+        .content, .actions, .header{
+        background      : @invertedBackgroundColor;
+        border-radius   : 0;
+    }
+
+    .header {
+        color           : @off-white;
+        border-bottom   : 1px solid #7e7e7e;
+    }
+
+    .close {
+        top             : 0;
+        right           : 0;
+        color           : @off-white ;
+    }
+
+    .actions {
+        .ui.secondary.button {
+            background: #444;
+            color: @off-white;
+            border:0;
+
+            &:hover{
+                opacity: 0.4 !important;
+            }
+        }
+    }
+}

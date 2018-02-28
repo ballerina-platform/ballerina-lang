@@ -190,8 +190,7 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
 
         Object sourceHandler = outboundRequestMsg.getProperty(HttpConstants.SRC_HANDLER);
         if (sourceHandler == null) {
-            outboundRequestMsg.setProperty(HttpConstants.SRC_HANDLER,
-                                           context.getProperty(HttpConstants.SRC_HANDLER));
+            outboundRequestMsg.setProperty(HttpConstants.SRC_HANDLER, context.getProperty(HttpConstants.SRC_HANDLER));
         }
         sendOutboundRequest(context, outboundRequestMsg, httpClientConnectorLister);
         return ballerinaFuture;

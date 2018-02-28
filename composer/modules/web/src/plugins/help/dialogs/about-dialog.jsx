@@ -69,20 +69,6 @@ class AboutDialog extends React.Component {
                 }
                 onHide={this.onDialogHide}
                 className='modal-about'
-                actions={
-                    <div>
-                        © {new Date().getFullYear()}
-                        &nbsp;
-                        <a
-                            href='http://wso2.com/'
-                            rel='noopener noreferrer'
-                            target='_blank'
-                        >
-                            <i className='fw fw-wso2 icon' /> Inc.
-                        </a>
-                    </div>
-
-                }
             >
                 <p>
                     Ballerina Composer provides a flexible and powerful browser-based tool for creating your
@@ -103,6 +89,17 @@ class AboutDialog extends React.Component {
                     </a>
                     &nbsp; tracker for reporting issues.
                 </p>
+                <div className='pull-right modal-footer'>
+                    © {new Date().getFullYear()}
+                    &nbsp;
+                    <a
+                        href='http://wso2.com/'
+                        rel='noopener noreferrer'
+                        target='_blank'
+                    >
+                        <i className='fw fw-wso2' /> Inc.
+                    </a>
+                </div>
             </Dialog>
         );
     }

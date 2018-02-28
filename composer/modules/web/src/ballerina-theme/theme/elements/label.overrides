@@ -1,0 +1,8 @@
+/*******************************
+         Site Overrides
+*******************************/
+.ui.inverted.segment {
+    label {
+        color: #c7c7c7!important;
+    }
+}
