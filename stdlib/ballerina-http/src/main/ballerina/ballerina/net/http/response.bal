@@ -233,8 +233,8 @@ public function <OutResponse response> setBinaryPayload (blob payload) {
 
 @Description {value:"Sets the entity body of the outbound response with the given file content"}
 @Param {value:"response: The outbound response message"}
-@Param {value:"content: File containing the actual content"}
-@Param {value:"contentType: Content-Type of the given data"}
+@Param {value:"fileHandler: File that needs to be set to the payload"}
+@Param {value:"contentType: Content-Type of the file"}
 public function <OutResponse response> setFileAsPayload(file:File fileHandler, string contentType) {
     mime:MediaType mediaType = mime:getMediaType(contentType);
     mime:Entity entity = response.getEntityWithoutBody();

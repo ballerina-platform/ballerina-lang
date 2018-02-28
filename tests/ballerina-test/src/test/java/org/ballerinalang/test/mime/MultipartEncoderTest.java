@@ -40,7 +40,6 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
 import java.util.List;
 import javax.activation.MimeTypeParseException;
 
@@ -68,11 +67,10 @@ public class MultipartEncoderTest {
 
     @Test(description = "Test whether the body parts get correctly encoded for multipart/mixed")
     public void testMultipartWriterForMixed() {
-        ArrayList<BStruct> bodyParts = getMultipleParts();
+        BStruct multipartEntity = Util.getMultipartEntity(result);
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         String multipartDataBoundary = MimeUtil.getNewMultipartDelimiter();
-        MultipartDataSource multipartDataSource = new MultipartDataSource(Util.getArrayOfBodyParts(bodyParts),
-                multipartDataBoundary);
+        MultipartDataSource multipartDataSource = new MultipartDataSource(multipartEntity, multipartDataBoundary);
         multipartDataSource.serializeData(outputStream);
         InputStream inputStream = new ByteArrayInputStream(outputStream.toByteArray());
         try {
@@ -80,7 +78,7 @@ public class MultipartEncoderTest {
                     multipartDataBoundary, inputStream);
             Assert.assertEquals(mimeParts.size(), 4);
             BStruct bodyPart = Util.getEntityStruct(result);
-            testBodyParts(mimeParts, bodyPart);
+            validateBodyPartContent(mimeParts, bodyPart);
         } catch (MimeTypeParseException e) {
             log.error("Error occurred while testing mulitpart/mixed encoding", e.getMessage());
         } catch (IOException e) {
@@ -90,11 +88,10 @@ public class MultipartEncoderTest {
 
     @Test(description = "Test whether the body parts get correctly encoded for any new multipart sub type")
     public void testMultipartWriterForNewSubTypes() {
-        ArrayList<BStruct> bodyParts = getMultipleParts();
+        BStruct multipartEntity = Util.getMultipartEntity(result);
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         String multipartDataBoundary = MimeUtil.getNewMultipartDelimiter();
-        MultipartDataSource multipartDataSource = new MultipartDataSource(Util.getArrayOfBodyParts(bodyParts),
-                multipartDataBoundary);
+        MultipartDataSource multipartDataSource = new MultipartDataSource(multipartEntity, multipartDataBoundary);
         multipartDataSource.serializeData(outputStream);
         InputStream inputStream = new ByteArrayInputStream(outputStream.toByteArray());
         try {
@@ -102,7 +99,7 @@ public class MultipartEncoderTest {
                     multipartDataBoundary, inputStream);
             Assert.assertEquals(mimeParts.size(), 4);
             BStruct bodyPart = Util.getEntityStruct(result);
-            testBodyParts(mimeParts, bodyPart);
+            validateBodyPartContent(mimeParts, bodyPart);
         } catch (MimeTypeParseException e) {
             log.error("Error occurred while testing mulitpart/mixed encoding", e.getMessage());
         } catch (IOException e) {
@@ -110,39 +107,49 @@ public class MultipartEncoderTest {
         }
     }
 
-    @Test(description = "Test whether the body part builds the ContentDisposition struct properly for " +
-            "multipart/form-data")
-    public void testContentDispositionForFormData() {
-        BStruct bodyPart = Util.getEntityStruct(result);
-        BStruct contentDispositionStruct = Util.getContentDispositionStruct(result);
-        MimeUtil.setContentDisposition(contentDispositionStruct, bodyPart,
-                "form-data; name=\"filepart\"; filename=\"file-01.txt\"");
-        BStruct contentDisposition = (BStruct) bodyPart.getRefField(CONTENT_DISPOSITION_INDEX);
-        Assert.assertEquals(contentDisposition.getStringField(CONTENT_DISPOSITION_FILENAME_INDEX),
-                "\"file-01.txt\"");
-        Assert.assertEquals(contentDisposition.getStringField(CONTENT_DISPOSITION_NAME_INDEX),
-                "\"filepart\"");
-        Assert.assertEquals(contentDisposition.getStringField(DISPOSITION_INDEX),
-                "form-data");
-    }
-
-    private ArrayList<BStruct> getMultipleParts() {
-        ArrayList<BStruct> bodyParts = new ArrayList<>();
-        bodyParts.add(Util.getJsonBodyPart(result));
-        bodyParts.add(Util.getXmlFilePart(result));
-        bodyParts.add(Util.getTextBodyPart(result));
-        bodyParts.add(Util.getBinaryFilePart(result));
-        return bodyParts;
+    @Test(description = "Test whether the nested body parts within a multipart entity can be properly encoded")
+    public void testNestedParts() {
+        BStruct nestedMultipartEntity = Util.getNestedMultipartEntity(result);
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        String multipartDataBoundary = MimeUtil.getNewMultipartDelimiter();
+        MultipartDataSource multipartDataSource = new MultipartDataSource(nestedMultipartEntity, multipartDataBoundary);
+        multipartDataSource.serializeData(outputStream);
+        InputStream inputStream = new ByteArrayInputStream(outputStream.toByteArray());
+        try {
+            List<MIMEPart> mimeParts = MultipartDecoder.decodeBodyParts("multipart/mixed; boundary=" +
+                    multipartDataBoundary, inputStream);
+            Assert.assertEquals(mimeParts.size(), 4);
+            for (MIMEPart mimePart : mimeParts) {
+                testNestedPartContent(mimePart);
+            }
+        } catch (MimeTypeParseException | IOException e) {
+            log.error("Error occurred while testing encoded nested parts", e.getMessage());
+        }
     }
 
     /**
-     * When the encoding has been done properly, decoding should work as it should.
+     * When nested parts have been properly encoded, decoding should work as it should.
+     *
+     * @param mimePart MIMEPart that contains nested parts
+     * @throws MimeTypeParseException When an error occurs while parsing body content
+     * @throws IOException            When an error occurs while validating body content
+     */
+    private void testNestedPartContent(MIMEPart mimePart) throws MimeTypeParseException, IOException {
+        List<MIMEPart> nestedParts = MultipartDecoder.decodeBodyParts(mimePart.getContentType(),
+                mimePart.readOnce());
+        Assert.assertEquals(nestedParts.size(), 4);
+        BStruct ballerinaBodyPart = Util.getEntityStruct(result);
+        validateBodyPartContent(nestedParts, ballerinaBodyPart);
+    }
+
+    /**
+     * Validate that the decoded body part content matches with the encoded content.
      *
      * @param mimeParts List of decoded body parts
      * @param bodyPart  Ballerina body part
      * @throws IOException When an exception occurs during binary data decoding
      */
-    private void testBodyParts(List<MIMEPart> mimeParts, BStruct bodyPart) throws IOException {
+    private void validateBodyPartContent(List<MIMEPart> mimeParts, BStruct bodyPart) throws IOException {
         EntityBodyHandler.populateBodyContent(bodyPart, mimeParts.get(0));
         BJSON jsonData = EntityBodyHandler.constructJsonDataSource(bodyPart);
         Assert.assertNotNull(jsonData);
@@ -160,5 +167,21 @@ public class MultipartEncoderTest {
         BlobDataSource blobDataSource = EntityBodyHandler.constructBlobDataSource(bodyPart);
         Assert.assertNotNull(blobDataSource);
         Assert.assertEquals(blobDataSource.getMessageAsString(), "Ballerina binary file part");
+    }
+
+    @Test(description = "Test whether the body part builds the ContentDisposition struct properly for " +
+            "multipart/form-data")
+    public void testContentDispositionForFormData() {
+        BStruct bodyPart = Util.getEntityStruct(result);
+        BStruct contentDispositionStruct = Util.getContentDispositionStruct(result);
+        MimeUtil.setContentDisposition(contentDispositionStruct, bodyPart,
+                "form-data; name=\"filepart\"; filename=\"file-01.txt\"");
+        BStruct contentDisposition = (BStruct) bodyPart.getRefField(CONTENT_DISPOSITION_INDEX);
+        Assert.assertEquals(contentDisposition.getStringField(CONTENT_DISPOSITION_FILENAME_INDEX),
+                "\"file-01.txt\"");
+        Assert.assertEquals(contentDisposition.getStringField(CONTENT_DISPOSITION_NAME_INDEX),
+                "\"filepart\"");
+        Assert.assertEquals(contentDisposition.getStringField(DISPOSITION_INDEX),
+                "form-data");
     }
 }
