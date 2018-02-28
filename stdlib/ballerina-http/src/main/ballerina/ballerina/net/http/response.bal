@@ -159,7 +159,8 @@ public function <OutResponse response> getBinaryPayload () (blob) {
     return entity.getBlob();
 }
 
-@Description {value:"Gets the inbound response payload as a byte channel"}
+@Description {value:"Gets the inbound response payload as a byte channel except for multiparts. In case of multiparts,
+please use 'getMultiparts()' instead."}
 @Param {value:"request: The inbound response message"}
 @Return {value:"A byte channel as the message payload"}
 public function <InResponse response> getByteChannel () (io:ByteChannel) {
@@ -167,7 +168,8 @@ public function <InResponse response> getByteChannel () (io:ByteChannel) {
     return entity.getByteChannel();
 }
 
-@Description {value:"Gets the outbound response payload as a byte channel"}
+@Description {value:"Gets the outbound response payload as a byte channel except for multiparts. In case of multiparts,
+please use 'getMultiparts()' instead."}
 @Param {value:"request: outbound response message"}
 @Return {value:"A byte channel as the message payload"}
 public function <OutResponse response> getByteChannel () (io:ByteChannel) {
