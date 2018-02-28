@@ -24,36 +24,36 @@ function main (string[] args) {
         string homeRepoDirPath = args[1];
         createDirectories(homeRepoDirPath);
         compression:unzipBytes(resp.getBinaryPayload(), homeRepoDirPath, pkgName);
-        io:println(fullPkgPath + " pulled [central.ballerina.io -> home repo]");
+        io:println(fullPkgPath + " [central.ballerina.io -> home repo]");
 
         if (args[3] != null){
             // Create directories of the project repo to which the package will be pulled
             string projectRepoDirPath = args[3];
             createDirectories(projectRepoDirPath);
             compression:unzipBytes(resp.getBinaryPayload(), projectRepoDirPath, pkgName);
-            io:println(fullPkgPath + " pulled [central.ballerina.io -> project repo]");
+            io:println(fullPkgPath + " [central.ballerina.io -> project repo]");
         }
     }
 }
 
 function getConnectorConfigs(string [] args) (http:Options) {
-    string host = args[5];
-    string port = args[6];
-    string username = args[7];
-    string password = args[8];
+    string proxyHost = args[5];
+    string proxyPort = args[6];
+    string proxyUsername = args[7];
+    string proxyPassword = args[8];
     http:Options option;
     int portInt = 0;
-    if (host != ""){
-      if (port != ""){
-          var portI, _ = <int> port;
+    if (proxyHost != ""){
+      if (proxyPort != ""){
+          var portI, _ = <int> proxyPort;
           portInt = portI;
       }
       option = {
          proxy:{
-           host:host,
+           host:proxyHost,
            port:portInt,
-           userName:username,
-           password:password
+           userName:proxyUsername,
+           password:proxyPassword
          }
       };
     } else {
