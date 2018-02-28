@@ -442,19 +442,18 @@ public class CPU {
                     }
                     break;
                 case InstructionCodes.THROW:
-//                    i = operands[0];
-//                    if (i >= 0) {
-//                        BStruct error = (BStruct) sf.refRegs[i];
-//                        if (error == null) {
-//                            handleNullRefError(ctx);
-//                            break;
-//                        }
-//
-//                        BLangVMErrors.setStackTrace(ctx, ctx.ip, error);
-//                        ctx.setError(error);
-//                    }
-                    //TODO
-                    handleError(ctx);
+                    i = operands[0];
+                    if (i >= 0) {
+                        BStruct error = (BStruct) sf.refRegs[i];
+                        if (error == null) {
+                            handleNullRefError(ctx);
+                            break;
+                        }
+
+                        BLangVMErrors.attachCallStack(error, ctx.programFile, ctx.ip);
+                        ctx.setError(error);
+                        handleError(ctx);
+                    }
                     break;
                 case InstructionCodes.ERRSTORE:
 //                    i = operands[0];
