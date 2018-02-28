@@ -321,6 +321,7 @@ public class ProgramFileReader {
         int pkgNameCPIndex = dataInStream.readInt();
         UTF8CPEntry pkgNameCPEntry = (UTF8CPEntry) programFile.getCPEntry(pkgNameCPIndex);
         PackageInfo packageInfo = new PackageInfo(pkgNameCPIndex, pkgNameCPEntry.getValue());
+        packageInfo.setProgramFile(programFile);
         programFile.addPackageInfo(packageInfo.getPkgPath(), packageInfo);
 
         // Read constant pool in the package.

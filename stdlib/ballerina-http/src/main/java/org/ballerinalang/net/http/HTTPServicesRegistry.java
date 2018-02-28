@@ -92,6 +92,8 @@ public class HTTPServicesRegistry {
                                                                     HttpConstants.HTTP_PACKAGE_PATH);
 
         String basePath = discoverBasePathFrom(service, annotation);
+        HttpUtil.populateKeepAliveAndCompressionStatus(service, annotation);
+
         basePath = urlDecode(basePath);
         service.setBasePath(basePath);
         Set<ListenerConfiguration> listenerConfigurationSet = HttpUtil.getDefaultOrDynamicListenerConfig(annotation);
@@ -165,7 +167,7 @@ public class HTTPServicesRegistry {
         CorsPopulator.populateServiceCors(httpService);
         List<HttpResource> resources = new ArrayList<>();
         for (Resource resource : httpService.getBalerinaService().getResources()) {
-            HttpResource httpResource = buildHttpResource(resource);
+            HttpResource httpResource = buildHttpResource(resource, httpService);
             httpResource.prepareAndValidateSignatureParams();
             try {
                 httpService.getUriTemplate().parse(httpResource.getPath(), httpResource,
@@ -192,8 +194,8 @@ public class HTTPServicesRegistry {
         return basePath;
     }
 
-    private HttpResource buildHttpResource(Resource resource) {
-        HttpResource httpResource = new HttpResource(resource);
+    private HttpResource buildHttpResource(Resource resource, HttpService parent) {
+        HttpResource httpResource = new HttpResource(resource, parent);
         Annotation resourceConfigAnnotation = HttpUtil.getResourceConfigAnnotation(resource,
                                                                                    HttpConstants.HTTP_PACKAGE_PATH);
         if (resourceConfigAnnotation == null) {

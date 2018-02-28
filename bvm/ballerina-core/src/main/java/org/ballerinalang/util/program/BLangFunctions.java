@@ -132,5 +132,18 @@ public class BLangFunctions {
         BLangVMUtils.processUnresolvedAnnAttrValues(programFile);
         programFile.setUnresolvedAnnAttrValues(null);
     }
-    
+
+    public static void invokePackageInitFunction(FunctionInfo initFuncInfo) {
+        WorkerExecutionContext context = new WorkerExecutionContext();
+        invokePackageInitFunction(initFuncInfo, context);
+    }
+
+    public static void invokeServiceInitFunction(FunctionInfo initFuncInfo) {
+        WorkerExecutionContext context = new WorkerExecutionContext();
+        invokeCallable(initFuncInfo, context, new int[0], new int[0], true);
+        if (context.getError() != null) {
+            String stackTraceStr = BLangVMErrors.getPrintableStackTrace(context.getError());
+            throw new BLangRuntimeException("error: " + stackTraceStr);
+        }
+    }
 }

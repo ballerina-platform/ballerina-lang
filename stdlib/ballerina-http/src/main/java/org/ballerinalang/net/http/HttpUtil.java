@@ -43,7 +43,6 @@ import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.net.http.session.Session;
 import org.ballerinalang.net.ws.WebSocketConstants;
 import org.ballerinalang.services.ErrorHandlerUtils;
@@ -580,28 +579,19 @@ public class HttpUtil {
      * @param outboundMessage transport message.
      */
     public static void setKeepAliveAndCompressionHeaders(Context context, HTTPCarbonMessage outboundMessage) {
-        AnnAttachmentInfo configAnn = context.getServiceInfo().getAnnotationAttachmentInfo(
-                HttpConstants.PROTOCOL_PACKAGE_HTTP, HttpConstants.ANN_NAME_CONFIG);
-        if (configAnn != null) {
-            AnnAttributeValue keepAliveAttrVal = configAnn.getAttributeValue(HttpConstants.ANN_CONFIG_ATTR_KEEP_ALIVE);
+        HttpService service = (HttpService) context.getProperty(HttpConstants.HTTP_SERVICE);
 
-            if (keepAliveAttrVal != null && !keepAliveAttrVal.getBooleanValue()) {
-                outboundMessage.setHeader(HttpConstants.CONNECTION_HEADER, HttpConstants.HEADER_VAL_CONNECTION_CLOSE);
-            } else {
-                // default behaviour: keepAlive = true
-                outboundMessage.setHeader(HttpConstants.CONNECTION_HEADER,
-                        HttpConstants.HEADER_VAL_CONNECTION_KEEP_ALIVE);
-            }
-            AnnAttributeValue compressionEnabled = configAnn.getAttributeValue(
-                    HttpConstants.ANN_CONFIG_ATTR_COMPRESSION_ENABLED);
-            if (compressionEnabled != null && !compressionEnabled.getBooleanValue()) {
-                outboundMessage.setHeader(HttpHeaderNames.CONTENT_ENCODING.toString(),
-                                          Constants.HTTP_TRANSFER_ENCODING_IDENTITY);
-            }
-        } else {
-            // default behaviour: keepAlive = true
-            outboundMessage.setHeader(HttpConstants.CONNECTION_HEADER, HttpConstants.HEADER_VAL_CONNECTION_KEEP_ALIVE);
+        if (!service.isCompressionEnabled()) {
+            outboundMessage.setHeader(HttpHeaderNames.CONTENT_ENCODING.toString(),
+                    Constants.HTTP_TRANSFER_ENCODING_IDENTITY);
         }
+
+        if (service.isKeepAlive()) {
+            outboundMessage.setHeader(HttpConstants.CONNECTION_HEADER,
+                    HttpConstants.HEADER_VAL_CONNECTION_KEEP_ALIVE);
+            return;
+        }
+        outboundMessage.setHeader(HttpConstants.CONNECTION_HEADER, HttpConstants.HEADER_VAL_CONNECTION_CLOSE);
     }
 
     /**
@@ -891,6 +881,22 @@ public class HttpUtil {
         }
 
         return annotationList.isEmpty() ? null : annotationList.get(0);
+    }
+
+    protected static void populateKeepAliveAndCompressionStatus(HttpService service, Annotation annotation) {
+        if (annotation == null) {
+            return;
+        }
+        AnnAttrValue keepAliveAttrVal = annotation.getAnnAttrValue(HttpConstants.ANN_CONFIG_ATTR_KEEP_ALIVE);
+        if (keepAliveAttrVal != null) {
+            service.setKeepAlive(keepAliveAttrVal.getBooleanValue());
+        }
+
+        AnnAttrValue compressionEnabled = annotation.getAnnAttrValue(
+                HttpConstants.ANN_CONFIG_ATTR_COMPRESSION_ENABLED);
+        if (compressionEnabled != null) {
+            service.setCompressionEnabled(compressionEnabled.getBooleanValue());
+        }
     }
 
     public static Annotation getResourceConfigAnnotation(Resource resource, String pkgPath) {

@@ -67,6 +67,7 @@ import org.ballerinalang.model.values.BXMLQName;
 import org.ballerinalang.model.values.StructureType;
 import org.ballerinalang.util.TransactionStatus;
 import org.ballerinalang.util.codegen.ActionInfo;
+import org.ballerinalang.util.codegen.AttachedFunctionInfo;
 import org.ballerinalang.util.codegen.CallableUnitInfo;
 import org.ballerinalang.util.codegen.ConnectorInfo;
 import org.ballerinalang.util.codegen.FunctionInfo;
@@ -379,8 +380,12 @@ public class CPU {
                     break;
                 case InstructionCodes.VCALL:
                     InstructionVCALL vcallIns = (InstructionVCALL) instruction;
-                    invokeVirtualFunction(vcallIns.receiverRegIndex, vcallIns.functionInfo,
+                    runInCallerCtx = invokeVirtualFunction(ctx, vcallIns.receiverRegIndex, vcallIns.functionInfo,
                             vcallIns.argRegs, vcallIns.retRegs);
+                    if (runInCallerCtx != null) {
+                        ctx = runInCallerCtx;
+                        ctx.state = WorkerState.RUNNING;
+                    }
                     break;
                 case InstructionCodes.ACALL:
                     InstructionACALL acallIns = (InstructionACALL) instruction;
@@ -2658,20 +2663,19 @@ public class CPU {
         return runInCallerCtx;
     }
 
-    private static void invokeVirtualFunction(int receiver, FunctionInfo virtualFuncInfo, 
-            int[] argRegs, int[] retRegs) {
-//        BStruct structVal = (BStruct) ctx.workerLocal.refRegs[receiver];
-//        if (structVal == null) {
-//            ctx.setError(BLangVMErrors.createNullRefError(this.ctx, ctx.ip));
-//            handleError();
-//            return;
-//        }
-//
-//        StructInfo structInfo = structVal.getType().structInfo;
-//        AttachedFunctionInfo attachedFuncInfo = structInfo.funcInfoEntries.get(virtualFuncInfo.getName());
-//        FunctionInfo concreteFuncInfo = attachedFuncInfo.functionInfo;
-//        invokeCallableUnit(concreteFuncInfo, argRegs, retRegs);
-        //TODO
+    private static WorkerExecutionContext invokeVirtualFunction(WorkerExecutionContext ctx, int receiver, FunctionInfo virtualFuncInfo,
+                                              int[] argRegs, int[] retRegs) {
+        BStruct structVal = (BStruct) ctx.workerLocal.refRegs[receiver];
+        if (structVal == null) {
+            ctx.setError(BLangVMErrors.createNullRefException(ctx, ctx.ip));
+            handleError();
+            return null;
+        }
+
+        StructInfo structInfo = structVal.getType().structInfo;
+        AttachedFunctionInfo attachedFuncInfo = structInfo.funcInfoEntries.get(virtualFuncInfo.getName());
+        FunctionInfo concreteFuncInfo = attachedFuncInfo.functionInfo;
+        return invokeCallableUnit(ctx, concreteFuncInfo, argRegs, retRegs);
     }
 
     private static void invokeAction(String actionName, int[] argRegs, int[] retRegs) {
