@@ -16,7 +16,6 @@
  * under the License.
  */
 
-import $ from 'jquery';
 import _ from 'lodash';
 import Plugin from './plugin/plugin';
 import { ACTIVATION_POLICIES, CONTRIBUTIONS, EVENTS } from './plugin/constants';
@@ -218,7 +217,7 @@ class Application {
         this.layoutPlugin.render();
         // Finished Activating all the plugins.
         // Now it's time to hide pre-loader.
-        // this.hidePreLoader();
+        this.hidePreLoader();
         this.plugins.forEach((plugin) => {
             plugin.onAfterInitialRender();
         });
@@ -230,10 +229,12 @@ class Application {
      * @memberof Application
      */
     hidePreLoader() {
-        $('body')
-            .loading('hide')
-            .removeAttr('data-toggle')
-            .removeAttr('data-loading-style');
+        const body = document.getElementsByTagName('body')[0];
+        body.classList.remove('loading');
+        document.getElementsByClassName('loading-animation')[0].remove();
+        document.getElementsByClassName('loading-bg')[0].remove();
+        body.removeAttribute('data-toggle');
+        body.removeAttribute('data-loading-style');
     }
 }
 
