@@ -34,7 +34,7 @@ import org.wso2.transport.http.netty.contract.HttpConnectorListener;
 import org.wso2.transport.http.netty.contract.HttpResponseFuture;
 import org.wso2.transport.http.netty.contract.HttpWsConnectorFactory;
 import org.wso2.transport.http.netty.contract.ServerConnectorException;
-import org.wso2.transport.http.netty.contractimpl.HttpWsConnectorFactoryImpl;
+import org.wso2.transport.http.netty.contractimpl.DefaultHttpWsConnectorFactory;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 import org.wso2.transport.http.netty.message.HttpCarbonResponse;
 import org.wso2.transport.http.netty.util.TestUtil;
@@ -55,7 +55,7 @@ public class PassthroughMessageProcessorListener implements HttpConnectorListene
     private SenderConfiguration senderConfiguration;
 
     public PassthroughMessageProcessorListener(SenderConfiguration senderConfiguration) {
-        this.httpWsConnectorFactory = new HttpWsConnectorFactoryImpl();
+        this.httpWsConnectorFactory = new DefaultHttpWsConnectorFactory();
         this.senderConfiguration = senderConfiguration;
     }
 

@@ -25,10 +25,14 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.carbon.messaging.exceptions.ServerConnectorException;
-import org.wso2.transport.http.netty.config.TransportsConfiguration;
-import org.wso2.transport.http.netty.config.YAMLTransportConfigurationBuilder;
-import org.wso2.transport.http.netty.contract.HttpConnectorListener;
+import org.wso2.transport.http.netty.config.ListenerConfiguration;
+import org.wso2.transport.http.netty.config.SenderConfiguration;
+import org.wso2.transport.http.netty.contract.HttpWsConnectorFactory;
 import org.wso2.transport.http.netty.contract.ServerConnector;
+import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
+import org.wso2.transport.http.netty.contractimpl.DefaultHttpWsConnectorFactory;
+import org.wso2.transport.http.netty.listener.ServerBootstrapConfiguration;
+import org.wso2.transport.http.netty.passthrough.PassthroughMessageProcessorListener;
 import org.wso2.transport.http.netty.util.TestUtil;
 import org.wso2.transport.http.netty.util.server.HttpServer;
 import org.wso2.transport.http.netty.util.server.initializers.EchoServerInitializer;
@@ -36,7 +40,7 @@ import org.wso2.transport.http.netty.util.server.initializers.EchoServerInitiali
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URI;
-import java.util.List;
+import java.util.HashMap;
 
 import static org.testng.AssertJUnit.assertEquals;
 
@@ -45,22 +49,30 @@ import static org.testng.AssertJUnit.assertEquals;
  */
 public class ContentEncodingTestCase {
 
-    private List<ServerConnector> serverConnectors;
-    private HttpConnectorListener httpConnectorListener;
-    private TransportsConfiguration configuration;
+    private static final Logger logger = LoggerFactory.getLogger(ContentEncodingTestCase.class);
 
+    private HttpWsConnectorFactory httpWsConnectorFactory;
+    private ServerConnector serverConnector;
     private HttpServer httpServer;
     private URI baseURI = URI.create(String.format("http://%s:%d", "localhost", TestUtil.SERVER_CONNECTOR_PORT));
 
-    private static final Logger log = LoggerFactory.getLogger(ContentEncodingTestCase.class);
-
     @BeforeClass
     public void setup() {
-        configuration = YAMLTransportConfigurationBuilder
-                .build("src/test/resources/simple-test-config/netty-transports.yml");
-        serverConnectors = TestUtil.startConnectors(
-                configuration, new ContentReadingListener());
         httpServer = TestUtil.startHTTPServer(TestUtil.HTTP_SERVER_PORT, new EchoServerInitializer());
+
+        httpWsConnectorFactory = new DefaultHttpWsConnectorFactory();
+        ListenerConfiguration listenerConfiguration = new ListenerConfiguration();
+        listenerConfiguration.setPort(TestUtil.SERVER_CONNECTOR_PORT);
+        serverConnector = httpWsConnectorFactory
+                .createServerConnector(new ServerBootstrapConfiguration(new HashMap<>()), listenerConfiguration);
+        ServerConnectorFuture serverConnectorFuture = serverConnector.start();
+        serverConnectorFuture.setHttpConnectorListener(
+                new PassthroughMessageProcessorListener(new SenderConfiguration()));
+        try {
+            serverConnectorFuture.sync();
+        } catch (InterruptedException e) {
+            logger.warn("Interrupted while waiting for server connector to start");
+        }
     }
 
     @Test
@@ -68,10 +80,9 @@ public class ContentEncodingTestCase {
         String testValue = "Test Message";
         try {
             HttpURLConnection urlConn = TestUtil.request(baseURI, "/", HttpMethod.POST.name(), true);
-            //TestUtil.setHeader(urlConn, Constants.ACCEPT_ENCODING, Constants.ENCODING_GZIP);
             TestUtil.writeContent(urlConn, testValue);
             assertEquals(200, urlConn.getResponseCode());
-            String content = TestUtil.getContent(urlConn);
+            TestUtil.getContent(urlConn);
             urlConn.disconnect();
         } catch (IOException e) {
             TestUtil.handleException("IOException occurred while running the messageEchoingFromProcessorTestCase", e);
@@ -81,6 +92,12 @@ public class ContentEncodingTestCase {
 
     @AfterClass
     public void cleanUp() throws ServerConnectorException {
-        TestUtil.cleanUp(serverConnectors, httpServer);
+        try {
+            serverConnector.stop();
+            httpServer.shutdown();
+            httpWsConnectorFactory.shutdown();
+        } catch (InterruptedException e) {
+            logger.warn("Interrupted while waiting for clean up");
+        }
     }
 }

@@ -18,60 +18,45 @@
 
 package org.wso2.transport.http.netty.unitfunction;
 
-import io.netty.buffer.Unpooled;
-import io.netty.handler.codec.http.DefaultHttpHeaders;
-import io.netty.handler.codec.http.DefaultHttpRequest;
-import io.netty.handler.codec.http.DefaultHttpResponse;
-import io.netty.handler.codec.http.DefaultLastHttpContent;
-import io.netty.handler.codec.http.HttpHeaders;
-import io.netty.handler.codec.http.HttpMethod;
-import io.netty.handler.codec.http.HttpResponseStatus;
-import io.netty.handler.codec.http.HttpVersion;
-import org.testng.Assert;
-import org.testng.annotations.Test;
-import org.wso2.transport.http.netty.common.Constants;
-import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
-
-import java.nio.charset.Charset;
-
 /**
  * A unit test class for message/HTTPCarbonMessage functions.
  */
 public class HttpCarbonMessageTestCase {
 
-    @Test(description = "Test cloneCarbonMessageWithData to Http request with duplicate header keys")
-    public void cloneCarbonMessageWithData() {
-        HttpHeaders headers = new DefaultHttpHeaders();
-        headers.set("aaa", "123");
-        headers.add("aaa", "xyz");
-        HTTPCarbonMessage outboundRequestMsg = new HTTPCarbonMessage(new DefaultHttpRequest(HttpVersion.HTTP_1_1,
-                HttpMethod.POST, "", headers));
-        outboundRequestMsg.setProperty(Constants.TO, "/hello");
-        outboundRequestMsg.addHttpContent(new DefaultLastHttpContent(
-                Unpooled.wrappedBuffer("testRequestHeaders".getBytes(Charset.defaultCharset()))));
-        HTTPCarbonMessage clonedMsg = outboundRequestMsg.cloneCarbonMessageWithData();
-
-        Assert.assertEquals(clonedMsg.getNettyHttpRequest().method(), HttpMethod.POST);
-        Assert.assertEquals(clonedMsg.getNettyHttpRequest().protocolVersion(), HttpVersion.HTTP_1_1);
-        Assert.assertEquals(clonedMsg.getProperty(Constants.TO), "/hello");
-        Assert.assertEquals(clonedMsg.getHeaders().getAll("aaa").size(), 2);
-        Assert.assertEquals(clonedMsg.getHeaders().getAll("aaa").get(0), "123");
-        Assert.assertEquals(clonedMsg.getHeaders().getAll("aaa").get(1), "xyz");
-    }
-
-    @Test(description = "Test cloneCarbonMessageWithOutData to Http response with duplicate header keys")
-    public void cloneCarbonMessageWithOutData() {
-        HttpHeaders headers = new DefaultHttpHeaders();
-        headers.set("aaa", "123");
-        headers.add("aaa", "xyz");
-        HTTPCarbonMessage outboundResponseMsg = new HTTPCarbonMessage(new DefaultHttpResponse(HttpVersion.HTTP_1_1,
-                HttpResponseStatus.OK, headers));
-        HTTPCarbonMessage clonedMsg = outboundResponseMsg.cloneCarbonMessageWithOutData();
-
-        Assert.assertEquals(clonedMsg.getNettyHttpResponse().protocolVersion(), HttpVersion.HTTP_1_1);
-        Assert.assertEquals(clonedMsg.getNettyHttpResponse().status(), HttpResponseStatus.OK);
-        Assert.assertEquals(clonedMsg.getHeaders().getAll("aaa").size(), 2);
-        Assert.assertEquals(clonedMsg.getHeaders().getAll("aaa").get(0), "123");
-        Assert.assertEquals(clonedMsg.getHeaders().getAll("aaa").get(1), "xyz");
-    }
+    // TODO: Will remove this completely later. For now it is there as a reference.
+//    @Test(description = "Test cloneCarbonMessageWithData to Http request with duplicate header keys")
+//    public void cloneCarbonMessageWithData() {
+//        HttpHeaders headers = new DefaultHttpHeaders();
+//        headers.set("aaa", "123");
+//        headers.add("aaa", "xyz");
+//        HTTPCarbonMessage outboundRequestMsg = new HTTPCarbonMessage(new DefaultHttpRequest(HttpVersion.HTTP_1_1,
+//                HttpMethod.POST, "", headers));
+//        outboundRequestMsg.setProperty(Constants.TO, "/hello");
+//        outboundRequestMsg.addHttpContent(new DefaultLastHttpContent(
+//                Unpooled.wrappedBuffer("testRequestHeaders".getBytes(Charset.defaultCharset()))));
+//        HTTPCarbonMessage clonedMsg = outboundRequestMsg.cloneCarbonMessageWithData();
+//
+//        Assert.assertEquals(clonedMsg.getNettyHttpRequest().method(), HttpMethod.POST);
+//        Assert.assertEquals(clonedMsg.getNettyHttpRequest().protocolVersion(), HttpVersion.HTTP_1_1);
+//        Assert.assertEquals(clonedMsg.getProperty(Constants.TO), "/hello");
+//        Assert.assertEquals(clonedMsg.getHeaders().getAll("aaa").size(), 2);
+//        Assert.assertEquals(clonedMsg.getHeaders().getAll("aaa").get(0), "123");
+//        Assert.assertEquals(clonedMsg.getHeaders().getAll("aaa").get(1), "xyz");
+//    }
+//
+//    @Test(description = "Test cloneCarbonMessageWithOutData to Http response with duplicate header keys")
+//    public void cloneCarbonMessageWithOutData() {
+//        HttpHeaders headers = new DefaultHttpHeaders();
+//        headers.set("aaa", "123");
+//        headers.add("aaa", "xyz");
+//        HTTPCarbonMessage outboundResponseMsg = new HTTPCarbonMessage(new DefaultHttpResponse(HttpVersion.HTTP_1_1,
+//                HttpResponseStatus.OK, headers));
+//        HTTPCarbonMessage clonedMsg = outboundResponseMsg.cloneCarbonMessageWithOutData();
+//
+//        Assert.assertEquals(clonedMsg.getNettyHttpResponse().protocolVersion(), HttpVersion.HTTP_1_1);
+//        Assert.assertEquals(clonedMsg.getNettyHttpResponse().status(), HttpResponseStatus.OK);
+//        Assert.assertEquals(clonedMsg.getHeaders().getAll("aaa").size(), 2);
+//        Assert.assertEquals(clonedMsg.getHeaders().getAll("aaa").get(0), "123");
+//        Assert.assertEquals(clonedMsg.getHeaders().getAll("aaa").get(1), "xyz");
+//    }
 }

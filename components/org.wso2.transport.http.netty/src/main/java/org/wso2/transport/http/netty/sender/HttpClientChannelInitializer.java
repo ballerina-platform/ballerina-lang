@@ -41,9 +41,9 @@ import javax.net.ssl.SSLEngine;
 /**
  * A class that responsible for initialize target server pipeline.
  */
-public class HTTPClientInitializer extends ChannelInitializer<SocketChannel> {
+public class HttpClientChannelInitializer extends ChannelInitializer<SocketChannel> {
 
-    private static final Logger log = LoggerFactory.getLogger(HTTPClientInitializer.class);
+    private static final Logger log = LoggerFactory.getLogger(HttpClientChannelInitializer.class);
 
     private SSLEngine sslEngine;
     private TargetHandler targetHandler;
@@ -60,7 +60,7 @@ public class HTTPClientInitializer extends ChannelInitializer<SocketChannel> {
     private SenderConfiguration senderConfiguration;
     private HttpRoute httpRoute;
 
-    public HTTPClientInitializer(SenderConfiguration senderConfiguration, HttpRoute httpRoute,
+    public HttpClientChannelInitializer(SenderConfiguration senderConfiguration, HttpRoute httpRoute,
             ConnectionManager connectionManager) {
         this.httpTraceLogEnabled = senderConfiguration.isHttpTraceLogEnabled();
         this.followRedirect = senderConfiguration.isFollowRedirect();
@@ -76,7 +76,8 @@ public class HTTPClientInitializer extends ChannelInitializer<SocketChannel> {
         this.sslConfig = senderConfiguration.getSSLConfig();
     }
 
-    @Override protected void initChannel(SocketChannel ch) throws Exception {
+    @Override
+    protected void initChannel(SocketChannel ch) throws Exception {
         // Add the generic handlers to the pipeline
         // e.g. SSL handler
         if (proxyServerConfiguration != null) {
@@ -113,18 +114,18 @@ public class HTTPClientInitializer extends ChannelInitializer<SocketChannel> {
         }
         ch.pipeline().addLast("decoder", new HttpResponseDecoder());
         ch.pipeline().addLast("encoder", new HttpRequestEncoder());
-        ch.pipeline().addLast("decompressor", new HttpContentDecompressor());
+        ch.pipeline().addLast("deCompressor", new HttpContentDecompressor());
         ch.pipeline().addLast("chunkWriter", new ChunkedWriteHandler());
         if (httpTraceLogEnabled) {
-            ch.pipeline()
-                    .addLast(Constants.HTTP_TRACE_LOG_HANDLER, new HTTPTraceLoggingHandler("tracelog.http.upstream"));
+            ch.pipeline().addLast(Constants.HTTP_TRACE_LOG_HANDLER,
+                                  new HTTPTraceLoggingHandler("tracelog.http.upstream"));
         }
         if (followRedirect) {
             if (log.isDebugEnabled()) {
                 log.debug("Follow Redirect is enabled, so adding the redirect handler to the pipeline.");
             }
-            RedirectHandler redirectHandler = new RedirectHandler(sslEngine, httpTraceLogEnabled, maxRedirectCount,
-                    connectionManager);
+            RedirectHandler redirectHandler = new RedirectHandler(sslEngine, httpTraceLogEnabled, maxRedirectCount
+                    , connectionManager);
             ch.pipeline().addLast(Constants.REDIRECT_HANDLER, redirectHandler);
         }
         targetHandler = new TargetHandler();

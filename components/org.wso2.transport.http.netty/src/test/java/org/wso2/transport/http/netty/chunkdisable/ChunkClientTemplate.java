@@ -21,11 +21,13 @@ package org.wso2.transport.http.netty.chunkdisable;
 import io.netty.handler.codec.http.DefaultHttpRequest;
 import io.netty.handler.codec.http.HttpMethod;
 import io.netty.handler.codec.http.HttpVersion;
+import org.testng.annotations.AfterClass;
+import org.wso2.carbon.messaging.exceptions.ServerConnectorException;
 import org.wso2.transport.http.netty.common.Constants;
 import org.wso2.transport.http.netty.config.SenderConfiguration;
 import org.wso2.transport.http.netty.contract.HttpClientConnector;
 import org.wso2.transport.http.netty.contract.HttpWsConnectorFactory;
-import org.wso2.transport.http.netty.contractimpl.HttpWsConnectorFactoryImpl;
+import org.wso2.transport.http.netty.contractimpl.DefaultHttpWsConnectorFactory;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 import org.wso2.transport.http.netty.message.HttpMessageDataStreamer;
 import org.wso2.transport.http.netty.util.HTTPConnectorListener;
@@ -34,6 +36,7 @@ import org.wso2.transport.http.netty.util.server.HttpServer;
 import org.wso2.transport.http.netty.util.server.initializers.EchoServerInitializer;
 
 import java.io.IOException;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -53,7 +56,7 @@ public class ChunkClientTemplate {
 
     public void setUp() {
         httpServer = TestUtil.startHTTPServer(TestUtil.HTTP_SERVER_PORT, new EchoServerInitializer());
-        HttpWsConnectorFactory httpWsConnectorFactory = new HttpWsConnectorFactoryImpl();
+        HttpWsConnectorFactory httpWsConnectorFactory = new DefaultHttpWsConnectorFactory();
         clientConnector = httpWsConnectorFactory.createHttpClientConnector(new HashMap<>(), senderConfiguration);
     }
 
@@ -80,5 +83,10 @@ public class ChunkClientTemplate {
         HTTPCarbonMessage response = listener.getHttpResponseMessage();
         TestUtil.getStringFromInputStream(new HttpMessageDataStreamer(response).getInputStream());
         return response;
+    }
+
+    @AfterClass
+    public void cleanUp() throws ServerConnectorException {
+        TestUtil.cleanUp(Collections.EMPTY_LIST , httpServer);
     }
 }

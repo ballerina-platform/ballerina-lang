@@ -31,7 +31,7 @@ import org.wso2.transport.http.netty.config.TransportsConfiguration;
 import org.wso2.transport.http.netty.contract.HttpClientConnector;
 import org.wso2.transport.http.netty.contract.HttpResponseFuture;
 import org.wso2.transport.http.netty.contract.HttpWsConnectorFactory;
-import org.wso2.transport.http.netty.contractimpl.HttpWsConnectorFactoryImpl;
+import org.wso2.transport.http.netty.contractimpl.DefaultHttpWsConnectorFactory;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 import org.wso2.transport.http.netty.message.HTTPConnectorUtil;
 import org.wso2.transport.http.netty.util.HTTPConnectorListener;
@@ -54,7 +54,7 @@ public class ClientConnectorClosureAfterRequestReadTestCase {
 
     private HttpServer httpServer;
     private HttpClientConnector httpClientConnector;
-    private HttpWsConnectorFactory connectorFactory = new HttpWsConnectorFactoryImpl();
+    private HttpWsConnectorFactory connectorFactory = new DefaultHttpWsConnectorFactory();
 
     @BeforeClass
     public void setup() {
@@ -95,6 +95,7 @@ public class ClientConnectorClosureAfterRequestReadTestCase {
     public void cleanUp() throws ServerConnectorException {
         try {
             httpServer.shutdown();
+            connectorFactory.shutdown();
         } catch (InterruptedException e) {
             logger.error("Failed to shutdown the test server");
         }

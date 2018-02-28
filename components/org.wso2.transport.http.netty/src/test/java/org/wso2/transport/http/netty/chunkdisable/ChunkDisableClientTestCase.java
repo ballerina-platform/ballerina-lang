@@ -18,16 +18,12 @@
 
 package org.wso2.transport.http.netty.chunkdisable;
 
-import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-import org.wso2.carbon.messaging.exceptions.ServerConnectorException;
 import org.wso2.transport.http.netty.common.Constants;
 import org.wso2.transport.http.netty.config.ChunkConfig;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 import org.wso2.transport.http.netty.util.TestUtil;
-
-import java.util.Collections;
 
 import static org.testng.AssertJUnit.assertEquals;
 
@@ -54,10 +50,5 @@ public class ChunkDisableClientTestCase extends ChunkClientTemplate {
         } catch (Exception e) {
             TestUtil.handleException("Exception occurred while running postTest", e);
         }
-    }
-
-    @AfterClass
-    public void cleanUp() throws ServerConnectorException {
-        TestUtil.cleanUp(Collections.EMPTY_LIST , httpServer);
     }
 }

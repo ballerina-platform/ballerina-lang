@@ -69,7 +69,8 @@ public class MultipartTestCase {
         channel = new EmbeddedChannel();
         channel.pipeline().addLast(new HttpResponseDecoder());
         channel.pipeline().addLast(new HttpRequestEncoder());
-        channel.pipeline().addLast(new SourceHandler(httpWsServerConnectorFuture, null, ChunkConfig.ALWAYS, null));
+        channel.pipeline().addLast(new SourceHandler(httpWsServerConnectorFuture,
+                null, ChunkConfig.ALWAYS, null, null));
         listener = new MultipartContentListener();
         httpWsServerConnectorFuture.setHttpConnectorListener(listener);
     }

@@ -22,6 +22,7 @@ import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
+import io.netty.channel.group.ChannelGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -48,16 +49,19 @@ public class ServerConnectorBootstrap {
     private static final Logger log = LoggerFactory.getLogger(ServerConnectorBootstrap.class);
 
     private ServerBootstrap serverBootstrap;
-    private HTTPServerChannelInitializer httpServerChannelInitializer;
+    private HttpServerChannelInitializer httpServerChannelInitializer;
     private boolean initialized = false;
     private boolean isHttps = false;
+    private ChannelGroup allChannels;
 
-    public ServerConnectorBootstrap() {
+    public ServerConnectorBootstrap(ChannelGroup allChannels) {
         serverBootstrap = new ServerBootstrap();
-        httpServerChannelInitializer = new HTTPServerChannelInitializer();
+        httpServerChannelInitializer = new HttpServerChannelInitializer();
+        httpServerChannelInitializer.setAllChannels(allChannels);
         serverBootstrap.childHandler(httpServerChannelInitializer);
         HTTPTransportContextHolder.getInstance().setHandlerExecutor(new HandlerExecutor());
         initialized = true;
+        this.allChannels = allChannels;
     }
 
     private ChannelFuture bindInterface(HTTPServerConnector serverConnector) {
@@ -193,7 +197,7 @@ public class ServerConnectorBootstrap {
         @Override
         public ServerConnectorFuture start() {
             channelFuture = bindInterface(this);
-            serverConnectorFuture = new HttpWsServerConnectorFuture(channelFuture);
+            serverConnectorFuture = new HttpWsServerConnectorFuture(channelFuture, allChannels);
             channelFuture.addListener(channelFuture -> {
                 if (channelFuture.isSuccess()) {
                     log.info("HTTP(S) Interface starting on host " + this.getHost() + " and port " + this.getPort());

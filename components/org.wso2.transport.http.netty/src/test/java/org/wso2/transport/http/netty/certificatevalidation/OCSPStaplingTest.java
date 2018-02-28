@@ -5,7 +5,7 @@ import org.testng.annotations.Test;
 import org.wso2.transport.http.netty.common.certificatevalidation.CertificateVerificationException;
 import org.wso2.transport.http.netty.common.certificatevalidation.ocsp.OCSPVerifier;
 import org.wso2.transport.http.netty.common.ssl.SSLConfig;
-import org.wso2.transport.http.netty.listener.OcspResponseBuilder;
+import org.wso2.transport.http.netty.listener.OCSPResponseBuilder;
 import org.wso2.transport.http.netty.util.TestUtil;
 
 import java.io.File;
@@ -38,7 +38,7 @@ public class OCSPStaplingTest {
     @Test
     public void testRetrievingAIALocations()
             throws IOException, KeyStoreException, CertificateVerificationException {
-        KeyStore keyStore = OcspResponseBuilder
+        KeyStore keyStore = OCSPResponseBuilder
                 .getKeyStore(new File(TestUtil.getAbsolutePath(keyStoreFilePath)), keyStorePassword, tlsStoreType);
         Enumeration<String> aliases = keyStore.aliases();
         String alias = "";
@@ -60,14 +60,14 @@ public class OCSPStaplingTest {
     }
 
     @Test
-    public void test()
+    public void testOCSPResponse()
             throws NoSuchAlgorithmException, CertificateVerificationException, UnrecoverableEntryException,
             KeyStoreException, IOException {
         SSLConfig sslConfig = new SSLConfig(new File(TestUtil.getAbsolutePath(keyStoreFilePath)), keyStorePassword);
         sslConfig.setTLSStoreType("PKCS12");
         Throwable throwable = null;
         try {
-            OCSPResp ocspResp = OcspResponseBuilder.getOcspResponse(sslConfig, 51, 2);
+            OCSPResp ocspResp = OCSPResponseBuilder.getOcspResponse(sslConfig, 51, 2);
         } catch (CertificateVerificationException e) {
             throwable = e;
         }

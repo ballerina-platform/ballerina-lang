@@ -27,9 +27,9 @@ import java.util.Enumeration;
 import java.util.List;
 
 /**
- * Class for generating OCSP response.
+ * A class for generating OCSP response.
  */
-public class OcspResponseBuilder {
+public class OCSPResponseBuilder {
 
     public static OCSPResp getOcspResponse(SSLConfig sslConfig, int cacheAllcatedSize, int cacheDelay)
             throws IOException, KeyStoreException, UnrecoverableEntryException, NoSuchAlgorithmException,

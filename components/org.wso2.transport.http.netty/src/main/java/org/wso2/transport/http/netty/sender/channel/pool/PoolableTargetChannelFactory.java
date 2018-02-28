@@ -24,7 +24,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.common.HttpRoute;
 import org.wso2.transport.http.netty.config.SenderConfiguration;
-import org.wso2.transport.http.netty.sender.HTTPClientInitializer;
+import org.wso2.transport.http.netty.sender.HttpClientChannelInitializer;
 import org.wso2.transport.http.netty.sender.channel.BootstrapConfiguration;
 import org.wso2.transport.http.netty.sender.channel.TargetChannel;
 
@@ -44,7 +44,7 @@ public class PoolableTargetChannelFactory implements PoolableObjectFactory {
     private BootstrapConfiguration bootstrapConfiguration;
     private ConnectionManager connectionManager;
 
-    public PoolableTargetChannelFactory(EventLoopGroup eventLoopGroup, Class eventLoopClass, HttpRoute httpRoute,
+    PoolableTargetChannelFactory(EventLoopGroup eventLoopGroup, Class eventLoopClass, HttpRoute httpRoute,
                                         SenderConfiguration senderConfiguration,
                                         BootstrapConfiguration bootstrapConfiguration,
                                         ConnectionManager connectionManager) {
@@ -62,14 +62,14 @@ public class PoolableTargetChannelFactory implements PoolableObjectFactory {
         Bootstrap clientBootstrap = instantiateAndConfigBootStrap(eventLoopGroup,
                 eventLoopClass, bootstrapConfiguration);
         //SSLEngine clientSslEngine = instantiateAndConfigSSL(senderConfiguration.getSSLConfig());
-        HTTPClientInitializer httpClientInitializer = instantiateAndConfigClientInitializer(senderConfiguration,
-                clientBootstrap, httpRoute, connectionManager);
-        clientBootstrap.handler(httpClientInitializer);
+        HttpClientChannelInitializer httpClientChannelInitializer = instantiateAndConfigClientInitializer(
+                senderConfiguration, clientBootstrap, httpRoute, connectionManager);
+        clientBootstrap.handler(httpClientChannelInitializer);
 
         ChannelFuture channelFuture = clientBootstrap
                 .connect(new InetSocketAddress(httpRoute.getHost(), httpRoute.getPort()));
 
-        TargetChannel targetChannel = new TargetChannel(httpClientInitializer, channelFuture);
+        TargetChannel targetChannel = new TargetChannel(httpClientChannelInitializer, channelFuture);
         targetChannel.setHttpRoute(httpRoute);
 
         log.debug("Created channel: {}", httpRoute);
@@ -80,11 +80,10 @@ public class PoolableTargetChannelFactory implements PoolableObjectFactory {
     @Override
     public void destroyObject(Object o) throws Exception {
         TargetChannel targetChannel = (TargetChannel) o;
-        log.debug("Destroying channel: {}", o);
+        if (log.isDebugEnabled()) {
+            log.debug("Destroying channel: {}", targetChannel.getChannel().id());
+        }
         if (targetChannel.getChannel().isOpen()) {
-            if (log.isDebugEnabled()) {
-                log.debug("And channel id is : " + targetChannel.getChannel().id());
-            }
             targetChannel.getChannel().close();
         }
     }
@@ -94,7 +93,7 @@ public class PoolableTargetChannelFactory implements PoolableObjectFactory {
         TargetChannel targetChannel = (TargetChannel) o;
         if (targetChannel.getChannel() != null) {
             boolean answer = targetChannel.getChannel().isActive();
-            log.debug("Validating channel: {} -> {}", o, answer);
+            log.debug("Validating channel: {} -> {}", targetChannel.getChannel().id(), answer);
             return answer;
         }
         return true;
@@ -140,16 +139,16 @@ public class PoolableTargetChannelFactory implements PoolableObjectFactory {
 //        return sslEngine;
 //    }
 
-    private HTTPClientInitializer instantiateAndConfigClientInitializer(SenderConfiguration senderConfiguration,
+    private HttpClientChannelInitializer instantiateAndConfigClientInitializer(SenderConfiguration senderConfiguration,
                                                                         Bootstrap clientBootstrap,
                                                                         HttpRoute httpRoute,
                                                                         ConnectionManager connectionManager) {
-        HTTPClientInitializer httpClientInitializer =
-                new HTTPClientInitializer(senderConfiguration, httpRoute, connectionManager);
+        HttpClientChannelInitializer httpClientChannelInitializer =
+                new HttpClientChannelInitializer(senderConfiguration, httpRoute, connectionManager);
         if (log.isDebugEnabled()) {
             log.debug("Created new TCP client bootstrap connecting to {}:{} with options: {}", httpRoute.getHost(),
                     httpRoute.getPort(), clientBootstrap);
         }
-        return httpClientInitializer;
+        return httpClientChannelInitializer;
     }
 }

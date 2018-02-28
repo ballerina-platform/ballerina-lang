@@ -26,19 +26,17 @@ import org.testng.annotations.Test;
 import org.wso2.carbon.messaging.exceptions.ServerConnectorException;
 import org.wso2.transport.http.netty.common.Constants;
 import org.wso2.transport.http.netty.config.SenderConfiguration;
-import org.wso2.transport.http.netty.config.TransportsConfiguration;
 import org.wso2.transport.http.netty.contract.HttpClientConnector;
 import org.wso2.transport.http.netty.contract.HttpResponseFuture;
 import org.wso2.transport.http.netty.contract.HttpWsConnectorFactory;
-import org.wso2.transport.http.netty.contractimpl.HttpWsConnectorFactoryImpl;
+import org.wso2.transport.http.netty.contractimpl.DefaultHttpWsConnectorFactory;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
-import org.wso2.transport.http.netty.message.HTTPConnectorUtil;
 import org.wso2.transport.http.netty.util.HTTPConnectorListener;
 import org.wso2.transport.http.netty.util.TestUtil;
 import org.wso2.transport.http.netty.util.server.HttpServer;
 import org.wso2.transport.http.netty.util.server.initializers.DumbServerInitializer;
 
-import java.io.File;
+import java.util.HashMap;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
@@ -54,21 +52,16 @@ public class ClientConnectorTimeoutTestCase {
 
     private HttpServer httpServer;
     private HttpClientConnector httpClientConnector;
-    private HttpWsConnectorFactory connectorFactory = new HttpWsConnectorFactoryImpl();
+    private HttpWsConnectorFactory connectorFactory;
 
     @BeforeClass
     public void setup() {
         httpServer = TestUtil.startHTTPServer(TestUtil.HTTPS_SERVER_PORT, new DumbServerInitializer());
 
-        TransportsConfiguration transportsConfiguration = TestUtil.getConfiguration(
-                "/simple-test-config" + File.separator + "netty-transports.yml");
-        SenderConfiguration senderConfiguration = HTTPConnectorUtil
-                .getSenderConfiguration(transportsConfiguration, Constants.HTTP_SCHEME);
+        connectorFactory = new DefaultHttpWsConnectorFactory();
+        SenderConfiguration senderConfiguration = new SenderConfiguration();
         senderConfiguration.setSocketIdleTimeout(3000);
-
-        httpClientConnector = connectorFactory.createHttpClientConnector(
-                HTTPConnectorUtil.getTransportProperties(transportsConfiguration),
-                senderConfiguration);
+        httpClientConnector = connectorFactory.createHttpClientConnector(new HashMap<>(), senderConfiguration);
     }
 
     @Test
@@ -97,6 +90,7 @@ public class ClientConnectorTimeoutTestCase {
     public void cleanUp() throws ServerConnectorException {
         try {
             httpServer.shutdown();
+            connectorFactory.shutdown();
         } catch (InterruptedException e) {
             logger.error("Failed to shutdown the test server");
         }
