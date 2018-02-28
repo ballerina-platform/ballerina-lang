@@ -18,10 +18,10 @@
 
 package org.wso2.transport.http.netty.http1point0test;
 
+import io.netty.handler.codec.http.HttpHeaderNames;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.transport.http.netty.chunkdisable.ChunkClientTemplate;
-import org.wso2.transport.http.netty.common.Constants;
 import org.wso2.transport.http.netty.config.ChunkConfig;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 import org.wso2.transport.http.netty.util.TestUtil;
@@ -44,10 +44,10 @@ public class ChunkAlwaysHttpOnePointZeroClientTestCase extends ChunkClientTempla
     public void postTest() {
         try {
             HTTPCarbonMessage response = sendRequest(TestUtil.largeEntity);
-            assertEquals(response.getHeader(Constants.HTTP_CONTENT_LENGTH), "9342");
+            assertEquals(response.getHeader(HttpHeaderNames.CONTENT_LENGTH.toString()), "9342");
 
             response = sendRequest(TestUtil.smallEntity);
-            assertEquals(response.getHeader(Constants.HTTP_CONTENT_LENGTH), "70");
+            assertEquals(response.getHeader(HttpHeaderNames.CONTENT_LENGTH.toString()), "70");
 
         } catch (Exception e) {
             TestUtil.handleException("Exception occurred while running postTest", e);

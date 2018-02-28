@@ -26,6 +26,7 @@ import io.netty.handler.codec.EncoderException;
 import io.netty.handler.codec.http.DefaultHttpContent;
 import io.netty.handler.codec.http.DefaultLastHttpContent;
 import io.netty.handler.codec.http.HttpContent;
+import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.LastHttpContent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -175,12 +176,12 @@ public class HttpMessageDataStreamer {
     }
 
     public InputStream getInputStream() {
-        String contentEncodingHeader = httpCarbonMessage.getHeader(Constants.CONTENT_ENCODING);
+        String contentEncodingHeader = httpCarbonMessage.getHeader(HttpHeaderNames.CONTENT_ENCODING.toString());
         if (contentEncodingHeader != null) {
             // removing the header because, we are handling the decoded content and we need to send out
             // as encoded one. so once this header is removed, transport will encode again by looking the
             // accept-encoding request header
-            httpCarbonMessage.removeHeader(Constants.CONTENT_ENCODING);
+            httpCarbonMessage.removeHeader(HttpHeaderNames.CONTENT_ENCODING.toString());
             try {
                 if (contentEncodingHeader.equalsIgnoreCase(Constants.ENCODING_GZIP)) {
                     return new GZIPInputStream(createInputStreamIfNull());

@@ -84,21 +84,21 @@ public class DefaultHttp2ClientConnector implements Http2ClientConnector {
 
         // Fetch host
         String host = Constants.LOCALHOST;
-        Object hostProperty = message.getProperty(Constants.HOST);
+        Object hostProperty = message.getProperty(Constants.HTTP_HOST);
         if (hostProperty != null && hostProperty instanceof String) {
             host = (String) hostProperty;
         } else {
-            message.setProperty(Constants.HOST, Constants.LOCALHOST);
+            message.setProperty(Constants.HTTP_HOST, Constants.LOCALHOST);
             log.debug("Cannot find property HOST of type string, hence using localhost as the host");
         }
 
         // Fetch Port
         int port = Constants.DEFAULT_HTTP_PORT;
-        Object intProperty = message.getProperty(Constants.PORT);
+        Object intProperty = message.getProperty(Constants.HTTP_PORT);
         if (intProperty != null && intProperty instanceof Integer) {
             port = (int) intProperty;
         } else {
-            message.setProperty(Constants.PORT, Constants.DEFAULT_HTTP_PORT);
+            message.setProperty(Constants.HTTP_PORT, Constants.DEFAULT_HTTP_PORT);
             log.debug("Cannot find property PORT of type integer, hence using " + port);
         }
 

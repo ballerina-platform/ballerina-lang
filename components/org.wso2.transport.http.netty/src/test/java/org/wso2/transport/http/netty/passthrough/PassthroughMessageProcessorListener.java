@@ -62,8 +62,8 @@ public class PassthroughMessageProcessorListener implements HttpConnectorListene
     @Override
     public void onMessage(HTTPCarbonMessage httpRequestMessage) {
         executor.execute(() -> {
-            httpRequestMessage.setProperty(Constants.HOST, TestUtil.TEST_HOST);
-            httpRequestMessage.setProperty(Constants.PORT, TestUtil.HTTP_SERVER_PORT);
+            httpRequestMessage.setProperty(Constants.HTTP_HOST, TestUtil.TEST_HOST);
+            httpRequestMessage.setProperty(Constants.HTTP_PORT, TestUtil.HTTP_SERVER_PORT);
             try {
                 clientConnector =
                         httpWsConnectorFactory.createHttpClientConnector(new HashMap<>(), senderConfiguration);

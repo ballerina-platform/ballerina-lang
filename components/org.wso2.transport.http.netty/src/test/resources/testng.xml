@@ -44,8 +44,7 @@
             <class name="org.wso2.transport.http.netty.proxyserver.ProxyServerTestCase" />
 
             <class name="org.wso2.transport.http.netty.hostnameverfication.HostnameVerificationTest" />
-
-            <class name="org.wso2.transport.http.netty.redirect.HTTPClientRedirectTestCase" />
+            <class name="org.wso2.transport.http.netty.redirect.HttpClientRedirectTestCase" />
 
             <class name="org.wso2.transport.http.netty.ClientConnectorTimeoutTestCase" />
             <class name="org.wso2.transport.http.netty.ClientConnectorConnectionRefusedTestCase" />
@@ -86,6 +85,7 @@
             <class name="org.wso2.transport.http.netty.connectionpool.ConnectionPoolMaxConnTestCase" />
             <class name="org.wso2.transport.http.netty.connectionpool.ConnectionPoolTimeoutProxyTestCase" />
             <class name="org.wso2.transport.http.netty.connectionpool.ConnectionPoolMainTestCase" />
+            <class name="org.wso2.transport.http.netty.connectionpool.ConnectionPoolWaitingTimeoutTestCase" />
         </classes>
     </test>
 </suite>
