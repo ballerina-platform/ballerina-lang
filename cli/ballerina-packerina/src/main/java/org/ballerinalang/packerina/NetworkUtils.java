@@ -93,7 +93,6 @@ public class NetworkUtils {
         Path fullPathOfPkg = Paths.get(orgName).resolve(pkgName).resolve(pkgVersion).resolve("src");
 
         targetDirectoryPath = targetDirectoryPath.resolve(fullPathOfPkg);
-        createDirectories(targetDirectoryPath);
         String dstPath = targetDirectoryPath.toString();
 
         // Get the current directory path to check if the user is pulling a package from inside a project directory
@@ -102,14 +101,13 @@ public class NetworkUtils {
         if (ballerinaTomlExists(currentDirPath)) {
             Path projectDestDirectoryPath = currentDirPath.resolve(".ballerina").resolve(cacheDir)
                     .resolve(fullPathOfPkg);
-            createDirectories(projectDestDirectoryPath);
             currentProjectPath = projectDestDirectoryPath.toString();
         }
 
         String pkgPath = Paths.get(orgName).resolve(pkgName).resolve(pkgVersion).toString();
         String resourcePath = ballerinaCentralURL + pkgPath;
         String[] proxyConfigs = readProxyConfigurations();
-        String[] arguments = new String[]{resourcePath, dstPath, pkgName, currentProjectPath};
+        String[] arguments = new String[]{resourcePath, dstPath, pkgName, currentProjectPath, resourceName};
         arguments = Stream.concat(Arrays.stream(arguments), Arrays.stream(proxyConfigs))
                 .toArray(String[]::new);
         LauncherUtils.runMain(compileResult.getProgFile(), arguments);
@@ -133,22 +131,6 @@ public class NetworkUtils {
             return false;
         }
         return false;
-    }
-
-    /**
-     * Create target/output directories which contains the pulled packages.
-     *
-     * @param targetDirectoryPath target directory path
-     */
-    private static void createDirectories(Path targetDirectoryPath) {
-        if (!Files.exists(targetDirectoryPath)) {
-            try {
-                Files.createDirectories(targetDirectoryPath);
-            } catch (IOException e) {
-                log.debug("I/O Exception when creating the directory ", e);
-                log.error("I/O Exception when creating the directory" + e.getMessage());
-            }
-        }
     }
 
     /**
