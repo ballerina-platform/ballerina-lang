@@ -63,7 +63,7 @@ public function <HttpBasicAuthnHandler basicAuthnHandler> handle (http:InRequest
         var authInfo, typeCastErr = (AuthenticationInfo)cachedAuthResult;
         if (typeCastErr == null) {
             // no type cast error, return cached result.
-            log:printDebug("Auth cache hit for user: " + authInfo.username);
+            log:printDebug("Auth cache hit");
             return authInfo.isAuthenticated;
         }
         // if a casting error occurs, clear the cache entry
@@ -75,15 +75,15 @@ public function <HttpBasicAuthnHandler basicAuthnHandler> handle (http:InRequest
         log:printErrorCause("Error in decoding basic authentication header", err);
         return false;
     }
-    log:printDebug("Auth cache miss for user: " + username);
+    log:printDebug("Auth cache miss");
 
     authInfo = createAuthenticationInfo(username, authenticator.authenticate(username, password));
     // cache result
     authenticator.cacheAuthResult(basicAuthCacheKey, authInfo);
     if (authInfo.isAuthenticated) {
-        log:printInfo("Successfully authenticated user " + username + " against the userstore");
+        log:printInfo("Successfully authenticated against the userstore");
     } else {
-        log:printInfo("Authentication failure for user " + username);
+        log:printInfo("Authentication failure");
     }
 
     return authInfo.isAuthenticated;

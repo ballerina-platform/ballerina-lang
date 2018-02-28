@@ -69,7 +69,7 @@ public function <HttpAuthzHandler httpAuthzHandler> handle (http:InRequest req,
     string authzCacheKey = username + "-" + resourceName;
     any cachedAuthzResult = authzChecker.getCachedAuthzResult(authzCacheKey);
     if (cachedAuthzResult != null) {
-        log:printDebug("Authz cache hit for user: " + username + ", request URL: " + resourceName);
+        log:printDebug("Authz cache hit for request URL: " + resourceName);
         var isAuthorized, typeCastErr = (boolean)cachedAuthzResult;
         if (typeCastErr == null) {
             // no type cast error, return cached result.
@@ -78,13 +78,13 @@ public function <HttpAuthzHandler httpAuthzHandler> handle (http:InRequest req,
         // if a casting error occurs, clear the cache entry
         authzChecker.clearCachedAuthzResult(authzCacheKey);
     }
-    log:printDebug("Authz cache miss for user: " + username + ", request URL: " + resourceName);
+    log:printDebug("Authz cache miss for request URL: " + resourceName);
 
     boolean isAuthorized = authzChecker.check(username, scopeName);
     if (isAuthorized) {
-        log:printInfo("Successfully authorized user: " + username + " for resource: " + resourceName);
+        log:printInfo("Successfully authorized to access resource: " + resourceName);
     } else {
-        log:printInfo("Insufficient permission for user: " + username + " to access resource: " + resourceName);
+        log:printInfo("Insufficient permission to access resource: " + resourceName);
     }
     authzChecker.cacheAuthzResult(authzCacheKey, isAuthorized);
     return isAuthorized;
