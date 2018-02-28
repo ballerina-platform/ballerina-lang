@@ -275,10 +275,10 @@ public struct Retry {
 @Field {value:"sslEnabledProtocols: SSL/TLS protocols to be enabled. eg: TLSv1,TLSv1.1,TLSv1.2"}
 @Field {value:"ciphers: List of ciphers to be used. eg: TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA"}
 @Field {value:"sslProtocol: SSL Protocol to be used. eg: TLS1.2"}
-@Field {value:"validateCertEnabled: The status of validateCertEnabled {default value : false (disable)}"}
+@Field {value:"validateCertEnabled: The status of validateCertEnabled"}
 @Field {value:"cacheSize: Maximum size of the cache"}
 @Field {value:"cacheValidityPeriod: Time duration of cache validity period"}
-@Field {value:"hostNameVerificationEnabled: Enable/disable host name verification. {default value : true (enable)}"}
+@Field {value:"hostNameVerificationEnabled: Enable/disable host name verification"}
 public struct SSL {
     string trustStoreFile;
     string trustStorePassword;
@@ -315,9 +315,9 @@ public struct Proxy {
 
 @Description { value:"Options struct represents options to be used for HTTP client invocation" }
 @Field {value:"port: Port number of the remote service"}
-@Field {value:"endpointTimeout: Endpoint timeout value in millisecond (default value: 60000 milliseconds)"}
-@Field {value:"keepAlive: Keep the connection or close it (default value: true)"}
-@Field {value:"transferEncoding: The types of encoding applied to the request (default value: chunking)"}
+@Field {value:"endpointTimeout: Endpoint timeout value in millisecond"}
+@Field {value:"keepAlive: Keep the connection or close it"}
+@Field {value:"transferEncoding: The types of encoding applied to the request"}
 @Field {value:"chunking: The chunking behaviour of the request"}
 @Field {value:"httpVersion: The version of HTTP outbound request"}
 @Field {value:"followRedirects: Redirect related options"}
@@ -339,8 +339,8 @@ public struct Options {
 }
 
 @Description { value:"This struct represents the options to be used for connection throttling" }
-@Field {value:"maxActiveConnections: No of maximum active connections for connection throttling. Default value is -1, indicated the no of connections are not restricted"}
-@Field {value:"waitTime: Maximum waiting time for request to grab a idle connection from the client connector (default value: 6000 milliseconds)"}
+@Field {value:"maxActiveConnections: No. of maximum active connections for connection throttling. Default value -1, indicated the no of connections are not restricted"}
+@Field {value:"waitTime: Maximum waiting time for request to grab an idle connection from the client connector"}
 public struct ConnectionThrottling {
     int maxActiveConnections = -1;
     int waitTime = 60000;
