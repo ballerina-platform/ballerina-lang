@@ -308,8 +308,8 @@ public function <OutRequest request> setFileAsPayload (file:File fileHandler, st
 @Description {value:"Set a byte channel as the outbound request payload"}
 @Param {value:"request: outbound request message"}
 @Param {value:"payload: The byte channel representation of the message payload"}
-public function <OutRequest request> setByteChannel (io:ByteChannel byteChannel) {
+public function <OutRequest request> setByteChannel (io:ByteChannel payload) {
     mime:Entity entity = request.getEntityWithoutBody();
-    entity.setByteChannel(byteChannel);
+    entity.setByteChannel(payload);
     request.setEntity(entity);
 }
