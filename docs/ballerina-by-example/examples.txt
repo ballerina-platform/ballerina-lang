@@ -90,8 +90,10 @@ Task Timer
 Task Appointment
 Config API
 String Template
+HTTP Redirects
 Inbound Request with Multiparts
 Outbound Request with Multiparts
 Encode Nested BodyParts in Multipart
 Decode Nested BodyParts in Multipart
-HTTP Redirects
+Inbound Response with Multiparts
+Outbound Response with Multiparts
