@@ -3,6 +3,16 @@
 *******************************/
 
 /*-------------------
+       Fonts
+--------------------*/
+
+@fontName          : 'Roboto';
+@fontSmoothing     : antialiased;
+
+@headerFont        : @fontName, 'Helvetica Neue', Arial, Helvetica, sans-serif;
+@pageFont          : @fontName, 'Helvetica Neue', Arial, Helvetica, sans-serif;
+
+/*-------------------
       Colors
 --------------------*/
 
@@ -47,7 +57,6 @@
 @selectionInvertedTextColor     : @off-white;
 @selectionInvertItemDivider     : @defaultColor;
 
-@fontName                       : @fontFamily: Roboto, Arial, Helvetica, sans-serif;
 @pageBackground                 : @off-white;
 
 @placeholderBackgroundOpacity   : 0.7;
