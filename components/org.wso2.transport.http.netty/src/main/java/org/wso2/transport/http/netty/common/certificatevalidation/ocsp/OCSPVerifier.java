@@ -123,7 +123,7 @@ public class OCSPVerifier implements RevocationVerifier {
                 SingleResp resp = responses[0];
                 RevocationStatus status = getRevocationStatus(resp);
                 if (cache != null) {
-                    cache.setCacheValue(peerCert.getSerialNumber(), resp, request, serviceUrl);
+                    cache.setCacheValue(ocspResponse, peerCert.getSerialNumber(), resp, request, serviceUrl);
                 }
                 return status;
             }
@@ -153,7 +153,7 @@ public class OCSPVerifier implements RevocationVerifier {
      * @return OCSP response encoded in ASN.1 structure.
      * @throws CertificateVerificationException if any error occurs while trying to get a response from the CA.
      */
-    protected OCSPResp getOCSPResponce(String serviceUrl, OCSPReq request) throws CertificateVerificationException {
+    public static OCSPResp getOCSPResponce(String serviceUrl, OCSPReq request) throws CertificateVerificationException {
 
         try {
             byte[] array = request.getEncoded();
@@ -198,7 +198,7 @@ public class OCSPVerifier implements RevocationVerifier {
      * @return generated OCSP request.
      * @throws CertificateVerificationException if any error occurs while generating ocsp request.
      */
-    private OCSPReq generateOCSPRequest(X509Certificate issuerCert, BigInteger serialNumber)
+    public static OCSPReq generateOCSPRequest(X509Certificate issuerCert, BigInteger serialNumber)
             throws CertificateVerificationException {
 
         //Programatically adding Bouncy Castle as the security provider. So no need to manually set. Once the programme
@@ -245,7 +245,7 @@ public class OCSPVerifier implements RevocationVerifier {
      * @throws CertificateVerificationException if any error occurs while retrieving authority access points from the
      * certificate.
      */
-    private List<String> getAIALocations(X509Certificate cert) throws CertificateVerificationException {
+    public static List<String> getAIALocations(X509Certificate cert) throws CertificateVerificationException {
 
         //Gets the DER-encoded OCTET string for the extension value for Authority information access points.
         byte[] aiaExtensionValue = cert.getExtensionValue(Extension.authorityInfoAccess.getId());

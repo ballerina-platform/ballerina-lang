@@ -68,6 +68,7 @@ public class HttpWsConnectorFactoryImpl implements HttpWsConnectorFactory {
             serverConnectorBootstrap.addCacheDelay(listenerConfig.getCacheValidityPeriod());
             serverConnectorBootstrap.addCacheSize(listenerConfig.getCacheSize());
         }
+        serverConnectorBootstrap.addOcspStapling(listenerConfig.isOcspStaplingEnabled());
         serverConnectorBootstrap.addIdleTimeout(listenerConfig.getSocketIdleTimeout(120000));
         serverConnectorBootstrap.addHttpTraceLogHandler(listenerConfig.isHttpTraceLogEnabled());
         serverConnectorBootstrap.addThreadPools(bossGroup, workerGroup);

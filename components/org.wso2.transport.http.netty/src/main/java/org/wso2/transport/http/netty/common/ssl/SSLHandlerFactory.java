@@ -23,6 +23,7 @@ import io.netty.handler.ssl.ApplicationProtocolConfig;
 import io.netty.handler.ssl.ApplicationProtocolNames;
 import io.netty.handler.ssl.ClientAuth;
 import io.netty.handler.ssl.OpenSsl;
+import io.netty.handler.ssl.ReferenceCountedOpenSslContext;
 import io.netty.handler.ssl.SslContext;
 import io.netty.handler.ssl.SslContextBuilder;
 import io.netty.handler.ssl.SslProvider;
@@ -64,8 +65,10 @@ public class SSLHandlerFactory {
     private final SSLContext sslContext;
     private SSLConfig sslConfig;
     private boolean needClientAuth;
-    private KeyManagerFactory kmf;
-    private TrustManagerFactory tmf;
+    private KeyManagerFactory keyManagerFactory;
+    private TrustManagerFactory trustManagerFactory;
+    private KeyStore keyStore;
+    private KeyStore trustStore;
 
     public SSLHandlerFactory(SSLConfig sslConfig) {
         this.sslConfig = sslConfig;
@@ -75,23 +78,25 @@ public class SSLHandlerFactory {
         }
         needClientAuth = sslConfig.isNeedClientAuth();
         protocol = sslConfig.getSSLProtocol();
+        KeyManager[] keyManagers = null;
         try {
-            KeyStore ks = getKeyStore(sslConfig.getKeyStore(), sslConfig.getKeyStorePass());
-            // Set up key manager factory to use our key store
-            kmf = KeyManagerFactory.getInstance(algorithm);
-            KeyManager[] keyManagers = null;
-            if (ks != null) {
-                kmf.init(ks, sslConfig.getCertPass() != null ?
-                        sslConfig.getCertPass().toCharArray() :
-                        sslConfig.getKeyStorePass().toCharArray());
-                keyManagers = kmf.getKeyManagers();
+            if (sslConfig.getKeyStore() != null) {
+                keyStore = getKeyStore(sslConfig.getKeyStore(), sslConfig.getKeyStorePass());
+                // Set up key manager factory to use our key store
+                keyManagerFactory = KeyManagerFactory.getInstance(algorithm);
+                if (keyStore != null) {
+                    keyManagerFactory.init(keyStore, sslConfig.getCertPass() != null ?
+                            sslConfig.getCertPass().toCharArray() :
+                            sslConfig.getKeyStorePass().toCharArray());
+                    keyManagers = keyManagerFactory.getKeyManagers();
+                }
             }
             TrustManager[] trustManagers = null;
             if (sslConfig.getTrustStore() != null) {
-                KeyStore tks = getKeyStore(sslConfig.getTrustStore(), sslConfig.getTrustStorePass());
-                tmf = TrustManagerFactory.getInstance(algorithm);
-                tmf.init(tks);
-                trustManagers = tmf.getTrustManagers();
+                trustStore = getKeyStore(sslConfig.getTrustStore(), sslConfig.getTrustStorePass());
+                trustManagerFactory = TrustManagerFactory.getInstance(algorithm);
+                trustManagerFactory.init(trustStore);
+                trustManagers = trustManagerFactory.getTrustManagers();
             }
             sslContext = SSLContext.getInstance(protocol);
             sslContext.init(keyManagers, trustManagers, null);
@@ -126,6 +131,18 @@ public class SSLHandlerFactory {
         return addCommonConfigs(engine);
     }
 
+    public ReferenceCountedOpenSslContext getServerReferenceCountedOpenSslContext() throws SSLException {
+        try {
+            ReferenceCountedOpenSslContext context = (ReferenceCountedOpenSslContext) SslContextBuilder
+                    .forServer(keyManagerFactory).sslProvider(SslProvider.OPENSSL).enableOcsp(true)
+                    .keyManager(keyManagerFactory).trustManager(trustManagerFactory)
+                    .protocols(sslConfig.getEnableProtocols()).build();
+            return context;
+        } catch (SSLException e) {
+            throw new SSLException("Unable to create ReferenceCountedOpenSslContext", e);
+        }
+    }
+
     /**
      * Build ssl engine for client side.
      *
@@ -156,6 +173,19 @@ public class SSLHandlerFactory {
             engine.setEnableSessionCreation(true);
         }
         return engine;
+    }
+
+    public ReferenceCountedOpenSslContext buildClientReferenceCountedOpenSslContext()
+            throws SSLException {
+        ReferenceCountedOpenSslContext context = null;
+        try {
+            context = (ReferenceCountedOpenSslContext) SslContextBuilder.forClient().sslProvider(SslProvider.OPENSSL)
+                    .enableOcsp(true).keyManager(keyManagerFactory).trustManager(trustManagerFactory)
+                    .protocols(sslConfig.getEnableProtocols()).build();
+            return context;
+        } catch (SSLException e) {
+            throw new SSLException("Unable to get the ReferenceCountedSSL engine", e);
+        }
     }
 
     /**
@@ -189,11 +219,11 @@ public class SSLHandlerFactory {
     }
 
     public KeyManagerFactory getKeyManagerFactory() {
-        return kmf;
+        return keyManagerFactory;
     }
 
     public TrustManagerFactory getTrustStoreFactory() {
-        return tmf;
+        return trustManagerFactory;
     }
 
     public void setSNIServerNames(SSLEngine sslEngine, String peerHost) {

@@ -20,9 +20,13 @@ import io.netty.channel.ChannelPipeline;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.handler.codec.http.HttpRequestDecoder;
 import io.netty.handler.codec.http.HttpResponseEncoder;
+import io.netty.handler.ssl.OpenSsl;
+import io.netty.handler.ssl.ReferenceCountedOpenSslContext;
+import io.netty.handler.ssl.ReferenceCountedOpenSslEngine;
 import io.netty.handler.ssl.SslHandler;
 import io.netty.handler.stream.ChunkedWriteHandler;
 import io.netty.handler.timeout.IdleStateHandler;
+import org.bouncycastle.cert.ocsp.OCSPResp;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.messaging.CarbonTransportInitializer;
@@ -59,6 +63,7 @@ public class HTTPServerChannelInitializer extends ChannelInitializer<SocketChann
     private int cacheDelay;
     private int cacheSize;
     private SSLEngine sslEngine;
+    private boolean ocspStaplingEnabled;
 
     @Override
     public void setup(Map<String, String> parameters) {
@@ -72,7 +77,27 @@ public class HTTPServerChannelInitializer extends ChannelInitializer<SocketChann
 
         ChannelPipeline pipeline = ch.pipeline();
 
-        if (sslConfig != null) {
+        if (ocspStaplingEnabled && sslConfig != null) {
+
+            OCSPResp response = OcspResponseBuilder.getOcspResponse(sslConfig, cacheSize, cacheDelay);
+
+            if (!OpenSsl.isAvailable()) {
+                throw new IllegalStateException("OpenSSL is not available!");
+            }
+
+            if (!OpenSsl.isOcspSupported()) {
+                throw new IllegalStateException("OCSP is not supported!");
+            }
+
+            ReferenceCountedOpenSslContext context = new SSLHandlerFactory(sslConfig)
+                    .getServerReferenceCountedOpenSslContext();
+            SslHandler sslHandler = context.newHandler(ch.alloc());
+
+            ReferenceCountedOpenSslEngine engine = (ReferenceCountedOpenSslEngine) sslHandler.engine();
+            engine.setOcspResponse(response.getEncoded());
+            ch.pipeline().addLast(sslHandler);
+
+        } else if (sslConfig != null) {
             sslEngine = new SSLHandlerFactory(sslConfig).buildServerSSLEngine();
             pipeline.addLast(Constants.SSL_HANDLER, new SslHandler(sslEngine));
         }
@@ -169,5 +194,9 @@ public class HTTPServerChannelInitializer extends ChannelInitializer<SocketChann
 
     public void setServerName(String serverName) {
         this.serverName = serverName;
+    }
+
+    public void setOcspStaplingEnabled(boolean ocspStaplingEnabled) {
+        this.ocspStaplingEnabled = ocspStaplingEnabled;
     }
 }

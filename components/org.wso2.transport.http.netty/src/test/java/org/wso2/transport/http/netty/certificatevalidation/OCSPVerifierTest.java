@@ -102,7 +102,7 @@ public class OCSPVerifierTest {
 
         OCSPCache cache = OCSPCache.getCache();
         cache.init(5, 5);
-        cache.setCacheValue(revokedSerialNumber, singleResp, request, null);
+        cache.setCacheValue(response, revokedSerialNumber, singleResp, request, null);
 
         OCSPVerifier ocspVerifier = new OCSPVerifier(cache);
         RevocationStatus status = ocspVerifier.checkRevocationStatus(revokedCertificate, caCert);
@@ -120,7 +120,7 @@ public class OCSPVerifierTest {
      * @return Created OCSP request.
      * @throws Exception
      */
-    private OCSPReq getOCSPRequest(X509Certificate caCert, BigInteger revokedSerialNumber) throws Exception {
+    public OCSPReq getOCSPRequest(X509Certificate caCert, BigInteger revokedSerialNumber) throws Exception {
         OCSPVerifier ocspVerifier = new OCSPVerifier(null);
         Class ocspVerifierClass = ocspVerifier.getClass();
         Method generateOCSPRequest = ocspVerifierClass
@@ -142,7 +142,7 @@ public class OCSPVerifierTest {
      * @throws OCSPException
      * @throws OperatorCreationException
      */
-    private OCSPResp generateOCSPResponse(OCSPReq request, X509CertificateHolder certificateHolder,
+    public OCSPResp generateOCSPResponse(OCSPReq request, X509CertificateHolder certificateHolder,
             PrivateKey caPrivateKey, CertificateID revokedID)
             throws NoSuchProviderException, OCSPException, OperatorCreationException {
 

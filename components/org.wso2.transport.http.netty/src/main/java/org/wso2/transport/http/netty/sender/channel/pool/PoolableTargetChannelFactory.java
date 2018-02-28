@@ -23,15 +23,12 @@ import org.apache.commons.pool.PoolableObjectFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.common.HttpRoute;
-import org.wso2.transport.http.netty.common.ssl.SSLConfig;
-import org.wso2.transport.http.netty.common.ssl.SSLHandlerFactory;
 import org.wso2.transport.http.netty.config.SenderConfiguration;
 import org.wso2.transport.http.netty.sender.HTTPClientInitializer;
 import org.wso2.transport.http.netty.sender.channel.BootstrapConfiguration;
 import org.wso2.transport.http.netty.sender.channel.TargetChannel;
 
 import java.net.InetSocketAddress;
-import javax.net.ssl.SSLEngine;
 
 /**
  * A class which creates a TargetChannel pool for each route.
@@ -64,9 +61,9 @@ public class PoolableTargetChannelFactory implements PoolableObjectFactory {
     public Object makeObject() throws Exception {
         Bootstrap clientBootstrap = instantiateAndConfigBootStrap(eventLoopGroup,
                 eventLoopClass, bootstrapConfiguration);
-        SSLEngine clientSslEngine = instantiateAndConfigSSL(senderConfiguration.getSSLConfig());
+        //SSLEngine clientSslEngine = instantiateAndConfigSSL(senderConfiguration.getSSLConfig());
         HTTPClientInitializer httpClientInitializer = instantiateAndConfigClientInitializer(senderConfiguration,
-                clientBootstrap, clientSslEngine, connectionManager);
+                clientBootstrap, httpRoute, connectionManager);
         clientBootstrap.handler(httpClientInitializer);
 
         ChannelFuture channelFuture = clientBootstrap
@@ -127,28 +124,28 @@ public class PoolableTargetChannelFactory implements PoolableObjectFactory {
     }
 
     // TODO: Maybe we can move this to the client initializer?
-    private SSLEngine instantiateAndConfigSSL(SSLConfig sslConfig) {
-        // set the pipeline factory, which creates the pipeline for each newly created channels
-        SSLEngine sslEngine = null;
-        if (sslConfig != null) {
-            SSLHandlerFactory sslHandlerFactory = new SSLHandlerFactory(sslConfig);
-            sslEngine = sslHandlerFactory.buildClientSSLEngine(httpRoute.getHost(), httpRoute.getPort());
-            sslEngine.setUseClientMode(true);
-            sslHandlerFactory.setSNIServerNames(sslEngine, httpRoute.getHost());
-            if (senderConfiguration.hostNameVerificationEnabled()) {
-                sslHandlerFactory.setHostNameVerfication(sslEngine);
-            }
-        }
-
-        return sslEngine;
-    }
+//    private SSLEngine instantiateAndConfigSSL(SSLConfig sslConfig) {
+//        // set the pipeline factory, which creates the pipeline for each newly created channels
+//        SSLEngine sslEngine = null;
+//        if (sslConfig != null) {
+//            SSLHandlerFactory sslHandlerFactory = new SSLHandlerFactory(sslConfig);
+//            sslEngine = sslHandlerFactory.buildClientSSLEngine(httpRoute.getHost(), httpRoute.getPort());
+//            sslEngine.setUseClientMode(true);
+//            sslHandlerFactory.setSNIServerNames(sslEngine, httpRoute.getHost());
+//            if (senderConfiguration.hostNameVerificationEnabled()) {
+//                sslHandlerFactory.setHostNameVerfication(sslEngine);
+//            }
+//        }
+//
+//        return sslEngine;
+//    }
 
     private HTTPClientInitializer instantiateAndConfigClientInitializer(SenderConfiguration senderConfiguration,
                                                                         Bootstrap clientBootstrap,
-                                                                        SSLEngine sslEngine,
+                                                                        HttpRoute httpRoute,
                                                                         ConnectionManager connectionManager) {
         HTTPClientInitializer httpClientInitializer =
-                new HTTPClientInitializer(senderConfiguration, sslEngine, connectionManager);
+                new HTTPClientInitializer(senderConfiguration, httpRoute, connectionManager);
         if (log.isDebugEnabled()) {
             log.debug("Created new TCP client bootstrap connecting to {}:{} with options: {}", httpRoute.getHost(),
                     httpRoute.getPort(), clientBootstrap);

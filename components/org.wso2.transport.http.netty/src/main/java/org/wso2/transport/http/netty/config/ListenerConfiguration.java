@@ -115,6 +115,9 @@ public class ListenerConfiguration {
     @XmlAttribute
     private int cacheValidityPeriod = 15;
 
+    @XmlAttribute
+    private boolean ocspStaplingEnabled = false;
+
     @XmlElementWrapper(name = "parameters")
     @XmlElement(name = "parameter")
     private List<Parameter> parameters = getDefaultParameters();
@@ -346,5 +349,13 @@ public class ListenerConfiguration {
 
     public void setServerHeader(String serverHeader) {
         this.serverHeader = serverHeader;
+    }
+
+    public void setOcspStaplingEnabled(boolean ocspStaplingEnabled) {
+        this.ocspStaplingEnabled = ocspStaplingEnabled;
+    }
+
+    public boolean isOcspStaplingEnabled () {
+        return ocspStaplingEnabled;
     }
 }

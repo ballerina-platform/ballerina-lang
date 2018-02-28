@@ -143,7 +143,7 @@ public class OCSPCache implements ManageableCache {
             }
 
             SingleResp resp = responses[0];
-            this.setCacheValue(cacheValue.serialNumber, resp, request, serviceUrl);
+            this.setCacheValue(response, cacheValue.serialNumber, resp, request, serviceUrl);
 
         } catch (CertificateVerificationException | OCSPException e) {
             if (log.isInfoEnabled()) {
@@ -171,9 +171,24 @@ public class OCSPCache implements ManageableCache {
         }
     }
 
-    public synchronized void setCacheValue(BigInteger serialNumber, SingleResp singleResp, OCSPReq request,
-            String serviceUrl) {
-        OCSPCacheValue cacheValue = new OCSPCacheValue(serialNumber, singleResp, request, serviceUrl);
+    public synchronized OCSPResp getOCSPCacheValue(BigInteger serialNumber) {
+        OCSPCacheValue cacheValue = hashMap.get(serialNumber);
+        if (cacheValue != null) {
+            if (!cacheValue.isValid()) {
+                cacheValue.updateCacheWithNewValue();
+                OCSPCacheValue ocspCacheValue = hashMap.get(serialNumber);
+                return (ocspCacheValue != null ? ocspCacheValue.getOCSPValue() : null);
+            }
+
+            return cacheValue.getOCSPValue();
+        } else {
+            return null;
+        }
+    }
+
+    public synchronized void setCacheValue(OCSPResp ocspResp, BigInteger serialNumber, SingleResp singleResp,
+            OCSPReq request, String serviceUrl) {
+        OCSPCacheValue cacheValue = new OCSPCacheValue(ocspResp, serialNumber, singleResp, request, serviceUrl);
         if (log.isDebugEnabled()) {
             log.debug("Before setting - HashMap size " + hashMap.size());
         }
@@ -202,14 +217,17 @@ public class OCSPCache implements ManageableCache {
         private SingleResp singleResp;
         private OCSPReq request;
         private String serviceUrl;
+        private OCSPResp ocspResp;
         private long timeStamp = System.currentTimeMillis();
 
-        public OCSPCacheValue(BigInteger serialNumber, SingleResp singleResp, OCSPReq request, String serviceUrl) {
+        public OCSPCacheValue(OCSPResp ocspResp, BigInteger serialNumber, SingleResp singleResp, OCSPReq request,
+                String serviceUrl) {
             this.serialNumber = serialNumber;
             this.singleResp = singleResp;
             //request and serviceUrl are needed to update the cache with new values.
             this.request = request;
             this.serviceUrl = serviceUrl;
+            this.ocspResp = ocspResp;
         }
 
         public BigInteger getKey() {
@@ -219,6 +237,11 @@ public class OCSPCache implements ManageableCache {
         public SingleResp getValue() {
             timeStamp = System.currentTimeMillis();
             return singleResp;
+        }
+
+        public OCSPResp getOCSPValue() {
+            timeStamp = System.currentTimeMillis();
+            return ocspResp;
         }
 
         /**

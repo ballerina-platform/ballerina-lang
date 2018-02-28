@@ -99,6 +99,7 @@ public class SenderConfiguration {
     private int cacheSize = 50;
     private int cacheValidityPeriod = 15;
     private boolean hostNameVerificationEnabled = true;
+    private boolean ocspStaplingEnabled = false;
 
     public SenderConfiguration() {
     }
@@ -297,5 +298,13 @@ public class SenderConfiguration {
 
     public int getCacheValidityPeriod() {
         return cacheValidityPeriod;
+    }
+
+    public void setOcspStaplingEnabled(boolean ocspStaplingEnabled) {
+        this.ocspStaplingEnabled = ocspStaplingEnabled;
+    }
+
+    public boolean isOcspStaplingEnabled() {
+        return ocspStaplingEnabled;
     }
 }
