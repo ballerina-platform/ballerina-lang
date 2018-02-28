@@ -35,7 +35,7 @@ public class GetCallStack extends BlockingNativeCallableUnit {
 
     @Override
     public void execute(Context context) {
-        final BRefValueArray bRefValueArray = BLangVMErrors.generateCallStack(context, 0);
+        final BRefValueArray bRefValueArray = BLangVMErrors.generateCallStack(context.getProgramFile(), 0);
         context.setReturnValues(bRefValueArray);
     }
 }

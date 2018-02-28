@@ -52,10 +52,10 @@ public class BLangExceptionHelper {
 
     }
 
-    public static BallerinaException getRuntimeException(RuntimeErrors runtimeErrors, Object... params) {
+    public static BLangRuntimeException getRuntimeException(RuntimeErrors runtimeErrors, Object... params) {
         String errorMsg = MessageFormat.format(messageBundle.getString(runtimeErrors.getErrorMsgKey()), params);
         //todo change below exception to BLangRuntimeException later, for the time being using BallerinaException
-        return new BallerinaException(errorMsg);
+        return new BLangRuntimeException(errorMsg);
     }
 
     public static SemanticException getSemanticError(NodeLocation nodeLocation, SemanticErrors semanticError,

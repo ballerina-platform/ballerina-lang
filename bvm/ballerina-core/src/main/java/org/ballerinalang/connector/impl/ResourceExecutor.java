@@ -18,7 +18,6 @@
 package org.ballerinalang.connector.impl;
 
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BLangVM;
 import org.ballerinalang.bre.bvm.ControlStack;
 import org.ballerinalang.bre.bvm.StackFrame;
 import org.ballerinalang.bre.bvm.WorkerExecutionContext;

@@ -19,7 +19,6 @@ package org.ballerinalang.test.utils.debug;
 
 import org.ballerinalang.BLangProgramRunner;
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BLangVM;
 import org.ballerinalang.bre.bvm.ControlStack;
 import org.ballerinalang.bre.bvm.StackFrame;
 import org.ballerinalang.launcher.util.CompileResult;
@@ -109,8 +108,9 @@ public class DebuggerExecutor implements Runnable {
         //bContext.startTrackWorker();
         //bContext.setStartIP(defaultWorkerInfo.getCodeAttributeInfo().getCodeAddrs());
 
-        BLangVM bLangVM = new BLangVM(programFile);
-        bLangVM.run(bContext);
+        // TODO
+        // BLangVM bLangVM = new BLangVM(programFile);
+        // bLangVM.run(bContext);
         //bContext.await();
         debugger.notifyExit();
     }

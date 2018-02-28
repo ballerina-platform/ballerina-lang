@@ -101,6 +101,7 @@ import org.ballerinalang.util.debugger.DebugContext;
 import org.ballerinalang.util.debugger.Debugger;
 import org.ballerinalang.util.exceptions.BLangExceptionHelper;
 import org.ballerinalang.util.exceptions.BLangNullReferenceException;
+import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.ballerinalang.util.exceptions.RuntimeErrors;
 import org.ballerinalang.util.program.BLangFunctions;
@@ -363,6 +364,7 @@ public class CPU {
                     if (runInCallerCtx != null) {
                         ctx = runInCallerCtx;
                     }
+                    break;
                 case InstructionCodes.IGT:
                 case InstructionCodes.FGT:
                 case InstructionCodes.IGE:
@@ -2520,33 +2522,29 @@ public class CPU {
         }
     }
 
-    private static void handleTypeCastError(WorkerExecutionContext ctx, WorkerData sf, int errorRegIndex, 
-            BType sourceType, BType targetType) {
+    private static void handleTypeCastError(WorkerExecutionContext ctx, WorkerData sf, int errorRegIndex,
+                                            BType sourceType, BType targetType) {
         handleTypeCastError(ctx, sf, errorRegIndex, sourceType.toString(), targetType.toString());
     }
 
-    private static void handleTypeCastError(WorkerExecutionContext ctx, WorkerData sf, int errorRegIndex, 
-            String sourceType, String targetType) {
+    private static void handleTypeCastError(WorkerExecutionContext ctx, WorkerData sf, int errorRegIndex,
+                                            String sourceType, String targetType) {
         BStruct errorVal;
-        errorVal = BLangVMErrors.createTypeCastError(ctx, ctx.ip, sourceType.toString(), targetType.toString());
-        if (errorRegIndex == -1) {
-            ctx.setError(errorVal);
-            handleError(ctx);
-            return;
-        }
-
+        errorVal = BLangVMErrors.createTypeCastError(ctx, ctx.ip, sourceType, targetType);
         sf.refRegs[errorRegIndex] = errorVal;
     }
 
     private static void handleTypeConversionError(WorkerExecutionContext ctx, WorkerData sf, int errorRegIndex,
-                                           String sourceTypeName, String targetTypeName) {
+                                                  String sourceTypeName, String targetTypeName) {
         String errorMsg = "'" + sourceTypeName + "' cannot be converted to '" + targetTypeName + "'";
         handleTypeConversionError(ctx, sf, errorRegIndex, errorMsg, sourceTypeName, targetTypeName);
     }
 
-    private static void handleTypeConversionError(WorkerExecutionContext ctx, WorkerData sf, int errorRegIndex, 
-            String errorMessage, String sourceTypeName, String targetTypeName) {
-        //TODO
+    private static void handleTypeConversionError(WorkerExecutionContext ctx, WorkerData sf, int errorRegIndex,
+                                                  String errorMessage, String sourceType, String targetType) {
+        BStruct errorVal;
+        errorVal = BLangVMErrors.createTypeConversionError(ctx, ctx.ip, errorMessage);
+        sf.refRegs[errorRegIndex] = errorVal;
     }
 
     private static void createNewIntRange(int[] operands, WorkerData sf) {
@@ -2755,7 +2753,12 @@ public class CPU {
        
     }
 
-    private boolean invokeJoinWorkers(Map<String, BLangVMWorkers.WorkerExecutor> workers,
+//    TODO:
+//    private boolean invokeJoinWorkers(Map<String, BLangVMWorkers.WorkerExecutor> workers,
+//                                      Set<String> joinWorkerNames, int joinCount, long timeout) {
+//        return false;
+//    }
+    private boolean invokeJoinWorkers(Map<String, ?> workers,
                                       Set<String> joinWorkerNames, int joinCount, long timeout) {
         return false;
     }
@@ -3579,7 +3582,7 @@ public class CPU {
                     default:
                         bStruct.setRefField(++refRegIndex, (BRefType) mapVal);
                 }
-            } catch (BallerinaException e) {
+            } catch (BallerinaException | BLangRuntimeException e) {
                 sf.refRegs[j] = null;
                 String errorMsg = "cannot convert '" + bMap.getType() + "' to type '" + structType + ": " +
                         e.getMessage();

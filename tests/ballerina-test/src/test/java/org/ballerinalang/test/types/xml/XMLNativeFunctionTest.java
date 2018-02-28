@@ -1341,9 +1341,9 @@ public class XMLNativeFunctionTest {
                 + "<name xmlns=\"http://ballerinalang.org/\" xmlns:ns0=\"http://ballerinalang.org/aaa\">Doe</name>");
     }
 
-    @Test(expectedExceptions = { BLangRuntimeException.class }, 
-            expectedExceptionsMessageRegExp = "error: error, message: failed to add attribute " +
-            "'a:text'. prefix 'a' is already bound to namespace 'yyy'.*")
+    @Test(expectedExceptions = { BLangRuntimeException.class },
+            expectedExceptionsMessageRegExp = "failed to add attribute " +
+                    "'a:text'. prefix 'a' is already bound to namespace 'yyy'.*")
     public void testUpdateAttributeWithDifferentUri() {
         BValue[] returns = BRunUtil.invoke(result, "testUpdateAttributeWithDifferentUri");
         Assert.assertTrue(returns[0] instanceof BXML);
