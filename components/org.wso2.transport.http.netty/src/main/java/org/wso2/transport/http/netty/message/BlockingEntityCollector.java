@@ -155,15 +155,10 @@ public class BlockingEntityCollector implements EntityCollector {
                     try {
                         waitForEntity();
                         HttpContent httpContent = httpContentQueue.poll();
-                        // This check is to make sure we add the last http content after getClone and avoid adding
-                        // empty content to bytebuf list again and again
-                        if (httpContent instanceof EmptyLastHttpContent) {
-                            break;
-                        }
-
                         if (httpContent instanceof LastHttpContent) {
                             isEndOfMessageProcessed = true;
                             state = EntityBodyState.CONSUMED;
+                            httpContentQueue.clear();
                         }
                         httpContent.release();
                     } catch (InterruptedException e) {
