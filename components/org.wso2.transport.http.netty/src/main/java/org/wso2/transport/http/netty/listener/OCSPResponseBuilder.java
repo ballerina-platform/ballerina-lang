@@ -50,17 +50,16 @@ import java.util.List;
  */
 public class OCSPResponseBuilder {
 
-    public static OCSPResp getOcspResponse(SSLConfig sslConfig, int cacheAllcatedSize, int cacheDelay)
+    private static OCSPResp response = null;
+    private static SingleResp singleResponse = null;
+
+    public static OCSPResp generatetOcspResponse(SSLConfig sslConfig, int cacheAllcatedSize, int cacheDelay)
             throws IOException, KeyStoreException, UnrecoverableEntryException, NoSuchAlgorithmException,
             CertificateVerificationException {
 
         Certificate[] certificateChain;
         X509Certificate userCertificate = null;
         X509Certificate issuer = null;
-        OCSPResp response = null;
-        BasicOCSPResp basicResponse;
-        SingleResp singleResponse = null;
-        CertificateStatus certificateStatus = null;
         int cacheSize = Constants.CACHE_DEFAULT_ALLOCATED_SIZE;
         int cacheDelayMins = Constants.CACHE_DEFAULT_DELAY_MINS;
 
@@ -89,7 +88,6 @@ public class OCSPResponseBuilder {
                 break;
             }
         }
-
         if (isAliasWithPrivateKey) {
             // Load certificate chain
             certificateChain = keyStore.getCertificateChain(alias);
@@ -98,11 +96,12 @@ public class OCSPResponseBuilder {
             //issuer certificate is in the last position of a certificate chain.
             issuer = (X509Certificate) certificateChain[certificateChain.length - 1];
         }
+        List<String> locations = null;
         if (userCertificate != null) {
             //Check whether the ocsp response is still there in the cache.
             // If it is there, we don't need to get it from CA.
             if (ocspCache.getOCSPCacheValue(userCertificate.getSerialNumber()) != null) {
-                response = ocspCache.getOCSPCacheValue(userCertificate.getSerialNumber());
+                return ocspCache.getOCSPCacheValue(userCertificate.getSerialNumber());
             } else {
                 OCSPReq request = null;
                 try {
@@ -110,56 +109,20 @@ public class OCSPResponseBuilder {
                 } catch (CertificateVerificationException e) {
                     throw new CertificateVerificationException("Failed to generate OCSP request", e);
                 }
-
-                List<String> locations = null;
-                //List the AIA locations from the certificate. Those are the URL's of CA s.
-                try {
-                    locations = OCSPVerifier.getAIALocations(userCertificate);
-                } catch (CertificateVerificationException e) {
-                    throw new CertificateVerificationException("Failed to find AIA locations in the cetificate", e);
-                }
-                SingleResp[] responses = null;
-                for (String serviceUrl : locations) {
-                    try {
-                        response = OCSPVerifier.getOCSPResponce(serviceUrl, request);
-                        if (OCSPResponseStatus.SUCCESSFUL != response.getStatus()) {
-                            continue; // Server didn't give the correct response.
-                        }
-                        basicResponse = (BasicOCSPResp) response.getResponseObject();
-                        responses = (basicResponse == null) ? null : basicResponse.getResponses();
-                    } catch (OCSPException e) {
-                        continue;
-                    }
-                    if (responses != null && responses.length == 1) {
-                        singleResponse = responses[0];
-                        certificateStatus = singleResponse.getCertStatus();
-                        if (certificateStatus != null) {
-                            throw new IllegalStateException("certificate-status=" + certificateStatus);
-                        }
-                        //User certificates serial number and response coming from CA needs to be same.
-                        if (!userCertificate.getSerialNumber().equals(singleResponse.getCertID().getSerialNumber())) {
-                            throw new IllegalStateException(
-                                    "Bad Serials=" + userCertificate.getSerialNumber() + " vs. " + singleResponse
-                                            .getCertID().getSerialNumber());
-                        }
-                        //If the response state is successful we cache the response.
-                        ocspCache.setCacheValue(response, userCertificate.getSerialNumber(), singleResponse, request,
-                                serviceUrl);
-                    }
-                }
-                if (responses == null) {
-                    throw new CertificateVerificationException("Failed to get OCSP responses from CA");
-                }
+                locations = getAIALocations(userCertificate);
+                return getOCSPResponse(locations, request, userCertificate, ocspCache);
             }
         }
-        return response;
+        throw new CertificateVerificationException(
+                "Could not get revocation status from OCSP. Response Status :" + response.getStatus());
     }
 
     /**
      * Method to create a keystore and return.
-     * @param keyStoreFile keyStore file
+     *
+     * @param keyStoreFile     keyStore file
      * @param keyStorePassword keyStore password
-     * @param tlsStoreType PKCS12
+     * @param tlsStoreType     PKCS12
      * @return keystore
      * @throws IOException Occurs if it fails to create the keystore.
      */
@@ -175,6 +138,72 @@ public class OCSPResponseBuilder {
             }
         }
         return keyStore;
+    }
+
+    /**
+     * List Certificate authority url information.
+     *
+     * @param userCertificate User's own certificate.
+     * @return AIA Locations
+     * @throws CertificateVerificationException If an error occurs while getting the AIA locations from the certificate.
+     */
+    public static List<String> getAIALocations(X509Certificate userCertificate)
+            throws CertificateVerificationException {
+        List<String> locations = null;
+        //List the AIA locations from the certificate. Those are the URL's of CA s.
+        try {
+            locations = OCSPVerifier.getAIALocations(userCertificate);
+        } catch (CertificateVerificationException e) {
+            throw new CertificateVerificationException("Failed to find AIA locations in the cetificate", e);
+        }
+        return locations;
+    }
+
+    /**
+     * Get OCSP response from cache
+     *
+     * @param locations       CA locations
+     * @param request         OCSP request
+     * @param userCertificate User's certificate
+     * @param ocspCache       cache to store ocsp responses
+     * @return Ocsp response
+     * @throws CertificateVerificationException If an error occurs while getting the response.
+     */
+    private static OCSPResp getOCSPResponse(List<String> locations, OCSPReq request, X509Certificate userCertificate,
+            OCSPCache ocspCache) throws CertificateVerificationException {
+        SingleResp[] responses = null;
+        BasicOCSPResp basicResponse;
+        CertificateStatus certificateStatus = null;
+        for (String serviceUrl : locations) {
+            try {
+                response = OCSPVerifier.getOCSPResponce(serviceUrl, request);
+                if (OCSPResponseStatus.SUCCESSFUL != response.getStatus()) {
+                    continue; // Server didn't give the correct response.
+                }
+                basicResponse = (BasicOCSPResp) response.getResponseObject();
+                responses = (basicResponse == null) ? null : basicResponse.getResponses();
+            } catch (OCSPException e) {
+                continue;
+            }
+            if (responses != null && responses.length == 1) {
+                singleResponse = responses[0];
+                certificateStatus = singleResponse.getCertStatus();
+                if (certificateStatus != null) {
+                    throw new IllegalStateException("certificate-status=" + certificateStatus);
+                }
+                //User certificates serial number and response coming from CA needs to be same.
+                if (!userCertificate.getSerialNumber().equals(singleResponse.getCertID().getSerialNumber())) {
+                    throw new IllegalStateException(
+                            "Bad Serials=" + userCertificate.getSerialNumber() + " vs. " + singleResponse.getCertID()
+                                    .getSerialNumber());
+                }                //If the response state is successful we cache the response.
+                ocspCache.setCacheValue(response, userCertificate.getSerialNumber(), singleResponse, request,
+                        serviceUrl);
+                return response;
+            }
+        }
+        throw new CertificateVerificationException(
+                "Could not get revocation status from OCSP. Response Status :" + response.getStatus());
     }
 }
 

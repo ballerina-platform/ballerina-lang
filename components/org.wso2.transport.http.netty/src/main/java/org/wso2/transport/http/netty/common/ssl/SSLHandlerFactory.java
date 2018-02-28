@@ -29,7 +29,6 @@ import io.netty.handler.ssl.SslContextBuilder;
 import io.netty.handler.ssl.SslProvider;
 import io.netty.handler.ssl.SupportedCipherSuiteFilter;
 import org.wso2.transport.http.netty.common.Constants;
-import org.wso2.transport.http.netty.common.certificatevalidation.CertificateVerificationException;
 
 import java.io.File;
 import java.io.FileInputStream;

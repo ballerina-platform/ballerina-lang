@@ -20,7 +20,6 @@ package org.wso2.transport.http.netty.certificatevalidation;
 
 import org.testng.annotations.Test;
 import org.wso2.transport.http.netty.common.certificatevalidation.CertificateVerificationException;
-import org.wso2.transport.http.netty.common.certificatevalidation.ocsp.OCSPVerifier;
 import org.wso2.transport.http.netty.common.ssl.SSLConfig;
 import org.wso2.transport.http.netty.listener.OCSPResponseBuilder;
 import org.wso2.transport.http.netty.util.TestUtil;
@@ -71,7 +70,7 @@ public class OCSPStaplingTest {
         if (isAliasWithPrivateKey) {
             Certificate[] certificateChain = keyStore.getCertificateChain(alias);
             userCertificate = (X509Certificate) certificateChain[0];
-            ocspUrlList = OCSPVerifier.getAIALocations(userCertificate);
+            ocspUrlList = OCSPResponseBuilder.getAIALocations(userCertificate);
         }
         assertEquals(ocspUrlList.get(0).toString(), ocspUrl, "Failed to list the correct AIA locations");
     }
@@ -84,7 +83,7 @@ public class OCSPStaplingTest {
         sslConfig.setTLSStoreType(tlsStoreType);
         Throwable throwable = null;
         try {
-            OCSPResponseBuilder.getOcspResponse(sslConfig, cacheSize, cacheDelay);
+            OCSPResponseBuilder.generatetOcspResponse(sslConfig, cacheSize, cacheDelay);
         } catch (CertificateVerificationException e) {
             throwable = e;
         }
