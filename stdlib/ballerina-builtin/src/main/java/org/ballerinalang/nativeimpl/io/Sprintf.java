@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.ballerinalang.nativeimpl.builtin.systemlib;
+package org.ballerinalang.nativeimpl.io;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeKind;
@@ -33,7 +33,7 @@ import org.ballerinalang.util.exceptions.RuntimeErrors;
  * Native funciton sprintf.
  */
 @BallerinaFunction(
-        packageName = "ballerina.builtin",
+        packageName = "ballerina.io",
         functionName = "sprintf",
         args = {@Argument(name = "format", type = TypeKind.STRING),
                 @Argument(name = "args", type = TypeKind.ARRAY)},
