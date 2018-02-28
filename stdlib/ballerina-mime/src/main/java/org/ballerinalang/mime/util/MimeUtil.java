@@ -98,7 +98,7 @@ public class MimeUtil {
      * @param entity Represent an 'Entity'
      * @return content-type in 'primarytype/subtype; key=value;' format
      */
-    public static String getContentTypeWithParameters(BStruct entity) {
+    static String getContentTypeWithParameters(BStruct entity) {
         String contentType = null;
         if (entity.getRefField(MEDIA_TYPE_INDEX) != null) {
             BStruct mediaType = (BStruct) entity.getRefField(MEDIA_TYPE_INDEX);
@@ -374,6 +374,18 @@ public class MimeUtil {
         String contentTypeOfChildPart = MimeUtil.getBaseType(bodyPart);
         return contentTypeOfChildPart != null && contentTypeOfChildPart.startsWith(MULTIPART_AS_PRIMARY_TYPE) &&
                 bodyPart.getNativeData(BODY_PARTS) != null;
+    }
+
+    /**
+     * Given a body part, check whether any nested parts are available.
+     *
+     * @param bodyPart Represent a ballerina body part
+     * @return A boolean indicating nested parts availability
+     */
+    static boolean isNestedPartsAvailable(BStruct bodyPart) {
+        String contentTypeOfChildPart = MimeUtil.getContentType(bodyPart);
+        return contentTypeOfChildPart != null && contentTypeOfChildPart.startsWith(MULTIPART_AS_PRIMARY_TYPE) &&
+                bodyPart.getRefField(MULTIPART_DATA_INDEX) != null;
     }
 
     /**
