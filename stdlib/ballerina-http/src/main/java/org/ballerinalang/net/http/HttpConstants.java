@@ -64,8 +64,6 @@ public class HttpConstants {
     public static final String CHUNKING_AUTO = "auto";
     public static final String CHUNKING_ALWAYS = "always";
     public static final String CHUNKING_NEVER = "never";
-    public static final String MAX_ACTIVE_CONNECTIONS_PER_POOL = "client.max.active.connections.per.pool";
-    public static final String MAX_WAIT_FOR_CLIENT_CONNECTION_POOL = "max.wait.for.client.connection.pool";
 
     public static final String HTTP_PACKAGE_PATH = "ballerina.net.http";
 

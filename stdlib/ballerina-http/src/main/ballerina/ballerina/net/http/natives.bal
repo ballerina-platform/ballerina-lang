@@ -339,8 +339,8 @@ public struct Options {
 }
 
 @Description { value:"This struct represents the options to be used for connection throttling" }
-@Field {value:"maxActiveConnections: No. of maximum active connections for connection throttling. Default value -1, indicated the no of connections are not restricted"}
-@Field {value:"waitTime: Maximum waiting time for request to grab an idle connection from the client connector"}
+@Field {value:"maxActiveConnections: Number of maximum active connections for connection throttling. Default value -1, indicates the number of connections are not restricted"}
+@Field {value:"waitTime: Maximum waiting time for a request to grab an idle connection from the client connector"}
 public struct ConnectionThrottling {
     int maxActiveConnections = -1;
     int waitTime = 60000;

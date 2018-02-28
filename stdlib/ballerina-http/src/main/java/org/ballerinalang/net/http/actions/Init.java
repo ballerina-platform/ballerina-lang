@@ -115,9 +115,6 @@ public class Init extends AbstractHTTPAction {
 
                 long waitTime = connectionThrottling
                         .getIntField(HttpConstants.CONNECTION_THROTTLING_WAIT_TIME_INDEX);
-                if (!isInteger(waitTime)) {
-                    throw new BallerinaConnectorException("invalid waitTime value: " + waitTime);
-                }
                 senderConfiguration.getPoolConfiguration().setMaxWaitTime(waitTime);
             }
         }
