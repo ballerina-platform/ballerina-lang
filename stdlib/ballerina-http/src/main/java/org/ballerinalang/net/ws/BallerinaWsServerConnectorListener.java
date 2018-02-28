@@ -184,8 +184,8 @@ public class BallerinaWsServerConnectorListener implements WebSocketConnectorLis
                 BValue[] bValues = new BValue[paramDetails.size()];
                 bValues[0] = wsConnection;
                 WebSocketDispatcher.setPathParams(bValues, paramDetails, variables, 1);
-                ConnectorFuture future = Executor.submit(onOpenResource, null, bValues);
-                future.setConnectorFutureListener(new WebSocketEmptyConnFutureListener());
+                //TODO handle BallerinaConnectorException
+                Executor.submit(onOpenResource, new WebSocketEmptyCallableUnitCallback(), null, bValues);
             }
 
             @Override

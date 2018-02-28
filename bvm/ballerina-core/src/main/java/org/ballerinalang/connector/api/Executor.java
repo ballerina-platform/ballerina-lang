@@ -17,11 +17,10 @@
 */
 package org.ballerinalang.connector.api;
 
+import org.ballerinalang.bre.bvm.CallableUnitCallback;
 import org.ballerinalang.connector.impl.BServerConnectorFuture;
 import org.ballerinalang.connector.impl.ResourceExecutor;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.runtime.threadpool.BallerinaWorkerThread;
-import org.ballerinalang.runtime.threadpool.ThreadPoolFactory;
 
 import java.util.Map;
 
@@ -59,11 +58,9 @@ public class Executor {
      * @param values    required for the resource.
      * @return future object to listen to events if any.
      */
-    public static ConnectorFuture submit(Resource resource, Map<String, Object> properties, BValue... values) {
-        BServerConnectorFuture connectorFuture = new BServerConnectorFuture();
-        ThreadPoolFactory.getInstance().getExecutor().
-                execute(new BallerinaWorkerThread(resource, connectorFuture, properties, values));
-        return connectorFuture;
+    public static void submit(Resource resource, CallableUnitCallback responseCallback, Map<String, Object> properties,
+                              BValue... values) throws BallerinaConnectorException {
+        ResourceExecutor.execute(resource, responseCallback, properties, values);
     }
 
 

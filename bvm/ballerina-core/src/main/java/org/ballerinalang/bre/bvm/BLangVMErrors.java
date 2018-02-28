@@ -28,6 +28,8 @@ import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.codegen.ResourceInfo;
 import org.ballerinalang.util.codegen.StructInfo;
 
+import java.util.Map;
+
 /**
  * Util Class for handling Error in Ballerina VM.
  *
@@ -153,10 +155,10 @@ public class BLangVMErrors {
         return BLangVMStructs.createBStruct(errorStructInfo);
     }
 
-    public static BStruct createCallFailedException(WorkerExecutionContext context) {
-        PackageInfo errorPackageInfo = context.programFile.getPackageInfo(PACKAGE_RUNTIME);
+    public static BStruct createCallFailedException(ProgramFile programFile, Map<String, BStruct> errors) {
+        PackageInfo errorPackageInfo = programFile.getPackageInfo(PACKAGE_RUNTIME);
         StructInfo errorStructInfo = errorPackageInfo.getStructInfo(STRUCT_CALL_FAILED_EXCEPTION);
-        return BLangVMStructs.createBStruct(errorStructInfo);
+        return BLangVMStructs.createBStruct(errorStructInfo, errors.values().toArray());
     }
 
     /**

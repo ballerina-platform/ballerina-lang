@@ -29,6 +29,7 @@ import io.netty.handler.codec.http.HttpMethod;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.codec.http.HttpVersion;
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.bre.bvm.BLangVMErrors;
 import org.ballerinalang.connector.api.AnnAttrValue;
 import org.ballerinalang.connector.api.Annotation;
 import org.ballerinalang.connector.api.BallerinaConnectorException;
@@ -300,6 +301,15 @@ public class HttpUtil {
         String errorMsg = ex.getMessage();
         log.error(errorMsg);
         ErrorHandlerUtils.printError(ex);
+        sendOutboundResponse(requestMessage, createErrorMessage(errorMsg, statusCode));
+    }
+
+    public static void handleFailure(HTTPCarbonMessage requestMessage, BStruct error) {
+        Object carbonStatusCode = requestMessage.getProperty(HttpConstants.HTTP_STATUS_CODE);
+        int statusCode = (carbonStatusCode == null) ? 500 : Integer.parseInt(carbonStatusCode.toString());
+        String errorMsg = error.getStringField(0);
+        log.error(errorMsg);
+        ErrorHandlerUtils.printError("error: " + BLangVMErrors.getPrintableStackTrace(error));
         sendOutboundResponse(requestMessage, createErrorMessage(errorMsg, statusCode));
     }
 

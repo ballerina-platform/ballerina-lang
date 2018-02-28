@@ -24,8 +24,8 @@ import org.ballerinalang.model.values.BStruct;
  */
 public interface CallableUnitCallback {
 
-    public void notifySuccess();
+    void notifySuccess();
 
-    public void notifyFailure(BStruct error);
+    void notifyFailure(BStruct error);
 
 }

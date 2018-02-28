@@ -18,12 +18,12 @@ package ballerina.runtime;
 
 public struct NullReferenceException {
     string message;
-    error cause;
+    error[] cause;
 }
 
 public struct IllegalStateException {
     string message;
-    error cause;
+    error[] cause;
 }
 
 public struct CallStackElement {
@@ -39,5 +39,5 @@ public native function getErrorCallStack (error e)(CallStackElement[]);
 
 public struct CallFailedException {
     string message;
-    error cause;
+    error[] cause;
 }

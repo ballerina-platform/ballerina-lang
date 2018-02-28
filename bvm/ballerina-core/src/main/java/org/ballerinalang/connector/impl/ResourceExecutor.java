@@ -18,9 +18,11 @@
 package org.ballerinalang.connector.impl;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.bre.bvm.CallableUnitCallback;
 import org.ballerinalang.bre.bvm.ControlStack;
 import org.ballerinalang.bre.bvm.StackFrame;
 import org.ballerinalang.bre.bvm.WorkerExecutionContext;
+import org.ballerinalang.connector.api.BallerinaConnectorException;
 import org.ballerinalang.connector.api.Resource;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
@@ -175,5 +177,18 @@ public class ResourceExecutor {
 //            DebuggerUtil.initDebugContext(context, debugger);
 //        }
 //        bLangVM.run(context);
+    }
+
+    public static void execute(Resource resource, CallableUnitCallback responseCallback,
+                               Map<String, Object> properties, BValue... bValues) throws BallerinaConnectorException {
+        if (resource == null || responseCallback == null) {
+            throw new BallerinaConnectorException("invalid arguments provided");
+        }
+        ResourceInfo resourceInfo = ((BResource) resource).getResourceInfo();
+        WorkerExecutionContext context = new WorkerExecutionContext();
+        if (properties != null) {
+            properties.forEach((k, v) -> context.globalProps.put(k,v));
+        }
+        BLangFunctions.invokeCallable(resourceInfo, context, bValues, responseCallback);
     }
 }
