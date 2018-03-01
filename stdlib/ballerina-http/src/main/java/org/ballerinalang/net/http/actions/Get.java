@@ -24,13 +24,11 @@ import org.ballerinalang.natives.annotations.BallerinaAction;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.util.exceptions.BallerinaException;
+import org.ballerinalang.util.tracer.TraceContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.contract.ClientConnectorException;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
-
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * {@code Get} is the GET action implementation of the HTTP Connector.
@@ -81,15 +79,14 @@ public class Get extends AbstractHTTPAction {
         context.getActiveTraceContext().getProperties().forEach((key, value) ->
                 outboundReqMsg.setHeader(key, String.valueOf(value)));
 
-        Map<String, String> traceTags = new HashMap<>();
-        traceTags.put("component", "ballerina");
-        traceTags.put("http.method", String.valueOf(outboundReqMsg.getProperty("HTTP_METHOD")));
-        traceTags.put("protocol", String.valueOf(outboundReqMsg.getProperty("PROTOCOL")));
-        traceTags.put("http.url", String.valueOf(outboundReqMsg.getProperty("TO")));
-        traceTags.put("http.host", String.valueOf(outboundReqMsg.getProperty("Host")));
-        traceTags.put("http.port", String.valueOf(outboundReqMsg.getProperty("PORT")));
+        TraceContext tCtx = context.getActiveTraceContext();
+        tCtx.addTag("component", "ballerina");
+        tCtx.addTag("http.method", String.valueOf(outboundReqMsg.getProperty("HTTP_METHOD")));
+        tCtx.addTag("protocol", String.valueOf(outboundReqMsg.getProperty("PROTOCOL")));
+        tCtx.addTag("http.url", String.valueOf(outboundReqMsg.getProperty("TO")));
+        tCtx.addTag("http.host", String.valueOf(outboundReqMsg.getProperty("Host")));
+        tCtx.addTag("http.port", String.valueOf(outboundReqMsg.getProperty("PORT")));
 
-        context.getActiveTraceContext().setTags(traceTags);
         return outboundReqMsg;
     }
 }

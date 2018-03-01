@@ -31,7 +31,6 @@ import org.wso2.transport.http.netty.contract.HttpConnectorListener;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -89,13 +88,10 @@ public class BallerinaHTTPConnectorListener implements HttpConnectorListener {
                 .forEach(e -> traceContext.addProperty(e.getKey(), e.getValue()));
 
         // TODO: add tags here
-        Map<String, String> traceTags = new HashMap<>();
-        traceTags.put("component", "ballerina");
-        traceTags.put("http.method", (String) httpCarbonMessage.getProperty("HTTP_METHOD"));
-        traceTags.put("protocol", (String) httpCarbonMessage.getProperty("PROTOCOL"));
-        traceTags.put("http.url", (String) httpCarbonMessage.getProperty("REQUEST_URL"));
-
-        traceContext.setTags(traceTags);
+        traceContext.addTag("component", "ballerina");
+        traceContext.addTag("http.method", (String) httpCarbonMessage.getProperty("HTTP_METHOD"));
+        traceContext.addTag("protocol", (String) httpCarbonMessage.getProperty("PROTOCOL"));
+        traceContext.addTag("http.url", (String) httpCarbonMessage.getProperty("REQUEST_URL"));
 
         BValue[] signatureParams;
         signatureParams = HttpDispatcher.getSignatureParameters(httpResource, httpCarbonMessage);

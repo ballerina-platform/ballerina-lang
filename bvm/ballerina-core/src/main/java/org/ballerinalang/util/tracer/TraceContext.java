@@ -72,21 +72,18 @@ public class TraceContext {
     private boolean isTraceable = true;
 
     private TraceContext() {
-        properties = new HashMap<>();
-        tags = new HashMap<>();
+        this.properties = new HashMap<>();
+        this.tags = new HashMap<>();
     }
 
     public TraceContext(boolean isClientContext) {
         this();
         this.isClientContext = isClientContext;
-        addProperty(KEY_SPAN_KIND, isClientContext ? SPAN_KIND_CLIENT : SPAN_KIND_SERVER);
+        addTag(KEY_SPAN_KIND, isClientContext ? SPAN_KIND_CLIENT : SPAN_KIND_SERVER);
     }
 
     public TraceContext(Context bContext, boolean isClientContext) {
-        this.properties = new HashMap<>();
-        this.tags = new HashMap<>();
-        this.isClientContext = isClientContext;
-        addProperty(KEY_SPAN_KIND, isClientContext ? SPAN_KIND_CLIENT : SPAN_KIND_SERVER);
+        this(isClientContext);
         this.isTraceable = !(isClientContext && bContext.getControlStack().getCurrentFrame()
                 .getCallableUnitInfo().getName().endsWith(FUNCTION_INIT));
     }
@@ -98,7 +95,7 @@ public class TraceContext {
         this.isClientContext = isClientContext;
         this.serviceName = (serviceName == null || serviceName.isEmpty()) ? DEFAULT_SERVICE_NAME : serviceName;
         this.resourceName = (resourceName == null || resourceName.isEmpty()) ? DEFAULT_RESOURCE_NAME : resourceName;
-        addProperty(KEY_SPAN_KIND, isClientContext ? SPAN_KIND_CLIENT : SPAN_KIND_SERVER);
+        addTag(KEY_SPAN_KIND, isClientContext ? SPAN_KIND_CLIENT : SPAN_KIND_SERVER);
     }
 
     public String getSpanName() {
@@ -148,10 +145,6 @@ public class TraceContext {
 
     public Map<String, String> getTags() {
         return tags;
-    }
-
-    public void setTags(Map<String, String> tags) {
-        this.tags = tags;
     }
 
     public void addTag(String key, String value) {
