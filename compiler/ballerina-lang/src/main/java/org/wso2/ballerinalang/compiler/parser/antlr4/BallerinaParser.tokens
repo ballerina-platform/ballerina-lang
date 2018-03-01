@@ -162,6 +162,7 @@ DeprecatedTemplateText=161
 StringTemplateLiteralEnd=162
 StringTemplateExpressionStart=163
 StringTemplateText=164
+Semvar=165
 'package'=1
 'import'=2
 'as'=3

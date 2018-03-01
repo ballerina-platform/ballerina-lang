@@ -29,7 +29,7 @@ WORKER      : 'worker' ;
 ENDPOINT    : 'endpoint' ;
 XMLNS       : 'xmlns' ;
 RETURNS     : 'returns';
-VERSION     : 'version';
+VERSION     : 'version'  -> pushMode(SEMVAR_MODE);
 DOCUMENTATION  : 'documentation';
 DEPRECATED  :  'deprecated';
 
@@ -892,3 +892,30 @@ StringTemplateValidCharSequence
     :   '{'
     |   '\\' ~'\\'
     ;
+
+mode SEMVAR_MODE;
+
+//Version: ;
+Semvar            : NumericIdentifier '.'  NumericIdentifier ( '.'  NumericIdentifier )?
+                  ;
+
+fragment
+NumericIdentifier : ZERO | POSITIVE_DIGIT | POSITIVE_DIGIT (ZERO | POSITIVE_DIGIT)*
+                  ;
+
+fragment
+ZERO              : '0'
+                  ;
+
+fragment
+POSITIVE_DIGIT    : '1'..'9'
+                  ;
+
+SEMICOLON_2       : SEMICOLON -> type(SEMICOLON), popMode
+                  ;
+
+AS_2              : AS -> type(AS), popMode
+                  ;
+
+WS_2              : WS -> type(WS), channel(HIDDEN)
+                  ;
