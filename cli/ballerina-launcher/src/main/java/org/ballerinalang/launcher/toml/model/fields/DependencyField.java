@@ -33,7 +33,7 @@ public enum DependencyField {
     VERSION(Dependency::setVersion),
     LOCATION(Dependency::setLocation);
 
-    public static final Map<String, DependencyField> LOOKUP = new HashMap<>();
+    private static final Map<String, DependencyField> LOOKUP = new HashMap<>();
 
     static {
         for (DependencyField dependencyField : DependencyField.values()) {
@@ -62,4 +62,7 @@ public enum DependencyField {
         stringSetter.accept(dependency, value);
     }
 
+    public static DependencyField valueOfLowerCase(String fieldKey) {
+        return LOOKUP.get(fieldKey);
+    }
 }
