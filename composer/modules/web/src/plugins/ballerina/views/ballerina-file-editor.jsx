@@ -534,7 +534,7 @@ class BallerinaFileEditor extends React.Component {
             return;
         }
 
-        const importString = 'import ' + fullPackageName + ';\n';
+        const importString = 'import ' + fullPackageName + ';\r\n';
         const fragment = FragmentUtils.createTopLevelNodeFragment(importString);
         const parsedJson = FragmentUtils.parseFragment(fragment);
         this.state.model.addImport(TreeBuilder.build(parsedJson));
