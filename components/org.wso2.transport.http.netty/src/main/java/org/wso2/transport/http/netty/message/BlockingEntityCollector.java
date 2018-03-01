@@ -175,12 +175,22 @@ public class BlockingEntityCollector implements EntityCollector {
     }
 
     public boolean isEmpty() {
-        return this.httpContentQueue.isEmpty();
+        try {
+            readWriteLock.lock();
+            return this.httpContentQueue.isEmpty();
+        } finally {
+            readWriteLock.unlock();
+        }
     }
 
     public void completeMessage() {
-        if (state == EntityBodyState.EXPECTING) {
-            this.addHttpContent(new DefaultLastHttpContent());
+        try {
+            readWriteLock.lock();
+            if (state == EntityBodyState.EXPECTING) {
+                this.addHttpContent(new DefaultLastHttpContent());
+            }
+        } finally {
+            readWriteLock.unlock();
         }
     }
 }

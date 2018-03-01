@@ -48,7 +48,7 @@ public class HttpMessageDataStreamer {
 
     private HTTPCarbonMessage httpCarbonMessage;
 
-    private int contentBufferSize = 8192;
+    private final int contentBufferSize = 8192;
     private ByteBufAllocator pooledByteBufAllocator;
     private HttpMessageDataStreamer.ByteBufferInputStream byteBufferInputStream;
     private HttpMessageDataStreamer.ByteBufferOutputStream byteBufferOutputStream;
@@ -142,18 +142,18 @@ public class HttpMessageDataStreamer {
 
         @Override
         public void flush() throws IOException, EncoderException {
-            if (dataHolder != null && dataHolder.readableBytes() > 0) {
-                httpCarbonMessage.addHttpContent(new DefaultHttpContent(dataHolder));
-                dataHolder = getBuffer();
-            }
+            // We don't have to support flush
         }
 
         @Override
         public void close() {
             try {
-                httpCarbonMessage.addHttpContent(new DefaultLastHttpContent(dataHolder));
-                super.close();
-            } catch (IOException e) {
+                if (dataHolder != null && dataHolder.isReadable()) {
+                    httpCarbonMessage.addHttpContent(new DefaultLastHttpContent(dataHolder));
+                } else {
+                    httpCarbonMessage.addHttpContent(LastHttpContent.EMPTY_LAST_CONTENT);
+                }
+            } catch (Exception e) {
                 log.error("Error while closing output stream but underlying resources are reset", e);
             } finally {
                 byteBufferOutputStream = null;
