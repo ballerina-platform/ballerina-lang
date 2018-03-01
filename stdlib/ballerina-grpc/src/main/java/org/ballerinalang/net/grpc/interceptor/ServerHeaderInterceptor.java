@@ -44,7 +44,6 @@ public class ServerHeaderInterceptor implements ServerInterceptor {
 
         boolean found = false;
         for (String keyName : headers.keys()) {
-
             if (keyName.endsWith(Metadata.BINARY_HEADER_SUFFIX)) {
                 Metadata.Key<byte[]> key = Metadata.Key.of(keyName, Metadata.BINARY_BYTE_MARSHALLER);
                 Iterable<byte[]> values = headers.getAll(key);
@@ -72,17 +71,17 @@ public class ServerHeaderInterceptor implements ServerInterceptor {
 
         if (found) {
             return Contexts.interceptCall(Context.current().withValue(MessageContext.DATA_KEY, ctx), new
-                    HeaderForwardingServerCall<ReqT, RespT>(call), headers, next);
+                    HeaderForwardingServerCall<>(call), headers, next);
         } else {
             // Don't attach a context if there is nothing to attach
-            return next.startCall(new HeaderForwardingServerCall<ReqT, RespT>(call), headers);
+            return next.startCall(new HeaderForwardingServerCall<>(call), headers);
         }
     }
 
     private class HeaderForwardingServerCall<ReqT, RespT> extends ForwardingServerCall
             .SimpleForwardingServerCall<ReqT, RespT> {
 
-        protected HeaderForwardingServerCall(ServerCall<ReqT, RespT> delegate) {
+        HeaderForwardingServerCall(ServerCall<ReqT, RespT> delegate) {
             super(delegate);
         }
 

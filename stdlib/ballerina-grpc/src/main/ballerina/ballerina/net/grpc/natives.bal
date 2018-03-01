@@ -6,19 +6,28 @@ public native function getHeader(string headerName) (string);
 @Field {value:"host: The server host name"}
 @Field {value:"port: The server port"}
 public struct ClientConnection {
-int port;
-string host;
+    int port;
+    string host;
 }
 
 @Description {value:"gRPC protobuf client connector for outbound gRPC requests"}
 @Param {value:"serviceUri: Url of the service"}
 @Param {value:"connectorOptions: connector options"}
 public connector GRPCConnector (string host, int port, string subType, string descriptorKey, map describtorMap) {
+    @Description {value:"The execute action implementation of the gRPC Connector."}
+    @Param {value:"Connection stub."}
+    @Param {value:"Any type of request parameters."}
+    native action blockingExecute (string methodID, any payload) (any , ConnectorError);
 
-@Description {value:"The execute action implementation of the gRPC Connector."}
-@Param {value:"Connection stub."}
-@Param {value:"Any type of request parameters."}
-native action execute (any payload,string methodID, string listenerService) (any , ConnectorError);
+    @Description {value:"The execute action implementation of the gRPC Connector."}
+    @Param {value:"Connection stub."}
+    @Param {value:"Any type of request parameters."}
+    native action nonBlockingExecute (string methodID, any payload, string listenerService) (ConnectorError);
+
+    @Description {value:"The execute action implementation of the gRPC Connector."}
+    @Param {value:"Connection stub."}
+    @Param {value:"Any type of request parameters."}
+    native action streamingExecute (string methodID, string listenerService) (ClientConnection , ConnectorError);
 }
 
 @Description { value:"Sends outbound response to the caller"}
@@ -74,10 +83,10 @@ public native function <ServerConnection conn> error (ServerError serverError) (
 @Field {value:"stackTrace: Represents the invocation stack when ConnectorError is thrown"}
 @Field {value:"statusCode: HTTP status code"}
 public struct ConnectorError {
-string msg;
-error cause;
-StackFrame[] stackTrace;
-int statusCode;
+    string msg;
+    error cause;
+    StackFrame[] stackTrace;
+    int statusCode;
 }
 
 @Description { value:"ServerError struct represents an error occured during gRPC server excution" }
