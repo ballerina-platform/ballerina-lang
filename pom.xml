@@ -826,6 +826,7 @@
                 <module>misc/ballerina-samples</module>
                 <module>misc/swagger-ballerina</module>
                 <module>misc/testerina</module>
+                <module>misc/grpc-ballerina</module>
 
 <!--                <module>composer</module>-->
 

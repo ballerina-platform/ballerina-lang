@@ -1,1 +1,1 @@
-org.wso2.ballerinalang.grpc.tool.cmd.GRPCCmd
+org.ballerinalang.grpc.cmd.GRPCCmd

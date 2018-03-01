@@ -68,19 +68,19 @@
         <Bug pattern="BC_UNCONFIRMED_CAST_OF_RETURN_VALUE"/>
     </Match>
     <Match>
-        <Class name="org.wso2.ballerinalang.grpc.tool.StockQuotes"/>
+        <Class name="org.ballerinalang.grpc.tool.StockQuotes"/>
         <Bug pattern="UCF_USELESS_CONTROL_FLOW"/>
     </Match>
     <Match>
-        <Class name="org.wso2.ballerinalang.grpc.tool.StockQuote"/>
+        <Class name="org.ballerinalang.grpc.tool.StockQuote"/>
         <Bug pattern="UCF_USELESS_CONTROL_FLOW"/>
     </Match>
     <Match>
-        <Class name="org.wso2.ballerinalang.grpc.tool.StockRequest"/>
+        <Class name="org.ballerinalang.grpc.tool.StockRequest"/>
         <Bug pattern="UCF_USELESS_CONTROL_FLOW"/>
     </Match>
     <Match>
-        <Class name="org.wso2.ballerinalang.grpc.tool.Void"/>
+        <Class name="org.ballerinalang.grpc.tool.Void"/>
         <Bug pattern="UCF_USELESS_CONTROL_FLOW"/>
     </Match>
 </FindBugsFilter>

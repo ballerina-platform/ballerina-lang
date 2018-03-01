@@ -32,7 +32,7 @@ import java.util.List;
  */
 public interface BLauncherCmd {
 
-    void execute() throws IOException;
+    void execute();
 
     String getName();
 
