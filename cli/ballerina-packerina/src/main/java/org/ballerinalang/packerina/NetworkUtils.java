@@ -36,7 +36,6 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -127,16 +126,7 @@ public class NetworkUtils {
      * @return true if Ballerina.toml exists, else false
      */
     private static boolean ballerinaTomlExists(Path currentDirPath) {
-        try (DirectoryStream<Path> directoryStream = Files.newDirectoryStream(Paths.get(currentDirPath.toString()))) {
-            for (Path path : directoryStream) {
-                if ("Ballerina.toml".equals(path.getFileName().toString())) {
-                    return true;
-                }
-            }
-        } catch (IOException ex) {
-            return false;
-        }
-        return false;
+        return Files.isRegularFile(currentDirPath.resolve("Ballerina.toml"));
     }
 
     /**
