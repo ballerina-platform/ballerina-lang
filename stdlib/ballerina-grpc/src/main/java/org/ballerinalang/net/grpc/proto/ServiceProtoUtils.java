@@ -322,6 +322,9 @@ public class ServiceProtoUtils {
     }
 
     private static BLangInvocation getInvocationExpression(BlockNode body) {
+        if (body == null) {
+            return null;
+        }
         for (StatementNode statementNode : body.getStatements()) {
             BLangExpression expression = null;
             // example : conn.send inside while block.
