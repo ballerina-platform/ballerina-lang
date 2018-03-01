@@ -21,7 +21,9 @@ import org.ballerinalang.langserver.TextDocumentServiceContext;
 import org.ballerinalang.langserver.common.NodeVisitor;
 import org.ballerinalang.langserver.common.constants.ContextConstants;
 import org.ballerinalang.langserver.common.constants.NodeContextKeys;
+import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.hover.util.HoverUtil;
+import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.tree.TopLevelNode;
 import org.eclipse.lsp4j.Position;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolEnter;
@@ -103,7 +105,7 @@ public class PositionTreeVisitor extends NodeVisitor {
         ).collect(Collectors.toList());
 
         if (topLevelNodes.isEmpty()) {
-            terminateVisitor = true;
+            setTerminateVisitor(true);
             acceptNode(null);
         } else {
             topLevelNodes.forEach(topLevelNode -> acceptNode((BLangNode) topLevelNode));
@@ -123,18 +125,9 @@ public class PositionTreeVisitor extends NodeVisitor {
             return;
         }
 
-        if (funcNode.getPosition().sLine == this.position.getLine() && funcNode.getPosition().sCol == 1) {
-            this.context.put(NodeContextKeys.NODE_KEY, funcNode);
-            this.context.put(NodeContextKeys.PREVIOUSLY_VISITED_NODE_KEY, this.previousNode);
-            this.context.put(NodeContextKeys.NAME_OF_NODE_KEY, funcNode.name.getValue());
-            this.context.put(NodeContextKeys.PACKAGE_OF_NODE_KEY, funcNode.symbol.pkgID);
-            this.context.put(NodeContextKeys.SYMBOL_KIND_OF_NODE_PARENT_KEY, funcNode.symbol.kind.name());
-            this.context.put(NodeContextKeys.SYMBOL_KIND_OF_NODE_KEY, funcNode.symbol.kind.name());
-            this.context.put(NodeContextKeys.NODE_OWNER_KEY, funcNode.symbol.owner.name.getValue());
-            this.context.put(NodeContextKeys.NODE_OWNER_PACKAGE_KEY, funcNode.symbol.owner.pkgID);
-        }
-
-        previousNode = funcNode;
+        addTopLevelNodeToContext(funcNode, funcNode.name.getValue(), funcNode.symbol.pkgID, funcNode.symbol.kind.name(),
+                funcNode.symbol.kind.name(), funcNode.symbol.owner.name.getValue(), funcNode.symbol.owner.pkgID);
+        setPreviousNode(funcNode);
         this.addToNodeStack(funcNode);
 
         if (!funcNode.params.isEmpty()) {
@@ -160,9 +153,8 @@ public class PositionTreeVisitor extends NodeVisitor {
         userDefinedType.getPosition().sCol += (previousNode instanceof BLangEndpointTypeNode
                 ? "endpoint<".length()
                 : 0);
-        userDefinedType.getPosition().eCol = userDefinedType.getPosition().sCol
-                + userDefinedType.typeName.value.length()
-                + (!userDefinedType.pkgAlias.value.isEmpty() ? (userDefinedType.pkgAlias.value + ":").length() : 0);
+        CommonUtil.calculateEndColumnOfGivenName(userDefinedType.getPosition(), userDefinedType.typeName.value,
+                userDefinedType.pkgAlias.value);
         if (HoverUtil.isMatchingPosition(userDefinedType.getPosition(), this.position)) {
             this.context.put(NodeContextKeys.NODE_KEY, userDefinedType);
             this.context.put(NodeContextKeys.PREVIOUSLY_VISITED_NODE_KEY, this.previousNode);
@@ -173,13 +165,13 @@ public class PositionTreeVisitor extends NodeVisitor {
             this.context.put(NodeContextKeys.NODE_OWNER_KEY, userDefinedType.type.tsymbol.owner.name.getValue());
             this.context.put(NodeContextKeys.NODE_OWNER_PACKAGE_KEY, userDefinedType.type.tsymbol.owner.pkgID);
             this.context.put(NodeContextKeys.VAR_NAME_OF_NODE_KEY, userDefinedType.typeName.getValue());
-            terminateVisitor = true;
+            setTerminateVisitor(true);
         }
     }
 
     @Override
     public void visit(BLangVariable varNode) {
-        previousNode = varNode;
+        setPreviousNode(varNode);
         if (varNode.expr != null) {
             this.acceptNode(varNode.expr);
         }
@@ -191,9 +183,8 @@ public class PositionTreeVisitor extends NodeVisitor {
 
     @Override
     public void visit(BLangSimpleVarRef varRefExpr) {
-        varRefExpr.getPosition().eCol = varRefExpr.getPosition().sCol
-                + varRefExpr.variableName.value.length()
-                + (!varRefExpr.pkgAlias.value.isEmpty() ? (varRefExpr.pkgAlias.value + ":").length() : 0);
+        CommonUtil.calculateEndColumnOfGivenName(varRefExpr.getPosition(), varRefExpr.variableName.value,
+                varRefExpr.pkgAlias.value);
         if (varRefExpr.type instanceof BEndpointType && ((BEndpointType) varRefExpr.type).constraint != null
                 && ((BEndpointType) varRefExpr.type).constraint.tsymbol.kind.name().equals(ContextConstants.CONNECTOR)
                 && HoverUtil.isMatchingPosition(varRefExpr.getPosition(), this.position)) {
@@ -212,7 +203,7 @@ public class PositionTreeVisitor extends NodeVisitor {
                         varRefExpr.symbol.owner.pkgID);
                 this.context.put(NodeContextKeys.VAR_NAME_OF_NODE_KEY, varRefExpr.variableName.getValue());
             }
-            terminateVisitor = true;
+            setTerminateVisitor(true);
         } else if (varRefExpr.type.tsymbol != null && varRefExpr.type.tsymbol.kind != null
                 && (varRefExpr.type.tsymbol.kind.name().equals(ContextConstants.ENUM)
                 || varRefExpr.type.tsymbol.kind.name().equals(ContextConstants.STRUCT))
@@ -236,7 +227,7 @@ public class PositionTreeVisitor extends NodeVisitor {
                 this.context.put(NodeContextKeys.NODE_OWNER_PACKAGE_KEY,
                         varRefExpr.type.tsymbol.owner.pkgID);
             }
-            terminateVisitor = true;
+            setTerminateVisitor(true);
         } else if (varRefExpr.pkgSymbol != null
                 && HoverUtil.isMatchingPosition(varRefExpr.getPosition(), this.position)) {
             this.context.put(NodeContextKeys.NODE_KEY, varRefExpr);
@@ -251,13 +242,13 @@ public class PositionTreeVisitor extends NodeVisitor {
                         varRefExpr.symbol.owner.pkgID);
                 this.context.put(NodeContextKeys.VAR_NAME_OF_NODE_KEY, varRefExpr.variableName.getValue());
             }
-            terminateVisitor = true;
+            setTerminateVisitor(true);
         }
     }
 
     @Override
     public void visit(BLangFieldBasedAccess fieldAccessExpr) {
-        previousNode = fieldAccessExpr;
+        setPreviousNode(fieldAccessExpr);
         if (fieldAccessExpr.expr != null) {
             this.acceptNode(fieldAccessExpr.expr);
         }
@@ -265,7 +256,7 @@ public class PositionTreeVisitor extends NodeVisitor {
 
     @Override
     public void visit(BLangBinaryExpr binaryExpr) {
-        previousNode = binaryExpr;
+        setPreviousNode(binaryExpr);
         if (binaryExpr.lhsExpr != null) {
             acceptNode(binaryExpr.lhsExpr);
         }
@@ -279,7 +270,7 @@ public class PositionTreeVisitor extends NodeVisitor {
 
     @Override
     public void visit(BLangBlockStmt blockNode) {
-        previousNode = blockNode;
+        setPreviousNode(blockNode);
         if (!blockNode.stmts.isEmpty()) {
             blockNode.stmts.forEach(this::acceptNode);
         }
@@ -287,7 +278,7 @@ public class PositionTreeVisitor extends NodeVisitor {
 
     @Override
     public void visit(BLangVariableDef varDefNode) {
-        previousNode = varDefNode;
+        setPreviousNode(varDefNode);
         if (varDefNode.getVariable() != null) {
             this.acceptNode(varDefNode.getVariable());
         }
@@ -295,7 +286,7 @@ public class PositionTreeVisitor extends NodeVisitor {
 
     @Override
     public void visit(BLangAssignment assignNode) {
-        previousNode = assignNode;
+        setPreviousNode(assignNode);
         if (assignNode.expr != null && assignNode.getPosition().sLine <= this.position.getLine()
                 && assignNode.getPosition().eLine >= this.position.getLine()) {
             this.acceptNode(assignNode.expr);
@@ -308,7 +299,7 @@ public class PositionTreeVisitor extends NodeVisitor {
 
     @Override
     public void visit(BLangExpressionStmt exprStmtNode) {
-        previousNode = exprStmtNode;
+        setPreviousNode(exprStmtNode);
         if (HoverUtil.isMatchingPosition(exprStmtNode.pos, this.position)) {
             this.acceptNode(exprStmtNode.expr);
         }
@@ -316,7 +307,7 @@ public class PositionTreeVisitor extends NodeVisitor {
 
     @Override
     public void visit(BLangIf ifNode) {
-        previousNode = ifNode;
+        setPreviousNode(ifNode);
         if (ifNode.expr != null && HoverUtil.isMatchingPosition(ifNode.expr.pos, this.position)) {
             acceptNode(ifNode.expr);
         }
@@ -331,7 +322,10 @@ public class PositionTreeVisitor extends NodeVisitor {
     }
 
     public void visit(BLangStruct structNode) {
-        previousNode = structNode;
+        addTopLevelNodeToContext(structNode, structNode.name.getValue(), structNode.symbol.pkgID,
+                structNode.symbol.kind.name(), structNode.symbol.kind.name(),
+                structNode.symbol.owner.name.getValue(), structNode.symbol.owner.pkgID);
+        setPreviousNode(structNode);
         this.addToNodeStack(structNode);
 
         if (!structNode.fields.isEmpty()) {
@@ -340,7 +334,7 @@ public class PositionTreeVisitor extends NodeVisitor {
     }
 
     public void visit(BLangWhile whileNode) {
-        previousNode = whileNode;
+        setPreviousNode(whileNode);
         if (whileNode.expr != null) {
             this.acceptNode(whileNode.expr);
         }
@@ -350,7 +344,11 @@ public class PositionTreeVisitor extends NodeVisitor {
     }
 
     public void visit(BLangTransformer transformerNode) {
-        previousNode = transformerNode;
+        addTopLevelNodeToContext(transformerNode, transformerNode.name.getValue(), transformerNode.symbol.pkgID,
+                transformerNode.symbol.kind.name(), transformerNode.symbol.kind.name(),
+                transformerNode.symbol.owner.name.getValue(), transformerNode.symbol.owner.pkgID);
+
+        setPreviousNode(transformerNode);
         this.addToNodeStack(transformerNode);
 
         if (transformerNode.source != null) {
@@ -375,7 +373,11 @@ public class PositionTreeVisitor extends NodeVisitor {
     }
 
     public void visit(BLangConnector connectorNode) {
-        previousNode = connectorNode;
+        addTopLevelNodeToContext(connectorNode, connectorNode.name.getValue(), connectorNode.symbol.pkgID,
+                connectorNode.symbol.kind.name(), connectorNode.symbol.kind.name(),
+                connectorNode.symbol.owner.name.getValue(), connectorNode.symbol.owner.pkgID);
+
+        setPreviousNode(connectorNode);
         this.addToNodeStack(connectorNode);
 
         if (!connectorNode.params.isEmpty()) {
@@ -392,7 +394,11 @@ public class PositionTreeVisitor extends NodeVisitor {
     }
 
     public void visit(BLangAction actionNode) {
-        previousNode = actionNode;
+        addTopLevelNodeToContext(actionNode, actionNode.name.getValue(), actionNode.symbol.pkgID,
+                actionNode.symbol.kind.name(), actionNode.symbol.kind.name(),
+                actionNode.symbol.owner.name.getValue(), actionNode.symbol.owner.pkgID);
+
+        setPreviousNode(actionNode);
         this.addToNodeStack(actionNode);
 
         if (!actionNode.params.isEmpty()) {
@@ -413,7 +419,11 @@ public class PositionTreeVisitor extends NodeVisitor {
     }
 
     public void visit(BLangService serviceNode) {
-        previousNode = serviceNode;
+        addTopLevelNodeToContext(serviceNode, serviceNode.name.getValue(), serviceNode.symbol.pkgID,
+                serviceNode.symbol.kind.name(), serviceNode.symbol.kind.name(),
+                serviceNode.symbol.owner.name.getValue(), serviceNode.symbol.owner.pkgID);
+
+        setPreviousNode(serviceNode);
         this.addToNodeStack(serviceNode);
 
         if (!serviceNode.resources.isEmpty()) {
@@ -426,18 +436,11 @@ public class PositionTreeVisitor extends NodeVisitor {
     }
 
     public void visit(BLangResource resourceNode) {
-        if (resourceNode.getPosition().sLine == this.position.getLine()) {
-            this.context.put(NodeContextKeys.NODE_KEY, resourceNode);
-            this.context.put(NodeContextKeys.PREVIOUSLY_VISITED_NODE_KEY, this.previousNode);
-            this.context.put(NodeContextKeys.NAME_OF_NODE_KEY, resourceNode.name.getValue());
-            this.context.put(NodeContextKeys.PACKAGE_OF_NODE_KEY, resourceNode.symbol.pkgID);
-            this.context.put(NodeContextKeys.SYMBOL_KIND_OF_NODE_PARENT_KEY, resourceNode.symbol.kind.name());
-            this.context.put(NodeContextKeys.SYMBOL_KIND_OF_NODE_KEY, resourceNode.symbol.kind.name());
-            this.context.put(NodeContextKeys.NODE_OWNER_KEY, resourceNode.symbol.owner.name.getValue());
-            this.context.put(NodeContextKeys.NODE_OWNER_PACKAGE_KEY, resourceNode.symbol.owner.pkgID);
-        }
+        addTopLevelNodeToContext(resourceNode, resourceNode.name.getValue(), resourceNode.symbol.pkgID,
+                resourceNode.symbol.kind.name(), resourceNode.symbol.kind.name(),
+                resourceNode.symbol.owner.name.getValue(), resourceNode.symbol.owner.pkgID);
 
-        previousNode = resourceNode;
+        setPreviousNode(resourceNode);
         this.addToNodeStack(resourceNode);
 
         if (!resourceNode.params.isEmpty()) {
@@ -455,7 +458,7 @@ public class PositionTreeVisitor extends NodeVisitor {
 
     @Override
     public void visit(BLangTryCatchFinally tryCatchFinally) {
-        previousNode = tryCatchFinally;
+        setPreviousNode(tryCatchFinally);
         if (tryCatchFinally.tryBody != null) {
             acceptNode(tryCatchFinally.tryBody);
         }
@@ -471,7 +474,7 @@ public class PositionTreeVisitor extends NodeVisitor {
 
     @Override
     public void visit(BLangCatch bLangCatch) {
-        previousNode = bLangCatch;
+        setPreviousNode(bLangCatch);
         if (bLangCatch.param != null) {
             acceptNode(bLangCatch.param);
         }
@@ -483,7 +486,7 @@ public class PositionTreeVisitor extends NodeVisitor {
 
     @Override
     public void visit(BLangTransaction transactionNode) {
-        previousNode = transactionNode;
+        setPreviousNode(transactionNode);
         if (transactionNode.transactionBody != null) {
             acceptNode(transactionNode.transactionBody);
         }
@@ -499,7 +502,7 @@ public class PositionTreeVisitor extends NodeVisitor {
 
     @Override
     public void visit(BLangForkJoin forkJoin) {
-        previousNode = forkJoin;
+        setPreviousNode(forkJoin);
 
         if (!forkJoin.workers.isEmpty()) {
             forkJoin.workers.forEach(this::acceptNode);
@@ -528,7 +531,7 @@ public class PositionTreeVisitor extends NodeVisitor {
 
     @Override
     public void visit(BLangWorker workerNode) {
-        previousNode = workerNode;
+        setPreviousNode(workerNode);
         if (!workerNode.params.isEmpty()) {
             workerNode.params.forEach(this::acceptNode);
         }
@@ -548,7 +551,7 @@ public class PositionTreeVisitor extends NodeVisitor {
 
     @Override
     public void visit(BLangWorkerSend workerSendNode) {
-        previousNode = workerSendNode;
+        setPreviousNode(workerSendNode);
         if (!workerSendNode.exprs.isEmpty()) {
             workerSendNode.exprs.forEach(this::acceptNode);
         }
@@ -556,7 +559,7 @@ public class PositionTreeVisitor extends NodeVisitor {
 
     @Override
     public void visit(BLangWorkerReceive workerReceiveNode) {
-        previousNode = workerReceiveNode;
+        setPreviousNode(workerReceiveNode);
         if (!workerReceiveNode.exprs.isEmpty()) {
             workerReceiveNode.exprs.forEach(this::acceptNode);
         }
@@ -564,14 +567,14 @@ public class PositionTreeVisitor extends NodeVisitor {
 
     @Override
     public void visit(BLangReturn returnNode) {
-        previousNode = returnNode;
+        setPreviousNode(returnNode);
         if (!returnNode.exprs.isEmpty()) {
             returnNode.exprs.forEach(this::acceptNode);
         }
     }
 
     public void visit(BLangInvocation invocationExpr) {
-        previousNode = invocationExpr;
+        setPreviousNode(invocationExpr);
         if (invocationExpr.expr != null) {
             this.acceptNode(invocationExpr.expr);
         }
@@ -590,13 +593,12 @@ public class PositionTreeVisitor extends NodeVisitor {
             this.context.put(NodeContextKeys.NODE_OWNER_KEY, invocationExpr.symbol.owner.name.getValue());
             this.context.put(NodeContextKeys.NODE_OWNER_PACKAGE_KEY,
                     invocationExpr.symbol.owner.pkgID);
-            this.terminateVisitor = true;
+            setTerminateVisitor(true);
         }
     }
 
     public void visit(BLangForeach foreach) {
-        previousNode = foreach;
-
+        setPreviousNode(foreach);
         if (foreach.collection != null) {
             acceptNode(foreach.collection);
         }
@@ -611,14 +613,14 @@ public class PositionTreeVisitor extends NodeVisitor {
     }
 
     public void visit(BLangArrayLiteral arrayLiteral) {
-        previousNode = arrayLiteral;
+        setPreviousNode(arrayLiteral);
         if (!arrayLiteral.exprs.isEmpty()) {
             arrayLiteral.exprs.forEach(this::acceptNode);
         }
     }
 
     public void visit(BLangConnectorInit connectorInitExpr) {
-        previousNode = connectorInitExpr;
+        setPreviousNode(connectorInitExpr);
         if (connectorInitExpr.connectorType != null) {
             connectorInitExpr.connectorType.type = connectorInitExpr.type;
             acceptNode(connectorInitExpr.connectorType);
@@ -630,7 +632,7 @@ public class PositionTreeVisitor extends NodeVisitor {
     }
 
     public void visit(BLangTypeCastExpr castExpr) {
-        previousNode = castExpr;
+        setPreviousNode(castExpr);
         if (castExpr.typeNode != null) {
             this.acceptNode(castExpr.typeNode);
         }
@@ -641,7 +643,7 @@ public class PositionTreeVisitor extends NodeVisitor {
     }
 
     public void visit(BLangTypeConversionExpr conversionExpr) {
-        previousNode = conversionExpr;
+        setPreviousNode(conversionExpr);
 
         if (conversionExpr.expr != null) {
             acceptNode(conversionExpr.expr);
@@ -657,7 +659,7 @@ public class PositionTreeVisitor extends NodeVisitor {
     }
 
     public void visit(BLangStringTemplateLiteral stringTemplateLiteral) {
-        previousNode = stringTemplateLiteral;
+        setPreviousNode(stringTemplateLiteral);
 
         if (!stringTemplateLiteral.exprs.isEmpty()) {
             stringTemplateLiteral.exprs.forEach(this::acceptNode);
@@ -665,14 +667,14 @@ public class PositionTreeVisitor extends NodeVisitor {
     }
 
     public void visit(BLangArrayType arrayType) {
-        previousNode = arrayType;
+        setPreviousNode(arrayType);
         if (arrayType.elemtype != null) {
             acceptNode(arrayType.elemtype);
         }
     }
 
     public void visit(BLangEndpointTypeNode endpointType) {
-        previousNode = endpointType;
+        setPreviousNode(endpointType);
         if (endpointType.constraint != null) {
             acceptNode(endpointType.constraint);
         }
@@ -701,6 +703,44 @@ public class PositionTreeVisitor extends NodeVisitor {
                 this.nodeStack.pop();
             }
             this.nodeStack.push(node);
+        }
+    }
+
+    /**
+     * Set previous node.
+     *
+     * @param node node to be added as previous
+     */
+    private void setPreviousNode(BLangNode node) {
+        this.previousNode = node;
+    }
+
+    /**
+     * Set terminate visitor.
+     *
+     * @param value boolean value for terminate visitor
+     */
+    private void setTerminateVisitor(boolean value) {
+        this.terminateVisitor = value;
+    }
+
+    /**
+     * Add the top level node to context if cursor position matches the line of signature.
+     *
+     * @param node node to be compared and added to the context
+     */
+    private void addTopLevelNodeToContext(BLangNode node, String name, PackageID currentPkg,
+                                          String symbolKindOfParentNode, String symbolKindOfCurrentNode,
+                                          String ownerName, PackageID ownerPkg) {
+        if (node.getPosition().sLine == this.position.getLine()) {
+            this.context.put(NodeContextKeys.NODE_KEY, node);
+            this.context.put(NodeContextKeys.PREVIOUSLY_VISITED_NODE_KEY, this.previousNode);
+            this.context.put(NodeContextKeys.NAME_OF_NODE_KEY, name);
+            this.context.put(NodeContextKeys.PACKAGE_OF_NODE_KEY, currentPkg);
+            this.context.put(NodeContextKeys.SYMBOL_KIND_OF_NODE_PARENT_KEY, symbolKindOfParentNode);
+            this.context.put(NodeContextKeys.SYMBOL_KIND_OF_NODE_KEY, symbolKindOfCurrentNode);
+            this.context.put(NodeContextKeys.NODE_OWNER_KEY, ownerName);
+            this.context.put(NodeContextKeys.NODE_OWNER_PACKAGE_KEY, ownerPkg);
         }
     }
 }
