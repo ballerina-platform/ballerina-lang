@@ -1,4 +1,3 @@
-import ballerina.transactions.coordinator;
 import ballerina.data.sql;
 
 struct ResultCount {

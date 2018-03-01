@@ -16,7 +16,6 @@
 
 import ballerina.net.http;
 import ballerina.io;
-import ballerina.transactions.coordinator;
 
 @http:configuration {
     basePath:"/",

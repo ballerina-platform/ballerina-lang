@@ -15,7 +15,6 @@
 // under the License.
 
 import ballerina.net.http;
-import ballerina.transactions.coordinator;
 
 @http:configuration {
     port:8890

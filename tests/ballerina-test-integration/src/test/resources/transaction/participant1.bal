@@ -16,7 +16,6 @@
 
 import ballerina.io;
 import ballerina.net.http;
-import ballerina.transactions.coordinator;
 
 @http:configuration {
     port:8889
