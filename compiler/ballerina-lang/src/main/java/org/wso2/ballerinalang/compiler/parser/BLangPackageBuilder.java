@@ -59,7 +59,6 @@ import org.ballerinalang.model.tree.statements.VariableDefinitionNode;
 import org.ballerinalang.model.tree.types.TypeNode;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
 import org.wso2.ballerinalang.compiler.tree.BLangAction;
-import org.wso2.ballerinalang.compiler.tree.BLangAnnotAttribute;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachmentPoint;
@@ -1149,31 +1148,22 @@ public class BLangPackageBuilder {
         this.annotationStack.add(annotNode);
     }
 
-    public void endAnnotationDef(Set<Whitespace> ws, String identifier, boolean publicAnnotation) {
+    public void endAnnotationDef(Set<Whitespace> ws, String identifier, boolean publicAnnotation,
+                                 boolean isTypeAttached) {
         BLangAnnotation annotationNode = (BLangAnnotation) this.annotationStack.pop();
         annotationNode.addWS(ws);
         annotationNode.setName(this.createIdentifier(identifier));
-        this.varListStack.pop().forEach(var -> {
-            BLangVariable variable = (BLangVariable) var;
-            BLangAnnotAttribute annAttrNode = (BLangAnnotAttribute) TreeBuilder.createAnnotAttributeNode();
-            var.getFlags().forEach(annAttrNode::addFlag);
-            var.getAnnotationAttachments().forEach(annAttrNode::addAnnotationAttachment);
-            annAttrNode.typeNode = variable.typeNode;
-            annAttrNode.expr = variable.expr;
-            annAttrNode.name = variable.name;
-            annAttrNode.addWS(variable.getWS());
-            annAttrNode.pos = variable.pos;
-
-            // add the attribute to the annotation definition
-            annotationNode.addAttribute(annAttrNode);
-        });
 
         if (publicAnnotation) {
             annotationNode.flagSet.add(Flag.PUBLIC);
         }
         while (!attachmentPointStack.empty()) {
-            ((BLangAnnotation) annotationNode).attachmentPoints.add(attachmentPointStack.pop());
+            annotationNode.attachmentPoints.add(attachmentPointStack.pop());
         }
+        if (isTypeAttached) {
+            annotationNode.typeNode = (BLangType) this.typeNodeStack.pop();
+        }
+
         this.compUnit.addTopLevelNode(annotationNode);
     }
 
@@ -1235,6 +1225,7 @@ public class BLangPackageBuilder {
         annotAttach.addWS(ws);
         annotAttach.setAnnotationName(nameReference.name);
         annotAttach.setPackageAlias(nameReference.pkgAlias);
+        annotAttach.setExpression(exprNodeStack.pop());
     }
 
     public void createLiteralTypeAttributeValue(DiagnosticPos currentPos, Set<Whitespace> ws) {

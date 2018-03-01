@@ -19,7 +19,6 @@ package org.wso2.ballerinalang.compiler.parser;
 
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.Token;
-import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.TerminalNode;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.ballerinalang.model.Whitespace;
@@ -447,7 +446,8 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         }
 
         boolean publicAnnotation = KEYWORD_PUBLIC.equals(ctx.getChild(0).getText());
-        this.pkgBuilder.endAnnotationDef(getWS(ctx), ctx.Identifier().getText(), publicAnnotation);
+        boolean isTypeAttached = ctx.userDefineTypeName() != null;
+        this.pkgBuilder.endAnnotationDef(getWS(ctx), ctx.Identifier().getText(), publicAnnotation, isTypeAttached);
     }
 
     /**
@@ -660,18 +660,6 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         this.pkgBuilder.addAttachPoint(BLangAnnotationAttachmentPoint.AttachmentPoint.TRANSFORMER, null);
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void enterAnnotationBody(BallerinaParser.AnnotationBodyContext ctx) {
-        if (ctx.exception != null) {
-            return;
-        }
-
-        this.pkgBuilder.startVarList();
-    }
-
     @Override
     public void exitConstantDefinition(BallerinaParser.ConstantDefinitionContext ctx) {
         if (ctx.exception != null) {
@@ -860,40 +848,6 @@ public class BLangParserListener extends BallerinaParserBaseListener {
     }
 
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void exitAnnotationAttribute(BallerinaParser.AnnotationAttributeContext ctx) {
-        if (ctx.exception != null) {
-            return;
-        }
-
-        String attrName = ctx.Identifier().getText();
-        this.pkgBuilder.createAnnotAttachmentAttribute(getCurrentPos(ctx), getWS(ctx), attrName);
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void exitAnnotationAttributeValue(BallerinaParser.AnnotationAttributeValueContext ctx) {
-        if (ctx.exception != null) {
-            return;
-        }
-
-        ParseTree childContext = ctx.getChild(0);
-        if (childContext instanceof BallerinaParser.SimpleLiteralContext) {
-            this.pkgBuilder.createLiteralTypeAttributeValue(getCurrentPos(ctx), getWS(ctx));
-        } else if (childContext instanceof BallerinaParser.NameReferenceContext) {
-            this.pkgBuilder.createVarRefTypeAttributeValue(getCurrentPos(ctx), getWS(ctx));
-        } else if (childContext instanceof BallerinaParser.AnnotationAttachmentContext) {
-            this.pkgBuilder.createAnnotationTypeAttributeValue(getCurrentPos(ctx), getWS(ctx));
-        } else if (childContext instanceof BallerinaParser.AnnotationAttributeArrayContext) {
-            this.pkgBuilder.createArrayTypeAttributeValue(getCurrentPos(ctx), getWS(ctx));
-        }
-    }
 
     @Override
     public void exitVariableDefinitionStatement(BallerinaParser.VariableDefinitionStatementContext ctx) {
@@ -1817,8 +1771,6 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             this.pkgBuilder.addVarToStruct(currentPos, ws, name, exprAvailable, 0, false);
         } else if (ctx.parent instanceof BallerinaParser.PrivateStructBodyContext) {
             this.pkgBuilder.addVarToStruct(currentPos, ws, name, exprAvailable, 0, true);
-        } else if (ctx.parent instanceof BallerinaParser.AnnotationBodyContext) {
-            this.pkgBuilder.addVarToAnnotation(currentPos, ws, name, exprAvailable, 0);
         }
     }
 

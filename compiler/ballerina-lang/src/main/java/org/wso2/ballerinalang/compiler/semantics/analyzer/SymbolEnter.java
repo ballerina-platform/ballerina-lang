@@ -255,6 +255,10 @@ public class SymbolEnter extends BLangNodeVisitor {
         defineSymbol(annotationNode.pos, annotationSymbol);
         SymbolEnv annotationEnv = SymbolEnv.createAnnotationEnv(annotationNode, annotationSymbol.scope, env);
         annotationNode.attributes.forEach(att -> this.defineNode(att, annotationEnv));
+        if (annotationNode.typeNode != null) {
+            BType structType = this.symResolver.resolveTypeNode(annotationNode.typeNode, annotationEnv);
+            ((BAnnotationSymbol) annotationSymbol).attachedType = structType.tsymbol;
+        }
     }
 
     public void visit(BLangAnnotAttribute annotationAttribute) {
