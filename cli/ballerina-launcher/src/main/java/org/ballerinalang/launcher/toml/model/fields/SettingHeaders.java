@@ -18,7 +18,7 @@
 package org.ballerinalang.launcher.toml.model.fields;
 
 /**
- * Section defined in the toml file.
+ * Section headers valid in the settings toml file.
  *
  * @since 0.964
  */
