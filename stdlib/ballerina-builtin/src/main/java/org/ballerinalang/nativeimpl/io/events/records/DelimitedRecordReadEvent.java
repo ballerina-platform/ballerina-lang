@@ -16,32 +16,24 @@
  * under the License.
  */
 
-package org.ballerinalang.nativeimpl.io.events.bytes;
+package org.ballerinalang.nativeimpl.io.events.records;
 
-import org.ballerinalang.nativeimpl.io.channels.base.Channel;
+
+import org.ballerinalang.nativeimpl.io.channels.base.DelimitedRecordChannel;
 import org.ballerinalang.nativeimpl.io.events.Event;
 import org.ballerinalang.nativeimpl.io.events.EventResult;
-import org.ballerinalang.nativeimpl.io.events.result.NumericResult;
-
-import java.nio.ByteBuffer;
+import org.ballerinalang.nativeimpl.io.events.result.AlphaCollectionResult;
 
 /**
- * Will be used to process the response once the bytes are read from the source.
+ * Represents delimited record read event.
  */
-public class ReadBytesEvent implements Event {
+public class DelimitedRecordReadEvent implements Event {
     /**
-     * Buffer which will be provided to the channel.
+     * Source which the delimited records will be read from.
      */
-    private ByteBuffer content;
+    private DelimitedRecordChannel channel;
 
-    /**
-     * Will be used to read bytes.
-     */
-    private Channel channel;
-
-
-    public ReadBytesEvent(ByteBuffer content, Channel channel) {
-        this.content = content;
+    public DelimitedRecordReadEvent(DelimitedRecordChannel channel) {
         this.channel = channel;
     }
 
@@ -49,8 +41,8 @@ public class ReadBytesEvent implements Event {
      * {@inheritDoc}
      */
     @Override
-    public EventResult<Integer> call() throws Exception {
-        int read = channel.read(content);
-        return new NumericResult(read);
+    public EventResult call() throws Exception {
+        String[] content = channel.read();
+        return new AlphaCollectionResult(content);
     }
 }

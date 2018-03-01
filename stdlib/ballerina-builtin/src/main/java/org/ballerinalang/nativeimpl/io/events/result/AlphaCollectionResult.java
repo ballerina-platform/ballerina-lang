@@ -16,20 +16,28 @@
  * under the License.
  */
 
-package org.ballerinalang.nativeimpl.io.events;
+package org.ballerinalang.nativeimpl.io.events.result;
+
+import org.ballerinalang.nativeimpl.io.events.EventResult;
 
 /**
- * Represents the I/O event response.
- *
- * @param <K> return type of the event response.
+ * Represent alphanumeric result collection.
  */
-public interface EventResponse<K> {
+public class AlphaCollectionResult implements EventResult<String[]> {
     /**
-     * <p>
-     * Returns the response returned from the event.
-     * </p>
-     *
-     * @return Response from I/O source.
+     * Represents a response obtained as a collection.
      */
-    K getResponse();
+    private String[] response;
+
+    public AlphaCollectionResult(String[] response) {
+        //We need to clone here since we cannot expose the internal representation
+        //Causes security vulnerability
+        //TODO revisit this
+        this.response = response.clone();
+    }
+
+    @Override
+    public String[] getResponse() {
+        return response.clone();
+    }
 }

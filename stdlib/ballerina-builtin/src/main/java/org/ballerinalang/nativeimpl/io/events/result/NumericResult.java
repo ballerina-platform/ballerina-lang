@@ -16,25 +16,31 @@
  * under the License.
  */
 
-package org.ballerinalang.nativeimpl.io.events.bytes;
+package org.ballerinalang.nativeimpl.io.events.result;
 
-import org.ballerinalang.nativeimpl.io.events.EventResponse;
+import org.ballerinalang.nativeimpl.io.events.EventResult;
 
 /**
- * Represents the response after the bytes are written.
+ * Will represent the response obtained after reading/writing operations.
  */
-public class WriteBytesResponse implements EventResponse<Integer> {
-    /**
-     * Specifies the number of bytes written.
-     */
-    private int numberOfBytesWritten;
+public class NumericResult implements EventResult<Integer> {
 
-    WriteBytesResponse(int numberOfBytesWritten) {
-        this.numberOfBytesWritten = numberOfBytesWritten;
+    /**
+     * Will represent a count.
+     * <p>
+     * This could be numberOfBytes, numberOfCharacters.
+     */
+    private int count;
+
+    public NumericResult(int count) {
+        this.count = count;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public Integer getResponse() {
-        return this.numberOfBytesWritten;
+        return count;
     }
 }

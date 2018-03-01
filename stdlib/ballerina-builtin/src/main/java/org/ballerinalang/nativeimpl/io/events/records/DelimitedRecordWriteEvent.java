@@ -16,41 +16,38 @@
  * under the License.
  */
 
-package org.ballerinalang.nativeimpl.io.events.bytes;
+package org.ballerinalang.nativeimpl.io.events.records;
 
-import org.ballerinalang.nativeimpl.io.channels.base.Channel;
+import org.ballerinalang.model.values.BStringArray;
+import org.ballerinalang.nativeimpl.io.channels.base.DelimitedRecordChannel;
 import org.ballerinalang.nativeimpl.io.events.Event;
 import org.ballerinalang.nativeimpl.io.events.EventResult;
 import org.ballerinalang.nativeimpl.io.events.result.NumericResult;
 
-import java.nio.ByteBuffer;
-
 /**
- * Will be used to process the response once the bytes are read from the source.
+ * Represents write event of delimited records channel.
  */
-public class ReadBytesEvent implements Event {
+public class DelimitedRecordWriteEvent implements Event {
     /**
-     * Buffer which will be provided to the channel.
+     * Channel the record content will be written.
      */
-    private ByteBuffer content;
-
+    private DelimitedRecordChannel channel;
     /**
-     * Will be used to read bytes.
+     * Content which will be written to the channel.
      */
-    private Channel channel;
+    private BStringArray content;
 
-
-    public ReadBytesEvent(ByteBuffer content, Channel channel) {
-        this.content = content;
+    public DelimitedRecordWriteEvent(DelimitedRecordChannel channel, BStringArray content) {
         this.channel = channel;
+        this.content = content;
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public EventResult<Integer> call() throws Exception {
-        int read = channel.read(content);
-        return new NumericResult(read);
+    public EventResult call() throws Exception {
+        channel.write(content);
+        return new NumericResult(-1);
     }
 }

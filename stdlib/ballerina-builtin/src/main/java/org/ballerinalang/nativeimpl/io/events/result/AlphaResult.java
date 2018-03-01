@@ -16,41 +16,28 @@
  * under the License.
  */
 
-package org.ballerinalang.nativeimpl.io.events.bytes;
+package org.ballerinalang.nativeimpl.io.events.result;
 
-import org.ballerinalang.nativeimpl.io.channels.base.Channel;
-import org.ballerinalang.nativeimpl.io.events.Event;
 import org.ballerinalang.nativeimpl.io.events.EventResult;
-import org.ballerinalang.nativeimpl.io.events.result.NumericResult;
-
-import java.nio.ByteBuffer;
 
 /**
- * Will be used to process the response once the bytes are read from the source.
+ * Represents a series of characters.
  */
-public class ReadBytesEvent implements Event {
+public class AlphaResult implements EventResult<String> {
     /**
-     * Buffer which will be provided to the channel.
+     * The content which is read, will be used for character IO APIs.
      */
-    private ByteBuffer content;
+    private String content;
 
-    /**
-     * Will be used to read bytes.
-     */
-    private Channel channel;
-
-
-    public ReadBytesEvent(ByteBuffer content, Channel channel) {
+    public AlphaResult(String content) {
         this.content = content;
-        this.channel = channel;
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public EventResult<Integer> call() throws Exception {
-        int read = channel.read(content);
-        return new NumericResult(read);
+    public String getResponse() {
+        return this.content.intern();
     }
 }

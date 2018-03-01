@@ -20,7 +20,8 @@ package org.ballerinalang.nativeimpl.io.events.bytes;
 
 import org.ballerinalang.nativeimpl.io.channels.base.Channel;
 import org.ballerinalang.nativeimpl.io.events.Event;
-import org.ballerinalang.nativeimpl.io.events.EventResponse;
+import org.ballerinalang.nativeimpl.io.events.EventResult;
+import org.ballerinalang.nativeimpl.io.events.result.NumericResult;
 
 import java.nio.ByteBuffer;
 
@@ -47,8 +48,8 @@ public class WriteBytesEvent implements Event {
     }
 
     @Override
-    public EventResponse call() throws Exception {
+    public EventResult call() throws Exception {
         int numberOfBytesWritten = byteChannel.write(writeBuffer);
-        return new WriteBytesResponse(numberOfBytesWritten);
+        return new NumericResult(numberOfBytesWritten);
     }
 }

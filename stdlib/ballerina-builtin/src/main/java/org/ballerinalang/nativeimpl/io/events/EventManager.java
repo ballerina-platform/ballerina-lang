@@ -74,7 +74,7 @@ public class EventManager {
      * @param event incoming event which will be processed by the I/O threads.
      * @return future which will be notified on the response.
      */
-    public Future<EventResponse> publish(Event event) {
+    public Future<EventResult> publish(Event event) {
         return workers.submit(event);
     }
 }

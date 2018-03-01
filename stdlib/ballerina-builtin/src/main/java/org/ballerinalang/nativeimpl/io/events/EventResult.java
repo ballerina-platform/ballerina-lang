@@ -16,28 +16,20 @@
  * under the License.
  */
 
-package org.ballerinalang.nativeimpl.io.events.bytes;
-
-import org.ballerinalang.nativeimpl.io.events.EventResponse;
+package org.ballerinalang.nativeimpl.io.events;
 
 /**
- * Response returned after reading bytes.
+ * Represents the I/O event response.
+ *
+ * @param <K> return type of the event response.
  */
-public class ReadByteResponse implements EventResponse<Integer> {
+public interface EventResult<K> {
     /**
-     * Number of bytes read.
+     * <p>
+     * Returns the response returned from the event.
+     * </p>
+     *
+     * @return Response from I/O source.
      */
-    private int numberOfBytesRead;
-
-    ReadByteResponse(int numberOfBytesRead) {
-        this.numberOfBytesRead = numberOfBytesRead;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public Integer getResponse() {
-        return numberOfBytesRead;
-    }
+    K getResponse();
 }

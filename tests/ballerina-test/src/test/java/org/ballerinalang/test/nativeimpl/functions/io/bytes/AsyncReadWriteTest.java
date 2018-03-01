@@ -20,7 +20,7 @@ package org.ballerinalang.test.nativeimpl.functions.io.bytes;
 
 import org.ballerinalang.nativeimpl.io.channels.base.Channel;
 import org.ballerinalang.nativeimpl.io.events.EventManager;
-import org.ballerinalang.nativeimpl.io.events.EventResponse;
+import org.ballerinalang.nativeimpl.io.events.EventResult;
 import org.ballerinalang.nativeimpl.io.events.bytes.ReadBytesEvent;
 import org.ballerinalang.nativeimpl.io.events.bytes.WriteBytesEvent;
 import org.ballerinalang.test.nativeimpl.functions.io.MockByteChannel;
@@ -82,8 +82,8 @@ public class AsyncReadWriteTest {
         do {
             ByteBuffer contentBuffer = wrapByteArray(content, numberOfBytesRead);
             ReadBytesEvent event = new ReadBytesEvent(contentBuffer, channel);
-            Future<EventResponse> future = eventManager.publish(event);
-            EventResponse eventResponse = future.get();
+            Future<EventResult> future = eventManager.publish(event);
+            EventResult eventResponse = future.get();
             numberOfBytesRead = numberOfBytesRead + (Integer) eventResponse.getResponse();
         } while (numberOfBytesRead < expectedNumberOfBytes);
         return numberOfBytesRead;
@@ -103,8 +103,8 @@ public class AsyncReadWriteTest {
         do {
             int arrayLength = content.length;
             WriteBytesEvent writeBytesEvent = new WriteBytesEvent(channel, content, numberOfBytesWritten, arrayLength);
-            Future<EventResponse> future = eventManager.publish(writeBytesEvent);
-            EventResponse eventResponse = future.get();
+            Future<EventResult> future = eventManager.publish(writeBytesEvent);
+            EventResult eventResponse = future.get();
             numberOfBytesWritten = numberOfBytesWritten + (Integer) eventResponse.getResponse();
         } while (numberOfBytesWritten < content.length);
         return numberOfBytesWritten;

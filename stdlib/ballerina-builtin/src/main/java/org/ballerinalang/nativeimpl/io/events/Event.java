@@ -30,5 +30,5 @@ import java.util.concurrent.Callable;
  * All these events should implement this interface.
  * </p>
  */
-public interface Event extends Callable<EventResponse> {
+public interface Event extends Callable<EventResult> {
 }

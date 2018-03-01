@@ -16,41 +16,42 @@
  * under the License.
  */
 
-package org.ballerinalang.nativeimpl.io.events.bytes;
+package org.ballerinalang.nativeimpl.io.events.characters;
 
-import org.ballerinalang.nativeimpl.io.channels.base.Channel;
+import org.ballerinalang.nativeimpl.io.channels.base.CharacterChannel;
 import org.ballerinalang.nativeimpl.io.events.Event;
 import org.ballerinalang.nativeimpl.io.events.EventResult;
 import org.ballerinalang.nativeimpl.io.events.result.NumericResult;
 
-import java.nio.ByteBuffer;
-
 /**
- * Will be used to process the response once the bytes are read from the source.
+ * Represents an event which will write characters.
  */
-public class ReadBytesEvent implements Event {
+public class WriteCharactersEvent implements Event {
     /**
-     * Buffer which will be provided to the channel.
+     * Channel the characters would be written.
      */
-    private ByteBuffer content;
-
+    private CharacterChannel channel;
     /**
-     * Will be used to read bytes.
+     * The content which should be written to the channel.
      */
-    private Channel channel;
+    private String content;
+    /**
+     * The starting position of the string the characters should be written.
+     */
+    private int offset;
 
-
-    public ReadBytesEvent(ByteBuffer content, Channel channel) {
-        this.content = content;
+    public WriteCharactersEvent(CharacterChannel channel, String content, int offset) {
         this.channel = channel;
+        this.content = content;
+        this.offset = offset;
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public EventResult<Integer> call() throws Exception {
-        int read = channel.read(content);
-        return new NumericResult(read);
+    public EventResult call() throws Exception {
+        int numberOfCharactersWritten = channel.write(content, offset);
+        return new NumericResult(numberOfCharactersWritten);
     }
 }
