@@ -146,6 +146,7 @@ public class Desugar extends BLangNodeVisitor {
     private SymbolResolver symResolver;
     private SymbolEnter symbolEnter;
     private IterableCodeDesugar iterableCodeDesugar;
+    private AnnotationDesugar annotationDesugar;
 
     private BLangNode result;
 
@@ -170,6 +171,7 @@ public class Desugar extends BLangNodeVisitor {
         this.symResolver = SymbolResolver.getInstance(context);
         this.symbolEnter = SymbolEnter.getInstance(context);
         this.iterableCodeDesugar = IterableCodeDesugar.getInstance(context);
+        this.annotationDesugar = AnnotationDesugar.getInstance(context);
     }
 
     public BLangPackage perform(BLangPackage pkgNode) {
@@ -190,8 +192,10 @@ public class Desugar extends BLangNodeVisitor {
         pkgNode.functions = rewrite(pkgNode.functions);
         pkgNode.connectors = rewrite(pkgNode.connectors);
         pkgNode.services = rewrite(pkgNode.services);
-        pkgNode.initFunction = rewrite(pkgNode.initFunction);
         pkgNode.transformers = rewrite(pkgNode.transformers);
+
+        annotationDesugar.rewritePackageAnnotations(pkgNode);
+        pkgNode.initFunction = rewrite(pkgNode.initFunction);
         pkgNode.completedPhases.add(CompilerPhase.DESUGAR);
         result = pkgNode;
     }
