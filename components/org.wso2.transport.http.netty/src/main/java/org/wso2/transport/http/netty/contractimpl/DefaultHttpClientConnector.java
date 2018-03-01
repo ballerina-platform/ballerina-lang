@@ -30,6 +30,7 @@ import org.wso2.transport.http.netty.common.Constants;
 import org.wso2.transport.http.netty.common.HttpRoute;
 import org.wso2.transport.http.netty.common.ssl.SSLConfig;
 import org.wso2.transport.http.netty.config.ChunkConfig;
+import org.wso2.transport.http.netty.config.ForwardedExtensionConfig;
 import org.wso2.transport.http.netty.config.SenderConfiguration;
 import org.wso2.transport.http.netty.contract.ClientConnectorException;
 import org.wso2.transport.http.netty.contract.HttpClientConnector;
@@ -44,7 +45,7 @@ import java.util.NoSuchElementException;
 /**
  * Implementation of the client connector.
  */
-public class HttpClientConnectorImpl implements HttpClientConnector {
+public class DefaultHttpClientConnector implements HttpClientConnector {
 
     private static final Logger log = LoggerFactory.getLogger(HttpClientConnector.class);
 
@@ -56,8 +57,9 @@ public class HttpClientConnectorImpl implements HttpClientConnector {
     private String httpVersion;
     private ChunkConfig chunkConfig;
     private boolean keepAlive;
+    private ForwardedExtensionConfig forwardedExtensionConfig;
 
-    public HttpClientConnectorImpl(ConnectionManager connectionManager, SenderConfiguration senderConfiguration) {
+    public DefaultHttpClientConnector(ConnectionManager connectionManager, SenderConfiguration senderConfiguration) {
         this.connectionManager = connectionManager;
         this.senderConfiguration = senderConfiguration;
         initTargetChannelProperties(senderConfiguration);
@@ -104,6 +106,7 @@ public class HttpClientConnectorImpl implements HttpClientConnector {
                             httpOutboundRequest.setHeader(HttpHeaderNames.CONNECTION.toString(),
                                                           Constants.CONNECTION_KEEP_ALIVE);
                         }
+                        targetChannel.setForwardedExtension(forwardedExtensionConfig, httpOutboundRequest);
                         targetChannel.writeContent(httpOutboundRequest);
                     } else {
                         notifyErrorState(channelFuture);
@@ -217,5 +220,6 @@ public class HttpClientConnectorImpl implements HttpClientConnector {
         this.socketIdleTimeout = senderConfiguration.getSocketIdleTimeout(Constants.ENDPOINT_TIMEOUT);
         this.sslConfig = senderConfiguration.getSSLConfig();
         this.keepAlive = senderConfiguration.isKeepAlive();
+        this.forwardedExtensionConfig = senderConfiguration.getForwardedExtensionConfig();
     }
 }
