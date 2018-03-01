@@ -204,6 +204,19 @@ public class HeaderUtil {
     }
 
     /**
+     * Override a header with a given value.
+     *
+     * @param entityHeaders A map of entity headers
+     * @param headerName    Header name as a string
+     * @param headerValue   Header value as a string
+     */
+    private static void overrideEntityHeader(BMap<String, BValue> entityHeaders, String headerName, String
+            headerValue) {
+            BStringArray valueArray = new BStringArray(new String[]{headerValue});
+            entityHeaders.put(headerName, valueArray);
+    }
+
+    /**
      * Given an entity, get its header map. If it's null then return an empty map.
      *
      * @param entityStruct Represent a ballerina entity
@@ -222,7 +235,7 @@ public class HeaderUtil {
      */
     static void setContentTypeHeader(BStruct bodyPart, BMap<String, BValue> entityHeaders) {
         String contentType = MimeUtil.getContentTypeWithParameters(bodyPart);
-        addToEntityHeaders(entityHeaders, CONTENT_TYPE, contentType);
+        overrideEntityHeader(entityHeaders, CONTENT_TYPE, contentType);
     }
 
     /**
@@ -234,7 +247,7 @@ public class HeaderUtil {
     static void setContentDispositionHeader(BStruct bodyPart, BMap<String, BValue> entityHeaders) {
         String contentDisposition = MimeUtil.getContentDisposition(bodyPart);
         if (MimeUtil.isNotNullAndEmpty(contentDisposition)) {
-            addToEntityHeaders(entityHeaders, CONTENT_DISPOSITION, contentDisposition);
+            overrideEntityHeader(entityHeaders, CONTENT_DISPOSITION, contentDisposition);
         }
     }
 

@@ -227,7 +227,7 @@ public class MultipartEncoderTest {
                     inputStream);
             Assert.assertEquals(mimeParts.size(), 2);
             List<MIMEPart> childParts = MultipartDecoder.decodeBodyParts(mimeParts.get(1).getContentType(),
-                    inputStream);
+                    mimeParts.get(1).readOnce());
             Assert.assertEquals(childParts.size(), 2);
         } catch (MimeTypeParseException e) {
             log.error("Error occurred while testing mulitpart/mixed encoding", e.getMessage());
