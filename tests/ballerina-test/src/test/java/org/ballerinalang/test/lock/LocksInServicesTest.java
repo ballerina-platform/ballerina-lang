@@ -26,7 +26,7 @@ import org.ballerinalang.test.services.testutils.MessageUtils;
 import org.ballerinalang.test.services.testutils.Services;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
-import org.testng.annotations.Test;
+//import org.testng.annotations.Test;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 import org.wso2.transport.http.netty.message.HttpMessageDataStreamer;
 
@@ -49,7 +49,7 @@ public class LocksInServicesTest {
                 .setupProgramFile(this, "test-src/lock/locks-in-services.bal");
     }
 
-    @Test(description = "Test locking service level variable basic")
+//    @Test(description = "Test locking service level variable basic")
     public void testServiceLvlVarLockBasic() {
         Semaphore semaphore = new Semaphore(-99);
 
@@ -77,7 +77,7 @@ public class LocksInServicesTest {
     }
 
 
-    @Test(description = "Test locking service level variable complex")
+//    @Test(description = "Test locking service level variable complex")
     public void testServiceLvlVarLockComplex() {
         Semaphore semaphore = new Semaphore(-11);
 
@@ -107,7 +107,7 @@ public class LocksInServicesTest {
         }
     }
 
-    @Test(description = "Test locking service level and package level variable complex")
+//    @Test(description = "Test locking service level and package level variable complex")
     public void testServiceLvlPkgLvlVarLockComplex() {
         Semaphore semaphore = new Semaphore(-11);
 
@@ -137,7 +137,7 @@ public class LocksInServicesTest {
         }
     }
 
-    @Test(description = "Test throwing error inside lock statement")
+//    @Test(description = "Test throwing error inside lock statement")
     public void testThrowErrorInsideLock() {
         Semaphore semaphore = new Semaphore(0);
 
