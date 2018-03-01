@@ -30,7 +30,9 @@ import org.ballerinalang.util.exceptions.BLangExceptionHelper;
 import org.ballerinalang.util.exceptions.RuntimeErrors;
 
 /**
- * Native funciton sprintf.
+ * Native function ballerina.io#sprintf.
+ *
+ * @since 0.964.0
  */
 @BallerinaFunction(
         packageName = "ballerina.io",

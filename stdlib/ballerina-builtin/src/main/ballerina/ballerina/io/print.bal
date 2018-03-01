@@ -27,5 +27,5 @@ public native function println (any a);
 @Description { value:"Returns a formatted string using the specified format string and arguments" }
 @Param { value:"format: Format specifier" }
 @Param { value:"args: Arguments to be formatted, should match number of args in format specifier" }
-@Return { value:"string: Formatted string" }
+@Return { value:"Formatted string" }
 public native function sprintf (string format, any[] args) (string);
