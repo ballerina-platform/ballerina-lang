@@ -27,6 +27,7 @@ import org.eclipse.lsp4j.Command;
 import org.eclipse.lsp4j.Diagnostic;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Name;
+import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
@@ -146,5 +147,18 @@ public class CommonUtil {
         }
 
         return path;
+    }
+
+    /**
+     * Convert the diagnostic position to a zero based positioning diagnostic position.
+     * @param diagnosticPos - diagnostic position to be cloned
+     * @return {@link DiagnosticPos} converted diagnostic position
+     */
+    public static DiagnosticPos toZeroBasedPosition(DiagnosticPos diagnosticPos) {
+        int startLine = diagnosticPos.getStartLine() - 1;
+        int endLine = diagnosticPos.getEndLine() - 1;
+        int startColumn = diagnosticPos.getStartColumn() - 1;
+        int endColumn = diagnosticPos.getEndColumn() - 1;
+        return new DiagnosticPos(diagnosticPos.getSource(), startLine, endLine, startColumn, endColumn);
     }
 }
