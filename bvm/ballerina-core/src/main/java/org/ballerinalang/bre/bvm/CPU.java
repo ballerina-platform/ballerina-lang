@@ -405,7 +405,11 @@ public class CPU {
                     break;
                 case InstructionCodes.ACALL:
                     InstructionACALL acallIns = (InstructionACALL) instruction;
-                    invokeAction(ctx, acallIns.actionName, acallIns.argRegs, acallIns.retRegs);
+                    runInCallerCtx = invokeAction(ctx, acallIns.actionName, acallIns.argRegs, acallIns.retRegs);
+                    if (runInCallerCtx != null) {
+                        ctx = runInCallerCtx;
+                        ctx.state = WorkerState.RUNNING;
+                    }
                     break;
                 case InstructionCodes.TCALL:
                     InstructionTCALL tcallIns = (InstructionTCALL) instruction;
@@ -2938,6 +2942,11 @@ public class CPU {
                 argRegs, actionInfo.getParamTypes());
         Context ctx = new NativeCallContext(parentCtx, caleeSF);
         NativeCallableUnit nativeAction = actionInfo.getNativeAction();
+
+        if (nativeAction == null) {
+            return;
+        }
+
         BLangScheduler.switchToWaitForResponse(parentCtx);
         try {
             if (nativeAction.isBlocking()) {
