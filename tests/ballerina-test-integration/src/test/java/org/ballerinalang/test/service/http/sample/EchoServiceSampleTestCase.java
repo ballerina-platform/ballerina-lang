@@ -17,6 +17,7 @@
 */
 package org.ballerinalang.test.service.http.sample;
 
+import io.netty.handler.codec.http.HttpHeaderNames;
 import org.ballerinalang.test.IntegrationTestCase;
 import org.ballerinalang.test.context.ServerInstance;
 import org.ballerinalang.test.util.HttpClientRequest;
@@ -46,12 +47,12 @@ public class EchoServiceSampleTestCase extends IntegrationTestCase {
                     + File.separator + "httpService" + File.separator + "echoService.bal").getAbsolutePath();
             startServer(relativePath);
             Map<String, String> headers = new HashMap<>();
-            headers.put(TestConstant.HEADER_CONTENT_TYPE, TestConstant.CONTENT_TYPE_TEXT_PLAIN);
+            headers.put(HttpHeaderNames.CONTENT_TYPE.toString(), TestConstant.CONTENT_TYPE_TEXT_PLAIN);
             HttpResponse response = HttpClientRequest.doPost(ballerinaServer
                     .getServiceURLHttp("echo"), requestMessage, headers);
             Assert.assertNotNull(response);
             Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
-            Assert.assertEquals(response.getHeaders().get(TestConstant.HEADER_CONTENT_TYPE)
+            Assert.assertEquals(response.getHeaders().get(HttpHeaderNames.CONTENT_TYPE.toString())
                     , TestConstant.CONTENT_TYPE_TEXT_PLAIN, "Content-Type mismatched");
             //request should be returned as response
             Assert.assertEquals(response.getData(), requestMessage, "Message content mismatched");
@@ -67,7 +68,7 @@ public class EchoServiceSampleTestCase extends IntegrationTestCase {
                     + File.separator + "httpService" + File.separator + "httpEchoService.bal").getAbsolutePath();
             startServer(relativePath);
             Map<String, String> headers = new HashMap<>();
-            headers.put(TestConstant.HEADER_CONTENT_TYPE, TestConstant.CONTENT_TYPE_JSON);
+            headers.put(HttpHeaderNames.CONTENT_TYPE.toString(), TestConstant.CONTENT_TYPE_JSON);
             String serviceUrl = "http://localhost:9094/echo";
             String requestMsg = "{\"key\":\"value\"}";
             HttpResponse response = HttpClientRequest.doPost(serviceUrl, requestMsg, headers);
@@ -77,7 +78,7 @@ public class EchoServiceSampleTestCase extends IntegrationTestCase {
             }
             Assert.assertNotNull(response);
             Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
-            Assert.assertEquals(response.getHeaders().get(TestConstant.HEADER_CONTENT_TYPE)
+            Assert.assertEquals(response.getHeaders().get(HttpHeaderNames.CONTENT_TYPE.toString())
                     , TestConstant.CONTENT_TYPE_TEXT_PLAIN, "Content-Type mismatched");
             String respMsg = "hello world";
             Assert.assertEquals(response.getData(), respMsg, "Message content mismatched");
@@ -94,7 +95,7 @@ public class EchoServiceSampleTestCase extends IntegrationTestCase {
                     + File.separator + "httpService" + File.separator + "httpEchoService.bal").getAbsolutePath();
             startServer(relativePath);
             Map<String, String> headers = new HashMap<>();
-            headers.put(TestConstant.HEADER_CONTENT_TYPE, TestConstant.CONTENT_TYPE_JSON);
+            headers.put(HttpHeaderNames.CONTENT_TYPE.toString(), TestConstant.CONTENT_TYPE_JSON);
             String serviceUrl = "http://localhost:9094/echoOne/abc";
             String requestMsg = "{\"key\":\"value\"}";
             HttpResponse response = HttpClientRequest.doPost(serviceUrl, requestMsg, headers);
@@ -104,7 +105,7 @@ public class EchoServiceSampleTestCase extends IntegrationTestCase {
             }
             Assert.assertNotNull(response);
             Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
-            Assert.assertEquals(response.getHeaders().get(TestConstant.HEADER_CONTENT_TYPE)
+            Assert.assertEquals(response.getHeaders().get(HttpHeaderNames.CONTENT_TYPE.toString())
                     , TestConstant.CONTENT_TYPE_TEXT_PLAIN, "Content-Type mismatched");
             String respMsg = "hello world";
             Assert.assertEquals(response.getData(), respMsg, "Message content mismatched");
@@ -121,7 +122,7 @@ public class EchoServiceSampleTestCase extends IntegrationTestCase {
                     + File.separator + "httpService" + File.separator + "httpsEchoService.bal").getAbsolutePath();
             startServer(relativePath);
             Map<String, String> headers = new HashMap<>();
-            headers.put(TestConstant.HEADER_CONTENT_TYPE, TestConstant.CONTENT_TYPE_JSON);
+            headers.put(HttpHeaderNames.CONTENT_TYPE.toString(), TestConstant.CONTENT_TYPE_JSON);
             String serviceUrl = "https://localhost:9095/echo";
             String serverHome = getServerInstance().getServerHome();
             String requestMsg = "{\"key\":\"value\"}";
@@ -132,7 +133,7 @@ public class EchoServiceSampleTestCase extends IntegrationTestCase {
             }
             Assert.assertNotNull(response);
             Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
-            Assert.assertEquals(response.getHeaders().get(TestConstant.HEADER_CONTENT_TYPE)
+            Assert.assertEquals(response.getHeaders().get(HttpHeaderNames.CONTENT_TYPE.toString())
                     , TestConstant.CONTENT_TYPE_TEXT_PLAIN, "Content-Type mismatched");
             String respMsg = "hello world";
             Assert.assertEquals(response.getData(), respMsg, "Message content mismatched");
@@ -149,7 +150,7 @@ public class EchoServiceSampleTestCase extends IntegrationTestCase {
                     + File.separator + "httpService" + File.separator + "httpsEchoService.bal").getAbsolutePath();
             startServer(relativePath);
             Map<String, String> headers = new HashMap<>();
-            headers.put(TestConstant.HEADER_CONTENT_TYPE, TestConstant.CONTENT_TYPE_JSON);
+            headers.put(HttpHeaderNames.CONTENT_TYPE.toString(), TestConstant.CONTENT_TYPE_JSON);
             String serviceUrl = "https://localhost:9095/echoOne/abc";
             String serverHome = getServerInstance().getServerHome();
             String requestMsg = "{\"key\":\"value\"}";
@@ -160,7 +161,7 @@ public class EchoServiceSampleTestCase extends IntegrationTestCase {
             }
             Assert.assertNotNull(response);
             Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
-            Assert.assertEquals(response.getHeaders().get(TestConstant.HEADER_CONTENT_TYPE)
+            Assert.assertEquals(response.getHeaders().get(HttpHeaderNames.CONTENT_TYPE.toString())
                     , TestConstant.CONTENT_TYPE_TEXT_PLAIN, "Content-Type mismatched");
             String respMsg = "hello world";
             Assert.assertEquals(response.getData(), respMsg, "Message content mismatched");

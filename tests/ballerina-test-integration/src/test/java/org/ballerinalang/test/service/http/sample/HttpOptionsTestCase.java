@@ -17,6 +17,7 @@
 */
 package org.ballerinalang.test.service.http.sample;
 
+import io.netty.handler.codec.http.HttpHeaderNames;
 import org.ballerinalang.test.context.ServerInstance;
 import org.ballerinalang.test.util.HttpClientRequest;
 import org.ballerinalang.test.util.HttpResponse;
@@ -47,28 +48,28 @@ public class HttpOptionsTestCase {
     @Test(description = "Test OPTIONS content length header sample test case")
     public void testOptionsContentLengthHeader() throws Exception {
         Map<String, String> headers = new HashMap<>();
-        headers.put(TestConstant.HEADER_CONTENT_TYPE, TestConstant.CONTENT_TYPE_JSON);
+        headers.put(HttpHeaderNames.CONTENT_TYPE.toString(), TestConstant.CONTENT_TYPE_JSON);
         String serviceUrl = "http://localhost:9090/echoDummy";
         HttpResponse response = HttpClientRequest.doOptions(serviceUrl, headers);
         Assert.assertNotNull(response);
         Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
-        Assert.assertEquals(response.getHeaders().get(TestConstant.HEADER_CONTENT_LENGTH)
-                , "0", "Content-Length mismatched");
-        Assert.assertEquals(response.getHeaders().get(TestConstant.ALLOW)
+        Assert.assertEquals(response.getHeaders().get(HttpHeaderNames.CONTENT_LENGTH.toString()), "0",
+                            "Content-Length mismatched");
+        Assert.assertEquals(response.getHeaders().get(HttpHeaderNames.ALLOW.toString())
                 , "POST, OPTIONS", "Content-Length mismatched");
     }
 
     @Test(description = "Test OPTIONS content length header sample test case")
     public void testOptionsResourceWithPayload() throws Exception {
         Map<String, String> headers = new HashMap<>();
-        headers.put(TestConstant.HEADER_CONTENT_TYPE, TestConstant.CONTENT_TYPE_JSON);
+        headers.put(HttpHeaderNames.CONTENT_TYPE.toString(), TestConstant.CONTENT_TYPE_JSON);
         String serviceUrl = "http://localhost:9090/echoDummy/getOptions";
         HttpResponse response = HttpClientRequest.doOptions(serviceUrl, headers);
         Assert.assertNotNull(response);
         Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
-        Assert.assertEquals(response.getHeaders().get(TestConstant.HEADER_CONTENT_LENGTH)
-                , String.valueOf(response.getData().length()), "Content-Length mismatched");
-        Assert.assertEquals(response.getHeaders().get(TestConstant.HEADER_CONTENT_TYPE)
+        Assert.assertEquals(response.getHeaders().get(HttpHeaderNames.CONTENT_LENGTH.toString()),
+                            String.valueOf(response.getData().length()), "Content-Length mismatched");
+        Assert.assertEquals(response.getHeaders().get(HttpHeaderNames.CONTENT_TYPE.toString())
                 , TestConstant.CONTENT_TYPE_TEXT_PLAIN, "Content-Type mismatched");
         String respMsg = "hello Options";
         Assert.assertEquals(response.getData(), respMsg, "Message content mismatched");

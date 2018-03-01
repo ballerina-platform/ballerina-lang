@@ -17,6 +17,7 @@ package org.ballerinalang.composer.service.fs.service;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import io.netty.handler.codec.http.HttpHeaderNames;
 import org.ballerinalang.composer.server.core.ServerConstants;
 import org.ballerinalang.composer.server.spi.ComposerService;
 import org.ballerinalang.composer.server.spi.ServiceInfo;
@@ -350,10 +351,12 @@ public class FileSystemService implements ComposerService {
      */
     public Response createCORSResponse() {
         return Response.ok()
-                .header("Access-Control-Allow-Origin", "*")
-                .header("Access-Control-Allow-Credentials", "true")
-                .header("Access-Control-Allow-Methods", "POST, GET, OPTIONS ")
-                .header("Access-Control-Allow-Headers", "Content-Type, Accept, X-Requested-With")
+                .header(HttpHeaderNames.ACCESS_CONTROL_ALLOW_ORIGIN.toString(), "*")
+                .header(HttpHeaderNames.ACCESS_CONTROL_ALLOW_CREDENTIALS.toString(), "true")
+                .header(HttpHeaderNames.ACCESS_CONTROL_ALLOW_METHODS.toString(), "POST, GET, OPTIONS ")
+                .header(HttpHeaderNames.ACCESS_CONTROL_ALLOW_HEADERS.toString(),
+                        HttpHeaderNames.CONTENT_TYPE.toString() + ", " + HttpHeaderNames.ACCEPT.toString() +
+                                ", X-Requested-With")
                 .build();
     }
 

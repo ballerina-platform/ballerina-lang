@@ -19,6 +19,7 @@
 package org.ballerinalang.test.mime;
 
 import io.netty.buffer.ByteBufAllocator;
+import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.multipart.DefaultHttpDataFactory;
 import io.netty.handler.codec.http.multipart.FileUpload;
@@ -66,7 +67,6 @@ import static org.ballerinalang.mime.util.Constants.APPLICATION_XML;
 import static org.ballerinalang.mime.util.Constants.BYTE_CHANNEL_STRUCT;
 import static org.ballerinalang.mime.util.Constants.CONTENT_DISPOSITION_NAME;
 import static org.ballerinalang.mime.util.Constants.CONTENT_DISPOSITION_STRUCT;
-import static org.ballerinalang.mime.util.Constants.CONTENT_TRANSFER_ENCODING;
 import static org.ballerinalang.mime.util.Constants.ENTITY_BYTE_CHANNEL;
 import static org.ballerinalang.mime.util.Constants.ENTITY_HEADERS_INDEX;
 import static org.ballerinalang.mime.util.Constants.MEDIA_TYPE;
@@ -171,7 +171,8 @@ public class Util {
                     file.getAbsolutePath()));
             MimeUtil.setContentType(getMediaTypeStruct(result), bodyPart, TEXT_PLAIN);
             BMap<String, BValue> headerMap = new BMap<>();
-            headerMap.put(CONTENT_TRANSFER_ENCODING, new BStringArray(new String[]{contentTransferEncoding}));
+            headerMap.put(HttpHeaderNames.CONTENT_TRANSFER_ENCODING.toString(),
+                          new BStringArray(new String[]{contentTransferEncoding}));
             bodyPart.setRefField(ENTITY_HEADERS_INDEX, headerMap);
             return bodyPart;
         } catch (IOException e) {
@@ -485,7 +486,9 @@ public class Util {
             contentHolder.setFileName(TEMP_FILE_NAME + TEMP_FILE_EXTENSION);
             contentHolder.setContentType(MimeUtil.getContentType(bodyPart));
             contentHolder.setBodyPartFormat(org.ballerinalang.mime.util.Constants.BodyPartForm.INPUTSTREAM);
-            String contentTransferHeaderValue = HeaderUtil.getHeaderValue(bodyPart, CONTENT_TRANSFER_ENCODING);
+            String contentTransferHeaderValue = HeaderUtil.getHeaderValue(bodyPart,
+                                                                          HttpHeaderNames.CONTENT_TRANSFER_ENCODING
+                                                                                  .toString());
             if (contentTransferHeaderValue != null) {
                 contentHolder.setContentTransferEncoding(contentTransferHeaderValue);
             }

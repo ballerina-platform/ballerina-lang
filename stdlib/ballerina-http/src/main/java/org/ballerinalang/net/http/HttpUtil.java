@@ -78,7 +78,6 @@ import java.util.Set;
 
 import static org.ballerinalang.bre.bvm.BLangVMErrors.PACKAGE_BUILTIN;
 import static org.ballerinalang.bre.bvm.BLangVMErrors.STRUCT_GENERIC_ERROR;
-import static org.ballerinalang.mime.util.Constants.CONTENT_TYPE;
 import static org.ballerinalang.mime.util.Constants.ENTITY_HEADERS_INDEX;
 import static org.ballerinalang.mime.util.Constants.IS_BODY_BYTE_CHANNEL_ALREADY_SET;
 import static org.ballerinalang.mime.util.Constants.MESSAGE_ENTITY;
@@ -151,7 +150,7 @@ public class HttpUtil {
         if (baseType == null) {
             baseType = OCTET_STREAM;
         }
-        HttpUtil.setHeaderToEntity(entity, CONTENT_TYPE, baseType);
+        HttpUtil.setHeaderToEntity(entity, HttpHeaderNames.CONTENT_TYPE.toString(), baseType);
         httpMessageStruct.addNativeData(MESSAGE_ENTITY, entity);
         httpMessageStruct.addNativeData(IS_BODY_BYTE_CHANNEL_ALREADY_SET, EntityBodyHandler
                 .checkEntityBodyAvailability(entity));
@@ -198,13 +197,13 @@ public class HttpUtil {
         HTTPCarbonMessage httpCarbonMessage = HttpUtil
                 .getCarbonMsg(httpMessageStruct, HttpUtil.createHttpCarbonMessage(isRequest));
         HttpMessageDataStreamer httpMessageDataStreamer = new HttpMessageDataStreamer(httpCarbonMessage);
-        String contentType = httpCarbonMessage.getHeader(CONTENT_TYPE);
+        String contentType = httpCarbonMessage.getHeader(HttpHeaderNames.CONTENT_TYPE.toString());
         if (isRequest && MimeUtil.isNotNullAndEmpty(contentType) && contentType.startsWith(MULTIPART_AS_PRIMARY_TYPE)
                 && context != null) {
             MultipartDecoder.parseBody(context, entity, contentType, httpMessageDataStreamer.getInputStream());
         } else {
             int contentLength = NO_CONTENT_LENGTH_FOUND;
-            String lengthStr = httpCarbonMessage.getHeader(HttpConstants.HTTP_CONTENT_LENGTH);
+            String lengthStr = httpCarbonMessage.getHeader(HttpHeaderNames.CONTENT_LENGTH.toString());
             try {
                 contentLength = lengthStr != null ? Integer.parseInt(lengthStr) : contentLength;
                 if (contentLength == NO_CONTENT_LENGTH_FOUND) {
@@ -290,7 +289,7 @@ public class HttpUtil {
             session.generateSessionHeader(responseMsg, isSecureRequest);
         }
         //Process CORS if exists.
-        if (requestMsg.getHeader(HttpConstants.ORIGIN) != null) {
+        if (requestMsg.getHeader(HttpHeaderNames.ORIGIN.toString()) != null) {
             CorsHeaderGenerator.process(requestMsg, responseMsg, true);
         }
     }
@@ -340,8 +339,7 @@ public class HttpUtil {
 
     private static void setHttpStatusCodes(int statusCode, HTTPCarbonMessage response) {
         HttpHeaders httpHeaders = response.getHeaders();
-        httpHeaders.set(org.wso2.transport.http.netty.common.Constants.HTTP_CONTENT_TYPE,
-                org.wso2.transport.http.netty.common.Constants.TEXT_PLAIN);
+        httpHeaders.set(HttpHeaderNames.CONTENT_TYPE, org.wso2.transport.http.netty.common.Constants.TEXT_PLAIN);
 
         response.setProperty(org.wso2.transport.http.netty.common.Constants.HTTP_STATUS_CODE, statusCode);
     }
@@ -388,10 +386,10 @@ public class HttpUtil {
 
     private static void enrichWithInboundRequestHeaders(BStruct inboundRequestStruct,
                                                         HTTPCarbonMessage inboundRequestMsg) {
-        if (inboundRequestMsg.getHeader(HttpConstants.USER_AGENT_HEADER) != null) {
+        if (inboundRequestMsg.getHeader(HttpHeaderNames.USER_AGENT.toString()) != null) {
             inboundRequestStruct.setStringField(HttpConstants.IN_REQUEST_USER_AGENT_INDEX,
-                    inboundRequestMsg.getHeader(HttpConstants.USER_AGENT_HEADER));
-            inboundRequestMsg.removeHeader(HttpConstants.USER_AGENT_HEADER);
+                                                inboundRequestMsg.getHeader(HttpHeaderNames.USER_AGENT.toString()));
+            inboundRequestMsg.removeHeader(HttpHeaderNames.USER_AGENT.toString());
         }
     }
 
@@ -433,10 +431,10 @@ public class HttpUtil {
         inboundResponse.setStringField(HttpConstants.IN_RESPONSE_REASON_PHRASE_INDEX,
                 HttpResponseStatus.valueOf(statusCode).reasonPhrase());
 
-        if (inboundResponseMsg.getHeader(HttpConstants.SERVER_HEADER) != null) {
+        if (inboundResponseMsg.getHeader(HttpHeaderNames.SERVER.toString()) != null) {
             inboundResponse.setStringField(HttpConstants.IN_RESPONSE_SERVER_INDEX,
-                    inboundResponseMsg.getHeader(HttpConstants.SERVER_HEADER));
-            inboundResponseMsg.removeHeader(HttpConstants.SERVER_HEADER);
+                                           inboundResponseMsg.getHeader(HttpHeaderNames.SERVER.toString()));
+            inboundResponseMsg.removeHeader(HttpHeaderNames.SERVER.toString());
         }
         populateEntity(entity, mediaType, inboundResponseMsg);
         inboundResponse.addNativeData(MESSAGE_ENTITY, entity);
@@ -451,10 +449,10 @@ public class HttpUtil {
      * @param cMsg      Represent a carbon message
      */
     private static void populateEntity(BStruct entity, BStruct mediaType, HTTPCarbonMessage cMsg) {
-        String contentType = cMsg.getHeader(CONTENT_TYPE);
+        String contentType = cMsg.getHeader(HttpHeaderNames.CONTENT_TYPE.toString());
         MimeUtil.setContentType(mediaType, entity, contentType);
         int contentLength = -1;
-        String lengthStr = cMsg.getHeader(HttpConstants.HTTP_CONTENT_LENGTH);
+        String lengthStr = cMsg.getHeader(HttpHeaderNames.CONTENT_LENGTH.toString());
         try {
             contentLength = lengthStr != null ? Integer.parseInt(lengthStr) : contentLength;
             MimeUtil.setContentLength(entity, contentLength);
@@ -524,13 +522,13 @@ public class HttpUtil {
     private static void addRemovedPropertiesBackToHeadersMap(BStruct struct, HttpHeaders transportHeaders) {
         if (isInboundRequestStruct(struct)) {
             if (!struct.getStringField(HttpConstants.IN_REQUEST_USER_AGENT_INDEX).isEmpty()) {
-                transportHeaders.add(HttpConstants.USER_AGENT_HEADER,
-                        struct.getStringField(HttpConstants.IN_REQUEST_USER_AGENT_INDEX));
+                transportHeaders.add(HttpHeaderNames.USER_AGENT.toString(),
+                                     struct.getStringField(HttpConstants.IN_REQUEST_USER_AGENT_INDEX));
             }
         } else {
             if (!struct.getStringField(HttpConstants.IN_RESPONSE_SERVER_INDEX).isEmpty()) {
-                transportHeaders.add(HttpConstants.SERVER_HEADER,
-                        struct.getStringField(HttpConstants.IN_RESPONSE_SERVER_INDEX));
+                transportHeaders.add(HttpHeaderNames.SERVER.toString(),
+                                     struct.getStringField(HttpConstants.IN_RESPONSE_SERVER_INDEX));
             }
         }
     }
@@ -597,11 +595,12 @@ public class HttpUtil {
             AnnAttributeValue keepAliveAttrVal = configAnn.getAttributeValue(HttpConstants.ANN_CONFIG_ATTR_KEEP_ALIVE);
 
             if (keepAliveAttrVal != null && !keepAliveAttrVal.getBooleanValue()) {
-                outboundMessage.setHeader(HttpConstants.CONNECTION_HEADER, HttpConstants.HEADER_VAL_CONNECTION_CLOSE);
+                outboundMessage.setHeader(HttpHeaderNames.CONNECTION.toString(),
+                                          HttpConstants.HEADER_VAL_CONNECTION_CLOSE);
             } else {
                 // default behaviour: keepAlive = true
-                outboundMessage.setHeader(HttpConstants.CONNECTION_HEADER,
-                        HttpConstants.HEADER_VAL_CONNECTION_KEEP_ALIVE);
+                outboundMessage.setHeader(HttpHeaderNames.CONNECTION.toString(),
+                                          HttpConstants.HEADER_VAL_CONNECTION_KEEP_ALIVE);
             }
             AnnAttributeValue compressionEnabled = configAnn.getAttributeValue(
                     HttpConstants.ANN_CONFIG_ATTR_COMPRESSION_ENABLED);
@@ -611,7 +610,8 @@ public class HttpUtil {
             }
         } else {
             // default behaviour: keepAlive = true
-            outboundMessage.setHeader(HttpConstants.CONNECTION_HEADER, HttpConstants.HEADER_VAL_CONNECTION_KEEP_ALIVE);
+            outboundMessage.setHeader(HttpHeaderNames.CONNECTION.toString(),
+                                      HttpConstants.HEADER_VAL_CONNECTION_KEEP_ALIVE);
         }
     }
 
@@ -885,7 +885,8 @@ public class HttpUtil {
     }
 
     private static boolean is100ContinueRequest(HTTPCarbonMessage reqMsg) {
-        return HttpConstants.HEADER_VAL_100_CONTINUE.equalsIgnoreCase(reqMsg.getHeader(HttpConstants.EXPECT_HEADER));
+        return HttpConstants.HEADER_VAL_100_CONTINUE.equalsIgnoreCase(
+                reqMsg.getHeader(HttpHeaderNames.EXPECT.toString()));
     }
 
     public static Annotation getServiceConfigAnnotation(Service service, String pkgPath) {
