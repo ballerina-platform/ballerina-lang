@@ -286,7 +286,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         }
         BPackageSymbol pkgSymbol = pkgLoader.getPackageSymbol(pkgID);
         if (pkgSymbol == null) {
-            BLangPackage pkgNode = pkgLoader.loadPackageNode(pkgID);
+            BLangPackage pkgNode = pkgLoader.loadAndDefinePackage(pkgID);
             if (pkgNode == null) {
                 dlog.error(importPkgNode.pos, DiagnosticCode.PACKAGE_NOT_FOUND,
                         importPkgNode.getQualifiedPackageName());
