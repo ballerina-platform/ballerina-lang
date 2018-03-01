@@ -33,11 +33,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Path;
 import java.util.List;
-import java.util.Map;
 
 import static org.ballerinalang.net.grpc.builder.BalGenConstants.NEW_LINE_CHARACTER;
 import static org.ballerinalang.net.grpc.builder.BalGenConstants.SERVICE_INDEX;
-import static org.ballerinalang.net.grpc.builder.utils.BalGenerationUtils.attributeListToMap;
 import static org.ballerinalang.net.grpc.builder.utils.BalGenerationUtils.getMappingBalType;
 import static org.ballerinalang.net.grpc.builder.utils.BalGenerationUtils.getTypeName;
 import static org.ballerinalang.net.grpc.builder.utils.BalGenerationUtils.writeFile;
@@ -68,22 +66,15 @@ public class BallerinaFile {
             List<DescriptorProtos.DescriptorProto> messageTypeList = fileDescriptorSet.getMessageTypeList();
             List<DescriptorProtos.MethodDescriptorProto> methodList = fileDescriptorSet
                     .getService(SERVICE_INDEX).getMethodList();
-            Map<String, DescriptorProtos.DescriptorProto> descriptorProtoMap = attributeListToMap(fileDescriptorSet
-                    .getMessageTypeList());
-            
             String descriptorMapString = constantBuilder.buildMap();
             String descriptorKey = constantBuilder.buildKey();
             StringBuilder streamingActionList = new StringBuilder();
             StringBuilder blockingActionList = new StringBuilder();
             int i = 0;
-            String methodName = null;
+            String methodName;
             String reqMessageName;
             String resMessageName;
-            String methodID = null;
-            String reqStructFieldName = null;
-            String reqStructFieldType = null;
-            String resStructFieldName = null;
-            String resStructFieldType = null;
+            String methodID;
             ActionBuilder actionBuilder;
             for (DescriptorProtos.MethodDescriptorProto methodDescriptorProto : methodList) {
                 MethodDescriptor.MethodType methodType = MessageUtil.getMethodType(methodDescriptorProto);
@@ -96,37 +87,8 @@ public class BallerinaFile {
                         .getName() + "/" + methodName;
                 reqMessageName = getMappingBalType(typeIn);
                 resMessageName = getMappingBalType(typeOut);
-                if ((descriptorProtoMap.get(typeIn) != null) && (descriptorProtoMap.get(typeOut) != null) &&
-                        (descriptorProtoMap.get(typeIn).getFieldList().size() != 0) &&
-                        (descriptorProtoMap.get(typeOut).getFieldList().size() != 0)) {
-                    reqStructFieldName = descriptorProtoMap.get(typeIn).getFieldList().get(0).getName();
-                    reqStructFieldType = getTypeName(descriptorProtoMap.get(typeIn).getFieldList().get(0)
-                            .getType().getNumber());
-                    resStructFieldName = descriptorProtoMap.get(typeOut).getFieldList().get(0)
-                            .getName();
-                    resStructFieldType = getTypeName(descriptorProtoMap.get(typeOut).getFieldList().get(0)
-                            .getType().getNumber());
-                } else if ((descriptorProtoMap.get(typeOut) != null) &&
-                        (descriptorProtoMap.get(typeOut).getFieldList().size() != 0)) {
-                    reqMessageName = getMappingBalType(typeIn);
-                    resMessageName = getMappingBalType(typeOut);
-                    resStructFieldName = descriptorProtoMap.get(typeOut).getFieldList().get(0)
-                            .getName();
-                    resStructFieldType = getTypeName(descriptorProtoMap.get(typeOut).getFieldList().get(0)
-                            .getType().getNumber());
-                } else if ((descriptorProtoMap.get(typeIn) != null) &&
-                        (descriptorProtoMap.get(typeIn).getFieldList().size() != 0)) {
-                    reqMessageName = getMappingBalType(typeIn);
-                    resMessageName = getMappingBalType(typeOut);
-                    reqStructFieldName = descriptorProtoMap.get(typeIn).getFieldList().get(0).getName();
-                    reqStructFieldType = getTypeName(descriptorProtoMap.get(typeIn).getFieldList().get(0)
-                            .getType().getNumber());
-                } else {
-                    reqMessageName = getMappingBalType(typeIn);
-                    resMessageName = getMappingBalType(typeOut);
-                }
                 actionBuilder = new ActionBuilder(methodName, reqMessageName, resMessageName
-                        , methodID, reqStructFieldName, reqStructFieldType, resStructFieldName, resStructFieldType,
+                        , methodID,
                         methodType);
                 if (methodType.equals(MethodDescriptor.MethodType.UNARY)) {
                     blockingActionList = blockingActionList.append(NEW_LINE_CHARACTER).append(actionBuilder.build());
