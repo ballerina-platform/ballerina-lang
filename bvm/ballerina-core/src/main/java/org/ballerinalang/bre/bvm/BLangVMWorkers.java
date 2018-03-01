@@ -63,7 +63,7 @@ public class BLangVMWorkers {
                 properties.forEach(workerContext::setProperty);
             }
 
-            workerContext.setTraceContext(parent.getTraceContext().copy());
+            workerContext.setRootTraceContext(parent.getRootTraceContext());
 
             populateWorkerStack(callableUnitInfo, workerInfo, workerContext, workerReturnIndex, callerSF);
 

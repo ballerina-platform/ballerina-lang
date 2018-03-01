@@ -48,7 +48,8 @@ public class Context {
     private ServiceInfo serviceInfo;
     private BallerinaTransactionManager ballerinaTransactionManager;
     private DebugContext debugContext;
-    private TraceContext traceContext;
+    private TraceContext rootTraceContext;
+    private TraceContext activeTraceContext;
 
     private int startIP;
     private BStruct unhandledError;
@@ -80,12 +81,20 @@ public class Context {
         this.debugContext = debugContext;
     }
 
-    public TraceContext getTraceContext() {
-        return traceContext;
+    public TraceContext getRootTraceContext() {
+        return rootTraceContext;
     }
 
-    public void setTraceContext(TraceContext traceContext) {
-        this.traceContext = traceContext;
+    public void setRootTraceContext(TraceContext rootTraceContext) {
+        this.rootTraceContext = rootTraceContext;
+    }
+
+    public TraceContext getActiveTraceContext() {
+        return activeTraceContext;
+    }
+
+    public void setActiveTraceContext(TraceContext activeTraceContext) {
+        this.activeTraceContext = activeTraceContext;
     }
 
     public ControlStack getControlStack() {

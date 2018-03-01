@@ -83,7 +83,7 @@ public class BallerinaHTTPConnectorListener implements HttpConnectorListener {
             properties = Collections.singletonMap(HttpConstants.SRC_HANDLER, srcHandler);
         }
 
-        TraceContext traceContext = new TraceContext();
+        TraceContext traceContext = new TraceContext(false);
         httpCarbonMessage.getHeaders().entries().stream()
                 .filter(c -> c.getKey().startsWith(TraceConstants.TRACE_PREFIX))
                 .forEach(e -> traceContext.addProperty(e.getKey(), e.getValue()));

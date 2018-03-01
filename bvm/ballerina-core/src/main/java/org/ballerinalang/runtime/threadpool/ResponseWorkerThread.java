@@ -21,6 +21,7 @@ package org.ballerinalang.runtime.threadpool;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BLangVM;
 import org.ballerinalang.util.tracer.BallerinaTracerManager;
+import org.ballerinalang.util.tracer.TraceContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,10 +33,12 @@ public class ResponseWorkerThread implements Runnable {
     private static final Logger logger = LoggerFactory.getLogger(ResponseWorkerThread.class);
     private Context context;
     private String traceSpanId;
+    private TraceContext traceContext;
 
     public ResponseWorkerThread(Context context, String traceSpanId) {
         this.context = context;
         this.traceSpanId = traceSpanId;
+        this.traceContext = context.getActiveTraceContext();
     }
 
     public void run() {
@@ -45,7 +48,7 @@ public class ResponseWorkerThread implements Runnable {
         } catch (Exception e) {
             logger.error("unhandled exception ", e);
         } finally {
-            BallerinaTracerManager.getInstance().finishSpan(context, traceSpanId);
+            BallerinaTracerManager.getInstance().finishSpan(traceContext, traceSpanId);
         }
     }
 }

@@ -26,6 +26,7 @@ import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.runtime.threadpool.ResponseWorkerThread;
 import org.ballerinalang.runtime.threadpool.ThreadPoolFactory;
 import org.ballerinalang.util.tracer.BallerinaTracerManager;
+import org.ballerinalang.util.tracer.TraceContext;
 
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
@@ -39,6 +40,7 @@ public class BClientConnectorFutureListener implements ConnectorFutureListener {
 
     private Context context;
     private String traceSpanId;
+    private TraceContext traceContext;
     private boolean nonBlocking = false;
     private volatile Semaphore executionWaitSem;
 
@@ -46,7 +48,21 @@ public class BClientConnectorFutureListener implements ConnectorFutureListener {
         this.context = context;
         this.nonBlocking = nonBlocking;
         this.executionWaitSem = new Semaphore(0);
-        this.traceSpanId = BallerinaTracerManager.getInstance().buildSpan(context, true);
+        this.traceContext = initActiveTraceContext();
+        this.traceSpanId = BallerinaTracerManager.getInstance().buildSpan(context);
+    }
+
+    private TraceContext initActiveTraceContext() {
+        TraceContext root = context.getRootTraceContext();
+        TraceContext active = new TraceContext(context, true);
+        if (root == null) {
+            root = active;
+            active.generateInvocationID();
+            context.setRootTraceContext(root);
+        }
+        active.setInvocationID(root.getInvocationID());
+        context.setActiveTraceContext(active);
+        return active;
     }
 
     @Override
@@ -76,7 +92,7 @@ public class BClientConnectorFutureListener implements ConnectorFutureListener {
                     .execute(new ResponseWorkerThread(context, traceSpanId));
         } else {
             executionWaitSem.release();
-            BallerinaTracerManager.getInstance().finishSpan(context, traceSpanId);
+            BallerinaTracerManager.getInstance().finishSpan(traceContext, traceSpanId);
 //            synchronized (context) {
 //                context.notifyAll();
 //            }

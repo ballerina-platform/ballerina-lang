@@ -27,7 +27,7 @@ public class TraceConstants {
 
     static final String TRACER_MANAGER_CLASS = "org.ballerina.tracing.core.OpenTracerFactory";
 
-    public static final String TRACE_PROPERTY_INVOCATION_ID = "invocationId";
+    public static final String INVOCATION_ID = "invocationId";
 
     public static final String TRACE_PROPERTY_RESOURCE = "trace_resource";
 

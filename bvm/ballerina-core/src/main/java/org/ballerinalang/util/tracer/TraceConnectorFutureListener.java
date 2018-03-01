@@ -29,10 +29,12 @@ import org.ballerinalang.model.values.BValue;
 public class TraceConnectorFutureListener implements ConnectorFutureListener {
     private Context context;
     private String traceSpanId;
+    private TraceContext traceContext;
 
     public TraceConnectorFutureListener(Context context, String traceSpanId) {
         this.context = context;
         this.traceSpanId = traceSpanId;
+        this.traceContext = context.getActiveTraceContext();
     }
 
     @Override
@@ -51,6 +53,6 @@ public class TraceConnectorFutureListener implements ConnectorFutureListener {
     }
 
     private void finishSpan() {
-        BallerinaTracerManager.getInstance().finishSpan(context, traceSpanId);
+        BallerinaTracerManager.getInstance().finishSpan(traceContext, traceSpanId);
     }
 }

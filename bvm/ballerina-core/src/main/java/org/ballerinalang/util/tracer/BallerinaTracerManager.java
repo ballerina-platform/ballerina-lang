@@ -19,17 +19,17 @@
 package org.ballerinalang.util.tracer;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.util.codegen.ActionInfo;
+import org.ballerinalang.util.codegen.CallableUnitInfo;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
 import java.util.stream.Collectors;
 
 /**
  * BallerinaTracerManager to manage tracing.
  */
 public class BallerinaTracerManager {
-    private static final Random RANDOM = new Random();
     private static BallerinaTracerManager instance = new BallerinaTracerManager();
     private TracerManager manager;
     private boolean enabled;
@@ -49,33 +49,53 @@ public class BallerinaTracerManager {
         return instance;
     }
 
-    public String buildSpan(Context context, boolean isClient) {
-        if (enabled) {
-            if (context.getTraceContext() == null) {
-                context.setTraceContext(new TraceContext());
+    public String buildSpan(Context context) {
+        TraceContext rTraceCtx = context.getRootTraceContext();
+        TraceContext aTraceCtx = context.getActiveTraceContext();
+
+        if (enabled && aTraceCtx.isTraceable()) {
+
+            String service = aTraceCtx.getServiceName();
+            String resource = aTraceCtx.getResourceName();
+
+            if (aTraceCtx.isClientContext()) {
+                CallableUnitInfo cInfo = context.getControlStack().getCurrentFrame().getCallableUnitInfo();
+                if (cInfo != null && cInfo instanceof ActionInfo &&
+                        ((ActionInfo) cInfo).getConnectorInfo() != null) {
+                    ActionInfo aInfo = (ActionInfo) cInfo;
+                    service = aInfo.getConnectorInfo().getType().toString();
+                    resource = aInfo.getName();
+                } else if (cInfo != null) {
+                    service = cInfo.getPkgPath();
+                    resource = cInfo.getName();
+                } else {
+                    service = "ballerina:connector";
+                    resource = "ballerina:call";
+                }
+                aTraceCtx.setServiceName(service);
+                aTraceCtx.setResourceName(resource);
+                aTraceCtx.setSpanName(resource);
             }
 
-            if (context.getTraceContext().getProperties().isEmpty()) {
-                context.getTraceContext().getProperties().put(TraceConstants.TRACE_PREFIX +
-                        TraceConstants.TRACE_PROPERTY_INVOCATION_ID, String.valueOf(RANDOM.nextLong()));
+            Long invocationId;
+            if (rTraceCtx.getInvocationID() == null) {
+                rTraceCtx.generateInvocationID();
+                invocationId = Long.valueOf(rTraceCtx.getInvocationID());
+            } else {
+                invocationId = Long.valueOf(rTraceCtx.getInvocationID());
             }
+            aTraceCtx.setInvocationID(String.valueOf(invocationId));
 
-            Long invocationId = Long.valueOf(context.getTraceContext().getProperties()
-                    .get(TraceConstants.TRACE_PREFIX + TraceConstants.TRACE_PROPERTY_INVOCATION_ID));
-            String serviceId = (String) context.getProperty(TraceConstants.TRACE_PROPERTY_SERVICE);
-            serviceId = (serviceId == null || serviceId.isEmpty()) ? "ballerina" : serviceId;
-            String resourceId = (String) context.getProperty(TraceConstants.TRACE_PROPERTY_RESOURCE);
-            resourceId = (resourceId == null || resourceId.isEmpty()) ? "default" : resourceId;
-
-            context.getTraceContext().addTag("span.kind", (isClient) ? "client" : "server");
-
-            Map<String, String> spanHeaders = context.getTraceContext().getProperties().entrySet().stream()
+            // get the parent spans' span context
+            Map<String, String> spanHeaders = rTraceCtx.getProperties().entrySet().stream()
                     .collect(Collectors.toMap(Map.Entry::getKey, e -> String.valueOf(e.getValue())));
-            Map<String, Object> spanContext = manager.extract(null, removeTracePrefix(spanHeaders), serviceId);
-            List<Object> spanList = manager.buildSpan(invocationId, resourceId, spanContext,
-                    context.getTraceContext().getTags(), true, serviceId);
-            Map<String, String> tContext = manager.inject(manager.getActiveSpanMap(serviceId), null, serviceId);
-            context.getTraceContext().getProperties().putAll(addTracePrefix(tContext));
+            Map<String, Object> spanContext = manager.extract(null, removeTracePrefix(spanHeaders), service);
+
+            List<Object> spanList = manager.buildSpan(invocationId, resource, spanContext,
+                    aTraceCtx.getTags(), true, service);
+
+            Map<String, String> traceContextMap = manager.inject(manager.getActiveSpanMap(service), null, service);
+            aTraceCtx.getProperties().putAll(addTracePrefix(traceContextMap));
 
             if (spanContext != null && !spanContext.isEmpty()) {
                 return SpanHolder.getInstance().onBuildSpan(String.valueOf(invocationId), spanList, spanContext);
@@ -86,16 +106,14 @@ public class BallerinaTracerManager {
         return null;
     }
 
-    public void finishSpan(Context context, String spanId) {
-        if (enabled) {
-            Long invocationId = Long.valueOf(context.getTraceContext().getProperties()
-                    .get(TraceConstants.TRACE_PREFIX + TraceConstants.TRACE_PROPERTY_INVOCATION_ID));
-            String serviceId = (String) context.getProperty(TraceConstants.TRACE_PROPERTY_SERVICE);
-            serviceId = (serviceId == null || serviceId.isEmpty()) ? "ballerina" : serviceId;
-
+    //todo: send trace id within TraceContext??
+    public void finishSpan(TraceContext tContext, String spanId) {
+        if (enabled && tContext.isTraceable()) {
+            Long invocationId = Long.valueOf(tContext.getProperty(TraceConstants.TRACE_PREFIX +
+                    TraceConstants.INVOCATION_ID));
             SpanHolder.SpanReference spanRef = SpanHolder.getInstance()
                     .onFinishSpan(String.valueOf(invocationId), spanId);
-            manager.finishSpan(spanRef.getSpans(), spanRef.getParent(), serviceId);
+            manager.finishSpan(spanRef.getSpans(), spanRef.getParent(), tContext.getServiceName());
         }
     }
 

@@ -77,7 +77,8 @@ public class Get extends AbstractHTTPAction {
     protected HTTPCarbonMessage createOutboundRequestMsg(Context context) {
         HTTPCarbonMessage outboundReqMsg = super.createOutboundRequestMsg(context);
         outboundReqMsg.setProperty(HttpConstants.HTTP_METHOD, HttpConstants.HTTP_METHOD_GET);
-        context.getTraceContext().getProperties().forEach((key, value) ->
+
+        context.getActiveTraceContext().getProperties().forEach((key, value) ->
                 outboundReqMsg.setHeader(key, String.valueOf(value)));
 
         Map<String, String> traceTags = new HashMap<>();
@@ -88,7 +89,7 @@ public class Get extends AbstractHTTPAction {
         traceTags.put("http.host", String.valueOf(outboundReqMsg.getProperty("Host")));
         traceTags.put("http.port", String.valueOf(outboundReqMsg.getProperty("PORT")));
 
-        context.getTraceContext().setTags(traceTags);
+        context.getActiveTraceContext().setTags(traceTags);
         return outboundReqMsg;
     }
 }

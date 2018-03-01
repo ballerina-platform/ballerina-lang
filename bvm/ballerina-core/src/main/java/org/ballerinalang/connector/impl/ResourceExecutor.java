@@ -43,7 +43,6 @@ import org.ballerinalang.util.debugger.DebuggerUtil;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.ballerinalang.util.tracer.BallerinaTracerManager;
 import org.ballerinalang.util.tracer.TraceConnectorFutureListener;
-import org.ballerinalang.util.tracer.TraceConstants;
 import org.ballerinalang.util.tracer.TraceContext;
 
 import java.util.Arrays;
@@ -67,7 +66,7 @@ public class ResourceExecutor {
      * @param bValues         for parameters.
      */
     public static void execute(Resource resource, BServerConnectorFuture connectorFuture,
-                               Map<String, Object> properties, TraceContext traceContext, BValue... bValues) {
+                               Map<String, Object> properties, TraceContext tContext, BValue... bValues) {
         if (resource == null) {
             connectorFuture.notifyFailure(new BallerinaException("trying to execute a null resource"));
             return;
@@ -87,15 +86,18 @@ public class ResourceExecutor {
             properties.forEach(context::setProperty);
         }
 
-        context.setProperty(TraceConstants.TRACE_PROPERTY_RESOURCE, resourceInfo.getName());
-        context.setProperty(TraceConstants.TRACE_PROPERTY_SERVICE, serviceInfo.getName());
-
-        if (traceContext != null) {
-            context.setTraceContext(traceContext);
+        if (tContext == null) {
+            tContext = new TraceContext(context, false);
         }
+        context.setRootTraceContext(tContext);
+        context.setActiveTraceContext(tContext);
+
+        tContext.setServiceName(resourceInfo.getServiceInfo().getName());
+        tContext.setResourceName(resourceInfo.getName());
+        tContext.setSpanName(resourceInfo.getServiceInfo().getName() + "/" + resourceInfo.getName());
 
         TraceConnectorFutureListener listener = new TraceConnectorFutureListener(context,
-                BallerinaTracerManager.getInstance().buildSpan(context, false));
+                BallerinaTracerManager.getInstance().buildSpan(context));
         connectorFuture.registerConnectorFutureListener(listener);
 
         ControlStack controlStack = context.getControlStack();
