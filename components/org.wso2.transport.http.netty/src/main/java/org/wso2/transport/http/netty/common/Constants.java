@@ -120,7 +120,13 @@ public final class Constants {
 
     //HTTP server connector creation parameters
     public static final String HTTP_HOST = "host";
-    public static final String HTTP_PORT = "port";
+    public static final String HOST = "host";
+    public static final String ACCEPT_ENCODING = "Accept-Encoding";
+    public static final String CONTENT_ENCODING = "Content-Encoding";
+    public static final String HTTP_CONTENT_TYPE = "Content-Type";
+    public static final String HTTP_CONTENT_LENGTH = "Content-Length";
+
+    public static final String HTTP_PORT = "PORT";
     public static final String SCHEME = "scheme";
     public static final String KEEP_ALIVE = "keepAlive";
     public static final String HTTP_KEY_STORE_FILE = "keyStoreFile";

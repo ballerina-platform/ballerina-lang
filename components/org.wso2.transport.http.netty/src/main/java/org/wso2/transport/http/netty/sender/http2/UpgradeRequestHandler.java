@@ -31,7 +31,7 @@ import org.wso2.transport.http.netty.common.Constants;
 import org.wso2.transport.http.netty.common.Util;
 import org.wso2.transport.http.netty.config.ChunkConfig;
 import org.wso2.transport.http.netty.config.SenderConfiguration;
-import org.wso2.transport.http.netty.contract.HttpResponseFuture;
+import org.wso2.transport.http.netty.contract.Http2ResponseFuture;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 
 import java.io.IOException;
@@ -155,7 +155,7 @@ public class UpgradeRequestHandler extends ChannelDuplexHandler {
         private String httpVersion = senderConfiguration.getHttpVersion();
         private ChunkConfig chunkConfig = senderConfiguration.getChunkingConfig();
         private HTTPCarbonMessage outboundRequest;
-        private HttpResponseFuture responseFuture;
+        private Http2ResponseFuture responseFuture;
         private OutboundMsgHolder outboundMsgHolder;
         private boolean isRequestWritten = false;
 

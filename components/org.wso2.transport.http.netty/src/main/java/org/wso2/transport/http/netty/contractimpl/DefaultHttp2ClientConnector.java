@@ -29,7 +29,7 @@ import org.wso2.transport.http.netty.common.HttpRoute;
 import org.wso2.transport.http.netty.config.SenderConfiguration;
 import org.wso2.transport.http.netty.contract.ClientConnectorException;
 import org.wso2.transport.http.netty.contract.Http2ClientConnector;
-import org.wso2.transport.http.netty.contract.HttpResponseFuture;
+import org.wso2.transport.http.netty.contract.Http2ResponseFuture;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 import org.wso2.transport.http.netty.sender.http2.ConnectionManager;
 import org.wso2.transport.http.netty.sender.http2.OutboundMsgHolder;
@@ -48,14 +48,14 @@ public class DefaultHttp2ClientConnector implements Http2ClientConnector {
     }
 
     @Override
-    public HttpResponseFuture connect() {
+    public Http2ResponseFuture connect() {
         return null;
     }
 
     @Override
-    public HttpResponseFuture send(HTTPCarbonMessage httpOutboundRequest) {
+    public Http2ResponseFuture send(HTTPCarbonMessage httpOutboundRequest) {
 
-        HttpResponseFuture httpResponseFuture = new DefaultHttpResponseFuture();
+        Http2ResponseFuture httpResponseFuture = new DefaultHttp2ResponseFuture();
         OutboundMsgHolder outboundMsgHolder = new OutboundMsgHolder(httpOutboundRequest, httpResponseFuture);
         try {
             HttpRoute route = getTargetRoute(httpOutboundRequest);

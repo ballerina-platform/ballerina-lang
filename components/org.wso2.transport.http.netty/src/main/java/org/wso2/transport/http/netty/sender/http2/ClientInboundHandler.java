@@ -113,7 +113,7 @@ public class ClientInboundHandler extends Http2EventAdapter {
             targetChannel.removeInFlightMessage(streamId);
         }
         // Notify the response listener
-        outboundMsgHolder.getResponseFuture().notifyHttpListener(responseMessage);
+        outboundMsgHolder.getResponseFuture().notifyHttpListener(http2Response);
     }
 
     @Override

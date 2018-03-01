@@ -75,7 +75,7 @@ public class DefaultHttpResponseFuture implements HttpResponseFuture {
 
     public DefaultOperationStatus getStatus() {
         return this.returnError != null ? new DefaultOperationStatus(this.returnError)
-                : new DefaultOperationStatus(null);
+                                        : new DefaultOperationStatus(null);
     }
 
     @Override
@@ -87,7 +87,7 @@ public class DefaultHttpResponseFuture implements HttpResponseFuture {
         }
         if (this.throwable != null) {
             notifyHttpListener(this.throwable);
-            this.throwable =  null;
+            this.throwable = null;
         }
     }
 

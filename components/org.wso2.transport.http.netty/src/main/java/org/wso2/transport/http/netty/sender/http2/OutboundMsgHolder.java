@@ -18,7 +18,7 @@
 
 package org.wso2.transport.http.netty.sender.http2;
 
-import org.wso2.transport.http.netty.contract.HttpResponseFuture;
+import org.wso2.transport.http.netty.contract.Http2ResponseFuture;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 import org.wso2.transport.http.netty.message.Http2Response;
 
@@ -32,14 +32,14 @@ public class OutboundMsgHolder {
     // Intended response received for the request
     private Http2Response http2Response;
     // Future which is used to notify the response listener upon response receive
-    private HttpResponseFuture responseFuture;
+    private Http2ResponseFuture responseFuture;
 
     /**
      * @param httpCarbonMessage outbound request message
      * @param responseFuture    the Future used to notify the response listener
      */
     public OutboundMsgHolder(HTTPCarbonMessage httpCarbonMessage,
-                             HttpResponseFuture responseFuture) {
+                             Http2ResponseFuture responseFuture) {
         this.requestCarbonMessage = httpCarbonMessage;
         this.responseFuture = responseFuture;
     }
@@ -58,7 +58,7 @@ public class OutboundMsgHolder {
      *
      * @return the Future used to notify the response listener
      */
-    public HttpResponseFuture getResponseFuture() {
+    public Http2ResponseFuture getResponseFuture() {
         return responseFuture;
     }
 
