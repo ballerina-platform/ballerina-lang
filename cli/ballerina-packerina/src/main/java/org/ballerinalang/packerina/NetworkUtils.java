@@ -30,10 +30,9 @@ import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.debugger.Debugger;
 import org.ballerinalang.util.program.BLangFunctions;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.io.PrintStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.file.DirectoryStream;
@@ -45,10 +44,11 @@ import java.util.stream.Stream;
 
 /**
  * Util class for network calls.
+ *
  * @since 0.964
  */
 public class NetworkUtils {
-    private static final Logger log = LoggerFactory.getLogger(NetworkUtils.class);
+    private static PrintStream outStream = System.err;
     private static CompileResult compileResult;
 
     /**
@@ -169,17 +169,21 @@ public class NetworkUtils {
             String version = removeQuotationsFromValue(manifest.getVersion());
             String resourcePath = ballerinaCentralURL + Paths.get(orgName).resolve(packageName)
                     .resolve(version);
-            String[] proxyConfigs = readProxyConfigurations();
-            String[] arguments = new String[]{resourcePath, packageName};
-            arguments = Stream.concat(Arrays.stream(arguments), Arrays.stream(proxyConfigs))
-                    .toArray(String[]::new);
-            LauncherUtils.runMain(compileResult.getProgFile(), arguments);
+
+            // Construct the package name along with the version and check if it exists
+            Path pkgWithVersion = Paths.get(packageName).resolve(version).resolve("src");
+            if (Files.notExists(pkgWithVersion)) {
+                outStream.println("Package " + packageName + " with version " + version + " does not exist");
+            } else {
+                String[] proxyConfigs = readProxyConfigurations();
+                String[] arguments = new String[]{resourcePath, pkgWithVersion.toString()};
+                arguments = Stream.concat(Arrays.stream(arguments), Arrays.stream(proxyConfigs))
+                        .toArray(String[]::new);
+                LauncherUtils.runMain(compileResult.getProgFile(), arguments);
+            }
         } else {
-            log.debug("An org-name and package version is required when pushing. This is not specified in " +
+            outStream.println("An org-name and package version is required when pushing. This is not specified in " +
                     "Ballerina.toml inside the project");
-            log.error("An org-name and package version is required when pushing. This is not specified in " +
-                            "Ballerina.toml inside the project",
-                    "An org-name and package version is required when pushing");
         }
     }
 
