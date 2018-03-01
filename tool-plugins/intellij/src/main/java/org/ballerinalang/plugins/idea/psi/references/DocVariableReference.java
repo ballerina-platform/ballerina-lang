@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *  Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -17,12 +17,9 @@
 package org.ballerinalang.plugins.idea.psi.references;
 
 import com.intellij.codeInsight.lookup.LookupElement;
-import com.intellij.psi.PsiComment;
 import com.intellij.psi.PsiElement;
-import com.intellij.psi.PsiWhiteSpace;
 import com.intellij.psi.util.PsiTreeUtil;
 import org.ballerinalang.plugins.idea.completion.BallerinaCompletionUtils;
-import org.ballerinalang.plugins.idea.psi.DefinitionNode;
 import org.ballerinalang.plugins.idea.psi.DocumentationAttachmentNode;
 import org.ballerinalang.plugins.idea.psi.IdentifierPSINode;
 import org.ballerinalang.plugins.idea.psi.ResourceDefinitionNode;
@@ -45,34 +42,34 @@ public class DocVariableReference extends BallerinaElementReference {
     @Nullable
     @Override
     public PsiElement resolve() {
-        IdentifierPSINode identifier = getElement();
-        // Resource grammar is different. So need to handle it separately.
-        ResourceDefinitionNode resourceDefinitionNode = PsiTreeUtil.getParentOfType(identifier,
-                ResourceDefinitionNode.class);
-        if (resourceDefinitionNode != null) {
-            List<IdentifierPSINode> parameters = BallerinaPsiImplUtil.getParameters(resourceDefinitionNode);
-            for (IdentifierPSINode parameter : parameters) {
-                if (identifier.getText().equals(parameter.getText())) {
-                    return parameter;
-                }
-            }
-        } else {
-            DocumentationAttachmentNode documentationAttachmentNode = PsiTreeUtil.getParentOfType(identifier,
-                    DocumentationAttachmentNode.class);
-            if (documentationAttachmentNode == null) {
-                return null;
-            }
-            PsiElement nextSibling = PsiTreeUtil.skipSiblingsForward(documentationAttachmentNode, PsiWhiteSpace.class,
-                    PsiComment.class);
-            if (nextSibling == null) {
-                return null;
-            }
-            if (nextSibling instanceof DefinitionNode) {
-
-            }
-
-
-        }
+        //Todo - Implement properly in the new plugin
+        //        IdentifierPSINode identifier = getElement();
+        //        // Resource grammar is different. So need to handle it separately.
+        //        ResourceDefinitionNode resourceDefinitionNode = PsiTreeUtil.getParentOfType(identifier,
+        //                ResourceDefinitionNode.class);
+        //        if (resourceDefinitionNode != null) {
+        //            List<IdentifierPSINode> parameters = BallerinaPsiImplUtil.getParameters(resourceDefinitionNode);
+        //            for (IdentifierPSINode parameter : parameters) {
+        //                if (identifier.getText().equals(parameter.getText())) {
+        //                    return parameter;
+        //                }
+        //            }
+        //        } else {
+        //            DocumentationAttachmentNode documentationAttachmentNode = PsiTreeUtil.getParentOfType(identifier,
+        //                    DocumentationAttachmentNode.class);
+        //            if (documentationAttachmentNode == null) {
+        //                return null;
+        //            }
+        //            PsiElement nextSibling = PsiTreeUtil.skipSiblingsForward(documentationAttachmentNode,
+        // PsiWhiteSpace.class,
+        //                    PsiComment.class);
+        //            if (nextSibling == null) {
+        //                return null;
+        //            }
+        //            if (nextSibling instanceof DefinitionNode) {
+        //
+        //            }
+        //        }
         return null;
     }
 

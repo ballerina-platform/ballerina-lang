@@ -63,7 +63,6 @@ import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_annota
 import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_anyIdentifierName;
 import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_attachmentPoint;
 import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_connectorReference;
-import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_documentationTemplateAttributeDescription;
 import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_field;
 import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_functionReference;
 import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_invocation;
