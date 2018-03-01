@@ -97,7 +97,7 @@ public class ProxyBuildListener extends TomlBaseListener {
      */
     private void setToProxy(String value) {
         if (currentKey.present() && ManifestHeader.PROXY.stringEquals(currentHeader)) {
-            ProxyField proxyField = ProxyField.LOOKUP.get(currentKey.pop());
+            ProxyField proxyField = ProxyField.valueOfLowerCase(currentKey.pop());
             if (proxyField != null) {
                 proxyField.setValueTo(this.proxy, value);
             }

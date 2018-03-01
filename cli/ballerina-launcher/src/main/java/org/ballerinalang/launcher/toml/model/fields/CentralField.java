@@ -31,7 +31,7 @@ import java.util.function.BiConsumer;
 public enum CentralField {
     ACCESSTOKEN(Central::setAccessToken);
 
-    public static final Map<String, CentralField> LOOKUP = new HashMap<>();
+    private static final Map<String, CentralField> LOOKUP = new HashMap<>();
 
     static {
         for (CentralField centralField : CentralField.values()) {
@@ -60,4 +60,7 @@ public enum CentralField {
         stringSetter.accept(central, value);
     }
 
+    public static CentralField valueOfLowerCase(String fieldKey) {
+        return LOOKUP.get(fieldKey);
+    }
 }

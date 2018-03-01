@@ -42,7 +42,7 @@ public enum PackageField {
     AUTHORS(null, Manifest::setAuthors),
     KEYWORDS(null, Manifest::setKeywords);
 
-    public static final Map<String, PackageField> LOOKUP = new HashMap<>();
+    private static final Map<String, PackageField> LOOKUP = new HashMap<>();
 
     static {
         for (PackageField packageFieldField : PackageField.values()) {
@@ -99,5 +99,9 @@ public enum PackageField {
         } else {
             throw new IllegalStateException(this + " field can't have list value " + list.toString());
         }
+    }
+
+    public static PackageField valueOfLowerCase(String fieldKey) {
+        return LOOKUP.get(fieldKey);
     }
 }

@@ -156,13 +156,13 @@ public class ManifestBuildListener extends TomlBaseListener {
      */
     private void setToManifest(String value) {
         if (currentKey.present() && ManifestHeader.PACKAGE.stringEquals(currentHeader)) {
-            PackageField packageFieldField = PackageField.LOOKUP.get(currentKey.pop());
+            PackageField packageFieldField = PackageField.valueOfLowerCase(currentKey.pop());
             if (packageFieldField != null) {
                 packageFieldField.setStringTo(this.manifest, value);
             }
         } else if (currentKey.present() && (ManifestHeader.DEPENDENCIES.stringEquals(currentHeader) ||
                 ManifestHeader.PATCHES.stringEquals(currentHeader))) {
-            DependencyField dependencyField = DependencyField.LOOKUP.get(currentKey.pop());
+            DependencyField dependencyField = DependencyField.valueOfLowerCase(currentKey.pop());
             if (dependencyField != null) {
                 dependencyField.setValueTo(dependency, value);
             }
@@ -176,7 +176,7 @@ public class ManifestBuildListener extends TomlBaseListener {
      */
     private void setToManifest(TomlParser.ArrayValuesContext arrayValuesContext) {
         if (currentKey.present() && ManifestHeader.PACKAGE.stringEquals(currentHeader)) {
-            PackageField packageFieldField = PackageField.LOOKUP.get(currentKey.pop());
+            PackageField packageFieldField = PackageField.valueOfLowerCase(currentKey.pop());
             if (packageFieldField != null) {
                 List<String> arrayElements = populateList(arrayValuesContext);
                 packageFieldField.setListTo(this.manifest, arrayElements);
@@ -238,7 +238,7 @@ public class ManifestBuildListener extends TomlBaseListener {
     private void populateDependencyField(TomlParser.InlineTableKeyvalsContext ctx) {
         for (TomlParser.InlineTableKeyvalsNonEmptyContext valueContext : ctx.inlineTableKeyvalsNonEmpty()) {
             String name = valueContext.key().getText();
-            DependencyField dependencyField = DependencyField.LOOKUP.get(name);
+            DependencyField dependencyField = DependencyField.valueOfLowerCase(name);
             if (dependencyField != null) {
                 dependencyField.setValueTo(dependency, valueContext.val().getText());
             }
@@ -252,7 +252,7 @@ public class ManifestBuildListener extends TomlBaseListener {
      */
     private void createDependencyObject(String packageName) {
         dependency = new Dependency();
-        DependencyField dependencyField = DependencyField.LOOKUP.get("name");
+        DependencyField dependencyField = DependencyField.valueOfLowerCase("name");
         if (dependencyField != null) {
             dependencyField.setValueTo(dependency, packageName);
         }
