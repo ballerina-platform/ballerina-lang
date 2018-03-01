@@ -39,6 +39,7 @@ import java.util.Set;
  */
 public class BLangAnnotation extends BLangNode implements AnnotationNode {
     public BLangIdentifier name;
+    @Deprecated
     public List<BLangAnnotAttribute> attributes;
     public Set<Flag> flagSet;
     public List<BLangAnnotationAttachment> annAttachments;
@@ -147,6 +148,6 @@ public class BLangAnnotation extends BLangNode implements AnnotationNode {
 
     @Override
     public String toString() {
-        return "BLangAnnotation: " + this.name + " -> " + this.attributes;
+        return "BLangAnnotation: " + this.name + " -> " + this.typeNode;
     }
 }

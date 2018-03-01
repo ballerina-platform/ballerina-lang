@@ -35,6 +35,7 @@ import java.util.List;
 public class BLangAnnotationAttachment extends BLangNode implements AnnotationAttachmentNode {
 
     public BLangExpression expr;
+    @Deprecated
     public List<BLangAnnotAttachmentAttribute> attributes;
     public BLangIdentifier annotationName;
     public BLangAnnotationAttachmentPoint attachmentPoint;
@@ -56,11 +57,13 @@ public class BLangAnnotationAttachment extends BLangNode implements AnnotationAt
     }
 
     @Override
+    @Deprecated
     public void addAttribute(AnnotationAttachmentAttributeNode attribute) {
         attributes.add((BLangAnnotAttachmentAttribute) attribute);
     }
 
     @Override
+    @Deprecated
     public List<BLangAnnotAttachmentAttribute> getAttributes() {
         return attributes;
     }

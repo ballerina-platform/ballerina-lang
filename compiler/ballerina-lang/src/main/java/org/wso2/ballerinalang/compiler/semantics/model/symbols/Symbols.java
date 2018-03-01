@@ -54,6 +54,7 @@ public class Symbols {
         return typeSymbol;    
     }
 
+    @Deprecated
     public static BAnnotationAttributeSymbol createAnnotationAttributeSymbol(Name name,
                                                                              PackageID pkgID,
                                                                              BType type,

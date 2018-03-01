@@ -169,6 +169,7 @@ public abstract class BLangNodeVisitor {
         throw new AssertionError();
     }
 
+    @Deprecated
     public void visit(BLangAnnotAttribute annotationAttribute) {
         throw new AssertionError();
     }

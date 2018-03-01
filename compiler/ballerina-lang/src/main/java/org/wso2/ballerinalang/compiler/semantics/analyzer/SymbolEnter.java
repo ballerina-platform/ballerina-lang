@@ -235,6 +235,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         pkgNode.completedPhases.add(CompilerPhase.DEFINE);
     }
 
+    @Deprecated
     private void resolveAnnotationAttributeTypes(List<BLangAnnotation> annotations, SymbolEnv pkgEnv) {
         annotations.forEach(annotation -> {
             annotation.attributes.forEach(attribute -> {

@@ -472,6 +472,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         });
     }
 
+    @Deprecated
     private void populateDefaultValues(BLangAnnotationAttachment annAttachmentNode,
                                        BAnnotationSymbol annotationSymbol) {
         for (BAnnotationAttributeSymbol defAttribute : annotationSymbol.attributes) {
