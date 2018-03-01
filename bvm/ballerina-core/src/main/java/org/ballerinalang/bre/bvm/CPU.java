@@ -110,6 +110,7 @@ import org.ballerinalang.util.program.BLangVMUtils;
 
 import java.io.PrintStream;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.StringJoiner;
@@ -451,7 +452,7 @@ public class CPU {
                             break;
                         }
 
-                        BLangVMErrors.attachCallStack(error, ctx.programFile, ctx.ip);
+                        BLangVMErrors.attachStackFrame(error, ctx.programFile, ctx, ctx.ip);
                         ctx.setError(error);
                         handleError(ctx);
                     }
@@ -878,7 +879,7 @@ public class CPU {
                 try {
                     sf.longRegs[k] = bIntArray.get(sf.longRegs[j]);
                 } catch (Exception e) {
-                    ctx.setError(BLangVMErrors.createError(ctx, ctx.ip, e.getMessage()));
+                    ctx.setError(BLangVMErrors.createError(ctx, e.getMessage()));
                     handleError(ctx);
                 }
                 break;
@@ -895,7 +896,7 @@ public class CPU {
                 try {
                     sf.doubleRegs[k] = bFloatArray.get(sf.longRegs[j]);
                 } catch (Exception e) {
-                    ctx.setError(BLangVMErrors.createError(ctx, ctx.ip, e.getMessage()));
+                    ctx.setError(BLangVMErrors.createError(ctx, e.getMessage()));
                     handleError(ctx);
                 }
                 break;
@@ -912,7 +913,7 @@ public class CPU {
                 try {
                     sf.stringRegs[k] = bStringArray.get(sf.longRegs[j]);
                 } catch (Exception e) {
-                    ctx.setError(BLangVMErrors.createError(ctx, ctx.ip, e.getMessage()));
+                    ctx.setError(BLangVMErrors.createError(ctx, e.getMessage()));
                     handleError(ctx);
                 }
                 break;
@@ -929,7 +930,7 @@ public class CPU {
                 try {
                     sf.intRegs[k] = bBooleanArray.get(sf.longRegs[j]);
                 } catch (Exception e) {
-                    ctx.setError(BLangVMErrors.createError(ctx, ctx.ip, e.getMessage()));
+                    ctx.setError(BLangVMErrors.createError(ctx, e.getMessage()));
                     handleError(ctx);
                 }
                 break;
@@ -946,7 +947,7 @@ public class CPU {
                 try {
                     sf.byteRegs[k] = bBlobArray.get(sf.longRegs[j]);
                 } catch (Exception e) {
-                    ctx.setError(BLangVMErrors.createError(ctx, ctx.ip, e.getMessage()));
+                    ctx.setError(BLangVMErrors.createError(ctx, e.getMessage()));
                     handleError(ctx);
                 }
                 break;
@@ -963,7 +964,7 @@ public class CPU {
                 try {
                     sf.refRegs[k] = bArray.get(sf.longRegs[j]);
                 } catch (Exception e) {
-                    ctx.setError(BLangVMErrors.createError(ctx, ctx.ip, e.getMessage()));
+                    ctx.setError(BLangVMErrors.createError(ctx, e.getMessage()));
                     handleError(ctx);
                 }
                 break;
@@ -980,7 +981,7 @@ public class CPU {
                 try {
                     sf.refRegs[k] = JSONUtils.getArrayElement(jsonVal, sf.longRegs[j]);
                 } catch (Exception e) {
-                    ctx.setError(BLangVMErrors.createError(ctx, ctx.ip, e.getMessage()));
+                    ctx.setError(BLangVMErrors.createError(ctx, e.getMessage()));
                     handleError(ctx);
                 }
                 break;
@@ -1188,7 +1189,7 @@ public class CPU {
                 try {
                     bIntArray.add(sf.longRegs[j], sf.longRegs[k]);
                 } catch (Exception e) {
-                    ctx.setError(BLangVMErrors.createError(ctx, ctx.ip, e.getMessage()));
+                    ctx.setError(BLangVMErrors.createError(ctx, e.getMessage()));
                     handleError(ctx);
                 }
                 break;
@@ -1205,7 +1206,7 @@ public class CPU {
                 try {
                     bFloatArray.add(sf.longRegs[j], sf.doubleRegs[k]);
                 } catch (Exception e) {
-                    ctx.setError(BLangVMErrors.createError(ctx, ctx.ip, e.getMessage()));
+                    ctx.setError(BLangVMErrors.createError(ctx, e.getMessage()));
                     handleError(ctx);
                 }
                 break;
@@ -1222,7 +1223,7 @@ public class CPU {
                 try {
                     bStringArray.add(sf.longRegs[j], sf.stringRegs[k]);
                 } catch (Exception e) {
-                    ctx.setError(BLangVMErrors.createError(ctx, ctx.ip, e.getMessage()));
+                    ctx.setError(BLangVMErrors.createError(ctx, e.getMessage()));
                     handleError(ctx);
                 }
                 break;
@@ -1239,7 +1240,7 @@ public class CPU {
                 try {
                     bBooleanArray.add(sf.longRegs[j], sf.intRegs[k]);
                 } catch (Exception e) {
-                    ctx.setError(BLangVMErrors.createError(ctx, ctx.ip, e.getMessage()));
+                    ctx.setError(BLangVMErrors.createError(ctx, e.getMessage()));
                     handleError(ctx);
                 }
                 break;
@@ -1256,7 +1257,7 @@ public class CPU {
                 try {
                     bBlobArray.add(sf.longRegs[j], sf.byteRegs[k]);
                 } catch (Exception e) {
-                    ctx.setError(BLangVMErrors.createError(ctx, ctx.ip, e.getMessage()));
+                    ctx.setError(BLangVMErrors.createError(ctx, e.getMessage()));
                     handleError(ctx);
                 }
                 break;
@@ -1273,7 +1274,7 @@ public class CPU {
                 try {
                     bArray.add(sf.longRegs[j], sf.refRegs[k]);
                 } catch (Exception e) {
-                    ctx.setError(BLangVMErrors.createError(ctx, ctx.ip, e.getMessage()));
+                    ctx.setError(BLangVMErrors.createError(ctx, e.getMessage()));
                     handleError(ctx);
                 }
                 break;
@@ -1290,7 +1291,7 @@ public class CPU {
                 try {
                     JSONUtils.setArrayElement(jsonVal, sf.longRegs[j], (BJSON) sf.refRegs[k]);
                 } catch (Exception e) {
-                    ctx.setError(BLangVMErrors.createError(ctx, ctx.ip, e.getMessage()));
+                    ctx.setError(BLangVMErrors.createError(ctx, e.getMessage()));
                     handleError(ctx);
                 }
                 break;
@@ -1497,7 +1498,7 @@ public class CPU {
                 j = operands[1];
                 k = operands[2];
                 if (sf.longRegs[j] == 0) {
-                    ctx.setError(BLangVMErrors.createError(ctx, ctx.ip, " / by zero"));
+                    ctx.setError(BLangVMErrors.createError(ctx, " / by zero"));
                     handleError(ctx);
                     break;
                 }
@@ -1509,7 +1510,7 @@ public class CPU {
                 j = operands[1];
                 k = operands[2];
                 if (sf.doubleRegs[j] == 0) {
-                    ctx.setError(BLangVMErrors.createError(ctx, ctx.ip, " / by zero"));
+                    ctx.setError(BLangVMErrors.createError(ctx, " / by zero"));
                     handleError(ctx);
                     break;
                 }
@@ -1521,7 +1522,7 @@ public class CPU {
                 j = operands[1];
                 k = operands[2];
                 if (sf.longRegs[j] == 0) {
-                    ctx.setError(BLangVMErrors.createError(ctx, ctx.ip, " / by zero"));
+                    ctx.setError(BLangVMErrors.createError(ctx, " / by zero"));
                     handleError(ctx);
                     break;
                 }
@@ -1533,7 +1534,7 @@ public class CPU {
                 j = operands[1];
                 k = operands[2];
                 if (sf.doubleRegs[j] == 0) {
-                    ctx.setError(BLangVMErrors.createError(ctx, ctx.ip, " / by zero"));
+                    ctx.setError(BLangVMErrors.createError(ctx, " / by zero"));
                     handleError(ctx);
                     break;
                 }
@@ -2257,7 +2258,7 @@ public class CPU {
                 try {
                     sf.refRegs[i] = XMLUtils.createXMLElement(startTagName, endTagName, sf.stringRegs[l]);
                 } catch (Exception e) {
-                    ctx.setError(BLangVMErrors.createError(ctx, ctx.ip, e.getMessage()));
+                    ctx.setError(BLangVMErrors.createError(ctx, e.getMessage()));
                     handleError(ctx);
                 }
                 break;
@@ -2268,7 +2269,7 @@ public class CPU {
                 try {
                     sf.refRegs[i] = XMLUtils.createXMLComment(sf.stringRegs[j]);
                 } catch (Exception e) {
-                    ctx.setError(BLangVMErrors.createError(ctx, ctx.ip, e.getMessage()));
+                    ctx.setError(BLangVMErrors.createError(ctx, e.getMessage()));
                     handleError(ctx);
                 }
                 break;
@@ -2279,7 +2280,7 @@ public class CPU {
                 try {
                     sf.refRegs[i] = XMLUtils.createXMLText(sf.stringRegs[j]);
                 } catch (Exception e) {
-                    ctx.setError(BLangVMErrors.createError(ctx, ctx.ip, e.getMessage()));
+                    ctx.setError(BLangVMErrors.createError(ctx, e.getMessage()));
                     handleError(ctx);
                 }
                 break;
@@ -2291,7 +2292,7 @@ public class CPU {
                 try {
                     sf.refRegs[i] = XMLUtils.createXMLProcessingInstruction(sf.stringRegs[j], sf.stringRegs[k]);
                 } catch (Exception e) {
-                    ctx.setError(BLangVMErrors.createError(ctx, ctx.ip, e.getMessage()));
+                    ctx.setError(BLangVMErrors.createError(ctx, e.getMessage()));
                     handleError(ctx);
                 }
                 break;
@@ -2524,7 +2525,7 @@ public class CPU {
     private static void handleTypeCastError(WorkerExecutionContext ctx, WorkerData sf, int errorRegIndex,
                                             String sourceType, String targetType) {
         BStruct errorVal;
-        errorVal = BLangVMErrors.createTypeCastError(ctx, ctx.ip, sourceType, targetType);
+        errorVal = BLangVMErrors.createTypeCastError(ctx, sourceType, targetType);
         sf.refRegs[errorRegIndex] = errorVal;
     }
 
@@ -2537,7 +2538,7 @@ public class CPU {
     private static void handleTypeConversionError(WorkerExecutionContext ctx, WorkerData sf, int errorRegIndex,
                                                   String errorMessage, String sourceType, String targetType) {
         BStruct errorVal;
-        errorVal = BLangVMErrors.createTypeConversionError(ctx, ctx.ip, errorMessage);
+        errorVal = BLangVMErrors.createTypeConversionError(ctx, errorMessage);
         sf.refRegs[errorRegIndex] = errorVal;
     }
 
@@ -2618,7 +2619,7 @@ public class CPU {
                     }
                 }
             } catch (Throwable e) {
-                ctx.setError(BLangVMErrors.createError(ctx, ctx.ip, e.getMessage()));
+                ctx.setError(BLangVMErrors.createError(ctx, e.getMessage()));
                 handleError(ctx);
                 return;
             }
@@ -2631,7 +2632,7 @@ public class CPU {
         if (retryCountRegIndex != -1) {
             retryCount = (int) ctx.workerLocal.longRegs[retryCountRegIndex];
             if (retryCount < 0) {
-                ctx.setError(BLangVMErrors.createError(ctx, ctx.ip,
+                ctx.setError(BLangVMErrors.createError(ctx,
                         BLangExceptionHelper.getErrorMessage(RuntimeErrors.INVALID_RETRY_COUNT)));
                 handleError(ctx);
                 return;
@@ -2921,12 +2922,10 @@ public class CPU {
                 nativeFunction.execute(ctx, callback);
             }
         } catch (BLangNullReferenceException e) {
-            parentCtx.setError(BLangVMErrors.createNullRefException(parentCtx));
-            handleError(parentCtx);
+            handleNativeInvocationError(parentCtx, BLangVMErrors.createNullRefException(functionInfo));
             return;
         } catch (Throwable e) {
-            parentCtx.setError(BLangVMErrors.createError(parentCtx, parentCtx.ip, e.getMessage()));
-            handleError(parentCtx);
+            handleNativeInvocationError(parentCtx, BLangVMErrors.createError(functionInfo, e.getMessage()));
             return;
         }
     }
@@ -2958,14 +2957,19 @@ public class CPU {
                 nativeAction.execute(ctx, callback);
             }
         } catch (BLangNullReferenceException e) {
-            parentCtx.setError(BLangVMErrors.createNullRefException(parentCtx));
-            handleError(parentCtx);
+            handleNativeInvocationError(parentCtx, BLangVMErrors.createNullRefException(actionInfo));
             return;
         } catch (Throwable e) {
-            parentCtx.setError(BLangVMErrors.createError(parentCtx, parentCtx.ip, e.getMessage()));
-            handleError(parentCtx);
+            handleNativeInvocationError(parentCtx, BLangVMErrors.createError(actionInfo, e.getMessage()));
             return;
         }
+    }
+
+    private static void handleNativeInvocationError(WorkerExecutionContext parentCtx, BStruct error) {
+        Map<String, BStruct> errors = new HashMap<>();
+        errors.put(parentCtx.workerInfo.getWorkerName(), error);
+        parentCtx.setError(BLangVMErrors.createCallFailedException(parentCtx, errors));
+        handleError(parentCtx);
     }
 
     private static boolean checkCast(BValue sourceValue, BType targetType) {
@@ -3201,7 +3205,7 @@ public class CPU {
         } catch (BallerinaException e) {
             String errorMsg = BLangExceptionHelper.getErrorMessage(RuntimeErrors.CASTING_FAILED_WITH_CAUSE,
                     BTypes.typeJSON, BTypes.typeInt, e.getMessage());
-            ctx.setError(BLangVMErrors.createError(ctx, ctx.ip, errorMsg));
+            ctx.setError(BLangVMErrors.createError(ctx, errorMsg));
             handleError(ctx);
             return;
         }
@@ -3233,7 +3237,7 @@ public class CPU {
         } catch (BallerinaException e) {
             String errorMsg = BLangExceptionHelper.getErrorMessage(RuntimeErrors.CASTING_FAILED_WITH_CAUSE,
                     BTypes.typeJSON, BTypes.typeFloat, e.getMessage());
-            ctx.setError(BLangVMErrors.createError(ctx, ctx.ip, errorMsg));
+            ctx.setError(BLangVMErrors.createError(ctx, errorMsg));
             handleError(ctx);
             return;
         }
@@ -3266,7 +3270,7 @@ public class CPU {
             sf.stringRegs[j] = "";
             String errorMsg = BLangExceptionHelper.getErrorMessage(RuntimeErrors.CASTING_FAILED_WITH_CAUSE,
                     BTypes.typeJSON, BTypes.typeString, e.getMessage());
-            ctx.setError(BLangVMErrors.createError(ctx, ctx.ip, errorMsg));
+            ctx.setError(BLangVMErrors.createError(ctx, errorMsg));
             handleError(ctx);
             return;
         }
@@ -3298,7 +3302,7 @@ public class CPU {
         } catch (BallerinaException e) {
             String errorMsg = BLangExceptionHelper.getErrorMessage(RuntimeErrors.CASTING_FAILED_WITH_CAUSE,
                     BTypes.typeJSON, BTypes.typeBoolean, e.getMessage());
-            ctx.setError(BLangVMErrors.createError(ctx, ctx.ip, errorMsg));
+            ctx.setError(BLangVMErrors.createError(ctx, errorMsg));
             handleError(ctx);
             return;
         }
