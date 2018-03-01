@@ -38,6 +38,7 @@ import org.ballerinalang.connector.api.Service;
 import org.ballerinalang.mime.util.EntityBodyHandler;
 import org.ballerinalang.mime.util.MimeUtil;
 import org.ballerinalang.mime.util.MultipartDecoder;
+import org.ballerinalang.model.types.BStructType;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStringArray;
@@ -64,6 +65,7 @@ import org.wso2.transport.http.netty.contract.HttpResponseFuture;
 import org.wso2.transport.http.netty.contract.HttpWsConnectorFactory;
 import org.wso2.transport.http.netty.contractimpl.DefaultHttpWsConnectorFactory;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
+import org.wso2.transport.http.netty.message.Http2Response;
 import org.wso2.transport.http.netty.message.HttpMessageDataStreamer;
 
 import java.io.IOException;
@@ -81,10 +83,12 @@ import static org.ballerinalang.bre.bvm.BLangVMErrors.STRUCT_GENERIC_ERROR;
 import static org.ballerinalang.mime.util.Constants.CONTENT_TYPE;
 import static org.ballerinalang.mime.util.Constants.ENTITY_HEADERS_INDEX;
 import static org.ballerinalang.mime.util.Constants.IS_BODY_BYTE_CHANNEL_ALREADY_SET;
+import static org.ballerinalang.mime.util.Constants.MEDIA_TYPE;
 import static org.ballerinalang.mime.util.Constants.MESSAGE_ENTITY;
 import static org.ballerinalang.mime.util.Constants.MULTIPART_AS_PRIMARY_TYPE;
 import static org.ballerinalang.mime.util.Constants.NO_CONTENT_LENGTH_FOUND;
 import static org.ballerinalang.mime.util.Constants.OCTET_STREAM;
+import static org.ballerinalang.mime.util.Constants.PROTOCOL_PACKAGE_MIME;
 import static org.ballerinalang.net.http.HttpConstants.ENTITY_INDEX;
 import static org.ballerinalang.net.http.HttpConstants.HTTP_MESSAGE_INDEX;
 
@@ -183,6 +187,31 @@ public class HttpUtil {
             entity = createNewEntity(context, httpMessageStruct);
         }
         return abstractNativeFunction.getBValues(entity);
+    }
+
+    /**
+     * Get the response message from HTTP2 Response holder
+     *
+     * @param context                Ballerina context
+     * @param abstractNativeFunction Reference to abstract native ballerina function
+     * @return response message
+     */
+    public static BValue[] getHttp2Response(Context context, AbstractNativeFunction abstractNativeFunction) {
+        BStruct http2ResponseStruct = (BStruct) abstractNativeFunction.getRefArgument(context, 0);
+        Http2Response http2Response =
+                (Http2Response) http2ResponseStruct.getNativeData(HttpConstants.TRANSPORT_HTTP2_RESPONSE);
+        BStruct inboundResponse = createStruct(context, HttpConstants.IN_RESPONSE, HttpConstants.PROTOCOL_PACKAGE_HTTP);
+        BStruct entity = createStruct(context, HttpConstants.ENTITY, PROTOCOL_PACKAGE_MIME);
+        BStruct mediaType = createStruct(context, MEDIA_TYPE, PROTOCOL_PACKAGE_MIME);
+        HttpUtil.populateInboundResponse(inboundResponse, entity, mediaType, http2Response.getResponse());
+        return abstractNativeFunction.getBValues(inboundResponse);
+    }
+
+    private static BStruct createStruct(Context context, String structName, String protocolPackage) {
+        PackageInfo httpPackageInfo = context.getProgramFile().getPackageInfo(protocolPackage);
+        StructInfo structInfo = httpPackageInfo.getStructInfo(structName);
+        BStructType structType = structInfo.getType();
+        return new BStruct(structType);
     }
 
     /**
@@ -655,6 +684,7 @@ public class HttpUtil {
         AnnAttrValue maxHeaderSize = configInfo.getAnnAttrValue(HttpConstants.ANN_CONFIG_ATTR_MAXIMUM_HEADER_SIZE);
         AnnAttrValue maxEntityBodySize = configInfo.getAnnAttrValue(
                 HttpConstants.ANN_CONFIG_ATTR_MAXIMUM_ENTITY_BODY_SIZE);
+        AnnAttrValue http2AttrVal = configInfo.getAnnAttrValue(HttpConstants.ANN_CONFIG_ATTR_HTTP2);
 
         ListenerConfiguration listenerConfiguration = new ListenerConfiguration();
         if (portAttrVal != null && portAttrVal.getIntValue() > 0) {
@@ -713,6 +743,10 @@ public class HttpUtil {
                     throw new BallerinaConnectorException("Invalid configuration found for maxEntityBodySize : "
                             + maxEntityBodySize.getIntValue());
                 }
+            }
+
+            if (http2AttrVal != null) {
+                listenerConfiguration.setHttp2(http2AttrVal.getBooleanValue());
             }
 
             listenerConfiguration

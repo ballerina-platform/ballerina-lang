@@ -346,6 +346,22 @@ public struct ConnectionThrottling {
     int waitTime = 60000;
 }
 
+@Description { value:"Represents a HTTP2 inbound response message"}
+public struct Http2Response {
+}
+
+@Description { value:"Represents a HTTP2 Push Promise"}
+@Field {value:"path: Resource path"}
+@Field {value:"method: Http method"}
+public struct PushPromise {
+	string path;
+    string method;
+}
+
+@Description { value:"Gets the intended response message"}
+@Return { value:"Intended response message" }
+public native function <Http2Response response> getResponse() (InResponse);
+
 @Description { value:"HTTP client connector for outbound HTTP requests"}
 @Param { value:"serviceUri: URI of the service" }
 @Param { value:"connectorOptions: connector options" }
@@ -414,4 +430,74 @@ public connector HttpClient (string serviceUri, Options connectorOptions) {
 	@Return { value:"The inbound response message" }
 	@Return { value:"Error occured during HTTP client invocation" }
 	native action forward (string path, InRequest req) (InResponse, HttpConnectorError);
+}
+
+@Description { value:"HTTP2 client connector for outbound HTTP/2 requests"}
+@Param { value:"serviceUri: URI of the service" }
+@Param { value:"connectorOptions: connector options" }
+public connector Http2Client (string serviceUri, Options connectorOptions) {
+
+	@Description { value:"The POST action implementation of the HTTP2 Connector."}
+	@Param { value:"path: Resource path " }
+	@Param { value:"req: An HTTP/2 outbound request message" }
+	@Return { value:"HTTP/2 response message" }
+	@Return { value:"Error occured during HTTP2 client invocation" }
+	native action post (string path, OutRequest req) (Http2Response , HttpConnectorError);
+
+	@Description { value:"The HEAD action implementation of the HTTP2 Connector."}
+	@Param { value:"path: Resource path " }
+	@Param { value:"req: An HTTP/2 outbound request message" }
+	@Return { value:"HTTP/2 response message" }
+	@Return { value:"Error occured during HTTP2 client invocation" }
+	native action head (string path, OutRequest req) (Http2Response, HttpConnectorError);
+
+	@Description { value:"The PUT action implementation of the HTTP2 Connector."}
+	@Param { value:"path: Resource path " }
+	@Param { value:"req: An HTTP/2 outbound request message" }
+	@Return { value:"HTTP/2 response message" }
+	@Return { value:"Error occured during HTTP2 client invocation" }
+	native action put (string path, OutRequest req) (Http2Response, HttpConnectorError);
+
+	@Description { value:"Invokes an HTTP call with the specified HTTP verb."}
+	@Param { value:"httpVerb: HTTP verb value" }
+	@Param { value:"path: Resource path " }
+	@Param { value:"req: An HTTP outbound request message" }
+	@Return { value:"HTTP/2 response message" }
+	@Return { value:"Error occured during HTTP2 client invocation" }
+	native action execute (string httpVerb, string path, OutRequest req) (Http2Response, HttpConnectorError);
+
+	@Description { value:"The PATCH action implementation of the HTTP2 Connector."}
+	@Param { value:"path: Resource path " }
+	@Param { value:"req: An HTTP/2 outbound request message" }
+	@Return { value:"HTTP/2 response message" }
+	@Return { value:"Error occured during HTTP2 client invocation" }
+	native action patch (string path, OutRequest req) (Http2Response, HttpConnectorError);
+
+	@Description { value:"The DELETE action implementation of the HTTP2 connector"}
+	@Param { value:"path: Resource path " }
+	@Param { value:"req: An HTTP/2 outbound request message" }
+	@Return { value:"HTTP/2 response message" }
+	@Return { value:"Error occured during HTTP2 client invocation" }
+	native action delete (string path, OutRequest req) (Http2Response, HttpConnectorError);
+
+	@Description { value:"GET action implementation of the HTTP2 Connector"}
+	@Param { value:"path: Request path" }
+	@Param { value:"req: An HTTP/2 outbound request message" }
+	@Return { value:"HTTP/2 response message" }
+	@Return { value:"Error occured during HTTP2 client invocation" }
+	native action get (string path, OutRequest req) (Http2Response, HttpConnectorError);
+
+	@Description { value:"OPTIONS action implementation of the HTTP2 Connector"}
+	@Param { value:"path: Request path" }
+	@Param { value:"req: An HTTP/2 outbound request message" }
+	@Return { value:"HTTP/2 response message" }
+	@Return { value:"Error occured during HTTP2 client invocation" }
+	native action options (string path, OutRequest req) (Http2Response, HttpConnectorError);
+
+	@Description { value:"Forward action can be used to invoke an HTTP call with inbound request's HTTP verb"}
+	@Param { value:"path: Request path" }
+	@Param { value:"req: An HTTP/2 inbound request message" }
+	@Return { value:"HTTP/2 response message" }
+	@Return { value:"Error occured during HTTP2 client invocation" }
+	native action forward (string path, InRequest req) (Http2Response, HttpConnectorError);
 }

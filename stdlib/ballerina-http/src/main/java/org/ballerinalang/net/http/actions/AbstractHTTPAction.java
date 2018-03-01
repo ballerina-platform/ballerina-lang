@@ -40,10 +40,14 @@ import org.ballerinalang.util.exceptions.BallerinaException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.contract.ClientConnectorException;
+import org.wso2.transport.http.netty.contract.Http2ClientConnector;
+import org.wso2.transport.http.netty.contract.Http2ConnectorListener;
+import org.wso2.transport.http.netty.contract.Http2ResponseFuture;
 import org.wso2.transport.http.netty.contract.HttpClientConnector;
 import org.wso2.transport.http.netty.contract.HttpConnectorListener;
 import org.wso2.transport.http.netty.contract.HttpResponseFuture;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
+import org.wso2.transport.http.netty.message.Http2Response;
 import org.wso2.transport.http.netty.message.HttpMessageDataStreamer;
 
 import java.io.IOException;
@@ -187,24 +191,34 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
 
     protected ClientConnectorFuture executeNonBlockingAction(Context context, HTTPCarbonMessage outboundRequestMsg)
             throws ClientConnectorException {
+        return executeNonBlockingAction(context, outboundRequestMsg, false);
+    }
+
+    protected ClientConnectorFuture executeNonBlockingAction(Context context, HTTPCarbonMessage outboundRequestMsg,
+                                                             boolean isHttp2) throws ClientConnectorException {
+
         ClientConnectorFuture ballerinaFuture = new ClientConnectorFuture();
 
         RetryConfig retryConfig = getRetryConfiguration(context);
         HTTPClientConnectorListener httpClientConnectorLister =
-                new HTTPClientConnectorListener(context, ballerinaFuture, retryConfig, outboundRequestMsg);
+                new HTTPClientConnectorListener(context, ballerinaFuture, retryConfig, outboundRequestMsg, isHttp2);
 
         Object sourceHandler = outboundRequestMsg.getProperty(HttpConstants.SRC_HANDLER);
         if (sourceHandler == null) {
             outboundRequestMsg.setProperty(HttpConstants.SRC_HANDLER, context.getProperty(HttpConstants.SRC_HANDLER));
         }
-        sendOutboundRequest(context, outboundRequestMsg, httpClientConnectorLister);
+        sendOutboundRequest(context, outboundRequestMsg, httpClientConnectorLister, isHttp2);
         return ballerinaFuture;
     }
 
     private void sendOutboundRequest(Context context, HTTPCarbonMessage outboundRequestMsg,
-                                     HTTPClientConnectorListener httpClientConnectorLister) {
+                                     HTTPClientConnectorListener httpClientConnectorLister, boolean isHttp2) {
         try {
-            send(context, outboundRequestMsg, httpClientConnectorLister);
+            if (isHttp2) {
+                sendHttp2(context, outboundRequestMsg, httpClientConnectorLister);
+            } else {
+                send(context, outboundRequestMsg, httpClientConnectorLister);
+            }
         } catch (BallerinaConnectorException e) {
             throw new BallerinaException(e.getMessage(), e, context);
         } catch (Exception e) {
@@ -226,6 +240,28 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
         }
 
         HttpResponseFuture future = clientConnector.send(outboundRequestMsg);
+        future.setHttpConnectorListener(httpClientConnectorLister);
+        if (isMultipart(contentType)) {
+            handleMultiPart(context, outboundRequestMsg, httpClientConnectorLister, boundaryString);
+        } else {
+            serializeDataSource(context, outboundRequestMsg, httpClientConnectorLister);
+        }
+    }
+
+    private void sendHttp2(Context context, HTTPCarbonMessage outboundRequestMsg,
+                      HTTPClientConnectorListener httpClientConnectorLister) throws Exception {
+        BConnector bConnector = (BConnector) getRefArgument(context, 0);
+        Http2ClientConnector clientConnector =
+                (Http2ClientConnector) bConnector.getnativeData(HttpConstants.HTTP2_CONNECTOR_NAME);
+
+        String contentType = getContentType(outboundRequestMsg);
+        String boundaryString = null;
+        if (isMultipart(contentType)) {
+            boundaryString = MimeUtil.getNewMultipartDelimiter();
+            outboundRequestMsg.setHeader(CONTENT_TYPE, contentType + "; " + BOUNDARY + "=" + boundaryString);
+        }
+
+        Http2ResponseFuture future = clientConnector.send(outboundRequestMsg);
         future.setHttpConnectorListener(httpClientConnectorLister);
         if (isMultipart(contentType)) {
             handleMultiPart(context, outboundRequestMsg, httpClientConnectorLister, boundaryString);
@@ -323,21 +359,24 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
         return true;
     }
 
-    private class HTTPClientConnectorListener implements HttpConnectorListener {
+    private class HTTPClientConnectorListener implements HttpConnectorListener, Http2ConnectorListener {
 
         private Context context;
         private ClientConnectorFuture ballerinaFuture;
         private RetryConfig retryConfig;
         private HTTPCarbonMessage outboundReqMsg;
         private HttpMessageDataStreamer outboundMsgDataStreamer;
+        private boolean isHttp2;
         // Reference for post validation.
 
         private HTTPClientConnectorListener(Context context, ClientConnectorFuture ballerinaFuture,
-                                            RetryConfig retryConfig, HTTPCarbonMessage outboundReqMsg) {
+                                            RetryConfig retryConfig, HTTPCarbonMessage outboundReqMsg,
+                                            boolean isHttp2) {
             this.context = context;
             this.ballerinaFuture = ballerinaFuture;
             this.retryConfig = retryConfig;
             this.outboundReqMsg = outboundReqMsg;
+            this.isHttp2 = isHttp2;
         }
 
         @Override
@@ -351,6 +390,14 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
         }
 
         @Override
+        public void onMessage(Http2Response http2Response) {
+            BStruct http2ResponseStruct = createStruct(this.context, HttpConstants.HTTP2_RESPONSE,
+                                                   HttpConstants.PROTOCOL_PACKAGE_HTTP);
+            http2ResponseStruct.addNativeData(HttpConstants.TRANSPORT_HTTP2_RESPONSE, http2Response);
+            ballerinaFuture.notifyReply(http2ResponseStruct);
+        }
+
+        @Override
         public void onError(Throwable throwable) {
             if (throwable instanceof IOException) {
                 this.outboundMsgDataStreamer.setIoException((IOException) throwable);
@@ -358,8 +405,7 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
             if (checkRetryState(throwable)) {
                 return;
             }
-
-            sendOutboundRequest(context, outboundReqMsg, this);
+            sendOutboundRequest(context, outboundReqMsg, this, isHttp2);
         }
 
         private boolean checkRetryState(Throwable throwable) {
