@@ -149,6 +149,17 @@ public class TypeCastExprTest {
         Assert.assertEquals(returns[0].stringValue(), expected);
     }
 
+    @Test
+    public void testAnyToString() {
+        BValue[] returns = BRunUtil.invoke(result, "anyfloattostring", new BValue[]{});
+        Assert.assertTrue(returns[0] instanceof BString);
+        final String expected1 = "5.5";
+        Assert.assertEquals(returns[0].stringValue(), expected1);
+        returns = BRunUtil.invoke(result, "anyjsontostring", new BValue[]{});
+        Assert.assertTrue(returns[0] instanceof BString);
+        final String expected2 = "{\"a\":\"b\"}";
+        Assert.assertEquals(returns[0].stringValue(), expected2);
+    }
 
     @Test
     public void testBooleanAppendToString() {
