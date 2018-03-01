@@ -18,11 +18,11 @@
 package org.ballerinalang.launcher.toml.model.fields;
 
 /**
- * Section defined in the toml file.
+ * Section headers valid in the manifest toml file.
  *
  * @since 0.964
  */
-public enum Section {
+public enum ManifestHeader {
     PACKAGE, DEPENDENCIES, PATCHES, PROXY;
 
     /**
