@@ -292,6 +292,7 @@ public class BallerinaTypes {
     public static final TokenIElementType CARET = tokenIElementTypes.get(BallerinaLexer.POW);
     public static final TokenIElementType MOD = tokenIElementTypes.get(BallerinaLexer.MOD);
     public static final TokenIElementType AT = tokenIElementTypes.get(BallerinaLexer.AT);
+    public static final TokenIElementType QUESTION_MARK = tokenIElementTypes.get(BallerinaLexer.QUESTION_MARK);
 
     public static final TokenSet OPERATORS = TokenSet.create(ASSIGN, EQUAL, LE, GE, NOTEQUAL, AND, OR, MUL, DIV,
                                                              BITAND, BITOR, CARET, MOD);
