@@ -33,6 +33,8 @@ public class OutboundMsgHolder {
     private Http2Response http2Response;
     // Future which is used to notify the response listener upon response receive
     private Http2ResponseFuture responseFuture;
+    // Whether the response listener is notified
+    private boolean responseListenerNotified = false;
 
     /**
      * @param httpCarbonMessage outbound request message
@@ -79,5 +81,23 @@ public class OutboundMsgHolder {
      */
     void setHttp2Response(Http2Response http2Response) {
         this.http2Response = http2Response;
+    }
+
+    /**
+     * Check whether response listener has been notified
+     *
+     * @return whether response listener has been notified
+     */
+    public boolean isResponseListenerNotified() {
+        return responseListenerNotified;
+    }
+
+    /**
+     * Set whether response listener is notified
+     *
+     * @param responseListenerNotified  whether response listener is notified
+     */
+    public void setResponseListenerNotified(boolean responseListenerNotified) {
+        this.responseListenerNotified = responseListenerNotified;
     }
 }

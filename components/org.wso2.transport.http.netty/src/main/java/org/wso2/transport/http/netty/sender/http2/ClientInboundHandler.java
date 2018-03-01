@@ -100,20 +100,29 @@ public class ClientInboundHandler extends Http2EventAdapter {
             }
         }
 
-        HttpCarbonResponse responseMessage = setupResponseCarbonMessage(ctx, streamId, headers, outboundMsgHolder);
         // Create response carbon message
+        HttpCarbonResponse responseMessage = setupResponseCarbonMessage(ctx, streamId, headers, outboundMsgHolder);
+
         Http2Response http2Response = outboundMsgHolder.getResponse();
-        if (http2Response == null) {
-            http2Response = new Http2Response();
+        if (isServerPush) {
+            http2Response.addPushResponse(responseMessage);
+        } else {
+            if (http2Response == null) {
+                http2Response = new Http2Response();
+                outboundMsgHolder.setHttp2Response(http2Response);
+            }
+            http2Response.setResponse(responseMessage);
+            if (endStream) {
+                responseMessage.addHttpContent(new EmptyLastHttpContent());
+                targetChannel.removeInFlightMessage(streamId);
+            }
+
+            if (!outboundMsgHolder.isResponseListenerNotified()) {
+                // Notify the response listener
+                outboundMsgHolder.setResponseListenerNotified(true);
+                outboundMsgHolder.getResponseFuture().notifyHttpListener(http2Response);
+            }
         }
-        http2Response.setResponse(responseMessage);
-        outboundMsgHolder.setHttp2Response(http2Response);
-        if (endStream) {
-            responseMessage.addHttpContent(new EmptyLastHttpContent());
-            targetChannel.removeInFlightMessage(streamId);
-        }
-        // Notify the response listener
-        outboundMsgHolder.getResponseFuture().notifyHttpListener(http2Response);
     }
 
     @Override
@@ -129,12 +138,22 @@ public class ClientInboundHandler extends Http2EventAdapter {
                                   Http2Headers headers, int padding) throws Http2Exception {
         log.debug("Http2FrameListenAdapter.onPushPromiseRead()");
         OutboundMsgHolder outboundMsgHolder = targetChannel.getInFlightMessage(streamId);
+        if (outboundMsgHolder == null) {
+            log.warn("Push promised received over invalid stream");
+            return;
+        }
+
         Http2Response http2Response = outboundMsgHolder.getResponse();
         if (http2Response == null) {
             http2Response = new Http2Response();
         }
         http2Response.addPromise(new Http2PushPromise(streamId, promisedStreamId, headers));
         targetChannel.putPromisedMessage(promisedStreamId, outboundMsgHolder);
+        if (!outboundMsgHolder.isResponseListenerNotified()) {
+            // Notify the response listener
+            outboundMsgHolder.setResponseListenerNotified(true);
+            outboundMsgHolder.getResponseFuture().notifyHttpListener(http2Response);
+        }
     }
 
     private HttpCarbonResponse setupResponseCarbonMessage(ChannelHandlerContext ctx, int streamId,
