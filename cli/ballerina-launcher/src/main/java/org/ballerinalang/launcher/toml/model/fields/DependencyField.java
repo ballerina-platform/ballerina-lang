@@ -62,6 +62,11 @@ public enum DependencyField {
         stringSetter.accept(dependency, value);
     }
 
+    /**
+     * Like as valueOf method, but input should be all lower case.
+     * @param fieldKey Lower case string value of filed to find.
+     * @return Matching enum.
+     */
     public static DependencyField valueOfLowerCase(String fieldKey) {
         return LOOKUP.get(fieldKey);
     }

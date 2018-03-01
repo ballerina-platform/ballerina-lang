@@ -101,6 +101,11 @@ public enum PackageField {
         }
     }
 
+    /**
+     * Like as valueOf method, but input should be all lower case.
+     * @param fieldKey Lower case string value of filed to find.
+     * @return Matching enum.
+     */
     public static PackageField valueOfLowerCase(String fieldKey) {
         return LOOKUP.get(fieldKey);
     }
