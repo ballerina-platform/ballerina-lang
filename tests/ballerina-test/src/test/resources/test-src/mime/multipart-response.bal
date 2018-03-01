@@ -53,7 +53,7 @@ service<http> multipart {
     resource nestedPartsInOutResponse (http:Connection conn, http:InRequest request) {
 
         mime:Entity[] bodyParts = request.getMultiparts();
-        string contentType = request.getHeader("Content-Type");
+        string contentType = request.getHeader("content-type");
         http:OutResponse outResponse = {};
         outResponse.setMultiparts(bodyParts, contentType);
         _ = conn.respond(outResponse);

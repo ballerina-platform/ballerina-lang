@@ -18,6 +18,7 @@
 
 package org.ballerinalang.net.http.actions;
 
+import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpHeaders;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.connector.api.AbstractNativeAction;
@@ -40,6 +41,7 @@ import org.ballerinalang.util.codegen.StructInfo;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.wso2.transport.http.netty.common.Constants;
 import org.wso2.transport.http.netty.contract.ClientConnectorException;
 import org.wso2.transport.http.netty.contract.HttpClientConnector;
 import org.wso2.transport.http.netty.contract.HttpConnectorListener;
@@ -56,7 +58,6 @@ import static org.ballerinalang.mime.util.Constants.MEDIA_TYPE;
 import static org.ballerinalang.mime.util.Constants.MESSAGE_ENTITY;
 import static org.ballerinalang.mime.util.Constants.PROTOCOL_PACKAGE_MIME;
 import static org.ballerinalang.runtime.Constants.BALLERINA_VERSION;
-import static org.wso2.transport.http.netty.common.Constants.ACCEPT_ENCODING;
 import static org.wso2.transport.http.netty.common.Constants.ENCODING_DEFLATE;
 import static org.wso2.transport.http.netty.common.Constants.ENCODING_GZIP;
 
@@ -84,8 +85,8 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
         HttpUtil.checkEntityAvailability(context, requestStruct);
         HttpUtil.enrichOutboundMessage(requestMsg, requestStruct);
         prepareOutboundRequest(bConnector, path, requestMsg);
-        if (requestMsg.getHeader(ACCEPT_ENCODING) == null) {
-            requestMsg.setHeader(ACCEPT_ENCODING, ENCODING_DEFLATE + ", " + ENCODING_GZIP);
+        if (requestMsg.getHeader(HttpHeaderNames.ACCEPT_ENCODING.toString()) == null) {
+            requestMsg.setHeader(HttpHeaderNames.ACCEPT_ENCODING.toString(), ENCODING_DEFLATE + ", " + ENCODING_GZIP);
         }
         return requestMsg;
     }
@@ -118,8 +119,8 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
     }
 
     private void setOutboundReqProperties(HTTPCarbonMessage outboundRequest, URL url, int port, String host) {
-        outboundRequest.setProperty(org.wso2.transport.http.netty.common.Constants.HOST, host);
-        outboundRequest.setProperty(HttpConstants.PORT, port);
+        outboundRequest.setProperty(Constants.HTTP_HOST, host);
+        outboundRequest.setProperty(Constants.HTTP_PORT, port);
 
         String outboundReqPath = getOutboundReqPath(url);
         outboundRequest.setProperty(HttpConstants.TO, outboundReqPath);
@@ -129,16 +130,16 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
 
     private void setHostHeader(String host, int port, HttpHeaders headers) {
         if (port == 80 || port == 443) {
-            headers.set(org.wso2.transport.http.netty.common.Constants.HOST, host);
+            headers.set(HttpHeaderNames.HOST, host);
         } else {
-            headers.set(org.wso2.transport.http.netty.common.Constants.HOST, host + ":" + port);
+            headers.set(HttpHeaderNames.HOST, host + ":" + port);
         }
     }
 
     private void removeConnectionHeader(HttpHeaders headers) {
         // Remove existing Connection header
-        if (headers.contains(HttpConstants.CONNECTION_HEADER)) {
-            headers.remove(HttpConstants.CONNECTION_HEADER);
+        if (headers.contains(HttpHeaderNames.CONNECTION)) {
+            headers.remove(HttpHeaderNames.CONNECTION);
         }
     }
 
@@ -150,8 +151,8 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
             userAgent = "ballerina";
         }
 
-        if (!headers.contains(HttpConstants.USER_AGENT_HEADER)) { // If User-Agent is not already set from program
-            headers.set(HttpConstants.USER_AGENT_HEADER, userAgent);
+        if (!headers.contains(HttpHeaderNames.USER_AGENT)) { // If User-Agent is not already set from program
+            headers.set(HttpHeaderNames.USER_AGENT, userAgent);
         }
     }
 

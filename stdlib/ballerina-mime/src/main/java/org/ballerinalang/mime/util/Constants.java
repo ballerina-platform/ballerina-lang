@@ -35,18 +35,8 @@ public class Constants {
     /**
      * Content type HTTP header.
      */
-    public static final String CONTENT_TYPE = "Content-Type";
-
-    public static final String CONTENT_LENGTH = "Content-Length";
-
-    public static final String CONTENT_DISPOSITION = "Content-Disposition";
 
     public static final String CONTENT_ID = "Content-Id";
-
-    /**
-     * Content-Transfer-Encoding HTTP header.
-     */
-    public static final String CONTENT_TRANSFER_ENCODING = "Content-Transfer-Encoding";
 
     /**
      * Content-type application/json.

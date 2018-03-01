@@ -92,7 +92,7 @@ service<http> helloServer {
     }
     resource getHeader (http:Connection conn, http:InRequest req) {
         http:OutResponse res = {};
-        string header = req.getHeader("Content-Type");
+        string header = req.getHeader("content-type");
         res.setJsonPayload({value:header});
         _ = conn.respond(res);
     }

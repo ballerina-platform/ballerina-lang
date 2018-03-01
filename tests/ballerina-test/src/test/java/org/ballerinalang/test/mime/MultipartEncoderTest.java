@@ -18,6 +18,7 @@
 
 package org.ballerinalang.test.mime;
 
+import io.netty.handler.codec.http.HttpHeaderNames;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BServiceUtil;
 import org.ballerinalang.launcher.util.CompileResult;
@@ -53,7 +54,6 @@ import javax.activation.MimeTypeParseException;
 import static org.ballerinalang.mime.util.Constants.CONTENT_DISPOSITION_FILENAME_INDEX;
 import static org.ballerinalang.mime.util.Constants.CONTENT_DISPOSITION_INDEX;
 import static org.ballerinalang.mime.util.Constants.CONTENT_DISPOSITION_NAME_INDEX;
-import static org.ballerinalang.mime.util.Constants.CONTENT_TYPE;
 import static org.ballerinalang.mime.util.Constants.DISPOSITION_INDEX;
 
 /**
@@ -223,7 +223,8 @@ public class MultipartEncoderTest {
         Assert.assertNotNull(response, "Response message not found");
         InputStream inputStream = new HttpMessageDataStreamer(response).getInputStream();
         try {
-            List<MIMEPart> mimeParts = MultipartDecoder.decodeBodyParts(inRequestMsg.getHeader(CONTENT_TYPE),
+            List<MIMEPart> mimeParts = MultipartDecoder.decodeBodyParts(inRequestMsg.getHeader(HttpHeaderNames.
+                            CONTENT_TYPE.toString()),
                     inputStream);
             Assert.assertEquals(mimeParts.size(), 2);
             List<MIMEPart> childParts = MultipartDecoder.decodeBodyParts(mimeParts.get(1).getContentType(),

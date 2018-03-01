@@ -18,6 +18,7 @@
 
 package org.ballerinalang.mime.util;
 
+import io.netty.handler.codec.http.HttpHeaderNames;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStringArray;
@@ -33,10 +34,8 @@ import java.util.stream.Collectors;
 
 import static org.ballerinalang.mime.util.Constants.ASSIGNMENT;
 import static org.ballerinalang.mime.util.Constants.BOUNDARY;
-import static org.ballerinalang.mime.util.Constants.CONTENT_DISPOSITION;
 import static org.ballerinalang.mime.util.Constants.CONTENT_ID;
 import static org.ballerinalang.mime.util.Constants.CONTENT_ID_INDEX;
-import static org.ballerinalang.mime.util.Constants.CONTENT_TYPE;
 import static org.ballerinalang.mime.util.Constants.ENTITY_HEADERS_INDEX;
 import static org.ballerinalang.mime.util.Constants.FIRST_ELEMENT;
 import static org.ballerinalang.mime.util.Constants.MULTIPART_AS_PRIMARY_TYPE;
@@ -235,7 +234,7 @@ public class HeaderUtil {
      */
     static void setContentTypeHeader(BStruct bodyPart, BMap<String, BValue> entityHeaders) {
         String contentType = MimeUtil.getContentTypeWithParameters(bodyPart);
-        overrideEntityHeader(entityHeaders, CONTENT_TYPE, contentType);
+        overrideEntityHeader(entityHeaders, HttpHeaderNames.CONTENT_TYPE.toString(), contentType);
     }
 
     /**
@@ -247,7 +246,7 @@ public class HeaderUtil {
     static void setContentDispositionHeader(BStruct bodyPart, BMap<String, BValue> entityHeaders) {
         String contentDisposition = MimeUtil.getContentDisposition(bodyPart);
         if (MimeUtil.isNotNullAndEmpty(contentDisposition)) {
-            overrideEntityHeader(entityHeaders, CONTENT_DISPOSITION, contentDisposition);
+            overrideEntityHeader(entityHeaders, HttpHeaderNames.CONTENT_DISPOSITION.toString(), contentDisposition);
         }
     }
 
