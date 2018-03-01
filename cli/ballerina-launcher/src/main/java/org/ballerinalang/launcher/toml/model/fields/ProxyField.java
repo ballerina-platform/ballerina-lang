@@ -34,12 +34,14 @@ public enum ProxyField {
     USERNAME(Proxy::setUserName),
     PASSWORD(Proxy::setPassword);
 
-    public static final Map<String, ProxyField> LOOKUP = new HashMap<>();
+    private static final Map<String, ProxyField> LOOKUP;
 
     static {
+        Map<String, ProxyField> lookUpMap = new HashMap<>();
         for (ProxyField proxyField : ProxyField.values()) {
-            LOOKUP.put(proxyField.name().toLowerCase(), proxyField);
+            lookUpMap.put(proxyField.name().toLowerCase(), proxyField);
         }
+        LOOKUP = lookUpMap;
     }
 
     private final BiConsumer<Proxy, String> stringSetter;
@@ -63,4 +65,12 @@ public enum ProxyField {
         stringSetter.accept(proxy, value);
     }
 
+    /**
+     * Like as valueOf method, but input should be all lower case.
+     * @param fieldKey Lower case string value of filed to find.
+     * @return Matching enum.
+     */
+    public static ProxyField valueOfLowerCase(String fieldKey) {
+        return LOOKUP.get(fieldKey);
+    }
 }
