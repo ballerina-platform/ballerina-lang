@@ -590,7 +590,7 @@ simpleLiteral
 // XML parsing
 
 xmlLiteral
-    :   XMLStart xmlContent? XMLEnd
+    :   XMLLiteralStart xmlContent? XMLEnd
     ;
 
 xmlContent
@@ -628,8 +628,8 @@ deprecatedAttachment
     ;
 
 deprecatedText
-    :   deprecatedTemplateInlineCode (deprecatedTemplateText | deprecatedTemplateInlineCode)*
-    |   deprecatedTemplateText  (deprecatedTemplateText | deprecatedTemplateInlineCode)*
+    :   deprecatedTemplateInlineCode (DeprecatedTemplateText | deprecatedTemplateInlineCode)*
+    |   DeprecatedTemplateText  (DeprecatedTemplateText | deprecatedTemplateInlineCode)*
     ;
 
 deprecatedTemplateInlineCode
@@ -643,15 +643,11 @@ singleBackTickDeprecatedInlineCode
     ;
 
 doubleBackTickDeprecatedInlineCode
-    :   DBDeprecatedInlineCodeStart doubleBackTickInlineCode? DoubleBackTickInlineCodeEnd
+    :   DBDeprecatedInlineCodeStart DoubleBackTickInlineCode? DoubleBackTickInlineCodeEnd
     ;
 
 tripleBackTickDeprecatedInlineCode
-    :   TBDeprecatedInlineCodeStart tripleBackTickInlineCode? TripleBackTickInlineCodeEnd
-    ;
-
-deprecatedTemplateText
-    :   DeprecatedTemplateStringChar+
+    :   TBDeprecatedInlineCodeStart TripleBackTickInlineCode? TripleBackTickInlineCodeEnd
     ;
 
 
@@ -667,12 +663,12 @@ documentationTemplateContent
     ;
 
 documentationTemplateAttributeDescription
-    :   DocumentationTemplateAttributeStart DocumentationTemplateAttributeEnd docText?
+    :   DocumentationTemplateAttributeStart Identifier DocumentationTemplateAttributeEnd docText?
     ;
 
 docText
-    :   documentationTemplateInlineCode (documentationTemplateText | documentationTemplateInlineCode)*
-    |   documentationTemplateText  (documentationTemplateText | documentationTemplateInlineCode)*
+    :   documentationTemplateInlineCode (DocumentationTemplateText | documentationTemplateInlineCode)*
+    |   DocumentationTemplateText  (DocumentationTemplateText | documentationTemplateInlineCode)*
     ;
 
 documentationTemplateInlineCode
@@ -686,21 +682,9 @@ singleBackTickDocInlineCode
     ;
 
 doubleBackTickDocInlineCode
-    :   DBDocInlineCodeStart doubleBackTickInlineCode? DoubleBackTickInlineCodeEnd
+    :   DBDocInlineCodeStart DoubleBackTickInlineCode? DoubleBackTickInlineCodeEnd
     ;
 
 tripleBackTickDocInlineCode
-    :   TBDocInlineCodeStart tripleBackTickInlineCode? TripleBackTickInlineCodeEnd
-    ;
-
-documentationTemplateText
-    :   DocumentationTemplateStringChar+
-    ;
-
-doubleBackTickInlineCode
-    : DoubleBackTickInlineCodeChar+
-    ;
-
-tripleBackTickInlineCode
-    : TripleBackTickInlineCodeChar+
+    :   TBDocInlineCodeStart TripleBackTickInlineCode? TripleBackTickInlineCodeEnd
     ;

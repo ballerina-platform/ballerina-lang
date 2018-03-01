@@ -182,8 +182,7 @@ public class BallerinaAnnotator implements Annotator {
                     TextRange range = new TextRange(startOffset + matcher.start(1),
                             startOffset + matcher.start(1) + value.length() + 2);
                     // Check whether a matching resource parameter is available.
-                    boolean isMatchAvailable = isMatchingParamAvailable(annotationAttributeNode, value
-                    );
+                    boolean isMatchAvailable = isMatchingParamAvailable(annotationAttributeNode, value);
                     // Create the annotation.
                     if (isMatchAvailable) {
                         Annotation annotation = holder.createInfoAnnotation(range,
@@ -210,10 +209,12 @@ public class BallerinaAnnotator implements Annotator {
             annotateText(element, holder);
         } else if (elementType == BallerinaTypes.EXPRESSION_END) {
             annotateStringLiteralTemplateEnd(element, holder);
-        } else if (elementType == BallerinaTypes.DOCUMENTATION_TEMPLATE_ATTRIBUTE_END) {
-            // Variable name.
-            Annotation annotation = holder.createInfoAnnotation(element, null);
-            annotation.setTextAttributes(BallerinaSyntaxHighlightingColors.DOCUMENTATION_VARIABLE);
+        } else if (elementType == BallerinaTypes.DOCUMENTATION_TEMPLATE_ATTRIBUTE_START) {
+            // Doc type.
+            TextRange textRange = element.getTextRange();
+            TextRange newTextRange = new TextRange(textRange.getStartOffset(), textRange.getEndOffset() - 2);
+            Annotation annotation = holder.createInfoAnnotation(newTextRange, null);
+            annotation.setTextAttributes(BallerinaSyntaxHighlightingColors.DOCUMENTATION_INLINE_CODE);
         } else if (element instanceof IdentifierPSINode) {
             PsiReference reference = element.getReference();
             if (reference == null || reference instanceof RecordKeyReference) {

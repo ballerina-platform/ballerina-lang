@@ -371,11 +371,6 @@ NullLiteral
     :   'null'
     ;
 
-// This is place before the Identifier lexer rule to break the tie case.
-DocumentationTemplateAttributeEnd
-    :   {inDocTemplate}? Identifier               ->  popMode
-    ;
-
 Identifier
     :   ( Letter LetterOrDigit* )
     |   IdentifierLiteral
@@ -399,7 +394,7 @@ LetterOrDigit
         [\uD800-\uDBFF] [\uDC00-\uDFFF]
     ;
 
-XMLStart
+XMLLiteralStart
     :   TYPE_XML WS* BACKTICK   { inTemplate = true; } -> pushMode(XML)
     ;
 
@@ -417,6 +412,10 @@ DeprecatedTemplateStart
 
 ExpressionEnd
     :   {inTemplate}? RIGHT_BRACE WS* RIGHT_BRACE   ->  popMode
+    ;
+
+DocumentationTemplateAttributeEnd
+    :   {inDocTemplate}? RIGHT_BRACE WS* RIGHT_BRACE               ->  popMode
     ;
 
 // Whitespace and comments
@@ -445,15 +444,14 @@ IdentifierLiteralEscapeSequence
     | UnicodeEscape
     ;
 
-ERRCHAR
-	:	.	-> channel(HIDDEN)
-	;
-
-
 fragment
 ExpressionStart
     :   '{{'
     ;
+
+ERRCHAR
+	:	.	-> channel(HIDDEN)
+	;
 
 mode XML;
 
@@ -503,26 +501,37 @@ DocumentationTemplateEnd
     ;
 
 DocumentationTemplateAttributeStart
-    :  DocNewLine WS? DocSub WS DocHash                                        -> pushMode(DEFAULT_MODE)
+    :   AttributePrefix ExpressionStart                                        -> pushMode(DEFAULT_MODE)
     ;
 
 SBDocInlineCodeStart
-    :  DocBackTick                                                             -> pushMode(SINGLE_BACKTICK_INLINE_CODE)
+    :  AttributePrefix? DocBackTick                                            -> pushMode(SINGLE_BACKTICK_INLINE_CODE)
     ;
 
 DBDocInlineCodeStart
-    :  DocBackTick DocBackTick                                                 -> pushMode(DOUBLE_BACKTICK_INLINE_CODE)
+    :  AttributePrefix? DocBackTick DocBackTick                                -> pushMode(DOUBLE_BACKTICK_INLINE_CODE)
     ;
 
 TBDocInlineCodeStart
-    :  DocBackTick DocBackTick DocBackTick                                     -> pushMode(TRIPLE_BACKTICK_INLINE_CODE)
+    :  AttributePrefix? DocBackTick DocBackTick DocBackTick                    -> pushMode(TRIPLE_BACKTICK_INLINE_CODE)
     ;
 
+DocumentationTemplateText
+    :   DocumentationValidCharSequence? (DocumentationTemplateStringChar DocumentationValidCharSequence?)+
+    |   DocumentationValidCharSequence  (DocumentationTemplateStringChar DocumentationValidCharSequence?)*
+    ;
+
+fragment
 DocumentationTemplateStringChar
-    :   ~[`{}\\]
+    :   ~[`{}\\FPTRV]
     |   '\\' [{}`]
     |   WS
     |   DocumentationEscapedSequence
+    ;
+
+fragment
+AttributePrefix
+    :   [FPTRV]
     ;
 
 fragment
@@ -531,24 +540,17 @@ DocBackTick
     ;
 
 fragment
-DocHash
-    :   '#'
-    ;
-
-fragment
-DocSub
-    :  SUB
-    ;
-
-fragment
-DocNewLine
-    :  [\r\n\u000C]
-    ;
-
-fragment
 DocumentationEscapedSequence
     :   '\\\\'
     ;
+
+fragment
+DocumentationValidCharSequence
+     :  [FPTRV] ~[`{}\\]
+     |  [FPTRV] '\\' [{}`]
+     |  [FPTRV] '\\' ~[{}`]
+     |  '\\' ~'\\'
+     ;
 
 DOCUMENTATION_TEMPLATE_ERRCHAR
 	:	.	-> channel(HIDDEN)
@@ -560,9 +562,17 @@ TripleBackTickInlineCodeEnd
     : BACKTICK BACKTICK BACKTICK              -> popMode
     ;
 
-TripleBackTickInlineCodeChar
-    :  .
+TripleBackTickInlineCode
+    : TripleBackTickInlineCodeChar+
     ;
+
+fragment
+TripleBackTickInlineCodeChar
+    :  ~[`]
+    |   [`] ~[`]
+    |   [`] [`] ~[`]
+    ;
+
 TRIPLE_BACKTICK_INLINE_CODE_ERRCHAR
 	:	.	-> channel(HIDDEN)
 	;
@@ -573,8 +583,14 @@ DoubleBackTickInlineCodeEnd
     : BACKTICK BACKTICK                       -> popMode
     ;
 
+DoubleBackTickInlineCode
+    : DoubleBackTickInlineCodeChar+
+    ;
+
+fragment
 DoubleBackTickInlineCodeChar
-    :  .
+    :  ~[`]
+    |   [`] ~[`]
     ;
 
 DOUBLE_BACKTICK_INLINE_CODE_ERRCHAR
@@ -594,7 +610,6 @@ SingleBackTickInlineCode
 fragment
 SingleBackTickInlineCodeChar
     :  ~[`]
-    |  '\\' [`]
     ;
 
 SINGLE_BACKTICK_INLINE_CODE_ERRCHAR
@@ -619,6 +634,12 @@ TBDeprecatedInlineCodeStart
     :  DeprecatedBackTick DeprecatedBackTick DeprecatedBackTick               -> pushMode(TRIPLE_BACKTICK_INLINE_CODE)
     ;
 
+DeprecatedTemplateText
+    :   DeprecatedValidCharSequence? (DeprecatedTemplateStringChar DeprecatedValidCharSequence?)+
+    |   DeprecatedValidCharSequence (DeprecatedTemplateStringChar DeprecatedValidCharSequence?)*
+    ;
+
+fragment
 DeprecatedTemplateStringChar
     :   ~[`{}\\]
     |   '\\' [{}`]
@@ -635,6 +656,11 @@ fragment
 DeprecatedEscapedSequence
     :   '\\\\'
     ;
+
+fragment
+DeprecatedValidCharSequence
+     :  '\\' ~'\\'
+     ;
 
 DEPRECATED_TEMPLATE_ERRCHAR
 	:	.	-> channel(HIDDEN)
@@ -677,6 +703,6 @@ StringTemplateValidCharSequence
     |   '\\' ~'\\'
     ;
 
-TEMPLATE_ERRCHAR
+STRING_TEMPLATE_ERRCHAR
 	:	.	-> channel(HIDDEN)
 	;

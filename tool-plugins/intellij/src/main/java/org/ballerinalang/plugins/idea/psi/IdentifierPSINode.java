@@ -38,7 +38,6 @@ import org.ballerinalang.plugins.idea.psi.references.AnnotationAttributeValueRef
 import org.ballerinalang.plugins.idea.psi.references.AnnotationReference;
 import org.ballerinalang.plugins.idea.psi.references.AttachmentPointReference;
 import org.ballerinalang.plugins.idea.psi.references.ConnectorReference;
-import org.ballerinalang.plugins.idea.psi.references.DocVariableReference;
 import org.ballerinalang.plugins.idea.psi.references.EnumFieldReference;
 import org.ballerinalang.plugins.idea.psi.references.FieldReference;
 import org.ballerinalang.plugins.idea.psi.references.FunctionReference;
@@ -294,8 +293,9 @@ public class IdentifierPSINode extends ANTLRPsiLeafNode implements PsiNamedEleme
                     return new RecordKeyReference(this);
                 case RULE_anyIdentifierName:
                     return suggestReferenceTypeForInvocation();
-                case RULE_documentationTemplateAttributeDescription:
-                    return new DocVariableReference(this);
+                // Todo - Implement in the new plugin
+                //                case RULE_documentationTemplateAttributeDescription:
+                //                    return new DocVariableReference(this);
                 default:
                     return null;
             }

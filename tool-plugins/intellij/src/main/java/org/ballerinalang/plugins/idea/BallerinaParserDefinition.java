@@ -498,9 +498,9 @@ public class BallerinaParserDefinition implements ParserDefinition {
                 return new DocumentationTemplateInlineCodeNode(node);
             case BallerinaParser.RULE_singleBackTickDocInlineCode:
                 return new SingleBackTickDocInlineCodeNode(node);
-            case BallerinaParser.RULE_doubleBackTickInlineCode:
+            case BallerinaParser.RULE_doubleBackTickDocInlineCode:
                 return new DoubleBackTickInlineCodeNode(node);
-            case BallerinaParser.RULE_tripleBackTickInlineCode:
+            case BallerinaParser.RULE_tripleBackTickDocInlineCode:
                 return new TripleBackTickInlineCodeNode(node);
             case BallerinaParser.RULE_deprecatedAttachment:
                 return new DeprecatedAttachmentNode(node);

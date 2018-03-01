@@ -122,7 +122,7 @@ public class BallerinaTypes {
     public static final TokenIElementType STRING_TEMPLATE_TEXT =
             tokenIElementTypes.get(BallerinaLexer.StringTemplateText);
 
-    public static final TokenIElementType XML_START = tokenIElementTypes.get(BallerinaLexer.XMLStart);
+    public static final TokenIElementType XML_START = tokenIElementTypes.get(BallerinaLexer.XMLLiteralStart);
     public static final TokenIElementType XML_EXPRESSION_START =
             tokenIElementTypes.get(BallerinaLexer.XMLExpressionStart);
     public static final TokenIElementType XML_TEXT = tokenIElementTypes.get(BallerinaLexer.XMLText);
@@ -132,16 +132,15 @@ public class BallerinaTypes {
 
     public static final TokenIElementType DOCUMENTATION_TEMPLATE_START =
             tokenIElementTypes.get(BallerinaLexer.DocumentationTemplateStart);
+
+    public static final TokenIElementType DOCUMENTATION_TEMPLATE_ATTRIBUTE_START =
+            tokenIElementTypes.get(BallerinaLexer.DocumentationTemplateAttributeStart);
+
     public static final TokenIElementType DOCUMENTATION_TEMPLATE_ATTRIBUTE_END =
             tokenIElementTypes.get(BallerinaLexer.DocumentationTemplateAttributeEnd);
 
     public static final TokenIElementType DEPRECATED_TEMPLATE_START =
             tokenIElementTypes.get(BallerinaLexer.DeprecatedTemplateStart);
-
-//    public static final TokenIElementType SINGLE_BACKTICK_INLINE_CODE =
-//            tokenIElementTypes.get(BallerinaLexer.SINGLE_BACKTICK_INLINE_CODE);
-//    public static final TokenIElementType DOUBLE_BACKTICK_INLINE_CODE =
-//            tokenIElementTypes.get(BallerinaLexer.DOUBLE_BACKTICK_INLINE_CODE);
 
     public static final RuleIElementType STATEMENT = ruleIElementTypes.get(RULE_statement);
 
