@@ -16,6 +16,7 @@
 package org.ballerinalang.composer.service.ballerina.swagger.service;
 
 import com.google.gson.JsonObject;
+import io.netty.handler.codec.http.HttpHeaderNames;
 import org.ballerinalang.ballerina.swagger.convertor.service.SwaggerConverterUtils;
 import org.ballerinalang.composer.server.core.ServerConstants;
 import org.ballerinalang.composer.server.spi.ComposerService;
@@ -45,11 +46,14 @@ import javax.ws.rs.core.Response;
 public class BallerinaToSwaggerService implements ComposerService {
     private static final Logger logger = LoggerFactory.getLogger(BallerinaToSwaggerService.class);
 
-    private static final String ACCESS_CONTROL_ALLOW_ORIGIN_NAME = "Access-Control-Allow-Origin";
+    private static final String ACCESS_CONTROL_ALLOW_ORIGIN_NAME =
+            HttpHeaderNames.ACCESS_CONTROL_ALLOW_ORIGIN.toString();
     private static final String ACCESS_CONTROL_ALLOW_ORIGIN_VALUE = "*";
-    private static final String ACCESS_CONTROL_ALLOW_HEADERS_NAME = "Access-Control-Allow-Headers";
-    private static final String ACCESS_CONTROL_ALLOW_HEADERS_VALUE = "content-type";
-    private static final String ACCESS_CONTROL_ALLOW_METHODS_NAME = "Access-Control-Allow-Methods";
+    private static final String ACCESS_CONTROL_ALLOW_HEADERS_NAME =
+            HttpHeaderNames.ACCESS_CONTROL_ALLOW_HEADERS.toString();
+    private static final String ACCESS_CONTROL_ALLOW_HEADERS_VALUE = HttpHeaderNames.CONTENT_TYPE.toString();
+    private static final String ACCESS_CONTROL_ALLOW_METHODS_NAME =
+            HttpHeaderNames.ACCESS_CONTROL_ALLOW_METHODS.toString();
     private static final String ACCESS_CONTROL_ALLOW_METHODS_VALUE = "OPTIONS, POST";
 
     @POST
@@ -65,14 +69,14 @@ public class BallerinaToSwaggerService implements ComposerService {
             // Generate the swagger definitions using ballerina source.
             String swaggerDefinition = SwaggerConverterUtils.generateSwaggerDefinitions(ballerinaSource, serviceName);
             swaggerServiceContainer.setSwaggerDefinition(swaggerDefinition);
-            return Response.ok().entity(swaggerServiceContainer).header("Access-Control-Allow-Origin", '*').build();
+            return Response.ok().entity(swaggerServiceContainer).header(ACCESS_CONTROL_ALLOW_ORIGIN_NAME, '*').build();
         } catch (Exception ex) {
             logger.error("error: while processing service definition at converter service: " + ex.getMessage(), ex);
             JsonObject entity = new JsonObject();
             entity.addProperty("Error", ex.toString());
             return Response.status(Response.Status.BAD_REQUEST)
                     .entity(entity)
-                    .header("Access-Control-Allow-Origin", '*')
+                    .header(ACCESS_CONTROL_ALLOW_ORIGIN_NAME, '*')
                     .type(MediaType.APPLICATION_JSON).build();
         }
     }

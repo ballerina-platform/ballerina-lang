@@ -17,6 +17,7 @@
  */
 package org.ballerinalang.test.services.nativeimpl.outbound.request;
 
+import io.netty.handler.codec.http.HttpHeaderNames;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.BServiceUtil;
@@ -58,7 +59,6 @@ import java.io.IOException;
 import static org.ballerinalang.mime.util.Constants.APPLICATION_FORM;
 import static org.ballerinalang.mime.util.Constants.APPLICATION_JSON;
 import static org.ballerinalang.mime.util.Constants.APPLICATION_XML;
-import static org.ballerinalang.mime.util.Constants.CONTENT_TYPE;
 import static org.ballerinalang.mime.util.Constants.ENTITY_BYTE_CHANNEL;
 import static org.ballerinalang.mime.util.Constants.ENTITY_HEADERS_INDEX;
 import static org.ballerinalang.mime.util.Constants.FILE;
@@ -148,7 +148,7 @@ public class OutRequestNativeFunctionSuccessTest {
         BStruct entity = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageMime, entityStruct);
 
         BMap<String, BStringArray> headersMap = new BMap<>();
-        headersMap.put(HttpConstants.HTTP_CONTENT_LENGTH,
+        headersMap.put(HttpHeaderNames.CONTENT_LENGTH.toString(),
                        new BStringArray(new String[]{String.valueOf(payload.length())}));
         entity.setRefField(ENTITY_HEADERS_INDEX, headersMap);
         outRequest.addNativeData(MESSAGE_ENTITY, entity);
@@ -177,11 +177,12 @@ public class OutRequestNativeFunctionSuccessTest {
         BStruct entity = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageMime, entityStruct);
 
         BMap<String, BStringArray> headersMap = new BMap<>();
-        headersMap.put(CONTENT_TYPE, new BStringArray(new String[]{APPLICATION_FORM + ";a=2"}));
+        headersMap.put(HttpHeaderNames.CONTENT_TYPE.toString(),
+                       new BStringArray(new String[]{APPLICATION_FORM + ";a=2"}));
         entity.setRefField(ENTITY_HEADERS_INDEX, headersMap);
         outRequest.addNativeData(MESSAGE_ENTITY, entity);
 
-        BString key = new BString(CONTENT_TYPE);
+        BString key = new BString(HttpHeaderNames.CONTENT_TYPE.toString());
         BValue[] inputArg = {outRequest, key};
         BValue[] returnVals = BRunUtil.invoke(result, "testGetHeader", inputArg);
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,

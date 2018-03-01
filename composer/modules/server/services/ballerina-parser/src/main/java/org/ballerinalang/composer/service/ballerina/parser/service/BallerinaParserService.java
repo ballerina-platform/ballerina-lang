@@ -22,6 +22,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonNull;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import io.netty.handler.codec.http.HttpHeaderNames;
 import org.apache.commons.lang3.ClassUtils;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -97,10 +98,14 @@ public class BallerinaParserService implements ComposerService {
     @Produces(MediaType.APPLICATION_JSON)
     public Response getBuiltInPackages() {
         return Response.ok()
-                .header("Access-Control-Max-Age", "600 ")
-                .header("Access-Control-Allow-Origin", "*").header("Access-Control-Allow-Credentials",
-                        "true").header("Access-Control-Allow-Methods", "POST, GET, PUT, UPDATE, DELETE, OPTIONS, HEAD")
-                .header("Access-Control-Allow-Headers", "Content-Type, Accept, X-Requested-With").build();
+                .header(HttpHeaderNames.ACCESS_CONTROL_MAX_AGE.toString(), "600 ")
+                .header(HttpHeaderNames.ACCESS_CONTROL_ALLOW_ORIGIN.toString(), "*")
+                .header(HttpHeaderNames.ACCESS_CONTROL_ALLOW_CREDENTIALS.toString(), "true")
+                .header(HttpHeaderNames.ACCESS_CONTROL_ALLOW_METHODS.toString(),
+                        "POST, GET, PUT, UPDATE, DELETE, OPTIONS, HEAD")
+                .header(HttpHeaderNames.ACCESS_CONTROL_ALLOW_HEADERS.toString(),
+                        HttpHeaderNames.CONTENT_TYPE.toString() + ", " + HttpHeaderNames.ACCEPT.toString() +
+                                ", X-Requested-With").build();
     }
 
     @GET
@@ -126,10 +131,14 @@ public class BallerinaParserService implements ComposerService {
     @Produces(MediaType.APPLICATION_JSON)
     public Response getBuiltInTypesOptions() {
         return Response.ok()
-                .header("Access-Control-Max-Age", "600 ")
-                .header("Access-Control-Allow-Origin", "*").header("Access-Control-Allow-Credentials",
-                        "true").header("Access-Control-Allow-Methods", "POST, GET, PUT, UPDATE, DELETE, OPTIONS, HEAD")
-                .header("Access-Control-Allow-Headers", "Content-Type, Accept, X-Requested-With").build();
+                .header(HttpHeaderNames.ACCESS_CONTROL_MAX_AGE.toString(), "600 ")
+                .header(HttpHeaderNames.ACCESS_CONTROL_ALLOW_ORIGIN.toString(), "*")
+                .header(HttpHeaderNames.ACCESS_CONTROL_ALLOW_CREDENTIALS.toString(), "true")
+                .header(HttpHeaderNames.ACCESS_CONTROL_ALLOW_METHODS.toString(),
+                        "POST, GET, PUT, UPDATE, DELETE, OPTIONS, HEAD")
+                .header(HttpHeaderNames.ACCESS_CONTROL_ALLOW_HEADERS.toString(),
+                        HttpHeaderNames.CONTENT_TYPE.toString() + ", " + HttpHeaderNames.ACCEPT.toString() +
+                                ", X-Requested-With").build();
     }
 
     @GET
@@ -146,7 +155,8 @@ public class BallerinaParserService implements ComposerService {
         response.add("types", packagesArray);
         return Response.status(Response.Status.OK)
                 .entity(response)
-                .header("Access-Control-Allow-Origin", '*').type(MediaType.APPLICATION_JSON).build();
+                .header(HttpHeaderNames.ACCESS_CONTROL_ALLOW_ORIGIN.toString(), '*').type(MediaType.APPLICATION_JSON)
+                .build();
     }
 
     @POST
@@ -157,7 +167,8 @@ public class BallerinaParserService implements ComposerService {
             IllegalAccessException {
         return Response.status(Response.Status.OK)
                 .entity(validateAndParse(bFileRequest))
-                .header("Access-Control-Allow-Origin", '*').type(MediaType.APPLICATION_JSON).build();
+                .header(HttpHeaderNames.ACCESS_CONTROL_ALLOW_ORIGIN.toString(), '*').type(MediaType.APPLICATION_JSON)
+                .build();
     }
 
     @OPTIONS
@@ -167,9 +178,13 @@ public class BallerinaParserService implements ComposerService {
     public Response validateAndParseOptions() {
         return Response.ok()
                 .header("Access-Control-Max-Age", "600 ")
-                .header("Access-Control-Allow-Origin", "*").header("Access-Control-Allow-Credentials",
-                        "true").header("Access-Control-Allow-Methods", "POST, GET, PUT, UPDATE, DELETE, OPTIONS, HEAD")
-                .header("Access-Control-Allow-Headers", "Content-Type, Accept, X-Requested-With").build();
+                .header(HttpHeaderNames.ACCESS_CONTROL_ALLOW_ORIGIN.toString(), "*")
+                .header(HttpHeaderNames.ACCESS_CONTROL_ALLOW_CREDENTIALS.toString(), "true")
+                .header(HttpHeaderNames.ACCESS_CONTROL_ALLOW_METHODS.toString(),
+                        "POST, GET, PUT, UPDATE, DELETE, OPTIONS, HEAD")
+                .header(HttpHeaderNames.ACCESS_CONTROL_ALLOW_HEADERS.toString(),
+                        HttpHeaderNames.CONTENT_TYPE.toString() + ", " + HttpHeaderNames.ACCEPT.toString() +
+                                ", X-Requested-With").build();
     }
 
     @POST
@@ -178,7 +193,8 @@ public class BallerinaParserService implements ComposerService {
     @Produces(MediaType.APPLICATION_JSON)
     public Response getBallerinaJsonDataModelGivenFragment(BLangSourceFragment sourceFragment) throws IOException {
         String response = BLangFragmentParser.parseFragment(sourceFragment);
-        return Response.ok(response, MediaType.APPLICATION_JSON).header("Access-Control-Allow-Origin", '*').build();
+        return Response.ok(response, MediaType.APPLICATION_JSON).header(
+                HttpHeaderNames.ACCESS_CONTROL_ALLOW_ORIGIN.toString(), '*').build();
     }
 
     @OPTIONS
@@ -188,9 +204,12 @@ public class BallerinaParserService implements ComposerService {
     public Response optionsParseFragment() {
         return Response.ok()
                 .header("Access-Control-Max-Age", "600 ")
-                .header("Access-Control-Allow-Origin", "*").header("Access-Control-Allow-Credentials",
-                        "true").header("Access-Control-Allow-Methods", "POST, GET, OPTIONS")
-                .header("Access-Control-Allow-Headers", "Content-Type, Accept, X-Requested-With").build();
+                .header(HttpHeaderNames.ACCESS_CONTROL_ALLOW_ORIGIN.toString(), "*")
+                .header(HttpHeaderNames.ACCESS_CONTROL_ALLOW_CREDENTIALS.toString(), "true")
+                .header(HttpHeaderNames.ACCESS_CONTROL_ALLOW_METHODS.toString(), "POST, GET, OPTIONS")
+                .header(HttpHeaderNames.ACCESS_CONTROL_ALLOW_HEADERS.toString(),
+                        HttpHeaderNames.CONTENT_TYPE.toString() + ", " + HttpHeaderNames.ACCEPT.toString() +
+                                ", X-Requested-With").build();
     }
 
     public static JsonElement generateJSON(Node node, Map<String, Node> anonStructs)

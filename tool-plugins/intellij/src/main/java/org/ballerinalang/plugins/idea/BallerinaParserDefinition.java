@@ -170,6 +170,7 @@ import static org.ballerinalang.plugins.idea.grammar.BallerinaLexer.PACKAGE;
 import static org.ballerinalang.plugins.idea.grammar.BallerinaLexer.PARAMETER;
 import static org.ballerinalang.plugins.idea.grammar.BallerinaLexer.PRIVATE;
 import static org.ballerinalang.plugins.idea.grammar.BallerinaLexer.PUBLIC;
+import static org.ballerinalang.plugins.idea.grammar.BallerinaLexer.QUESTION_MARK;
 import static org.ballerinalang.plugins.idea.grammar.BallerinaLexer.QuotedStringLiteral;
 import static org.ballerinalang.plugins.idea.grammar.BallerinaLexer.RARROW;
 import static org.ballerinalang.plugins.idea.grammar.BallerinaLexer.RESOURCE;
@@ -241,7 +242,7 @@ public class BallerinaParserDefinition implements ParserDefinition {
             WITH, BooleanLiteral, NullLiteral);
 
     public static final TokenSet BRACES_AND_OPERATORS = PSIElementTypeFactory.createTokenSet(BallerinaLanguage.INSTANCE,
-            SEMICOLON, COMMA, LARROW, RARROW, TILDE, COLON);
+            SEMICOLON, COMMA, LARROW, RARROW, TILDE, COLON, QUESTION_MARK);
 
     public static final TokenSet BAD_CHARACTER = PSIElementTypeFactory.createTokenSet(BallerinaLanguage.INSTANCE,
             ERRCHAR);
