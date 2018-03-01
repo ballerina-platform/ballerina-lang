@@ -22,7 +22,7 @@
     <groupId>org.ballerinalang</groupId>
     <artifactId>ballerina-parent</artifactId>
     <packaging>pom</packaging>
-    <version>0.961.1-SNAPSHOT</version>
+    <version>0.963.1-SNAPSHOT</version>
     <name>Ballerina - Parent</name>
 
     <description>
@@ -201,12 +201,6 @@
             </dependency>
             <dependency>
                 <groupId>org.ballerinalang</groupId>
-                <artifactId>ballerina-samples</artifactId>
-                <version>${ballerina.version}</version>
-                <type>zip</type>
-            </dependency>
-            <dependency>
-                <groupId>org.ballerinalang</groupId>
                 <artifactId>composer-server-distribution</artifactId>
                 <version>${ballerina.version}</version>
             </dependency>
@@ -224,6 +218,11 @@
             <dependency>
                 <groupId>org.ballerinalang</groupId>
                 <artifactId>swagger-ballerina-generator</artifactId>
+                <version>${ballerina.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>swagger-to-ballerina-generator</artifactId>
                 <version>${ballerina.version}</version>
             </dependency>
             <dependency>
@@ -485,7 +484,6 @@
                 <groupId>com.h2database</groupId>
                 <artifactId>h2</artifactId>
                 <version>${h2.version}</version>
-                <scope>test</scope>
             </dependency>
             <dependency>
                 <groupId>org.ballerinalang</groupId>
@@ -668,6 +666,11 @@
                 <version>${awaitility.version}</version>
                 <scope>test</scope>
             </dependency>
+            <dependency>
+                <groupId>org.jvnet.mimepull</groupId>
+                <artifactId>mimepull</artifactId>
+                <version>${mimepull.version}</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
@@ -771,7 +774,6 @@
                 <module>language-server</module>
                 <module>misc/docerina</module>
                 <module>misc/ballerina-maven-plugins</module>
-                <module>misc/ballerina-samples</module>
                 <module>misc/swagger-ballerina</module>
                 <module>misc/testerina</module>
 
@@ -806,7 +808,6 @@
 
                 <module>misc/docerina</module>
                 <module>misc/ballerina-maven-plugins</module>
-                <module>misc/ballerina-samples</module>
 
                 <module>distribution/zip/ballerina</module>
 
@@ -835,7 +836,6 @@
 
                 <module>language-server</module>
                 <module>misc/ballerina-maven-plugins</module>
-                <module>misc/ballerina-samples</module>
                 <module>misc/docerina</module>
                 <module>misc/swagger-ballerina</module>
                 <module>misc/testerina</module>
@@ -1158,7 +1158,7 @@
     </build>
 
     <properties>
-        <ballerina.version>0.961.1-SNAPSHOT</ballerina.version>
+        <ballerina.version>0.963.1-SNAPSHOT</ballerina.version>
         <npm.executable>npm</npm.executable>
         <ballerina.package.export.version>0.8.0</ballerina.package.export.version>
 
@@ -1183,7 +1183,7 @@
         <equinox.osgi.version>3.10.2.v20150203-1939</equinox.osgi.version>
         <equinox.osgi.services.version>3.4.0.v20140312-2051</equinox.osgi.services.version>
         <carbon.kernel.version>5.1.0</carbon.kernel.version>
-        <transport.http.version>6.0.81</transport.http.version>
+        <transport.http.version>6.0.93</transport.http.version>
         <carbon.messaging.version>2.3.7</carbon.messaging.version>
         <carbon.deployment.version>5.0.0</carbon.deployment.version>
         <carbon.config.version>2.1.2</carbon.config.version>
@@ -1223,8 +1223,9 @@
         <commons-cli.version>1.3.1</commons-cli.version>
         <io.swagger.version>1.5.8</io.swagger.version>
         <com.fasterxml.jackson.datatype.version>2.4.1</com.fasterxml.jackson.datatype.version>
-        <swagger.parser.version>1.0.25</swagger.parser.version>
+        <swagger.parser.version>1.0.34</swagger.parser.version>
         <swagger.models.version>1.5.16</swagger.models.version>
+        <swagger.parser.v2.converter.version>2.0.0-rc3</swagger.parser.v2.converter.version>
         <com.fasterxml.jackson.core.annotations.version>2.8.0</com.fasterxml.jackson.core.annotations.version>
         <rs-api.version>2.0</rs-api.version>
         <msf4j.version>2.4.2</msf4j.version>
@@ -1235,6 +1236,7 @@
         <commons-net.version>3.6</commons-net.version>
         <jackson-core.version>2.8.6</jackson-core.version>
         <apache.mina.core>2.0.16</apache.mina.core>
+        <mimepull.version>1.9.7</mimepull.version>
 
         <wso2.maven.compiler.source>1.8</wso2.maven.compiler.source>
         <wso2.maven.compiler.target>1.8</wso2.maven.compiler.target>

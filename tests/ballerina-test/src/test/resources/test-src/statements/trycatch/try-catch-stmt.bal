@@ -1,54 +1,53 @@
+import ballerina.runtime;
+
 public struct testError {
-    string msg;
+    string message;
     error cause;
-    StackFrame[] stackTrace;
     string code;
 }
 
 public struct testDataError {
-    string msg;
+    string message;
     error cause;
-    StackFrame[] stackTrace;
     string data;
 }
 
 public struct testInputError {
-    string msg;
+    string message;
     error cause;
-    StackFrame[] stackTrace;
     string input;
 }
 
-function testTryCatch(int value)(string){
+function testTryCatch (int value) (string) {
     string path = "start ";
-    try{
+    try {
         path = path + "insideTry ";
         try {
             path = path + "insideInnerTry ";
-            if(value > 10){
+            if (value > 10) {
                 path = path + "onError ";
-                testError tError = { msg : "error" , code : "test" };
+                testError tError = {message:"error", code:"test"};
                 throw tError;
-            } else if( value < 0 ) {
-                path = path + "onInputError " ;
-                testInputError tError = {msg : "error", input : "0"};
+            } else if (value < 0) {
+                path = path + "onInputError ";
+                testInputError tError = {message:"error", input:"0"};
                 throw tError;
             }
 
             path = path + "endInsideInnerTry ";
-        } catch (testError ex){
+        } catch (testError ex) {
             path = path + "innerTestErrorCatch:" + ex.code + " ";
             throw ex;
-        } catch (testDataError e){
-            path = path + "innerDataErrorCatch:" + e.msg + " ";
+        } catch (testDataError e) {
+            path = path + "innerDataErrorCatch:" + e.message + " ";
             throw e;
         } finally {
             path = path + "innerFinally ";
         }
         path = path + "endInsideTry ";
-    } catch (error e){
+    } catch (error e) {
         path = path + "ErrorCatch ";
-    } catch (testError ex){
+    } catch (testError ex) {
         path = path + "TestErrorCatch ";
     } finally {
         path = path + "Finally ";
@@ -57,13 +56,13 @@ function testTryCatch(int value)(string){
     return path;
 }
 
-function testFunctionThrow (int arg)(boolean, string){
+function testFunctionThrow (int arg) (boolean, string) {
     string a = "0";
     try {
         a = a + "1";
         int b = testThrow(arg);
         a = a + "2";
-    } catch (error b){
+    } catch (error b) {
         a = a + "3";
         return true, a;
     }
@@ -71,13 +70,13 @@ function testFunctionThrow (int arg)(boolean, string){
     return false, a;
 }
 
-function testThrow(int a)(int) {
+function testThrow (int a) (int) {
     int c = a + 10;
     return testNestedThrow(c);
 }
 
 function testNestedThrow (int a) (int) {
-    error e = {msg:"test message"};
+    error e = {message:"test message"};
     int i = 10;
     if (i == 10) {
         throw e;
@@ -85,31 +84,31 @@ function testNestedThrow (int a) (int) {
     return i;
 }
 
-function testUncaughtException(){
+function testUncaughtException () {
     _ = testNestedThrow(1);
 }
 
-function testStackTrace()(StackFrame[]){
-    StackFrame[] trace;
-    try{
+function testStackTrace () (runtime:CallStackElement[]) {
+    runtime:CallStackElement[] trace;
+    try {
         testUncaughtException();
     } catch (error e) {
-        trace = e.stackTrace;
+        trace = runtime:getErrorCallStack(e);
     }
     return trace;
 }
 
-function mockFunction ()(string) {
+function mockFunction () (string) {
     return "done";
 }
 
-function testMethodCallInFinally ()(string) {
+function testMethodCallInFinally () (string) {
     string s = "start";
     try {
-        error e = {msg:"test"};
+        error e = {message:"test"};
         throw e;
-    }finally {
-         s = s + mockFunction();
+    } finally {
+        s = s + mockFunction();
     }
     return s;
 }
@@ -131,15 +130,15 @@ function scopeIssueTest () (int) {
     return j6;
 }
 
-function testTryWithinWhile() (int) {
+function testTryWithinWhile () (int) {
     int i = 0;
-    while(i < 3) {
+    while (i < 3) {
         try {
             int o = 0;
         } catch (error e) {
 
         }
-        i = i+1;
+        i = i + 1;
     }
     return i;
 }

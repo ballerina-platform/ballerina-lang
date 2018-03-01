@@ -30,6 +30,8 @@ import org.wso2.ballerinalang.compiler.tree.BLangAction;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangVariableDef;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -40,6 +42,13 @@ class ConnectorContextItemSorter extends CompletionItemSorter {
     public void sortItems(TextDocumentServiceContext ctx, List<CompletionItem> completionItems) {
         BLangNode previousNode = ctx.get(CompletionKeys.PREVIOUS_NODE_KEY);
 
+        /*
+        Remove the statement type completion type. When the going through the parser
+        rule contexts such as typeNameContext, we add the statements as well.
+        Sorters are responsible for to the next level of such filtering.
+         */
+        this.removeCompletionsByType(new ArrayList<>(Collections.singletonList(ItemResolverConstants.STATEMENT_TYPE)),
+                completionItems);
         if (previousNode == null) {
             this.populateWhenCursorBeforeOrAfterEp(completionItems);
         } else if (previousNode instanceof BLangVariableDef) {
@@ -49,7 +58,7 @@ class ConnectorContextItemSorter extends CompletionItemSorter {
             } else {
                 this.setPriorities(completionItems);
                 CompletionItem resItem = this.getActionSnippet();
-                resItem.setSortText(Priority.PRIORITY60.toString());
+                resItem.setSortText(Priority.PRIORITY160.toString());
                 completionItems.add(resItem);
             }
         } else if (previousNode instanceof BLangAction) {
@@ -63,8 +72,8 @@ class ConnectorContextItemSorter extends CompletionItemSorter {
         CompletionItem resSnippet = this.getActionSnippet();
         this.setPriorities(completionItems);
 
-        epSnippet.setSortText(Priority.PRIORITY50.toString());
-        resSnippet.setSortText(Priority.PRIORITY60.toString());
+        epSnippet.setSortText(Priority.PRIORITY150.toString());
+        resSnippet.setSortText(Priority.PRIORITY160.toString());
         completionItems.add(epSnippet);
         completionItems.add(resSnippet);
     }

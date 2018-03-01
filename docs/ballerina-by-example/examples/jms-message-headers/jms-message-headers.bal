@@ -1,5 +1,5 @@
 import ballerina.lang.messages;
-
+import ballerina.io;
 import ballerina.net.jms;
 
 @jms:configuration {
@@ -28,20 +28,20 @@ service<jms> jmsService {
         string deliveryMode = messages:getHeader(m, jms:HDR_DELIVERY_MODE);
         // For delivery mode we can use the built in constant as follows to infer whether the message is a persistent message or not.
         if (deliveryMode == jms:PERSISTENT_DELIVERY_MODE) {
-            println("delivery mode: persistent");
+            io:println("delivery mode: persistent");
         } else if (deliveryMode == jms:PERSISTENT_DELIVERY_MODE){
-            println("delivery mode: non-persistent");
+            io:println("delivery mode: non-persistent");
         }
         // Print the header values.
-        println("correlationId: " + correlationId);
-        println("timestamp: " + timestamp);
-        println("message type : " + messageType);
-        println("message id : " + messageId);
-        println("destination : " + destination);
-        println("is redelivered : " + redelivered);
-        println("expiration time : " + expirationTime);
-        println("priority : " + priority);
-        println("----------------------------------");
+        io:println("correlationId: " + correlationId);
+        io:println("timestamp: " + timestamp);
+        io:println("message type : " + messageType);
+        io:println("message id : " + messageId);
+        io:println("destination : " + destination);
+        io:println("is redelivered : " + redelivered);
+        io:println("expiration time : " + expirationTime);
+        io:println("priority : " + priority);
+        io:println("----------------------------------");
 
         message responseMessage = {};
         // ReplyTo header is set with the name of the queue. You can retrieve this value when receiving a message using the getHeader function as well.

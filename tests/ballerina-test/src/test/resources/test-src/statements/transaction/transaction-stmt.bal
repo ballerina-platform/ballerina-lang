@@ -1,7 +1,6 @@
 public struct TrxError {
-    string msg;
+    string message;
     error cause;
-    StackFrame[] stackTrace;
     string data;
 }
 
@@ -15,25 +14,25 @@ function testTransactionStmt (int i) (string) {
             a = a + " inTrx";
             try {
                 if (i == -1) {
-                    error err = {msg:" err"};
+                    error err = {message:" err"};
                     throw err;
                 } else if (i == 0) {
                     a = a + " abort";
                     abort;
                 } else if (i < -1) {
-                    TrxError err = {msg:" trxErr", data:"test"};
+                    TrxError err = {message:" trxErr", data:"test"};
                     throw err;
                 }
 
             } catch (TrxError err) {
-                a = a + err.msg;
+                a = a + err.message;
             }
             a = a + " endTrx";
         } failed {
             a = a + " inFailed";
         }
     } catch (error err) {
-        a = a + err.msg;
+        a = a + err.message;
     }
     a = a + " end";
     return a;
@@ -62,22 +61,22 @@ function testOptionalFailed (int i) (string) {
             a = a + " inTrx";
             try {
                 if (i == -1) {
-                    error err = {msg:" err"};
+                    error err = {message:" err"};
                     throw err;
                 } else if (i == 0) {
                     a = a + " abort";
                     abort;
                 } else if (i < -1) {
-                    TrxError err = {msg:" trxErr", data:"test"};
+                    TrxError err = {message:" trxErr", data:"test"};
                     throw err;
                 }
             } catch (TrxError err) {
-                a = a + err.msg;
+                a = a + err.message;
             }
             a = a + " endTrx";
         }
     } catch (error err) {
-        a = a + err.msg;
+        a = a + err.message;
     }
     a = a + " end";
     return a;
@@ -92,17 +91,17 @@ function testNestedTransaction (int i) (string) {
                 a = a + " inInnerTrx";
                 try {
                     if (i == -1) {
-                        error err = {msg:" err"};
+                        error err = {message:" err"};
                         throw err;
                     } else if (i == 0) {
                         a = a + " abort";
                         abort;
                     } else if (i < -1) {
-                        TrxError err = {msg:" trxErr", data:"test"};
+                        TrxError err = {message:" trxErr", data:"test"};
                         throw err;
                     }
                 } catch (TrxError err) {
-                    a = a + err.msg;
+                    a = a + err.message;
                 }
                 a = a + " endInnerTrx";
             }
@@ -110,7 +109,7 @@ function testNestedTransaction (int i) (string) {
         }
         a = a + " ";
     } catch (error err) {
-        a = a + err.msg;
+        a = a + err.message;
     }
     a = a + " end";
     return a;
@@ -125,17 +124,17 @@ function testNestedTransactionWithFailed (int i) (string) {
                 a = a + " inInnerTrx";
                 try {
                     if (i == -1) {
-                        error err = {msg:" err"};
+                        error err = {message:" err"};
                         throw err;
                     } else if (i == 0) {
                         a = a + " abort";
                         abort;
                     } else if (i < -1) {
-                        TrxError err = {msg:" trxErr", data:"test"};
+                        TrxError err = {message:" trxErr", data:"test"};
                         throw err;
                     }
                 } catch (TrxError err) {
-                    a = a + err.msg;
+                    a = a + err.message;
                 }
                 a = a + " endInnerTrx";
             } failed {
@@ -147,7 +146,7 @@ function testNestedTransactionWithFailed (int i) (string) {
         }
         a = a + " ";
     } catch (error err) {
-        a = a + err.msg;
+        a = a + err.message;
     }
     a = a + " end";
     return a;
@@ -160,26 +159,26 @@ function testTransactionStmtWithFailedAndNonDefaultRetries (int i) (string) {
             a = a + " inTrx";
             try {
                 if (i == -1) {
-                    error err = {msg:" err"};
+                    error err = {message:" err"};
                     throw err;
                 } else if (i == 0) {
                     a = a + " abort";
                     abort;
                 } else if (i < -1) {
-                    TrxError err = {msg:" trxErr", data:"test"};
+                    TrxError err = {message:" trxErr", data:"test"};
                     throw err;
                 } else {
                     a = a + " success";
                 }
             } catch (TrxError err) {
-                a = a + err.msg;
+                a = a + err.message;
             }
             a = a + " endTrx";
         } failed {
             a = a + " inFailed";
         }
     } catch (error err) {
-        a = a + err.msg;
+        a = a + err.message;
     }
     a = a + " end";
     return a;
@@ -192,18 +191,18 @@ function testTransactionStmtWithRetryOff (int i) (string) {
             a = a + " inTrx";
             try {
                 if (i == -1) {
-                    error err = {msg:" err"};
+                    error err = {message:" err"};
                     throw err;
                 }
             } catch (TrxError err) {
-                a = a + err.msg;
+                a = a + err.message;
             }
             a = a + " endTrx";
         } failed {
             a = a + " inFailed";
         }
     } catch (error err) {
-        a = a + err.msg;
+        a = a + err.message;
     }
     a = a + " end";
     return a;
@@ -214,13 +213,13 @@ function testTransactionStmtWithConstRetryFailed () (string) {
     try {
         transaction with retries(RETRYCOUNT) {
             a = a + " inTrx";
-            error err = {msg:" err"};
+            error err = {message:" err"};
             throw err;
         } failed {
             a = a + " inFailed";
         }
     } catch (error err) {
-        a = a + err.msg;
+        a = a + err.message;
     }
     a = a + " end";
     return a;
@@ -231,13 +230,13 @@ function testTransactionStmtWithConstRetryFailed2 () (string) {
     try {
         transaction with retries(RETRYCOUNT_2) {
             a = a + " inTrx";
-            error err = {msg:" err"};
+            error err = {message:" err"};
             throw err;
         } failed {
             a = a + " inFailed";
         }
     } catch (error err) {
-        a = a + err.msg;
+        a = a + err.message;
     }
     a = a + " end";
     return a;
@@ -252,7 +251,7 @@ function testTransactionStmtWithConstRetrySuccess () (string) {
             a = a + " inFailed";
         }
     } catch (error err) {
-        a = a + err.msg;
+        a = a + err.message;
     }
     a = a + " end";
     return a;
@@ -274,7 +273,7 @@ function testMultipleTransactionStmtSuccess () (string) {
         }
         a = a + " inFSecTrxEnd";
     } catch (error err) {
-        a = a + err.msg;
+        a = a + err.message;
     }
     a = a + " end";
     return a;
@@ -285,7 +284,7 @@ function testMultipleTransactionStmtFailed1 () (string) {
     try {
         transaction with retries(2) {
             a = a + " inFirstTrxBlock";
-            error err = {msg:" err"};
+            error err = {message:" err"};
             throw err;
         } failed {
             a = a + " inFirstTrxFld";
@@ -296,7 +295,7 @@ function testMultipleTransactionStmtFailed1 () (string) {
         }
         a = a + " inFSecTrxEnd";
     } catch (error err) {
-        a = a + err.msg;
+        a = a + err.message;
     }
     a = a + " end";
     return a;
@@ -307,14 +306,14 @@ function testMultipleTransactionStmtFailed2 () (string) {
     try {
         transaction with retries(2) {
             a = a + " inFirstTrxBlock";
-            error err = {msg:" err"};
+            error err = {message:" err"};
             throw err;
         } failed {
             a = a + " inFirstTrxFld";
         }
         a = a + " inFirstTrxEnd";
     } catch (error err) {
-        a = a + err.msg;
+        a = a + err.message;
     }
 
     transaction {

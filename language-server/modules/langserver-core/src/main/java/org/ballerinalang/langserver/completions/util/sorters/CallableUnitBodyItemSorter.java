@@ -66,9 +66,10 @@ class CallableUnitBodyItemSorter extends CompletionItemSorter {
             BType bLangType = ((BLangVariableDef) previousNode).var.type;
             if (bLangType instanceof BEndpointType) {
                 this.populateWhenCursorBeforeOrAfterEp(completionItems);
-            } else {
+            } else if (ctx.get(CompletionKeys.INVOCATION_STATEMENT_KEY) == null
+                    || !ctx.get(CompletionKeys.INVOCATION_STATEMENT_KEY)) {
                 CompletionItem workerItem = this.getWorkerSnippet();
-                workerItem.setSortText(Priority.PRIORITY60.toString());
+                workerItem.setSortText(Priority.PRIORITY160.toString());
                 completionItems.add(workerItem);
             }
         } else if (previousNode instanceof BLangWorker) {
@@ -82,8 +83,8 @@ class CallableUnitBodyItemSorter extends CompletionItemSorter {
         CompletionItem workerSnippet = this.getWorkerSnippet();
         this.setPriorities(completionItems);
 
-        epSnippet.setSortText(Priority.PRIORITY50.toString());
-        workerSnippet.setSortText(Priority.PRIORITY60.toString());
+        epSnippet.setSortText(Priority.PRIORITY150.toString());
+        workerSnippet.setSortText(Priority.PRIORITY160.toString());
         completionItems.add(epSnippet);
         completionItems.add(workerSnippet);
     }

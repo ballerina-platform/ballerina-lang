@@ -23,6 +23,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangConnector;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangResource;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
+import org.wso2.ballerinalang.compiler.tree.BLangTransformer;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -42,12 +43,16 @@ public enum ItemSorters {
             new CallableUnitBodyItemSorter()),
     DEFAULT_ITEM_SORTER(DefaultItemSorter.class,
             new DefaultItemSorter()),
+    ENDPOINT_DEF_ITEM_SORTER(EndpointDefContextItemSorter.class,
+            new EndpointDefContextItemSorter()),
     RESOURCE_BODY_ITEM_SORTER(BLangAction.class,
             new CallableUnitBodyItemSorter()),
     SERVICE_BODY_ITEM_SORTER(BLangService.class,
             new ServiceContextItemSorter()),
     STATEMENT_CONTEXT_ITEM_SORTER(StatementContextItemSorter.class,
             new StatementContextItemSorter()),
+    TRANSFORMER_CONTEXT_ITEM_SORTER(BLangTransformer.class,
+            new TransformerContextItemSorter()),
     VAR_DEF_CONTEXT_ITEM_SORTER(BallerinaParser.VariableDefinitionStatementContext.class,
             new VariableDefContextItemSorter());
     

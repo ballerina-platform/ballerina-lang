@@ -99,7 +99,11 @@ structDefinition
     ;
 
 structBody
-    :   fieldDefinition*
+    :   fieldDefinition* privateStructBody?
+    ;
+
+privateStructBody
+    :   PRIVATE COLON fieldDefinition*
     ;
 
 annotationDefinition

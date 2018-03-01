@@ -1,4 +1,6 @@
 import ballerina.data.sql;
+import ballerina.io;
+import ballerina.time;
 
 struct ResultPrimitive {
     int INT_TYPE;
@@ -45,10 +47,10 @@ struct ResultDates {
 }
 
 struct ResultDatesStruct {
-    Time DATE_TYPE;
-    Time TIME_TYPE;
-    Time TIMESTAMP_TYPE;
-    Time DATETIME_TYPE;
+    time:Time DATE_TYPE;
+    time:Time TIME_TYPE;
+    time:Time TIMESTAMP_TYPE;
+    time:Time DATETIME_TYPE;
 }
 
 struct ResultDatesInt {
@@ -158,7 +160,7 @@ function testToXmlMultipleConsume () (xml) {
         boolean_type, string_type from DataTable WHERE row_id = 1", null, null);
         xml result;
         result, _ = <xml>dt;
-        println(result);
+        io:println(result);
         return result;
     } finally {
         testDB.close();
@@ -200,7 +202,7 @@ function testToJsonMultipleConsume () (json) {
         boolean_type, string_type from DataTable WHERE row_id = 1", null, null);
         json result;
         result, _ = <json>dt;
-        println(result);
+        io:println(result);
         return result;
     } finally {
         testDB.close();
@@ -448,15 +450,15 @@ function testArrayDataInsertAndPrint () (int updateRet, int intArrLen, int longA
                                  from ArrayTypes where row_id = 4", null, typeof ResultMap);
     while (dt.hasNext()) {
         var rs, _ = (ResultMap)dt.getNext();
-        println(rs.INT_ARRAY);
+        io:println(rs.INT_ARRAY);
         intArrLen = lengthof rs.INT_ARRAY;
-        println(rs.LONG_ARRAY);
+        io:println(rs.LONG_ARRAY);
         longArrLen = lengthof rs.LONG_ARRAY;
-        println(rs.FLOAT_ARRAY);
+        io:println(rs.FLOAT_ARRAY);
         floatArrLen = lengthof rs.FLOAT_ARRAY;
-        println(rs.BOOLEAN_ARRAY);
+        io:println(rs.BOOLEAN_ARRAY);
         boolArrLen = lengthof rs.BOOLEAN_ARRAY;
-        println(rs.STRING_ARRAY);
+        io:println(rs.STRING_ARRAY);
         strArrLen = lengthof rs.STRING_ARRAY;
     }
     testDB.close();
@@ -499,11 +501,11 @@ function testDateTimeAsTimeStruct () (int dateInserted, int dateRetrieved, int t
                                    0, "TEST_DATA_TABLE_DB", "SA", "", {maximumPoolSize:1});
     }
 
-    Time dateStruct = createTime(2017, 5, 23, 0, 0, 0, 0, "");
-    Timezone zoneValue = {zoneId:"UTC"};
-    Time timeStruct = {time:51323000, zone:zoneValue};
-    Time timestampStruct = createTime(2017, 1, 25, 16, 12, 23, 0, "UTC");
-    Time datetimeStruct = createTime(2017, 1, 31, 16, 12, 23, 332, "UTC");
+    time:Time dateStruct = time:createTime(2017, 5, 23, 0, 0, 0, 0, "");
+    time:Timezone zoneValue = {zoneId:"UTC"};
+    time:Time timeStruct = {time:51323000, zone:zoneValue};
+    time:Time timestampStruct = time:createTime(2017, 1, 25, 16, 12, 23, 0, "UTC");
+    time:Time datetimeStruct = time:createTime(2017, 1, 31, 16, 12, 23, 332, "UTC");
     dateInserted = dateStruct.time;
     timeInserted = timeStruct.time;
     timestampInserted = timestampStruct.time;
@@ -699,8 +701,8 @@ function testTablePrintAndPrintln() {
     table dt = testDB.select("SELECT int_type, long_type, float_type, double_type,
     boolean_type, string_type from DataTable WHERE row_id = 1", null, null);
 
-    println(dt);
-    print(dt);
+    io:println(dt);
+    io:print(dt);
     testDB.close();
 }
 
@@ -1037,4 +1039,38 @@ function testMutltipleRowsWithForEach () (int i1, int i2) {
     }
     testDB.close();
     return rs1.INT_TYPE, rs2.INT_TYPE;
+}
+
+function testTableAddInvalid () {
+    endpoint<sql:ClientConnector> testDB {
+        create sql:ClientConnector(sql:DB.HSQLDB_FILE, "./target/tempdb/",
+                                   0, "TEST_DATA_TABLE_DB", "SA", "", {maximumPoolSize:1});
+    }
+
+    table<ResultPrimitiveInt> dt = testDB.select("SELECT int_type from DataTableRep", null, typeof ResultPrimitiveInt);
+    try {
+        ResultPrimitiveInt row = {INT_TYPE:443};
+        dt.add(row);
+    } finally {
+        testDB.close();
+    }
+}
+
+function testTableRemoveInvalid () {
+    endpoint<sql:ClientConnector> testDB {
+        create sql:ClientConnector(sql:DB.HSQLDB_FILE, "./target/tempdb/",
+                                   0, "TEST_DATA_TABLE_DB", "SA", "", {maximumPoolSize:1});
+    }
+
+    table<ResultPrimitiveInt> dt = testDB.select("SELECT int_type from DataTableRep", null, typeof ResultPrimitiveInt);
+    try {
+        ResultPrimitiveInt row = {INT_TYPE:443};
+        _ = dt.remove(isDelete);
+    } finally {
+        testDB.close();
+    }
+}
+
+function isDelete (ResultPrimitiveInt p) (boolean) {
+    return p.INT_TYPE < 2000;
 }

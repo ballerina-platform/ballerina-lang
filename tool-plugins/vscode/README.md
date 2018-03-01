@@ -1,75 +1,61 @@
 # Ballerina plugin for Visual Studio Code
 
-## What is Ballerina
-
-ballerina is a general purpose, concurrent and strongly typed
-programming language with both textual and graphical syntaxes.
-
-for more info: http://ballerinalang.org/
-
-## Features
-
-- Language Server Support
-    - Completion support.
-    - Hover Provider Support.
-    - Signature Help Support.
-    - Document Symbol Support.
-    - Diagnostic Support.
-- Syntax highlighting.
-
-## Installing
+## How to install
 
 Find the plugin in the visual studio [marketplace](https://marketplace.visualstudio.com/items?itemName=WSO2.Ballerina) and follow the instructions.
 
-### Installing from `.vsix`
-
-The visual studio marketplace only contains the latest build. If you want to work with an older version of Ballerina, or need to downgrade the plugin version you can install from the `.vsix` file.
-
-Find `.vsix` files listed in [Releases](https://github.com/ballerinalang/plugin-vscode/releases). Download the file for the required version.
-
-Install by 
-~~~
-code --install-extension Ballerina-[version].vsix
-~~~
-Find more info [here](https://code.visualstudio.com/docs/editor/extension-gallery#_install-from-a-vsix)
-
-## Configuring the Ballerina SDK path
+### Configuring the Ballerina SDK path
 
 If you plan on using ballerina libraries other than the ones in the standard ballerina distribution you should set the `ballerina.sdk` setting to the path to the directory of extracted ballerina distribution.
 
-To get to the settings in vscode use `Ctrl` + `,` in Windows and Linux and `⌘` + `,` in macOS. [More info](https://code.visualstudio.com/docs/getstarted/settings).
+To get to the settings in vscode use <kbd>CTRL</kbd> + <kbd>,</kbd> in Windows and Linux and <kbd>⌘</kbd> + <kbd>,</kbd> in macOS. [More info](https://code.visualstudio.com/docs/getstarted/settings).
 
 ![set sdk](docs/set-sdk.png)
 
-## Using the debugger
+## Usage
 
-See the [wiki page](https://github.com/ballerina-lang/plugin-vscode/wiki/Debugging)
+### Editor features
 
-vscode need to be restarted for a new configuration to take effect.
+* Code completion : <kbd>CTRL</kbd> + <kbd>SPACE</kbd>
+* Go to definition 
+    * Jump to source: <kbd>CTRL</kbd> + <kbd>Click</kbd>
+    * Open to the side with <kbd>CTRL</kbd> + <kbd>ALT</kbd> + <kbd>Click</kbd>
+* Go to symbol : <kbd>CTRL</kbd> + <kbd>SHIFT</kbd> + <kbd>O</kbd>
 
-## Running the plugin for development
+### Debugger
 
-1. Install [maven](https://maven.apache.org/install.html) and [nodejs](https://nodejs.org/en/)
-2. Clone this repo
-3. Run `npm install` and `mvn clean install`
-4. Run vscode with `code --extensionDevelopmentPath=/path/to/ballerina/plugin-vscode`
+#### Configuring the debugger
 
-## Debugging language server
+* Open a `.bal` file
+* Go to the debug panel (Ctrl + Shift + D)
+* Click on 'Configure or fix launch.json'
 
-To connect a remote debug client to the language server process, set `LSDEBUG` environment variable to "true".
+This will create a `.vscode/launch.json` file in your workspace, containing default ballerina debug configurations.
 
-`LSDEBUG=true code --extensionDevelopmentPath=/home/aruna/projects/ballerina/plugin-vscode`
+![opening debug config](https://github.com/ballerina-lang/ballerina/blob/master/tool-plugins/vscode/docs/debugger-open-config.gif?raw=true)
 
-Now connect the remote debug client to port 5005.
+There are two configurations with type `"ballerina"`. One with `"request"` set to `"launch"` and the other to `"attach"`. The second is used for remote debugging.
 
-## Publishing a new release
+To launch the debugger, the path to the ballerina sdk needs to be configured. In the `"launch"` configurations add a new config named `"ballerina.sdk"` and provide the path to the sdk.
 
-See the [wiki page](https://github.com/ballerinalang/plugin-vscode/wiki/Drafting-a-new-release)
+![setting ballerina sdk](https://github.com/ballerina-lang/ballerina/blob/master/tool-plugins/vscode/docs/debugger-ballerina-sdk.gif?raw=true)
 
-## How to contribute
+#### Using the debugger
 
-Pull requests are highly encouraged and we recommend you to create a GitHub issue
-to discuss the issue or feature that you are contributing to.
+* Add necessary debug points.
+* Select 'Ballerina Debug' from the config menu. And do Debug -> Start Debugging.
+
+![using debugger](https://github.com/ballerina-lang/ballerina/blob/master/tool-plugins/vscode/docs/debugger-using.gif?raw=true)
+
+## Contributing
+
+Pull requests are welcome. See [information for developers](https://github.com/ballerina-lang/ballerina/blob/master/tool-plugins/vscode/docs/developer-info.md).
+
+## About Ballerina
+
+ballerina is a general purpose, concurrent and strongly typed programming language with both textual and graphical syntaxes, optimized for integration.
+
+for more info: http://ballerinalang.org/
 
 ## License
 

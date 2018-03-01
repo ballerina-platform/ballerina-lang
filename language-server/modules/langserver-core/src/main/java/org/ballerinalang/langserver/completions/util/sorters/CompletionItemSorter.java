@@ -60,40 +60,40 @@ public abstract class CompletionItemSorter {
         completionItems.forEach(completionItem -> {
             switch (completionItem.getDetail()) {
                 case ItemResolverConstants.NONE:
-                    completionItem.setSortText(Priority.PRIORITY120.toString());
+                    completionItem.setSortText(Priority.PRIORITY220.toString());
                     break;
                 case ItemResolverConstants.KEYWORD_TYPE:
-                    completionItem.setSortText(Priority.PRIORITY110.toString());
+                    completionItem.setSortText(Priority.PRIORITY210.toString());
                     break;
                 case ItemResolverConstants.STATEMENT_TYPE:
-                    completionItem.setSortText(Priority.PRIORITY100.toString());
+                    completionItem.setSortText(Priority.PRIORITY200.toString());
                     break;
                 case ItemResolverConstants.SNIPPET_TYPE:
-                    completionItem.setSortText(Priority.PRIORITY90.toString());
+                    completionItem.setSortText(Priority.PRIORITY190.toString());
                     break;
                 case ItemResolverConstants.FIELD_TYPE:
-                    completionItem.setSortText(Priority.PRIORITY80.toString());
+                    completionItem.setSortText(Priority.PRIORITY180.toString());
                     break;
                 case ItemResolverConstants.B_TYPE:
-                    completionItem.setSortText(Priority.PRIORITY70.toString());
+                    completionItem.setSortText(Priority.PRIORITY170.toString());
                     break;
                 case ItemResolverConstants.ENUM_TYPE:
-                    completionItem.setSortText(Priority.PRIORITY60.toString());
+                    completionItem.setSortText(Priority.PRIORITY160.toString());
                     break;
                 case ItemResolverConstants.STRUCT:
-                    completionItem.setSortText(Priority.PRIORITY50.toString());
+                    completionItem.setSortText(Priority.PRIORITY150.toString());
                     break;
                 case ItemResolverConstants.PACKAGE_TYPE:
-                    completionItem.setSortText(Priority.PRIORITY40.toString());
+                    completionItem.setSortText(Priority.PRIORITY140.toString());
                     break;
                 case ItemResolverConstants.ACTION_TYPE:
-                    completionItem.setSortText(Priority.PRIORITY30.toString());
+                    completionItem.setSortText(Priority.PRIORITY130.toString());
                     break;
                 case ItemResolverConstants.FUNCTION_TYPE:
-                    completionItem.setSortText(Priority.PRIORITY20.toString());
+                    completionItem.setSortText(Priority.PRIORITY120.toString());
                     break;
                 default:
-                    completionItem.setSortText(Priority.PRIORITY10.toString());
+                    completionItem.setSortText(Priority.PRIORITY110.toString());
                     break;
             }
         });
@@ -106,5 +106,14 @@ public abstract class CompletionItemSorter {
         endpointItem.setInsertTextFormat(InsertTextFormat.Snippet);
         endpointItem.setDetail(ItemResolverConstants.SNIPPET_TYPE);
         return endpointItem;
+    }
+
+    /**
+     * Remove the specific type of completion items from the completion items list.
+     * @param types              Completion Item types
+     * @param completionItems   List of completion Items
+     */
+    void removeCompletionsByType(List<String> types, List<CompletionItem> completionItems) {
+        completionItems.removeIf(completionItem -> types.contains(completionItem.getDetail()));
     }
 }

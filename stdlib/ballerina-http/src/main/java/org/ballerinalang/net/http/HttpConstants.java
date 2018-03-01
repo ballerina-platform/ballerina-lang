@@ -47,6 +47,7 @@ public class HttpConstants {
     public static final String HTTP_CONTENT_LENGTH = "Content-Length";
     public static final String USER_AGENT_HEADER = "User-Agent";
     public static final String CONTENT_TYPE_HEADER = "Content-Type";
+    public static final String CONTENT_ENCODING_HEADER = "content-encoding";
     public static final String ACCEPT_HEADER = "Accept";
     public static final String ALLOW = "Allow";
     public static final String SERVER_HEADER = "Server";
@@ -63,7 +64,6 @@ public class HttpConstants {
     public static final String CHUNKING_AUTO = "auto";
     public static final String CHUNKING_ALWAYS = "always";
     public static final String CHUNKING_NEVER = "never";
-    public static final String MAX_ACTIVE_CONNECTIONS_PER_POOL = "client.max.active.connections.per.pool";
 
     public static final String HTTP_PACKAGE_PATH = "ballerina.net.http";
 
@@ -79,6 +79,7 @@ public class HttpConstants {
     public static final String ANN_NAME_RESOURCE_CONFIG = "resourceConfig";
     public static final String ANN_RESOURCE_ATTR_METHODS = "methods";
     public static final String ANN_RESOURCE_ATTR_PATH = "path";
+    public static final String ANN_RESOURCE_ATTR_BODY = "body";
     public static final String ANN_RESOURCE_ATTR_CONSUMES = "consumes";
     public static final String ANN_RESOURCE_ATTR_PRODUCES = "produces";
     public static final String ANN_NAME_CONFIG = "configuration";
@@ -98,6 +99,10 @@ public class HttpConstants {
     public static final String ANN_CONFIG_ATTR_SSL_ENABLED_PROTOCOLS = "sslEnabledProtocols";
     public static final String ANN_CONFIG_ATTR_CIPHERS = "ciphers";
     public static final String ANN_CONFIG_ATTR_SSL_PROTOCOL = "sslProtocol";
+    public static final String ANN_CONFIG_ATTR_VALIDATE_CERT_ENABLED = "validateCertEnabled";
+    public static final String ANN_CONFIG_ATTR_COMPRESSION_ENABLED = "compressionEnabled";
+    public static final String ANN_CONFIG_ATTR_CACHE_SIZE = "cacheSize";
+    public static final String ANN_CONFIG_ATTR_CACHE_VALIDITY_PERIOD = "cacheValidityPeriod";
     public static final String ANN_CONFIG_ATTR_WEBSOCKET = "webSocket";
     public static final String ANN_CONFIG_ATTR_TRANSFER_ENCODING = "transferEncoding";
     public static final String ANN_CONFIG_ATTR_MAXIMUM_URL_LENGTH = "maxUriLength";
@@ -121,6 +126,8 @@ public class HttpConstants {
     public static final String PATH = "Path=";
     public static final String RESPONSE_COOKIE_HEADER = "Set-Cookie";
     public static final String SESSION = "Session";
+    public static final String HTTP_ONLY = "HttpOnly";
+    public static final String SECURE = "Secure";
 
     public static final String ORIGIN = "Origin";
     public static final String AC_REQUEST_METHOD = "Access-Control-Request-Method";
@@ -169,7 +176,6 @@ public class HttpConstants {
     public static final String SSL_ENABLED_PROTOCOLS = "sslEnabledProtocols";
     public static final int OPTIONS_STRUCT_INDEX = 0;
     public static final int ENDPOINT_TIMEOUT_STRUCT_INDEX = 1;
-    public static final int MAX_ACTIVE_CONNECTIONS_INDEX = 2;
     public static final int TRANSFER_ENCODING = 0;
     public static final int ENABLE_CHUNKING_INDEX = 1;
     public static final int IS_KEEP_ALIVE_INDEX = 0;
@@ -185,6 +191,10 @@ public class HttpConstants {
     public static final int SSL_ENABLED_PROTOCOLS_INDEX = 4;
     public static final int CIPHERS_INDEX = 5;
     public static final int SSL_PROTOCOL_INDEX = 6;
+    public static final int VALIDATE_CERT_ENABLED_INDEX = 0;
+    public static final int CACHE_SIZE_INDEX = 0;
+    public static final int CACHE_VALIDITY_PERIOD_INDEX = 1;
+    public static final int HOST_NAME_VERIFICATION_ENABLED_INDEX = 1;
 
     public static final int HTTP_MESSAGE_INDEX = 0;
     public static final int ENTITY_INDEX = 1;
@@ -216,6 +226,11 @@ public class HttpConstants {
     public static final int PROXY_USER_NAME_INDEX = 1;
     public static final int PROXY_PASSWORD_INDEX = 2;
 
+    //Connection Throttling struct indexes
+    public static final int CONNECTION_THROTTLING_STRUCT_INDEX = 4;
+    public static final int CONNECTION_THROTTLING_MAX_ACTIVE_CONNECTIONS_INDEX = 0;
+    public static final int CONNECTION_THROTTLING_WAIT_TIME_INDEX = 1;
+
     //Retry Struct indexes
     public static final int RETRY_STRUCT_INDEX = 2;
     public static final int RETRY_COUNT_INDEX = 0;
@@ -226,4 +241,7 @@ public class HttpConstants {
     public static final String HEADER_VAL_CONNECTION_KEEP_ALIVE = "Keep-Alive";
     public static final String EXPECT_HEADER = "Expect";
     public static final String HEADER_VAL_100_CONTINUE = "100-continue";
+
+    //Response codes
+    public static final String HTTP_BAD_REQUEST = "400";
 }

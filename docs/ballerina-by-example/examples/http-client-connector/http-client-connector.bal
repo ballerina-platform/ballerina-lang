@@ -1,3 +1,4 @@
+import ballerina.io;
 import ballerina.net.http;
 
 function main (string[] args) {
@@ -9,21 +10,21 @@ function main (string[] args) {
     // Send a GET request to the specified endpoint
     http:InResponse resp = {};
     resp, _ = httpEndpoint.get("/get?test=123", req);
-    println("GET request:");
-    println(resp.getJsonPayload());
+    io:println("GET request:");
+    io:println(resp.getJsonPayload());
 
     // Set a string payload to the message to be sent to the endpoint.
     req.setStringPayload("POST: Hello World");
     resp, _ = httpEndpoint.post("/post", req);
-    println("\nPOST request:");
-    println(resp.getJsonPayload());
+    io:println("\nPOST request:");
+    io:println(resp.getJsonPayload());
 
     // Set a JSON payload to the message to be sent to the endpoint.
     json jsonMsg = {method:"PUT", payload:"Hello World"};
     req.setJsonPayload(jsonMsg);
     resp, _ = httpEndpoint.put("/put", req);
-    println("\nPUT request:");
-    println(resp.getJsonPayload());
+    io:println("\nPUT request:");
+    io:println(resp.getJsonPayload());
 
     // Set an XML payload to the message to be sent to the endpoint.
     xml xmlMsg = xml `<request><method>PATCH</method><payload>Hello World!</payload></request>`;
@@ -32,13 +33,13 @@ function main (string[] args) {
     // Remove the json payload.
     req.setJsonPayload(j);
     resp, _ = httpEndpoint.patch("/patch", req);
-    println("\nPATCH request:");
-    println(resp.getJsonPayload());
+    io:println("\nPATCH request:");
+    io:println(resp.getJsonPayload());
 
     req.setStringPayload("DELETE: Hello World");
     resp, _ = httpEndpoint.delete("/delete", req);
-    println("\nDELETE request:");
-    println(resp.getJsonPayload());
+    io:println("\nDELETE request:");
+    io:println(resp.getJsonPayload());
 
     req.setStringPayload("CUSTOM: Hello World");
     // The execute() action can be used if one needs to use custom HTTP verbs.
@@ -55,8 +56,8 @@ function main (string[] args) {
     resp, _ = httpEndpoint.get("/get", req);
 
     string contentType = resp.getHeader("Content-Type");
-    println("\nContent-Type: " + contentType);
+    io:println("\nContent-Type: " + contentType);
 
     int statusCode = resp.statusCode;
-    println("Status code: " + statusCode);
+    io:println("Status code: " + statusCode);
 }

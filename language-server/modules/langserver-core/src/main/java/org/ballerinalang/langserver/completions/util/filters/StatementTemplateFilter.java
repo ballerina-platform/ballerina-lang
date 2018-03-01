@@ -52,6 +52,13 @@ public class StatementTemplateFilter extends AbstractSymbolFilter {
         whileItem.setDetail(ItemResolverConstants.STATEMENT_TYPE);
         completionItems.add(whileItem);
 
+        // Populate Lock Statement template
+        CompletionItem lockItem = new CompletionItem();
+        lockItem.setLabel(ItemResolverConstants.LOCK);
+        lockItem.setInsertText(Snippet.LOCK.toString());
+        lockItem.setDetail(ItemResolverConstants.STATEMENT_TYPE);
+        completionItems.add(lockItem);
+
         // Populate Foreach Statement template
         CompletionItem forEachItem = new CompletionItem();
         forEachItem.setLabel(ItemResolverConstants.FOREACH);

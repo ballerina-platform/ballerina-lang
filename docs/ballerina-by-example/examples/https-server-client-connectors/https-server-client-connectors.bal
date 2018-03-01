@@ -1,3 +1,4 @@
+import ballerina.io;
 import ballerina.net.http;
 
 @http:configuration {
@@ -30,8 +31,8 @@ function main (string[] args) {
     http:OutRequest req = {};
     http:InResponse resp = {};
     resp, _ = httpEndpoint.get("/hello/", req);
-    println("Response code: " + resp.statusCode);
-    println("Response: " + resp.getStringPayload());
+    io:println("Response code: " + resp.statusCode);
+    io:println("Response: " + resp.getStringPayload());
 }
 
 function getConnectorConfigs() (http:Options) {

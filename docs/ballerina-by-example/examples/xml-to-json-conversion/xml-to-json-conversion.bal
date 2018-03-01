@@ -1,3 +1,5 @@
+import ballerina.io;
+
 function main (string[] args) {
     //Create an XML.
     var x, _ = <xml>("<h:Store id = \"AST\" xmlns:h=\"http://www.test.com\">" +
@@ -7,12 +9,10 @@ function main (string[] args) {
                      "<h:code><h:item>4</h:item><h:item>8</h:item></h:code>" +
                      "</h:Store>");
     //Convert to JSON with default attribute prefix and with namespaces.
-    xmlOptions options1 = {};
-    json j1 = x.toJSON(options1);
-    println(j1);
+    json j1 = x.toJSON({});
+    io:println(j1);
 
     //Convert to JSON with custom attribute prefix and without namespaces.
-    xmlOptions options2 = {attributePrefix:"#", preserveNamespaces:false};
-    json j2 = x.toJSON(options2);
-    println(j2);
+    json j2 = x.toJSON({attributePrefix:"#", preserveNamespaces:false});
+    io:println(j2);
 }

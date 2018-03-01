@@ -17,7 +17,6 @@
  */
 package org.ballerinalang.net.http.actions;
 
-
 import org.apache.commons.lang3.StringUtils;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.connector.api.BallerinaConnectorException;
@@ -37,7 +36,6 @@ import org.wso2.transport.http.netty.config.Parameter;
 import org.wso2.transport.http.netty.config.SenderConfiguration;
 import org.wso2.transport.http.netty.contract.HttpClientConnector;
 import org.wso2.transport.http.netty.contract.HttpWsConnectorFactory;
-import org.wso2.transport.http.netty.contractimpl.HttpWsConnectorFactoryImpl;
 import org.wso2.transport.http.netty.message.HTTPConnectorUtil;
 
 import java.net.UnknownHostException;
@@ -67,7 +65,7 @@ public class Init extends AbstractHTTPAction {
     private static final int FALSE = 0;
     private static final int DEFAULT_MAX_REDIRECT_COUNT = 5;
 
-    private HttpWsConnectorFactory httpConnectorFactory = new HttpWsConnectorFactoryImpl();
+    private HttpWsConnectorFactory httpConnectorFactory = HttpUtil.createHttpWsConnectionFactory();
 
     @Override
     public ConnectorFuture execute(Context context) {
@@ -102,11 +100,23 @@ public class Init extends AbstractHTTPAction {
         BStruct options = (BStruct) connector.getRefField(HttpConstants.OPTIONS_STRUCT_INDEX);
         if (options != null) {
             populateSenderConfigurationOptions(senderConfiguration, options);
-            long maxActiveConnections = options.getIntField(HttpConstants.MAX_ACTIVE_CONNECTIONS_INDEX);
-            if (!isInteger(maxActiveConnections)) {
-                throw new BallerinaConnectorException("invalid maxActiveConnections value: " + maxActiveConnections);
+
+            if (options.getRefField(HttpConstants.CONNECTION_THROTTLING_STRUCT_INDEX) != null) {
+                BStruct connectionThrottling =
+                        (BStruct) options.getRefField(HttpConstants.CONNECTION_THROTTLING_STRUCT_INDEX);
+
+                long maxActiveConnections = connectionThrottling
+                        .getIntField(HttpConstants.CONNECTION_THROTTLING_MAX_ACTIVE_CONNECTIONS_INDEX);
+                if (!isInteger(maxActiveConnections)) {
+                    throw new BallerinaConnectorException("invalid maxActiveConnections value: "
+                                                                  + maxActiveConnections);
+                }
+                senderConfiguration.getPoolConfiguration().setMaxActivePerPool((int) maxActiveConnections);
+
+                long waitTime = connectionThrottling
+                        .getIntField(HttpConstants.CONNECTION_THROTTLING_WAIT_TIME_INDEX);
+                senderConfiguration.getPoolConfiguration().setMaxWaitTime(waitTime);
             }
-            properties.put(HttpConstants.MAX_ACTIVE_CONNECTIONS_PER_POOL, (int) maxActiveConnections);
         }
 
         HttpClientConnector httpClientConnector =
@@ -138,7 +148,22 @@ public class Init extends AbstractHTTPAction {
             String sslEnabledProtocols = ssl.getStringField(HttpConstants.SSL_ENABLED_PROTOCOLS_INDEX);
             String ciphers = ssl.getStringField(HttpConstants.CIPHERS_INDEX);
             String sslProtocol = ssl.getStringField(HttpConstants.SSL_PROTOCOL_INDEX);
+            boolean validateCertEnabled = ssl.getBooleanField(HttpConstants.VALIDATE_CERT_ENABLED_INDEX) == TRUE;
+            int cacheSize = (int) ssl.getIntField(HttpConstants.CACHE_SIZE_INDEX);
+            int cacheValidityPeriod = (int) ssl.getIntField(HttpConstants.CACHE_VALIDITY_PERIOD_INDEX);
 
+            if (validateCertEnabled) {
+                senderConfiguration.setValidateCertEnabled(validateCertEnabled);
+                if (cacheValidityPeriod != 0) {
+                    senderConfiguration.setCacheValidityPeriod(cacheValidityPeriod);
+                }
+                if (cacheSize != 0) {
+                    senderConfiguration.setCacheSize(cacheSize);
+                }
+            }
+            boolean hostNameVerificationEnabled =
+                    ssl.getBooleanField(HttpConstants.HOST_NAME_VERIFICATION_ENABLED_INDEX) == TRUE;
+            senderConfiguration.setHostNameVerificationEnabled(hostNameVerificationEnabled);
             if (StringUtils.isNotBlank(trustStoreFile)) {
                 senderConfiguration.setTrustStoreFile(trustStoreFile);
             }

@@ -2,15 +2,15 @@ function test1 ()(string, string){
     string data;
     try{
         try {
-            error test = { msg: "try block error"};
+            error test = { message: "try block error"};
             data = "assigned";
             throw test;
         } finally {
-            error err = { msg : "finally block error"};
+            error err = { message : "finally block error"};
             throw err;
         }
     } catch (error e) {
-        return e.msg, data;
+        return e.message, data;
     }
     return "Function end", data;
 }
@@ -18,7 +18,7 @@ function test1 ()(string, string){
 function test2(int a)(string){
     try{
         try {
-            error test = { msg: "try block error"};
+            error test = { message: "try block error"};
             throw test;
         } finally {
             if(a > 10) {
@@ -26,7 +26,7 @@ function test2(int a)(string){
             }
         }
     } catch (error e) {
-        return e.msg;
+        return e.message;
     }
     return "Function end";
 }
@@ -41,7 +41,7 @@ function test3()(string){
             data = data + " innerFinally";
         }
     } catch (error e) {
-        return e.msg;
+        return e.message;
     }finally {
         data = data + " outerFinally";
     }
