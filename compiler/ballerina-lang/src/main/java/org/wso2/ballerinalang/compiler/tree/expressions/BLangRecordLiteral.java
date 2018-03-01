@@ -196,4 +196,21 @@ public class BLangRecordLiteral extends BLangExpression implements RecordLiteral
             visitor.visit(this);
         }
     }
+
+    /**
+     * This class represents a streamlet type literal expression.
+     *
+     * @since 0.963.0
+     */
+    public static class BLangStreamletLiteral extends BLangRecordLiteral {
+
+        public BLangStreamletLiteral(BType streamletType) {
+            this.type = streamletType;
+        }
+
+        @Override
+        public void accept(BLangNodeVisitor visitor) {
+            visitor.visit(this);
+        }
+    }
 }

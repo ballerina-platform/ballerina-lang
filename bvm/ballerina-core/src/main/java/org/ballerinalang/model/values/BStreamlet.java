@@ -19,8 +19,9 @@ package org.ballerinalang.model.values;
 import org.ballerinalang.model.types.BStreamletType;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
+import org.wso2.siddhi.core.SiddhiAppRuntime;
+import org.wso2.siddhi.core.stream.input.InputHandler;
 
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -29,42 +30,47 @@ import java.util.Map;
  *
  * @since 0.9.4
  */
-public final class BStreamlet implements BRefType, StructureType {
+public final class BStreamlet implements BRefType {
 
-    private long[] longFields;
-    private double[] doubleFields;
-    private String[] stringFields;
-    private int[] intFields;
-    private byte[][] byteFields;
-    private BRefType[] refFields;
-
+    private String siddhiApp;
     private BStreamletType streamletType;
+
+    public Map<String, InputHandler> streamSpecificInputHandlerMap;
+    public SiddhiAppRuntime siddhiAppRuntime;
 
     private final Map<String, Object> nativeData = new HashMap<>();
 
 
-    public BStreamlet(BStreamletType streamletType) {
-        this.streamletType = streamletType;
-        int[] fieldIndexes = this.streamletType.getFieldTypeCount();
-        longFields = new long[fieldIndexes[0]];
-        doubleFields = new double[fieldIndexes[1]];
-        stringFields = new String[fieldIndexes[2]];
-        Arrays.fill(stringFields, "");
-        intFields = new int[fieldIndexes[3]];
-        byteFields = new byte[fieldIndexes[4]][];
-        refFields = new BRefType[fieldIndexes[5]];
+    public BStreamlet(BType streamletType) {
+        this.streamletType = (BStreamletType) streamletType;
     }
 
     public BType getStreamletType() {
         return streamletType;
     }
 
-    public void setNativeData(String key, Object value) {
-        nativeData.put(key, value);
+    public String getSiddhiApp() {
+        return siddhiApp;
     }
 
-    public Object getnativeData(String key) {
-        return nativeData.get(key);
+    public void setSiddhiApp(String siddhiApp) {
+        this.siddhiApp = siddhiApp;
+    }
+
+    public SiddhiAppRuntime getSiddhiAppRuntime() {
+        return siddhiAppRuntime;
+    }
+
+    public void setSiddhiAppRuntime(SiddhiAppRuntime siddhiAppRuntime) {
+        this.siddhiAppRuntime = siddhiAppRuntime;
+    }
+
+    public Map<String, InputHandler> getStreamSpecificInputHandlerMap() {
+        return streamSpecificInputHandlerMap;
+    }
+
+    public void setStreamSpecificInputHandlerMap(Map<String, InputHandler> streamSpecificInputHandlerMap) {
+        this.streamSpecificInputHandlerMap = streamSpecificInputHandlerMap;
     }
 
     @Override
@@ -83,68 +89,8 @@ public final class BStreamlet implements BRefType, StructureType {
     }
 
     @Override
-    public long getIntField(int index) {
-        return longFields[index];
-    }
-
-    @Override
-    public void setIntField(int index, long value) {
-        longFields[index] = value;
-    }
-
-    @Override
-    public double getFloatField(int index) {
-        return doubleFields[index];
-    }
-
-    @Override
-    public void setFloatField(int index, double value) {
-        doubleFields[index] = value;
-    }
-
-    @Override
-    public String getStringField(int index) {
-        return stringFields[index];
-    }
-
-    @Override
-    public void setStringField(int index, String value) {
-        stringFields[index] = value;
-    }
-
-    @Override
-    public int getBooleanField(int index) {
-        return intFields[index];
-    }
-
-    @Override
-    public void setBooleanField(int index, int value) {
-        intFields[index] = value;
-    }
-
-
-    @Override
-    public byte[] getBlobField(int index) {
-        return byteFields[index];
-    }
-
-    @Override
-    public void setBlobField(int index, byte[] value) {
-        byteFields[index] = value;
-    }
-
-    @Override
-    public BRefType getRefField(int index) {
-        return refFields[index];
-    }
-
-    @Override
-    public void setRefField(int index, BRefType value) {
-        refFields[index] = value;
-    }
-
-    @Override
     public BValue copy() {
         return null;
     }
+
 }

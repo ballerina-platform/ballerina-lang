@@ -155,7 +155,7 @@ public abstract class BLangNodeVisitor {
         throw new AssertionError();
     }
 
-    public void visit(BLangStreamlet streamlet) {
+    public void visit(BLangStreamlet streamletNode) {
         throw new AssertionError();
     }
 
@@ -316,26 +316,6 @@ public abstract class BLangNodeVisitor {
         throw new AssertionError();
     }
 
-    public void visit(BLangFunctionClause functionClause) {
-        throw new AssertionError();
-    }
-
-    public void visit(BLangSetAssignment setAssignmentClause) {
-        throw new AssertionError();
-    }
-
-    public void visit(BLangStreamAction streamAction) {
-        throw new AssertionError();
-    }
-
-    public void visit(BLangPatternStreamingEdgeInput patternStreamingEdgeInput) {
-        throw new AssertionError();
-    }
-
-    public void visit(BLangWindow windowClause) {
-        throw new AssertionError();
-    }
-
     public void visit(BLangStreamingInput streamingInput) {
         throw new AssertionError();
     }
@@ -345,6 +325,26 @@ public abstract class BLangNodeVisitor {
     }
 
     public void visit(BLangTableQuery tableQuery) {
+        throw new AssertionError();
+    }
+
+    public void visit(BLangStreamAction streamAction) {
+        throw new AssertionError();
+    }
+
+    public void visit(BLangFunctionClause functionClause) {
+        throw new AssertionError();
+    }
+
+    public void visit(BLangSetAssignment setAssignmentClause) {
+        throw new AssertionError();
+    }
+
+    public void visit(BLangPatternStreamingEdgeInput patternStreamingEdgeInput) {
+        throw new AssertionError();
+    }
+
+    public void visit(BLangWindow windowClause) {
         throw new AssertionError();
     }
 
@@ -471,7 +471,7 @@ public abstract class BLangNodeVisitor {
         throw new AssertionError();
     }
 
-    public void visit(BLangStreamingQueryStatement streamingQuery) {
+    public void visit(BLangStreamingQueryStatement streamingQueryStatement) {
         throw new AssertionError();
     }
 
@@ -558,6 +558,10 @@ public abstract class BLangNodeVisitor {
     }
 
     public void visit(BLangStructLiteral structLiteral) {
+        throw new AssertionError();
+    }
+
+    public void visit(BLangRecordLiteral.BLangStreamletLiteral streamletLiteral) {
         throw new AssertionError();
     }
 

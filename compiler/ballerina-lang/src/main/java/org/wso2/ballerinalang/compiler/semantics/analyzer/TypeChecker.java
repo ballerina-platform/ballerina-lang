@@ -231,6 +231,7 @@ public class TypeChecker extends BLangNodeVisitor {
                 expTypeTag == TypeTags.TABLE ||
                 expTypeTag == TypeTags.NONE ||
                 expTypeTag == TypeTags.STREAM ||
+                expTypeTag == TypeTags.STREAMLET ||
                 expTypeTag == TypeTags.ANY) {
             recordLiteral.keyValuePairs.forEach(keyValuePair ->
                     checkRecLiteralKeyValue(keyValuePair, expTypes.get(0)));

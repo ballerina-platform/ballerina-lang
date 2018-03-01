@@ -46,6 +46,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangResource;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
+import org.wso2.ballerinalang.compiler.tree.BLangStreamlet;
 import org.wso2.ballerinalang.compiler.tree.BLangTransformer;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangWorker;
@@ -148,6 +149,7 @@ public class Desugar extends BLangNodeVisitor {
     private SymbolEnter symbolEnter;
     private IterableCodeDesugar iterableCodeDesugar;
     private SqlQueryBuilder sqlQueryBuilder;
+    private SiddhiQueryBuilder siddhiQueryBuilder;
 
     private BLangNode result;
 
@@ -173,6 +175,7 @@ public class Desugar extends BLangNodeVisitor {
         this.symbolEnter = SymbolEnter.getInstance(context);
         this.iterableCodeDesugar = IterableCodeDesugar.getInstance(context);
         this.sqlQueryBuilder = SqlQueryBuilder.getInstance(context);
+        this.siddhiQueryBuilder = SiddhiQueryBuilder.getInstance(context);
     }
 
     public BLangPackage perform(BLangPackage pkgNode) {
@@ -192,6 +195,7 @@ public class Desugar extends BLangNodeVisitor {
         pkgNode.globalVars = rewrite(pkgNode.globalVars);
         pkgNode.functions = rewrite(pkgNode.functions);
         pkgNode.connectors = rewrite(pkgNode.connectors);
+        pkgNode.streamlets = rewrite(pkgNode.streamlets);
         pkgNode.services = rewrite(pkgNode.services);
         pkgNode.initFunction = rewrite(pkgNode.initFunction);
         pkgNode.transformers = rewrite(pkgNode.transformers);
@@ -232,6 +236,12 @@ public class Desugar extends BLangNodeVisitor {
         serviceNode.vars = rewrite(serviceNode.vars);
         serviceNode.initFunction = rewrite(serviceNode.initFunction);
         result = serviceNode;
+    }
+
+
+    public void visit(BLangStreamlet streamletNode) {
+        siddhiQueryBuilder.visit(streamletNode);
+        result = streamletNode;
     }
 
     @Override
@@ -512,6 +522,8 @@ public class Desugar extends BLangNodeVisitor {
             result = new BLangMapLiteral(recordLiteral.keyValuePairs, recordLiteral.type);
         } else if (recordLiteral.type.tag == TypeTags.TABLE) {
             result = new BLangTableLiteral(recordLiteral.type);
+        } else if (recordLiteral.type.tag == TypeTags.STREAMLET) {
+            result = new BLangRecordLiteral.BLangStreamletLiteral(recordLiteral.type);
         } else {
             result = new BLangJSONLiteral(recordLiteral.keyValuePairs, recordLiteral.type);
         }
@@ -543,6 +555,9 @@ public class Desugar extends BLangNodeVisitor {
             // Local variable in a function/resource/action/worker
             genVarRefExpr = new BLangLocalVarRef(varRefExpr.symbol);
         } else if ((ownerSymbol.tag & SymTag.CONNECTOR) == SymTag.CONNECTOR) {
+            // Field variable in a receiver
+            genVarRefExpr = new BLangFieldVarRef(varRefExpr.symbol);
+        } else if ((ownerSymbol.tag & SymTag.STREAMLET) == SymTag.STREAMLET) {
             // Field variable in a receiver
             genVarRefExpr = new BLangFieldVarRef(varRefExpr.symbol);
         } else if ((ownerSymbol.tag & SymTag.PACKAGE) == SymTag.PACKAGE ||

@@ -30,7 +30,7 @@ import java.util.List;
  * @since 0.94
  */
 public class BStreamletType extends BType implements StreamletType {
-    List<BType> paramTypes;
+    public List<BType> paramTypes;
 
     public BStreamletType(List<BType> paramTypes, BTypeSymbol tsymbol) {
         super(TypeTags.STREAMLET, tsymbol);
@@ -53,6 +53,7 @@ public class BStreamletType extends BType implements StreamletType {
 
     @Override
     public String toString() {
+        //TODO Fix this - mohan
         System.out.printf(paramTypes.toString());
         return Names.DEFAULT_PACKAGE.equals(tsymbol.pkgID.name) ? tsymbol.name.value : getQualifiedTypeName();
     }

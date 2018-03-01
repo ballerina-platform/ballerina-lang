@@ -42,6 +42,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BConnectorType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BEnumType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamletType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStructType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangAction;
@@ -60,6 +61,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangResource;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
+import org.wso2.ballerinalang.compiler.tree.BLangStreamlet;
 import org.wso2.ballerinalang.compiler.tree.BLangStruct;
 import org.wso2.ballerinalang.compiler.tree.BLangTransformer;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
@@ -165,6 +167,7 @@ import org.wso2.ballerinalang.programfile.PackageVarInfo;
 import org.wso2.ballerinalang.programfile.ProgramFile;
 import org.wso2.ballerinalang.programfile.ResourceInfo;
 import org.wso2.ballerinalang.programfile.ServiceInfo;
+import org.wso2.ballerinalang.programfile.StreamletInfo;
 import org.wso2.ballerinalang.programfile.StructFieldDefaultValue;
 import org.wso2.ballerinalang.programfile.StructFieldInfo;
 import org.wso2.ballerinalang.programfile.StructInfo;
@@ -187,6 +190,7 @@ import org.wso2.ballerinalang.programfile.cpentries.ForkJoinCPEntry;
 import org.wso2.ballerinalang.programfile.cpentries.FunctionRefCPEntry;
 import org.wso2.ballerinalang.programfile.cpentries.IntegerCPEntry;
 import org.wso2.ballerinalang.programfile.cpentries.PackageRefCPEntry;
+import org.wso2.ballerinalang.programfile.cpentries.StreamletRefCPEntry;
 import org.wso2.ballerinalang.programfile.cpentries.StringCPEntry;
 import org.wso2.ballerinalang.programfile.cpentries.StructureRefCPEntry;
 import org.wso2.ballerinalang.programfile.cpentries.TransformerRefCPEntry;
@@ -269,6 +273,7 @@ public class CodeGenerator extends BLangNodeVisitor {
     private WorkerInfo currentWorkerInfo;
     private ServiceInfo currentServiceInfo;
     private ConnectorInfo currentConnectorInfo;
+    private StreamletInfo currentStreamletInfo;
 
     // Required variables to generate code for assignment statements
     private boolean varAssignment = false;
@@ -392,6 +397,7 @@ public class CodeGenerator extends BLangNodeVisitor {
         pkgNode.structs.forEach(this::createStructInfoEntry);
         pkgNode.enums.forEach(this::createEnumInfoEntry);
         pkgNode.connectors.forEach(this::createConnectorInfoEntry);
+        pkgNode.streamlets.forEach(this::createStreamletInfoEntry);
         pkgNode.functions.forEach(this::createFunctionInfoEntry);
         pkgNode.services.forEach(this::createServiceInfoEntry);
         pkgNode.functions.forEach(this::createFunctionInfoEntry);
@@ -735,6 +741,22 @@ public class CodeGenerator extends BLangNodeVisitor {
         operands[2] = structRegIndex;
         operands[3] = getOperand(0);
         emit(InstructionCodes.CALL, operands);
+    }
+
+    @Override
+    public void visit(BLangRecordLiteral.BLangStreamletLiteral streamletLiteral) {
+
+        BSymbol streamletSymbol = streamletLiteral.type.tsymbol;
+        int pkgCPIndex = addPackageRefCPEntry(currentPkgInfo, streamletSymbol.pkgID);
+        int streamletNameCPIndex = addUTF8CPEntry(currentPkgInfo, streamletSymbol.name.value);
+
+        StreamletRefCPEntry streamletRefCPEntry = new StreamletRefCPEntry(pkgCPIndex, streamletNameCPIndex);
+        Operand streamletCPIndex = getOperand(currentPkgInfo.addCPEntry(streamletRefCPEntry));
+
+        //Emit an instruction to create a new streamlet.
+        RegIndex streamletRegIndex = calcAndGetExprRegIndex(streamletLiteral);
+        emit(InstructionCodes.NEWSTREAMLET, streamletCPIndex, streamletRegIndex);
+
     }
 
     @Override
@@ -1238,6 +1260,10 @@ public class CodeGenerator extends BLangNodeVisitor {
 
     private String generateConnectorSig(ConnectorInfo callableUnitInfo) {
         return "(" + generateSig(callableUnitInfo.paramTypes) + ")";
+    }
+
+    private String generateStreamletSig(StreamletInfo streamletInfo) {
+        return "(" + generateSig(streamletInfo.paramTypes) + ")";
     }
 
     private int getNextIndex(int typeTag, VariableIndex indexes) {
@@ -1923,6 +1949,24 @@ public class CodeGenerator extends BLangNodeVisitor {
         }
     }
 
+    private void createStreamletInfoEntry(BLangStreamlet streamletNode) {
+
+        BStreamletType streamletType = (BStreamletType) streamletNode.symbol.type;
+        // Add streamlet name as an UTFCPEntry to the constant pool
+        int streamletNameCPIndex = addUTF8CPEntry(currentPkgInfo, streamletNode.name.value);
+        //Create streamlet info
+        StreamletInfo streamletInfo = new StreamletInfo(currentPackageRefCPIndex,
+                streamletNameCPIndex, streamletNode.symbol.flags);
+
+        streamletInfo.paramTypes = streamletType.paramTypes.toArray(new BType[0]);
+        streamletInfo.signatureCPIndex = addUTF8CPEntry(this.currentPkgInfo, generateStreamletSig(streamletInfo));
+
+        // Add Siddhi Query as an UTFCPEntry to the constant pool
+        streamletInfo.siddhiQueryCPIndex = addUTF8CPEntry(currentPkgInfo, streamletNode.getSiddhiQuery());
+
+        currentPkgInfo.addStreamletInfo(streamletNode.name.value, streamletInfo);
+    }
+
     private void createConnectorInfoEntry(BLangConnector connectorNode) {
         BConnectorType connectorType = (BConnectorType) connectorNode.symbol.type;
         // Add connector name as an UTFCPEntry to the constant pool
@@ -2413,6 +2457,11 @@ public class CodeGenerator extends BLangNodeVisitor {
         AnnotationAttributeInfo attributeInfo = new AnnotationAttributeInfo(annotationAttribNameIndex);
         structNode.annAttachments.forEach(annt -> visitAnnotationAttachment(annt, attributeInfo));
         structInfo.addAttributeInfo(AttributeInfo.Kind.ANNOTATIONS_ATTRIBUTE, attributeInfo);
+    }
+
+    public void visit(BLangStreamlet streamletNode) {
+        currentStreamletInfo = currentPkgInfo.getStreamletInfo(streamletNode.getName().getValue());
+        currentStreamletInfo.setSiddhiQuery(streamletNode.getSiddhiQuery());
     }
 
     public void visit(BLangIdentifier identifierNode) {

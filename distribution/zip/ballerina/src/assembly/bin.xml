@@ -166,6 +166,17 @@
                 <include>org.quartz-scheduler:quartz-jobs</include>
                 <include>org.jvnet.mimepull:mimepull</include>
                 <include>com.h2database:h2</include>
+
+                <!-- Siddhi Dependencies -->
+                <include>org.wso2.siddhi:siddhi-core:jar</include>
+                <include>org.wso2.siddhi:siddhi-query-api:jar</include>
+                <include>org.wso2.siddhi:siddhi-query-compiler:jar</include>
+                <include>org.wso2.siddhi:siddhi-annotations:jar</include>
+
+                <include>org.wso2.orbit.com.lmax:disruptor:jar</include>
+                <include>org.osgi:org.osgi.core:jar</include>
+                <include>io.dropwizard.metrics:metrics-core:jar</include>
+
             </includes>
         </dependencySet>
 

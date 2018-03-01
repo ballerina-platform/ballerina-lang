@@ -43,6 +43,7 @@ public class BLangStreamlet extends BLangNode implements StreamletNode {
     public List<BLangAnnotationAttachment> annAttachments;
     public StreamingQueryDeclarationNode streamingQueryDeclaration;
     public BLangFunction initFunction;
+    private String siddhiQuery;
 
     public BTypeSymbol symbol;
 
@@ -122,4 +123,11 @@ public class BLangStreamlet extends BLangNode implements StreamletNode {
         return NodeKind.STREAMLET;
     }
 
+    public String getSiddhiQuery() {
+        return siddhiQuery;
+    }
+
+    public void setSiddhiQuery(String siddhiQuery) {
+        this.siddhiQuery = siddhiQuery;
+    }
 }

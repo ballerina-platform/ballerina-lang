@@ -2336,5 +2336,6 @@ public class BLangPackageBuilder {
         if (!this.varListStack.empty()) {
             this.varListStack.pop().forEach(streamletNode::addParameter);
         }
+        this.compUnit.addTopLevelNode(streamletNode);
     }
 }

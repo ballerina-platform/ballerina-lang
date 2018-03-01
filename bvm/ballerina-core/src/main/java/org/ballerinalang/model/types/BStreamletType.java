@@ -19,6 +19,7 @@ package org.ballerinalang.model.types;
 
 import org.ballerinalang.model.values.BStreamlet;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.util.codegen.StreamletInfo;
 
 /**
  * {@code BStreamletType} represents a {@code Streamlet} in Ballerina.
@@ -28,13 +29,19 @@ import org.ballerinalang.model.values.BValue;
 public class BStreamletType extends BType {
 
     private int[] fieldTypeCount;
+    private StreamletInfo streamletInfo;
+    public int flags;
 
     /**
      * Create a {@code BStreamletType} which represents the Ballerina Streamlet type.
-     *
-     * @param typeName string name of the type
-     * @param pkgPath  package of the streamlet
      */
+    public BStreamletType(StreamletInfo streamletInfo, String typeName, String pkgPath, int flags) {
+        super(typeName, pkgPath, BStreamlet.class);
+        this.streamletInfo = streamletInfo;
+        this.flags = flags;
+
+    }
+
     public BStreamletType(String typeName, String pkgPath) {
         super(typeName, pkgPath, BStreamlet.class);
     }

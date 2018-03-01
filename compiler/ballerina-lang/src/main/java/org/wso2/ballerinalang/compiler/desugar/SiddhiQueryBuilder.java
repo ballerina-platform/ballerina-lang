@@ -18,35 +18,44 @@
 
 package org.wso2.ballerinalang.compiler.desugar;
 
+import org.ballerinalang.model.tree.clauses.JoinStreamingInput;
+import org.ballerinalang.model.tree.clauses.OrderByNode;
+import org.ballerinalang.model.tree.clauses.SelectClauseNode;
 import org.ballerinalang.model.tree.clauses.SelectExpressionNode;
+import org.ballerinalang.model.tree.clauses.StreamActionNode;
+import org.ballerinalang.model.tree.clauses.StreamingInput;
 import org.ballerinalang.model.tree.clauses.WhereNode;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
+import org.ballerinalang.model.tree.statements.QueryStatementNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
+import org.wso2.ballerinalang.compiler.tree.BLangStreamlet;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangGroupBy;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangHaving;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangJoinStreamingInput;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangOrderBy;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangSelectClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangSelectExpression;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangStreamAction;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangStreamingInput;
-import org.wso2.ballerinalang.compiler.tree.clauses.BLangTableQuery;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangStreamingQueryDeclaration;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangWhere;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableQueryExpression;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangQueryStatement;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangStreamingQueryStatement;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
 import java.util.Iterator;
 import java.util.List;
 
 /**
- * This class will generate the SQL query for stream/tables SQLish grammar for different classes.
+ * This class will generate the Siddhi query for stream SQLish grammar for different classes.
  */
 
-public class SqlQueryBuilder extends BLangNodeVisitor {
-    private static final CompilerContext.Key<SqlQueryBuilder> SQL_QUERY_BUILDER_KEY =
+public class SiddhiQueryBuilder extends BLangNodeVisitor {
+    private static final CompilerContext.Key<SiddhiQueryBuilder> SIDDHI_QUERY_BUILDER_KEY =
             new CompilerContext.Key<>();
 
     private String varRef;
@@ -59,59 +68,20 @@ public class SqlQueryBuilder extends BLangNodeVisitor {
     private StringBuilder selectExpr;
     private StringBuilder groupByClause;
     private StringBuilder havingClause;
-    private StringBuilder sqlTableQuery;
+    private StringBuilder siddhiQuery;
+    private StringBuilder streamActionClause;
 
-    public static SqlQueryBuilder getInstance(CompilerContext context) {
-        SqlQueryBuilder sqlQueryBuilder = context.get(SQL_QUERY_BUILDER_KEY);
-        if (sqlQueryBuilder == null) {
-            sqlQueryBuilder = new SqlQueryBuilder(context);
+    public static SiddhiQueryBuilder getInstance(CompilerContext context) {
+        SiddhiQueryBuilder siddhiQueryBuilder = context.get(SIDDHI_QUERY_BUILDER_KEY);
+        if (siddhiQueryBuilder == null) {
+            siddhiQueryBuilder = new SiddhiQueryBuilder(context);
         }
 
-        return sqlQueryBuilder;
+        return siddhiQueryBuilder;
     }
 
-    private SqlQueryBuilder(CompilerContext context) {
-        context.put(SQL_QUERY_BUILDER_KEY, this);
-    }
-
-    @Override
-    public void visit(BLangTableQueryExpression tableQueryExpression) {
-        BLangTableQuery tableQuery = ((BLangTableQuery) tableQueryExpression.getTableQuery());
-        tableQuery.accept(this);
-        tableQueryExpression.setSqlQuery(tableQuery.getSqlQuery());
-
-    }
-
-    @Override
-    public void visit(BLangTableQuery tableQuery) {
-        BLangSelectClause selectClause = (BLangSelectClause) tableQuery.getSelectClauseNode();
-        BLangStreamingInput streamingInput = (BLangStreamingInput) tableQuery.getStreamingInput();
-        BLangJoinStreamingInput joinStreamingInput = (BLangJoinStreamingInput) tableQuery.getJoinStreamingInput();
-        BLangOrderBy orderBy = (BLangOrderBy) tableQuery.getOrderByNode();
-
-        sqlTableQuery = new StringBuilder();
-        selectClause.accept(this);
-        sqlTableQuery.append(selectExprClause).append(" from ");
-        streamingInput.accept(this);
-        sqlTableQuery.append(streamingInputClause);
-
-        if (joinStreamingInput != null) {
-            sqlTableQuery.append(" ");
-            joinStreamingInput.accept(this);
-            sqlTableQuery.append(joinStreamingInputClause);
-        }
-        if (selectClause.getGroupBy() != null) {
-            sqlTableQuery.append(" ").append(groupByClause);
-        }
-        if (selectClause.getHaving() != null) {
-            sqlTableQuery.append(" ").append(havingClause);
-        }
-        if (orderBy != null) {
-            orderBy.accept(this);
-            sqlTableQuery.append(" ").append(orderByClause);
-        }
-
-        tableQuery.setSqlQuery(sqlTableQuery.toString());
+    private SiddhiQueryBuilder(CompilerContext context) {
+        context.put(SIDDHI_QUERY_BUILDER_KEY, this);
     }
 
     @Override
@@ -162,8 +132,8 @@ public class SqlQueryBuilder extends BLangNodeVisitor {
         streamingInputClause.append(streamingInput.getIdentifier());
         List<? extends WhereNode> whereNodes = streamingInput.getStreamingConditions();
 
-        /* for tables there can only be one whereClause and there is no windowClause.
-         So we don't care about the windowClause. */
+        //TODO Think about - window clause as well.
+
         if (whereNodes != null && !whereNodes.isEmpty()) {
             BLangWhere where = (BLangWhere) whereNodes.get(0);
             where.accept(this);
@@ -177,24 +147,27 @@ public class SqlQueryBuilder extends BLangNodeVisitor {
     @Override
     public void visit(BLangWhere where) {
         whereClause = new StringBuilder();
-        whereClause.append("where ");
+        whereClause.append("[");
         BLangBinaryExpr expr = (BLangBinaryExpr) where.getExpression();
         expr.accept(this);
         whereClause.append(binaryExpr);
+        whereClause.append("]");
     }
 
     @Override
     public void visit(BLangSelectClause select) {
-        createSQLSelectExpressionClause(select);
+        createSiddhiSelectExpressionClause(select);
         if (select.getGroupBy() != null) {
-            createSQLGroupByClause(select);
+            createSiddhiGroupByClause(select);
+            selectExprClause.append(" ").append(groupByClause);
         }
         if (select.getHaving() != null) {
-            createSQLHavingClause(select);
+            createSiddhiHavingClause(select);
+            selectExprClause.append(" ").append(havingClause);
         }
     }
 
-    private void createSQLHavingClause(BLangSelectClause select) {
+    private void createSiddhiHavingClause(BLangSelectClause select) {
         BLangHaving having = (BLangHaving) select.getHaving();
         having.accept(this);
     }
@@ -207,7 +180,7 @@ public class SqlQueryBuilder extends BLangNodeVisitor {
         havingClause.append(binaryExpr);
     }
 
-    private void createSQLGroupByClause(BLangSelectClause select) {
+    private void createSiddhiGroupByClause(BLangSelectClause select) {
         BLangGroupBy groupBy = (BLangGroupBy) select.getGroupBy();
         groupBy.accept(this);
     }
@@ -228,7 +201,7 @@ public class SqlQueryBuilder extends BLangNodeVisitor {
         }
     }
 
-    private void createSQLSelectExpressionClause(BLangSelectClause select) {
+    private void createSiddhiSelectExpressionClause(BLangSelectClause select) {
         List<? extends SelectExpressionNode> selectExprList = select.getSelectExpressions();
         selectExprClause = new StringBuilder();
         selectExprClause.append("select ");
@@ -260,7 +233,82 @@ public class SqlQueryBuilder extends BLangNodeVisitor {
         }
     }
 
-    public String getSQLTableQuery() {
-        return sqlTableQuery.toString();
+    @Override
+    public void visit(BLangStreamlet streamletNode) {
+        BLangStreamingQueryDeclaration streamingQueryDeclaration = (BLangStreamingQueryDeclaration) streamletNode.
+                getStreamingQueryDeclaration();
+        siddhiQuery = new StringBuilder();
+        siddhiQuery.append("from ");
+        streamingQueryDeclaration.accept(this);
+        streamletNode.setSiddhiQuery(this.getSiddhiQuery());
+    }
+
+    public void visit(BLangStreamingQueryDeclaration streamingQueryDeclaration) {
+
+        if (streamingQueryDeclaration.getStreamingQueryStatement() != null) {
+            //TODO Implement the when there is no any query block is defined.
+        } else {
+            List<QueryStatementNode> queryStatementNodes = streamingQueryDeclaration.getQueryStatements();
+            for (QueryStatementNode queryStatementNode : queryStatementNodes) {
+                ((BLangQueryStatement) queryStatementNode).accept(this);
+            }
+        }
+    }
+
+    public void visit(BLangQueryStatement queryStatement) {
+        BLangStreamingQueryStatement streamingQueryStatement = (BLangStreamingQueryStatement) queryStatement.
+                getStreamingQueryStatement();
+        streamingQueryStatement.accept(this);
+    }
+
+    public void visit(BLangStreamingQueryStatement streamingQueryStatement) {
+        StreamingInput streamingInput = streamingQueryStatement.getStreamingInput();
+        if (streamingInput != null) {
+            ((BLangStreamingInput) streamingInput).accept(this);
+            siddhiQuery.append(" ").append(streamingInputClause);
+        }
+
+        JoinStreamingInput joinStreamingInput = streamingQueryStatement.getJoiningInput();
+        if (joinStreamingInput != null) {
+            ((BLangJoinStreamingInput) joinStreamingInput).accept(this);
+            siddhiQuery.append(" ").append(joinStreamingInputClause);
+        }
+
+        SelectClauseNode selectClauseNode = streamingQueryStatement.getSelectClause();
+        if (selectClauseNode != null) {
+            ((BLangSelectClause) selectClauseNode).accept(this);
+            siddhiQuery.append(" ").append(selectExprClause);
+        }
+
+        OrderByNode orderByNode = streamingQueryStatement.getOrderbyClause();
+        if (orderByNode != null) {
+            ((BLangOrderBy) orderByNode).accept(this);
+            siddhiQuery.append(" ").append(orderByClause);
+        }
+
+        StreamActionNode streamActionNode = streamingQueryStatement.getStreamingAction();
+        if (streamActionNode != null) {
+            ((BLangStreamAction) streamActionNode).accept(this);
+            siddhiQuery.append(" ").append(streamActionClause);
+        }
+    }
+
+    @Override
+    public void visit(BLangStreamAction streamAction) {
+        streamActionClause = new StringBuilder();
+        String streamActionType = streamAction.getAction();
+        if (streamActionType.equalsIgnoreCase("insert")) {
+            streamActionClause.append(" ").append("insert into");
+            streamActionClause.append(" ").append(streamAction.getIdentifier());
+        } else if (streamActionType.equalsIgnoreCase("update")) {
+            streamActionClause.append(" ").append("update");
+        } else if (streamActionType.equalsIgnoreCase("delete")) {
+            streamActionClause.append(" ").append("delete");
+            streamActionClause.append(" ").append(streamAction.getIdentifier());
+        }
+    }
+
+    public String getSiddhiQuery() {
+        return siddhiQuery.toString();
     }
 }

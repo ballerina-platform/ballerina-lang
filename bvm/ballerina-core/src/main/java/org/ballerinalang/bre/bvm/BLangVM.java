@@ -57,6 +57,7 @@ import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BNewArray;
 import org.ballerinalang.model.values.BRefType;
 import org.ballerinalang.model.values.BRefValueArray;
+import org.ballerinalang.model.values.BStreamlet;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BStruct;
@@ -91,6 +92,7 @@ import org.ballerinalang.util.codegen.InstructionCodes;
 import org.ballerinalang.util.codegen.LineNumberInfo;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
+import org.ballerinalang.util.codegen.StreamletInfo;
 import org.ballerinalang.util.codegen.StructFieldInfo;
 import org.ballerinalang.util.codegen.StructInfo;
 import org.ballerinalang.util.codegen.WorkerDataChannelInfo;
@@ -104,6 +106,7 @@ import org.ballerinalang.util.codegen.cpentries.FloatCPEntry;
 import org.ballerinalang.util.codegen.cpentries.FunctionCallCPEntry;
 import org.ballerinalang.util.codegen.cpentries.FunctionRefCPEntry;
 import org.ballerinalang.util.codegen.cpentries.IntegerCPEntry;
+import org.ballerinalang.util.codegen.cpentries.StreamletRefCPEntry;
 import org.ballerinalang.util.codegen.cpentries.StringCPEntry;
 import org.ballerinalang.util.codegen.cpentries.StructureRefCPEntry;
 import org.ballerinalang.util.codegen.cpentries.TypeRefCPEntry;
@@ -682,6 +685,9 @@ public class BLangVM {
                     cpIndex = operands[1];
                     typeRefCPEntry = (TypeRefCPEntry) constPool[cpIndex];
                     sf.refRegs[i] = new BTable(typeRefCPEntry.getType());
+                    break;
+                case InstructionCodes.NEWSTREAMLET:
+                    createNewStreamlet(operands, sf);
                     break;
                 case InstructionCodes.NEW_INT_RANGE:
                     createNewIntRange(operands, sf);
@@ -2679,6 +2685,18 @@ public class BLangVM {
 
         sf.refRegs[i] = bStruct;
     }
+
+    private void createNewStreamlet(int[] operands, StackFrame sf) {
+        int cpIndex = operands[0];
+        int i = operands[1];
+        StreamletRefCPEntry streamletRefCPEntry = (StreamletRefCPEntry) constPool[cpIndex];
+        StreamletInfo streamletInfo = (StreamletInfo) streamletRefCPEntry.getStreamletInfo();
+        BStreamlet streamlet = new BStreamlet(streamletInfo.getType());
+        streamlet.setSiddhiApp(streamletInfo.getSiddhiQuery());
+        SiddhiRuntimeFactory.getInstance().createSiddhiAppRuntime(streamlet);
+        sf.refRegs[i] = streamlet;
+    }
+
 
     private void endTransaction(int status) {
         BallerinaTransactionManager ballerinaTransactionManager = context.getBallerinaTransactionManager();
