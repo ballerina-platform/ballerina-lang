@@ -16,7 +16,10 @@
 package org.ballerinalang.nativeimpl.runtime;
 
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.bre.bvm.CallableUnitCallback;
+import org.ballerinalang.bre.bvm.AsyncTimer;
+import org.ballerinalang.bre.bvm.AsyncTimer.TimerCallback;
+import org.ballerinalang.model.NativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -32,16 +35,22 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
         args = {@Argument(name = "millis", type = TypeKind.INT)},
         isPublic = true
 )
-public class SleepCurrentWorker extends BlockingNativeCallableUnit {
+public class SleepCurrentWorker implements NativeCallableUnit {
 
     @Override
-    public void execute(Context context) {
-        long millis = context.getIntArgument(0);
-        try {
-            Thread.sleep(millis);
-        } catch (InterruptedException e) {
-            // We ignore any interruptions.
-        }
-        context.setReturnValues();
+    public void execute(Context context, CallableUnitCallback callback) {
+        long delayMillis = context.getIntArgument(0);
+        AsyncTimer.schedule(new TimerCallback() {
+            @Override
+            public void execute() {
+                callback.notifySuccess();
+            }
+        }, delayMillis);
     }
+
+    @Override
+    public boolean isBlocking() {
+        return false;
+    }
+    
 }

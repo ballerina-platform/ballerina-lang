@@ -23,7 +23,8 @@ import org.ballerinalang.util.program.BLangVMUtils;
 
 import java.io.PrintStream;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.Semaphore;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * This represents the Ballerina worker scheduling functionality. 
@@ -31,12 +32,33 @@ import java.util.concurrent.TimeUnit;
  */
 public class BLangScheduler {
 
+    private static AtomicInteger workerCount = new AtomicInteger(0);
+    
+    private static Semaphore workersDoneSemaphore = new Semaphore(1);
+    
     public static WorkerExecutionContext schedule(WorkerExecutionContext ctx) {
         return schedule(ctx, ctx.runInCaller);
     }
     
+    private static void workerCountUp() {
+        int count = workerCount.incrementAndGet();
+        if (count == 1) {
+            try {
+                workersDoneSemaphore.acquire();
+            } catch (InterruptedException ignore) { /* ignore */ }
+        }
+    }
+    
+    private static void workerCountDown() {
+        int count = workerCount.decrementAndGet();
+        if (count <= 0) {
+            workersDoneSemaphore.release();
+        }
+    }
+    
     public static WorkerExecutionContext schedule(WorkerExecutionContext ctx, boolean runInCaller) {
         ctx.state = WorkerState.READY;
+        workerCountUp();
         ExecutorService executor = ThreadPoolFactory.getInstance().getWorkerExecutor();
         if (runInCaller) {
             return ctx;
@@ -69,6 +91,7 @@ public class BLangScheduler {
     public static void workerDone(WorkerExecutionContext ctx) {
         ctx.ip = -1;
         ctx.state = WorkerState.DONE;
+        workerCountDown();
     }
     
     public static void switchToWaitForResponse(WorkerExecutionContext ctx) {
@@ -81,10 +104,10 @@ public class BLangScheduler {
         ctx.ip = -1;
     }
     
-    public static void waitForCompletion() {
+    public static void waitForWorkerCompletion() {
         try {
-            ThreadPoolFactory.getInstance().getWorkerExecutor().shutdown();
-            ThreadPoolFactory.getInstance().getWorkerExecutor().awaitTermination(Long.MAX_VALUE, TimeUnit.SECONDS);
+            workersDoneSemaphore.acquire();
+            workersDoneSemaphore.release();
         } catch (InterruptedException ignore) { /* ignore */ }
     }
     

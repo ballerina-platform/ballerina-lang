@@ -20,6 +20,7 @@ package org.ballerinalang.test.nativeimpl.functions;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
+import org.ballerinalang.model.values.BIntArray;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
@@ -50,6 +51,20 @@ public class RuntimeTest {
         long endTime = System.currentTimeMillis();
         Assert.assertTrue((endTime - startTime) >= 1000);
     }
+    
+    @Test
+    public void testConcurrentSleepCurrentThread() {
+        BIntArray result = (BIntArray) BRunUtil.invoke(compileResult, "testConcurrentSleep")[0];
+        Assert.assertTrue(checkWithErrorMargin(result.get(0), 1000, 500));
+        Assert.assertTrue(checkWithErrorMargin(result.get(1), 1000, 500));
+        Assert.assertTrue(checkWithErrorMargin(result.get(2), 2000, 500));
+        Assert.assertTrue(checkWithErrorMargin(result.get(3), 2000, 500));
+        Assert.assertTrue(checkWithErrorMargin(result.get(4), 1000, 500));
+    }
+    
+    private boolean checkWithErrorMargin(long actual, long expected, long error) {
+        return actual <= expected + error && actual >= expected - error; 
+    }
 
     @Test
     public void testSetProperty() {
@@ -76,11 +91,12 @@ public class RuntimeTest {
         Assert.assertEquals(returns[0].stringValue(), expectedValue);
     }
 
+    @SuppressWarnings("unchecked")
     @Test
     public void testGetProperties() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testGetProperties");
         Assert.assertTrue(returns[0] instanceof BMap);
-        BMap<String, BString> actualProperties = (BMap) returns[0];
+        BMap<String, BString> actualProperties = (BMap<String, BString>) returns[0];
         Properties expectedProperties = System.getProperties();
         Assert.assertEquals(actualProperties.size(), expectedProperties.size());
 

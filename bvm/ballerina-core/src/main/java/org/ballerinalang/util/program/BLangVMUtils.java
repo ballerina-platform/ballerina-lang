@@ -92,6 +92,9 @@ public class BLangVMUtils {
 
     @SuppressWarnings("rawtypes")
     public static void populateWorkerDataWithValues(WorkerData data, int[] regIndexes, BValue[] vals, BType[] types) {
+        if (vals == null) {
+            return;
+        }
         for (int i = 0; i < vals.length; i++) {
             int callersRetRegIndex = regIndexes[i];
             BType retType = types[i];
