@@ -132,7 +132,7 @@ public class BLangFunctions {
             // An error in the context at this point means an unhandled runtime error has propagated
             // all the way up to the entry point. Hence throw a {@link BLangRuntimeException} and
             // terminate the execution.
-            BStruct error = runInCallerCtx.getError();
+            BStruct error = parentCtx.getError();
             if (error != null) {
                 throw new BLangRuntimeException("error: " + BLangVMErrors.getPrintableStackTrace(error));
             }

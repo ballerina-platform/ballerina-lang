@@ -19,7 +19,6 @@ package org.ballerinalang.bre.bvm;
 
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.values.BStruct;
-import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.program.BLangVMUtils;
 
 import java.io.PrintStream;
@@ -119,7 +118,7 @@ public abstract class BaseWorkerResponseContext implements WorkerResponseContext
         BStruct error = sourceCtx.getError();
         this.workerErrors.put(sourceCtx.workerInfo.getWorkerName(), error);
         if (this.isFinalizedError()) {
-            this.onFinalizedError(this.createCallFailedError(sourceCtx.programFile, this.workerErrors));
+            this.onFinalizedError(this.createCallFailedError(sourceCtx, this.workerErrors));
         }
     }
     
@@ -134,8 +133,8 @@ public abstract class BaseWorkerResponseContext implements WorkerResponseContext
         }
     }
 
-    private BStruct createCallFailedError(ProgramFile programFile, Map<String, BStruct> errors) {
-        return BLangVMErrors.createCallFailedException(programFile, errors);
+    private BStruct createCallFailedError(WorkerExecutionContext ctx, Map<String, BStruct> errors) {
+        return BLangVMErrors.createCallFailedException(ctx, errors);
     }
 
     protected WorkerExecutionContext doReturn(WorkerSignal signal) {
