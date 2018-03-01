@@ -165,19 +165,23 @@ public class AnnotationDesugar {
 
     private void initAnnotation(BLangAnnotationAttachment attachment, BLangVariable annotationMapEntryVar,
                                 BLangBlockStmt target, BSymbol parentSymbol, int index) {
-        if (attachment.annotationSymbol.attachedType == null) {
-            return;
+        BLangVariable annotationVar = null;
+        if (attachment.annotationSymbol.attachedType != null) {
+            // create: AttachedType annotationVar = { annotation-expression }
+            annotationVar = ASTBuilderUtil.createVariable(attachment.pos,
+                    attachment.annotationName.value, attachment.annotationSymbol.attachedType.type);
+            annotationVar.expr = attachment.expr;
+            defineVariable(annotationVar, parentSymbol);
+            ASTBuilderUtil.createVariableDefStmt(attachment.pos, target).var = annotationVar;
         }
-        // create: AttachedType annotationVar = { annotation-expression }
-        BLangVariable annotationVar = ASTBuilderUtil.createVariable(attachment.pos,
-                attachment.annotationName.value, attachment.annotationSymbol.attachedType.type);
-        annotationVar.expr = attachment.expr;
-        defineVariable(annotationVar, parentSymbol);
-        ASTBuilderUtil.createVariableDefStmt(attachment.pos, target).var = annotationVar;
 
         // create: annotationMapEntryVar["name$index"] = annotationVar;
         BLangAssignment assignmentStmt = ASTBuilderUtil.createAssignmentStmt(target.pos, target);
-        assignmentStmt.expr = ASTBuilderUtil.createVariableRef(target.pos, annotationVar.symbol);
+        if (annotationVar != null) {
+            assignmentStmt.expr = ASTBuilderUtil.createVariableRef(target.pos, annotationVar.symbol);
+        } else {
+            assignmentStmt.expr = ASTBuilderUtil.createLiteral(target.pos, symTable.nullType, null);
+        }
         BLangIndexBasedAccess indexAccessNode = (BLangIndexBasedAccess) TreeBuilder.createIndexBasedAccessNode();
         indexAccessNode.pos = target.pos;
         indexAccessNode.indexExpr = ASTBuilderUtil.createLiteral(target.pos, symTable.stringType,

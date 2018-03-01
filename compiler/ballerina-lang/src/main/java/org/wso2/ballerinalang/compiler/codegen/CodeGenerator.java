@@ -1779,7 +1779,8 @@ public class CodeGenerator extends BLangNodeVisitor {
 
         int varNameCPIndex = addUTF8CPEntry(currentPkgInfo, varSymbol.name.value);
         int typeSigCPIndex = addUTF8CPEntry(currentPkgInfo, varSymbol.type.getDesc());
-        PackageVarInfo pkgVarInfo = new PackageVarInfo(varNameCPIndex, typeSigCPIndex, varSymbol.flags);
+        PackageVarInfo pkgVarInfo = new PackageVarInfo(varNameCPIndex, typeSigCPIndex, varSymbol.flags,
+                varSymbol.varIndex.value);
         currentPkgInfo.pkgVarInfoMap.put(varSymbol.name.value, pkgVarInfo);
 
         LocalVariableInfo localVarInfo = getLocalVarAttributeInfo(varSymbol);

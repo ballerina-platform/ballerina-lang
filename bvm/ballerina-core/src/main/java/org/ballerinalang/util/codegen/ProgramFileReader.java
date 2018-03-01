@@ -660,8 +660,10 @@ public class ProgramFileReader {
         int sigCPIndex = dataInStream.readInt();
         UTF8CPEntry sigUTF8CPEntry = (UTF8CPEntry) constantPool.getCPEntry(sigCPIndex);
 
+        int globalMemIndex = dataInStream.readInt();
+
         PackageVarInfo packageVarInfo = new PackageVarInfo(nameCPIndex, nameUTF8CPEntry.getValue(),
-                sigCPIndex, sigUTF8CPEntry.getValue());
+                sigCPIndex, sigUTF8CPEntry.getValue(), globalMemIndex);
 
         // Read attributes
         readAttributeInfoEntries(dataInStream, constantPool, packageVarInfo);

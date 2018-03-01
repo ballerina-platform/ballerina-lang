@@ -257,6 +257,7 @@ public class ProgramFileWriter {
         for (PackageVarInfo packageVarInfo : packageVarInfoEntry) {
             dataOutStream.writeInt(packageVarInfo.nameCPIndex);
             dataOutStream.writeInt(packageVarInfo.signatureCPIndex);
+            dataOutStream.writeInt(packageVarInfo.globalMemIndex);
 
             writeAttributeInfoEntries(dataOutStream, packageVarInfo.getAttributeInfoEntries());
         }
