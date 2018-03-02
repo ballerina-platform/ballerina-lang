@@ -82,11 +82,10 @@ public class NetworkUtils {
         // target directory path to .ballerina/cache
         Path targetDirectoryPath = UserRepositoryUtils.initializeUserRepository().resolve(cacheDir);
 
-        int indexOfSlash = resourceName.indexOf("/");
-
-        if (indexOfSlash != -1) {
-            String orgName = resourceName.substring(0, indexOfSlash);
-            String pkgNameWithVersion = resourceName.substring(indexOfSlash + 1);
+        int indexOfOrgName = resourceName.indexOf("/");
+        if (indexOfOrgName != -1) {
+            String orgName = resourceName.substring(0, indexOfOrgName);
+            String pkgNameWithVersion = resourceName.substring(indexOfOrgName + 1);
 
             int indexOfColon = pkgNameWithVersion.indexOf(":");
             String pkgVersion, pkgName;
@@ -122,7 +121,6 @@ public class NetworkUtils {
         } else {
             outStream.println("No org-name provided for the package to be pulled. Please provide an org-name");
         }
-
     }
 
     /**
