@@ -1575,6 +1575,7 @@ public class ProgramFileReader {
                 case InstructionCodes.NULL2S:
                 case InstructionCodes.NEW_INT_RANGE:
                 case InstructionCodes.LENGTHOF:
+                case InstructionCodes.ANY2SCONV:
                     i = codeStream.readInt();
                     j = codeStream.readInt();
                     k = codeStream.readInt();

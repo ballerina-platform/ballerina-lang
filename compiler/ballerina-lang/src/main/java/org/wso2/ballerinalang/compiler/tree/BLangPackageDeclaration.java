@@ -32,6 +32,7 @@ public class BLangPackageDeclaration extends BLangNode implements PackageDeclara
 
     public List<BLangIdentifier> pkgNameComps;
     public BLangIdentifier version;
+    public BLangIdentifier orgName;
 
     @Override
     public List<? extends IdentifierNode> getPackageName() {
