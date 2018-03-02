@@ -1,3 +1,5 @@
+import ballerina.io;
+
 @Description {value:"This is the base connector we are going to decorate"}
 connector StockQuoteConnector (int i) {
     action getStock (string ID) (int stockPrice) {
@@ -32,13 +34,13 @@ function main (string[] args) {
 
     // Invoke the action of the 'StockQuoteConnector' with a cached key 'WSO2'.
     int price = stockQC.getStock("WSO2");
-    println(price);
+    io:println(price);
 
     // Invoke the action of the 'StockQuoteConnector' with a cached key 'IBM'.
     price = stockQC.getStock("IBM");
-    println(price);
+    io:println(price);
 
     // Invoke the action of the 'StockQuoteConnector' with a non-cached key 'Ballerina'.
     price = stockQC.getStock("Ballerina");
-    println(price);
+    io:println(price);
 }

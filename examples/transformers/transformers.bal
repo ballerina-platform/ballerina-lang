@@ -1,3 +1,5 @@
+import ballerina.io;
+
 @Description {value:"Defining Employee struct."}
 struct Employee {
     string name;
@@ -41,13 +43,13 @@ function main (string[] args) {
 
     //Using default transformer to convert from type Person to Employee is similar to the conversion syntax.
     Employee employee = <Employee>person;
-    println(employee);
+    io:println(employee);
 
     //Named transformer can be explicitly provided inside the conversion syntax, to convert person to employee.
     employee = <Employee, setCityToNewYork()>person;
-    println(employee);
+    io:println(employee);
 
     //Using the named transformer to convert person to employee, by passing parameters.
     employee = <Employee, insertCountry("UK")>person;
-    println(employee);
+    io:println(employee);
 }

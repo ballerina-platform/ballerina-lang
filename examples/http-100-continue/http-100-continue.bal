@@ -1,3 +1,4 @@
+import ballerina.io;
 import ballerina.net.http;
 
 @http:configuration {
@@ -18,7 +19,7 @@ service<http> helloWorld {
         // The client will start sending the payload once it receives the 100-continue response. Get this payload sent by the client.
         string payload = req.getStringPayload();
         // Process the payload
-        println(payload);
+        io:println(payload);
 
         // Prepare and send the final response.
         http:OutResponse res = {};
