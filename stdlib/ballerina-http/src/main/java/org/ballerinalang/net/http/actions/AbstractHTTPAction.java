@@ -245,11 +245,12 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
     }
 
     /**
-     * Serlaize multipart entity body. If an array of body parts exist, encode body parts else serialize body content
+     * Serialize multipart entity body. If an array of body parts exist, encode body parts else serialize body content
      * if it exist as a byte channel.
      *
-     * @param context         Represent the ballerina context which is the runtime state of the program
-     * @param boundaryString  Boundary string that should be used in encoding body parts
+     * @param context             Represent the ballerina context which is the runtime state of the program
+     * @param boundaryString      Boundary string that should be used in encoding body parts
+     * @param messageOutputStream Output stream to which the payload is written
      */
     private void serializeMultiparts(Context context, OutputStream messageOutputStream, String boundaryString) {
         BStruct entityStruct = getEntityStruct(context);
@@ -273,8 +274,9 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
     /**
      * Encode body parts with the given boundary and send it across the wire.
      *
-     * @param boundaryString Boundary string of multipart entity
-     * @param entityStruct   Represent ballerina entity struct
+     * @param boundaryString      Boundary string of multipart entity
+     * @param entityStruct        Represent ballerina entity struct
+     * @param messageOutputStream Output stream to which the payload is written
      */
     private void serializeMultipartDataSource(OutputStream messageOutputStream,
             String boundaryString, BStruct entityStruct) {
