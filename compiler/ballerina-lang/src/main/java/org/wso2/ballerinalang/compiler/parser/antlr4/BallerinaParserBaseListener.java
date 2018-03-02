@@ -76,6 +76,18 @@ public class BallerinaParserBaseListener implements BallerinaParserListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterOrgName(BallerinaParser.OrgNameContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitOrgName(BallerinaParser.OrgNameContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterDefinition(BallerinaParser.DefinitionContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -1672,13 +1684,25 @@ public class BallerinaParserBaseListener implements BallerinaParserListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterTypeList(BallerinaParser.TypeListContext ctx) { }
+	@Override public void enterParameterTypeNameList(BallerinaParser.ParameterTypeNameListContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitTypeList(BallerinaParser.TypeListContext ctx) { }
+	@Override public void exitParameterTypeNameList(BallerinaParser.ParameterTypeNameListContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterParameterTypeName(BallerinaParser.ParameterTypeNameContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitParameterTypeName(BallerinaParser.ParameterTypeNameContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *

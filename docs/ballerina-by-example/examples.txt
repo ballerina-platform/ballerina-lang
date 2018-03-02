@@ -73,6 +73,7 @@ HTTP Circuit Breaker
 HTTP Data Binding
 HTTP Failover
 HTTP Load Balancer
+HTTP Forwarded Extension
 Log API
 Function Pointers
 Lambda
@@ -90,6 +91,10 @@ Task Timer
 Task Appointment
 Config API
 String Template
+HTTP Redirects
 Inbound Request with Multiparts
 Outbound Request with Multiparts
-HTTP Redirects
+Encode Nested BodyParts in Multipart
+Decode Nested BodyParts in Multipart
+Inbound Response with Multiparts
+Outbound Response with Multiparts

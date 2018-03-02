@@ -49,21 +49,38 @@ public class GeneralFSPackageRepository implements PackageRepository {
     private static final String BAL_SOURCE_EXT = ".bal";
 
     protected Path basePath;
+    private final Name orgName;
+
+    public GeneralFSPackageRepository(Path basePath, Name orgName) {
+        this.basePath = basePath;
+        this.orgName = orgName;
+    }
 
     public GeneralFSPackageRepository(Path basePath) {
-        this.basePath = basePath;
+        this(basePath, null);
     }
 
     protected PackageSource lookupPackageSource(PackageID pkgID) {
-        Path path = this.generatePath(pkgID);
+
+        Path path;
+        if (orgName == null) {
+            path = this.generatePathNew(pkgID);
+        } else {
+            path = this.generatePath(pkgID);
+        }
+
         if (!Files.isDirectory(path, LinkOption.NOFOLLOW_LINKS)) {
-            return null;
+            // TODO remove, temp hack until builtin are flattned
+            path = this.generatePathOld(pkgID);
+            if (!Files.isDirectory(path, LinkOption.NOFOLLOW_LINKS)) {
+                return null;
+            }
         }
         return new FSPackageSource(pkgID, path);
     }
 
     protected PackageSource lookupPackageSource(PackageID pkgID, String entryName) {
-        Path path = this.generatePath(pkgID);
+        Path path = this.generatePathOld(pkgID);
         if (!Files.isDirectory(path, LinkOption.NOFOLLOW_LINKS)) {
             return null;
         }
@@ -122,7 +139,7 @@ public class GeneralFSPackageRepository implements PackageRepository {
                         if (dirNameCount > baseNameCount) {
                             dir.subpath(baseNameCount, dirNameCount).forEach(
                                     f -> nameComps.add(new Name(sanitize(f.getFileName().toString(), separator))));
-                            result.add(new PackageID(nameComps, Names.DEFAULT_VERSION));
+                            result.add(new PackageID(Names.ANON_ORG, nameComps, Names.DEFAULT_VERSION));
                         }
                     }
                     if ((dir.getNameCount() + 1) - baseNameCount > maxDepth) {
@@ -137,13 +154,35 @@ public class GeneralFSPackageRepository implements PackageRepository {
         return result;
     }
 
-    protected Path generatePath(PackageID pkgID) {
+    protected Path generatePathOld(PackageID pkgID) {
         Path pkgDirPath = this.basePath;
         for (Name comp : pkgID.getNameComps()) {
             pkgDirPath = pkgDirPath.resolve(comp.value);
         }
         return pkgDirPath;
     }
+
+    private Path generatePath(PackageID pkgID) {
+        return this.basePath.resolve(createPackageNameWithDots(pkgID));
+    }
+
+    private Path generatePathNew(PackageID pkgID) {
+        Path pkgDirPath = this.basePath.resolve(pkgID.getOrgName().value);
+        return pkgDirPath.resolve(createPackageNameWithDots(pkgID));
+    }
+
+    private String createPackageNameWithDots(PackageID pkgID) {
+        List<Name> nameComps = pkgID.getNameComps();
+        StringBuilder builder = new StringBuilder();
+        for (int i = 0; i < nameComps.size(); i++) {
+            if (i != 0) {
+                builder.append(".");
+            }
+            builder.append(nameComps.get(i).value);
+        }
+        return builder.toString();
+    }
+
 
     /**
      * This represents a local file system based {@link FSPackageSource}.

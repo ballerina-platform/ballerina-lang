@@ -147,11 +147,12 @@ public class PackageLoader {
         return bLangPackage;
     }
 
-    public BLangPackage loadAndDefinePackage(List<BLangIdentifier> pkgNameComps, BLangIdentifier version) {
+    public BLangPackage loadAndDefinePackage(BLangIdentifier orgName, List<BLangIdentifier> pkgNameComps,
+                                             BLangIdentifier version) {
         List<Name> nameComps = pkgNameComps.stream()
                 .map(identifier -> names.fromIdNode(identifier))
                 .collect(Collectors.toList());
-        PackageID pkgID = new PackageID(nameComps, names.fromIdNode(version));
+        PackageID pkgID = new PackageID(names.fromIdNode(orgName), nameComps, names.fromIdNode(version));
         return loadAndDefinePackage(pkgID);
     }
 
@@ -186,11 +187,14 @@ public class PackageLoader {
             pkgNameComps.add((BLangIdentifier) node);
         });
 
+        BLangIdentifier orgNameNode = (BLangIdentifier) TreeBuilder.createIdentifierNode();
+        orgNameNode.setValue(Names.ANON_ORG.value);
         BLangIdentifier versionNode = (BLangIdentifier) TreeBuilder.createIdentifierNode();
         versionNode.setValue(Names.DEFAULT_VERSION.value);
         BLangImportPackage importDcl = (BLangImportPackage) TreeBuilder.createImportPackageNode();
         importDcl.pos = bLangPackage.pos;
         importDcl.pkgNameComps = pkgNameComps;
+        importDcl.orgName = orgNameNode;
         importDcl.version = versionNode;
         BLangIdentifier alias = (BLangIdentifier) TreeBuilder.createIdentifierNode();
         alias.setValue(names.merge(Names.DOT, nameComps.get(nameComps.size() - 1)).value);
@@ -205,7 +209,7 @@ public class PackageLoader {
     private PackageID getPackageID(String sourcePkg) {
         // split from '.', '\' and '/'
         List<Name> pkgNameComps = getPackageNameComps(sourcePkg);
-        return new PackageID(pkgNameComps, Names.DEFAULT_VERSION);
+        return new PackageID(Names.ANON_ORG, pkgNameComps, Names.DEFAULT_VERSION);
     }
 
     private List<Name> getPackageNameComps(String sourcePkg) {
@@ -238,7 +242,8 @@ public class PackageLoader {
         if (programRepo == null) {
             // create the default program repo
             String sourceRoot = options.get(SOURCE_ROOT);
-            programRepo = new LocalFSPackageRepository(sourceRoot);
+            // TODO: replace by the org read form TOML.
+            programRepo = new LocalFSPackageRepository(sourceRoot, Names.ANON_ORG.getValue());
         }
 
         PackageRepository systemRepo = this.loadSystemRepository();

@@ -606,6 +606,7 @@ public class BLangVM {
                 case InstructionCodes.S2XML:
                 case InstructionCodes.S2JSONX:
                 case InstructionCodes.XML2S:
+                case InstructionCodes.ANY2SCONV:
                     execTypeConversionOpcodes(sf, opcode, operands);
                     break;
 
@@ -2238,6 +2239,17 @@ public class BLangVM {
                 j = operands[1];
                 sf.stringRegs[j] = sf.refRegs[i].stringValue();
                 break;
+            case InstructionCodes.ANY2SCONV:
+                i = operands[0];
+                j = operands[1];
+
+                bRefType = sf.refRegs[i];
+                if (bRefType == null) {
+                    sf.stringRegs[j] = STRING_NULL_VALUE;
+                } else {
+                    sf.stringRegs[j] = bRefType.stringValue();
+                }
+                break;
             default:
                 throw new UnsupportedOperationException();
         }
@@ -3728,7 +3740,7 @@ public class BLangVM {
 
         BStruct bStruct = (BStruct) sf.refRegs[i];
         if (bStruct == null) {
-            sf.refRegs[j] = null;
+            handleNullRefError();
             return;
         }
 
@@ -3776,7 +3788,7 @@ public class BLangVM {
 
         BStruct bStruct = (BStruct) sf.refRegs[i];
         if (bStruct == null) {
-            sf.refRegs[j] = null;
+            handleNullRefError();
             return;
         }
 
@@ -3799,7 +3811,7 @@ public class BLangVM {
         TypeRefCPEntry typeRefCPEntry = (TypeRefCPEntry) constPool[cpIndex];
         BMap<String, BValue> bMap = (BMap<String, BValue>) sf.refRegs[i];
         if (bMap == null) {
-            sf.refRegs[j] = null;
+            handleNullRefError();
             return;
         }
 
@@ -3903,13 +3915,12 @@ public class BLangVM {
         TypeRefCPEntry typeRefCPEntry = (TypeRefCPEntry) constPool[cpIndex];
         BJSON bjson = (BJSON) sf.refRegs[i];
         if (bjson == null) {
-            sf.refRegs[j] = null;
+            handleNullRefError();
             return;
         }
 
         try {
-            sf.refRegs[j] = JSONUtils.convertJSONToStruct(bjson, (BStructType) typeRefCPEntry.getType(),
-                    sf.packageInfo);
+            sf.refRegs[j] = JSONUtils.convertJSONToStruct(bjson, (BStructType) typeRefCPEntry.getType());
             sf.refRegs[k] = null;
         } catch (Exception e) {
             sf.refRegs[j] = null;
