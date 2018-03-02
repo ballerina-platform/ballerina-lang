@@ -1,19 +1,19 @@
 import ballerina.io;
 
 function main (string[] args) {
-    //Here is how you can initialize an array of int arrays.
+    // This is how you can initialize an array of int arrays.
     int[][] xx = [[1, 2, 3], [10, 20, 30], [5, 6, 7]];
     io:println(lengthof xx);
     io:println(lengthof xx[0]);
 
-    // Initialize three dimensional array with one value. In this case value is a
-    // two dimensional array.
+    // Initialize three dimensional array with one value. In this case the value is
+    // a two dimensional array.
     int[][][] xxx = [xx];
     xxx[0][0][1] = 10;
     io:println(xxx[0][0][1]);
 
     // Initialize the outer most array of the two dimensional array with
-    // empty value.
+    // an empty value.
     int[][] aa = [];
 
     // Set the initialized one dimensional array to the two dimensional array.
