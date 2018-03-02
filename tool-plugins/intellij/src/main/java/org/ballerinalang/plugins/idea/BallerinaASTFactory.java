@@ -60,6 +60,9 @@ public class BallerinaASTFactory extends CoreASTFactory {
         if (type == BallerinaTypes.FLOATING_POINT) {
             return new FloatingPointLiteral(type, text);
         }
+        if (type == BallerinaTypes.DOCUMENTATION_TEMPLATE_ATTRIBUTE_END) {
+            return new IdentifierPSINode(type, text);
+        }
         if (type instanceof TokenIElementType &&
                 ((TokenIElementType) type).getANTLRTokenType() == BallerinaLexer.Identifier) {
             // found an ID node; here we do not distinguish between definitions and references

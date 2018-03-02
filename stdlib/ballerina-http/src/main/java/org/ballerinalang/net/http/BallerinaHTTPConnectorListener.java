@@ -28,7 +28,7 @@ import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.contract.HttpConnectorListener;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 
-import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -72,13 +72,15 @@ public class BallerinaHTTPConnectorListener implements HttpConnectorListener {
 
     private void extractPropertiesAndStartResourceExecution(HTTPCarbonMessage httpCarbonMessage,
                                                             HttpResource httpResource) {
-        Map<String, Object> properties = null;
+        Map<String, Object> properties = new HashMap<>();
         //TODO below should be fixed properly
         //basically need to find a way to pass information from server connector side to client connector side
         if (httpCarbonMessage.getProperty(HttpConstants.SRC_HANDLER) != null) {
             Object srcHandler = httpCarbonMessage.getProperty(HttpConstants.SRC_HANDLER);
-            properties = Collections.singletonMap(HttpConstants.SRC_HANDLER, srcHandler);
+            properties.put(HttpConstants.SRC_HANDLER, srcHandler);
         }
+        properties.put(HttpConstants.REMOTE_ADDRESS, httpCarbonMessage.getProperty(HttpConstants.REMOTE_ADDRESS));
+        properties.put(HttpConstants.ORIGIN_HOST, httpCarbonMessage.getHeader(HttpConstants.ORIGIN_HOST));
         BValue[] signatureParams;
         signatureParams = HttpDispatcher.getSignatureParameters(httpResource, httpCarbonMessage);
         ConnectorFuture future = Executor.submit(httpResource.getBalResource(), properties, signatureParams);

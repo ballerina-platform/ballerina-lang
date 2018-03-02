@@ -103,7 +103,8 @@ public class PackageLoader {
                     .map(part -> names.fromString(part))
                     .collect(Collectors.toList());
 
-            pkgId = new PackageID(pkgNameComps, Names.DEFAULT_VERSION);
+            // TODO: orgName is anon, fix it.
+            pkgId = new PackageID(Names.ANON_ORG, pkgNameComps, Names.DEFAULT_VERSION);
             pkgEntity = this.packageRepo.loadPackage(pkgId);
         }
         
@@ -114,11 +115,14 @@ public class PackageLoader {
         return loadPackage(pkgId, pkgEntity);
     }
 
-    public BLangPackage loadPackage(List<BLangIdentifier> pkgNameComps, BLangIdentifier version) {
+    public BLangPackage loadPackage(BLangIdentifier orgName,
+                                    List<BLangIdentifier> pkgNameComps,
+                                    BLangIdentifier version) {
+
         List<Name> nameComps = pkgNameComps.stream()
                 .map(identifier -> names.fromIdNode(identifier))
                 .collect(Collectors.toList());
-        PackageID pkgID = new PackageID(nameComps, names.fromIdNode(version));
+        PackageID pkgID = new PackageID(names.fromIdNode(orgName), nameComps, names.fromIdNode(version));
         return loadPackage(pkgID, this.packageRepo.loadPackage(pkgID));
     }
 
@@ -176,7 +180,8 @@ public class PackageLoader {
         if (programRepo == null) {
             // create the default program repo
             String sourceRoot = options.get(SOURCE_ROOT);
-            programRepo = new LocalFSPackageRepository(sourceRoot);
+            // TODO: replace by the org read form TOML.
+            programRepo = new LocalFSPackageRepository(sourceRoot, Names.ANON_ORG.getValue());
         }
 
         PackageRepository systemRepo = this.loadSystemRepository();

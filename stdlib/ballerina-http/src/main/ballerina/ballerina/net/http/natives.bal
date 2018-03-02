@@ -2,8 +2,8 @@ package ballerina.net.http;
 
 import ballerina.mime;
 
-@Description {value:"Represent 'Content-Legth' header name"}
-public const string CONTENT_LENGTH = "Content-Length";
+@Description {value:"Represent 'content-length' header name"}
+public const string CONTENT_LENGTH = "content-length";
 
 @Description { value:"Represents the HTTP server connector connection"}
 @Field {value:"remoteHost: The server host name"}
@@ -320,6 +320,7 @@ public struct Proxy {
 @Field {value:"transferEncoding: The types of encoding applied to the request"}
 @Field {value:"chunking: The chunking behaviour of the request"}
 @Field {value:"httpVersion: The version of HTTP outbound request"}
+@Field {value:"forwarded: The choice of setting forwarded/x-forwarded header"}
 @Field {value:"followRedirects: Redirect related options"}
 @Field {value:"ssl: SSL/TLS related options"}
 @Field {value:"retryConfig: Retry related options"}
@@ -331,6 +332,7 @@ public struct Options {
     string transferEncoding = "chunking";
     string chunking = "auto";
     string httpVersion;
+    string forwarded = "disable";
     FollowRedirects followRedirects;
     SSL ssl;
     Retry retryConfig;

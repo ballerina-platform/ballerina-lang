@@ -20,6 +20,7 @@ package org.ballerinalang.test.services;
 
 import io.netty.buffer.Unpooled;
 import io.netty.handler.codec.http.DefaultLastHttpContent;
+import io.netty.handler.codec.http.HttpHeaderNames;
 import org.ballerinalang.launcher.util.BAssertUtil;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BServiceUtil;
@@ -42,7 +43,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.ballerinalang.mime.util.Constants.APPLICATION_FORM;
-import static org.ballerinalang.mime.util.Constants.CONTENT_TYPE;
 import static org.ballerinalang.mime.util.Constants.TEXT_PLAIN;
 
 /**
@@ -179,7 +179,7 @@ public class ServiceTest {
         String path = "/echo/getFormParams";
         HTTPTestRequest requestMsg = MessageUtils
                 .generateHTTPMessage(path, "POST", "firstName=WSO2&team=BalDance");
-        requestMsg.setHeader(CONTENT_TYPE, APPLICATION_FORM);
+        requestMsg.setHeader(HttpHeaderNames.CONTENT_TYPE.toString(), APPLICATION_FORM);
         HTTPCarbonMessage responseMsg = Services.invokeNew(compileResult, requestMsg);
 
         Assert.assertNotNull(responseMsg, "responseMsg message not found");
@@ -195,7 +195,7 @@ public class ServiceTest {
         String path = "/echo/getFormParams";
         HTTPTestRequest requestMsg = MessageUtils
                 .generateHTTPMessage(path, "POST", "firstName=WSO2&company=BalDance");
-        requestMsg.setHeader(CONTENT_TYPE, APPLICATION_FORM);
+        requestMsg.setHeader(HttpHeaderNames.CONTENT_TYPE.toString(), APPLICATION_FORM);
         HTTPCarbonMessage responseMsg = Services.invokeNew(compileResult, requestMsg);
 
         Assert.assertNotNull(responseMsg, "responseMsg message not found");
@@ -207,7 +207,7 @@ public class ServiceTest {
     public void testGetFormParamsEmptyresponseMsgPayload() {
         String path = "/echo/getFormParams";
         HTTPTestRequest requestMsg = MessageUtils.generateHTTPMessage(path, "POST", "");
-        requestMsg.setHeader(CONTENT_TYPE, APPLICATION_FORM);
+        requestMsg.setHeader(HttpHeaderNames.CONTENT_TYPE.toString(), APPLICATION_FORM);
         HTTPCarbonMessage responseMsg = Services.invokeNew(compileResult, requestMsg);
         Assert.assertNotNull(responseMsg, "responseMsg message not found");
         BJSON bJson = new BJSON(new HttpMessageDataStreamer(responseMsg).getInputStream());

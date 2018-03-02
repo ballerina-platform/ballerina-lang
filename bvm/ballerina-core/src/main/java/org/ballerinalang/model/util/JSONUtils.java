@@ -52,7 +52,6 @@ import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BXML;
 import org.ballerinalang.model.values.BXMLItem;
 import org.ballerinalang.model.values.BXMLSequence;
-import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.StructFieldInfo;
 import org.ballerinalang.util.codegen.StructInfo;
 import org.ballerinalang.util.exceptions.BLangExceptionHelper;
@@ -669,12 +668,11 @@ public class JSONUtils {
      *
      * @param bjson      JSON to convert
      * @param structType Type (definition) of the target struct
-     * @param pkgInfo    Package information
      * @return If the provided JSON is of object-type, this method will return a {@link BStruct} containing the values
      * of the JSON object. Otherwise the method will throw a {@link BallerinaException}.
      */
-    public static BStruct convertJSONToStruct(BJSON bjson, BStructType structType, PackageInfo pkgInfo) {
-        return convertJSONNodeToStruct(bjson.value(), structType, pkgInfo);
+    public static BStruct convertJSONToStruct(BJSON bjson, BStructType structType) {
+        return convertJSONNodeToStruct(bjson.value(), structType);
     }
 
     /**
@@ -682,11 +680,10 @@ public class JSONUtils {
      *
      * @param jsonNode   JSON to convert
      * @param structType Type (definition) of the target struct
-     * @param pkgInfo    Package information
      * @return If the provided JSON is of object-type, this method will return a {@link BStruct} containing the values
      * of the JSON object. Otherwise the method will throw a {@link BallerinaException}.
      */
-    public static BStruct convertJSONNodeToStruct(JsonNode jsonNode, BStructType structType, PackageInfo pkgInfo) {
+    public static BStruct convertJSONNodeToStruct(JsonNode jsonNode, BStructType structType) {
         if (!jsonNode.isObject()) {
             throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INCOMPATIBLE_TYPE_FOR_CASTING,
                     getComplexObjectTypeName(Type.OBJECT), getTypeName(jsonNode));
@@ -699,7 +696,7 @@ public class JSONUtils {
         int refRegIndex = -1;
 
         BStruct bStruct = new BStruct(structType);
-        StructInfo structInfo = pkgInfo.getStructInfo(structType.getName());
+        StructInfo structInfo = structType.structInfo;
         for (StructFieldInfo fieldInfo : structInfo.getFieldInfoEntries()) {
             BType fieldType = fieldInfo.getFieldType();
             String fieldName = fieldInfo.getName();
@@ -738,10 +735,10 @@ public class JSONUtils {
                             bStruct.setRefField(refRegIndex, jsonNodeToBMap(jsonValue));
                         } else if (fieldType instanceof BStructType) {
                             bStruct.setRefField(refRegIndex,
-                                    convertJSONNodeToStruct(jsonValue, (BStructType) fieldType, pkgInfo));
+                                    convertJSONNodeToStruct(jsonValue, (BStructType) fieldType));
                         } else if (fieldType instanceof BArrayType) {
                             bStruct.setRefField(refRegIndex,
-                                    jsonNodeToBArray(jsonValue, (BArrayType) fieldType, pkgInfo));
+                                    jsonNodeToBArray(jsonValue, (BArrayType) fieldType));
                         } else {
                             throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INCOMPATIBLE_TYPE_FOR_CASTING,
                                     fieldName, getTypeName(jsonValue));
@@ -805,7 +802,7 @@ public class JSONUtils {
      *         of the JSON array. Otherwise the method will throw a {@link BallerinaException}.
      */
     @SuppressWarnings("rawtypes")
-    private static BNewArray jsonNodeToBArray(JsonNode arrayNode, BArrayType targetArrayType, PackageInfo pkgInfo) {
+    private static BNewArray jsonNodeToBArray(JsonNode arrayNode, BArrayType targetArrayType) {
         if (!arrayNode.isArray()) {
             throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INCOMPATIBLE_TYPE_FOR_CASTING,
                     getComplexObjectTypeName(Type.ARRAY), getTypeName(arrayNode));
@@ -837,9 +834,9 @@ public class JSONUtils {
                     if (elementType == BTypes.typeMap) {
                         refValueArray.add(i, jsonNodeToBMap(element));
                     } else if (elementType instanceof BStructType) {
-                        refValueArray.add(i, convertJSONNodeToStruct(element, (BStructType) elementType, pkgInfo));
+                        refValueArray.add(i, convertJSONNodeToStruct(element, (BStructType) elementType));
                     } else if (elementType instanceof BArrayType) {
-                        refValueArray.add(i, jsonNodeToBArray(element, (BArrayType) elementType, pkgInfo));
+                        refValueArray.add(i, jsonNodeToBArray(element, (BArrayType) elementType));
                     } else {
                         throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INCOMPATIBLE_TYPE_FOR_CASTING,
                                 elementType, getTypeName(element));
