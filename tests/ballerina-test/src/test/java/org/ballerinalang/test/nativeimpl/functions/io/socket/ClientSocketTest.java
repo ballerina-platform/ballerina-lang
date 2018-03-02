@@ -83,7 +83,7 @@ public class ClientSocketTest {
         BRunUtil.invoke(socketClient, "closeSocket");
     }
 
-    /*@Test(dependsOnMethods = "testClosure",
+/*    @Test(dependsOnMethods = "testClosure",
           description = "Test connection open with properties")*/
     public void testOpenWithProperties() {
         int port = ThreadLocalRandom.current().nextInt(33000, 46000);
