@@ -223,7 +223,7 @@ public class DataBindingTest {
     }
 
     @Test(expectedExceptions = BallerinaConnectorException.class,
-            expectedExceptionsMessageRegExp = ".* failed: cannot convert payload to struct type: HttpConnectorError")
+            expectedExceptionsMessageRegExp = ".* error while mapping 'message': no such field found in json")
     public void testDataBindingStructWithInvalidTypes() {
         HTTPTestRequest requestMsg = MessageUtils
                 .generateHTTPMessage("/echo/body7", "POST", "{'name':'WSO2', 'team':8}");
