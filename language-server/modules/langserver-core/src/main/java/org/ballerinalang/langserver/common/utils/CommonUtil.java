@@ -15,6 +15,8 @@
  */
 package org.ballerinalang.langserver.common.utils;
 
+import org.antlr.v4.runtime.Token;
+import org.antlr.v4.runtime.TokenStream;
 import org.ballerinalang.langserver.BLangPackageContext;
 import org.ballerinalang.langserver.TextDocumentServiceUtil;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
@@ -158,5 +160,37 @@ public class CommonUtil {
      */
     public static void calculateEndColumnOfGivenName(DiagnosticPos position, String name, String pkgAlias) {
         position.eCol = position.sCol + name.length() + (!pkgAlias.isEmpty() ? (pkgAlias + ":").length() : 0);
+    }
+
+    /**
+     * Convert the diagnostic position to a zero based positioning diagnostic position.
+     * @param diagnosticPos - diagnostic position to be cloned
+     * @return {@link DiagnosticPos} converted diagnostic position
+     */
+    public static DiagnosticPos toZeroBasedPosition(DiagnosticPos diagnosticPos) {
+        int startLine = diagnosticPos.getStartLine() - 1;
+        int endLine = diagnosticPos.getEndLine() - 1;
+        int startColumn = diagnosticPos.getStartColumn() - 1;
+        int endColumn = diagnosticPos.getEndColumn() - 1;
+        return new DiagnosticPos(diagnosticPos.getSource(), startLine, endLine, startColumn, endColumn);
+    }
+
+    /**
+     * Get the previous default token from the given start index.
+     * @param tokenStream       Token Stream
+     * @param startIndex        Start token index
+     * @return {@link Token}    Previous default token
+     */
+    public static Token getPreviousDefaultToken(TokenStream tokenStream, int startIndex) {
+        Token token;
+        while (true) {
+            token = tokenStream.get(startIndex);
+            if (token.getChannel() != Token.DEFAULT_CHANNEL) {
+                startIndex--;
+            } else {
+                break;
+            }
+        }
+        return token;
     }
 }
