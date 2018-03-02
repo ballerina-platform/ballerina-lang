@@ -39,7 +39,7 @@ import org.ballerinalang.util.transactions.TransactionResourceManager;
         args = {@Argument(name = "transactionId", type = TypeKind.STRING)},
         returnType = {@ReturnType(type = TypeKind.BOOLEAN)}
 )
-public class BalPrepareResourceManagers extends AbstractNativeFunction {
+public class PrepareResourceManagers extends AbstractNativeFunction {
 
     public BValue[] execute(Context ctx) {
         String transactionId = getStringArgument(ctx, 0);

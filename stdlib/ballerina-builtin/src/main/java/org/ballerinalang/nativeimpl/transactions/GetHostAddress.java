@@ -40,7 +40,7 @@ import java.util.Enumeration;
         functionName = "getHostAddress",
         returnType = {@ReturnType(type = TypeKind.STRING)}
 )
-public class BalGetHostAddress extends AbstractNativeFunction {
+public class GetHostAddress extends AbstractNativeFunction {
 
     public BValue[] execute(Context ctx) {
         return getBValues(new BString(getLocalHostLANAddress().getHostAddress()));
