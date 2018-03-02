@@ -134,6 +134,7 @@
                 <include>org.ballerinalang:testerina-core:jar</include>
                 <include>org.ballerinalang:swagger-to-ballerina-generator:jar</include>
                 <include>org.ballerinalang:ballerina-container-support:jar</include>
+                <include>org.ballerinalang:ballerina-codegen:jar</include>
                 <include>org.ballerinalang:docerina:jar</include>
                 <include>com.fasterxml.jackson.core:jackson-databind</include>
                 <include>com.fasterxml.jackson.core:jackson-core</include>

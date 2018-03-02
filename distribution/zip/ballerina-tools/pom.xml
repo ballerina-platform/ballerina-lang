@@ -55,7 +55,7 @@
         </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>
-            <artifactId>swagger-to-ballerina-generator</artifactId>
+            <artifactId>ballerina-codegen</artifactId>
         </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>

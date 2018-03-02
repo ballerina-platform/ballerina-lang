@@ -227,6 +227,11 @@
             </dependency>
             <dependency>
                 <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-codegen</artifactId>
+                <version>${ballerina.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
                 <artifactId>ballerina-container-support</artifactId>
                 <version>${ballerina.version}</version>
             </dependency>
@@ -924,6 +929,7 @@
                             <id>validate</id>
                             <phase>validate</phase>
                             <configuration>
+                                <skip>true</skip>
                                 <configLocation>
                                     https://raw.githubusercontent.com/wso2/code-quality-tools/v1.1/checkstyle/checkstyle.xml
                                 </configLocation>
