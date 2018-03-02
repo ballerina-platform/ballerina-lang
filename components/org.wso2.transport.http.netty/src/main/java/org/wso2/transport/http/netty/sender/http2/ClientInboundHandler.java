@@ -60,16 +60,37 @@ public class ClientInboundHandler extends Http2EventAdapter {
         log.debug("Http2FrameListenAdapter.onDataRead()");
 
         OutboundMsgHolder outboundMsgHolder = targetChannel.getInFlightMessage(streamId);
+        boolean isServerPush = false;
         if (outboundMsgHolder == null) {
-            log.warn("Data Frame received over invalid stream");
+            outboundMsgHolder = targetChannel.getPromisedMessage(streamId);
+            if (outboundMsgHolder != null) {
+                isServerPush = true;
+            } else {
+                log.warn("Data Frame received over invalid stream");
+                return 0;
+            }
+        }
+        Http2Response http2Response = outboundMsgHolder.getResponse();
+        if (http2Response == null) {
+            log.warn("Data Frame received before receiving headers");
             return 0;
         }
-        HTTPCarbonMessage responseMessage = outboundMsgHolder.getResponse().getResponse();
-        if (endOfStream) {
-            responseMessage.addHttpContent(new DefaultLastHttpContent(data.retain()));
-            targetChannel.removeInFlightMessage(streamId);
+        if (isServerPush) {
+            HTTPCarbonMessage responseMessage = http2Response.getPushResponse(streamId);
+            if (endOfStream) {
+                responseMessage.addHttpContent(new DefaultLastHttpContent(data.retain()));
+                targetChannel.removePromisedMessage(streamId);
+            } else {
+                responseMessage.addHttpContent(new DefaultHttpContent(data.retain()));
+            }
         } else {
-            responseMessage.addHttpContent(new DefaultHttpContent(data.retain()));
+            HTTPCarbonMessage responseMessage = http2Response.getResponse();
+            if (endOfStream) {
+                responseMessage.addHttpContent(new DefaultLastHttpContent(data.retain()));
+                targetChannel.removeInFlightMessage(streamId);
+            } else {
+                responseMessage.addHttpContent(new DefaultHttpContent(data.retain()));
+            }
         }
         return data.readableBytes() + padding;
     }
@@ -105,7 +126,11 @@ public class ClientInboundHandler extends Http2EventAdapter {
 
         Http2Response http2Response = outboundMsgHolder.getResponse();
         if (isServerPush) {
-            http2Response.addPushResponse(responseMessage);
+            http2Response.addPushResponse(streamId, responseMessage);
+            if (endStream) {
+                responseMessage.addHttpContent(new EmptyLastHttpContent());
+                targetChannel.removePromisedMessage(streamId);
+            }
         } else {
             if (http2Response == null) {
                 http2Response = new Http2Response();
@@ -146,6 +171,7 @@ public class ClientInboundHandler extends Http2EventAdapter {
         Http2Response http2Response = outboundMsgHolder.getResponse();
         if (http2Response == null) {
             http2Response = new Http2Response();
+            outboundMsgHolder.setHttp2Response(http2Response);
         }
         http2Response.addPromise(new Http2PushPromise(streamId, promisedStreamId, headers));
         targetChannel.putPromisedMessage(promisedStreamId, outboundMsgHolder);

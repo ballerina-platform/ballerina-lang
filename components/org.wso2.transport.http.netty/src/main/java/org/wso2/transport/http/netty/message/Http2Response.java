@@ -23,6 +23,7 @@ import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.common.Constants;
 
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Condition;
@@ -40,6 +41,7 @@ public class Http2Response {
 
     private BlockingQueue<HttpCarbonResponse> pushResponses;
     private BlockingQueue<Http2PushPromise> promises;
+    private ConcurrentHashMap<Integer, HttpCarbonResponse> pushResponsesMap;
     private HttpCarbonResponse response;
     private int soTimeOut = Constants.ENDPOINT_TIMEOUT;
 
@@ -57,6 +59,7 @@ public class Http2Response {
     public Http2Response() {
         pushResponses = new LinkedBlockingQueue();
         promises = new LinkedBlockingQueue();
+        pushResponsesMap = new ConcurrentHashMap<>();
         promisesLock = new ReentrantLock();
         pushResponsesLock = new ReentrantLock();
         responseLock = new ReentrantLock();
@@ -87,7 +90,8 @@ public class Http2Response {
         }
     }
 
-    public void addPushResponse(HttpCarbonResponse pushResponse) {
+    public void addPushResponse(int streamId, HttpCarbonResponse pushResponse) {
+        pushResponsesMap.put(streamId, pushResponse);
         try {
             pushResponsesLock.lock();
             pushResponses.add(pushResponse);
@@ -96,6 +100,10 @@ public class Http2Response {
         } finally {
             pushResponsesLock.unlock();
         }
+    }
+
+    public HttpCarbonResponse getPushResponse(int steamId) {
+        return pushResponsesMap.get(steamId);
     }
 
     public HttpCarbonResponse getResponse() {
