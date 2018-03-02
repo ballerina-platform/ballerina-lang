@@ -31,6 +31,7 @@ import org.wso2.transport.http.netty.common.Constants;
 import org.wso2.transport.http.netty.common.ssl.SSLConfig;
 import org.wso2.transport.http.netty.common.ssl.SSLHandlerFactory;
 import org.wso2.transport.http.netty.config.ChunkConfig;
+import org.wso2.transport.http.netty.config.KeepAliveConfig;
 import org.wso2.transport.http.netty.config.RequestSizeValidationConfig;
 import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
 import org.wso2.transport.http.netty.sender.CertificateValidationHandler;
@@ -51,6 +52,7 @@ public class HttpServerChannelInitializer extends ChannelInitializer<SocketChann
     private int socketIdleTimeout;
     private boolean httpTraceLogEnabled;
     private ChunkConfig chunkConfig;
+    private KeepAliveConfig keepAliveConfig;
     private String interfaceId;
     private String serverName;
     private SSLConfig sslConfig;
@@ -120,8 +122,9 @@ public class HttpServerChannelInitializer extends ChannelInitializer<SocketChann
 
         serverPipeline.addLast(Constants.WEBSOCKET_SERVER_HANDSHAKE_HANDLER,
                          new WebSocketServerHandshakeHandler(this.serverConnectorFuture, this.interfaceId));
-        serverPipeline.addLast(Constants.HTTP_SOURCE_HANDLER, new SourceHandler(this.serverConnectorFuture,
-                this.interfaceId, this.chunkConfig, this.serverName, this.allChannels));
+        serverPipeline.addLast(Constants.HTTP_SOURCE_HANDLER,
+                               new SourceHandler(this.serverConnectorFuture, this.interfaceId, this.chunkConfig,
+                                                 keepAliveConfig, this.serverName, this.allChannels));
     }
 
     @Override
@@ -157,7 +160,11 @@ public class HttpServerChannelInitializer extends ChannelInitializer<SocketChann
         this.chunkConfig = chunkConfig;
     }
 
-    void setValidateCertEnabled(boolean validateCertEnabled) {
+    public void setKeepAliveConfig(KeepAliveConfig keepAliveConfig) {
+        this.keepAliveConfig = keepAliveConfig;
+    }
+
+    public void setValidateCertEnabled(boolean validateCertEnabled) {
         this.validateCertEnabled = validateCertEnabled;
     }
 
