@@ -19,7 +19,9 @@
 package org.ballerinalang.config.cipher;
 
 import java.nio.charset.StandardCharsets;
+import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
+import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Base64;
 import javax.crypto.BadPaddingException;
@@ -27,34 +29,65 @@ import javax.crypto.Cipher;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
 import javax.crypto.SecretKey;
+import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 
 
 /**
- * This tools is used to encrypt and decrypt data using AES Algorithm.
+ * This tools is used to encrypt and decrypt data using AES Algorithm CBC mode and PKCS #5 padding.
  *
  * @since 0.963.0
  */
 public class AESCipherTool {
 
-    private static final String ALGORITHM = "AES";
+    private static final String ALGORITHM_AES_CBC_PKCS5 = "AES/CBC/PKCS5Padding";
+    private static final String ALGORITHM_AES = "AES";
+    private static final String ALGORITHM_SHA_256 = "SHA-256";
+    private static final String DEFAULT_INITIALIZATION_VECTOR = "0123456789ABCDEF";
+
     private final Cipher encryptionCipher;
     private final Cipher decryptionCipher;
 
     /**
+     *
      * @param userSecret User secret String to encode and decode a value.
+     *
+     * @throws AESCipherToolException if Any error occurs when preparing the tool with given user data.
      */
     public AESCipherTool(String userSecret) throws AESCipherToolException {
+        this(userSecret, null);
+    }
+
+    /**
+     * @param userSecret User secret String to encode and decode a value.
+     * @param initializingVector Initializing vector to encode and decode values.
+     *
+     * @throws AESCipherToolException if Any error occurs when preparing the tool with given user data.
+     */
+    public AESCipherTool(String userSecret, String initializingVector) throws AESCipherToolException {
         try {
-            SecretKey secretKey = new SecretKeySpec(getBytes(fixSecretKeyLength(userSecret)), ALGORITHM);
-            this.encryptionCipher = Cipher.getInstance(ALGORITHM);
-            this.encryptionCipher.init(Cipher.ENCRYPT_MODE, secretKey);
-            this.decryptionCipher = Cipher.getInstance(ALGORITHM);
-            this.decryptionCipher.init(Cipher.DECRYPT_MODE, secretKey);
-        } catch (NoSuchPaddingException | NoSuchAlgorithmException | InvalidKeyException e) {
+            IvParameterSpec ivParameterSpec;
+            if (initializingVector == null) {
+                ivParameterSpec = new IvParameterSpec(getSHA256Key(DEFAULT_INITIALIZATION_VECTOR, 16));
+            } else {
+                if (initializingVector.length() > 16) {
+                    throw new InvalidKeyException("Initializing vector can only have 16 byte value");
+                }
+                ivParameterSpec = new IvParameterSpec(getSHA256Key(initializingVector, 16));
+            }
+
+            SecretKey secretKey = new SecretKeySpec(getSHA256Key(userSecret, 32), ALGORITHM_AES);
+            this.encryptionCipher = Cipher.getInstance(ALGORITHM_AES_CBC_PKCS5);
+            this.encryptionCipher.init(Cipher.ENCRYPT_MODE, secretKey, ivParameterSpec);
+            this.decryptionCipher = Cipher.getInstance(ALGORITHM_AES_CBC_PKCS5);
+            this.decryptionCipher.init(Cipher.DECRYPT_MODE, secretKey, ivParameterSpec);
+        } catch (NoSuchPaddingException | NoSuchAlgorithmException | InvalidAlgorithmParameterException
+                | InvalidKeyException e) {
             throw new AESCipherToolException(e.getMessage(), e);
         }
     }
+
+
 
     /**
      * This method is used to encrypt a given value.
@@ -84,6 +117,18 @@ public class AESCipherTool {
         }
     }
 
+    private byte[] getSHA256Key(String key, int keyLengthInBytes) throws AESCipherToolException {
+        try {
+            MessageDigest messageDigest = MessageDigest.getInstance(ALGORITHM_SHA_256);
+            messageDigest.update(getBytes(key));
+            byte[] keyBytes = new byte[keyLengthInBytes];
+            System.arraycopy(messageDigest.digest(), 0, keyBytes, 0, keyBytes.length);
+            return keyBytes;
+        } catch (NoSuchAlgorithmException e) {
+            throw new AESCipherToolException(e.getMessage(), e);
+        }
+    }
+
     private String encodeBase64(byte[] bytes) {
         return Base64.getEncoder().encodeToString(bytes);
     }
@@ -94,30 +139,5 @@ public class AESCipherTool {
 
     private byte[] getBytes(String value) {
         return value.getBytes(StandardCharsets.UTF_8);
-    }
-
-    /**
-     * AES key can be 16, 24 or 32 bytes. So a padding should be added to the key in order to fulfill the need.
-     *
-     * @param key key which need to be fixed.
-     * @return fixed key which
-     * @throws AESCipherToolException if the key length is longer than 32 bytes.
-     */
-    private String fixSecretKeyLength(String key) throws AESCipherToolException {
-        int keyLength = key.length();
-        if (keyLength > 32) {
-            throw new AESCipherToolException("Invalid AES key length: " + keyLength +
-                                                     " bytes. Maximum key length is 32 bytes");
-        }
-        int paddingLength;
-        if (keyLength < 16) {
-            paddingLength = 16 - keyLength;
-        } else {
-            paddingLength = 8 - (keyLength % 8);
-        }
-        for (int i = 0; i < paddingLength; i++) {
-            key = key.concat(" ");
-        }
-        return key;
     }
 }
