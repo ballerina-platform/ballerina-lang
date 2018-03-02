@@ -21,6 +21,7 @@ package org.ballerinalang.nativeimpl.io.events.records;
 import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.nativeimpl.io.channels.base.DelimitedRecordChannel;
 import org.ballerinalang.nativeimpl.io.events.Event;
+import org.ballerinalang.nativeimpl.io.events.EventContext;
 import org.ballerinalang.nativeimpl.io.events.EventResult;
 import org.ballerinalang.nativeimpl.io.events.result.NumericResult;
 
@@ -36,10 +37,20 @@ public class DelimitedRecordWriteEvent implements Event {
      * Content which will be written to the channel.
      */
     private BStringArray content;
+    /**
+     * Context of the event which will be called upon completion.
+     */
+    private EventContext context;
 
     public DelimitedRecordWriteEvent(DelimitedRecordChannel channel, BStringArray content) {
         this.channel = channel;
         this.content = content;
+    }
+
+    public DelimitedRecordWriteEvent(DelimitedRecordChannel channel, BStringArray content, EventContext context) {
+        this.channel = channel;
+        this.content = content;
+        this.context = context;
     }
 
     /**

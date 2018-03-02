@@ -20,6 +20,7 @@ package org.ballerinalang.nativeimpl.io.events.characters;
 
 import org.ballerinalang.nativeimpl.io.channels.base.CharacterChannel;
 import org.ballerinalang.nativeimpl.io.events.Event;
+import org.ballerinalang.nativeimpl.io.events.EventContext;
 import org.ballerinalang.nativeimpl.io.events.EventResult;
 import org.ballerinalang.nativeimpl.io.events.result.NumericResult;
 
@@ -39,11 +40,23 @@ public class WriteCharactersEvent implements Event {
      * The starting position of the string the characters should be written.
      */
     private int offset;
+    /**
+     * Context of the event which will be called upon completion.
+     */
+    private EventContext context;
+
 
     public WriteCharactersEvent(CharacterChannel channel, String content, int offset) {
         this.channel = channel;
         this.content = content;
         this.offset = offset;
+    }
+
+    public WriteCharactersEvent(CharacterChannel channel, String content, int offset, EventContext context) {
+        this.channel = channel;
+        this.content = content;
+        this.offset = offset;
+        this.context = context;
     }
 
     /**

@@ -20,6 +20,7 @@ package org.ballerinalang.nativeimpl.io.events.characters;
 
 import org.ballerinalang.nativeimpl.io.channels.base.CharacterChannel;
 import org.ballerinalang.nativeimpl.io.events.Event;
+import org.ballerinalang.nativeimpl.io.events.EventContext;
 import org.ballerinalang.nativeimpl.io.events.EventResult;
 import org.ballerinalang.nativeimpl.io.events.result.AlphaResult;
 
@@ -37,9 +38,20 @@ public class ReadCharactersEvent implements Event {
      */
     private int numberOfCharacters;
 
+    /**
+     * Context of the event which will be called upon completion.
+     */
+    private EventContext context;
+
     public ReadCharactersEvent(CharacterChannel channel, int numberOfCharacters) {
         this.channel = channel;
         this.numberOfCharacters = numberOfCharacters;
+    }
+
+    public ReadCharactersEvent(CharacterChannel channel, int numberOfCharacters, EventContext context) {
+        this.channel = channel;
+        this.numberOfCharacters = numberOfCharacters;
+        this.context = context;
     }
 
     @Override

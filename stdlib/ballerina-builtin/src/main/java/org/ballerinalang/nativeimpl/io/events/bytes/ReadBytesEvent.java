@@ -20,6 +20,7 @@ package org.ballerinalang.nativeimpl.io.events.bytes;
 
 import org.ballerinalang.nativeimpl.io.channels.base.Channel;
 import org.ballerinalang.nativeimpl.io.events.Event;
+import org.ballerinalang.nativeimpl.io.events.EventContext;
 import org.ballerinalang.nativeimpl.io.events.EventResult;
 import org.ballerinalang.nativeimpl.io.events.result.NumericResult;
 
@@ -33,16 +34,24 @@ public class ReadBytesEvent implements Event {
      * Buffer which will be provided to the channel.
      */
     private ByteBuffer content;
-
     /**
      * Will be used to read bytes.
      */
     private Channel channel;
-
+    /**
+     * Context of the event which will be called upon completion.
+     */
+    private EventContext context;
 
     public ReadBytesEvent(ByteBuffer content, Channel channel) {
         this.content = content;
         this.channel = channel;
+    }
+
+    public ReadBytesEvent(ByteBuffer content, Channel channel, EventContext context) {
+        this.content = content;
+        this.channel = channel;
+        this.context = context;
     }
 
     /**

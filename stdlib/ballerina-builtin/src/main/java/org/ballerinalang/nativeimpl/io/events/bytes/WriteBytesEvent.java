@@ -20,6 +20,7 @@ package org.ballerinalang.nativeimpl.io.events.bytes;
 
 import org.ballerinalang.nativeimpl.io.channels.base.Channel;
 import org.ballerinalang.nativeimpl.io.events.Event;
+import org.ballerinalang.nativeimpl.io.events.EventContext;
 import org.ballerinalang.nativeimpl.io.events.EventResult;
 import org.ballerinalang.nativeimpl.io.events.result.NumericResult;
 
@@ -33,11 +34,14 @@ public class WriteBytesEvent implements Event {
      * Channel the bytes will be written.
      */
     private Channel byteChannel;
-
     /**
      * The reference to the content which should be written.
      */
     private ByteBuffer writeBuffer;
+    /**
+     * Context of the event which will be called upon completion.
+     */
+    private EventContext context;
 
     public WriteBytesEvent(Channel byteChannel, byte[] content, int startOffset, int size) {
         this.byteChannel = byteChannel;
@@ -45,6 +49,12 @@ public class WriteBytesEvent implements Event {
         //If a larger position is set, the position would be disregarded
         writeBuffer.position(startOffset);
         writeBuffer.limit(size);
+    }
+
+    public WriteBytesEvent(Channel byteChannel, ByteBuffer writeBuffer, EventContext context) {
+        this.byteChannel = byteChannel;
+        this.writeBuffer = writeBuffer;
+        this.context = context;
     }
 
     @Override

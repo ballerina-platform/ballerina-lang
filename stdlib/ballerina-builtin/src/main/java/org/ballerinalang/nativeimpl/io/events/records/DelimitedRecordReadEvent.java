@@ -21,6 +21,7 @@ package org.ballerinalang.nativeimpl.io.events.records;
 
 import org.ballerinalang.nativeimpl.io.channels.base.DelimitedRecordChannel;
 import org.ballerinalang.nativeimpl.io.events.Event;
+import org.ballerinalang.nativeimpl.io.events.EventContext;
 import org.ballerinalang.nativeimpl.io.events.EventResult;
 import org.ballerinalang.nativeimpl.io.events.result.AlphaCollectionResult;
 
@@ -32,9 +33,19 @@ public class DelimitedRecordReadEvent implements Event {
      * Source which the delimited records will be read from.
      */
     private DelimitedRecordChannel channel;
+    /**
+     * Context of the event which will be called upon completion.
+     */
+    private EventContext context;
+
 
     public DelimitedRecordReadEvent(DelimitedRecordChannel channel) {
         this.channel = channel;
+    }
+
+    public DelimitedRecordReadEvent(DelimitedRecordChannel channel, EventContext context) {
+        this.channel = channel;
+        this.context = context;
     }
 
     /**
