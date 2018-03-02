@@ -32,6 +32,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.runtime.message.MessageDataSource;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
+import static org.ballerinalang.mime.util.Constants.ENTITY_BYTE_CHANNEL;
 import static org.ballerinalang.mime.util.Constants.FIRST_PARAMETER_INDEX;
 
 /**
@@ -64,6 +65,8 @@ public class GetXml extends AbstractNativeFunction {
             } else {
                 result = EntityBodyHandler.constructXmlDataSource(entityStruct);
                 EntityBodyHandler.addMessageDataSource(entityStruct, result);
+                //Set byte channel to null, once the message data source has been constructed
+                entityStruct.addNativeData(ENTITY_BYTE_CHANNEL, null);
             }
         } catch (Throwable e) {
             throw new BallerinaException("Error occurred while retrieving xml data from entity : " + e.getMessage());
