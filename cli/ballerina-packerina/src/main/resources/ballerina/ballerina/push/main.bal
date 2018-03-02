@@ -30,7 +30,8 @@ function main (string[] args) {
         throw err;
     }
     if (resp1.statusCode != 200) {
-        io:println("Internal server error occured when pushing the package to the central repository");
+        json jsonResponse = resp1.getJsonPayload();
+        io:println(jsonResponse.msg.toString());
     } else {
         io:println("Ballerina package pushed successfully");
     }
