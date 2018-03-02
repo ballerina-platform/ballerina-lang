@@ -41,11 +41,4 @@ public class AESCipherToolNegativeTest {
         AESCipherTool decryptionCipherTool = new AESCipherTool(decryptionKey);
         decryptionCipherTool.decrypt(encryptedStr);
     }
-
-    @Test(expectedExceptions = AESCipherToolException.class,
-          expectedExceptionsMessageRegExp = "Invalid AES key length: 77 bytes. Maximum key length is 32 bytes")
-    public void testLongerKeyLengthError() throws AESCipherToolException {
-        String encryptionKey = "abc&xyzabc&xyzabc&xyzabc&xyzabc&xyzabc&xyzabc&xyzabc&xyzabc&xyzabc&xyzabc&xyz";
-        new AESCipherTool(encryptionKey);
-    }
 }
