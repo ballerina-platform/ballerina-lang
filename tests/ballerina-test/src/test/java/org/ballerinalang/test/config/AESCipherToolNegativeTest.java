@@ -20,6 +20,7 @@ package org.ballerinalang.test.config;
 
 import org.ballerinalang.config.cipher.AESCipherTool;
 import org.ballerinalang.config.cipher.AESCipherToolException;
+import org.testng.Assert;
 import org.testng.annotations.Test;
 
 /**
@@ -29,16 +30,19 @@ import org.testng.annotations.Test;
  */
 public class AESCipherToolNegativeTest {
 
-    @Test(expectedExceptions = AESCipherToolException.class,
-          expectedExceptionsMessageRegExp = "Given final block not properly padded. " +
-                  "Such issues can arise if a bad key is used during decryption.")
-    public void testEncryptionAndDecryptionWithTwoCipherTools() throws AESCipherToolException {
+    @Test
+    public void testEncryptionAndDecryptionWithTwoCipherTools() {
         String plainText = "this is the plain text";
         String encryptionKey = "abc&xyz";
         String decryptionKey = "xyz&abc";
-        AESCipherTool encryptionCipherTool = new AESCipherTool(encryptionKey);
-        String encryptedStr = encryptionCipherTool.encrypt(plainText);
-        AESCipherTool decryptionCipherTool = new AESCipherTool(decryptionKey);
-        decryptionCipherTool.decrypt(encryptedStr);
+        try {
+            AESCipherTool encryptionCipherTool = new AESCipherTool(encryptionKey);
+            String encryptedStr = encryptionCipherTool.encrypt(plainText);
+            AESCipherTool decryptionCipherTool = new AESCipherTool(decryptionKey);
+            decryptionCipherTool.decrypt(encryptedStr);
+            Assert.assertTrue(false, "Should throw an error");
+        } catch (AESCipherToolException e) {
+            Assert.assertTrue(e.getMessage().contains("Given final block not properly padded"), e.getMessage());
+        }
     }
 }
