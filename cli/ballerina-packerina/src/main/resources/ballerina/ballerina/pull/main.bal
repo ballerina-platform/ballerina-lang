@@ -1,7 +1,6 @@
 package ballerina.pull;
 
 import ballerina.net.http;
-import ballerina.compression;
 import ballerina.io;
 import ballerina.file;
 import ballerina.mime;
@@ -9,9 +8,11 @@ import ballerina.runtime;
 
 const string FileSeparator = "/";
 
-function main (string[] args) {
+function pullPackage (string url, string homeRepoDirPath, string pkgName, string projectRepoDirPath,
+                      string fullPkgPath, string pkgVersion, string proxyHost, string proxyPort, string proxyUsername,
+                      string proxyPassword ){
     endpoint<http:HttpClient> httpEndpoint {
-        create http:HttpClient(args[0], getConnectorConfigs(args));
+        create http:HttpClient(url, getConnectorConfigs(proxyHost, proxyPort, proxyUsername, proxyPassword));
     }
     http:OutRequest req = {};
     req.addHeader("Accept-Encoding", "identity");
@@ -24,18 +25,13 @@ function main (string[] args) {
         json jsonResponse = resp.getJsonPayload();
         io:println(jsonResponse.msg.toString());
     } else {
-        string homeRepoDirPath = args[1];
-        string pkgName = args[2];
-        string projectRepoDirPath = args[3];
-        string fullPkgPath = args[4];
-        string pkgVersion = args[5];
         // If there is no version in the requested package
         if (pkgVersion == "*") {
             // Get the package version from the canonical header of the response
             string headerValue = resp.getHeader("Link");
             string canonicalLinkURL = headerValue.subString(headerValue.indexOf("<") + 1, headerValue.indexOf(">"));
             pkgVersion = canonicalLinkURL.subString(canonicalLinkURL.lastIndexOf("/") + 1, canonicalLinkURL.length());
-            fullPkgPath = args[4] + ":" + pkgVersion;
+            fullPkgPath = fullPkgPath + ":" + pkgVersion;
             homeRepoDirPath = homeRepoDirPath.replace("*", pkgVersion);
         }
         var pkgSize, conversionErr = <int> resp.getHeader("Content-Length");
@@ -45,33 +41,30 @@ function main (string[] args) {
 
         mime:Entity entity = resp.getEntity();
         io:ByteChannel sourceChannel = entity.getByteChannel();
-        string tmpFilePath = runtime:getProperty("java.io.tmpdir") + FileSeparator + "tmp.zip";
-        io:ByteChannel destinationChannel = getFileChannel(tmpFilePath, "w");
+        string fileName = pkgName + "-" + pkgVersion + ".balo";
 
-        string packageName = fullPkgPath + " [central.ballerina.io -> home repo]";
-        copy(pkgSize, sourceChannel, destinationChannel, packageName);
-        compression:unzipFile(tmpFilePath, homeRepoDirPath, pkgName);
+        string homeRepoFilePath = homeRepoDirPath + FileSeparator + fileName;
+        io:ByteChannel homeDirChannel = getFileChannel(homeRepoFilePath, "w");
+        string toAndFrom = " [central.ballerina.io -> home repo]";
 
+        io:ByteChannel projectDirChannel = null;
         if (projectRepoDirPath != null){
             projectRepoDirPath = projectRepoDirPath.replace("*", pkgVersion);
-            // Create directories of the project repo to which the package will be pulled
-            createDirectories(projectRepoDirPath);
-            compression:unzipFile(tmpFilePath, projectRepoDirPath, pkgName);
-            io:println(fullPkgPath + " [central.ballerina.io -> project repo]");
+            string projectRepoFilePath = projectRepoDirPath + FileSeparator + fileName;
+            projectDirChannel = getFileChannel(projectRepoFilePath, "w");
+            toAndFrom = " [central.ballerina.io -> home repo & project repo]";
         }
-
-        file:File tmpFile = {path:tmpFilePath};
-        tmpFile.delete();
+        copy(pkgSize, sourceChannel, homeDirChannel, projectDirChannel, fullPkgPath, toAndFrom);
+        homeDirChannel.close();
         sourceChannel.close();
-        destinationChannel.close();
     }
 }
+function main (string[] args) {
+    pullPackage(args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7], args[8], args[9]);
+}
 
-function getConnectorConfigs(string [] args) (http:Options) {
-    string proxyHost = args[6];
-    string proxyPort = args[7];
-    string proxyUsername = args[8];
-    string proxyPassword = args[9];
+function getConnectorConfigs(string proxyHost, string proxyPort, string proxyUsername, string proxyPassword )
+(http:Options) {
     http:Options option;
     int portInt = 0;
     if (proxyHost != ""){
@@ -131,26 +124,64 @@ function writeBytes (io:ByteChannel channel, blob content, int startOffset) (int
     return numberOfBytesWritten;
 }
 
-function copy (int pkgSize, io:ByteChannel src, io:ByteChannel dst, string packageName) {
-
+function copy (int pkgSize, io:ByteChannel src, io:ByteChannel homeDst, io:ByteChannel projectDst, string packageName,
+string toAndFrom) {
+    string truncatedFullPkgPath = truncateString(packageName);
+    string msg = truncatedFullPkgPath + toAndFrom;
     int bytesChunk = 8;
     blob readContent;
     int readCount = -1;
     float totalCount = 0.0;
     int numberOfBytesWritten = 0;
-
+    string noOfBytesRead;
+    string equals = "==========";
+    string tabspaces = "          ";
     while (readCount != 0) {
         readContent, readCount = readBytes(src, bytesChunk);
-        numberOfBytesWritten = writeBytes(dst, readContent, 0);
+        numberOfBytesWritten = writeBytes(homeDst, readContent, 0);
+        if (projectDst != null) {
+            numberOfBytesWritten = writeBytes(projectDst, readContent, 0);
+        }
         totalCount = totalCount + readCount;
         float percentage = totalCount / pkgSize;
         runtime:sleepCurrentWorker(100);
-        string equals = "==========";
-        string tabspaces = "          ";
+        noOfBytesRead = totalCount + "/" + pkgSize;
         string bar = equals.subString(0, <int> (percentage * 10));
         string spaces = tabspaces.subString(0, 10 - <int> (percentage * 10));
-        io:print("\r" + packageName + "[" + bar + ">" + spaces + "] " + <int> totalCount + "/" + pkgSize);
+        io:print("\r" + rightPad(msg, 100) + "[" + bar + ">" + spaces + "] " + <int> totalCount + "/" + pkgSize);
     }
-    io:print("\r" + packageName);
-    io:print("                             \n");
+    io:print("\r" +rightPad( packageName + toAndFrom, (115 + noOfBytesRead.length())) + "\n");
+}
+
+function rightPad(string msg, int length) (string ) {
+    int i = -1;
+    length = length - msg.length();
+    string char = " ";
+    while (i < length) {
+        msg = msg + char;
+        i = i + 1;
+    }
+    return msg;
+}
+
+function truncateString (string text) (string){
+    int indexOfVersion = text.lastIndexOf(":");
+    string withoutVersion = text.subString(0, indexOfVersion);
+    string versionOfPkg = text.subString(indexOfVersion, text.length());
+    int minLength = 57;
+    int lengthWithoutVersion = withoutVersion.length();
+    if (lengthWithoutVersion > minLength) {
+        int noOfCharactersToBeRemoved = lengthWithoutVersion - minLength;
+        int half = noOfCharactersToBeRemoved / 2;
+        int middleOfWithoutVersion = lengthWithoutVersion / 2;
+        int leftFromMiddle = middleOfWithoutVersion - half;
+        int rightFromMiddle = middleOfWithoutVersion + half;
+
+        string truncatedLeftStr = withoutVersion.subString(0, leftFromMiddle);
+        string truncatedRightStr = withoutVersion.subString(rightFromMiddle, lengthWithoutVersion);
+
+        string truncatedStr = truncatedLeftStr + "…" + truncatedRightStr;
+        return truncatedStr + versionOfPkg;
+    }
+    return text;
 }
