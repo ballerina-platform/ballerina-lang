@@ -32,7 +32,6 @@ import javax.crypto.SecretKey;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 
-
 /**
  * This tools is used to encrypt and decrypt data using AES Algorithm CBC mode and PKCS #5 padding.
  *
@@ -49,9 +48,7 @@ public class AESCipherTool {
     private final Cipher decryptionCipher;
 
     /**
-     *
      * @param userSecret User secret String to encode and decode a value.
-     *
      * @throws AESCipherToolException if Any error occurs when preparing the tool with given user data.
      */
     public AESCipherTool(String userSecret) throws AESCipherToolException {
@@ -61,7 +58,6 @@ public class AESCipherTool {
     /**
      * @param userSecret User secret String to encode and decode a value.
      * @param initializingVector Initializing vector to encode and decode values.
-     *
      * @throws AESCipherToolException if Any error occurs when preparing the tool with given user data.
      */
     public AESCipherTool(String userSecret, String initializingVector) throws AESCipherToolException {
@@ -86,8 +82,6 @@ public class AESCipherTool {
             throw new AESCipherToolException(e.getMessage(), e);
         }
     }
-
-
 
     /**
      * This method is used to encrypt a given value.
