@@ -19,8 +19,8 @@ package org.ballerinalang.langserver.signature;
 
 import org.ballerinalang.langserver.DocumentServiceKeys;
 import org.ballerinalang.langserver.TextDocumentServiceContext;
-import org.ballerinalang.langserver.TextDocumentServiceUtil;
 import org.ballerinalang.langserver.common.NodeVisitor;
+import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.completions.SymbolInfo;
 import org.ballerinalang.model.tree.Node;
 import org.ballerinalang.model.tree.TopLevelNode;
@@ -264,8 +264,7 @@ public class SignatureTreeVisitor extends NodeVisitor {
     private boolean isCursorWithinBlock() {
         Position cursorPosition = this.documentServiceContext.get(DocumentServiceKeys.POSITION_KEY).getPosition();
         Node blockOwner = blockOwnerStack.peek();
-        DiagnosticPos nodePosition =
-                TextDocumentServiceUtil.toZeroBasedPosition((DiagnosticPos) blockOwner.getPosition());
+        DiagnosticPos nodePosition = CommonUtil.toZeroBasedPosition((DiagnosticPos) blockOwner.getPosition());
         int cursorLine = cursorPosition.getLine();
         int cursorColumn = cursorPosition.getCharacter();
         int nodeStrtLine = nodePosition.getStartLine();
