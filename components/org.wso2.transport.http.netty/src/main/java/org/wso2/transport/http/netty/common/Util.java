@@ -177,6 +177,7 @@ public class Util {
 
     public static void setupContentLengthRequest(HTTPCarbonMessage httpOutboundRequest, int contentLength) {
         httpOutboundRequest.removeHeader(HttpHeaderNames.TRANSFER_ENCODING.toString());
+        httpOutboundRequest.removeHeader(HttpHeaderNames.CONTENT_LENGTH.toString());
         if (httpOutboundRequest.getHeader(HttpHeaderNames.CONTENT_LENGTH.toString()) == null) {
             httpOutboundRequest.setHeader(HttpHeaderNames.CONTENT_LENGTH.toString(), String.valueOf(contentLength));
         }
