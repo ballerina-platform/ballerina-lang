@@ -87,8 +87,8 @@ public class CommandExecutor {
         if (documentUri != null && context.get(ExecuteCommandKeys.PKG_NAME_KEY) != null) {
             String fileContent = context.get(ExecuteCommandKeys.DOCUMENT_MANAGER_KEY)
                         .getFileContent(Paths.get(URI.create(documentUri)));
-            String[] contentComponents = fileContent.split(";");
-            int totalLines = fileContent.split("\\n|\\r\\n|\\r").length;
+            String[] contentComponents = fileContent.split("\\n|\\r\\n|\\r");
+            int totalLines = contentComponents.length;
             int lastNewLineCharIndex = Math.max(fileContent.lastIndexOf("\n"), fileContent.lastIndexOf("\r"));
             int lastCharCol = fileContent.substring(lastNewLineCharIndex + 1).length();
             BLangPackage bLangPackage = TextDocumentServiceUtil.getBLangPackage(context,
@@ -113,8 +113,7 @@ public class CommandExecutor {
             
             if (endCol != -1) {
                 int contentLengthToReplaceStart = fileContent.substring(0,
-                        fileContent.indexOf(contentComponents[endLine])).length()
-                        + contentComponents[endLine].length() + 1;
+                        fileContent.indexOf(contentComponents[endLine])).length() + endCol + 1;
                 remainingTextToReplace = fileContent.substring(contentLengthToReplaceStart);
             } else {
                 remainingTextToReplace = fileContent;
