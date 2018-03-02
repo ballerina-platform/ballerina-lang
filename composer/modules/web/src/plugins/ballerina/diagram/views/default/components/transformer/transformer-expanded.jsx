@@ -1232,7 +1232,7 @@ class TransformerExpanded extends React.Component {
                 style={{ paddingLeft: leftOffset }}
             >
                 <div id='transformHeader' className='transform-header'>
-                    <i onClick={this.onClose} className='fw fw-left o close-transform' />
+                    <i onClick={this.onClose} className='fw fw-left close-transform' />
                     <p className='transform-header-text '>
                         <i className='transform-header-icon fw fw-type-converter' />
                         <b>{this.props.model.getSignature()}</b>
