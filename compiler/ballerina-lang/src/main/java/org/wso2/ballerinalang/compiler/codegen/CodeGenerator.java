@@ -30,6 +30,8 @@ import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BStructSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BStructSymbol.BAttachedFunction;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
@@ -41,7 +43,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BConnectorType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BEnumType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStructType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BStructType.BAttachedFunction;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangAction;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotAttribute;
@@ -708,7 +709,7 @@ public class CodeGenerator extends BLangNodeVisitor {
         Operand structCPIndex = getOperand(currentPkgInfo.addCPEntry(structureRefCPEntry));
 
         //Emit an instruction to create a new struct.
-        Operand structRegIndex = calcAndGetExprRegIndex(structLiteral);
+        RegIndex structRegIndex = calcAndGetExprRegIndex(structLiteral);
         emit(InstructionCodes.NEWSTRUCT, structCPIndex, structRegIndex);
 
         for (BLangRecordKeyValue keyValue : structLiteral.keyValuePairs) {
@@ -720,6 +721,20 @@ public class CodeGenerator extends BLangNodeVisitor {
             int opcode = getOpcode(key.fieldSymbol.type.tag, InstructionCodes.IFIELDSTORE);
             emit(opcode, structRegIndex, fieldIndex, keyValue.valueExpr.regIndex);
         }
+
+        // Invoke the struct initializer here.
+        if (structLiteral.initializer == null) {
+            return;
+        }
+
+        int funcRefCPIndex = getFuncRefCPIndex(structLiteral.initializer.symbol);
+        // call funcRefCPIndex 1 structRegIndex 0
+        Operand[] operands = new Operand[4];
+        operands[0] = getOperand(funcRefCPIndex);
+        operands[1] = getOperand(1);
+        operands[2] = structRegIndex;
+        operands[3] = getOperand(0);
+        emit(InstructionCodes.CALL, operands);
     }
 
     @Override
@@ -1665,12 +1680,15 @@ public class CodeGenerator extends BLangNodeVisitor {
     }
 
     private Operand[] getFuncOperands(BLangInvocation iExpr) {
-        BInvokableSymbol funcSymbol = (BInvokableSymbol) iExpr.symbol;
-        int pkgRefCPIndex = addPackageRefCPEntry(currentPkgInfo, funcSymbol.pkgID);
-        int funcNameCPIndex = addUTF8CPEntry(currentPkgInfo, funcSymbol.name.value);
-        FunctionRefCPEntry funcRefCPEntry = new FunctionRefCPEntry(pkgRefCPIndex, funcNameCPIndex);
-        int funcRefCPIndex = currentPkgInfo.addCPEntry(funcRefCPEntry);
+        int funcRefCPIndex = getFuncRefCPIndex((BInvokableSymbol) iExpr.symbol);
         return getFuncOperands(iExpr, funcRefCPIndex);
+    }
+
+    private int getFuncRefCPIndex(BInvokableSymbol invokableSymbol) {
+        int pkgRefCPIndex = addPackageRefCPEntry(currentPkgInfo, invokableSymbol.pkgID);
+        int funcNameCPIndex = addUTF8CPEntry(currentPkgInfo, invokableSymbol.name.value);
+        FunctionRefCPEntry funcRefCPEntry = new FunctionRefCPEntry(pkgRefCPIndex, funcNameCPIndex);
+        return currentPkgInfo.addCPEntry(funcRefCPEntry);
     }
 
     private Operand[] getFuncOperands(BLangInvocation iExpr, int funcRefCPIndex) {
@@ -1774,7 +1792,7 @@ public class CodeGenerator extends BLangNodeVisitor {
     }
 
     private void createStructInfoEntry(BLangStruct structNode) {
-        BTypeSymbol structSymbol = (BTypeSymbol) structNode.symbol;
+        BStructSymbol structSymbol = (BStructSymbol) structNode.symbol;
         // Add Struct name as an UTFCPEntry to the constant pool
         int structNameCPIndex = addUTF8CPEntry(currentPkgInfo, structSymbol.name.value);
         StructInfo structInfo = new StructInfo(currentPackageRefCPIndex, structNameCPIndex, structSymbol.flags);
@@ -1809,7 +1827,7 @@ public class CodeGenerator extends BLangNodeVisitor {
         fieldIndexes = new VariableIndex(FIELD);
 
         // Create attached function info entries
-        for (BAttachedFunction attachedFunc : structInfo.structType.attachedFuncs) {
+        for (BAttachedFunction attachedFunc : structSymbol.attachedFuncs) {
             int funcNameCPIndex = addUTF8CPEntry(currentPkgInfo, attachedFunc.funcName.value);
 
             // Remove the first type. The first type is always the type to which the function is attached to

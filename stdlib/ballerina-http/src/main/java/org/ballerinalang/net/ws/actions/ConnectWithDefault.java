@@ -31,6 +31,7 @@ import org.ballerinalang.natives.annotations.BallerinaAction;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.net.http.BallerinaHttpServerConnector;
 import org.ballerinalang.net.http.HttpConstants;
+import org.ballerinalang.net.http.HttpUtil;
 import org.ballerinalang.net.ws.BallerinaWsClientConnectorListener;
 import org.ballerinalang.net.ws.WebSocketConstants;
 import org.ballerinalang.net.ws.WebSocketService;
@@ -40,7 +41,6 @@ import org.wso2.transport.http.netty.contract.websocket.HandshakeFuture;
 import org.wso2.transport.http.netty.contract.websocket.HandshakeListener;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketClientConnector;
 import org.wso2.transport.http.netty.contract.websocket.WsClientConnectorConfig;
-import org.wso2.transport.http.netty.contractimpl.HttpWsConnectorFactoryImpl;
 
 import java.util.HashMap;
 import javax.websocket.Session;
@@ -76,7 +76,7 @@ public class ConnectWithDefault extends AbstractNativeWsAction {
 
         WsClientConnectorConfig clientConnectorConfig = new WsClientConnectorConfig(remoteUrl);
         clientConnectorConfig.setTarget(clientServiceName);
-        HttpWsConnectorFactory connectorFactory = new HttpWsConnectorFactoryImpl();
+        HttpWsConnectorFactory connectorFactory = HttpUtil.createHttpWsConnectionFactory();
 
         ClientConnectorFuture connectorFuture = new ClientConnectorFuture();
         WebSocketClientConnector clientConnector =

@@ -79,6 +79,9 @@ public class KeyStoreTest {
     }
 
     private KeyStore loadKeyStore() throws Exception {
+        ConfigRegistry defaultConfigRegistry = ConfigRegistry.getInstance();
+        KeyStore keyStore;
+
         ConfigRegistry configRegistry = mock(ConfigRegistry.class);
         when(configRegistry.getInstanceConfigValue(KEY_STORE_CONFIG, KEY_STORE_LOCATION))
                 .thenReturn(getClass().getClassLoader().getResource(
@@ -101,9 +104,13 @@ public class KeyStoreTest {
         modifiersField.setAccessible(true);
         modifiersField.setInt(field, field.getModifiers() & ~Modifier.FINAL);
         field.set(ConfigRegistry.class, configRegistry);
+        keyStore = KeyStore.getKeyStore();
+
+        field.set(ConfigRegistry.class, defaultConfigRegistry);
+        modifiersField.setInt(field, field.getModifiers() & Modifier.FINAL);
         modifiersField.setAccessible(false);
         field.setAccessible(false);
 
-        return KeyStore.getKeyStore();
+        return keyStore;
     }
 }

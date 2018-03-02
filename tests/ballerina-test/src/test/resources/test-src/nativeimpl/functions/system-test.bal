@@ -36,6 +36,10 @@ function testPrintAndPrintlnFunctionPointer() {
     io:print(addFunction);
 }
 
+function testSprintf(string fmtStr, any[] fmtArgs) (string) {
+    return io:sprintf(fmtStr, fmtArgs);
+}
+
 function printNewline() {
     io:print("hello\n");
 }

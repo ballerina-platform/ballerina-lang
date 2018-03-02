@@ -37,6 +37,7 @@ import java.security.cert.Certificate;
 
 /**
  * KeyStore process the configured keystore and trust store and provide an API.
+ * PKCS12 is the default keystore format supported.
  *
  * @since 0.964.0
  */

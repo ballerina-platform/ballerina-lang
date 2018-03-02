@@ -17,6 +17,7 @@
 */
 package org.ballerinalang.test.service.http.sample;
 
+import io.netty.handler.codec.http.HttpHeaderNames;
 import org.ballerinalang.test.IntegrationTestCase;
 import org.ballerinalang.test.context.ServerInstance;
 import org.ballerinalang.test.util.HttpClientRequest;
@@ -110,7 +111,7 @@ public class HTTPVerbsPassthruTestCases extends IntegrationTestCase {
     public void testDataBindingJsonPayload() throws IOException {
         String payload = "{\"name\":\"WSO2\",\"team\":\"ballerina\"}";
         Map<String, String> headers = new HashMap<>();
-        headers.put(TestConstant.HEADER_CONTENT_TYPE, TestConstant.CONTENT_TYPE_JSON);
+        headers.put(HttpHeaderNames.CONTENT_TYPE.toString(), TestConstant.CONTENT_TYPE_JSON);
         HttpResponse response = HttpClientRequest.doPost(ballerinaServer.getServiceURLHttp("getQuote/employee")
                 , payload, headers);
 
@@ -123,7 +124,7 @@ public class HTTPVerbsPassthruTestCases extends IntegrationTestCase {
     public void testDataBindingWithIncompatiblePayload() throws IOException {
         String payload = "name:WSO2,team:ballerina";
         Map<String, String> headers = new HashMap<>();
-        headers.put(TestConstant.HEADER_CONTENT_TYPE, TestConstant.CONTENT_TYPE_TEXT_PLAIN);
+        headers.put(HttpHeaderNames.CONTENT_TYPE.toString(), TestConstant.CONTENT_TYPE_TEXT_PLAIN);
         HttpResponse response = HttpClientRequest.doPost(ballerinaServer.getServiceURLHttp("getQuote/employee")
                 , payload, headers);
 

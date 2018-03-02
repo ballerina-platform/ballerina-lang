@@ -1183,7 +1183,7 @@
         <equinox.osgi.version>3.10.2.v20150203-1939</equinox.osgi.version>
         <equinox.osgi.services.version>3.4.0.v20140312-2051</equinox.osgi.services.version>
         <carbon.kernel.version>5.1.0</carbon.kernel.version>
-        <transport.http.version>6.0.90</transport.http.version>
+        <transport.http.version>6.0.97</transport.http.version>
         <carbon.messaging.version>2.3.7</carbon.messaging.version>
         <carbon.deployment.version>5.0.0</carbon.deployment.version>
         <carbon.config.version>2.1.2</carbon.config.version>
@@ -1223,8 +1223,9 @@
         <commons-cli.version>1.3.1</commons-cli.version>
         <io.swagger.version>1.5.8</io.swagger.version>
         <com.fasterxml.jackson.datatype.version>2.4.1</com.fasterxml.jackson.datatype.version>
-        <swagger.parser.version>1.0.25</swagger.parser.version>
+        <swagger.parser.version>1.0.34</swagger.parser.version>
         <swagger.models.version>1.5.16</swagger.models.version>
+        <swagger.parser.v2.converter.version>2.0.0-rc3</swagger.parser.v2.converter.version>
         <com.fasterxml.jackson.core.annotations.version>2.8.0</com.fasterxml.jackson.core.annotations.version>
         <rs-api.version>2.0</rs-api.version>
         <msf4j.version>2.4.2</msf4j.version>
