@@ -18,6 +18,7 @@
 
 package org.ballerinalang.test.services.dispatching;
 
+import io.netty.handler.codec.http.HttpHeaderNames;
 import org.ballerinalang.connector.api.BallerinaConnectorException;
 import org.ballerinalang.launcher.util.BServiceUtil;
 import org.ballerinalang.launcher.util.CompileResult;
@@ -33,7 +34,6 @@ import org.wso2.transport.http.netty.message.HttpMessageDataStreamer;
 
 import static org.ballerinalang.mime.util.Constants.APPLICATION_JSON;
 import static org.ballerinalang.mime.util.Constants.APPLICATION_XML;
-import static org.ballerinalang.mime.util.Constants.CONTENT_TYPE;
 import static org.ballerinalang.mime.util.Constants.OCTET_STREAM;
 import static org.ballerinalang.mime.util.Constants.TEXT_PLAIN;
 
@@ -53,7 +53,7 @@ public class DataBindingTest {
     public void testDataBindingWithStringPayload() {
         HTTPTestRequest requestMsg = MessageUtils
                 .generateHTTPMessage("/echo/body1", "POST", "WSO2");
-        requestMsg.setHeader(CONTENT_TYPE, TEXT_PLAIN);
+        requestMsg.setHeader(HttpHeaderNames.CONTENT_TYPE.toString(), TEXT_PLAIN);
         HTTPCarbonMessage responseMsg = Services.invokeNew(compileResult, requestMsg);
 
         Assert.assertNotNull(responseMsg, "responseMsg message not found");
@@ -66,7 +66,7 @@ public class DataBindingTest {
     public void testDataBindingWhenPathParamExist() {
         HTTPTestRequest requestMsg = MessageUtils
                 .generateHTTPMessage("/echo/body2/hello", "POST", "WSO2");
-        requestMsg.setHeader(CONTENT_TYPE, TEXT_PLAIN);
+        requestMsg.setHeader(HttpHeaderNames.CONTENT_TYPE.toString(), TEXT_PLAIN);
         HTTPCarbonMessage responseMsg = Services.invokeNew(compileResult, requestMsg);
 
         Assert.assertNotNull(responseMsg, "responseMsg message not found");
@@ -81,7 +81,7 @@ public class DataBindingTest {
     public void testDataBindingWithJSONPayload() {
         HTTPTestRequest requestMsg = MessageUtils
                 .generateHTTPMessage("/echo/body3", "POST", "{'name':'WSO2', 'team':'ballerina'}");
-        requestMsg.setHeader(CONTENT_TYPE, APPLICATION_JSON);
+        requestMsg.setHeader(HttpHeaderNames.CONTENT_TYPE.toString(), APPLICATION_JSON);
         HTTPCarbonMessage responseMsg = Services.invokeNew(compileResult, requestMsg);
 
         Assert.assertNotNull(responseMsg, "responseMsg message not found");
@@ -96,7 +96,7 @@ public class DataBindingTest {
     public void testDataBindingWithXMLPayload() {
         HTTPTestRequest requestMsg = MessageUtils
                 .generateHTTPMessage("/echo/body4", "POST", "<name>WSO2</name>");
-        requestMsg.setHeader(CONTENT_TYPE, APPLICATION_XML);
+        requestMsg.setHeader(HttpHeaderNames.CONTENT_TYPE.toString(), APPLICATION_XML);
         HTTPCarbonMessage responseMsg = Services.invokeNew(compileResult, requestMsg);
 
         Assert.assertNotNull(responseMsg, "responseMsg message not found");
@@ -111,7 +111,7 @@ public class DataBindingTest {
     public void testDataBindingWithBinaryPayload() {
         HTTPTestRequest requestMsg = MessageUtils
                 .generateHTTPMessage("/echo/body5", "POST", "WSO2");
-        requestMsg.setHeader(CONTENT_TYPE, OCTET_STREAM);
+        requestMsg.setHeader(HttpHeaderNames.CONTENT_TYPE.toString(), OCTET_STREAM);
         HTTPCarbonMessage responseMsg = Services.invokeNew(compileResult, requestMsg);
 
         Assert.assertNotNull(responseMsg, "responseMsg message not found");
@@ -124,7 +124,7 @@ public class DataBindingTest {
     public void testDataBindingWithGlobalStruct() {
         HTTPTestRequest requestMsg = MessageUtils
                 .generateHTTPMessage("/echo/body6", "POST", "{'name':'wso2','age':12}");
-        requestMsg.setHeader(CONTENT_TYPE, APPLICATION_JSON);
+        requestMsg.setHeader(HttpHeaderNames.CONTENT_TYPE.toString(), APPLICATION_JSON);
         HTTPCarbonMessage responseMsg = Services.invokeNew(compileResult, requestMsg);
 
         Assert.assertNotNull(responseMsg, "responseMsg message not found");
@@ -151,7 +151,7 @@ public class DataBindingTest {
     public void testDataBindingIncompatibleJSONPayloadType() {
         HTTPTestRequest requestMsg = MessageUtils
                 .generateHTTPMessage("/echo/body3", "POST", "{'name':'WSO2', 'team':'EI'}");
-        requestMsg.setHeader(CONTENT_TYPE, TEXT_PLAIN);
+        requestMsg.setHeader(HttpHeaderNames.CONTENT_TYPE.toString(), TEXT_PLAIN);
         HTTPCarbonMessage responseMsg = Services.invokeNew(compileResult, requestMsg);
 
         Assert.assertNotNull(responseMsg, "responseMsg message not found");
@@ -166,7 +166,7 @@ public class DataBindingTest {
     public void testDataBindingCompatiblePayload() {
         HTTPTestRequest requestMsg = MessageUtils
                 .generateHTTPMessage("/echo/body5", "POST", "{'name':'WSO2', 'team':'ballerina'}");
-        requestMsg.setHeader(CONTENT_TYPE, TEXT_PLAIN);
+        requestMsg.setHeader(HttpHeaderNames.CONTENT_TYPE.toString(), TEXT_PLAIN);
         HTTPCarbonMessage responseMsg = Services.invokeNew(compileResult, requestMsg);
 
         Assert.assertNotNull(responseMsg, "responseMsg message not found");
@@ -192,7 +192,7 @@ public class DataBindingTest {
     public void testDataBindingIncompatibleXMLPayload() {
         HTTPTestRequest requestMsg = MessageUtils
                 .generateHTTPMessage("/echo/body4", "POST", "name':'WSO2', 'team':'ballerina");
-        requestMsg.setHeader(CONTENT_TYPE, APPLICATION_JSON);
+        requestMsg.setHeader(HttpHeaderNames.CONTENT_TYPE.toString(), APPLICATION_JSON);
         Services.invokeNew(compileResult, requestMsg);
     }
 
@@ -201,7 +201,7 @@ public class DataBindingTest {
     public void testDataBindingIncompatibleStructPayload() {
         HTTPTestRequest requestMsg = MessageUtils
                 .generateHTTPMessage("/echo/body6", "POST", "ballerina");
-        requestMsg.setHeader(CONTENT_TYPE, TEXT_PLAIN);
+        requestMsg.setHeader(HttpHeaderNames.CONTENT_TYPE.toString(), TEXT_PLAIN);
         Services.invokeNew(compileResult, requestMsg);
     }
 
@@ -218,16 +218,16 @@ public class DataBindingTest {
     public void testDataBindingStructWithNoMatchingContent() {
         HTTPTestRequest requestMsg = MessageUtils
                 .generateHTTPMessage("/echo/body6", "POST", "{'name':'WSO2', 'team':8}");
-        requestMsg.setHeader(CONTENT_TYPE, APPLICATION_JSON);
+        requestMsg.setHeader(HttpHeaderNames.CONTENT_TYPE.toString(), APPLICATION_JSON);
         Services.invokeNew(compileResult, requestMsg);
     }
 
     @Test(expectedExceptions = BallerinaConnectorException.class,
-            expectedExceptionsMessageRegExp = ".* failed: cannot convert payload to struct type: HttpConnectorError")
+            expectedExceptionsMessageRegExp = ".* error while mapping 'message': no such field found in json")
     public void testDataBindingStructWithInvalidTypes() {
         HTTPTestRequest requestMsg = MessageUtils
                 .generateHTTPMessage("/echo/body7", "POST", "{'name':'WSO2', 'team':8}");
-        requestMsg.setHeader(CONTENT_TYPE, APPLICATION_JSON);
+        requestMsg.setHeader(HttpHeaderNames.CONTENT_TYPE.toString(), APPLICATION_JSON);
         Services.invokeNew(compileResult, requestMsg);
     }
 }

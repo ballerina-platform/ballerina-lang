@@ -2872,4 +2872,28 @@ public class BallerinaPsiImplUtil {
         }
         return false;
     }
+
+    /**
+     * @param definitionNode
+     * @return
+     */
+    @NotNull
+    public static List<IdentifierPSINode> getParameters(@NotNull PsiElement definitionNode) {
+        List<IdentifierPSINode> parameters = new LinkedList<>();
+        ParameterListNode parameterListNode = PsiTreeUtil.getChildOfType(definitionNode, ParameterListNode.class);
+        if (parameterListNode == null) {
+            return parameters;
+        }
+        // Get parameter nodes.
+        Collection<ParameterNode> parameterNodes = PsiTreeUtil.getChildrenOfTypeAsList(parameterListNode,
+                ParameterNode.class);
+        for (ParameterNode parameterNode : parameterNodes) {
+            IdentifierPSINode identifier = PsiTreeUtil.getChildOfType(parameterNode, IdentifierPSINode.class);
+            if (identifier == null) {
+                continue;
+            }
+            parameters.add(identifier);
+        }
+        return parameters;
+    }
 }

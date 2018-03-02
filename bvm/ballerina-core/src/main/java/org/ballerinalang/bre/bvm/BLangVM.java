@@ -3683,7 +3683,7 @@ public class BLangVM {
 
         BStruct bStruct = (BStruct) sf.refRegs[i];
         if (bStruct == null) {
-            sf.refRegs[j] = null;
+            handleNullRefError();
             return;
         }
 
@@ -3731,7 +3731,7 @@ public class BLangVM {
 
         BStruct bStruct = (BStruct) sf.refRegs[i];
         if (bStruct == null) {
-            sf.refRegs[j] = null;
+            handleNullRefError();
             return;
         }
 
@@ -3754,7 +3754,7 @@ public class BLangVM {
         TypeRefCPEntry typeRefCPEntry = (TypeRefCPEntry) constPool[cpIndex];
         BMap<String, BValue> bMap = (BMap<String, BValue>) sf.refRegs[i];
         if (bMap == null) {
-            sf.refRegs[j] = null;
+            handleNullRefError();
             return;
         }
 
@@ -3858,13 +3858,12 @@ public class BLangVM {
         TypeRefCPEntry typeRefCPEntry = (TypeRefCPEntry) constPool[cpIndex];
         BJSON bjson = (BJSON) sf.refRegs[i];
         if (bjson == null) {
-            sf.refRegs[j] = null;
+            handleNullRefError();
             return;
         }
 
         try {
-            sf.refRegs[j] = JSONUtils.convertJSONToStruct(bjson, (BStructType) typeRefCPEntry.getType(),
-                    sf.packageInfo);
+            sf.refRegs[j] = JSONUtils.convertJSONToStruct(bjson, (BStructType) typeRefCPEntry.getType());
             sf.refRegs[k] = null;
         } catch (Exception e) {
             sf.refRegs[j] = null;

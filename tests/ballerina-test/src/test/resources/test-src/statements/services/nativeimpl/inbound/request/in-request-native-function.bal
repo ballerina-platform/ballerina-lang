@@ -1,4 +1,5 @@
 import ballerina.net.http;
+import ballerina.io;
 
 function testGetContentLength (http:InRequest req) (int) {
     int length = req.getContentLength();
@@ -91,7 +92,7 @@ service<http> helloServer {
     }
     resource getHeader (http:Connection conn, http:InRequest req) {
         http:OutResponse res = {};
-        string header = req.getHeader("Content-Type");
+        string header = req.getHeader("content-type");
         res.setJsonPayload({value:header});
         _ = conn.respond(res);
     }
@@ -146,6 +147,16 @@ service<http> helloServer {
         blob value = req.getBinaryPayload();
         string name = value.toString("UTF-8");
         res.setStringPayload(name);
+        _ = conn.respond(res);
+    }
+
+    @http:resourceConfig {
+        path:"/GetByteChannel"
+    }
+    resource GetByteChannel(http:Connection conn, http:InRequest req) {
+        http:OutResponse res = {};
+        io:ByteChannel byteChannel = req.getByteChannel();
+        res.setByteChannel(byteChannel);
         _ = conn.respond(res);
     }
 }

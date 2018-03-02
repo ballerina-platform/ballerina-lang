@@ -20,6 +20,7 @@ package org.wso2.ballerinalang.compiler.semantics.analyzer;
 import org.ballerinalang.compiler.CompilerOptionName;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.model.TreeBuilder;
+import org.ballerinalang.model.elements.DocTag;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.tree.IdentifierNode;
@@ -102,7 +103,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
-
 import javax.xml.XMLConstants;
 
 import static org.ballerinalang.model.tree.NodeKind.IMPORT;
@@ -258,6 +258,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         BAnnotationAttributeSymbol annotationAttributeSymbol = Symbols.createAnnotationAttributeSymbol(names.
                         fromIdNode(annotationAttribute.name), env.enclPkg.symbol.pkgID,
                 null, env.scope.owner);
+        annotationAttributeSymbol.docTag = DocTag.FIELD;
         annotationAttributeSymbol.expr = annotationAttribute.expr;
         annotationAttribute.symbol = annotationAttributeSymbol;
         ((BAnnotationSymbol) env.scope.owner).attributes.add(annotationAttributeSymbol);
@@ -273,10 +274,18 @@ public class SymbolEnter extends BLangNodeVisitor {
         }
 
         // Create import package symbol
+        Name orgName;
+        if (importPkgNode.orgName.value == null) {
+            // means it's in 'import <pkg-name>' style
+            orgName = Names.ANON_ORG;
+        } else {
+            // means it's in 'import <org-name>/<pkg-name>' style
+            orgName = names.fromIdNode(importPkgNode.orgName);
+        }
         List<Name> nameComps = importPkgNode.pkgNameComps.stream()
                 .map(identifier -> names.fromIdNode(identifier))
                 .collect(Collectors.toList());
-        PackageID pkgID = new PackageID(nameComps, names.fromIdNode(importPkgNode.version));
+        PackageID pkgID = new PackageID(orgName, nameComps, names.fromIdNode(importPkgNode.version));
         if (pkgID.name.getValue().startsWith(Names.BUILTIN_PACKAGE.value)) {
             dlog.error(importPkgNode.pos, DiagnosticCode.PACKAGE_NOT_FOUND,
                     importPkgNode.getQualifiedPackageName());
@@ -358,6 +367,7 @@ public class SymbolEnter extends BLangNodeVisitor {
             BLangEnumerator enumerator = enumNode.enumerators.get(i);
             BVarSymbol enumeratorSymbol = new BVarSymbol(Flags.PUBLIC,
                     names.fromIdNode(enumerator.name), enumSymbol.pkgID, enumType, enumSymbol);
+            enumeratorSymbol.docTag = DocTag.FIELD;
             enumerator.symbol = enumeratorSymbol;
 
             if (symResolver.checkForUniqueSymbol(enumerator.pos, enumEnv, enumeratorSymbol, enumeratorSymbol.tag)) {
@@ -476,8 +486,10 @@ public class SymbolEnter extends BLangNodeVisitor {
             // e.g. function foo() (int);
             return;
         }
-
-        varNode.symbol = defineVarSymbol(varNode.pos, varNode.flagSet, varNode.type, varName, env);
+        BVarSymbol varSymbol = defineVarSymbol(varNode.pos, varNode.flagSet,
+                varNode.type, varName, env);
+        varSymbol.docTag = varNode.docTag;
+        varNode.symbol = varSymbol;
     }
 
     public void visit(BLangXMLAttribute bLangXMLAttribute) {
@@ -529,7 +541,8 @@ public class SymbolEnter extends BLangNodeVisitor {
         if (pkgNode.pkgDecl == null) {
             pSymbol = new BPackageSymbol(PackageID.DEFAULT, symTable.rootPkgSymbol);
         } else {
-            PackageID pkgID = NodeUtils.getPackageID(names, pkgNode.pkgDecl.pkgNameComps, pkgNode.pkgDecl.version);
+            PackageID pkgID = NodeUtils.getPackageID(names,
+                    pkgNode.pkgDecl.orgName, pkgNode.pkgDecl.pkgNameComps, pkgNode.pkgDecl.version);
             pSymbol = new BPackageSymbol(pkgID, symTable.rootPkgSymbol);
         }
         pkgNode.symbol = pSymbol;

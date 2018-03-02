@@ -46,11 +46,13 @@ public class NativeConversionTest {
 
     private CompileResult compileResult;
     private CompileResult negativeResult;
+    private CompileResult packageResult;
 
     @BeforeClass
     public void setup() {
         compileResult = BCompileUtil.compile("test-src/expressions/conversion/native-conversion.bal");
         negativeResult = BCompileUtil.compile("test-src/expressions/conversion/native-conversion-negative.bal");
+        packageResult = BCompileUtil.compile(this, "test-src/expressions/conversion/", "a.b");
     }
 
     @Test
@@ -379,7 +381,9 @@ public class NativeConversionTest {
         BRunUtil.invoke(compileResult, "testJsonToXmlArray");
     }
 
-    @Test(description = "Test converting a JSON integer array to string array")
+    @Test(description = "Test converting a JSON integer array to string array",
+            expectedExceptions = { BLangRuntimeException.class },
+            expectedExceptionsMessageRegExp = "error: ballerina.runtime:NullReferenceException.*")
     public void testNullJsonToArray() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testNullJsonToArray");
         Assert.assertEquals(returns[0], null);
@@ -403,31 +407,35 @@ public class NativeConversionTest {
         BRunUtil.invoke(compileResult, "testNonArrayJsonToArray");
     }
 
-    // Todo - Fix casting issue
-    @Test(description = "Test converting a null JSON to struct")
+    @Test(description = "Test converting a null JSON to struct", expectedExceptions = { BLangRuntimeException.class },
+            expectedExceptionsMessageRegExp = "error: ballerina.runtime:NullReferenceException.*")
     public void testNullJsonToStruct() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testNullJsonToStruct");
-        Assert.assertEquals(returns[0], null);
+        Assert.assertNull(returns[0]);
+        Assert.assertNotNull(returns[1]);
     }
 
-    // Todo - Fix casting issue
-    @Test(description = "Test converting a null map to Struct")
+    @Test(description = "Test converting a null map to Struct", expectedExceptions = { BLangRuntimeException.class },
+            expectedExceptionsMessageRegExp = "error: ballerina.runtime:NullReferenceException.*")
     public void testNullMapToStruct() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testNullMapToStruct");
-        Assert.assertEquals(returns[0], null);
+        Assert.assertNull(returns[0]);
     }
 
-    // Todo - Fix casting issue
-    @Test(description = "Test converting a null Struct to json")
+    @Test(description = "Test converting a null Struct to json", expectedExceptions = { BLangRuntimeException.class },
+            expectedExceptionsMessageRegExp = "error: ballerina.runtime:NullReferenceException.*")
     public void testNullStructToJson() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testNullStructToJson");
-        Assert.assertEquals(returns[0], null);
+        Assert.assertNull(returns[0]);
+        Assert.assertNotNull(returns[1]);
     }
 
-    @Test(description = "Test converting a null Struct to map")
+    @Test(description = "Test converting a null Struct to map", expectedExceptions = { BLangRuntimeException.class },
+            expectedExceptionsMessageRegExp = "error: ballerina.runtime:NullReferenceException.*")
     public void testNullStructToMap() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testNullStructToMap");
-        Assert.assertEquals(returns[0], null);
+        Assert.assertNull(returns[0]);
+        Assert.assertNotNull(returns[1]);
     }
 
     // transform with errors
@@ -567,5 +575,28 @@ public class NativeConversionTest {
         Assert.assertEquals(returns[0].stringValue(), "{\"a\":[4,6,9],\"b\":[4.6,7.5],\"c\":[true,true,false]," +
                 "\"d\":[\"apple\",\"orange\"],\"e\":[{},{}],\"f\":[{\"name\":\"\",\"age\":0}," +
                 "{\"name\":\"\",\"age\":0}],\"g\":[{\"foo\":\"bar\"}]}");
+    }
+
+    @Test
+    public void testJsonToStructInPackage() {
+        BValue[] returns = BRunUtil.invoke(packageResult, "testJsonToStruct");
+        Assert.assertTrue(returns[0] instanceof BStruct);
+        BStruct struct = (BStruct) returns[0];
+
+        String name = struct.getStringField(0);
+        Assert.assertEquals(name, "John");
+
+        long age = struct.getIntField(0);
+        Assert.assertEquals(age, 30);
+
+        BValue address = struct.getRefField(0);
+        Assert.assertTrue(address instanceof BStruct);
+        BStruct addressStruct = (BStruct) address;
+        Assert.assertEquals(addressStruct.getStringField(0), "20 Palm Grove");
+        Assert.assertEquals(addressStruct.getStringField(1), "Colombo 03");
+        Assert.assertEquals(addressStruct.getStringField(2), "Sri Lanka");
+
+        // error should be null
+        Assert.assertNull(returns[1]);
     }
 }
