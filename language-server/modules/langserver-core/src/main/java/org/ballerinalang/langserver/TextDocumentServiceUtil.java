@@ -31,7 +31,6 @@ import org.wso2.ballerinalang.compiler.Compiler;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
-import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
 import java.io.File;
 import java.net.URI;
@@ -153,18 +152,5 @@ public class TextDocumentServiceUtil {
         }
 
         return (BLangPackage) compiler.getAST();
-    }
-
-    /**
-     * Convert the diagnostic position to a zero based positioning diagnostic position.
-     * @param diagnosticPos - diagnostic position to be cloned
-     * @return {@link DiagnosticPos} converted diagnostic position
-     */
-    public static DiagnosticPos  toZeroBasedPosition(DiagnosticPos diagnosticPos) {
-        int startLine = diagnosticPos.getStartLine() - 1;
-        int endLine = diagnosticPos.getEndLine() - 1;
-        int startColumn = diagnosticPos.getStartColumn() - 1;
-        int endColumn = diagnosticPos.getEndColumn() - 1;
-        return new DiagnosticPos(diagnosticPos.getSource(), startLine, endLine, startColumn, endColumn);
     }
 }

@@ -132,7 +132,8 @@ public class BCompileUtil {
                             return new Name(part);
                         })
                         .collect(Collectors.toList());
-                PackageID pkgId = new PackageID(pkgNameComps, Names.DEFAULT_VERSION);
+                // TODO: orgName is anon, fix it.
+                PackageID pkgId = new PackageID(Names.ANON_ORG, pkgNameComps, Names.DEFAULT_VERSION);
                 effectiveSource = pkgId.getName().getValue();
             } else {
                 effectiveSource = packageName;

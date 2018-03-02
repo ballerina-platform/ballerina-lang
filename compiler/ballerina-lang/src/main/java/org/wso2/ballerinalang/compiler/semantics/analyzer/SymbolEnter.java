@@ -103,7 +103,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
-
 import javax.xml.XMLConstants;
 
 import static org.ballerinalang.model.tree.NodeKind.IMPORT;
@@ -275,10 +274,18 @@ public class SymbolEnter extends BLangNodeVisitor {
         }
 
         // Create import package symbol
+        Name orgName;
+        if (importPkgNode.orgName.value == null) {
+            // means it's in 'import <pkg-name>' style
+            orgName = Names.ANON_ORG;
+        } else {
+            // means it's in 'import <org-name>/<pkg-name>' style
+            orgName = names.fromIdNode(importPkgNode.orgName);
+        }
         List<Name> nameComps = importPkgNode.pkgNameComps.stream()
                 .map(identifier -> names.fromIdNode(identifier))
                 .collect(Collectors.toList());
-        PackageID pkgID = new PackageID(nameComps, names.fromIdNode(importPkgNode.version));
+        PackageID pkgID = new PackageID(orgName, nameComps, names.fromIdNode(importPkgNode.version));
         if (pkgID.name.getValue().startsWith(Names.BUILTIN_PACKAGE.value)) {
             dlog.error(importPkgNode.pos, DiagnosticCode.PACKAGE_NOT_FOUND,
                     importPkgNode.getQualifiedPackageName());
@@ -534,7 +541,8 @@ public class SymbolEnter extends BLangNodeVisitor {
         if (pkgNode.pkgDecl == null) {
             pSymbol = new BPackageSymbol(PackageID.DEFAULT, symTable.rootPkgSymbol);
         } else {
-            PackageID pkgID = NodeUtils.getPackageID(names, pkgNode.pkgDecl.pkgNameComps, pkgNode.pkgDecl.version);
+            PackageID pkgID = NodeUtils.getPackageID(names,
+                    pkgNode.pkgDecl.orgName, pkgNode.pkgDecl.pkgNameComps, pkgNode.pkgDecl.version);
             pSymbol = new BPackageSymbol(pkgID, symTable.rootPkgSymbol);
         }
         pkgNode.symbol = pSymbol;
