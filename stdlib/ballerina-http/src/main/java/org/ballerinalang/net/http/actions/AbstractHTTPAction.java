@@ -187,6 +187,12 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
         if (sourceHandler == null) {
             outboundRequestMsg.setProperty(HttpConstants.SRC_HANDLER, context.getProperty(HttpConstants.SRC_HANDLER));
         }
+        Object remoteAddress = outboundRequestMsg.getProperty(HttpConstants.REMOTE_ADDRESS);
+        if (remoteAddress == null) {
+            outboundRequestMsg.setProperty(HttpConstants.REMOTE_ADDRESS,
+                    context.getProperty(HttpConstants.REMOTE_ADDRESS));
+        }
+        outboundRequestMsg.setProperty(HttpConstants.ORIGIN_HOST, context.getProperty(HttpConstants.ORIGIN_HOST));
         return sendOutboundRequest(context, outboundRequestMsg);
     }
 
