@@ -94,13 +94,11 @@ public class JSONLibraryTest {
 
     @Test
     public void testJsonEscapeChars() throws IOException {
-        String json = "{\"a\": \"abc\",\"b\": 1,\"c\":3.14,\"d\":true,\"e\":false,\"f\":null,"
-                + "\"g\":{\"1\":\"a\",\"2\":\"b\"},\"h\":[\"A\",20,30,\"D\"]}";
-        String json2 = "{\"a\":\"abc\",\"b\":1,\"c\":3.14,\"d\":true,\"e\":false,\"f\":null,"
-                + "\"g\":{\"1\":\"a\",\"2\":\"b\"},\"h\":[\"A\",20,30,\"D\"]}";
+        String json = "[{\"a\":\"abc\\\"\",\"x\":\"1\\b\\f\",\"c\":3.14,\"d\":true,\"e\":false,\"f\":null,\"g\":"
+                + "{\"1\\n2\":\"a\\r\",\"2\":\"b\"},\"h\":[\"A\\tB\",20,30,\"D\\\\\"]}]";
         JsonNode node = JsonParser.parse(json);
         String result = node.toString();
-        Assert.assertEquals(result, json2);
+        Assert.assertEquals(result, json);
     }
 
     @Test
@@ -473,7 +471,7 @@ public class JSONLibraryTest {
                 "  }\n" +
                 "]";
         JsonNode node = JsonParser.parse(json);
-        Assert.assertEquals(node.toString().length(), 7606);
+        Assert.assertEquals(node.toString().length(), 7599);
     }
 
     @Test

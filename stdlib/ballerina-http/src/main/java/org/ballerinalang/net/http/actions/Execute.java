@@ -16,6 +16,7 @@
 
 package org.ballerinalang.net.http.actions;
 
+import io.netty.handler.codec.http.HttpHeaderNames;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.connector.api.ConnectorFuture;
 import org.ballerinalang.model.types.TypeKind;
@@ -34,7 +35,6 @@ import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 
 import java.util.Locale;
 
-import static org.wso2.transport.http.netty.common.Constants.ACCEPT_ENCODING;
 import static org.wso2.transport.http.netty.common.Constants.ENCODING_DEFLATE;
 import static org.wso2.transport.http.netty.common.Constants.ENCODING_GZIP;
 
@@ -98,8 +98,9 @@ public class Execute extends AbstractHTTPAction {
             httpVerb = (String) outboundRequestMsg.getProperty(HttpConstants.HTTP_METHOD);
         }
         outboundRequestMsg.setProperty(HttpConstants.HTTP_METHOD, httpVerb.trim().toUpperCase(Locale.getDefault()));
-        if (outboundRequestMsg.getHeader(ACCEPT_ENCODING) == null) {
-            outboundRequestMsg.setHeader(ACCEPT_ENCODING, ENCODING_DEFLATE + ", " + ENCODING_GZIP);
+        if (outboundRequestMsg.getHeader(HttpHeaderNames.ACCEPT_ENCODING.toString()) == null) {
+            outboundRequestMsg.setHeader(HttpHeaderNames.ACCEPT_ENCODING.toString(),
+                                         ENCODING_DEFLATE + ", " + ENCODING_GZIP);
         }
         context.getActiveTraceContext().getProperties().forEach((key, value) ->
                 outboundRequestMsg.setHeader(key, String.valueOf(value)));

@@ -80,7 +80,7 @@ class ToolsPane extends React.Component {
                         role='button'
                         onClick={() => this.changePane('connectors')}
                     >
-                        <i className='fw fw-view icon' />
+                        <i className='fw fw-view' />
                         More connectors
                     </a>
                 </ToolsPanel>
@@ -148,7 +148,7 @@ class TransformPane extends React.Component {
                         className='tool-palette-add-button'
                         onClick={() => this.changePane('library')}
                     >
-                        <i className='fw fw-view icon' />
+                        <i className='fw fw-view' />
                         More libraries
                     </a>
                     <br />
@@ -175,7 +175,7 @@ class ConnectorPane extends React.Component {
                 <div className='tool-pane-header'>
                     Connectors
                     <a className='back' onClick={() => this.changePane('tools')}>
-                        <i className='fw fw-left-arrow icon' />
+                        <i className='fw fw-left-arrow' />
                     </a>
                 </div>
                 {this.props.connectors}
@@ -201,7 +201,7 @@ class LibraryPane extends React.Component {
                 <div className='tool-pane-header'>
                     Libraries
                     <a className='back' onClick={() => this.changePane('tools')}>
-                        <i className='fw fw-left-arrow icon' />
+                        <i className='fw fw-left-arrow' />
                     </a>
                 </div>
                 {this.props.library}

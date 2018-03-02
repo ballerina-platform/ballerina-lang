@@ -19,15 +19,16 @@
 package org.ballerinalang.test.mime;
 
 import io.netty.buffer.ByteBufAllocator;
+import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.multipart.DefaultHttpDataFactory;
 import io.netty.handler.codec.http.multipart.FileUpload;
 import io.netty.handler.codec.http.multipart.HttpDataFactory;
 import io.netty.handler.codec.http.multipart.HttpPostRequestEncoder;
 import io.netty.handler.codec.http.multipart.InterfaceHttpData;
+import io.netty.util.internal.StringUtil;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.CompileResult;
-import org.ballerinalang.mime.util.EntityBody;
 import org.ballerinalang.mime.util.EntityBodyChannel;
 import org.ballerinalang.mime.util.EntityBodyHandler;
 import org.ballerinalang.mime.util.EntityWrapper;
@@ -41,13 +42,14 @@ import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BXMLItem;
-import org.ballerinalang.nativeimpl.io.channels.FileIOChannel;
+import org.ballerinalang.nativeimpl.io.channels.base.Channel;
 import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.HttpUtil;
 import org.ballerinalang.test.services.testutils.HTTPTestRequest;
 import org.ballerinalang.test.services.testutils.MessageUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.wso2.carbon.messaging.Header;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 
 import java.io.BufferedWriter;
@@ -58,21 +60,22 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
 import static org.ballerinalang.mime.util.Constants.APPLICATION_JSON;
 import static org.ballerinalang.mime.util.Constants.APPLICATION_XML;
+import static org.ballerinalang.mime.util.Constants.BODY_PARTS;
 import static org.ballerinalang.mime.util.Constants.BYTE_CHANNEL_STRUCT;
 import static org.ballerinalang.mime.util.Constants.CONTENT_DISPOSITION_NAME;
 import static org.ballerinalang.mime.util.Constants.CONTENT_DISPOSITION_STRUCT;
-import static org.ballerinalang.mime.util.Constants.CONTENT_TRANSFER_ENCODING;
 import static org.ballerinalang.mime.util.Constants.ENTITY_BYTE_CHANNEL;
 import static org.ballerinalang.mime.util.Constants.ENTITY_HEADERS_INDEX;
 import static org.ballerinalang.mime.util.Constants.MEDIA_TYPE;
 import static org.ballerinalang.mime.util.Constants.MESSAGE_ENTITY;
-import static org.ballerinalang.mime.util.Constants.MULTIPART_DATA_INDEX;
 import static org.ballerinalang.mime.util.Constants.MULTIPART_ENCODER;
+import static org.ballerinalang.mime.util.Constants.MULTIPART_MIXED;
 import static org.ballerinalang.mime.util.Constants.OCTET_STREAM;
 import static org.ballerinalang.mime.util.Constants.PROTOCOL_PACKAGE_IO;
 import static org.ballerinalang.mime.util.Constants.TEMP_FILE_EXTENSION;
@@ -113,6 +116,7 @@ public class Util {
     /**
      * Get a text body part from a given text content.
      *
+     * @param result Result of ballerina file compilation
      * @return A ballerina struct that represent a body part
      */
     static BStruct getTextBodyPart(CompileResult result) {
@@ -126,7 +130,8 @@ public class Util {
     /**
      * Get a text body part as a file upload.
      *
-     * @return a body part with text content in a file
+     * @param result Result of ballerina file compilation
+     * @return A body part with text content in a file
      */
     static BStruct getTextFilePart(CompileResult result) {
         try {
@@ -150,6 +155,9 @@ public class Util {
     /**
      * Get a text body part from a given text content and content transfer encoding.
      *
+     * @param contentTransferEncoding Content transfer encoding value
+     * @param message                 String that needs to be written to temp file
+     * @param result                  Result of ballerina file compilation
      * @return A ballerina struct that represent a body part
      */
     static BStruct getTextFilePartWithEncoding(String contentTransferEncoding, String message, CompileResult result) {
@@ -165,7 +173,8 @@ public class Util {
                     file.getAbsolutePath()));
             MimeUtil.setContentType(getMediaTypeStruct(result), bodyPart, TEXT_PLAIN);
             BMap<String, BValue> headerMap = new BMap<>();
-            headerMap.put(CONTENT_TRANSFER_ENCODING, new BStringArray(new String[]{contentTransferEncoding}));
+            headerMap.put(HttpHeaderNames.CONTENT_TRANSFER_ENCODING.toString(),
+                          new BStringArray(new String[]{contentTransferEncoding}));
             bodyPart.setRefField(ENTITY_HEADERS_INDEX, headerMap);
             return bodyPart;
         } catch (IOException e) {
@@ -178,6 +187,7 @@ public class Util {
     /**
      * Get a json body part from a given json content.
      *
+     * @param result Result of ballerina file compilation
      * @return A ballerina struct that represent a body part
      */
     static BStruct getJsonBodyPart(CompileResult result) {
@@ -194,7 +204,8 @@ public class Util {
     /**
      * Get a json body part as a file upload.
      *
-     * @return a body part with json content in a file
+     * @param result Result of ballerina file compilation
+     * @return A body part with json content in a file
      */
     static BStruct getJsonFilePart(CompileResult result) {
         try {
@@ -218,6 +229,7 @@ public class Util {
     /**
      * Get a xml body part from a given xml content.
      *
+     * @param result Result of ballerina file compilation
      * @return A ballerina struct that represent a body part
      */
     static BStruct getXmlBodyPart(CompileResult result) {
@@ -233,7 +245,8 @@ public class Util {
     /**
      * Get a xml body part as a file upload.
      *
-     * @return a body part with xml content in a file
+     * @param result Result of ballerina file compilation
+     * @return A body part with xml content in a file
      */
     static BStruct getXmlFilePart(CompileResult result) {
         try {
@@ -257,6 +270,7 @@ public class Util {
     /**
      * Get a binary body part from a given blob content.
      *
+     * @param result Result of ballerina file compilation
      * @return A ballerina struct that represent a body part
      */
     static BStruct getBinaryBodyPart(CompileResult result) {
@@ -270,7 +284,8 @@ public class Util {
     /**
      * Get a binary body part as a file upload.
      *
-     * @return a body part with blob content in a file
+     * @param result Result of ballerina file compilation
+     * @return A body part with blob content in a file
      */
     static BStruct getBinaryFilePart(CompileResult result) {
         try {
@@ -292,9 +307,70 @@ public class Util {
     }
 
     /**
+     * Get a multipart entity with four different body parts included in it.
+     *
+     * @param result Result of ballerina file compilation
+     * @return A ballerina entity with four body parts in it
+     */
+    static BStruct getMultipartEntity(CompileResult result) {
+        BStruct multipartEntity = getEntityStruct(result);
+        ArrayList<BStruct> bodyParts = getMultipleBodyParts(result);
+        multipartEntity.addNativeData(BODY_PARTS, Util.getArrayOfBodyParts(bodyParts));
+        return multipartEntity;
+    }
+
+    /**
+     * Get a multipart entity with four other multipart entities, each containing four different other body parts.
+     *
+     * @param result Result of ballerina file compilation
+     * @return A nested multipart entity
+     */
+    static BStruct getNestedMultipartEntity(CompileResult result) {
+        BStruct nestedMultipartEntity = getEntityStruct(result);
+        ArrayList<BStruct> bodyParts = getEmptyBodyPartList(result);
+        for (BStruct bodyPart : bodyParts) {
+            MimeUtil.setContentType(getMediaTypeStruct(result), bodyPart, MULTIPART_MIXED);
+            bodyPart.addNativeData(BODY_PARTS, Util.getArrayOfBodyParts(getMultipleBodyParts(result)));
+        }
+        nestedMultipartEntity.addNativeData(BODY_PARTS, Util.getArrayOfBodyParts(bodyParts));
+        return nestedMultipartEntity;
+    }
+
+    /**
+     * Get a list of four different body parts.
+     *
+     * @param result Result of ballerina file compilation
+     * @return A list of different body parts
+     */
+    private static ArrayList<BStruct> getMultipleBodyParts(CompileResult result) {
+        ArrayList<BStruct> bodyParts = new ArrayList<>();
+        bodyParts.add(getJsonBodyPart(result));
+        bodyParts.add(getXmlFilePart(result));
+        bodyParts.add(getTextBodyPart(result));
+        bodyParts.add(getBinaryFilePart(result));
+        return bodyParts;
+    }
+
+    /**
+     * Get an empty body part list.
+     *
+     * @param result Result of ballerina file compilation
+     * @return A list of empty body parts
+     */
+    private static ArrayList<BStruct> getEmptyBodyPartList(CompileResult result) {
+        ArrayList<BStruct> bodyParts = new ArrayList<>();
+        for (int i = 0; i < 4; i++) {
+            bodyParts.add(getEntityStruct(result));
+        }
+        return bodyParts;
+    }
+
+    /**
      * Create prerequisite messages that are needed to proceed with the test cases.
      *
-     * @param path Represent path to the resource
+     * @param path                Represent path to the ballerina resource
+     * @param topLevelContentType Content type that needs to be set to the top level message
+     * @param result              Result of ballerina file compilation
      * @return A map of relevant messages
      */
     static Map<String, Object> createPrerequisiteMessages(String path, String topLevelContentType,
@@ -322,7 +398,7 @@ public class Util {
         HTTPTestRequest cMsg = (HTTPTestRequest) messageMap.get(CARBON_MESSAGE);
         BStruct request = (BStruct) messageMap.get(BALLERINA_REQUEST);
         BStruct entity = (BStruct) messageMap.get(MULTIPART_ENTITY);
-        entity.setRefField(MULTIPART_DATA_INDEX, bodyParts);
+        entity.addNativeData(BODY_PARTS, bodyParts);
         request.addNativeData(MESSAGE_ENTITY, entity);
         setCarbonMessageWithMultiparts(request, cMsg);
         return cMsg;
@@ -370,8 +446,8 @@ public class Util {
         BStruct entityStruct = requestStruct.getNativeData(MESSAGE_ENTITY) != null ?
                 (BStruct) requestStruct.getNativeData(MESSAGE_ENTITY) : null;
         if (entityStruct != null) {
-            BRefValueArray bodyParts = entityStruct.getRefField(MULTIPART_DATA_INDEX) != null ?
-                    (BRefValueArray) entityStruct.getRefField(MULTIPART_DATA_INDEX) : null;
+            BRefValueArray bodyParts = entityStruct.getNativeData(BODY_PARTS) != null ?
+                    (BRefValueArray) entityStruct.getNativeData(BODY_PARTS) : null;
             if (bodyParts != null) {
                 HttpDataFactory dataFactory = new DefaultHttpDataFactory(DefaultHttpDataFactory.MINSIZE);
                 setDataFactory(dataFactory);
@@ -405,28 +481,25 @@ public class Util {
                                        BStruct bodyPart) throws HttpPostRequestEncoder.ErrorDataEncoderException {
         try {
             InterfaceHttpData encodedData;
-            EntityBody entityBodyReader = MimeUtil.constructEntityBody(bodyPart);
+            Channel byteChannel = EntityBodyHandler.getByteChannel(bodyPart);
             FileUploadContentHolder contentHolder = new FileUploadContentHolder();
             contentHolder.setRequest(httpRequest);
             contentHolder.setBodyPartName(getBodyPartName(bodyPart));
             contentHolder.setFileName(TEMP_FILE_NAME + TEMP_FILE_EXTENSION);
-            contentHolder.setContentType(MimeUtil.getContentType(bodyPart));
+            contentHolder.setContentType(MimeUtil.getBaseType(bodyPart));
             contentHolder.setBodyPartFormat(org.ballerinalang.mime.util.Constants.BodyPartForm.INPUTSTREAM);
-            String contentTransferHeaderValue = HeaderUtil.getHeaderValue(bodyPart, CONTENT_TRANSFER_ENCODING);
+            String contentTransferHeaderValue = HeaderUtil.getHeaderValue(bodyPart,
+                                                                          HttpHeaderNames.CONTENT_TRANSFER_ENCODING
+                                                                                  .toString());
             if (contentTransferHeaderValue != null) {
                 contentHolder.setContentTransferEncoding(contentTransferHeaderValue);
             }
-            if (entityBodyReader.isStream()) {
-                contentHolder.setContentStream(entityBodyReader.getEntityWrapper().getInputStream());
+            if (byteChannel != null) {
+                contentHolder.setContentStream(byteChannel.getInputStream());
                 encodedData = getFileUpload(contentHolder);
-            } else {
-                FileIOChannel fileIOChannel = entityBodyReader.getFileIOChannel();
-                contentHolder.setContentStream(fileIOChannel.getInputStream());
-                encodedData = getFileUpload(contentHolder);
-            }
-
-            if (encodedData != null) {
-                nettyEncoder.addBodyHttpData(encodedData);
+                if (encodedData != null) {
+                    nettyEncoder.addBodyHttpData(encodedData);
+                }
             }
         } catch (IOException e) {
             log.error("Error occurred while encoding body part in ", e.getMessage());
@@ -469,7 +542,7 @@ public class Util {
      * Get the body part name and if the user hasn't set a name set a random string as the part name.
      *
      * @param bodyPart Represent a ballerina body part
-     * @return a string denoting the body part's name
+     * @return A string denoting the body part's name
      */
     private static String getBodyPartName(BStruct bodyPart) {
         String contentDisposition = MimeUtil.getContentDisposition(bodyPart);
@@ -489,6 +562,48 @@ public class Util {
         } else {
             return getRandomString();
         }
+    }
+
+    /**
+     * Two body parts have been wrapped inside multipart/mixed which in turn acts as the child part for the parent
+     * multipart/form-data.
+     *
+     * @param path Resource path
+     * @return HTTPTestRequest with nested parts as the entity body
+     */
+    static HTTPTestRequest createNestedPartRequest(String path) {
+        List<Header> headers = new ArrayList<>();
+        String multipartDataBoundary = MimeUtil.getNewMultipartDelimiter();
+        String multipartMixedBoundary = MimeUtil.getNewMultipartDelimiter();
+        headers.add(new Header(HttpHeaderNames.CONTENT_TYPE.toString(), "multipart/form-data; boundary=" +
+                multipartDataBoundary));
+        String multipartBodyWithNestedParts = "--" + multipartDataBoundary + "\r\n" +
+                "Content-Disposition: form-data; name=\"parent1\"" + "\r\n" +
+                "Content-Type: text/plain; charset=UTF-8" + "\r\n" +
+                "\r\n" +
+                "Parent Part" + "\r\n" +
+                "--" + multipartDataBoundary + "\r\n" +
+                "Content-Disposition: form-data; name=\"parent2\"" + "\r\n" +
+                "Content-Type: multipart/mixed; boundary=" + multipartMixedBoundary + "\r\n" +
+                "\r\n" +
+                "--" + multipartMixedBoundary + "\r\n" +
+                "Content-Disposition: attachment; filename=\"file-02.txt\"" + "\r\n" +
+                "Content-Type: text/plain" + "\r\n" +
+                "Content-Transfer-Encoding: binary" + "\r\n" +
+                "\r\n" +
+                "Child Part 1" + StringUtil.NEWLINE +
+                "\r\n" +
+                "--" + multipartMixedBoundary + "\r\n" +
+                "Content-Disposition: attachment; filename=\"file-02.txt\"" + "\r\n" +
+                "Content-Type: text/plain" + "\r\n" +
+                "Content-Transfer-Encoding: binary" + "\r\n" +
+                "\r\n" +
+                "Child Part 2" + StringUtil.NEWLINE +
+                "\r\n" +
+                "--" + multipartMixedBoundary + "--" + "\r\n" +
+                "--" + multipartDataBoundary + "--" + "\r\n";
+        return MessageUtils.generateHTTPMessage(path, HttpConstants.HTTP_METHOD_POST, headers,
+                multipartBodyWithNestedParts);
     }
 
     private static String getRandomString() {

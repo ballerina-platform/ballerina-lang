@@ -44,16 +44,8 @@ public class HttpConstants {
     public static final String HTTP_METHOD = "HTTP_METHOD";
     public static final String HTTP_STATUS_CODE = "HTTP_STATUS_CODE";
     public static final String HTTP_REASON_PHRASE = "HTTP_REASON_PHRASE";
-    public static final String HTTP_CONTENT_LENGTH = "Content-Length";
-    public static final String USER_AGENT_HEADER = "User-Agent";
-    public static final String CONTENT_TYPE_HEADER = "Content-Type";
-    public static final String CONTENT_ENCODING_HEADER = "content-encoding";
-    public static final String ACCEPT_HEADER = "Accept";
-    public static final String ALLOW = "Allow";
-    public static final String SERVER_HEADER = "Server";
     public static final String APPLICATION_OCTET_STREAM = "application/octet-stream";
     public static final String PROTOCOL = "PROTOCOL";
-    public static final String PORT = "PORT";
     public static final String TO = "TO";
     public static final String LOCAL_ADDRESS = "LOCAL_ADDRESS";
     public static final String HTTP_VERSION = "HTTP_VERSION";
@@ -64,7 +56,6 @@ public class HttpConstants {
     public static final String CHUNKING_AUTO = "auto";
     public static final String CHUNKING_ALWAYS = "always";
     public static final String CHUNKING_NEVER = "never";
-    public static final String MAX_ACTIVE_CONNECTIONS_PER_POOL = "client.max.active.connections.per.pool";
 
     public static final String HTTP_PACKAGE_PATH = "ballerina.net.http";
 
@@ -130,16 +121,6 @@ public class HttpConstants {
     public static final String HTTP_ONLY = "HttpOnly";
     public static final String SECURE = "Secure";
 
-    public static final String ORIGIN = "Origin";
-    public static final String AC_REQUEST_METHOD = "Access-Control-Request-Method";
-    public static final String AC_REQUEST_HEADERS = "Access-Control-Request-Headers";
-    public static final String AC_ALLOW_ORIGIN = "Access-Control-Allow-Origin";
-    public static final String AC_ALLOW_CREDENTIALS = "Access-Control-Allow-Credentials";
-    public static final String AC_ALLOW_METHODS = "Access-Control-Allow-Methods";
-    public static final String AC_MAX_AGE = "Access-Control-Max-Age";
-    public static final String AC_ALLOW_HEADERS = "Access-Control-Allow-Headers";
-    public static final String AC_EXPOSE_HEADERS = "Access-Control-Expose-Headers";
-
     public static final String ALLOW_ORIGIN = "allowOrigins";
     public static final String ALLOW_CREDENTIALS = "allowCredentials";
     public static final String ALLOW_METHODS = "allowMethods";
@@ -177,7 +158,6 @@ public class HttpConstants {
     public static final String SSL_ENABLED_PROTOCOLS = "sslEnabledProtocols";
     public static final int OPTIONS_STRUCT_INDEX = 0;
     public static final int ENDPOINT_TIMEOUT_STRUCT_INDEX = 1;
-    public static final int MAX_ACTIVE_CONNECTIONS_INDEX = 2;
     public static final int TRANSFER_ENCODING = 0;
     public static final int ENABLE_CHUNKING_INDEX = 1;
     public static final int IS_KEEP_ALIVE_INDEX = 0;
@@ -228,15 +208,18 @@ public class HttpConstants {
     public static final int PROXY_USER_NAME_INDEX = 1;
     public static final int PROXY_PASSWORD_INDEX = 2;
 
+    //Connection Throttling struct indexes
+    public static final int CONNECTION_THROTTLING_STRUCT_INDEX = 4;
+    public static final int CONNECTION_THROTTLING_MAX_ACTIVE_CONNECTIONS_INDEX = 0;
+    public static final int CONNECTION_THROTTLING_WAIT_TIME_INDEX = 1;
+
     //Retry Struct indexes
     public static final int RETRY_STRUCT_INDEX = 2;
     public static final int RETRY_COUNT_INDEX = 0;
     public static final int RETRY_INTERVAL_INDEX = 1;
 
-    public static final String CONNECTION_HEADER = "Connection";
     public static final String HEADER_VAL_CONNECTION_CLOSE = "Close";
     public static final String HEADER_VAL_CONNECTION_KEEP_ALIVE = "Keep-Alive";
-    public static final String EXPECT_HEADER = "Expect";
     public static final String HEADER_VAL_100_CONTINUE = "100-continue";
 
     //Response codes

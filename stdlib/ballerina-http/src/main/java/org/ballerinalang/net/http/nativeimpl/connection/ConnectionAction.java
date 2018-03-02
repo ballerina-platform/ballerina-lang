@@ -20,7 +20,10 @@ package org.ballerinalang.net.http.nativeimpl.connection;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.mime.util.EntityBodyHandler;
+import org.ballerinalang.mime.util.HeaderUtil;
 import org.ballerinalang.mime.util.MimeUtil;
+import org.ballerinalang.mime.util.MultipartDataSource;
+import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.AbstractNativeFunction;
@@ -61,13 +64,51 @@ public abstract class ConnectionAction extends AbstractNativeFunction {
 
     private BValue[] sendOutboundResponseRobust(Context context, HTTPCarbonMessage requestMessage,
                                                 BStruct outboundResponseStruct, HTTPCarbonMessage responseMessage) {
-        BStruct entityStruct = MimeUtil.extractEntity(outboundResponseStruct);
+        String contentType = HttpUtil.getContentTypeFromTransportMessage(responseMessage);
+        String boundaryString = null;
+        if (HeaderUtil.isMultipart(contentType)) {
+            boundaryString = HttpUtil.addBoundaryIfNotExist(responseMessage, contentType);
+        }
         HttpResponseFuture outboundRespStatusFuture = HttpUtil.sendOutboundResponse(requestMessage, responseMessage);
+        BStruct entityStruct = MimeUtil.extractEntity(outboundResponseStruct);
         if (entityStruct != null) {
-            MessageDataSource outboundMessageSource = EntityBodyHandler.getMessageDataSource(entityStruct);
+            if (boundaryString != null) {
+                serializeMultiparts(responseMessage, boundaryString, outboundRespStatusFuture, entityStruct);
+            } else {
+                MessageDataSource outboundMessageSource = EntityBodyHandler.getMessageDataSource(entityStruct);
                 serializeMsgDataSource(responseMessage, outboundMessageSource, outboundRespStatusFuture, entityStruct);
+            }
         }
         return handleResponseStatus(context, outboundRespStatusFuture);
+    }
+
+    /**
+     * Serlaize multipart entity body. If an array of body parts exist, encode body parts else serialize body content
+     * if it exist as a byte channel.
+     *
+     * @param responseMessage          Response message that needs to be sent out.
+     * @param boundaryString           Boundary string that should be used in encoding body parts
+     * @param outboundRespStatusFuture Represent the future events and results of connectors
+     * @param entityStruct             Represent the entity that holds the actual body
+     */
+    private void serializeMultiparts(HTTPCarbonMessage responseMessage, String boundaryString,
+                                     HttpResponseFuture outboundRespStatusFuture, BStruct entityStruct) {
+        BRefValueArray bodyParts = EntityBodyHandler.getBodyPartArray(entityStruct);
+        if (bodyParts != null && bodyParts.size() > 0) {
+            MultipartDataSource multipartDataSource = new MultipartDataSource(entityStruct, boundaryString);
+            serializeMsgDataSource(responseMessage, multipartDataSource, outboundRespStatusFuture,
+                    entityStruct);
+        } else {
+            OutputStream messageOutputStream = getOutputStream(responseMessage, outboundRespStatusFuture);
+            try {
+                EntityBodyHandler.writeByteChannelToOutputStream(entityStruct, messageOutputStream);
+            } catch (IOException e) {
+                throw new BallerinaException("Error occurred while serializing byte channel content : " +
+                        e.getMessage());
+            } finally {
+                HttpUtil.closeMessageOutputStream(messageOutputStream);
+            }
+        }
     }
 
     private BValue[] handleResponseStatus(Context context, HttpResponseFuture outboundResponseStatusFuture) {
@@ -85,21 +126,27 @@ public abstract class ConnectionAction extends AbstractNativeFunction {
 
     private void serializeMsgDataSource(HTTPCarbonMessage responseMessage, MessageDataSource outboundMessageSource,
                                         HttpResponseFuture outboundResponseStatusFuture, BStruct entityStruct) {
-        HttpMessageDataStreamer outboundMsgDataStreamer = new HttpMessageDataStreamer(responseMessage);
-        HttpConnectorListener outboundResStatusConnectorListener =
-                new HttpResponseConnectorListener(outboundMsgDataStreamer);
-        outboundResponseStatusFuture.setHttpConnectorListener(outboundResStatusConnectorListener);
-        OutputStream messageOutputStream = outboundMsgDataStreamer.getOutputStream();
+        OutputStream messageOutputStream = getOutputStream(responseMessage, outboundResponseStatusFuture);
         try {
             if (outboundMessageSource != null) {
                 outboundMessageSource.serializeData(messageOutputStream);
             } else { //When the entity body is a byte channel
                 EntityBodyHandler.writeByteChannelToOutputStream(entityStruct, messageOutputStream);
             }
-            HttpUtil.closeMessageOutputStream(messageOutputStream);
         } catch (IOException e) {
             throw new BallerinaException("Error occurred while serializing message data source : " + e.getMessage());
+        } finally {
+            HttpUtil.closeMessageOutputStream(messageOutputStream);
         }
+    }
+
+    private OutputStream getOutputStream(HTTPCarbonMessage responseMessage, HttpResponseFuture
+            outboundResponseStatusFuture) {
+        HttpMessageDataStreamer outboundMsgDataStreamer = new HttpMessageDataStreamer(responseMessage);
+        HttpConnectorListener outboundResStatusConnectorListener =
+                new HttpResponseConnectorListener(outboundMsgDataStreamer);
+        outboundResponseStatusFuture.setHttpConnectorListener(outboundResStatusConnectorListener);
+        return outboundMsgDataStreamer.getOutputStream();
     }
 
     private static class HttpResponseConnectorListener implements HttpConnectorListener {

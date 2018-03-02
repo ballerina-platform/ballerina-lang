@@ -36,6 +36,7 @@ import org.ballerinalang.connector.api.ConnectorUtils;
 import org.ballerinalang.connector.api.Resource;
 import org.ballerinalang.connector.api.Service;
 import org.ballerinalang.mime.util.EntityBodyHandler;
+import org.ballerinalang.mime.util.HeaderUtil;
 import org.ballerinalang.mime.util.MimeUtil;
 import org.ballerinalang.mime.util.MultipartDecoder;
 import org.ballerinalang.model.values.BMap;
@@ -61,6 +62,8 @@ import org.wso2.transport.http.netty.config.ListenerConfiguration;
 import org.wso2.transport.http.netty.config.Parameter;
 import org.wso2.transport.http.netty.config.RequestSizeValidationConfig;
 import org.wso2.transport.http.netty.contract.HttpResponseFuture;
+import org.wso2.transport.http.netty.contract.HttpWsConnectorFactory;
+import org.wso2.transport.http.netty.contractimpl.DefaultHttpWsConnectorFactory;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 import org.wso2.transport.http.netty.message.HttpMessageDataStreamer;
 
@@ -76,7 +79,7 @@ import java.util.Set;
 
 import static org.ballerinalang.bre.bvm.BLangVMErrors.PACKAGE_BUILTIN;
 import static org.ballerinalang.bre.bvm.BLangVMErrors.STRUCT_GENERIC_ERROR;
-import static org.ballerinalang.mime.util.Constants.CONTENT_TYPE;
+import static org.ballerinalang.mime.util.Constants.BOUNDARY;
 import static org.ballerinalang.mime.util.Constants.ENTITY_HEADERS_INDEX;
 import static org.ballerinalang.mime.util.Constants.IS_BODY_BYTE_CHANNEL_ALREADY_SET;
 import static org.ballerinalang.mime.util.Constants.MESSAGE_ENTITY;
@@ -145,11 +148,11 @@ public class HttpUtil {
                 .getCarbonMsg(httpMessageStruct, HttpUtil.createHttpCarbonMessage(isRequest));
         httpCarbonMessage.waitAndReleaseAllEntities();
         BStruct entity = (BStruct) abstractNativeFunction.getRefArgument(context, ENTITY_INDEX);
-        String baseType = MimeUtil.getContentType(entity);
-        if (baseType == null) {
-            baseType = OCTET_STREAM;
+        String contentType = MimeUtil.getContentTypeWithParameters(entity);
+        if (contentType == null) {
+            contentType = OCTET_STREAM;
         }
-        HttpUtil.setHeaderToEntity(entity, CONTENT_TYPE, baseType);
+        HttpUtil.setHeaderToEntity(entity, HttpHeaderNames.CONTENT_TYPE.toString(), contentType);
         httpMessageStruct.addNativeData(MESSAGE_ENTITY, entity);
         httpMessageStruct.addNativeData(IS_BODY_BYTE_CHANNEL_ALREADY_SET, EntityBodyHandler
                 .checkEntityBodyAvailability(entity));
@@ -196,13 +199,13 @@ public class HttpUtil {
         HTTPCarbonMessage httpCarbonMessage = HttpUtil
                 .getCarbonMsg(httpMessageStruct, HttpUtil.createHttpCarbonMessage(isRequest));
         HttpMessageDataStreamer httpMessageDataStreamer = new HttpMessageDataStreamer(httpCarbonMessage);
-        String contentType = httpCarbonMessage.getHeader(CONTENT_TYPE);
-        if (isRequest && MimeUtil.isNotNullAndEmpty(contentType) && contentType.startsWith(MULTIPART_AS_PRIMARY_TYPE)
+        String contentType = httpCarbonMessage.getHeader(HttpHeaderNames.CONTENT_TYPE.toString());
+        if (MimeUtil.isNotNullAndEmpty(contentType) && contentType.startsWith(MULTIPART_AS_PRIMARY_TYPE)
                 && context != null) {
             MultipartDecoder.parseBody(context, entity, contentType, httpMessageDataStreamer.getInputStream());
         } else {
             int contentLength = NO_CONTENT_LENGTH_FOUND;
-            String lengthStr = httpCarbonMessage.getHeader(HttpConstants.HTTP_CONTENT_LENGTH);
+            String lengthStr = httpCarbonMessage.getHeader(HttpHeaderNames.CONTENT_LENGTH.toString());
             try {
                 contentLength = lengthStr != null ? Integer.parseInt(lengthStr) : contentLength;
                 if (contentLength == NO_CONTENT_LENGTH_FOUND) {
@@ -288,7 +291,7 @@ public class HttpUtil {
             session.generateSessionHeader(responseMsg, isSecureRequest);
         }
         //Process CORS if exists.
-        if (requestMsg.getHeader(HttpConstants.ORIGIN) != null) {
+        if (requestMsg.getHeader(HttpHeaderNames.ORIGIN.toString()) != null) {
             CorsHeaderGenerator.process(requestMsg, responseMsg, true);
         }
     }
@@ -338,8 +341,7 @@ public class HttpUtil {
 
     private static void setHttpStatusCodes(int statusCode, HTTPCarbonMessage response) {
         HttpHeaders httpHeaders = response.getHeaders();
-        httpHeaders.set(org.wso2.transport.http.netty.common.Constants.HTTP_CONTENT_TYPE,
-                org.wso2.transport.http.netty.common.Constants.TEXT_PLAIN);
+        httpHeaders.set(HttpHeaderNames.CONTENT_TYPE, org.wso2.transport.http.netty.common.Constants.TEXT_PLAIN);
 
         response.setProperty(org.wso2.transport.http.netty.common.Constants.HTTP_STATUS_CODE, statusCode);
     }
@@ -386,10 +388,10 @@ public class HttpUtil {
 
     private static void enrichWithInboundRequestHeaders(BStruct inboundRequestStruct,
                                                         HTTPCarbonMessage inboundRequestMsg) {
-        if (inboundRequestMsg.getHeader(HttpConstants.USER_AGENT_HEADER) != null) {
+        if (inboundRequestMsg.getHeader(HttpHeaderNames.USER_AGENT.toString()) != null) {
             inboundRequestStruct.setStringField(HttpConstants.IN_REQUEST_USER_AGENT_INDEX,
-                    inboundRequestMsg.getHeader(HttpConstants.USER_AGENT_HEADER));
-            inboundRequestMsg.removeHeader(HttpConstants.USER_AGENT_HEADER);
+                                                inboundRequestMsg.getHeader(HttpHeaderNames.USER_AGENT.toString()));
+            inboundRequestMsg.removeHeader(HttpHeaderNames.USER_AGENT.toString());
         }
     }
 
@@ -431,10 +433,10 @@ public class HttpUtil {
         inboundResponse.setStringField(HttpConstants.IN_RESPONSE_REASON_PHRASE_INDEX,
                 HttpResponseStatus.valueOf(statusCode).reasonPhrase());
 
-        if (inboundResponseMsg.getHeader(HttpConstants.SERVER_HEADER) != null) {
+        if (inboundResponseMsg.getHeader(HttpHeaderNames.SERVER.toString()) != null) {
             inboundResponse.setStringField(HttpConstants.IN_RESPONSE_SERVER_INDEX,
-                    inboundResponseMsg.getHeader(HttpConstants.SERVER_HEADER));
-            inboundResponseMsg.removeHeader(HttpConstants.SERVER_HEADER);
+                                           inboundResponseMsg.getHeader(HttpHeaderNames.SERVER.toString()));
+            inboundResponseMsg.removeHeader(HttpHeaderNames.SERVER.toString());
         }
         populateEntity(entity, mediaType, inboundResponseMsg);
         inboundResponse.addNativeData(MESSAGE_ENTITY, entity);
@@ -449,10 +451,10 @@ public class HttpUtil {
      * @param cMsg      Represent a carbon message
      */
     private static void populateEntity(BStruct entity, BStruct mediaType, HTTPCarbonMessage cMsg) {
-        String contentType = cMsg.getHeader(CONTENT_TYPE);
+        String contentType = cMsg.getHeader(HttpHeaderNames.CONTENT_TYPE.toString());
         MimeUtil.setContentType(mediaType, entity, contentType);
         int contentLength = -1;
-        String lengthStr = cMsg.getHeader(HttpConstants.HTTP_CONTENT_LENGTH);
+        String lengthStr = cMsg.getHeader(HttpHeaderNames.CONTENT_LENGTH.toString());
         try {
             contentLength = lengthStr != null ? Integer.parseInt(lengthStr) : contentLength;
             MimeUtil.setContentLength(entity, contentLength);
@@ -522,13 +524,13 @@ public class HttpUtil {
     private static void addRemovedPropertiesBackToHeadersMap(BStruct struct, HttpHeaders transportHeaders) {
         if (isInboundRequestStruct(struct)) {
             if (!struct.getStringField(HttpConstants.IN_REQUEST_USER_AGENT_INDEX).isEmpty()) {
-                transportHeaders.add(HttpConstants.USER_AGENT_HEADER,
-                        struct.getStringField(HttpConstants.IN_REQUEST_USER_AGENT_INDEX));
+                transportHeaders.add(HttpHeaderNames.USER_AGENT.toString(),
+                                     struct.getStringField(HttpConstants.IN_REQUEST_USER_AGENT_INDEX));
             }
         } else {
             if (!struct.getStringField(HttpConstants.IN_RESPONSE_SERVER_INDEX).isEmpty()) {
-                transportHeaders.add(HttpConstants.SERVER_HEADER,
-                        struct.getStringField(HttpConstants.IN_RESPONSE_SERVER_INDEX));
+                transportHeaders.add(HttpHeaderNames.SERVER.toString(),
+                                     struct.getStringField(HttpConstants.IN_RESPONSE_SERVER_INDEX));
             }
         }
     }
@@ -595,11 +597,12 @@ public class HttpUtil {
             AnnAttributeValue keepAliveAttrVal = configAnn.getAttributeValue(HttpConstants.ANN_CONFIG_ATTR_KEEP_ALIVE);
 
             if (keepAliveAttrVal != null && !keepAliveAttrVal.getBooleanValue()) {
-                outboundMessage.setHeader(HttpConstants.CONNECTION_HEADER, HttpConstants.HEADER_VAL_CONNECTION_CLOSE);
+                outboundMessage.setHeader(HttpHeaderNames.CONNECTION.toString(),
+                                          HttpConstants.HEADER_VAL_CONNECTION_CLOSE);
             } else {
                 // default behaviour: keepAlive = true
-                outboundMessage.setHeader(HttpConstants.CONNECTION_HEADER,
-                        HttpConstants.HEADER_VAL_CONNECTION_KEEP_ALIVE);
+                outboundMessage.setHeader(HttpHeaderNames.CONNECTION.toString(),
+                                          HttpConstants.HEADER_VAL_CONNECTION_KEEP_ALIVE);
             }
             AnnAttributeValue compressionEnabled = configAnn.getAttributeValue(
                     HttpConstants.ANN_CONFIG_ATTR_COMPRESSION_ENABLED);
@@ -609,7 +612,8 @@ public class HttpUtil {
             }
         } else {
             // default behaviour: keepAlive = true
-            outboundMessage.setHeader(HttpConstants.CONNECTION_HEADER, HttpConstants.HEADER_VAL_CONNECTION_KEEP_ALIVE);
+            outboundMessage.setHeader(HttpHeaderNames.CONNECTION.toString(),
+                                      HttpConstants.HEADER_VAL_CONNECTION_KEEP_ALIVE);
         }
     }
 
@@ -853,12 +857,11 @@ public class HttpUtil {
         if (isRequest) {
             httpCarbonMessage = new HTTPCarbonMessage(
                     new DefaultHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.GET, ""));
-            httpCarbonMessage.setEndOfMsgAdded(true);
         } else {
             httpCarbonMessage = new HTTPCarbonMessage(
                     new DefaultHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.OK));
-            httpCarbonMessage.setEndOfMsgAdded(true);
         }
+        httpCarbonMessage.completeMessage();
         return httpCarbonMessage;
     }
 
@@ -884,7 +887,8 @@ public class HttpUtil {
     }
 
     private static boolean is100ContinueRequest(HTTPCarbonMessage reqMsg) {
-        return HttpConstants.HEADER_VAL_100_CONTINUE.equalsIgnoreCase(reqMsg.getHeader(HttpConstants.EXPECT_HEADER));
+        return HttpConstants.HEADER_VAL_100_CONTINUE.equalsIgnoreCase(
+                reqMsg.getHeader(HttpHeaderNames.EXPECT.toString()));
     }
 
     public static Annotation getServiceConfigAnnotation(Service service, String pkgPath) {
@@ -928,6 +932,44 @@ public class HttpUtil {
         return intVal;
     }
 
+    public static String getContentTypeFromTransportMessage(HTTPCarbonMessage transportMessage) {
+        return transportMessage.getHeader(HttpHeaderNames.CONTENT_TYPE.toString()) != null ?
+                transportMessage.getHeader(HttpHeaderNames.CONTENT_TYPE.toString()) : null;
+    }
+
+    /**
+     * If the given Content-Type header value doesn't have a boundary parameter value, get a new boundary string and
+     * append it to Content-Type and set it to transport message.
+     *
+     * @param transportMessage Represent transport message
+     * @param contentType      Represent the Content-Type header value
+     * @return The boundary string that was extracted from header or the newly generated one
+     */
+    public static String addBoundaryIfNotExist(HTTPCarbonMessage transportMessage, String contentType) {
+        String boundaryString;
+        BString boundaryValue = HeaderUtil.extractBoundaryParameter(contentType);
+        boundaryString = boundaryValue != null ? boundaryValue.toString() :
+                HttpUtil.addBoundaryParameter(transportMessage, contentType);
+        return boundaryString;
+    }
+
+    /**
+     * Generate a new boundary string and append it Content-Type and set that to transport message.
+     *
+     * @param transportMessage Represent transport message
+     * @param contentType      Represent the Content-Type header value
+     * @return The newly generated boundary string
+     */
+    private static String addBoundaryParameter(HTTPCarbonMessage transportMessage, String contentType) {
+        String boundaryString = null;
+        if (contentType != null && contentType.startsWith(MULTIPART_AS_PRIMARY_TYPE)) {
+            boundaryString = MimeUtil.getNewMultipartDelimiter();
+            transportMessage.setHeader(HttpHeaderNames.CONTENT_TYPE.toString(), contentType + "; " + BOUNDARY + "=" +
+                    boundaryString);
+        }
+        return boundaryString;
+    }
+
     /**
      * Extract generic error message.
      *
@@ -942,6 +984,10 @@ public class HttpUtil {
         BStruct genericError = new BStruct(errorStructInfo.getType());
         genericError.setStringField(0, errMsg);
         return genericError;
+    }
+
+    public static HttpWsConnectorFactory createHttpWsConnectionFactory() {
+        return new DefaultHttpWsConnectorFactory();
     }
 }
 
