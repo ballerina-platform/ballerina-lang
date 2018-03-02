@@ -46,7 +46,7 @@ public class SwaggerCmd implements BLauncherCmd {
     @Parameter(arity = 1, description = "<action> <swagger specification>. action : connector|skeleton|mock")
     private List<String> argList;
 
-    @Parameter(names = { "-d", "--directory" },
+    @Parameter(names = { "-o", "--output" },
                description = "where to write the generated files (current dir by default)")
     private String output = "";
 
@@ -58,6 +58,9 @@ public class SwaggerCmd implements BLauncherCmd {
 
     @Parameter(names = "--debug", hidden = true)
     private String debugPort;
+
+    @Parameter(names = "--java.debug", hidden = true)
+    private String javaDebugPort;
 
     @Override
     public void execute() {

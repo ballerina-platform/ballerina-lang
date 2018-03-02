@@ -15,6 +15,7 @@
  */
 
 import org.ballerinalang.swagger.CodeGenerator;
+import org.ballerinalang.swagger.exception.BalOpenApiException;
 import org.ballerinalang.swagger.utils.GeneratorConstants.GenType;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
@@ -22,8 +23,6 @@ import org.testng.annotations.Test;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 
 /**
  * Unit tests for {@link org.ballerinalang.swagger.CodeGenerator}
@@ -38,34 +37,18 @@ public class CodeGeneratorTest {
 
     @Test(description = "Test Ballerina skeleton generation when destination path is provided")
     public void generateSkeletonWithDestination() {
-        String outPath = testResourceRoot + File.separator + "service.bal";
+        String outPath = testResourceRoot;
         String definitionPath = testResourceRoot + File.separator + "petstore.yaml";
         CodeGenerator generator = new CodeGenerator();
+        generator.setApiPackage("org.wso2.ballerina.api");
 
         try {
             generator.generate(GenType.SKELETON, definitionPath, outPath);
-            File genFile = new File(outPath);
-
-            if (genFile.exists()) {
-                String result = new String(Files.readAllBytes(Paths.get(genFile.getPath())));
-                Assert.assertTrue(result != null && result.contains("SwaggerPetstore"));
-            } else {
-                Assert.fail("Service was not generated");
-            }
         } catch (IOException e) {
+            Assert.fail("Error while generating the service. " + e.getMessage());
+        } catch (BalOpenApiException e) {
             Assert.fail("Error while generating the service. " + e.getMessage());
         }
     }
 
-    @Test(description = "Test Ballerina skeleton generation when destination path is not provided")
-    public void generateSkeletonWithoutDestination() {
-        String definitionPath = testResourceRoot + File.separator + "petstore.yaml";
-        CodeGenerator generator = new CodeGenerator();
-
-        try {
-            generator.generate(GenType.SKELETON, definitionPath, null);
-        } catch (IOException e) {
-            Assert.fail("Error while generating the service. " + e.getMessage());
-        }
-    }
 }

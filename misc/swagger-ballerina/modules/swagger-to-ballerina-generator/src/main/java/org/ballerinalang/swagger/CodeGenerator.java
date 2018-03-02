@@ -27,6 +27,7 @@ import com.github.jknack.handlebars.io.ClassPathTemplateLoader;
 import com.github.jknack.handlebars.io.FileTemplateLoader;
 import io.swagger.oas.models.OpenAPI;
 import io.swagger.parser.v3.OpenAPIV3Parser;
+import org.ballerinalang.swagger.exception.BalOpenApiException;
 import org.ballerinalang.swagger.model.BalOpenApi;
 import org.ballerinalang.swagger.utils.GeneratorConstants;
 import org.ballerinalang.swagger.utils.GeneratorConstants.GenType;
@@ -36,7 +37,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 
 /**
- * <p>This class generates Ballerina Services/Connectors for a provided OAS definition.</p>
+ * This class generates Ballerina Services/Connectors for a provided OAS definition.
  */
 public class CodeGenerator {
     private String apiPackage;
@@ -56,45 +57,39 @@ public class CodeGenerator {
      *                       <code>definitionPath</code> will be used as the default destination path
      * @throws IOException when file operations fail
      */
-    public void generate(GenType type, String definitionPath, String outPath) throws IOException {
+    public void generate(GenType type, String definitionPath, String outPath) throws IOException, BalOpenApiException {
         OpenAPI api = new OpenAPIV3Parser().read(definitionPath);
         BalOpenApi definitionContext = new BalOpenApi().buildFromOpenAPI(api).apiPackage(apiPackage);
-
-        // Write output to the input definition location if no destination directory is provided
-        if (outPath == null || outPath.isEmpty()) {
-            String fileName = api.getInfo().getTitle().replaceAll(" ", "") + ".bal";
-            outPath = definitionPath.substring(0, definitionPath.lastIndexOf(File.separator) + 1);
-            outPath += fileName;
-        }
-
-        String modelsOutPath = outPath.substring(0, outPath.lastIndexOf(File.separator) + 1);
-        modelsOutPath += GeneratorConstants.MODELS_FILE_NAME;
+        String fileName = api.getInfo().getTitle().replaceAll(" ", "") + ".bal";
+        outPath = outPath == null || outPath.isEmpty() ? "." : outPath;
+        String destination =  outPath + File.separator + fileName;
+        String modelDestination = outPath + File.separator + GeneratorConstants.MODELS_FILE_NAME;
 
         switch (type) {
             case SKELETON:
                 // Write ballerina definition
                 writeBallerina(definitionContext, GeneratorConstants.DEFAULT_SKELETON_DIR,
-                        GeneratorConstants.SKELETON_TEMPLATE_NAME, outPath);
+                        GeneratorConstants.SKELETON_TEMPLATE_NAME, destination);
 
                 // Write ballerina structs
                 writeBallerina(definitionContext, GeneratorConstants.DEFAULT_TEMPLATE_DIR,
-                        GeneratorConstants.MODELS_TEMPLATE_NAME, modelsOutPath);
+                        GeneratorConstants.MODELS_TEMPLATE_NAME, modelDestination);
                 break;
             case CONNECTOR:
                 writeBallerina(definitionContext, GeneratorConstants.DEFAULT_CONNECTOR_DIR,
-                        GeneratorConstants.CONNECTOR_TEMPLATE_NAME, outPath);
+                        GeneratorConstants.CONNECTOR_TEMPLATE_NAME, destination);
 
                 // Write ballerina structs
                 writeBallerina(definitionContext, GeneratorConstants.DEFAULT_TEMPLATE_DIR,
-                        GeneratorConstants.MODELS_TEMPLATE_NAME, modelsOutPath);
+                        GeneratorConstants.MODELS_TEMPLATE_NAME, modelDestination);
                 break;
             case MOCK:
                 writeBallerina(definitionContext, GeneratorConstants.DEFAULT_MOCK_DIR,
-                        GeneratorConstants.MOCK_TEMPLATE_NAME, outPath);
+                        GeneratorConstants.MOCK_TEMPLATE_NAME, destination);
 
                 // Write ballerina structs
                 writeBallerina(definitionContext, GeneratorConstants.DEFAULT_TEMPLATE_DIR,
-                        GeneratorConstants.MODELS_TEMPLATE_NAME, modelsOutPath);
+                        GeneratorConstants.MODELS_TEMPLATE_NAME, modelDestination);
                 break;
             default:
                 return;

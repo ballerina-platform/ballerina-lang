@@ -25,6 +25,7 @@ import io.swagger.oas.models.media.Schema;
 import io.swagger.oas.models.security.SecurityRequirement;
 import io.swagger.oas.models.servers.Server;
 import io.swagger.oas.models.tags.Tag;
+import org.ballerinalang.swagger.exception.BalOpenApiException;
 
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -63,9 +64,9 @@ public class BalOpenApi {
      *
      * @param openAPI {@link OpenAPI} type object to be converted
      * @return Converted {@link BalOpenApi} object
-     * @throws MalformedURLException when API host url is not valid
+     * @throws BalOpenApiException when OpenAPI to BalOpenApi parsing failed
      */
-    public BalOpenApi buildFromOpenAPI(OpenAPI openAPI) throws MalformedURLException {
+    public BalOpenApi buildFromOpenAPI(OpenAPI openAPI) throws BalOpenApiException {
         this.openapi = openAPI.getOpenapi();
         this.info = openAPI.getInfo();
         this.externalDocs = openAPI.getExternalDocs();
@@ -75,16 +76,41 @@ public class BalOpenApi {
         this.components = openAPI.getComponents();
         this.extensions = openAPI.getExtensions();
         this.paths = openAPI.getPaths().entrySet();
+
+        try {
+            setHostInfo(openAPI.getServers());
+            setSchemas(openAPI.getComponents().getSchemas());
+        } catch (MalformedURLException e) {
+            throw new BalOpenApiException("Failed to parse server information", e);
+        }
+
+        return this;
+    }
+
+    /**
+     * Populate schemas into a "Set".
+     */
+    private void setSchemas(Map<String, Schema> schemaMap) {
         this.schemas = new LinkedHashSet<>();
 
+        for (Map.Entry entry : schemaMap.entrySet()) {
+            BalSchema schema = new BalSchema().buildFromSchema((Schema) entry.getValue(), schemaMap);
+            schemas.add(new AbstractMap.SimpleEntry<>((String) entry.getKey(), schema));
+        }
+    }
+
+    /**
+     * Extract host information from OpenAPI server list.
+     */
+    private void setHostInfo(List<Server> serverList) throws MalformedURLException {
         // Swagger parser returns a server object with "/" url when no servers are defined
         // this check is to overcome possible errors due to that
-        if (servers.size() > 1 || !"/".equals(servers.get(0).getUrl())) {
+        if (serverList.size() > 1 || !"/".equals(serverList.get(0).getUrl())) {
 
             // We select the first server in the list as the Host of generated service
             // Other servers will be kept as extra information but will not be used within the service
-            URL url = new URL(servers.get(0).getUrl());
-            this.url = servers.get(0).getUrl();
+            URL url = new URL(serverList.get(0).getUrl());
+            this.url = serverList.get(0).getUrl();
             host = url.getHost();
             basePath = url.getPath();
             boolean isHttps = "https".equalsIgnoreCase(url.getProtocol());
@@ -97,17 +123,8 @@ public class BalOpenApi {
                 port = port == -1 ? 80 : port;
             }
         }
-
-        // populate schemas into a "Set"
-        Map<String, Schema> schemaMap = openAPI.getComponents().getSchemas();
-        for (Map.Entry entry : schemaMap.entrySet()) {
-            BalSchema schema = new BalSchema().buildFromSchema((Schema) entry.getValue(), schemaMap);
-            schemas.add(new AbstractMap.SimpleEntry<>((String) entry.getKey(), schema));
-        }
-
-        return this;
     }
-
+    
     public String getApiPackage() {
         return apiPackage;
     }
