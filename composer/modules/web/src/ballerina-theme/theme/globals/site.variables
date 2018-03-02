@@ -2,6 +2,15 @@
      User Global Variables
 *******************************/
 
+body:not(.user-is-tabbing) button:focus,
+body:not(.user-is-tabbing) input:focus,
+body:not(.user-is-tabbing) select:focus,
+body:not(.user-is-tabbing) textarea:focus,
+html:focus, body:focus, input[readonly]:focus{
+  outline: none;
+}
+
+
 /*-------------------
        Fonts
 --------------------*/
