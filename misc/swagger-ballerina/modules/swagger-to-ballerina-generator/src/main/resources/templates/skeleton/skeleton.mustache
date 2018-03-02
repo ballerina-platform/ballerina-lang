@@ -1,7 +1,24 @@
-package {{apiPackage}};
+{{#apiPackage}}package {{apiPackage}};
 
+import {{apiPackage}}.model{{/apiPackage}}
 import ballerina.net.http;
+import ballerina.net.http.swagger;
 
+@swagger:serviceInfo { {{#info}}
+    title: "{{title}}",
+    description: "{{description}}",
+    serviceVersion: "{{version}}",
+    termsOfService: "{{termsOfService}}",
+    contact: @swagger:contact {name: "{{contact.name}}", email: "{{contact.email}}",url: "{{contact.url}}"},
+    license: @swagger:license {name: "{{license.name}}", url: "{{license.url}}"},{{/info}}
+    tags: [{{#tags}}
+        @swagger:tag {name: "{{name}}", description: "{{description}}", externalDoc: @swagger:externalDoc {description: "{{externalDocs.description}}", url: "{{externalDocs.url}}"} }{{#unless @last}},{{/unless}}{{/tags}}
+    ],
+    externalDocs: @swagger:externalDoc {description: "{{externalDocs.description}}", url: "{{externalDocs.url}}"},
+    security: [{{#security}}
+        @swagger:securityRequirement {name: "{{key}}", requirements: "{{requirements}}"}{{#unless @last}},{{/unless}}{{/security}}
+    ]
+}
 {{#host}}
 @http:configuration {
     host: "{{host}}",{{#port}}
@@ -10,22 +27,33 @@ import ballerina.net.http;
     basePath: "{{basePath}}"
 }{{/host}}
 service<http> {{cut info.title " "}} {
-{{#paths}}
-{{#value}}
-{{#get}}
+{{#paths}}{{#value}}{{#get}}
+    @swagger:resourceInfo {
+        tags: [{{#tags}}"{{.}}"{{#unless @last}},{{/unless}}{{/tags}}],
+        summary: "{{summary}}",
+        description: "{{description}}",
+        deprecated: {{#deprecated}}true{{/deprecated}}{{^deprecated}}false{{/deprecated}},
+        parameters: [{{#parameters}}@swagger:parameterInfo {name: "{{name}}", inInfo: "{{in}}", description: "{{descirption}}", {{#required}}required: {{required}},{{/required}} {{#deprecated}}deprecated: {{deprecated}},{{/deprecated}} allowEmptyValue: "{{allowEmptyValue}}"} {{#unless @last}},{{/unless}}{{/parameters}}]
+    }
     @http:resourceConfig {
         methods:["GET"],
         path:"{{key}}"
     }
     resource {{operationId}} (http:Connection conn, http:InRequest inReq{{#parameters}}{{>pathParams}}{{/parameters}}) {
-        //stub de - fill as necessary
+        //stub code - fill as necessary
         http:OutResponse resp = {};
         string payload = "Sample {{operationId}} Response";
         resp.setStringPayload(payload);
         _ = conn.respond(resp);
     }
-{{/get}}
-{{#post}}
+{{/get}}{{#post}}
+    @swagger:resourceInfo {
+        tags: [{{#tags}}"{{.}}"{{#unless @last}},{{/unless}}{{/tags}}],
+        summary: "{{summary}}",
+        description: "{{description}}",
+        deprecated: {{#deprecated}}true{{/deprecated}}{{^deprecated}}false{{/deprecated}},
+        parameters: [{{#parameters}}@swagger:parameterInfo {name: "{{name}}", inInfo: "{{in}}", description: "{{descirption}}", {{#required}}required: {{required}},{{/required}} {{#deprecated}}deprecated: {{deprecated}},{{/deprecated}} allowEmptyValue: "{{allowEmptyValue}}"} {{#unless @last}},{{/unless}}{{/parameters}}]
+    }
     @http:resourceConfig {
         methods:["POST"],
         path:"{{key}}"
@@ -37,8 +65,14 @@ service<http> {{cut info.title " "}} {
         resp.setStringPayload(payload);
         _ = conn.respond(resp);
     }
-{{/post}}
-{{#put}}
+{{/post}}{{#put}}
+    @swagger:resourceInfo {
+        tags: [{{#tags}}"{{.}}"{{#unless @last}},{{/unless}}{{/tags}}],
+        summary: "{{summary}}",
+        description: "{{description}}",
+        deprecated: {{#deprecated}}true{{/deprecated}}{{^deprecated}}false{{/deprecated}},
+        parameters: [{{#parameters}}@swagger:parameterInfo {name: "{{name}}", inInfo: "{{in}}", description: "{{descirption}}", {{#required}}required: {{required}},{{/required}} {{#deprecated}}deprecated: {{deprecated}},{{/deprecated}} allowEmptyValue: "{{allowEmptyValue}}"} {{#unless @last}},{{/unless}}{{/parameters}}]
+    }
     @http:resourceConfig {
         methods:["PUT"],
         path:"{{key}}"
@@ -50,8 +84,14 @@ service<http> {{cut info.title " "}} {
         resp.setStringPayload(payload);
         _ = conn.respond(resp);
     }
-{{/put}}
-{{#delete}}
+{{/put}}{{#delete}}
+    @swagger:resourceInfo {
+        tags: [{{#tags}}"{{.}}"{{#unless @last}},{{/unless}}{{/tags}}],
+        summary: "{{summary}}",
+        description: "{{description}}",
+        deprecated: {{#deprecated}}true{{/deprecated}}{{^deprecated}}false{{/deprecated}},
+        parameters: [{{#parameters}}@swagger:parameterInfo {name: "{{name}}", inInfo: "{{in}}", description: "{{descirption}}", {{#required}}required: {{required}},{{/required}} {{#deprecated}}deprecated: {{deprecated}},{{/deprecated}} allowEmptyValue: "{{allowEmptyValue}}"} {{#unless @last}},{{/unless}}{{/parameters}}]
+    }
     @http:resourceConfig {
         methods:["DELETE"],
         path:"{{key}}"
@@ -63,8 +103,14 @@ service<http> {{cut info.title " "}} {
         resp.setStringPayload(payload);
         _ = conn.respond(resp);
     }
-{{/delete}}
-{{#options}}
+{{/delete}}{{#options}}
+    @swagger:resourceInfo {
+        tags: [{{#tags}}"{{.}}"{{#unless @last}},{{/unless}}{{/tags}}],
+        summary: "{{summary}}",
+        description: "{{description}}",
+        deprecated: {{#deprecated}}true{{/deprecated}}{{^deprecated}}false{{/deprecated}},
+        parameters: [{{#parameters}}@swagger:parameterInfo {name: "{{name}}", inInfo: "{{in}}", description: "{{descirption}}", {{#required}}required: {{required}},{{/required}} {{#deprecated}}deprecated: {{deprecated}},{{/deprecated}} allowEmptyValue: "{{allowEmptyValue}}"} {{#unless @last}},{{/unless}}{{/parameters}}]
+    }
     @http:resourceConfig {
         methods:["OPTIONS"],
         path:"{{key}}"
@@ -76,8 +122,14 @@ service<http> {{cut info.title " "}} {
         resp.setStringPayload(payload);
         _ = conn.respond(resp);
     }
-{{/options}}
-{{#head}}
+{{/options}}{{#head}}
+    @swagger:resourceInfo {
+        tags: [{{#tags}}"{{.}}"{{#unless @last}},{{/unless}}{{/tags}}],
+        summary: "{{summary}}",
+        description: "{{description}}",
+        deprecated: {{#deprecated}}true{{/deprecated}}{{^deprecated}}false{{/deprecated}},
+        parameters: [{{#parameters}}@swagger:parameterInfo {name: "{{name}}", inInfo: "{{in}}", description: "{{descirption}}", {{#required}}required: {{required}},{{/required}} {{#deprecated}}deprecated: {{deprecated}},{{/deprecated}} allowEmptyValue: "{{allowEmptyValue}}"} {{#unless @last}},{{/unless}}{{/parameters}}]
+    }
     @http:resourceConfig {
         methods:["HEAD"],
         path:"{{key}}"
@@ -89,8 +141,14 @@ service<http> {{cut info.title " "}} {
         resp.setStringPayload(payload);
         _ = conn.respond(resp);
     }
-{{/head}}
-{{#patch}}
+{{/head}}{{#patch}}
+    @swagger:resourceInfo {
+        tags: [{{#tags}}"{{.}}"{{#unless @last}},{{/unless}}{{/tags}}],
+        summary: "{{summary}}",
+        description: "{{description}}",
+        deprecated: {{#deprecated}}true{{/deprecated}}{{^deprecated}}false{{/deprecated}},
+        parameters: [{{#parameters}}@swagger:parameterInfo {name: "{{name}}", inInfo: "{{in}}", description: "{{descirption}}", {{#required}}required: {{required}},{{/required}} {{#deprecated}}deprecated: {{deprecated}},{{/deprecated}} allowEmptyValue: "{{allowEmptyValue}}"} {{#unless @last}},{{/unless}}{{/parameters}}]
+    }
     @http:resourceConfig {
         methods:["PATCH"],
         path:"{{key}}"
@@ -102,8 +160,14 @@ service<http> {{cut info.title " "}} {
         resp.setStringPayload(payload);
         _ = conn.respond(resp);
     }
-{{/patch}}
-{{#trace}}
+{{/patch}}{{#trace}}
+    @swagger:resourceInfo {
+        tags: [{{#tags}}"{{.}}"{{#unless @last}},{{/unless}}{{/tags}}],
+        summary: "{{summary}}",
+        description: "{{description}}",
+        deprecated: {{#deprecated}}true{{/deprecated}}{{^deprecated}}false{{/deprecated}},
+        parameters: [{{#parameters}}@swagger:parameterInfo {name: "{{name}}", inInfo: "{{in}}", description: "{{descirption}}", {{#required}}required: {{required}},{{/required}} {{#deprecated}}deprecated: {{deprecated}},{{/deprecated}} allowEmptyValue: "{{allowEmptyValue}}"} {{#unless @last}},{{/unless}}{{/parameters}}]
+    }
     @http:resourceConfig {
         methods:["TRACE"],
         path:"{{key}}"
@@ -115,8 +179,5 @@ service<http> {{cut info.title " "}} {
         resp.setStringPayload(payload);
         _ = conn.respond(resp);
     }
-{{/trace}}
-{{/value}}
-{{/paths}}
+{{/trace}}{{/value}}{{/paths}}
 }
-

@@ -1,139 +1,183 @@
-package {{apiPackage}};
+{{#apiPackage}}package {{apiPackage}};
 
+import {{apiPackage}}.model{{/apiPackage}}
 import ballerina.net.http;
-@http:configuration {basePath:"{{#each servers}}{{this.url}}{{/each}}"}
-service<http> {{cut info.title " "}} {
-{{#paths}}
-{{#value}}
-{{#get}}
-    @http:resourceConfig {
-        methods:["GET"],
-        path:"{{key}}"
-    }
-    resource {{operationId}} (http:Request req, http:Response resp{{#parameters}}{{>pathParams}}{{/parameters}}) {
-        //stub code - fill as necessary
-        json payload;
+import ballerina.net.http.swagger;
 
-        resp.setHeader("Server", "Powered by Ballerina");
-        payload = {success:"true"};
-        resp.setJsonPayload(payload);
-
-        resp.send();
-    }
-{{/get}}
-{{#post}}
-    @http:resourceConfig {
-        methods:["GET"],
-        path:"{{key}}"
-    }
-    resource {{operationId}} (http:Request req, http:Response resp{{#parameters}}{{>pathParams}}{{/parameters}}) {
-        //stub code - fill as necessary
-        json payload;
-
-        resp.setHeader("Server", "Powered by Ballerina");
-        payload = {success:"true"};
-        resp.setJsonPayload(payload);
-
-        resp.send();
-    }
-{{/post}}
-{{#put}}
-    @http:resourceConfig {
-        methods:["GET"],
-        path:"{{key}}"
-    }
-    resource {{operationId}} (http:Request req, http:Response resp{{#parameters}}{{>pathParams}}{{/parameters}}) {
-        //stub code - fill as necessary
-        json payload;
-
-        resp.setHeader("Server", "Powered by Ballerina");
-        payload = {success:"true"};
-        resp.setJsonPayload(payload);
-
-        resp.send();
-    }
-{{/put}}
-{{#delete}}
-    @http:resourceConfig {
-        methods:["GET"],
-        path:"{{key}}"
-    }
-    resource {{operationId}} (http:Request req, http:Response resp{{#parameters}}{{>pathParams}}{{/parameters}}) {
-        //stub code - fill as necessary
-        json payload;
-
-        resp.setHeader("Server", "Powered by Ballerina");
-        payload = {success:"true"};
-        resp.setJsonPayload(payload);
-
-        resp.send();
-    }
-{{/delete}}
-{{#options}}
-    @http:resourceConfig {
-        methods:["GET"],
-        path:"{{key}}"
-    }
-    resource {{operationId}} (http:Request req, http:Response resp{{#parameters}}{{>pathParams}}{{/parameters}}) {
-        //stub code - fill as necessary
-        json payload;
-
-        resp.setHeader("Server", "Powered by Ballerina");
-        payload = {success:"true"};
-        resp.setJsonPayload(payload);
-
-        resp.send();
-    }
-{{/options}}
-{{#head}}
-    @http:resourceConfig {
-        methods:["GET"],
-        path:"{{key}}"
-    }
-    resource {{operationId}} (http:Request req, http:Response resp{{#parameters}}{{>pathParams}}{{/parameters}}) {
-        //stub code - fill as necessary
-        json payload;
-
-        resp.setHeader("Server", "Powered by Ballerina");
-        payload = {success:"true"};
-        resp.setJsonPayload(payload);
-
-        resp.send();
-    }
-{{/head}}
-{{#patch}}
-    @http:resourceConfig {
-        methods:["GET"],
-        path:"{{key}}"
-    }
-    resource {{operationId}} (http:Request req, http:Response resp{{#parameters}}{{>pathParams}}{{/parameters}}) {
-        //stub code - fill as necessary
-        json payload;
-
-        resp.setHeader("Server", "Powered by Ballerina");
-        payload = {success:"true"};
-        resp.setJsonPayload(payload);
-
-        resp.send();
-    }
-{{/patch}}
-{{#trace}}
-    @http:resourceConfig {
-        methods:["GET"],
-        path:"{{key}}"
-    }
-    resource {{operationId}} (http:Request req, http:Response resp{{#parameters}}{{>pathParams}}{{/parameters}}) {
-        //stub code - fill as necessary
-        json payload;
-
-        resp.setHeader("Server", "Powered by Ballerina");
-        payload = {success:"true"};
-        resp.setJsonPayload(payload);
-
-        resp.send();
-    }
-{{/trace}}
-{{/value}}
-{{/paths}}
+@swagger:serviceInfo { {{#info}}
+    title: "{{title}}",
+    description: "{{description}}",
+    serviceVersion: "{{version}}",
+    termsOfService: "{{termsOfService}}",
+    contact: @swagger:contact {name: "{{contact.name}}", email: "{{contact.email}}",url: "{{contact.url}}"},
+    license: @swagger:license {name: "{{license.name}}", url: "{{license.url}}"},{{/info}}
+    tags: [{{#tags}}
+        @swagger:tag {name: "{{name}}", description: "{{description}}", externalDoc: @swagger:externalDoc {description: "{{externalDocs.description}}", url: "{{externalDocs.url}}"} }{{#unless @last}},{{/unless}}{{/tags}}
+    ],
+    externalDocs: @swagger:externalDoc {description: "{{externalDocs.description}}", url: "{{externalDocs.url}}"},
+    security: [{{#security}}
+        @swagger:securityRequirement {name: "{{key}}", requirements: "{{requirements}}"}{{#unless @last}},{{/unless}}{{/security}}
+    ]
 }
-
+{{#host}}
+@http:configuration {
+    host: "{{host}}",{{#port}}
+    port: {{port}},{{/port}}{{#httpsPort}}
+    httpsPort: {{httpsPort}},{{/httpsPort}}
+    basePath: "{{basePath}}"
+}{{/host}}
+service<http> {{cut info.title " "}} {
+{{#paths}}{{#value}}{{#get}}
+    @swagger:resourceInfo {
+        tags: [{{#tags}}"{{.}}"{{#unless @last}},{{/unless}}{{/tags}}],
+        summary: "{{summary}}",
+        description: "{{description}}",
+        deprecated: {{#deprecated}}true{{/deprecated}}{{^deprecated}}false{{/deprecated}},
+        parameters: [{{#parameters}}@swagger:parameterInfo {name: "{{name}}", inInfo: "{{in}}", description: "{{descirption}}", {{#required}}required: {{required}},{{/required}} {{#deprecated}}deprecated: {{deprecated}},{{/deprecated}} allowEmptyValue: "{{allowEmptyValue}}"} {{#unless @last}},{{/unless}}{{/parameters}}]
+    }
+    @http:resourceConfig {
+        methods:["GET"],
+        path:"{{key}}"
+    }
+    resource {{operationId}} (http:Connection conn, http:InRequest inReq{{#parameters}}{{>pathParams}}{{/parameters}}) {
+        //stub code - fill as necessary
+        http:OutResponse resp = {};
+        string payload = "Sample {{operationId}} Response";
+        resp.setStringPayload(payload);
+        _ = conn.respond(resp);
+    }
+{{/get}}{{#post}}
+    @swagger:resourceInfo {
+        tags: [{{#tags}}"{{.}}"{{#unless @last}},{{/unless}}{{/tags}}],
+        summary: "{{summary}}",
+        description: "{{description}}",
+        deprecated: {{#deprecated}}true{{/deprecated}}{{^deprecated}}false{{/deprecated}},
+        parameters: [{{#parameters}}@swagger:parameterInfo {name: "{{name}}", inInfo: "{{in}}", description: "{{descirption}}", {{#required}}required: {{required}},{{/required}} {{#deprecated}}deprecated: {{deprecated}},{{/deprecated}} allowEmptyValue: "{{allowEmptyValue}}"} {{#unless @last}},{{/unless}}{{/parameters}}]
+    }
+    @http:resourceConfig {
+        methods:["POST"],
+        path:"{{key}}"
+    }
+    resource {{operationId}} (http:Connection conn, http:InRequest inReq{{#parameters}}{{>pathParams}}{{/parameters}}) {
+        //stub code - fill as necessary
+        http:OutResponse resp = {};
+        string payload = "Sample {{operationId}} Response";
+        resp.setStringPayload(payload);
+        _ = conn.respond(resp);
+    }
+{{/post}}{{#put}}
+    @swagger:resourceInfo {
+        tags: [{{#tags}}"{{.}}"{{#unless @last}},{{/unless}}{{/tags}}],
+        summary: "{{summary}}",
+        description: "{{description}}",
+        deprecated: {{#deprecated}}true{{/deprecated}}{{^deprecated}}false{{/deprecated}},
+        parameters: [{{#parameters}}@swagger:parameterInfo {name: "{{name}}", inInfo: "{{in}}", description: "{{descirption}}", {{#required}}required: {{required}},{{/required}} {{#deprecated}}deprecated: {{deprecated}},{{/deprecated}} allowEmptyValue: "{{allowEmptyValue}}"} {{#unless @last}},{{/unless}}{{/parameters}}]
+    }
+    @http:resourceConfig {
+        methods:["PUT"],
+        path:"{{key}}"
+    }
+    resource {{operationId}} (http:Connection conn, http:InRequest inReq{{#parameters}}{{>pathParams}}{{/parameters}}) {
+        //stub code - fill as necessary
+        http:OutResponse resp = {};
+        string payload = "Sample {{operationId}} Response";
+        resp.setStringPayload(payload);
+        _ = conn.respond(resp);
+    }
+{{/put}}{{#delete}}
+    @swagger:resourceInfo {
+        tags: [{{#tags}}"{{.}}"{{#unless @last}},{{/unless}}{{/tags}}],
+        summary: "{{summary}}",
+        description: "{{description}}",
+        deprecated: {{#deprecated}}true{{/deprecated}}{{^deprecated}}false{{/deprecated}},
+        parameters: [{{#parameters}}@swagger:parameterInfo {name: "{{name}}", inInfo: "{{in}}", description: "{{descirption}}", {{#required}}required: {{required}},{{/required}} {{#deprecated}}deprecated: {{deprecated}},{{/deprecated}} allowEmptyValue: "{{allowEmptyValue}}"} {{#unless @last}},{{/unless}}{{/parameters}}]
+    }
+    @http:resourceConfig {
+        methods:["DELETE"],
+        path:"{{key}}"
+    }
+    resource {{operationId}} (http:Connection conn, http:InRequest inReq{{#parameters}}{{>pathParams}}{{/parameters}}) {
+        //stub code - fill as necessary
+        http:OutResponse resp = {};
+        string payload = "Sample {{operationId}} Response";
+        resp.setStringPayload(payload);
+        _ = conn.respond(resp);
+    }
+{{/delete}}{{#options}}
+    @swagger:resourceInfo {
+        tags: [{{#tags}}"{{.}}"{{#unless @last}},{{/unless}}{{/tags}}],
+        summary: "{{summary}}",
+        description: "{{description}}",
+        deprecated: {{#deprecated}}true{{/deprecated}}{{^deprecated}}false{{/deprecated}},
+        parameters: [{{#parameters}}@swagger:parameterInfo {name: "{{name}}", inInfo: "{{in}}", description: "{{descirption}}", {{#required}}required: {{required}},{{/required}} {{#deprecated}}deprecated: {{deprecated}},{{/deprecated}} allowEmptyValue: "{{allowEmptyValue}}"} {{#unless @last}},{{/unless}}{{/parameters}}]
+    }
+    @http:resourceConfig {
+        methods:["OPTIONS"],
+        path:"{{key}}"
+    }
+    resource {{operationId}} (http:Connection conn, http:InRequest inReq{{#parameters}}{{>pathParams}}{{/parameters}}) {
+        //stub code - fill as necessary
+        http:OutResponse resp = {};
+        string payload = "Sample {{operationId}} Response";
+        resp.setStringPayload(payload);
+        _ = conn.respond(resp);
+    }
+{{/options}}{{#head}}
+    @swagger:resourceInfo {
+        tags: [{{#tags}}"{{.}}"{{#unless @last}},{{/unless}}{{/tags}}],
+        summary: "{{summary}}",
+        description: "{{description}}",
+        deprecated: {{#deprecated}}true{{/deprecated}}{{^deprecated}}false{{/deprecated}},
+        parameters: [{{#parameters}}@swagger:parameterInfo {name: "{{name}}", inInfo: "{{in}}", description: "{{descirption}}", {{#required}}required: {{required}},{{/required}} {{#deprecated}}deprecated: {{deprecated}},{{/deprecated}} allowEmptyValue: "{{allowEmptyValue}}"} {{#unless @last}},{{/unless}}{{/parameters}}]
+    }
+    @http:resourceConfig {
+        methods:["HEAD"],
+        path:"{{key}}"
+    }
+    resource {{operationId}} (http:Connection conn, http:InRequest inReq{{#parameters}}{{>pathParams}}{{/parameters}}) {
+        //stub code - fill as necessary
+        http:OutResponse resp = {};
+        string payload = "Sample {{operationId}} Response";
+        resp.setStringPayload(payload);
+        _ = conn.respond(resp);
+    }
+{{/head}}{{#patch}}
+    @swagger:resourceInfo {
+        tags: [{{#tags}}"{{.}}"{{#unless @last}},{{/unless}}{{/tags}}],
+        summary: "{{summary}}",
+        description: "{{description}}",
+        deprecated: {{#deprecated}}true{{/deprecated}}{{^deprecated}}false{{/deprecated}},
+        parameters: [{{#parameters}}@swagger:parameterInfo {name: "{{name}}", inInfo: "{{in}}", description: "{{descirption}}", {{#required}}required: {{required}},{{/required}} {{#deprecated}}deprecated: {{deprecated}},{{/deprecated}} allowEmptyValue: "{{allowEmptyValue}}"} {{#unless @last}},{{/unless}}{{/parameters}}]
+    }
+    @http:resourceConfig {
+        methods:["PATCH"],
+        path:"{{key}}"
+    }
+    resource {{operationId}} (http:Connection conn, http:InRequest inReq{{#parameters}}{{>pathParams}}{{/parameters}}) {
+        //stub code - fill as necessary
+        http:OutResponse resp = {};
+        string payload = "Sample {{operationId}} Response";
+        resp.setStringPayload(payload);
+        _ = conn.respond(resp);
+    }
+{{/patch}}{{#trace}}
+    @swagger:resourceInfo {
+        tags: [{{#tags}}"{{.}}"{{#unless @last}},{{/unless}}{{/tags}}],
+        summary: "{{summary}}",
+        description: "{{description}}",
+        deprecated: {{#deprecated}}true{{/deprecated}}{{^deprecated}}false{{/deprecated}},
+        parameters: [{{#parameters}}@swagger:parameterInfo {name: "{{name}}", inInfo: "{{in}}", description: "{{descirption}}", {{#required}}required: {{required}},{{/required}} {{#deprecated}}deprecated: {{deprecated}},{{/deprecated}} allowEmptyValue: "{{allowEmptyValue}}"} {{#unless @last}},{{/unless}}{{/parameters}}]
+    }
+    @http:resourceConfig {
+        methods:["TRACE"],
+        path:"{{key}}"
+    }
+    resource {{operationId}} (http:Connection conn, http:InRequest inReq{{#parameters}}{{>pathParams}}{{/parameters}}) {
+        //stub code - fill as necessary
+        http:OutResponse resp = {};
+        string payload = "Sample {{operationId}} Response";
+        resp.setStringPayload(payload);
+        _ = conn.respond(resp);
+    }
+{{/trace}}{{/value}}{{/paths}}
+}
