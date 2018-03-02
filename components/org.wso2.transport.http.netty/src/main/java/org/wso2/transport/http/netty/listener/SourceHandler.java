@@ -39,6 +39,7 @@ import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.common.Constants;
 import org.wso2.transport.http.netty.common.Util;
 import org.wso2.transport.http.netty.config.ChunkConfig;
+import org.wso2.transport.http.netty.config.KeepAliveConfig;
 import org.wso2.transport.http.netty.contract.HttpResponseFuture;
 import org.wso2.transport.http.netty.contract.ServerConnectorException;
 import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
@@ -65,6 +66,7 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
     private Map<String, GenericObjectPool> targetChannelPool;
     private ServerConnectorFuture serverConnectorFuture;
     private ChunkConfig chunkConfig;
+    private KeepAliveConfig keepAliveConfig;
     private HttpResponseFuture httpOutboundRespFuture;
     private String interfaceId;
     private String serverName;
@@ -73,10 +75,11 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
     protected ChannelHandlerContext ctx;
 
     public SourceHandler(ServerConnectorFuture serverConnectorFuture, String interfaceId, ChunkConfig chunkConfig,
-            String serverName, ChannelGroup allChannels) {
+                         KeepAliveConfig keepAliveConfig, String serverName, ChannelGroup allChannels) {
         this.serverConnectorFuture = serverConnectorFuture;
         this.interfaceId = interfaceId;
         this.chunkConfig = chunkConfig;
+        this.keepAliveConfig = keepAliveConfig;
         this.targetChannelPool = new ConcurrentHashMap<>();
         this.idleTimeout = false;
         this.serverName = serverName;
@@ -183,9 +186,8 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
         if (serverConnectorFuture != null) {
             try {
                 ServerConnectorFuture outboundRespFuture = httpRequestMsg.getHttpResponseFuture();
-                outboundRespFuture
-                        .setHttpConnectorListener(new HttpOutboundRespListener(ctx, httpRequestMsg,
-                                chunkConfig, serverName));
+                outboundRespFuture.setHttpConnectorListener(
+                        new HttpOutboundRespListener(ctx, httpRequestMsg, chunkConfig, keepAliveConfig, serverName));
                 this.serverConnectorFuture.notifyHttpListener(httpRequestMsg);
             } catch (Exception e) {
                 log.error("Error while notifying listeners", e);

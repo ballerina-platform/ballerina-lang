@@ -58,6 +58,8 @@ public class ListenerConfiguration {
 
     private ChunkConfig chunkingConfig = ChunkConfig.AUTO;
 
+    private KeepAliveConfig keepAliveConfig = KeepAliveConfig.AUTO;
+
     @XmlAttribute
     private boolean bindOnStartup = false;
 
@@ -99,9 +101,6 @@ public class ListenerConfiguration {
 
     @XmlAttribute
     private String tlsStoreType;
-
-    @XmlAttribute
-    private boolean keepAlive = true;
 
     @XmlAttribute
     private String serverHeader = "wso2-http-transport";
@@ -324,20 +323,20 @@ public class ListenerConfiguration {
         this.requestSizeValidationConfig = requestSizeValidationConfig;
     }
 
-    public boolean isKeepAlive() {
-        return keepAlive;
-    }
-
-    public void setKeepAlive(boolean keepAlive) {
-        this.keepAlive = keepAlive;
-    }
-
     public ChunkConfig getChunkConfig() {
         return chunkingConfig;
     }
 
     public void setChunkConfig(ChunkConfig chunkConfig) {
         this.chunkingConfig = chunkConfig;
+    }
+
+    public KeepAliveConfig getKeepAliveConfig() {
+        return keepAliveConfig;
+    }
+
+    public void setKeepAliveConfig(KeepAliveConfig keepAliveConfig) {
+        this.keepAliveConfig = keepAliveConfig;
     }
 
     public String getServerHeader() {
