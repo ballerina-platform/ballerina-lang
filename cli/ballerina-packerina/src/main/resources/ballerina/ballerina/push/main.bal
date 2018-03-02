@@ -1,24 +1,24 @@
 package ballerina.push;
 
-import ballerina.compression;
 import ballerina.mime;
 import ballerina.net.http;
 import ballerina.io;
+import ballerina.file;
 
-function main (string[] args) {
-
+function pushPackage (string url, string baloFilePath, string proxyHost, string proxyPort, string proxyUsername,
+                      string proxyPassword) {
     endpoint<http:HttpClient> httpEndpoint {
-        create http:HttpClient(args[0], getConnectorConfigs(args));
+        create http:HttpClient(url, getConnectorConfigs(proxyHost, proxyPort, proxyUsername, proxyPassword));
     }
     mime:Entity topLevelEntity = {};
     mime:MediaType mediaType = mime:getMediaType(mime:MULTIPART_FORM_DATA);
     topLevelEntity.contentType = mediaType;
 
-    blob compressedContent = compression:zipToBytes(args[1]);
     mime:Entity filePart = {};
     mime:MediaType contentTypeOfFilePart = mime:getMediaType(mime:APPLICATION_OCTET_STREAM);
     filePart.contentType = contentTypeOfFilePart;
-    filePart.setBlob(compressedContent);
+    file:File fileHandler = {path:baloFilePath};
+    filePart.setFileAsEntityBody(fileHandler);
     mime:Entity[] bodyParts = [filePart];
 
     topLevelEntity.multipartData = bodyParts;
@@ -37,11 +37,12 @@ function main (string[] args) {
     }
 }
 
-function getConnectorConfigs(string [] args) (http:Options) {
-    string proxyHost = args[2];
-    string proxyPort = args[3];
-    string proxyUsername = args[4];
-    string proxyPassword = args[5];
+function main (string[] args) {
+    pushPackage(args[0], args[1], args[2], args[3], args[4], args[5]);
+}
+
+function getConnectorConfigs(string proxyHost, string proxyPort, string proxyUsername, string proxyPassword)
+(http:Options) {
     http:Options option;
     int portInt = 0;
     if (proxyHost != ""){

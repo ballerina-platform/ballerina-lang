@@ -53,6 +53,9 @@ public class PushCommand implements BLauncherCmd {
     @Parameter(names = "--debug", hidden = true)
     private String debugPort;
 
+    @Parameter(names = "--repository", hidden = true)
+    private String repositoryHome;
+
     @Override
     public void execute() {
         if (helpFlag) {
@@ -75,7 +78,7 @@ public class PushCommand implements BLauncherCmd {
         }
 
         String resourceName = argList.get(0);
-        NetworkUtils.pushPackages(resourceName, BALLERINA_CENTRAL_REPO_URL);
+        NetworkUtils.pushPackages(resourceName, repositoryHome, BALLERINA_CENTRAL_REPO_URL);
 
     }
 
