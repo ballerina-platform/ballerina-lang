@@ -3,12 +3,13 @@ import ballerina.io;
 
 function main(string[] args) {
     // Ballerina config API provides a mechanism for developers to look-up values from config files, CLI parameters,
-    // environment variables etc. The precedence order for config lookup is as follows: <br>
+    // environment variables, etc. The precedence order for config lookup is as follows: <br>
     // * CLI parameters <br>
     // * Environment variables <br>
-    // * Config file <br><br>
-    // If a particular config defined in the file is also defined as an environment variable, the env variable takes
-    // precedence. Similarly, if the same is set as a CLI param, it replaces the env variable value. <br>
+    // * Config files <br><br>
+    // If a particular config defined in the file is also defined as an environment variable, the environment 
+    // variable takes precedence. Similarly, if the same is set as a CLI parameter, it replaces the environment 
+    // variable value. <br>
     // The configs are simply arbitrary key/value pairs with slight structure to it.
     string[] users = config:getGlobalValue("username.instances").split(",");
     string user1Rights = config:getInstanceValue(users[0], "access.rights");
@@ -22,6 +23,6 @@ function main(string[] args) {
     // access.rights=RW <br>
     // [peter] <br>
     // access.rights=R <br><br>
-    // The same configs can be set using CLI params as follows: <br>
+    // The same configs can be set using CLI parameters as follows: <br>
     // -Busername.instances=john,peter -B[john].access.rights=RW -B[peter].access.rights=R <br>
 }

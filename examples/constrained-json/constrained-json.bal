@@ -8,7 +8,7 @@ struct Person {
 }
 
 function main (string[] args) {
-    // Create a new JSON which is constrained by the Person struct. Only the
+    // Create a new JSON that is constrained by the Person struct. Only the
     // fields defined in the Person struct can be accessed. If we try to
     // access a non existing field, it will produce a compilation error.
     json<Person> person = {name:"Jon"};
@@ -18,11 +18,11 @@ function main (string[] args) {
     person.city = "Colombo";
     io:println(person);
 
-    // We can assign this Constrained JSON to a JSON. This will allow us to
-    // add new elements which are not in the struct.
+    // We can assign this constrained JSON to a JSON. This will allow us to
+    // add new elements that are not in the struct.
     json employee = person;
 
-    // After that, we can add new elements to the json.
+    // After that, we can add new elements to the JSON.
     employee.profession = "Software Engineer";
     io:println(employee);
 }
