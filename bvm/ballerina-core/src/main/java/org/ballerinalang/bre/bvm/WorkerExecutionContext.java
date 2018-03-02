@@ -97,6 +97,25 @@ public class WorkerExecutionContext {
             executionLock = new ReentrantLock();
         }
     }
+
+    public WorkerExecutionContext(WorkerExecutionContext parent, WorkerResponseContext respCtx,
+                                  CallableUnitInfo callableUnitInfo, WorkerInfo workerInfo, WorkerData workerLocal,
+                                  Map<String, Object> globalProperties, boolean runInCaller) {
+        this.parent = parent;
+        this.respCtx = respCtx;
+        this.callableUnitInfo = callableUnitInfo;
+        this.workerInfo = workerInfo;
+        this.programFile = callableUnitInfo.getPackageInfo().getProgramFile();
+        this.constPool = callableUnitInfo.getPackageInfo().getConstPoolEntries();
+        this.code = callableUnitInfo.getPackageInfo().getInstructions();
+        this.workerLocal = workerLocal;
+        this.globalProps = globalProperties;
+        this.ip = this.workerInfo.getCodeAttributeInfo().getCodeAddrs();
+        this.runInCaller = runInCaller;
+        if (!this.runInCaller) {
+            executionLock = new ReentrantLock();
+        }
+    }
     
     public void backupIP() {
         this.backupIP = this.ip;

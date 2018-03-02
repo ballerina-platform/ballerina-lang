@@ -60,6 +60,11 @@ public class BLangScheduler {
             return null;
         }
     }
+
+    public static WorkerExecutionContext resume(WorkerExecutionContext ctx, int targetIp, boolean runInCaller) {
+        ctx.backupIP = targetIp;
+        return resume(ctx, runInCaller);
+    }
     
     public static void errorThrown(WorkerExecutionContext ctx, BStruct error) {
         ctx.setError(error);

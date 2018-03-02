@@ -71,6 +71,7 @@ import org.ballerinalang.util.codegen.AttachedFunctionInfo;
 import org.ballerinalang.util.codegen.CallableUnitInfo;
 import org.ballerinalang.util.codegen.ConnectorInfo;
 import org.ballerinalang.util.codegen.ErrorTableEntry;
+import org.ballerinalang.util.codegen.ForkjoinInfo;
 import org.ballerinalang.util.codegen.FunctionInfo;
 import org.ballerinalang.util.codegen.Instruction;
 import org.ballerinalang.util.codegen.Instruction.InstructionACALL;
@@ -111,7 +112,6 @@ import org.slf4j.LoggerFactory;
 
 import java.io.PrintStream;
 import java.util.Arrays;
-import java.util.Map;
 import java.util.Set;
 import java.util.StringJoiner;
 
@@ -433,7 +433,11 @@ public class CPU {
                     break;
                 case InstructionCodes.FORKJOIN:
                     InstructionFORKJOIN forkJoinIns = (InstructionFORKJOIN) instruction;
-                    invokeForkJoin(forkJoinIns);
+                    runInCallerCtx = invokeForkJoin(ctx, forkJoinIns);
+                    if (runInCallerCtx != null) {
+                        ctx = runInCallerCtx;
+                        ctx.state = WorkerState.RUNNING;
+                    }
                     break;
                 case InstructionCodes.WRKRETURN:
                     runInCallerCtx = handleReturn(ctx);
@@ -2712,16 +2716,17 @@ public class CPU {
 
     private static void handleWorkerSend(WorkerExecutionContext ctx, WorkerDataChannelInfo workerDataChannelInfo, 
             BType[] types, int[] regs) {
-        BValue[] vals = extractValues(ctx.workerLocal, types, regs);
-        getWorkerChannel(ctx, workerDataChannelInfo.getChannelName()).putData(vals);
+        BRefType[] vals = extractValues(ctx.workerLocal, types, regs);
+        WorkerDataChannel dataChannel = getWorkerChannel(ctx, workerDataChannelInfo.getChannelName());
+        dataChannel.putData(vals);
     }
     
     private static WorkerDataChannel getWorkerChannel(WorkerExecutionContext ctx, String name) {
         return ctx.respCtx.getWorkerDataChannel(name);
     }
     
-    private static BValue[] extractValues(WorkerData data, BType[] types, int[] regs) {
-        BValue[] result = new BValue[types.length];
+    private static BRefType[] extractValues(WorkerData data, BType[] types, int[] regs) {
+        BRefType[] result = new BRefType[types.length];
         for (int i = 0; i < regs.length; i++) {
             BType paramType = types[i];
             int argReg = regs[i];
@@ -2748,18 +2753,9 @@ public class CPU {
         return result;
     }
 
-    private static void invokeForkJoin(InstructionFORKJOIN forkJoinIns) {
-       
-    }
-
-//    TODO:
-//    private boolean invokeJoinWorkers(Map<String, BLangVMWorkers.WorkerExecutor> workers,
-//                                      Set<String> joinWorkerNames, int joinCount, long timeout) {
-//        return false;
-//    }
-    private boolean invokeJoinWorkers(Map<String, ?> workers,
-                                      Set<String> joinWorkerNames, int joinCount, long timeout) {
-        return false;
+    private static WorkerExecutionContext invokeForkJoin(WorkerExecutionContext ctx, InstructionFORKJOIN forkJoinIns) {
+        ForkjoinInfo forkjoinInfo = forkJoinIns.forkJoinCPEntry.getForkjoinInfo();
+        return BLangFunctions.invokeForkJoin(ctx, forkjoinInfo, forkJoinIns.joinBlockAddr, forkJoinIns.joinVarRegIndex);
     }
 
     private static void handleWorkerReceive(WorkerExecutionContext ctx, WorkerDataChannelInfo workerDataChannelInfo,

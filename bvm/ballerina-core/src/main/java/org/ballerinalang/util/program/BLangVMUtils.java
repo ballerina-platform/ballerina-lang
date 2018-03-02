@@ -76,8 +76,54 @@ public class BLangVMUtils {
         }
     }
 
+    public static void copyValuesForForkJoin(WorkerData caller, WorkerData callee, int[] argRegs) {
+        int longLocalVals = argRegs[0];
+        int doubleLocalVals = argRegs[1];
+        int stringLocalVals = argRegs[2];
+        int booleanLocalVals = argRegs[3];
+        int blobLocalVals = argRegs[4];
+        int refLocalVals = argRegs[5];
+
+        for (int i = 0; i <= longLocalVals; i++) {
+            callee.longRegs[i] = caller.longRegs[i];
+        }
+
+        for (int i = 0; i <= doubleLocalVals; i++) {
+            callee.doubleRegs[i] = caller.doubleRegs[i];
+        }
+
+        for (int i = 0; i <= stringLocalVals; i++) {
+            callee.stringRegs[i] = caller.stringRegs[i];
+        }
+
+        for (int i = 0; i <= booleanLocalVals; i++) {
+            callee.intRegs[i] = caller.intRegs[i];
+        }
+
+        for (int i = 0; i <= refLocalVals; i++) {
+            callee.refRegs[i] = caller.refRegs[i];
+        }
+
+        for (int i = 0; i <= blobLocalVals; i++) {
+            callee.byteRegs[i] = caller.byteRegs[i];
+        }
+    }
+
     public static WorkerData createWorkerDataForLocal(WorkerInfo workerInfo, WorkerExecutionContext parentCtx,
             int[] argRegs, BType[] paramTypes) {
+        WorkerData wd = createWorkerData(workerInfo);
+        BLangVMUtils.copyArgValues(parentCtx.workerLocal, wd, argRegs, paramTypes);
+        return wd;
+    }
+
+    static WorkerData createWorkerDataForLocal(WorkerInfo workerInfo, WorkerExecutionContext parentCtx,
+                                               int[] argRegs) {
+        WorkerData wd = createWorkerData(workerInfo);
+        BLangVMUtils.copyValuesForForkJoin(parentCtx.workerLocal, wd, argRegs);
+        return wd;
+    }
+
+    private static WorkerData createWorkerData(WorkerInfo workerInfo) {
         WorkerData wd = new WorkerData();
         CodeAttributeInfo ci = workerInfo.getCodeAttributeInfo();
         wd.longRegs = new long[ci.getMaxLongRegs()];
@@ -86,7 +132,6 @@ public class BLangVMUtils {
         wd.intRegs = new int[ci.getMaxIntRegs()];
         wd.byteRegs = new byte[ci.getMaxByteRegs()][];
         wd.refRegs = new BRefType[ci.getMaxRefRegs()];
-        BLangVMUtils.copyArgValues(parentCtx.workerLocal, wd, argRegs, paramTypes);
         return wd;
     }
 

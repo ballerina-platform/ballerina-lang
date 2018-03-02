@@ -17,6 +17,8 @@
 */
 package org.ballerinalang.bre.bvm;
 
+import org.ballerinalang.model.values.BRefType;
+
 import java.util.LinkedList;
 import java.util.Queue;
 
@@ -28,9 +30,9 @@ public class WorkerDataChannel {
 
     private WorkerExecutionContext pendingCtx;
 
-    private Queue<Object[]> channel = new LinkedList<>();
+    private Queue<BRefType[]> channel = new LinkedList<>();
 
-    public synchronized void putData(Object[] data) {
+    public synchronized void putData(BRefType[] data) {
         if (data != null) {
             this.channel.add(data);
             if (this.pendingCtx != null) {
@@ -40,8 +42,8 @@ public class WorkerDataChannel {
         }
     }
     
-    public synchronized Object[] tryTakeData(WorkerExecutionContext ctx) {
-        Object[] data = this.channel.peek();
+    public synchronized BRefType[] tryTakeData(WorkerExecutionContext ctx) {
+        BRefType[] data = this.channel.peek();
         if (data != null) {
             this.channel.remove();
             return data;
@@ -53,4 +55,7 @@ public class WorkerDataChannel {
         }
     }
 
+    public synchronized BRefType[] tryTakeData() {
+        return this.channel.poll();
+    }
 }
