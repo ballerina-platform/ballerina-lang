@@ -24,6 +24,7 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.NativeCallContext;
 import org.ballerinalang.model.NativeCallableUnit;
 import org.ballerinalang.model.types.BArrayType;
+import org.ballerinalang.model.types.BConnectorType;
 import org.ballerinalang.model.types.BEnumType;
 import org.ballerinalang.model.types.BFunctionType;
 import org.ballerinalang.model.types.BJSONType;
@@ -107,11 +108,11 @@ import org.ballerinalang.util.exceptions.BallerinaException;
 import org.ballerinalang.util.exceptions.RuntimeErrors;
 import org.ballerinalang.util.program.BLangFunctions;
 import org.ballerinalang.util.program.BLangVMUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.PrintStream;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 import java.util.StringJoiner;
 
@@ -123,8 +124,6 @@ import static org.ballerinalang.util.BLangConstants.STRING_NULL_VALUE;
  * @since 0.963.0
  */
 public class CPU {
-
-    private static final Logger logger = LoggerFactory.getLogger(CPU.class);
 
     private static void traceCode(Instruction[] code) {
         PrintStream printStream = System.out;
@@ -390,7 +389,7 @@ public class CPU {
                     break;
                 case InstructionCodes.CALL:
                     callIns = (InstructionCALL) instruction;
-                    runInCallerCtx = invokeCallableUnit(ctx, callIns.functionInfo, 
+                    runInCallerCtx = invokeFunction(ctx, callIns.functionInfo,
                             callIns.argRegs, callIns.retRegs);
                     if (runInCallerCtx != null) {
                         ctx = runInCallerCtx;
@@ -408,7 +407,11 @@ public class CPU {
                     break;
                 case InstructionCodes.ACALL:
                     InstructionACALL acallIns = (InstructionACALL) instruction;
-                    invokeAction(acallIns.actionName, acallIns.argRegs, acallIns.retRegs);
+                    runInCallerCtx = invokeAction(ctx, acallIns.actionName, acallIns.argRegs, acallIns.retRegs);
+                    if (runInCallerCtx != null) {
+                        ctx = runInCallerCtx;
+                        ctx.state = WorkerState.RUNNING;
+                    }
                     break;
                 case InstructionCodes.TCALL:
                     InstructionTCALL tcallIns = (InstructionTCALL) instruction;
@@ -454,7 +457,7 @@ public class CPU {
                             break;
                         }
 
-                        BLangVMErrors.attachCallStack(error, ctx.programFile, ctx.ip);
+                        BLangVMErrors.attachStackFrame(error, ctx.programFile, ctx, ctx.ip);
                         ctx.setError(error);
                         handleError(ctx);
                     }
@@ -476,13 +479,7 @@ public class CPU {
                     funcCallCPEntry = (FunctionCallCPEntry) ctx.constPool[cpIndex];
                     funcRefCPEntry = ((BFunctionPointer) sf.refRegs[i]).value();
                     functionInfo = funcRefCPEntry.getFunctionInfo();
-                    if (functionInfo.isNative()) {
-                        invokeNativeFunction(ctx, functionInfo, funcCallCPEntry.getArgRegs(),
-                                funcCallCPEntry.getRetRegs());
-                    } else {
-                        invokeCallableUnit(ctx, functionInfo, funcCallCPEntry.getArgRegs(),
-                                funcCallCPEntry.getRetRegs());
-                    }
+                    invokeFunction(ctx, functionInfo, funcCallCPEntry.getArgRegs(), funcCallCPEntry.getRetRegs());
                     break;
                 case InstructionCodes.FPLOAD:
                     i = operands[0];
@@ -887,7 +884,7 @@ public class CPU {
                 try {
                     sf.longRegs[k] = bIntArray.get(sf.longRegs[j]);
                 } catch (Exception e) {
-                    ctx.setError(BLangVMErrors.createError(ctx, ctx.ip, e.getMessage()));
+                    ctx.setError(BLangVMErrors.createError(ctx, e.getMessage()));
                     handleError(ctx);
                 }
                 break;
@@ -904,7 +901,7 @@ public class CPU {
                 try {
                     sf.doubleRegs[k] = bFloatArray.get(sf.longRegs[j]);
                 } catch (Exception e) {
-                    ctx.setError(BLangVMErrors.createError(ctx, ctx.ip, e.getMessage()));
+                    ctx.setError(BLangVMErrors.createError(ctx, e.getMessage()));
                     handleError(ctx);
                 }
                 break;
@@ -921,7 +918,7 @@ public class CPU {
                 try {
                     sf.stringRegs[k] = bStringArray.get(sf.longRegs[j]);
                 } catch (Exception e) {
-                    ctx.setError(BLangVMErrors.createError(ctx, ctx.ip, e.getMessage()));
+                    ctx.setError(BLangVMErrors.createError(ctx, e.getMessage()));
                     handleError(ctx);
                 }
                 break;
@@ -938,7 +935,7 @@ public class CPU {
                 try {
                     sf.intRegs[k] = bBooleanArray.get(sf.longRegs[j]);
                 } catch (Exception e) {
-                    ctx.setError(BLangVMErrors.createError(ctx, ctx.ip, e.getMessage()));
+                    ctx.setError(BLangVMErrors.createError(ctx, e.getMessage()));
                     handleError(ctx);
                 }
                 break;
@@ -955,7 +952,7 @@ public class CPU {
                 try {
                     sf.byteRegs[k] = bBlobArray.get(sf.longRegs[j]);
                 } catch (Exception e) {
-                    ctx.setError(BLangVMErrors.createError(ctx, ctx.ip, e.getMessage()));
+                    ctx.setError(BLangVMErrors.createError(ctx, e.getMessage()));
                     handleError(ctx);
                 }
                 break;
@@ -972,7 +969,7 @@ public class CPU {
                 try {
                     sf.refRegs[k] = bArray.get(sf.longRegs[j]);
                 } catch (Exception e) {
-                    ctx.setError(BLangVMErrors.createError(ctx, ctx.ip, e.getMessage()));
+                    ctx.setError(BLangVMErrors.createError(ctx, e.getMessage()));
                     handleError(ctx);
                 }
                 break;
@@ -989,7 +986,7 @@ public class CPU {
                 try {
                     sf.refRegs[k] = JSONUtils.getArrayElement(jsonVal, sf.longRegs[j]);
                 } catch (Exception e) {
-                    ctx.setError(BLangVMErrors.createError(ctx, ctx.ip, e.getMessage()));
+                    ctx.setError(BLangVMErrors.createError(ctx, e.getMessage()));
                     handleError(ctx);
                 }
                 break;
@@ -1197,7 +1194,7 @@ public class CPU {
                 try {
                     bIntArray.add(sf.longRegs[j], sf.longRegs[k]);
                 } catch (Exception e) {
-                    ctx.setError(BLangVMErrors.createError(ctx, ctx.ip, e.getMessage()));
+                    ctx.setError(BLangVMErrors.createError(ctx, e.getMessage()));
                     handleError(ctx);
                 }
                 break;
@@ -1214,7 +1211,7 @@ public class CPU {
                 try {
                     bFloatArray.add(sf.longRegs[j], sf.doubleRegs[k]);
                 } catch (Exception e) {
-                    ctx.setError(BLangVMErrors.createError(ctx, ctx.ip, e.getMessage()));
+                    ctx.setError(BLangVMErrors.createError(ctx, e.getMessage()));
                     handleError(ctx);
                 }
                 break;
@@ -1231,7 +1228,7 @@ public class CPU {
                 try {
                     bStringArray.add(sf.longRegs[j], sf.stringRegs[k]);
                 } catch (Exception e) {
-                    ctx.setError(BLangVMErrors.createError(ctx, ctx.ip, e.getMessage()));
+                    ctx.setError(BLangVMErrors.createError(ctx, e.getMessage()));
                     handleError(ctx);
                 }
                 break;
@@ -1248,7 +1245,7 @@ public class CPU {
                 try {
                     bBooleanArray.add(sf.longRegs[j], sf.intRegs[k]);
                 } catch (Exception e) {
-                    ctx.setError(BLangVMErrors.createError(ctx, ctx.ip, e.getMessage()));
+                    ctx.setError(BLangVMErrors.createError(ctx, e.getMessage()));
                     handleError(ctx);
                 }
                 break;
@@ -1265,7 +1262,7 @@ public class CPU {
                 try {
                     bBlobArray.add(sf.longRegs[j], sf.byteRegs[k]);
                 } catch (Exception e) {
-                    ctx.setError(BLangVMErrors.createError(ctx, ctx.ip, e.getMessage()));
+                    ctx.setError(BLangVMErrors.createError(ctx, e.getMessage()));
                     handleError(ctx);
                 }
                 break;
@@ -1282,7 +1279,7 @@ public class CPU {
                 try {
                     bArray.add(sf.longRegs[j], sf.refRegs[k]);
                 } catch (Exception e) {
-                    ctx.setError(BLangVMErrors.createError(ctx, ctx.ip, e.getMessage()));
+                    ctx.setError(BLangVMErrors.createError(ctx, e.getMessage()));
                     handleError(ctx);
                 }
                 break;
@@ -1299,7 +1296,7 @@ public class CPU {
                 try {
                     JSONUtils.setArrayElement(jsonVal, sf.longRegs[j], (BJSON) sf.refRegs[k]);
                 } catch (Exception e) {
-                    ctx.setError(BLangVMErrors.createError(ctx, ctx.ip, e.getMessage()));
+                    ctx.setError(BLangVMErrors.createError(ctx, e.getMessage()));
                     handleError(ctx);
                 }
                 break;
@@ -1506,7 +1503,7 @@ public class CPU {
                 j = operands[1];
                 k = operands[2];
                 if (sf.longRegs[j] == 0) {
-                    ctx.setError(BLangVMErrors.createError(ctx, ctx.ip, " / by zero"));
+                    ctx.setError(BLangVMErrors.createError(ctx, " / by zero"));
                     handleError(ctx);
                     break;
                 }
@@ -1518,7 +1515,7 @@ public class CPU {
                 j = operands[1];
                 k = operands[2];
                 if (sf.doubleRegs[j] == 0) {
-                    ctx.setError(BLangVMErrors.createError(ctx, ctx.ip, " / by zero"));
+                    ctx.setError(BLangVMErrors.createError(ctx, " / by zero"));
                     handleError(ctx);
                     break;
                 }
@@ -1530,7 +1527,7 @@ public class CPU {
                 j = operands[1];
                 k = operands[2];
                 if (sf.longRegs[j] == 0) {
-                    ctx.setError(BLangVMErrors.createError(ctx, ctx.ip, " / by zero"));
+                    ctx.setError(BLangVMErrors.createError(ctx, " / by zero"));
                     handleError(ctx);
                     break;
                 }
@@ -1542,7 +1539,7 @@ public class CPU {
                 j = operands[1];
                 k = operands[2];
                 if (sf.doubleRegs[j] == 0) {
-                    ctx.setError(BLangVMErrors.createError(ctx, ctx.ip, " / by zero"));
+                    ctx.setError(BLangVMErrors.createError(ctx, " / by zero"));
                     handleError(ctx);
                     break;
                 }
@@ -2266,7 +2263,7 @@ public class CPU {
                 try {
                     sf.refRegs[i] = XMLUtils.createXMLElement(startTagName, endTagName, sf.stringRegs[l]);
                 } catch (Exception e) {
-                    ctx.setError(BLangVMErrors.createError(ctx, ctx.ip, e.getMessage()));
+                    ctx.setError(BLangVMErrors.createError(ctx, e.getMessage()));
                     handleError(ctx);
                 }
                 break;
@@ -2277,7 +2274,7 @@ public class CPU {
                 try {
                     sf.refRegs[i] = XMLUtils.createXMLComment(sf.stringRegs[j]);
                 } catch (Exception e) {
-                    ctx.setError(BLangVMErrors.createError(ctx, ctx.ip, e.getMessage()));
+                    ctx.setError(BLangVMErrors.createError(ctx, e.getMessage()));
                     handleError(ctx);
                 }
                 break;
@@ -2288,7 +2285,7 @@ public class CPU {
                 try {
                     sf.refRegs[i] = XMLUtils.createXMLText(sf.stringRegs[j]);
                 } catch (Exception e) {
-                    ctx.setError(BLangVMErrors.createError(ctx, ctx.ip, e.getMessage()));
+                    ctx.setError(BLangVMErrors.createError(ctx, e.getMessage()));
                     handleError(ctx);
                 }
                 break;
@@ -2300,7 +2297,7 @@ public class CPU {
                 try {
                     sf.refRegs[i] = XMLUtils.createXMLProcessingInstruction(sf.stringRegs[j], sf.stringRegs[k]);
                 } catch (Exception e) {
-                    ctx.setError(BLangVMErrors.createError(ctx, ctx.ip, e.getMessage()));
+                    ctx.setError(BLangVMErrors.createError(ctx, e.getMessage()));
                     handleError(ctx);
                 }
                 break;
@@ -2533,7 +2530,7 @@ public class CPU {
     private static void handleTypeCastError(WorkerExecutionContext ctx, WorkerData sf, int errorRegIndex,
                                             String sourceType, String targetType) {
         BStruct errorVal;
-        errorVal = BLangVMErrors.createTypeCastError(ctx, ctx.ip, sourceType, targetType);
+        errorVal = BLangVMErrors.createTypeCastError(ctx, sourceType, targetType);
         sf.refRegs[errorRegIndex] = errorVal;
     }
 
@@ -2546,7 +2543,7 @@ public class CPU {
     private static void handleTypeConversionError(WorkerExecutionContext ctx, WorkerData sf, int errorRegIndex,
                                                   String errorMessage, String sourceType, String targetType) {
         BStruct errorVal;
-        errorVal = BLangVMErrors.createTypeConversionError(ctx, ctx.ip, errorMessage);
+        errorVal = BLangVMErrors.createTypeConversionError(ctx, errorMessage);
         sf.refRegs[errorRegIndex] = errorVal;
     }
 
@@ -2627,7 +2624,7 @@ public class CPU {
                     }
                 }
             } catch (Throwable e) {
-                ctx.setError(BLangVMErrors.createError(ctx, ctx.ip, e.getMessage()));
+                ctx.setError(BLangVMErrors.createError(ctx, e.getMessage()));
                 handleError(ctx);
                 return;
             }
@@ -2640,7 +2637,7 @@ public class CPU {
         if (retryCountRegIndex != -1) {
             retryCount = (int) ctx.workerLocal.longRegs[retryCountRegIndex];
             if (retryCount < 0) {
-                ctx.setError(BLangVMErrors.createError(ctx, ctx.ip,
+                ctx.setError(BLangVMErrors.createError(ctx,
                         BLangExceptionHelper.getErrorMessage(RuntimeErrors.INVALID_RETRY_COUNT)));
                 handleError(ctx);
                 return;
@@ -2667,19 +2664,15 @@ public class CPU {
         ballerinaTransactionManager.incrementCurrentRetryCount(transactionId);
     }
 
-    private static WorkerExecutionContext invokeCallableUnit(WorkerExecutionContext ctx, 
-            CallableUnitInfo callableUnitInfo, int[] argRegs, int[] retRegs) {
-        if (callableUnitInfo.isNative()) {
-            invokeNativeFunction(ctx, (FunctionInfo) callableUnitInfo, argRegs, retRegs);
-            return null;
-        }
-        WorkerExecutionContext runInCallerCtx =
-                BLangFunctions.invokeCallable(callableUnitInfo, ctx, argRegs, retRegs, false);
-        return runInCallerCtx;
+    private static WorkerExecutionContext invokeCallableUnit(WorkerExecutionContext ctx,
+                                                             CallableUnitInfo callableUnitInfo, int[] argRegs,
+                                                             int[] retRegs) {
+        return BLangFunctions.invokeCallable(callableUnitInfo, ctx, argRegs, retRegs, false);
     }
 
-    private static WorkerExecutionContext invokeVirtualFunction(WorkerExecutionContext ctx, int receiver, FunctionInfo virtualFuncInfo,
-                                              int[] argRegs, int[] retRegs) {
+    private static WorkerExecutionContext invokeVirtualFunction(WorkerExecutionContext ctx, int receiver,
+                                                                FunctionInfo virtualFuncInfo, int[] argRegs,
+                                                                int[] retRegs) {
         BStruct structVal = (BStruct) ctx.workerLocal.refRegs[receiver];
         if (structVal == null) {
             ctx.setError(BLangVMErrors.createNullRefException(ctx));
@@ -2693,25 +2686,33 @@ public class CPU {
         return invokeCallableUnit(ctx, concreteFuncInfo, argRegs, retRegs);
     }
 
-    private static void invokeAction(String actionName, int[] argRegs, int[] retRegs) {
-//        WorkerData callerSF = ctx.workerLocal;
-//        if (callerSF.refRegs[argRegs[0]] == null) {
-//            ctx.setError(BLangVMErrors.createNullRefError(this.ctx, ctx.ip));
-//            handleError(ctx);
-//            return;
-//        }
-//
-//        BConnectorType actualCon = (BConnectorType) ((BConnector) callerSF.refRegs[argRegs[0]]).getConnectorType();
-//        //TODO find a way to change this to method table
-//        ActionInfo newActionInfo = programFile.getPackageInfo(actualCon.getPackagePath())
-//                .getConnectorInfo(actualCon.getName()).getActionInfo(actionName);
-//
-//        if (newActionInfo.isNative()) {
-//            invokeNativeAction(newActionInfo, argRegs, retRegs);
-//        } else {
-//            invokeCallableUnit(newActionInfo, argRegs, retRegs);
-//        }
-        //TODO
+    private static WorkerExecutionContext invokeFunction(WorkerExecutionContext ctx, FunctionInfo functionInfo,
+                                                         int[] argRegs, int[] retRegs) {
+        if (functionInfo.isNative()) {
+            invokeNativeFunction(ctx, functionInfo, argRegs, retRegs);
+            return null;
+        }
+        return invokeCallableUnit(ctx, functionInfo, argRegs, retRegs);
+    }
+
+    private static WorkerExecutionContext invokeAction(WorkerExecutionContext ctx, String actionName, int[] argRegs,
+                                                       int[] retRegs) {
+        BConnector connector = (BConnector) ctx.workerLocal.refRegs[argRegs[0]];
+        if (connector == null) {
+            ctx.setError(BLangVMErrors.createNullRefException(ctx));
+            handleError(ctx);
+            return null;
+        }
+
+        BConnectorType actualCon = (BConnectorType) connector.getConnectorType();
+        ActionInfo actionInfo = ctx.programFile.getPackageInfo(actualCon.getPackagePath())
+                .getConnectorInfo(actualCon.getName()).getActionInfo(actionName);
+
+        if (actionInfo.isNative()) {
+            invokeNativeAction(ctx, actionInfo, argRegs, retRegs);
+            return null;
+        }
+        return invokeCallableUnit(ctx, actionInfo, argRegs, retRegs);
     }
 
     private static void handleWorkerSend(WorkerExecutionContext ctx, WorkerDataChannelInfo workerDataChannelInfo, 
@@ -2899,13 +2900,12 @@ public class CPU {
         return sb.toString();
     }
 
-    private static void invokeNativeFunction(WorkerExecutionContext parentCtx, FunctionInfo functionInfo, 
-            int[] argRegs, int[] retRegs) {
+    private static void invokeNativeFunction(WorkerExecutionContext parentCtx, FunctionInfo functionInfo,
+                                             int[] argRegs, int[] retRegs) {
         WorkerData parentLocalData = parentCtx.workerLocal;
         BType[] retTypes = functionInfo.getRetParamTypes();
-        WorkerData caleeSF = BLangVMUtils.createWorkerDataForLocal(functionInfo.getDefaultWorkerInfo(), 
-                parentCtx, argRegs, functionInfo.getParamTypes());
-        BLangVMUtils.copyArgValues(parentLocalData, caleeSF, argRegs, functionInfo.getParamTypes());
+        WorkerData caleeSF = BLangVMUtils.createWorkerDataForLocal(functionInfo.getDefaultWorkerInfo(), parentCtx,
+                argRegs, functionInfo.getParamTypes());
         Context ctx = new NativeCallContext(parentCtx, caleeSF);
         NativeCallableUnit nativeFunction = functionInfo.getNativeFunction();
         BLangScheduler.switchToWaitForResponse(parentCtx);
@@ -2919,82 +2919,54 @@ public class CPU {
                 nativeFunction.execute(ctx, callback);
             }
         } catch (BLangNullReferenceException e) {
-            parentCtx.setError(BLangVMErrors.createNullRefException(parentCtx));
-            handleError(parentCtx);
+            handleNativeInvocationError(parentCtx, BLangVMErrors.createNullRefException(functionInfo));
             return;
         } catch (Throwable e) {
-            parentCtx.setError(BLangVMErrors.createError(parentCtx, parentCtx.ip, e.getMessage()));
-            handleError(parentCtx);
+            handleNativeInvocationError(parentCtx, BLangVMErrors.createError(functionInfo, e.getMessage()));
             return;
         }
     }
 
-    private static void invokeNativeAction(ActionInfo actionInfo, int[] argRegs, int[] retRegs) {
-//        WorkerData callerSF = ctx.workerLocal;
-//
-//        WorkerInfo defaultWorkerInfo = actionInfo.getDefaultWorkerInfo();
-//        AbstractNativeAction nativeAction = actionInfo.getNativeAction();
-//
-//        if (nativeAction == null) {
-//            return;
-//        }
-//
-//        // TODO : Remove once we handle this properly for return values
-//        BType[] retTypes = actionInfo.getRetParamTypes();
-//        BValue[] returnValues = new BValue[retTypes.length];
-//
-//        WorkerData caleeSF = new WorkerData(actionInfo, defaultWorkerInfo, ctx.ip, null, returnValues);
-//        copyArgValues(callerSF, caleeSF, argRegs, actionInfo.getParamTypes());
-//
-//        controlStack.pushFrame(caleeSF);
-//
-//        try {
-//            boolean nonBlocking = !ctx.isInTransaction() && nativeAction.isNonBlockingAction() &&
-//                    !ctx.blockingInvocation;
-//            BClientConnectorFutureListener listener = new BClientConnectorFutureListener(ctx, nonBlocking);
-//            if (nonBlocking) {
-//                // Enable non-blocking.
-//                ctx.setStartctx.ip(ctx.ip);
-//                // TODO : Temporary solution to make non-blocking working.
-//                if (caleeSF.packageInfo == null) {
-//                    caleeSF.packageInfo = actionInfo.getPackageInfo();
-//                }
-//                ctx.nonBlockingContext = new ctx.NonBlockingContext(actionInfo, retRegs);
-//
-//                ConnectorFuture future = nativeAction.execute(ctx);
-//                if (future == null) {
-//                    throw new BallerinaException("Native action doesn't provide a future object to sync");
-//                }
-//                future.setConnectorFutureListener(listener);
-//
-//                ctx.ip = -1;
-//            } else {
-//                ConnectorFuture future = nativeAction.execute(ctx);
-//                if (future == null) {
-//                    throw new BallerinaException("Native action doesn't provide a future object to sync");
-//                }
-//                future.setConnectorFutureListener(listener);
-//                //default nonBlocking timeout 5 mins
-//                long timeout = 300000;
-//                boolean res = listener.sync(timeout);
-//                if (!res) {
-//                    //non blocking execution timed out.
-//                    throw new BallerinaException("Action execution timed out, timeout period - " + timeout
-//                            + ", Action - " + nativeAction.getPackagePath() + ":" + nativeAction.getName());
-//                }
-//                if (ctx.getError() != null) {
-//                    handleError(ctx);
-//                }
-//                // Copy return values to the callers stack
-//                controlStack.popFrame();
-//                handleReturnFromNativeCallableUnit(callerSF, retRegs, returnValues, retTypes);
-//
-//            }
-//        } catch (Throwable e) {
-//            ctx.setError(BLangVMErrors.createError(this.ctx, ctx.ip, e.getMessage()));
-//            handleError(ctx);
-//        }
-        //TODO
+    /*
+     * TODO: Below is same as {@link #invokeNativeFunction()}. Refactor this code to reuse a single method.
+     */
+    private static void invokeNativeAction(WorkerExecutionContext parentCtx, ActionInfo actionInfo, int[] argRegs,
+                                           int[] retRegs) {
+        WorkerData parentLocalData = parentCtx.workerLocal;
+        BType[] retTypes = actionInfo.getRetParamTypes();
+        WorkerData caleeSF = BLangVMUtils.createWorkerDataForLocal(actionInfo.getDefaultWorkerInfo(), parentCtx,
+                argRegs, actionInfo.getParamTypes());
+        Context ctx = new NativeCallContext(parentCtx, caleeSF);
+        NativeCallableUnit nativeAction = actionInfo.getNativeAction();
+
+        if (nativeAction == null) {
+            return;
+        }
+
+        BLangScheduler.switchToWaitForResponse(parentCtx);
+        try {
+            if (nativeAction.isBlocking()) {
+                nativeAction.execute(ctx, null);
+                BLangVMUtils.populateWorkerDataWithValues(parentLocalData, retRegs, ctx.getReturnValues(), retTypes);
+                BLangScheduler.resume(parentCtx, true);
+            } else {
+                BLangCallableUnitCallback callback = new BLangCallableUnitCallback(ctx, parentCtx, retRegs, retTypes);
+                nativeAction.execute(ctx, callback);
+            }
+        } catch (BLangNullReferenceException e) {
+            handleNativeInvocationError(parentCtx, BLangVMErrors.createNullRefException(actionInfo));
+            return;
+        } catch (Throwable e) {
+            handleNativeInvocationError(parentCtx, BLangVMErrors.createError(actionInfo, e.getMessage()));
+            return;
+        }
+    }
+
+    private static void handleNativeInvocationError(WorkerExecutionContext parentCtx, BStruct error) {
+        Map<String, BStruct> errors = new HashMap<>();
+        errors.put(parentCtx.workerInfo.getWorkerName(), error);
+        parentCtx.setError(BLangVMErrors.createCallFailedException(parentCtx, errors));
+        handleError(parentCtx);
     }
 
     private static boolean checkCast(BValue sourceValue, BType targetType) {
@@ -3230,7 +3202,7 @@ public class CPU {
         } catch (BallerinaException e) {
             String errorMsg = BLangExceptionHelper.getErrorMessage(RuntimeErrors.CASTING_FAILED_WITH_CAUSE,
                     BTypes.typeJSON, BTypes.typeInt, e.getMessage());
-            ctx.setError(BLangVMErrors.createError(ctx, ctx.ip, errorMsg));
+            ctx.setError(BLangVMErrors.createError(ctx, errorMsg));
             handleError(ctx);
             return;
         }
@@ -3262,7 +3234,7 @@ public class CPU {
         } catch (BallerinaException e) {
             String errorMsg = BLangExceptionHelper.getErrorMessage(RuntimeErrors.CASTING_FAILED_WITH_CAUSE,
                     BTypes.typeJSON, BTypes.typeFloat, e.getMessage());
-            ctx.setError(BLangVMErrors.createError(ctx, ctx.ip, errorMsg));
+            ctx.setError(BLangVMErrors.createError(ctx, errorMsg));
             handleError(ctx);
             return;
         }
@@ -3295,7 +3267,7 @@ public class CPU {
             sf.stringRegs[j] = "";
             String errorMsg = BLangExceptionHelper.getErrorMessage(RuntimeErrors.CASTING_FAILED_WITH_CAUSE,
                     BTypes.typeJSON, BTypes.typeString, e.getMessage());
-            ctx.setError(BLangVMErrors.createError(ctx, ctx.ip, errorMsg));
+            ctx.setError(BLangVMErrors.createError(ctx, errorMsg));
             handleError(ctx);
             return;
         }
@@ -3327,7 +3299,7 @@ public class CPU {
         } catch (BallerinaException e) {
             String errorMsg = BLangExceptionHelper.getErrorMessage(RuntimeErrors.CASTING_FAILED_WITH_CAUSE,
                     BTypes.typeJSON, BTypes.typeBoolean, e.getMessage());
-            ctx.setError(BLangVMErrors.createError(ctx, ctx.ip, errorMsg));
+            ctx.setError(BLangVMErrors.createError(ctx, errorMsg));
             handleError(ctx);
             return;
         }

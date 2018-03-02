@@ -18,7 +18,6 @@ package org.ballerinalang.model.util;
 
 import org.ballerinalang.model.values.BXMLQName;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
-import org.ballerinalang.util.exceptions.BallerinaException;
 
 /**
  * This class defines the basic set of utility methods to validate XML.
@@ -262,7 +261,6 @@ public class XMLValidationUtils {
      * </i>
      * 
      * @param qname {@link BXMLQName} to check the validity
-     * @throws BallerinaException If the {@link BXMLQName} is invalid
      */
     public static void validateXMLQName(BXMLQName qname) {
         validateXMLName(qname.getLocalName());
@@ -278,7 +276,6 @@ public class XMLValidationUtils {
      * </i>
      * 
      * @param name Name to check the validity
-     * @throws BallerinaException If the name is invalid
      */
     public static void validateXMLName(String name) {
         if (name != null && !isValid(name)) {

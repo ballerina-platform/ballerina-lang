@@ -56,8 +56,8 @@ public class UpdateWithGeneratedKeys extends AbstractSQLAction {
     public void execute(Context context) {
         BConnector bConnector = (BConnector) context.getRefArgument(0);
         String query = context.getStringArgument(0);
-        BRefValueArray parameters = (BRefValueArray) context.getRefArgument(1);
-        BStringArray keyColumns = (BStringArray) context.getRefArgument(2);
+        BRefValueArray parameters = (BRefValueArray) context.getNullableRefArgument(1);
+        BStringArray keyColumns = (BStringArray) context.getNullableRefArgument(2);
         BMap sharedMap = (BMap) bConnector.getRefField(2);
         SQLDatasource datasource = null;
         if (sharedMap.get(new BString(Constants.DATASOURCE_KEY)) != null) {

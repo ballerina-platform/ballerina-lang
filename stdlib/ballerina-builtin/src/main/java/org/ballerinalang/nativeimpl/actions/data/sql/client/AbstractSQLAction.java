@@ -187,6 +187,7 @@ public abstract class AbstractSQLAction extends BlockingNativeCallableUnit {
                 context.setReturnValues(constructTable(context, rs, stmt, conn, structType));
             } else {
                 SQLDatasourceUtils.cleanupConnection(null, stmt, conn, isInTransaction);
+                context.setReturnValues();
             }
         } catch (Throwable e) {
             SQLDatasourceUtils.cleanupConnection(rs, stmt, conn, isInTransaction);

@@ -19,7 +19,6 @@ package org.ballerinalang;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BLangScheduler;
-import org.ballerinalang.bre.bvm.WorkerExecutionContext;
 import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
@@ -90,7 +89,7 @@ public class BLangProgramRunner {
         FunctionInfo mainFuncInfo = getMainFunction(mainPkgInfo);
         BLangFunctions.invokePackageInitFunction(mainPkgInfo.getInitFunctionInfo());
         BLangFunctions.invokeCallable(mainFuncInfo, extractMainArgs(args));
-        BLangScheduler.waitForCompletion();
+        BLangScheduler.waitForWorkerCompletion();
     }
     
     private static BValue[] extractMainArgs(String[] args) {

@@ -63,5 +63,7 @@ public class Init extends AbstractSQLAction {
             datasource.init(optionStruct, dbType, hostOrPath, port, username, password, dbName);
             sharedMap.put(new BString(Constants.DATASOURCE_KEY), datasource);
         }
+
+        context.setReturnValues();
     }
 }
