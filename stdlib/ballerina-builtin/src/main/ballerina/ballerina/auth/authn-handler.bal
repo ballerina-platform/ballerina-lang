@@ -21,7 +21,6 @@ import ballerina.net.http;
 @Description {value:"Representation of Authentication handler for HTTP traffic. Any authention interceptor for
 basic authentication should be struct-wise similar to HttpAuthnInterceptor"}
 public struct HttpAuthnHandler {
-    // TODO
 }
 
 @Description {value:"Intercepts a HTTP request for authentication"}

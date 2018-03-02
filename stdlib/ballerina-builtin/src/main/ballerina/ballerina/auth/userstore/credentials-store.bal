@@ -19,7 +19,6 @@ package ballerina.auth.userstore;
 @Description {value:"Represents the credentials store. Any type of implementation, such as ldap, jdbc, file based,
 etc. should be struct-wise similar"}
 public struct CredentialsStore {
-    // TODO
 }
 
 @Description {value:"Attempts to authenticate with username and password"}

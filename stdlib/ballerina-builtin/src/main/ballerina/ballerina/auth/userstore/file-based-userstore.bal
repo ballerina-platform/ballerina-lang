@@ -21,7 +21,6 @@ import ballerina.security.crypto;
 
 @Description {value:"Represents the file-based user store"}
 public struct FilebasedUserstore {
-    // TODO
 }
 
 @Description {value:"Attempts to authenticate with username and password"}

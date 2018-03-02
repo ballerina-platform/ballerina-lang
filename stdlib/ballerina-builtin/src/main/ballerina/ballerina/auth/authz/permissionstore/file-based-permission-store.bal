@@ -25,8 +25,7 @@ const string PERMISSIONSTORE_GROUPS_ENTRY = "groups";
 const string PERMISSIONSTORE_USERIDS_ENTRY = "userids";
 
 @Description {value:"Represents the permission store"}
-public struct FileBasedPermissionStore {
-    // TODO
+public struct FileBasedPermissionStore { 
 }
 
 @Description {value:"Checks if the the user has sufficient permission to access a resource with the specified scope"}

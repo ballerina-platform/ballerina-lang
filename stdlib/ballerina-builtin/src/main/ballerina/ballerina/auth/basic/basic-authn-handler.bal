@@ -34,7 +34,6 @@ BasicAuthenticator authenticator;
 
 @Description {value:"Representation of Basic Auth handler for HTTP traffic"}
 public struct HttpBasicAuthnHandler {
-    // TODO
 }
 
 @Description {value:"Intercepts a request for authentication"}

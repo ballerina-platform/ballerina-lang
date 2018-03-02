@@ -19,7 +19,6 @@ package ballerina.auth.authz.permissionstore;
 @Description {value:"Represents the permission store. Any implementation of the Permission store should be
 struct-wise similar"}
 public struct PermissionStore {
-    // TODO
 }
 
 @Description {value:"Checks if the the user has sufficient permission to access a resource with the specified scope"}
