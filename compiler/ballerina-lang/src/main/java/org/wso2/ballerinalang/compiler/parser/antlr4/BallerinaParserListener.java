@@ -58,6 +58,16 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 */
 	void exitImportDeclaration(BallerinaParser.ImportDeclarationContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link BallerinaParser#orgName}.
+	 * @param ctx the parse tree
+	 */
+	void enterOrgName(BallerinaParser.OrgNameContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BallerinaParser#orgName}.
+	 * @param ctx the parse tree
+	 */
+	void exitOrgName(BallerinaParser.OrgNameContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link BallerinaParser#definition}.
 	 * @param ctx the parse tree
 	 */
