@@ -593,7 +593,7 @@ public class TypeChecker extends BLangNodeVisitor {
                     unaryExpr.opSymbol = symbol;
                     actualType = symbol.type.getReturnTypes().get(0);
                 } else {
-                    BOperatorSymbol symbol = new BOperatorSymbol(names.fromString(OperatorKind.TYPELOAD.value()),
+                    BOperatorSymbol symbol = new BOperatorSymbol(names.fromString(OperatorKind.TYPEOF.value()),
                             symTable.rootPkgSymbol.pkgID, opType, symTable.rootPkgSymbol, InstructionCodes.TYPELOAD);
                     unaryExpr.opSymbol = symbol;
                     actualType = symbol.type.getReturnTypes().get(0);

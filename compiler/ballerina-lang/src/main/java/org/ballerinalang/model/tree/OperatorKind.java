@@ -40,8 +40,7 @@ public enum OperatorKind {
     POW("^"),
     NOT("!"),
     LENGTHOF("lengthof"),
-    TYPEOF("typeof"),
-    TYPELOAD("typeload");
+    TYPEOF("typeof");
 
     private final String opValue;
 
