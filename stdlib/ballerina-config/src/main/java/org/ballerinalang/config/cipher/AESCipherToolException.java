@@ -27,18 +27,11 @@ import java.security.GeneralSecurityException;
  */
 public class AESCipherToolException extends GeneralSecurityException {
 
-    public AESCipherToolException() {
-    }
-
     public AESCipherToolException(String msg) {
         super(msg);
     }
 
     public AESCipherToolException(String message, Throwable cause) {
         super(message, cause);
-    }
-
-    public AESCipherToolException(Throwable cause) {
-        super(cause);
     }
 }
