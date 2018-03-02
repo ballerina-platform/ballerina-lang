@@ -201,4 +201,20 @@ public class AssertTest {
         BValue[] args = {new BInteger(2)};
         BTestUtils.invoke(compileResult, "testAssertFloatArrayEquals", args);
     }
+
+    @Test
+    public void testAssertNotEquals() {
+        BValue[] args = {new BInteger(1)};
+        BTestUtils.invoke(compileResult, "testAssertNotEquals", args);
+
+        BValue[] args2 = {new BInteger(2)};
+        BTestUtils.invoke(compileResult, "testAssertNotEquals", args2);
+    }
+
+    @Test(expectedExceptions = BLangRuntimeException.class,
+            expectedExceptionsMessageRegExp = ".*failed : expected the actual value not to be \\{\"a\":\"b\"\\}.*")
+    public void testAssertNotEqualsNegative() {
+        BValue[] args = {};
+        BTestUtils.invoke(compileResult, "testAssertNotEquals2", args);
+    }
 }

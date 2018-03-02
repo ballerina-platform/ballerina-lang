@@ -50,10 +50,9 @@ public function assertFalse(boolean condition, string errorMessage) {
     }
 }
 
-@Description{value:"Asserts whether the given string values are equal.
-                  If it is not, a AssertError is thrown with the given errorMessage."}
-@Param{value:"actual: Actual string value"}
-@Param{value:"expected: Expected string value"}
+@Description{value:"Asserts whether the given values are equal. If it is not, an AssertError is thrown with the given errorMessage."}
+@Param{value:"actual: Actual value"}
+@Param{value:"expected: Expected value"}
 @Param{value:"errorMessage: Assertion error message"}
 public function assertEquals(any actual, any expected, string errorMessage) {
     if (!reflect:equals(actual,expected)) {
@@ -66,6 +65,24 @@ public function assertEquals(any actual, any expected, string errorMessage) {
         throw createBallerinaError(msg, assertFailureErrorCategory);
     }
 }
+
+@Description{value:"Asserts whether the given values are not equal. If it is equal, an AssertError is thrown with the given errorMessage."}
+@Param{value:"actual: Actual value"}
+@Param{value:"expected: Expected value"}
+@Param{value:"errorMessage: Assertion error message"}
+public function assertNotEquals(any actual, any expected, string errorMessage) {
+    if (reflect:equals(actual,expected)) {
+        if(errorMessage != ""){
+            errorMessage = errorMessage + " ";
+        }
+        string expectedStr = <string> expected;
+        string actualStr = <string> actual;
+        string msg = string `{{errorMessage}}: expected the actual value not to be {{expectedStr}}`;
+        throw createBallerinaError(msg, assertFailureErrorCategory);
+    }
+}
+
+
 
 @Description{value:"Assert failure is triggered based on user discretion.
                   AssertError is thrown with the given errorMessage"}

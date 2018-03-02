@@ -84,3 +84,22 @@ function testAssertFloatArrayEquals (int case) {
     }
     test:assertEquals(x, y, "failed");
 }
+
+function testAssertNotEquals (int case) {
+    if (case == 1) {
+        string s1 = "abc";
+        string s2 = "def";
+        test:assertNotEquals(s1, s2, "failed");
+    } else if (case == 2) {
+        int s1 = 1;
+        int s2 = 33;
+        test:assertNotEquals(s1, s2, "failed");
+    }
+}
+
+function testAssertNotEquals2 () {
+    json s1 = {"a":"b"};
+    json s2 = {"a":"b"};
+    test:assertNotEquals(s1, s2, "failed");
+}
+
