@@ -30,8 +30,10 @@ import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaAction;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.net.http.BallerinaHttpServerConnector;
+import org.ballerinalang.net.http.HttpConstants;
+import org.ballerinalang.net.http.HttpUtil;
 import org.ballerinalang.net.ws.BallerinaWsClientConnectorListener;
-import org.ballerinalang.net.ws.Constants;
+import org.ballerinalang.net.ws.WebSocketConstants;
 import org.ballerinalang.net.ws.WebSocketService;
 import org.ballerinalang.net.ws.WsOpenConnectionInfo;
 import org.wso2.transport.http.netty.contract.HttpWsConnectorFactory;
@@ -39,7 +41,6 @@ import org.wso2.transport.http.netty.contract.websocket.HandshakeFuture;
 import org.wso2.transport.http.netty.contract.websocket.HandshakeListener;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketClientConnector;
 import org.wso2.transport.http.netty.contract.websocket.WsClientConnectorConfig;
-import org.wso2.transport.http.netty.contractimpl.HttpWsConnectorFactoryImpl;
 
 import java.util.HashMap;
 import javax.websocket.Session;
@@ -52,7 +53,7 @@ import javax.websocket.Session;
 @BallerinaAction(
         packageName = "ballerina.net.ws",
         actionName = "connectWithDefault",
-        connectorName = Constants.CONNECTOR_NAME,
+        connectorName = WebSocketConstants.CONNECTOR_NAME,
         args = {
                 @Argument(name = "c", type = TypeKind.CONNECTOR)
         },
@@ -66,7 +67,7 @@ public class ConnectWithDefault extends AbstractNativeWsAction {
         String remoteUrl = getUrlFromConnector(bconnector);
         String clientServiceName = getClientServiceNameFromConnector(bconnector);
         BallerinaHttpServerConnector httpServerConnector = (BallerinaHttpServerConnector) ConnectorUtils.
-                getBallerinaServerConnector(context, Constants.HTTP_PACKAGE_PATH);
+                getBallerinaServerConnector(context, HttpConstants.HTTP_PACKAGE_PATH);
         final WebSocketService wsService =
                 httpServerConnector.getWebSocketServicesRegistry().getClientService(clientServiceName);
         if (wsService == null) {
@@ -75,7 +76,7 @@ public class ConnectWithDefault extends AbstractNativeWsAction {
 
         WsClientConnectorConfig clientConnectorConfig = new WsClientConnectorConfig(remoteUrl);
         clientConnectorConfig.setTarget(clientServiceName);
-        HttpWsConnectorFactory connectorFactory = new HttpWsConnectorFactoryImpl();
+        HttpWsConnectorFactory connectorFactory = HttpUtil.createHttpWsConnectionFactory();
 
         ClientConnectorFuture connectorFuture = new ClientConnectorFuture();
         WebSocketClientConnector clientConnector =

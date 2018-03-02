@@ -15,16 +15,16 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-
 package org.ballerinalang.langserver.completions.resolvers;
 
+import org.antlr.v4.runtime.ParserRuleContext;
+import org.ballerinalang.langserver.DocumentServiceKeys;
 import org.ballerinalang.langserver.TextDocumentServiceContext;
 import org.ballerinalang.langserver.completions.CompletionKeys;
-import org.ballerinalang.langserver.completions.consts.ItemResolverConstants;
-import org.ballerinalang.langserver.completions.consts.Priority;
-import org.ballerinalang.langserver.completions.consts.Snippet;
+import org.ballerinalang.langserver.completions.util.CompletionItemResolver;
+import org.ballerinalang.langserver.completions.util.sorters.CompletionItemSorter;
+import org.ballerinalang.langserver.completions.util.sorters.ItemSorters;
 import org.eclipse.lsp4j.CompletionItem;
-import org.eclipse.lsp4j.InsertTextFormat;
 
 import java.util.ArrayList;
 
@@ -38,26 +38,18 @@ public class ConnectorDefinitionContextResolver extends AbstractItemResolver {
         ArrayList<CompletionItem> completionItems = new ArrayList<>();
 
         if (!this.isAnnotationContext(completionContext)) {
-            // Add types
-            this.populateBasicTypes(completionItems, completionContext.get(CompletionKeys.VISIBLE_SYMBOLS_KEY));
-            
-            // Add Action snippet
-            CompletionItem connectorActionItem = new CompletionItem();
-            connectorActionItem.setLabel(ItemResolverConstants.ACTION);
-            connectorActionItem.setInsertText(Snippet.CONNECTOR_ACTION.toString());
-            connectorActionItem.setInsertTextFormat(InsertTextFormat.Snippet);
-            connectorActionItem.setDetail(ItemResolverConstants.ACTION_TYPE);
-            connectorActionItem.setSortText(Priority.PRIORITY4.name());
-            completionItems.add(connectorActionItem);
-
-            // Add Endpoint snippet
-            CompletionItem endpointItem = new CompletionItem();
-            endpointItem.setLabel(ItemResolverConstants.ENDPOINT);
-            endpointItem.setInsertText(Snippet.ENDPOINT.toString());
-            endpointItem.setInsertTextFormat(InsertTextFormat.Snippet);
-            endpointItem.setDetail(ItemResolverConstants.SNIPPET_TYPE);
-            endpointItem.setSortText(Priority.PRIORITY7.name());
-            completionItems.add(endpointItem);
+            ParserRuleContext parserRuleContext = completionContext.get(DocumentServiceKeys.PARSER_RULE_CONTEXT_KEY);
+            if (parserRuleContext != null) {
+                AbstractItemResolver resolver = CompletionItemResolver.getResolverByClass(parserRuleContext.getClass());
+                if (resolver != null) {
+                    completionItems.addAll(resolver.resolveItems(completionContext));
+                }
+            } else {
+                CompletionItemSorter itemSorter = ItemSorters.getSorterByClass(completionContext.get(CompletionKeys
+                        .SYMBOL_ENV_NODE_KEY).getClass());
+                this.populateBasicTypes(completionItems, completionContext.get(CompletionKeys.VISIBLE_SYMBOLS_KEY));
+                itemSorter.sortItems(completionContext, completionItems);
+            }
         }
 
         return completionItems;

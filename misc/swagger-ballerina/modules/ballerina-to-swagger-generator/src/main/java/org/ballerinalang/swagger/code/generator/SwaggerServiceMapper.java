@@ -28,7 +28,7 @@ import io.swagger.models.auth.BasicAuthDefinition;
 import io.swagger.models.auth.In;
 import io.swagger.models.auth.OAuth2Definition;
 import io.swagger.models.auth.SecuritySchemeDefinition;
-import org.ballerinalang.net.http.Constants;
+import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.swagger.code.generator.model.Developer;
 import org.ballerinalang.swagger.code.generator.model.Organization;
 import org.ballerinalang.swagger.code.generator.util.SwaggerConstants;
@@ -364,19 +364,19 @@ class SwaggerServiceMapper {
      */
     private void parseConfigAnnotationAttachment(ServiceInfo service, Swagger swagger) {
         AnnAttachmentInfo httpConfigAnnotationAttachment = service.getAnnotationAttachmentInfo(
-                Constants.HTTP_PACKAGE_PATH, Constants.ANN_NAME_CONFIG);
+                HttpConstants.HTTP_PACKAGE_PATH, HttpConstants.ANN_NAME_CONFIG);
         if (null != httpConfigAnnotationAttachment) {
             Map<String, AnnAttributeValue> httpConfigAnnAttributeValueMap = SwaggerUtils.convertToAttributeMap
                     (httpConfigAnnotationAttachment);
-            if (null != httpConfigAnnAttributeValueMap.get(Constants.ANN_CONFIG_ATTR_BASE_PATH)) {
-                swagger.setBasePath(httpConfigAnnAttributeValueMap.get(Constants.ANN_CONFIG_ATTR_BASE_PATH)
+            if (null != httpConfigAnnAttributeValueMap.get(HttpConstants.ANN_CONFIG_ATTR_BASE_PATH)) {
+                swagger.setBasePath(httpConfigAnnAttributeValueMap.get(HttpConstants.ANN_CONFIG_ATTR_BASE_PATH)
                         .getStringValue());
             }
-            if (null != httpConfigAnnAttributeValueMap.get(Constants.ANN_CONFIG_ATTR_HOST) &&
-                null != httpConfigAnnAttributeValueMap.get(Constants.ANN_CONFIG_ATTR_PORT)) {
-                swagger.setHost(httpConfigAnnAttributeValueMap.get(Constants.ANN_CONFIG_ATTR_HOST)
+            if (null != httpConfigAnnAttributeValueMap.get(HttpConstants.ANN_CONFIG_ATTR_HOST) &&
+                null != httpConfigAnnAttributeValueMap.get(HttpConstants.ANN_CONFIG_ATTR_PORT)) {
+                swagger.setHost(httpConfigAnnAttributeValueMap.get(HttpConstants.ANN_CONFIG_ATTR_HOST)
                                         .getStringValue() + ":" +
-                                httpConfigAnnAttributeValueMap.get(Constants.ANN_CONFIG_ATTR_PORT).getIntValue());
+                                httpConfigAnnAttributeValueMap.get(HttpConstants.ANN_CONFIG_ATTR_PORT).getIntValue());
             }
         }
     }

@@ -143,35 +143,35 @@ public class StructAccessWithIndexTest {
 
     @Test(description = "Test accessing an field of a noninitialized struct",
             expectedExceptions = { BLangRuntimeException.class },
-            expectedExceptionsMessageRegExp = "error: NullReferenceException.*")
+            expectedExceptionsMessageRegExp = "error:.*NullReferenceException.*")
     public void testGetNonInitField() {
         BRunUtil.invoke(compileResult, "testGetNonInitAttribute");
     }
 
     @Test(description = "Test accessing an arrays field of a noninitialized struct",
             expectedExceptions = { BLangRuntimeException.class },
-            expectedExceptionsMessageRegExp = "error: NullReferenceException.*")
+            expectedExceptionsMessageRegExp = "error:.*NullReferenceException.*")
     public void testGetNonInitArrayField() {
         BRunUtil.invoke(compileResult, "testGetNonInitArrayAttribute");
     }
 
     @Test(description = "Test accessing the field of a noninitialized struct",
             expectedExceptions = { BLangRuntimeException.class },
-            expectedExceptionsMessageRegExp = "error: NullReferenceException.*")
+            expectedExceptionsMessageRegExp = "error:.*NullReferenceException.*")
     public void testGetNonInitLastField() {
         BRunUtil.invoke(compileResult, "testGetNonInitLastAttribute");
     }
 
     @Test(description = "Test setting an field of a noninitialized child struct",
             expectedExceptions = { BLangRuntimeException.class },
-            expectedExceptionsMessageRegExp = "error: NullReferenceException.*")
+            expectedExceptionsMessageRegExp = "error:.*NullReferenceException.*")
     public void testSetNonInitField() {
         BRunUtil.invoke(compileResult, "testSetFieldOfNonInitChildStruct");
     }
 
     @Test(description = "Test setting the field of a noninitialized root struct",
             expectedExceptions = { BLangRuntimeException.class },
-            expectedExceptionsMessageRegExp = "error: NullReferenceException.*")
+            expectedExceptionsMessageRegExp = "error:.*NullReferenceException.*")
     public void testSetNonInitLastField() {
         BRunUtil.invoke(compileResult, "testSetFieldOfNonInitStruct");
     }

@@ -1,4 +1,7 @@
-[![Build Status](https://wso2.org/jenkins/buildStatus/icon?job=ballerinalang/ballerina)](https://wso2.org/jenkins/job/ballerinalang/job/ballerina/)
+[![Build Status](https://wso2.org/jenkins/buildStatus/icon?job=ballerina-lang/ballerina)](https://wso2.org/jenkins/view/All%20Builds/job/ballerina-lang/job/ballerina/)
+[![GitHub (pre-)release](https://img.shields.io/github/release/ballerina-lang/ballerina/all.svg)](https://github.com/ballerina-lang/ballerina/releases)
+[![GitHub (Pre-)Release Date](https://img.shields.io/github/release-date-pre/ballerina-lang/ballerina.svg)](https://github.com/ballerina-lang/ballerina/releases)
+[![GitHub last commit](https://img.shields.io/github/last-commit/ballerina-lang/ballerina.svg)](https://github.com/ballerina-lang/ballerina/commits/master)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
 
@@ -25,9 +28,14 @@ You can download the Ballerina distribution, try samples, and read the documenta
 1. Clone this repository using the following command.
 
     ```bash
-    git clone https://github.com/ballerinalang/ballerina
+    git clone --recursive https://github.com/ballerinalang/ballerina
     ```
+
+    If you download the sources, you need to update the git submodules using the following command.
     
+    ```bash
+    git submodule update --init 
+    ```
 2. Run the Maven command ``mvn clean install`` from the ``ballerina`` root directory.
 3. Extract the Ballerina distribution created at `distribution/zip/ballerina/target/ballerina-<version>-SNAPSHOT.zip`.
 

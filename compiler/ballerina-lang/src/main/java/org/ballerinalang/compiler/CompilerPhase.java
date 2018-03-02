@@ -28,8 +28,6 @@ public enum CompilerPhase {
 
     CODE_ANALYZE("codeAnalyze"),
 
-    ANNOTATION_PROCESS("annotationProcess"),
-
     DESUGAR("desugar"),
 
     CODE_GEN("codeGen");
@@ -48,8 +46,6 @@ public enum CompilerPhase {
                 return TYPE_CHECK;
             case "codeAnalyze":
                 return CODE_ANALYZE;
-            case "annotationProcess":
-                return ANNOTATION_PROCESS;
             case "desugar":
                 return DESUGAR;
             case "codeGen":

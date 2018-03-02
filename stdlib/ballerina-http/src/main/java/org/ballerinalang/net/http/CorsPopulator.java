@@ -34,7 +34,7 @@ public class CorsPopulator {
 
     public static void populateServiceCors(HttpService service) {
         CorsHeaders corsHeaders = populateAndGetCorsHeaders(
-                HttpUtil.getServiceConfigAnnotation(service.getBalService(), Constants.HTTP_PACKAGE_PATH));
+                HttpUtil.getServiceConfigAnnotation(service.getBalService(), HttpConstants.HTTP_PACKAGE_PATH));
         service.setCorsHeaders(corsHeaders);
         if (!corsHeaders.isAvailable()) {
             return;
@@ -49,7 +49,7 @@ public class CorsPopulator {
 
     public static void processResourceCors(HttpResource resource, HttpService service) {
         CorsHeaders corsHeaders = populateAndGetCorsHeaders(
-                HttpUtil.getResourceConfigAnnotation(resource.getBalResource(), Constants.HTTP_PACKAGE_PATH));
+                HttpUtil.getResourceConfigAnnotation(resource.getBalResource(), HttpConstants.HTTP_PACKAGE_PATH));
         if (!corsHeaders.isAvailable()) {
             //resource doesn't have cors headers, hence use service cors
             resource.setCorsHeaders(service.getCorsHeaders());
@@ -74,27 +74,27 @@ public class CorsPopulator {
         if (configAnnotInfo == null) {
             return corsHeaders;
         }
-        AnnAttrValue allowOriginAttr = configAnnotInfo.getAnnAttrValue(Constants.ALLOW_ORIGIN);
+        AnnAttrValue allowOriginAttr = configAnnotInfo.getAnnAttrValue(HttpConstants.ALLOW_ORIGIN);
         if (allowOriginAttr != null) {
             corsHeaders.setAllowOrigins(DispatcherUtil.getValueList(allowOriginAttr, null));
         }
-        AnnAttrValue allowCredentials = configAnnotInfo.getAnnAttrValue(Constants.ALLOW_CREDENTIALS);
+        AnnAttrValue allowCredentials = configAnnotInfo.getAnnAttrValue(HttpConstants.ALLOW_CREDENTIALS);
         if (allowCredentials != null) {
             corsHeaders.setAllowCredentials(allowCredentials.getBooleanValue() ? 1 : 0);
         }
-        AnnAttrValue allowMethodsAttr = configAnnotInfo.getAnnAttrValue(Constants.ALLOW_METHODS);
+        AnnAttrValue allowMethodsAttr = configAnnotInfo.getAnnAttrValue(HttpConstants.ALLOW_METHODS);
         if (allowMethodsAttr != null) {
             corsHeaders.setAllowMethods(DispatcherUtil.getValueList(allowMethodsAttr, null));
         }
-        AnnAttrValue allowHeadersAttr = configAnnotInfo.getAnnAttrValue(Constants.ALLOW_HEADERS);
+        AnnAttrValue allowHeadersAttr = configAnnotInfo.getAnnAttrValue(HttpConstants.ALLOW_HEADERS);
         if (allowHeadersAttr != null) {
             corsHeaders.setAllowHeaders(DispatcherUtil.getValueList(allowHeadersAttr, null));
         }
-        AnnAttrValue maxAgeAttr = configAnnotInfo.getAnnAttrValue(Constants.MAX_AGE);
+        AnnAttrValue maxAgeAttr = configAnnotInfo.getAnnAttrValue(HttpConstants.MAX_AGE);
         if (maxAgeAttr != null) {
             corsHeaders.setMaxAge(maxAgeAttr.getIntValue());
         }
-        AnnAttrValue exposeHeadersAttr = configAnnotInfo.getAnnAttrValue(Constants.EXPOSE_HEADERS);
+        AnnAttrValue exposeHeadersAttr = configAnnotInfo.getAnnAttrValue(HttpConstants.EXPOSE_HEADERS);
         if (exposeHeadersAttr != null) {
             corsHeaders.setExposeHeaders(DispatcherUtil.getValueList(exposeHeadersAttr, null));
         }

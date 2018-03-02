@@ -402,19 +402,19 @@ class PanelDecorator extends React.Component {
                     />
                 }
                 {rightHeadingButtons}
-                { this.props.argumentParams &&
+                { !this.props.headerComponent && this.props.argumentParams &&
                     <ArgumentParameterDefinitionHolder
                         model={this.props.model}
                     >
                         {this.props.argumentParams}
                     </ArgumentParameterDefinitionHolder>
                 }
-                { this.props.returnParams &&
-                <ReturnParameterDefinitionHolder
-                    model={this.props.model}
-                >
-                    {this.props.returnParams}
-                </ReturnParameterDefinitionHolder>
+                { !this.props.headerComponent && this.props.returnParams &&
+                    <ReturnParameterDefinitionHolder
+                        model={this.props.model}
+                    >
+                        {this.props.returnParams}
+                    </ReturnParameterDefinitionHolder>
                 }
             </g>
             <g className='panel-body'>

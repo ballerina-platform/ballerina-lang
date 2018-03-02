@@ -8,12 +8,10 @@ const string arrayLengthsMismatchMessage = " (Array lengths are not the same)";
 @Description{value:"The error struct for assertion errors"}
 @Field{value:"The assertion error message"}
 @Field{value:"The error which caused the assertion error"}
-@Field{value:"The strack trace"}
 @Field{value:"The assert error category"}
 public struct AssertError {
-    string msg;
+    string message;
     error cause;
-    StackFrame[] stackTrace;
     string category;
 }
 
@@ -21,7 +19,7 @@ public struct AssertError {
 @Param{value:"errorMessage: Custom message for the ballerina error"}
 @Param{value:"category: error category"}
 public function createBallerinaError (string errorMessage, string category) (AssertError) {
-    AssertError e = { msg : errorMessage, category : category };
+    AssertError e = { message : errorMessage, category : category };
     return e;
 }
 
@@ -132,7 +130,7 @@ public function assertStringArrayEquals(string[] actual, string[] expected, stri
                 } catch (AssertError e) {
                     if (e.category == assertFailureErrorCategory) {
                         throw createBallerinaError(
-                                                      errorMessage + ". " + e.msg +
+                                                      errorMessage + ". " + e.message +
                                                       " (at index " + i + ") " ,
                                                       assertFailureErrorCategory);
                     }
@@ -164,7 +162,7 @@ public function assertFloatArrayEquals(float[] actual, float[] expected, string 
                 } catch (AssertError e) {
                     if (e.category == assertFailureErrorCategory) {
                         throw createBallerinaError(
-                                                      errorMessage + ". " + e.msg +
+                                                      errorMessage + ". " + e.message +
                                                       " (at index " + i + ") " ,
                                                       assertFailureErrorCategory);
                     }
@@ -196,7 +194,7 @@ public function assertIntArrayEquals(int[] actual, int[] expected, string errorM
                 } catch (AssertError e) {
                     if (e.category == assertFailureErrorCategory) {
                         throw createBallerinaError(
-                                                      errorMessage + ". " + e.msg +
+                                                      errorMessage + ". " + e.message +
                                                       " (at index " + i + ") " ,
                                                       assertFailureErrorCategory);
                     }

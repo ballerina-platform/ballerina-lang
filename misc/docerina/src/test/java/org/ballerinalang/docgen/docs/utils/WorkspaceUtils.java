@@ -24,6 +24,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 import org.wso2.ballerinalang.compiler.util.Name;
+import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.diagnotic.BDiagnostic;
 
 import java.nio.charset.StandardCharsets;
@@ -41,7 +42,7 @@ public class WorkspaceUtils {
         names.add(new Name("."));
         // Registering custom PackageRepository to provide ballerina content without a file in file-system
         context.put(PackageRepository.class, new InMemoryPackageRepository(
-                new PackageID(names, new Name("0.0.0")),
+                new PackageID(Names.ANON_ORG, names, new Name("0.0.0")),
                 "", fileName, source.getBytes(StandardCharsets.UTF_8)));
         return context;
     }

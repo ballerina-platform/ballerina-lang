@@ -1,3 +1,5 @@
+import ballerina.io;
+
 function test (int x, string s) returns (float f) {
     var y, _ = <int>s;
     f = x * 1.0 * y;
@@ -18,9 +20,9 @@ function getIt () (function (int, string) returns (float) f) {
 
 function main (string[] args) {
     // Value 'test' will serve as a pointer to 'test' function.
-    println("Answer: " + foo(10, test));
-    println("Answer: " + foo(10, getIt()));
+    io:println("Answer: " + foo(10, test));
+    io:println("Answer: " + foo(10, getIt()));
     // Function pointer as a variable;
     function (int, string) returns (float) f = getIt();
-    println("Answer: " + foo(10, f));
+    io:println("Answer: " + foo(10, f));
 }

@@ -1,0 +1,27 @@
+#if (${PACKAGE_NAME} && ${PACKAGE_NAME} != "")
+package ${PACKAGE_NAME};
+#end
+
+import ballerina.io;
+import ballerina.net.http;
+
+connector MyClient (string url) {
+
+    endpoint<http:HttpClient> clientConnectorEP {
+        create http:HttpClient(url, {});
+    }
+
+    action connect (string path) (http:InResponse) {
+        http:InResponse response;
+        response, _ = clientConnectorEP.get(path, {});
+        return response;
+    }
+}
+
+function main (string[] args) {
+    endpoint<MyClient> myClientEP {
+        create MyClient("http://example.com");
+    }
+    http:InResponse response = myClientEP.connect("");
+    io:println(response.getStringPayload());
+}

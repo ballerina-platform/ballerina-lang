@@ -27,8 +27,8 @@ import org.ballerinalang.net.ws.WebSocketServicesRegistry;
 import java.util.LinkedList;
 import java.util.List;
 
-import static org.ballerinalang.net.ws.Constants.PROTOCOL_PACKAGE_HTTP;
-import static org.ballerinalang.net.ws.Constants.PROTOCOL_PACKAGE_WS;
+import static org.ballerinalang.net.http.HttpConstants.PROTOCOL_PACKAGE_HTTP;
+import static org.ballerinalang.net.ws.WebSocketConstants.PROTOCOL_PACKAGE_WS;
 
 /**
  * {@code HttpServerConnector} This is the http implementation for the {@code BallerinaServerConnector} API.

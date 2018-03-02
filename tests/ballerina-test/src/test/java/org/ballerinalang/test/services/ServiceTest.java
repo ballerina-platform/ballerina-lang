@@ -18,13 +18,16 @@
 
 package org.ballerinalang.test.services;
 
+import io.netty.buffer.Unpooled;
+import io.netty.handler.codec.http.DefaultLastHttpContent;
+import io.netty.handler.codec.http.HttpHeaderNames;
 import org.ballerinalang.launcher.util.BAssertUtil;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BServiceUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.util.StringUtils;
 import org.ballerinalang.model.values.BJSON;
-import org.ballerinalang.net.http.Constants;
+import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.runtime.message.StringDataSource;
 import org.ballerinalang.test.services.testutils.HTTPTestRequest;
 import org.ballerinalang.test.services.testutils.MessageUtils;
@@ -36,12 +39,10 @@ import org.wso2.carbon.messaging.Header;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 import org.wso2.transport.http.netty.message.HttpMessageDataStreamer;
 
-import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
 
 import static org.ballerinalang.mime.util.Constants.APPLICATION_FORM;
-import static org.ballerinalang.mime.util.Constants.CONTENT_TYPE;
 import static org.ballerinalang.mime.util.Constants.TEXT_PLAIN;
 
 /**
@@ -97,8 +98,7 @@ public class ServiceTest {
         headers.add(new Header("Content-Type", TEXT_PLAIN));
         HTTPTestRequest requestMsg = MessageUtils.generateHTTPMessage("/echo/setString", "POST", headers, null);
         requestMsg.waitAndReleaseAllEntities();
-        requestMsg.addMessageBody(ByteBuffer.wrap("hello".getBytes()));
-        requestMsg.setEndOfMsgAdded(true);
+        requestMsg.addHttpContent(new DefaultLastHttpContent(Unpooled.wrappedBuffer("hello".getBytes())));
         HTTPCarbonMessage responseMsg = Services.invokeNew(compileResult, requestMsg);
 
         Assert.assertNotNull(responseMsg);
@@ -149,8 +149,8 @@ public class ServiceTest {
                 null);
         String stringresponseMsgPayload = "hello";
         setStringrequestMsg.waitAndReleaseAllEntities();
-        setStringrequestMsg.addMessageBody(ByteBuffer.wrap(stringresponseMsgPayload.getBytes()));
-        setStringrequestMsg.setEndOfMsgAdded(true);
+        setStringrequestMsg.addHttpContent(new DefaultLastHttpContent(Unpooled
+                .wrappedBuffer(stringresponseMsgPayload.getBytes())));
         Services.invokeNew(compileResult, setStringrequestMsg);
 
         HTTPTestRequest requestMsg = MessageUtils.generateHTTPMessage("/echo/getString", "GET");
@@ -179,7 +179,7 @@ public class ServiceTest {
         String path = "/echo/getFormParams";
         HTTPTestRequest requestMsg = MessageUtils
                 .generateHTTPMessage(path, "POST", "firstName=WSO2&team=BalDance");
-        requestMsg.setHeader(CONTENT_TYPE, APPLICATION_FORM);
+        requestMsg.setHeader(HttpHeaderNames.CONTENT_TYPE.toString(), APPLICATION_FORM);
         HTTPCarbonMessage responseMsg = Services.invokeNew(compileResult, requestMsg);
 
         Assert.assertNotNull(responseMsg, "responseMsg message not found");
@@ -195,7 +195,7 @@ public class ServiceTest {
         String path = "/echo/getFormParams";
         HTTPTestRequest requestMsg = MessageUtils
                 .generateHTTPMessage(path, "POST", "firstName=WSO2&company=BalDance");
-        requestMsg.setHeader(CONTENT_TYPE, APPLICATION_FORM);
+        requestMsg.setHeader(HttpHeaderNames.CONTENT_TYPE.toString(), APPLICATION_FORM);
         HTTPCarbonMessage responseMsg = Services.invokeNew(compileResult, requestMsg);
 
         Assert.assertNotNull(responseMsg, "responseMsg message not found");
@@ -207,7 +207,7 @@ public class ServiceTest {
     public void testGetFormParamsEmptyresponseMsgPayload() {
         String path = "/echo/getFormParams";
         HTTPTestRequest requestMsg = MessageUtils.generateHTTPMessage(path, "POST", "");
-        requestMsg.setHeader(CONTENT_TYPE, APPLICATION_FORM);
+        requestMsg.setHeader(HttpHeaderNames.CONTENT_TYPE.toString(), APPLICATION_FORM);
         HTTPCarbonMessage responseMsg = Services.invokeNew(compileResult, requestMsg);
         Assert.assertNotNull(responseMsg, "responseMsg message not found");
         BJSON bJson = new BJSON(new HttpMessageDataStreamer(responseMsg).getInputStream());
@@ -226,7 +226,8 @@ public class ServiceTest {
         Assert.assertNotNull(responseMsg, "responseMsg message not found");
         BJSON bJson = new BJSON(new HttpMessageDataStreamer(responseMsg).getInputStream());
         Assert.assertNotNull(bJson);
-        Assert.assertNull(bJson.value().get("Name").stringValue());
+        Assert.assertEquals(bJson.value().get("Name").asText(), "WSO2"
+                , "Name variable not set properly.");
         Assert.assertNull(bJson.value().get("Team").stringValue());
     }
 
@@ -237,7 +238,7 @@ public class ServiceTest {
         HTTPCarbonMessage responseMsg = Services.invokeNew(compileResult, requestMsg);
 
         Assert.assertNotNull(responseMsg, "responseMsg message not found");
-        Assert.assertEquals(responseMsg.getProperty(Constants.HTTP_STATUS_CODE), 204);
+        Assert.assertEquals(responseMsg.getProperty(HttpConstants.HTTP_STATUS_CODE), 204);
     }
 
     @Test(description = "Test Http PATCH verb dispatching without a responseMsgPayload")
@@ -247,7 +248,7 @@ public class ServiceTest {
         HTTPCarbonMessage responseMsg = Services.invokeNew(compileResult, requestMsg);
 
         Assert.assertNotNull(responseMsg, "responseMsg message not found");
-        Assert.assertEquals(responseMsg.getProperty(Constants.HTTP_STATUS_CODE), 204);
+        Assert.assertEquals(responseMsg.getProperty(HttpConstants.HTTP_STATUS_CODE), 204);
     }
 
     //TODO: add more test cases

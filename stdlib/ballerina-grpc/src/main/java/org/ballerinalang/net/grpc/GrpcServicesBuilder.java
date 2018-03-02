@@ -82,11 +82,7 @@ public class GrpcServicesBuilder {
             .DescriptorValidationException, GrpcServerException {
         Descriptors.FileDescriptor fileDescriptor = ServiceProtoUtils.getDescriptor(service);
         Descriptors.ServiceDescriptor serviceDescriptor = fileDescriptor.findServiceByName(service.getName());
-        // Generate protobuf definition from Ballerina Service.
-        //File protobufFileDefinition = ServiceProtoUtils.generateServiceDefinition(service);
-        // Write protobuf file definition to .proto file.
-        //ServiceProtoUtils.writeServiceFiles(protobufFileDefinition, service.getName());
-        // we are registering one service. So there will be only one service in file descriptor.
+
         Annotation serviceAnnotation = MessageUtils.getServiceConfigAnnotation(service, MessageConstants
                 .PROTOCOL_PACKAGE_GRPC);
         if (isStreamService(serviceAnnotation)) {

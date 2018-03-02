@@ -18,6 +18,7 @@
 
 package org.ballerinalang.net.http;
 
+import io.netty.handler.codec.http.HttpHeaderNames;
 import org.ballerinalang.net.uri.DispatcherUtil;
 import org.ballerinalang.net.uri.parser.DataElement;
 import org.ballerinalang.util.exceptions.BallerinaException;
@@ -84,7 +85,7 @@ public class HttpResourceDataElement implements DataElement<HttpResource, HTTPCa
     private HttpResource validateHTTPMethod(List<HttpResource> resources, HTTPCarbonMessage carbonMessage) {
         HttpResource resource = null;
         boolean isOptionsRequest = false;
-        String httpMethod = (String) carbonMessage.getProperty(Constants.HTTP_METHOD);
+        String httpMethod = (String) carbonMessage.getProperty(HttpConstants.HTTP_METHOD);
         for (HttpResource resourceInfo : resources) {
             if (DispatcherUtil.isMatchingMethodExist(resourceInfo, httpMethod)) {
                 resource = resourceInfo;
@@ -101,7 +102,7 @@ public class HttpResourceDataElement implements DataElement<HttpResource, HTTPCa
             return resource;
         }
         if (!isOptionsRequest) {
-            carbonMessage.setProperty(Constants.HTTP_STATUS_CODE, 405);
+            carbonMessage.setProperty(HttpConstants.HTTP_STATUS_CODE, 405);
             throw new BallerinaException("Method not allowed");
         }
         return null;
@@ -118,8 +119,8 @@ public class HttpResourceDataElement implements DataElement<HttpResource, HTTPCa
     }
 
     private boolean setAllowHeadersIfOPTIONS(String httpMethod, HTTPCarbonMessage cMsg) {
-        if (httpMethod.equals(Constants.HTTP_METHOD_OPTIONS)) {
-            cMsg.setHeader(Constants.ALLOW, getAllowHeaderValues(cMsg));
+        if (httpMethod.equals(HttpConstants.HTTP_METHOD_OPTIONS)) {
+            cMsg.setHeader(HttpHeaderNames.ALLOW.toString(), getAllowHeaderValues(cMsg));
             return true;
         }
         return false;
@@ -134,26 +135,26 @@ public class HttpResourceDataElement implements DataElement<HttpResource, HTTPCa
             }
             resourceInfos.add(resourceInfo);
         }
-        cMsg.setProperty(Constants.PREFLIGHT_RESOURCES, resourceInfos);
+        cMsg.setProperty(HttpConstants.PREFLIGHT_RESOURCES, resourceInfos);
         methods = DispatcherUtil.validateAllowMethods(methods);
         return DispatcherUtil.concatValues(methods, false);
     }
 
     public HttpResource validateConsumes(HttpResource resource, HTTPCarbonMessage cMsg) {
-        String contentMediaType = extractContentMediaType(cMsg.getHeader(Constants.CONTENT_TYPE_HEADER));
+        String contentMediaType = extractContentMediaType(cMsg.getHeader(HttpHeaderNames.CONTENT_TYPE.toString()));
         List<String> consumesList = resource.getConsumes();
 
         if (consumesList == null) {
             return resource;
         }
         //when Content-Type header is not set, treat it as "application/octet-stream"
-        contentMediaType = (contentMediaType != null ? contentMediaType : Constants.VALUE_ATTRIBUTE);
+        contentMediaType = (contentMediaType != null ? contentMediaType : HttpConstants.VALUE_ATTRIBUTE);
         for (String consumeType : consumesList) {
             if (contentMediaType.equals(consumeType.trim())) {
                 return resource;
             }
         }
-        cMsg.setProperty(Constants.HTTP_STATUS_CODE, 415);
+        cMsg.setProperty(HttpConstants.HTTP_STATUS_CODE, 415);
         throw new BallerinaException();
     }
 
@@ -168,7 +169,7 @@ public class HttpResourceDataElement implements DataElement<HttpResource, HTTPCa
     }
 
     public HttpResource validateProduces(HttpResource resource, HTTPCarbonMessage cMsg) {
-        List<String> acceptMediaTypes = extractAcceptMediaTypes(cMsg.getHeader(Constants.ACCEPT_HEADER));
+        List<String> acceptMediaTypes = extractAcceptMediaTypes(cMsg.getHeader(HttpHeaderNames.ACCEPT.toString()));
         List<String> producesList = resource.getProduces();
 
         if (producesList == null || acceptMediaTypes == null) {
@@ -196,7 +197,7 @@ public class HttpResourceDataElement implements DataElement<HttpResource, HTTPCa
                 return resource;
             }
         }
-        cMsg.setProperty(Constants.HTTP_STATUS_CODE, 406);
+        cMsg.setProperty(HttpConstants.HTTP_STATUS_CODE, 406);
         throw new BallerinaException();
     }
 

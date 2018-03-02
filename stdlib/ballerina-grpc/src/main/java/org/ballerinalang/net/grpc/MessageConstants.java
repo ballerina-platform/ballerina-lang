@@ -73,4 +73,6 @@ public class MessageConstants {
     public static final String ON_COMPLETE_RESOURCE = "onComplete";
     public static final String ON_MESSAGE_RESOURCE = "onMessage";
     public static final String ON_ERROR_RESOURCE = "onError";
+
+    public static final String HTTP_TRANSPORT_CONF = "transports.netty.conf";
 }

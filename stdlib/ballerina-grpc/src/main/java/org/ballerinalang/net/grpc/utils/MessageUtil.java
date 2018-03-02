@@ -129,6 +129,7 @@ public class MessageUtil {
                         responseBuilder.addField(fieldName, generateProtoMessage(bValue, fieldDescriptor
                                 .getMessageType()));
                     }
+                    break;
                 }
                 default: {
                     throw new UnsupportedFieldTypeException("Error while decoding request message. Field " +

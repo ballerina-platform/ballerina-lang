@@ -135,11 +135,11 @@ public class JsonGenerator {
     
     public void writeFieldName(String fieldName) throws IOException {
         this.processFieldInit();
-        this.writer.write("\"" + fieldName + "\":");
+        this.writeStringValue(fieldName);
+        this.writer.write(":");
     }
     
-    public void writeString(String value) throws IOException {
-        this.processValueInit();
+    private void writeStringValue(String value) throws IOException {
         this.writer.write("\"");        
         int count = value.length();
         char ch;
@@ -160,8 +160,12 @@ public class JsonGenerator {
         this.writer.write("\"");
     }
     
-    public void writeStringEsc(char[] chs) throws IOException {
+    public void writeString(String value) throws IOException {
         this.processValueInit();
+        this.writeStringValue(value);
+    }
+
+    public void writeStringEsc(char[] chs) throws IOException {
         int count = chs.length;
         int index = 0;
         char ch;
@@ -170,17 +174,17 @@ public class JsonGenerator {
             switch (ch) {
             case '"':
                 this.writer.write(chs, index, i - index);
-                writer.write("\"");
+                writer.write("\\\"");
                 index = i + 1;
                 break;
             case '\\':
                 this.writer.write(chs, index, i - index);
-                writer.write("\\");
+                writer.write("\\\\");
                 index = i + 1;
                 break;
             case '/':
                 this.writer.write(chs, index, i - index);
-                writer.write("/");
+                writer.write("\\/");
                 index = i + 1;
                 break;
             case '\b':

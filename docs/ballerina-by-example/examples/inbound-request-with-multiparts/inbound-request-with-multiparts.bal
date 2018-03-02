@@ -1,25 +1,27 @@
 import ballerina.net.http;
 import ballerina.mime;
 import ballerina.io;
-import ballerina.file;
 
-@http:configuration {basePath:"/foo"}
-service<http> echo {
+service<http> multiparts {
     @http:resourceConfig {
         methods:["POST"],
         path:"/receivableParts"
-    }r
-    resource echo (http:Connection conn, http:InRequest req) {
-        //Extract multiparts from the inbound request
+    }
+    resource receiveMultiparts (http:Connection conn, http:InRequest req) {
+        //Extract multiparts from the inbound request.
         mime:Entity[] bodyParts = req.getMultiparts();
         int i = 0;
+
+        io:println("CONTENT TYPE OF TOP LEVEL ENTITY > " + req.getHeader("Content-Type"));
         //Loop through body parts
         while (i < lengthof bodyParts) {
             mime:Entity part = bodyParts[i];
-            println("-----------------------------");
-            print("Content Type : ");
-            println(part.contentType.toString());
-            println("-----------------------------");
+            io:println("============================PART "+ i +"================================");
+            io:println("---------Content Type-------");
+            io:println(part.contentType.toString());
+            io:println("----------Part Name---------");
+            io:println(part.contentDisposition.name);
+            io:println("------Body Part Content-----");
             handleContent(part);
             i = i + 1;
         }
@@ -29,35 +31,37 @@ service<http> echo {
     }
 }
 
-@Description {value:"User should write his/her own logic to handle body parts according to his/her requirement."}
+//Handling body part content logic varies according to user's requirement.
 function handleContent (mime:Entity bodyPart) {
     string contentType = bodyPart.contentType.toString();
     if (mime:APPLICATION_XML == contentType || mime:TEXT_XML == contentType) {
-        //Given a body part get it's xml content and print
-        println(mime:getXml(bodyPart));
+        //Extract xml data from body part and print.
+        io:println(bodyPart.getXml());
     } else if (mime:APPLICATION_JSON == contentType) {
-        //Given a body part get it's json content and print
-        println(mime:getJson(bodyPart));
+        //Extract json data from body part and print.
+        io:println(bodyPart.getJson());
     } else if (mime:TEXT_PLAIN == contentType){
-        //Given a body part get it's text content and print
-        println(mime:getText(bodyPart));
+        //Extract text data from body part and print.
+        io:println(bodyPart.getText());
     } else if ("application/vnd.ms-powerpoint" == contentType) {
-        //Given a body part get it's content as a blob and write it to a file
-        writeToFile(mime:getBlob(bodyPart));
-        println("Content saved to file");
+        //Get a byte channel from body part and write content to a file.
+        writeToFile(bodyPart.getByteChannel());
+        io:println("Content saved to file");
     }
 }
 
-@Description {value:"Write a given blob content to a file."}
-function writeToFile(blob  readContent) {
+function writeToFile(io:ByteChannel byteChannel) {
     string dstFilePath = "./files/savedFile.ppt";
     io:ByteChannel destinationChannel = getByteChannel(dstFilePath, "w");
-    int numberOfBytesWritten = destinationChannel.writeBytes(readContent, 0);
+    blob readContent;
+    int numberOfBytesRead = 1;
+    while (numberOfBytesRead != 0) {
+        readContent,numberOfBytesRead = byteChannel.readBytes(10000);
+        int numberOfBytesWritten = destinationChannel.writeBytes(readContent, 0);
+    }
 }
 
-@Description {value:"Get a byte channel for the given file."}
 function getByteChannel (string filePath, string permission) (io:ByteChannel) {
-    file:File src = {path:filePath};
-    io:ByteChannel channel = src.openChannel(permission);
+    io:ByteChannel channel = io:openFile(filePath, permission);
     return channel;
 }

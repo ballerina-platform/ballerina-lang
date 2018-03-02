@@ -30,8 +30,10 @@ import org.ballerinalang.natives.annotations.Attribute;
 import org.ballerinalang.natives.annotations.BallerinaAnnotation;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
-import org.ballerinalang.net.http.Constants;
 import org.ballerinalang.net.http.HttpConnectionManager;
+import org.ballerinalang.net.http.HttpConstants;
+import org.ballerinalang.net.http.HttpUtil;
+import org.ballerinalang.net.ws.WebSocketConstants;
 import org.ballerinalang.testerina.core.TesterinaRegistry;
 import org.ballerinalang.util.codegen.AnnAttachmentInfo;
 import org.ballerinalang.util.codegen.AnnAttributeValue;
@@ -42,6 +44,7 @@ import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.ballerinalang.util.program.BLangFunctions;
 import org.wso2.transport.http.netty.config.ChunkConfig;
+import org.wso2.transport.http.netty.config.KeepAliveConfig;
 import org.wso2.transport.http.netty.config.ListenerConfiguration;
 import org.wso2.transport.http.netty.config.Parameter;
 
@@ -161,8 +164,8 @@ public class StartService extends AbstractNativeFunction {
 
     private String getServiceURL(ServiceInfo service) {
         try {
-            AnnAttachmentInfo annotationInfo = service.getAnnotationAttachmentInfo(Constants
-                    .HTTP_PACKAGE_PATH, Constants.ANN_NAME_CONFIG);
+            AnnAttachmentInfo annotationInfo = service.getAnnotationAttachmentInfo(HttpConstants
+                    .HTTP_PACKAGE_PATH, HttpConstants.ANN_NAME_CONFIG);
 
             String basePath = discoverBasePathFrom(service, annotationInfo);
             Set<ListenerConfiguration> listenerConfigurationSet = getListenerConfig(annotationInfo);
@@ -197,114 +200,102 @@ public class StartService extends AbstractNativeFunction {
         if (annotationInfo == null) {
             return HttpConnectionManager.getInstance().getDefaultListenerConfiugrationSet();
         }
-    
+
         //key - listenerId, value - listener config property map
         Set<ListenerConfiguration> listenerConfSet = new HashSet<>();
-    
+
         extractBasicConfig(annotationInfo, listenerConfSet);
         extractHttpsConfig(annotationInfo, listenerConfSet);
-    
+
         if (listenerConfSet.isEmpty()) {
             listenerConfSet = HttpConnectionManager.getInstance().getDefaultListenerConfiugrationSet();
         }
-    
+
         return listenerConfSet;
     }
-    
+
     private void extractBasicConfig(AnnAttachmentInfo configInfo, Set<ListenerConfiguration> listenerConfSet) {
-        AnnAttributeValue hostAttrVal = configInfo.getAttributeValue(Constants.ANN_CONFIG_ATTR_HOST);
-        AnnAttributeValue portAttrVal = configInfo.getAttributeValue(Constants.ANN_CONFIG_ATTR_PORT);
-        AnnAttributeValue keepAliveAttrVal = configInfo.getAttributeValue(Constants.ANN_CONFIG_ATTR_KEEP_ALIVE);
-        AnnAttributeValue transferEncoding = configInfo.getAttributeValue(Constants.ANN_CONFIG_ATTR_TRANSFER_ENCODING);
-        AnnAttributeValue chunking = configInfo.getAttributeValue(Constants.ANN_CONFIG_ATTR_CHUNKING);
-        
+        AnnAttributeValue hostAttrVal = configInfo.getAttributeValue(HttpConstants.ANN_CONFIG_ATTR_HOST);
+        AnnAttributeValue portAttrVal = configInfo.getAttributeValue(HttpConstants.ANN_CONFIG_ATTR_PORT);
+        AnnAttributeValue keepAliveAttrVal = configInfo.getAttributeValue(HttpConstants.ANN_CONFIG_ATTR_KEEP_ALIVE);
+        AnnAttributeValue transferEncoding = configInfo.getAttributeValue(
+                HttpConstants.ANN_CONFIG_ATTR_TRANSFER_ENCODING);
+        AnnAttributeValue chunking = configInfo.getAttributeValue(HttpConstants.ANN_CONFIG_ATTR_CHUNKING);
+
         ListenerConfiguration listenerConfiguration = new ListenerConfiguration();
         if (portAttrVal != null && portAttrVal.getIntValue() > 0) {
             listenerConfiguration.setPort(Math.toIntExact(portAttrVal.getIntValue()));
-            
-            listenerConfiguration.setScheme(Constants.PROTOCOL_HTTP);
+
+            listenerConfiguration.setScheme(HttpConstants.PROTOCOL_HTTP);
             if (hostAttrVal != null && hostAttrVal.getStringValue() != null) {
                 listenerConfiguration.setHost(hostAttrVal.getStringValue());
             } else {
-                listenerConfiguration.setHost(Constants.HTTP_DEFAULT_HOST);
+                listenerConfiguration.setHost(HttpConstants.HTTP_DEFAULT_HOST);
             }
-            
+
             if (keepAliveAttrVal != null) {
-                listenerConfiguration.setKeepAlive(keepAliveAttrVal.getBooleanValue());
+                listenerConfiguration.setKeepAliveConfig(
+                        HttpUtil.getKeepAliveConfig(keepAliveAttrVal.getStringValue()));
             } else {
-                listenerConfiguration.setKeepAlive(Boolean.TRUE);
+                listenerConfiguration.setKeepAliveConfig(KeepAliveConfig.AUTO);
             }
-            
+
             // For the moment we don't have to pass it down to transport as we only support
             // chunking. Once we start supporting gzip, deflate, etc, we need to parse down the config.
-            if (transferEncoding != null && !Constants.ANN_CONFIG_ATTR_CHUNKING
+            if (transferEncoding != null && !HttpConstants.ANN_CONFIG_ATTR_CHUNKING
                     .equalsIgnoreCase(transferEncoding.getStringValue())) {
                 throw new BallerinaConnectorException("Unsupported configuration found for Transfer-Encoding : "
                                                       + transferEncoding.getStringValue());
             }
-            
+
             if (chunking != null) {
-                ChunkConfig chunkConfig = getChunkConfig(chunking.getStringValue());
-                listenerConfiguration.setChunkConfig(chunkConfig);
+                listenerConfiguration.setChunkConfig(HttpUtil.getChunkConfig(chunking.getStringValue()));
             } else {
                 listenerConfiguration.setChunkConfig(ChunkConfig.AUTO);
             }
-            
+
             listenerConfiguration
                     .setId(getListenerInterface(listenerConfiguration.getHost(), listenerConfiguration.getPort()));
             listenerConfSet.add(listenerConfiguration);
         }
     }
     
-    public ChunkConfig getChunkConfig(String chunking) {
-        ChunkConfig chunkConfig;
-        if (Constants.CHUNKING_AUTO.equalsIgnoreCase(chunking)) {
-            chunkConfig = ChunkConfig.AUTO;
-        } else if (Constants.CHUNKING_ALWAYS.equalsIgnoreCase(chunking)) {
-            chunkConfig = ChunkConfig.ALWAYS;
-        } else if (Constants.CHUNKING_NEVER.equalsIgnoreCase(chunking)) {
-            chunkConfig = ChunkConfig.NEVER;
-        } else {
-            throw new BallerinaConnectorException("Invalid configuration found for Transfer-Encoding : " + chunking);
-        }
-        return chunkConfig;
-    }
-    
     private void extractHttpsConfig(AnnAttachmentInfo configInfo, Set<ListenerConfiguration> listenerConfSet) {
         // Retrieve secure port from either http of ws configuration annotation.
         AnnAttributeValue httpsPortAttrVal;
-        if (configInfo.getAttributeValue(Constants.ANN_CONFIG_ATTR_HTTPS_PORT) == null) {
+        if (configInfo.getAttributeValue(HttpConstants.ANN_CONFIG_ATTR_HTTPS_PORT) == null) {
             httpsPortAttrVal =
-                    configInfo.getAttributeValue(org.ballerinalang.net.ws.Constants.ANN_CONFIG_ATTR_WSS_PORT);
+                    configInfo.getAttributeValue(WebSocketConstants.ANN_CONFIG_ATTR_WSS_PORT);
         } else {
-            httpsPortAttrVal = configInfo.getAttributeValue(Constants.ANN_CONFIG_ATTR_HTTPS_PORT);
+            httpsPortAttrVal = configInfo.getAttributeValue(HttpConstants.ANN_CONFIG_ATTR_HTTPS_PORT);
         }
-        
-        AnnAttributeValue keyStoreFileAttrVal = configInfo.getAttributeValue(Constants.ANN_CONFIG_ATTR_KEY_STORE_FILE);
-        AnnAttributeValue keyStorePasswordAttrVal =
-                                                configInfo.getAttributeValue(Constants.ANN_CONFIG_ATTR_KEY_STORE_PASS);
-        AnnAttributeValue certPasswordAttrVal = configInfo.getAttributeValue(Constants.ANN_CONFIG_ATTR_CERT_PASS);
-        AnnAttributeValue trustStoreFileAttrVal =
-                                            configInfo.getAttributeValue(Constants.ANN_CONFIG_ATTR_TRUST_STORE_FILE);
-        AnnAttributeValue trustStorePasswordAttrVal =
-                                            configInfo.getAttributeValue(Constants.ANN_CONFIG_ATTR_TRUST_STORE_PASS);
-        AnnAttributeValue sslVerifyClientAttrVal =
-                                            configInfo.getAttributeValue(Constants.ANN_CONFIG_ATTR_SSL_VERIFY_CLIENT);
+
+        AnnAttributeValue keyStoreFileAttrVal = configInfo.getAttributeValue(
+                HttpConstants.ANN_CONFIG_ATTR_KEY_STORE_FILE);
+        AnnAttributeValue keyStorePasswordAttrVal = configInfo.getAttributeValue(
+                HttpConstants.ANN_CONFIG_ATTR_KEY_STORE_PASS);
+        AnnAttributeValue certPasswordAttrVal = configInfo.getAttributeValue(HttpConstants.ANN_CONFIG_ATTR_CERT_PASS);
+        AnnAttributeValue trustStoreFileAttrVal = configInfo.getAttributeValue(
+                HttpConstants.ANN_CONFIG_ATTR_TRUST_STORE_FILE);
+        AnnAttributeValue trustStorePasswordAttrVal = configInfo.getAttributeValue(
+                HttpConstants.ANN_CONFIG_ATTR_TRUST_STORE_PASS);
+        AnnAttributeValue sslVerifyClientAttrVal = configInfo.getAttributeValue(
+                HttpConstants.ANN_CONFIG_ATTR_SSL_VERIFY_CLIENT);
         AnnAttributeValue sslEnabledProtocolsAttrVal = configInfo
-                .getAttributeValue(Constants.ANN_CONFIG_ATTR_SSL_ENABLED_PROTOCOLS);
-        AnnAttributeValue ciphersAttrVal = configInfo.getAttributeValue(Constants.ANN_CONFIG_ATTR_CIPHERS);
-        AnnAttributeValue sslProtocolAttrVal = configInfo.getAttributeValue(Constants.ANN_CONFIG_ATTR_SSL_PROTOCOL);
-        AnnAttributeValue hostAttrVal = configInfo.getAttributeValue(Constants.ANN_CONFIG_ATTR_HOST);
+                .getAttributeValue(HttpConstants.ANN_CONFIG_ATTR_SSL_ENABLED_PROTOCOLS);
+        AnnAttributeValue ciphersAttrVal = configInfo.getAttributeValue(HttpConstants.ANN_CONFIG_ATTR_CIPHERS);
+        AnnAttributeValue sslProtocolAttrVal = configInfo.getAttributeValue(HttpConstants.ANN_CONFIG_ATTR_SSL_PROTOCOL);
+        AnnAttributeValue hostAttrVal = configInfo.getAttributeValue(HttpConstants.ANN_CONFIG_ATTR_HOST);
         
         ListenerConfiguration listenerConfiguration = new ListenerConfiguration();
         if (httpsPortAttrVal != null && httpsPortAttrVal.getIntValue() > 0) {
             listenerConfiguration.setPort(Math.toIntExact(httpsPortAttrVal.getIntValue()));
-            listenerConfiguration.setScheme(Constants.PROTOCOL_HTTPS);
+            listenerConfiguration.setScheme(HttpConstants.PROTOCOL_HTTPS);
             
             if (hostAttrVal != null && hostAttrVal.getStringValue() != null) {
                 listenerConfiguration.setHost(hostAttrVal.getStringValue());
             } else {
-                listenerConfiguration.setHost(Constants.HTTP_DEFAULT_HOST);
+                listenerConfiguration.setHost(HttpConstants.HTTP_DEFAULT_HOST);
             }
             
             if (keyStoreFileAttrVal == null || keyStoreFileAttrVal.getStringValue() == null) {
@@ -331,7 +322,7 @@ public class StartService extends AbstractNativeFunction {
                 throw new BallerinaException("Truststore password value must be provided to enable Mutual SSL");
             }
             
-            listenerConfiguration.setTLSStoreType(Constants.PKCS_STORE_TYPE);
+            listenerConfiguration.setTLSStoreType(HttpConstants.PKCS_STORE_TYPE);
             listenerConfiguration.setKeyStoreFile(keyStoreFileAttrVal.getStringValue());
             listenerConfiguration.setKeyStorePass(keyStorePasswordAttrVal.getStringValue());
             listenerConfiguration.setCertPass(certPasswordAttrVal.getStringValue());
@@ -349,13 +340,13 @@ public class StartService extends AbstractNativeFunction {
             List<Parameter> serverParams = new ArrayList<>();
             Parameter serverCiphers;
             if (sslEnabledProtocolsAttrVal != null && sslEnabledProtocolsAttrVal.getStringValue() != null) {
-                serverCiphers = new Parameter(Constants.ANN_CONFIG_ATTR_SSL_ENABLED_PROTOCOLS,
-                        sslEnabledProtocolsAttrVal.getStringValue());
+                serverCiphers = new Parameter(HttpConstants.ANN_CONFIG_ATTR_SSL_ENABLED_PROTOCOLS,
+                                              sslEnabledProtocolsAttrVal.getStringValue());
                 serverParams.add(serverCiphers);
             }
             
             if (ciphersAttrVal != null && ciphersAttrVal.getStringValue() != null) {
-                serverCiphers = new Parameter(Constants.ANN_CONFIG_ATTR_CIPHERS, ciphersAttrVal.getStringValue());
+                serverCiphers = new Parameter(HttpConstants.ANN_CONFIG_ATTR_CIPHERS, ciphersAttrVal.getStringValue());
                 serverParams.add(serverCiphers);
             }
             
@@ -378,17 +369,17 @@ public class StartService extends AbstractNativeFunction {
         String basePath = service.getName();
         if (annotationInfo != null) {
             AnnAttributeValue annAttributeValue = annotationInfo.getAttributeValue
-                    (Constants.ANN_CONFIG_ATTR_BASE_PATH);
+                    (HttpConstants.ANN_CONFIG_ATTR_BASE_PATH);
             if (annAttributeValue != null && annAttributeValue.getStringValue() != null) {
                 if (annAttributeValue.getStringValue().trim().isEmpty()) {
-                    basePath = Constants.DEFAULT_BASE_PATH;
+                    basePath = HttpConstants.DEFAULT_BASE_PATH;
                 } else {
                     basePath = annAttributeValue.getStringValue();
                 }
             }
         }
-        if (!basePath.startsWith(Constants.DEFAULT_BASE_PATH)) {
-            basePath = Constants.DEFAULT_BASE_PATH.concat(basePath);
+        if (!basePath.startsWith(HttpConstants.DEFAULT_BASE_PATH)) {
+            basePath = HttpConstants.DEFAULT_BASE_PATH.concat(basePath);
         }
         return basePath;
     }

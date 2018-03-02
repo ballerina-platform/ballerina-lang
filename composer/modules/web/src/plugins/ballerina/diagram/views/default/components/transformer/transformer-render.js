@@ -167,7 +167,7 @@ class TransformerRender {
      * @param {string}  targetId target identifier
      * @param {Boolean} [folded=false] connection is folded
      */
-    addConnection(sourceId, targetId, folded = false, castType = false) {
+    addConnection(sourceId, targetId, folded = false, castType = false, callback = null) {
         const render = this;
         this.jsPlumbInstance.importDefaults(
           { Connector: this.getConnectorConfig(this.midpointOnAddConnection(sourceId)) });
@@ -204,7 +204,25 @@ class TransformerRender {
                 outlineWidth: 2,
                 outlineStroke: '#ffe0b3',
             };
-            if (castType) {
+            if (castType === 'iterable') {
+                options.overlays = [['Custom', {
+                    location: 0.75,
+                    id: 'label',
+                    create: (component) => {
+                        return $('<span class="button-show-always fw-lg button-background" title="">'
+                        + '<i class="fw fw-iterable-operations fw-lg"></i></span>');
+                    },
+                    cssClass: 'connectionLabel',
+                    events: {
+                        mousedown: (connection, e) => {
+                            callback(e.pageX,
+                                e.pageY,
+                                render.getConnectionObject(connection.component.getParameter('input'),
+                                connection.component.getParameter('output')));
+                        },
+                    },
+                }]];
+            } else if (castType) {
                 options.overlays = [['Label', {
                     location: 0.9,
                     id: 'label',

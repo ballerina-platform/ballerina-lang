@@ -47,9 +47,7 @@ public class BallerinaPackageLoader {
     public static List<BLangPackage> getBuiltinPackages() {
         List<BLangPackage> builtins = new ArrayList<>();
         CompilerContext context = prepareCompilerContext();
-        BLangPackage builtInCorePkg = getPackageByName(context, Names.BUILTIN_CORE_PACKAGE.getValue());
         BLangPackage builtInPkg = getPackageByName(context, Names.BUILTIN_PACKAGE.getValue());
-        builtins.add(builtInCorePkg);
         builtins.add(builtInPkg);
  
         return builtins;

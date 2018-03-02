@@ -487,7 +487,8 @@ public class ServiceProtoUtils {
                     com.google.protobuf.WrappersProto.getDescriptor(),
             });
         } catch (IOException | Descriptors.DescriptorValidationException e) {
-            throw new RuntimeException("Error : ", e);
+            throw new RuntimeException("Error while reading the service proto descriptor. check the service " +
+                    "implementation. ", e);
         }
     }
 

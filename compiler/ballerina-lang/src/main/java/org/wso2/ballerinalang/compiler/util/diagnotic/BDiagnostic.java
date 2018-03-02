@@ -1,20 +1,20 @@
 /*
- *  Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
- *
- *  WSO2 Inc. licenses this file to you under the Apache License,
- *  Version 2.0 (the "License"); you may not use this file except
- *  in compliance with the License.
- *  You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
- *
- *  Unless required by applicable law or agreed to in writing,
- *  software distributed under the License is distributed on an
- *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- *  KIND, either express or implied.  See the License for the
- *  specific language governing permissions and limitations
- *  under the License.
- */
+*  Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+*
+*  WSO2 Inc. licenses this file to you under the Apache License,
+*  Version 2.0 (the "License"); you may not use this file except
+*  in compliance with the License.
+*  You may obtain a copy of the License at
+*
+*    http://www.apache.org/licenses/LICENSE-2.0
+*
+*  Unless required by applicable law or agreed to in writing,
+*  software distributed under the License is distributed on an
+*  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+*  KIND, either express or implied.  See the License for the
+*  specific language governing permissions and limitations
+*  under the License.
+*/
 package org.wso2.ballerinalang.compiler.util.diagnotic;
 
 import org.ballerinalang.util.diagnostic.Diagnostic;
@@ -26,7 +26,8 @@ import org.ballerinalang.util.diagnostic.DiagnosticCode;
 public class BDiagnostic implements Diagnostic {
 
     public Kind kind;
-    public DiagnosticPosition pos;
+    public BDiagnosticSource source;
+    public DiagnosticPos pos;
     public String msg;
     public DiagnosticCode code;
 
@@ -34,20 +35,14 @@ public class BDiagnostic implements Diagnostic {
     }
 
     public BDiagnostic(Kind kind,
-                       DiagnosticPosition pos,
+                       BDiagnosticSource source,
+                       DiagnosticPos pos,
                        DiagnosticCode code,
                        String msg) {
         this.kind = kind;
+        this.source = source;
         this.pos = pos;
         this.code = code;
-        this.msg = msg;
-    }
-
-    public BDiagnostic(Kind kind,
-                       DiagnosticPosition pos,
-                       String msg) {
-        this.kind = kind;
-        this.pos = pos;
         this.msg = msg;
     }
 
@@ -58,7 +53,7 @@ public class BDiagnostic implements Diagnostic {
 
     @Override
     public DiagnosticSource getSource() {
-        return pos.getSource();
+        return source;
     }
 
     @Override

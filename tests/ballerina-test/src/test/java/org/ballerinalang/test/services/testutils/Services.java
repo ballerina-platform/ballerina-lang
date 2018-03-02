@@ -25,7 +25,7 @@ import org.ballerinalang.connector.api.Executor;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.net.http.BallerinaHttpServerConnector;
-import org.ballerinalang.net.http.Constants;
+import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.HttpDispatcher;
 import org.ballerinalang.net.http.HttpResource;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
@@ -42,7 +42,7 @@ public class Services {
 
     public static HTTPCarbonMessage invokeNew(CompileResult compileResult, HTTPTestRequest request) {
         BallerinaHttpServerConnector httpServerConnector = (BallerinaHttpServerConnector) ConnectorUtils.
-                getBallerinaServerConnector(compileResult.getProgFile(), Constants.HTTP_PACKAGE_PATH);
+                getBallerinaServerConnector(compileResult.getProgFile(), HttpConstants.HTTP_PACKAGE_PATH);
         TestHttpFutureListener futureListener = new TestHttpFutureListener(request);
         request.setFutureListener(futureListener);
         HttpResource resource = HttpDispatcher.findResource(httpServerConnector.getHttpServicesRegistry(), request);
@@ -52,9 +52,9 @@ public class Services {
         //TODO below should be fixed properly
         //basically need to find a way to pass information from server connector side to client connector side
         Map<String, Object> properties = null;
-        if (request.getProperty(Constants.SRC_HANDLER) != null) {
-            Object srcHandler = request.getProperty(Constants.SRC_HANDLER);
-            properties = Collections.singletonMap(Constants.SRC_HANDLER, srcHandler);
+        if (request.getProperty(HttpConstants.SRC_HANDLER) != null) {
+            Object srcHandler = request.getProperty(HttpConstants.SRC_HANDLER);
+            properties = Collections.singletonMap(HttpConstants.SRC_HANDLER, srcHandler);
         }
         BValue[] signatureParams = HttpDispatcher.getSignatureParameters(resource, request);
         ConnectorFuture future = Executor.submit(resource.getBalResource(), properties, signatureParams);

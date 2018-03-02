@@ -1,0 +1,66 @@
+/*******************************
+         Site Overrides
+*******************************/
+
+.ui.form .fields .field .ui.input input, .ui.form .field .ui.input input, .ui.form textarea{
+    background      : @off-white;
+}
+
+.ui.form input[type="text"]:focus{
+    border-color    : @orange ;
+}
+
+.ui.form textarea:focus{
+    border-color    : @orange ;
+}
+
+.ui.selection.dropdown:focus .menu{
+    border-color    : @orange ;
+}
+
+.ui.form .field {
+    .selection.dropdown{
+        border-radius   : 0;
+        background      : @off-white;
+    }
+}
+
+.ui.form .field.error .ui.dropdown{
+    border-radius   : 0;
+    background      : @off-white;
+}
+
+.ui.form input:not([type]):focus, .ui.form input[type="date"]:focus, .ui.form input[type="datetime-local"]:focus,
+ .ui.form input[type="email"]:focus, .ui.form input[type="number"]:focus, .ui.form input[type="password"]:focus,
+ .ui.form input[type="search"]:focus,
+ .ui.form input[type="tel"]:focus, .ui.form input[type="time"]:focus, .ui.form input[type="text"]:focus,
+ .ui.form input[type="file"]:focus, .ui.form input[type="url"]:focus{
+  border-color    : @orange ;
+}
+
+.inverted{
+
+/* Inverted Field */
+    .ui.form .fields .field .ui.input input, .ui.form .field .ui.input input, .ui.form textarea{
+      background: @invertedInputBackground;
+      color: @invertedInputColor;
+    }
+
+    .ui.form .field {
+        .selection.dropdown{
+            background: @invertedInputBackgroundColor;
+            color: @selectionInvertedTextColor;
+            border-radius: @selectionBorderRadius;
+        }
+    }
+    .ui.form .inline.fields .field > .selection.dropdown, .ui.form .inline.field > .selection.dropdown{
+        width : 100%;
+    }
+
+}
+.wide.field:last-child{
+        padding-right: 0 !important;
+    }
+
+
+

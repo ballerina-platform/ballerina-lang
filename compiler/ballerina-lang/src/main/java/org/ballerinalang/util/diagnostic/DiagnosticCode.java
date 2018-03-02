@@ -99,6 +99,9 @@ public enum DiagnosticCode {
     FUNC_DEFINED_ON_NOT_SUPPORTED_TYPE("func.defined.on.not.supported.type"),
     FUNC_DEFINED_ON_NON_LOCAL_TYPE("func.defined.on.non.local.type"),
     STRUCT_FIELD_AND_FUNC_WITH_SAME_NAME("struct.field.and.func.with.same.name"),
+    INVALID_STRUCT_INITIALIZER_FUNCTION("invalid.struct.initializer.function"),
+    ATTEMPT_CREATE_NON_PUBLIC_INITIALIZER("attempt.to.create.struct.non.public.initializer"),
+    STRUCT_INITIALIZER_INVOKED("explicit.invocation.of.struct.init.is.not.allowed"),
     PKG_ALIAS_NOT_ALLOWED_HERE("pkg.alias.not.allowed.here"),
 
     MULTI_VALUE_RETURN_EXPECTED("multi.value.return.expected"),
@@ -137,6 +140,11 @@ public enum DiagnosticCode {
     ATTRIBUTE_VAL_CANNOT_REFER_NON_CONST("annotation.attribute.value.cannot.refer.non.constant"),
     INCOMPATIBLE_TYPES_ARRAY_FOUND("incompatible.types.array.found"),
 
+    NO_SUCH_DOCUMENTABLE_ATTRIBUTE("no.such.documentable.attribute"),
+    DUPLICATE_DOCUMENTED_ATTRIBUTE("duplicate.documented.attribute"),
+    UNDEFINED_DOCUMENTATION_PUBLIC_FUNCTION("undefined.documentation.public.function"),
+    USAGE_OF_DEPRECATED_FUNCTION("usage.of.deprecated.function"),
+
     // Error codes related to iteration.
     ITERABLE_NOT_SUPPORTED_COLLECTION("iterable.not.supported.collection"),
     ITERABLE_NOT_SUPPORTED_OPERATION("iterable.not.supported.operation"),
@@ -148,11 +156,6 @@ public enum DiagnosticCode {
     ITERABLE_NO_ARGS_REQUIRED("iterable.no.args.required"),
     ITERABLE_LAMBDA_INCOMPATIBLE_TYPES("iterable.lambda.incompatible.types"),
     ITERABLE_RETURN_TYPE_MISMATCH("iterable.return.type.mismatch"),
-    ITERABLE_RETURN_TYPE_IGNORED("iterable.return.type.ignored"),
-
-    //Error code related to annotation processors
-    ANN_PROC_NO_SUPPORTED_ANNOTATIONS_FOUND("ann.proc.no.supported.annotations.found"),
-    ANN_PROC_CANNOT_FIND_ANNOTATION("ann.proc.cannot.find.annotation"),
 
     // Parser error diagnostic codes
     INVALID_TOKEN("invalid.token"),

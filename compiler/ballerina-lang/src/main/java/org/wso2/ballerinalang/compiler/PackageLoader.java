@@ -29,7 +29,6 @@ import org.ballerinalang.spi.SystemPackageRepositoryProvider;
 import org.ballerinalang.spi.UserRepositoryProvider;
 import org.wso2.ballerinalang.compiler.parser.Parser;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolEnter;
-import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
@@ -39,7 +38,9 @@ import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.ServiceLoader;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -60,9 +61,9 @@ public class PackageLoader {
     private CompilerOptions options;
     private Parser parser;
     private SymbolEnter symbolEnter;
-    private SymbolTable symTable;
     private Names names;
 
+    private Map<PackageID, BPackageSymbol> packages;
     private PackageRepository packageRepo;
 
     public static PackageLoader getInstance(CompilerContext context) {
@@ -80,9 +81,9 @@ public class PackageLoader {
         this.options = CompilerOptions.getInstance(context);
         this.parser = Parser.getInstance(context);
         this.symbolEnter = SymbolEnter.getInstance(context);
-        this.symTable = SymbolTable.getInstance(context);
         this.names = Names.getInstance(context);
 
+        this.packages = new HashMap<>();
         loadPackageRepository(context);
     }
 
@@ -102,7 +103,8 @@ public class PackageLoader {
                     .map(part -> names.fromString(part))
                     .collect(Collectors.toList());
 
-            pkgId = new PackageID(pkgNameComps, Names.DEFAULT_VERSION);
+            // TODO: orgName is anon, fix it.
+            pkgId = new PackageID(Names.ANON_ORG, pkgNameComps, Names.DEFAULT_VERSION);
             pkgEntity = this.packageRepo.loadPackage(pkgId);
         }
         
@@ -113,16 +115,19 @@ public class PackageLoader {
         return loadPackage(pkgId, pkgEntity);
     }
 
-    public BLangPackage loadPackage(List<BLangIdentifier> pkgNameComps, BLangIdentifier version) {
+    public BLangPackage loadPackage(BLangIdentifier orgName,
+                                    List<BLangIdentifier> pkgNameComps,
+                                    BLangIdentifier version) {
+
         List<Name> nameComps = pkgNameComps.stream()
                 .map(identifier -> names.fromIdNode(identifier))
                 .collect(Collectors.toList());
-        PackageID pkgID = new PackageID(nameComps, names.fromIdNode(version));
+        PackageID pkgID = new PackageID(names.fromIdNode(orgName), nameComps, names.fromIdNode(version));
         return loadPackage(pkgID, this.packageRepo.loadPackage(pkgID));
     }
 
     public BPackageSymbol getPackageSymbol(PackageID pkgId) {
-        return this.symTable.pkgSymbolMap.get(pkgId);
+        return packages.get(pkgId);
     }
 
     public BLangPackage loadPackageNode(PackageID pkgId) {
@@ -160,7 +165,7 @@ public class PackageLoader {
             throw new RuntimeException("TODO Entry package cannot be a compiled package");
         }
 
-        symTable.pkgSymbolMap.put(pkgId, pSymbol);
+        packages.put(pkgId, pSymbol);
         return pkgNode;
     }
 
@@ -175,7 +180,8 @@ public class PackageLoader {
         if (programRepo == null) {
             // create the default program repo
             String sourceRoot = options.get(SOURCE_ROOT);
-            programRepo = new LocalFSPackageRepository(sourceRoot);
+            // TODO: replace by the org read form TOML.
+            programRepo = new LocalFSPackageRepository(sourceRoot, Names.ANON_ORG.getValue());
         }
 
         PackageRepository systemRepo = this.loadSystemRepository();

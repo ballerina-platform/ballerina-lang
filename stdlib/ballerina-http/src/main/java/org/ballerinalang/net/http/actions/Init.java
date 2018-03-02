@@ -17,7 +17,6 @@
  */
 package org.ballerinalang.net.http.actions;
 
-
 import org.apache.commons.lang3.StringUtils;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.connector.api.BallerinaConnectorException;
@@ -28,8 +27,8 @@ import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.nativeimpl.actions.ClientConnectorFuture;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaAction;
-import org.ballerinalang.net.http.Constants;
 import org.ballerinalang.net.http.HttpConnectionManager;
+import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.HttpUtil;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.wso2.transport.http.netty.common.ProxyServerConfiguration;
@@ -37,7 +36,6 @@ import org.wso2.transport.http.netty.config.Parameter;
 import org.wso2.transport.http.netty.config.SenderConfiguration;
 import org.wso2.transport.http.netty.contract.HttpClientConnector;
 import org.wso2.transport.http.netty.contract.HttpWsConnectorFactory;
-import org.wso2.transport.http.netty.contractimpl.HttpWsConnectorFactoryImpl;
 import org.wso2.transport.http.netty.message.HTTPConnectorUtil;
 
 import java.net.UnknownHostException;
@@ -53,7 +51,7 @@ import java.util.Map;
 @BallerinaAction(
         packageName = "ballerina.net.http",
         actionName = "<init>",
-        connectorName = Constants.CONNECTOR_NAME,
+        connectorName = HttpConstants.CONNECTOR_NAME,
         args = {@Argument(name = "c", type = TypeKind.CONNECTOR)
         },
         connectorArgs = {
@@ -67,7 +65,7 @@ public class Init extends AbstractHTTPAction {
     private static final int FALSE = 0;
     private static final int DEFAULT_MAX_REDIRECT_COUNT = 5;
 
-    private HttpWsConnectorFactory httpConnectorFactory = new HttpWsConnectorFactoryImpl();
+    private HttpWsConnectorFactory httpConnectorFactory = HttpUtil.createHttpWsConnectionFactory();
 
     @Override
     public ConnectorFuture execute(Context context) {
@@ -82,9 +80,9 @@ public class Init extends AbstractHTTPAction {
 
         String scheme;
         if (url.startsWith("http://")) {
-            scheme = Constants.PROTOCOL_HTTP;
+            scheme = HttpConstants.PROTOCOL_HTTP;
         } else if (url.startsWith("https://")) {
-            scheme = Constants.PROTOCOL_HTTPS;
+            scheme = HttpConstants.PROTOCOL_HTTPS;
         } else {
             throw new BallerinaException("malformed URL: " + url);
         }
@@ -97,21 +95,33 @@ public class Init extends AbstractHTTPAction {
         if (connectionManager.isHTTPTraceLoggerEnabled()) {
             senderConfiguration.setHttpTraceLogEnabled(true);
         }
-        senderConfiguration.setTLSStoreType(Constants.PKCS_STORE_TYPE);
+        senderConfiguration.setTLSStoreType(HttpConstants.PKCS_STORE_TYPE);
 
-        BStruct options = (BStruct) connector.getRefField(Constants.OPTIONS_STRUCT_INDEX);
+        BStruct options = (BStruct) connector.getRefField(HttpConstants.OPTIONS_STRUCT_INDEX);
         if (options != null) {
             populateSenderConfigurationOptions(senderConfiguration, options);
-            long maxActiveConnections = options.getIntField(Constants.MAX_ACTIVE_CONNECTIONS_INDEX);
-            if (!isInteger(maxActiveConnections)) {
-                throw new BallerinaConnectorException("invalid maxActiveConnections value: " + maxActiveConnections);
+
+            if (options.getRefField(HttpConstants.CONNECTION_THROTTLING_STRUCT_INDEX) != null) {
+                BStruct connectionThrottling =
+                        (BStruct) options.getRefField(HttpConstants.CONNECTION_THROTTLING_STRUCT_INDEX);
+
+                long maxActiveConnections = connectionThrottling
+                        .getIntField(HttpConstants.CONNECTION_THROTTLING_MAX_ACTIVE_CONNECTIONS_INDEX);
+                if (!isInteger(maxActiveConnections)) {
+                    throw new BallerinaConnectorException("invalid maxActiveConnections value: "
+                                                                  + maxActiveConnections);
+                }
+                senderConfiguration.getPoolConfiguration().setMaxActivePerPool((int) maxActiveConnections);
+
+                long waitTime = connectionThrottling
+                        .getIntField(HttpConstants.CONNECTION_THROTTLING_WAIT_TIME_INDEX);
+                senderConfiguration.getPoolConfiguration().setMaxWaitTime(waitTime);
             }
-            properties.put(Constants.MAX_ACTIVE_CONNECTIONS_PER_POOL, (int) maxActiveConnections);
         }
 
         HttpClientConnector httpClientConnector =
                 httpConnectorFactory.createHttpClientConnector(properties, senderConfiguration);
-        connector.setNativeData(Constants.CONNECTOR_NAME, httpClientConnector);
+        connector.setNativeData(HttpConstants.CONNECTOR_NAME, httpClientConnector);
 
         ClientConnectorFuture ballerinaFuture = new ClientConnectorFuture();
         ballerinaFuture.notifySuccess();
@@ -124,21 +134,36 @@ public class Init extends AbstractHTTPAction {
         ProxyServerConfiguration proxyServerConfiguration = null;
         int followRedirect = FALSE;
         int maxRedirectCount = DEFAULT_MAX_REDIRECT_COUNT;
-        if (options.getRefField(Constants.FOLLOW_REDIRECT_STRUCT_INDEX) != null) {
-            BStruct followRedirects = (BStruct) options.getRefField(Constants.FOLLOW_REDIRECT_STRUCT_INDEX);
-            followRedirect = followRedirects.getBooleanField(Constants.FOLLOW_REDIRECT_INDEX);
-            maxRedirectCount = (int) followRedirects.getIntField(Constants.MAX_REDIRECT_COUNT);
+        if (options.getRefField(HttpConstants.FOLLOW_REDIRECT_STRUCT_INDEX) != null) {
+            BStruct followRedirects = (BStruct) options.getRefField(HttpConstants.FOLLOW_REDIRECT_STRUCT_INDEX);
+            followRedirect = followRedirects.getBooleanField(HttpConstants.FOLLOW_REDIRECT_INDEX);
+            maxRedirectCount = (int) followRedirects.getIntField(HttpConstants.MAX_REDIRECT_COUNT);
         }
-        if (options.getRefField(Constants.SSL_STRUCT_INDEX) != null) {
-            BStruct ssl = (BStruct) options.getRefField(Constants.SSL_STRUCT_INDEX);
-            String trustStoreFile = ssl.getStringField(Constants.TRUST_STORE_FILE_INDEX);
-            String trustStorePassword = ssl.getStringField(Constants.TRUST_STORE_PASSWORD_INDEX);
-            String keyStoreFile = ssl.getStringField(Constants.KEY_STORE_FILE_INDEX);
-            String keyStorePassword = ssl.getStringField(Constants.KEY_STORE_PASSWORD_INDEX);
-            String sslEnabledProtocols = ssl.getStringField(Constants.SSL_ENABLED_PROTOCOLS_INDEX);
-            String ciphers = ssl.getStringField(Constants.CIPHERS_INDEX);
-            String sslProtocol = ssl.getStringField(Constants.SSL_PROTOCOL_INDEX);
+        if (options.getRefField(HttpConstants.SSL_STRUCT_INDEX) != null) {
+            BStruct ssl = (BStruct) options.getRefField(HttpConstants.SSL_STRUCT_INDEX);
+            String trustStoreFile = ssl.getStringField(HttpConstants.TRUST_STORE_FILE_INDEX);
+            String trustStorePassword = ssl.getStringField(HttpConstants.TRUST_STORE_PASSWORD_INDEX);
+            String keyStoreFile = ssl.getStringField(HttpConstants.KEY_STORE_FILE_INDEX);
+            String keyStorePassword = ssl.getStringField(HttpConstants.KEY_STORE_PASSWORD_INDEX);
+            String sslEnabledProtocols = ssl.getStringField(HttpConstants.SSL_ENABLED_PROTOCOLS_INDEX);
+            String ciphers = ssl.getStringField(HttpConstants.CIPHERS_INDEX);
+            String sslProtocol = ssl.getStringField(HttpConstants.SSL_PROTOCOL_INDEX);
+            boolean validateCertEnabled = ssl.getBooleanField(HttpConstants.VALIDATE_CERT_ENABLED_INDEX) == TRUE;
+            int cacheSize = (int) ssl.getIntField(HttpConstants.CACHE_SIZE_INDEX);
+            int cacheValidityPeriod = (int) ssl.getIntField(HttpConstants.CACHE_VALIDITY_PERIOD_INDEX);
 
+            if (validateCertEnabled) {
+                senderConfiguration.setValidateCertEnabled(validateCertEnabled);
+                if (cacheValidityPeriod != 0) {
+                    senderConfiguration.setCacheValidityPeriod(cacheValidityPeriod);
+                }
+                if (cacheSize != 0) {
+                    senderConfiguration.setCacheSize(cacheSize);
+                }
+            }
+            boolean hostNameVerificationEnabled =
+                    ssl.getBooleanField(HttpConstants.HOST_NAME_VERIFICATION_ENABLED_INDEX) == TRUE;
+            senderConfiguration.setHostNameVerificationEnabled(hostNameVerificationEnabled);
             if (StringUtils.isNotBlank(trustStoreFile)) {
                 senderConfiguration.setTrustStoreFile(trustStoreFile);
             }
@@ -154,11 +179,11 @@ public class Init extends AbstractHTTPAction {
 
             List<Parameter> clientParams = new ArrayList<>();
             if (StringUtils.isNotBlank(sslEnabledProtocols)) {
-                Parameter clientProtocols = new Parameter(Constants.SSL_ENABLED_PROTOCOLS, sslEnabledProtocols);
+                Parameter clientProtocols = new Parameter(HttpConstants.SSL_ENABLED_PROTOCOLS, sslEnabledProtocols);
                 clientParams.add(clientProtocols);
             }
             if (StringUtils.isNotBlank(ciphers)) {
-                Parameter clientCiphers = new Parameter(Constants.CIPHERS, ciphers);
+                Parameter clientCiphers = new Parameter(HttpConstants.CIPHERS, ciphers);
                 clientParams.add(clientCiphers);
             }
             if (StringUtils.isNotBlank(sslProtocol)) {
@@ -168,12 +193,12 @@ public class Init extends AbstractHTTPAction {
                 senderConfiguration.setParameters(clientParams);
             }
         }
-        if (options.getRefField(Constants.PROXY_STRUCT_INDEX) != null) {
-            BStruct proxy = (BStruct) options.getRefField(Constants.PROXY_STRUCT_INDEX);
-            String proxyHost = proxy.getStringField(Constants.PROXY_HOST_INDEX);
-            int proxyPort = (int) proxy.getIntField(Constants.PROXY_PORT_INDEX);
-            String proxyUserName = proxy.getStringField(Constants.PROXY_USER_NAME_INDEX);
-            String proxyPassword = proxy.getStringField(Constants.PROXY_PASSWORD_INDEX);
+        if (options.getRefField(HttpConstants.PROXY_STRUCT_INDEX) != null) {
+            BStruct proxy = (BStruct) options.getRefField(HttpConstants.PROXY_STRUCT_INDEX);
+            String proxyHost = proxy.getStringField(HttpConstants.PROXY_HOST_INDEX);
+            int proxyPort = (int) proxy.getIntField(HttpConstants.PROXY_PORT_INDEX);
+            String proxyUserName = proxy.getStringField(HttpConstants.PROXY_USER_NAME_INDEX);
+            String proxyPassword = proxy.getStringField(HttpConstants.PROXY_PASSWORD_INDEX);
             try {
                 proxyServerConfiguration = new ProxyServerConfiguration(proxyHost, proxyPort);
             } catch (UnknownHostException e) {
@@ -193,26 +218,29 @@ public class Init extends AbstractHTTPAction {
 
         // For the moment we don't have to pass it down to transport as we only support
         // chunking. Once we start supporting gzip, deflate, etc, we need to parse down the config.
-        String transferEncoding = options.getStringField(Constants.TRANSFER_ENCODING);
-        if (transferEncoding != null && !Constants.ANN_CONFIG_ATTR_CHUNKING.equalsIgnoreCase(transferEncoding)) {
+        String transferEncoding = options.getStringField(HttpConstants.TRANSFER_ENCODING);
+        if (transferEncoding != null && !HttpConstants.ANN_CONFIG_ATTR_CHUNKING.equalsIgnoreCase(transferEncoding)) {
             throw new BallerinaConnectorException("Unsupported configuration found for Transfer-Encoding : "
                                                           + transferEncoding);
         }
 
-        String chunking = options.getStringField(Constants.ENABLE_CHUNKING_INDEX);
+        String chunking = options.getStringField(HttpConstants.ENABLE_CHUNKING_INDEX);
         senderConfiguration.setChunkingConfig(HttpUtil.getChunkConfig(chunking));
 
-        long endpointTimeout = options.getIntField(Constants.ENDPOINT_TIMEOUT_STRUCT_INDEX);
+        long endpointTimeout = options.getIntField(HttpConstants.ENDPOINT_TIMEOUT_STRUCT_INDEX);
         if (endpointTimeout < 0 || !isInteger(endpointTimeout)) {
             throw new BallerinaConnectorException("invalid idle timeout: " + endpointTimeout);
         }
         senderConfiguration.setSocketIdleTimeout((int) endpointTimeout);
 
-        boolean isKeepAlive = options.getBooleanField(Constants.IS_KEEP_ALIVE_INDEX) == TRUE;
+        boolean isKeepAlive = options.getBooleanField(HttpConstants.IS_KEEP_ALIVE_INDEX) == TRUE;
         senderConfiguration.setKeepAlive(isKeepAlive);
 
-        String httpVersion = options.getStringField(Constants.HTTP_VERSION_STRUCT_INDEX);
+        String httpVersion = options.getStringField(HttpConstants.HTTP_VERSION_STRUCT_INDEX);
         senderConfiguration.setHttpVersion(httpVersion);
+
+        String forwardedExtension = options.getStringField(HttpConstants.FORWARDED_EXTENSION_INDEX);
+        senderConfiguration.setForwardedExtensionConfig(HttpUtil.getForwardedExtensionConfig(forwardedExtension));
     }
 
     private boolean isInteger(long val) {
