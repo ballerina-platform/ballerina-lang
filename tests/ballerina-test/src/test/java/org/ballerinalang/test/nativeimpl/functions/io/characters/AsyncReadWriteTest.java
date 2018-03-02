@@ -23,14 +23,17 @@ import org.ballerinalang.nativeimpl.io.channels.base.CharacterChannel;
 import org.ballerinalang.nativeimpl.io.events.EventManager;
 import org.ballerinalang.nativeimpl.io.events.EventResult;
 import org.ballerinalang.nativeimpl.io.events.characters.ReadCharactersEvent;
+import org.ballerinalang.nativeimpl.io.events.characters.WriteCharactersEvent;
 import org.ballerinalang.test.nativeimpl.functions.io.MockByteChannel;
 import org.ballerinalang.test.nativeimpl.functions.io.util.TestUtil;
 import org.testng.Assert;
+import org.testng.annotations.BeforeSuite;
 import org.testng.annotations.Test;
 
 import java.io.IOException;
 import java.nio.channels.ByteChannel;
 import java.nio.charset.StandardCharsets;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
 /**
@@ -46,6 +49,11 @@ public class AsyncReadWriteTest {
      * Will be the I/O event handler.
      */
     private EventManager eventManager = EventManager.getInstance();
+
+    @BeforeSuite
+    public void setup() {
+        currentDirectoryPath = System.getProperty("user.dir") + "/target/";
+    }
 
     @Test(description = "Tests reading characters through the async io framework")
     public void readCharacters() throws Exception {
@@ -82,7 +90,7 @@ public class AsyncReadWriteTest {
     }
 
     @Test(description = "Test writing characters through async io framework")
-    public void writeCharacters() throws IOException {
+    public void writeCharacters() throws IOException, ExecutionException, InterruptedException {
         //Number of characters in this file would be 6
         ByteChannel byteChannel = TestUtil.openForWriting(currentDirectoryPath + "write.txt");
         Channel channel = new MockByteChannel(byteChannel);
@@ -90,9 +98,12 @@ public class AsyncReadWriteTest {
 
         String text = "HelloǊ";
         int numberOfBytes = text.getBytes().length;
-        int numberOfBytesWritten = characterChannel.write(text, 0);
 
-        Assert.assertEquals(numberOfBytesWritten, numberOfBytes);
+        WriteCharactersEvent event = new WriteCharactersEvent(characterChannel,text,0);
+        Future<EventResult> future = eventManager.publish(event);
+        EventResult eventResult = future.get();
+        int numberOfCharactersWritten = (int) eventResult.getResponse();
+        Assert.assertEquals(numberOfCharactersWritten, numberOfBytes);
         characterChannel.close();
     }
 }
