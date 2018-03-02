@@ -3,14 +3,19 @@ import ballerina.mime;
 import ballerina.io;
 
 @http:configuration {port:9093}
-service<http> nestedparts {
+service<http> multiparts {
     @http:resourceConfig {
-        methods:["POST"],
-        path:"/decoder"
+        methods:["GET"],
+        path:"/decode_in_response"
     }
-    resource nestedPartReceiver (http:Connection conn, http:InRequest req) {
-        //Extract multiparts from the inbound request.
-        mime:Entity[] parentParts = req.getMultiparts();
+    resource multipartReceiver (http:Connection conn, http:InRequest request) {
+        endpoint<http:HttpClient> httpEndpoint {
+            create http:HttpClient("http://localhost:9092", {});
+        }
+        http:OutRequest outRequest= {};
+        http:InResponse inResponse = {};
+        inResponse, _ = httpEndpoint.get("/multiparts/encode_out_response", outRequest);
+        mime:Entity[] parentParts = inResponse.getMultiparts();
         int i = 0;
         //Loop through parent parts.
         while (i < lengthof parentParts) {
@@ -38,7 +43,7 @@ function handleNestedParts (mime:Entity parentPart) {
     } else {
         //When there are no nested parts in a body part, handle the body content directly.
         io:println("Parent doesn't have children. So handling the body content directly...");
-        handleContent(parentPart);
+        handleContent (parentPart);
     }
 }
 
@@ -51,7 +56,7 @@ function handleContent (mime:Entity bodyPart) {
     } else if (mime:APPLICATION_JSON == contentType) {
         //Extract json data from body part and print.
         io:println(bodyPart.getJson());
-    } else if (mime:TEXT_PLAIN == contentType) {
+    } else if (mime:TEXT_PLAIN == contentType){
         //Extract text data from body part and print.
         io:println(bodyPart.getText());
     } else if ("application/vnd.ms-powerpoint" == contentType) {
@@ -61,13 +66,13 @@ function handleContent (mime:Entity bodyPart) {
     }
 }
 
-function writeToFile (io:ByteChannel byteChannel) {
+function writeToFile(io:ByteChannel byteChannel) {
     string dstFilePath = "./files/savedFile.ppt";
     io:ByteChannel destinationChannel = getByteChannel(dstFilePath, "w");
     blob readContent;
     int numberOfBytesRead = 1;
     while (numberOfBytesRead != 0) {
-        readContent, numberOfBytesRead = byteChannel.readBytes(10000);
+        readContent,numberOfBytesRead = byteChannel.readBytes(10000);
         int numberOfBytesWritten = destinationChannel.writeBytes(readContent, 0);
     }
 }

@@ -33,10 +33,12 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static org.ballerinalang.mime.util.Constants.ASSIGNMENT;
+import static org.ballerinalang.mime.util.Constants.BOUNDARY;
 import static org.ballerinalang.mime.util.Constants.CONTENT_ID;
 import static org.ballerinalang.mime.util.Constants.CONTENT_ID_INDEX;
 import static org.ballerinalang.mime.util.Constants.ENTITY_HEADERS_INDEX;
 import static org.ballerinalang.mime.util.Constants.FIRST_ELEMENT;
+import static org.ballerinalang.mime.util.Constants.MULTIPART_AS_PRIMARY_TYPE;
 import static org.ballerinalang.mime.util.Constants.SEMICOLON;
 
 /**
@@ -201,6 +203,19 @@ public class HeaderUtil {
     }
 
     /**
+     * Override a header with a given value.
+     *
+     * @param entityHeaders A map of entity headers
+     * @param headerName    Header name as a string
+     * @param headerValue   Header value as a string
+     */
+    private static void overrideEntityHeader(BMap<String, BValue> entityHeaders, String headerName, String
+            headerValue) {
+            BStringArray valueArray = new BStringArray(new String[]{headerValue});
+            entityHeaders.put(headerName, valueArray);
+    }
+
+    /**
      * Given an entity, get its header map. If it's null then return an empty map.
      *
      * @param entityStruct Represent a ballerina entity
@@ -219,7 +234,7 @@ public class HeaderUtil {
      */
     static void setContentTypeHeader(BStruct bodyPart, BMap<String, BValue> entityHeaders) {
         String contentType = MimeUtil.getContentTypeWithParameters(bodyPart);
-        addToEntityHeaders(entityHeaders, HttpHeaderNames.CONTENT_TYPE.toString(), contentType);
+        overrideEntityHeader(entityHeaders, HttpHeaderNames.CONTENT_TYPE.toString(), contentType);
     }
 
     /**
@@ -231,7 +246,7 @@ public class HeaderUtil {
     static void setContentDispositionHeader(BStruct bodyPart, BMap<String, BValue> entityHeaders) {
         String contentDisposition = MimeUtil.getContentDisposition(bodyPart);
         if (MimeUtil.isNotNullAndEmpty(contentDisposition)) {
-            addToEntityHeaders(entityHeaders, HttpHeaderNames.CONTENT_DISPOSITION.toString(), contentDisposition);
+            overrideEntityHeader(entityHeaders, HttpHeaderNames.CONTENT_DISPOSITION.toString(), contentDisposition);
         }
     }
 
@@ -246,5 +261,23 @@ public class HeaderUtil {
         if (MimeUtil.isNotNullAndEmpty(contentId)) {
             addToEntityHeaders(entityHeaders, CONTENT_ID, contentId);
         }
+    }
+
+    public static boolean isMultipart(String contentType) {
+        return contentType != null && contentType.startsWith(MULTIPART_AS_PRIMARY_TYPE);
+    }
+
+    /**
+     * Given a Content-Type, extract the boundary parameter value out of it.
+     *
+     * @param contentType Represent the value of Content-Type header including parameters
+     * @return A ballerina string that has the boundary parameter value
+     */
+    public static BString extractBoundaryParameter(String contentType) {
+        BMap<String, BValue> paramMap = HeaderUtil.getParamMap(contentType);
+        if (paramMap != null) {
+            return paramMap.get(BOUNDARY) != null ? (BString) paramMap.get(BOUNDARY) : null;
+        }
+        return null;
     }
 }

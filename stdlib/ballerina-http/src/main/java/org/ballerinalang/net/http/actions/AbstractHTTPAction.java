@@ -24,6 +24,7 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.connector.api.AbstractNativeAction;
 import org.ballerinalang.connector.api.BallerinaConnectorException;
 import org.ballerinalang.mime.util.EntityBodyHandler;
+import org.ballerinalang.mime.util.HeaderUtil;
 import org.ballerinalang.mime.util.MimeUtil;
 import org.ballerinalang.mime.util.MultipartDataSource;
 import org.ballerinalang.model.types.BStructType;
@@ -52,14 +53,9 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
-import javax.activation.MimeType;
-import javax.activation.MimeTypeParseException;
 
-import static org.ballerinalang.mime.util.Constants.BOUNDARY;
 import static org.ballerinalang.mime.util.Constants.MEDIA_TYPE;
 import static org.ballerinalang.mime.util.Constants.MESSAGE_ENTITY;
-import static org.ballerinalang.mime.util.Constants.MULTIPART_AS_PRIMARY_TYPE;
-import static org.ballerinalang.mime.util.Constants.MULTIPART_DATA_INDEX;
 import static org.ballerinalang.mime.util.Constants.PROTOCOL_PACKAGE_MIME;
 import static org.ballerinalang.runtime.Constants.BALLERINA_VERSION;
 import static org.wso2.transport.http.netty.common.Constants.ENCODING_DEFLATE;
@@ -95,7 +91,7 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
         return requestMsg;
     }
 
-    protected void prepareOutboundRequest(BConnector connector, String path, HTTPCarbonMessage outboundRequest) {
+    void prepareOutboundRequest(BConnector connector, String path, HTTPCarbonMessage outboundRequest) {
 
         validateParams(connector);
         try {
@@ -204,72 +200,81 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
         }
     }
 
+    /**
+     * Send outbound request through the client connector. If the Content-Type is multipart, check whether the boundary
+     * exist. If not get a new boundary string and add it as a parameter to Content-Type, just before sending header
+     * info through wire. If a boundary string exist at this point, serialize multipart entity body, else serialize
+     * entity body which can either be a message data source or a byte channel.
+     *
+     * @param context                   Represent the ballerina context which is the runtime state of the program
+     * @param outboundRequestMsg        Outbound request that needs to be sent across the wire
+     * @return connector future for this particular request
+     * @throws Exception When an error occurs while sending the outbound request via client connector
+     */
     private ClientConnectorFuture send(Context context, HTTPCarbonMessage outboundRequestMsg) throws Exception {
         BConnector bConnector = (BConnector) getRefArgument(context, 0);
         HttpClientConnector clientConnector =
                 (HttpClientConnector) bConnector.getnativeData(HttpConstants.CONNECTOR_NAME);
-
-        String contentType = getContentType(outboundRequestMsg);
+        String contentType = HttpUtil.getContentTypeFromTransportMessage(outboundRequestMsg);
         String boundaryString = null;
-        if (isMultipart(contentType)) {
-            boundaryString = MimeUtil.getNewMultipartDelimiter();
-            outboundRequestMsg.setHeader(HttpHeaderNames.CONTENT_TYPE.toString(),
-                                         contentType + "; " + BOUNDARY + "=" + boundaryString);
+        if (HeaderUtil.isMultipart(contentType)) {
+            boundaryString = HttpUtil.addBoundaryIfNotExist(outboundRequestMsg, contentType);
         }
 
         ClientConnectorFuture ballerinaFuture = new ClientConnectorFuture();
-        RetryConfig retryConfig = getRetryConfiguration(context);
         HttpMessageDataStreamer outboundMsgDataStreamer = new HttpMessageDataStreamer(outboundRequestMsg);
         OutputStream messageOutputStream = outboundMsgDataStreamer.getOutputStream();
+        RetryConfig retryConfig = getRetryConfiguration(context);
         HTTPClientConnectorListener httpClientConnectorLister = new HTTPClientConnectorListener(context,
                 ballerinaFuture, retryConfig, outboundRequestMsg, outboundMsgDataStreamer);
 
         HttpResponseFuture future = clientConnector.send(outboundRequestMsg);
         future.setHttpConnectorListener(httpClientConnectorLister);
-        if (isMultipart(contentType)) {
-            handleMultiPart(context, boundaryString, messageOutputStream);
+        if (boundaryString != null) {
+            serializeMultiparts(context, messageOutputStream, boundaryString);
         } else {
             serializeDataSource(context, messageOutputStream);
         }
         return ballerinaFuture;
     }
 
-    private boolean isMultipart(String contentType) {
-        return contentType != null && contentType.startsWith(MULTIPART_AS_PRIMARY_TYPE);
-    }
-
-    private void handleMultiPart(Context context, String boundaryString, OutputStream messageOutputStream) {
-        BStruct requestStruct = ((BStruct) getRefArgument(context, 1));
-        BStruct entityStruct = requestStruct.getNativeData(MESSAGE_ENTITY) != null ?
-                (BStruct) requestStruct.getNativeData(MESSAGE_ENTITY) : null;
+    /**
+     * Serlaize multipart entity body. If an array of body parts exist, encode body parts else serialize body content
+     * if it exist as a byte channel.
+     *
+     * @param context         Represent the ballerina context which is the runtime state of the program
+     * @param boundaryString  Boundary string that should be used in encoding body parts
+     */
+    private void serializeMultiparts(Context context, OutputStream messageOutputStream, String boundaryString) {
+        BStruct entityStruct = getEntityStruct(context);
         if (entityStruct != null) {
-            BRefValueArray bodyParts = entityStruct.getRefField(MULTIPART_DATA_INDEX) != null ?
-                    (BRefValueArray) entityStruct.getRefField(MULTIPART_DATA_INDEX) : null;
+            BRefValueArray bodyParts = EntityBodyHandler.getBodyPartArray(entityStruct);
             if (bodyParts != null && bodyParts.size() > 0) {
-                serializeMultipartDataSource(boundaryString, entityStruct, messageOutputStream);
-            } else {
-                throw new BallerinaException("At least one body part is required for the multipart entity",
-                        context);
+                serializeMultipartDataSource(messageOutputStream, boundaryString,
+                        entityStruct);
+            } else { //If the content is in a byte channel
+                serializeDataSource(context, messageOutputStream);
             }
         }
     }
 
+    private BStruct getEntityStruct(Context context) {
+        BStruct requestStruct = ((BStruct) getRefArgument(context, 1));
+        return requestStruct.getNativeData(MESSAGE_ENTITY) != null ?
+                (BStruct) requestStruct.getNativeData(MESSAGE_ENTITY) : null;
+    }
+
     /**
-     * Serialize multipart content.
+     * Encode body parts with the given boundary and send it across the wire.
      *
      * @param boundaryString Boundary string of multipart entity
-     * @param entityStruct Represent ballerina entity struct
+     * @param entityStruct   Represent ballerina entity struct
      */
-    private void serializeMultipartDataSource(String boundaryString, BStruct entityStruct,
-            OutputStream messageOutputStream) {
+    private void serializeMultipartDataSource(OutputStream messageOutputStream,
+            String boundaryString, BStruct entityStruct) {
         MultipartDataSource multipartDataSource = new MultipartDataSource(entityStruct, boundaryString);
         multipartDataSource.serializeData(messageOutputStream);
         HttpUtil.closeMessageOutputStream(messageOutputStream);
-    }
-
-    private String getContentType(HTTPCarbonMessage outboundRequestMsg) throws MimeTypeParseException {
-        return outboundRequestMsg.getHeader(HttpHeaderNames.CONTENT_TYPE.toString()) != null ? new MimeType(
-                outboundRequestMsg.getHeader(HttpHeaderNames.CONTENT_TYPE.toString())).getBaseType() : null;
     }
 
     private void serializeDataSource(Context context, OutputStream messageOutputStream) {
@@ -280,6 +285,15 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
             if (messageDataSource != null) {
                 messageDataSource.serializeData(messageOutputStream);
                 HttpUtil.closeMessageOutputStream(messageOutputStream);
+            } else { //When the entity body is a byte channel
+                try {
+                    EntityBodyHandler.writeByteChannelToOutputStream(entityStruct, messageOutputStream);
+                } catch (IOException e) {
+                    throw new BallerinaException("An error occurred while writing byte channel content to outputstream",
+                            context);
+                } finally {
+                    HttpUtil.closeMessageOutputStream(messageOutputStream);
+                }
             }
         }
     }
@@ -315,7 +329,7 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
         // Reference for post validation.
 
         private HTTPClientConnectorListener(Context context, ClientConnectorFuture ballerinaFuture,
-                RetryConfig retryConfig, HTTPCarbonMessage outboundReqMsg,
+                                            RetryConfig retryConfig, HTTPCarbonMessage outboundReqMsg,
                 HttpMessageDataStreamer outboundMsgDataStreamer) {
             this.context = context;
             this.ballerinaFuture = ballerinaFuture;
