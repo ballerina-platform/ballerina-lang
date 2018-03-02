@@ -22,6 +22,7 @@ import org.antlr.v4.runtime.TokenStream;
 import org.ballerinalang.langserver.DocumentServiceKeys;
 import org.ballerinalang.langserver.LanguageServerContext;
 import org.ballerinalang.langserver.TextDocumentServiceContext;
+import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.completions.CompletionKeys;
 import org.ballerinalang.langserver.completions.SymbolInfo;
 import org.ballerinalang.langserver.completions.resolvers.AbstractItemResolver;
@@ -64,7 +65,7 @@ public class ParserRuleCallableUnitBodyContextResolver extends AbstractItemResol
         }
         
         if (endpointTokenIndex > 0) {
-            Token tokenBeforeCursor = getPreviousDefaultToken(tokenStream, tokenIndex - 1);
+            Token tokenBeforeCursor = CommonUtil.getPreviousDefaultToken(tokenStream, tokenIndex - 1);
             switch (tokenBeforeCursor.getText()) {
                 case "create":
                 case "<":
@@ -76,19 +77,6 @@ public class ParserRuleCallableUnitBodyContextResolver extends AbstractItemResol
         }
         
         return completionItems;
-    }
-    
-    private static Token getPreviousDefaultToken(TokenStream tokenStream, int startIndex) {
-        Token token;
-        while (true) {
-            token = tokenStream.get(startIndex);
-            if (token.getChannel() != Token.DEFAULT_CHANNEL) {
-                startIndex--;
-            } else {
-                break;
-            }
-        }
-        return token;
     }
     
     private static boolean isCursorBeforeToken(Position cursor, Token token) {
