@@ -83,39 +83,46 @@ public class NetworkUtils {
         Path targetDirectoryPath = UserRepositoryUtils.initializeUserRepository().resolve(cacheDir);
 
         int indexOfSlash = resourceName.indexOf("/");
-        String orgName = resourceName.substring(0, indexOfSlash);
-        String pkgNameWithVersion = resourceName.substring(indexOfSlash + 1);
 
-        int indexOfColon = pkgNameWithVersion.indexOf(":");
-        String pkgVersion, pkgName;
-        if (indexOfColon != -1) {
-            pkgVersion = pkgNameWithVersion.substring(indexOfColon + 1);
-            pkgName = pkgNameWithVersion.substring(0, indexOfColon);
+        if (indexOfSlash != -1) {
+            String orgName = resourceName.substring(0, indexOfSlash);
+            String pkgNameWithVersion = resourceName.substring(indexOfSlash + 1);
+
+            int indexOfColon = pkgNameWithVersion.indexOf(":");
+            String pkgVersion, pkgName;
+            if (indexOfColon != -1) {
+                pkgVersion = pkgNameWithVersion.substring(indexOfColon + 1);
+                pkgName = pkgNameWithVersion.substring(0, indexOfColon);
+            } else {
+                pkgVersion = "*";
+                pkgName = pkgNameWithVersion;
+            }
+            Path fullPathOfPkg = Paths.get(orgName).resolve(pkgName).resolve(pkgVersion).resolve("src");
+
+            targetDirectoryPath = targetDirectoryPath.resolve(fullPathOfPkg);
+            String dstPath = targetDirectoryPath.toString();
+
+            // Get the current directory path to check if the user is pulling a package from inside a project directory
+            Path currentDirPath = Paths.get(".").toAbsolutePath().normalize();
+            String currentProjectPath = null;
+            if (ballerinaTomlExists(currentDirPath)) {
+                Path projectDestDirectoryPath = currentDirPath.resolve(".ballerina").resolve(cacheDir)
+                        .resolve(fullPathOfPkg);
+                currentProjectPath = projectDestDirectoryPath.toString();
+            }
+
+            String pkgPath = Paths.get(orgName).resolve(pkgName).resolve(pkgVersion).toString();
+            String resourcePath = ballerinaCentralURL + pkgPath;
+            String[] proxyConfigs = readProxyConfigurations();
+            String[] arguments = new String[]{resourcePath, dstPath, pkgName, currentProjectPath, resourceName,
+                    pkgVersion};
+            arguments = Stream.concat(Arrays.stream(arguments), Arrays.stream(proxyConfigs))
+                    .toArray(String[]::new);
+            LauncherUtils.runMain(compileResult.getProgFile(), arguments);
         } else {
-            pkgVersion = "*";
-            pkgName = pkgNameWithVersion;
-        }
-        Path fullPathOfPkg = Paths.get(orgName).resolve(pkgName).resolve(pkgVersion).resolve("src");
-
-        targetDirectoryPath = targetDirectoryPath.resolve(fullPathOfPkg);
-        String dstPath = targetDirectoryPath.toString();
-
-        // Get the current directory path to check if the user is pulling a package from inside a project directory
-        Path currentDirPath = Paths.get(".").toAbsolutePath().normalize();
-        String currentProjectPath = null;
-        if (ballerinaTomlExists(currentDirPath)) {
-            Path projectDestDirectoryPath = currentDirPath.resolve(".ballerina").resolve(cacheDir)
-                    .resolve(fullPathOfPkg);
-            currentProjectPath = projectDestDirectoryPath.toString();
+            outStream.println("No org-name provided for the package to be pulled. Please provide an org-name");
         }
 
-        String pkgPath = Paths.get(orgName).resolve(pkgName).resolve(pkgVersion).toString();
-        String resourcePath = ballerinaCentralURL + pkgPath;
-        String[] proxyConfigs = readProxyConfigurations();
-        String[] arguments = new String[]{resourcePath, dstPath, pkgName, currentProjectPath, resourceName, pkgVersion};
-        arguments = Stream.concat(Arrays.stream(arguments), Arrays.stream(proxyConfigs))
-                .toArray(String[]::new);
-        LauncherUtils.runMain(compileResult.getProgFile(), arguments);
     }
 
     /**
