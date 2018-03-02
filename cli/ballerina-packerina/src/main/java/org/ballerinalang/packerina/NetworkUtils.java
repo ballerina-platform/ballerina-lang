@@ -30,10 +30,9 @@ import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.debugger.Debugger;
 import org.ballerinalang.util.program.BLangFunctions;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.io.PrintStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.file.Files;
@@ -44,10 +43,11 @@ import java.util.stream.Stream;
 
 /**
  * Util class for network calls.
+ *
  * @since 0.964
  */
 public class NetworkUtils {
-    private static final Logger log = LoggerFactory.getLogger(NetworkUtils.class);
+    private static PrintStream outStream = System.err;
     private static CompileResult compileResult;
 
     /**
@@ -82,40 +82,45 @@ public class NetworkUtils {
         // target directory path to .ballerina/cache
         Path targetDirectoryPath = UserRepositoryUtils.initializeUserRepository().resolve(cacheDir);
 
-        int indexOfSlash = resourceName.indexOf("/");
-        String orgName = resourceName.substring(0, indexOfSlash);
-        String pkgNameWithVersion = resourceName.substring(indexOfSlash + 1);
+        int indexOfOrgName = resourceName.indexOf("/");
+        if (indexOfOrgName != -1) {
+            String orgName = resourceName.substring(0, indexOfOrgName);
+            String pkgNameWithVersion = resourceName.substring(indexOfOrgName + 1);
 
-        int indexOfColon = pkgNameWithVersion.indexOf(":");
-        String pkgVersion, pkgName;
-        if (indexOfColon != -1) {
-            pkgVersion = pkgNameWithVersion.substring(indexOfColon + 1);
-            pkgName = pkgNameWithVersion.substring(0, indexOfColon);
+            int indexOfColon = pkgNameWithVersion.indexOf(":");
+            String pkgVersion, pkgName;
+            if (indexOfColon != -1) {
+                pkgVersion = pkgNameWithVersion.substring(indexOfColon + 1);
+                pkgName = pkgNameWithVersion.substring(0, indexOfColon);
+            } else {
+                pkgVersion = "*";
+                pkgName = pkgNameWithVersion;
+            }
+            Path fullPathOfPkg = Paths.get(orgName).resolve(pkgName).resolve(pkgVersion).resolve("src");
+
+            targetDirectoryPath = targetDirectoryPath.resolve(fullPathOfPkg);
+            String dstPath = targetDirectoryPath.toString();
+
+            // Get the current directory path to check if the user is pulling a package from inside a project directory
+            Path currentDirPath = Paths.get(".").toAbsolutePath().normalize();
+            String currentProjectPath = null;
+            if (ballerinaTomlExists(currentDirPath)) {
+                Path projectDestDirectoryPath = currentDirPath.resolve(".ballerina").resolve(cacheDir)
+                        .resolve(fullPathOfPkg);
+                currentProjectPath = projectDestDirectoryPath.toString();
+            }
+
+            String pkgPath = Paths.get(orgName).resolve(pkgName).resolve(pkgVersion).toString();
+            String resourcePath = ballerinaCentralURL + pkgPath;
+            String[] proxyConfigs = readProxyConfigurations();
+            String[] arguments = new String[]{resourcePath, dstPath, pkgName, currentProjectPath, resourceName,
+                    pkgVersion};
+            arguments = Stream.concat(Arrays.stream(arguments), Arrays.stream(proxyConfigs))
+                    .toArray(String[]::new);
+            LauncherUtils.runMain(compileResult.getProgFile(), arguments);
         } else {
-            pkgVersion = "*";
-            pkgName = pkgNameWithVersion;
+            outStream.println("No org-name provided for the package to be pulled. Please provide an org-name");
         }
-        Path fullPathOfPkg = Paths.get(orgName).resolve(pkgName).resolve(pkgVersion).resolve("src");
-
-        targetDirectoryPath = targetDirectoryPath.resolve(fullPathOfPkg);
-        String dstPath = targetDirectoryPath.toString();
-
-        // Get the current directory path to check if the user is pulling a package from inside a project directory
-        Path currentDirPath = Paths.get(".").toAbsolutePath().normalize();
-        String currentProjectPath = null;
-        if (ballerinaTomlExists(currentDirPath)) {
-            Path projectDestDirectoryPath = currentDirPath.resolve(".ballerina").resolve(cacheDir)
-                    .resolve(fullPathOfPkg);
-            currentProjectPath = projectDestDirectoryPath.toString();
-        }
-
-        String pkgPath = Paths.get(orgName).resolve(pkgName).resolve(pkgVersion).toString();
-        String resourcePath = ballerinaCentralURL + pkgPath;
-        String[] proxyConfigs = readProxyConfigurations();
-        String[] arguments = new String[]{resourcePath, dstPath, pkgName, currentProjectPath, resourceName, pkgVersion};
-        arguments = Stream.concat(Arrays.stream(arguments), Arrays.stream(proxyConfigs))
-                .toArray(String[]::new);
-        LauncherUtils.runMain(compileResult.getProgFile(), arguments);
     }
 
     /**
@@ -165,11 +170,8 @@ public class NetworkUtils {
                     .toArray(String[]::new);
             LauncherUtils.runMain(compileResult.getProgFile(), arguments);
         } else {
-            log.debug("An org-name and package version is required when pushing. This is not specified in " +
+            outStream.println("An org-name and package version is required when pushing. This is not specified in " +
                     "Ballerina.toml inside the project");
-            log.error("An org-name and package version is required when pushing. This is not specified in " +
-                            "Ballerina.toml inside the project",
-                    "An org-name and package version is required when pushing");
         }
     }
 
