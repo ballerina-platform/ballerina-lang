@@ -26,41 +26,71 @@ import java.util.List;
  */
 public class Test {
 
-    List<TesterinaFunction> beforeTestFunctions = new ArrayList<>();
-    TesterinaFunction testFunctions;
-    List<TesterinaFunction> afterTestFunctions = new ArrayList<>();
+    String beforeTestFunction;
+    TesterinaFunction testFunction;
 
-    public List<TesterinaFunction> getBeforeTestFunctions() {
-        return beforeTestFunctions;
+    public TesterinaFunction getBeforeTestFunctionObj() {
+        return beforeTestFunctionObj;
     }
 
-    public void setBeforeTestFunctions(
-            List<TesterinaFunction> beforeTestFunctions) {
-        this.beforeTestFunctions = beforeTestFunctions;
+    public void setBeforeTestFunctionObj(TesterinaFunction beforeTestFunctionObj) {
+        this.beforeTestFunctionObj = beforeTestFunctionObj;
     }
 
-    public TesterinaFunction getTestFunctions() {
-        return testFunctions;
+    public TesterinaFunction getAfterTestFunctionObj() {
+        return afterTestFunctionObj;
     }
 
-    public void setTestFunctions(TesterinaFunction testFunctions) {
-        this.testFunctions = testFunctions;
+    public void setAfterTestFunctionObj(TesterinaFunction afterTestFunctionObj) {
+        this.afterTestFunctionObj = afterTestFunctionObj;
     }
 
-    public List<TesterinaFunction> getAfterTestFunctions() {
-        return afterTestFunctions;
+    TesterinaFunction beforeTestFunctionObj;
+    TesterinaFunction afterTestFunctionObj;
+    String afterTestFunction;
+
+
+    List<String> dependsOnTestFunctions = new ArrayList<>();
+    List<TesterinaFunction> dependsOnTestFunctionObjs = new ArrayList<>();
+
+    public List<String> getDependsOnTestFunctions() {
+        return dependsOnTestFunctions;
     }
 
-    public void setAfterTestFunctions(
-            List<TesterinaFunction> afterTestFunctions) {
-        this.afterTestFunctions = afterTestFunctions;
+    public void setDependsOnTestFunctions(List<String> dependsOnTestFunctions) {
+        this.dependsOnTestFunctions = dependsOnTestFunctions;
     }
 
-    public void addBeforeTestFunctions(TesterinaFunction function) {
-        this.beforeTestFunctions.add(function);
+    public String getBeforeTestFunction() {
+        return beforeTestFunction;
     }
 
-    public void addAfterTestFunctions(TesterinaFunction function) {
-        this.afterTestFunctions.add(function);
+    public void setBeforeTestFunction(String beforeTestFunction) {
+        this.beforeTestFunction = beforeTestFunction;
+    }
+
+    public TesterinaFunction getTestFunction() {
+        return testFunction;
+    }
+
+    public void setTestFunction(TesterinaFunction testFunction) {
+        this.testFunction = testFunction;
+    }
+
+    public String getAfterTestFunction() {
+        return afterTestFunction;
+    }
+
+    public void setAfterTestFunction(
+            String afterTestFunction) {
+        this.afterTestFunction = afterTestFunction;
+    }
+
+    public void addDependsOnTestFunction(String function) {
+        this.dependsOnTestFunctions.add(function);
+    }
+
+    public void addDependsOnTestFunction(TesterinaFunction function) {
+        this.dependsOnTestFunctionObjs.add(function);
     }
 }

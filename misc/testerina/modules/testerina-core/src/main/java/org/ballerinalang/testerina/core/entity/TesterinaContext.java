@@ -17,12 +17,12 @@
  */
 package org.ballerinalang.testerina.core.entity;
 
-import org.ballerinalang.testerina.core.TAnnotProcessor;
+import org.ballerinalang.testerina.core.AnnotationProcessor;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
 
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -39,16 +39,16 @@ public class TesterinaContext {
     private List<String> groups;
     private boolean excludeGroups = false;
 
-    public TesterinaContext(ProgramFile[] programFiles, List<String> groups, boolean excludeGroups) {
+    public TesterinaContext(Collection<ProgramFile> programFiles, List<String> groups, boolean excludeGroups) {
         this.groups = groups;
         this.excludeGroups = excludeGroups;
-        Arrays.stream(programFiles).forEach(this::processProgramFiles);
+        programFiles.forEach(this::processProgramFiles);
         assert groups == null;
         assert excludeGroups == true;
     }
 
     /**
-     * Getter method for testFunctions. Returns an ArrayList of functions starting with prefix 'test'.
+     * Getter method for testFunction. Returns an ArrayList of functions starting with prefix 'test'.
      *
      * @return ArrayList
      */
@@ -57,7 +57,7 @@ public class TesterinaContext {
     }
 
     /**
-     * Getter method for testFunctions. Returns an ArrayList of functions starting with prefix 'test'.
+     * Getter method for testFunction. Returns an ArrayList of functions starting with prefix 'test'.
      *
      * @return ArrayList
      */
@@ -66,12 +66,16 @@ public class TesterinaContext {
     }
 
     /**
-     * Getter method for testFunctions. Returns an ArrayList of functions starting with prefix 'test'.
+     * Getter method for testFunction. Returns an ArrayList of functions starting with prefix 'test'.
      *
      * @return ArrayList
      */
     public ArrayList<TesterinaFunction> getAfterTestFunctions() {
         return this.afterTestFunctions;
+    }
+
+    public Map<String, TestSuite> getTestSuites() {
+        return testSuites;
     }
 
     //    /**
@@ -94,17 +98,17 @@ public class TesterinaContext {
     //            TesterinaFunction tFunction = AnnotationProcessor
     //                    .processAnnotations(programFile, functionInfo, groups, excludeGroups);
     //
-    //            this.testFunctions.add(tFunction);
+    //            this.testFunction.add(tFunction);
     //        } else if (nameUpperCase.startsWith(TesterinaFunction.PREFIX_BEFORETEST) && !nameUpperCase
     //                .endsWith(TesterinaFunction.INIT_SUFFIX)) {
     //            TesterinaFunction tFunction = new TesterinaFunction(programFile, functionInfo,
     //                    TesterinaFunction.Type.BEFORE_TEST);
-    //            this.beforeTestFunctions.add(tFunction);
+    //            this.beforeTestFunction.add(tFunction);
     //        } else if (nameUpperCase.startsWith(TesterinaFunction.PREFIX_AFTERTEST) && !nameUpperCase
     //                .endsWith(TesterinaFunction.INIT_SUFFIX)) {
     //            TesterinaFunction tFunction = new TesterinaFunction(programFile, functionInfo,
     //                    TesterinaFunction.Type.AFTER_TEST);
-    //            this.afterTestFunctions.add(tFunction);
+    //            this.afterTestFunction.add(tFunction);
     //        }
     //    }
 
@@ -118,7 +122,8 @@ public class TesterinaContext {
                     testSuites.put(packageInfo.getPkgPath(), new TestSuite(packageInfo.getPkgPath()));
                     //processTestSuites
                 }
-                TAnnotProcessor.processAnnotations(programFile, packageInfo, testSuites.get(packageInfo.getPkgPath()));
+                AnnotationProcessor.processAnnotations(programFile, packageInfo, testSuites.get(packageInfo
+                        .getPkgPath()), groups, excludeGroups);
             }
         }
     }

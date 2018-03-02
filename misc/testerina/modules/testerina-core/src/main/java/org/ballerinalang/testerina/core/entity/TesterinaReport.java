@@ -32,7 +32,8 @@ public class TesterinaReport {
 
     private List<TesterinaResult> passedTests = new ArrayList<>();
     private List<TesterinaResult> failedTests = new ArrayList<>();
-    private int skipedTestCount = 0;
+    private List<TesterinaResult> skippedTests = new ArrayList<>();
+    private int skippedTestCount = 0;
 
     public void printTestSummary() {
         int totalTests = passedTests.size() + failedTests.size();
@@ -42,7 +43,7 @@ public class TesterinaReport {
         outStream.print("tests run: " + totalTests);
         outStream.print(", passed: " + passedTests.size());
         outStream.print(", failed: " + failedTests.size());
-        outStream.println(", skipped: " + skipedTestCount);
+        outStream.println(", skipped: " + skippedTestCount);
 
         if (!failedTests.isEmpty()) {
             outStream.println();
@@ -55,7 +56,9 @@ public class TesterinaReport {
     }
 
     public void addFunctionResult(TesterinaResult result) {
-        if (result.isPassed()) {
+        if (result.isSkipped()) {
+            skippedTests.add(result);
+        } else if (result.isPassed()) {
             passedTests.add(result);
         } else {
             failedTests.add(result);
@@ -75,7 +78,7 @@ public class TesterinaReport {
     }
 
     public int getSkippedTestCount() {
-        return skipedTestCount;
+        return skippedTestCount;
     }
 
     public List<TesterinaResult> getFailedTests() {
@@ -83,6 +86,6 @@ public class TesterinaReport {
     }
 
     public void incrementSkipCount() {
-        skipedTestCount++;
+        skippedTestCount++;
     }
 }

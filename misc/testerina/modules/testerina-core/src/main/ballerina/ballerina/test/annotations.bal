@@ -8,6 +8,10 @@ public annotation config attach function {
     boolean disabled;
     string[] groups;
     string dataProvider;
+    string beforeFn;
+    string afterFn;
+    string[] dependsOnFns;
+
 }
 
 @Description { value:"Identoifies beforeSuite function."}
