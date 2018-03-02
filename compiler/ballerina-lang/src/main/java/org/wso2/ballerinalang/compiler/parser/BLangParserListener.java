@@ -134,8 +134,14 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         }
 
         String alias = ctx.Identifier() != null ? ctx.Identifier().getText() : null;
-        this.pkgBuilder.addImportPackageDeclaration(getCurrentPos(ctx), getWS(ctx),
-                this.pkgNameComps, this.pkgVersion, alias);
+        BallerinaParser.OrgNameContext orgNameContext = ctx.orgName();
+        if (orgNameContext == null) {
+            this.pkgBuilder.addImportPackageDeclaration(getCurrentPos(ctx), getWS(ctx),
+                    null, this.pkgNameComps, this.pkgVersion, alias);
+        } else {
+            this.pkgBuilder.addImportPackageDeclaration(getCurrentPos(ctx), getWS(ctx),
+                    orgNameContext.getText(), this.pkgNameComps, this.pkgVersion, alias);
+        }
     }
 
     /**

@@ -486,25 +486,22 @@ function testNullJsonToBoolean () (boolean) {
     return value;
 }
 
-function testNullJsonToStruct () (Person) {
+function testNullJsonToStruct () (Person, error) {
     json j;
-    Person p;
-    p, _ = <Person>j;
-    return p;
+    var p, e = <Person>j;
+    return p, e;
 }
 
-function testNullMapToStruct () (Person) {
-    //map m;
-    Person p;
-    //p, _ = <Person>m;
-    return p;
+function testNullMapToStruct () (Person, error) {
+    map m;
+    var p, e = <Person> m;
+    return p, e;
 }
 
-function testNullStructToJson () (json) {
-    //Person p;
-    json j;
-    //j, _ = <json>p;
-    return j;
+function testNullStructToJson () (json, error) {
+    Person p;
+    var j, e = <json> p;
+    return j, e;
 }
 
 function testNullStructToMap () (map) {

@@ -60,6 +60,22 @@ function booleanappendtostring(boolean value)(string) {
     return result;
 }
 
+function anyfloattostring()(string) {
+    any value = 5.5;
+    string result;
+    //any to string should be a conversion
+    result = <string>value;
+    return result;
+}
+
+function anyjsontostring()(string) {
+    any value = {"a":"b"};
+    string result;
+    //any to string should be a conversion
+    result = <string>value;
+    return result;
+}
+
 function intarrtofloatarr()(float[]) {
     float[] numbers;
     numbers = [999,95,889];

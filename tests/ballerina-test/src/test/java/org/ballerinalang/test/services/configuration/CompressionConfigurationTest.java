@@ -54,7 +54,7 @@ public class CompressionConfigurationTest {
 
         HTTPCarbonMessage outBoundMessage = new HTTPCarbonMessage(
                 new DefaultFullHttpResponse(HTTP_1_1, new HttpResponseStatus(200, "OK")));
-        HttpUtil.setKeepAliveAndCompressionHeaders(context, outBoundMessage);
+        HttpUtil.setCompressionHeaders(context, outBoundMessage);
         Assert.assertNull(outBoundMessage.getHeader(HttpHeaderNames.CONTENT_ENCODING.toString()),
                             "The content-encoding header should be null");
     }
@@ -76,7 +76,7 @@ public class CompressionConfigurationTest {
 
         HTTPCarbonMessage outBoundMessage = new HTTPCarbonMessage(
                 new DefaultFullHttpResponse(HTTP_1_1, new HttpResponseStatus(200, "OK")));
-        HttpUtil.setKeepAliveAndCompressionHeaders(context, outBoundMessage);
+        HttpUtil.setCompressionHeaders(context, outBoundMessage);
         Assert.assertEquals(outBoundMessage.getHeader(HttpHeaderNames.CONTENT_ENCODING.toString()),
                             Constants.HTTP_TRANSFER_ENCODING_IDENTITY,
                             "The content-encoding header should be identity");

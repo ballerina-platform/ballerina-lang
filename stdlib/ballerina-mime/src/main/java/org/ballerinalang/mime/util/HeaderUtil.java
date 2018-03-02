@@ -209,7 +209,7 @@ public class HeaderUtil {
      * @param headerName    Header name as a string
      * @param headerValue   Header value as a string
      */
-    private static void overrideEntityHeader(BMap<String, BValue> entityHeaders, String headerName, String
+    public static void overrideEntityHeader(BMap<String, BValue> entityHeaders, String headerName, String
             headerValue) {
             BStringArray valueArray = new BStringArray(new String[]{headerValue});
             entityHeaders.put(headerName, valueArray);

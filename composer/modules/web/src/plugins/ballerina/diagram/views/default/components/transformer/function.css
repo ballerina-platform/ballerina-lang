@@ -1,8 +1,7 @@
 .transform-expanded-func {
     width: 70%;
     height: auto;
-    margin: 0 auto;
-    margin-bottom: 20px;
+    margin: 0 auto 20px;
     color: #fff;
     background: #f6f6f6;;
     position: absolute;
@@ -47,10 +46,11 @@
 .transform-expanded-func .btn-remove-func {
     float: right;
     height: 30px;
-    width: 30px;
+    width: 25px;
     line-height: 30px;
     padding: 0;
     color: #bababb;
     background: #666769;
     z-index: 0 !important;
+    font-size: 12px;
 }

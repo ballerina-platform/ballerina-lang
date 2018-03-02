@@ -114,22 +114,13 @@
     clear: both;
 }
 
-.http-client-main-wrapper {
+.http-client-main-wrapper.segment{
     background-color: #333;
-    padding:10px 10px 10px 15px;
+    padding:10px 20px 10px 15px;
     width:auto;
     margin-left: 5px;
     margin-bottom: 15px;
     max-width: 900px;
-    &:before{
-        content: " ";
-        display: table;
-    }
-    &:after{
-        clear: both;
-        content: " ";
-        display: table;
-    }
     .main-wrapper-top {
         height: 45px;
         .http-client-request-method-wrapper {
@@ -180,7 +171,6 @@
         }
     }
     .main-wrapper-bottom {
-        padding-left: 14em !important;
         .http-client-request-url {
             float: left;
             padding: 8px 0 7px 7px;
@@ -268,7 +258,7 @@
      padding: 20px;
      height: 100%;
      width: 100%;
-     background: #434343;
+     background: #232322;
      border-top: 1px solid #333;
      margin-right: 20px;
 
@@ -454,12 +444,12 @@
             .response-headers, .request-headers {
                 float: left;
                 > div {
-                    padding-top: 5px;
+                    padding-top: 10px;
                     @include header-attribute;
                 }
             }
-            .request-headers {
-                padding-left: 50px;
+            .response-headers {
+                margin-right: 30px;
             }
             .response-header-title, .request-headers-title {
                 font-size: 14px;
