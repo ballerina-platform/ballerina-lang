@@ -18,6 +18,7 @@
 
 package org.ballerinalang.test.mime;
 
+import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.util.internal.StringUtil;
 import org.ballerinalang.launcher.util.BServiceUtil;
 import org.ballerinalang.launcher.util.CompileResult;
@@ -39,8 +40,6 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.ballerinalang.mime.util.Constants.CONTENT_TYPE;
-
 /**
  * Unit tests for multipart decoder.
  *
@@ -60,7 +59,8 @@ public class MultipartDecoderTest {
         String path = "/test/multipleparts";
         List<Header> headers = new ArrayList<>();
         String multipartDataBoundary = MimeUtil.getNewMultipartDelimiter();
-        headers.add(new Header(CONTENT_TYPE, "multipart/mixed; boundary=" + multipartDataBoundary));
+        headers.add(new Header(HttpHeaderNames.CONTENT_TYPE.toString(),
+                               "multipart/mixed; boundary=" + multipartDataBoundary));
         String multipartBody = "--" + multipartDataBoundary + "\r\n" +
                 "Content-Type: text/plain; charset=UTF-8" + "\r\n" +
                 "\r\n" +
@@ -86,7 +86,8 @@ public class MultipartDecoderTest {
         String path = "/test/multipleparts";
         List<Header> headers = new ArrayList<>();
         String multipartDataBoundary = MimeUtil.getNewMultipartDelimiter();
-        headers.add(new Header(CONTENT_TYPE, "multipart/form-data; boundary=" + multipartDataBoundary));
+        headers.add(new Header(HttpHeaderNames.CONTENT_TYPE.toString(),
+                               "multipart/form-data; boundary=" + multipartDataBoundary));
         String multipartBody = "--" + multipartDataBoundary + "\r\n" +
                 "Content-Disposition: form-data; name=\"foo\"" + "\r\n" +
                 "Content-Type: text/plain; charset=UTF-8" + "\r\n" +
@@ -114,7 +115,8 @@ public class MultipartDecoderTest {
         String path = "/test/multipleparts";
         List<Header> headers = new ArrayList<>();
         String multipartDataBoundary = MimeUtil.getNewMultipartDelimiter();
-        headers.add(new Header(CONTENT_TYPE, "multipart/new-sub-type; boundary=" + multipartDataBoundary));
+        headers.add(new Header(HttpHeaderNames.CONTENT_TYPE.toString(),
+                               "multipart/new-sub-type; boundary=" + multipartDataBoundary));
         String multipartBody = "--" + multipartDataBoundary + "\r\n" +
                 "Content-Disposition: form-data; name=\"foo\"" + "\r\n" +
                 "Content-Type: text/plain; charset=UTF-8" + "\r\n" +
@@ -142,7 +144,8 @@ public class MultipartDecoderTest {
         String path = "/test/emptyparts";
         List<Header> headers = new ArrayList<>();
         String multipartDataBoundary = MimeUtil.getNewMultipartDelimiter();
-        headers.add(new Header(CONTENT_TYPE, "multipart/mixed; boundary=" + multipartDataBoundary));
+        headers.add(new Header(HttpHeaderNames.CONTENT_TYPE.toString(),
+                               "multipart/mixed; boundary=" + multipartDataBoundary));
         String multipartBody = "--" + multipartDataBoundary + "\r\n" +
                 "--" + multipartDataBoundary + "--" + "\r\n";
 
@@ -160,41 +163,10 @@ public class MultipartDecoderTest {
         Assert.assertTrue(error.contains("Reached EOF, but there is no closing MIME boundary"));
     }
 
-    @Test(description = "Test whether the nested parts can be properly decoded. Two body parts have been wrapped " +
-            "inside multipart/mixed which in turn acts as the child part for the parent multipart/form-data")
+    @Test(description = "Test whether the nested parts can be properly decoded.")
     public void testNestedPartsForOneLevel() {
         String path = "/test/nestedparts";
-        List<Header> headers = new ArrayList<>();
-        String multipartDataBoundary = MimeUtil.getNewMultipartDelimiter();
-        String multipartMixedBoundary = MimeUtil.getNewMultipartDelimiter();
-        headers.add(new Header(CONTENT_TYPE, "multipart/form-data; boundary=" + multipartDataBoundary));
-        String multipartBodyWithNestedParts = "--" + multipartDataBoundary + "\r\n" +
-                "Content-Disposition: form-data; name=\"parent1\"" + "\r\n" +
-                "Content-Type: text/plain; charset=UTF-8" + "\r\n" +
-                "\r\n" +
-                "Parent Part" + "\r\n" +
-                "--" + multipartDataBoundary + "\r\n" +
-                "Content-Disposition: form-data; name=\"parent2\"" + "\r\n" +
-                "Content-Type: multipart/mixed; boundary=" + multipartMixedBoundary + "\r\n" +
-                "\r\n" +
-                "--" + multipartMixedBoundary + "\r\n" +
-                "Content-Disposition: attachment; filename=\"file-02.txt\"" + "\r\n" +
-                "Content-Type: text/plain" + "\r\n" +
-                "Content-Transfer-Encoding: binary" + "\r\n" +
-                "\r\n" +
-                "Child Part 1" + StringUtil.NEWLINE +
-                "\r\n" +
-                "--" + multipartMixedBoundary + "\r\n" +
-                "Content-Disposition: attachment; filename=\"file-02.txt\"" + "\r\n" +
-                "Content-Type: text/plain" + "\r\n" +
-                "Content-Transfer-Encoding: binary" + "\r\n" +
-                "\r\n" +
-                "Child Part 2" + StringUtil.NEWLINE +
-                "\r\n" +
-                "--" + multipartMixedBoundary + "--" + "\r\n" +
-                "--" + multipartDataBoundary + "--" + "\r\n";
-        HTTPTestRequest inRequestMsg = MessageUtils.generateHTTPMessage(path, HttpConstants.HTTP_METHOD_POST, headers,
-                multipartBodyWithNestedParts);
+        HTTPTestRequest inRequestMsg = Util.createNestedPartRequest(path);
         HTTPCarbonMessage response = Services.invokeNew(serviceResult, inRequestMsg);
         Assert.assertNotNull(response, "Response message not found");
         Assert.assertEquals(ResponseReader.getReturnValue(response), "Child Part 1" + StringUtil.NEWLINE

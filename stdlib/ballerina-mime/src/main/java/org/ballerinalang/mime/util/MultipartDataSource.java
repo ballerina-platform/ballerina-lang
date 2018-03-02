@@ -37,9 +37,9 @@ import java.io.Writer;
 import java.nio.charset.Charset;
 import java.util.Set;
 
+import static org.ballerinalang.mime.util.Constants.BODY_PARTS;
 import static org.ballerinalang.mime.util.Constants.BOUNDARY;
 import static org.ballerinalang.mime.util.Constants.MEDIA_TYPE_INDEX;
-import static org.ballerinalang.mime.util.Constants.MULTIPART_DATA_INDEX;
 import static org.ballerinalang.mime.util.Constants.PARAMETER_MAP_INDEX;
 
 /**
@@ -81,8 +81,8 @@ public class MultipartDataSource extends BallerinaMessageDataSource {
      */
     private void serializeBodyPart(OutputStream outputStream, String parentBoundaryString, BStruct parentBodyPart) {
         final Writer writer = new BufferedWriter(new OutputStreamWriter(outputStream, Charset.defaultCharset()));
-        BRefValueArray childParts = parentBodyPart.getRefField(MULTIPART_DATA_INDEX) != null ?
-                (BRefValueArray) parentBodyPart.getRefField(MULTIPART_DATA_INDEX) : null;
+        BRefValueArray childParts = parentBodyPart.getNativeData(BODY_PARTS) != null ?
+                (BRefValueArray) parentBodyPart.getNativeData(BODY_PARTS) : null;
         try {
             if (childParts == null) {
                 return;
@@ -130,7 +130,7 @@ public class MultipartDataSource extends BallerinaMessageDataSource {
         writeBodyPartHeaders(writer, childPart);
         //Serialize nested parts
         if (childBoundaryString != null) {
-            BRefValueArray nestedParts = (BRefValueArray) childPart.getRefField(MULTIPART_DATA_INDEX);
+            BRefValueArray nestedParts = (BRefValueArray) childPart.getNativeData(BODY_PARTS);
             if (nestedParts != null && nestedParts.size() > 0) {
                 serializeBodyPart(this.outputStream, childBoundaryString, childPart);
             }

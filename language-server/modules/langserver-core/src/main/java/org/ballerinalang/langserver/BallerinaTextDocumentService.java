@@ -224,7 +224,7 @@ public class BallerinaTextDocumentService implements TextDocumentService {
             try {
                 PositionTreeVisitor positionTreeVisitor = new PositionTreeVisitor(referenceContext);
                 currentBLangPackage.accept(positionTreeVisitor);
-                contents = ReferenceUtil.getReferences(referenceContext, bLangPackageContext);
+                contents = ReferenceUtil.getReferences(referenceContext, bLangPackageContext, currentBLangPackage);
             } catch (Exception e) {
                 // Ignore
             }

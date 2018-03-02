@@ -20,13 +20,11 @@ package org.ballerinalang.mime.nativeimpl;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.connector.api.ConnectorUtils;
-import org.ballerinalang.mime.util.EntityBody;
-import org.ballerinalang.mime.util.MimeUtil;
+import org.ballerinalang.mime.util.EntityBodyHandler;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.nativeimpl.io.IOConstants;
-import org.ballerinalang.nativeimpl.io.channels.base.Channel;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
@@ -56,17 +54,9 @@ public class GetByteChannel extends AbstractNativeFunction {
         BStruct byteChannelStruct;
         try {
             BStruct entityStruct = (BStruct) this.getRefArgument(context, FIRST_PARAMETER_INDEX);
-            EntityBody entityBody = MimeUtil.constructEntityBody(entityStruct);
-            Channel byteChannel = null;
-            if (entityBody != null) {
-                if (entityBody.isStream()) {
-                    byteChannel = entityBody.getEntityWrapper();
-                } else {
-                    byteChannel = entityBody.getFileIOChannel();
-                }
-            }
             byteChannelStruct = ConnectorUtils.createAndGetStruct(context, PROTOCOL_PACKAGE_IO, BYTE_CHANNEL_STRUCT);
-            byteChannelStruct.addNativeData(IOConstants.BYTE_CHANNEL_NAME, byteChannel);
+            byteChannelStruct.addNativeData(IOConstants.BYTE_CHANNEL_NAME, EntityBodyHandler.
+                    getByteChannel(entityStruct));
         } catch (Throwable e) {
             throw new BallerinaException("Error occurred while constructing byte channel from entity body : "
                     + e.getMessage());

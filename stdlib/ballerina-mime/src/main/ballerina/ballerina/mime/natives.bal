@@ -35,14 +35,12 @@ level message and an entity(body part) inside of a multipart entity."}
 @Field {value:"contentId: Helps one body of an entity to make a reference to another"}
 @Field {value:"headers: Denote general, request/response and entity related headers. Keys of the header map
 should represent the header name and value will be the 'HeaderValue' struct"}
-@Field {value:"multipartData: Represent body parts(entities) of a multipart entity"}
 @Field {value:"size: Represent the size of the entity"}
 @Field {value:"contentDisposition: Represent values related to Content-Disposition header"}
 public struct Entity {
     MediaType contentType;
     string contentId;
     map headers;
-    Entity[] multipartData;
     int size;
     ContentDisposition contentDisposition;
 }
@@ -113,9 +111,7 @@ public native function <Entity entity> getBodyParts () (Entity[]);
 @Description {value:"Set body parts to entity"}
 @Param {value:"entity: Represent a MIME entity"}
 @Param {value:"bodyParts: Represent the body parts that needs to be set to the entity"}
-public function <Entity entity> setBodyParts (Entity[] bodyParts) {
-    entity.multipartData = bodyParts;
-}
+public native function <Entity entity> setBodyParts (Entity[] bodyParts);
 
 @Description {value:"Given the Content-Type in string, get the MediaType struct populated with it."}
 @Param {value:"contentType: Content-Type in string"}
