@@ -197,6 +197,6 @@ public class NotSoBasicWorkerTest {
         Assert.assertEquals(vals.length, 1);
         Assert.assertEquals(((BInteger) vals[0]).intValue(), 0);
         ctx.await(20);
-        Assert.assertEquals(result.getProgFile().getGlobalMemoryBlock().getIntField(0), 10);
+        Assert.assertEquals(result.getProgFile().getGlobalMemoryBlock().getIntField(2), 10);
     }
 }

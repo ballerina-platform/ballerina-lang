@@ -98,14 +98,21 @@ public class PackageLoader {
 
         PackageEntity pkgEntity;
         PackageID pkgId = PackageID.DEFAULT;
+        BLangPackage bLangPackage;
         if (source.endsWith(PackageEntity.Kind.SOURCE.getExtension())) {
             pkgEntity = this.packageRepo.loadPackage(pkgId, source);
+            bLangPackage = loadPackage(pkgEntity);
+            if (bLangPackage == null) {
+                throw new IllegalArgumentException("cannot resolve file '" + source + "'");
+            }
         } else {
             pkgId = getPackageID(source);
             pkgEntity = getPackageEntity(pkgId);
+            bLangPackage = loadPackage(pkgEntity);
+            if (bLangPackage == null) {
+                throw new IllegalArgumentException("cannot resolve package '" + source + "'");
+            }
         }
-
-        BLangPackage bLangPackage = loadPackage(pkgId, pkgEntity);
 
         // Add runtime and transaction packages.
         addImportPkg(bLangPackage, Names.RUNTIME_PACKAGE.value);
@@ -118,13 +125,11 @@ public class PackageLoader {
 
     public BLangPackage loadPackage(String sourcePkg) {
         if (sourcePkg == null || sourcePkg.isEmpty()) {
-            throw new IllegalArgumentException("source package cannot be null");
+            throw new IllegalArgumentException("source package/file cannot be null");
         }
-        return loadPackage(getPackageID(sourcePkg), getPackageEntity(sourcePkg));
-    }
 
-    public BLangPackage loadPackage(PackageID pkgId) {
-        return loadPackage(pkgId, getPackageEntity(pkgId));
+        PackageID pkgId = getPackageID(sourcePkg);
+        return loadPackage(getPackageEntity(pkgId));
     }
 
     public BLangPackage loadAndDefinePackage(String sourcePkg) {
@@ -134,6 +139,10 @@ public class PackageLoader {
 
     public BLangPackage loadAndDefinePackage(PackageID pkgId) {
         BLangPackage bLangPackage = loadPackage(pkgId);
+        if (bLangPackage == null) {
+            return null;
+        }
+
         definePackage(pkgId, bLangPackage);
         return bLangPackage;
     }
@@ -189,10 +198,6 @@ public class PackageLoader {
         bLangPackage.imports.add(importDcl);
     }
 
-    private PackageEntity getPackageEntity(String sourcePkg) {
-        return this.packageRepo.loadPackage(getPackageID(sourcePkg));
-    }
-
     private PackageEntity getPackageEntity(PackageID pkgId) {
         return this.packageRepo.loadPackage(pkgId);
     }
@@ -216,14 +221,16 @@ public class PackageLoader {
         packages.put(pkgId, pSymbol);
     }
 
-    private BLangPackage loadPackage(PackageID pkgId, PackageEntity pkgEntity) {
+    private BLangPackage loadPackage(PackageEntity pkgEntity) {
         if (pkgEntity == null) {
-            throw new IllegalArgumentException("valid package not available at '" + pkgId.name.value + "'");
+            return null;
         }
-
         return sourceCompile((PackageSource) pkgEntity);
     }
 
+    private BLangPackage loadPackage(PackageID pkgId) {
+        return loadPackage(getPackageEntity(pkgId));
+    }
 
     private void loadPackageRepository(CompilerContext context) {
         // Initialize program dir repository a.k.a entry package repository
