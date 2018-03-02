@@ -17,6 +17,7 @@
 */
 package org.ballerinalang.test.services.dispatching;
 
+import io.netty.handler.codec.http.HttpHeaderNames;
 import org.ballerinalang.launcher.util.BServiceUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.util.StringUtils;
@@ -243,7 +244,7 @@ public class UriTemplateDispatcherTest {
         Assert.assertEquals(response.getProperty(HttpConstants.HTTP_STATUS_CODE), 200
                 , "Response code mismatch");
 
-        String allowHeader = cMsg.getHeader(HttpConstants.ALLOW);
+        String allowHeader = cMsg.getHeader(HttpHeaderNames.ALLOW.toString());
         Assert.assertEquals(allowHeader, "GET, HEAD, OPTIONS");
     }
 
@@ -259,7 +260,7 @@ public class UriTemplateDispatcherTest {
         Assert.assertEquals(response.getProperty(HttpConstants.HTTP_STATUS_CODE), 200
                 , "Response code mismatch");
 
-        String allowHeader = cMsg.getHeader(HttpConstants.ALLOW);
+        String allowHeader = cMsg.getHeader(HttpHeaderNames.ALLOW.toString());
         Assert.assertEquals(allowHeader, "POST, OPTIONS");
     }
 
@@ -275,7 +276,7 @@ public class UriTemplateDispatcherTest {
         Assert.assertEquals(response.getProperty(HttpConstants.HTTP_STATUS_CODE), 200
                 , "Response code mismatch");
 
-        String allowHeader = response.getHeader(HttpConstants.ALLOW);
+        String allowHeader = response.getHeader(HttpHeaderNames.ALLOW.toString());
         Assert.assertEquals(allowHeader, "PUT, OPTIONS");
     }
 
@@ -291,7 +292,7 @@ public class UriTemplateDispatcherTest {
         Assert.assertEquals(response.getProperty(HttpConstants.HTTP_STATUS_CODE), 200
                 , "Response code mismatch");
 
-        String allowHeader = response.getHeader(HttpConstants.ALLOW);
+        String allowHeader = response.getHeader(HttpHeaderNames.ALLOW.toString());
         Assert.assertEquals(allowHeader, "UPDATE, POST, PUT, GET, HEAD, OPTIONS");
     }
 
@@ -306,7 +307,7 @@ public class UriTemplateDispatcherTest {
         Assert.assertEquals(response.getProperty(HttpConstants.HTTP_STATUS_CODE), 200
                 , "Response code mismatch");
 
-        String allowHeader = response.getHeader(HttpConstants.ALLOW);
+        String allowHeader = response.getHeader(HttpHeaderNames.ALLOW.toString());
         Assert.assertEquals(allowHeader, "OPTIONS, POST, GET, UPDATE, PUT, HEAD");
     }
 

@@ -160,7 +160,7 @@ public class HttpDispatcher {
             }
 
             // Find the Resource
-            resource = HTTPResourceDispatcher.findResource(service, httpCarbonMessage);
+            resource = HttpResourceDispatcher.findResource(service, httpCarbonMessage);
         } catch (Throwable throwable) {
             handleError(httpCarbonMessage, throwable);
         }

@@ -11,7 +11,7 @@ options {
 compilationUnit
     :   packageDeclaration?
         (importDeclaration | namespaceDeclaration)*
-        (annotationAttachment* definition)*
+        (annotationAttachment* documentationAttachment? deprecatedAttachment? definition)*
         EOF
     ;
 
@@ -64,7 +64,7 @@ serviceBody
     ;
 
 resourceDefinition
-    :   annotationAttachment* RESOURCE Identifier LEFT_PARENTHESIS parameterList RIGHT_PARENTHESIS LEFT_BRACE callableUnitBody RIGHT_BRACE
+    :   annotationAttachment* documentationAttachment? deprecatedAttachment? RESOURCE Identifier LEFT_PARENTHESIS parameterList RIGHT_PARENTHESIS LEFT_BRACE callableUnitBody RIGHT_BRACE
     ;
 
 callableUnitBody
@@ -86,7 +86,7 @@ connectorDefinition
     ;
 
 connectorBody
-    :  endpointDeclaration* variableDefinitionStatement* (annotationAttachment* actionDefinition)*
+    :  endpointDeclaration* variableDefinitionStatement* (annotationAttachment* documentationAttachment? deprecatedAttachment? actionDefinition)*
     ;
 
 actionDefinition
@@ -590,7 +590,7 @@ simpleLiteral
 // XML parsing
 
 xmlLiteral
-    :   XMLStart xmlContent? XMLEnd
+    :   XMLLiteralStart xmlContent? XMLEnd
     ;
 
 xmlContent
@@ -619,4 +619,72 @@ anyIdentifierName
 reservedWord
     :   FOREACH
     |   TYPE_MAP
+    ;
+
+// Deprecated parsing.
+
+deprecatedAttachment
+    :   DeprecatedTemplateStart deprecatedText? DeprecatedTemplateEnd
+    ;
+
+deprecatedText
+    :   deprecatedTemplateInlineCode (DeprecatedTemplateText | deprecatedTemplateInlineCode)*
+    |   DeprecatedTemplateText  (DeprecatedTemplateText | deprecatedTemplateInlineCode)*
+    ;
+
+deprecatedTemplateInlineCode
+    :   singleBackTickDeprecatedInlineCode
+    |   doubleBackTickDeprecatedInlineCode
+    |   tripleBackTickDeprecatedInlineCode
+    ;
+
+singleBackTickDeprecatedInlineCode
+    :   SBDeprecatedInlineCodeStart SingleBackTickInlineCode? SingleBackTickInlineCodeEnd
+    ;
+
+doubleBackTickDeprecatedInlineCode
+    :   DBDeprecatedInlineCodeStart DoubleBackTickInlineCode? DoubleBackTickInlineCodeEnd
+    ;
+
+tripleBackTickDeprecatedInlineCode
+    :   TBDeprecatedInlineCodeStart TripleBackTickInlineCode? TripleBackTickInlineCodeEnd
+    ;
+
+
+// Documentation parsing.
+
+documentationAttachment
+    :   DocumentationTemplateStart documentationTemplateContent? DocumentationTemplateEnd
+    ;
+
+documentationTemplateContent
+    :   docText? documentationTemplateAttributeDescription+
+    |   docText
+    ;
+
+documentationTemplateAttributeDescription
+    :   DocumentationTemplateAttributeStart Identifier DocumentationTemplateAttributeEnd docText?
+    ;
+
+docText
+    :   documentationTemplateInlineCode (DocumentationTemplateText | documentationTemplateInlineCode)*
+    |   DocumentationTemplateText  (DocumentationTemplateText | documentationTemplateInlineCode)*
+    ;
+
+documentationTemplateInlineCode
+    :   singleBackTickDocInlineCode
+    |   doubleBackTickDocInlineCode
+    |   tripleBackTickDocInlineCode
+    ;
+
+singleBackTickDocInlineCode
+    :   SBDocInlineCodeStart SingleBackTickInlineCode? SingleBackTickInlineCodeEnd
+    ;
+
+doubleBackTickDocInlineCode
+    :   DBDocInlineCodeStart DoubleBackTickInlineCode? DoubleBackTickInlineCodeEnd
+    ;
+
+tripleBackTickDocInlineCode
+    :   TBDocInlineCodeStart TripleBackTickInlineCode? TripleBackTickInlineCodeEnd
     ;

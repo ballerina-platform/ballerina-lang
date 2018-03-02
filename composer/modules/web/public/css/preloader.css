@@ -1,3 +1,47 @@
+.loading { position: relative; }
+.loading[data-loading-style=overlay] .loading-bg {
+    background: #222222;
+    position: absolute;
+    height: 100%;
+    width: 100%;
+    z-index: 10000000;
+    opacity: 0.6;
+    filter: alpha(opacity=60); 
+}
+.loading[data-loading-style=icon-only] .loading-bg {
+    display: none; }
+.loading[data-loading-inverse=true] .loading-bg {
+    background: #fefefe; }
+.loading[data-loading-inverse=true] .loading-animation .logo .circle {
+    stroke: #222222; }
+.loading[data-loading-inverse=true] .loading-animation p {
+    color: #222222; }
+.loading .loading-animation {
+    position: absolute;
+    z-index: 10000001;
+    top: 50%;
+    left: 50%;
+    width: 100px;
+    height: 75px;
+    text-align: center;
+    -webkit-transform: translate(-50%, -50%);
+    -moz-transform: translate(-50%, -50%);
+    -ms-transform: translate(-50%, -50%);
+    -o-transform: translate(-50%, -50%);
+    transform: translate(-50%, -50%); }
+.loading .loading-animation .logo {
+    position: relative;
+    width: 50px;
+    margin: 0 auto; }
+.loading .loading-animation .logo img { max-width: 50px; }
+.loading .loading-animation p {
+    color: #fefefe;
+    text-align: center;
+    font-size: 11px;
+    margin-top: 4px;
+    text-transform: uppercase; 
+}
+
 body.loading > .loading-animation {
     width: 200px;
 }
@@ -59,3 +103,4 @@ body.loading > .loading-bg {
     75% { transform: translateX(7.5rem) scale(0.5); }
     95% { transform: translateX(0rem) scale(1); }
 }
+ 

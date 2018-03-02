@@ -24,7 +24,7 @@ import java.util.List;
 /**
  * @since 0.94
  */
-public interface ConnectorNode extends AnnotatableNode, TopLevelNode {
+public interface ConnectorNode extends AnnotatableNode, DocumentableNode, TopLevelNode {
     
     IdentifierNode getName();
     
