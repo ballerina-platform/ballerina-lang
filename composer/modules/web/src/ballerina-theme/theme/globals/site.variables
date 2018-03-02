@@ -10,7 +10,6 @@ html:focus, body:focus, input[readonly]:focus{
   outline: none;
 }
 
-
 /*-------------------
        Fonts
 --------------------*/
@@ -56,7 +55,6 @@ html:focus, body:focus, input[readonly]:focus{
 @gray-700   : #495057;
 @gray-800   : #343a40;
 @gray-900   : #212529;
-
 
 /*---- Inverted Colors  ----*/
 
