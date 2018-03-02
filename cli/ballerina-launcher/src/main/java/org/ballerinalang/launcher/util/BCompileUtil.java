@@ -19,6 +19,7 @@ package org.ballerinalang.launcher.util;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.launcher.LauncherUtils;
 import org.ballerinalang.model.elements.PackageID;
+import org.ballerinalang.model.tree.PackageNode;
 import org.ballerinalang.model.types.BStructType;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.util.codegen.PackageInfo;
@@ -208,6 +209,11 @@ public class BCompileUtil {
         org.wso2.ballerinalang.programfile.ProgramFile programFile = compiler.getCompiledProgram();
         if (programFile != null) {
             comResult.setProgFile(LauncherUtils.getExecutableProgram(programFile));
+        }
+
+        PackageNode pkgNode = compiler.getAST();
+        if (pkgNode != null) {
+            comResult.setAST(compiler.getAST());
         }
 
         return comResult;

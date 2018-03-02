@@ -14,6 +14,17 @@ patterns:
     - name: entity.name.function.ballerina
       match: '([_$[:alpha:]][_$[:alnum:]]*) | (\|.+\|)'
 
+- begin: \b(documentation)\s*(\{)
+  beginCaptures:
+    '1': { name: keyword.other.ballerina }
+    '2': { name: punctuation.definition.block.ballerina }
+  end: \}
+  endCaptures:
+    '0': { name: punctuation.definition.block.ballerina }
+  patterns:
+    - name: string.quoted.double.ballerina
+      match: .
+
 - include: '#keywords'
 
 - name: string.quoted.double.ballerina
@@ -40,7 +51,7 @@ repository:
       match: \b(if|else|iterator|try|catch|finally|fork|join|all|some|while|throw|return|returns|break|timeout|transaction|aborted|abort|committed|failed|retries|next|bind|with|lengthof|typeof|enum)\b
 
     - name: keyword.other.ballerina
-      match: \b(import|version|public|attach|as|native)\b
+      match: \b(import|version|public|attach|as|native|documentation|lock)\b
 
     - name: storage.type.ballerina
       match: \b(boolean|int|float|string|var|any|datatable|blob)\b
