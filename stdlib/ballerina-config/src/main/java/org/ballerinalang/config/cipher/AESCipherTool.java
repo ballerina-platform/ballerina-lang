@@ -84,7 +84,7 @@ public class AESCipherTool {
     }
 
     /**
-     * This method is used to encrypt a given value.
+     * This method is used to encrypt and base64 encode a plain value.
      *
      * @param value Value to be encrypted.
      * @return Encrypted value.
@@ -98,7 +98,7 @@ public class AESCipherTool {
     }
 
     /**
-     * This method is used to decrypt a given encrypted value.
+     * This method is used to decrypt a given encrypted and base64 encoded value.
      *
      * @param value Encrypted value to be decrypted.
      * @return Decrypted value.
