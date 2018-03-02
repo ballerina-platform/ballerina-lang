@@ -36,6 +36,7 @@ import org.ballerinalang.connector.api.ConnectorUtils;
 import org.ballerinalang.connector.api.Resource;
 import org.ballerinalang.connector.api.Service;
 import org.ballerinalang.mime.util.EntityBodyHandler;
+import org.ballerinalang.mime.util.HeaderUtil;
 import org.ballerinalang.mime.util.MimeUtil;
 import org.ballerinalang.mime.util.MultipartDecoder;
 import org.ballerinalang.model.values.BMap;
@@ -78,6 +79,7 @@ import java.util.Set;
 
 import static org.ballerinalang.bre.bvm.BLangVMErrors.PACKAGE_BUILTIN;
 import static org.ballerinalang.bre.bvm.BLangVMErrors.STRUCT_GENERIC_ERROR;
+import static org.ballerinalang.mime.util.Constants.BOUNDARY;
 import static org.ballerinalang.mime.util.Constants.ENTITY_HEADERS_INDEX;
 import static org.ballerinalang.mime.util.Constants.IS_BODY_BYTE_CHANNEL_ALREADY_SET;
 import static org.ballerinalang.mime.util.Constants.MESSAGE_ENTITY;
@@ -146,11 +148,11 @@ public class HttpUtil {
                 .getCarbonMsg(httpMessageStruct, HttpUtil.createHttpCarbonMessage(isRequest));
         httpCarbonMessage.waitAndReleaseAllEntities();
         BStruct entity = (BStruct) abstractNativeFunction.getRefArgument(context, ENTITY_INDEX);
-        String baseType = MimeUtil.getContentType(entity);
-        if (baseType == null) {
-            baseType = OCTET_STREAM;
+        String contentType = MimeUtil.getContentTypeWithParameters(entity);
+        if (contentType == null) {
+            contentType = OCTET_STREAM;
         }
-        HttpUtil.setHeaderToEntity(entity, HttpHeaderNames.CONTENT_TYPE.toString(), baseType);
+        HttpUtil.setHeaderToEntity(entity, HttpHeaderNames.CONTENT_TYPE.toString(), contentType);
         httpMessageStruct.addNativeData(MESSAGE_ENTITY, entity);
         httpMessageStruct.addNativeData(IS_BODY_BYTE_CHANNEL_ALREADY_SET, EntityBodyHandler
                 .checkEntityBodyAvailability(entity));
@@ -198,7 +200,7 @@ public class HttpUtil {
                 .getCarbonMsg(httpMessageStruct, HttpUtil.createHttpCarbonMessage(isRequest));
         HttpMessageDataStreamer httpMessageDataStreamer = new HttpMessageDataStreamer(httpCarbonMessage);
         String contentType = httpCarbonMessage.getHeader(HttpHeaderNames.CONTENT_TYPE.toString());
-        if (isRequest && MimeUtil.isNotNullAndEmpty(contentType) && contentType.startsWith(MULTIPART_AS_PRIMARY_TYPE)
+        if (MimeUtil.isNotNullAndEmpty(contentType) && contentType.startsWith(MULTIPART_AS_PRIMARY_TYPE)
                 && context != null) {
             MultipartDecoder.parseBody(context, entity, contentType, httpMessageDataStreamer.getInputStream());
         } else {
@@ -928,6 +930,44 @@ public class HttpUtil {
         }
 
         return intVal;
+    }
+
+    public static String getContentTypeFromTransportMessage(HTTPCarbonMessage transportMessage) {
+        return transportMessage.getHeader(HttpHeaderNames.CONTENT_TYPE.toString()) != null ?
+                transportMessage.getHeader(HttpHeaderNames.CONTENT_TYPE.toString()) : null;
+    }
+
+    /**
+     * If the given Content-Type header value doesn't have a boundary parameter value, get a new boundary string and
+     * append it to Content-Type and set it to transport message.
+     *
+     * @param transportMessage Represent transport message
+     * @param contentType      Represent the Content-Type header value
+     * @return The boundary string that was extracted from header or the newly generated one
+     */
+    public static String addBoundaryIfNotExist(HTTPCarbonMessage transportMessage, String contentType) {
+        String boundaryString;
+        BString boundaryValue = HeaderUtil.extractBoundaryParameter(contentType);
+        boundaryString = boundaryValue != null ? boundaryValue.toString() :
+                HttpUtil.addBoundaryParameter(transportMessage, contentType);
+        return boundaryString;
+    }
+
+    /**
+     * Generate a new boundary string and append it Content-Type and set that to transport message.
+     *
+     * @param transportMessage Represent transport message
+     * @param contentType      Represent the Content-Type header value
+     * @return The newly generated boundary string
+     */
+    private static String addBoundaryParameter(HTTPCarbonMessage transportMessage, String contentType) {
+        String boundaryString = null;
+        if (contentType != null && contentType.startsWith(MULTIPART_AS_PRIMARY_TYPE)) {
+            boundaryString = MimeUtil.getNewMultipartDelimiter();
+            transportMessage.setHeader(HttpHeaderNames.CONTENT_TYPE.toString(), contentType + "; " + BOUNDARY + "=" +
+                    boundaryString);
+        }
+        return boundaryString;
     }
 
     /**
