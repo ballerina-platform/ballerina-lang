@@ -19,7 +19,6 @@
 package org.ballerinalang.net.http;
 
 import io.netty.buffer.Unpooled;
-import io.netty.handler.codec.http.DefaultHttpHeaders;
 import io.netty.handler.codec.http.DefaultHttpRequest;
 import io.netty.handler.codec.http.DefaultHttpResponse;
 import io.netty.handler.codec.http.DefaultLastHttpContent;
@@ -553,8 +552,7 @@ public class HttpUtil {
     private static void setHeaderToEntity(BStruct struct, String key, String value) {
         BMap<String, BValue> headerMap = struct.getRefField(ENTITY_HEADERS_INDEX) != null ?
                 (BMap) struct.getRefField(ENTITY_HEADERS_INDEX) : new BMap<>();
-        struct.setRefField(ENTITY_HEADERS_INDEX,
-                prepareEntityHeaderMap(new DefaultHttpHeaders().add(key, value), headerMap));
+        HeaderUtil.overrideEntityHeader(headerMap, key, value);
     }
 
     /**
