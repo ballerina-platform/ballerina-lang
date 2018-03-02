@@ -63,7 +63,7 @@ class EditableText extends React.Component {
         } = this.props;
 
         const inputPositionStyles = {
-            top: y - height / 2,
+            top: (y - height / 2) - 4,
             left: x,
             width,
             height,
