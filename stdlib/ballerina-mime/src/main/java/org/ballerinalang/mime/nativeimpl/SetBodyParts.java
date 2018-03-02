@@ -19,48 +19,36 @@
 package org.ballerinalang.mime.nativeimpl;
 
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.connector.api.ConnectorUtils;
-import org.ballerinalang.mime.util.EntityBodyHandler;
 import org.ballerinalang.model.types.TypeKind;
+import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.nativeimpl.io.IOConstants;
 import org.ballerinalang.natives.AbstractNativeFunction;
+import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
-import org.ballerinalang.natives.annotations.ReturnType;
-import org.ballerinalang.util.exceptions.BallerinaException;
 
-import static org.ballerinalang.mime.util.Constants.BYTE_CHANNEL_STRUCT;
+import static org.ballerinalang.mime.util.Constants.BODY_PARTS;
 import static org.ballerinalang.mime.util.Constants.FIRST_PARAMETER_INDEX;
-import static org.ballerinalang.mime.util.Constants.PROTOCOL_PACKAGE_IO;
+import static org.ballerinalang.mime.util.Constants.SECOND_PARAMETER_INDEX;
 
 /**
- * Get the entity body as a byte channel.
+ * Set the entity body with body parts.
  *
- * @since 0.963.0
+ * @since 0.964.0
  */
-@BallerinaFunction(
-        packageName = "ballerina.mime",
-        functionName = "getByteChannel",
+@BallerinaFunction(packageName = "ballerina.mime",
+        functionName = "setBodyParts",
         receiver = @Receiver(type = TypeKind.STRUCT, structType = "Entity", structPackage = "ballerina.mime"),
-        returnType = {@ReturnType(type = TypeKind.STRUCT)},
+        args = {@Argument(name = "bodyParts", type = TypeKind.ARRAY)},
         isPublic = true
 )
-public class GetByteChannel extends AbstractNativeFunction {
-
+public class SetBodyParts extends AbstractNativeFunction {
     @Override
     public BValue[] execute(Context context) {
-        BStruct byteChannelStruct;
-        try {
-            BStruct entityStruct = (BStruct) this.getRefArgument(context, FIRST_PARAMETER_INDEX);
-            byteChannelStruct = ConnectorUtils.createAndGetStruct(context, PROTOCOL_PACKAGE_IO, BYTE_CHANNEL_STRUCT);
-            byteChannelStruct.addNativeData(IOConstants.BYTE_CHANNEL_NAME, EntityBodyHandler.
-                    getByteChannel(entityStruct));
-        } catch (Throwable e) {
-            throw new BallerinaException("Error occurred while constructing byte channel from entity body : "
-                    + e.getMessage());
-        }
-        return this.getBValues(byteChannelStruct);
+        BStruct entityStruct = (BStruct) this.getRefArgument(context, FIRST_PARAMETER_INDEX);
+        BRefValueArray bodyParts = (BRefValueArray) this.getRefArgument(context, SECOND_PARAMETER_INDEX);
+        entityStruct.addNativeData(BODY_PARTS, bodyParts);
+        return AbstractNativeFunction.VOID_RETURN;
     }
 }
