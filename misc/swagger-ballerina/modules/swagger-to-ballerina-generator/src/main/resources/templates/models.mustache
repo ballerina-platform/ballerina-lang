@@ -1,6 +1,6 @@
 {{#apiPackage}}package {{apiPackage}}.model;{{/apiPackage}}
 import ballerina.net.http.swagger;{{#schemas}}{{#value}}
-{{#isArraySchema}}@swagger:Schema {
+{{#isArraySchema}}@swagger:schema {
     isArray: true,
     ref: "{{oasSchema.items.$ref}}"
 }
