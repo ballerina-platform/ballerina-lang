@@ -69,8 +69,6 @@ public class Sprintf extends AbstractNativeFunction {
          * B            binary
          *
          * Complex built-in types
-         * m            message
-         * e            exception
          * p            map
          * l            xml
          * L            xmlDocument
@@ -125,9 +123,7 @@ public class Sprintf extends AbstractNativeFunction {
                     case 'B':
                         result.append(Integer.toBinaryString(Integer.parseInt(args.get(k).stringValue())));
                         break;
-                    case 'm': // fall through
-                    case 'e':
-                    case 'p':
+                    case 'p': // fall through
                     case 'l':
                     case 'L':
                     case 'j':
