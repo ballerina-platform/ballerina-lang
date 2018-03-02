@@ -35,7 +35,7 @@ import javax.crypto.spec.SecretKeySpec;
 /**
  * This tools is used to encrypt and decrypt data using AES Algorithm CBC mode and PKCS #5 padding.
  *
- * @since 0.963.0
+ * @since 0.964.0
  */
 public class AESCipherTool {
 
