@@ -116,7 +116,6 @@ public class PackageLoader {
 
         // Add runtime and transaction packages.
         addImportPkg(bLangPackage, Names.RUNTIME_PACKAGE.value);
-        addImportPkg(bLangPackage, Names.TRANSACTION_PACKAGE.value);
 
         // Define Package
         definePackage(pkgId, bLangPackage);
