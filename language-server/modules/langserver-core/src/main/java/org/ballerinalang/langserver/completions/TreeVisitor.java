@@ -139,7 +139,7 @@ public class TreeVisitor extends BLangNodeVisitor {
     private static final String NODE_TYPE_ACTION = "action";
     private static final String NODE_TYPE_RESOURCE = "resource";
     private static final String NODE_TYPE_CONNECTOR = "connector";
-    
+
     private boolean terminateVisitor = false;
     private int loopCount = 0;
     private int transactionCount = 0;
@@ -177,8 +177,8 @@ public class TreeVisitor extends BLangNodeVisitor {
         // Then visit each top-level element sorted using the compilation unit
         String fileName = documentServiceContext.get(DocumentServiceKeys.FILE_NAME_KEY);
         List<TopLevelNode> topLevelNodes = pkgNode.topLevelNodes.stream().filter(node ->
-                    node.getPosition().getSource().getCompilationUnitName().equals(fileName)
-            ).collect(Collectors.toList());
+                node.getPosition().getSource().getCompilationUnitName().equals(fileName)
+        ).collect(Collectors.toList());
 
         if (topLevelNodes.isEmpty()) {
             this.setTerminateVisitor(true);
@@ -213,7 +213,7 @@ public class TreeVisitor extends BLangNodeVisitor {
 
         String functionName = funcNode.getName().getValue();
         SymbolEnv funcEnv = SymbolEnv.createFunctionEnv(funcNode, funcSymbol.scope, symbolEnv);
-        
+
         if (isWithinParameterContext(functionName, NODE_TYPE_FUNCTION)) {
             this.populateSymbols(this.resolveAllVisibleSymbols(funcEnv), funcEnv);
             setTerminateVisitor(true);
@@ -229,7 +229,7 @@ public class TreeVisitor extends BLangNodeVisitor {
             if (terminateVisitor && !funcNode.workers.isEmpty()) {
                 this.setTerminateVisitor(false);
             }
-            
+
             funcNode.workers.forEach(e -> this.symbolEnter.defineNode(e, funcEnv));
             funcNode.workers.forEach(e -> this.acceptNode(e, funcEnv));
         }
@@ -372,7 +372,7 @@ public class TreeVisitor extends BLangNodeVisitor {
         String connectorName = connectorNode.getName().getValue();
         BSymbol connectorSymbol = connectorNode.symbol;
         SymbolEnv connectorEnv = SymbolEnv.createConnectorEnv(connectorNode, connectorSymbol.scope, symbolEnv);
-        
+
         if (isWithinParameterContext(connectorName, NODE_TYPE_CONNECTOR)) {
             this.populateSymbols(this.resolveAllVisibleSymbols(connectorEnv), connectorEnv);
             setTerminateVisitor(true);
@@ -410,7 +410,7 @@ public class TreeVisitor extends BLangNodeVisitor {
         String actionName = actionNode.getName().getValue();
         BSymbol actionSymbol = actionNode.symbol;
         SymbolEnv actionEnv = SymbolEnv.createResourceActionSymbolEnv(actionNode, actionSymbol.scope, symbolEnv);
-        
+
         if (this.isWithinParameterContext(actionName, NODE_TYPE_ACTION)) {
             this.populateSymbols(this.resolveAllVisibleSymbols(actionEnv), actionEnv);
             setTerminateVisitor(true);
@@ -434,7 +434,7 @@ public class TreeVisitor extends BLangNodeVisitor {
                 .isCursorBeforeNode(serviceNode.getPosition(), serviceNode, this, this.documentServiceContext)) {
             BSymbol serviceSymbol = serviceNode.symbol;
             SymbolEnv serviceEnv = SymbolEnv.createPkgLevelSymbolEnv(serviceNode, serviceSymbol.scope, symbolEnv);
-            
+
             // Reset the previous node
             this.setPreviousNode(null);
             if (!(serviceNode.resources.isEmpty() && serviceNode.vars.isEmpty())) {
@@ -1063,7 +1063,7 @@ public class TreeVisitor extends BLangNodeVisitor {
         int nodeELine = nodePosition.eLine;
         int nodeSCol = nodePosition.sCol;
         int nodeECol = nodePosition.eCol;
-        
+
         return (line > nodeSLine && line < nodeELine)
                 || (line > nodeSLine && line == nodeELine && column < nodeECol)
                 || (line == nodeSLine && column > nodeSCol && line < nodeELine)
@@ -1081,13 +1081,13 @@ public class TreeVisitor extends BLangNodeVisitor {
         ParserRuleContext parserRuleContext = documentServiceContext.get(DocumentServiceKeys.PARSER_RULE_CONTEXT_KEY);
         TokenStream tokenStream = documentServiceContext.get(DocumentServiceKeys.TOKEN_STREAM_KEY);
         String terminalToken = "";
-        
+
         // If the parser rule context is not parameter context or parameter list context, we skipp the calculation
         if (!(parserRuleContext instanceof BallerinaParser.ParameterContext
                 || parserRuleContext instanceof BallerinaParser.ParameterListContext)) {
             return false;
         }
-        
+
         int startTokenIndex = parserRuleContext.getStart().getTokenIndex();
         ArrayList<String> terminalKeywords = new ArrayList<>(
                 Arrays.asList(NODE_TYPE_ACTION, NODE_TYPE_CONNECTOR, NODE_TYPE_FUNCTION, NODE_TYPE_RESOURCE)
@@ -1095,7 +1095,7 @@ public class TreeVisitor extends BLangNodeVisitor {
         ArrayList<Token> filteredTokens = new ArrayList<>();
         Token openBracket = null;
         boolean isWithinParams = false;
-        
+
         // Find the index of the closing bracket
         while (true) {
             if (startTokenIndex > tokenStream.size()) {
@@ -1110,7 +1110,7 @@ public class TreeVisitor extends BLangNodeVisitor {
             }
             startTokenIndex++;
         }
-        
+
         // Backtrack the token stream to find a terminal token
         while (true) {
             if (startTokenIndex < 0) {
@@ -1148,7 +1148,7 @@ public class TreeVisitor extends BLangNodeVisitor {
                     int closeBCol = token.getCharPositionInLine();
                     int cursorLine = cursorPos.getLine();
                     int cursorCol = cursorPos.getCharacter();
-                    
+
                     isWithinParams =  (cursorLine > openBLine && cursorLine < closeBLine)
                             || (cursorLine == openBLine && cursorCol > openBCol && cursorLine < closeBLine)
                             || (cursorLine > openBLine && cursorCol < closeBCol && cursorLine == closeBLine)
@@ -1162,7 +1162,7 @@ public class TreeVisitor extends BLangNodeVisitor {
                 }
             }
         }
-        
+
         return isWithinParams;
     }
 

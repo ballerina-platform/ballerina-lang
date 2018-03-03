@@ -46,11 +46,13 @@ public class PackageID {
                 nameComps.stream()
                         .map(Name::getValue)
                         .collect(Collectors.joining(".")));
+        this.version = version;
     }
 
     public PackageID(Name orgName, Name name, Name version) {
         this.orgName = orgName;
         this.name = name;
+        this.version = version;
         if (name == Names.DEFAULT_PACKAGE) {
             this.nameComps = Lists.of(Names.DEFAULT_PACKAGE);
         } else {

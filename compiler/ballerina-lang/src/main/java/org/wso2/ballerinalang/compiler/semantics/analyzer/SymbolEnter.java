@@ -176,6 +176,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         SymbolEnv builtinEnv = this.symTable.pkgEnvMap.get(symTable.builtInPackageSymbol);
         SymbolEnv pkgEnv = SymbolEnv.createPkgEnv(pkgNode, pSymbol.scope, builtinEnv);
         this.symTable.pkgEnvMap.put(pSymbol, pkgEnv);
+        this.symTable.pkgSymbolMap.put(pSymbol.pkgID, pSymbol);
 
         createPackageInitFunction(pkgNode);
         // visit the package node recursively and define all package level symbols.
