@@ -209,7 +209,7 @@ xmlLocalName
     ;
 
 annotationAttachment
-    :   AT nameReference recordLiteral
+    :   AT nameReference recordLiteral?
     ;
 
  //============================================================================================================
