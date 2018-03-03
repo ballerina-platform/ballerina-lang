@@ -73,13 +73,7 @@ public class BallerinaHTTPConnectorListener implements HttpConnectorListener {
 
     private void extractPropertiesAndStartResourceExecution(HTTPCarbonMessage httpCarbonMessage,
                                                             HttpResource httpResource) {
-        Map<String, Object> properties = new HashMap<>();
-        //TODO below should be fixed properly
-        //basically need to find a way to pass information from server connector side to client connector side
-        if (httpCarbonMessage.getProperty(HttpConstants.SRC_HANDLER) != null) {
-            Object srcHandler = httpCarbonMessage.getProperty(HttpConstants.SRC_HANDLER);
-            properties.put(HttpConstants.SRC_HANDLER, srcHandler);
-        }
+        Map<String, Object> properties = collectRequestProperties(httpCarbonMessage);
         properties.put(HttpConstants.REMOTE_ADDRESS, httpCarbonMessage.getProperty(HttpConstants.REMOTE_ADDRESS));
         properties.put(HttpConstants.ORIGIN_HOST, httpCarbonMessage.getHeader(HttpConstants.ORIGIN_HOST));
         BValue[] signatureParams;

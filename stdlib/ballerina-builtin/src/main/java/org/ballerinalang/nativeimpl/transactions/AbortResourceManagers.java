@@ -29,21 +29,21 @@ import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.util.transactions.TransactionResourceManager;
 
 /**
- * Native function ballerina.transactions.coordinator:commitResourceManagers.
+ * Native function ballerina.transactions.coordinator:abortResourceManagers.
  *
  * @since 0.964.0
  */
 @BallerinaFunction(
         packageName = "ballerina.transactions.coordinator",
-        functionName = "commitResourceManagers",
+        functionName = "abortResourceManagers",
         args = {@Argument(name = "transactionId", type = TypeKind.STRING)},
         returnType = {@ReturnType(type = TypeKind.BOOLEAN)}
 )
-public class BalCommitResourceManagers extends AbstractNativeFunction {
+public class AbortResourceManagers extends AbstractNativeFunction {
 
     public BValue[] execute(Context ctx) {
         String transactionId = getStringArgument(ctx, 0);
-        boolean commitSuccessful = TransactionResourceManager.getInstance().notifyCommit(transactionId);
-        return getBValues(new BBoolean(commitSuccessful));
+        boolean abortSuccessful = TransactionResourceManager.getInstance().notifyAbort(transactionId);
+        return getBValues(new BBoolean(abortSuccessful));
     }
 }

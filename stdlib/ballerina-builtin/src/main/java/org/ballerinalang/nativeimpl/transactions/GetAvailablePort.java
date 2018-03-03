@@ -38,7 +38,7 @@ import java.net.ServerSocket;
         functionName = "getAvailablePort",
         returnType = {@ReturnType(type = TypeKind.INT)}
 )
-public class BalGetAvailablePort extends AbstractNativeFunction {
+public class GetAvailablePort extends AbstractNativeFunction {
 
     public BValue[] execute(Context ctx) {
         return getBValues(new BInteger(findFreePort()));
