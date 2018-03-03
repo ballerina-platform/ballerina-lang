@@ -15,7 +15,7 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.ballerinalang.nativeimpl.builtin.tablelib;
+package org.ballerinalang.nativeimpl.builtin.streamlib;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeKind;
@@ -28,7 +28,7 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.wso2.siddhi.core.stream.input.InputHandler;
 
 /**
- * {@code RemoveData} is the function to remove data from a table.
+ * {@code PushEvent} is the function to push event to a streamlet through stream.
  *
  * @since 0.963.0
  */
@@ -47,7 +47,6 @@ public class PushEvent extends AbstractNativeFunction {
 
     @Override
     public BValue[] execute(Context context) {
-        System.out.printf("Hello");
         BStreamlet streamlet = (BStreamlet) getRefArgument(context, 0);
         String streamId = getStringArgument(context, 0);
         BRefValueArray eventReferenceArray = (BRefValueArray) getRefArgument(context, 1);
@@ -55,14 +54,14 @@ public class PushEvent extends AbstractNativeFunction {
         long arraySize = eventReferenceArray.size();
 
         for (int i = 0; i < arraySize; i++) {
-            eventObjectArray[i] = eventReferenceArray.get(i);
+            eventObjectArray[i] = eventReferenceArray.get(i).value();
         }
 
         InputHandler inputHandler = streamlet.getStreamSpecificInputHandlerMap().get(streamId);
         try {
             inputHandler.send(eventObjectArray);
         } catch (InterruptedException e) {
-            System.out.printf("ds");
+            System.out.printf("Exception when pushing events to Siddhi stream handler ", e);
         }
         return new BValue[]{};
     }

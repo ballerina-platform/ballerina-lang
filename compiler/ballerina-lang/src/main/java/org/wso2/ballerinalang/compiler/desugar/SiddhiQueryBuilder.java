@@ -288,13 +288,25 @@ public class SiddhiQueryBuilder extends BLangNodeVisitor {
         Iterator<BStructType.BStructField> structFieldIterator = structFieldList.iterator();
         BStructType.BStructField structField = structFieldIterator.next();
         if (structField != null) {
-            streamDefinition.append(structField.getName()).append(" ").append(structField.getType());
+            streamDefinition.append(structField.getName()).append(" ");
+            String type = structField.getType().toString();
+            //Eventhough, type defined as int, actual value is a long. To handle this case in Siddhi, type is defined
+            //as long.
+            if (type.equalsIgnoreCase("int")) {
+                type = "long";
+            }
+            streamDefinition.append(type);
         }
 
         while (structFieldIterator.hasNext()) {
             structField = structFieldIterator.next();
             streamDefinition.append(" , ");
-            streamDefinition.append(structField.getName()).append(" ").append(structField.getType());
+            streamDefinition.append(structField.getName()).append(" ");
+            String type = structField.getType().toString();
+            if (type.equalsIgnoreCase("int")) {
+                type = "long";
+            }
+            streamDefinition.append(type);
         }
 
         if (structField != null) {

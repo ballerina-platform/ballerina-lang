@@ -16,7 +16,7 @@
 * under the License.
 */
 
-package org.ballerinalang.nativeimpl.builtin.tablelib;
+package org.ballerinalang.nativeimpl.builtin.streamlib;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeKind;
@@ -93,7 +93,6 @@ public class ExecuteQuery extends AbstractNativeFunction {
             sb.append("Events{ @timestamp = ").append(timeStamp).append(", inEvents = ").
                     append(Arrays.deepToString(inEvents)).append(", RemoveEvents = ").
                     append(Arrays.deepToString(removeEvents)).append(" }");
-            System.out.printf(sb.toString());
         }
     }
 
