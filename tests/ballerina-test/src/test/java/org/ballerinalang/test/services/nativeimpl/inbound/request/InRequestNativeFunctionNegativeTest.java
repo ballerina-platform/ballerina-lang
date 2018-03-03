@@ -99,13 +99,10 @@ public class InRequestNativeFunctionNegativeTest {
         inRequest.addNativeData(IS_BODY_BYTE_CHANNEL_ALREADY_SET, true);
 
         BValue[] inputArg = {inRequest};
-        String error = null;
-        try {
-            BRunUtil.invoke(result, "testGetJsonPayload", inputArg);
-        } catch (Throwable e) {
-            error = e.getMessage();
-        }
-        Assert.assertTrue(error.contains("error occurred while extracting json data from entity"));
+        BValue[] returnVals = BRunUtil.invoke(result, "testGetJsonPayload", inputArg);
+        Assert.assertNotNull(returnVals[0]);
+        Assert.assertTrue(((BStruct)returnVals[0]).getStringField(0).contains("Error occurred while" +
+                " extracting json data from entity: failed to create json: unrecognized token 'ballerina'"));
     }
 
     @Test

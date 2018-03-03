@@ -83,13 +83,8 @@ public class InResponseNativeFunctionNegativeTest {
         BStruct entity = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageMime, entityStruct);
         inResponse.addNativeData(MESSAGE_ENTITY, entity);
         BValue[] inputArg = {inResponse};
-        String error = null;
-        try {
-            BRunUtil.invoke(result, "testGetJsonPayload", inputArg);
-        } catch (Throwable e) {
-            error = e.getMessage();
-        }
-        Assert.assertTrue(error.contains("empty JSON document"));
+        BValue[] returnVals = BRunUtil.invoke(result, "testGetJsonPayload", inputArg);
+        Assert.assertTrue(((BStruct)returnVals[0]).getStringField(0).contains("empty JSON document"));
     }
 
     @Test(description = "Test method with string payload")
@@ -140,14 +135,9 @@ public class InResponseNativeFunctionNegativeTest {
         BStruct entity = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageMime, entityStruct);
         inResponse.addNativeData(MESSAGE_ENTITY, entity);
         BValue[] inputArg = {inResponse};
-        String error = null;
-        try {
-            BRunUtil.invoke(result, "testGetXmlPayload", inputArg);
-        } catch (Throwable e) {
-            error = e.getMessage();
-        }
-        Assert.assertTrue(error.contains("error occurred while retrieving xml data from entity : " +
-                "Unexpected EOF in prolog"));
+        BValue[] returnVals = BRunUtil.invoke(result, "testGetXmlPayload", inputArg);
+        Assert.assertTrue(((BStruct)returnVals[0]).getStringField(0).contains("Error occurred while retrieving " +
+                "xml data from entity : Unexpected EOF in prolog\n"));
     }
 
     @Test

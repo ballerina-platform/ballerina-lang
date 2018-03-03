@@ -14,9 +14,8 @@ function testGetHeader (http:InRequest req, string key) (string) {
     return contentType;
 }
 
-function testGetJsonPayload (http:InRequest req) (json) {
-    json payload = req.getJsonPayload();
-    return payload;
+function testGetJsonPayload (http:InRequest req) (json, mime:EntityError) {
+    return req.getJsonPayload();
 }
 
 function testGetMethod (http:InRequest req) (string ) {
@@ -37,19 +36,16 @@ function testGetRequestURL (http:InRequest req) (string) {
     return url;
 }
 
-function testGetStringPayload (http:InRequest req) (string) {
-    string payload = req.getStringPayload();
-    return payload;
+function testGetStringPayload (http:InRequest req) (string, mime:EntityError) {
+    return req.getStringPayload();
 }
 
-function testGetBinaryPayload (http:InRequest req) (blob) {
-    blob payload = req.getBinaryPayload();
-    return payload;
+function testGetBinaryPayload (http:InRequest req) (blob, mime:EntityError) {
+    return req.getBinaryPayload();
 }
 
-function testGetXmlPayload (http:InRequest req) (xml) {
-    xml payload = req.getXmlPayload();
-    return payload;
+function testGetXmlPayload (http:InRequest req) (xml, mime:EntityError) {
+    return req.getXmlPayload();
 }
 
 function testSetHeader (http:OutRequest req, string key, string value) (http:OutRequest) {

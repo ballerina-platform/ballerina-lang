@@ -14,9 +14,8 @@ function testGetHeader (http:OutRequest req, string key) (string) {
     return contentType;
 }
 
-function testGetJsonPayload (http:OutRequest req) (json) {
-    json payload = req.getJsonPayload();
-    return payload;
+function testGetJsonPayload (http:OutRequest req) (json, mime:EntityError) {
+    return req.getJsonPayload();
 }
 
 function testGetProperty (http:OutRequest req, string propertyName) (string) {
@@ -29,19 +28,16 @@ function testGetEntity (http:OutRequest req) (mime:Entity) {
     return entity;
 }
 
-function testGetStringPayload (http:OutRequest req) (string) {
-    string payload = req.getStringPayload();
-    return payload;
+function testGetStringPayload (http:OutRequest req) (string, mime:EntityError) {
+    return req.getStringPayload();
 }
 
-function testGetBinaryPayload (http:OutRequest req) (blob) {
-    blob payload = req.getBinaryPayload();
-    return payload;
+function testGetBinaryPayload (http:OutRequest req) (blob, mime:EntityError) {
+    return req.getBinaryPayload();
 }
 
-function testGetXmlPayload (http:OutRequest req) (xml) {
-    xml payload = req.getXmlPayload();
-    return payload;
+function testGetXmlPayload (http:OutRequest req) (xml, mime:EntityError) {
+    return req.getXmlPayload();
 }
 
 function testRemoveHeader (http:OutRequest req, string key) (http:OutRequest) {

@@ -14,9 +14,8 @@ function testGetHeader (http:InResponse res, string key) (string) {
     return contentType;
 }
 
-function testGetJsonPayload (http:InResponse res) (json) {
-    json payload = res.getJsonPayload();
-    return payload;
+function testGetJsonPayload (http:InResponse res) (json, mime:EntityError) {
+    return res.getJsonPayload();
 }
 
 function testGetProperty (http:InResponse res, string propertyName) (string) {
@@ -24,17 +23,14 @@ function testGetProperty (http:InResponse res, string propertyName) (string) {
     return payload;
 }
 
-function testGetStringPayload (http:InResponse res) (string) {
-    string payload = res.getStringPayload();
-    return payload;
+function testGetStringPayload (http:InResponse res) (string, mime:EntityError) {
+    return res.getStringPayload();
 }
 
-function testGetBinaryPayload (http:InResponse res) (blob) {
-    blob payload = res.getBinaryPayload();
-    return payload;
+function testGetBinaryPayload (http:InResponse res) (blob, mime:EntityError) {
+    return res.getBinaryPayload();
 }
 
-function testGetXmlPayload (http:InResponse res) (xml) {
-    xml payload = res.getXmlPayload();
-    return payload;
+function testGetXmlPayload (http:InResponse res) (xml, mime:EntityError) {
+    return res.getXmlPayload();
 }
