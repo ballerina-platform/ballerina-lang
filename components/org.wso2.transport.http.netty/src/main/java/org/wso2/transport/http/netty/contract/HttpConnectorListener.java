@@ -32,7 +32,8 @@ public interface HttpConnectorListener {
      *
      * @param httpMessage contains the state change information of the event.
      */
-    void onMessage(HTTPCarbonMessage httpMessage);
+    default void onMessage(HTTPCarbonMessage httpMessage) {
+    }
 
     /**
      * Each error event triggered by connector ends up here.
@@ -41,16 +42,30 @@ public interface HttpConnectorListener {
      */
     void onError(Throwable throwable);
 
+    /**
+     * Events on Push Promises ends up here
+     *
+     * @param pushPromise push promise
+     */
     default void onPushPromise(Http2PushPromise pushPromise) {
+
     }
 
-    default void onPushResponse(HTTPCarbonMessage httpResponse) {
+    /**
+     * Events on promise availability ends up here
+     *
+     * @param isPromiseAvailable whether promise is available
+     */
+    default void onPushPromiseAvailability(boolean isPromiseAvailable){
     }
 
-    default void onPushPromiseAvailability(boolean isPromiseAvailable) {
-    }
-
+    /**
+     * Events related to Response Handle will end up here
+     *
+     * @param responseHandle Response Handle
+     */
     default void onResponseHandle(ResponseHandle responseHandle) {
+
     }
 
 }

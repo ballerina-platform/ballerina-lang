@@ -18,14 +18,8 @@
 
 package org.wso2.transport.http.netty.sender.http2;
 
-import org.wso2.transport.http.netty.contract.HttpPushPromiseAvailabilityFuture;
-import org.wso2.transport.http.netty.contract.HttpPushPromiseFuture;
 import org.wso2.transport.http.netty.contract.HttpResponseFuture;
-import org.wso2.transport.http.netty.contract.HttpResponseHandleFuture;
-import org.wso2.transport.http.netty.contractimpl.DefaultHttpPushPromiseAvailabilityFuture;
-import org.wso2.transport.http.netty.contractimpl.DefaultHttpPushPromiseFuture;
 import org.wso2.transport.http.netty.contractimpl.DefaultHttpResponseFuture;
-import org.wso2.transport.http.netty.contractimpl.DefaultHttpResponseHandleFuture;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 import org.wso2.transport.http.netty.message.Http2PushPromise;
 import org.wso2.transport.http.netty.message.HttpCarbonResponse;
@@ -43,9 +37,9 @@ public class OutboundMsgHolder {
     private HTTPCarbonMessage requestCarbonMessage;
     // Future which is used to notify the response listener upon response receive
     private HttpResponseFuture responseFuture;
-    private HttpPushPromiseFuture pushPromiseFuture;
-    private HttpPushPromiseAvailabilityFuture pushPromiseAvailabilityFuture;
-    private HttpResponseHandleFuture responseHandleFuture;
+    private HttpResponseFuture pushPromiseFuture;
+    private HttpResponseFuture promiseAvailabilityFuture;
+    private HttpResponseFuture responseHandleFuture;
     private ConcurrentHashMap<Integer, HttpResponseFuture> pushResponseFutures;
 
     private TargetChannel targetChannel;
@@ -67,9 +61,9 @@ public class OutboundMsgHolder {
         pushResponsesMap = new ConcurrentHashMap<>();
         pushResponseFutures = new ConcurrentHashMap<>();
         responseFuture = new DefaultHttpResponseFuture();
-        responseHandleFuture = new DefaultHttpResponseHandleFuture();
-        pushPromiseFuture = new DefaultHttpPushPromiseFuture(this);
-        pushPromiseAvailabilityFuture = new DefaultHttpPushPromiseAvailabilityFuture(this);
+        responseHandleFuture = new DefaultHttpResponseFuture();
+        pushPromiseFuture = new DefaultHttpResponseFuture(this);
+        promiseAvailabilityFuture = new DefaultHttpResponseFuture(this);
     }
 
     /**
@@ -90,15 +84,15 @@ public class OutboundMsgHolder {
         return responseFuture;
     }
 
-    public HttpPushPromiseFuture getPushPromiseFuture() {
+    public HttpResponseFuture getPushPromiseFuture() {
         return pushPromiseFuture;
     }
 
-    public HttpPushPromiseAvailabilityFuture getPushPromiseAvailabilityFuture() {
-        return pushPromiseAvailabilityFuture;
+    public HttpResponseFuture getPromiseAvailabilityFuture() {
+        return promiseAvailabilityFuture;
     }
 
-    public HttpResponseHandleFuture getResponseHandleFuture() {
+    public HttpResponseFuture getResponseHandleFuture() {
         return responseHandleFuture;
     }
 
@@ -109,8 +103,8 @@ public class OutboundMsgHolder {
     public void addPromise(Http2PushPromise pushPromise) {
         promises.add(pushPromise);
         promisesCount++;
-        pushPromiseAvailabilityFuture.notifyHttpListener();
-        pushPromiseFuture.notifyHttpListener();
+        promiseAvailabilityFuture.notifyPromiseAvailability();
+        pushPromiseFuture.notifyPushPromise();
     }
 
     public void addPushResponse(int streamId, HttpCarbonResponse pushResponse) {
@@ -134,7 +128,7 @@ public class OutboundMsgHolder {
 
     public void setResponse(HttpCarbonResponse response) {
         allPromisesReceived = true;
-        pushPromiseAvailabilityFuture.notifyHttpListener();
+        promiseAvailabilityFuture.notifyPromiseAvailability();
         responseFuture.notifyHttpListener(response);
         this.response = response;
     }

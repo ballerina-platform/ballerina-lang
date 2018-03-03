@@ -20,6 +20,7 @@
 package org.wso2.transport.http.netty.contract;
 
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
+import org.wso2.transport.http.netty.message.ResponseHandle;
 
 /**
  * Represents the future events and results of connectors.
@@ -60,4 +61,59 @@ public interface HttpResponseFuture {
      * @throws InterruptedException if the connection is interrupted
      */
     HttpResponseFuture sync() throws InterruptedException;
+
+    /**
+     * Set listener for the promise availability future
+     *
+     * @param promiseAvailabilityListener that receives events related to the connector.
+     */
+    void setPromiseAvailabilityListener(HttpConnectorListener promiseAvailabilityListener);
+
+    /**
+     * Notify the listeners when there is an event
+     */
+    void notifyPromiseAvailability();
+
+    /**
+     * Remove the listener
+     */
+    void removePromiseAvailabilityListener();
+
+    /**
+     * Set listener for the push promise future.
+     *
+     * @param pushPromiseListener that receives events related to the connector.
+     */
+    void setPushPromiseListener(HttpConnectorListener pushPromiseListener);
+
+    /**
+     * Remove the listener set to the future.
+     */
+    void removePushPromiseListener();
+
+    /**
+     * Notify the listeners when there is an event
+     */
+    void notifyPushPromise();
+
+    /**
+     * Set listener
+     *
+     * @param responseHandleListener that receives events related to the connector.
+     */
+    void setResponseHandleListener(HttpConnectorListener responseHandleListener);
+
+    /**
+     * Remove the listener set to the future.
+     */
+    void removeResponseHandleListener();
+
+    /**
+     * Notify the listeners when there is an event
+     *
+     * @param responseHandle contains the data related to the event.
+     */
+    void notifyResponseHandle(ResponseHandle responseHandle);
+
+
 }

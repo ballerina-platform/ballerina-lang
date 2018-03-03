@@ -29,10 +29,7 @@ import org.wso2.transport.http.netty.common.HttpRoute;
 import org.wso2.transport.http.netty.config.SenderConfiguration;
 import org.wso2.transport.http.netty.contract.ClientConnectorException;
 import org.wso2.transport.http.netty.contract.Http2ClientConnector;
-import org.wso2.transport.http.netty.contract.HttpPushPromiseAvailabilityFuture;
-import org.wso2.transport.http.netty.contract.HttpPushPromiseFuture;
 import org.wso2.transport.http.netty.contract.HttpResponseFuture;
-import org.wso2.transport.http.netty.contract.HttpResponseHandleFuture;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 import org.wso2.transport.http.netty.message.Http2PushPromise;
 import org.wso2.transport.http.netty.message.ResponseHandle;
@@ -84,9 +81,9 @@ public class DefaultHttp2ClientConnector implements Http2ClientConnector {
     }
 
     @Override
-    public HttpResponseHandleFuture executeAsync(HTTPCarbonMessage httpOutboundRequest) {
+    public HttpResponseFuture executeAsync(HTTPCarbonMessage httpOutboundRequest) {
 
-        HttpResponseHandleFuture responseHandleFuture = null;
+        HttpResponseFuture responseHandleFuture = null;
         try {
             HttpRoute route = getTargetRoute(httpOutboundRequest);
             TargetChannel targetChannel = connectionManager.borrowChannel(route);
@@ -96,7 +93,7 @@ public class DefaultHttp2ClientConnector implements Http2ClientConnector {
                     addListener(new ConnectionAvailabilityListener(outboundMsgHolder, route, true));
         } catch (Exception failedCause) {
             if (responseHandleFuture == null) {
-                responseHandleFuture = new DefaultHttpResponseHandleFuture();
+                responseHandleFuture = new DefaultHttpResponseFuture();
             }
             responseHandleFuture.notifyHttpListener(failedCause);
         }
@@ -109,13 +106,13 @@ public class DefaultHttp2ClientConnector implements Http2ClientConnector {
     }
 
     @Override
-    public HttpPushPromiseFuture getNextPushPromise(ResponseHandle responseHandle) {
+    public HttpResponseFuture getNextPushPromise(ResponseHandle responseHandle) {
         return responseHandle.getOutboundMsgHolder().getPushPromiseFuture();
     }
 
     @Override
-    public HttpPushPromiseAvailabilityFuture hasPushPromise(ResponseHandle responseHandle) {
-        return responseHandle.getOutboundMsgHolder().getPushPromiseAvailabilityFuture();
+    public HttpResponseFuture hasPushPromise(ResponseHandle responseHandle) {
+        return responseHandle.getOutboundMsgHolder().getPromiseAvailabilityFuture();
     }
 
     @Override
@@ -174,7 +171,7 @@ public class DefaultHttp2ClientConnector implements Http2ClientConnector {
                 channelFuture.channel().write(outboundMsgHolder);
                 if (async) {
                     outboundMsgHolder.getResponseHandleFuture().
-                            notifyHttpListener(new ResponseHandle(outboundMsgHolder));
+                            notifyResponseHandle(new ResponseHandle(outboundMsgHolder));
                 }
             } else {
                 ClientConnectorException cause = new ClientConnectorException(

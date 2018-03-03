@@ -50,13 +50,13 @@ public interface Http2ClientConnector {
      */
     boolean close();
 
-    HttpResponseHandleFuture executeAsync(HTTPCarbonMessage httpCarbonMessage);
+    HttpResponseFuture executeAsync(HTTPCarbonMessage httpCarbonMessage);
 
     HttpResponseFuture getResponse(ResponseHandle responseHandle);
 
-    HttpPushPromiseFuture getNextPushPromise(ResponseHandle responseHandle);
+    HttpResponseFuture getNextPushPromise(ResponseHandle responseHandle);
 
-    HttpPushPromiseAvailabilityFuture hasPushPromise(ResponseHandle responseHandle);
+    HttpResponseFuture hasPushPromise(ResponseHandle responseHandle);
 
     HttpResponseFuture getPushResponse(ResponseHandle responseHandle, Http2PushPromise pushPromise);
 

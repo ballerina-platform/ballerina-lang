@@ -22,6 +22,8 @@ package org.wso2.transport.http.netty.contractimpl;
 import org.wso2.transport.http.netty.contract.HttpConnectorListener;
 import org.wso2.transport.http.netty.contract.HttpResponseFuture;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
+import org.wso2.transport.http.netty.message.ResponseHandle;
+import org.wso2.transport.http.netty.sender.http2.OutboundMsgHolder;
 
 import java.util.concurrent.Semaphore;
 
@@ -34,6 +36,18 @@ public class DefaultHttpResponseFuture implements HttpResponseFuture {
     private HttpConnectorListener httpConnectorListener;
     private Throwable throwable, returnError;
     private Semaphore executionWaitSem;
+    private OutboundMsgHolder outboundMsgHolder;
+    private HttpConnectorListener promiseAvailabilityListener;
+    private HttpConnectorListener pushPromiseListener;
+    private ResponseHandle responseHandle;
+    private HttpConnectorListener responseHandleListener;
+
+    public DefaultHttpResponseFuture(OutboundMsgHolder outboundMsgHolder) {
+        this.outboundMsgHolder = outboundMsgHolder;
+    }
+
+    public DefaultHttpResponseFuture() {
+    }
 
     @Override
     public void notifyHttpListener(HTTPCarbonMessage httpCarbonMessage) {
@@ -95,4 +109,91 @@ public class DefaultHttpResponseFuture implements HttpResponseFuture {
     public void removeHttpListener() {
         this.httpConnectorListener = null;
     }
+
+    public void setOutboundMsgHolder(OutboundMsgHolder outboundMsgHolder) {
+        this.outboundMsgHolder = outboundMsgHolder;
+    }
+
+    @Override
+    public void notifyPromiseAvailability() {
+        if (promiseAvailabilityListener != null) {
+            HttpConnectorListener listener = promiseAvailabilityListener;
+            if (outboundMsgHolder.hasPromise()) {
+                removePromiseAvailabilityListener();
+                listener.onPushPromiseAvailability(true);
+            } else if (outboundMsgHolder.isAllPromisesReceived()) {
+                removePromiseAvailabilityListener();
+                listener.onPushPromiseAvailability(false);
+            }
+        }
+    }
+
+    @Override
+    public void setPromiseAvailabilityListener(HttpConnectorListener promiseAvailabilityListener) {
+        this.promiseAvailabilityListener = promiseAvailabilityListener;
+        notifyPromiseAvailability();
+        if (this.throwable != null) {
+            notifyHttpListener(this.throwable);
+            this.throwable = null;
+        }
+    }
+
+    @Override
+    public void removePromiseAvailabilityListener() {
+        this.promiseAvailabilityListener = null;
+    }
+
+    @Override
+    public void notifyPushPromise() {
+        if (pushPromiseListener != null) {
+            pushPromiseListener.onPushPromise(outboundMsgHolder.getNextPromise());
+            removePushPromiseListener();
+        }
+    }
+
+    @Override
+    public void setPushPromiseListener(HttpConnectorListener pushPromiseListener) {
+        this.pushPromiseListener = pushPromiseListener;
+        if (outboundMsgHolder.hasPromise()) {
+            notifyPushPromise();
+        }
+        if (this.throwable != null) {
+            notifyHttpListener(this.throwable);
+            this.throwable = null;
+        }
+    }
+
+    @Override
+    public void removePushPromiseListener() {
+        this.pushPromiseListener = null;
+    }
+
+    @Override
+    public void notifyResponseHandle(ResponseHandle responseHandle) {
+        this.responseHandle = responseHandle;
+        if (responseHandleListener != null) {
+            responseHandleListener.onResponseHandle(responseHandle);
+            removeResponseHandleListener();
+        }
+    }
+
+    @Override
+    public void setResponseHandleListener(HttpConnectorListener connectorListener) {
+        this.responseHandleListener = connectorListener;
+        if (responseHandle != null) {
+            notifyResponseHandle(responseHandle);
+            responseHandle = null;
+        }
+        if (this.throwable != null) {
+            notifyHttpListener(this.throwable);
+            this.throwable = null;
+        }
+    }
+
+    @Override
+    public void removeResponseHandleListener() {
+        this.responseHandleListener = null;
+    }
+
+
 }
