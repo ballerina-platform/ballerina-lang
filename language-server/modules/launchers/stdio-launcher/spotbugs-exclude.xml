@@ -17,6 +17,6 @@
   -->
 <FindBugsFilter>
     <Match>
-        <Package name="org.ballerinalang.builtin"/>
+        <Package name="org.ballerinalang.langserver.launchers.stdio" />
     </Match>
 </FindBugsFilter>
