@@ -587,7 +587,7 @@ public class TypeChecker extends BLangNodeVisitor {
                 List<BType> paramTypes = Lists.of(exprType);
                 List<BType> retTypes = Lists.of(symTable.typeType);
                 BInvokableType opType = new BInvokableType(paramTypes, retTypes, null);
-                if (exprType.tag == TypeTags.ANY || exprType.tag == TypeTags.JSON) {
+                if (!types.isValueType(exprType)) {
                     BOperatorSymbol symbol = new BOperatorSymbol(names.fromString(OperatorKind.TYPEOF.value()),
                             symTable.rootPkgSymbol.pkgID, opType, symTable.rootPkgSymbol, InstructionCodes.TYPEOF);
                     unaryExpr.opSymbol = symbol;
