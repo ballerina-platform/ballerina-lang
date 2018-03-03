@@ -76,8 +76,6 @@ service<http> InitiatorService {
 
         // Micro-Transaction-Unknown
 
-        io:println("Registering for transaction...");
-        io:println(req.getJsonPayload());
         var registrationReq, e = <RegistrationRequest>req.getJsonPayload();
         http:OutResponse res;
         if (e != null || registrationReq == null) {
