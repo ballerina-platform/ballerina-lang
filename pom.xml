@@ -1105,6 +1105,27 @@
                     </executions>
                 </plugin>
                 <plugin>
+                    <groupId>org.owasp</groupId>
+                    <artifactId>dependency-check-maven</artifactId>
+                    <version>${maven.dependency.check.plugin.version}</version>
+                    <inherited>false</inherited>
+                    <configuration>
+                        <suppressionFiles>
+                            <suppressionFile>${project.basedir}/dependency-check-suppressions.xml</suppressionFile>
+                        </suppressionFiles>
+                        <hintsFile>${project.basedir}/dependency-check-hints.xml</hintsFile>
+                    </configuration>
+                    <executions>
+                        <execution>
+                            <id>validate</id>
+                            <phase>validate</phase>
+                            <goals>
+                                <goal>aggregate</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                </plugin>
+                <plugin>
                     <groupId>org.ballerinalang</groupId>
                     <artifactId>docerina-maven-plugin</artifactId>
                     <version>${ballerina.version}</version>
@@ -1119,6 +1140,10 @@
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>findbugs-maven-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>org.owasp</groupId>
+                <artifactId>dependency-check-maven</artifactId>
             </plugin>
             <!-- We want to package up license resources in the JARs produced -->
             <plugin>
@@ -1278,6 +1303,7 @@
         <clirr.maven.plugin.version>2.7</clirr.maven.plugin.version>
         <apache.source.release.assembly.descriptor.version>1.0.5</apache.source.release.assembly.descriptor.version>
         <awaitility.version>3.0.0</awaitility.version>
+        <maven.dependency.check.plugin.version>3.1.1</maven.dependency.check.plugin.version>
     </properties>
 
 </project>

@@ -1,0 +1,317 @@
+<!--
+  ~ Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+  ~
+  ~ WSO2 Inc. licenses this file to you under the Apache License,
+  ~ Version 2.0 (the "License"); you may not use this file except
+  ~ in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~    http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing,
+  ~ software distributed under the License is distributed on an
+  ~ "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+  ~ KIND, either express or implied.  See the License for the
+  ~ specific language governing permissions and limitations
+  ~ under the License.
+  -->
+
+<hints xmlns="https://jeremylong.github.io/DependencyCheck/dependency-hint.1.1.xsd">
+    <hint>
+        <given>
+            <fileName contains="com.fasterxml.jackson.core.jackson-core_.*\.jar" regex="true" caseSensitive="true"/>
+        </given>
+        <add>
+            <evidence type="product" source="hint analyzer" name="product" value="jackson" confidence="HIGHEST"/>
+            <evidence type="vendor" source="hint analyzer" name="vendor" value="fasterxml" confidence="HIGHEST"/>
+        </add>
+    </hint>
+    <hint>
+        <given>
+            <fileName contains="jackson-core_.*\.jar" regex="true" caseSensitive="true"/>
+        </given>
+        <add>
+            <evidence type="product" source="hint analyzer" name="product" value="jackson" confidence="HIGHEST"/>
+            <evidence type="vendor" source="hint analyzer" name="vendor" value="fasterxml" confidence="HIGHEST"/>
+        </add>
+    </hint>
+    <hint>
+        <given>
+            <fileName contains="netty-all_.*\.jar" regex="true" caseSensitive="true"/>
+        </given>
+        <add>
+            <evidence type="product" source="hint analyzer" name="product" value="netty" confidence="HIGHEST"/>
+            <evidence type="vendor" source="hint analyzer" name="vendor" value="netty_project" confidence="HIGHEST"/>
+        </add>
+    </hint>
+    <hint>
+        <given>
+            <fileName contains="org.restlet_.*\.jar" regex="true" caseSensitive="true"/>
+        </given>
+        <add>
+            <evidence type="product" source="hint analyzer" name="product" value="restlet" confidence="HIGHEST"/>
+            <evidence type="vendor" source="hint analyzer" name="vendor" value="restlet" confidence="HIGHEST"/>
+        </add>
+    </hint>
+    <hint>
+        <given>
+            <fileName contains="axiom_.*\.jar" regex="true" caseSensitive="true"/>
+        </given>
+        <add>
+            <evidence type="product" source="hint analyzer" name="product" value="axiom" confidence="HIGHEST"/>
+            <evidence type="vendor" source="hint analyzer" name="vendor" value="debian" confidence="HIGHEST"/>
+        </add>
+    </hint>
+    <hint>
+        <given>
+            <fileName contains="commons-beanutils_.*\.jar" regex="true" caseSensitive="true"/>
+        </given>
+        <add>
+            <evidence type="product" source="hint analyzer" name="product" value="commons_beanutils"
+                      confidence="HIGHEST"/>
+            <evidence type="vendor" source="hint analyzer" name="vendor" value="apache" confidence="HIGHEST"/>
+        </add>
+    </hint>
+    <hint>
+        <given>
+            <fileName contains="commons-collections_.*\.jar" regex="true" caseSensitive="true"/>
+        </given>
+        <add>
+            <evidence type="product" source="hint analyzer" name="product" value="commons_collections"
+                      confidence="HIGHEST"/>
+            <evidence type="vendor" source="hint analyzer" name="vendor" value="apache" confidence="HIGHEST"/>
+        </add>
+    </hint>
+    <hint>
+        <given>
+            <fileName contains="commons-fileupload_.*\.jar" regex="true" caseSensitive="true"/>
+        </given>
+        <add>
+            <evidence type="product" source="hint analyzer" name="product" value="commons_fileupload"
+                      confidence="HIGHEST"/>
+            <evidence type="vendor" source="hint analyzer" name="vendor" value="apache" confidence="HIGHEST"/>
+        </add>
+    </hint>
+    <hint>
+        <given>
+            <fileName contains="commons-httpclient_.*\.jar" regex="true" caseSensitive="true"/>
+        </given>
+        <add>
+            <evidence type="product" source="hint analyzer" name="product" value="commons_httpclient"
+                      confidence="HIGHEST"/>
+            <evidence type="vendor" source="hint analyzer" name="vendor" value="apache" confidence="HIGHEST"/>
+        </add>
+    </hint>
+    <hint>
+        <given>
+            <fileName contains="commons-cli_.*\.jar" regex="true" caseSensitive="true"/>
+        </given>
+        <add>
+            <evidence type="product" source="hint analyzer" name="product" value="commons_cli" confidence="HIGHEST"/>
+            <evidence type="vendor" source="hint analyzer" name="vendor" value="apache" confidence="HIGHEST"/>
+        </add>
+    </hint>
+    <hint>
+        <given>
+            <fileName contains="commons-codec_.*\.jar" regex="true" caseSensitive="true"/>
+        </given>
+        <add>
+            <evidence type="product" source="hint analyzer" name="product" value="commons_codec" confidence="HIGHEST"/>
+            <evidence type="vendor" source="hint analyzer" name="vendor" value="apache" confidence="HIGHEST"/>
+        </add>
+    </hint>
+    <hint>
+        <given>
+            <fileName contains="commons-collections_.*\.jar" regex="true" caseSensitive="true"/>
+        </given>
+        <add>
+            <evidence type="product" source="hint analyzer" name="product" value="commons_collections"
+                      confidence="HIGHEST"/>
+            <evidence type="vendor" source="hint analyzer" name="vendor" value="apache" confidence="HIGHEST"/>
+        </add>
+    </hint>
+    <hint>
+        <given>
+            <fileName contains="commons-configuration_.*\.jar" regex="true" caseSensitive="true"/>
+        </given>
+        <add>
+            <evidence type="product" source="hint analyzer" name="product" value="commons_configuration"
+                      confidence="HIGHEST"/>
+            <evidence type="vendor" source="hint analyzer" name="vendor" value="apache" confidence="HIGHEST"/>
+        </add>
+    </hint>
+    <hint>
+        <given>
+            <fileName contains="commons-dbcp_.*\.jar" regex="true" caseSensitive="true"/>
+        </given>
+        <add>
+            <evidence type="product" source="hint analyzer" name="product" value="commons_dbcp" confidence="HIGHEST"/>
+            <evidence type="vendor" source="hint analyzer" name="vendor" value="apache" confidence="HIGHEST"/>
+        </add>
+    </hint>
+    <hint>
+        <given>
+            <fileName contains="commons-io_.*\.jar" regex="true" caseSensitive="true"/>
+        </given>
+        <add>
+            <evidence type="product" source="hint analyzer" name="product" value="commons_io" confidence="HIGHEST"/>
+            <evidence type="vendor" source="hint analyzer" name="vendor" value="apache" confidence="HIGHEST"/>
+        </add>
+    </hint>
+    <hint>
+        <given>
+            <fileName contains="commons-lang3_.*\.jar" regex="true" caseSensitive="true"/>
+        </given>
+        <add>
+            <evidence type="product" source="hint analyzer" name="product" value="commons_lang3" confidence="HIGHEST"/>
+            <evidence type="vendor" source="hint analyzer" name="vendor" value="apache" confidence="HIGHEST"/>
+        </add>
+    </hint>
+    <hint>
+        <given>
+            <fileName contains="commons-lang_.*\.jar" regex="true" caseSensitive="true"/>
+        </given>
+        <add>
+            <evidence type="product" source="hint analyzer" name="product" value="commons_lang" confidence="HIGHEST"/>
+            <evidence type="vendor" source="hint analyzer" name="vendor" value="apache" confidence="HIGHEST"/>
+        </add>
+    </hint>
+    <hint>
+        <given>
+            <fileName contains="commons-pool_.*\.jar" regex="true" caseSensitive="true"/>
+        </given>
+        <add>
+            <evidence type="product" source="hint analyzer" name="product" value="commons_pool" confidence="HIGHEST"/>
+            <evidence type="vendor" source="hint analyzer" name="vendor" value="apache" confidence="HIGHEST"/>
+        </add>
+    </hint>
+    <hint>
+        <given>
+            <fileName contains="commons-scxml_.*\.jar" regex="true" caseSensitive="true"/>
+        </given>
+        <add>
+            <evidence type="product" source="hint analyzer" name="product" value="commons_scxml" confidence="HIGHEST"/>
+            <evidence type="vendor" source="hint analyzer" name="vendor" value="apache" confidence="HIGHEST"/>
+        </add>
+    </hint>
+    <hint>
+        <given>
+            <fileName contains="httpclient_.*\.jar" regex="true" caseSensitive="true"/>
+        </given>
+        <add>
+            <evidence type="product" source="hint analyzer" name="product" value="httpclient" confidence="HIGHEST"/>
+            <evidence type="vendor" source="hint analyzer" name="vendor" value="apache" confidence="HIGHEST"/>
+        </add>
+    </hint>
+    <hint>
+        <given>
+            <fileName contains="wss4j_.*\.jar" regex="true" caseSensitive="true"/>
+        </given>
+        <add>
+            <evidence type="product" source="hint analyzer" name="product" value="wss4j" confidence="HIGHEST"/>
+            <evidence type="vendor" source="hint analyzer" name="vendor" value="apache" confidence="HIGHEST"/>
+        </add>
+    </hint>
+    <hint>
+        <given>
+            <fileName contains="org.apache.commons.configuration_.*\.jar" regex="true" caseSensitive="true"/>
+        </given>
+        <add>
+            <evidence type="product" source="hint analyzer" name="product" value="commons_configuration"
+                      confidence="HIGHEST"/>
+            <evidence type="vendor" source="hint analyzer" name="vendor" value="apache" confidence="HIGHEST"/>
+        </add>
+    </hint>
+    <hint>
+        <given>
+            <fileName contains="org.apache.commons.lang3_.*\.jar" regex="true" caseSensitive="true"/>
+        </given>
+        <add>
+            <evidence type="product" source="hint analyzer" name="product" value="commons_lang3" confidence="HIGHEST"/>
+            <evidence type="vendor" source="hint analyzer" name="vendor" value="apache" confidence="HIGHEST"/>
+        </add>
+    </hint>
+    <hint>
+        <given>
+            <fileName contains="org.apache.commons.lang_.*\.jar" regex="true" caseSensitive="true"/>
+        </given>
+        <add>
+            <evidence type="product" source="hint analyzer" name="product" value="commons_lang" confidence="HIGHEST"/>
+            <evidence type="vendor" source="hint analyzer" name="vendor" value="apache" confidence="HIGHEST"/>
+        </add>
+    </hint>
+    <hint>
+        <given>
+            <fileName contains="org.apache.commons.math3_.*\.jar" regex="true" caseSensitive="true"/>
+        </given>
+        <add>
+            <evidence type="product" source="hint analyzer" name="product" value="commons_math3" confidence="HIGHEST"/>
+            <evidence type="vendor" source="hint analyzer" name="vendor" value="apache" confidence="HIGHEST"/>
+        </add>
+    </hint>
+    <hint>
+        <given>
+            <fileName contains="opensaml_.*\.jar" regex="true" caseSensitive="true"/>
+        </given>
+        <add>
+            <evidence type="product" source="hint analyzer" name="product" value="opensaml_java" confidence="HIGHEST"/>
+            <evidence type="vendor" source="hint analyzer" name="vendor" value="shibboleth" confidence="HIGHEST"/>
+        </add>
+    </hint>
+    <hint>
+        <given>
+            <fileName contains="openid4java_.*\.jar" regex="true" caseSensitive="true"/>
+        </given>
+        <add>
+            <evidence type="product" source="hint analyzer" name="product" value="openid4java" confidence="HIGHEST"/>
+            <evidence type="vendor" source="hint analyzer" name="vendor" value="openid" confidence="HIGHEST"/>
+        </add>
+    </hint>
+    <hint>
+        <given>
+            <fileName contains="nimbus-jose-jwt_.*\.jar" regex="true" caseSensitive="true"/>
+        </given>
+        <add>
+            <evidence type="product" source="hint analyzer" name="product" value="nimbus_jose+jwt"
+                      confidence="HIGHEST"/>
+            <evidence type="vendor" source="hint analyzer" name="vendor" value="connect2id" confidence="HIGHEST"/>
+        </add>
+    </hint>
+    <hint>
+        <given>
+            <fileName contains="groovy-all_.*\.jar" regex="true" caseSensitive="true"/>
+        </given>
+        <add>
+            <evidence type="product" source="hint analyzer" name="product" value="groovy" confidence="HIGHEST"/>
+            <evidence type="vendor" source="hint analyzer" name="vendor" value="apache" confidence="HIGHEST"/>
+        </add>
+    </hint>
+    <hint>
+        <given>
+            <fileName contains="solr_.*\.jar" regex="true" caseSensitive="true"/>
+        </given>
+        <add>
+            <evidence type="product" source="hint analyzer" name="product" value="solr" confidence="HIGHEST"/>
+            <evidence type="vendor" source="hint analyzer" name="vendor" value="apache" confidence="HIGHEST"/>
+        </add>
+    </hint>
+    <hint>
+        <given>
+            <fileName contains=".*xmlbeans-.*\.jar" regex="true" caseSensitive="true"/>
+        </given>
+        <add>
+            <evidence type="product" source="hint analyzer" name="product" value="xmlbeans" confidence="HIGHEST"/>
+            <evidence type="vendor" source="hint analyzer" name="vendor" value="apache" confidence="HIGHEST"/>
+        </add>
+    </hint>
+    <hint>
+        <given>
+            <fileName contains=".*esapi-.*\.jar" regex="true" caseSensitive="true"/>
+        </given>
+        <add>
+            <evidence type="product" source="hint analyzer" name="product" value="enterprise_security_api"
+                      confidence="HIGHEST"/>
+            <evidence type="vendor" source="hint analyzer" name="vendor" value="owasp" confidence="HIGHEST"/>
+        </add>
+    </hint>
+</hints>
