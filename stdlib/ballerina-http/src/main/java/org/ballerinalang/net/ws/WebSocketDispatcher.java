@@ -93,7 +93,7 @@ public class WebSocketDispatcher {
 
     public static void dispatchTextMessage(WsOpenConnectionInfo connectionInfo, WebSocketTextMessage textMessage) {
         WebSocketService wsService = connectionInfo.getService();
-        Resource onTextMessageResource = wsService.getResourceByName(Constants.RESOURCE_NAME_ON_TEXT_MESSAGE);
+        Resource onTextMessageResource = wsService.getResourceByName(WebSocketConstants.RESOURCE_NAME_ON_TEXT_MESSAGE);
         if (onTextMessageResource == null) {
             return;
         }
@@ -117,7 +117,8 @@ public class WebSocketDispatcher {
     public static void dispatchBinaryMessage(WsOpenConnectionInfo connectionInfo,
                                              WebSocketBinaryMessage binaryMessage) {
         WebSocketService wsService = connectionInfo.getService();
-        Resource onBinaryMessageResource = wsService.getResourceByName(Constants.RESOURCE_NAME_ON_BINARY_MESSAGE);
+        Resource onBinaryMessageResource = wsService.getResourceByName(
+                WebSocketConstants.RESOURCE_NAME_ON_BINARY_MESSAGE);
         if (onBinaryMessageResource == null) {
             return;
         }
@@ -153,7 +154,7 @@ public class WebSocketDispatcher {
     private static void dispatchPingMessage(WsOpenConnectionInfo connectionInfo,
                                             WebSocketControlMessage controlMessage) {
         WebSocketService wsService = connectionInfo.getService();
-        Resource onPingMessageResource = wsService.getResourceByName(Constants.RESOURCE_NAME_ON_PING);
+        Resource onPingMessageResource = wsService.getResourceByName(WebSocketConstants.RESOURCE_NAME_ON_PING);
         if (onPingMessageResource == null) {
             pingAutomatically(controlMessage);
             return;
@@ -174,7 +175,7 @@ public class WebSocketDispatcher {
     private static void dispatchPongMessage(WsOpenConnectionInfo connectionInfo,
                                             WebSocketControlMessage controlMessage) {
         WebSocketService wsService = connectionInfo.getService();
-        Resource onPongMessageResource = wsService.getResourceByName(Constants.RESOURCE_NAME_ON_PONG);
+        Resource onPongMessageResource = wsService.getResourceByName(WebSocketConstants.RESOURCE_NAME_ON_PONG);
         if (onPongMessageResource == null) {
             return;
         }
@@ -193,7 +194,7 @@ public class WebSocketDispatcher {
 
     public static void dispatchCloseMessage(WsOpenConnectionInfo connectionInfo, WebSocketCloseMessage closeMessage) {
         WebSocketService wsService = connectionInfo.getService();
-        Resource onCloseResource = wsService.getResourceByName(Constants.RESOURCE_NAME_ON_CLOSE);
+        Resource onCloseResource = wsService.getResourceByName(WebSocketConstants.RESOURCE_NAME_ON_CLOSE);
         if (onCloseResource == null) {
             return;
         }
@@ -213,7 +214,7 @@ public class WebSocketDispatcher {
     public static void dispatchIdleTimeout(WsOpenConnectionInfo connectionInfo,
                                            WebSocketControlMessage controlMessage) {
         WebSocketService wsService = connectionInfo.getService();
-        Resource onIdleTimeoutResource = wsService.getResourceByName(Constants.RESOURCE_NAME_ON_IDLE_TIMEOUT);
+        Resource onIdleTimeoutResource = wsService.getResourceByName(WebSocketConstants.RESOURCE_NAME_ON_IDLE_TIMEOUT);
         if (onIdleTimeoutResource == null) {
             return;
         }

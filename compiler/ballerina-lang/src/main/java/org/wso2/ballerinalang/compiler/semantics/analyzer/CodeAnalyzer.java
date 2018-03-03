@@ -18,12 +18,14 @@
 package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
 import org.ballerinalang.compiler.CompilerPhase;
+import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.statements.ForkJoinNode;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
@@ -54,8 +56,10 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAttachmentAttr
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrayLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConnectorInit;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangIntRangeExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation.BLangActionInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLambdaFunction;
@@ -66,6 +70,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangStringTemplateLiter
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTernaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeCastExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeofExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangUnaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLAttribute;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLAttributeAccess;
@@ -103,9 +108,11 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangConstrainedType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangValueType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
+import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
+import org.wso2.ballerinalang.util.Flags;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -117,19 +124,19 @@ import java.util.Stack;
 import java.util.stream.Collectors;
 
 /**
- * This represents the code analyzing pass of semantic analysis. 
- * 
+ * This represents the code analyzing pass of semantic analysis.
+ *
  * The following validations are done here:-
- * 
+ *
  * (*) Loop continuation statement validation.
  * (*) Function return path existence and unreachable code validation.
  * (*) Worker send/receive validation.
  */
 public class CodeAnalyzer extends BLangNodeVisitor {
-    
+
     private static final CompilerContext.Key<CodeAnalyzer> CODE_ANALYZER_KEY =
             new CompilerContext.Key<>();
-    
+
     private int loopCount;
     private int transactionCount;
     private boolean statementReturns;
@@ -142,6 +149,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     private TypeChecker typeChecker;
     private Stack<WorkerActionSystem> workerActionSystemStack = new Stack<>();
     private Stack<Boolean> loopWithintransactionCheckStack = new Stack<>();
+    private Names names;
 
     public static CodeAnalyzer getInstance(CompilerContext context) {
         CodeAnalyzer codeGenerator = context.get(CODE_ANALYZER_KEY);
@@ -157,12 +165,13 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         this.symTable = SymbolTable.getInstance(context);
         this.dlog = BLangDiagnosticLog.getInstance(context);
         this.typeChecker = TypeChecker.getInstance(context);
+        this.names = Names.getInstance(context);
     }
 
     private void resetFunction() {
         this.resetStatementReturns();
     }
-    
+
     private void resetStatementReturns() {
         this.statementReturns = false;
     }
@@ -175,7 +184,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         pkgNode.accept(this);
         return pkgNode;
     }
-    
+
     @Override
     public void visit(BLangPackage pkgNode) {
         if (pkgNode.completedPhases.contains(CompilerPhase.CODE_ANALYZE)) {
@@ -186,7 +195,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         pkgNode.topLevelNodes.forEach(e -> ((BLangNode) e).accept(this));
         pkgNode.completedPhases.add(CompilerPhase.CODE_ANALYZE);
     }
-    
+
     @Override
     public void visit(BLangCompilationUnit compUnitNode) {
         compUnitNode.topLevelNodes.forEach(e -> ((BLangNode) e).accept(this));
@@ -225,7 +234,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         }
         this.finalizeCurrentWorkerActionSystem();
     }
-    
+
     @Override
     public void visit(BLangForkJoin forkJoin) {
         this.forkJoinCount++;
@@ -242,12 +251,13 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         this.checkForkJoinWorkerCount(forkJoin);
         this.finalizeCurrentWorkerActionSystem();
         this.forkJoinCount--;
+        analyzeExpr(forkJoin.timeoutExpression);
     }
 
     private boolean inForkJoin() {
         return this.forkJoinCount > 0;
     }
-    
+
     private void checkForkJoinWorkerCount(BLangForkJoin forkJoin) {
         if (forkJoin.joinType == ForkJoinNode.JoinType.SOME) {
             int wc = forkJoin.joinedWorkers.size();
@@ -259,7 +269,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             }
         }
     }
-    
+
     private boolean inWorker() {
         return this.workerCount > 0;
     }
@@ -287,6 +297,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             this.resetLastStatement();
         }
         this.loopWithintransactionCheckStack.pop();
+        analyzeExpr(transactionNode.retryCount);
     }
 
     @Override
@@ -308,11 +319,11 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             this.resetLastStatement();
         }
     }
-    
+
     private void checkStatementExecutionValidity(BLangStatement stmt) {
         this.checkUnreachableCode(stmt);
     }
-    
+
     @Override
     public void visit(BLangBlockStmt blockNode) {
         blockNode.stmts.forEach(e -> {
@@ -320,7 +331,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         });
         this.resetLastStatement();
     }
-    
+
     @Override
     public void visit(BLangReturn returnStmt) {
         this.checkStatementExecutionValidity(returnStmt);
@@ -329,8 +340,9 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             return;
         }
         this.statementReturns = true;
+        analyzeExprs(returnStmt.exprs);
     }
-    
+
     @Override
     public void visit(BLangIf ifStmt) {
         this.checkStatementExecutionValidity(ifStmt);
@@ -341,6 +353,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             ifStmt.elseStmt.accept(this);
             this.statementReturns = ifStmtReturns && this.statementReturns;
         }
+        analyzeExpr(ifStmt.expr);
     }
 
     @Override
@@ -352,6 +365,8 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         this.loopCount--;
         this.resetLastStatement();
         this.loopWithintransactionCheckStack.pop();
+        analyzeExpr(foreach.collection);
+        analyzeExprs(foreach.varRefs);
     }
 
     @Override
@@ -363,6 +378,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         this.loopCount--;
         this.resetLastStatement();
         this.loopWithintransactionCheckStack.pop();
+        analyzeExpr(whileNode.expr);
     }
 
     @Override
@@ -370,7 +386,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         this.checkStatementExecutionValidity(lockNode);
         lockNode.body.stmts.forEach(e -> e.accept(this));
     }
-    
+
     @Override
     public void visit(BLangNext nextNode) {
         this.checkStatementExecutionValidity(nextNode);
@@ -428,7 +444,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     }
 
     public void visit(BLangVariable varNode) {
-        /* ignore */
+        analyzeExpr(varNode.expr);
     }
 
     public void visit(BLangIdentifier identifierNode) {
@@ -501,14 +517,19 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     public void visit(BLangVariableDef varDefNode) {
         this.checkStatementExecutionValidity(varDefNode);
+        varDefNode.var.accept(this);
     }
 
     public void visit(BLangAssignment assignNode) {
         this.checkStatementExecutionValidity(assignNode);
+        analyzeExprs(assignNode.varRefs);
+        analyzeExpr(assignNode.expr);
     }
 
     public void visit(BLangBind bindNode) {
         this.checkStatementExecutionValidity(bindNode);
+        analyzeExpr(bindNode.varRef);
+        analyzeExpr(bindNode.expr);
     }
 
     public void visit(BLangBreak breakNode) {
@@ -526,6 +547,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     public void visit(BLangThrow throwNode) {
         this.checkStatementExecutionValidity(throwNode);
+        analyzeExpr(throwNode.expr);
     }
 
     public void visit(BLangXMLNSStatement xmlnsStmtNode) {
@@ -534,6 +556,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     public void visit(BLangExpressionStmt exprStmtNode) {
         this.checkStatementExecutionValidity(exprStmtNode);
+        analyzeExpr(exprStmtNode.expr);
     }
 
     public void visit(BLangTryCatchFinally tryNode) {
@@ -560,91 +583,12 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         /* ignore */
     }
 
-    public void visit(BLangLiteral literalExpr) {
-        /* ignore */
-    }
-
-    public void visit(BLangArrayLiteral arrayLiteral) {
-        /* ignore */
-    }
-
-    public void visit(BLangRecordLiteral recordLiteral) {
-        /* ignore */
-    }
-
-    public void visit(BLangSimpleVarRef varRefExpr) {
-        /* ignore */
-    }
-
-    public void visit(BLangFieldBasedAccess fieldAccessExpr) {
-        /* ignore */
-    }
-
-    public void visit(BLangIndexBasedAccess indexAccessExpr) {
-        /* ignore */
-    }
-
-    public void visit(BLangInvocation invocationExpr) {
-        /* ignore */
-    }
-
-    public void visit(BLangTernaryExpr ternaryExpr) {
-        /* ignore */
-    }
-
-    public void visit(BLangBinaryExpr binaryExpr) {
-        /* ignore */
-    }
-
-    public void visit(BLangUnaryExpr unaryExpr) {
-        /* ignore */
-    }
-
-    public void visit(BLangTypeCastExpr castExpr) {
-        /* ignore */
-    }
-
-    public void visit(BLangTypeConversionExpr conversionExpr) {
-        /* ignore */
-    }
-
-    public void visit(BLangXMLQName xmlQName) {
-        /* ignore */
-    }
-
-    public void visit(BLangXMLAttribute xmlAttribute) {
-        /* ignore */
-    }
-
-    public void visit(BLangXMLElementLiteral xmlElementLiteral) {
-        /* ignore */
-    }
-
-    public void visit(BLangXMLTextLiteral xmlTextLiteral) {
-        /* ignore */
-    }
-
-    public void visit(BLangXMLCommentLiteral xmlCommentLiteral) {
-        /* ignore */
-    }
-
-    public void visit(BLangXMLProcInsLiteral xmlProcInsLiteral) {
-        /* ignore */
-    }
-
-    public void visit(BLangXMLQuotedString xmlQuotedString) {
-        /* ignore */
-    }
-
-    public void visit(BLangStringTemplateLiteral stringTemplateLiteral) {
-        /* ignore */
-    }
-
     public void visit(BLangWorkerSend workerSendNode) {
         if (!this.inWorker()) {
             return;
         }
         this.workerActionSystemStack.peek().addWorkerAction(workerSendNode);
+        analyzeExprs(workerSendNode.exprs);
     }
 
     @Override
@@ -653,6 +597,130 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             return;
         }
         this.workerActionSystemStack.peek().addWorkerAction(workerReceiveNode);
+        analyzeExprs(workerReceiveNode.exprs);
+    }
+
+    public void visit(BLangLiteral literalExpr) {
+        /* ignore */
+    }
+
+    public void visit(BLangArrayLiteral arrayLiteral) {
+        analyzeExprs(arrayLiteral.exprs);
+    }
+
+    public void visit(BLangRecordLiteral recordLiteral) {
+        recordLiteral.keyValuePairs.forEach(kv -> {
+            analyzeExpr(kv.valueExpr);
+        });
+    }
+
+    public void visit(BLangSimpleVarRef varRefExpr) {
+        /* ignore */
+    }
+
+    public void visit(BLangFieldBasedAccess fieldAccessExpr) {
+        analyzeExpr(fieldAccessExpr.expr);
+    }
+
+    public void visit(BLangIndexBasedAccess indexAccessExpr) {
+        analyzeExpr(indexAccessExpr.indexExpr);
+        analyzeExpr(indexAccessExpr.expr);
+    }
+
+    public void visit(BLangInvocation invocationExpr) {
+        analyzeExpr(invocationExpr.expr);
+        analyzeExprs(invocationExpr.argExprs);
+        // Null check is to ignore Negative path where symbol does not get resolved at TypeChecker.
+        if ((invocationExpr.symbol != null) && invocationExpr.symbol.kind == SymbolKind.FUNCTION) {
+            BSymbol funcSymbol = invocationExpr.symbol;
+            if (Symbols.isFlagOn(funcSymbol.flags, Flags.DEPRECATED)) {
+                dlog.warning(invocationExpr.pos, DiagnosticCode.USAGE_OF_DEPRECATED_FUNCTION,
+                        names.fromIdNode(invocationExpr.name));
+            }
+        }
+    }
+
+    public void visit(BLangConnectorInit cIExpr) {
+        analyzeExprs(cIExpr.argsExpr);
+    }
+
+    public void visit(BLangTernaryExpr ternaryExpr) {
+        analyzeExpr(ternaryExpr.expr);
+        analyzeExpr(ternaryExpr.thenExpr);
+        analyzeExpr(ternaryExpr.elseExpr);
+    }
+
+    public void visit(BLangBinaryExpr binaryExpr) {
+        analyzeExpr(binaryExpr.lhsExpr);
+        analyzeExpr(binaryExpr.rhsExpr);
+    }
+
+    public void visit(BLangUnaryExpr unaryExpr) {
+        analyzeExpr(unaryExpr.expr);
+    }
+
+    public void visit(BLangTypeofExpr accessExpr) {
+        /* ignore */
+    }
+
+    public void visit(BLangTypeCastExpr castExpr) {
+        analyzeExpr(castExpr.expr);
+    }
+
+    public void visit(BLangTypeConversionExpr conversionExpr) {
+        analyzeExpr(conversionExpr.expr);
+        analyzeExpr(conversionExpr.transformerInvocation);
+    }
+
+    public void visit(BLangXMLQName xmlQName) {
+        /* ignore */
+    }
+
+    public void visit(BLangXMLAttribute xmlAttribute) {
+        analyzeExpr(xmlAttribute.name);
+        analyzeExpr(xmlAttribute.value);
+    }
+
+    public void visit(BLangXMLElementLiteral xmlElementLiteral) {
+        analyzeExpr(xmlElementLiteral.startTagName);
+        analyzeExpr(xmlElementLiteral.endTagName);
+        analyzeExprs(xmlElementLiteral.attributes);
+        analyzeExprs(xmlElementLiteral.children);
+    }
+
+    public void visit(BLangXMLTextLiteral xmlTextLiteral) {
+        analyzeExprs(xmlTextLiteral.textFragments);
+    }
+
+    public void visit(BLangXMLCommentLiteral xmlCommentLiteral) {
+        analyzeExprs(xmlCommentLiteral.textFragments);
+    }
+
+    public void visit(BLangXMLProcInsLiteral xmlProcInsLiteral) {
+        analyzeExprs(xmlProcInsLiteral.dataFragments);
+        analyzeExpr(xmlProcInsLiteral.target);
+    }
+
+    public void visit(BLangXMLQuotedString xmlQuotedString) {
+        analyzeExprs(xmlQuotedString.textFragments);
+    }
+
+    public void visit(BLangStringTemplateLiteral stringTemplateLiteral) {
+        analyzeExprs(stringTemplateLiteral.exprs);
+    }
+
+    public void visit(BLangLambdaFunction bLangLambdaFunction) {
+        /* ignore */
+    }
+
+    public void visit(BLangXMLAttributeAccess xmlAttributeAccessExpr) {
+        analyzeExpr(xmlAttributeAccessExpr.expr);
+        analyzeExpr(xmlAttributeAccessExpr.indexExpr);
+    }
+
+    public void visit(BLangIntRangeExpression intRangeExpression) {
+        analyzeExpr(intRangeExpression.startExpr);
+        analyzeExpr(intRangeExpression.endExpr);
     }
 
     public void visit(BLangValueType valueType) {
@@ -675,23 +743,37 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         /* ignore */
     }
 
+    private <E extends BLangExpression> void analyzeExpr(E node) {
+        if (node == null) {
+            return;
+        }
+
+        node.accept(this);
+    }
+
+    private <E extends BLangExpression> void analyzeExprs(List<E> nodeList) {
+        for (int i = 0; i < nodeList.size(); i++) {
+            nodeList.get(i).accept(this);
+        }
+    }
+
     private void initNewWorkerActionSystem() {
         this.workerActionSystemStack.push(new WorkerActionSystem());
     }
-    
+
     private void finalizeCurrentWorkerActionSystem() {
         WorkerActionSystem was = this.workerActionSystemStack.pop();
         this.validateWorkerInteractions(was);
     }
-    
+
     private static boolean isWorkerSend(BLangStatement action) {
         return action.getKind() == NodeKind.WORKER_SEND;
     }
-    
+
     private static boolean isWorkerForkSend(BLangStatement action) {
         return ((BLangWorkerSend) action).isForkJoinSend;
     }
-    
+
     private String extractWorkerId(BLangStatement action) {
         if (isWorkerSend(action)) {
             return ((BLangWorkerSend) action).workerIdentifier.value;
@@ -699,7 +781,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             return ((BLangWorkerReceive) action).workerIdentifier.value;
         }
     }
-    
+
     private void validateWorkerInteractions(WorkerActionSystem workerActionSystem) {
         BLangStatement currentAction;
         WorkerActionStateMachine currentSM;
@@ -721,7 +803,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                     } else {
                         WorkerActionStateMachine otherSM = workerActionSystem.get(this.extractWorkerId(currentAction));
                         if (otherSM.currentIsReceive(currentWorkerId)) {
-                            this.validateWorkerActionParameters((BLangWorkerSend) currentAction, 
+                            this.validateWorkerActionParameters((BLangWorkerSend) currentAction,
                                     (BLangWorkerReceive) otherSM.currentAction());
                             otherSM.next();
                             currentSM.next();
@@ -759,49 +841,49 @@ public class CodeAnalyzer extends BLangNodeVisitor {
      * This class contains the state machines for a set of workers.
      */
     private static class WorkerActionSystem {
-        
+
         public Map<String, WorkerActionStateMachine> workerActionStateMachines = new LinkedHashMap<>();
-        
+
         private WorkerActionStateMachine currentSM;
-        
+
         private String currentWorkerId;
-        
+
         public void startWorkerActionStateMachine(String workerId, DiagnosticPos pos) {
             this.currentWorkerId = workerId;
             this.currentSM = new WorkerActionStateMachine(pos);
         }
-        
+
         public void endWorkerActionStateMachine() {
             this.workerActionStateMachines.put(this.currentWorkerId, this.currentSM);
         }
-        
+
         public void addWorkerAction(BLangStatement action) {
             this.currentSM.actions.add(action);
         }
-        
+
         public WorkerActionStateMachine get(String workerId) {
             return this.workerActionStateMachines.get(workerId);
         }
-        
+
         public Set<Map.Entry<String, WorkerActionStateMachine>> entrySet() {
             return this.workerActionStateMachines.entrySet();
         }
-        
+
         public boolean everyoneDone() {
             return this.workerActionStateMachines.values().stream().allMatch(WorkerActionStateMachine::done);
         }
-        
+
         public DiagnosticPos getRootPosition() {
             return this.workerActionStateMachines.values().iterator().next().pos;
         }
-        
+
         @Override
         public String toString() {
             return this.workerActionStateMachines.toString();
         }
-        
+
     }
-    
+
     /**
      * This class represents a state machine to maintain the state of the send/receive
      * actions of a worker.
@@ -815,7 +897,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         public List<BLangStatement> actions = new ArrayList<>();
 
         public DiagnosticPos pos;
-        
+
         public WorkerActionStateMachine(DiagnosticPos pos) {
             this.pos = pos;
         }
@@ -860,7 +942,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
      * Visit all the nested expressions and validate variable references against a given set of symbols.
      * This visitor is used to check whether an expression contains inputs/output variables, that are not 
      * suppose to be there.
-     * 
+     *
      * @since 0.94.2
      */
     private class TransformerVarRefValidator extends BLangNodeVisitor {
@@ -870,7 +952,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
         /**
          * Create a new {@link TransformerVarRefValidator}.
-         * 
+         *
          * @param symbols List of symbols to validate the expression against
          * @param diagCodeOnError Diagnostic code to be logged on error
          */

@@ -20,8 +20,6 @@ package org.ballerinalang.launcher;
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.ParameterDescription;
 
-import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 

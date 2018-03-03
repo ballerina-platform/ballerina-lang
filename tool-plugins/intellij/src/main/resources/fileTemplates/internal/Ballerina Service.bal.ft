@@ -1,0 +1,14 @@
+#if (${PACKAGE_NAME} && ${PACKAGE_NAME} != "")
+package ${PACKAGE_NAME};
+#end
+
+import ballerina.net.http;
+
+service<http> helloWorld {
+
+    resource sayHello (http:Connection conn, http:InRequest req) {
+        http:OutResponse res = {};
+        res.setStringPayload("Hello, World!");
+        _ = conn.respond(res);
+    }
+}

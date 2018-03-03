@@ -1,5 +1,7 @@
 package hover.test;
 
+import ballerina.io;
+
 @Description {value:"Struct for represent person's details"}
 @Field{value:"name: string value name of the person"}
 @Field{value:"id: int value id of the person"}
@@ -37,7 +39,7 @@ function func2 (methods ss) {
 
 function main (string[] args) {
     string s = "mars";
-    println(s);
+    io:println(s);
     var df = s.contains("mar");
     var x = test1("s",0);
     Person p = {

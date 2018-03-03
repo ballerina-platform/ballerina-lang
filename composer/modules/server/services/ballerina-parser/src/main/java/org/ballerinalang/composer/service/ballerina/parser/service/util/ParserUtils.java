@@ -155,7 +155,7 @@ public class ParserUtils {
         names.add(new org.wso2.ballerinalang.compiler.util.Name("."));
         // Registering custom PackageRepository to provide ballerina content without a file in file-system
         context.put(PackageRepository.class, new InMemoryPackageRepository(
-                new PackageID(names, new org.wso2.ballerinalang.compiler.util.Name("0.0.0")),
+                PackageID.DEFAULT,
                 "", fileName, source.getBytes(StandardCharsets.UTF_8)));
         return context;
     }
@@ -209,6 +209,9 @@ public class ParserUtils {
             BLangIdentifier bLangIdentifier = new BLangIdentifier();
             bLangIdentifier.setValue(version.getValue());
 
+            BLangIdentifier orgNameNode = new BLangIdentifier();
+            orgNameNode.setValue(pkg.getOrgName().getValue());
+
             List<BLangIdentifier> pkgNameComps = pkg.getNameComps().stream().map(nameToBLangIdentifier)
                     .collect(Collectors.<BLangIdentifier>toList());
             try {
@@ -217,7 +220,7 @@ public class ParserUtils {
                 if (!"ballerina.builtin".equals(pkg.getName().getValue())
                         && !"ballerina.builtin.core".equals(pkg.getName().getValue())) {
                     org.wso2.ballerinalang.compiler.tree.BLangPackage bLangPackage = packageLoader
-                            .loadPackage(pkgNameComps, bLangIdentifier);
+                            .loadPackage(orgNameNode, pkgNameComps, bLangIdentifier);
                     loadPackageMap(pkg.getName().getValue(), bLangPackage, modelPackage);
                 }
             } catch (Exception e) {
@@ -749,14 +752,8 @@ public class ParserUtils {
         SemanticAnalyzer semAnalyzer = SemanticAnalyzer.getInstance(context);
         CodeAnalyzer codeAnalyzer = CodeAnalyzer.getInstance(context);
         Desugar desugar = Desugar.getInstance(context);
-
-        BLangPackage builtInCorePkg = desugar.perform(codeAnalyzer.analyze(semAnalyzer.analyze(
-                pkgLoader.loadEntryPackage(Names.BUILTIN_CORE_PACKAGE.value))));
-        symbolTable.createErrorTypes();
-        symbolTable.loadOperators();
         BLangPackage builtInPkg = desugar.perform(codeAnalyzer.analyze(semAnalyzer.analyze(
                 pkgLoader.loadEntryPackage(Names.BUILTIN_PACKAGE.value))));
-        builtInCorePkg.getStructs().forEach(s -> builtInPkg.getStructs().add(s));
         symbolTable.builtInPackageSymbol = builtInPkg.symbol;
         return builtInPkg;
     }

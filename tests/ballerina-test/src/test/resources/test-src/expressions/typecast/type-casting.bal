@@ -60,6 +60,22 @@ function booleanappendtostring(boolean value)(string) {
     return result;
 }
 
+function anyfloattostring()(string) {
+    any value = 5.5;
+    string result;
+    //any to string should be a conversion
+    result = <string>value;
+    return result;
+}
+
+function anyjsontostring()(string) {
+    any value = {"a":"b"};
+    string result;
+    //any to string should be a conversion
+    result = <string>value;
+    return result;
+}
+
 function intarrtofloatarr()(float[]) {
     float[] numbers;
     numbers = [999,95,889];
@@ -73,7 +89,7 @@ function testJsonToStringCast() (string) {
     return value;
 }
 
-function testJSONObjectToStringCast() (string, TypeCastError) {
+function testJSONObjectToStringCast() (string, error) {
     json j = {"foo":"bar"};
     var value, e = (string)j;
     return value, e;
@@ -162,7 +178,7 @@ function testAnyToStruct() (Person) {
                 marks:[24, 81]
             };
     Person p2;
-    TypeCastError e;
+    error e;
     p2, e = (Person) a;
     if (e != null) {
         throw e;
@@ -196,7 +212,7 @@ function testMapToAnyExplicit() (any) {
 function testBooleanInJsonToInt() (int) {
     json j = true;
     int value;
-    TypeCastError e;
+    error e;
     value, e = (int)j;
     if (e != null) {
         throw e;
@@ -207,7 +223,7 @@ function testBooleanInJsonToInt() (int) {
 function testIncompatibleJsonToInt() (int) {
     json j = "hello";
     int value;
-    TypeCastError e;
+    error e;
     value, e = (int)j;
     if (e != null) {
         throw e;
@@ -218,7 +234,7 @@ function testIncompatibleJsonToInt() (int) {
 function testIntInJsonToFloat() (float) {
     json j = 7;
     float value;
-    TypeCastError e;
+    error e;
     value, e = (float)j;
     if (e != null) {
         throw e;
@@ -229,7 +245,7 @@ function testIntInJsonToFloat() (float) {
 function testIncompatibleJsonToFloat() (float) {
     json j = "hello";
     float value;
-    TypeCastError e;
+    error e;
     value, e = (float)j;
     if (e != null) {
         throw e;
@@ -240,7 +256,7 @@ function testIncompatibleJsonToFloat() (float) {
 function testIncompatibleJsonToBoolean() (boolean) {
     json j = "hello";
     boolean value;
-    TypeCastError e;
+    error e;
     value, e = (boolean)j;
     if (e != null) {
         throw e;
@@ -284,7 +300,7 @@ function testNullJsonToBoolean() (boolean) {
 function testAnyIntToJson() (json) {
     any a = 8;
     json value;
-    TypeCastError e;
+    error e;
     value, e = (json) a;
     if (e != null) {
         throw e;
@@ -295,7 +311,7 @@ function testAnyIntToJson() (json) {
 function testAnyStringToJson() (json) {
     any a = "Supun";
     json value;
-    TypeCastError e;
+    error e;
     value, e = (json) a;
     if (e != null) {
         throw e;
@@ -306,7 +322,7 @@ function testAnyStringToJson() (json) {
 function testAnyBooleanToJson() (json) {
     any a = true;
     json value;
-    TypeCastError e;
+    error e;
     value, e = (json) a;
     if (e != null) {
         throw e;
@@ -317,7 +333,7 @@ function testAnyBooleanToJson() (json) {
 function testAnyFloatToJson() (json) {
     any a = 8.73;
     json value;
-    TypeCastError e;
+    error e;
     value, e = (json) a;
     if (e != null) {
         throw e;
@@ -329,7 +345,7 @@ function testAnyMapToJson() (json) {
     map m = {name:"supun"};
     any a = m;
     json value;
-    TypeCastError e;
+    error e;
     value, e = (json) a;
     if (e != null) {
         throw e;
@@ -341,7 +357,7 @@ function testAnyStructToJson() (json) {
     Address adrs = {city:"CA"};
     any a = adrs;
     json value;
-    TypeCastError e;
+    error e;
     value, e = (json) a;
     if (e != null) {
         throw e;
@@ -367,7 +383,7 @@ function testAnyJsonToJson() (json) {
 function testAnyArrayToJson() (json) {
     any a = [8,4,6];
     json value;
-    TypeCastError e;
+    error e;
     value, e = (json) a;
     if (e != null) {
         throw e;
@@ -398,140 +414,140 @@ struct B {
     string x;
 }
 
-function testCompatibleStructForceCasting()(A, TypeCastError) {
+function testCompatibleStructForceCasting()(A, error) {
     A a = {x: "x-valueof-a", y:4};
     B b = {x: "x-valueof-b"};
     A c;
 
     b = (B) a;
-    TypeCastError err;
+    error err;
     c, err = (A) b;
 
     a.x = "updated-x-valueof-a";
     return c, err;
 }
 
-function testInCompatibleStructForceCasting()(A, TypeCastError) {
+function testInCompatibleStructForceCasting()(A, error) {
     B b = {x: "x-valueof-b"};
     A a;
-    TypeCastError err;
+    error err;
     a, err = (A) b;
 
     return a, err;
 }
 
-function testAnyToStringWithErrors()(string, TypeCastError) {
+function testAnyToStringWithErrors()(string, error) {
     any a = 5; 
     string s;
-    TypeCastError err;
+    error err;
     s, err = (string) a;
     
     return s, err;
 }
 
-function testAnyToStringWithoutErrors()(string, TypeCastError) {
+function testAnyToStringWithoutErrors()(string, error) {
     any a = "value";
     string s;
-    TypeCastError err;
+    error err;
     s, err = (string) a;
 
     return s, err;
 }
 
-function testAnyToIntWithoutErrors()(int, TypeCastError) {
+function testAnyToIntWithoutErrors()(int, error) {
     any a = 6;
     int s;
-    TypeCastError err;
+    error err;
     s, err = (int) a;
 
     return s, err;
 }
 
-function testAnyToFloatWithoutErrors()(float, TypeCastError) {
+function testAnyToFloatWithoutErrors()(float, error) {
     any a = 6.99;
     float s;
-    TypeCastError err;
+    error err;
     s, err = (float) a;
 
     return s, err;
 }
 
-function testAnyToBooleanWithoutErrors()(boolean, TypeCastError) {
+function testAnyToBooleanWithoutErrors()(boolean, error) {
     any a = true;
     boolean s;
-    TypeCastError err;
+    error err;
     s, err = (boolean) a;
 
     return s, err;
 }
 
-function testAnyToBooleanWithErrors()(boolean, TypeCastError) {
+function testAnyToBooleanWithErrors()(boolean, error) {
     any a = 5; 
     boolean b;
-    TypeCastError err;
+    error err;
     b, err = (boolean) a;
     
     return b, err;
 }
 
-function testAnyNullToBooleanWithErrors()(boolean, TypeCastError) {
+function testAnyNullToBooleanWithErrors()(boolean, error) {
     any a = null; 
     boolean b;
-    TypeCastError err;
+    error err;
     b, err = (boolean) a;
     
     return b, err;
 }
 
-function testAnyToIntWithErrors()(int, TypeCastError) {
+function testAnyToIntWithErrors()(int, error) {
     any a = "foo"; 
     int b;
-    TypeCastError err;
+    error err;
     b, err = (int) a;
     
     return b, err;
 }
 
-function testAnyNullToIntWithErrors()(int, TypeCastError) {
+function testAnyNullToIntWithErrors()(int, error) {
     any a = null; 
     int b;
-    TypeCastError err;
+    error err;
     b, err = (int) a;
     
     return b, err;
 }
 
-function testAnyToFloatWithErrors()(float, TypeCastError) {
+function testAnyToFloatWithErrors()(float, error) {
     any a = "foo"; 
     float b;
-    TypeCastError err;
+    error err;
     b, err = (float) a;
     
     return b, err;
 }
 
-function testAnyNullToFloatWithErrors()(float, TypeCastError) {
+function testAnyNullToFloatWithErrors()(float, error) {
     any a = null; 
     float b;
-    TypeCastError err;
+    error err;
     b, err = (float) a;
     
     return b, err;
 }
 
-function testAnyToMapWithErrors()(map, TypeCastError) {
+function testAnyToMapWithErrors()(map, error) {
     any a = "foo"; 
     map b;
-    TypeCastError err;
+    error err;
     b, err = (map) a;
     
     return b, err;
 }
 
-function testAnyNullToStringWithErrors()(string, TypeCastError) {
+function testAnyNullToStringWithErrors()(string, error) {
     any a = null;
     string s;
-    TypeCastError err;
+    error err;
     s, err = (string) a;
 
     return s, err;
@@ -544,7 +560,7 @@ function testSameTypeCast() (int) {
     return b;
 }
 
-function testErrorOnCasting() (TypeCastError, TypeCastError, TypeCastError, TypeCastError) {
+function testErrorOnCasting() (error, error, error, error) {
 
     // json to string
     json j1 = "hello";

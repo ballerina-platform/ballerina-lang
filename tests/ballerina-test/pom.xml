@@ -20,7 +20,7 @@
     <parent>
         <groupId>org.ballerinalang</groupId>
         <artifactId>ballerina-parent</artifactId>
-        <version>0.96.1-SNAPSHOT</version>
+        <version>0.963.1-SNAPSHOT</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
 
@@ -66,10 +66,6 @@
             <artifactId>ballerina-http</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.ballerinalang</groupId>
-            <artifactId>ballerina-grpc</artifactId>
-        </dependency>
-        <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-jdk14</artifactId>
             <scope>test</scope>
@@ -82,11 +78,15 @@
         <dependency>
             <groupId>com.h2database</groupId>
             <artifactId>h2</artifactId>
-            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.testng</groupId>
             <artifactId>testng</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-all</artifactId>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 

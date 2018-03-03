@@ -38,7 +38,7 @@ public class BallerinaParserErrorStrategy extends DefaultErrorStrategy {
 
     private BLangDiagnosticLog dlog;
     private BDiagnosticSource diagnosticSrc;
-    
+
     public BallerinaParserErrorStrategy(CompilerContext context, BDiagnosticSource diagnosticSrc) {
         this.dlog = BLangDiagnosticLog.getInstance(context);
         this.diagnosticSrc = diagnosticSrc;
@@ -75,7 +75,7 @@ public class BallerinaParserErrorStrategy extends DefaultErrorStrategy {
             return;
         }
         beginErrorCondition(parser);
-        
+
         setContextException(parser);
         Token token = parser.getCurrentToken();
         IntervalSet expecting = getExpectedTokens(parser);
@@ -120,7 +120,7 @@ public class BallerinaParserErrorStrategy extends DefaultErrorStrategy {
      * Set an exception in the parser context. This is later used at
      * {@link org.wso2.ballerinalang.compiler.parser.BLangParserListener} level to determine whether the parse
      * exception has occurred and is in error state.
-     * 
+     *
      * @param parser Current parser
      */
     protected void setContextException(Parser parser) {

@@ -98,7 +98,7 @@ service<http> sample {
     resource echo6 (http:Connection conn, http:InRequest req) {
 
         string myName = "chamil";
-        TypeCastError err;
+        error err;
         http:Session session1 = conn.createSessionIfAbsent();
         http:Session session2 = conn.createSessionIfAbsent();
         session1.setAttribute("name", "wso2");
@@ -117,7 +117,7 @@ service<http> sample {
     }
     resource hello (http:Connection conn, http:InRequest req) {
 
-        TypeCastError err;
+        error err;
         string result = req.getStringPayload();
         http:Session session = conn.createSessionIfAbsent();
         any attribute = session.getAttribute("name");
@@ -141,7 +141,7 @@ service<http> counter {
     resource echoCount (http:Connection conn, http:InRequest req) {
 
         int sessionCounter;
-        TypeCastError err;
+        error err;
         http:Session session = conn.createSessionIfAbsent();
         if (session.getAttribute("Counter") == null) {
             sessionCounter = 0;
@@ -163,7 +163,7 @@ service<http> counter {
     resource echoCount2 (http:Connection conn, http:InRequest req) {
 
         int sessionCounter;
-        TypeCastError err;
+        error err;
         http:Session session = conn.getSession();
         if (session.getAttribute("Counter") == null) {
             sessionCounter = 0;
@@ -186,7 +186,7 @@ service<http> sample2 {
     }
     resource echoName (http:Connection conn, http:InRequest req) {
         string myName = "wso2";
-        TypeCastError err;
+        error err;
         http:Session Session = conn.createSessionIfAbsent();
         any attribute = Session.getAttribute("name");
         if (attribute != null) {
@@ -205,7 +205,7 @@ service<http> sample2 {
     resource myStruct (http:Connection conn, http:InRequest req) {
 
         string result = req.getStringPayload();
-        TypeCastError err;
+        error err;
         Data d = {name:result};
         http:Session Session = conn.createSessionIfAbsent();
         any attribute = Session.getAttribute("nameStruct");
@@ -515,7 +515,7 @@ service<http> sample2 {
 
     resource new9 (http:Connection conn, http:InRequest req) {
         string myName = "FirstName";
-        TypeCastError err;
+        error err;
         http:Session Session = conn.createSessionIfAbsent();
         any attribute = Session.getAttribute("name");
         if (attribute != null) {

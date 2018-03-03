@@ -26,7 +26,7 @@ import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaAction;
 import org.ballerinalang.natives.annotations.ReturnType;
-import org.ballerinalang.net.http.Constants;
+import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.HttpUtil;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.slf4j.Logger;
@@ -41,7 +41,7 @@ import java.util.Locale;
 @BallerinaAction(
         packageName = "ballerina.net.http",
         actionName = "forward",
-        connectorName = Constants.CONNECTOR_NAME,
+        connectorName = HttpConstants.CONNECTOR_NAME,
         args = {
                 @Argument(name = "c", type = TypeKind.CONNECTOR),
                 @Argument(name = "path", type = TypeKind.STRING),
@@ -73,7 +73,7 @@ public class Forward extends AbstractHTTPAction {
             // Execute the operation
             return executeNonBlockingAction(context, createOutboundRequestMsg(context));
         } catch (Throwable t) {
-            throw new BallerinaException("Failed to invoke 'forward' action in " + Constants.CONNECTOR_NAME
+            throw new BallerinaException("Failed to invoke 'forward' action in " + HttpConstants.CONNECTOR_NAME
                     + ". " + t.getMessage(), context);
         }
     }
@@ -83,7 +83,7 @@ public class Forward extends AbstractHTTPAction {
         String path = getStringArgument(context, 0);
         BStruct requestStruct = ((BStruct) getRefArgument(context, 1));
 
-        if (requestStruct.getNativeData(Constants.IN_REQUEST) == null) {
+        if (requestStruct.getNativeData(HttpConstants.IN_REQUEST) == null) {
             throw new BallerinaException("invalid inbound request parameter");
         }
 
@@ -91,8 +91,8 @@ public class Forward extends AbstractHTTPAction {
                 .getCarbonMsg(requestStruct, HttpUtil.createHttpCarbonMessage(true));
         prepareOutboundRequest(bConnector, path, outboundRequestMsg);
 
-        String httpVerb = (String) outboundRequestMsg.getProperty(Constants.HTTP_METHOD);
-        outboundRequestMsg.setProperty(Constants.HTTP_METHOD, httpVerb.trim().toUpperCase(Locale.getDefault()));
+        String httpVerb = (String) outboundRequestMsg.getProperty(HttpConstants.HTTP_METHOD);
+        outboundRequestMsg.setProperty(HttpConstants.HTTP_METHOD, httpVerb.trim().toUpperCase(Locale.getDefault()));
 
         return outboundRequestMsg;
     }

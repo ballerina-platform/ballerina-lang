@@ -50,5 +50,9 @@ public enum Flag {
      * TODO need to fix this in a better way.
      * this is needed for composer to identify whether user defined type is a connector or not.
      */
-    CONNECTOR
+    CONNECTOR,
+    /**
+     * Indicates Flagged node is deprecated.
+     */
+    DEPRECATED
 }

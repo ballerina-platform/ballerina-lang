@@ -1,6 +1,23 @@
+// Copyright (c) 2017 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+//
+// WSO2 Inc. licenses this file to you under the Apache License,
+// Version 2.0 (the "License"); you may not use this file except
+// in compliance with the License.
+// You may obtain a copy of the License at
+//
+// http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing,
+// software distributed under the License is distributed on an
+// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+// KIND, either express or implied.  See the License for the
+// specific language governing permissions and limitations
+// under the License.
+
 package ballerina.caching;
 
 import ballerina.task;
+import ballerina.time;
 import ballerina.util;
 
 @Description {value:"Cache cleanup task starting delay in ms."}
@@ -45,17 +62,17 @@ struct CacheEntry {
 public function createCache (string name, int expiryTimeMillis, int capacity, float evictionFactor) returns (Cache) {
     // Cache expiry time must be a positive value.
     if (expiryTimeMillis <= 0) {
-        error e = {msg:"Expiry time must be greater than 0."};
+        error e = {message:"Expiry time must be greater than 0."};
         throw e;
     }
     // Cache capacity must be a positive value.
     if (capacity <= 0) {
-        error e = {msg:"Capacity must be greater than 0."};
+        error e = {message:"Capacity must be greater than 0."};
         throw e;
     }
     // Cache eviction factor must be between 0.0 (exclusive) and 1.0 (inclusive).
     if (evictionFactor <= 0 || evictionFactor > 1) {
-        error e = {msg:"Cache eviction factor must be between 0.0 (exclusive) and 1.0 (inclusive)."};
+        error e = {message:"Cache eviction factor must be between 0.0 (exclusive) and 1.0 (inclusive)."};
         throw e;
     }
 
@@ -84,7 +101,7 @@ public function <Cache cache> put (string key, any value) {
         cache.evictCache();
     }
     // Add the new entry.
-    int time = currentTime().time;
+    int time = time:currentTime().time;
     CacheEntry entry = {value:value, lastAccessedTime:time};
     cache.entries[key] = entry;
 }
@@ -97,10 +114,8 @@ function <Cache cache> evictCache () {
     // Get the above number of least recently used cache entry keys from the cache.
     string[] cacheKeys = cache.getLRUCacheKeys(numberOfKeysToEvict);
     // Iterate through the map and remove entries.
-    int index = 0;
-    while (index < (lengthof cacheKeys)) {
-        cache.entries.remove(cacheKeys[index]);
-        index = index + 1;
+    foreach c in cacheKeys {
+        cache.entries.remove(c);
     }
 }
 
@@ -116,7 +131,7 @@ public function <Cache cache> get (string key) returns (any) {
     if (e != null || entry == null) {
         return null;
     }
-    entry.lastAccessedTime = currentTime().time;
+    entry.lastAccessedTime = time:currentTime().time;
     return entry.value;
 }
 
@@ -129,13 +144,9 @@ public function <Cache cache> remove (string key) {
 @Description {value:"Removes expired cache entries from all caches."}
 @Return {value:"error: Any error which occured during cache expiration"}
 function runCacheExpiry () returns (error) {
-    int currentCacheIndex = 0;
-    int cacheSize = lengthof cacheMap;
     // Iterate through all caches.
-    while (currentCacheIndex < cacheSize) {
-        string currentCacheKey = cacheMap.keys()[currentCacheIndex];
-        // Get a cache from the array.
-        var currentCache, err = (Cache)cacheMap[currentCacheKey];
+    foreach currentCacheKey, currentCacheValue in cacheMap {
+        var currentCache, err = (Cache)currentCacheValue;
         if (err != null) {
             next;
         }
@@ -150,37 +161,28 @@ function runCacheExpiry () returns (error) {
         // Get the expiry time of the current cache
         int currentCacheExpiryTime = currentCache.expiryTimeMillis;
 
-        int currentKeyIndex = 0;
-        int currentCacheSize = lengthof currentCacheEntriesKeys;
-
         // Create a new array to store keys of cache entries which needs to be removed.
         string[] cachesToBeRemoved = [];
         int cachesToBeRemovedIndex = 0;
         // Iterate through all keys.
-        while (currentKeyIndex < currentCacheSize) {
-            // Get the current key.
-            string key = currentCacheEntriesKeys[currentKeyIndex];
+        foreach key in currentCacheEntriesKeys {
             // Get the corresponding entry from the cache.
             var entry, _ = (CacheEntry)currentCacheEntries[key];
             // Get the current system time.
-            int currentSystemTime = currentTime().time;
+            int currentSystemTime = time:currentTime().time;
             // Check whether the cache entry needs to be removed.
             if (currentSystemTime >= entry.lastAccessedTime + currentCacheExpiryTime) {
                 cachesToBeRemoved[cachesToBeRemovedIndex] = key;
                 cachesToBeRemovedIndex = cachesToBeRemovedIndex + 1;
             }
-            currentKeyIndex = currentKeyIndex + 1;
         }
 
         // Iterate through the key list which needs to be removed.
-        currentKeyIndex = 0;
-        while (currentKeyIndex < cachesToBeRemovedIndex) {
+        foreach currentKeyIndex in [0..cachesToBeRemovedIndex) {
             string key = cachesToBeRemoved[currentKeyIndex];
             // Remove the cache entry.
             currentCacheEntries.remove(key);
-            currentKeyIndex = currentKeyIndex + 1;
         }
-        currentCacheIndex = currentCacheIndex + 1;
     }
     return null;
 }
@@ -193,25 +195,20 @@ function <Cache cache> getLRUCacheKeys (int numberOfKeysToEvict) (string[]) {
     int[] timestamps = [];
     map entries = cache.entries;
     string[] keys = entries.keys();
-    int size = lengthof keys;
     // Iterate through each key.
-    int index = 0;
-    while (index < size) {
-        string key = keys[index];
+    foreach key in keys {
         var entry, _ = (CacheEntry)entries[key];
         // Check and add the key to the cacheKeysToBeRemoved if it matches the conditions.
         checkAndAdd(numberOfKeysToEvict, cacheKeysToBeRemoved, timestamps, key, entry.lastAccessedTime);
-        index = index + 1;
     }
     // Return the array.
     return cacheKeysToBeRemoved;
 }
 
 function checkAndAdd (int numberOfKeysToEvict, string[] cacheKeys, int[] timestamps, string key, int lastAccessTime) {
-    int index = 0;
     // Iterate while we count all values from 0 to numberOfKeysToEvict exclusive of numberOfKeysToEvict since the
     // array size should be numberOfKeysToEvict.
-    while (index < numberOfKeysToEvict) {
+    foreach index in [0..numberOfKeysToEvict) {
         // If we have encountered the end of the array, that means we can add the new values to the end of the
         // array since we haven’t reached the numberOfKeysToEvict limit.
         if (lengthof cacheKeys == index) {
@@ -233,7 +230,6 @@ function checkAndAdd (int numberOfKeysToEvict, string[] cacheKeys, int[] timesta
                 lastAccessTime = tempTimeStamp;
             }
         }
-        index = index + 1;
     }
 }
 

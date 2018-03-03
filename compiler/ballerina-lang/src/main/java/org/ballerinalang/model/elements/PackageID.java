@@ -32,22 +32,27 @@ import java.util.stream.Collectors;
  */
 public class PackageID {
 
-    public static final PackageID DEFAULT = new PackageID(Names.DEFAULT_PACKAGE, Names.DEFAULT_VERSION);
+    public static final PackageID DEFAULT = new PackageID(Names.ANON_ORG, Names.DEFAULT_PACKAGE, Names.DEFAULT_VERSION);
+    private final Name orgName;
 
     public List<Name> nameComps;
     public Name name = Names.DEFAULT_PACKAGE;
     public Name version = Names.DEFAULT_VERSION;
 
-    public PackageID(List<Name> nameComps, Name version) {
+    public PackageID(Name orgName, List<Name> nameComps, Name version) {
+        this.orgName = orgName;
         this.nameComps = nameComps;
         this.name = new Name(
                 nameComps.stream()
                         .map(Name::getValue)
                         .collect(Collectors.joining(".")));
+        this.version = version;
     }
 
-    public PackageID(Name name, Name version) {
+    public PackageID(Name orgName, Name name, Name version) {
+        this.orgName = orgName;
         this.name = name;
+        this.version = version;
         if (name == Names.DEFAULT_PACKAGE) {
             this.nameComps = Lists.of(Names.DEFAULT_PACKAGE);
         } else {
@@ -100,5 +105,9 @@ public class PackageID {
         }
 
         return this.name + "[" + this.version + "]";
+    }
+
+    public Name getOrgName() {
+        return orgName;
     }
 }

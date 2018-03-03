@@ -1,12 +1,14 @@
+import ballerina.io;
+
 public function main (string[] args) {
     map words = { a:"ant", b:"bear", c:"cat", d:"dear", e:"elephant" };
     // Count operation returns the number of elements in any collection type.
-    println("total words count "+ words.count());
+    io:println("total words count "+ words.count());
 
     // Map operation applies given function to each item of the iterable collection and returns a new iterable collection of equal length.
     // The result of the map operation is assigned to a string[] as it returns a collection of a string variable.
     string[] animals = words.map(toUpper);
-    println(animals);
+    io:println(animals);
 
     int[] numbers = [-5, -3, 2, 7, 12];
     // Filter operation returns a collection containing all elements that satisfy the input predicate function.
@@ -15,19 +17,19 @@ public function main (string[] args) {
                                })
     // Average operation returns the average of the int/float collection. Other support operations are max(), min() and sum().
                 .average();
-    println("Average of positive numbers " + avg);
+    io:println("Average of positive numbers " + avg);
 
-    println("\nExecution Order");
+    io:println("\nExecution Order");
     // Example of multiple iterable operations.
     json j = {name:"apple", colors:["red", "green"], price:5};
     j.map(function (json j)(string s) {
                     s = j.toString();
-                    println("- map operation's value :" + s);
+                    io:println("- map operation's value :" + s);
                     return s;
                 })
     // Foreach operation applies the given function to each item of the iterable collection
             .foreach(function (string s){
-                    println("-- foreach operation's value :" + s);
+                    io:println("-- foreach operation's value :" + s);
                 });
 
 }

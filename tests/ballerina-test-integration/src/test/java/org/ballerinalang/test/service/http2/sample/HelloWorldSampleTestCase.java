@@ -19,6 +19,7 @@ package org.ballerinalang.test.service.http2.sample;
 
 import io.netty.handler.codec.http.DefaultFullHttpRequest;
 import io.netty.handler.codec.http.FullHttpResponse;
+import io.netty.handler.codec.http.HttpHeaderNames;
 import org.ballerinalang.test.HTTP2IntegrationTestCase;
 import org.ballerinalang.test.util.TestConstant;
 import org.testng.Assert;
@@ -39,7 +40,7 @@ public class HelloWorldSampleTestCase extends HTTP2IntegrationTestCase {
         int send = http2Client.send(request);
         FullHttpResponse response = http2Client.getResponse(send);
         Assert.assertEquals(response.getStatus().code(), 200, "Response code mismatched");
-        Assert.assertEquals(response.headers().get(TestConstant.HEADER_CONTENT_TYPE.toLowerCase())
+        Assert.assertEquals(response.headers().get(HttpHeaderNames.CONTENT_TYPE.toString())
                 , TestConstant.CONTENT_TYPE_TEXT_PLAIN, "Content-Type mismatched");
         Assert.assertEquals(getResponse(response), "Hello, World!", "Message content mismatched");
     }
@@ -50,7 +51,7 @@ public class HelloWorldSampleTestCase extends HTTP2IntegrationTestCase {
         int send = http2Client.send(request);
         FullHttpResponse response = http2Client.getResponse(send);
         Assert.assertEquals(response.getStatus().code(), 200, "Response code mismatched");
-        Assert.assertEquals(response.headers().get(TestConstant.HEADER_CONTENT_TYPE.toLowerCase())
+        Assert.assertEquals(response.headers().get(HttpHeaderNames.CONTENT_TYPE.toString())
                 , TestConstant.CONTENT_TYPE_TEXT_PLAIN, "Content-Type mismatched");
         Assert.assertEquals(getResponse(response), "Hello, World!", "Message content mismatched");
     }

@@ -23,7 +23,7 @@
     <parent>
         <artifactId>ballerina-parent</artifactId>
         <groupId>org.ballerinalang</groupId>
-        <version>0.96.1-SNAPSHOT</version>
+        <version>0.963.1-SNAPSHOT</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
     <modelVersion>4.0.0</modelVersion>
@@ -69,6 +69,14 @@
         <dependency>
             <groupId>com.google.protobuf</groupId>
             <artifactId>protobuf-java</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.wso2.transport.http</groupId>
+            <artifactId>org.wso2.transport.http.netty</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.ballerinalang</groupId>
+            <artifactId>ballerina-http</artifactId>
         </dependency>
         <dependency>
             <groupId>org.testng</groupId>

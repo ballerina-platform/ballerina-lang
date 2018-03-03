@@ -1,3 +1,4 @@
+import ballerina.io;
 function refTypeAccessTestTrivialEqualityPositiveCase() (int) {
     int temp_int = 2;
     int temp_int_1 = 5;
@@ -348,7 +349,7 @@ function testTypeAccessExprValueTypeNegative() (int) {
 }
 
 function testTypeAccessExprValueTypeArrayNegative() (int) {
-    string[] strValue;
+    string[] strValue = [];
     if((typeof strValue) == (typeof int[])){
        return 1;
     } else {
@@ -357,7 +358,7 @@ function testTypeAccessExprValueTypeArrayNegative() (int) {
 }
 
 function testTypeAccessExprValueTypeArray() (int) {
-    int[] intValue;
+    int[] intValue = [];
     if((typeof intValue) == (typeof int[])){
        return 1;
     } else {
@@ -430,14 +431,14 @@ function testCheckTypeOfJson() (json, json[], string, int, float, boolean){
     if (typeof j1 == typeof json) {
         j = j1;
     }
-    
-    println(typeof j2);
-    println(typeof json[]);
+
+    io:println(typeof j2);
+    io:println(typeof json[]);
     if (typeof j2 == typeof json[]) {
         var ja, e = (json[]) j2;
-        println(e);
+        io:println(e);
     } else {
-        println("error on json[] cast");
+        io:println("error on json[] cast");
     }
 
     if (typeof j3 == typeof string) {
@@ -462,4 +463,23 @@ function testCheckTypeOfJson() (json, json[], string, int, float, boolean){
 function testTypeOfStructArray() (type, type, type) {
     Person[] p = [{}, {}];
     return typeof p, typeof Person[], typeof Person[][];
+}
+
+struct Software {
+   string name;
+   string des;
+}
+
+struct Middleware {
+   string name;
+}
+
+function getTypePreserveWhenCast()(int){
+   Software s = {name:"WSO2", des:"ESB"};
+   Middleware m = (Middleware)s;
+   if (typeof s == typeof m){
+      return 1;
+   } else {
+      return 0;
+   }
 }

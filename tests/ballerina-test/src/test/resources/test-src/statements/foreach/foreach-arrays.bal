@@ -1,3 +1,5 @@
+import ballerina.runtime;
+
 int[] data = [1, -3, 5, -30, 4, 11, 25, 10];
 int sum = 0;
 int negSum = 0;
@@ -247,7 +249,7 @@ function testThrow1 () (string) {
     try {
         testThrow1Callee();
     } catch (error e) {
-        output = output + e.msg;
+        output = output + e.message;
     }
     return output;
 }
@@ -258,7 +260,7 @@ function testThrow1Callee () {
     sArray[3] = "d3";
     foreach i, v in sArray {
         if (v == "d1") {
-            error e = {msg:"d1 found"};
+            error e = {message:"d1 found"};
             throw e;
         }
         concatString(i, v);
@@ -270,8 +272,8 @@ function testThrow2 () (string) {
     try {
         testThrow2Callee();
     } catch (error e) {
-        output = output + e.msg;
-    } catch (NullReferenceException e){
+        output = output + e.message;
+    } catch (runtime:NullReferenceException e){
         output = output + "found null";
     }
     return output;

@@ -46,6 +46,7 @@ public class IterableContext {
     public IterableContext(BLangExpression collectionExpr) {
         this.operations = new LinkedList<>();
         this.collectionExpr = collectionExpr;
+        this.resultType = collectionExpr.type;
     }
 
     public void addOperation(Operation operation) {

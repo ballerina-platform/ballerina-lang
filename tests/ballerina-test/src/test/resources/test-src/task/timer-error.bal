@@ -12,7 +12,7 @@ function scheduleTimerWithError(int delay, int interval, string errMsg) returns 
 }
 
 function triggerWithError() returns (error e) {
-    e = {msg: origErrMsg};
+    e = {message: origErrMsg};
     return;
 }
 
@@ -22,7 +22,7 @@ function onError(error e) {
 
 function getError() returns (string msg) {
     if(err != null) {
-       msg = err.msg;
+       msg = err.message;
     }
     return;
 }

@@ -22,7 +22,7 @@
     <groupId>org.ballerinalang</groupId>
     <artifactId>ballerina-parent</artifactId>
     <packaging>pom</packaging>
-    <version>0.96.1-SNAPSHOT</version>
+    <version>0.963.1-SNAPSHOT</version>
     <name>Ballerina - Parent</name>
 
     <description>
@@ -201,12 +201,6 @@
             </dependency>
             <dependency>
                 <groupId>org.ballerinalang</groupId>
-                <artifactId>ballerina-samples</artifactId>
-                <version>${ballerina.version}</version>
-                <type>zip</type>
-            </dependency>
-            <dependency>
-                <groupId>org.ballerinalang</groupId>
                 <artifactId>composer-server-distribution</artifactId>
                 <version>${ballerina.version}</version>
             </dependency>
@@ -228,6 +222,11 @@
             </dependency>
             <dependency>
                 <groupId>org.ballerinalang</groupId>
+                <artifactId>swagger-to-ballerina-generator</artifactId>
+                <version>${ballerina.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
                 <artifactId>ballerina-container-support</artifactId>
                 <version>${ballerina.version}</version>
             </dependency>
@@ -241,6 +240,11 @@
                 <artifactId>ballerina</artifactId>
                 <version>${ballerina.version}</version>
                 <type>zip</type>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>language-server-stdio-launcher</artifactId>
+                <version>${ballerina.version}</version>
             </dependency>
 
 
@@ -480,7 +484,6 @@
                 <groupId>com.h2database</groupId>
                 <artifactId>h2</artifactId>
                 <version>${h2.version}</version>
-                <scope>test</scope>
             </dependency>
             <dependency>
                 <groupId>org.ballerinalang</groupId>
@@ -663,6 +666,16 @@
                 <version>${awaitility.version}</version>
                 <scope>test</scope>
             </dependency>
+            <dependency>
+                <groupId>org.jvnet.mimepull</groupId>
+                <artifactId>mimepull</artifactId>
+                <version>${mimepull.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.jvnet.mimepull</groupId>
+                <artifactId>mimepull</artifactId>
+                <version>${mimepull.version}</version>
+            </dependency>
             <!-- gRPC support for ballerina -->
             <dependency>
                 <groupId>io.grpc</groupId>
@@ -823,7 +836,6 @@
                 <module>language-server</module>
                 <module>misc/docerina</module>
                 <module>misc/ballerina-maven-plugins</module>
-                <module>misc/ballerina-samples</module>
                 <module>misc/swagger-ballerina</module>
                 <module>misc/testerina</module>
                 <module>misc/grpc-ballerina</module>
@@ -835,6 +847,9 @@
                 <module>distribution/zip/ballerina-tools</module>
 
                 <module>tests/ballerina-test-integration</module>
+
+                <module>tool-plugins/intellij</module>
+                <module>tool-plugins/vscode</module>
             </modules>
         </profile>
         <profile>
@@ -857,7 +872,6 @@
 
                 <module>misc/docerina</module>
                 <module>misc/ballerina-maven-plugins</module>
-                <module>misc/ballerina-samples</module>
 
                 <module>distribution/zip/ballerina</module>
 
@@ -887,7 +901,6 @@
 
                 <module>language-server</module>
                 <module>misc/ballerina-maven-plugins</module>
-                <module>misc/ballerina-samples</module>
                 <module>misc/docerina</module>
                 <module>misc/swagger-ballerina</module>
                 <module>misc/testerina</module>
@@ -899,7 +912,23 @@
                 <module>distribution/zip/ballerina-tools</module>
 
                 <module>tests/ballerina-test-integration</module>
+
+                <!-- Intellij build disabled in default build -->
+                <!--<module>tool-plugins/intellij</module>-->
+                <module>tool-plugins/vscode</module>
             </modules>
+        </profile>
+        <profile>
+            <id>platform-windows</id>
+            <activation>
+                <os>
+                    <family>windows</family>
+                </os>
+            </activation>
+            <properties>
+                <!-- Override the executable names for Windows -->
+                <npm.executable>npm.cmd</npm.executable>
+            </properties>
         </profile>
     </profiles>
 
@@ -934,7 +963,7 @@
                 <plugin>
                     <groupId>org.codehaus.mojo</groupId>
                     <artifactId>exec-maven-plugin</artifactId>
-                    <version>${mvn.exec.plugin.version}</version>
+                    <version>${maven.exec.plugin.version}</version>
                 </plugin>
 
                 <plugin>
@@ -1194,7 +1223,8 @@
     </build>
 
     <properties>
-        <ballerina.version>0.96.1-SNAPSHOT</ballerina.version>
+        <ballerina.version>0.963.1-SNAPSHOT</ballerina.version>
+        <npm.executable>npm</npm.executable>
         <ballerina.package.export.version>0.8.0</ballerina.package.export.version>
 
         <commons-net.version>3.6</commons-net.version>
@@ -1205,7 +1235,6 @@
         <ballerina.package.repository.provider.class>BallerinaBuiltinPackageRepository
         </ballerina.package.repository.provider.class>
         <mvn.processor.plugin.version>2.2.4</mvn.processor.plugin.version>
-        <mvn.exec.plugin.version>1.6.0</mvn.exec.plugin.version>
         <ant.contrib.plugin.version>1.0b3</ant.contrib.plugin.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
@@ -1219,7 +1248,7 @@
         <equinox.osgi.version>3.10.2.v20150203-1939</equinox.osgi.version>
         <equinox.osgi.services.version>3.4.0.v20140312-2051</equinox.osgi.services.version>
         <carbon.kernel.version>5.1.0</carbon.kernel.version>
-        <transport.http.version>6.0.81</transport.http.version>
+        <transport.http.version>6.0.97</transport.http.version>
         <carbon.messaging.version>2.3.7</carbon.messaging.version>
         <carbon.deployment.version>5.0.0</carbon.deployment.version>
         <carbon.config.version>2.1.2</carbon.config.version>
@@ -1259,8 +1288,9 @@
         <commons-cli.version>1.3.1</commons-cli.version>
         <io.swagger.version>1.5.8</io.swagger.version>
         <com.fasterxml.jackson.datatype.version>2.4.1</com.fasterxml.jackson.datatype.version>
-        <swagger.parser.version>1.0.25</swagger.parser.version>
+        <swagger.parser.version>1.0.34</swagger.parser.version>
         <swagger.models.version>1.5.16</swagger.models.version>
+        <swagger.parser.v2.converter.version>2.0.0-rc3</swagger.parser.v2.converter.version>
         <com.fasterxml.jackson.core.annotations.version>2.8.0</com.fasterxml.jackson.core.annotations.version>
         <rs-api.version>2.0</rs-api.version>
         <msf4j.version>2.4.2</msf4j.version>
@@ -1271,6 +1301,7 @@
         <commons-net.version>3.6</commons-net.version>
         <jackson-core.version>2.8.6</jackson-core.version>
         <apache.mina.core>2.0.16</apache.mina.core>
+        <mimepull.version>1.9.7</mimepull.version>
 
         <wso2.maven.compiler.source>1.8</wso2.maven.compiler.source>
         <wso2.maven.compiler.target>1.8</wso2.maven.compiler.target>
@@ -1305,6 +1336,9 @@
         <maven.site.plugin.version>3.5</maven.site.plugin.version>
         <maven.source.plugin.version>3.0.0</maven.source.plugin.version>
         <maven.surefire.plugin.version>2.19.1</maven.surefire.plugin.version>
+        <maven.exec.plugin.version>1.6.0</maven.exec.plugin.version>
+        <maven.replacer.plugin.version>1.5.3</maven.replacer.plugin.version>
+
         <apache.rat.plugin.version>0.11</apache.rat.plugin.version>
         <clirr.maven.plugin.version>2.7</clirr.maven.plugin.version>
         <apache.source.release.assembly.descriptor.version>1.0.5</apache.source.release.assembly.descriptor.version>

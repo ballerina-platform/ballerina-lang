@@ -34,14 +34,18 @@ import org.ballerinalang.util.codegen.StructInfo;
 public class StructHelper {
 
     protected static BStruct createAndGetStruct(Resource resource, String packageName, String structName) {
-        ResourceInfo resourceInfo = ((BResource) resource).getResourceInfo();
-        ServiceInfo serviceInfo = resourceInfo.getServiceInfo();
-        PackageInfo packageInfo = serviceInfo.getPackageInfo();
+        PackageInfo packageInfo = getPackageInfo(resource);
         ProgramFile programFile = packageInfo.getProgramFile();
 
         PackageInfo structPackageInfo = programFile.getPackageInfo(packageName);
         StructInfo structInfo = structPackageInfo.getStructInfo(structName);
         BStructType structType = structInfo.getType();
         return new BStruct(structType);
+    }
+
+    protected static PackageInfo getPackageInfo(Resource resource) {
+        ResourceInfo resourceInfo = ((BResource) resource).getResourceInfo();
+        ServiceInfo serviceInfo = resourceInfo.getServiceInfo();
+        return serviceInfo.getPackageInfo();
     }
 }

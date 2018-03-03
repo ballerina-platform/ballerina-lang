@@ -1,4 +1,6 @@
 import ballerina.file;
+import ballerina.io;
+import ballerina.time;
 
 function main (string[] args) {
     //Create 'File' struct and open for writing.
@@ -10,25 +12,25 @@ function main (string[] args) {
 
     //Check whether the file exists.
     boolean b = target.exists();
-    println("file exists: " + b);
+    io:println("file exists: " + b);
 
     //Here's how you can copy a file.
     file:File source = {path:"/tmp/result.txt"};
     file:File destination = {path:"/tmp/copy.txt"};
     file:copy(source, destination);
-    println("file copied: /tmp/result.txt to /tmp/copy.txt");
+    io:println("file copied: /tmp/result.txt to /tmp/copy.txt");
 
     //How to delete a file.
     destination.delete();
-    println("file deleted: /tmp/copy.txt");
+    io:println("file deleted: /tmp/copy.txt");
 
     //Move source file to destination.
     destination = {path:"/tmp/move.txt"};
     file:move(source, destination);
-    println("file moved: /tmp/result.txt to /tmp/move.txt");
+    io:println("file moved: /tmp/result.txt to /tmp/move.txt");
 
     destination.delete();
-    println("file deleted: /tmp/move.txt");
+    io:println("file deleted: /tmp/move.txt");
 
     //Create a directory, along with the parent directories.
     file:File dirs = {path:"/tmp/dir/abc/def"};
@@ -36,7 +38,7 @@ function main (string[] args) {
 
     //Check if a file is a directory.
     file:File possibleDir = {path:"/tmp/dir/abc"};
-    println("file is a directory: " + possibleDir.isDirectory());
+    io:println("file is a directory: " + possibleDir.isDirectory());
 
     //Create new files inside a directory (ignoring all 3 possible return values).
     file:File newFile1 = {path:"/tmp/dir/abc/file1.txt"};
@@ -54,15 +56,15 @@ function main (string[] args) {
     //Print the list of files in directory "/tmp/dir/abc".
     int i=0;
     while (i < lengthof filesList) {
-        println(filesList[i]);
+        io:println(filesList[i]);
         i = i + 1;
     }
 
     //Get file meta data.
     string name = newFile1.getName();
-    Time lastModifiedTime;
+    time:Time lastModifiedTime;
     lastModifiedTime, _, _ = newFile1.getModifiedTime();
-    println(name + " modified at: " + lastModifiedTime.time);
-    println(name + " is readable: " + newFile1.isReadable());
-    println(name + " is writable: " + newFile1.isWritable());
+    io:println(name + " modified at: " + lastModifiedTime.time);
+    io:println(name + " is readable: " + newFile1.isReadable());
+    io:println(name + " is writable: " + newFile1.isWritable());
 }

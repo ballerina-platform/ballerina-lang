@@ -1,6 +1,6 @@
 .modal-about {
 
-    .modal-header {
+    .ui.header {
         margin-left: 15px;
         .version {
             font-size: 12px;
@@ -16,11 +16,13 @@
         color: #f17b31;
         margin-left: 5px;
         font-size: 43px;
-        vertical-align: -1px;
+        vertical-align: 27px;
+        font-weight: 300;
+        font-family: Roboto, Arial, Helvetica, sans-serif;
     } 
 
     .modal-footer {
-        .icon {
+        .fw {
             font-size: 35px;
             vertical-align: middle;
         }
@@ -38,7 +40,7 @@
                 background-color:#f9f9f9;
                 color: #7D7D7D;
                 .close-tab {
-                    color: #7D7D7D;
+                    background: #f9f9f9 !important;
                     &:hover{
                         color: #474747;
                     }
@@ -47,3 +49,4 @@
         }
     }
 }
+

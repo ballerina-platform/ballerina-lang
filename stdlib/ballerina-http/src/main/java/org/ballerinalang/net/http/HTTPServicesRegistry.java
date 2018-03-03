@@ -22,7 +22,6 @@ package org.ballerinalang.net.http;
 import org.ballerinalang.connector.api.AnnAttrValue;
 import org.ballerinalang.connector.api.Annotation;
 import org.ballerinalang.connector.api.BallerinaConnectorException;
-import org.ballerinalang.connector.api.ParamDetail;
 import org.ballerinalang.connector.api.Resource;
 import org.ballerinalang.net.uri.DispatcherUtil;
 import org.ballerinalang.net.uri.URITemplateException;
@@ -90,7 +89,7 @@ public class HTTPServicesRegistry {
      */
     public void registerService(HttpService service) {
         Annotation annotation = HttpUtil.getServiceConfigAnnotation(service.getBalService(),
-                                                                    Constants.HTTP_PACKAGE_PATH);
+                                                                    HttpConstants.HTTP_PACKAGE_PATH);
 
         String basePath = discoverBasePathFrom(service, annotation);
         basePath = urlDecode(basePath);
@@ -113,7 +112,7 @@ public class HTTPServicesRegistry {
 
             // If WebSocket upgrade path is available, then register the name of the WebSocket service.
             if (annotation != null) {
-                AnnAttrValue webSocketAttr = annotation.getAnnAttrValue(Constants.ANN_CONFIG_ATTR_WEBSOCKET);
+                AnnAttrValue webSocketAttr = annotation.getAnnAttrValue(HttpConstants.ANN_CONFIG_ATTR_WEBSOCKET);
                 if (webSocketAttr != null) {
                     Annotation webSocketAnn = webSocketAttr.getAnnotation();
                     registerWebSocketUpgradePath(webSocketAnn, basePath, entryListenerInterface);
@@ -128,26 +127,26 @@ public class HTTPServicesRegistry {
         String basePath = service.getName();
         if (annotation == null) {
             //service name cannot start with / hence concat
-            return Constants.DEFAULT_BASE_PATH.concat(basePath);
+            return HttpConstants.DEFAULT_BASE_PATH.concat(basePath);
         }
-        AnnAttrValue annotationValue = annotation.getAnnAttrValue(Constants.ANN_CONFIG_ATTR_BASE_PATH);
+        AnnAttrValue annotationValue = annotation.getAnnAttrValue(HttpConstants.ANN_CONFIG_ATTR_BASE_PATH);
         if (annotationValue == null || annotationValue.getStringValue() == null) {
-            return Constants.DEFAULT_BASE_PATH.concat(basePath);
+            return HttpConstants.DEFAULT_BASE_PATH.concat(basePath);
         }
         if (!annotationValue.getStringValue().trim().isEmpty()) {
             basePath = annotationValue.getStringValue();
         } else {
-            basePath = Constants.DEFAULT_BASE_PATH;
+            basePath = HttpConstants.DEFAULT_BASE_PATH;
         }
         return sanitizeBasePath(basePath);
     }
 
     private String sanitizeBasePath(String basePath) {
         basePath = basePath.trim();
-        if (!basePath.startsWith(Constants.DEFAULT_BASE_PATH)) {
-            basePath = Constants.DEFAULT_BASE_PATH.concat(basePath);
+        if (!basePath.startsWith(HttpConstants.DEFAULT_BASE_PATH)) {
+            basePath = HttpConstants.DEFAULT_BASE_PATH.concat(basePath);
         }
-        if (basePath.endsWith(Constants.DEFAULT_BASE_PATH) && basePath.length() != 1) {
+        if (basePath.endsWith(HttpConstants.DEFAULT_BASE_PATH) && basePath.length() != 1) {
             basePath = basePath.substring(0, basePath.length() - 1);
         }
         return basePath;
@@ -155,9 +154,9 @@ public class HTTPServicesRegistry {
 
     private void registerWebSocketUpgradePath(Annotation webSocketAnn, String basePath, String serviceInterface) {
         String upgradePath = sanitizeBasePath(
-                webSocketAnn.getAnnAttrValue(Constants.ANN_WEBSOCKET_ATTR_UPGRADE_PATH).getStringValue());
+                webSocketAnn.getAnnAttrValue(HttpConstants.ANN_WEBSOCKET_ATTR_UPGRADE_PATH).getStringValue());
         String serviceName =
-                webSocketAnn.getAnnAttrValue(Constants.ANN_WEBSOCKET_ATTR_SERVICE_NAME).getStringValue().trim();
+                webSocketAnn.getAnnAttrValue(HttpConstants.ANN_WEBSOCKET_ATTR_SERVICE_NAME).getStringValue().trim();
         String uri = basePath.concat(upgradePath);
         webSocketServicesRegistry.addUpgradableServiceByName(serviceInterface, uri, serviceName);
     }
@@ -167,7 +166,7 @@ public class HTTPServicesRegistry {
         List<HttpResource> resources = new ArrayList<>();
         for (Resource resource : httpService.getBalerinaService().getResources()) {
             HttpResource httpResource = buildHttpResource(resource);
-            validateResourceSignature(httpResource);
+            httpResource.prepareAndValidateSignatureParams();
             try {
                 httpService.getUriTemplate().parse(httpResource.getPath(), httpResource,
                                                    new HttpResourceElementFactory());
@@ -196,7 +195,7 @@ public class HTTPServicesRegistry {
     private HttpResource buildHttpResource(Resource resource) {
         HttpResource httpResource = new HttpResource(resource);
         Annotation resourceConfigAnnotation = HttpUtil.getResourceConfigAnnotation(resource,
-                                                                                   Constants.HTTP_PACKAGE_PATH);
+                                                                                   HttpConstants.HTTP_PACKAGE_PATH);
         if (resourceConfigAnnotation == null) {
             if (logger.isDebugEnabled()) {
                 logger.debug("resourceConfig not specified in the Resource, using default sub path");
@@ -205,7 +204,7 @@ public class HTTPServicesRegistry {
             return httpResource;
         }
         String subPath;
-        AnnAttrValue pathAttrVal = resourceConfigAnnotation.getAnnAttrValue(Constants.ANN_RESOURCE_ATTR_PATH);
+        AnnAttrValue pathAttrVal = resourceConfigAnnotation.getAnnAttrValue(HttpConstants.ANN_RESOURCE_ATTR_PATH);
         if (pathAttrVal == null) {
             if (logger.isDebugEnabled()) {
                 logger.debug("Path not specified in the Resource, using default sub path");
@@ -215,19 +214,21 @@ public class HTTPServicesRegistry {
             subPath = pathAttrVal.getStringValue().trim();
         }
         if (subPath.isEmpty()) {
-            subPath = Constants.DEFAULT_BASE_PATH;
+            subPath = HttpConstants.DEFAULT_BASE_PATH;
         }
         httpResource.setPath(subPath);
 
-        AnnAttrValue methodsAttrVal = resourceConfigAnnotation.getAnnAttrValue(Constants.ANN_RESOURCE_ATTR_METHODS);
+        AnnAttrValue methodsAttrVal = resourceConfigAnnotation.getAnnAttrValue(HttpConstants.ANN_RESOURCE_ATTR_METHODS);
         if (methodsAttrVal != null) {
             httpResource.setMethods(DispatcherUtil.getValueList(methodsAttrVal, null));
         }
-        AnnAttrValue consumesAttrVal = resourceConfigAnnotation.getAnnAttrValue(Constants.ANN_RESOURCE_ATTR_CONSUMES);
+        AnnAttrValue consumesAttrVal = resourceConfigAnnotation.getAnnAttrValue(
+                HttpConstants.ANN_RESOURCE_ATTR_CONSUMES);
         if (consumesAttrVal != null) {
             httpResource.setConsumes(DispatcherUtil.getValueList(consumesAttrVal, null));
         }
-        AnnAttrValue producesAttrVal = resourceConfigAnnotation.getAnnAttrValue(Constants.ANN_RESOURCE_ATTR_PRODUCES);
+        AnnAttrValue producesAttrVal = resourceConfigAnnotation.getAnnAttrValue(
+                HttpConstants.ANN_RESOURCE_ATTR_PRODUCES);
         if (producesAttrVal != null) {
             httpResource.setProduces(DispatcherUtil.getValueList(producesAttrVal, null));
         }
@@ -238,38 +239,11 @@ public class HTTPServicesRegistry {
                     .distinct().collect(Collectors.toList());
             httpResource.setProducesSubTypes(subAttributeValues);
         }
+        AnnAttrValue bodyAttrVal = resourceConfigAnnotation.getAnnAttrValue(HttpConstants.ANN_RESOURCE_ATTR_BODY);
+        if (bodyAttrVal != null) {
+            httpResource.setEntityBodyAttributeValue(bodyAttrVal.getStringValue());
+        }
         return httpResource;
-    }
-
-    private void validateResourceSignature(HttpResource resource) {
-        List<ParamDetail> paramDetails = resource.getParamDetails();
-
-        if (paramDetails.size() < 2) {
-            throw new BallerinaConnectorException("resource signature parameter count should be more than two");
-        }
-
-        if (!isValidResourceParam(paramDetails.get(0), Constants.CONNECTION)) {
-            throw new BallerinaConnectorException("first parameter should be of type - "
-                    + Constants.PROTOCOL_PACKAGE_HTTP + ":" + Constants.CONNECTION);
-        }
-
-        if (!isValidResourceParam(paramDetails.get(1), Constants.IN_REQUEST)) {
-            throw new BallerinaConnectorException("second parameter should be of type - "
-                    + Constants.PROTOCOL_PACKAGE_HTTP + ":" + Constants.IN_REQUEST);
-        }
-
-        for (int i = 2; i < paramDetails.size(); i++) {
-            ParamDetail paramDetail = paramDetails.get(i);
-            if (!paramDetail.getVarType().getName().equals(Constants.TYPE_STRING)) {
-                throw new BallerinaConnectorException("incompatible resource signature parameter type");
-            }
-        }
-    }
-
-    private boolean isValidResourceParam(ParamDetail paramDetail, String varTypeName) {
-        return paramDetail.getVarType().getPackagePath() != null
-                && paramDetail.getVarType().getPackagePath().equals(Constants.PROTOCOL_PACKAGE_HTTP)
-                && paramDetail.getVarType().getName().equals(varTypeName);
     }
 
     public String findTheMostSpecificBasePath(String requestURIPath, Map<String, HttpService> services) {
@@ -284,8 +258,8 @@ public class HTTPServicesRegistry {
                 return key.toString();
             }
         }
-        if (services.containsKey(Constants.DEFAULT_BASE_PATH)) {
-            return Constants.DEFAULT_BASE_PATH;
+        if (services.containsKey(HttpConstants.DEFAULT_BASE_PATH)) {
+            return HttpConstants.DEFAULT_BASE_PATH;
         }
         return null;
     }

@@ -1,3 +1,18 @@
+/*
+ *  Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *  http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
 package org.ballerinalang.net.grpc;
 
 import io.grpc.Context;
@@ -5,19 +20,12 @@ import io.grpc.Metadata;
 
 import java.util.Set;
 
-import static com.google.common.base.Preconditions.checkNotNull;
-import static com.google.common.base.Preconditions.checkState;
-
 /**
  * This class will preserve an instance the current connection context as thread local variable.
  */
 public class MessageContext {
     public static final Context.Key<MessageContext> DATA_KEY = Context.key("MessageContext");
     private Metadata contextMetadata;
-//    private Object freezeKey = null;
-
-    // stores the current MessageContext local to the running thread.
-//    private static ThreadLocal<MessageContext> currentContext = ThreadLocal.withInitial(MessageContext::new);
 
     /**
      * Attaches an empty message context to the provided gRPC {@code Context}.
@@ -26,9 +34,13 @@ public class MessageContext {
      * provided gRPC {@code Context}.
      */
     public static Context initialize(Context context) {
-        checkNotNull(context, "context");
-        checkState(DATA_KEY.get(context) == null,
-                "MessageContext has already been created in the scope of the current context");
+        if (context == null) {
+            throw new RuntimeException("Context instance provided is null.");
+        }
+        if (DATA_KEY.get(context) != null) {
+            throw new IllegalStateException("MessageContext has already been created in the scope of the current " +
+                    "context");
+        }
         return context.withValue(DATA_KEY, new MessageContext());
     }
 
@@ -38,8 +50,10 @@ public class MessageContext {
      * @throws  IllegalStateException  if no ambient context is attached to the current gRPC {@code Context}.
      */
     public static MessageContext current() {
-        checkState(DATA_KEY.get() != null,
-                "MessageContext has not yet been created in the scope of the current context");
+        if (DATA_KEY.get() == null) {
+            throw new IllegalStateException("MessageContext has not yet been created in the scope of the current " +
+                    "context");
+        }
         return DATA_KEY.get();
     }
 
@@ -57,7 +71,7 @@ public class MessageContext {
     /**
      * Copy constructor.
      */
-    MessageContext(MessageContext other) {
+    private MessageContext(MessageContext other) {
         this();
         this.contextMetadata.merge(other.contextMetadata);
     }
@@ -65,21 +79,10 @@ public class MessageContext {
     /**
      * Similar to {@link #initialize(Context)}, {@code fork()} attaches a shallow clone of this {@code MessageContext}
      * to a provided gRPC {@code Context}. Use {@code fork()} when you want create a temporary context scope.
-     *
-     * @param context
-     * @return
      */
     public Context fork(Context context) {
         return context.withValue(DATA_KEY, new MessageContext(this));
     }
-
-    //    public boolean isFrozen() {
-//        return freezeKey != null;
-//    }
-
-//    private void checkFreeze() {
-//        checkState(freezeKey == null, "MessageContext cannot be modified while frozen");
-//    }
 
     /**
      * Returns true if a value is defined for the given key.
@@ -94,11 +97,8 @@ public class MessageContext {
     /**
      * Remove all values for the given key without returning them. This is a minor performance
      * optimization if you do not need the previous values.
-     *
-     * @throws IllegalStateException  if the AmbientContext is frozen
      */
     public <T> void discardAll(Metadata.Key<T> key) {
-//        checkFreeze();
         contextMetadata.discardAll(key);
     }
 
@@ -133,11 +133,8 @@ public class MessageContext {
      * Adds the {@code key, value} pair. If {@code key} already has values, {@code value} is added to
      * the end. Duplicate values for the same key are permitted.
      *
-     * @throws NullPointerException if key or value is null
-     * @throws IllegalStateException  if the AmbientContext is frozen
      */
     public <T> void put(Metadata.Key<T> key, T value) {
-//        checkFreeze();
         contextMetadata.put(key, value);
     }
 
@@ -148,49 +145,15 @@ public class MessageContext {
      * @param value value
      * @return {@code true} if {@code value} removed; {@code false} if {@code value} was not present
      *
-     * @throws NullPointerException if {@code key} or {@code value} is null
-     * @throws IllegalStateException  if the AmbientContext is frozen
      */
     public <T> boolean remove(Metadata.Key<T> key, T value) {
-//        checkFreeze();
         return contextMetadata.remove(key, value);
     }
 
     /**
      * Remove all values for the given key. If there were no values, {@code null} is returned.
-     *
-     * @throws IllegalStateException  if the AmbientContext is frozen
      */
     public <T> Iterable<T> removeAll(Metadata.Key<T> key) {
-//        checkFreeze();
         return contextMetadata.removeAll(key);
     }
-
-//    @Override
-//    public String toString() {
-//        return (isFrozen() ? "[FROZEN] " : "[THAWED] ") + contextMetadata.toString();
-//    }
-
-/*    public static MessageContext getThreadLocalMessageContext() {
-        return currentContext.get();
-    }
-
-    private Map<String, Context.Key> contextKeyMap = new HashMap<>();
-
-    Object getHeaderValue(String headerName) {
-        Context.Key contextKey = contextKeyMap.get(headerName);
-        return contextKey != null ? contextKey.get() : null;
-    }
-
-    public void setHeaderContext(String key, Context.Key contextKey) {;
-        contextKeyMap.put(key, contextKey);
-    }
-
-    Set<String> getHeaderKeys() {
-        return contextKeyMap.keySet();
-    }
-
-    void clearHeaderContext() {
-        contextKeyMap.clear();
-    }*/
 }

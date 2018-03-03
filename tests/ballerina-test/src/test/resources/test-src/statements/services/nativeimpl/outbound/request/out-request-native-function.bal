@@ -97,7 +97,7 @@ function testSetBinaryPayload(blob value) (http:OutRequest) {
 
 function testSetEntityBody(file:File content, string contentType) (http:OutRequest) {
     http:OutRequest req = {};
-    req.setEntityBody(content, contentType);
+    req.setFileAsPayload(content, contentType);
     return req;
 }
 
@@ -122,7 +122,7 @@ service<http> helloServer {
     }
     resource GetContentLength (http:Connection conn, http:InRequest inReq) {
         http:OutRequest req = {};
-        req.setHeader("Content-Length", "15");
+        req.setHeader("content-length", "15");
         int length = req.getContentLength();
 
         http:OutResponse res = {};

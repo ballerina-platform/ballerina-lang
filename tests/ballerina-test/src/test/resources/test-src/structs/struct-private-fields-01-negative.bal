@@ -23,7 +23,7 @@ public function testRuntimeStructEqNegative() returns (string) {
     // This is a unsafe cast
     var uB, err = (userB) uA;
     if (err != null) {
-        return err.msg;
+        return err.message;
     }
     return uB.zipcode;
 }

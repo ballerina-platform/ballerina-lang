@@ -26,7 +26,7 @@ import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
-import org.ballerinalang.net.http.Constants;
+import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.session.Session;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
@@ -54,7 +54,7 @@ public class SetAttribute extends AbstractNativeFunction {
             BStruct sessionStruct  = ((BStruct) getRefArgument(context, 0));
             String attributeKey = getStringArgument(context, 0);
             BValue attributeValue = getRefArgument(context, 1);
-            Session session = (Session) sessionStruct.getNativeData(Constants.HTTP_SESSION);
+            Session session = (Session) sessionStruct.getNativeData(HttpConstants.HTTP_SESSION);
 
             if (attributeKey == null || attributeValue == null) {
                 throw new NullPointerException("Failed to set attribute: Attribute key: "

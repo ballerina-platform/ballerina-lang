@@ -17,10 +17,12 @@
  */
 package org.ballerinalang.test.services.nativeimpl.outbound.request;
 
+import io.netty.handler.codec.http.HttpHeaderNames;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.BServiceUtil;
 import org.ballerinalang.launcher.util.CompileResult;
+import org.ballerinalang.mime.util.EntityBodyHandler;
 import org.ballerinalang.mime.util.MimeUtil;
 import org.ballerinalang.model.util.StringUtils;
 import org.ballerinalang.model.values.BBlob;
@@ -31,10 +33,12 @@ import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.model.values.BXML;
 import org.ballerinalang.model.values.BXMLItem;
-import org.ballerinalang.net.http.Constants;
+import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.HttpUtil;
-import org.ballerinalang.runtime.message.BlobDataSource;
+import org.ballerinalang.runtime.message.MessageDataSource;
+import org.ballerinalang.runtime.message.StringDataSource;
 import org.ballerinalang.test.services.testutils.HTTPTestRequest;
 import org.ballerinalang.test.services.testutils.MessageUtils;
 import org.ballerinalang.test.services.testutils.Services;
@@ -51,28 +55,20 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 
 import static org.ballerinalang.mime.util.Constants.APPLICATION_FORM;
 import static org.ballerinalang.mime.util.Constants.APPLICATION_JSON;
 import static org.ballerinalang.mime.util.Constants.APPLICATION_XML;
-import static org.ballerinalang.mime.util.Constants.BYTE_DATA_INDEX;
-import static org.ballerinalang.mime.util.Constants.CONTENT_TYPE;
+import static org.ballerinalang.mime.util.Constants.ENTITY_BYTE_CHANNEL;
 import static org.ballerinalang.mime.util.Constants.ENTITY_HEADERS_INDEX;
 import static org.ballerinalang.mime.util.Constants.FILE;
-import static org.ballerinalang.mime.util.Constants.IS_ENTITY_BODY_PRESENT;
-import static org.ballerinalang.mime.util.Constants.JSON_DATA_INDEX;
+import static org.ballerinalang.mime.util.Constants.IS_BODY_BYTE_CHANNEL_ALREADY_SET;
 import static org.ballerinalang.mime.util.Constants.MEDIA_TYPE;
 import static org.ballerinalang.mime.util.Constants.MESSAGE_ENTITY;
 import static org.ballerinalang.mime.util.Constants.OCTET_STREAM;
-import static org.ballerinalang.mime.util.Constants.OVERFLOW_DATA_INDEX;
 import static org.ballerinalang.mime.util.Constants.PROTOCOL_PACKAGE_FILE;
 import static org.ballerinalang.mime.util.Constants.PROTOCOL_PACKAGE_MIME;
-import static org.ballerinalang.mime.util.Constants.TEXT_DATA_INDEX;
 import static org.ballerinalang.mime.util.Constants.TEXT_PLAIN;
-import static org.ballerinalang.mime.util.Constants.UTF_8;
-import static org.ballerinalang.mime.util.Constants.XML_DATA_INDEX;
 
 /**
  * Test cases for ballerina.net.http outbound outRequest success native functions.
@@ -81,10 +77,10 @@ public class OutRequestNativeFunctionSuccessTest {
     private static final Logger LOG = LoggerFactory.getLogger(OutRequestNativeFunctionSuccessTest.class);
 
     private CompileResult result, serviceResult;
-    private final String outReqStruct = Constants.OUT_REQUEST;
-    private final String protocolPackageHttp = Constants.PROTOCOL_PACKAGE_HTTP;
+    private final String outReqStruct = HttpConstants.OUT_REQUEST;
+    private final String protocolPackageHttp = HttpConstants.PROTOCOL_PACKAGE_HTTP;
     private final String protocolPackageMime = PROTOCOL_PACKAGE_MIME;
-    private final String entityStruct = Constants.ENTITY;
+    private final String entityStruct = HttpConstants.ENTITY;
     private final String mediaTypeStruct = MEDIA_TYPE;
 
     @BeforeClass
@@ -117,7 +113,7 @@ public class OutRequestNativeFunctionSuccessTest {
         String key = "lang";
         String value = "ballerina";
         String path = "/hello/addheader/" + key + "/" + value;
-        HTTPTestRequest inRequestMsg = MessageUtils.generateHTTPMessage(path, Constants.HTTP_METHOD_GET);
+        HTTPTestRequest inRequestMsg = MessageUtils.generateHTTPMessage(path, HttpConstants.HTTP_METHOD_GET);
         HTTPCarbonMessage response = Services.invokeNew(serviceResult, inRequestMsg);
         Assert.assertNotNull(response, "Response message not found");
         BJSON bJson = new BJSON(ResponseReader.getReturnValue(response));
@@ -133,9 +129,9 @@ public class OutRequestNativeFunctionSuccessTest {
 
         String payload = "ballerina";
         MimeUtil.setContentType(mediaType, entity, OCTET_STREAM);
-        entity.setBlobField(BYTE_DATA_INDEX, payload.getBytes());
+        entity.addNativeData(ENTITY_BYTE_CHANNEL, EntityBodyHandler.getEntityWrapper(payload));
         outRequest.addNativeData(MESSAGE_ENTITY, entity);
-        outRequest.addNativeData(IS_ENTITY_BODY_PRESENT, true);
+        outRequest.addNativeData(IS_BODY_BYTE_CHANNEL_ALREADY_SET, true);
 
         HttpUtil.addCarbonMsg(outRequest, outRequestMsg);
         BValue[] inputArg = {outRequest};
@@ -152,7 +148,8 @@ public class OutRequestNativeFunctionSuccessTest {
         BStruct entity = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageMime, entityStruct);
 
         BMap<String, BStringArray> headersMap = new BMap<>();
-        headersMap.put(Constants.HTTP_CONTENT_LENGTH, new BStringArray(new String[]{String.valueOf(payload.length())}));
+        headersMap.put(HttpHeaderNames.CONTENT_LENGTH.toString(),
+                       new BStringArray(new String[]{String.valueOf(payload.length())}));
         entity.setRefField(ENTITY_HEADERS_INDEX, headersMap);
         outRequest.addNativeData(MESSAGE_ENTITY, entity);
 
@@ -166,7 +163,7 @@ public class OutRequestNativeFunctionSuccessTest {
     @Test(description = "Test GetContentLength function within a service")
     public void testServiceGetContentLength() {
         String path = "/hello/getContentLength";
-        HTTPTestRequest inRequestMsg = MessageUtils.generateHTTPMessage(path, Constants.HTTP_METHOD_GET);
+        HTTPTestRequest inRequestMsg = MessageUtils.generateHTTPMessage(path, HttpConstants.HTTP_METHOD_GET);
         HTTPCarbonMessage response = Services.invokeNew(serviceResult, inRequestMsg);
 
         Assert.assertNotNull(response, "Response message not found");
@@ -180,11 +177,12 @@ public class OutRequestNativeFunctionSuccessTest {
         BStruct entity = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageMime, entityStruct);
 
         BMap<String, BStringArray> headersMap = new BMap<>();
-        headersMap.put(CONTENT_TYPE, new BStringArray(new String[]{APPLICATION_FORM + ";a=2"}));
+        headersMap.put(HttpHeaderNames.CONTENT_TYPE.toString(),
+                       new BStringArray(new String[]{APPLICATION_FORM + ";a=2"}));
         entity.setRefField(ENTITY_HEADERS_INDEX, headersMap);
         outRequest.addNativeData(MESSAGE_ENTITY, entity);
 
-        BString key = new BString(CONTENT_TYPE);
+        BString key = new BString(HttpHeaderNames.CONTENT_TYPE.toString());
         BValue[] inputArg = {outRequest, key};
         BValue[] returnVals = BRunUtil.invoke(result, "testGetHeader", inputArg);
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
@@ -195,7 +193,7 @@ public class OutRequestNativeFunctionSuccessTest {
     @Test(description = "Test GetHeader function within a service")
     public void testServiceGetHeader() {
         String path = "/hello/getHeader";
-        HTTPTestRequest inRequestMsg = MessageUtils.generateHTTPMessage(path, Constants.HTTP_METHOD_GET);
+        HTTPTestRequest inRequestMsg = MessageUtils.generateHTTPMessage(path, HttpConstants.HTTP_METHOD_GET);
         HTTPCarbonMessage response = Services.invokeNew(serviceResult, inRequestMsg);
 
         Assert.assertNotNull(response, "Response message not found");
@@ -232,9 +230,9 @@ public class OutRequestNativeFunctionSuccessTest {
 
         String payload = "{'code':'123'}";
         MimeUtil.setContentType(mediaType, entity, APPLICATION_JSON);
-        entity.setRefField(JSON_DATA_INDEX, new BJSON(payload));
+        entity.addNativeData(ENTITY_BYTE_CHANNEL, EntityBodyHandler.getEntityWrapper(payload));
         outRequest.addNativeData(MESSAGE_ENTITY, entity);
-        outRequest.addNativeData(IS_ENTITY_BODY_PRESENT, true);
+        outRequest.addNativeData(IS_BODY_BYTE_CHANNEL_ALREADY_SET, true);
 
         BValue[] inputArg = {outRequest};
         BValue[] returnVals = BRunUtil.invoke(result, "testGetJsonPayload", inputArg);
@@ -247,7 +245,7 @@ public class OutRequestNativeFunctionSuccessTest {
     public void testServiceGetJsonPayload() {
         String value = "ballerina";
         String path = "/hello/getJsonPayload";
-        HTTPTestRequest inRequestMsg = MessageUtils.generateHTTPMessage(path, Constants.HTTP_METHOD_GET);
+        HTTPTestRequest inRequestMsg = MessageUtils.generateHTTPMessage(path, HttpConstants.HTTP_METHOD_GET);
         HTTPCarbonMessage response = Services.invokeNew(serviceResult, inRequestMsg);
         Assert.assertNotNull(response, "Response message not found");
         Assert.assertEquals(new BJSON(ResponseReader.getReturnValue(response)).value().stringValue(), value);
@@ -274,7 +272,7 @@ public class OutRequestNativeFunctionSuccessTest {
     public void testServiceGetProperty() {
         String propertyValue = "Ballerina";
         String path = "/hello/GetProperty";
-        HTTPTestRequest inRequestMsg = MessageUtils.generateHTTPMessage(path, Constants.HTTP_METHOD_GET);
+        HTTPTestRequest inRequestMsg = MessageUtils.generateHTTPMessage(path, HttpConstants.HTTP_METHOD_GET);
         HTTPCarbonMessage response = Services.invokeNew(serviceResult, inRequestMsg);
 
         Assert.assertNotNull(response, "Response message not found");
@@ -290,9 +288,9 @@ public class OutRequestNativeFunctionSuccessTest {
 
         String payload = "ballerina";
         MimeUtil.setContentType(mediaType, entity, TEXT_PLAIN);
-        entity.setStringField(TEXT_DATA_INDEX, payload);
+        entity.addNativeData(ENTITY_BYTE_CHANNEL, EntityBodyHandler.getEntityWrapper(payload));
         outRequest.addNativeData(MESSAGE_ENTITY, entity);
-        outRequest.addNativeData(IS_ENTITY_BODY_PRESENT, true);
+        outRequest.addNativeData(IS_BODY_BYTE_CHANNEL_ALREADY_SET, true);
 
         BValue[] inputArg = {outRequest};
         BValue[] returnVals = BRunUtil.invoke(result, "testGetStringPayload", inputArg);
@@ -305,7 +303,7 @@ public class OutRequestNativeFunctionSuccessTest {
     public void testServiceGetStringPayload() {
         String value = "ballerina";
         String path = "/hello/GetStringPayload";
-        HTTPTestRequest inRequestMsg = MessageUtils.generateHTTPMessage(path, Constants.HTTP_METHOD_GET);
+        HTTPTestRequest inRequestMsg = MessageUtils.generateHTTPMessage(path, HttpConstants.HTTP_METHOD_GET);
         HTTPCarbonMessage response = Services.invokeNew(serviceResult, inRequestMsg);
         Assert.assertNotNull(response, "Response message not found");
         Assert.assertEquals(
@@ -320,21 +318,21 @@ public class OutRequestNativeFunctionSuccessTest {
 
         String payload = "<name>ballerina</name>";
         MimeUtil.setContentType(mediaType, entity, APPLICATION_XML);
-        entity.setRefField(XML_DATA_INDEX, new BXMLItem(payload));
+        entity.addNativeData(ENTITY_BYTE_CHANNEL, EntityBodyHandler.getEntityWrapper(payload));
         outRequest.addNativeData(MESSAGE_ENTITY, entity);
-        outRequest.addNativeData(IS_ENTITY_BODY_PRESENT, true);
+        outRequest.addNativeData(IS_BODY_BYTE_CHANNEL_ALREADY_SET, true);
 
         BValue[] inputArg = {outRequest};
         BValue[] returnVals = BRunUtil.invoke(result, "testGetXmlPayload", inputArg);
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
                 "Invalid Return Values.");
-        Assert.assertEquals(((BXMLItem) returnVals[0]).getTextValue().stringValue(), "ballerina");
+        Assert.assertEquals(((BXML) returnVals[0]).getTextValue().stringValue(), "ballerina");
     }
 
     @Test(description = "Test GetXmlPayload function within a service")
     public void testServiceGetXmlPayload() {
         String path = "/hello/GetXmlPayload";
-        HTTPTestRequest inRequestMsg = MessageUtils.generateHTTPMessage(path, Constants.HTTP_METHOD_GET);
+        HTTPTestRequest inRequestMsg = MessageUtils.generateHTTPMessage(path, HttpConstants.HTTP_METHOD_GET);
         HTTPCarbonMessage response = Services.invokeNew(serviceResult, inRequestMsg);
         Assert.assertNotNull(response, "Response message not found");
         Assert.assertEquals(ResponseReader.getReturnValue(response), "ballerina");
@@ -367,7 +365,7 @@ public class OutRequestNativeFunctionSuccessTest {
     @Test(description = "Test RemoveHeader function within a service")
     public void testServiceRemoveHeader() {
         String path = "/hello/RemoveHeader";
-        HTTPTestRequest inRequestMsg = MessageUtils.generateHTTPMessage(path, Constants.HTTP_METHOD_GET);
+        HTTPTestRequest inRequestMsg = MessageUtils.generateHTTPMessage(path, HttpConstants.HTTP_METHOD_GET);
         HTTPCarbonMessage response = Services.invokeNew(serviceResult, inRequestMsg);
 
         Assert.assertNotNull(response, "Response message not found");
@@ -403,7 +401,7 @@ public class OutRequestNativeFunctionSuccessTest {
     @Test(description = "Test RemoveAllHeaders function within a service")
     public void testServiceRemoveAllHeaders() {
         String path = "/hello/RemoveAllHeaders";
-        HTTPTestRequest inRequestMsg = MessageUtils.generateHTTPMessage(path, Constants.HTTP_METHOD_GET);
+        HTTPTestRequest inRequestMsg = MessageUtils.generateHTTPMessage(path, HttpConstants.HTTP_METHOD_GET);
         HTTPCarbonMessage response = Services.invokeNew(serviceResult, inRequestMsg);
 
         Assert.assertNotNull(response, "Response message not found");
@@ -452,7 +450,7 @@ public class OutRequestNativeFunctionSuccessTest {
         String key = "lang";
         String value = "ballerina";
         String path = "/hello/setHeader/" + key + "/" + value;
-        HTTPTestRequest inRequestMsg = MessageUtils.generateHTTPMessage(path, Constants.HTTP_METHOD_GET);
+        HTTPTestRequest inRequestMsg = MessageUtils.generateHTTPMessage(path, HttpConstants.HTTP_METHOD_GET);
         HTTPCarbonMessage response = Services.invokeNew(serviceResult, inRequestMsg);
 
         Assert.assertNotNull(response, "Response message not found");
@@ -469,7 +467,7 @@ public class OutRequestNativeFunctionSuccessTest {
                 "Invalid Return Values.");
         Assert.assertTrue(returnVals[0] instanceof BStruct);
         BStruct entity = (BStruct) ((BStruct) returnVals[0]).getNativeData(MESSAGE_ENTITY);
-        BJSON bJson = (BJSON) entity.getRefField(JSON_DATA_INDEX);
+        BJSON bJson = (BJSON) EntityBodyHandler.getMessageDataSource(entity);
         Assert.assertEquals(bJson.value().get("name").asText(), "wso2", "Payload is not set properly");
     }
 
@@ -477,7 +475,7 @@ public class OutRequestNativeFunctionSuccessTest {
     public void testServiceSetJsonPayload() {
         String value = "ballerina";
         String path = "/hello/SetJsonPayload/" + value;
-        HTTPTestRequest inRequestMsg = MessageUtils.generateHTTPMessage(path, Constants.HTTP_METHOD_GET);
+        HTTPTestRequest inRequestMsg = MessageUtils.generateHTTPMessage(path, HttpConstants.HTTP_METHOD_GET);
         HTTPCarbonMessage response = Services.invokeNew(serviceResult, inRequestMsg);
 
         Assert.assertNotNull(response, "Response message not found");
@@ -506,7 +504,7 @@ public class OutRequestNativeFunctionSuccessTest {
         String key = "lang";
         String value = "ballerina";
         String path = "/hello/SetProperty/" + key + "/" + value;
-        HTTPTestRequest inRequestMsg = MessageUtils.generateHTTPMessage(path, Constants.HTTP_METHOD_GET);
+        HTTPTestRequest inRequestMsg = MessageUtils.generateHTTPMessage(path, HttpConstants.HTTP_METHOD_GET);
         HTTPCarbonMessage response = Services.invokeNew(serviceResult, inRequestMsg);
 
         Assert.assertNotNull(response, "Response message not found");
@@ -524,15 +522,15 @@ public class OutRequestNativeFunctionSuccessTest {
                 "Invalid Return Values.");
         Assert.assertTrue(returnVals[0] instanceof BStruct);
         BStruct entity = (BStruct) ((BStruct) returnVals[0]).getNativeData(MESSAGE_ENTITY);
-        String stringValue = entity.getStringField(TEXT_DATA_INDEX);
-        Assert.assertEquals(stringValue, "Ballerina", "Payload is not set properly");
+        StringDataSource stringValue = (StringDataSource) EntityBodyHandler.getMessageDataSource(entity);
+        Assert.assertEquals(stringValue.getMessageAsString(), "Ballerina", "Payload is not set properly");
     }
 
     @Test(description = "Test SetStringPayload function within a service")
     public void testServiceSetStringPayload() {
         String value = "ballerina";
         String path = "/hello/SetStringPayload/" + value;
-        HTTPTestRequest inRequestMsg = MessageUtils.generateHTTPMessage(path, Constants.HTTP_METHOD_GET);
+        HTTPTestRequest inRequestMsg = MessageUtils.generateHTTPMessage(path, HttpConstants.HTTP_METHOD_GET);
         HTTPCarbonMessage response = Services.invokeNew(serviceResult, inRequestMsg);
 
         Assert.assertNotNull(response, "Response message not found");
@@ -550,7 +548,8 @@ public class OutRequestNativeFunctionSuccessTest {
                 "Invalid Return Values.");
         Assert.assertTrue(returnVals[0] instanceof BStruct);
         BStruct entity = (BStruct) ((BStruct) returnVals[0]).getNativeData(MESSAGE_ENTITY);
-        BXMLItem xmlValue = (BXMLItem) entity.getRefField(XML_DATA_INDEX);
+        //   BXMLItem xmlValue = (BXMLItem) entity.getRefField(XML_DATA_INDEX);
+        BXML xmlValue = (BXML) EntityBodyHandler.getMessageDataSource(entity);
         Assert.assertEquals(xmlValue.getTextValue().stringValue(), "Ballerina", "Payload is not set properly");
     }
 
@@ -558,7 +557,7 @@ public class OutRequestNativeFunctionSuccessTest {
     public void testServiceSetXmlPayload() {
         String value = "Ballerina";
         String path = "/hello/SetXmlPayload/";
-        HTTPTestRequest inRequestMsg = MessageUtils.generateHTTPMessage(path, Constants.HTTP_METHOD_GET);
+        HTTPTestRequest inRequestMsg = MessageUtils.generateHTTPMessage(path, HttpConstants.HTTP_METHOD_GET);
         HTTPCarbonMessage response = Services.invokeNew(serviceResult, inRequestMsg);
 
         Assert.assertNotNull(response, "Response message not found");
@@ -570,7 +569,7 @@ public class OutRequestNativeFunctionSuccessTest {
     public void testServiceSetBinaryPayload() {
         String value = "Ballerina";
         String path = "/hello/SetBinaryPayload/";
-        HTTPTestRequest inRequestMsg = MessageUtils.generateHTTPMessage(path, Constants.HTTP_METHOD_GET);
+        HTTPTestRequest inRequestMsg = MessageUtils.generateHTTPMessage(path, HttpConstants.HTTP_METHOD_GET);
         HTTPCarbonMessage response = Services.invokeNew(serviceResult, inRequestMsg);
 
         Assert.assertNotNull(response, "Response message not found");
@@ -582,7 +581,7 @@ public class OutRequestNativeFunctionSuccessTest {
     public void testServiceGetBinaryPayload() {
         String payload = "ballerina";
         String path = "/hello/GetBinaryPayload";
-        HTTPTestRequest inRequestMsg = MessageUtils.generateHTTPMessage(path, Constants.HTTP_METHOD_POST, payload);
+        HTTPTestRequest inRequestMsg = MessageUtils.generateHTTPMessage(path, HttpConstants.HTTP_METHOD_POST, payload);
         HTTPCarbonMessage response = Services.invokeNew(serviceResult, inRequestMsg);
 
         Assert.assertNotNull(response, "Response message not found");
@@ -600,8 +599,9 @@ public class OutRequestNativeFunctionSuccessTest {
                 "Invalid Return Values.");
         Assert.assertTrue(returnVals[0] instanceof BStruct);
         BStruct entity = (BStruct) ((BStruct) returnVals[0]).getNativeData(MESSAGE_ENTITY);
-        BlobDataSource blobDataSource = new BlobDataSource(entity.getBlobField(BYTE_DATA_INDEX));
-        Assert.assertEquals(blobDataSource.getMessageAsString(), "Ballerina", "Payload is not set properly");
+        MessageDataSource messageDataSource = EntityBodyHandler.getMessageDataSource(entity);
+        Assert.assertEquals(messageDataSource.getMessageAsString(), "Ballerina",
+                "Payload is not set properly");
     }
 
     @Test(description = "Test setEntityBody() function")
@@ -621,14 +621,34 @@ public class OutRequestNativeFunctionSuccessTest {
                     "Invalid Return Values.");
             Assert.assertTrue(returnVals[0] instanceof BStruct);
             BStruct entity = (BStruct) ((BStruct) returnVals[0]).getNativeData(MESSAGE_ENTITY);
-            BStruct returnFileStruct = (BStruct) entity.getRefField(OVERFLOW_DATA_INDEX);
+           /* BStruct returnFileStruct = (BStruct) entity.getRefField(OVERFLOW_DATA_INDEX);
 
             String returnJsonValue = new String(Files.readAllBytes(Paths.get(returnFileStruct.getStringField(0))),
-                    UTF_8);
-            BJSON bJson = new BJSON(returnJsonValue);
+                    UTF_8);*/
+            BJSON bJson = EntityBodyHandler.constructJsonDataSource(entity);
+
             Assert.assertEquals(bJson.value().get("name").asText(), "wso2", "Payload is not set properly");
         } catch (IOException e) {
             LOG.error("Error occured while creating a temporary file in testSetEntityBody", e.getMessage());
         }
+    }
+
+    @Test(description = "Test getStringPayload method with JSON payload")
+    public void testGetStringPayloadMethodWithJsonPayload() {
+        BStruct outRequest = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, outReqStruct);
+        BStruct entity = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageMime, entityStruct);
+        BStruct mediaType = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageMime, mediaTypeStruct);
+
+        String payload = "{\"code\":\"123\"}";
+        MimeUtil.setContentType(mediaType, entity, APPLICATION_JSON);
+        entity.addNativeData(ENTITY_BYTE_CHANNEL, EntityBodyHandler.getEntityWrapper(payload));
+        outRequest.addNativeData(MESSAGE_ENTITY, entity);
+        outRequest.addNativeData(IS_BODY_BYTE_CHANNEL_ALREADY_SET, true);
+
+        BValue[] inputArg = {outRequest};
+        BValue[] returnVals = BRunUtil.invoke(result, "testGetStringPayload", inputArg);
+        Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
+                "Invalid Return Values.");
+        Assert.assertEquals(returnVals[0].stringValue(), payload);
     }
 }

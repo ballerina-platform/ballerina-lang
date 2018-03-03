@@ -1,0 +1,139 @@
+package {{apiPackage}};
+
+import ballerina.net.http;
+@http:configuration {basePath:"{{#each servers}}{{this.url}}{{/each}}"}
+service<http> {{cut info.title " "}} {
+{{#paths}}
+{{#value}}
+{{#get}}
+    @http:resourceConfig {
+        methods:["GET"],
+        path:"{{key}}"
+    }
+    resource {{operationId}} (http:Request req, http:Response resp{{#parameters}}{{>pathParams}}{{/parameters}}) {
+        //stub code - fill as necessary
+        json payload;
+
+        resp.setHeader("Server", "Powered by Ballerina");
+        payload = {success:"true"};
+        resp.setJsonPayload(payload);
+
+        resp.send();
+    }
+{{/get}}
+{{#post}}
+    @http:resourceConfig {
+        methods:["GET"],
+        path:"{{key}}"
+    }
+    resource {{operationId}} (http:Request req, http:Response resp{{#parameters}}{{>pathParams}}{{/parameters}}) {
+        //stub code - fill as necessary
+        json payload;
+
+        resp.setHeader("Server", "Powered by Ballerina");
+        payload = {success:"true"};
+        resp.setJsonPayload(payload);
+
+        resp.send();
+    }
+{{/post}}
+{{#put}}
+    @http:resourceConfig {
+        methods:["GET"],
+        path:"{{key}}"
+    }
+    resource {{operationId}} (http:Request req, http:Response resp{{#parameters}}{{>pathParams}}{{/parameters}}) {
+        //stub code - fill as necessary
+        json payload;
+
+        resp.setHeader("Server", "Powered by Ballerina");
+        payload = {success:"true"};
+        resp.setJsonPayload(payload);
+
+        resp.send();
+    }
+{{/put}}
+{{#delete}}
+    @http:resourceConfig {
+        methods:["GET"],
+        path:"{{key}}"
+    }
+    resource {{operationId}} (http:Request req, http:Response resp{{#parameters}}{{>pathParams}}{{/parameters}}) {
+        //stub code - fill as necessary
+        json payload;
+
+        resp.setHeader("Server", "Powered by Ballerina");
+        payload = {success:"true"};
+        resp.setJsonPayload(payload);
+
+        resp.send();
+    }
+{{/delete}}
+{{#options}}
+    @http:resourceConfig {
+        methods:["GET"],
+        path:"{{key}}"
+    }
+    resource {{operationId}} (http:Request req, http:Response resp{{#parameters}}{{>pathParams}}{{/parameters}}) {
+        //stub code - fill as necessary
+        json payload;
+
+        resp.setHeader("Server", "Powered by Ballerina");
+        payload = {success:"true"};
+        resp.setJsonPayload(payload);
+
+        resp.send();
+    }
+{{/options}}
+{{#head}}
+    @http:resourceConfig {
+        methods:["GET"],
+        path:"{{key}}"
+    }
+    resource {{operationId}} (http:Request req, http:Response resp{{#parameters}}{{>pathParams}}{{/parameters}}) {
+        //stub code - fill as necessary
+        json payload;
+
+        resp.setHeader("Server", "Powered by Ballerina");
+        payload = {success:"true"};
+        resp.setJsonPayload(payload);
+
+        resp.send();
+    }
+{{/head}}
+{{#patch}}
+    @http:resourceConfig {
+        methods:["GET"],
+        path:"{{key}}"
+    }
+    resource {{operationId}} (http:Request req, http:Response resp{{#parameters}}{{>pathParams}}{{/parameters}}) {
+        //stub code - fill as necessary
+        json payload;
+
+        resp.setHeader("Server", "Powered by Ballerina");
+        payload = {success:"true"};
+        resp.setJsonPayload(payload);
+
+        resp.send();
+    }
+{{/patch}}
+{{#trace}}
+    @http:resourceConfig {
+        methods:["GET"],
+        path:"{{key}}"
+    }
+    resource {{operationId}} (http:Request req, http:Response resp{{#parameters}}{{>pathParams}}{{/parameters}}) {
+        //stub code - fill as necessary
+        json payload;
+
+        resp.setHeader("Server", "Powered by Ballerina");
+        payload = {success:"true"};
+        resp.setJsonPayload(payload);
+
+        resp.send();
+    }
+{{/trace}}
+{{/value}}
+{{/paths}}
+}
+

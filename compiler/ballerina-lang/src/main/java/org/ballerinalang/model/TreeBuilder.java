@@ -23,6 +23,8 @@ import org.ballerinalang.model.tree.AnnotationAttributeNode;
 import org.ballerinalang.model.tree.AnnotationNode;
 import org.ballerinalang.model.tree.CompilationUnitNode;
 import org.ballerinalang.model.tree.ConnectorNode;
+import org.ballerinalang.model.tree.DeprecatedNode;
+import org.ballerinalang.model.tree.DocumentationNode;
 import org.ballerinalang.model.tree.EnumNode;
 import org.ballerinalang.model.tree.FunctionNode;
 import org.ballerinalang.model.tree.IdentifierNode;
@@ -41,6 +43,7 @@ import org.ballerinalang.model.tree.expressions.AnnotationAttachmentAttributeVal
 import org.ballerinalang.model.tree.expressions.ArrayLiteralNode;
 import org.ballerinalang.model.tree.expressions.BinaryExpressionNode;
 import org.ballerinalang.model.tree.expressions.ConnectorInitNode;
+import org.ballerinalang.model.tree.expressions.DocumentationAttributeNode;
 import org.ballerinalang.model.tree.expressions.FieldBasedAccessNode;
 import org.ballerinalang.model.tree.expressions.IndexBasedAccessNode;
 import org.ballerinalang.model.tree.expressions.IntRangeExpression;
@@ -96,6 +99,8 @@ import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 import org.wso2.ballerinalang.compiler.tree.BLangConnector;
+import org.wso2.ballerinalang.compiler.tree.BLangDeprecatedNode;
+import org.wso2.ballerinalang.compiler.tree.BLangDocumentation;
 import org.wso2.ballerinalang.compiler.tree.BLangEnum;
 import org.wso2.ballerinalang.compiler.tree.BLangEnum.BLangEnumerator;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
@@ -115,6 +120,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAttachmentAttr
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrayLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConnectorInit;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangDocumentationAttribute;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIntRangeExpression;
@@ -384,6 +390,18 @@ public class TreeBuilder {
 
     public static AnnotationAttachmentNode createAnnotAttachmentNode() {
         return new BLangAnnotationAttachment();
+    }
+
+    public static DocumentationNode createDocumentationNode() {
+        return new BLangDocumentation();
+    }
+
+    public static DeprecatedNode createDeprecatedNode() {
+        return new BLangDeprecatedNode();
+    }
+
+    public static DocumentationAttributeNode createDocumentationAttributeNode() {
+        return new BLangDocumentationAttribute();
     }
 
     public static IfNode createIfElseStatementNode() {

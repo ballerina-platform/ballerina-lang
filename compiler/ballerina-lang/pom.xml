@@ -21,7 +21,7 @@
     <parent>
         <groupId>org.ballerinalang</groupId>
         <artifactId>ballerina-parent</artifactId>
-        <version>0.96.1-SNAPSHOT</version>
+        <version>0.963.1-SNAPSHOT</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
 
@@ -43,6 +43,17 @@
             <artifactId>commons-lang3</artifactId>
         </dependency>
     </dependencies>
+
+    <build>
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+                <excludes>
+                    <exclude>**/grammar/**</exclude>
+                </excludes>
+            </resource>
+        </resources>
+    </build>
 
     <properties>
         <mavan.findbugsplugin.exclude.file>findbugs-exclude.xml</mavan.findbugsplugin.exclude.file>

@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (c) 2017, WSO2 Inc. (http://wso2.com) All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,13 +15,16 @@
  */
 package org.ballerinalang.langserver;
 
+import org.ballerinalang.langserver.common.constants.NodeContextKeys;
 import org.ballerinalang.langserver.common.position.PositionTreeVisitor;
+import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.completions.CompletionKeys;
 import org.ballerinalang.langserver.completions.TreeVisitor;
-import org.ballerinalang.langserver.completions.consts.CompletionItemResolver;
 import org.ballerinalang.langserver.completions.resolvers.TopLevelResolver;
+import org.ballerinalang.langserver.completions.util.CompletionItemResolver;
 import org.ballerinalang.langserver.definition.util.DefinitionUtil;
 import org.ballerinalang.langserver.hover.util.HoverUtil;
+import org.ballerinalang.langserver.references.util.ReferenceUtil;
 import org.ballerinalang.langserver.signature.SignatureHelpUtil;
 import org.ballerinalang.langserver.signature.SignatureTreeVisitor;
 import org.ballerinalang.langserver.symbols.SymbolFindingVisitor;
@@ -69,10 +72,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
-import java.net.MalformedURLException;
 import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.URL;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -81,7 +81,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
-import java.util.stream.Collectors;
 
 /**
  * Text document service implementation for ballerina.
@@ -97,11 +96,13 @@ public class BallerinaTextDocumentService implements TextDocumentService {
 
     private final Debouncer diagPushDebouncer;
 
-    public BallerinaTextDocumentService(BallerinaLanguageServer ballerinaLanguageServer) {
+    public BallerinaTextDocumentService(BallerinaLanguageServer ballerinaLanguageServer,
+                                        WorkspaceDocumentManagerImpl workspaceDocumentManager,
+                                        BLangPackageContext packageContext) {
         this.ballerinaLanguageServer = ballerinaLanguageServer;
-        this.documentManager = new WorkspaceDocumentManagerImpl();
+        this.documentManager = workspaceDocumentManager;
+        this.bLangPackageContext = packageContext;
         this.lastDiagnosticMap = new HashMap<>();
-        this.bLangPackageContext = new BLangPackageContext();
         this.diagPushDebouncer = new Debouncer(DIAG_PUSH_DEBOUNCE_DELAY);
     }
 
@@ -187,19 +188,19 @@ public class BallerinaTextDocumentService implements TextDocumentService {
     @Override
     public CompletableFuture<List<? extends Location>> definition(TextDocumentPositionParams position) {
         return CompletableFuture.supplyAsync(() -> {
-            TextDocumentServiceContext hoverContext = new TextDocumentServiceContext();
-            hoverContext.put(DocumentServiceKeys.FILE_URI_KEY, position.getTextDocument().getUri());
-            hoverContext.put(DocumentServiceKeys.POSITION_KEY, position);
+            TextDocumentServiceContext definitionContext = new TextDocumentServiceContext();
+            definitionContext.put(DocumentServiceKeys.FILE_URI_KEY, position.getTextDocument().getUri());
+            definitionContext.put(DocumentServiceKeys.POSITION_KEY, position);
 
             BLangPackage currentBLangPackage =
-                    TextDocumentServiceUtil.getBLangPackage(hoverContext, documentManager);
+                    TextDocumentServiceUtil.getBLangPackage(definitionContext, documentManager);
             bLangPackageContext.addPackage(currentBLangPackage);
             List<Location> contents;
             try {
-                PositionTreeVisitor positionTreeVisitor = new PositionTreeVisitor(hoverContext);
+                PositionTreeVisitor positionTreeVisitor = new PositionTreeVisitor(definitionContext);
                 currentBLangPackage.accept(positionTreeVisitor);
 
-                contents = DefinitionUtil.getDefinitionPosition(hoverContext, currentBLangPackage);
+                contents = DefinitionUtil.getDefinitionPosition(definitionContext, bLangPackageContext);
             } catch (Exception e) {
                 contents = new ArrayList<>();
             }
@@ -209,7 +210,27 @@ public class BallerinaTextDocumentService implements TextDocumentService {
 
     @Override
     public CompletableFuture<List<? extends Location>> references(ReferenceParams params) {
-        return CompletableFuture.supplyAsync(() -> null);
+        return CompletableFuture.supplyAsync(() -> {
+            TextDocumentServiceContext referenceContext = new TextDocumentServiceContext();
+            referenceContext.put(DocumentServiceKeys.FILE_URI_KEY, params.getTextDocument().getUri());
+            referenceContext.put(DocumentServiceKeys.POSITION_KEY, params);
+
+            BLangPackage currentBLangPackage =
+                    TextDocumentServiceUtil.getBLangPackage(referenceContext, documentManager);
+            bLangPackageContext.addPackage(currentBLangPackage);
+
+            List<Location> contents = new ArrayList<>();
+            referenceContext.put(NodeContextKeys.REFERENCE_NODES_KEY, contents);
+            try {
+                PositionTreeVisitor positionTreeVisitor = new PositionTreeVisitor(referenceContext);
+                currentBLangPackage.accept(positionTreeVisitor);
+                contents = ReferenceUtil.getReferences(referenceContext, bLangPackageContext, currentBLangPackage);
+            } catch (Exception e) {
+                // Ignore
+            }
+
+            return contents;
+        });
     }
 
     @Override
@@ -221,7 +242,7 @@ public class BallerinaTextDocumentService implements TextDocumentService {
     @Override
     public CompletableFuture<List<? extends SymbolInformation>> documentSymbol(DocumentSymbolParams params) {
         String uri = params.getTextDocument().getUri();
-        List<SymbolInformation> symbols = new ArrayList<SymbolInformation>();
+        List<SymbolInformation> symbols = new ArrayList<>();
 
         TextDocumentServiceContext symbolsContext = new TextDocumentServiceContext();
         symbolsContext.put(DocumentServiceKeys.FILE_URI_KEY, uri);
@@ -243,15 +264,14 @@ public class BallerinaTextDocumentService implements TextDocumentService {
 
     @Override
     public CompletableFuture<List<? extends Command>> codeAction(CodeActionParams params) {
-        return CompletableFuture.supplyAsync(() ->
-                params.getContext().getDiagnostics().stream()
-                        .map(diagnostic -> {
-                            List<Command> res = new ArrayList<>();
-                            return res.stream();
-                        })
-                        .flatMap(it -> it)
-                        .collect(Collectors.toList())
-        );
+        return CompletableFuture.supplyAsync(() -> {
+            List<Command> commands = new ArrayList<>();
+            params.getContext().getDiagnostics().forEach(diagnostic -> {
+                commands.addAll(CommonUtil
+                        .getCommandsByDiagnostic(diagnostic, params, documentManager, bLangPackageContext));
+            });
+            return commands;
+        });
     }
 
     @Override
@@ -286,7 +306,7 @@ public class BallerinaTextDocumentService implements TextDocumentService {
 
     @Override
     public void didOpen(DidOpenTextDocumentParams params) {
-        Path openedPath = this.getPath(params.getTextDocument().getUri());
+        Path openedPath = CommonUtil.getPath(params.getTextDocument().getUri());
         if (openedPath == null) {
             return;
         }
@@ -299,7 +319,7 @@ public class BallerinaTextDocumentService implements TextDocumentService {
 
     @Override
     public void didChange(DidChangeTextDocumentParams params) {
-        Path changedPath = this.getPath(params.getTextDocument().getUri());
+        Path changedPath = CommonUtil.getPath(params.getTextDocument().getUri());
         if (changedPath == null) {
             return;
         }
@@ -401,26 +421,15 @@ public class BallerinaTextDocumentService implements TextDocumentService {
 
     @Override
     public void didClose(DidCloseTextDocumentParams params) {
-        Path closedPath = this.getPath(params.getTextDocument().getUri());
+        Path closedPath = CommonUtil.getPath(params.getTextDocument().getUri());
         if (closedPath == null) {
             return;
         }
 
-        this.documentManager.closeFile(this.getPath(params.getTextDocument().getUri()));
+        this.documentManager.closeFile(CommonUtil.getPath(params.getTextDocument().getUri()));
     }
 
     @Override
     public void didSave(DidSaveTextDocumentParams params) {
-    }
-
-    private Path getPath(String uri) {
-        Path path = null;
-        try {
-            path = Paths.get(new URL(uri).toURI());
-        } catch (URISyntaxException | MalformedURLException e) {
-            // Do Nothing
-        }
-
-        return path;
     }
 }

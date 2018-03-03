@@ -16,6 +16,7 @@
  * under the License.
  */
 import React from 'react';
+import { Button } from 'semantic-ui-react';
 import './toolbar.css';
 
 /**
@@ -35,13 +36,11 @@ class ToolSetView extends React.Component {
      */
     render() {
         return (
-            <div
-                id={this.props.id}
-                className='section-separator'
-                style={{ display: this.props.state }}
+            <Button.Group
+                fluid
             >
                 {this.props.children}
-            </div>
+            </Button.Group>
 
         );
     }
