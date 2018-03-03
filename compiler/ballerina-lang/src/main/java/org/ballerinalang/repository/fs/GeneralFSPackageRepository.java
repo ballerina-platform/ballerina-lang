@@ -146,7 +146,6 @@ public class GeneralFSPackageRepository implements PackageRepository {
                         if (dirNameCount > baseNameCount) {
                             dir.subpath(baseNameCount, dirNameCount).forEach(
                                     f -> nameComps.add(new Name(sanatize(f.getFileName().toString(), separator))));
-                            // TODO: orgName is anon, fix it.
                             result.add(new PackageID(Names.ANON_ORG, nameComps, Names.DEFAULT_VERSION));
                         }
                     }
