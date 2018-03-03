@@ -15,7 +15,7 @@ function main (string[] args) {
     //sql:ClientConnector should be true.
     endpoint<sql:ClientConnector> testDB2 {
         create sql:ClientConnector(
-        sql:DB.MYSQL, "localhost", 3306, "testdb2", "root", "root",
+        sql:DB.MYSQL, "localhost", 3308, "testdb2", "root", "root",
         {maximumPoolSize:1, isXA:true});
     }
     //Create the table named CUSTOMER in the first database.
