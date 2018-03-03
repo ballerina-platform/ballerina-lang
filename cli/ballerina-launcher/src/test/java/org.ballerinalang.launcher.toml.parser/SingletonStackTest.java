@@ -75,6 +75,4 @@ public class SingletonStackTest {
         singletonStackTest.push("world");
         Assert.assertEquals(singletonStackTest.present(), true);
     }
-
-
 }

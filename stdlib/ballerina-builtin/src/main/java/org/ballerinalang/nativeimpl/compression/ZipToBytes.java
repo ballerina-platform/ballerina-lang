@@ -68,7 +68,6 @@ public class ZipToBytes extends AbstractNativeFunction {
             list.forEach(p -> addEntry(zos, buffer, p.toString()));
             zos.close();
         } catch (IOException e) {
-            log.debug("I/O Exception when processing files ", e);
             log.error("I/O Exception when processing files " + e.getMessage());
         }
         if (bos != null) {
@@ -97,7 +96,6 @@ public class ZipToBytes extends AbstractNativeFunction {
                 fis.close();
             }
         } catch (IOException e) {
-            log.debug("I/O Exception when processing files ", e);
             log.error("I/O Exception when processing files " + e.getMessage());
         }
     }

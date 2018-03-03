@@ -254,6 +254,5 @@ public class ManifestProcessorTest {
 
         Assert.assertEquals(manifest.getPatches().get(0).getPackageName(), "jobapi");
         Assert.assertEquals(manifest.getPatches().get(1).getPackageName(), "toml");
-
     }
 }

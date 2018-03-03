@@ -67,9 +67,10 @@ public class UnzipBytes extends AbstractNativeFunction {
 
     /**
      * Decompress/unzip byte arrays/blob.
-     *  @param fileContentAsByteArray file content as a byte arry
+     *
+     * @param fileContentAsByteArray file content as a byte arry
      * @param outputFolder           destination folder
-     * @param folderToUnzip folder to unzip
+     * @param folderToUnzip          folder to unzip
      */
     protected static void decompress(byte[] fileContentAsByteArray, String outputFolder, String folderToUnzip) {
         ZipInputStream zin = null;
@@ -84,20 +85,19 @@ public class UnzipBytes extends AbstractNativeFunction {
                     int index = name.lastIndexOf('/') + 1;
                     name = name.substring(index);
                 }
-                    if (entry.isDirectory()) {
-                        mkdirs(outdir, name);
-                        continue;
-                    }
-                    // this part is necessary because file entry can come before directory entry where the
-                    // file is located
-                    dir = getDirectoryPath(name);
-                    if (dir != null) {
-                        mkdirs(outdir, dir);
-                    }
-                    extractFile(zin, outdir, name);
+                if (entry.isDirectory()) {
+                    mkdirs(outdir, name);
+                    continue;
+                }
+                // this part is necessary because file entry can come before directory entry where the
+                // file is located
+                dir = getDirectoryPath(name);
+                if (dir != null) {
+                    mkdirs(outdir, dir);
+                }
+                extractFile(zin, outdir, name);
             }
         } catch (IOException e) {
-            log.debug("I/O Exception when processing files ", e);
             log.error("I/O Exception when processing files " + e.getMessage());
         } finally {
             try {
@@ -105,7 +105,6 @@ public class UnzipBytes extends AbstractNativeFunction {
                     zin.close();
                 }
             } catch (IOException e) {
-                log.debug("I/O Exception when closing the input stream ", e);
                 log.error("I/O Exception when closing the input stream " + e.getMessage());
             }
         }
@@ -129,17 +128,14 @@ public class UnzipBytes extends AbstractNativeFunction {
                 out.write(buffer, 0, count);
             }
         } catch (FileNotFoundException e) {
-            log.debug("File not found to process " + outdir, e);
-            log.error("File not found to process " + e.getMessage());
+            log.error("File not found to process " + outdir + e.getMessage());
         } catch (IOException e) {
-            log.debug("I/O Exception when closing the input stream " + outdir, e);
-            log.error("I/O Exception when closing the input stream " + e.getMessage());
+            log.error("I/O Exception when closing the input stream " + outdir, e);
         } finally {
             if (out != null) {
                 try {
                     out.close();
                 } catch (IOException e) {
-                    log.debug("I/O Exception when closing the input stream ", e);
                     log.error("I/O Exception when closing the input stream " + e.getMessage());
                 }
             }

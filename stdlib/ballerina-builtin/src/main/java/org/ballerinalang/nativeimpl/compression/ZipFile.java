@@ -78,13 +78,11 @@ public class ZipFile extends AbstractNativeFunction {
                 try {
                     addEntry(finalZos, p.toString());
                 } catch (IOException e) {
-                    log.debug("I/O Exception when processing files ", e);
                     log.error("I/O Exception when processing files " + e.getMessage());
                 }
             });
         } catch (IOException e) {
-            log.debug("Failed or interrupted I/O operation has occurred", e);
-            log.error("Failed or interrupted I/O operation has occurred");
+            log.error("Failed or interrupted I/O operation has occurred" + e.getMessage());
         } finally {
             try {
                 if (zos != null) {
@@ -94,8 +92,8 @@ public class ZipFile extends AbstractNativeFunction {
                     fos.close();
                 }
             } catch (IOException e) {
-                log.debug("Failed or interrupted I/O operation has occured when closing the ZipOutputStream", e);
-                log.error("Failed or interrupted I/O operation has occured when closing the ZipOutputStream");
+                log.error("Failed or interrupted I/O operation has occured when closing the ZipOutputStream" +
+                        e.getMessage());
             }
         }
     }

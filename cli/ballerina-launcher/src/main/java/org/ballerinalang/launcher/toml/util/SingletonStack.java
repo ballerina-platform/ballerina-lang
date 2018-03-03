@@ -21,7 +21,7 @@ package org.ballerinalang.launcher.toml.util;
  * This class can be used to handle a singleton content with one element.
  *
  * @since 0.964
- * @param <T>
+ * @param <T> Any type of object to be stored in the stack
  */
 public class SingletonStack<T> {
     private T content;
@@ -29,7 +29,7 @@ public class SingletonStack<T> {
     /**
      * Push object to the content.
      *
-     * @param obj
+     * @param obj object to be pushed
      */
     public void push(T obj) {
         if (content != null) {

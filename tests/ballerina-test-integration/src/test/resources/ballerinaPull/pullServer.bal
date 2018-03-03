@@ -1,7 +1,6 @@
 import ballerina.file;
 import ballerina.io;
 import ballerina.net.http;
-import ballerina.log;
 
 @http:configuration {
     basePath:"/echo"
@@ -13,7 +12,6 @@ service<http> echo {
         path:"/"
     }
     resource echo (http:Connection conn, http:InRequest req) {
-        log:printInfo("Resourceeeeeeeeee 111111");
         http:OutResponse res = {};
         json reqPayload = req.getJsonPayload();
         string srcFilePath = reqPayload.payload.toString();
@@ -22,7 +20,6 @@ service<http> echo {
         blob contentAsBytes = readBytes(src, bytesChunk);
         res.setBinaryPayload(contentAsBytes);
         _ = conn.respond(res);
-        log:printInfo("Resourceeeeeeeeee 2222");
     }
 }
 

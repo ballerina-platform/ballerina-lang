@@ -71,7 +71,6 @@ public class UnzipFile extends AbstractNativeFunction {
             byte[] fileContentAsByteArray = Files.readAllBytes(Paths.get(dirPath));
             UnzipBytes.decompress(fileContentAsByteArray, outputFolder, folderToUnzip);
         } catch (IOException e) {
-            log.debug("I/O exception occured when processing the file " + dirPath, e);
             log.error("I/O exception occured when processing the file " + dirPath);
         }
     }
