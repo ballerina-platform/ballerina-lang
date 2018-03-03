@@ -27,6 +27,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
+/**
+ * Siddhi Runtime generation factory class.
+ */
 public class SiddhiRuntimeFactory {
 
     private static SiddhiRuntimeFactory siddhiRuntimeFactory;
