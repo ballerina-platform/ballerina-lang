@@ -712,6 +712,19 @@ public class CodeGenerator extends BLangNodeVisitor {
         RegIndex structRegIndex = calcAndGetExprRegIndex(structLiteral);
         emit(InstructionCodes.NEWSTRUCT, structCPIndex, structRegIndex);
 
+        // Invoke the struct initializer here.
+        if (structLiteral.initializer != null) {
+            int funcRefCPIndex = getFuncRefCPIndex(structLiteral.initializer.symbol);
+            // call funcRefCPIndex 1 structRegIndex 0
+            Operand[] operands = new Operand[4];
+            operands[0] = getOperand(funcRefCPIndex);
+            operands[1] = getOperand(1);
+            operands[2] = structRegIndex;
+            operands[3] = getOperand(0);
+            emit(InstructionCodes.CALL, operands);
+        }
+
+        // Generate code the struct literal.
         for (BLangRecordKeyValue keyValue : structLiteral.keyValuePairs) {
             BLangRecordKey key = keyValue.key;
             Operand fieldIndex = key.fieldSymbol.varIndex;
@@ -721,20 +734,6 @@ public class CodeGenerator extends BLangNodeVisitor {
             int opcode = getOpcode(key.fieldSymbol.type.tag, InstructionCodes.IFIELDSTORE);
             emit(opcode, structRegIndex, fieldIndex, keyValue.valueExpr.regIndex);
         }
-
-        // Invoke the struct initializer here.
-        if (structLiteral.initializer == null) {
-            return;
-        }
-
-        int funcRefCPIndex = getFuncRefCPIndex(structLiteral.initializer.symbol);
-        // call funcRefCPIndex 1 structRegIndex 0
-        Operand[] operands = new Operand[4];
-        operands[0] = getOperand(funcRefCPIndex);
-        operands[1] = getOperand(1);
-        operands[2] = structRegIndex;
-        operands[3] = getOperand(0);
-        emit(InstructionCodes.CALL, operands);
     }
 
     @Override
