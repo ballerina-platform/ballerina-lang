@@ -12,6 +12,9 @@ public struct person1 {
     int id;
 }
 
+public function <person1 p>  person1 () {
+}
+
 public function <person1 p> getName () returns (string) {
     return p.name;
 }
@@ -36,6 +39,9 @@ public struct employee1 {
     string ssn;
     int id;
     int employeeId = 123456;
+}
+
+public function <employee1 p>  employee1 () {
 }
 
 public function <employee1 e> getName () returns (string) {
