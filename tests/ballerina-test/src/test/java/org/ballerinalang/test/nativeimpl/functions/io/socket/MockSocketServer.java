@@ -40,6 +40,7 @@ public class MockSocketServer {
     private static final Logger log = LoggerFactory.getLogger(MockSocketServer.class);
 
     public static final int SERVER_PORT = 47826;
+    static final String SERVER_HOST = "localhost";
     private static final String POISON_PILL = "Bye";
 
     public static void main(String[] args) throws IOException {
@@ -70,7 +71,9 @@ public class MockSocketServer {
     private static void answerWithEcho(ByteBuffer buffer, SelectionKey key) throws IOException {
         SocketChannel client = (SocketChannel) key.channel();
         client.read(buffer);
-        if (new String(buffer.array()).trim().equals(POISON_PILL)) {
+        byte[] readBytes = buffer.array();
+        String deserializeContent = new String(readBytes).trim();
+        if (POISON_PILL.equals(deserializeContent)) {
             client.close();
             log.info("Not accepting client messages anymore");
         }

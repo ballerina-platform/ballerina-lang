@@ -50,37 +50,74 @@ public class ClientSocketTest {
     @BeforeClass
     public void setup() {
         socketClient = BCompileUtil.compile("test-src/io/clientsocketio.bal");
+        boolean connectionStatus;
+        int numberOfRetryAttempts = 10;
         try {
             server = MockSocketServer.start();
+            connectionStatus = isConnected(MockSocketServer.SERVER_HOST, numberOfRetryAttempts);
+            if (!connectionStatus) {
+                Assert.fail("Unable to open connection with the test TCP server");
+            }
         } catch (IOException | InterruptedException e) {
             log.error("Unable to open Socket Server: " + e.getMessage(), e);
             Assert.fail(e.getMessage());
         }
-        int retryCounter = 0;
-        int threshold = 10;
-        Socket tempSocket = null;
-        while (retryCounter < threshold) {
+    }
+
+    /**
+     * Closes a provided socket connection.
+     *
+     * @param socket socket which should be closed.
+     */
+    private void close(Socket socket) {
+        try {
+            socket.close();
+        } catch (IOException e) {
+            log.error("Error occurred while closing the Socket connection", e);
+        }
+    }
+
+    /**
+     * Will enforce to sleep the thread for the provided time.
+     *
+     * @param retryInterval the time in milliseconds the thread should sleep
+     */
+    private void sleep(int retryInterval) {
+        try {
+            Thread.sleep(retryInterval);
+        } catch (InterruptedException ignore) {
+            Thread.currentThread().interrupt();
+        }
+    }
+
+    /**
+     * Attempts to establish a connection with the test server.
+     *
+     * @param hostName        hostname of the server.
+     * @param numberOfRetries number of retry attempts.
+     * @return true if the connection is established successfully.
+     */
+    private boolean isConnected(String hostName, int numberOfRetries) {
+        Socket temporarySocketConnection = null;
+        boolean isConnected = false;
+        final int retryInterval = 1000;
+        final int initialRetryCount = 0;
+        for (int retryCount = initialRetryCount; retryCount < numberOfRetries && !isConnected; retryCount++) {
             try {
-                retryCounter++;
-                tempSocket = new Socket("localhost", MockSocketServer.SERVER_PORT);
-                break;
+                //Attempts to establish a connection with the server
+                temporarySocketConnection = new Socket(hostName, MockSocketServer.SERVER_PORT);
+                isConnected = true;
             } catch (IOException e) {
-                try {
-                    Thread.sleep(1000);
-                } catch (InterruptedException e1) {
-                    // Do nothing.
+                log.error("Error occurred while establishing a connection with test server", e);
+                sleep(retryInterval);
+            } finally {
+                if (null != temporarySocketConnection) {
+                    //We close the connection once completed.
+                    close(temporarySocketConnection);
                 }
             }
         }
-        if (tempSocket == null) {
-            Assert.fail("Unable to open connection to the dummy server.");
-        } else {
-            try {
-                tempSocket.close();
-            } catch (IOException e) {
-                // Do nothing.
-            }
-        }
+        return isConnected;
     }
 
     @AfterClass
