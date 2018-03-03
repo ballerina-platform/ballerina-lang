@@ -33,8 +33,10 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Path;
+import java.util.Arrays;
 import java.util.List;
 
+import static org.ballerinalang.net.grpc.builder.BalGenConstants.FILE_SEPARATOR;
 import static org.ballerinalang.net.grpc.builder.BalGenConstants.NEW_LINE_CHARACTER;
 import static org.ballerinalang.net.grpc.builder.BalGenConstants.SERVICE_INDEX;
 import static org.ballerinalang.net.grpc.builder.utils.BalGenerationUtils.getMappingBalType;
@@ -51,8 +53,7 @@ public class BallerinaFile {
     private List<byte[]> dependentDescriptors;
     private Path balOutPath;
     
-    public BallerinaFile(byte[] rootDescriptor, List<byte[]> dependentDescriptors, Path balOutPath) {
-        this.rootDescriptor = rootDescriptor;
+    public BallerinaFile(List<byte[]> dependentDescriptors, Path balOutPath) {
         this.dependentDescriptors = dependentDescriptors;
         this.balOutPath = balOutPath;
     }
@@ -62,14 +63,15 @@ public class BallerinaFile {
             InputStream targetStream = new ByteArrayInputStream(rootDescriptor);
             DescriptorProtos.FileDescriptorProto fileDescriptorSet = DescriptorProtos.FileDescriptorProto
                     .parseFrom(targetStream);
-            ConstantBuilder constantBuilder = new ConstantBuilder(rootDescriptor, dependentDescriptors,
+            ConstantBuilder constantBuilder = new ConstantBuilder(dependentDescriptors,
                     fileDescriptorSet.getPackage() + "." + fileDescriptorSet.getName());
+            constantBuilder.setRootDescriptor(rootDescriptor);
             List<DescriptorProtos.DescriptorProto> messageTypeList = fileDescriptorSet.getMessageTypeList();
             List<DescriptorProtos.MethodDescriptorProto> methodList = fileDescriptorSet
                     .getService(SERVICE_INDEX).getMethodList();
             String descriptorMapString = constantBuilder.buildMap();
             String descriptorKey = constantBuilder.buildKey();
-            StringBuilder streamingActionList = new StringBuilder();
+            StringBuilder nonBlockingActionList = new StringBuilder();
             StringBuilder blockingActionList = new StringBuilder();
             int i = 0;
             String methodName;
@@ -85,17 +87,16 @@ public class BallerinaFile {
                 String typeIn = inputTypes[inputTypes.length - 1];
                 methodName = methodDescriptorProto.getName();
                 methodID = fileDescriptorSet.getPackage() + "." + fileDescriptorSet.getService(SERVICE_INDEX)
-                        .getName() + "/" + methodName;
+                        .getName() + FILE_SEPARATOR + methodName;
                 reqMessageName = getMappingBalType(typeIn);
                 resMessageName = getMappingBalType(typeOut);
                 actionBuilder = new ActionBuilder(methodName, reqMessageName, resMessageName
-                        , methodID,
-                        methodType);
-                if (methodType.equals(MethodDescriptor.MethodType.UNARY)) {
-                    blockingActionList = blockingActionList.append(NEW_LINE_CHARACTER).append(actionBuilder.build());
-                } else {
-                    streamingActionList = streamingActionList.append(NEW_LINE_CHARACTER).append(actionBuilder.build());
-                }
+                        , methodID, methodType);
+                actionBuilder.build();
+                blockingActionList = blockingActionList.append(NEW_LINE_CHARACTER).append(actionBuilder
+                        .getBlockingAction());
+                nonBlockingActionList = nonBlockingActionList.append(NEW_LINE_CHARACTER).append(actionBuilder
+                        .getNonBlockingAction());
                 i++;
             }
             
@@ -112,8 +113,9 @@ public class BallerinaFile {
                             .length - 1] : getTypeName(fieldDescriptorProto.getType().getNumber());
                     j++;
                 }
-                StructBuilder structBuilder = new StructBuilder(attributesNameArr, attributesTypeArr,
-                        descriptorProto.getName());
+                StructBuilder structBuilder = new StructBuilder(descriptorProto.getName());
+                structBuilder.setAttributesNameArr(attributesNameArr);
+                structBuilder.setAttributesTypeArr(attributesTypeArr);
                 String struct = structBuilder.buildStructs();
                 structList = structList.append(NEW_LINE_CHARACTER).append(struct);
             }
@@ -121,7 +123,7 @@ public class BallerinaFile {
             String blockingConnectorList = new ConnectorBuilder(blockingActionList.toString(),
                     fileDescriptorSet.getService(SERVICE_INDEX).getName() + "BlockingStub",
                     "blocking").build();
-            String streamingConnectorList = new ConnectorBuilder(streamingActionList.toString(),
+            String streamingConnectorList = new ConnectorBuilder(nonBlockingActionList.toString(),
                     fileDescriptorSet.getService(
                             SERVICE_INDEX).getName() + "NonBlockingStub", "non-blocking").build();
             String balPayload = packageName + blockingConnectorList + NEW_LINE_CHARACTER +
@@ -133,5 +135,10 @@ public class BallerinaFile {
         } catch (IOException e) {
             throw new BalGenerationException("Error while generating .bal file.", e);
         }
+    }
+    
+    public void setRootDescriptor(byte[] rootDescriptor) {
+        this.rootDescriptor = new byte[rootDescriptor.length];
+        this.rootDescriptor = Arrays.copyOf(rootDescriptor, rootDescriptor.length);
     }
 }

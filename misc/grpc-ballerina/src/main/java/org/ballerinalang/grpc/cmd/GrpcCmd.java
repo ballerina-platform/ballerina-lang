@@ -15,14 +15,14 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.ballerinalang.grpc.cmd;
+package org.ballerinalang.net.grpc.cmd;
 
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.Parameters;
-import org.ballerinalang.grpc.exception.BalGenToolException;
-import org.ballerinalang.grpc.utils.BalFileGenerationUtils;
-import org.ballerinalang.grpc.utils.BalGenerationConstants;
+import org.ballerinalang.net.grpc.exception.BalGenToolException;
+import org.ballerinalang.net.grpc.utils.BalFileGenerationUtils;
+import org.ballerinalang.net.grpc.utils.BalGenerationConstants;
 import org.ballerinalang.launcher.BLauncherCmd;
 import org.ballerinalang.net.grpc.builder.BallerinaFile;
 import org.ballerinalang.net.grpc.exception.BalGenerationException;
@@ -45,12 +45,12 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.ballerinalang.grpc.utils.BalFileGenerationUtils.delete;
-import static org.ballerinalang.grpc.utils.BalFileGenerationUtils.grantPermission;
-import static org.ballerinalang.grpc.utils.BalFileGenerationUtils.saveFile;
-import static org.ballerinalang.grpc.utils.BalGenerationConstants.FILE_SEPARATOR;
-import static org.ballerinalang.grpc.utils.BalGenerationConstants.NEW_LINE_CHARACTER;
-import static org.ballerinalang.grpc.utils.BalGenerationConstants.PLUGIN_PROTO_FILEPATH;
+import static org.ballerinalang.net.grpc.utils.BalFileGenerationUtils.delete;
+import static org.ballerinalang.net.grpc.utils.BalFileGenerationUtils.grantPermission;
+import static org.ballerinalang.net.grpc.utils.BalFileGenerationUtils.saveFile;
+import static org.ballerinalang.net.grpc.utils.BalGenerationConstants.FILE_SEPARATOR;
+import static org.ballerinalang.net.grpc.utils.BalGenerationConstants.NEW_LINE_CHARACTER;
+import static org.ballerinalang.net.grpc.utils.BalGenerationConstants.PLUGIN_PROTO_FILEPATH;
 
 /**
  * Class to implement "grpc" command for ballerina.

@@ -13,7 +13,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.ballerinalang.net;
+package org.ballerinalang.net.grpc;
 
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.repository.PackageRepository;
@@ -28,11 +28,11 @@ import org.ballerinalang.spi.SystemPackageRepositoryProvider;
 @JavaSPIService("org.ballerinalang.spi.SystemPackageRepositoryProvider")
 public class StandardSystemPackageRepositoryProvider implements SystemPackageRepositoryProvider {
 
-    private static final String JAR_SYSTEM_LIB_LOCATION = "natives";
+    private static final String SYSTEM_ORG_NAME = "natives";
 
     @Override
     public PackageRepository loadRepository() {
-        return new ClasspathPackageRepository(this.getClass(), JAR_SYSTEM_LIB_LOCATION);
+        return new ClasspathPackageRepository(this.getClass(), SYSTEM_ORG_NAME);
     }
 
 }

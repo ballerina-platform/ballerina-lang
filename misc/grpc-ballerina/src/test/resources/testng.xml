@@ -22,7 +22,7 @@ under the License.
 <suite name="Grpc-Bal-Gen-Tests">
     <test name="Grpc-Bal-Gen-Tests" preserve-order="true" parallel="false">
         <classes>
-            <class name="org.ballerinalang.grpc.BalGenToolTest"/>
+            <class name="org.ballerinalang.net.grpc.BalGenToolTest"/>
         </classes>
     </test>
 </suite>

@@ -1,4 +1,4 @@
-package org.ballerinalang.grpc.utils;
+package org.ballerinalang.net.grpc.utils;
 
 /**
  * Bal Generation Tool contants class.

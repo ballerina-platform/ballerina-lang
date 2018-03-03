@@ -514,7 +514,9 @@ public class ServiceProtoUtils {
             dependentDescriptorsList.add(com.google.protobuf.WrappersProto.getDescriptor
                     ().toProto().toByteArray());
             Path path = Paths.get("");
-            new BallerinaFile(fileDescriptor, dependentDescriptorsList, path).build();
+            BallerinaFile ballerinaFile = new BallerinaFile(dependentDescriptorsList, path);
+            ballerinaFile.setRootDescriptor(fileDescriptor);
+            ballerinaFile.build();
         } catch (IOException e) {
             throw new GrpcServerException("Error while writing file descriptor to file.", e);
         }

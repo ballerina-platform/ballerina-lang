@@ -16,6 +16,5 @@
   ~ under the License.
   -->
 <FindBugsFilter>
-    <!-- TODO Fix following findbug issues-->
 
 </FindBugsFilter>

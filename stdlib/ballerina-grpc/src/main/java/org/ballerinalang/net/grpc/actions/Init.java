@@ -55,7 +55,7 @@ import java.util.List;
                 @Argument(name = "descriptorMap", type = TypeKind.MAP)
         })
 public class Init extends AbstractNativeAction {
-
+    
     @Override
     public ConnectorFuture execute(Context context) {
         BConnector bConnector = (BConnector) getRefArgument(context, 0);
@@ -66,7 +66,7 @@ public class Init extends AbstractNativeAction {
         String descriptorKey = bConnector.getStringField(2);
         BMap<String, BValue> descriptorMap = (BMap<String, BValue>) bConnector.getRefField(0);
         ClientConnectorFuture future = new ClientConnectorFuture();
-
+        
         try {
             // If there are more than one descriptors exist, other descriptors are considered as dependent
             // descriptors.  client supported only one depth descriptor dependency.
@@ -82,17 +82,17 @@ public class Init extends AbstractNativeAction {
                     depDescriptorData.add(hexStringToByteArray(descriptorMap.get(key).stringValue()));
                 }
             }
-
+            
             if (descriptorValue == null) {
                 throw new RuntimeException("Error while establishing the connection. service descriptor is null.");
             }
-            ProtoFileDefinition protoFileDefinition = new ProtoFileDefinition(descriptorValue, depDescriptorData);
-
+            ProtoFileDefinition protoFileDefinition = new ProtoFileDefinition(depDescriptorData);
+            protoFileDefinition.setRootDescriptorData(descriptorValue);
             ManagedChannel channel = ManagedChannelBuilder.forAddress(host, port)
                     .usePlaintext(true)
                     .build();
             ClientConnectorFactory clientConnectorFactory = new ClientConnectorFactory(protoFileDefinition);
-
+            
             if ("blocking".equalsIgnoreCase(subtype)) {
                 GrpcBlockingStub grpcBlockingStub = clientConnectorFactory.newBlockingStub(channel);
                 bConnector.setNativeData("stub", grpcBlockingStub);
@@ -110,7 +110,7 @@ public class Init extends AbstractNativeAction {
             return future;
         }
     }
-
+    
     private static byte[] hexStringToByteArray(String s) {
         int len = s.length();
         byte[] data = new byte[len / 2];

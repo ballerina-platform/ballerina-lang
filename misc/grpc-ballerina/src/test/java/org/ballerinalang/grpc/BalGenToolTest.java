@@ -15,13 +15,13 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.ballerinalang.grpc;
+package org.ballerinalang.net.grpc;
 
-import org.ballerinalang.grpc.cmd.GrpcCmd;
-import org.ballerinalang.grpc.cmd.OSDetector;
-import org.ballerinalang.grpc.utils.BTestUtils;
-import org.ballerinalang.grpc.utils.BalFileGenerationUtils;
-import org.ballerinalang.grpc.utils.CompileResult;
+import org.ballerinalang.net.grpc.cmd.GrpcCmd;
+import org.ballerinalang.net.grpc.cmd.OSDetector;
+import org.ballerinalang.net.grpc.utils.BTestUtils;
+import org.ballerinalang.net.grpc.utils.BalFileGenerationUtils;
+import org.ballerinalang.net.grpc.utils.CompileResult;
 import org.ballerinalang.util.codegen.ActionInfo;
 import org.testng.Assert;
 import org.testng.annotations.Test;
@@ -44,7 +44,7 @@ public class BalGenToolTest {
     @Test
     public void testCMDForHelloWorld() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException,
             ClassNotFoundException, InstantiationException, IOException {
-        Class<?> grpcCmd = Class.forName("org.ballerinalang.grpc.cmd.GrpcCmd");
+        Class<?> grpcCmd = Class.forName("org.ballerinalang.net.grpc.cmd.GrpcCmd");
         GrpcCmd grpcCmd1 = (GrpcCmd) grpcCmd.newInstance();
         Path sourcePath = Paths.get("protoFiles");
         Path sourceRoot = resourceDir.resolve(sourcePath);

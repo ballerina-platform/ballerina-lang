@@ -1,7 +1,7 @@
-package org.ballerinalang.grpc.utils;
+package org.ballerinalang.net.grpc.utils;
 
 import com.google.protobuf.DescriptorProtos;
-import org.ballerinalang.grpc.exception.BalGenToolException;
+import org.ballerinalang.net.grpc.exception.BalGenToolException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

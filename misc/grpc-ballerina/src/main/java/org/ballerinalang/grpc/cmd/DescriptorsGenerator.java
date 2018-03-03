@@ -15,12 +15,12 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.ballerinalang.grpc.cmd;
+package org.ballerinalang.net.grpc.cmd;
 
 import com.google.protobuf.DescriptorProtos;
-import org.ballerinalang.grpc.exception.BalGenToolException;
-import org.ballerinalang.grpc.utils.BalGenerationConstants;
-import org.ballerinalang.grpc.utils.ProtocCommandBuilder;
+import org.ballerinalang.net.grpc.exception.BalGenToolException;
+import org.ballerinalang.net.grpc.utils.BalGenerationConstants;
+import org.ballerinalang.net.grpc.utils.ProtocCommandBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,11 +34,11 @@ import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.ballerinalang.grpc.utils.BalFileGenerationUtils.createMetaFolder;
-import static org.ballerinalang.grpc.utils.BalFileGenerationUtils.generateDescriptor;
-import static org.ballerinalang.grpc.utils.BalFileGenerationUtils.getDescriptorPath;
-import static org.ballerinalang.grpc.utils.BalGenerationConstants.GOOGLE_STANDARD_LIB;
-import static org.ballerinalang.grpc.utils.BalGenerationConstants.META_LOCATION;
+import static org.ballerinalang.net.grpc.utils.BalFileGenerationUtils.createMetaFolder;
+import static org.ballerinalang.net.grpc.utils.BalFileGenerationUtils.generateDescriptor;
+import static org.ballerinalang.net.grpc.utils.BalFileGenerationUtils.getDescriptorPath;
+import static org.ballerinalang.net.grpc.utils.BalGenerationConstants.GOOGLE_STANDARD_LIB;
+import static org.ballerinalang.net.grpc.utils.BalGenerationConstants.META_LOCATION;
 
 /**
  * Class for generate file descriptors for proto files.

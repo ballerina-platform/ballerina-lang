@@ -14,7 +14,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.ballerinalang.grpc.utils;
+package org.ballerinalang.net.grpc.utils;
 
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.launcher.LauncherUtils;
@@ -46,7 +46,7 @@ public class BTestUtils {
      * @param sourceFilePath Path to source package/file
      * @return Semantic errors
      */
-    public static org.ballerinalang.grpc.utils.CompileResult compile(String sourceFilePath) {
+    public static org.ballerinalang.net.grpc.utils.CompileResult compile(String sourceFilePath) {
         return compile(sourceFilePath, CompilerPhase.CODE_GEN);
     }
     

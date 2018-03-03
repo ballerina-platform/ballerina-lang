@@ -24,6 +24,7 @@ import org.ballerinalang.model.values.BString;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Arrays;
 import java.util.List;
 
 import static org.ballerinalang.net.grpc.builder.BalGenConstants.NEW_LINE_CHARACTER;
@@ -37,8 +38,7 @@ public class ConstantBuilder {
     private List<byte[]> dependentDescriptors;
     private String key;
     
-    public ConstantBuilder(byte[] rootDescriptor, List<byte[]> dependentDescriptors, String key) {
-        this.rootDescriptor = rootDescriptor;
+    public ConstantBuilder(List<byte[]> dependentDescriptors, String key) {
         this.dependentDescriptors = dependentDescriptors;
         this.key = key;
     }
@@ -87,5 +87,10 @@ public class ConstantBuilder {
     public String buildKey() {
         return String.format(NEW_LINE_CHARACTER +
                 "const string descriptorKey = \"%s\";" + NEW_LINE_CHARACTER, key);
+    }
+    
+    public void setRootDescriptor(byte[] rootDescriptor) {
+        this.rootDescriptor = new byte[rootDescriptor.length];
+        this.rootDescriptor = Arrays.copyOf(rootDescriptor, rootDescriptor.length);
     }
 }

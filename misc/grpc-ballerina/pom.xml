@@ -64,10 +64,6 @@
             <artifactId>protobuf-java</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.google.code.gson</groupId>
-            <artifactId>gson</artifactId>
-        </dependency>
-        <dependency>
             <groupId>org.ballerinalang</groupId>
             <artifactId>ballerina-grpc</artifactId>
         </dependency>
@@ -106,7 +102,7 @@
                 <configuration>
                     <archive>
                         <manifest>
-                            <mainClass>org.ballerinalang.grpc.cmd.GrpcCmd</mainClass>
+                            <mainClass>org.ballerinalang.net.grpc.cmd.GrpcCmd</mainClass>
                         </manifest>
                     </archive>
                 </configuration>

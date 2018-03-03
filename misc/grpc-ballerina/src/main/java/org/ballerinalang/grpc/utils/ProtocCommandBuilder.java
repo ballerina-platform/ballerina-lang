@@ -1,11 +1,11 @@
-package org.ballerinalang.grpc.utils;
+package org.ballerinalang.net.grpc.utils;
 
-import static org.ballerinalang.grpc.utils.BalGenerationConstants.DESC_PATH_PLACEHOLDER;
-import static org.ballerinalang.grpc.utils.BalGenerationConstants.EXE_PATH_PLACEHOLDER;
-import static org.ballerinalang.grpc.utils.BalGenerationConstants.NEW_LINE_CHARATER;
-import static org.ballerinalang.grpc.utils.BalGenerationConstants.PROTO_FOLDER_PLACEHOLDER;
-import static org.ballerinalang.grpc.utils.BalGenerationConstants.PROTO_PATH_PLACEHOLDER;
-import static org.ballerinalang.grpc.utils.BalGenerationConstants.SPACE_CHARATER;
+import static org.ballerinalang.net.grpc.utils.BalGenerationConstants.DESC_PATH_PLACEHOLDER;
+import static org.ballerinalang.net.grpc.utils.BalGenerationConstants.EXE_PATH_PLACEHOLDER;
+import static org.ballerinalang.net.grpc.utils.BalGenerationConstants.NEW_LINE_CHARATER;
+import static org.ballerinalang.net.grpc.utils.BalGenerationConstants.PROTO_FOLDER_PLACEHOLDER;
+import static org.ballerinalang.net.grpc.utils.BalGenerationConstants.PROTO_PATH_PLACEHOLDER;
+import static org.ballerinalang.net.grpc.utils.BalGenerationConstants.SPACE_CHARATER;
 
 /**
  * This class is used to build the protoc compiler command to generate descriptor.
