@@ -68,7 +68,8 @@ public class LauncherUtils {
         String srcPathStr = sourcePath.toString();
         if (srcPathStr.endsWith(BLangConstants.BLANG_EXEC_FILE_SUFFIX)) {
             programFile = BLangProgramLoader.read(sourcePath);
-        } else if (Files.isDirectory(sourcePath) || srcPathStr.endsWith(BLangConstants.BLANG_SRC_FILE_SUFFIX)) {
+        } else if (Files.isDirectory(sourceRootPath.resolve(sourcePath))
+                || srcPathStr.endsWith(BLangConstants.BLANG_SRC_FILE_SUFFIX)) {
             programFile = compile(sourceRootPath, sourcePath);
         } else {
             throw new BallerinaException("Invalid Ballerina source path, it should either be a directory or a file " +
