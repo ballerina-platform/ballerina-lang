@@ -1186,12 +1186,11 @@ public class CodeGenerator extends BLangNodeVisitor {
         int opcode;
         genNode(unaryExpr.expr, this.env);
         if (OperatorKind.TYPEOF.equals(unaryExpr.operator)) {
-            if (unaryExpr.expr.type.tag == TypeTags.ANY || unaryExpr.expr.type.tag == TypeTags.JSON) {
-                opcode = unaryExpr.opSymbol.opcode;
+            opcode = unaryExpr.opSymbol.opcode;
+            if (opcode == InstructionCodes.TYPEOF) {
                 emit(opcode, unaryExpr.expr.regIndex, exprIndex);
             } else {
                 Operand typeCPIndex = getTypeCPIndex(unaryExpr.expr.type);
-                opcode = unaryExpr.opSymbol.opcode;
                 emit(opcode, typeCPIndex, exprIndex);
             }
         } else if (OperatorKind.LENGTHOF.equals(unaryExpr.operator)) {
