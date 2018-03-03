@@ -51,12 +51,12 @@ public class ActionBuilder {
                         "        %s" + NEW_LINE_CHARACTER +
                         "        var res, err1 = ep.execute(%s, \"%s\", \"\");" + NEW_LINE_CHARACTER +
                         "        if (err1 != null) {" + NEW_LINE_CHARACTER +
-                        "            error e = {msg:err1.msg};" + NEW_LINE_CHARACTER +
+                        "            error e = {message:err1.message};" + NEW_LINE_CHARACTER +
                         "            return null, e;" + NEW_LINE_CHARACTER +
                         "        }" + NEW_LINE_CHARACTER +
                         "        var response, err2 = (%s)res;" + NEW_LINE_CHARACTER +
                         "        if (err2 != null) {" + NEW_LINE_CHARACTER +
-                        "            error e = {msg:err2.msg};" + NEW_LINE_CHARACTER +
+                        "            error e = {message:err2.message};" + NEW_LINE_CHARACTER +
                         "            return null, e;" + NEW_LINE_CHARACTER +
                         "        }" + NEW_LINE_CHARACTER +
                         "        return %s, null;" + NEW_LINE_CHARACTER +
@@ -65,12 +65,12 @@ public class ActionBuilder {
                 "    action %s (string serviceName) (grpc:ClientConnection, error) {" + NEW_LINE_CHARACTER +
                         "        var res, err1 = ep.execute(\"\", \"%s\", serviceName);" + NEW_LINE_CHARACTER +
                         "        if (err1 != null) {" + NEW_LINE_CHARACTER +
-                        "            error e = {msg:err1.msg};" + NEW_LINE_CHARACTER +
+                        "            error e = {message:err1.message};" + NEW_LINE_CHARACTER +
                         "            return null, e;" + NEW_LINE_CHARACTER +
                         "        }" + NEW_LINE_CHARACTER +
                         "        var response, err2 = (grpc:ClientConnection)res;" + NEW_LINE_CHARACTER +
                         "        if (err2 != null) {" + NEW_LINE_CHARACTER +
-                        "            error e = {msg:err2.msg};" + NEW_LINE_CHARACTER +
+                        "            error e = {message:err2.message};" + NEW_LINE_CHARACTER +
                         "            return null,e;" + NEW_LINE_CHARACTER +
                         "        }" + NEW_LINE_CHARACTER +
                         "        return response,null;" + NEW_LINE_CHARACTER +
@@ -81,7 +81,7 @@ public class ActionBuilder {
                         "" + NEW_LINE_CHARACTER +
                         "        var res, err1 = ep.execute(%s, \"%s\", serviceName);" + NEW_LINE_CHARACTER +
                         "        if (err1 != null) {" + NEW_LINE_CHARACTER +
-                        "            error e = {msg:err1.msg};" + NEW_LINE_CHARACTER +
+                        "            error e = {message:err1.message};" + NEW_LINE_CHARACTER +
                         "            return e;" + NEW_LINE_CHARACTER +
                         "        }" + NEW_LINE_CHARACTER +
                         "        return null;" + NEW_LINE_CHARACTER +

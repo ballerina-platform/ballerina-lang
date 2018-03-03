@@ -17,8 +17,10 @@
  */
 package org.ballerinalang.grpc;
 
-import org.ballerinalang.grpc.cmd.GRPCCmd;
+import org.ballerinalang.grpc.cmd.GrpcCmd;
+import org.ballerinalang.grpc.cmd.OSDetector;
 import org.ballerinalang.grpc.utils.BTestUtils;
+import org.ballerinalang.grpc.utils.BalFileGenerationUtils;
 import org.ballerinalang.grpc.utils.CompileResult;
 import org.ballerinalang.util.codegen.ActionInfo;
 import org.testng.Assert;
@@ -42,8 +44,8 @@ public class BalGenToolTest {
     @Test
     public void testCMDForHelloWorld() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException,
             ClassNotFoundException, InstantiationException, IOException {
-        Class<?> grpcCmd = Class.forName("org.ballerinalang.grpc.cmd.GRPCCmd");
-        GRPCCmd grpcCmd1 = (GRPCCmd) grpcCmd.newInstance();
+        Class<?> grpcCmd = Class.forName("org.ballerinalang.grpc.cmd.GrpcCmd");
+        GrpcCmd grpcCmd1 = (GrpcCmd) grpcCmd.newInstance();
         Path sourcePath = Paths.get("protoFiles");
         Path sourceRoot = resourceDir.resolve(sourcePath);
         Path protoPath = Paths.get("protoFiles/helloWorld.proto");
@@ -75,6 +77,10 @@ public class BalGenToolTest {
                 "Action 'hello' not found");
         Assert.assertEquals(actionNameList.contains("bye"), true,
                 "Action 'bue' not found");
+        String protoExeName = "protoc-" + OSDetector.getDetectedClassifier() + ".exe";
+        BalFileGenerationUtils.delete(new File(protoExeName));
+//        BalFileGenerationUtils.delete(new File("desc_gen"));
+//        BalFileGenerationUtils.delete(new File("google"));
     }
     
     private void removePackage(String sourceFile, String destinationFile) throws IOException {

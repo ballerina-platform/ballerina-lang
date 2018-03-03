@@ -21,6 +21,7 @@ import java.util.Locale;
 
 /**
  *Class for detecting the system operating system version and type.
+ * Ref : https://github.com/trustin/os-maven-plugin/blob/master/src/main/java/kr/motd/maven/os/Detector.java
  */
 public abstract class OSDetector {
     

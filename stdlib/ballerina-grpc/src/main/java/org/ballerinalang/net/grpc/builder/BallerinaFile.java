@@ -22,6 +22,7 @@ import io.grpc.MethodDescriptor;
 import org.ballerinalang.net.grpc.builder.components.ActionBuilder;
 import org.ballerinalang.net.grpc.builder.components.ConnectorBuilder;
 import org.ballerinalang.net.grpc.builder.components.ConstantBuilder;
+import org.ballerinalang.net.grpc.builder.components.PackageBuilder;
 import org.ballerinalang.net.grpc.builder.components.StructBuilder;
 import org.ballerinalang.net.grpc.exception.BalGenerationException;
 import org.ballerinalang.net.grpc.utils.MessageUtil;
@@ -113,31 +114,22 @@ public class BallerinaFile {
                 }
                 StructBuilder structBuilder = new StructBuilder(attributesNameArr, attributesTypeArr,
                         descriptorProto.getName());
-                String structs = structBuilder.buildStructs();
-                structList = structList.append(NEW_LINE_CHARACTER).append(structs);
+                String struct = structBuilder.buildStructs();
+                structList = structList.append(NEW_LINE_CHARACTER).append(struct);
             }
-            
+            String packageName = new PackageBuilder(fileDescriptorSet.getPackage()).build();
             String blockingConnectorList = new ConnectorBuilder(blockingActionList.toString(),
-                    fileDescriptorSet.getPackage(),
                     fileDescriptorSet.getService(SERVICE_INDEX).getName() + "BlockingStub",
                     "blocking").build();
-            String balBlockingPayload = blockingConnectorList + structList + NEW_LINE_CHARACTER + descriptorKey +
-                    String.format("map descriptorMap ={%s};", descriptorMapString) + NEW_LINE_CHARACTER;
             String streamingConnectorList = new ConnectorBuilder(streamingActionList.toString(),
-                    fileDescriptorSet.getPackage(), fileDescriptorSet.getService(
-                    SERVICE_INDEX).getName() + "NonBlockingStub", "non-blocking").build();
-            String balStreamingPayload = streamingConnectorList + structList + NEW_LINE_CHARACTER + descriptorKey +
+                    fileDescriptorSet.getService(
+                            SERVICE_INDEX).getName() + "NonBlockingStub", "non-blocking").build();
+            String balPayload = packageName + blockingConnectorList + NEW_LINE_CHARACTER +
+                    streamingConnectorList + structList + NEW_LINE_CHARACTER + descriptorKey +
                     String.format("map descriptorMap ={%s};", descriptorMapString) + NEW_LINE_CHARACTER;
-            if (!"".equals(blockingActionList.toString())) {
-                writeFile(balBlockingPayload,
-                        fileDescriptorSet.getService(SERVICE_INDEX).getName() + "." + "blocking" + ".pb.bal",
-                        balOutPath);
-            }
-            if (!"".equals(streamingActionList.toString())) {
-                writeFile(balStreamingPayload,
-                        fileDescriptorSet.getService(SERVICE_INDEX).getName() + "." + "nonBlocking" + ".pb.bal",
-                        balOutPath);
-            }
+            writeFile(balPayload,
+                    fileDescriptorSet.getService(SERVICE_INDEX).getName() + ".pb.bal",
+                    balOutPath);
         } catch (IOException e) {
             throw new BalGenerationException("Error while generating .bal file.", e);
         }
