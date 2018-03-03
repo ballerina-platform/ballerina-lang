@@ -36,29 +36,47 @@ function pullPackage (string url, string homeRepoDirPath, string pkgName, string
         }
         var pkgSize, conversionErr = <int> resp.getHeader("Content-Length");
 
-        // Create directories of the home repo to which the package will be pulled
-        createDirectories(homeRepoDirPath);
-
+        boolean homeDirExists = ifFileExists(homeRepoDirPath);
         mime:Entity entity = resp.getEntity();
         io:ByteChannel sourceChannel = entity.getByteChannel();
         string fileName = pkgName + "-" + pkgVersion + ".balo";
+        io:ByteChannel homeDirChannel = null;
+        string toAndFrom;
 
-        string homeRepoFilePath = homeRepoDirPath + FileSeparator + fileName;
-        io:ByteChannel homeDirChannel = getFileChannel(homeRepoFilePath, "w");
-        string toAndFrom = " [central.ballerina.io -> home repo]";
+        if (!homeDirExists) {
+            // Create directories of the home repo
+            createDirectories(homeRepoDirPath);
+            string homeRepoFilePath = homeRepoDirPath + FileSeparator + fileName;
+            homeDirChannel = getFileChannel(homeRepoFilePath, "w");
+            toAndFrom = " [central.ballerina.io -> home repo]";
+        }
 
         io:ByteChannel projectDirChannel = null;
         if (projectRepoDirPath != null){
             projectRepoDirPath = projectRepoDirPath.replace("*", pkgVersion);
             string projectRepoFilePath = projectRepoDirPath + FileSeparator + fileName;
             projectDirChannel = getFileChannel(projectRepoFilePath, "w");
-            toAndFrom = " [central.ballerina.io -> home repo & project repo]";
+            boolean projectDirExists = ifFileExists(projectRepoDirPath);
+            if (homeDirExists && projectDirExists) {
+                toAndFrom = " [home repo -> project repo]";
+            } else {
+                toAndFrom = " [central.ballerina.io -> home repo -> project repo]";
+            }
         }
+
         copy(pkgSize, sourceChannel, homeDirChannel, projectDirChannel, fullPkgPath, toAndFrom);
-        homeDirChannel.close();
+        if (homeDirChannel != null){
+           homeDirChannel.close();
+        }
         sourceChannel.close();
     }
 }
+
+function ifFileExists(string filePath) (boolean) {
+    file:File fileDir = {path: filePath};
+    return fileDir.exists();
+}
+
 function main (string[] args) {
     pullPackage(args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7], args[8], args[9]);
 }
@@ -92,8 +110,9 @@ function createDirectories(string directoryPath) {
     boolean folderCreated;
 
     file:File folder = { path: directoryPath };
-    folderCreated, adError, ioError = folder.mkdirs();
-
+    if (!folder.exists()){
+       folderCreated, adError, ioError = folder.mkdirs();
+    }
     if (folderCreated) {
         if (adError != null) {
             error err = { message: "Error occurred while creating the directories", cause: adError.cause };
@@ -138,7 +157,9 @@ string toAndFrom) {
     string tabspaces = "          ";
     while (readCount != 0) {
         readContent, readCount = readBytes(src, bytesChunk);
-        numberOfBytesWritten = writeBytes(homeDst, readContent, 0);
+        if (homeDst != null) {
+            numberOfBytesWritten = writeBytes(homeDst, readContent, 0);
+        }
         if (projectDst != null) {
             numberOfBytesWritten = writeBytes(projectDst, readContent, 0);
         }
