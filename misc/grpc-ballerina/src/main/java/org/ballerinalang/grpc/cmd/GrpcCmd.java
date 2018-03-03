@@ -20,12 +20,12 @@ package org.ballerinalang.net.grpc.cmd;
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.Parameters;
-import org.ballerinalang.net.grpc.exception.BalGenToolException;
-import org.ballerinalang.net.grpc.utils.BalFileGenerationUtils;
-import org.ballerinalang.net.grpc.utils.BalGenerationConstants;
 import org.ballerinalang.launcher.BLauncherCmd;
 import org.ballerinalang.net.grpc.builder.BallerinaFile;
+import org.ballerinalang.net.grpc.exception.BalGenToolException;
 import org.ballerinalang.net.grpc.exception.BalGenerationException;
+import org.ballerinalang.net.grpc.utils.BalFileGenerationUtils;
+import org.ballerinalang.net.grpc.utils.BalGenerationConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -125,12 +125,14 @@ public class GrpcCmd implements BLauncherCmd {
                 .getAbsolutePath());
         msg.append("Successfully generated root descriptor.").append(NEW_LINE_CHARACTER);
         List<byte[]> dependant;
-        dependant = DescriptorsGenerator.dependentDescriptorGenerator(descriptorPath, this.protoPath,
-                new ArrayList<>(), exePath, classLoader);
+        dependant = org.ballerinalang.net.grpc.cmd.DescriptorsGenerator.dependentDescriptorGenerator
+                (descriptorPath, this.protoPath, new ArrayList<>(), exePath, classLoader);
         msg.append("Successfully generated dependent descriptor.").append(NEW_LINE_CHARACTER);
         Path balPath = Paths.get(balOutPath);
         try {
-            new BallerinaFile(root, dependant, balPath).build();
+            BallerinaFile ballerinaFile = new BallerinaFile(dependant, balPath);
+            ballerinaFile.setRootDescriptor(root);
+            ballerinaFile.build();
         } catch (BalGenerationException e) {
             LOG.error("Error generating ballerina file.", e);
             msg.append("Error generating ballerina file.").append(NEW_LINE_CHARACTER);
@@ -210,7 +212,7 @@ public class GrpcCmd implements BLauncherCmd {
     private void downloadProtocexe() {
         outStream.println("Downloading proc executor ...");
         if (exePath == null) {
-            exePath = "protoc-" + OSDetector.getDetectedClassifier() + ".exe";
+            exePath = "protoc-" + org.ballerinalang.net.grpc.cmd.OSDetector.getDetectedClassifier() + ".exe";
             File exeFile = new File(exePath);
             exePath = exeFile.getAbsolutePath(); // if file already exists will do nothing
             if (!exeFile.isFile()) {
@@ -223,7 +225,8 @@ public class GrpcCmd implements BLauncherCmd {
                     throw new BalGenToolException("Exception occurred while creating new file for protoc exe. ", e);
                 }
                 String url = "http://repo1.maven.org/maven2/com/google/protobuf/protoc/" + protocVerstion + "/" +
-                        "protoc-" + protocVerstion + "-" + OSDetector.getDetectedClassifier() + ".exe";
+                        "protoc-" + protocVerstion + "-" + org.ballerinalang.net.grpc.cmd.OSDetector
+                        .getDetectedClassifier() + ".exe";
                 try {
                     saveFile(new URL(url), exePath);
                     File file = new File(exePath);

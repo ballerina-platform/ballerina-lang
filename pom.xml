@@ -839,7 +839,6 @@
                 <module>misc/swagger-ballerina</module>
                 <module>misc/testerina</module>
                 <module>misc/grpc-ballerina</module>
-
 <!--                <module>composer</module>-->
 
                 <module>distribution/docker</module>
@@ -904,7 +903,7 @@
                 <module>misc/docerina</module>
                 <module>misc/swagger-ballerina</module>
                 <module>misc/testerina</module>
-
+                <module>misc/grpc-ballerina</module>
 <!--                <module>composer</module>-->
 
                 <module>distribution/docker</module>
