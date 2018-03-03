@@ -31,23 +31,18 @@ public class AsyncTimer {
     private static ScheduledExecutorService executor = Executors.newScheduledThreadPool(CORE_THREAD_POOL_SIZE);
     
     public static void schedule(TimerCallback callback, long delayMillis) {
-        executor.schedule(new Runnable() {            
-            @Override
-            public void run() {
-                callback.execute();
-            }
-        }, delayMillis, TimeUnit.MILLISECONDS);
+        executor.schedule(callback::execute, delayMillis, TimeUnit.MILLISECONDS);
     }
     
     /**
      * Represents the timer callback.
      */
-    public static interface TimerCallback {
+    public interface TimerCallback {
         
         /**
          * This is executed when the timer is triggered.
          */
-        public void execute();
+        void execute();
         
     }
     

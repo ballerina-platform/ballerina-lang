@@ -119,6 +119,7 @@ public class BLangScheduler {
     public static void workerExcepted(WorkerExecutionContext ctx) {
         ctx.ip = -1;
         ctx.state = WorkerState.EXCEPTED;
+        workerCountDown();
     }
     
     public static void dumpCallStack(WorkerExecutionContext ctx) {

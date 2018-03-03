@@ -40,12 +40,7 @@ public class SleepCurrentWorker implements NativeCallableUnit {
     @Override
     public void execute(Context context, CallableUnitCallback callback) {
         long delayMillis = context.getIntArgument(0);
-        AsyncTimer.schedule(new TimerCallback() {
-            @Override
-            public void execute() {
-                callback.notifySuccess();
-            }
-        }, delayMillis);
+        AsyncTimer.schedule(callback::notifySuccess, delayMillis);
     }
 
     @Override

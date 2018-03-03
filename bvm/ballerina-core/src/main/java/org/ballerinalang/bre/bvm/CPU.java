@@ -2756,12 +2756,13 @@ public class CPU {
 
     private static WorkerExecutionContext invokeForkJoin(WorkerExecutionContext ctx, InstructionFORKJOIN forkJoinIns) {
         ForkjoinInfo forkjoinInfo = forkJoinIns.forkJoinCPEntry.getForkjoinInfo();
-        return BLangFunctions.invokeForkJoin(ctx, forkjoinInfo, forkJoinIns.joinBlockAddr, forkJoinIns.joinVarRegIndex);
+        return BLangFunctions.invokeForkJoin(ctx, forkjoinInfo, forkJoinIns.joinBlockAddr, forkJoinIns.joinVarRegIndex,
+                forkJoinIns.timeoutRegIndex, forkJoinIns.timeoutBlockAddr, forkJoinIns.timeoutVarRegIndex);
     }
 
     private static void handleWorkerReceive(WorkerExecutionContext ctx, WorkerDataChannelInfo workerDataChannelInfo,
             BType[] types, int[] regs) {
-        BValue[] passedInValues = (BValue[]) getWorkerChannel(
+        BRefType[] passedInValues = getWorkerChannel(
                 ctx, workerDataChannelInfo.getChannelName()).tryTakeData(ctx);
         if (passedInValues != null) {
             WorkerData currentFrame = ctx.workerLocal;
@@ -2770,7 +2771,7 @@ public class CPU {
     }
     
     public static void copyArgValuesForWorkerReceive(WorkerData currentSF, int[] argRegs, BType[] paramTypes,
-            BValue[] passedInValues) {
+                                                     BRefType[] passedInValues) {
         for (int i = 0; i < argRegs.length; i++) {
             int regIndex = argRegs[i];
             BType paramType = paramTypes[i];

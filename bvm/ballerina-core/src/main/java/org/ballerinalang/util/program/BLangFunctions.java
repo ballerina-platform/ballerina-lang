@@ -17,11 +17,14 @@
 */
 package org.ballerinalang.util.program;
 
+import org.ballerinalang.bre.bvm.AsyncTimer;
+import org.ballerinalang.bre.bvm.AsyncTimer.TimerCallback;
 import org.ballerinalang.bre.bvm.BLangScheduler;
 import org.ballerinalang.bre.bvm.BLangVMErrors;
 import org.ballerinalang.bre.bvm.CPU;
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
 import org.ballerinalang.bre.bvm.CallbackedInvocableWorkerResponseContext;
+import org.ballerinalang.bre.bvm.ForkJoinTimeoutCallback;
 import org.ballerinalang.bre.bvm.ForkJoinWorkerResponseContext;
 import org.ballerinalang.bre.bvm.InvocableWorkerResponseContext;
 import org.ballerinalang.bre.bvm.WorkerData;
@@ -195,7 +198,7 @@ public class BLangFunctions {
     }
 
     public static WorkerExecutionContext invokeForkJoin(WorkerExecutionContext parentCtx, ForkjoinInfo forkjoinInfo,
-                                                        int targetIp, int joinVarReg) {
+            int joinTargetIp, int joinVarReg, int timeoutRegIndex, int timeoutTargetIp, int timeoutVarReg) {
         WorkerInfo[] workerInfos = forkjoinInfo.getWorkerInfos();
 
         Set<String> joinWorkerNames = new LinkedHashSet<>(Lists.of(forkjoinInfo.getJoinWorkerNames()));
@@ -206,15 +209,20 @@ public class BLangFunctions {
 
         Map<String, String> channels = getChannels(forkjoinInfo);
 
-        int workerCount;
+        int reqJoinCount;
         if (forkjoinInfo.getJoinType().equalsIgnoreCase(JOIN_TYPE_SOME)) {
-            workerCount = forkjoinInfo.getWorkerCount();
+            reqJoinCount = forkjoinInfo.getWorkerCount();
         } else {
-            workerCount = joinWorkerNames.size();
+            reqJoinCount = joinWorkerNames.size();
         }
 
-        InvocableWorkerResponseContext respCtx = new ForkJoinWorkerResponseContext(parentCtx, targetIp, joinVarReg,
-                workerInfos.length, workerCount, joinWorkerNames, channels);
+        InvocableWorkerResponseContext respCtx = new ForkJoinWorkerResponseContext(parentCtx, joinTargetIp, joinVarReg,
+                timeoutTargetIp, timeoutVarReg, workerInfos.length, reqJoinCount, joinWorkerNames, channels);
+        if (forkjoinInfo.isTimeoutAvailable()) {
+            long timeout = parentCtx.workerLocal.longRegs[timeoutRegIndex];
+            //fork join timeout is in seconds, hence converting to milliseconds
+            AsyncTimer.schedule(new ForkJoinTimeoutCallback(respCtx), timeout * 1000);
+        }
         Map<String, Object> globalProps = parentCtx.globalProps;
         BLangScheduler.switchToWaitForResponse(parentCtx);
         for (int i = 1; i < workerInfos.length; i++) {
