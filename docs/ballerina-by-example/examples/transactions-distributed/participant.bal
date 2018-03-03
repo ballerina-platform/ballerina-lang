@@ -19,7 +19,7 @@ service<http> ParticipantService {
         http:OutResponse res;
 
         // At the beginning of the transaction statement, since a transaction context has been received, this service
-        // will register with the initiator as a participant
+        // will register with the initiator as a participant.
         transaction {
             json updateReq = req.getJsonPayload();
             string msg = io:sprintf("Update stock quote request received. symbol:%j, price:%j",

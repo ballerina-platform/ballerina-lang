@@ -18,10 +18,10 @@ service<http> InitiatorService {
         http:OutResponse res;
         log:printInfo("Initiating transaction...");
 
-        // When the transaction statement starts, a distributed transaction context will be created
+        // When the transaction statement starts, a distributed transaction context will be created.
         transaction {
             // When a participant is called, the transaction context will be propagated and that participant
-            // will get infected, and join the distributed transaction
+            // will get infected, and join the distributed transaction.
             boolean successful = callBusinessService();
             if (successful) {
                 res = {statusCode:200};

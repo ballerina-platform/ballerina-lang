@@ -1,4 +1,3 @@
-
 /*
 *  Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 *
@@ -28,7 +27,7 @@ import org.testng.annotations.Test;
 import java.io.File;
 
 /**
- * Testing Mutual SSL
+ * Testing Mutual SSL.
  */
 public class MutualSSLTestCase extends IntegrationTestCase {
 
