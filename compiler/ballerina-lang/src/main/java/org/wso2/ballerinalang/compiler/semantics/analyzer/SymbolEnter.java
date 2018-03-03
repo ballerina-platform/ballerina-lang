@@ -999,6 +999,7 @@ public class SymbolEnter extends BLangNodeVisitor {
                 && varType.tag != TypeTags.XML
                 && varType.tag != TypeTags.MAP
                 && varType.tag != TypeTags.TABLE
+                && varType.tag != TypeTags.STREAM
                 && varType.tag != TypeTags.STRUCT) {
             dlog.error(funcNode.receiver.pos, DiagnosticCode.FUNC_DEFINED_ON_NOT_SUPPORTED_TYPE,
                     funcNode.name.value, varType.toString());

@@ -21,18 +21,19 @@ import org.ballerinalang.model.values.BStream;
 import org.ballerinalang.model.values.BValue;
 
 /**
- * {@code BStreamType} represents tabular data in Ballerina.
+ * {@code BStreamType} represents streaming data in Ballerina.
  *
- * @since 0.8.0
+ * @since 0.964.0
  */
 public class BStreamType extends BType {
 
     private BType constraint;
 
     /**
-     * Create a {@code BStreamType} which represents the SQL Result Set.
+     * Creates a {@code BStreamType} which represents the stream type.
      *
-     * @param typeName string name of the type
+     * @param typeName  string name of the type
+     * @param pkgPath   package path
      */
     BStreamType(String typeName, String pkgPath) {
         super(typeName, pkgPath, BStream.class);
@@ -54,7 +55,7 @@ public class BStreamType extends BType {
 
     @Override
     public <V extends BValue> V getEmptyValue() {
-        return (V) new BStream();
+        return null; //TODO:check - return (V) new BStream();
     }
 
     @Override

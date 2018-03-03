@@ -117,6 +117,14 @@
             <groupId>org.atomikos.wso2</groupId>
             <artifactId>atomikos</artifactId>
         </dependency>
+        <dependency>
+            <groupId>io.ballerina.messaging</groupId>
+            <artifactId>broker-common</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.ballerina.messaging</groupId>
+            <artifactId>broker-core</artifactId>
+        </dependency>
 
         <!-- Siddhi Stream Dependencies -->
         <dependency>
