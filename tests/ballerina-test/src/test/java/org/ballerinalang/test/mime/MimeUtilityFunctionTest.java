@@ -168,7 +168,7 @@ public class MimeUtilityFunctionTest {
         BJSON jsonContent = new BJSON("{'code':'123'}");
         BValue[] args = {jsonContent};
         BValue[] returns = BRunUtil.invoke(compileResult, "testSetAndGetJson", args);
-        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals(returns.length, 2);
         Assert.assertEquals(((BJSON) returns[0]).value().get("code").asText(), "123");
     }
 
@@ -187,7 +187,7 @@ public class MimeUtilityFunctionTest {
         BXML xmlContent = XMLUtils.parse("<name>ballerina</name>");
         BValue[] args = {xmlContent};
         BValue[] returns = BRunUtil.invoke(compileResult, "testSetAndGetXml", args);
-        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals(returns.length, 2);
         Assert.assertEquals(((BXML) returns[0]).getTextValue().stringValue(), "ballerina");
     }
 
@@ -206,7 +206,7 @@ public class MimeUtilityFunctionTest {
         BString textContent = new BString("Hello Ballerina !");
         BValue[] args = {textContent};
         BValue[] returns = BRunUtil.invoke(compileResult, "testSetAndGetText", args);
-        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals(returns.length, 2);
         Assert.assertEquals(returns[0].stringValue(), "Hello Ballerina !");
     }
 
@@ -226,7 +226,7 @@ public class MimeUtilityFunctionTest {
         BBlob byteContent = new BBlob(content.getBytes());
         BValue[] args = {byteContent};
         BValue[] returns = BRunUtil.invoke(compileResult, "testSetAndGetBlob", args);
-        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals(returns.length, 2);
         Assert.assertEquals(returns[0].stringValue(), content);
     }
 
@@ -254,7 +254,7 @@ public class MimeUtilityFunctionTest {
             fileStruct.setStringField(0, file.getAbsolutePath());
             BValue[] args = {fileStruct};
             BValue[] returns = BRunUtil.invoke(compileResult, "testSetFileAsEntityBody", args);
-            Assert.assertEquals(returns.length, 1);
+            Assert.assertEquals(returns.length, 2);
             Assert.assertEquals(returns[0].stringValue(), "Hello Ballerina!",
                     "Entity body is not properly set");
         } catch (IOException e) {
@@ -275,7 +275,7 @@ public class MimeUtilityFunctionTest {
                     (file.getAbsolutePath()));
             BValue[] args = {byteChannelStruct};
             BValue[] returns = BRunUtil.invoke(compileResult, "testSetByteChannel", args);
-            Assert.assertEquals(returns.length, 1);
+            Assert.assertEquals(returns.length, 2);
             Assert.assertEquals(returns[0].stringValue(), "Hello Ballerina!",
                     "Entity body is not properly set");
         } catch (IOException e) {
@@ -296,7 +296,7 @@ public class MimeUtilityFunctionTest {
                     (file.getAbsolutePath()));
             BValue[] args = {byteChannelStruct};
             BValue[] returns = BRunUtil.invoke(compileResult, "testGetByteChannel", args);
-            Assert.assertEquals(returns.length, 1);
+            Assert.assertEquals(returns.length, 2);
             BStruct returnByteChannelStruct = (BStruct) returns[0];
             Channel byteChannel = (Channel) returnByteChannelStruct.getNativeData(IOConstants.BYTE_CHANNEL_NAME);
             Assert.assertEquals(StringUtils.getStringFromInputStream(byteChannel.getInputStream()),
@@ -319,7 +319,7 @@ public class MimeUtilityFunctionTest {
                     EntityBodyHandler.getByteChannelForTempFile(file.getAbsolutePath()));
             BValue[] args = {byteChannelStruct, new BString("Hello Ballerina!")};
             BValue[] returns = BRunUtil.invoke(compileResult, "testSetEntityBodyMultipleTimes", args);
-            Assert.assertEquals(returns.length, 1);
+            Assert.assertEquals(returns.length, 2);
             Assert.assertEquals(returns[0].stringValue(), "File Content");
         } catch (IOException e) {
             log.error("Error occurred in testSetByteChannel", e.getMessage());

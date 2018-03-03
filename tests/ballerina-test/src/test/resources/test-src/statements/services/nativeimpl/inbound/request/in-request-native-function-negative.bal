@@ -37,11 +37,6 @@ function testGetRequestURL (http:InRequest req) (string) {
     return url;
 }
 
-function testGetEntity (http:InRequest req) (mime:Entity) {
-    mime:Entity entity = req.getEntity();
-    return entity;
-}
-
 function testGetStringPayload (http:InRequest req) (string) {
     string payload = req.getStringPayload();
     return payload;

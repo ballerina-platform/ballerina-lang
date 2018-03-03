@@ -20,6 +20,7 @@ package org.ballerinalang.mime.nativeimpl;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.mime.util.EntityBodyHandler;
+import org.ballerinalang.mime.util.MimeUtil;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BBlob;
 import org.ballerinalang.model.values.BStruct;
@@ -64,7 +65,8 @@ public class GetBlob extends AbstractNativeFunction {
                 entityStruct.addNativeData(ENTITY_BYTE_CHANNEL, null);
             }
         } catch (Throwable e) {
-            throw new BallerinaException("Error occurred while extracting blob data from entity : " + e.getMessage());
+            return this.getBValues(MimeUtil.createEntityError
+                    (context, "Error occurred while extracting blob data from entity : " + e.getMessage()));
         }
         return this.getBValues(new BBlob(result != null ? result.getValue() : new byte[0]));
     }

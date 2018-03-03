@@ -10,8 +10,8 @@ service<http> helloServer {
         path:"/textbodypart"
     }
     resource multipart1 (http:Connection conn, http:InRequest request) {
-        mime:Entity[] bodyParts = request.getMultiparts();
-        string textContent = bodyParts[0].getText();
+        var bodyParts, _ = request.getMultiparts();
+        var textContent, _ = bodyParts[0].getText();
         http:OutResponse response = {};
         response.setStringPayload(textContent);
         _ = conn.respond(response);
@@ -22,8 +22,8 @@ service<http> helloServer {
         path:"/jsonbodypart"
     }
     resource multipart2 (http:Connection conn, http:InRequest request) {
-        mime:Entity[] bodyParts = request.getMultiparts();
-        json jsonContent = bodyParts[0].getJson();
+        var bodyParts, _ = request.getMultiparts();
+        var jsonContent, _ = bodyParts[0].getJson();
         http:OutResponse response = {};
         response.setJsonPayload(jsonContent);
         _ = conn.respond(response);
@@ -34,8 +34,8 @@ service<http> helloServer {
         path:"/xmlbodypart"
     }
     resource multipart3 (http:Connection conn, http:InRequest request) {
-        mime:Entity[] bodyParts = request.getMultiparts();
-        xml xmlContent = bodyParts[0].getXml();
+        var bodyParts, _ = request.getMultiparts();
+        var xmlContent, _ = bodyParts[0].getXml();
         http:OutResponse response = {};
         response.setXmlPayload(xmlContent);
         _ = conn.respond(response);
@@ -46,8 +46,8 @@ service<http> helloServer {
         path:"/binarybodypart"
     }
     resource multipart4 (http:Connection conn, http:InRequest request) {
-        mime:Entity[] bodyParts = request.getMultiparts();
-        blob blobContent = bodyParts[0].getBlob();
+        var bodyParts, _ = request.getMultiparts();
+        var blobContent, _ = bodyParts[0].getBlob();
         http:OutResponse response = {};
         response.setBinaryPayload(blobContent);
         _ = conn.respond(response);
@@ -58,7 +58,7 @@ service<http> helloServer {
         path:"/multipleparts"
     }
     resource multipart5 (http:Connection conn, http:InRequest request) {
-        mime:Entity[] bodyParts = request.getMultiparts();
+        var bodyParts, _ = request.getMultiparts();
         int i = 0;
         string content = "";
         while (i < lengthof bodyParts) {
@@ -76,8 +76,9 @@ service<http> helloServer {
         path:"/emptyparts"
     }
     resource multipart6 (http:Connection conn, http:InRequest request) {
-        mime:Entity entity = request.getEntity();
+        var entity, entityError = request.getMultiparts();
         http:OutResponse response = {};
+        response.setStringPayload(entityError.msg);
         _ = conn.respond(response);
     }
 
@@ -86,7 +87,7 @@ service<http> helloServer {
         path:"/nestedparts"
     }
     resource multipart7 (http:Connection conn, http:InRequest request) {
-        mime:Entity[] parentParts = request.getMultiparts();
+        var parentParts, _ = request.getMultiparts();
         int i = 0;
         string content = "";
         while (i < lengthof parentParts) {
@@ -101,7 +102,7 @@ service<http> helloServer {
 }
 
 function handleNestedParts (mime:Entity parentPart) (string) {
-    mime:Entity[] childParts = parentPart.getBodyParts();
+    var childParts, _ = parentPart.getBodyParts();
     int i = 0;
     string content = "";
     if (childParts != null) {
@@ -117,16 +118,17 @@ function handleNestedParts (mime:Entity parentPart) (string) {
 function handleContent (mime:Entity bodyPart) (string) {
     string contentType = bodyPart.contentType.toString();
     if (mime:APPLICATION_XML == contentType || mime:TEXT_XML == contentType) {
-        xml xmlContent = bodyPart.getXml();
+        var xmlContent, _ = bodyPart.getXml();
         return xmlContent.getTextValue();
     } else if (mime:APPLICATION_JSON == contentType) {
-        json jsonContent = bodyPart.getJson();
+        var jsonContent, _ = bodyPart.getJson();
         var jsonValue, _ = (string)jsonContent.bodyPart;
         return jsonValue;
     } else if (mime:TEXT_PLAIN == contentType) {
-        return bodyPart.getText();
+        var textData, _ = bodyPart.getText();
+        return textData;
     } else if (mime:APPLICATION_OCTET_STREAM == contentType) {
-        blob blobContent = bodyPart.getBlob();
+        var blobContent, _ = bodyPart.getBlob();
         return blobContent.toString(mime:DEFAULT_CHARSET);
     }
     return null;

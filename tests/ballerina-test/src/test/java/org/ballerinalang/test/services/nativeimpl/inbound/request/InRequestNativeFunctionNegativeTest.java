@@ -119,16 +119,6 @@ public class InRequestNativeFunctionNegativeTest {
         Assert.assertNull(returnVals[0].stringValue());
     }
 
-    @Test(description = "Test getEntity method on a inRequest without a entity")
-    public void testGetEntityNegative() {
-        BStruct inRequest = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, inReqStruct);
-        BValue[] inputArg = {inRequest};
-        BValue[] returnVals = BRunUtil.invoke(result, "testGetEntity", inputArg);
-        Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
-                "Invalid Return Values.");
-        Assert.assertNotNull(returnVals[0]);
-    }
-
     @Test(description = "Test getStringPayload method without a paylaod")
     public void testGetStringPayloadNegative() {
         BStruct inRequest = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, inReqStruct);

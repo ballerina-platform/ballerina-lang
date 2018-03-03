@@ -48,12 +48,12 @@ public struct InRequest {
     string extraPathInfo;
 }
 
-@Description { value:"Get the entity from the inbound request with the body included"}
+@Description { value:"Get the entity from the inbound request with the body included. This function is to be used only internally."}
 @Param { value:"req: The inbound request message" }
 @Return { value:"Entity of the request" }
-public native function <InRequest req> getEntity () (mime:Entity);
+native function <InRequest req> getEntity () (mime:Entity);
 
-@Description { value:"Get the entity from the inbound request without the body. This function is to be used only internally"}
+@Description { value:"Get the entity from the inbound request without the body. This function is to be used only internally."}
 @Param { value:"req: The inbound request message" }
 @Return { value:"Entity of the request" }
 native function <InRequest req> getEntityWithoutBody () (mime:Entity);
@@ -121,20 +121,15 @@ public struct InResponse {
     string server;
 }
 
-@Description { value:"Get the entity from the inbound response with the body"}
+@Description { value:"Get the entity from the inbound response with the body. This function is to be used only internally."}
 @Param { value:"res: The inbound response message" }
 @Return { value:"Entity of the response" }
-public native function <InResponse res> getEntity () (mime:Entity);
+native function <InResponse res> getEntity () (mime:Entity);
 
-@Description { value:"Get the entity from the inbound response without the body. This function is to be used only internally"}
+@Description { value:"Get the entity from the inbound response without the body. This function is to be used only internally."}
 @Param { value:"req: The inbound response message" }
 @Return { value:"Entity of the response" }
 native function <InResponse res> getEntityWithoutBody () (mime:Entity);
-
-@Description { value:"Set the entity to inbound response"}
-@Param { value:"res: The inbound response message" }
-@Return { value:"Entity of the response" }
-public native function <InResponse res> setEntity (mime:Entity entity);
 
 @Description { value:"Retrieve a response property"}
 @Param { value:"res: The inbound response message" }

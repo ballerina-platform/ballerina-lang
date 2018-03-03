@@ -92,16 +92,6 @@ public class InResponseNativeFunctionNegativeTest {
         Assert.assertTrue(error.contains("empty JSON document"));
     }
 
-    @Test(description = "Test getEntity method on a response without a entity")
-    public void testGetEntityNegative() {
-        BStruct inResponse = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, inRespStruct);
-        BValue[] inputArg = {inResponse};
-        BValue[] returnVals = BRunUtil.invoke(result, "testGetEntity", inputArg);
-        Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
-                "Invalid Return Values.");
-        Assert.assertNotNull(returnVals[0]);
-    }
-
     @Test(description = "Test method with string payload")
     public void testGetJsonPayloadWithStringPayload() {
         BStruct inResponse = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, inRespStruct);

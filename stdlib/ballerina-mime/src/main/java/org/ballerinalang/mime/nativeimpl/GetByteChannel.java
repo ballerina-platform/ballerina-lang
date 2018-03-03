@@ -21,6 +21,7 @@ package org.ballerinalang.mime.nativeimpl;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.connector.api.ConnectorUtils;
 import org.ballerinalang.mime.util.EntityBodyHandler;
+import org.ballerinalang.mime.util.MimeUtil;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
@@ -55,11 +56,10 @@ public class GetByteChannel extends AbstractNativeFunction {
         try {
             BStruct entityStruct = (BStruct) this.getRefArgument(context, FIRST_PARAMETER_INDEX);
             byteChannelStruct = ConnectorUtils.createAndGetStruct(context, PROTOCOL_PACKAGE_IO, BYTE_CHANNEL_STRUCT);
-            byteChannelStruct.addNativeData(IOConstants.BYTE_CHANNEL_NAME, EntityBodyHandler.
-                    getByteChannel(entityStruct));
+            byteChannelStruct.addNativeData(IOConstants.BYTE_CHANNEL_NAME, EntityBodyHandler.getByteChannel(entityStruct));
         } catch (Throwable e) {
-            throw new BallerinaException("Error occurred while constructing byte channel from entity body : "
-                    + e.getMessage());
+            return this.getBValues(MimeUtil.createEntityError(context,
+                    "Error occurred while constructing byte channel from entity body : " + e.getMessage()));
         }
         return this.getBValues(byteChannelStruct);
     }

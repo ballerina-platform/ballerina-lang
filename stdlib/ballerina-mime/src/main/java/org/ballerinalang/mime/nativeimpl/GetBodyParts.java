@@ -20,6 +20,7 @@ package org.ballerinalang.mime.nativeimpl;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.mime.util.EntityBodyHandler;
+import org.ballerinalang.mime.util.MimeUtil;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BStruct;
@@ -68,7 +69,8 @@ public class GetBodyParts extends AbstractNativeFunction {
                 }
             }
         } catch (Throwable e) {
-            throw new BallerinaException("Error occurred while extracting body parts from entity: " + e.getMessage());
+            return this.getBValues(MimeUtil.createEntityError(context,
+                    "Error occurred while extracting body parts from entity: " + e.getMessage()));
         }
         return this.getBValues(partsArray);
     }
