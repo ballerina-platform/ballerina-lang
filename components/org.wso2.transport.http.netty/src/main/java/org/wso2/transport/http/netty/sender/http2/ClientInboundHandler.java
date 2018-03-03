@@ -37,7 +37,6 @@ import org.wso2.transport.http.netty.common.Constants;
 import org.wso2.transport.http.netty.message.EmptyLastHttpContent;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 import org.wso2.transport.http.netty.message.Http2PushPromise;
-import org.wso2.transport.http.netty.message.Http2Response;
 import org.wso2.transport.http.netty.message.HttpCarbonResponse;
 import org.wso2.transport.http.netty.message.PooledDataStreamerFactory;
 
@@ -70,13 +69,8 @@ public class ClientInboundHandler extends Http2EventAdapter {
                 return 0;
             }
         }
-        Http2Response http2Response = outboundMsgHolder.getResponse();
-        if (http2Response == null) {
-            log.warn("Data Frame received before receiving headers");
-            return 0;
-        }
         if (isServerPush) {
-            HTTPCarbonMessage responseMessage = http2Response.getPushResponse(streamId);
+            HTTPCarbonMessage responseMessage = outboundMsgHolder.getPushResponse(streamId);
             if (endOfStream) {
                 responseMessage.addHttpContent(new DefaultLastHttpContent(data.retain()));
                 targetChannel.removePromisedMessage(streamId);
@@ -84,7 +78,7 @@ public class ClientInboundHandler extends Http2EventAdapter {
                 responseMessage.addHttpContent(new DefaultHttpContent(data.retain()));
             }
         } else {
-            HTTPCarbonMessage responseMessage = http2Response.getResponse();
+            HTTPCarbonMessage responseMessage = outboundMsgHolder.getResponse();
             if (endOfStream) {
                 responseMessage.addHttpContent(new DefaultLastHttpContent(data.retain()));
                 targetChannel.removeInFlightMessage(streamId);
@@ -124,29 +118,18 @@ public class ClientInboundHandler extends Http2EventAdapter {
         // Create response carbon message
         HttpCarbonResponse responseMessage = setupResponseCarbonMessage(ctx, streamId, headers, outboundMsgHolder);
 
-        Http2Response http2Response = outboundMsgHolder.getResponse();
         if (isServerPush) {
-            http2Response.addPushResponse(streamId, responseMessage);
+            outboundMsgHolder.addPushResponse(streamId, responseMessage);
             if (endStream) {
                 responseMessage.addHttpContent(new EmptyLastHttpContent());
                 targetChannel.removePromisedMessage(streamId);
             }
         } else {
-            if (http2Response == null) {
-                http2Response = new Http2Response();
-                outboundMsgHolder.setHttp2Response(http2Response);
-            }
-            http2Response.setResponse(responseMessage);
             if (endStream) {
                 responseMessage.addHttpContent(new EmptyLastHttpContent());
                 targetChannel.removeInFlightMessage(streamId);
             }
-
-            if (!outboundMsgHolder.isResponseListenerNotified()) {
-                // Notify the response listener
-                outboundMsgHolder.setResponseListenerNotified(true);
-                outboundMsgHolder.getResponseFuture().notifyHttpListener(http2Response);
-            }
+            outboundMsgHolder.setResponse(responseMessage);
         }
     }
 
@@ -168,23 +151,13 @@ public class ClientInboundHandler extends Http2EventAdapter {
             return;
         }
 
-        Http2Response http2Response = outboundMsgHolder.getResponse();
-        if (http2Response == null) {
-            http2Response = new Http2Response();
-            outboundMsgHolder.setHttp2Response(http2Response);
-        }
-        http2Response.addPromise(new Http2PushPromise(streamId, promisedStreamId, headers));
         targetChannel.putPromisedMessage(promisedStreamId, outboundMsgHolder);
-        if (!outboundMsgHolder.isResponseListenerNotified()) {
-            // Notify the response listener
-            outboundMsgHolder.setResponseListenerNotified(true);
-            outboundMsgHolder.getResponseFuture().notifyHttpListener(http2Response);
-        }
+        outboundMsgHolder.addPromise(new Http2PushPromise(streamId, promisedStreamId, headers));
     }
 
     private HttpCarbonResponse setupResponseCarbonMessage(ChannelHandlerContext ctx, int streamId,
-                                                         Http2Headers http2Headers,
-                                                         OutboundMsgHolder outboundMsgHolder) {
+                                                          Http2Headers http2Headers,
+                                                          OutboundMsgHolder outboundMsgHolder) {
         // Create HTTP Response
         CharSequence status = http2Headers.status();
         HttpResponseStatus responseStatus;

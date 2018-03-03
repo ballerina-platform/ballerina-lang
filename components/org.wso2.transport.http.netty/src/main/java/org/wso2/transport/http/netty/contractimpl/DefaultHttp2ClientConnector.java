@@ -29,8 +29,13 @@ import org.wso2.transport.http.netty.common.HttpRoute;
 import org.wso2.transport.http.netty.config.SenderConfiguration;
 import org.wso2.transport.http.netty.contract.ClientConnectorException;
 import org.wso2.transport.http.netty.contract.Http2ClientConnector;
-import org.wso2.transport.http.netty.contract.Http2ResponseFuture;
+import org.wso2.transport.http.netty.contract.HttpPushPromiseAvailabilityFuture;
+import org.wso2.transport.http.netty.contract.HttpPushPromiseFuture;
+import org.wso2.transport.http.netty.contract.HttpResponseFuture;
+import org.wso2.transport.http.netty.contract.HttpResponseHandleFuture;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
+import org.wso2.transport.http.netty.message.Http2PushPromise;
+import org.wso2.transport.http.netty.message.ResponseHandle;
 import org.wso2.transport.http.netty.sender.http2.ConnectionManager;
 import org.wso2.transport.http.netty.sender.http2.OutboundMsgHolder;
 import org.wso2.transport.http.netty.sender.http2.TargetChannel;
@@ -48,30 +53,74 @@ public class DefaultHttp2ClientConnector implements Http2ClientConnector {
     }
 
     @Override
-    public Http2ResponseFuture connect() {
+    public HttpResponseFuture connect() {
         return null;
     }
 
     @Override
-    public Http2ResponseFuture send(HTTPCarbonMessage httpOutboundRequest) {
+    public HttpResponseFuture send(HTTPCarbonMessage httpOutboundRequest) {
 
-        Http2ResponseFuture httpResponseFuture = new DefaultHttp2ResponseFuture();
-        OutboundMsgHolder outboundMsgHolder = new OutboundMsgHolder(httpOutboundRequest, httpResponseFuture);
+        HttpResponseFuture httpResponseFuture = null;
         try {
             HttpRoute route = getTargetRoute(httpOutboundRequest);
             TargetChannel targetChannel = connectionManager.borrowChannel(route);
-            targetChannel.getChannelFuture().addListener(
-                    new ConnectionAvailabilityListener(outboundMsgHolder, route));
+            OutboundMsgHolder outboundMsgHolder =
+                    new OutboundMsgHolder(httpOutboundRequest, targetChannel);
+            httpResponseFuture = outboundMsgHolder.getResponseFuture();
+            targetChannel.getChannelFuture().
+                    addListener(new ConnectionAvailabilityListener(outboundMsgHolder, route, false));
         } catch (Exception failedCause) {
+            if (httpResponseFuture == null) {
+                httpResponseFuture = new DefaultHttpResponseFuture();
+            }
             httpResponseFuture.notifyHttpListener(failedCause);
         }
-
         return httpResponseFuture;
     }
 
     @Override
     public boolean close() {
         return false;
+    }
+
+    @Override
+    public HttpResponseHandleFuture executeAsync(HTTPCarbonMessage httpOutboundRequest) {
+
+        HttpResponseHandleFuture responseHandleFuture = null;
+        try {
+            HttpRoute route = getTargetRoute(httpOutboundRequest);
+            TargetChannel targetChannel = connectionManager.borrowChannel(route);
+            OutboundMsgHolder outboundMsgHolder = new OutboundMsgHolder(httpOutboundRequest, targetChannel);
+            responseHandleFuture = outboundMsgHolder.getResponseHandleFuture();
+            targetChannel.getChannelFuture().
+                    addListener(new ConnectionAvailabilityListener(outboundMsgHolder, route, true));
+        } catch (Exception failedCause) {
+            if (responseHandleFuture == null) {
+                responseHandleFuture = new DefaultHttpResponseHandleFuture();
+            }
+            responseHandleFuture.notifyHttpListener(failedCause);
+        }
+        return responseHandleFuture;
+    }
+
+    @Override
+    public HttpResponseFuture getResponse(ResponseHandle responseHandle) {
+        return responseHandle.getOutboundMsgHolder().getResponseFuture();
+    }
+
+    @Override
+    public HttpPushPromiseFuture getNextPushPromise(ResponseHandle responseHandle) {
+        return responseHandle.getOutboundMsgHolder().getPushPromiseFuture();
+    }
+
+    @Override
+    public HttpPushPromiseAvailabilityFuture hasPushPromise(ResponseHandle responseHandle) {
+        return responseHandle.getOutboundMsgHolder().getPushPromiseAvailabilityFuture();
+    }
+
+    @Override
+    public HttpResponseFuture getPushResponse(ResponseHandle responseHandle, Http2PushPromise pushPromise) {
+        return responseHandle.getOutboundMsgHolder().getPushResponseFuture(pushPromise);
     }
 
     /**
@@ -112,22 +161,32 @@ public class DefaultHttp2ClientConnector implements Http2ClientConnector {
 
         OutboundMsgHolder outboundMsgHolder;
         HttpRoute route;
+        boolean async;
 
-        public ConnectionAvailabilityListener(OutboundMsgHolder outboundMsgHolder, HttpRoute route) {
+        public ConnectionAvailabilityListener(OutboundMsgHolder outboundMsgHolder, HttpRoute route, boolean async) {
             this.route = route;
             this.outboundMsgHolder = outboundMsgHolder;
+            this.async = async;
         }
 
         public void operationComplete(ChannelFuture channelFuture) throws Exception {
             if (isValidChannel(channelFuture)) {
                 channelFuture.channel().write(outboundMsgHolder);
+                if (async) {
+                    outboundMsgHolder.getResponseHandleFuture().
+                            notifyHttpListener(new ResponseHandle(outboundMsgHolder));
+                }
             } else {
                 ClientConnectorException cause = new ClientConnectorException(
                         "Connection error, " + route.toString(), HttpResponseStatus.BAD_GATEWAY.code());
                 if (channelFuture.cause() != null) {
                     cause.initCause(channelFuture.cause());
                 }
-                outboundMsgHolder.getResponseFuture().notifyHttpListener(cause);
+                if (async) {
+                    outboundMsgHolder.getResponseHandleFuture().notifyHttpListener(cause);
+                } else {
+                    outboundMsgHolder.getResponseFuture().notifyHttpListener(cause);
+                }
             }
         }
 

@@ -20,6 +20,8 @@
 package org.wso2.transport.http.netty.contract;
 
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
+import org.wso2.transport.http.netty.message.Http2PushPromise;
+import org.wso2.transport.http.netty.message.ResponseHandle;
 
 /**
  * Allows to send outbound messages over http2 protocol.
@@ -31,7 +33,7 @@ public interface Http2ClientConnector {
      *
      * @return the future that can be used to get future events of the connection.
      */
-    Http2ResponseFuture connect();
+    HttpResponseFuture connect();
 
     /**
      * Send httpMessages to the back-end in asynchronous manner.
@@ -39,7 +41,7 @@ public interface Http2ClientConnector {
      * @param httpCarbonMessage {@link HTTPCarbonMessage} which should be sent to the remote server.
      * @return returns the status of the asynchronous send action.
      */
-    Http2ResponseFuture send(HTTPCarbonMessage httpCarbonMessage);
+    HttpResponseFuture send(HTTPCarbonMessage httpCarbonMessage);
 
     /**
      * Close the connection related to this connector.
@@ -47,5 +49,15 @@ public interface Http2ClientConnector {
      * @return return the status of the close action.
      */
     boolean close();
+
+    HttpResponseHandleFuture executeAsync(HTTPCarbonMessage httpCarbonMessage);
+
+    HttpResponseFuture getResponse(ResponseHandle responseHandle);
+
+    HttpPushPromiseFuture getNextPushPromise(ResponseHandle responseHandle);
+
+    HttpPushPromiseAvailabilityFuture hasPushPromise(ResponseHandle responseHandle);
+
+    HttpResponseFuture getPushResponse(ResponseHandle responseHandle, Http2PushPromise pushPromise);
 
 }

@@ -21,8 +21,6 @@ package org.wso2.transport.http.netty.util;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.compression.ServerRespCompressionTestCase;
-import org.wso2.transport.http.netty.contract.Http2ConnectorListener;
-import org.wso2.transport.http.netty.message.Http2Response;
 
 import java.util.concurrent.CountDownLatch;
 

@@ -27,6 +27,7 @@ import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 public interface HttpClientConnector {
     /**
      * Creates the connection to the back-end.
+     *
      * @return the future that can be used to get future events of the connection.
      */
     HttpResponseFuture connect();
@@ -41,6 +42,7 @@ public interface HttpClientConnector {
 
     /**
      * Close the connection related to this connector.
+     *
      * @return return the status of the close action.
      */
     boolean close();

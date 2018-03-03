@@ -18,9 +18,21 @@
 
 package org.wso2.transport.http.netty.sender.http2;
 
-import org.wso2.transport.http.netty.contract.Http2ResponseFuture;
+import org.wso2.transport.http.netty.contract.HttpPushPromiseAvailabilityFuture;
+import org.wso2.transport.http.netty.contract.HttpPushPromiseFuture;
+import org.wso2.transport.http.netty.contract.HttpResponseFuture;
+import org.wso2.transport.http.netty.contract.HttpResponseHandleFuture;
+import org.wso2.transport.http.netty.contractimpl.DefaultHttpPushPromiseAvailabilityFuture;
+import org.wso2.transport.http.netty.contractimpl.DefaultHttpPushPromiseFuture;
+import org.wso2.transport.http.netty.contractimpl.DefaultHttpResponseFuture;
+import org.wso2.transport.http.netty.contractimpl.DefaultHttpResponseHandleFuture;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
-import org.wso2.transport.http.netty.message.Http2Response;
+import org.wso2.transport.http.netty.message.Http2PushPromise;
+import org.wso2.transport.http.netty.message.HttpCarbonResponse;
+
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.LinkedBlockingQueue;
 
 /**
  * {@code OutboundMsgHolder} holds data related to a single outbound invocation
@@ -29,21 +41,35 @@ public class OutboundMsgHolder {
 
     // Outbound request HTTPCarbonMessage
     private HTTPCarbonMessage requestCarbonMessage;
-    // Intended response received for the request
-    private Http2Response http2Response;
     // Future which is used to notify the response listener upon response receive
-    private Http2ResponseFuture responseFuture;
-    // Whether the response listener is notified
-    private boolean responseListenerNotified = false;
+    private HttpResponseFuture responseFuture;
+    private HttpPushPromiseFuture pushPromiseFuture;
+    private HttpPushPromiseAvailabilityFuture pushPromiseAvailabilityFuture;
+    private HttpResponseHandleFuture responseHandleFuture;
+    private ConcurrentHashMap<Integer, HttpResponseFuture> pushResponseFutures;
 
-    /**
-     * @param httpCarbonMessage outbound request message
-     * @param responseFuture    the Future used to notify the response listener
-     */
-    public OutboundMsgHolder(HTTPCarbonMessage httpCarbonMessage,
-                             Http2ResponseFuture responseFuture) {
+    private TargetChannel targetChannel;
+
+    private BlockingQueue<HttpCarbonResponse> pushResponses;
+    private BlockingQueue<Http2PushPromise> promises;
+    private ConcurrentHashMap<Integer, HttpCarbonResponse> pushResponsesMap;
+    private HttpCarbonResponse response;
+
+    private boolean allPromisesReceived = false;
+    private int promisesCount = 0;
+    private int pushResponsesCount = 0;
+
+    public OutboundMsgHolder(HTTPCarbonMessage httpCarbonMessage, TargetChannel targetChannel) {
         this.requestCarbonMessage = httpCarbonMessage;
-        this.responseFuture = responseFuture;
+        this.targetChannel = targetChannel;
+        pushResponses = new LinkedBlockingQueue();
+        promises = new LinkedBlockingQueue();
+        pushResponsesMap = new ConcurrentHashMap<>();
+        pushResponseFutures = new ConcurrentHashMap<>();
+        responseFuture = new DefaultHttpResponseFuture();
+        responseHandleFuture = new DefaultHttpResponseHandleFuture();
+        pushPromiseFuture = new DefaultHttpPushPromiseFuture(this);
+        pushPromiseAvailabilityFuture = new DefaultHttpPushPromiseAvailabilityFuture(this);
     }
 
     /**
@@ -60,44 +86,87 @@ public class OutboundMsgHolder {
      *
      * @return the Future used to notify the response listener
      */
-    public Http2ResponseFuture getResponseFuture() {
+    public HttpResponseFuture getResponseFuture() {
         return responseFuture;
     }
 
-
-    /**
-     * Get the intended response received for the request
-     *
-     * @return response message
-     */
-    public Http2Response getResponse() {
-        return http2Response;
+    public HttpPushPromiseFuture getPushPromiseFuture() {
+        return pushPromiseFuture;
     }
 
-    /**
-     * Set the intended response for the request
-     *
-     * @param http2Response response Carbon Message
-     */
-    void setHttp2Response(Http2Response http2Response) {
-        this.http2Response = http2Response;
+    public HttpPushPromiseAvailabilityFuture getPushPromiseAvailabilityFuture() {
+        return pushPromiseAvailabilityFuture;
     }
 
-    /**
-     * Check whether response listener has been notified
-     *
-     * @return whether response listener has been notified
-     */
-    public boolean isResponseListenerNotified() {
-        return responseListenerNotified;
+    public HttpResponseHandleFuture getResponseHandleFuture() {
+        return responseHandleFuture;
     }
 
-    /**
-     * Set whether response listener is notified
-     *
-     * @param responseListenerNotified  whether response listener is notified
-     */
-    public void setResponseListenerNotified(boolean responseListenerNotified) {
-        this.responseListenerNotified = responseListenerNotified;
+    public TargetChannel getTargetChannel() {
+        return targetChannel;
     }
+
+    public void addPromise(Http2PushPromise pushPromise) {
+        promises.add(pushPromise);
+        promisesCount++;
+        pushPromiseAvailabilityFuture.notifyHttpListener();
+        pushPromiseFuture.notifyHttpListener();
+    }
+
+    public void addPushResponse(int streamId, HttpCarbonResponse pushResponse) {
+        pushResponsesMap.put(streamId, pushResponse);
+        pushResponses.add(pushResponse);
+        pushResponsesCount++;
+        pushResponseFutures.get(streamId).notifyHttpListener(pushResponse);
+    }
+
+    public boolean isAllPromisesReceived() {
+        return allPromisesReceived;
+    }
+
+    public HttpCarbonResponse getPushResponse(int steamId) {
+        return pushResponsesMap.get(steamId);
+    }
+
+    public HttpCarbonResponse getResponse() {
+        return response;
+    }
+
+    public void setResponse(HttpCarbonResponse response) {
+        allPromisesReceived = true;
+        pushPromiseAvailabilityFuture.notifyHttpListener();
+        responseFuture.notifyHttpListener(response);
+        this.response = response;
+    }
+
+    public boolean hasPromise() {
+        return !promises.isEmpty();
+    }
+
+    public boolean hasPushResponse() {
+        return !pushResponses.isEmpty();
+    }
+
+    public Http2PushPromise getNextPromise() {
+        return promises.poll();
+    }
+
+    public HttpCarbonResponse getNextPushResponse() {
+        return pushResponses.poll();
+    }
+
+    public int getPromisesCount() {
+        return promisesCount;
+    }
+
+    public int getPushResponsesCount() {
+        return pushResponsesCount;
+    }
+
+    public HttpResponseFuture getPushResponseFuture(Http2PushPromise promise) {
+        HttpResponseFuture pushResponseFuture = new DefaultHttpResponseFuture();
+        pushResponseFutures.put(promise.getPromisedStreamId(), pushResponseFuture);
+        return pushResponseFuture;
+    }
+
 }

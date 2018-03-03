@@ -19,7 +19,6 @@
 package org.wso2.transport.http.netty.util.client.http2;
 
 import org.wso2.transport.http.netty.contract.Http2ClientConnector;
-import org.wso2.transport.http.netty.contract.Http2ResponseFuture;
 import org.wso2.transport.http.netty.exception.EndpointTimeOutException;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 import org.wso2.transport.http.netty.util.TestHttp2ConnectorListener;
