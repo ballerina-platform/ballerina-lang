@@ -30,6 +30,13 @@ public class AsyncTimer {
     
     private static ScheduledExecutorService executor = Executors.newScheduledThreadPool(CORE_THREAD_POOL_SIZE);
     
+    /**
+     * This can be used to register a callback to be triggered after the given delay. The callback
+     * must not block the execution in any way, and should return as soon as possible. The duration to
+     * execute the callback will affect other awaiting callbacks.
+     * @param callback the callback to be invoked after the given delay
+     * @param delayMillis the trigger delay in milliseconds 
+     */
     public static void schedule(TimerCallback callback, long delayMillis) {
         executor.schedule(callback::execute, delayMillis, TimeUnit.MILLISECONDS);
     }

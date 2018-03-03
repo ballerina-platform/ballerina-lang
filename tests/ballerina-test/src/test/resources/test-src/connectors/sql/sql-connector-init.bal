@@ -28,6 +28,22 @@ function testConnectorWithDefaultPropertiesForListedDB () (string firstName) {
     return;
 }
 
+function testConnectorWithWorkers () (string firstName) {
+    endpoint<sql:ClientConnector> testDB {
+        create sql:ClientConnector(sql:DB.HSQLDB_FILE, "./target/tempdb/", 0,
+                                   "TEST_SQL_CONNECTOR_INIT", "SA", "", null);
+    }
+    worker w1 {
+        int x = 0;
+        json y;
+        error e;
+	    table dt = testDB.select("SELECT  FirstName from Customers where registrationID = 1", null, null);
+	    var j, _ = <json>dt;
+	    firstName = j.toString();
+	    return;
+    }
+}
+
 
 function testConnectorWithDirectUrl () (string firstName) {
     endpoint<sql:ClientConnector> testDB {}

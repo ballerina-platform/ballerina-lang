@@ -18,7 +18,6 @@
 package org.ballerinalang.util.program;
 
 import org.ballerinalang.bre.bvm.AsyncTimer;
-import org.ballerinalang.bre.bvm.AsyncTimer.TimerCallback;
 import org.ballerinalang.bre.bvm.BLangScheduler;
 import org.ballerinalang.bre.bvm.BLangVMErrors;
 import org.ballerinalang.bre.bvm.CPU;
@@ -27,6 +26,7 @@ import org.ballerinalang.bre.bvm.CallbackedInvocableWorkerResponseContext;
 import org.ballerinalang.bre.bvm.ForkJoinTimeoutCallback;
 import org.ballerinalang.bre.bvm.ForkJoinWorkerResponseContext;
 import org.ballerinalang.bre.bvm.InvocableWorkerResponseContext;
+import org.ballerinalang.bre.bvm.InitWorkerResponseContext;
 import org.ballerinalang.bre.bvm.WorkerData;
 import org.ballerinalang.bre.bvm.WorkerExecutionContext;
 import org.ballerinalang.bre.bvm.WorkerResponseContext;
@@ -38,6 +38,7 @@ import org.ballerinalang.util.codegen.FunctionInfo;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.codegen.WorkerInfo;
+import org.ballerinalang.util.codegen.attributes.CodeAttributeInfo;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.wso2.ballerinalang.util.Lists;
 
@@ -105,40 +106,68 @@ public class BLangFunctions {
      * This is specifically useful in executing service resources, where the calling transport
      * threads shouldn't be blocked, but rather the worker threads should be used.
      */
-    private static void invokeCallable(CallableUnitInfo callableUnitInfo,
-                                       WorkerExecutionContext parentCtx, int[] argRegs, int[] retRegs,
-                                       CallableUnitCallback responseCallback) {
-        WorkerInfo[] workerInfos = listWorkerInfos(callableUnitInfo);
+    public static void invokeCallable(CallableUnitInfo callableUnitInfo,
+            WorkerExecutionContext parentCtx, int[] argRegs, int[] retRegs,
+            CallableUnitCallback responseCallback) {
+        WorkerSet workerSet = listWorkers(callableUnitInfo);
         InvocableWorkerResponseContext respCtx = new CallbackedInvocableWorkerResponseContext(
-                callableUnitInfo.getRetParamTypes(), workerInfos.length, false, responseCallback);
+                callableUnitInfo.getRetParamTypes(), workerSet.generalWorkers.length, false, responseCallback);
         respCtx.updateTargetContextInfo(parentCtx, retRegs);
         WorkerDataIndex wdi = callableUnitInfo.retWorkerIndex;
         Map<String, Object> globalProps = parentCtx.globalProps;
         BLangScheduler.switchToWaitForResponse(parentCtx);
-        for (WorkerInfo workerInfo : workerInfos) {
-            executeWorker(respCtx, parentCtx, argRegs, callableUnitInfo, workerInfo, wdi, globalProps, false);
+
+        /* execute the init worker and extract the local variables created by it */
+        WorkerData initWorkerLocalData = null;
+        CodeAttributeInfo initWorkerCAI = null;
+        if (workerSet.initWorker != null) {
+            initWorkerLocalData = executeInitWorker(parentCtx, argRegs, callableUnitInfo, workerSet.initWorker,
+                    wdi, globalProps);
+            if (initWorkerLocalData == null) {
+                return;
+            }
+            initWorkerCAI = workerSet.initWorker.getCodeAttributeInfo();
+        }
+
+        for (int i = 0; i < workerSet.generalWorkers.length; i++) {
+            executeWorker(respCtx, parentCtx, argRegs, callableUnitInfo, workerSet.generalWorkers[i],
+                    wdi, globalProps, initWorkerLocalData, initWorkerCAI, false);
         }
     }
 
     public static WorkerExecutionContext invokeCallable(CallableUnitInfo callableUnitInfo,
             WorkerExecutionContext parentCtx, int[] argRegs, int[] retRegs, boolean waitForResponse) {
-        WorkerInfo[] workerInfos = listWorkerInfos(callableUnitInfo);
+        WorkerSet workerSet = listWorkers(callableUnitInfo);
         InvocableWorkerResponseContext respCtx = new InvocableWorkerResponseContext(
                 callableUnitInfo.getRetParamTypes(),
-                workerInfos.length, waitForResponse);
+                workerSet.generalWorkers.length, waitForResponse);
         respCtx.updateTargetContextInfo(parentCtx, retRegs);
         WorkerDataIndex wdi = callableUnitInfo.retWorkerIndex;
         Map<String, Object> globalProps = parentCtx.globalProps;
         BLangScheduler.switchToWaitForResponse(parentCtx);
-        for (int i = 1; i < workerInfos.length; i++) {
-            executeWorker(respCtx, parentCtx, argRegs, callableUnitInfo, workerInfos[i], wdi, globalProps, false);
+
+        /* execute the init worker and extract the local variables created by it */
+        WorkerData initWorkerLocalData = null;
+        CodeAttributeInfo initWorkerCAI = null;
+        if (workerSet.initWorker != null) {
+            initWorkerLocalData = executeInitWorker(parentCtx, argRegs, callableUnitInfo, workerSet.initWorker,
+                    wdi, globalProps);
+            if (initWorkerLocalData == null) {
+                /* an error has occurred */
+                return null;
+            }
+            initWorkerCAI = workerSet.initWorker.getCodeAttributeInfo();
+        }
+
+        for (int i = 1; i < workerSet.generalWorkers.length; i++) {
+            executeWorker(respCtx, parentCtx, argRegs, callableUnitInfo, workerSet.generalWorkers[i],
+                    wdi, globalProps, initWorkerLocalData, initWorkerCAI, false);
         }
         WorkerExecutionContext runInCallerCtx = executeWorker(respCtx, parentCtx, argRegs, callableUnitInfo, 
-                workerInfos[0], wdi, globalProps, true);
+                workerSet.generalWorkers[0], wdi, globalProps, initWorkerLocalData, initWorkerCAI, true);
         if (waitForResponse) {
             CPU.exec(runInCallerCtx);
             respCtx.waitForResponse();
-
             // An error in the context at this point means an unhandled runtime error has propagated
             // all the way up to the entry point. Hence throw a {@link BLangRuntimeException} and
             // terminate the execution.
@@ -152,19 +181,44 @@ public class BLangFunctions {
     
     private static WorkerExecutionContext executeWorker(WorkerResponseContext respCtx, 
             WorkerExecutionContext parentCtx, int[] argRegs, CallableUnitInfo callableUnitInfo, 
-            WorkerInfo workerInfo, WorkerDataIndex wdi, Map<String, Object> globalProps, boolean runInCaller) {
+            WorkerInfo workerInfo, WorkerDataIndex wdi, Map<String, Object> globalProps,
+            WorkerData initWorkerLocalData, CodeAttributeInfo initWorkerCAI, boolean runInCaller) {
         WorkerData workerLocal = BLangVMUtils.createWorkerDataForLocal(workerInfo, parentCtx, argRegs,
                 callableUnitInfo.getParamTypes());
+        if (initWorkerLocalData != null) {
+            BLangVMUtils.mergeInitWorkertData(initWorkerLocalData, workerLocal, initWorkerCAI);
+        }
         WorkerData workerResult = BLangVMUtils.createWorkerData(wdi);
         WorkerExecutionContext ctx = new WorkerExecutionContext(parentCtx, respCtx, callableUnitInfo, workerInfo,
                 workerLocal, workerResult, wdi.retRegs, globalProps, runInCaller);
         return BLangScheduler.schedule(ctx);
     }
     
-    private static WorkerInfo[] listWorkerInfos(CallableUnitInfo callableUnitInfo) {
-        WorkerInfo[] result = callableUnitInfo.getWorkerInfoEntries();
-        if (result.length == 0) {
-            result = new WorkerInfo[] { callableUnitInfo.getDefaultWorkerInfo() };
+    private static WorkerData executeInitWorker(WorkerExecutionContext parentCtx, int[] argRegs,
+            CallableUnitInfo callableUnitInfo, WorkerInfo workerInfo, WorkerDataIndex wdi,
+            Map<String, Object> globalProps) {
+        InitWorkerResponseContext respCtx = new InitWorkerResponseContext(parentCtx);
+        WorkerData workerLocal = BLangVMUtils.createWorkerDataForLocal(workerInfo, parentCtx, argRegs,
+                callableUnitInfo.getParamTypes());
+        WorkerData workerResult = BLangVMUtils.createWorkerData(wdi);
+        WorkerExecutionContext ctx = new WorkerExecutionContext(parentCtx, respCtx, callableUnitInfo, workerInfo,
+                workerLocal, workerResult, wdi.retRegs, globalProps, true);
+        ctx = BLangScheduler.schedule(ctx);
+        CPU.exec(ctx);
+        if (respCtx.isErrored()) {
+            return null;
+        } else {
+            return workerLocal;
+        }
+    }
+
+    private static WorkerSet listWorkers(CallableUnitInfo callableUnitInfo) {
+        WorkerSet result = new WorkerSet();
+        result.generalWorkers = callableUnitInfo.getWorkerInfoEntries();
+        if (result.generalWorkers.length == 0) {
+            result.generalWorkers = new WorkerInfo[] { callableUnitInfo.getDefaultWorkerInfo() };
+        } else {
+            result.initWorker = callableUnitInfo.getDefaultWorkerInfo();
         }
         return result;
     }
@@ -248,4 +302,16 @@ public class BLangFunctions {
                 != null ? v.getWorkerDataChannelInfoForForkJoin().getChannelName() : null));
         return channels;
     }
+
+    /**
+     * This represents a worker set with different execution roles.
+     */
+    private static class WorkerSet {
+
+        public WorkerInfo initWorker;
+
+        public WorkerInfo[] generalWorkers;
+
+    }
+
 }

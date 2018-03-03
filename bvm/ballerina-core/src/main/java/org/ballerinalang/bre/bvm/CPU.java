@@ -125,7 +125,7 @@ import static org.ballerinalang.util.BLangConstants.STRING_NULL_VALUE;
  */
 public class CPU {
 
-    private static void traceCode(Instruction[] code) {
+    public static void traceCode(Instruction[] code) {
         PrintStream printStream = System.out;
         for (int i = 0; i < code.length; i++) {
             printStream.println(i + ": " + code[i].toString());
@@ -440,12 +440,6 @@ public class CPU {
                     if (runInCallerCtx != null) {
                         ctx = runInCallerCtx;
                         ctx.state = WorkerState.RUNNING;
-                    }
-                    break;
-                case InstructionCodes.WRKRETURN:
-                    runInCallerCtx = handleReturn(ctx);
-                    if (runInCallerCtx != null) {
-                        ctx = runInCallerCtx;
                     }
                     break;
                 case InstructionCodes.THROW:

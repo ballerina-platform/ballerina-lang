@@ -375,6 +375,28 @@ public class BLangVMUtils {
         }
     }
     
+    public static void mergeInitWorkertData(WorkerData sourceData, WorkerData targetData, 
+            CodeAttributeInfo initWorkerCAI) {
+        for (int i = 0; i < initWorkerCAI.getMaxByteLocalVars(); i++) {
+            targetData.byteRegs[i] = sourceData.byteRegs[i];
+        }
+        for (int i = 0; i < initWorkerCAI.getMaxDoubleLocalVars(); i++) {
+            targetData.doubleRegs[i] = sourceData.doubleRegs[i];
+        }
+        for (int i = 0; i < initWorkerCAI.getMaxIntLocalVars(); i++) {
+            targetData.intRegs[i] = sourceData.intRegs[i];
+        }
+        for (int i = 0; i < initWorkerCAI.getMaxLongLocalVars(); i++) {
+            targetData.longRegs[i] = sourceData.longRegs[i];
+        }
+        for (int i = 0; i < initWorkerCAI.getMaxStringLocalVars(); i++) {
+            targetData.stringRegs[i] = sourceData.stringRegs[i];
+        }
+        for (int i = 0; i < initWorkerCAI.getMaxRefLocalVars(); i++) {
+            targetData.refRegs[i] = sourceData.refRegs[i];
+        }
+    }
+    
     public static BStruct createErrorStruct(Throwable e) {
         //TODO
         return null;
