@@ -100,7 +100,7 @@ public class BLangStreamAction extends BLangNode implements StreamActionNode {
     }
 
     @Override
-    public String getAction() {
+    public String getActionType() {
         return action.toString();
     }
 

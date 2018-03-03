@@ -160,13 +160,12 @@ public class SqlQueryBuilder extends BLangNodeVisitor {
     public void visit(BLangStreamingInput streamingInput) {
         streamingInputClause = new StringBuilder();
         streamingInputClause.append(streamingInput.getIdentifier());
-        List<? extends WhereNode> whereNodes = streamingInput.getStreamingConditions();
+        WhereNode whereNode = streamingInput.getBeforeStreamingCondition();
 
         /* for tables there can only be one whereClause and there is no windowClause.
          So we don't care about the windowClause. */
-        if (whereNodes != null && !whereNodes.isEmpty()) {
-            BLangWhere where = (BLangWhere) whereNodes.get(0);
-            where.accept(this);
+        if (whereNode != null) {
+            ((BLangWhere) whereNode).accept(this);
             streamingInputClause.append(" ").append(whereClause);
         }
         if (streamingInput.getAlias() != null) {

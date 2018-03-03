@@ -25,25 +25,45 @@ import org.ballerinalang.model.tree.clauses.WindowClauseNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 
-import java.util.ArrayList;
-import java.util.List;
-
 /**
  * Implementation of {@link StreamingInput}.
  */
 public class BLangStreamingInput extends BLangNode implements StreamingInput {
 
-    private List<WhereNode> streamingConditions = new ArrayList<>();
+    private WhereNode beforeStreamingCondition;
     private WindowClauseNode windowClause;
+    private WhereNode afterStreamingCondition;
     private String identifier, alias;
+    private boolean isWindowTraversedAfterWhere;
+
     @Override
-    public void addStreamingCondition(WhereNode where) {
-        this.streamingConditions.add(where);
+    public void setBeforeStreamingCondition(WhereNode where) {
+        this.beforeStreamingCondition = where;
     }
 
     @Override
-    public List<? extends WhereNode> getStreamingConditions() {
-        return this.streamingConditions;
+    public WhereNode getBeforeStreamingCondition() {
+        return this.beforeStreamingCondition;
+    }
+
+    @Override
+    public void setAfterStreamingCondition(WhereNode where) {
+        this.afterStreamingCondition = where;
+    }
+
+    @Override
+    public WhereNode getAfterStreamingCondition() {
+        return afterStreamingCondition;
+    }
+
+    @Override
+    public boolean isWindowTraversedAfterWhere() {
+        return isWindowTraversedAfterWhere;
+    }
+
+    @Override
+    public void setWindowTraversedAfterWhere(boolean windowTraversedAfterWhere) {
+        isWindowTraversedAfterWhere = windowTraversedAfterWhere;
     }
 
     @Override

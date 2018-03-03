@@ -22,11 +22,15 @@ import org.ballerinalang.model.tree.clauses.JoinStreamingInput;
 import org.ballerinalang.model.tree.clauses.OrderByNode;
 import org.ballerinalang.model.tree.clauses.SelectClauseNode;
 import org.ballerinalang.model.tree.clauses.SelectExpressionNode;
+import org.ballerinalang.model.tree.clauses.SetAssignmentNode;
 import org.ballerinalang.model.tree.clauses.StreamActionNode;
 import org.ballerinalang.model.tree.clauses.StreamingInput;
 import org.ballerinalang.model.tree.clauses.WhereNode;
+import org.ballerinalang.model.tree.clauses.WindowClauseNode;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
-import org.ballerinalang.model.tree.statements.QueryStatementNode;
+import org.ballerinalang.model.tree.statements.StatementNode;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BStructType;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.BLangStreamlet;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangGroupBy;
@@ -35,16 +39,21 @@ import org.wso2.ballerinalang.compiler.tree.clauses.BLangJoinStreamingInput;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangOrderBy;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangSelectClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangSelectExpression;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangSetAssignment;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangStreamAction;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangStreamingInput;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangStreamingQueryDeclaration;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangWhere;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangWindow;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangQueryStatement;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangStreamingQueryStatement;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangVariableDef;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
 import java.util.Iterator;
@@ -59,15 +68,19 @@ public class SiddhiQueryBuilder extends BLangNodeVisitor {
             new CompilerContext.Key<>();
 
     private String varRef;
-    private StringBuilder orderByClause;
     private String binaryExpr;
+    private StringBuilder orderByClause;
+    private StringBuilder setExpr;
     private StringBuilder whereClause;
+    private StringBuilder windowClause;
     private StringBuilder joinStreamingInputClause;
     private StringBuilder streamingInputClause;
     private StringBuilder selectExprClause;
     private StringBuilder selectExpr;
+    private StringBuilder setAssignmentClause;
     private StringBuilder groupByClause;
     private StringBuilder havingClause;
+    private StringBuilder streamDefinitionQuery;
     private StringBuilder siddhiQuery;
     private StringBuilder streamActionClause;
 
@@ -130,18 +143,35 @@ public class SiddhiQueryBuilder extends BLangNodeVisitor {
     public void visit(BLangStreamingInput streamingInput) {
         streamingInputClause = new StringBuilder();
         streamingInputClause.append(streamingInput.getIdentifier());
-        List<? extends WhereNode> whereNodes = streamingInput.getStreamingConditions();
+        WhereNode beforeWhereNode = streamingInput.getBeforeStreamingCondition();
+        WhereNode afterWhereNode = streamingInput.getAfterStreamingCondition();
+        WindowClauseNode windowClauseNode = streamingInput.getWindowClause();
 
-        //TODO Think about - window clause as well.
-
-        if (whereNodes != null && !whereNodes.isEmpty()) {
-            BLangWhere where = (BLangWhere) whereNodes.get(0);
-            where.accept(this);
+        if (beforeWhereNode != null) {
+            ((BLangWhere) beforeWhereNode).accept(this);
             streamingInputClause.append(" ").append(whereClause);
         }
+
+        if (windowClauseNode != null) {
+            ((BLangWindow) windowClauseNode).accept(this);
+            streamingInputClause.append(" ").append(windowClause);
+        }
+
+        if (afterWhereNode != null) {
+            ((BLangWhere) afterWhereNode).accept(this);
+            streamingInputClause.append(" ").append(whereClause);
+        }
+
         if (streamingInput.getAlias() != null) {
             streamingInputClause.append(" as ").append(streamingInput.getAlias());
         }
+    }
+
+    public void visit(BLangWindow window) {
+        windowClause = new StringBuilder();
+        windowClause.append("#window.");
+        windowClause.append(window.getFunctionInvocation().toString());
+        windowClause.append(" ");
     }
 
     @Override
@@ -233,26 +263,47 @@ public class SiddhiQueryBuilder extends BLangNodeVisitor {
         }
     }
 
+
+    public void visit(BLangInvocation invocationExpr) {
+        varRef = invocationExpr.toString();
+    }
+
     @Override
     public void visit(BLangStreamlet streamletNode) {
-        BLangStreamingQueryDeclaration streamingQueryDeclaration = (BLangStreamingQueryDeclaration) streamletNode.
-                getStreamingQueryDeclaration();
+        BLangStreamingQueryDeclaration streamingQueryDeclaration = null;
         siddhiQuery = new StringBuilder();
+        streamDefinitionQuery = new StringBuilder();
         siddhiQuery.append("from ");
-        streamingQueryDeclaration.accept(this);
+        List<? extends StatementNode> statementNodes = streamletNode.getBody().getStatements();
+        for (StatementNode statementNode : statementNodes) {
+            ((BLangStatement) statementNode).accept(this);
+        }
         streamletNode.setSiddhiQuery(this.getSiddhiQuery());
     }
 
-    public void visit(BLangStreamingQueryDeclaration streamingQueryDeclaration) {
+    public void visit(BLangVariableDef varDefNode) {
+        StringBuilder streamDefinition = new StringBuilder("define stream ");
+        streamDefinition.append(varDefNode.var.name).append("( ");
+        List<BStructType.BStructField> structFieldList = ((BStructType) ((BStreamType) varDefNode.var.type).
+                constraint).fields;
 
-        if (streamingQueryDeclaration.getStreamingQueryStatement() != null) {
-            //TODO Implement the when there is no any query block is defined.
-        } else {
-            List<QueryStatementNode> queryStatementNodes = streamingQueryDeclaration.getQueryStatements();
-            for (QueryStatementNode queryStatementNode : queryStatementNodes) {
-                ((BLangQueryStatement) queryStatementNode).accept(this);
-            }
+        Iterator<BStructType.BStructField> structFieldIterator = structFieldList.iterator();
+        BStructType.BStructField structField = structFieldIterator.next();
+        if (structField != null) {
+            streamDefinition.append(structField.getName()).append(" ").append(structField.getType());
         }
+
+        while (structFieldIterator.hasNext()) {
+            structField = structFieldIterator.next();
+            streamDefinition.append(" , ");
+            streamDefinition.append(structField.getName()).append(" ").append(structField.getType());
+        }
+
+        if (structField != null) {
+            streamDefinition.append(" ); ");
+        }
+
+        streamDefinitionQuery.append(streamDefinition).append("\n");
     }
 
     public void visit(BLangQueryStatement queryStatement) {
@@ -296,19 +347,47 @@ public class SiddhiQueryBuilder extends BLangNodeVisitor {
     @Override
     public void visit(BLangStreamAction streamAction) {
         streamActionClause = new StringBuilder();
-        String streamActionType = streamAction.getAction();
+        String streamActionType = streamAction.getActionType();
         if (streamActionType.equalsIgnoreCase("insert")) {
             streamActionClause.append(" ").append("insert into");
             streamActionClause.append(" ").append(streamAction.getIdentifier());
         } else if (streamActionType.equalsIgnoreCase("update")) {
             streamActionClause.append(" ").append("update");
+            streamActionClause.append(" ").append(streamAction.getIdentifier());
+            List<SetAssignmentNode> setAssignments = streamAction.getSetClause();
+
+            if (!setAssignments.isEmpty()) {
+                Iterator<? extends SetAssignmentNode> iterator = setAssignments.iterator();
+                setAssignmentClause = new StringBuilder(" set ");
+                BLangSetAssignment setAssignment = (BLangSetAssignment) iterator.next();
+                setAssignment.accept(this);
+                setAssignmentClause.append(setExpr);
+                while (iterator.hasNext()) {
+                    setAssignment = (BLangSetAssignment) iterator.next();
+                    setAssignmentClause.append(", ");
+                    setAssignment.accept(this);
+                    setAssignmentClause.append(setExpr);
+                }
+            }
+            streamActionClause.append(setAssignmentClause);
         } else if (streamActionType.equalsIgnoreCase("delete")) {
             streamActionClause.append(" ").append("delete");
             streamActionClause.append(" ").append(streamAction.getIdentifier());
+            ((BLangExpression) streamAction.getExpression()).accept(this);
+            streamActionClause.append(" ").append(this.binaryExpr);
         }
     }
 
+    @Override
+    public void visit(BLangSetAssignment setAssignmentClause) {
+        setExpr = new StringBuilder();
+        ((BLangExpression) setAssignmentClause.getVariableReference()).accept(this);
+        setExpr.append(" ").append(varRef).append(" = ");
+        ((BLangExpression) setAssignmentClause.getExpressionNode()).accept(this);
+        setExpr.append(varRef);
+    }
+
     public String getSiddhiQuery() {
-        return siddhiQuery.toString();
+        return streamDefinitionQuery.toString() + "\n" + siddhiQuery.toString() + " ; ";
     }
 }

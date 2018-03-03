@@ -53,8 +53,25 @@ public class BStreamletType extends BType implements StreamletType {
 
     @Override
     public String toString() {
-        //TODO Fix this - mohan
-        System.out.printf(paramTypes.toString());
         return Names.DEFAULT_PACKAGE.equals(tsymbol.pkgID.name) ? tsymbol.name.value : getQualifiedTypeName();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+
+        BStreamletType that = (BStreamletType) o;
+
+        return paramTypes != null ? paramTypes.equals(that.paramTypes) : that.paramTypes == null;
+    }
+
+    @Override
+    public int hashCode() {
+        return paramTypes != null ? paramTypes.hashCode() : 0;
     }
 }

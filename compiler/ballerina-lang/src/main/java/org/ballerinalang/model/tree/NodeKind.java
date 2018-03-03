@@ -102,6 +102,7 @@ public enum NodeKind {
     LOCK,
     WORKER_RECEIVE,
     WORKER_SEND,
+    STREAM,
 
     /* Types */
     ARRAY_TYPE,

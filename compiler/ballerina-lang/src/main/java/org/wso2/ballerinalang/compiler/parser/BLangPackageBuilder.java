@@ -54,7 +54,6 @@ import org.ballerinalang.model.tree.clauses.SelectExpressionNode;
 import org.ballerinalang.model.tree.clauses.SetAssignmentNode;
 import org.ballerinalang.model.tree.clauses.StreamActionNode;
 import org.ballerinalang.model.tree.clauses.StreamingInput;
-import org.ballerinalang.model.tree.clauses.StreamingQueryDeclarationNode;
 import org.ballerinalang.model.tree.clauses.TableQuery;
 import org.ballerinalang.model.tree.clauses.WhereNode;
 import org.ballerinalang.model.tree.clauses.WindowClauseNode;
@@ -105,7 +104,6 @@ import org.wso2.ballerinalang.compiler.tree.clauses.BLangSelectExpression;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangSetAssignment;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangStreamAction;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangStreamingInput;
-import org.wso2.ballerinalang.compiler.tree.clauses.BLangStreamingQueryDeclaration;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangTableQuery;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangWhere;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangWindow;
@@ -290,8 +288,6 @@ public class BLangPackageBuilder {
     private Stack<StreamingQueryStatementNode> streamingQueryStatementStack = new Stack<>();
 
     private Stack<QueryStatementNode> queryStatementStack = new Stack<>();
-
-    private Stack<StreamingQueryDeclarationNode> streamingQueryDeclarationNodeStack = new Stack<>();
 
     private Stack<StreamletNode> streamletNodeStack = new Stack<>();
 
@@ -2049,6 +2045,12 @@ public class BLangPackageBuilder {
         ((BLangWindow) windowClauseNode).pos = pos;
         ((BLangWindow) windowClauseNode).addWS(ws);
         windowClauseNode.setFunctionInvocation(this.exprNodeStack.pop());
+
+        if (!this.whereClauseStack.isEmpty()) {
+            this.streamingInputStack.peek().setWindowTraversedAfterWhere(true);
+        } else {
+            this.streamingInputStack.peek().setWindowTraversedAfterWhere(false);
+        }
     }
 
     public void startStreamingInputNode(DiagnosticPos pos, Set<Whitespace> ws) {
@@ -2058,19 +2060,24 @@ public class BLangPackageBuilder {
         this.streamingInputStack.push(streamingInput);
     }
 
-    public void endStreamingInputNode(boolean isFirstWhereAvailable, boolean isSecondWhereAvailable,
-                                      boolean isWindowAvailable, String identifier, String alias, DiagnosticPos pos,
+    public void endStreamingInputNode(String identifier, String alias, DiagnosticPos pos,
                                       Set<Whitespace> ws) {
         BLangStreamingInput streamingInput = (BLangStreamingInput) this.streamingInputStack.peek();
         streamingInput.pos = pos;
         streamingInput.addWS(ws);
-        if (isSecondWhereAvailable) {
-            streamingInput.addStreamingCondition(this.whereClauseStack.pop());
+
+        if (this.whereClauseStack.size() == 2) {
+            streamingInput.setAfterStreamingCondition(this.whereClauseStack.pop());
+            streamingInput.setBeforeStreamingCondition(this.whereClauseStack.pop());
+        } else if (this.whereClauseStack.size() == 1) {
+            if (streamingInput.isWindowTraversedAfterWhere()) {
+                streamingInput.setBeforeStreamingCondition(this.whereClauseStack.pop());
+            } else {
+                streamingInput.setAfterStreamingCondition(this.whereClauseStack.pop());
+            }
         }
-        if (isFirstWhereAvailable) {
-            streamingInput.addStreamingCondition(this.whereClauseStack.pop());
-        }
-        if (isWindowAvailable) {
+
+        if (!this.windowClausesStack.isEmpty()) {
             streamingInput.setWindowClause(this.windowClausesStack.pop());
         }
         streamingInput.setIdentifier(identifier);
@@ -2295,25 +2302,15 @@ public class BLangPackageBuilder {
         queryStatementNode.setStreamingQueryStatement(streamingQueryStatementStack.pop());
     }
 
-    public void startStreamingQueryDeclarationNode(DiagnosticPos pos, Set<Whitespace> ws) {
-        StreamingQueryDeclarationNode streamingQueryDeclarationNode = TreeBuilder.createStreamingQueryDeclarationNode();
-        ((BLangStreamingQueryDeclaration) streamingQueryDeclarationNode).pos = pos;
-        ((BLangStreamingQueryDeclaration) streamingQueryDeclarationNode).addWS(ws);
-        this.streamingQueryDeclarationNodeStack.push(streamingQueryDeclarationNode);
-    }
-
     public void endStreamingQueryDeclarationNode(DiagnosticPos pos, Set<Whitespace> ws) {
 
-        StreamingQueryDeclarationNode streamingQueryDeclarationNode = this.streamingQueryDeclarationNodeStack.peek();
-        ((BLangStreamingQueryDeclaration) streamingQueryDeclarationNode).pos = pos;
-        ((BLangStreamingQueryDeclaration) streamingQueryDeclarationNode).addWS(ws);
-
+        BlockNode blocknode = this.blockNodeStack.peek();
         if (!streamingQueryStatementStack.isEmpty()) {
-            streamingQueryDeclarationNode.setStreamingQuery(streamingQueryStatementStack.pop());
+            blocknode.addStatement(streamingQueryStatementStack.pop());
         }
 
         while (!queryStatementStack.isEmpty()) {
-            streamingQueryDeclarationNode.addQueryStatement(queryStatementStack.pop());
+            blocknode.addStatement(queryStatementStack.pop());
         }
     }
 
@@ -2321,6 +2318,7 @@ public class BLangPackageBuilder {
         StreamletNode streamletNode = TreeBuilder.createStreamletNode();
         ((BLangStreamlet) streamletNode).pos = pos;
         ((BLangStreamlet) streamletNode).addWS(ws);
+        startBlock();
         this.streamletNodeStack.push(streamletNode);
     }
 
@@ -2331,11 +2329,13 @@ public class BLangPackageBuilder {
         ((BLangStreamlet) streamletNode).addWS(ws);
 
         streamletNode.setName(this.createIdentifier(identifier));
-        streamletNode.setStreamingQueryDeclaration(streamingQueryDeclarationNodeStack.pop());
+        BlockNode blocknode = this.blockNodeStack.pop();
+        streamletNode.setBody(blocknode);
 
         if (!this.varListStack.empty()) {
             this.varListStack.pop().forEach(streamletNode::addParameter);
         }
+
         this.compUnit.addTopLevelNode(streamletNode);
     }
 }

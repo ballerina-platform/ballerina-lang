@@ -2319,20 +2319,13 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
 
-        boolean isWindowAvailable = false;
-        boolean isfirstWhereClauseAvailable = false;
-        boolean isSecondWhereClauseAvailable = false;
-        isWindowAvailable = ctx.windowClause() == null ? false : true;
-        isfirstWhereClauseAvailable = ctx.whereClause(0) == null ? false : true;
-        isSecondWhereClauseAvailable = ctx.whereClause(1) == null ? false : true;
         String identifier = ctx.Identifier(0).getText();
         String alias = null;
         if (ctx.alias != null) {
             alias = ctx.alias.getText();
         }
 
-        this.pkgBuilder.endStreamingInputNode(isfirstWhereClauseAvailable, isSecondWhereClauseAvailable,
-                isWindowAvailable, identifier, alias, getCurrentPos(ctx), getWS(ctx));
+        this.pkgBuilder.endStreamingInputNode(identifier, alias, getCurrentPos(ctx), getWS(ctx));
     }
 
     @Override
@@ -2408,15 +2401,6 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         }
 
         this.pkgBuilder.endQueryStatementNode(getCurrentPos(ctx), getWS(ctx), ctx.Identifier().getText());
-    }
-
-    @Override
-    public void enterStreamingQueryDeclaration(BallerinaParser.StreamingQueryDeclarationContext ctx) {
-        if (ctx.exception != null) {
-            return;
-        }
-
-        this.pkgBuilder.startStreamingQueryDeclarationNode(getCurrentPos(ctx), getWS(ctx));
     }
 
     @Override

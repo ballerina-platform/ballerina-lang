@@ -24,7 +24,7 @@ import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.StreamletNode;
 import org.ballerinalang.model.tree.VariableNode;
-import org.ballerinalang.model.tree.clauses.StreamingQueryDeclarationNode;
+import org.ballerinalang.model.tree.statements.BlockNode;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 
 import java.util.ArrayList;
@@ -41,8 +41,8 @@ public class BLangStreamlet extends BLangNode implements StreamletNode {
     public List<BLangVariable> params;
     public Set<Flag> flagSet;
     public List<BLangAnnotationAttachment> annAttachments;
-    public StreamingQueryDeclarationNode streamingQueryDeclaration;
     public BLangFunction initFunction;
+    private BlockNode body;
     private String siddhiQuery;
 
     public BTypeSymbol symbol;
@@ -64,13 +64,13 @@ public class BLangStreamlet extends BLangNode implements StreamletNode {
     }
 
     @Override
-    public void setStreamingQueryDeclaration(StreamingQueryDeclarationNode streamingQueryDeclaration) {
-        this.streamingQueryDeclaration = streamingQueryDeclaration;
+    public void setBody(BlockNode body) {
+        this.body = body;
     }
 
     @Override
-    public StreamingQueryDeclarationNode getStreamingQueryDeclaration() {
-        return streamingQueryDeclaration;
+    public BlockNode getBody() {
+        return body;
     }
 
     @Override

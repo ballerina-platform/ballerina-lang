@@ -105,7 +105,7 @@ streamletBody
     ;
 
 streamingQueryDeclaration
-    : (TYPE_STREAM (LT nameReference GT)? Identifier (ASSIGN expression)? SEMICOLON)* (streamingQueryStatement | queryStatement+)
+    :   variableDefinitionStatement* (streamingQueryStatement | queryStatement+)
     ;
 
 privateStructBody

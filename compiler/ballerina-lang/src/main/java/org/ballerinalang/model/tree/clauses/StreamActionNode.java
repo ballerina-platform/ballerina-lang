@@ -52,5 +52,5 @@ public interface StreamActionNode extends Node {
 
     ExpressionNode getExpression();
 
-    String getAction();
+    String getActionType();
 }

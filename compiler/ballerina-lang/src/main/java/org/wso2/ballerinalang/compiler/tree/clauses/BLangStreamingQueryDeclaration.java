@@ -22,6 +22,7 @@ import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.clauses.StreamingQueryDeclarationNode;
 import org.ballerinalang.model.tree.statements.QueryStatementNode;
 import org.ballerinalang.model.tree.statements.StreamingQueryStatementNode;
+import org.ballerinalang.model.tree.statements.VariableDefinitionNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 
@@ -35,6 +36,18 @@ public class BLangStreamingQueryDeclaration extends BLangNode implements Streami
 
     private StreamingQueryStatementNode streamingQueryStatement;
     private List<QueryStatementNode> queryStatements = new ArrayList<>();
+    private List<VariableDefinitionNode> variableDefinitionList = new ArrayList<>();
+
+
+    @Override
+    public void addVariableDefinition(VariableDefinitionNode variableDefinitionNode) {
+        variableDefinitionList.add(variableDefinitionNode);
+    }
+
+    @Override
+    public List<VariableDefinitionNode> getVariableDefinitions() {
+        return variableDefinitionList;
+    }
 
     @Override
     public void setStreamingQuery(StreamingQueryStatementNode streamingQuery) {

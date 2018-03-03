@@ -20,8 +20,6 @@ package org.ballerinalang.model.tree.clauses;
 
 import org.ballerinalang.model.tree.Node;
 
-import java.util.List;
-
 /**
  * This class represents the streaming input clause in streams/tables' SQLish syntax.
  * <pre>Grammar:
@@ -35,9 +33,17 @@ import java.util.List;
  */
 public interface StreamingInput extends Node {
 
-    void addStreamingCondition(WhereNode where);
+    void setBeforeStreamingCondition(WhereNode where);
 
-    List<? extends WhereNode> getStreamingConditions();
+    WhereNode getBeforeStreamingCondition();
+
+    void setAfterStreamingCondition(WhereNode where);
+
+    WhereNode getAfterStreamingCondition();
+
+    boolean isWindowTraversedAfterWhere();
+
+    void setWindowTraversedAfterWhere(boolean windowTraversedAfterWhere);
 
     void setWindowClause(WindowClauseNode windowClause);
 

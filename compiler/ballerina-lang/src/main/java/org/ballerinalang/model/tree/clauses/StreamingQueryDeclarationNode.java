@@ -20,13 +20,14 @@ package org.ballerinalang.model.tree.clauses;
 import org.ballerinalang.model.tree.Node;
 import org.ballerinalang.model.tree.statements.QueryStatementNode;
 import org.ballerinalang.model.tree.statements.StreamingQueryStatementNode;
+import org.ballerinalang.model.tree.statements.VariableDefinitionNode;
 
 import java.util.List;
 
 /**
  * The interface with the APIs to implement the "window" in ballerina streams/table SQLish syntax.
  * <pre> Grammar:
- *      (TYPE_STREAM (LT nameReference GT)?)* (streamingQueryStatement | queryStatement+)
+ *      streamDefinition* (streamingQueryStatement | queryStatement+)
  *
  * E.g
  *      stream &lt;Person&gt; tempStream = {};
@@ -44,6 +45,10 @@ import java.util.List;
 public interface StreamingQueryDeclarationNode extends Node {
 
     //TODO : There are some work pending here.
+
+    void addVariableDefinition(VariableDefinitionNode variableDefinitionNode);
+
+    List<VariableDefinitionNode> getVariableDefinitions();
 
     void setStreamingQuery(StreamingQueryStatementNode streamingQuery);
 
