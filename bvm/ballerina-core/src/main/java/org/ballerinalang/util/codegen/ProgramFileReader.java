@@ -42,7 +42,6 @@ import org.ballerinalang.util.codegen.Instruction.InstructionLock;
 import org.ballerinalang.util.codegen.Instruction.InstructionTCALL;
 import org.ballerinalang.util.codegen.Instruction.InstructionVCALL;
 import org.ballerinalang.util.codegen.Instruction.InstructionWRKSendReceive;
-import org.ballerinalang.util.codegen.attributes.AnnotationAttributeInfo;
 import org.ballerinalang.util.codegen.attributes.AttributeInfo;
 import org.ballerinalang.util.codegen.attributes.AttributeInfoPool;
 import org.ballerinalang.util.codegen.attributes.CodeAttributeInfo;
@@ -50,7 +49,6 @@ import org.ballerinalang.util.codegen.attributes.DefaultValueAttributeInfo;
 import org.ballerinalang.util.codegen.attributes.ErrorTableAttributeInfo;
 import org.ballerinalang.util.codegen.attributes.LineNumberTableAttributeInfo;
 import org.ballerinalang.util.codegen.attributes.LocalVariableAttributeInfo;
-import org.ballerinalang.util.codegen.attributes.ParamAnnotationAttributeInfo;
 import org.ballerinalang.util.codegen.attributes.VarTypeCountAttributeInfo;
 import org.ballerinalang.util.codegen.cpentries.ActionRefCPEntry;
 import org.ballerinalang.util.codegen.cpentries.ConstantPool;
@@ -1166,23 +1164,6 @@ public class ProgramFileReader {
                 }
                 return tableAttributeInfo;
 
-            case ANNOTATIONS_ATTRIBUTE:
-                AnnotationAttributeInfo annAttributeInfo = new AnnotationAttributeInfo(attribNameCPIndex);
-                int entryCount = dataInStream.readShort();
-                for (int i = 0; i < entryCount; i++) {
-                    AnnAttachmentInfo attachmentInfo = getAttachmentInfo(dataInStream, constantPool);
-                    annAttributeInfo.addAttachmentInfo(attachmentInfo);
-                }
-                return annAttributeInfo;
-
-            case PARAMETER_ANNOTATIONS_ATTRIBUTE:
-                int prmAttchmentCnt = dataInStream.readShort();
-                ParamAnnotationAttributeInfo attributeInfo = new ParamAnnotationAttributeInfo(attribNameCPIndex);
-                for (int i = 0; i < prmAttchmentCnt; i++) {
-                    ParamAnnAttachmentInfo prmAnnAtchmentInfo = getParamAttachmentInfo(dataInStream, constantPool);
-                    attributeInfo.addParamAttachmentInfo(prmAnnAtchmentInfo);
-                }
-                return attributeInfo;
             case LOCAL_VARIABLES_ATTRIBUTE:
                 LocalVariableAttributeInfo localVarAttrInfo = new LocalVariableAttributeInfo(attribNameCPIndex);
                 int localVarInfoCount = dataInStream.readShort();
@@ -1207,42 +1188,6 @@ public class ProgramFileReader {
             default:
                 throw new ProgramFileFormatException("unsupported attribute kind " + attribNameCPEntry.getValue());
         }
-    }
-
-    private AnnAttachmentInfo getAttachmentInfo(DataInputStream dataInStream,
-                                                ConstantPool constantPool) throws IOException {
-        int pkgCPIndex = dataInStream.readInt();
-        PackageRefCPEntry pkgCPEntry = (PackageRefCPEntry) constantPool.getCPEntry(pkgCPIndex);
-        int nameCPIndex = dataInStream.readInt();
-        UTF8CPEntry nameCPEntry = (UTF8CPEntry) constantPool.getCPEntry(nameCPIndex);
-
-        AnnAttachmentInfo attachmentInfo = new AnnAttachmentInfo(pkgCPIndex, pkgCPEntry.getPackageName(),
-                nameCPIndex, nameCPEntry.getValue());
-
-        int attribKeyValuePairsCount = dataInStream.readShort();
-        for (int i = 0; i < attribKeyValuePairsCount; i++) {
-            int attribNameCPIndex = dataInStream.readInt();
-            UTF8CPEntry attribNameCPEntry = (UTF8CPEntry) constantPool.getCPEntry(attribNameCPIndex);
-            String attribName = attribNameCPEntry.getValue();
-            AnnAttributeValue attributeValue = getAnnAttributeValue(dataInStream, constantPool);
-            attachmentInfo.addAttributeValue(attribNameCPIndex, attribName, attributeValue);
-        }
-
-        return attachmentInfo;
-    }
-
-    private ParamAnnAttachmentInfo getParamAttachmentInfo(DataInputStream dataInStream,
-                                                          ConstantPool constantPool) throws IOException {
-        int paramIndex = dataInStream.readInt();
-        ParamAnnAttachmentInfo prmAnnAttchmntInfo = new ParamAnnAttachmentInfo(paramIndex);
-
-        int annAttchmntCount = dataInStream.readShort();
-        for (int i = 0; i < annAttchmntCount; i++) {
-            AnnAttachmentInfo annAttachmentInfo = getAttachmentInfo(dataInStream, constantPool);
-            prmAnnAttchmntInfo.addAnnotationAttachmentInfo(annAttachmentInfo);
-        }
-
-        return prmAnnAttchmntInfo;
     }
 
     private LocalVariableInfo getLocalVariableInfo(DataInputStream dataInStream,
@@ -1309,10 +1254,6 @@ public class ProgramFileReader {
 
         int valueCPIndex;
         switch (typeDesc) {
-            case TypeSignature.SIG_ANNOTATION:
-                AnnAttachmentInfo attachmentInfo = getAttachmentInfo(dataInStream, constantPool);
-                attributeValue = new AnnAttributeValue(typeDescCPIndex, typeDesc, attachmentInfo);
-                break;
             case TypeSignature.SIG_ARRAY:
                 int attributeValueCount = dataInStream.readShort();
                 AnnAttributeValue[] annAttributeValues = new AnnAttributeValue[attributeValueCount];

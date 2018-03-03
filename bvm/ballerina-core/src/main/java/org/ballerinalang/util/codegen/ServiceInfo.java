@@ -18,8 +18,6 @@
 package org.ballerinalang.util.codegen;
 
 import org.ballerinalang.model.types.BServiceType;
-import org.ballerinalang.util.codegen.attributes.AnnotationAttributeInfo;
-import org.ballerinalang.util.codegen.attributes.AttributeInfo;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -97,17 +95,8 @@ public class ServiceInfo extends StructureTypeInfo {
                 && nameCPIndex == (((ServiceInfo) obj).nameCPIndex);
     }
 
+    @Deprecated
     public AnnAttachmentInfo getAnnotationAttachmentInfo(String packageName, String annotationName) {
-        AnnotationAttributeInfo attributeInfo = (AnnotationAttributeInfo) getAttributeInfo(
-                AttributeInfo.Kind.ANNOTATIONS_ATTRIBUTE);
-        if (attributeInfo == null || packageName == null || annotationName == null) {
-            return null;
-        }
-        for (AnnAttachmentInfo annotationInfo : attributeInfo.getAttachmentInfoEntries()) {
-            if (packageName.equals(annotationInfo.getPkgPath()) && annotationName.equals(annotationInfo.getName())) {
-                return annotationInfo;
-            }
-        }
         return null;
     }
 

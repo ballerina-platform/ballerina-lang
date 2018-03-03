@@ -20,14 +20,12 @@ package org.wso2.ballerinalang.programfile;
 
 import org.wso2.ballerinalang.compiler.util.TypeDescriptor;
 import org.wso2.ballerinalang.programfile.Instruction.Operand;
-import org.wso2.ballerinalang.programfile.attributes.AnnotationAttributeInfo;
 import org.wso2.ballerinalang.programfile.attributes.AttributeInfo;
 import org.wso2.ballerinalang.programfile.attributes.CodeAttributeInfo;
 import org.wso2.ballerinalang.programfile.attributes.DefaultValueAttributeInfo;
 import org.wso2.ballerinalang.programfile.attributes.ErrorTableAttributeInfo;
 import org.wso2.ballerinalang.programfile.attributes.LineNumberTableAttributeInfo;
 import org.wso2.ballerinalang.programfile.attributes.LocalVariableAttributeInfo;
-import org.wso2.ballerinalang.programfile.attributes.ParamAnnotationAttributeInfo;
 import org.wso2.ballerinalang.programfile.attributes.VarTypeCountAttributeInfo;
 import org.wso2.ballerinalang.programfile.cpentries.ActionRefCPEntry;
 import org.wso2.ballerinalang.programfile.cpentries.ConstantPoolEntry;
@@ -238,8 +236,6 @@ public class ProgramFileWriter {
         for (TransformerInfo transformerInfo : packageInfo.transformerInfoMap.values()) {
             writeCallableUnitInfo(dataOutStream, transformerInfo);
         }
-
-        // TODO Emit AnnotationInfo entries
 
         // Emit Package level attributes
         writeAttributeInfoEntries(dataOutStream, packageInfo.getAttributeInfoEntries());
@@ -534,22 +530,6 @@ public class ProgramFileWriter {
                 }
                 break;
 
-            case ANNOTATIONS_ATTRIBUTE:
-                AnnotationAttributeInfo annAttributeInfo = (AnnotationAttributeInfo) attributeInfo;
-                AnnAttachmentInfo[] attachmentInfoEntries = annAttributeInfo.getAttachmentInfoEntries();
-                dataOutStream.writeShort(attachmentInfoEntries.length);
-                for (AnnAttachmentInfo attachmentInfo : attachmentInfoEntries) {
-                    writeAnnAttachmentInfo(dataOutStream, attachmentInfo);
-                }
-                break;
-            case PARAMETER_ANNOTATIONS_ATTRIBUTE:
-                ParamAnnotationAttributeInfo prmAnnAtrInfo = (ParamAnnotationAttributeInfo) attributeInfo;
-                ParamAnnAttachmentInfo[] prmAnnAtchmntInfo = prmAnnAtrInfo.getAttachmentInfoArray();
-                dataOutStream.writeShort(prmAnnAtchmntInfo.length);
-                for (ParamAnnAttachmentInfo prmAtchInfo : prmAnnAtchmntInfo) {
-                    writeParamAnnAttachmentInfo(dataOutStream, prmAtchInfo);
-                }
-                break;
             case LOCAL_VARIABLES_ATTRIBUTE:
                 LocalVariableAttributeInfo localVarAttrInfo = (LocalVariableAttributeInfo) attributeInfo;
                 LocalVariableInfo[] localVarInfoArray = localVarAttrInfo.localVars.toArray(
@@ -605,30 +585,6 @@ public class ProgramFileWriter {
         dataOutStream.writeInt(attachedFuncInfo.flags);
     }
 
-    private static void writeAnnAttachmentInfo(DataOutputStream dataOutStream,
-                                               AnnAttachmentInfo attachmentInfo) throws IOException {
-        dataOutStream.writeInt(attachmentInfo.getPkgPathCPIndex());
-        dataOutStream.writeInt(attachmentInfo.getNameCPIndex());
-
-        AnnAttributeKeyValuePair[] attribKeyValuePairs = attachmentInfo.getAttributeKeyValuePairs();
-        dataOutStream.writeShort(attribKeyValuePairs.length);
-        for (AnnAttributeKeyValuePair keyValuePair : attribKeyValuePairs) {
-            dataOutStream.writeInt(keyValuePair.getAttributeNameCPIndex());
-            writeAnnAttributeValue(dataOutStream, keyValuePair.getAttributeValue());
-        }
-    }
-
-    private static void writeParamAnnAttachmentInfo(DataOutputStream dataOutStream,
-                                                    ParamAnnAttachmentInfo attachmentInfo) throws IOException {
-        dataOutStream.writeInt(attachmentInfo.getParamIdex());
-
-        AnnAttachmentInfo[] annAttachmentInfos = attachmentInfo.getAnnAttachmentInfos();
-        dataOutStream.writeShort(annAttachmentInfos.length);
-        for (AnnAttachmentInfo annAttachmentInfo : annAttachmentInfos) {
-            writeAnnAttachmentInfo(dataOutStream, annAttachmentInfo);
-        }
-    }
-
     private static void writeLocalVariableInfo(DataOutputStream dataOutStream,
                                                LocalVariableInfo localVariableInfo) throws IOException {
         dataOutStream.writeInt(localVariableInfo.varNameCPIndex);
@@ -647,31 +603,6 @@ public class ProgramFileWriter {
         dataOutStream.writeInt(lineNumberInfo.getLineNumber());
         dataOutStream.writeInt(lineNumberInfo.getFileNameCPIndex());
         dataOutStream.writeInt(lineNumberInfo.getIp());
-    }
-
-    private static void writeAnnAttributeValue(DataOutputStream dataOutStream,
-                                               AnnAttributeValue attributeValue) throws IOException {
-        dataOutStream.writeInt(attributeValue.getTypeDescCPIndex());
-        dataOutStream.writeBoolean(attributeValue.isConstVarExpr());
-        if (attributeValue.isConstVarExpr()) {
-            dataOutStream.writeInt(attributeValue.getConstPkgCPIndex());
-            dataOutStream.writeInt(attributeValue.getConstNameCPIndex());
-            return;
-        }
-        String typeDesc = attributeValue.getTypeDesc();
-        if (TypeDescriptor.SIG_ANNOTATION.equals(typeDesc)) {
-            writeAnnAttachmentInfo(dataOutStream, attributeValue.getAnnotationAttachmentValue());
-        } else if (TypeDescriptor.SIG_ARRAY.equals(typeDesc)) {
-            AnnAttributeValue[] attributeValues = attributeValue.getAttributeValueArray();
-            dataOutStream.writeShort(attributeValues.length);
-            for (AnnAttributeValue value : attributeValues) {
-                writeAnnAttributeValue(dataOutStream, value);
-            }
-        } else if (TypeDescriptor.SIG_BOOLEAN.equals(typeDesc)) {
-            dataOutStream.writeBoolean(attributeValue.getBooleanValue());
-        } else {
-            dataOutStream.writeInt(attributeValue.getValueCPIndex());
-        }
     }
 
     private static byte[] toUTF(String value) throws IOException {
