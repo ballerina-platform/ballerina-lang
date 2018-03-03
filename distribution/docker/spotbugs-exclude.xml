@@ -15,7 +15,7 @@
   ~ specific language governing permissions and limitations
   ~ under the License.
   -->
-<FindBugsFilter>
+<SpotBugsFilter>
     <!--<Match>-->
     <!--<Package name="org.wso2.ballerina.core.model.values"/>-->
     <!--</Match>-->
@@ -40,4 +40,4 @@
     <!--<Match>-->
     <!--<Package name="org.wso2.ballerina.core.parser"/>-->
     <!--</Match>-->
-</FindBugsFilter>
+</SpotBugsFilter>
