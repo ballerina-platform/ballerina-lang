@@ -709,7 +709,7 @@ joinStreamingInput
     ;
 
 patternStreamingInput
-    :   patternStreamingInput FOLLOWED BY patternStreamingInput
+    :   patternStreamingEdgeInput FOLLOWED BY patternStreamingInput
     |   LEFT_PARENTHESIS patternStreamingInput RIGHT_PARENTHESIS
     |   FOREACH patternStreamingInput
     |   NOT patternStreamingEdgeInput (AND patternStreamingEdgeInput | FOR StringTemplateText)

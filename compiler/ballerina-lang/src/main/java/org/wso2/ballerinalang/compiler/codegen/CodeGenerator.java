@@ -1964,6 +1964,9 @@ public class CodeGenerator extends BLangNodeVisitor {
         // Add Siddhi Query as an UTFCPEntry to the constant pool
         streamletInfo.siddhiQueryCPIndex = addUTF8CPEntry(currentPkgInfo, streamletNode.getSiddhiQuery());
 
+        // Add StreamIds as an UTFCPEntry to the constant pool
+        streamletInfo.streamIdsAsStringCPIndex = addUTF8CPEntry(currentPkgInfo, streamletNode.getStreamIdsAsString());
+
         currentPkgInfo.addStreamletInfo(streamletNode.name.value, streamletInfo);
     }
 
@@ -2462,6 +2465,7 @@ public class CodeGenerator extends BLangNodeVisitor {
     public void visit(BLangStreamlet streamletNode) {
         currentStreamletInfo = currentPkgInfo.getStreamletInfo(streamletNode.getName().getValue());
         currentStreamletInfo.setSiddhiQuery(streamletNode.getSiddhiQuery());
+        currentStreamletInfo.setStreamIdsAsString(streamletNode.getStreamIdsAsString());
     }
 
     public void visit(BLangIdentifier identifierNode) {

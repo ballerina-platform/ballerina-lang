@@ -44,6 +44,7 @@ public class BLangStreamlet extends BLangNode implements StreamletNode {
     public BLangFunction initFunction;
     private BlockNode body;
     private String siddhiQuery;
+    private String streamIdsAsString;
 
     public BTypeSymbol symbol;
 
@@ -129,5 +130,13 @@ public class BLangStreamlet extends BLangNode implements StreamletNode {
 
     public void setSiddhiQuery(String siddhiQuery) {
         this.siddhiQuery = siddhiQuery;
+    }
+
+    public String getStreamIdsAsString() {
+        return streamIdsAsString;
+    }
+
+    public void setStreamIdsAsString(String streamIdsAsString) {
+        this.streamIdsAsString = streamIdsAsString;
     }
 }

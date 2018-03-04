@@ -37,7 +37,11 @@ public class StreamletInfo extends StructureTypeInfo {
 
     public int siddhiQueryCPIndex;
 
+    public int streamIdsAsStringCPIndex;
+
     private String siddhiQuery;
+
+    private String streamIdsAsString;
 
     public String getSiddhiQuery() {
         return siddhiQuery;
@@ -47,13 +51,22 @@ public class StreamletInfo extends StructureTypeInfo {
         this.siddhiQuery = siddhiQuery;
     }
 
+    public String getStreamIdsAsString() {
+        return streamIdsAsString;
+    }
+
+    public void setStreamIdsAsString(String streamIdsAsString) {
+        this.streamIdsAsString = streamIdsAsString;
+    }
+
     public StreamletInfo(int pkgPathCPIndex, int nameCPIndex, int flags) {
         super(pkgPathCPIndex, nameCPIndex, flags);
     }
 
-    public StreamletInfo(int pkgPathCPIndex, int nameCPIndex, int siddhiQueryCPIndex, int flags) {
+    public StreamletInfo(int pkgPathCPIndex, int nameCPIndex, int siddhiQueryCPIndex, int streamIdsAsStringCPIndex, int flags) {
         super(pkgPathCPIndex, nameCPIndex, flags);
         this.siddhiQueryCPIndex = siddhiQueryCPIndex;
+        this.streamIdsAsStringCPIndex = streamIdsAsStringCPIndex;
     }
 
     @Override

@@ -30,6 +30,7 @@ public class StreamletInfo extends StructureTypeInfo {
 
     private BStreamletType type;
     private String siddhiQuery;
+    private String streamIdsAsString;
 
     public String getSiddhiQuery() {
         return siddhiQuery;
@@ -37,6 +38,14 @@ public class StreamletInfo extends StructureTypeInfo {
 
     public void setSiddhiQuery(String siddhiQuery) {
         this.siddhiQuery = siddhiQuery;
+    }
+
+    public String getStreamIdsAsString() {
+        return streamIdsAsString;
+    }
+
+    public void setStreamIdsAsString(String streamIdsAsString) {
+        this.streamIdsAsString = streamIdsAsString;
     }
 
     public BStreamletType getType() {

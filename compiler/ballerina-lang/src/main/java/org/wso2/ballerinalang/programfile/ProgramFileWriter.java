@@ -359,8 +359,10 @@ public class ProgramFileWriter {
     private static void writeStreamletInfo(DataOutputStream dataOutStream,
                                            StreamletInfo streamletInfo) throws IOException {
         dataOutStream.writeInt(streamletInfo.nameCPIndex);
-        //Writing the siddhi query
+        //Write the siddhi query
         dataOutStream.writeInt(streamletInfo.siddhiQueryCPIndex);
+        //Write the stream ids
+        dataOutStream.writeInt(streamletInfo.streamIdsAsStringCPIndex);
         dataOutStream.writeInt(streamletInfo.flags);
     }
 

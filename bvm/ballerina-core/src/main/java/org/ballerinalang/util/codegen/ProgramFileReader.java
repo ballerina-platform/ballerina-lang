@@ -593,12 +593,16 @@ public class ProgramFileReader {
             // Create streamlet info entry
             int streamletNameCPIndex = dataInStream.readInt();
             int siddhiQueryCPIndex = dataInStream.readInt();
+            int streamIdsAsStringCPIndex = dataInStream.readInt();
             int flags = dataInStream.readInt();
             UTF8CPEntry streamletNameUTF8Entry = (UTF8CPEntry) packageInfo.getCPEntry(streamletNameCPIndex);
             String streamletName = streamletNameUTF8Entry.getValue();
 
             UTF8CPEntry siddhiQueryUTF8Entry = (UTF8CPEntry) packageInfo.getCPEntry(siddhiQueryCPIndex);
             String siddhiQuery = siddhiQueryUTF8Entry.getValue();
+
+            UTF8CPEntry streamIdsAsStringUTF8Entry = (UTF8CPEntry) packageInfo.getCPEntry(streamIdsAsStringCPIndex);
+            String streamIdsAsString = streamIdsAsStringUTF8Entry.getValue();
 
             StreamletInfo streamletInfo = new StreamletInfo(packageInfo.getPkgNameCPIndex(), packageInfo.getPkgPath(),
                     streamletNameCPIndex, streamletName, flags);
@@ -611,6 +615,9 @@ public class ProgramFileReader {
 
             // Set Siddhi query
             streamletInfo.setSiddhiQuery(siddhiQuery);
+
+            // Set Stream Ids
+            streamletInfo.setStreamIdsAsString(streamIdsAsString);
         }
 
     }

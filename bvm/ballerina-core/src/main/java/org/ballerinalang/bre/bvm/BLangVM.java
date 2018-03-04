@@ -2693,6 +2693,7 @@ public class BLangVM {
         StreamletInfo streamletInfo = (StreamletInfo) streamletRefCPEntry.getStreamletInfo();
         BStreamlet streamlet = new BStreamlet(streamletInfo.getType());
         streamlet.setSiddhiApp(streamletInfo.getSiddhiQuery());
+        streamlet.setStreamIdsAsString(streamletInfo.getStreamIdsAsString());
         SiddhiRuntimeFactory.getInstance().createSiddhiAppRuntime(streamlet);
         sf.refRegs[i] = streamlet;
     }

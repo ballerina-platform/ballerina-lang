@@ -33,6 +33,7 @@ import java.util.Map;
 public final class BStreamlet implements BRefType {
 
     private String siddhiApp;
+    private String streamIdsAsString;
     private BStreamletType streamletType;
 
     public Map<String, InputHandler> streamSpecificInputHandlerMap;
@@ -55,6 +56,14 @@ public final class BStreamlet implements BRefType {
 
     public void setSiddhiApp(String siddhiApp) {
         this.siddhiApp = siddhiApp;
+    }
+
+    public String getStreamIdsAsString() {
+        return streamIdsAsString;
+    }
+
+    public void setStreamIdsAsString(String streamIdsAsString) {
+        this.streamIdsAsString = streamIdsAsString;
     }
 
     public SiddhiAppRuntime getSiddhiAppRuntime() {

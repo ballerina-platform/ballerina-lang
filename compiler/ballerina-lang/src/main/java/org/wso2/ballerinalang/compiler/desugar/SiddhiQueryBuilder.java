@@ -81,6 +81,7 @@ public class SiddhiQueryBuilder extends BLangNodeVisitor {
     private StringBuilder havingClause;
     private StringBuilder streamDefinitionQuery;
     private StringBuilder siddhiQuery;
+    private StringBuilder streamIdsAsString;
     private StringBuilder streamActionClause;
 
     public static SiddhiQueryBuilder getInstance(CompilerContext context) {
@@ -269,6 +270,7 @@ public class SiddhiQueryBuilder extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangStreamlet streamletNode) {
+        streamIdsAsString = new StringBuilder();
         siddhiQuery = new StringBuilder();
         streamDefinitionQuery = new StringBuilder();
         siddhiQuery.append("from ");
@@ -277,11 +279,17 @@ public class SiddhiQueryBuilder extends BLangNodeVisitor {
             ((BLangStatement) statementNode).accept(this);
         }
         streamletNode.setSiddhiQuery(this.getSiddhiQuery());
+        streamletNode.setStreamIdsAsString(streamIdsAsString.toString());
     }
 
     public void visit(BLangVariableDef varDefNode) {
         StringBuilder streamDefinition = new StringBuilder("define stream ");
         streamDefinition.append(varDefNode.var.name).append("( ");
+        if (streamIdsAsString.length() == 0) {
+            streamIdsAsString.append(varDefNode.var.name);
+        } else {
+            streamIdsAsString.append(",").append(varDefNode.var.name);
+        }
         List<BStructType.BStructField> structFieldList = ((BStructType) ((BStreamType) varDefNode.var.type).
                 constraint).fields;
 
@@ -294,6 +302,8 @@ public class SiddhiQueryBuilder extends BLangNodeVisitor {
             //as long.
             if (type.equalsIgnoreCase("int")) {
                 type = "long";
+            } else if (type.equalsIgnoreCase("float")) {
+                type = "double";
             }
             streamDefinition.append(type);
         }
@@ -305,6 +315,8 @@ public class SiddhiQueryBuilder extends BLangNodeVisitor {
             String type = structField.getType().toString();
             if (type.equalsIgnoreCase("int")) {
                 type = "long";
+            } else if (type.equalsIgnoreCase("float")) {
+                type = "double";
             }
             streamDefinition.append(type);
         }
