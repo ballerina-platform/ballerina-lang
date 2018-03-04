@@ -46,7 +46,7 @@ TYPE_ANY        : 'any' ;
 TYPE_TYPE       : 'type' ;
 
 VAR         : 'var' ;
-CREATE      : 'create' ;
+NEW         : 'new' ;
 IF          : 'if' ;
 ELSE        : 'else' ;
 FOREACH     : 'foreach' ;
