@@ -102,6 +102,7 @@ import org.ballerinalang.util.codegen.attributes.AttributeInfo;
 import org.ballerinalang.util.codegen.attributes.AttributeInfoPool;
 import org.ballerinalang.util.codegen.attributes.CodeAttributeInfo;
 import org.ballerinalang.util.codegen.attributes.DefaultValueAttributeInfo;
+import org.ballerinalang.util.codegen.attributes.LocalVariableAttributeInfo;
 import org.ballerinalang.util.codegen.cpentries.ConstantPoolEntry;
 import org.ballerinalang.util.codegen.cpentries.FloatCPEntry;
 import org.ballerinalang.util.codegen.cpentries.FunctionCallCPEntry;
@@ -691,7 +692,11 @@ public class BLangVM {
                     i = operands[0];
                     cpIndex = operands[1];
                     typeRefCPEntry = (TypeRefCPEntry) constPool[cpIndex];
-                    sf.refRegs[i] = new BStream(typeRefCPEntry.getType());
+                    AttributeInfo attributeInfo = sf.workerInfo.getAttributeInfo(
+                            AttributeInfo.Kind.LOCAL_VARIABLES_ATTRIBUTE);
+                    String varName = ((LocalVariableAttributeInfo) attributeInfo)
+                            .getLocalVariableDetails(i).getVariableName();
+                    sf.refRegs[i] = new BStream(typeRefCPEntry.getType(), varName);
                     break;
                 case InstructionCodes.NEWSTREAMLET:
                     createNewStreamlet(operands, sf);
