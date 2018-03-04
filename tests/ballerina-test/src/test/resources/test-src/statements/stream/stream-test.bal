@@ -1,6 +1,9 @@
 import ballerina.io;
 import ballerina.runtime;
 
+stream<Employee> s1 = {};
+                 stream<Employee> s2 = {};
+
 function test () (int) {
 
     Employee e1 = {name:"Maryam", employeeNumber:25163};
@@ -8,10 +11,10 @@ function test () (int) {
     Employee e2 = {name:"Aysha", employeeNumber:12344};
     io:println("Created struct 'e2' for Employee: " + e2.name);
 
-    stream<Employee> s1 = {};
+
     io:println("Created stream 's1' accepting Employees");
 
-    stream<Employee> s2 = {};
+
     io:println("Created stream 's2' accepting Employees");
 
     s1.subscribe(printName);

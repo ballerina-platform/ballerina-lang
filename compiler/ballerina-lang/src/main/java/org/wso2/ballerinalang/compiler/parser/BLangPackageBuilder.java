@@ -2245,7 +2245,7 @@ public class BLangPackageBuilder {
         ((BLangPatternStreamingInput) patternStreamingInputNode).pos = pos;
         ((BLangPatternStreamingInput) patternStreamingInputNode).addWS(ws);
 
-        if (!patternStreamingEdgeInputStack.isEmpty()) {
+        if (patternStreamingEdgeInputStack.size() == 2 || patternStreamingInputStack.size() == 1) {
             patternStreamingInputNode.setPatternStreamingEdgeInput(patternStreamingEdgeInputStack.pop());
         }
 
@@ -2253,6 +2253,7 @@ public class BLangPackageBuilder {
             patternStreamingInputNode = this.patternStreamingInputStack.pop();
             this.patternStreamingInputStack.peek().setPatternStreamingInput(patternStreamingInputNode);
         }
+
         patternStreamingInputNode.setFollowedBy(isFollowedBy);
         patternStreamingInputNode.setLeftParenthesisEnabled(leftParenthesisEnabled);
         patternStreamingInputNode.setRightParenthesisEnabled(rightParenthesisEnabled);
