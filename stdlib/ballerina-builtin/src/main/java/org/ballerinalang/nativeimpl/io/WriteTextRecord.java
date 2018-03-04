@@ -23,11 +23,17 @@ import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.nativeimpl.io.channels.base.DelimitedRecordChannel;
+import org.ballerinalang.nativeimpl.io.events.EventManager;
+import org.ballerinalang.nativeimpl.io.events.EventResult;
+import org.ballerinalang.nativeimpl.io.events.records.DelimitedRecordWriteEvent;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.util.exceptions.BallerinaException;
+
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 
 /**
  * Native function ballerina.io#writeTextRecord.
@@ -56,8 +62,28 @@ public class WriteTextRecord extends AbstractNativeFunction {
     private static final int CONTENT_INDEX = 1;
 
     /**
-     * Writes records for a given file.
+     * Will be the I/O event handler.
+     */
+    private EventManager eventManager = EventManager.getInstance();
+
+    /**
+     * Asynchronously writes records to the channel.
      *
+     * @param recordChannel channel the records should be written.
+     * @param records       the record content.
+     * @throws ExecutionException   during interrupt error.
+     * @throws InterruptedException errors which occurs while execution.
+     */
+    private void asyncWriteRecords(DelimitedRecordChannel recordChannel, BStringArray records) throws
+            ExecutionException, InterruptedException {
+        DelimitedRecordWriteEvent recordWriteEvent = new DelimitedRecordWriteEvent(recordChannel, records);
+        Future<EventResult> future = eventManager.publish(recordWriteEvent);
+        future.get();
+    }
+
+    /**
+     * Writes records for a given file.
+     * <p>
      * {@inheritDoc}
      */
     @Override
@@ -69,7 +95,8 @@ public class WriteTextRecord extends AbstractNativeFunction {
             content = (BStringArray) getRefArgument(context, CONTENT_INDEX);
             DelimitedRecordChannel delimitedRecordChannel = (DelimitedRecordChannel) channel.getNativeData(IOConstants
                     .TXT_RECORD_CHANNEL_NAME);
-            delimitedRecordChannel.write(content);
+            asyncWriteRecords(delimitedRecordChannel, content);
+            // delimitedRecordChannel.write(content);
         } catch (Throwable e) {
             String message = "Error occurred while writing text record:" + e.getMessage();
             throw new BallerinaException(message, context);

@@ -179,7 +179,7 @@ public abstract class Channel {
      *
      * @return true if the channel has reached to it's end
      */
-    boolean hasReachedEnd() {
+    public boolean hasReachedEnd() {
         return hasReachedToEnd;
     }
 

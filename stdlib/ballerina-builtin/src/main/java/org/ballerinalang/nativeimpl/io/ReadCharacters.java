@@ -23,12 +23,18 @@ import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.nativeimpl.io.channels.base.CharacterChannel;
+import org.ballerinalang.nativeimpl.io.events.EventManager;
+import org.ballerinalang.nativeimpl.io.events.EventResult;
+import org.ballerinalang.nativeimpl.io.events.characters.ReadCharactersEvent;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.util.exceptions.BallerinaException;
+
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 
 /**
  * Native function ballerina.io#readCharacters.
@@ -56,10 +62,32 @@ public class ReadCharacters extends AbstractNativeFunction {
     private static final int NUMBER_OF_CHARS_INDEX = 0;
 
     /**
+     * Will be the I/O event handler.
+     */
+    private EventManager eventManager = EventManager.getInstance();
+
+    /**
+     * Reads characters asynchronously.
+     *
+     * @param numberOfCharacters number of characters which should be read.
+     * @param characterChannel   the channel which the characters will be read.
+     * @return the content which is read.
+     * @throws ExecutionException   if an error occurs in the async framework.
+     * @throws InterruptedException during interrupt.
+     */
+    private String asyncReadCharacters(int numberOfCharacters, CharacterChannel characterChannel) throws
+            ExecutionException, InterruptedException {
+        ReadCharactersEvent event = new ReadCharactersEvent(characterChannel, numberOfCharacters);
+        Future<EventResult> future = eventManager.publish(event);
+        EventResult eventResult = future.get();
+        return (String) eventResult.getResponse();
+    }
+
+    /**
      * <p>
      * Reads characters from the channel.
      * </p>
-     *
+     * <p>
      * {@inheritDoc}
      */
     @Override
@@ -72,8 +100,9 @@ public class ReadCharacters extends AbstractNativeFunction {
             numberOfCharacters = getIntArgument(context, NUMBER_OF_CHARS_INDEX);
             CharacterChannel characterChannel = (CharacterChannel) channel.getNativeData(IOConstants
                     .CHARACTER_CHANNEL_NAME);
-            String readBytes = characterChannel.read((int) numberOfCharacters);
-            content = new BString(readBytes);
+            //String readBytes = characterChannel.read((int) numberOfCharacters);
+            String readCharacters = asyncReadCharacters((int) numberOfCharacters, characterChannel);
+            content = new BString(readCharacters);
         } catch (Throwable e) {
             String message = "Error occurred while reading characters:" + e.getMessage();
             throw new BallerinaException(message, context);

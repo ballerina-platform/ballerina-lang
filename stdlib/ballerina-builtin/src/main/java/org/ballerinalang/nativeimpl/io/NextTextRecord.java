@@ -23,11 +23,17 @@ import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.nativeimpl.io.channels.base.DelimitedRecordChannel;
+import org.ballerinalang.nativeimpl.io.events.EventManager;
+import org.ballerinalang.nativeimpl.io.events.EventResult;
+import org.ballerinalang.nativeimpl.io.events.records.DelimitedRecordReadEvent;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.util.exceptions.BallerinaException;
+
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 
 /**
  * Native function ballerina.io#nextTextRecords.
@@ -50,6 +56,27 @@ public class NextTextRecord extends AbstractNativeFunction {
     private static final int TXT_RECORD_CHANNEL_INDEX = 0;
 
     /**
+     * Will be the I/O event handler.
+     */
+    private EventManager eventManager = EventManager.getInstance();
+
+    /**
+     * Reads bytes asynchronously.
+     *
+     * @param recordChannel channel the bytes should be read from.
+     * @return the fields which were read.
+     * @throws ExecutionException   errors which occur during execution.
+     * @throws InterruptedException during interrupt error.
+     */
+    private String[] asyncReadRecord(DelimitedRecordChannel recordChannel) throws ExecutionException,
+            InterruptedException {
+        DelimitedRecordReadEvent event = new DelimitedRecordReadEvent(recordChannel);
+        Future<EventResult> future = eventManager.publish(event);
+        EventResult eventResult = future.get();
+        return (String[]) eventResult.getResponse();
+    }
+
+    /**
      * {@inheritDoc}
      */
     @Override
@@ -61,7 +88,8 @@ public class NextTextRecord extends AbstractNativeFunction {
 
             DelimitedRecordChannel delimitedRecordChannel = (DelimitedRecordChannel) channel.getNativeData(IOConstants
                     .TXT_RECORD_CHANNEL_NAME);
-            String[] recordValue = delimitedRecordChannel.read();
+            //String[] recordValue = delimitedRecordChannel.read();
+            String[] recordValue = asyncReadRecord(delimitedRecordChannel);
             record = new BStringArray(recordValue);
         } catch (Throwable e) {
             String message = "Error occurred while reading text records:" + e.getMessage();

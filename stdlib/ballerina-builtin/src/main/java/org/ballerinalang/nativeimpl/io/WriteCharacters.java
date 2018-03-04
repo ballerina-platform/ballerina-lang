@@ -23,12 +23,18 @@ import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.nativeimpl.io.channels.base.CharacterChannel;
+import org.ballerinalang.nativeimpl.io.events.EventManager;
+import org.ballerinalang.nativeimpl.io.events.EventResult;
+import org.ballerinalang.nativeimpl.io.events.characters.WriteCharactersEvent;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.util.exceptions.BallerinaException;
+
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 
 /**
  * Native function ballerina.io#writeCharacters.
@@ -61,8 +67,32 @@ public class WriteCharacters extends AbstractNativeFunction {
     private static final int START_OFFSET_INDEX = 0;
 
     /**
-     * Writes characters to a given file.
+     * Will be the I/O event handler.
+     */
+    private EventManager eventManager = EventManager.getInstance();
+
+    /**
+     * Writes characters asynchronously.
      *
+     * @param characterChannel channel the characters should be written.
+     * @param text             the content which should be written.
+     * @param offset           the index the characters should be written.
+     * @return the number of characters which was written.
+     * @throws ExecutionException   errors which occur during execution.
+     * @throws InterruptedException during interrupt exception.
+     */
+    private int asyncWriteCharacters(CharacterChannel characterChannel, String text, int offset) throws
+            ExecutionException,
+            InterruptedException {
+        WriteCharactersEvent event = new WriteCharactersEvent(characterChannel, text, 0);
+        Future<EventResult> future = eventManager.publish(event);
+        EventResult eventResult = future.get();
+        return (int) eventResult.getResponse();
+    }
+
+    /**
+     * Writes characters to a given file.
+     * <p>
      * {@inheritDoc}
      */
     @Override
@@ -75,11 +105,10 @@ public class WriteCharacters extends AbstractNativeFunction {
             channel = (BStruct) getRefArgument(context, CHAR_CHANNEL_INDEX);
             content = getStringArgument(context, CONTENT_INDEX);
             startOffset = getIntArgument(context, START_OFFSET_INDEX);
-
             CharacterChannel characterChannel = (CharacterChannel) channel.getNativeData(IOConstants
                     .CHARACTER_CHANNEL_NAME);
-
-            numberOfCharactersWritten = characterChannel.write(content, (int) startOffset);
+            numberOfCharactersWritten = asyncWriteCharacters(characterChannel, content, (int) startOffset);
+            //numberOfCharactersWritten = characterChannel.write(content, (int) startOffset);
         } catch (Throwable e) {
             String message = "Error occurred while writing characters:" + e.getMessage();
             throw new BallerinaException(message, context);

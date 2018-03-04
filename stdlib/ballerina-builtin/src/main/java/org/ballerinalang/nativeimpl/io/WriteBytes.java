@@ -24,12 +24,18 @@ import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.nativeimpl.io.channels.base.Channel;
+import org.ballerinalang.nativeimpl.io.events.EventManager;
+import org.ballerinalang.nativeimpl.io.events.EventResult;
+import org.ballerinalang.nativeimpl.io.events.bytes.WriteBytesEvent;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.util.exceptions.BallerinaException;
+
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 
 /**
  * Native function ballerina.lo#writeBytes.
@@ -63,8 +69,34 @@ public class WriteBytes extends AbstractNativeFunction {
     private static final int START_OFFSET_INDEX = 0;
 
     /**
-     * Writes bytes to a given channel.
+     * Will be the I/O event handler.
+     */
+    private EventManager eventManager = EventManager.getInstance();
+
+    /**
+     * Asynchronously writes bytes to a channel.
      *
+     * @param content content which should be written.
+     * @param channel the channel the bytes should be written.
+     * @return the number of bytes written to the channel.
+     * @throws ExecutionException   errors which occur during execution.
+     * @throws InterruptedException during interrupt error.
+     */
+    private int writeAsync(byte[] content, Channel channel) throws ExecutionException, InterruptedException {
+        int numberOfBytesWritten = 0;
+        do {
+            int arrayLength = content.length;
+            WriteBytesEvent writeBytesEvent = new WriteBytesEvent(channel, content, numberOfBytesWritten, arrayLength);
+            Future<EventResult> future = eventManager.publish(writeBytesEvent);
+            EventResult eventResponse = future.get();
+            numberOfBytesWritten = numberOfBytesWritten + (Integer) eventResponse.getResponse();
+        } while (numberOfBytesWritten < content.length);
+        return numberOfBytesWritten;
+    }
+
+    /**
+     * Writes bytes to a given channel.
+     * <p>
      * {@inheritDoc}
      */
     @Override
@@ -78,7 +110,8 @@ public class WriteBytes extends AbstractNativeFunction {
             content = getBlobArgument(context, CONTENT_INDEX);
             startOffset = (int) getIntArgument(context, START_OFFSET_INDEX);
             Channel byteChannel = (Channel) channel.getNativeData(IOConstants.BYTE_CHANNEL_NAME);
-            numberOfBytesWritten = byteChannel.write(content, startOffset);
+            numberOfBytesWritten = writeAsync(content, byteChannel);
+            // numberOfBytesWritten = byteChannel.write(content, startOffset);
         } catch (Throwable e) {
             String message = "Error occurred while writing bytes:" + e.getMessage();
             throw new BallerinaException(message, context);

@@ -99,7 +99,7 @@ public class AsyncReadWriteTest {
         String text = "HelloǊ";
         int numberOfBytes = text.getBytes().length;
 
-        WriteCharactersEvent event = new WriteCharactersEvent(characterChannel,text,0);
+        WriteCharactersEvent event = new WriteCharactersEvent(characterChannel, text, 0);
         Future<EventResult> future = eventManager.publish(event);
         EventResult eventResult = future.get();
         int numberOfCharactersWritten = (int) eventResult.getResponse();

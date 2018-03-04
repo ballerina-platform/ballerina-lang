@@ -85,7 +85,7 @@ public class AsyncReadWriteTest {
             Future<EventResult> future = eventManager.publish(event);
             EventResult eventResponse = future.get();
             numberOfBytesRead = numberOfBytesRead + (Integer) eventResponse.getResponse();
-        } while (numberOfBytesRead < expectedNumberOfBytes);
+        } while (numberOfBytesRead < expectedNumberOfBytes && !channel.hasReachedEnd());
         return numberOfBytesRead;
     }
 
@@ -136,6 +136,28 @@ public class AsyncReadWriteTest {
         expected = new byte[]{0, 0};
         int numberOfBytesRead = readAsync(content, channel, expectedNumberOfBytes);
         Assert.assertEquals(numberOfBytesRead, expectedNumberOfBytes);
+        Assert.assertEquals(expected, content);
+    }
+
+    @Test(description = "Reads bytes and validate the byte content")
+    public void readContentValidationTest() throws IOException, URISyntaxException, ExecutionException, InterruptedException {
+        byte[] content = new byte[3];
+        //Number of characters in this file would be 6
+        ByteChannel byteChannel = TestUtil.openForReading("datafiles/io/text/6charfile.txt");
+        Channel channel = new MockByteChannel(byteChannel);
+
+        byte[] expected = "123".getBytes();;
+        int expectedNumberOfBytes = 3;
+        readAsync(content, channel, expectedNumberOfBytes);
+        Assert.assertEquals(expected, content);
+
+        expected = "456".getBytes();
+        readAsync(content, channel, expectedNumberOfBytes);
+        Assert.assertEquals(expected, content);
+
+        content = new byte[3];
+        expected = new byte[3];
+        readAsync(content, channel, expectedNumberOfBytes);
         Assert.assertEquals(expected, content);
     }
 
