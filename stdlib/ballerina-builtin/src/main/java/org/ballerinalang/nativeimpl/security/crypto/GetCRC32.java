@@ -34,7 +34,9 @@ import java.util.zip.CRC32;
 import java.util.zip.Checksum;
 
 /**
- * Created by pubudu on 2/14/18.
+ * Function for generating CRC32 hashes.
+ *
+ * @since 0.965.0
  */
 @BallerinaFunction(
         packageName = "ballerina.security.crypto",

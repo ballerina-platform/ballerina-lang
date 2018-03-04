@@ -30,7 +30,7 @@ import java.time.temporal.TemporalAccessor;
 /**
  * A utility class for HTTP caching related tasks.
  *
- * @since 0.963.0
+ * @since 0.965.0
  */
 public class CacheUtils {
 
