@@ -95,6 +95,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLang
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangMapLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangRecordKey;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangRecordKeyValue;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangStreamLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangStructLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangTableLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
@@ -764,6 +765,13 @@ public class CodeGenerator extends BLangNodeVisitor {
         tableLiteral.regIndex = calcAndGetExprRegIndex(tableLiteral);
         Operand typeCPIndex = getTypeCPIndex(tableLiteral.type);
         emit(InstructionCodes.NEWTABLE, tableLiteral.regIndex, typeCPIndex);
+    }
+
+    @Override
+    public void visit(BLangStreamLiteral streamLiteral) {
+        streamLiteral.regIndex = calcAndGetExprRegIndex(streamLiteral);
+        Operand typeCPIndex = getTypeCPIndex(streamLiteral.type);
+        emit(InstructionCodes.NEWSTREAM, streamLiteral.regIndex, typeCPIndex);
     }
 
     @Override

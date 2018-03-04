@@ -928,6 +928,7 @@ public class ProgramFileReader {
             case 'T':
             case 'E':
             case 'D':
+            case 'H':
                 char typeChar = chars[index];
                 // TODO Improve this logic
                 index++;
@@ -1036,6 +1037,8 @@ public class ProgramFileReader {
                         return BTypes.typeJSON;
                     } else if (ch == 'D') {
                         return BTypes.typeTable;
+                    } else if (ch == 'H') { //TODO:CHECK
+                        return BTypes.typeStream;
                     }
                 }
 
@@ -1468,7 +1471,6 @@ public class ProgramFileReader {
                 case InstructionCodes.ERRSTORE:
                 case InstructionCodes.TR_END:
                 case InstructionCodes.NEWMAP:
-                case InstructionCodes.NEWSTREAM:
                     i = codeStream.readInt();
                     packageInfo.addInstruction(InstructionFactory.get(opcode, i));
                     break;
@@ -1538,6 +1540,7 @@ public class ProgramFileReader {
                 case InstructionCodes.SNE_NULL:
                 case InstructionCodes.NEWJSON:
                 case InstructionCodes.NEWTABLE:
+                case InstructionCodes.NEWSTREAM:
                 case InstructionCodes.NEWSTREAMLET:
                     i = codeStream.readInt();
                     j = codeStream.readInt();

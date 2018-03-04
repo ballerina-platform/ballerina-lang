@@ -703,7 +703,16 @@
                 <artifactId>metrics-core</artifactId>
                 <version>${metrics.version}</version>
             </dependency>
-
+            <dependency>
+                <groupId>io.ballerina.messaging</groupId>
+                <artifactId>broker-common</artifactId>
+                <version>${broker.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.ballerina.messaging</groupId>
+                <artifactId>broker-core</artifactId>
+                <version>${broker.version}</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
@@ -1270,6 +1279,7 @@
         <jackson-core.version>2.8.6</jackson-core.version>
         <apache.mina.core>2.0.16</apache.mina.core>
         <mimepull.version>1.9.7</mimepull.version>
+        <broker.version>0.1.20</broker.version>
 
         <wso2.maven.compiler.source>1.8</wso2.maven.compiler.source>
         <wso2.maven.compiler.target>1.8</wso2.maven.compiler.target>
@@ -1312,7 +1322,7 @@
         <apache.source.release.assembly.descriptor.version>1.0.5</apache.source.release.assembly.descriptor.version>
         <awaitility.version>3.0.0</awaitility.version>
 
-        <siddhi.version>4.1.11-SNAPSHOT</siddhi.version>
+        <siddhi.version>4.1.11</siddhi.version>
         <metrics.version>3.1.0</metrics.version>
         <disruptor.version>3.3.2.wso2v2</disruptor.version>
         <log4j.version>1.2.17.wso2v1</log4j.version>

@@ -57,6 +57,7 @@ import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BNewArray;
 import org.ballerinalang.model.values.BRefType;
 import org.ballerinalang.model.values.BRefValueArray;
+import org.ballerinalang.model.values.BStream;
 import org.ballerinalang.model.values.BStreamlet;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStringArray;
@@ -685,6 +686,12 @@ public class BLangVM {
                     cpIndex = operands[1];
                     typeRefCPEntry = (TypeRefCPEntry) constPool[cpIndex];
                     sf.refRegs[i] = new BTable(typeRefCPEntry.getType());
+                    break;
+                case InstructionCodes.NEWSTREAM:
+                    i = operands[0];
+                    cpIndex = operands[1];
+                    typeRefCPEntry = (TypeRefCPEntry) constPool[cpIndex];
+                    sf.refRegs[i] = new BStream(typeRefCPEntry.getType());
                     break;
                 case InstructionCodes.NEWSTREAMLET:
                     createNewStreamlet(operands, sf);

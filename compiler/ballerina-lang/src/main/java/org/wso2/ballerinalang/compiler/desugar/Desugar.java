@@ -77,6 +77,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangJSONLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangMapLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangStreamLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangStructLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangTableLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
@@ -522,6 +523,8 @@ public class Desugar extends BLangNodeVisitor {
             result = new BLangMapLiteral(recordLiteral.keyValuePairs, recordLiteral.type);
         } else if (recordLiteral.type.tag == TypeTags.TABLE) {
             result = new BLangTableLiteral(recordLiteral.type);
+        } else if (recordLiteral.type.tag == TypeTags.STREAM) {
+            result = new BLangStreamLiteral(recordLiteral.type);
         } else if (recordLiteral.type.tag == TypeTags.STREAMLET) {
             result = new BLangRecordLiteral.BLangStreamletLiteral(recordLiteral.type);
         } else {
@@ -657,6 +660,7 @@ public class Desugar extends BLangNodeVisitor {
             case TypeTags.XML:
             case TypeTags.MAP:
             case TypeTags.TABLE:
+            case TypeTags.STREAM:
             case TypeTags.STRUCT:
                 List<BLangExpression> argExprs = new ArrayList<>(iExpr.argExprs);
                 argExprs.add(0, iExpr.expr);
@@ -1121,6 +1125,7 @@ public class Desugar extends BLangNodeVisitor {
             case TypeTags.XML:
                 return;
             case TypeTags.TABLE:
+            case TypeTags.STREAM:
                 // TODO: add this once the able initializing is supported.
                 return;
             default:
