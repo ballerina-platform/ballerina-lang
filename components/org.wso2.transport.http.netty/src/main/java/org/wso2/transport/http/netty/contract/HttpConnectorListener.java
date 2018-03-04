@@ -28,7 +28,7 @@ import org.wso2.transport.http.netty.message.ResponseHandle;
  */
 public interface HttpConnectorListener {
     /**
-     * Each event triggered by connector ends up here.
+     * Each http message event triggered by connector ends up here.
      *
      * @param httpMessage contains the state change information of the event.
      */

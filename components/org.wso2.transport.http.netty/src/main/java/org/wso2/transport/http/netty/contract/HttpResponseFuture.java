@@ -28,23 +28,23 @@ import org.wso2.transport.http.netty.message.ResponseHandle;
 public interface HttpResponseFuture {
     /**
      * Set listener for the connector future.
-     * @param connectorListener that receives events related to the connector.
+     * @param connectorListener that receive http message events related to the connector.
      */
     void setHttpConnectorListener(HttpConnectorListener connectorListener);
 
     /**
-     * Remove the listener set to the future.
+     * Remove the message listener set to the future.
      */
     void removeHttpListener();
 
     /**
-     * Notify the listeners when there is an event
+     * Notify the http message listener when there is an event
      * @param httpMessage contains the data related to the event.
      */
     void notifyHttpListener(HTTPCarbonMessage httpMessage);
 
     /**
-     * Notify the listeners when there is an event
+     * Notify the listener when there is an event
      * @param throwable contains the data related to the error.
      */
     void notifyHttpListener(Throwable throwable);
@@ -65,17 +65,17 @@ public interface HttpResponseFuture {
     /**
      * Set listener for the promise availability future
      *
-     * @param promiseAvailabilityListener that receives events related to the connector.
+     * @param promiseAvailabilityListener listener that receives events related to the promise availability.
      */
     void setPromiseAvailabilityListener(HttpConnectorListener promiseAvailabilityListener);
 
     /**
-     * Notify the listeners when there is an event
+     * Notify the promise listener when there is an event
      */
     void notifyPromiseAvailability();
 
     /**
-     * Remove the listener
+     * Remove the promise availability listener
      */
     void removePromiseAvailabilityListener();
 
@@ -87,29 +87,29 @@ public interface HttpResponseFuture {
     void setPushPromiseListener(HttpConnectorListener pushPromiseListener);
 
     /**
-     * Remove the listener set to the future.
+     * Remove the push promise listener set to the future.
      */
     void removePushPromiseListener();
 
     /**
-     * Notify the listeners when there is an event
+     * Notify the push promise listener when there is an event
      */
     void notifyPushPromise();
 
     /**
-     * Set listener
+     * Set response handle listener
      *
-     * @param responseHandleListener that receives events related to the connector.
+     * @param responseHandleListener listener that receives events related to the handle.
      */
     void setResponseHandleListener(HttpConnectorListener responseHandleListener);
 
     /**
-     * Remove the listener set to the future.
+     * Remove the handle listener set to the future.
      */
     void removeResponseHandleListener();
 
     /**
-     * Notify the listeners when there is an event
+     * Notify the response handle listener when there is an event
      *
      * @param responseHandle contains the data related to the event.
      */
