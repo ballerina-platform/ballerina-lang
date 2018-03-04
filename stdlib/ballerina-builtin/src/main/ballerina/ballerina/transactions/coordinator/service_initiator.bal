@@ -37,8 +37,6 @@ function getCoordinationTypeToProtocolsMap () returns (map m) {
     return;
 }
 
-const string regPath = "{transactionBlockId}/" + registrationPath;
-
 @http:configuration {
     basePath:initiatorCoordinatorBasePath,
     host:coordinatorHost,
@@ -48,7 +46,7 @@ service<http> InitiatorService {
 
     @http:resourceConfig {
         methods:["POST"],
-        path:regPath
+        path:completeRegistrationPathPattern
     }
     resource register (http:Connection conn, http:InRequest req, string transactionBlockId) {
         //register(in: Micro-Transaction-Registration,

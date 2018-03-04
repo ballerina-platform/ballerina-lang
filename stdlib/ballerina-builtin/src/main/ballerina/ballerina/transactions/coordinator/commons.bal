@@ -150,7 +150,7 @@ function createTransactionContext (string coordinationType,
                          transactionBlockId:transactionBlockId,
                          coordinationType:coordinationType,
                          registerAtURL:"http://" + coordinatorHost + ":" + coordinatorPort +
-                                       initiatorCoordinatorBasePath + "/" + transactionBlockId + "/" + registrationPath};
+                                       initiatorCoordinatorBasePath + "/" + transactionBlockId + registrationPath};
 
         log:printInfo("Created transaction: " + txnId);
     }
