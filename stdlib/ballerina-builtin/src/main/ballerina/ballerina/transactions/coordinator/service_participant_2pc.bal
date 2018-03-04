@@ -37,10 +37,10 @@ service<http> Participant2pcService {
         http:OutResponse res;
         var prepareReq, _ = <PrepareRequest>req.getJsonPayload();
         string transactionId = prepareReq.transactionId;
-        log:printInfo("Prepare received for transaction: " + transactionId);
-        PrepareResponse prepareRes;
         var txnBlockId, txnBlockIdConversionErr = <int> transactionBlockId;
         string participatedTxnId = getParticipatedTransactionId(transactionId, txnBlockId);
+        log:printInfo("Prepare received for transaction: " + participatedTxnId);
+        PrepareResponse prepareRes;
         var txn, _ = (TwoPhaseCommitTransaction)participatedTransactions[participatedTxnId];
         if (txn == null || txnBlockIdConversionErr != null) {
             res = {statusCode:404};
@@ -81,12 +81,12 @@ service<http> Participant2pcService {
     resource notify (http:Connection conn, http:InRequest req, string transactionBlockId) {
         var notifyReq, _ = <NotifyRequest>req.getJsonPayload();
         string transactionId = notifyReq.transactionId;
-        log:printInfo("Notify(" + notifyReq.message + ") received for transaction: " + transactionId);
+        var txnBlockId, txnBlockIdConversionErr = <int> transactionBlockId;
+        string participatedTxnId = getParticipatedTransactionId(transactionId, txnBlockId);
+        log:printInfo("Notify(" + notifyReq.message + ") received for transaction: " + participatedTxnId);
         http:OutResponse res;
 
         NotifyResponse notifyRes;
-        var txnBlockId, txnBlockIdConversionErr = <int> transactionBlockId;
-        string participatedTxnId = getParticipatedTransactionId(transactionId, txnBlockId);
         var txn, _ = (TwoPhaseCommitTransaction)participatedTransactions[participatedTxnId];
         if (txn == null || txnBlockIdConversionErr != null) {
             res = {statusCode:404};

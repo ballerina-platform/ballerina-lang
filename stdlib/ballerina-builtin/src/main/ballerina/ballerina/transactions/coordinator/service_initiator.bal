@@ -46,7 +46,7 @@ service<http> InitiatorService {
 
     @http:resourceConfig {
         methods:["POST"],
-        path:completeRegistrationPathPattern
+        path:registrationPathPattern
     }
     resource register (http:Connection conn, http:InRequest req, string transactionBlockId) {
         //register(in: Micro-Transaction-Registration,

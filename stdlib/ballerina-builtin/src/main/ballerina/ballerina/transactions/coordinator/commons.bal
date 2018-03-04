@@ -170,6 +170,7 @@ function registerParticipantWithRemoteCoordinator (string transactionId,
 
     // Register with the coordinator only if the participant has not already done so
     if (participatedTransactions[participatedTxnId] != null) {
+        log:printError("Already registered with initiator for transaction:" + participatedTxnId);
         return;
     }
     log:printInfo("Registering for transaction: " + participatedTxnId + " with coordinator: " + registerAtURL);
