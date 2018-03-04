@@ -24,6 +24,7 @@ import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.util.codegen.StructInfo;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
+import java.time.DateTimeException;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -98,13 +99,16 @@ public abstract class AbstractTimeFunction extends AbstractNativeFunction {
             if (temporalAccessor.isSupported(ChronoField.NANO_OF_SECOND)) {
                 nanoSecond = temporalAccessor.get(ChronoField.NANO_OF_SECOND);
             }
+
             ZoneId zoneId = null;
-            if (temporalAccessor.isSupported(ChronoField.OFFSET_SECONDS)) {
+            try {
                 zoneId = ZoneId.from(temporalAccessor);
+            } catch (DateTimeException e) {
+                if (zoneId == null) { //If timezone is not given, it will initialize to system default
+                    zoneId = ZoneId.systemDefault();
+                }
             }
-            if (zoneId == null) { //If timezone is not given, it will initialize to system default
-                zoneId = ZoneId.systemDefault();
-            }
+
             ZonedDateTime zonedDateTime = ZonedDateTime.of(year, month, day, hour, minute, second, nanoSecond, zoneId);
             long timeValue = zonedDateTime.toInstant().toEpochMilli();
             return Utils.createTimeStruct(getTimeZoneStructInfo(context), getTimeStructInfo(context), timeValue,
