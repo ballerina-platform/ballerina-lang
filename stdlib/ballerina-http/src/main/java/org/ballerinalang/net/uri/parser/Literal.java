@@ -59,6 +59,9 @@ public class Literal<DataElementType extends DataElement> extends Node<DataEleme
                     return -1;
                 }
             }
+            if (uriFragment.equals("/") && uriFragment.equals(token) && !this.dataElement.hasData()) {
+                return 0;
+            }
             return tokenLength;
         } else {
             if (uriFragment.length() < tokenLength - 1) {
