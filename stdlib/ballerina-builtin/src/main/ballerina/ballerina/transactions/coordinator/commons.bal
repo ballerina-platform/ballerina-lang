@@ -122,7 +122,7 @@ function createNewTransaction (string coordinationType) returns (Transaction txn
     return;
 }
 
-function getCoordinatorProtocolAt (string protocol, ) returns (string coordinatorProtocolAt, int transactionBlockId) {
+function getCoordinatorProtocolAt (string protocol, int transactionBlockId ) returns (string coordinatorProtocolAt) {
     coordinatorProtocolAt =
     "http://" + coordinatorHost + ":" + coordinatorPort + initiator2pcCoordinatorBasePath + "/" + transactionBlockId;
     return;
@@ -184,7 +184,7 @@ function registerParticipantWithRemoteCoordinator (string transactionId,
         twopcTxn.coordinatorProtocols = coordinatorProtocols;
         participatedTransactions[participatedTxnId] = twopcTxn;
         txnCtx = {transactionId:transactionId, transactionBlockId:transactionBlockId,
-                     coordinationType:coordinationType, registerAtURL:registerAtUrl};
+                     coordinationType:"2pc", registerAtURL:registerAtURL};
         log:printInfo("Registered with coordinator for transaction: " + transactionId);
     }
     return;

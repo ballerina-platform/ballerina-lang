@@ -73,7 +73,7 @@ struct AbortResponse {
     string message;
 }
 
-function twoPhaseCommit (TwoPhaseCommitTransaction txn, string transactionBlockId) returns (string message, error err) {
+function twoPhaseCommit (TwoPhaseCommitTransaction txn, int transactionBlockId) returns (string message, error err) {
     log:printInfo("Running 2-phase commit for transaction: " + txn.transactionId);
 
     string transactionId = txn.transactionId;
@@ -296,7 +296,7 @@ function notifyParticipant (TwoPhaseCommitTransaction txn,
 }
 
 // This function will be called by the initiator
-function commitTransaction (string transactionId, string transactionBlockId) returns (string message, error e) {
+function commitTransaction (string transactionId, int transactionBlockId) returns (string message, error e) {
     var txn, _ = (TwoPhaseCommitTransaction)initiatedTransactions[transactionId];
     if (txn == null) {
         string msg = "Transaction-Unknown. Invalid TID:" + transactionId;
