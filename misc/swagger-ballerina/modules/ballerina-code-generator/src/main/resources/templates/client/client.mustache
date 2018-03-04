@@ -1,4 +1,5 @@
 import ballerina.net.http;
+import ballerina.io;
 
 public connector {{name}} () {
 
@@ -34,5 +35,6 @@ function main (string[] args) {
     {{#operations}}
     // sample invocation of {{name}} resource
     resp, err = connectorEp.{{name}}();
+    io:println(resp. getStringPayload());
     {{/operations}}
 }

@@ -15,6 +15,12 @@ public annotation ServiceInfo attach service<http> {
     Developer[] developers;
 }
 
+@Description {value: "Swagger related configurations"}
+@Field {value: "client: Enable/Disable build time client code generation for invoking the service"}
+public annotation configuration attach service<http> {
+    boolean client;
+}
+
 public annotation Contact {
     string name;
     string email;
