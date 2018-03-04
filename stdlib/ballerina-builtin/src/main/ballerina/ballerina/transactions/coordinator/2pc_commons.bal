@@ -73,13 +73,13 @@ struct AbortResponse {
     string message;
 }
 
-function twoPhaseCommit (TwoPhaseCommitTransaction txn) returns (string message, error err) {
+function twoPhaseCommit (TwoPhaseCommitTransaction txn, string transactionBlockId) returns (string message, error err) {
     log:printInfo("Running 2-phase commit for transaction: " + txn.transactionId);
 
     string transactionId = txn.transactionId;
 
     // Prepare local resource managers
-    boolean localPrepareSuccessful = prepareResourceManagers(transactionId);
+    boolean localPrepareSuccessful = prepareResourceManagers(transactionId, transactionBlockId);
     if (!localPrepareSuccessful) {
         err = {message:"Local prepare failed"};
         return;
@@ -101,7 +101,7 @@ function twoPhaseCommit (TwoPhaseCommitTransaction txn) returns (string message,
                 // return Hazard outcome if a participant cannot successfully end its branch of the transaction
                 err = {message:"Hazard-Outcome"};
             }
-            boolean localCommitSuccessful = commitResourceManagers(transactionId);
+            boolean localCommitSuccessful = commitResourceManagers(transactionId, transactionBlockId);
             if (!localCommitSuccessful) {
                 err = {message:"Local commit failed"};
             }
@@ -119,7 +119,7 @@ function twoPhaseCommit (TwoPhaseCommitTransaction txn) returns (string message,
                 // return Hazard outcome if a participant cannot successfully end its branch of the transaction
                 err = {message:"Hazard-Outcome"};
             }
-            boolean localAbortSuccessful = abortResourceManagers(transactionId);
+            boolean localAbortSuccessful = abortResourceManagers(transactionId, transactionBlockId);
             if (!localAbortSuccessful) {
                 err = {message:"Local abort failed"};
             }
@@ -136,7 +136,7 @@ function twoPhaseCommit (TwoPhaseCommitTransaction txn) returns (string message,
             // return Hazard outcome if a participant cannot successfully end its branch of the transaction
             err = {message:"Hazard-Outcome"};
         }
-        boolean localAbortSuccessful = abortResourceManagers(transactionId);
+        boolean localAbortSuccessful = abortResourceManagers(transactionId, transactionBlockId);
         if (!localAbortSuccessful) {
             err = {message:"Local abort failed"};
         }
@@ -296,7 +296,7 @@ function notifyParticipant (TwoPhaseCommitTransaction txn,
 }
 
 // This function will be called by the initiator
-function commitTransaction (string transactionId) returns (string message, error e) {
+function commitTransaction (string transactionId, string transactionBlockId) returns (string message, error e) {
     var txn, _ = (TwoPhaseCommitTransaction)initiatedTransactions[transactionId];
     if (txn == null) {
         string msg = "Transaction-Unknown. Invalid TID:" + transactionId;
@@ -305,7 +305,7 @@ function commitTransaction (string transactionId) returns (string message, error
     } else {
         log:printInfo("Committing transaction: " + transactionId);
         // return response to the initiator. ( Committed | Aborted | Mixed )
-        var msg, err = twoPhaseCommit(txn);
+        var msg, err = twoPhaseCommit(txn, transactionBlockId);
         if (err == null) {
             message = msg;
         } else {
@@ -316,7 +316,7 @@ function commitTransaction (string transactionId) returns (string message, error
 }
 
 // This function will be called by the initiator
-function abortInitiatorTransaction (string transactionId) returns (string message, error e) {
+function abortInitiatorTransaction (string transactionId, int transactionBlockId) returns (string message, error e) {
     var txn, _ = (TwoPhaseCommitTransaction)initiatedTransactions[transactionId];
     if (txn == null) {
         string msg = "Transaction-Unknown. Invalid TID:" + transactionId;
@@ -332,8 +332,8 @@ function abortInitiatorTransaction (string transactionId) returns (string messag
         } else {
             e = err;
         }
-        boolean localAbortSuccessful = abortResourceManagers(transactionId);
-        if(!localAbortSuccessful) {
+        boolean localAbortSuccessful = abortResourceManagers(transactionId, transactionBlockId);
+        if (!localAbortSuccessful) {
             log:printError("Aborting local resource managers failed");
         }
     }
@@ -342,7 +342,7 @@ function abortInitiatorTransaction (string transactionId) returns (string messag
 
 // The participant should notify the initiator that it aborted
 // This function is called by the participant
-function abortLocalParticipantTransaction (string transactionId) returns (string message, error e) {
+function abortLocalParticipantTransaction (string transactionId, int transactionBlockId) returns (string message, error e) {
     endpoint<Initiator2pcClient> coordinatorEP {
         create Initiator2pcClient();
     }
@@ -362,26 +362,23 @@ function abortLocalParticipantTransaction (string transactionId) returns (string
 
 // If this is a new transaction, then this instance will become the initiator and will create a context
 // If this is part of an existing transaction, this this instance will register as a participant
-function beginTransaction (string transactionId, string registerAtUrl,
+function beginTransaction (string transactionId, int transactionBlockId, string registerAtUrl,
                            string coordinationType) returns (TransactionContext txnCtx, error err) {
     if (transactionId == null) {
-        txnCtx, err = createTransactionContext(coordinationType);
+        txnCtx, err = createTransactionContext(coordinationType, transactionBlockId);
     } else {
-        err = registerParticipantWithRemoteCoordinator(transactionId, registerAtUrl);
-        if (err == null) {
-            txnCtx = {transactionId:transactionId, coordinationType:coordinationType, registerAtURL:registerAtUrl};
-        }
+        txnCtx, err = registerParticipantWithRemoteCoordinator(transactionId, transactionBlockId, registerAtUrl);
     }
     return;
 }
 
 // Depending on the state of the transaction, and whether this instance is the initiator or participant,
 // decide to commit or abort the transaction
-function endTransaction (string transactionId) returns (string msg, error e) {
+function endTransaction (string transactionId, int transactionBlockId) returns (string msg, error e) {
     if (initiatedTransactions.hasKey(transactionId)) {
         var txn, _ = (TwoPhaseCommitTransaction)initiatedTransactions[transactionId];
         if (txn.state != TransactionState.ABORTED) {
-            msg, e = commitTransaction(transactionId);
+            msg, e = commitTransaction(transactionId, transactionBlockId);
             if (e == null) {
                 initiatedTransactions.remove(transactionId);
             }
@@ -390,11 +387,11 @@ function endTransaction (string transactionId) returns (string msg, error e) {
     return;
 }
 
-function abortTransaction (string transactionId) returns (string msg, error e) {
+function abortTransaction (string transactionId, int transactionBlockId) returns (string msg, error e) {
     if (initiatedTransactions.hasKey(transactionId)) {
-        msg, e = abortInitiatorTransaction(transactionId);
+        msg, e = abortInitiatorTransaction(transactionId, transactionBlockId);
     } else {
-        msg, e = abortLocalParticipantTransaction(transactionId);
+        msg, e = abortLocalParticipantTransaction(transactionId, transactionBlockId);
     }
     if (e == null) {
         initiatedTransactions.remove(transactionId);
@@ -403,9 +400,12 @@ function abortTransaction (string transactionId) returns (string msg, error e) {
     return;
 }
 
-native function prepareResourceManagers (string transactionId) returns (boolean prepareSuccessful);
+native function prepareResourceManagers (string transactionId,
+                                         int transactionBlockId) returns (boolean prepareSuccessful);
 
-native function commitResourceManagers (string transactionId) returns (boolean commitSuccessful);
+native function commitResourceManagers (string transactionId,
+                                        int transactionBlockId) returns (boolean commitSuccessful);
 
-native function abortResourceManagers (string transactionId) returns (boolean abortSuccessful);
+native function abortResourceManagers (string transactionId,
+                                       int transactionBlockId) returns (boolean abortSuccessful);
 

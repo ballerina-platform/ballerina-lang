@@ -74,7 +74,7 @@ public class TransactionResourceManager {
      *
      * @param transactionId the global transaction id.
      */
-    public boolean prepare(String transactionId) {
+    public boolean prepare(String transactionId, int transactionBlockId) {
         List<BallerinaTransactionContext> txContextList = resourceRegistry.get(transactionId);
         if (txContextList != null) {
             for (BallerinaTransactionContext ctx : txContextList) {
@@ -100,7 +100,7 @@ public class TransactionResourceManager {
      *
      * @param transactionId the global transaction id.
      */
-    public boolean notifyCommit(String transactionId) {
+    public boolean notifyCommit(String transactionId, int transactionBlockId) {
         boolean commitSuccess = true;
         List<BallerinaTransactionContext> txContextList = resourceRegistry.get(transactionId);
         if (txContextList != null) {
@@ -132,7 +132,7 @@ public class TransactionResourceManager {
      *
      * @param transactionId the global transaction id.
      */
-    public boolean notifyAbort(String transactionId) {
+    public boolean notifyAbort(String transactionId, int transactionBlockId) {
         boolean abortSuccess = true;
         List<BallerinaTransactionContext> txContextList = resourceRegistry.get(transactionId);
         if (txContextList != null) {

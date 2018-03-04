@@ -30,21 +30,24 @@ service<http> Participant2pcService {
     // this resource on the participant will get called. This participant's coordinator will in turn call
     // prepare on all the resource managers registered with the respective transaction.
     @http:resourceConfig {
-        methods:["POST"]
+        methods:["POST"],
+        path:"{transactionBlockId}/prepare"
     }
-    resource prepare (http:Connection conn, http:InRequest req) {
+    resource prepare (http:Connection conn, http:InRequest req, string transactionBlockId) {
         http:OutResponse res;
         var prepareReq, _ = <PrepareRequest>req.getJsonPayload();
         string transactionId = prepareReq.transactionId;
         log:printInfo("Prepare received for transaction: " + transactionId);
         PrepareResponse prepareRes;
-        var txn, _ = (TwoPhaseCommitTransaction)participatedTransactions[transactionId];
-        if (txn == null) {
+        var txnBlockId, txnBlockIdConversionErr = <int> transactionBlockId;
+        string participatedTxnId = getParticipatedTransactionId(transactionId, txnBlockId);
+        var txn, _ = (TwoPhaseCommitTransaction)participatedTransactions[participatedTxnId];
+        if (txn == null || txnBlockIdConversionErr != null) {
             res = {statusCode:404};
             prepareRes = {message:"Transaction-Unknown"};
         } else {
             // Call prepare on the local resource manager
-            boolean prepareSuccessful = prepareResourceManagers(transactionId);
+            boolean prepareSuccessful = prepareResourceManagers(transactionId, txnBlockId);
             if (prepareSuccessful) {
                 res = {statusCode:200};
                 txn.state = TransactionState.PREPARED;
@@ -54,7 +57,7 @@ service<http> Participant2pcService {
             } else {
                 res = {statusCode:500};
                 prepareRes = {message:"aborted"};
-                participatedTransactions.remove(transactionId);
+                participatedTransactions.remove(participatedTxnId);
                 log:printInfo("Aborted transaction: " + transactionId);
             }
         }
@@ -72,17 +75,20 @@ service<http> Participant2pcService {
     // This participant's coordinator will in turn call "commit" or "abort" on
     // all the resource managers registered with the respective transaction.
     @http:resourceConfig {
-        methods:["POST"]
+        methods:["POST"],
+        path:"{transactionBlockId}/notify"
     }
-    resource notify (http:Connection conn, http:InRequest req) {
+    resource notify (http:Connection conn, http:InRequest req, string transactionBlockId) {
         var notifyReq, _ = <NotifyRequest>req.getJsonPayload();
         string transactionId = notifyReq.transactionId;
         log:printInfo("Notify(" + notifyReq.message + ") received for transaction: " + transactionId);
         http:OutResponse res;
 
         NotifyResponse notifyRes;
-        var txn, _ = (TwoPhaseCommitTransaction)participatedTransactions[transactionId];
-        if (txn == null) {
+        var txnBlockId, txnBlockIdConversionErr = <int> transactionBlockId;
+        string participatedTxnId = getParticipatedTransactionId(transactionId, txnBlockId);
+        var txn, _ = (TwoPhaseCommitTransaction)participatedTransactions[participatedTxnId];
+        if (txn == null || txnBlockIdConversionErr != null) {
             res = {statusCode:404};
             notifyRes = {message:"Transaction-Unknown"};
         } else {
@@ -92,7 +98,7 @@ service<http> Participant2pcService {
                     notifyRes = {message:"Not-Prepared"};
                 } else {
                     // Notify commit to the resource manager
-                    boolean commitSuccessful = commitResourceManagers(transactionId);
+                    boolean commitSuccessful = commitResourceManagers(transactionId, txnBlockId);
 
                     if (commitSuccessful) {
                         res = {statusCode:200};
@@ -104,7 +110,7 @@ service<http> Participant2pcService {
                 }
             } else if (notifyReq.message == "abort") {
                 // Notify abort to the resource manager
-                boolean abortSuccessful = abortResourceManagers(transactionId);
+                boolean abortSuccessful = abortResourceManagers(transactionId, txnBlockId);
                 if (abortSuccessful) {
                     res = {statusCode:200};
                     notifyRes = {message:"Aborted"};
@@ -113,7 +119,7 @@ service<http> Participant2pcService {
                     notifyRes = {message:"Failed-EOT"};
                 }
             }
-            participatedTransactions.remove(transactionId);
+            participatedTransactions.remove(participatedTxnId);
         }
         var j, _ = <json>notifyRes;
         res.setJsonPayload(j);

@@ -45,13 +45,14 @@ connector InitiatorClient (string registerAtURL) {
         create http:HttpClient(registerAtURL, {});
     }
 
-    action register (string transactionId) returns (RegistrationResponse registrationRes,
-                                                    error err) {
-        RegistrationRequest regReq = {transactionId:transactionId, participantId:localParticipantId};
+    action register (string transactionId, int transactionBlockId) returns (RegistrationResponse registrationRes,
+                                                                            error err) {
+        string participantId = localParticipantId + ":" + transactionBlockId;
+        RegistrationRequest regReq = {transactionId:transactionId, participantId:participantId};
 
         //TODO: set the proper protocol
         string protocol = "durable";
-        Protocol[] protocols = [{name:"volatile", url:getParticipantProtocolAt(protocol)}];
+        Protocol[] protocols = [{name:protocol, url:getParticipantProtocolAt(protocol, transactionBlockId)}];
         regReq.participantProtocols = protocols;
 
         var j, _ = <json>regReq;

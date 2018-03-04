@@ -43,6 +43,7 @@ struct Participant {
 public struct TransactionContext {
     string contextVersion = "1.0";
     string transactionId;
+    int transactionBlockId;
     string coordinationType;
     string registerAtURL;
 }
@@ -68,7 +69,7 @@ struct RequestError {
 }
 
 function isRegisteredParticipant (string participantId, map participants) returns (boolean) {
-    return participants[participantId] != null;
+    return participants.hasKey(participantId);
 }
 
 function isValidCoordinationType (string coordinationType) returns (boolean) {
@@ -121,18 +122,21 @@ function createNewTransaction (string coordinationType) returns (Transaction txn
     return;
 }
 
-function getCoordinatorProtocolAt (string protocol) returns (string coordinatorProtocolAt) {
-    coordinatorProtocolAt = "http://" + coordinatorHost + ":" + coordinatorPort + initiator2pcCoordinatorBasePath;
+function getCoordinatorProtocolAt (string protocol, ) returns (string coordinatorProtocolAt, int transactionBlockId) {
+    coordinatorProtocolAt =
+    "http://" + coordinatorHost + ":" + coordinatorPort + initiator2pcCoordinatorBasePath + "/" + transactionBlockId;
     return;
 }
 
-function getParticipantProtocolAt(string protocol) returns (string coordinatorProtocolAt) {
-    coordinatorProtocolAt = "http://" + coordinatorHost + ":" + coordinatorPort + participant2pcCoordinatorBasePath;
+function getParticipantProtocolAt (string protocol, int transactionBlockId) returns (string participatProtocolAt) {
+    participatProtocolAt =
+    "http://" + coordinatorHost + ":" + coordinatorPort + participant2pcCoordinatorBasePath + "/" + transactionBlockId;
     return;
 }
 
 // The initiator will create a new transaction context by calling this function
-function createTransactionContext (string coordinationType) returns (TransactionContext txnContext, error e) {
+function createTransactionContext (string coordinationType,
+                                   int transactionBlockId) returns (TransactionContext txnContext, error e) {
     if (!isValidCoordinationType(coordinationType)) {
         string msg = "Invalid-Coordination-Type:" + coordinationType;
         log:printError(msg);
@@ -143,9 +147,10 @@ function createTransactionContext (string coordinationType) returns (Transaction
 
         initiatedTransactions[txnId] = txn;
         txnContext = {transactionId:txnId,
+                         transactionBlockId:transactionBlockId,
                          coordinationType:coordinationType,
                          registerAtURL:"http://" + coordinatorHost + ":" + coordinatorPort +
-                                       initiatorCoordinatorBasePath + registrationPath};
+                                       initiatorCoordinatorBasePath + "/" + transactionBlockId + "/" + registrationPath};
 
         log:printInfo("Created transaction: " + txnId);
     }
@@ -154,17 +159,21 @@ function createTransactionContext (string coordinationType) returns (Transaction
 
 // Registers a participant with the initiator's coordinator
 // This function will be called by the participant
-function registerParticipantWithRemoteCoordinator (string transactionId, string registerAtURL) returns (error err) {
+function registerParticipantWithRemoteCoordinator (string transactionId,
+                                                   int transactionBlockId,
+                                                   string registerAtURL) returns (TransactionContext txnCtx, error err) {
     endpoint<InitiatorClient> coordinatorEP {
         create InitiatorClient(registerAtURL);
     }
 
+    string participatedTxnId = getParticipatedTransactionId(transactionId, transactionBlockId);
+
     // Register with the coordinator only if the participant has not already done so
-    if (participatedTransactions[transactionId] != null) {
+    if (participatedTransactions[participatedTxnId] != null) {
         return;
     }
-    log:printInfo("Registering for transaction: " + transactionId + " with coordinator: " + registerAtURL);
-    var regRes, e = coordinatorEP.register(transactionId);
+    log:printInfo("Registering for transaction: " + participatedTxnId + " with coordinator: " + registerAtURL);
+    var regRes, e = coordinatorEP.register(transactionId, transactionBlockId);
     if (e != null) {
         string msg = "Cannot register with coordinator for transaction: " + transactionId;
         log:printErrorCause(msg, e);
@@ -173,12 +182,19 @@ function registerParticipantWithRemoteCoordinator (string transactionId, string 
         Protocol[] coordinatorProtocols = regRes.coordinatorProtocols;
         TwoPhaseCommitTransaction twopcTxn = {transactionId:transactionId, coordinationType:TWO_PHASE_COMMIT};
         twopcTxn.coordinatorProtocols = coordinatorProtocols;
-        participatedTransactions[transactionId] = twopcTxn;
+        participatedTransactions[participatedTxnId] = twopcTxn;
+        txnCtx = {transactionId:transactionId, transactionBlockId:transactionBlockId,
+                     coordinationType:coordinationType, registerAtURL:registerAtUrl};
         log:printInfo("Registered with coordinator for transaction: " + transactionId);
     }
     return;
 }
 
-native function getAvailablePort() returns (int port);
+function getParticipatedTransactionId (string transactionId, int transactionBlockId) returns (string id) {
+    id = transactionId + ":" + transactionBlockId;
+    return;
+}
 
-native function getHostAddress() returns (string address);
+native function getAvailablePort () returns (int port);
+
+native function getHostAddress () returns (string address);

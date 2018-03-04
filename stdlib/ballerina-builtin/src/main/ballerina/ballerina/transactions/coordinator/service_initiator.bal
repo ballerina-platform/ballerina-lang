@@ -37,6 +37,8 @@ function getCoordinationTypeToProtocolsMap () returns (map m) {
     return;
 }
 
+const string regPath = "{transactionBlockId}/" + registrationPath;
+
 @http:configuration {
     basePath:initiatorCoordinatorBasePath,
     host:coordinatorHost,
@@ -46,9 +48,9 @@ service<http> InitiatorService {
 
     @http:resourceConfig {
         methods:["POST"],
-        path:registrationPath
+        path:regPath
     }
-    resource register (http:Connection conn, http:InRequest req) {
+    resource register (http:Connection conn, http:InRequest req, string transactionBlockId) {
         //register(in: Micro-Transaction-Registration,
         //out: Micro-Transaction-Coordination?,
         //fault: ( Invalid-Protocol |
@@ -75,10 +77,10 @@ service<http> InitiatorService {
         //If the registering participant specified an unknown micro-transaction identifier, the following fault is returned:
 
         // Micro-Transaction-Unknown
-
+        var txnBlockId, txnBlockIdConversionErr = <int> transactionBlockId;
         var registrationReq, e = <RegistrationRequest>req.getJsonPayload();
         http:OutResponse res;
-        if (e != null || registrationReq == null) {
+        if (e != null || registrationReq == null || txnBlockIdConversionErr != null) {
             res = {statusCode:400};
             RequestError err = {errorMessage:"Bad Request"};
             var resPayload, _ = <json>err;
@@ -121,7 +123,7 @@ service<http> InitiatorService {
                 int i = 0;
                 foreach participantProtocol in participantProtocols {
                     Protocol coordinatorProtocol = {name:participantProtocol.name,
-                                                       url:getCoordinatorProtocolAt(participantProtocol.name) };
+                                                       url:getCoordinatorProtocolAt(participantProtocol.name, txnBlockId) };
                     coordinatorProtocols[i] = coordinatorProtocol;
                     i = i + 1;
                 }

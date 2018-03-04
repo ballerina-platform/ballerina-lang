@@ -30,24 +30,25 @@ service<http> Initiator2pcService {
     // a call to this resource
     @http:resourceConfig {
         methods:["POST"],
-        path:"/abort"
+        path:"{transactionBlockId}/abort"
     }
-    resource abortTransaction (http:Connection conn, http:InRequest req) {
+    resource abortTransaction (http:Connection conn, http:InRequest req, string transactionBlockId) {
         http:OutResponse res;
         var abortReq, _ = <AbortRequest>req.getJsonPayload();
         string transactionId = abortReq.transactionId;
         string participantId = abortReq.participantId;
         log:printInfo("Abort received for transaction: " + transactionId + " from participant:" + participantId);
         AbortResponse abortRes;
+        var txnBlockId, txnBlockIdConversionErr = <int> transactionBlockId;
         var txn, _ = (TwoPhaseCommitTransaction)initiatedTransactions[transactionId];
-        if (txn == null) {
+        if (txn == null || txnBlockIdConversionErr != null) {
             res = {statusCode:404};
             abortRes = {message:"Transaction-Unknown"};
         } else {
             // Remove the participant who sent the abort since we don't want to do a notify(Abort) to that
             // participant
             txn.participants.remove(participantId);
-            var msg, err = abortInitiatorTransaction(transactionId);
+            var msg, err = abortInitiatorTransaction(transactionId, txnBlockId);
             if (err == null) {
                 res = {statusCode:500};
                 abortRes = {message:"Abort-Failed"};
