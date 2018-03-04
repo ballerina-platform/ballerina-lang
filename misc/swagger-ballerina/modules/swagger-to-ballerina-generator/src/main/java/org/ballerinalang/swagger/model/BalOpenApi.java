@@ -78,8 +78,8 @@ public class BalOpenApi {
         this.paths = openAPI.getPaths().entrySet();
 
         try {
-            setHostInfo(openAPI.getServers());
-            setSchemas(openAPI.getComponents().getSchemas());
+            setHostInfo(openAPI);
+            setSchemas(openAPI);
         } catch (MalformedURLException e) {
             throw new BalOpenApiException("Failed to parse server information", e);
         }
@@ -90,9 +90,17 @@ public class BalOpenApi {
     /**
      * Populate schemas into a "Set".
      */
-    private void setSchemas(Map<String, Schema> schemaMap) {
+    private void setSchemas(OpenAPI openAPI) {
         this.schemas = new LinkedHashSet<>();
+        Map<String, Schema> schemaMap;
+        if (openAPI.getComponents() == null) {
+            return;
+        }
+        if (openAPI.getComponents().getSchemas() == null) {
+            return;
+        }
 
+        schemaMap = openAPI.getComponents().getSchemas();
         for (Map.Entry entry : schemaMap.entrySet()) {
             BalSchema schema = new BalSchema().buildFromSchema((Schema) entry.getValue(), schemaMap);
             schemas.add(new AbstractMap.SimpleEntry<>((String) entry.getKey(), schema));
@@ -102,7 +110,17 @@ public class BalOpenApi {
     /**
      * Extract host information from OpenAPI server list.
      */
-    private void setHostInfo(List<Server> serverList) throws MalformedURLException {
+    private void setHostInfo(OpenAPI openAPI) throws MalformedURLException {
+        List<Server> serverList = openAPI.getServers();
+        if (serverList == null) {
+            this.host = "localhost";
+            this.port = 80;
+            this.httpsPort = 443;
+            this.basePath = "/";
+
+            return;
+        }
+
         // Swagger parser returns a server object with "/" url when no servers are defined
         // this check is to overcome possible errors due to that
         if (serverList.size() > 1 || !"/".equals(serverList.get(0).getUrl())) {

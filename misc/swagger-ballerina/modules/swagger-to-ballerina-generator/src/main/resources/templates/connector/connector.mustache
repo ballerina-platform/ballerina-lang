@@ -17,7 +17,7 @@ public connector {{cut info.title " "}} () {
 
         //Create the required request as needed
         //request.setHeader("Content-Type", "application/json");
-        response, httpError = ep.get("", request);
+        response, httpError = ep.get("{{@key}}", request);
         if (httpError != null) {
             outError = {message:httpError.message, cause:httpError.cause};
         }
@@ -32,7 +32,7 @@ public connector {{cut info.title " "}} () {
 
         //Create the required request as needed
         //request.setHeader("Content-Type", "application/json");
-        response, httpError = ep.post("", request);
+        response, httpError = ep.post("{{@key}}", request);
         if (httpError != null) {
             outError = {message:httpError.message, cause:httpError.cause};
         }
@@ -47,7 +47,7 @@ public connector {{cut info.title " "}} () {
 
         //Create the required request as needed
         //request.setHeader("Content-Type", "application/json");
-        response, httpError = ep.put("", request);
+        response, httpError = ep.put("{{@key}}", request);
         if (httpError != null) {
             outError = {message:httpError.message, cause:httpError.cause};
         }
@@ -62,7 +62,7 @@ public connector {{cut info.title " "}} () {
 
         //Create the required request as needed
         //request.setHeader("Content-Type", "application/json");
-        response, httpError = ep.delete("", request);
+        response, httpError = ep.delete("{{@key}}", request);
         if (httpError != null) {
             outError = {message:httpError.message, cause:httpError.cause};
         }
@@ -77,7 +77,7 @@ public connector {{cut info.title " "}} () {
 
         //Create the required request as needed
         //request.setHeader("Content-Type", "application/json");
-        response, httpError = ep.options("", request);
+        response, httpError = ep.options("{{@key}}", request);
         if (httpError != null) {
             outError = {message:httpError.message, cause:httpError.cause};
         }
@@ -92,7 +92,7 @@ public connector {{cut info.title " "}} () {
 
         //Create the required request as needed
         //request.setHeader("Content-Type", "application/json");
-        response, httpError = ep.head("", request);
+        response, httpError = ep.head("{{@key}}", request);
         if (httpError != null) {
             outError = {message:httpError.message, cause:httpError.cause};
         }
@@ -107,7 +107,7 @@ public connector {{cut info.title " "}} () {
 
         //Create the required request as needed
         //request.setHeader("Content-Type", "application/json");
-        response, httpError = ep.patch("", request);
+        response, httpError = ep.patch("{{@key}}", request);
         if (httpError != null) {
             outError = {message:httpError.message, cause:httpError.cause};
         }

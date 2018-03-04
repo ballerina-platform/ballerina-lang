@@ -124,12 +124,12 @@ public annotation schema {
 }
 
 public annotation resourceInfo attach resource {
-    string tags;
+    string[] tags;
     string summary;
     string description;
     boolean deprecated;
     externalDoc externalDoc;
-    parameterInfo parameters;
+    parameterInfo[] parameters;
 }
 
 public annotation responses attach resource {
@@ -153,4 +153,21 @@ public annotation header {
 public annotation example {
     string exampleType;
     string value;
+}
+
+public annotation requestBody attach resource {
+    string description;
+    boolean required;
+    string example;
+    example[] examples;
+    schema schema;
+    encoding[] encoding;
+}
+
+public annotation encoding {
+    parameterInfo[] headers;
+    string contentType;
+    string style;
+    boolean explode;
+    boolean allowReserved;
 }

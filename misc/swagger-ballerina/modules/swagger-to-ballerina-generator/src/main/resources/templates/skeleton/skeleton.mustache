@@ -14,12 +14,8 @@ import ballerina.net.http.swagger;
     tags: [{{#tags}}
         @swagger:tag {name: "{{name}}", description: "{{description}}", externalDoc: @swagger:externalDoc {description: "{{externalDocs.description}}", url: "{{externalDocs.url}}"} }{{#unless @last}},{{/unless}}{{/tags}}
     ],
-    externalDocs: @swagger:externalDoc {description: "{{externalDocs.description}}", url: "{{externalDocs.url}}"},
-    security: [{{#security}}
-        @swagger:securityRequirement {name: "{{key}}", requirements: "{{requirements}}"}{{#unless @last}},{{/unless}}{{/security}}
-    ]
-}
-{{#host}}
+    externalDoc: @swagger:externalDoc {description: "{{externalDocs.description}}", url: "{{externalDocs.url}}"}
+}{{#host}}
 @http:configuration {
     host: "{{host}}",{{#port}}
     port: {{port}},{{/port}}{{#httpsPort}}
@@ -33,7 +29,16 @@ service<http> {{cut info.title " "}} {
         summary: "{{summary}}",
         description: "{{description}}",
         deprecated: {{#deprecated}}true{{/deprecated}}{{^deprecated}}false{{/deprecated}},
-        parameters: [{{#parameters}}@swagger:parameterInfo {name: "{{name}}", inInfo: "{{in}}", description: "{{descirption}}", {{#required}}required: {{required}},{{/required}} {{#deprecated}}deprecated: {{deprecated}},{{/deprecated}} allowEmptyValue: "{{allowEmptyValue}}"} {{#unless @last}},{{/unless}}{{/parameters}}]
+        parameters: [{{#parameters}}
+            @swagger:parameterInfo {
+                name: "{{name}}",
+                inInfo: "{{in}}",
+                description: "{{descirption}}", {{#required}}
+                required: {{required}},{{/required}} {{#deprecated}}
+                deprecated: {{deprecated}},{{/deprecated}}
+                allowEmptyValue: "{{allowEmptyValue}}"
+            }{{#unless @last}},{{/unless}}{{/parameters}}
+        ]
     }
     @http:resourceConfig {
         methods:["GET"],
@@ -52,7 +57,16 @@ service<http> {{cut info.title " "}} {
         summary: "{{summary}}",
         description: "{{description}}",
         deprecated: {{#deprecated}}true{{/deprecated}}{{^deprecated}}false{{/deprecated}},
-        parameters: [{{#parameters}}@swagger:parameterInfo {name: "{{name}}", inInfo: "{{in}}", description: "{{descirption}}", {{#required}}required: {{required}},{{/required}} {{#deprecated}}deprecated: {{deprecated}},{{/deprecated}} allowEmptyValue: "{{allowEmptyValue}}"} {{#unless @last}},{{/unless}}{{/parameters}}]
+        parameters: [{{#parameters}}
+            @swagger:parameterInfo {
+                name: "{{name}}",
+                inInfo: "{{in}}",
+                description: "{{descirption}}", {{#required}}
+                required: {{required}},{{/required}} {{#deprecated}}
+                deprecated: {{deprecated}},{{/deprecated}}
+                allowEmptyValue: "{{allowEmptyValue}}"
+            }{{#unless @last}},{{/unless}}{{/parameters}}
+        ]
     }
     @http:resourceConfig {
         methods:["POST"],
@@ -71,7 +85,16 @@ service<http> {{cut info.title " "}} {
         summary: "{{summary}}",
         description: "{{description}}",
         deprecated: {{#deprecated}}true{{/deprecated}}{{^deprecated}}false{{/deprecated}},
-        parameters: [{{#parameters}}@swagger:parameterInfo {name: "{{name}}", inInfo: "{{in}}", description: "{{descirption}}", {{#required}}required: {{required}},{{/required}} {{#deprecated}}deprecated: {{deprecated}},{{/deprecated}} allowEmptyValue: "{{allowEmptyValue}}"} {{#unless @last}},{{/unless}}{{/parameters}}]
+        parameters: [{{#parameters}}
+            @swagger:parameterInfo {
+                name: "{{name}}",
+                inInfo: "{{in}}",
+                description: "{{descirption}}", {{#required}}
+                required: {{required}},{{/required}} {{#deprecated}}
+                deprecated: {{deprecated}},{{/deprecated}}
+                allowEmptyValue: "{{allowEmptyValue}}"
+            }{{#unless @last}},{{/unless}}{{/parameters}}
+        ]
     }
     @http:resourceConfig {
         methods:["PUT"],
@@ -90,7 +113,16 @@ service<http> {{cut info.title " "}} {
         summary: "{{summary}}",
         description: "{{description}}",
         deprecated: {{#deprecated}}true{{/deprecated}}{{^deprecated}}false{{/deprecated}},
-        parameters: [{{#parameters}}@swagger:parameterInfo {name: "{{name}}", inInfo: "{{in}}", description: "{{descirption}}", {{#required}}required: {{required}},{{/required}} {{#deprecated}}deprecated: {{deprecated}},{{/deprecated}} allowEmptyValue: "{{allowEmptyValue}}"} {{#unless @last}},{{/unless}}{{/parameters}}]
+        parameters: [{{#parameters}}
+            @swagger:parameterInfo {
+                name: "{{name}}",
+                inInfo: "{{in}}",
+                description: "{{descirption}}", {{#required}}
+                required: {{required}},{{/required}} {{#deprecated}}
+                deprecated: {{deprecated}},{{/deprecated}}
+                allowEmptyValue: "{{allowEmptyValue}}"
+            }{{#unless @last}},{{/unless}}{{/parameters}}
+        ]
     }
     @http:resourceConfig {
         methods:["DELETE"],
@@ -109,7 +141,16 @@ service<http> {{cut info.title " "}} {
         summary: "{{summary}}",
         description: "{{description}}",
         deprecated: {{#deprecated}}true{{/deprecated}}{{^deprecated}}false{{/deprecated}},
-        parameters: [{{#parameters}}@swagger:parameterInfo {name: "{{name}}", inInfo: "{{in}}", description: "{{descirption}}", {{#required}}required: {{required}},{{/required}} {{#deprecated}}deprecated: {{deprecated}},{{/deprecated}} allowEmptyValue: "{{allowEmptyValue}}"} {{#unless @last}},{{/unless}}{{/parameters}}]
+        parameters: [{{#parameters}}
+            @swagger:parameterInfo {
+                name: "{{name}}",
+                inInfo: "{{in}}",
+                description: "{{descirption}}", {{#required}}
+                required: {{required}},{{/required}} {{#deprecated}}
+                deprecated: {{deprecated}},{{/deprecated}}
+                allowEmptyValue: "{{allowEmptyValue}}"
+            }{{#unless @last}},{{/unless}}{{/parameters}}
+        ]
     }
     @http:resourceConfig {
         methods:["OPTIONS"],
@@ -128,7 +169,16 @@ service<http> {{cut info.title " "}} {
         summary: "{{summary}}",
         description: "{{description}}",
         deprecated: {{#deprecated}}true{{/deprecated}}{{^deprecated}}false{{/deprecated}},
-        parameters: [{{#parameters}}@swagger:parameterInfo {name: "{{name}}", inInfo: "{{in}}", description: "{{descirption}}", {{#required}}required: {{required}},{{/required}} {{#deprecated}}deprecated: {{deprecated}},{{/deprecated}} allowEmptyValue: "{{allowEmptyValue}}"} {{#unless @last}},{{/unless}}{{/parameters}}]
+        parameters: [{{#parameters}}
+            @swagger:parameterInfo {
+                name: "{{name}}",
+                inInfo: "{{in}}",
+                description: "{{descirption}}", {{#required}}
+                required: {{required}},{{/required}} {{#deprecated}}
+                deprecated: {{deprecated}},{{/deprecated}}
+                allowEmptyValue: "{{allowEmptyValue}}"
+            }{{#unless @last}},{{/unless}}{{/parameters}}
+        ]
     }
     @http:resourceConfig {
         methods:["HEAD"],
@@ -147,7 +197,16 @@ service<http> {{cut info.title " "}} {
         summary: "{{summary}}",
         description: "{{description}}",
         deprecated: {{#deprecated}}true{{/deprecated}}{{^deprecated}}false{{/deprecated}},
-        parameters: [{{#parameters}}@swagger:parameterInfo {name: "{{name}}", inInfo: "{{in}}", description: "{{descirption}}", {{#required}}required: {{required}},{{/required}} {{#deprecated}}deprecated: {{deprecated}},{{/deprecated}} allowEmptyValue: "{{allowEmptyValue}}"} {{#unless @last}},{{/unless}}{{/parameters}}]
+        parameters: [{{#parameters}}
+            @swagger:parameterInfo {
+                name: "{{name}}",
+                inInfo: "{{in}}",
+                description: "{{descirption}}", {{#required}}
+                required: {{required}},{{/required}} {{#deprecated}}
+                deprecated: {{deprecated}},{{/deprecated}}
+                allowEmptyValue: "{{allowEmptyValue}}"
+            }{{#unless @last}},{{/unless}}{{/parameters}}
+        ]
     }
     @http:resourceConfig {
         methods:["PATCH"],
@@ -166,7 +225,16 @@ service<http> {{cut info.title " "}} {
         summary: "{{summary}}",
         description: "{{description}}",
         deprecated: {{#deprecated}}true{{/deprecated}}{{^deprecated}}false{{/deprecated}},
-        parameters: [{{#parameters}}@swagger:parameterInfo {name: "{{name}}", inInfo: "{{in}}", description: "{{descirption}}", {{#required}}required: {{required}},{{/required}} {{#deprecated}}deprecated: {{deprecated}},{{/deprecated}} allowEmptyValue: "{{allowEmptyValue}}"} {{#unless @last}},{{/unless}}{{/parameters}}]
+        parameters: [{{#parameters}}
+            @swagger:parameterInfo {
+                name: "{{name}}",
+                inInfo: "{{in}}",
+                description: "{{descirption}}", {{#required}}
+                required: {{required}},{{/required}} {{#deprecated}}
+                deprecated: {{deprecated}},{{/deprecated}}
+                allowEmptyValue: "{{allowEmptyValue}}"
+            }{{#unless @last}},{{/unless}}{{/parameters}}
+        ]
     }
     @http:resourceConfig {
         methods:["TRACE"],
