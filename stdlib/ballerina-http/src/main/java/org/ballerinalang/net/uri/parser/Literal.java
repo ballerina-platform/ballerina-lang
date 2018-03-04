@@ -59,6 +59,7 @@ public class Literal<DataElementType extends DataElement> extends Node<DataEleme
                     return -1;
                 }
             }
+            //special case request urls which contains only the root("/") to be dispatched to default resource("/*").
             if (uriFragment.equals("/") && uriFragment.equals(token) && !this.dataElement.hasData()) {
                 return 0;
             }
