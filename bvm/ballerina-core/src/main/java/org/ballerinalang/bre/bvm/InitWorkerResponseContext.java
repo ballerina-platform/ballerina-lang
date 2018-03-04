@@ -37,8 +37,6 @@ public class InitWorkerResponseContext implements WorkerResponseContext {
             this.errored = true;
             BLangScheduler.errorThrown(this.targetCtx, signal.getSourceContext().getError());
             break;
-        case MESSAGE:
-            break;
         case HALT:
             BLangScheduler.workerDone(signal.getSourceContext());
             break;
@@ -56,8 +54,8 @@ public class InitWorkerResponseContext implements WorkerResponseContext {
     }
 
     @Override
-    public void checkAndRefreshFulfilledResponse() {
-        /* nothing to do */
+    public WorkerExecutionContext onFulfillment(boolean runInCaller) {
+        return null;
     }
 
     @Override
@@ -67,7 +65,6 @@ public class InitWorkerResponseContext implements WorkerResponseContext {
 
     @Override
     public WorkerDataChannel getWorkerDataChannel(String name) {
-        /* nothing to do */
         return null;
     }
 

@@ -35,8 +35,8 @@ public class CallbackedInvocableWorkerResponseContext extends InvocableWorkerRes
     }
     
     @Override
-    protected WorkerExecutionContext onFinalizedReturn(boolean runInCaller) {
-        WorkerExecutionContext retCtx = super.onFinalizedReturn(runInCaller);
+    public WorkerExecutionContext onFulfillment(boolean runInCaller) {
+        WorkerExecutionContext retCtx = super.onFulfillment(runInCaller);
         this.responseCallback.notifySuccess();
         return retCtx;
     }
@@ -45,13 +45,6 @@ public class CallbackedInvocableWorkerResponseContext extends InvocableWorkerRes
     protected void onFinalizedError(BStruct error) {
         super.onFinalizedError(error);
         this.responseCallback.notifyFailure(error);
-    }
-    
-    @Override
-    protected WorkerExecutionContext onHaltFinalized() {
-        WorkerExecutionContext retCtx = super.onHaltFinalized();
-        this.responseCallback.notifySuccess();
-        return retCtx;
     }
 
 }

@@ -30,8 +30,10 @@ public class WorkerDataChannel {
 
     private WorkerExecutionContext pendingCtx;
 
+    @SuppressWarnings("rawtypes")
     private Queue<BRefType[]> channel = new LinkedList<>();
 
+    @SuppressWarnings("rawtypes")
     public synchronized void putData(BRefType[] data) {
         if (data != null) {
             this.channel.add(data);
@@ -42,6 +44,7 @@ public class WorkerDataChannel {
         }
     }
     
+    @SuppressWarnings("rawtypes")
     public synchronized BRefType[] tryTakeData(WorkerExecutionContext ctx) {
         BRefType[] data = this.channel.peek();
         if (data != null) {
@@ -55,7 +58,9 @@ public class WorkerDataChannel {
         }
     }
 
+    @SuppressWarnings("rawtypes")
     public synchronized BRefType[] tryTakeData() {
         return this.channel.poll();
     }
+    
 }

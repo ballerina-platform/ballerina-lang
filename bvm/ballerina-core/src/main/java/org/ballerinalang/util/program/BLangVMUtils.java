@@ -27,7 +27,6 @@ import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BRefType;
 import org.ballerinalang.model.values.BString;
-import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.BLangConstants;
 import org.ballerinalang.util.codegen.CallableUnitInfo;
@@ -38,6 +37,8 @@ import org.ballerinalang.util.codegen.WorkerInfo;
 import org.ballerinalang.util.codegen.attributes.AttributeInfo;
 import org.ballerinalang.util.codegen.attributes.CodeAttributeInfo;
 import org.ballerinalang.util.codegen.attributes.LocalVariableAttributeInfo;
+
+import java.io.PrintStream;
 
 /**
  * Utilities related to the Ballerina VM.
@@ -395,6 +396,11 @@ public class BLangVMUtils {
         for (int i = 0; i < initWorkerCAI.getMaxRefLocalVars(); i++) {
             targetData.refRegs[i] = sourceData.refRegs[i];
         }
+    }
+    
+    public static void log(String msg) {
+        PrintStream out = System.out;
+        out.println(msg);
     }
     
 }

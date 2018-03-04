@@ -23,15 +23,14 @@ import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BRefType;
 import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BStruct;
+import org.ballerinalang.util.program.BLangVMUtils;
 
-import java.io.PrintStream;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.atomic.AtomicInteger;
 
 /**
- * This represents forkjoin worker response context.
+ * This represents the fork/join worker response context.
  *
  * @since 0.965.0
  */
@@ -54,9 +53,9 @@ public class ForkJoinWorkerResponseContext extends InvocableWorkerResponseContex
 
     private final Map<String, BStruct> workerErrors;
 
-    private AtomicInteger haltCount;
+    private int haltCount;
 
-    private AtomicInteger errorCount;
+    private int errorCount;
 
     public ForkJoinWorkerResponseContext(WorkerExecutionContext targetCtx, int joinTargetIp, int joinVarReg,
             int timeoutTargetIp, int timeoutVarReg, int workerCount, int reqJoinCount, Set<String> joinWorkerNames,
@@ -70,67 +69,54 @@ public class ForkJoinWorkerResponseContext extends InvocableWorkerResponseContex
         this.reqJoinCount = reqJoinCount;
         this.joinWorkerNames = joinWorkerNames;
         this.channelNames = channelNames;
-        this.haltCount = new AtomicInteger(0);
-        this.errorCount = new AtomicInteger(0);
         this.workerErrors = new HashMap<>();
     }
 
     @Override
-    public WorkerExecutionContext signal(WorkerSignal signal) {
-        switch (signal.getType()) {
-            case ERROR:
-                //TODO can we run the erro flow in same thread?
-                this.doError(signal);
-                break;
-            case MESSAGE:
-                break;
-            case HALT:
-                return this.doHalt(signal);
-            case RETURN:
-                //nothing to do
-                break;
-            case TIMEOUT:
-                return this.doTimeout();
-            default:
-                break;
-        }
+    protected WorkerExecutionContext onReturn(WorkerSignal signal) { 
         return null;
     }
+    
+    @Override
+    protected void onMessage(WorkerSignal signal) { }
 
     @Override
-    protected WorkerExecutionContext doHalt(WorkerSignal signal) {
+    protected synchronized WorkerExecutionContext onHalt(WorkerSignal signal) {
         BLangScheduler.workerDone(signal.getSourceContext());
         if (!joinWorkerNames.contains(signal.getSourceContext().workerInfo.getWorkerName())) {
             return null;
         }
-        if (this.haltCount.incrementAndGet() != reqJoinCount) {
+        if (++this.haltCount != reqJoinCount) {
             return null;
         }
-        if (this.fulfilled.getAndSet(true)) {
+        if (this.isFulfilled()) {
             return null;
+        } else {
+            this.setAsFulfilled();
         }
-        synchronized (workerErrors) {
-            workerErrors.forEach(this::printError);
-        }
+        workerErrors.forEach(this::printError);
         return this.onHaltFinalized();
     }
 
-    protected void doError(WorkerSignal signal) {
+    @Override
+    protected synchronized void onError(WorkerSignal signal) {
         BLangScheduler.workerExcepted(signal.getSourceContext());
         BStruct error = signal.getSourceContext().getError();
-        if (this.fulfilled.get()) {
+        if (this.isFulfilled()) {
             printError(signal.getSourceContext().workerInfo.getWorkerName(), error);
             return;
         }
 
-        if ((workerCount - errorCount.incrementAndGet()) >= reqJoinCount) {
+        if ((workerCount - (++errorCount)) >= reqJoinCount) {
             addOrPrintError(signal.getSourceContext().workerInfo.getWorkerName(), error);
             return;
         }
 
-        if (this.fulfilled.getAndSet(true)) {
+        if (this.isFulfilled()) {
             printError(signal.getSourceContext().workerInfo.getWorkerName(), error);
             return;
+        } else {
+            this.setAsFulfilled();
         }
 
         //This location means, no one will add errors to the workerErrors
@@ -139,9 +125,13 @@ public class ForkJoinWorkerResponseContext extends InvocableWorkerResponseContex
                 this.workerErrors));
     }
 
-    private WorkerExecutionContext doTimeout() {
-        if (this.fulfilled.getAndSet(true)) {
+    @SuppressWarnings("rawtypes")
+    @Override
+    protected synchronized WorkerExecutionContext onTimeout(WorkerSignal signal) {
+        if (this.isFulfilled()) {
             return null;
+        } else {
+            this.setAsFulfilled();
         }
         BMap<String, BRefValueArray> mbMap = new BMap<>();
         channelNames.forEach((k,v) -> {
@@ -156,15 +146,14 @@ public class ForkJoinWorkerResponseContext extends InvocableWorkerResponseContex
     }
 
     private void addOrPrintError(String workerName, BStruct error) {
-        synchronized (workerErrors) {
-            if (this.fulfilled.get()) {
-                printError(workerName, error);
-                return;
-            }
-            workerErrors.put(workerName, error);
+        if (this.isFulfilled()) {
+            printError(workerName, error);
+            return;
         }
+        workerErrors.put(workerName, error);
     }
 
+    @SuppressWarnings("rawtypes")
     protected WorkerExecutionContext onHaltFinalized() {
         BMap<String, BRefValueArray> mbMap = new BMap<>();
         channelNames.forEach((k, v) -> {
@@ -177,6 +166,7 @@ public class ForkJoinWorkerResponseContext extends InvocableWorkerResponseContex
         return BLangScheduler.resume(this.targetCtx, joinTargetIp, true);
     }
 
+    @SuppressWarnings("rawtypes")
     private BRefValueArray getWorkerResult(String channelName) {
         if (channelName == null) {
             return null;
@@ -198,8 +188,7 @@ public class ForkJoinWorkerResponseContext extends InvocableWorkerResponseContex
     }
 
     private void printError(String workerName, BStruct error) {
-        PrintStream out = System.out;
-        out.println("error in worker - " + workerName + System.lineSeparator()
+        BLangVMUtils.log("error in worker - " + workerName + System.lineSeparator()
                 + BLangVMErrors.getPrintableStackTrace(error));
     }
 

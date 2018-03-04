@@ -22,14 +22,14 @@ package org.ballerinalang.bre.bvm;
  */
 public interface WorkerResponseContext {
     
-    public WorkerExecutionContext signal(WorkerSignal signal);
+    WorkerExecutionContext signal(WorkerSignal signal);
         
-    public void checkAndRefreshFulfilledResponse();
+    WorkerExecutionContext onFulfillment(boolean runInCaller);
     
-    public void updateTargetContextInfo(WorkerExecutionContext targetCtx, int[] retRegIndexes);
+    void updateTargetContextInfo(WorkerExecutionContext targetCtx, int[] retRegIndexes);
     
-    public WorkerDataChannel getWorkerDataChannel(String name);
+    WorkerDataChannel getWorkerDataChannel(String name);
     
-    public void waitForResponse();
+    void waitForResponse();
     
 }

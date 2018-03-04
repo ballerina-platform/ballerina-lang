@@ -21,11 +21,9 @@ import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.util.program.BLangVMUtils;
 
-import java.io.PrintStream;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.Semaphore;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * This class represents the base implementation for a {@link WorkerResponseContext}.
@@ -36,7 +34,7 @@ public abstract class BaseWorkerResponseContext implements WorkerResponseContext
 
     protected BType[] responseTypes;
 
-    protected AtomicBoolean fulfilled;
+    protected boolean fulfilled;
 
     protected WorkerSignal currentSignal;
 
@@ -53,131 +51,187 @@ public abstract class BaseWorkerResponseContext implements WorkerResponseContext
     protected int workerCount;
 
     public BaseWorkerResponseContext(BType[] responseTypes, int workerCount, boolean checkResponse) {
-        this.fulfilled = new AtomicBoolean();
         this.responseTypes = responseTypes;
         this.workerCount = workerCount;
         if (checkResponse) {
             this.responseChecker = new Semaphore(0);
         }
     }
+    
+    protected boolean isFulfilled() {
+        return fulfilled;
+    }
+    
+    protected void setAsFulfilled() {
+        this.fulfilled = true;
+    }
+    
+    protected void setCurrentSignal(WorkerSignal signal) {
+        this.currentSignal = signal;
+    }
+    
+    protected WorkerSignal getCurrentSignal() {
+        return currentSignal;
+    }
 
     @Override
     public WorkerExecutionContext signal(WorkerSignal signal) {
         switch (signal.getType()) {
         case ERROR:
-            this.doError(signal);
+            this.onError(signal);
             break;
         case MESSAGE:
-            this.doMessage(signal);
+            this.onMessage(signal);
             break;
         case HALT:
-            return this.doHalt(signal);
+            return this.onHalt(signal);
         case RETURN:
-            return this.doReturn(signal);
+            return this.onReturn(signal);
+        case TIMEOUT:
+            return this.onTimeout(signal);
         default:
             break;
         }
         return null;
     }
+    
+    protected synchronized WorkerExecutionContext onTimeout(WorkerSignal signal) {
+        return null;
+    }
         
-    protected void doMessage(WorkerSignal signal) { }
+    protected synchronized void onMessage(WorkerSignal signal) { 
+        if (this.isFulfilled() && this.isReturnable()) {
+            this.handleAlreadyFulfilled(signal);
+        } else {
+            this.setAsFulfilled();
+            this.setCurrentSignal(signal);
+            this.printStoredErrors();
+            this.onFulfillment(false);
+        }
+    }
 
-    protected void handleAlreadyReturned(WorkerSignal signal) {
-        PrintStream out = System.out;
+    protected void handleAlreadyFulfilled(WorkerSignal signal) {
         WorkerExecutionContext sourceCtx = signal.getSourceContext();
-        out.println("error: worker '" + sourceCtx.workerInfo.getWorkerName() + 
+        BLangVMUtils.log("error: worker '" + sourceCtx.workerInfo.getWorkerName() + 
                 "' trying to return on already returned callable '" + 
                 signal.getSourceContext().callableUnitInfo + "'.");
     }
+    
+    protected void propagateErrorToTarget(WorkerExecutionContext sourceCtx) {
+        this.onFinalizedError(BLangVMErrors.createCallFailedException(
+                sourceCtx, this.getWorkerErrors()));
+    }
 
-    protected synchronized WorkerExecutionContext doHalt(WorkerSignal signal) {
+    protected synchronized WorkerExecutionContext onHalt(WorkerSignal signal) {
+        WorkerExecutionContext runInCallerCtx = null;
         WorkerExecutionContext sourceCtx = signal.getSourceContext();
         BLangScheduler.workerDone(sourceCtx);
         this.haltCount++;
-        if (this.isHaltFinalized()) {
-            return this.onHaltFinalized();
+        if (this.isReturnable()) {
+            if (!this.isFulfilled() && this.isWorkersDone()) {
+                this.propagateErrorToTarget(sourceCtx);
+            }
+        } else {
+            if (!this.isFulfilled()) {
+                this.setAsFulfilled();
+                this.setCurrentSignal(signal);
+                this.printStoredErrors();
+                runInCallerCtx = this.onFulfillment(true);
+            }
         }
-        if (this.isFinalizedError()) {
-            this.onFinalizedError(BLangVMErrors.createCallFailedException(sourceCtx, this.workerErrors));
-        }
-        return null;
+        return runInCallerCtx;
     }
     
-    protected WorkerExecutionContext onHaltFinalized() {
-        if (this.responseChecker != null) {
-            this.responseChecker.release();
-        }
-        if (!this.targetCtx.isRootContext()) {
-            return BLangScheduler.resume(this.targetCtx, true);
-        }
-        return null;
+    
+    protected boolean isReturnable() {
+        return this.responseTypes.length > 0;
     }
     
-    protected boolean isHaltFinalized() {
-        return this.responseTypes.length == 0 && this.haltCount > 0;
-    }
-    
-    protected synchronized void doError(WorkerSignal signal) {
+    protected void initWorkerErrors() {
         if (this.workerErrors == null) {
             this.workerErrors = new HashMap<>();
         }
-        WorkerExecutionContext sourceCtx = signal.getSourceContext();
-        BLangScheduler.workerExcepted(sourceCtx);
-        BStruct error = sourceCtx.getError();
-        this.workerErrors.put(sourceCtx.workerInfo.getWorkerName(), error);
-        if (this.isFinalizedError()) {
-            this.onFinalizedError(BLangVMErrors.createCallFailedException(sourceCtx, this.workerErrors));
-        }
     }
     
-    protected boolean isFinalizedError() {
+    protected void printError(BStruct error) {
+        BLangVMUtils.log(error.stringValue());
+    }
+    
+    protected boolean isWorkersDone() {
         return (this.workerErrors == null ? 0 : this.workerErrors.size() + this.haltCount) >= this.workerCount;
+    }
+    
+    protected void storeError(WorkerExecutionContext sourceCtx, BStruct error) {
+        this.workerErrors.put(sourceCtx.workerInfo.getWorkerName(), error);
+    }
+    
+    protected Map<String, BStruct> getWorkerErrors() {
+        return workerErrors;
+    }
+    
+    protected synchronized void onError(WorkerSignal signal) {
+        this.initWorkerErrors();
+        WorkerExecutionContext sourceCtx = signal.getSourceContext();
+        BLangScheduler.workerExcepted(sourceCtx);
+        if (this.isFulfilled()) {
+            printError(sourceCtx.getError());
+        } else {
+            this.storeError(sourceCtx, sourceCtx.getError());
+            if (this.isWorkersDone()) {
+                this.propagateErrorToTarget(sourceCtx);
+            }
+        }
     }
     
     protected void onFinalizedError(BStruct error) {
         BLangScheduler.errorThrown(this.targetCtx, error);
+        this.notifyResponseChecker();
+    }
+    
+    protected void notifyResponseChecker() {
         if (this.responseChecker != null) {
             this.responseChecker.release();
         }
     }
+    
+    protected void printStoredErrors() {
+        if (this.workerErrors != null) {
+            BLangVMUtils.log("worker errors: " + this.workerErrors);
+        }
+    }
 
-    protected WorkerExecutionContext doReturn(WorkerSignal signal) {
+    protected synchronized WorkerExecutionContext onReturn(WorkerSignal signal) {
         WorkerExecutionContext runInCallerCtx = null;
-        if (this.fulfilled.getAndSet(true)) {
-            this.handleAlreadyReturned(signal);
+        if (this.isFulfilled() && this.isReturnable()) {
+            this.handleAlreadyFulfilled(signal);
         } else {
-            this.currentSignal = signal;
-            runInCallerCtx = this.onFinalizedReturn(true);
+            this.setAsFulfilled();
+            this.setCurrentSignal(signal);
+            this.printStoredErrors();
+            runInCallerCtx = this.onFulfillment(true);
         }
         BLangScheduler.workerDone(signal.getSourceContext());
         return runInCallerCtx;
     }
 
-    protected WorkerExecutionContext onFinalizedReturn(boolean runInCaller) {
-        if (this.retRegIndexes != null) {
+    @Override
+    public WorkerExecutionContext onFulfillment(boolean runInCaller) {
+        WorkerExecutionContext runInCallerCtx = null;
+        if (this.targetCtx != null) {
             BLangVMUtils.mergeResultData(this.currentSignal.getResult(), this.targetCtx.workerLocal, 
                     this.responseTypes, this.retRegIndexes);
-            if (this.responseChecker != null) {
-                this.responseChecker.release();
-            }
-            if (this.targetCtx.code != null) {
-                return BLangScheduler.resume(this.targetCtx, runInCaller);
+            if (!this.targetCtx.isRootContext()) {
+                runInCallerCtx = BLangScheduler.resume(this.targetCtx, runInCaller);
             }
         }
-        return null;
+        this.notifyResponseChecker();
+        return runInCallerCtx;
     }
 
     @Override
     public void updateTargetContextInfo(WorkerExecutionContext targetCtx, int[] retRegIndexes) {
         this.targetCtx = targetCtx;
         this.retRegIndexes = retRegIndexes;
-    }
-
-    @Override
-    public void checkAndRefreshFulfilledResponse() {
-        if (this.fulfilled.get()) {
-            this.onFinalizedReturn(false);
-        }
     }
 
     public void waitForResponse() {
