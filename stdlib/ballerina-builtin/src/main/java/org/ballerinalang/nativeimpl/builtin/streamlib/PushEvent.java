@@ -61,7 +61,7 @@ public class PushEvent extends AbstractNativeFunction {
         try {
             inputHandler.send(eventObjectArray);
         } catch (InterruptedException e) {
-            System.out.printf("Exception when pushing events to Siddhi stream handler ", e);
+            System.out.printf("Exception when pushing events to Siddhi stream handler " + e);
         }
         return new BValue[]{};
     }
