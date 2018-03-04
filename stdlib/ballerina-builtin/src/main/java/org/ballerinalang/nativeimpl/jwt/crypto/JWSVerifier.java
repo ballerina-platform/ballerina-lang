@@ -21,7 +21,7 @@ package org.ballerinalang.nativeimpl.jwt.crypto;
 /**
  * JSON web signature verifier.
  *
- * @since 0.96.0
+ * @since 0.964.0
  */
 public interface JWSVerifier {
 

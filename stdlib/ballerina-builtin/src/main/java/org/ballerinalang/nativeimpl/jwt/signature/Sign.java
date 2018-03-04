@@ -31,16 +31,21 @@ import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
+import java.security.PrivateKey;
+
 /**
- * Native function ballerinalang.security.signature:verify.
+ * Native function ballerinalang.jwt.signature:verify.
+ *
+ * @since 0.964.0
  */
 @BallerinaFunction(
-        packageName = "ballerina.security.signature",
+        packageName = "ballerina.jwt.signature",
         functionName = "sign",
         args = {
                 @Argument(name = "data", type = TypeKind.STRING),
                 @Argument(name = "algorithm", type = TypeKind.STRING),
-                @Argument(name = "keyAlias", type = TypeKind.STRING)
+                @Argument(name = "keyAlias", type = TypeKind.STRING),
+                @Argument(name = "keyPassword", type = TypeKind.STRING)
         },
         returnType = {@ReturnType(type = TypeKind.STRING)},
         isPublic = true
@@ -51,12 +56,18 @@ public class Sign extends AbstractNativeFunction {
     public BValue[] execute(Context context) {
         String data = getStringArgument(context, 0);
         String algorithm = getStringArgument(context, 1);
+        String keyAlias = getStringArgument(context, 2);
+        char[] keyPassword = getStringArgument(context, 3).toCharArray();
         String signature;
-
+        PrivateKey privateKey;
         try {
-            JWSSigner signer = new RSASigner(KeyStore.getKeyStore().getDefaultPrivateKey());
+            if (keyAlias != null && !keyAlias.isEmpty()) {
+                privateKey = KeyStore.getKeyStore().getPrivateKey(keyAlias, keyPassword);
+            } else {
+                privateKey = KeyStore.getKeyStore().getDefaultPrivateKey();
+            }
+            JWSSigner signer = new RSASigner(privateKey);
             signature = signer.sign(data, algorithm);
-
         } catch (Exception e) {
             return getBValues(new BString(null), BLangVMErrors.createError(context, 0, e.getMessage()));
         }

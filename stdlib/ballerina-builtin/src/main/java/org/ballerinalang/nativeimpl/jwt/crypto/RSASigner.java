@@ -27,7 +27,13 @@ import java.security.SignatureException;
 import java.util.Base64;
 
 /**
- * @since 0.96.0
+ * Sign with RSA algorithms. Expects a private RSA key.
+ *
+ * <p>See RFC 7518, sections
+ * <a href="https://tools.ietf.org/html/rfc7518#section-3.3">3.3</a> for more
+ * information.
+ *
+ * @since 0.964.0
  */
 public class RSASigner implements JWSSigner {
 

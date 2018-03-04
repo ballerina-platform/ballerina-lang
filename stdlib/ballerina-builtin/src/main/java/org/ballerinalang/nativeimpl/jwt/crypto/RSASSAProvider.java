@@ -19,9 +19,13 @@
 package org.ballerinalang.nativeimpl.jwt.crypto;
 
 /**
- * Provides the supported algorithms
+ * Provides the supported algorithms.
  *
- * @since 0.96.0
+ * <p>See RFC 7518, sections
+ * <a href="https://tools.ietf.org/html/rfc7518#section-3.3">3.3</a> for more
+ * information.
+ *
+ * @since 0.964.0
  */
 public class RSASSAProvider {
 

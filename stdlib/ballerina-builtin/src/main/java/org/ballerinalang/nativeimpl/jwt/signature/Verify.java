@@ -34,10 +34,12 @@ import org.ballerinalang.natives.annotations.ReturnType;
 import java.security.interfaces.RSAPublicKey;
 
 /**
- * Native function ballerinalang.security.signature:verify.
+ * Native function ballerinalang.jwt.signature:verify.
+ *
+ * @since 0.964.0
  */
 @BallerinaFunction(
-        packageName = "ballerina.security.signature",
+        packageName = "ballerina.jwt.signature",
         functionName = "verify",
         args = {
                 @Argument(name = "data", type = TypeKind.STRING),
@@ -58,13 +60,8 @@ public class Verify extends AbstractNativeFunction {
         String keyAlias = getStringArgument(context, 3);
         Boolean validSignature;
         RSAPublicKey publicKey;
-
         try {
-            if (keyAlias != null && !keyAlias.isEmpty()) {
-                publicKey = (RSAPublicKey) KeyStore.getKeyStore().getPublicKey(keyAlias);
-            } else {
-                publicKey = (RSAPublicKey) KeyStore.getKeyStore().getDefaultPublicKey();
-            }
+            publicKey = (RSAPublicKey) KeyStore.getKeyStore().getTrustedPublicKey(keyAlias);
             JWSVerifier verifier = new RSAVerifier(publicKey);
             validSignature = verifier.verify(data, signature, algorithm);
         } catch (Exception e) {

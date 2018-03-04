@@ -21,6 +21,8 @@ package org.ballerinalang.nativeimpl.jwt.crypto;
 /**
  * JSON Web Signature (JWS) algorithm name, represents the {@code alg} header
  * parameter in JWS objects.
+ *
+ * @since 0.964.0
  */
 public final class JWSAlgorithm {
 

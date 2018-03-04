@@ -27,7 +27,13 @@ import java.security.interfaces.RSAPublicKey;
 import java.util.Base64;
 
 /**
- * @since 0.96.0
+ * Verify signature with RSA algorithms. Expects a public RSA key.
+ *
+ * <p>See RFC 7518, sections
+ * <a href="https://tools.ietf.org/html/rfc7518#section-3.3">3.3</a> for more
+ * information.
+ *
+ * @since 0.964.0
  */
 public class RSAVerifier implements JWSVerifier {
 
@@ -50,7 +56,6 @@ public class RSAVerifier implements JWSVerifier {
             signatureVerifier = Signature.getInstance(alg);
             signatureVerifier.initVerify(publicKey);
             signatureVerifier.update(dataInBytes);
-
             return signatureVerifier.verify(signatureData);
         } catch (NoSuchAlgorithmException | SignatureException | InvalidKeyException e) {
             throw new JWSException(e.getMessage(), e);

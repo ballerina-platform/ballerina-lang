@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.ballerinalang.test.jwt;
+package org.ballerinalang.test.jwt.crypto;
 
 import org.ballerinalang.nativeimpl.jwt.crypto.JWSVerifier;
 import org.ballerinalang.nativeimpl.jwt.crypto.RSAVerifier;
@@ -30,7 +30,10 @@ import java.security.KeyStore;
 import java.security.cert.Certificate;
 import java.security.interfaces.RSAPublicKey;
 
-public class JWTVerifyTest {
+/**
+ * Test native functions used to verify signed JWT token.
+ */
+public class JWTVerifierTest {
 
     @Test(description = "Test RSAVerifier with SHA-256 hashing ")
     public void testRSA256Verifier() throws Exception {
@@ -55,6 +58,5 @@ public class JWTVerifyTest {
         trustStore.load(file, "ballerina".toCharArray());
         Certificate publicCertificate = trustStore.getCertificate("ballerina");
         return (RSAPublicKey) publicCertificate.getPublicKey();
-
     }
 }

@@ -64,7 +64,7 @@ public class SymbolTable {
     private static final CompilerContext.Key<SymbolTable> SYM_TABLE_KEY =
             new CompilerContext.Key<>();
 
-    public static final PackageID BUILTIN = new PackageID(Names.BUILTIN_PACKAGE, Names.DEFAULT_VERSION);
+    public static final PackageID BUILTIN = new PackageID(Names.ANON_ORG, Names.BUILTIN_PACKAGE, Names.DEFAULT_VERSION);
 
 
     public final BLangPackage rootPkgNode;
@@ -96,7 +96,6 @@ public class SymbolTable {
     public BStructType errStructType;
 
     public BPackageSymbol builtInPackageSymbol;
-    public BPackageSymbol runtimePackageSymbol;
 
     private Names names;
 
@@ -349,6 +348,7 @@ public class SymbolTable {
 
     private void defineConversionOperators() {
         // Define conversion operators
+        defineConversionOperator(anyType, stringType, true, InstructionCodes.ANY2SCONV);
         defineConversionOperator(intType, floatType, true, InstructionCodes.I2F);
         defineConversionOperator(intType, stringType, true, InstructionCodes.I2S);
         defineConversionOperator(intType, booleanType, true, InstructionCodes.I2B);

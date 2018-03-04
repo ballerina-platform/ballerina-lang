@@ -21,7 +21,7 @@ package org.ballerinalang.nativeimpl.jwt.crypto;
 /**
  * A checked exception for wrapping potential exceptions thrown during JWT signature processing.
  *
- * @since 0.96.0
+ * @since 0.964.0
  */
 public class JWSException extends Exception {
 

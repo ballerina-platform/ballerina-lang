@@ -19,9 +19,9 @@
 package org.ballerinalang.nativeimpl.jwt.crypto;
 
 /**
- * JSON web signature
+ * JSON web signature.
  *
- * @since 0.96.0
+ * @since 0.964.0
  */
 public interface JWSSigner {
 

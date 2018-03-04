@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.ballerinalang.test.jwt;
+package org.ballerinalang.test.jwt.crypto;
 
 import org.ballerinalang.nativeimpl.jwt.crypto.JWSSigner;
 import org.ballerinalang.nativeimpl.jwt.crypto.RSASigner;
@@ -29,7 +29,10 @@ import java.io.InputStream;
 import java.security.KeyStore;
 import java.security.PrivateKey;
 
-public class JWTSignTest {
+/**
+ * Test native functions used to sign JWT token.
+ */
+public class JWTSignerTest {
 
     @Test(description = "Test RSASigner with SHA-256 hashing ")
     public void testRSA256Verifier() throws Exception {
