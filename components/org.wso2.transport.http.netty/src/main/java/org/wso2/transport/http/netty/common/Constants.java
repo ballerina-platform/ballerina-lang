@@ -108,7 +108,8 @@ public final class Constants {
     public static final String ENCODING_DEFLATE = "deflate";
     public static final String HTTP_TRANSFER_ENCODING_IDENTITY = "identity";
 
-    // TODO: Move string constants for HTTP header values to their own class
+    // TODO: Move string constants for HTTP headers and header values to their own class
+    public static final String HTTP_X_FORWARDED_FOR = "x-forwarded-for";
     public static final String CONNECTION_KEEP_ALIVE = "keep-alive";
     public static final String CONNECTION_CLOSE = "close";
     public static final String FORWARDED = "forwarded";
@@ -202,6 +203,7 @@ public final class Constants {
     public static final String REDIRECT_HANDLER = "redirectHandler";
     public static final String IDLE_STATE_HANDLER = "idleStateHandler";
     public static final String HTTP_TRACE_LOG_HANDLER = "http-trace-logger";
+    public static final String HTTP_ACCESS_LOG_HANDLER = "http-access-logger";
     public static final String WEBSOCKET_SERVER_HANDSHAKE_HANDLER = "websocket-server-handshake-handler";
 
     public static final AttributeKey<Integer> REDIRECT_COUNT = AttributeKey.valueOf
