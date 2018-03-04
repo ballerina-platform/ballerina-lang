@@ -19,7 +19,6 @@ package org.ballerinalang.bre.bvm;
 
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.runtime.threadpool.ThreadPoolFactory;
-import org.ballerinalang.util.program.BLangVMUtils;
 
 import java.io.PrintStream;
 import java.util.concurrent.ExecutorService;
@@ -161,9 +160,8 @@ public class BLangScheduler {
                 this.ctx.state = WorkerState.RUNNING;
                 CPU.exec(this.ctx);
             } catch (Throwable e) {
-                this.ctx.setError(BLangVMUtils.createErrorStruct(e));
+                this.ctx.setError(BLangVMErrors.createError(ctx.callableUnitInfo, e.getMessage()));
                 this.ctx.respCtx.signal(new WorkerSignal(this.ctx, SignalType.ERROR, null));
-                BLangScheduler.workerExcepted(this.ctx);
             } finally {
                 ctx.unlockExecution();
             }
