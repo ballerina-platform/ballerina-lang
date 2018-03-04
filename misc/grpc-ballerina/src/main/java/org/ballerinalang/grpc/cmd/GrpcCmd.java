@@ -128,9 +128,15 @@ public class GrpcCmd implements BLauncherCmd {
         dependant = org.ballerinalang.net.grpc.cmd.DescriptorsGenerator.dependentDescriptorGenerator
                 (descriptorPath, this.protoPath, new ArrayList<>(), exePath, classLoader);
         msg.append("Successfully generated dependent descriptor.").append(NEW_LINE_CHARACTER);
-        Path balPath = Paths.get(balOutPath);
+        //Path balPath = Paths.get(balOutPath);
         try {
-            BallerinaFile ballerinaFile = new BallerinaFile(dependant);
+            BallerinaFile ballerinaFile;
+            // TODO: 3/5/18 check need different location
+            if (balOutPath == null) {
+                ballerinaFile = new BallerinaFile(dependant);
+            } else {
+                ballerinaFile = new BallerinaFile(dependant, balOutPath);
+            }
             ballerinaFile.setRootDescriptor(root);
             ballerinaFile.build();
         } catch (BalGenerationException e) {

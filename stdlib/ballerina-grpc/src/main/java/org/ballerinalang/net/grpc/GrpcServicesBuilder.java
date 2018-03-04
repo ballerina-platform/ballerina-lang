@@ -106,7 +106,7 @@ public class GrpcServicesBuilder {
             serviceDescriptor) throws GrpcServerException {
         // Generate full service name for the service definition. <package>.<service>
         final String serviceName;
-        if(!".".equals(service.getPackage())){
+        if (!".".equals(service.getPackage())) {
             serviceName = service.getPackage() + ServiceProtoConstants.CLASSPATH_SYMBOL + service.getName();
         } else {
             serviceName = service.getName();

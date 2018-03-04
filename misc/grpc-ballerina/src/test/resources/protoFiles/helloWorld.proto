@@ -1,5 +1,4 @@
 syntax = "proto3";
-package java.org.ballerinalang.net.grpc;
 service helloWorld {
 		rpc hello(HelloRequest) returns (HelloResponse);
 		rpc bye(ByeRequest) returns (ByeResponse);

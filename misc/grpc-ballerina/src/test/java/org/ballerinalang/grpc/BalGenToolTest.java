@@ -30,7 +30,6 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -42,7 +41,7 @@ public class BalGenToolTest {
             BalGenToolTest.class.getProtectionDomain().getCodeSource().getLocation().getPath());
     
     @Test
-    public void testCMDForHelloWorld() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException,
+    public void testCMDForHelloWorld() throws IllegalAccessException,
             ClassNotFoundException, InstantiationException, IOException {
         Class<?> grpcCmd = Class.forName("org.ballerinalang.net.grpc.cmd.GrpcCmd");
         GrpcCmd grpcCmd1 = (GrpcCmd) grpcCmd.newInstance();
@@ -53,10 +52,10 @@ public class BalGenToolTest {
         grpcCmd1.setBalOutPath(sourceRoot.toString());
         grpcCmd1.setProtoPath(protoRoot.toString());
         grpcCmd1.execute();
-        Path sourceFileRoot = resourceDir.resolve(Paths.get("protoFiles/helloWorld.blocking.pb.bal"));
-        Path destFileRoot = resourceDir.resolve(Paths.get("protoFiles/helloWorld.pb.bal"));
+        Path sourceFileRoot = resourceDir.resolve(Paths.get("protoFiles/helloWorld.pb.bal"));
+        Path destFileRoot = resourceDir.resolve(Paths.get("protoFiles/helloWorld.gen.pb.bal"));
         removePackage(sourceFileRoot.toString(), destFileRoot.toString());
-        CompileResult compileResult = BTestUtils.compile("protoFiles/helloWorld.pb.bal");
+        CompileResult compileResult = BTestUtils.compile("protoFiles/helloWorld.gen.pb.bal");
         Assert.assertNotNull(compileResult.getProgFile()
                         .getPackageInfo(".").getConnectorInfo("helloWorldBlockingStub"),
                 "Connector not found.");
@@ -79,8 +78,6 @@ public class BalGenToolTest {
                 "Action 'bue' not found");
         String protoExeName = "protoc-" + OSDetector.getDetectedClassifier() + ".exe";
         BalFileGenerationUtils.delete(new File(protoExeName));
-//        BalFileGenerationUtils.delete(new File("desc_gen"));
-//        BalFileGenerationUtils.delete(new File("google"));
     }
     
     private void removePackage(String sourceFile, String destinationFile) throws IOException {

@@ -54,10 +54,15 @@ public class BallerinaFile {
     public static final Logger LOG = LoggerFactory.getLogger(BallerinaFile.class);
     private byte[] rootDescriptor;
     private List<byte[]> dependentDescriptors;
-    
+    private String balOutPath;
     
     public BallerinaFile(List<byte[]> dependentDescriptors) {
         this.dependentDescriptors = dependentDescriptors;
+    }
+    
+    public BallerinaFile(List<byte[]> dependentDescriptors, String balOutPath) {
+        this.dependentDescriptors = dependentDescriptors;
+        this.balOutPath = balOutPath;
     }
     
     public void build() {
@@ -88,7 +93,7 @@ public class BallerinaFile {
                 String[] inputTypes = methodDescriptorProto.getInputType().split("\\.");
                 String typeIn = inputTypes[inputTypes.length - 1];
                 methodName = methodDescriptorProto.getName();
-                if(!"".equals(fileDescriptorSet.getPackage())) {
+                if (!"".equals(fileDescriptorSet.getPackage())) {
                     methodID = fileDescriptorSet.getPackage() + "." + fileDescriptorSet.getService(SERVICE_INDEX)
                             .getName() + FILE_SEPARATOR + methodName;
                 } else {
@@ -137,9 +142,15 @@ public class BallerinaFile {
             String balPayload = filePackageData + blockingConnectorList + NEW_LINE_CHARACTER +
                     streamingConnectorList + structList + NEW_LINE_CHARACTER + descriptorKey +
                     String.format("map descriptorMap ={%s};", descriptorMapString) + NEW_LINE_CHARACTER;
-            Path balOutPath = balOutPathGenerator(packageName + "." + fileDescriptorSet
-                    .getService(SERVICE_INDEX).getName());
-            writeFile(balPayload, balOutPath);
+            
+            if (this.balOutPath == null) {
+                Path balOutPath = balOutPathGenerator(packageName + "." + fileDescriptorSet
+                        .getService(SERVICE_INDEX).getName());
+                writeFile(balPayload, balOutPath);
+            } else {
+                writeFile(balPayload, Paths.get(this.balOutPath + FILE_SEPARATOR + fileDescriptorSet
+                        .getService(SERVICE_INDEX).getName() + ".pb.bal"));
+            }
         } catch (IOException e) {
             throw new BalGenerationException("Error while generating .bal file.", e);
         }
@@ -148,8 +159,11 @@ public class BallerinaFile {
     private Path balOutPathGenerator(String packageName) throws IOException {
         String pathString = packageName.replace(".", FILE_SEPARATOR);
         File file = new File(pathString + ".pb.bal");
-        Files.createDirectories(Paths.get(file.getAbsolutePath()).getParent());
-        if(!file.isFile()) {
+        Path path = Paths.get(file.getAbsolutePath()).getParent();
+        if (path != null) {
+            Files.createDirectories(path);
+        }
+        if (!file.isFile()) {
             Files.createFile(Paths.get(file.getAbsolutePath()));
         }
         return Paths.get(pathString + ".pb.bal");
