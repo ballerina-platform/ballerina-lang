@@ -35,7 +35,6 @@ import org.ballerinalang.util.exceptions.BallerinaException;
 import org.ballerinalang.util.program.BLangFunctions;
 
 import java.nio.charset.StandardCharsets;
-import java.util.UUID;
 
 /**
  * The {@code BStream} represents a stream in Ballerina.
@@ -44,17 +43,21 @@ import java.util.UUID;
  */
 public class BStream implements BRefType<Object> {
 
+    private static final String TOPIC_NAME_PREFIX = "TOPIC_NAME_";
+
     private BStructType constraintType;
 
+    /**
+     * The name of the underlying broker topic representing the stream object.
+     */
     private String topicName;
 
-    public BStream(BType type) {
+    public BStream(BType type, String identifier) {
         if (((BStreamType) type).getConstrainedType() == null) {
             throw  new BallerinaException("A stream cannot be created without a constraint");
         }
         this.constraintType = (BStructType) ((BStreamType) type).getConstrainedType();
-        //temporarily until topic name is set to identifier name
-        this.topicName = "TOPIC_NAME_" + UUID.randomUUID();
+        this.topicName = TOPIC_NAME_PREFIX + identifier;
     }
 
     @Override
