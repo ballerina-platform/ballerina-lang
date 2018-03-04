@@ -27,8 +27,8 @@ import java.util.Map;
 public interface TraceManager {
 
     // todo: use ? capture instead of objects???
-    List<Object> buildSpan(long invocationId, String spanName, Map<String, Object> spanContextMap,
-                           Map<String, String> tags, boolean makeActive, String serviceName);
+    Map<String, Object> buildSpan(long invocationId, String spanName, Map<String, Object> spanContextMap,
+                                  Map<String, String> tags, boolean makeActive, String serviceName);
 
     void finishSpan(List<Object> span, Map<String, Object> parent, String serviceName);
 

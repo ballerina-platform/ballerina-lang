@@ -22,7 +22,6 @@ import org.ballerinalang.bre.Context;
 
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
@@ -76,9 +75,9 @@ public class BTracer {
      */
     private Map<String, Object> parentSpanContext = null;
     /**
-     * List of spans belongs to this tracer.
+     * Map of spans belongs to each open tracer.
      */
-    private List<Object> spans;
+    private Map<String, Object> spans;
 
     private BTracer() {
 
@@ -201,11 +200,11 @@ public class BTracer {
         this.parentSpanContext = parentSpanContext;
     }
 
-    public List<Object> getSpans() {
+    public Map<String, Object> getSpans() {
         return spans;
     }
 
-    public void setSpans(List<Object> spans) {
+    public void setSpans(Map<String, Object> spans) {
         this.spans = spans;
     }
 }

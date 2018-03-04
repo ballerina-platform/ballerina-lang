@@ -22,7 +22,7 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.util.codegen.ActionInfo;
 import org.ballerinalang.util.codegen.CallableUnitInfo;
 
-import java.util.List;
+import java.util.ArrayList;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -91,7 +91,7 @@ public class TraceManagerWrapper {
                     .collect(Collectors.toMap(Map.Entry::getKey, e -> String.valueOf(e.getValue())));
             Map<String, Object> spanContext = manager.extract(null, removeTracePrefix(spanHeaders), service);
 
-            List<Object> spanList = manager.buildSpan(invocationId, resource, spanContext,
+            Map<String, Object> spanList = manager.buildSpan(invocationId, resource, spanContext,
                     activeBTracer.getTags(), true, service);
 
             Map<String, String> traceContextMap = manager.inject(manager.getActiveSpanMap(service), null, service);
@@ -104,19 +104,20 @@ public class TraceManagerWrapper {
 
     public void finishSpan(BTracer bTracer) {
         if (enabled && bTracer.isTraceable()) {
-            manager.finishSpan(bTracer.getSpans(), bTracer.getParentSpanContext(), bTracer.getServiceName());
+            manager.finishSpan(new ArrayList<>(bTracer.getSpans().values()),
+                    bTracer.getParentSpanContext(), bTracer.getServiceName());
         }
     }
 
     public void log(BTracer bTracer, Map<String, Object> fields) {
         if (enabled && bTracer.isTraceable()) {
-            manager.log(bTracer.getSpans(), fields);
+            manager.log(new ArrayList<>(bTracer.getSpans().values()), fields);
         }
     }
 
     public void addTags(BTracer bTracer, Map<String, String> tags) {
         if (enabled && bTracer.isTraceable()) {
-            manager.addTags(bTracer.getSpans(), tags);
+            manager.addTags(new ArrayList<>(bTracer.getSpans().values()), tags);
         }
     }
 
