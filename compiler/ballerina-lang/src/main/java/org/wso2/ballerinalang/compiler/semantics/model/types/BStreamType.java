@@ -24,9 +24,9 @@ import org.wso2.ballerinalang.compiler.util.TypeDescriptor;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 
 /**
- * {@code BStreamType} represents tabular data in Ballerina.
+ * {@code BStreamType} represents stream data in Ballerina.
  *
- * @since 0.961.0
+ * @since 0.964.0
  */
 public class BStreamType extends BBuiltInRefType implements ConstrainedType {
 
