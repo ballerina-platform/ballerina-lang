@@ -24,11 +24,10 @@ import java.util.List;
 /**
  * @since 0.94
  */
-public interface ConnectorInitNode extends ExpressionNode {
+public interface TypeInitNode extends ExpressionNode {
 
-    UserDefinedTypeNode getConnectorType();
+    UserDefinedTypeNode getType();
 
     List<? extends ExpressionNode> getExpressions();
 
-    List<? extends ConnectorInitNode> getFilterConnectos();
 }
