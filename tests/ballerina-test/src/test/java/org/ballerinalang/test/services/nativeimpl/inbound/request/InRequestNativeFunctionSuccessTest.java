@@ -35,6 +35,7 @@ import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BXML;
 import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.HttpUtil;
+import org.ballerinalang.net.http.caching.RequestCacheControlStruct;
 import org.ballerinalang.test.services.testutils.HTTPTestRequest;
 import org.ballerinalang.test.services.testutils.MessageUtils;
 import org.ballerinalang.test.services.testutils.Services;
@@ -61,6 +62,7 @@ import static org.ballerinalang.mime.util.Constants.MESSAGE_ENTITY;
 import static org.ballerinalang.mime.util.Constants.OCTET_STREAM;
 import static org.ballerinalang.mime.util.Constants.PROTOCOL_PACKAGE_MIME;
 import static org.ballerinalang.mime.util.Constants.TEXT_PLAIN;
+import static org.ballerinalang.net.http.HttpConstants.REQUEST_CACHE_CONTROL;
 
 /**
  * Test cases for ballerina.net.http inbound inRequest success native functions.
@@ -73,6 +75,7 @@ public class InRequestNativeFunctionSuccessTest {
     private final String protocolPackageMime = PROTOCOL_PACKAGE_MIME;
     private final String entityStruct = HttpConstants.ENTITY;
     private final String mediaTypeStruct = MEDIA_TYPE;
+    private final String cacheControlStruct = REQUEST_CACHE_CONTROL;
 
     @BeforeClass
     public void setup() {
@@ -145,7 +148,9 @@ public class InRequestNativeFunctionSuccessTest {
 
         BStruct entity = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageMime, entityStruct);
         BStruct mediaType = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageMime, mediaTypeStruct);
-        HttpUtil.populateInboundRequest(inRequest, entity, mediaType, inRequestMsg);
+        RequestCacheControlStruct cacheControl = new RequestCacheControlStruct(
+                result.getProgFile().getPackageInfo(protocolPackageHttp).getStructInfo(cacheControlStruct));
+        HttpUtil.populateInboundRequest(inRequest, entity, mediaType, inRequestMsg, cacheControl);
 
         BString key = new BString(CONTENT_TYPE);
         BValue[] inputArg = {inRequest, key};
@@ -177,7 +182,9 @@ public class InRequestNativeFunctionSuccessTest {
 
         BStruct entity = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageMime, entityStruct);
         BStruct mediaType = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageMime, mediaTypeStruct);
-        HttpUtil.populateInboundRequest(inRequest, entity, mediaType, inRequestMsg);
+        RequestCacheControlStruct cacheControl = new RequestCacheControlStruct(
+                result.getProgFile().getPackageInfo(protocolPackageHttp).getStructInfo(cacheControlStruct));
+        HttpUtil.populateInboundRequest(inRequest, entity, mediaType, inRequestMsg, cacheControl);
 
         BString key = new BString("test-header");
         BValue[] inputArg = {inRequest, key};
