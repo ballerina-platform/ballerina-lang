@@ -912,7 +912,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
     }
 
     @Override
-    public void exitConnectorInit(BallerinaParser.ConnectorInitContext ctx) {
+    public void exitTypeInitExpr(BallerinaParser.TypeInitExprContext ctx) {
         if (ctx.exception != null) {
             return;
         }
@@ -926,23 +926,21 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         if (ctx.exception != null) {
             return;
         }
-        if (ctx.endpointDefinition() == null) {
-            return;
+        this.pkgBuilder.addEndpointType(getCurrentPos(ctx), getWS(ctx));
+        if (this.pkgBuilder.isInsideDefinition()) {
+            String endpointName = ctx.Identifier().getText();
+            this.pkgBuilder.addVariableDefStatement(getCurrentPos(ctx), getWS(ctx), endpointName, true, true);
         }
-
-        String endpointName = ctx.endpointDefinition().Identifier().getText();
-
-        boolean exprAvailable = ctx.connectorInit() != null || ctx.variableReference() != null;
-        this.pkgBuilder.addVariableDefStatement(getCurrentPos(ctx), getWS(ctx),
-                endpointName, exprAvailable, true);
     }
 
     @Override
-    public void exitEndpointDefinition(BallerinaParser.EndpointDefinitionContext ctx) {
+    public void exitGlobalEndpointDefinition(BallerinaParser.GlobalEndpointDefinitionContext ctx) {
         if (ctx.exception != null) {
             return;
         }
-        this.pkgBuilder.addEndpointType(getCurrentPos(ctx), getWS(ctx));
+        boolean publicVar = KEYWORD_PUBLIC.equals(ctx.getChild(0).getText());
+        this.pkgBuilder.addGlobalVariable(getCurrentPos(ctx), getWS(ctx),
+                ctx.endpointDeclaration().Identifier().getText(), true, publicVar);
     }
 
     /**

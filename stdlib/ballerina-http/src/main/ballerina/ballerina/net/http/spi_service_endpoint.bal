@@ -41,7 +41,7 @@ public function <ServiceEndpoint h> register (type serviceType) {
 function <ServiceEndpoint h> getConnector () returns (ResponseConnector) {
     // TODO: Fix this.
     Connection conn = {};
-    return create ResponseConnector(conn);
+    return new ResponseConnector(conn);
 }
 
 // start
