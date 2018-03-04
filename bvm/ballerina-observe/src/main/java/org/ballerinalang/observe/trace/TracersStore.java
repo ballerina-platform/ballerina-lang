@@ -27,7 +27,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Class that holds the list of tracers
+ * Class that holds the list of tracers.
  */
 public class TracersStore {
 

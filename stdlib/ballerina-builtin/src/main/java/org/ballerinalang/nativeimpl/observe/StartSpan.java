@@ -18,9 +18,6 @@
 
 package org.ballerinalang.nativeimpl.observe;
 
-import org.ballerina.tracing.core.Constants;
-import org.ballerina.tracing.core.config.ReferenceType;
-import org.ballerina.tracing.core.wrapper.OpenTracerBallerinaWrapper;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BMap;
@@ -29,6 +26,9 @@ import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
+import org.ballerinalang.observe.trace.Constants;
+import org.ballerinalang.observe.trace.OpenTracerBallerinaWrapper;
+import org.ballerinalang.observe.trace.ReferenceType;
 
 import java.util.concurrent.ThreadLocalRandom;
 

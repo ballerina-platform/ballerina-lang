@@ -18,20 +18,17 @@
 
 package org.ballerinalang.nativeimpl.observe;
 
-import org.ballerina.tracing.core.wrapper.OpenTracerBallerinaWrapper;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeKind;
+import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
-import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
-import org.ballerinalang.net.http.HttpUtil;
-import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
+import org.ballerinalang.observe.trace.OpenTracerBallerinaWrapper;
 
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 
 /**
@@ -47,21 +44,19 @@ public class ExtractSpanContext extends AbstractNativeFunction {
     @Override
     public BValue[] execute(Context context) {
 
-        BStruct httpRequest = (BStruct) getRefArgument(context, 0);
-        String group =  getStringArgument(context, 0);
+        BMap bHeaders = (BMap) getRefArgument(context, 0);
+        String group = getStringArgument(context, 0);
 
-        HTTPCarbonMessage carbonMessage = HttpUtil.getCarbonMsg(httpRequest, null);
-        Iterator<Map.Entry<String, String>> entryIterator = carbonMessage.getHeaders().iteratorAsString();
+        Map<String, String> headers = Utils.toStringMap(bHeaders);
         Map<String, String> spanHeaders = new HashMap<>();
 
-        while (entryIterator.hasNext()) {
-            Map.Entry<String, String> headers = entryIterator.next();
-            if (headers.getKey().startsWith(group)) {
-                spanHeaders.put(headers.getKey().substring(group.length()), headers.getValue());
+        headers.forEach((headerKey, headerValue) -> {
+            if (headerKey.startsWith(group)) {
+                spanHeaders.put(headerKey.substring(group.length()), headerValue);
             } else {
-                spanHeaders.put(headers.getKey(), headers.getValue());
+                spanHeaders.put(headerKey, headerValue);
             }
-        }
+        });
 
         String spanId = OpenTracerBallerinaWrapper.getInstance().extract(spanHeaders);
 

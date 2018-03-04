@@ -24,7 +24,7 @@ import java.util.Iterator;
 import java.util.Map;
 
 /**
- * Injector that injects span context headers
+ * Injector that injects span context headers.
  */
 public class RequestInjector implements TextMap {
 

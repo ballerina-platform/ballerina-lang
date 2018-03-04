@@ -19,7 +19,7 @@
 package org.ballerinalang.observe.trace.exception;
 
 /**
- * This is the exception class which is thrown when the span context is unknown
+ * This is the exception class which is thrown when the span context is unknown.
  */
 public class UnknownSpanContextTypeException extends RuntimeException {
 

@@ -25,7 +25,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Class to hold the spans of a trace when using open tracing ballerina api
+ * Class to hold the spans of a trace when using open tracing ballerina api.
  */
 public class SpanStore {
 

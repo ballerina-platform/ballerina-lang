@@ -18,7 +18,6 @@
 
 package org.ballerinalang.nativeimpl.observe;
 
-import org.ballerina.tracing.core.wrapper.OpenTracerBallerinaWrapper;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BMap;
@@ -28,6 +27,7 @@ import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
+import org.ballerinalang.observe.trace.OpenTracerBallerinaWrapper;
 
 /**
  * This function adds logs to a span.

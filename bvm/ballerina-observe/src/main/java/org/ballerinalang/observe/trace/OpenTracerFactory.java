@@ -23,7 +23,7 @@ import org.ballerinalang.observe.trace.config.TracerConfig;
 import org.ballerinalang.observe.trace.exception.InvalidConfigurationException;
 
 /**
- * Factory class to generate Tracer objects
+ * Factory class to generate Tracer objects.
  */
 public class OpenTracerFactory {
 

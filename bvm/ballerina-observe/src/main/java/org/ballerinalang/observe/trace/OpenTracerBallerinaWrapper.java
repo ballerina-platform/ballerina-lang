@@ -32,7 +32,7 @@ import java.util.Map;
 import java.util.UUID;
 
 /**
- * This class wraps opentracing apis and exposes native functions to use within ballerina
+ * This class wraps opentracing apis and exposes native functions to use within ballerina.
  */
 public class OpenTracerBallerinaWrapper {
 
@@ -54,7 +54,7 @@ public class OpenTracerBallerinaWrapper {
     }
 
     /**
-     * Method to create an entry in span store by extracting a spanContext from a Map carrier
+     * Method to create an entry in span store by extracting a spanContext from a Map carrier.
      *
      * @param spanHeaders map of headers used to extract a spanContext
      * @return the Id of the span context
@@ -81,7 +81,7 @@ public class OpenTracerBallerinaWrapper {
     }
 
     /**
-     * Method to inject the span context of a span into a map carrier
+     * Method to inject the span context of a span into a map carrier.
      *
      * @param spanId the span Id of the span to be injected
      * @return the map carrier holding the span context
