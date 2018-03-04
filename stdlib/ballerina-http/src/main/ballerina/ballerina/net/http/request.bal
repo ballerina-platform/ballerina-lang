@@ -25,6 +25,13 @@ public function <OutRequest req> getHeader (string headerName) (string) {
     return getFirstHeaderFromEntity(entity, headerName);
 }
 
+@Description {value:"Returns all the headers."}
+@Return {value:"The all the headers as a key value map."}
+public function <InRequest req> getHeaders() (map) {
+    mime:Entity entity = req.getEntityWithoutBody();
+    return getHeadersFromEntity(entity);
+}
+
 @Description {value:"Adds the specified key/value pair as an HTTP header to the outbound request"}
 @Param {value:"req: The outbound request message"}
 @Param {value:"headerName: The header name"}

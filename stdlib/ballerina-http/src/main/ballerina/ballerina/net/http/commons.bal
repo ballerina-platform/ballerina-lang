@@ -2,6 +2,10 @@ package ballerina.net.http;
 
 import ballerina.mime;
 
+function getHeadersFromEntity (mime:Entity entity) (map) {
+    return entity.headers;
+}
+
 function getFirstHeaderFromEntity (mime:Entity entity, string headerName) (string) {
     var headerValue, _ = (string[]) entity.headers[headerName];
     return headerValue == null ? null : headerValue[0];
