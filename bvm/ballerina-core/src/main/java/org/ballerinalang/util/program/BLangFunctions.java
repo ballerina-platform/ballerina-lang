@@ -20,7 +20,6 @@ package org.ballerinalang.util.program;
 import org.ballerinalang.bre.bvm.AsyncTimer;
 import org.ballerinalang.bre.bvm.BLangScheduler;
 import org.ballerinalang.bre.bvm.BLangVMErrors;
-import org.ballerinalang.bre.bvm.CPU;
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
 import org.ballerinalang.bre.bvm.CallbackedInvocableWorkerResponseContext;
 import org.ballerinalang.bre.bvm.ForkJoinTimeoutCallback;
@@ -165,7 +164,7 @@ public class BLangFunctions {
             initWorkerLocalData = executeInitWorker(parentCtx, argRegs, callableUnitInfo, workerSet.initWorker,
                     wdi, globalProps);
             if (initWorkerLocalData == null) {
-                /* an error has occurred */
+                handleError(parentCtx);
                 return null;
             }
             initWorkerCAI = workerSet.initWorker.getCodeAttributeInfo();
@@ -178,17 +177,21 @@ public class BLangFunctions {
         WorkerExecutionContext runInCallerCtx = executeWorker(respCtx, parentCtx, argRegs, callableUnitInfo, 
                 workerSet.generalWorkers[0], wdi, globalProps, initWorkerLocalData, initWorkerCAI, true);
         if (waitForResponse) {
-            CPU.exec(runInCallerCtx);
+            BLangScheduler.executeNow(runInCallerCtx);
             respCtx.waitForResponse();
             // An error in the context at this point means an unhandled runtime error has propagated
             // all the way up to the entry point. Hence throw a {@link BLangRuntimeException} and
             // terminate the execution.
             BStruct error = parentCtx.getError();
             if (error != null) {
-                throw new BLangRuntimeException("error: " + BLangVMErrors.getPrintableStackTrace(error));
+                handleError(parentCtx);
             }
         }
         return runInCallerCtx;
+    }
+    
+    private static void handleError(WorkerExecutionContext ctx) {
+        throw new BLangRuntimeException("error: " + BLangVMErrors.getPrintableStackTrace(ctx.getError()));
     }
     
     private static WorkerExecutionContext executeWorker(WorkerResponseContext respCtx, 
@@ -210,13 +213,10 @@ public class BLangFunctions {
             CallableUnitInfo callableUnitInfo, WorkerInfo workerInfo, WorkerDataIndex wdi,
             Map<String, Object> globalProps) {
         InitWorkerResponseContext respCtx = new InitWorkerResponseContext(parentCtx);
-        WorkerData workerLocal = BLangVMUtils.createWorkerDataForLocal(workerInfo, parentCtx, argRegs,
-                callableUnitInfo.getParamTypes());
-        WorkerData workerResult = BLangVMUtils.createWorkerData(wdi);
-        WorkerExecutionContext ctx = new WorkerExecutionContext(parentCtx, respCtx, callableUnitInfo, workerInfo,
-                workerLocal, workerResult, wdi.retRegs, globalProps, true);
-        ctx = BLangScheduler.schedule(ctx);
-        CPU.exec(ctx);
+        WorkerExecutionContext ctx = executeWorker(respCtx, parentCtx, argRegs, callableUnitInfo,
+                workerInfo, wdi, globalProps, null, null, true);        
+        BLangScheduler.executeNow(ctx);
+        WorkerData workerLocal = ctx.workerLocal;
         if (respCtx.isErrored()) {
             return null;
         } else {

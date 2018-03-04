@@ -399,6 +399,7 @@ public class BLangVMUtils {
     
     public static BStruct createErrorStruct(Throwable e) {
         //TODO
+        System.out.println("XXXXXXXXXXX: " + e);
         return null;
     }
     

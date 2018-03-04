@@ -41,6 +41,9 @@ function testConnectorWithWorkers () (string firstName) {
 	    var j, _ = <json>dt;
 	    firstName = j.toString();
 	    return;
+    }    
+    worker w2 {
+        int x = 10;
     }
 }
 

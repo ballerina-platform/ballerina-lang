@@ -42,8 +42,10 @@ public class InitWorkerResponseContext implements WorkerResponseContext {
         case MESSAGE:
             break;
         case HALT:
+            BLangScheduler.workerDone(signal.getSourceContext());
             break;
         case RETURN:
+            BLangScheduler.workerDone(signal.getSourceContext());
             break;
         default:
             break;

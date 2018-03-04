@@ -99,7 +99,8 @@ public class ForkJoinWorkerResponseContext extends InvocableWorkerResponseContex
         return null;
     }
 
-    private WorkerExecutionContext doHalt(WorkerSignal signal) {
+    @Override
+    protected WorkerExecutionContext doHalt(WorkerSignal signal) {
         BLangScheduler.workerDone(signal.getSourceContext());
         if (!joinWorkerNames.contains(signal.getSourceContext().workerInfo.getWorkerName())) {
             return null;

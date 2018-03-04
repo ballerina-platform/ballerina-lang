@@ -72,7 +72,7 @@ public abstract class BaseWorkerResponseContext implements WorkerResponseContext
         case MESSAGE:
             break;
         case HALT:
-            return this.doHalt();
+            return this.doHalt(signal);
         case RETURN:
             return this.doReturn(signal);
         default:
@@ -87,10 +87,15 @@ public abstract class BaseWorkerResponseContext implements WorkerResponseContext
         // TODO
     }
 
-    protected synchronized WorkerExecutionContext doHalt() {
+    protected synchronized WorkerExecutionContext doHalt(WorkerSignal signal) {
+        WorkerExecutionContext sourceCtx = signal.getSourceContext();
+        BLangScheduler.workerDone(sourceCtx);
         this.haltCount++;
         if (this.isHaltFinalized()) {
             return this.onHaltFinalized();
+        }
+        if (this.isFinalizedError()) {
+            this.onFinalizedError(this.createCallFailedError(sourceCtx, this.workerErrors));
         }
         return null;
     }
@@ -99,7 +104,7 @@ public abstract class BaseWorkerResponseContext implements WorkerResponseContext
         if (this.responseChecker != null) {
             this.responseChecker.release();
         }
-        if (this.targetCtx.code != null) {
+        if (!this.targetCtx.isRootContext()) {
             return BLangScheduler.resume(this.targetCtx, true);
         }
         return null;
@@ -123,7 +128,7 @@ public abstract class BaseWorkerResponseContext implements WorkerResponseContext
     }
     
     protected boolean isFinalizedError() {
-        return (this.workerErrors.size() - this.haltCount) >= this.workerCount;
+        return (this.workerErrors == null ? 0 : this.workerErrors.size() + this.haltCount) >= this.workerCount;
     }
     
     protected void onFinalizedError(BStruct error) {

@@ -40,6 +40,10 @@ public class BLangScheduler {
         return schedule(ctx, ctx.runInCaller);
     }
     
+    public static void executeNow(WorkerExecutionContext ctx) {
+        CPU.exec(ctx);
+    }
+    
     private static void workerCountUp() {
         int count = workerCount.incrementAndGet();
         if (count == 1) {
@@ -59,10 +63,10 @@ public class BLangScheduler {
     public static WorkerExecutionContext schedule(WorkerExecutionContext ctx, boolean runInCaller) {
         ctx.state = WorkerState.READY;
         workerCountUp();
-        ExecutorService executor = ThreadPoolFactory.getInstance().getWorkerExecutor();
         if (runInCaller) {
             return ctx;
         } else {
+            ExecutorService executor = ThreadPoolFactory.getInstance().getWorkerExecutor();
             executor.submit(new WorkerExecutor(ctx, false));
             return null;
         }
