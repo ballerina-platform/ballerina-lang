@@ -9,6 +9,7 @@ public struct anyStruct {}
 
 public struct annotationData {
     string name;
+    string pkgName;
     anyStruct value;
 }
 

@@ -18,15 +18,14 @@ package org.ballerinalang.nativeimpl.internal;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BLangVMStructs;
+import org.ballerinalang.connector.impl.ConnectorSPIModelHelper;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.model.values.LockableStructureType;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.util.codegen.PackageInfo;
-import org.ballerinalang.util.codegen.PackageVarInfo;
 import org.ballerinalang.util.codegen.StructInfo;
 
 /**
@@ -36,16 +35,12 @@ import org.ballerinalang.util.codegen.StructInfo;
  */
 abstract class AbstractAnnotationReader extends AbstractNativeFunction {
 
-    private static final String ANNOTATION_DATA = "$annotation_data";
     private static final String PKG_INTERNAL = "ballerina.internal";
     private static final String STRUCT_ANNOTATION = "annotationData";
     static final String DOT = ".";
 
     BValue getAnnotationValue(Context context, String pkgPath, String key) {
-        PackageInfo packageInfo = context.getProgramFile().getPackageInfo(pkgPath);
-        PackageVarInfo annotationData = packageInfo.getPackageVarInfo(ANNOTATION_DATA);
-        final LockableStructureType globalMemoryBlock = context.programFile.getGlobalMemoryBlock();
-        BMap bMap = (BMap) globalMemoryBlock.getRefField(annotationData.getGlobalMemIndex());
+        final BMap bMap = ConnectorSPIModelHelper.getAnnotationVariable(pkgPath, context.programFile);
         return createAnnotationStructArray(context, bMap.get(key));
     }
 
@@ -59,8 +54,10 @@ abstract class AbstractAnnotationReader extends AbstractNativeFunction {
         BMap<String, BValue> annotationMap = (BMap<String, BValue>) map;
         long index = 0;
         for (String key : annotationMap.keySet()) {
+            final String annotaionQName = key.split("\\$")[0];
+            final String[] qNameParts = annotaionQName.split(":");
             final BStruct annotation =
-                    BLangVMStructs.createBStruct(structInfo, key.split("\\$")[0], annotationMap.get(key));
+                    BLangVMStructs.createBStruct(structInfo, qNameParts[1], qNameParts[0], annotationMap.get(key));
             annotationArray.add(index++, annotation);
         }
         return annotationArray;
