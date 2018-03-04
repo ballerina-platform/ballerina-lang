@@ -46,16 +46,19 @@ public class DefaultHttpWsConnectorFactory implements HttpWsConnectorFactory {
 
     private final EventLoopGroup bossGroup;
     private final EventLoopGroup workerGroup;
+    private final EventLoopGroup clientGroup;
     private final ChannelGroup allChannels = new DefaultChannelGroup(GlobalEventExecutor.INSTANCE);
 
     public DefaultHttpWsConnectorFactory() {
         bossGroup = new NioEventLoopGroup(Runtime.getRuntime().availableProcessors());
         workerGroup = new NioEventLoopGroup(Runtime.getRuntime().availableProcessors() * 2);
+        clientGroup = new NioEventLoopGroup(Runtime.getRuntime().availableProcessors() * 2);
     }
 
-    public DefaultHttpWsConnectorFactory(int serverSocketThreads, int childSocketThreads) {
+    public DefaultHttpWsConnectorFactory(int serverSocketThreads, int childSocketThreads, int clientThreads) {
         bossGroup = new NioEventLoopGroup(serverSocketThreads);
         workerGroup = new NioEventLoopGroup(childSocketThreads);
+        clientGroup = new NioEventLoopGroup(clientThreads);
     }
 
     @Override
@@ -85,7 +88,7 @@ public class DefaultHttpWsConnectorFactory implements HttpWsConnectorFactory {
             Map<String, Object> transportProperties, SenderConfiguration senderConfiguration) {
         BootstrapConfiguration bootstrapConfig = new BootstrapConfiguration(transportProperties);
         ConnectionManager connectionManager = new ConnectionManager(senderConfiguration.getPoolConfiguration(),
-                bootstrapConfig, workerGroup);
+                bootstrapConfig, clientGroup);
         return new DefaultHttpClientConnector(connectionManager, senderConfiguration);
     }
 
@@ -99,5 +102,6 @@ public class DefaultHttpWsConnectorFactory implements HttpWsConnectorFactory {
         this.allChannels.close().sync();
         this.workerGroup.shutdownGracefully().sync();
         this.bossGroup.shutdownGracefully().sync();
+        this.clientGroup.shutdownGracefully().sync();
     }
 }
