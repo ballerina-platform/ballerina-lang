@@ -24,8 +24,6 @@ import io.netty.channel.group.ChannelGroup;
 import io.netty.channel.group.DefaultChannelGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.util.concurrent.GlobalEventExecutor;
-import org.wso2.transport.http.netty.common.Constants;
-import org.wso2.transport.http.netty.common.Util;
 import org.wso2.transport.http.netty.config.ListenerConfiguration;
 import org.wso2.transport.http.netty.config.SenderConfiguration;
 import org.wso2.transport.http.netty.contract.HttpClientConnector;
@@ -86,10 +84,8 @@ public class DefaultHttpWsConnectorFactory implements HttpWsConnectorFactory {
     public HttpClientConnector createHttpClientConnector(
             Map<String, Object> transportProperties, SenderConfiguration senderConfiguration) {
         BootstrapConfiguration bootstrapConfig = new BootstrapConfiguration(transportProperties);
-        EventLoopGroup clientEventLoopGroup = new NioEventLoopGroup(
-                Util.getIntProperty(transportProperties, Constants.CLIENT_BOOTSTRAP_WORKER_GROUP_SIZE, 4));
         ConnectionManager connectionManager = new ConnectionManager(senderConfiguration.getPoolConfiguration(),
-                bootstrapConfig, clientEventLoopGroup);
+                bootstrapConfig, workerGroup);
         return new DefaultHttpClientConnector(connectionManager, senderConfiguration);
     }
 
