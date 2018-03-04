@@ -40,6 +40,4 @@ public interface TraceManager {
 
     Map<String, String> inject(Map<String, Object> activeSpanMap, Object format, String serviceName);
 
-    Map<String, Object> getActiveSpanMap(String serviceName);
-
 }
