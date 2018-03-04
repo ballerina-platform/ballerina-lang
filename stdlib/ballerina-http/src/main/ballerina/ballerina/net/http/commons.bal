@@ -2,7 +2,7 @@ package ballerina.net.http;
 
 import ballerina.mime;
 
-function getHeadersFromEntity (mime:Entity entity) (map) {
+function getAllHeadersFromEntity (mime:Entity entity) (map) {
     return entity.headers;
 }
 
