@@ -304,7 +304,6 @@ public class CodeGenerator extends BLangNodeVisitor {
         programFile = new ProgramFile();
         // TODO: Fix this. Added temporally for codegen. Load this from VM side.
         genPackage(this.symTable.builtInPackageSymbol);
-        genPackage(this.symTable.runtimePackageSymbol);
 
         // Normal Flow.
         BPackageSymbol pkgSymbol = pkgNode.symbol;
@@ -2633,7 +2632,8 @@ public class CodeGenerator extends BLangNodeVisitor {
 
         ErrorTableAttributeInfo errorTable = createErrorTableIfAbsent(currentPkgInfo);
         Operand transStmtEndAddr = getOperand(-1);
-        Instruction gotoFailedTransBlockEnd = InstructionFactory.get(InstructionCodes.GOTO, transStmtEndAddr);
+        Operand transStmtAbortEndAddr = getOperand(-1);
+        Instruction gotoFailedTransBlockEnd = InstructionFactory.get(InstructionCodes.GOTO, transStmtAbortEndAddr);
         abortInstructions.push(gotoFailedTransBlockEnd);
 
         //start transaction
@@ -2649,7 +2649,7 @@ public class CodeGenerator extends BLangNodeVisitor {
 
         //end the transaction
         int transBlockEndAddr = nextIP();
-        this.emit(InstructionCodes.TR_END, getOperand(TransactionStatus.SUCCESS.value()));
+        this.emit(InstructionCodes.TR_END, getOperand(transactionIndex), getOperand(TransactionStatus.SUCCESS.value()));
 
         abortInstructions.pop();
 
@@ -2657,22 +2657,25 @@ public class CodeGenerator extends BLangNodeVisitor {
 
         // CodeGen for error handling.
         int errorTargetIP = nextIP();
-        emit(InstructionCodes.TR_END, getOperand(TransactionStatus.FAILED.value()));
+        emit(InstructionCodes.TR_END, getOperand(transactionIndex), getOperand(TransactionStatus.FAILED.value()));
         if (transactionNode.failedBody != null) {
             this.genNode(transactionNode.failedBody, this.env);
 
         }
         emit(InstructionCodes.GOTO, transBlockStartAddr);
         retryInsAddr.value = nextIP();
-        emit(InstructionCodes.TR_END, getOperand(TransactionStatus.END.value()));
+        emit(InstructionCodes.TR_END, getOperand(transactionIndex), getOperand(TransactionStatus.END.value()));
 
         emit(InstructionCodes.THROW, getOperand(-1));
         ErrorTableEntry errorTableEntry = new ErrorTableEntry(transBlockStartAddr.value,
                 transBlockEndAddr, errorTargetIP, 0, -1);
         errorTable.addErrorTableEntry(errorTableEntry);
 
+        transStmtAbortEndAddr.value = nextIP();
+        emit(InstructionCodes.TR_END, getOperand(transactionIndex), getOperand(TransactionStatus.ABORTED.value()));
+
         transStmtEndAddr.value = nextIP();
-        emit(InstructionCodes.TR_END, getOperand(TransactionStatus.END.value()));
+        emit(InstructionCodes.TR_END, getOperand(transactionIndex), getOperand(TransactionStatus.END.value()));
     }
 
     public void visit(BLangAbort abortNode) {
