@@ -73,9 +73,9 @@ public abstract class AbstractNativeAction implements NativeUnit, Action {
         throw new ArgumentOutOfRangeException(index);
     }
 
-    public int getIntArgument(Context context, int index) {
+    public long getIntArgument(Context context, int index) {
         if (index > -1) {
-            return (int) context.getControlStack().getCurrentFrame().getLongRegs()[index];
+            return context.getControlStack().getCurrentFrame().getLongRegs()[index];
         }
         throw new ArgumentOutOfRangeException(index);
     }
@@ -87,11 +87,12 @@ public abstract class AbstractNativeAction implements NativeUnit, Action {
         throw new ArgumentOutOfRangeException(index);
     }
 
-    public long getLongArgument(Context context, int index) {
+    public double getFloatArgument(Context context, int index) {
         if (index > -1) {
-            return (long) context.getControlStack().getCurrentFrame().getDoubleRegs()[index];
+            return context.getControlStack().getCurrentFrame().getDoubleRegs()[index];
+        } else {
+            throw new ArgumentOutOfRangeException(index);
         }
-        throw new ArgumentOutOfRangeException(index);
     }
 
     public boolean getBooleanArgument(Context context, int index) {
