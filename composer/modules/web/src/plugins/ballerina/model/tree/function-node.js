@@ -69,6 +69,13 @@ class FunctionNode extends AbstractFunctionNode {
         }
     }
 
+    /**
+     * indicates wheather this function has return types
+     */
+    get hasReturnTypes() {
+        return this.returnParameters && this.returnParameters.length > 0;
+    }
+
 }
 
 export default FunctionNode;

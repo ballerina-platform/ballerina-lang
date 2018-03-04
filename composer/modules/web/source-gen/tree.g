@@ -129,10 +129,10 @@ ForkJoin
    ;
 
 Function
-   : <lambda?> <annotationAttachments>* function              ( <parameters-joined-by,>* ) ( <returnParameters-joined-by,>+ ) { <body.source> <workers>* }
+   : <lambda?> <annotationAttachments>* function              ( <parameters-joined-by,>* ) <hasReturnTypes?returns> ( <returnParameters-joined-by,>+ ) { <body.source> <workers>* }
    | <lambda?> <annotationAttachments>* function              ( <parameters-joined-by,>* ) { <body.source> <workers>* }
-   |           <annotationAttachments>* <public?public> function < <receiver.source> > <name.value> ( <parameters-joined-by,>* ) ( <returnParameters-joined-by,>+ ) { <body.source> <workers>* }
-   |           <annotationAttachments>* <public?public> function <name.value> ( <parameters-joined-by,>* ) ( <returnParameters-joined-by,>+ ) { <body.source> <workers>* }
+   |           <annotationAttachments>* <public?public> function < <receiver.source> > <name.value> ( <parameters-joined-by,>* ) <hasReturnTypes?returns>  ( <returnParameters-joined-by,>+ ) { <body.source> <workers>* }
+   |           <annotationAttachments>* <public?public> function <name.value> ( <parameters-joined-by,>* ) <hasReturnTypes?returns> ( <returnParameters-joined-by,>+ ) { <body.source> <workers>* }
    |           <annotationAttachments>* <public?public> function < <receiver.source> > <name.value> ( <parameters-joined-by,>* ) { <body.source> <workers>* }
    |           <annotationAttachments>* <public?public> function <name.value> ( <parameters-joined-by,>* ) { <body.source> <workers>* }
    ;
