@@ -210,7 +210,7 @@ public class TransactionResourceManager {
 
     void rollbackTransaction(String transactionId) {
         endXATransaction(transactionId);
-        notifyAbort(transactionId);
+        notifyAbort(transactionId, 0);
     }
 
     private void removeContextsFromRegistry(String transactionId) {
