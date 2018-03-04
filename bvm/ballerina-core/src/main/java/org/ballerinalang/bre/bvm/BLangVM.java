@@ -2705,9 +2705,10 @@ public class BLangVM {
             }
         }
         LocalTransactionInfo localTransactionInfo = context.getLocalTransactionInfo();
+        boolean isInitiator = true;
         if (localTransactionInfo == null) {
             BValue[] returns = notifyTransactionBegin(null,  null, transactionBlockId,
-                    TransactionConstants.DEFAULT_COORDINATION_TYPE);
+                    TransactionConstants.DEFAULT_COORDINATION_TYPE, isInitiator);
             BStruct txDataStruct = (BStruct) returns[0];
             String globalTransactionId = txDataStruct.getStringField(1);
             String protocol = txDataStruct.getStringField(2);
@@ -2715,8 +2716,9 @@ public class BLangVM {
             localTransactionInfo = new LocalTransactionInfo(globalTransactionId, url, protocol);
             context.setLocalTransactionInfo(localTransactionInfo);
         } else {
+            isInitiator = false;
             notifyTransactionBegin(localTransactionInfo.getGlobalTransactionId(),
-                    localTransactionInfo.getURL(), transactionBlockId, localTransactionInfo.getProtocol());
+                    localTransactionInfo.getURL(), transactionBlockId, localTransactionInfo.getProtocol(), isInitiator);
         }
         localTransactionInfo.beginTransactionBlock(transactionBlockId, retryCount);
     }
@@ -2731,7 +2733,7 @@ public class BLangVM {
 
     private void endTransaction(int transactionBlockId, int status) {
         LocalTransactionInfo localTransactionInfo = context.getLocalTransactionInfo();
-        boolean notifyCoorinator = false;
+        boolean notifyCoorinator;
         try {
             //In success case no need to do anything as with the transaction end phase it will be committed.
             if (status == TransactionStatus.FAILED.value()) {
@@ -2758,14 +2760,18 @@ public class BLangVM {
     }
 
     private BValue[] notifyTransactionBegin(String glbalTransactionId, String url, int transactionBlockId,
-            String protocol) {
+            String protocol, boolean isInitiator) {
         BValue[] args = {
                 new BString(glbalTransactionId), new BInteger(transactionBlockId), new BString(url),
                 new BString(protocol)
         };
         BValue[] returns = invokeCoordinatorFunction(TransactionConstants.COORDINATOR_BEGIN_TRANSACTION, args);
-        if (returns[1] != null) {
-            throw new BallerinaException("error in transaction start: " + ((BStruct) returns[1]).getStringField(0));
+        //TODO: errors returned for the nested transaction are ignored and joined them to the initiator transaction.
+        //Fix the error code once the transaction spec is finalized for the nested transactions.
+        if (isInitiator) {
+            if (returns[1] != null) {
+                throw new BallerinaException("error in transaction start: " + ((BStruct) returns[1]).getStringField(0));
+            }
         }
         return returns;
     }
