@@ -36,7 +36,7 @@ public class OpenTracerManager implements TraceManager {
     /**
      * Method to extract span context from a carrier.
      *
-     * @param format      Format<TextMap> format in which the span context is received.
+     * @param format      {@code (Format<TextMap>)} format in which the span context is received.
      * @param httpHeaders the properties map extracted and used to create span context.
      * @param serviceName to retrieve the relevant tracer instance.
      * @return the span context which includes tracer specific spans.
@@ -61,7 +61,8 @@ public class OpenTracerManager implements TraceManager {
      * Method to inject a span context to a carrier.
      *
      * @param activeSpanMap the spans to be injected to the carrier.
-     * @param format        the format (Format<TextMap>) in which the span context will be injected to the carrier.
+     * @param format        the format {@code (Format<TextMap>)} in which the span context will be injected to the
+     *                      carrier.
      * @param serviceName   to retrieve the relevant tracer instance.
      * @return the carrier with the injected the span context.
      */
