@@ -39,7 +39,15 @@ public class BLangScheduler {
         return schedule(ctx, ctx.runInCaller);
     }
     
+    /**
+     * This method executes a scheduled worker execution context which is in CREATED state,
+     * which means, it is not yet ready for executing. This method will immediately execute
+     * the worker in the current thread. This method must be called after a call to the 
+     * {@link BLangScheduler#schedule(WorkerExecutionContext) method. 
+     * @param ctx the worker execution context
+     */
     public static void executeNow(WorkerExecutionContext ctx) {
+        ctx.state = WorkerState.RUNNING;
         CPU.exec(ctx);
     }
     

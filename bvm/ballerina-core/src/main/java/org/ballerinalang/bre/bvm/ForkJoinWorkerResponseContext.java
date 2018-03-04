@@ -78,8 +78,6 @@ public class ForkJoinWorkerResponseContext extends InvocableWorkerResponseContex
     @Override
     public WorkerExecutionContext signal(WorkerSignal signal) {
         switch (signal.getType()) {
-            case BREAK:
-                break;
             case ERROR:
                 //TODO can we run the erro flow in same thread?
                 this.doError(signal);

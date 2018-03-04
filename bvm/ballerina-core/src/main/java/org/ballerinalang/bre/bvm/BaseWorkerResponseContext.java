@@ -64,12 +64,11 @@ public abstract class BaseWorkerResponseContext implements WorkerResponseContext
     @Override
     public WorkerExecutionContext signal(WorkerSignal signal) {
         switch (signal.getType()) {
-        case BREAK:
-            break;
         case ERROR:
             this.doError(signal);
             break;
         case MESSAGE:
+            this.doMessage(signal);
             break;
         case HALT:
             return this.doHalt(signal);
@@ -80,11 +79,15 @@ public abstract class BaseWorkerResponseContext implements WorkerResponseContext
         }
         return null;
     }
+        
+    protected void doMessage(WorkerSignal signal) { }
 
-    private void handleAlreadyReturned() {
+    protected void handleAlreadyReturned(WorkerSignal signal) {
         PrintStream out = System.out;
-        out.println("Callable already returned");
-        // TODO
+        WorkerExecutionContext sourceCtx = signal.getSourceContext();
+        out.println("error: worker '" + sourceCtx.workerInfo.getWorkerName() + 
+                "' trying to return on already returned callable '" + 
+                signal.getSourceContext().callableUnitInfo + "'.");
     }
 
     protected synchronized WorkerExecutionContext doHalt(WorkerSignal signal) {
@@ -95,7 +98,7 @@ public abstract class BaseWorkerResponseContext implements WorkerResponseContext
             return this.onHaltFinalized();
         }
         if (this.isFinalizedError()) {
-            this.onFinalizedError(this.createCallFailedError(sourceCtx, this.workerErrors));
+            this.onFinalizedError(BLangVMErrors.createCallFailedException(sourceCtx, this.workerErrors));
         }
         return null;
     }
@@ -123,7 +126,7 @@ public abstract class BaseWorkerResponseContext implements WorkerResponseContext
         BStruct error = sourceCtx.getError();
         this.workerErrors.put(sourceCtx.workerInfo.getWorkerName(), error);
         if (this.isFinalizedError()) {
-            this.onFinalizedError(this.createCallFailedError(sourceCtx, this.workerErrors));
+            this.onFinalizedError(BLangVMErrors.createCallFailedException(sourceCtx, this.workerErrors));
         }
     }
     
@@ -138,14 +141,10 @@ public abstract class BaseWorkerResponseContext implements WorkerResponseContext
         }
     }
 
-    private BStruct createCallFailedError(WorkerExecutionContext ctx, Map<String, BStruct> errors) {
-        return BLangVMErrors.createCallFailedException(ctx, errors);
-    }
-
     protected WorkerExecutionContext doReturn(WorkerSignal signal) {
         WorkerExecutionContext runInCallerCtx = null;
         if (this.fulfilled.getAndSet(true)) {
-            this.handleAlreadyReturned();
+            this.handleAlreadyReturned(signal);
         } else {
             this.currentSignal = signal;
             runInCallerCtx = this.onFinalizedReturn(true);

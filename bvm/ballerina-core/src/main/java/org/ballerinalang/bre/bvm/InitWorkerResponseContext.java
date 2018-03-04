@@ -33,8 +33,6 @@ public class InitWorkerResponseContext implements WorkerResponseContext {
     @Override
     public WorkerExecutionContext signal(WorkerSignal signal) {
         switch (signal.getType()) {
-        case BREAK:
-            break;
         case ERROR:
             this.errored = true;
             BLangScheduler.errorThrown(this.targetCtx, signal.getSourceContext().getError());
