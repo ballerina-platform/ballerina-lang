@@ -18,7 +18,7 @@
 package org.ballerinalang.connector.api;
 
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.connector.impl.StructHelper;
+import org.ballerinalang.connector.impl.ConnectorSPIModelHelper;
 import org.ballerinalang.model.types.BStructType;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.util.codegen.PackageInfo;
@@ -30,7 +30,7 @@ import org.ballerinalang.util.codegen.StructInfo;
  *
  * @since 0.94
  */
-public class ConnectorUtils extends StructHelper {
+public class ConnectorUtils extends ConnectorSPIModelHelper {
 
     /**
      * This method is used to create a struct given the resource and required struct details.
@@ -78,6 +78,7 @@ public class ConnectorUtils extends StructHelper {
      * @param protocolPkgPath Package of the registered protocol of the server connector.
      * @return BallerinaServerConnector which matches to the given protocol package.
      */
+    @Deprecated
     public static BallerinaServerConnector getBallerinaServerConnector(ProgramFile programFile,
                                                                        String protocolPkgPath) {
         return programFile.getServerConnectorRegistry().getBallerinaServerConnector(protocolPkgPath);
@@ -91,6 +92,7 @@ public class ConnectorUtils extends StructHelper {
      * @param protocolPkgPath Package of the registered protocol of the server connector.
      * @return BallerinaServerConnector which matches to the given protocol package.
      */
+    @Deprecated
     public static BallerinaServerConnector getBallerinaServerConnector(Context context, String protocolPkgPath) {
         ProgramFile programFile = context.getProgramFile();
         return getBallerinaServerConnector(programFile, protocolPkgPath);

@@ -19,25 +19,22 @@ package org.ballerinalang.connector.impl;
 
 import org.ballerinalang.connector.api.AnnAttrValue;
 import org.ballerinalang.connector.api.Annotation;
-
-import java.util.LinkedHashMap;
-import java.util.Map;
+import org.ballerinalang.connector.api.Struct;
 
 /**
  * {@code BAnnotation} This is the implementation for the {@code Annotation} API.
  *
  * @since 0.94
  */
-public class BAnnotation implements Annotation {
+public class AnnotationImpl implements Annotation {
     private String name;
     private String pkgPath;
+    private StructImpl value;
 
-    //key - attributeName, value - annotation value
-    private Map<String, AnnAttrValue> attributeValueMap = new LinkedHashMap<>();
-
-    public BAnnotation(String name, String pkgPath) {
+    AnnotationImpl(String name, String pkgPath, StructImpl value) {
         this.name = name;
         this.pkgPath = pkgPath;
+        this.value = value;
     }
 
     public String getName() {
@@ -49,11 +46,17 @@ public class BAnnotation implements Annotation {
     }
 
     @Override
-    public AnnAttrValue getAnnAttrValue(String attributeName) {
-        return attributeValueMap.get(attributeName);
+    public Struct getValue() {
+        return value;
     }
 
+    @Override
+    @Deprecated
+    public AnnAttrValue getAnnAttrValue(String attributeName) {
+        return null;
+    }
+
+    @Deprecated
     public void addAnnotationValue(String attributeName, AnnAttrValue annotationValue) {
-        attributeValueMap.put(attributeName, annotationValue);
     }
 }

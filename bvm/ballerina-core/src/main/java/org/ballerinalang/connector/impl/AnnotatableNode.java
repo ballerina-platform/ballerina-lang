@@ -25,15 +25,15 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * {@code AbstractServiceResource} This is service resource level abstraction which contains annotations for
- * both services and resources.
+ * {@code AnnotatableNode} represents a node which contains annotations
  *
  * @since 0.94
  */
-public class AbstractServiceResource {
+public abstract class AnnotatableNode {
+
+    public abstract String getAnnotationEntryKey();
 
     //key - packagePath:annotationName, value - annotation
-    //with below impl however only one annotation can be there with same name for a resource todo
     protected Map<String, List<Annotation>> annotationMap = new HashMap<>();
 
     protected void addAnnotation(String key, Annotation annotation) {
