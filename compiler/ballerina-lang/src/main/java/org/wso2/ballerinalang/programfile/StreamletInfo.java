@@ -63,7 +63,8 @@ public class StreamletInfo extends StructureTypeInfo {
         super(pkgPathCPIndex, nameCPIndex, flags);
     }
 
-    public StreamletInfo(int pkgPathCPIndex, int nameCPIndex, int siddhiQueryCPIndex, int streamIdsAsStringCPIndex, int flags) {
+    public StreamletInfo(int pkgPathCPIndex, int nameCPIndex, int siddhiQueryCPIndex, int streamIdsAsStringCPIndex,
+                         int flags) {
         super(pkgPathCPIndex, nameCPIndex, flags);
         this.siddhiQueryCPIndex = siddhiQueryCPIndex;
         this.streamIdsAsStringCPIndex = streamIdsAsStringCPIndex;
