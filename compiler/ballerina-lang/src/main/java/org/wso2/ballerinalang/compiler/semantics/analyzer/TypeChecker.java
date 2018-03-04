@@ -587,7 +587,7 @@ public class TypeChecker extends BLangNodeVisitor {
                 List<BType> paramTypes = Lists.of(exprType);
                 List<BType> retTypes = Lists.of(symTable.typeType);
                 BInvokableType opType = new BInvokableType(paramTypes, retTypes, null);
-                if (exprType.tag == TypeTags.ANY || exprType.tag == TypeTags.JSON) {
+                if (!types.isValueType(exprType)) {
                     BOperatorSymbol symbol = new BOperatorSymbol(names.fromString(OperatorKind.TYPEOF.value()),
                             symTable.rootPkgSymbol.pkgID, opType, symTable.rootPkgSymbol, InstructionCodes.TYPEOF);
                     unaryExpr.opSymbol = symbol;
@@ -916,7 +916,6 @@ public class TypeChecker extends BLangNodeVisitor {
             // Check for function pointer.
             iExpr.functionPointerInvocation = true;
         }
-
         // Set the resolved function symbol in the invocation expression.
         // This is used in the code generation phase.
         iExpr.symbol = funcSymbol;
@@ -948,7 +947,6 @@ public class TypeChecker extends BLangNodeVisitor {
                 dlog.error(iExpr.pos, DiagnosticCode.STRUCT_INITIALIZER_INVOKED, structType.tsymbol.toString());
             }
         }
-
         iExpr.symbol = funcSymbol;
         checkInvocationParamAndReturnType(iExpr);
     }
@@ -964,7 +962,6 @@ public class TypeChecker extends BLangNodeVisitor {
             resultTypes = getListWithErrorTypes(expTypes.size());
             return;
         }
-
         iExpr.symbol = funcSymbol;
         checkInvocationParamAndReturnType(iExpr);
     }

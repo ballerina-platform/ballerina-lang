@@ -12,7 +12,6 @@ service<http> nestedparts {
         //Extract multiparts from the inbound request.
         mime:Entity[] parentParts = req.getMultiparts();
         int i = 0;
-        io:println("Hello!");
         //Loop through parent parts.
         while (i < lengthof parentParts) {
             mime:Entity parentPart = parentParts[i];

@@ -17,6 +17,7 @@
  */
 package org.ballerinalang.test.services.nativeimpl.inbound.response;
 
+import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpHeaders;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
@@ -45,7 +46,6 @@ import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 import static org.ballerinalang.mime.util.Constants.APPLICATION_FORM;
 import static org.ballerinalang.mime.util.Constants.APPLICATION_JSON;
 import static org.ballerinalang.mime.util.Constants.APPLICATION_XML;
-import static org.ballerinalang.mime.util.Constants.CONTENT_TYPE;
 import static org.ballerinalang.mime.util.Constants.ENTITY_BYTE_CHANNEL;
 import static org.ballerinalang.mime.util.Constants.IS_BODY_BYTE_CHANNEL_ALREADY_SET;
 import static org.ballerinalang.mime.util.Constants.MEDIA_TYPE;
@@ -100,7 +100,7 @@ public class InResponseNativeFunctionSuccessTest {
         HTTPCarbonMessage inResponseMsg = HttpUtil.createHttpCarbonMessage(false);
 
         String payload = "ballerina";
-        inResponseMsg.setHeader(HttpConstants.HTTP_CONTENT_LENGTH, String.valueOf(payload.length()));
+        inResponseMsg.setHeader(HttpHeaderNames.CONTENT_LENGTH.toString(), String.valueOf(payload.length()));
         inResponseMsg.setProperty(HttpConstants.HTTP_STATUS_CODE, 200);
         HttpUtil.addCarbonMsg(inResponse, inResponseMsg);
 
@@ -123,7 +123,7 @@ public class InResponseNativeFunctionSuccessTest {
     public void testGetHeader() {
         BStruct inResponse = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, inResStruct);
         HTTPCarbonMessage inResponseMsg = HttpUtil.createHttpCarbonMessage(false);
-        inResponseMsg.setHeader(CONTENT_TYPE, APPLICATION_FORM);
+        inResponseMsg.setHeader(HttpHeaderNames.CONTENT_TYPE.toString(), APPLICATION_FORM);
         inResponseMsg.setProperty(HttpConstants.HTTP_STATUS_CODE, 200);
         HttpUtil.addCarbonMsg(inResponse, inResponseMsg);
 
@@ -135,7 +135,7 @@ public class InResponseNativeFunctionSuccessTest {
                                                          .getStructInfo(cacheControlStruct));
         HttpUtil.populateInboundResponse(inResponse, entity, mediaType, cacheControl, inResponseMsg);
 
-        BString key = new BString(CONTENT_TYPE);
+        BString key = new BString(HttpHeaderNames.CONTENT_TYPE.toString());
         BValue[] inputArg = {inResponse, key};
         BValue[] returnVals = BRunUtil.invoke(result, "testGetHeader", inputArg);
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,

@@ -121,7 +121,7 @@ function <Cache cache> evictCache () {
 
 @Description {value:"Returns the cached value associated with the given key. Returns null if the provided key does not exist in the cache."}
 @Param {value:"key: key which is used to retrieve the cached value"}
-@Return {value:"The cached value associated with the given key"}
+@Return { value:"The cached value associated with the given key" }
 public function <Cache cache> get (string key) returns (any) {
     any value = cache.entries[key];
     if (value == null) {

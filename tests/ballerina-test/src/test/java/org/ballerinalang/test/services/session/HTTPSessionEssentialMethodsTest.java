@@ -18,6 +18,7 @@
 
 package org.ballerinalang.test.services.session;
 
+import io.netty.handler.codec.http.HttpHeaderNames;
 import org.ballerinalang.launcher.util.BServiceUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.util.StringUtils;
@@ -411,7 +412,7 @@ public class HTTPSessionEssentialMethodsTest {
     @Test(description = "Test for struct attribute")
     public void testSessionForStructAttribute() {
         List<Header> headers = new ArrayList<Header>();
-        headers.add(new Header("Content-Type", TEXT_PLAIN));
+        headers.add(new Header(HttpHeaderNames.CONTENT_TYPE.toString(), TEXT_PLAIN));
         HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage("/sample2/myStruct", "POST", headers, "wso2");
         HTTPCarbonMessage response = Services.invokeNew(compileResult, cMsg);
         Assert.assertNotNull(response);
@@ -438,7 +439,7 @@ public class HTTPSessionEssentialMethodsTest {
     @Test(description = "Test for POST method string attribute")
     public void testPOSTForStringOutput() {
         List<Header> headers = new ArrayList<Header>();
-        headers.add(new Header("Content-Type", TEXT_PLAIN));
+        headers.add(new Header(HttpHeaderNames.CONTENT_TYPE.toString(), TEXT_PLAIN));
         HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage("/sample/hello", "POST", headers, "chamil");
         HTTPCarbonMessage response = Services.invokeNew(compileResult, cMsg);
         Assert.assertNotNull(response);

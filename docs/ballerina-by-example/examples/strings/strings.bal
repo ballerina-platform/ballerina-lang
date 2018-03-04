@@ -79,4 +79,8 @@ function main (string[] args) {
     //Converts the BLOB to the string.
     string s10 = blobValue.toString("UTF-8");
     io:println("Blob: " + s10);
+
+    // Format string according to format arguments
+    string s11 = io:sprintf("%s %f", [array[0], value]);
+    io:println("Sprintf: " + s11);
 }

@@ -22,7 +22,7 @@ import PropTypes from 'prop-types';
 import { parseFile } from 'api-client/api-client';
 import TreeBuilder from 'plugins/ballerina/model/tree-builder';
 import File from 'core/workspace/model/file';
-import { Nav, NavItem } from 'react-bootstrap';
+import { Label } from 'semantic-ui-react';
 import HttpClient from './http-client';
 
 import './try-it-container.scss';
@@ -131,11 +131,11 @@ class TryItContainer extends React.Component {
         } else {
             activeKey = this.state.selectedClientType;
         }
-        return (<Nav bsStyle='pills' activeKey={activeKey} onSelect={this.onClientTypeSelect}>
-            {httpServices.length > 0 ? <NavItem eventKey={'http'}>Try-It for Http</NavItem> : (null)}
-            {wsServices.length > 0 ? <NavItem eventKey={'ws'}>Try-It for Websockets</NavItem> : (null)}
-            {jmsServices.length > 0 ? <NavItem eventKey={'jms'}>Try-It for JMS</NavItem> : (null)}
-        </Nav>);
+        return (<div activeKey={activeKey} onSelect={this.onClientTypeSelect}>
+            {httpServices.length > 0 ? <Label eventKey={'http'}>Try-It for Http</Label> : (null)}
+            {wsServices.length > 0 ? <Label eventKey={'ws'}>Try-It for Websockets</Label> : (null)}
+            {jmsServices.length > 0 ? <Label eventKey={'jms'}>Try-It for JMS</Label> : (null)}
+        </div>);
     }
 
     /**
