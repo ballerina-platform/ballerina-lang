@@ -30,7 +30,7 @@ public interface TraceManager {
     Map<String, Object> buildSpan(long invocationId, String spanName, Map<String, Object> spanContextMap,
                                   Map<String, String> tags, boolean makeActive, String serviceName);
 
-    void finishSpan(List<Object> span, Map<String, Object> parent, String serviceName);
+    void finishSpan(List<Object> span);
 
     void log(List<Object> spanList, Map<String, Object> fields);
 

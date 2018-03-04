@@ -104,8 +104,7 @@ public class TraceManagerWrapper {
 
     public void finishSpan(BTracer bTracer) {
         if (enabled && bTracer.isTraceable()) {
-            manager.finishSpan(new ArrayList<>(bTracer.getSpans().values()),
-                    bTracer.getParentSpanContext(), bTracer.getServiceName());
+            manager.finishSpan(new ArrayList<>(bTracer.getSpans().values()));
         }
     }
 
