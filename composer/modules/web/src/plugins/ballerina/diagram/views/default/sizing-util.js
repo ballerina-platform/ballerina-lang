@@ -420,20 +420,8 @@ class SizingUtil {
         cmp.defaultWorker = new SimpleBBox();
         cmp.defaultWorkerLine = new SimpleBBox();
         cmp.panelBody = new SimpleBBox();
-        cmp.argParameters = new SimpleBBox();
-        cmp.returnParameters = new SimpleBBox();
-        cmp.annotation = new SimpleBBox();
-        cmp.argParameterHolder = {};
-        cmp.returnParameterHolder = {};
         cmp.receiver = new SimpleBBox();
         cmp.client = new SimpleBBox();
-
-        // initialize the annotation status.
-        if (_.isNil(viewState.showAnnotationContainer)) {
-            viewState.showAnnotationContainer = true;
-        }
-        // calculate the annotation height.
-        // cmp.annotation.h = (!viewState.showAnnotationContainer) ? 0 : this._getAnnotationHeight(node, 35);
 
         // calculate client line
         cmp.client.w = this.config.clientLine.width;
@@ -459,19 +447,22 @@ class SizingUtil {
         cmp.defaultWorkerLine.w = workers.length > 0 ? 0 : this.config.lifeLine.width;
         cmp.defaultWorkerLine.h = cmp.defaultWorker.h;
 
+        let defaultWorkerWidth = 0;
+        if (workers.length === 0) {
+            defaultWorkerWidth = cmp.defaultWorker.w + this.config.lifeLine.gutter.h;
+        }
+
         // set the max worker height to other workers.
+        let workersWidth = 0;
         workers.forEach((worker) => {
             worker.viewState.bBox.h = maxWorkerHeight;
             worker.body.viewState.bBox.h = maxWorkerHeight - this.config.lifeLine.head.height
                                              - (this.config.lifeLine.footer.height * 2);
             worker.viewState.components.lifeLine.h = maxWorkerHeight;
             // now add the worker width to panelBody width.
-            cmp.panelBody.w += this.config.lifeLine.gutter.h + worker.viewState.bBox.w;
+            workersWidth += this.config.lifeLine.gutter.h + worker.viewState.bBox.w;
         });
-        // reduce the gutter if default worker not exist.
-        if (workers.length > 0) {
-            cmp.panelBody.w -= this.config.lifeLine.gutter.h;
-        }
+
         // calculate panel body
         cmp.panelBody.h = cmp.defaultWorker.h + this.config.panel.body.padding.top
             + this.config.panel.body.padding.bottom;
@@ -480,57 +471,24 @@ class SizingUtil {
         // calculate parameters
         cmp.heading.h = this.config.panel.heading.height;
 
-        viewState.bBox.h = cmp.heading.h + cmp.panelBody.h + cmp.annotation.h;
+        viewState.bBox.h = cmp.heading.h + cmp.panelBody.h;
 
         const textWidth = this.getTextWidth(node.getName().value);
         viewState.titleWidth = textWidth.w + this.config.panel.heading.title.margin.right
             + this.config.panelHeading.iconSize.width;
 
-        // Creating components for argument parameters
-        if (node.getParameters()) {
-            // Creating component for opening bracket of the parameters view.
-            cmp.argParameterHolder.openingParameter = {};
-            cmp.argParameterHolder.openingParameter.w = this.getTextWidth('(', 0).w;
-
-            // Creating component for closing bracket of the parameters view.
-            cmp.argParameterHolder.closingParameter = {};
-            cmp.argParameterHolder.closingParameter.w = this.getTextWidth(')', 0).w;
-
-            cmp.heading.w += cmp.argParameterHolder.openingParameter.w
-                + cmp.argParameterHolder.closingParameter.w
-                + this.getParameterTypeWidth(node.getParameters()) + 120;
-        }
-
-        // Creating components for return types
-        if (node.getReturnParameters()) {
-            // Creating component for the Return type text.
-            cmp.returnParameterHolder.returnTypesIcon = {};
-            cmp.returnParameterHolder.returnTypesIcon.w = this.getTextWidth('returns', 0).w;
-
-            // Creating component for opening bracket of the return types view.
-            cmp.returnParameterHolder.openingReturnType = {};
-            cmp.returnParameterHolder.openingReturnType.w = this.getTextWidth('(', 0).w;
-
-            // Creating component for closing bracket of the return types view.
-            cmp.returnParameterHolder.closingReturnType = {};
-            cmp.returnParameterHolder.closingReturnType.w = this.getTextWidth(')', 0).w;
-
-            cmp.heading.w += cmp.returnParameterHolder.returnTypesIcon.w
-                + cmp.returnParameterHolder.openingReturnType.w
-                + cmp.returnParameterHolder.closingReturnType.w
-                + this.getParameterTypeWidth(node.getReturnParameters()) + 120;
-        }
         // here we add the public/private falg, remove and hide button width to the header.
-        cmp.heading.w += viewState.titleWidth + 280 + (this.config.panel.buttonWidth * 3);
+        cmp.heading.w += viewState.titleWidth + (this.config.panel.buttonWidth * 3);
 
         // Set the size of the connector declarations
         const statements = node.body.statements;
+        let connectorWidth = 0;
         if (statements instanceof Array) {
             statements.forEach((statement) => {
                 if (TreeUtil.isEndpointTypeVariableDef(statement)) {
                     statement.viewState.bBox.w = this.config.lifeLine.width;
                     // add the connector width to panel body width.
-                    cmp.panelBody.w += this.config.lifeLine.gutter.h + this.config.lifeLine.width;
+                    connectorWidth += this.config.lifeLine.gutter.h + this.config.lifeLine.width;
                     statement.viewState.bBox.h = node.viewState.components.defaultWorker.h;
                 }
             });
@@ -542,10 +500,18 @@ class SizingUtil {
             }
         }
         // add panel gutter to panelBody
-        cmp.panelBody.w += cmp.defaultWorker.w + (this.config.panel.wrapper.gutter.h * 2);
+        cmp.panelBody.w = this.config.panel.body.padding.left + cmp.client.w + defaultWorkerWidth
+                        + workersWidth + connectorWidth
+                        + this.config.panel.body.padding.right;
 
         // Get the largest among component heading width and component body width.
-        viewState.bBox.w = cmp.heading.w > cmp.panelBody.w ? cmp.heading.w : cmp.panelBody.w;
+        if (cmp.heading.w > cmp.panelBody.w) {
+            viewState.bBox.w = cmp.heading.w;
+            cmp.panelBody.w = cmp.heading.w;
+        } else {
+            viewState.bBox.w = cmp.panelBody.w;
+            cmp.heading.w = cmp.panelBody.w;
+        }
     }
 
     /**

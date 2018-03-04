@@ -409,15 +409,15 @@ class PositioningUtil {
 
         // position the function body.
         funcBodyViewState.bBox.x = viewState.bBox.x + this.config.panel.body.padding.left;
-        funcBodyViewState.bBox.y = viewState.bBox.y + cmp.annotation.h + cmp.heading.h +
+        funcBodyViewState.bBox.y = viewState.bBox.y + cmp.heading.h +
             this.config.panel.body.padding.top + this.config.lifeLine.head.height;
 
         cmp.client.x = viewState.bBox.x + this.config.panel.body.padding.left;
-        cmp.client.y = viewState.bBox.y + cmp.annotation.h + cmp.heading.h + this.config.panel.body.padding.top;
+        cmp.client.y = viewState.bBox.y + cmp.heading.h + this.config.panel.body.padding.top;
 
         // position the default worker.
         cmp.defaultWorker.x = cmp.client.x + cmp.client.w + this.config.lifeLine.gutter.h;
-        cmp.defaultWorker.y = viewState.bBox.y + cmp.annotation.h + cmp.heading.h + this.config.panel.body.padding.top;
+        cmp.defaultWorker.y = viewState.bBox.y + cmp.heading.h + this.config.panel.body.padding.top;
         // position default worker line.
         cmp.defaultWorkerLine.x = cmp.defaultWorker.x;
         cmp.defaultWorkerLine.y = cmp.defaultWorker.y;
@@ -428,61 +428,6 @@ class PositioningUtil {
             + (cmp.defaultWorkerLine.w / 2);
         body.viewState.bBox.y = cmp.defaultWorker.y + this.config.lifeLine.head.height
             + this.config.statement.height;
-
-        // ========== Header Positioning ==========
-        let publicPrivateFlagoffset = 0;
-        if (node.public) {
-            publicPrivateFlagoffset = 10;
-        }
-        // Positioning argument parameters
-        if (node.getParameters()) {
-            cmp.argParameterHolder.openingParameter.x = viewState.bBox.x + viewState.titleWidth +
-                this.config.panel.heading.title.margin.right + this.config.panelHeading.iconSize.width
-                + this.config.panelHeading.iconSize.padding + publicPrivateFlagoffset + cmp.receiver.w;
-            cmp.argParameterHolder.openingParameter.y = viewState.bBox.y + cmp.annotation.h;
-
-            // Positioning the resource parameters
-            let nextXPositionOfParameter = cmp.argParameterHolder.openingParameter.x
-                + cmp.argParameterHolder.openingParameter.w;
-            if (node.getParameters().length > 0) {
-                for (let i = 0; i < node.getParameters().length; i++) {
-                    const argument = node.getParameters()[i];
-                    nextXPositionOfParameter = this.createPositionForTitleNode(argument, nextXPositionOfParameter,
-                        (viewState.bBox.y + viewState.components.annotation.h));
-                }
-            }
-
-            // Positioning the closing bracket component of the parameters.
-            cmp.argParameterHolder.closingParameter.x = nextXPositionOfParameter + 130;
-            cmp.argParameterHolder.closingParameter.y = viewState.bBox.y + cmp.annotation.h;
-        }
-
-        // Positioning return types
-        if (node.getReturnParameters()) {
-            cmp.returnParameterHolder.returnTypesIcon.x = cmp.argParameterHolder.closingParameter.x
-                + cmp.argParameterHolder.closingParameter.w + 10;
-            cmp.returnParameterHolder.returnTypesIcon.y = viewState.bBox.y + viewState.components.annotation.h + 18;
-
-            // Positioning the opening bracket component of the return types.
-            cmp.returnParameterHolder.openingReturnType.x = cmp.returnParameterHolder.returnTypesIcon.x
-                + cmp.returnParameterHolder.returnTypesIcon.w;
-            cmp.returnParameterHolder.openingReturnType.y = viewState.bBox.y + viewState.components.annotation.h;
-
-            // Positioning the resource parameters
-            let nextXPositionOfReturnType = cmp.returnParameterHolder.openingReturnType.x
-                + cmp.returnParameterHolder.openingReturnType.w;
-            if (node.getReturnParameters().length > 0) {
-                for (let i = 0; i < node.getReturnParameters().length; i++) {
-                    const returnType = node.getReturnParameters()[i];
-                    nextXPositionOfReturnType = this.createPositionForTitleNode(returnType, nextXPositionOfReturnType,
-                        (viewState.bBox.y + viewState.components.annotation.h));
-                }
-            }
-
-            // Positioning the closing bracket component of the parameters.
-            cmp.returnParameterHolder.closingReturnType.x = nextXPositionOfReturnType + 130;
-            cmp.returnParameterHolder.closingReturnType.y = viewState.bBox.y + viewState.components.annotation.h;
-        }
 
         // ========== End of Header ==========
 
