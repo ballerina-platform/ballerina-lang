@@ -47,6 +47,6 @@ public class BServiceType extends BType {
 
     @Override
     public int getTag() {
-        return 0;
+        return TypeTags.SERVICE_TAG;
     }
 }
