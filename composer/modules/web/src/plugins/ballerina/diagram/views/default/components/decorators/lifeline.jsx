@@ -28,7 +28,7 @@ import OverlayComponentsRenderingUtil from './../utils/overlay-component-renderi
 import ActionBox from './action-box';
 import ActiveArbiter from './active-arbiter';
 import ArrowDecorator from '../decorators/arrow-decorator';
-import codepoints from 'font-ballerina/codepoints.json';
+
 
 class LifeLine extends React.Component {
 
@@ -102,14 +102,9 @@ class LifeLine extends React.Component {
         const iconSize = 18;
         const lineClass = `${this.props.classes.lineClass} unhoverable`;
         const textClass = this.props.classes.textClass;
-        const polygonClassTop = this.props.classes.polygonClass;
-        const polygonClassBottom = `${this.props.classes.polygonClass} unhoverable`;
-        const startSolidLineFrom = this.props.startSolidLineFrom;
         const titleBoxH = DesignerDefaults.lifeLine.head.height;
         const y2 = bBox.h + bBox.y;
-        const dashedY1 = !_.isNil(startSolidLineFrom) ? bBox.y + (titleBoxH / 2) : -1;
-        const dashedY2 = !_.isNil(startSolidLineFrom) ? startSolidLineFrom : -1;
-        const solidY1 = !_.isNil(startSolidLineFrom) ? startSolidLineFrom : bBox.y + (titleBoxH / 2);
+        const solidY1 = bBox.y + (titleBoxH / 2);
         const solidY2 = y2;// - (titleBoxH / 2);
         this.topBox = new SimpleBBox(bBox.x, bBox.y, bBox.w, titleBoxH);
 
@@ -117,29 +112,19 @@ class LifeLine extends React.Component {
         const isDefaultWorker = this.props.title === 'default';
         const actionBbox = new SimpleBBox();
         actionBbox.w = isDefaultWorker ? (DesignerDefaults.actionBox.width + 15) / 4
-          : (3 * DesignerDefaults.actionBox.width - 14) / 4;
+          : ((3 * DesignerDefaults.actionBox.width) - 14) / 4;
         actionBbox.h = DesignerDefaults.actionBox.height;
-        actionBbox.x = bBox.x + (bBox.w - actionBbox.w) / 2;
+        actionBbox.x = bBox.x + ((bBox.w - actionBbox.w) / 2);
         actionBbox.y = bBox.y + 20;
         let tooltip = this.props.title;
         if (this.props.tooltip) {
             tooltip = this.props.tooltip;
         }
-        let modifiedCenterValueForTop = startX;
-        const imageX = bBox.x + (DesignerDefaults.iconForTool.width / 4);
-        const imageYTop = bBox.y + (DesignerDefaults.iconForTool.height / 4);
-        const imageYBottom = y2 - titleBoxH + (DesignerDefaults.iconForTool.height / 4);
-        if (this.props.icon) {
-            modifiedCenterValueForTop = bBox.x + DesignerDefaults.iconForTool.width +
-                DesignerDefaults.iconForTool.padding.left;
-        }
+
         let identifier = this.props.title;
-        let iconColor = this.props.iconColor;
+
         if (TreeUtils.isEndpointTypeVariableDef(this.props.model)) {
             identifier = this.props.model.viewState.endpointIdentifier;
-            if (this.props.model.viewState.showOverlayContainer) {
-                iconColor = '#6f7b96';
-            }
         }
 
         const startX = bBox.x + (bBox.w / 2);
@@ -151,15 +136,6 @@ class LifeLine extends React.Component {
         >
 
             <title> {tooltip} </title>
-
-            {!_.isNil(startSolidLineFrom) && <line
-                x1={startX}
-                y1={dashedY1}
-                x2={startX}
-                y2={dashedY2}
-                className={lineClass}
-                strokeDasharray='5, 5'
-            />}
             <line
                 x1={startX}
                 y1={solidY1}
@@ -220,7 +196,9 @@ class LifeLine extends React.Component {
                     isDefaultWorker={isDefaultWorker}
                 />
             }
-            {!TreeUtils.isEndpointTypeVariableDef(this.props.model) &&
+            { (!TreeUtils.isEndpointTypeVariableDef(this.props.model) &&
+                !TreeUtils.isForkJoin(this.props.model.parent)
+                ) &&
                 <ArrowDecorator
                     start={{ x: startX, y: startY }}
                     end={{ x: startX, y: startY }}
@@ -233,10 +211,23 @@ class LifeLine extends React.Component {
 
 LifeLine.propTypes = {
     editorOptions: PropTypes.shape(),
+    model: PropTypes.instanceOf(Object).isRequired,
+    title: PropTypes.string,
+    icon: PropTypes.string,
+    bBox: PropTypes.instanceOf(Object).isRequired,
+    onDelete: PropTypes.func.isRequired,
+    tooltip: PropTypes.string,
+    classes: PropTypes.shape({
+        lineClass: PropTypes.string,
+        textClass: PropTypes.string,
+    }).isRequired,
 };
 
 LifeLine.defaultProps = {
     editorOptions: null,
+    title: 'default',
+    icon: '',
+    tooltip: '',
 };
 
 LifeLine.contextTypes = {
