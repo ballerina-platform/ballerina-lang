@@ -162,6 +162,14 @@ public class SymbolEnter extends BLangNodeVisitor {
         return pkgNode.symbol;
     }
 
+//    public BLangPackage definePackage(BLangPackage pkgNode) {
+//
+//        populatePackageNode(pkgNode, pkgId);
+//
+//        defineNode(pkgNode, null);
+//        return pkgNode;
+//    }
+
     public void defineNode(BLangNode node, SymbolEnv env) {
         SymbolEnv prevEnv = this.env;
         this.env = env;

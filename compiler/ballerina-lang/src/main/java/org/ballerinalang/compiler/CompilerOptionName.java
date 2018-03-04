@@ -24,6 +24,8 @@ package org.ballerinalang.compiler;
  */
 public enum CompilerOptionName {
 
+    PROJECT_DIR("projectDirectory"),
+
     SOURCE_ROOT("-sourceroot"),
 
     PRESERVE_WHITESPACE("preserveWhitespace"),
