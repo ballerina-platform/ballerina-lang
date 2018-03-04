@@ -24,11 +24,13 @@ import org.ballerinalang.natives.annotations.BallerinaAction;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.util.exceptions.BallerinaException;
-import org.ballerinalang.util.tracer.TraceContext;
+import org.ballerinalang.util.tracer.BTracer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.contract.ClientConnectorException;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
+
+import java.util.HashMap;
 
 /**
  * {@code Get} is the GET action implementation of the HTTP Connector.
@@ -51,7 +53,7 @@ import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
         connectorArgs = {
                 @Argument(name = "serviceUri", type = TypeKind.STRING),
                 @Argument(name = "options", type = TypeKind.STRUCT, structType = "Options",
-                          structPackage = "ballerina.net.http")
+                        structPackage = "ballerina.net.http")
         }
 )
 public class Get extends AbstractHTTPAction {
@@ -76,16 +78,17 @@ public class Get extends AbstractHTTPAction {
         HTTPCarbonMessage outboundReqMsg = super.createOutboundRequestMsg(context);
         outboundReqMsg.setProperty(HttpConstants.HTTP_METHOD, HttpConstants.HTTP_METHOD_GET);
 
-        context.getActiveTraceContext().getProperties().forEach((key, value) ->
+        context.getActiveBTracer().getProperties().forEach((key, value) ->
                 outboundReqMsg.setHeader(key, String.valueOf(value)));
-
-        TraceContext tCtx = context.getActiveTraceContext();
-        tCtx.addTag("component", "ballerina");
-        tCtx.addTag("http.method", String.valueOf(outboundReqMsg.getProperty("HTTP_METHOD")));
-        tCtx.addTag("protocol", String.valueOf(outboundReqMsg.getProperty("PROTOCOL")));
-        tCtx.addTag("http.url", String.valueOf(outboundReqMsg.getProperty("TO")));
-        tCtx.addTag("http.host", String.valueOf(outboundReqMsg.getProperty("Host")));
-        tCtx.addTag("http.port", String.valueOf(outboundReqMsg.getProperty("PORT")));
+        BTracer bTracer = context.getActiveBTracer();
+        bTracer.addTags(new HashMap<String, String>() {{
+            put("component", "ballerina");
+            put("http.method", String.valueOf(outboundReqMsg.getProperty("HTTP_METHOD")));
+            put("protocol", String.valueOf(outboundReqMsg.getProperty("PROTOCOL")));
+            put("http.url", String.valueOf(outboundReqMsg.getProperty("TO")));
+            put("http.host", String.valueOf(outboundReqMsg.getProperty("Host")));
+            put("http.port", String.valueOf(outboundReqMsg.getProperty("PORT")));
+        }});
 
         return outboundReqMsg;
     }

@@ -22,14 +22,19 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * TracerManager to load OpenTracerManager.
+ * TraceManager to load OpenTracerManager.
  */
-public interface TracerManager {
+public interface TraceManager {
 
+    // todo: use ? capture instead of objects???
     List<Object> buildSpan(long invocationId, String spanName, Map<String, Object> spanContextMap,
                            Map<String, String> tags, boolean makeActive, String serviceName);
 
     void finishSpan(List<Object> span, Map<String, Object> parent, String serviceName);
+
+    void log(List<Object> spanList, Map<String, Object> fields);
+
+    void addTags(List<Object> spanList, Map<String, String> tags);
 
     Map<String, Object> extract(Object format, Map<String, String> httpHeaders, String serviceName);
 

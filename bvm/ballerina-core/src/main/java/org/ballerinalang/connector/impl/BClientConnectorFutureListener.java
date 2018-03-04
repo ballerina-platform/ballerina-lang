@@ -25,9 +25,10 @@ import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.runtime.threadpool.ResponseWorkerThread;
 import org.ballerinalang.runtime.threadpool.ThreadPoolFactory;
-import org.ballerinalang.util.tracer.BallerinaTracerManager;
-import org.ballerinalang.util.tracer.TraceContext;
+import org.ballerinalang.util.tracer.BTracer;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 
@@ -39,8 +40,7 @@ import java.util.concurrent.TimeUnit;
 public class BClientConnectorFutureListener implements ConnectorFutureListener {
 
     private Context context;
-    private String traceSpanId;
-    private TraceContext traceContext;
+    private BTracer bTracer;
     private boolean nonBlocking = false;
     private volatile Semaphore executionWaitSem;
 
@@ -48,20 +48,20 @@ public class BClientConnectorFutureListener implements ConnectorFutureListener {
         this.context = context;
         this.nonBlocking = nonBlocking;
         this.executionWaitSem = new Semaphore(0);
-        this.traceContext = initActiveTraceContext();
-        this.traceSpanId = BallerinaTracerManager.getInstance().buildSpan(context);
+        this.bTracer = initActiveTraceContext();
     }
 
-    private TraceContext initActiveTraceContext() {
-        TraceContext root = context.getRootTraceContext();
-        TraceContext active = new TraceContext(context, true);
+    private BTracer initActiveTraceContext() {
+        BTracer root = context.getRootBTracer();
+        BTracer active = new BTracer(context, true);
         if (root == null) {
             root = active;
             active.generateInvocationID();
-            context.setRootTraceContext(root);
+            context.setRootBTracer(root);
         }
         active.setInvocationID(root.getInvocationID());
-        context.setActiveTraceContext(active);
+        context.setActiveBTracer(active);
+        active.startSpan();
         return active;
     }
 
@@ -83,16 +83,23 @@ public class BClientConnectorFutureListener implements ConnectorFutureListener {
         BStruct err = BLangVMErrors.createError(context, context.getStartIP() - 1,
                 ex.getMessage());
         context.setError(err);
+
+        Map<String, Object> logProps = new HashMap<>();
+        logProps.put("error.kind", "Exception");
+        logProps.put("error.object", ex);
+        logProps.put("message", ex.getMessage());
+        bTracer.logError(logProps);
+
         done();
     }
 
     private void done() {
         if (nonBlocking) {
             ThreadPoolFactory.getInstance().getExecutor()
-                    .execute(new ResponseWorkerThread(context, traceSpanId));
+                    .execute(new ResponseWorkerThread(context));
         } else {
             executionWaitSem.release();
-            BallerinaTracerManager.getInstance().finishSpan(traceContext, traceSpanId);
+            bTracer.finishSpan();
 //            synchronized (context) {
 //                context.notifyAll();
 //            }

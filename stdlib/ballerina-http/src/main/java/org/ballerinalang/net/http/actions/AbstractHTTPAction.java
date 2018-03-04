@@ -399,6 +399,8 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
             }
 
             ballerinaFuture.notifyReply(null, httpConnectorError);
+            // todo: remove this, this is a workaround
+            ballerinaFuture.notifyFailure(new BallerinaConnectorException(throwable));
         }
 
         private BStruct createStruct(Context context, String structName, String protocolPackage) {

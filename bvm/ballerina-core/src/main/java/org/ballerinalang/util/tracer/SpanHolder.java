@@ -63,6 +63,15 @@ public class SpanHolder {
         return span;
     }
 
+    public SpanReference getSpanReference(String invocationId, String spanId) {
+        Map<String, SpanReference> spans = spanCache.get(invocationId);
+        SpanReference span = null;
+        if (spans != null) {
+            span = spans.get(spanId);
+        }
+        return span;
+    }
+
     /**
      * This is the class holds the reference of the spans that are created and the parent of the spans.
      */

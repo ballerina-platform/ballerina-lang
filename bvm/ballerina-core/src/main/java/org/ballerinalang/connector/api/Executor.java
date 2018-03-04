@@ -22,7 +22,7 @@ import org.ballerinalang.connector.impl.ResourceExecutor;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.runtime.threadpool.BallerinaWorkerThread;
 import org.ballerinalang.runtime.threadpool.ThreadPoolFactory;
-import org.ballerinalang.util.tracer.TraceContext;
+import org.ballerinalang.util.tracer.BTracer;
 
 import java.util.Map;
 
@@ -39,15 +39,15 @@ public class Executor {
      * This method will execute Ballerina resource in blocking manner.
      * So connector thread will have to wait until execution finishes.
      *
-     * @param resource  to be executed.
+     * @param resource   to be executed.
      * @param properties to be passed to context.
-     * @param values    required for the resource.
+     * @param values     required for the resource.
      * @return future object to listen to events if any.
      */
     public static ConnectorFuture execute(Resource resource, Map<String, Object> properties,
-                                          TraceContext traceContext, BValue... values) {
+                                          BTracer bTracer, BValue... values) {
         BServerConnectorFuture connectorFuture = new BServerConnectorFuture();
-        ResourceExecutor.execute(resource, connectorFuture, properties, traceContext, values);
+        ResourceExecutor.execute(resource, connectorFuture, properties, bTracer, values);
         return connectorFuture;
     }
 
@@ -56,18 +56,17 @@ public class Executor {
      * It will use Ballerina worker-pool for the execution and will return the
      * connector thread immediately.
      *
-     * @param resource  to be executed.
+     * @param resource   to be executed.
      * @param properties to be passed to context.
-     * @param values    required for the resource.
+     * @param values     required for the resource.
      * @return future object to listen to events if any.
      */
     public static ConnectorFuture submit(Resource resource, Map<String, Object> properties,
-                                         TraceContext traceContext, BValue... values) {
+                                         BTracer bTracer, BValue... values) {
         BServerConnectorFuture connectorFuture = new BServerConnectorFuture();
         ThreadPoolFactory.getInstance().getExecutor().
-                execute(new BallerinaWorkerThread(resource, connectorFuture, properties, traceContext, values));
+                execute(new BallerinaWorkerThread(resource, connectorFuture, properties, bTracer, values));
         return connectorFuture;
     }
-
 
 }

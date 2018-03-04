@@ -25,7 +25,7 @@ import org.ballerinalang.util.codegen.ActionInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.codegen.ServiceInfo;
 import org.ballerinalang.util.debugger.DebugContext;
-import org.ballerinalang.util.tracer.TraceContext;
+import org.ballerinalang.util.tracer.BTracer;
 import org.wso2.carbon.messaging.CarbonMessage;
 
 import java.util.HashMap;
@@ -48,8 +48,8 @@ public class Context {
     private ServiceInfo serviceInfo;
     private BallerinaTransactionManager ballerinaTransactionManager;
     private DebugContext debugContext;
-    private TraceContext rootTraceContext;
-    private TraceContext activeTraceContext;
+    private BTracer rootBTracer;
+    private BTracer activeBTracer;
 
     private int startIP;
     private BStruct unhandledError;
@@ -81,20 +81,20 @@ public class Context {
         this.debugContext = debugContext;
     }
 
-    public TraceContext getRootTraceContext() {
-        return rootTraceContext;
+    public BTracer getRootBTracer() {
+        return rootBTracer;
     }
 
-    public void setRootTraceContext(TraceContext rootTraceContext) {
-        this.rootTraceContext = rootTraceContext;
+    public void setRootBTracer(BTracer rootBTracer) {
+        this.rootBTracer = rootBTracer;
     }
 
-    public TraceContext getActiveTraceContext() {
-        return activeTraceContext;
+    public BTracer getActiveBTracer() {
+        return activeBTracer;
     }
 
-    public void setActiveTraceContext(TraceContext activeTraceContext) {
-        this.activeTraceContext = activeTraceContext;
+    public void setActiveBTracer(BTracer activeBTracer) {
+        this.activeBTracer = activeBTracer;
     }
 
     public ControlStack getControlStack() {

@@ -76,7 +76,7 @@ public class Head extends AbstractHTTPAction {
     protected HTTPCarbonMessage createOutboundRequestMsg(Context context) {
         HTTPCarbonMessage outboundReqMsg = super.createOutboundRequestMsg(context);
         outboundReqMsg.setProperty(HttpConstants.HTTP_METHOD, HttpConstants.HTTP_METHOD_HEAD);
-        context.getActiveTraceContext().getProperties().forEach((key, value) ->
+        context.getActiveBTracer().getProperties().forEach((key, value) ->
                 outboundReqMsg.setHeader(key, String.valueOf(value)));
         return outboundReqMsg;
     }

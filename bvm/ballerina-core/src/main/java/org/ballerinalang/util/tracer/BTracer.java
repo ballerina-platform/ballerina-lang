@@ -20,23 +20,23 @@ package org.ballerinalang.util.tracer;
 
 import org.ballerinalang.bre.Context;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
 
 /**
- * {@code TraceContext} holds the current trace context of the program.
+ * {@code BTracer} holds the current trace context of the program.
  *
  * @since 0.963.1
  */
-public class TraceContext {
+public class BTracer {
     private static final String FUNCTION_INIT = "<init>";
     private static final String KEY_SPAN_KIND = "span.kind";
     private static final String SPAN_KIND_SERVER = "server";
     private static final String SPAN_KIND_CLIENT = "client";
-    private static final String DEFAULT_SERVICE_NAME = "default_service";
-    private static final String DEFAULT_RESOURCE_NAME = "default_resource";
     private static final Random RANDOM = new Random();
+    private static TraceManagerWrapper manager = TraceManagerWrapper.getInstance();
 
     /**
      * {@link Map} of properties, which used to represent the span contexts of each tracer.
@@ -53,7 +53,7 @@ public class TraceContext {
     /**
      * ID that get generated when a span get created.
      */
-    private String spanID;
+    private String spanId = null;
     /**
      * Name of the span.
      */
@@ -70,32 +70,49 @@ public class TraceContext {
      * Indicates whether this context is traceable or not.
      */
     private boolean isTraceable = true;
+    /**
+     * Ballerina context.
+     */
+    private Context bContext = null;
 
-    private TraceContext() {
+    private BTracer() {
+
+    }
+
+    public BTracer(Context bContext, boolean isClientContext) {
         this.properties = new HashMap<>();
         this.tags = new HashMap<>();
-    }
-
-    public TraceContext(boolean isClientContext) {
-        this();
+        this.bContext = bContext;
         this.isClientContext = isClientContext;
-        addTag(KEY_SPAN_KIND, isClientContext ? SPAN_KIND_CLIENT : SPAN_KIND_SERVER);
-    }
-
-    public TraceContext(Context bContext, boolean isClientContext) {
-        this(isClientContext);
+        this.tags.put(KEY_SPAN_KIND, isClientContext ? SPAN_KIND_CLIENT : SPAN_KIND_SERVER);
         this.isTraceable = !(isClientContext && bContext.getControlStack().getCurrentFrame()
                 .getCallableUnitInfo().getName().endsWith(FUNCTION_INIT));
     }
 
-    public TraceContext(String serviceName, String resourceName, String spanName, boolean isClientContext) {
-        properties = new HashMap<>();
-        tags = new HashMap<>();
-        this.spanName = spanName;
-        this.isClientContext = isClientContext;
-        this.serviceName = (serviceName == null || serviceName.isEmpty()) ? DEFAULT_SERVICE_NAME : serviceName;
-        this.resourceName = (resourceName == null || resourceName.isEmpty()) ? DEFAULT_RESOURCE_NAME : resourceName;
-        addTag(KEY_SPAN_KIND, isClientContext ? SPAN_KIND_CLIENT : SPAN_KIND_SERVER);
+    public void startSpan() {
+        spanId = manager.startSpan(bContext);
+    }
+
+    public void finishSpan() {
+        manager.finishSpan(this);
+    }
+
+    public void log(Map<String, Object> fields) {
+        manager.log(this, fields);
+    }
+
+    public void logError(Map<String, Object> fields) {
+        addTags(Collections.singletonMap("error", "true"));
+        manager.log(this, fields);
+    }
+
+    public void addTags(Map<String, String> tags) {
+        if (spanId != null) {
+            //span has started, there for add tags to the span
+            manager.addTags(this, tags);
+        } else {
+            this.tags.putAll(tags);
+        }
     }
 
     public String getSpanName() {
@@ -147,25 +164,8 @@ public class TraceContext {
         return tags;
     }
 
-    public void addTag(String key, String value) {
-        if (tags != null) {
-            tags.put(key, value);
-        }
-    }
-
-    public String getTag(String key) {
-        if (tags != null) {
-            return tags.get(key);
-        }
-        return null;
-    }
-
-    public String getSpanID() {
-        return spanID;
-    }
-
-    public void setSpanID(String spanID) {
-        this.spanID = spanID;
+    public String getSpanId() {
+        return spanId;
     }
 
     public boolean isTraceable() {
@@ -186,5 +186,9 @@ public class TraceContext {
 
     public void generateInvocationID() {
         setInvocationID(String.valueOf(RANDOM.nextLong()));
+    }
+
+    public void setContext(Context bContext) {
+        this.bContext = bContext;
     }
 }

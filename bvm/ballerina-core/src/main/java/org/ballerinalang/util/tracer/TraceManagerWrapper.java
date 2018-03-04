@@ -27,31 +27,31 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
- * BallerinaTracerManager to manage tracing.
+ * TraceManagerWrapper to manage tracing.
  */
-public class BallerinaTracerManager {
-    private static BallerinaTracerManager instance = new BallerinaTracerManager();
-    private TracerManager manager;
+public class TraceManagerWrapper {
+    private static TraceManagerWrapper instance = new TraceManagerWrapper();
+    private TraceManager manager;
     private boolean enabled;
 
-    private BallerinaTracerManager() {
+    private TraceManagerWrapper() {
         try {
             Class<?> tracerManagerClass = Class.forName(TraceConstants.TRACER_MANAGER_CLASS)
-                    .asSubclass(TracerManager.class);
-            manager = (TracerManager) tracerManagerClass.newInstance();
+                    .asSubclass(TraceManager.class);
+            manager = (TraceManager) tracerManagerClass.newInstance();
             enabled = true;
         } catch (Throwable t) {
             enabled = false;
         }
     }
 
-    public static BallerinaTracerManager getInstance() {
+    public static TraceManagerWrapper getInstance() {
         return instance;
     }
 
-    public String buildSpan(Context context) {
-        TraceContext rTraceCtx = context.getRootTraceContext();
-        TraceContext aTraceCtx = context.getActiveTraceContext();
+    public String startSpan(Context context) {
+        BTracer rTraceCtx = context.getRootBTracer();
+        BTracer aTraceCtx = context.getActiveBTracer();
 
         if (enabled && aTraceCtx.isTraceable()) {
 
@@ -106,14 +106,30 @@ public class BallerinaTracerManager {
         return null;
     }
 
-    //todo: send trace id within TraceContext??
-    public void finishSpan(TraceContext tContext, String spanId) {
+    public void finishSpan(BTracer tContext) {
         if (enabled && tContext.isTraceable()) {
-            Long invocationId = Long.valueOf(tContext.getProperty(TraceConstants.TRACE_PREFIX +
-                    TraceConstants.INVOCATION_ID));
+            Long invocationId = Long.valueOf(tContext.getInvocationID());
             SpanHolder.SpanReference spanRef = SpanHolder.getInstance()
-                    .onFinishSpan(String.valueOf(invocationId), spanId);
+                    .onFinishSpan(String.valueOf(invocationId), tContext.getSpanId());
             manager.finishSpan(spanRef.getSpans(), spanRef.getParent(), tContext.getServiceName());
+        }
+    }
+
+    public void log(BTracer tContext, Map<String, Object> fields) {
+        if (enabled && tContext.isTraceable()) {
+            Long invocationId = Long.valueOf(tContext.getInvocationID());
+            SpanHolder.SpanReference spanRef = SpanHolder.getInstance()
+                    .getSpanReference(String.valueOf(invocationId), tContext.getSpanId());
+            manager.log(spanRef.getSpans(), fields);
+        }
+    }
+
+    public void addTags(BTracer tContext, Map<String, String> tags) {
+        if (enabled && tContext.isTraceable()) {
+            Long invocationId = Long.valueOf(tContext.getInvocationID());
+            SpanHolder.SpanReference spanRef = SpanHolder.getInstance()
+                    .getSpanReference(String.valueOf(invocationId), tContext.getSpanId());
+            manager.addTags(spanRef.getSpans(), tags);
         }
     }
 

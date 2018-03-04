@@ -23,14 +23,15 @@ import org.ballerinalang.connector.api.ConnectorFutureListener;
 import org.ballerinalang.connector.api.Executor;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.exceptions.BallerinaException;
+import org.ballerinalang.util.tracer.BTracer;
 import org.ballerinalang.util.tracer.TraceConstants;
-import org.ballerinalang.util.tracer.TraceContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.contract.HttpConnectorListener;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -82,20 +83,22 @@ public class BallerinaHTTPConnectorListener implements HttpConnectorListener {
             properties = Collections.singletonMap(HttpConstants.SRC_HANDLER, srcHandler);
         }
 
-        TraceContext traceContext = new TraceContext(false);
+        BTracer bTracer = new BTracer(null, false);
         httpCarbonMessage.getHeaders().entries().stream()
                 .filter(c -> c.getKey().startsWith(TraceConstants.TRACE_PREFIX))
-                .forEach(e -> traceContext.addProperty(e.getKey(), e.getValue()));
+                .forEach(e -> bTracer.addProperty(e.getKey(), e.getValue()));
 
-        // TODO: add tags here
-        traceContext.addTag("component", "ballerina");
-        traceContext.addTag("http.method", (String) httpCarbonMessage.getProperty("HTTP_METHOD"));
-        traceContext.addTag("protocol", (String) httpCarbonMessage.getProperty("PROTOCOL"));
-        traceContext.addTag("http.url", (String) httpCarbonMessage.getProperty("REQUEST_URL"));
+        bTracer.addTags(new HashMap<String, String>()
+        {{
+            put("component", "ballerina");
+            put("http.method", (String) httpCarbonMessage.getProperty("HTTP_METHOD"));
+            put("protocol", (String) httpCarbonMessage.getProperty("PROTOCOL"));
+            put("http.url", (String) httpCarbonMessage.getProperty("REQUEST_URL"));
+        }});
 
         BValue[] signatureParams;
         signatureParams = HttpDispatcher.getSignatureParameters(httpResource, httpCarbonMessage);
-        ConnectorFuture future = Executor.submit(httpResource.getBalResource(), properties, traceContext,
+        ConnectorFuture future = Executor.submit(httpResource.getBalResource(), properties, bTracer,
                 signatureParams);
         ConnectorFutureListener futureListener = new HttpConnectorFutureListener(httpCarbonMessage);
         future.registerConnectorFutureListener(futureListener);

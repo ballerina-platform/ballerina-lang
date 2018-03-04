@@ -18,23 +18,21 @@
 
 package org.ballerinalang.util.tracer;
 
-import org.ballerinalang.bre.Context;
 import org.ballerinalang.connector.api.BallerinaConnectorException;
 import org.ballerinalang.connector.api.ConnectorFutureListener;
 import org.ballerinalang.model.values.BValue;
 
+import java.util.HashMap;
+
 /**
  * ConnectorFutureListener to be use with tracing.
  */
-public class TraceConnectorFutureListener implements ConnectorFutureListener {
-    private Context context;
-    private String traceSpanId;
-    private TraceContext traceContext;
+public class TraceFutureListener implements ConnectorFutureListener {
+    private BTracer bTracer;
 
-    public TraceConnectorFutureListener(Context context, String traceSpanId) {
-        this.context = context;
-        this.traceSpanId = traceSpanId;
-        this.traceContext = context.getActiveTraceContext();
+    public TraceFutureListener(BTracer tContext) {
+        this.bTracer = tContext;
+        this.bTracer.startSpan();
     }
 
     @Override
@@ -49,10 +47,15 @@ public class TraceConnectorFutureListener implements ConnectorFutureListener {
 
     @Override
     public void notifyFailure(BallerinaConnectorException ex) {
+        bTracer.logError(new HashMap<String, Object>() {{
+            put("error.kind", "Exception");
+            put("error.object", ex);
+            put("message", ex.getMessage());
+        }});
         finishSpan();
     }
 
     private void finishSpan() {
-        BallerinaTracerManager.getInstance().finishSpan(traceContext, traceSpanId);
+        bTracer.finishSpan();
     }
 }
