@@ -150,7 +150,7 @@ public class BRunUtil {
         ProgramFile programFile = compileResult.getProgFile();
         Debugger debugger = new Debugger(programFile);
         programFile.setDebugger(debugger);
-        return BLangFunctions.invokeNew(programFile, packageName, functionName, args);
+        return BLangFunctions.invokeEntrypointCallable(programFile, packageName, functionName, args);
     }
 
     /**
@@ -181,27 +181,7 @@ public class BRunUtil {
         ProgramFile programFile = compileResult.getProgFile();
         Debugger debugger = new Debugger(programFile);
         programFile.setDebugger(debugger);
-        return BLangFunctions.invokeNew(programFile, programFile.getEntryPkgName(), functionName, args);
-    }
-
-    /**
-     * Invoke a ballerina function.
-     *
-     * @param compileResult CompileResult instance
-     * @param functionName  Name of the function to invoke
-     * @param args          Input parameters for the function
-     * @param context       context for function invocation
-     * @return return values of the function
-     */
-    public static BValue[] invoke(CompileResult compileResult, String functionName, BValue[] args, 
-            WorkerExecutionContext context) {
-        if (compileResult.getErrorCount() > 0) {
-            throw new IllegalStateException("compilation contains errors.");
-        }
-        ProgramFile programFile = compileResult.getProgFile();
-        Debugger debugger = new Debugger(programFile);
-        programFile.setDebugger(debugger);
-        return BLangFunctions.invokeNew(programFile, programFile.getEntryPkgName(), functionName, args, context);
+        return BLangFunctions.invokeEntrypointCallable(programFile, programFile.getEntryPkgName(), functionName, args);
     }
 
     /**

@@ -18,7 +18,6 @@
 package org.ballerinalang;
 
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BLangScheduler;
 import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
@@ -87,9 +86,7 @@ public class BLangProgramRunner {
             throw new BallerinaException("main function not found in  '" + programFile.getProgramFilePath() + "'");
         }
         FunctionInfo mainFuncInfo = getMainFunction(mainPkgInfo);
-        BLangFunctions.invokePackageInitFunction(mainPkgInfo.getInitFunctionInfo());
-        BLangFunctions.invokeCallable(mainFuncInfo, extractMainArgs(args));
-        BLangScheduler.waitForWorkerCompletion();
+        BLangFunctions.invokeEntrypointCallable(programFile, mainPkgInfo, mainFuncInfo, extractMainArgs(args));
     }
     
     private static BValue[] extractMainArgs(String[] args) {

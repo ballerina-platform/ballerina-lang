@@ -90,7 +90,9 @@ public class BLangScheduler {
     
     public static void errorThrown(WorkerExecutionContext ctx, BStruct error) {
         ctx.setError(error);
-        schedule(ctx, false);
+        if (!ctx.isRootContext()) {
+            resume(ctx, false);
+        }
     }
     
     public static void workerDone(WorkerExecutionContext ctx) {

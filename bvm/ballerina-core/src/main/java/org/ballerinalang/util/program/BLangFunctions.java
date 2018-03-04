@@ -57,26 +57,38 @@ public class BLangFunctions {
 
     private BLangFunctions() { }
 
-    public static BValue[] invokeNew(ProgramFile bLangProgram, String packageName, String functionName,
-            BValue[] args) {
-        return invokeNew(bLangProgram, packageName, functionName, args, new WorkerExecutionContext());
-    }
-
-    public static BValue[] invokeNew(ProgramFile bLangProgram, String packageName, String functionName,
-                                     BValue[] args, WorkerExecutionContext parentCtx) {
+    /**
+     * This method calls a program callable, considering it as an entry point callable. Which means, this callable will 
+     * be invoked as the first callable in a program, and after it is called, all the cleanup will be done for it to 
+     * exit from the program. That is, this callable will wait for the response to be fully available, and it will wait
+     * till all the workers in the system to finish executing.
+     * @param bLangProgram the program file
+     * @param packageName the package the callable is residing
+     * @param callableName the callable name
+     * @param args the callable arguments
+     * @param parentCtx the parent worker execution context
+     * @return
+     */
+    public static BValue[] invokeEntrypointCallable(ProgramFile bLangProgram, String packageName, String callableName,
+                                     BValue[] args) {
         PackageInfo packageInfo = bLangProgram.getPackageInfo(packageName);
-        FunctionInfo functionInfo = packageInfo.getFunctionInfo(functionName);
-
+        FunctionInfo functionInfo = packageInfo.getFunctionInfo(callableName);
         if (functionInfo == null) {
-            throw new RuntimeException("Function '" + functionName + "' is not defined");
+            throw new RuntimeException("Function '" + callableName + "' is not defined");
         }
-
+        return invokeEntrypointCallable(bLangProgram, packageInfo, functionInfo, args);
+    }
+    
+    public static BValue[] invokeEntrypointCallable(ProgramFile bLangProgram, PackageInfo packageInfo, 
+            FunctionInfo functionInfo, BValue[] args) {
+        WorkerExecutionContext parentCtx = new WorkerExecutionContext();
         if (functionInfo.getParamTypes().length != args.length) {
             throw new RuntimeException("Size of input argument arrays is not equal to size of function parameters");
         }
-
         invokePackageInitFunction(packageInfo.getInitFunctionInfo(), parentCtx);
-        return invokeCallable(functionInfo, parentCtx, args);
+        BValue[] result = invokeCallable(functionInfo, parentCtx, args);
+        BLangScheduler.waitForWorkerCompletion();
+        return result;
     }
     
     public static void invokeCallable(CallableUnitInfo callableUnitInfo, WorkerExecutionContext parentCtx) {

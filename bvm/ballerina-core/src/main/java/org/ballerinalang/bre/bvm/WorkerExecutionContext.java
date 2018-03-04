@@ -158,6 +158,10 @@ public class WorkerExecutionContext {
         }
     }
     
+    public boolean isRootContext() {
+        return this.code == null;
+    }
+    
     @Override
     public String toString() {
         StringBuilder builder = new StringBuilder();

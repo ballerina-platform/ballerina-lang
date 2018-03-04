@@ -18,7 +18,6 @@ package org.ballerinalang.nativeimpl.runtime;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
 import org.ballerinalang.bre.bvm.AsyncTimer;
-import org.ballerinalang.bre.bvm.AsyncTimer.TimerCallback;
 import org.ballerinalang.model.NativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
