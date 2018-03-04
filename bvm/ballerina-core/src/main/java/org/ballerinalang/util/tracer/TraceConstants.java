@@ -25,7 +25,7 @@ package org.ballerinalang.util.tracer;
  */
 public class TraceConstants {
 
-    static final String TRACER_MANAGER_CLASS = "org.ballerina.tracing.core.OpenTracerManager";
+    static final String TRACER_MANAGER_CLASS = "org.ballerinalang.observe.trace.OpenTracerManager";
 
     public static final String INVOCATION_ID = "invocationId";
 
