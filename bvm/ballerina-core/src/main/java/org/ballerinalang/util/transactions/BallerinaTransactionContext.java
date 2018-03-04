@@ -15,7 +15,7 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.ballerinalang.bre;
+package org.ballerinalang.util.transactions;
 
 import javax.transaction.xa.XAResource;
 

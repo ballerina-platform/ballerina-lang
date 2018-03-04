@@ -31,6 +31,7 @@ public class BStructType extends BType {
     public StructInfo structInfo;
     private StructField[] structFields;
     private AttachedFunction[] attachedFunctions;
+    public AttachedFunction initializer;
     private int[] fieldTypeCount;
     public int flags;
 
