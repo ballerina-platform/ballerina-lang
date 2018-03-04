@@ -47,7 +47,6 @@ import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 public class AnnotationDesugar {
 
     private static final String ANNOTATION_DATA = "$annotation_data";
-    private static final String ANNOTATION_STRUCT = "$annotation";
     private static final String DOT = ".";
 
     private static final CompilerContext.Key<AnnotationDesugar> ANNOTATION_DESUGAR_KEY =
@@ -185,7 +184,7 @@ public class AnnotationDesugar {
         BLangIndexBasedAccess indexAccessNode = (BLangIndexBasedAccess) TreeBuilder.createIndexBasedAccessNode();
         indexAccessNode.pos = target.pos;
         indexAccessNode.indexExpr = ASTBuilderUtil.createLiteral(target.pos, symTable.stringType,
-                attachment.annotationName + "$" + index);
+                attachment.annotationSymbol + "$" + index);
         indexAccessNode.expr = ASTBuilderUtil.createVariableRef(target.pos, annotationMapEntryVar.symbol);
         indexAccessNode.type = annotationMapEntryVar.symbol.type;
         assignmentStmt.varRefs.add(indexAccessNode);
