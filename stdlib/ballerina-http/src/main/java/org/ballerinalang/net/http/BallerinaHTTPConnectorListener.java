@@ -88,13 +88,12 @@ public class BallerinaHTTPConnectorListener implements HttpConnectorListener {
                 .filter(c -> c.getKey().startsWith(TraceConstants.TRACE_PREFIX))
                 .forEach(e -> bTracer.addProperty(e.getKey(), e.getValue()));
 
-        bTracer.addTags(new HashMap<String, String>()
-        {{
-            put("component", "ballerina");
-            put("http.method", (String) httpCarbonMessage.getProperty("HTTP_METHOD"));
-            put("protocol", (String) httpCarbonMessage.getProperty("PROTOCOL"));
-            put("http.url", (String) httpCarbonMessage.getProperty("REQUEST_URL"));
-        }});
+        Map<String, String> tags = new HashMap<>();
+        tags.put("component", "ballerina");
+        tags.put("http.method", (String) httpCarbonMessage.getProperty("HTTP_METHOD"));
+        tags.put("protocol", (String) httpCarbonMessage.getProperty("PROTOCOL"));
+        tags.put("http.url", (String) httpCarbonMessage.getProperty("REQUEST_URL"));
+        bTracer.addTags(tags);
 
         BValue[] signatureParams;
         signatureParams = HttpDispatcher.getSignatureParameters(httpResource, httpCarbonMessage);

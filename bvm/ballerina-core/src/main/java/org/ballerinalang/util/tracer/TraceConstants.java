@@ -29,12 +29,6 @@ public class TraceConstants {
 
     public static final String INVOCATION_ID = "invocationId";
 
-    public static final String TRACE_PROPERTY_RESOURCE = "trace_resource";
-
-    public static final String TRACE_PROPERTY_SERVICE = "trace_service";
-
-    public static final String TRACE_PROPERTY_REQUEST = "trace_request";
-
     public static final String TRACE_PREFIX = "trace___";
 
 }

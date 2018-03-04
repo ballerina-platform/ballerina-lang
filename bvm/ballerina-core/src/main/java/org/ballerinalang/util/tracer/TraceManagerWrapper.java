@@ -49,16 +49,16 @@ public class TraceManagerWrapper {
         return instance;
     }
 
-    public String startSpan(Context context) {
-        BTracer rTraceCtx = context.getRootBTracer();
-        BTracer aTraceCtx = context.getActiveBTracer();
+    public void startSpan(Context context) {
+        BTracer rootBTracer = context.getRootBTracer();
+        BTracer activeBTracer = context.getActiveBTracer();
 
-        if (enabled && aTraceCtx.isTraceable()) {
+        if (enabled && activeBTracer.isTraceable()) {
 
-            String service = aTraceCtx.getServiceName();
-            String resource = aTraceCtx.getResourceName();
+            String service = activeBTracer.getServiceName();
+            String resource = activeBTracer.getResourceName();
 
-            if (aTraceCtx.isClientContext()) {
+            if (activeBTracer.isClientContext()) {
                 CallableUnitInfo cInfo = context.getControlStack().getCurrentFrame().getCallableUnitInfo();
                 if (cInfo != null && cInfo instanceof ActionInfo &&
                         ((ActionInfo) cInfo).getConnectorInfo() != null) {
@@ -72,64 +72,51 @@ public class TraceManagerWrapper {
                     service = "ballerina:connector";
                     resource = "ballerina:call";
                 }
-                aTraceCtx.setServiceName(service);
-                aTraceCtx.setResourceName(resource);
-                aTraceCtx.setSpanName(resource);
+                activeBTracer.setServiceName(service);
+                activeBTracer.setResourceName(resource);
+                activeBTracer.setSpanName(resource);
             }
 
             Long invocationId;
-            if (rTraceCtx.getInvocationID() == null) {
-                rTraceCtx.generateInvocationID();
-                invocationId = Long.valueOf(rTraceCtx.getInvocationID());
+            if (rootBTracer.getInvocationID() == null) {
+                rootBTracer.generateInvocationID();
+                invocationId = Long.valueOf(rootBTracer.getInvocationID());
             } else {
-                invocationId = Long.valueOf(rTraceCtx.getInvocationID());
+                invocationId = Long.valueOf(rootBTracer.getInvocationID());
             }
-            aTraceCtx.setInvocationID(String.valueOf(invocationId));
+            activeBTracer.setInvocationID(String.valueOf(invocationId));
 
             // get the parent spans' span context
-            Map<String, String> spanHeaders = rTraceCtx.getProperties().entrySet().stream()
+            Map<String, String> spanHeaders = rootBTracer.getProperties().entrySet().stream()
                     .collect(Collectors.toMap(Map.Entry::getKey, e -> String.valueOf(e.getValue())));
             Map<String, Object> spanContext = manager.extract(null, removeTracePrefix(spanHeaders), service);
 
             List<Object> spanList = manager.buildSpan(invocationId, resource, spanContext,
-                    aTraceCtx.getTags(), true, service);
+                    activeBTracer.getTags(), true, service);
 
             Map<String, String> traceContextMap = manager.inject(manager.getActiveSpanMap(service), null, service);
-            aTraceCtx.getProperties().putAll(addTracePrefix(traceContextMap));
+            activeBTracer.getProperties().putAll(addTracePrefix(traceContextMap));
 
-            if (spanContext != null && !spanContext.isEmpty()) {
-                return SpanHolder.getInstance().onBuildSpan(String.valueOf(invocationId), spanList, spanContext);
-            } else {
-                return SpanHolder.getInstance().onBuildSpan(String.valueOf(invocationId), spanList, null);
-            }
-        }
-        return null;
-    }
-
-    public void finishSpan(BTracer tContext) {
-        if (enabled && tContext.isTraceable()) {
-            Long invocationId = Long.valueOf(tContext.getInvocationID());
-            SpanHolder.SpanReference spanRef = SpanHolder.getInstance()
-                    .onFinishSpan(String.valueOf(invocationId), tContext.getSpanId());
-            manager.finishSpan(spanRef.getSpans(), spanRef.getParent(), tContext.getServiceName());
+            activeBTracer.setSpans(spanList);
+            activeBTracer.setParentSpanContext(spanContext);
         }
     }
 
-    public void log(BTracer tContext, Map<String, Object> fields) {
-        if (enabled && tContext.isTraceable()) {
-            Long invocationId = Long.valueOf(tContext.getInvocationID());
-            SpanHolder.SpanReference spanRef = SpanHolder.getInstance()
-                    .getSpanReference(String.valueOf(invocationId), tContext.getSpanId());
-            manager.log(spanRef.getSpans(), fields);
+    public void finishSpan(BTracer bTracer) {
+        if (enabled && bTracer.isTraceable()) {
+            manager.finishSpan(bTracer.getSpans(), bTracer.getParentSpanContext(), bTracer.getServiceName());
         }
     }
 
-    public void addTags(BTracer tContext, Map<String, String> tags) {
-        if (enabled && tContext.isTraceable()) {
-            Long invocationId = Long.valueOf(tContext.getInvocationID());
-            SpanHolder.SpanReference spanRef = SpanHolder.getInstance()
-                    .getSpanReference(String.valueOf(invocationId), tContext.getSpanId());
-            manager.addTags(spanRef.getSpans(), tags);
+    public void log(BTracer bTracer, Map<String, Object> fields) {
+        if (enabled && bTracer.isTraceable()) {
+            manager.log(bTracer.getSpans(), fields);
+        }
+    }
+
+    public void addTags(BTracer bTracer, Map<String, String> tags) {
+        if (enabled && bTracer.isTraceable()) {
+            manager.addTags(bTracer.getSpans(), tags);
         }
     }
 

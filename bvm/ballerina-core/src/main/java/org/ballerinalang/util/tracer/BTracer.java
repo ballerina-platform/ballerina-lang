@@ -22,6 +22,7 @@ import org.ballerinalang.bre.Context;
 
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
@@ -51,10 +52,6 @@ public class BTracer {
      */
     private boolean isClientContext;
     /**
-     * ID that get generated when a span get created.
-     */
-    private String spanId = null;
-    /**
      * Name of the span.
      */
     private String spanName = "defaultSpan";
@@ -74,6 +71,14 @@ public class BTracer {
      * Ballerina context.
      */
     private Context bContext = null;
+    /**
+     * If there's a parent, this should hold parent span context.
+     */
+    private Map<String, Object> parentSpanContext = null;
+    /**
+     * List of spans belongs to this tracer.
+     */
+    private List<Object> spans;
 
     private BTracer() {
 
@@ -90,7 +95,7 @@ public class BTracer {
     }
 
     public void startSpan() {
-        spanId = manager.startSpan(bContext);
+        manager.startSpan(bContext);
     }
 
     public void finishSpan() {
@@ -107,7 +112,7 @@ public class BTracer {
     }
 
     public void addTags(Map<String, String> tags) {
-        if (spanId != null) {
+        if (spans != null) {
             //span has started, there for add tags to the span
             manager.addTags(this, tags);
         } else {
@@ -164,10 +169,6 @@ public class BTracer {
         return tags;
     }
 
-    public String getSpanId() {
-        return spanId;
-    }
-
     public boolean isTraceable() {
         return isTraceable;
     }
@@ -190,5 +191,21 @@ public class BTracer {
 
     public void setContext(Context bContext) {
         this.bContext = bContext;
+    }
+
+    public Map<String, Object> getParentSpanContext() {
+        return parentSpanContext;
+    }
+
+    public void setParentSpanContext(Map<String, Object> parentSpanContext) {
+        this.parentSpanContext = parentSpanContext;
+    }
+
+    public List<Object> getSpans() {
+        return spans;
+    }
+
+    public void setSpans(List<Object> spans) {
+        this.spans = spans;
     }
 }
