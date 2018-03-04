@@ -24,7 +24,6 @@ import java.io.FileNotFoundException;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -113,10 +112,9 @@ public class BalGenerationUtils {
      * @throws FileNotFoundException
      * @throws UnsupportedEncodingException
      */
-    public static void writeFile(String payload, String fileName, Path balOutPath) throws FileNotFoundException,
+    public static void writeFile(String payload, Path balOutPath) throws FileNotFoundException,
             UnsupportedEncodingException {
-        Path path = Paths.get(balOutPath.toString(), fileName);
-        PrintWriter writer = new PrintWriter(path.toFile(), "UTF-8");
+        PrintWriter writer = new PrintWriter(balOutPath.toFile(), "UTF-8");
         writer.print(payload);
         writer.close();
     }

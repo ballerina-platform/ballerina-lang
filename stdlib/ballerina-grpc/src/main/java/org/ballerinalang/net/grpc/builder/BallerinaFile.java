@@ -30,9 +30,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.ByteArrayInputStream;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.List;
 
@@ -51,11 +54,10 @@ public class BallerinaFile {
     public static final Logger LOG = LoggerFactory.getLogger(BallerinaFile.class);
     private byte[] rootDescriptor;
     private List<byte[]> dependentDescriptors;
-    private Path balOutPath;
     
-    public BallerinaFile(List<byte[]> dependentDescriptors, Path balOutPath) {
+    
+    public BallerinaFile(List<byte[]> dependentDescriptors) {
         this.dependentDescriptors = dependentDescriptors;
-        this.balOutPath = balOutPath;
     }
     
     public void build() {
@@ -86,8 +88,12 @@ public class BallerinaFile {
                 String[] inputTypes = methodDescriptorProto.getInputType().split("\\.");
                 String typeIn = inputTypes[inputTypes.length - 1];
                 methodName = methodDescriptorProto.getName();
-                methodID = fileDescriptorSet.getPackage() + "." + fileDescriptorSet.getService(SERVICE_INDEX)
-                        .getName() + FILE_SEPARATOR + methodName;
+                if(!"".equals(fileDescriptorSet.getPackage())) {
+                    methodID = fileDescriptorSet.getPackage() + "." + fileDescriptorSet.getService(SERVICE_INDEX)
+                            .getName() + FILE_SEPARATOR + methodName;
+                } else {
+                    methodID = fileDescriptorSet.getService(SERVICE_INDEX).getName() + FILE_SEPARATOR + methodName;
+                }
                 reqMessageName = getMappingBalType(typeIn);
                 resMessageName = getMappingBalType(typeOut);
                 actionBuilder = new ActionBuilder(methodName, reqMessageName, resMessageName
@@ -119,22 +125,34 @@ public class BallerinaFile {
                 String struct = structBuilder.buildStructs();
                 structList = structList.append(NEW_LINE_CHARACTER).append(struct);
             }
-            String packageName = new PackageBuilder(fileDescriptorSet.getPackage()).build();
+            String packageName = "".equals(fileDescriptorSet.getPackage()) ? BalGenConstants.DEFAULT_PACKAGE :
+                    fileDescriptorSet.getPackage();
+            String filePackageData = new PackageBuilder(packageName).build();
             String blockingConnectorList = new ConnectorBuilder(blockingActionList.toString(),
                     fileDescriptorSet.getService(SERVICE_INDEX).getName() + "BlockingStub",
                     "blocking").build();
             String streamingConnectorList = new ConnectorBuilder(nonBlockingActionList.toString(),
                     fileDescriptorSet.getService(
                             SERVICE_INDEX).getName() + "NonBlockingStub", "non-blocking").build();
-            String balPayload = packageName + blockingConnectorList + NEW_LINE_CHARACTER +
+            String balPayload = filePackageData + blockingConnectorList + NEW_LINE_CHARACTER +
                     streamingConnectorList + structList + NEW_LINE_CHARACTER + descriptorKey +
                     String.format("map descriptorMap ={%s};", descriptorMapString) + NEW_LINE_CHARACTER;
-            writeFile(balPayload,
-                    fileDescriptorSet.getService(SERVICE_INDEX).getName() + ".pb.bal",
-                    balOutPath);
+            Path balOutPath = balOutPathGenerator(packageName + "." + fileDescriptorSet
+                    .getService(SERVICE_INDEX).getName());
+            writeFile(balPayload, balOutPath);
         } catch (IOException e) {
             throw new BalGenerationException("Error while generating .bal file.", e);
         }
+    }
+    
+    private Path balOutPathGenerator(String packageName) throws IOException {
+        String pathString = packageName.replace(".", FILE_SEPARATOR);
+        File file = new File(pathString + ".pb.bal");
+        Files.createDirectories(Paths.get(file.getAbsolutePath()).getParent());
+        if(!file.isFile()) {
+            Files.createFile(Paths.get(file.getAbsolutePath()));
+        }
+        return Paths.get(pathString + ".pb.bal");
     }
     
     public void setRootDescriptor(byte[] rootDescriptor) {

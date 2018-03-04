@@ -78,7 +78,9 @@ public class NonBlockingExecute extends AbstractExecute {
         }
         com.google.protobuf.Descriptors.MethodDescriptor methodDescriptor = MessageRegistry.getInstance()
                 .getMethodDescriptor(methodName);
-
+        if (methodDescriptor == null) {
+            return notifyErrorReply(context, "No registered method descriptor for '" + methodName + "'");
+        }
         if (connectionStub instanceof GrpcNonBlockingStub) {
             BValue payloadBValue = getRefArgument(context, 1);
             Message requestMsg = MessageUtil.generateProtoMessage(payloadBValue, methodDescriptor.getInputType());

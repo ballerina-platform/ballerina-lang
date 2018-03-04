@@ -83,7 +83,7 @@ public native function <ServerConnection conn> error (ServerError serverError) (
 @Field {value:"stackTrace: Represents the invocation stack when ConnectorError is thrown"}
 @Field {value:"statusCode: HTTP status code"}
 public struct ConnectorError {
-    string msg;
+    string message;
     error cause;
     int statusCode;
 }

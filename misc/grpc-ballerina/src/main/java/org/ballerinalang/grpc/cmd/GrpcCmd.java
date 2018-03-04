@@ -130,7 +130,7 @@ public class GrpcCmd implements BLauncherCmd {
         msg.append("Successfully generated dependent descriptor.").append(NEW_LINE_CHARACTER);
         Path balPath = Paths.get(balOutPath);
         try {
-            BallerinaFile ballerinaFile = new BallerinaFile(dependant, balPath);
+            BallerinaFile ballerinaFile = new BallerinaFile(dependant);
             ballerinaFile.setRootDescriptor(root);
             ballerinaFile.build();
         } catch (BalGenerationException e) {

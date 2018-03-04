@@ -47,11 +47,9 @@ public class GrpcTestCase extends IntegrationTestCase {
         String balFile = new File("src/test/resources/grpcService/helloWorld-server-connector.bal")
                 .getAbsolutePath();
         ballerinaServer.startBallerinaServer(balFile);
-        Thread.sleep(10000);
         HelloClient client = new HelloClient("localhost", 9090);
         try {
-            String user = "WSO2";
-            client.greet(user);
+            client.greet("WSO2");
         } finally {
             client.shutdown();
         }

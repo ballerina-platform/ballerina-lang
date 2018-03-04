@@ -43,7 +43,7 @@ import org.ballerinalang.net.grpc.utils.MessageUtil;
         args = {
                 @Argument(name = "methodID", type = TypeKind.STRING),
                 @Argument(name = "payload", type = TypeKind.ANY)
-
+            
         },
         returnType = {
                 @ReturnType(type = TypeKind.ANY),
@@ -56,7 +56,7 @@ import org.ballerinalang.net.grpc.utils.MessageUtil;
         }
 )
 public class BlockingExecute extends AbstractExecute {
-
+    
     @Override
     public ConnectorFuture execute(Context context) {
         BConnector bConnector = (BConnector) getRefArgument(context, 0);
@@ -64,7 +64,7 @@ public class BlockingExecute extends AbstractExecute {
             return notifyErrorReply(context, "Error while getting connector. gRPC Client connector " +
                     "is not initialized properly");
         }
-
+        
         Object connectionStub = bConnector.getnativeData("stub");
         if (connectionStub == null) {
             return notifyErrorReply(context, "Error while getting connection stub. gRPC Client " +
@@ -77,7 +77,9 @@ public class BlockingExecute extends AbstractExecute {
         }
         com.google.protobuf.Descriptors.MethodDescriptor methodDescriptor = MessageRegistry.getInstance()
                 .getMethodDescriptor(methodName);
-
+        if (methodDescriptor == null) {
+            return notifyErrorReply(context, "No registered method descriptor for '" + methodName + "'");
+        }
         if (connectionStub instanceof GrpcBlockingStub) {
             BValue payloadBValue = getRefArgument(context, 1);
             Message requestMsg = MessageUtil.generateProtoMessage(payloadBValue, methodDescriptor.getInputType());

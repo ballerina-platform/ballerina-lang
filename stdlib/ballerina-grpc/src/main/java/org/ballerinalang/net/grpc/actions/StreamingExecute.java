@@ -76,7 +76,9 @@ public class StreamingExecute extends AbstractExecute {
         }
         com.google.protobuf.Descriptors.MethodDescriptor methodDescriptor = MessageRegistry.getInstance()
                 .getMethodDescriptor(methodName);
-
+        if (methodDescriptor == null) {
+            return notifyErrorReply(context, "No registered method descriptor for '" + methodName + "'");
+        }
         if (connectionStub instanceof GrpcNonBlockingStub) {
             GrpcNonBlockingStub grpcNonBlockingStub = (GrpcNonBlockingStub) connectionStub;
             String listenerService = getStringArgument(context, 1);

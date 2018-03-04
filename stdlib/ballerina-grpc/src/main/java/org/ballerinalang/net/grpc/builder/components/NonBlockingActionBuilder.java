@@ -44,7 +44,7 @@ public class NonBlockingActionBuilder {
     public String build() {
         String actionTemplate =
                 "    action %s (%s req, string serviceName) (error) {" + NEW_LINE_CHARACTER +
-                        "        var res, err1 = ep.nonBlockingExecute(\"%s\", req, serviceName);"
+                        "        var err1 = ep.nonBlockingExecute(\"%s\", req, serviceName);"
                         + NEW_LINE_CHARACTER +
                         "        if (err1 != null) {" + NEW_LINE_CHARACTER +
                         "            error e = {message:err1.message};" + NEW_LINE_CHARACTER +
@@ -52,6 +52,6 @@ public class NonBlockingActionBuilder {
                         "        }" + NEW_LINE_CHARACTER +
                         "        return null;" + NEW_LINE_CHARACTER +
                         "    }";
-        return String.format(actionTemplate, methodName, reqMessageName, resMessageName, methodID);
+        return String.format(actionTemplate, methodName, reqMessageName, methodID);
     }
 }

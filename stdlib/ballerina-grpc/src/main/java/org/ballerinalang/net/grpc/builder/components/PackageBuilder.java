@@ -22,9 +22,8 @@ import static org.ballerinalang.net.grpc.builder.BalGenConstants.NEW_LINE_CHARAC
 /**
  * Building the package name of ballerina file.
  */
-public class PackageBuilder {
+public class PackageBuilder {//package is mandatory
     private String packageName;
-    
     
     public PackageBuilder(String packageName) {
         this.packageName = packageName;

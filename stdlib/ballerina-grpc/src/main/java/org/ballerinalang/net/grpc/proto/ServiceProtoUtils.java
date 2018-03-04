@@ -66,9 +66,16 @@ public class ServiceProtoUtils {
 
     public static File generateProtoDefinition(ServiceNode serviceNode) throws GrpcServerException {
         // Protobuf file definition builder.
-        File.Builder fileBuilder = File.newBuilder(serviceNode.getName() + ServiceProtoConstants.PROTO_FILE_EXTENSION)
-                .setSyntax(ServiceProtoConstants.PROTOCOL_SYNTAX).setPackage(serviceNode.getPosition().getSource()
-                        .getPackageName());
+        String packageName = serviceNode.getPosition().getSource().getPackageName();
+        File.Builder fileBuilder;
+        if(!".".equals(packageName)) {
+           fileBuilder = File.newBuilder(serviceNode.getName() + ServiceProtoConstants.PROTO_FILE_EXTENSION)
+                    .setSyntax(ServiceProtoConstants.PROTOCOL_SYNTAX).setPackage(serviceNode.getPosition().getSource()
+                            .getPackageName());
+        } else {
+            fileBuilder = File.newBuilder(serviceNode.getName() + ServiceProtoConstants.PROTO_FILE_EXTENSION)
+                    .setSyntax(ServiceProtoConstants.PROTOCOL_SYNTAX);
+        }
         ServiceConfig serviceConfig = getServiceConfiguration(serviceNode);
         Service serviceDefinition;
         if (serviceConfig != null) {
@@ -514,7 +521,7 @@ public class ServiceProtoUtils {
             dependentDescriptorsList.add(com.google.protobuf.WrappersProto.getDescriptor
                     ().toProto().toByteArray());
             Path path = Paths.get("");
-            BallerinaFile ballerinaFile = new BallerinaFile(dependentDescriptorsList, path);
+            BallerinaFile ballerinaFile = new BallerinaFile(dependentDescriptorsList);
             ballerinaFile.setRootDescriptor(fileDescriptor);
             ballerinaFile.build();
         } catch (IOException e) {
