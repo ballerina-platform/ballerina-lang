@@ -94,7 +94,7 @@ public class TraceManagerWrapper {
             Map<String, Object> spanList = manager.buildSpan(invocationId, resource, spanContext,
                     activeBTracer.getTags(), true, service);
 
-            Map<String, String> traceContextMap = manager.inject(manager.getActiveSpanMap(service), null, service);
+            Map<String, String> traceContextMap = manager.inject(activeBTracer.getSpans(), null, service);
             activeBTracer.getProperties().putAll(addTracePrefix(traceContextMap));
 
             activeBTracer.setSpans(spanList);
