@@ -15,7 +15,7 @@
 * under the License.
 *
 */
-package org.ballerinalang.nativeimpl.observe;
+package org.ballerinalang.observe.trace;
 
 import org.ballerinalang.model.values.BMap;
 
