@@ -18,10 +18,12 @@
 
 package org.ballerinalang.net.http.caching;
 
+import java.util.Locale;
+
 /**
  * Enum for cache control directives.
  *
- * @since 0.963.0
+ * @since 0.965.0
  */
 public enum CacheControlDirective {
 
@@ -34,7 +36,10 @@ public enum CacheControlDirective {
     PROXY_REVALIDATE("proxy-revalidate"),
     MAX_AGE("max-age"),
     S_MAXAGE("s-maxage"),
-    INVALID("invalid");
+    INVALID("invalid"),
+    ONLY_IF_CACHED("only-if-cached"),
+    MAX_STALE("max-stale"),
+    MIN_FRESH("min-fresh");
 
     private String directiveValue;
 
@@ -48,7 +53,7 @@ public enum CacheControlDirective {
 
     public static CacheControlDirective parseValue(String directive) {
         try {
-            return CacheControlDirective.valueOf(directive.toUpperCase().replace('-', '_'));
+            return CacheControlDirective.valueOf(directive.toUpperCase(Locale.ENGLISH).replace('-', '_'));
         } catch (Exception e) {
             // ignore exception
             return CacheControlDirective.INVALID;

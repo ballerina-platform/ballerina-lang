@@ -44,6 +44,7 @@ import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.AbstractNativeFunction;
+import org.ballerinalang.net.http.caching.RequestCacheControlStruct;
 import org.ballerinalang.net.http.caching.ResponseCacheControlStruct;
 import org.ballerinalang.net.http.session.Session;
 import org.ballerinalang.net.ws.WebSocketConstants;
@@ -91,6 +92,7 @@ import static org.ballerinalang.net.http.HttpConstants.ENTITY_INDEX;
 import static org.ballerinalang.net.http.HttpConstants.HTTP_MESSAGE_INDEX;
 import static org.ballerinalang.net.http.HttpConstants.HTTP_STATUS_CODE;
 import static org.ballerinalang.net.http.HttpConstants.IN_REQUEST;
+import static org.ballerinalang.net.http.HttpConstants.IN_REQUEST_CACHE_CONTROL_INDEX;
 import static org.ballerinalang.net.http.HttpConstants.IN_RESPONSE_CACHE_CONTROL_INDEX;
 import static org.ballerinalang.net.http.HttpConstants.IN_RESPONSE_REASON_PHRASE_INDEX;
 import static org.ballerinalang.net.http.HttpConstants.IN_RESPONSE_SERVER_INDEX;
@@ -388,7 +390,8 @@ public class HttpUtil {
     }
 
     public static void populateInboundRequest(BStruct inboundRequestStruct, BStruct entity, BStruct mediaType,
-                                              HTTPCarbonMessage inboundRequestMsg) {
+                                              HTTPCarbonMessage inboundRequestMsg,
+                                              RequestCacheControlStruct requestCacheControl) {
         inboundRequestStruct.addNativeData(TRANSPORT_MESSAGE, inboundRequestMsg);
         inboundRequestStruct.addNativeData(IN_REQUEST, true);
 
@@ -398,6 +401,11 @@ public class HttpUtil {
         populateEntity(entity, mediaType, inboundRequestMsg);
         inboundRequestStruct.addNativeData(MESSAGE_ENTITY, entity);
         inboundRequestStruct.addNativeData(IS_BODY_BYTE_CHANNEL_ALREADY_SET, false);
+
+        if (inboundRequestMsg.getHeader(CACHE_CONTROL_HEADER) != null) {
+            requestCacheControl.populateStruct(inboundRequestMsg.getHeader(CACHE_CONTROL_HEADER));
+        }
+        inboundRequestStruct.setRefField(IN_REQUEST_CACHE_CONTROL_INDEX, requestCacheControl.getStruct());
     }
 
     private static void enrichWithInboundRequestHeaders(BStruct inboundRequestStruct,

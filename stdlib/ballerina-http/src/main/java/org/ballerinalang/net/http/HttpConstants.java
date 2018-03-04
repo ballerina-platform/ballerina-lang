@@ -168,6 +168,7 @@ public class HttpConstants {
     public static final String OUT_RESPONSE = "OutResponse";
     public static final String ENTITY = "Entity";
     public static final String RESPONSE_CACHE_CONTROL = "ResponseCacheControl";
+    public static final String REQUEST_CACHE_CONTROL = "RequestCacheControl";
     public static final String HTTP_CONNECTOR_ERROR = "HttpConnectorError";
     public static final String TYPE_STRING = "string";
     public static final String TRANSPORT_MESSAGE = "transport_message";
@@ -213,6 +214,10 @@ public class HttpConstants {
     public static final int IN_REQUEST_VERSION_INDEX = 2;
     public static final int IN_REQUEST_USER_AGENT_INDEX = 3;
     public static final int IN_REQUEST_EXTRA_PATH_INFO_INDEX = 4;
+    public static final int IN_REQUEST_CACHE_CONTROL_INDEX = 0;
+
+    // OutRequest struct indices
+    public static final int OUT_REQUEST_CACHE_CONTROL_INDEX = 0;
 
     //InResponse struct indexes
     public static final int IN_RESPONSE_STATUS_CODE_INDEX = 0;
@@ -237,17 +242,26 @@ public class HttpConstants {
     public static final int RETRY_COUNT_INDEX = 0;
     public static final int RETRY_INTERVAL_INDEX = 1;
 
-    // Response Cache Control struct indices
-    public static final int CACHE_CONTROL_MUST_REVALIDATE_INDEX = 0;
-    public static final int CACHE_CONTROL_NO_CACHE_INDEX = 1;
-    public static final int CACHE_CONTROL_NO_STORE_INDEX = 2;
-    public static final int CACHE_CONTROL_NO_TRANSFORM_INDEX = 3;
-    public static final int CACHE_CONTROL_IS_PRIVATE_INDEX = 4;
-    public static final int CACHE_CONTROL_PROXY_REVALIDATE_INDEX = 5;
-    public static final int CACHE_CONTROL_MAX_AGE_INDEX = 0;
-    public static final int CACHE_CONTROL_S_MAXAGE_INDEX = 1;
-    public static final int CACHE_CONTROL_NO_CACHE_FIELDS_INDEX = 0;
-    public static final int CACHE_CONTROL_PRIVATE_FIELDS_INDEX = 1;
+    // ResponseCacheControl struct indices
+    public static final int RES_CACHE_CONTROL_MUST_REVALIDATE_INDEX = 0;
+    public static final int RES_CACHE_CONTROL_NO_CACHE_INDEX = 1;
+    public static final int RES_CACHE_CONTROL_NO_STORE_INDEX = 2;
+    public static final int RES_CACHE_CONTROL_NO_TRANSFORM_INDEX = 3;
+    public static final int RES_CACHE_CONTROL_IS_PRIVATE_INDEX = 4;
+    public static final int RES_CACHE_CONTROL_PROXY_REVALIDATE_INDEX = 5;
+    public static final int RES_CACHE_CONTROL_MAX_AGE_INDEX = 0;
+    public static final int RES_CACHE_CONTROL_S_MAXAGE_INDEX = 1;
+    public static final int RES_CACHE_CONTROL_NO_CACHE_FIELDS_INDEX = 0;
+    public static final int RES_CACHE_CONTROL_PRIVATE_FIELDS_INDEX = 1;
+
+    // RequestCacheControl struct indices
+    public static final int REQ_CACHE_CONTROL_NO_CACHE_INDEX = 0;
+    public static final int REQ_CACHE_CONTROL_NO_STORE_INDEX = 1;
+    public static final int REQ_CACHE_CONTROL_NO_TRANSFORM_INDEX = 2;
+    public static final int REQ_CACHE_CONTROL_ONLY_IF_CACHED_INDEX = 3;
+    public static final int REQ_CACHE_CONTROL_MAX_AGE_INDEX = 0;
+    public static final int REQ_CACHE_CONTROL_MAX_STALE_INDEX = 1;
+    public static final int REQ_CACHE_CONTROL_MIN_FRESH_INDEX = 2;
 
     public static final String CONNECTION_HEADER = "Connection";
     public static final String HEADER_VAL_CONNECTION_CLOSE = "Close";

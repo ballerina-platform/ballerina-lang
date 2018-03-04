@@ -2,6 +2,14 @@ package ballerina.net.http;
 
 import ballerina.mime;
 
+const string HTTP_GET = "GET";
+const string HTTP_POST = "POST";
+const string HTTP_HEAD = "HEAD";
+const string HTTP_PUT = "PUT";
+const string HTTP_DELETE = "DELETE";
+const string HTTP_PATCH = "PATCH";
+const string HTTP_OPTIONS = "OPTIONS";
+
 function getFirstHeaderFromEntity (mime:Entity entity, string headerName) (string) {
     var headerValue, _ = (string[]) entity.headers[headerName];
     return headerValue == null ? null : headerValue[0];

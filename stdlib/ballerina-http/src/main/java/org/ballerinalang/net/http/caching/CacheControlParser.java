@@ -26,7 +26,7 @@ import java.util.regex.Pattern;
 /**
  * A simple parser for parsing the Cache-Control header and separating the control directives.
  *
- * @since 0.963.0
+ * @since 0.965.0
  */
 public class CacheControlParser {
 

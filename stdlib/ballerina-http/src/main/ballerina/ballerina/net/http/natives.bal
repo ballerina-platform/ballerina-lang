@@ -1,8 +1,6 @@
 package ballerina.net.http;
 
 import ballerina.mime;
-import ballerina.runtime;
-import ballerina.time;
 
 @Description {value:"Represent 'Content-Legth' header name"}
 public const string CONTENT_LENGTH = "Content-Length";
@@ -42,12 +40,15 @@ public native function <Connection conn> getSession () (Session);
 @Field {value:"method: HTTP request method"}
 @Field {value:"httpVersion: The version of HTTP"}
 @Field {value:"userAgent: User-Agent request header"}
+@Field {value:"extraPathInfo: Additional information associated with the URL sent by the client"}
+@Field {value:"cacheControl: The cache control directives configuration of the request"}
 public struct InRequest {
 	string rawPath;
 	string method;
 	string httpVersion;
 	string userAgent;
     string extraPathInfo;
+    RequestCacheControl cacheControl;
 }
 
 @Description { value:"Get the entity from the inbound request with the body included"}
@@ -83,6 +84,7 @@ public native function <InRequest req> getProperty (string propertyName) (string
 public native function <InRequest req> getMatrixParams (string path) (map);
 
 @Description { value:"Represents an HTTP outbound request message"}
+@Field {value:"cacheControl: The cache control directives configuration of the request"}
 public struct OutRequest {
     RequestCacheControl cacheControl;
 }
@@ -118,7 +120,9 @@ public native function <OutRequest req> getProperty (string propertyName) (strin
 @Field {value:"statusCode: The response status code"}
 @Field {value:"reasonPhrase: The status code reason phrase"}
 @Field {value:"server: The server header"}
-@Field {value:"cacheControl: Struct for holding the cache control directives in the Cache-Control header"}
+@Field {value:"cacheControl: The cache control directives configuration of the response"}
+@Field {value:"receivedTime: The time the response was received"}
+@Field {value:"requestTime: The time the request associated with this response was made"}
 public struct InResponse {
     int statusCode;
     string reasonPhrase;
@@ -153,7 +157,7 @@ public native function <InResponse res> getProperty (string propertyName) (strin
 @Description { value:"Represents an HTTP outbound response message"}
 @Field {value:"statusCode: The response status code"}
 @Field {value:"reasonPhrase: The status code reason phrase"}
-@Field {value:"cacheControl: Struct for setting cache control directives in the Cache-Control header"}
+@Field {value:"cacheControl: The cache control directives configuration of the request"}
 public struct OutResponse {
     int statusCode;
     string reasonPhrase;

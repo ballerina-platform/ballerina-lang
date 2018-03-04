@@ -28,6 +28,7 @@ import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BXML;
+import org.ballerinalang.net.http.caching.RequestCacheControlStruct;
 import org.ballerinalang.net.uri.URIUtil;
 import org.ballerinalang.runtime.message.BlobDataSource;
 import org.ballerinalang.runtime.message.StringDataSource;
@@ -42,6 +43,9 @@ import java.net.URI;
 import java.net.URLDecoder;
 import java.util.HashMap;
 import java.util.Map;
+
+import static org.ballerinalang.net.http.HttpConstants.PROTOCOL_PACKAGE_HTTP;
+import static org.ballerinalang.net.http.HttpConstants.REQUEST_CACHE_CONTROL;
 
 /**
  * {@code HttpDispatcher} is responsible for dispatching incoming http requests to the correct resource.
@@ -170,9 +174,9 @@ public class HttpDispatcher {
     public static BValue[] getSignatureParameters(HttpResource httpResource, HTTPCarbonMessage httpCarbonMessage) {
         //TODO Think of keeping struct type globally rather than creating for each request
         BStruct connection = ConnectorUtils.createStruct(httpResource.getBalResource(),
-                HttpConstants.PROTOCOL_PACKAGE_HTTP, HttpConstants.CONNECTION);
+                                                         PROTOCOL_PACKAGE_HTTP, HttpConstants.CONNECTION);
         BStruct inRequest = ConnectorUtils.createStruct(httpResource.getBalResource(),
-                HttpConstants.PROTOCOL_PACKAGE_HTTP, HttpConstants.IN_REQUEST);
+                                                        PROTOCOL_PACKAGE_HTTP, HttpConstants.IN_REQUEST);
 
         BStruct inRequestEntity = ConnectorUtils.createStruct(httpResource.getBalResource(),
                 org.ballerinalang.mime.util.Constants.PROTOCOL_PACKAGE_MIME,
@@ -182,8 +186,12 @@ public class HttpDispatcher {
                 org.ballerinalang.mime.util.Constants.PROTOCOL_PACKAGE_MIME,
                 org.ballerinalang.mime.util.Constants.MEDIA_TYPE);
 
+        BStruct cacheControlStruct = ConnectorUtils.createStruct(httpResource.getBalResource(), PROTOCOL_PACKAGE_HTTP,
+                                                                 REQUEST_CACHE_CONTROL);
+        RequestCacheControlStruct requestCacheControl = new RequestCacheControlStruct(cacheControlStruct);
+
         HttpUtil.enrichConnectionInfo(connection, httpCarbonMessage);
-        HttpUtil.populateInboundRequest(inRequest, inRequestEntity, mediaType, httpCarbonMessage);
+        HttpUtil.populateInboundRequest(inRequest, inRequestEntity, mediaType, httpCarbonMessage, requestCacheControl);
 
         SignatureParams signatureParams = httpResource.getSignatureParams();
         BValue[] bValues = new BValue[signatureParams.getParamCount()];
