@@ -201,6 +201,7 @@ public final class Constants {
     public static final String HTTP2_SOURCE_HANDLER = "HTTP2SourceHandler";
     public static final String HTTP2_ALPN_HANDLER = "HTTP2ALPNHandler";
     public static final String TARGET_HANDLER = "targetHandler";
+    public static final String HTTP2_UPGRADE_HANDLER = "http2UpgradeHandler";
     public static final String REDIRECT_HANDLER = "redirectHandler";
     public static final String IDLE_STATE_HANDLER = "idleStateHandler";
     public static final String HTTP_TRACE_LOG_HANDLER = "http-trace-logger";

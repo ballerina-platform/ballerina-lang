@@ -17,12 +17,21 @@ package org.wso2.transport.http.netty.sender;
 
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.socket.SocketChannel;
+import io.netty.handler.codec.http.HttpClientCodec;
+import io.netty.handler.codec.http.HttpClientUpgradeHandler;
 import io.netty.handler.codec.http.HttpContentDecompressor;
 import io.netty.handler.codec.http.HttpRequestEncoder;
 import io.netty.handler.codec.http.HttpResponseDecoder;
+import io.netty.handler.codec.http2.DefaultHttp2Connection;
+import io.netty.handler.codec.http2.DelegatingDecompressorFrameListener;
+import io.netty.handler.codec.http2.Http2ClientUpgradeCodec;
+import io.netty.handler.codec.http2.Http2Connection;
+import io.netty.handler.codec.http2.Http2ConnectionHandler;
+import io.netty.handler.codec.http2.Http2ConnectionHandlerBuilder;
+import io.netty.handler.codec.http2.Http2FrameListener;
+import io.netty.handler.codec.http2.Http2FrameLogger;
 import io.netty.handler.proxy.HttpProxyHandler;
 import io.netty.handler.ssl.SslHandler;
-import io.netty.handler.stream.ChunkedWriteHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.common.Constants;
@@ -30,8 +39,14 @@ import org.wso2.transport.http.netty.common.ProxyServerConfiguration;
 import org.wso2.transport.http.netty.config.SenderConfiguration;
 import org.wso2.transport.http.netty.listener.HTTPTraceLoggingHandler;
 import org.wso2.transport.http.netty.sender.channel.pool.ConnectionManager;
+import org.wso2.transport.http.netty.sender.http2.ClientInboundHandler;
+import org.wso2.transport.http.netty.sender.http2.ClientOutboundHandler;
+import org.wso2.transport.http.netty.sender.http2.Http2ClientChannel;
+import org.wso2.transport.http.netty.sender.http2.Http2ConnectionManager;
 
 import javax.net.ssl.SSLEngine;
+
+import static io.netty.handler.logging.LogLevel.DEBUG;
 
 /**
  * A class that responsible for initialize target server pipeline.
@@ -51,6 +66,16 @@ public class HttpClientChannelInitializer extends ChannelInitializer<SocketChann
     private boolean isKeepAlive;
     private ProxyServerConfiguration proxyServerConfiguration;
     private ConnectionManager connectionManager;
+    private Http2ConnectionManager http2ConnectionManager;
+    private boolean isSkipHttp2Upgrade;
+    private Http2ConnectionHandler http2ConnectionHandler;
+    private ClientInboundHandler clientInboundHandler;
+    private ClientOutboundHandler clientOutboundHandler;
+    private Http2Connection connection;
+
+    private static final Http2FrameLogger logger =
+            new Http2FrameLogger(DEBUG,     // Change mode to INFO for logging frames
+                                 HttpClientChannelInitializer.class);
 
     public HttpClientChannelInitializer(SenderConfiguration senderConfiguration, SSLEngine sslEngine,
             ConnectionManager connectionManager) {
@@ -61,9 +86,18 @@ public class HttpClientChannelInitializer extends ChannelInitializer<SocketChann
         this.isKeepAlive = senderConfiguration.isKeepAlive();
         this.proxyServerConfiguration = senderConfiguration.getProxyServerConfiguration();
         this.connectionManager = connectionManager;
+        this.http2ConnectionManager = connectionManager.getHttp2ConnectionManager();
         this.validateCertEnabled = senderConfiguration.validateCertEnabled();
         this.cacheDelay = senderConfiguration.getCacheValidityPeriod();
         this.cacheSize = senderConfiguration.getCacheSize();
+        this.isSkipHttp2Upgrade = senderConfiguration.skipHttpToHttp2Upgrade();
+        connection = new DefaultHttp2Connection(false);
+        clientInboundHandler = new ClientInboundHandler();
+        Http2FrameListener frameListener = new DelegatingDecompressorFrameListener(connection, clientInboundHandler);
+        http2ConnectionHandler  =
+                new Http2ConnectionHandlerBuilder().
+                        connection(connection).frameLogger(logger).frameListener(frameListener).build();
+        clientOutboundHandler = new ClientOutboundHandler(connection, http2ConnectionHandler.encoder());
     }
 
     @Override
@@ -90,10 +124,14 @@ public class HttpClientChannelInitializer extends ChannelInitializer<SocketChann
             ch.pipeline().addLast("certificateValidation",
                     new CertificateValidationHandler(this.sslEngine, this.cacheDelay, this.cacheSize));
         }
-        ch.pipeline().addLast("decoder", new HttpResponseDecoder());
-        ch.pipeline().addLast("encoder", new HttpRequestEncoder());
+        HttpClientCodec sourceCodec = new HttpClientCodec();
+        if (!isSkipHttp2Upgrade) {
+            ch.pipeline().addLast(sourceCodec);
+        } else {
+            ch.pipeline().addLast("decoder", new HttpResponseDecoder());
+            ch.pipeline().addLast("encoder", new HttpRequestEncoder());
+        }
         ch.pipeline().addLast("deCompressor", new HttpContentDecompressor());
-        ch.pipeline().addLast("chunkWriter", new ChunkedWriteHandler());
         if (httpTraceLogEnabled) {
             ch.pipeline().addLast(Constants.HTTP_TRACE_LOG_HANDLER,
                                   new HTTPTraceLoggingHandler("tracelog.http.upstream"));
@@ -107,7 +145,14 @@ public class HttpClientChannelInitializer extends ChannelInitializer<SocketChann
             ch.pipeline().addLast(Constants.REDIRECT_HANDLER, redirectHandler);
         }
         targetHandler = new TargetHandler();
+        targetHandler.setHttp2ClientOutboundHandler(clientOutboundHandler);
         targetHandler.setKeepAlive(isKeepAlive);
+        if (!isSkipHttp2Upgrade && sslEngine == null) {
+            Http2ClientUpgradeCodec upgradeCodec = new Http2ClientUpgradeCodec(http2ConnectionHandler);
+            HttpClientUpgradeHandler upgradeHandler =
+                    new HttpClientUpgradeHandler(sourceCodec, upgradeCodec, Integer.MAX_VALUE);
+            ch.pipeline().addLast(Constants.HTTP2_UPGRADE_HANDLER, upgradeHandler);
+        }
         ch.pipeline().addLast(Constants.TARGET_HANDLER, targetHandler);
     }
 
@@ -115,7 +160,25 @@ public class HttpClientChannelInitializer extends ChannelInitializer<SocketChann
         return targetHandler;
     }
 
+    public Http2ConnectionManager getHttp2ConnectionManager() {
+        return http2ConnectionManager;
+    }
+
+    /**
+     * Get the associated {@code Http2Connection}
+     *
+     * @return the associated Http2Connection
+     */
+    public Http2Connection getConnection() {
+        return connection;
+    }
+
     public boolean isKeepAlive() {
         return isKeepAlive;
+    }
+
+    public void setHttp2ClientChannel(Http2ClientChannel http2ClientChannel) {
+        clientOutboundHandler.setHttp2ClientChannel(http2ClientChannel);
+        clientInboundHandler.setHttp2ClientChannel(http2ClientChannel);
     }
 }

@@ -19,6 +19,7 @@ import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.handler.codec.DecoderException;
 import io.netty.handler.codec.DecoderResult;
 import io.netty.handler.codec.http.DefaultLastHttpContent;
+import io.netty.handler.codec.http.HttpClientUpgradeHandler;
 import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http.HttpResponse;
 import io.netty.handler.codec.http.HttpResponseStatus;
@@ -39,6 +40,7 @@ import org.wso2.transport.http.netty.message.HttpCarbonResponse;
 import org.wso2.transport.http.netty.message.PooledDataStreamerFactory;
 import org.wso2.transport.http.netty.sender.channel.TargetChannel;
 import org.wso2.transport.http.netty.sender.channel.pool.ConnectionManager;
+import org.wso2.transport.http.netty.sender.http2.ClientOutboundHandler;
 
 /**
  * A class responsible for handling responses coming from BE.
@@ -50,6 +52,7 @@ public class TargetHandler extends ChannelInboundHandlerAdapter {
     private HTTPCarbonMessage targetRespMsg;
     private ConnectionManager connectionManager;
     private TargetChannel targetChannel;
+    private ClientOutboundHandler http2ClientOutboundHandler;
     private HTTPCarbonMessage incomingMsg;
     private HandlerExecutor handlerExecutor;
     private boolean keepAlive;
@@ -186,9 +189,26 @@ public class TargetHandler extends ChannelInboundHandlerAdapter {
 
                 log.warn("Idle timeout has reached hence closing the connection {}", ctx.channel().id());
             }
+        } else if (evt instanceof HttpClientUpgradeHandler.UpgradeEvent) {
+            HttpClientUpgradeHandler.UpgradeEvent upgradeEvent = (HttpClientUpgradeHandler.UpgradeEvent) evt;
+            if (HttpClientUpgradeHandler.UpgradeEvent.UPGRADE_SUCCESSFUL.name().equals(upgradeEvent.name())) {
+                executePostUpgradeActions(ctx);
+            }
+            ctx.fireUserEventTriggered(evt);
         } else {
             log.warn("Unexpected user event triggered", evt.toString());
         }
+    }
+
+    private void executePostUpgradeActions(ChannelHandlerContext ctx) {
+        ctx.pipeline().remove(this);
+        ctx.pipeline().addLast(http2ClientOutboundHandler);
+        handoverChannelToHttp2ConnectionManager();
+    }
+
+    private void handoverChannelToHttp2ConnectionManager() {
+        connectionManager.getHttp2ConnectionManager().
+                addHttp2ClientChannel(targetChannel.getHttpRoute(), targetChannel.getHttp2ClientChannel());
     }
 
     private void handleErrorIdleScenarios(String channelID) {
@@ -239,5 +259,9 @@ public class TargetHandler extends ChannelInboundHandlerAdapter {
 
     public HttpResponseFuture getHttpResponseFuture() {
         return httpResponseFuture;
+    }
+
+    public void setHttp2ClientOutboundHandler(ClientOutboundHandler http2ClientOutboundHandler) {
+        this.http2ClientOutboundHandler = http2ClientOutboundHandler;
     }
 }

@@ -36,8 +36,13 @@ import org.wso2.transport.http.netty.contract.HttpClientConnector;
 import org.wso2.transport.http.netty.contract.HttpResponseFuture;
 import org.wso2.transport.http.netty.listener.SourceHandler;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
+import org.wso2.transport.http.netty.message.Http2PushPromise;
+import org.wso2.transport.http.netty.message.ResponseHandle;
 import org.wso2.transport.http.netty.sender.channel.TargetChannel;
 import org.wso2.transport.http.netty.sender.channel.pool.ConnectionManager;
+import org.wso2.transport.http.netty.sender.http2.Http2ClientChannel;
+import org.wso2.transport.http.netty.sender.http2.Http2ConnectionManager;
+import org.wso2.transport.http.netty.sender.http2.OutboundMsgHolder;
 
 import java.util.NoSuchElementException;
 
@@ -49,6 +54,7 @@ public class HttpClientConnectorImpl implements HttpClientConnector {
     private static final Logger log = LoggerFactory.getLogger(HttpClientConnector.class);
 
     private ConnectionManager connectionManager;
+    private Http2ConnectionManager http2ConnectionManager;
     private SenderConfiguration senderConfiguration;
     private SSLConfig sslConfig;
     private int socketIdleTimeout;
@@ -59,6 +65,7 @@ public class HttpClientConnectorImpl implements HttpClientConnector {
 
     public HttpClientConnectorImpl(ConnectionManager connectionManager, SenderConfiguration senderConfiguration) {
         this.connectionManager = connectionManager;
+        this.http2ConnectionManager = connectionManager.getHttp2ConnectionManager();
         this.senderConfiguration = senderConfiguration;
         initTargetChannelProperties(senderConfiguration);
     }
@@ -70,7 +77,7 @@ public class HttpClientConnectorImpl implements HttpClientConnector {
 
     @Override
     public HttpResponseFuture send(HTTPCarbonMessage httpOutboundRequest) {
-        HttpResponseFuture httpResponseFuture = new DefaultHttpResponseFuture();
+        HttpResponseFuture httpResponseFuture;
 
         SourceHandler srcHandler = (SourceHandler) httpOutboundRequest.getProperty(Constants.SRC_HANDLER);
         if (srcHandler == null) {
@@ -82,7 +89,28 @@ public class HttpClientConnectorImpl implements HttpClientConnector {
 
         try {
             final HttpRoute route = getTargetRoute(httpOutboundRequest);
+            Http2ClientChannel activeHttp2ClientChannel = http2ConnectionManager.borrowChannel(route);
+
+            if (activeHttp2ClientChannel != null) {   // If channel available in http2 connection pool
+                OutboundMsgHolder outboundMsgHolder =
+                        new OutboundMsgHolder(httpOutboundRequest, activeHttp2ClientChannel);
+
+                activeHttp2ClientChannel.getChannel().eventLoop().execute(() -> {
+                    activeHttp2ClientChannel.getChannel().write(outboundMsgHolder);
+                });
+                return outboundMsgHolder.getResponseFuture();
+            }
+
             TargetChannel targetChannel = connectionManager.borrowTargetChannel(route, srcHandler, senderConfiguration);
+
+            Http2ClientChannel freshHttp2ClientChannel = targetChannel.getHttp2ClientChannel();
+
+            OutboundMsgHolder outboundMsgHolder = new OutboundMsgHolder(httpOutboundRequest, freshHttp2ClientChannel);
+            httpResponseFuture = outboundMsgHolder.getResponseFuture();
+
+            // Response for the upgrade request will arrive in stream 1, so use 1 as the stream id
+            freshHttp2ClientChannel.putInFlightMessage(1, outboundMsgHolder);
+
             targetChannel.getChannelFuture().addListener(new ChannelFutureListener() {
                 @Override
                 public void operationComplete(ChannelFuture channelFuture) throws Exception {
@@ -149,10 +177,37 @@ public class HttpClientConnectorImpl implements HttpClientConnector {
                     && "Timeout waiting for idle object".equals(failedCause.getMessage())) {
                 failedCause = new NoSuchElementException(Constants.MAXIMUM_WAIT_TIME_EXCEED);
             }
-            httpResponseFuture.notifyHttpListener(failedCause);
+            HttpResponseFuture errorResponseFuture = new DefaultHttpResponseFuture();
+            errorResponseFuture.notifyHttpListener(failedCause);
+            return errorResponseFuture;
         }
 
         return httpResponseFuture;
+    }
+
+    @Override
+    public HttpResponseFuture submit(HTTPCarbonMessage httpOutboundRequest) {
+        return null;
+    }
+
+    @Override
+    public HttpResponseFuture getResponse(ResponseHandle responseHandle) {
+        return responseHandle.getOutboundMsgHolder().getResponseFuture();
+    }
+
+    @Override
+    public HttpResponseFuture getNextPushPromise(ResponseHandle responseHandle) {
+        return responseHandle.getOutboundMsgHolder().getPushPromiseFuture();
+    }
+
+    @Override
+    public HttpResponseFuture hasPushPromise(ResponseHandle responseHandle) {
+        return responseHandle.getOutboundMsgHolder().getPromiseAvailabilityFuture();
+    }
+
+    @Override
+    public HttpResponseFuture getPushResponse(ResponseHandle responseHandle, Http2PushPromise pushPromise) {
+        return responseHandle.getOutboundMsgHolder().getPushResponseFuture(pushPromise);
     }
 
     @Override

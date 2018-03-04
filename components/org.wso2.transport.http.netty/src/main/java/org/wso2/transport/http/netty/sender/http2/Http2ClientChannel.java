@@ -26,7 +26,6 @@ import io.netty.handler.codec.http2.Http2Stream;
 import org.wso2.transport.http.netty.common.HttpRoute;
 
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -35,32 +34,27 @@ import java.util.concurrent.atomic.AtomicInteger;
  * <p>
  * This shouldn't have anything related to a single message.
  */
-public class TargetChannel {
+public class Http2ClientChannel {
 
     private static ConcurrentHashMap<Integer, OutboundMsgHolder> inFlightMessages = new ConcurrentHashMap<>();
     private static ConcurrentHashMap<Integer, OutboundMsgHolder> promisedMessages = new ConcurrentHashMap<>();
     private Channel channel;
     private Http2Connection connection;
     private ChannelFuture channelFuture;
-    private UpgradeState upgradeState = UpgradeState.UPGRADE_NOT_ISSUED;
-    // List which holds the pending message during the connection upgrade
-    private ConcurrentLinkedQueue<OutboundMsgHolder> pendingMessages;
     private HttpRoute httpRoute;
-    private ConnectionManager connectionManager;
+    private Http2ConnectionManager http2ConnectionManager;
     // Whether channel is operates with maximum number of allowed streams
     private AtomicBoolean isExhausted = new AtomicBoolean(false);
 
     // Number of active streams. Need to start from 1 to prevent someone stealing the connection from the creator
     private AtomicInteger activeStreams = new AtomicInteger(1);
 
-    public TargetChannel(ConnectionManager connectionManager, Http2Connection connection, HttpRoute httpRoute,
-                         ChannelFuture channelFuture) {
-        this.connectionManager = connectionManager;
-        this.channelFuture = channelFuture;
-        channel = channelFuture.channel();
+    public Http2ClientChannel(Http2ConnectionManager http2ConnectionManager, Http2Connection connection,
+                              HttpRoute httpRoute, Channel channel) {
+        this.http2ConnectionManager = http2ConnectionManager;
+        this.channel = channel;
         this.connection = connection;
         this.httpRoute = httpRoute;
-        pendingMessages = new ConcurrentLinkedQueue<>();
         this.connection.addListener(new StreamCloseListener(this));
     }
 
@@ -71,6 +65,10 @@ public class TargetChannel {
      */
     public Channel getChannel() {
         return channel;
+    }
+
+    public void setChannel(Channel channel) {
+        this.channel = channel;
     }
 
     /**
@@ -89,6 +87,10 @@ public class TargetChannel {
      */
     public ChannelFuture getChannelFuture() {
         return channelFuture;
+    }
+
+    public void setChannelFuture(ChannelFuture channelFuture) {
+        this.channelFuture = channelFuture;
     }
 
     /**
@@ -150,43 +152,6 @@ public class TargetChannel {
     }
 
     /**
-     * Store a message until connection upgrade is done.
-     * When a connection upgrade is in progress, subsequent messages should kept on-hold until the process is over
-     *
-     * @param pendingMessage a message to be hold until connection upgrade is done
-     */
-    void addPendingMessage(OutboundMsgHolder pendingMessage) {
-        pendingMessages.add(pendingMessage);
-    }
-
-    /**
-     * Get all messages was on-hold due to the connection upgrade process
-     *
-     * @return queue of pending messages to be delivered to the backend service
-     */
-    ConcurrentLinkedQueue<OutboundMsgHolder> getPendingMessages() {
-        return pendingMessages;
-    }
-
-    /**
-     * Update the connection upgrade status
-     *
-     * @param upgradeState status of the connection upgrade
-     */
-    void updateUpgradeState(UpgradeState upgradeState) {
-        this.upgradeState = upgradeState;
-    }
-
-    /**
-     * Get the current state of the connection upgrade process
-     *
-     * @return state of the connection upgrade process
-     */
-    UpgradeState getUpgradeState() {
-        return upgradeState;
-    }
-
-    /**
      * Increment and get the active streams count
      *
      * @return number of active streams count
@@ -203,30 +168,22 @@ public class TargetChannel {
     }
 
     /**
-     * Lifecycle states of the Target Channel related to connection upgrade
-     */
-    public enum UpgradeState {
-        UPGRADE_NOT_ISSUED, UPGRADE_ISSUED, UPGRADED
-    }
-
-    /**
      * Listener which listen to the stream closure event
      */
     private class StreamCloseListener extends Http2EventAdapter {
 
-        private TargetChannel targetChannel;
+        private Http2ClientChannel http2ClientChannel;
 
-        public StreamCloseListener(TargetChannel targetChannel) {
-            this.targetChannel = targetChannel;
+        public StreamCloseListener(Http2ClientChannel http2ClientChannel) {
+            this.http2ClientChannel = http2ClientChannel;
         }
 
         public void onStreamClosed(Http2Stream stream) {
             // TargetChannel is no longer exhausted, so we can return it back to the pool
             activeStreams.decrementAndGet();
             if (isExhausted.getAndSet(false)) {
-                connectionManager.returnTargetChannel(httpRoute, targetChannel);
+                http2ConnectionManager.returnTargetChannel(httpRoute, http2ClientChannel);
             }
         }
     }
-
 }

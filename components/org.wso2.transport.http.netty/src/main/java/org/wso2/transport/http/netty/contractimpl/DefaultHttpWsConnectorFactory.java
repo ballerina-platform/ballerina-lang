@@ -89,8 +89,8 @@ public class DefaultHttpWsConnectorFactory implements HttpWsConnectorFactory {
         BootstrapConfiguration bootstrapConfig = new BootstrapConfiguration(transportProperties);
         EventLoopGroup clientEventLoopGroup = new NioEventLoopGroup(
                 Util.getIntProperty(transportProperties, Constants.CLIENT_BOOTSTRAP_WORKER_GROUP_SIZE, 4));
-        ConnectionManager connectionManager = new ConnectionManager(senderConfiguration.getPoolConfiguration(),
-                bootstrapConfig, clientEventLoopGroup);
+        ConnectionManager connectionManager =
+                new ConnectionManager(senderConfiguration, bootstrapConfig, clientEventLoopGroup);
         return new HttpClientConnectorImpl(connectionManager, senderConfiguration);
     }
 

@@ -33,9 +33,9 @@ import org.wso2.transport.http.netty.contract.HttpResponseFuture;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 import org.wso2.transport.http.netty.message.Http2PushPromise;
 import org.wso2.transport.http.netty.message.ResponseHandle;
-import org.wso2.transport.http.netty.sender.http2.ConnectionManager;
+import org.wso2.transport.http.netty.sender.http2.Http2ClientChannel;
+import org.wso2.transport.http.netty.sender.http2.Http2ConnectionManager;
 import org.wso2.transport.http.netty.sender.http2.OutboundMsgHolder;
-import org.wso2.transport.http.netty.sender.http2.TargetChannel;
 
 /**
  * {@code DefaultHttp2ClientConnector} is the implementation of the {@code Http2ClientConnector}.
@@ -43,10 +43,10 @@ import org.wso2.transport.http.netty.sender.http2.TargetChannel;
 public class DefaultHttp2ClientConnector implements Http2ClientConnector {
 
     private static final Logger log = LoggerFactory.getLogger(Http2ClientConnector.class);
-    private ConnectionManager connectionManager;
+    private Http2ConnectionManager http2ConnectionManager;
 
     public DefaultHttp2ClientConnector(SenderConfiguration senderConfiguration) {
-        connectionManager = new ConnectionManager(senderConfiguration);
+        http2ConnectionManager = new Http2ConnectionManager(senderConfiguration);
     }
 
     @Override
@@ -60,11 +60,11 @@ public class DefaultHttp2ClientConnector implements Http2ClientConnector {
         HttpResponseFuture httpResponseFuture = null;
         try {
             HttpRoute route = getTargetRoute(httpOutboundRequest);
-            TargetChannel targetChannel = connectionManager.borrowChannel(route);
+            Http2ClientChannel http2ClientChannel = http2ConnectionManager.borrowChannel(route);
             OutboundMsgHolder outboundMsgHolder =
-                    new OutboundMsgHolder(httpOutboundRequest, targetChannel);
+                    new OutboundMsgHolder(httpOutboundRequest, http2ClientChannel);
             httpResponseFuture = outboundMsgHolder.getResponseFuture();
-            targetChannel.getChannelFuture().
+            http2ClientChannel.getChannelFuture().
                     addListener(new ConnectionAvailabilityListener(outboundMsgHolder, route, false));
         } catch (Exception failedCause) {
             if (httpResponseFuture == null) {
@@ -86,10 +86,10 @@ public class DefaultHttp2ClientConnector implements Http2ClientConnector {
         HttpResponseFuture responseHandleFuture = null;
         try {
             HttpRoute route = getTargetRoute(httpOutboundRequest);
-            TargetChannel targetChannel = connectionManager.borrowChannel(route);
-            OutboundMsgHolder outboundMsgHolder = new OutboundMsgHolder(httpOutboundRequest, targetChannel);
+            Http2ClientChannel http2ClientChannel = http2ConnectionManager.borrowChannel(route);
+            OutboundMsgHolder outboundMsgHolder = new OutboundMsgHolder(httpOutboundRequest, http2ClientChannel);
             responseHandleFuture = outboundMsgHolder.getResponseHandleFuture();
-            targetChannel.getChannelFuture().
+            http2ClientChannel.getChannelFuture().
                     addListener(new ConnectionAvailabilityListener(outboundMsgHolder, route, true));
         } catch (Exception failedCause) {
             if (responseHandleFuture == null) {

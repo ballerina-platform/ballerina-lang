@@ -20,6 +20,8 @@
 package org.wso2.transport.http.netty.contract;
 
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
+import org.wso2.transport.http.netty.message.Http2PushPromise;
+import org.wso2.transport.http.netty.message.ResponseHandle;
 
 /**
  * Allows to send outbound messages.
@@ -46,4 +48,45 @@ public interface HttpClientConnector {
      * @return return the status of the close action.
      */
     boolean close();
+
+    /**
+     * Submit httpMessages to the back-end in asynchronous manner
+     *
+     * @param httpCarbonMessage httpCarbonMessage {@link HTTPCarbonMessage} which should be sent to the remote server.
+     * @return returns the status of the asynchronous submit action.
+     */
+    HttpResponseFuture submit(HTTPCarbonMessage httpCarbonMessage);
+
+    /**
+     * Fetch response related to the {@code ResponseHandle} in asynchronous manner.
+     *
+     * @param responseHandle Response Handle
+     * @return returns the status of the asynchronous response fetch action
+     */
+    HttpResponseFuture getResponse(ResponseHandle responseHandle);
+
+    /**
+     * Get the next available push promise related to the {@code ResponseHandle} in asynchronous manner.
+     *
+     * @param responseHandle Response Handle
+     * @return returns the status of the asynchronous push promise fetch action
+     */
+    HttpResponseFuture getNextPushPromise(ResponseHandle responseHandle);
+
+    /**
+     * Check whether a push promise exists in asynchronous manner.
+     *
+     * @param responseHandle Response Handle
+     * @return returns the status of the asynchronous push promise check action
+     */
+    HttpResponseFuture hasPushPromise(ResponseHandle responseHandle);
+
+    /**
+     * Get the push response in asynchronous manner.
+     *
+     * @param responseHandle Response Handle
+     * @param pushPromise    push promise related to the push response
+     * @return returns the status of the asynchronous push response fetch action
+     */
+    HttpResponseFuture getPushResponse(ResponseHandle responseHandle, Http2PushPromise pushPromise);
 }

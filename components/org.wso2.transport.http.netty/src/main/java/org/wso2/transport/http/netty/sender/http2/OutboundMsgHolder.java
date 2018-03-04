@@ -42,7 +42,7 @@ public class OutboundMsgHolder {
     private HttpResponseFuture responseHandleFuture;
     private ConcurrentHashMap<Integer, HttpResponseFuture> pushResponseFutures;
 
-    private TargetChannel targetChannel;
+    private Http2ClientChannel http2ClientChannel;
 
     private BlockingQueue<HttpCarbonResponse> pushResponses;
     private BlockingQueue<Http2PushPromise> promises;
@@ -53,9 +53,9 @@ public class OutboundMsgHolder {
     private int promisesCount = 0;
     private int pushResponsesCount = 0;
 
-    public OutboundMsgHolder(HTTPCarbonMessage httpCarbonMessage, TargetChannel targetChannel) {
+    public OutboundMsgHolder(HTTPCarbonMessage httpCarbonMessage, Http2ClientChannel http2ClientChannel) {
         this.requestCarbonMessage = httpCarbonMessage;
-        this.targetChannel = targetChannel;
+        this.http2ClientChannel = http2ClientChannel;
         pushResponses = new LinkedBlockingQueue();
         promises = new LinkedBlockingQueue();
         pushResponsesMap = new ConcurrentHashMap<>();
@@ -96,8 +96,8 @@ public class OutboundMsgHolder {
         return responseHandleFuture;
     }
 
-    public TargetChannel getTargetChannel() {
-        return targetChannel;
+    public Http2ClientChannel getHttp2ClientChannel() {
+        return http2ClientChannel;
     }
 
     public void addPromise(Http2PushPromise pushPromise) {

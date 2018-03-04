@@ -50,7 +50,7 @@ public class ClientInboundHandler extends Http2EventAdapter {
 
     private static final Logger log = LoggerFactory.getLogger(ClientInboundHandler.class);
 
-    private TargetChannel targetChannel;
+    private Http2ClientChannel http2ClientChannel;
 
     @Override
     public int onDataRead(ChannelHandlerContext ctx, int streamId, ByteBuf data, int padding,
@@ -58,10 +58,10 @@ public class ClientInboundHandler extends Http2EventAdapter {
 
         log.debug("Http2FrameListenAdapter.onDataRead()");
 
-        OutboundMsgHolder outboundMsgHolder = targetChannel.getInFlightMessage(streamId);
+        OutboundMsgHolder outboundMsgHolder = http2ClientChannel.getInFlightMessage(streamId);
         boolean isServerPush = false;
         if (outboundMsgHolder == null) {
-            outboundMsgHolder = targetChannel.getPromisedMessage(streamId);
+            outboundMsgHolder = http2ClientChannel.getPromisedMessage(streamId);
             if (outboundMsgHolder != null) {
                 isServerPush = true;
             } else {
@@ -73,7 +73,7 @@ public class ClientInboundHandler extends Http2EventAdapter {
             HTTPCarbonMessage responseMessage = outboundMsgHolder.getPushResponse(streamId);
             if (endOfStream) {
                 responseMessage.addHttpContent(new DefaultLastHttpContent(data.retain()));
-                targetChannel.removePromisedMessage(streamId);
+                http2ClientChannel.removePromisedMessage(streamId);
             } else {
                 responseMessage.addHttpContent(new DefaultHttpContent(data.retain()));
             }
@@ -81,7 +81,7 @@ public class ClientInboundHandler extends Http2EventAdapter {
             HTTPCarbonMessage responseMessage = outboundMsgHolder.getResponse();
             if (endOfStream) {
                 responseMessage.addHttpContent(new DefaultLastHttpContent(data.retain()));
-                targetChannel.removeInFlightMessage(streamId);
+                http2ClientChannel.removeInFlightMessage(streamId);
             } else {
                 responseMessage.addHttpContent(new DefaultHttpContent(data.retain()));
             }
@@ -103,10 +103,10 @@ public class ClientInboundHandler extends Http2EventAdapter {
 
         log.debug("Http2FrameListenAdapter.onHeadersRead()");
 
-        OutboundMsgHolder outboundMsgHolder = targetChannel.getInFlightMessage(streamId);
+        OutboundMsgHolder outboundMsgHolder = http2ClientChannel.getInFlightMessage(streamId);
         boolean isServerPush = false;
         if (outboundMsgHolder == null) {
-            outboundMsgHolder = targetChannel.getPromisedMessage(streamId);
+            outboundMsgHolder = http2ClientChannel.getPromisedMessage(streamId);
             if (outboundMsgHolder != null) {
                 isServerPush = true;
             } else {
@@ -122,12 +122,12 @@ public class ClientInboundHandler extends Http2EventAdapter {
             outboundMsgHolder.addPushResponse(streamId, responseMessage);
             if (endStream) {
                 responseMessage.addHttpContent(new EmptyLastHttpContent());
-                targetChannel.removePromisedMessage(streamId);
+                http2ClientChannel.removePromisedMessage(streamId);
             }
         } else {
             if (endStream) {
                 responseMessage.addHttpContent(new EmptyLastHttpContent());
-                targetChannel.removeInFlightMessage(streamId);
+                http2ClientChannel.removeInFlightMessage(streamId);
             }
             outboundMsgHolder.setResponse(responseMessage);
         }
@@ -145,13 +145,13 @@ public class ClientInboundHandler extends Http2EventAdapter {
     public void onPushPromiseRead(ChannelHandlerContext ctx, int streamId, int promisedStreamId,
                                   Http2Headers headers, int padding) throws Http2Exception {
         log.debug("Http2FrameListenAdapter.onPushPromiseRead()");
-        OutboundMsgHolder outboundMsgHolder = targetChannel.getInFlightMessage(streamId);
+        OutboundMsgHolder outboundMsgHolder = http2ClientChannel.getInFlightMessage(streamId);
         if (outboundMsgHolder == null) {
             log.warn("Push promised received over invalid stream");
             return;
         }
 
-        targetChannel.putPromisedMessage(promisedStreamId, outboundMsgHolder);
+        http2ClientChannel.putPromisedMessage(promisedStreamId, outboundMsgHolder);
         outboundMsgHolder.addPromise(new Http2PushPromise(streamId, promisedStreamId, headers));
     }
 
@@ -198,10 +198,10 @@ public class ClientInboundHandler extends Http2EventAdapter {
     /**
      * Set the {@code TargetChannel} associated with the ClientInboundHandler
      *
-     * @param targetChannel associated TargetChannel
+     * @param http2ClientChannel associated TargetChannel
      */
-    public void setTargetChannel(TargetChannel targetChannel) {
-        this.targetChannel = targetChannel;
+    public void setHttp2ClientChannel(Http2ClientChannel http2ClientChannel) {
+        this.http2ClientChannel = http2ClientChannel;
     }
 
 }

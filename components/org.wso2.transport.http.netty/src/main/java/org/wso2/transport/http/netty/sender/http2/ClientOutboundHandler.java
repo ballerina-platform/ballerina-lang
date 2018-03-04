@@ -52,7 +52,7 @@ public class ClientOutboundHandler extends ChannelOutboundHandlerAdapter {
     private Http2Connection connection;
     // Encoder associated with the HTTP2ConnectionHandler
     private Http2ConnectionEncoder encoder;
-    private TargetChannel targetChannel;
+    private Http2ClientChannel http2ClientChannel;
 
     public ClientOutboundHandler(Http2Connection connection, Http2ConnectionEncoder encoder) {
         this.connection = connection;
@@ -81,10 +81,10 @@ public class ClientOutboundHandler extends ChannelOutboundHandlerAdapter {
     /**
      * Set the {@code TargetChannel}
      *
-     * @param targetChannel TargetChannel related to the handler
+     * @param http2ClientChannel TargetChannel related to the handler
      */
-    public void setTargetChannel(TargetChannel targetChannel) {
-        this.targetChannel = targetChannel;
+    public void setHttp2ClientChannel(Http2ClientChannel http2ClientChannel) {
+        this.http2ClientChannel = http2ClientChannel;
     }
 
     /**
@@ -113,12 +113,12 @@ public class ClientOutboundHandler extends ChannelOutboundHandlerAdapter {
 
         public void writeContent(ChannelHandlerContext ctx) {
             int streamId = getStreamId();
-            targetChannel.putInFlightMessage(streamId, outboundMsgHolder);
+            http2ClientChannel.putInFlightMessage(streamId, outboundMsgHolder);
 
             // Write Content
             httpOutboundRequest.getHttpContentAsync().
                     setMessageListener((httpContent ->
-                                                targetChannel.getChannel().eventLoop().execute(() -> {
+                                                http2ClientChannel.getChannel().eventLoop().execute(() -> {
                                                     try {
                                                         writeOutboundRequest(
                                                                 ctx, httpContent, streamId);
