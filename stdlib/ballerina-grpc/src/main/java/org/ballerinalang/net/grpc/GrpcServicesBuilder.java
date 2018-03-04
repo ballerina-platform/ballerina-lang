@@ -105,7 +105,12 @@ public class GrpcServicesBuilder {
     private ServerServiceDefinition getUnaryServiceDefinition(Service service, Descriptors.ServiceDescriptor
             serviceDescriptor) throws GrpcServerException {
         // Generate full service name for the service definition. <package>.<service>
-        final String serviceName = service.getPackage() + ServiceProtoConstants.CLASSPATH_SYMBOL + service.getName();
+        final String serviceName;
+        if(!".".equals(service.getPackage())){
+            serviceName = service.getPackage() + ServiceProtoConstants.CLASSPATH_SYMBOL + service.getName();
+        } else {
+            serviceName = service.getName();
+        }
         // Server Definition Builder for the service.
         Builder serviceDefBuilder = ServerServiceDefinition.builder(serviceName);
         

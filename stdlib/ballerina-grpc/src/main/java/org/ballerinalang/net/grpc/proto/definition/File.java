@@ -72,8 +72,10 @@ public class File {
 
         fileDefinition.append("syntax = \"").append(fileDescriptorProto.getSyntax()).append("\";").append
                 (ServiceProtoConstants.NEW_LINE_CHARACTER);
-        fileDefinition.append("package ").append(fileDescriptorProto.getPackage()).append(";").append
-                (ServiceProtoConstants.NEW_LINE_CHARACTER);
+        if(!".".equals(fileDescriptorProto.getPackage())) {
+            fileDefinition.append("package ").append(fileDescriptorProto.getPackage()).append(";").append
+                    (ServiceProtoConstants.NEW_LINE_CHARACTER);
+        }
         for (String dependency : dependencyList) {
             fileDefinition.append("import \"").append(dependency).append("\";").append(ServiceProtoConstants
                     .NEW_LINE_CHARACTER);
