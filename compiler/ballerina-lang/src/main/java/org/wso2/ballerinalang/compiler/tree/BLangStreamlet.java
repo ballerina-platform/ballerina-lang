@@ -45,6 +45,7 @@ public class BLangStreamlet extends BLangNode implements StreamletNode {
     private BlockNode body;
     private String siddhiQuery;
     private String streamIdsAsString;
+    private List<VariableNode> globalVariables = new ArrayList<>();
 
     public BTypeSymbol symbol;
 
@@ -92,6 +93,16 @@ public class BLangStreamlet extends BLangNode implements StreamletNode {
     @Override
     public FunctionNode getInitFunction() {
         return initFunction;
+    }
+
+    @Override
+    public void addGlobalVariable(VariableNode variable) {
+        globalVariables.add(variable);
+    }
+
+    @Override
+    public List<VariableNode> getGlobalVariables() {
+        return globalVariables;
     }
 
     @Override

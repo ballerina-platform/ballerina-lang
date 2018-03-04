@@ -1033,6 +1033,15 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             this.analyzeDef((BLangStatement) statementNode, streamletEnv);
             ((BLangStatement) statementNode).accept(this);
         }
+
+        List<BLangVariable> globalVariableList = this.env.enclPkg.globalVars;
+        if (globalVariableList != null) {
+            for (BLangVariable variable : globalVariableList) {
+                if ("stream".equals((((variable).type.tsymbol)).name.value)) {
+                    ((BLangStreamlet) streamletNode).addGlobalVariable(variable);
+                }
+            }
+        }
     }
 
     public void visit(BLangQueryStatement queryStatement) {
@@ -1164,6 +1173,11 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
         ExpressionNode variableReference = setAssignmentClause.getVariableReference();
         ((BLangExpression) variableReference).accept(this);
+    }
+
+    public void visit(BLangFieldBasedAccess fieldAccessExpr) {
+        VariableReferenceNode variableReferenceNode = fieldAccessExpr.getExpression();
+        ((BLangVariableReference) variableReferenceNode).accept(this);
     }
 
     public void visit(BLangSimpleVarRef varRefExpr) {

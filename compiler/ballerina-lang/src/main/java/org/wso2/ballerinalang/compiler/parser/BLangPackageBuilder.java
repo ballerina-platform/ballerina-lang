@@ -2238,17 +2238,25 @@ public class BLangPackageBuilder {
         this.patternStreamingInputStack.push(patternStreamingInputNode);
     }
 
-    public void endPatternStreamingInputNode(DiagnosticPos pos, Set<Whitespace> ws) {
+    public void endPatternStreamingInputNode(DiagnosticPos pos, Set<Whitespace> ws, boolean isFollowedBy,
+                                             boolean leftParenthesisEnabled, boolean rightParenthesisEnabled) {
         PatternStreamingInputNode patternStreamingInputNode = this.patternStreamingInputStack.peek();
 
         ((BLangPatternStreamingInput) patternStreamingInputNode).pos = pos;
         ((BLangPatternStreamingInput) patternStreamingInputNode).addWS(ws);
 
-        if (patternStreamingInputStack.capacity() == 1) {
-            patternStreamingInputNode.setLHSPatternStreamingInput(patternStreamingInputStack.pop());
-        } else if (patternStreamingInputStack.capacity() == 2) {
-            patternStreamingInputNode.setRHSPatternStreamingInput(patternStreamingInputStack.pop());
+        if (!patternStreamingEdgeInputStack.isEmpty()) {
+            patternStreamingInputNode.setPatternStreamingEdgeInput(patternStreamingEdgeInputStack.pop());
         }
+
+        if (patternStreamingInputStack.size() > 1) {
+            patternStreamingInputNode = this.patternStreamingInputStack.pop();
+            this.patternStreamingInputStack.peek().setPatternStreamingInput(patternStreamingInputNode);
+        }
+        patternStreamingInputNode.setFollowedBy(isFollowedBy);
+        patternStreamingInputNode.setLeftParenthesisEnabled(leftParenthesisEnabled);
+        patternStreamingInputNode.setRightParenthesisEnabled(rightParenthesisEnabled);
+
     }
 
     public void startStreamingQueryStatementNode(DiagnosticPos pos, Set<Whitespace> ws) {

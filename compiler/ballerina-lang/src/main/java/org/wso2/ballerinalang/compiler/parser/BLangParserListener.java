@@ -2261,7 +2261,6 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         if (ctx.Identifier().size() == 2) {
             alias = ctx.Identifier().get(1).getText();
         }
-
         this.pkgBuilder.endPatternStreamingEdgeInputNode(getCurrentPos(ctx), getWS(ctx),
                 ctx.Identifier().get(0).getText(), alias);
     }
@@ -2299,9 +2298,11 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         if (ctx.exception != null) {
             System.out.printf("XXXXXXXXXX");
             return;
+
         }
         System.out.printf("BBBB" + count + "\n");
-        this.pkgBuilder.endPatternStreamingInputNode(getCurrentPos(ctx), getWS(ctx));
+        this.pkgBuilder.endPatternStreamingInputNode(getCurrentPos(ctx), getWS(ctx), ctx.FOLLOWED() != null,
+                ctx.LEFT_PARENTHESIS() != null, ctx.RIGHT_PARENTHESIS() != null);
     }
 
     @Override

@@ -38,14 +38,24 @@ import org.ballerinalang.model.tree.Node;
 public interface PatternStreamingInputNode extends Node {
 
 
-    void setLHSPatternStreamingInput(PatternStreamingInputNode patternStreamingInput);
+    void setPatternStreamingInput(PatternStreamingInputNode patternStreamingInput);
 
-    void setRHSPatternStreamingInput(PatternStreamingInputNode patternStreamingInput);
+    void setPatternStreamingEdgeInput(PatternStreamingEdgeInputNode patternStreamingEdgeInput);
 
+    void setFollowedBy(boolean followedBy);
 
-    PatternStreamingInputNode getLHSPatternStreamingInput();
+    boolean isFollowedBy();
 
-    PatternStreamingInputNode getRHSPatternStreamingInput();
+    PatternStreamingInputNode getPatternStreamingInput();
 
+    PatternStreamingEdgeInputNode getPatternStreamingEdgeInput();
+
+    boolean isLeftParenthesisEnabled();
+
+    void setLeftParenthesisEnabled(boolean leftParenthesisEnabled);
+
+    boolean isRightParenthesisEnabled();
+
+    void setRightParenthesisEnabled(boolean rightParenthesisEnabled);
 
 }

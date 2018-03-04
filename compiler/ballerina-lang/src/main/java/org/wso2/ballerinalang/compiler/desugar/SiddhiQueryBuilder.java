@@ -18,8 +18,12 @@
 
 package org.wso2.ballerinalang.compiler.desugar;
 
+import org.ballerinalang.model.tree.OperatorKind;
+import org.ballerinalang.model.tree.VariableNode;
 import org.ballerinalang.model.tree.clauses.JoinStreamingInput;
 import org.ballerinalang.model.tree.clauses.OrderByNode;
+import org.ballerinalang.model.tree.clauses.PatternStreamingEdgeInputNode;
+import org.ballerinalang.model.tree.clauses.PatternStreamingInputNode;
 import org.ballerinalang.model.tree.clauses.SelectClauseNode;
 import org.ballerinalang.model.tree.clauses.SelectExpressionNode;
 import org.ballerinalang.model.tree.clauses.SetAssignmentNode;
@@ -33,10 +37,13 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStructType;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.BLangStreamlet;
+import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangGroupBy;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangHaving;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangJoinStreamingInput;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangOrderBy;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangPatternStreamingEdgeInput;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangPatternStreamingInput;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangSelectClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangSelectExpression;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangSetAssignment;
@@ -46,6 +53,7 @@ import org.wso2.ballerinalang.compiler.tree.clauses.BLangWhere;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangWindow;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
@@ -67,9 +75,9 @@ public class SiddhiQueryBuilder extends BLangNodeVisitor {
             new CompilerContext.Key<>();
 
     private String varRef;
-    private String binaryExpr;
-    private StringBuilder orderByClause;
+    private StringBuilder binaryExpr;
     private StringBuilder setExpr;
+    private StringBuilder orderByClause;
     private StringBuilder whereClause;
     private StringBuilder windowClause;
     private StringBuilder joinStreamingInputClause;
@@ -79,10 +87,12 @@ public class SiddhiQueryBuilder extends BLangNodeVisitor {
     private StringBuilder setAssignmentClause;
     private StringBuilder groupByClause;
     private StringBuilder havingClause;
+    private StringBuilder patternStreamingClause;
+    private StringBuilder streamActionClause;
+
     private StringBuilder streamDefinitionQuery;
     private StringBuilder siddhiQuery;
     private StringBuilder streamIdsAsString;
-    private StringBuilder streamActionClause;
 
     public static SiddhiQueryBuilder getInstance(CompilerContext context) {
         SiddhiQueryBuilder siddhiQueryBuilder = context.get(SIDDHI_QUERY_BUILDER_KEY);
@@ -136,7 +146,24 @@ public class SiddhiQueryBuilder extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangBinaryExpr expr) {
-        binaryExpr = expr.toString();
+        ExpressionNode leftExpression = expr.getLeftExpression();
+        if (leftExpression != null) {
+            ((BLangExpression) leftExpression).accept(this);
+            binaryExpr.append(varRef);
+            varRef = "";
+        }
+
+        OperatorKind operatorKind = expr.getOperatorKind();
+        if (operatorKind != null) {
+            binaryExpr.append(" ").append(getOperandAsString(operatorKind)).append(" ");
+        }
+
+        ExpressionNode rightExpression = expr.getRightExpression();
+        if (rightExpression != null) {
+            ((BLangExpression) rightExpression).accept(this);
+            binaryExpr.append(varRef);
+            varRef = "";
+        }
     }
 
     @Override
@@ -163,10 +190,11 @@ public class SiddhiQueryBuilder extends BLangNodeVisitor {
         }
 
         if (streamingInput.getAlias() != null) {
-            streamingInputClause.append(" as ").append(streamingInput.getAlias());
+            streamingInputClause.append(" as ").append(streamingInput.getAlias()).append(" ");
         }
     }
 
+    @Override
     public void visit(BLangWindow window) {
         windowClause = new StringBuilder();
         windowClause.append("#window.");
@@ -179,6 +207,7 @@ public class SiddhiQueryBuilder extends BLangNodeVisitor {
         whereClause = new StringBuilder();
         whereClause.append("[");
         BLangBinaryExpr expr = (BLangBinaryExpr) where.getExpression();
+        binaryExpr = new StringBuilder();
         expr.accept(this);
         whereClause.append(binaryExpr);
         whereClause.append("]");
@@ -206,6 +235,7 @@ public class SiddhiQueryBuilder extends BLangNodeVisitor {
     public void visit(BLangHaving having) {
         BLangBinaryExpr expr = (BLangBinaryExpr) having.getExpression();
         havingClause = new StringBuilder("having ");
+        binaryExpr = new StringBuilder();
         expr.accept(this);
         havingClause.append(binaryExpr);
     }
@@ -263,7 +293,7 @@ public class SiddhiQueryBuilder extends BLangNodeVisitor {
         }
     }
 
-
+    @Override
     public void visit(BLangInvocation invocationExpr) {
         varRef = invocationExpr.toString();
     }
@@ -274,6 +304,14 @@ public class SiddhiQueryBuilder extends BLangNodeVisitor {
         siddhiQuery = new StringBuilder();
         streamDefinitionQuery = new StringBuilder();
         siddhiQuery.append("from ");
+
+        List<VariableNode> globalVariables = streamletNode.getGlobalVariables();
+        if (globalVariables != null) {
+            for (VariableNode variable : globalVariables) {
+                ((BLangVariable) variable).accept(this);
+            }
+        }
+
         List<? extends StatementNode> statementNodes = streamletNode.getBody().getStatements();
         for (StatementNode statementNode : statementNodes) {
             ((BLangStatement) statementNode).accept(this);
@@ -282,63 +320,26 @@ public class SiddhiQueryBuilder extends BLangNodeVisitor {
         streamletNode.setStreamIdsAsString(streamIdsAsString.toString());
     }
 
-    public void visit(BLangVariableDef varDefNode) {
-        StringBuilder streamDefinition = new StringBuilder("define stream ");
-        streamDefinition.append(varDefNode.var.name).append("( ");
-        if (streamIdsAsString.length() == 0) {
-            streamIdsAsString.append(varDefNode.var.name);
-        } else {
-            streamIdsAsString.append(",").append(varDefNode.var.name);
-        }
-        List<BStructType.BStructField> structFieldList = ((BStructType) ((BStreamType) varDefNode.var.type).
-                constraint).fields;
-
-        Iterator<BStructType.BStructField> structFieldIterator = structFieldList.iterator();
-        BStructType.BStructField structField = structFieldIterator.next();
-        if (structField != null) {
-            streamDefinition.append(structField.getName()).append(" ");
-            String type = structField.getType().toString();
-            //Eventhough, type defined as int, actual value is a long. To handle this case in Siddhi, type is defined
-            //as long.
-            if (type.equalsIgnoreCase("int")) {
-                type = "long";
-            } else if (type.equalsIgnoreCase("float")) {
-                type = "double";
-            }
-            streamDefinition.append(type);
-        }
-
-        while (structFieldIterator.hasNext()) {
-            structField = structFieldIterator.next();
-            streamDefinition.append(" , ");
-            streamDefinition.append(structField.getName()).append(" ");
-            String type = structField.getType().toString();
-            if (type.equalsIgnoreCase("int")) {
-                type = "long";
-            } else if (type.equalsIgnoreCase("float")) {
-                type = "double";
-            }
-            streamDefinition.append(type);
-        }
-
-        if (structField != null) {
-            streamDefinition.append(" ); ");
-        }
-
-        streamDefinitionQuery.append(streamDefinition).append("\n");
-    }
-
+    @Override
     public void visit(BLangQueryStatement queryStatement) {
         BLangStreamingQueryStatement streamingQueryStatement = (BLangStreamingQueryStatement) queryStatement.
                 getStreamingQueryStatement();
         streamingQueryStatement.accept(this);
     }
 
+    @Override
     public void visit(BLangStreamingQueryStatement streamingQueryStatement) {
         StreamingInput streamingInput = streamingQueryStatement.getStreamingInput();
         if (streamingInput != null) {
             ((BLangStreamingInput) streamingInput).accept(this);
             siddhiQuery.append(" ").append(streamingInputClause);
+        }
+
+        PatternStreamingInputNode patternStreamingInput = streamingQueryStatement.getPatternStreamingInput();
+        if (patternStreamingInput != null) {
+            patternStreamingClause = new StringBuilder();
+            ((BLangPatternStreamingInput) patternStreamingInput).accept(this);
+            siddhiQuery.append(" ").append(patternStreamingClause);
         }
 
         JoinStreamingInput joinStreamingInput = streamingQueryStatement.getJoiningInput();
@@ -395,9 +396,58 @@ public class SiddhiQueryBuilder extends BLangNodeVisitor {
         } else if (streamActionType.equalsIgnoreCase("delete")) {
             streamActionClause.append(" ").append("delete");
             streamActionClause.append(" ").append(streamAction.getIdentifier());
+            binaryExpr = new StringBuilder();
             ((BLangExpression) streamAction.getExpression()).accept(this);
             streamActionClause.append(" ").append(this.binaryExpr);
         }
+    }
+
+    @Override
+    public void visit(BLangPatternStreamingInput patternStreamingInput) {
+        PatternStreamingEdgeInputNode patternStreamingEdgeInput = patternStreamingInput.getPatternStreamingEdgeInput();
+        if (patternStreamingEdgeInput != null) {
+            ((BLangPatternStreamingEdgeInput) patternStreamingEdgeInput).accept(this);
+        }
+
+        if (patternStreamingInput.isFollowedBy()) {
+            patternStreamingClause.append(" -> ");
+        }
+
+        if (patternStreamingInput.isLeftParenthesisEnabled()) {
+            patternStreamingClause.append(" ( ");
+        }
+
+        PatternStreamingInputNode rhsPatternStreamingInput = patternStreamingInput.getPatternStreamingInput();
+        if (rhsPatternStreamingInput != null) {
+            ((BLangPatternStreamingInput) rhsPatternStreamingInput).accept(this);
+        }
+
+        if (patternStreamingInput.isRightParenthesisEnabled()) {
+            patternStreamingClause.append(" ) ");
+        }
+    }
+
+    public void visit(BLangPatternStreamingEdgeInput patternStreamingEdgeInput) {
+        patternStreamingClause.append(patternStreamingEdgeInput.getIdentifier());
+
+        WhereNode whereNode = patternStreamingEdgeInput.getWhereClause();
+        if (whereNode != null) {
+            ((BLangWhere) whereNode).accept(this);
+            patternStreamingClause.append(" ").append(whereClause);
+            whereClause = new StringBuilder();
+        }
+
+        ExpressionNode expression = patternStreamingEdgeInput.getExpression();
+        if (expression != null) {
+            //TODO - Have to figure out few things on this
+            //patternStreamingClause.append(" ").append(expression.toString());
+        }
+
+        String alias = patternStreamingEdgeInput.getAliasIdentifier();
+        if (alias != null) {
+            patternStreamingClause.append(" ").append("as").append(" ").append(alias);
+        }
+
     }
 
     @Override
@@ -409,7 +459,87 @@ public class SiddhiQueryBuilder extends BLangNodeVisitor {
         setExpr.append(varRef);
     }
 
-    public String getSiddhiQuery() {
+    public void visit(BLangVariable varNode) {
+        StringBuilder streamDefinition = new StringBuilder("define stream ");
+        streamDefinition.append(varNode.name).append("( ");
+        if (streamIdsAsString.length() == 0) {
+            streamIdsAsString.append(varNode.name);
+        } else {
+            streamIdsAsString.append(",").append(varNode.name);
+        }
+        List<BStructType.BStructField> structFieldList = ((BStructType) ((BStreamType) ((BLangVariable) varNode).type).
+                constraint).fields;
+        generateStreamDefinition(structFieldList, streamDefinition);
+
+        streamDefinitionQuery.append(streamDefinition).append("\n");
+    }
+
+    @Override
+    public void visit(BLangVariableDef varDefNode) {
+        StringBuilder streamDefinition = new StringBuilder("define stream ");
+        streamDefinition.append(varDefNode.var.name).append("( ");
+        if (streamIdsAsString.length() == 0) {
+            streamIdsAsString.append(varDefNode.var.name);
+        } else {
+            streamIdsAsString.append(",").append(varDefNode.var.name);
+        }
+        List<BStructType.BStructField> structFieldList = ((BStructType) ((BStreamType) varDefNode.var.type).
+                constraint).fields;
+        generateStreamDefinition(structFieldList, streamDefinition);
+
+        streamDefinitionQuery.append(streamDefinition).append("\n");
+    }
+
+    void generateStreamDefinition(List<BStructType.BStructField> structFieldList, StringBuilder streamDefinition) {
+        Iterator<BStructType.BStructField> structFieldIterator = structFieldList.iterator();
+        BStructType.BStructField structField = structFieldIterator.next();
+        if (structField != null) {
+            streamDefinition.append(structField.getName()).append(" ");
+            String type = structField.getType().toString();
+            //Eventhough, type defined as int, actual value is a long. To handle this case in Siddhi, type is defined
+            //as long.
+            if (type.equalsIgnoreCase("int")) {
+                type = "long";
+            } else if (type.equalsIgnoreCase("float")) {
+                type = "double";
+            }
+            streamDefinition.append(type);
+        }
+
+        while (structFieldIterator.hasNext()) {
+            structField = structFieldIterator.next();
+            streamDefinition.append(" , ");
+            streamDefinition.append(structField.getName()).append(" ");
+            String type = structField.getType().toString();
+            if (type.equalsIgnoreCase("int")) {
+                type = "long";
+            } else if (type.equalsIgnoreCase("float")) {
+                type = "double";
+            }
+            streamDefinition.append(type);
+        }
+
+        if (structField != null) {
+            streamDefinition.append(" ); ");
+        }
+    }
+
+    @Override
+    public void visit(BLangFieldBasedAccess fieldAccessExpr) {
+        varRef = fieldAccessExpr.toString();
+    }
+
+    private String getSiddhiQuery() {
         return streamDefinitionQuery.toString() + "\n" + siddhiQuery.toString() + " ; ";
+    }
+
+    private String getOperandAsString(OperatorKind operatorKind) {
+        String operandKindAsString = operatorKind.toString();
+        if (operandKindAsString.equals("&&")) {
+            return "and";
+        } else if (operandKindAsString.equals("||")) {
+            return "or";
+        }
+        return operandKindAsString;
     }
 }

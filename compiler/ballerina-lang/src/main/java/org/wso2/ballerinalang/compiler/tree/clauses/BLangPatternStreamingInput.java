@@ -19,19 +19,24 @@
 package org.wso2.ballerinalang.compiler.tree.clauses;
 
 import org.ballerinalang.model.tree.NodeKind;
+import org.ballerinalang.model.tree.clauses.PatternStreamingEdgeInputNode;
 import org.ballerinalang.model.tree.clauses.PatternStreamingInputNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 
 /**
  * Implementation of {@link PatternStreamingInputNode}.
+ *
  * @see PatternStreamingInputNode
  */
 
 public class BLangPatternStreamingInput extends BLangNode implements PatternStreamingInputNode {
 
-    private PatternStreamingInputNode lhsPatternStreamingInput;
-    private PatternStreamingInputNode rhsPatternStreamingInput;
+    private PatternStreamingInputNode patternStreamingInput;
+    private PatternStreamingEdgeInputNode patternStreamingEdgeInputNode;
+    private boolean isFollowedBy;
+    private boolean isLeftParenthesisEnabled;
+    private boolean isRightParenthesisEnabled;
 
     @Override
     public NodeKind getKind() {
@@ -44,22 +49,52 @@ public class BLangPatternStreamingInput extends BLangNode implements PatternStre
     }
 
     @Override
-    public void setLHSPatternStreamingInput(PatternStreamingInputNode patternStreamingInput) {
-        this.lhsPatternStreamingInput = patternStreamingInput;
+    public void setPatternStreamingInput(PatternStreamingInputNode patternStreamingInput) {
+        this.patternStreamingInput = patternStreamingInput;
     }
 
     @Override
-    public void setRHSPatternStreamingInput(PatternStreamingInputNode patternStreamingInput) {
-        this.rhsPatternStreamingInput = patternStreamingInput;
+    public void setPatternStreamingEdgeInput(PatternStreamingEdgeInputNode patternStreamingEdgeInput) {
+        this.patternStreamingEdgeInputNode = patternStreamingEdgeInput;
     }
 
     @Override
-    public PatternStreamingInputNode getLHSPatternStreamingInput() {
-        return lhsPatternStreamingInput;
+    public PatternStreamingInputNode getPatternStreamingInput() {
+        return patternStreamingInput;
     }
 
     @Override
-    public PatternStreamingInputNode getRHSPatternStreamingInput() {
-        return rhsPatternStreamingInput;
+    public PatternStreamingEdgeInputNode getPatternStreamingEdgeInput() {
+        return patternStreamingEdgeInputNode;
+    }
+
+    @Override
+    public boolean isFollowedBy() {
+        return isFollowedBy;
+    }
+
+    @Override
+    public void setFollowedBy(boolean followedBy) {
+        isFollowedBy = followedBy;
+    }
+
+    @Override
+    public boolean isLeftParenthesisEnabled() {
+        return isLeftParenthesisEnabled;
+    }
+
+    @Override
+    public void setLeftParenthesisEnabled(boolean leftParenthesisEnabled) {
+        isLeftParenthesisEnabled = leftParenthesisEnabled;
+    }
+
+    @Override
+    public boolean isRightParenthesisEnabled() {
+        return isRightParenthesisEnabled;
+    }
+
+    @Override
+    public void setRightParenthesisEnabled(boolean rightParenthesisEnabled) {
+        isRightParenthesisEnabled = rightParenthesisEnabled;
     }
 }

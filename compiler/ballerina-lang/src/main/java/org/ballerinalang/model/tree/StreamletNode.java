@@ -42,5 +42,9 @@ public interface StreamletNode extends AnnotatableNode, TopLevelNode {
 
     FunctionNode getInitFunction();
 
+    void addGlobalVariable(VariableNode variable);
+
+    List<VariableNode> getGlobalVariables();
+
 }
 
