@@ -28,6 +28,16 @@ service<http> serviceEmptyName {
         res.setJsonPayload(responseJson);
         _ = conn.respond(res);
     }
+
+    @http:resourceConfig {
+        path:"/*"
+    }
+    resource proxy (http:Connection conn, http:InRequest req) {
+        http:OutResponse res = {};
+        json responseJson = {"echo":"dispatched to a proxy service"};
+        res.setJsonPayload(responseJson);
+        _ = conn.respond(res);
+    }
 }
 
 service<http> serviceWithNoAnnotation {

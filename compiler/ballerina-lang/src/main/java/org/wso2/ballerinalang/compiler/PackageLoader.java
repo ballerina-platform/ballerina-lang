@@ -1,23 +1,25 @@
 /*
-*  Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
-*
-*  WSO2 Inc. licenses this file to you under the Apache License,
-*  Version 2.0 (the "License"); you may not use this file except
-*  in compliance with the License.
-*  You may obtain a copy of the License at
-*
-*    http://www.apache.org/licenses/LICENSE-2.0
-*
-*  Unless required by applicable law or agreed to in writing,
-*  software distributed under the License is distributed on an
-*  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-*  KIND, either express or implied.  See the License for the
-*  specific language governing permissions and limitations
-*  under the License.
-*/
+ *  Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ *  WSO2 Inc. licenses this file to you under the Apache License,
+ *  Version 2.0 (the "License"); you may not use this file except
+ *  in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing,
+ *  software distributed under the License is distributed on an
+ *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ *  KIND, either express or implied.  See the License for the
+ *  specific language governing permissions and limitations
+ *  under the License.
+ */
 package org.wso2.ballerinalang.compiler;
 
+import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.PackageID;
+import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.repository.AggregatedPackageRepository;
 import org.ballerinalang.repository.CompositePackageRepository;
 import org.ballerinalang.repository.PackageEntity;
@@ -31,12 +33,14 @@ import org.wso2.ballerinalang.compiler.parser.Parser;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolEnter;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
+import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -87,47 +91,73 @@ public class PackageLoader {
         loadPackageRepository(context);
     }
 
-    public BLangPackage loadEntryPackage(String sourcePkg) {
-        if (sourcePkg == null || sourcePkg.isEmpty()) {
+    public BLangPackage loadEntryPackage(String source) {
+        if (source == null || source.isEmpty()) {
             throw new IllegalArgumentException("source package/file cannot be null");
         }
 
         PackageEntity pkgEntity;
         PackageID pkgId = PackageID.DEFAULT;
-        if (sourcePkg.endsWith(PackageEntity.Kind.SOURCE.getExtension())) {
-            pkgEntity = this.packageRepo.loadPackage(pkgId, sourcePkg);
+        BLangPackage bLangPackage;
+        if (source.endsWith(PackageEntity.Kind.SOURCE.getExtension())) {
+            pkgEntity = this.packageRepo.loadPackage(pkgId, source);
+            bLangPackage = loadPackage(pkgEntity);
+            if (bLangPackage == null) {
+                throw new IllegalArgumentException("cannot resolve file '" + source + "'");
+            }
         } else {
-            // split from '.', '\' and '/'
-            String[] pkgParts = sourcePkg.split("\\.|\\\\|\\/");
-            List<Name> pkgNameComps = Arrays.stream(pkgParts)
-                    .map(part -> names.fromString(part))
-                    .collect(Collectors.toList());
-
-            pkgId = new PackageID(pkgNameComps, Names.DEFAULT_VERSION);
-            pkgEntity = this.packageRepo.loadPackage(pkgId);
-        }
-        
-        if (pkgEntity == null) {
-            throw new IllegalArgumentException("valid package not available at '" + sourcePkg + "'");
+            pkgId = getPackageID(source);
+            pkgEntity = getPackageEntity(pkgId);
+            bLangPackage = loadPackage(pkgEntity);
+            if (bLangPackage == null) {
+                throw new IllegalArgumentException("cannot resolve package '" + source + "'");
+            }
         }
 
-        return loadPackage(pkgId, pkgEntity);
+        // Add runtime and transaction packages.
+        addImportPkg(bLangPackage, Names.RUNTIME_PACKAGE.value);
+
+        // Define Package
+        definePackage(pkgId, bLangPackage);
+        return bLangPackage;
     }
 
-    public BLangPackage loadPackage(List<BLangIdentifier> pkgNameComps, BLangIdentifier version) {
+    public BLangPackage loadPackage(String sourcePkg) {
+        if (sourcePkg == null || sourcePkg.isEmpty()) {
+            throw new IllegalArgumentException("source package/file cannot be null");
+        }
+
+        PackageID pkgId = getPackageID(sourcePkg);
+        return loadPackage(getPackageEntity(pkgId));
+    }
+
+    public BLangPackage loadAndDefinePackage(String sourcePkg) {
+        PackageID pkgId = getPackageID(sourcePkg);
+        return loadAndDefinePackage(pkgId);
+    }
+
+    public BLangPackage loadAndDefinePackage(PackageID pkgId) {
+        BLangPackage bLangPackage = loadPackage(pkgId);
+        if (bLangPackage == null) {
+            return null;
+        }
+
+        definePackage(pkgId, bLangPackage);
+        return bLangPackage;
+    }
+
+    public BLangPackage loadAndDefinePackage(BLangIdentifier orgName, List<BLangIdentifier> pkgNameComps,
+                                             BLangIdentifier version) {
         List<Name> nameComps = pkgNameComps.stream()
                 .map(identifier -> names.fromIdNode(identifier))
                 .collect(Collectors.toList());
-        PackageID pkgID = new PackageID(nameComps, names.fromIdNode(version));
-        return loadPackage(pkgID, this.packageRepo.loadPackage(pkgID));
+        PackageID pkgID = new PackageID(names.fromIdNode(orgName), nameComps, names.fromIdNode(version));
+        return loadAndDefinePackage(pkgID);
     }
+
 
     public BPackageSymbol getPackageSymbol(PackageID pkgId) {
         return packages.get(pkgId);
-    }
-
-    public BLangPackage loadPackageNode(PackageID pkgId) {
-        return loadPackage(pkgId, this.packageRepo.loadPackage(pkgId));
     }
 
     /**
@@ -140,34 +170,69 @@ public class PackageLoader {
         return this.packageRepo.listPackages(maxDepth);
     }
 
-    private BLangPackage loadPackage(PackageID pkgId, PackageEntity pkgEntity) {
-        BLangPackage pkgNode;
-        BPackageSymbol pSymbol;
 
+    // Private methods
+
+    private BLangPackage sourceCompile(PackageSource pkgSource) {
+        return this.parser.parse(pkgSource);
+    }
+
+    private void addImportPkg(BLangPackage bLangPackage, String sourcePkgName) {
+        List<Name> nameComps = getPackageNameComps(sourcePkgName);
+        List<BLangIdentifier> pkgNameComps = new ArrayList<>();
+        nameComps.forEach(comp -> {
+            IdentifierNode node = TreeBuilder.createIdentifierNode();
+            node.setValue(comp.value);
+            pkgNameComps.add((BLangIdentifier) node);
+        });
+
+        BLangIdentifier orgNameNode = (BLangIdentifier) TreeBuilder.createIdentifierNode();
+        orgNameNode.setValue(Names.ANON_ORG.value);
+        BLangIdentifier versionNode = (BLangIdentifier) TreeBuilder.createIdentifierNode();
+        versionNode.setValue(Names.DEFAULT_VERSION.value);
+        BLangImportPackage importDcl = (BLangImportPackage) TreeBuilder.createImportPackageNode();
+        importDcl.pos = bLangPackage.pos;
+        importDcl.pkgNameComps = pkgNameComps;
+        importDcl.orgName = orgNameNode;
+        importDcl.version = versionNode;
+        BLangIdentifier alias = (BLangIdentifier) TreeBuilder.createIdentifierNode();
+        alias.setValue(names.merge(Names.DOT, nameComps.get(nameComps.size() - 1)).value);
+        importDcl.alias = alias;
+        bLangPackage.imports.add(importDcl);
+    }
+
+    private PackageEntity getPackageEntity(PackageID pkgId) {
+        return this.packageRepo.loadPackage(pkgId);
+    }
+
+    private PackageID getPackageID(String sourcePkg) {
+        // split from '.', '\' and '/'
+        List<Name> pkgNameComps = getPackageNameComps(sourcePkg);
+        return new PackageID(Names.ANON_ORG, pkgNameComps, Names.DEFAULT_VERSION);
+    }
+
+    private List<Name> getPackageNameComps(String sourcePkg) {
+        String[] pkgParts = sourcePkg.split("\\.|\\\\|\\/");
+        return Arrays.stream(pkgParts)
+                .map(part -> names.fromString(part))
+                .collect(Collectors.toList());
+    }
+
+    private void definePackage(PackageID pkgId, BLangPackage bLangPackage) {
+        BPackageSymbol pSymbol = symbolEnter.definePackage(bLangPackage, pkgId);
+        bLangPackage.symbol = pSymbol;
+        packages.put(pkgId, pSymbol);
+    }
+
+    private BLangPackage loadPackage(PackageEntity pkgEntity) {
         if (pkgEntity == null) {
             return null;
         }
-
-        if (pkgEntity.getKind() == PackageEntity.Kind.SOURCE) {
-            pkgNode = this.sourceCompile((PackageSource) pkgEntity);
-            if (pkgNode == null) {
-                return null;
-            }
-            pSymbol = symbolEnter.definePackage(pkgNode, pkgId);
-            pkgNode.symbol = pSymbol;
-        } else {
-            // This is a compiled package.
-            // TODO Throw an error. Entry package cannot be a compiled package
-            throw new RuntimeException("TODO Entry package cannot be a compiled package");
-        }
-
-        packages.put(pkgId, pSymbol);
-        return pkgNode;
+        return sourceCompile((PackageSource) pkgEntity);
     }
 
-    private BLangPackage sourceCompile(PackageSource pkgSource) {
-        BLangPackage pkgNode = this.parser.parse(pkgSource);
-        return pkgNode;
+    private BLangPackage loadPackage(PackageID pkgId) {
+        return loadPackage(getPackageEntity(pkgId));
     }
 
     private void loadPackageRepository(CompilerContext context) {
@@ -176,7 +241,8 @@ public class PackageLoader {
         if (programRepo == null) {
             // create the default program repo
             String sourceRoot = options.get(SOURCE_ROOT);
-            programRepo = new LocalFSPackageRepository(sourceRoot);
+            // TODO: replace by the org read form TOML.
+            programRepo = new LocalFSPackageRepository(sourceRoot, Names.ANON_ORG.getValue());
         }
 
         PackageRepository systemRepo = this.loadSystemRepository();

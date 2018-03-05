@@ -26,6 +26,7 @@ import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.codegen.ServiceInfo;
 import org.ballerinalang.util.debugger.DebugContext;
 import org.ballerinalang.util.tracer.BTracer;
+import org.ballerinalang.util.transactions.LocalTransactionInfo;
 import org.wso2.carbon.messaging.CarbonMessage;
 
 import java.util.HashMap;
@@ -46,7 +47,7 @@ public class Context {
     protected Map<String, Object> properties = new HashMap<>();
 
     private ServiceInfo serviceInfo;
-    private BallerinaTransactionManager ballerinaTransactionManager;
+    private LocalTransactionInfo localTransactionInfo;
     private DebugContext debugContext;
     private BTracer rootBTracer;
     private BTracer activeBTracer;
@@ -76,7 +77,7 @@ public class Context {
     public DebugContext getDebugContext() {
         return debugContext;
     }
-    
+
     public void setDebugContext(DebugContext debugContext) {
         this.debugContext = debugContext;
     }
@@ -137,16 +138,16 @@ public class Context {
         this.serviceInfo = serviceInfo;
     }
 
-    public void setBallerinaTransactionManager(BallerinaTransactionManager ballerinaTransactionManager) {
-        this.ballerinaTransactionManager = ballerinaTransactionManager;
-    }
-
-    public BallerinaTransactionManager getBallerinaTransactionManager() {
-        return this.ballerinaTransactionManager;
-    }
-
     public boolean isInTransaction() {
-        return this.ballerinaTransactionManager != null;
+        return this.localTransactionInfo != null;
+    }
+
+    public void setLocalTransactionInfo(LocalTransactionInfo localTransactionInfo) {
+        this.localTransactionInfo = localTransactionInfo;
+    }
+
+    public LocalTransactionInfo getLocalTransactionInfo() {
+        return this.localTransactionInfo;
     }
 
     public BStruct getError() {

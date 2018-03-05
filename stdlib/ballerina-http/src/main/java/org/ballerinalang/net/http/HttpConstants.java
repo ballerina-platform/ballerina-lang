@@ -53,9 +53,12 @@ public class HttpConstants {
     public static final String HTTP_DEFAULT_HOST = "0.0.0.0";
     public static final String TLS_STORE_TYPE = "tlsStoreType";
     public static final String PKCS_STORE_TYPE = "PKCS12";
-    public static final String CHUNKING_AUTO = "auto";
-    public static final String CHUNKING_ALWAYS = "always";
-    public static final String CHUNKING_NEVER = "never";
+    public static final String AUTO = "auto";
+    public static final String ALWAYS = "always";
+    public static final String NEVER = "never";
+    public static final String FORWARDED_ENABLE = "enable";
+    public static final String FORWARDED_TRANSITION = "transition";
+    public static final String FORWARDED_DISABLE = "disable";
 
     public static final String HTTP_PACKAGE_PATH = "ballerina.net.http";
 
@@ -135,6 +138,8 @@ public class HttpConstants {
 
     public static final String REQUEST_URL = "REQUEST_URL";
     public static final String SRC_HANDLER = "SRC_HANDLER";
+    public static final String REMOTE_ADDRESS = "REMOTE_ADDRESS";
+    public static final String ORIGIN_HOST = "ORIGIN_HOST";
 
     /* Annotations */
     public static final String ANNOTATION_NAME_SOURCE = "Source";
@@ -162,6 +167,7 @@ public class HttpConstants {
     public static final int ENABLE_CHUNKING_INDEX = 1;
     public static final int IS_KEEP_ALIVE_INDEX = 0;
     public static final int HTTP_VERSION_STRUCT_INDEX = 2;
+    public static final int FORWARDED_EXTENSION_INDEX = 3;
     public static final int SSL_STRUCT_INDEX = 1;
     public static final int FOLLOW_REDIRECT_STRUCT_INDEX = 0;
     public static final int FOLLOW_REDIRECT_INDEX = 0;
@@ -224,4 +230,6 @@ public class HttpConstants {
 
     //Response codes
     public static final String HTTP_BAD_REQUEST = "400";
+    public static final String HEADER_X_XID = "X-XID";
+    public static final String HEADER_X_REGISTER_AT_URL = "X-Register-At-URL";
 }

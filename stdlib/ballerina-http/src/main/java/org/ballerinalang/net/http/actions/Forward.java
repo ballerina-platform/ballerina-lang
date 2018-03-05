@@ -89,7 +89,7 @@ public class Forward extends AbstractHTTPAction {
 
         HTTPCarbonMessage outboundRequestMsg = HttpUtil
                 .getCarbonMsg(requestStruct, HttpUtil.createHttpCarbonMessage(true));
-        prepareOutboundRequest(bConnector, path, outboundRequestMsg);
+        prepareOutboundRequest(context, bConnector, path, outboundRequestMsg);
 
         String httpVerb = (String) outboundRequestMsg.getProperty(HttpConstants.HTTP_METHOD);
         outboundRequestMsg.setProperty(HttpConstants.HTTP_METHOD, httpVerb.trim().toUpperCase(Locale.getDefault()));

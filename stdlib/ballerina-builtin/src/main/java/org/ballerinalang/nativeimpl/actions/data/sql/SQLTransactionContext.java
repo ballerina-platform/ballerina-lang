@@ -17,8 +17,8 @@
 */
 package org.ballerinalang.nativeimpl.actions.data.sql;
 
-import org.ballerinalang.bre.BallerinaTransactionContext;
 import org.ballerinalang.util.exceptions.BallerinaException;
+import org.ballerinalang.util.transactions.BallerinaTransactionContext;
 
 import java.sql.Connection;
 import java.sql.SQLException;

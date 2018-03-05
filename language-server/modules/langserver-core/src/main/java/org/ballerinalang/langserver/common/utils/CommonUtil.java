@@ -15,6 +15,8 @@
  */
 package org.ballerinalang.langserver.common.utils;
 
+import org.antlr.v4.runtime.Token;
+import org.antlr.v4.runtime.TokenStream;
 import org.ballerinalang.langserver.BLangPackageContext;
 import org.ballerinalang.langserver.TextDocumentServiceUtil;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
@@ -158,5 +160,86 @@ public class CommonUtil {
      */
     public static void calculateEndColumnOfGivenName(DiagnosticPos position, String name, String pkgAlias) {
         position.eCol = position.sCol + name.length() + (!pkgAlias.isEmpty() ? (pkgAlias + ":").length() : 0);
+    }
+
+    /**
+     * Convert the diagnostic position to a zero based positioning diagnostic position.
+     * @param diagnosticPos - diagnostic position to be cloned
+     * @return {@link DiagnosticPos} converted diagnostic position
+     */
+    public static DiagnosticPos toZeroBasedPosition(DiagnosticPos diagnosticPos) {
+        int startLine = diagnosticPos.getStartLine() - 1;
+        int endLine = diagnosticPos.getEndLine() - 1;
+        int startColumn = diagnosticPos.getStartColumn() - 1;
+        int endColumn = diagnosticPos.getEndColumn() - 1;
+        return new DiagnosticPos(diagnosticPos.getSource(), startLine, endLine, startColumn, endColumn);
+    }
+
+    /**
+     * Get the previous default token from the given start index.
+     * @param tokenStream       Token Stream
+     * @param startIndex        Start token index
+     * @return {@link Token}    Previous default token
+     */
+    public static Token getPreviousDefaultToken(TokenStream tokenStream, int startIndex) {
+        return getDefaultTokenToLeftOrRight(tokenStream, startIndex, -1);
+    }
+
+    /**
+     * Get the next default token from the given start index.
+     * @param tokenStream       Token Stream
+     * @param startIndex        Start token index
+     * @return {@link Token}    Previous default token
+     */
+    public static Token getNextDefaultToken(TokenStream tokenStream, int startIndex) {
+        return getDefaultTokenToLeftOrRight(tokenStream, startIndex, 1);
+    }
+
+    /**
+     * Get the Nth Default token to the left of current token index.
+     * @param tokenStream       Token Stream to traverse
+     * @param startIndex        Start position of the token stream
+     * @param offset            Number of tokens to traverse left
+     * @return {@link Token}    Nth Token
+     */
+    public static Token getNthDefaultTokensToLeft(TokenStream tokenStream, int startIndex, int offset) {
+        Token token = null;
+        int indexCounter = startIndex;
+        for (int i = 0; i < offset; i++) {
+            token = getPreviousDefaultToken(tokenStream, indexCounter);
+            indexCounter = token.getTokenIndex();
+        }
+        
+        return token;
+    }
+
+    /**
+     * Get the Nth Default token to the right of current token index.
+     * @param tokenStream       Token Stream to traverse
+     * @param startIndex        Start position of the token stream
+     * @param offset            Number of tokens to traverse right
+     * @return {@link Token}    Nth Token
+     */
+    public static Token getNthDefaultTokensToRight(TokenStream tokenStream, int startIndex, int offset) {
+        Token token = null;
+        int indexCounter = startIndex;
+        for (int i = 0; i < offset; i++) {
+            token = getNextDefaultToken(tokenStream, indexCounter);
+            indexCounter = token.getTokenIndex();
+        }
+        
+        return token;
+    }
+    
+    private static Token getDefaultTokenToLeftOrRight(TokenStream tokenStream, int startIndex, int direction) {
+        Token token;
+        while (true) {
+            startIndex += direction;
+            token = tokenStream.get(startIndex);
+            if (token.getChannel() == Token.DEFAULT_CHANNEL) {
+                break;
+            }
+        }
+        return token;
     }
 }

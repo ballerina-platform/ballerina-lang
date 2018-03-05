@@ -132,7 +132,8 @@ public class BCompileUtil {
                             return new Name(part);
                         })
                         .collect(Collectors.toList());
-                PackageID pkgId = new PackageID(pkgNameComps, Names.DEFAULT_VERSION);
+                // TODO: orgName is anon, fix it.
+                PackageID pkgId = new PackageID(Names.ANON_ORG, pkgNameComps, Names.DEFAULT_VERSION);
                 effectiveSource = pkgId.getName().getValue();
             } else {
                 effectiveSource = packageName;
@@ -193,7 +194,7 @@ public class BCompileUtil {
     public static CompileResult compile(String sourceRoot, String packageName, CompilerPhase compilerPhase) {
         CompilerContext context = new CompilerContext();
         CompilerOptions options = CompilerOptions.getInstance(context);
-        options.put(SOURCE_ROOT, resourceDir.resolve(sourceRoot).toString());
+        options.put(SOURCE_ROOT, sourceRoot);
         options.put(COMPILER_PHASE, compilerPhase.toString());
         options.put(PRESERVE_WHITESPACE, "false");
 

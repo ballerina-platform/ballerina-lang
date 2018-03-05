@@ -28,7 +28,11 @@ version
     ;
 
 importDeclaration
-    :   IMPORT packageName (AS Identifier)? SEMICOLON
+    :   IMPORT (orgName DIV)?  packageName (AS Identifier)? SEMICOLON
+    ;
+
+orgName
+    :   Identifier
     ;
 
 definition

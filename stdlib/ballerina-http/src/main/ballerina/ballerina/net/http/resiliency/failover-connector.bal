@@ -18,6 +18,7 @@ package ballerina.net.http.resiliency;
 
 import ballerina.net.http;
 import ballerina.runtime;
+import ballerina.mime;
 
 @Description {value:"Represents Failover connector retry configuration."}
 @Field {value:"failoverCodes: Array of http response status codes which required failover the requests."}
@@ -176,12 +177,22 @@ function performFailoverAction (string path, http:OutRequest outRequest, http:In
         blob binaryPayload = inRequest.getBinaryPayload();
     }
 
+    mime:Entity requestEntity = null;
+    if (outRequest != null) {
+        requestEntity = outRequest.getEntity();
+    }
+
     while (startIndex != currentIndex) {
         startIndex = initialIndex;
         currentIndex = currentIndex + 1;
         inResponse, httpConnectorError = invokeEndpoint(path, outRequest, inRequest, requestAction, failoverClient);
 
         if (inResponse == null && httpConnectorError != null) {
+            outRequest = {};
+            if (requestEntity != null) {
+                outRequest.setEntity(requestEntity);
+            }
+
             if (noOfEndpoints > currentIndex) {
                 runtime:sleepCurrentWorker(failoverInterval);
                 failoverConnectorError.httpConnectorError[currentIndex - 1] = httpConnectorError;
@@ -194,6 +205,10 @@ function performFailoverAction (string path, http:OutRequest outRequest, http:In
             int httpStatusCode = inResponse.statusCode;
             if (failoverCodeIndex[httpStatusCode] == true) {
                 if (noOfEndpoints > currentIndex) {
+                    outRequest = {};
+                    if (requestEntity != null) {
+                        outRequest.setEntity(requestEntity);
+                    }
                     runtime:sleepCurrentWorker(failoverInterval);
                     failoverClient = failoverClients[currentIndex];
                     populateFailoverErrorHttpStatusCodes(inResponse, failoverConnectorError, currentIndex - 1);

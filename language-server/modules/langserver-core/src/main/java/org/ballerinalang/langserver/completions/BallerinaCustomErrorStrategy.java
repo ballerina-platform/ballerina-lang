@@ -60,7 +60,14 @@ public class BallerinaCustomErrorStrategy extends BallerinaParserErrorStrategy {
 
     private void fillContext(Parser parser, Token currentToken) {
         ParserRuleContext currentContext = parser.getContext();
-        if (isCursorBetweenGivenTokenAndLastNonHiddenToken(currentToken, parser)) {
+        /*
+        TODO: Specific check for callable unit body is added in order to handle the completion inside an 
+        endpoint definition. This particular case need to remove after introducing a proper handling mechanism or with
+         the introduction of BNF grammar
+         */
+        if (isCursorBetweenGivenTokenAndLastNonHiddenToken(currentToken, parser)
+                || (this.context.get(DocumentServiceKeys.PARSER_RULE_CONTEXT_KEY) != null
+                && currentContext instanceof BallerinaParser.CallableUnitBodyContext)) {
             this.context.put(DocumentServiceKeys.PARSER_RULE_CONTEXT_KEY, currentContext);
             this.context.put(DocumentServiceKeys.TOKEN_STREAM_KEY, parser.getTokenStream());
             this.context.put(DocumentServiceKeys.VOCABULARY_KEY, parser.getVocabulary());
