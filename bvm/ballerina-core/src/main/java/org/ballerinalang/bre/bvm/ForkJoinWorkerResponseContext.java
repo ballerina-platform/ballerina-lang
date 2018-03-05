@@ -94,6 +94,7 @@ public class ForkJoinWorkerResponseContext extends InvocableWorkerResponseContex
         }
         this.setAsFulfilled();
         workerErrors.forEach(this::printError);
+        setCurrentSignal(signal);
         return this.onHaltFinalized();
     }
 

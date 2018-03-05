@@ -18,21 +18,17 @@
 package org.ballerinalang.test.utils.debug;
 
 import org.ballerinalang.BLangProgramRunner;
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.ControlStack;
-import org.ballerinalang.bre.bvm.StackFrame;
 import org.ballerinalang.launcher.util.CompileResult;
-import org.ballerinalang.model.values.BRefType;
 import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.codegen.FunctionInfo;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
-import org.ballerinalang.util.codegen.WorkerInfo;
-import org.ballerinalang.util.debugger.DebugContext;
 import org.ballerinalang.util.debugger.dto.BreakPointDTO;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.ballerinalang.util.program.BLangFunctions;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 
@@ -42,6 +38,8 @@ import java.util.List;
  * @since 0.88
  */
 public class DebuggerExecutor implements Runnable {
+    private static final Logger log = LoggerFactory.getLogger(DebuggerExecutor.class);
+
     private CompileResult result;
     private String[] args;
     private TestDebugger debugger;
@@ -89,7 +87,11 @@ public class DebuggerExecutor implements Runnable {
 
         // Invoke package init function
         FunctionInfo mainFuncInfo = BLangProgramRunner.getMainFunction(mainPkgInfo);
-        BLangFunctions.invokeEntrypointCallable(programFile, mainPkgInfo, mainFuncInfo, new BValue[] { arrayArgs });
+        try {
+            BLangFunctions.invokeEntrypointCallable(programFile, mainPkgInfo, mainFuncInfo, new BValue[] { arrayArgs });
+        } catch (Exception e) {
+            log.error("error executing the program - " + e.getMessage(), e);
+        }
 
         debugger.notifyExit();
     }

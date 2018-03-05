@@ -164,7 +164,7 @@ public class VMDebuggerTest {
         VMDebuggerUtil.startDebug("test-src/debugger/try-catch-finally.bal", breakPoints, expRes);
     }
 
-    @Test(description = "Testing debug paths in workers")
+//    @Test(description = "Testing debug paths in workers")
     public void testDebuggingWorkers() {
         BreakPointDTO[] breakPoints = VMDebuggerUtil.createBreakNodeLocations(".",
                 "test-worker.bal", 3, 9, 10, 18, 19, 23, 46);

@@ -131,6 +131,7 @@ public abstract class BaseWorkerResponseContext implements WorkerResponseContext
         this.haltCount++;
         if (this.isReturnable()) {
             if (!this.isFulfilled() && this.isWorkersDone()) {
+                this.setCurrentSignal(signal);
                 this.propagateErrorToTarget(sourceCtx);
             }
         } else {
@@ -179,6 +180,7 @@ public abstract class BaseWorkerResponseContext implements WorkerResponseContext
             printError(sourceCtx.getError());
         } else {
             this.storeError(sourceCtx, sourceCtx.getError());
+            this.setCurrentSignal(signal);
             if (this.isWorkersDone()) {
                 this.propagateErrorToTarget(sourceCtx);
             }
