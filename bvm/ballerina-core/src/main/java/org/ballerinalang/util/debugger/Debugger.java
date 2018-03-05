@@ -154,7 +154,7 @@ public class Debugger {
                 stepIn(command.getThreadId());
                 break;
             case DebugConstants.CMD_STEP_OUT:
-//                stepOut(command.getThreadId());
+                stepOut(command.getThreadId());
                 break;
             case DebugConstants.CMD_STOP:
                 // When stopping the debug session, it will clear all debug points and resume all threads.
@@ -228,12 +228,13 @@ public class Debugger {
     /**
      * Method to do "STEP_OUT" command.
      *
-     * @param threadId to be resumed.
+     * @param workerId to be resumed.
      */
-//    public void stepOut(String threadId) {
-//        getDebugContext(threadId).setCurrentCommand(DebugCommand.STEP_OUT);
-//        executionSem.release();
-//    }
+    public void stepOut(String workerId) {
+        WorkerExecutionContext ctx = getWorkerContext(workerId);
+        ctx.getDebugContext().setCurrentCommand(DebugCommand.STEP_OUT);
+        BLangScheduler.resume(ctx);
+    }
 
     /**
      * Method to stop debugging process for all threads.

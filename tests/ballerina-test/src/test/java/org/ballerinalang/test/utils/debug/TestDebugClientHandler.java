@@ -26,6 +26,7 @@ import org.ballerinalang.util.debugger.DebugContext;
 import org.ballerinalang.util.debugger.DebugException;
 import org.ballerinalang.util.debugger.dto.BreakPointDTO;
 import org.ballerinalang.util.debugger.dto.MessageDTO;
+import org.ballerinalang.util.debugger.util.DebugMsgUtil;
 
 import java.util.Map;
 import java.util.UUID;
@@ -65,20 +66,6 @@ public class TestDebugClientHandler implements DebugClientHandler {
         return workerId;
     }
 
-    //        @Override
-//        public void addContext(DebugContext debugContext) {
-//            //for debugging tests, only single threaded execution supported
-//            String threadId = Thread.currentThread().getName() + ":" + Thread.currentThread().getId();
-//            debugContext.setThreadId(threadId);
-//            //TODO check if that thread id already exist in the map
-//            this.contextMap.put(threadId, debugContext);
-//        }
-
-//        @Override
-//        public DebugContext getContext(String threadId) {
-//            return this.contextMap.get(threadId);
-//        }
-
     @Override
     public void addWorkerContext(WorkerExecutionContext ctx) {
         String workerId = generateAndGetWorkerId(ctx.workerInfo);
@@ -101,11 +88,6 @@ public class TestDebugClientHandler implements DebugClientHandler {
     public Map<String, WorkerExecutionContext> getAllWorkerContexts() {
         return contextMap;
     }
-
-//    @Override
-//    public void updateAllDebugContexts(DebugCommand debugCommand) {
-//        contextMap.forEach((k, v) -> v.setCurrentCommand(debugCommand));
-//    }
 
     @Override
     public void setChannel(Channel channel) throws DebugException {

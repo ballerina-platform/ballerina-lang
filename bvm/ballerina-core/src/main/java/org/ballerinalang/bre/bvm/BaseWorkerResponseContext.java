@@ -19,6 +19,8 @@ package org.ballerinalang.bre.bvm;
 
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.values.BStruct;
+import org.ballerinalang.util.debugger.DebugCommand;
+import org.ballerinalang.util.debugger.DebugContext;
 import org.ballerinalang.util.program.BLangVMUtils;
 
 import java.util.HashMap;
@@ -184,6 +186,7 @@ public abstract class BaseWorkerResponseContext implements WorkerResponseContext
     }
     
     protected void onFinalizedError(BStruct error) {
+        this.modifyDebugCommands(this.targetCtx, this.currentSignal.getSourceContext());
         BLangScheduler.errorThrown(this.targetCtx, error);
         this.notifyResponseChecker();
     }
@@ -220,12 +223,26 @@ public abstract class BaseWorkerResponseContext implements WorkerResponseContext
         if (this.targetCtx != null) {
             BLangVMUtils.mergeResultData(this.currentSignal.getResult(), this.targetCtx.workerLocal, 
                     this.responseTypes, this.retRegIndexes);
+            this.modifyDebugCommands(this.targetCtx, this.currentSignal.getSourceContext());
             if (!this.targetCtx.isRootContext()) {
                 runInCallerCtx = BLangScheduler.resume(this.targetCtx, runInCaller);
             }
         }
         this.notifyResponseChecker();
         return runInCallerCtx;
+    }
+
+    protected void modifyDebugCommands(WorkerExecutionContext parent, WorkerExecutionContext child) {
+        if (child.programFile == null || !child.programFile.getDebugger().isDebugEnabled()
+                || parent == null || parent.getDebugContext() == null) {
+            return;
+        }
+        DebugCommand crntCommand = child.getDebugContext().getCurrentCommand();
+        if (crntCommand == DebugCommand.STEP_OUT) {
+            parent.getDebugContext().setCurrentCommand(DebugCommand.STEP_OVER);
+        } else {
+            parent.getDebugContext().setCurrentCommand(crntCommand);
+        }
     }
 
     @Override

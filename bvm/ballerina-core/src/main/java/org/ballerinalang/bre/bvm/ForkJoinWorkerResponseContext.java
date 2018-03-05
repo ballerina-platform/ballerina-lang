@@ -114,6 +114,7 @@ public class ForkJoinWorkerResponseContext extends InvocableWorkerResponseContex
 
         //This location means, no one will add errors to the workerErrors
         this.workerErrors.put(signal.getSourceContext().workerInfo.getWorkerName(), error);
+        this.modifyDebugCommands(this.targetCtx, signal.getSourceContext());
         BLangScheduler.errorThrown(this.targetCtx, this.createCallFailedError(signal.getSourceContext(),
                 this.workerErrors));
     }
@@ -147,6 +148,7 @@ public class ForkJoinWorkerResponseContext extends InvocableWorkerResponseContex
             }
         });
         this.targetCtx.workerLocal.refRegs[joinVarReg] = (BRefType) mbMap;
+        this.modifyDebugCommands(this.targetCtx, this.currentSignal.getSourceContext());
         return BLangScheduler.resume(this.targetCtx, joinTargetIp, true);
     }
 

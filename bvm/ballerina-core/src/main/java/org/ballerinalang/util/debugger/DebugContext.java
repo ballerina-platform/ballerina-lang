@@ -33,8 +33,6 @@ public class DebugContext {
 
     private boolean workerPaused;
 
-    private volatile boolean active = false;
-
     public DebugContext() {
         this.currentCommand = DebugCommand.RESUME;
     }
@@ -77,13 +75,5 @@ public class DebugContext {
 
     public void setWorkerPaused(boolean workerPaused) {
         this.workerPaused = workerPaused;
-    }
-
-    public boolean isAtive() {
-        return active;
-    }
-
-    public void setActive(boolean active) {
-        this.active = active;
     }
 }
