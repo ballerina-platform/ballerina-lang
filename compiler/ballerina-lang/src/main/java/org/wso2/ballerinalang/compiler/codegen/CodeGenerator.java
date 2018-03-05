@@ -1631,28 +1631,16 @@ public class CodeGenerator extends BLangNodeVisitor {
     }
 
     private int emit(int opcode) {
-        if (opcode == 194) {
-            System.out.println("XXX: " + opcode);
-            Thread.dumpStack();
-        }
         currentPkgInfo.instructionList.add(InstructionFactory.get(opcode));
         return currentPkgInfo.instructionList.size();
     }
 
     private int emit(int opcode, Operand... operands) {
-        if (opcode == 194) {
-            System.out.println("XXX: " + opcode);
-            Thread.dumpStack();
-        }
         currentPkgInfo.instructionList.add(InstructionFactory.get(opcode, operands));
         return currentPkgInfo.instructionList.size();
     }
 
     private int emit(Instruction instr) {
-        if (instr.opcode == 194) {
-            System.out.println("XXX: " + instr.opcode);
-            Thread.dumpStack();
-        }
         currentPkgInfo.instructionList.add(instr);
         return currentPkgInfo.instructionList.size();
     }

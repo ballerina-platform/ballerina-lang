@@ -3590,6 +3590,7 @@ public class CPU {
         if (ip == -1) {
             ip = ctx.backupIP;
         }
+        ip--;
         ErrorTableEntry match = ErrorTableEntry.getMatch(ctx.callableUnitInfo.getPackageInfo(), ip,
                 ctx.getError());
         if (match != null) {
