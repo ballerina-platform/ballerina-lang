@@ -52,111 +52,11 @@ public class ResourceExecutor {
             return;
         }
         ResourceInfo resourceInfo = ((BResource) resource).getResourceInfo();
-        WorkerExecutionContext context = new WorkerExecutionContext();
+        WorkerExecutionContext context = new WorkerExecutionContext(resourceInfo.getPackageInfo().getProgramFile());
         if (properties != null) {
             properties.forEach((k, v) -> context.globalProps.put(k, v));
         }
         BLangFunctions.invokeCallable(resourceInfo, context, bValues);
-//        ServiceInfo serviceInfo = resourceInfo.getServiceInfo();
-//        // Invoke VM.
-//        PackageInfo packageInfo = serviceInfo.getPackageInfo();
-//        ProgramFile programFile = packageInfo.getProgramFile();
-//
-//        //Context context = new Context(programFile);
-//        Context context = null;
-//        context.setServiceInfo(serviceInfo);
-//        context.setConnectorFuture(connectorFuture);
-//
-//        //TODO remove this with a proper way
-//        if (properties != null) {
-//            properties.forEach(context::setProperty);
-//        }
-//
-//        ControlStack controlStack = null; // = context.getControlStack();
-//
-//        // Now create callee's stack-frame
-//        WorkerInfo defaultWorkerInfo = resourceInfo.getDefaultWorkerInfo();
-//        StackFrame calleeSF = new StackFrame(resourceInfo, defaultWorkerInfo, -1, new int[0]);
-//        controlStack.pushFrame(calleeSF);
-//
-//        CodeAttributeInfo codeAttribInfo = defaultWorkerInfo.getCodeAttributeInfo();
-//        //context.setStartIP(codeAttribInfo.getCodeAddrs());
-//
-//        String[] stringReg = new String[codeAttribInfo.getMaxStringRegs()];
-//        Arrays.fill(stringReg, BLangConstants.STRING_NULL_VALUE);
-//        int[] intRegs = new int[codeAttribInfo.getMaxIntRegs()];
-//        long[] longRegs = new long[codeAttribInfo.getMaxLongRegs()];
-//        double[] doubleRegs = new double[codeAttribInfo.getMaxDoubleRegs()];
-//        byte[][] byteRegs = new byte[codeAttribInfo.getMaxByteRegs()][];
-//        BRefType[] refRegs = new BRefType[codeAttribInfo.getMaxRefRegs()];
-//
-//        int stringParamCount = 0;
-//        int intParamCount = 0;
-//        int doubleParamCount = 0;
-//        int longParamCount = 0;
-//        int byteParamCount = 0;
-//        int refParamCount = 0;
-//        BType[] bTypes = resourceInfo.getParamTypes();
-//
-//        if (bValues != null) {
-//            for (int i = 0; i < bValues.length; i++) {
-//                BType btype = bTypes[i];
-//                BValue value = bValues[i];
-//
-//                // Set default values
-//                if (value == null) {
-//                    continue;
-//                }
-//
-//                if (btype == BTypes.typeString) {
-//                    stringReg[stringParamCount++] = value.stringValue();
-//                } else if (btype == BTypes.typeBoolean) {
-//                    if ("true".equalsIgnoreCase(value.stringValue())) {
-//                        intRegs[intParamCount++] = 1;
-//                    } else if ("false".equalsIgnoreCase(value.stringValue())) {
-//                        intRegs[intParamCount++] = 0;
-//                    } else {
-//                        throw new BallerinaException("Unsupported parameter type for parameter " + value);
-//                    }
-//                } else if (btype == BTypes.typeFloat) {
-//                    doubleRegs[doubleParamCount++] = ((BFloat) value).floatValue();
-//                } else if (btype == BTypes.typeInt) {
-//                    longRegs[longParamCount++] = ((BInteger) value).intValue();
-//                } else if (btype == BTypes.typeBlob) {
-//                    byteRegs[byteParamCount++] = ((BBlob) value).blobValue();
-//                } else if (value instanceof BStruct || value instanceof BRefValueArray || btype == BTypes.typeJSON ||
-//                        btype == BTypes.typeXML) {
-//                    refRegs[refParamCount++] = (BRefType) value;
-//                } else {
-//                    connectorFuture.notifyFailure(new BallerinaException("unsupported " +
-//                            "parameter type for parameter " + value));
-//                }
-//            }
-//        }
-//
-//        // It is given that first parameter of the resource is carbon message.
-//        calleeSF.setLongRegs(longRegs);
-//        calleeSF.setDoubleRegs(doubleRegs);
-//        calleeSF.setStringRegs(stringReg);
-//        calleeSF.setIntRegs(intRegs);
-//        calleeSF.setByteRegs(byteRegs);
-//        calleeSF.setRefRegs(refRegs);
-//
-//        // Execute workers
-//        // Pass the incoming message variable into the worker invocations
-//        // Fix #2623
-//        StackFrame callerSF = new StackFrame(resourceInfo, defaultWorkerInfo, -1, new int[0]);
-//        callerSF.setRefRegs(new BRefType[1]);
-//        callerSF.getRefRegs()[0] = refRegs[0];
-//
-//        BLangVM bLangVM = new BLangVM(packageInfo.getProgramFile());
-//        //context.setAsResourceContext();
-//        //context.startTrackWorker();
-//        Debugger debugger = programFile.getDebugger();
-//        if (debugger.isDebugEnabled()) {
-//            DebuggerUtil.initDebugContext(context, debugger);
-//        }
-//        bLangVM.run(context);
     }
 
     public static void execute(Resource resource, CallableUnitCallback responseCallback,
@@ -165,7 +65,7 @@ public class ResourceExecutor {
             throw new BallerinaConnectorException("invalid arguments provided");
         }
         ResourceInfo resourceInfo = ((BResource) resource).getResourceInfo();
-        WorkerExecutionContext context = new WorkerExecutionContext();
+        WorkerExecutionContext context = new WorkerExecutionContext(resourceInfo.getPackageInfo().getProgramFile());
         if (properties != null) {
             properties.forEach((k, v) -> context.globalProps.put(k, v));
         }

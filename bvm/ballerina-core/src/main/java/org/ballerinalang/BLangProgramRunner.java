@@ -17,7 +17,6 @@
 */
 package org.ballerinalang;
 
-import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
@@ -27,7 +26,6 @@ import org.ballerinalang.util.codegen.FunctionInfo;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.codegen.ServiceInfo;
-import org.ballerinalang.util.debugger.DebugContext;
 import org.ballerinalang.util.debugger.Debugger;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.ballerinalang.util.program.BLangFunctions;
@@ -50,11 +48,8 @@ public class BLangProgramRunner {
             throw new BallerinaException("no services found in '" + programFile.getProgramFilePath() + "'");
         }
 
-        // This is required to invoke package/service init functions;
-//        Context bContext = new Context(programFile);
-//
-//        Debugger debugger = new Debugger(programFile);
-//        initDebugger(bContext, debugger);
+        Debugger debugger = new Debugger(programFile);
+        initDebugger(programFile, debugger);
 
         // Invoke package init function
         BLangFunctions.invokePackageInitFunction(servicesPackage.getInitFunctionInfo());
@@ -62,9 +57,6 @@ public class BLangProgramRunner {
         int serviceCount = 0;
         for (ServiceInfo serviceInfo : servicesPackage.getServiceInfoEntries()) {
             // Invoke service init function
-            //TODO check this to pass a Service
-//            bContext.setServiceInfo(serviceInfo);
-//            BLangFunctions.invokeFunction2(programFile, serviceInfo.getInitFunctionInfo(), bContext);
             BLangFunctions.invokeServiceInitFunction(serviceInfo.getInitFunctionInfo());
 
             // Deploy service
@@ -85,6 +77,8 @@ public class BLangProgramRunner {
         if (mainPkgInfo == null) {
             throw new BallerinaException("main function not found in  '" + programFile.getProgramFilePath() + "'");
         }
+        Debugger debugger = new Debugger(programFile);
+        initDebugger(programFile, debugger);
         FunctionInfo mainFuncInfo = getMainFunction(mainPkgInfo);
         BLangFunctions.invokeEntrypointCallable(programFile, mainPkgInfo, mainFuncInfo, extractMainArgs(args));
     }
@@ -97,13 +91,11 @@ public class BLangProgramRunner {
         return new BValue[] { arrayArgs };
     }
 
-    private static void initDebugger(Context bContext, Debugger debugger) {
-        bContext.getProgramFile().setDebugger(debugger);
+    private static void initDebugger(ProgramFile programFile, Debugger debugger) {
+        programFile.setDebugger(debugger);
         if (debugger.isDebugEnabled()) {
-            DebugContext debugContext = new DebugContext();
-            bContext.setDebugContext(debugContext);
             debugger.init();
-            debugger.addDebugContextAndWait(debugContext);
+            debugger.waitTillDebuggeeResponds();
         }
     }
 

@@ -17,7 +17,6 @@
 */
 package org.ballerinalang.util.debugger;
 
-import org.ballerinalang.bre.bvm.StackFrame;
 import org.ballerinalang.util.codegen.LineNumberInfo;
 
 /**
@@ -29,11 +28,20 @@ public class DebugContext {
     private volatile DebugCommand currentCommand;
 
     private LineNumberInfo lastLine;
-    private StackFrame stackFrame;
 
-    private String threadId;
+    private String workerId;
+
+    private boolean workerPaused;
 
     private volatile boolean active = false;
+
+    public DebugContext() {
+        this.currentCommand = DebugCommand.RESUME;
+    }
+
+    public DebugContext(DebugCommand command) {
+        this.currentCommand = command;
+    }
 
     public DebugCommand getCurrentCommand() {
         return currentCommand;
@@ -47,14 +55,6 @@ public class DebugContext {
         return lastLine;
     }
 
-    public StackFrame getStackFrame() {
-        return stackFrame;
-    }
-
-    public void setStackFrame(StackFrame stackFrame) {
-        this.stackFrame = stackFrame;
-    }
-
     public void setLastLine(LineNumberInfo lastLine) {
         this.lastLine = lastLine;
     }
@@ -63,12 +63,20 @@ public class DebugContext {
         this.lastLine = null;
     }
 
-    public String getThreadId() {
-        return threadId;
+    public String getWorkerId() {
+        return workerId;
     }
 
-    public void setThreadId(String threadId) {
-        this.threadId = threadId;
+    public void setWorkerId(String workerId) {
+        this.workerId = workerId;
+    }
+
+    public boolean isWorkerPaused() {
+        return workerPaused;
+    }
+
+    public void setWorkerPaused(boolean workerPaused) {
+        this.workerPaused = workerPaused;
     }
 
     public boolean isAtive() {

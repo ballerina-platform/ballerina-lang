@@ -153,7 +153,7 @@ public class CPU {
         InstructionCALL callIns;
         WorkerExecutionContext runInCallerCtx;
 
-        //boolean debugEnabled = ctx.programFile.getDebugger().isDebugEnabled();
+        boolean debugEnabled = ctx.programFile.getDebugger().isDebugEnabled();
 
         WorkerData currentSF, callersSF;
         int callersRetRegIndex;
@@ -161,9 +161,12 @@ public class CPU {
         checkErrors(ctx);
 
         while (ctx.ip >= 0) {
-//            if (debugEnabled) {
-//                debug();
-//            }
+            if (debugEnabled) {
+                debug(ctx);
+                if (ctx.ip < 0) {
+                    break;
+                }
+            }
             //TODO
             Instruction instruction = ctx.code[ctx.ip];
             int opcode = instruction.getOpcode();
@@ -2358,68 +2361,43 @@ public class CPU {
         }
     }
 
-//    /**
-//     * Method to calculate and detect debug points when the instruction point is given.
-//     */
-//    private static void debug() {
-//        Debugger debugger = programFile.getDebugger();
-//        if (!debugger.isClientSessionActive()) {
-//            return;
-//        }
-//        DebugContext debugContext = ctx.getDebugContext();
-//
-//        LineNumberInfo currentExecLine = debugger
-//                .getLineNumber(ctx.workerLocal.packageInfo.getPkgPath(), ctx.ip);
-//        /*
-//         Below if check stops hitting the same debug line again and again in case that single line has
-//         multctx.iple instructions.
-//         */
-//        if (currentExecLine.equals(debugContext.getLastLine())
-//                || debugPointCheck(currentExecLine, debugger, debugContext)) {
-//            return;
-//        }
-//
-//        switch (debugContext.getCurrentCommand()) {
-//            case RESUME:
-//                /*
-//                 In case of a for loop, need to clear the last hit line, so that, same line can get hit again.
-//                 */
-//                debugContext.clearLastDebugLine();
-//                break;
-//            case STEP_IN:
-//                debugHit(currentExecLine, debugger, debugContext);
-//                break;
-//            case STEP_OVER:
-//                if (ctx.workerLocal == debugContext.getWorkerData()) {
-//                    debugHit(currentExecLine, debugger, debugContext);
-//                    return;
-//                }
-//                /*
-//                 This is either,
-//                 1) function call (instruction of the next function)
-//                 2) returning to the previous function
-//                 below if condition checks the 2nd possibility, and if that's the case, then it's a debug hit.
-//                 To check that, it needs to check whether last line contains return instruction or not. (return
-//                 line may have multctx.iple instructions, ex - return v1 + v2 * v3 + v4;
-//                 */
-//                if (debugContext.getLastLine().checkctx.ipRangeForInstructionCode(code, InstructionCodes.RET)
-//                        && ctx.workerLocal == debugContext.getWorkerData().prevWorkerData) {
-//                    debugHit(currentExecLine, debugger, debugContext);
-//                    return;
-//                }
-//                /*
-//                 This means it's a function call. So using intermediate step to wait until
-//                 returning from that function call.
-//                 */
-//                debugContext.setCurrentCommand(DebugCommand.STEP_OVER_INTMDT);
-//                break;
-//            case STEP_OVER_INTMDT:
-//                /*
-//                 Here it checks whether it has returned to the previous stack frame (that is previous function) if so,
-//                 then debug hit.
-//                 */
-//                interMediateDebugCheck(currentExecLine, debugger, debugContext);
-//                break;
+    /**
+     * Method to calculate and detect debug points when the instruction point is given.
+     */
+    private static void debug(WorkerExecutionContext ctx) {
+        Debugger debugger = ctx.programFile.getDebugger();
+        if (!debugger.isClientSessionActive()) {
+            return;
+        }
+        DebugContext debugContext = ctx.getDebugContext();
+
+        if (debugContext.isWorkerPaused()) {
+            debugContext.setWorkerPaused(false);
+            return;
+        }
+
+        LineNumberInfo currentExecLine = debugger
+                .getLineNumber(ctx.callableUnitInfo.getPackageInfo().getPkgPath(), ctx.ip);
+        /*
+         Below if check stops hitting the same debug line again and again in case that single line has
+         multctx.iple instructions.
+         */
+        if (currentExecLine.equals(debugContext.getLastLine())
+                || debugPointCheck(ctx, currentExecLine, debugger)) {
+            return;
+        }
+
+        switch (debugContext.getCurrentCommand()) {
+            case RESUME:
+                /*
+                 In case of a for loop, need to clear the last hit line, so that, same line can get hit again.
+                 */
+                debugContext.clearLastDebugLine();
+                break;
+            case STEP_IN:
+            case STEP_OVER:
+                debugHit(ctx, currentExecLine, debugger);
+                break;
 //            case STEP_OUT:
 //                /*
 //                 This is the first instruction of immediate next line of the last debug hit point. So next debug hit
@@ -2434,68 +2412,46 @@ public class CPU {
 //            case STEP_OUT_INTMDT:
 //                interMediateDebugCheck(currentExecLine, debugger, debugContext);
 //                break;
-//            default:
+            default:
 //                logger.warn("invalid debug command, exiting from debugging");
-//                debugger.notifyExit();
-//                debugger.stopDebugging();
-//        }
-//    }
-
-//    /**
-//     * Inter mediate debug check to avoid switch case falling through.
-//     *
-//     * @param currentExecLine Current execution line.
-//     * @param debugger        Debugger object.
-//     * @param debugContext    Current debug ctx.
-//     */
-//    private static void interMediateDebugCheck(LineNumberInfo currentExecLine, Debugger debugger,
-//                                        DebugContext debugContext) {
-//        if (ctx.workerLocal != debugContext.getWorkerData()) {
-//            return;
-//        }
-//        debugHit(currentExecLine, debugger, debugContext);
-//    }
+                debugger.notifyExit();
+                debugger.stopDebugging();
+        }
+    }
 
     /**
      * Helper method to check whether given point is a debug point or not.
      * If it's a debug point, then notify the debugger.
      *
+     * @param ctx             Current ctx.
      * @param currentExecLine Current execution line.
      * @param debugger        Debugger object.
-     * @param debugContext    Current debug ctx.
      * @return Boolean true if it's a debug point, false otherwise.
      */
-    private boolean debugPointCheck(LineNumberInfo currentExecLine, Debugger debugger, DebugContext debugContext) {
+    private static boolean debugPointCheck(WorkerExecutionContext ctx, LineNumberInfo currentExecLine,
+                                           Debugger debugger) {
         if (!currentExecLine.isDebugPoint()) {
             return false;
         }
-        //debugHit(currentExecLine, debugger, debugContext);
-        //TODO
+        debugHit(ctx, currentExecLine, debugger);
         return true;
     }
 
-//    /**
-//     * Helper method to set required details when a debug point hits.
-//     * And also to notify the debugger.
-//     *
-//     * @param currentExecLine Current execution line.
-//     * @param debugger        Debugger object.
-//     * @param debugContext    Current debug ctx.
-//     */
-//    private static void debugHit(LineNumberInfo currentExecLine, Debugger debugger, DebugContext debugContext) {
-//        if (!debugContext.isAtive() && !debugger.tryAcquireDebugSessionLock()) {
-//            return;
-//        }
-//        debugContext.setActive(true);
-//        debugContext.setLastLine(currentExecLine);
-//        debugContext.setWorkerData(ctx.workerLocal);
-//        debugger.notifyDebugHit(ctx.workerLocal, currentExecLine, debugContext.getThreadId());
-//        debugger.waitTillDebuggeeResponds();
-//        if (debugContext.getCurrentCommand() == DebugCommand.RESUME && debugContext.isAtive()) {
-//            debugContext.setActive(false);
-//            debugger.releaseDebugSessionLock();
-//        }
-//    }
+    /**
+     * Helper method to set required details when a debug point hits.
+     * And also to notify the debugger.
+     *
+     * @param ctx             Current ctx.
+     * @param currentExecLine Current execution line.
+     * @param debugger        Debugger object.
+     */
+    private static void debugHit(WorkerExecutionContext ctx, LineNumberInfo currentExecLine, Debugger debugger) {
+        ctx.getDebugContext().setActive(true);
+        ctx.getDebugContext().setLastLine(currentExecLine);
+        debugger.notifyDebugHit(ctx, currentExecLine, ctx.getDebugContext().getWorkerId());
+
+        debugger.pauseWorker(ctx);
+    }
 
     private static void handleAnyToRefTypeCast(WorkerExecutionContext ctx, WorkerData sf, int[] operands, 
             BType targetType) {

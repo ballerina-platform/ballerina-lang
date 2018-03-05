@@ -24,6 +24,7 @@ import org.ballerinalang.bre.bvm.StackFrame;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BRefType;
 import org.ballerinalang.model.values.BStringArray;
+import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.codegen.FunctionInfo;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
@@ -31,6 +32,7 @@ import org.ballerinalang.util.codegen.WorkerInfo;
 import org.ballerinalang.util.debugger.DebugContext;
 import org.ballerinalang.util.debugger.dto.BreakPointDTO;
 import org.ballerinalang.util.exceptions.BallerinaException;
+import org.ballerinalang.util.program.BLangFunctions;
 
 import java.util.List;
 
@@ -72,46 +74,23 @@ public class DebuggerExecutor implements Runnable {
     public void run() {
         ProgramFile programFile = result.getProgFile();
 
-        // Non blocking is not supported in the main program flow..
-        Context bContext = null; // = new Context(programFile);
-
         programFile.setDebugger(debugger);
-        DebugContext debugContext = new DebugContext();
-        bContext.setDebugContext(debugContext);
         debugger.init();
         debugger.addDebugPoints(breakPoints);
-        debugger.addDebugContext(debugContext);
         debugger.releaseLock();
         debugger.waitTillDebuggeeResponds();
 
-        // Invoke package init function
-        FunctionInfo mainFuncInfo = BLangProgramRunner.getMainFunction(mainPkgInfo);
-        //BLangFunctions.invokePackageInitFunction2(programFile, mainPkgInfo.getInitFunctionInfo(), bContext);
-
         // Prepare main function arguments
+
         BStringArray arrayArgs = new BStringArray();
         for (int i = 0; i < args.length; i++) {
             arrayArgs.add(i, args[i]);
         }
 
-        WorkerInfo defaultWorkerInfo = mainFuncInfo.getDefaultWorkerInfo();
+        // Invoke package init function
+        FunctionInfo mainFuncInfo = BLangProgramRunner.getMainFunction(mainPkgInfo);
+        BLangFunctions.invokeEntrypointCallable(programFile, mainPkgInfo, mainFuncInfo, new BValue[] { arrayArgs });
 
-        // Execute workers
-        StackFrame callerSF = new StackFrame(mainPkgInfo, -1, new int[0]);
-        callerSF.setRefRegs(new BRefType[1]);
-        callerSF.getRefRegs()[0] = arrayArgs;
-
-        StackFrame stackFrame = new StackFrame(mainFuncInfo, defaultWorkerInfo, -1, new int[0]);
-        stackFrame.getRefRegs()[0] = arrayArgs;
-        ControlStack controlStack = null; // = bContext.getControlStack();
-        controlStack.pushFrame(stackFrame);
-        //bContext.startTrackWorker();
-        //bContext.setStartIP(defaultWorkerInfo.getCodeAttributeInfo().getCodeAddrs());
-
-        // TODO
-        // BLangVM bLangVM = new BLangVM(programFile);
-        // bLangVM.run(bContext);
-        //bContext.await();
         debugger.notifyExit();
     }
 }

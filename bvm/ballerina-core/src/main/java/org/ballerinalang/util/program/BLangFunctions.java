@@ -78,9 +78,9 @@ public class BLangFunctions {
         return invokeEntrypointCallable(bLangProgram, packageInfo, functionInfo, args);
     }
     
-    public static BValue[] invokeEntrypointCallable(ProgramFile bLangProgram, PackageInfo packageInfo, 
+    public static BValue[] invokeEntrypointCallable(ProgramFile programFile, PackageInfo packageInfo,
             FunctionInfo functionInfo, BValue[] args) {
-        WorkerExecutionContext parentCtx = new WorkerExecutionContext();
+        WorkerExecutionContext parentCtx = new WorkerExecutionContext(programFile);
         if (functionInfo.getParamTypes().length != args.length) {
             throw new RuntimeException("Size of input argument arrays is not equal to size of function parameters");
         }
@@ -95,7 +95,8 @@ public class BLangFunctions {
     }
     
     public static BValue[] invokeCallable(CallableUnitInfo callableUnitInfo, BValue[] args) {
-        return invokeCallable(callableUnitInfo, new WorkerExecutionContext(), args);
+        return invokeCallable(callableUnitInfo, new WorkerExecutionContext(callableUnitInfo.getPackageInfo()
+                .getProgramFile()), args);
     }
     
     public static BValue[] invokeCallable(CallableUnitInfo callableUnitInfo, WorkerExecutionContext parentCtx, 
@@ -250,12 +251,12 @@ public class BLangFunctions {
     }
 
     public static void invokePackageInitFunction(FunctionInfo initFuncInfo) {
-        WorkerExecutionContext context = new WorkerExecutionContext();
+        WorkerExecutionContext context = new WorkerExecutionContext(initFuncInfo.getPackageInfo().getProgramFile());
         invokePackageInitFunction(initFuncInfo, context);
     }
 
     public static void invokeServiceInitFunction(FunctionInfo initFuncInfo) {
-        WorkerExecutionContext context = new WorkerExecutionContext();
+        WorkerExecutionContext context = new WorkerExecutionContext(initFuncInfo.getPackageInfo().getProgramFile());
         invokeCallable(initFuncInfo, context, new int[0], new int[0], true);
         if (context.getError() != null) {
             String stackTraceStr = BLangVMErrors.getPrintableStackTrace(context.getError());

@@ -106,16 +106,16 @@ public class VMDebuggerUtil {
                                            TestDebugClientHandler debugClientHandler, Step cmd) {
         switch (cmd) {
             case STEP_IN:
-                debugManager.stepIn(debugClientHandler.getThreadId());
+                debugManager.stepIn(debugClientHandler.getWorkerId());
                 break;
             case STEP_OVER:
-                debugManager.stepOver(debugClientHandler.getThreadId());
+                debugManager.stepOver(debugClientHandler.getWorkerId());
                 break;
             case STEP_OUT:
-                debugManager.stepOut(debugClientHandler.getThreadId());
+//                debugManager.stepOut(debugClientHandler.getThreadId());
                 break;
             case RESUME:
-                debugManager.resume();
+                debugManager.resume(debugClientHandler.getWorkerId());
                 break;
             default:
                 throw new IllegalStateException("Unknown Command");

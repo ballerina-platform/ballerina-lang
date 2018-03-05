@@ -36,6 +36,7 @@ public class Executor {
     /**
      * This method will execute Ballerina resource in blocking manner.
      * So connector thread will have to wait until execution finishes.
+     * TODO check and remove this API.
      *
      * @param resource  to be executed.
      * @param properties to be passed to context.

@@ -91,9 +91,8 @@ public class ForkJoinWorkerResponseContext extends InvocableWorkerResponseContex
         }
         if (this.isFulfilled()) {
             return null;
-        } else {
-            this.setAsFulfilled();
         }
+        this.setAsFulfilled();
         workerErrors.forEach(this::printError);
         return this.onHaltFinalized();
     }
@@ -108,16 +107,10 @@ public class ForkJoinWorkerResponseContext extends InvocableWorkerResponseContex
         }
 
         if ((workerCount - (++errorCount)) >= reqJoinCount) {
-            addOrPrintError(signal.getSourceContext().workerInfo.getWorkerName(), error);
+            workerErrors.put(signal.getSourceContext().workerInfo.getWorkerName(), error);
             return;
         }
-
-        if (this.isFulfilled()) {
-            printError(signal.getSourceContext().workerInfo.getWorkerName(), error);
-            return;
-        } else {
-            this.setAsFulfilled();
-        }
+        this.setAsFulfilled();
 
         //This location means, no one will add errors to the workerErrors
         this.workerErrors.put(signal.getSourceContext().workerInfo.getWorkerName(), error);
@@ -130,9 +123,8 @@ public class ForkJoinWorkerResponseContext extends InvocableWorkerResponseContex
     protected synchronized WorkerExecutionContext onTimeout(WorkerSignal signal) {
         if (this.isFulfilled()) {
             return null;
-        } else {
-            this.setAsFulfilled();
         }
+        this.setAsFulfilled();
         BMap<String, BRefValueArray> mbMap = new BMap<>();
         channelNames.forEach((k,v) -> {
             BRefValueArray workerRes = getWorkerResult(v);
@@ -143,14 +135,6 @@ public class ForkJoinWorkerResponseContext extends InvocableWorkerResponseContex
         this.targetCtx.workerLocal.refRegs[timeoutVarReg] = (BRefType) mbMap;
         //Running the timeout call in a new thread.
         return BLangScheduler.resume(this.targetCtx, timeoutTargetIp, false);
-    }
-
-    private void addOrPrintError(String workerName, BStruct error) {
-        if (this.isFulfilled()) {
-            printError(workerName, error);
-            return;
-        }
-        workerErrors.put(workerName, error);
     }
 
     @SuppressWarnings("rawtypes")

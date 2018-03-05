@@ -24,6 +24,8 @@ import org.ballerinalang.util.codegen.Instruction;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.codegen.WorkerInfo;
 import org.ballerinalang.util.codegen.cpentries.ConstantPoolEntry;
+import org.ballerinalang.util.debugger.DebugCommand;
+import org.ballerinalang.util.debugger.DebugContext;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -71,7 +73,10 @@ public class WorkerExecutionContext {
 
     private BStruct error;
 
-    public WorkerExecutionContext() {
+    private DebugContext debugContext;
+
+    public WorkerExecutionContext(ProgramFile programFile) {
+        this.programFile = programFile;
         this.globalProps = new HashMap<>();
         this.runInCaller = true;
     }
@@ -93,6 +98,7 @@ public class WorkerExecutionContext {
         this.globalProps = globalProperties;
         this.ip = this.workerInfo.getCodeAttributeInfo().getCodeAddrs();
         this.runInCaller = runInCaller;
+        initDebugger();
         if (!this.runInCaller) {
             executionLock = new ReentrantLock();
         }
@@ -112,9 +118,30 @@ public class WorkerExecutionContext {
         this.globalProps = globalProperties;
         this.ip = this.workerInfo.getCodeAttributeInfo().getCodeAddrs();
         this.runInCaller = runInCaller;
+        initDebugger();
         if (!this.runInCaller) {
             executionLock = new ReentrantLock();
         }
+    }
+
+    private void initDebugger() {
+        if (!programFile.getDebugger().isDebugEnabled()) {
+            return;
+        }
+        if (parent == null) {
+            this.debugContext = new DebugContext();
+            this.programFile.getDebugger().addWorkerContext(this);
+            return;
+        }
+        DebugContext parentCtx = parent.getDebugContext();
+        if (parentCtx == null || parentCtx.getCurrentCommand() == DebugCommand.RESUME) {
+            this.debugContext = new DebugContext();
+        } else if (parentCtx.getCurrentCommand() == DebugCommand.STEP_IN) {
+            this.debugContext = new DebugContext(DebugCommand.STEP_IN);
+        } else if (parentCtx.getCurrentCommand() == DebugCommand.STEP_OVER) {
+            this.debugContext = new DebugContext();
+        }
+        this.programFile.getDebugger().addWorkerContext(this);
     }
     
     public void backupIP() {
@@ -161,7 +188,11 @@ public class WorkerExecutionContext {
     public boolean isRootContext() {
         return this.code == null;
     }
-    
+
+    public DebugContext getDebugContext() {
+        return debugContext;
+    }
+
     @Override
     public String toString() {
         StringBuilder builder = new StringBuilder();

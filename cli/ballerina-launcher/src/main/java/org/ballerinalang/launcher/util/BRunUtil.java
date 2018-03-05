@@ -127,7 +127,7 @@ public class BRunUtil {
         }
         ProgramFile programFile = compileResult.getProgFile();
         PackageInfo packageInfo = programFile.getPackageInfo(packageName);
-        WorkerExecutionContext context = new WorkerExecutionContext();
+        WorkerExecutionContext context = new WorkerExecutionContext(programFile);
         Debugger debugger = new Debugger(programFile);
         programFile.setDebugger(debugger);
         compileResult.setContext(context);
