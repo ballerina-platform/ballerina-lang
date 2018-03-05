@@ -19,6 +19,8 @@ package org.ballerinalang.launcher.toml.model;
 
 /**
  * Defines dependency object fields. The same object will be used to define patches.
+ *
+ * @since 0.964
  */
 public class Dependency {
     private String packageName;
@@ -37,7 +39,7 @@ public class Dependency {
     /**
      * Set the package name.
      *
-     * @param packageName name of the dependancy
+     * @param packageName name of the dependency
      */
     public void setPackageName(String packageName) {
         this.packageName = packageName;

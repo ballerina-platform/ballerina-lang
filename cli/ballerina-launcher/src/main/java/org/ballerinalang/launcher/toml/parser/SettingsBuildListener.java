@@ -31,13 +31,15 @@ import java.util.List;
 
 /**
  * Custom listener which is extended from the Toml listener with our own custom logic.
+ *
+ * @since 0.964
  */
 public class SettingsBuildListener extends TomlBaseListener {
     private final Settings settings;
-    private Proxy proxy = new Proxy();
-    private Central central = new Central();
+    private final Proxy proxy = new Proxy();
+    private final Central central = new Central();
     private String currentHeader = null;
-    private SingletonStack currentKey = new SingletonStack();
+    private final SingletonStack<String> currentKey = new SingletonStack<>();
 
     /**
      * Cosntructor with the settings object.
@@ -115,12 +117,12 @@ public class SettingsBuildListener extends TomlBaseListener {
     private void setToManifest(String value) {
         if (currentKey.present()) {
             if (SettingHeaders.PROXY.stringEquals(currentHeader)) {
-                ProxyField proxyField = ProxyField.LOOKUP.get(currentKey.pop());
+                ProxyField proxyField = ProxyField.valueOfLowerCase(currentKey.pop());
                 if (proxyField != null) {
                     proxyField.setValueTo(proxy, value);
                 }
             } else if (SettingHeaders.CENTRAL.stringEquals(currentHeader)) {
-                CentralField centralField = CentralField.LOOKUP.get(currentKey.pop());
+                CentralField centralField = CentralField.valueOfLowerCase(currentKey.pop());
                 if (centralField != null) {
                     centralField.setValueTo(central, value);
                 }

@@ -65,7 +65,7 @@ public abstract class ConnectionAction extends AbstractNativeFunction {
         HttpResponseFuture outboundRespStatusFuture = HttpUtil.sendOutboundResponse(requestMessage, responseMessage);
         if (entityStruct != null) {
             MessageDataSource outboundMessageSource = EntityBodyHandler.getMessageDataSource(entityStruct);
-                serializeMsgDataSource(responseMessage, outboundMessageSource, outboundRespStatusFuture, entityStruct);
+            serializeMsgDataSource(responseMessage, outboundMessageSource, outboundRespStatusFuture, entityStruct);
         }
         return handleResponseStatus(context, outboundRespStatusFuture);
     }

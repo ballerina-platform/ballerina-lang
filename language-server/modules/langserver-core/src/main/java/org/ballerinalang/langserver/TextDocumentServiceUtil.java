@@ -19,6 +19,7 @@ package org.ballerinalang.langserver;
 
 import org.antlr.v4.runtime.DefaultErrorStrategy;
 import org.ballerinalang.compiler.CompilerPhase;
+import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.completions.BallerinaCustomErrorStrategy;
 import org.ballerinalang.langserver.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.langserver.workspace.repository.WorkspacePackageRepository;
@@ -33,10 +34,7 @@ import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
 import java.io.File;
-import java.net.MalformedURLException;
 import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.URL;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -57,7 +55,7 @@ public class TextDocumentServiceUtil {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(BallerinaTextDocumentService.class);
 
-    static String getSourceRoot(Path filePath, String pkgName) {
+    public static String getSourceRoot(Path filePath, String pkgName) {
         if (filePath == null || filePath.getParent() == null) {
             return null;
         }
@@ -90,7 +88,7 @@ public class TextDocumentServiceUtil {
      * @param fileContent - content of the file
      * @return - package declaration
      */
-    static String getPackageFromContent(String fileContent) {
+    public static String getPackageFromContent(String fileContent) {
         Pattern pkgPattern = Pattern.compile(PACKAGE_REGEX);
         Matcher pkgMatcher = pkgPattern.matcher(fileContent);
 
@@ -107,7 +105,7 @@ public class TextDocumentServiceUtil {
      * @param sourceRoot                    Source Root
      * @return  {@link CompilerContext}     Compiler context
      */
-    static CompilerContext prepareCompilerContext(PackageRepository packageRepository, String sourceRoot) {
+    public static CompilerContext prepareCompilerContext(PackageRepository packageRepository, String sourceRoot) {
         org.wso2.ballerinalang.compiler.util.CompilerContext context = new CompilerContext();
         context.put(PackageRepository.class, packageRepository);
         CompilerOptions options = CompilerOptions.getInstance(context);
@@ -118,15 +116,15 @@ public class TextDocumentServiceUtil {
 
     /**
      * Get the BLangPackage for a given program.
-     * @param context               Text Document Service Context
+     * @param context               Language Server Context
      * @param docManager            Document manager
      * @return {@link BLangPackage} BLang Package
      */
-    public static BLangPackage getBLangPackage(TextDocumentServiceContext context,
+    public static BLangPackage getBLangPackage(LanguageServerContext context,
                                                WorkspaceDocumentManager docManager) {
         String uri = context.get(DocumentServiceKeys.FILE_URI_KEY);
         String fileContent = docManager.getFileContent(Paths.get(URI.create(uri)));
-        Path filePath = getPath(uri);
+        Path filePath = CommonUtil.getPath(uri);
         Path fileNamePath = filePath.getFileName();
         String fileName = "";
         if (fileNamePath != null) {
@@ -155,22 +153,6 @@ public class TextDocumentServiceUtil {
         }
 
         return (BLangPackage) compiler.getAST();
-    }
-
-    /**
-     *  Get Path from URI.
-     * @param uri               Path URI String
-     * @return                  File Path
-     */
-    public static Path getPath(String uri) {
-        Path path = null;
-        try {
-            path = Paths.get(new URL(uri).toURI());
-        } catch (URISyntaxException | MalformedURLException e) {
-            LOGGER.error(e.getMessage());
-        } finally {
-            return path;
-        }
     }
 
     /**

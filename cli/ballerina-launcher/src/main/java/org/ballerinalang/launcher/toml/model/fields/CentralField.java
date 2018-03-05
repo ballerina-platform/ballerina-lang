@@ -25,11 +25,13 @@ import java.util.function.BiConsumer;
 
 /**
  * Central object fields.
+ *
+ * @since 0.964
  */
 public enum CentralField {
     ACCESSTOKEN(Central::setAccessToken);
 
-    public static final Map<String, CentralField> LOOKUP = new HashMap<>();
+    private static final Map<String, CentralField> LOOKUP = new HashMap<>();
 
     static {
         for (CentralField centralField : CentralField.values()) {
@@ -58,4 +60,12 @@ public enum CentralField {
         stringSetter.accept(central, value);
     }
 
+    /**
+     * Like as valueOf method, but input should be all lower case.
+     * @param fieldKey Lower case string value of filed to find.
+     * @return Matching enum.
+     */
+    public static CentralField valueOfLowerCase(String fieldKey) {
+        return LOOKUP.get(fieldKey);
+    }
 }

@@ -329,7 +329,7 @@ class SourceEditor extends React.Component {
                     options={{
                         autoIndent: true,
                         fontSize: 14,
-                        contextmenu: false,
+                        contextmenu: true,
                         renderIndentGuides: true,
                         autoClosingBrackets: true,
                         matchBrackets: true,

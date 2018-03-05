@@ -18,15 +18,16 @@
 package org.ballerinalang.launcher.toml.util;
 
 /**
- * This class can be used to handle a singleton content with one element
+ * This class can be used to handle a singleton content with one element.
  *
+ * @since 0.964
  * @param <T>
  */
 public class SingletonStack<T> {
     private T content;
 
     /**
-     * Push object to the content
+     * Push object to the content.
      *
      * @param obj
      */
@@ -38,7 +39,7 @@ public class SingletonStack<T> {
     }
 
     /**
-     * Pops/Gets the object from content
+     * Pops/Gets the object from content.
      *
      * @return object if exists, if content is null an exception
      */
@@ -52,7 +53,7 @@ public class SingletonStack<T> {
     }
 
     /**
-     * Check if the object exists in the content
+     * Check if the object exists in the content.
      *
      * @return if object exists true else false
      */

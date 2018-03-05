@@ -23,6 +23,9 @@ import org.testng.annotations.Test;
 
 import java.io.IOException;
 
+/**
+ * Test class to populate Manifest object by reading the toml
+ */
 public class ManifestProcessorTest {
     @Test(description = "Package name in package section has an effect")
     public void testPackageName() throws IOException {

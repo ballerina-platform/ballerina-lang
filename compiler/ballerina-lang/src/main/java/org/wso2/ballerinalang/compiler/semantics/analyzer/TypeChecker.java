@@ -29,6 +29,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BCastOperatorSymb
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConversionOperatorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BOperatorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BStructSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTransformerSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
@@ -232,6 +233,11 @@ public class TypeChecker extends BLangNodeVisitor {
             recordLiteral.keyValuePairs.forEach(keyValuePair ->
                     checkRecLiteralKeyValue(keyValuePair, expTypes.get(0)));
             actualType = expTypes.get(0);
+
+            // TODO Following check can be moved the code analyzer.
+            if (expTypeTag == TypeTags.STRUCT) {
+                validateStructInitalizer(recordLiteral.pos);
+            }
         } else if (expTypeTag != TypeTags.ERROR) {
             dlog.error(recordLiteral.pos, DiagnosticCode.INVALID_LITERAL_FOR_TYPE, expTypes.get(0));
         }
@@ -910,7 +916,6 @@ public class TypeChecker extends BLangNodeVisitor {
             // Check for function pointer.
             iExpr.functionPointerInvocation = true;
         }
-
         // Set the resolved function symbol in the invocation expression.
         // This is used in the code generation phase.
         iExpr.symbol = funcSymbol;
@@ -918,23 +923,30 @@ public class TypeChecker extends BLangNodeVisitor {
     }
 
     private void checkFunctionInvocationExpr(BLangInvocation iExpr, BStructType structType) {
-        Name funcName = names.fromString(
-                Symbols.getAttachedFuncSymbolName(structType.tsymbol.name.value, iExpr.name.value));
+        String funcName = iExpr.name.value;
+        Name uniqueFuncName = names.fromString(
+                Symbols.getAttachedFuncSymbolName(structType.tsymbol.name.value, funcName));
         BPackageSymbol packageSymbol = (BPackageSymbol) structType.tsymbol.owner;
         BSymbol funcSymbol = symResolver.lookupMemberSymbol(iExpr.pos, packageSymbol.scope, this.env,
-                funcName, SymTag.FUNCTION);
+                uniqueFuncName, SymTag.FUNCTION);
         if (funcSymbol == symTable.notFoundSymbol) {
             // Check, any function pointer in struct field with given name.
             funcSymbol = symResolver.resolveStructField(iExpr.pos, env, names.fromIdNode(iExpr.name),
                     iExpr.expr.symbol.type.tsymbol);
             if (funcSymbol == symTable.notFoundSymbol || funcSymbol.type.tag != TypeTags.INVOKABLE) {
-                dlog.error(iExpr.pos, DiagnosticCode.UNDEFINED_FUNCTION_IN_STRUCT, iExpr.name.value, structType);
+                dlog.error(iExpr.pos, DiagnosticCode.UNDEFINED_FUNCTION_IN_STRUCT, funcName, structType);
                 resultTypes = getListWithErrorTypes(expTypes.size());
                 return;
             }
             iExpr.functionPointerInvocation = true;
+        } else {
+            // Attached function found
+            // Check for the explicit initializer function invocation
+            BStructSymbol.BAttachedFunction initializerFunc = ((BStructSymbol) structType.tsymbol).initializerFunc;
+            if (initializerFunc != null && initializerFunc.funcName.value.equals(funcName)) {
+                dlog.error(iExpr.pos, DiagnosticCode.STRUCT_INITIALIZER_INVOKED, structType.tsymbol.toString());
+            }
         }
-
         iExpr.symbol = funcSymbol;
         checkInvocationParamAndReturnType(iExpr);
     }
@@ -950,7 +962,6 @@ public class TypeChecker extends BLangNodeVisitor {
             resultTypes = getListWithErrorTypes(expTypes.size());
             return;
         }
-
         iExpr.symbol = funcSymbol;
         checkInvocationParamAndReturnType(iExpr);
     }
@@ -1220,7 +1231,7 @@ public class TypeChecker extends BLangNodeVisitor {
                 dlog.error(expr.pos, DiagnosticCode.INCOMPATIBLE_TYPES, symTable.stringType, expr.type);
             }
 
-            concatExpr = getBinaryAddExppression(concatExpr, expr, opSymbol);
+            concatExpr = getBinaryAddExpr(concatExpr, expr, opSymbol);
         }
 
         return concatExpr;
@@ -1257,7 +1268,7 @@ public class TypeChecker extends BLangNodeVisitor {
                 strConcatExpr = expr;
                 continue;
             }
-            strConcatExpr = getBinaryAddExppression(strConcatExpr, expr, opSymbol);
+            strConcatExpr = getBinaryAddExpr(strConcatExpr, expr, opSymbol);
         }
 
         // Add remaining concatenated text nodes as children
@@ -1268,7 +1279,7 @@ public class TypeChecker extends BLangNodeVisitor {
         return newChildren;
     }
 
-    private BLangExpression getBinaryAddExppression(BLangExpression lExpr, BLangExpression rExpr, BSymbol opSymbol) {
+    private BLangExpression getBinaryAddExpr(BLangExpression lExpr, BLangExpression rExpr, BSymbol opSymbol) {
         BLangBinaryExpr binaryExpressionNode = (BLangBinaryExpr) TreeBuilder.createBinaryExpressionNode();
         binaryExpressionNode.lhsExpr = lExpr;
         binaryExpressionNode.rhsExpr = rExpr;
@@ -1313,8 +1324,7 @@ public class TypeChecker extends BLangNodeVisitor {
             if (conversionExpr.conversionSymbol.safe) {
                 ((BInvokableType) transformerSymbol.type).retTypes.add(symTable.errStructType);
             }
-            actualTypes = getActualTypesOfConversionExpr(conversionExpr, targetType, sourceType,
-                    (BTransformerSymbol) transformerSymbol);
+            actualTypes = getActualTypesOfConversionExpr(conversionExpr, targetType, sourceType, transformerSymbol);
         }
 
         return actualTypes;
@@ -1378,5 +1388,18 @@ public class TypeChecker extends BLangNodeVisitor {
 
         checkExpr(expr, this.env, Lists.of(symTable.noType));
         return expr.type;
+    }
+
+    private void validateStructInitalizer(DiagnosticPos pos) {
+        BStructType bStructType = (BStructType) expTypes.get(0);
+        BStructSymbol bStructSymbol = (BStructSymbol) bStructType.tsymbol;
+        if (bStructSymbol.initializerFunc == null) {
+            return;
+        }
+
+        boolean samePkg = this.env.enclPkg.symbol.pkgID == bStructSymbol.pkgID;
+        if (!samePkg && Symbols.isPrivate(bStructSymbol.initializerFunc.symbol)) {
+            dlog.error(pos, DiagnosticCode.ATTEMPT_CREATE_NON_PUBLIC_INITIALIZER);
+        }
     }
 }

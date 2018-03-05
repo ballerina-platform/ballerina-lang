@@ -19,6 +19,8 @@ package org.ballerinalang.launcher.toml.model.fields;
 
 /**
  * Section defined in the toml file.
+ *
+ * @since 0.964
  */
 public enum Section {
     PACKAGE, DEPENDENCIES, PATCHES, PROXY;

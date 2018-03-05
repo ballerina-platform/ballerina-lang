@@ -20,19 +20,21 @@ package org.ballerinalang.launcher.toml.parser;
 import org.ballerinalang.launcher.toml.antlr4.TomlBaseListener;
 import org.ballerinalang.launcher.toml.antlr4.TomlParser;
 import org.ballerinalang.launcher.toml.model.Proxy;
+import org.ballerinalang.launcher.toml.model.fields.ManifestHeader;
 import org.ballerinalang.launcher.toml.model.fields.ProxyField;
-import org.ballerinalang.launcher.toml.model.fields.Section;
 import org.ballerinalang.launcher.toml.util.SingletonStack;
 
 import java.util.List;
 
 /**
  * Custom listener which is extended from the Toml listener with our own custom logic.
+ *
+ * @since 0.964
  */
 public class ProxyBuildListener extends TomlBaseListener {
     private final Proxy proxy;
     private String currentHeader = null;
-    private SingletonStack currentKey = new SingletonStack();
+    private final SingletonStack<String> currentKey = new SingletonStack<>();
 
     /**
      * Constructor with the proxy object.
@@ -94,8 +96,8 @@ public class ProxyBuildListener extends TomlBaseListener {
      * @param value KeyvalContext object
      */
     private void setToProxy(String value) {
-        if (currentKey.present() && Section.PROXY.stringEquals(currentHeader)) {
-            ProxyField proxyField = ProxyField.LOOKUP.get(currentKey.pop());
+        if (currentKey.present() && ManifestHeader.PROXY.stringEquals(currentHeader)) {
+            ProxyField proxyField = ProxyField.valueOfLowerCase(currentKey.pop());
             if (proxyField != null) {
                 proxyField.setValueTo(this.proxy, value);
             }

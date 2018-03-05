@@ -19,7 +19,7 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Button, Row, Grid, Col } from 'react-bootstrap';
+import { Button } from 'semantic-ui-react';
 import Dialog from './../../view/Dialog';
 
 /**
@@ -59,6 +59,8 @@ class FileDeleteConfirmDialog extends React.Component {
             <Dialog
                 show={this.state.showDialog}
                 title={`Delete ${this.props.isFolder ? 'Folder' : 'File'} From Disk`}
+                titleIcon='warning circle'
+                size='small'
                 actions={
                 [
                     <Button
@@ -68,6 +70,7 @@ class FileDeleteConfirmDialog extends React.Component {
                             });
                             this.props.onConfirm();
                         }}
+                        primary
                     >
                         Delete
                     </Button>,
@@ -76,22 +79,13 @@ class FileDeleteConfirmDialog extends React.Component {
                 onHide={this.onDialogHide}
                 error={this.state.error}
             >
-                <Grid fluid>
-                    <Row>
-                        <Col md={2}>
-                            <i className="fw fw-4x fw-warning danger" />
-                        </Col>
-                        <Col md={10}>
-                            <h4 style={{ marginTop: 0 }}>
-                                {`Are you sure you want to delete "${this.props.target}"
-                                    ${this.props.isFolder ? ' and its contents' : ''} ?`}
-                            </h4>
-                            <p>
-                                {`The ${this.props.isFolder ? 'Folder' : 'File'} will be deleted from the file system.`}
-                            </p>
-                        </Col>
-                    </Row>
-                </Grid>
+                <h4>
+                    {`Are you sure you want to delete "${this.props.target}"
+                        ${this.props.isFolder ? ' and its contents' : ''} ?`}
+                </h4>
+                <p>
+                    {`The ${this.props.isFolder ? 'Folder' : 'File'} will be deleted from the file system.`}
+                </p>
             </Dialog>
         );
     }

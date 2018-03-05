@@ -26,30 +26,31 @@ import org.ballerinalang.launcher.toml.parser.ManifestProcessor;
 import org.ballerinalang.launcher.toml.parser.SettingsProcessor;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.CompileResult;
+import org.ballerinalang.util.BLangConstants;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.debugger.Debugger;
 import org.ballerinalang.util.program.BLangFunctions;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import java.io.File;
 import java.io.IOException;
+import java.io.PrintStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.Arrays;
 import java.util.stream.Stream;
 
 /**
  * Util class for network calls.
+ *
+ * @since 0.964
  */
 public class NetworkUtils {
-    private static final Logger log = LoggerFactory.getLogger(NetworkUtils.class);
+    private static PrintStream outStream = System.err;
     private static CompileResult compileResult;
-    private static Settings settings = readSettings();
 
     /**
      * Compile the bal file.
@@ -76,68 +77,68 @@ public class NetworkUtils {
      */
     public static void pullPackages(String resourceName, String ballerinaCentralURL) {
         compileResult = compileBalFile("ballerina.pull");
+
         String host = getHost(ballerinaCentralURL);
-        Path targetDirectoryPath = UserRepositoryUtils.initializeUserRepository().resolve("caches").
-                resolve(host);
+        Path cacheDir = Paths.get("caches").resolve(host);
 
-        int indexOfSlash = resourceName.indexOf("/");
-        String orgName = resourceName.substring(0, indexOfSlash);
-        String pkgNameWithVersion = resourceName.substring(indexOfSlash + 1);
+        // target directory path to .ballerina/cache
+        Path targetDirectoryPath = UserRepositoryUtils.initializeUserRepository().resolve(cacheDir);
 
-        int indexOfColon = pkgNameWithVersion.indexOf(":");
-        String pkgName = pkgNameWithVersion.substring(0, indexOfColon);
-        String pkgVersion = pkgNameWithVersion.substring(indexOfColon + 1);
-        targetDirectoryPath = targetDirectoryPath.resolve(orgName).resolve(pkgName).resolve(pkgVersion);
+        int indexOfOrgName = resourceName.indexOf("/");
+        if (indexOfOrgName != -1) {
+            String orgName = resourceName.substring(0, indexOfOrgName);
+            String pkgNameWithVersion = resourceName.substring(indexOfOrgName + 1);
 
-        // Create the target directories
-        createDirectories(targetDirectoryPath);
-
-
-        // targetDirectoryPath = targetDirectoryPath.resolve(aResourceArr);
-
-        // String[] resourceArr = resourceName.split("/");
-        // for (String aResourceArr : resourceArr) {
-
-            /*if (!Files.exists(targetDirectoryPath)) {
-                try {
-                    Files.createDirectories(targetDirectoryPath);
-                } catch (IOException e) {
-                    log.debug("I/O Exception when creating the directory ", e);
-                    log.error("I/O Exception when creating the directory" + e.getMessage());
-                }
-            }*/
-        // }
-
-        // int index = resourceName.lastIndexOf('/');
-        // String pkgName = resourceName.substring(0, index);
-
-        String dstPath = targetDirectoryPath + File.separator;
-        String pkgPath = Paths.get(orgName).resolve(pkgName).resolve(pkgVersion).toString();
-        String resourcePath = ballerinaCentralURL + pkgPath;
-        String[] proxyConfigs = readProxyConfigurations();
-        String[] arguments = new String[]{resourcePath, dstPath, pkgName};
-        arguments = Stream.concat(Arrays.stream(arguments), Arrays.stream(proxyConfigs))
-                .toArray(String[]::new);
-        LauncherUtils.runMain(compileResult.getProgFile(), arguments);
-    }
-
-    /**
-     * Create target/output directories which contains the pulled packages.
-     * @param targetDirectoryPath target directory path
-     */
-    private static void createDirectories(Path targetDirectoryPath) {
-        if (!Files.exists(targetDirectoryPath)) {
-            try {
-                Files.createDirectories(targetDirectoryPath);
-            } catch (IOException e) {
-                log.debug("I/O Exception when creating the directory ", e);
-                log.error("I/O Exception when creating the directory" + e.getMessage());
+            int indexOfColon = pkgNameWithVersion.indexOf(":");
+            String pkgVersion, pkgName;
+            if (indexOfColon != -1) {
+                pkgVersion = pkgNameWithVersion.substring(indexOfColon + 1);
+                pkgName = pkgNameWithVersion.substring(0, indexOfColon);
+            } else {
+                pkgVersion = "*";
+                pkgName = pkgNameWithVersion;
             }
+            Path fullPathOfPkg = Paths.get(orgName).resolve(pkgName).resolve(pkgVersion).resolve("src");
+
+            targetDirectoryPath = targetDirectoryPath.resolve(fullPathOfPkg);
+            String dstPath = targetDirectoryPath.toString();
+
+            // Get the current directory path to check if the user is pulling a package from inside a project directory
+            Path currentDirPath = Paths.get(".").toAbsolutePath().normalize();
+            String currentProjectPath = null;
+            if (ballerinaTomlExists(currentDirPath)) {
+                Path projectDestDirectoryPath = currentDirPath.resolve(".ballerina").resolve(cacheDir)
+                        .resolve(fullPathOfPkg);
+                currentProjectPath = projectDestDirectoryPath.toString();
+            }
+
+            String pkgPath = Paths.get(orgName).resolve(pkgName).resolve(pkgVersion).toString();
+            String resourcePath = ballerinaCentralURL + pkgPath;
+            String[] proxyConfigs = readProxyConfigurations();
+            String[] arguments = new String[]{resourcePath, dstPath, pkgName, currentProjectPath, resourceName,
+                    pkgVersion};
+            arguments = Stream.concat(Arrays.stream(arguments), Arrays.stream(proxyConfigs))
+                    .toArray(String[]::new);
+            LauncherUtils.runMain(compileResult.getProgFile(), arguments);
+        } else {
+            outStream.println("No org-name provided for the package to be pulled. Please provide an org-name");
         }
     }
 
     /**
+     * Check if Ballerina.toml exists in the current directory that the pull command is executed, to
+     * verify that its from a project directory
+     *
+     * @param currentDirPath path of the current directory
+     * @return true if Ballerina.toml exists, else false
+     */
+    private static boolean ballerinaTomlExists(Path currentDirPath) {
+        return Files.isRegularFile(currentDirPath.resolve("Ballerina.toml"));
+    }
+
+    /**
      * Extract the host name from ballerina central URL.
+     *
      * @param ballerinaCentralURL URL of ballerina central
      * @return host
      */
@@ -152,31 +153,65 @@ public class NetworkUtils {
     /**
      * Push/Uploads packages to the central repository.
      *
-     * @param packageName                path of the package folder to be pushed
+     * @param packageName         path of the package folder to be pushed
      * @param ballerinaCentralURL URL of ballerina central
      */
-    public static void pushPackages(String packageName, String ballerinaCentralURL) {
+    public static void pushPackages(String packageName, String installToRepo, String ballerinaCentralURL) {
         compileResult = compileBalFile("ballerina.push");
         // Get the access token
         String accessToken = getAccessTokenOfCLI() != null ? removeQuotationsFromValue(getAccessTokenOfCLI()) : null;
-        // Get the org-name and version by reading Ballerina.toml
+        // Get the org-name and version by reading Ballerina.toml inside the project
         Manifest manifest = readManifestConfigurations();
-        if (manifest != null && manifest.getName() != null && manifest.getVersion() != null) {
+        if (manifest.getName() != null && manifest.getVersion() != null) {
             String orgName = removeQuotationsFromValue(manifest.getName());
             String version = removeQuotationsFromValue(manifest.getVersion());
             String resourcePath = ballerinaCentralURL + Paths.get(orgName).resolve(packageName)
                     .resolve(version);
-            String[] proxyConfigs = readProxyConfigurations();
-            String[] arguments = new String[]{accessToken, resourcePath, packageName};
-            arguments = Stream.concat(Arrays.stream(arguments), Arrays.stream(proxyConfigs))
-                    .toArray(String[]::new);
-            LauncherUtils.runMain(compileResult.getProgFile(), arguments);
+
+            Path currentDirPath = Paths.get(".").toAbsolutePath().normalize();
+            // Construct the package name along with the version and check if it exists
+            Path pkgPath = currentDirPath.resolve(".ballerina").resolve("repo").resolve(orgName)
+                    .resolve(packageName).resolve(version);
+            Path baloFilePath = pkgPath.resolve(packageName + "-" + version + ".balo");
+            if (Files.notExists(pkgPath)) {
+                outStream.println("Package " + packageName + " with version " + version + " does not exist");
+            } else {
+                // Default push to the remote repository
+                if (installToRepo == null) {
+                    String[] proxyConfigs = readProxyConfigurations();
+                    String[] arguments = new String[]{accessToken, resourcePath, baloFilePath.toString()};
+                    arguments = Stream.concat(Arrays.stream(arguments), Arrays.stream(proxyConfigs))
+                            .toArray(String[]::new);
+                    LauncherUtils.runMain(compileResult.getProgFile(), arguments);
+                } else {
+                    // Check if the package should be installed into the home repository
+                    if (installToRepo.equals("home")) {
+                        // Directory path to .ballerina/artifacts
+                        Path targetDirectoryPath = UserRepositoryUtils.initializeUserRepository()
+                                .resolve(BLangConstants.USER_REPO_ARTIFACTS_DIRNAME).resolve(orgName)
+                                .resolve(packageName).resolve(version);
+                        if (!Files.exists(targetDirectoryPath)) {
+                            try {
+                                Files.createDirectories(targetDirectoryPath);
+                            } catch (IOException e) {
+                                outStream.println("Error when occured when creating directories in " +
+                                        "./ballerina/artifacts/ to install the package locally");
+                            }
+                        }
+                        //copy balo file to the user repository
+                        try {
+                            Path dstBaloFile = targetDirectoryPath.resolve(baloFilePath.getFileName());
+                            Files.copy(baloFilePath, dstBaloFile, StandardCopyOption.REPLACE_EXISTING);
+                            outStream.println("Ballerina package pushed successfully to the user repository");
+                        } catch (IOException e) {
+                            outStream.println("Error occured when copying the balo file to the user repository");
+                        }
+                    }
+                }
+            }
         } else {
-            log.debug("An org-name and package version is required when pushing. This is not specified in " +
+            outStream.println("An org-name and package version is required when pushing. This is not specified in " +
                     "Ballerina.toml inside the project");
-            log.error("An org-name and package version is required when pushing. This is not specified in " +
-                            "Ballerina.toml inside the project",
-                    "An org-name and package version is required when pushing");
         }
     }
 
@@ -187,14 +222,11 @@ public class NetworkUtils {
      */
     private static Manifest readManifestConfigurations() {
         String tomlFilePath = Paths.get(".").toAbsolutePath().normalize().resolve("Ballerina.toml").toString();
-        Manifest manifest = null;
         try {
-            manifest = ManifestProcessor.parseTomlContentFromFile(tomlFilePath);
+            return ManifestProcessor.parseTomlContentFromFile(tomlFilePath);
         } catch (IOException e) {
-            log.debug("I/O Exception when processing Ballerina.toml ", e);
-            log.error("I/O Exception when processing Ballerina.toml " + e.getMessage());
+            return new Manifest();
         }
-        return manifest;
     }
 
     /**
@@ -203,17 +235,12 @@ public class NetworkUtils {
      * @return settings object
      */
     private static Settings readSettings() {
-        File cliTomlFile = new File(UserRepositoryUtils.initializeUserRepository().toString()
-                + File.separator + "Settings.toml");
-        if (cliTomlFile.exists()) {
-            try {
-                settings = SettingsProcessor.parseTomlContentFromFile(cliTomlFile.toString());
-            } catch (IOException e) {
-                log.debug("I/O Exception when processing the toml file ", e);
-                log.error("I/O Exception when processing the toml file " + e.getMessage());
-            }
+        String tomlFilePath = UserRepositoryUtils.initializeUserRepository().resolve("Settings.toml").toString();
+        try {
+            return SettingsProcessor.parseTomlContentFromFile(tomlFilePath);
+        } catch (IOException e) {
+            return new Settings();
         }
-        return settings;
     }
 
     /**
@@ -224,7 +251,8 @@ public class NetworkUtils {
     private static String[] readProxyConfigurations() {
         String host = "", port = "", username = "", password = "";
         String proxyConfigArr[] = new String[]{host, port, username, password};
-        if (settings != null) {
+        Settings settings = readSettings();
+        if (settings.getProxy() != null) {
             if (settings.getProxy().getHost() != null) {
                 host = removeQuotationsFromValue(settings.getProxy().getHost());
                 proxyConfigArr[0] = host;
@@ -251,11 +279,11 @@ public class NetworkUtils {
      * @return access token for generated for the CLI
      */
     private static String getAccessTokenOfCLI() {
+        Settings settings = readSettings();
         if (settings != null) {
             if (settings.getCentral() != null) {
                 return settings.getCentral().getAccessToken();
             }
-            return null;
         }
         return null;
     }

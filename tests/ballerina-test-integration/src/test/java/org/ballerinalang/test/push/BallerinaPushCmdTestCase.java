@@ -29,12 +29,12 @@ import java.io.File;
 
 /**
  * Testing ballerina push command
+ * @since 0.964
  */
 public class BallerinaPushCmdTestCase extends IntegrationTestCase {
 
     private ServerInstance ballerinaServer;
     private ServerInstance ballerinaClient;
-    private String serverZipPath;
 
     @Test
     public void setUp() throws BallerinaTestException {
@@ -47,7 +47,7 @@ public class BallerinaPushCmdTestCase extends IntegrationTestCase {
 
     @Test(description = "Test ballerina push cmd")
     public void testBallerinaPushCmd() throws Exception {
-        serverZipPath = System.getProperty(Constant.SYSTEM_PROP_SERVER_ZIP);
+        String serverZipPath = System.getProperty(Constant.SYSTEM_PROP_SERVER_ZIP);
         String srcDirPath = new File("src" + File.separator + "test" + File.separator + "resources"
                 + File.separator + "ballerinaPush" + File.separator + "files").getAbsolutePath();
         String destDirPath = new File("src" + File.separator + "test" + File.separator + "resources"

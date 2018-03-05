@@ -1,19 +1,19 @@
 package ballerina.push;
 
-import ballerina.compression;
+import ballerina.file;
+import ballerina.io;
 import ballerina.mime;
 import ballerina.net.http;
-import ballerina.io;
 
-function main (string[] args) {
-
+function pushPackage (string accessToken, string url, string baloFilePath, string proxyHost, string proxyPort, string proxyUsername,
+                      string proxyPassword) {
     endpoint<http:HttpClient> httpEndpoint {
-        create http:HttpClient(args[1], getConnectorConfigs(args[3], args[4], args[5], args[6]));
+        create http:HttpClient(url, getConnectorConfigs(proxyHost, proxyPort, proxyUsername, proxyPassword));
     }
     // Validate the access token generated
-    var clientResponse, errResp = validateToken(args[0]);
+    var clientResponse, errResp = validateToken(accessToken);
     if (errResp != null) {
-        error validationErr = {message: errResp.message};
+        error validationErr = {message:errResp.message};
         throw validationErr;
     } else {
         json jsonResp = clientResponse.getJsonPayload();
@@ -23,11 +23,11 @@ function main (string[] args) {
             mime:MediaType mediaType = mime:getMediaType(mime:MULTIPART_FORM_DATA);
             topLevelEntity.contentType = mediaType;
 
-            blob compressedContent = compression:zipToBytes(args[2]);
             mime:Entity filePart = {};
             mime:MediaType contentTypeOfFilePart = mime:getMediaType(mime:APPLICATION_OCTET_STREAM);
             filePart.contentType = contentTypeOfFilePart;
-            filePart.setBlob(compressedContent);
+            file:File fileHandler = {path:baloFilePath};
+            filePart.setFileAsEntityBody(fileHandler);
             mime:Entity[] bodyParts = [filePart];
 
             topLevelEntity.multipartData = bodyParts;
@@ -35,17 +35,17 @@ function main (string[] args) {
             request.setEntity(topLevelEntity);
             var resp1, errRes = httpEndpoint.post("", request);
             if (errRes != null) {
-                error err = {message: errRes.message};
+                error err = {message:errRes.message};
                 throw err;
             }
-            io:println(resp1);
             if (resp1.statusCode != 200) {
-                io:println("Internal server error occured when pushing the package to the central repository");
+                json jsonResponse = resp1.getJsonPayload();
+                io:println(jsonResponse.msg.toString());
             } else {
                 io:println("Ballerina package pushed successfully");
             }
         } else {
-            if (args[0] == null) {
+            if (accessToken == null) {
                 io:println("You have not specified an access-token for the central in your Settings.toml. Please login to central if you are already registered using 'central.ballerina.io/login' to get a valid access-token. If you are new to the site please register using 'central.ballerina.io/register'");
             } else {
                 io:println("The access-token provided in Settings.toml has expired. Please login again from the central using 'central.ballerina.io/login' to get a valid access-token.");
@@ -54,20 +54,25 @@ function main (string[] args) {
     }
 }
 
-function getConnectorConfigs(string host, string port, string username, string password) (http:Options) {
+function main (string[] args) {
+    pushPackage(args[0], args[1], args[2], args[3], args[4], args[5], args[6]);
+}
+
+function getConnectorConfigs (string proxyHost, string proxyPort, string proxyUsername, string proxyPassword)
+(http:Options) {
     http:Options option;
     int portInt = 0;
-    if (host != ""){
-        if (port != ""){
-            var portI, _ = <int> port;
+    if (proxyHost != "") {
+        if (proxyPort != "") {
+            var portI, _ = <int>proxyPort;
             portInt = portI;
         }
         option = {
                      proxy:{
-                               host:host,
+                               host:proxyHost,
                                port:portInt,
-                               userName:username,
-                               password:password
+                               userName:proxyUsername,
+                               password:proxyPassword
                            }
                  };
     } else {
@@ -76,11 +81,11 @@ function getConnectorConfigs(string host, string port, string username, string p
     return option;
 }
 
-function validateToken(string accessToken) (http:InResponse , http:HttpConnectorError ) {
+function validateToken (string accessToken) (http:InResponse, http:HttpConnectorError) {
     endpoint<http:HttpClient> validateEndpoint {
-        create http:HttpClient("https://localhost:9443" , {});
+        create http:HttpClient("https://localhost:9443", {});
     }
-    string strPayload = "token=" +accessToken;
+    string strPayload = "token=" + accessToken;
     http:OutRequest outReq = {};
     outReq.setStringPayload(strPayload);
     outReq.setHeader("Content-Type", "application/x-www-form-urlencoded");

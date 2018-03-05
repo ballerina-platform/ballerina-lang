@@ -32,7 +32,7 @@ import java.nio.file.Paths;
 /**
  * Native function ballerina.compression:unzipFile
  *
- * @since 0.962.0
+ * @since 0.964
  */
 @BallerinaFunction(
         packageName = "ballerina.compression",
@@ -64,7 +64,7 @@ public class UnzipFile extends AbstractNativeFunction {
      * Decompress/unzip compressed file.
      *  @param dirPath      compressed file path
      * @param outputFolder destination folder
-     * @param folderToUnzip
+     * @param folderToUnzip folder to unzip
      */
     private static void decompress(String dirPath, String outputFolder, String folderToUnzip) {
         try {

@@ -58,3 +58,20 @@ struct Person {
 transformer <string s, Person p> Bar(int i) {
     p.name = s;
 }
+
+@Args{value:"test @Args annotation with named return"}
+function namedReturnAnnotationTest (string args) (@Args{value:"named return : type string"} string returnValue) {
+    returnValue = args;
+    return;
+}
+
+@Args{value:"test @Args annotation with return"}
+function returnAnnotationTest (string args) (@Args{value:"return : type string"} string) {
+    return args;
+}
+
+@Args{value:"test @Args annotation with multiple returns"}
+function multiReturnAnnotationTest (int args1, string args2) (@Args{value:"return : type string"} string,
+                                                         @Args{value:"return : type int"} int) {
+    return args2, args1;
+}

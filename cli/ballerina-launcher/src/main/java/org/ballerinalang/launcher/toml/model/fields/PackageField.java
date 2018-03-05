@@ -27,6 +27,8 @@ import java.util.function.BiConsumer;
 
 /**
  * Fields defined in the manifest "package" header.
+ *
+ * @since 0.964
  */
 public enum PackageField {
     NAME(Manifest::setName),
@@ -40,7 +42,7 @@ public enum PackageField {
     AUTHORS(null, Manifest::setAuthors),
     KEYWORDS(null, Manifest::setKeywords);
 
-    public static final Map<String, PackageField> LOOKUP = new HashMap<>();
+    private static final Map<String, PackageField> LOOKUP = new HashMap<>();
 
     static {
         for (PackageField packageFieldField : PackageField.values()) {
@@ -97,5 +99,14 @@ public enum PackageField {
         } else {
             throw new IllegalStateException(this + " field can't have list value " + list.toString());
         }
+    }
+
+    /**
+     * Like as valueOf method, but input should be all lower case.
+     * @param fieldKey Lower case string value of filed to find.
+     * @return Matching enum.
+     */
+    public static PackageField valueOfLowerCase(String fieldKey) {
+        return LOOKUP.get(fieldKey);
     }
 }

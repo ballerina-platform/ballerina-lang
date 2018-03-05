@@ -32,7 +32,7 @@ import static org.ballerinalang.runtime.Constants.SYSTEM_PROP_BAL_DEBUG;
 /**
  * This class represents the "ballerina push" command.
  *
- * @since 0.961
+ * @since 0.964
  */
 @Parameters(commandNames = "push", commandDescription = " uploads/pushes a package source and binaries available" +
         "locally to the ballerina central repository,")
@@ -52,6 +52,9 @@ public class PushCommand implements BLauncherCmd {
 
     @Parameter(names = "--debug", hidden = true)
     private String debugPort;
+
+    @Parameter(names = "--repository", hidden = true)
+    private String repositoryHome;
 
     @Override
     public void execute() {
@@ -75,7 +78,7 @@ public class PushCommand implements BLauncherCmd {
         }
 
         String resourceName = argList.get(0);
-        NetworkUtils.pushPackages(resourceName, BALLERINA_CENTRAL_REPO_URL);
+        NetworkUtils.pushPackages(resourceName, repositoryHome, BALLERINA_CENTRAL_REPO_URL);
 
     }
 

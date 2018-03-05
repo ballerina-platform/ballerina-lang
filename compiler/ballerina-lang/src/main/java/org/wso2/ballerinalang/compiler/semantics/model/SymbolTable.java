@@ -27,6 +27,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BCastOperatorSymb
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConversionOperatorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BOperatorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BStructSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
@@ -141,7 +142,7 @@ public class SymbolTable {
         defineType(errType, errSymbol);
 
         // Initialize Ballerina error struct type temporally.
-        BTypeSymbol errorStructSymbol = new BTypeSymbol(SymTag.STRUCT, Flags.PUBLIC, Names.ERROR,
+        BTypeSymbol errorStructSymbol = new BStructSymbol(SymTag.STRUCT, Flags.PUBLIC, Names.ERROR,
                 rootPkgSymbol.pkgID, null, rootPkgSymbol);
         this.errStructType = new BStructType(errorStructSymbol);
         errorStructSymbol.type = this.errStructType;
