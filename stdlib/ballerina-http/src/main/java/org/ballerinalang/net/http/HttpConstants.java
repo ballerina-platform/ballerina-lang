@@ -85,7 +85,7 @@ public class HttpConstants {
     public static final String ANN_NAME_CONFIG = "configuration";
     public static final String ANN_CONFIG_ATTR_HOST = "host";
     public static final String ANN_CONFIG_ATTR_PORT = "port";
-    public static final String ANN_CONFIG_ATTR_HTTP2 = "http2";
+    public static final String ANN_CONFIG_ATTR_HTTP_VERSION = "httpVersion";
     public static final String ANN_CONFIG_ATTR_HTTPS_PORT = "httpsPort";
     public static final String ANN_CONFIG_ATTR_KEEP_ALIVE = "keepAlive";
     public static final String ANN_CONFIG_ATTR_BASE_PATH = "basePath";
