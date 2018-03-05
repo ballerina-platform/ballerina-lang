@@ -132,7 +132,13 @@ public class HttpClientConnectorImpl implements HttpClientConnector {
                 activeHttp2ClientChannel.getChannel().eventLoop().execute(() -> {
                     activeHttp2ClientChannel.getChannel().write(outboundMsgHolder);
                 });
-                return outboundMsgHolder.getResponseFuture();
+                if (returnResponseHandle) {
+                    httpResponseFuture = outboundMsgHolder.getResponseHandleFuture();
+                    httpResponseFuture.notifyResponseHandle(new ResponseHandle(outboundMsgHolder));
+                } else {
+                    httpResponseFuture = outboundMsgHolder.getResponseFuture();
+                }
+                return httpResponseFuture;
             }
 
             TargetChannel targetChannel = connectionManager.borrowTargetChannel(route, srcHandler, senderConfiguration);
@@ -153,6 +159,7 @@ public class HttpClientConnectorImpl implements HttpClientConnector {
                 @Override
                 public void operationComplete(ChannelFuture channelFuture) throws Exception {
                     if (isValidateChannel(channelFuture)) {
+                        httpResponseFuture.notifyResponseHandle(new ResponseHandle(outboundMsgHolder));
                         targetChannel.setChannel(channelFuture.channel());
                         targetChannel.configTargetHandler(httpOutboundRequest, httpResponseFuture);
                         targetChannel.setEndPointTimeout(socketIdleTimeout, followRedirect);
