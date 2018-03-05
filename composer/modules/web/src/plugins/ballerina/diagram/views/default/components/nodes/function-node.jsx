@@ -130,6 +130,7 @@ class FunctionNode extends React.Component {
                                 bBox={this.props.model.viewState.components.defaultWorkerLine}
                                 classes={classes}
                                 icon={ImageUtil.getCodePoint('worker')}
+                                model={this.props.model}
                             />
                             {blockNode}
                         </g>
