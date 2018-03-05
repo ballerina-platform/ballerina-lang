@@ -29,6 +29,7 @@ import io.netty.handler.codec.http.HttpMethod;
 import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.HttpServerUpgradeHandler;
 import io.netty.handler.codec.http.HttpVersion;
+import io.netty.handler.codec.http2.Http2Connection;
 import io.netty.handler.codec.http2.Http2ConnectionDecoder;
 import io.netty.handler.codec.http2.Http2ConnectionEncoder;
 import io.netty.handler.codec.http2.Http2ConnectionHandler;
@@ -66,14 +67,16 @@ public final class Http2SourceHandler extends Http2ConnectionHandler {
     private Http2FrameListener http2FrameListener;
     private String interfaceId;
     private ServerConnectorFuture serverConnectorFuture;
+    private Http2Connection conn;
 
     public Http2SourceHandler(Http2ConnectionDecoder decoder, Http2ConnectionEncoder encoder,
                               Http2Settings initialSettings,
-                              String interfaceId, ServerConnectorFuture serverConnectorFuture) {
+                              String interfaceId, Http2Connection conn, ServerConnectorFuture serverConnectorFuture) {
         super(decoder, encoder, initialSettings);
         http2FrameListener = new Http2FrameListener();
         this.interfaceId = interfaceId;
         this.serverConnectorFuture = serverConnectorFuture;
+        this.conn = conn;
     }
 
     @Override
@@ -142,7 +145,7 @@ public final class Http2SourceHandler extends Http2ConnectionHandler {
                 ServerConnectorFuture outboundRespFuture = httpRequestMsg.getHttpResponseFuture();
                 outboundRespFuture
                         .setHttpConnectorListener(
-                                new Http2OutboundRespListener(httpRequestMsg, ctx, encoder(), streamId));
+                                new Http2OutboundRespListener(httpRequestMsg, ctx, conn, encoder(), streamId));
                 serverConnectorFuture.notifyHttpListener(httpRequestMsg);
             } catch (Exception e) {
                 log.error("Error while notifying listeners", e);

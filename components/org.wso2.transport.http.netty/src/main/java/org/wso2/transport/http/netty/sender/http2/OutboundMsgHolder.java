@@ -111,7 +111,7 @@ public class OutboundMsgHolder {
         pushResponsesMap.put(streamId, pushResponse);
         pushResponses.add(pushResponse);
         pushResponsesCount++;
-        pushResponseFutures.get(streamId).notifyHttpListener(pushResponse);
+        pushResponseFutures.get(streamId).notifyPushResponse(streamId, pushResponse);
     }
 
     public boolean isAllPromisesReceived() {

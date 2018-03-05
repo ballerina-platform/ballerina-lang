@@ -48,7 +48,15 @@ public interface HttpConnectorListener {
      * @param pushPromise push promise
      */
     default void onPushPromise(Http2PushPromise pushPromise) {
+    }
 
+    /**
+     * Events on Push responses ends up here
+     *
+     * @param promiseId related push promise id
+     * @param  httpMessage push response
+     */
+    default void onPushResponse(int promiseId, HTTPCarbonMessage httpMessage) {
     }
 
     /**
@@ -65,7 +73,6 @@ public interface HttpConnectorListener {
      * @param responseHandle Response Handle
      */
     default void onResponseHandle(ResponseHandle responseHandle) {
-
     }
 
 }

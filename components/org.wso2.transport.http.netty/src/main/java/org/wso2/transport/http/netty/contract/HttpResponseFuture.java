@@ -97,6 +97,14 @@ public interface HttpResponseFuture {
     void notifyPushPromise();
 
     /**
+     * Notify push response listener when there is a push response
+     *
+     * @param promisedId   promised stream id
+     * @param pushResponse push response message
+     */
+    void notifyPushResponse(int promisedId, HTTPCarbonMessage pushResponse);
+
+    /**
      * Set response handle listener
      *
      * @param responseHandleListener listener that receives events related to the handle.

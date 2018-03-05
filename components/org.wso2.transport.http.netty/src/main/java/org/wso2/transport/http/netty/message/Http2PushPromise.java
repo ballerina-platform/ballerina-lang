@@ -29,9 +29,7 @@ public class Http2PushPromise {
     int promisedStreamId;
     private Http2Headers headers;
 
-    public Http2PushPromise(int streamId, int promisedStreamId, Http2Headers headers) {
-        this.streamId = streamId;
-        this.promisedStreamId = promisedStreamId;
+    public Http2PushPromise(Http2Headers headers) {
         this.headers = headers;
     }
 
@@ -45,5 +43,13 @@ public class Http2PushPromise {
 
     public Http2Headers getHeaders() {
         return headers;
+    }
+
+    public void setStreamId(int streamId) {
+        this.streamId = streamId;
+    }
+
+    public void setPromisedStreamId(int promisedStreamId) {
+        this.promisedStreamId = promisedStreamId;
     }
 }

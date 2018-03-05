@@ -20,6 +20,7 @@ package org.wso2.transport.http.netty.listener;
 
 import io.netty.handler.codec.http2.AbstractHttp2ConnectionHandlerBuilder;
 import io.netty.handler.codec.http2.DefaultHttp2Connection;
+import io.netty.handler.codec.http2.Http2Connection;
 import io.netty.handler.codec.http2.Http2ConnectionDecoder;
 import io.netty.handler.codec.http2.Http2ConnectionEncoder;
 import io.netty.handler.codec.http2.Http2Settings;
@@ -47,10 +48,11 @@ public final class Http2SourceHandlerBuilder
     @Override
     protected Http2SourceHandler build(Http2ConnectionDecoder decoder, Http2ConnectionEncoder encoder,
                                        Http2Settings initialSettings) {
+        Http2Connection conn = new DefaultHttp2Connection(true);
         Http2SourceHandler handler =
-                new Http2SourceHandler(decoder, encoder, initialSettings, interfaceId, serverConnectorFuture);
+                new Http2SourceHandler(decoder, encoder, initialSettings, interfaceId, conn, serverConnectorFuture);
         frameListener(handler.getHttp2FrameListener());
-        connection(new DefaultHttp2Connection(true));
+        connection(conn);
         return handler;
     }
 }

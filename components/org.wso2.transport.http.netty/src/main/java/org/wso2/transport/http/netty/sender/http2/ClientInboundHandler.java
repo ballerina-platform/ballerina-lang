@@ -152,7 +152,10 @@ public class ClientInboundHandler extends Http2EventAdapter {
         }
 
         http2ClientChannel.putPromisedMessage(promisedStreamId, outboundMsgHolder);
-        outboundMsgHolder.addPromise(new Http2PushPromise(streamId, promisedStreamId, headers));
+        Http2PushPromise pushPromise = new Http2PushPromise(headers);
+        pushPromise.setPromisedStreamId(promisedStreamId);
+        pushPromise.setStreamId(streamId);
+        outboundMsgHolder.addPromise(pushPromise);
     }
 
     private HttpCarbonResponse setupResponseCarbonMessage(ChannelHandlerContext ctx, int streamId,

@@ -41,7 +41,6 @@ public class DefaultHttpResponseFuture implements HttpResponseFuture {
     private HttpConnectorListener pushPromiseListener;
     private ResponseHandle responseHandle;
     private HttpConnectorListener responseHandleListener;
-
     public DefaultHttpResponseFuture(OutboundMsgHolder outboundMsgHolder) {
         this.outboundMsgHolder = outboundMsgHolder;
     }
@@ -68,6 +67,17 @@ public class DefaultHttpResponseFuture implements HttpResponseFuture {
         }
         if (httpConnectorListener != null) {
             httpConnectorListener.onError(throwable);
+        }
+    }
+
+    @Override
+    public void notifyPushResponse(int promisedId, HTTPCarbonMessage pushResponse) {
+        this.httpCarbonMessage = pushResponse;
+        if (executionWaitSem != null) {
+            executionWaitSem.release();
+        }
+        if (httpConnectorListener != null) {
+            httpConnectorListener.onPushResponse(promisedId, httpCarbonMessage);
         }
     }
 
@@ -108,10 +118,6 @@ public class DefaultHttpResponseFuture implements HttpResponseFuture {
     @Override
     public void removeHttpListener() {
         this.httpConnectorListener = null;
-    }
-
-    public void setOutboundMsgHolder(OutboundMsgHolder outboundMsgHolder) {
-        this.outboundMsgHolder = outboundMsgHolder;
     }
 
     @Override
