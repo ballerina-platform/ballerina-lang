@@ -416,7 +416,8 @@ function beginTransaction (string transactionId, int transactionBlockId, string 
 // Depending on the state of the transaction, and whether this instance is the initiator or participant,
 // decide to commit or abort the transaction
 function endTransaction (string transactionId, int transactionBlockId) returns (string msg, error e) {
-    if (initiatedTransactions.hasKey(transactionId)) {
+    string participatedTxnId = getParticipatedTransactionId(transactionId, transactionBlockId);
+    if (participatedTransactions[participatedTxnId] == null && initiatedTransactions.hasKey(transactionId)) {
         var txn, _ = (TwoPhaseCommitTransaction)initiatedTransactions[transactionId];
         if (txn.state != TransactionState.ABORTED) {
             msg, e = commitTransaction(transactionId, transactionBlockId);
