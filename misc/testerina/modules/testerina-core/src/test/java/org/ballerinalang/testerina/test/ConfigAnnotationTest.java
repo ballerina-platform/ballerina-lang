@@ -17,9 +17,8 @@
 */
 package org.ballerinalang.testerina.test;
 
-import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.testerina.core.BTestRunner;
-import org.ballerinalang.testerina.test.utils.CompileResult;
+import org.ballerinalang.testerina.core.TesterinaRegistry;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -32,19 +31,26 @@ import java.util.ArrayList;
  */
 public class ConfigAnnotationTest {
 
-    CompileResult compileResult;
-
     @BeforeClass
     public void setup() {
-//        compileResult = BTestUtils.compile("annotations-test/config-test.bal");
     }
 
     @Test
     public void testBefore() {
-        BValue[] args = {};
         new BTestRunner().runTest(new Path[]{Paths.get("src/test/resources/annotations-test/config-test.bal")}, new
-                ArrayList<>
-                ());
+                ArrayList<>());
+        cleanup();
 
+    }
+
+    private void cleanup() {
+        TesterinaRegistry.getInstance().setProgramFiles(new ArrayList<>());
+    }
+
+    @Test
+    public void testBefore2() {
+        new BTestRunner().runTest(new Path[]{Paths.get("src/test/resources/annotations-test/config-test2.bal")}, new
+                ArrayList<>());
+        cleanup();
     }
 }

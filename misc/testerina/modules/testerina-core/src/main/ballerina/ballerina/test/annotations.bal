@@ -14,6 +14,11 @@ public annotation config attach function {
 
 }
 
+public annotation mock attach function {
+    string packageName;
+    string functionName;
+}
+
 @Description { value:"Identoifies beforeSuite function."}
 public annotation beforeSuite attach function {}
 

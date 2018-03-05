@@ -19,7 +19,9 @@
 package org.ballerinalang.testerina.core.entity;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Entity class to hold a test suite.
@@ -31,6 +33,16 @@ public class TestSuite {
     private List<Test> tests = new ArrayList<>();
     private List<TesterinaFunction> beforeSuiteFunctions = new ArrayList<>();
     private List<TesterinaFunction> afterSuiteFunctions = new ArrayList<>();
+
+    public Map<String, TesterinaFunction> getMockFunctionsMap() {
+        return mockFunctionsMap;
+    }
+
+    /**
+     * Key - unique identifier for a function.
+     * Value - a @{@link TesterinaFunction}
+     */
+    private Map<String, TesterinaFunction> mockFunctionsMap = new HashMap<>();
 
     public List<TesterinaFunction> getTestUtilityFunctions() {
         return testUtilityFunctions;
@@ -121,6 +133,14 @@ public class TestSuite {
     public void setAfterSuiteFunctions(
             List<TesterinaFunction> afterSuiteFunctions) {
         this.afterSuiteFunctions = afterSuiteFunctions;
+    }
+
+    public void addMockFunction (String key, TesterinaFunction function) {
+        this.mockFunctionsMap.put(key, function);
+    }
+
+    public TesterinaFunction getMockFunction (String key) {
+        return this.mockFunctionsMap.get(key);
     }
 
 }

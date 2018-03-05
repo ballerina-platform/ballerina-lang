@@ -25,6 +25,7 @@ import org.ballerinalang.testerina.core.entity.TesterinaFunction;
 import org.ballerinalang.util.codegen.AnnAttachmentInfo;
 import org.ballerinalang.util.codegen.AnnAttributeValue;
 import org.ballerinalang.util.codegen.FunctionInfo;
+import org.ballerinalang.util.codegen.Instruction;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.codegen.attributes.AnnotationAttributeInfo;
@@ -36,6 +37,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Queue;
 import java.util.Vector;
 import java.util.stream.Collectors;
@@ -55,6 +57,9 @@ public class AnnotationProcessor {
     private static final String DEPENDS_ON_FUNCTIONS = "dependsOn";
     private static final String BEFORE_EACH_ANNOTATION_NAME = "beforeEach";
     private static final String AFTER_EACH_ANNOTATION_NAME = "afterEach";
+    private static final String MOCK_ANNOTATION = "mock";
+    private static final String PACKAGE = "packageName";
+    private static final String FUNCTION = "functionName";
     private static final String GROUP_ANNOTATION_NAME = "groups";
     private static final String VALUE_SET_ANNOTATION_NAME = "valueSets";
     private static final String TEST_DISABLE_ANNOTATION_NAME = "disabled";
@@ -77,8 +82,30 @@ public class AnnotationProcessor {
 
         int[] sortedElts = checkCyclicDependencies(suite.getTests());
         resolveFunctions(suite);
+        injectMocks(suite.getMockFunctionsMap(), programFile);
         List<Test> sortedTests = orderTests(suite.getTests(), sortedElts);
         suite.setTests(sortedTests);
+    }
+
+    private static void injectMocks(Map<String, TesterinaFunction> mockFunctions, ProgramFile programFile) {
+        mockFunctions.forEach((k, v) -> {
+            String[] info = k.split("#");
+            if (info.length != 2) {
+                return;
+            }
+            PackageInfo packageInfo = programFile.getPackageInfo(info[0]);
+            if (packageInfo.getFunctionInfo(info[1]) != null) {
+                packageInfo.addFunctionInfo(info[1], v.getbFunction());
+                for (Instruction ins : packageInfo.getInstructions()) {
+                    if (ins instanceof Instruction.InstructionCALL) {
+                        Instruction.InstructionCALL call = (Instruction.InstructionCALL) ins;
+                        if (call.functionInfo.getName().equals(info[1])) {
+                            call.functionInfo = v.getbFunction();
+                        }
+                    }
+                }
+            }
+        });
     }
 
     private static List<Test> orderTests(List<Test> tests, int[] sortedElts) {
@@ -285,6 +312,17 @@ public class AnnotationProcessor {
             } else if (attachmentInfo.getName().equals(AFTER_EACH_ANNOTATION_NAME)) {
                 suite.addAfterEachFunction(new TesterinaFunction(programFile, functionInfo, TesterinaFunction.Type
                         .AFTER_TEST));
+                functionAdded = true;
+            } else if (attachmentInfo.getName().equals(MOCK_ANNOTATION)) {
+                String pkg = ".", functionName = "";
+                if (attachmentInfo.getAttributeValue(PACKAGE) != null) {
+                    pkg = attachmentInfo.getAttributeValue(PACKAGE).getStringValue();
+                }
+                if (attachmentInfo.getAttributeValue(FUNCTION) != null) {
+                    functionName = attachmentInfo.getAttributeValue(FUNCTION).getStringValue();
+                }
+                suite.addMockFunction(pkg + "#" + functionName, new TesterinaFunction(programFile, functionInfo,
+                        TesterinaFunction.Type.MOCK));
                 functionAdded = true;
             } else {
                 if (attachmentInfo.getName().equals(TEST_ANNOTATION_NAME)) {

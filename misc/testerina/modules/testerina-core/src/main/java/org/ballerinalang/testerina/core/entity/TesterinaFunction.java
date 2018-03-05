@@ -35,6 +35,11 @@ public class TesterinaFunction {
 
     private String name;
     private Type type;
+
+    public FunctionInfo getbFunction() {
+        return bFunction;
+    }
+
     private FunctionInfo bFunction;
     private ProgramFile programFile;
     private boolean runTest = true;
@@ -46,13 +51,14 @@ public class TesterinaFunction {
     static final String PREFIX_TEST = "TEST";
     static final String PREFIX_BEFORETEST = "BEFORETEST";
     static final String PREFIX_AFTERTEST = "AFTERTEST";
+    static final String PREFIX_MOCK = "MOCK";
     static final String INIT_SUFFIX = ".<INIT>";
 
     /**
      * Prefixes for the test function names.
      */
     public enum Type {
-        TEST(PREFIX_TEST), BEFORE_TEST(PREFIX_BEFORETEST), AFTER_TEST(PREFIX_AFTERTEST);
+        TEST(PREFIX_TEST), BEFORE_TEST(PREFIX_BEFORETEST), AFTER_TEST(PREFIX_AFTERTEST), MOCK(PREFIX_MOCK);
 
         String prefix;
 

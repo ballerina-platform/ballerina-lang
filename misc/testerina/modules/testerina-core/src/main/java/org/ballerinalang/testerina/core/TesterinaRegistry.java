@@ -29,6 +29,10 @@ import java.util.List;
  * This is required to modify the runtime behavior.
  */
 public class TesterinaRegistry {
+    public static void setProgramFiles(List<ProgramFile> programFiles) {
+        TesterinaRegistry.programFiles = programFiles;
+    }
+
     private static List<ProgramFile> programFiles = new ArrayList<>();
     private static final TesterinaRegistry instance = new TesterinaRegistry();
 

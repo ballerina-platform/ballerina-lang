@@ -82,8 +82,6 @@ public function assertNotEquals(any actual, any expected, string errorMessage) {
     }
 }
 
-
-
 @Description{value:"Assert failure is triggered based on user discretion.
                   AssertError is thrown with the given errorMessage"}
 @Param{value:"errorMessage: Assertion error message"}
