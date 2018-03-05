@@ -387,7 +387,7 @@ public class CPU {
                     break;
                 case InstructionCodes.CALL:
                     callIns = (InstructionCALL) instruction;
-                    runInCallerCtx = invokeFunction(ctx, callIns.functionInfo,
+                    runInCallerCtx = invokeCallableUnit(ctx, callIns.functionInfo,
                             callIns.argRegs, callIns.retRegs);
                     if (runInCallerCtx != null) {
                         ctx = runInCallerCtx;
@@ -470,7 +470,7 @@ public class CPU {
                     funcCallCPEntry = (FunctionCallCPEntry) ctx.constPool[cpIndex];
                     funcRefCPEntry = ((BFunctionPointer) sf.refRegs[i]).value();
                     functionInfo = funcRefCPEntry.getFunctionInfo();
-                    invokeFunction(ctx, functionInfo, funcCallCPEntry.getArgRegs(), funcCallCPEntry.getRetRegs());
+                    invokeCallableUnit(ctx, functionInfo, funcCallCPEntry.getArgRegs(), funcCallCPEntry.getRetRegs());
                     break;
                 case InstructionCodes.FPLOAD:
                     i = operands[0];
@@ -2658,6 +2658,10 @@ public class CPU {
     private static WorkerExecutionContext invokeCallableUnit(WorkerExecutionContext ctx,
                                                              CallableUnitInfo callableUnitInfo, int[] argRegs,
                                                              int[] retRegs) {
+        if (callableUnitInfo.isNative()) {
+            invokeNativeFunction(ctx, (FunctionInfo) callableUnitInfo, argRegs, retRegs);
+            return null;
+        }
         return BLangFunctions.invokeCallable(callableUnitInfo, ctx, argRegs, retRegs, false);
     }
 
@@ -2675,15 +2679,6 @@ public class CPU {
         AttachedFunctionInfo attachedFuncInfo = structInfo.funcInfoEntries.get(virtualFuncInfo.getName());
         FunctionInfo concreteFuncInfo = attachedFuncInfo.functionInfo;
         return invokeCallableUnit(ctx, concreteFuncInfo, argRegs, retRegs);
-    }
-
-    private static WorkerExecutionContext invokeFunction(WorkerExecutionContext ctx, FunctionInfo functionInfo,
-                                                         int[] argRegs, int[] retRegs) {
-        if (functionInfo.isNative()) {
-            invokeNativeFunction(ctx, functionInfo, argRegs, retRegs);
-            return null;
-        }
-        return invokeCallableUnit(ctx, functionInfo, argRegs, retRegs);
     }
 
     private static WorkerExecutionContext invokeAction(WorkerExecutionContext ctx, String actionName, int[] argRegs,

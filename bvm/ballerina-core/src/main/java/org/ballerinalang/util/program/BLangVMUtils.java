@@ -33,6 +33,7 @@ import org.ballerinalang.util.codegen.CallableUnitInfo;
 import org.ballerinalang.util.codegen.LocalVariableInfo;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
+import org.ballerinalang.util.codegen.ServiceInfo;
 import org.ballerinalang.util.codegen.WorkerInfo;
 import org.ballerinalang.util.codegen.attributes.AttributeInfo;
 import org.ballerinalang.util.codegen.attributes.CodeAttributeInfo;
@@ -44,6 +45,8 @@ import java.io.PrintStream;
  * Utilities related to the Ballerina VM.
  */
 public class BLangVMUtils {
+    
+    private static final String SERVICE_INFO_KEY = "SERVICE_INFO";
 
     public static void copyArgValues(WorkerData caller, WorkerData callee, int[] argRegs, BType[] paramTypes) {
         int longRegIndex = -1;
@@ -401,6 +404,14 @@ public class BLangVMUtils {
     public static void log(String msg) {
         PrintStream out = System.out;
         out.println(msg);
+    }
+    
+    public static void setServiceInfo(WorkerExecutionContext ctx, ServiceInfo serviceInfo) {
+        ctx.globalProps.put(SERVICE_INFO_KEY, serviceInfo);
+    }
+    
+    public static ServiceInfo getServiceInfo(WorkerExecutionContext ctx) {
+        return (ServiceInfo) ctx.globalProps.get(SERVICE_INFO_KEY);
     }
     
 }

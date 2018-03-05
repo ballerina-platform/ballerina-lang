@@ -28,6 +28,7 @@ import org.ballerinalang.util.codegen.ServiceInfo;
 import org.ballerinalang.util.debugger.DebugContext;
 import org.ballerinalang.util.exceptions.BLangNullReferenceException;
 import org.ballerinalang.util.exceptions.BallerinaException;
+import org.ballerinalang.util.program.BLangVMUtils;
 import org.ballerinalang.util.transactions.LocalTransactionInfo;
 
 import java.util.Map;
@@ -36,8 +37,6 @@ import java.util.Map;
  * This class represents a {@link Context} implementation for native calls.
  */
 public class NativeCallContext implements Context {
-
-    private static final String SERVICE_INFO_KEY = "SERVICE_INFO";
 
     private WorkerExecutionContext parentCtx;
 
@@ -90,12 +89,12 @@ public class NativeCallContext implements Context {
 
     @Override
     public ServiceInfo getServiceInfo() {
-        return (ServiceInfo) this.getProperty(SERVICE_INFO_KEY);
+        return BLangVMUtils.getServiceInfo(this.parentCtx);
     }
 
     @Override
     public void setServiceInfo(ServiceInfo serviceInfo) {
-        this.setProperty(SERVICE_INFO_KEY, serviceInfo);
+        BLangVMUtils.setServiceInfo(this.parentCtx, serviceInfo);
     }
 
     @Override

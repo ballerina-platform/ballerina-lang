@@ -26,6 +26,7 @@ import org.ballerinalang.runtime.Constants;
 import org.ballerinalang.util.codegen.ResourceInfo;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.ballerinalang.util.program.BLangFunctions;
+import org.ballerinalang.util.program.BLangVMUtils;
 
 import java.util.Map;
 
@@ -63,6 +64,8 @@ public class ResourceExecutor {
 //                        properties.get(Constants.TRANSACTION_URL).toString(), Constants.TRANSACTION_PROTOCOL_2PC));
             }
         }
+        
+        BLangVMUtils.setServiceInfo(context, resourceInfo.getServiceInfo());
         BLangFunctions.invokeCallable(resourceInfo, context, bValues);
 //        ServiceInfo serviceInfo = resourceInfo.getServiceInfo();
 //        // Invoke VM.
@@ -176,6 +179,7 @@ public class ResourceExecutor {
         if (properties != null) {
             properties.forEach((k, v) -> context.globalProps.put(k, v));
         }
+        BLangVMUtils.setServiceInfo(context, resourceInfo.getServiceInfo());
         BLangFunctions.invokeCallable(resourceInfo, context, bValues, responseCallback);
     }
 }
