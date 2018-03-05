@@ -56,7 +56,8 @@ class SizingUtil extends DefaultSizingUtil {
             TreeUtil.isForeach(node) ||
             TreeUtil.isTransaction(node) ||
             TreeUtil.isWorkerReceive(node) ||
-            TreeUtil.isWorkerSend(node)
+            TreeUtil.isWorkerSend(node) ||
+            TreeUtil.isForkJoin(node)
         ) {
             return true;
         }
