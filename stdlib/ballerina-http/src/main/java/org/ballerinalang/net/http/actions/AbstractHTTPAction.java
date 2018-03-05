@@ -243,10 +243,16 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
 
         HttpResponseFuture future = clientConnector.send(outboundRequestMsg);
         future.setHttpConnectorListener(httpClientConnectorLister);
-        if (boundaryString != null) {
-            serializeMultiparts(context, messageOutputStream, boundaryString);
-        } else {
-            serializeDataSource(context, messageOutputStream);
+        try {
+            if (boundaryString != null) {
+                serializeMultiparts(context, messageOutputStream, boundaryString);
+            } else {
+                serializeDataSource(context, messageOutputStream);
+            }
+        } catch (Exception serializerException) {
+            // We don't have to do anything here as the client connector will notify
+            // the error though the listener
+            logger.warn("couldn't serialize the message", serializerException);
         }
         return ballerinaFuture;
     }
