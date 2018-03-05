@@ -26,6 +26,7 @@ import org.wso2.transport.http.netty.contract.websocket.WebSocketControlMessage;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketInitMessage;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketTextMessage;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
+import org.wso2.transport.http.netty.message.Http2PushPromise;
 
 /**
  * Allows to set listeners.
@@ -45,6 +46,23 @@ public interface ServerConnectorFuture {
      * @throws ServerConnectorException if any error occurred during the notification.
      */
     void notifyHttpListener(HTTPCarbonMessage httpMessage) throws ServerConnectorException;
+
+    /**
+     * Notify HTTP Server Push messages to the listener.
+     *
+     * @param httpMessage HTTP message
+     * @param pushPromise related push promise
+     * @throws ServerConnectorException if any error occurred during the notification.
+     */
+    void notifyHttpListener(HTTPCarbonMessage httpMessage, Http2PushPromise pushPromise)
+            throws ServerConnectorException;
+
+    /**
+     * Notify HTTP Push promise to the listener
+     *
+     * @param pushPromise push promise
+     */
+    void notifyHttpListener(Http2PushPromise pushPromise) throws ServerConnectorException;
 
     /**
      *  Set Connector listener for WebSocket.

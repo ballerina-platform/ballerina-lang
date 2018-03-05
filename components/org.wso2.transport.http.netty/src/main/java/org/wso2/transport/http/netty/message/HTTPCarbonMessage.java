@@ -214,6 +214,18 @@ public class HTTPCarbonMessage {
         return httpOutboundRespStatusFuture;
     }
 
+    public HttpResponseFuture respond(HTTPCarbonMessage httpCarbonMessage, Http2PushPromise pushPromise)
+            throws ServerConnectorException {
+        httpOutboundRespFuture.notifyHttpListener(httpCarbonMessage, pushPromise);
+        return httpOutboundRespStatusFuture;
+    }
+
+    public HttpResponseFuture respond(Http2PushPromise pushPromise)
+            throws ServerConnectorException {
+        httpOutboundRespFuture.notifyHttpListener(pushPromise);
+        return httpOutboundRespStatusFuture;
+    }
+
     /**
      * Copy Message properties and transport headers.
      *
