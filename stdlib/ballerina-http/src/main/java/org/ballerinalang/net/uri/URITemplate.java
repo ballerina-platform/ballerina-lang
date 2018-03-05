@@ -34,9 +34,9 @@ import java.util.Map;
  **/
 public class URITemplate<DataType, InboundMsgType> {
 
-    private Node<DataElement<DataType, InboundMsgType>> syntaxTree;
+    private Node<DataType, InboundMsgType> syntaxTree;
 
-    public URITemplate(Node<DataElement<DataType, InboundMsgType>> syntaxTree) {
+    public URITemplate(Node<DataType, InboundMsgType> syntaxTree) {
         this.syntaxTree = syntaxTree;
     }
 

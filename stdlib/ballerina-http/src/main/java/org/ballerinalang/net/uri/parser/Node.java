@@ -28,26 +28,27 @@ import java.util.Map;
 /**
  * Node represents different types of path segments in the uri-template.
  *
- * @param <DataElementType> Specific data element created by the user.
+ * @param <DataType> Type of data which should be stored in the node.
+ * @param <InboundMsgType> Inbound message type for additional checks.
  */
-public abstract class Node<DataElementType extends DataElement> {
+public abstract class Node<DataType, InboundMsgType> {
 
     protected String token;
-    protected DataElementType dataElement;
-    protected List<Node<DataElementType>> childNodesList = new LinkedList<>();
+    protected DataElement<DataType, InboundMsgType> dataElement;
+    protected List<Node<DataType, InboundMsgType>> childNodesList = new LinkedList<>();
 
-    protected Node(DataElementType dataElement, String token) {
+    protected Node(DataElement<DataType, InboundMsgType> dataElement, String token) {
         this.dataElement = dataElement;
         this.token = token;
     }
 
-    public DataElementType getDataElement() {
+    public DataElement<DataType, InboundMsgType> getDataElement() {
         return dataElement;
     }
 
-    public Node<DataElementType> addChild(Node<DataElementType> childNode) {
-        Node<DataElementType> node = childNode;
-        Node<DataElementType> matchingChildNode = getMatchingChildNode(childNode, childNodesList);
+    public Node<DataType, InboundMsgType> addChild(Node<DataType, InboundMsgType> childNode) {
+        Node<DataType, InboundMsgType> node = childNode;
+        Node<DataType, InboundMsgType> matchingChildNode = getMatchingChildNode(childNode, childNodesList);
         if (matchingChildNode != null) {
             node = matchingChildNode;
         } else {
@@ -59,7 +60,8 @@ public abstract class Node<DataElementType extends DataElement> {
         return node;
     }
 
-    public DataElementType matchAll(String uriFragment, Map<String, String> variables, int start) {
+    public DataElement<DataType, InboundMsgType> matchAll(String uriFragment, Map<String, String> variables,
+                                                          int start) {
         int matchLength = match(uriFragment, variables);
         if (matchLength < 0) {
             return null;
@@ -73,8 +75,8 @@ public abstract class Node<DataElementType extends DataElement> {
         String subUriFragment = nextURIFragment(uriFragment, matchLength);
         String subPath = nextSubPath(subUriFragment);
 
-        DataElementType dataElement;
-        for (Node<DataElementType> childNode : childNodesList) {
+        DataElement<DataType, InboundMsgType> dataElement;
+        for (Node<DataType, InboundMsgType> childNode : childNodesList) {
             if (childNode instanceof Literal) {
                 String regex = childNode.getToken();
                 if (regex.equals("*")) {
@@ -106,7 +108,7 @@ public abstract class Node<DataElementType extends DataElement> {
         return null;
     }
 
-    private boolean hasDataElement(DataElementType dataElement) {
+    private boolean hasDataElement(DataElement<DataType, InboundMsgType> dataElement) {
         return dataElement != null && dataElement.hasData();
     }
 
@@ -122,12 +124,12 @@ public abstract class Node<DataElementType extends DataElement> {
 
     abstract char getFirstCharacter();
 
-    private Node<DataElementType> getMatchingChildNode(Node<DataElementType> prospectiveChild,
-                                                       List<Node<DataElementType>> existingChildren) {
+    private Node<DataType, InboundMsgType> getMatchingChildNode(Node<DataType, InboundMsgType> prospectiveChild,
+                                                       List<Node<DataType, InboundMsgType>> existingChildren) {
         boolean isExpression = prospectiveChild instanceof Expression;
         String prospectiveChildToken = prospectiveChild.getToken();
 
-        for (Node<DataElementType> existingChild : existingChildren) {
+        for (Node<DataType, InboundMsgType> existingChild : existingChildren) {
             if (isExpression && existingChild instanceof Expression) {
                 return existingChild;
             }
