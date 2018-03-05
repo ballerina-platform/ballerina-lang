@@ -25,7 +25,7 @@ import org.testng.annotations.Test;
 import org.wso2.carbon.messaging.exceptions.ServerConnectorException;
 import org.wso2.transport.http.netty.common.Constants;
 import org.wso2.transport.http.netty.config.TransportsConfiguration;
-import org.wso2.transport.http.netty.contract.Http2ClientConnector;
+import org.wso2.transport.http.netty.contract.HttpClientConnector;
 import org.wso2.transport.http.netty.contract.HttpWsConnectorFactory;
 import org.wso2.transport.http.netty.contractimpl.DefaultHttpWsConnectorFactory;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
@@ -46,7 +46,7 @@ import static org.testng.AssertJUnit.assertNotNull;
 public class Http2ClientConnectorBasicTestCase {
 
     private HttpServer http2Server;
-    private Http2ClientConnector http2ClientConnector;
+    private HttpClientConnector httpClientConnector;
 
     @BeforeClass
     public void setup() {
@@ -55,7 +55,7 @@ public class Http2ClientConnectorBasicTestCase {
 
         http2Server = TestUtil.startHTTPServer(TestUtil.HTTP_SERVER_PORT, new Http2EchoServerInitializer());
         HttpWsConnectorFactory connectorFactory = new DefaultHttpWsConnectorFactory();
-        http2ClientConnector = connectorFactory.createHttp2ClientConnector(
+        httpClientConnector = connectorFactory.createHttpClientConnector(
                 HTTPConnectorUtil.getTransportProperties(transportsConfiguration),
                 HTTPConnectorUtil.getSenderConfiguration(transportsConfiguration, Constants.HTTP_SCHEME));
     }
@@ -63,7 +63,7 @@ public class Http2ClientConnectorBasicTestCase {
     @Test
     public void testHttp2Get() {
         HTTPCarbonMessage httpCarbonMessage = RequestGenerator.generateRequest(HttpMethod.GET, null);
-        HTTPCarbonMessage response = MessageSender.sendMessage(httpCarbonMessage, http2ClientConnector);
+        HTTPCarbonMessage response = MessageSender.sendMessage(httpCarbonMessage, httpClientConnector);
         assertNotNull(response);
     }
 
@@ -71,7 +71,7 @@ public class Http2ClientConnectorBasicTestCase {
     public void testHttp2Post() {
         String testValue = "Test Message";
         HTTPCarbonMessage httpCarbonMessage = RequestGenerator.generateRequest(HttpMethod.POST, testValue);
-        HTTPCarbonMessage response = MessageSender.sendMessage(httpCarbonMessage, http2ClientConnector);
+        HTTPCarbonMessage response = MessageSender.sendMessage(httpCarbonMessage, httpClientConnector);
         assertNotNull(response);
         String result = TestUtil.getStringFromInputStream(new HttpMessageDataStreamer(response).getInputStream());
         assertEquals(testValue, result);

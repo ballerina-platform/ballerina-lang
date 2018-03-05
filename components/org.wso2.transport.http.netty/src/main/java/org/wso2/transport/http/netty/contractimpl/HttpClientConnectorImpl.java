@@ -77,6 +77,40 @@ public class HttpClientConnectorImpl implements HttpClientConnector {
 
     @Override
     public HttpResponseFuture send(HTTPCarbonMessage httpOutboundRequest) {
+        return sendMessage(httpOutboundRequest, false);
+    }
+
+    @Override
+    public HttpResponseFuture submit(HTTPCarbonMessage httpOutboundRequest) {
+        return sendMessage(httpOutboundRequest, true);
+    }
+
+    @Override
+    public HttpResponseFuture getResponse(ResponseHandle responseHandle) {
+        return responseHandle.getOutboundMsgHolder().getResponseFuture();
+    }
+
+    @Override
+    public HttpResponseFuture getNextPushPromise(ResponseHandle responseHandle) {
+        return responseHandle.getOutboundMsgHolder().getPushPromiseFuture();
+    }
+
+    @Override
+    public HttpResponseFuture hasPushPromise(ResponseHandle responseHandle) {
+        return responseHandle.getOutboundMsgHolder().getPromiseAvailabilityFuture();
+    }
+
+    @Override
+    public HttpResponseFuture getPushResponse(ResponseHandle responseHandle, Http2PushPromise pushPromise) {
+        return responseHandle.getOutboundMsgHolder().getPushResponseFuture(pushPromise);
+    }
+
+    @Override
+    public boolean close() {
+        return false;
+    }
+
+    private HttpResponseFuture sendMessage(HTTPCarbonMessage httpOutboundRequest, boolean returnResponseHandle) {
         HttpResponseFuture httpResponseFuture;
 
         SourceHandler srcHandler = (SourceHandler) httpOutboundRequest.getProperty(Constants.SRC_HANDLER);
@@ -106,7 +140,11 @@ public class HttpClientConnectorImpl implements HttpClientConnector {
             Http2ClientChannel freshHttp2ClientChannel = targetChannel.getHttp2ClientChannel();
 
             OutboundMsgHolder outboundMsgHolder = new OutboundMsgHolder(httpOutboundRequest, freshHttp2ClientChannel);
-            httpResponseFuture = outboundMsgHolder.getResponseFuture();
+            if (returnResponseHandle) {
+                httpResponseFuture = outboundMsgHolder.getResponseHandleFuture();
+            } else {
+                httpResponseFuture = outboundMsgHolder.getResponseFuture();
+            }
 
             // Response for the upgrade request will arrive in stream 1, so use 1 as the stream id
             freshHttp2ClientChannel.putInFlightMessage(1, outboundMsgHolder);
@@ -183,36 +221,6 @@ public class HttpClientConnectorImpl implements HttpClientConnector {
         }
 
         return httpResponseFuture;
-    }
-
-    @Override
-    public HttpResponseFuture submit(HTTPCarbonMessage httpOutboundRequest) {
-        return null;
-    }
-
-    @Override
-    public HttpResponseFuture getResponse(ResponseHandle responseHandle) {
-        return responseHandle.getOutboundMsgHolder().getResponseFuture();
-    }
-
-    @Override
-    public HttpResponseFuture getNextPushPromise(ResponseHandle responseHandle) {
-        return responseHandle.getOutboundMsgHolder().getPushPromiseFuture();
-    }
-
-    @Override
-    public HttpResponseFuture hasPushPromise(ResponseHandle responseHandle) {
-        return responseHandle.getOutboundMsgHolder().getPromiseAvailabilityFuture();
-    }
-
-    @Override
-    public HttpResponseFuture getPushResponse(ResponseHandle responseHandle, Http2PushPromise pushPromise) {
-        return responseHandle.getOutboundMsgHolder().getPushResponseFuture(pushPromise);
-    }
-
-    @Override
-    public boolean close() {
-        return false;
     }
 
     private HttpRoute getTargetRoute(HTTPCarbonMessage httpCarbonMessage) {
