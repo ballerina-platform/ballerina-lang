@@ -30,6 +30,14 @@
             <groupId>org.ballerinalang</groupId>
             <artifactId>ballerina-http</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.ballerinalang</groupId>
+            <artifactId>ballerina-config</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.ballerinalang</groupId>
+            <artifactId>ballerina-mime</artifactId>
+        </dependency>
 
         <!-- Dependencies for ballerina command: test -->
         <dependency>
@@ -170,6 +178,10 @@
                 <artifactId>maven-surefire-plugin</artifactId>
                 <configuration>
                     <argLine>-Dfile.encoding=UTF-8</argLine>
+                    <systemPropertyVariables>
+                        <java.util.logging.config.file>${project.build.testOutputDirectory}/logging.properties</java.util.logging.config.file>
+                        <java.util.logging.manager>org.ballerinalang.logging.BLogManager</java.util.logging.manager>
+                    </systemPropertyVariables>
                     <additionalClasspathElements>
                         <additionalClasspathElement>${basedir}/target/classes/org/wso2/ballerina/nativeimpl
                             /BallerinaNativeConstructsProvider.class</additionalClasspathElement>

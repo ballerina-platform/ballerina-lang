@@ -28,6 +28,7 @@ import org.ballerinalang.util.codegen.ServiceInfo;
 import org.ballerinalang.util.debugger.DebugContext;
 import org.ballerinalang.util.exceptions.BLangNullReferenceException;
 import org.ballerinalang.util.exceptions.BallerinaException;
+import org.ballerinalang.util.transactions.LocalTransactionInfo;
 
 import java.util.Map;
 
@@ -43,6 +44,8 @@ public class NativeCallContext implements Context {
     private WorkerData workerLocal;
 
     private BValue[] returnValues;
+
+    private LocalTransactionInfo localTransactionInfo;
 
     public NativeCallContext(WorkerExecutionContext parentCtx, WorkerData workerLocal) {
         this.parentCtx = parentCtx;
@@ -93,16 +96,6 @@ public class NativeCallContext implements Context {
     @Override
     public void setServiceInfo(ServiceInfo serviceInfo) {
         this.setProperty(SERVICE_INFO_KEY, serviceInfo);
-    }
-
-    @Override
-    public void setBallerinaTransactionManager(BallerinaTransactionManager ballerinaTransactionManager) {
-        this.parentCtx.setBallerinaTransactionManager(ballerinaTransactionManager);
-    }
-
-    @Override
-    public BallerinaTransactionManager getBallerinaTransactionManager() {
-        return this.parentCtx.getBallerinaTransactionManager();
     }
 
     @Override
@@ -225,5 +218,13 @@ public class NativeCallContext implements Context {
     @Override
     public void setConnectorFuture(BServerConnectorFuture connectorFuture) {
         // TODO: remove
+    }
+
+    public void setLocalTransactionInfo(LocalTransactionInfo localTransactionInfo) {
+        this.localTransactionInfo = localTransactionInfo;
+    }
+
+    public LocalTransactionInfo getLocalTransactionInfo() {
+        return this.localTransactionInfo;
     }
 }

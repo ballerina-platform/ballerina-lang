@@ -114,13 +114,13 @@
         </file>
         <file>
             <source>${project.build.directory}/extracted-distributions/composer-server-distribution-jar/composer-logging.properties</source>
-            <outputDirectory>bre/conf</outputDirectory>
+            <outputDirectory>resources/composer/conf</outputDirectory>
             <filtered>true</filtered>
             <fileMode>644</fileMode>
         </file>
         <file>
             <source>conf/composer-config.yml</source>
-            <outputDirectory>bre/conf</outputDirectory>
+            <outputDirectory>resources/composer/conf</outputDirectory>
             <filtered>true</filtered>
             <fileMode>644</fileMode>
         </file>

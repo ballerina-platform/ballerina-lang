@@ -21,7 +21,7 @@ import React from 'react';
 import _ from 'lodash';
 import { getPathSeperator, getUserHome } from 'api-client/api-client';
 import PropTypes from 'prop-types';
-import { Button, Form, FormGroup, FormControl, ControlLabel, Col } from 'react-bootstrap';
+import { Button, Form } from 'semantic-ui-react';
 import ScrollBarsWithContextAPI from './../../view/scroll-bars/ScrollBarsWithContextAPI';
 import Dialog from './../../view/Dialog';
 import FileTree from './../../view/tree-view/FileTree';
@@ -57,9 +57,9 @@ class FileSaveDialog extends React.Component {
         this.onDialogHide = this.onDialogHide.bind(this);
     }
 
-     /**
-     * @inheritdoc
-     */
+    /**
+    * @inheritdoc
+    */
     componentDidMount() {
         if (!this.state.filePath) {
             getUserHome()
@@ -89,9 +89,9 @@ class FileSaveDialog extends React.Component {
             return;
         }
         const derivedFilePath = !_.endsWith(filePath, getPathSeperator())
-                ? filePath + getPathSeperator() : filePath;
+            ? filePath + getPathSeperator() : filePath;
         const derivedFileName = !_.endsWith(fileName, '.bal')
-                ? fileName + '.bal' : fileName;
+            ? fileName + '.bal' : fileName;
         const file = this.props.file;
 
         const saveFile = () => {
@@ -187,74 +187,58 @@ class FileSaveDialog extends React.Component {
                     title={this.props.mode === 'SAVE_FILE' ? 'Save File' : 'Save File As'}
                     actions={
                         <Button
-                            bsStyle='primary'
+                            primary
                             onClick={this.onFileSave}
                             disabled={this.state.filePath === '' || this.state.fileName === ''}
                         >
                             Save
                         </Button>
                     }
-                    closeAction
                     onHide={this.onDialogHide}
                     error={this.state.error}
                 >
-                    <Form horizontal>
-                        <FormGroup controlId='filePath'>
-                            <Col componentClass={ControlLabel} sm={2}>
-                                File Path
-                            </Col>
-                            <Col sm={10}>
-                                <FormControl
-                                    onKeyDown={(e) => {
-                                        if (e.key === 'Enter') {
-                                            this.onFileSave();
-                                        } else if (e.key === 'Escape') {
-                                            this.onDialogHide();
-                                        }
-                                    }}
-                                    value={this.state.filePath}
-                                    onChange={(evt) => {
-                                        this.updateState({
-                                            error: '',
-                                            filePath: evt.target.value,
-                                        });
-                                    }}
-                                    type='text'
-                                    placeholder='eg: /home/user/ballerina-services'
-                                />
-                            </Col>
-                        </FormGroup>
-                        <FormGroup controlId='fileName'>
-                            <Col componentClass={ControlLabel} sm={2}>
-                                File Name
-                            </Col>
-                            <Col sm={10}>
-                                <FormControl
-                                    onKeyDown={(e) => {
-                                        if (e.key === 'Enter') {
-                                            this.onFileSave();
-                                        } else if (e.key === 'Escape') {
-                                            this.onDialogHide();
-                                        }
-                                    }}
-                                    value={this.state.fileName}
-                                    onChange={(evt) => {
-                                        this.updateState({
-                                            error: '',
-                                            fileName: evt.target.value,
-                                        });
-                                    }}
-                                    type='text'
-                                    placeholder='eg: routing.bal'
-                                />
-                            </Col>
-                        </FormGroup>
+                    <Form
+                        widths='equal'
+                        onSubmit={(e) => {
+                            this.onFileSave();
+                        }}
+                    >
+
+                        <Form.Group controlId='filePath'>
+                            <Form.Input
+                                fluid
+                                label='File Path'
+                                className='inverted'
+                                placeholder='eg: /home/user/ballerina-services'
+                                value={this.state.filePath}
+                                onChange={(evt) => {
+                                    this.updateState({
+                                        error: '',
+                                        filePath: evt.target.value,
+                                    });
+                                }}
+                            />
+                        </Form.Group>
+
+                        <Form.Group controlId='fileName'>
+                            <Form.Input
+                                fluid
+                                label='File Name'
+                                className='inverted'
+                                placeholder='eg: routing.bal'
+                                value={this.state.fileName}
+                                onChange={(evt) => {
+                                    this.updateState({
+                                        error: '',
+                                        fileName: evt.target.value,
+                                    });
+                                }}
+                            />
+                        </Form.Group>
                     </Form>
                     <ScrollBarsWithContextAPI
                         style={{
-                            margin: '15px 0 15px 40px',
-                            width: 608,
-                            height: 500,
+                            height: 300,
                         }}
                         autoHide
                     >
@@ -301,8 +285,8 @@ FileSaveDialog.propTypes = {
 };
 
 FileSaveDialog.defaultProps = {
-    onSaveSuccess: () => {},
-    onSaveFail: () => {},
+    onSaveSuccess: () => { },
+    onSaveFail: () => { },
     mode: '',
 };
 

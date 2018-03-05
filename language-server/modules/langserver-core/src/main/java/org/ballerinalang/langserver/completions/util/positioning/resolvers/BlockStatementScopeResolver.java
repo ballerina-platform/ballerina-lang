@@ -17,6 +17,7 @@ package org.ballerinalang.langserver.completions.util.positioning.resolvers;
 
 import org.ballerinalang.langserver.DocumentServiceKeys;
 import org.ballerinalang.langserver.TextDocumentServiceContext;
+import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.completions.TreeVisitor;
 import org.ballerinalang.model.tree.Node;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
@@ -36,8 +37,6 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 
-import static org.ballerinalang.langserver.TextDocumentServiceUtil.toZeroBasedPosition;
-
 /**
  * Block statement scope position resolver.
  */
@@ -53,7 +52,7 @@ public class BlockStatementScopeResolver extends CursorPositionResolver {
                                       TextDocumentServiceContext completionContext) {
         int line = completionContext.get(DocumentServiceKeys.POSITION_KEY).getPosition().getLine();
         int col = completionContext.get(DocumentServiceKeys.POSITION_KEY).getPosition().getCharacter();
-        DiagnosticPos zeroBasedPos = toZeroBasedPosition(nodePosition);
+        DiagnosticPos zeroBasedPos = CommonUtil.toZeroBasedPosition(nodePosition);
         int nodeSLine = zeroBasedPos.sLine;
         int nodeSCol = zeroBasedPos.sCol;
         // node endLine for the BLangIf node has to calculate by considering the else node. End line of the BLangIf
@@ -116,11 +115,11 @@ public class BlockStatementScopeResolver extends CursorPositionResolver {
         } else if (blockOwner == null) {
             // When the else node is evaluating, block owner is null and the block statement only present
             // This is because, else node is represented with a blocks statement only
-            return toZeroBasedPosition(bLangBlockStmt.getPosition()).getEndLine();
+            return CommonUtil.toZeroBasedPosition(bLangBlockStmt.getPosition()).getEndLine();
         } else if (blockOwner instanceof BLangTransaction) {
             return this.getTransactionBlockComponentEndLine((BLangTransaction) blockOwner, bLangBlockStmt);
         } else {
-            return toZeroBasedPosition((DiagnosticPos) blockOwner.getPosition()).getEndLine();
+            return CommonUtil.toZeroBasedPosition((DiagnosticPos) blockOwner.getPosition()).getEndLine();
         }
     }
 
@@ -130,9 +129,9 @@ public class BlockStatementScopeResolver extends CursorPositionResolver {
         } else if (blockOwner == null) {
             // When the else node is evaluating, block owner is null and the block statement only present
             // This is because, else node is represented with a blocks statement only
-            return toZeroBasedPosition(bLangBlockStmt.getPosition()).getEndColumn();
+            return CommonUtil.toZeroBasedPosition(bLangBlockStmt.getPosition()).getEndColumn();
         } else {
-            return toZeroBasedPosition((DiagnosticPos) blockOwner.getPosition()).getEndColumn();
+            return CommonUtil.toZeroBasedPosition((DiagnosticPos) blockOwner.getPosition()).getEndColumn();
         }
     }
 
@@ -141,15 +140,15 @@ public class BlockStatementScopeResolver extends CursorPositionResolver {
             // We are inside the try block
             if (tryCatchFinally.catchBlocks.size() > 0) {
                 BLangCatch bLangCatch = tryCatchFinally.catchBlocks.get(0);
-                return toZeroBasedPosition(bLangCatch.getPosition()).sLine;
+                return CommonUtil.toZeroBasedPosition(bLangCatch.getPosition()).sLine;
             } else if (tryCatchFinally.finallyBody != null) {
-                return toZeroBasedPosition(tryCatchFinally.finallyBody.getPosition()).sLine;
+                return CommonUtil.toZeroBasedPosition(tryCatchFinally.finallyBody.getPosition()).sLine;
             } else {
-                return toZeroBasedPosition(tryCatchFinally.getPosition()).eLine;
+                return CommonUtil.toZeroBasedPosition(tryCatchFinally.getPosition()).eLine;
             }
         } else {
             // We are inside the finally block
-            return toZeroBasedPosition(tryCatchFinally.getPosition()).eLine;
+            return CommonUtil.toZeroBasedPosition(tryCatchFinally.getPosition()).eLine;
         }
     }
 
@@ -158,15 +157,15 @@ public class BlockStatementScopeResolver extends CursorPositionResolver {
             // We are inside the try block
             if (tryCatchFinally.catchBlocks.size() > 0) {
                 BLangCatch bLangCatch = tryCatchFinally.catchBlocks.get(0);
-                return toZeroBasedPosition(bLangCatch.getPosition()).sCol;
+                return CommonUtil.toZeroBasedPosition(bLangCatch.getPosition()).sCol;
             } else if (tryCatchFinally.finallyBody != null) {
-                return toZeroBasedPosition(tryCatchFinally.finallyBody.getPosition()).sCol;
+                return CommonUtil.toZeroBasedPosition(tryCatchFinally.finallyBody.getPosition()).sCol;
             } else {
-                return toZeroBasedPosition(tryCatchFinally.getPosition()).eCol;
+                return CommonUtil.toZeroBasedPosition(tryCatchFinally.getPosition()).eCol;
             }
         } else {
             // We are inside the finally block
-            return toZeroBasedPosition(tryCatchFinally.getPosition()).eCol;
+            return CommonUtil.toZeroBasedPosition(tryCatchFinally.getPosition()).eCol;
         }
     }
 
@@ -180,7 +179,7 @@ public class BlockStatementScopeResolver extends CursorPositionResolver {
 
         components.sort(Comparator.comparing(component -> {
             if (component != null) {
-                return toZeroBasedPosition(component.getPosition()).getEndLine();
+                return CommonUtil.toZeroBasedPosition(component.getPosition()).getEndLine();
             } else {
                 return -1;
             }
@@ -188,9 +187,9 @@ public class BlockStatementScopeResolver extends CursorPositionResolver {
 
         int blockStmtIndex = components.indexOf(bLangBlockStmt);
         if (blockStmtIndex == components.size() - 1) {
-            return toZeroBasedPosition(bLangTransaction.getPosition()).eLine;
+            return CommonUtil.toZeroBasedPosition(bLangTransaction.getPosition()).eLine;
         } else if (components.get(blockStmtIndex + 1) != null) {
-            return toZeroBasedPosition(components.get(blockStmtIndex + 1).getPosition()).sLine;
+            return CommonUtil.toZeroBasedPosition(components.get(blockStmtIndex + 1).getPosition()).sLine;
         } else {
             // Ideally should not invoke this
             return -1;
@@ -206,11 +205,11 @@ public class BlockStatementScopeResolver extends CursorPositionResolver {
         BLangIf ifNode = bLangIf;
         while (true) {
             if (ifNode.elseStmt == null) {
-                return toZeroBasedPosition(bLangIf.getPosition()).eLine;
+                return CommonUtil.toZeroBasedPosition(bLangIf.getPosition()).eLine;
             } else if (ifNode.elseStmt instanceof BLangIf) {
                 ifNode = (BLangIf) ifNode.elseStmt;
             } else {
-                return toZeroBasedPosition(ifNode.elseStmt.getPosition()).getEndLine();
+                return CommonUtil.toZeroBasedPosition(ifNode.elseStmt.getPosition()).getEndLine();
             }
         }
     }

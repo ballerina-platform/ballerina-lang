@@ -1,24 +1,25 @@
 /*
-*   Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
-*
-*  WSO2 Inc. licenses this file to you under the Apache License,
-*  Version 2.0 (the "License"); you may not use this file except
-*  in compliance with the License.
-*  You may obtain a copy of the License at
-*
-*    http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing,
-* software distributed under the License is distributed on an
-* "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-* KIND, either express or implied.  See the License for the
-* specific language governing permissions and limitations
-* under the License.
-*/
+ *   Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ *  WSO2 Inc. licenses this file to you under the Apache License,
+ *  Version 2.0 (the "License"); you may not use this file except
+ *  in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
 package org.wso2.ballerinalang.compiler.tree.expressions;
 
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BStructSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
@@ -30,8 +31,11 @@ import java.util.List;
 import static org.ballerinalang.model.tree.NodeKind.RECORD_LITERAL_KEY_VALUE;
 
 /**
- * Implementation of RecordTypeLiteralNode.
+ * The super class of all the record literal expressions.
  *
+ * @see BLangStructLiteral
+ * @see BLangMapLiteral
+ * @see BLangTableLiteral
  * @since 0.94
  */
 public class BLangRecordLiteral extends BLangExpression implements RecordLiteralNode {
@@ -63,6 +67,8 @@ public class BLangRecordLiteral extends BLangExpression implements RecordLiteral
     }
 
     /**
+     * This static inner class represents key/value pair of a record literal.
+     *
      * @since 0.94
      */
     public static class BLangRecordKeyValue extends BLangNode implements RecordKeyValueNode {
@@ -92,6 +98,8 @@ public class BLangRecordLiteral extends BLangExpression implements RecordLiteral
     }
 
     /**
+     * This class represents a key expression in a key/value pair of a record literal.
+     *
      * @since 0.94
      */
     public static class BLangRecordKey extends BLangNode {
@@ -117,13 +125,17 @@ public class BLangRecordLiteral extends BLangExpression implements RecordLiteral
     }
 
     /**
+     * This class represents a struct literal expression.
+     *
      * @since 0.94
      */
     public static class BLangStructLiteral extends BLangRecordLiteral {
+        public BStructSymbol.BAttachedFunction initializer;
 
         public BLangStructLiteral(List<BLangRecordKeyValue> keyValuePairs, BType structType) {
             this.keyValuePairs = keyValuePairs;
             this.type = structType;
+            this.initializer = ((BStructSymbol) structType.tsymbol).initializerFunc;
         }
 
         @Override
@@ -133,6 +145,8 @@ public class BLangRecordLiteral extends BLangExpression implements RecordLiteral
     }
 
     /**
+     * This class represents a map literal expression.
+     *
      * @since 0.94
      */
     public static class BLangMapLiteral extends BLangRecordLiteral {
@@ -149,6 +163,8 @@ public class BLangRecordLiteral extends BLangExpression implements RecordLiteral
     }
 
     /**
+     * This class represents a JSON type literal expression.
+     *
      * @since 0.94
      */
     public static class BLangJSONLiteral extends BLangRecordLiteral {
@@ -165,6 +181,8 @@ public class BLangRecordLiteral extends BLangExpression implements RecordLiteral
     }
 
     /**
+     * This class represents a table type literal expression.
+     *
      * @since 0.963.0
      */
     public static class BLangTableLiteral extends BLangRecordLiteral {

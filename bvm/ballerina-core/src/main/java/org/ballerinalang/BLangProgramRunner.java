@@ -27,7 +27,6 @@ import org.ballerinalang.util.codegen.FunctionInfo;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.codegen.ServiceInfo;
-import org.ballerinalang.util.debugger.DebugContext;
 import org.ballerinalang.util.debugger.Debugger;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.ballerinalang.util.program.BLangFunctions;
@@ -59,6 +58,9 @@ public class BLangProgramRunner {
         // Invoke package init function
         BLangFunctions.invokePackageInitFunction(servicesPackage.getInitFunctionInfo());
 
+//        FIXME: uncomment
+//        deployTransactionCoordinatorServices(programFile, bContext);
+
         int serviceCount = 0;
         for (ServiceInfo serviceInfo : servicesPackage.getServiceInfoEntries()) {
             // Invoke service init function
@@ -76,7 +78,36 @@ public class BLangProgramRunner {
             throw new BallerinaException("no services found in '" + programFile.getProgramFilePath() + "'");
         }
     }
-    
+
+    private static void deployTransactionCoordinatorServices(ProgramFile programFile, Context bContext) {
+        PackageInfo coordinatorPkgInfo = programFile.getPackageInfo("ballerina.transactions.coordinator");
+        ServiceInfo[] coordinatorServices;
+        if (coordinatorPkgInfo != null) {
+            coordinatorPkgInfo.setProgramFile(programFile);
+            coordinatorServices = coordinatorPkgInfo.getServiceInfoEntries();
+            if (coordinatorServices != null) {
+                for (ServiceInfo coordinatorService : coordinatorServices) {
+                    deployService(programFile, bContext, coordinatorService);
+                }
+            }
+        }
+    }
+
+    private static void deployService(ProgramFile programFile, Context bContext, ServiceInfo serviceInfo) {
+        // Invoke service init function
+        //TODO check this to pass a Service
+//        FIXME: uncomment follow
+//        bContext.setServiceInfo(serviceInfo);
+//        BLangFunctions.invokeFunction(programFile, serviceInfo.getInitFunctionInfo(), bContext);
+//        if (bContext.getError() != null) {
+//            String stackTraceStr = BLangVMErrors.getPrintableStackTrace(bContext.getError());
+//            throw new BLangRuntimeException("error in deploying service: " + stackTraceStr);
+//        }
+
+        // Deploy service
+        programFile.getServerConnectorRegistry().registerService(serviceInfo);
+    }
+
     public static void runMain(ProgramFile programFile, String[] args) {
         if (!programFile.isMainEPAvailable()) {
             throw new BallerinaException("main function not found in  '" + programFile.getProgramFilePath() + "'");
@@ -98,13 +129,13 @@ public class BLangProgramRunner {
     }
 
     private static void initDebugger(Context bContext, Debugger debugger) {
-        bContext.getProgramFile().setDebugger(debugger);
-        if (debugger.isDebugEnabled()) {
-            DebugContext debugContext = new DebugContext();
-            bContext.setDebugContext(debugContext);
-            debugger.init();
-            debugger.addDebugContextAndWait(debugContext);
-        }
+//        bContext.getProgramFile().setDebugger(debugger);
+//        if (debugger.isDebugEnabled()) {
+//            DebugContext debugContext = new DebugContext();
+//            bContext.setDebugContext(debugContext);
+//            debugger.init();
+//            debugger.addDebugContextAndWait(debugContext);
+//        }
     }
 
     public static FunctionInfo getMainFunction(PackageInfo mainPkgInfo) {

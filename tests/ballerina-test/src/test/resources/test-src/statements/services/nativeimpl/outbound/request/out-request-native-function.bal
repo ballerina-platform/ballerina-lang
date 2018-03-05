@@ -122,7 +122,7 @@ service<http> helloServer {
     }
     resource GetContentLength (http:Connection conn, http:InRequest inReq) {
         http:OutRequest req = {};
-        req.setHeader("Content-Length", "15");
+        req.setHeader("content-length", "15");
         int length = req.getContentLength();
 
         http:OutResponse res = {};

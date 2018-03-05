@@ -4,9 +4,9 @@
       &.ballerina-design-view {
         background-color: white;
         color: #7D7D7D;
-
         .close-tab {
-          color: #7D7D7D;
+          color: #7D7D7D ;
+          background-color: white;
 
           &:hover {
             color: #474747;
@@ -327,6 +327,14 @@
     bottom: 60px !important;
     width: 30px;
     right: 25px;
+  }
+
+  .background-empty-rect{
+    fill: #f9f9f9;
+  }
+
+  .fork-bar{
+    fill: #a5a5a5;
   }
 }
 

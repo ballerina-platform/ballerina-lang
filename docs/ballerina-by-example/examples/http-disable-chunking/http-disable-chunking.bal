@@ -28,8 +28,8 @@ service<http> echo {
     resource echoResource (http:Connection conn, http:InRequest req) {
         string value;
         //Set response according to the request headers.
-        if (req.getHeader("Content-Length") != null) {
-            value = "Lenght-" + req.getHeader("Content-Length");
+        if (req.getHeader("content-length") != null) {
+            value = "Lenght-" + req.getHeader("content-length");
         } else {
             value = req.getHeader("Transfer-Encoding");
         }
