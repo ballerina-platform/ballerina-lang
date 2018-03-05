@@ -23,6 +23,7 @@ import org.ballerinalang.util.codegen.Instruction;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.codegen.WorkerInfo;
 import org.ballerinalang.util.codegen.cpentries.ConstantPoolEntry;
+import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -91,6 +92,10 @@ public class WorkerExecutionContext {
         this.retRegIndexes = retRegIndexes;
         this.globalProps = globalProperties;
         this.ip = this.workerInfo.getCodeAttributeInfo().getCodeAddrs();
+        if (this.ip < 0) {
+            throw new BallerinaException("invalid worker: " + workerInfo.getWorkerName() + 
+                    " in callable unit: " + callableUnitInfo.getName());
+        }
         this.runInCaller = runInCaller;
         if (!this.runInCaller) {
             executionLock = new ReentrantLock();
@@ -110,6 +115,10 @@ public class WorkerExecutionContext {
         this.workerLocal = workerLocal;
         this.globalProps = globalProperties;
         this.ip = this.workerInfo.getCodeAttributeInfo().getCodeAddrs();
+        if (this.ip < 0) {
+            throw new BallerinaException("invalid worker: " + workerInfo.getWorkerName() + 
+                    " in callable unit: " + callableUnitInfo.getName());
+        }
         this.runInCaller = runInCaller;
         if (!this.runInCaller) {
             executionLock = new ReentrantLock();
