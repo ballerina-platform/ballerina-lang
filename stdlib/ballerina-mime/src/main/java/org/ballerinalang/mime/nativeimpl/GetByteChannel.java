@@ -26,6 +26,7 @@ import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.nativeimpl.io.IOConstants;
+import org.ballerinalang.nativeimpl.io.channels.base.Channel;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
@@ -55,8 +56,22 @@ public class GetByteChannel extends AbstractNativeFunction {
         try {
             BStruct entityStruct = (BStruct) this.getRefArgument(context, FIRST_PARAMETER_INDEX);
             byteChannelStruct = ConnectorUtils.createAndGetStruct(context, PROTOCOL_PACKAGE_IO, BYTE_CHANNEL_STRUCT);
-            byteChannelStruct.addNativeData(IOConstants.BYTE_CHANNEL_NAME,
-                    EntityBodyHandler.getByteChannel(entityStruct));
+            Channel byteChannel = EntityBodyHandler.getByteChannel(entityStruct);
+            if (byteChannel != null) {
+                byteChannelStruct.addNativeData(IOConstants.BYTE_CHANNEL_NAME, byteChannel);
+            } else {
+                if (EntityBodyHandler.getMessageDataSource(entityStruct) != null) {
+                    return this.getBValues(MimeUtil.createEntityError(context,
+                            "Byte channel is not available but payload can be obtain either as xml, " +
+                                    "json, string or blob type"));
+                } else if (EntityBodyHandler.getBodyPartArray(entityStruct) != null) {
+                    return this.getBValues(MimeUtil.createEntityError(context,
+                            "Byte channel is not available since payload contains a set of body parts"));
+                } else {
+                    return this.getBValues(MimeUtil.createEntityError(context,
+                            "Byte channel is not available as payload"));
+                }
+            }
         } catch (Throwable e) {
             return this.getBValues(MimeUtil.createEntityError(context,
                     "Error occurred while constructing byte channel from entity body : " + e.getMessage()));

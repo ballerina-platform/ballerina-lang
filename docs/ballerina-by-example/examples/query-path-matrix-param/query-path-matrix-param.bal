@@ -9,7 +9,7 @@ service<http> sample {
     @Description {value:"PathParam and QueryParam extract values from the request URI."}
     resource params (http:Connection conn, http:InRequest req, string foo) {
         // Get QueryParam.
-        map params = req.getQueryParams();
+        var params = req.getQueryParams();
         var bar, _ = (string)params.bar;
 
         // Get Matrix params

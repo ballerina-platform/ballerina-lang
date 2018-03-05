@@ -137,6 +137,37 @@ function testSetEntityBodyMultipleTimes (io:ByteChannel byteChannel, string text
     return entity.getText();
 }
 
+function testSetJsonAndGetByteChannel (json jsonContent) (io:ByteChannel, mime:EntityError) {
+    mime:Entity entity = {};
+    entity.setJson(jsonContent);
+    return entity.getByteChannel();
+}
+
+function testGetTextDataSource (io:ByteChannel byteChannel) (string, mime:EntityError) {
+    mime:Entity entity = {};
+    entity.setByteChannel(byteChannel);
+    //Consume byte channel externally
+    var channel, _ = entity.getByteChannel();
+    consumeChannel(channel);
+    return entity.getText();
+}
+
+function testGetJsonDataSource (io:ByteChannel byteChannel) (json, mime:EntityError) {
+    mime:Entity entity = {};
+    entity.setByteChannel(byteChannel);
+    //Consume byte channel externally
+    var channel, _ = entity.getByteChannel();
+    consumeChannel(channel);
+    return entity.getJson();
+}
+
+function consumeChannel(io:ByteChannel channel) {
+    int numberOfBytesRead = 1;
+    blob readContent;
+    while (numberOfBytesRead != 0) {
+        readContent, numberOfBytesRead = channel.readBytes(10000);
+    }
+}
 
 @http:configuration {basePath:"/test"}
 service<http> helloServer {

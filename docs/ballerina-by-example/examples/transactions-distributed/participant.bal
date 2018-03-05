@@ -21,14 +21,21 @@ service<http> ParticipantService {
         // At the beginning of the transaction statement, since a transaction context has been received, this service
         // will register with the initiator as a participant.
         transaction {
-            json updateReq = req.getJsonPayload();
-            string msg = io:sprintf("Update stock quote request received. symbol:%j, price:%j",
-                                    [updateReq.symbol, updateReq.price]);
-            log:printInfo(msg);
+            var updateReq, payloadError = req.getJsonPayload();
+            if (payloadError == null) {
+                string msg = io:sprintf("Update stock quote request received. symbol:%j, price:%j",
+                                        [updateReq.symbol, updateReq.price]);
+                log:printInfo(msg);
 
-            json jsonRes = {"message":"updating stock"};
-            res = {statusCode:200};
-            res.setJsonPayload(jsonRes);
+                json jsonRes = {"message":"updating stock"};
+                res = {statusCode:200};
+                res.setJsonPayload(jsonRes);
+            } else {
+                res = {statusCode:500};
+                res.setStringPayload(payloadError.message);
+                log:printErrorCause("Payload error occurred!", payloadError);
+            }
+
             var err = conn.respond(res);
             if (err != null) {
                 log:printErrorCause("Could not send response back to initiator", err);

@@ -371,4 +371,74 @@ public class MimeUtilityFunctionTest {
             log.error("Error occurred in testLargePayload", e.getMessage());
         }
     }
+
+    @Test(description = "An EntityError should be returned in case the byte channel is null")
+    public void testGetByteChannelForNull() {
+        BStruct byteChannelStruct = Util.getByteChannelStruct(compileResult);
+        byteChannelStruct.addNativeData(IOConstants.BYTE_CHANNEL_NAME, null);
+        BValue[] args = {byteChannelStruct};
+        BValue[] returns = BRunUtil.invoke(compileResult, "testGetByteChannel", args);
+        Assert.assertEquals(returns.length, 2);
+        BStruct errorStruct = (BStruct) returns[0];
+        Assert.assertEquals(errorStruct.getStringField(0),
+                "Byte channel is not available as payload");
+    }
+
+    @Test(description = "An EntityError should be returned from 'getByteChannel()', in case the payload " +
+            "is in data source form")
+    public void testByteChannelWhenPayloadInDataSource() {
+        BJSON jsonContent = new BJSON("{'code':'123'}");
+        BValue[] args = {jsonContent};
+        BValue[] returns = BRunUtil.invoke(compileResult, "testSetJsonAndGetByteChannel", args);
+        Assert.assertEquals(returns.length, 2);
+        BStruct errorStruct = (BStruct) returns[0];
+        Assert.assertEquals(errorStruct.getStringField(0), "Byte channel is not available but payload " +
+                "can be obtain either as xml, json, string or blob type");
+    }
+
+    @Test(description = "Once the byte channel is consumed by the user, check whether the content retrieved " +
+            "as a text data source is empty")
+    public void testGetTextDataSource() throws IOException {
+        try {
+            File file = File.createTempFile("testFile", ".tmp");
+            file.deleteOnExit();
+            BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(file));
+            bufferedWriter.write("{'code':'123'}");
+            bufferedWriter.close();
+            BStruct byteChannelStruct = Util.getByteChannelStruct(compileResult);
+            byteChannelStruct.addNativeData(IOConstants.BYTE_CHANNEL_NAME, EntityBodyHandler.getByteChannelForTempFile
+                    (file.getAbsolutePath()));
+            BValue[] args = {byteChannelStruct};
+            BValue[] returns = BRunUtil.invoke(compileResult, "testGetTextDataSource", args);
+            Assert.assertEquals(returns.length, 2);
+            Assert.assertEquals(returns[0].stringValue(), "");
+
+        } catch (IOException e) {
+            log.error("Error occurred in testTempFileDeletion", e.getMessage());
+        }
+    }
+
+    @Test(description = "Once the byte channel is consumed by the user, check whether the content retrieved " +
+            "as a json data source return an error")
+    public void testGetJsonDataSource() throws IOException {
+        try {
+            File file = File.createTempFile("testFile", ".tmp");
+            file.deleteOnExit();
+            BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(file));
+            bufferedWriter.write("Hello Ballerina!");
+            bufferedWriter.close();
+            BStruct byteChannelStruct = Util.getByteChannelStruct(compileResult);
+            byteChannelStruct.addNativeData(IOConstants.BYTE_CHANNEL_NAME, EntityBodyHandler.getByteChannelForTempFile
+                    (file.getAbsolutePath()));
+            BValue[] args = {byteChannelStruct};
+            BValue[] returns = BRunUtil.invoke(compileResult, "testGetJsonDataSource", args);
+            Assert.assertEquals(returns.length, 2);
+            BStruct errorStruct = (BStruct) returns[0];
+            Assert.assertTrue(errorStruct.getStringField(0).contains("Error occurred while extracting json " +
+                    "data from entity: failed to create json: empty JSON document"));
+
+        } catch (IOException e) {
+            log.error("Error occurred in testTempFileDeletion", e.getMessage());
+        }
+    }
 }
