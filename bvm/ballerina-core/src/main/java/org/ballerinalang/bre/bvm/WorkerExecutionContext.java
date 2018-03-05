@@ -142,12 +142,12 @@ public class WorkerExecutionContext {
             return;
         }
         DebugContext parentCtx = parent.getDebugContext();
-        if (parentCtx == null || parentCtx.getCurrentCommand() == DebugCommand.RESUME) {
+        if (parentCtx == null || parentCtx.getCurrentCommand() == DebugCommand.RESUME
+                || parentCtx.getCurrentCommand() == DebugCommand.STEP_OVER
+                || parentCtx.getCurrentCommand() == DebugCommand.STEP_OUT) {
             this.debugContext = new DebugContext();
         } else if (parentCtx.getCurrentCommand() == DebugCommand.STEP_IN) {
             this.debugContext = new DebugContext(DebugCommand.STEP_IN);
-        } else if (parentCtx.getCurrentCommand() == DebugCommand.STEP_OVER) {
-            this.debugContext = new DebugContext();
         }
         this.programFile.getDebugger().addWorkerContext(this);
     }

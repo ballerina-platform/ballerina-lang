@@ -112,7 +112,7 @@ public class VMDebuggerUtil {
                 debugManager.stepOver(debugClientHandler.getWorkerId());
                 break;
             case STEP_OUT:
-//                debugManager.stepOut(debugClientHandler.getThreadId());
+                debugManager.stepOut(debugClientHandler.getWorkerId());
                 break;
             case RESUME:
                 debugManager.resume(debugClientHandler.getWorkerId());

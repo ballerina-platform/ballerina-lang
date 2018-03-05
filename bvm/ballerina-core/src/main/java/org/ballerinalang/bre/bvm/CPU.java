@@ -2395,20 +2395,8 @@ public class CPU {
             case STEP_OVER:
                 debugHit(ctx, currentExecLine, debugger);
                 break;
-//            case STEP_OUT:
-//                /*
-//                 This is the first instruction of immediate next line of the last debug hit point. So next debug hit
-//                 point should be when it comes to the "previousWorkerData" of the "WorkerData" relevant to the
-//                 last debug hit point. So here that stack frame is saved and using intermediate step to wait until
-//                 a instruction for that stack frame.
-//                 */
-//                debugContext.setCurrentCommand(DebugCommand.STEP_OUT_INTMDT);
-//                debugContext.setWorkerData(debugContext.getWorkerData().prevWorkerData);
-//                interMediateDebugCheck(currentExecLine, debugger, debugContext);
-//                break;
-//            case STEP_OUT_INTMDT:
-//                interMediateDebugCheck(currentExecLine, debugger, debugContext);
-//                break;
+            case STEP_OUT:
+                break;
             default:
 //                logger.warn("invalid debug command, exiting from debugging");
                 debugger.notifyExit();
@@ -2443,7 +2431,6 @@ public class CPU {
      * @param debugger        Debugger object.
      */
     private static void debugHit(WorkerExecutionContext ctx, LineNumberInfo currentExecLine, Debugger debugger) {
-        ctx.getDebugContext().setActive(true);
         ctx.getDebugContext().setLastLine(currentExecLine);
         debugger.notifyDebugHit(ctx, currentExecLine, ctx.getDebugContext().getWorkerId());
 

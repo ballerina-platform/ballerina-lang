@@ -89,7 +89,7 @@ public class VMDebuggerTest {
         VMDebuggerUtil.startDebug("test-src/debugger/test-debug.bal", breakPoints, expRes);
     }
 
-//    @Test(description = "Testing Step Out.")
+    @Test(description = "Testing Step Out.")
     public void testStepOut() {
         BreakPointDTO[] breakPoints = VMDebuggerUtil.createBreakNodeLocations(".", FILE, 25);
 
