@@ -104,9 +104,7 @@ public abstract class AbstractTimeFunction extends AbstractNativeFunction {
             try {
                 zoneId = ZoneId.from(temporalAccessor);
             } catch (DateTimeException e) {
-                if (zoneId == null) { //If timezone is not given, it will initialize to system default
-                    zoneId = ZoneId.systemDefault();
-                }
+                zoneId = ZoneId.systemDefault(); // Initialize to the default system timezone
             }
 
             ZonedDateTime zonedDateTime = ZonedDateTime.of(year, month, day, hour, minute, second, nanoSecond, zoneId);

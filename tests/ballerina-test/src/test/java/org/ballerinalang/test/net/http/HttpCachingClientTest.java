@@ -18,7 +18,6 @@
 
 package org.ballerinalang.test.net.http;
 
-import io.netty.handler.codec.http.DefaultHttpHeaders;
 import io.netty.handler.codec.http.HttpHeaders;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.launcher.util.BCompileUtil;
@@ -120,14 +119,13 @@ public class HttpCachingClientTest {
                                                              IN_RESPONSE);
 
         HTTPCarbonMessage inResponseMsg = HttpUtil.createHttpCarbonMessage(false);
-        HttpHeaders httpHeaders = new DefaultHttpHeaders();
+        HttpHeaders httpHeaders = inResponseMsg.getHeaders();
         httpHeaders.add(WARNING, "Warning: 110 - \"Response is Stale\"");
         httpHeaders.add(WARNING, "Warning: 111 - \"Revalidation Failed\"");
         httpHeaders.add(WARNING, "Warning: 112 - \"Disconnected Operation\"");
         httpHeaders.add(WARNING, "Warning: 113 - \"Heuristic Expiration\"");
         httpHeaders.add(WARNING, warning214);
         httpHeaders.add(WARNING, warning299);
-        inResponseMsg.addHeaders(httpHeaders);
         inResponseMsg.setProperty(HTTP_STATUS_CODE, 200);
 
         initInboundResponse(inResponse, inResponseMsg);

@@ -195,7 +195,7 @@ public function <ResponseCacheControl cacheControl> buildCacheControlDirectives 
     return buildCommaSeparatedString(directives);
 }
 
-@Description {value:"A convenience function for setting the Last-Modified header. This uses the current time when the function was called to set the header."}
+@Description {value:"Convenience function for setting the Last-Modified header. This uses the current time when the function was called to set the header."}
 @Param {value:"response: The outbound response"}
 public function <OutResponse response> setLastModifiedHeader () {
     time:Time currentT = time:currentTime();
@@ -246,13 +246,13 @@ function <InRequest request> parseInReqCacheControlHeader () {
         } else if (directive == ONLY_IF_CACHED) {
             request.cacheControl.onlyIfCached = true;
         } else if (directive.hasPrefix(MAX_AGE)) {
-            request.cacheControl.maxAge = getDirectiveValue(directive);
+            request.cacheControl.maxAge = getExpirationDirectiveValue(directive);
         } else if (directive == MAX_STALE) {
             request.cacheControl.maxStale = MAX_STALE_ANY_AGE;
         } else if (directive.hasPrefix(MAX_STALE)) {
-            request.cacheControl.maxStale = getDirectiveValue(directive);
+            request.cacheControl.maxStale = getExpirationDirectiveValue(directive);
         } else if (directive.hasPrefix(MIN_FRESH)) {
-            request.cacheControl.minFresh = getDirectiveValue(directive);
+            request.cacheControl.minFresh = getExpirationDirectiveValue(directive);
         }
         // non-standard directives are ignored
     }
@@ -280,13 +280,13 @@ function <OutRequest request> parseOutReqCacheControlHeader () {
         } else if (directive == ONLY_IF_CACHED) {
             request.cacheControl.onlyIfCached = true;
         } else if (directive.hasPrefix(MAX_AGE)) {
-            request.cacheControl.maxAge = getDirectiveValue(directive);
+            request.cacheControl.maxAge = getExpirationDirectiveValue(directive);
         } else if (directive == MAX_STALE) {
             request.cacheControl.maxStale = MAX_STALE_ANY_AGE;
         } else if (directive.hasPrefix(MAX_STALE)) {
-            request.cacheControl.maxStale = getDirectiveValue(directive);
+            request.cacheControl.maxStale = getExpirationDirectiveValue(directive);
         } else if (directive.hasPrefix(MIN_FRESH)) {
-            request.cacheControl.minFresh = getDirectiveValue(directive);
+            request.cacheControl.minFresh = getExpirationDirectiveValue(directive);
         }
         // non-standard directives are ignored
     }
@@ -296,7 +296,6 @@ function appendFields (string[] fields) (string) {
     if (fields != null && lengthof fields > 0) {
         return "=\"" + buildCommaSeparatedString(fields) + "\"";
     }
-
     return "";
 }
 
@@ -312,7 +311,7 @@ function buildCommaSeparatedString (string[] values) (string) {
     return delimitedValues;
 }
 
-function getDirectiveValue (string directive) (int) {
+function getExpirationDirectiveValue (string directive) (int) {
     string[] directiveParts = directive.split("=");
 
     // Disregarding the directive if a value isn't provided

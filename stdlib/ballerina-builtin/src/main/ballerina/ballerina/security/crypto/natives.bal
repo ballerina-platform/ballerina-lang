@@ -37,4 +37,7 @@ public native function getHash (string baseString, Algorithm algorithm) (string)
 @Return {value:"The hashed string"}
 public native function getHmac (string baseString, string keyString, Algorithm algorithm) (string);
 
-public native function getCRC32(any element) (string);
+@Description {value:"Returns the CRC32 hash for the provided element. Currently supports strings and blobs."}
+@Param {value:"content: The content to be hashed"}
+@Return {value:"The generated hash"}
+public native function getCRC32 (any content) (string);

@@ -80,6 +80,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import static io.netty.handler.codec.http.HttpHeaderNames.CACHE_CONTROL;
 import static org.ballerinalang.bre.bvm.BLangVMErrors.PACKAGE_BUILTIN;
 import static org.ballerinalang.bre.bvm.BLangVMErrors.STRUCT_GENERIC_ERROR;
 import static org.ballerinalang.mime.util.Constants.BOUNDARY;
@@ -89,7 +90,6 @@ import static org.ballerinalang.mime.util.Constants.MESSAGE_ENTITY;
 import static org.ballerinalang.mime.util.Constants.MULTIPART_AS_PRIMARY_TYPE;
 import static org.ballerinalang.mime.util.Constants.NO_CONTENT_LENGTH_FOUND;
 import static org.ballerinalang.mime.util.Constants.OCTET_STREAM;
-import static org.ballerinalang.net.http.HttpConstants.CACHE_CONTROL_HEADER;
 import static org.ballerinalang.net.http.HttpConstants.ENTITY_INDEX;
 import static org.ballerinalang.net.http.HttpConstants.HTTP_MESSAGE_INDEX;
 import static org.ballerinalang.net.http.HttpConstants.HTTP_STATUS_CODE;
@@ -99,7 +99,6 @@ import static org.ballerinalang.net.http.HttpConstants.IN_RESPONSE_CACHE_CONTROL
 import static org.ballerinalang.net.http.HttpConstants.IN_RESPONSE_REASON_PHRASE_INDEX;
 import static org.ballerinalang.net.http.HttpConstants.IN_RESPONSE_SERVER_INDEX;
 import static org.ballerinalang.net.http.HttpConstants.IN_RESPONSE_STATUS_CODE_INDEX;
-import static org.ballerinalang.net.http.HttpConstants.SERVER_HEADER;
 import static org.ballerinalang.net.http.HttpConstants.TRANSPORT_MESSAGE;
 
 /**
@@ -403,8 +402,8 @@ public class HttpUtil {
         inboundRequestStruct.addNativeData(MESSAGE_ENTITY, entity);
         inboundRequestStruct.addNativeData(IS_BODY_BYTE_CHANNEL_ALREADY_SET, false);
 
-        if (inboundRequestMsg.getHeader(CACHE_CONTROL_HEADER) != null) {
-            requestCacheControl.populateStruct(inboundRequestMsg.getHeader(CACHE_CONTROL_HEADER));
+        if (inboundRequestMsg.getHeader(CACHE_CONTROL.toString()) != null) {
+            requestCacheControl.populateStruct(inboundRequestMsg.getHeader(CACHE_CONTROL.toString()));
         }
         inboundRequestStruct.setRefField(IN_REQUEST_CACHE_CONTROL_INDEX, requestCacheControl.getStruct());
     }
@@ -464,8 +463,8 @@ public class HttpUtil {
             inboundResponseMsg.removeHeader(HttpHeaderNames.SERVER.toString());
         }
 
-        if (inboundResponseMsg.getHeader(CACHE_CONTROL_HEADER) != null) {
-            responseCacheControl.populateStruct(inboundResponseMsg.getHeader(CACHE_CONTROL_HEADER));
+        if (inboundResponseMsg.getHeader(CACHE_CONTROL.toString()) != null) {
+            responseCacheControl.populateStruct(inboundResponseMsg.getHeader(CACHE_CONTROL.toString()));
         }
         inboundResponse.setRefField(IN_RESPONSE_CACHE_CONTROL_INDEX, responseCacheControl.getStruct());
 

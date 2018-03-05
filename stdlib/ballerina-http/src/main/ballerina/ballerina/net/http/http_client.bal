@@ -572,10 +572,8 @@ function retain2xxWarnings (InResponse cachedResponse) {
 
 function getAgeValue (string ageHeader) (int) {
     if (ageHeader == null) {
-        log:printTrace("Age header not set");
         return 0;
     }
-    log:printTrace("Age header value: " + ageHeader);
     int ageValue;
     error err;
     ageValue, err = <int>ageHeader;

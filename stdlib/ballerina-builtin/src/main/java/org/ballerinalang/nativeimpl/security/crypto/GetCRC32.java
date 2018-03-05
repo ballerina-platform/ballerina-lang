@@ -41,7 +41,7 @@ import java.util.zip.Checksum;
 @BallerinaFunction(
         packageName = "ballerina.security.crypto",
         functionName = "getCRC32",
-        args = {@Argument(name = "element", type = TypeKind.STRING)},
+        args = {@Argument(name = "content", type = TypeKind.ANY)},
         returnType = {@ReturnType(type = TypeKind.STRING)},
         isPublic = true)
 public class GetCRC32 extends AbstractNativeFunction {
