@@ -63,6 +63,7 @@ struct RegistrationRequest {
     Protocol[] participantProtocols;
 }
 
+// TODO: Make this function into a transformer once https://github.com/ballerina-lang/ballerina/issues/5002 is fixed
 function regRequestToJson (RegistrationRequest req) returns (json) {
     json j = {};
     j.transactionId = req.transactionId;
@@ -76,6 +77,7 @@ function regRequestToJson (RegistrationRequest req) returns (json) {
     return j;
 }
 
+// TODO: Make this function into a transformer once https://github.com/ballerina-lang/ballerina/issues/5002 is fixed
 function jsonToRegRequest (json j) returns (RegistrationRequest req) {
     var transactionId, _ = (string)j.transactionId;
     var participantId, _ = (string)j.participantId;
@@ -96,6 +98,7 @@ struct RegistrationResponse {
     Protocol[] coordinatorProtocols;
 }
 
+// TODO: Make this function into a transformer once https://github.com/ballerina-lang/ballerina/issues/5002 is fixed
 function regResposeToJson (RegistrationResponse res) returns (json) {
     json j = {};
     j.transactionId = res.transactionId;
@@ -108,6 +111,7 @@ function regResposeToJson (RegistrationResponse res) returns (json) {
     return j;
 }
 
+// TODO: Make this function into a transformer once https://github.com/ballerina-lang/ballerina/issues/5002 is fixed
 function jsonToRegResponse (json j) returns (RegistrationResponse res) {
     var transactionId, _ = (string)j.transactionId;
     res = {transactionId:transactionId};
