@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.ballerinalang.nativeimpl.observe;
+package org.ballerinalang.observe.trace;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeKind;
@@ -26,39 +26,39 @@ import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
-import org.ballerinalang.observe.trace.OpenTracerBallerinaWrapper;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.concurrent.ThreadLocalRandom;
 
 /**
- * This function injects a span context and returns the spans Id.
+ * This function which implements the buildSpan method for tracing.
  */
 @BallerinaFunction(
         packageName = "ballerina.observe",
-        functionName = "extractSpanContext",
+        functionName = "init",
         returnType = {@ReturnType(type = TypeKind.STRING)},
         isPublic = true
 )
-public class ExtractSpanContext extends AbstractNativeFunction {
+public class StartSpan extends AbstractNativeFunction {
+
     @Override
     public BValue[] execute(Context context) {
 
-        BMap bHeaders = (BMap) getRefArgument(context, 0);
-        String group = getStringArgument(context, 0);
+        String serviceName = getStringArgument(context, 0);
+        String spanName = getStringArgument(context, 1);
+        BMap tags = (BMap) getRefArgument(context, 0);
+        String reference = getRefArgument(context, 1).stringValue();
+        String parentSpanId = getStringArgument(context, 2);
 
-        Map<String, String> headers = Utils.toStringMap(bHeaders);
-        Map<String, String> spanHeaders = new HashMap<>();
+        long invocationId;
+        if (context.getProperties().get(Constants.INVOCATION_ID_PROPERTY) != null) {
+            invocationId = (Long) context.getProperties().get(Constants.INVOCATION_ID_PROPERTY);
+        } else {
+            invocationId = ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE);
+            context.setProperty(Constants.INVOCATION_ID_PROPERTY, invocationId);
+        }
 
-        headers.forEach((headerKey, headerValue) -> {
-            if (headerKey.startsWith(group)) {
-                spanHeaders.put(headerKey.substring(group.length()), headerValue);
-            } else {
-                spanHeaders.put(headerKey, headerValue);
-            }
-        });
-
-        String spanId = OpenTracerBallerinaWrapper.getInstance().extract(spanHeaders);
+        String spanId = OpenTracerBallerinaWrapper.getInstance().startSpan(String.valueOf(invocationId), serviceName,
+                spanName, Utils.toStringMap(tags), ReferenceType.valueOf(reference), parentSpanId);
 
         return getBValues(new BString(spanId));
     }
