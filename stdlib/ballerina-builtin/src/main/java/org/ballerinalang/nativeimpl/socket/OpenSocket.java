@@ -19,13 +19,12 @@ package org.ballerinalang.nativeimpl.socket;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BLangVMStructs;
+import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BStruct;
-import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.nativeimpl.io.IOConstants;
 import org.ballerinalang.nativeimpl.io.channels.SocketIOChannel;
 import org.ballerinalang.nativeimpl.io.channels.base.AbstractChannel;
-import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
@@ -52,17 +51,17 @@ import java.nio.channels.SocketChannel;
         returnType = {@ReturnType(type = TypeKind.STRUCT, structType = "Socket", structPackage = "ballerina.io")},
         isPublic = true
 )
-public class OpenSocket extends AbstractNativeFunction {
+public class OpenSocket extends BlockingNativeCallableUnit {
 
     private static final String SOCKET_PACKAGE = "ballerina.io";
     private static final String SOCKET_STRUCT_TYPE = "Socket";
     private static final String BYTE_CHANNEL_STRUCT_TYPE = "ByteChannel";
 
     @Override
-    public BValue[] execute(Context context) {
-        final String host = getStringArgument(context, 0);
-        final int port = (int) getIntArgument(context, 0);
-        final BStruct options = (BStruct) getRefArgument(context, 0);
+    public void execute(Context context) {
+        final String host = context.getStringArgument(0);
+        final int port = (int) context.getIntArgument(0);
+        final BStruct options = (BStruct) context.getRefArgument(0);
 
         Socket socket;
         SocketChannel channel;
@@ -96,6 +95,6 @@ public class OpenSocket extends AbstractNativeFunction {
         socketStruct.setStringField(0, socket.getInetAddress().getHostAddress());
         socketStruct.setStringField(1, socket.getLocalAddress().getHostAddress());
         socketStruct.addNativeData(IOConstants.CLIENT_SOCKET_NAME, channel);
-        return getBValues(socketStruct);
+        context.setReturnValues(socketStruct);
     }
 }

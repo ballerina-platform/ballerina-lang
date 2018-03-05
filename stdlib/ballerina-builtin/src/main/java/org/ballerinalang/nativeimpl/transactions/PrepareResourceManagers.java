@@ -19,10 +19,9 @@
 package org.ballerinalang.nativeimpl.transactions;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BBoolean;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
@@ -39,11 +38,11 @@ import org.ballerinalang.util.transactions.TransactionResourceManager;
         args = {@Argument(name = "transactionId", type = TypeKind.STRING)},
         returnType = {@ReturnType(type = TypeKind.BOOLEAN)}
 )
-public class PrepareResourceManagers extends AbstractNativeFunction {
+public class PrepareResourceManagers extends BlockingNativeCallableUnit {
 
-    public BValue[] execute(Context ctx) {
-        String transactionId = getStringArgument(ctx, 0);
+    public void execute(Context ctx) {
+        String transactionId = ctx.getStringArgument(0);
         boolean prepareSuccessful = TransactionResourceManager.getInstance().prepare(transactionId);
-        return getBValues(new BBoolean(prepareSuccessful));
+        ctx.setReturnValues(new BBoolean(prepareSuccessful));
     }
 }

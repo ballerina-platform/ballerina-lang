@@ -19,12 +19,11 @@
 package org.ballerinalang.nativeimpl.socket;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BStruct;
-import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.nativeimpl.io.IOConstants;
 import org.ballerinalang.nativeimpl.io.channels.base.AbstractChannel;
-import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.util.exceptions.BallerinaException;
@@ -42,12 +41,12 @@ import java.nio.channels.SocketChannel;
         receiver = @Receiver(type = TypeKind.STRUCT, structType = "Socket", structPackage = "ballerina.io"),
         isPublic = true
 )
-public class CloseSocket extends AbstractNativeFunction {
+public class CloseSocket extends BlockingNativeCallableUnit {
     @Override
-    public BValue[] execute(Context context) {
+    public void execute(Context context) {
         BStruct socket;
         try {
-            socket = (BStruct) getRefArgument(context, 0);
+            socket = (BStruct) context.getRefArgument(0);
             SocketChannel socketChannel = (SocketChannel) socket.getNativeData(IOConstants.CLIENT_SOCKET_NAME);
             BStruct byteChannelStruct = (BStruct) socket.getRefField(0);
             AbstractChannel byteChannel = (AbstractChannel) byteChannelStruct
@@ -58,6 +57,6 @@ public class CloseSocket extends AbstractNativeFunction {
             String message = "Failed to close the socket:" + e.getMessage();
             throw new BallerinaException(message, e, context);
         }
-        return VOID_RETURN;
+        context.setReturnValues();
     }
 }
