@@ -72,7 +72,9 @@ public class DefaultHttpWsConnectorFactory implements HttpWsConnectorFactory {
             serverConnectorBootstrap.addCacheSize(listenerConfig.getCacheSize());
         }
         serverConnectorBootstrap.addIdleTimeout(listenerConfig.getSocketIdleTimeout(120000));
-        serverConnectorBootstrap.setHttp2Enabled(listenerConfig.isHttp2());
+        if (Constants.HTTP_2_0 == Float.valueOf(listenerConfig.getVersion())) {
+            serverConnectorBootstrap.setHttp2Enabled(true);
+        }
         serverConnectorBootstrap.addHttpTraceLogHandler(listenerConfig.isHttpTraceLogEnabled());
         serverConnectorBootstrap.addThreadPools(bossGroup, workerGroup);
         serverConnectorBootstrap.addHeaderAndEntitySizeValidation(listenerConfig.getRequestSizeValidationConfig());

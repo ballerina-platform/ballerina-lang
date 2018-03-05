@@ -65,7 +65,7 @@ public class ListenerConfiguration {
     private String scheme = "http";
 
     @XmlAttribute
-    private boolean http2 = false;
+    private String version = "1.1";
 
     @XmlAttribute
     private String keyStoreFile;
@@ -258,12 +258,12 @@ public class ListenerConfiguration {
         this.scheme = scheme;
     }
 
-    public boolean isHttp2() {
-        return http2;
+    public String getVersion() {
+        return version;
     }
 
-    public void setHttp2(boolean http2) {
-        this.http2 = http2;
+    public void setVersion(String version) {
+        this.version = version;
     }
 
     public List<Parameter> getParameters() {
