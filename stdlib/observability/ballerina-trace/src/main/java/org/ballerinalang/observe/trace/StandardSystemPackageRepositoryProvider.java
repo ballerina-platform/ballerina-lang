@@ -21,18 +21,19 @@ package org.ballerinalang.observe.trace;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.repository.PackageRepository;
 import org.ballerinalang.repository.fs.ClasspathPackageRepository;
-import org.ballerinalang.spi.ExtensionPackageRepositoryProvider;
+import org.ballerinalang.spi.SystemPackageRepositoryProvider;
 
 /**
  * This is the class which registers the functions defined with the ballerina.
  */
-@JavaSPIService("org.ballerinalang.spi.ExtensionPackageRepositoryProvider")
-public class StandardExtensionPackageRepositoryProvider implements ExtensionPackageRepositoryProvider {
+@JavaSPIService("org.ballerinalang.spi.SystemPackageRepositoryProvider")
+public class StandardSystemPackageRepositoryProvider implements SystemPackageRepositoryProvider {
 
-private static final String JAR_SYSTEM_LIB_LOCATION = "/META-INF/natives/";
+    private static final String SYSTEM_ORG_NAME = "natives";
 
-@Override
+    @Override
     public PackageRepository loadRepository() {
-        return new ClasspathPackageRepository(this.getClass(), JAR_SYSTEM_LIB_LOCATION);
+        return new ClasspathPackageRepository(this.getClass(), SYSTEM_ORG_NAME);
     }
+
 }
