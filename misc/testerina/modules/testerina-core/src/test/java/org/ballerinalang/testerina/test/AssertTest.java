@@ -38,7 +38,11 @@ public class AssertTest {
 
     @BeforeClass
     public void setup() {
-        compileResult = BTestUtils.compile("assert-test/assert-test.bal");
+        try {
+            compileResult = BTestUtils.compile("assert-test/assert-test.bal");
+        } catch (Exception e) {
+            throw e;
+        }
     }
 
     @Test

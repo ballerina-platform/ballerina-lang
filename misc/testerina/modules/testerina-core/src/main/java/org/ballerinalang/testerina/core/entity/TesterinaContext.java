@@ -43,8 +43,8 @@ public class TesterinaContext {
         this.groups = groups;
         this.excludeGroups = excludeGroups;
         programFiles.forEach(this::processProgramFiles);
-        assert groups == null;
-        assert excludeGroups == true;
+//        assert groups == null;
+//        assert excludeGroups == true;
     }
 
     /**

@@ -31,6 +31,7 @@ import org.ballerinalang.util.codegen.attributes.AnnotationAttributeInfo;
 import org.ballerinalang.util.codegen.attributes.AttributeInfo;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
+import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedList;
@@ -49,15 +50,16 @@ public class AnnotationProcessor {
     private static final String TEST_ANNOTATION_NAME = "config";
     private static final String BEFORE_SUITE_ANNOTATION_NAME = "beforeSuite";
     private static final String AFTER_SUITE_ANNOTATION_NAME = "afterSuite";
-    private static final String BEFORE_FUNCTION = "beforeFn";
-    private static final String AFTER_FUNCTION = "afterFn";
-    private static final String DEPENDS_ON_FUNCTIONS = "dependsOnFns";
+    private static final String BEFORE_FUNCTION = "before";
+    private static final String AFTER_FUNCTION = "after";
+    private static final String DEPENDS_ON_FUNCTIONS = "dependsOn";
     private static final String BEFORE_EACH_ANNOTATION_NAME = "beforeEach";
     private static final String AFTER_EACH_ANNOTATION_NAME = "afterEach";
     private static final String GROUP_ANNOTATION_NAME = "groups";
     private static final String VALUE_SET_ANNOTATION_NAME = "valueSets";
     private static final String TEST_DISABLE_ANNOTATION_NAME = "disabled";
     private static final String DEFAULT_TEST_GROUP_NAME = "default";
+    private static PrintStream outStream = System.out;
 
     public static void processAnnotations(ProgramFile programFile, PackageInfo packageInfo, TestSuite suite,
                                           List<String> groups, boolean excludeGroups) {
@@ -81,9 +83,12 @@ public class AnnotationProcessor {
 
     private static List<Test> orderTests(List<Test> tests, int[] sortedElts) {
         List<Test> sortedTests = new ArrayList<>();
+        outStream.println("Test execution order: ");
         for (int idx : sortedElts) {
             sortedTests.add(tests.get(idx));
+            outStream.println(sortedTests.get(sortedTests.size() - 1).getTestFunction().getName());
         }
+        outStream.println("**********************");
         return sortedTests;
     }
 
@@ -296,25 +301,26 @@ public class AnnotationProcessor {
                         break;
                     }
                     // Check whether user has provided a group list
-                    if (groups != null) {
-                        // check if groups attribute is present in the annotation
-                        if (attachmentInfo.getAttributeValue(GROUP_ANNOTATION_NAME) != null) {
-                            // Check whether function is included in group filter
-                            // against the user provided flag to include or exclude groups
-                            if (isGroupAvailable(groups, Arrays.stream(attachmentInfo.getAttributeValue
-                                    (GROUP_ANNOTATION_NAME).getAttributeValueArray()).map
-                                    (AnnAttributeValue::getStringValue).collect(Collectors.toList())) ==
-                                    excludeGroups) {
-                                functionSkipped = true;
-                                break;
-                            }
-                            // If groups are not present this belongs to default group
-                            // check whether user provided groups has default group
-                        } else if (isGroupAvailable(groups, Arrays.asList(DEFAULT_TEST_GROUP_NAME)) == excludeGroups) {
-                            functionSkipped = true;
-                            break;
-                        }
-                    }
+//                    if (groups != null) {
+//                        // check if groups attribute is present in the annotation
+//                        if (attachmentInfo.getAttributeValue(GROUP_ANNOTATION_NAME) != null) {
+//                            // Check whether function is included in group filter
+//                            // against the user provided flag to include or exclude groups
+//                            if (isGroupAvailable(groups, Arrays.stream(attachmentInfo.getAttributeValue
+//                                    (GROUP_ANNOTATION_NAME).getAttributeValueArray()).map
+//                                    (AnnAttributeValue::getStringValue).collect(Collectors.toList())) ==
+//                                    excludeGroups) {
+//                                functionSkipped = true;
+//                                break;
+//                            }
+//                            // If groups are not present this belongs to default group
+//                            // check whether user provided groups has default group
+//                        } else if (isGroupAvailable(groups, Arrays.asList(DEFAULT_TEST_GROUP_NAME)) ==
+// excludeGroups) {
+//                            functionSkipped = true;
+//                            break;
+//                        }
+//                    }
                     // Check the availability of value sets
                     if (attachmentInfo.getAttributeValue(VALUE_SET_ANNOTATION_NAME) != null) {
                         // extracts the value sets
@@ -345,28 +351,27 @@ public class AnnotationProcessor {
                 }
             }
 
-            if (!functionAdded && !functionSkipped) {
-                suite.addTestUtilityFunction(new TesterinaFunction(programFile, functionInfo, TesterinaFunction.Type
-                        .TEST));
-            }
+        }
+        if (!functionAdded && !functionSkipped) {
+            suite.addTestUtilityFunction(new TesterinaFunction(programFile, functionInfo, TesterinaFunction.Type.TEST));
         }
     }
 
-    /**
-     * Check whether there is a common element in two Lists.
-     *
-     * @param inputGroups    String @{@link List} to match
-     * @param functionGroups String @{@link List} to match agains
-     * @return true if a match is found
-     */
-    private static boolean isGroupAvailable(List<String> inputGroups, List<String> functionGroups) {
-        for (String group : inputGroups) {
-            for (String funcGroup : functionGroups) {
-                if (group.equals(funcGroup)) {
-                    return true;
-                }
-            }
-        }
-        return false;
-    }
+//    /**
+//     * Check whether there is a common element in two Lists.
+//     *
+//     * @param inputGroups    String @{@link List} to match
+//     * @param functionGroups String @{@link List} to match agains
+//     * @return true if a match is found
+//     */
+//    private static boolean isGroupAvailable(List<String> inputGroups, List<String> functionGroups) {
+//        for (String group : inputGroups) {
+//            for (String funcGroup : functionGroups) {
+//                if (group.equals(funcGroup)) {
+//                    return true;
+//                }
+//            }
+//        }
+//        return false;
+//    }
 }

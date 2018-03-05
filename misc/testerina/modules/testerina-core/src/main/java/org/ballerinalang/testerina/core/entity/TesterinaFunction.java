@@ -85,8 +85,7 @@ public class TesterinaFunction {
         Context ctx = new Context(programFile);
         Debugger debugger = new Debugger(programFile);
         initDebugger(ctx, debugger);
-        BLangFunctions
-                .invokeNew(programFile, bFunction.getPackageInfo().getPkgPath(), bFunction.getName(), args, ctx);
+        BLangFunctions.invokeFunction(programFile, bFunction, args, ctx);
     }
 
     public String getName() {

@@ -26,6 +26,7 @@ import org.ballerinalang.testerina.core.entity.TesterinaContext;
 import org.ballerinalang.testerina.core.entity.TesterinaReport;
 import org.ballerinalang.testerina.core.entity.TesterinaResult;
 import org.ballerinalang.util.codegen.ProgramFile;
+import org.ballerinalang.util.diagnostic.Diagnostic;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.io.PrintStream;
@@ -66,6 +67,11 @@ public class BTestRunner {
     public void runTest(Path[] sourceFilePaths, List<String> groups, boolean ignoreGroups) {
         CompileResult[] compileResults = Arrays.stream(sourceFilePaths).map(k -> k.toString()).map(k -> BCompileUtil
                 .compile(programDirPath.toString(), k, CompilerPhase.CODE_GEN)).toArray(CompileResult[]::new);
+        Arrays.stream(compileResults).forEach(k -> {
+            for (Diagnostic diagnostic : k.getDiagnostics()) {
+                outStream.println(diagnostic.getMessage());
+            }
+        });
         Arrays.stream(compileResults).forEachOrdered(compileResult -> TesterinaRegistry.getInstance().addProgramFile
                 (compileResult.getProgFile()));
 

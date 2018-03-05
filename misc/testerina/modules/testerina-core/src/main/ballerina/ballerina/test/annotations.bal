@@ -8,9 +8,9 @@ public annotation config attach function {
     boolean disabled;
     string[] groups;
     string dataProvider;
-    string beforeFn;
-    string afterFn;
-    string[] dependsOnFns;
+    string before;
+    string after;
+    string[] dependsOn;
 
 }
 
@@ -19,12 +19,6 @@ public annotation beforeSuite attach function {}
 
 @Description { value:"Identoifies afterSuite function."}
 public annotation afterSuite attach function {}
-
-@Description { value:"Identoifies beforeTest function."}
-public annotation before attach function {}
-
-@Description { value:"Identoifies afterTest function."}
-public annotation after attach function {}
 
 @Description { value:"Identoifies beforeTest function."}
 public annotation beforeEach attach function {}

@@ -18,7 +18,6 @@ package org.ballerinalang.testerina.test.utils;
 
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.launcher.LauncherUtils;
-import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.types.BStructType;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
@@ -34,20 +33,13 @@ import org.wso2.ballerinalang.compiler.Compiler;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
-import org.wso2.ballerinalang.compiler.util.Name;
-import org.wso2.ballerinalang.compiler.util.Names;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.net.URISyntaxException;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Arrays;
-import java.util.List;
-import java.util.stream.Collectors;
 
 import static org.ballerinalang.compiler.CompilerOptionName.COMPILER_PHASE;
 import static org.ballerinalang.compiler.CompilerOptionName.PRESERVE_WHITESPACE;
@@ -80,33 +72,33 @@ public class BTestUtils {
      * @param packageName name of the package to compile
      * @return Semantic errors
      */
-    public static CompileResult compile(String sourceRoot, String packageName) {
-        try {
-            String effectiveSource;
-            Path rootPath = Paths.get(BTestUtils.class.getProtectionDomain().getCodeSource()
-                                              .getLocation().toURI().getPath().concat(sourceRoot));
-            if (Files.isDirectory(Paths.get(packageName))) {
-                String[] pkgParts = packageName.split("\\/");
-                List<Name> pkgNameComps = Arrays.stream(pkgParts)
-                        .map(part -> {
-                            if (part.equals("")) {
-                                return Names.EMPTY;
-                            } else if (part.equals("_")) {
-                                return Names.EMPTY;
-                            }
-                            return new Name(part);
-                        })
-                        .collect(Collectors.toList());
-                PackageID pkgId = new PackageID(Names.ANON_ORG, pkgNameComps, Names.DEFAULT_VERSION);
-                effectiveSource = pkgId.getName().getValue();
-            } else {
-                effectiveSource = packageName;
-            }
-            return compile(rootPath.toString(), effectiveSource, CompilerPhase.CODE_GEN);
-        } catch (URISyntaxException e) {
-            throw new IllegalArgumentException("error while running test: " + e.getMessage());
-        }
-    }
+//    public static CompileResult compile(String sourceRoot, String packageName) {
+//        try {
+//            String effectiveSource;
+//            Path rootPath = Paths.get(BTestUtils.class.getProtectionDomain().getCodeSource()
+//                                              .getLocation().toURI().getPath().concat(sourceRoot));
+//            if (Files.isDirectory(Paths.get(packageName))) {
+//                String[] pkgParts = packageName.split("\\/");
+//                List<Name> pkgNameComps = Arrays.stream(pkgParts)
+//                        .map(part -> {
+//                            if (part.equals("")) {
+//                                return Names.EMPTY;
+//                            } else if (part.equals("_")) {
+//                                return Names.EMPTY;
+//                            }
+//                            return new Name(part);
+//                        })
+//                        .collect(Collectors.toList());
+//                PackageID pkgId = new PackageID(pkgNameComps, Names.DEFAULT_VERSION);
+//                effectiveSource = pkgId.getName().getValue();
+//            } else {
+//                effectiveSource = packageName;
+//            }
+//            return compile(rootPath.toString(), effectiveSource, CompilerPhase.CODE_GEN);
+//        } catch (URISyntaxException e) {
+//            throw new IllegalArgumentException("error while running test: " + e.getMessage());
+//        }
+//    }
 
     /**
      * Compile and return the semantic errors.
@@ -196,7 +188,11 @@ public class BTestUtils {
     public static BValue[] invoke(CompileResult compileResult, String packageName, String functionName,
                                   BValue[] args) {
         if (compileResult.getErrorCount() > 0) {
-            throw new IllegalStateException("compilation contains errors.");
+            String msg = "";
+            for (Diagnostic diagnostic : compileResult.getDiagnostics()) {
+                msg += diagnostic.getMessage() + "\n";
+            }
+            throw new IllegalStateException("compilation contains errors.. " + msg);
         }
         ProgramFile programFile = compileResult.getProgFile();
         Debugger debugger = new Debugger(programFile);
@@ -227,7 +223,11 @@ public class BTestUtils {
      */
     public static BValue[] invoke(CompileResult compileResult, String functionName, BValue[] args) {
         if (compileResult.getErrorCount() > 0) {
-            throw new IllegalStateException("compilation contains errors.");
+            String msg = "";
+            for (Diagnostic diagnostic : compileResult.getDiagnostics()) {
+                msg += diagnostic.getMessage() + "\n";
+            }
+            throw new IllegalStateException("compilation contains errors.. " + msg);
         }
         ProgramFile programFile = compileResult.getProgFile();
         Debugger debugger = new Debugger(programFile);
