@@ -148,6 +148,7 @@ public final class Constants {
     public static final String DEFAULT_VERSION_HTTP_1_1 = "HTTP/1.1";
     public static final float HTTP_1_1 = 1.1f;
     public static final float HTTP_1_0 = 1.0f;
+    public static final float HTTP_2_0 = 2.0f;
     public static final String HTTP_VERSION_PREFIX = "HTTP/";
 
     //Server Connection Related Parameters

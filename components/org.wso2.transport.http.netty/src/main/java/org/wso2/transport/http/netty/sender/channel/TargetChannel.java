@@ -75,10 +75,12 @@ public class TargetChannel {
         this.channelFuture = channelFuture;
         this.handlerExecutor = HTTPTransportContextHolder.getInstance().getHandlerExecutor();
         this.httpRoute = httpRoute;
-        http2ClientChannel =
-                new Http2ClientChannel(httpClientChannelInitializer.getHttp2ConnectionManager(),
-                                       httpClientChannelInitializer.getConnection(),
-                                       httpRoute, channelFuture.channel());
+        if (httpClientChannelInitializer != null) {
+            http2ClientChannel =
+                    new Http2ClientChannel(httpClientChannelInitializer.getHttp2ConnectionManager(),
+                                           httpClientChannelInitializer.getConnection(),
+                                           httpRoute, channelFuture.channel());
+        }
     }
 
     public Channel getChannel() {

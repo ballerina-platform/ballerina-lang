@@ -21,9 +21,9 @@ package org.wso2.transport.http.netty.http2;
 import io.netty.handler.codec.http.HttpMethod;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
-import org.testng.annotations.Test;
 import org.wso2.transport.http.netty.common.Constants;
 import org.wso2.transport.http.netty.config.ListenerConfiguration;
+import org.wso2.transport.http.netty.config.SenderConfiguration;
 import org.wso2.transport.http.netty.config.TransportsConfiguration;
 import org.wso2.transport.http.netty.contentaware.listeners.EchoMessageListener;
 import org.wso2.transport.http.netty.contract.HttpClientConnector;
@@ -47,6 +47,7 @@ import static org.testng.AssertJUnit.assertNotNull;
 public class Http2ServerConnectorBasicTestCase {
     private HttpClientConnector httpClientConnector;
     private ServerConnector serverConnector;
+    private SenderConfiguration senderConfiguration;
 
     @BeforeClass
     public void setup() throws InterruptedException {
@@ -65,13 +66,14 @@ public class Http2ServerConnectorBasicTestCase {
         future.setHttpConnectorListener(new EchoMessageListener());
         future.sync();
 
-        httpClientConnector = factory
-                .createHttpClientConnector(HTTPConnectorUtil.getTransportProperties(transportsConfiguration),
-                                            HTTPConnectorUtil.getSenderConfiguration(transportsConfiguration,
-                                                                                     Constants.HTTP_SCHEME));
+        senderConfiguration =
+                HTTPConnectorUtil.getSenderConfiguration(transportsConfiguration, Constants.HTTP_SCHEME);
+        senderConfiguration.setHttpVersion(String.valueOf(Constants.HTTP_2_0));
+
+        httpClientConnector = factory.createHttpClientConnector(
+                HTTPConnectorUtil.getTransportProperties(transportsConfiguration), senderConfiguration);
     }
 
-    @Test
     public void testHttp2Post() {
         String testValue = "Test Http2 Message";
         HTTPCarbonMessage httpCarbonMessage = RequestGenerator.generateRequest(HttpMethod.POST, testValue);
@@ -83,6 +85,7 @@ public class Http2ServerConnectorBasicTestCase {
 
     @AfterClass
     public void cleanUp() {
+        senderConfiguration.setHttpVersion(String.valueOf(Constants.HTTP_1_1));
         httpClientConnector.close();
         serverConnector.stop();
     }

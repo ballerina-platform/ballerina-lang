@@ -24,6 +24,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.carbon.messaging.exceptions.ServerConnectorException;
 import org.wso2.transport.http.netty.common.Constants;
+import org.wso2.transport.http.netty.config.SenderConfiguration;
 import org.wso2.transport.http.netty.config.TransportsConfiguration;
 import org.wso2.transport.http.netty.contract.HttpClientConnector;
 import org.wso2.transport.http.netty.contract.HttpWsConnectorFactory;
@@ -47,6 +48,7 @@ public class Http2ClientConnectorBasicTestCase {
 
     private HttpServer http2Server;
     private HttpClientConnector httpClientConnector;
+    SenderConfiguration senderConfiguration;
 
     @BeforeClass
     public void setup() {
@@ -55,9 +57,11 @@ public class Http2ClientConnectorBasicTestCase {
 
         http2Server = TestUtil.startHTTPServer(TestUtil.HTTP_SERVER_PORT, new Http2EchoServerInitializer());
         HttpWsConnectorFactory connectorFactory = new DefaultHttpWsConnectorFactory();
+        senderConfiguration =
+                HTTPConnectorUtil.getSenderConfiguration(transportsConfiguration, Constants.HTTP_SCHEME);
+        senderConfiguration.setHttpVersion(String.valueOf(Constants.HTTP_2_0));
         httpClientConnector = connectorFactory.createHttpClientConnector(
-                HTTPConnectorUtil.getTransportProperties(transportsConfiguration),
-                HTTPConnectorUtil.getSenderConfiguration(transportsConfiguration, Constants.HTTP_SCHEME));
+                HTTPConnectorUtil.getTransportProperties(transportsConfiguration), senderConfiguration);
     }
 
     @Test
@@ -80,6 +84,7 @@ public class Http2ClientConnectorBasicTestCase {
     @AfterClass
     public void cleanUp() throws ServerConnectorException {
         try {
+            senderConfiguration.setHttpVersion(String.valueOf(Constants.HTTP_1_1));
             http2Server.shutdown();
         } catch (InterruptedException e) {
             TestUtil.handleException("Failed to shutdown the test server", e);

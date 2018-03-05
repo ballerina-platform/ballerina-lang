@@ -111,7 +111,8 @@ public class HttpClientConnectorImpl implements HttpClientConnector {
     }
 
     private HttpResponseFuture sendMessage(HTTPCarbonMessage httpOutboundRequest, boolean returnResponseHandle) {
-        HttpResponseFuture httpResponseFuture;
+        HttpResponseFuture forwardResponseFuture;
+        HttpResponseFuture returnResponseFuture;
 
         SourceHandler srcHandler = (SourceHandler) httpOutboundRequest.getProperty(Constants.SRC_HANDLER);
         if (srcHandler == null) {
@@ -133,12 +134,12 @@ public class HttpClientConnectorImpl implements HttpClientConnector {
                     activeHttp2ClientChannel.getChannel().write(outboundMsgHolder);
                 });
                 if (returnResponseHandle) {
-                    httpResponseFuture = outboundMsgHolder.getResponseHandleFuture();
-                    httpResponseFuture.notifyResponseHandle(new ResponseHandle(outboundMsgHolder));
+                    returnResponseFuture = outboundMsgHolder.getResponseHandleFuture();
+                    returnResponseFuture.notifyResponseHandle(new ResponseHandle(outboundMsgHolder));
                 } else {
-                    httpResponseFuture = outboundMsgHolder.getResponseFuture();
+                    returnResponseFuture = outboundMsgHolder.getResponseFuture();
                 }
-                return httpResponseFuture;
+                return returnResponseFuture;
             }
 
             TargetChannel targetChannel = connectionManager.borrowTargetChannel(route, srcHandler, senderConfiguration);
@@ -146,10 +147,11 @@ public class HttpClientConnectorImpl implements HttpClientConnector {
             Http2ClientChannel freshHttp2ClientChannel = targetChannel.getHttp2ClientChannel();
 
             OutboundMsgHolder outboundMsgHolder = new OutboundMsgHolder(httpOutboundRequest, freshHttp2ClientChannel);
+            forwardResponseFuture = outboundMsgHolder.getResponseFuture();
             if (returnResponseHandle) {
-                httpResponseFuture = outboundMsgHolder.getResponseHandleFuture();
+                returnResponseFuture = outboundMsgHolder.getResponseHandleFuture();
             } else {
-                httpResponseFuture = outboundMsgHolder.getResponseFuture();
+                returnResponseFuture = forwardResponseFuture;
             }
 
             // Response for the upgrade request will arrive in stream 1, so use 1 as the stream id
@@ -159,15 +161,15 @@ public class HttpClientConnectorImpl implements HttpClientConnector {
                 @Override
                 public void operationComplete(ChannelFuture channelFuture) throws Exception {
                     if (isValidateChannel(channelFuture)) {
-                        httpResponseFuture.notifyResponseHandle(new ResponseHandle(outboundMsgHolder));
+                        returnResponseFuture.notifyResponseHandle(new ResponseHandle(outboundMsgHolder));
                         targetChannel.setChannel(channelFuture.channel());
-                        targetChannel.configTargetHandler(httpOutboundRequest, httpResponseFuture);
+                        targetChannel.configTargetHandler(httpOutboundRequest, forwardResponseFuture);
                         targetChannel.setEndPointTimeout(socketIdleTimeout, followRedirect);
                         targetChannel.setCorrelationIdForLogging();
                         targetChannel.setHttpVersion(httpVersion);
                         targetChannel.setChunkConfig(chunkConfig);
                         if (followRedirect) {
-                            setChannelAttributes(channelFuture.channel(), httpOutboundRequest, httpResponseFuture,
+                            setChannelAttributes(channelFuture.channel(), httpOutboundRequest, forwardResponseFuture,
                                                  targetChannel);
                         }
                         if (!keepAlive && Float.valueOf(httpVersion) >= Constants.HTTP_1_1) {
@@ -214,7 +216,7 @@ public class HttpClientConnectorImpl implements HttpClientConnector {
                         cause.initCause(channelFuture.cause());
                     }
 
-                    httpResponseFuture.notifyHttpListener(cause);
+                    returnResponseFuture.notifyHttpListener(cause);
                 }
             });
         } catch (Exception failedCause) {
@@ -227,7 +229,7 @@ public class HttpClientConnectorImpl implements HttpClientConnector {
             return errorResponseFuture;
         }
 
-        return httpResponseFuture;
+        return returnResponseFuture;
     }
 
     private HttpRoute getTargetRoute(HTTPCarbonMessage httpCarbonMessage) {

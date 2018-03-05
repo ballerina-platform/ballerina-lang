@@ -67,7 +67,7 @@ public class HttpClientChannelInitializer extends ChannelInitializer<SocketChann
     private ProxyServerConfiguration proxyServerConfiguration;
     private ConnectionManager connectionManager;
     private Http2ConnectionManager http2ConnectionManager;
-    private boolean isSkipHttp2Upgrade;
+    private boolean isHttp2 = false;
     private Http2ConnectionHandler http2ConnectionHandler;
     private ClientInboundHandler clientInboundHandler;
     private ClientOutboundHandler clientOutboundHandler;
@@ -90,7 +90,11 @@ public class HttpClientChannelInitializer extends ChannelInitializer<SocketChann
         this.validateCertEnabled = senderConfiguration.validateCertEnabled();
         this.cacheDelay = senderConfiguration.getCacheValidityPeriod();
         this.cacheSize = senderConfiguration.getCacheSize();
-        this.isSkipHttp2Upgrade = senderConfiguration.skipHttpToHttp2Upgrade();
+
+        String httpVersion = senderConfiguration.getHttpVersion();
+        if (Float.valueOf(httpVersion) == Constants.HTTP_2_0) {
+            this.isHttp2 = true;
+        }
         connection = new DefaultHttp2Connection(false);
         clientInboundHandler = new ClientInboundHandler();
         Http2FrameListener frameListener = new DelegatingDecompressorFrameListener(connection, clientInboundHandler);
@@ -125,7 +129,7 @@ public class HttpClientChannelInitializer extends ChannelInitializer<SocketChann
                     new CertificateValidationHandler(this.sslEngine, this.cacheDelay, this.cacheSize));
         }
         HttpClientCodec sourceCodec = new HttpClientCodec();
-        if (!isSkipHttp2Upgrade) {
+        if (isHttp2) {
             ch.pipeline().addLast(sourceCodec);
         } else {
             ch.pipeline().addLast("decoder", new HttpResponseDecoder());
@@ -147,7 +151,7 @@ public class HttpClientChannelInitializer extends ChannelInitializer<SocketChann
         targetHandler = new TargetHandler();
         targetHandler.setHttp2ClientOutboundHandler(clientOutboundHandler);
         targetHandler.setKeepAlive(isKeepAlive);
-        if (!isSkipHttp2Upgrade && sslEngine == null) {
+        if (isHttp2 && sslEngine == null) {
             Http2ClientUpgradeCodec upgradeCodec = new Http2ClientUpgradeCodec(http2ConnectionHandler);
             HttpClientUpgradeHandler upgradeHandler =
                     new HttpClientUpgradeHandler(sourceCodec, upgradeCodec, Integer.MAX_VALUE);

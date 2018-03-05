@@ -94,9 +94,6 @@ public class SenderConfiguration {
     private boolean isKeepAlive = true;
 
     @XmlAttribute
-    private boolean skipHttpToHttp2Upgrade = false;
-
-    @XmlAttribute
     private int http2MaxActiveStreams = Integer.MAX_VALUE;
 
     private String tlsStoreType;
@@ -274,14 +271,6 @@ public class SenderConfiguration {
         if (!httpVersion.isEmpty()) {
             this.httpVersion = httpVersion;
         }
-    }
-
-    public boolean skipHttpToHttp2Upgrade() {
-        return skipHttpToHttp2Upgrade;
-    }
-
-    public void setSkipHttpToHttp2Upgrade(boolean skipHttpToHttp2Upgrade) {
-        this.skipHttpToHttp2Upgrade = skipHttpToHttp2Upgrade;
     }
 
     public int getHttp2MaxActiveStreams() {
