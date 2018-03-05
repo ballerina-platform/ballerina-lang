@@ -59,7 +59,7 @@ public class Http2ServerConnectorBasicTestCase {
         ListenerConfiguration listenerConfiguration = new ListenerConfiguration();
         listenerConfiguration.setPort(TestUtil.HTTP_SERVER_PORT);
         listenerConfiguration.setScheme(Constants.HTTP_SCHEME);
-        listenerConfiguration.setHttp2(true);
+        listenerConfiguration.setVersion(String.valueOf(Constants.HTTP_2_0));
         serverConnector = factory
                 .createServerConnector(TestUtil.getDefaultServerBootstrapConfig(), listenerConfiguration);
         ServerConnectorFuture future = serverConnector.start();
