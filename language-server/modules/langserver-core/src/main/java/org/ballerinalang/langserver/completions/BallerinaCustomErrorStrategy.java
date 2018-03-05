@@ -23,7 +23,7 @@ import org.antlr.v4.runtime.Parser;
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.Token;
 import org.ballerinalang.langserver.DocumentServiceKeys;
-import org.ballerinalang.langserver.TextDocumentServiceContext;
+import org.ballerinalang.langserver.LanguageServerContext;
 import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser;
 import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParserErrorStrategy;
 
@@ -31,12 +31,13 @@ import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParserErrorStrateg
  * Capture possible errors from source.
  */
 public class BallerinaCustomErrorStrategy extends BallerinaParserErrorStrategy {
-
-    private TextDocumentServiceContext context;
-    public BallerinaCustomErrorStrategy(TextDocumentServiceContext context) {
+    private LanguageServerContext context;
+    
+    public BallerinaCustomErrorStrategy(LanguageServerContext context) {
         super(context.get(DocumentServiceKeys.COMPILER_CONTEXT_KEY), null);
         this.context = context;
     }
+    
     @Override
     public void reportInputMismatch(Parser parser, InputMismatchException e) {
         fillContext(parser, e.getOffendingToken());
@@ -59,7 +60,14 @@ public class BallerinaCustomErrorStrategy extends BallerinaParserErrorStrategy {
 
     private void fillContext(Parser parser, Token currentToken) {
         ParserRuleContext currentContext = parser.getContext();
-        if (isCursorBetweenGivenTokenAndLastNonHiddenToken(currentToken, parser)) {
+        /*
+        TODO: Specific check for callable unit body is added in order to handle the completion inside an 
+        endpoint definition. This particular case need to remove after introducing a proper handling mechanism or with
+         the introduction of BNF grammar
+         */
+        if (isCursorBetweenGivenTokenAndLastNonHiddenToken(currentToken, parser)
+                || (this.context.get(DocumentServiceKeys.PARSER_RULE_CONTEXT_KEY) != null
+                && currentContext instanceof BallerinaParser.CallableUnitBodyContext)) {
             this.context.put(DocumentServiceKeys.PARSER_RULE_CONTEXT_KEY, currentContext);
             this.context.put(DocumentServiceKeys.TOKEN_STREAM_KEY, parser.getTokenStream());
             this.context.put(DocumentServiceKeys.VOCABULARY_KEY, parser.getVocabulary());

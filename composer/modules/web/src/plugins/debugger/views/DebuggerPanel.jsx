@@ -18,13 +18,14 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
+import { Button } from 'semantic-ui-react';
 import View from 'core/view/view';
 import { VIEWS, COMMANDS } from './../constants';
 import './DebuggerPanel.scss';
 import Toolbar from '../views/Toolbar';
 import Frames from '../views/Frames';
 import { processFrames } from '../views/Frames/utils';
-import { Button } from 'react-bootstrap';
+
 
 /**
  * Debugger
@@ -144,37 +145,38 @@ class DebuggerPanel extends View {
     render() {
         if (this.state.showRetry) {
             return (
-                <div className="reconnect-container">
-                    <div className="debug-panel-header">
-                        <span className="tool-group-header-title">Could not connect to debugger</span>
+                <div>
+                    <div className='debug-panel-header'>
+                        <span className='tool-group-header-title'>Could not connect to debugger</span>
                     </div>
-                    <Button
-                        onClick={this.reConnect}
-                        title="Reconnect"
-                        className="btn-retry"
-                    >
-                        <i className="fw fw-refresh" />Retry
-                    </Button>
-                    <Button
-                        onClick={this.cancelReconnect}
-                        title="Reconnect"
-                    >
-                        <i className="fw fw-cancel" />Cancel
-                    </Button>
+                    <div className='debug-buttons'>
+                        <Button
+                            onClick={this.reConnect}
+                            title='Reconnect'
+                        >
+                            <i className='fw fw-refresh' /> Retry
+                        </Button>
+                        <Button
+                            onClick={this.cancelReconnect}
+                            title='Reconnect'
+                        >
+                            <i className='fw fw-cancel' /> Cancel
+                        </Button>
+                    </div>
                 </div>
             );
         }
         if (this.state.connecting) {
             return (
-                <div className="debug-panel-header">
-                    <span className="tool-group-header-title">Waiting for debugger to connect ...</span>
+                <div className='debug-panel-header'>
+                    <span className='tool-group-header-title'>Waiting for debugger to connect ...</span>
                 </div>
             );
         }
         if (this.state.isDebugging) {
             return (
                 <div>
-                    <div className="btn-group col-xs-12">
+                    <div className='btn-group col-xs-12'>
                         <Toolbar navigation={this.state.navigation} dispatch={this.props.commandProxy.dispatch} />
                     </div>
                     <div>
@@ -186,56 +188,47 @@ class DebuggerPanel extends View {
         }
         if (this.state.active) {
             return (
-                <div>
-                    <div className="btn-group col-xs-12">
-                        <div
-                            type="button"
-                            id="stop_application"
-                            className="btn text-left btn-debug-activate col-xs-12"
-                            title="Stop Application"
-                            onClick={this.stopApplication}
-                        >
-                            <span className="launch-label">Stop</span>
-                        </div>
-                    </div>
+                <div className='debug-buttons'>
+                    <Button
+                        title='Stop Application'
+                        onClick={this.stopApplication}
+                        fluid
+                        className='debug-button'
+                    >
+                        Stop
+                    </Button>
                 </div>
             );
         } else {
             return (
-                <div>
-                    <div className="btn-group col-xs-12">
-                        <div
-                            type="button"
-                            id="run_application"
-                            className="btn text-left btn-debug-activate col-xs-12"
-                            title="Run (Ctrl+Shift+R)"
-                            onClick={this.startApplication}
-                        >
-                            <span className="launch-label">Run</span>
-                        </div>
-                        <div
-                            type="button"
-                            id="start_debug"
-                            className="btn text-left btn-debug-activate col-xs-12"
-                            title="Run With Debug (Ctrl+Shift+D)"
-                            onClick={this.startDebug}
-                        >
-                            <span className="launch-label">Debug</span>
-                        </div>
-                        <div
-                            type="button"
-                            id="start_remote_debug"
-                            className="btn text-left btn-debug-activate col-xs-12"
-                            title="Remote Debug"
-                            onClick={this.showRemoteDebugDialog}
-                        >
-                            <span className="launch-label">Remote Debug</span>
-                        </div>
-                    </div>
+                <div className='debug-buttons'>
+                    <Button
+                        title='Run (Ctrl+Shift+R)'
+                        onClick={this.startApplication}
+                        fluid
+                        className='debug-button'
+                    >
+                        Run
+                    </Button>
+                    <Button
+                        title='Run With Debug (Ctrl+Shift+D)'
+                        onClick={this.startDebug}
+                        fluid
+                        className='debug-button'
+                    >
+                        Debug
+                    </Button>
+                    <Button
+                        title='Remote Debug'
+                        onClick={this.showRemoteDebugDialog}
+                        fluid
+                        className='debug-button'
+                    >
+                        Remote Debug
+                    </Button>
                 </div>
             );
         }
-
     }
 }
 

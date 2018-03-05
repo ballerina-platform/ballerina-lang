@@ -22,8 +22,8 @@ import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.BServiceUtil;
 import org.ballerinalang.launcher.util.CompileResult;
-import org.ballerinalang.mime.util.EntityBody;
 import org.ballerinalang.mime.util.EntityBodyHandler;
+import org.ballerinalang.mime.util.MimeUtil;
 import org.ballerinalang.model.util.StringUtils;
 import org.ballerinalang.model.util.XMLUtils;
 import org.ballerinalang.model.values.BBlob;
@@ -34,8 +34,8 @@ import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BXML;
 import org.ballerinalang.nativeimpl.io.IOConstants;
-import org.ballerinalang.nativeimpl.io.channels.FileIOChannel;
 import org.ballerinalang.nativeimpl.io.channels.base.AbstractChannel;
+import org.ballerinalang.nativeimpl.io.channels.base.Channel;
 import org.ballerinalang.nativeimpl.io.channels.base.CharacterChannel;
 import org.ballerinalang.test.nativeimpl.functions.io.MockByteChannel;
 import org.ballerinalang.test.nativeimpl.functions.io.util.TestUtil;
@@ -51,7 +51,6 @@ import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 import org.wso2.transport.http.netty.message.HttpMessageDataStreamer;
 
 import java.io.BufferedWriter;
-import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileWriter;
@@ -299,10 +298,8 @@ public class MimeUtilityFunctionTest {
             BValue[] returns = BRunUtil.invoke(compileResult, "testGetByteChannel", args);
             Assert.assertEquals(returns.length, 1);
             BStruct returnByteChannelStruct = (BStruct) returns[0];
-            EntityBody entityBody = EntityBodyHandler.getEntityBody(returnByteChannelStruct.getNativeData
-                    (IOConstants.BYTE_CHANNEL_NAME));
-            FileIOChannel fileIOChannel = entityBody.getFileIOChannel();
-            Assert.assertEquals(StringUtils.getStringFromInputStream(new ByteArrayInputStream(fileIOChannel.readAll())),
+            Channel byteChannel = (Channel) returnByteChannelStruct.getNativeData(IOConstants.BYTE_CHANNEL_NAME);
+            Assert.assertEquals(StringUtils.getStringFromInputStream(byteChannel.getInputStream()),
                     "Hello Ballerina!");
         } catch (IOException e) {
             log.error("Error occurred in testSetByteChannel", e.getMessage());
@@ -329,22 +326,23 @@ public class MimeUtilityFunctionTest {
         }
     }
 
-    @Test(description = "Once the file channel is created and temp file deleted, check whether the content can " +
-            "still be retrieved properly from the file channel")
-    public void testTempFileDeletion() {
+    @Test(description = "Once the temp file channel is closed, check whether the temp file gets deleted")
+    public void testTempFileDeletion() throws IOException {
         File file;
         try {
             file = File.createTempFile("testFile", ".tmp");
             BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(file));
             bufferedWriter.write("File Content");
             bufferedWriter.close();
-            FileIOChannel fileIOChannel = EntityBodyHandler.getByteChannelForTempFile(file.getAbsolutePath());
-            Assert.assertFalse(file.exists());
-            InputStream inputStream = fileIOChannel.getInputStream();
+            Channel tempFileIOChannel = EntityBodyHandler.getByteChannelForTempFile(file.getAbsolutePath());
+            Assert.assertTrue(file.exists());
+            InputStream inputStream = tempFileIOChannel.getInputStream();
             Assert.assertNotNull(inputStream);
             ByteArrayOutputStream result = new ByteArrayOutputStream();
-            EntityBodyHandler.writeInputToOutputStream(result, inputStream);
+            MimeUtil.writeInputToOutputStream(inputStream, result);
             Assert.assertEquals(result.toString("UTF-8"), "File Content");
+            tempFileIOChannel.close();
+            Assert.assertFalse(file.exists());
         } catch (IOException e) {
             log.error("Error occurred in testTempFileDeletion", e.getMessage());
         }
@@ -366,13 +364,9 @@ public class MimeUtilityFunctionTest {
             Assert.assertNotNull(response, "Response message not found");
             InputStream inputStream = new HttpMessageDataStreamer(response).getInputStream();
             Assert.assertNotNull(inputStream, "Inputstream is null");
-            ByteArrayOutputStream out = new ByteArrayOutputStream();
-            byte[] bytes = new byte[1024];
-            int count;
-            while ((count = inputStream.read(bytes)) > 0) {
-                out.write(bytes, 0, count);
-            }
-            Assert.assertEquals(out.size(), 2323779);
+            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+            MimeUtil.writeInputToOutputStream(inputStream, outputStream);
+            Assert.assertEquals(outputStream.size(), 2323779);
         } catch (IOException | URISyntaxException e) {
             log.error("Error occurred in testLargePayload", e.getMessage());
         }

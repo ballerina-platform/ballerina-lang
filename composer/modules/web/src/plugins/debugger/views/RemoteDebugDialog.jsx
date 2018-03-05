@@ -17,8 +17,7 @@
  */
 
 import React from 'react';
-import PropTypes from 'prop-types';
-import { Button, Form, FormGroup, FormControl, InputGroup } from 'react-bootstrap';
+import { Button, Form, Input } from 'semantic-ui-react';
 import Dialog from 'core/view/Dialog';
 import './RemoteDebugDialog.scss';
 import DebugManager from './../DebugManager';
@@ -49,7 +48,7 @@ class RemoteDebugDialog extends React.Component {
         DebugManager.on('session-error', () => {
             if (this.state.showDialog) {
                 this.setState({
-                    error: 'Connection error please check provided URL.',
+                    error: 'Connection error, Please check provided URL.',
                     connecting: false,
                 });
             }
@@ -79,7 +78,13 @@ class RemoteDebugDialog extends React.Component {
             showDialog: false,
         });
     }
-
+    onChangeUrl(event) {
+        this.setState({
+            url: event.target.value,
+            error: '',
+            connecting: false,
+        });
+    }
     connectDebugger() {
         try {
             DebugManager.startDebugger(`ws://${this.state.url}/debug`);
@@ -90,14 +95,6 @@ class RemoteDebugDialog extends React.Component {
             });
         }
     }
-
-    onChangeUrl(event) {
-        this.setState({
-            url: event.target.value,
-            error: '',
-            connecting: false,
-        });
-    }
     /**
      * @inheritdoc
      */
@@ -106,39 +103,41 @@ class RemoteDebugDialog extends React.Component {
         return (
             <Dialog
                 show={this.state.showDialog}
-                title="Remote Debug"
+                title='Remote Debug'
                 actions={
                     <Button
-                        bsStyle="primary"
+                        primary
                         onClick={this.connectDebugger}
                         disabled={!url.length || this.state.connecting}
                     >
-                       { this.state.connecting ? 'Connecting' : 'Debug' }
+                        {this.state.connecting ? 'Connecting' : 'Debug'}
                     </Button>
                 }
                 closeAction
                 onHide={this.onDialogHide}
-                error={this.state.error}
-                className="remote-debug-dialog"
+                error={error}
+                className='remote-debug-dialog'
             >
-                <Form horizontal>
-                    <FormGroup>
-                        <div className="help-block">
-                            <span>Add <strong>--debug PORT_NUMBER </strong> to your ballerina command to enable remote debugging</span>
-                            <div>Example: </div>
-                            <span><code>ballerina run helloWorld.bal --debug 5006</code></span>
-                        </div>
-                        <InputGroup>
-                            <InputGroup.Addon>
-                                ws://
-                            </InputGroup.Addon>
-                            <FormControl
-                                value={this.state.url}
-                                onChange={this.onChangeUrl}
-                                type="text"
-                            />
-                        </InputGroup>
-                    </FormGroup>
+                <Form
+                    inverted
+                    onSubmit={(e) => {
+                        this.connectDebugger();
+                    }}
+                >
+                    <div className='help-block'>
+                        <span>Add <strong>--debug PORT_NUMBER </strong>
+                            to your ballerina command to enable remote debugging</span>
+                        <div>Example: </div>
+                        <span><code>ballerina run helloWorld.bal --debug 5006</code></span>
+                    </div>
+                    <Input
+                        style={{ marginTop: 20 }}
+                        fluid
+                        label='ws://'
+                        value={this.state.url}
+                        onChange={this.onChangeUrl}
+                        placeholder='Remote debugger url'
+                    />
                 </Form>
             </Dialog>
         );

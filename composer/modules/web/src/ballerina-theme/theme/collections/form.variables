@@ -1,0 +1,15 @@
+/*******************************
+    User Variable Overrides
+*******************************/
+
+@inputBorderRadius          : 0;
+@selectBorderRadius         : 0;
+@inputFocusBorderRadius     : 0;
+@textAreaFocusBorderRadius  : 0;
+@inputErrorBorderRadius     : 0;
+@invertedInputBackground    : @invertedInputBackgroundColor;
+@selectionBackground        : @invertedInputBackgroundColor;
+@invertedInputBorderColor   : @defaultColor ;
+@invertedInputColor         : @off-white;
+@selectionTextColor         : @off-white;
+@selectionBorderRadius      : 0;

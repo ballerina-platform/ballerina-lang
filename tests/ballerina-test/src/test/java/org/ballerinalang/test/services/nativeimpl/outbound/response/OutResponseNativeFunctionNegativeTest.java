@@ -17,6 +17,7 @@
  */
 package org.ballerinalang.test.services.nativeimpl.outbound.response;
 
+import io.netty.handler.codec.http.HttpHeaderNames;
 import org.ballerinalang.launcher.util.BAssertUtil;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
@@ -35,7 +36,6 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 
-import static org.ballerinalang.mime.util.Constants.CONTENT_TYPE;
 import static org.ballerinalang.mime.util.Constants.ENTITY_BYTE_CHANNEL;
 import static org.ballerinalang.mime.util.Constants.ENTITY_HEADERS_INDEX;
 import static org.ballerinalang.mime.util.Constants.IS_BODY_BYTE_CHANNEL_ALREADY_SET;
@@ -76,7 +76,7 @@ public class OutResponseNativeFunctionNegativeTest {
     @Test
     public void testGetHeader() {
         BStruct outResponse = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, inRespStruct);
-        BString key = new BString(CONTENT_TYPE);
+        BString key = new BString(HttpHeaderNames.CONTENT_TYPE.toString());
         BValue[] inputArg = {outResponse, key};
         BValue[] returnVals = BRunUtil.invoke(result, "testGetHeader", inputArg);
         Assert.assertNull(((BString) returnVals[0]).value());

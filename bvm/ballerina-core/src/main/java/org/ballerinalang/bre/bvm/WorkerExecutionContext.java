@@ -17,7 +17,6 @@
 */
 package org.ballerinalang.bre.bvm;
 
-import org.ballerinalang.bre.BallerinaTransactionManager;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.util.codegen.CallableUnitInfo;
 import org.ballerinalang.util.codegen.Instruction;
@@ -26,6 +25,7 @@ import org.ballerinalang.util.codegen.WorkerInfo;
 import org.ballerinalang.util.codegen.cpentries.ConstantPoolEntry;
 import org.ballerinalang.util.debugger.DebugCommand;
 import org.ballerinalang.util.debugger.DebugContext;
+import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -97,6 +97,10 @@ public class WorkerExecutionContext {
         this.retRegIndexes = retRegIndexes;
         this.globalProps = globalProperties;
         this.ip = this.workerInfo.getCodeAttributeInfo().getCodeAddrs();
+        if (this.ip < 0) {
+            throw new BallerinaException("invalid worker: " + workerInfo.getWorkerName() +
+                    " in callable unit: " + callableUnitInfo.getName());
+        }
         this.runInCaller = runInCaller;
         initDebugger();
         if (!this.runInCaller) {
@@ -117,6 +121,10 @@ public class WorkerExecutionContext {
         this.workerLocal = workerLocal;
         this.globalProps = globalProperties;
         this.ip = this.workerInfo.getCodeAttributeInfo().getCodeAddrs();
+        if (this.ip < 0) {
+            throw new BallerinaException("invalid worker: " + workerInfo.getWorkerName() +
+                    " in callable unit: " + callableUnitInfo.getName());
+        }
         this.runInCaller = runInCaller;
         initDebugger();
         if (!this.runInCaller) {
@@ -143,7 +151,7 @@ public class WorkerExecutionContext {
         }
         this.programFile.getDebugger().addWorkerContext(this);
     }
-    
+
     public void backupIP() {
         this.backupIP = this.ip;
     }
@@ -165,13 +173,13 @@ public class WorkerExecutionContext {
         return false;
     }
 
-    public BallerinaTransactionManager getBallerinaTransactionManager() {
-        return null;
-    }
+//    public BallerinaTransactionManager getBallerinaTransactionManager() {
+//        return null;
+//    }
 
-    public void setBallerinaTransactionManager(BallerinaTransactionManager ballerinaTransactionManager) {
-        //TODO
-    }
+//    public void setBallerinaTransactionManager(BallerinaTransactionManager ballerinaTransactionManager) {
+//        //TODO
+//    }
     
     public void lockExecution() {
         if (this.executionLock != null) {

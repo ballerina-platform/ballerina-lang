@@ -17,6 +17,7 @@
 package org.ballerinalang.launcher.util;
 
 import org.ballerinalang.bre.bvm.WorkerExecutionContext;
+import org.ballerinalang.model.tree.PackageNode;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.diagnostic.Diagnostic;
 
@@ -29,8 +30,15 @@ import java.util.List;
  * @since 0.94
  */
 public class CompileResult {
+    
+    static {
+        System.setProperty("java.util.logging.config.file",
+                ClassLoader.getSystemResource("logging.properties").getPath());
+                System.setProperty("java.util.logging.manager", "org.ballerinalang.logging.BLogManager");
+    }
 
     private List<Diagnostic> diagnostics;
+    private PackageNode pkgNode;
     private ProgramFile progFile;
     //Used for stateful function invocation.
     private WorkerExecutionContext context;
@@ -73,6 +81,14 @@ public class CompileResult {
 
     public void setProgFile(ProgramFile progFile) {
         this.progFile = progFile;
+    }
+
+    public PackageNode getAST() {
+        return pkgNode;
+    }
+
+    public void setAST(PackageNode pkgNode) {
+        this.pkgNode = pkgNode;
     }
 
     public WorkerExecutionContext getContext() {

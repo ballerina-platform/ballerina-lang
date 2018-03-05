@@ -1,0 +1,8 @@
+/*******************************
+    User Variable Overrides
+*******************************/
+@defaultBorderRadius: 0rem;
+@itemVerticalPadding: 0.7rem;
+@relativeHuge: 0.8rem;
+@solidBorderColor: transparent;
+@tabularBorderWidth :0rem;

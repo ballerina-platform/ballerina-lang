@@ -9,6 +9,8 @@
     background-color: #f9f9f9;
     height: auto;
     padding:20px;
+    display: flex;
+    align-items: stretch;
 
     .media-left{
       width: 300px;
@@ -23,7 +25,7 @@
         height: 50px;
       }
 
-      .btn {
+      .button {
         width: 200px;
         height: 37px;
         border: 0;
@@ -43,7 +45,7 @@
           }
         }
 
-        &.btn.btn-secondary {
+        &.btn-secondary {
           background-color: #444 !important;
 
           &:hover{
@@ -54,12 +56,16 @@
       }
       .nav {
         li {
+          list-style: none;
           a {
-            &:hover {
-              background-color: #f9f9f9;
-              color: #333;
-              font-weight: 400;
-            }
+            color: #f47a1e;
+            text-decoration: none;
+            
+              &:hover {
+                background-color: #f9f9f9;
+                color: #333;
+                font-weight: 400;
+              }
           }
         }
       }

@@ -339,7 +339,7 @@ public class TypeOfOperatorTest {
         Assert.assertSame(returns[0].getClass(), BInteger.class);
 
         int actual = (int) ((BInteger) returns[0]).intValue();
-        int expected = 2;
+        int expected = 1;
         Assert.assertEquals(actual, expected);
     }
 
@@ -579,5 +579,18 @@ public class TypeOfOperatorTest {
         Assert.assertEquals(returns[0].stringValue(), "Person[]");
         Assert.assertEquals(returns[1].stringValue(), "Person[]");
         Assert.assertEquals(returns[2].stringValue(), "Person[][]");
+    }
+
+    @Test(description = "Test casting should preserve runtime type.")
+    public void tes() {
+        BValue[] args = {};
+        BValue[] returns = BRunUtil.invoke(result, "getTypePreserveWhenCast", args);
+
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BInteger.class);
+
+        int actual = (int) ((BInteger) returns[0]).intValue();
+        int expected = 1;
+        Assert.assertEquals(actual, expected);
     }
 }

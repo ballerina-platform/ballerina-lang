@@ -3,8 +3,8 @@ import ballerina.net.http;
 @Description {value:"BasePath attribute associates a path to the service."}
 @http:configuration {basePath:"/foo"}
 service<http> echo {
-    @Description {value:"Post annotation constrains the resource only to accept post requests. Similarly, for each HTTP verb there are different annotations."}
-    @Description {value:"Path attribute associates a sub-path to resource."}
+    @Description {value:"Post annotation restricts the resource only to accept post requests. Similarly, for each HTTP verb there are different annotations."}
+    @Description {value:"Path attribute associates a sub-path to the resource."}
     @http:resourceConfig {
         methods:["POST"],
         path:"/bar"
@@ -14,7 +14,7 @@ service<http> echo {
         json payload = req.getJsonPayload();
         http:OutResponse res = {};
         res.setJsonPayload(payload);
-        // Respond client with the response.
+        // Reply to the client with the response.
         _ = conn.respond(res);
     }
 }
