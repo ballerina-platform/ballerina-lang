@@ -1837,8 +1837,9 @@ public class CodeGenerator extends BLangNodeVisitor {
         // Add service name as an UTFCPEntry to the constant pool
         int serviceNameCPIndex = addUTF8CPEntry(currentPkgInfo, serviceNode.name.value);
         //Create service info
-        PackageID protocolPkgId = ((BServiceSymbol) serviceNode.symbol).protocolPkgId;
-        if (protocolPkgId != null) {
+        // TODO : Fix me.
+        if (((BServiceSymbol) serviceNode.symbol).endpointType != null) {
+            PackageID protocolPkgId = ((BServiceSymbol) serviceNode.symbol).endpointType.tsymbol.pkgID;
             String protocolPkg = protocolPkgId.getName().value;
             int protocolPkgCPIndex = addUTF8CPEntry(currentPkgInfo, protocolPkg);
             ServiceInfo serviceInfo = new ServiceInfo(currentPackageRefCPIndex, serviceNameCPIndex,

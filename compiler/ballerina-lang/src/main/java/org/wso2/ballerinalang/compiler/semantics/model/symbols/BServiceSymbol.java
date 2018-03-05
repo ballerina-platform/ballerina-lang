@@ -27,7 +27,7 @@ import org.wso2.ballerinalang.compiler.util.Name;
  */
 public class BServiceSymbol extends BTypeSymbol {
 
-    public PackageID protocolPkgId;
+    public BType endpointType;
 
     public BServiceSymbol(int flags, Name name, PackageID pkgID, BType type, BSymbol owner) {
         super(SymTag.SERVICE, flags, name, pkgID, type, owner);

@@ -200,7 +200,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         SymbolEnv funcEnv = SymbolEnv.createFunctionEnv(funcNode, funcNode.symbol.scope, env);
         funcNode.annAttachments.forEach(annotationAttachment -> {
             annotationAttachment.attachmentPoint =
-                    new BLangAnnotationAttachmentPoint(BLangAnnotationAttachmentPoint.AttachmentPoint.FUNCTION, null);
+                    new BLangAnnotationAttachmentPoint(BLangAnnotationAttachmentPoint.AttachmentPoint.FUNCTION);
             this.analyzeDef(annotationAttachment, funcEnv);
         });
         funcNode.docAttachments.forEach(doc -> analyzeDef(doc, funcEnv));
@@ -230,7 +230,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
         structNode.annAttachments.forEach(annotationAttachment -> {
             annotationAttachment.attachmentPoint =
-                    new BLangAnnotationAttachmentPoint(BLangAnnotationAttachmentPoint.AttachmentPoint.STRUCT, null);
+                    new BLangAnnotationAttachmentPoint(BLangAnnotationAttachmentPoint.AttachmentPoint.STRUCT);
             annotationAttachment.accept(this);
         });
         structNode.docAttachments.forEach(doc -> analyzeDef(doc, structEnv));
@@ -243,7 +243,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
         enumNode.annAttachments.forEach(annotationAttachment -> {
             annotationAttachment.attachmentPoint = new BLangAnnotationAttachmentPoint(
-                    BLangAnnotationAttachmentPoint.AttachmentPoint.ENUM, null);
+                    BLangAnnotationAttachmentPoint.AttachmentPoint.ENUM);
             annotationAttachment.accept(this);
         });
         enumNode.docAttachments.forEach(doc -> analyzeDef(doc, enumEnv));
@@ -287,20 +287,9 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
     public void visit(BLangAnnotation annotationNode) {
         SymbolEnv annotationEnv = SymbolEnv.createAnnotationEnv(annotationNode, annotationNode.symbol.scope, env);
-        annotationNode.attachmentPoints.forEach(point -> {
-            if (point.pkgAlias != null) {
-                BSymbol pkgSymbol = symResolver.resolvePkgSymbol(annotationNode.pos,
-                        annotationEnv, names.fromIdNode(point.pkgAlias));
-                if (pkgSymbol == symTable.notFoundSymbol) {
-                    return;
-                }
-                point.pkgPath = pkgSymbol.pkgID.name.getValue();
-            }
-        });
-
         annotationNode.annAttachments.forEach(annotationAttachment -> {
             annotationAttachment.attachmentPoint =
-                    new BLangAnnotationAttachmentPoint(BLangAnnotationAttachmentPoint.AttachmentPoint.ANNOTATION, null);
+                    new BLangAnnotationAttachmentPoint(BLangAnnotationAttachmentPoint.AttachmentPoint.ANNOTATION);
             annotationAttachment.accept(this);
         });
         annotationNode.docAttachments.forEach(doc -> analyzeDef(doc, annotationEnv));
@@ -327,10 +316,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                     .findAny();
             if (!matchingAttachmentPoint.isPresent()) {
                 String msg = annAttachmentNode.attachmentPoint.getAttachmentPoint().getValue();
-                if (annAttachmentNode.attachmentPoint.getPkgPath() != null) {
-                    msg = annAttachmentNode.attachmentPoint.getAttachmentPoint().getValue() +
-                            "<" + annAttachmentNode.attachmentPoint.getPkgPath() + ">";
-                }
                 this.dlog.error(annAttachmentNode.pos, DiagnosticCode.ANNOTATION_NOT_ALLOWED,
                         annotationSymbol, msg);
             }
@@ -366,8 +351,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         // Here we validate annotation attachments for package level variables.
         varNode.annAttachments.forEach(a -> {
             a.attachmentPoint =
-                    new BLangAnnotationAttachmentPoint(BLangAnnotationAttachmentPoint.AttachmentPoint.CONST,
-                            null);
+                    new BLangAnnotationAttachmentPoint(BLangAnnotationAttachmentPoint.AttachmentPoint.CONST);
             a.accept(this);
         });
         // Here we validate document attachments for package level variables.
@@ -519,7 +503,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         SymbolEnv connectorEnv = SymbolEnv.createConnectorEnv(connectorNode, connectorSymbol.scope, env);
         connectorNode.annAttachments.forEach(a -> {
             a.attachmentPoint =
-                    new BLangAnnotationAttachmentPoint(BLangAnnotationAttachmentPoint.AttachmentPoint.CONNECTOR, null);
+                    new BLangAnnotationAttachmentPoint(BLangAnnotationAttachmentPoint.AttachmentPoint.CONNECTOR);
             this.analyzeDef(a, connectorEnv);
         });
         connectorNode.docAttachments.forEach(doc -> analyzeDef(doc, connectorEnv));
@@ -538,7 +522,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         SymbolEnv actionEnv = SymbolEnv.createResourceActionSymbolEnv(actionNode, actionSymbol.scope, env);
         actionNode.annAttachments.forEach(a -> {
             a.attachmentPoint =
-                    new BLangAnnotationAttachmentPoint(BLangAnnotationAttachmentPoint.AttachmentPoint.ACTION, null);
+                    new BLangAnnotationAttachmentPoint(BLangAnnotationAttachmentPoint.AttachmentPoint.ACTION);
             this.analyzeDef(a, actionEnv);
         });
         actionNode.docAttachments.forEach(doc -> analyzeDef(doc, actionEnv));
@@ -555,14 +539,11 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     public void visit(BLangService serviceNode) {
         BSymbol serviceSymbol = serviceNode.symbol;
         SymbolEnv serviceEnv = SymbolEnv.createPkgLevelSymbolEnv(serviceNode, serviceSymbol.scope, env);
-        BSymbol protocolPkg = symResolver.resolvePkgSymbol(serviceNode.pos,
-                serviceEnv, names.fromIdNode(serviceNode.protocolPkgIdentifier));
         //TODO validate protocol package existance
-        ((BServiceSymbol) serviceSymbol).protocolPkgId = protocolPkg.pkgID;
+        ((BServiceSymbol) serviceSymbol).endpointType = symResolver.resolveTypeNode(serviceNode.endpointType, env);
         serviceNode.annAttachments.forEach(a -> {
             a.attachmentPoint =
-                    new BLangAnnotationAttachmentPoint(BLangAnnotationAttachmentPoint.AttachmentPoint.SERVICE,
-                            protocolPkg.pkgID.name.getValue());
+                    new BLangAnnotationAttachmentPoint(BLangAnnotationAttachmentPoint.AttachmentPoint.SERVICE);
             this.analyzeDef(a, serviceEnv);
         });
         serviceNode.docAttachments.forEach(doc -> analyzeDef(doc, serviceEnv));
@@ -577,7 +558,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         SymbolEnv resourceEnv = SymbolEnv.createResourceActionSymbolEnv(resourceNode, resourceSymbol.scope, env);
         resourceNode.annAttachments.forEach(a -> {
             a.attachmentPoint =
-                    new BLangAnnotationAttachmentPoint(BLangAnnotationAttachmentPoint.AttachmentPoint.RESOURCE, null);
+                    new BLangAnnotationAttachmentPoint(BLangAnnotationAttachmentPoint.AttachmentPoint.RESOURCE);
             this.analyzeDef(a, resourceEnv);
         });
         resourceNode.docAttachments.forEach(doc -> analyzeDef(doc, resourceEnv));
@@ -813,7 +794,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         SymbolEnv transformerEnv = SymbolEnv.createTransformerEnv(transformerNode, transformerNode.symbol.scope, env);
         transformerNode.annAttachments.forEach(annotationAttachment -> {
             annotationAttachment.attachmentPoint = new BLangAnnotationAttachmentPoint(
-                    BLangAnnotationAttachmentPoint.AttachmentPoint.TRANSFORMER, null);
+                    BLangAnnotationAttachmentPoint.AttachmentPoint.TRANSFORMER);
             this.analyzeDef(annotationAttachment, transformerEnv);
         });
         transformerNode.docAttachments.forEach(doc -> analyzeDef(doc, transformerEnv));

@@ -49,7 +49,7 @@ definition
     ;
 
 serviceDefinition
-    :   SERVICE (LT Identifier GT)? Identifier serviceBody
+    :   SERVICE LT nameReference GT Identifier serviceBody
     ;
 
 serviceBody
@@ -126,17 +126,17 @@ transformerDefinition
     ;
 
 attachmentPoint
-     : SERVICE (LT Identifier? GT)?         # serviceAttachPoint
-     | RESOURCE                             # resourceAttachPoint
-     | CONNECTOR                            # connectorAttachPoint
-     | ACTION                               # actionAttachPoint
-     | FUNCTION                             # functionAttachPoint
-     | STRUCT                               # structAttachPoint
-     | ENUM                                 # enumAttachPoint
-     | CONST                                # constAttachPoint
-     | PARAMETER                            # parameterAttachPoint
-     | ANNOTATION                           # annotationAttachPoint
-     | TRANSFORMER                          # transformerAttachPoint
+     : SERVICE
+     | RESOURCE
+     | CONNECTOR
+     | ACTION
+     | FUNCTION
+     | STRUCT
+     | ENUM
+     | CONST
+     | PARAMETER
+     | ANNOTATION
+     | TRANSFORMER
      ;
 
 constantDefinition

@@ -258,137 +258,15 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 */
 	void exitTransformerDefinition(BallerinaParser.TransformerDefinitionContext ctx);
 	/**
-	 * Enter a parse tree produced by the {@code serviceAttachPoint}
-	 * labeled alternative in {@link BallerinaParser#attachmentPoint}.
+	 * Enter a parse tree produced by {@link BallerinaParser#attachmentPoint}.
 	 * @param ctx the parse tree
 	 */
-	void enterServiceAttachPoint(BallerinaParser.ServiceAttachPointContext ctx);
+	void enterAttachmentPoint(BallerinaParser.AttachmentPointContext ctx);
 	/**
-	 * Exit a parse tree produced by the {@code serviceAttachPoint}
-	 * labeled alternative in {@link BallerinaParser#attachmentPoint}.
+	 * Exit a parse tree produced by {@link BallerinaParser#attachmentPoint}.
 	 * @param ctx the parse tree
 	 */
-	void exitServiceAttachPoint(BallerinaParser.ServiceAttachPointContext ctx);
-	/**
-	 * Enter a parse tree produced by the {@code resourceAttachPoint}
-	 * labeled alternative in {@link BallerinaParser#attachmentPoint}.
-	 * @param ctx the parse tree
-	 */
-	void enterResourceAttachPoint(BallerinaParser.ResourceAttachPointContext ctx);
-	/**
-	 * Exit a parse tree produced by the {@code resourceAttachPoint}
-	 * labeled alternative in {@link BallerinaParser#attachmentPoint}.
-	 * @param ctx the parse tree
-	 */
-	void exitResourceAttachPoint(BallerinaParser.ResourceAttachPointContext ctx);
-	/**
-	 * Enter a parse tree produced by the {@code connectorAttachPoint}
-	 * labeled alternative in {@link BallerinaParser#attachmentPoint}.
-	 * @param ctx the parse tree
-	 */
-	void enterConnectorAttachPoint(BallerinaParser.ConnectorAttachPointContext ctx);
-	/**
-	 * Exit a parse tree produced by the {@code connectorAttachPoint}
-	 * labeled alternative in {@link BallerinaParser#attachmentPoint}.
-	 * @param ctx the parse tree
-	 */
-	void exitConnectorAttachPoint(BallerinaParser.ConnectorAttachPointContext ctx);
-	/**
-	 * Enter a parse tree produced by the {@code actionAttachPoint}
-	 * labeled alternative in {@link BallerinaParser#attachmentPoint}.
-	 * @param ctx the parse tree
-	 */
-	void enterActionAttachPoint(BallerinaParser.ActionAttachPointContext ctx);
-	/**
-	 * Exit a parse tree produced by the {@code actionAttachPoint}
-	 * labeled alternative in {@link BallerinaParser#attachmentPoint}.
-	 * @param ctx the parse tree
-	 */
-	void exitActionAttachPoint(BallerinaParser.ActionAttachPointContext ctx);
-	/**
-	 * Enter a parse tree produced by the {@code functionAttachPoint}
-	 * labeled alternative in {@link BallerinaParser#attachmentPoint}.
-	 * @param ctx the parse tree
-	 */
-	void enterFunctionAttachPoint(BallerinaParser.FunctionAttachPointContext ctx);
-	/**
-	 * Exit a parse tree produced by the {@code functionAttachPoint}
-	 * labeled alternative in {@link BallerinaParser#attachmentPoint}.
-	 * @param ctx the parse tree
-	 */
-	void exitFunctionAttachPoint(BallerinaParser.FunctionAttachPointContext ctx);
-	/**
-	 * Enter a parse tree produced by the {@code structAttachPoint}
-	 * labeled alternative in {@link BallerinaParser#attachmentPoint}.
-	 * @param ctx the parse tree
-	 */
-	void enterStructAttachPoint(BallerinaParser.StructAttachPointContext ctx);
-	/**
-	 * Exit a parse tree produced by the {@code structAttachPoint}
-	 * labeled alternative in {@link BallerinaParser#attachmentPoint}.
-	 * @param ctx the parse tree
-	 */
-	void exitStructAttachPoint(BallerinaParser.StructAttachPointContext ctx);
-	/**
-	 * Enter a parse tree produced by the {@code enumAttachPoint}
-	 * labeled alternative in {@link BallerinaParser#attachmentPoint}.
-	 * @param ctx the parse tree
-	 */
-	void enterEnumAttachPoint(BallerinaParser.EnumAttachPointContext ctx);
-	/**
-	 * Exit a parse tree produced by the {@code enumAttachPoint}
-	 * labeled alternative in {@link BallerinaParser#attachmentPoint}.
-	 * @param ctx the parse tree
-	 */
-	void exitEnumAttachPoint(BallerinaParser.EnumAttachPointContext ctx);
-	/**
-	 * Enter a parse tree produced by the {@code constAttachPoint}
-	 * labeled alternative in {@link BallerinaParser#attachmentPoint}.
-	 * @param ctx the parse tree
-	 */
-	void enterConstAttachPoint(BallerinaParser.ConstAttachPointContext ctx);
-	/**
-	 * Exit a parse tree produced by the {@code constAttachPoint}
-	 * labeled alternative in {@link BallerinaParser#attachmentPoint}.
-	 * @param ctx the parse tree
-	 */
-	void exitConstAttachPoint(BallerinaParser.ConstAttachPointContext ctx);
-	/**
-	 * Enter a parse tree produced by the {@code parameterAttachPoint}
-	 * labeled alternative in {@link BallerinaParser#attachmentPoint}.
-	 * @param ctx the parse tree
-	 */
-	void enterParameterAttachPoint(BallerinaParser.ParameterAttachPointContext ctx);
-	/**
-	 * Exit a parse tree produced by the {@code parameterAttachPoint}
-	 * labeled alternative in {@link BallerinaParser#attachmentPoint}.
-	 * @param ctx the parse tree
-	 */
-	void exitParameterAttachPoint(BallerinaParser.ParameterAttachPointContext ctx);
-	/**
-	 * Enter a parse tree produced by the {@code annotationAttachPoint}
-	 * labeled alternative in {@link BallerinaParser#attachmentPoint}.
-	 * @param ctx the parse tree
-	 */
-	void enterAnnotationAttachPoint(BallerinaParser.AnnotationAttachPointContext ctx);
-	/**
-	 * Exit a parse tree produced by the {@code annotationAttachPoint}
-	 * labeled alternative in {@link BallerinaParser#attachmentPoint}.
-	 * @param ctx the parse tree
-	 */
-	void exitAnnotationAttachPoint(BallerinaParser.AnnotationAttachPointContext ctx);
-	/**
-	 * Enter a parse tree produced by the {@code transformerAttachPoint}
-	 * labeled alternative in {@link BallerinaParser#attachmentPoint}.
-	 * @param ctx the parse tree
-	 */
-	void enterTransformerAttachPoint(BallerinaParser.TransformerAttachPointContext ctx);
-	/**
-	 * Exit a parse tree produced by the {@code transformerAttachPoint}
-	 * labeled alternative in {@link BallerinaParser#attachmentPoint}.
-	 * @param ctx the parse tree
-	 */
-	void exitTransformerAttachPoint(BallerinaParser.TransformerAttachPointContext ctx);
+	void exitAttachmentPoint(BallerinaParser.AttachmentPointContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link BallerinaParser#constantDefinition}.
 	 * @param ctx the parse tree

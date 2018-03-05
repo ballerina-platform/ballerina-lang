@@ -240,18 +240,8 @@ public class BLangPackageBuilder {
         this.compUnit = compUnit;
     }
 
-    public void addAttachPoint(BLangAnnotationAttachmentPoint.AttachmentPoint attachPoint,
-                               String pkgIdentifier) {
-        BLangAnnotationAttachmentPoint attachmentPoint;
-        if (pkgIdentifier == null) {
-            attachmentPoint =
-                    new BLangAnnotationAttachmentPoint(attachPoint, null);
-        } else {
-            attachmentPoint =
-                    new BLangAnnotationAttachmentPoint(attachPoint, null);
-            attachmentPoint.pkgAlias = (BLangIdentifier) createIdentifier(pkgIdentifier);
-        }
-        attachmentPointStack.push(attachmentPoint);
+    public void addAttachPoint(BLangAnnotationAttachmentPoint.AttachmentPoint attachPoint) {
+        attachmentPointStack.push(new BLangAnnotationAttachmentPoint(attachPoint));
     }
 
     public void addValueType(DiagnosticPos pos, Set<Whitespace> ws, String typeName) {
@@ -276,7 +266,7 @@ public class BLangPackageBuilder {
 
     public void addUserDefineType(Set<Whitespace> ws) {
         BLangNameReference nameReference = nameReferenceStack.pop();
-        BLangUserDefinedType userDefinedType = addUserDefinedType(nameReference.pos, ws,
+        BLangUserDefinedType userDefinedType = createUserDefinedType(nameReference.pos, ws,
                 (BLangIdentifier) nameReference.pkgAlias, (BLangIdentifier) nameReference.name);
         userDefinedType.addWS(nameReference.ws);
         addType(userDefinedType);
@@ -291,7 +281,7 @@ public class BLangPackageBuilder {
         BLangStruct structNode = populateStructNode(pos, ws, anonStructGenName, true);
         this.compUnit.addTopLevelNode(structNode);
 
-        addType(addUserDefinedType(pos, ws, (BLangIdentifier) TreeBuilder.createIdentifierNode(), structNode.name));
+        addType(createUserDefinedType(pos, ws, (BLangIdentifier) TreeBuilder.createIdentifierNode(), structNode.name));
 
     }
 
@@ -1508,10 +1498,12 @@ public class BLangPackageBuilder {
                 .forEach(varDef -> serviceNode.addVariable((VariableDefinitionNode) varDef));
     }
 
-    public void endServiceDef(DiagnosticPos pos, Set<Whitespace> ws, String protocolPkg, String serviceName) {
+    public void endServiceDef(DiagnosticPos pos, Set<Whitespace> ws, String serviceName) {
         BLangService serviceNode = (BLangService) serviceNodeStack.pop();
         serviceNode.setName(createIdentifier(serviceName));
-        serviceNode.setProtocolPackageIdentifier(createIdentifier(protocolPkg));
+        final BLangNameReference epName = nameReferenceStack.pop();
+        serviceNode.setEndpointType(createUserDefinedType(pos, epName.ws, (BLangIdentifier) epName.pkgAlias,
+                (BLangIdentifier) epName.name));
         serviceNode.pos = pos;
         serviceNode.addWS(ws);
         this.compUnit.addTopLevelNode(serviceNode);
@@ -1851,10 +1843,10 @@ public class BLangPackageBuilder {
         return structNode;
     }
 
-    private BLangUserDefinedType addUserDefinedType(DiagnosticPos pos,
-                                                    Set<Whitespace> ws,
-                                                    BLangIdentifier pkgAlias,
-                                                    BLangIdentifier name) {
+    private BLangUserDefinedType createUserDefinedType(DiagnosticPos pos,
+                                                       Set<Whitespace> ws,
+                                                       BLangIdentifier pkgAlias,
+                                                       BLangIdentifier name) {
         BLangUserDefinedType userDefinedType = (BLangUserDefinedType) TreeBuilder.createUserDefinedTypeNode();
         userDefinedType.pos = pos;
         userDefinedType.addWS(ws);

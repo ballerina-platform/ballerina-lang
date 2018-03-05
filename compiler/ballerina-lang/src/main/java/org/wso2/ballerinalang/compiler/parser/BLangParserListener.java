@@ -162,8 +162,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         if (ctx.exception != null) {
             return;
         }
-        this.pkgBuilder.endServiceDef(getCurrentPos(ctx), getWS(ctx), ctx.Identifier(0).getText(),
-                ctx.Identifier(1).getText());
+        this.pkgBuilder.endServiceDef(getCurrentPos(ctx), getWS(ctx), ctx.Identifier().getText());
     }
 
     /**
@@ -526,138 +525,13 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         this.pkgBuilder.endTransformerDef(getCurrentPos(ctx), getWS(ctx), publicFunc, transformerName, paramsAvailable);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
-    public void exitServiceAttachPoint(BallerinaParser.ServiceAttachPointContext ctx) {
+    public void exitAttachmentPoint(BallerinaParser.AttachmentPointContext ctx) {
         if (ctx.exception != null) {
             return;
         }
-        String pkgPath = null;
-        if (ctx.getChildCount() == 4) {
-            pkgPath = ctx.Identifier().getText();
-        } else if (ctx.getChildCount() == 3) {
-            pkgPath = "";
-        }
-        this.pkgBuilder.addAttachPoint(BLangAnnotationAttachmentPoint.AttachmentPoint.SERVICE, pkgPath);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void exitResourceAttachPoint(BallerinaParser.ResourceAttachPointContext ctx) {
-        if (ctx.exception != null) {
-            return;
-        }
-
-        this.pkgBuilder.addAttachPoint(BLangAnnotationAttachmentPoint.AttachmentPoint.RESOURCE, null);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void exitConnectorAttachPoint(BallerinaParser.ConnectorAttachPointContext ctx) {
-        if (ctx.exception != null) {
-            return;
-        }
-
-        this.pkgBuilder.addAttachPoint(BLangAnnotationAttachmentPoint.AttachmentPoint.CONNECTOR, null);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void exitActionAttachPoint(BallerinaParser.ActionAttachPointContext ctx) {
-        if (ctx.exception != null) {
-            return;
-        }
-
-        this.pkgBuilder.addAttachPoint(BLangAnnotationAttachmentPoint.AttachmentPoint.ACTION, null);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void exitFunctionAttachPoint(BallerinaParser.FunctionAttachPointContext ctx) {
-        if (ctx.exception != null) {
-            return;
-        }
-
-        this.pkgBuilder.addAttachPoint(BLangAnnotationAttachmentPoint.AttachmentPoint.FUNCTION, null);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void exitStructAttachPoint(BallerinaParser.StructAttachPointContext ctx) {
-        if (ctx.exception != null) {
-            return;
-        }
-
-        this.pkgBuilder.addAttachPoint(BLangAnnotationAttachmentPoint.AttachmentPoint.STRUCT, null);
-    }
-
-    @Override
-    public void exitEnumAttachPoint(BallerinaParser.EnumAttachPointContext ctx) {
-        if (ctx.exception != null) {
-            return;
-        }
-
-        this.pkgBuilder.addAttachPoint(BLangAnnotationAttachmentPoint.AttachmentPoint.ENUM, null);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void exitConstAttachPoint(BallerinaParser.ConstAttachPointContext ctx) {
-        if (ctx.exception != null) {
-            return;
-        }
-
-        this.pkgBuilder.addAttachPoint(BLangAnnotationAttachmentPoint.AttachmentPoint.CONST, null);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void exitParameterAttachPoint(BallerinaParser.ParameterAttachPointContext ctx) {
-        if (ctx.exception != null) {
-            return;
-        }
-
-        this.pkgBuilder.addAttachPoint(BLangAnnotationAttachmentPoint.AttachmentPoint.PARAMETER, null);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void exitAnnotationAttachPoint(BallerinaParser.AnnotationAttachPointContext ctx) {
-        if (ctx.exception != null) {
-            return;
-        }
-
-        this.pkgBuilder.addAttachPoint(BLangAnnotationAttachmentPoint.AttachmentPoint.ANNOTATION, null);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void exitTransformerAttachPoint(BallerinaParser.TransformerAttachPointContext ctx) {
-        if (ctx.exception != null) {
-            return;
-        }
-
-        this.pkgBuilder.addAttachPoint(BLangAnnotationAttachmentPoint.AttachmentPoint.TRANSFORMER, null);
+        this.pkgBuilder.addAttachPoint(
+                BLangAnnotationAttachmentPoint.AttachmentPoint.getAttachmentPoint(ctx.getText()));
     }
 
     @Override
