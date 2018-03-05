@@ -51,6 +51,10 @@ public struct TransactionContext {
 struct Protocol {
     string name;
     string url;
+    int transactionBlockId;
+    function (string transactionId,
+              int transactionBlockId,
+              string protocolAction) returns (boolean successful) protocolFn;
 }
 
 struct RegistrationRequest {
@@ -59,9 +63,63 @@ struct RegistrationRequest {
     Protocol[] participantProtocols;
 }
 
+function regRequestToJson (RegistrationRequest req) returns (json) {
+    json j = {};
+    j.transactionId = req.transactionId;
+    j.participantId = req.participantId;
+    json[] protocols = req.participantProtocols.map(
+                                               function (Protocol proto) returns (json) {
+                                                   json j2 = {name:proto.name, url:proto.url};
+                                                   return j2;
+                                               });
+    j.participantProtocols = protocols;
+    return j;
+}
+
+function jsonToRegRequest (json j) returns (RegistrationRequest req) {
+    var transactionId, _ = (string)j.transactionId;
+    var participantId, _ = (string)j.participantId;
+    req = {transactionId:transactionId, participantId:participantId};
+    Protocol[] protocols = j.participantProtocols.map(
+                                                 function (json proto) returns (Protocol p) {
+                                                     var name, _ = (string)proto.name;
+                                                     var url, _ = (string)proto.url;
+                                                     p = {name:name, url:url};
+                                                     return;
+                                                 });
+    req.participantProtocols = protocols;
+    return;
+}
+
 struct RegistrationResponse {
     string transactionId;
     Protocol[] coordinatorProtocols;
+}
+
+function regResposeToJson (RegistrationResponse res) returns (json) {
+    json j = {};
+    j.transactionId = res.transactionId;
+    json[] protocols = res.coordinatorProtocols.map(
+                                               function (Protocol proto) returns (json) {
+                                                   json j2 = {name:proto.name, url:proto.url};
+                                                   return j2;
+                                               });
+    j.coordinatorProtocols = protocols;
+    return j;
+}
+
+function jsonToRegResponse (json j) returns (RegistrationResponse res) {
+    var transactionId, _ = (string)j.transactionId;
+    res = {transactionId:transactionId};
+    Protocol[] protocols = j.coordinatorProtocols.map(
+                                                 function (json proto) returns (Protocol p) {
+                                                     var name, _ = (string)proto.name;
+                                                     var url, _ = (string)proto.url;
+                                                     p = {name:name, url:url};
+                                                     return;
+                                                 });
+    res.coordinatorProtocols = protocols;
+    return;
 }
 
 struct RequestError {
@@ -122,7 +180,7 @@ function createNewTransaction (string coordinationType) returns (Transaction txn
     return;
 }
 
-function getCoordinatorProtocolAt (string protocol, int transactionBlockId ) returns (string coordinatorProtocolAt) {
+function getCoordinatorProtocolAt (string protocol, int transactionBlockId) returns (string coordinatorProtocolAt) {
     coordinatorProtocolAt =
     "http://" + coordinatorHost + ":" + coordinatorPort + initiator2pcCoordinatorBasePath + "/" + transactionBlockId;
     return;
@@ -157,11 +215,57 @@ function createTransactionContext (string coordinationType,
     return;
 }
 
+function registerParticipantWithLocalInitiator (string transactionId,
+                                                int transactionBlockId,
+                                                string registerAtURL) returns (TransactionContext txnCtx, error err) {
+    string participantId = getParticipantId(transactionBlockId);
+    //TODO: Protocol name should be passed down from the transaction statement
+    Protocol participantProtocol = {name:"durable", transactionBlockId:transactionBlockId,
+                                       protocolFn:localParticipantProtocolFn};
+    var txn, _ = (TwoPhaseCommitTransaction)initiatedTransactions[transactionId];
+    if (txn == null) {
+        err = {message:"Transaction-Unknown. Invalid TID:" + transactionId};
+    } else if (isRegisteredParticipant(participantId, txn.participants)) { // Already-Registered
+        err = {message:"Already-Registered. TID:" + transactionId + ",participant ID:" + participantId};
+    } else if (!protocolCompatible(txn.coordinationType, [participantProtocol])) { // Invalid-Protocol
+        err = {message:"Invalid-Protocol. TID:" + transactionId + ",participant ID:" + participantId};
+    } else {
+        Participant participant = {participantId:participantId};
+        participant.participantProtocols = [participantProtocol];
+        txn.participants[participantId] = participant;
+
+        //Set initiator protocols
+        TwoPhaseCommitTransaction twopcTxn = {transactionId:transactionId, coordinationType:TWO_PHASE_COMMIT};
+        Protocol initiatorProto = {name:"durable", transactionBlockId:transactionBlockId};
+        twopcTxn.coordinatorProtocols = [initiatorProto];
+
+        string participatedTxnId = getParticipatedTransactionId(transactionId, transactionBlockId);
+        participatedTransactions[participatedTxnId] = twopcTxn;
+        txnCtx = {transactionId:transactionId, transactionBlockId:transactionBlockId,
+                     coordinationType:"2pc", registerAtURL:registerAtURL};
+        log:printInfo("Registered local participant: " + participantId + " for transaction:" + transactionId);
+    }
+    return;
+}
+
+function localParticipantProtocolFn (string transactionId,
+                                     int transactionBlockId,
+                                     string protocolAction) returns (boolean successful) {
+    if (protocolAction == "prepare") {
+        successful = prepareResourceManagers(transactionId, transactionBlockId);
+    } else if (protocolAction == "notifycommit") {
+        successful = commitResourceManagers(transactionId, transactionBlockId);
+    } else if (protocolAction == "notifyabort") {
+        successful = abortResourceManagers(transactionId, transactionBlockId);
+    }
+    return;
+}
+
 // Registers a participant with the initiator's coordinator
 // This function will be called by the participant
-function registerParticipantWithRemoteCoordinator (string transactionId,
-                                                   int transactionBlockId,
-                                                   string registerAtURL) returns (TransactionContext txnCtx, error err) {
+function registerParticipantWithRemoteInitiator (string transactionId,
+                                                 int transactionBlockId,
+                                                 string registerAtURL) returns (TransactionContext txnCtx, error err) {
     endpoint<InitiatorClient> coordinatorEP {
         create InitiatorClient(registerAtURL);
     }
@@ -193,6 +297,11 @@ function registerParticipantWithRemoteCoordinator (string transactionId,
 
 function getParticipatedTransactionId (string transactionId, int transactionBlockId) returns (string id) {
     id = transactionId + ":" + transactionBlockId;
+    return;
+}
+
+function getParticipantId (int transactionBlockId) returns (string participantId) {
+    participantId = localParticipantId + ":" + transactionBlockId;
     return;
 }
 

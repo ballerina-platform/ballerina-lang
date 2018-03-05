@@ -18,7 +18,6 @@ package ballerina.transactions.coordinator;
 
 import ballerina.log;
 import ballerina.net.http;
-import ballerina.io;
 
 enum CoordinationType {
     TWO_PHASE_COMMIT
@@ -75,17 +74,21 @@ service<http> InitiatorService {
         //If the registering participant specified an unknown micro-transaction identifier, the following fault is returned:
 
         // Micro-Transaction-Unknown
-        var txnBlockId, txnBlockIdConversionErr = <int> transactionBlockId;
-        var registrationReq, e = <RegistrationRequest>req.getJsonPayload();
+        var txnBlockId, txnBlockIdConversionErr = <int>transactionBlockId;
+        RegistrationRequest regReq = jsonToRegRequest(req.getJsonPayload());
         http:OutResponse res;
-        if (e != null || registrationReq == null || txnBlockIdConversionErr != null) {
+        if (regReq == null || txnBlockIdConversionErr != null) {
             res = {statusCode:400};
             RequestError err = {errorMessage:"Bad Request"};
             var resPayload, _ = <json>err;
             res.setJsonPayload(resPayload);
+            var connError = conn.respond(res);
+            if (connError != null) {
+                log:printErrorCause("Sending response to Bad Request for register request failed", (error)connError);
+            }
         } else {
-            string participantId = registrationReq.participantId;
-            string txnId = registrationReq.transactionId;
+            string participantId = regReq.participantId;
+            string txnId = regReq.transactionId;
             var txn, _ = (Transaction)initiatedTransactions[txnId];
 
             if (txn == null) {
@@ -103,7 +106,7 @@ service<http> InitiatorService {
                                          for transaction " + txnId + " failed", (error)connError);
                 }
             } else if (!protocolCompatible(txn.coordinationType,
-                                           registrationReq.participantProtocols)) { // Invalid-Protocol
+                                           regReq.participantProtocols)) { // Invalid-Protocol
                 res = respondToBadRequest("Invalid-Protocol. TID:" + txnId + ",participant ID:" + participantId);
                 var connError = conn.respond(res);
                 if (connError != null) {
@@ -112,23 +115,23 @@ service<http> InitiatorService {
                 }
             } else {
                 Participant participant = {participantId:participantId,
-                                              participantProtocols:registrationReq.participantProtocols};
+                                              participantProtocols:regReq.participantProtocols};
                 txn.participants[participantId] = participant;
 
                 // Send the response
-                Protocol[] participantProtocols = registrationReq.participantProtocols;
+                Protocol[] participantProtocols = regReq.participantProtocols;
                 Protocol[] coordinatorProtocols = [];
                 int i = 0;
                 foreach participantProtocol in participantProtocols {
                     Protocol coordinatorProtocol = {name:participantProtocol.name,
-                                                       url:getCoordinatorProtocolAt(participantProtocol.name, txnBlockId) };
+                                                       url:getCoordinatorProtocolAt(participantProtocol.name, txnBlockId)};
                     coordinatorProtocols[i] = coordinatorProtocol;
                     i = i + 1;
                 }
 
-                RegistrationResponse registrationRes = {transactionId:txnId,
-                                                           coordinatorProtocols:coordinatorProtocols};
-                var resPayload, _ = <json>registrationRes;
+                RegistrationResponse regRes = {transactionId:txnId,
+                                                  coordinatorProtocols:coordinatorProtocols};
+                json resPayload = regResposeToJson(regRes);
                 res = {statusCode:200};
                 res.setJsonPayload(resPayload);
                 var connError = conn.respond(res);
@@ -136,7 +139,7 @@ service<http> InitiatorService {
                     log:printErrorCause("Sending response for register request for transaction " + txnId +
                                         " failed", (error)connError);
                 } else {
-                    log:printInfo("Registered participant: " + participantId + " for transaction: " + txnId);
+                    log:printInfo("Registered remote participant: " + participantId + " for transaction: " + txnId);
                 }
             }
             //TODO: Need to handle the  Cannot-Register error case

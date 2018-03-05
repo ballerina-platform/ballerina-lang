@@ -152,7 +152,7 @@ function notifyAbortToVolatileParticipants (TwoPhaseCommitTransaction txn) retur
         if (protocols != null) {
             foreach proto in protocols {
                 if (proto.name == PROTOCOL_VOLATILE) {
-                    var _, e = notifyParticipant(txn, participant, "abort");
+                    var _, e = notifyRemoteParticipant(txn, participant, "abort");
                     if (e != null) {
                         successful = false;
                         return;
@@ -173,14 +173,26 @@ function notifyAbort (TwoPhaseCommitTransaction txn) returns (string message, er
         Protocol[] protocols = participant.participantProtocols;
         if (protocols != null) {
             foreach proto in protocols {
-                var status, e = notifyParticipant(txn, participant, "abort");
-                if (e != null) {
-                    err = {message:"Hazard-Outcome"};
-                    return;
-                } else if (status == "committed") {
-                    txn.possibleMixedOutcome = true;
-                    message = "mixed";
-                    return;
+                if (proto.protocolFn != null) {
+                    // if the participant if a local participant, i.e. protoFn is set, then call that fn
+                    log:printInfo("Notify(" + message + ") local participant: " + participant.participantId);
+                    boolean successful = proto.protocolFn(txn.transactionId, proto.transactionBlockId, "notifyabort");
+                    if (!successful) {
+                        err = {message:"Hazard-Outcome"};
+                    }
+                } else if (proto.url != null) {
+                    var status, e = notifyRemoteParticipant(txn, participant, "abort");
+                    if (e != null) {
+                        err = {message:"Hazard-Outcome"};
+                        return;
+                    } else if (status == "committed") {
+                        txn.possibleMixedOutcome = true;
+                        message = "mixed";
+                        return;
+                    }
+                } else {
+                    error e = {message:"Both protocol function and URL are null"};
+                    throw e;
                 }
             }
         }
@@ -195,9 +207,18 @@ function prepareParticipants (TwoPhaseCommitTransaction txn, string protocol) re
         if (protocols != null) {
             foreach proto in protocols {
                 if (proto.name == protocol) {
-                    if (!prepareParticipant(txn, participant, proto.url)) {
-                        successful = false;
-                        return;
+                    if (proto.protocolFn != null) {
+                        // if the participant if a local participant, i.e. protoFn is set, then call that fn
+                        log:printInfo("Preparing local participant: " + participant.participantId);
+                        successful = proto.protocolFn(txn.transactionId, proto.transactionBlockId, "prepare");
+                    } else if (proto.url != null) {
+                        if (!prepareRemoteParticipant(txn, participant, proto.url)) {
+                            successful = false;
+                            return;
+                        }
+                    } else {
+                        error err = {message:"Both protocol function and URL are null"};
+                        throw err;
                     }
                 }
             }
@@ -207,8 +228,8 @@ function prepareParticipants (TwoPhaseCommitTransaction txn, string protocol) re
     return;
 }
 
-function prepareParticipant (TwoPhaseCommitTransaction txn,
-                             Participant participant, string protocolURL) returns (boolean successful) {
+function prepareRemoteParticipant (TwoPhaseCommitTransaction txn,
+                                   Participant participant, string protocolURL) returns (boolean successful) {
     endpoint<Participant2pcClient> participantEP {
         create Participant2pcClient(protocolURL);
     }
@@ -218,28 +239,28 @@ function prepareParticipant (TwoPhaseCommitTransaction txn,
     successful = true;
     string participantId = participant.participantId;
 
-    log:printInfo("Preparing participant: " + participantId);
+    log:printInfo("Preparing remote participant: " + participantId);
     // If a participant voted NO then abort
     var status, e = participantEP.prepare(transactionId);
     if (e != null || status == "aborted") {
-        log:printInfo("Participant: " + participantId + " failed or aborted");
+        log:printInfo("Remote participant: " + participantId + " failed or aborted");
         // Remove the participant who sent the abort since we don't want to do a notify(Abort) to that
         // participant
         txn.participants.remove(participantId);
         successful = false;
     } else if (status == "committed") {
-        log:printInfo("Participant: " + participantId + " committed");
+        log:printInfo("Remote participant: " + participantId + " committed");
         // If one or more participants returns "committed" and the overall prepare fails, we have to
         // report a mixed-outcome to the initiator
         txn.possibleMixedOutcome = true;
         // Don't send notify to this participant because it is has already committed. We can forget about this participant.
         txn.participants.remove(participantId);
     } else if (status == "read-only") {
-        log:printInfo("Participant: " + participantId + " read-only");
+        log:printInfo("Remote participant: " + participantId + " read-only");
         // Don't send notify to this participant because it is read-only. We can forget about this participant.
         txn.participants.remove(participantId);
     } else {
-        log:printInfo("Participant: " + participantId + ", status: " + status);
+        log:printInfo("Remote participant: " + participantId + ", status: " + status);
     }
     return;
 }
@@ -250,10 +271,20 @@ function notify (TwoPhaseCommitTransaction txn, string message) returns (boolean
         Protocol[] protocols = participant.participantProtocols;
         if (protocols != null) {
             foreach proto in protocols {
-                var _, e = notifyParticipant(txn, participant, message);
-                if (e != null) {
-                    successful = false;
+                if (proto.protocolFn != null) {
+                    // if the participant if a local participant, i.e. protoFn is set, then call that fn
+                    log:printInfo("Notify(" + message + ") local participant: " + participant.participantId);
+                    successful = proto.protocolFn(txn.transactionId, proto.transactionBlockId, "notify" + message);
                     return;
+                } else if (proto.url != null) {
+                    var _, e = notifyRemoteParticipant(txn, participant, message);
+                    if (e != null) {
+                        successful = false;
+                        return;
+                    }
+                } else {
+                    error e = {message:"Both protocol function and URL are null"};
+                    throw e;
                 }
             }
         }
@@ -262,14 +293,14 @@ function notify (TwoPhaseCommitTransaction txn, string message) returns (boolean
     return;
 }
 
-function notifyParticipant (TwoPhaseCommitTransaction txn,
-                            Participant participant, string message) returns (string status, error err) {
+function notifyRemoteParticipant (TwoPhaseCommitTransaction txn,
+                                  Participant participant, string message) returns (string status, error err) {
     endpoint<Participant2pcClient> participantEP {
     }
 
     string participantId = participant.participantId;
     string transactionId = txn.transactionId;
-    log:printInfo("Notify(" + message + ") participant: " + participantId);
+    log:printInfo("Notify(" + message + ") remote participant: " + participantId);
 
     foreach protocol in participant.participantProtocols {
         string protoURL = protocol.url;
@@ -284,12 +315,12 @@ function notifyParticipant (TwoPhaseCommitTransaction txn,
             log:printErrorCause("Communication error occurred while notify(" + message + ") participant: " + protoURL +
                                 " for transaction: " + transactionId, communicationErr);
         } else if (participantErr != null) { // participant may return "Transaction-Unknown", "Not-Prepared" or "Failed-EOT"
-            log:printErrorCause("Participant replied with an error", participantErr);
+            log:printErrorCause("Remote participant replied with an error", participantErr);
             err = participantErr;
         } else if (notificationStatus == "aborted") {
-            log:printInfo("Participant: " + participantId + " aborted");
+            log:printInfo("Remote participant: " + participantId + " aborted");
         } else if (notificationStatus == "committed") {
-            log:printInfo("Participant: " + participantId + " committed");
+            log:printInfo("Remote participant: " + participantId + " committed");
         }
     }
     return;
@@ -341,12 +372,19 @@ function abortInitiatorTransaction (string transactionId, int transactionBlockId
 }
 
 // The participant should notify the initiator that it aborted
-// This function is called by the participant
+// This function is called by the participant.
+// The initiator is remote.
 function abortLocalParticipantTransaction (string transactionId, int transactionBlockId) returns (string message, error e) {
     endpoint<Initiator2pcClient> coordinatorEP {
         create Initiator2pcClient();
     }
-    var txn, _ = (TwoPhaseCommitTransaction)participatedTransactions[transactionId];
+    string participatedTxnId = getParticipatedTransactionId(transactionId, transactionBlockId);
+    boolean successful = abortResourceManagers(transactionId, transactionBlockId);
+    if(!successful) {
+        e = {message: "Aborting local resource managers failed for transaction:" + participatedTxnId};
+        return;
+    }
+    var txn, _ = (TwoPhaseCommitTransaction)participatedTransactions[participatedTxnId];
     if (txn == null) {
         string msg = "Transaction-Unknown. Invalid TID:" + transactionId;
         log:printError(msg);
@@ -366,8 +404,11 @@ function beginTransaction (string transactionId, int transactionBlockId, string 
                            string coordinationType) returns (TransactionContext txnCtx, error err) {
     if (transactionId == null) {
         txnCtx, err = createTransactionContext(coordinationType, transactionBlockId);
+    } else if (initiatedTransactions.hasKey(transactionId)) { // if participant & initiator are in the same process
+        // we don't need to do a network call and can simply do a local function call
+        txnCtx, err = registerParticipantWithLocalInitiator(transactionId, transactionBlockId, registerAtUrl);
     } else {
-        txnCtx, err = registerParticipantWithRemoteCoordinator(transactionId, transactionBlockId, registerAtUrl);
+        txnCtx, err = registerParticipantWithRemoteInitiator(transactionId, transactionBlockId, registerAtUrl);
     }
     return;
 }
@@ -389,7 +430,22 @@ function endTransaction (string transactionId, int transactionBlockId) returns (
 
 function abortTransaction (string transactionId, int transactionBlockId) returns (string msg, error e) {
     if (initiatedTransactions.hasKey(transactionId)) {
-        msg, e = abortInitiatorTransaction(transactionId, transactionBlockId);
+        string participatedTxnId = getParticipatedTransactionId(transactionId, transactionBlockId);
+        if (participatedTransactions[participatedTxnId] != null) {
+            // if I am a local participant, then I will remove myself because I don't want to be notified on abort,
+            // and then call abort on the initiator
+            var txn, _ = (Transaction)initiatedTransactions[transactionId];
+            boolean successful = abortResourceManagers(transactionId, transactionBlockId);
+            if(!successful) {
+                e = {message: "Aborting local resource managers failed for transaction:" + participatedTxnId};
+                return;
+            }
+            txn.participants.remove(getParticipantId(transactionBlockId));
+            participatedTransactions.remove(participatedTxnId);
+            msg, e = abortInitiatorTransaction(transactionId, transactionBlockId);
+        } else {
+            msg, e = abortInitiatorTransaction(transactionId, transactionBlockId);
+        }
     } else {
         msg, e = abortLocalParticipantTransaction(transactionId, transactionBlockId);
     }

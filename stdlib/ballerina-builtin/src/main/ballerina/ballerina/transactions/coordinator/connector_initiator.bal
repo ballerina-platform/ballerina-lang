@@ -18,6 +18,7 @@ package ballerina.transactions.coordinator;
 
 import ballerina.config;
 import ballerina.net.http;
+import ballerina.io;
 
 const string participantHost = getParticipantHost();
 const int participantPort = getParticipantPort();
@@ -47,7 +48,7 @@ connector InitiatorClient (string registerAtURL) {
 
     action register (string transactionId, int transactionBlockId) returns (RegistrationResponse registrationRes,
                                                                             error err) {
-        string participantId = localParticipantId + ":" + transactionBlockId;
+        string participantId = getParticipantId(transactionBlockId);
         RegistrationRequest regReq = {transactionId:transactionId, participantId:participantId};
 
         //TODO: set the proper protocol
@@ -55,16 +56,15 @@ connector InitiatorClient (string registerAtURL) {
         Protocol[] protocols = [{name:protocol, url:getParticipantProtocolAt(protocol, transactionBlockId)}];
         regReq.participantProtocols = protocols;
 
-        var j, _ = <json>regReq;
+        json j = regRequestToJson(regReq);
+        io:println(j);
         http:OutRequest req = {};
         req.setJsonPayload(j);
         var res, e = coordinatorEP.post("", req);
         if (e == null) {
             int statusCode = res.statusCode;
             if (statusCode == 200) {
-                var regRes, transformErr = <RegistrationResponse>res.getJsonPayload();
-                registrationRes = regRes;
-                err = (error)transformErr;
+                registrationRes = jsonToRegResponse(res.getJsonPayload());
             } else {
                 json payload = res.getJsonPayload();
                 if (payload == null) {
