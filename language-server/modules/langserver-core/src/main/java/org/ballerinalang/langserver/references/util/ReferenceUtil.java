@@ -51,8 +51,13 @@ public class ReferenceUtil {
 
         for (Object o : packages) {
             PackageID packageID = (PackageID) o;
-            BLangPackage bLangPackage = getPackageOfTheOwner(packageID.name, referencesContext, bLangPackageContext);
-            bLangPackage.accept(referencesTreeVisitor);
+            // TODO: remove the following condition after fixing the issue when loading runtime package it imports
+            //       itself cause a stackOverFlow in semantic analyzer.
+            if (!packageID.getName().getValue().equals("ballerina.runtime")) {
+                BLangPackage bLangPackage = getPackageOfTheOwner(packageID.name, referencesContext,
+                        bLangPackageContext);
+                bLangPackage.accept(referencesTreeVisitor);
+            }
         }
 
         // If the current package is default package continue.
