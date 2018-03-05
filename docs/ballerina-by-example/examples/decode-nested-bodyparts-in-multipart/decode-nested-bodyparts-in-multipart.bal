@@ -32,7 +32,7 @@ service<http> nestedparts {
 
 //Given a parent part, get it's child parts.
 function handleNestedParts (mime:Entity parentPart) {
-    mime:Entity[] childParts = parentPart.getBodyParts();
+    var childParts, _ = parentPart.getBodyParts();
     int i = 0;
     if (childParts != null) {
         io:println("Nested Parts Detected!");
@@ -67,6 +67,7 @@ function handleContent (mime:Entity bodyPart) {
         //Get a byte channel from body part and write content to a file.
         var byteChannel, _ = bodyPart.getByteChannel();
         writeToFile(byteChannel);
+        byteChannel.close();
         io:println("Content saved to file");
     }
 }

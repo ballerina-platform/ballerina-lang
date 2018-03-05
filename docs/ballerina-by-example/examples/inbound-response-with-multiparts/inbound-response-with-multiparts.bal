@@ -72,6 +72,7 @@ function handleContent (mime:Entity bodyPart) {
         //Get a byte channel from body part and write content to a file.
         var byteChannel, _ = bodyPart.getByteChannel();
         writeToFile(byteChannel);
+        byteChannel.close();
         io:println("Content saved to file");
     }
 }
