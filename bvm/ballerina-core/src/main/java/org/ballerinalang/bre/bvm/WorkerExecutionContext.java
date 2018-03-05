@@ -83,8 +83,7 @@ public class WorkerExecutionContext {
     
     public WorkerExecutionContext(WorkerExecutionContext parent, WorkerResponseContext respCtx, 
             CallableUnitInfo callableUnitInfo, WorkerInfo workerInfo, WorkerData workerLocal, 
-            WorkerData workerResult, int[] retRegIndexes, Map<String, Object> globalProperties,
-            boolean runInCaller) {
+            WorkerData workerResult, int[] retRegIndexes, boolean runInCaller) {
         this.parent = parent;
         this.respCtx = respCtx;
         this.callableUnitInfo = callableUnitInfo;
@@ -95,7 +94,7 @@ public class WorkerExecutionContext {
         this.workerLocal = workerLocal;
         this.workerResult = workerResult;
         this.retRegIndexes = retRegIndexes;
-        this.globalProps = globalProperties;
+        this.globalProps = parent.globalProps;
         this.ip = this.workerInfo.getCodeAttributeInfo().getCodeAddrs();
         if (this.ip < 0) {
             throw new BallerinaException("invalid worker: " + workerInfo.getWorkerName() +
@@ -109,8 +108,8 @@ public class WorkerExecutionContext {
     }
 
     public WorkerExecutionContext(WorkerExecutionContext parent, WorkerResponseContext respCtx,
-                                  CallableUnitInfo callableUnitInfo, WorkerInfo workerInfo, WorkerData workerLocal,
-                                  Map<String, Object> globalProperties, boolean runInCaller) {
+                                  CallableUnitInfo callableUnitInfo, WorkerInfo workerInfo, WorkerData workerLocal, 
+                                  boolean runInCaller) {
         this.parent = parent;
         this.respCtx = respCtx;
         this.callableUnitInfo = callableUnitInfo;
@@ -119,7 +118,7 @@ public class WorkerExecutionContext {
         this.constPool = callableUnitInfo.getPackageInfo().getConstPoolEntries();
         this.code = callableUnitInfo.getPackageInfo().getInstructions();
         this.workerLocal = workerLocal;
-        this.globalProps = globalProperties;
+        this.globalProps = parent.globalProps;;
         this.ip = this.workerInfo.getCodeAttributeInfo().getCodeAddrs();
         if (this.ip < 0) {
             throw new BallerinaException("invalid worker: " + workerInfo.getWorkerName() +
