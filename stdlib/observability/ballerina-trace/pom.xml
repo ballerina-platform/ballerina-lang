@@ -59,32 +59,6 @@
                 <targetPath>META-INF/natives</targetPath>
             </resource>
         </resources>
-        <plugins>
-            <!-- For ballerina annotation processing -->
-            <plugin>
-                <groupId>org.bsc.maven</groupId>
-                <artifactId>maven-processor-plugin</artifactId>
-                <version>${mvn.processor.plugin.version}</version>
-                <configuration>
-                    <processors>
-                        <processor>org.ballerinalang.codegen.BallerinaAnnotationProcessor</processor>
-                    </processors>
-                    <options>
-                        <nativeEntityProviderPackage>org.ballerinalang.net.generated.providers</nativeEntityProviderPackage>
-                        <nativeEntityProviderClass>StandardNativeElementProvider</nativeEntityProviderClass>
-                    </options>
-                </configuration>
-                <executions>
-                    <execution>
-                        <id>process</id>
-                        <goals>
-                            <goal>process</goal>
-                        </goals>
-                        <phase>generate-sources</phase>
-                    </execution>
-                </executions>
-            </plugin>
-        </plugins>
     </build>
 
     <properties>
