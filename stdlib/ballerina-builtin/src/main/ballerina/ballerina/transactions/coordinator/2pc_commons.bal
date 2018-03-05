@@ -417,6 +417,9 @@ function beginTransaction (string transactionId, int transactionBlockId, string 
 // decide to commit or abort the transaction
 function endTransaction (string transactionId, int transactionBlockId) returns (string msg, error e) {
     string participatedTxnId = getParticipatedTransactionId(transactionId, transactionBlockId);
+
+    // Only the initiator can end the transaction. Here we check whether the entity trying to end the transaction is
+    // an initiator or just a local participant
     if (participatedTransactions[participatedTxnId] == null && initiatedTransactions.hasKey(transactionId)) {
         var txn, _ = (TwoPhaseCommitTransaction)initiatedTransactions[transactionId];
         if (txn.state != TransactionState.ABORTED) {
