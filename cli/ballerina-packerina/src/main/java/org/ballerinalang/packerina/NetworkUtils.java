@@ -98,7 +98,7 @@ public class NetworkUtils {
                 pkgVersion = "*";
                 pkgName = pkgNameWithVersion;
             }
-            Path fullPathOfPkg = Paths.get(orgName).resolve(pkgName).resolve(pkgVersion).resolve("src");
+            Path fullPathOfPkg = Paths.get(orgName).resolve(pkgName).resolve(pkgVersion);
 
             targetDirectoryPath = targetDirectoryPath.resolve(fullPathOfPkg);
             String dstPath = targetDirectoryPath.toString();
@@ -158,60 +158,66 @@ public class NetworkUtils {
      */
     public static void pushPackages(String packageName, String installToRepo, String ballerinaCentralURL) {
         compileResult = compileBalFile("ballerina.push");
-        // Get the access token
         String accessToken = getAccessTokenOfCLI() != null ? removeQuotationsFromValue(getAccessTokenOfCLI()) : null;
-        // Get the org-name and version by reading Ballerina.toml inside the project
-        Manifest manifest = readManifestConfigurations();
-        if (manifest.getName() != null && manifest.getVersion() != null) {
-            String orgName = removeQuotationsFromValue(manifest.getName());
-            String version = removeQuotationsFromValue(manifest.getVersion());
-            String resourcePath = ballerinaCentralURL + Paths.get(orgName).resolve(packageName)
-                    .resolve(version);
+        if (accessToken != null) {
+            // Get the org-name and version by reading Ballerina.toml inside the project
+            Manifest manifest = readManifestConfigurations();
+            if (manifest.getName() != null && manifest.getVersion() != null) {
+                String orgName = removeQuotationsFromValue(manifest.getName());
+                String version = removeQuotationsFromValue(manifest.getVersion());
+                String resourcePath = ballerinaCentralURL + Paths.get(orgName).resolve(packageName)
+                        .resolve(version);
 
-            Path currentDirPath = Paths.get(".").toAbsolutePath().normalize();
-            // Construct the package name along with the version and check if it exists
-            Path pkgPath = currentDirPath.resolve(".ballerina").resolve("repo").resolve(orgName)
-                    .resolve(packageName).resolve(version);
-            Path baloFilePath = pkgPath.resolve(packageName + "-" + version + ".balo");
-            if (Files.notExists(pkgPath)) {
-                outStream.println("Package " + packageName + " with version " + version + " does not exist");
-            } else {
-                // Default push to the remote repository
-                if (installToRepo == null) {
-                    String[] proxyConfigs = readProxyConfigurations();
-                    String[] arguments = new String[]{accessToken, resourcePath, baloFilePath.toString()};
-                    arguments = Stream.concat(Arrays.stream(arguments), Arrays.stream(proxyConfigs))
-                            .toArray(String[]::new);
-                    LauncherUtils.runMain(compileResult.getProgFile(), arguments);
+                Path currentDirPath = Paths.get(".").toAbsolutePath().normalize();
+                // Construct the package name along with the version and check if it exists
+                Path pkgPath = currentDirPath.resolve(".ballerina").resolve("repo").resolve(orgName)
+                        .resolve(packageName).resolve(version);
+                Path baloFilePath = pkgPath.resolve(packageName + "-" + version + ".balo");
+                if (Files.notExists(pkgPath)) {
+                    outStream.println("Package " + packageName + " with version " + version + " does not exist");
                 } else {
-                    // Check if the package should be installed into the home repository
-                    if (installToRepo.equals("home")) {
-                        // Directory path to .ballerina/artifacts
-                        Path targetDirectoryPath = UserRepositoryUtils.initializeUserRepository()
-                                .resolve(BLangConstants.USER_REPO_ARTIFACTS_DIRNAME).resolve(orgName)
-                                .resolve(packageName).resolve(version);
-                        if (!Files.exists(targetDirectoryPath)) {
-                            try {
-                                Files.createDirectories(targetDirectoryPath);
-                            } catch (IOException e) {
-                                outStream.println("Error when occured when creating directories in " +
-                                        "./ballerina/artifacts/ to install the package locally");
+                    // Default push to the remote repository
+                    if (installToRepo == null) {
+                        String[] proxyConfigs = readProxyConfigurations();
+                        String[] arguments = new String[]{accessToken, resourcePath, baloFilePath.toString()};
+                        arguments = Stream.concat(Arrays.stream(arguments), Arrays.stream(proxyConfigs))
+                                .toArray(String[]::new);
+                        LauncherUtils.runMain(compileResult.getProgFile(), arguments);
+                    } else {
+                        // Check if the package should be installed into the home repository
+                        if (installToRepo.equals("home")) {
+                            // Directory path to .ballerina/artifacts
+                            Path targetDirectoryPath = UserRepositoryUtils.initializeUserRepository()
+                                    .resolve(BLangConstants.USER_REPO_ARTIFACTS_DIRNAME).resolve(orgName)
+                                    .resolve(packageName).resolve(version);
+                            if (!Files.exists(targetDirectoryPath)) {
+                                try {
+                                    Files.createDirectories(targetDirectoryPath);
+                                } catch (IOException e) {
+                                    outStream.println("Error when occured when creating directories in " +
+                                            "./ballerina/artifacts/ to install the package locally");
+                                }
                             }
-                        }
-                        //copy balo file to the user repository
-                        try {
-                            Path dstBaloFile = targetDirectoryPath.resolve(baloFilePath.getFileName());
-                            Files.copy(baloFilePath, dstBaloFile, StandardCopyOption.REPLACE_EXISTING);
-                            outStream.println("Ballerina package pushed successfully to the user repository");
-                        } catch (IOException e) {
-                            outStream.println("Error occured when copying the balo file to the user repository");
+                            //copy balo file to the user repository
+                            try {
+                                Path dstBaloFile = targetDirectoryPath.resolve(baloFilePath.getFileName());
+                                Files.copy(baloFilePath, dstBaloFile, StandardCopyOption.REPLACE_EXISTING);
+                                outStream.println("Ballerina package pushed successfully to the user repository");
+                            } catch (IOException e) {
+                                outStream.println("Error occured when copying the balo file to the user repository");
+                            }
                         }
                     }
                 }
+            } else {
+                outStream.println("An org-name and package version is required when pushing. This is not specified " +
+                        "in Ballerina.toml inside the project");
             }
         } else {
-            outStream.println("An org-name and package version is required when pushing. This is not specified in " +
-                    "Ballerina.toml inside the project");
+            outStream.println("You have not specified an access-token for the central in your Settings.toml\n" +
+                    "Please login to central if you are already registered using 'central.ballerina.io/login' to get" +
+                    "a valid access-token. \nIf you are new to the site please register using " +
+                    "'central.ballerina.io/register'");
         }
     }
 

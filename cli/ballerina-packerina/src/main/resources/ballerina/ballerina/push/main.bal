@@ -45,11 +45,7 @@ function pushPackage (string accessToken, string url, string baloFilePath, strin
                 io:println("Ballerina package pushed successfully");
             }
         } else {
-            if (accessToken == null) {
-                io:println("You have not specified an access-token for the central in your Settings.toml. Please login to central if you are already registered using 'central.ballerina.io/login' to get a valid access-token. If you are new to the site please register using 'central.ballerina.io/register'");
-            } else {
-                io:println("The access-token provided in Settings.toml has expired. Please login again from the central using 'central.ballerina.io/login' to get a valid access-token.");
-            }
+            io:println("The access-token provided in Settings.toml has expired. Please login again from the central using 'central.ballerina.io/login' to get a valid access-token.");
         }
     }
 }
