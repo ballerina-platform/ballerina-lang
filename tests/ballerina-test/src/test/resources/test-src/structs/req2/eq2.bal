@@ -6,6 +6,9 @@ public struct userPB {
     string address;
 }
 
+public function <userPB ub> userPB() {
+}
+
 public function <userPB ub> getName () returns (string) {
     return ub.name;
 }

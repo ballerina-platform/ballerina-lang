@@ -20,13 +20,18 @@ under the License.
 <!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd" >
 
 <suite name="ballerina-test-suite">
-    
+
+    <listeners>
+        <listener class-name="org.ballerinalang.test.utils.TestSuiteListener"/>
+    </listeners>
+
     <!-- Ballerina language Test Cases. -->
     <test name="ballerina-lang-test-suite" preserve-order="true" parallel="false">
         <packages>
             <package name="org.ballerinalang.test.vm.*"/>
             <package name="org.ballerinalang.test.annotations.*"/>
             <package name="org.ballerinalang.test.expressions.*"/>
+            <package name="org.ballerinalang.test.documentation.*"/>
             <package name="org.ballerinalang.test.statements.*"/>
             <package name="org.ballerinalang.test.types.*"/>
             <package name="org.ballerinalang.test.functions.*"/>
@@ -45,6 +50,12 @@ under the License.
             <package name="org.ballerinalang.test.caching.*"/>
             <package name="org.ballerinalang.test.mime.*"/>
             <package name="org.ballerinalang.test.collections.*"/>
+            <package name="org.ballerinalang.test.security.*"/>
+        </packages>
+    </test>
+    <test name="ballerina-security-test-suite" preserve-order="true" parallel="false">
+        <packages>
+            <package name="org.ballerinalang.test.auth.*"/>
         </packages>
     </test>
 </suite>

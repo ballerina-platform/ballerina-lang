@@ -17,7 +17,6 @@
  */
 package org.ballerinalang.net.http.actions;
 
-
 import org.apache.commons.lang3.StringUtils;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.connector.api.BallerinaConnectorException;
@@ -37,7 +36,6 @@ import org.wso2.transport.http.netty.config.Parameter;
 import org.wso2.transport.http.netty.config.SenderConfiguration;
 import org.wso2.transport.http.netty.contract.HttpClientConnector;
 import org.wso2.transport.http.netty.contract.HttpWsConnectorFactory;
-import org.wso2.transport.http.netty.contractimpl.HttpWsConnectorFactoryImpl;
 import org.wso2.transport.http.netty.message.HTTPConnectorUtil;
 
 import java.net.UnknownHostException;
@@ -67,7 +65,7 @@ public class Init extends AbstractHTTPAction {
     private static final int FALSE = 0;
     private static final int DEFAULT_MAX_REDIRECT_COUNT = 5;
 
-    private HttpWsConnectorFactory httpConnectorFactory = new HttpWsConnectorFactoryImpl();
+    private HttpWsConnectorFactory httpConnectorFactory = HttpUtil.createHttpWsConnectionFactory();
 
     @Override
     public ConnectorFuture execute(Context context) {
@@ -102,11 +100,23 @@ public class Init extends AbstractHTTPAction {
         BStruct options = (BStruct) connector.getRefField(HttpConstants.OPTIONS_STRUCT_INDEX);
         if (options != null) {
             populateSenderConfigurationOptions(senderConfiguration, options);
-            long maxActiveConnections = options.getIntField(HttpConstants.MAX_ACTIVE_CONNECTIONS_INDEX);
-            if (!isInteger(maxActiveConnections)) {
-                throw new BallerinaConnectorException("invalid maxActiveConnections value: " + maxActiveConnections);
+
+            if (options.getRefField(HttpConstants.CONNECTION_THROTTLING_STRUCT_INDEX) != null) {
+                BStruct connectionThrottling =
+                        (BStruct) options.getRefField(HttpConstants.CONNECTION_THROTTLING_STRUCT_INDEX);
+
+                long maxActiveConnections = connectionThrottling
+                        .getIntField(HttpConstants.CONNECTION_THROTTLING_MAX_ACTIVE_CONNECTIONS_INDEX);
+                if (!isInteger(maxActiveConnections)) {
+                    throw new BallerinaConnectorException("invalid maxActiveConnections value: "
+                                                                  + maxActiveConnections);
+                }
+                senderConfiguration.getPoolConfiguration().setMaxActivePerPool((int) maxActiveConnections);
+
+                long waitTime = connectionThrottling
+                        .getIntField(HttpConstants.CONNECTION_THROTTLING_WAIT_TIME_INDEX);
+                senderConfiguration.getPoolConfiguration().setMaxWaitTime(waitTime);
             }
-            properties.put(HttpConstants.MAX_ACTIVE_CONNECTIONS_PER_POOL, (int) maxActiveConnections);
         }
 
         HttpClientConnector httpClientConnector =
@@ -228,6 +238,9 @@ public class Init extends AbstractHTTPAction {
 
         String httpVersion = options.getStringField(HttpConstants.HTTP_VERSION_STRUCT_INDEX);
         senderConfiguration.setHttpVersion(httpVersion);
+
+        String forwardedExtension = options.getStringField(HttpConstants.FORWARDED_EXTENSION_INDEX);
+        senderConfiguration.setForwardedExtensionConfig(HttpUtil.getForwardedExtensionConfig(forwardedExtension));
     }
 
     private boolean isInteger(long val) {

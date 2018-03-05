@@ -46,7 +46,10 @@ public class FunctionDefinition extends CompletionTest {
                 {"enumSuggestAssignment1.json", "function"},
                 {"enumSuggestAssignment2.json", "function"},
                 {"enumSuggestVarDef1.json", "function"},
-                {"enumSuggestVarDef2.json", "function"}
+                {"enumSuggestVarDef2.json", "function"},
+                {"structFields.json", "function"},
+                {"structBoundFunctionsAndFields.json", "function"},
+                {"packageContentWithSucceedingCharacter1.json", "function"}
         };
     }
 }

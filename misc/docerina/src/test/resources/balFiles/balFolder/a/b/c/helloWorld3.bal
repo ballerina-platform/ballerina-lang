@@ -1,7 +1,9 @@
 package a.b.c;
 
+import ballerina.io;
+
 function abc (string args) (int) {
-    println("Hello, World! "+args);
+    io:println("Hello, World! "+args);
     
     return 0;
 }

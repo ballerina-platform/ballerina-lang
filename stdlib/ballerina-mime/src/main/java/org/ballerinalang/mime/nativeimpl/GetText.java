@@ -32,6 +32,7 @@ import org.ballerinalang.runtime.message.MessageDataSource;
 import org.ballerinalang.runtime.message.StringDataSource;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
+import static org.ballerinalang.mime.util.Constants.ENTITY_BYTE_CHANNEL;
 import static org.ballerinalang.mime.util.Constants.FIRST_PARAMETER_INDEX;
 
 /**
@@ -61,6 +62,8 @@ public class GetText extends AbstractNativeFunction {
                 if (stringDataSource != null) {
                     result = new BString(stringDataSource.getMessageAsString());
                     EntityBodyHandler.addMessageDataSource(entityStruct, stringDataSource);
+                    //Set byte channel to null, once the message data source has been constructed
+                    entityStruct.addNativeData(ENTITY_BYTE_CHANNEL, null);
                 }
             }
         } catch (Throwable e) {

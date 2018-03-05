@@ -43,7 +43,7 @@ public class RoutingServiceSampleTestCase extends HTTP2IntegrationTestCase {
     @Test(description = "Test Content base routing sample")
     public void testContentBaseRouting() throws Exception {
         DefaultFullHttpRequest request = new DefaultFullHttpRequest(HTTP_1_1, POST, "/cbr");
-        request.headers().set(TestConstant.HEADER_CONTENT_TYPE, TestConstant.CONTENT_TYPE_JSON);
+        request.headers().set(HttpHeaderNames.CONTENT_TYPE.toString(), TestConstant.CONTENT_TYPE_JSON);
         ByteBuf buffer = request.content().clear();
         int p0 = buffer.writerIndex();
         buffer.writeBytes(requestNyseMessage.getBytes());
@@ -52,13 +52,13 @@ public class RoutingServiceSampleTestCase extends HTTP2IntegrationTestCase {
         int send = http2Client.send(request);
         FullHttpResponse response = http2Client.getResponse(send);
         Assert.assertEquals(response.getStatus().code(), 200, "Response code mismatched");
-        Assert.assertEquals(response.headers().get(TestConstant.HEADER_CONTENT_TYPE.toLowerCase()), TestConstant
+        Assert.assertEquals(response.headers().get(HttpHeaderNames.CONTENT_TYPE.toString().toLowerCase()), TestConstant
                         .CONTENT_TYPE_JSON, "Content-Type mismatched");
         Assert.assertEquals(getResponse(response), responseNyseMessage, "Message content mismatched. " +
                 "Routing failed for nyse");
         //sending nasdaq as name
         request = new DefaultFullHttpRequest(HTTP_1_1, POST, "/cbr");
-        request.headers().set(TestConstant.HEADER_CONTENT_TYPE, TestConstant.CONTENT_TYPE_JSON);
+        request.headers().set(HttpHeaderNames.CONTENT_TYPE.toString(), TestConstant.CONTENT_TYPE_JSON);
         buffer = request.content().clear();
         p0 = buffer.writerIndex();
         buffer.writeBytes(requestNasdaqMessage.getBytes());
@@ -67,7 +67,7 @@ public class RoutingServiceSampleTestCase extends HTTP2IntegrationTestCase {
         send = http2Client.send(request);
         response = http2Client.getResponse(send);
         Assert.assertEquals(response.getStatus().code(), 200, "Response code mismatched");
-        Assert.assertEquals(response.headers().get(TestConstant.HEADER_CONTENT_TYPE.toLowerCase()), TestConstant
+        Assert.assertEquals(response.headers().get(HttpHeaderNames.CONTENT_TYPE.toString()), TestConstant
                         .CONTENT_TYPE_JSON, "Content-Type mismatched");
         Assert.assertEquals(getResponse(response), responseNasdaqMessage, "Message content mismatched. " +
                 "Routing failed for nasdaq");
@@ -81,7 +81,7 @@ public class RoutingServiceSampleTestCase extends HTTP2IntegrationTestCase {
         int send = http2Client.send(request);
         FullHttpResponse response = http2Client.getResponse(send);
         Assert.assertEquals(response.getStatus().code(), 200, "Response code mismatched");
-        Assert.assertEquals(response.headers().get(TestConstant.HEADER_CONTENT_TYPE.toLowerCase()), TestConstant
+        Assert.assertEquals(response.headers().get(HttpHeaderNames.CONTENT_TYPE.toString()), TestConstant
                         .CONTENT_TYPE_JSON, "Content-Type mismatched");
         Assert.assertEquals(getResponse(response), responseNyseMessage, "Message content mismatched. Routing failed " +
                 "for nyse");
@@ -91,7 +91,7 @@ public class RoutingServiceSampleTestCase extends HTTP2IntegrationTestCase {
         send = http2Client.send(request);
         response = http2Client.getResponse(send);
         Assert.assertEquals(response.getStatus().code(), 200, "Response code mismatched");
-        Assert.assertEquals(response.headers().get(TestConstant.HEADER_CONTENT_TYPE.toLowerCase()), TestConstant
+        Assert.assertEquals(response.headers().get(HttpHeaderNames.CONTENT_TYPE.toString()), TestConstant
                 .CONTENT_TYPE_JSON, "Content-Type mismatched");
         Assert.assertEquals(getResponse(response), responseNasdaqMessage, "Message content mismatched. Routing failed" +
                 " for nasdaq");

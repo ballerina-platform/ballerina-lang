@@ -41,7 +41,7 @@ public class ServiceChainingSampleTestCase extends HTTP2IntegrationTestCase {
     @Test(description = "Test service chaining sample")
     public void testEchoServiceByBasePath() throws Exception {
         DefaultFullHttpRequest request = new DefaultFullHttpRequest(HTTP_1_1, POST, "/ABCBank/locator");
-        request.headers().set(TestConstant.HEADER_CONTENT_TYPE, TestConstant.CONTENT_TYPE_JSON);
+        request.headers().set(HttpHeaderNames.CONTENT_TYPE.toString(), TestConstant.CONTENT_TYPE_JSON);
         ByteBuf buffer = request.content().clear();
         int p0 = buffer.writerIndex();
         buffer.writeBytes(requestMessage.getBytes());
@@ -50,7 +50,7 @@ public class ServiceChainingSampleTestCase extends HTTP2IntegrationTestCase {
         int send = http2Client.send(request);
         FullHttpResponse response = http2Client.getResponse(send);
         Assert.assertEquals(response.getStatus().code(), 200, "Response code mismatched");
-        Assert.assertEquals(response.headers().get(TestConstant.HEADER_CONTENT_TYPE.toLowerCase()), TestConstant
+        Assert.assertEquals(response.headers().get(HttpHeaderNames.CONTENT_TYPE.toString()), TestConstant
                         .CONTENT_TYPE_JSON, "Content-Type mismatched");
         Assert.assertEquals(getResponse(response), responseMessage, "Message content mismatched");
     }

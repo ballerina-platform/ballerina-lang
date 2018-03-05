@@ -12,6 +12,9 @@ public struct person1 {
     int id;
 }
 
+public function <person1 p>  person1 () {
+}
+
 public function <person1 p> getName () returns (string) {
     return p.name;
 }
@@ -36,6 +39,9 @@ public struct employee1 {
     string ssn;
     int id;
     int employeeId = 123456;
+}
+
+public function <employee1 p>  employee1 () {
 }
 
 public function <employee1 e> getName () returns (string) {
@@ -335,4 +341,98 @@ function testRuntimeEqPublicStructs1 () (string) {
         return err.message;
     }
     return uB.getName();
+}
+
+struct personC {
+    string name;
+    addressStruct address;
+}
+
+function <personC p> setContact(addressStruct ad){
+    p.address = ad;
+}
+
+function <personC p> getAddress() returns (string){
+    return p.address.toString();
+}
+
+struct addressStruct {
+    int no;
+    string city;
+}
+
+function <addressStruct ad> toString() returns (string){
+    return ad.no + ad.city;
+}
+
+struct officeAddressStruct {
+    int no;
+    string city;
+    string department;
+}
+
+function <officeAddressStruct ad> toString() returns (string){
+    return ad.department + ad.no + ad.city;
+}
+
+function testStructEquivalencyWithArguments() returns (string, string, string){
+    personC p = { name : "tom" };
+    addressStruct a = { no: 1, city: "CMB"};
+    officeAddressStruct o = { no: 2, city: "CMB", department: "ENG"};
+    // testing assignment.
+    addressStruct b = o;
+    string result1 = b.toString();
+
+    p.setContact(a);
+    string result2 = p.getAddress();
+
+    // testing value passing.
+    p.setContact(o);
+    string result3 = p.getAddress();
+    return result1, result2, result3;
+}
+
+function testStructEquivalencyWithFunctionType () returns (string s1, string s2) {
+    SomeOtherStruct x = {s:"sss"};
+    AnyStruct aa = {};
+    s1 = aa.shout(x);
+    _ = aa.call();
+
+    SomeStruct ss = {s:"s"};
+    AnyStruct aaa = ss;
+    s2 = aaa.shout(x);
+    _ = aaa.call();
+    return;
+}
+
+struct AnyStruct {
+}
+
+function <AnyStruct a> shout (AnotherAnyStruct aa) returns (string) {
+    var j, _ = <json>aa;
+    return "anyStruct" + j.toString();
+}
+
+function <AnyStruct a> call () returns (AnotherAnyStruct aa) {
+    return {} ;
+}
+
+struct SomeStruct {
+    string s;
+}
+
+function <SomeStruct b> shout (SomeOtherStruct aa) returns (string) {
+    var j, _ = <json>aa;
+    return "someStruct" + j.toString();
+}
+
+function <SomeStruct b> call () returns (SomeOtherStruct aa) {
+    return { s : "return"};
+}
+
+struct SomeOtherStruct {
+    string s;
+}
+
+struct AnotherAnyStruct {
 }

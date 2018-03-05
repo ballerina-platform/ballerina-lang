@@ -1,20 +1,20 @@
 /*
-*  Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
-*
-*  WSO2 Inc. licenses this file to you under the Apache License,
-*  Version 2.0 (the "License"); you may not use this file except
-*  in compliance with the License.
-*  You may obtain a copy of the License at
-*
-*    http://www.apache.org/licenses/LICENSE-2.0
-*
-*  Unless required by applicable law or agreed to in writing,
-*  software distributed under the License is distributed on an
-*  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-*  KIND, either express or implied.  See the License for the
-*  specific language governing permissions and limitations
-*  under the License.
-*/
+ *  Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ *  WSO2 Inc. licenses this file to you under the Apache License,
+ *  Version 2.0 (the "License"); you may not use this file except
+ *  in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing,
+ *  software distributed under the License is distributed on an
+ *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ *  KIND, either express or implied.  See the License for the
+ *  specific language governing permissions and limitations
+ *  under the License.
+ */
 package org.ballerinalang.repository.fs;
 
 import org.ballerinalang.model.elements.PackageID;
@@ -33,7 +33,6 @@ import java.nio.file.Path;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -50,21 +49,38 @@ public class GeneralFSPackageRepository implements PackageRepository {
     private static final String BAL_SOURCE_EXT = ".bal";
 
     protected Path basePath;
+    private final Name orgName;
+
+    public GeneralFSPackageRepository(Path basePath, Name orgName) {
+        this.basePath = basePath;
+        this.orgName = orgName;
+    }
 
     public GeneralFSPackageRepository(Path basePath) {
-        this.basePath = basePath;
+        this(basePath, null);
     }
 
     protected PackageSource lookupPackageSource(PackageID pkgID) {
-        Path path = this.generatePath(pkgID);
+
+        Path path;
+        if (orgName == null) {
+            path = this.generatePathNew(pkgID);
+        } else {
+            path = this.generatePath(pkgID);
+        }
+
         if (!Files.isDirectory(path, LinkOption.NOFOLLOW_LINKS)) {
-            return null;
+            // TODO remove, temp hack until builtin are flattned
+            path = this.generatePathOld(pkgID);
+            if (!Files.isDirectory(path, LinkOption.NOFOLLOW_LINKS)) {
+                return null;
+            }
         }
         return new FSPackageSource(pkgID, path);
     }
 
     protected PackageSource lookupPackageSource(PackageID pkgID, String entryName) {
-        Path path = this.generatePath(pkgID);
+        Path path = this.generatePathOld(pkgID);
         if (!Files.isDirectory(path, LinkOption.NOFOLLOW_LINKS)) {
             return null;
         }
@@ -77,21 +93,15 @@ public class GeneralFSPackageRepository implements PackageRepository {
 
     @Override
     public PackageEntity loadPackage(PackageID pkgID) {
-        PackageEntity result = null;
-        //TODO check compiled packages first
-        if (result == null) {
-            result = this.lookupPackageSource(pkgID);
-        }
-        return result;
+        return this.lookupPackageSource(pkgID);
     }
 
     @Override
     public PackageEntity loadPackage(PackageID pkgID, String entryName) {
-        PackageEntity result = this.lookupPackageSource(pkgID, entryName);
-        return result;
+        return this.lookupPackageSource(pkgID, entryName);
     }
-    
-    private String sanatize(String name, String separator) {
+
+    private String sanitize(String name, String separator) {
         if (name.startsWith(separator)) {
             name = name.substring(separator.length());
         }
@@ -128,8 +138,8 @@ public class GeneralFSPackageRepository implements PackageRepository {
                         int dirNameCount = dir.getNameCount();
                         if (dirNameCount > baseNameCount) {
                             dir.subpath(baseNameCount, dirNameCount).forEach(
-                                    f -> nameComps.add(new Name(sanatize(f.getFileName().toString(), separator))));
-                            result.add(new PackageID(nameComps, Names.DEFAULT_VERSION));
+                                    f -> nameComps.add(new Name(sanitize(f.getFileName().toString(), separator))));
+                            result.add(new PackageID(Names.ANON_ORG, nameComps, Names.DEFAULT_VERSION));
                         }
                     }
                     if ((dir.getNameCount() + 1) - baseNameCount > maxDepth) {
@@ -143,14 +153,36 @@ public class GeneralFSPackageRepository implements PackageRepository {
         }
         return result;
     }
-    
-    protected Path generatePath(PackageID pkgID) {
+
+    protected Path generatePathOld(PackageID pkgID) {
         Path pkgDirPath = this.basePath;
         for (Name comp : pkgID.getNameComps()) {
             pkgDirPath = pkgDirPath.resolve(comp.value);
         }
         return pkgDirPath;
     }
+
+    private Path generatePath(PackageID pkgID) {
+        return this.basePath.resolve(createPackageNameWithDots(pkgID));
+    }
+
+    private Path generatePathNew(PackageID pkgID) {
+        Path pkgDirPath = this.basePath.resolve(pkgID.getOrgName().value);
+        return pkgDirPath.resolve(createPackageNameWithDots(pkgID));
+    }
+
+    private String createPackageNameWithDots(PackageID pkgID) {
+        List<Name> nameComps = pkgID.getNameComps();
+        StringBuilder builder = new StringBuilder();
+        for (int i = 0; i < nameComps.size(); i++) {
+            if (i != 0) {
+                builder.append(".");
+            }
+            builder.append(nameComps.get(i).value);
+        }
+        return builder.toString();
+    }
+
 
     /**
      * This represents a local file system based {@link FSPackageSource}.
@@ -170,12 +202,12 @@ public class GeneralFSPackageRepository implements PackageRepository {
             this.pkgPath = pkgPath;
         }
 
-        public FSPackageSource(PackageID pkgID, Path pkgPath, String entryName) 
+        public FSPackageSource(PackageID pkgID, Path pkgPath, String entryName)
                 throws FSPackageEntityNotAvailableException {
             this.pkgID = pkgID;
             this.pkgPath = pkgPath;
             if (Files.exists(pkgPath.resolve(entryName))) {
-                this.cachedEntryNames = Arrays.asList(entryName);
+                this.cachedEntryNames = Collections.singletonList(entryName);
             } else {
                 throw new FSPackageEntityNotAvailableException();
             }
@@ -268,16 +300,16 @@ public class GeneralFSPackageRepository implements PackageRepository {
         }
 
     }
-    
+
     /**
      * Represents an FS repository not available scenario.
-     * 
+     *
      * @since 0.94
      */
     public class FSPackageEntityNotAvailableException extends Exception {
 
         private static final long serialVersionUID = 1528033476455781589L;
-        
+
     }
-    
+
 }

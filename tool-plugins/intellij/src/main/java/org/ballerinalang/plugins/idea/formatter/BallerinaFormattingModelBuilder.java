@@ -95,6 +95,7 @@ import static org.ballerinalang.plugins.idea.BallerinaTypes.PACKAGE;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.PACKAGE_NAME;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.PARAMETER_LIST;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.PUBLIC;
+import static org.ballerinalang.plugins.idea.BallerinaTypes.QUESTION_MARK;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.RBRACE;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.RECEIVEARROW;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.RECORD_KEY_VALUE;
@@ -218,9 +219,11 @@ public class BallerinaFormattingModelBuilder implements FormattingModelBuilder {
                 .after(LOCK).spaceIf(true)
                 .before(SEMI).spaceIf(false)
                 .around(DOT).spaceIf(false)
+                .around(QUESTION_MARK).spaceIf(true)
                 .around(PUBLIC).spaceIf(true)
                 .between(LPAREN, RPAREN).spaceIf(false)
                 .between(RPAREN, LBRACE).spaceIf(true)
+                .aroundInside(COLON, EXPRESSION).spaceIf(true)
                 .around(COLON).spaceIf(false)
                 .around(PARAMETER_LIST).spaceIf(false)
                 .around(TYPE_LIST).spaceIf(false)

@@ -11,7 +11,7 @@ options {
 compilationUnit
     :   packageDeclaration?
         (importDeclaration | namespaceDeclaration)*
-        (annotationAttachment* definition)*
+        (annotationAttachment* documentationAttachment? deprecatedAttachment? definition)*
         EOF
     ;
 
@@ -28,7 +28,11 @@ version
     ;
 
 importDeclaration
-    :   IMPORT packageName (AS Identifier)? SEMICOLON
+    :   IMPORT (orgName DIV)?  packageName (AS Identifier)? SEMICOLON
+    ;
+
+orgName
+    :   Identifier
     ;
 
 definition
@@ -52,7 +56,7 @@ serviceBody
     ;
 
 resourceDefinition
-    :   annotationAttachment* RESOURCE Identifier LEFT_PARENTHESIS parameterList RIGHT_PARENTHESIS callableUnitBody
+    :   annotationAttachment* documentationAttachment? deprecatedAttachment? RESOURCE Identifier LEFT_PARENTHESIS parameterList RIGHT_PARENTHESIS callableUnitBody
     ;
 
 callableUnitBody
@@ -83,8 +87,8 @@ connectorBody
     ;
 
 actionDefinition
-    :   annotationAttachment* NATIVE ACTION  callableUnitSignature SEMICOLON
-    |   annotationAttachment* ACTION callableUnitSignature callableUnitBody
+    :   annotationAttachment* documentationAttachment? deprecatedAttachment? NATIVE ACTION  callableUnitSignature SEMICOLON
+    |   annotationAttachment* documentationAttachment? deprecatedAttachment? ACTION callableUnitSignature callableUnitBody
     ;
 
 structDefinition
@@ -198,7 +202,7 @@ builtInReferenceTypeName
     ;
 
 functionTypeName
-    :   FUNCTION LEFT_PARENTHESIS (parameterList | typeList)? RIGHT_PARENTHESIS returnParameters?
+    :   FUNCTION LEFT_PARENTHESIS (parameterList | parameterTypeNameList)? RIGHT_PARENTHESIS returnParameters?
     ;
 
 xmlNamespaceName
@@ -489,7 +493,7 @@ expression
     |   LEFT_PARENTHESIS typeName RIGHT_PARENTHESIS expression              # typeCastingExpression
     |   LT typeName (COMMA functionInvocation)? GT expression               # typeConversionExpression
     |   TYPEOF builtInTypeName                                              # typeAccessExpression
-    |   (ADD | SUB | NOT | LENGTHOF | TYPEOF) expression                    # unaryExpression
+    |   (ADD | SUB | NOT | LENGTHOF | TYPEOF | UNTAINT) expression          # unaryExpression
     |   LEFT_PARENTHESIS expression RIGHT_PARENTHESIS                       # bracedExpression
     |   expression POW expression                                           # binaryPowExpression
     |   expression (DIV | MUL | MOD) expression                             # binaryDivMulModExpression
@@ -508,11 +512,15 @@ nameReference
     ;
 
 returnParameters
-    : RETURNS? LEFT_PARENTHESIS (parameterList | typeList) RIGHT_PARENTHESIS
+    : RETURNS? LEFT_PARENTHESIS (parameterList | parameterTypeNameList) RIGHT_PARENTHESIS
     ;
 
-typeList
-    :   typeName (COMMA typeName)*
+parameterTypeNameList
+    :   parameterTypeName (COMMA parameterTypeName)*
+    ;
+
+parameterTypeName
+    :   annotationAttachment* typeName
     ;
 
 parameterList
@@ -613,6 +621,7 @@ stringTemplateContent
     |   StringTemplateText
     ;
 
+
 anyIdentifierName
     : Identifier
     | reservedWord
@@ -622,3 +631,72 @@ reservedWord
     :   FOREACH
     |   TYPE_MAP
     ;
+
+// Deprecated parsing.
+
+deprecatedAttachment
+    :   DeprecatedTemplateStart deprecatedText? DeprecatedTemplateEnd
+    ;
+
+deprecatedText
+    :   deprecatedTemplateInlineCode (DeprecatedTemplateText | deprecatedTemplateInlineCode)*
+    |   DeprecatedTemplateText  (DeprecatedTemplateText | deprecatedTemplateInlineCode)*
+    ;
+
+deprecatedTemplateInlineCode
+    :   singleBackTickDeprecatedInlineCode
+    |   doubleBackTickDeprecatedInlineCode
+    |   tripleBackTickDeprecatedInlineCode
+    ;
+
+singleBackTickDeprecatedInlineCode
+    :   SBDeprecatedInlineCodeStart SingleBackTickInlineCode? SingleBackTickInlineCodeEnd
+    ;
+
+doubleBackTickDeprecatedInlineCode
+    :   DBDeprecatedInlineCodeStart DoubleBackTickInlineCode? DoubleBackTickInlineCodeEnd
+    ;
+
+tripleBackTickDeprecatedInlineCode
+    :   TBDeprecatedInlineCodeStart TripleBackTickInlineCode? TripleBackTickInlineCodeEnd
+    ;
+
+
+// Documentation parsing.
+
+documentationAttachment
+    :   DocumentationTemplateStart documentationTemplateContent? DocumentationTemplateEnd
+    ;
+
+documentationTemplateContent
+    :   docText? documentationTemplateAttributeDescription+
+    |   docText
+    ;
+
+documentationTemplateAttributeDescription
+    :   DocumentationTemplateAttributeStart Identifier DocumentationTemplateAttributeEnd docText?
+    ;
+
+docText
+    :   documentationTemplateInlineCode (DocumentationTemplateText | documentationTemplateInlineCode)*
+    |   DocumentationTemplateText  (DocumentationTemplateText | documentationTemplateInlineCode)*
+    ;
+
+documentationTemplateInlineCode
+    :   singleBackTickDocInlineCode
+    |   doubleBackTickDocInlineCode
+    |   tripleBackTickDocInlineCode
+    ;
+
+singleBackTickDocInlineCode
+    :   SBDocInlineCodeStart SingleBackTickInlineCode? SingleBackTickInlineCodeEnd
+    ;
+
+doubleBackTickDocInlineCode
+    :   DBDocInlineCodeStart DoubleBackTickInlineCode? DoubleBackTickInlineCodeEnd
+    ;
+
+tripleBackTickDocInlineCode
+    :   TBDocInlineCodeStart TripleBackTickInlineCode? TripleBackTickInlineCodeEnd
+    ;
+

@@ -19,7 +19,7 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Modal, Button, Alert } from 'react-bootstrap';
+import { Modal, Header, Message, Segment, Transition } from 'semantic-ui-react';
 
 /**
  * Base class for popup dialogs
@@ -55,54 +55,57 @@ class Dialog extends React.Component {
      */
     render() {
         return (
-            <Modal
-                show={this.props.show}
-                onHide={this.close}
-                dialogClassName={'composer-dialog ' + this.props.className}
-                onExited={this.onExited}
-            >
-                <Modal.Header closeButton>
-                    <Modal.Title>{this.props.title}</Modal.Title>
-                    {this.props.error !== '' &&
-                        <Alert bsStyle="danger">
-                            {this.props.error}
-                        </Alert>
-                    }
-                </Modal.Header>
-                <Modal.Body>
-                        {this.props.children}
-                </Modal.Body>
-                <Modal.Footer>
-                    {this.props.actions}
-                    {this.props.closeAction &&
-                        <Button onClick={this.close}>Cancel</Button>
-                    }
-                </Modal.Footer>
-            </Modal>
+            <Transition animation='fade down' duration={500} transitionOnMount unmountOnHide>
+                <Modal
+                    open={this.props.show}
+                    onClose={this.close}
+                    closeIcon
+                    size={this.props.size}
+                    className={`inverted ${this.props.className}`}
+                >
+                    <Header icon={this.props.titleIcon} content={this.props.title} />
+                    <Modal.Content>
+                        <Segment inverted>
+                            {
+                                this.props.error &&
+                                <Message negative>
+                                    <p>{this.props.error}</p>
+                                </Message>
+                            }
+                            {this.props.children}
+                        </Segment>
+                    </Modal.Content>
+                    <Modal.Actions>
+                        {this.props.actions}
+                    </Modal.Actions>
+                </Modal>
+            </Transition>
         );
     }
 }
 
 Dialog.propTypes = {
     show: PropTypes.bool,
-    closeAction: PropTypes.bool,
     onHide: PropTypes.func,
     onAfterHide: PropTypes.func.isRequired,
     title: PropTypes.node.isRequired,
     children: PropTypes.node.isRequired,
     actions: PropTypes.node,
     error: PropTypes.node,
+    size: PropTypes.string,
+    titleIcon: PropTypes.string,
     className: PropTypes.string,
 };
 
 Dialog.defaultProps = {
     show: true,
-    closeAction: false,
-    onHide: () => {},
-    onAfterHide: () => {},
+    onHide: () => { },
+    onAfterHide: () => { },
     error: '',
     actions: '',
     className: '',
+    size: 'tiny',
+    titleIcon: null,
 };
 
 export default Dialog;
