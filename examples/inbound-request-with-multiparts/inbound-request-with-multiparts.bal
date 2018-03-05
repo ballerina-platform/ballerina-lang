@@ -13,11 +13,11 @@ service<http> multiparts {
         http:OutResponse res = {};
         if (payloadError == null) {
             int i = 0;
-            io:println("CONTENT TYPE OF TOP LEVEL ENTITY > " + req.getHeader("Content-Type"));
+            io:println("Content-Type of top level entity > " + req.getHeader("content-type"));
             //Loop through body parts
             while (i < lengthof bodyParts) {
                 mime:Entity part = bodyParts[i];
-                io:println("PART " + i);
+                io:println("Part " + i);
                 io:println("---------Content Type-------");
                 io:println(part.contentType.toString());
                 io:println("----------Part Name---------");
@@ -55,6 +55,7 @@ function handleContent (mime:Entity bodyPart) {
         //Get a byte channel from body part and write content to a file.
         var byteChannel, _ = bodyPart.getByteChannel();
         writeToFile(byteChannel);
+        byteChannel.close();
         io:println("Content saved to file");
     }
 }
