@@ -9,24 +9,29 @@ service<http> multiparts {
     }
     resource receiveMultiparts (http:Connection conn, http:InRequest req) {
         //Extract multiparts from the inbound request.
-        mime:Entity[] bodyParts = req.getMultiparts();
-        int i = 0;
-
-        io:println("CONTENT TYPE OF TOP LEVEL ENTITY > " + req.getHeader("Content-Type"));
-        //Loop through body parts
-        while (i < lengthof bodyParts) {
-            mime:Entity part = bodyParts[i];
-            io:println("============================PART "+ i +"================================");
-            io:println("---------Content Type-------");
-            io:println(part.contentType.toString());
-            io:println("----------Part Name---------");
-            io:println(part.contentDisposition.name);
-            io:println("------Body Part Content-----");
-            handleContent(part);
-            i = i + 1;
-        }
+        var bodyParts, payloadError = req.getMultiparts();
         http:OutResponse res = {};
-        res.setStringPayload("Multiparts Received!");
+        if (payloadError == null) {
+            int i = 0;
+            io:println("CONTENT TYPE OF TOP LEVEL ENTITY > " + req.getHeader("Content-Type"));
+            //Loop through body parts
+            while (i < lengthof bodyParts) {
+                mime:Entity part = bodyParts[i];
+                io:println("PART " + i);
+                io:println("---------Content Type-------");
+                io:println(part.contentType.toString());
+                io:println("----------Part Name---------");
+                io:println(part.contentDisposition.name);
+                io:println("------Body Part Content-----");
+                handleContent(part);
+                i = i + 1;
+            }
+            res.setStringPayload("Multiparts Received!");
+        } else {
+            res = {statusCode:500};
+            res.setStringPayload(payloadError.message);
+        }
+
         _ = conn.respond(res);
     }
 }
@@ -36,27 +41,31 @@ function handleContent (mime:Entity bodyPart) {
     string contentType = bodyPart.contentType.toString();
     if (mime:APPLICATION_XML == contentType || mime:TEXT_XML == contentType) {
         //Extract xml data from body part and print.
-        io:println(bodyPart.getXml());
+        var xmlContent, _ = bodyPart.getXml();
+        io:println(xmlContent);
     } else if (mime:APPLICATION_JSON == contentType) {
         //Extract json data from body part and print.
-        io:println(bodyPart.getJson());
-    } else if (mime:TEXT_PLAIN == contentType){
+        var jsonContent, _ = bodyPart.getJson();
+        io:println(jsonContent);
+    } else if (mime:TEXT_PLAIN == contentType) {
         //Extract text data from body part and print.
-        io:println(bodyPart.getText());
+        var textContent, _ = bodyPart.getText();
+        io:println(textContent);
     } else if ("application/vnd.ms-powerpoint" == contentType) {
         //Get a byte channel from body part and write content to a file.
-        writeToFile(bodyPart.getByteChannel());
+        var byteChannel, _ = bodyPart.getByteChannel();
+        writeToFile(byteChannel);
         io:println("Content saved to file");
     }
 }
 
-function writeToFile(io:ByteChannel byteChannel) {
+function writeToFile (io:ByteChannel byteChannel) {
     string dstFilePath = "./files/savedFile.ppt";
     io:ByteChannel destinationChannel = getByteChannel(dstFilePath, "w");
     blob readContent;
     int numberOfBytesRead = 1;
     while (numberOfBytesRead != 0) {
-        readContent,numberOfBytesRead = byteChannel.readBytes(10000);
+        readContent, numberOfBytesRead = byteChannel.readBytes(10000);
         int numberOfBytesWritten = destinationChannel.writeBytes(readContent, 0);
     }
 }
