@@ -21,6 +21,7 @@ package org.ballerinalang.test.service.grpc.sample;
 import org.ballerinalang.test.IntegrationTestCase;
 import org.ballerinalang.test.context.ServerInstance;
 import org.ballerinalang.test.util.grpc.client.helloworld.HelloClient;
+import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -31,7 +32,7 @@ import java.io.File;
  * Test class for WebSocket client connector.
  * This test the mediation of wsClient <-> balServer <-> balWSClient <-> remoteServer.
  */
-public class GrpcTestCase extends IntegrationTestCase {
+public class GrpcServiceTestCase extends IntegrationTestCase {
     
     private ServerInstance ballerinaServer;
     
@@ -43,13 +44,14 @@ public class GrpcTestCase extends IntegrationTestCase {
     }
     
     @Test
-    public void testBasics() throws Exception {
+    public void testBlockingServer() throws Exception {
         String balFile = new File("src/test/resources/grpcService/helloWorld-server-connector.bal")
                 .getAbsolutePath();
         ballerinaServer.startBallerinaServer(balFile);
         HelloClient client = new HelloClient("localhost", 9090);
         try {
-            client.greet("WSO2");
+            String response = client.greet("WSO2");
+            Assert.assertEquals(response, "Hello WSO2");
         } finally {
             client.shutdown();
         }

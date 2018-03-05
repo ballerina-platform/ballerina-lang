@@ -19,6 +19,7 @@ import com.google.protobuf.StringValue;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import io.grpc.StatusRuntimeException;
+import org.ballerinalang.test.util.grpc.helloWorldGrpc;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,7 +31,7 @@ import java.util.concurrent.TimeUnit;
 public class HelloClient {
     private static final Logger log = LoggerFactory.getLogger(HelloClient.class);
     private final ManagedChannel channel;
-    private final HelloWorldGrpc.HelloWorldBlockingStub blockingStub;
+    private final helloWorldGrpc.helloWorldBlockingStub blockingStub;
     
     // Construct Client Server Connection.
     public HelloClient(String host, int port) {
@@ -42,7 +43,7 @@ public class HelloClient {
     // Creating Blocking Stub using the existing channel.
     private HelloClient(ManagedChannel channel) {
         this.channel = channel;
-        blockingStub = HelloWorldGrpc.newBlockingStub(channel);
+        blockingStub = helloWorldGrpc.newBlockingStub(channel);
     }
     
     public void shutdown() throws InterruptedException {
@@ -50,16 +51,17 @@ public class HelloClient {
     }
     
     // Call Greet Method in Hello server.
-    public void greet(String name) {
+    public String greet(String name) {
         StringValue stringValue = StringValue.newBuilder().setValue(name)
                 .build();
         StringValue response;
         try {
             response = blockingStub.hello(stringValue);
-            log.info("Response >> Greetings : " + response);
+            log.info("gRPC >> Response Greetings : " + response);
+            return response.getValue();
         } catch (StatusRuntimeException e) {
             log.error("Error sending events to blocking stub." , e);
         }
-        
+        return "";
     }
 }
