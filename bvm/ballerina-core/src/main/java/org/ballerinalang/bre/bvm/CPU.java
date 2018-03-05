@@ -129,12 +129,6 @@ public class CPU {
             printStream.println(i + ": " + code[i].toString());
         }
     }
-    
-    private static void checkErrors(WorkerExecutionContext ctx) {
-        if (ctx.getError() != null) {
-            handleError(ctx);
-        }
-    }
 
     private static WorkerExecutionContext handleHalt(WorkerExecutionContext ctx) {
         return ctx.respCtx.signal(new WorkerSignal(ctx, SignalType.HALT, null));
@@ -155,8 +149,6 @@ public class CPU {
 
         WorkerData currentSF, callersSF;
         int callersRetRegIndex;
-
-        checkErrors(ctx);
 
         while (ctx.ip >= 0) {
             if (debugEnabled) {
@@ -3549,7 +3541,17 @@ public class CPU {
         handleError(ctx);
     }
 
-    private static void handleError(WorkerExecutionContext ctx) {
+    /**
+     * Handles an error that is set to the given context. This will look up the
+     * error table, and if there are any catch/finally blocks, it will set the
+     * target IP that the CPU should go to next. This will also says, whether it
+     * hit any exception handlers (i.e. catch/finally blocks), or else, that there
+     * are no valid instructions to be executed in this context, but rather should
+     * just propagate the error to the caller.
+     * @param ctx the execution context
+     * @return true if hits a catch/finally block, false, otherwise
+     */
+    public static boolean handleError(WorkerExecutionContext ctx) {
         int ip = ctx.ip;
         if (ip == -1) {
             ip = ctx.backupIP;
@@ -3559,8 +3561,10 @@ public class CPU {
                 ctx.getError());
         if (match != null) {
             ctx.ip = match.getIpTarget();
+            return true;
         } else {
             ctx.respCtx.signal(new WorkerSignal(ctx, SignalType.ERROR, ctx.workerResult));
+            return false;
         }
     }
 

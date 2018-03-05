@@ -56,7 +56,7 @@ public class ResourceExecutor {
         ResourceInfo resourceInfo = ((BResource) resource).getResourceInfo();
         WorkerExecutionContext context = new WorkerExecutionContext(resourceInfo.getPackageInfo().getProgramFile());
         if (properties != null) {
-            properties.forEach((k, v) -> context.globalProps.put(k, v));
+            context.globalProps.putAll(properties);
             if (properties.get(Constants.GLOBAL_TRANSACTION_ID) != null) {
 //                FIXME
 //                context.setLocalTransactionInfo(new LocalTransactionInfo(
@@ -77,7 +77,7 @@ public class ResourceExecutor {
         ResourceInfo resourceInfo = ((BResource) resource).getResourceInfo();
         WorkerExecutionContext context = new WorkerExecutionContext(resourceInfo.getPackageInfo().getProgramFile());
         if (properties != null) {
-            properties.forEach((k, v) -> context.globalProps.put(k, v));
+            context.globalProps.putAll(properties);
         }
         BLangVMUtils.setServiceInfo(context, resourceInfo.getServiceInfo());
         BLangFunctions.invokeCallable(resourceInfo, context, bValues, responseCallback);

@@ -30,12 +30,6 @@ import java.util.List;
  * @since 0.94
  */
 public class CompileResult {
-    
-    static {
-        System.setProperty("java.util.logging.config.file",
-                ClassLoader.getSystemResource("logging.properties").getPath());
-                System.setProperty("java.util.logging.manager", "org.ballerinalang.logging.BLogManager");
-    }
 
     private List<Diagnostic> diagnostics;
     private PackageNode pkgNode;
