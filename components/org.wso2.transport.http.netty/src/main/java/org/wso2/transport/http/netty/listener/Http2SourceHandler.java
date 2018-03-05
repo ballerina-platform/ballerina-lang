@@ -36,6 +36,7 @@ import io.netty.handler.codec.http2.Http2EventAdapter;
 import io.netty.handler.codec.http2.Http2Exception;
 import io.netty.handler.codec.http2.Http2Headers;
 import io.netty.handler.codec.http2.Http2Settings;
+import io.netty.handler.codec.http2.HttpConversionUtil;
 import io.netty.util.internal.PlatformDependent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -106,7 +107,14 @@ public final class Http2SourceHandler extends Http2ConnectionHandler {
     public void userEventTriggered(ChannelHandlerContext ctx, Object evt) throws Exception {
         if (evt instanceof HttpServerUpgradeHandler.UpgradeEvent) {
             FullHttpRequest upgradedRequest = ((HttpServerUpgradeHandler.UpgradeEvent) evt).upgradeRequest();
-            HttpCarbonRequest requestCarbonMessage = setupCarbonRequest(upgradedRequest);
+
+            // Construct new HTTP Request
+            HttpRequest httpRequest = new DefaultHttpRequest(
+                    new HttpVersion(Constants.HTTP_VERSION_2_0, true), upgradedRequest.method(),
+                    upgradedRequest.uri(), upgradedRequest.headers());
+
+            HttpCarbonRequest requestCarbonMessage = setupCarbonRequest(httpRequest);
+            requestCarbonMessage.addHttpContent(new DefaultLastHttpContent(upgradedRequest.content()));
             notifyRequestListener(requestCarbonMessage, 1);
         }
         super.userEventTriggered(ctx, evt);
@@ -153,7 +161,7 @@ public final class Http2SourceHandler extends Http2ConnectionHandler {
         public void onHeadersRead(ChannelHandlerContext ctx, int streamId,
                                   Http2Headers headers, int padding, boolean endOfStream) throws Http2Exception {
 
-            HTTPCarbonMessage sourceReqCMsg = setupHttp2CarbonMsg(headers);
+            HTTPCarbonMessage sourceReqCMsg = setupHttp2CarbonMsg(headers, streamId);
 
             if (endOfStream) {  // Add empty last http content if no data frames available in the http request
                 sourceReqCMsg.addHttpContent(new EmptyLastHttpContent());
@@ -191,34 +199,36 @@ public final class Http2SourceHandler extends Http2ConnectionHandler {
         /**
          * Setup carbon message for HTTP2 request
          *
-         * @param headers Http2 headers
+         * @param http2Headers Http2 headers
          * @return a HTTPCarbonMessage
          */
-        private HTTPCarbonMessage setupHttp2CarbonMsg(Http2Headers headers) {
+        private HTTPCarbonMessage setupHttp2CarbonMsg(Http2Headers http2Headers, int streamId) {
 
             String method = Constants.HTTP_GET_METHOD;
-            if (headers.method() != null) {
-                method = headers.getAndRemove(Constants.HTTP2_METHOD).toString();
+            if (http2Headers.method() != null) {
+                method = http2Headers.getAndRemove(Constants.HTTP2_METHOD).toString();
             }
             String path = "";
-            if (headers.path() != null) {
-                path = headers.getAndRemove(Constants.HTTP2_PATH).toString();
+            if (http2Headers.path() != null) {
+                path = http2Headers.getAndRemove(Constants.HTTP2_PATH).toString();
             }
+            // Remove PseudoHeaderNames from headers
+            http2Headers.getAndRemove(Constants.HTTP2_AUTHORITY);
+            http2Headers.getAndRemove(Constants.HTTP2_SCHEME);
+
+            HttpVersion version = new HttpVersion(Constants.HTTP_VERSION_2_0, true);
 
             // Construct new HTTP Carbon Request
-            HttpRequest httpRequest = new DefaultHttpRequest(
-                    new HttpVersion(Constants.HTTP_VERSION_2_0, true), HttpMethod.valueOf(method), path);
+            HttpRequest httpRequest = new DefaultHttpRequest(version, HttpMethod.valueOf(method), path);
 
-            HttpCarbonRequest sourceReqCMsg = setupCarbonRequest(httpRequest);
+            try {
+                HttpConversionUtil.addHttp2ToHttpHeaders(
+                        streamId, http2Headers, httpRequest.headers(), version, false, true);
+            } catch (Http2Exception e) {
+                log.error("Error while setting http headers", e);
+            }
 
-            // Remove PseudoHeaderNames from headers
-            headers.getAndRemove(Constants.HTTP2_AUTHORITY);
-            headers.getAndRemove(Constants.HTTP2_SCHEME);
-
-            // Copy Http2 headers to carbon message
-            headers.forEach(header ->
-                                    sourceReqCMsg.setHeader(header.getKey().toString(), header.getValue().toString()));
-            return sourceReqCMsg;
+            return setupCarbonRequest(httpRequest);
         }
     }
 
@@ -231,12 +241,9 @@ public final class Http2SourceHandler extends Http2ConnectionHandler {
     private HttpCarbonRequest setupCarbonRequest(HttpRequest httpRequest) {
 
         HttpCarbonRequest sourceReqCMsg = new HttpCarbonRequest(httpRequest);
-        if (httpRequest instanceof FullHttpRequest) {
-            sourceReqCMsg.addHttpContent((FullHttpRequest) httpRequest);
-        }
         sourceReqCMsg.setProperty(Constants.POOLED_BYTE_BUFFER_FACTORY, new PooledDataStreamerFactory(ctx.alloc()));
         sourceReqCMsg.setProperty(Constants.CHNL_HNDLR_CTX, this.ctx);
-        sourceReqCMsg.setProperty(Constants.SRC_HANDLER, this);
+        //sourceReqCMsg.setProperty(Constants.SRC_HANDLER, this);
         HttpVersion protocolVersion = httpRequest.protocolVersion();
         sourceReqCMsg.setProperty(Constants.HTTP_VERSION,
                                   protocolVersion.majorVersion() + "." + protocolVersion.minorVersion());
