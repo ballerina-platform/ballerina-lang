@@ -36,7 +36,8 @@ import SwaggerView from './swagger-view.jsx';
 import PackageScopedEnvironment from './../env/package-scoped-environment';
 import BallerinaEnvFactory from './../env/ballerina-env-factory';
 import BallerinaEnvironment from './../env/environment';
-import { DESIGN_VIEW, SOURCE_VIEW, SWAGGER_VIEW, CHANGE_EVT_TYPES, CLASSES, SPLIT_VIEW } from './constants';
+import { DESIGN_VIEW, SOURCE_VIEW, SWAGGER_VIEW,
+        CHANGE_EVT_TYPES, CLASSES, SPLIT_VIEW } from './constants';
 import FindBreakpointNodesVisitor from './../visitors/find-breakpoint-nodes-visitor';
 import SyncLineNumbersVisitor from './../visitors/sync-line-numbers';
 import SyncBreakpointsVisitor from './../visitors/sync-breakpoints';
@@ -48,7 +49,6 @@ import ErrorMappingVisitor from './../visitors/error-mapping-visitor';
 import SyncErrorsVisitor from './../visitors/sync-errors';
 import { EVENTS } from '../constants';
 import ViewButton from './view-button';
-
 
 /**
  * React component for BallerinaFileEditor.
@@ -75,6 +75,7 @@ class BallerinaFileEditor extends React.Component {
             model: undefined,
             activeView: this.fetchState('activeView', SPLIT_VIEW),
             splitSize: this.fetchState('splitSize', (this.props.width / 2)),
+            zoomLevel: this.fetchState('zoomLevel', 1),
             lastRenderedTimestamp: undefined,
         };
         this.skipLoadingOverlay = false;
@@ -150,6 +151,7 @@ class BallerinaFileEditor extends React.Component {
 
         this.resetSwaggerView = this.resetSwaggerView.bind(this);
         this.handleSplitChange = this.handleSplitChange.bind(this);
+        this.setZoom = this.setZoom.bind(this);
     }
 
     /**
@@ -220,6 +222,17 @@ class BallerinaFileEditor extends React.Component {
                 ast: this.state.model,
             });
         }
+    }
+
+    /**
+     * Change the diagram zoom level.
+     *
+     * @param {any} newState
+     * @memberof BallerinaFileEditor
+     */
+    setZoom(newState) {
+        this.setState({ zoomLevel: newState });
+        this.persistState();
     }
 
     /**
@@ -551,6 +564,7 @@ class BallerinaFileEditor extends React.Component {
         appContext.pref.put(this.props.file.id, {
             activeView: this.state.activeView,
             splitSize: this.state.splitSize,
+            zoomLevel: this.state.zoomLevel,
         });
     }
 
@@ -562,7 +576,7 @@ class BallerinaFileEditor extends React.Component {
     fetchState(attribute, defaultVal = undefined) {
         const appContext = this.props.ballerinaPlugin.appContext;
         const data = appContext.pref.get(this.props.file.id);
-        return (data && data[attribute]) ? data[attribute] : defaultVal;
+        return (data && !_.isNil(data[attribute])) ? data[attribute] : defaultVal;
     }
 
     resetSwaggerView() {
@@ -659,6 +673,8 @@ class BallerinaFileEditor extends React.Component {
                     height={this.props.height}
                     panelResizeInProgress={this.props.panelResizeInProgress}
                     disabled={this.state.parseFailed}
+                    setZoom={this.setZoom}
+                    zoomLevel={this.state.zoomLevel}
                 />
             </div>
         );
