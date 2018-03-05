@@ -172,15 +172,11 @@ public class BallerinaTextDocumentService implements TextDocumentService {
             signatureContext.put(DocumentServiceKeys.POSITION_KEY, position);
             signatureContext.put(DocumentServiceKeys.FILE_URI_KEY, uri);
             SignatureHelp signatureHelp;
-            try {
-                BLangPackage bLangPackage = TextDocumentServiceUtil.getBLangPackage(signatureContext, documentManager);
-                SignatureTreeVisitor signatureTreeVisitor = new SignatureTreeVisitor(signatureContext);
-                bLangPackage.accept(signatureTreeVisitor);
-                signatureContext.put(DocumentServiceKeys.B_LANG_PACKAGE_CONTEXT_KEY, bLangPackageContext);
-                signatureHelp = SignatureHelpUtil.getFunctionSignatureHelp(signatureContext);
-            } catch (Exception e) {
-                signatureHelp = new SignatureHelp();
-            }
+            BLangPackage bLangPackage = TextDocumentServiceUtil.getBLangPackage(signatureContext, documentManager);
+            SignatureTreeVisitor signatureTreeVisitor = new SignatureTreeVisitor(signatureContext);
+            bLangPackage.accept(signatureTreeVisitor);
+            signatureContext.put(DocumentServiceKeys.B_LANG_PACKAGE_CONTEXT_KEY, bLangPackageContext);
+            signatureHelp = SignatureHelpUtil.getFunctionSignatureHelp(signatureContext);
             return signatureHelp;
         });
     }
@@ -221,13 +217,10 @@ public class BallerinaTextDocumentService implements TextDocumentService {
 
             List<Location> contents = new ArrayList<>();
             referenceContext.put(NodeContextKeys.REFERENCE_NODES_KEY, contents);
-            try {
-                PositionTreeVisitor positionTreeVisitor = new PositionTreeVisitor(referenceContext);
-                currentBLangPackage.accept(positionTreeVisitor);
-                contents = ReferenceUtil.getReferences(referenceContext, bLangPackageContext, currentBLangPackage);
-            } catch (Exception e) {
-                // Ignore
-            }
+
+            PositionTreeVisitor positionTreeVisitor = new PositionTreeVisitor(referenceContext);
+            currentBLangPackage.accept(positionTreeVisitor);
+            contents = ReferenceUtil.getReferences(referenceContext, bLangPackageContext, currentBLangPackage);
 
             return contents;
         });
@@ -386,7 +379,7 @@ public class BallerinaTextDocumentService implements TextDocumentService {
 
 
             String fileName = diagnostic.getPosition().getSource().getCompilationUnitName();
-            Path filePath = Paths.get(path.getParent().toString(), fileName);
+            Path filePath = Paths.get(path.getParent() + "", fileName);
             String fileURI = filePath.toUri().toString();
 
             if (!diagnosticsMap.containsKey(fileURI)) {
