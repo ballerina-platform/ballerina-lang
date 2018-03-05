@@ -109,7 +109,6 @@ public class Compiler {
             return;
         }
 
-        loadRequiredPackagesForBVM();
         gen(pkgNode);
     }
 
@@ -118,12 +117,6 @@ public class Compiler {
         BLangPackage builtInPkg = getBuiltInPackage(Names.BUILTIN_PACKAGE);
         symbolTable.builtInPackageSymbol = builtInPkg.symbol;
         return builtInPkg;
-    }
-
-    private void loadRequiredPackagesForBVM() {
-        // TODO : FIX this with Balo.
-        // This is a temporary fix to load required packages for BVM. These should be loaded from Balo to BVM.
-        symbolTable.runtimePackageSymbol = desugar(getBuiltInPackage(Names.RUNTIME_PACKAGE)).symbol;
     }
 
     public ProgramFile getCompiledProgram() {
@@ -191,6 +184,6 @@ public class Compiler {
     }
 
     private BLangPackage getBuiltInPackage(Name name) {
-        return codeAnalyze(semAnalyzer.analyze(pkgLoader.loadEntryPackage(name.getValue())));
+        return codeAnalyze(semAnalyzer.analyze(pkgLoader.loadAndDefinePackage(name.getValue())));
     }
 }

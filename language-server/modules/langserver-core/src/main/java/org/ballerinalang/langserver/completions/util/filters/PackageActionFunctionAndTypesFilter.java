@@ -21,6 +21,7 @@ import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.TokenStream;
 import org.ballerinalang.langserver.DocumentServiceKeys;
 import org.ballerinalang.langserver.TextDocumentServiceContext;
+import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.completions.CompletionKeys;
 import org.ballerinalang.langserver.completions.SymbolInfo;
 import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
@@ -259,21 +260,16 @@ public class PackageActionFunctionAndTypesFilter extends AbstractSymbolFilter {
      * @return {@link Integer}      Index of the delimiter
      */
     private int getPackageDelimiterTokenIndex(TextDocumentServiceContext completionContext) {
-        ArrayList<String> terminalTokens = new ArrayList<>(Arrays.asList(new String[]{";", "}", "{"}));
+        ArrayList<String> terminalTokens = new ArrayList<>(Arrays.asList(new String[]{";", "}", "{", "(", ")"}));
+        int delimiterIndex = -1;
         int searchTokenIndex = completionContext.get(DocumentServiceKeys.TOKEN_INDEX_KEY);
         TokenStream tokenStream = completionContext.get(DocumentServiceKeys.TOKEN_STREAM_KEY);
-        int delimiterIndex = -1;
-        String currentTokenStr = tokenStream.get(searchTokenIndex).getText();
-
-        if (terminalTokens.contains(currentTokenStr)) {
-            searchTokenIndex -= 1;
-            while (true) {
-                if (tokenStream.get(searchTokenIndex).getChannel() == Token.DEFAULT_CHANNEL) {
-                    break;
-                } else {
-                    searchTokenIndex -= 1;
-                }
-            }
+        /*
+        In order to avoid the token index inconsistencies, current token index offsets from two default tokens
+         */
+        Token offsetToken = CommonUtil.getNthDefaultTokensToLeft(tokenStream, searchTokenIndex, 2);
+        if (!terminalTokens.contains(offsetToken.getText())) {
+            searchTokenIndex = offsetToken.getTokenIndex();
         }
 
         while (true) {

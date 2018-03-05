@@ -29,7 +29,6 @@ import { EVENTS } from '../constants';
 import DesignViewErrorBoundary from './DesignViewErrorBoundary';
 import ViewButton from './view-button';
 
-
 const zoomLevels = [ZOOM_LEVELS.FIT_TO_SCREEN, ZOOM_LEVELS.ACTION, ZOOM_LEVELS.DEFAULT];
 
 class DesignView extends React.Component {
@@ -38,7 +37,6 @@ class DesignView extends React.Component {
         super(props);
         this.state = {
             isTransformActive: false,
-            zoomLevel: 1,
         };
         this.overlayContainer = undefined;
         this.diagramContainer = undefined;
@@ -63,7 +61,7 @@ class DesignView extends React.Component {
      */
     getChildContext() {
         return {
-            fitToScreen: zoomLevels[this.state.zoomLevel] === ZOOM_LEVELS.FIT_TO_SCREEN,
+            fitToScreen: zoomLevels[this.props.zoomLevel] === ZOOM_LEVELS.FIT_TO_SCREEN,
             designView: this,
             getOverlayContainer: this.getOverlayContainer,
             getDiagramContainer: this.getDiagramContainer,
@@ -152,15 +150,15 @@ class DesignView extends React.Component {
     }
 
     zoomIn() {
-        let newLevel = this.state.zoomLevel + 1;
+        let newLevel = this.props.zoomLevel + 1;
         newLevel = (newLevel >= zoomLevels.length) ? zoomLevels.length - 1 : newLevel;
-        this.setState({ zoomLevel: newLevel });
+        this.props.setZoom(newLevel);
     }
 
     zoomOut() {
-        let newLevel = this.state.zoomLevel - 1;
+        let newLevel = this.props.zoomLevel - 1;
         newLevel = (newLevel < 0) ? 0 : newLevel;
-        this.setState({ zoomLevel: newLevel });
+        this.props.setZoom(newLevel);
     }
 
     render() {
@@ -177,9 +175,9 @@ class DesignView extends React.Component {
 
         const disabled = (this.props.disabled) ? 'design-view-disabled' : '';
         // For now, fit to screen mode is same as action for components
-        const mode = zoomLevels[this.state.zoomLevel] === ZOOM_LEVELS.FIT_TO_SCREEN
+        const mode = zoomLevels[this.props.zoomLevel] === ZOOM_LEVELS.FIT_TO_SCREEN
                         ? 'action'
-                        : zoomLevels[this.state.zoomLevel];
+                        : zoomLevels[this.props.zoomLevel];
         return (
             <div
                 className={`design-view-container ${disabled}`}
@@ -219,13 +217,13 @@ class DesignView extends React.Component {
                             label='Zoom In'
                             icon='add'
                             onClick={this.zoomIn}
-                            active={!(this.state.zoomLevel === (zoomLevels.length - 1))}
+                            active={!(this.props.zoomLevel === (zoomLevels.length - 1))}
                         />
                         <ViewButton
                             label='Zoom Out'
                             icon='minus'
                             onClick={this.zoomOut}
-                            active={!(this.state.zoomLevel === 0)}
+                            active={!(this.props.zoomLevel === 0)}
                         />
                     </div>
                     {shouldShowTransform &&
@@ -256,12 +254,16 @@ DesignView.propTypes = {
     height: PropTypes.number.isRequired,
     panelResizeInProgress: PropTypes.bool.isRequired,
     disabled: PropTypes.bool.isRequired,
+    zoomLevel: PropTypes.number,
+    setZoom: PropTypes.func.isRequired,
 };
 
 DesignView.defaultProps = {
     show: true,
     model: undefined,
     disabled: false,
+    zoomLevel: 1,
+
 };
 
 DesignView.contextTypes = {

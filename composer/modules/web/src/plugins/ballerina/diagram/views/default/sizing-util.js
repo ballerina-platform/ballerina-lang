@@ -420,20 +420,8 @@ class SizingUtil {
         cmp.defaultWorker = new SimpleBBox();
         cmp.defaultWorkerLine = new SimpleBBox();
         cmp.panelBody = new SimpleBBox();
-        cmp.argParameters = new SimpleBBox();
-        cmp.returnParameters = new SimpleBBox();
-        cmp.annotation = new SimpleBBox();
-        cmp.argParameterHolder = {};
-        cmp.returnParameterHolder = {};
         cmp.receiver = new SimpleBBox();
         cmp.client = new SimpleBBox();
-
-        // initialize the annotation status.
-        if (_.isNil(viewState.showAnnotationContainer)) {
-            viewState.showAnnotationContainer = true;
-        }
-        // calculate the annotation height.
-        // cmp.annotation.h = (!viewState.showAnnotationContainer) ? 0 : this._getAnnotationHeight(node, 35);
 
         // calculate client line
         cmp.client.w = this.config.clientLine.width;
@@ -459,19 +447,22 @@ class SizingUtil {
         cmp.defaultWorkerLine.w = workers.length > 0 ? 0 : this.config.lifeLine.width;
         cmp.defaultWorkerLine.h = cmp.defaultWorker.h;
 
+        let defaultWorkerWidth = 0;
+        if (workers.length === 0) {
+            defaultWorkerWidth = cmp.defaultWorker.w + this.config.lifeLine.gutter.h;
+        }
+
         // set the max worker height to other workers.
+        let workersWidth = 0;
         workers.forEach((worker) => {
             worker.viewState.bBox.h = maxWorkerHeight;
             worker.body.viewState.bBox.h = maxWorkerHeight - this.config.lifeLine.head.height
                                              - (this.config.lifeLine.footer.height * 2);
             worker.viewState.components.lifeLine.h = maxWorkerHeight;
             // now add the worker width to panelBody width.
-            cmp.panelBody.w += this.config.lifeLine.gutter.h + worker.viewState.bBox.w;
+            workersWidth += this.config.lifeLine.gutter.h + worker.viewState.bBox.w;
         });
-        // reduce the gutter if default worker not exist.
-        if (workers.length > 0) {
-            cmp.panelBody.w -= this.config.lifeLine.gutter.h;
-        }
+
         // calculate panel body
         cmp.panelBody.h = cmp.defaultWorker.h + this.config.panel.body.padding.top
             + this.config.panel.body.padding.bottom;
@@ -480,57 +471,24 @@ class SizingUtil {
         // calculate parameters
         cmp.heading.h = this.config.panel.heading.height;
 
-        viewState.bBox.h = cmp.heading.h + cmp.panelBody.h + cmp.annotation.h;
+        viewState.bBox.h = cmp.heading.h + cmp.panelBody.h;
 
         const textWidth = this.getTextWidth(node.getName().value);
         viewState.titleWidth = textWidth.w + this.config.panel.heading.title.margin.right
             + this.config.panelHeading.iconSize.width;
 
-        // Creating components for argument parameters
-        if (node.getParameters()) {
-            // Creating component for opening bracket of the parameters view.
-            cmp.argParameterHolder.openingParameter = {};
-            cmp.argParameterHolder.openingParameter.w = this.getTextWidth('(', 0).w;
-
-            // Creating component for closing bracket of the parameters view.
-            cmp.argParameterHolder.closingParameter = {};
-            cmp.argParameterHolder.closingParameter.w = this.getTextWidth(')', 0).w;
-
-            cmp.heading.w += cmp.argParameterHolder.openingParameter.w
-                + cmp.argParameterHolder.closingParameter.w
-                + this.getParameterTypeWidth(node.getParameters()) + 120;
-        }
-
-        // Creating components for return types
-        if (node.getReturnParameters()) {
-            // Creating component for the Return type text.
-            cmp.returnParameterHolder.returnTypesIcon = {};
-            cmp.returnParameterHolder.returnTypesIcon.w = this.getTextWidth('returns', 0).w;
-
-            // Creating component for opening bracket of the return types view.
-            cmp.returnParameterHolder.openingReturnType = {};
-            cmp.returnParameterHolder.openingReturnType.w = this.getTextWidth('(', 0).w;
-
-            // Creating component for closing bracket of the return types view.
-            cmp.returnParameterHolder.closingReturnType = {};
-            cmp.returnParameterHolder.closingReturnType.w = this.getTextWidth(')', 0).w;
-
-            cmp.heading.w += cmp.returnParameterHolder.returnTypesIcon.w
-                + cmp.returnParameterHolder.openingReturnType.w
-                + cmp.returnParameterHolder.closingReturnType.w
-                + this.getParameterTypeWidth(node.getReturnParameters()) + 120;
-        }
         // here we add the public/private falg, remove and hide button width to the header.
-        cmp.heading.w += viewState.titleWidth + 280 + (this.config.panel.buttonWidth * 3);
+        cmp.heading.w += viewState.titleWidth + (this.config.panel.buttonWidth * 3);
 
         // Set the size of the connector declarations
         const statements = node.body.statements;
+        let connectorWidth = 0;
         if (statements instanceof Array) {
             statements.forEach((statement) => {
                 if (TreeUtil.isEndpointTypeVariableDef(statement)) {
                     statement.viewState.bBox.w = this.config.lifeLine.width;
                     // add the connector width to panel body width.
-                    cmp.panelBody.w += this.config.lifeLine.gutter.h + this.config.lifeLine.width;
+                    connectorWidth += this.config.lifeLine.gutter.h + this.config.lifeLine.width;
                     statement.viewState.bBox.h = node.viewState.components.defaultWorker.h;
                 }
             });
@@ -542,10 +500,18 @@ class SizingUtil {
             }
         }
         // add panel gutter to panelBody
-        cmp.panelBody.w += cmp.defaultWorker.w + (this.config.panel.wrapper.gutter.h * 2);
+        cmp.panelBody.w = this.config.panel.body.padding.left + cmp.client.w + defaultWorkerWidth
+                        + workersWidth + connectorWidth
+                        + this.config.panel.body.padding.right;
 
         // Get the largest among component heading width and component body width.
-        viewState.bBox.w = cmp.heading.w > cmp.panelBody.w ? cmp.heading.w : cmp.panelBody.w;
+        if (cmp.heading.w > cmp.panelBody.w) {
+            viewState.bBox.w = cmp.heading.w;
+            cmp.panelBody.w = cmp.heading.w;
+        } else {
+            viewState.bBox.w = cmp.panelBody.w;
+            cmp.heading.w = cmp.panelBody.w;
+        }
     }
 
     /**
@@ -973,8 +939,12 @@ class SizingUtil {
         const bBox = node.viewState.bBox;
         const workerBody = node.body;
         bBox.h = workerBody.viewState.bBox.h
-            + this.config.lifeLine.head.height + this.config.lifeLine.footer.height
-            + (this.config.statement.height * 2); // Top gap for client invoke line
+            + this.config.lifeLine.head.height + this.config.lifeLine.footer.height;
+
+        if (!TreeUtil.isForkJoin(node.parent)) {
+            bBox.h += (this.config.statement.height * 2); // Top gap for client invoke line
+        }
+
         bBox.w = workerBody.viewState.bBox.w;
         if (workerBody.viewState.components['left-margin']) {
             bBox.w += workerBody.viewState.components['left-margin'].w;
@@ -1431,102 +1401,52 @@ class SizingUtil {
         node.viewState.bBox.h = this.config.blockNode.height;
         node.viewState.bBox.w = this.config.blockNode.width;
 
-        // Set the compound node default sizing values.
-        this.sizeCompoundNode(node);
-
-        // Set the node height as available in the node if not set the default.
-        const nodeHeight = node.viewState.bBox.h + node.viewState.components['block-header'].h;
-
-        // Set the node width to default.
-        let nodeWidth = node.viewState.bBox.w;
-
-        if (joinStmt) {
-            // Calculate join keyword, parameter expression, expression lengths;
-            joinStmt.viewState.components.titleWidth = this.getTextWidth('join');
-            joinStmt.viewState.components.expression = this.getTextWidth(node.getJoinConditionString());
-            joinStmt.viewState.components.parameter = this.getTextWidth(node.getJoinResultVar().getSource(true));
-
-            if (joinStmt.viewState.bBox.w > node.viewState.bBox.w) {
-                nodeWidth = joinStmt.viewState.bBox.w;
-            }
-        }
-
-        if (timeoutStmt) {
-            // Calculate timeout expression, parameter expression, keyword lengths.
-            timeoutStmt.viewState.components.expression =
-                            this.getTextWidth(node.getTimeOutExpression().getSource(true));
-            timeoutStmt.viewState.components.titleWidth = this.getTextWidth('timeout');
-            timeoutStmt.viewState.components.parameter = this.getTextWidth(node.getTimeOutVariable().getSource(true));
-            if (timeoutStmt.viewState.bBox.w > nodeWidth) {
-                nodeWidth = timeoutStmt.viewState.bBox.w;
-            }
-        }
-
-        // Get the total of join and timeout block heights.
-        let joinTimeoutBlockHeight = 0;
-
-        if (TreeUtil.isBlock(node.parent)) {
-            if (joinStmt) {
-                joinTimeoutBlockHeight += joinStmt.viewState.components['statement-box'].h;
-            }
-            if (timeoutStmt) {
-                joinTimeoutBlockHeight += timeoutStmt.viewState.components['statement-box'].h;
-            }
-        }
-        // Get the condition box max width for join and timeout blocks.
-        let conditionBoxWidth = 0;
-
-        if (joinStmt && timeoutStmt &&
-            joinStmt.viewState.components.parameter.w > timeoutStmt.viewState.components.parameter.w) {
-            conditionBoxWidth += joinStmt.viewState.components.parameter.w;
-        } else if (timeoutStmt) {
-            conditionBoxWidth += timeoutStmt.viewState.components.parameter.w;
-        } else {
-            conditionBoxWidth += joinStmt ? joinStmt.viewState.components.parameter.w : 0;
-        }
-
-        if (joinStmt && timeoutStmt &&
-            joinStmt.viewState.components.expression.w > timeoutStmt.viewState.components.expression.w) {
-            conditionBoxWidth += joinStmt.viewState.components.expression.w;
-        } else if (conditionBoxWidth) {
-            conditionBoxWidth += timeoutStmt.viewState.components.expression.w;
-        } else {
-            conditionBoxWidth += joinStmt ? joinStmt.viewState.components.expression.w : 0;
-        }
-
-        if (timeoutStmt) {
-            conditionBoxWidth += timeoutStmt.viewState.components.titleWidth.w;
-        } else {
-            conditionBoxWidth += joinStmt ? joinStmt.viewState.components.titleWidth.w : 0;
-        }
-
-        // Get the forkJoin node width
-        nodeWidth = nodeWidth > conditionBoxWidth ? nodeWidth : conditionBoxWidth;
-
         // Calculate the dimensions of workers.
-        let maxHeightOfWorkers = 0;
-        let maxWidthOfWorkers = 0;
+        let forkHeight = 0;
+        let forkWidth = 0;
         node.workers.forEach((worker) => {
-            if (worker.viewState.bBox.h > maxHeightOfWorkers) {
-                maxHeightOfWorkers = worker.viewState.bBox.h + this.config.fork.padding.top
-                    + this.config.fork.padding.bottom + node.viewState.components['block-header'].h;
+            if (worker.viewState.bBox.h > forkHeight) {
+                forkHeight = worker.viewState.bBox.h;
             }
-
-            maxWidthOfWorkers += worker.viewState.bBox.w + this.config.fork.lifeLineGutterH;
+            forkWidth += worker.viewState.bBox.w;
         });
-
-        // Set the statement box height.
-        node.viewState.components['statement-box'].h = maxHeightOfWorkers === 0 ? nodeHeight : maxHeightOfWorkers;
-
-        node.viewState.components['statement-body'] =
-            new SimpleBBox(0, 0, 0, node.viewState.components['statement-box'].h, 0, 0);
+        // TODO Keep the padding for fork.
+        forkHeight += 80;
 
         // Set the whole fork join compound box dimensions.
-        node.viewState.bBox.h = node.viewState.components['statement-box'].h + joinTimeoutBlockHeight
-            + this.config.fork.padding.top + this.config.fork.padding.bottom
-            + node.viewState.components['block-header'].h;
-        node.viewState.bBox.w = (nodeWidth > maxWidthOfWorkers ? nodeWidth : maxWidthOfWorkers)
-            + this.config.fork.padding.left + this.config.fork.padding.right;
+        const cmp = {};
+        cmp.forkContainer = new SimpleBBox();
+        cmp.joinHeader = new SimpleBBox();
+        cmp.timeoutHeader = new SimpleBBox();
+
+        const joinBBox = (joinStmt) ? joinStmt.viewState.bBox : new SimpleBBox();
+        const timeoutBBox = (timeoutStmt) ? timeoutStmt.viewState.bBox : new SimpleBBox();
+
+        cmp.forkContainer.w = forkWidth;
+        cmp.forkContainer.h = forkHeight;
+
+        // Fork lines
+        forkHeight += (this.config.statement.height * 3);
+
+        // Add join statement
+        forkHeight += _.max([joinBBox.h, timeoutBBox.h]);
+
+        // Size join and timeout headers
+        cmp.joinHeader.w = 120;
+        cmp.joinHeader.h = (this.config.statement.height * 2);
+
+        cmp.timeoutHeader.w = 100;
+        cmp.timeoutHeader.h = (this.config.statement.height * 2);
+
+        // Add height to accomodate join and timeout headers.
+        forkHeight += cmp.joinHeader.h;
+
+        const joinAndTimeOut = joinBBox.w + timeoutBBox.w;
+        forkWidth = _.max([forkWidth, joinAndTimeOut]);
+
+        node.viewState.bBox.h = forkHeight;
+        node.viewState.bBox.w = forkWidth - (this.config.lifeLine.width / 2);
+        node.viewState.components = cmp;
     }
 
     /**

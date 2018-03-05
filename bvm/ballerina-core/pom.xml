@@ -113,10 +113,6 @@
             <groupId>javax.transaction</groupId>
             <artifactId>javax.transaction-api</artifactId>
         </dependency>
-        <dependency>
-            <groupId>org.atomikos.wso2</groupId>
-            <artifactId>atomikos</artifactId>
-        </dependency>
     </dependencies>
 
     <properties>

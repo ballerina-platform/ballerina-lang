@@ -36,6 +36,12 @@ public class HttpResourceDataElement implements DataElement<HttpResource, HTTPCa
 
     private List<HttpResource> resource;
     private boolean isFirstTraverse = true;
+    private boolean hasData = false;
+
+    @Override
+    public boolean hasData() {
+        return hasData;
+    }
 
     @Override
     public void setData(HttpResource newResource) {
@@ -43,6 +49,7 @@ public class HttpResourceDataElement implements DataElement<HttpResource, HTTPCa
             this.resource = new ArrayList<>();
             this.resource.add(newResource);
             isFirstTraverse = false;
+            hasData = true;
             return;
         }
         List<String> newMethods = newResource.getMethods();
@@ -55,6 +62,7 @@ public class HttpResourceDataElement implements DataElement<HttpResource, HTTPCa
                 }
             }
             this.resource.add(newResource);
+            hasData = true;
             return;
         }
         this.resource.forEach(r -> {
@@ -66,6 +74,7 @@ public class HttpResourceDataElement implements DataElement<HttpResource, HTTPCa
             }
         });
         this.resource.add(newResource);
+        hasData = true;
     }
 
     @Override

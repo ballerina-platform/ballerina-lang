@@ -322,10 +322,7 @@ public class Types {
         //RHS type should have at least all the fields as well attached functions of LHS type.
         BStructType lhsStructType = (BStructType) lhsType;
         BStructType rhsStructType = (BStructType) rhsType;
-
-        if (lhsStructType.fields.size() > rhsStructType.fields.size() ||
-                ((BStructSymbol) lhsStructType.tsymbol).attachedFuncs.size() >
-                        ((BStructSymbol) rhsStructType.tsymbol).attachedFuncs.size()) {
+        if (lhsStructType.fields.size() > rhsStructType.fields.size()) {
             return false;
         }
 
@@ -943,9 +940,19 @@ public class Types {
             return false;
         }
 
-        List<BAttachedFunction> lhsFuncs = ((BStructSymbol) lhsType.tsymbol).attachedFuncs;
+        BStructSymbol lhsStructSymbol = (BStructSymbol) lhsType.tsymbol;
+        List<BAttachedFunction> lhsFuncs = lhsStructSymbol.attachedFuncs;
         List<BAttachedFunction> rhsFuncs = ((BStructSymbol) rhsType.tsymbol).attachedFuncs;
+        int lhsAttachedFuncCount = lhsStructSymbol.initializerFunc != null ? lhsFuncs.size() - 1 : lhsFuncs.size();
+        if (lhsAttachedFuncCount > rhsFuncs.size()) {
+            return false;
+        }
+
         for (BAttachedFunction lhsFunc : lhsFuncs) {
+            if (lhsFunc == lhsStructSymbol.initializerFunc) {
+                continue;
+            }
+
             BAttachedFunction rhsFunc = getMatchingInvokableType(rhsFuncs, lhsFunc);
             if (rhsFunc == null) {
                 return false;
@@ -978,9 +985,19 @@ public class Types {
             }
         }
 
-        List<BAttachedFunction> lhsFuncs = ((BStructSymbol) lhsType.tsymbol).attachedFuncs;
+        BStructSymbol lhsStructSymbol = (BStructSymbol) lhsType.tsymbol;
+        List<BAttachedFunction> lhsFuncs = lhsStructSymbol.attachedFuncs;
         List<BAttachedFunction> rhsFuncs = ((BStructSymbol) rhsType.tsymbol).attachedFuncs;
+        int lhsAttachedFuncCount = lhsStructSymbol.initializerFunc != null ? lhsFuncs.size() - 1 : lhsFuncs.size();
+        if (lhsAttachedFuncCount > rhsFuncs.size()) {
+            return false;
+        }
+
         for (BAttachedFunction lhsFunc : lhsFuncs) {
+            if (lhsFunc == lhsStructSymbol.initializerFunc) {
+                continue;
+            }
+
             if (Symbols.isPrivate(lhsFunc.symbol)) {
                 return false;
             }
