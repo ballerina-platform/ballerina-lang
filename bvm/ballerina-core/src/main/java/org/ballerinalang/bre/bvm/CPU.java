@@ -3030,8 +3030,14 @@ public class CPU {
             return false;
         }
 
+        // Adjust the number of the attached functions of the lhs struct based on
+        //  the availability of the initializer function.
+        int lhsAttachedFunctionCount = lhsType.initializer != null ?
+                lhsType.getAttachedFunctions().length - 1 :
+                lhsType.getAttachedFunctions().length;
+
         if (lhsType.getStructFields().length > rhsType.getStructFields().length ||
-                lhsType.getAttachedFunctions().length > rhsType.getAttachedFunctions().length) {
+                lhsAttachedFunctionCount > rhsType.getAttachedFunctions().length) {
             return false;
         }
 
@@ -3055,6 +3061,10 @@ public class CPU {
         BStructType.AttachedFunction[] lhsFuncs = lhsType.getAttachedFunctions();
         BStructType.AttachedFunction[] rhsFuncs = rhsType.getAttachedFunctions();
         for (BStructType.AttachedFunction lhsFunc : lhsFuncs) {
+            if (lhsFunc == lhsType.initializer) {
+                continue;
+            }
+
             BStructType.AttachedFunction rhsFunc = getMatchingInvokableType(rhsFuncs, lhsFunc);
             if (rhsFunc == null) {
                 return false;
@@ -3091,6 +3101,10 @@ public class CPU {
         BStructType.AttachedFunction[] lhsFuncs = lhsType.getAttachedFunctions();
         BStructType.AttachedFunction[] rhsFuncs = rhsType.getAttachedFunctions();
         for (BStructType.AttachedFunction lhsFunc : lhsFuncs) {
+            if (lhsFunc == lhsType.initializer) {
+                continue;
+            }
+
             if (!Flags.isFlagOn(lhsFunc.flags, Flags.PUBLIC)) {
                 return false;
             }
