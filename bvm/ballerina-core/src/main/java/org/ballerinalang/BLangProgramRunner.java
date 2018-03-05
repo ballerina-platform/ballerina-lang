@@ -114,7 +114,9 @@ public class BLangProgramRunner {
         initDebugger(programFile, debugger);
         FunctionInfo mainFuncInfo = getMainFunction(mainPkgInfo);
         BLangFunctions.invokeEntrypointCallable(programFile, mainPkgInfo, mainFuncInfo, extractMainArgs(args));
-        debugger.notifyExit();
+        if (debugger.isDebugEnabled()) {
+            debugger.notifyExit();
+        }
     }
     
     private static BValue[] extractMainArgs(String[] args) {
