@@ -64,6 +64,7 @@ import org.wso2.transport.http.netty.contract.HttpResponseFuture;
 import org.wso2.transport.http.netty.contract.HttpWsConnectorFactory;
 import org.wso2.transport.http.netty.contractimpl.DefaultHttpWsConnectorFactory;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
+import org.wso2.transport.http.netty.message.Http2PushPromise;
 import org.wso2.transport.http.netty.message.HttpMessageDataStreamer;
 
 import java.io.IOException;
@@ -306,6 +307,28 @@ public class HttpUtil {
         return responseFuture;
     }
 
+    public static HttpResponseFuture pushResponse(HTTPCarbonMessage requestMsg, HTTPCarbonMessage responseMsg,
+                                                  Http2PushPromise pushPromise) {
+        HttpResponseFuture responseFuture;
+        try {
+            responseFuture = requestMsg.respond(responseMsg, pushPromise);
+        } catch (org.wso2.transport.http.netty.contract.ServerConnectorException e) {
+            throw new BallerinaConnectorException("Error occurred during response", e);
+        }
+        return responseFuture;
+    }
+
+    public static HttpResponseFuture pushPromise(HTTPCarbonMessage requestMsg, Http2PushPromise pushPromise) {
+        HttpResponseFuture responseFuture;
+        try {
+            responseFuture = requestMsg.respond(pushPromise);
+        } catch (org.wso2.transport.http.netty.contract.ServerConnectorException e) {
+            throw new BallerinaConnectorException("Error occurred during response", e);
+        }
+        return responseFuture;
+    }
+
+
     public static void handleFailure(HTTPCarbonMessage requestMessage, BallerinaConnectorException ex) {
         Object carbonStatusCode = requestMessage.getProperty(HttpConstants.HTTP_STATUS_CODE);
         int statusCode = (carbonStatusCode == null) ? 500 : Integer.parseInt(carbonStatusCode.toString());
@@ -367,6 +390,15 @@ public class HttpUtil {
         }
         addCarbonMsg(struct, defaultMsg);
         return defaultMsg;
+    }
+
+    public static Http2PushPromise getPushPromise(BStruct struct, Http2PushPromise defaultPushPromise) {
+        Http2PushPromise pushPromise = (Http2PushPromise) struct.getNativeData(HttpConstants.TRANSPORT_PUSH_PROMISE);
+        if (pushPromise != null) {
+            return pushPromise;
+        }
+        struct.addNativeData(HttpConstants.TRANSPORT_PUSH_PROMISE, defaultPushPromise);
+        return defaultPushPromise;
     }
 
     public static void addCarbonMsg(BStruct struct, HTTPCarbonMessage httpCarbonMessage) {
@@ -853,6 +885,10 @@ public class HttpUtil {
                     .setId(getListenerInterface(listenerConfiguration.getHost(), listenerConfiguration.getPort()));
             listenerConfSet.add(listenerConfiguration);
         }
+    }
+
+    public static Http2PushPromise createHttpPushPromise() {
+        return new Http2PushPromise(null);
     }
 
     public static HTTPCarbonMessage createHttpCarbonMessage(boolean isRequest) {

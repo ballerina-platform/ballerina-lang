@@ -70,7 +70,7 @@ public abstract class ConnectionAction extends AbstractNativeFunction {
         return handleResponseStatus(context, outboundRespStatusFuture);
     }
 
-    private BValue[] handleResponseStatus(Context context, HttpResponseFuture outboundResponseStatusFuture) {
+    protected BValue[] handleResponseStatus(Context context, HttpResponseFuture outboundResponseStatusFuture) {
         try {
             outboundResponseStatusFuture = outboundResponseStatusFuture.sync();
         } catch (InterruptedException e) {
@@ -83,7 +83,7 @@ public abstract class ConnectionAction extends AbstractNativeFunction {
         return AbstractNativeFunction.VOID_RETURN;
     }
 
-    private void serializeMsgDataSource(HTTPCarbonMessage responseMessage, MessageDataSource outboundMessageSource,
+    protected void serializeMsgDataSource(HTTPCarbonMessage responseMessage, MessageDataSource outboundMessageSource,
                                         HttpResponseFuture outboundResponseStatusFuture, BStruct entityStruct) {
         HttpMessageDataStreamer outboundMsgDataStreamer = new HttpMessageDataStreamer(responseMessage);
         HttpConnectorListener outboundResStatusConnectorListener =

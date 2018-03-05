@@ -165,12 +165,14 @@ public class HttpConstants {
     public static final String OUT_REQUEST = "OutRequest";
     public static final String IN_RESPONSE = "InResponse";
     public static final String HTTP_HANDLE = "HttpHandle";
+    public static final String PUSH_PROMISE = "PushPromise";
     public static final String OUT_RESPONSE = "OutResponse";
     public static final String ENTITY = "Entity";
     public static final String HTTP_CONNECTOR_ERROR = "HttpConnectorError";
     public static final String TYPE_STRING = "string";
     public static final String TRANSPORT_MESSAGE = "transport_message";
     public static final String TRANSPORT_HANDLE = "transport_handle";
+    public static final String TRANSPORT_PUSH_PROMISE = "transport_push_promise";
     public static final String MESSAGE_OUTPUT_STREAM = "message_output_stream";
     public static final String HTTP_SESSION = "http_session";
 
