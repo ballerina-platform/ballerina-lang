@@ -101,8 +101,17 @@ public class BLangScheduler {
     
     public static void errorThrown(WorkerExecutionContext ctx, BStruct error) {
         ctx.setError(error);
+        /* we will handle the error on behalf of the target worker context here,
+         * where it will check if the handle error logic returned a valid IP to
+         * continue, that is, if it hit a valid error handler, so this worker
+         * context can continue. Or else, it would mean, it didn't hit an error
+         * handler, and that worker context would be excepted, and cannot be
+         * resumed anymore */
         if (!ctx.isRootContext()) {
-            resume(ctx, false);
+            boolean validResume = CPU.handleError(ctx);
+            if (validResume) {
+                resume(ctx, false);
+            }
         }
     }
     
