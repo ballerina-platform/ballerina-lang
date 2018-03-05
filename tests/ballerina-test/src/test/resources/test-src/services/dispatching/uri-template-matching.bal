@@ -344,6 +344,20 @@ service<http> echo55 {
         res.setJsonPayload(responseJson);
         _ = conn.respond(res);
     }
+
+    @http:resourceConfig {
+        path:"/foo/*"
+    }
+    resource echo5 (http:Connection conn, http:InRequest req) {
+        map params = req.getQueryParams();
+        string foo;
+        foo, _ = (string)params.foo;
+        json responseJson = {"echo55":"/foo/*"};
+
+        http:OutResponse res = {};
+        res.setJsonPayload(responseJson);
+        _ = conn.respond(res);
+    }
 }
 
 @http:configuration {basePath:"/echo66"}

@@ -1,7 +1,24 @@
+// Copyright (c) 2018 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+//
+// WSO2 Inc. licenses this file to you under the Apache License,
+// Version 2.0 (the "License"); you may not use this file except
+// in compliance with the License.
+// You may obtain a copy of the License at
+//
+// http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing,
+// software distributed under the License is distributed on an
+// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+// KIND, either express or implied.  See the License for the
+// specific language governing permissions and limitations
+// under the License.
+
 package ballerina.net.http.resiliency;
 
 import ballerina.net.http;
 import ballerina.runtime;
+import ballerina.mime;
 
 @Description {value:"Represents Failover connector retry configuration."}
 @Field {value:"failoverCodes: Array of http response status codes which required failover the requests."}
@@ -127,16 +144,6 @@ public connector Failover (http:HttpClient[] failoverClientsArray, FailoverConfi
     }
 }
 
-// Populate boolean index array by looking at the Http status codes configured to be retry to get better performance
-// at runtime.
-function populateErrorCodeIndex (int[] errorCode) (boolean[] result) {
-    result = [];
-    foreach i in errorCode {
-        result[i] = true;
-    }
-    return result;
-}
-
 // Performs execute action of the Failover connector. extract the corresponding http integer value representation
 // of the http verb and invokes the perform action method.
 function performExecuteAction (string path, http:OutRequest outRequest, http:InRequest inRequest,
@@ -170,12 +177,22 @@ function performFailoverAction (string path, http:OutRequest outRequest, http:In
         blob binaryPayload = inRequest.getBinaryPayload();
     }
 
+    mime:Entity requestEntity = null;
+    if (outRequest != null) {
+        requestEntity = outRequest.getEntity();
+    }
+
     while (startIndex != currentIndex) {
         startIndex = initialIndex;
         currentIndex = currentIndex + 1;
         inResponse, httpConnectorError = invokeEndpoint(path, outRequest, inRequest, requestAction, failoverClient);
 
         if (inResponse == null && httpConnectorError != null) {
+            outRequest = {};
+            if (requestEntity != null) {
+                outRequest.setEntity(requestEntity);
+            }
+
             if (noOfEndpoints > currentIndex) {
                 runtime:sleepCurrentWorker(failoverInterval);
                 failoverConnectorError.httpConnectorError[currentIndex - 1] = httpConnectorError;
@@ -188,6 +205,10 @@ function performFailoverAction (string path, http:OutRequest outRequest, http:In
             int httpStatusCode = inResponse.statusCode;
             if (failoverCodeIndex[httpStatusCode] == true) {
                 if (noOfEndpoints > currentIndex) {
+                    outRequest = {};
+                    if (requestEntity != null) {
+                        outRequest.setEntity(requestEntity);
+                    }
                     runtime:sleepCurrentWorker(failoverInterval);
                     failoverClient = failoverClients[currentIndex];
                     populateFailoverErrorHttpStatusCodes(inResponse, failoverConnectorError, currentIndex - 1);

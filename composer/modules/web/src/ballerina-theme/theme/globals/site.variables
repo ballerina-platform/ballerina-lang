@@ -1,0 +1,74 @@
+/*******************************
+     User Global Variables
+*******************************/
+
+body:not(.user-is-tabbing) button:focus,
+body:not(.user-is-tabbing) input:focus,
+body:not(.user-is-tabbing) select:focus,
+body:not(.user-is-tabbing) textarea:focus,
+html:focus, body:focus, input[readonly]:focus{
+  outline: none;
+}
+
+/*-------------------
+       Fonts
+--------------------*/
+
+@fontName          : 'Roboto';
+@fontSmoothing     : antialiased;
+
+@headerFont        : @fontName, 'Helvetica Neue', Arial, Helvetica, sans-serif;
+@pageFont          : @fontName, 'Helvetica Neue', Arial, Helvetica, sans-serif;
+
+/*-------------------
+      Colors
+--------------------*/
+
+@primaryColor               : @orange;
+@secondaryColor             : @gray-100;
+@defaultColor               : #626262;
+
+@red                        : #f44336;
+@orange                     : #F1772A;
+@yellow                     : #FFEB3B;
+@olive                      : #32CD32;
+@green                      : #4CAF50;
+@teal                       : #009688;
+@blue                       : #2196F3;
+@violet                     : #EE82EE;
+@purple                     : #6f42c1;
+@pink                       : #E91E63;
+@brown                      : #795548;
+@grey                       : #607D8B;
+@black                      : #000000;
+@off-white                  : #f1f1f1;
+@linkColor                  : #f17b31;
+
+/*---- Shades of Gray ----*/
+
+@gray-100   : #f8f9fa;
+@gray-200   : #e9ecef;
+@gray-300   : #dee2e6;
+@gray-400   : #ced4da;
+@gray-500   : #adb5bd;
+@gray-600   : #868e96;
+@gray-700   : #495057;
+@gray-800   : #343a40;
+@gray-900   : #212529;
+
+/*---- Inverted Colors  ----*/
+
+@invertedBackgroundColor        : #222;
+@invertedInputBackgroundColor   : #3a3a3a;
+@selectionInvertedBorderColor   : @orange;
+@selectionInvertedTextColor     : @off-white;
+@selectionInvertItemDivider     : @defaultColor;
+
+@pageBackground                 : @off-white;
+
+@placeholderBackgroundOpacity   : 0.7;
+
+@highlightBackground            : @orange;
+
+@selectionBorderRadius          : 0;
+@borderRadius          : 0;

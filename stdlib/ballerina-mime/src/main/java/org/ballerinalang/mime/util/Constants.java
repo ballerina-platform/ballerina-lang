@@ -35,18 +35,8 @@ public class Constants {
     /**
      * Content type HTTP header.
      */
-    public static final String CONTENT_TYPE = "Content-Type";
-
-    public static final String CONTENT_LENGTH = "Content-Length";
-
-    public static final String CONTENT_DISPOSITION = "Content-Disposition";
 
     public static final String CONTENT_ID = "Content-Id";
-
-    /**
-     * Content-Transfer-Encoding HTTP header.
-     */
-    public static final String CONTENT_TRANSFER_ENCODING = "Content-Transfer-Encoding";
 
     /**
      * Content-type application/json.
@@ -78,6 +68,11 @@ public class Constants {
      */
     public static final String MULTIPART_FORM_DATA = "multipart/form-data";
 
+    /**
+     * Content-type multipart/mixed.
+     */
+    public static final String MULTIPART_MIXED = "multipart/mixed";
+
     public static final String MULTIPART_AS_PRIMARY_TYPE = "multipart/";
     public static final String BOUNDARY = "boundary";
 
@@ -88,8 +83,9 @@ public class Constants {
     public static final String MESSAGE_ENTITY = "message_entity";
     public static final String MESSAGE_DATA_SOURCE = "message_datasource";
     public static final String IS_BODY_BYTE_CHANNEL_ALREADY_SET = "is_byte_channel_set";
-    public static final String ENTITY_BYTE_CHANNEL = "byte_channel";
+    public static final String ENTITY_BYTE_CHANNEL = "entity_byte_channel";
     public static final String MULTIPART_ENCODER = "MultipartEncoder";
+    public static final String BODY_PARTS = "body_parts";
 
     //Native argument indexes
     public static final int FIRST_PARAMETER_INDEX = 0;
@@ -99,9 +95,8 @@ public class Constants {
     public static final int MEDIA_TYPE_INDEX = 0;
     public static final int CONTENT_ID_INDEX = 0;
     public static final int ENTITY_HEADERS_INDEX = 1;
-    public static final int MULTIPART_DATA_INDEX = 2;
     public static final int SIZE_INDEX = 0;
-    public static final int CONTENT_DISPOSITION_INDEX = 3;
+    public static final int CONTENT_DISPOSITION_INDEX = 2;
 
     public static final int FIRST_BODY_PART_INDEX = 0;
 

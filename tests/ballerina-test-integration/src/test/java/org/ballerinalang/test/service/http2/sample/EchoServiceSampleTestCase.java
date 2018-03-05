@@ -43,7 +43,7 @@ public class EchoServiceSampleTestCase extends HTTP2IntegrationTestCase {
     @Test(description = "Test echo service sample test case invoking base path")
     public void testEchoServiceByBasePath() throws Exception {
         DefaultFullHttpRequest request = new DefaultFullHttpRequest(HTTP_1_1, POST, "/echo");
-        request.headers().set(TestConstant.HEADER_CONTENT_TYPE, TestConstant.CONTENT_TYPE_JSON);
+        request.headers().set(HttpHeaderNames.CONTENT_TYPE.toString(), TestConstant.CONTENT_TYPE_JSON);
         ByteBuf buffer = request.content().clear();
         int p0 = buffer.writerIndex();
         buffer.writeBytes(requestMessage.getBytes());
@@ -53,7 +53,7 @@ public class EchoServiceSampleTestCase extends HTTP2IntegrationTestCase {
         FullHttpResponse response = http2Client.getResponse(send);
         //request should be returned as response
         Assert.assertEquals(response.getStatus().code(), 200, "Response code mismatched");
-        Assert.assertEquals(response.headers().get(TestConstant.HEADER_CONTENT_TYPE)
+        Assert.assertEquals(response.headers().get(HttpHeaderNames.CONTENT_TYPE.toString())
                 , TestConstant.CONTENT_TYPE_JSON, "Content-Type mismatched");
         Assert.assertEquals(getResponse(response), requestMessage, "Message content mismatched");
     }
@@ -61,8 +61,8 @@ public class EchoServiceSampleTestCase extends HTTP2IntegrationTestCase {
     @Test(description = "Test echo service sample test case")
     public void testEchoServiceByResourcePath() throws Exception {
         DefaultFullHttpRequest request = new DefaultFullHttpRequest(HTTP_1_1, POST, "/echo/resource");
-        request.headers().set(TestConstant.HEADER_CONTENT_TYPE, TestConstant.CONTENT_TYPE_JSON);
-        request.headers().set(TestConstant.HEADER_CONTENT_TYPE, TestConstant.CONTENT_TYPE_JSON);
+        request.headers().set(HttpHeaderNames.CONTENT_TYPE.toString(), TestConstant.CONTENT_TYPE_JSON);
+        request.headers().set(HttpHeaderNames.CONTENT_TYPE.toString(), TestConstant.CONTENT_TYPE_JSON);
         ByteBuf buffer = request.content().clear();
         int p0 = buffer.writerIndex();
         buffer.writeBytes(requestMessage.getBytes());
@@ -72,7 +72,7 @@ public class EchoServiceSampleTestCase extends HTTP2IntegrationTestCase {
         FullHttpResponse response = http2Client.getResponse(send);
         //request should be returned as response
         Assert.assertEquals(response.getStatus().code(), 200, "Response code mismatched");
-        Assert.assertEquals(response.headers().get(TestConstant.HEADER_CONTENT_TYPE)
+        Assert.assertEquals(response.headers().get(HttpHeaderNames.CONTENT_TYPE.toString())
                 , TestConstant.CONTENT_TYPE_JSON, "Content-Type mismatched");
         Assert.assertEquals(getResponse(response),  requestMessage, "Message content mismatched");
     }

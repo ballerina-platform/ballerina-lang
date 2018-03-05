@@ -26,6 +26,7 @@ import org.ballerinalang.util.codegen.ActionInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.codegen.ServiceInfo;
 import org.ballerinalang.util.debugger.DebugContext;
+import org.ballerinalang.util.transactions.LocalTransactionInfo;
 
 import java.util.Map;
 
@@ -54,10 +55,6 @@ public interface Context {
 
     public void setServiceInfo(ServiceInfo serviceInfo);
 
-    public void setBallerinaTransactionManager(BallerinaTransactionManager ballerinaTransactionManager);
-
-    public BallerinaTransactionManager getBallerinaTransactionManager();
-
     public boolean isInTransaction();
 
     public BStruct getError();
@@ -65,6 +62,10 @@ public interface Context {
     public void setError(BStruct error);
 
     public ProgramFile getProgramFile();
+
+    public void setLocalTransactionInfo(LocalTransactionInfo localTransactionInfo);
+
+    public LocalTransactionInfo getLocalTransactionInfo();
 
     public long getIntArgument(int index);
 

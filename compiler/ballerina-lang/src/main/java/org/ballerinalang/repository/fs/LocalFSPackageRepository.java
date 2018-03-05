@@ -17,6 +17,8 @@
 */
 package org.ballerinalang.repository.fs;
 
+import org.wso2.ballerinalang.compiler.util.Name;
+
 import java.nio.file.Paths;
 
 /**
@@ -29,5 +31,8 @@ public class LocalFSPackageRepository extends GeneralFSPackageRepository {
     public LocalFSPackageRepository(String basePath) {
         super(Paths.get(basePath));
     }
-    
+
+    public LocalFSPackageRepository(String basePath, String orgName) {
+        super(Paths.get(basePath), new Name(orgName));
+    }
 }

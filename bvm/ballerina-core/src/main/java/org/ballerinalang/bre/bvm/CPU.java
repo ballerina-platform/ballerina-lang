@@ -19,7 +19,6 @@ package org.ballerinalang.bre.bvm;
 
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.ballerinalang.bre.BLangCallableUnitCallback;
-import org.ballerinalang.bre.BallerinaTransactionManager;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.NativeCallContext;
 import org.ballerinalang.model.NativeCallableUnit;
@@ -2603,58 +2602,58 @@ public class CPU {
     }
 
     private static void endTransaction(WorkerExecutionContext ctx, int status) {
-        BallerinaTransactionManager ballerinaTransactionManager = ctx.getBallerinaTransactionManager();
-        if (ballerinaTransactionManager != null) {
-            try {
-                if (status == TransactionStatus.SUCCESS.value()) {
-                    ballerinaTransactionManager.commitTransactionBlock();
-                } else if (status == TransactionStatus.FAILED.value()) {
-                    ballerinaTransactionManager.rollbackTransactionBlock();
-                } else { //status = 1 Transaction end
-                    ballerinaTransactionManager.endTransactionBlock();
-                    if (ballerinaTransactionManager.isOuterTransaction()) {
-                        ctx.setBallerinaTransactionManager(null);
-                    }
-                }
-            } catch (Throwable e) {
-                ctx.setError(BLangVMErrors.createError(ctx, e.getMessage()));
-                handleError(ctx);
-                return;
-            }
-        }
+//        BallerinaTransactionManager ballerinaTransactionManager = ctx.getBallerinaTransactionManager();
+//        if (ballerinaTransactionManager != null) {
+//            try {
+//                if (status == TransactionStatus.SUCCESS.value()) {
+//                    ballerinaTransactionManager.commitTransactionBlock();
+//                } else if (status == TransactionStatus.FAILED.value()) {
+//                    ballerinaTransactionManager.rollbackTransactionBlock();
+//                } else { //status = 1 Transaction end
+//                    ballerinaTransactionManager.endTransactionBlock();
+//                    if (ballerinaTransactionManager.isOuterTransaction()) {
+//                        ctx.setBallerinaTransactionManager(null);
+//                    }
+//                }
+//            } catch (Throwable e) {
+//                ctx.setError(BLangVMErrors.createError(ctx, e.getMessage()));
+//                handleError(ctx);
+//                return;
+//            }
+//        }
     }
 
     private static void beginTransaction(WorkerExecutionContext ctx, int transactionId, int retryCountRegIndex) {
         //Transaction is attempted three times by default to improve resiliency
-        int retryCount = 3;
-        if (retryCountRegIndex != -1) {
-            retryCount = (int) ctx.workerLocal.longRegs[retryCountRegIndex];
-            if (retryCount < 0) {
-                ctx.setError(BLangVMErrors.createError(ctx,
-                        BLangExceptionHelper.getErrorMessage(RuntimeErrors.INVALID_RETRY_COUNT)));
-                handleError(ctx);
-                return;
-            }
-        }
-        BallerinaTransactionManager ballerinaTransactionManager = ctx.getBallerinaTransactionManager();
-        if (ballerinaTransactionManager == null) {
-            ballerinaTransactionManager = new BallerinaTransactionManager();
-            ctx.setBallerinaTransactionManager(ballerinaTransactionManager);
-        }
-        ballerinaTransactionManager.beginTransactionBlock(transactionId, retryCount);
+//        int retryCount = 3;
+//        if (retryCountRegIndex != -1) {
+//            retryCount = (int) ctx.workerLocal.longRegs[retryCountRegIndex];
+//            if (retryCount < 0) {
+//                ctx.setError(BLangVMErrors.createError(ctx,
+//                        BLangExceptionHelper.getErrorMessage(RuntimeErrors.INVALID_RETRY_COUNT)));
+//                handleError(ctx);
+//                return;
+//            }
+//        }
+//        BallerinaTransactionManager ballerinaTransactionManager = ctx.getBallerinaTransactionManager();
+//        if (ballerinaTransactionManager == null) {
+//            ballerinaTransactionManager = new BallerinaTransactionManager();
+//            ctx.setBallerinaTransactionManager(ballerinaTransactionManager);
+//        }
+//        ballerinaTransactionManager.beginTransactionBlock(transactionId, retryCount);
 
     }
 
     private static void retryTransaction(WorkerExecutionContext ctx, int transactionId, int startOfAbortIP) {
-        BallerinaTransactionManager ballerinaTransactionManager = ctx.getBallerinaTransactionManager();
-        int allowedRetryCount = ballerinaTransactionManager.getAllowedRetryCount(transactionId);
-        int currentRetryCount = ballerinaTransactionManager.getCurrentRetryCount(transactionId);
-        if (currentRetryCount >= allowedRetryCount) {
-            if (currentRetryCount != 0) {
-                ctx.ip = startOfAbortIP;
-            }
-        }
-        ballerinaTransactionManager.incrementCurrentRetryCount(transactionId);
+//        BallerinaTransactionManager ballerinaTransactionManager = ctx.getBallerinaTransactionManager();
+//        int allowedRetryCount = ballerinaTransactionManager.getAllowedRetryCount(transactionId);
+//        int currentRetryCount = ballerinaTransactionManager.getCurrentRetryCount(transactionId);
+//        if (currentRetryCount >= allowedRetryCount) {
+//            if (currentRetryCount != 0) {
+//                ctx.ip = startOfAbortIP;
+//            }
+//        }
+//        ballerinaTransactionManager.incrementCurrentRetryCount(transactionId);
     }
 
     private static WorkerExecutionContext invokeCallableUnit(WorkerExecutionContext ctx,
@@ -3570,8 +3569,7 @@ public class CPU {
         }
 
         try {
-            sf.refRegs[j] = JSONUtils.convertJSONToStruct(bjson, (BStructType) typeRefCPEntry.getType(),
-                    ctx.callableUnitInfo.getPackageInfo());
+            sf.refRegs[j] = JSONUtils.convertJSONToStruct(bjson, (BStructType) typeRefCPEntry.getType());
             sf.refRegs[k] = null;
         } catch (Exception e) {
             sf.refRegs[j] = null;

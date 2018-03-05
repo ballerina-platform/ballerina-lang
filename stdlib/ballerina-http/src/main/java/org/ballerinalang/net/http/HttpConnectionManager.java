@@ -32,7 +32,6 @@ import org.wso2.transport.http.netty.contract.ServerConnector;
 import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketClientConnector;
 import org.wso2.transport.http.netty.contract.websocket.WsClientConnectorConfig;
-import org.wso2.transport.http.netty.contractimpl.HttpWsConnectorFactoryImpl;
 import org.wso2.transport.http.netty.listener.ServerBootstrapConfiguration;
 import org.wso2.transport.http.netty.message.HTTPConnectorUtil;
 
@@ -57,7 +56,7 @@ public class HttpConnectionManager {
     private Map<String, HttpServerConnectorContext> serverConnectorPool = new HashMap<>();
     private ServerBootstrapConfiguration serverBootstrapConfiguration;
     private TransportsConfiguration trpConfig;
-    private HttpWsConnectorFactory httpConnectorFactory = new HttpWsConnectorFactoryImpl();
+    private HttpWsConnectorFactory httpConnectorFactory = HttpUtil.createHttpWsConnectionFactory();
 
     private HttpConnectionManager() {
         String nettyConfigFile = System.getProperty(HttpConstants.HTTP_TRANSPORT_CONF,
