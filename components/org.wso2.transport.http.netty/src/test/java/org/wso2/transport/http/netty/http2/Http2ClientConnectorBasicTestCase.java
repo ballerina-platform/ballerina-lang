@@ -48,7 +48,8 @@ public class Http2ClientConnectorBasicTestCase {
 
     private HttpServer http2Server;
     private HttpClientConnector httpClientConnector;
-    SenderConfiguration senderConfiguration;
+    private  SenderConfiguration senderConfiguration;
+    private HttpWsConnectorFactory connectorFactory;
 
     @BeforeClass
     public void setup() {
@@ -56,7 +57,7 @@ public class Http2ClientConnectorBasicTestCase {
                 "/simple-test-config" + File.separator + "netty-transports.yml");
 
         http2Server = TestUtil.startHTTPServer(TestUtil.HTTP_SERVER_PORT, new Http2EchoServerInitializer());
-        HttpWsConnectorFactory connectorFactory = new DefaultHttpWsConnectorFactory();
+        connectorFactory = new DefaultHttpWsConnectorFactory();
         senderConfiguration =
                 HTTPConnectorUtil.getSenderConfiguration(transportsConfiguration, Constants.HTTP_SCHEME);
         senderConfiguration.setHttpVersion(String.valueOf(Constants.HTTP_2_0));
@@ -86,6 +87,7 @@ public class Http2ClientConnectorBasicTestCase {
         try {
             senderConfiguration.setHttpVersion(String.valueOf(Constants.HTTP_1_1));
             http2Server.shutdown();
+            connectorFactory.shutdown();
         } catch (InterruptedException e) {
             TestUtil.handleException("Failed to shutdown the test server", e);
         }

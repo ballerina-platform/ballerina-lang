@@ -19,8 +19,11 @@
 package org.wso2.transport.http.netty.http2;
 
 import io.netty.handler.codec.http.HttpMethod;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.Test;
 import org.wso2.transport.http.netty.common.Constants;
 import org.wso2.transport.http.netty.config.ListenerConfiguration;
 import org.wso2.transport.http.netty.config.SenderConfiguration;
@@ -45,9 +48,13 @@ import static org.testng.AssertJUnit.assertNotNull;
 
 /* This contains basic test cases for HTTP2 Client connector */
 public class Http2ServerConnectorBasicTestCase {
+
+    private static Logger log = LoggerFactory.getLogger(Http2ServerConnectorBasicTestCase.class);
+
     private HttpClientConnector httpClientConnector;
     private ServerConnector serverConnector;
     private SenderConfiguration senderConfiguration;
+    private HttpWsConnectorFactory connectorFactory;
 
     @BeforeClass
     public void setup() throws InterruptedException {
@@ -55,12 +62,12 @@ public class Http2ServerConnectorBasicTestCase {
         TransportsConfiguration transportsConfiguration = TestUtil
                 .getConfiguration("/simple-test-config" + File.separator + "netty-transports.yml");
 
-        HttpWsConnectorFactory factory = new DefaultHttpWsConnectorFactory();
+        connectorFactory = new DefaultHttpWsConnectorFactory();
         ListenerConfiguration listenerConfiguration = new ListenerConfiguration();
         listenerConfiguration.setPort(TestUtil.HTTP_SERVER_PORT);
         listenerConfiguration.setScheme(Constants.HTTP_SCHEME);
         listenerConfiguration.setVersion(String.valueOf(Constants.HTTP_2_0));
-        serverConnector = factory
+        serverConnector = connectorFactory
                 .createServerConnector(TestUtil.getDefaultServerBootstrapConfig(), listenerConfiguration);
         ServerConnectorFuture future = serverConnector.start();
         future.setHttpConnectorListener(new EchoMessageListener());
@@ -70,10 +77,11 @@ public class Http2ServerConnectorBasicTestCase {
                 HTTPConnectorUtil.getSenderConfiguration(transportsConfiguration, Constants.HTTP_SCHEME);
         senderConfiguration.setHttpVersion(String.valueOf(Constants.HTTP_2_0));
 
-        httpClientConnector = factory.createHttpClientConnector(
+        httpClientConnector = connectorFactory.createHttpClientConnector(
                 HTTPConnectorUtil.getTransportProperties(transportsConfiguration), senderConfiguration);
     }
 
+    @Test
     public void testHttp2Post() {
         String testValue = "Test Http2 Message";
         HTTPCarbonMessage httpCarbonMessage = RequestGenerator.generateRequest(HttpMethod.POST, testValue);
@@ -88,6 +96,11 @@ public class Http2ServerConnectorBasicTestCase {
         senderConfiguration.setHttpVersion(String.valueOf(Constants.HTTP_1_1));
         httpClientConnector.close();
         serverConnector.stop();
+        try {
+            connectorFactory.shutdown();
+        } catch (InterruptedException e) {
+            log.warn("Interrupted while waiting for HttpWsFactory to close");
+        }
     }
 }
 
