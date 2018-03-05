@@ -78,12 +78,29 @@ function testIntegerAddition () (int) {
     return a + b;
 }
 
+function testIntegerTypesAddition () (int) {
+    int b = 10;
+    int a = 0xa;
+    int c = 0_12;
+    int d = 0b1010;
+    return a + b + c + d;
+}
+
+
 function testIntegerMultiplication () (int) {
     int b;
     int a;
     a = 2;
     b = 5;
     return a * b;
+}
+
+function testIntegerTypesMultiplication () (int) {
+    int b = 1;
+    int a = 0x1;
+    int c = 0_1;
+    int d = 0b1;
+    return a * b * c * d;
 }
 
 function testIntegerSubtraction () (int) {
@@ -94,12 +111,28 @@ function testIntegerSubtraction () (int) {
     return a - b;
 }
 
+function testIntegerTypesSubtraction () (int) {
+    int b = 10;
+    int a = 0xa;
+    int c = 0_12;
+    int d = 0b1010;
+    return (a - b) - (c - d);
+}
+
 function testIntegerDivision () (int) {
     int b;
     int a;
     a = 25;
     b = 5;
     return a / b;
+}
+
+function testIntegerTypesDivision () (int) {
+    int b = 10;
+    int a = 0xa;
+    int c = 0_12;
+    int d = 0b1010;
+    return (a / b) / (c / d);
 }
 
 function testIntegerParameter (int a) (int) {

@@ -39,9 +39,6 @@ import org.testng.annotations.Test;
  * Defining a Integer value
  * long b;
  * b = 10.1L;
- * toHexString
- * toOctalString
- * toBinaryString
  */
 public class BIntegerValueTest {
     private CompileResult result;
@@ -151,6 +148,15 @@ public class BIntegerValueTest {
         Assert.assertEquals(intValue.intValue(), 19, "Invalid int value returned.");
     }
 
+    @Test(description = "Test integer types value Addition")
+    public void testIntegerTypesValueAddition() {
+        BValue[] returns = BRunUtil.invoke(result, "testIntegerTypesAddition", new BValue[]{});
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BInteger.class);
+        BInteger intValue = (BInteger) returns[0];
+        Assert.assertEquals(intValue.intValue(), 40, "Invalid int value returned.");
+    }
+
     @Test(description = "Test long value Subtraction")
     public void testIntegerValueSubtraction() {
         BValue[] returns = BRunUtil.invoke(result, "testIntegerSubtraction", new BValue[]{});
@@ -158,6 +164,15 @@ public class BIntegerValueTest {
         Assert.assertSame(returns[0].getClass(), BInteger.class);
         BInteger intValue = (BInteger) returns[0];
         Assert.assertEquals(intValue.intValue(), 10, "Invalid int value returned.");
+    }
+
+    @Test(description = "Test integer types value Subtraction")
+    public void testIntegerTypesValueSubtraction() {
+        BValue[] returns = BRunUtil.invoke(result, "testIntegerTypesSubtraction", new BValue[]{});
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BInteger.class);
+        BInteger intValue = (BInteger) returns[0];
+        Assert.assertEquals(intValue.intValue(), 0, "Invalid int value returned.");
     }
 
     @Test(description = "Test long value Multiplication")
@@ -169,6 +184,15 @@ public class BIntegerValueTest {
         Assert.assertEquals(intValue.intValue(), 10, "Invalid int value returned.");
     }
 
+    @Test(description = "Test integer types value Multiplication")
+    public void testIntegerTypesValueMultiplication() {
+        BValue[] returns = BRunUtil.invoke(result, "testIntegerTypesMultiplication", new BValue[]{});
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BInteger.class);
+        BInteger intValue = (BInteger) returns[0];
+        Assert.assertEquals(intValue.intValue(), 1, "Invalid int value returned.");
+    }
+
     @Test(description = "Test long value Division")
     public void testIntegerValueDivision() {
         BValue[] returns = BRunUtil.invoke(result, "testIntegerDivision", new BValue[]{});
@@ -176,5 +200,14 @@ public class BIntegerValueTest {
         Assert.assertSame(returns[0].getClass(), BInteger.class);
         BInteger intValue = (BInteger) returns[0];
         Assert.assertEquals(intValue.intValue(), 5, "Invalid int value returned.");
+    }
+
+    @Test(description = "Test integer types value Division")
+    public void testIntegerTypesValueDivision() {
+        BValue[] returns = BRunUtil.invoke(result, "testIntegerTypesDivision", new BValue[]{});
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BInteger.class);
+        BInteger intValue = (BInteger) returns[0];
+        Assert.assertEquals(intValue.intValue(), 1, "Invalid int value returned.");
     }
 }
