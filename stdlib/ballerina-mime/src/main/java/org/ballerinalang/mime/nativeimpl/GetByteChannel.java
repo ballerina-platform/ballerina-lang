@@ -55,7 +55,8 @@ public class GetByteChannel extends AbstractNativeFunction {
         try {
             BStruct entityStruct = (BStruct) this.getRefArgument(context, FIRST_PARAMETER_INDEX);
             byteChannelStruct = ConnectorUtils.createAndGetStruct(context, PROTOCOL_PACKAGE_IO, BYTE_CHANNEL_STRUCT);
-            byteChannelStruct.addNativeData(IOConstants.BYTE_CHANNEL_NAME, EntityBodyHandler.getByteChannel(entityStruct));
+            byteChannelStruct.addNativeData(IOConstants.BYTE_CHANNEL_NAME,
+                    EntityBodyHandler.getByteChannel(entityStruct));
         } catch (Throwable e) {
             return this.getBValues(MimeUtil.createEntityError(context,
                     "Error occurred while constructing byte channel from entity body : " + e.getMessage()));

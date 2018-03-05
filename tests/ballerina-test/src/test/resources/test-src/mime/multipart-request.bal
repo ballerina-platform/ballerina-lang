@@ -78,7 +78,7 @@ service<http> helloServer {
     resource multipart6 (http:Connection conn, http:InRequest request) {
         var entity, entityError = request.getMultiparts();
         http:OutResponse response = {};
-        response.setStringPayload(entityError.msg);
+        response.setStringPayload(entityError.message);
         _ = conn.respond(response);
     }
 

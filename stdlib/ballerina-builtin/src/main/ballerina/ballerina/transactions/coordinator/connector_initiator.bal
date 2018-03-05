@@ -60,18 +60,27 @@ connector InitiatorClient (string registerAtURL) {
         var res, e = coordinatorEP.post("", req);
         if (e == null) {
             int statusCode = res.statusCode;
-            if (statusCode == 200) {
-                var regRes, transformErr = <RegistrationResponse>res.getJsonPayload();
-                registrationRes = regRes;
-                err = (error)transformErr;
-            } else {
-                json payload = res.getJsonPayload();
-                if (payload == null) {
-                    err = {message:res.getStringPayload()};
+            var payload, payloadError = res.getJsonPayload();
+            if (payloadError == null) {
+                if (statusCode == 200) {
+                    var regRes, transformErr = <RegistrationResponse>payload;
+                    registrationRes = regRes;
+                    err = (error)transformErr;
                 } else {
-                    var errMsg, _ = (string)payload.errorMessage;
-                    err = {message:errMsg};
+                    if (payload == null) {
+                        var stringPayload, entityError = res.getStringPayload();
+                        if (entityError != null) {
+                            err = {message:entityError.message};
+                        } else {
+                            err = {message:stringPayload};
+                        }
+                    } else {
+                        var errMsg, _ = (string)payload.errorMessage;
+                        err = {message:errMsg};
+                    }
                 }
+            } else {
+                err = (error)payloadError;
             }
         } else {
             err = (error)e;

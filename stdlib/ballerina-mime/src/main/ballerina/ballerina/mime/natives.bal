@@ -49,7 +49,7 @@ public struct Entity {
 @Field { value : "message: The error message"}
 @Field { value : "cause: The error which caused the entity error"}
 public struct EntityError {
-    string msg;
+    string message;
     error cause;
 }
 

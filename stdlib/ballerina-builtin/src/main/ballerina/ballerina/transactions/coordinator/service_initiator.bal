@@ -76,52 +76,59 @@ service<http> InitiatorService {
 
         // Micro-Transaction-Unknown
 
-        var registrationReq, e = <RegistrationRequest>req.getJsonPayload();
+        var payload, payloadError = req.getJsonPayload();
         http:OutResponse res;
-        if (e != null || registrationReq == null) {
-            res = {statusCode:400};
-            RequestError err = {errorMessage:"Bad Request"};
+        if (payloadError != null) {
+            res = {statusCode:500};
+            RequestError err = {errorMessage:payloadError.message};
             var resPayload, _ = <json>err;
             res.setJsonPayload(resPayload);
         } else {
-            string participantId = registrationReq.participantId;
-            string txnId = registrationReq.transactionId;
-            var txn, _ = (Transaction)initiatedTransactions[txnId];
-
-            if (txn == null) {
-                res = respondToBadRequest("Transaction-Unknown. Invalid TID:" + txnId);
-                var connError = conn.respond(res);
-                if (connError != null) {
-                    log:printErrorCause("Sending response for register request with null transaction ID failed",
-                                        (error)connError);
-                }
-            } else if (isRegisteredParticipant(participantId, txn.participants)) { // Already-Registered
-                res = respondToBadRequest("Already-Registered. TID:" + txnId + ",participant ID:" + participantId);
-                var connError = conn.respond(res);
-                if (connError != null) {
-                    log:printErrorCause("Sending response for register request by already registered participant
-                                         for transaction " + txnId + " failed", (error)connError);
-                }
-            } else if (!protocolCompatible(txn.coordinationType,
-                                           registrationReq.participantProtocols)) { // Invalid-Protocol
-                res = respondToBadRequest("Invalid-Protocol. TID:" + txnId + ",participant ID:" + participantId);
-                var connError = conn.respond(res);
-                if (connError != null) {
-                    log:printErrorCause("Sending response for register request by participant with invalid protocol
-                                         for transaction " + txnId + " failed", (error)connError);
-                }
+            var registrationReq, e = <RegistrationRequest>payload;
+            if (e != null || registrationReq == null) {
+                res = {statusCode:400};
+                RequestError err = {errorMessage:"Bad Request"};
+                var resPayload, _ = <json>err;
+                res.setJsonPayload(resPayload);
             } else {
-                Participant participant = {participantId:participantId,
-                                              participantProtocols:registrationReq.participantProtocols};
-                txn.participants[participantId] = participant;
+                string participantId = registrationReq.participantId;
+                string txnId = registrationReq.transactionId;
+                var txn, _ = (Transaction)initiatedTransactions[txnId];
 
-                // Send the response
-                Protocol[] participantProtocols = registrationReq.participantProtocols;
-                Protocol[] coordinatorProtocols = [];
-                int i = 0;
-                foreach participantProtocol in participantProtocols {
+                if (txn == null) {
+                    res = respondToBadRequest("Transaction-Unknown. Invalid TID:" + txnId);
+                    var connError = conn.respond(res);
+                    if (connError != null) {
+                        log:printErrorCause("Sending response for register request with null transaction ID failed",
+                                            (error)connError);
+                    }
+                } else if (isRegisteredParticipant(participantId, txn.participants)) { // Already-Registered
+                    res = respondToBadRequest("Already-Registered. TID:" + txnId + ",participant ID:" + participantId);
+                    var connError = conn.respond(res);
+                    if (connError != null) {
+                        log:printErrorCause("Sending response for register request by already registered participant
+                                         for transaction " + txnId + " failed", (error)connError);
+                    }
+                } else if (!protocolCompatible(txn.coordinationType,
+                                               registrationReq.participantProtocols)) { // Invalid-Protocol
+                    res = respondToBadRequest("Invalid-Protocol. TID:" + txnId + ",participant ID:" + participantId);
+                    var connError = conn.respond(res);
+                    if (connError != null) {
+                        log:printErrorCause("Sending response for register request by participant with invalid protocol
+                                         for transaction " + txnId + " failed", (error)connError);
+                    }
+                } else {
+                    Participant participant = {participantId:participantId,
+                                                  participantProtocols:registrationReq.participantProtocols};
+                    txn.participants[participantId] = participant;
+
+                    // Send the response
+                    Protocol[] participantProtocols = registrationReq.participantProtocols;
+                    Protocol[] coordinatorProtocols = [];
+                    int i = 0;
+                    foreach participantProtocol in participantProtocols {
                     Protocol coordinatorProtocol = {name:participantProtocol.name,
-                                                       url:getCoordinatorProtocolAt(participantProtocol.name) };
+                                                       url:getCoordinatorProtocolAt(participantProtocol.name)};
                     coordinatorProtocols[i] = coordinatorProtocol;
                     i = i + 1;
                 }
@@ -142,4 +149,5 @@ service<http> InitiatorService {
             //TODO: Need to handle the  Cannot-Register error case
         }
     }
+}
 }

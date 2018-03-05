@@ -115,7 +115,7 @@ public class OutResponseNativeFunctionNegativeTest {
 
         BValue[] inputArg = {outResponse};
         BValue[] returnVals = BRunUtil.invoke(result, "testGetJsonPayload", inputArg);
-        Assert.assertTrue(((BStruct)returnVals[0]).getStringField(0).contains("Error occurred while extracting " +
+        Assert.assertTrue(((BStruct) returnVals[0]).getStringField(0).contains("Error occurred while extracting " +
                 "json data from entity: failed to create json: unrecognized token 'ballerina'"));
     }
 
