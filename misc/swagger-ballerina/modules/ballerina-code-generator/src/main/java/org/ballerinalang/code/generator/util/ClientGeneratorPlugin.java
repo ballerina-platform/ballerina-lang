@@ -20,8 +20,7 @@ import java.util.List;
 @SupportedAnnotationPackages(value = { "ballerina.net.http.swagger" })
 public class ClientGeneratorPlugin extends AbstractCompilerPlugin {
     @Override
-    public void init(DiagnosticLog diagnosticLog) {
-    }
+    public void init(DiagnosticLog diagnosticLog) {}
 
     @Override
     public void process(ServiceNode serviceNode, List<AnnotationAttachmentNode> annotations) {
@@ -29,9 +28,10 @@ public class ClientGeneratorPlugin extends AbstractCompilerPlugin {
         PrintStream err = System.err;
         AnnotationAttachmentNode config = GeneratorUtils.getAnnotationFromList("configuration", annotations);
 
+        // Generate client only if requested by providing the client config annotation
         if (isClientGenerationEnabled(config)) {
             try {
-                ClientContextHolder context = new ClientContextHolder().buildContext(serviceNode);
+                ClientContextHolder context = ClientContextHolder.buildContext(serviceNode);
                 codegen.writeGeneratedSource(GeneratorConstants.GenType.CLIENT, context,
                         getOutputFilePath(serviceNode));
             } catch (CodeGeneratorException e) {

@@ -196,7 +196,7 @@ public class CodeGenerator {
         for (TopLevelNode topLevelNode : topCompilationUnit.getTopLevelNodes()) {
             if (topLevelNode instanceof BLangService) {
                 ServiceNode serviceDefinition = (ServiceNode) topLevelNode;
-                ClientContextHolder contextHolder = new ClientContextHolder().buildContext(serviceDefinition);
+                ClientContextHolder contextHolder = ClientContextHolder.buildContext(serviceDefinition);
                 // Generate swagger string for the mentioned service name.
                 if (StringUtils.isNotBlank(serviceName)) {
                     if (serviceDefinition.getName().getValue().equals(serviceName)) {

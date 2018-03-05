@@ -21,9 +21,10 @@ public class ClientContextHolder {
     private String url;
     private List<OperationContext> operations;
 
-    public ClientContextHolder buildContext(ServiceNode service) {
-        this.name = service.getName().getValue();
-        this.operations = new ArrayList<>();
+    public static ClientContextHolder buildContext(ServiceNode service) {
+        ClientContextHolder context = new ClientContextHolder();
+        context.name = service.getName().getValue();
+        context.operations = new ArrayList<>();
 
         // Iterate through all service level annotations and find out service hosting information
         for (AnnotationAttachmentNode ann: service.getAnnotationAttachments()) {
@@ -58,7 +59,7 @@ public class ClientContextHolder {
                     sb.append("http://");
                 }
 
-                this.url = sb.append(host).append(':').append(port).append(basePath).toString();
+                context.url = sb.append(host).append(':').append(port).append(basePath).toString();
 
                 break;
             }
@@ -66,11 +67,11 @@ public class ClientContextHolder {
 
         // Extract ballerina resource nodes as parsable operations
         for (ResourceNode resource: service.getResources()) {
-            OperationContext operation = new OperationContext().buildOperation(resource);
-            this.operations.add(operation);
+            OperationContext operation = OperationContext.buildOperation(resource);
+            context.operations.add(operation);
         }
 
-        return this;
+        return context;
     }
 
     public String getName() {

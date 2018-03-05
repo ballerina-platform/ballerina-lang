@@ -14,8 +14,9 @@ public class OperationContext {
     private String name;
     private String path;
 
-    public OperationContext buildOperation(ResourceNode resource) {
-        name = resource.getName().getValue();
+    public static OperationContext buildOperation(ResourceNode resource) {
+        OperationContext context = new OperationContext();
+        context.name = resource.getName().getValue();
 
         // Iterate through all resource level annotations and find out resource configuration information
         for (AnnotationAttachmentNode ann: resource.getAnnotationAttachments()) {
@@ -25,18 +26,19 @@ public class OperationContext {
                     String attrName = attr.getName().getValue();
 
                     if ("path".equals(attrName)) {
-                        path = attr.getValue().getValue().toString();
+                        context.path = attr.getValue().getValue().toString();
                     } else if ("methods".equals(attrName)) {
                         // Consider only first http method since we don't expect multiple http methods to be
                         // supported by single action
-                        method = attr.getValue().getValueArray().get(0).getValue().toString();
+                        context.method = attr.getValue().getValueArray().get(0).getValue().toString();
                     }
                 }
 
                 break;
             }
         }
-        return this;
+
+        return context;
     }
 
     public String getMethod() {
