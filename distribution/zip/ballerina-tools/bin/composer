@@ -189,13 +189,13 @@ done
     -Xms256m -Xmx1024m \
     -XX:+HeapDumpOnOutOfMemoryError \
     -XX:HeapDumpPath="$BAL_COMPOSER_HOME/logs/heap-dump-tool.hprof" \
-    -Djava.util.logging.config.file="$BAL_COMPOSER_HOME/bre/conf/composer-logging.properties" \
+    -Djava.util.logging.config.file="$BAL_COMPOSER_HOME/resources/composer/conf/composer-logging.properties" \
     $JAVA_OPTS \
     -classpath "$COMPOSER_CLASSPATH" \
     -Djava.io.tmpdir="$BAL_COMPOSER_HOME/tmp" \
     -Djava.command="$JAVACMD" \
     -Dballerina.home="$BAL_COMPOSER_HOME" \
-    -Dcomposer.config.path="$BAL_COMPOSER_HOME/bre/conf/composer-config.yml" \
+    -Dcomposer.config.path="$BAL_COMPOSER_HOME/resources/composer/conf/composer-config.yml" \
     -Dcomposer.public.path="$BAL_COMPOSER_HOME/resources/composer/web/public" \
     -Djava.security.egd=file:/dev/./urandom \
     -Dfile.encoding=UTF8 \

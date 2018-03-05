@@ -18,10 +18,11 @@
 
 package org.ballerinalang.net.http;
 
+import io.netty.handler.codec.http.DefaultLastHttpContent;
+import io.netty.handler.codec.http.HttpHeaderNames;
 import org.ballerinalang.connector.api.BallerinaConnectorException;
 import org.ballerinalang.net.uri.DispatcherUtil;
 import org.ballerinalang.net.uri.URITemplateException;
-import org.wso2.transport.http.netty.message.EmptyLastHttpContent;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 
 import java.util.HashMap;
@@ -30,7 +31,7 @@ import java.util.Map;
 /**
  * Resource level dispatchers handler for HTTP protocol.
  */
-public class HTTPResourceDispatcher {
+public class HttpResourceDispatcher {
 
     public static HttpResource findResource(HttpService service, HTTPCarbonMessage inboundRequest)
             throws BallerinaConnectorException {
@@ -74,11 +75,12 @@ public class HTTPResourceDispatcher {
     private static void handleOptionsRequest(HTTPCarbonMessage cMsg, HttpService service)
             throws URITemplateException {
         HTTPCarbonMessage response = HttpUtil.createHttpCarbonMessage(false);
-        if (cMsg.getHeader(HttpConstants.ALLOW) != null) {
-            response.setHeader(HttpConstants.ALLOW, cMsg.getHeader(HttpConstants.ALLOW));
+        if (cMsg.getHeader(HttpHeaderNames.ALLOW.toString()) != null) {
+            response.setHeader(HttpHeaderNames.ALLOW.toString(), cMsg.getHeader(HttpHeaderNames.ALLOW.toString()));
         } else if (service.getBasePath().equals(cMsg.getProperty(HttpConstants.TO))
                 && !service.getAllAllowMethods().isEmpty()) {
-            response.setHeader(HttpConstants.ALLOW, DispatcherUtil.concatValues(service.getAllAllowMethods(), false));
+            response.setHeader(HttpHeaderNames.ALLOW.toString(),
+                               DispatcherUtil.concatValues(service.getAllAllowMethods(), false));
         } else {
             cMsg.setProperty(HttpConstants.HTTP_STATUS_CODE, 404);
             throw new BallerinaConnectorException("no matching resource found for path : "
@@ -86,7 +88,7 @@ public class HTTPResourceDispatcher {
         }
         CorsHeaderGenerator.process(cMsg, response, false);
         response.setProperty(HttpConstants.HTTP_STATUS_CODE, 200);
-        response.addHttpContent(new EmptyLastHttpContent());
+        response.addHttpContent(new DefaultLastHttpContent());
         HttpUtil.sendOutboundResponse(cMsg, response);
     }
 }

@@ -29,6 +29,11 @@ public class WsDataElement implements DataElement<WebSocketService, WebSocketMes
     private WebSocketService webSocketService;
 
     @Override
+    public boolean hasData() {
+        return true;
+    }
+
+    @Override
     public void setData(WebSocketService webSocketService) {
         this.webSocketService = webSocketService;
     }

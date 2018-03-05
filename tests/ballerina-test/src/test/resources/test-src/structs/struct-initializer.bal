@@ -25,3 +25,20 @@ function testStructInitializerInAnotherPackage() returns (int, string){
     return e.age, e.name;
 }
 
+// testStructInitializerOrder
+
+struct employee {
+    int age = 20;
+    string name = "A";
+}
+
+function <employee p> employee() {
+    p.age = 30;
+    p.name = p.name + "B";
+}
+
+function testStructInitializerOrder() returns (int, string){
+    employee p = {age: 40};
+    return p.age, p.name;
+}
+

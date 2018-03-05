@@ -20,8 +20,10 @@ package org.ballerinalang.net.http;
 import org.ballerinalang.connector.api.BallerinaConnectorException;
 import org.ballerinalang.connector.api.ConnectorUtils;
 import org.ballerinalang.mime.util.EntityBodyHandler;
+import org.ballerinalang.model.types.BStructType;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.TypeTags;
+import org.ballerinalang.model.util.JSONUtils;
 import org.ballerinalang.model.values.BBlob;
 import org.ballerinalang.model.values.BJSON;
 import org.ballerinalang.model.values.BString;
@@ -160,7 +162,7 @@ public class HttpDispatcher {
             }
 
             // Find the Resource
-            resource = HTTPResourceDispatcher.findResource(service, httpCarbonMessage);
+            resource = HttpResourceDispatcher.findResource(service, httpCarbonMessage);
         } catch (Throwable throwable) {
             handleError(httpCarbonMessage, throwable);
         }
@@ -249,7 +251,7 @@ public class HttpDispatcher {
                 bjson = EntityBodyHandler.constructJsonDataSource(inRequestEntity);
                 EntityBodyHandler.addMessageDataSource(inRequestEntity, bjson);
                 try {
-                    return ConnectorUtils.convertJSONToStruct(httpResource.getBalResource(), bjson, entityBodyType);
+                    return JSONUtils.convertJSONToStruct(bjson, (BStructType) entityBodyType);
                 } catch (NullPointerException ex) {
                     throw new BallerinaConnectorException("cannot convert payload to struct type: " +
                             entityBodyType.getName());
