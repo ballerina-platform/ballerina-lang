@@ -83,7 +83,7 @@ public abstract class Node<DataElementType extends DataElement> {
                         continue;
                     }
                     dataElement = childNode.matchAll(subUriFragment, variables, start + matchLength);
-                    if (dataElement != null) {
+                    if (hasDataElement(dataElement)) {
                         setUriPostFix(variables, subUriFragment);
                         return dataElement;
                     }
@@ -93,17 +93,21 @@ public abstract class Node<DataElementType extends DataElement> {
                     continue;
                 }
                 dataElement = childNode.matchAll(subUriFragment, variables, start + matchLength);
-                if (dataElement != null) {
+                if (hasDataElement(dataElement)) {
                     return dataElement;
                 }
                 continue;
             }
             dataElement = childNode.matchAll(subUriFragment, variables, start + matchLength);
-            if (dataElement != null) {
+            if (hasDataElement(dataElement)) {
                 return dataElement;
             }
         }
         return null;
+    }
+
+    private boolean hasDataElement(DataElementType dataElement) {
+        return dataElement != null && dataElement.hasData();
     }
 
     private void setUriPostFix(Map<String, String> variables, String subUriFragment) {

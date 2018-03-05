@@ -17,7 +17,6 @@
 */
 package org.ballerinalang.bre.bvm;
 
-import org.ballerinalang.bre.BallerinaTransactionManager;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.util.codegen.CallableUnitInfo;
 import org.ballerinalang.util.codegen.Instruction;
@@ -138,13 +137,13 @@ public class WorkerExecutionContext {
         return false;
     }
 
-    public BallerinaTransactionManager getBallerinaTransactionManager() {
-        return null;
-    }
+//    public BallerinaTransactionManager getBallerinaTransactionManager() {
+//        return null;
+//    }
 
-    public void setBallerinaTransactionManager(BallerinaTransactionManager ballerinaTransactionManager) {
-        //TODO
-    }
+//    public void setBallerinaTransactionManager(BallerinaTransactionManager ballerinaTransactionManager) {
+//        //TODO
+//    }
     
     public void lockExecution() {
         if (this.executionLock != null) {

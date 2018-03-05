@@ -17,6 +17,7 @@ package org.ballerinalang.langserver;
 
 import org.ballerinalang.langserver.common.constants.NodeContextKeys;
 import org.ballerinalang.langserver.common.position.PositionTreeVisitor;
+import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.completions.CompletionKeys;
 import org.ballerinalang.langserver.completions.TreeVisitor;
 import org.ballerinalang.langserver.completions.resolvers.TopLevelResolver;
@@ -71,10 +72,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
-import java.net.MalformedURLException;
 import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.URL;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -83,7 +81,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
-import java.util.stream.Collectors;
 
 /**
  * Text document service implementation for ballerina.
@@ -99,11 +96,13 @@ public class BallerinaTextDocumentService implements TextDocumentService {
 
     private final Debouncer diagPushDebouncer;
 
-    public BallerinaTextDocumentService(BallerinaLanguageServer ballerinaLanguageServer) {
+    public BallerinaTextDocumentService(BallerinaLanguageServer ballerinaLanguageServer,
+                                        WorkspaceDocumentManagerImpl workspaceDocumentManager,
+                                        BLangPackageContext packageContext) {
         this.ballerinaLanguageServer = ballerinaLanguageServer;
-        this.documentManager = new WorkspaceDocumentManagerImpl();
+        this.documentManager = workspaceDocumentManager;
+        this.bLangPackageContext = packageContext;
         this.lastDiagnosticMap = new HashMap<>();
-        this.bLangPackageContext = new BLangPackageContext();
         this.diagPushDebouncer = new Debouncer(DIAG_PUSH_DEBOUNCE_DELAY);
     }
 
@@ -225,7 +224,7 @@ public class BallerinaTextDocumentService implements TextDocumentService {
             try {
                 PositionTreeVisitor positionTreeVisitor = new PositionTreeVisitor(referenceContext);
                 currentBLangPackage.accept(positionTreeVisitor);
-                contents = ReferenceUtil.getReferences(referenceContext, bLangPackageContext);
+                contents = ReferenceUtil.getReferences(referenceContext, bLangPackageContext, currentBLangPackage);
             } catch (Exception e) {
                 // Ignore
             }
@@ -265,12 +264,14 @@ public class BallerinaTextDocumentService implements TextDocumentService {
 
     @Override
     public CompletableFuture<List<? extends Command>> codeAction(CodeActionParams params) {
-        return CompletableFuture.supplyAsync(() ->
-                params.getContext().getDiagnostics().stream()
-                        .map(diagnostic -> new ArrayList<Command>().stream())
-                        .flatMap(it -> it)
-                        .collect(Collectors.toList())
-        );
+        return CompletableFuture.supplyAsync(() -> {
+            List<Command> commands = new ArrayList<>();
+            params.getContext().getDiagnostics().forEach(diagnostic -> {
+                commands.addAll(CommonUtil
+                        .getCommandsByDiagnostic(diagnostic, params, documentManager, bLangPackageContext));
+            });
+            return commands;
+        });
     }
 
     @Override
@@ -305,7 +306,7 @@ public class BallerinaTextDocumentService implements TextDocumentService {
 
     @Override
     public void didOpen(DidOpenTextDocumentParams params) {
-        Path openedPath = this.getPath(params.getTextDocument().getUri());
+        Path openedPath = CommonUtil.getPath(params.getTextDocument().getUri());
         if (openedPath == null) {
             return;
         }
@@ -318,7 +319,7 @@ public class BallerinaTextDocumentService implements TextDocumentService {
 
     @Override
     public void didChange(DidChangeTextDocumentParams params) {
-        Path changedPath = this.getPath(params.getTextDocument().getUri());
+        Path changedPath = CommonUtil.getPath(params.getTextDocument().getUri());
         if (changedPath == null) {
             return;
         }
@@ -420,26 +421,15 @@ public class BallerinaTextDocumentService implements TextDocumentService {
 
     @Override
     public void didClose(DidCloseTextDocumentParams params) {
-        Path closedPath = this.getPath(params.getTextDocument().getUri());
+        Path closedPath = CommonUtil.getPath(params.getTextDocument().getUri());
         if (closedPath == null) {
             return;
         }
 
-        this.documentManager.closeFile(this.getPath(params.getTextDocument().getUri()));
+        this.documentManager.closeFile(CommonUtil.getPath(params.getTextDocument().getUri()));
     }
 
     @Override
     public void didSave(DidSaveTextDocumentParams params) {
-    }
-
-    private Path getPath(String uri) {
-        Path path = null;
-        try {
-            path = Paths.get(new URL(uri).toURI());
-        } catch (URISyntaxException | MalformedURLException e) {
-            // Do Nothing
-        }
-
-        return path;
     }
 }

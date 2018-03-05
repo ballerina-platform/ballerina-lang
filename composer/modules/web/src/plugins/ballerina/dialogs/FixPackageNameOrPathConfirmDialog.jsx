@@ -19,7 +19,7 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Button, Row, Grid, Col } from 'react-bootstrap';
+import { Button } from 'semantic-ui-react';
 import Dialog from 'core/view/Dialog';
 
 /**
@@ -62,10 +62,13 @@ class FixPackageNameOrPathConfirmDialog extends React.Component {
             <Dialog
                 show={this.state.showDialog}
                 title='Invalid Package Name for file path'
+                titleIcon='warning circle'
+                size='small'
                 actions={
                 [
                     <Button
                         key='move-btn'
+                        primary
                         onClick={() => {
                             this.setState({
                                 showDialog: false,
@@ -77,6 +80,7 @@ class FixPackageNameOrPathConfirmDialog extends React.Component {
                     </Button>,
                     <Button
                         key='fix-btn'
+                        secondary
                         onClick={() => {
                             this.setState({
                                 showDialog: false,
@@ -87,29 +91,19 @@ class FixPackageNameOrPathConfirmDialog extends React.Component {
                         Change Package
                     </Button>,
                 ]}
-                closeAction
                 onHide={this.onDialogHide}
                 error={this.state.error}
             >
-                <Grid fluid>
-                    <Row>
-                        <Col md={2}>
-                            <i className='fw fw-4x fw-info warning' />
-                        </Col>
-                        <Col md={10}>
-                            <h4 style={{ marginTop: 0 }}>
-                                {`Package declaration for "${file.name + '.' + file.extension}" is incorrect.`}
-                            </h4>
-                            <p>
-                                {`Following fixes are possible with respective to program dir at ${programDir}`}
-                            </p>
-                            <ul>
-                                <li>{`Save and move file to correct directory at ${correctPath}`}</li>
-                                <li>{`Change package to ${correctPkg}`}</li>
-                            </ul>
-                        </Col>
-                    </Row>
-                </Grid>
+                <h4>
+                    {`Package declaration for "${file.name + '.' + file.extension}" is incorrect.`}
+                </h4>
+                <p>
+                    {`Following fixes are possible with respective to program dir at ${programDir}`}
+                </p>
+                <ul>
+                    <li>{`Save and move file to correct directory at ${correctPath}`}</li>
+                    <li>{`Change package to ${correctPkg}`}</li>
+                </ul>
             </Dialog>
         );
     }

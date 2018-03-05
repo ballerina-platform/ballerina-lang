@@ -28,6 +28,26 @@ public struct CharacterChannel {
 public struct DelimitedRecordChannel {
 }
 
+@Description {value:"Represents a client socket connection. This can be used to communicate with a remote machine"}
+@Field {value:"channel: Connection stream that bridge the client and the server"}
+@Field {value:"port: Remote server port"}
+@Field {value:"localPort: Client side port that open for the communication"}
+@Field {value:"address: Remote server domain/IP"}
+@Field {value:"localAddress: Client domain/IP"}
+public struct Socket {
+    ByteChannel channel;
+    int port;
+    int localPort;
+    string address;
+    string localAddress;
+}
+
+@Description {value:"SocketProperties structs represents the properties which are used to configure TCP connection"}
+@Field {value:"localPort: Client side port that open for the communication"}
+public struct SocketProperties {
+    int localPort;
+}
+
 @Description {value:"Function to create a CharacterChannel from ByteChannel"}
 @Param {value:"channel: The ByteChannel to be converted"}
 @Param {value:"encoding: The charset/encoding of the content (i.e UTF-8, ASCII)"}
@@ -111,3 +131,14 @@ public native function <DelimitedRecordChannel channel> hasNextTextRecord () (bo
 @Param {value:"accessMode: Specifies whether the file should be opened for reading or writing (r/w)"}
 @Return {value:"ByteChannel which will allow to perform I/O operations"}
 public native function openFile (string path, string accessMode) (ByteChannel);
+
+@Description {value:"Represents a client socket connection. This can be used to communicate with a remote server"}
+@Param {value:"host: Remote server domain/IP"}
+@Param {value:"port: Remote server port"}
+@Param {value:"options: Connection stream that bridge the client and the server"}
+@Return {value:"Socket which will allow to communicate with a remote server"}
+public native function openSocket (string host, int port, SocketProperties options) (Socket);
+
+@Description {value:"Close the socket connection with the remote server"}
+@Param {value:"socket: The client socket connection to be to be closed"}
+public native function <Socket socket> closeSocket ();

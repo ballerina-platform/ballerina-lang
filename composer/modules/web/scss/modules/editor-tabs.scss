@@ -71,14 +71,23 @@
                 color: #bebebe;
                 background-color: #1e1e1e;
                 border-top: 1px solid #282828;
+                .close-tab {
+                    background: #1e1e1e;
+                }
             }
             .close-tab {
-                color: #999999;
+                color: #999;
                 margin: 2px 2px 0 5px;
                 line-height: 15px;
                 text-shadow: none;
+                border: 0;
+                background: #3c3c3c;
+                outline-color: transparent;
                 &:hover{
                     color: #bebebe;
+                }
+                &:active{
+                    outline: none;
                 }
             }
         }

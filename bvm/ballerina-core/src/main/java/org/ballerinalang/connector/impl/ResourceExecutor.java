@@ -22,6 +22,7 @@ import org.ballerinalang.bre.bvm.WorkerExecutionContext;
 import org.ballerinalang.connector.api.BallerinaConnectorException;
 import org.ballerinalang.connector.api.Resource;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.runtime.Constants;
 import org.ballerinalang.util.codegen.ResourceInfo;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.ballerinalang.util.program.BLangFunctions;
@@ -55,6 +56,12 @@ public class ResourceExecutor {
         WorkerExecutionContext context = new WorkerExecutionContext();
         if (properties != null) {
             properties.forEach((k, v) -> context.globalProps.put(k, v));
+            if (properties.get(Constants.GLOBAL_TRANSACTION_ID) != null) {
+//                FIXME
+//                context.setLocalTransactionInfo(new LocalTransactionInfo(
+//                        properties.get(Constants.GLOBAL_TRANSACTION_ID).toString(),
+//                        properties.get(Constants.TRANSACTION_URL).toString(), Constants.TRANSACTION_PROTOCOL_2PC));
+            }
         }
         BLangFunctions.invokeCallable(resourceInfo, context, bValues);
 //        ServiceInfo serviceInfo = resourceInfo.getServiceInfo();

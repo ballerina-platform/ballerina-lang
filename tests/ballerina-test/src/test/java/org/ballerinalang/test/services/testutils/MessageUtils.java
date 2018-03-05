@@ -62,7 +62,7 @@ public class MessageUtils {
         if (payload != null) {
             carbonMessage.addHttpContent(new DefaultLastHttpContent(Unpooled.wrappedBuffer(payload.getBytes())));
         } else {
-            carbonMessage.setEndOfMsgAdded(true);
+            carbonMessage.addHttpContent(new DefaultLastHttpContent());
         }
         return carbonMessage;
     }

@@ -25,7 +25,6 @@ import PanelDecorator from './../decorators/panel-decorator';
 import { getComponentForNodeArray } from './../../../../diagram-util';
 import ImageUtil from './../../../../image-util';
 import './service-definition.css';
-import AddResourceDefinition from './add-resource-definition';
 import TreeUtil from '../../../../../model/tree-util';
 import EndpointDecorator from '../decorators/endpoint-decorator';
 import Client from '../decorators/client';
@@ -76,7 +75,6 @@ class ResourceNode extends React.Component {
             polygonClass: 'default-worker-life-line-polygon',
             textClass: 'default-worker-icon',
         };
-        const argumentParameters = this.props.model.getParameters();
 
         const connectors = this.props.model.body.statements.filter((element) => {
             const typeNode = _.get(element, 'variable.typeNode');
@@ -103,20 +101,8 @@ class ResourceNode extends React.Component {
 
         const tLinkBox = Object.assign({}, bBox);
         tLinkBox.y += annotationBodyHeight;
-        const thisNodeIndex = parentNode.getIndexOfResources(this.props.model);
-        const resourceSiblings = parentNode.getResources();
+
         const protocolPkgIdentifier = parentNode.getProtocolPackageIdentifier().value;
-        // For Web sockets
-        let showAddResourceBtnForWS = true;
-        if (protocolPkgIdentifier === 'ws' && resourceSiblings.length >= 6) {
-            showAddResourceBtnForWS = false;
-        }
-        // For JMS, FTP and FS allow only one resource
-        let showAddResourceForOneResource = true;
-        if ((protocolPkgIdentifier === 'jms' || protocolPkgIdentifier === 'ftp' || protocolPkgIdentifier === 'fs')
-            && resourceSiblings.length >= 1) {
-            showAddResourceForOneResource = false;
-        }
 
         let panelAdditionalProps = {};
         if (protocolPkgIdentifier === 'http') {
@@ -145,7 +131,6 @@ class ResourceNode extends React.Component {
                     model={this.props.model}
                     dropTarget={this.props.model}
                     canDrop={this.canDropToPanelBody}
-                    argumentParams={argumentParameters}
                     packageIdentifier={protocolPkgIdentifier}
                     // headerComponent={nodeDetails}
                     {...panelAdditionalProps}
@@ -171,6 +156,7 @@ class ResourceNode extends React.Component {
                                     bBox={this.props.model.viewState.components.defaultWorkerLine}
                                     classes={classes}
                                     icon={ImageUtil.getCodePoint('worker')}
+                                    model={this.props.model}
                                 />
                                 {blockNode}
                             </g>

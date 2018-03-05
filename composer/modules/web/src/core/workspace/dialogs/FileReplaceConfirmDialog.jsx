@@ -19,7 +19,7 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Button, Row, Grid, Col } from 'react-bootstrap';
+import { Button } from 'semantic-ui-react';
 import Dialog from './../../view/Dialog';
 
 /**
@@ -58,7 +58,7 @@ class FileReplaceConfirmDialog extends React.Component {
         return (
             <Dialog
                 show={this.state.showDialog}
-                title="Replace An Existing File"
+                title='Replace An Existing File'
                 actions={
                 [
                     <Button
@@ -76,22 +76,13 @@ class FileReplaceConfirmDialog extends React.Component {
                 onHide={this.onDialogHide}
                 error={this.state.error}
             >
-                <Grid fluid>
-                    <Row>
-                        <Col md={2}>
-                            <i className="fw fw-4x fw-warning danger" />
-                        </Col>
-                        <Col md={10}>
-                            <h4 style={{ marginTop: 0 }}>
-                                {`A file named "${this.props.target}" already exists. Do you want to replace it?`}
-                            </h4>
-                            <p>
-                                {`The file already exists in "${this.props.parent}". 
-                                Replacing it will overwrite its contents.`}
-                            </p>
-                        </Col>
-                    </Row>
-                </Grid>
+                <h4>
+                    {`A file named "${this.props.target}" already exists. Do you want to replace it?`}
+                </h4>
+                <p>
+                    {`The file already exists in "${this.props.parent}". 
+                    Replacing it will overwrite its contents.`}
+                </p>
             </Dialog>
         );
     }

@@ -2,6 +2,7 @@ package ballerina.net.http;
 
 import ballerina.mime;
 import ballerina.file;
+import ballerina.io;
 
 @Description {value:"Returns the header value with the specified header name. If there are more than one header value for the specified header name, the first value is returned."}
 @Param {value:"res: The inbound response struct"}
@@ -158,6 +159,40 @@ public function <OutResponse response> getBinaryPayload () (blob) {
     return entity.getBlob();
 }
 
+@Description {value:"Gets the inbound response payload as a byte channel except for multiparts. In case of multiparts,
+please use 'getMultiparts()' instead."}
+@Param {value:"response: The inbound response message"}
+@Return {value:"A byte channel as the message payload"}
+public function <InResponse response> getByteChannel () (io:ByteChannel) {
+    mime:Entity entity = response.getEntity();
+    return entity.getByteChannel();
+}
+
+@Description {value:"Gets the outbound response payload as a byte channel except for multiparts. In case of multiparts,
+please use 'getMultiparts()' instead."}
+@Param {value:"response: outbound response message"}
+@Return {value:"A byte channel as the message payload"}
+public function <OutResponse response> getByteChannel () (io:ByteChannel) {
+    mime:Entity entity = response.getEntity();
+    return entity.getByteChannel();
+}
+
+@Description {value:"Get multiparts from inbound response"}
+@Param {value:"response: The response message"}
+@Return {value:"Returns the body parts as an array of entities"}
+public function <InResponse response> getMultiparts () (mime:Entity[]) {
+    mime:Entity entity = response.getEntity();
+    return entity.getBodyParts();
+}
+
+@Description {value:"Get multiparts from outbound response"}
+@Param {value:"response: The response message"}
+@Return {value:"Returns the body parts as an array of entities"}
+public function <OutResponse response> getMultiparts () (mime:Entity[]) {
+    mime:Entity entity = response.getEntity();
+    return entity.getBodyParts();
+}
+
 @Description {value:"Sets a JSON as the outbound response payload"}
 @Param {value:"response: The outbound response message"}
 @Param {value:"payload: The JSON payload object"}
@@ -202,14 +237,38 @@ public function <OutResponse response> setBinaryPayload (blob payload) {
     response.setEntity(entity);
 }
 
+@Description {value:"Set multiparts as the response payload"}
+@Param {value:"response: The response message"}
+@Param {value:"bodyParts: Represent body parts that needs to be set to the response"}
+@Param {value:"contentType: Content type of the top level message"}
+public function <OutResponse response> setMultiparts (mime:Entity[] bodyParts, string contentType) {
+    mime:Entity entity = response.getEntityWithoutBody();
+    mime:MediaType mediaType = mime:getMediaType(mime:MULTIPART_MIXED);
+    if (contentType != null && contentType != "") {
+        mediaType = mime:getMediaType(contentType);
+    }
+    entity.contentType = mediaType;
+    entity.setBodyParts(bodyParts);
+    response.setEntity(entity);
+}
+
 @Description {value:"Sets the entity body of the outbound response with the given file content"}
 @Param {value:"response: The outbound response message"}
-@Param {value:"content: File containing the actual content"}
-@Param {value:"contentType: Content-Type of the given data"}
+@Param {value:"fileHandler: File that needs to be set to the payload"}
+@Param {value:"contentType: Content-Type of the file"}
 public function <OutResponse response> setFileAsPayload(file:File fileHandler, string contentType) {
     mime:MediaType mediaType = mime:getMediaType(contentType);
     mime:Entity entity = response.getEntityWithoutBody();
     entity.contentType = mediaType;
     entity.setFileAsEntityBody(fileHandler);
+    response.setEntity(entity);
+}
+
+@Description {value:"Sets a byte channel as the outbound response payload"}
+@Param {value:"response: The outbound response message"}
+@Param {value:"payload: The byte channel representation of the message payload"}
+public function <OutResponse response> setByteChannel (io:ByteChannel payload) {
+    mime:Entity entity = response.getEntityWithoutBody();
+    entity.setByteChannel(payload);
     response.setEntity(entity);
 }

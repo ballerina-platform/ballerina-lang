@@ -39,7 +39,7 @@ public class Symbols {
                                                  PackageID pkgID,
                                                  BType type,
                                                  BSymbol owner) {
-        BTypeSymbol typeSymbol = createTypeSymbol(SymTag.STRUCT, flags, name, pkgID, type, owner);
+        BTypeSymbol typeSymbol = new BStructSymbol(SymTag.STRUCT, flags, name, pkgID, type, owner);
         typeSymbol.kind = SymbolKind.STRUCT;
         return typeSymbol;
     }
