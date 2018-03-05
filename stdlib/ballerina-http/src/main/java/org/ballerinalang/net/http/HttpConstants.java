@@ -151,7 +151,6 @@ public class HttpConstants {
     public static final String LISTENER_INTERFACE_ID = "listener.interface.id";
 
     public static final String CONNECTOR_NAME = "HttpClient";
-    public static final String HTTP2_CONNECTOR_NAME = "Http2Client";
 
     public static final String REQUEST_URL = "REQUEST_URL";
     public static final String SRC_HANDLER = "SRC_HANDLER";
@@ -165,13 +164,13 @@ public class HttpConstants {
     public static final String IN_REQUEST = "InRequest";
     public static final String OUT_REQUEST = "OutRequest";
     public static final String IN_RESPONSE = "InResponse";
-    public static final String HTTP2_RESPONSE = "Http2Response";
-    public static final String TRANSPORT_HTTP2_RESPONSE = "transport_http2_response";
+    public static final String HTTP_HANDLE = "HttpHandle";
     public static final String OUT_RESPONSE = "OutResponse";
     public static final String ENTITY = "Entity";
     public static final String HTTP_CONNECTOR_ERROR = "HttpConnectorError";
     public static final String TYPE_STRING = "string";
     public static final String TRANSPORT_MESSAGE = "transport_message";
+    public static final String TRANSPORT_HANDLE = "transport_handle";
     public static final String MESSAGE_OUTPUT_STREAM = "message_output_stream";
     public static final String HTTP_SESSION = "http_session";
 
