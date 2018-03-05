@@ -119,8 +119,6 @@ public class TypeChecker extends BLangNodeVisitor {
     private DiagnosticCode diagCode;
     private List<BType> resultTypes;
 
-//    private static String 
-
     public static TypeChecker getInstance(CompilerContext context) {
         TypeChecker typeChecker = context.get(TYPE_CHECKER_KEY);
         if (typeChecker == null) {
