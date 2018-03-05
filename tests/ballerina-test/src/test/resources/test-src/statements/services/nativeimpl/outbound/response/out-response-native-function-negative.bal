@@ -19,9 +19,8 @@ function testGetHeader (http:OutResponse res, string key) (string) {
     return contentType;
 }
 
-function testGetEntity (http:OutResponse response) (mime:Entity) {
-    mime:Entity entity = response.getEntity();
-    return entity;
+function testGetEntity (http:OutResponse response) (mime:Entity, mime:EntityError) {
+    return response.getEntity();
 }
 
 function testGetJsonPayload (http:OutResponse res) (json, mime:EntityError) {

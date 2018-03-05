@@ -99,7 +99,10 @@ public function <OutResponse response> getContentLength () (int) {
 @Param {value:"response: The inbound response message"}
 @Return {value:"The JSON reresentation of the message payload"}
 public function <InResponse response> getJsonPayload () (json, mime:EntityError) {
-    mime:Entity entity = response.getEntity();
+    var entity, entityError = response.getEntity();
+    if (entityError != null) {
+        return null, entityError;
+    }
     return entity.getJson();
 }
 
@@ -107,7 +110,10 @@ public function <InResponse response> getJsonPayload () (json, mime:EntityError)
 @Param {value:"response: The outbound response message"}
 @Return {value:"The JSON reresentation of the message payload"}
 public function <OutResponse response> getJsonPayload () (json, mime:EntityError) {
-    mime:Entity entity = response.getEntity();
+    var entity, entityError = response.getEntity();
+    if (entityError != null) {
+        return null, entityError;
+    }
     return entity.getJson();
 }
 
@@ -115,7 +121,10 @@ public function <OutResponse response> getJsonPayload () (json, mime:EntityError
 @Param {value:"response: The inbound response message"}
 @Return {value:"The XML representation of the message payload"}
 public function <InResponse response> getXmlPayload () (xml, mime:EntityError) {
-    mime:Entity entity = response.getEntity();
+    var entity, entityError = response.getEntity();
+    if (entityError != null) {
+        return null, entityError;
+    }
     return entity.getXml();
 }
 
@@ -123,7 +132,10 @@ public function <InResponse response> getXmlPayload () (xml, mime:EntityError) {
 @Param {value:"response: The outbound response message"}
 @Return {value:"The XML representation of the message payload"}
 public function <OutResponse response> getXmlPayload () (xml, mime:EntityError) {
-    mime:Entity entity = response.getEntity();
+    var entity, entityError = response.getEntity();
+    if (entityError != null) {
+        return null, entityError;
+    }
     return entity.getXml();
 }
 
@@ -131,7 +143,10 @@ public function <OutResponse response> getXmlPayload () (xml, mime:EntityError) 
 @Param {value:"response: The inbound response message"}
 @Return {value:"The string representation of the message payload"}
 public function <InResponse response> getStringPayload () (string, mime:EntityError) {
-    mime:Entity entity = response.getEntity();
+    var entity, entityError = response.getEntity();
+    if (entityError != null) {
+        return null, entityError;
+    }
     return entity.getText();
 }
 
@@ -139,7 +154,10 @@ public function <InResponse response> getStringPayload () (string, mime:EntityEr
 @Param {value:"response: The outbound response message"}
 @Return {value:"The string representation of the message payload"}
 public function <OutResponse response> getStringPayload () (string, mime:EntityError) {
-    mime:Entity entity = response.getEntity();
+    var entity, entityError = response.getEntity();
+    if (entityError != null) {
+        return null, entityError;
+    }
     return entity.getText();
 }
 
@@ -147,7 +165,11 @@ public function <OutResponse response> getStringPayload () (string, mime:EntityE
 @Param {value:"response: The inbound response message"}
 @Return {value:"The blob representation of the message payload"}
 public function <InResponse response> getBinaryPayload () (blob, mime:EntityError) {
-    mime:Entity entity = response.getEntity();
+    var entity, entityError = response.getEntity();
+    if (entityError != null) {
+        blob byteData;
+        return byteData, entityError;
+    }
     return entity.getBlob();
 }
 
@@ -155,7 +177,11 @@ public function <InResponse response> getBinaryPayload () (blob, mime:EntityErro
 @Param {value:"response: The outbound response message"}
 @Return {value:"The blob representation of the message payload"}
 public function <OutResponse response> getBinaryPayload () (blob, mime:EntityError) {
-    mime:Entity entity = response.getEntity();
+    var entity, entityError = response.getEntity();
+    if (entityError != null) {
+        blob byteData;
+        return byteData, entityError;
+    }
     return entity.getBlob();
 }
 
@@ -164,7 +190,10 @@ please use 'getMultiparts()' instead."}
 @Param {value:"response: The inbound response message"}
 @Return {value:"A byte channel as the message payload"}
 public function <InResponse response> getByteChannel () (io:ByteChannel, mime:EntityError) {
-    mime:Entity entity = response.getEntity();
+    var entity, entityError = response.getEntity();
+    if (entityError != null) {
+        return null, entityError;
+    }
     return entity.getByteChannel();
 }
 
@@ -173,7 +202,10 @@ please use 'getMultiparts()' instead."}
 @Param {value:"response: outbound response message"}
 @Return {value:"A byte channel as the message payload"}
 public function <OutResponse response> getByteChannel () (io:ByteChannel, mime:EntityError) {
-    mime:Entity entity = response.getEntity();
+    var entity, entityError = response.getEntity();
+    if (entityError != null) {
+        return null, entityError;
+    }
     return entity.getByteChannel();
 }
 
@@ -181,7 +213,10 @@ public function <OutResponse response> getByteChannel () (io:ByteChannel, mime:E
 @Param {value:"response: The response message"}
 @Return {value:"Returns the body parts as an array of entities"}
 public function <InResponse response> getMultiparts () (mime:Entity[], mime:EntityError) {
-    mime:Entity entity = response.getEntity();
+    var entity, entityError = response.getEntity();
+    if (entityError != null) {
+        return null, entityError;
+    }
     return entity.getBodyParts();
 }
 
@@ -189,7 +224,10 @@ public function <InResponse response> getMultiparts () (mime:Entity[], mime:Enti
 @Param {value:"response: The response message"}
 @Return {value:"Returns the body parts as an array of entities"}
 public function <OutResponse response> getMultiparts () (mime:Entity[], mime:EntityError) {
-    mime:Entity entity = response.getEntity();
+    var entity, entityError = response.getEntity();
+    if (entityError != null) {
+        return null, entityError;
+    }
     return entity.getBodyParts();
 }
 

@@ -23,9 +23,8 @@ function testGetProperty (http:OutRequest req, string propertyName) (string) {
     return payload;
 }
 
-function testGetEntity (http:OutRequest req) (mime:Entity) {
-    mime:Entity entity = req.getEntity();
-    return entity;
+function testGetEntity (http:OutRequest req) (mime:Entity, mime:EntityError) {
+    return req.getEntity();
 }
 
 function testGetStringPayload (http:OutRequest req) (string, mime:EntityError) {

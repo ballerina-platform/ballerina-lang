@@ -171,20 +171,25 @@ public class HttpUtil {
      */
     public static BValue[] getEntity(Context context, AbstractNativeFunction abstractNativeFunction, boolean isRequest,
                                      boolean isEntityBodyRequired) {
-        BStruct httpMessageStruct = (BStruct) abstractNativeFunction.getRefArgument(context, HTTP_MESSAGE_INDEX);
-        BStruct entity = (BStruct) httpMessageStruct.getNativeData(MESSAGE_ENTITY);
-        boolean isByteChannelAlreadySet = false;
+        try {
+            BStruct httpMessageStruct = (BStruct) abstractNativeFunction.getRefArgument(context, HTTP_MESSAGE_INDEX);
+            BStruct entity = (BStruct) httpMessageStruct.getNativeData(MESSAGE_ENTITY);
+            boolean isByteChannelAlreadySet = false;
 
-        if (httpMessageStruct.getNativeData(IS_BODY_BYTE_CHANNEL_ALREADY_SET) != null) {
-            isByteChannelAlreadySet = (Boolean) httpMessageStruct.getNativeData(IS_BODY_BYTE_CHANNEL_ALREADY_SET);
+            if (httpMessageStruct.getNativeData(IS_BODY_BYTE_CHANNEL_ALREADY_SET) != null) {
+                isByteChannelAlreadySet = (Boolean) httpMessageStruct.getNativeData(IS_BODY_BYTE_CHANNEL_ALREADY_SET);
+            }
+            if (entity != null && isEntityBodyRequired && !isByteChannelAlreadySet) {
+                populateEntityBody(context, httpMessageStruct, entity, isRequest);
+            }
+            if (entity == null) {
+                entity = createNewEntity(context, httpMessageStruct);
+            }
+            return abstractNativeFunction.getBValues(entity);
+        } catch (Throwable throwable) {
+            return abstractNativeFunction.getBValues(MimeUtil.createEntityError(context,
+                    "Error occurred during entity construction: " + throwable.getMessage()));
         }
-        if (entity != null && isEntityBodyRequired && !isByteChannelAlreadySet) {
-            populateEntityBody(context, httpMessageStruct, entity, isRequest);
-        }
-        if (entity == null) {
-            entity = createNewEntity(context, httpMessageStruct);
-        }
-        return abstractNativeFunction.getBValues(entity);
     }
 
     /**

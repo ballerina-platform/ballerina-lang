@@ -179,7 +179,7 @@ function performFailoverAction (string path, http:OutRequest outRequest, http:In
 
     mime:Entity requestEntity = null;
     if (outRequest != null) {
-        requestEntity = outRequest.getEntity();
+        requestEntity, _ = outRequest.getEntity();
     }
 
     while (startIndex != currentIndex) {
