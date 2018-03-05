@@ -79,9 +79,9 @@ public class Get extends AbstractHTTPAction {
         HTTPCarbonMessage outboundReqMsg = super.createOutboundRequestMsg(context);
         outboundReqMsg.setProperty(HttpConstants.HTTP_METHOD, HttpConstants.HTTP_METHOD_GET);
 
-        context.getActiveBTracer().getProperties().forEach((key, value) ->
-                outboundReqMsg.setHeader(key, String.valueOf(value)));
         BTracer bTracer = context.getActiveBTracer();
+        bTracer.getProperties().forEach((key, value) ->
+                outboundReqMsg.setHeader(key, String.valueOf(value)));
         Map<String, String> tags = new HashMap<>();
         tags.put("component", "ballerina");
         tags.put("http.method", String.valueOf(outboundReqMsg.getProperty("HTTP_METHOD")));

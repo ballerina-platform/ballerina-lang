@@ -78,7 +78,8 @@ public class TraceManagerWrapper {
             }
 
             Long invocationId;
-            if (rootBTracer.getInvocationID() == null) {
+            if (rootBTracer.getInvocationID() == null ||
+                    "null".equalsIgnoreCase(rootBTracer.getInvocationID())) {
                 rootBTracer.generateInvocationID();
                 invocationId = Long.valueOf(rootBTracer.getInvocationID());
             } else {
