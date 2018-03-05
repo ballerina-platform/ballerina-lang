@@ -43,7 +43,7 @@ public class LogWarn extends AbstractLogFunction {
                                                     .getCallableUnitInfo().getPackageInfo().getPkgPath();
 
         if (LOG_MANAGER.getPackageLogLevel(pkg).value() <= BLogLevel.WARN.value()) {
-            getLogger(pkg).warn(getStringArgument(ctx, 0));
+            getLogger(pkg).warn(getLogMessage(ctx, 0));
         }
         return VOID_RETURN;
     }
