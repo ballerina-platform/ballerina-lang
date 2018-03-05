@@ -115,8 +115,7 @@ public class CompilerDriver {
     }
 
     private BLangPackage define(BLangPackage pkgNode) {
-//        return symbolEnter.definePackage(pkgNode);
-        return pkgNode;
+        return symbolEnter.definePackage(pkgNode);
     }
 
     private BLangPackage typeCheck(BLangPackage pkgNode) {

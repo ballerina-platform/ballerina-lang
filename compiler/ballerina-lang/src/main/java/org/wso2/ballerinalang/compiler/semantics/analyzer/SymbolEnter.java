@@ -155,20 +155,16 @@ public class SymbolEnter extends BLangNodeVisitor {
         this.skipPkgValidation = Boolean.parseBoolean(options.get(CompilerOptionName.SKIP_PACKAGE_VALIDATION));
     }
 
-    public BPackageSymbol definePackage(BLangPackage pkgNode, PackageID pkgId) {
+    public void definePackage(BLangPackage pkgNode, PackageID pkgId) {
         populatePackageNode(pkgNode, pkgId);
-
         defineNode(pkgNode, null);
-        return pkgNode.symbol;
     }
 
-//    public BLangPackage definePackage(BLangPackage pkgNode) {
-//
-//        populatePackageNode(pkgNode, pkgId);
-//
-//        defineNode(pkgNode, null);
-//        return pkgNode;
-//    }
+    public BLangPackage definePackage(BLangPackage pkgNode) {
+        populatePackageNode(pkgNode, pkgNode.packageID);
+        defineNode(pkgNode, null);
+        return pkgNode;
+    }
 
     public void defineNode(BLangNode node, SymbolEnv env) {
         SymbolEnv prevEnv = this.env;
@@ -185,6 +181,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         if (pkgNode.completedPhases.contains(CompilerPhase.DEFINE)) {
             return;
         }
+
         // Create PackageSymbol.
         BPackageSymbol pSymbol = createPackageSymbol(pkgNode);
         SymbolEnv builtinEnv = this.packageEnvs.get(symTable.builtInPackageSymbol);
@@ -281,6 +278,7 @@ public class SymbolEnter extends BLangNodeVisitor {
             return;
         }
 
+        // TODO Clean this code up. Can we move the this to BLangPackageBuilder class
         // Create import package symbol
         Name orgName;
         if (importPkgNode.orgName.value == null) {
@@ -293,26 +291,31 @@ public class SymbolEnter extends BLangNodeVisitor {
         List<Name> nameComps = importPkgNode.pkgNameComps.stream()
                 .map(identifier -> names.fromIdNode(identifier))
                 .collect(Collectors.toList());
-        PackageID pkgID = new PackageID(orgName, nameComps, names.fromIdNode(importPkgNode.version));
-        if (pkgID.name.getValue().startsWith(Names.BUILTIN_PACKAGE.value)) {
+        PackageID pkgId = new PackageID(orgName, nameComps, names.fromIdNode(importPkgNode.version));
+        if (pkgId.name.getValue().startsWith(Names.BUILTIN_PACKAGE.value)) {
             dlog.error(importPkgNode.pos, DiagnosticCode.PACKAGE_NOT_FOUND,
                     importPkgNode.getQualifiedPackageName());
             return;
         }
-        BPackageSymbol pkgSymbol = pkgLoader.getPackageSymbol(pkgID);
-        if (pkgSymbol == null) {
-            BLangPackage pkgNode = pkgLoader.loadAndDefinePackage(pkgID);
-            if (pkgNode == null) {
-                dlog.error(importPkgNode.pos, DiagnosticCode.PACKAGE_NOT_FOUND,
-                        importPkgNode.getQualifiedPackageName());
-                return;
-            } else {
-                pkgSymbol = pkgNode.symbol;
-                populateInitFunctionInvocation(importPkgNode, pkgSymbol);
-            }
+
+        // Attempt to load the imported package.
+        BLangPackage pkgNode = pkgLoader.loadPackage(pkgId);
+        if (pkgNode == null) {
+            dlog.error(importPkgNode.pos, DiagnosticCode.PACKAGE_NOT_FOUND,
+                    importPkgNode.getQualifiedPackageName());
+            return;
         }
-        importPkgNode.symbol = pkgSymbol;
-        this.env.scope.define(pkgAlias, pkgSymbol);
+
+        // This import package is not defined.
+        if (pkgNode.symbol == null) {
+            // Define import package now.
+            definePackage(pkgNode, pkgId);
+            populateInitFunctionInvocation(importPkgNode, pkgNode.symbol);
+        }
+
+        // define the import package symbol in the current package scope
+        importPkgNode.symbol = pkgNode.symbol;
+        this.env.scope.define(pkgAlias, pkgNode.symbol);
     }
 
     @Override

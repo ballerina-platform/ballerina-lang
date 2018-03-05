@@ -46,7 +46,8 @@ public class Compiler {
 
     private CompilerOptions options;
     private EntryPointResolver entryPointResolver;
-    private PackageCache packageCache;
+    private CompilerDriver compilerDriver;
+    private BinaryFileWriter binaryFileWriter;
 
     private DiagnosticLog dlog;
     private PackageLoader pkgLoader;
@@ -76,7 +77,8 @@ public class Compiler {
 
         this.options = CompilerOptions.getInstance(context);
         this.entryPointResolver = EntryPointResolver.getInstance(context);
-        this.packageCache = PackageCache.getInstance(context);
+        this.compilerDriver = CompilerDriver.getInstance(context);
+        this.binaryFileWriter = BinaryFileWriter.getInstance(context);
 
         this.dlog = DiagnosticLog.getInstance(context);
         this.pkgLoader = PackageLoader.getInstance(context);
@@ -95,6 +97,10 @@ public class Compiler {
         // 3) Dump the balx
 
         // 4) Once all the entry points are resolved, then write all the compiled package as BALOs.
+
+        this.entryPointResolver.list()
+                .peek(pkgNode -> this.compilerDriver.compilePackage(pkgNode))
+                .forEach(pkgNode -> this.binaryFileWriter.writeExecutableBinary(pkgNode));
     }
 
     public void compile(String sourcePkg) {

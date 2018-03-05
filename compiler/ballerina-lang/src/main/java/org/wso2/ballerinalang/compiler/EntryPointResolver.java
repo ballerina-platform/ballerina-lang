@@ -18,8 +18,11 @@
 package org.wso2.ballerinalang.compiler;
 
 import org.ballerinalang.compiler.CompilerOptionName;
+import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
+
+import java.util.stream.Stream;
 
 /**
  * This class is responsible for finding packages with entry points
@@ -34,6 +37,8 @@ public class EntryPointResolver {
 
     private CompilerOptions options;
     private PackageLoader packageLoader;
+
+    // Absolute path of the current directory.
     private String projectDir;
 
     public static EntryPointResolver getInstance(CompilerContext context) {
@@ -52,11 +57,12 @@ public class EntryPointResolver {
         this.projectDir = options.get(CompilerOptionName.PROJECT_DIR);
     }
 
-    public void getNextEntryPoint() {
+    public Stream<BLangPackage> list() {
         // Return the next entry point
 
         // Get the project root
 
         // Scan the file system
+        return null;
     }
 }

@@ -21,6 +21,7 @@ import org.ballerinalang.model.elements.PackageID;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -45,6 +46,7 @@ public class PackageCache {
 
     private PackageCache(CompilerContext context) {
         context.put(PACKAGE_CACHE_KEY, this);
+        this.packageMap = new HashMap<>();
     }
 
     public BLangPackage get(PackageID packageID) {
@@ -52,6 +54,7 @@ public class PackageCache {
     }
 
     public void put(PackageID packageID, BLangPackage bLangPackage) {
+        bLangPackage.packageID = packageID;
         packageMap.put(packageID, bLangPackage);
     }
 }
