@@ -17,8 +17,6 @@
  */
 package org.ballerinalang.nativeimpl.actions.data.sql.client;
 
-import org.ballerinalang.bre.BallerinaTransactionContext;
-import org.ballerinalang.bre.BallerinaTransactionManager;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.connector.api.AbstractNativeAction;
 import org.ballerinalang.model.ColumnDefinition;
@@ -49,8 +47,10 @@ import org.ballerinalang.nativeimpl.actions.data.sql.SQLDataIterator;
 import org.ballerinalang.nativeimpl.actions.data.sql.SQLDatasource;
 import org.ballerinalang.nativeimpl.actions.data.sql.SQLTransactionContext;
 import org.ballerinalang.natives.exceptions.ArgumentOutOfRangeException;
-import org.ballerinalang.util.DistributedTxManagerProvider;
 import org.ballerinalang.util.exceptions.BallerinaException;
+import org.ballerinalang.util.transactions.BallerinaTransactionContext;
+import org.ballerinalang.util.transactions.LocalTransactionInfo;
+import org.ballerinalang.util.transactions.TransactionResourceManager;
 
 import java.math.BigDecimal;
 import java.sql.Array;
@@ -78,7 +78,6 @@ import java.util.Locale;
 import java.util.Set;
 import java.util.TimeZone;
 import javax.sql.XAConnection;
-import javax.transaction.TransactionManager;
 import javax.transaction.xa.XAResource;
 
 /**
@@ -88,7 +87,7 @@ import javax.transaction.xa.XAResource;
  */
 public abstract class AbstractSQLAction extends AbstractNativeAction {
 
-    public Calendar utcCalendar;
+    private Calendar utcCalendar;
 
     public AbstractSQLAction() {
         utcCalendar = Calendar.getInstance(TimeZone.getTimeZone(Constants.TIMEZONE_UTC));
@@ -766,29 +765,23 @@ public abstract class AbstractSQLAction extends AbstractNativeAction {
         }
         String connectorId = datasource.getConnectorId();
         boolean isXAConnection = datasource.isXAConnection();
-        BallerinaTransactionManager ballerinaTxManager = context.getBallerinaTransactionManager();
-        BallerinaTransactionContext txContext = ballerinaTxManager.getTransactionContext(connectorId);
+        LocalTransactionInfo localTransactionInfo = context.getLocalTransactionInfo();
+        String globalTxID = localTransactionInfo.getGlobalTransactionId();
+        BallerinaTransactionContext txContext = localTransactionInfo.getTransactionContext(connectorId);
         if (txContext == null) {
             if (isXAConnection) {
-                if (!ballerinaTxManager.hasXATransactionManager()) {
-                    TransactionManager transactionManager = DistributedTxManagerProvider.getInstance()
-                            .getTransactionManager();
-                    ballerinaTxManager.setXATransactionManager(transactionManager);
-                }
-                if (!ballerinaTxManager.isInXATransaction()) {
-                    ballerinaTxManager.beginXATransaction();
-                }
                 XAConnection xaConn = datasource.getXADataSource().getXAConnection();
                 XAResource xaResource = xaConn.getXAResource();
+                TransactionResourceManager.getInstance().beginXATransaction(globalTxID, xaResource);
                 conn = xaConn.getConnection();
                 txContext = new SQLTransactionContext(conn, xaResource);
-                ballerinaTxManager.registerTransactionContext(connectorId, txContext);
             } else {
                 conn = datasource.getSQLConnection();
                 conn.setAutoCommit(false);
                 txContext = new SQLTransactionContext(conn, null);
-                ballerinaTxManager.registerTransactionContext(connectorId, txContext);
             }
+            localTransactionInfo.registerTransactionContext(connectorId, txContext);
+            TransactionResourceManager.getInstance().register(globalTxID, txContext);
         } else {
             conn = ((SQLTransactionContext) txContext).getConnection();
         }

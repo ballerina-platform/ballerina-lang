@@ -47,7 +47,7 @@ public class BallerinaPackageLoader {
     public static List<BLangPackage> getBuiltinPackages() {
         List<BLangPackage> builtins = new ArrayList<>();
         CompilerContext context = prepareCompilerContext();
-        BLangPackage builtInPkg = getPackageByName(context, Names.BUILTIN_PACKAGE.getValue());
+        BLangPackage builtInPkg = getBuiltinPackageByName(context, Names.BUILTIN_PACKAGE.getValue());
         builtins.add(builtInPkg);
  
         return builtins;
@@ -64,6 +64,13 @@ public class BallerinaPackageLoader {
         SemanticAnalyzer semAnalyzer = SemanticAnalyzer.getInstance(context);
         CodeAnalyzer codeAnalyzer = CodeAnalyzer.getInstance(context);
         return codeAnalyzer.analyze(semAnalyzer.analyze(pkgLoader.loadEntryPackage(name)));
+    }
+
+    public static BLangPackage getBuiltinPackageByName(CompilerContext context, String name) {
+        PackageLoader pkgLoader = PackageLoader.getInstance(context);
+        SemanticAnalyzer semAnalyzer = SemanticAnalyzer.getInstance(context);
+        CodeAnalyzer codeAnalyzer = CodeAnalyzer.getInstance(context);
+        return codeAnalyzer.analyze(semAnalyzer.analyze(pkgLoader.loadAndDefinePackage(name)));
     }
     
     public static CompilerContext prepareCompilerContext() {

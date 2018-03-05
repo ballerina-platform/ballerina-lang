@@ -293,7 +293,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         }
         BPackageSymbol pkgSymbol = pkgLoader.getPackageSymbol(pkgID);
         if (pkgSymbol == null) {
-            BLangPackage pkgNode = pkgLoader.loadPackageNode(pkgID);
+            BLangPackage pkgNode = pkgLoader.loadAndDefinePackage(pkgID);
             if (pkgNode == null) {
                 dlog.error(importPkgNode.pos, DiagnosticCode.PACKAGE_NOT_FOUND,
                         importPkgNode.getQualifiedPackageName());
@@ -402,7 +402,7 @@ public class SymbolEnter extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangFunction funcNode) {
-        validateFuncReceiver(funcNode);
+        boolean validAttachedFunc = validateFuncReceiver(funcNode);
         BInvokableSymbol funcSymbol = Symbols.createFunctionSymbol(Flags.asMask(funcNode.flagSet),
                 getFuncSymbolName(funcNode), env.enclPkg.symbol.pkgID, null, env.scope.owner);
         SymbolEnv invokableEnv = SymbolEnv.createFunctionEnv(funcNode, funcSymbol.scope, env);
@@ -410,7 +410,7 @@ public class SymbolEnter extends BLangNodeVisitor {
 
         // Define function receiver if any.
         if (funcNode.receiver != null) {
-            defineAttachedFunctions(funcNode, funcSymbol, invokableEnv);
+            defineAttachedFunctions(funcNode, funcSymbol, invokableEnv, validAttachedFunc);
         }
     }
 
@@ -800,12 +800,13 @@ public class SymbolEnter extends BLangNodeVisitor {
 //        service.symbol.initFunctionSymbol = service.initFunction.symbol;
     }
 
-    private void defineAttachedFunctions(BLangFunction funcNode, BInvokableSymbol funcSymbol, SymbolEnv invokableEnv) {
+    private void defineAttachedFunctions(BLangFunction funcNode, BInvokableSymbol funcSymbol,
+                                         SymbolEnv invokableEnv, boolean isValidAttachedFunc) {
         BInvokableType funcType = (BInvokableType) funcSymbol.type;
         BTypeSymbol typeSymbol = funcNode.receiver.type.tsymbol;
 
         // Check whether there exists a struct field with the same name as the function name.
-        if (typeSymbol.tag == SymTag.STRUCT) {
+        if (isValidAttachedFunc && typeSymbol.tag == SymTag.STRUCT) {
             validateFunctionsAttachedToStructs(funcNode, funcSymbol, invokableEnv);
         }
 
@@ -948,15 +949,15 @@ public class SymbolEnter extends BLangNodeVisitor {
         return xmlnsStmt;
     }
 
-    private void validateFuncReceiver(BLangFunction funcNode) {
+    private boolean validateFuncReceiver(BLangFunction funcNode) {
         if (funcNode.receiver == null) {
-            return;
+            return true;
         }
 
         BType varType = symResolver.resolveTypeNode(funcNode.receiver.typeNode, env);
         funcNode.receiver.type = varType;
         if (varType.tag == TypeTags.ERROR) {
-            return;
+            return true;
         }
 
         if (varType.tag != TypeTags.BOOLEAN
@@ -971,13 +972,15 @@ public class SymbolEnter extends BLangNodeVisitor {
                 && varType.tag != TypeTags.STRUCT) {
             dlog.error(funcNode.receiver.pos, DiagnosticCode.FUNC_DEFINED_ON_NOT_SUPPORTED_TYPE,
                     funcNode.name.value, varType.toString());
-            return;
+            return false;
         }
 
         if (!this.env.enclPkg.symbol.pkgID.equals(varType.tsymbol.pkgID)) {
             dlog.error(funcNode.receiver.pos, DiagnosticCode.FUNC_DEFINED_ON_NON_LOCAL_TYPE,
                     funcNode.name.value, varType.toString());
+            return false;
         }
+        return true;
     }
 
     private Name getFuncSymbolName(BLangFunction funcNode) {

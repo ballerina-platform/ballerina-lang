@@ -36,6 +36,9 @@ public struct employee {
     int employeeId = 123456;
 }
 
+public function <employee e> employee() {
+}
+
 public function <employee e> getName() returns (string) {
     return e.name;
 }

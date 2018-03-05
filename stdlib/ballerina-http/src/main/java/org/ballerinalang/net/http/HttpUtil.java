@@ -19,7 +19,6 @@
 package org.ballerinalang.net.http;
 
 import io.netty.buffer.Unpooled;
-import io.netty.handler.codec.http.DefaultHttpHeaders;
 import io.netty.handler.codec.http.DefaultHttpRequest;
 import io.netty.handler.codec.http.DefaultHttpResponse;
 import io.netty.handler.codec.http.DefaultLastHttpContent;
@@ -59,6 +58,7 @@ import org.wso2.carbon.messaging.exceptions.ServerConnectorException;
 import org.wso2.transport.http.netty.common.Constants;
 import org.wso2.transport.http.netty.config.ChunkConfig;
 import org.wso2.transport.http.netty.config.ForwardedExtensionConfig;
+import org.wso2.transport.http.netty.config.KeepAliveConfig;
 import org.wso2.transport.http.netty.config.ListenerConfiguration;
 import org.wso2.transport.http.netty.config.Parameter;
 import org.wso2.transport.http.netty.config.RequestSizeValidationConfig;
@@ -254,7 +254,7 @@ public class HttpUtil {
         HttpUtil.checkEntityAvailability(context, outboundResponseStruct);
 
         HttpUtil.addHTTPSessionAndCorsHeaders(context, inboundRequestMsg, outboundResponseMsg);
-        setKeepAliveAndCompressionHeaders(context, outboundResponseMsg);
+        setCompressionHeaders(context, outboundResponseMsg);
         HttpUtil.enrichOutboundMessage(outboundResponseMsg, outboundResponseStruct);
     }
 
@@ -552,8 +552,7 @@ public class HttpUtil {
     private static void setHeaderToEntity(BStruct struct, String key, String value) {
         BMap<String, BValue> headerMap = struct.getRefField(ENTITY_HEADERS_INDEX) != null ?
                 (BMap) struct.getRefField(ENTITY_HEADERS_INDEX) : new BMap<>();
-        struct.setRefField(ENTITY_HEADERS_INDEX,
-                prepareEntityHeaderMap(new DefaultHttpHeaders().add(key, value), headerMap));
+        HeaderUtil.overrideEntityHeader(headerMap, key, value);
     }
 
     /**
@@ -586,35 +585,21 @@ public class HttpUtil {
     }
 
     /**
-     * Set connection Keep-Alive and content-encoding headers to transport message.
+     * Set connection content-encoding headers to transport message.
      *
      * @param context         ballerina context.
      * @param outboundMessage transport message.
      */
-    public static void setKeepAliveAndCompressionHeaders(Context context, HTTPCarbonMessage outboundMessage) {
+    public static void setCompressionHeaders(Context context, HTTPCarbonMessage outboundMessage) {
         AnnAttachmentInfo configAnn = context.getServiceInfo().getAnnotationAttachmentInfo(
                 HttpConstants.PROTOCOL_PACKAGE_HTTP, HttpConstants.ANN_NAME_CONFIG);
         if (configAnn != null) {
-            AnnAttributeValue keepAliveAttrVal = configAnn.getAttributeValue(HttpConstants.ANN_CONFIG_ATTR_KEEP_ALIVE);
-
-            if (keepAliveAttrVal != null && !keepAliveAttrVal.getBooleanValue()) {
-                outboundMessage.setHeader(HttpHeaderNames.CONNECTION.toString(),
-                                          HttpConstants.HEADER_VAL_CONNECTION_CLOSE);
-            } else {
-                // default behaviour: keepAlive = true
-                outboundMessage.setHeader(HttpHeaderNames.CONNECTION.toString(),
-                                          HttpConstants.HEADER_VAL_CONNECTION_KEEP_ALIVE);
-            }
             AnnAttributeValue compressionEnabled = configAnn.getAttributeValue(
                     HttpConstants.ANN_CONFIG_ATTR_COMPRESSION_ENABLED);
             if (compressionEnabled != null && !compressionEnabled.getBooleanValue()) {
                 outboundMessage.setHeader(HttpHeaderNames.CONTENT_ENCODING.toString(),
                                           Constants.HTTP_TRANSFER_ENCODING_IDENTITY);
             }
-        } else {
-            // default behaviour: keepAlive = true
-            outboundMessage.setHeader(HttpHeaderNames.CONNECTION.toString(),
-                                      HttpConstants.HEADER_VAL_CONNECTION_KEEP_ALIVE);
         }
     }
 
@@ -670,12 +655,6 @@ public class HttpUtil {
                 listenerConfiguration.setHost(HttpConstants.HTTP_DEFAULT_HOST);
             }
 
-            if (keepAliveAttrVal != null) {
-                listenerConfiguration.setKeepAlive(keepAliveAttrVal.getBooleanValue());
-            } else {
-                listenerConfiguration.setKeepAlive(Boolean.TRUE);
-            }
-
             // For the moment we don't have to pass it down to transport as we only support
             // chunking. Once we start supporting gzip, deflate, etc, we need to parse down the config.
             if (transferEncoding != null && !HttpConstants.ANN_CONFIG_ATTR_CHUNKING
@@ -689,6 +668,13 @@ public class HttpUtil {
                 listenerConfiguration.setChunkConfig(chunkConfig);
             } else {
                 listenerConfiguration.setChunkConfig(ChunkConfig.AUTO);
+            }
+
+            if (keepAliveAttrVal != null) {
+                KeepAliveConfig keepAliveConfig = getKeepAliveConfig(keepAliveAttrVal.getStringValue());
+                listenerConfiguration.setKeepAliveConfig(keepAliveConfig);
+            } else {
+                listenerConfiguration.setKeepAliveConfig(KeepAliveConfig.AUTO);
             }
 
             RequestSizeValidationConfig requestSizeValidationConfig =
@@ -724,18 +710,30 @@ public class HttpUtil {
         }
     }
 
-    public static ChunkConfig getChunkConfig(String chunking) {
-        ChunkConfig chunkConfig;
-        if (HttpConstants.CHUNKING_AUTO.equalsIgnoreCase(chunking)) {
-            chunkConfig = ChunkConfig.AUTO;
-        } else if (HttpConstants.CHUNKING_ALWAYS.equalsIgnoreCase(chunking)) {
-            chunkConfig = ChunkConfig.ALWAYS;
-        } else if (HttpConstants.CHUNKING_NEVER.equalsIgnoreCase(chunking)) {
-            chunkConfig = ChunkConfig.NEVER;
+    public static ChunkConfig getChunkConfig(String chunkConfig) {
+        if (HttpConstants.AUTO.equalsIgnoreCase(chunkConfig)) {
+            return ChunkConfig.AUTO;
+        } else if (HttpConstants.ALWAYS.equalsIgnoreCase(chunkConfig)) {
+            return ChunkConfig.ALWAYS;
+        } else if (HttpConstants.NEVER.equalsIgnoreCase(chunkConfig)) {
+            return ChunkConfig.NEVER;
         } else {
-            throw new BallerinaConnectorException("Invalid configuration found for Transfer-Encoding : " + chunking);
+            throw new BallerinaConnectorException(
+                    "Invalid configuration found for Transfer-Encoding: " + chunkConfig);
         }
-        return chunkConfig;
+    }
+
+    public static KeepAliveConfig getKeepAliveConfig(String keepAliveConfig) {
+        if (HttpConstants.AUTO.equalsIgnoreCase(keepAliveConfig)) {
+            return KeepAliveConfig.AUTO;
+        } else if (HttpConstants.ALWAYS.equalsIgnoreCase(keepAliveConfig)) {
+            return KeepAliveConfig.ALWAYS;
+        } else if (HttpConstants.NEVER.equalsIgnoreCase(keepAliveConfig)) {
+            return KeepAliveConfig.NEVER;
+        } else {
+            throw new BallerinaConnectorException(
+                    "Invalid configuration found for Keep-Alive: " + keepAliveConfig);
+        }
     }
 
     public static ForwardedExtensionConfig getForwardedExtensionConfig(String forwarded) {

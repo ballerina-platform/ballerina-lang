@@ -24,11 +24,10 @@ import org.ballerinalang.test.context.LogLeecher;
 import org.ballerinalang.test.context.ServerInstance;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.Test;
-
 import java.io.File;
 
 /**
- * Testing Mutual SSL
+ * Testing Mutual SSL.
  */
 public class MutualSSLTestCase extends IntegrationTestCase {
 

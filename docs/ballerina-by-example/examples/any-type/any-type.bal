@@ -1,13 +1,13 @@
 import ballerina.io;
 
-@Description {value:"This function return an 'any' typed value."}
+@Description {value:"This function returns an 'any' typed value."}
 function getValue () (any) {
     string name = "cat";
     return name;
 }
 
 function main (string[] args) {
-    //'any' typed variable 'a' holds a value of type int.
+    //The 'any' typed variable 'a' holds a value of type 'int'.
     any a = 5;
     io:println(a);
 
