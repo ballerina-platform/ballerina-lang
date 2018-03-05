@@ -52,6 +52,7 @@ import java.util.Set;
  * @since 0.8.0
  */
 public class BLangFunctions {
+    
     private static final String JOIN_TYPE_SOME = "some";
 
     private BLangFunctions() { }
@@ -126,15 +127,13 @@ public class BLangFunctions {
                 callableUnitInfo.getRetParamTypes(), workerSet.generalWorkers.length, false, responseCallback);
         respCtx.updateTargetContextInfo(parentCtx, retRegs);
         WorkerDataIndex wdi = callableUnitInfo.retWorkerIndex;
-        Map<String, Object> globalProps = parentCtx.globalProps;
         BLangScheduler.switchToWaitForResponse(parentCtx);
 
         /* execute the init worker and extract the local variables created by it */
         WorkerData initWorkerLocalData = null;
         CodeAttributeInfo initWorkerCAI = null;
         if (workerSet.initWorker != null) {
-            initWorkerLocalData = executeInitWorker(parentCtx, argRegs, callableUnitInfo, workerSet.initWorker,
-                    wdi, globalProps);
+            initWorkerLocalData = executeInitWorker(parentCtx, argRegs, callableUnitInfo, workerSet.initWorker, wdi);
             if (initWorkerLocalData == null) {
                 return;
             }
@@ -143,7 +142,7 @@ public class BLangFunctions {
 
         for (int i = 0; i < workerSet.generalWorkers.length; i++) {
             executeWorker(respCtx, parentCtx, argRegs, callableUnitInfo, workerSet.generalWorkers[i],
-                    wdi, globalProps, initWorkerLocalData, initWorkerCAI, false);
+                    wdi, initWorkerLocalData, initWorkerCAI, false);
         }
     }
 
@@ -155,15 +154,13 @@ public class BLangFunctions {
                 workerSet.generalWorkers.length, waitForResponse);
         respCtx.updateTargetContextInfo(parentCtx, retRegs);
         WorkerDataIndex wdi = callableUnitInfo.retWorkerIndex;
-        Map<String, Object> globalProps = parentCtx.globalProps;
         BLangScheduler.switchToWaitForResponse(parentCtx);
 
         /* execute the init worker and extract the local variables created by it */
         WorkerData initWorkerLocalData = null;
         CodeAttributeInfo initWorkerCAI = null;
         if (workerSet.initWorker != null) {
-            initWorkerLocalData = executeInitWorker(parentCtx, argRegs, callableUnitInfo, workerSet.initWorker,
-                    wdi, globalProps);
+            initWorkerLocalData = executeInitWorker(parentCtx, argRegs, callableUnitInfo, workerSet.initWorker, wdi);
             if (initWorkerLocalData == null) {
                 handleError(parentCtx);
                 return null;
@@ -173,10 +170,10 @@ public class BLangFunctions {
 
         for (int i = 1; i < workerSet.generalWorkers.length; i++) {
             executeWorker(respCtx, parentCtx, argRegs, callableUnitInfo, workerSet.generalWorkers[i],
-                    wdi, globalProps, initWorkerLocalData, initWorkerCAI, false);
+                    wdi, initWorkerLocalData, initWorkerCAI, false);
         }
         WorkerExecutionContext runInCallerCtx = executeWorker(respCtx, parentCtx, argRegs, callableUnitInfo, 
-                workerSet.generalWorkers[0], wdi, globalProps, initWorkerLocalData, initWorkerCAI, true);
+                workerSet.generalWorkers[0], wdi, initWorkerLocalData, initWorkerCAI, true);
         if (waitForResponse) {
             BLangScheduler.executeNow(runInCallerCtx);
             respCtx.waitForResponse();
@@ -197,8 +194,8 @@ public class BLangFunctions {
     
     private static WorkerExecutionContext executeWorker(WorkerResponseContext respCtx, 
             WorkerExecutionContext parentCtx, int[] argRegs, CallableUnitInfo callableUnitInfo, 
-            WorkerInfo workerInfo, WorkerDataIndex wdi, Map<String, Object> globalProps,
-            WorkerData initWorkerLocalData, CodeAttributeInfo initWorkerCAI, boolean runInCaller) {
+            WorkerInfo workerInfo, WorkerDataIndex wdi, WorkerData initWorkerLocalData, 
+            CodeAttributeInfo initWorkerCAI, boolean runInCaller) {
         WorkerData workerLocal = BLangVMUtils.createWorkerDataForLocal(workerInfo, parentCtx, argRegs,
                 callableUnitInfo.getParamTypes());
         if (initWorkerLocalData != null) {
@@ -206,16 +203,15 @@ public class BLangFunctions {
         }
         WorkerData workerResult = BLangVMUtils.createWorkerData(wdi);
         WorkerExecutionContext ctx = new WorkerExecutionContext(parentCtx, respCtx, callableUnitInfo, workerInfo,
-                workerLocal, workerResult, wdi.retRegs, globalProps, runInCaller);
+                workerLocal, workerResult, wdi.retRegs, runInCaller);
         return BLangScheduler.schedule(ctx);
     }
     
     private static WorkerData executeInitWorker(WorkerExecutionContext parentCtx, int[] argRegs,
-            CallableUnitInfo callableUnitInfo, WorkerInfo workerInfo, WorkerDataIndex wdi,
-            Map<String, Object> globalProps) {
+            CallableUnitInfo callableUnitInfo, WorkerInfo workerInfo, WorkerDataIndex wdi) {
         InitWorkerResponseContext respCtx = new InitWorkerResponseContext(parentCtx);
         WorkerExecutionContext ctx = executeWorker(respCtx, parentCtx, argRegs, callableUnitInfo,
-                workerInfo, wdi, globalProps, null, null, true);        
+                workerInfo, wdi, null, null, true);        
         BLangScheduler.executeNow(ctx);
         WorkerData workerLocal = ctx.workerLocal;
         if (respCtx.isErrored()) {
@@ -305,7 +301,7 @@ public class BLangFunctions {
             Map<String, Object> globalProps, boolean runInCaller) {
         WorkerData workerLocal = BLangVMUtils.createWorkerDataForLocal(workerInfo, parentCtx, argRegs);
         WorkerExecutionContext ctx = new WorkerExecutionContext(parentCtx, respCtx, parentCtx.callableUnitInfo,
-                workerInfo, workerLocal, globalProps, runInCaller);
+                workerInfo, workerLocal, runInCaller);
         return BLangScheduler.schedule(ctx);
     }
 
