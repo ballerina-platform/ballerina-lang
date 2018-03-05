@@ -135,6 +135,7 @@ public class BLangFunctions {
         if (workerSet.initWorker != null) {
             initWorkerLocalData = executeInitWorker(parentCtx, argRegs, callableUnitInfo, workerSet.initWorker, wdi);
             if (initWorkerLocalData == null) {
+                handleError(parentCtx);
                 return;
             }
             initWorkerCAI = workerSet.initWorker.getCodeAttributeInfo();
