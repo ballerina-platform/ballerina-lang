@@ -453,15 +453,14 @@ public class CPU {
 
                         BLangVMErrors.attachStackFrame(error, ctx.programFile, ctx, ctx.ip);
                         ctx.setError(error);
-                        handleError(ctx);
                     }
+                    handleError(ctx);
                     break;
                 case InstructionCodes.ERRSTORE:
-//                    i = operands[0];
-//                    sf.refRegs[i] = ctx.getError();
-//                    // clear error.
-//                    ctx.setError(null);
-                    //TODO
+                    i = operands[0];
+                    sf.refRegs[i] = ctx.getError();
+                    // clear error.
+                    ctx.setError(null);
                     break;
                 case InstructionCodes.FPCALL:
                     i = operands[0];
@@ -3589,7 +3588,11 @@ public class CPU {
     }
 
     private static void handleError(WorkerExecutionContext ctx) {
-        ErrorTableEntry match = ErrorTableEntry.getMatch(ctx.callableUnitInfo.getPackageInfo(), ctx.ip,
+        int ip = ctx.ip;
+        if (ip == -1) {
+            ip = ctx.backupIP;
+        }
+        ErrorTableEntry match = ErrorTableEntry.getMatch(ctx.callableUnitInfo.getPackageInfo(), ip,
                 ctx.getError());
         if (match != null) {
             ctx.ip = match.getIpTarget();
