@@ -2874,6 +2874,8 @@ public class BallerinaPsiImplUtil {
     }
 
     /**
+     * Returns parameter for provided definition node.
+     *
      * @param definitionNode
      * @return
      */
