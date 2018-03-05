@@ -23,7 +23,10 @@ import org.ballerinalang.nativeimpl.io.events.Event;
 import org.ballerinalang.nativeimpl.io.events.EventContext;
 import org.ballerinalang.nativeimpl.io.events.EventResult;
 import org.ballerinalang.nativeimpl.io.events.result.NumericResult;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
 import java.nio.ByteBuffer;
 
 /**
@@ -39,10 +42,15 @@ public class WriteBytesEvent implements Event {
      */
     private ByteBuffer writeBuffer;
     /**
-     * Context of the event which will be called upon completion.
+     * Holds the context to the event.
      */
     private EventContext context;
 
+    private static final Logger log = LoggerFactory.getLogger(WriteBytesEvent.class);
+
+    /**
+     * Context of the event which will be called upon completion.
+     */
     public WriteBytesEvent(Channel byteChannel, byte[] content, int startOffset, int size) {
         this.byteChannel = byteChannel;
         writeBuffer = ByteBuffer.wrap(content);
@@ -51,15 +59,31 @@ public class WriteBytesEvent implements Event {
         writeBuffer.limit(size);
     }
 
-    public WriteBytesEvent(Channel byteChannel, ByteBuffer writeBuffer, EventContext context) {
+    public WriteBytesEvent(Channel byteChannel, byte[] content, int startOffset, int size, EventContext context) {
         this.byteChannel = byteChannel;
-        this.writeBuffer = writeBuffer;
+        writeBuffer = ByteBuffer.wrap(content);
+        //If a larger position is set, the position would be disregarded
+        writeBuffer.position(startOffset);
+        writeBuffer.limit(size);
         this.context = context;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    public EventResult call() throws Exception {
-        int numberOfBytesWritten = byteChannel.write(writeBuffer);
-        return new NumericResult(numberOfBytesWritten);
+    public EventResult get() {
+        int numberOfBytesWritten;
+        NumericResult result;
+        try {
+            numberOfBytesWritten = byteChannel.write(writeBuffer);
+            result = new NumericResult(numberOfBytesWritten, context);
+            return result;
+        } catch (IOException e) {
+            log.error("Error occurred while reading bytes", e);
+            context.setError(e);
+            result = new NumericResult(context);
+            return result;
+        }
     }
 }

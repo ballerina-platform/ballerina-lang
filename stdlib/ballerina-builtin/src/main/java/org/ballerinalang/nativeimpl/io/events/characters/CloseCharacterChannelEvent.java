@@ -16,49 +16,41 @@
  * under the License.
  */
 
-package org.ballerinalang.nativeimpl.io.events.bytes;
+package org.ballerinalang.nativeimpl.io.events.characters;
 
-import org.ballerinalang.nativeimpl.io.channels.base.Channel;
+import org.ballerinalang.nativeimpl.io.CloseCharacterChannel;
+import org.ballerinalang.nativeimpl.io.channels.base.CharacterChannel;
 import org.ballerinalang.nativeimpl.io.events.Event;
 import org.ballerinalang.nativeimpl.io.events.EventContext;
 import org.ballerinalang.nativeimpl.io.events.EventResult;
-import org.ballerinalang.nativeimpl.io.events.result.NumericResult;
+import org.ballerinalang.nativeimpl.io.events.result.BooleanResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.nio.ByteBuffer;
 
 /**
- * Will be used to process the response once the bytes are read from the source.
+ * Event which will close the character channel.
  */
-public class ReadBytesEvent implements Event {
+public class CloseCharacterChannelEvent implements Event {
     /**
-     * Buffer which will be provided to the channel.
+     * Character channel which will be closed.
      */
-    private ByteBuffer content;
-    /**
-     * Will be used to read bytes.
-     */
-    private Channel channel;
+    private CharacterChannel channel;
     /**
      * Holds context to the event.
      */
     private EventContext context;
 
-    private static final Logger log = LoggerFactory.getLogger(ReadBytesEvent.class);
+    private static final Logger log = LoggerFactory.getLogger(CloseCharacterChannel.class);
 
-    public ReadBytesEvent(Channel channel, byte[] content, int offset) {
-        this.content = ByteBuffer.wrap(content);
-        this.content.position(offset);
+    public CloseCharacterChannelEvent(CharacterChannel channel) {
         this.channel = channel;
     }
 
-    public ReadBytesEvent(Channel channel, byte[] content, int offset, EventContext context) {
-        this.content = ByteBuffer.wrap(content);
-        this.context = context;
+    public CloseCharacterChannelEvent(CharacterChannel channel, EventContext context) {
         this.channel = channel;
-        this.content.position(offset);
+        this.context = context;
     }
 
     /**
@@ -66,16 +58,15 @@ public class ReadBytesEvent implements Event {
      */
     @Override
     public EventResult get() {
-        int read;
-        NumericResult result;
+        BooleanResult result;
         try {
-            read = channel.read(content);
-            result = new NumericResult(read, context);
+            channel.close();
+            result = new BooleanResult(true, context);
             return result;
         } catch (IOException e) {
-            log.error("Error occurred while reading bytes", e);
+            log.error("Error occurred while closing character channel", e);
             context.setError(e);
-            result = new NumericResult(context);
+            result = new BooleanResult(context);
             return result;
         }
     }

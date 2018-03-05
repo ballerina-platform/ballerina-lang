@@ -23,6 +23,10 @@ import org.ballerinalang.nativeimpl.io.events.Event;
 import org.ballerinalang.nativeimpl.io.events.EventContext;
 import org.ballerinalang.nativeimpl.io.events.EventResult;
 import org.ballerinalang.nativeimpl.io.events.result.NumericResult;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
 
 /**
  * Represents an event which will write characters.
@@ -45,6 +49,7 @@ public class WriteCharactersEvent implements Event {
      */
     private EventContext context;
 
+    private static final Logger log = LoggerFactory.getLogger(WriteCharactersEvent.class);
 
     public WriteCharactersEvent(CharacterChannel channel, String content, int offset) {
         this.channel = channel;
@@ -63,8 +68,18 @@ public class WriteCharactersEvent implements Event {
      * {@inheritDoc}
      */
     @Override
-    public EventResult call() throws Exception {
-        int numberOfCharactersWritten = channel.write(content, offset);
-        return new NumericResult(numberOfCharactersWritten);
+    public EventResult get() {
+        int numberOfCharactersWritten;
+        NumericResult result;
+        try {
+            numberOfCharactersWritten = channel.write(content, offset);
+            result = new NumericResult(numberOfCharactersWritten, context);
+            return result;
+        } catch (IOException e) {
+            log.error("Error occurred while writing characters", e);
+            context.setError(e);
+            result = new NumericResult(context);
+            return result;
+        }
     }
 }

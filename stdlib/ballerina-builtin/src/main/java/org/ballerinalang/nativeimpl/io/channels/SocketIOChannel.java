@@ -23,6 +23,7 @@ import org.ballerinalang.nativeimpl.io.channels.base.Channel;
 import org.ballerinalang.nativeimpl.io.channels.base.readers.BlockingReader;
 import org.ballerinalang.nativeimpl.io.channels.base.writers.BlockingWriter;
 
+import java.io.IOException;
 import java.nio.channels.ByteChannel;
 import java.nio.channels.WritableByteChannel;
 
@@ -33,7 +34,7 @@ import java.nio.channels.WritableByteChannel;
  */
 public class SocketIOChannel extends Channel {
 
-    public SocketIOChannel(ByteChannel channel, int size) throws BallerinaIOException {
+    public SocketIOChannel(ByteChannel channel, int size) throws IOException {
         super(channel, new BlockingReader(), new BlockingWriter(), size);
     }
 
@@ -41,7 +42,7 @@ public class SocketIOChannel extends Channel {
      * {@inheritDoc}
      */
     @Override
-    public void transfer(int position, int count, WritableByteChannel dstChannel) throws BallerinaIOException {
+    public void transfer(int position, int count, WritableByteChannel dstChannel) throws IOException {
         throw new BallerinaIOException("Unsupported method");
     }
 }

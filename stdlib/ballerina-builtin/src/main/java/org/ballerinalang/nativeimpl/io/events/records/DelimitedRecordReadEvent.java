@@ -24,6 +24,10 @@ import org.ballerinalang.nativeimpl.io.events.Event;
 import org.ballerinalang.nativeimpl.io.events.EventContext;
 import org.ballerinalang.nativeimpl.io.events.EventResult;
 import org.ballerinalang.nativeimpl.io.events.result.AlphaCollectionResult;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
 
 /**
  * Represents delimited record read event.
@@ -34,10 +38,11 @@ public class DelimitedRecordReadEvent implements Event {
      */
     private DelimitedRecordChannel channel;
     /**
-     * Context of the event which will be called upon completion.
+     * Holds the context to the event.
      */
     private EventContext context;
 
+    private static final Logger log = LoggerFactory.getLogger(DelimitedRecordReadEvent.class);
 
     public DelimitedRecordReadEvent(DelimitedRecordChannel channel) {
         this.channel = channel;
@@ -52,8 +57,18 @@ public class DelimitedRecordReadEvent implements Event {
      * {@inheritDoc}
      */
     @Override
-    public EventResult call() throws Exception {
-        String[] content = channel.read();
-        return new AlphaCollectionResult(content);
+    public EventResult get() {
+        String[] content;
+        AlphaCollectionResult result;
+        try {
+            content = channel.read();
+            result = new AlphaCollectionResult(content, context);
+            return result;
+        } catch (IOException e) {
+            log.error("Error occurred while reading from record channel", e);
+            context.setError(e);
+            result = new AlphaCollectionResult(context);
+            return result;
+        }
     }
 }

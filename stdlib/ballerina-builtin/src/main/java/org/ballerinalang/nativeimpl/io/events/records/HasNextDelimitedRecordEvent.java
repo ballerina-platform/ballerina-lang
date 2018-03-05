@@ -16,48 +16,42 @@
  * under the License.
  */
 
-package org.ballerinalang.nativeimpl.io.events.result;
+package org.ballerinalang.nativeimpl.io.events.records;
 
+import org.ballerinalang.nativeimpl.io.channels.base.DelimitedRecordChannel;
+import org.ballerinalang.nativeimpl.io.events.Event;
 import org.ballerinalang.nativeimpl.io.events.EventContext;
 import org.ballerinalang.nativeimpl.io.events.EventResult;
+import org.ballerinalang.nativeimpl.io.events.result.BooleanResult;
 
 /**
- * Represents a series of characters.
+ * Validates whether there's another text record.
  */
-public class AlphaResult implements EventResult<String, EventContext> {
+public class HasNextDelimitedRecordEvent implements Event {
     /**
-     * The content which is read, will be used for character IO APIs.
+     * Delimited record channel which will hold the validation result.
      */
-    private String content;
-
+    private DelimitedRecordChannel channel;
     /**
      * Holds the context to the event.
      */
     private EventContext context;
 
-    public AlphaResult(String content) {
-        this.content = content;
+    public HasNextDelimitedRecordEvent(DelimitedRecordChannel channel) {
+        this.channel = channel;
     }
 
-    public AlphaResult(EventContext context) {
+    public HasNextDelimitedRecordEvent(DelimitedRecordChannel channel, EventContext context) {
+        this.channel = channel;
         this.context = context;
-    }
-
-    public AlphaResult(String content, EventContext context) {
-        this.content = content;
-        this.context = context;
-    }
-
-    @Override
-    public EventContext getContext() {
-        return context;
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public String getResponse() {
-        return this.content.intern();
+    public EventResult get() {
+        boolean hasNext = channel.hasNext();
+        return new BooleanResult(hasNext, context);
     }
 }

@@ -19,10 +19,7 @@
 package org.ballerinalang.test.nativeimpl.functions.io.bytes;
 
 import org.ballerinalang.nativeimpl.io.channels.base.Channel;
-import org.ballerinalang.nativeimpl.io.events.EventManager;
-import org.ballerinalang.nativeimpl.io.events.EventResult;
-import org.ballerinalang.nativeimpl.io.events.bytes.ReadBytesEvent;
-import org.ballerinalang.nativeimpl.io.events.bytes.WriteBytesEvent;
+import org.ballerinalang.nativeimpl.io.utils.IOUtils;
 import org.ballerinalang.test.nativeimpl.functions.io.MockByteChannel;
 import org.ballerinalang.test.nativeimpl.functions.io.util.TestUtil;
 import org.testng.Assert;
@@ -31,10 +28,8 @@ import org.testng.annotations.Test;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.nio.ByteBuffer;
 import java.nio.channels.ByteChannel;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
 
 /**
  * Tests operations through the async io framework
@@ -46,68 +41,9 @@ public class AsyncReadWriteTest {
      */
     private String currentDirectoryPath = "/tmp/";
 
-    /**
-     * Will be the I/O event handler
-     */
-    private EventManager eventManager = EventManager.getInstance();
-
     @BeforeSuite
     public void setup() {
         currentDirectoryPath = System.getProperty("user.dir") + "/target/";
-    }
-
-    /**
-     * Wraps byte [] to a buffer.
-     *
-     * @return the buffer which as the wrapped byte []
-     */
-    private ByteBuffer wrapByteArray(byte[] content, int offset) {
-        ByteBuffer bufferedContent = ByteBuffer.wrap(content);
-        bufferedContent.position(offset);
-        return bufferedContent;
-    }
-
-    /**
-     * Asynchronously reads bytes from the channel.
-     *
-     * @param content               the initialized array which should be filled with the content.
-     * @param channel               the channel the content should be read into.
-     * @param expectedNumberOfBytes the number of bytes which should be read
-     * @throws InterruptedException during interrupt error.
-     * @throws ExecutionException   errors which occurs while execution.
-     */
-    private int readAsync(byte[] content, Channel channel, int expectedNumberOfBytes)
-            throws InterruptedException, ExecutionException {
-        int numberOfBytesRead = 0;
-        do {
-            ByteBuffer contentBuffer = wrapByteArray(content, numberOfBytesRead);
-            ReadBytesEvent event = new ReadBytesEvent(contentBuffer, channel);
-            Future<EventResult> future = eventManager.publish(event);
-            EventResult eventResponse = future.get();
-            numberOfBytesRead = numberOfBytesRead + (Integer) eventResponse.getResponse();
-        } while (numberOfBytesRead < expectedNumberOfBytes && !channel.hasReachedEnd());
-        return numberOfBytesRead;
-    }
-
-    /**
-     * Asynchronously writes bytes to a channel.
-     *
-     * @param content content which should be written.
-     * @param channel the channel the bytes should be written.
-     * @return the number of bytes written to the channel.
-     * @throws ExecutionException   errors which occur during execution.
-     * @throws InterruptedException during interrupt error.
-     */
-    private int writeAsync(byte[] content, Channel channel) throws ExecutionException, InterruptedException {
-        int numberOfBytesWritten = 0;
-        do {
-            int arrayLength = content.length;
-            WriteBytesEvent writeBytesEvent = new WriteBytesEvent(channel, content, numberOfBytesWritten, arrayLength);
-            Future<EventResult> future = eventManager.publish(writeBytesEvent);
-            EventResult eventResponse = future.get();
-            numberOfBytesWritten = numberOfBytesWritten + (Integer) eventResponse.getResponse();
-        } while (numberOfBytesWritten < content.length);
-        return numberOfBytesWritten;
     }
 
     @Test(description = "Read into fixed byte[] using async io framework")
@@ -119,45 +55,47 @@ public class AsyncReadWriteTest {
         Channel channel = new MockByteChannel(byteChannel);
 
         byte[] expected = {49, 50};
-        int expectedNumberOfBytes = 2;
-        readAsync(content, channel, expectedNumberOfBytes);
+        int offset = 0;
+        IOUtils.readFull(channel, content, offset, null);
         Assert.assertEquals(expected, content);
 
         expected = new byte[]{51, 52};
-        readAsync(content, channel, expectedNumberOfBytes);
+        IOUtils.readFull(channel, content, offset, null);
         Assert.assertEquals(expected, content);
 
         expected = new byte[]{53, 54};
-        readAsync(content, channel, expectedNumberOfBytes);
+        IOUtils.readFull(channel, content, offset, null);
         Assert.assertEquals(expected, content);
 
-        expectedNumberOfBytes = -1;
+        int expectedNumberOfBytes = -1;
         content = new byte[2];
         expected = new byte[]{0, 0};
-        int numberOfBytesRead = readAsync(content, channel, expectedNumberOfBytes);
+        int numberOfBytesRead = IOUtils.readFull(channel, content, offset, null);
         Assert.assertEquals(numberOfBytesRead, expectedNumberOfBytes);
         Assert.assertEquals(expected, content);
     }
 
     @Test(description = "Reads bytes and validate the byte content")
-    public void readContentValidationTest() throws IOException, URISyntaxException, ExecutionException, InterruptedException {
+    public void readContentValidationTest() throws IOException, URISyntaxException, ExecutionException,
+            InterruptedException {
         byte[] content = new byte[3];
         //Number of characters in this file would be 6
         ByteChannel byteChannel = TestUtil.openForReading("datafiles/io/text/6charfile.txt");
         Channel channel = new MockByteChannel(byteChannel);
 
-        byte[] expected = "123".getBytes();;
-        int expectedNumberOfBytes = 3;
-        readAsync(content, channel, expectedNumberOfBytes);
+        byte[] expected = "123".getBytes();
+
+        int offset = 0;
+        IOUtils.readFull(channel, content, offset, null);
         Assert.assertEquals(expected, content);
 
         expected = "456".getBytes();
-        readAsync(content, channel, expectedNumberOfBytes);
+        IOUtils.readFull(channel, content, offset, null);
         Assert.assertEquals(expected, content);
 
         content = new byte[3];
         expected = new byte[3];
-        readAsync(content, channel, expectedNumberOfBytes);
+        IOUtils.readFull(channel, content, offset, null);
         Assert.assertEquals(expected, content);
     }
 
@@ -168,7 +106,7 @@ public class AsyncReadWriteTest {
         Channel channel = new MockByteChannel(byteChannel, 0);
         byte[] bytes = "hello".getBytes();
 
-        int numberOfBytesWritten = writeAsync(bytes, channel);
+        int numberOfBytesWritten = IOUtils.writeFull(channel, bytes, bytes.length, null);
         Assert.assertEquals(numberOfBytesWritten, bytes.length);
     }
 

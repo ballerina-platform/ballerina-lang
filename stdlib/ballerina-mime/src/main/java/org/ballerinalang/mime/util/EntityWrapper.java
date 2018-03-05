@@ -24,6 +24,7 @@ import org.ballerinalang.nativeimpl.io.channels.base.Channel;
 import org.ballerinalang.nativeimpl.io.channels.base.readers.BlockingReader;
 import org.ballerinalang.nativeimpl.io.channels.base.writers.BlockingWriter;
 
+import java.io.IOException;
 import java.nio.channels.WritableByteChannel;
 
 /**
@@ -39,7 +40,7 @@ public class EntityWrapper extends Channel {
     }
 
     @Override
-    public void transfer(int position, int count, WritableByteChannel dstChannel) throws BallerinaIOException {
+    public void transfer(int position, int count, WritableByteChannel dstChannel) throws IOException {
         //For the time being not applicable
         throw new UnsupportedOperationException();
     }

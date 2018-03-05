@@ -19,7 +19,6 @@
 package org.ballerinalang.nativeimpl.io.channels.base.readers;
 
 
-import org.ballerinalang.nativeimpl.io.BallerinaIOException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,12 +40,12 @@ public class BlockingReader implements Reader {
 
     /**
      * Reads bytes in blocking mode. Could be used if it's required to readFull().
-     *
+     * <p>
      * <p>
      * {@inheritDoc}
      */
     @Override
-    public int read(ByteBuffer content, ByteChannel channel) throws BallerinaIOException {
+    public int read(ByteBuffer content, ByteChannel channel) throws IOException {
         try {
             if (log.isDebugEnabled()) {
                 log.debug("Reading from channel " + channel.hashCode());
@@ -71,8 +70,9 @@ public class BlockingReader implements Reader {
             }
             return totalNumberOfReadBytes;
         } catch (IOException e) {
-            String message = "Error occurred while reading from channel ";
-            throw new BallerinaIOException(message, e);
+            String message = "Could not read from the channel";
+            log.error(message, e);
+            throw new IOException(message, e);
         }
     }
 }

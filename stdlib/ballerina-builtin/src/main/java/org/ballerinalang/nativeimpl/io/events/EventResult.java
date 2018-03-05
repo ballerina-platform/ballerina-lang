@@ -22,8 +22,16 @@ package org.ballerinalang.nativeimpl.io.events;
  * Represents the I/O event response.
  *
  * @param <K> return type of the event response.
+ * @param <T> context of the event.
  */
-public interface EventResult<K> {
+public interface EventResult<K, T> {
+    /**
+     * Specifies the context to the event.
+     *
+     * @return event context.
+     */
+    T getContext();
+
     /**
      * <p>
      * Returns the response returned from the event.

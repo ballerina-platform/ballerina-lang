@@ -18,7 +18,8 @@
 
 package org.ballerinalang.nativeimpl.io.channels.base.readers;
 
-import org.ballerinalang.nativeimpl.io.BallerinaIOException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -33,19 +34,22 @@ import java.nio.channels.ByteChannel;
  * </p>
  */
 public class AsyncReader implements Reader {
+
+    private static final Logger log = LoggerFactory.getLogger(BlockingReader.class);
+
     /**
      * Reads bytes asynchronously.
-     *
+     * <p>
      * {@inheritDoc}
      */
     @Override
-    public int read(ByteBuffer content, ByteChannel channel) throws BallerinaIOException {
+    public int read(ByteBuffer content, ByteChannel channel) throws IOException {
         try {
             return channel.read(content);
         } catch (IOException e) {
-            String message = "Error occurred while reading from channel ";
-            throw new BallerinaIOException(message, e);
+            String message = "could not read from the channel";
+            log.error(message, e);
+            throw new IOException(message, e);
         }
-
     }
 }

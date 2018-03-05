@@ -18,7 +18,7 @@
 
 package org.ballerinalang.nativeimpl.io.events;
 
-import java.util.concurrent.Callable;
+import java.util.function.Supplier;
 
 /**
  * <p>
@@ -30,5 +30,5 @@ import java.util.concurrent.Callable;
  * All these events should implement this interface.
  * </p>
  */
-public interface Event extends Callable<EventResult> {
+public interface Event extends Supplier<EventResult> {
 }

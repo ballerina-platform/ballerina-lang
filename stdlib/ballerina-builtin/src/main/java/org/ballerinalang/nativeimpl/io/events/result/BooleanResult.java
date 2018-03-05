@@ -22,33 +22,28 @@ import org.ballerinalang.nativeimpl.io.events.EventContext;
 import org.ballerinalang.nativeimpl.io.events.EventResult;
 
 /**
- * Represents a series of characters.
+ * Indicates a boolean result.
  */
-public class AlphaResult implements EventResult<String, EventContext> {
+public class BooleanResult implements EventResult<Boolean, EventContext> {
     /**
-     * The content which is read, will be used for character IO APIs.
+     * Result of the boolean.
      */
-    private String content;
+    private boolean result;
 
     /**
      * Holds the context to the event.
      */
     private EventContext context;
 
-    public AlphaResult(String content) {
-        this.content = content;
-    }
-
-    public AlphaResult(EventContext context) {
+    public BooleanResult(EventContext context) {
         this.context = context;
     }
 
-    public AlphaResult(String content, EventContext context) {
-        this.content = content;
+    public BooleanResult(boolean result, EventContext context) {
+        this.result = result;
         this.context = context;
     }
 
-    @Override
     public EventContext getContext() {
         return context;
     }
@@ -57,7 +52,7 @@ public class AlphaResult implements EventResult<String, EventContext> {
      * {@inheritDoc}
      */
     @Override
-    public String getResponse() {
-        return this.content.intern();
+    public Boolean getResponse() {
+        return result;
     }
 }

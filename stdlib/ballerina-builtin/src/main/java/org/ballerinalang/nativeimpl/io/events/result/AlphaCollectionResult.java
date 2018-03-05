@@ -18,22 +18,42 @@
 
 package org.ballerinalang.nativeimpl.io.events.result;
 
+import org.ballerinalang.nativeimpl.io.events.EventContext;
 import org.ballerinalang.nativeimpl.io.events.EventResult;
 
 /**
  * Represent alphanumeric result collection.
  */
-public class AlphaCollectionResult implements EventResult<String[]> {
+public class AlphaCollectionResult implements EventResult<String[], EventContext> {
     /**
      * Represents a response obtained as a collection.
      */
     private String[] response;
+
+    /**
+     * Holds the context to the event.
+     */
+    private EventContext context;
+
+    public AlphaCollectionResult(EventContext context) {
+        this.context = context;
+    }
 
     public AlphaCollectionResult(String[] response) {
         //We need to clone here since we cannot expose the internal representation
         //Causes security vulnerability
         //TODO revisit this
         this.response = response.clone();
+    }
+
+    public AlphaCollectionResult(String[] response, EventContext context) {
+        this.response = response.clone();
+        this.context = context;
+    }
+
+    @Override
+    public EventContext getContext() {
+        return context;
     }
 
     @Override

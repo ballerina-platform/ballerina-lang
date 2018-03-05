@@ -28,8 +28,24 @@ public class EventContext {
      * Holds the context which will be used to set the relevant results.
      */
     private Context context;
+    /**
+     * Represents any error which will be thrown.
+     */
+    private Throwable error;
 
     public EventContext(Context context) {
         this.context = context;
+    }
+
+    public Context getContext() {
+        return context;
+    }
+
+    public Throwable getError() {
+        return error;
+    }
+
+    public void setError(Throwable error) {
+        this.error = error;
     }
 }

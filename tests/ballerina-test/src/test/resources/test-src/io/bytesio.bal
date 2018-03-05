@@ -2,22 +2,22 @@ import ballerina.io;
 
 io:ByteChannel channel;
 
-function initFileChannel(string filePath, string permission){
+function initFileChannel (string filePath, string permission) {
     channel = io:openFile(filePath, permission);
 }
 
 function readBytes (int numberOfBytes) (blob) {
     blob bytes;
     int numberOfBytesRead;
-    bytes,numberOfBytesRead = channel.readBytes(numberOfBytes);
+    bytes, numberOfBytesRead = channel.read(numberOfBytes, 0);
     return bytes;
 }
 
 function writeBytes (blob content, int startOffset) (int) {
-    int numberOfBytesWritten = channel.writeBytes(content, startOffset);
+    int numberOfBytesWritten = channel.write(content, startOffset,-1);
     return numberOfBytesWritten;
 }
 
-function close(){
+function close () {
     channel.close();
 }

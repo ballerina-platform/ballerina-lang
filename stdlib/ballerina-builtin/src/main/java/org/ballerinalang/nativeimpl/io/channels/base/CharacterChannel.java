@@ -17,7 +17,6 @@
 
 package org.ballerinalang.nativeimpl.io.channels.base;
 
-import org.ballerinalang.nativeimpl.io.BallerinaIOException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -206,9 +205,10 @@ public class CharacterChannel {
      *
      * @param numberOfBytesRequired number of bytes required from the channel.
      * @param numberOfCharsRequired number of characters required.
+     * @throws IOException errors occur while reading and encoding characters.
      */
     private void asyncReadBytesFromChannel(int numberOfBytesRequired, int numberOfCharsRequired)
-            throws CharacterCodingException {
+            throws IOException {
         ByteBuffer buffer;
         int numberOfCharsProcessed = 0;
         CharBuffer intermediateCharacterBuffer;
@@ -262,7 +262,7 @@ public class CharacterChannel {
      * @param numberOfCharacters number of characters which needs to be read.
      * @return characters which were read.
      */
-    public String read(int numberOfCharacters) {
+    public String read(int numberOfCharacters) throws IOException {
         StringBuilder content;
         try {
             //Will identify the number of characters required
@@ -290,7 +290,7 @@ public class CharacterChannel {
             }
             appendCharsToString(content, charsRequiredToBeReadFromChannel);
         } catch (IOException e) {
-            throw new BallerinaIOException("Error occurred while reading characters from buffer", e);
+            throw new IOException("Error occurred while reading characters from buffer", e);
         }
         return content.toString();
     }
@@ -301,7 +301,7 @@ public class CharacterChannel {
      * @return all content which is read.
      */
     @Deprecated
-    public String readAll() {
+    public String readAll() throws IOException {
         StringBuilder response = new StringBuilder();
         String value;
         do {
@@ -317,9 +317,9 @@ public class CharacterChannel {
      * @param content the string content to be written.
      * @param offset  the offset which should be used for writing.
      * @return the number of bytes/characters written.
-     * @throws BallerinaIOException during I/O error.
+     * @throws IOException during I/O error.
      */
-    public int write(String content, int offset) throws BallerinaIOException {
+    public int write(String content, int offset) throws IOException {
         try {
             int numberOfBytesWritten = 0;
             if (channel != null) {
@@ -336,14 +336,16 @@ public class CharacterChannel {
             return numberOfBytesWritten;
         } catch (CharacterCodingException e) {
             String message = "Error occurred while writing bytes to the channel " + channel.hashCode();
-            throw new BallerinaIOException(message, e);
+            throw new IOException(message, e);
         }
     }
 
     /**
      * Closes the given channel.
+     *
+     * @throws IOException errors occur while trying to close the connection.
      */
-    public void close() {
+    public void close() throws IOException {
         channel.close();
     }
 }

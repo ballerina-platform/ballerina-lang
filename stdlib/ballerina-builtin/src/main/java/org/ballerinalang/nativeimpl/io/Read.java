@@ -25,19 +25,17 @@ import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.nativeimpl.io.channels.base.Channel;
-import org.ballerinalang.nativeimpl.io.events.EventManager;
+import org.ballerinalang.nativeimpl.io.events.EventContext;
 import org.ballerinalang.nativeimpl.io.events.EventResult;
-import org.ballerinalang.nativeimpl.io.events.bytes.ReadBytesEvent;
+import org.ballerinalang.nativeimpl.io.utils.IOUtils;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.util.exceptions.BallerinaException;
-
-import java.nio.ByteBuffer;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Native function ballerina.lo#readBytes.
@@ -46,14 +44,15 @@ import java.util.concurrent.Future;
  */
 @BallerinaFunction(
         packageName = "ballerina.io",
-        functionName = "readBytes",
+        functionName = "read",
         receiver = @Receiver(type = TypeKind.STRUCT, structType = "ByteChannel", structPackage = "ballerina.io"),
-        args = {@Argument(name = "numberOfBytes", type = TypeKind.INT)},
+        args = {@Argument(name = "numberOfBytes", type = TypeKind.INT),
+                @Argument(name = "offset", type = TypeKind.INT)},
         returnType = {@ReturnType(type = TypeKind.BLOB),
                 @ReturnType(type = TypeKind.INT)},
         isPublic = true
 )
-public class ReadBytes extends AbstractNativeFunction {
+public class Read extends AbstractNativeFunction {
 
     /**
      * Specifies the index which holds the number of bytes in ballerina.lo#readBytes.
@@ -61,48 +60,27 @@ public class ReadBytes extends AbstractNativeFunction {
     private static final int NUMBER_OF_BYTES_INDEX = 0;
 
     /**
+     * Specifies the offset of the array to read bytes.
+     */
+    private static final int OFFSET_INDEX = 1;
+
+    /**
      * Specifies the index which contains the byte channel in ballerina.lo#readBytes.
      */
     private static final int BYTE_CHANNEL_INDEX = 0;
 
-    /**
-     * Will be the I/O event handler.
-     */
-    private EventManager eventManager = EventManager.getInstance();
-
+    private static final Logger log = LoggerFactory.getLogger(Read.class);
 
     /**
-     * Wraps byte [] to a buffer.
+     * Function which will be notified on the response obtained after the async operation.
      *
-     * @return the buffer which as the wrapped byte []
+     * @param result context of the callback.
+     * @return Once the callback is processed we further return back the result.
      */
-    private ByteBuffer wrapByteArray(byte[] content, int offset) {
-        ByteBuffer bufferedContent = ByteBuffer.wrap(content);
-        bufferedContent.position(offset);
-        return bufferedContent;
-    }
-
-    /**
-     * Asynchronously reads bytes from the channel.
-     *
-     * @param content               the initialized array which should be filled with the content.
-     * @param channel               the channel the content should be read into.
-     * @param expectedNumberOfBytes the number of bytes which should be read
-     * @throws InterruptedException during interrupt error.
-     * @throws ExecutionException   errors which occurs while execution.
-     */
-    private BInteger readAsync(byte[] content, Channel channel, int expectedNumberOfBytes)
-            throws InterruptedException, ExecutionException {
-        int numberOfBytesRead = 0;
-        do {
-            //TODO we need to validate value provided for numberOfBytesRead
-            ByteBuffer contentBuffer = wrapByteArray(content, numberOfBytesRead);
-            ReadBytesEvent event = new ReadBytesEvent(contentBuffer, channel);
-            Future<EventResult> future = eventManager.publish(event);
-            EventResult eventResponse = future.get();
-            numberOfBytesRead = numberOfBytesRead + (Integer) eventResponse.getResponse();
-        } while (numberOfBytesRead < expectedNumberOfBytes && !channel.hasReachedEnd());
-        return new BInteger(numberOfBytesRead);
+    public static EventResult readResponse(EventResult result) {
+//        Integer response = (Integer) result.getResponse();
+//        EventContext eventContext = (EventContext) result.getContext();
+        return result;
     }
 
     /**
@@ -116,18 +94,19 @@ public class ReadBytes extends AbstractNativeFunction {
     public BValue[] execute(Context context) {
         BStruct channel;
         int numberOfBytes;
+        int offset;
         BBlob readByteBlob;
         BInteger numberOfReadBytes;
         try {
             channel = (BStruct) getRefArgument(context, BYTE_CHANNEL_INDEX);
             numberOfBytes = (int) getIntArgument(context, NUMBER_OF_BYTES_INDEX);
+            offset = (int) getIntArgument(context, OFFSET_INDEX);
             Channel byteChannel = (Channel) channel.getNativeData(IOConstants.BYTE_CHANNEL_NAME);
             byte[] content = new byte[numberOfBytes];
-            numberOfReadBytes = readAsync(content, byteChannel, numberOfBytes);
+            EventContext eventContext = new EventContext(context);
+            int nBytes = IOUtils.readFull(byteChannel, content, offset, eventContext);
+            numberOfReadBytes = new BInteger(nBytes);
             readByteBlob = new BBlob(content);
-/*            byte[] readBytes = byteChannel.readFull(numberOfBytes);
-            readByteBlob = new BBlob(readBytes);
-            numberOfReadBytes = new BInteger(readBytes.length);*/
         } catch (Throwable e) {
             String message = "Error occurred while reading bytes:" + e.getMessage();
             throw new BallerinaException(message, context);

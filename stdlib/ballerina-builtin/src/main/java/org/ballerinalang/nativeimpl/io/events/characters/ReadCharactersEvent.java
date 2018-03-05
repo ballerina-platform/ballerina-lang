@@ -23,6 +23,10 @@ import org.ballerinalang.nativeimpl.io.events.Event;
 import org.ballerinalang.nativeimpl.io.events.EventContext;
 import org.ballerinalang.nativeimpl.io.events.EventResult;
 import org.ballerinalang.nativeimpl.io.events.result.AlphaResult;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
 
 /**
  * Represents an event which will read characters.
@@ -37,11 +41,12 @@ public class ReadCharactersEvent implements Event {
      * Specified the number of characters which should be read.
      */
     private int numberOfCharacters;
-
     /**
      * Context of the event which will be called upon completion.
      */
     private EventContext context;
+
+    private static final Logger log = LoggerFactory.getLogger(ReadCharactersEvent.class);
 
     public ReadCharactersEvent(CharacterChannel channel, int numberOfCharacters) {
         this.channel = channel;
@@ -55,8 +60,18 @@ public class ReadCharactersEvent implements Event {
     }
 
     @Override
-    public EventResult call() throws Exception {
-        String content = channel.read(numberOfCharacters);
-        return new AlphaResult(content);
+    public EventResult get() {
+        String content;
+        AlphaResult result;
+        try {
+            content = channel.read(numberOfCharacters);
+            result = new AlphaResult(content, context);
+            return result;
+        } catch (IOException e) {
+            log.error("Error occurred while closing character channel", e);
+            context.setError(e);
+            result = new AlphaResult(context);
+            return result;
+        }
     }
 }

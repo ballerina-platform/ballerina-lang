@@ -17,8 +17,7 @@
  */
 package org.ballerinalang.nativeimpl.io.channels.base.readers;
 
-import org.ballerinalang.nativeimpl.io.BallerinaIOException;
-
+import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.ByteChannel;
 
@@ -32,7 +31,7 @@ public interface Reader {
      * @param content the buffer which will hold the read content.
      * @param channel the source channel where the content will be read from.
      * @return the number of bytes read.
-     * @throws BallerinaIOException during i/o error while reading.
+     * @throws IOException errors occur while reading.
      */
-    int read(ByteBuffer content, ByteChannel channel) throws BallerinaIOException;
+    int read(ByteBuffer content, ByteChannel channel) throws IOException;
 }

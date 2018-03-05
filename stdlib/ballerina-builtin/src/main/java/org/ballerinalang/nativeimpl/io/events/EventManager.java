@@ -20,8 +20,8 @@ package org.ballerinalang.nativeimpl.io.events;
 
 import org.ballerinalang.runtime.threadpool.BLangThreadFactory;
 
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Future;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -74,7 +74,7 @@ public class EventManager {
      * @param event incoming event which will be processed by the I/O threads.
      * @return future which will be notified on the response.
      */
-    public Future<EventResult> publish(Event event) {
-        return workers.submit(event);
+    public CompletableFuture<EventResult> publish(Event event) {
+        return CompletableFuture.supplyAsync(event, workers);
     }
 }

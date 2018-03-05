@@ -55,7 +55,7 @@ public class FileIOChannel extends Channel {
      * {@inheritDoc}
      */
     @Override
-    public void transfer(int position, int count, WritableByteChannel dstChannel) throws BallerinaIOException {
+    public void transfer(int position, int count, WritableByteChannel dstChannel) throws IOException {
         try {
             channel.transferTo(position, count, dstChannel);
         } catch (IOException e) {

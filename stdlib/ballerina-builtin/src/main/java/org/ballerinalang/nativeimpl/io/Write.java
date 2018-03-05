@@ -24,18 +24,15 @@ import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.nativeimpl.io.channels.base.Channel;
-import org.ballerinalang.nativeimpl.io.events.EventManager;
+import org.ballerinalang.nativeimpl.io.events.EventContext;
 import org.ballerinalang.nativeimpl.io.events.EventResult;
-import org.ballerinalang.nativeimpl.io.events.bytes.WriteBytesEvent;
+import org.ballerinalang.nativeimpl.io.utils.IOUtils;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.util.exceptions.BallerinaException;
-
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
 
 /**
  * Native function ballerina.lo#writeBytes.
@@ -44,14 +41,15 @@ import java.util.concurrent.Future;
  */
 @BallerinaFunction(
         packageName = "ballerina.io",
-        functionName = "writeBytes",
+        functionName = "write",
         receiver = @Receiver(type = TypeKind.STRUCT, structType = "ByteChannel", structPackage = "ballerina.io"),
         args = {@Argument(name = "content", type = TypeKind.BLOB),
-                @Argument(name = "startOffset", type = TypeKind.INT)},
+                @Argument(name = "startOffset", type = TypeKind.INT),
+                @Argument(name = "numberOfBytes", type = TypeKind.INT)},
         returnType = {@ReturnType(type = TypeKind.INT)},
         isPublic = true
 )
-public class WriteBytes extends AbstractNativeFunction {
+public class Write extends AbstractNativeFunction {
 
     /**
      * Index which holds the byte channel in ballerina.io#writeBytes.
@@ -66,33 +64,25 @@ public class WriteBytes extends AbstractNativeFunction {
     /**
      * Index which holds the start offset in ballerina.io#writeBytes.
      */
-    private static final int START_OFFSET_INDEX = 0;
+    // private static final int START_OFFSET_INDEX = 0;
 
     /**
-     * Will be the I/O event handler.
+     * Index which holds the number of bytes which should be written.
      */
-    private EventManager eventManager = EventManager.getInstance();
+    //  private static final int NUMBER_OF_BYTES_INDEX = 1;
 
     /**
-     * Asynchronously writes bytes to a channel.
+     * Function which will be notified on the response obtained after the async operation.
      *
-     * @param content content which should be written.
-     * @param channel the channel the bytes should be written.
-     * @return the number of bytes written to the channel.
-     * @throws ExecutionException   errors which occur during execution.
-     * @throws InterruptedException during interrupt error.
+     * @param result context of the callback.
+     * @return Once the callback is processed we further return back the result.
      */
-    private int writeAsync(byte[] content, Channel channel) throws ExecutionException, InterruptedException {
-        int numberOfBytesWritten = 0;
-        do {
-            int arrayLength = content.length;
-            WriteBytesEvent writeBytesEvent = new WriteBytesEvent(channel, content, numberOfBytesWritten, arrayLength);
-            Future<EventResult> future = eventManager.publish(writeBytesEvent);
-            EventResult eventResponse = future.get();
-            numberOfBytesWritten = numberOfBytesWritten + (Integer) eventResponse.getResponse();
-        } while (numberOfBytesWritten < content.length);
-        return numberOfBytesWritten;
+    public static EventResult writeResponse(EventResult result) {
+     //   Integer response = (Integer) result.getResponse();
+     //   EventContext eventContext = (EventContext) result.getContext();
+        return result;
     }
+
 
     /**
      * Writes bytes to a given channel.
@@ -103,15 +93,17 @@ public class WriteBytes extends AbstractNativeFunction {
     public BValue[] execute(Context context) {
         BStruct channel;
         byte[] content;
-        int startOffset;
+        // int numberOfBytes;
+        // int offset;
         int numberOfBytesWritten;
         try {
             channel = (BStruct) getRefArgument(context, BYTE_CHANNEL_INDEX);
             content = getBlobArgument(context, CONTENT_INDEX);
-            startOffset = (int) getIntArgument(context, START_OFFSET_INDEX);
+            //numberOfBytes = (int) getIntArgument(context, NUMBER_OF_BYTES_INDEX);
+            //offset = (int) getIntArgument(context, START_OFFSET_INDEX);
             Channel byteChannel = (Channel) channel.getNativeData(IOConstants.BYTE_CHANNEL_NAME);
-            numberOfBytesWritten = writeAsync(content, byteChannel);
-            // numberOfBytesWritten = byteChannel.write(content, startOffset);
+            EventContext eventContext = new EventContext(context);
+            numberOfBytesWritten = IOUtils.writeFull(byteChannel, content, content.length, eventContext);
         } catch (Throwable e) {
             String message = "Error occurred while writing bytes:" + e.getMessage();
             throw new BallerinaException(message, context);

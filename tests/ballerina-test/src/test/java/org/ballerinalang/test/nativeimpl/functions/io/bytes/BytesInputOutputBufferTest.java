@@ -63,7 +63,7 @@ public class BytesInputOutputBufferTest {
      * @param channel channel the bytes will be read from.
      * @return the number of bytes read.
      */
-    private int readFull(byte[] content, Channel channel) {
+    private int readFull(byte[] content, Channel channel) throws IOException {
         ByteBuffer buffer = ByteBuffer.wrap(content);
         int numberOfBytesRead = 0;
         int totalNumberOfBytesRead = 0;
@@ -81,7 +81,7 @@ public class BytesInputOutputBufferTest {
      * @param numberOfBytes number of bytes which should be read.
      * @return initialized byte []
      */
-    private ReadByteResult read(int numberOfBytes, Channel channel) {
+    private ReadByteResult read(int numberOfBytes, Channel channel) throws IOException {
         byte[] content = new byte[numberOfBytes];
         int numberOfBytesRead = readFull(content, channel);
         return new ReadByteResult(content, numberOfBytesRead);
@@ -95,7 +95,7 @@ public class BytesInputOutputBufferTest {
      * @param channel the channel the content will be written.
      * @return the number of bytes written.
      */
-    private int writeFull(byte[] content, int size, Channel channel) {
+    private int writeFull(byte[] content, int size, Channel channel) throws IOException {
         ByteBuffer contentBuffer = ByteBuffer.wrap(content);
         contentBuffer.limit(size);
         int totalNumberOfBytesWritten = 0;

@@ -18,12 +18,13 @@
 
 package org.ballerinalang.nativeimpl.io.events.result;
 
+import org.ballerinalang.nativeimpl.io.events.EventContext;
 import org.ballerinalang.nativeimpl.io.events.EventResult;
 
 /**
  * Will represent the response obtained after reading/writing operations.
  */
-public class NumericResult implements EventResult<Integer> {
+public class NumericResult implements EventResult<Integer, EventContext> {
 
     /**
      * Will represent a count.
@@ -32,8 +33,23 @@ public class NumericResult implements EventResult<Integer> {
      */
     private int count;
 
-    public NumericResult(int count) {
+    /**
+     * Holds the context to the event.
+     */
+    private EventContext context;
+
+    public NumericResult(EventContext context) {
+        this.context = context;
+    }
+
+    public NumericResult(int count, EventContext context) {
         this.count = count;
+        this.context = context;
+    }
+
+    @Override
+    public EventContext getContext() {
+        return context;
     }
 
     /**

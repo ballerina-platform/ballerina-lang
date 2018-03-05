@@ -21,6 +21,7 @@ import org.ballerinalang.nativeimpl.io.BallerinaIOException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
 import java.nio.ByteBuffer;
 
 /**
@@ -222,8 +223,9 @@ public class Buffer {
      * @param numberOfBytesRequested number of bytes requested from the buffer.
      * @param channel                byte channel which will perform I/O ops necessary for reading.
      * @return buffer which will contain bytes >= numberOfBytesRequested
+     * @throws IOException errors which occur while reading from the channel.
      */
-    public ByteBuffer get(int numberOfBytesRequested, Channel channel) throws BallerinaIOException {
+    public ByteBuffer get(int numberOfBytesRequested, Channel channel) throws IOException {
         ByteBuffer remainingContent = remainingContent(numberOfBytesRequested);
         if (null != remainingContent && remainingContent.capacity() >= numberOfBytesRequested) {
             return copyRemainingContent(numberOfBytesRequested, remainingContent);
@@ -232,7 +234,6 @@ public class Buffer {
                 remainingContent = deepCopy(remainingContent);
             }
             if (byteBuffer != null && byteBuffer.capacity() >= numberOfBytesRequested) {
-                //TODO we can use compact() method here
                 //If the required amount of bytes > than the current buffer size we enlarge the buffer
                 byteBuffer.clear();
             } else {

@@ -16,49 +16,41 @@
  * under the License.
  */
 
-package org.ballerinalang.nativeimpl.io.events.bytes;
+package org.ballerinalang.nativeimpl.io.events.records;
 
-import org.ballerinalang.nativeimpl.io.channels.base.Channel;
+import org.ballerinalang.nativeimpl.io.channels.base.DelimitedRecordChannel;
 import org.ballerinalang.nativeimpl.io.events.Event;
 import org.ballerinalang.nativeimpl.io.events.EventContext;
 import org.ballerinalang.nativeimpl.io.events.EventResult;
-import org.ballerinalang.nativeimpl.io.events.result.NumericResult;
+import org.ballerinalang.nativeimpl.io.events.characters.WriteCharactersEvent;
+import org.ballerinalang.nativeimpl.io.events.result.BooleanResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.nio.ByteBuffer;
 
 /**
- * Will be used to process the response once the bytes are read from the source.
+ * Event which will close delimited record.
  */
-public class ReadBytesEvent implements Event {
+public class CloseDelimitedRecordEvent implements Event {
     /**
-     * Buffer which will be provided to the channel.
+     * Delimited record channel which will be closed.
      */
-    private ByteBuffer content;
+    private DelimitedRecordChannel channel;
     /**
-     * Will be used to read bytes.
-     */
-    private Channel channel;
-    /**
-     * Holds context to the event.
+     * Holds the context to the event.
      */
     private EventContext context;
 
-    private static final Logger log = LoggerFactory.getLogger(ReadBytesEvent.class);
+    private static final Logger log = LoggerFactory.getLogger(WriteCharactersEvent.class);
 
-    public ReadBytesEvent(Channel channel, byte[] content, int offset) {
-        this.content = ByteBuffer.wrap(content);
-        this.content.position(offset);
+    public CloseDelimitedRecordEvent(DelimitedRecordChannel channel) {
         this.channel = channel;
     }
 
-    public ReadBytesEvent(Channel channel, byte[] content, int offset, EventContext context) {
-        this.content = ByteBuffer.wrap(content);
-        this.context = context;
+    public CloseDelimitedRecordEvent(DelimitedRecordChannel channel, EventContext context) {
         this.channel = channel;
-        this.content.position(offset);
+        this.context = context;
     }
 
     /**
@@ -66,16 +58,15 @@ public class ReadBytesEvent implements Event {
      */
     @Override
     public EventResult get() {
-        int read;
-        NumericResult result;
+        BooleanResult result;
         try {
-            read = channel.read(content);
-            result = new NumericResult(read, context);
+            channel.close();
+            result = new BooleanResult(true, context);
             return result;
         } catch (IOException e) {
-            log.error("Error occurred while reading bytes", e);
+            log.error("Error occurred while closing delimited record channel", e);
             context.setError(e);
-            result = new NumericResult(context);
+            result = new BooleanResult(context);
             return result;
         }
     }

@@ -49,7 +49,7 @@ public class CloseCharacterChannel extends AbstractNativeFunction {
      * <p>
      * Closes a character channel.
      * </p>
-     *
+     * <p>
      * {@inheritDoc}
      */
     @Override
