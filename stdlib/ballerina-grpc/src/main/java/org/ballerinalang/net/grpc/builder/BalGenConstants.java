@@ -31,6 +31,8 @@ public class BalGenConstants {
     
     public static final String NON_BLOCKING_STUB_KEY = "NON-BLOCKING";
     
+    public static final String DEFAULT_SAMPLE_CONNECTOR_PORT = "8080";
+    
     public static final String DEFAULT_PACKAGE = "org.ballerinalang.net.grpc";
     
 }

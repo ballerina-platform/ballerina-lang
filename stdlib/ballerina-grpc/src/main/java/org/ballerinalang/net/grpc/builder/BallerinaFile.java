@@ -23,6 +23,7 @@ import org.ballerinalang.net.grpc.builder.components.ActionBuilder;
 import org.ballerinalang.net.grpc.builder.components.ConnectorBuilder;
 import org.ballerinalang.net.grpc.builder.components.ConstantBuilder;
 import org.ballerinalang.net.grpc.builder.components.PackageBuilder;
+import org.ballerinalang.net.grpc.builder.components.SampleClientGenerator;
 import org.ballerinalang.net.grpc.builder.components.StructBuilder;
 import org.ballerinalang.net.grpc.exception.BalGenerationException;
 import org.ballerinalang.net.grpc.utils.MessageUtil;
@@ -78,8 +79,8 @@ public class BallerinaFile {
                     .getService(SERVICE_INDEX).getMethodList();
             String descriptorMapString = constantBuilder.buildMap();
             String descriptorKey = constantBuilder.buildKey();
-            StringBuilder nonBlockingActionList = new StringBuilder();
-            StringBuilder blockingActionList = new StringBuilder();
+            StringBuilder nonBlockingActionList = new StringBuilder("");
+            StringBuilder blockingActionList = new StringBuilder("");
             int i = 0;
             String methodName;
             String reqMessageName;
@@ -142,31 +143,48 @@ public class BallerinaFile {
             String balPayload = filePackageData + blockingConnectorList + NEW_LINE_CHARACTER +
                     streamingConnectorList + structList + NEW_LINE_CHARACTER + descriptorKey +
                     String.format("map descriptorMap ={%s};", descriptorMapString) + NEW_LINE_CHARACTER;
-            
+            boolean generateBlocking = !blockingActionList.toString().equals("");
+            boolean generateNonBlocking = !nonBlockingActionList.toString().equals("");
+            String samplePayload = new SampleClientGenerator(packageName, fileDescriptorSet
+                    .getService(SERVICE_INDEX).getName(), generateBlocking, generateNonBlocking).build();
             if (this.balOutPath == null) {
-                Path balOutPath = balOutPathGenerator(packageName + "." + fileDescriptorSet
+                String path = balOutPathGenerator(packageName + "." + fileDescriptorSet
                         .getService(SERVICE_INDEX).getName());
-                writeFile(balPayload, balOutPath);
+                Path stubBalOutPath = Paths.get(path + ".pb.bal");
+                Path clientBalOutPath = Paths.get(path + ".sample.client.bal");
+                writeFile(balPayload, stubBalOutPath);
+                writeFile(samplePayload, clientBalOutPath);
             } else {
-                writeFile(balPayload, Paths.get(this.balOutPath + FILE_SEPARATOR + fileDescriptorSet
-                        .getService(SERVICE_INDEX).getName() + ".pb.bal"));
+                String path = this.balOutPath + FILE_SEPARATOR + fileDescriptorSet
+                        .getService(SERVICE_INDEX).getName();
+                writeFile(balPayload, Paths.get(path + ".pb.bal"));
+                File sampleFile = new File(path + ".sample.client.bal");
+                if (!sampleFile.isFile()) {
+                    Files.createFile(Paths.get(sampleFile.getAbsolutePath()));
+                }
+                writeFile(balPayload, Paths.get(path + ".pb.bal"));
+                writeFile(samplePayload, Paths.get(path + ".sample.client.bal"));
             }
         } catch (IOException e) {
             throw new BalGenerationException("Error while generating .bal file.", e);
         }
     }
     
-    private Path balOutPathGenerator(String packageName) throws IOException {
+    private String balOutPathGenerator(String packageName) throws IOException {
         String pathString = packageName.replace(".", FILE_SEPARATOR);
-        File file = new File(pathString + ".pb.bal");
-        Path path = Paths.get(file.getAbsolutePath()).getParent();
+        File stubFile = new File(pathString + ".pb.bal");
+        File sampleFile = new File(pathString + ".sample.client.bal");
+        Path path = Paths.get(stubFile.getAbsolutePath()).getParent();
         if (path != null) {
             Files.createDirectories(path);
         }
-        if (!file.isFile()) {
-            Files.createFile(Paths.get(file.getAbsolutePath()));
+        if (!stubFile.isFile()) {
+            Files.createFile(Paths.get(stubFile.getAbsolutePath()));
         }
-        return Paths.get(pathString + ".pb.bal");
+        if (!sampleFile.isFile()) {
+            Files.createFile(Paths.get(sampleFile.getAbsolutePath()));
+        }
+        return pathString;
     }
     
     public void setRootDescriptor(byte[] rootDescriptor) {

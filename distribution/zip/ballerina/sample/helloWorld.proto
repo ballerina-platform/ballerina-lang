@@ -1,0 +1,6 @@
+syntax = "proto3";
+package ;
+import "google/protobuf/wrappers.proto";
+service helloWorld {
+		rpc hello(google.protobuf.StringValue) returns (google.protobuf.StringValue);
+}
