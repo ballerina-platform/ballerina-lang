@@ -15,6 +15,7 @@
  */
 package org.ballerinalang.langserver;
 
+import com.google.gson.JsonObject;
 import org.ballerinalang.langserver.common.constants.NodeContextKeys;
 import org.ballerinalang.langserver.common.position.PositionTreeVisitor;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
@@ -23,6 +24,7 @@ import org.ballerinalang.langserver.completions.TreeVisitor;
 import org.ballerinalang.langserver.completions.resolvers.TopLevelResolver;
 import org.ballerinalang.langserver.completions.util.CompletionItemResolver;
 import org.ballerinalang.langserver.definition.util.DefinitionUtil;
+import org.ballerinalang.langserver.format.TextDocumentFormatUtil;
 import org.ballerinalang.langserver.hover.util.HoverUtil;
 import org.ballerinalang.langserver.references.util.ReferenceUtil;
 import org.ballerinalang.langserver.signature.SignatureHelpUtil;
@@ -288,13 +290,17 @@ public class BallerinaTextDocumentService implements TextDocumentService {
     @Override
     public CompletableFuture<List<? extends TextEdit>> formatting(DocumentFormattingParams params) {
         return CompletableFuture.supplyAsync(() -> {
+            TextDocumentServiceContext formatContext = new TextDocumentServiceContext();
+            formatContext.put(DocumentServiceKeys.FILE_URI_KEY, params.getTextDocument().getUri());
             String fileContent = documentManager.getFileContent(CommonUtil.getPath(params.getTextDocument().getUri()));
             String[] contentComponents = fileContent.split("\\n|\\r\\n|\\r");
             int lastNewLineCharIndex = Math.max(fileContent.lastIndexOf("\n"), fileContent.lastIndexOf("\r"));
             int lastCharCol = fileContent.substring(lastNewLineCharIndex + 1).length();
             int totalLines = contentComponents.length;
             Range range = new Range(new Position(0, 0), new Position(totalLines, lastCharCol));
-            String newDummyContent = "function testFunction(int a) {\n\tint b = 12;\n}";
+            JsonObject ast = TextDocumentFormatUtil.getAST(params, documentManager, formatContext);
+            // TODO: For the moment we replace the content with the ast. Need to implement the AST source-gen
+            String newDummyContent = ast.toString();
             TextEdit textEdit = new TextEdit(range, newDummyContent);
             return Collections.singletonList(textEdit);
         });
