@@ -23,6 +23,7 @@ import org.ballerinalang.connector.api.ConnectorFutureListener;
 import org.ballerinalang.model.values.BValue;
 
 import java.util.HashMap;
+import java.util.Map;
 
 /**
  * ConnectorFutureListener to be use with tracing.
@@ -49,11 +50,13 @@ public class TraceFutureListener implements ConnectorFutureListener {
 
     @Override
     public void notifyFailure(BallerinaConnectorException ex) {
-        bTracer.logError(new HashMap<String, Object>() {{
-            put("error.kind", "Exception");
-            put("error.object", ex);
-            put("message", ex.getMessage());
-        }});
+
+        Map<String, Object> fields = new HashMap<>();
+        fields.put("error.kind", "Exception");
+        fields.put("error.object", ex);
+        fields.put("message", ex.getMessage());
+        bTracer.logError(fields);
+
         finishSpan();
     }
 

@@ -40,7 +40,7 @@ public interface TraceManager {
      * @param serviceName    of the invoked resource.
      * @return {@link Map} of spans per tracer.
      */
-    Map<String, ?> startSpan(long invocationId, String spanName, Map<String, ?> spanContextMap,
+    Map<String, Object> startSpan(long invocationId, String spanName, Map<String, ?> spanContextMap,
                              Map<String, String> tags, boolean makeActive, String serviceName);
 
     /**

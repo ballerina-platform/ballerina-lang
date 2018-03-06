@@ -48,7 +48,7 @@ public class TraceManagerWrapper {
                     .asSubclass(TraceManager.class);
             manager = (TraceManager) tracerManagerClass.newInstance();
             enabled = true;
-        } catch (Throwable t) {
+        } catch (Exception t) {
             enabled = false;
         }
     }

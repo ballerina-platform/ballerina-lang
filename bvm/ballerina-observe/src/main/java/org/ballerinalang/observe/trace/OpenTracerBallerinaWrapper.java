@@ -92,11 +92,9 @@ public class OpenTracerBallerinaWrapper {
         for (Map.Entry<String, Span> activeSpanEntry : activeSpanMap.entrySet()) {
             Map<String, Tracer> tracers = tracerStore.getTracers("default");
             Tracer tracer = tracers.get(activeSpanEntry.getKey());
-            if (tracer != null) {
-                if (activeSpanEntry.getValue() != null) {
-                    tracer.inject(activeSpanEntry.getValue().context(),
-                            Format.Builtin.HTTP_HEADERS, new RequestInjector(carrierMap));
-                }
+            if (tracer != null && activeSpanEntry.getValue() != null) {
+                tracer.inject(activeSpanEntry.getValue().context(),
+                        Format.Builtin.HTTP_HEADERS, new RequestInjector(carrierMap));
             }
         }
         return carrierMap;

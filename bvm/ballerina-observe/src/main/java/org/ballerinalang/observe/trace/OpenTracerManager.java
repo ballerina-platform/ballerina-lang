@@ -37,7 +37,7 @@ public class OpenTracerManager implements TraceManager {
      * Method to extract span context from a carrier.
      *
      * @param format      {@code (Format<TextMap>)} format in which the span context is received.
-     * @param headers the properties map extracted and used to create span context.
+     * @param headers     the properties map extracted and used to create span context.
      * @param serviceName to retrieve the relevant tracer instance.
      * @return the span context which includes tracer specific spans.
      */
@@ -75,12 +75,10 @@ public class OpenTracerManager implements TraceManager {
         for (Map.Entry<String, ?> activeSpanEntry : activeSpanMap.entrySet()) {
             Map<String, Tracer> tracers = tracerStore.getTracers(serviceName);
             Tracer tracer = tracers.get(activeSpanEntry.getKey());
-            if (tracer != null) {
-                if (activeSpanEntry.getValue() instanceof Span) {
-                    Span span = (Span) activeSpanEntry.getValue();
-                    if (span != null) {
-                        tracer.inject(span.context(), (Format<TextMap>) format, new RequestInjector(carrierMap));
-                    }
+            if (tracer != null && activeSpanEntry.getValue() instanceof Span) {
+                Span span = (Span) activeSpanEntry.getValue();
+                if (span != null) {
+                    tracer.inject(span.context(), (Format<TextMap>) format, new RequestInjector(carrierMap));
                 }
             }
         }

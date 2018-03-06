@@ -182,7 +182,7 @@ public class BTracer {
         this.bContext = bContext;
     }
 
-    public Map<String, ?> getParentSpanContext() {
+    public Map getParentSpanContext() {
         return parentSpanContext;
     }
 
@@ -190,7 +190,7 @@ public class BTracer {
         this.parentSpanContext = parentSpanContext;
     }
 
-    public Map<String, ?> getSpans() {
+    public Map getSpans() {
         return spans;
     }
 
