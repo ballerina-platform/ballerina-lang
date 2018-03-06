@@ -151,7 +151,8 @@ public class SecureClientSocketTest {
     @Test(dependsOnMethods = "testOpenSecureClientSocket",
           description = "Test content read/write")
     public void testWriteReadContent() {
-        String content = "Hello World\n";
+        final String newline = System.lineSeparator();
+        String content = "Hello World" + newline;
         BValue[] args = { new BBlob(content.getBytes()) };
         final BValue[] writeReturns = BRunUtil.invoke(socketClient, "write", args);
         BInteger returnedSize = (BInteger) writeReturns[0];
