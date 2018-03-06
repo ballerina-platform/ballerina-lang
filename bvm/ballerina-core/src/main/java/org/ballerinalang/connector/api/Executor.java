@@ -18,7 +18,6 @@
 package org.ballerinalang.connector.api;
 
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
-import org.ballerinalang.connector.impl.BServerConnectorFuture;
 import org.ballerinalang.connector.impl.ResourceExecutor;
 import org.ballerinalang.model.values.BValue;
 
@@ -32,22 +31,6 @@ import java.util.Map;
  * @since 0.94
  */
 public class Executor {
-
-    /**
-     * This method will execute Ballerina resource in blocking manner.
-     * So connector thread will have to wait until execution finishes.
-     * TODO check and remove this API.
-     *
-     * @param resource  to be executed.
-     * @param properties to be passed to context.
-     * @param values    required for the resource.
-     * @return future object to listen to events if any.
-     */
-    public static ConnectorFuture execute(Resource resource, Map<String, Object> properties, BValue... values) {
-        BServerConnectorFuture connectorFuture = new BServerConnectorFuture();
-        ResourceExecutor.execute(resource, connectorFuture, properties, values);
-        return connectorFuture;
-    }
 
     /**
      * This method will execute Ballerina resource in non-blocking manner.

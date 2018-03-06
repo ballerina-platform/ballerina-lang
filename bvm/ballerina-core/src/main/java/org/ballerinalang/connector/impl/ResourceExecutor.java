@@ -24,7 +24,6 @@ import org.ballerinalang.connector.api.Resource;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.runtime.Constants;
 import org.ballerinalang.util.codegen.ResourceInfo;
-import org.ballerinalang.util.exceptions.BallerinaException;
 import org.ballerinalang.util.program.BLangFunctions;
 import org.ballerinalang.util.program.BLangVMUtils;
 
@@ -39,19 +38,18 @@ public class ResourceExecutor {
 
     /**
      * This method will execute the resource, given required details.
-     * And it will use the future instance to notify interested parties about the
+     * And it will use the callback to notify interested parties about the
      * outcome of the execution.
      *
      * @param resource to be executed.
-     * @param connectorFuture to notify.
+     * @param responseCallback to notify.
      * @param properties to be passed to context.
      * @param bValues for parameters.
      */
-    public static void execute(Resource resource, BServerConnectorFuture connectorFuture,
-                               Map<String, Object> properties, BValue... bValues) {
-        if (resource == null) {
-            connectorFuture.notifyFailure(new BallerinaException("trying to execute a null resource"));
-            return;
+    public static void execute(Resource resource, CallableUnitCallback responseCallback,
+                               Map<String, Object> properties, BValue... bValues) throws BallerinaConnectorException {
+        if (resource == null || responseCallback == null) {
+            throw new BallerinaConnectorException("invalid arguments provided");
         }
         ResourceInfo resourceInfo = ((BResource) resource).getResourceInfo();
         WorkerExecutionContext context = new WorkerExecutionContext(resourceInfo.getPackageInfo().getProgramFile());
@@ -63,21 +61,6 @@ public class ResourceExecutor {
 //                        properties.get(Constants.GLOBAL_TRANSACTION_ID).toString(),
 //                        properties.get(Constants.TRANSACTION_URL).toString(), Constants.TRANSACTION_PROTOCOL_2PC));
             }
-        }
-        
-        BLangVMUtils.setServiceInfo(context, resourceInfo.getServiceInfo());
-        BLangFunctions.invokeCallable(resourceInfo, context, bValues);
-    }
-
-    public static void execute(Resource resource, CallableUnitCallback responseCallback,
-                               Map<String, Object> properties, BValue... bValues) throws BallerinaConnectorException {
-        if (resource == null || responseCallback == null) {
-            throw new BallerinaConnectorException("invalid arguments provided");
-        }
-        ResourceInfo resourceInfo = ((BResource) resource).getResourceInfo();
-        WorkerExecutionContext context = new WorkerExecutionContext(resourceInfo.getPackageInfo().getProgramFile());
-        if (properties != null) {
-            context.globalProps.putAll(properties);
         }
         BLangVMUtils.setServiceInfo(context, resourceInfo.getServiceInfo());
         BLangFunctions.invokeCallable(resourceInfo, context, bValues, responseCallback);

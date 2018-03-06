@@ -18,9 +18,9 @@
 
 package org.ballerinalang.net.ws;
 
+import org.ballerinalang.bre.bvm.BLangVMErrors;
+import org.ballerinalang.bre.bvm.CallableUnitCallback;
 import org.ballerinalang.connector.api.BallerinaConnectorException;
-import org.ballerinalang.connector.api.ConnectorFuture;
-import org.ballerinalang.connector.api.ConnectorFutureListener;
 import org.ballerinalang.connector.api.Executor;
 import org.ballerinalang.connector.api.ParamDetail;
 import org.ballerinalang.connector.api.Resource;
@@ -89,8 +89,7 @@ public class BallerinaWsServerConnectorListener implements WebSocketConnectorLis
             BValue[] bValues = new BValue[paramDetails.size()];
             bValues[0] = handshakeStruct;
             WebSocketDispatcher.setPathParams(bValues, paramDetails, variables, 1);
-            ConnectorFuture future = Executor.execute(onHandshakeResource, null, bValues);
-            future.setConnectorFutureListener(new ConnectorFutureListener() {
+            Executor.submit(onHandshakeResource, new CallableUnitCallback() {
                 @Override
                 public void notifySuccess() {
                     isResourceExeSuccessful.set(true);
@@ -98,17 +97,11 @@ public class BallerinaWsServerConnectorListener implements WebSocketConnectorLis
                 }
 
                 @Override
-                public void notifyReply(BValue... response) {
-                    //Nothing to do
-                }
-
-                @Override
-                public void notifyFailure(BallerinaConnectorException ex) {
-                    ErrorHandlerUtils.printError(ex);
+                public void notifyFailure(BStruct error) {
+                    ErrorHandlerUtils.printError("error: " + BLangVMErrors.getPrintableStackTrace(error));
                     semaphore.release();
                 }
-            });
-
+            }, null, bValues);
             try {
                 semaphore.acquire();
                 if (isResourceExeSuccessful.get() && !webSocketInitMessage.isCancelled()) {

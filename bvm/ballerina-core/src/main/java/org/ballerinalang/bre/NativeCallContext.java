@@ -19,7 +19,6 @@ package org.ballerinalang.bre;
 
 import org.ballerinalang.bre.bvm.WorkerData;
 import org.ballerinalang.bre.bvm.WorkerExecutionContext;
-import org.ballerinalang.connector.impl.BServerConnectorFuture;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.exceptions.ArgumentOutOfRangeException;
@@ -212,11 +211,6 @@ public class NativeCallContext implements Context {
     @Override
     public void setReturnValues(BValue... values) {
         this.returnValues = values;
-    }
-
-    @Override
-    public void setConnectorFuture(BServerConnectorFuture connectorFuture) {
-        // TODO: remove
     }
 
     public void setLocalTransactionInfo(LocalTransactionInfo localTransactionInfo) {

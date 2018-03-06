@@ -19,7 +19,6 @@ package org.ballerinalang.bre;
 
 import org.ballerinalang.bre.bvm.WorkerData;
 import org.ballerinalang.bre.bvm.WorkerExecutionContext;
-import org.ballerinalang.connector.impl.BServerConnectorFuture;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.codegen.ActionInfo;
@@ -37,57 +36,55 @@ import java.util.Map;
  */
 public interface Context {
 
-    public WorkerExecutionContext getParentWorkerExecutionContext();
+    WorkerExecutionContext getParentWorkerExecutionContext();
 
-    public WorkerData getLocalWorkerData();
+    WorkerData getLocalWorkerData();
 
-    public DebugContext getDebugContext();
+    DebugContext getDebugContext();
 
-    public void setDebugContext(DebugContext debugContext);
+    void setDebugContext(DebugContext debugContext);
 
-    public Object getProperty(String key);
+    Object getProperty(String key);
 
-    public Map<String, Object> getProperties();
+    Map<String, Object> getProperties();
 
-    public void setProperty(String key, Object value);
+    void setProperty(String key, Object value);
 
-    public ServiceInfo getServiceInfo();
+    ServiceInfo getServiceInfo();
 
-    public void setServiceInfo(ServiceInfo serviceInfo);
+    void setServiceInfo(ServiceInfo serviceInfo);
 
-    public boolean isInTransaction();
+    boolean isInTransaction();
 
-    public BStruct getError();
+    BStruct getError();
 
-    public void setError(BStruct error);
+    void setError(BStruct error);
 
-    public ProgramFile getProgramFile();
+    ProgramFile getProgramFile();
 
-    public void setLocalTransactionInfo(LocalTransactionInfo localTransactionInfo);
+    void setLocalTransactionInfo(LocalTransactionInfo localTransactionInfo);
 
-    public LocalTransactionInfo getLocalTransactionInfo();
+    LocalTransactionInfo getLocalTransactionInfo();
 
-    public long getIntArgument(int index);
+    long getIntArgument(int index);
 
-    public String getStringArgument(int index);
+    String getStringArgument(int index);
 
-    public String getNullableStringArgument(int index);
+    String getNullableStringArgument(int index);
 
-    public double getFloatArgument(int index);
+    double getFloatArgument(int index);
 
-    public boolean getBooleanArgument(int index);
+    boolean getBooleanArgument(int index);
 
-    public byte[] getBlobArgument(int index);
+    byte[] getBlobArgument(int index);
 
-    public BValue getRefArgument(int index);
+    BValue getRefArgument(int index);
 
-    public BValue getNullableRefArgument(int index);
+    BValue getNullableRefArgument(int index);
 
-    public void setReturnValues(BValue... values);
+    void setReturnValues(BValue... values);
 
-    public BValue[] getReturnValues();
-
-    public void setConnectorFuture(BServerConnectorFuture connectorFuture);
+    BValue[] getReturnValues();
 
     /**
      * Data holder for Non-Blocking Action invocation.
