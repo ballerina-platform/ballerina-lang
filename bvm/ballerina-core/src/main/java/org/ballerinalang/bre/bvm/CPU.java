@@ -2303,27 +2303,28 @@ public class CPU {
     }
 
     private static void handleVariableLock(WorkerExecutionContext ctx, BType[] types, int[] varRegs) {
-        for (int i = 0; i < varRegs.length; i++) {
+        boolean lockAcquired = true;
+        for (int i = 0; i < varRegs.length && lockAcquired; i++) {
             BType paramType = types[i];
             int regIndex = varRegs[i];
             switch (paramType.getTag()) {
                 case TypeTags.INT_TAG:
-                    ctx.programFile.getGlobalMemoryBlock().lockIntField(regIndex);
+                    lockAcquired = ctx.programFile.getGlobalMemoryBlock().lockIntField(ctx, regIndex);
                     break;
                 case TypeTags.FLOAT_TAG:
-                    ctx.programFile.getGlobalMemoryBlock().lockFloatField(regIndex);
+                    lockAcquired = ctx.programFile.getGlobalMemoryBlock().lockFloatField(ctx, regIndex);
                     break;
                 case TypeTags.STRING_TAG:
-                    ctx.programFile.getGlobalMemoryBlock().lockStringField(regIndex);
+                    lockAcquired = ctx.programFile.getGlobalMemoryBlock().lockStringField(ctx, regIndex);
                     break;
                 case TypeTags.BOOLEAN_TAG:
-                    ctx.programFile.getGlobalMemoryBlock().lockBooleanField(regIndex);
+                    lockAcquired = ctx.programFile.getGlobalMemoryBlock().lockBooleanField(ctx, regIndex);
                     break;
                 case TypeTags.BLOB_TAG:
-                    ctx.programFile.getGlobalMemoryBlock().lockBlobField(regIndex);
+                    lockAcquired = ctx.programFile.getGlobalMemoryBlock().lockBlobField(ctx, regIndex);
                     break;
                 default:
-                    ctx.programFile.getGlobalMemoryBlock().lockRefField(regIndex);
+                    lockAcquired = ctx.programFile.getGlobalMemoryBlock().lockRefField(ctx, regIndex);
             }
         }
     }

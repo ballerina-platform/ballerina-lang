@@ -140,6 +140,16 @@ public class BLangScheduler {
          * worker */
         ctx.ip = -1;
     }
+
+    public static void workerWaitForLock(WorkerExecutionContext ctx) {
+        ctx.state = WorkerState.WAITING_FOR_LOCK;
+        ctx.backupIP();
+        /* the setting to -1 is needed, specially in situations like worker receive scenarios,
+         * where you need to return the current executing thread, where this is not critical
+         * in function call scenario, where the calling thread is continued as the first callee
+         * worker */
+        ctx.ip = -1;
+    }
     
     public static void waitForWorkerCompletion() {
         try {

@@ -22,6 +22,6 @@ package org.ballerinalang.bre.bvm;
  */
 public enum WorkerState {
 
-    CREATED, READY, RUNNING, EXCEPTED, WAITING_FOR_RESPONSE, DONE, PAUSED
+    CREATED, READY, RUNNING, EXCEPTED, WAITING_FOR_RESPONSE, DONE, PAUSED, WAITING_FOR_LOCK
     
 }
