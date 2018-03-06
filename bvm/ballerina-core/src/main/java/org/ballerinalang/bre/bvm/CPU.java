@@ -465,7 +465,11 @@ public class CPU {
                     funcCallCPEntry = (FunctionCallCPEntry) ctx.constPool[cpIndex];
                     funcRefCPEntry = ((BFunctionPointer) sf.refRegs[i]).value();
                     functionInfo = funcRefCPEntry.getFunctionInfo();
-                    invokeCallableUnit(ctx, functionInfo, funcCallCPEntry.getArgRegs(), funcCallCPEntry.getRetRegs());
+                    runInCallerCtx = invokeCallableUnit(ctx, functionInfo, funcCallCPEntry.getArgRegs(), funcCallCPEntry.getRetRegs());
+                    if (runInCallerCtx != null) {
+                        ctx = runInCallerCtx;
+                        ctx.state = WorkerState.RUNNING;
+                    }
                     break;
                 case InstructionCodes.FPLOAD:
                     i = operands[0];
