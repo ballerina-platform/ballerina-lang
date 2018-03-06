@@ -41,6 +41,7 @@ public class DefaultHttpResponseFuture implements HttpResponseFuture {
     private HttpConnectorListener pushPromiseListener;
     private ResponseHandle responseHandle;
     private HttpConnectorListener responseHandleListener;
+
     public DefaultHttpResponseFuture(OutboundMsgHolder outboundMsgHolder) {
         this.outboundMsgHolder = outboundMsgHolder;
     }

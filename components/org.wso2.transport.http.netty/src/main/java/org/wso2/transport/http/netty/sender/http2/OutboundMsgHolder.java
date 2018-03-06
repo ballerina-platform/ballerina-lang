@@ -60,8 +60,8 @@ public class OutboundMsgHolder {
         promises = new LinkedBlockingQueue();
         pushResponsesMap = new ConcurrentHashMap<>();
         pushResponseFutures = new ConcurrentHashMap<>();
-        responseFuture = new DefaultHttpResponseFuture();
-        responseHandleFuture = new DefaultHttpResponseFuture();
+        responseFuture = new DefaultHttpResponseFuture(this);
+        responseHandleFuture = new DefaultHttpResponseFuture(this);
         pushPromiseFuture = new DefaultHttpResponseFuture(this);
         promiseAvailabilityFuture = new DefaultHttpResponseFuture(this);
     }
@@ -158,7 +158,7 @@ public class OutboundMsgHolder {
     }
 
     public HttpResponseFuture getPushResponseFuture(Http2PushPromise promise) {
-        HttpResponseFuture pushResponseFuture = new DefaultHttpResponseFuture();
+        HttpResponseFuture pushResponseFuture = new DefaultHttpResponseFuture(this);
         pushResponseFutures.put(promise.getPromisedStreamId(), pushResponseFuture);
         return pushResponseFuture;
     }

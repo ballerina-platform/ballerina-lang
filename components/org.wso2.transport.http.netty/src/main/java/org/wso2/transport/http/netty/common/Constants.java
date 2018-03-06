@@ -189,6 +189,7 @@ public final class Constants {
     // HTTP2 Related Parameters
     public static final String UPGRADE_RESPONSE_HEADER = "http-to-http2-upgrade";
     public static final String HTTP_VERSION_2_0 = "HTTP/2.0";
+    public static final String HTTP2_VERSION = "2.0";
     public static final String STREAM_ID = "STREAM_ID";
 //    public static final String SCHEME = "SCHEME";
     public static final String AUTHORITY = "AUTHORITY";

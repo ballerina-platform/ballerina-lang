@@ -34,10 +34,13 @@ public final class Http2SourceHandlerBuilder
 
     private String interfaceId;
     private ServerConnectorFuture serverConnectorFuture;
+    private String serverName;
 
-    public Http2SourceHandlerBuilder(String interfaceId, ServerConnectorFuture serverConnectorFuture) {
+    public Http2SourceHandlerBuilder(String interfaceId, ServerConnectorFuture serverConnectorFuture,
+                                     String serverName) {
         this.interfaceId = interfaceId;
         this.serverConnectorFuture = serverConnectorFuture;
+        this.serverName = serverName;
     }
 
     @Override
@@ -50,7 +53,8 @@ public final class Http2SourceHandlerBuilder
                                        Http2Settings initialSettings) {
         Http2Connection conn = new DefaultHttp2Connection(true);
         Http2SourceHandler handler =
-                new Http2SourceHandler(decoder, encoder, initialSettings, interfaceId, conn, serverConnectorFuture);
+                new Http2SourceHandler(
+                        decoder, encoder, initialSettings, interfaceId, conn, serverConnectorFuture, serverName);
         frameListener(handler.getHttp2FrameListener());
         connection(conn);
         return handler;

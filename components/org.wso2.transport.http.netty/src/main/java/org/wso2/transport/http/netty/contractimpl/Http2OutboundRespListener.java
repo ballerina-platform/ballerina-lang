@@ -34,7 +34,6 @@ import org.wso2.transport.http.netty.common.Util;
 import org.wso2.transport.http.netty.contract.HttpConnectorListener;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 import org.wso2.transport.http.netty.message.Http2PushPromise;
-import org.wso2.transport.http.netty.message.HttpCarbonResponse;
 
 import java.util.Locale;
 
@@ -51,14 +50,17 @@ public class Http2OutboundRespListener implements HttpConnectorListener {
     private Http2ConnectionEncoder encoder;
     private int originalStreamId;
     private Http2Connection conn;
+    private String serverName;
 
     public Http2OutboundRespListener(HTTPCarbonMessage inboundRequestMsg, ChannelHandlerContext ctx,
-                                     Http2Connection conn, Http2ConnectionEncoder encoder, int streamId) {
+                                     Http2Connection conn, Http2ConnectionEncoder encoder, int streamId,
+                                     String serverName) {
         this.inboundRequestMsg = inboundRequestMsg;
         this.ctx = ctx;
         this.conn = conn;
         this.encoder = encoder;
         this.originalStreamId = streamId;
+        this.serverName = serverName;
     }
 
     @Override
@@ -76,7 +78,9 @@ public class Http2OutboundRespListener implements HttpConnectorListener {
         ctx.channel().eventLoop().execute(() -> {
             try {
                 int promisedStreamId = getNextStreamId();
+                // Update streamIds
                 pushPromise.setPromisedStreamId(promisedStreamId);
+                pushPromise.setStreamId(originalStreamId);
                 encoder.writePushPromise(
                         ctx, originalStreamId, promisedStreamId, pushPromise.getHeaders(), 0, ctx.newPromise());
                 encoder.flowController().writePendingBytes();
@@ -137,11 +141,10 @@ public class Http2OutboundRespListener implements HttpConnectorListener {
             outboundResponseMsg.getHeaders().
                     add(HttpConversionUtil.ExtensionHeaderNames.SCHEME.text(), Constants.HTTP_SCHEME);
             HttpMessage httpMessage;
-            if (outboundResponseMsg instanceof HttpCarbonResponse) {
-                httpMessage = outboundResponseMsg.getNettyHttpResponse();
-            } else {
-                httpMessage = outboundResponseMsg.getNettyHttpRequest();
-            }
+
+            httpMessage =
+                    Util.createHttpResponse(outboundResponseMsg, Constants.HTTP2_VERSION, serverName, true);
+
             // Construct Http2 headers
             Http2Headers http2Headers = HttpConversionUtil.toHttp2Headers(httpMessage, true);
 

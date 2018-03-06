@@ -18,6 +18,7 @@
 
 package org.wso2.transport.http.netty.message;
 
+import io.netty.handler.codec.http2.DefaultHttp2Headers;
 import io.netty.handler.codec.http2.Http2Headers;
 
 /**
@@ -27,7 +28,7 @@ public class Http2PushPromise {
 
     int streamId;
     int promisedStreamId;
-    private Http2Headers headers;
+    private Http2Headers headers = new DefaultHttp2Headers();
 
     public Http2PushPromise(Http2Headers headers) {
         this.headers = headers;
@@ -51,5 +52,16 @@ public class Http2PushPromise {
 
     public void setPromisedStreamId(int promisedStreamId) {
         this.promisedStreamId = promisedStreamId;
+    }
+    public void setHeaders(Http2Headers headers) {
+        this.headers = headers;
+    }
+
+    public void setPath(String path) {
+        headers.path(path);
+    }
+
+    public String getPath() {
+        return String.valueOf(headers.path());
     }
 }

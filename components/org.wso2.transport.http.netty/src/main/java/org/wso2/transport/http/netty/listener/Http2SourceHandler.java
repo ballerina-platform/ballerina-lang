@@ -68,15 +68,18 @@ public final class Http2SourceHandler extends Http2ConnectionHandler {
     private String interfaceId;
     private ServerConnectorFuture serverConnectorFuture;
     private Http2Connection conn;
+    private String serverName;
 
     public Http2SourceHandler(Http2ConnectionDecoder decoder, Http2ConnectionEncoder encoder,
                               Http2Settings initialSettings,
-                              String interfaceId, Http2Connection conn, ServerConnectorFuture serverConnectorFuture) {
+                              String interfaceId, Http2Connection conn, ServerConnectorFuture serverConnectorFuture,
+                              String serverName) {
         super(decoder, encoder, initialSettings);
         http2FrameListener = new Http2FrameListener();
         this.interfaceId = interfaceId;
         this.serverConnectorFuture = serverConnectorFuture;
         this.conn = conn;
+        this.serverName = serverName;
     }
 
     @Override
@@ -143,9 +146,8 @@ public final class Http2SourceHandler extends Http2ConnectionHandler {
         if (serverConnectorFuture != null) {
             try {
                 ServerConnectorFuture outboundRespFuture = httpRequestMsg.getHttpResponseFuture();
-                outboundRespFuture
-                        .setHttpConnectorListener(
-                                new Http2OutboundRespListener(httpRequestMsg, ctx, conn, encoder(), streamId));
+                outboundRespFuture.setHttpConnectorListener(
+                        new Http2OutboundRespListener(httpRequestMsg, ctx, conn, encoder(), streamId, serverName));
                 serverConnectorFuture.notifyHttpListener(httpRequestMsg);
             } catch (Exception e) {
                 log.error("Error while notifying listeners", e);
