@@ -19,6 +19,7 @@ package org.ballerinalang.test.connectors;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
+import org.ballerinalang.model.values.BConnector;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.testng.Assert;
@@ -95,4 +96,15 @@ public class CompositeConnectorTest {
         String expected2 = "2222222";
         Assert.assertEquals(value2.stringValue(), expected2);
     }
+
+    @Test(description = "Test Connector Cast.")
+    public void testConnectorCast() {
+        result = BCompileUtil.compile("test-src/connectors/connector-cast.bal");
+        BValue[] returns = BRunUtil.invoke(result, "testConnectorCast");
+        Assert.assertEquals(returns.length, 2);
+        Assert.assertNotNull(returns[0]);
+        Assert.assertTrue(returns[0] instanceof BConnector);
+        Assert.assertNull(returns[1]);
+    }
+
 }
