@@ -123,5 +123,15 @@ public interface HttpResponseFuture {
      */
     void notifyResponseHandle(ResponseHandle responseHandle);
 
+    /**
+     * Set the Push Response listener
+     *
+     * @param pushResponseListener push response listener
+     */
+    void setPushResponseListener(HttpConnectorListener pushResponseListener, int promiseId);
 
+    /**
+     * Remove the Push Response listener
+     */
+    void removePushResponseListener();
 }

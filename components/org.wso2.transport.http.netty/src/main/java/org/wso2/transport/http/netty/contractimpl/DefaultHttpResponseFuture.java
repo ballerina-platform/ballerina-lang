@@ -32,15 +32,19 @@ import java.util.concurrent.Semaphore;
  */
 public class DefaultHttpResponseFuture implements HttpResponseFuture {
 
-    private HTTPCarbonMessage httpCarbonMessage;
     private HttpConnectorListener httpConnectorListener;
+    private HttpConnectorListener responseHandleListener;
+    private HttpConnectorListener promiseAvailabilityListener;
+    private HttpConnectorListener pushPromiseListener;
+    private HttpConnectorListener pushResponseListener;
+
+    private HTTPCarbonMessage httpCarbonMessage;
+    private ResponseHandle responseHandle;
+    private HTTPCarbonMessage pushResponseMessage;
+
     private Throwable throwable, returnError;
     private Semaphore executionWaitSem;
     private OutboundMsgHolder outboundMsgHolder;
-    private HttpConnectorListener promiseAvailabilityListener;
-    private HttpConnectorListener pushPromiseListener;
-    private ResponseHandle responseHandle;
-    private HttpConnectorListener responseHandleListener;
 
     public DefaultHttpResponseFuture(OutboundMsgHolder outboundMsgHolder) {
         this.outboundMsgHolder = outboundMsgHolder;
@@ -73,13 +77,31 @@ public class DefaultHttpResponseFuture implements HttpResponseFuture {
 
     @Override
     public void notifyPushResponse(int promisedId, HTTPCarbonMessage pushResponse) {
-        this.httpCarbonMessage = pushResponse;
+        this.pushResponseMessage = pushResponse;
         if (executionWaitSem != null) {
             executionWaitSem.release();
         }
-        if (httpConnectorListener != null) {
-            httpConnectorListener.onPushResponse(promisedId, httpCarbonMessage);
+        if (pushResponseListener != null) {
+            pushResponseListener.onPushResponse(promisedId, pushResponseMessage);
         }
+    }
+
+    @Override
+    public void setPushResponseListener(HttpConnectorListener pushResponseListener, int promiseId) {
+        this.pushResponseListener = pushResponseListener;
+        if (pushResponseMessage != null) {
+            notifyPushResponse(promiseId, pushResponseMessage);
+            pushResponseMessage = null;
+        }
+        if (this.throwable != null) {
+            notifyHttpListener(this.throwable);
+            this.throwable = null;
+        }
+    }
+
+    @Override
+    public void removePushResponseListener() {
+        this.pushResponseListener = null;
     }
 
     public HttpResponseFuture sync() throws InterruptedException {
@@ -201,6 +223,5 @@ public class DefaultHttpResponseFuture implements HttpResponseFuture {
     public void removeResponseHandleListener() {
         this.responseHandleListener = null;
     }
-
 
 }
