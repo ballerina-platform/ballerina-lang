@@ -49,56 +49,13 @@ public struct ServiceEndpointConfiguration {
     string chunking;
 }
 
-@Description {value: "Configuration for HTTP service"}
-@Field {value: "lifetime: The life time of the service"}
-@Field {value: "basePath: Service base path"}
-@Field {value:"compressionEnabled: The status of compressionEnabled {default value : true (enabled)}"}
-@Field {value:"allowOrigins: The array of origins with which the response is shared by the service"}
-@Field {value:"allowCredentials: Specifies whether credentials are required to access the service"}
-@Field {value:"allowMethods: The array of allowed methods by the service"}
-@Field {value:"allowHeaders: The array of allowed headers by the service"}
-@Field {value:"maxAge: The maximum duration to cache the preflight from client side"}
-@Field {value:"maxUriLength: Maximum length allowed for the URL"}
-@Field {value:"maxHeaderSize: Maximum size allowed for the headers"}
-@Field {value:"maxEntityBodySize: Maximum size allowed for the entity body"}
-@Field {value:"webSocketConfig: Annotation to define HTTP to WebSocket upgrade"}
-public struct ServiceConfiguration {
-    http:ServiceEndpoint[] endpoints;
-    http:ServiceLifeTime lifetime;
-    string basePath;
-    boolean compressionEnabled;
-    string[] allowOrigins;
-    boolean allowCredentials;
-    string[] allowMethods;
-    string[] allowHeaders;
-    int maxAge;
-    string[] exposeHeaders;
-    int maxUriLength;
-    int maxHeaderSize;
-    int maxEntityBodySize;
-    webSocketConfig webSocket;
-}
-
-@Description {value: "The life time of the service"}
-@Field {value: "REQUEST: create a new instance of the service to process this request"}
-@Field {value: "CONNECTION: create a new instance of the service for each connection"}
-@Field {value: "SESSION: create a new instance of the service for each session"}
-@Field {value: "SINGLETON: create a single instance of the service and use it to process all requests from an endpoint"}
-public enum ServiceLifeTime {
-    REQUEST,
-    CONNECTION,
-    SESSION,
-    SINGLETON
-}
-
 @Description { value:"Gets called when the endpoint is being initialize during package init time"}
 @Param { value:"epName: The endpoint name" }
 @Param { value:"config: The ServiceEndpointConfiguration of the endpoint" }
 @Return { value:"Error occured during initialization" }
 public native function <ServiceEndpoint ep> init (string epName, ServiceEndpointConfiguration config);
 
-@Description { value:"gets called every time a service attaches itself to this endpoint - also happens at package init
-time"}
+@Description { value:"gets called every time a service attaches itself to this endpoint - also happens at package init time"}
 @Param { value:"conn: The server connector connection" }
 @Param { value:"res: The outbound response message" }
 @Return { value:"Error occured during registration" }
@@ -146,6 +103,77 @@ public connector HttpConnector (string remoteHost, int port){
     @Param { value:"conn: The server connector connection" }
     @Return { value:"The HTTP Session struct assoicated with the request" }
     native action getSession () (Session);
+}
+
+@Description {value:"Represents a WebSocket connector in ballerina. This include all connector oriented operations."}
+@Field {value: "attributes: Custom user attributes"}
+public connector WebSocketConnector (map attributes){
+    @Description {value:"Gets the ID of the WebSocket connection"}
+    @Param {value:"conn: A Connection struct"}
+    @Return {value:"ID of the connection"}
+    native action getID() (string);
+
+    @Description {value:"Gets the negotiated sub protocol of the connection"}
+    @Param {value:"conn: A Connection struct"}
+    @Return {value:"Negotiated sub protocol"}
+    native action getNegotiatedSubProtocol() (string);
+
+    @Description {value:"Checks whether the connection is secure or not"}
+    @Param {value:"conn: A Connection struct"}
+    @Return {value:"True if the connection is secure"}
+    native action isSecure() (boolean);
+
+    @Description {value:"Checks whether the connection is still open or not."}
+    @Param {value:"conn: A Connection struct"}
+    @Return {value:"True if the connection is open"}
+    native action isOpen() (boolean);
+
+    @Description {value:"Gets a map of all the upgrade headers of the connection"}
+    @Param {value:"conn: A Connection struct"}
+    @Return {value:"Map of all the headers received in the connection upgrade"}
+    native action getUpgradeHeaders() (map);
+
+    @Description {value:"Gets a value of a header"}
+    @Param {value:"conn: A Connection struct"}
+    @Param {value:"key: Key of the header for which the value should be retrieved"}
+    @Return {value:"Value of the header if it exists, else it is null"}
+    native action getUpgradeHeader(string key) (string);
+
+    @Description {value:"Gets the parent connection if there is one"}
+    @Param {value:"conn: Connection for which the parent connection should be retrieved"}
+    @Return {value:"The parent connection if it exists, else it is null"}
+    native action getParentConnection() (Connection);
+
+    @Description {value:"Push text to the connection"}
+    @Param {value:"conn: A Connection struct"}
+    @Param {value:"text: Text to be sent"}
+    native action pushText(string text);
+
+    @Description {value:"Push binary data to the connection"}
+    @Param {value:"conn: A Connection struct"}
+    @Param {value:"data: Binary data to be sent"}
+    native action pushBinary(blob data);
+
+    @Description {value:"Ping the connection"}
+    @Param {value:"conn: A Connection struct"}
+    @Param {value:"data: Binary data to be sent"}
+    native action ping(blob data);
+
+    @Description {value:"Send pong message to the connection"}
+    @Param {value:"conn: A Connection struct"}
+    @Param {value:"data: Binary data to be sent"}
+    native action pong(blob data);
+
+    @Description {value:"Close the connection"}
+    @Param {value:"conn: A Connection struct"}
+    @Param {value:"statusCode: Status code for closing the connection"}
+    @Param {value:"reason: Reason for closing the connection"}
+    native action closeConnection(int statusCode, string reason);
+
+    @Description {value:"Gets the query parameters from the Connection as a map"}
+    @Param {value:"req: The Connection struct" }
+    @Return {value:"The map of query params" }
+    native action getQueryParams () (map);
 }
 
 @Description { value:"Represents an HTTP inbound request message"}
