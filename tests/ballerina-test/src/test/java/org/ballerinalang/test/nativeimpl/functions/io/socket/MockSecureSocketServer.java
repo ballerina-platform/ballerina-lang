@@ -63,7 +63,7 @@ public class MockSecureSocketServer {
 
     public static Process start(String port) throws Exception {
         URL resource = MockSecureSocketServer.class.getClassLoader().
-                getResource("datafiles/io/socket/examplestore.p12");
+                getResource("datafiles/security/keyStore/ballerinaKeystore.p12");
         if (resource == null) {
             throw new Exception("Unable to find the keystore file.");
         }
@@ -77,7 +77,7 @@ public class MockSecureSocketServer {
         commands[1] = "-cp";
         commands[2] = classpath;
         commands[3] = "-Djavax.net.ssl.keyStore=" + keystorePath;
-        commands[4] = "-Djavax.net.ssl.keyStorePassword=123456";
+        commands[4] = "-Djavax.net.ssl.keyStorePassword=ballerina";
         commands[5] = className;
         commands[6] = port;
         ProcessBuilder builder = new ProcessBuilder(commands);

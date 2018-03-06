@@ -139,11 +139,11 @@ public class SecureClientSocketTest {
         PackageInfo ioPackageInfo = socketClient.getProgFile().getPackageInfo("ballerina.io");
         StructInfo socketProperties = ioPackageInfo.getStructInfo("SocketProperties");
         BStruct propertyStruct = BLangVMStructs.createBStruct(socketProperties);
-        URL resource = MockSecureSocketServer.class.getClassLoader().
-                getResource("datafiles/io/socket/examplestore.p12");
+        URL resource = getClass().getClassLoader().
+                getResource("datafiles/security/keyStore/ballerinaTruststore.p12");
         Assert.assertNotNull(resource, "Unable to find TrustStore.");
         propertyStruct.setStringField(2, Paths.get(resource.toURI()).toFile().getAbsolutePath());
-        propertyStruct.setStringField(3, "123456");
+        propertyStruct.setStringField(3, "ballerina");
         BValue[] args = { new BString("localhost"), new BInteger(port), propertyStruct };
         BRunUtil.invoke(socketClient, "openSocketConnection", args);
     }
