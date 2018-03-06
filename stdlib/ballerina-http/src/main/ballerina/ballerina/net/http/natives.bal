@@ -255,7 +255,7 @@ public native function <Session session> setMaxInactiveInterval (int timeInterva
 @Field {value:"statusCode: HTTP status code"}
 public struct HttpConnectorError {
     string message;
-    error cause;
+    error[] cause;
     int statusCode;
 }
 
