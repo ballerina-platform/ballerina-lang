@@ -55,7 +55,7 @@ public class BRunUtil {
      */
     public static BValue[] invokeStateful(CompileResult compileResult, String functionName, BValue[] args) {
         if (compileResult.getErrorCount() > 0) {
-            throw new IllegalStateException("compilation contains errors.");
+            throw new IllegalStateException(compileResult.toString());
         }
         return invokeStateful(compileResult, compileResult.getProgFile().getEntryPkgName(), functionName, args);
     }
@@ -85,7 +85,7 @@ public class BRunUtil {
     public static BValue[] invokeStateful(CompileResult compileResult, String packageName,
                                           String functionName, BValue[] args) {
         if (compileResult.getErrorCount() > 0) {
-            throw new IllegalStateException("compilation contains errors.");
+            throw new IllegalStateException(compileResult.toString());
         }
         ProgramFile programFile = compileResult.getProgFile();
         Debugger debugger = new Debugger(programFile);
@@ -110,7 +110,7 @@ public class BRunUtil {
      */
     protected static void invokePackageInit(CompileResult compileResult) {
         if (compileResult.getErrorCount() > 0) {
-            throw new IllegalStateException("compilation contains errors.");
+            throw new IllegalStateException(compileResult.toString());
         }
         invokePackageInit(compileResult, compileResult.getProgFile().getEntryPkgName());
     }
@@ -123,7 +123,7 @@ public class BRunUtil {
      */
     protected static void invokePackageInit(CompileResult compileResult, String packageName) {
         if (compileResult.getErrorCount() > 0) {
-            throw new IllegalStateException("compilation contains errors.");
+            throw new IllegalStateException(compileResult.toString());
         }
         ProgramFile programFile = compileResult.getProgFile();
         PackageInfo packageInfo = programFile.getPackageInfo(packageName);
@@ -145,7 +145,7 @@ public class BRunUtil {
      */
     public static BValue[] invoke(CompileResult compileResult, String packageName, String functionName, BValue[] args) {
         if (compileResult.getErrorCount() > 0) {
-            throw new IllegalStateException("compilation contains errors.");
+            throw new IllegalStateException(compileResult.toString());
         }
         ProgramFile programFile = compileResult.getProgFile();
         Debugger debugger = new Debugger(programFile);
@@ -176,7 +176,7 @@ public class BRunUtil {
      */
     public static BValue[] invoke(CompileResult compileResult, String functionName, BValue[] args) {
         if (compileResult.getErrorCount() > 0) {
-            throw new IllegalStateException("compilation contains errors.");
+            throw new IllegalStateException(compileResult.toString());
         }
         ProgramFile programFile = compileResult.getProgFile();
         Debugger debugger = new Debugger(programFile);

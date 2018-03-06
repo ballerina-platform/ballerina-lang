@@ -92,4 +92,19 @@ public class CompileResult {
     public void setContext(WorkerExecutionContext context) {
         this.context = context;
     }
+    
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+        if (this.errorCount == 0) {
+            builder.append("Compilation Successful");
+        } else {
+            builder.append("Compilation Failed:\n");
+            for (Diagnostic diag : this.getDiagnostics()) {
+                builder.append(diag + "\n");
+            }
+        }
+        return builder.toString();
+    }
+    
 }

@@ -70,4 +70,10 @@ public class BDiagnostic implements Diagnostic {
     public DiagnosticCode getCode() {
         return code;
     }
+    
+    @Override
+    public String toString() {
+        return this.kind + ": " + this.pos + ": " + this.msg;
+    }
+    
 }
