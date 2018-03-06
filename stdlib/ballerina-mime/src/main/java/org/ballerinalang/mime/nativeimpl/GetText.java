@@ -20,6 +20,7 @@ package org.ballerinalang.mime.nativeimpl;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.mime.util.EntityBodyHandler;
+import org.ballerinalang.mime.util.MimeUtil;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStruct;
@@ -30,7 +31,6 @@ import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.runtime.message.MessageDataSource;
 import org.ballerinalang.runtime.message.StringDataSource;
-import org.ballerinalang.util.exceptions.BallerinaException;
 
 import static org.ballerinalang.mime.util.Constants.ENTITY_BYTE_CHANNEL;
 import static org.ballerinalang.mime.util.Constants.FIRST_PARAMETER_INDEX;
@@ -67,7 +67,8 @@ public class GetText extends AbstractNativeFunction {
                 }
             }
         } catch (Throwable e) {
-            throw new BallerinaException("Error occurred while retrieving text data from entity : " + e.getMessage());
+            return this.getBValues(MimeUtil.createEntityError(context,
+                    "Error occurred while retrieving text data from entity : " + e.getMessage()));
         }
         return this.getBValues(result);
     }

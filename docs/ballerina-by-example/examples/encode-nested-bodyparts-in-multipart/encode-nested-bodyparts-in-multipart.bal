@@ -28,7 +28,7 @@ service<http> nestedparts {
         mime:Entity childPart2 = {};
         mime:MediaType contentTypeOfFilePart = mime:getMediaType(mime:TEXT_XML);
         childPart2.contentType = contentTypeOfFilePart;
-        file:File fileHandler = {path:"/home/user/Downloads/test.xml"};
+        file:File fileHandler = {path:"./files/test.xml"};
         childPart2.setFileAsEntityBody(fileHandler);
 
         //Create an array to hold child parts.
