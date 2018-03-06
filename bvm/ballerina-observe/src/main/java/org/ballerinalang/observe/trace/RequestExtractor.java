@@ -15,6 +15,7 @@
 * under the License.
 *
 */
+
 package org.ballerinalang.observe.trace;
 
 import io.opentracing.propagation.TextMap;
@@ -23,28 +24,19 @@ import java.util.Iterator;
 import java.util.Map;
 
 /**
- * Extractor that goes through the backage items.
+ * Extractor that goes through the carrier map.
  */
 public class RequestExtractor implements TextMap {
 
     private Map<String, String> headers;
-    private Iterator<Map.Entry<String, String>> iterator;
 
     public RequestExtractor(Map<String, String> headers) {
         this.headers = headers;
     }
 
-    public RequestExtractor(Iterator<Map.Entry<String, String>> headers) {
-        this.iterator = headers;
-    }
-
     @Override
     public Iterator<Map.Entry<String, String>> iterator() {
-        if (iterator == null) {
-            return this.headers.entrySet().iterator();
-        } else {
-            return iterator;
-        }
+        return this.headers.entrySet().iterator();
     }
 
     @Override

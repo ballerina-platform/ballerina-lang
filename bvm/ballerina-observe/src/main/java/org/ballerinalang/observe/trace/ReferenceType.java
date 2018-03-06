@@ -22,5 +22,5 @@ package org.ballerinalang.observe.trace;
  * Enum for reference types between spans.
  */
 public enum ReferenceType {
-    CHILDOF, FOLLOWSFROM
+    CHILDOF, FOLLOWSFROM, ROOT
 }

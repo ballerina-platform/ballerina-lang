@@ -29,18 +29,14 @@ import java.util.Map;
 /**
  * Class that holds the list of tracers.
  */
-public class TracersStore {
+class TracersStore {
 
-    private final Map<String, Map<String, Tracer>> tracerForServiceMap; // serviceName -> map(tracerName, tracer)
+    private final Map<String, Map<String, Tracer>> tracerServiceMap; // serviceName -> map(tracerName, tracer)
     private OpenTracingConfig openTracingConfig;
 
-    public TracersStore(OpenTracingConfig openTracingConfig) {
-        this.tracerForServiceMap = new HashMap<>();
+    TracersStore(OpenTracingConfig openTracingConfig) {
+        this.tracerServiceMap = new HashMap<>();
         this.openTracingConfig = openTracingConfig;
-    }
-
-    public Map<String, Map<String, Tracer>> getTracerForServiceMap() {
-        return tracerForServiceMap;
     }
 
     /**
@@ -49,25 +45,30 @@ public class TracersStore {
      * @param serviceName name of service of whose trace implementations are needed
      * @return trace implementations i.e: zipkin, jaeger
      */
-    public Map<String, Tracer> getTracers(String serviceName) {
-        Map<String, Tracer> stringTracerMap;
-        stringTracerMap = tracerForServiceMap.get(serviceName);
-        if (stringTracerMap == null) {
-            stringTracerMap = new HashMap<>();
+    Map<String, Tracer> getTracers(String serviceName) {
+        Map<String, Tracer> tracerMap;
+        tracerMap = tracerServiceMap.get(serviceName);
+        if (tracerMap == null) {
+            tracerMap = new HashMap<>();
+            boolean isTracingEnabled = false;
+
             for (TracerConfig tracerConfig : openTracingConfig.getTracers()) {
                 if (tracerConfig.isEnabled()) {
                     try {
                         Tracer tracer = OpenTracerFactory.getInstance().getTracer(tracerConfig, serviceName);
-                        stringTracerMap.put(tracerConfig.getName(), tracer);
+                        tracerMap.put(tracerConfig.getName(), tracer);
+                        isTracingEnabled = true;
                     } catch (IllegalAccessException | InstantiationException | ClassNotFoundException |
                             InvalidConfigurationException ex) {
-                        // TODO: 2/13/18 Maybe throw RuntimeException
+                        // TODO: 2/13/18 Should we log?
                     }
-                } else {
                 }
             }
-            tracerForServiceMap.put(serviceName, stringTracerMap);
+
+            if (isTracingEnabled) {
+                tracerServiceMap.put(serviceName, tracerMap);
+            }
         }
-        return stringTracerMap;
+        return tracerMap;
     }
 }

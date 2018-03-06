@@ -38,4 +38,4 @@ public interface OpenTracer {
      */
     Tracer getTracer(String tracerName, Properties configProperties, String serviceName)
             throws InvalidConfigurationException;
-    }
+}

@@ -27,34 +27,34 @@ import java.util.Map;
 /**
  * Class to hold the spans of a trace when using open tracing ballerina api.
  */
-public class SpanStore {
+class SpanStore {
 
-    //Map(Span ID -> Map(TracerName -> Span))
+    // Map(Span ID -> Map(TracerName -> Span))
     private Map<String, Map<String, Span>> spans;
     private Map<String, Map<String, SpanContext>> spanContexts;
 
-    public SpanStore() {
+    SpanStore() {
         this.spans = new HashMap<>();
         this.spanContexts = new HashMap<>();
     }
 
-    public Map<String, Span> getSpan(String spanId) {
+    Map<String, Span> getSpan(String spanId) {
         return spans.get(spanId);
     }
 
-    public Map<String, ?> getParent(String spanId) {
+    Map getParent(String spanId) {
         return (spanContexts.get(spanId) == null) ? spans.get(spanId) : spanContexts.get(spanId);
     }
 
-    public void addSpan(String spanId, Map<String, Span> spanMap) {
+    void addSpan(String spanId, Map<String, Span> spanMap) {
         spans.put(spanId, spanMap);
     }
 
-    public void addSpanContext(String spanId, Map<String, SpanContext> spanContextMap) {
+    void addSpanContext(String spanId, Map<String, SpanContext> spanContextMap) {
         spanContexts.put(spanId, spanContextMap);
     }
 
-    public Map<String, Span> closeSpan(String spanId) {
+    Map<String, Span> closeSpan(String spanId) {
         return spans.remove(spanId);
     }
 }
