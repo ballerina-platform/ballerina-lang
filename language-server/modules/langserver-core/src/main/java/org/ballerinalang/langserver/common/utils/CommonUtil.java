@@ -317,8 +317,6 @@ public class CommonUtil {
             nodeJson.add("position", positionJson);
         }
 
-        /* Virtual props */
-
         JsonArray type = getType(node);
         if (type != null) {
             nodeJson.add(SYMBOL_TYPE, type);
@@ -382,7 +380,6 @@ public class CommonUtil {
                 continue;
             }
 
-
             /* Node classes */
             if (prop instanceof Node) {
                 nodeJson.add(jsonName, generateJSON((Node) prop, anonStructs));
@@ -409,8 +406,6 @@ public class CommonUtil {
                         logger.debug("Can't serialize " + jsonName + ", has a an array of " + listPropItem);
                     }
                 }
-
-
                 /* Runtime model classes */
             } else if (prop instanceof Set && jsonName.equals("flags")) {
                 Set flags = (Set) prop;
@@ -430,8 +425,6 @@ public class CommonUtil {
                 nodeJson.addProperty(jsonName, kindName);
             } else if (prop instanceof OperatorKind) {
                 nodeJson.addProperty(jsonName, prop.toString());
-
-
                 /* Generic classes */
             } else if (prop instanceof String) {
                 nodeJson.addProperty(jsonName, (String) prop);
@@ -455,7 +448,7 @@ public class CommonUtil {
      * Convert given name to the Json object name.
      * @param name              Name to be converted
      * @param prefixLen         Length of prefix
-     * @return {@link String}   COnverted value
+     * @return {@link String}   Converted value
      */
     private static String toJsonName(String name, int prefixLen) {
         return Character.toLowerCase(name.charAt(prefixLen)) + name.substring(prefixLen + 1);
@@ -479,6 +472,7 @@ public class CommonUtil {
             jsonElements.add(type.getKind().typeName());
             return jsonElements;
         }
+
         return null;
     }
 }
