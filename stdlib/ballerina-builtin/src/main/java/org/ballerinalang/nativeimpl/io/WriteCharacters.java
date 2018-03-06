@@ -33,8 +33,8 @@ import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
 
 /**
  * Native function ballerina.io#writeCharacters.
@@ -47,7 +47,8 @@ import java.util.concurrent.Future;
         receiver = @Receiver(type = TypeKind.STRUCT, structType = "CharacterChannel", structPackage = "ballerina.io"),
         args = {@Argument(name = "content", type = TypeKind.STRING),
                 @Argument(name = "startOffset", type = TypeKind.INT)},
-        returnType = {@ReturnType(type = TypeKind.INT)},
+        returnType = {@ReturnType(type = TypeKind.INT),
+                @ReturnType(type = TypeKind.STRUCT, structType = "IOError", structPackage = "ballerina.io")},
         isPublic = true
 )
 public class WriteCharacters extends AbstractNativeFunction {
@@ -71,6 +72,20 @@ public class WriteCharacters extends AbstractNativeFunction {
      */
     private EventManager eventManager = EventManager.getInstance();
 
+/*
+    private static EventResult readCharactersResponse(EventResult<Integer, EventContext> result) {
+        BStruct errorStruct;
+        EventContext eventContext = result.getContext();
+        Context context = eventContext.getContext();
+        Throwable error = eventContext.getError();
+        if (null != error) {
+            errorStruct = IOUtils.createError(context, error.getMessage());
+        }
+        Integer numberOfBytes = result.getResponse();
+        return result;
+    }
+*/
+
     /**
      * Writes characters asynchronously.
      *
@@ -84,8 +99,9 @@ public class WriteCharacters extends AbstractNativeFunction {
     private int asyncWriteCharacters(CharacterChannel characterChannel, String text, int offset) throws
             ExecutionException,
             InterruptedException {
-        WriteCharactersEvent event = new WriteCharactersEvent(characterChannel, text, 0);
-        Future<EventResult> future = eventManager.publish(event);
+        WriteCharactersEvent event = new WriteCharactersEvent(characterChannel, text, offset);
+        CompletableFuture<EventResult> future = eventManager.publish(event);
+        //future.thenApply(WriteCharacters::readCharactersResponse);
         EventResult eventResult = future.get();
         return (int) eventResult.getResponse();
     }
@@ -108,11 +124,10 @@ public class WriteCharacters extends AbstractNativeFunction {
             CharacterChannel characterChannel = (CharacterChannel) channel.getNativeData(IOConstants
                     .CHARACTER_CHANNEL_NAME);
             numberOfCharactersWritten = asyncWriteCharacters(characterChannel, content, (int) startOffset);
-            //numberOfCharactersWritten = characterChannel.write(content, (int) startOffset);
         } catch (Throwable e) {
             String message = "Error occurred while writing characters:" + e.getMessage();
             throw new BallerinaException(message, context);
         }
-        return getBValues(new BInteger(numberOfCharactersWritten));
+        return getBValues(new BInteger(numberOfCharactersWritten), null);
     }
 }

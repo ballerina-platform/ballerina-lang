@@ -20,6 +20,9 @@ package org.ballerinalang.nativeimpl.io.events;
 
 import org.ballerinalang.bre.Context;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * Holds the context of the event. This will hold Ballerina context and the callback.
  */
@@ -32,6 +35,13 @@ public class EventContext {
      * Represents any error which will be thrown.
      */
     private Throwable error;
+    /**
+     * Will hold the list of properties related to the context.
+     */
+    private Map<String, Object> properties = new HashMap<>();
+
+    public EventContext() {
+    }
 
     public EventContext(Context context) {
         this.context = context;
@@ -47,5 +57,13 @@ public class EventContext {
 
     public void setError(Throwable error) {
         this.error = error;
+    }
+
+    public void setContext(Context context) {
+        this.context = context;
+    }
+
+    public Map<String, Object> getProperties() {
+        return properties;
     }
 }

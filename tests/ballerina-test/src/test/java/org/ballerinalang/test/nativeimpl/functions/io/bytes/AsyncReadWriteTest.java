@@ -19,6 +19,7 @@
 package org.ballerinalang.test.nativeimpl.functions.io.bytes;
 
 import org.ballerinalang.nativeimpl.io.channels.base.Channel;
+import org.ballerinalang.nativeimpl.io.events.EventContext;
 import org.ballerinalang.nativeimpl.io.utils.IOUtils;
 import org.ballerinalang.test.nativeimpl.functions.io.MockByteChannel;
 import org.ballerinalang.test.nativeimpl.functions.io.util.TestUtil;
@@ -56,21 +57,21 @@ public class AsyncReadWriteTest {
 
         byte[] expected = {49, 50};
         int offset = 0;
-        IOUtils.readFull(channel, content, offset, null);
+        IOUtils.readFull(channel, content, offset, new EventContext());
         Assert.assertEquals(expected, content);
 
         expected = new byte[]{51, 52};
-        IOUtils.readFull(channel, content, offset, null);
+        IOUtils.readFull(channel, content, offset, new EventContext());
         Assert.assertEquals(expected, content);
 
         expected = new byte[]{53, 54};
-        IOUtils.readFull(channel, content, offset, null);
+        IOUtils.readFull(channel, content, offset, new EventContext());
         Assert.assertEquals(expected, content);
 
         int expectedNumberOfBytes = -1;
         content = new byte[2];
         expected = new byte[]{0, 0};
-        int numberOfBytesRead = IOUtils.readFull(channel, content, offset, null);
+        int numberOfBytesRead = IOUtils.readFull(channel, content, offset, new EventContext());
         Assert.assertEquals(numberOfBytesRead, expectedNumberOfBytes);
         Assert.assertEquals(expected, content);
     }
@@ -86,16 +87,16 @@ public class AsyncReadWriteTest {
         byte[] expected = "123".getBytes();
 
         int offset = 0;
-        IOUtils.readFull(channel, content, offset, null);
+        IOUtils.readFull(channel, content, offset, new EventContext());
         Assert.assertEquals(expected, content);
 
         expected = "456".getBytes();
-        IOUtils.readFull(channel, content, offset, null);
+        IOUtils.readFull(channel, content, offset, new EventContext());
         Assert.assertEquals(expected, content);
 
         content = new byte[3];
         expected = new byte[3];
-        IOUtils.readFull(channel, content, offset, null);
+        IOUtils.readFull(channel, content, offset, new EventContext());
         Assert.assertEquals(expected, content);
     }
 
@@ -106,7 +107,7 @@ public class AsyncReadWriteTest {
         Channel channel = new MockByteChannel(byteChannel, 0);
         byte[] bytes = "hello".getBytes();
 
-        int numberOfBytesWritten = IOUtils.writeFull(channel, bytes, bytes.length, null);
+        int numberOfBytesWritten = IOUtils.writeFull(channel, bytes, bytes.length, new EventContext());
         Assert.assertEquals(numberOfBytesWritten, bytes.length);
     }
 

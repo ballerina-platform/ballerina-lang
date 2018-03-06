@@ -22,10 +22,18 @@ import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.nativeimpl.io.channels.base.CharacterChannel;
+import org.ballerinalang.nativeimpl.io.events.EventManager;
+import org.ballerinalang.nativeimpl.io.events.EventResult;
+import org.ballerinalang.nativeimpl.io.events.characters.CloseCharacterChannelEvent;
+import org.ballerinalang.nativeimpl.io.utils.IOUtils;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
-import org.ballerinalang.util.exceptions.BallerinaException;
+import org.ballerinalang.natives.annotations.ReturnType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.concurrent.CompletableFuture;
 
 /**
  * Native function ballerina.io#closeCharacterChannel.
@@ -36,6 +44,7 @@ import org.ballerinalang.util.exceptions.BallerinaException;
         packageName = "ballerina.io",
         functionName = "closeCharacterChannel",
         receiver = @Receiver(type = TypeKind.STRUCT, structType = "CharacterChannel", structPackage = "ballerina.io"),
+        returnType = {@ReturnType(type = TypeKind.STRUCT, structType = "IOError", structPackage = "ballerina.io")},
         isPublic = true
 )
 public class CloseCharacterChannel extends AbstractNativeFunction {
@@ -44,6 +53,8 @@ public class CloseCharacterChannel extends AbstractNativeFunction {
      * The index of the CharacterChannel in ballerina.io#closeCharacterChannel().
      */
     private static final int CHARACTER_CHANNEL_INDEX = 0;
+
+    private static final Logger log = LoggerFactory.getLogger(CloseCharacterChannel.class);
 
     /**
      * <p>
@@ -58,10 +69,13 @@ public class CloseCharacterChannel extends AbstractNativeFunction {
         try {
             channel = (BStruct) getRefArgument(context, CHARACTER_CHANNEL_INDEX);
             CharacterChannel charChannel = (CharacterChannel) channel.getNativeData(IOConstants.CHARACTER_CHANNEL_NAME);
-            charChannel.close();
+            CloseCharacterChannelEvent closeEvent = new CloseCharacterChannelEvent(charChannel);
+            CompletableFuture<EventResult> future = EventManager.getInstance().publish(closeEvent);
+            future.get();
         } catch (Throwable e) {
             String message = "Failed to close the character channel:" + e.getMessage();
-            throw new BallerinaException(message, context);
+            log.error(message);
+            return getBValues(IOUtils.createError(context, message));
         }
         return VOID_RETURN;
     }

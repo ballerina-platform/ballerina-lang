@@ -28,20 +28,8 @@ public struct CharacterChannel {
 public struct DelimitedRecordChannel {
 }
 
-@Description {value:"Represents an error thrown when the channel is already closed"}
-public struct AlreadyClosedChannelError {
-    string message;
-    error cause;
-}
-
-@Description{value:"Represents an error if the channel is not readable"}
-public struct NonReadableChannelError{
-    string message;
-    error cause;
-}
-
-@Description{value:"Represents an error which will occur while reading/writing"}
-public struct IOError{
+@Description {value:"Represents an error which will occur while reading/writing"}
+public struct IOError {
     string message;
     error cause;
 }
@@ -115,27 +103,28 @@ public native function createDelimitedRecordChannel (CharacterChannel channel,
 @Param {value:"numberOfBytes: Number of bytes which should be read"}
 @Return {value:"The bytes which were read"}
 @Return {value:"Number of bytes read"}
-public native function <ByteChannel channel> read (int numberOfBytes,int offset) (blob, int);
+@Return {value:"If an error occurrs while reading bytes"}
+public native function <ByteChannel channel> read (int numberOfBytes, int offset) (blob, int, IOError);
 
 @Description {value:"Function to write bytes"}
 @Param {value:"channel: The ByteChannel to write bytes to"}
 @Param {value:"content: Bytes which should be written"}
 @Param {value:"startOffset: If the bytes need to be written with an offset, the value of that offset"}
 @Return {value:"Number of bytes written"}
-public native function <ByteChannel channel> write(blob content, int startOffset, int numberOfBytes) (int);
+public native function <ByteChannel channel> write (blob content, int startOffset, int numberOfBytes) (int, IOError);
 
 @Description {value:"Function to read characters"}
 @Param {value:"channel: The CharacterChannel to read characters from"}
 @Param {value:"numberOfChars: Number of characters which should be read"}
 @Return {value:"The character sequence which was read"}
-public native function <CharacterChannel channel> readCharacters (int numberOfChars) (string);
+public native function <CharacterChannel channel> readCharacters (int numberOfChars) (string, IOError);
 
 @Description {value:"Function to write characters"}
 @Param {value:"channel: The CharacterChannel to write characters to"}
 @Param {value:"content: Text content which should be written"}
 @Param {value:"startOffset: If the content needs to be written with an offset, the value of that offset"}
 @Return {value:"Number of characters written"}
-public native function <CharacterChannel channel> writeCharacters (string content, int startOffset) (int);
+public native function <CharacterChannel channel> writeCharacters (string content, int startOffset) (int, IOError);
 
 @Description {value:"Function to check whether next record is available or not"}
 @Param {value:"channel: The DelimitedRecordChannel to read text records from"}
@@ -145,24 +134,24 @@ public native function <DelimitedRecordChannel channel> hasNextTextRecord () (bo
 @Description {value:"Function to read text records"}
 @Param {value:"channel: The DelimitedRecordChannel to read text records from"}
 @Return {value:"Fields listed in the record"}
-public native function <DelimitedRecordChannel channel> nextTextRecord () (string[]);
+public native function <DelimitedRecordChannel channel> nextTextRecord () (string[], IOError);
 
 @Description {value:"Function to write text records"}
 @Param {value:"channel: The DelimitedRecordChannel to write records"}
 @Param {value:"records: Fields which are included in the record"}
-public native function <DelimitedRecordChannel channel> writeTextRecord (string[] records);
+public native function <DelimitedRecordChannel channel> writeTextRecord (string[] records) (IOError);
 
 @Description {value:"Function to close a byte channel"}
 @Param {value:"channel: The ByteChannel to be closed"}
-public native function <ByteChannel channel> close ();
+public native function <ByteChannel channel> close () (IOError);
 
 @Description {value:"Function to close the text record channel"}
 @Param {value:"channel: The DelimitedRecordChannel to be closed"}
-public native function <DelimitedRecordChannel channel> closeDelimitedRecordChannel ();
+public native function <DelimitedRecordChannel channel> closeDelimitedRecordChannel () (IOError);
 
 @Description {value:"Function to close a character channel"}
 @Param {value:"channel: The CharacterChannel to be closed"}
-public native function <CharacterChannel channel> closeCharacterChannel ();
+public native function <CharacterChannel channel> closeCharacterChannel () (IOError);
 
 @Description {value:"Open a secure socket connection with a remote server"}
 @Param {value:"host: Remote server domain/IP"}

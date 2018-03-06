@@ -26,7 +26,6 @@ import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.nativeimpl.io.channels.base.Channel;
 import org.ballerinalang.nativeimpl.io.events.EventContext;
-import org.ballerinalang.nativeimpl.io.events.EventResult;
 import org.ballerinalang.nativeimpl.io.utils.IOUtils;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
@@ -49,7 +48,8 @@ import org.slf4j.LoggerFactory;
         args = {@Argument(name = "numberOfBytes", type = TypeKind.INT),
                 @Argument(name = "offset", type = TypeKind.INT)},
         returnType = {@ReturnType(type = TypeKind.BLOB),
-                @ReturnType(type = TypeKind.INT)},
+                @ReturnType(type = TypeKind.INT),
+                @ReturnType(type = TypeKind.STRUCT, structType = "IOError", structPackage = "ballerina.io")},
         isPublic = true
 )
 public class Read extends AbstractNativeFunction {
@@ -71,17 +71,27 @@ public class Read extends AbstractNativeFunction {
 
     private static final Logger log = LoggerFactory.getLogger(Read.class);
 
-    /**
+    /*
      * Function which will be notified on the response obtained after the async operation.
      *
      * @param result context of the callback.
      * @return Once the callback is processed we further return back the result.
      */
-    public static EventResult readResponse(EventResult result) {
-//        Integer response = (Integer) result.getResponse();
-//        EventContext eventContext = (EventContext) result.getContext();
+    /*private static EventResult readResponse(EventResult<Integer, EventContext> result) {
+        *//*
+         * The async response should go here
+         *//*
+        BStruct errorStruct;
+        EventContext eventContext = result.getContext();
+        Context context = eventContext.getContext();
+        Throwable error = eventContext.getError();
+        if (null != error) {
+            errorStruct = IOUtils.createError(context, error.getMessage());
+        }
+        byte[] content = (byte[]) eventContext.getProperties().get(ReadBytesEvent.CONTENT_PROPERTY);
+        Integer numberOfBytes = result.getResponse();
         return result;
-    }
+    }*/
 
     /**
      * <p>
@@ -107,10 +117,13 @@ public class Read extends AbstractNativeFunction {
             int nBytes = IOUtils.readFull(byteChannel, content, offset, eventContext);
             numberOfReadBytes = new BInteger(nBytes);
             readByteBlob = new BBlob(content);
+            //When async function is available the following should be executed.
+            //IOUtils.read(byteChannel,content,offset,eventContext,Read::readResponse);
         } catch (Throwable e) {
             String message = "Error occurred while reading bytes:" + e.getMessage();
+            log.error(message);
             throw new BallerinaException(message, context);
         }
-        return getBValues(readByteBlob, numberOfReadBytes);
+        return getBValues(readByteBlob, numberOfReadBytes, null);
     }
 }

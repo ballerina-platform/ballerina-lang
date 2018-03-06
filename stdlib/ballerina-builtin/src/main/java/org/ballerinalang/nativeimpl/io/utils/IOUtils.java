@@ -21,8 +21,6 @@ package org.ballerinalang.nativeimpl.io.utils;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BLangVMStructs;
 import org.ballerinalang.model.values.BStruct;
-import org.ballerinalang.nativeimpl.io.Read;
-import org.ballerinalang.nativeimpl.io.Write;
 import org.ballerinalang.nativeimpl.io.channels.base.Channel;
 import org.ballerinalang.nativeimpl.io.events.EventContext;
 import org.ballerinalang.nativeimpl.io.events.EventManager;
@@ -34,6 +32,7 @@ import org.ballerinalang.util.codegen.StructInfo;
 
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
+import java.util.function.Function;
 
 import static org.ballerinalang.nativeimpl.io.IOConstants.IO_ERROR_STRUCT;
 import static org.ballerinalang.nativeimpl.io.IOConstants.IO_PACKAGE;
@@ -74,14 +73,49 @@ public class IOUtils {
         return offset;
     }
 
+    /**
+     * <p>
+     * Writes bytes to a channel.
+     * </p>
+     * <p>
+     * This will be a blocking call.
+     * </p>
+     *
+     * @param channel       channel which should be used to write bytes.
+     * @param content       content which should be written.
+     * @param offset        offset which should be set when writing bytes.
+     * @param numberOfBytes number of bytes which should be written.
+     * @param context       context obtained from the native function call.
+     * @return the number of bytes written.
+     * @throws InterruptedException if the thread is interrupted
+     * @throws ExecutionException   error while execution.
+     */
     private static int write(Channel channel, byte[] content, int offset, int numberOfBytes, EventContext context)
             throws InterruptedException, ExecutionException {
         WriteBytesEvent writeBytesEvent = new WriteBytesEvent(channel, content, offset, numberOfBytes, context);
         CompletableFuture<EventResult> future = EventManager.getInstance().publish(writeBytesEvent);
-        future.thenApply(Write::writeResponse);
         EventResult eventResponse = future.get();
         offset = offset + (Integer) eventResponse.getResponse();
         return offset;
+    }
+
+    /**
+     * <p>
+     * Writes bytes to a channel asynchronously.
+     * </p>
+     *
+     * @param channel       channel which will be used to write bytes.
+     * @param content       content which will be written.
+     * @param offset        the offset which will be set to write bytes.
+     * @param numberOfBytes number of bytes which should be written.
+     * @param context       context of the native function call.
+     * @param function      callback function which should be called upon completion.
+     */
+    public static void write(Channel channel, byte[] content, int offset, int numberOfBytes, EventContext context,
+                              Function<EventResult, EventResult> function) {
+        WriteBytesEvent writeBytesEvent = new WriteBytesEvent(channel, content, offset, numberOfBytes, context);
+        CompletableFuture<EventResult> future = EventManager.getInstance().publish(writeBytesEvent);
+        future.thenApply(function);
     }
 
     /**
@@ -102,15 +136,47 @@ public class IOUtils {
         return offset;
     }
 
+    /**
+     * <p>
+     * Reads bytes from a channel and will obtain the response.
+     * </p>
+     * <p>
+     * This operation will be blocking.
+     * </p>
+     *
+     * @param channel channel the bytes should be read from.
+     * @param content byte [] which will hold the content which is read.
+     * @param offset  if the bytes should be read by specifying an offset.
+     * @param context context obtained from the native function.
+     * @return the number of bytes read.
+     * @throws InterruptedException errors which occur if the thread is interrupted.
+     * @throws ExecutionException   errors which occur during execution.
+     */
     private static int read(Channel channel, byte[] content, int offset, EventContext context)
             throws InterruptedException, ExecutionException {
         ReadBytesEvent event = new ReadBytesEvent(channel, content, offset, context);
         CompletableFuture<EventResult> future = EventManager.getInstance().publish(event);
-        //We call the trigger function here
-        future.thenApply(Read::readResponse);
         EventResult eventResponse = future.get();
         offset = (Integer) eventResponse.getResponse();
         return offset;
+    }
+
+    /**
+     * <p>
+     * Reads bytes asynchronously and trigger the callback.
+     * </p>
+     *
+     * @param channel  the channel which the bytes should be read from.
+     * @param content  the byte[] which will holds the content which will be read.
+     * @param offset   the offset which should be set while reading bytes.
+     * @param context  context which will be obtained from the native function call.
+     * @param function the callback function which will be triggered.
+     */
+    public static void read(Channel channel, byte[] content, int offset, EventContext context,
+                            Function<EventResult, EventResult> function) {
+        ReadBytesEvent event = new ReadBytesEvent(channel, content, offset, context);
+        CompletableFuture<EventResult> future = EventManager.getInstance().publish(event);
+        future.thenApply(function);
     }
 
 }

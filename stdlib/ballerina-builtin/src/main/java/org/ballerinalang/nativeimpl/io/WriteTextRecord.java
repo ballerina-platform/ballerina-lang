@@ -30,10 +30,11 @@ import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
+import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
 
 /**
  * Native function ballerina.io#writeTextRecord.
@@ -47,6 +48,7 @@ import java.util.concurrent.Future;
                 structType = "DelimitedRecordChannel",
                 structPackage = "ballerina.io"),
         args = {@Argument(name = "content", type = TypeKind.ARRAY, elementType = TypeKind.STRING)},
+        returnType = {@ReturnType(type = TypeKind.STRUCT, structType = "IOError", structPackage = "ballerina.io")},
         isPublic = true
 )
 public class WriteTextRecord extends AbstractNativeFunction {
@@ -66,6 +68,19 @@ public class WriteTextRecord extends AbstractNativeFunction {
      */
     private EventManager eventManager = EventManager.getInstance();
 
+/*
+    private static EventResult writeRecordResponse(EventResult<Integer, EventContext> result) {
+        BStruct errorStruct;
+        EventContext eventContext = result.getContext();
+        Context context = eventContext.getContext();
+        Throwable error = eventContext.getError();
+        if (null != error) {
+            errorStruct = IOUtils.createError(context, error.getMessage());
+        }
+        return result;
+    }
+*/
+
     /**
      * Asynchronously writes records to the channel.
      *
@@ -77,7 +92,8 @@ public class WriteTextRecord extends AbstractNativeFunction {
     private void asyncWriteRecords(DelimitedRecordChannel recordChannel, BStringArray records) throws
             ExecutionException, InterruptedException {
         DelimitedRecordWriteEvent recordWriteEvent = new DelimitedRecordWriteEvent(recordChannel, records);
-        Future<EventResult> future = eventManager.publish(recordWriteEvent);
+        CompletableFuture<EventResult> future = eventManager.publish(recordWriteEvent);
+        //future.thenApply(WriteTextRecord::writeRecordResponse);
         future.get();
     }
 
@@ -96,7 +112,6 @@ public class WriteTextRecord extends AbstractNativeFunction {
             DelimitedRecordChannel delimitedRecordChannel = (DelimitedRecordChannel) channel.getNativeData(IOConstants
                     .TXT_RECORD_CHANNEL_NAME);
             asyncWriteRecords(delimitedRecordChannel, content);
-            // delimitedRecordChannel.write(content);
         } catch (Throwable e) {
             String message = "Error occurred while writing text record:" + e.getMessage();
             throw new BallerinaException(message, context);

@@ -25,7 +25,6 @@ import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.nativeimpl.io.channels.base.Channel;
 import org.ballerinalang.nativeimpl.io.events.EventContext;
-import org.ballerinalang.nativeimpl.io.events.EventResult;
 import org.ballerinalang.nativeimpl.io.utils.IOUtils;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
@@ -46,7 +45,8 @@ import org.ballerinalang.util.exceptions.BallerinaException;
         args = {@Argument(name = "content", type = TypeKind.BLOB),
                 @Argument(name = "startOffset", type = TypeKind.INT),
                 @Argument(name = "numberOfBytes", type = TypeKind.INT)},
-        returnType = {@ReturnType(type = TypeKind.INT)},
+        returnType = {@ReturnType(type = TypeKind.INT),
+                @ReturnType(type = TypeKind.STRUCT, structType = "IOError", structPackage = "ballerina.io")},
         isPublic = true
 )
 public class Write extends AbstractNativeFunction {
@@ -61,27 +61,36 @@ public class Write extends AbstractNativeFunction {
      */
     private static final int CONTENT_INDEX = 0;
 
-    /**
+    /*
      * Index which holds the start offset in ballerina.io#writeBytes.
      */
-    // private static final int START_OFFSET_INDEX = 0;
+//    private static final int START_OFFSET_INDEX = 0;
 
-    /**
+    /*
      * Index which holds the number of bytes which should be written.
      */
-    //  private static final int NUMBER_OF_BYTES_INDEX = 1;
+//    private static final int NUMBER_OF_BYTES_INDEX = 1;
 
-    /**
+    /*
      * Function which will be notified on the response obtained after the async operation.
      *
      * @param result context of the callback.
      * @return Once the callback is processed we further return back the result.
      */
-    public static EventResult writeResponse(EventResult result) {
-     //   Integer response = (Integer) result.getResponse();
-     //   EventContext eventContext = (EventContext) result.getContext();
+    /*private static EventResult writeResponse(EventResult<Integer, EventContext> result) {
+        *//*
+         * Async task response goes here
+         *//*
+        EventContext eventContext = result.getContext();
+        Context context = eventContext.getContext();
+        Throwable error = eventContext.getError();
+        Integer numberOfBytesWritten = result.getResponse();
+        BStruct errorStruct;
+        if (null != error) {
+            errorStruct = IOUtils.createError(context, error.getMessage());
+        }
         return result;
-    }
+    }*/
 
 
     /**
@@ -93,21 +102,22 @@ public class Write extends AbstractNativeFunction {
     public BValue[] execute(Context context) {
         BStruct channel;
         byte[] content;
-        // int numberOfBytes;
-        // int offset;
+//        int numberOfBytes;
+//        int offset;
         int numberOfBytesWritten;
         try {
             channel = (BStruct) getRefArgument(context, BYTE_CHANNEL_INDEX);
             content = getBlobArgument(context, CONTENT_INDEX);
-            //numberOfBytes = (int) getIntArgument(context, NUMBER_OF_BYTES_INDEX);
-            //offset = (int) getIntArgument(context, START_OFFSET_INDEX);
+//            numberOfBytes = (int) getIntArgument(context, NUMBER_OF_BYTES_INDEX);
+//            offset = (int) getIntArgument(context, START_OFFSET_INDEX);
             Channel byteChannel = (Channel) channel.getNativeData(IOConstants.BYTE_CHANNEL_NAME);
             EventContext eventContext = new EventContext(context);
             numberOfBytesWritten = IOUtils.writeFull(byteChannel, content, content.length, eventContext);
+//            IOUtils.write(byteChannel, content, offset, numberOfBytes, eventContext, Write::writeResponse);
         } catch (Throwable e) {
             String message = "Error occurred while writing bytes:" + e.getMessage();
             throw new BallerinaException(message, context);
         }
-        return getBValues(new BInteger(numberOfBytesWritten));
+        return getBValues(new BInteger(numberOfBytesWritten), null);
     }
 }

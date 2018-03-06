@@ -34,6 +34,10 @@ import java.nio.ByteBuffer;
  */
 public class ReadBytesEvent implements Event {
     /**
+     * Holds the name of the property which will hold a reference to the byte content.
+     */
+    private static final String CONTENT_PROPERTY = "byte_content";
+    /**
      * Buffer which will be provided to the channel.
      */
     private ByteBuffer content;
@@ -48,12 +52,6 @@ public class ReadBytesEvent implements Event {
 
     private static final Logger log = LoggerFactory.getLogger(ReadBytesEvent.class);
 
-    public ReadBytesEvent(Channel channel, byte[] content, int offset) {
-        this.content = ByteBuffer.wrap(content);
-        this.content.position(offset);
-        this.channel = channel;
-    }
-
     public ReadBytesEvent(Channel channel, byte[] content, int offset, EventContext context) {
         this.content = ByteBuffer.wrap(content);
         this.context = context;
@@ -66,11 +64,13 @@ public class ReadBytesEvent implements Event {
      */
     @Override
     public EventResult get() {
-        int read;
+        int numberOfBytesRead;
         NumericResult result;
         try {
-            read = channel.read(content);
-            result = new NumericResult(read, context);
+            numberOfBytesRead = channel.read(content);
+            byte[] content = this.content.array();
+            context.getProperties().put(CONTENT_PROPERTY, content);
+            result = new NumericResult(numberOfBytesRead, context);
             return result;
         } catch (IOException e) {
             log.error("Error occurred while reading bytes", e);

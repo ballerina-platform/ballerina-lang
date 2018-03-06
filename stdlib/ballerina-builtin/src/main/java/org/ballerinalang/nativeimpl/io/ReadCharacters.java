@@ -33,8 +33,8 @@ import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
 
 /**
  * Native function ballerina.io#readCharacters.
@@ -46,7 +46,8 @@ import java.util.concurrent.Future;
         functionName = "readCharacters",
         receiver = @Receiver(type = TypeKind.STRUCT, structType = "CharacterChannel", structPackage = "ballerina.io"),
         args = {@Argument(name = "numberOfChars", type = TypeKind.INT)},
-        returnType = {@ReturnType(type = TypeKind.STRING)},
+        returnType = {@ReturnType(type = TypeKind.STRING),
+                @ReturnType(type = TypeKind.STRUCT, structType = "IOError", structPackage = "ballerina.io")},
         isPublic = true
 )
 public class ReadCharacters extends AbstractNativeFunction {
@@ -66,6 +67,27 @@ public class ReadCharacters extends AbstractNativeFunction {
      */
     private EventManager eventManager = EventManager.getInstance();
 
+
+    /*
+     * Callback method of the read characters response.
+     *
+     * @param result the result returned as the response.
+     * @return the processed event result.
+     *//*
+
+    private static EventResult readCharactersResponse(EventResult<Boolean, EventContext> result) {
+        BStruct errorStruct;
+        EventContext eventContext = result.getContext();
+        Context context = eventContext.getContext();
+        Throwable error = eventContext.getError();
+        if (null != error) {
+            errorStruct = IOUtils.createError(context, error.getMessage());
+        }
+        Boolean numberOfBytes = result.getResponse();
+        return result;
+    }
+    */
+
     /**
      * Reads characters asynchronously.
      *
@@ -78,7 +100,8 @@ public class ReadCharacters extends AbstractNativeFunction {
     private String asyncReadCharacters(int numberOfCharacters, CharacterChannel characterChannel) throws
             ExecutionException, InterruptedException {
         ReadCharactersEvent event = new ReadCharactersEvent(characterChannel, numberOfCharacters);
-        Future<EventResult> future = eventManager.publish(event);
+        CompletableFuture<EventResult> future = eventManager.publish(event);
+        // future.thenApply(ReadCharacters::readCharactersResponse);
         EventResult eventResult = future.get();
         return (String) eventResult.getResponse();
     }
@@ -100,13 +123,12 @@ public class ReadCharacters extends AbstractNativeFunction {
             numberOfCharacters = getIntArgument(context, NUMBER_OF_CHARS_INDEX);
             CharacterChannel characterChannel = (CharacterChannel) channel.getNativeData(IOConstants
                     .CHARACTER_CHANNEL_NAME);
-            //String readBytes = characterChannel.read((int) numberOfCharacters);
             String readCharacters = asyncReadCharacters((int) numberOfCharacters, characterChannel);
             content = new BString(readCharacters);
         } catch (Throwable e) {
             String message = "Error occurred while reading characters:" + e.getMessage();
             throw new BallerinaException(message, context);
         }
-        return getBValues(content);
+        return getBValues(content, null);
     }
 }

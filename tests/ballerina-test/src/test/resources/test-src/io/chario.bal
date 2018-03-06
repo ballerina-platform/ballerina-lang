@@ -8,15 +8,17 @@ function initFileChannel(string filePath,string permission,string encoding){
 }
 
 function readCharacters (int numberOfCharacters) (string) {
-    string characters = characterChannel.readCharacters(numberOfCharacters);
+    string characters;
+    characters, _ = characterChannel.readCharacters(numberOfCharacters);
     return characters;
 }
 
 function writeCharacters (string content, int startOffset) (int) {
-    int numberOfCharactersWritten = characterChannel.writeCharacters(content, startOffset);
+    int numberOfCharactersWritten;
+    numberOfCharactersWritten, _ = characterChannel.writeCharacters(content, startOffset);
     return numberOfCharactersWritten;
 }
 
 function close(){
-    characterChannel.closeCharacterChannel();
+    _ = characterChannel.closeCharacterChannel();
 }
