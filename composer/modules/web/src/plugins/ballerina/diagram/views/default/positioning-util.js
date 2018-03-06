@@ -409,15 +409,15 @@ class PositioningUtil {
 
         // position the function body.
         funcBodyViewState.bBox.x = viewState.bBox.x + this.config.panel.body.padding.left;
-        funcBodyViewState.bBox.y = viewState.bBox.y + cmp.annotation.h + cmp.heading.h +
+        funcBodyViewState.bBox.y = viewState.bBox.y + cmp.heading.h +
             this.config.panel.body.padding.top + this.config.lifeLine.head.height;
 
         cmp.client.x = viewState.bBox.x + this.config.panel.body.padding.left;
-        cmp.client.y = viewState.bBox.y + cmp.annotation.h + cmp.heading.h + this.config.panel.body.padding.top;
+        cmp.client.y = viewState.bBox.y + cmp.heading.h + this.config.panel.body.padding.top;
 
         // position the default worker.
         cmp.defaultWorker.x = cmp.client.x + cmp.client.w + this.config.lifeLine.gutter.h;
-        cmp.defaultWorker.y = viewState.bBox.y + cmp.annotation.h + cmp.heading.h + this.config.panel.body.padding.top;
+        cmp.defaultWorker.y = viewState.bBox.y + cmp.heading.h + this.config.panel.body.padding.top;
         // position default worker line.
         cmp.defaultWorkerLine.x = cmp.defaultWorker.x;
         cmp.defaultWorkerLine.y = cmp.defaultWorker.y;
@@ -428,61 +428,6 @@ class PositioningUtil {
             + (cmp.defaultWorkerLine.w / 2);
         body.viewState.bBox.y = cmp.defaultWorker.y + this.config.lifeLine.head.height
             + this.config.statement.height;
-
-        // ========== Header Positioning ==========
-        let publicPrivateFlagoffset = 0;
-        if (node.public) {
-            publicPrivateFlagoffset = 10;
-        }
-        // Positioning argument parameters
-        if (node.getParameters()) {
-            cmp.argParameterHolder.openingParameter.x = viewState.bBox.x + viewState.titleWidth +
-                this.config.panel.heading.title.margin.right + this.config.panelHeading.iconSize.width
-                + this.config.panelHeading.iconSize.padding + publicPrivateFlagoffset + cmp.receiver.w;
-            cmp.argParameterHolder.openingParameter.y = viewState.bBox.y + cmp.annotation.h;
-
-            // Positioning the resource parameters
-            let nextXPositionOfParameter = cmp.argParameterHolder.openingParameter.x
-                + cmp.argParameterHolder.openingParameter.w;
-            if (node.getParameters().length > 0) {
-                for (let i = 0; i < node.getParameters().length; i++) {
-                    const argument = node.getParameters()[i];
-                    nextXPositionOfParameter = this.createPositionForTitleNode(argument, nextXPositionOfParameter,
-                        (viewState.bBox.y + viewState.components.annotation.h));
-                }
-            }
-
-            // Positioning the closing bracket component of the parameters.
-            cmp.argParameterHolder.closingParameter.x = nextXPositionOfParameter + 130;
-            cmp.argParameterHolder.closingParameter.y = viewState.bBox.y + cmp.annotation.h;
-        }
-
-        // Positioning return types
-        if (node.getReturnParameters()) {
-            cmp.returnParameterHolder.returnTypesIcon.x = cmp.argParameterHolder.closingParameter.x
-                + cmp.argParameterHolder.closingParameter.w + 10;
-            cmp.returnParameterHolder.returnTypesIcon.y = viewState.bBox.y + viewState.components.annotation.h + 18;
-
-            // Positioning the opening bracket component of the return types.
-            cmp.returnParameterHolder.openingReturnType.x = cmp.returnParameterHolder.returnTypesIcon.x
-                + cmp.returnParameterHolder.returnTypesIcon.w;
-            cmp.returnParameterHolder.openingReturnType.y = viewState.bBox.y + viewState.components.annotation.h;
-
-            // Positioning the resource parameters
-            let nextXPositionOfReturnType = cmp.returnParameterHolder.openingReturnType.x
-                + cmp.returnParameterHolder.openingReturnType.w;
-            if (node.getReturnParameters().length > 0) {
-                for (let i = 0; i < node.getReturnParameters().length; i++) {
-                    const returnType = node.getReturnParameters()[i];
-                    nextXPositionOfReturnType = this.createPositionForTitleNode(returnType, nextXPositionOfReturnType,
-                        (viewState.bBox.y + viewState.components.annotation.h));
-                }
-            }
-
-            // Positioning the closing bracket component of the parameters.
-            cmp.returnParameterHolder.closingReturnType.x = nextXPositionOfReturnType + 130;
-            cmp.returnParameterHolder.closingReturnType.y = viewState.bBox.y + viewState.components.annotation.h;
-        }
 
         // ========== End of Header ==========
 
@@ -772,8 +717,11 @@ class PositioningUtil {
         cmp.lifeLine.y = node.viewState.bBox.y;
 
         node.body.viewState.bBox.x = node.viewState.bBox.x + (cmp.lifeLine.w / 2);
-        node.body.viewState.bBox.y = node.viewState.bBox.y + this.config.lifeLine.head.height
-            + this.config.statement.height;
+        node.body.viewState.bBox.y = node.viewState.bBox.y + this.config.lifeLine.head.height;
+
+        if (!TreeUtil.isForkJoin(node.parent)) {
+            node.body.viewState.bBox.y += this.config.statement.height;
+        }
     }
 
 
@@ -1132,107 +1080,45 @@ class PositioningUtil {
     positionForkJoinNode(node) {
         const viewState = node.viewState;
         const bBox = viewState.bBox;
+        bBox.x -= (this.config.lifeLine.width / 2);
         const joinStmt = node.getJoinBody();
         const timeoutStmt = node.getTimeoutBody();
+        const joinBBox = (joinStmt) ? joinStmt.viewState.bBox : new SimpleBBox();
+        const timeoutBBox = (timeoutStmt) ? timeoutStmt.viewState.bBox : new SimpleBBox();
 
-        this.positionCompoundStatementComponents(node);
-
-        // Set the node x and y using statement box.
-        node.viewState.bBox.x = node.viewState.components['statement-box'].x;
-        node.viewState.bBox.y = node.viewState.components['statement-box'].y
-            + node.viewState.components['block-header'].h;
-
-        node.viewState.components['drop-zone'].w = node.viewState.bBox.w;
-        node.viewState.components['statement-box'].w = node.viewState.bBox.w;
-        node.viewState.components['block-header'].w = node.viewState.bBox.w;
-        node.viewState.components['statement-body'].w = node.viewState.bBox.w;
-
-        if (joinStmt) {
-            // Calculate join block x and y.
-            const joinX = bBox.x;
-            let joinY = viewState.components['statement-box'].y
-                + viewState.components['statement-box'].h;
-
-            // Create a bbox for parameter of join.
-            joinStmt.viewState.components.param =
-                new SimpleBBox(joinX + joinStmt.viewState.components.expression.w +
-                    joinStmt.viewState.components.titleWidth.w, 0, 0, 0, 0, 0);
-
-            if (node.viewState.bBox.w > joinStmt.viewState.bBox.w) {
-                joinStmt.viewState.bBox.w = node.viewState.bBox.w;
-                if (TreeUtil.isBlock(joinStmt)) {
-                    joinStmt.viewState.components['drop-zone'].w = node.viewState.bBox.w;
-                    joinStmt.viewState.components['statement-box'].w = node.viewState.bBox.w;
-                    joinStmt.viewState.components['block-header'].w = node.viewState.bBox.w;
-                }
-            }
-
-            if (joinStmt && TreeUtil.isBlock(joinStmt)) {
-                joinY += joinStmt.viewState.components['block-header'].h;
-            }
-
-            joinStmt.viewState.components['statement-box'].h += joinStmt.viewState.components['block-header'].h;
-
-            joinStmt.viewState.bBox.y = joinY;
-            joinStmt.viewState.bBox.x = joinX;
-            this.positionCompoundStatementComponents(joinStmt);
-        }
-
-        if (timeoutStmt) {
-            // Calculate timeout block x and y.
-            const timeoutX = bBox.x;
-            const timeoutY = joinStmt ? (joinStmt.viewState.bBox.y
-                + joinStmt.viewState.components['statement-box'].h) : (node.viewState.components['statement-box'].y
-                + node.viewState.components['statement-box'].h);
-
-            // Create a bbox for parameter of timeout.
-            timeoutStmt.viewState.components.param =
-                new SimpleBBox(timeoutX + timeoutStmt.viewState.components.expression.w, 0, 0, 0, 0);
-
-            if (node.viewState.bBox.w > timeoutStmt.viewState.bBox.w) {
-                timeoutStmt.viewState.bBox.w = node.viewState.bBox.w;
-                if (TreeUtil.isBlock(timeoutStmt)) {
-                    timeoutStmt.viewState.components['drop-zone'].w = node.viewState.bBox.w;
-                    timeoutStmt.viewState.components['statement-box'].w = node.viewState.bBox.w;
-                    timeoutStmt.viewState.components['block-header'].w = node.viewState.bBox.w;
-                }
-            }
-
-            // Add the block header value to the statement box of the timeout statement.
-            timeoutStmt.viewState.components['statement-box'].h += timeoutStmt.viewState.components['block-header'].h;
-
-            timeoutStmt.viewState.bBox.y = timeoutY;
-            timeoutStmt.viewState.bBox.x = timeoutX;
-            this.positionCompoundStatementComponents(timeoutStmt);
-        }
+        const cmp = node.viewState.components;
+        cmp.forkContainer.x = bBox.x;
+        cmp.forkContainer.y = bBox.y + this.config.statement.height;
 
         // Position Workers
-        let xIndex = bBox.x + this.config.fork.padding.left + this.config.fork.lifeLineGutterH;
-        const yIndex = bBox.y + this.config.fork.padding.top;
+        let xIndex = bBox.x;
+        const yIndex = cmp.forkContainer.y + 40/* worker top padding */;
         if (node.workers instanceof Array && !_.isEmpty(node.workers)) {
-            const maxHeightWorker = _.maxBy(node.workers, (worker) => {
-                return worker.viewState.components.lifeLine.h;
-            });
-            const maxWorkerHeight = maxHeightWorker.viewState.components.lifeLine.h;
             node.workers.forEach((worker) => {
                 worker.viewState.bBox.x = xIndex;
                 worker.viewState.bBox.y = yIndex;
-                xIndex += this.config.fork.lifeLineGutterH + worker.viewState.bBox.w;
-                worker.viewState.components.lifeLine.h = maxWorkerHeight;
+                xIndex += worker.viewState.bBox.w;
             });
         }
 
-        // Add the values of the statement body of the fork node.
-        node.viewState.components['statement-body'].h = node.viewState.components['statement-box'].h
-            - node.viewState.components['block-header'].h;
-        node.viewState.components['statement-body'].y = node.viewState.components['statement-box'].y
-            + node.viewState.components['block-header'].h;
-        node.viewState.components['statement-body'].x = node.viewState.components['statement-box'].x;
+        // Size join and timeout headers
+        cmp.joinHeader.x = cmp.forkContainer.x + (this.config.lifeLine.width / 2);
+        cmp.joinHeader.y = cmp.forkContainer.y + cmp.forkContainer.h;
 
-        node.viewState.bBox.h = node.viewState.components['statement-body'].h
-            + node.viewState.components['block-header'].h
-            + (joinStmt ? joinStmt.viewState.components['statement-box'].h : 0)
-            + (timeoutStmt ? timeoutStmt.viewState.components['statement-box'].h : 0);
+        cmp.timeoutHeader.x = cmp.forkContainer.x + _.max([joinBBox.w, cmp.joinHeader.w])
+                            + (cmp.timeoutHeader.w / 2)
+                            + this.config.lifeLine.gutter.h;
+        cmp.timeoutHeader.y = cmp.forkContainer.y + cmp.forkContainer.h;
+
+        joinBBox.x = cmp.joinHeader.x;
+        joinBBox.y = cmp.joinHeader.y + cmp.joinHeader.h;
+
+        timeoutBBox.x = cmp.timeoutHeader.x;
+        timeoutBBox.y = cmp.timeoutHeader.y + cmp.timeoutHeader.h;
+
+        // Center the headers
+        cmp.joinHeader.x -= (cmp.joinHeader.w / 2);
+        cmp.timeoutHeader.x -= (cmp.timeoutHeader.w / 2);
     }
 
 

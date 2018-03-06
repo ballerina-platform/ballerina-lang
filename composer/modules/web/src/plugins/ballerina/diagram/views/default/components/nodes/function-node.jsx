@@ -21,7 +21,6 @@ import PropTypes from 'prop-types';
 import _ from 'lodash';
 import PanelDecorator from '../decorators/panel-decorator';
 import ImageUtil from '../../../../image-util';
-import StatementDropZone from '../../../../../drag-drop/DropZone';
 import LifeLine from '../decorators/lifeline';
 import Client from '../decorators/client';
 import FunctionNodeModel from '../../../../../model/tree/function-node';
@@ -71,7 +70,6 @@ class FunctionNode extends React.Component {
             icons = 'tool-icons/main-function';
         }
         const body = this.props.model.getBody();
-        const bodyBBox = body.viewState.bBox;
         const blockNode = getComponentForNodeArray(body, this.context.mode);
         const workers = getComponentForNodeArray(this.props.model.workers, this.context.mode);
 
@@ -80,9 +78,6 @@ class FunctionNode extends React.Component {
             polygonClass: 'default-worker-life-line-polygon',
             textClass: 'default-worker-icon',
         };
-
-        const argumentParameters = this.props.model.getParameters();
-        const returnParameters = this.props.model.getReturnParameters();
 
         const connectors = this.props.model.body.statements
             .filter((element) => {
@@ -121,8 +116,6 @@ class FunctionNode extends React.Component {
                     icon={icons}
                     dropTarget={this.props.model}
                     canDrop={this.canDropToPanelBody}
-                    argumentParams={argumentParameters}
-                    returnParams={returnParameters}
                     title={name}
                     receiver={receiverType}
                 >
@@ -131,37 +124,17 @@ class FunctionNode extends React.Component {
                         bBox={this.props.model.viewState.components.client}
                     />
                     { this.props.model.getWorkers().length === 0 &&
-                    <g>
-                        <StatementDropZone
-                            x={bodyBBox.x}
-                            y={bodyBBox.y}
-                            width={bodyBBox.w}
-                            height={bodyBBox.h}
-                            baseComponent='rect'
-                            dropTarget={body}
-                            enableDragBg
-                        />
-                        <LifeLine
-                            title='default'
-                            bBox={this.props.model.viewState.components.defaultWorkerLine}
-                            classes={classes}
-                            icon={ImageUtil.getCodePoint('worker')}
-                        />
-                        {blockNode}
-                    </g>
-                }{
-                    this.props.model.workers.map((item) => {
-                        return (<StatementDropZone
-                            x={item.getBody().viewState.bBox.x}
-                            y={item.getBody().viewState.bBox.y}
-                            width={item.getBody().viewState.bBox.w}
-                            height={item.getBody().viewState.bBox.h}
-                            baseComponent='rect'
-                            dropTarget={item.getBody()}
-                            enableDragBg
-                        />);
-                    })
-                }
+                        <g>
+                            <LifeLine
+                                title='default'
+                                bBox={this.props.model.viewState.components.defaultWorkerLine}
+                                classes={classes}
+                                icon={ImageUtil.getCodePoint('worker')}
+                                model={this.props.model}
+                            />
+                            {blockNode}
+                        </g>
+                    }
                     {workers}
                     {connectors}
                 </PanelDecorator> </g>);

@@ -74,7 +74,7 @@ public abstract class CompletionTest {
         position.setCharacter(positionObj.get("character").getAsInt());
         TextDocumentPositionParams positionParams =
                 CompletionTestUtil.getPositionParams(position, balPath);
-            WorkspaceDocumentManagerImpl documentManager = CompletionTestUtil.prepareDocumentManager(balPath, content);
+        WorkspaceDocumentManagerImpl documentManager = CompletionTestUtil.prepareDocumentManager(balPath, content);
         List<CompletionItem> responseItemList = CompletionTestUtil.getCompletions(documentManager, positionParams);
         List<CompletionItem> expectedList = CompletionTestUtil.getExpectedItemList(expectedItems);
 
