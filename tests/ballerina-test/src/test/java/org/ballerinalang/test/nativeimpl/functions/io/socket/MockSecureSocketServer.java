@@ -33,7 +33,7 @@ import java.nio.file.Paths;
 import javax.net.ssl.SSLServerSocketFactory;
 
 /**
- * This server socket will use to mock the secure backend
+ * This server socket will use to mock the secure backend.
  */
 public class MockSecureSocketServer {
 

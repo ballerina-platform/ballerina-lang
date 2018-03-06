@@ -40,6 +40,9 @@ import java.io.IOException;
 import java.net.Socket;
 import java.util.concurrent.ThreadLocalRandom;
 
+/**
+ * Unit tests for client socket.
+ */
 public class ClientSocketTest {
 
     private static final Logger log = LoggerFactory.getLogger(ClientSocketTest.class);

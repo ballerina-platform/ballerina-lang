@@ -89,7 +89,7 @@ public class SecureClientSocketTest {
     /**
      * Will enforce to sleep the thread for the provided time.
      *
-     * @param retryInterval the time in milliseconds the thread should sleep
+     * @param retryInterval the time in milliseconds the thread should sleep.
      */
     private void sleep(int retryInterval) {
         try {
