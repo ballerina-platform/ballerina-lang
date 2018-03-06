@@ -1,5 +1,6 @@
 import ballerina.net.http;
 import ballerina.file;
+import ballerina.mime;
 
 function testAddHeader (http:OutResponse res, string key, string value) (http:OutResponse) {
     res.addHeader(key, value);
@@ -20,9 +21,8 @@ function testGetHeaders (http:OutResponse res, string key) (string[]) {
     return res.getHeaders(key);
 }
 
-function testGetJsonPayload (http:OutResponse res) (json) {
-    json payload = res.getJsonPayload();
-    return payload;
+function testGetJsonPayload (http:OutResponse res) (json, mime:EntityError) {
+    return res.getJsonPayload();
 }
 
 function testGetProperty (http:OutResponse res, string propertyName) (string) {
@@ -30,19 +30,16 @@ function testGetProperty (http:OutResponse res, string propertyName) (string) {
     return payload;
 }
 
-function testGetStringPayload (http:OutResponse res) (string) {
-    string payload = res.getStringPayload();
-    return payload;
+function testGetStringPayload (http:OutResponse res) (string, mime:EntityError) {
+    return res.getStringPayload();
 }
 
-function testGetBinaryPayload (http:OutResponse res) (blob) {
-    blob payload = res.getBinaryPayload();
-    return payload;
+function testGetBinaryPayload (http:OutResponse res) (blob, mime:EntityError) {
+    return res.getBinaryPayload();
 }
 
-function testGetXmlPayload (http:OutResponse res) (xml) {
-    xml payload = res.getXmlPayload();
-    return payload;
+function testGetXmlPayload (http:OutResponse res) (xml, mime:EntityError) {
+    return res.getXmlPayload();
 }
 
 function testRemoveHeader (http:OutResponse res, string key) (http:OutResponse) {
@@ -149,7 +146,7 @@ service<http> helloServer {
         http:OutResponse res = {};
         json jsonStr = {lang:value};
         res.setJsonPayload(jsonStr);
-        json result = res.getJsonPayload();
+        var result, _ = res.getJsonPayload();
         json lang = result.lang;
         res.setJsonPayload(lang);
         _ = conn.respond(res);
@@ -172,7 +169,7 @@ service<http> helloServer {
     resource GetStringPayload(http:Connection conn, http:InRequest req, string valueStr) {
         http:OutResponse res = {};
         res.setStringPayload(valueStr);
-        string value = res.getStringPayload();
+        var value, _ = res.getStringPayload();
         res.setStringPayload(value);
         _ = conn.respond(res);
     }
@@ -184,8 +181,8 @@ service<http> helloServer {
         http:OutResponse res = {};
         xml xmlStr = xml `<name>ballerina</name>`;
         res.setXmlPayload(xmlStr);
-        xml value = res.getXmlPayload();
-        string name = value.getTextValue();
+        var value, _ = res.getXmlPayload();
+        var name = value.getTextValue();
         res.setStringPayload(name);
         _ = conn.respond(res);
     }

@@ -43,7 +43,7 @@ public class LogDebug extends AbstractLogFunction {
                                                     .getCallableUnitInfo().getPackageInfo().getPkgPath();
 
         if (LOG_MANAGER.getPackageLogLevel(pkg).value() <= BLogLevel.DEBUG.value()) {
-            getLogger(pkg).debug(getStringArgument(ctx, 0));
+            getLogger(pkg).debug(getLogMessage(ctx, 0));
         }
         return VOID_RETURN;
     }

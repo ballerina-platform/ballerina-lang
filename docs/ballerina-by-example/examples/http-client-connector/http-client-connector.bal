@@ -11,20 +11,36 @@ function main (string[] args) {
     http:InResponse resp = {};
     resp, _ = httpEndpoint.get("/get?test=123", req);
     io:println("GET request:");
-    io:println(resp.getJsonPayload());
+    var jsonPayload1, payloadError1 = resp.getJsonPayload();
+    if (payloadError1 == null) {
+        io:println(jsonPayload1);
+    } else {
+        io:println(payloadError1.message);
+    }
+
 
     // Set a string payload to the message to be sent to the endpoint.
     req.setStringPayload("POST: Hello World");
     resp, _ = httpEndpoint.post("/post", req);
     io:println("\nPOST request:");
-    io:println(resp.getJsonPayload());
+    var jsonPayload2, payloadError2 = resp.getJsonPayload();
+    if (payloadError2 == null) {
+        io:println(jsonPayload2);
+    } else {
+        io:println(payloadError2.message);
+    }
 
     // Set a JSON payload to the message to be sent to the endpoint.
     json jsonMsg = {method:"PUT", payload:"Hello World"};
     req.setJsonPayload(jsonMsg);
     resp, _ = httpEndpoint.put("/put", req);
     io:println("\nPUT request:");
-    io:println(resp.getJsonPayload());
+    var jsonPayload3, payloadError3 = resp.getJsonPayload();
+    if (payloaderror == null) {
+        io:println(jsonPayload3);
+    } else {
+        io:println(payloadError3.message);
+    }
 
     // Set an XML payload to the message to be sent to the endpoint.
     xml xmlMsg = xml `<request><method>PATCH</method><payload>Hello World!</payload></request>`;
@@ -39,7 +55,8 @@ function main (string[] args) {
     req.setStringPayload("DELETE: Hello World");
     resp, _ = httpEndpoint.delete("/delete", req);
     io:println("\nDELETE request:");
-    io:println(resp.getJsonPayload());
+    var jsonPayload4, _ = resp.getJsonPayload();
+    io:println(jsonPayload4);
 
     req.setStringPayload("CUSTOM: Hello World");
     // The execute() action can be used if one needs to use custom HTTP verbs.

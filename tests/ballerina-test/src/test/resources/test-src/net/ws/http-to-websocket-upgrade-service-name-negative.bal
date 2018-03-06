@@ -17,7 +17,7 @@ service<http> httpService {
     }
     resource testResource(http:Connection conn, http:InRequest req) {
         http:OutResponse resp = {};
-        string payload = req.getStringPayload();
+        var payload, _ = req.getStringPayload();
         io:println(payload);
         resp.setStringPayload("I received");
         _ = conn.respond(resp);

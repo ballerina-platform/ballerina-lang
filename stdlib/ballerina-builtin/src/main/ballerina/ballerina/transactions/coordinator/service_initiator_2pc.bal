@@ -34,7 +34,8 @@ service<http> Initiator2pcService {
     }
     resource abortTransaction (http:Connection conn, http:InRequest req) {
         http:OutResponse res;
-        var abortReq, _ = <AbortRequest>req.getJsonPayload();
+        var payload, _ = req.getJsonPayload();
+        var abortReq, _ = <AbortRequest>payload;
         string transactionId = abortReq.transactionId;
         string participantId = abortReq.participantId;
         log:printInfo("Abort received for transaction: " + transactionId + " from participant:" + participantId);
