@@ -220,7 +220,7 @@ public class ParserUtils {
                 if (!"ballerina.builtin".equals(pkg.getName().getValue())
                         && !"ballerina.builtin.core".equals(pkg.getName().getValue())) {
                     org.wso2.ballerinalang.compiler.tree.BLangPackage bLangPackage = packageLoader
-                            .loadPackage(orgNameNode, pkgNameComps, bLangIdentifier);
+                            .loadAndDefinePackage(orgNameNode, pkgNameComps, bLangIdentifier);
                     loadPackageMap(pkg.getName().getValue(), bLangPackage, modelPackage);
                 }
             } catch (Exception e) {

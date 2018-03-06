@@ -212,7 +212,6 @@
                                     <exclude>org.wso2.carbon.utils:carbon-utils</exclude>
                                     <exclude>org.wso2.orbit.org.yaml:snakeyaml</exclude>
                                     <exclude>org.yaml:snakeyaml</exclude>
-                                    <exclude>org.atomikos.wso2:atomikos</exclude>
                                 </excludes>
                             </artifactSet>
                         </configuration>

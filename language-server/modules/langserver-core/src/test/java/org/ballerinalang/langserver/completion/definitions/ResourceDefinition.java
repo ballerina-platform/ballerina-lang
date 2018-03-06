@@ -49,7 +49,8 @@ public class ResourceDefinition extends CompletionTest {
                 {"enumSuggestVarDef1.json", "resource"},
                 {"enumSuggestVarDef2.json", "resource"},
                 {"structFields.json", "resource"},
-                {"structBoundFunctionsAndFields.json", "resource"}
+                {"structBoundFunctionsAndFields.json", "resource"},
+                {"packageContentWithSucceedingCharacter1.json", "resource"}
         };
     }
 }

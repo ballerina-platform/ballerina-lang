@@ -47,6 +47,7 @@ SQL Connector
 Table with SQL Connector
 Transactions
 Distributed Transactions
+Transactions Distributed
 Transformers
 Transform JSON
 Strings

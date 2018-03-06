@@ -28,4 +28,9 @@ public class Constants {
 
     // Name of the system property to hold the debug port
     public static final String SYSTEM_PROP_BAL_DEBUG = "debug";
+
+    // Transaction constants
+    public static final String GLOBAL_TRANSACTION_ID = "globalTransactionId";
+    public static final String TRANSACTION_URL = "transactionUrl";
+    public static final String TRANSACTION_PROTOCOL_2PC = "2pc";
 }
