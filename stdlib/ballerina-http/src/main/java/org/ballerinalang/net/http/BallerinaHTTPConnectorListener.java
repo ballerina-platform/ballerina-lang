@@ -25,7 +25,7 @@ import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.runtime.Constants;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.ballerinalang.util.tracer.BTracer;
-import org.ballerinalang.util.tracer.TraceConstants;
+import org.ballerinalang.util.tracer.TraceConstant;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.contract.HttpConnectorListener;
@@ -81,7 +81,7 @@ public class BallerinaHTTPConnectorListener implements HttpConnectorListener {
 
         BTracer bTracer = new BTracer(null, false);
         httpCarbonMessage.getHeaders().entries().stream()
-                .filter(c -> c.getKey().startsWith(TraceConstants.TRACE_PREFIX))
+                .filter(c -> c.getKey().startsWith(TraceConstant.TRACE_PREFIX))
                 .forEach(e -> bTracer.addProperty(e.getKey(), e.getValue()));
 
         Map<String, String> tags = new HashMap<>();

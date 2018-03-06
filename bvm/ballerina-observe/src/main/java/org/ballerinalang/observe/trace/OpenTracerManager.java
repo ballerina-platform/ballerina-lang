@@ -37,12 +37,12 @@ public class OpenTracerManager implements TraceManager {
      * Method to extract span context from a carrier.
      *
      * @param format      {@code (Format<TextMap>)} format in which the span context is received.
-     * @param httpHeaders the properties map extracted and used to create span context.
+     * @param headers the properties map extracted and used to create span context.
      * @param serviceName to retrieve the relevant tracer instance.
      * @return the span context which includes tracer specific spans.
      */
     @Override
-    public Map<String, Object> extract(Object format, Map<String, String> httpHeaders, String serviceName) {
+    public Map<String, Object> extract(Object format, Map<String, String> headers, String serviceName) {
         Map<String, Object> spanContext = new HashMap<>();
         if (format == null) {
             format = Format.Builtin.HTTP_HEADERS;
@@ -52,7 +52,7 @@ public class OpenTracerManager implements TraceManager {
         for (Map.Entry<String, Tracer> tracerEntry : tracers.entrySet()) {
             spanContext.put(tracerEntry.getKey(),
                     tracerEntry.getValue().extract((Format<TextMap>) format,
-                            new RequestExtractor(httpHeaders.entrySet().iterator())));
+                            new RequestExtractor(headers.entrySet().iterator())));
         }
         return spanContext;
     }
@@ -67,18 +67,20 @@ public class OpenTracerManager implements TraceManager {
      * @return the carrier with the injected the span context.
      */
     @Override
-    public Map<String, String> inject(Map<String, Object> activeSpanMap, Object format, String serviceName) {
+    public Map<String, String> inject(Map<String, ?> activeSpanMap, Object format, String serviceName) {
         HashMap<String, String> carrierMap = new HashMap<>();
         if (format == null) {
             format = Format.Builtin.HTTP_HEADERS;
         }
-        for (Map.Entry<String, Object> activeSpanEntry : activeSpanMap.entrySet()) {
+        for (Map.Entry<String, ?> activeSpanEntry : activeSpanMap.entrySet()) {
             Map<String, Tracer> tracers = tracerStore.getTracers(serviceName);
             Tracer tracer = tracers.get(activeSpanEntry.getKey());
             if (tracer != null) {
-                Span span = (Span) activeSpanEntry.getValue();
-                if (span != null) {
-                    tracer.inject(span.context(), (Format<TextMap>) format, new RequestInjector(carrierMap));
+                if (activeSpanEntry.getValue() instanceof Span) {
+                    Span span = (Span) activeSpanEntry.getValue();
+                    if (span != null) {
+                        tracer.inject(span.context(), (Format<TextMap>) format, new RequestInjector(carrierMap));
+                    }
                 }
             }
         }
@@ -86,7 +88,7 @@ public class OpenTracerManager implements TraceManager {
     }
 
     @Override
-    public Map<String, Object> buildSpan(long invocationId, String spanName, Map<String, Object> spanContextMap,
+    public Map<String, Object> startSpan(long invocationId, String spanName, Map<String, ?> spanContextMap,
                                          Map<String, String> tags, boolean makeActive, String serviceName) {
         Map<String, Object> spanMap = new HashMap<>();
         Map<String, Tracer> tracers = tracerStore.getTracers(serviceName);
@@ -120,27 +122,33 @@ public class OpenTracerManager implements TraceManager {
     }
 
     @Override
-    public void finishSpan(List<Object> spans) {
+    public void finishSpan(List<?> spans) {
         for (Object spanObj : spans) {
-            Span span = (Span) spanObj;
-            span.finish();
+            if (spanObj instanceof Span) {
+                Span span = (Span) spanObj;
+                span.finish();
+            }
         }
     }
 
     @Override
-    public void log(List<Object> spanList, Map<String, Object> fields) {
-        for (Object spanObj : spanList) {
-            Span span = (Span) spanObj;
-            span.log(fields);
+    public void log(List<?> spans, Map<String, ?> fields) {
+        for (Object spanObj : spans) {
+            if (spanObj instanceof Span) {
+                Span span = (Span) spanObj;
+                span.log(fields);
+            }
         }
     }
 
     @Override
-    public void addTags(List<Object> spanList, Map<String, String> tags) {
+    public void addTags(List<?> spanList, Map<String, String> tags) {
         for (Object spanObj : spanList) {
-            Span span = (Span) spanObj;
-            for (Map.Entry<String, String> tag : tags.entrySet()) {
-                span.setTag(tag.getKey(), String.valueOf(tag.getValue()));
+            if (spanObj instanceof Span) {
+                Span span = (Span) spanObj;
+                for (Map.Entry<String, String> tag : tags.entrySet()) {
+                    span.setTag(tag.getKey(), String.valueOf(tag.getValue()));
+                }
             }
         }
     }

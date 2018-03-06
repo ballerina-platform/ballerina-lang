@@ -26,8 +26,15 @@ import java.util.ArrayList;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import static org.ballerinalang.util.tracer.TraceConstant.STR_NULL;
+import static org.ballerinalang.util.tracer.TraceConstant.TRACER_MANAGER_CLASS;
+import static org.ballerinalang.util.tracer.TraceConstant.TRACE_PREFIX;
+
 /**
- * TraceManagerWrapper to manage tracing.
+ * {@link TraceManagerWrapper} loads {@link TraceManager} implementation
+ * and wraps it's functionality.
+ *
+ * @since 0.963.1
  */
 public class TraceManagerWrapper {
     private static TraceManagerWrapper instance = new TraceManagerWrapper();
@@ -36,7 +43,8 @@ public class TraceManagerWrapper {
 
     private TraceManagerWrapper() {
         try {
-            Class<?> tracerManagerClass = Class.forName(TraceConstants.TRACER_MANAGER_CLASS)
+            Class<?> tracerManagerClass = Class
+                    .forName(TRACER_MANAGER_CLASS)
                     .asSubclass(TraceManager.class);
             manager = (TraceManager) tracerManagerClass.newInstance();
             enabled = true;
@@ -50,16 +58,17 @@ public class TraceManagerWrapper {
     }
 
     public void startSpan(Context context) {
-        BTracer rootBTracer = context.getRootBTracer();
-        BTracer activeBTracer = context.getActiveBTracer();
+        BTracer rBTracer = context.getRootBTracer();
+        BTracer aBTracer = context.getActiveBTracer();
 
-        if (enabled && activeBTracer.isTraceable()) {
+        if (enabled && aBTracer.isTraceable()) {
+            String service = aBTracer.getServiceName();
+            String resource = aBTracer.getResourceName();
 
-            String service = activeBTracer.getServiceName();
-            String resource = activeBTracer.getResourceName();
+            if (aBTracer.isClientContext()) {
+                CallableUnitInfo cInfo = context.getControlStack()
+                        .getCurrentFrame().getCallableUnitInfo();
 
-            if (activeBTracer.isClientContext()) {
-                CallableUnitInfo cInfo = context.getControlStack().getCurrentFrame().getCallableUnitInfo();
                 if (cInfo != null && cInfo instanceof ActionInfo &&
                         ((ActionInfo) cInfo).getConnectorInfo() != null) {
                     ActionInfo aInfo = (ActionInfo) cInfo;
@@ -72,34 +81,42 @@ public class TraceManagerWrapper {
                     service = "ballerina:connector";
                     resource = "ballerina:call";
                 }
-                activeBTracer.setServiceName(service);
-                activeBTracer.setResourceName(resource);
-                activeBTracer.setSpanName(resource);
+
+                aBTracer.setServiceName(service);
+                aBTracer.setResourceName(resource);
             }
 
             Long invocationId;
-            if (rootBTracer.getInvocationID() == null ||
-                    "null".equalsIgnoreCase(rootBTracer.getInvocationID())) {
-                rootBTracer.generateInvocationID();
-                invocationId = Long.valueOf(rootBTracer.getInvocationID());
+            if (rBTracer.getInvocationID() == null ||
+                    STR_NULL.equalsIgnoreCase(rBTracer.getInvocationID())) {
+                rBTracer.generateInvocationID();
+                invocationId = Long.valueOf(rBTracer.getInvocationID());
             } else {
-                invocationId = Long.valueOf(rootBTracer.getInvocationID());
+                invocationId = Long.valueOf(rBTracer.getInvocationID());
             }
-            activeBTracer.setInvocationID(String.valueOf(invocationId));
+            aBTracer.setInvocationID(String.valueOf(invocationId));
 
             // get the parent spans' span context
-            Map<String, String> spanHeaders = rootBTracer.getProperties().entrySet().stream()
-                    .collect(Collectors.toMap(Map.Entry::getKey, e -> String.valueOf(e.getValue())));
-            Map<String, Object> spanContext = manager.extract(null, removeTracePrefix(spanHeaders), service);
+            Map<String, String> spanHeaders = rBTracer
+                    .getProperties()
+                    .entrySet()
+                    .stream()
+                    .collect(Collectors.toMap(Map.Entry::getKey,
+                            e -> String.valueOf(e.getValue())));
 
-            Map<String, Object> spanList = manager.buildSpan(invocationId, resource, spanContext,
-                    activeBTracer.getTags(), true, service);
+            Map<String, ?> spanContext = manager
+                    .extract(null, removeTracePrefix(spanHeaders), service);
 
-            Map<String, String> traceContextMap = manager.inject(spanList, null, service);
-            activeBTracer.getProperties().putAll(addTracePrefix(traceContextMap));
+            Map<String, ?> spanList = manager
+                    .startSpan(invocationId, resource, spanContext,
+                            aBTracer.getTags(), true, service);
 
-            activeBTracer.setSpans(spanList);
-            activeBTracer.setParentSpanContext(spanContext);
+            Map<String, String> traceContextMap = manager
+                    .inject(spanList, null, service);
+            aBTracer.getProperties().putAll(addTracePrefix(traceContextMap));
+
+            aBTracer.setSpans(spanList);
+            aBTracer.setParentSpanContext(spanContext);
         }
     }
 
@@ -123,13 +140,17 @@ public class TraceManagerWrapper {
 
     private Map<String, String> addTracePrefix(Map<String, String> map) {
         return map.entrySet().stream()
-                .collect(Collectors.toMap(e -> TraceConstants.TRACE_PREFIX + e.getKey(), Map.Entry::getValue));
+                .collect(Collectors.toMap(
+                        e -> TRACE_PREFIX + e.getKey(),
+                        Map.Entry::getValue)
+                );
     }
 
     private Map<String, String> removeTracePrefix(Map<String, String> map) {
         return map.entrySet().stream()
-                .collect(Collectors.toMap(e -> e.getKey()
-                        .replaceFirst(TraceConstants.TRACE_PREFIX, ""), Map.Entry::getValue));
+                .collect(Collectors.toMap(
+                        e -> e.getKey().replaceFirst(TRACE_PREFIX, ""),
+                        Map.Entry::getValue));
     }
 
 }

@@ -19,16 +19,29 @@
 package org.ballerinalang.util.tracer;
 
 /**
- * {@code TraceConstants} define tracer constants.
+ * {@code TraceConstant} define tracer constants.
  *
- * @since 0.96.1
+ * @since 0.963.1
  */
-public class TraceConstants {
+public class TraceConstant {
 
     static final String TRACER_MANAGER_CLASS = "org.ballerinalang.observe.trace.OpenTracerManager";
 
-    public static final String INVOCATION_ID = "invocationId";
+    static final String INVOCATION_ID = "invocationId";
+
+    static final String KEY_SPAN_KIND = "span.kind";
+
+    public static final String SPAN_KIND_SERVER = "server";
+
+    public static final String SPAN_KIND_CLIENT = "client";
 
     public static final String TRACE_PREFIX = "trace___";
 
+    public static final String STR_NULL = "null";
+
+    public static final String STR_ERROR = "error";
+
+    public static final String STR_TRUE = "true";
+
+    public static final String FUNCTION_INIT = "<init>";
 }

@@ -26,12 +26,14 @@ import java.util.HashMap;
 
 /**
  * ConnectorFutureListener to be use with tracing.
+ *
+ * @since 0.963.1
  */
 public class TraceFutureListener implements ConnectorFutureListener {
     private BTracer bTracer;
 
-    public TraceFutureListener(BTracer tContext) {
-        this.bTracer = tContext;
+    public TraceFutureListener(BTracer bTracer) {
+        this.bTracer = bTracer;
         this.bTracer.startSpan();
     }
 

@@ -30,7 +30,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
 import java.util.concurrent.ThreadLocalRandom;
 
 /**
- * This function which implements the buildSpan method for tracing.
+ * This function which implements the startSpan method for tracing.
  */
 @BallerinaFunction(
         packageName = "ballerina.observe",

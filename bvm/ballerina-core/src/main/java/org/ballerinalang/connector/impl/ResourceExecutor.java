@@ -67,7 +67,7 @@ public class ResourceExecutor {
      * @param bValues         for parameters.
      */
     public static void execute(Resource resource, BServerConnectorFuture connectorFuture,
-                               Map<String, Object> properties, BTracer tContext, BValue... bValues) {
+                               Map<String, Object> properties, BTracer bTracer, BValue... bValues) {
         if (resource == null) {
             connectorFuture.notifyFailure(new BallerinaException("trying to execute a null resource"));
             return;
@@ -92,19 +92,18 @@ public class ResourceExecutor {
             }
         }
 
-        if (tContext == null) {
-            tContext = new BTracer(context, false);
+        if (bTracer == null) {
+            bTracer = new BTracer(context, false);
         } else {
-            tContext.setContext(context);
+            bTracer.setContext(context);
         }
-        context.setRootBTracer(tContext);
-        context.setActiveBTracer(tContext);
+        context.setRootBTracer(bTracer);
+        context.setActiveBTracer(bTracer);
 
-        tContext.setServiceName(resourceInfo.getServiceInfo().getName());
-        tContext.setResourceName(resourceInfo.getName());
-        tContext.setSpanName(resourceInfo.getServiceInfo().getName() + "/" + resourceInfo.getName());
+        bTracer.setServiceName(resourceInfo.getServiceInfo().getName());
+        bTracer.setResourceName(resourceInfo.getName());
 
-        TraceFutureListener listener = new TraceFutureListener(tContext);
+        TraceFutureListener listener = new TraceFutureListener(bTracer);
         connectorFuture.registerConnectorFutureListener(listener);
 
         ControlStack controlStack = context.getControlStack();

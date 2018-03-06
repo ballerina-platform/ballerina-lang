@@ -1,5 +1,5 @@
 /*
- * Copyright (c)  2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -23,23 +23,25 @@ import org.ballerinalang.bre.Context;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Random;
+import java.util.concurrent.ThreadLocalRandom;
+
+import static org.ballerinalang.util.tracer.TraceConstant.INVOCATION_ID;
+import static org.ballerinalang.util.tracer.TraceConstant.STR_ERROR;
+import static org.ballerinalang.util.tracer.TraceConstant.STR_TRUE;
+import static org.ballerinalang.util.tracer.TraceConstant.TRACE_PREFIX;
 
 /**
- * {@code BTracer} holds the current trace context of the program.
+ * {@code BTracer} holds the trace of the current context.
  *
  * @since 0.963.1
  */
 public class BTracer {
-    private static final String FUNCTION_INIT = "<init>";
-    private static final String KEY_SPAN_KIND = "span.kind";
-    private static final String SPAN_KIND_SERVER = "server";
-    private static final String SPAN_KIND_CLIENT = "client";
-    private static final Random RANDOM = new Random();
+
     private static TraceManagerWrapper manager = TraceManagerWrapper.getInstance();
 
     /**
-     * {@link Map} of properties, which used to represent the span contexts of each tracer.
+     * {@link Map} of properties, which used to represent
+     * the span contexts of each tracer.
      */
     private Map<String, String> properties;
     /**
@@ -47,13 +49,10 @@ public class BTracer {
      */
     private Map<String, String> tags;
     /**
-     * flag to represent whether this is a client (originate from a client connector) context or a server context.
+     * flag to represent whether this is a client (originate
+     * from a client connector) context or a server context.
      */
     private boolean isClientContext;
-    /**
-     * Name of the span.
-     */
-    private String spanName = "defaultSpan";
     /**
      * Name of the service.
      */
@@ -67,30 +66,35 @@ public class BTracer {
      */
     private boolean isTraceable = true;
     /**
-     * Ballerina context.
+     * Active Ballerina context.
      */
     private Context bContext = null;
     /**
      * If there's a parent, this should hold parent span context.
      */
-    private Map<String, Object> parentSpanContext = null;
+    private Map<String, ?> parentSpanContext = null;
     /**
      * Map of spans belongs to each open tracer.
      */
-    private Map<String, Object> spans;
+    private Map<String, ?> spans;
 
     private BTracer() {
-
+        this.properties = new HashMap<>();
+        this.tags = new HashMap<>();
     }
 
     public BTracer(Context bContext, boolean isClientContext) {
-        this.properties = new HashMap<>();
-        this.tags = new HashMap<>();
+        this();
         this.bContext = bContext;
         this.isClientContext = isClientContext;
-        this.tags.put(KEY_SPAN_KIND, isClientContext ? SPAN_KIND_CLIENT : SPAN_KIND_SERVER);
-        this.isTraceable = !(isClientContext && bContext.getControlStack().getCurrentFrame()
-                .getCallableUnitInfo().getName().endsWith(FUNCTION_INIT));
+        this.tags.put(TraceConstant.KEY_SPAN_KIND, isClientContext
+                ? TraceConstant.SPAN_KIND_CLIENT
+                : TraceConstant.SPAN_KIND_SERVER);
+        this.isTraceable = !(isClientContext &&
+                bContext.getControlStack().getCurrentFrame()
+                        .getCallableUnitInfo().getName()
+                        .endsWith(TraceConstant.FUNCTION_INIT)
+        );
     }
 
     public void startSpan() {
@@ -106,25 +110,19 @@ public class BTracer {
     }
 
     public void logError(Map<String, Object> fields) {
-        addTags(Collections.singletonMap("error", "true"));
+        addTags(Collections.singletonMap(STR_ERROR, STR_TRUE));
         manager.log(this, fields);
     }
 
     public void addTags(Map<String, String> tags) {
         if (spans != null) {
-            //span has started, there for add tags to the span
+            //span has started, there for add tags to the span.
             manager.addTags(this, tags);
         } else {
+            //otherwise keep the tags in a map, and add it once
+            //the span get created.
             this.tags.putAll(tags);
         }
-    }
-
-    public String getSpanName() {
-        return spanName;
-    }
-
-    public void setSpanName(String spanName) {
-        this.spanName = spanName;
     }
 
     public String getServiceName() {
@@ -145,10 +143,6 @@ public class BTracer {
 
     public Map<String, String> getProperties() {
         return properties;
-    }
-
-    public void setProperties(Map<String, String> properties) {
-        this.properties = properties;
     }
 
     public void addProperty(String key, String value) {
@@ -177,34 +171,34 @@ public class BTracer {
     }
 
     public String getInvocationID() {
-        return getProperty(TraceConstants.TRACE_PREFIX + TraceConstants.INVOCATION_ID);
+        return getProperty(TRACE_PREFIX + INVOCATION_ID);
     }
 
     public void setInvocationID(String invocationId) {
-        addProperty(TraceConstants.TRACE_PREFIX + TraceConstants.INVOCATION_ID, invocationId);
-    }
-
-    public void generateInvocationID() {
-        setInvocationID(String.valueOf(RANDOM.nextLong()));
+        addProperty(TRACE_PREFIX + INVOCATION_ID, invocationId);
     }
 
     public void setContext(Context bContext) {
         this.bContext = bContext;
     }
 
-    public Map<String, Object> getParentSpanContext() {
+    public Map<String, ?> getParentSpanContext() {
         return parentSpanContext;
     }
 
-    public void setParentSpanContext(Map<String, Object> parentSpanContext) {
+    public void setParentSpanContext(Map<String, ?> parentSpanContext) {
         this.parentSpanContext = parentSpanContext;
     }
 
-    public Map<String, Object> getSpans() {
+    public Map<String, ?> getSpans() {
         return spans;
     }
 
-    public void setSpans(Map<String, Object> spans) {
+    public void setSpans(Map<String, ?> spans) {
         this.spans = spans;
+    }
+
+    public void generateInvocationID() {
+        setInvocationID(String.valueOf(ThreadLocalRandom.current().nextLong()));
     }
 }

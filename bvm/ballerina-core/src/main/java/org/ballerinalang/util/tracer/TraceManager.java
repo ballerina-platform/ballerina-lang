@@ -22,22 +22,68 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * TraceManager to load OpenTracerManager.
+ * {@link TraceManager} api acts as a bridge between ballerina core and the ballerina tracing modules.
+ * This will remove OpenTracing dependencies from the ballerina core.
+ *
+ * @since 0.963.1
  */
 public interface TraceManager {
 
-    // todo: use ? capture instead of objects???
-    Map<String, Object> buildSpan(long invocationId, String spanName, Map<String, Object> spanContextMap,
-                                  Map<String, String> tags, boolean makeActive, String serviceName);
+    /**
+     * Starts a new spans for each loaded tracer.
+     *
+     * @param invocationId   to denote resource invocation.
+     * @param spanName       to denote the name of the span.
+     * @param spanContextMap of the parent span.
+     * @param tags           to be included in the span.
+     * @param makeActive     to mark the span as active.
+     * @param serviceName    of the invoked resource.
+     * @return {@link Map} of spans per tracer.
+     */
+    Map<String, ?> startSpan(long invocationId, String spanName, Map<String, ?> spanContextMap,
+                             Map<String, String> tags, boolean makeActive, String serviceName);
 
-    void finishSpan(List<Object> span);
+    /**
+     * Finishes the given list of spans.
+     *
+     * @param spans list to be finish.
+     */
+    void finishSpan(List<?> spans);
 
-    void log(List<Object> spanList, Map<String, Object> fields);
+    /**
+     * Logs provided fields in given list of spans.
+     *
+     * @param spans  to include the logs.
+     * @param fields to log.
+     */
+    void log(List<?> spans, Map<String, ?> fields);
 
-    void addTags(List<Object> spanList, Map<String, String> tags);
+    /**
+     * Adds tags to the given list of spans.
+     *
+     * @param spanList to add tags.
+     * @param tags     to be added.
+     */
+    void addTags(List<?> spanList, Map<String, String> tags);
 
-    Map<String, Object> extract(Object format, Map<String, String> httpHeaders, String serviceName);
+    /**
+     * Extract span context from transport.
+     *
+     * @param format      of the headers.
+     * @param headers     map.
+     * @param serviceName of the invoked resource.
+     * @return the {@link Map} of extracted context.
+     */
+    Map<String, Object> extract(Object format, Map<String, String> headers, String serviceName);
 
-    Map<String, String> inject(Map<String, Object> activeSpanMap, Object format, String serviceName);
+    /**
+     * Returns the map of context to be injected into the transport.
+     *
+     * @param activeSpanMap of current spans per tracer (zipkin, jaeger, etc..)
+     * @param format        of the headers.
+     * @param serviceName   of the invoked resource.
+     * @return the map of context to be injected into the transport.
+     */
+    Map<String, String> inject(Map<String, ?> activeSpanMap, Object format, String serviceName);
 
 }

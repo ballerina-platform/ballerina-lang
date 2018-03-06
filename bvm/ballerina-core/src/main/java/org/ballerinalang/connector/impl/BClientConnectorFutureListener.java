@@ -48,10 +48,10 @@ public class BClientConnectorFutureListener implements ConnectorFutureListener {
         this.context = context;
         this.nonBlocking = nonBlocking;
         this.executionWaitSem = new Semaphore(0);
-        this.bTracer = initActiveTraceContext();
+        this.bTracer = initActiveBTracer();
     }
 
-    private BTracer initActiveTraceContext() {
+    private BTracer initActiveBTracer() {
         BTracer root = context.getRootBTracer();
         BTracer active = new BTracer(context, true);
         if (root == null) {
