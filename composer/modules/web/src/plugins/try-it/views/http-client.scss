@@ -349,7 +349,6 @@
     }
 }
 
-
 .http-client-response {
     padding-left: 20px;
     margin-top: 15px;
@@ -417,7 +416,6 @@
         width: 340px;
     }
 }
-
 
 .header-content {
     white-space: pre-wrap;
@@ -494,17 +492,16 @@ hr{
 
 .try-it-message {
     background: #333;
-    > .message-warning, p{
+    .message-warning, p{
         color: #f0ad4e;
     }
-    > .message-warning, .icon{
+    .message-warning, .icon{
         margin-top: 0;
         margin-right: 10px;
         line-height: 12px;
         font-size: 13px;
     }
 }
-
 
 .response-header-input{
     margin-left: 5px;

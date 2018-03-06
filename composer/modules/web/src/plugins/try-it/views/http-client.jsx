@@ -736,9 +736,7 @@ class HttpClient extends React.Component {
                                                                 <div
                                                                     className='response-headers'
                                                                 >
-                                                                        <h4>
-                                                                            Response Headers
-                                                                        </h4>
+                                                                    <h4>Response Headers </h4>
                                                                     {this.state.responseHeaders.length > 0 ? (
                                                                         <div>
                                                                             {
