@@ -43,7 +43,7 @@ public class LogError extends AbstractLogFunction {
                                                     .getCallableUnitInfo().getPackageInfo().getPkgPath();
 
         if (LOG_MANAGER.getPackageLogLevel(pkg).value() <= BLogLevel.ERROR.value()) {
-            getLogger(pkg).error(getStringArgument(ctx, 0));
+            getLogger(pkg).error(getLogMessage(ctx, 0));
         }
         return VOID_RETURN;
     }
