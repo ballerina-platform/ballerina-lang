@@ -7,7 +7,6 @@ import io.opentracing.propagation.Format;
 import io.opentracing.propagation.TextMap;
 import org.ballerinalang.observe.trace.config.ConfigLoader;
 import org.ballerinalang.observe.trace.config.OpenTracingConfig;
-import org.ballerinalang.observe.trace.exception.UnknownSpanContextTypeException;
 import org.ballerinalang.util.tracer.TraceManager;
 
 import java.util.HashMap;
@@ -33,14 +32,6 @@ public class OpenTracerManager implements TraceManager {
         return instance;
     }
 
-    /**
-     * Method to extract span context from a carrier.
-     *
-     * @param format      {@code (Format<TextMap>)} format in which the span context is received.
-     * @param headers     the properties map extracted and used to create span context.
-     * @param serviceName to retrieve the relevant tracer instance.
-     * @return the span context which includes tracer specific spans.
-     */
     @Override
     public Map<String, Object> extract(Object format, Map<String, String> headers, String serviceName) {
         Map<String, Object> spanContext = new HashMap<>();
@@ -51,21 +42,11 @@ public class OpenTracerManager implements TraceManager {
         Map<String, Tracer> tracers = tracerStore.getTracers(serviceName);
         for (Map.Entry<String, Tracer> tracerEntry : tracers.entrySet()) {
             spanContext.put(tracerEntry.getKey(),
-                    tracerEntry.getValue().extract((Format<TextMap>) format,
-                            new RequestExtractor(headers.entrySet().iterator())));
+                    tracerEntry.getValue().extract((Format<TextMap>) format, new RequestExtractor(headers)));
         }
         return spanContext;
     }
 
-    /**
-     * Method to inject a span context to a carrier.
-     *
-     * @param activeSpanMap the spans to be injected to the carrier.
-     * @param format        the format {@code (Format<TextMap>)} in which the span context will be injected to the
-     *                      carrier.
-     * @param serviceName   to retrieve the relevant tracer instance.
-     * @return the carrier with the injected the span context.
-     */
     @Override
     public Map<String, String> inject(Map<String, ?> activeSpanMap, Object format, String serviceName) {
         HashMap<String, String> carrierMap = new HashMap<>();
@@ -102,11 +83,6 @@ public class OpenTracerManager implements TraceManager {
                     spanBuilder = spanBuilder.asChildOf((SpanContext) spanContextEntry.getValue());
                 } else if (spanContextEntry.getValue() instanceof Span) {
                     spanBuilder = spanBuilder.asChildOf((Span) spanContextEntry.getValue());
-                } else {
-                    throw new UnknownSpanContextTypeException("Unknown span context field - " +
-                            spanContextEntry.getValue().getClass()
-                            + "! Open tracing can span can be build only by using "
-                            + SpanContext.class + " or " + Span.class);
                 }
             }
             Span span = spanBuilder.start();

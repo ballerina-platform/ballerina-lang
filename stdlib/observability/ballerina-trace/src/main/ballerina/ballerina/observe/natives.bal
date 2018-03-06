@@ -21,8 +21,9 @@ import ballerina.net.http;
 @Description {value:"Reference types between spans"}
 @Field {value:"CHILDOF: The parent span depends on the child span in some capacity"}
 @Field {value:"FOLLOWSFROM: The parent span do not depend on the result of the child span"}
+@Field {value:"ROOT: Specify this as a root span that has no parent span"}
 public enum ReferenceType {
-    CHILDOF, FOLLOWSFROM
+    CHILDOF, FOLLOWSFROM, ROOT
 }
 
 @Description {value:"Represents a opentracing span in Ballerina"}
@@ -39,10 +40,11 @@ public struct Span {
 @Param {value:"serviceName: The service name of the process"}
 @Param {value:"spanName: The name of the span"}
 @Param {value:"tags: The map of tags to be associated to the span"}
-@Param {value:"reference: childOf, followsFrom"}
-@Param {value:"parentSpanId: The Id of the parent span"}
+@Param {value:"reference: childOf, followsFrom, root"}
+@Param {value:"parentSpanId: The Id of the parent span. If root reference, then parentSpanId will not be used"}
 @Return {value:"The span struct"}
-public function startSpan (string serviceName, string spanName, map tags, ReferenceType reference, string parentSpanId) (Span) {
+public function startSpan (string serviceName, string spanName, map tags, ReferenceType reference,
+                           string parentSpanId) (Span) {
     Span span = {};
     span.spanId = init(serviceName, spanName, tags, reference, parentSpanId);
     span.serviceName = serviceName;
@@ -57,7 +59,8 @@ public function startSpan (string serviceName, string spanName, map tags, Refere
 @Param {value:"reference: childOf, followsFrom"}
 @Param {value:"parentSpanId: The Id of the parent span"}
 @Return {value:"String value of the span id that was generated"}
-native function init (string serviceName, string spanName, map tags, ReferenceType reference, string parentSpanId) (string);
+native function init (string serviceName, string spanName, map tags, ReferenceType reference,
+                      string parentSpanId) (string);
 
 @Description {value:"Finish the span specified by the spanId"}
 @Param {value:"spanId: The ID of the span to be finished"}

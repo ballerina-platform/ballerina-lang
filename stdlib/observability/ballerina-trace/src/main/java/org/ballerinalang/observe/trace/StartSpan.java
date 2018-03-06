@@ -47,7 +47,8 @@ public class StartSpan extends AbstractNativeFunction {
         String spanName = getStringArgument(context, 1);
         BMap tags = (BMap) getRefArgument(context, 0);
         String reference = getRefArgument(context, 1).stringValue();
-        String parentSpanId = getStringArgument(context, 2);
+        String parentSpanId = ReferenceType.valueOf(reference) == ReferenceType.ROOT ?
+                OpenTracerBallerinaWrapper.ROOT_CONTEXT : getStringArgument(context, 2);
 
         long invocationId;
         if (context.getProperties().get(Constants.INVOCATION_ID_PROPERTY) != null) {

@@ -47,7 +47,7 @@ public class ExtractSpanContext extends AbstractNativeFunction {
     public BValue[] execute(Context context) {
 
         BStruct httpRequest = (BStruct) getRefArgument(context, 0);
-        String group =  getStringArgument(context, 0);
+        String group = getStringArgument(context, 0);
 
         HTTPCarbonMessage carbonMessage = HttpUtil.getCarbonMsg(httpRequest, null);
         Iterator<Map.Entry<String, String>> entryIterator = carbonMessage.getHeaders().iteratorAsString();

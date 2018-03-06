@@ -33,6 +33,17 @@ public class OpenTracerFactory {
         return instance;
     }
 
+    /**
+     * Method that instantiates and returns an instance of {@link OpenTracer} extensions.
+     * @param tracerConfig the configurations that contain the class name of the extension
+     * @param serviceName the name to be given to the tracer
+     * @return an instance of {@link OpenTracer}
+     *
+     * @throws IllegalAccessException thrown if the class or its nullary constructor is not accessible
+     * @throws InstantiationException thrown if class can not be instantiated
+     * @throws ClassNotFoundException thrown when class of the given name is not found
+     * @throws InvalidConfigurationException thrown if the configurations are invalid
+     */
     public Tracer getTracer(TracerConfig tracerConfig, String serviceName) throws IllegalAccessException,
             InstantiationException, ClassNotFoundException, InvalidConfigurationException {
 
