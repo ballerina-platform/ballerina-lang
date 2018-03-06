@@ -24,21 +24,17 @@ import static org.ballerinalang.net.grpc.builder.BalGenConstants.NEW_LINE_CHARAC
  */
 public class ConnectorBuilder {
     private String actionList;
-    private String packageName;
     private String connectorName;
     private String stubType;
     
-    public ConnectorBuilder(String actionList, String packageName, String connectorName, String stubType) {
+    public ConnectorBuilder(String actionList, String connectorName, String stubType) {
         this.actionList = actionList;
-        this.packageName = packageName;
         this.connectorName = connectorName;
         this.stubType = stubType;
     }
     
     public String build() {
-        String str = "package %s;" + NEW_LINE_CHARACTER +
-                "import ballerina.net.grpc;" + NEW_LINE_CHARACTER +
-                NEW_LINE_CHARACTER +
+        String str =
                 "public connector %s(string host, int port){" + NEW_LINE_CHARACTER +
                 " endpoint<grpc:GRPCConnector> ep {" + NEW_LINE_CHARACTER +
                 "        create grpc:GRPCConnector(host, port, \"%s\", descriptorKey, descriptorMap);"
@@ -48,6 +44,6 @@ public class ConnectorBuilder {
                 "%s" +
                 NEW_LINE_CHARACTER +
                 "}" + NEW_LINE_CHARACTER;
-        return String.format(str, packageName, connectorName, stubType, actionList);
+        return String.format(str, connectorName, stubType, actionList);
     }
 }

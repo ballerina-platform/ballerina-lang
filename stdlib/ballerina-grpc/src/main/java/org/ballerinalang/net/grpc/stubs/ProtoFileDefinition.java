@@ -24,23 +24,24 @@ import com.google.protobuf.InvalidProtocolBufferException;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Arrays;
 import java.util.List;
 
 /**
  * This class contains proto descriptors of the service.
  */
 public final class ProtoFileDefinition {
-
+    
     private byte[] rootDescriptorData;
     private List<byte[]> dependentDescriptorData;
     private Descriptors.FileDescriptor fileDescriptor;
-
-    public ProtoFileDefinition(byte[] descriptorData, List<byte[]> depDescriptorData) {
-        rootDescriptorData = descriptorData;
+    
+    public ProtoFileDefinition(List<byte[]> depDescriptorData) {
         dependentDescriptorData = depDescriptorData;
     }
-
-    /**.
+    
+    /**
+     * .
      * Returns file descriptor of the gRPC service.
      *
      * @return file descriptor of the service.
@@ -55,13 +56,14 @@ public final class ProtoFileDefinition {
             try {
                 DescriptorProtos.FileDescriptorProto fileDescriptorSet = DescriptorProtos.FileDescriptorProto
                         .parseFrom(dis);
-                depSet[i] = Descriptors.FileDescriptor.buildFrom(fileDescriptorSet, new Descriptors.FileDescriptor[]{});
+                depSet[i] = Descriptors.FileDescriptor.buildFrom(fileDescriptorSet, new Descriptors
+                        .FileDescriptor[] {});
                 i++;
             } catch (InvalidProtocolBufferException | Descriptors.DescriptorValidationException e) {
-                throw new RuntimeException("Error while gen erating depend descriptors. ", e);
+                throw new RuntimeException("Error while gen extracting depend descriptors. ", e);
             }
         }
-
+        
         try (InputStream targetStream = new ByteArrayInputStream(rootDescriptorData)) {
             DescriptorProtos.FileDescriptorProto descriptorProto = DescriptorProtos.FileDescriptorProto.parseFrom
                     (targetStream);
@@ -70,5 +72,9 @@ public final class ProtoFileDefinition {
             throw new RuntimeException("Error while generating service descriptor : ", e);
         }
     }
-
+    
+    public void setRootDescriptorData(byte[] rootDescriptorData) {
+        this.rootDescriptorData = new byte[rootDescriptorData.length];
+        this.rootDescriptorData = Arrays.copyOf(rootDescriptorData, rootDescriptorData.length);
+    }
 }

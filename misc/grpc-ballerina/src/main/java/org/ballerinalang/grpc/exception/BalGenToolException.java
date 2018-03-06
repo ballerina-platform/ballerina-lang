@@ -15,7 +15,7 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.wso2.ballerinalang.grpc.tool.exception;
+package org.ballerinalang.net.grpc.exception;
 
 /**
  * Thrown to indicate that the requested field type is not supported.

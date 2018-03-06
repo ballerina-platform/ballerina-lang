@@ -62,22 +62,25 @@ public class NonBlockingExecute extends AbstractExecute {
     public ConnectorFuture execute(Context context) {
         BConnector bConnector = (BConnector) getRefArgument(context, 0);
         if (bConnector == null) {
-            return notifyErrorReply(context, "Error while getting connector. gRPC Client connector is not " +
-                    "initialized properly");
+            return notifyErrorReply(context, "Error while getting connector. gRPC Client connector is " +
+                    "not initialized properly");
         }
 
         Object connectionStub = bConnector.getnativeData("stub");
         if (connectionStub == null) {
-            return notifyErrorReply(context, "Error while getting connection stub. gRPC Client connector is not " +
-                    "initialized properly");
+            return notifyErrorReply(context, "Error while getting connection stub. gRPC Client connector " +
+                    "is not initialized properly");
         }
         String methodName = getStringArgument(context, 0);
         if (methodName == null) {
-            return notifyErrorReply(context, "Error while processing the request. RPC endpoint doesn't set properly");
+            return notifyErrorReply(context, "Error while processing the request. RPC endpoint doesn't " +
+                    "set properly");
         }
         com.google.protobuf.Descriptors.MethodDescriptor methodDescriptor = MessageRegistry.getInstance()
                 .getMethodDescriptor(methodName);
-
+        if (methodDescriptor == null) {
+            return notifyErrorReply(context, "No registered method descriptor for '" + methodName + "'");
+        }
         if (connectionStub instanceof GrpcNonBlockingStub) {
             BValue payloadBValue = getRefArgument(context, 1);
             Message requestMsg = MessageUtil.generateProtoMessage(payloadBValue, methodDescriptor.getInputType());
@@ -100,8 +103,8 @@ public class NonBlockingExecute extends AbstractExecute {
                 return notifyErrorReply(context, "gRPC Client Connector Error :" + e.getMessage());
             }
         }
-        return notifyErrorReply(context, "Error while processing the request message. Connection Sub type not " +
-                "supported");
+        return notifyErrorReply(context, "Error while processing the request message. Connection Sub " +
+                "type not supported");
     }
 
     @Override

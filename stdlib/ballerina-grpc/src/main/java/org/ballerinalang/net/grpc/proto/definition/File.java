@@ -34,46 +34,48 @@ public class File {
     private List<Message> messageList = new ArrayList<>();
     private List<Service> serviceList = new ArrayList<>();
     private List<String> dependencyList = new ArrayList<>();
-
+    
     private File(DescriptorProtos.FileDescriptorProto fileDescriptorProto) {
         this.fileDescriptorProto = fileDescriptorProto;
     }
-
+    
     void setMessageList(List<Message> messageList) {
         this.messageList = messageList;
     }
-
+    
     void setServiceList(List<Service> serviceList) {
         this.serviceList = serviceList;
     }
-
+    
     void setDependencyList(List<String> dependencyList) {
         this.dependencyList = dependencyList;
     }
-
+    
     public static File.Builder newBuilder(String fileName) {
         return new File.Builder(fileName);
     }
-
+    
     public DescriptorProtos.FileDescriptorProto getFileDescriptorProto() {
         return fileDescriptorProto;
     }
-
+    
     public Descriptors.FileDescriptor getFileDescriptor() throws GrpcServerException {
         try {
-            return Descriptors.FileDescriptor.buildFrom(fileDescriptorProto, new Descriptors.FileDescriptor[]{});
+            return Descriptors.FileDescriptor.buildFrom(fileDescriptorProto, new Descriptors.FileDescriptor[] {});
         } catch (Descriptors.DescriptorValidationException e) {
             throw new GrpcServerException(e);
         }
     }
-
+    
     public String getFileDefinition() {
         StringBuilder fileDefinition = new StringBuilder();
-
+        
         fileDefinition.append("syntax = \"").append(fileDescriptorProto.getSyntax()).append("\";").append
                 (ServiceProtoConstants.NEW_LINE_CHARACTER);
-        fileDefinition.append("package ").append(fileDescriptorProto.getPackage()).append(";").append
-                (ServiceProtoConstants.NEW_LINE_CHARACTER);
+        if (!".".equals(fileDescriptorProto.getPackage())) {
+            fileDefinition.append("package ").append(fileDescriptorProto.getPackage()).append(";").append
+                    (ServiceProtoConstants.NEW_LINE_CHARACTER);
+        }
         for (String dependency : dependencyList) {
             fileDefinition.append("import \"").append(dependency).append("\";").append(ServiceProtoConstants
                     .NEW_LINE_CHARACTER);
@@ -86,12 +88,12 @@ public class File {
         }
         return fileDefinition.toString();
     }
-
+    
     /**
      * FieldDefinition.Builder
      */
     public static class Builder {
-
+        
         public File build() {
             File file = new File(fileBuilder.build());
             file.setMessageList(messageList);
@@ -99,48 +101,48 @@ public class File {
             file.setDependencyList(dependencyList);
             return file;
         }
-
+        
         public Builder setPackage(String packageName) {
             fileBuilder.setPackage(packageName);
             return this;
         }
-
+        
         public Builder setSyntax(String syntax) {
             fileBuilder.setSyntax(syntax);
             return this;
         }
-
+        
         public Builder setService(Service serviceDefinition) {
             fileBuilder.addService(serviceDefinition.getServiceDescriptor());
             serviceList.add(serviceDefinition);
             return this;
         }
-
+        
         public Builder setMessage(Message messageDefinition) {
             fileBuilder.addMessageType(messageDefinition.getDescriptorProto());
             messageList.add(messageDefinition);
             return this;
         }
-
-        public Builder setDependeny (String dependency) {
+        
+        public Builder setDependeny(String dependency) {
             fileBuilder.addDependency(dependency);
             dependencyList.add(dependency);
             return this;
         }
-
+        
         public List<DescriptorProtos.DescriptorProto> getRegisteredMessages() {
             return Collections.unmodifiableList(fileBuilder.getMessageTypeList());
         }
-
+        
         public List<String> getRegisteredDependencies() {
             return Collections.unmodifiableList(fileBuilder.getDependencyList());
         }
-
+        
         private Builder(String fileName) {
             fileBuilder = DescriptorProtos.FileDescriptorProto.newBuilder();
             fileBuilder.setName(fileName);
         }
-
+        
         private DescriptorProtos.FileDescriptorProto.Builder fileBuilder;
         private List<Message> messageList = new ArrayList<>();
         private List<Service> serviceList = new ArrayList<>();

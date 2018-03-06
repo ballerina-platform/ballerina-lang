@@ -45,6 +45,8 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
+import static org.ballerinalang.net.grpc.builder.BalGenConstants.FILE_SEPARATOR;
+
 /**
  * This is the gRPC implementation for the {@code BallerinaServerConnector} API.
  *
@@ -52,24 +54,24 @@ import java.util.Map;
  */
 public class GrpcServicesBuilder {
     private io.grpc.ServerBuilder serverBuilder = null;
-
+    
     void registerService(Service service) throws GrpcServerException {
         Annotation serviceAnnotation = MessageUtils.getServiceConfigAnnotation(service, MessageConstants
                 .PROTOCOL_PACKAGE_GRPC);
         if (serviceAnnotation != null && serviceAnnotation.getAnnAttrValue("port") != null) {
-                     serverBuilder = NettyServerBuilder.forPort((int) serviceAnnotation.getAnnAttrValue("port")
-                             .getIntValue())
-                                       .bossEventLoopGroup(new NioEventLoopGroup(Runtime.getRuntime()
-                                               .availableProcessors()))
-                                       .workerEventLoopGroup(new NioEventLoopGroup(Runtime.getRuntime()
-                                               .availableProcessors() * 2));
-                 } else {
-                       serverBuilder = NettyServerBuilder.forPort(9090)
-                                        .bossEventLoopGroup(new NioEventLoopGroup(Runtime.getRuntime()
-                                                .availableProcessors()))
-                                      .workerEventLoopGroup(new NioEventLoopGroup(Runtime.getRuntime()
-                                              .availableProcessors() * 2));
-                   }
+            serverBuilder = NettyServerBuilder.forPort((int)
+                    serviceAnnotation.getAnnAttrValue("port").getIntValue())
+                    .bossEventLoopGroup(new NioEventLoopGroup(Runtime.getRuntime()
+                            .availableProcessors()))
+                    .workerEventLoopGroup(new NioEventLoopGroup(Runtime.getRuntime()
+                            .availableProcessors() * 2));
+        } else {
+            serverBuilder = NettyServerBuilder.forPort(9090)
+                    .bossEventLoopGroup(new NioEventLoopGroup(Runtime.getRuntime()
+                            .availableProcessors()))
+                    .workerEventLoopGroup(new NioEventLoopGroup(Runtime.getRuntime()
+                            .availableProcessors() * 2));
+        }
         try {
             serverBuilder.addService(ServerInterceptors.intercept(getServiceDefinition(service), new
                     ServerHeaderInterceptor()));
@@ -77,12 +79,12 @@ public class GrpcServicesBuilder {
             throw new GrpcServerException("Error while registering the service : " + service.getName(), e);
         }
     }
-
+    
     private ServerServiceDefinition getServiceDefinition(Service service) throws Descriptors
             .DescriptorValidationException, GrpcServerException {
         Descriptors.FileDescriptor fileDescriptor = ServiceProtoUtils.getDescriptor(service);
         Descriptors.ServiceDescriptor serviceDescriptor = fileDescriptor.findServiceByName(service.getName());
-
+        
         Annotation serviceAnnotation = MessageUtils.getServiceConfigAnnotation(service, MessageConstants
                 .PROTOCOL_PACKAGE_GRPC);
         if (isStreamService(serviceAnnotation)) {
@@ -91,7 +93,7 @@ public class GrpcServicesBuilder {
             return getUnaryServiceDefinition(service, serviceDescriptor);
         }
     }
-
+    
     private boolean isStreamService(Annotation serviceAnnotation) {
         if (serviceAnnotation == null) {
             return false;
@@ -99,38 +101,43 @@ public class GrpcServicesBuilder {
         AnnAttrValue clientStreamValue = serviceAnnotation.getAnnAttrValue("clientStreaming");
         return clientStreamValue != null && clientStreamValue.getBooleanValue();
     }
-
+    
     private ServerServiceDefinition getUnaryServiceDefinition(Service service, Descriptors.ServiceDescriptor
             serviceDescriptor) throws GrpcServerException {
         // Generate full service name for the service definition. <package>.<service>
-        final String serviceName = service.getPackage() + ServiceProtoConstants.CLASSPATH_SYMBOL + service.getName();
+        final String serviceName;
+        if (!".".equals(service.getPackage())) {
+            serviceName = service.getPackage() + ServiceProtoConstants.CLASSPATH_SYMBOL + service.getName();
+        } else {
+            serviceName = service.getName();
+        }
         // Server Definition Builder for the service.
         Builder serviceDefBuilder = ServerServiceDefinition.builder(serviceName);
-
+        
         for (Resource resource : service.getResources()) {
             // Method name format: <service_name>/<method_name>
-            final String methodName = serviceName + '/' + resource.getName();
-
+            final String methodName = serviceName + FILE_SEPARATOR + resource.getName();
+            
             Descriptors.MethodDescriptor methodDescriptor = getMethodDescriptor(serviceDescriptor, resource.getName());
             if (methodDescriptor == null) {
                 continue;
             }
-
+            
             Descriptors.Descriptor requestDescriptor = serviceDescriptor.findMethodByName(resource.getName())
                     .getInputType();
             Descriptors.Descriptor responseDescriptor = serviceDescriptor.findMethodByName(resource.getName())
                     .getOutputType();
             MessageRegistry.getInstance().addMessageDescriptor(requestDescriptor.getName(), requestDescriptor);
             MessageRegistry.getInstance().addMessageDescriptor(responseDescriptor.getName(), responseDescriptor);
-
+            
             MethodDescriptor.Marshaller<Message> reqMarshaller = ProtoUtils.marshaller((Message) Message.newBuilder
                     (requestDescriptor.getName()).build());
             MethodDescriptor.Marshaller<Message> resMarshaller = ProtoUtils.marshaller((Message) Message.newBuilder
                     (responseDescriptor.getName()).build());
-
+            
             MethodDescriptor.MethodType methodType;
             ServerCallHandler<Message, Message> serverCallHandler;
-
+            
             if (methodDescriptor.toProto().getServerStreaming()) {
                 methodType = MethodDescriptor.MethodType.SERVER_STREAMING;
                 serverCallHandler = ServerCalls.asyncServerStreamingCall(new ServerStreamingListener
@@ -140,7 +147,7 @@ public class GrpcServicesBuilder {
                 serverCallHandler = ServerCalls.asyncUnaryCall(new UnaryMethodListener(methodDescriptor,
                         resource));
             }
-
+            
             MethodDescriptor.Builder<Message, Message> methodBuilder = MethodDescriptor.newBuilder();
             MethodDescriptor<Message, Message> grpcMethodDescriptor = methodBuilder.setType(methodType)
                     .setFullMethodName(methodName)
@@ -151,39 +158,39 @@ public class GrpcServicesBuilder {
         }
         return serviceDefBuilder.build();
     }
-
+    
     private ServerServiceDefinition getStreamingServiceDefinition(Service service, Descriptors.ServiceDescriptor
             serviceDescriptor) throws GrpcServerException {
         // Generate full service name for the service definition. <package>.<service>
         final String serviceName = service.getPackage() + ServiceProtoConstants.CLASSPATH_SYMBOL + service.getName();
         // Server Definition Builder for the service.
         Builder serviceDefBuilder = ServerServiceDefinition.builder(serviceName);
-
+        
         // In streaming service, method should be always one.
         if (serviceDescriptor.getMethods().size() != 1) {
             throw new GrpcServerException("Invalid resource count in streaming server. Resource count should be one, " +
                     " no of resources: " + serviceDescriptor.getMethods().size());
         }
-
+        
         Descriptors.MethodDescriptor methodDescriptor = serviceDescriptor.getMethods().get(0);
-        final String methodName = serviceName + '/' + methodDescriptor.getName();
+        final String methodName = serviceName + FILE_SEPARATOR + methodDescriptor.getName();
         Descriptors.Descriptor requestDescriptor = serviceDescriptor.findMethodByName(methodDescriptor.getName())
                 .getInputType();
         Descriptors.Descriptor responseDescriptor = serviceDescriptor.findMethodByName(methodDescriptor.getName())
                 .getOutputType();
         MessageRegistry.getInstance().addMessageDescriptor(requestDescriptor.getName(), requestDescriptor);
         MessageRegistry.getInstance().addMessageDescriptor(responseDescriptor.getName(), responseDescriptor);
-
+        
         MethodDescriptor.Marshaller<Message> reqMarshaller = ProtoUtils.marshaller((Message) Message.newBuilder
                 (requestDescriptor.getName()).build());
         MethodDescriptor.Marshaller<Message> resMarshaller = ProtoUtils.marshaller((Message) Message.newBuilder
                 (responseDescriptor.getName()).build());
-
+        
         Map<String, Resource> resourceMap = new HashMap<>();
-        for (Resource resource: service.getResources()) {
+        for (Resource resource : service.getResources()) {
             resourceMap.put(resource.getName(), resource);
         }
-
+        
         MethodDescriptor.MethodType methodType;
         ServerCallHandler<Message, Message> serverCallHandler;
         if (methodDescriptor.toProto().getServerStreaming() && methodDescriptor.toProto().getClientStreaming()) {
@@ -195,7 +202,7 @@ public class GrpcServicesBuilder {
             serverCallHandler = ServerCalls.asyncClientStreamingCall(new ClientStreamingListener
                     (methodDescriptor, resourceMap));
         }
-
+        
         MethodDescriptor.Builder<Message, Message> methodBuilder = MethodDescriptor.newBuilder();
         MethodDescriptor<Message, Message> grpcMethodDescriptor = methodBuilder.setType(methodType)
                 .setFullMethodName(methodName)
@@ -203,43 +210,48 @@ public class GrpcServicesBuilder {
                 .setResponseMarshaller(resMarshaller)
                 .setSchemaDescriptor(methodDescriptor).build();
         serviceDefBuilder.addMethod(grpcMethodDescriptor, serverCallHandler);
-
+        
         return serviceDefBuilder.build();
     }
-
+    
     private Descriptors.MethodDescriptor getMethodDescriptor(Descriptors.ServiceDescriptor serviceDescriptor,
                                                              String resourceName) {
         for (Descriptors.MethodDescriptor methodDescriptor : serviceDescriptor.getMethods()) {
             if (methodDescriptor == null || methodDescriptor.getName() == null) {
                 continue;
             }
-
+            
             if (methodDescriptor.getName().equals(resourceName)) {
                 return methodDescriptor;
             }
         }
         return null;
     }
-
+    
     /**
      * Start this gRPC server. This will startup all the gRPC services.
+     *
      * @throws GrpcServerException exception when there is an error in starting the server.
      */
     public Server start() throws GrpcServerException {
-        Server server = serverBuilder.build();
-        if (server != null) {
-            try {
-                server.start();
-                Runtime.getRuntime().addShutdownHook(new Thread(() -> stop(server)));
-            } catch (IOException e) {
-                throw new GrpcServerException("Error while starting gRPC server", e);
+        if (serverBuilder != null) { //if no grpc service is not defined
+            Server server = serverBuilder.build();
+            if (server != null) {
+                try {
+                    server.start();
+                    Runtime.getRuntime().addShutdownHook(new Thread(() -> stop(server)));
+                } catch (IOException e) {
+                    throw new GrpcServerException("Error while starting gRPC server", e);
+                }
+            } else {
+                throw new GrpcServerException("No gRPC service is registered to start" +
+                        ". You need to register the service");
             }
-        } else {
-            throw new GrpcServerException("No gRPC service is registered to start. You need to register the service");
+            return server;
         }
-        return server;
+        return null;
     }
-
+    
     /**
      * Shutdown grpc server.
      */
@@ -248,7 +260,7 @@ public class GrpcServicesBuilder {
             server.shutdown();
         }
     }
-
+    
     /**
      * Await termination on the main thread since the grpc library uses daemon threads.
      */

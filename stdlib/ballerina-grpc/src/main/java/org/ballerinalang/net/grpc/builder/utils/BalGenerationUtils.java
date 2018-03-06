@@ -24,11 +24,8 @@ import java.io.FileNotFoundException;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
-
-import static org.ballerinalang.net.grpc.builder.BalGenConstants.HEX_ARRAY;
 
 /**
  * Util functions which are use when generating . bal stub
@@ -47,8 +44,8 @@ public class BalGenerationUtils {
         char[] hexChars = new char[data.length * 2];
         for (int j = 0; j < data.length; j++) {
             int v = data[j] & 0xFF;
-            hexChars[j * 2] = HEX_ARRAY[v >>> 4];
-            hexChars[j * 2 + 1] = HEX_ARRAY[v & 0x0F];
+            hexChars[j * 2] = "0123456789ABCDEF".toCharArray()[v >>> 4];
+            hexChars[j * 2 + 1] = "0123456789ABCDEF".toCharArray()[v & 0x0F];
         }
         return new String(hexChars);
     }
@@ -115,10 +112,9 @@ public class BalGenerationUtils {
      * @throws FileNotFoundException
      * @throws UnsupportedEncodingException
      */
-    public static void writeFile(String payload, String fileName, Path balOutPath) throws FileNotFoundException,
+    public static void writeFile(String payload, Path balOutPath) throws FileNotFoundException,
             UnsupportedEncodingException {
-        Path path = Paths.get(balOutPath.toString(), fileName);
-        PrintWriter writer = new PrintWriter(path.toFile(), "UTF-8");
+        PrintWriter writer = new PrintWriter(balOutPath.toFile(), "UTF-8");
         writer.print(payload);
         writer.close();
     }

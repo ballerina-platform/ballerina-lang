@@ -15,12 +15,13 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.wso2.ballerinalang.grpc.tool.cmd;
+package org.ballerinalang.net.grpc.cmd;
 
 import java.util.Locale;
 
 /**
  *Class for detecting the system operating system version and type.
+ * Ref : https://github.com/trustin/os-maven-plugin/blob/master/src/main/java/kr/motd/maven/os/Detector.java
  */
 public abstract class OSDetector {
     

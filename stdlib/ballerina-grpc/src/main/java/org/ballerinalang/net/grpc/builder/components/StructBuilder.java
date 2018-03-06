@@ -17,6 +17,8 @@
  */
 package org.ballerinalang.net.grpc.builder.components;
 
+import java.util.Arrays;
+
 import static org.ballerinalang.net.grpc.builder.BalGenConstants.NEW_LINE_CHARACTER;
 
 /**
@@ -28,11 +30,10 @@ public class StructBuilder {
     private String name;
     private String attributeList;
     
-    public StructBuilder(String[] attributesNameArr, String[] attributesTypeArr, String name) {
-        this.attributesNameArr = attributesNameArr;
-        this.attributesTypeArr = attributesTypeArr;
+    public StructBuilder(String name) {
         this.name = name;
-        
+        this.attributesNameArr = new String[0];
+        this.attributesTypeArr = new String[0];
     }
     
     private void buildAttributes() {
@@ -50,5 +51,15 @@ public class StructBuilder {
                 "struct %s {" +
                 "  %s" + NEW_LINE_CHARACTER +
                 "}" + NEW_LINE_CHARACTER, name, attributeList);
+    }
+    
+    public void setAttributesNameArr(String[] attributesNameArr) {
+        this.attributesNameArr  = new String[attributesNameArr.length];
+        this.attributesNameArr  = Arrays.copyOf(attributesNameArr, attributesNameArr.length);
+    }
+    
+    public void setAttributesTypeArr(String[] attributesTypeArr) {
+        this.attributesTypeArr  = new String[attributesTypeArr.length];
+        this.attributesTypeArr  = Arrays.copyOf(attributesTypeArr, attributesTypeArr.length);
     }
 }

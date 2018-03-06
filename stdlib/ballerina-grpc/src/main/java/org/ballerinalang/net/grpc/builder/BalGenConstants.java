@@ -23,11 +23,27 @@ package org.ballerinalang.net.grpc.builder;
 public class BalGenConstants {
     public static final String NEW_LINE_CHARACTER = System.getProperty("line.separator");
     
-    public static final String FILE_SEPERATOR = System.getProperty("file.separator");
-    
-    public static final int FILE_INDEX = 0;
+    public static final String FILE_SEPARATOR = System.getProperty("file.separator");
     
     static final int SERVICE_INDEX = 0;
     
-    public static final char[] HEX_ARRAY = "0123456789ABCDEF".toCharArray();
+    public static final String BLOCKING_STUB_KEY = "BLOCKING";
+    
+    public static final String NON_BLOCKING_STUB_KEY = "NON-BLOCKING";
+    
+    public static final String DEFAULT_SAMPLE_CONNECTOR_PORT = "8080";
+    
+    public static final String DEFAULT_PACKAGE = "org.ballerinalang.net.grpc";
+    
+    public static final String GRPC_NATIVE_PACKAGE = "ballerina.net.grpc";
+    
+    public static final String STUB_FILE_PRIFIX = ".pb.bal";
+    
+    public static final String SAMPLE_FILE_PRIFIX = ".sample.client.bal";
+    
+    public static final String EMPTY_STRING = "";
+    
+    public static final String PACKAGE_SEPARATOR = ".";
+    
+    public static final String PACKAGE_SEPARATOR_REGEX = "\\.";
 }

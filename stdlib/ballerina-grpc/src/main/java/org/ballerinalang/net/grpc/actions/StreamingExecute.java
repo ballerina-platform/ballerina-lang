@@ -60,22 +60,25 @@ public class StreamingExecute extends AbstractExecute {
     public ConnectorFuture execute(Context context) {
         BConnector bConnector = (BConnector) getRefArgument(context, 0);
         if (bConnector == null) {
-            return notifyErrorReply(context, "Error while getting connector. gRPC Client connector is not " +
-                    "initialized properly");
+            return notifyErrorReply(context, "Error while getting connector. gRPC Client connector " +
+                    "is not initialized properly");
         }
 
         Object connectionStub = bConnector.getnativeData("stub");
         if (connectionStub == null) {
-            return notifyErrorReply(context, "Error while getting connection stub. gRPC Client connector is not " +
-                    "initialized properly");
+            return notifyErrorReply(context, "Error while getting connection stub. gRPC Client connector " +
+                    "is not initialized properly");
         }
         String methodName = getStringArgument(context, 0);
         if (methodName == null) {
-            return notifyErrorReply(context, "Error while processing the request. RPC endpoint doesn't set properly");
+            return notifyErrorReply(context, "Error while processing the request. RPC endpoint doesn't " +
+                    "set properly");
         }
         com.google.protobuf.Descriptors.MethodDescriptor methodDescriptor = MessageRegistry.getInstance()
                 .getMethodDescriptor(methodName);
-
+        if (methodDescriptor == null) {
+            return notifyErrorReply(context, "No registered method descriptor for '" + methodName + "'");
+        }
         if (connectionStub instanceof GrpcNonBlockingStub) {
             GrpcNonBlockingStub grpcNonBlockingStub = (GrpcNonBlockingStub) connectionStub;
             String listenerService = getStringArgument(context, 1);

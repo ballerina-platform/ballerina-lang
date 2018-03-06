@@ -56,8 +56,7 @@ public final class ClientConnectorFactory {
         registryMethodDescriptorMap(serviceDescriptor);
     }
 
-    private void registryMethodDescriptorMap(Descriptors.ServiceDescriptor serviceDescriptor)
-            throws GrpcClientException {
+    private void registryMethodDescriptorMap(Descriptors.ServiceDescriptor serviceDescriptor) {
         Map<String, MethodDescriptor<Message, Message>> descriptorMap = new HashMap<>();
         for (Descriptors.MethodDescriptor methodDescriptor:  serviceDescriptor.getMethods()) {
             String methodName = methodDescriptor.getName();

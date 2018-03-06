@@ -1,14 +1,33 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<!--
+  ~ Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+  ~
+  ~ WSO2 Inc. licenses this file to you under the Apache License,
+  ~ Version 2.0 (the "License"); you may not use this file except
+  ~ in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~    http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing,
+  ~ software distributed under the License is distributed on an
+  ~ "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+  ~ KIND, either express or implied.  See the License for the
+  ~ specific language governing permissions and limitations
+  ~ under the License.
+  -->
+
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
     <parent>
         <groupId>org.ballerinalang</groupId>
         <artifactId>ballerina-parent</artifactId>
-        <version>0.96.1-SNAPSHOT</version>
+        <version>0.963.1-SNAPSHOT</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
+
     <modelVersion>4.0.0</modelVersion>
-    <groupId>org.ballerinalang</groupId>
-    <artifactId>grpc-ballerina-tool</artifactId>
+    <artifactId>grpc-ballerina</artifactId>
     <packaging>jar</packaging>
     <name>Ballerina - gRPC Tooling - Parent</name>
 
@@ -24,46 +43,8 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>io.swagger</groupId>
-            <artifactId>swagger-codegen</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>io.airlift</groupId>
-            <artifactId>airline</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.googlecode.lambdaj</groupId>
-            <artifactId>lambdaj</artifactId>
-        </dependency>
-        <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-simple</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.yaml</groupId>
-            <artifactId>snakeyaml</artifactId>
-            <version>1.19</version>
-        </dependency>
-        <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-core</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-databind</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-annotations</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.fasterxml.jackson.dataformat</groupId>
-            <artifactId>jackson-dataformat-yaml</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.testng</groupId>
-            <artifactId>testng</artifactId>
-            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>
@@ -76,10 +57,6 @@
             </exclusions>
         </dependency>
         <dependency>
-            <groupId>com.beust</groupId>
-            <artifactId>jcommander</artifactId>
-        </dependency>
-        <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>
         </dependency>
@@ -88,12 +65,30 @@
             <artifactId>protobuf-java</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.google.code.gson</groupId>
-            <artifactId>gson</artifactId>
+            <groupId>org.ballerinalang</groupId>
+            <artifactId>ballerina-grpc</artifactId>
         </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>
-            <artifactId>ballerina-grpc</artifactId>
+            <artifactId>ballerina-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.ballerinalang</groupId>
+            <artifactId>ballerina-builtin</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.ballerinalang</groupId>
+            <artifactId>ballerina-lang</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.ballerinalang</groupId>
+            <artifactId>ballerina-http</artifactId>
+        </dependency>
+        <!-- Dependencies for unit tests -->
+        <dependency>
+            <groupId>org.testng</groupId>
+            <artifactId>testng</artifactId>
+            <scope>test</scope>
         </dependency>
     </dependencies>
     <build>
@@ -101,9 +96,6 @@
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>findbugs-maven-plugin</artifactId>
-                <configuration>
-                    <onlyAnalyze>org.wso2.ballerinalang.grpc.tool.Test</onlyAnalyze>
-                </configuration>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -111,90 +103,9 @@
                 <configuration>
                     <archive>
                         <manifest>
-                            <mainClass>org.ballerinalang.swagger.code.generator.SwaggerCodegen</mainClass>
+                            <mainClass>org.ballerinalang.net.grpc.cmd.GrpcCmd</mainClass>
                         </manifest>
                     </archive>
-                </configuration>
-            </plugin>
-
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-shade-plugin</artifactId>
-                <version>3.0.0</version>
-                <executions>
-                    <execution>
-                        <!--<id>process-resources</id>-->
-                        <phase>package</phase>
-                        <goals>
-                            <goal>shade</goal>
-                        </goals>
-                        <configuration>
-                            <minimizeJar>false</minimizeJar>
-                            <createDependencyReducedPom>true</createDependencyReducedPom>
-                            <dependencyReducedPomLocation>
-                                ${java.io.tmpdir}/dependency-reduced-pom.xml
-                            </dependencyReducedPomLocation>
-                            <artifactSet>
-                                <excludes>
-                                    <exclude>org.wso2.orbit.org.antlr:antlr4-runtime</exclude>
-                                    <exclude>org.apache.james:apache-mime4j-core</exclude>
-                                    <exclude>org.apache.ws.commons.axiom:axiom-api</exclude>
-                                    <exclude>org.apache.ws.commons.axiom:axiom-impl</exclude>
-                                    <exclude>org.ballerinalang:annotation-processor</exclude>
-                                    <exclude>org.ballerinalang:ballerina-core</exclude>
-                                    <exclude>org.ballerinalang:ballerina-native</exclude>
-                                    <exclude>org.ballerinalang:ballerina-launcher</exclude>
-                                    <exclude>commons-logging:commons-logging</exclude>
-                                    <exclude>org.apache.commons:commons-lang3</exclude>
-                                    <exclude>commons-pool.wso2:commons-pool</exclude>
-                                    <exclude>org.apache.geronimo.specs:geronimo-activation_1.1_spec</exclude>
-                                    <exclude>org.apache.geronimo.specs:geronimo-stax-api_1.0_spec</exclude>
-                                    <exclude>com.fasterxml.jackson.core:*</exclude>
-                                    <exclude>javax.websocket:javax.websocket-api</exclude>
-                                    <exclude>jaxen:jaxen</exclude>
-                                    <exclude>com.beust:jcommander</exclude>
-                                    <exclude>com.jayway.jsonpath:json-path</exclude>
-                                    <exclude>io.netty:*</exclude>
-                                    <exclude>org.wso2.carbon:*</exclude>
-                                    <exclude>org.wso2.orbit.net.sf.saxon:Saxon-HE</exclude>
-                                    <exclude>org.slf4j:*</exclude>
-                                    <exclude>org.wso2.orbit.org.yaml:snakeyaml</exclude>
-                                    <exclude>org.wso2.staxon:staxon-core</exclude>
-                                    <exclude>org.wso2.orbit.org.apache.tapestry:tapestry-json</exclude>
-                                    <exclude>org.wso2.eclipse.osgi:*</exclude>
-                                    <exclude>org.wso2.eclipse.equinox:*</exclude>
-                                    <exclude>org.osgi:*</exclude>
-                                    <exclude>org.apache.felix:*</exclude>
-                                    <exclude>xmlpull:xmlpull</exclude>
-                                    <exclude>com.google.code.findbugs:jsr305</exclude>
-                                    <exclude>net.minidev:accessors-smart</exclude>
-                                    <exclude>org.wso2.carbon.transport:*</exclude>
-                                    <exclude>org.wso2.carbon.messaging:*</exclude>
-                                </excludes>
-                            </artifactSet>
-                            <filters>
-                            <filter>
-                                <artifact>*:*</artifact>
-                                <excludes>
-                                    <exclude>META-INF/*.SF</exclude>
-                                    <exclude>META-INF/*.DSA</exclude>
-                                    <exclude>META-INF/*.RSA</exclude>
-                                </excludes>
-                            </filter>
-                            </filters>
-                            <transformers>
-                                <transformer implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer" />
-                            </transformers>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-surefire-plugin</artifactId>
-                <version>2.19.1</version>
-                <configuration>
-                    <useSystemClassLoader>false</useSystemClassLoader>
                 </configuration>
             </plugin>
             <plugin>
