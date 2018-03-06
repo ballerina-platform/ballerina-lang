@@ -156,6 +156,8 @@ public class Desugar extends BLangNodeVisitor {
 
     public Stack<BLangLock> enclLocks = new Stack<>();
 
+    private SymbolEnv env;
+
     public static Desugar getInstance(CompilerContext context) {
         Desugar desugar = context.get(DESUGAR_KEY);
         if (desugar == null) {
@@ -176,7 +178,7 @@ public class Desugar extends BLangNodeVisitor {
     }
 
     public BLangPackage perform(BLangPackage pkgNode) {
-        return rewrite(pkgNode);
+        return rewrite(pkgNode, env);
     }
 
     // visitors
@@ -187,16 +189,18 @@ public class Desugar extends BLangNodeVisitor {
             result = pkgNode;
             return;
         }
-        pkgNode.imports = rewrite(pkgNode.imports);
-        pkgNode.xmlnsList = rewrite(pkgNode.xmlnsList);
-        pkgNode.globalVars = rewrite(pkgNode.globalVars);
-        pkgNode.functions = rewrite(pkgNode.functions);
-        pkgNode.connectors = rewrite(pkgNode.connectors);
-        pkgNode.services = rewrite(pkgNode.services);
-        pkgNode.transformers = rewrite(pkgNode.transformers);
+        SymbolEnv env = symbolEnter.packageEnvs.get(pkgNode.symbol);
+
+        pkgNode.imports = rewrite(pkgNode.imports, env);
+        pkgNode.xmlnsList = rewrite(pkgNode.xmlnsList, env);
+        pkgNode.globalVars = rewrite(pkgNode.globalVars, env);
+        pkgNode.functions = rewrite(pkgNode.functions, env);
+        pkgNode.connectors = rewrite(pkgNode.connectors, env);
+        pkgNode.services = rewrite(pkgNode.services, env);
+        pkgNode.transformers = rewrite(pkgNode.transformers, env);
 
         annotationDesugar.rewritePackageAnnotations(pkgNode);
-        pkgNode.initFunction = rewrite(pkgNode.initFunction);
+        pkgNode.initFunction = rewrite(pkgNode.initFunction, env);
         pkgNode.completedPhases.add(CompilerPhase.DESUGAR);
         result = pkgNode;
     }
@@ -205,15 +209,16 @@ public class Desugar extends BLangNodeVisitor {
     public void visit(BLangImportPackage importPkgNode) {
         BPackageSymbol pkgSymbol = importPkgNode.symbol;
         SymbolEnv pkgEnv = symbolEnter.packageEnvs.get(pkgSymbol);
-        rewrite(pkgEnv.node);
+        rewrite(pkgEnv.node, pkgEnv);
         result = importPkgNode;
     }
 
     @Override
     public void visit(BLangFunction funcNode) {
+        SymbolEnv fucEnv = SymbolEnv.createFunctionEnv(funcNode, funcNode.symbol.scope, env);
         addReturnIfNotPresent(funcNode);
-        funcNode.body = rewrite(funcNode.body);
-        funcNode.workers = rewrite(funcNode.workers);
+        funcNode.body = rewrite(funcNode.body, fucEnv);
+        funcNode.workers = rewrite(funcNode.workers, fucEnv);
 
         // If the function has a receiver, we rewrite it's parameter list to have
         // the struct variable as the first parameter
@@ -230,35 +235,39 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangService serviceNode) {
-        serviceNode.resources = rewrite(serviceNode.resources);
-        serviceNode.vars = rewrite(serviceNode.vars);
-        serviceNode.initFunction = rewrite(serviceNode.initFunction);
+        SymbolEnv serviceEnv = SymbolEnv.createServiceEnv(serviceNode, serviceNode.symbol.scope, env);
+        serviceNode.resources = rewrite(serviceNode.resources, serviceEnv);
+        serviceNode.vars = rewrite(serviceNode.vars, serviceEnv);
+        serviceNode.initFunction = rewrite(serviceNode.initFunction, serviceEnv);
         result = serviceNode;
     }
 
     @Override
     public void visit(BLangResource resourceNode) {
         addReturnIfNotPresent(resourceNode);
-        resourceNode.body = rewrite(resourceNode.body);
-        resourceNode.workers = rewrite(resourceNode.workers);
+        SymbolEnv resourceEnv = SymbolEnv.createResourceActionSymbolEnv(resourceNode, resourceNode.symbol.scope, env);
+        resourceNode.body = rewrite(resourceNode.body, resourceEnv);
+        resourceNode.workers = rewrite(resourceNode.workers, resourceEnv);
         result = resourceNode;
     }
 
     @Override
     public void visit(BLangConnector connectorNode) {
-        connectorNode.params = rewrite(connectorNode.params);
-        connectorNode.actions = rewrite(connectorNode.actions);
-        connectorNode.varDefs = rewrite(connectorNode.varDefs);
-        connectorNode.initFunction = rewrite(connectorNode.initFunction);
-        connectorNode.initAction = rewrite(connectorNode.initAction);
+        SymbolEnv conEnv = SymbolEnv.createConnectorEnv(connectorNode, connectorNode.symbol.scope, env);
+        connectorNode.params = rewrite(connectorNode.params, conEnv);
+        connectorNode.actions = rewrite(connectorNode.actions, conEnv);
+        connectorNode.varDefs = rewrite(connectorNode.varDefs, conEnv);
+        connectorNode.initFunction = rewrite(connectorNode.initFunction, conEnv);
+        connectorNode.initAction = rewrite(connectorNode.initAction, conEnv);
         result = connectorNode;
     }
 
     @Override
     public void visit(BLangAction actionNode) {
         addReturnIfNotPresent(actionNode);
-        actionNode.body = rewrite(actionNode.body);
-        actionNode.workers = rewrite(actionNode.workers);
+        SymbolEnv actionEnv = SymbolEnv.createResourceActionSymbolEnv(actionNode, actionNode.symbol.scope, env);
+        actionNode.body = rewrite(actionNode.body, actionEnv);
+        actionNode.workers = rewrite(actionNode.workers, actionEnv);
 
         // we rewrite it's parameter list to have the receiver variable as the first parameter
         BInvokableSymbol actionSymbol = actionNode.symbol;
@@ -275,7 +284,7 @@ public class Desugar extends BLangNodeVisitor {
     @Override
     public void visit(BLangWorker workerNode) {
         this.workerStack.push(workerNode);
-        workerNode.body = rewrite(workerNode.body);
+        workerNode.body = rewrite(workerNode.body, env);
         this.workerStack.pop();
         result = workerNode;
     }
@@ -296,7 +305,8 @@ public class Desugar extends BLangNodeVisitor {
 
     public void visit(BLangTransformer transformerNode) {
         addTransformerReturn(transformerNode);
-        transformerNode.body = rewrite(transformerNode.body);
+        SymbolEnv tranEnv = SymbolEnv.createTransformerEnv(transformerNode, transformerNode.symbol.scope, env);
+        transformerNode.body = rewrite(transformerNode.body, tranEnv);
 
         addArgInitExpr(transformerNode, transformerNode.retParams.get(0));
 
@@ -313,13 +323,14 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangBlockStmt block) {
-        block.stmts = rewriteStmt(block.stmts);
+        SymbolEnv blockEnv = SymbolEnv.createBlockEnv(block, env);
+        block.stmts = rewriteStmt(block.stmts, blockEnv);
         result = block;
     }
 
     @Override
     public void visit(BLangVariableDef varDefNode) {
-        varDefNode.var = rewrite(varDefNode.var);
+        varDefNode.var = rewrite(varDefNode.var, env);
         result = varDefNode;
     }
 
@@ -382,7 +393,7 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangXMLNSStatement xmlnsStmtNode) {
-        xmlnsStmtNode.xmlnsDecl = rewrite(xmlnsStmtNode.xmlnsDecl);
+        xmlnsStmtNode.xmlnsDecl = rewrite(xmlnsStmtNode.xmlnsDecl, env);
         result = xmlnsStmtNode;
     }
 
@@ -415,30 +426,30 @@ public class Desugar extends BLangNodeVisitor {
     @Override
     public void visit(BLangIf ifNode) {
         ifNode.expr = rewriteExpr(ifNode.expr);
-        ifNode.body = rewrite(ifNode.body);
-        ifNode.elseStmt = rewrite(ifNode.elseStmt);
+        ifNode.body = rewrite(ifNode.body, env);
+        ifNode.elseStmt = rewrite(ifNode.elseStmt, env);
         result = ifNode;
     }
 
     @Override
     public void visit(BLangForeach foreach) {
-        foreach.varRefs = rewrite(foreach.varRefs);
+        foreach.varRefs = rewrite(foreach.varRefs, env);
         foreach.collection = rewriteExpr(foreach.collection);
-        foreach.body = rewrite(foreach.body);
+        foreach.body = rewrite(foreach.body, env);
         result = foreach;
     }
 
     @Override
     public void visit(BLangWhile whileNode) {
         whileNode.expr = rewriteExpr(whileNode.expr);
-        whileNode.body = rewrite(whileNode.body);
+        whileNode.body = rewrite(whileNode.body, env);
         result = whileNode;
     }
 
     @Override
     public void visit(BLangLock lockNode) {
         enclLocks.push(lockNode);
-        lockNode.body = rewrite(lockNode.body);
+        lockNode.body = rewrite(lockNode.body, env);
         enclLocks.pop();
         lockNode.lockVariables = lockNode.lockVariables.stream().sorted((v1, v2) -> {
             String o1FullName = String.join(":", v1.pkgID.getName().getValue(), v1.name.getValue());
@@ -450,32 +461,32 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangTransaction transactionNode) {
-        transactionNode.transactionBody = rewrite(transactionNode.transactionBody);
-        transactionNode.failedBody = rewrite(transactionNode.failedBody);
+        transactionNode.transactionBody = rewrite(transactionNode.transactionBody, env);
+        transactionNode.failedBody = rewrite(transactionNode.failedBody, env);
         transactionNode.retryCount = rewriteExpr(transactionNode.retryCount);
         result = transactionNode;
     }
 
     @Override
     public void visit(BLangTryCatchFinally tryNode) {
-        tryNode.tryBody = rewrite(tryNode.tryBody);
-        tryNode.catchBlocks = rewrite(tryNode.catchBlocks);
-        tryNode.finallyBody = rewrite(tryNode.finallyBody);
+        tryNode.tryBody = rewrite(tryNode.tryBody, env);
+        tryNode.catchBlocks = rewrite(tryNode.catchBlocks, env);
+        tryNode.finallyBody = rewrite(tryNode.finallyBody, env);
         result = tryNode;
     }
 
     @Override
     public void visit(BLangCatch catchNode) {
-        catchNode.body = rewrite(catchNode.body);
+        catchNode.body = rewrite(catchNode.body, env);
         result = catchNode;
     }
 
     @Override
     public void visit(BLangForkJoin forkJoin) {
-        forkJoin.workers = rewrite(forkJoin.workers);
-        forkJoin.joinResultVar = rewrite(forkJoin.joinResultVar);
-        forkJoin.joinedBody = rewrite(forkJoin.joinedBody);
-        forkJoin.timeoutBody = rewrite(forkJoin.timeoutBody);
+        forkJoin.workers = rewrite(forkJoin.workers, env);
+        forkJoin.joinResultVar = rewrite(forkJoin.joinResultVar, env);
+        forkJoin.joinedBody = rewrite(forkJoin.joinedBody, env);
+        forkJoin.timeoutBody = rewrite(forkJoin.timeoutBody, env);
         result = forkJoin;
     }
 
@@ -574,7 +585,7 @@ public class Desugar extends BLangNodeVisitor {
             targetVarRef = new BLangEnumeratorAccessExpr(fieldAccessExpr.pos,
                     fieldAccessExpr.field, fieldAccessExpr.symbol);
         } else {
-            fieldAccessExpr.expr = rewrite(fieldAccessExpr.expr);
+            fieldAccessExpr.expr = rewriteExpr(fieldAccessExpr.expr);
             BType varRefType = fieldAccessExpr.expr.type;
             if (varRefType.tag == TypeTags.STRUCT) {
                 targetVarRef = new BLangStructFieldAccessExpr(fieldAccessExpr.pos,
@@ -596,8 +607,8 @@ public class Desugar extends BLangNodeVisitor {
     @Override
     public void visit(BLangIndexBasedAccess indexAccessExpr) {
         BLangVariableReference targetVarRef = indexAccessExpr;
-        indexAccessExpr.indexExpr = rewrite(indexAccessExpr.indexExpr);
-        indexAccessExpr.expr = rewrite(indexAccessExpr.expr);
+        indexAccessExpr.indexExpr = rewriteExpr(indexAccessExpr.indexExpr);
+        indexAccessExpr.expr = rewriteExpr(indexAccessExpr.expr);
         BType varRefType = indexAccessExpr.expr.type;
         if (varRefType.tag == TypeTags.STRUCT) {
             targetVarRef = new BLangStructFieldAccessExpr(indexAccessExpr.pos,
@@ -738,7 +749,7 @@ public class Desugar extends BLangNodeVisitor {
 
         // Named transformer invocation
         if (conversionExpr.transformerInvocation != null) {
-            conversionExpr.transformerInvocation = rewrite(conversionExpr.transformerInvocation);
+            conversionExpr.transformerInvocation = rewriteExpr(conversionExpr.transformerInvocation);
             // Add the rExpr as the first argument
             conversionExpr.transformerInvocation.argExprs.add(0, conversionExpr.expr);
             result = new BLangTransformerInvocation(conversionExpr.pos, conversionExpr.transformerInvocation.argExprs,
@@ -844,8 +855,8 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangXMLAttributeAccess xmlAttributeAccessExpr) {
-        xmlAttributeAccessExpr.indexExpr = rewrite(xmlAttributeAccessExpr.indexExpr);
-        xmlAttributeAccessExpr.expr = rewrite(xmlAttributeAccessExpr.expr);
+        xmlAttributeAccessExpr.indexExpr = rewriteExpr(xmlAttributeAccessExpr.indexExpr);
+        xmlAttributeAccessExpr.expr = rewriteExpr(xmlAttributeAccessExpr.expr);
 
         if (xmlAttributeAccessExpr.indexExpr != null
                 && xmlAttributeAccessExpr.indexExpr.getKind() == NodeKind.XML_QNAME) {
@@ -949,18 +960,23 @@ public class Desugar extends BLangNodeVisitor {
             return;
         }
         iterableCodeDesugar.desugar(iExpr.iContext);
-        result = rewrite(iExpr.iContext.iteratorCaller);
+        result = rewriteExpr(iExpr.iContext.iteratorCaller);
     }
 
     @SuppressWarnings("unchecked")
-    private <E extends BLangNode> E rewrite(E node) {
+    private <E extends BLangNode> E rewrite(E node, SymbolEnv env) {
         if (node == null) {
             return null;
         }
 
+        SymbolEnv previousEnv = this.env;
+        this.env = env;
+
         node.accept(this);
         BLangNode resultNode = this.result;
         this.result = null;
+
+        this.env = previousEnv;
         return (E) resultNode;
     }
 
@@ -983,14 +999,14 @@ public class Desugar extends BLangNodeVisitor {
     }
 
     @SuppressWarnings("unchecked")
-    private <E extends BLangStatement> E rewrite(E statement) {
+    private <E extends BLangStatement> E rewrite(E statement, SymbolEnv env) {
         if (statement == null) {
             return null;
         }
         BLangStatementLink link = new BLangStatementLink();
         link.parent = currentLink;
         currentLink = link;
-        BLangStatement stmt = (BLangStatement) rewrite((BLangNode) statement);
+        BLangStatement stmt = (BLangStatement) rewrite((BLangNode) statement, env);
         // Link Statements.
         link.statement = stmt;
         stmt.statementLink = link;
@@ -998,16 +1014,16 @@ public class Desugar extends BLangNodeVisitor {
         return (E) stmt;
     }
 
-    private <E extends BLangStatement> List<E> rewriteStmt(List<E> nodeList) {
+    private <E extends BLangStatement> List<E> rewriteStmt(List<E> nodeList, SymbolEnv env) {
         for (int i = 0; i < nodeList.size(); i++) {
-            nodeList.set(i, rewrite(nodeList.get(i)));
+            nodeList.set(i, rewrite(nodeList.get(i), env));
         }
         return nodeList;
     }
 
-    private <E extends BLangNode> List<E> rewrite(List<E> nodeList) {
+    private <E extends BLangNode> List<E> rewrite(List<E> nodeList, SymbolEnv env) {
         for (int i = 0; i < nodeList.size(); i++) {
-            nodeList.set(i, rewrite(nodeList.get(i)));
+            nodeList.set(i, rewrite(nodeList.get(i), env));
         }
         return nodeList;
     }
