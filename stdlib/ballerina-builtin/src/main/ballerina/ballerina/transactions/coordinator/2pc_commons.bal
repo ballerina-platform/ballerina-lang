@@ -461,8 +461,10 @@ function abortTransaction (string transactionId, int transactionBlockId) returns
                 e = {message:"Aborting local resource managers failed for transaction:" + participatedTxnId};
                 return;
             }
-            txn.participants.remove(getParticipantId(transactionBlockId));
+            string participantId = getParticipantId(transactionBlockId);
+            txn.participants.remove(participantId);
             participatedTransactions.remove(participatedTxnId);
+            txn.participants.remove(participantId);
             msg, e = abortInitiatorTransaction(transactionId, transactionBlockId);
         } else {
             msg, e = abortInitiatorTransaction(transactionId, transactionBlockId);
