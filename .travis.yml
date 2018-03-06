@@ -14,10 +14,6 @@
 
 language: java
 
-sudo: required
-
-script: mvn clean install
-
 cache:
   directories:
   - $HOME/.m2
