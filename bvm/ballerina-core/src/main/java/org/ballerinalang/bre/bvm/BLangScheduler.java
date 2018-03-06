@@ -74,7 +74,7 @@ public class BLangScheduler {
             return ctx;
         } else {
             ExecutorService executor = ThreadPoolFactory.getInstance().getWorkerExecutor();
-            executor.submit(new WorkerExecutor(ctx, false));
+            executor.submit(new WorkerExecutor(ctx));
             return null;
         }
     }
@@ -85,11 +85,11 @@ public class BLangScheduler {
     
     public static WorkerExecutionContext resume(WorkerExecutionContext ctx, boolean runInCaller) {
         ctx.state = WorkerState.READY;
+        ctx.checkAndRestoreIP();
         if (runInCaller) {
-            ctx.restoreIP();
             return ctx;
         } else {
-            ThreadPoolFactory.getInstance().getWorkerExecutor().submit(new WorkerExecutor(ctx, true));
+            ThreadPoolFactory.getInstance().getWorkerExecutor().submit(new WorkerExecutor(ctx));
             return null;
         }
     }
@@ -179,21 +179,15 @@ public class BLangScheduler {
     private static class WorkerExecutor implements Runnable {
 
         private WorkerExecutionContext ctx;
-        
-        private boolean restoreIP;
-        
-        public WorkerExecutor(WorkerExecutionContext ctx, boolean restoreIP) {
+
+        public WorkerExecutor(WorkerExecutionContext ctx) {
             this.ctx = ctx;
-            this.restoreIP = restoreIP;
         }
         
         @Override
         public void run() {
             try {
                 this.ctx.lockExecution();
-                if (this.restoreIP) {
-                    ctx.restoreIP();
-                }
                 this.ctx.state = WorkerState.RUNNING;
                 CPU.exec(this.ctx);
             } catch (Throwable e) {

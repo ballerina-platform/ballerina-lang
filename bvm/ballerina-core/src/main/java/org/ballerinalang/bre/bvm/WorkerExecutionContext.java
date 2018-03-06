@@ -155,8 +155,10 @@ public class WorkerExecutionContext {
         this.backupIP = this.ip;
     }
     
-    public void restoreIP() {
-        this.ip = this.backupIP;
+    public void checkAndRestoreIP() {
+        if (this.ip < 0) {
+            this.ip = this.backupIP;
+        }
     }
     
     public void setError(BStruct error) {

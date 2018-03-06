@@ -2858,10 +2858,10 @@ public class CPU {
                 nativeFunction.execute(ctx, callback);
             }
         } catch (BLangNullReferenceException e) {
-            handleNativeInvocationError(parentCtx, BLangVMErrors.createNullRefException(functionInfo));
+            handleNativeInvocationError(parentCtx, BLangVMErrors.createNullRefException(parentCtx, functionInfo));
             return;
         } catch (Throwable e) {
-            handleNativeInvocationError(parentCtx, BLangVMErrors.createError(functionInfo, e.getMessage()));
+            handleNativeInvocationError(parentCtx, BLangVMErrors.createError(parentCtx, functionInfo, e.getMessage()));
             return;
         }
     }
@@ -2893,10 +2893,10 @@ public class CPU {
                 nativeAction.execute(ctx, callback);
             }
         } catch (BLangNullReferenceException e) {
-            handleNativeInvocationError(parentCtx, BLangVMErrors.createNullRefException(actionInfo));
+            handleNativeInvocationError(parentCtx, BLangVMErrors.createNullRefException(parentCtx, actionInfo));
             return;
         } catch (Throwable e) {
-            handleNativeInvocationError(parentCtx, BLangVMErrors.createError(actionInfo, e.getMessage()));
+            handleNativeInvocationError(parentCtx, BLangVMErrors.createError(parentCtx, actionInfo, e.getMessage()));
             return;
         }
     }
