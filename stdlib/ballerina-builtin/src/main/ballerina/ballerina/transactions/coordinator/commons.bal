@@ -28,6 +28,8 @@ string localParticipantId = util:uuid();
 
 map initiatedTransactions = {};
 map participatedTransactions = {};
+
+// This cache is used for caching HTTP connectors against the URL, since creating connectors is expecsive.
 caching:Cache httpClientCache = caching:createCache("ballerina.http.client.cache", 3600000, 10, 0.1);
 
 struct Transaction {
@@ -52,8 +54,13 @@ public struct TransactionContext {
 
 struct Protocol {
     string name;
+
+    // This URL will have a value only if the participant is remote. If the participant is local, the protocolFn will
+    // be called
     string url;
     int transactionBlockId;
+
+    // This function will be called only if the participant is local
     function (string transactionId,
               int transactionBlockId,
               string protocolAction) returns (boolean successful) protocolFn;
