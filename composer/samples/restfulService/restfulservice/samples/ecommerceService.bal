@@ -27,8 +27,13 @@ service<http> Ecommerce {
     }
     resource productMgt (http:Connection conn, http:InRequest req) {
         http:OutRequest clientRequest = {};
-        json jsonReq = req.getJsonPayload();
-        clientRequest.setJsonPayload(jsonReq);
+        var jsonReq, payloadError = req.getJsonPayload();
+        if (payloadError == null) {
+            clientRequest.setJsonPayload(jsonReq);
+        } else {
+            clientRequest.setStringPayload(payloadError.message);
+        }
+
         var clientResponse, _ = productsService.post("/productsservice", clientRequest);
         _ = conn.forward(clientResponse);
     }

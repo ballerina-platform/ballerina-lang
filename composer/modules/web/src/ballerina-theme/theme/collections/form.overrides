@@ -42,8 +42,9 @@
 
 /* Inverted Field */
     .ui.form .fields .field .ui.input input, .ui.form .field .ui.input input, .ui.form textarea{
-      background: @invertedInputBackground;
-      color: @invertedInputColor;
+      background    : @invertedInputBackground;
+      color         : @invertedInputColor;
+      height        : @inputHeight ;
     }
 
     .ui.form .field {
@@ -53,14 +54,27 @@
             border-radius: @selectionBorderRadius;
         }
     }
+
     .ui.form .inline.fields .field > .selection.dropdown, .ui.form .inline.field > .selection.dropdown{
         width : 100%;
     }
-
 }
-.wide.field:last-child{
+
+.wide.field:last-child, .ui.form .inline.fields .field:last-child {
         padding-right: 0 !important;
-    }
+}
 
-
-
+.ui.form input:not([type]),
+.ui.form input[type="date"],
+.ui.form input[type="datetime-local"],
+.ui.form input[type="email"],
+.ui.form input[type="number"],
+.ui.form input[type="password"],
+.ui.form input[type="search"],
+.ui.form input[type="tel"],
+.ui.form input[type="time"],
+.ui.form input[type="text"],
+.ui.form input[type="file"],
+.ui.form input[type="url"] {
+  border: @inputBorder;
+}
