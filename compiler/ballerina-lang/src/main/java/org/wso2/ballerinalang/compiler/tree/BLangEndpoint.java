@@ -22,7 +22,7 @@ import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
 import org.ballerinalang.model.tree.types.EndpointTypeNode;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BEndpointVarSymbol;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.types.BLangEndpointTypeNode;
 
@@ -41,7 +41,7 @@ public class BLangEndpoint extends BLangNode implements EndpointNode {
     public BLangExpression configurationExpr;
     public Set<Flag> flagSet;
 
-    public BVarSymbol symbol;
+    public BEndpointVarSymbol symbol;
 
     public BLangEndpoint() {
         flagSet = EnumSet.noneOf(Flag.class);

@@ -18,7 +18,7 @@
 package org.ballerinalang.model.tree.types;
 
 /**
- * endpoint<http:serviceEndpoint>
+ * Represents <code>endpoint &lt; http:serviceEndpoint &gt;</code>.
  *
  * @since 0.965.0
  */

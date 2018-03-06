@@ -23,18 +23,20 @@ public struct ServiceEndpoint {
 
 // this gets called when the endpoint is being initialized
 // during package init time
-public function <ServiceEndpoint h> init (string epName, ServiceEndpointConfiguration c) {
+public function <ServiceEndpoint h> init (string epName, ServiceEndpointConfiguration c) returns (error) {
     h.epName = epName;
     h.config = c;
     // TODO : Write HTTP logic for initializing Service connector, acquiring socket, etc.
+    return null;
 }
 
 // this gets called every time a service attaches itself to this
 // endpoint - also happens at package init time. If the service
 // has annotations then the registration code has to go get them
 // and do whatever it wants with those
-public function <ServiceEndpoint h> register (type serviceType) {
+public function <ServiceEndpoint h> register (type serviceType) returns (error) {
     // TODO : Make This Native.
+    return null;
 }
 
 // returns the connector that client code uses
@@ -45,13 +47,15 @@ function <ServiceEndpoint h> getConnector () returns (ResponseConnector) {
 }
 
 // start
-public function <ServiceEndpoint h> start () {
+public function <ServiceEndpoint h> start () returns (error) {
     // TODO : Make This Native.
+    return null;
 }
 
 // stop
-public function <ServiceEndpoint h> stop () {
+public function <ServiceEndpoint h> stop () returns (error) {
     // TODO : Make This Native.
+    return null;
 }
 
 ////////////////////////////////
@@ -98,6 +102,7 @@ public enum ServiceLifetime {
 }
 
 public struct ServiceConfiguration {
+    ServiceEndpoint[] endpoints;
     ServiceLifetime lifetime; // default ServiceLifetime.SINGLETON;
     string basePath; // defaults to service name
 }

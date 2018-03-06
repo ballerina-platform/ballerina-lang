@@ -38,6 +38,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangAction;
 import org.wso2.ballerinalang.compiler.tree.BLangConnector;
+import org.wso2.ballerinalang.compiler.tree.BLangEndpoint;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangInvokableNode;
@@ -277,6 +278,10 @@ public class Desugar extends BLangNodeVisitor {
         workerNode.body = rewrite(workerNode.body);
         this.workerStack.pop();
         result = workerNode;
+    }
+
+    @Override
+    public void visit(BLangEndpoint endpointNode) {
     }
 
     @Override

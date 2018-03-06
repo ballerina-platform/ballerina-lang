@@ -20,7 +20,7 @@ import org.ballerinalang.model.tree.expressions.ExpressionNode;
 import org.ballerinalang.model.tree.types.EndpointTypeNode;
 
 /**
- * Represents endpoint<type>.
+ * Represents endpoint &lt; type &gt;.
  *
  * @since 0.965.0
  */

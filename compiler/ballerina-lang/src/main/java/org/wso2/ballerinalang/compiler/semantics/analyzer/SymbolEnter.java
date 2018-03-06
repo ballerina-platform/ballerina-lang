@@ -35,6 +35,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationAttributeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConnectorSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BEndpointVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BServiceSymbol;
@@ -50,6 +51,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BAnnotationType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BConnectorType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BEndpointType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BEnumType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BServiceType;
@@ -232,6 +234,8 @@ public class SymbolEnter extends BLangNodeVisitor {
 
         pkgNode.globalVars.forEach(var -> defineNode(var, pkgEnv));
 
+        pkgNode.globalEndpoints.forEach(ep -> defineNode(ep, pkgEnv));
+
         definePackageInitFunction(pkgNode, pkgEnv);
         pkgNode.completedPhases.add(CompilerPhase.DEFINE);
     }
@@ -399,6 +403,8 @@ public class SymbolEnter extends BLangNodeVisitor {
                 names.fromIdNode(connectorNode.name), env.enclPkg.symbol.pkgID, null, env.scope.owner);
         connectorNode.symbol = conSymbol;
         defineSymbol(connectorNode.pos, conSymbol);
+        SymbolEnv connectorEnv = SymbolEnv.createConnectorEnv(connectorNode, conSymbol.scope, env);
+        connectorNode.endpoints.forEach(ep -> defineNode(ep, connectorEnv));
     }
 
     @Override
@@ -407,6 +413,8 @@ public class SymbolEnter extends BLangNodeVisitor {
                 names.fromIdNode(serviceNode.name), env.enclPkg.symbol.pkgID, null, env.scope.owner);
         serviceNode.symbol = serviceSymbol;
         serviceNode.symbol.type = new BServiceType(serviceSymbol);
+        SymbolEnv serviceEnv = SymbolEnv.createServiceEnv(serviceNode, serviceSymbol.scope, env);
+        serviceNode.endpoints.forEach(ep -> defineNode(ep, serviceEnv));
         defineSymbol(serviceNode.pos, serviceSymbol);
     }
 
@@ -417,7 +425,7 @@ public class SymbolEnter extends BLangNodeVisitor {
                 getFuncSymbolName(funcNode), env.enclPkg.symbol.pkgID, null, env.scope.owner);
         SymbolEnv invokableEnv = SymbolEnv.createFunctionEnv(funcNode, funcSymbol.scope, env);
         defineInvokableSymbol(funcNode, funcSymbol, invokableEnv);
-
+        funcNode.endpoints.forEach(ep -> defineNode(ep, invokableEnv));
         // Define function receiver if any.
         if (funcNode.receiver != null) {
             defineAttachedFunctions(funcNode, funcSymbol, invokableEnv, validAttachedFunc);
@@ -463,7 +471,7 @@ public class SymbolEnter extends BLangNodeVisitor {
                         env.enclPkg.symbol.pkgID, null, env.scope.owner);
         SymbolEnv invokableEnv = SymbolEnv.createResourceActionSymbolEnv(actionNode, actionSymbol.scope, env);
         defineInvokableSymbol(actionNode, actionSymbol, invokableEnv);
-
+        actionNode.endpoints.forEach(ep -> defineNode(ep, invokableEnv));
         //TODO check below as it create a new symbol for the connector
         BVarSymbol varSymbol = new BVarSymbol(Flags.asMask(EnumSet.noneOf(Flag.class)),
                 names.fromIdNode((BLangIdentifier) createIdentifier(Names.CONNECTOR.getValue())),
@@ -479,6 +487,7 @@ public class SymbolEnter extends BLangNodeVisitor {
                 .createResourceSymbol(Flags.asMask(resourceNode.flagSet), names.fromIdNode(resourceNode.name),
                         env.enclPkg.symbol.pkgID, null, env.scope.owner);
         SymbolEnv invokableEnv = SymbolEnv.createResourceActionSymbolEnv(resourceNode, resourceSymbol.scope, env);
+        resourceNode.endpoints.forEach(ep -> defineNode(ep, invokableEnv));
         defineInvokableSymbol(resourceNode, resourceSymbol, invokableEnv);
     }
 
@@ -500,6 +509,14 @@ public class SymbolEnter extends BLangNodeVisitor {
                 varNode.type, varName, env);
         varSymbol.docTag = varNode.docTag;
         varNode.symbol = varSymbol;
+    }
+
+    @Override
+    public void visit(BLangEndpoint endpoint) {
+        endpoint.type = symResolver.resolveTypeNode(endpoint.endpointTypeNode, env);
+        Name varName = names.fromIdNode(endpoint.name);
+        BType varType = ((BEndpointType) endpoint.type).constraint;
+        endpoint.symbol = defineEndpointVarSymbol(endpoint.pos, endpoint.flagSet, varType, varName, env);
     }
 
     public void visit(BLangXMLAttribute bLangXMLAttribute) {
@@ -763,6 +780,22 @@ public class SymbolEnter extends BLangNodeVisitor {
         // Create variable symbol
         Scope enclScope = env.scope;
         BVarSymbol varSymbol = new BVarSymbol(Flags.asMask(flagSet), varName,
+                env.enclPkg.symbol.pkgID, varType, enclScope.owner);
+
+        // Add it to the enclosing scope
+        // Find duplicates
+        if (!symResolver.checkForUniqueSymbol(pos, env, varSymbol, SymTag.VARIABLE_NAME)) {
+            varSymbol.type = symTable.errType;
+        }
+        enclScope.define(varSymbol.name, varSymbol);
+        return varSymbol;
+    }
+
+    public BEndpointVarSymbol defineEndpointVarSymbol(DiagnosticPos pos, Set<Flag> flagSet, BType varType, Name varName,
+                                                      SymbolEnv env) {
+        // Create variable symbol
+        Scope enclScope = env.scope;
+        BEndpointVarSymbol varSymbol = new BEndpointVarSymbol(Flags.asMask(flagSet), varName,
                 env.enclPkg.symbol.pkgID, varType, enclScope.owner);
 
         // Add it to the enclosing scope
