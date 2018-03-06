@@ -94,6 +94,9 @@ public class ListenerConfiguration {
     private boolean httpTraceLogEnabled;
 
     @XmlAttribute
+    private boolean httpAccessLogEnabled;
+
+    @XmlAttribute
     private String verifyClient;
 
     @XmlAttribute
@@ -313,6 +316,14 @@ public class ListenerConfiguration {
 
     public void setHttpTraceLogEnabled(boolean httpTraceLogEnabled) {
         this.httpTraceLogEnabled = httpTraceLogEnabled;
+    }
+
+    public boolean isHttpAccessLogEnabled() {
+        return httpAccessLogEnabled;
+    }
+
+    public void setHttpAccessLogEnabled(boolean httpAccessLogEnabled) {
+        this.httpAccessLogEnabled = httpAccessLogEnabled;
     }
 
     public RequestSizeValidationConfig getRequestSizeValidationConfig() {

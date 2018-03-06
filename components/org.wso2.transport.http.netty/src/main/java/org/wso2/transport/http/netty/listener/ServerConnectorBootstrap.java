@@ -148,6 +148,9 @@ public class ServerConnectorBootstrap {
         httpServerChannelInitializer.setHttpTraceLogEnabled(isHttpTraceLogEnabled);
     }
 
+    public void addHttpAccessLogHandler(Boolean isHttpAccessLogEnabled) {
+        httpServerChannelInitializer.setHttpAccessLogEnabled(isHttpAccessLogEnabled);
+    }
     public void addHeaderAndEntitySizeValidation(RequestSizeValidationConfig requestSizeValidationConfig) {
         httpServerChannelInitializer.setReqSizeValidationConfig(requestSizeValidationConfig);
     }
