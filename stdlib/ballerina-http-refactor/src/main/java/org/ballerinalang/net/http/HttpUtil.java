@@ -628,11 +628,14 @@ public class HttpUtil {
         return listenerConfSet;
     }
 
-    private static String getListenerInterface(String host, int port) {
+    public static String getListenerInterface(String host, int port) {
         host = host != null ? host : "0.0.0.0";
         return host + ":" + port;
     }
 
+
+
+    @Deprecated
     private static void extractBasicConfig(Annotation configInfo, Set<ListenerConfiguration> listenerConfSet) {
         AnnAttrValue hostAttrVal = configInfo.getAnnAttrValue(HttpConstants.ANN_CONFIG_ATTR_HOST);
         AnnAttrValue portAttrVal = configInfo.getAnnAttrValue(HttpConstants.ANN_CONFIG_ATTR_PORT);
@@ -711,28 +714,30 @@ public class HttpUtil {
     }
 
     public static ChunkConfig getChunkConfig(String chunkConfig) {
-        if (HttpConstants.AUTO.equalsIgnoreCase(chunkConfig)) {
-            return ChunkConfig.AUTO;
-        } else if (HttpConstants.ALWAYS.equalsIgnoreCase(chunkConfig)) {
-            return ChunkConfig.ALWAYS;
-        } else if (HttpConstants.NEVER.equalsIgnoreCase(chunkConfig)) {
-            return ChunkConfig.NEVER;
-        } else {
-            throw new BallerinaConnectorException(
-                    "Invalid configuration found for Transfer-Encoding: " + chunkConfig);
+        switch (chunkConfig) {
+            case HttpConstants.AUTO:
+                return ChunkConfig.AUTO;
+            case HttpConstants.ALWAYS:
+                return ChunkConfig.ALWAYS;
+            case HttpConstants.NEVER:
+                return ChunkConfig.NEVER;
+            default:
+                throw new BallerinaConnectorException(
+                        "Invalid configuration found for Transfer-Encoding: " + chunkConfig);
         }
     }
 
     public static KeepAliveConfig getKeepAliveConfig(String keepAliveConfig) {
-        if (HttpConstants.AUTO.equalsIgnoreCase(keepAliveConfig)) {
-            return KeepAliveConfig.AUTO;
-        } else if (HttpConstants.ALWAYS.equalsIgnoreCase(keepAliveConfig)) {
-            return KeepAliveConfig.ALWAYS;
-        } else if (HttpConstants.NEVER.equalsIgnoreCase(keepAliveConfig)) {
-            return KeepAliveConfig.NEVER;
-        } else {
-            throw new BallerinaConnectorException(
-                    "Invalid configuration found for Keep-Alive: " + keepAliveConfig);
+        switch (keepAliveConfig) {
+            case HttpConstants.AUTO:
+                return KeepAliveConfig.AUTO;
+            case HttpConstants.ALWAYS:
+                return KeepAliveConfig.ALWAYS;
+            case HttpConstants.NEVER:
+                return KeepAliveConfig.NEVER;
+            default:
+                throw new BallerinaConnectorException(
+                        "Invalid configuration found for Keep-Alive: " + keepAliveConfig);
         }
     }
 

@@ -31,7 +31,13 @@ public struct ServiceEndpoint {
 public struct ServiceEndpointConfiguration {
     string host;
     int port;
-    int httpsPort;
+    KeepAlive keepAlive = KeepAlive.AUTO;
+    string transferEncoding;
+    Chunking chunking = Chunking.AUTO;
+    SslConfiguration ssl;
+}
+
+public struct SslConfiguration {
     string keyStoreFile;
     string keyStorePassword;
     string trustStoreFile;
@@ -44,9 +50,15 @@ public struct ServiceEndpointConfiguration {
     boolean validateCertEnabled;
     int cacheSize;
     int cacheValidityPeriod;
-    boolean keepAlive;
-    string transferEncoding;
-    string chunking;
+}
+
+public enum KeepAlive {
+    AUTO, ALWAYS, NEVER
+}
+
+
+public enum Chunking {
+    AUTO, ALWAYS, NEVER
 }
 
 @Description {value: "Configuration for HTTP service"}
