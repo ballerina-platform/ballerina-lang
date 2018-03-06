@@ -58,7 +58,7 @@ html:focus, body:focus, input[readonly]:focus{
 
 /*---- Inverted Colors  ----*/
 
-@invertedBackgroundColor        : #222;
+@invertedBackgroundColor        : #252525;
 @invertedInputBackgroundColor   : #3a3a3a;
 @selectionInvertedBorderColor   : @orange;
 @selectionInvertedTextColor     : @off-white;
@@ -71,4 +71,8 @@ html:focus, body:focus, input[readonly]:focus{
 @highlightBackground            : @orange;
 
 @selectionBorderRadius          : 0;
-@borderRadius          : 0;
+@noBorderRadius                 : 0;
+
+@inputHeight                    : 40px;
+
+@paragraphLineHeight            : 1em;

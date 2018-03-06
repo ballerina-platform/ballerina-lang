@@ -56,7 +56,7 @@ service<http> FooService {
                         }
         resource fooResource (http:Connection conn, http:InRequest req) {
             http:OutResponse res = {};
-            var xmlpayload = req.getXmlPayload();
+            var xmlpayload, _ = req.getXmlPayload();
             res.setXmlPayload(xmlpayload);
             _ = conn.respond(res);
     }
