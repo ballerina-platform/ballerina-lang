@@ -29,22 +29,20 @@ import java.util.ArrayList;
 /**
  * Test cases for ballerina.test package.
  */
-public class ConfigAnnotationTest {
+public class FunctionMockTest {
 
     @BeforeClass
     public void setup() {
-    }
-
-    @Test
-    public void testBefore() {
-        new BTestRunner().runTest(new Path[]{Paths.get("src/test/resources/annotations-test/config-test.bal")}, new
-                ArrayList<>());
-        cleanup();
-
     }
 
     private void cleanup() {
         TesterinaRegistry.getInstance().setProgramFiles(new ArrayList<>());
     }
 
+    @Test
+    public void testBefore2() {
+        new BTestRunner().runTest(new Path[]{Paths.get("src/test/resources/functionmocktest/pkg/")}, new
+                ArrayList<>());
+        cleanup();
+    }
 }
