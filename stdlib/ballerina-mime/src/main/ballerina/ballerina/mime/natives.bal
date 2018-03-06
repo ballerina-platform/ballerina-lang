@@ -69,6 +69,7 @@ public native function <Entity entity> setJson (json jsonContent);
 @Description {value:"Given an entity, get the entity body in json form."}
 @Param {value:"entity: Represent a MIME entity"}
 @Return {value:"Return json data"}
+@Return {value:"EntityError will get thrown in case of errors during data-source extraction from entity"}
 public native function <Entity entity> getJson () (json, EntityError);
 
 @Description {value:"Set the entity body with the given xml content"}
@@ -79,6 +80,7 @@ public native function <Entity entity> setXml (xml xmlContent);
 @Description {value:"Given an entity, get the entity body in xml form."}
 @Param {value:"entity: Represent a MIME entity"}
 @Return {value:"Return xml data"}
+@Return {value:"EntityError will get thrown in case of errors during data-source extraction from entity"}
 public native function <Entity entity> getXml () (xml, EntityError);
 
 @Description {value:"Set the entity body with the given text content"}
@@ -88,6 +90,7 @@ public native function <Entity entity> setText (string textContent);
 @Description {value:"Given an entity, get the entity body in text form."}
 @Param {value:"entity: Represent a MIME entity"}
 @Return {value:"Return text data"}
+@Return {value:"EntityError will get thrown in case of errors during data-source extraction from entity"}
 public native function <Entity entity> getText () (string, EntityError);
 
 @Description {value:"Set the entity body with the given blob content"}
@@ -99,6 +102,7 @@ public native function <Entity entity> setBlob (blob blobContent);
 using getEntityWrapper() method instead"}
 @Param {value:"entity: Represent a MIME entity"}
 @Return {value:"Return a blob"}
+@Return {value:"EntityError will get thrown in case of errors during data-source extraction from entity"}
 public native function <Entity entity> getBlob () (blob, EntityError);
 
 @Description {value:"Set the entity body with the given byte channel content"}
@@ -109,11 +113,13 @@ public native function <Entity entity> setByteChannel (io:ByteChannel byteChanne
 @Description {value:"Given an entity, get the entity body as a byte channel."}
 @Param {value:"entity: Represent a MIME entity"}
 @Return {value:"Return a byte channel"}
+@Return {value:"EntityError will get thrown in case of errors during byte channel extraction from entity"}
 public native function <Entity entity> getByteChannel () (io:ByteChannel, EntityError);
 
 @Description {value:"Given an entity, get its body parts."}
 @Param {value:"entity: Represent a MIME entity"}
 @Return {value:"Return an array of entities which represent its body parts"}
+@Return {value:"EntityError will get thrown in case of errors during data-source extraction from entity"}
 public native function <Entity entity> getBodyParts () (Entity[], EntityError);
 
 @Description {value:"Set body parts to entity"}

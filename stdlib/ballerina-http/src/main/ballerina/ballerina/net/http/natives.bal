@@ -51,7 +51,7 @@ public struct InRequest {
 @Description {value:"Get the entity from the inbound request with the body included. This function is to be used only internally."}
 @Param {value:"req: The inbound request message"}
 @Return {value:"Entity of the request"}
-@Return {value:"EntityError will might get thrown during entity construction in case of errors"}
+@Return {value:"EntityError will get thrown in case of errors during entity construction"}
 native function <InRequest req> getEntity () (mime:Entity, mime:EntityError);
 
 @Description {value:"Get the entity from the inbound request without the body. This function is to be used only internally."}
