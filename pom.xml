@@ -833,7 +833,7 @@
                 <module>misc/ballerina-maven-plugins</module>
                 <module>misc/swagger-ballerina</module>
                 <module>misc/testerina</module>
-                <module>misc/grpc-ballerina</module>
+                <module>misc/protobuf-ballerina</module>
                 <module>composer</module>
 
                 <module>distribution/docker</module>
@@ -898,7 +898,7 @@
                 <module>misc/docerina</module>
                 <module>misc/swagger-ballerina</module>
                 <module>misc/testerina</module>
-                <module>misc/grpc-ballerina</module>
+                <module>misc/protobuf-ballerina</module>
                 <module>composer</module>
 
                 <module>distribution/docker</module>

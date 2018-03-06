@@ -29,7 +29,6 @@ import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.net.grpc.Message;
 import org.ballerinalang.net.grpc.MessageConstants;
 import org.ballerinalang.net.grpc.MessageUtils;
-import org.ballerinalang.net.grpc.utils.MessageUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -64,7 +63,7 @@ public class Send extends AbstractNativeFunction {
                 .REQUEST_MESSAGE_DEFINITION);
 
         try {
-            Message requestMessage = MessageUtil.generateProtoMessage(responseValue, inputType);
+            Message requestMessage = MessageUtils.generateProtoMessage(responseValue, inputType);
             requestSender.onNext(requestMessage);
             return new BValue[0];
         } catch (Throwable e) {

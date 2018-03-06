@@ -29,9 +29,9 @@ import org.ballerinalang.natives.annotations.BallerinaAction;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.net.grpc.Message;
 import org.ballerinalang.net.grpc.MessageRegistry;
+import org.ballerinalang.net.grpc.MessageUtils;
 import org.ballerinalang.net.grpc.exception.GrpcClientException;
 import org.ballerinalang.net.grpc.stubs.GrpcBlockingStub;
-import org.ballerinalang.net.grpc.utils.MessageUtil;
 
 /**
  * {@code BlockingExecute} is the BlockingExecute action implementation of the gRPC Connector.
@@ -82,7 +82,7 @@ public class BlockingExecute extends AbstractExecute {
         }
         if (connectionStub instanceof GrpcBlockingStub) {
             BValue payloadBValue = getRefArgument(context, 1);
-            Message requestMsg = MessageUtil.generateProtoMessage(payloadBValue, methodDescriptor.getInputType());
+            Message requestMsg = MessageUtils.generateProtoMessage(payloadBValue, methodDescriptor.getInputType());
             GrpcBlockingStub grpcBlockingStub = (GrpcBlockingStub) connectionStub;
             try {
                 MethodDescriptor.MethodType methodType = getMethodType(methodDescriptor);
@@ -90,7 +90,7 @@ public class BlockingExecute extends AbstractExecute {
                 if (methodType.equals(MethodDescriptor.MethodType.UNARY)) {
                     Message responseMsg = grpcBlockingStub.executeUnary(requestMsg, methodName);
                     Descriptors.Descriptor outputDescriptor = methodDescriptor.getOutputType();
-                    BValue responseBValue = MessageUtil.generateRequestStruct(responseMsg, outputDescriptor.getName(),
+                    BValue responseBValue = MessageUtils.generateRequestStruct(responseMsg, outputDescriptor.getName(),
                             getBalType(outputDescriptor.getName(), context), context);
                     return notifyReply(responseBValue);
                 } else {

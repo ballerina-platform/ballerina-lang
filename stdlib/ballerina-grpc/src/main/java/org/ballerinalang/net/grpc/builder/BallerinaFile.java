@@ -19,6 +19,7 @@ package org.ballerinalang.net.grpc.builder;
 
 import com.google.protobuf.DescriptorProtos;
 import io.grpc.MethodDescriptor;
+import org.ballerinalang.net.grpc.MessageUtils;
 import org.ballerinalang.net.grpc.builder.components.ActionBuilder;
 import org.ballerinalang.net.grpc.builder.components.ConnectorBuilder;
 import org.ballerinalang.net.grpc.builder.components.ConstantBuilder;
@@ -26,7 +27,6 @@ import org.ballerinalang.net.grpc.builder.components.PackageBuilder;
 import org.ballerinalang.net.grpc.builder.components.SampleClientGenerator;
 import org.ballerinalang.net.grpc.builder.components.StructBuilder;
 import org.ballerinalang.net.grpc.exception.BalGenerationException;
-import org.ballerinalang.net.grpc.utils.MessageUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -93,7 +93,7 @@ public class BallerinaFile {
             String methodID;
             ActionBuilder actionBuilder;
             for (DescriptorProtos.MethodDescriptorProto methodDescriptorProto : methodList) {
-                MethodDescriptor.MethodType methodType = MessageUtil.getMethodType(methodDescriptorProto);
+                MethodDescriptor.MethodType methodType = MessageUtils.getMethodType(methodDescriptorProto);
                 String[] outputTypes = methodDescriptorProto.getOutputType().split(PACKAGE_SEPARATOR_REGEX);
                 String typeOut = outputTypes[outputTypes.length - 1];
                 String[] inputTypes = methodDescriptorProto.getInputType().split(PACKAGE_SEPARATOR_REGEX);

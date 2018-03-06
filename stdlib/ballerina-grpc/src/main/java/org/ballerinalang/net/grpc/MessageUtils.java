@@ -15,16 +15,25 @@
  */
 package org.ballerinalang.net.grpc;
 
+import com.google.protobuf.DescriptorProtos;
 import com.google.protobuf.Descriptors;
 import io.grpc.Metadata;
+import io.grpc.MethodDescriptor;
 import io.grpc.stub.StreamObserver;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.connector.api.Annotation;
 import org.ballerinalang.connector.api.Service;
+import org.ballerinalang.model.types.BStructType;
+import org.ballerinalang.model.types.BType;
+import org.ballerinalang.model.values.BBoolean;
+import org.ballerinalang.model.values.BFloat;
+import org.ballerinalang.model.values.BInteger;
+import org.ballerinalang.model.values.BRefType;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.AbstractNativeFunction;
+import org.ballerinalang.net.grpc.exception.UnsupportedFieldTypeException;
 import org.ballerinalang.net.grpc.proto.ServiceProtoConstants;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.StructInfo;
@@ -32,6 +41,7 @@ import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.util.Base64;
 import java.util.List;
+import java.util.Map;
 
 
 /**
@@ -151,114 +161,8 @@ public class MessageUtils {
 
         return annotationList.isEmpty() ? null : annotationList.get(0);
     }
-/*    public static com.google.protobuf.Message generateProtoMessage(BStruct bValue, BStructType structType) {
-        Message.Builder responseBuilder = Message.newBuilder(structType.getName());
-        int stringIndex = 0;
-        int intIndex = 0;
-        int floatIndex = 0;
-        int boolIndex = 0;
-        int refIndex = 0;
-        for (BStructType.StructField structField : structType.getStructFields()) {
-            String fieldName = structField.getFieldName();
-            if (structField.getFieldType() instanceof BArrayType) {
-                BType bType = ((BArrayType) structField.getFieldType()).getElementType();
-                String fieldType = bType.getName();
-                switch (fieldType) {
-                    case "string": {
-                        BStringArray valueArray = (BStringArray) bValue.getRefField(stringIndex++);
-                        int arraySize = (int) valueArray.size();
-                        String[] values = new String[arraySize];
-                        for (int i = 0; i < arraySize; i++) {
-                            values[i] = String.valueOf(valueArray.get(i));
-                        }
-                        responseBuilder.addField(fieldName, values);
-                        break;
-                    }
-                    case "int": {
-                        BIntArray valueArray = (BIntArray) bValue.getRefField(stringIndex++);
-                        int arraySize = (int) valueArray.size();
-                        int[] values = new int[arraySize];
-                        for (int i = 0; i < arraySize; i++) {
-                            values[i] = Integer.parseInt(String.valueOf(valueArray.get(i)));
-                        }
-                        responseBuilder.addField(fieldName, values);
-                        break;
-                    }
-                    case "float": {
-                        BFloatArray valueArray = (BFloatArray) bValue.getRefField(stringIndex++);
-                        int arraySize = (int) valueArray.size();
-                        float[] values = new float[arraySize];
-                        for (int i = 0; i < arraySize; i++) {
-                            values[i] = Float.parseFloat(String.valueOf(valueArray.get(i)));
-                        }
-                        responseBuilder.addField(fieldName, values);
-                        break;
-                    }
-                    case "boolean": {
-                        BBooleanArray valueArray = (BBooleanArray) bValue.getRefField(stringIndex++);
-                        int arraySize = (int) valueArray.size();
-                        boolean[] values = new boolean[arraySize];
-                        for (int i = 0; i < arraySize; i++) {
-                            values[i] = Boolean.parseBoolean(String.valueOf(valueArray.get(i)));
-                        }
-                        responseBuilder.addField(fieldName, values);
-                        break;
-                    }
-                    default: {
-                        BRefValueArray valueArray = (BRefValueArray) bValue.getRefField(stringIndex++);
-                        int arraySize = (int) valueArray.size();
-                        if (MessageRegistry.getInstance().getMessageDescriptorMap().containsKey(bType.getName())) {
-                            Object[] values = new Object[arraySize];
-                            for (int i = 0; i < arraySize; i++) {
-                                values[i] = generateProtoMessage((BStruct) valueArray.get(i).value(), (BStructType)
-                                        bType);
-                            }
-                            responseBuilder.addField(fieldName, values);
-                        }
-                        break;
-                    }
-                }
-            } else if (structField.getFieldType() instanceof BRefType) {
-                BType bType = structField.getFieldType();
-                if (MessageRegistry.getInstance().getMessageDescriptorMap().containsKey(bType.getName())) {
-                    BStruct value = (BStruct) bValue.getRefField(refIndex++).value();
-                    responseBuilder.addField(fieldName, generateProtoMessage(value,
-                            (BStructType) structField.getFieldType()));
-                }
-            } else {
-                String fieldType = structField.getFieldType().getName();
-                switch (fieldType) {
-                    case "string": {
-                        String value = bValue.getStringField(stringIndex++);
-                        responseBuilder.addField(fieldName, value);
-                        break;
-                    }
-                    case "int": {
-                        long value = bValue.getIntField(intIndex++);
-                        responseBuilder.addField(fieldName, value);
-                        break;
-                    }
-                    case "float": {
-                        float value = Float.parseFloat(String.valueOf(bValue.getFloatField(floatIndex++)));
-                        responseBuilder.addField(fieldName, value);
-                        break;
-                    }
-                    case "boolean": {
-                        int value = bValue.getBooleanField(boolIndex++);
-                        responseBuilder.addField(fieldName, value != 0);
-                        break;
-                    }
-                    default: {
-                        throw new UnsupportedFieldTypeException("Error while generating response struct. Field " +
-                                "type is not supported : " + fieldType);
-                    }
-                }
-            }
-        }
-        return responseBuilder.build();
-    }
 
-    public static com.google.protobuf.Message generateProtoMessage(BStruct bValue, Descriptors.Descriptor outputType) {
+    public static Message generateProtoMessage(BValue responseValue, Descriptors.Descriptor outputType) {
         Message.Builder responseBuilder = Message.newBuilder(outputType.getName());
         int stringIndex = 0;
         int intIndex = 0;
@@ -266,52 +170,89 @@ public class MessageUtils {
         int boolIndex = 0;
         int refIndex = 0;
         for (Descriptors.FieldDescriptor fieldDescriptor : outputType.getFields()) {
-            Descriptors.FieldDescriptor.Type fieldType = fieldDescriptor.getType();
             String fieldName = fieldDescriptor.getName();
             switch (fieldDescriptor.getType().toProto().getNumber()) {
                 case DescriptorProtos.FieldDescriptorProto.Type.TYPE_DOUBLE_VALUE: {
-                    double value = bValue.getFloatField(floatIndex++);
+                    double value = 0F;
+                    if (responseValue instanceof BStruct) {
+                        value = ((BStruct) responseValue).getFloatField(floatIndex++);
+                    } else {
+                        if (responseValue instanceof BFloat) {
+                            value = ((BFloat) responseValue).value();
+                        }
+                    }
                     responseBuilder.addField(fieldName, value);
                     break;
                 }
                 case DescriptorProtos.FieldDescriptorProto.Type.TYPE_FLOAT_VALUE: {
-                    float value = Float.parseFloat(String.valueOf(bValue.getFloatField(floatIndex++)));
+                    float value = 0F;
+                    if (responseValue instanceof BStruct) {
+                        value = Float.parseFloat(String.valueOf(((BStruct) responseValue).getFloatField(floatIndex++)));
+                    } else {
+                        if (responseValue instanceof BFloat) {
+                            value = Float.parseFloat(String.valueOf(((BFloat) responseValue).value()));
+                        }
+                    }
                     responseBuilder.addField(fieldName, value);
                     break;
                 }
-                case DescriptorProtos.FieldDescriptorProto.Type.TYPE_INT64_VALUE: {
-                    long value = bValue.getIntField(intIndex++);
-                    responseBuilder.addField(fieldName, value);
-                    break;
-                }
-                case DescriptorProtos.FieldDescriptorProto.Type.TYPE_UINT64_VALUE: {
-                    long value = bValue.getIntField(intIndex++);
-                    responseBuilder.addField(fieldName, value);
-                    break;
-                }
-                case DescriptorProtos.FieldDescriptorProto.Type.TYPE_INT32_VALUE: {
-                    long value = bValue.getIntField(intIndex++);
-                    responseBuilder.addField(fieldName, value);
-                    break;
-                }
+                case DescriptorProtos.FieldDescriptorProto.Type.TYPE_INT64_VALUE:
+                case DescriptorProtos.FieldDescriptorProto.Type.TYPE_UINT64_VALUE:
                 case DescriptorProtos.FieldDescriptorProto.Type.TYPE_FIXED64_VALUE: {
-                    long value = bValue.getIntField(intIndex++);
+                    long value = 0;
+                    if (responseValue instanceof BStruct) {
+                        value = ((BStruct) responseValue).getIntField(intIndex++);
+                    } else {
+                        if (responseValue instanceof BInteger) {
+                            value = ((BInteger) responseValue).value();
+                        }
+                    }
                     responseBuilder.addField(fieldName, value);
                     break;
                 }
+                case DescriptorProtos.FieldDescriptorProto.Type.TYPE_INT32_VALUE:
                 case DescriptorProtos.FieldDescriptorProto.Type.TYPE_FIXED32_VALUE: {
-                    long value = bValue.getIntField(intIndex++);
+                    int value = 0;
+                    if (responseValue instanceof BStruct) {
+                        value = Integer.parseInt(String.valueOf(((BStruct) responseValue).getIntField(intIndex++)));
+                    } else {
+                        if (responseValue instanceof BInteger) {
+                            value = Integer.parseInt(String.valueOf(((BInteger) responseValue).value()));
+                        }
+                    }
                     responseBuilder.addField(fieldName, value);
                     break;
                 }
                 case DescriptorProtos.FieldDescriptorProto.Type.TYPE_BOOL_VALUE: {
-                    int value = bValue.getBooleanField(boolIndex++);
-                    responseBuilder.addField(fieldName, value != 0);
+                    boolean value = false;
+                    if (responseValue instanceof BStruct) {
+                        value = ((BStruct) responseValue).getBooleanField(boolIndex++) > 0;
+                    } else {
+                        if (responseValue instanceof BBoolean) {
+                            value = ((BBoolean) responseValue).value();
+                        }
+                    }
+                    responseBuilder.addField(fieldName, value);
                     break;
                 }
                 case DescriptorProtos.FieldDescriptorProto.Type.TYPE_STRING_VALUE: {
-                    String value = bValue.getStringField(stringIndex++);
+                    String value = null;
+                    if (responseValue instanceof BStruct) {
+                        value = ((BStruct) responseValue).getStringField(stringIndex++);
+                    } else {
+                        if (responseValue instanceof BString) {
+                            value = ((BString) responseValue).value();
+                        }
+                    }
                     responseBuilder.addField(fieldName, value);
+                    break;
+                }
+                case DescriptorProtos.FieldDescriptorProto.Type.TYPE_MESSAGE_VALUE: {
+                    if (responseValue instanceof BStruct) {
+                        BValue bValue = ((BStruct) responseValue).getRefField(refIndex++);
+                        responseBuilder.addField(fieldName, generateProtoMessage(bValue, fieldDescriptor
+                                .getMessageType()));
+                    }
                     break;
                 }
                 default: {
@@ -321,5 +262,136 @@ public class MessageUtils {
             }
         }
         return responseBuilder.build();
-    }*/
+    }
+
+    public static BValue generateRequestStruct(Message request, String fieldName, BType structType, Context context) {
+        BValue bValue = null;
+        int stringIndex = 0;
+        int intIndex = 0;
+        int floatIndex = 0;
+        int boolIndex = 0;
+        int refIndex = 0;
+
+        if (structType instanceof BStructType) {
+            BStruct requestStruct = createStruct(context, fieldName);
+            for (BStructType.StructField structField : ((BStructType) structType).getStructFields()) {
+                String structFieldName = structField.getFieldName();
+                if (structField.getFieldType() instanceof BRefType) {
+                    BType bType = structField.getFieldType();
+                    if (MessageRegistry.getInstance().getMessageDescriptorMap().containsKey(bType.getName())) {
+                        Message message = (Message) request.getFields().get(structFieldName);
+                        requestStruct.setRefField(refIndex++, (BRefType) generateRequestStruct(message,
+                                structFieldName, structField.getFieldType(), context));
+                    }
+                } else {
+                    if (request.getFields().containsKey(structFieldName)) {
+                        String fieldType = structField.getFieldType().getName();
+                        switch (fieldType) {
+                            case "string": {
+                                requestStruct.setStringField(stringIndex++, (String) request.getFields().get
+                                        (structFieldName));
+                                break;
+                            }
+                            case "int": {
+                                requestStruct.setIntField(intIndex++, (Long) request.getFields().get
+                                        (structFieldName));
+                                break;
+                            }
+                            case "float": {
+                                Float value = (Float) request.getFields().get(structFieldName);
+                                if (value != null) {
+                                    requestStruct.setFloatField(floatIndex++, Double.parseDouble(value.toString()));
+                                }
+                                break;
+                            }
+                            case "double": {
+                                Double value = (Double) request.getFields().get(structFieldName);
+                                if (value != null) {
+                                    requestStruct.setFloatField(floatIndex++, Double.parseDouble(value.toString()));
+                                }
+                                break;
+                            }
+                            case "boolean": {
+                                requestStruct.setBooleanField(boolIndex++, (Integer) request.getFields().get
+                                        (structFieldName));
+                                break;
+                            }
+                            default: {
+                                throw new UnsupportedFieldTypeException("Error while generating request struct. Field" +
+                                        " type is not supported : " + fieldType);
+                            }
+                        }
+                    }
+                }
+            }
+            bValue = requestStruct;
+        } else {
+            Map<String, Object> fields = request.getFields();
+            if (fields.size() == 1 && fields.containsKey("value")) {
+                fieldName = "value";
+            }
+            if (request.getFields().containsKey(fieldName)) {
+                String fieldType = structType.getName();
+                switch (fieldType) {
+                    case "string": {
+                        bValue = new BString((String) request.getFields().get(fieldName));
+                        break;
+                    }
+                    case "int": {
+                        bValue = new BInteger((Long) request.getFields().get(fieldName));
+                        break;
+                    }
+                    case "float": {
+                        Float value = (Float) request.getFields().get(fieldName);
+                        if (value != null) {
+                            bValue = new BFloat(Double.parseDouble(value.toString()));
+                        }
+                        break;
+                    }
+                    case "double": {
+                        Double value = (Double) request.getFields().get(fieldName);
+                        if (value != null) {
+                            bValue = new BFloat(Double.parseDouble(value.toString()));
+                        }
+                        break;
+                    }
+                    case "boolean": {
+                        bValue = new BBoolean((Boolean) request.getFields().get(fieldName));
+                        break;
+                    }
+                    default: {
+                        throw new UnsupportedFieldTypeException("Error while generating request struct. Field " +
+                                "type is not supported : " + fieldType);
+                    }
+                }
+            }
+        }
+
+        return bValue;
+    }
+
+    private static BStruct createStruct(Context context, String fieldName) {
+        BStructType structType = context.getProgramFile().getEntryPackage().getStructInfo(fieldName).getType();
+        return new BStruct(structType);
+    }
+
+    /**
+     * Util method to get method type.
+     * @param methodDescriptorProto
+     * @return
+     */
+    public static MethodDescriptor.MethodType getMethodType(DescriptorProtos.MethodDescriptorProto
+                                                                    methodDescriptorProto) {
+        if (methodDescriptorProto.getClientStreaming() && methodDescriptorProto.getServerStreaming()) {
+            return MethodDescriptor.MethodType.BIDI_STREAMING;
+        } else if (!(methodDescriptorProto.getClientStreaming() || methodDescriptorProto.getServerStreaming())) {
+            return MethodDescriptor.MethodType.UNARY;
+        } else if (methodDescriptorProto.getServerStreaming()) {
+            return MethodDescriptor.MethodType.SERVER_STREAMING;
+        } else if (methodDescriptorProto.getClientStreaming()) {
+            return MethodDescriptor.MethodType.CLIENT_STREAMING;
+        } else {
+            return MethodDescriptor.MethodType.UNKNOWN;
+        }
+    }
 }

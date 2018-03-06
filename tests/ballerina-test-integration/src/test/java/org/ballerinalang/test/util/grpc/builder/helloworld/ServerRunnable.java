@@ -28,11 +28,11 @@ import java.io.File;
 public class ServerRunnable implements Runnable {
     private static final Logger log = LoggerFactory.getLogger(ServerRunnable.class);
     private ServerInstance ballerinaServer;
-    
+
     public ServerRunnable(ServerInstance ballerinaServer) {
         this.ballerinaServer = ballerinaServer;
     }
-    
+
     @Override
     public void run() {
         String balFile = new File("src/test/resources/grpcService/helloWorld-server-connector.bal")
@@ -43,8 +43,8 @@ public class ServerRunnable implements Runnable {
             log.error("Error in running grpc server connector main function.", e);
         }
     }
-    
-    public  void stop(){
+
+    public void stop() {
         try {
             ballerinaServer.stopServer();
         } catch (BallerinaTestException e) {

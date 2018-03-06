@@ -24,7 +24,6 @@ import org.ballerinalang.net.grpc.exception.GrpcClientException;
 import org.ballerinalang.net.grpc.stubs.GrpcBlockingStub;
 import org.ballerinalang.net.grpc.stubs.GrpcNonBlockingStub;
 import org.ballerinalang.net.grpc.stubs.ProtoFileDefinition;
-import org.ballerinalang.net.grpc.utils.MessageUtil;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -65,7 +64,7 @@ public final class ClientConnectorFactory {
             String fullMethodName = generateFullMethodName(serviceFullName, methodName);
             MethodDescriptor<Message, Message> descriptor =
                     MethodDescriptor.<Message, Message>newBuilder()
-                            .setType(MessageUtil.getMethodType(methodDescriptor.toProto()))
+                            .setType(MessageUtils.getMethodType(methodDescriptor.toProto()))
                             .setFullMethodName(fullMethodName)
                             .setRequestMarshaller(io.grpc.protobuf.ProtoUtils.marshaller(
                                     org.ballerinalang.net.grpc.Message
