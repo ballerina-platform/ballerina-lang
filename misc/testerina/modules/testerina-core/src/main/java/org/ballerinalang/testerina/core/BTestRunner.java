@@ -18,6 +18,7 @@
 
 package org.ballerinalang.testerina.core;
 
+import org.ballerinalang.bre.Context;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.CompileResult;
@@ -25,9 +26,13 @@ import org.ballerinalang.testerina.core.entity.TestSuite;
 import org.ballerinalang.testerina.core.entity.TesterinaContext;
 import org.ballerinalang.testerina.core.entity.TesterinaReport;
 import org.ballerinalang.testerina.core.entity.TesterinaResult;
+import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
+import org.ballerinalang.util.debugger.DebugContext;
+import org.ballerinalang.util.debugger.Debugger;
 import org.ballerinalang.util.diagnostic.Diagnostic;
 import org.ballerinalang.util.exceptions.BallerinaException;
+import org.ballerinalang.util.program.BLangFunctions;
 
 import java.io.PrintStream;
 import java.nio.file.Path;
@@ -92,6 +97,15 @@ public class BTestRunner {
         AtomicBoolean shouldSkip = new AtomicBoolean();
 
         testSuites.forEach((packageName, suite) -> {
+            // TODO there can be only a single Program file for a package. So check and improve
+            PackageInfo packageInfo = suite.getProgramFiles().get(0).getEntryPackage();
+            ProgramFile progFile = suite.getProgramFiles().get(0);
+            Context bContext = new Context(progFile);
+            Debugger debugger = new Debugger(progFile);
+            initDebugger(bContext, debugger);
+            BLangFunctions.invokePackageInitFunction(progFile, packageInfo.getInitFunctionInfo(),
+                    bContext);
+
             outStream.println("Executing test suite for package: " + packageName);
             for (ProgramFile programFile : suite.getProgramFiles()) {
                 AnnotationProcessor.injectMocks(tFile.getMockFunctionsMap(), programFile);
@@ -104,7 +118,7 @@ public class BTestRunner {
                 } catch (BallerinaException e) {
                     shouldSkip.set(true);
                     errorMsg = String.format("Failed to execute before test suite function [%s] of test suite " +
-                            "package [%s]. Cause: %s", test.getName(), packageName, e.getMessage());
+                                             "package [%s]. Cause: %s", test.getName(), packageName, e.getMessage());
                     outStream.println(errorMsg);
                 }
             });
@@ -118,7 +132,8 @@ public class BTestRunner {
                         } catch (BallerinaException e) {
                             shouldSkip.set(true);
                             errorMsg = String.format("Failed to execute before each test function [%s] for the "
-                                    + "test [%s] of test suite package [%s]. Cause: %s", beforeEachTest.getName(),
+                                                     + "test [%s] of test suite package [%s]. Cause: %s",
+                                    beforeEachTest.getName(),
                                     test.getTestFunction().getName(), packageName, e.getMessage());
                             outStream.println(errorMsg);
                         }
@@ -134,8 +149,9 @@ public class BTestRunner {
                     } catch (BallerinaException e) {
                         shouldSkip.set(true);
                         errorMsg = String.format("Failed to execute before test function" + " [%s] for the test " +
-                                "[%s] of test suite package [%s]. Cause: %s", test.getBeforeTestFunctionObj().getName
-                                (), test.getTestFunction().getName(), packageName, e.getMessage());
+                                                 "[%s] of test suite package [%s]. Cause: %s",
+                                test.getBeforeTestFunctionObj().getName
+                                        (), test.getTestFunction().getName(), packageName, e.getMessage());
                         outStream.println(errorMsg);
                     }
                 }
@@ -149,7 +165,8 @@ public class BTestRunner {
                     }
                 } catch (BallerinaException e) {
                     errorMsg = String.format("Failed to execute the test function [%s] of test suite package [%s]. "
-                            + "Cause: %s", test.getTestFunction().getName(), packageName, e.getMessage());
+                                             + "Cause: %s", test.getTestFunction().getName(), packageName,
+                            e.getMessage());
                     outStream.println(errorMsg);
                 }
                 // report the test result
@@ -165,8 +182,9 @@ public class BTestRunner {
                     }
                 } catch (BallerinaException e) {
                     error = String.format("Failed to execute after test function" + " [%s] for the test [%s] of test " +
-                            "suite package [%s]. Cause: %s", test.getAfterTestFunctionObj().getName(), test
-                            .getTestFunction().getName(), packageName, e.getMessage());
+                                          "suite package [%s]. Cause: %s", test.getAfterTestFunctionObj().getName(),
+                            test
+                                    .getTestFunction().getName(), packageName, e.getMessage());
                     outStream.println(error);
                 }
 
@@ -177,92 +195,93 @@ public class BTestRunner {
                         afterEachTest.invoke();
                     } catch (BallerinaException e) {
                         errorMsg2 = String.format("Failed to execute after each test function" + " [%s] for the test " +
-                                "[%s] of test suite package [%s]. Cause: %s", afterEachTest.getName(), test
-                                .getTestFunction().getName(), packageName, e.getMessage());
+                                                  "[%s] of test suite package [%s]. Cause: %s", afterEachTest.getName(),
+                                test
+                                        .getTestFunction().getName(), packageName, e.getMessage());
                         outStream.println(errorMsg2);
                     }
                 });
             });
         });
 
-//        ArrayList<TesterinaFunction> testFunctions = tFile.getTestFunction();
-//        ArrayList<TesterinaFunction> beforeTestFunctions = tFile.getBeforeTestFunction();
-//        ArrayList<TesterinaFunction> afterTestFunctions = tFile.getAfterTestFunction();
-//
-//        if (testFunctions.isEmpty()) {
-//            throw new BallerinaException("No test functions found in the provided ballerina files.");
-//        }
-//
-//        //before test
-//        for (TesterinaFunction tFunction : beforeTestFunctions) {
-//            try {
-//                tFunction.invoke();
-//            } catch (BallerinaException e) {
-//                outStream.println(
-//                        "error in '" + tFunction.getName() + "': " + e.getMessage());
-//            }
-//        }
-//
-//        // Executing Tests
-//        for (TesterinaFunction tFunction : testFunctions) {
-//
-//            boolean isTestPassed = true;
-//            // Check whether the function is disabled
-//            if (!tFunction.getRunTest()) {
-//                tReport.incrementSkipCount();
-//                continue;
-//            }
-//
-//            // check whether value set is present and execute tests
-//            List<String[]> valueSets = tFunction.getValueSet();
-//            String errorMessage = "";
-//            if (tFunction.getValueSet().size() > 0) {
-//                for (String[] valueSet : valueSets) {
-//                    isTestPassed = true;
-//                    try {
-//                        // Parsing the args to invoke function
-//                        tFunction.invoke(Arrays.stream(valueSet).map(s -> new BString(s)).toArray(BString[]::new));
-//                    } catch (BallerinaException e) {
-//                        isTestPassed = false;
-//                        errorMessage = "valueSet: " + Arrays.toString(valueSet) + " " + e.getMessage();
-//                        outStream.println("test '" + tFunction.getName() + "' failed: " + errorMessage);
-//                    } catch (Exception e) {
-//                        isTestPassed = false;
-//                        errorMessage = "valueSet: " + Arrays.toString(valueSet) + " " + e.getMessage();
-//                        outStream.println("test '" + tFunction.getName() + "' has an error: " + errorMessage);
-//                    }
-//                    // if there are no exception thrown, test is passed
-//                    TesterinaResult functionResult = new TesterinaResult(tFunction.getName(), isTestPassed,
-//                            errorMessage);
-//                    tReport.addFunctionResult(functionResult);
-//                }
-//            } else {
-//                try {
-//                    tFunction.invoke();
-//                } catch (BallerinaException e) {
-//                    isTestPassed = false;
-//                    errorMessage = e.getMessage();
-//                    outStream.println("test '" + tFunction.getName() + "' failed: " + errorMessage);
-//                } catch (Exception e) {
-//                    isTestPassed = false;
-//                    errorMessage = e.getMessage();
-//                    outStream.println("test '" + tFunction.getName() + "' has an error: " + errorMessage);
-//                }
-//                // if there are no exception thrown, test is passed
-//                TesterinaResult functionResult = new TesterinaResult(tFunction.getName(), isTestPassed,
-//                        errorMessage);
-//                tReport.addFunctionResult(functionResult);
-//            }
-//        }
-//
-//        //after test
-//        for (TesterinaFunction tFunction : afterTestFunctions) {
-//            try {
-//                tFunction.invoke();
-//            } catch (Exception e) {
-//                outStream.println("error in '" + tFunction.getName() + "': " + e.getMessage());
-//            }
-//        }
+        //        ArrayList<TesterinaFunction> testFunctions = tFile.getTestFunction();
+        //        ArrayList<TesterinaFunction> beforeTestFunctions = tFile.getBeforeTestFunction();
+        //        ArrayList<TesterinaFunction> afterTestFunctions = tFile.getAfterTestFunction();
+        //
+        //        if (testFunctions.isEmpty()) {
+        //            throw new BallerinaException("No test functions found in the provided ballerina files.");
+        //        }
+        //
+        //        //before test
+        //        for (TesterinaFunction tFunction : beforeTestFunctions) {
+        //            try {
+        //                tFunction.invoke();
+        //            } catch (BallerinaException e) {
+        //                outStream.println(
+        //                        "error in '" + tFunction.getName() + "': " + e.getMessage());
+        //            }
+        //        }
+        //
+        //        // Executing Tests
+        //        for (TesterinaFunction tFunction : testFunctions) {
+        //
+        //            boolean isTestPassed = true;
+        //            // Check whether the function is disabled
+        //            if (!tFunction.getRunTest()) {
+        //                tReport.incrementSkipCount();
+        //                continue;
+        //            }
+        //
+        //            // check whether value set is present and execute tests
+        //            List<String[]> valueSets = tFunction.getValueSet();
+        //            String errorMessage = "";
+        //            if (tFunction.getValueSet().size() > 0) {
+        //                for (String[] valueSet : valueSets) {
+        //                    isTestPassed = true;
+        //                    try {
+        //                        // Parsing the args to invoke function
+        //            tFunction.invoke(Arrays.stream(valueSet).map(s -> new BString(s)).toArray(BString[]::new));
+        //                    } catch (BallerinaException e) {
+        //                        isTestPassed = false;
+        //                        errorMessage = "valueSet: " + Arrays.toString(valueSet) + " " + e.getMessage();
+        //                        outStream.println("test '" + tFunction.getName() + "' failed: " + errorMessage);
+        //                    } catch (Exception e) {
+        //                        isTestPassed = false;
+        //                        errorMessage = "valueSet: " + Arrays.toString(valueSet) + " " + e.getMessage();
+        //                        outStream.println("test '" + tFunction.getName() + "' has an error: " + errorMessage);
+        //                    }
+        //                    // if there are no exception thrown, test is passed
+        //                    TesterinaResult functionResult = new TesterinaResult(tFunction.getName(), isTestPassed,
+        //                            errorMessage);
+        //                    tReport.addFunctionResult(functionResult);
+        //                }
+        //            } else {
+        //                try {
+        //                    tFunction.invoke();
+        //                } catch (BallerinaException e) {
+        //                    isTestPassed = false;
+        //                    errorMessage = e.getMessage();
+        //                    outStream.println("test '" + tFunction.getName() + "' failed: " + errorMessage);
+        //                } catch (Exception e) {
+        //                    isTestPassed = false;
+        //                    errorMessage = e.getMessage();
+        //                    outStream.println("test '" + tFunction.getName() + "' has an error: " + errorMessage);
+        //                }
+        //                // if there are no exception thrown, test is passed
+        //                TesterinaResult functionResult = new TesterinaResult(tFunction.getName(), isTestPassed,
+        //                        errorMessage);
+        //                tReport.addFunctionResult(functionResult);
+        //            }
+        //        }
+        //
+        //        //after test
+        //        for (TesterinaFunction tFunction : afterTestFunctions) {
+        //            try {
+        //                tFunction.invoke();
+        //            } catch (Exception e) {
+        //                outStream.println("error in '" + tFunction.getName() + "': " + e.getMessage());
+        //            }
+        //        }
     }
 
     /**
@@ -274,4 +293,15 @@ public class BTestRunner {
         return tReport;
     }
 
+    private static void initDebugger(Context bContext, Debugger debugger) {
+        bContext.getProgramFile().setDebugger(debugger);
+        if (debugger.isDebugEnabled()) {
+            DebugContext debugContext = new DebugContext();
+            bContext.setDebugContext(debugContext);
+            debugger.init();
+            debugger.addDebugContextAndWait(debugContext);
+        }
+    }
 }
+
+

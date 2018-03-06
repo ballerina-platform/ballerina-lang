@@ -17,18 +17,25 @@
  */
 package org.ballerinalang.testerina.core;
 
+import com.beust.jcommander.DynamicParameter;
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.ParameterDescription;
 import com.beust.jcommander.Parameters;
+import org.ballerinalang.config.ConfigRegistry;
+import org.ballerinalang.config.utils.ConfigFileParserException;
 import org.ballerinalang.launcher.BLauncherCmd;
 import org.ballerinalang.launcher.LauncherUtils;
+import org.ballerinalang.logging.BLogManager;
 
 import java.io.PrintStream;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.logging.LogManager;
 
 /**
  * Test command for ballerina launcher.
@@ -65,6 +72,12 @@ public class TestCmd implements BLauncherCmd {
     @Parameter(names = "--disable-groups", description = "test groups to be excluded from executed")
     private List<String> disableGroupList;
 
+    @Parameter(names = {"--sourceroot"}, description = "path to the directory containing source files and packages")
+    private String sourceRoot;
+
+    @DynamicParameter(names = "-B", description = "collects dynamic parameters")
+    private Map<String, String> configRuntimeParams = new HashMap<>();
+
     public void execute() {
         if (helpFlag) {
             printCommandUsageInfo(parentCmdParser, "test");
@@ -82,6 +95,16 @@ public class TestCmd implements BLauncherCmd {
         if (groupList != null && disableGroupList != null) {
             throw LauncherUtils
                     .createUsageException("Cannot specify both --groups and --disable-groups flags at the same time");
+        }
+
+        Path sourceRootPath = LauncherUtils.getSourceRootPath(sourceRoot);
+        ConfigRegistry.getInstance().initRegistry(configRuntimeParams, sourceRootPath.resolve("ballerina.conf"));
+
+        try {
+            ConfigRegistry.getInstance().loadConfigurations();
+            ((BLogManager) LogManager.getLogManager()).loadUserProvidedLogConfiguration();
+        } catch (ConfigFileParserException e) {
+            throw new RuntimeException("failed to start ballerina runtime: " + e.getMessage(), e);
         }
 
         Path[] paths = sourceFileList.stream().map(Paths::get).toArray(Path[]::new);
