@@ -18,6 +18,7 @@
 
 package org.ballerinalang.nativeimpl.log;
 
+import org.ballerinalang.bre.Context;
 import org.ballerinalang.logging.BLogManager;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.slf4j.Logger;
@@ -43,5 +44,9 @@ public abstract class AbstractLogFunction extends AbstractNativeFunction {
             // TODO: Refactor this later
             return LoggerFactory.getLogger(ballerinaRootLogger.getName() + "." + pkg);
         }
+    }
+
+    protected String getLogMessage(Context context, int index) {
+        return String.valueOf(context.getControlStack().getCurrentFrame().getStringRegs()[index]);
     }
 }

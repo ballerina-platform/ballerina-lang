@@ -61,13 +61,15 @@ connector InitiatorClient (string registerAtURL) {
         if (e == null) {
             int statusCode = res.statusCode;
             if (statusCode == 200) {
-                var regRes, transformErr = <RegistrationResponse>res.getJsonPayload();
+                var payload, _ = res.getJsonPayload();
+                var regRes, transformErr = <RegistrationResponse>payload;
                 registrationRes = regRes;
                 err = (error)transformErr;
             } else {
-                json payload = res.getJsonPayload();
+                var payload, _ = res.getJsonPayload();
                 if (payload == null) {
-                    err = {message:res.getStringPayload()};
+                    var stringPayload, _ = res.getStringPayload();
+                    err = {message:stringPayload};
                 } else {
                     var errMsg, _ = (string)payload.errorMessage;
                     err = {message:errMsg};
