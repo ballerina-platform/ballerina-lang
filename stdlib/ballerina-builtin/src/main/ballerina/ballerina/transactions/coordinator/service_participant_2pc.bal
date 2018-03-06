@@ -105,6 +105,7 @@ service<http> Participant2pcService {
                         notifyRes = {message:"Committed"};
                     } else {
                         res = {statusCode:500};
+                        log:printError("Committing resource managers failed. Transaction:" + participatedTxnId);
                         notifyRes = {message:"Failed-EOT"};
                     }
                 }
@@ -116,6 +117,7 @@ service<http> Participant2pcService {
                     notifyRes = {message:"Aborted"};
                 } else {
                     res = {statusCode:500};
+                    log:printError("Aborting resource managers failed. Transaction:" + participatedTxnId);
                     notifyRes = {message:"Failed-EOT"};
                 }
             }

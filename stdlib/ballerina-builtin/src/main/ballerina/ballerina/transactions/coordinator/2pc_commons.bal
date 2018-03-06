@@ -323,7 +323,7 @@ function notifyRemoteParticipant (TwoPhaseCommitTransaction txn,
             log:printErrorCause("Communication error occurred while notify(" + message + ") participant: " + protoURL +
                                 " for transaction: " + transactionId, communicationErr);
         } else if (participantErr != null) { // participant may return "Transaction-Unknown", "Not-Prepared" or "Failed-EOT"
-            log:printErrorCause("Remote participant replied with an error", participantErr);
+            log:printErrorCause("Remote participant: " + participantId + " replied with an error", participantErr);
             err = participantErr;
         } else if (notificationStatus == "aborted") {
             log:printInfo("Remote participant: " + participantId + " aborted");
