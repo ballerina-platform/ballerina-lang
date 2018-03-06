@@ -36,7 +36,7 @@ public struct FailoverConfig {
 @Field {value:"httpConnectorError: Array of HttpConnectorError error occurred at each endpoint."}
 public struct FailoverConnectorError {
     string message;
-    error cause;
+    error[] cause;
     int statusCode;
     http:HttpConnectorError[] httpConnectorError;
 }
