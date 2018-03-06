@@ -182,12 +182,61 @@ public class CommonUtil {
      * @return {@link Token}    Previous default token
      */
     public static Token getPreviousDefaultToken(TokenStream tokenStream, int startIndex) {
+        return getDefaultTokenToLeftOrRight(tokenStream, startIndex, -1);
+    }
+
+    /**
+     * Get the next default token from the given start index.
+     * @param tokenStream       Token Stream
+     * @param startIndex        Start token index
+     * @return {@link Token}    Previous default token
+     */
+    public static Token getNextDefaultToken(TokenStream tokenStream, int startIndex) {
+        return getDefaultTokenToLeftOrRight(tokenStream, startIndex, 1);
+    }
+
+    /**
+     * Get the Nth Default token to the left of current token index.
+     * @param tokenStream       Token Stream to traverse
+     * @param startIndex        Start position of the token stream
+     * @param offset            Number of tokens to traverse left
+     * @return {@link Token}    Nth Token
+     */
+    public static Token getNthDefaultTokensToLeft(TokenStream tokenStream, int startIndex, int offset) {
+        Token token = null;
+        int indexCounter = startIndex;
+        for (int i = 0; i < offset; i++) {
+            token = getPreviousDefaultToken(tokenStream, indexCounter);
+            indexCounter = token.getTokenIndex();
+        }
+        
+        return token;
+    }
+
+    /**
+     * Get the Nth Default token to the right of current token index.
+     * @param tokenStream       Token Stream to traverse
+     * @param startIndex        Start position of the token stream
+     * @param offset            Number of tokens to traverse right
+     * @return {@link Token}    Nth Token
+     */
+    public static Token getNthDefaultTokensToRight(TokenStream tokenStream, int startIndex, int offset) {
+        Token token = null;
+        int indexCounter = startIndex;
+        for (int i = 0; i < offset; i++) {
+            token = getNextDefaultToken(tokenStream, indexCounter);
+            indexCounter = token.getTokenIndex();
+        }
+        
+        return token;
+    }
+    
+    private static Token getDefaultTokenToLeftOrRight(TokenStream tokenStream, int startIndex, int direction) {
         Token token;
         while (true) {
+            startIndex += direction;
             token = tokenStream.get(startIndex);
-            if (token.getChannel() != Token.DEFAULT_CHANNEL) {
-                startIndex--;
-            } else {
+            if (token.getChannel() == Token.DEFAULT_CHANNEL) {
                 break;
             }
         }
