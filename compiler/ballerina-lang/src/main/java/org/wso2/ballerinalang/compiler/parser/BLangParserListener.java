@@ -1211,9 +1211,10 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             workerNames = ctx.Identifier().stream().map(TerminalNode::getText).collect(Collectors.toList());
         }
         int joinCount = 0;
-        if (ctx.integerLiteral().DecimalIntegerLiteral() != null) {
+        Integer integerObject;
+        if ((integerObject = getJointCount(ctx)) != null) {
             try {
-                joinCount = Integer.valueOf(ctx.integerLiteral().DecimalIntegerLiteral().getText());
+                joinCount = integerObject;
             } catch (NumberFormatException ex) {
                 // When ctx.IntegerLiteral() is not a string or missing, compilation fails due to NumberFormatException.
                 // Hence catching the error and ignore. Still Parser complains about missing IntegerLiteral.
@@ -1801,12 +1802,13 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         }
 
         TerminalNode node;
+        Long longObject;
         DiagnosticPos pos = getCurrentPos(ctx);
         Set<Whitespace> ws = getWS(ctx);
         BallerinaParser.IntegerLiteralContext integerLiteralContext = ctx.integerLiteral();
 
-        if (integerLiteralContext != null && (node = integerLiteralContext.DecimalIntegerLiteral()) != null) {
-            this.pkgBuilder.addLiteralValue(pos, ws, TypeTags.INT, Long.parseLong(getNodeValue(ctx, node)));
+        if (integerLiteralContext != null && (longObject = getIntegerLiteral(ctx)) != null) {
+            this.pkgBuilder.addLiteralValue(pos, ws, TypeTags.INT, longObject);
         } else if ((node = ctx.FloatingPointLiteral()) != null) {
             this.pkgBuilder.addLiteralValue(pos, ws, TypeTags.FLOAT, Double.parseDouble(getNodeValue(ctx, node)));
         } else if ((node = ctx.BooleanLiteral()) != null) {
@@ -1818,15 +1820,6 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             this.pkgBuilder.addLiteralValue(pos, ws, TypeTags.STRING, text);
         } else if (ctx.NullLiteral() != null) {
             this.pkgBuilder.addLiteralValue(pos, ws, TypeTags.NULL, null);
-        } else if (integerLiteralContext != null && (node = integerLiteralContext.HexIntegerLiteral()) != null) {
-            this.pkgBuilder.addLiteralValue(pos, ws, TypeTags.INT, Long.parseLong(getNodeValue(ctx, node)
-                    .toLowerCase().replace("0x", ""), 16));
-        } else if (integerLiteralContext != null && (node = integerLiteralContext.OctalIntegerLiteral()) != null) {
-            this.pkgBuilder.addLiteralValue(pos, ws, TypeTags.INT, Long.parseLong(getNodeValue(ctx, node)
-                    .replace("0_", ""), 8));
-        } else if (integerLiteralContext != null && (node = integerLiteralContext.BinaryIntegerLiteral()) != null) {
-            this.pkgBuilder.addLiteralValue(pos, ws, TypeTags.INT, Long.parseLong(getNodeValue(ctx, node)
-                    .toLowerCase().replace("0b", ""), 2));
         }
     }
 
@@ -2088,5 +2081,39 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             value = "-" + value;
         }
         return value;
+    }
+
+    private Long getIntegerLiteral(BallerinaParser.SimpleLiteralContext simpleLiteralContext) {
+        BallerinaParser.IntegerLiteralContext integerLiteralContext = simpleLiteralContext.integerLiteral();
+        if (integerLiteralContext.DecimalIntegerLiteral() != null) {
+            return Long.parseLong(getNodeValue(simpleLiteralContext, integerLiteralContext.DecimalIntegerLiteral()));
+        } else if (integerLiteralContext.HexIntegerLiteral() != null) {
+            return Long.parseLong(getNodeValue(simpleLiteralContext, integerLiteralContext.HexIntegerLiteral())
+                    .toLowerCase().replace("0x", ""), 16);
+        } else if (integerLiteralContext.OctalIntegerLiteral() != null) {
+            return Long.parseLong(getNodeValue(simpleLiteralContext, integerLiteralContext.OctalIntegerLiteral())
+                    .replace("0_", ""), 8);
+        } else if (integerLiteralContext.BinaryIntegerLiteral() != null) {
+            return Long.parseLong(getNodeValue(simpleLiteralContext, integerLiteralContext.BinaryIntegerLiteral())
+                    .toLowerCase().replace("0b", ""), 2);
+        }
+        return null;
+    }
+
+    private Integer getJointCount(BallerinaParser.AnyJoinConditionContext anyJoinConditionContext) {
+        BallerinaParser.IntegerLiteralContext integerLiteralContext = anyJoinConditionContext.integerLiteral();
+        if (integerLiteralContext.DecimalIntegerLiteral() != null) {
+            return Integer.parseInt(integerLiteralContext.DecimalIntegerLiteral().getText());
+        } else if (integerLiteralContext.HexIntegerLiteral() != null) {
+            return Integer.parseInt(integerLiteralContext.HexIntegerLiteral().getText().toLowerCase()
+                    .replace("0x", ""), 16);
+        } else if (integerLiteralContext.OctalIntegerLiteral() != null) {
+            return Integer.parseInt(integerLiteralContext.OctalIntegerLiteral().getText()
+                    .replace("0_", ""), 8);
+        } else if (integerLiteralContext.BinaryIntegerLiteral() != null) {
+            return Integer.parseInt(integerLiteralContext.BinaryIntegerLiteral().getText().toLowerCase()
+                    .replace("0b", ""), 2);
+        }
+        return null;
     }
 }
