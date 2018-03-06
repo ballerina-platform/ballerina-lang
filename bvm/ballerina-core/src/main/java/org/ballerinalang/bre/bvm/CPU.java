@@ -531,6 +531,7 @@ public class CPU {
                 case InstructionCodes.S2XML:
                 case InstructionCodes.S2JSONX:
                 case InstructionCodes.XML2S:
+                case InstructionCodes.ANY2SCONV:
                     execTypeConversionOpcodes(ctx, sf, opcode, operands);
                     break;
 
@@ -2163,6 +2164,17 @@ public class CPU {
                 i = operands[0];
                 j = operands[1];
                 sf.stringRegs[j] = sf.refRegs[i].stringValue();
+                break;
+            case InstructionCodes.ANY2SCONV:
+                i = operands[0];
+                j = operands[1];
+
+                bRefType = sf.refRegs[i];
+                if (bRefType == null) {
+                    sf.stringRegs[j] = STRING_NULL_VALUE;
+                } else {
+                    sf.stringRegs[j] = bRefType.stringValue();
+                }
                 break;
             default:
                 throw new UnsupportedOperationException();
