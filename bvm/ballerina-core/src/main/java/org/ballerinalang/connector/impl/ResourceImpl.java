@@ -29,17 +29,17 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * {@code BResource} This is the implementation for the {@code Resource} API.
+ * {@code ResourceImpl} This is the implementation for the {@code Resource} API.
  *
  * @since 0.94
  */
-public class BResource extends AbstractServiceResource  implements Resource {
+public class ResourceImpl extends AnnotatableNode implements Resource {
     private String name;
 
     //reference to the original resourceInfo object.
     private ResourceInfo resourceInfo;
 
-    public BResource(String name, ResourceInfo resourceInfo) {
+    public ResourceImpl(String name, ResourceInfo resourceInfo) {
         this.name = name;
         this.resourceInfo = resourceInfo;
     }
@@ -78,5 +78,10 @@ public class BResource extends AbstractServiceResource  implements Resource {
             paramDetails.add(new ParamDetail(variableInfo.getVariableType(), variableInfo.getVariableName()));
         }
         return paramDetails;
+    }
+
+    @Override
+    public String getAnnotationEntryKey() {
+        return getServiceName() + "." + name;
     }
 }

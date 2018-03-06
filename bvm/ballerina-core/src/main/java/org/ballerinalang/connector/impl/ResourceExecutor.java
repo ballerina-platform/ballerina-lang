@@ -70,7 +70,7 @@ public class ResourceExecutor {
             connectorFuture.notifyFailure(new BallerinaException("trying to execute a null resource"));
             return;
         }
-        ResourceInfo resourceInfo = ((BResource) resource).getResourceInfo();
+        ResourceInfo resourceInfo = ((ResourceImpl) resource).getResourceInfo();
         ServiceInfo serviceInfo = resourceInfo.getServiceInfo();
         // Invoke VM.
         PackageInfo packageInfo = serviceInfo.getPackageInfo();

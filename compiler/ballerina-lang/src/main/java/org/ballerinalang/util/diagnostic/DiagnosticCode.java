@@ -133,11 +133,7 @@ public enum DiagnosticCode {
 
     UNDEFINED_ANNOTATION("undefined.annotation"),
     ANNOTATION_NOT_ALLOWED("annotation.not.allowed"),
-    INVALID_OPERATION_INCOMPATIBLE_TYPES("invalid.operation.incompatible.types"),
-    INVALID_DEFAULT_VALUE("invalid.default.value"),
-    INVALID_ATTRIBUTE_TYPE("invalid.attribute.type"),
-    NO_SUCH_ATTRIBUTE("no.such.attribute"),
-    ATTRIBUTE_VAL_CANNOT_REFER_NON_CONST("annotation.attribute.value.cannot.refer.non.constant"),
+    ANNOTATION_ATTACHMENT_NO_VALUE("annotation.attachment.no.value"),
     INCOMPATIBLE_TYPES_ARRAY_FOUND("incompatible.types.array.found"),
 
     NO_SUCH_DOCUMENTABLE_ATTRIBUTE("no.such.documentable.attribute"),

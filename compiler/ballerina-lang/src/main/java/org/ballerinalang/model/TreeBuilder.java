@@ -42,7 +42,6 @@ import org.ballerinalang.model.tree.expressions.AnnotationAttachmentAttributeNod
 import org.ballerinalang.model.tree.expressions.AnnotationAttachmentAttributeValueNode;
 import org.ballerinalang.model.tree.expressions.ArrayLiteralNode;
 import org.ballerinalang.model.tree.expressions.BinaryExpressionNode;
-import org.ballerinalang.model.tree.expressions.ConnectorInitNode;
 import org.ballerinalang.model.tree.expressions.DocumentationAttributeNode;
 import org.ballerinalang.model.tree.expressions.FieldBasedAccessNode;
 import org.ballerinalang.model.tree.expressions.IndexBasedAccessNode;
@@ -56,6 +55,7 @@ import org.ballerinalang.model.tree.expressions.StringTemplateLiteralNode;
 import org.ballerinalang.model.tree.expressions.TernaryExpressionNode;
 import org.ballerinalang.model.tree.expressions.TypeCastNode;
 import org.ballerinalang.model.tree.expressions.TypeConversionNode;
+import org.ballerinalang.model.tree.expressions.TypeInitNode;
 import org.ballerinalang.model.tree.expressions.TypeofExpressionNode;
 import org.ballerinalang.model.tree.expressions.UnaryExpressionNode;
 import org.ballerinalang.model.tree.expressions.XMLAttributeNode;
@@ -119,7 +119,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAttachmentAttr
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAttachmentAttributeValue;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrayLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangConnectorInit;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangDocumentationAttribute;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
@@ -133,6 +132,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangStringTemplateLiter
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTernaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeCastExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeInit;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeofExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangUnaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLAttribute;
@@ -327,8 +327,8 @@ public class TreeBuilder {
         return new BLangLambdaFunction();
     }
 
-    public static ConnectorInitNode createConnectorInitNode() {
-        return new BLangConnectorInit();
+    public static TypeInitNode createConnectorInitNode() {
+        return new BLangTypeInit();
     }
 
     public static StructNode createStructNode() {

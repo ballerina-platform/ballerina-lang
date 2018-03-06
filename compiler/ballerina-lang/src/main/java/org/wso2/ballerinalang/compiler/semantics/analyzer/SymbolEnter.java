@@ -34,8 +34,10 @@ import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationAttributeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConnectorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BServiceSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BStructSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BStructSymbol.BAttachedFunction;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
@@ -50,6 +52,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BAnnotationType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BConnectorType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BEnumType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BServiceType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStructType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStructType.BStructField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
@@ -232,6 +235,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         pkgNode.completedPhases.add(CompilerPhase.DEFINE);
     }
 
+    @Deprecated
     private void resolveAnnotationAttributeTypes(List<BLangAnnotation> annotations, SymbolEnv pkgEnv) {
         annotations.forEach(annotation -> {
             annotation.attributes.forEach(attribute -> {
@@ -252,6 +256,10 @@ public class SymbolEnter extends BLangNodeVisitor {
         defineSymbol(annotationNode.pos, annotationSymbol);
         SymbolEnv annotationEnv = SymbolEnv.createAnnotationEnv(annotationNode, annotationSymbol.scope, env);
         annotationNode.attributes.forEach(att -> this.defineNode(att, annotationEnv));
+        if (annotationNode.typeNode != null) {
+            BType structType = this.symResolver.resolveTypeNode(annotationNode.typeNode, annotationEnv);
+            ((BAnnotationSymbol) annotationSymbol).attachedType = structType.tsymbol;
+        }
     }
 
     public void visit(BLangAnnotAttribute annotationAttribute) {
@@ -386,7 +394,7 @@ public class SymbolEnter extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangConnector connectorNode) {
-        BTypeSymbol conSymbol = Symbols.createConnectorSymbol(Flags.asMask(connectorNode.flagSet),
+        BConnectorSymbol conSymbol = Symbols.createConnectorSymbol(Flags.asMask(connectorNode.flagSet),
                 names.fromIdNode(connectorNode.name), env.enclPkg.symbol.pkgID, null, env.scope.owner);
         connectorNode.symbol = conSymbol;
         defineSymbol(connectorNode.pos, conSymbol);
@@ -394,9 +402,10 @@ public class SymbolEnter extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangService serviceNode) {
-        BSymbol serviceSymbol = Symbols.createServiceSymbol(Flags.asMask(serviceNode.flagSet),
+        BServiceSymbol serviceSymbol = Symbols.createServiceSymbol(Flags.asMask(serviceNode.flagSet),
                 names.fromIdNode(serviceNode.name), env.enclPkg.symbol.pkgID, null, env.scope.owner);
         serviceNode.symbol = serviceSymbol;
+        serviceNode.symbol.type = new BServiceType(serviceSymbol);
         defineSymbol(serviceNode.pos, serviceSymbol);
     }
 
@@ -713,7 +722,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         symbol.type = new BInvokableType(paramTypes, retTypes, null);
     }
 
-    private void defineConnectorSymbolParams(BLangConnector connectorNode, BTypeSymbol symbol,
+    private void defineConnectorSymbolParams(BLangConnector connectorNode, BConnectorSymbol symbol,
                                              SymbolEnv connectorEnv) {
         List<BVarSymbol> paramSymbols =
                 connectorNode.params.stream()

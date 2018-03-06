@@ -27,8 +27,10 @@ import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.ResourceNode;
 import org.ballerinalang.model.tree.ServiceNode;
 import org.ballerinalang.model.tree.statements.VariableDefinitionNode;
+import org.ballerinalang.model.tree.types.UserDefinedTypeNode;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangVariableDef;
+import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
 
 import java.util.ArrayList;
 import java.util.EnumSet;
@@ -41,7 +43,7 @@ import java.util.Set;
 public class BLangService extends BLangNode implements ServiceNode {
     
     public BLangIdentifier name;
-    public BLangIdentifier protocolPkgIdentifier;
+    public BLangUserDefinedType endpointType;
     public List<BLangVariableDef> vars;
     public List<BLangResource> resources;
     public Set<Flag> flagSet;
@@ -72,13 +74,13 @@ public class BLangService extends BLangNode implements ServiceNode {
     }
 
     @Override
-    public BLangIdentifier getProtocolPackageIdentifier() {
-        return protocolPkgIdentifier;
+    public UserDefinedTypeNode getEndpointType() {
+        return this.endpointType;
     }
-    
+
     @Override
-    public void setProtocolPackageIdentifier(IdentifierNode protocolPkgIdentifier) {
-        this.protocolPkgIdentifier = (BLangIdentifier) protocolPkgIdentifier;
+    public void setEndpointType(UserDefinedTypeNode endpointType) {
+        this.endpointType = (BLangUserDefinedType) endpointType;
     }
 
     @Override
@@ -163,7 +165,7 @@ public class BLangService extends BLangNode implements ServiceNode {
 
     @Override
     public String toString() {
-        return "BLangService: " + flagSet + " " + annAttachments + " " + getName() + "<" + protocolPkgIdentifier + "> "
+        return "BLangService: " + flagSet + " " + annAttachments + " " + getName() + "<" + endpointType + "> "
                 + vars + " " + resources;
     }
 }

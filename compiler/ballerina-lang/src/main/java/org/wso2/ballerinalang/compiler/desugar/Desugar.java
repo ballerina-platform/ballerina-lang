@@ -55,7 +55,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangXMLNS.BLangPackageXMLNS;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrayLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrayLiteral.BLangJSONArrayLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangConnectorInit;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess.BLangEnumeratorAccessExpr;
@@ -87,6 +86,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangStringTemplateLiter
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTernaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeCastExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeInit;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeofExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangUnaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangVariableReference;
@@ -146,6 +146,7 @@ public class Desugar extends BLangNodeVisitor {
     private SymbolResolver symResolver;
     private SymbolEnter symbolEnter;
     private IterableCodeDesugar iterableCodeDesugar;
+    private AnnotationDesugar annotationDesugar;
 
     private BLangNode result;
 
@@ -170,6 +171,7 @@ public class Desugar extends BLangNodeVisitor {
         this.symResolver = SymbolResolver.getInstance(context);
         this.symbolEnter = SymbolEnter.getInstance(context);
         this.iterableCodeDesugar = IterableCodeDesugar.getInstance(context);
+        this.annotationDesugar = AnnotationDesugar.getInstance(context);
     }
 
     public BLangPackage perform(BLangPackage pkgNode) {
@@ -190,8 +192,10 @@ public class Desugar extends BLangNodeVisitor {
         pkgNode.functions = rewrite(pkgNode.functions);
         pkgNode.connectors = rewrite(pkgNode.connectors);
         pkgNode.services = rewrite(pkgNode.services);
-        pkgNode.initFunction = rewrite(pkgNode.initFunction);
         pkgNode.transformers = rewrite(pkgNode.transformers);
+
+        annotationDesugar.rewritePackageAnnotations(pkgNode);
+        pkgNode.initFunction = rewrite(pkgNode.initFunction);
         pkgNode.completedPhases.add(CompilerPhase.DESUGAR);
         result = pkgNode;
     }
@@ -653,7 +657,7 @@ public class Desugar extends BLangNodeVisitor {
         }
     }
 
-    public void visit(BLangConnectorInit connectorInitExpr) {
+    public void visit(BLangTypeInit connectorInitExpr) {
         connectorInitExpr.argsExpr = rewriteExprs(connectorInitExpr.argsExpr);
         result = connectorInitExpr;
     }
