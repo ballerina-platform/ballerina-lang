@@ -87,7 +87,7 @@ public class PackageLoader {
         loadPackageRepository(context);
     }
 
-    public BLangPackage loadEntryPointPackage(String source) {
+    public BLangPackage loadPackage(String source) {
         if (source == null || source.isEmpty()) {
             throw new IllegalArgumentException("source package/file cannot be null");
         }

@@ -45,7 +45,7 @@ public class Compiler {
             new CompilerContext.Key<>();
 
     private CompilerOptions options;
-    private EntryPointResolver entryPointResolver;
+    private ProjectDirectory projectDirectory;
     private CompilerDriver compilerDriver;
     private BinaryFileWriter binaryFileWriter;
 
@@ -76,7 +76,7 @@ public class Compiler {
         context.put(COMPILER_KEY, this);
 
         this.options = CompilerOptions.getInstance(context);
-        this.entryPointResolver = EntryPointResolver.getInstance(context);
+        this.projectDirectory = ProjectDirectory.getInstance(context);
         this.compilerDriver = CompilerDriver.getInstance(context);
         this.binaryFileWriter = BinaryFileWriter.getInstance(context);
 
@@ -98,9 +98,16 @@ public class Compiler {
 
         // 4) Once all the entry points are resolved, then write all the compiled package as BALOs.
 
-        this.entryPointResolver.list()
+        this.projectDirectory.list()
                 .peek(pkgNode -> this.compilerDriver.compilePackage(pkgNode))
                 .forEach(pkgNode -> this.binaryFileWriter.writeExecutableBinary(pkgNode));
+
+        //ProjectDirectory
+        // - scan()
+        // + listEntryPointPackages();
+        // + listPackage()
+
+
     }
 
     public void compile(String sourcePkg) {
