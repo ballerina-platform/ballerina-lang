@@ -35,7 +35,6 @@ import org.wso2.transport.http.netty.contract.HttpResponseFuture;
 import org.wso2.transport.http.netty.contract.HttpWsConnectorFactory;
 import org.wso2.transport.http.netty.contract.ServerConnectorException;
 import org.wso2.transport.http.netty.contractimpl.DefaultHttpWsConnectorFactory;
-import org.wso2.transport.http.netty.exception.EndpointTimeOutException;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 import org.wso2.transport.http.netty.message.HttpCarbonResponse;
 import org.wso2.transport.http.netty.util.TestUtil;
@@ -83,8 +82,7 @@ public class PassthroughMessageProcessorListener implements HttpConnectorListene
 
                     @Override
                     public void onError(Throwable throwable) {
-                        if (throwable instanceof ClientConnectorException
-                                || throwable instanceof EndpointTimeOutException) {
+                        if (throwable instanceof ClientConnectorException) {
                             ClientConnectorException connectorException = (ClientConnectorException) throwable;
                             if (connectorException.getOutboundChannelID() != null) {
                                 sendTimeoutResponse(connectorException.getOutboundChannelID());
