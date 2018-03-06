@@ -74,6 +74,10 @@ import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
 import java.net.URI;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -85,12 +89,19 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
+import javax.script.Invocable;
+import javax.script.ScriptEngine;
+import javax.script.ScriptEngineManager;
+import javax.script.ScriptException;
+
 /**
  * Text document service implementation for ballerina.
  */
 public class BallerinaTextDocumentService implements TextDocumentService {
     // indicates the frequency to send diagnostics to server upon document did change
     private static final int DIAG_PUSH_DEBOUNCE_DELAY = 500;
+    private static final String JAVASCRIPT_ENGINE = "nashorn";
+    private static final String SOURCE_GEN_FILE = "source-gen.js";
 
     private final BallerinaLanguageServer ballerinaLanguageServer;
     private final WorkspaceDocumentManager documentManager;
@@ -290,17 +301,36 @@ public class BallerinaTextDocumentService implements TextDocumentService {
     @Override
     public CompletableFuture<List<? extends TextEdit>> formatting(DocumentFormattingParams params) {
         return CompletableFuture.supplyAsync(() -> {
+            ScriptEngine engine = new ScriptEngineManager().getEngineByName(JAVASCRIPT_ENGINE);
             TextDocumentServiceContext formatContext = new TextDocumentServiceContext();
             formatContext.put(DocumentServiceKeys.FILE_URI_KEY, params.getTextDocument().getUri());
             String fileContent = documentManager.getFileContent(CommonUtil.getPath(params.getTextDocument().getUri()));
+            String newDummyContent = fileContent;
             String[] contentComponents = fileContent.split("\\n|\\r\\n|\\r");
             int lastNewLineCharIndex = Math.max(fileContent.lastIndexOf("\n"), fileContent.lastIndexOf("\r"));
             int lastCharCol = fileContent.substring(lastNewLineCharIndex + 1).length();
             int totalLines = contentComponents.length;
             Range range = new Range(new Position(0, 0), new Position(totalLines, lastCharCol));
             JsonObject ast = TextDocumentFormatUtil.getAST(params, documentManager, formatContext);
-            // TODO: For the moment we replace the content with the ast. Need to implement the AST source-gen
-            String newDummyContent = ast.toString();
+            ClassLoader classLoader = BallerinaTextDocumentService.class.getClassLoader();
+            InputStream inputStream = classLoader.getResourceAsStream(SOURCE_GEN_FILE);
+            try {
+                Reader fileReader = new InputStreamReader(inputStream, "UTF-8");
+                engine.eval(fileReader);
+                fileReader.close();
+                Invocable invocable = (Invocable) engine;
+                newDummyContent = (String) invocable.invokeFunction("gen", ast.toString());
+            } catch (ScriptException | NoSuchMethodException | IOException e) {
+                // Ignore
+            } finally {
+                if (inputStream != null) {
+                    try {
+                        inputStream.close();
+                    } catch (IOException e) {
+                        // Ignore
+                    }
+                }
+            }
             TextEdit textEdit = new TextEdit(range, newDummyContent);
             return Collections.singletonList(textEdit);
         });
