@@ -34,7 +34,8 @@ service<http> Participant2pcService {
     }
     resource prepare (http:Connection conn, http:InRequest req) {
         http:OutResponse res;
-        var prepareReq, _ = <PrepareRequest>req.getJsonPayload();
+        var payload, _ = req.getJsonPayload();
+        var prepareReq, _ = <PrepareRequest>payload;
         string transactionId = prepareReq.transactionId;
         log:printInfo("Prepare received for transaction: " + transactionId);
         PrepareResponse prepareRes;
@@ -75,7 +76,8 @@ service<http> Participant2pcService {
         methods:["POST"]
     }
     resource notify (http:Connection conn, http:InRequest req) {
-        var notifyReq, _ = <NotifyRequest>req.getJsonPayload();
+        var payload, _ = req.getJsonPayload();
+        var notifyReq, _ = <NotifyRequest>payload;
         string transactionId = notifyReq.transactionId;
         log:printInfo("Notify(" + notifyReq.message + ") received for transaction: " + transactionId);
         http:OutResponse res;

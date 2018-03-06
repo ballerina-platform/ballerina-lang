@@ -1,5 +1,6 @@
 import ballerina.net.http;
 import ballerina.io;
+import ballerina.mime;
 
 function testGetContentLength (http:InRequest req) (int) {
     int length = req.getContentLength();
@@ -14,9 +15,8 @@ function testGetHeaders (http:InRequest req, string key) (string[]) {
     return req.getHeaders(key);
 }
 
-function testGetJsonPayload (http:InRequest req) (json) {
-    json payload = req.getJsonPayload();
-    return payload;
+function testGetJsonPayload (http:InRequest req) (json, mime:EntityError) {
+    return req.getJsonPayload();
 }
 
 function testGetMethod (http:InRequest req) (string) {
@@ -29,22 +29,19 @@ function testGetProperty (http:InRequest req, string propertyName) (string) {
     return payload;
 }
 
-function testGetStringPayload (http:InRequest req) (string) {
-    string payload = req.getStringPayload();
-    return payload;
+function testGetStringPayload (http:InRequest req) (string, mime:EntityError) {
+    return req.getStringPayload();
 }
 
-function testGetBinaryPayload (http:InRequest req) (blob) {
-    blob payload = req.getBinaryPayload();
-    return payload;
+function testGetBinaryPayload (http:InRequest req) (blob, mime:EntityError) {
+    return req.getBinaryPayload();
 }
 
-function testGetXmlPayload (http:InRequest req) (xml) {
-    xml payload = req.getXmlPayload();
-    return payload;
+function testGetXmlPayload (http:InRequest req) (xml, mime:EntityError) {
+    return req.getXmlPayload();
 }
 
-@http:configuration{basePath:"/hello"}
+@http:configuration {basePath:"/hello"}
 service<http> helloServer {
 
     @http:resourceConfig {
@@ -100,9 +97,9 @@ service<http> helloServer {
     @http:resourceConfig {
         path:"/getJsonPayload"
     }
-    resource GetJsonPayload(http:Connection conn, http:InRequest req) {
+    resource GetJsonPayload (http:Connection conn, http:InRequest req) {
         http:OutResponse res = {};
-        json value = req.getJsonPayload();
+        var value, _ = req.getJsonPayload();
         json lang = value.lang;
         res.setJsonPayload(lang);
         _ = conn.respond(res);
@@ -121,9 +118,9 @@ service<http> helloServer {
     @http:resourceConfig {
         path:"/GetStringPayload"
     }
-    resource GetStringPayload(http:Connection conn, http:InRequest req) {
+    resource GetStringPayload (http:Connection conn, http:InRequest req) {
         http:OutResponse res = {};
-        string value = req.getStringPayload();
+        var value, _ = req.getStringPayload();
         res.setStringPayload(value);
         _ = conn.respond(res);
     }
@@ -131,9 +128,9 @@ service<http> helloServer {
     @http:resourceConfig {
         path:"/GetXmlPayload"
     }
-    resource GetXmlPayload(http:Connection conn, http:InRequest req) {
+    resource GetXmlPayload (http:Connection conn, http:InRequest req) {
         http:OutResponse res = {};
-        xml value = req.getXmlPayload();
+        var value, _ = req.getXmlPayload();
         string name = value.getTextValue();
         res.setStringPayload(name);
         _ = conn.respond(res);
@@ -142,9 +139,9 @@ service<http> helloServer {
     @http:resourceConfig {
         path:"/GetBinaryPayload"
     }
-    resource GetBinaryPayload(http:Connection conn, http:InRequest req) {
+    resource GetBinaryPayload (http:Connection conn, http:InRequest req) {
         http:OutResponse res = {};
-        blob value = req.getBinaryPayload();
+        var value, _ = req.getBinaryPayload();
         string name = value.toString("UTF-8");
         res.setStringPayload(name);
         _ = conn.respond(res);
@@ -153,9 +150,9 @@ service<http> helloServer {
     @http:resourceConfig {
         path:"/GetByteChannel"
     }
-    resource GetByteChannel(http:Connection conn, http:InRequest req) {
+    resource GetByteChannel (http:Connection conn, http:InRequest req) {
         http:OutResponse res = {};
-        io:ByteChannel byteChannel = req.getByteChannel();
+        var byteChannel, _ = req.getByteChannel();
         res.setByteChannel(byteChannel);
         _ = conn.respond(res);
     }
