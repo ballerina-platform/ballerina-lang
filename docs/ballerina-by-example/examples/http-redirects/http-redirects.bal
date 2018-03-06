@@ -10,8 +10,13 @@ function main (string[] args) {
     //Send a GET request to the specified endpoint
     http:InResponse resp;
     resp, _ = httpEndoint.get("/v2/59d590762700000a049cd694", req);
+    var payload, payloadError = resp.getStringPayload();
+    if (payloadError == null) {
+        io:println("Response received for the GET request is : " + payload);
+    } else {
+        io:println("Error occurred : " + payloadError.message);
+    }
 
-    io:println("Response received for the GET request is : " + resp.getStringPayload());
 }
 
 function getConnectorConfigs () (http:Options) {

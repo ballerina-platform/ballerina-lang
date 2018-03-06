@@ -118,7 +118,7 @@ service<http> sample {
     resource hello (http:Connection conn, http:InRequest req) {
 
         error err;
-        string result = req.getStringPayload();
+        var result, _ = req.getStringPayload();
         http:Session session = conn.createSessionIfAbsent();
         any attribute = session.getAttribute("name");
         if (attribute != null) {
@@ -204,7 +204,7 @@ service<http> sample2 {
     }
     resource myStruct (http:Connection conn, http:InRequest req) {
 
-        string result = req.getStringPayload();
+        var result, _ = req.getStringPayload();
         error err;
         Data d = {name:result};
         http:Session Session = conn.createSessionIfAbsent();
