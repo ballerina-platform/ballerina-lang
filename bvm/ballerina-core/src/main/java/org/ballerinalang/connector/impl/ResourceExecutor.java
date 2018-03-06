@@ -31,6 +31,7 @@ import org.ballerinalang.model.values.BRefType;
 import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.runtime.Constants;
 import org.ballerinalang.util.BLangConstants;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
@@ -41,6 +42,7 @@ import org.ballerinalang.util.codegen.attributes.CodeAttributeInfo;
 import org.ballerinalang.util.debugger.Debugger;
 import org.ballerinalang.util.debugger.DebuggerUtil;
 import org.ballerinalang.util.exceptions.BallerinaException;
+import org.ballerinalang.util.transactions.LocalTransactionInfo;
 
 import java.util.Arrays;
 import java.util.Map;
@@ -81,6 +83,11 @@ public class ResourceExecutor {
         //TODO remove this with a proper way
         if (properties != null) {
             properties.forEach(context::setProperty);
+            if (properties.get(Constants.GLOBAL_TRANSACTION_ID) != null) {
+                context.setLocalTransactionInfo(new LocalTransactionInfo(
+                        properties.get(Constants.GLOBAL_TRANSACTION_ID).toString(),
+                        properties.get(Constants.TRANSACTION_URL).toString(), Constants.TRANSACTION_PROTOCOL_2PC));
+            }
         }
 
         ControlStack controlStack = context.getControlStack();

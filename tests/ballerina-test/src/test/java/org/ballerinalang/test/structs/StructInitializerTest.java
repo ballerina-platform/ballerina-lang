@@ -43,7 +43,7 @@ public class StructInitializerTest {
         BValue[] returns = BRunUtil.invoke(compileResult, "testStructInitializerInSamePackage1");
 
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 10);
-        Assert.assertEquals(returns[1].stringValue(), "Charles");
+        Assert.assertEquals(returns[1].stringValue(), "Peter");
     }
 
     @Test(description = "Test struct initializers that are in different packages")
@@ -51,7 +51,15 @@ public class StructInitializerTest {
         BValue[] returns = BRunUtil.invoke(compileResult, "testStructInitializerInAnotherPackage");
 
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 10);
-        Assert.assertEquals(returns[1].stringValue(), "James");
+        Assert.assertEquals(returns[1].stringValue(), "Peter");
+    }
+
+    @Test(description = "Test struct initializer order, 1) default values, 2) initializer, 3) literal ")
+    public void testStructInitializerOrder() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testStructInitializerOrder");
+
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 40);
+        Assert.assertEquals(returns[1].stringValue(), "AB");
     }
 
     @Test(description = "Test negative structs initializers scenarios")
