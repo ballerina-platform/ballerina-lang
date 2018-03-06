@@ -103,6 +103,8 @@ public class OutboundMsgHolder {
     public void addPromise(Http2PushPromise pushPromise) {
         promises.add(pushPromise);
         promisesCount++;
+        HttpResponseFuture pushResponseFuture = new DefaultHttpResponseFuture(this);
+        pushResponseFutures.put(pushPromise.getPromisedStreamId(), pushResponseFuture);
         promiseAvailabilityFuture.notifyPromiseAvailability();
         pushPromiseFuture.notifyPushPromise();
     }
@@ -158,9 +160,7 @@ public class OutboundMsgHolder {
     }
 
     public HttpResponseFuture getPushResponseFuture(Http2PushPromise promise) {
-        HttpResponseFuture pushResponseFuture = new DefaultHttpResponseFuture(this);
-        pushResponseFutures.put(promise.getPromisedStreamId(), pushResponseFuture);
-        return pushResponseFuture;
+        return pushResponseFutures.get(promise.getPromisedStreamId());
     }
 
 }
