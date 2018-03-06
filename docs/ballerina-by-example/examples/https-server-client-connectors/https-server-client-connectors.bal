@@ -32,7 +32,13 @@ function main (string[] args) {
     http:InResponse resp = {};
     resp, _ = httpEndpoint.get("/hello/", req);
     io:println("Response code: " + resp.statusCode);
-    io:println("Response: " + resp.getStringPayload());
+    var jsonPayload, payloadError = resp.getStringPayload();
+    if (payloadError == null) {
+        io:println("Response: " + jsonPayload);
+    } else {
+        io:println("Response: " + payloadError.message);
+    }
+
 }
 
 function getConnectorConfigs() (http:Options) {

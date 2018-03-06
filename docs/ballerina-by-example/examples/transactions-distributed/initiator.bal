@@ -72,7 +72,10 @@ public connector BizClient () {
             if (res.statusCode != 200) {
                 err = {message:"Error occurred"};
             } else {
-                jsonRes = res.getJsonPayload();
+                jsonRes, payloadError = res.getJsonPayload();
+                if (payloadError != null) {
+                    err = (error)payloadError;
+                }
             }
         } else {
             err = (error)e;

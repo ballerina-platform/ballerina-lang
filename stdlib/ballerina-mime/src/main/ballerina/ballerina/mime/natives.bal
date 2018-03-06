@@ -21,7 +21,7 @@ external file"}
 @Field {value:"disposition: Indicates how the body part should be presented (inline, attachment or as
 form-data)"}
 @Field {value:"name: Represent the field name in case of 'multipart/form-data'"}
-@Field {value:"parameters: A set of parameters, specified in an attribute=value notation"}
+@Field {value:"parameters: A set of parameters, specified in attribute=value notation"}
 public struct ContentDisposition {
     string fileName;
     string disposition;
@@ -45,6 +45,14 @@ public struct Entity {
     ContentDisposition contentDisposition;
 }
 
+@Description { value: "Represent all entity related errors"}
+@Field { value : "message: The error message"}
+@Field { value : "cause: The error which caused the entity error"}
+public struct EntityError {
+    string message;
+    error cause;
+}
+
 @Description {value:"Set the entity body with a given file handler"}
 @Param {value:"entity: Represent a MIME entity"}
 @Param {value:"fileHandler: Represent a file"}
@@ -61,7 +69,8 @@ public native function <Entity entity> setJson (json jsonContent);
 @Description {value:"Given an entity, get the entity body in json form."}
 @Param {value:"entity: Represent a MIME entity"}
 @Return {value:"Return json data"}
-public native function <Entity entity> getJson () (json);
+@Return {value:"EntityError will get thrown in case of errors during data-source extraction from entity"}
+public native function <Entity entity> getJson () (json, EntityError);
 
 @Description {value:"Set the entity body with the given xml content"}
 @Param {value:"entity: Represent a MIME entity"}
@@ -71,7 +80,8 @@ public native function <Entity entity> setXml (xml xmlContent);
 @Description {value:"Given an entity, get the entity body in xml form."}
 @Param {value:"entity: Represent a MIME entity"}
 @Return {value:"Return xml data"}
-public native function <Entity entity> getXml () (xml);
+@Return {value:"EntityError will get thrown in case of errors during data-source extraction from entity"}
+public native function <Entity entity> getXml () (xml, EntityError);
 
 @Description {value:"Set the entity body with the given text content"}
 @Param {value:"textContent: Text content that needs to be set to entity"}
@@ -80,7 +90,8 @@ public native function <Entity entity> setText (string textContent);
 @Description {value:"Given an entity, get the entity body in text form."}
 @Param {value:"entity: Represent a MIME entity"}
 @Return {value:"Return text data"}
-public native function <Entity entity> getText () (string);
+@Return {value:"EntityError will get thrown in case of errors during data-source extraction from entity"}
+public native function <Entity entity> getText () (string, EntityError);
 
 @Description {value:"Set the entity body with the given blob content"}
 @Param {value:"blobContent: Blob content that needs to be set to entity"}
@@ -91,7 +102,8 @@ public native function <Entity entity> setBlob (blob blobContent);
 using getEntityWrapper() method instead"}
 @Param {value:"entity: Represent a MIME entity"}
 @Return {value:"Return a blob"}
-public native function <Entity entity> getBlob () (blob);
+@Return {value:"EntityError will get thrown in case of errors during data-source extraction from entity"}
+public native function <Entity entity> getBlob () (blob, EntityError);
 
 @Description {value:"Set the entity body with the given byte channel content"}
 @Param {value:"entity: Represent a MIME entity"}
@@ -101,12 +113,14 @@ public native function <Entity entity> setByteChannel (io:ByteChannel byteChanne
 @Description {value:"Given an entity, get the entity body as a byte channel."}
 @Param {value:"entity: Represent a MIME entity"}
 @Return {value:"Return a byte channel"}
-public native function <Entity entity> getByteChannel () (io:ByteChannel);
+@Return {value:"EntityError will get thrown in case of errors during byte channel extraction from entity"}
+public native function <Entity entity> getByteChannel () (io:ByteChannel, EntityError);
 
 @Description {value:"Given an entity, get its body parts."}
 @Param {value:"entity: Represent a MIME entity"}
 @Return {value:"Return an array of entities which represent its body parts"}
-public native function <Entity entity> getBodyParts () (Entity[]);
+@Return {value:"EntityError will get thrown in case of errors during data-source extraction from entity"}
+public native function <Entity entity> getBodyParts () (Entity[], EntityError);
 
 @Description {value:"Set body parts to entity"}
 @Param {value:"entity: Represent a MIME entity"}
