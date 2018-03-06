@@ -82,7 +82,7 @@ public class DefaultHttpResponseFuture implements HttpResponseFuture {
             executionWaitSem.release();
         }
         if (pushResponseListener != null) {
-            pushResponseListener.onPushResponse(promisedId, pushResponseMessage);
+            pushResponseListener.onPushResponse(promisedId, pushResponse);
         }
     }
 
@@ -175,8 +175,9 @@ public class DefaultHttpResponseFuture implements HttpResponseFuture {
     @Override
     public void notifyPushPromise() {
         if (pushPromiseListener != null) {
-            pushPromiseListener.onPushPromise(outboundMsgHolder.getNextPromise());
+            HttpConnectorListener listener = pushPromiseListener;
             removePushPromiseListener();
+            listener.onPushPromise(outboundMsgHolder.getNextPromise());
         }
     }
 

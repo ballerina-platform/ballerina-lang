@@ -19,6 +19,7 @@
 
 package org.wso2.transport.http.netty.contractimpl;
 
+import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http.HttpMessage;
@@ -32,9 +33,12 @@ import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.common.Constants;
 import org.wso2.transport.http.netty.common.Util;
 import org.wso2.transport.http.netty.contract.HttpConnectorListener;
+import org.wso2.transport.http.netty.contract.HttpResponseFuture;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 import org.wso2.transport.http.netty.message.Http2PushPromise;
 
+import java.io.IOException;
+import java.nio.channels.ClosedChannelException;
 import java.util.Locale;
 
 /**
@@ -51,6 +55,7 @@ public class Http2OutboundRespListener implements HttpConnectorListener {
     private int originalStreamId;
     private Http2Connection conn;
     private String serverName;
+    private HttpResponseFuture outboundRespStatusFuture;
 
     public Http2OutboundRespListener(HTTPCarbonMessage inboundRequestMsg, ChannelHandlerContext ctx,
                                      Http2Connection conn, Http2ConnectionEncoder encoder, int streamId,
@@ -61,11 +66,11 @@ public class Http2OutboundRespListener implements HttpConnectorListener {
         this.encoder = encoder;
         this.originalStreamId = streamId;
         this.serverName = serverName;
+        this.outboundRespStatusFuture = inboundRequestMsg.getHttpOutboundRespStatusFuture();
     }
 
     @Override
     public void onMessage(HTTPCarbonMessage outboundResponseMsg) {
-
         writeMessage(outboundResponseMsg, originalStreamId);
     }
 
@@ -81,10 +86,11 @@ public class Http2OutboundRespListener implements HttpConnectorListener {
                 // Update streamIds
                 pushPromise.setPromisedStreamId(promisedStreamId);
                 pushPromise.setStreamId(originalStreamId);
-                encoder.writePushPromise(
+                ChannelFuture channelFuture = encoder.writePushPromise(
                         ctx, originalStreamId, promisedStreamId, pushPromise.getHeaders(), 0, ctx.newPromise());
                 encoder.flowController().writePendingBytes();
                 ctx.flush();
+                checkForWriteStatus(outboundRespStatusFuture, channelFuture);
             } catch (Exception ex) {
                 String errorMsg = "Failed to send push promise : " + ex.getMessage().toLowerCase(Locale.ENGLISH);
                 log.error(errorMsg, ex);
@@ -112,6 +118,35 @@ public class Http2OutboundRespListener implements HttpConnectorListener {
                         inboundRequestMsg.getHttpOutboundRespStatusFuture().notifyHttpListener(ex);
                     }
                 })));
+    }
+
+    private void checkForWriteStatus(HttpResponseFuture outboundRespStatusFuture, ChannelFuture channelFuture) {
+        channelFuture.addListener(writeOperationPromise -> {
+            Throwable throwable = writeOperationPromise.cause();
+            if (throwable != null) {
+                if (throwable instanceof ClosedChannelException) {
+                    throwable = new IOException(Constants.REMOTE_CLIENT_ABRUPTLY_CLOSE_RESPONSE_CONNECTION);
+                }
+                log.error(Constants.REMOTE_CLIENT_ABRUPTLY_CLOSE_RESPONSE_CONNECTION, throwable);
+                outboundRespStatusFuture.notifyHttpListener(throwable);
+            } else {
+                outboundRespStatusFuture.notifyHttpListener(inboundRequestMsg);
+            }
+        });
+    }
+
+    private void notifyIfFailure(HttpResponseFuture outboundRespStatusFuture,
+                                 ChannelFuture outboundResponseChannelFuture) {
+        outboundResponseChannelFuture.addListener(writeOperationPromise -> {
+            Throwable throwable = writeOperationPromise.cause();
+            if (throwable != null) {
+                if (throwable instanceof ClosedChannelException) {
+                    throwable = new IOException(Constants.REMOTE_CLIENT_ABRUPTLY_CLOSE_RESPONSE_CONNECTION);
+                }
+                log.error(Constants.REMOTE_CLIENT_ABRUPTLY_CLOSE_RESPONSE_CONNECTION, throwable);
+                outboundRespStatusFuture.notifyHttpListener(throwable);
+            }
+        });
     }
 
     private class ResponseWriter {
@@ -149,15 +184,23 @@ public class Http2OutboundRespListener implements HttpConnectorListener {
             Http2Headers http2Headers = HttpConversionUtil.toHttp2Headers(httpMessage, true);
 
             isHeaderWritten = true;
-            encoder.writeHeaders(ctx, streamId, http2Headers, 0, false, ctx.newPromise());
+            ChannelFuture channelFuture =
+                    encoder.writeHeaders(ctx, streamId, http2Headers, 0, false, ctx.newPromise());
             encoder.flowController().writePendingBytes();
             ctx.flush();
+            notifyIfFailure(outboundRespStatusFuture, channelFuture);
         }
 
         private void writeData(HttpContent httpContent, boolean endStream) throws Http2Exception {
-            encoder.writeData(ctx, streamId, httpContent.content().retain(), 0, endStream, ctx.newPromise());
+            ChannelFuture channelFuture = encoder.writeData(
+                    ctx, streamId, httpContent.content().retain(), 0, endStream, ctx.newPromise());
             encoder.flowController().writePendingBytes();
             ctx.flush();
+            if (endStream) {
+                checkForWriteStatus(outboundRespStatusFuture, channelFuture);
+            } else {
+                notifyIfFailure(outboundRespStatusFuture, channelFuture);
+            }
         }
     }
 
