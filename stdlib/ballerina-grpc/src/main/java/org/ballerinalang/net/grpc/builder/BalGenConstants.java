@@ -33,7 +33,7 @@ public class BalGenConstants {
     
     public static final String DEFAULT_SAMPLE_CONNECTOR_PORT = "8080";
     
-    public static final String DEFAULT_PACKAGE = "org.ballerinalang.net.grpc";
+    public static final String DEFAULT_PACKAGE = "client";
     
     public static final String GRPC_NATIVE_PACKAGE = "ballerina.net.grpc";
     

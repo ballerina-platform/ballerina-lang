@@ -138,7 +138,7 @@ public class BallerinaFile {
                 structList = structList.append(NEW_LINE_CHARACTER).append(struct);
             }
             String packageName = "".equals(fileDescriptorSet.getPackage()) ? BalGenConstants.DEFAULT_PACKAGE :
-                    fileDescriptorSet.getPackage();
+                    fileDescriptorSet.getPackage() + PACKAGE_SEPARATOR + BalGenConstants.DEFAULT_PACKAGE;
             String filePackageData = new PackageBuilder(packageName).build();
             String blockingConnectorList = new ConnectorBuilder(blockingActionList.toString(),
                     fileDescriptorSet.getService(SERVICE_INDEX).getName() + "BlockingStub",
