@@ -38,8 +38,10 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableQueryExpression;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Stack;
 
 /**
  * This class will generate the SQL query for stream/tables SQLish grammar for different classes.
@@ -49,9 +51,9 @@ public class SqlQueryBuilder extends BLangNodeVisitor {
     private static final CompilerContext.Key<SqlQueryBuilder> SQL_QUERY_BUILDER_KEY =
             new CompilerContext.Key<>();
 
-    private String varRef;
+    private static final String QUESTION_MARK = "?";
+
     private StringBuilder orderByClause;
-    private String binaryExpr;
     private StringBuilder whereClause;
     private StringBuilder joinStreamingInputClause;
     private StringBuilder streamingInputClause;
@@ -59,7 +61,16 @@ public class SqlQueryBuilder extends BLangNodeVisitor {
     private StringBuilder selectExpr;
     private StringBuilder groupByClause;
     private StringBuilder havingClause;
-    private StringBuilder sqlTableQuery;
+
+    //Use these variables to fill up the parametrized locations("?") in prepared statement.
+    private List<BLangExpression> selectExprParams = new ArrayList<>();
+    private List<BLangExpression> havingExprParams = new ArrayList<>();
+    private List<BLangExpression> joinOnExprParams = new ArrayList<>();
+
+    //Keep temporary parametrized sql strings and  temporary parameters for "?"
+    private List<BLangExpression> exprParams = new ArrayList<>();
+    private List<BLangExpression> whereExprParams = new ArrayList<>();
+    private Stack<String> exprStack = new Stack<>();
 
     public static SqlQueryBuilder getInstance(CompilerContext context) {
         SqlQueryBuilder sqlQueryBuilder = context.get(SQL_QUERY_BUILDER_KEY);
@@ -79,6 +90,7 @@ public class SqlQueryBuilder extends BLangNodeVisitor {
         BLangTableQuery tableQuery = ((BLangTableQuery) tableQueryExpression.getTableQuery());
         tableQuery.accept(this);
         tableQueryExpression.setSqlQuery(tableQuery.getSqlQuery());
+        tableQueryExpression.addParams(tableQuery.getParams());
 
     }
 
@@ -88,30 +100,64 @@ public class SqlQueryBuilder extends BLangNodeVisitor {
         BLangStreamingInput streamingInput = (BLangStreamingInput) tableQuery.getStreamingInput();
         BLangJoinStreamingInput joinStreamingInput = (BLangJoinStreamingInput) tableQuery.getJoinStreamingInput();
         BLangOrderBy orderBy = (BLangOrderBy) tableQuery.getOrderByNode();
+        StringBuilder sqlTableQuery = new StringBuilder();
 
-        sqlTableQuery = new StringBuilder();
-        selectClause.accept(this);
-        sqlTableQuery.append(selectExprClause).append(" from ");
-        streamingInput.accept(this);
-        sqlTableQuery.append(streamingInputClause);
+        /*Add each clause to the sqlQuery and add the params to TableQuery object*/
+        addSelectClauseAndParams(tableQuery, selectClause, sqlTableQuery);
+        addFromClauseAndParams(tableQuery, streamingInput, sqlTableQuery);
+        addJoinClauseAndParams(tableQuery, joinStreamingInput, sqlTableQuery);
+        addGroupByClause(selectClause, sqlTableQuery);
+        addHavingClauseAndParams(tableQuery, selectClause, sqlTableQuery);
+        addOrderByClause(orderBy, sqlTableQuery);
 
-        if (joinStreamingInput != null) {
-            sqlTableQuery.append(" ");
-            joinStreamingInput.accept(this);
-            sqlTableQuery.append(joinStreamingInputClause);
-        }
-        if (selectClause.getGroupBy() != null) {
-            sqlTableQuery.append(" ").append(groupByClause);
-        }
-        if (selectClause.getHaving() != null) {
-            sqlTableQuery.append(" ").append(havingClause);
-        }
+        tableQuery.setSqlQuery(sqlTableQuery.toString());
+    }
+
+    private void addOrderByClause(BLangOrderBy orderBy, StringBuilder sqlTableQuery) {
         if (orderBy != null) {
             orderBy.accept(this);
             sqlTableQuery.append(" ").append(orderByClause);
         }
+    }
 
-        tableQuery.setSqlQuery(sqlTableQuery.toString());
+    private void addHavingClauseAndParams(BLangTableQuery tableQuery, BLangSelectClause selectClause,
+                                          StringBuilder sqlTableQuery) {
+        if (selectClause.getHaving() != null) {
+            sqlTableQuery.append(" ").append(havingClause);
+            tableQuery.addParams(havingExprParams);
+        }
+    }
+
+    private void addGroupByClause(BLangSelectClause selectClause, StringBuilder sqlTableQuery) {
+        if (selectClause.getGroupBy() != null) {
+            sqlTableQuery.append(" ").append(groupByClause);
+        }
+    }
+
+    private void addJoinClauseAndParams(BLangTableQuery tableQuery, BLangJoinStreamingInput joinStreamingInput,
+                                        StringBuilder sqlTableQuery) {
+        if (joinStreamingInput != null) {
+            sqlTableQuery.append(" ");
+            joinStreamingInput.accept(this);
+            sqlTableQuery.append(joinStreamingInputClause);
+            tableQuery.addParams(whereExprParams);
+            tableQuery.addParams(joinOnExprParams);
+        }
+    }
+
+    private void addFromClauseAndParams(BLangTableQuery tableQuery, BLangStreamingInput streamingInput,
+                                        StringBuilder sqlTableQuery) {
+        streamingInput.accept(this);
+        sqlTableQuery.append(streamingInputClause);
+        tableQuery.addParams(whereExprParams);
+        whereExprParams.clear();
+    }
+
+    private void addSelectClauseAndParams(BLangTableQuery tableQuery, BLangSelectClause selectClause,
+                                          StringBuilder sqlTableQuery) {
+        selectClause.accept(this);
+        sqlTableQuery.append(selectExprClause).append(" from ");
+        tableQuery.addParams(selectExprParams);
     }
 
     @Override
@@ -121,23 +167,13 @@ public class SqlQueryBuilder extends BLangNodeVisitor {
         BLangSimpleVarRef variableRef = (BLangSimpleVarRef) iterator.next();
         orderByClause = new StringBuilder("order by ");
         variableRef.accept(this);
-        orderByClause.append(varRef);
+        orderByClause.append(exprStack.pop());
         while (iterator.hasNext()) {
             orderByClause.append(",").append(" ");
             variableRef = (BLangSimpleVarRef) iterator.next();
             variableRef.accept(this);
-            orderByClause.append(varRef);
+            orderByClause.append(exprStack.pop());
         }
-    }
-
-    @Override
-    public void visit(BLangSimpleVarRef variableReference) {
-        varRef = variableReference.getVariableName().value;
-    }
-
-    @Override
-    public void visit(BLangLiteral literalExpr) {
-        varRef = literalExpr.toString();
     }
 
     @Override
@@ -147,19 +183,15 @@ public class SqlQueryBuilder extends BLangNodeVisitor {
         joinStreamingInputClause = new StringBuilder();
         streamingInput.accept(this);
         joinStreamingInputClause.append("join ").append(streamingInputClause).append(" on ");
-        expr.accept(this);
-        joinStreamingInputClause.append(binaryExpr);
-    }
-
-    @Override
-    public void visit(BLangBinaryExpr expr) {
-        binaryExpr = expr.toString();
+        addParametrizedSQL(expr, joinStreamingInputClause, joinOnExprParams);
     }
 
     @Override
     public void visit(BLangStreamingInput streamingInput) {
         streamingInputClause = new StringBuilder();
-        streamingInputClause.append(streamingInput.getIdentifier());
+        BLangExpression tableReference = (BLangExpression) streamingInput.getTableReference();
+        tableReference.accept(this);
+        streamingInputClause.append("{{").append(exprStack.pop()).append("}}");
         List<? extends WhereNode> whereNodes = streamingInput.getStreamingConditions();
 
         /* for tables there can only be one whereClause and there is no windowClause.
@@ -179,8 +211,7 @@ public class SqlQueryBuilder extends BLangNodeVisitor {
         whereClause = new StringBuilder();
         whereClause.append("where ");
         BLangBinaryExpr expr = (BLangBinaryExpr) where.getExpression();
-        expr.accept(this);
-        whereClause.append(binaryExpr);
+        addParametrizedSQL(expr, whereClause, whereExprParams);
     }
 
     @Override
@@ -203,8 +234,57 @@ public class SqlQueryBuilder extends BLangNodeVisitor {
     public void visit(BLangHaving having) {
         BLangBinaryExpr expr = (BLangBinaryExpr) having.getExpression();
         havingClause = new StringBuilder("having ");
-        expr.accept(this);
-        havingClause.append(binaryExpr);
+        addParametrizedSQL(expr, havingClause, havingExprParams);
+    }
+
+    @Override
+    public void visit(BLangBinaryExpr expr) {
+        expr.lhsExpr.accept(this);
+        expr.rhsExpr.accept(this);
+        String rhsExpr = exprStack.pop();
+        String lhsExpr = exprStack.pop();
+        StringBuilder sqlExpr = new StringBuilder();
+        switch (expr.opKind) {
+            case ADD:
+            case SUB:
+            case MUL:
+            case DIV:
+            case MOD:
+            case NOT_EQUAL:
+            case GREATER_THAN:
+            case GREATER_EQUAL:
+            case LESS_THAN:
+            case LESS_EQUAL:
+                sqlExpr.append(lhsExpr).append(String.valueOf(expr.opKind)).append(rhsExpr);
+                break;
+            case POW:
+                sqlExpr.append("power(").append(lhsExpr).append(", ").append(rhsExpr).append(")");
+                break;
+            case AND:
+                sqlExpr.append(lhsExpr).append(" and ").append(rhsExpr);
+                break;
+            case OR:
+                sqlExpr.append(lhsExpr).append(" or ").append(rhsExpr);
+                break;
+            case EQUAL:
+                sqlExpr.append(lhsExpr).append(" = ").append(rhsExpr);
+                break;
+            default:
+                sqlExpr.append(lhsExpr).append(String.valueOf(expr.opKind)).append(rhsExpr);
+        }
+        exprStack.push(sqlExpr.toString());
+    }
+
+    @Override
+    public void visit(BLangLiteral literalExpr) {
+        exprStack.push(QUESTION_MARK);
+        exprParams.add(literalExpr);
+
+    }
+
+    @Override
+    public void visit(BLangSimpleVarRef variableReference) {
+        exprStack.push(variableReference.getVariableName().value);
     }
 
     private void createSQLGroupByClause(BLangSelectClause select) {
@@ -219,12 +299,12 @@ public class SqlQueryBuilder extends BLangNodeVisitor {
         groupByClause = new StringBuilder("group by ");
         BLangSimpleVarRef simpleVarRef = (BLangSimpleVarRef) iterator.next();
         simpleVarRef.accept(this);
-        groupByClause.append(varRef);
+        groupByClause.append(exprStack.pop());
         while (iterator.hasNext()) {
             simpleVarRef = (BLangSimpleVarRef) iterator.next();
             groupByClause.append(", ");
             simpleVarRef.accept(this);
-            groupByClause.append(varRef);
+            groupByClause.append(exprStack.pop());
         }
     }
 
@@ -252,15 +332,25 @@ public class SqlQueryBuilder extends BLangNodeVisitor {
     public void visit(BLangSelectExpression selectExpression) {
         BLangExpression expr = (BLangExpression) selectExpression.getExpression();
         selectExpr = new StringBuilder();
-        expr.accept(this);
-        selectExpr.append(varRef);
+        addParametrizedSQL(expr, selectExpr, selectExprParams);
         String identifier  = selectExpression.getIdentifier();
         if (identifier != null) {
             selectExpr.append(" as ").append(identifier);
         }
     }
 
-    public String getSQLTableQuery() {
-        return sqlTableQuery.toString();
+    /**
+     * This function will append the parametrized SQL query to given String Builder and at the same time, this
+     * function will add the parametrized params to the given list and finally clears the temporary param list.
+     * @param expr expression on which the SQL query is built
+     * @param sqlStringBuilder StringBuilder to which the SQL query is appended
+     * @param params List to which the parameters are added
+     */
+    private void addParametrizedSQL(BLangExpression expr, StringBuilder sqlStringBuilder,
+            List<BLangExpression> params) {
+        expr.accept(this);
+        sqlStringBuilder.append(exprStack.pop());
+        params.addAll(exprParams);
+        exprParams.clear();
     }
 }

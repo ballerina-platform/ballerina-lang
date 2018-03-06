@@ -2240,14 +2240,13 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         isWindowAvailable = ctx.windowClause() == null ? false : true;
         isfirstWhereClauseAvailable = ctx.whereClause(0) == null ? false : true;
         isSecondWhereClauseAvailable = ctx.whereClause(1) == null ? false : true;
-        String identifier = ctx.Identifier(0).getText();
         String alias = null;
         if (ctx.alias != null) {
             alias = ctx.alias.getText();
         }
 
         this.pkgBuilder.endStreamingInputNode(isfirstWhereClauseAvailable, isSecondWhereClauseAvailable,
-                isWindowAvailable, identifier, alias, getCurrentPos(ctx), getWS(ctx));
+                isWindowAvailable, alias, getCurrentPos(ctx), getWS(ctx));
     }
 
     @Override

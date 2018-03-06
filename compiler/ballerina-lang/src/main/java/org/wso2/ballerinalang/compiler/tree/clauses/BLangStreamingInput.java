@@ -22,6 +22,7 @@ import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.clauses.StreamingInput;
 import org.ballerinalang.model.tree.clauses.WhereNode;
 import org.ballerinalang.model.tree.clauses.WindowClauseNode;
+import org.ballerinalang.model.tree.expressions.ExpressionNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 
@@ -35,7 +36,8 @@ public class BLangStreamingInput extends BLangNode implements StreamingInput {
 
     private List<WhereNode> streamingConditions = new ArrayList<>();
     private WindowClauseNode windowClause;
-    private String identifier, alias;
+    private ExpressionNode tableReference;
+    private String alias;
     @Override
     public void addStreamingCondition(WhereNode where) {
         this.streamingConditions.add(where);
@@ -56,14 +58,12 @@ public class BLangStreamingInput extends BLangNode implements StreamingInput {
         return this.windowClause;
     }
 
-    @Override
-    public void setIdentifier(String identifier) {
-        this.identifier = identifier;
+    public ExpressionNode getTableReference() {
+        return tableReference;
     }
 
-    @Override
-    public String getIdentifier() {
-        return this.identifier;
+    public void setTableReference(ExpressionNode tableReference) {
+        this.tableReference = tableReference;
     }
 
     @Override

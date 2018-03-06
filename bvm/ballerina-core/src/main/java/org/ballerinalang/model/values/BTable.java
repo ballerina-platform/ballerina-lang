@@ -64,6 +64,10 @@ public class BTable implements BRefType<Object>, BCollection {
         this.isInMemoryTable = false;
     }
 
+    public BTable(String query, BTable fromTable, BRefValueArray params) {
+
+    }
+
     public BTable(BType type) {
         if (((BTableType) type).getConstrainedType() == null) {
             throw  new BallerinaException("table cannot be created without a constraint");

@@ -3,11 +3,8 @@ package org.wso2.ballerinalang.compiler.parser.antlr4;
 import org.antlr.v4.runtime.atn.*;
 import org.antlr.v4.runtime.dfa.DFA;
 import org.antlr.v4.runtime.*;
-import org.antlr.v4.runtime.misc.*;
 import org.antlr.v4.runtime.tree.*;
 import java.util.List;
-import java.util.Iterator;
-import java.util.ArrayList;
 
 @SuppressWarnings({"all", "warnings", "unchecked", "unused", "cast"})
 public class BallerinaParser extends Parser {
@@ -11168,9 +11165,8 @@ public class BallerinaParser extends Parser {
 
 	public static class StreamingInputContext extends ParserRuleContext {
 		public Token alias;
-		public List<TerminalNode> Identifier() { return getTokens(BallerinaParser.Identifier); }
-		public TerminalNode Identifier(int i) {
-			return getToken(BallerinaParser.Identifier, i);
+		public VariableReferenceContext variableReference() {
+			return getRuleContext(VariableReferenceContext.class,0);
 		}
 		public List<WhereClauseContext> whereClause() {
 			return getRuleContexts(WhereClauseContext.class);
@@ -11182,6 +11178,7 @@ public class BallerinaParser extends Parser {
 			return getRuleContext(WindowClauseContext.class,0);
 		}
 		public TerminalNode AS() { return getToken(BallerinaParser.AS, 0); }
+		public TerminalNode Identifier() { return getToken(BallerinaParser.Identifier, 0); }
 		public StreamingInputContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
 		}
@@ -11203,7 +11200,7 @@ public class BallerinaParser extends Parser {
 			enterOuterAlt(_localctx, 1);
 			{
 			setState(1753);
-			match(Identifier);
+			variableReference(0);
 			setState(1755);
 			_errHandler.sync(this);
 			switch ( getInterpreter().adaptivePredict(_input,194,_ctx) ) {
@@ -12507,8 +12504,8 @@ public class BallerinaParser extends Parser {
 		"\2\u06d1\u06d3\5\u0114\u008b\2\u06d2\u06d0\3\2\2\2\u06d3\u06d6\3\2\2\2"+
 		"\u06d4\u06d2\3\2\2\2\u06d4\u06d5\3\2\2\2\u06d5\u0113\3\2\2\2\u06d6\u06d4"+
 		"\3\2\2\2\u06d7\u06d8\5\u00a4S\2\u06d8\u06d9\7`\2\2\u06d9\u06da\5\u00c8"+
-		"e\2\u06da\u0115\3\2\2\2\u06db\u06dd\7z\2\2\u06dc\u06de\5\u011e\u0090\2"+
-		"\u06dd\u06dc\3\2\2\2\u06dd\u06de\3\2\2\2\u06de\u06e0\3\2\2\2\u06df\u06e1"+
+		"e\2\u06da\u0115\3\2\2\2\u06db\u06dd\5\u00a4S\2\u06dc\u06de\5\u011e\u0090"+
+		"\2\u06dd\u06dc\3\2\2\2\u06dd\u06de\3\2\2\2\u06de\u06e0\3\2\2\2\u06df\u06e1"+
 		"\5\u0122\u0092\2\u06e0\u06df\3\2\2\2\u06e0\u06e1\3\2\2\2\u06e1\u06e3\3"+
 		"\2\2\2\u06e2\u06e4\5\u011e\u0090\2\u06e3\u06e2\3\2\2\2\u06e3\u06e4\3\2"+
 		"\2\2\u06e4\u06e7\3\2\2\2\u06e5\u06e6\7\5\2\2\u06e6\u06e8\7z\2\2\u06e7"+

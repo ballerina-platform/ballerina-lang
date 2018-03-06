@@ -26,6 +26,10 @@ import org.ballerinalang.model.tree.clauses.StreamingInput;
 import org.ballerinalang.model.tree.clauses.TableQuery;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * The implementation of {@link TableQuery}.
@@ -39,6 +43,7 @@ public class BLangTableQuery extends BLangNode implements TableQuery {
 
     //This will be generated in desugar phase
     private String sqlQuery;
+    private List<BLangExpression> params = new ArrayList<>();
 
     @Override
     public void setStreamingInput(StreamingInput streamingInput) {
@@ -96,5 +101,13 @@ public class BLangTableQuery extends BLangNode implements TableQuery {
 
     public void setSqlQuery(String sqlQuery) {
         this.sqlQuery = sqlQuery;
+    }
+
+    public List<BLangExpression> getParams() {
+        return params;
+    }
+
+    public void addParams(List<BLangExpression> params) {
+        this.params.addAll(params);
     }
 }

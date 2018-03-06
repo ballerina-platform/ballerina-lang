@@ -19,6 +19,7 @@
 package org.ballerinalang.model.tree.clauses;
 
 import org.ballerinalang.model.tree.Node;
+import org.ballerinalang.model.tree.expressions.ExpressionNode;
 
 import java.util.List;
 
@@ -43,9 +44,9 @@ public interface StreamingInput extends Node {
 
     WindowClauseNode getWindowClause();
 
-    void setIdentifier(String identifier);
+    ExpressionNode getTableReference();
 
-    String getIdentifier();
+    void setTableReference(ExpressionNode tableReference);
 
     void setAlias(String alias);
 

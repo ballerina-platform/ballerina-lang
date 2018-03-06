@@ -1982,23 +1982,23 @@ public class BLangPackageBuilder {
 
     public void endSelectClauseNode(boolean isSelectAll, boolean isGroupByAvailable, boolean isHavingAvailable,
             DiagnosticPos pos, Set<Whitespace> ws) {
-        if (this.selectExpressionsListStack.empty()) {
-            throw new IllegalStateException("Select Expressions List stack cannot be empty when processing a select " +
-                    "clause");
-        }
         SelectClauseNode selectClauseNode = this.selectClausesStack.peek();
         ((BLangSelectClause) selectClauseNode).pos = pos;
         ((BLangSelectClause) selectClauseNode).addWS(ws);
+        if (!isSelectAll) {
+            if (this.selectExpressionsListStack.empty()) {
+                throw new IllegalStateException("Select Expressions List stack cannot be empty when processing " +
+                        "a select clause");
+            }
+            selectClauseNode.setSelectExpressions(this.selectExpressionsListStack.pop());
+        } else {
+            selectClauseNode.setSelectAll(true);
+        }
         if (isGroupByAvailable) {
             selectClauseNode.setGroupBy(this.groupByClauseStack.pop());
         }
         if (isHavingAvailable) {
             selectClauseNode.setHaving(this.havingClauseStack.pop());
-        }
-        if (!isSelectAll) {
-            selectClauseNode.setSelectExpressions(this.selectExpressionsListStack.pop());
-        } else {
-            selectClauseNode.setSelectAll(true);
         }
     }
 
@@ -2025,7 +2025,11 @@ public class BLangPackageBuilder {
     }
 
     public void endStreamingInputNode(boolean isFirstWhereAvailable, boolean isSecondWhereAvailable,
-            boolean isWindowAvailable, String identifier, String alias, DiagnosticPos pos, Set<Whitespace> ws) {
+            boolean isWindowAvailable, String alias, DiagnosticPos pos, Set<Whitespace> ws) {
+        if (this.exprNodeStack.empty()) {
+            throw new IllegalStateException("Select Expressions stack cannot be empty when processing a streaming " +
+                    "input clause");
+        }
         BLangStreamingInput streamingInput = (BLangStreamingInput) this.streamingInputStack.peek();
         streamingInput.pos = pos;
         streamingInput.addWS(ws);
@@ -2038,7 +2042,7 @@ public class BLangPackageBuilder {
         if (isWindowAvailable) {
             streamingInput.setWindowClause(this.windowClausesStack.pop());
         }
-        streamingInput.setIdentifier(identifier);
+        streamingInput.setTableReference(this.exprNodeStack.pop());
         streamingInput.setAlias(alias);
     }
 
