@@ -191,7 +191,7 @@ public class BLangScheduler {
                 this.ctx.state = WorkerState.RUNNING;
                 CPU.exec(this.ctx);
             } catch (Throwable e) {
-                this.ctx.setError(BLangVMErrors.createError(ctx.callableUnitInfo, e.getMessage()));
+                this.ctx.setError(BLangVMErrors.createError(ctx, e.getMessage()));
                 this.ctx.respCtx.signal(new WorkerSignal(this.ctx, SignalType.ERROR, null));
             } finally {
                 ctx.unlockExecution();
