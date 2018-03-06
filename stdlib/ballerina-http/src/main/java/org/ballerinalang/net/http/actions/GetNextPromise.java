@@ -76,7 +76,7 @@ public class GetNextPromise extends AbstractHTTPAction {
         }
         ClientConnectorFuture ballerinaFuture = new ClientConnectorFuture();
 
-        responseHandle.getOutboundMsgHolder().getResponseFuture().setHttpConnectorListener(
+        responseHandle.getOutboundMsgHolder().getPushPromiseFuture().setPushPromiseListener(
                 new PromiseListener(ballerinaFuture, context));
         return ballerinaFuture;
 

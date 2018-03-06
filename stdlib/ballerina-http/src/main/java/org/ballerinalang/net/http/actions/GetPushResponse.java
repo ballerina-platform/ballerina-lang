@@ -86,7 +86,7 @@ public class GetPushResponse extends AbstractHTTPAction {
         ClientConnectorFuture ballerinaFuture = new ClientConnectorFuture();
 
         responseHandle.getOutboundMsgHolder().getPushResponseFuture(http2PushPromise).
-                setPushPromiseListener(new PushResponseListener(ballerinaFuture, context));
+                setHttpConnectorListener(new PushResponseListener(ballerinaFuture, context));
         return ballerinaFuture;
     }
 
