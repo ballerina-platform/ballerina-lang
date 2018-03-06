@@ -22,13 +22,15 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.connector.api.ConnectorUtils;
 import org.ballerinalang.mime.util.EntityBodyHandler;
+import org.ballerinalang.mime.util.MimeUtil;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.nativeimpl.io.IOConstants;
+import org.ballerinalang.nativeimpl.io.channels.base.Channel;
+import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
-import org.ballerinalang.util.exceptions.BallerinaException;
 
 import static org.ballerinalang.mime.util.Constants.BYTE_CHANNEL_STRUCT;
 import static org.ballerinalang.mime.util.Constants.FIRST_PARAMETER_INDEX;
@@ -54,11 +56,25 @@ public class GetByteChannel extends BlockingNativeCallableUnit {
         try {
             BStruct entityStruct = (BStruct) context.getRefArgument(FIRST_PARAMETER_INDEX);
             byteChannelStruct = ConnectorUtils.createAndGetStruct(context, PROTOCOL_PACKAGE_IO, BYTE_CHANNEL_STRUCT);
-            byteChannelStruct.addNativeData(IOConstants.BYTE_CHANNEL_NAME, EntityBodyHandler.
-                    getByteChannel(entityStruct));
+            Channel byteChannel = EntityBodyHandler.getByteChannel(entityStruct);
+            if (byteChannel != null) {
+                byteChannelStruct.addNativeData(IOConstants.BYTE_CHANNEL_NAME, byteChannel);
+            } else {
+                if (EntityBodyHandler.getMessageDataSource(entityStruct) != null) {
+                    return this.getBValues(MimeUtil.createEntityError(context,
+                            "Byte channel is not available but payload can be obtain either as xml, " +
+                                    "json, string or blob type"));
+                } else if (EntityBodyHandler.getBodyPartArray(entityStruct) != null) {
+                    return this.getBValues(MimeUtil.createEntityError(context,
+                            "Byte channel is not available since payload contains a set of body parts"));
+                } else {
+                    return this.getBValues(MimeUtil.createEntityError(context,
+                            "Byte channel is not available as payload"));
+                }
+            }
         } catch (Throwable e) {
-            throw new BallerinaException("Error occurred while constructing byte channel from entity body : "
-                    + e.getMessage());
+            return this.getBValues(MimeUtil.createEntityError(context,
+                    "Error occurred while constructing byte channel from entity body : " + e.getMessage()));
         }
         context.setReturnValues(byteChannelStruct);
     }

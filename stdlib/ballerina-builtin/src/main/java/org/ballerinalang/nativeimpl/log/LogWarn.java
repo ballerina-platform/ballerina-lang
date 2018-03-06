@@ -41,7 +41,7 @@ public class LogWarn extends AbstractLogFunction {
         String pkg = getPackagePath(ctx);
 
         if (LOG_MANAGER.getPackageLogLevel(pkg).value() <= BLogLevel.WARN.value()) {
-            getLogger(pkg).warn(ctx.getStringArgument(0));
+            getLogger(pkg).warn(getLogMessage(ctx, 0));
         }
         ctx.setReturnValues();
     }

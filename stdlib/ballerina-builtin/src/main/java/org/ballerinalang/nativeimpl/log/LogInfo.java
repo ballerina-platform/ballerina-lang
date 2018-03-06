@@ -41,7 +41,7 @@ public class LogInfo extends AbstractLogFunction {
         String pkg = getPackagePath(ctx);
 
         if (LOG_MANAGER.getPackageLogLevel(pkg).value() <= BLogLevel.INFO.value()) {
-            getLogger(pkg).info(ctx.getStringArgument(0));
+            getLogger(pkg).info(getLogMessage(ctx, 0));
         }
         ctx.setReturnValues();
     }

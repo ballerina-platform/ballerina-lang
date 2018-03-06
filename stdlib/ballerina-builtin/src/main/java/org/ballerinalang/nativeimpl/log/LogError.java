@@ -41,7 +41,7 @@ public class LogError extends AbstractLogFunction {
         String pkg = getPackagePath(ctx);
 
         if (LOG_MANAGER.getPackageLogLevel(pkg).value() <= BLogLevel.ERROR.value()) {
-            getLogger(pkg).error(ctx.getStringArgument(0));
+            getLogger(pkg).error(getLogMessage(ctx, 0));
         }
         ctx.setReturnValues();
     }

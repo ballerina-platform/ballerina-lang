@@ -174,12 +174,12 @@ function performFailoverAction (string path, http:OutRequest outRequest, http:In
     // When performing passthrough scenarios using Failover connector, message needs to be built before trying out the
     // failover endpoints to keep the request message to failover the messages.
     if (inRequest != null && HttpOperation.FORWARD == requestAction) {
-        blob binaryPayload = inRequest.getBinaryPayload();
+        var binaryPayload, _ = inRequest.getBinaryPayload();
     }
 
     mime:Entity requestEntity = null;
     if (outRequest != null) {
-        requestEntity = outRequest.getEntity();
+        requestEntity, _ = outRequest.getEntity();
     }
 
     while (startIndex != currentIndex) {

@@ -68,7 +68,7 @@ public class MultipartDecoder {
                 populateBallerinaParts(context, entity, mimeParts);
             }
         } catch (MimeTypeParseException e) {
-            throw new BallerinaException("Error occurred while decoding body parts from inputstream");
+            throw new BallerinaException("Error occurred while decoding body parts from inputstream " + e.getMessage());
         }
     }
 
