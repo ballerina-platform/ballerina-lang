@@ -17,6 +17,7 @@
  */
 package org.ballerinalang.net.grpc.builder.components;
 
+import static org.ballerinalang.net.grpc.builder.BalGenConstants.GRPC_NATIVE_PACKAGE;
 import static org.ballerinalang.net.grpc.builder.BalGenConstants.NEW_LINE_CHARACTER;
 
 /**
@@ -31,7 +32,7 @@ public class PackageBuilder { //package is mandatory
     
     public String build() {
         String str = "package %s;" + NEW_LINE_CHARACTER +
-                "import ballerina.net.grpc;" + NEW_LINE_CHARACTER +
+                "import " + GRPC_NATIVE_PACKAGE + ";" + NEW_LINE_CHARACTER +
                 NEW_LINE_CHARACTER;
         return String.format(str, packageName);
     }

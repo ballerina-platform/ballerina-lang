@@ -28,6 +28,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import static org.ballerinalang.net.grpc.builder.BalGenConstants.NEW_LINE_CHARACTER;
+import static org.ballerinalang.net.grpc.builder.BalGenConstants.PACKAGE_SEPARATOR;
 import static org.ballerinalang.net.grpc.builder.utils.BalGenerationUtils.bytesToHex;
 
 /**
@@ -49,8 +50,8 @@ public class ConstantBuilder {
         DescriptorProtos.FileDescriptorProto fileDescriptorSet = DescriptorProtos.FileDescriptorProto
                 .parseFrom(targetStream);
         BMap<String, BString> descriptorMap = new BMap<String, BString>();
-        descriptorMap.put("\"" + fileDescriptorSet.getPackage() + "." + fileDescriptorSet.getName() + "\"",
-                new BString("\"" + bytesToHex(rootDescriptor) + "\""));
+        descriptorMap.put("\"" + fileDescriptorSet.getPackage() + PACKAGE_SEPARATOR + fileDescriptorSet.getName()
+                        + "\"", new BString("\"" + bytesToHex(rootDescriptor) + "\""));
         
         for (byte[] str : dependentDescriptors) {
             if (str.length > 0) {

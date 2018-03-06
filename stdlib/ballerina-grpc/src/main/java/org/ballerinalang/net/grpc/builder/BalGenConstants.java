@@ -35,4 +35,15 @@ public class BalGenConstants {
     
     public static final String DEFAULT_PACKAGE = "org.ballerinalang.net.grpc";
     
+    public static final String GRPC_NATIVE_PACKAGE = "ballerina.net.grpc";
+    
+    public static final String STUB_FILE_PRIFIX = ".pb.bal";
+    
+    public static final String SAMPLE_FILE_PRIFIX = ".sample.client.bal";
+    
+    public static final String EMPTY_STRING = "";
+    
+    public static final String PACKAGE_SEPARATOR = ".";
+    
+    public static final String PACKAGE_SEPARATOR_REGEX = "\\.";
 }

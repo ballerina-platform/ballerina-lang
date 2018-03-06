@@ -37,9 +37,9 @@ import java.io.File;
  * This test the mediation of wsClient <-> balServer <-> balWSClient <-> remoteServer.
  */
 public class GrpcClientTestCase extends IntegrationTestCase {
-    private static final Logger log = LoggerFactory.getLogger(IntegrationTestCase.class);
+    private static final Logger log = LoggerFactory.getLogger(GrpcClientTestCase.class);
     private ServerInstance ballerinaClient;
-    GrpcServer grpcServer;
+    private GrpcServer grpcServer;
     
     @BeforeClass
     private void setup() throws Exception {

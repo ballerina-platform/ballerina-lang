@@ -131,7 +131,7 @@ public class GrpcCmd implements BLauncherCmd {
         //Path balPath = Paths.get(balOutPath);
         try {
             BallerinaFile ballerinaFile;
-            // TODO: 3/5/18 check need different location
+            // By this user can generate stub at different location
             if (balOutPath == null) {
                 ballerinaFile = new BallerinaFile(dependant);
             } else {

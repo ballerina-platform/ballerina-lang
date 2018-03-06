@@ -26,6 +26,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static org.ballerinalang.net.grpc.builder.BalGenConstants.BLOCKING_STUB_KEY;
+import static org.ballerinalang.net.grpc.builder.BalGenConstants.EMPTY_STRING;
 import static org.ballerinalang.net.grpc.builder.BalGenConstants.NON_BLOCKING_STUB_KEY;
 
 /**
@@ -47,8 +48,8 @@ public class ActionBuilder {
         this.resMessageName = resMessageName;
         this.methodID = methodID;
         this.methodType = methodType;
-        this.actionListMap.put(BLOCKING_STUB_KEY, "");
-        this.actionListMap.put(NON_BLOCKING_STUB_KEY, "");
+        this.actionListMap.put(BLOCKING_STUB_KEY, EMPTY_STRING);
+        this.actionListMap.put(NON_BLOCKING_STUB_KEY, EMPTY_STRING);
     }
     
     public void build() {

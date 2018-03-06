@@ -27,7 +27,7 @@
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
-    <artifactId>grpc-ballerina-tool</artifactId>
+    <artifactId>grpc-ballerina</artifactId>
     <packaging>jar</packaging>
     <name>Ballerina - gRPC Tooling - Parent</name>
 

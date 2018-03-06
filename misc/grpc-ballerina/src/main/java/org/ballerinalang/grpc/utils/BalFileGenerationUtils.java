@@ -79,9 +79,10 @@ public class BalFileGenerationUtils {
      * @return descriptor path of proto
      */
     public static String getDescriptorPath(String protoPath) {
-        return BalGenerationConstants.META_DEPENDENCY_LOCATION + protoPath
-                .substring(protoPath.lastIndexOf(BalGenerationConstants.FILE_SEPARATOR), protoPath.length())
-                .replace(".proto", BalGenerationConstants.EMPTY_STRING) + ".desc";
+        return org.ballerinalang.net.grpc.utils.BalGenerationConstants.META_DEPENDENCY_LOCATION + protoPath
+                .substring(protoPath.lastIndexOf(org.ballerinalang.net.grpc.utils.BalGenerationConstants
+                        .FILE_SEPARATOR), protoPath.length()).replace(".proto",
+                        org.ballerinalang.net.grpc.utils.BalGenerationConstants.EMPTY_STRING) + ".desc";
     }
     
     /**
@@ -93,8 +94,9 @@ public class BalFileGenerationUtils {
      * @return byte array of generated proto file.
      */
     public static byte[] getProtoByteArray(String exePath, String protoPath, String descriptorPath) {
-        String command = new ProtocCommandBuilder(exePath, protoPath, protoPath.substring(0,
-                protoPath.lastIndexOf(BalGenerationConstants.FILE_SEPARATOR)),
+        String command = new org.ballerinalang.net.grpc.utils.ProtocCommandBuilder
+                (exePath, protoPath, protoPath.substring(0, protoPath.lastIndexOf
+                        (org.ballerinalang.net.grpc.utils.BalGenerationConstants.FILE_SEPARATOR)),
                 descriptorPath).build();
         try {
             generateDescriptor(command);

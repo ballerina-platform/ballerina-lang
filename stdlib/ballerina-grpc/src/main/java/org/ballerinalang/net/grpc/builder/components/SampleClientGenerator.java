@@ -45,15 +45,20 @@ public class SampleClientGenerator {
         if (generateNonBlocking) {
             endpoints.append(getStub("NonBlockingStub")).append(NEW_LINE_CHARACTER);
         }
-        String str =
+        String packagePayload =
                 "package %s;" + NEW_LINE_CHARACTER +
                         NEW_LINE_CHARACTER +
                         "function main (string[] args) {" + NEW_LINE_CHARACTER +
                         "    %s" +
                         "}" + NEW_LINE_CHARACTER;
-        return String.format(str, packageName, endpoints.toString());
+        return String.format(packagePayload, packageName, endpoints.toString());
     }
     
+    /**
+     * Generate Endpoint payload
+     * @param stubName Name of the Stub Ex. Blocking/NonBlocking
+     * @return Endpoint payload.
+     */
     private String getStub(String stubName) {
         String str =
                 "    endpoint<%s%s> %sStub%s {" + NEW_LINE_CHARACTER +
