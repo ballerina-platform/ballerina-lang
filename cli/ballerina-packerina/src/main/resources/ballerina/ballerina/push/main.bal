@@ -10,43 +10,26 @@ function pushPackage (string accessToken, string url, string baloFilePath, strin
     endpoint<http:HttpClient> httpEndpoint {
         create http:HttpClient(url, getConnectorConfigs(proxyHost, proxyPort, proxyUsername, proxyPassword));
     }
-    // Validate the access token generated
-    var clientResponse, errResp = validateToken(accessToken);
-    if (errResp != null) {
-        error validationErr = {message:errResp.message};
-        throw validationErr;
+    mime:Entity filePart = {};
+    mime:MediaType contentTypeOfFilePart = mime:getMediaType(mime:APPLICATION_OCTET_STREAM);
+    filePart.contentType = contentTypeOfFilePart;
+    file:File fileHandler = {path:baloFilePath};
+    filePart.setFileAsEntityBody(fileHandler);
+    mime:Entity[] bodyParts = [filePart];
+
+    http:OutRequest request = {};
+    request.addHeader("authorization", "Bearer " + accessToken);
+    request.setMultiparts(bodyParts, mime:MULTIPART_FORM_DATA);
+    var resp, errRes = httpEndpoint.post("", request);
+    if (errRes != null) {
+        error err = {message:errRes.message};
+        throw err;
+    }
+    if (resp.statusCode != 200) {
+        json jsonResponse = resp.getJsonPayload();
+        io:println(jsonResponse.msg.toString());
     } else {
-        json jsonResp = clientResponse.getJsonPayload();
-        string accessTokenIsActive = jsonResp.active.toString();
-        if (accessTokenIsActive.equalsIgnoreCase("true")) {
-            mime:Entity topLevelEntity = {};
-            mime:MediaType mediaType = mime:getMediaType(mime:MULTIPART_FORM_DATA);
-            topLevelEntity.contentType = mediaType;
-
-            mime:Entity filePart = {};
-            mime:MediaType contentTypeOfFilePart = mime:getMediaType(mime:APPLICATION_OCTET_STREAM);
-            filePart.contentType = contentTypeOfFilePart;
-            file:File fileHandler = {path:baloFilePath};
-            filePart.setFileAsEntityBody(fileHandler);
-            mime:Entity[] bodyParts = [filePart];
-
-            topLevelEntity.multipartData = bodyParts;
-            http:OutRequest request = {};
-            request.setEntity(topLevelEntity);
-            var resp1, errRes = httpEndpoint.post("", request);
-            if (errRes != null) {
-                error err = {message:errRes.message};
-                throw err;
-            }
-            if (resp1.statusCode != 200) {
-                json jsonResponse = resp1.getJsonPayload();
-                io:println(jsonResponse.msg.toString());
-            } else {
-                io:println("Ballerina package pushed successfully");
-            }
-        } else {
-            io:println("The access-token provided in Settings.toml has expired. Please login again from the central using 'central.ballerina.io/login' to get a valid access-token.");
-        }
+        io:println("Ballerina package pushed successfully");
     }
 }
 
@@ -75,17 +58,4 @@ function getConnectorConfigs (string proxyHost, string proxyPort, string proxyUs
         option = {};
     }
     return option;
-}
-
-function validateToken (string accessToken) (http:InResponse, http:HttpConnectorError) {
-    endpoint<http:HttpClient> validateEndpoint {
-        create http:HttpClient("https://localhost:9443", {});
-    }
-    string strPayload = "token=" + accessToken;
-    http:OutRequest outReq = {};
-    outReq.setStringPayload(strPayload);
-    outReq.setHeader("Content-Type", "application/x-www-form-urlencoded");
-    outReq.addHeader("Authorization", "Basic YWRtaW46YWRtaW4=");
-    var clientResponse, err = validateEndpoint.post("/oauth2/introspect", outReq);
-    return clientResponse, err;
 }

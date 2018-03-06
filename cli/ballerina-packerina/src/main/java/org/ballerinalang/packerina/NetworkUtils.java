@@ -216,7 +216,7 @@ public class NetworkUtils {
         } else {
             outStream.println("You have not specified an access-token for the central in your Settings.toml\n" +
                     "Please login to central if you are already registered using 'central.ballerina.io/login' to get" +
-                    "a valid access-token. \nIf you are new to the site please register using " +
+                    " a valid access-token. \nIf you are new to the site please register using " +
                     "'central.ballerina.io/register'");
         }
     }

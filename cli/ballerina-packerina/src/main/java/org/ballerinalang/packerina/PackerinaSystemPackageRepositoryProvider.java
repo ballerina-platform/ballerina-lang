@@ -27,9 +27,9 @@ import org.ballerinalang.spi.SystemPackageRepositoryProvider;
  * @since 0.964
  */
 @JavaSPIService("org.ballerinalang.spi.SystemPackageRepositoryProvider")
-public class PullCmdSystemPackageRepositoryProvider implements SystemPackageRepositoryProvider {
+public class PackerinaSystemPackageRepositoryProvider implements SystemPackageRepositoryProvider {
 
-    private static final String JAR_SYSTEM_LIB_LOCATION = "/META-INF/ballerina/";
+    private static final String SYSTEM_ORG_NAME = "ballerina";
 
     /**
      * Loads the package repository.
@@ -38,7 +38,7 @@ public class PullCmdSystemPackageRepositoryProvider implements SystemPackageRepo
      */
     @Override
     public PackageRepository loadRepository() {
-        return new ClasspathPackageRepository(this.getClass(), JAR_SYSTEM_LIB_LOCATION);
+        return new ClasspathPackageRepository(this.getClass(), SYSTEM_ORG_NAME);
     }
 
 }
