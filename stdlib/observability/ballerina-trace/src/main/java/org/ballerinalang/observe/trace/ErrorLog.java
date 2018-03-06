@@ -36,32 +36,34 @@ import java.util.Map;
  */
 @BallerinaFunction(
         packageName = "ballerina.observe",
-        functionName = "log",
+        functionName = "logError",
         receiver = @Receiver(type = TypeKind.STRUCT, structType = "Span", structPackage = "ballerina.observe"),
-        args = {@Argument(name = "event", type = TypeKind.STRING),
+        args = {@Argument(name = "errorKind", type = TypeKind.STRING),
                 @Argument(name = "message", type = TypeKind.STRING)},
         isPublic = true
 )
-public class Log extends AbstractLogFunction {
+public class ErrorLog extends AbstractLogFunction {
     @Override
     public BValue[] execute(Context context) {
         BStruct span = (BStruct) getRefArgument(context, 0);
         String spanId = span.getStringField(0);
-        String event = getStringArgument(context, 0);
+        String errorKind = getStringArgument(context, 0);
         String message = getStringArgument(context, 1);
 
         String pkg = context.getControlStack().currentFrame.prevStackFrame
                 .getCallableUnitInfo().getPackageInfo().getPkgPath();
 
-        if (LOG_MANAGER.getPackageLogLevel(pkg).value() <= BLogLevel.INFO.value()) {
-            String logMessage = String.format("[Tracing][Service: %s, Span: %s] Event: %s, Message: %s",
-                    span.getStringField(1), span.getStringField(2), event, message);
-            getLogger(pkg).info(logMessage);
+        if (LOG_MANAGER.getPackageLogLevel(pkg).value() <= BLogLevel.ERROR.value()) {
+            String logMessage = String.format("[Tracing][Service: %s, Span: %s] ErrorKind: %s, Message: %s",
+                    span.getStringField(1), span.getStringField(2), errorKind, message);
+            getLogger(pkg).error(logMessage);
         }
 
         Map<String, String> logMap = new HashMap<>();
-        logMap.put("event", event);
+        logMap.put("event", "error");
+        logMap.put("error.kind", errorKind);
         logMap.put("message", message);
+        OpenTracerBallerinaWrapper.getInstance().addTags(spanId, "error", "true");
         OpenTracerBallerinaWrapper.getInstance().log(spanId, logMap);
         return VOID_RETURN;
     }

@@ -17,52 +17,23 @@
 package ballerina.observe;
 
 import ballerina.net.http;
-import ballerina.log;
 
+@Description {value:"Reference types between spans"}
+@Field {value:"CHILDOF: The parent span depends on the child span in some capacity"}
+@Field {value:"FOLLOWSFROM: The parent span do not depend on the result of the child span"}
 public enum ReferenceType {
     CHILDOF, FOLLOWSFROM
 }
 
 @Description {value:"Represents a opentracing span in Ballerina"}
-@Field {value:"spanId: The Id of the Span"}
+@Field {value:"spanId: The id of the span"}
+@Field {value:"serviceName: The service name this span belongs to"}
+@Field {value:"spanName: The name of the span"}
 public struct Span {
     string spanId;
     string serviceName;
     string spanName;
 }
-
-@Description {value:"Builds a span and sets the specified reference to parentSpanId"}
-@Param {value:"serviceName: The service name of the process"}
-@Param {value:"spanName: The name of the span"}
-@Param {value:"tags: The map of tags to be associated to the span"}
-@Param {value:"reference: childOf, followsFrom"}
-@Param {value:"parentSpanId: The Id of the parent span"}
-@Return {value:"String value of the span id that was generated"}
-native function init (string serviceName, string spanName, map tags, ReferenceType reference, string parentSpanId) (string);
-
-@Description {value:"Finish the span specified by the spanId"}
-@Param {value:"spanId: The ID of the span to be finished"}
-public native function <Span span> finishSpan ();
-
-@Description {value:""}
-@Param {value:"tags: The map of tags"}
-@Return {value:"The status of the add tag operation"}
-public native function <Span span> addTag (string tagKey, string tagValue);
-
-@Description {value:""}
-@Param {value:"logEvent: The map that holds the log fields related to a single log"}
-@Return {value:"The status of the add tag operation"}
-public native function <Span span> log (map logEvent);
-
-@Description {value:"Adds span headers when request chaining"}
-@Return {value:"The span context as a key value pair that should be passed out to an external function"}
-native function <Span span> inject () (map);
-
-@Description {value:"Method to save the parent span and extract the span Id"}
-@Param {value:"req: The http request that contains the header maps"}
-@Param {value:"group: The group to which this span belongs to"}
-@Return {value:"The id of the parent span passed in from an external function"}
-public native function extractSpanContext (http:InRequest req, string group) (string);
 
 @Description {value:"Starts a span and sets the specified reference to parentSpanId"}
 @Param {value:"serviceName: The service name of the process"}
@@ -79,6 +50,44 @@ public function startSpan (string serviceName, string spanName, map tags, Refere
     return span;
 }
 
+@Description {value:"Builds a span and sets the specified reference to parentSpanId"}
+@Param {value:"serviceName: The service name of the process"}
+@Param {value:"spanName: The name of the span"}
+@Param {value:"tags: The map of tags to be associated to the span"}
+@Param {value:"reference: childOf, followsFrom"}
+@Param {value:"parentSpanId: The Id of the parent span"}
+@Return {value:"String value of the span id that was generated"}
+native function init (string serviceName, string spanName, map tags, ReferenceType reference, string parentSpanId) (string);
+
+@Description {value:"Finish the span specified by the spanId"}
+@Param {value:"spanId: The ID of the span to be finished"}
+public native function <Span span> finishSpan ();
+
+@Description {value:"Add a tag to the current span. Tags are given as a key value pair"}
+@Param {value:"tagKey: The key of the key value pair"}
+@Param {value:"tagValue: The value of the key value pair"}
+public native function <Span span> addTag (string tagKey, string tagValue);
+
+@Description {value:"Attach an info log to the current span"}
+@Param {value:"event: The type of event this log represents"}
+@Param {value:"message: The message to be logged"}
+public native function <Span span> log (string event, string message);
+
+@Description {value:"Attach an error log to the current span"}
+@Param {value:"errorKind: The kind of error. e.g. DBError"}
+@Param {value:"message: The error message to be logged"}
+public native function <Span span> logError (string errorKind, string message);
+
+@Description {value:"Adds span headers when request chaining"}
+@Return {value:"The span context as a key value pair that should be passed out to an external function"}
+native function <Span span> inject () (map);
+
+@Description {value:"Method to save the parent span and extract the span Id"}
+@Param {value:"req: The http request that contains the header maps"}
+@Param {value:"group: The group to which this span belongs to"}
+@Return {value:"The id of the parent span passed in from an external function"}
+public native function extractSpanContext (http:InRequest req, string group) (string);
+
 @Description {value:"Injects the span context the OutRequest struct to send to another service"}
 @Param {value:"req: The http request used when calling an endpoint"}
 @Param {value:"group: The group that the span context is associated to"}
@@ -90,13 +99,4 @@ public function <Span span> injectSpanContext (http:OutRequest req, string group
         req.addHeader(group + key, value);
     }
     return req;
-}
-
-@Description {value:"Logs and error associated to the span"}
-@Param {value:"errorKind: The type or kind of an error. For example DBError"}
-@Param {value:"message: The error message"}
-public function <Span span> logError (string errorKind, string message) {
-    log:printError("[Tracing] [" + span.serviceName + "].[" + span.spanName + "] ");
-    span.addTag("error", "true");
-    span.log({"event":"error", "error.kind":errorKind, "message":message});
 }
