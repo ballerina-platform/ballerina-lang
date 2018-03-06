@@ -691,7 +691,8 @@ public class BLangVM {
                     i = operands[0];
                     cpIndex = operands[1];
                     typeRefCPEntry = (TypeRefCPEntry) constPool[cpIndex];
-                    sf.refRegs[i] = new BStream(typeRefCPEntry.getType());
+                    StringCPEntry name = (StringCPEntry) constPool[operands[2]];
+                    sf.refRegs[i] = new BStream(typeRefCPEntry.getType(), name.getValue());
                     break;
                 case InstructionCodes.NEWSTREAMLET:
                     createNewStreamlet(operands, sf);

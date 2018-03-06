@@ -45,8 +45,6 @@ public class BStream implements BRefType<Object> {
 
     private static final String TOPIC_NAME_PREFIX = "TOPIC_NAME_";
 
-    private static int streamTopicId;
-
     private BStructType constraintType;
 
     /**
@@ -54,13 +52,13 @@ public class BStream implements BRefType<Object> {
      */
     private String topicName;
 
-    public BStream(BType type) {
+    public BStream(BType type, String name) {
         if (((BStreamType) type).getConstrainedType() == null) {
             throw  new BallerinaException("A stream cannot be created without a constraint");
         }
         this.constraintType = (BStructType) ((BStreamType) type).getConstrainedType();
         this.topicName = TOPIC_NAME_PREFIX + ((BStreamType) type).getConstrainedType().getName().toUpperCase() + "_"
-                        + streamTopicId++;
+                        + name;
     }
 
     @Override

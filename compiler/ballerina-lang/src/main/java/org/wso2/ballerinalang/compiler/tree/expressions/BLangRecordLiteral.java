@@ -19,9 +19,11 @@ package org.wso2.ballerinalang.compiler.tree.expressions;
 
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
+import org.wso2.ballerinalang.compiler.desugar.Desugar;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BStructSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 
@@ -53,6 +55,9 @@ public class BLangRecordLiteral extends BLangExpression implements RecordLiteral
 
     @Override
     public void accept(BLangNodeVisitor visitor) {
+        if (visitor instanceof Desugar) { //TODO:fix
+            this.name = ((Desugar) visitor).name;
+        }
         visitor.visit(this);
     }
 
@@ -204,8 +209,9 @@ public class BLangRecordLiteral extends BLangExpression implements RecordLiteral
      */
     public static class BLangStreamLiteral extends BLangRecordLiteral {
 
-        public BLangStreamLiteral(BType streamType) {
+        public BLangStreamLiteral(BType streamType, BLangIdentifier name) {
             this.type = streamType;
+            this.name = name;
         }
 
         @Override
