@@ -4,10 +4,10 @@ import ballerina.test;
 import ballerina.io;
 
 @test:mock {
-    packageName : "src.test.resources.functionmocktest.pkg" ,
+    packageName : "src.test.resources.functionmocktest.pkg.sub1" ,
     functionName : "intAdd"
 }
-function mockIntAdd (int a, int b) (int c) {
+public function mockIntAdd (int a, int b) (int c) {
     io:println("I'm the mockIntAdd!");
     return a+b;
 }

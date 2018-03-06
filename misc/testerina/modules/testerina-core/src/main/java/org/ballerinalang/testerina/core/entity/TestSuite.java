@@ -18,10 +18,10 @@
 
 package org.ballerinalang.testerina.core.entity;
 
+import org.ballerinalang.util.codegen.ProgramFile;
+
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Entity class to hold a test suite.
@@ -31,18 +31,14 @@ public class TestSuite {
 
     private String suiteName;
     private List<Test> tests = new ArrayList<>();
-    private List<TesterinaFunction> beforeSuiteFunctions = new ArrayList<>();
-    private List<TesterinaFunction> afterSuiteFunctions = new ArrayList<>();
 
-    public Map<String, TesterinaFunction> getMockFunctionsMap() {
-        return mockFunctionsMap;
+    public List<ProgramFile> getProgramFiles() {
+        return programFiles;
     }
 
-    /**
-     * Key - unique identifier for a function.
-     * Value - a @{@link TesterinaFunction}
-     */
-    private Map<String, TesterinaFunction> mockFunctionsMap = new HashMap<>();
+    private List<ProgramFile> programFiles = new ArrayList<>();
+    private List<TesterinaFunction> beforeSuiteFunctions = new ArrayList<>();
+    private List<TesterinaFunction> afterSuiteFunctions = new ArrayList<>();
 
     public List<TesterinaFunction> getTestUtilityFunctions() {
         return testUtilityFunctions;
@@ -135,12 +131,8 @@ public class TestSuite {
         this.afterSuiteFunctions = afterSuiteFunctions;
     }
 
-    public void addMockFunction (String key, TesterinaFunction function) {
-        this.mockFunctionsMap.put(key, function);
-    }
-
-    public TesterinaFunction getMockFunction (String key) {
-        return this.mockFunctionsMap.get(key);
+    public void addProgramFile (ProgramFile programFile) {
+        this.programFiles.add(programFile);
     }
 
 }

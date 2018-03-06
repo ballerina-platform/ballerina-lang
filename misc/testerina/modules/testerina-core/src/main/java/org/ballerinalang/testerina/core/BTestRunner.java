@@ -81,7 +81,8 @@ public class BTestRunner {
 
     private void executeTestFunctions(Collection<ProgramFile> programFiles, List<String> groups, boolean
             excludeGroups) {
-        TesterinaContext tFile = new TesterinaContext(programFiles, groups, excludeGroups);
+        TesterinaContext tFile = new TesterinaContext(groups, excludeGroups);
+        tFile.process(programFiles);
         Map<String, TestSuite> testSuites = tFile.getTestSuites();
 
         if (testSuites.isEmpty()) {
@@ -92,6 +93,10 @@ public class BTestRunner {
 
         testSuites.forEach((packageName, suite) -> {
             outStream.println("Executing test suite for package: " + packageName);
+            for (ProgramFile programFile : suite.getProgramFiles()) {
+                AnnotationProcessor.injectMocks(tFile.getMockFunctionsMap(), programFile);
+            }
+
             suite.getBeforeSuiteFunctions().forEach(test -> {
                 String errorMsg;
                 try {

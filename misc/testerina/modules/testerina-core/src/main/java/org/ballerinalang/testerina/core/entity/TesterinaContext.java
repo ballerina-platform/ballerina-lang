@@ -36,15 +36,29 @@ public class TesterinaContext {
     private ArrayList<TesterinaFunction> testFunctions = new ArrayList<>();
     private ArrayList<TesterinaFunction> beforeTestFunctions = new ArrayList<>();
     private ArrayList<TesterinaFunction> afterTestFunctions = new ArrayList<>();
+
+    public Map<String, TesterinaFunction> getMockFunctionsMap() {
+        return mockFunctionsMap;
+    }
+
+    /**
+     * Key - unique identifier for a function.
+     * Value - a @{@link TesterinaFunction}
+     */
+    private Map<String, TesterinaFunction> mockFunctionsMap = new HashMap<>();
+
     private List<String> groups;
     private boolean excludeGroups = false;
 
-    public TesterinaContext(Collection<ProgramFile> programFiles, List<String> groups, boolean excludeGroups) {
+    public TesterinaContext(List<String> groups, boolean excludeGroups) {
         this.groups = groups;
         this.excludeGroups = excludeGroups;
-        programFiles.forEach(this::processProgramFiles);
 //        assert groups == null;
 //        assert excludeGroups == true;
+    }
+
+    public void process(Collection<ProgramFile> programFiles) {
+        programFiles.forEach(this::processProgramFiles);
     }
 
     /**
@@ -122,9 +136,18 @@ public class TesterinaContext {
                     testSuites.put(packageInfo.getPkgPath(), new TestSuite(packageInfo.getPkgPath()));
                     //processTestSuites
                 }
-                AnnotationProcessor.processAnnotations(programFile, packageInfo, testSuites.get(packageInfo
+                AnnotationProcessor.processAnnotations(this, programFile, packageInfo, testSuites.get(packageInfo
                         .getPkgPath()), groups, excludeGroups);
             }
         }
     }
+
+    public void addMockFunction (String key, TesterinaFunction function) {
+        this.mockFunctionsMap.put(key, function);
+    }
+
+    public TesterinaFunction getMockFunction (String key) {
+        return this.mockFunctionsMap.get(key);
+    }
+
 }

@@ -21,6 +21,7 @@ package org.ballerinalang.testerina.core;
 import org.ballerinalang.testerina.core.entity.Test;
 import org.ballerinalang.testerina.core.entity.TestSuite;
 import org.ballerinalang.testerina.core.entity.TesterinaAnnotation;
+import org.ballerinalang.testerina.core.entity.TesterinaContext;
 import org.ballerinalang.testerina.core.entity.TesterinaFunction;
 import org.ballerinalang.util.codegen.AnnAttachmentInfo;
 import org.ballerinalang.util.codegen.AnnAttributeValue;
@@ -66,7 +67,8 @@ public class AnnotationProcessor {
     private static final String DEFAULT_TEST_GROUP_NAME = "default";
     private static PrintStream outStream = System.out;
 
-    public static void processAnnotations(ProgramFile programFile, PackageInfo packageInfo, TestSuite suite,
+    public static void processAnnotations(TesterinaContext ctxt, ProgramFile programFile, PackageInfo packageInfo,
+                                          TestSuite suite,
                                           List<String> groups, boolean excludeGroups) {
 
         FunctionInfo[] functionInfos = packageInfo.getFunctionInfoEntries();
@@ -76,26 +78,27 @@ public class AnnotationProcessor {
             AnnotationAttributeInfo attributeInfo = (AnnotationAttributeInfo) functionInfo.getAttributeInfo
                     (AttributeInfo.Kind.ANNOTATIONS_ATTRIBUTE);
 
-            process(functionInfo, attributeInfo.getAttachmentInfoEntries(), programFile, suite, groups, excludeGroups);
+            process(ctxt, functionInfo, attributeInfo.getAttachmentInfoEntries(), programFile, suite, groups,
+                    excludeGroups);
 
         }
 
         int[] sortedElts = checkCyclicDependencies(suite.getTests());
         resolveFunctions(suite);
-        injectMocks(suite.getMockFunctionsMap(), programFile);
+//        injectMocks(suite.getMockFunctionsMap(), programFile);
         List<Test> sortedTests = orderTests(suite.getTests(), sortedElts);
         suite.setTests(sortedTests);
+        suite.addProgramFile(programFile);
     }
 
-    private static void injectMocks(Map<String, TesterinaFunction> mockFunctions, ProgramFile programFile) {
+    public static void injectMocks(Map<String, TesterinaFunction> mockFunctions, ProgramFile programFile) {
         mockFunctions.forEach((k, v) -> {
             String[] info = k.split("#");
             if (info.length != 2) {
                 return;
             }
-            PackageInfo packageInfo = programFile.getPackageInfo(info[0]);
-            if (packageInfo.getFunctionInfo(info[1]) != null) {
-                packageInfo.addFunctionInfo(info[1], v.getbFunction());
+
+            for (PackageInfo packageInfo: programFile.getPackageInfoEntries()) {
                 for (Instruction ins : packageInfo.getInstructions()) {
                     if (ins instanceof Instruction.InstructionCALL) {
                         Instruction.InstructionCALL call = (Instruction.InstructionCALL) ins;
@@ -293,7 +296,9 @@ public class AnnotationProcessor {
      * @param functionInfo ballerina FunctionInfo object
      * @return @{@link TesterinaAnnotation} object containing annotation information
      */
-    private static void process(FunctionInfo functionInfo, AnnAttachmentInfo[] annotations, ProgramFile programFile,
+    private static void process(TesterinaContext ctxt, FunctionInfo functionInfo, AnnAttachmentInfo[] annotations,
+                                ProgramFile
+            programFile,
                                 TestSuite suite, List<String> groups, boolean excludeGroups) {
         boolean functionAdded = false, functionSkipped = false;
         for (AnnAttachmentInfo attachmentInfo : annotations) {
@@ -321,7 +326,7 @@ public class AnnotationProcessor {
                 if (attachmentInfo.getAttributeValue(FUNCTION) != null) {
                     functionName = attachmentInfo.getAttributeValue(FUNCTION).getStringValue();
                 }
-                suite.addMockFunction(pkg + "#" + functionName, new TesterinaFunction(programFile, functionInfo,
+                ctxt.addMockFunction(pkg + "#" + functionName, new TesterinaFunction(programFile, functionInfo,
                         TesterinaFunction.Type.MOCK));
                 functionAdded = true;
             } else {

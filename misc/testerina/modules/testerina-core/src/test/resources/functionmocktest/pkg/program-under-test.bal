@@ -1,7 +1,9 @@
 package src.test.resources.functionmocktest.pkg;
 
+import src.test.resources.functionmocktest.pkg.sub1 as sub1;
+
 public function intAdd (int a, int b) (int) {
-    return a + b;
+    return sub1:intAdd(a, b);
 }
 
 function floatAdd (float a, float b) (float) {
