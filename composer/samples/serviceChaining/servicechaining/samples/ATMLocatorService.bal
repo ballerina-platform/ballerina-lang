@@ -19,7 +19,7 @@ service<http> ATMLocator {
 
         http:OutRequest backendServiceReq = {};
         http:HttpConnectorError err;
-        json jsonLocatorReq = req.getJsonPayload();
+        var jsonLocatorReq, _ = req.getJsonPayload();
         string zipCode;
         zipCode, _ = (string)jsonLocatorReq["ATMLocator"]["ZipCode"];
         io:println("Zip Code " + zipCode);
@@ -29,7 +29,7 @@ service<http> ATMLocator {
 
         http:InResponse locatorResponse = {};
         locatorResponse, err = branchLocatorService.post("", backendServiceReq);
-        json branchLocatorRes = locatorResponse.getJsonPayload();
+        var branchLocatorRes, _ = locatorResponse.getJsonPayload();
         string branchCode;
         branchCode, _ = (string)branchLocatorRes.ABCBank.BranchCode;
         io:println("Branch Code " + branchCode);

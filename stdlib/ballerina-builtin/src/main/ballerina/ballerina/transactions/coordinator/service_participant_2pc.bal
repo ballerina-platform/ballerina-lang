@@ -35,38 +35,51 @@ service<http> Participant2pcService {
     }
     resource prepare (http:Connection conn, http:InRequest req, string transactionBlockId) {
         http:OutResponse res;
-        var prepareReq, _ = <PrepareRequest>req.getJsonPayload();
-        string transactionId = prepareReq.transactionId;
-        var txnBlockId, txnBlockIdConversionErr = <int> transactionBlockId;
-        string participatedTxnId = getParticipatedTransactionId(transactionId, txnBlockId);
-        log:printInfo("Prepare received for transaction: " + participatedTxnId);
-        PrepareResponse prepareRes;
-        var txn, _ = (TwoPhaseCommitTransaction)participatedTransactions[participatedTxnId];
-        if (txn == null || txnBlockIdConversionErr != null) {
-            res = {statusCode:404};
-            prepareRes = {message:"Transaction-Unknown"};
-        } else {
-            // Call prepare on the local resource manager
-            boolean prepareSuccessful = prepareResourceManagers(transactionId, txnBlockId);
-            if (prepareSuccessful) {
-                res = {statusCode:200};
-                txn.state = TransactionState.PREPARED;
-                //PrepareResponse prepareRes = {message:"read-only"};
-                prepareRes = {message:"prepared"};
-                log:printInfo("Prepared transaction: " + transactionId);
-            } else {
-                res = {statusCode:500};
-                prepareRes = {message:"aborted"};
-                participatedTransactions.remove(participatedTxnId);
-                log:printInfo("Aborted transaction: " + transactionId);
+        var payload, payloadError = req.getJsonPayload();
+        var txnBlockId, txnBlockIdConversionErr = <int>transactionBlockId;
+
+        if (payloadError != null || txnBlockIdConversionErr != null) {
+            res = {statusCode:400};
+            RequestError err = {errorMessage:"Bad Request"};
+            var resPayload, _ = <json>err;
+            res.setJsonPayload(resPayload);
+            var connError = conn.respond(res);
+            if (connError != null) {
+                log:printErrorCause("Sending response to Bad Request for prepare request failed", (error)connError);
             }
-        }
-        var j, _ = <json>prepareRes;
-        res.setJsonPayload(j);
-        var connError = conn.respond(res);
-        if (connError != null) {
-            log:printErrorCause("Sending response for prepare request for transaction " + transactionId +
-                                " failed", (error)connError);
+        } else {
+            var prepareReq, _ = <PrepareRequest>payload;
+            string transactionId = prepareReq.transactionId;
+            string participatedTxnId = getParticipatedTransactionId(transactionId, txnBlockId);
+            log:printInfo("Prepare received for transaction: " + participatedTxnId);
+            PrepareResponse prepareRes;
+            var txn, _ = (TwoPhaseCommitTransaction)participatedTransactions[participatedTxnId];
+            if (txn == null) {
+                res = {statusCode:404};
+                prepareRes = {message:"Transaction-Unknown"};
+            } else {
+                // Call prepare on the local resource manager
+                boolean prepareSuccessful = prepareResourceManagers(transactionId, txnBlockId);
+                if (prepareSuccessful) {
+                    res = {statusCode:200};
+                    txn.state = TransactionState.PREPARED;
+                    //PrepareResponse prepareRes = {message:"read-only"};
+                    prepareRes = {message:"prepared"};
+                    log:printInfo("Prepared transaction: " + transactionId);
+                } else {
+                    res = {statusCode:500};
+                    prepareRes = {message:"aborted"};
+                    participatedTransactions.remove(participatedTxnId);
+                    log:printInfo("Aborted transaction: " + transactionId);
+                }
+            }
+            var j, _ = <json>prepareRes;
+            res.setJsonPayload(j);
+            var connError = conn.respond(res);
+            if (connError != null) {
+                log:printErrorCause("Sending response for prepare request for transaction " + transactionId +
+                                    " failed", (error)connError);
+            }
         }
     }
 
@@ -79,56 +92,68 @@ service<http> Participant2pcService {
         path:"{transactionBlockId}/notify"
     }
     resource notify (http:Connection conn, http:InRequest req, string transactionBlockId) {
-        var notifyReq, _ = <NotifyRequest>req.getJsonPayload();
-        string transactionId = notifyReq.transactionId;
-        var txnBlockId, txnBlockIdConversionErr = <int> transactionBlockId;
-        string participatedTxnId = getParticipatedTransactionId(transactionId, txnBlockId);
-        log:printInfo("Notify(" + notifyReq.message + ") received for transaction: " + participatedTxnId);
         http:OutResponse res;
-
-        NotifyResponse notifyRes;
-        var txn, _ = (TwoPhaseCommitTransaction)participatedTransactions[participatedTxnId];
-        if (txn == null || txnBlockIdConversionErr != null) {
-            res = {statusCode:404};
-            notifyRes = {message:"Transaction-Unknown"};
+        var payload, payloadError = req.getJsonPayload();
+        var txnBlockId, txnBlockIdConversionErr = <int>transactionBlockId;
+        if (payloadError != null || txnBlockIdConversionErr != null) {
+            res = {statusCode:400};
+            RequestError err = {errorMessage:"Bad Request"};
+            var resPayload, _ = <json>err;
+            res.setJsonPayload(resPayload);
+            var connError = conn.respond(res);
+            if (connError != null) {
+                log:printErrorCause("Sending response to Bad Request for notify request failed", (error)connError);
+            }
         } else {
-            if (notifyReq.message == "commit") {
-                if (txn.state != TransactionState.PREPARED) {
-                    res = {statusCode:400};
-                    notifyRes = {message:"Not-Prepared"};
-                } else {
-                    // Notify commit to the resource manager
-                    boolean commitSuccessful = commitResourceManagers(transactionId, txnBlockId);
+            var notifyReq, _ = <NotifyRequest>payload;
+            string transactionId = notifyReq.transactionId;
+            string participatedTxnId = getParticipatedTransactionId(transactionId, txnBlockId);
+            log:printInfo("Notify(" + notifyReq.message + ") received for transaction: " + participatedTxnId);
 
-                    if (commitSuccessful) {
+            NotifyResponse notifyRes;
+            var txn, _ = (TwoPhaseCommitTransaction)participatedTransactions[participatedTxnId];
+            if (txn == null) {
+                res = {statusCode:404};
+                notifyRes = {message:"Transaction-Unknown"};
+            } else {
+                if (notifyReq.message == "commit") {
+                    if (txn.state != TransactionState.PREPARED) {
+                        res = {statusCode:400};
+                        notifyRes = {message:"Not-Prepared"};
+                    } else {
+                        // Notify commit to the resource manager
+                        boolean commitSuccessful = commitResourceManagers(transactionId, txnBlockId);
+
+                        if (commitSuccessful) {
+                            res = {statusCode:200};
+                            notifyRes = {message:"Committed"};
+                        } else {
+                            res = {statusCode:500};
+                            log:printError("Committing resource managers failed. Transaction:" + participatedTxnId);
+                            notifyRes = {message:"Failed-EOT"};
+                        }
+                    }
+                } else if (notifyReq.message == "abort") {
+                    // Notify abort to the resource manager
+                    boolean abortSuccessful = abortResourceManagers(transactionId, txnBlockId);
+                    if (abortSuccessful) {
                         res = {statusCode:200};
-                        notifyRes = {message:"Committed"};
+                        notifyRes = {message:"Aborted"};
                     } else {
                         res = {statusCode:500};
-                        log:printError("Committing resource managers failed. Transaction:" + participatedTxnId);
+                        log:printError("Aborting resource managers failed. Transaction:" + participatedTxnId);
                         notifyRes = {message:"Failed-EOT"};
                     }
                 }
-            } else if (notifyReq.message == "abort") {
-                // Notify abort to the resource manager
-                boolean abortSuccessful = abortResourceManagers(transactionId, txnBlockId);
-                if (abortSuccessful) {
-                    res = {statusCode:200};
-                    notifyRes = {message:"Aborted"};
-                } else {
-                    res = {statusCode:500};
-                    log:printError("Aborting resource managers failed. Transaction:" + participatedTxnId);
-                    notifyRes = {message:"Failed-EOT"};
-                }
+                participatedTransactions.remove(participatedTxnId);
             }
-            participatedTransactions.remove(participatedTxnId);
-        }
-        var j, _ = <json>notifyRes;
-        res.setJsonPayload(j);
-        var connError = conn.respond(res);
-        if (connError != null) {
-            log:printErrorCause("Sending response for notify request for transaction " + transactionId +
-                                " failed", (error)connError);
+            var j, _ = <json>notifyRes;
+            res.setJsonPayload(j);
+            var connError = conn.respond(res);
+            if (connError != null) {
+                log:printErrorCause("Sending response for notify request for transaction " + transactionId +
+                                    " failed", (error)connError);
+            }
         }
     }
 }

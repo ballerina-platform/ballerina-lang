@@ -75,9 +75,9 @@ service<http> InitiatorService {
 
         // Micro-Transaction-Unknown
         var txnBlockId, txnBlockIdConversionErr = <int>transactionBlockId;
-        RegistrationRequest regReq = jsonToRegRequest(req.getJsonPayload());
+        var payload, payloadError = req.getJsonPayload();
         http:OutResponse res;
-        if (regReq == null || txnBlockIdConversionErr != null) {
+        if (payloadError != null || txnBlockIdConversionErr != null) {
             res = {statusCode:400};
             RequestError err = {errorMessage:"Bad Request"};
             var resPayload, _ = <json>err;
@@ -87,6 +87,7 @@ service<http> InitiatorService {
                 log:printErrorCause("Sending response to Bad Request for register request failed", (error)connError);
             }
         } else {
+            RegistrationRequest regReq = jsonToRegRequest(payload);
             string participantId = regReq.participantId;
             string txnId = regReq.transactionId;
             var txn, _ = (Transaction)initiatedTransactions[txnId];
