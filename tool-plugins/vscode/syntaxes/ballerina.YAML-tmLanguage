@@ -72,11 +72,17 @@ repository:
     - name: keyword.other.ballerina
       match: \b(import|version|public|attach|as|native|documentation|lock)\b
 
+    - name: keyword.other.siddhi.ballerina
+      match: \b(from|on|select|group|by|having|order|where|followed|insert|into|update|delete|set|for|window|query)\b
+
     - name: storage.type.ballerina
       match: \b(boolean|int|float|string|var|any|datatable|table|blob)\b
 
     - name: storage.type.ballerina
       match: \b(map|exception|json|xml|xmlns|error)\b
+
+    - name: storage.type.siddhi.ballerina
+      match: \b(stream|streamlet|aggregation)\b
 
     - name: keyword.other.ballerina
       match: \b(annotation|package|type|connector|function|resource|service|action|worker|struct|transformer|endpoint)\b

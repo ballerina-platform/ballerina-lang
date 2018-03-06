@@ -194,6 +194,12 @@
           </dict>
           <dict>
             <key>name</key>
+            <string>keyword.other.siddhi.ballerina</string>
+            <key>match</key>
+            <string>\b(from|on|select|group|by|having|order|where|followed|insert|into|update|delete|set|for|window|query)\b</string>
+          </dict>
+          <dict>
+            <key>name</key>
             <string>storage.type.ballerina</string>
             <key>match</key>
             <string>\b(boolean|int|float|string|var|any|datatable|table|blob)\b</string>
@@ -203,6 +209,12 @@
             <string>storage.type.ballerina</string>
             <key>match</key>
             <string>\b(map|exception|json|xml|xmlns|error)\b</string>
+          </dict>
+          <dict>
+            <key>name</key>
+            <string>storage.type.siddhi.ballerina</string>
+            <key>match</key>
+            <string>\b(stream|streamlet|aggregation)\b</string>
           </dict>
           <dict>
             <key>name</key>
