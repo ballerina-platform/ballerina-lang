@@ -2,38 +2,151 @@ package ballerina.net.http;
 
 import ballerina.mime;
 
+public struct ServiceEndpoint {
+    // TODO : Make all field Read-Only
+    string epName;
+    ServiceEndpointConfiguration config;
+}
+
+@Description {value:"Configuration for HTTP service endpoint"}
+@Field {value:"host: Host of the service"}
+@Field {value:"port: Port number of the service"}
+@Field {value:"httpsPort: HTTPS port number of service"}
+@Field {value:"keyStoreFile: File path to keystore file"}
+@Field {value:"keyStorePassword: The keystore password"}
+@Field {value:"trustStoreFile: File path to truststore file"}
+@Field {value:"trustStorePassword: The truststore password"}
+@Field {value:"sslVerifyClient: The type of client certificate verification"}
+@Field {value:"certPassword: The certificate password"}
+@Field {value:"sslEnabledProtocols: SSL/TLS protocols to be enabled"}
+@Field {value:"ciphers: List of ciphers to be used"}
+@Field {value:"sslProtocol: The SSL protocol version"}
+@Field {value:"validateCertEnabled: The status of validateCertEnabled {default value : false (disable)}"}
+@Field {value:"cacheSize: Maximum size of the cache"}
+@Field {value:"cacheValidityPeriod: Time duration of cache validity period"}
+@Field {value:"exposeHeaders: The array of allowed headers which are exposed to the client"}
+@Field {value:"keepAlive: The keepAlive behaviour of the connection for a particular port"}
+@Field {value:"transferEncoding: The types of encoding applied to the response"}
+@Field {value:"chunking: The chunking behaviour of the response"}
+public struct ServiceEndpointConfiguration {
+    string host;
+    int port;
+    int httpsPort;
+    string keyStoreFile;
+    string keyStorePassword;
+    string trustStoreFile;
+    string trustStorePassword;
+    string sslVerifyClient;
+    string certPassword;
+    string sslEnabledProtocols;
+    string ciphers;
+    string sslProtocol;
+    boolean validateCertEnabled;
+    int cacheSize;
+    int cacheValidityPeriod;
+    boolean keepAlive;
+    string transferEncoding;
+    string chunking;
+}
+
+@Description {value: "Configuration for HTTP service"}
+@Field {value: "lifetime: The life time of the service"}
+@Field {value: "basePath: Service base path"}
+@Field {value:"compressionEnabled: The status of compressionEnabled {default value : true (enabled)}"}
+@Field {value:"allowOrigins: The array of origins with which the response is shared by the service"}
+@Field {value:"allowCredentials: Specifies whether credentials are required to access the service"}
+@Field {value:"allowMethods: The array of allowed methods by the service"}
+@Field {value:"allowHeaders: The array of allowed headers by the service"}
+@Field {value:"maxAge: The maximum duration to cache the preflight from client side"}
+@Field {value:"maxUriLength: Maximum length allowed for the URL"}
+@Field {value:"maxHeaderSize: Maximum size allowed for the headers"}
+@Field {value:"maxEntityBodySize: Maximum size allowed for the entity body"}
+@Field {value:"webSocketConfig: Annotation to define HTTP to WebSocket upgrade"}
+public struct ServiceConfiguration {
+    http:ServiceEndpoint[] endpoints;
+    http:ServiceLifeTime lifetime;
+    string basePath;
+    boolean compressionEnabled;
+    string[] allowOrigins;
+    boolean allowCredentials;
+    string[] allowMethods;
+    string[] allowHeaders;
+    int maxAge;
+    string[] exposeHeaders;
+    int maxUriLength;
+    int maxHeaderSize;
+    int maxEntityBodySize;
+    webSocketConfig webSocket;
+}
+
+@Description {value: "The life time of the service"}
+@Field {value: "REQUEST: create a new instance of the service to process this request"}
+@Field {value: "CONNECTION: create a new instance of the service for each connection"}
+@Field {value: "SESSION: create a new instance of the service for each session"}
+@Field {value: "SINGLETON: create a single instance of the service and use it to process all requests from an endpoint"}
+public enum ServiceLifeTime {
+    REQUEST,
+    CONNECTION,
+    SESSION,
+    SINGLETON
+}
+
+@Description { value:"Gets called when the endpoint is being initialize during package init time"}
+@Param { value:"epName: The endpoint name" }
+@Param { value:"config: The ServiceEndpointConfiguration of the endpoint" }
+@Return { value:"Error occured during initialization" }
+public native function <ServiceEndpoint ep> init (string epName, ServiceEndpointConfiguration config);
+
+@Description { value:"gets called every time a service attaches itself to this endpoint - also happens at package init
+time"}
+@Param { value:"conn: The server connector connection" }
+@Param { value:"res: The outbound response message" }
+@Return { value:"Error occured during registration" }
+public native function <ServiceEndpoint h> register (type serviceType)
+
+@Description { value:"Starts the registered service"}
+@Return { value:"Error occured during registration" }
+public native function <ServiceEndpoint h> start ();
+
+@Description { value:"Returns the connector that client code uses"}
+@Return { value:"The connector that client code uses" }
+@Return { value:"Error occured during registration" }
+public native function <ServiceEndpoint h> getConnector () returns (ResponseConnector repConn);
+
+@Description { value:"Stops the registered service"}
+@Return { value:"Error occured during registration" }
+public native function <ServiceEndpoint h> stop ();
+
 @Description {value:"Represent 'content-length' header name"}
 public const string CONTENT_LENGTH = "content-length";
 
-@Description { value:"Represents the HTTP server connector connection"}
+
+@Description { value:"Represents the HTTP server Response connector"}
 @Field {value:"remoteHost: The server host name"}
 @Field {value:"port: The server port"}
-public struct Connection {
-	string remoteHost;
-	int port;
+public connector HttpConnector (string remoteHost, int port){
+    @Description { value:"Sends outbound response to the caller"}
+    @Param { value:"conn: The server connector connection" }
+    @Param { value:"res: The outbound response message" }
+    @Return { value:"Error occured during HTTP server connector respond" }
+    native action respond (OutResponse res) (HttpConnectorError);
+
+    @Description { value:"Forwards inbound response to the caller"}
+    @Param { value:"conn: The server connector connection" }
+    @Param { value:"res: The inbound response message" }
+    @Return { value:"Error occured during HTTP server connector forward" }
+    native action forward (InResponse res) (HttpConnectorError);
+
+    @Description { value:"Gets the Session struct for a valid session cookie from the connection. Otherwise creates a new Session struct." }
+    @Param { value:"conn: The server connector connection" }
+    @Return { value:"HTTP Session struct" }
+    native action createSessionIfAbsent () (Session);
+
+    @Description { value:"Gets the Session struct from the connection if it is present" }
+    @Param { value:"conn: The server connector connection" }
+    @Return { value:"The HTTP Session struct assoicated with the request" }
+    native action getSession () (Session);
 }
-
-@Description { value:"Sends outbound response to the caller"}
-@Param { value:"conn: The server connector connection" }
-@Param { value:"res: The outbound response message" }
-@Return { value:"Error occured during HTTP server connector respond" }
-public native function <Connection conn> respond (OutResponse res) (HttpConnectorError);
-
-@Description { value:"Forwards inbound response to the caller"}
-@Param { value:"conn: The server connector connection" }
-@Param { value:"res: The inbound response message" }
-@Return { value:"Error occured during HTTP server connector forward" }
-public native function <Connection conn> forward (InResponse res) (HttpConnectorError);
-
-@Description { value:"Gets the Session struct for a valid session cookie from the connection. Otherwise creates a new Session struct." }
-@Param { value:"conn: The server connector connection" }
-@Return { value:"HTTP Session struct" }
-public native function <Connection conn> createSessionIfAbsent () (Session);
-
-@Description { value:"Gets the Session struct from the connection if it is present" }
-@Param { value:"conn: The server connector connection" }
-@Return { value:"The HTTP Session struct assoicated with the request" }
-public native function <Connection conn> getSession () (Session);
 
 @Description { value:"Represents an HTTP inbound request message"}
 @Field {value:"path: Resource path of request URI"}
