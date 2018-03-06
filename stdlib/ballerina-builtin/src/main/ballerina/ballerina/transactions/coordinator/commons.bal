@@ -16,6 +16,7 @@
 
 package ballerina.transactions.coordinator;
 
+import ballerina.caching;
 import ballerina.log;
 import ballerina.net.http;
 import ballerina.util;
@@ -27,6 +28,7 @@ string localParticipantId = util:uuid();
 
 map initiatedTransactions = {};
 map participatedTransactions = {};
+caching:Cache httpClientCache = caching:createCache("ballerina.http.client.cache", 3600000, 10, 0.1);
 
 struct Transaction {
     string transactionId;
@@ -270,8 +272,7 @@ function localParticipantProtocolFn (string transactionId,
 function registerParticipantWithRemoteInitiator (string transactionId,
                                                  int transactionBlockId,
                                                  string registerAtURL) returns (TransactionContext txnCtx, error err) {
-    endpoint<InitiatorClient> coordinatorEP {
-        create InitiatorClient(registerAtURL);
+    endpoint<InitiatorClient> initiatorEP {
     }
 
     string participatedTxnId = getParticipatedTransactionId(transactionId, transactionBlockId);
@@ -281,8 +282,17 @@ function registerParticipantWithRemoteInitiator (string transactionId,
         log:printError("Already registered with initiator for transaction:" + participatedTxnId);
         return;
     }
+    var client, cacheErr = (InitiatorClient)httpClientCache.get(registerAtURL);
+    if (cacheErr != null) {
+        throw cacheErr; // We can't continue due to a programmer error
+    }
+    if (client == null) {
+        client = create InitiatorClient(registerAtURL);
+        httpClientCache.put(registerAtURL, client);
+    }
+    bind client with initiatorEP;
     log:printInfo("Registering for transaction: " + participatedTxnId + " with coordinator: " + registerAtURL);
-    var regRes, e = coordinatorEP.register(transactionId, transactionBlockId);
+    var regRes, e = initiatorEP.register(transactionId, transactionBlockId);
     if (e != null) {
         string msg = "Cannot register with coordinator for transaction: " + transactionId;
         log:printErrorCause(msg, e);

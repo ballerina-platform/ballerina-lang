@@ -17,17 +17,17 @@ package ballerina.transactions.coordinator;
 
 import ballerina.net.http;
 
-public connector Initiator2pcClient () {
+public connector Initiator2pcClient (string coordinatorProtocolAt) {
+    endpoint<http:HttpClient> initiatorEP {
+        create http:HttpClient(coordinatorProtocolAt, {});
+    }
+    action abortTransaction (string transactionId) returns (string msg, error err) {
 
-    action abortTransaction (string transactionId, string coordinatorProtocolAt) returns (string msg, error err) {
-        endpoint<http:HttpClient> coordinatorEP {
-            create http:HttpClient(coordinatorProtocolAt + "/abort", {});
-        }
         AbortRequest abortReq = {transactionId:transactionId, participantId:localParticipantId};
         var j, _ = <json>abortReq;
         http:OutRequest req = {};
         req.setJsonPayload(j);
-        var res, commErr = coordinatorEP.post("", req);
+        var res, commErr = initiatorEP.post("/abort", req);
         if (commErr == null) {
             var abortRes, transformErr = <AbortResponse>res.getJsonPayload();
             if (transformErr != null) {
