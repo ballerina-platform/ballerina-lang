@@ -23,6 +23,8 @@ import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
+import java.util.Arrays;
 import java.util.Base64;
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
@@ -42,45 +44,19 @@ public class AESCipherTool {
     private static final String ALGORITHM_AES_CBC_PKCS5 = "AES/CBC/PKCS5Padding";
     private static final String ALGORITHM_AES = "AES";
     private static final String ALGORITHM_SHA_256 = "SHA-256";
-    private static final String DEFAULT_INITIALIZATION_VECTOR = "0123456789ABCDEF";
+    private static final int IV_SIZE = 16;
+    private static final int SECRET_KEY_LENGTH = 32;
 
-    private final Cipher encryptionCipher;
-    private final Cipher decryptionCipher;
+    private final SecretKey secretKey;
+    private final SecureRandom secureRandom;
 
     /**
      * @param userSecret User secret String to encode and decode a value.
      * @throws AESCipherToolException if Any error occurs when preparing the tool with given user data.
      */
     public AESCipherTool(String userSecret) throws AESCipherToolException {
-        this(userSecret, null);
-    }
-
-    /**
-     * @param userSecret User secret String to encode and decode a value.
-     * @param initializingVector Initializing vector to encode and decode values.
-     * @throws AESCipherToolException if Any error occurs when preparing the tool with given user data.
-     */
-    public AESCipherTool(String userSecret, String initializingVector) throws AESCipherToolException {
-        try {
-            IvParameterSpec ivParameterSpec;
-            if (initializingVector == null) {
-                ivParameterSpec = new IvParameterSpec(getSHA256Key(DEFAULT_INITIALIZATION_VECTOR, 16));
-            } else {
-                if (initializingVector.length() > 16) {
-                    throw new InvalidKeyException("Initializing vector can only have 16 byte value");
-                }
-                ivParameterSpec = new IvParameterSpec(getSHA256Key(initializingVector, 16));
-            }
-
-            SecretKey secretKey = new SecretKeySpec(getSHA256Key(userSecret, 32), ALGORITHM_AES);
-            this.encryptionCipher = Cipher.getInstance(ALGORITHM_AES_CBC_PKCS5);
-            this.encryptionCipher.init(Cipher.ENCRYPT_MODE, secretKey, ivParameterSpec);
-            this.decryptionCipher = Cipher.getInstance(ALGORITHM_AES_CBC_PKCS5);
-            this.decryptionCipher.init(Cipher.DECRYPT_MODE, secretKey, ivParameterSpec);
-        } catch (NoSuchPaddingException | NoSuchAlgorithmException | InvalidAlgorithmParameterException
-                | InvalidKeyException e) {
-            throw new AESCipherToolException(e.getMessage(), e);
-        }
+        this.secretKey = new SecretKeySpec(getSHA256Key(userSecret, SECRET_KEY_LENGTH), ALGORITHM_AES);
+        this.secureRandom = new SecureRandom();
     }
 
     /**
@@ -91,8 +67,14 @@ public class AESCipherTool {
      */
     public String encrypt(String value) throws AESCipherToolException {
         try {
-            return encodeBase64(encryptionCipher.doFinal(getBytes(value)));
-        } catch (BadPaddingException | IllegalBlockSizeException err) {
+            byte[] ivByteArray = getSecureRandomBytes();
+            IvParameterSpec ivParameterSpec = new IvParameterSpec(ivByteArray);
+            Cipher encryptionCipher = Cipher.getInstance(ALGORITHM_AES_CBC_PKCS5);
+            encryptionCipher.init(Cipher.ENCRYPT_MODE, secretKey, ivParameterSpec);
+            byte[] encryptedBytes = encryptionCipher.doFinal(getBytes(value));
+            return encodeBase64(appendByteArrays(ivByteArray, encryptedBytes));
+        } catch (BadPaddingException | IllegalBlockSizeException | NoSuchPaddingException
+                | NoSuchAlgorithmException | InvalidAlgorithmParameterException | InvalidKeyException  err) {
             throw new AESCipherToolException(err.getMessage(), err);
         }
     }
@@ -105,10 +87,31 @@ public class AESCipherTool {
      */
     public String decrypt(String value) throws AESCipherToolException {
         try {
-            return new String(decryptionCipher.doFinal(decodeBase64(value)), StandardCharsets.UTF_8);
-        } catch (BadPaddingException | IllegalBlockSizeException err) {
+            byte[] decodedByteArray = decodeBase64(value);
+            IvParameterSpec ivParameterSpec =
+                    new IvParameterSpec(Arrays.copyOfRange(decodedByteArray, 0, IV_SIZE));
+            Cipher decryptionCipher = Cipher.getInstance(ALGORITHM_AES_CBC_PKCS5);
+            decryptionCipher.init(Cipher.DECRYPT_MODE, secretKey, ivParameterSpec);
+            byte[] encryptedByteArray = Arrays.copyOfRange(decodedByteArray, IV_SIZE, decodedByteArray.length);
+            return new String(decryptionCipher.doFinal(encryptedByteArray), StandardCharsets.UTF_8);
+        } catch (BadPaddingException | IllegalBlockSizeException | NoSuchPaddingException
+                | NoSuchAlgorithmException | InvalidAlgorithmParameterException | InvalidKeyException err) {
             throw new AESCipherToolException(err.getMessage(), err);
         }
+    }
+
+    private byte[] appendByteArrays(byte[] ivArray, byte[] encryptedArray) {
+        int arrayLength = ivArray.length + encryptedArray.length;
+        byte[] bytes = new byte[arrayLength];
+        System.arraycopy(ivArray, 0, bytes, 0, ivArray.length);
+        System.arraycopy(encryptedArray, 0, bytes, ivArray.length, encryptedArray.length);
+        return bytes;
+    }
+
+    private byte[] getSecureRandomBytes() {
+        byte[] bytes = new byte[IV_SIZE];
+        secureRandom.nextBytes(bytes);
+        return bytes;
     }
 
     private byte[] getSHA256Key(String key, int keyLengthInBytes) throws AESCipherToolException {
