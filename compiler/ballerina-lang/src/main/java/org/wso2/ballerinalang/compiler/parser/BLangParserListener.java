@@ -89,6 +89,11 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         this.pkgBuilder.addVar(getCurrentPos(ctx), getWS(ctx), null, false, ctx.annotationAttachment().size());
     }
 
+    @Override
+    public void enterCompilationUnit(BallerinaParser.CompilationUnitContext ctx) {
+        this.pkgBuilder.startEndpointDecarationScope();
+    }
+
     /**
      * {@inheritDoc}
      */
@@ -225,6 +230,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         }
 
         this.pkgBuilder.startBlock();
+        this.pkgBuilder.startEndpointDecarationScope();
     }
 
     /**
@@ -801,10 +807,8 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
         this.pkgBuilder.addEndpointType(getCurrentPos(ctx), getWS(ctx));
-        if (this.pkgBuilder.isInsideDefinition()) {
-            String endpointName = ctx.Identifier().getText();
-            this.pkgBuilder.addVariableDefStatement(getCurrentPos(ctx), getWS(ctx), endpointName, true, true);
-        }
+        String endpointName = ctx.Identifier().getText();
+        this.pkgBuilder.addEndpointDefinition(getCurrentPos(ctx), getWS(ctx), endpointName);
     }
 
     @Override
@@ -812,9 +816,9 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         if (ctx.exception != null) {
             return;
         }
-        boolean publicVar = KEYWORD_PUBLIC.equals(ctx.getChild(0).getText());
-        this.pkgBuilder.addGlobalVariable(getCurrentPos(ctx), getWS(ctx),
-                ctx.endpointDeclaration().Identifier().getText(), true, publicVar);
+        if (KEYWORD_PUBLIC.equals(ctx.getChild(0).getText())) {
+            this.pkgBuilder.markLastEndpointAsPublic();
+        }
     }
 
     /**

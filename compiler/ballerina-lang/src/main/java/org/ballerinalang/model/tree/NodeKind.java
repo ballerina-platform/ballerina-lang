@@ -31,6 +31,7 @@ public enum NodeKind {
     CONNECTOR,
     DEPRECATED,
     DOCUMENTATION,
+    ENDPOINT,
     ENUM,
     ENUMERATOR,
     FUNCTION,

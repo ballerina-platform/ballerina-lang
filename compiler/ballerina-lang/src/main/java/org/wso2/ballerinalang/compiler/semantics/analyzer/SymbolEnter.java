@@ -61,6 +61,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangAnnotAttribute;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 import org.wso2.ballerinalang.compiler.tree.BLangConnector;
+import org.wso2.ballerinalang.compiler.tree.BLangEndpoint;
 import org.wso2.ballerinalang.compiler.tree.BLangEnum;
 import org.wso2.ballerinalang.compiler.tree.BLangEnum.BLangEnumerator;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
@@ -639,6 +640,9 @@ public class SymbolEnter extends BLangNodeVisitor {
                 break;
             case TRANSFORMER:
                 pkgNode.transformers.add((BLangTransformer) node);
+                break;
+            case ENDPOINT:
+                pkgNode.globalEndpoints.add((BLangEndpoint) node);
                 break;
         }
     }

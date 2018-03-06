@@ -23,6 +23,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 import org.wso2.ballerinalang.compiler.tree.BLangConnector;
+import org.wso2.ballerinalang.compiler.tree.BLangEndpoint;
 import org.wso2.ballerinalang.compiler.tree.BLangEnum;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
@@ -169,6 +170,11 @@ public class NodeVisitor extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangWorker workerNode) {
+        // No implementation
+    }
+
+    @Override
+    public void visit(BLangEndpoint endpointNode) {
         // No implementation
     }
 
