@@ -21,6 +21,7 @@ import org.ballerinalang.model.elements.DocTag;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.VariableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import org.wso2.ballerinalang.compiler.tree.BLangInvokableNode;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.programfile.Instruction.RegIndex;
 
@@ -36,6 +37,11 @@ public class BVarSymbol extends BSymbol implements VariableSymbol {
      */
     public RegIndex varIndex;
     public DocTag docTag;
+
+    // Keeps a temporary reference to the function declaration, to be used in taint analysis.
+    // This pointer resides in BVarSymbol, rather than in BInvokableSymbol so that analyzes can reach the lambda
+    // function body, with the variable references.
+    public BLangInvokableNode node;
 
     public BVarSymbol(int flags, Name name, PackageID pkgID, BType type, BSymbol owner) {
         super(VARIABLE, flags, name, pkgID, type, owner);

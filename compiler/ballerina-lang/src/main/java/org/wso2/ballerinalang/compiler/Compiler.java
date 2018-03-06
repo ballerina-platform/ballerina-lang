@@ -26,6 +26,7 @@ import org.wso2.ballerinalang.compiler.desugar.Desugar;
 import org.wso2.ballerinalang.compiler.parser.BLangParserException;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.CodeAnalyzer;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SemanticAnalyzer;
+import org.wso2.ballerinalang.compiler.semantics.analyzer.TaintAnalyzer;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
@@ -48,6 +49,7 @@ public class Compiler {
     private SymbolTable symbolTable;
     private SemanticAnalyzer semAnalyzer;
     private CodeAnalyzer codeAnalyzer;
+    private TaintAnalyzer taintAnalyzer;
     private Desugar desugar;
     private CodeGenerator codeGenerator;
 
@@ -75,6 +77,7 @@ public class Compiler {
         this.symbolTable = SymbolTable.getInstance(context);
         this.semAnalyzer = SemanticAnalyzer.getInstance(context);
         this.codeAnalyzer = CodeAnalyzer.getInstance(context);
+        this.taintAnalyzer = TaintAnalyzer.getInstance(context);
         this.desugar = Desugar.getInstance(context);
         this.codeGenerator = CodeGenerator.getInstance(context);
 
@@ -99,9 +102,15 @@ public class Compiler {
         }
 
         pkgNode = codeAnalyze(pkgNode);
+        if (this.stopCompilation(CompilerPhase.TAINT_ANALYZE)) {
+            return;
+        }
+
+        pkgNode = taintAnalyze(pkgNode);
         if (this.stopCompilation(CompilerPhase.DESUGAR)) {
             return;
         }
+
         // TODO : Improve this.
         desugar(builtInPackage);
         pkgNode = desugar(pkgNode);
@@ -152,6 +161,10 @@ public class Compiler {
         return codeAnalyzer.analyze(pkgNode);
     }
 
+    private BLangPackage taintAnalyze(BLangPackage pkgNode) {
+        return taintAnalyzer.analyze(pkgNode);
+    }
+
     private BLangPackage desugar(BLangPackage pkgNode) {
         return desugar.perform(pkgNode);
     }
@@ -178,12 +191,13 @@ public class Compiler {
             return true;
         }
 
-        return (phase == CompilerPhase.DESUGAR ||
+        return (phase == CompilerPhase.TAINT_ANALYZE ||
+                phase == CompilerPhase.DESUGAR ||
                 phase == CompilerPhase.CODE_GEN) &&
                 (dlog.errorCount > 0 || this.pkgNode.getCompilationUnits().isEmpty());
     }
 
     private BLangPackage getBuiltInPackage(Name name) {
-        return codeAnalyze(semAnalyzer.analyze(pkgLoader.loadAndDefinePackage(name.getValue())));
+        return taintAnalyze(codeAnalyze(semAnalyzer.analyze(pkgLoader.loadAndDefinePackage(name.getValue()))));
     }
 }

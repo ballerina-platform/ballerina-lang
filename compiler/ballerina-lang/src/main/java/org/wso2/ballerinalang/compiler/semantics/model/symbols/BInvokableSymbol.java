@@ -18,12 +18,14 @@
 package org.wso2.ballerinalang.compiler.semantics.model.symbols;
 
 import org.ballerinalang.model.elements.PackageID;
+import org.ballerinalang.model.elements.TaintRecord;
 import org.ballerinalang.model.symbols.InvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.util.Name;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @since 0.94
@@ -32,6 +34,7 @@ public class BInvokableSymbol extends BVarSymbol implements InvokableSymbol {
 
     public List<BVarSymbol> params;
     public List<BVarSymbol> retParams;
+    public Map<Integer, TaintRecord> taintTable;
 
     // This field is only applicable for functions at the moment.
     public BVarSymbol receiverSymbol;

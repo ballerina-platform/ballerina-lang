@@ -1175,7 +1175,7 @@ public class CodeGenerator extends BLangNodeVisitor {
     public void visit(BLangUnaryExpr unaryExpr) {
         RegIndex exprIndex = calcAndGetExprRegIndex(unaryExpr);
 
-        if (OperatorKind.ADD.equals(unaryExpr.operator)) {
+        if (OperatorKind.ADD.equals(unaryExpr.operator) || OperatorKind.UNTAINT.equals(unaryExpr.operator)) {
             unaryExpr.expr.regIndex = createLHSRegIndex(unaryExpr.regIndex);
             genNode(unaryExpr.expr, this.env);
             return;

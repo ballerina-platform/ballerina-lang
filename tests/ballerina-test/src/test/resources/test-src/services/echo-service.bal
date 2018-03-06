@@ -44,7 +44,7 @@ service<http> echo {
     }
     resource setString (http:Connection conn, http:InRequest req) {
         http:OutResponse res = {};
-        serviceLevelStr = req.getStringPayload();
+        serviceLevelStr = untaint req.getStringPayload();
         //res.setStringPayload(res, serviceLevelStr);
         _ = conn.respond(res);
     }
