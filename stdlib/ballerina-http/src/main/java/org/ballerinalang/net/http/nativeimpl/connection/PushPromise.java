@@ -54,14 +54,13 @@ public class PushPromise extends ConnectionAction {
     public BValue[] execute(Context context) {
         BStruct connectionStruct = (BStruct) getRefArgument(context, 0);
         HTTPCarbonMessage inboundRequestMsg = HttpUtil.getCarbonMsg(connectionStruct, null);
-        HttpUtil.checkFunctionValidity(connectionStruct, inboundRequestMsg);
+        HttpUtil.serverConnectionStructCheck(inboundRequestMsg);
 
         BStruct pushPromiseStruct = (BStruct) getRefArgument(context, 1);
         Http2PushPromise http2PushPromise = HttpUtil.getPushPromise(pushPromiseStruct,
                                                                     HttpUtil.createHttpPushPromise());
-        HttpResponseFuture outboundRespStatusFuture =
-                HttpUtil.pushPromise(inboundRequestMsg, http2PushPromise);
 
+        HttpResponseFuture outboundRespStatusFuture = HttpUtil.pushPromise(inboundRequestMsg, http2PushPromise);
         return handleResponseStatus(context, outboundRespStatusFuture);
     }
 }

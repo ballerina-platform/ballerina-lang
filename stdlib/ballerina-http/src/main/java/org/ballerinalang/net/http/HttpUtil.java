@@ -919,7 +919,7 @@ public class HttpUtil {
         }
     }
 
-    private static void serverConnectionStructCheck(HTTPCarbonMessage reqMsg) {
+    public static void serverConnectionStructCheck(HTTPCarbonMessage reqMsg) {
         if (reqMsg == null) {
             throw new BallerinaException("operation not allowed:invalid Connection variable");
         }

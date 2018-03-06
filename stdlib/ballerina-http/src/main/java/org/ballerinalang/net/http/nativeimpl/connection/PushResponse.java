@@ -44,10 +44,11 @@ import org.wso2.transport.http.netty.message.Http2PushPromise;
         functionName = "pushResponse",
         receiver = @Receiver(type = TypeKind.STRUCT, structType = "Connection",
                              structPackage = "ballerina.net.http"),
-        args = {@Argument(name = "res", type = TypeKind.STRUCT, structType = "OutResponse",
+        args = {@Argument(name = "promise", type = TypeKind.STRUCT, structType = "PushPromise",
                 structPackage = "ballerina.net.http"),
-                @Argument(name = "promise", type = TypeKind.STRUCT, structType = "PushPromise",
-                        structPackage = "ballerina.net.http")
+                @Argument(name = "res", type = TypeKind.STRUCT, structType = "OutResponse",
+                structPackage = "ballerina.net.http")
+
         },
         returnType = @ReturnType(type = TypeKind.STRUCT, structType = "HttpConnectorError",
                                  structPackage = "ballerina.net.http"),
@@ -59,14 +60,15 @@ public class PushResponse extends ConnectionAction {
     public BValue[] execute(Context context) {
         BStruct connectionStruct = (BStruct) getRefArgument(context, 0);
         HTTPCarbonMessage inboundRequestMsg = HttpUtil.getCarbonMsg(connectionStruct, null);
-        HttpUtil.checkFunctionValidity(connectionStruct, inboundRequestMsg);
+        HttpUtil.serverConnectionStructCheck(inboundRequestMsg);
 
-        BStruct outboundResponseStruct = (BStruct) getRefArgument(context, 1);
-        BStruct pushPromiseStruct = (BStruct) getRefArgument(context, 2);
-        HTTPCarbonMessage outboundResponseMsg = HttpUtil
-                .getCarbonMsg(outboundResponseStruct, HttpUtil.createHttpCarbonMessage(false));
+        BStruct pushPromiseStruct = (BStruct) getRefArgument(context, 1);
         Http2PushPromise http2PushPromise = HttpUtil.getPushPromise(pushPromiseStruct,
                                                                     HttpUtil.createHttpPushPromise());
+        BStruct outboundResponseStruct = (BStruct) getRefArgument(context, 2);
+        HTTPCarbonMessage outboundResponseMsg = HttpUtil
+                .getCarbonMsg(outboundResponseStruct, HttpUtil.createHttpCarbonMessage(false));
+
         HttpUtil.prepareOutboundResponse(context, inboundRequestMsg, outboundResponseMsg, outboundResponseStruct);
         BValue[] outboundResponseStatus = pushResponseRobust(context, inboundRequestMsg,
                                                              outboundResponseStruct, outboundResponseMsg,
