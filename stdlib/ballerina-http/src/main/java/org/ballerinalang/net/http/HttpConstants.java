@@ -190,6 +190,7 @@ public class HttpConstants {
     //Connection struct indexes
     public static final int CONNECTION_HOST_INDEX = 0;
     public static final int CONNECTION_PORT_INDEX = 0;
+    public static final int CONNECTION_REMOTE_ADDRESS_INDEX = 1;
 
     //InRequest struct indexes
     public static final int IN_REQUEST_RAW_PATH_INDEX = 0;
@@ -197,6 +198,7 @@ public class HttpConstants {
     public static final int IN_REQUEST_VERSION_INDEX = 2;
     public static final int IN_REQUEST_USER_AGENT_INDEX = 3;
     public static final int IN_REQUEST_EXTRA_PATH_INFO_INDEX = 4;
+    public static final int IN_REQUEST_PROTOCOL_INDEX = 5;
 
     //InResponse struct indexes
     public static final int IN_RESPONSE_STATUS_CODE_INDEX = 0;

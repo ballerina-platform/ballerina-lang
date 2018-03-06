@@ -108,17 +108,6 @@ public class InRequestNativeFunctionNegativeTest {
         Assert.assertTrue(error.contains("error occurred while extracting json data from entity"));
     }
 
-    @Test
-    public void testGetProperty() {
-        BStruct inRequest = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, inReqStruct);
-        BString propertyName = new BString("wso2");
-        BValue[] inputArg = {inRequest, propertyName};
-        BValue[] returnVals = BRunUtil.invoke(result, "testGetProperty", inputArg);
-        Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
-                "Invalid Return Values.");
-        Assert.assertNull(returnVals[0].stringValue());
-    }
-
     @Test(description = "Test getEntity method on a inRequest without a entity")
     public void testGetEntityNegative() {
         BStruct inRequest = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, inReqStruct);

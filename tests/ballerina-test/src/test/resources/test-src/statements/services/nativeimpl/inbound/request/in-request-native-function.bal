@@ -24,11 +24,6 @@ function testGetMethod (http:InRequest req) (string) {
     return method;
 }
 
-function testGetProperty (http:InRequest req, string propertyName) (string) {
-    string payload = req.getProperty(propertyName);
-    return payload;
-}
-
 function testGetStringPayload (http:InRequest req) (string) {
     string payload = req.getStringPayload();
     return payload;
@@ -46,6 +41,16 @@ function testGetXmlPayload (http:InRequest req) (xml) {
 
 @http:configuration{basePath:"/hello"}
 service<http> helloServer {
+
+    @http:resourceConfig {
+        path:"/getProtocol"
+    }
+    resource GetProperty (http:Connection conn, http:InRequest req) {
+        http:OutResponse res = {};
+        string protocol = req.protocol;
+        res.setJsonPayload({protocol:protocol});
+        _ = conn.respond(res);
+    }
 
     @http:resourceConfig {
         path:"/11"
@@ -105,16 +110,6 @@ service<http> helloServer {
         json value = req.getJsonPayload();
         json lang = value.lang;
         res.setJsonPayload(lang);
-        _ = conn.respond(res);
-    }
-
-    @http:resourceConfig {
-        path:"/GetProperty"
-    }
-    resource GetProperty (http:Connection conn, http:InRequest req) {
-        http:OutResponse res = {};
-        string property = req.getProperty("wso2");
-        res.setJsonPayload({value:property});
         _ = conn.respond(res);
     }
 

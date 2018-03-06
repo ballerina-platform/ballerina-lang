@@ -24,11 +24,6 @@ function testGetMethod (http:InRequest req) (string ) {
     return method;
 }
 
-function testGetProperty (http:InRequest req, string propertyName) (string) {
-    string payload = req.getProperty(propertyName);
-    return payload;
-}
-
 function testGetRequestURL (http:InRequest req) (string) {
     string url = req.rawPath;
     if (url == "") {

@@ -20,6 +20,7 @@ package org.ballerinalang.test.services.nativeimpl.connection;
 
 import org.ballerinalang.launcher.util.BServiceUtil;
 import org.ballerinalang.launcher.util.CompileResult;
+import org.ballerinalang.model.values.BJSON;
 import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.test.services.testutils.HTTPTestRequest;
 import org.ballerinalang.test.services.testutils.MessageUtils;
@@ -28,6 +29,9 @@ import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
+import org.wso2.transport.http.netty.message.HttpMessageDataStreamer;
+
+import java.net.InetSocketAddress;
 
 /**
  * Test cases for ballerina.net.http.response native functions.
@@ -51,5 +55,21 @@ public class ConnectionNativeFunctionTest {
         Assert.assertNotNull(response, "Response message not found");
         Assert.assertEquals(response.getProperty(HttpConstants.HTTP_STATUS_CODE), 301);
         Assert.assertEquals(response.getHeader("Location"), "location1");
+    }
+
+    @Test(description = "Test whether connection struct is populated correctly.")
+    public void testConnectionStruct() {
+        String path = "/hello/connection";
+        HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, HttpConstants.HTTP_METHOD_GET);
+        HTTPCarbonMessage response = Services.invokeNew(serviceResult, cMsg);
+
+        Assert.assertNotNull(response, "Response message not found");
+        Assert.assertEquals(response.getProperty(HttpConstants.HTTP_STATUS_CODE), 200);
+
+        BJSON bJson = new BJSON(new HttpMessageDataStreamer(response).getInputStream());
+        Assert.assertEquals(Integer.parseInt(bJson.value().get("port").asText()),
+                cMsg.getProperty(HttpConstants.LISTENER_PORT));
+        Assert.assertEquals(bJson.value().get("host").asText(),
+                ((InetSocketAddress) cMsg.getProperty(HttpConstants.LOCAL_ADDRESS)).getHostName());
     }
 }

@@ -6,11 +6,13 @@ import ballerina.mime;
 public const string CONTENT_LENGTH = "content-length";
 
 @Description { value:"Represents the HTTP server connector connection"}
-@Field {value:"remoteHost: The server host name"}
+@Field {value:"host: The server host name"}
 @Field {value:"port: The server port"}
+@Field {value:"remoteAddress: The address of the remote host to which the connection is connected."}
 public struct Connection {
-	string remoteHost;
+	string host;
 	int port;
+	string remoteAddress;
 }
 
 @Description { value:"Sends outbound response to the caller"}
@@ -35,17 +37,20 @@ public native function <Connection conn> createSessionIfAbsent () (Session);
 @Return { value:"The HTTP Session struct assoicated with the request" }
 public native function <Connection conn> getSession () (Session);
 
-@Description { value:"Represents an HTTP inbound request message"}
+@Description {value:"Represents an HTTP inbound request message"}
 @Field {value:"path: Resource path of request URI"}
 @Field {value:"method: HTTP request method"}
 @Field {value:"httpVersion: The version of HTTP"}
 @Field {value:"userAgent: User-Agent request header"}
+@Field {value:"extraPathInfo: Additional information associated with the URL sent by the client"}
+@Field {value:"protocol: The protocol of the HTTP request"}
 public struct InRequest {
 	string rawPath;
 	string method;
 	string httpVersion;
 	string userAgent;
-    string extraPathInfo;
+	string extraPathInfo;
+	string protocol;
 }
 
 @Description { value:"Get the entity from the inbound request with the body included"}
@@ -67,12 +72,6 @@ public native function <InRequest req> setEntity (mime:Entity entity);
 @Param { value:"req: The inbound request message" }
 @Return { value:"The map of query params" }
 public native function <InRequest req> getQueryParams () (map);
-
-@Description { value:"Retrieves the named property from the request"}
-@Param { value:"req: The inbound request message" }
-@Param { value:"propertyName: The name of the property" }
-@Return { value:"The property value" }
-public native function <InRequest req> getProperty (string propertyName) (string);
 
 @Description { value: "Get matrix parameters from the request"}
 @Param { value:"req: The inbound request message" }

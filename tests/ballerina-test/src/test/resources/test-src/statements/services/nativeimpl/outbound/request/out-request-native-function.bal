@@ -28,11 +28,6 @@ function testGetJsonPayload (http:OutRequest req) (json) {
     return payload;
 }
 
-function testGetProperty (http:InRequest req, string propertyName) (string) {
-    string payload = req.getProperty(propertyName);
-    return payload;
-}
-
 function testGetStringPayload (http:InRequest req) (string) {
     string payload = req.getStringPayload();
     return payload;
@@ -154,19 +149,6 @@ service<http> helloServer {
 
         http:OutResponse res = {};
         res.setJsonPayload(lang);
-        _ = conn.respond(res);
-    }
-
-    @http:resourceConfig {
-        path:"/GetProperty"
-    }
-    resource GetProperty (http:Connection conn, http:InRequest inReq) {
-        http:OutRequest req = {};
-        req.setProperty("wso2", "Ballerina");
-        string property = req.getProperty("wso2");
-
-        http:OutResponse res = {};
-        res.setJsonPayload({value:property});
         _ = conn.respond(res);
     }
 
