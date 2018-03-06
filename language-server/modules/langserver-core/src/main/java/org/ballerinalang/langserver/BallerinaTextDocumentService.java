@@ -76,6 +76,7 @@ import java.net.URI;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -286,7 +287,17 @@ public class BallerinaTextDocumentService implements TextDocumentService {
 
     @Override
     public CompletableFuture<List<? extends TextEdit>> formatting(DocumentFormattingParams params) {
-        return null;
+        return CompletableFuture.supplyAsync(() -> {
+            String fileContent = documentManager.getFileContent(CommonUtil.getPath(params.getTextDocument().getUri()));
+            String[] contentComponents = fileContent.split("\\n|\\r\\n|\\r");
+            int lastNewLineCharIndex = Math.max(fileContent.lastIndexOf("\n"), fileContent.lastIndexOf("\r"));
+            int lastCharCol = fileContent.substring(lastNewLineCharIndex + 1).length();
+            int totalLines = contentComponents.length;
+            Range range = new Range(new Position(0, 0), new Position(totalLines, lastCharCol));
+            String newDummyContent = "function testFunction(int a) {\n\tint b = 12;\n}";
+            TextEdit textEdit = new TextEdit(range, newDummyContent);
+            return Collections.singletonList(textEdit);
+        });
     }
 
     @Override
