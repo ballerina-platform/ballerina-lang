@@ -40,7 +40,7 @@ should represent the header name and value will be the 'HeaderValue' struct"}
 public struct Entity {
     MediaType contentType;
     string contentId;
-    map headers;
+    private :map headers;
     int size;
     ContentDisposition contentDisposition;
 }
@@ -263,3 +263,69 @@ public const string DEFAULT_CHARSET = "UTF-8";
 
 @Description {value:"Permission to be used with opening a byte channel for overflow data"}
 const string READ_PERMISSION = "r";
+
+public function <Entity entity> addHeader (string headerName, string headerValue) {
+    if (entity.headers == null) {
+        entity.headers = {};
+    }
+    string caseInsensitiveHeaderName = headerName.toLowerCase();
+    var existingValues = entity.headers[caseInsensitiveHeaderName];
+    if (existingValues == null) {
+        entity.setHeader(caseInsensitiveHeaderName, headerValue);
+    } else {
+        var valueArray, _ = (string[])existingValues;
+        valueArray[lengthof valueArray] = headerValue;
+        entity.headers[caseInsensitiveHeaderName] = valueArray;
+    }
+}
+
+public function <Entity entity> setHeader (string headerName, string headerValue) {
+    if (entity.headers == null) {
+        entity.headers = {};
+    }
+    string caseInsensitiveHeaderName = headerName.toLowerCase();
+    string[] valueArray = [headerValue];
+    entity.headers[caseInsensitiveHeaderName] = valueArray;
+}
+
+public function <Entity entity> getHeader (string headerName) (string) {
+    if (entity.headers == null) {
+        return null;
+    }
+    string caseInsensitiveHeaderName = headerName.toLowerCase();
+    var headerValue, _ = (string[])entity.headers[caseInsensitiveHeaderName];
+    return headerValue == null?null:headerValue[0];
+}
+
+public function <Entity entity> getHeaders (string headerName) (string[]) {
+    if (entity.headers == null) {
+        return null;
+    }
+    string caseInsensitiveHeaderName = headerName.toLowerCase();
+    var headerValue, _ = (string[])entity.headers[caseInsensitiveHeaderName];
+    return headerValue;
+}
+
+public function <Entity entity> getContentLength () (int) {
+    string strContentLength = entity.getHeader("content-length");
+    if (strContentLength != null) {
+        var contentLength, conversionErr = <int>strContentLength;
+        if (conversionErr != null) {
+            throw conversionErr;
+        } else {
+            return contentLength;
+        }
+    }
+    return -1;
+}
+
+public function <Entity entity> removeHeader (string headerName) {
+    string caseInsensitiveHeaderName = headerName.toLowerCase();
+    if (entity.headers != null) {
+        entity.headers.remove(caseInsensitiveHeaderName);
+    }
+}
+
+public function <Entity entity> removeAllHeaders () {
+    entity.headers = {};
+}

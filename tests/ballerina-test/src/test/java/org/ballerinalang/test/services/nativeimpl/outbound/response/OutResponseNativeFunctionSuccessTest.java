@@ -417,7 +417,7 @@ public class OutResponseNativeFunctionSuccessTest {
         Assert.assertTrue(returnVals[0] instanceof BStruct);
         BStruct entityStruct = (BStruct) ((BStruct) returnVals[0]).getNativeData(MESSAGE_ENTITY);
         BMap<String, BStringArray> map = (BMap<String, BStringArray>) entityStruct.getRefField(ENTITY_HEADERS_INDEX);
-        Assert.assertEquals(map.get(range).get(0), rangeValue);
+        Assert.assertEquals(map.get("range").get(0), rangeValue);
     }
 
     @Test
