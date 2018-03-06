@@ -260,7 +260,7 @@ public class SymbolResolver extends BLangNodeVisitor {
         Name transformerName = names.fromString(Names.TRANSFORMER.value + "<" + sourceType + "," + targetType + ">");
         return lookupSymbol(env, transformerName, SymTag.TRANSFORMER);
     }
-
+    
     public BSymbol resolveAnnotation(DiagnosticPos pos, SymbolEnv env, Name pkgAlias, Name annotationName) {
         return this.lookupSymbolInPackage(pos, env, pkgAlias, annotationName, SymTag.ANNOTATION);
     }

@@ -227,7 +227,7 @@ public class BLangAnnotationProcessor extends BLangNodeVisitor {
 
     private List<BAnnotationSymbol> getAnnotationSymbols(String annPackage, CompilerPlugin plugin) {
         List<BAnnotationSymbol> annotationSymbols = new ArrayList<>();
-        PackageID pkdID = new PackageID(Names.ANON_ORG, names.fromString(annPackage), Names.DEFAULT_VERSION);
+        PackageID pkdID = new PackageID(Names.ANON_ORG, names.fromString(annPackage), Names.EMPTY);
         BPackageSymbol pkgSymbol = this.symTable.pkgSymbolMap.get(pkdID);
         if (pkgSymbol == null) {
             dlog.warning(defaultPos, DiagnosticCode.ANN_PROC_NO_PACKAGE_FOUND, annPackage, plugin.getClass().getName());

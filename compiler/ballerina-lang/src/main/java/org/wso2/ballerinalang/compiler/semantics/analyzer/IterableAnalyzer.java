@@ -144,7 +144,7 @@ public class IterableAnalyzer {
                 break;
             case FOREACH:
             default:
-                supportedRetTypes = Collections.emptyList();
+            supportedRetTypes = Collections.emptyList();
                 break;
         }
         validateLambdaArgs(operation, supportedArgTypes, givenArgTypes);
