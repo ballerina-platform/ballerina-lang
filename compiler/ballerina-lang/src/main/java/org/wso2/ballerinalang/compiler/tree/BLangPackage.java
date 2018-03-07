@@ -58,8 +58,7 @@ public class BLangPackage extends BLangNode implements PackageNode {
     public List<BLangStruct> structs;
     public List<BLangEnum> enums;
     public List<BLangAnnotation> annotations;
-    public BLangFunction initFunction;
-    public BLangFunction startFunction;
+    public BLangFunction initFunction, startFunction, stopFunction;
     public Set<CompilerPhase> completedPhases;
     public List<BLangTransformer> transformers;
 

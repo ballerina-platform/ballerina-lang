@@ -947,6 +947,10 @@ public class SymbolEnter extends BLangNodeVisitor {
         addInitReturnStatement(pkgNode.startFunction.body);
         defineNode(pkgNode.startFunction, env);
         pkgNode.symbol.startFunctionSymbol = pkgNode.startFunction.symbol;
+
+        addInitReturnStatement(pkgNode.stopFunction.body);
+        defineNode(pkgNode.stopFunction, env);
+        pkgNode.symbol.stopFunctionSymbol = pkgNode.stopFunction.symbol;
     }
 
     private void createPackageInitFunctions(BLangPackage pkgNode) {
@@ -954,6 +958,8 @@ public class SymbolEnter extends BLangNodeVisitor {
                 Names.INIT_FUNCTION_SUFFIX);
         pkgNode.startFunction = createInitFunction(pkgNode.pos, pkgNode.symbol.getName().getValue(),
                 Names.START_FUNCTION_SUFFIX);
+        pkgNode.stopFunction = createInitFunction(pkgNode.pos, pkgNode.symbol.getName().getValue(),
+                Names.STOP_FUNCTION_SUFFIX);
     }
 
     private BLangFunction createInitFunction(DiagnosticPos pos, String name, Name sufix) {
@@ -1053,6 +1059,8 @@ public class SymbolEnter extends BLangNodeVisitor {
                 .addStatement(createInitFuncInvocationStmt(importPkgNode, pkgSymbol.initFunctionSymbol));
         ((BLangPackage) env.node).startFunction.body
                 .addStatement(createInitFuncInvocationStmt(importPkgNode, pkgSymbol.startFunctionSymbol));
+        ((BLangPackage) env.node).stopFunction.body
+                .addStatement(createInitFuncInvocationStmt(importPkgNode, pkgSymbol.stopFunctionSymbol));
     }
 
     private void validateTransformerMappingTypes(BLangTransformer transformerNode) {

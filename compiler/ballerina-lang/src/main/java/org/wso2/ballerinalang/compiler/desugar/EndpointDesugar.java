@@ -74,6 +74,7 @@ public class EndpointDesugar {
     void rewriteEndpoint(BLangEndpoint endpoint, SymbolEnv env) {
         final BSymbol enclosingSymbol, varSymbol;
         final BLangBlockStmt initBlock, startBlock;
+        BLangBlockStmt stopBlock = null;
         if (env.enclInvokable != null) {
             // Function, Action, Resource. Code generate to its body directly.
             enclosingSymbol = varSymbol = env.enclInvokable.symbol;
@@ -92,10 +93,14 @@ public class EndpointDesugar {
             varSymbol = ((BLangPackage) env.node).initFunction.symbol;
             initBlock = ((BLangPackage) env.node).initFunction.body;
             startBlock = ((BLangPackage) env.node).startFunction.body;
+            stopBlock = ((BLangPackage) env.node).stopFunction.body;
         }
 
         final BLangBlockStmt generatedInitCode = generateEndpointInit(endpoint, env, enclosingSymbol, varSymbol);
-        final BLangBlockStmt generatedStartCode = generateEndpointStart(endpoint, env, enclosingSymbol);
+        final BLangBlockStmt generatedStartCode = generateEndpointStartOrStop(endpoint, Names.EP_SPI_START, env,
+                enclosingSymbol);
+        final BLangBlockStmt generatedStopCode = generateEndpointStartOrStop(endpoint, Names.EP_SPI_STOP, env,
+                enclosingSymbol);
 
         if (env.enclInvokable != null) {
             ASTBuilderUtil.prependStatements(generatedStartCode, startBlock);
@@ -108,6 +113,7 @@ public class EndpointDesugar {
         } else {
             ASTBuilderUtil.appendStatements(generatedInitCode, initBlock);
             ASTBuilderUtil.appendStatements(generatedStartCode, startBlock);
+            ASTBuilderUtil.appendStatements(generatedStopCode, stopBlock);
         }
     }
 
@@ -165,12 +171,15 @@ public class EndpointDesugar {
         return temp;
     }
 
-    private BLangBlockStmt generateEndpointStart(BLangEndpoint endpoint, SymbolEnv env, BSymbol endpointParentSymbol) {
+    private BLangBlockStmt generateEndpointStartOrStop(BLangEndpoint endpoint,
+                                                       Name functionName,
+                                                       SymbolEnv env,
+                                                       BSymbol endpointParentSymbol) {
         final DiagnosticPos pos = endpoint.pos;
         final String epName = endpoint.name.value;
         BLangBlockStmt temp = new BLangBlockStmt();
         final BStructSymbol.BAttachedFunction startFunction = ((BStructSymbol) endpoint.symbol.type.tsymbol)
-                .attachedFuncs.stream().filter(f -> f.funcName.value.equals(Names.EP_SPI_START.value)).findAny().get();
+                .attachedFuncs.stream().filter(f -> f.funcName.value.equals(functionName.value)).findAny().get();
 
         final BLangVariable epVariable = ASTBuilderUtil.createVariable(pos, epName, endpoint.symbol.type);
         final Name name = names.fromIdNode(endpoint.name);

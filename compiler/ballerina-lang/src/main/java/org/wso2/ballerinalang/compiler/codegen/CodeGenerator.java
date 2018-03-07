@@ -390,17 +390,10 @@ public class CodeGenerator extends BLangNodeVisitor {
         pkgNode.functions.forEach(this::createFunctionInfoEntry);
         pkgNode.transformers.forEach(this::createTransformerInfoEntry);
 
-        // Create function info for the package function
-        BLangFunction pkgInitFunc = pkgNode.initFunction;
-        createFunctionInfoEntry(pkgInitFunc);
-
-        // Visit package init function
-        genNode(pkgInitFunc, this.env);
-
-        // Visit package start function
-        BLangFunction pkgStartFunc = pkgNode.startFunction;
-        createFunctionInfoEntry(pkgStartFunc);
-        genNode(pkgStartFunc, this.env);
+        // Visit package builtin function
+        visitBuiltinFunctions(pkgNode.initFunction);
+        visitBuiltinFunctions(pkgNode.startFunction);
+        visitBuiltinFunctions(pkgNode.stopFunction);
 
         for (TopLevelNode pkgLevelNode : pkgNode.topLevelNodes) {
             if (pkgLevelNode.getKind() == NodeKind.VARIABLE || pkgLevelNode.getKind() == NodeKind.XMLNS) {
@@ -413,6 +406,11 @@ public class CodeGenerator extends BLangNodeVisitor {
         currentPackageRefCPIndex = -1;
         currentPkgID = null;
         pkgNode.completedPhases.add(CompilerPhase.CODE_GEN);
+    }
+
+    private void visitBuiltinFunctions(BLangFunction function) {
+        createFunctionInfoEntry(function);
+        genNode(function, this.env);
     }
 
     public void visit(BLangImportPackage importPkgNode) {

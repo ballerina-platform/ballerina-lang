@@ -43,6 +43,7 @@ public class Names {
     public static final Name ERROR = new Name("error");
     public static final Name INIT_FUNCTION_SUFFIX = new Name(".<init>");
     public static final Name START_FUNCTION_SUFFIX = new Name(".<start>");
+    public static final Name STOP_FUNCTION_SUFFIX = new Name(".<stop>");
     public static final Name INIT_ACTION_SUFFIX = new Name("<init>");
     public static final Name CONNECTOR = new Name("connector");
     // TODO remove when current project name is read from manifest

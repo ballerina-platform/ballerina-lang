@@ -85,6 +85,8 @@ public class EndpointSPIAnalyzer {
             final BStructSymbol.BAttachedFunction getConnector = endPoint.attachedFunctionMap.get(EP_SPI_GET_CONNECTOR);
             endpointVarSymbol.attachedConnector = (BConnectorSymbol)
                     ((BConnectorType) getConnector.type.retTypes.get(0)).tsymbol;
+            // TODO : Fix me.
+            endpointVarSymbol.attachedConnector.getName();
         }
     }
 
