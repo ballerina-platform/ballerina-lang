@@ -65,8 +65,8 @@ import java.util.function.BiConsumer;
  *
  * @since 0.962.0
  */
-public class BLangAnnotationProcessor extends BLangNodeVisitor {
-    private static final CompilerContext.Key<BLangAnnotationProcessor> ANNOTATION_PROCESSOR_KEY =
+public class CompilerPluginRunner extends BLangNodeVisitor {
+    private static final CompilerContext.Key<CompilerPluginRunner> COMPILER_PLUGIN_RUNNER_KEY =
             new CompilerContext.Key<>();
 
     private SymbolTable symTable;
@@ -77,17 +77,17 @@ public class BLangAnnotationProcessor extends BLangNodeVisitor {
     private List<CompilerPlugin> pluginList;
     private Map<AnnotationID, List<CompilerPlugin>> processorMap;
 
-    public static BLangAnnotationProcessor getInstance(CompilerContext context) {
-        BLangAnnotationProcessor annotationProcessor = context.get(ANNOTATION_PROCESSOR_KEY);
+    public static CompilerPluginRunner getInstance(CompilerContext context) {
+        CompilerPluginRunner annotationProcessor = context.get(COMPILER_PLUGIN_RUNNER_KEY);
         if (annotationProcessor == null) {
-            annotationProcessor = new BLangAnnotationProcessor(context);
+            annotationProcessor = new CompilerPluginRunner(context);
         }
 
         return annotationProcessor;
     }
 
-    private BLangAnnotationProcessor(CompilerContext context) {
-        context.put(ANNOTATION_PROCESSOR_KEY, this);
+    private CompilerPluginRunner(CompilerContext context) {
+        context.put(COMPILER_PLUGIN_RUNNER_KEY, this);
 
         this.symTable = SymbolTable.getInstance(context);
         this.names = Names.getInstance(context);
@@ -97,7 +97,7 @@ public class BLangAnnotationProcessor extends BLangNodeVisitor {
         this.processorMap = new HashMap<>();
     }
 
-    public BLangPackage analyze(BLangPackage pkgNode) {
+    public BLangPackage runPlugins(BLangPackage pkgNode) {
         this.defaultPos = pkgNode.pos;
         loadPlugins();
         pkgNode.accept(this);
@@ -105,7 +105,7 @@ public class BLangAnnotationProcessor extends BLangNodeVisitor {
     }
 
     public void visit(BLangPackage pkgNode) {
-        if (pkgNode.completedPhases.contains(CompilerPhase.ANNOTATION_PROCESS)) {
+        if (pkgNode.completedPhases.contains(CompilerPhase.COMPILER_PLUGIN)) {
             return;
         }
 
@@ -117,7 +117,7 @@ public class BLangAnnotationProcessor extends BLangNodeVisitor {
         // Then visit each top-level element sorted using the compilation unit
         pkgNode.topLevelNodes.forEach(topLevelNode -> ((BLangNode) topLevelNode).accept(this));
 
-        pkgNode.completedPhases.add(CompilerPhase.ANNOTATION_PROCESS);
+        pkgNode.completedPhases.add(CompilerPhase.COMPILER_PLUGIN);
     }
 
     public void visit(BLangAnnotation annotationNode) {
@@ -166,6 +166,8 @@ public class BLangAnnotationProcessor extends BLangNodeVisitor {
     }
 
     public void visit(BLangVariable varNode) {
+        List<BLangAnnotationAttachment> attachmentList = varNode.getAnnotationAttachments();
+        notifyProcessors(attachmentList, (processor, list) -> processor.process(varNode, list));
     }
 
     public void visit(BLangXMLNS xmlnsNode) {
@@ -191,15 +193,15 @@ public class BLangAnnotationProcessor extends BLangNodeVisitor {
     // private methods
 
     private void loadPlugins() {
-        ServiceLoader<CompilerPlugin> processorServiceLoader =
-                ServiceLoader.load(CompilerPlugin.class);
-        processorServiceLoader.forEach(plugin -> {
-            pluginList.add(plugin);
-            initPlugin(plugin);
-        });
+        ServiceLoader<CompilerPlugin> pluginLoader = ServiceLoader.load(CompilerPlugin.class);
+        pluginLoader.forEach(this::initPlugin);
     }
 
     private void initPlugin(CompilerPlugin plugin) {
+        // Cache the plugin implementation class
+        pluginList.add(plugin);
+
+        // Get the list of packages of annotations that this particular compiler plugin is interested in.
         SupportedAnnotationPackages supportedAnnotationPackages =
                 plugin.getClass().getAnnotation(SupportedAnnotationPackages.class);
         if (supportedAnnotationPackages == null) {
@@ -230,7 +232,8 @@ public class BLangAnnotationProcessor extends BLangNodeVisitor {
         PackageID pkdID = new PackageID(Names.ANON_ORG, names.fromString(annPackage), Names.EMPTY);
         BPackageSymbol pkgSymbol = this.symTable.pkgSymbolMap.get(pkdID);
         if (pkgSymbol == null) {
-            dlog.warning(defaultPos, DiagnosticCode.ANN_PROC_NO_PACKAGE_FOUND, annPackage, plugin.getClass().getName());
+            dlog.error(defaultPos, DiagnosticCode.COMPILER_PLUGIN_NO_PACKAGE_FOUND,
+                    annPackage, plugin.getClass().getName());
             return annotationSymbols;
         }
 
@@ -239,7 +242,9 @@ public class BLangAnnotationProcessor extends BLangNodeVisitor {
             annotationSymbols.add((BAnnotationSymbol) annotationNode.symbol);
         }
 
-        // TODO Return an error if there are no annotations in this package.
+        if (annotationSymbols.isEmpty()) {
+            dlog.error(defaultPos, DiagnosticCode.COMPILER_PLUGIN_NO_ANNOTATIONS_FOUND_IN_PACKAGE);
+        }
         return annotationSymbols;
     }
 
@@ -271,6 +276,8 @@ public class BLangAnnotationProcessor extends BLangNodeVisitor {
 
     /**
      * This class is gives a convenient way to represent both package name and the annotation name.
+     *
+     * @since 0.962.0
      */
     private static class AnnotationID {
         String pkgName;

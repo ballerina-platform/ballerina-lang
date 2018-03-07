@@ -24,8 +24,8 @@ import org.ballerinalang.model.tree.PackageNode;
 import org.wso2.ballerinalang.compiler.codegen.CodeGenerator;
 import org.wso2.ballerinalang.compiler.desugar.Desugar;
 import org.wso2.ballerinalang.compiler.parser.BLangParserException;
-import org.wso2.ballerinalang.compiler.semantics.analyzer.BLangAnnotationProcessor;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.CodeAnalyzer;
+import org.wso2.ballerinalang.compiler.semantics.analyzer.CompilerPluginRunner;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SemanticAnalyzer;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
@@ -49,7 +49,7 @@ public class Compiler {
     private SymbolTable symbolTable;
     private SemanticAnalyzer semAnalyzer;
     private CodeAnalyzer codeAnalyzer;
-    private BLangAnnotationProcessor annotationProcessor;
+    private CompilerPluginRunner annotationProcessor;
     private Desugar desugar;
     private CodeGenerator codeGenerator;
 
@@ -77,7 +77,7 @@ public class Compiler {
         this.symbolTable = SymbolTable.getInstance(context);
         this.semAnalyzer = SemanticAnalyzer.getInstance(context);
         this.codeAnalyzer = CodeAnalyzer.getInstance(context);
-        this.annotationProcessor = BLangAnnotationProcessor.getInstance(context);
+        this.annotationProcessor = CompilerPluginRunner.getInstance(context);
         this.desugar = Desugar.getInstance(context);
         this.codeGenerator = CodeGenerator.getInstance(context);
 
@@ -102,7 +102,7 @@ public class Compiler {
         }
 
         pkgNode = codeAnalyze(pkgNode);
-        if (this.stopCompilation(CompilerPhase.ANNOTATION_PROCESS)) {
+        if (this.stopCompilation(CompilerPhase.COMPILER_PLUGIN)) {
             return;
         }
 
@@ -158,7 +158,7 @@ public class Compiler {
     }
 
     private BLangPackage annotationProcess(BLangPackage pkgNode) {
-        return annotationProcessor.analyze(pkgNode);
+        return annotationProcessor.runPlugins(pkgNode);
     }
 
     private BLangPackage desugar(BLangPackage pkgNode) {
@@ -187,7 +187,7 @@ public class Compiler {
             return true;
         }
 
-        return (phase == CompilerPhase.DESUGAR ||
+        return (phase == CompilerPhase.COMPILER_PLUGIN || phase == CompilerPhase.DESUGAR ||
                 phase == CompilerPhase.CODE_GEN) &&
                 (dlog.errorCount > 0 || this.pkgNode.getCompilationUnits().isEmpty());
     }
