@@ -26,25 +26,16 @@ import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BValue;
 import org.testng.Assert;
-import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import java.io.IOException;
-import java.nio.file.CopyOption;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.HashMap;
-import java.util.Map;
-
-import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 
 public class AuthzHandlerTest {
     private static final String BALLERINA_CONF = "ballerina.conf";
     private CompileResult compileResult;
     private String resourceRoot;
-    private Path ballerinaConfCopyPath;
 
     @BeforeClass
     public void setup() throws Exception {
@@ -52,24 +43,12 @@ public class AuthzHandlerTest {
         Path sourceRoot = Paths.get(resourceRoot, "test-src", "auth");
         Path ballerinaConfPath = Paths
                 .get(resourceRoot, "datafiles", "config", "auth", "authorization", "permissionstore", BALLERINA_CONF);
-        ballerinaConfCopyPath = sourceRoot.resolve(BALLERINA_CONF);
 
-        // Copy the ballerina.conf to the source root before starting the tests
-        Files.copy(ballerinaConfPath, ballerinaConfCopyPath, new CopyOption[] { REPLACE_EXISTING });
         compileResult = BCompileUtil.compile(sourceRoot.resolve("authz-handler-test.bal").toString());
 
         // load configs
         ConfigRegistry registry = ConfigRegistry.getInstance();
-        registry.initRegistry(getRuntimeProperties(), ballerinaConfCopyPath);
-        registry.loadConfigurations();
-    }
-
-    private Map<String, String> getRuntimeProperties() {
-        Map<String, String> runtimeConfigs = new HashMap<>();
-        runtimeConfigs.put(BALLERINA_CONF,
-                Paths.get(resourceRoot, "datafiles", "config", "auth", "authorization", "permissionstore",
-                        BALLERINA_CONF).toString());
-        return runtimeConfigs;
+        registry.initRegistry(null, ballerinaConfPath.toString(), null);
     }
 
     @Test(description = "Test case for authorization failure")
@@ -84,10 +63,5 @@ public class AuthzHandlerTest {
         BValue[] returns = BRunUtil.invoke(compileResult, "testHandleAuthz");
         Assert.assertTrue(returns[0] instanceof BBoolean);
         Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
-    }
-
-    @AfterClass
-    public void tearDown() throws IOException {
-        Files.deleteIfExists(ballerinaConfCopyPath);
     }
 }
