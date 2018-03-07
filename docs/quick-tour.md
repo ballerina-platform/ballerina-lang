@@ -37,7 +37,7 @@ You will see the following response:
 Hello, World!
 ```
 
-You just started Ballerina, ran a simple Hello World code, and got a response within seconds. 
+You just started Ballerina, ran a simple code, and got a response within seconds. 
 
 Pretty simple and straightforward, right? Now, let's look at something a little more interesting: the Composer.
 
