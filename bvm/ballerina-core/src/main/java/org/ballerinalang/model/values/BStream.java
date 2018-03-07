@@ -113,7 +113,7 @@ public class BStream implements BRefType<Object> {
      *                        messages
      */
     public void subscribe(Context context, BFunctionPointer functionPointer) {
-        String queueName = String.valueOf(System.currentTimeMillis());
+        String queueName = String.valueOf(System.currentTimeMillis()) + UUID.randomUUID().toString();
         BrokerUtils.addSubscription(topicName, new StreamSubscriber(queueName, context, functionPointer));
     }
 

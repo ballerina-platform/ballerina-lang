@@ -39,7 +39,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangAction;
 import org.wso2.ballerinalang.compiler.tree.BLangConnector;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
-import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangInvokableNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
@@ -152,7 +151,6 @@ public class Desugar extends BLangNodeVisitor {
     private IterableCodeDesugar iterableCodeDesugar;
     private SqlQueryBuilder sqlQueryBuilder;
     private SiddhiQueryBuilder siddhiQueryBuilder;
-    public BLangIdentifier name; //Temporary workaround - TODO move where appropriate/proper access
 
     private BLangNode result;
 
@@ -326,15 +324,19 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangVariableDef varDefNode) {
-        this.name = varDefNode.var.name;
+        if (varDefNode.var.expr instanceof BLangRecordLiteral &&
+                ((BLangRecordLiteral) varDefNode.var.expr).type.tag == TypeTags.STREAM) {
+            ((BLangRecordLiteral) varDefNode.var.expr).name = varDefNode.var.name;
+        }
         varDefNode.var = rewrite(varDefNode.var);
         result = varDefNode;
     }
 
     @Override
     public void visit(BLangAssignment assignNode) {
-        if (assignNode.varRefs.get(0) instanceof BLangSimpleVarRef) {
-            this.name = ((BLangSimpleVarRef) assignNode.varRefs.get(0)).variableName;
+        if (assignNode.expr.type.tag == TypeTags.STREAM && assignNode.varRefs.get(0) instanceof BLangSimpleVarRef) {
+                ((BLangRecordLiteral) assignNode.expr).name =
+                        ((BLangSimpleVarRef) assignNode.varRefs.get(0)).variableName;
         }
         assignNode.varRefs = rewriteExprs(assignNode.varRefs);
         assignNode.expr = rewriteExpr(assignNode.expr);
