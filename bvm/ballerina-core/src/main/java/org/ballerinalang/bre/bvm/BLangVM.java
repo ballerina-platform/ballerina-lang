@@ -2747,7 +2747,7 @@ public class BLangVM {
                     notifyTransactionAbort(localTransactionInfo.getGlobalTransactionId(), transactionBlockId);
                 }
             } else if (status == TransactionStatus.END.value()) { //status = 1 Transaction end
-                notifyCoorinator = localTransactionInfo.onTransactionEnd();
+                notifyCoorinator = localTransactionInfo.onTransactionEnd(transactionBlockId);
                 if (notifyCoorinator) {
                     notifyTransactionEnd(localTransactionInfo.getGlobalTransactionId(), transactionBlockId);
                     context.setLocalTransactionInfo(null);
@@ -2766,8 +2766,6 @@ public class BLangVM {
                 new BString(protocol)
         };
         BValue[] returns = invokeCoordinatorFunction(TransactionConstants.COORDINATOR_BEGIN_TRANSACTION, args);
-        //TODO: errors returned for the nested transaction are ignored and joined them to the initiator transaction.
-        //Fix the error code once the transaction spec is finalized for the nested transactions.
         if (isInitiator) {
             if (returns[1] != null) {
                 throw new BallerinaException("error in transaction start: " + ((BStruct) returns[1]).getStringField(0));
