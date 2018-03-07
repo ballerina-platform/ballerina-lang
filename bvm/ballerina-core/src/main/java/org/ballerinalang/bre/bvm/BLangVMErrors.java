@@ -28,8 +28,9 @@ import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.codegen.ResourceInfo;
 import org.ballerinalang.util.codegen.StructInfo;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
-import java.util.stream.Stream;
 
 /**
  * Util Class for handling Error in Ballerina VM.
@@ -38,7 +39,7 @@ import java.util.stream.Stream;
  */
 public class BLangVMErrors {
 
-    private static final String MSG_CALL_FAILED = "Call Failed";
+    private static final String MSG_CALL_FAILED = "call failed";
     public static final String PACKAGE_BUILTIN = "ballerina.builtin";
     private static final String PACKAGE_RUNTIME = "ballerina.runtime";
     public static final String STRUCT_GENERIC_ERROR = "error";
@@ -146,8 +147,7 @@ public class BLangVMErrors {
     public static BStruct createCallFailedException(WorkerExecutionContext context, Map<String, BStruct> errors) {
         PackageInfo errorPackageInfo = context.programFile.getPackageInfo(PACKAGE_RUNTIME);
         StructInfo errorStructInfo = errorPackageInfo.getStructInfo(STRUCT_CALL_FAILED_EXCEPTION);
-        return generateError(context, true, errorStructInfo,
-                Stream.concat(Stream.of(MSG_CALL_FAILED), errors.values().stream()).toArray(Object[]::new));
+        return generateError(context, true, errorStructInfo, MSG_CALL_FAILED, createErrorCauseArray(errors));
     }
 
     public static BStruct createIllegalStateException(Context context, String msg) {
@@ -157,6 +157,16 @@ public class BLangVMErrors {
     }
 
     /* Private Util Methods */
+    
+    private static BRefValueArray createErrorCauseArray(Map<String, BStruct> errors) {
+        BRefValueArray result = new BRefValueArray();
+        long i = 0;
+        for (BStruct entry : errors.values()) {
+            result.add(i, entry);
+            i++;
+        }
+        return result;
+    }
 
     private static BStruct generateError(WorkerExecutionContext context, boolean attachCallStack, Object... values) {
         PackageInfo errorPackageInfo = context.programFile.getPackageInfo(PACKAGE_BUILTIN);
@@ -280,15 +290,23 @@ public class BLangVMErrors {
     }
 
     public static String getPrintableStackTrace(BStruct error) {
-        BStruct cause = (BStruct) error.getRefField(0);
+        BRefValueArray cause = (BRefValueArray) error.getRefField(0);
 
         // Skip printing the first callFailed error. Because its the entry point call (main function, service
         // invocation) and its a call made by ballerina VM internally.
         if (cause != null) {
-            return getCasueStackTrace(cause);
+            return getCauseStackTraceArray(cause);
         }
 
         return null;
+    }
+    
+    public static String getCauseStackTraceArray(BRefValueArray cause) {
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < cause.size(); i++) {
+            sb.append(getCasueStackTrace((BStruct) cause.get(i)) + "\n");
+        }
+        return sb.toString();
     }
 
     public static String getCasueStackTrace(BStruct error) {
@@ -315,9 +333,9 @@ public class BLangVMErrors {
         }
         sb.append(")");
 
-        BStruct cause = (BStruct) error.getRefField(0);
+        BRefValueArray cause = (BRefValueArray) error.getRefField(0);
         if (cause != null) {
-            sb.append("\ncaused by ").append(getCasueStackTrace(cause));
+            sb.append("\ncaused by ").append(getCauseStackTraceArray(cause));
         }
 
         return sb.toString();
@@ -346,4 +364,18 @@ public class BLangVMErrors {
         c[0] = Character.toLowerCase(c[0]);
         return new String(c);
     }
+    
+    public static String getAggregatedRootErrorMessages(BStruct error) {
+        BRefValueArray causesArray = (BRefValueArray) error.getRefField(0);
+        if (causesArray != null && causesArray.size() > 0) {
+            List<String> messages = new ArrayList<>();
+            for (int i = 0; i < causesArray.size(); i++) {
+                messages.add(getAggregatedRootErrorMessages((BStruct) causesArray.get(i)));
+            }
+            return String.join(", ", messages.toArray(new String[0]));
+        } else {
+            return error.getStringField(0);
+        }
+    }
+    
 }

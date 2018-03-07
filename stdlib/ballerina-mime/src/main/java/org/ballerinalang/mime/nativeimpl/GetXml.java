@@ -67,10 +67,10 @@ public class GetXml extends BlockingNativeCallableUnit {
                 //Set byte channel to null, once the message data source has been constructed
                 entityStruct.addNativeData(ENTITY_BYTE_CHANNEL, null);
             }
+            context.setReturnValues(result, null);
         } catch (Throwable e) {
             context.setReturnValues(null, MimeUtil.createEntityError(context,
                     "Error occurred while retrieving xml data from entity : " + e.getMessage()));
         }
-        context.setReturnValues(result, null);
     }
 }
