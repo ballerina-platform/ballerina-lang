@@ -43,7 +43,7 @@ import static org.ballerinalang.mime.util.Constants.FIRST_PARAMETER_INDEX;
         packageName = "ballerina.mime",
         functionName = "getXml",
         receiver = @Receiver(type = TypeKind.STRUCT, structType = "Entity", structPackage = "ballerina.mime"),
-        returnType = {@ReturnType(type = TypeKind.XML)},
+        returnType = {@ReturnType(type = TypeKind.XML), @ReturnType(type = TypeKind.STRUCT)},
         isPublic = true
 )
 public class GetXml extends BlockingNativeCallableUnit {
@@ -71,6 +71,6 @@ public class GetXml extends BlockingNativeCallableUnit {
             context.setReturnValues(null, MimeUtil.createEntityError(context,
                     "Error occurred while retrieving xml data from entity : " + e.getMessage()));
         }
-        context.setReturnValues(result);
+        context.setReturnValues(result, null);
     }
 }

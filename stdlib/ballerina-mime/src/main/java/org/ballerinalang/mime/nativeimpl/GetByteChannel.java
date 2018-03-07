@@ -44,7 +44,7 @@ import static org.ballerinalang.mime.util.Constants.PROTOCOL_PACKAGE_IO;
         packageName = "ballerina.mime",
         functionName = "getByteChannel",
         receiver = @Receiver(type = TypeKind.STRUCT, structType = "Entity", structPackage = "ballerina.mime"),
-        returnType = {@ReturnType(type = TypeKind.STRUCT)},
+        returnType = {@ReturnType(type = TypeKind.STRUCT), @ReturnType(type = TypeKind.STRUCT)},
         isPublic = true
 )
 public class GetByteChannel extends BlockingNativeCallableUnit {
@@ -72,9 +72,9 @@ public class GetByteChannel extends BlockingNativeCallableUnit {
                 }
             }
         } catch (Throwable e) {
-            context.setReturnValues(MimeUtil.createEntityError(context,
+            context.setReturnValues(null, MimeUtil.createEntityError(context,
                     "Error occurred while constructing byte channel from entity body : " + e.getMessage()));
         }
-        context.setReturnValues(byteChannelStruct);
+        context.setReturnValues(byteChannelStruct, null);
     }
 }

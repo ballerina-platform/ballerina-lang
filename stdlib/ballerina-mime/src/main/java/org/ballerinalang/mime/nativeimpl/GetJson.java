@@ -42,7 +42,7 @@ import static org.ballerinalang.mime.util.Constants.FIRST_PARAMETER_INDEX;
         packageName = "ballerina.mime",
         functionName = "getJson",
         receiver = @Receiver(type = TypeKind.STRUCT, structType = "Entity", structPackage = "ballerina.mime"),
-        returnType = {@ReturnType(type = TypeKind.JSON)},
+        returnType = {@ReturnType(type = TypeKind.JSON), @ReturnType(type = TypeKind.STRUCT)},
         isPublic = true
 )
 public class GetJson extends BlockingNativeCallableUnit {
@@ -70,6 +70,6 @@ public class GetJson extends BlockingNativeCallableUnit {
             context.setReturnValues(null, MimeUtil.createEntityError(context,
                     "Error occurred while extracting json data from entity: " + e.getMessage()));
         }
-        context.setReturnValues(result);
+        context.setReturnValues(result, null);
     }
 }

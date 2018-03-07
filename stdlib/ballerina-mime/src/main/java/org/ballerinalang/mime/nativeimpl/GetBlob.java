@@ -43,7 +43,7 @@ import static org.ballerinalang.mime.util.Constants.FIRST_PARAMETER_INDEX;
         packageName = "ballerina.mime",
         functionName = "getBlob",
         receiver = @Receiver(type = TypeKind.STRUCT, structType = "Entity", structPackage = "ballerina.mime"),
-        returnType = {@ReturnType(type = TypeKind.BLOB)},
+        returnType = {@ReturnType(type = TypeKind.BLOB), @ReturnType(type = TypeKind.STRUCT)},
         isPublic = true
 )
 public class GetBlob extends BlockingNativeCallableUnit {
@@ -66,6 +66,6 @@ public class GetBlob extends BlockingNativeCallableUnit {
             context.setReturnValues(null, MimeUtil.createEntityError
                     (context, "Error occurred while extracting blob data from entity : " + e.getMessage()));
         }
-        context.setReturnValues(new BBlob(result != null ? result.getValue() : new byte[0]));
+        context.setReturnValues(new BBlob(result != null ? result.getValue() : new byte[0]), null);
     }
 }
