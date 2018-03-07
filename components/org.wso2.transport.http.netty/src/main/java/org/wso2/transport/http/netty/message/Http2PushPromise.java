@@ -24,6 +24,8 @@ import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.HttpVersion;
 import org.wso2.transport.http.netty.common.Constants;
 
+import java.util.List;
+
 /**
  * {@code Http2PushPromise} represents a Htt2 Push Promise
  */
@@ -65,6 +67,20 @@ public class Http2PushPromise {
 
     public String getHeader(String name) {
         return httpRequest.headers().get(name);
+    }
+
+    public String[] getHeaders(String name) {
+        List<String> headerList = httpRequest.headers().getAll(name);
+        String[] headers = headerList.toArray(new String[0]);
+        return headers;
+    }
+
+    public void setHeader(String name, String value) {
+        httpRequest.headers().set(name, value);
+    }
+
+    public void removeAllHeaders() {
+        httpRequest.headers().clear();
     }
 
     public int getPromisedStreamId() {
