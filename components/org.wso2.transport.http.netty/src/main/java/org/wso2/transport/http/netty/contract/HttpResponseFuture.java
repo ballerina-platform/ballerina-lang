@@ -63,48 +63,6 @@ public interface HttpResponseFuture {
     HttpResponseFuture sync() throws InterruptedException;
 
     /**
-     * Set listener for the promise availability future
-     *
-     * @param promiseAvailabilityListener listener that receives events related to the promise availability.
-     */
-    void setPromiseAvailabilityListener(HttpConnectorListener promiseAvailabilityListener);
-
-    /**
-     * Notify the promise listener when there is an event
-     */
-    void notifyPromiseAvailability();
-
-    /**
-     * Remove the promise availability listener
-     */
-    void removePromiseAvailabilityListener();
-
-    /**
-     * Set listener for the push promise future.
-     *
-     * @param pushPromiseListener that receives events related to the connector.
-     */
-    void setPushPromiseListener(HttpConnectorListener pushPromiseListener);
-
-    /**
-     * Remove the push promise listener set to the future.
-     */
-    void removePushPromiseListener();
-
-    /**
-     * Notify the push promise listener when there is an event
-     */
-    void notifyPushPromise();
-
-    /**
-     * Notify push response listener when there is a push response
-     *
-     * @param promisedId   promised stream id
-     * @param pushResponse push response message
-     */
-    void notifyPushResponse(int promisedId, HTTPCarbonMessage pushResponse);
-
-    /**
      * Set response handle listener
      *
      * @param responseHandleListener listener that receives events related to the handle.
@@ -124,6 +82,40 @@ public interface HttpResponseFuture {
     void notifyResponseHandle(ResponseHandle responseHandle);
 
     /**
+     * Set listener for the promise availability future
+     *
+     * @param promiseAvailabilityListener listener that receives events related to the promise availability.
+     */
+    void setPromiseAvailabilityListener(HttpConnectorListener promiseAvailabilityListener);
+
+    /**
+     * Remove the promise availability listener
+     */
+    void removePromiseAvailabilityListener();
+
+    /**
+     * Notify the promise listener when there is an event
+     */
+    void notifyPromiseAvailability();
+
+    /**
+     * Set listener for the push promise future.
+     *
+     * @param pushPromiseListener that receives events related to the connector.
+     */
+    void setPushPromiseListener(HttpConnectorListener pushPromiseListener);
+
+    /**
+     * Remove the push promise listener set to the future.
+     */
+    void removePushPromiseListener();
+
+    /**
+     * Notify the push promise listener when there is an event
+     */
+    void notifyPushPromise();
+
+    /**
      * Set the Push Response listener
      *
      * @param pushResponseListener push response listener
@@ -134,4 +126,13 @@ public interface HttpResponseFuture {
      * Remove the Push Response listener
      */
     void removePushResponseListener();
+
+    /**
+     * Notify push response listener when there is a push response
+     *
+     * @param promisedId   promised stream id
+     * @param pushResponse push response message
+     */
+    void notifyPushResponse(int promisedId, HTTPCarbonMessage pushResponse);
+
 }
