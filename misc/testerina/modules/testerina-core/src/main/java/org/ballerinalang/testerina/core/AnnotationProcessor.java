@@ -422,6 +422,10 @@ public class AnnotationProcessor {
         if (!functionAdded && !functionSkipped) {
             suite.addTestUtilityFunction(new TesterinaFunction(programFile, functionInfo, TesterinaFunction.Type.TEST));
         }
+
+        suite.setInitFunction(new TesterinaFunction(programFile, programFile.getEntryPackage().getInitFunctionInfo(),
+                TesterinaFunction.Type.INIT));
+
     }
 
 //    /**

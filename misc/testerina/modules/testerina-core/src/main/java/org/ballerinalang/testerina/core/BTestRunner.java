@@ -18,7 +18,6 @@
 
 package org.ballerinalang.testerina.core;
 
-import org.ballerinalang.bre.Context;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.CompileResult;
@@ -30,13 +29,9 @@ import org.ballerinalang.testerina.core.entity.TestSuite;
 import org.ballerinalang.testerina.core.entity.TesterinaContext;
 import org.ballerinalang.testerina.core.entity.TesterinaReport;
 import org.ballerinalang.testerina.core.entity.TesterinaResult;
-import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
-import org.ballerinalang.util.debugger.DebugContext;
-import org.ballerinalang.util.debugger.Debugger;
 import org.ballerinalang.util.diagnostic.Diagnostic;
 import org.ballerinalang.util.exceptions.BallerinaException;
-import org.ballerinalang.util.program.BLangFunctions;
 
 import java.io.PrintStream;
 import java.nio.file.Path;
@@ -102,13 +97,7 @@ public class BTestRunner {
 
         testSuites.forEach((packageName, suite) -> {
             // TODO there can be only a single Program file for a package. So check and improve
-            PackageInfo packageInfo = suite.getProgramFiles().get(0).getEntryPackage();
-            ProgramFile progFile = suite.getProgramFiles().get(0);
-            Context bContext = new Context(progFile);
-            Debugger debugger = new Debugger(progFile);
-            initDebugger(bContext, debugger);
-            BLangFunctions.invokePackageInitFunction(progFile, packageInfo.getInitFunctionInfo(),
-                    bContext);
+            suite.getInitFunction().invoke();
 
             outStream.println("Executing test suite for package: " + packageName);
             for (ProgramFile programFile : suite.getProgramFiles()) {
@@ -340,15 +329,6 @@ public class BTestRunner {
         return tReport;
     }
 
-    private static void initDebugger(Context bContext, Debugger debugger) {
-        bContext.getProgramFile().setDebugger(debugger);
-        if (debugger.isDebugEnabled()) {
-            DebugContext debugContext = new DebugContext();
-            bContext.setDebugContext(debugContext);
-            debugger.init();
-            debugger.addDebugContextAndWait(debugContext);
-        }
-    }
 }
 
 

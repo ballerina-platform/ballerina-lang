@@ -57,7 +57,8 @@ public class TesterinaFunction {
      * Prefixes for the test function names.
      */
     public enum Type {
-        TEST(PREFIX_TEST), BEFORE_TEST(PREFIX_BEFORETEST), AFTER_TEST(PREFIX_AFTERTEST), MOCK(PREFIX_MOCK);
+        TEST(PREFIX_TEST), BEFORE_TEST(PREFIX_BEFORETEST), AFTER_TEST(PREFIX_AFTERTEST), MOCK(PREFIX_MOCK), INIT
+                (INIT_SUFFIX);
 
         String prefix;
 

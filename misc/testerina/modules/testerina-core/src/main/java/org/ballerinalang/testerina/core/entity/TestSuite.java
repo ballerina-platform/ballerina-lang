@@ -40,6 +40,16 @@ public class TestSuite {
     private List<TesterinaFunction> beforeSuiteFunctions = new ArrayList<>();
     private List<TesterinaFunction> afterSuiteFunctions = new ArrayList<>();
 
+    public TesterinaFunction getInitFunction() {
+        return initFunction;
+    }
+
+    public void setInitFunction(TesterinaFunction initFunction) {
+        this.initFunction = initFunction;
+    }
+
+    private TesterinaFunction initFunction;
+
     public List<TesterinaFunction> getTestUtilityFunctions() {
         return testUtilityFunctions;
     }
