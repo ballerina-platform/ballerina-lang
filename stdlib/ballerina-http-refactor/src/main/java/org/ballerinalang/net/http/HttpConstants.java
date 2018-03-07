@@ -238,37 +238,29 @@ public class HttpConstants {
     public static final String HTTP_SERVICE_REGISTRY = "HTTP_SERVICE_REGISTRY";
     public static final String WS_SERVICE_REGISTRY = "WS_SERVICE_REGISTRY";
 
-    //Service Endpoint indexes
-    public static final int SERVICE_ENDPOINT_INDEX = 0;
+    //Service Endpoint
     public static final int SERVICE_ENDPOINT_NAME_INDEX = 0;
-    public static final int SERVICE_ENDPOINT_CONFIG_INDEX = 0;
+    public static final String SERVICE_ENDPOINT_CONFIG = "config";
 
-    //Service Endpoint Config indexes
-        // String
-    public static final int ENDPOINT_CONFIG_HOST_INDEX = 0;
-    public static final int ENDPOINT_CONFIG_TRANSFER_ENCODING_INDEX = 1;
-        // Int
-    public static final int ENDPOINT_CONFIG_PORT_INDEX = 0;
-        // Reference
-    public static final int ENDPOINT_CONFIG_KEEP_ALIVE_INDEX = 0;
-    public static final int ENDPOINT_CONFIG_CHUNKING_INDEX = 1;
-    public static final int ENDPOINT_CONFIG_SSL_INDEX = 2;
+    //Service Endpoint Config
+    public static final String ENDPOINT_CONFIG_HOST = "host";
+    public static final String ENDPOINT_CONFIG_TRANSFER_ENCODING = "transferEncoding";
+    public static final String ENDPOINT_CONFIG_PORT = "port";
+    public static final String ENDPOINT_CONFIG_KEEP_ALIVE = "keepAlive";
+    public static final String ENDPOINT_CONFIG_CHUNKING = "chunking";
+    public static final String ENDPOINT_CONFIG_SSL = "ssl";
 
     //SslConfiguration indexes
-        // String
-    public static final int SSL_CONFIG_KEY_STORE_FILE_INDEX = 0;
-    public static final int SSL_CONFIG_KEY_STORE_PASSWORD_INDEX = 1;
-    public static final int SSL_CONFIG_STRUST_STORE_FILE_INDEX = 2;
-    public static final int SSL_CONFIG_STRUST_STORE_PASSWORD_INDEX = 3;
-    public static final int SSL_CONFIG_SSL_VERIFY_CLIENT_INDEX = 4;
-    public static final int SSL_CONFIG_CERT_PASSWORD_INDEX = 5;
-    public static final int SSL_CONFIG_SSL_ENABLED_PROTOCOLS_INDEX = 6;
-    public static final int SSL_CONFIG_CIPHERS_INDEX = 7;
-    public static final int SSL_CONFIG_SSL_PROTOCOL_INDEX = 8;
-        // Int
-    public static final int SSL_CONFIG_CACHE_SIZE_INDEX = 0;
-    public static final int SSL_CONFIG_CACHE_VALIDITY_PERIOD_INDEX = 1;
-        // Boolean
-    public static final int SSL_CONFIG_VALIDATE_CERT_ENABLED_INDEX = 0;
-
+    public static final String SSL_CONFIG_KEY_STORE_FILE = "keyStoreFile";
+    public static final String SSL_CONFIG_KEY_STORE_PASSWORD = "keyStorePassword";
+    public static final String SSL_CONFIG_STRUST_STORE_FILE = "trustStoreFile";
+    public static final String SSL_CONFIG_STRUST_STORE_PASSWORD = "trustStorePassword";
+    public static final String SSL_CONFIG_SSL_VERIFY_CLIENT = "sslVerifyClient";
+    public static final String SSL_CONFIG_CERT_PASSWORD = "certPassword";
+    public static final String SSL_CONFIG_SSL_ENABLED_PROTOCOLS = "sslEnabledProtocols";
+    public static final String SSL_CONFIG_CIPHERS = "ciphers";
+    public static final String SSL_CONFIG_SSL_PROTOCOL = "sslProtocol";
+    public static final String SSL_CONFIG_CACHE_SIZE = "cacheSize";
+    public static final String SSL_CONFIG_CACHE_VALIDITY_PERIOD = "cacheValidityPeriod";
+    public static final String SSL_CONFIG_VALIDATE_CERT_ENABLED = "validateCertEnabled";
 }

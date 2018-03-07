@@ -19,9 +19,10 @@
 package org.ballerinalang.net.http.serviceendpoint;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
 import org.ballerinalang.connector.api.BallerinaConnectorException;
+import org.ballerinalang.connector.api.Struct;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BEnumerator;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.AbstractNativeFunction;
@@ -32,15 +33,11 @@ import org.ballerinalang.net.http.HTTPServicesRegistry;
 import org.ballerinalang.net.http.HttpConnectionManager;
 import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.HttpUtil;
-import org.ballerinalang.net.ws.WebSocketConstants;
-import org.ballerinalang.net.ws.WebSocketServicesRegistry;
+import org.ballerinalang.net.http.WebSocketServicesRegistry;
 import org.ballerinalang.util.exceptions.BallerinaException;
-import org.wso2.transport.http.netty.common.Constants;
-import org.wso2.transport.http.netty.common.ssl.SSLConfig;
 import org.wso2.transport.http.netty.config.ListenerConfiguration;
 import org.wso2.transport.http.netty.config.Parameter;
 import org.wso2.transport.http.netty.contract.ServerConnector;
-import org.wso2.transport.http.netty.contract.websocket.WebSocketInitMessage;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -65,11 +62,10 @@ public class Init extends AbstractNativeFunction {
     @Override
     public BValue[] execute(Context context) {
         try {
-            BStruct serviceEndpoint = (BStruct) getRefArgument(context, HttpConstants.SERVICE_ENDPOINT_INDEX);
+            Struct serviceEndpoint = BLangConnectorSPIUtil.getConnectorEndpointStruct(context);
 
             // Creating server connector
-            BStruct serviceEndpointConfig =
-                    (BStruct) serviceEndpoint.getRefField(HttpConstants.SERVICE_ENDPOINT_CONFIG_INDEX);
+            Struct serviceEndpointConfig = serviceEndpoint.getStructField(HttpConstants.SERVICE_ENDPOINT_CONFIG);
             ListenerConfiguration listenerConfiguration = getListerConfig(serviceEndpointConfig);
             ServerConnector httpServerConnector =
                     HttpConnectionManager.getInstance().createHttpServerConnector(listenerConfiguration);
@@ -90,14 +86,13 @@ public class Init extends AbstractNativeFunction {
     }
 
 
-    private ListenerConfiguration getListerConfig(BStruct endpointConfig) {
-        String host = endpointConfig.getStringField(HttpConstants.ENDPOINT_CONFIG_HOST_INDEX);
-        long port = endpointConfig.getIntField(HttpConstants.ENDPOINT_CONFIG_PORT_INDEX);
-        BEnumerator keepAlive =
-                (BEnumerator) endpointConfig.getRefField(HttpConstants.ENDPOINT_CONFIG_KEEP_ALIVE_INDEX);
-        String transferEncoding = endpointConfig.getStringField(HttpConstants.ENDPOINT_CONFIG_TRANSFER_ENCODING_INDEX);
-        BEnumerator chunking = (BEnumerator) endpointConfig.getRefField(HttpConstants.ENDPOINT_CONFIG_CHUNKING_INDEX);
-        BStruct sslConfig = (BStruct) endpointConfig.getRefField(HttpConstants.ENDPOINT_CONFIG_SSL_INDEX);
+    private ListenerConfiguration getListerConfig(Struct endpointConfig) {
+        String host = endpointConfig.getStringField(HttpConstants.ENDPOINT_CONFIG_HOST);
+        long port = endpointConfig.getIntField(HttpConstants.ENDPOINT_CONFIG_PORT);
+        String keepAlive = endpointConfig.getEnumField(HttpConstants.ENDPOINT_CONFIG_KEEP_ALIVE);
+        String transferEncoding = endpointConfig.getStringField(HttpConstants.ENDPOINT_CONFIG_TRANSFER_ENCODING);
+        String chunking = endpointConfig.getEnumField(HttpConstants.ENDPOINT_CONFIG_CHUNKING);
+        Struct sslConfig = endpointConfig.getStructField(HttpConstants.ENDPOINT_CONFIG_SSL);
 
         ListenerConfiguration listenerConfiguration = new ListenerConfiguration();
 
@@ -107,7 +102,7 @@ public class Init extends AbstractNativeFunction {
             listenerConfiguration.setHost(host);
         }
         listenerConfiguration.setPort(Math.toIntExact(port));
-        listenerConfiguration.setKeepAliveConfig(HttpUtil.getKeepAliveConfig(keepAlive.stringValue()));
+        listenerConfiguration.setKeepAliveConfig(HttpUtil.getKeepAliveConfig(keepAlive));
 
         // For the moment we don't have to pass it down to transport as we only support
         // chunking. Once we start supporting gzip, deflate, etc, we need to parse down the config.
@@ -117,7 +112,7 @@ public class Init extends AbstractNativeFunction {
                                                           + transferEncoding);
         }
 
-        listenerConfiguration.setChunkConfig(HttpUtil.getChunkConfig(chunking.stringValue()));
+        listenerConfiguration.setChunkConfig(HttpUtil.getChunkConfig(chunking));
 
         if (sslConfig != null) {
             return setSslConfig(sslConfig, listenerConfiguration);
@@ -125,21 +120,20 @@ public class Init extends AbstractNativeFunction {
         return listenerConfiguration;
     }
 
-    private ListenerConfiguration setSslConfig(BStruct sslConfig, ListenerConfiguration listenerConfiguration) {
+    private ListenerConfiguration setSslConfig(Struct sslConfig, ListenerConfiguration listenerConfiguration) {
         listenerConfiguration.setScheme(HttpConstants.PROTOCOL_HTTPS);
-        String keyStoreFile = sslConfig.getStringField(HttpConstants.SSL_CONFIG_KEY_STORE_FILE_INDEX);
-        String keyStorePassword = sslConfig.getStringField(HttpConstants.SSL_CONFIG_KEY_STORE_PASSWORD_INDEX);
-        String trustStoreFile = sslConfig.getStringField(HttpConstants.SSL_CONFIG_STRUST_STORE_FILE_INDEX);
-        String trustStorePassword = sslConfig.getStringField(HttpConstants.SSL_CONFIG_STRUST_STORE_PASSWORD_INDEX);
-        String sslVerifyClient = sslConfig.getStringField(HttpConstants.SSL_CONFIG_SSL_VERIFY_CLIENT_INDEX);
-        String certPassword = sslConfig.getStringField(HttpConstants.SSL_CONFIG_CERT_PASSWORD_INDEX);
-        String sslEnabledProtocols = sslConfig.getStringField(HttpConstants.SSL_CONFIG_SSL_ENABLED_PROTOCOLS_INDEX);
-        String cipher = sslConfig.getStringField(HttpConstants.SSL_CONFIG_CIPHERS_INDEX);
-        String sslProtocol = sslConfig.getStringField(HttpConstants.SSL_CONFIG_SSL_PROTOCOL_INDEX);
-        boolean validateCertificateEnabled =
-                sslConfig.getBooleanField(HttpConstants.SSL_CONFIG_VALIDATE_CERT_ENABLED_INDEX) == 1;
-        long cacheSize = sslConfig.getIntField(HttpConstants.SSL_CONFIG_CACHE_SIZE_INDEX);
-        long cacheValidationPeriod = sslConfig.getIntField(HttpConstants.SSL_CONFIG_CACHE_VALIDITY_PERIOD_INDEX);
+        String keyStoreFile = sslConfig.getStringField(HttpConstants.SSL_CONFIG_KEY_STORE_FILE);
+        String keyStorePassword = sslConfig.getStringField(HttpConstants.SSL_CONFIG_KEY_STORE_PASSWORD);
+        String trustStoreFile = sslConfig.getStringField(HttpConstants.SSL_CONFIG_STRUST_STORE_FILE);
+        String trustStorePassword = sslConfig.getStringField(HttpConstants.SSL_CONFIG_STRUST_STORE_PASSWORD);
+        String sslVerifyClient = sslConfig.getStringField(HttpConstants.SSL_CONFIG_SSL_VERIFY_CLIENT);
+        String certPassword = sslConfig.getStringField(HttpConstants.SSL_CONFIG_CERT_PASSWORD);
+        String sslEnabledProtocols = sslConfig.getStringField(HttpConstants.SSL_CONFIG_SSL_ENABLED_PROTOCOLS);
+        String cipher = sslConfig.getStringField(HttpConstants.SSL_CONFIG_CIPHERS);
+        String sslProtocol = sslConfig.getStringField(HttpConstants.SSL_CONFIG_SSL_PROTOCOL);
+        boolean validateCertificateEnabled = sslConfig.getBooleanField(HttpConstants.SSL_CONFIG_VALIDATE_CERT_ENABLED);
+        long cacheSize = sslConfig.getIntField(HttpConstants.SSL_CONFIG_CACHE_SIZE);
+        long cacheValidationPeriod = sslConfig.getIntField(HttpConstants.SSL_CONFIG_CACHE_VALIDITY_PERIOD);
 
         if (keyStoreFile == null) {
             //TODO get from language pack, and add location
