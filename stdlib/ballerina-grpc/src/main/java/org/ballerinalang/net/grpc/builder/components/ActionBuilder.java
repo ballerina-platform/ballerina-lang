@@ -61,12 +61,12 @@ public class ActionBuilder {
                         resMessageName, methodID).build());
                 break;
             }
-            case CLIENT_STREAMING: {
+            case SERVER_STREAMING: {
                 this.actionListMap.put(NON_BLOCKING_STUB_KEY, new NonBlockingActionBuilder(methodName, reqMessageName,
                         resMessageName, methodID).build());
                 break;
             }
-            case SERVER_STREAMING:
+            case CLIENT_STREAMING:
             case BIDI_STREAMING: {
                 this.actionListMap.put(NON_BLOCKING_STUB_KEY, new StreamingActionBuilder(methodName, methodID).build());
                 break;

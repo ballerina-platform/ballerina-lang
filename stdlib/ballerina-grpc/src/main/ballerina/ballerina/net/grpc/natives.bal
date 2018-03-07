@@ -95,7 +95,7 @@ public struct ConnectorError {
 @Field {value:"statusCode: gRPC server status code. refer: https://github
 .com/grpc/grpc-java/blob/master/core/src/main/java/io/grpc/Status.java"}
 public struct ServerError {
-    string msg;
+    string message;
     error cause;
     int statusCode;
 }

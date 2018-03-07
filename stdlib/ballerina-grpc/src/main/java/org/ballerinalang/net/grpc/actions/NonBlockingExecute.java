@@ -98,7 +98,7 @@ public class NonBlockingExecute extends AbstractExecute {
                     return notifyErrorReply(context, "Error while executing the client call. Method type " +
                             methodType.name() + " not supported");
                 }
-                return notifyReply();
+                return notifyErrorReply(context, null);
             } catch (RuntimeException | GrpcClientException e) {
                 return notifyErrorReply(context, "gRPC Client Connector Error :" + e.getMessage());
             }

@@ -38,20 +38,25 @@ import java.util.List;
         value = "ballerina.net.grpc"
 )
 public class ServiceProtoBuilder extends AbstractCompilerPlugin {
-
+    
     private DiagnosticLog dlog;
     private PrintStream out = System.out;
-
+    
     @Override
     public void init(DiagnosticLog diagnosticLog) {
         this.dlog = diagnosticLog;
     }
-
+    
     @Override
     public void process(ServiceNode serviceNode, List<AnnotationAttachmentNode> annotations) {
+        for (AnnotationAttachmentNode annotationNode : serviceNode.getAnnotationAttachments()) {
+            if ("messageListener".equals(annotationNode.getAnnotationName().getValue())) {
+                return;
+            }
+        }
         out.println("service node: " + serviceNode.getName().getValue());
         try {
-            File fileDefinition =  ServiceProtoUtils.generateProtoDefinition(serviceNode);
+            File fileDefinition = ServiceProtoUtils.generateProtoDefinition(serviceNode);
             ServiceProtoUtils.writeServiceFiles(fileDefinition, serviceNode.getName().getValue());
         } catch (GrpcServerException e) {
             dlog.logDiagnostic(Diagnostic.Kind.WARNING, serviceNode.getPosition(), e.getMessage());
