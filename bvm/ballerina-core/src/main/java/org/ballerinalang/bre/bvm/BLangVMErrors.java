@@ -212,47 +212,18 @@ public class BLangVMErrors {
      * @param ip current instruction pointer
      * @return generated StackTraceItem struct array
      */
-    public static BRefValueArray generateCallStack(ProgramFile progFile, WorkerExecutionContext context, int ip) {
-
-        // TODO: attach the entire call stack going backwards to parent context
-
+    public static BRefValueArray generateCallStack(WorkerExecutionContext context, CallableUnitInfo nativeCUI) {
         BRefValueArray callStack = new BRefValueArray();
-        PackageInfo runtimePackage = progFile.getPackageInfo(PACKAGE_RUNTIME);
-        StructInfo callStackElement = runtimePackage.getStructInfo(STRUCT_CALL_STACK_ELEMENT);
-
-        int currentIP = ip - 1;
-        Object[] values;
-        int stackTraceLocation = 0;
-        if (context == null) {
-            return callStack;
+        long index = 0;
+        if (nativeCUI != null) {
+            callStack.add(index, getStackFrame(nativeCUI, 0));
+            index++;
         }
-        values = new Object[4];
-        CallableUnitInfo callableUnitInfo = context.callableUnitInfo;
-        if (callableUnitInfo == null) {
-            return callStack;
+        while (!context.isRootContext()) {
+            callStack.add(index, getStackFrame(context));
+            context = context.parent;
+            index++;
         }
-
-        String parentScope = "";
-        if (callableUnitInfo instanceof ResourceInfo) {
-            parentScope = ((ResourceInfo) callableUnitInfo).getServiceInfo().getName() + ".";
-        } else if (callableUnitInfo instanceof ActionInfo) {
-            parentScope = ((ActionInfo) callableUnitInfo).getConnectorInfo().getName() + ".";
-        }
-
-        values[0] = parentScope + callableUnitInfo.getName();
-        values[1] = callableUnitInfo.getPkgPath();
-        if (callableUnitInfo.isNative()) {
-            values[2] = "<native>";
-            values[3] = 0;
-        } else {
-            LineNumberInfo lineNumberInfo = callableUnitInfo.getPackageInfo().getLineNumberInfo(currentIP);
-            if (lineNumberInfo != null) {
-                values[2] = lineNumberInfo.getFileName();
-                values[3] = lineNumberInfo.getLineNumber();
-            }
-        }
-
-        callStack.add(stackTraceLocation, BLangVMStructs.createBStruct(callStackElement, values));
         return callStack;
     }
 

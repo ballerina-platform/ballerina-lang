@@ -126,20 +126,18 @@ public class RuntimeTest {
     public void testGetCallStack() {
         BValue[] returns = BRunUtil.invoke(errorResult, "testGetCallStack");
         Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(), "[{workerName:\"getCallStack\", " +
+        Assert.assertEquals(returns[0].stringValue(), "[{callableName:\"getCallStack\", " +
                 "packageName:\"ballerina.runtime\", fileName:\"<native>\", lineNumber:0}," +
-                " {workerName:\"level2Function\", packageName:\".\", fileName:\"runtime-error.bal\", lineNumber:12}," +
-                " {workerName:\"level1Function\", packageName:\".\", fileName:\"runtime-error.bal\", lineNumber:8}," +
-                " {workerName:\"testGetCallStack\", packageName:\".\", fileName:\"runtime-error.bal\", lineNumber:4}]");
+                " {callableName:\"level2Function\", packageName:\".\", fileName:\"runtime-error.bal\", lineNumber:12}," +
+                " {callableName:\"level1Function\", packageName:\".\", fileName:\"runtime-error.bal\", lineNumber:8}," +
+                " {callableName:\"testGetCallStack\", packageName:\".\", fileName:\"runtime-error.bal\", lineNumber:4}]");
     }
 
     @Test
-    public void testErrorStack() {
-        BValue[] returns = BRunUtil.invoke(errorResult, "testErrorStack");
+    public void testErrorStackFrame() {
+        BValue[] returns = BRunUtil.invoke(errorResult, "testErrorStackFrame");
         Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(), "[" +
-                "{workerName:\"level2Error\", packageName:\".\", fileName:\"runtime-error.bal\", lineNumber:32}, " +
-                "{workerName:\"level1Error\", packageName:\".\", fileName:\"runtime-error.bal\", lineNumber:25}, " +
-                "{workerName:\"testErrorStack\", packageName:\".\", fileName:\"runtime-error.bal\", lineNumber:17}]");
+        Assert.assertEquals(returns[0].stringValue(), "{callableName:\"level1Error\", packageName:\".\","
+                + " fileName:\"runtime-error.bal\", lineNumber:25}");
     }
 }
