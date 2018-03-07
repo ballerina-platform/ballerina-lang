@@ -45,9 +45,7 @@ import org.wso2.transport.http.netty.message.ResponseHandle;
                         structPackage = "ballerina.net.http")
         },
         returnType = {
-                @ReturnType(type = TypeKind.BOOLEAN),
-                @ReturnType(type = TypeKind.STRUCT, structType = "HttpConnectorError",
-                        structPackage = "ballerina.net.http"),
+                @ReturnType(type = TypeKind.BOOLEAN)
         },
         connectorArgs = {
                 @Argument(name = "serviceUri", type = TypeKind.STRING),
