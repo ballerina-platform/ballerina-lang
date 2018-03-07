@@ -36,7 +36,7 @@ public class TransformerTest {
 
     @BeforeClass
     public void setup() {
-        result = BCompileUtil.compile("test-src/statements/transform/transform-stmt.bal");
+        result = BCompileUtil.compile(this, "test-src", "statements/transform/transform-stmt.bal");
     }
 
     @Test(description = "Test empty transformation")
@@ -323,5 +323,23 @@ public class TransformerTest {
 
         Assert.assertTrue(returns[2] instanceof BString);
         Assert.assertEquals(returns[2].stringValue(), "Paris");
+    }
+
+    @Test(description = "Test iterable operations inside transformer")
+    public void testTransformIterableOperations() {
+        BValue[] args = {};
+        CompileResult result = BCompileUtil.compile(this, "test-src",
+                "statements/transform/transform-iterable-operations.bal");
+        BValue[] returns = BRunUtil.invoke(result, "testTransformerIterableOperations", args);
+        Assert.assertEquals(returns.length, 3);
+
+        Assert.assertTrue(returns[0] instanceof BInteger);
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 2);
+
+        Assert.assertTrue(returns[0] instanceof BInteger);
+        Assert.assertEquals(((BInteger) returns[1]).intValue(), 1);
+
+        Assert.assertTrue(returns[0] instanceof BInteger);
+        Assert.assertEquals(((BInteger) returns[2]).intValue(), 3);
     }
 }

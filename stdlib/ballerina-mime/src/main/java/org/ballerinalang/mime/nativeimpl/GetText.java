@@ -44,7 +44,7 @@ import static org.ballerinalang.mime.util.Constants.FIRST_PARAMETER_INDEX;
         packageName = "ballerina.mime",
         functionName = "getText",
         receiver = @Receiver(type = TypeKind.STRUCT, structType = "Entity", structPackage = "ballerina.mime"),
-        returnType = {@ReturnType(type = TypeKind.STRING)},
+        returnType = {@ReturnType(type = TypeKind.STRING), @ReturnType(type = TypeKind.STRUCT)},
         isPublic = true
 )
 public class GetText extends AbstractNativeFunction {
@@ -67,9 +67,9 @@ public class GetText extends AbstractNativeFunction {
                 }
             }
         } catch (Throwable e) {
-            return this.getBValues(MimeUtil.createEntityError(context,
+            return this.getBValues(null, MimeUtil.createEntityError(context,
                     "Error occurred while retrieving text data from entity : " + e.getMessage()));
         }
-        return this.getBValues(result);
+        return this.getBValues(result, null);
     }
 }
