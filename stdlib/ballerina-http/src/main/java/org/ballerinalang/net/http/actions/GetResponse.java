@@ -40,7 +40,7 @@ import static org.ballerinalang.mime.util.Constants.MEDIA_TYPE;
 import static org.ballerinalang.mime.util.Constants.PROTOCOL_PACKAGE_MIME;
 
 /**
- * {@code Execute} action can be used to fetch the response message for a previous asynchronous invocation
+ * {@code Execute} action can be used to fetch the response message for a previous asynchronous invocation.
  */
 @BallerinaAction(
         packageName = "ballerina.net.http",

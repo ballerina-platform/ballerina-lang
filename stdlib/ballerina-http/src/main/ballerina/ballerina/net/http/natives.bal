@@ -454,6 +454,12 @@ public connector HttpClient (string serviceUri, Options connectorOptions) {
 	@Return { value:"Error occured during HTTP client invocation" }
 	native action getResponse (HttpHandle handle) (InResponse, HttpConnectorError);
 
+	@Description { value:"Chech whether server push exists"}
+	@Param { value:"handle: Handle which relates to previous async invocation" }
+	@Return { value:"Whether push promise exists" }
+	@Return { value:"Error occured during HTTP client invocation" }
+	native action hasPromise (HttpHandle handle) (boolean, HttpConnectorError);
+
 	@Description { value:"Retrieve next available push promise"}
 	@Param { value:"handle: handle which relates to previous async invocation" }
 	@Return { value:"HTTP Push Promise message" }

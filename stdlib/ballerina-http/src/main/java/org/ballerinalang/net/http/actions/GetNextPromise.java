@@ -37,7 +37,7 @@ import org.wso2.transport.http.netty.message.ResponseHandle;
 
 /**
  * {@code Execute} action can be used to get the next available push promise message associated with
- * a previous asynchronous invocation
+ * a previous asynchronous invocation.
  */
 @BallerinaAction(
         packageName = "ballerina.net.http",
