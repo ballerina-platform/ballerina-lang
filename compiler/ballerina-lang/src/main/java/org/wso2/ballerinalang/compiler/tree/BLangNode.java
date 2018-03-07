@@ -35,11 +35,6 @@ public abstract class BLangNode implements Node {
     public BType type;
 
     /**
-     * The identifier of this node.
-     */
-    public BLangIdentifier name;
-
-    /**
      * The position of this node in the source file.
      */
     public DiagnosticPos pos;
