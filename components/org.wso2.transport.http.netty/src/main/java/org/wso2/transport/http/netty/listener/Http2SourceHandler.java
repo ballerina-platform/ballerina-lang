@@ -25,7 +25,6 @@ import io.netty.handler.codec.http.DefaultHttpContent;
 import io.netty.handler.codec.http.DefaultHttpRequest;
 import io.netty.handler.codec.http.DefaultLastHttpContent;
 import io.netty.handler.codec.http.FullHttpRequest;
-import io.netty.handler.codec.http.HttpMethod;
 import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.HttpServerUpgradeHandler;
 import io.netty.handler.codec.http.HttpVersion;
@@ -37,11 +36,11 @@ import io.netty.handler.codec.http2.Http2EventAdapter;
 import io.netty.handler.codec.http2.Http2Exception;
 import io.netty.handler.codec.http2.Http2Headers;
 import io.netty.handler.codec.http2.Http2Settings;
-import io.netty.handler.codec.http2.HttpConversionUtil;
 import io.netty.util.internal.PlatformDependent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.common.Constants;
+import org.wso2.transport.http.netty.common.Util;
 import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
 import org.wso2.transport.http.netty.contractimpl.Http2OutboundRespListener;
 import org.wso2.transport.http.netty.internal.HTTPTransportContextHolder;
@@ -208,32 +207,7 @@ public final class Http2SourceHandler extends Http2ConnectionHandler {
          * @return a HTTPCarbonMessage
          */
         private HTTPCarbonMessage setupHttp2CarbonMsg(Http2Headers http2Headers, int streamId) {
-
-            String method = Constants.HTTP_GET_METHOD;
-            if (http2Headers.method() != null) {
-                method = http2Headers.getAndRemove(Constants.HTTP2_METHOD).toString();
-            }
-            String path = "";
-            if (http2Headers.path() != null) {
-                path = http2Headers.getAndRemove(Constants.HTTP2_PATH).toString();
-            }
-            // Remove PseudoHeaderNames from headers
-            http2Headers.getAndRemove(Constants.HTTP2_AUTHORITY);
-            http2Headers.getAndRemove(Constants.HTTP2_SCHEME);
-
-            HttpVersion version = new HttpVersion(Constants.HTTP_VERSION_2_0, true);
-
-            // Construct new HTTP Carbon Request
-            HttpRequest httpRequest = new DefaultHttpRequest(version, HttpMethod.valueOf(method), path);
-
-            try {
-                HttpConversionUtil.addHttp2ToHttpHeaders(
-                        streamId, http2Headers, httpRequest.headers(), version, false, true);
-            } catch (Http2Exception e) {
-                log.error("Error while setting http headers", e);
-            }
-
-            return setupCarbonRequest(httpRequest);
+            return setupCarbonRequest(Util.createHttpRequestFromHttp2Headers(http2Headers, streamId));
         }
     }
 

@@ -30,6 +30,9 @@ import io.netty.handler.codec.http.HttpResponse;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.codec.http.HttpVersion;
 import io.netty.handler.codec.http.LastHttpContent;
+import io.netty.handler.codec.http2.Http2Exception;
+import io.netty.handler.codec.http2.Http2Headers;
+import io.netty.handler.codec.http2.HttpConversionUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.common.ssl.SSLConfig;
@@ -172,6 +175,33 @@ public class Util {
     public static void setupChunkedRequest(HTTPCarbonMessage httpOutboundRequest) {
         httpOutboundRequest.removeHeader(HttpHeaderNames.CONTENT_LENGTH.toString());
         setTransferEncodingHeader(httpOutboundRequest);
+    }
+
+    public static HttpRequest createHttpRequestFromHttp2Headers(Http2Headers http2Headers, int streamId) {
+        String method = Constants.HTTP_GET_METHOD;
+        if (http2Headers.method() != null) {
+            method = http2Headers.getAndRemove(Constants.HTTP2_METHOD).toString();
+        }
+        String path = "";
+        if (http2Headers.path() != null) {
+            path = http2Headers.getAndRemove(Constants.HTTP2_PATH).toString();
+        }
+        // Remove PseudoHeaderNames from headers
+        http2Headers.getAndRemove(Constants.HTTP2_AUTHORITY);
+        http2Headers.getAndRemove(Constants.HTTP2_SCHEME);
+
+        HttpVersion version = new HttpVersion(Constants.HTTP_VERSION_2_0, true);
+
+        // Construct new HTTP Carbon Request
+        HttpRequest httpRequest = new DefaultHttpRequest(version, HttpMethod.valueOf(method), path);
+
+        try {
+            HttpConversionUtil.addHttp2ToHttpHeaders(
+                    streamId, http2Headers, httpRequest.headers(), version, false, true);
+        } catch (Http2Exception e) {
+            log.error("Error while setting http headers", e);
+        }
+        return httpRequest;
     }
 
     public static void setupContentLengthRequest(HTTPCarbonMessage httpOutboundRequest, int contentLength) {

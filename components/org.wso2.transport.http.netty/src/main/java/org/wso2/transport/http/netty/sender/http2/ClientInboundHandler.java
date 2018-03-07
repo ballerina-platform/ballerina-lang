@@ -34,6 +34,7 @@ import io.netty.handler.codec.http2.HttpConversionUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.common.Constants;
+import org.wso2.transport.http.netty.common.Util;
 import org.wso2.transport.http.netty.message.EmptyLastHttpContent;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 import org.wso2.transport.http.netty.message.Http2PushPromise;
@@ -152,7 +153,7 @@ public class ClientInboundHandler extends Http2EventAdapter {
         }
 
         http2ClientChannel.putPromisedMessage(promisedStreamId, outboundMsgHolder);
-        Http2PushPromise pushPromise = new Http2PushPromise(headers);
+        Http2PushPromise pushPromise = new Http2PushPromise(Util.createHttpRequestFromHttp2Headers(headers, streamId));
         pushPromise.setPromisedStreamId(promisedStreamId);
         pushPromise.setStreamId(streamId);
         outboundMsgHolder.addPromise(pushPromise);

@@ -39,6 +39,7 @@ import io.netty.handler.codec.http2.HttpConversionUtil;
 import io.netty.util.ReferenceCountUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.wso2.transport.http.netty.common.Constants;
 import org.wso2.transport.http.netty.common.Util;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 import org.wso2.transport.http.netty.message.Http2Reset;
@@ -190,7 +191,7 @@ public class ClientOutboundHandler extends ChannelOutboundHandlerAdapter {
         private void writeOutboundRequestHeaders(ChannelHandlerContext ctx, HttpMessage httpMsg, int streamId,
                                                  boolean endStream) throws Http2Exception {
             // Convert and write the headers.
-            httpMsg.headers().add(HttpConversionUtil.ExtensionHeaderNames.SCHEME.text(), "HTTP");
+            httpMsg.headers().add(HttpConversionUtil.ExtensionHeaderNames.SCHEME.text(), Constants.HTTP_SCHEME);
             Http2Headers http2Headers = HttpConversionUtil.toHttp2Headers(httpMsg, true);
             writeHttp2Headers(ctx, streamId, httpMsg.headers(), http2Headers, endStream);
         }

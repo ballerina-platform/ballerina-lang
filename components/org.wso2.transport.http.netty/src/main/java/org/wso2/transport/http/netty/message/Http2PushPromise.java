@@ -18,8 +18,11 @@
 
 package org.wso2.transport.http.netty.message;
 
-import io.netty.handler.codec.http2.DefaultHttp2Headers;
-import io.netty.handler.codec.http2.Http2Headers;
+import io.netty.handler.codec.http.DefaultHttpRequest;
+import io.netty.handler.codec.http.HttpMethod;
+import io.netty.handler.codec.http.HttpRequest;
+import io.netty.handler.codec.http.HttpVersion;
+import org.wso2.transport.http.netty.common.Constants;
 
 /**
  * {@code Http2PushPromise} represents a Htt2 Push Promise
@@ -29,12 +32,39 @@ public class Http2PushPromise {
     private int streamId;
     private int promisedStreamId;
     private boolean rejected = false;
-    private Http2Headers headers = new DefaultHttp2Headers();
+    private HttpRequest httpRequest;
 
-    public Http2PushPromise(Http2Headers headers) {
-        if (headers != null) {
-            this.headers = headers;
-        }
+    public Http2PushPromise(HttpRequest httpRequest) {
+        this.httpRequest = httpRequest;
+    }
+
+    public Http2PushPromise(String method, String uri) {
+        httpRequest = new DefaultHttpRequest(new HttpVersion(Constants.HTTP_VERSION_2_0, true),
+                                             HttpMethod.valueOf(method), uri);
+    }
+
+    public HttpRequest getHttpRequest() {
+        return httpRequest;
+    }
+
+    public String getMethod() {
+        return httpRequest.method().name();
+    }
+
+    public String getPath() {
+        return httpRequest.uri();
+    }
+
+    public void addHeader(String name, String value) {
+        httpRequest.headers().add(name, value);
+    }
+
+    public void removeHeader(String name) {
+        httpRequest.headers().remove(name);
+    }
+
+    public String getHeader(String name) {
+        return httpRequest.headers().get(name);
     }
 
     public int getPromisedStreamId() {
@@ -45,28 +75,12 @@ public class Http2PushPromise {
         return streamId;
     }
 
-    public Http2Headers getHeaders() {
-        return headers;
-    }
-
     public void setStreamId(int streamId) {
         this.streamId = streamId;
     }
 
     public void setPromisedStreamId(int promisedStreamId) {
         this.promisedStreamId = promisedStreamId;
-    }
-
-    public void setHeaders(Http2Headers headers) {
-        this.headers = headers;
-    }
-
-    public void setPath(String path) {
-        headers.path(path);
-    }
-
-    public String getPath() {
-        return String.valueOf(headers.path());
     }
 
     public boolean isRejected() {

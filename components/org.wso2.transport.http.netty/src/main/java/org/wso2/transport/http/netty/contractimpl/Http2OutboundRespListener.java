@@ -23,6 +23,7 @@ import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http.HttpMessage;
+import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http2.Http2Connection;
 import io.netty.handler.codec.http2.Http2ConnectionEncoder;
 import io.netty.handler.codec.http2.Http2Exception;
@@ -86,8 +87,12 @@ public class Http2OutboundRespListener implements HttpConnectorListener {
                 // Update streamIds
                 pushPromise.setPromisedStreamId(promisedStreamId);
                 pushPromise.setStreamId(originalStreamId);
+                HttpRequest httpRequest = pushPromise.getHttpRequest();
+                httpRequest.headers().add(HttpConversionUtil.ExtensionHeaderNames.SCHEME.text(), Constants.HTTP_SCHEME);
+                Http2Headers http2Headers =
+                        HttpConversionUtil.toHttp2Headers(httpRequest, true);
                 ChannelFuture channelFuture = encoder.writePushPromise(
-                        ctx, originalStreamId, promisedStreamId, pushPromise.getHeaders(), 0, ctx.newPromise());
+                        ctx, originalStreamId, promisedStreamId, http2Headers, 0, ctx.newPromise());
                 encoder.flowController().writePendingBytes();
                 ctx.flush();
                 checkForWriteStatus(outboundRespStatusFuture, channelFuture);
