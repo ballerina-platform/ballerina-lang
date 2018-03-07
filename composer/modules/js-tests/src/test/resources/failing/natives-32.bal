@@ -105,7 +105,7 @@ public struct ClientConnectorConfig {
 
 public struct WsConnectorError {
     string msg;
-    error cause;
+    error[] cause;
     StackFrame[] stackTrace;
 }
 

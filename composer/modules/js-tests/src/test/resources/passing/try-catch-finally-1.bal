@@ -1,19 +1,19 @@
 public struct testError {
     string msg;
-    error cause;
+    error[] cause;
     StackFrame[] stackTrace;
     string code;
 }
 
 public struct testDataError {
     string msg;
-    error cause;
+    error[] cause;
     StackFrame[] stackTrace;
     string data;
 }
 public struct testInputError {
     string msg;
-    error cause;
+    error[] cause;
     StackFrame[] stackTrace;
     string input;
 }

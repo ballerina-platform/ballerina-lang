@@ -19,25 +19,25 @@ public struct File {
 
 public struct IOError {
     string msg;
-    error cause;
+    error[] cause;
     StackFrame[] stackTrace;
 }
 
 public struct FileNotFoundError {
     string msg;
-    error cause;
+    error[] cause;
     StackFrame[] stackTrace;
 }
 
 public struct AccessDeniedError {
     string msg;
-    error cause;
+    error[] cause;
     StackFrame[] stackTrace;
 }
 
 public struct FileNotOpenedError {
     string msg;
-    error cause;
+    error[] cause;
     StackFrame[] stackTrace;
 }
 
