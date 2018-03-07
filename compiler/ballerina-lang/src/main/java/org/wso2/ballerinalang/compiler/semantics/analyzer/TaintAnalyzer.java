@@ -25,6 +25,7 @@ import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
+import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
@@ -111,7 +112,7 @@ import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
-import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticLog;
+import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
 import java.util.ArrayList;
@@ -145,8 +146,8 @@ public class TaintAnalyzer  extends BLangNodeVisitor {
     private SymbolEnv mainPkgEnv;
     private SymbolEnv currPkgEnv;
     private Names names;
-    private SymbolEnter symbolEnter;
-    private DiagnosticLog dlog;
+    private SymbolTable symTable;
+    private BLangDiagnosticLog dlog;
 
     private boolean nonOverridingAnalysis;
     private boolean entryPointAnalysis;
@@ -176,12 +177,13 @@ public class TaintAnalyzer  extends BLangNodeVisitor {
     public TaintAnalyzer(CompilerContext context) {
         context.put(TAINT_ANALYZER_KEY, this);
         this.names = Names.getInstance(context);
-        this.dlog = DiagnosticLog.getInstance(context);
-        this.symbolEnter = SymbolEnter.getInstance(context);
+        this.dlog = BLangDiagnosticLog.getInstance(context);
+        this.symTable = SymbolTable.getInstance(context);
+
     }
 
     public BLangPackage analyze(BLangPackage pkgNode) {
-        this.mainPkgEnv = symbolEnter.packageEnvs.get(pkgNode.symbol);
+        this.mainPkgEnv = symTable.pkgEnvMap.get(pkgNode.symbol);
         pkgNode.accept(this);
         return pkgNode;
     }
@@ -190,7 +192,7 @@ public class TaintAnalyzer  extends BLangNodeVisitor {
         if (pkgNode.completedPhases.contains(CompilerPhase.TAINT_ANALYZE)) {
             return;
         }
-        SymbolEnv pkgEnv = symbolEnter.packageEnvs.get(pkgNode.symbol);
+        SymbolEnv pkgEnv = symTable.pkgEnvMap.get(pkgNode.symbol);
         SymbolEnv prevPkgEnv = this.currPkgEnv;
         this.currPkgEnv = pkgEnv;
         this.env = pkgEnv;
@@ -217,7 +219,7 @@ public class TaintAnalyzer  extends BLangNodeVisitor {
 
     public void visit(BLangImportPackage importPkgNode) {
         BPackageSymbol pkgSymbol = importPkgNode.symbol;
-        SymbolEnv pkgEnv = symbolEnter.packageEnvs.get(pkgSymbol);
+        SymbolEnv pkgEnv = symTable.pkgEnvMap.get(pkgSymbol);
         if (pkgEnv == null) {
             return;
         }
