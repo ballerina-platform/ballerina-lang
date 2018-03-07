@@ -113,6 +113,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.StringJoiner;
+import java.util.logging.ErrorManager;
 
 import static org.ballerinalang.util.BLangConstants.STRING_NULL_VALUE;
 
@@ -2101,7 +2102,7 @@ public class CPU {
                 }
                 break;
             case InstructionCodes.T2MAP:
-                convertStructToMap(operands, sf);
+                convertStructToMap(ctx, operands, sf);
                 break;
             case InstructionCodes.T2JSON:
                 convertStructToJSON(ctx, operands, sf);
@@ -2141,8 +2142,7 @@ public class CPU {
                     sf.refRegs[k] = null;
                 } catch (BallerinaException e) {
                     sf.refRegs[j] = null;
-                    handleTypeConversionError(ctx, sf, k, e.getMessage(), TypeConstants.STRING_TNAME,
-                            TypeConstants.XML_TNAME);
+                    handleTypeConversionError(ctx, sf, k, e.getMessage());
                 }
                 break;
             case InstructionCodes.S2JSONX:
@@ -2156,8 +2156,7 @@ public class CPU {
                     sf.refRegs[k] = null;
                 } catch (BallerinaException e) {
                     sf.refRegs[j] = null;
-                    handleTypeConversionError(ctx, sf, k, e.getMessage(), TypeConstants.STRING_TNAME,
-                            TypeConstants.JSON_TNAME);
+                    handleTypeConversionError(ctx, sf, k, e.getMessage());
                 }
                 break;
             case InstructionCodes.XML2S:
@@ -2477,16 +2476,21 @@ public class CPU {
         sf.refRegs[errorRegIndex] = errorVal;
     }
 
-    private static void handleTypeConversionError(WorkerExecutionContext ctx, WorkerData sf, int errorRegIndex,
-                                                  String sourceTypeName, String targetTypeName) {
+    private static void handleTypeConversionError(WorkerExecutionContext ctx, WorkerData sf, int errorRegIndex, String sourceTypeName,
+            String targetTypeName) {
         String errorMsg = "'" + sourceTypeName + "' cannot be converted to '" + targetTypeName + "'";
-        handleTypeConversionError(ctx, sf, errorRegIndex, errorMsg, sourceTypeName, targetTypeName);
+        handleTypeConversionError(ctx, sf, errorRegIndex, errorMsg);
     }
 
-    private static void handleTypeConversionError(WorkerExecutionContext ctx, WorkerData sf, int errorRegIndex,
-                                                  String errorMessage, String sourceType, String targetType) {
+    private static void handleTypeConversionError(WorkerExecutionContext ctx, WorkerData sf, int errorRegIndex, String errorMessage) {
         BStruct errorVal;
         errorVal = BLangVMErrors.createTypeConversionError(ctx, errorMessage);
+        if (errorRegIndex == -1) {
+            ctx.setError(errorVal);
+            handleError(ctx);
+            return;
+        }
+
         sf.refRegs[errorRegIndex] = errorVal;
     }
 
@@ -3343,13 +3347,13 @@ public class CPU {
         }
     }
 
-    private static void convertStructToMap(int[] operands, WorkerData sf) {
+    private static void convertStructToMap(WorkerExecutionContext ctx, int[] operands, WorkerData sf) {
         int i = operands[0];
         int j = operands[1];
 
         BStruct bStruct = (BStruct) sf.refRegs[i];
         if (bStruct == null) {
-            sf.refRegs[j] = null;
+            handleNullRefError(ctx);
             return;
         }
 
@@ -3397,7 +3401,7 @@ public class CPU {
 
         BStruct bStruct = (BStruct) sf.refRegs[i];
         if (bStruct == null) {
-            sf.refRegs[j] = null;
+            handleNullRefError(ctx);
             return;
         }
 
@@ -3407,10 +3411,11 @@ public class CPU {
             sf.refRegs[j] = null;
             String errorMsg = "cannot convert '" + bStruct.getType() + "' to type '" + BTypes.typeJSON + "': " +
                     e.getMessage();
-            handleTypeConversionError(ctx, sf, k, errorMsg, bStruct.getType().toString(), TypeConstants.JSON_TNAME);
+            handleTypeConversionError(ctx, sf, k, errorMsg);
         }
     }
 
+    @SuppressWarnings({ "unchecked", "rawtypes" })
     private static void convertMapToStruct(WorkerExecutionContext ctx, int[] operands, WorkerData sf) {
         int i = operands[0];
         int cpIndex = operands[1];
@@ -3420,7 +3425,7 @@ public class CPU {
         TypeRefCPEntry typeRefCPEntry = (TypeRefCPEntry) ctx.constPool[cpIndex];
         BMap<String, BValue> bMap = (BMap<String, BValue>) sf.refRegs[i];
         if (bMap == null) {
-            sf.refRegs[j] = null;
+            handleNullRefError(ctx);
             return;
         }
 
@@ -3502,11 +3507,12 @@ public class CPU {
                     default:
                         bStruct.setRefField(++refRegIndex, (BRefType) mapVal);
                 }
-            } catch (BallerinaException | BLangRuntimeException e) {
+            } catch (BallerinaException e) {
                 sf.refRegs[j] = null;
                 String errorMsg = "cannot convert '" + bMap.getType() + "' to type '" + structType + ": " +
                         e.getMessage();
-                handleTypeConversionError(ctx, sf, k, errorMsg, TypeConstants.MAP_TNAME, structType.toString());
+                System.out.println("SSSSS: " + errorMsg);
+                handleTypeConversionError(ctx, sf, k, errorMsg);
                 return;
             }
         }
@@ -3524,7 +3530,7 @@ public class CPU {
         TypeRefCPEntry typeRefCPEntry = (TypeRefCPEntry) ctx.constPool[cpIndex];
         BJSON bjson = (BJSON) sf.refRegs[i];
         if (bjson == null) {
-            sf.refRegs[j] = null;
+            handleNullRefError(ctx);
             return;
         }
 
@@ -3535,8 +3541,7 @@ public class CPU {
             sf.refRegs[j] = null;
             String errorMsg = "cannot convert '" + TypeConstants.JSON_TNAME + "' to type '" +
                     typeRefCPEntry.getType() + "': " + e.getMessage();
-            handleTypeConversionError(ctx, sf, k, errorMsg, TypeConstants.JSON_TNAME, 
-                    typeRefCPEntry.getType().toString());
+            handleTypeConversionError(ctx, sf, k, errorMsg);
         }
     }
 
