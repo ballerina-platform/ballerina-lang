@@ -56,43 +56,15 @@ public class BLangVMErrors {
      * @return generated ballerina.lang.errors:Error struct
      */
     public static BStruct createError(Context context, int ip, String message) {
-        return createError(context, ip, true, message);
+        return createError(context.getParentWorkerExecutionContext(), message);
     }
 
     public static BStruct createError(WorkerExecutionContext context, String message) {
         return generateError(context, true, message);
     }
 
-    public static BStruct createError(CallableUnitInfo callableUnitInfo, String message) {
-        return generateError(callableUnitInfo, true, message);
-    }
-
-    /**
-     * Create error Struct from given message.
-     *
-     * @param context         current Context
-     * @param ip              current instruction pointer
-     * @param attachCallStack attach Call Stack
-     * @param message         error message
-     * @return generated ballerina.lang.errors:Error struct
-     */
-    public static BStruct createError(Context context, int ip, boolean attachCallStack, String message) {
-        return createError(context, ip, attachCallStack, message, null);
-    }
-
-    /**
-     * Create error Struct from given error message and cause.
-     *
-     * @param context         current Context
-     * @param ip              current instruction pointer
-     * @param attachCallStack attach Call Stack
-     * @param message         error message
-     * @param cause           caused error struct
-     * @return generated ballerina.lang.errors:Error struct
-     */
-    public static BStruct createError(Context context, int ip, boolean attachCallStack, String message, 
-            BStruct cause) {
-        return generateError(context.getProgramFile(), ip, attachCallStack, message, cause);
+    public static BStruct createError(WorkerExecutionContext context, CallableUnitInfo nativeCUI, String message) {
+        return generateError(context, nativeCUI, true, message);
     }
 
     /**
@@ -105,9 +77,9 @@ public class BLangVMErrors {
      * @param values          values of the error
      * @return generated error struct
      */
-    public static BStruct createError(Context context, int ip, boolean attachCallStack, StructInfo errorType,
+    public static BStruct createError(WorkerExecutionContext context, boolean attachCallStack, StructInfo errorType,
                                       Object... values) {
-        return generateError(context.getProgramFile(), ip, attachCallStack, errorType, values);
+        return generateError(context, null, attachCallStack, errorType, values);
     }
 
     /* Custom errors messages */
@@ -146,30 +118,30 @@ public class BLangVMErrors {
      * @param ip      current instruction pointer
      * @return created NullReferenceException
      */
-    public static BStruct createNullRefException(Context context, int ip) {
-        PackageInfo errorPackageInfo = context.getProgramFile().getPackageInfo(PACKAGE_RUNTIME);
+    public static BStruct createNullRefException(WorkerExecutionContext context, int ip) {
+        PackageInfo errorPackageInfo = context.programFile.getPackageInfo(PACKAGE_RUNTIME);
         StructInfo errorStructInfo = errorPackageInfo.getStructInfo(STRUCT_NULL_REF_EXCEPTION);
-        return generateError(context.getProgramFile(), ip, true, errorStructInfo, "");
+        return generateError(context, true, errorStructInfo, "");
     }
 
     public static BStruct createNullRefException(WorkerExecutionContext context) {
         PackageInfo errorPackageInfo = context.programFile.getPackageInfo(PACKAGE_RUNTIME);
         StructInfo errorStructInfo = errorPackageInfo.getStructInfo(STRUCT_NULL_REF_EXCEPTION);
-        return generateError(context.programFile, context, context.ip, true, errorStructInfo);
+        return generateError(context, true, errorStructInfo);
     }
 
-    public static BStruct createNullRefException(CallableUnitInfo callableUnitInfo) {
-        ProgramFile progFile = callableUnitInfo.getPackageInfo().getProgramFile();
+    public static BStruct createNullRefException(WorkerExecutionContext context, CallableUnitInfo nativeCUI) {
+        ProgramFile progFile = nativeCUI.getPackageInfo().getProgramFile();
         PackageInfo errorPackageInfo = progFile.getPackageInfo(PACKAGE_RUNTIME);
         StructInfo errorStructInfo = errorPackageInfo.getStructInfo(STRUCT_NULL_REF_EXCEPTION);
-        return generateError(progFile, callableUnitInfo, true, errorStructInfo);
+        return generateError(context, nativeCUI, true, errorStructInfo);
     }
 
     public static BStruct createCallFailedException(WorkerExecutionContext context, Map<String, BStruct> errors) {
         PackageInfo errorPackageInfo = context.programFile.getPackageInfo(PACKAGE_RUNTIME);
         StructInfo errorStructInfo = errorPackageInfo.getStructInfo(STRUCT_CALL_FAILED_EXCEPTION);
-        return generateError(context.programFile, context, context.ip, true, errorStructInfo,
-                Stream.concat(Stream.of(""), errors.values().stream()).toArray(Object[]::new));
+        return generateError(context, true, errorStructInfo, Stream.concat(Stream.of(""), 
+                errors.values().stream()).toArray(Object[]::new));
     }
 
     /**
@@ -180,69 +152,46 @@ public class BLangVMErrors {
      * @param msg     message of the exception
      * @return created IllegalStateException
      */
-    public static BStruct createIllegalStateException(Context context, int ip, String msg) {
-        PackageInfo errorPackageInfo = context.getProgramFile().getPackageInfo(PACKAGE_RUNTIME);
+    public static BStruct createIllegalStateException(WorkerExecutionContext context, int ip, String msg) {
+        PackageInfo errorPackageInfo = context.programFile.getPackageInfo(PACKAGE_RUNTIME);
         StructInfo errorStructInfo = errorPackageInfo.getStructInfo(STRUCT_ILLEGAL_STATE_EXCEPTION);
-        return createError(context, ip, true, errorStructInfo, msg);
+        return createError(context, true, errorStructInfo, msg);
     }
 
     /* Private Util Methods */
 
-    /**
-     * Generate Error from current error.
-     *
-     * @param context         current Context
-     * @param ip              current instruction pointer
-     * @param attachCallStack attach call stack to the error struct
-     * @param values          field values of the error struct.
-     * @return generated error {@link BStruct}
-     */
-    private static BStruct generateError(ProgramFile progFile, int ip, boolean attachCallStack, Object... values) {
-        PackageInfo errorPackageInfo = progFile.getPackageInfo(PACKAGE_BUILTIN);
-        StructInfo errorStructInfo = errorPackageInfo.getStructInfo(STRUCT_GENERIC_ERROR);
-        return generateError(progFile, null, ip, attachCallStack, errorStructInfo, values);
-    }
-
     private static BStruct generateError(WorkerExecutionContext context, boolean attachCallStack, Object... values) {
         PackageInfo errorPackageInfo = context.programFile.getPackageInfo(PACKAGE_BUILTIN);
         StructInfo errorStructInfo = errorPackageInfo.getStructInfo(STRUCT_GENERIC_ERROR);
-        return generateError(context.programFile, context, context.ip, attachCallStack, errorStructInfo, values);
+        return generateError(context, null, attachCallStack, errorStructInfo, values);
     }
-
-    private static BStruct generateError(CallableUnitInfo callableUnitInfo, boolean attachCallStack,
-                                         Object... values) {
-        ProgramFile progFile = callableUnitInfo.getPackageInfo().getProgramFile();
-        PackageInfo errorPackageInfo = progFile.getPackageInfo(PACKAGE_BUILTIN);
+    
+    private static BStruct generateError(WorkerExecutionContext context, CallableUnitInfo nativeCUI, 
+            boolean attachCallStack, Object... values) {
+        PackageInfo errorPackageInfo = context.programFile.getPackageInfo(PACKAGE_BUILTIN);
         StructInfo errorStructInfo = errorPackageInfo.getStructInfo(STRUCT_GENERIC_ERROR);
-        return generateError(progFile, callableUnitInfo, attachCallStack, errorStructInfo, values);
+        return generateError(context, null, attachCallStack, errorStructInfo, values);
     }
 
+    private static BStruct generateError(WorkerExecutionContext context, CallableUnitInfo callableUnitInfo,
+                                         boolean attachCallStack, StructInfo structInfo, Object... values) {
+        BStruct error = BLangVMStructs.createBStruct(structInfo, values);
+        if (attachCallStack) {
+            attachCallStack(error, context, callableUnitInfo);
+        }
+        return error;
+    }
+    
     /**
-     * Generate Error from current error.
+     * Attach CallStack to given Error Struct.
      *
-     * @param progFile        Program fle
-     * @param ip              current instruction pointer
-     * @param attachCallStack attach call stack to the error struct
-     * @param structInfo      {@link StructInfo} of the error that need to be generated
-     * @param values          field values of the error struct.
-     * @return generated error {@link BStruct}
+     * @param error   error struct
+     * @param context current Context
+     * @param ip      current instruction pointer
      */
-    private static BStruct generateError(ProgramFile progFile, WorkerExecutionContext context, int ip,
-                                         boolean attachCallStack, StructInfo structInfo, Object... values) {
-        BStruct error = BLangVMStructs.createBStruct(structInfo, values);
-        if (attachCallStack) {
-            attachStackFrame(error, progFile, context, ip);
-        }
-        return error;
-    }
-
-    private static BStruct generateError(ProgramFile progFile, CallableUnitInfo callableUnitInfo,
-                                         boolean attachCallStack, StructInfo structInfo, Object... values) {
-        BStruct error = BLangVMStructs.createBStruct(structInfo, values);
-        if (attachCallStack) {
-            attachStackFrame(error, progFile, callableUnitInfo);
-        }
-        return error;
+    public static void attachCallStack(BStruct error, WorkerExecutionContext context, 
+            CallableUnitInfo callableUnitInfo) {
+        error.addNativeData(CALL_STACK, generateCallStack(context, callableUnitInfo));
     }
 
     /**
@@ -260,6 +209,10 @@ public class BLangVMErrors {
         error.addNativeData(STRUCT_CALL_STACK_ELEMENT, getStackFrame(progFile, callableUnitInfo, -1));
     }
 
+    public static BRefValueArray generateCallStack(WorkerExecutionContext context) {
+        return generateCallStack(context, null);
+    }
+    
     /**
      * Generate StackTraceItem array.
      *  
@@ -267,20 +220,18 @@ public class BLangVMErrors {
      * @param ip current instruction pointer
      * @return generated StackTraceItem struct array
      */
-    public static BRefValueArray generateCallStack(ProgramFile progFile, WorkerExecutionContext context, int ip) {
+    public static BRefValueArray generateCallStack(WorkerExecutionContext context, CallableUnitInfo nativeCUI) {
 
         // TODO: attach the entire call stack going backwards to parent context
 
         BRefValueArray callStack = new BRefValueArray();
+        ProgramFile progFile = context.programFile;
         PackageInfo runtimePackage = progFile.getPackageInfo(PACKAGE_RUNTIME);
         StructInfo callStackElement = runtimePackage.getStructInfo(STRUCT_CALL_STACK_ELEMENT);
 
-        int currentIP = ip - 1;
+        int currentIP = context.ip - 1;
         Object[] values;
         int stackTraceLocation = 0;
-        if (context == null) {
-            return callStack;
-        }
         values = new Object[4];
         CallableUnitInfo callableUnitInfo = context.callableUnitInfo;
         if (callableUnitInfo == null) {

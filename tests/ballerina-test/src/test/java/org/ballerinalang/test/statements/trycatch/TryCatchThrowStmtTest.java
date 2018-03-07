@@ -93,8 +93,8 @@ public class TryCatchThrowStmtTest {
         Assert.assertEquals(returns[1].stringValue(), "013", "Unexpected execution order.");
     }
 
-    @Test(description = "Test uncaught error in a function.", expectedExceptionsMessageRegExp = "error: " +
-            "error, message: test message.*", expectedExceptions = BLangRuntimeException.class)
+    @Test(description = "Test uncaught error in a function.", expectedExceptionsMessageRegExp = ".*error, " +
+            "message: test message.*", expectedExceptions = BLangRuntimeException.class)
     public void testUncaughtException() {
         BValue[] args = {};
         BRunUtil.invoke(compileResult, "testUncaughtException", args);
