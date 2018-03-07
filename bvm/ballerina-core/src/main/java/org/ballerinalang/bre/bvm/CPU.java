@@ -409,7 +409,11 @@ public class CPU {
                     break;
                 case InstructionCodes.TCALL:
                     InstructionTCALL tcallIns = (InstructionTCALL) instruction;
-                    invokeCallableUnit(ctx, tcallIns.transformerInfo, tcallIns.argRegs, tcallIns.retRegs);
+                    runInCallerCtx = invokeCallableUnit(ctx, tcallIns.transformerInfo, tcallIns.argRegs, tcallIns.retRegs);
+                    if (runInCallerCtx != null) {
+                        ctx = runInCallerCtx;
+                        ctx.state = WorkerState.RUNNING;
+                    }
                     break;
                 case InstructionCodes.TR_BEGIN:
                     i = operands[0];
