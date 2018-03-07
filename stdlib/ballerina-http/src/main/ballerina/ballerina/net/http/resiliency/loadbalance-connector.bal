@@ -150,7 +150,7 @@ function performLoadBalanceAction (string path, http:OutRequest outRequest, http
     // When performing passthrough scenarios using Load Balance connector, message needs to be built before trying out the
     // load balance endpoints to keep the request message to load balance the messages in case of failure.
     if (inRequest != null && HttpOperation.FORWARD == requestAction) {
-        blob binaryPayload = inRequest.getBinaryPayload();
+        var binaryPayload, _ = inRequest.getBinaryPayload();
     }
 
     inResponse, httpConnectorError = invokeEndpoint(path, outRequest, inRequest, requestAction, loadBalanceClient);

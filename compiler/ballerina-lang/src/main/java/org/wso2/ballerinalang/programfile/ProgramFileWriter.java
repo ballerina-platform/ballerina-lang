@@ -69,8 +69,8 @@ public class ProgramFileWriter {
         writeProgram(programFile, bos);
 
         // TODO Fix this properly. Load and invoke compiler plugins
-        ServiceLoader<CompilerPlugin> processorServiceLoader =
-                ServiceLoader.load(CompilerPlugin.class);
+        // TODO This will get properly fixed with the new packerina
+        ServiceLoader<CompilerPlugin> processorServiceLoader = ServiceLoader.load(CompilerPlugin.class);
         processorServiceLoader.forEach(plugin -> {
             plugin.codeGenerated(execFilePath);
         });
