@@ -78,9 +78,8 @@ public native function <ServerConnection conn> error (ServerError serverError) (
 
 
 @Description { value:"ConnectorError struct represents an error occured during the HTTP client invocation" }
-@Field {value:"msg:  An error message explaining about the error"}
+@Field {value:"message:  An error message explaining about the error"}
 @Field {value:"cause: The error that caused ConnectorError to get thrown"}
-@Field {value:"stackTrace: Represents the invocation stack when ConnectorError is thrown"}
 @Field {value:"statusCode: HTTP status code"}
 public struct ConnectorError {
     string message;
@@ -89,13 +88,23 @@ public struct ConnectorError {
 }
 
 @Description { value:"ServerError struct represents an error occured during gRPC server excution" }
-@Field {value:"msg:  An error message explaining about the error"}
+@Field {value:"message:  An error message explaining about the error"}
 @Field {value:"cause: The error that caused ServerError to get thrown"}
-@Field {value:"stackTrace: Represents the invocation stack when GrpcServerError is thrown"}
 @Field {value:"statusCode: gRPC server status code. refer: https://github
 .com/grpc/grpc-java/blob/master/core/src/main/java/io/grpc/Status.java"}
 public struct ServerError {
-    string msg;
+    string message;
+    error cause;
+    int statusCode;
+}
+
+@Description { value:"ClientError struct represents an error occured during gRPC client connector" }
+@Field {value:"message:  An error message explaining about the error"}
+@Field {value:"cause: The error that caused ClientError to get thrown"}
+@Field {value:"statusCode: gRPC server status code. refer: https://github
+.com/grpc/grpc-java/blob/master/core/src/main/java/io/grpc/Status.java"}
+public struct ClientError {
+    string message;
     error cause;
     int statusCode;
 }

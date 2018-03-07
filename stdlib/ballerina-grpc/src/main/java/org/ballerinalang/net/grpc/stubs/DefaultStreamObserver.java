@@ -36,6 +36,7 @@ import org.ballerinalang.net.grpc.BallerinaGrpcServerConnector;
 import org.ballerinalang.net.grpc.Message;
 import org.ballerinalang.net.grpc.MessageConstants;
 import org.ballerinalang.net.grpc.MessageRegistry;
+import org.ballerinalang.net.grpc.MessageUtils;
 import org.ballerinalang.net.grpc.exception.GrpcClientException;
 import org.ballerinalang.net.grpc.exception.UnsupportedFieldTypeException;
 import org.slf4j.Logger;
@@ -54,7 +55,6 @@ public class DefaultStreamObserver implements StreamObserver<Message> {
     private StreamObserver<Message> requestSender = null;
     private Descriptors.Descriptor requestType = null;
 
-    
     public DefaultStreamObserver(Context context, String serviceName) throws
             GrpcClientException {
         BallerinaGrpcServerConnector grpcServerConnector = (BallerinaGrpcServerConnector) ConnectorUtils.
@@ -99,6 +99,11 @@ public class DefaultStreamObserver implements StreamObserver<Message> {
     @Override
     public void onNext(Message value) {
         Resource resource = resourceMap.get(MessageConstants.ON_MESSAGE_RESOURCE);
+        if (resource == null) {
+            String message = "Error in listener service definition. onNext resource does not exists";
+            LOGGER.error(message);
+            throw new RuntimeException(message);
+        }
         List<ParamDetail> paramDetails = resource.getParamDetails();
         BValue[] signatureParams = new BValue[paramDetails.size()];
         signatureParams[0] = getConnectionParameter(requestSender, resource, requestType);
@@ -111,12 +116,34 @@ public class DefaultStreamObserver implements StreamObserver<Message> {
     
     @Override
     public void onError(Throwable t) {
-        LOGGER.info("Err 2");
+        Resource onError = resourceMap.get(MessageConstants.ON_ERROR_RESOURCE);
+        if (onError == null) {
+            String message = "Error in listener service definition. onError resource does not exists";
+            LOGGER.error(message);
+            throw new RuntimeException(message);
+        }
+        List<ParamDetail> paramDetails = onError.getParamDetails();
+        BValue[] signatureParams = new BValue[paramDetails.size()];
+        signatureParams[0] = getConnectionParameter(requestSender, onError, requestType);
+        if (paramDetails.size() != 2) {
+            String message = "Error in onError resource definition. It must have two input params, but have "
+                    + paramDetails.size();
+            LOGGER.error(message);
+            throw new RuntimeException(message);
+        }
+        BStruct errorStruct = MessageUtils.getConnectorError(onError, paramDetails.get(1).getVarType(), t);
+        signatureParams[1] = errorStruct;
+        Executor.execute(onError, null, signatureParams);
     }
     
     @Override
     public void onCompleted() {
         Resource onCompleted = resourceMap.get(MessageConstants.ON_COMPLETE_RESOURCE);
+        if (onCompleted == null) {
+            String message = "Error in listener service definition. onCompleted resource does not exists";
+            LOGGER.error(message);
+            throw new RuntimeException(message);
+        }
         List<ParamDetail> paramDetails = onCompleted.getParamDetails();
         BValue[] signatureParams = new BValue[paramDetails.size()];
         signatureParams[0] = getConnectionParameter(requestSender, onCompleted, requestType);

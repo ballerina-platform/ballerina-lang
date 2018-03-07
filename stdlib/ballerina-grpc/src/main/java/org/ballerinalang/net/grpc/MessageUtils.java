@@ -19,9 +19,12 @@ import com.google.protobuf.DescriptorProtos;
 import com.google.protobuf.Descriptors;
 import io.grpc.Metadata;
 import io.grpc.MethodDescriptor;
+import io.grpc.StatusRuntimeException;
 import io.grpc.stub.StreamObserver;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.connector.api.Annotation;
+import org.ballerinalang.connector.api.ConnectorUtils;
+import org.ballerinalang.connector.api.Resource;
 import org.ballerinalang.connector.api.Service;
 import org.ballerinalang.model.types.BStructType;
 import org.ballerinalang.model.types.BType;
@@ -49,6 +52,7 @@ import java.util.Map;
  */
 public class MessageUtils {
     private static final String IO_EXCEPTION_OCCURED = "I/O exception occurred";
+    public static final String UNKNOWN_ERROR = "Unknown Error";
 
     public static BValue[] getHeader(Context context, AbstractNativeFunction abstractNativeFunction) {
         String headerName = abstractNativeFunction.getStringArgument(context, 0);
@@ -85,9 +89,9 @@ public class MessageUtils {
     }
 
     public static BStruct getServerConnectorError(Context context, Throwable throwable) {
-        PackageInfo httpPackageInfo = context.getProgramFile()
+        PackageInfo grpcPackageInfo = context.getProgramFile()
                 .getPackageInfo(MessageConstants.PROTOCOL_PACKAGE_GRPC);
-        StructInfo errorStructInfo = httpPackageInfo.getStructInfo(MessageConstants.HTTP2_CONNECTOR_ERROR);
+        StructInfo errorStructInfo = grpcPackageInfo.getStructInfo(MessageConstants.CONNECTOR_ERROR);
         BStruct httpConnectorError = new BStruct(errorStructInfo.getType());
         if (throwable.getMessage() == null) {
             httpConnectorError.setStringField(0, IO_EXCEPTION_OCCURED);
@@ -95,6 +99,35 @@ public class MessageUtils {
             httpConnectorError.setStringField(0, throwable.getMessage());
         }
         return httpConnectorError;
+    }
+
+    /**
+     * Returns error struct of input type
+     * Error type can be either ServerError or ClientError. This utility method is used inside Observer onError
+     * method to construct error struct from message.
+     *
+     * @param resource this is onError resource of callback listener service.
+     * @param errorType this is either ServerError or ClientError.
+     * @param error this is StatusRuntimeException send by opposite party.
+     * @return error struct.
+     */
+    public static BStruct getConnectorError(Resource resource, BType errorType, Throwable error) {
+        BStruct errorStruct = ConnectorUtils.createStruct(resource, errorType.getPackagePath(), errorType
+                .getName());
+        if (error instanceof StatusRuntimeException) {
+            StatusRuntimeException statusException = (StatusRuntimeException) error;
+            int status = statusException.getStatus() != null ? statusException.getStatus().getCode().value() : -1;
+            String message = statusException.getMessage();
+            errorStruct.setStringField(0, message);
+            errorStruct.setIntField(0, status);
+        } else {
+            if (error.getMessage() == null) {
+                errorStruct.setStringField(0, UNKNOWN_ERROR);
+            } else {
+                errorStruct.setStringField(0, error.getMessage());
+            }
+        }
+        return errorStruct;
     }
 
     /**
@@ -377,8 +410,8 @@ public class MessageUtils {
 
     /**
      * Util method to get method type.
-     * @param methodDescriptorProto
-     * @return
+     * @param methodDescriptorProto method descriptor proto.
+     * @return service method type.
      */
     public static MethodDescriptor.MethodType getMethodType(DescriptorProtos.MethodDescriptorProto
                                                                     methodDescriptorProto) {

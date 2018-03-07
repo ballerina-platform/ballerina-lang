@@ -26,7 +26,6 @@ import org.ballerinalang.net.grpc.proto.definition.File;
 import org.ballerinalang.util.diagnostic.Diagnostic;
 import org.ballerinalang.util.diagnostic.DiagnosticLog;
 
-import java.io.PrintStream;
 import java.util.List;
 
 /**
@@ -40,7 +39,6 @@ import java.util.List;
 public class ServiceProtoBuilder extends AbstractCompilerPlugin {
 
     private DiagnosticLog dlog;
-    private PrintStream out = System.out;
 
     @Override
     public void init(DiagnosticLog diagnosticLog) {
@@ -49,7 +47,6 @@ public class ServiceProtoBuilder extends AbstractCompilerPlugin {
 
     @Override
     public void process(ServiceNode serviceNode, List<AnnotationAttachmentNode> annotations) {
-        out.println("service node: " + serviceNode.getName().getValue());
         try {
             File fileDefinition =  ServiceProtoUtils.generateProtoDefinition(serviceNode);
             ServiceProtoUtils.writeServiceFiles(fileDefinition, serviceNode.getName().getValue());

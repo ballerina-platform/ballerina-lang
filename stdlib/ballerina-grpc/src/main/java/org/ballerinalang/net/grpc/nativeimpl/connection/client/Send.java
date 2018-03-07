@@ -52,7 +52,6 @@ public class Send extends AbstractNativeFunction {
 
     @Override
     public BValue[] execute(Context context) {
-        log.info("calling send...");
         BStruct connectionStruct = (BStruct) getRefArgument(context, 0);
         BValue responseValue = getRefArgument(context, 1);
         StreamObserver requestSender = MessageUtils.getStreamObserver(connectionStruct);

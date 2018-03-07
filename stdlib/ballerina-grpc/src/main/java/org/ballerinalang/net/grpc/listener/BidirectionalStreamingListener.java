@@ -21,9 +21,13 @@ import io.grpc.stub.StreamObserver;
 import org.ballerinalang.connector.api.Executor;
 import org.ballerinalang.connector.api.ParamDetail;
 import org.ballerinalang.connector.api.Resource;
+import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.net.grpc.Message;
 import org.ballerinalang.net.grpc.MessageConstants;
+import org.ballerinalang.net.grpc.MessageUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.Map;
@@ -35,6 +39,7 @@ public class BidirectionalStreamingListener extends MethodListener implements Se
         .BidiStreamingMethod<Message, Message> {
 
     public final Map<String, Resource> resourceMap;
+    private static final Logger LOGGER = LoggerFactory.getLogger(BidirectionalStreamingListener.class);
 
     public BidirectionalStreamingListener(Descriptors.MethodDescriptor methodDescriptor, Map<String, Resource>
             resourceMap) {
@@ -66,12 +71,34 @@ public class BidirectionalStreamingListener extends MethodListener implements Se
 
             @Override
             public void onError(Throwable t) {
-
+                Resource onError = resourceMap.get(MessageConstants.ON_ERROR_RESOURCE);
+                if (onError == null) {
+                    String message = "Error in listener service definition. onError resource does not exists";
+                    LOGGER.error(message);
+                    throw new RuntimeException(message);
+                }
+                List<ParamDetail> paramDetails = onError.getParamDetails();
+                BValue[] signatureParams = new BValue[paramDetails.size()];
+                signatureParams[0] = getConnectionParameter(responseObserver);
+                if (paramDetails.size() != 2) {
+                    String message = "Error in onError resource definition. It must have two input params, but have "
+                            + paramDetails.size();
+                    LOGGER.error(message);
+                    throw new RuntimeException(message);
+                }
+                BStruct errorStruct = MessageUtils.getConnectorError(onError, paramDetails.get(1).getVarType(), t);
+                signatureParams[1] = errorStruct;
+                Executor.execute(onError, null, signatureParams);
             }
 
             @Override
             public void onCompleted() {
                 Resource onCompleted = resourceMap.get(MessageConstants.ON_COMPLETE_RESOURCE);
+                if (onCompleted == null) {
+                    String message = "Error in listener service definition. onError resource does not exists";
+                    LOGGER.error(message);
+                    throw new RuntimeException(message);
+                }
                 List<ParamDetail> paramDetails = onCompleted.getParamDetails();
                 BValue[] signatureParams = new BValue[paramDetails.size()];
                 signatureParams[0] = getConnectionParameter(responseObserver);

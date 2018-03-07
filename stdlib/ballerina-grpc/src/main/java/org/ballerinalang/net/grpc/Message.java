@@ -505,37 +505,6 @@ public class Message extends GeneratedMessageV3 {
         return size;
     }
 
-/*    @java.lang.Override
-    public boolean equals(final java.lang.Object obj) {
-        if (obj == this) {
-            return true;
-        }
-        if (!(obj instanceof Message)) {
-            return super.equals(obj);
-        }
-        Message other = (Message) obj;
-
-        boolean result = true;
-        result = result && getName()
-                .equals(other.getName());
-        result = result && unknownFields.equals(other.unknownFields);
-        return result;
-    }
-
-    @java.lang.Override
-    public int hashCode() {
-        if (memoizedHashCode != 0) {
-            return memoizedHashCode;
-        }
-        int hash = 41;
-        hash = (19 * hash) + getDescriptor().hashCode();
-        hash = (37 * hash) + NAME_FIELD_NUMBER;
-        hash = (53 * hash) + getName().hashCode();
-        hash = (29 * hash) + unknownFields.hashCode();
-        memoizedHashCode = hash;
-        return hash;
-    }*/
-
     public Builder newBuilderForType() {
         throw new UnsupportedOperationException("This method is not supported.");
     }

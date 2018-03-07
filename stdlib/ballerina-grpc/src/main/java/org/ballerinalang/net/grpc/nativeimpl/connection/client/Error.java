@@ -53,7 +53,6 @@ public class Error extends AbstractNativeFunction {
 
     @Override
     public BValue[] execute(Context context) {
-        log.info("calling error...");
         BStruct connectionStruct = (BStruct) getRefArgument(context, 0);
         BValue responseValue = getRefArgument(context, 1);
         if (responseValue instanceof BStruct) {
