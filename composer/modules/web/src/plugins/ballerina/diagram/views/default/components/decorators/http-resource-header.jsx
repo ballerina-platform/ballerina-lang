@@ -103,9 +103,7 @@ class HttpResourceHeader extends React.Component {
 
         const resourceName = this.getResourceName();
         const resourceNameSize = new SizingUtils().getTextWidth(resourceName, 40, 170);
-        const parameterOffset = resourceNameOffset + resourceNameSize.w + 30;
 
-        const parameters = this.getParametersString();
         const methods = this.getMethods().reverse();
         return (
             <g className='http-resource-header'>
@@ -173,14 +171,6 @@ class HttpResourceHeader extends React.Component {
                     fill='white'
                     className='editable-text-label resource-name'
                 >{resourceNameSize.text}</text>
-
-                <text
-                    style={{ dominantBaseline: 'central' }}
-                    x={x + parameterOffset}
-                    y={basePathY}
-                    fill='white'
-                    className='editable-text-label resource-parameters'
-                >{parameters}</text>
             </g>
         );
     }

@@ -1,0 +1,25 @@
+{
+  "position": {
+    "line": 5,
+    "character": 26
+  },
+  "source": "action/source/packageContentWithSucceedingCharacter1.bal",
+  "items": [
+    {
+      "label":"getGlobalValue(string property)(string)",
+      "kind":"Function",
+      "detail":"Function",
+      "sortText":"119",
+      "insertText":"getGlobalValue(${1:property})",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"getInstanceValue(string instanceId, string property)(string)",
+      "kind":"Function",
+      "detail":"Function",
+      "sortText":"119",
+      "insertText":"getInstanceValue(${1:instanceId}, ${2:property})",
+      "insertTextFormat":"Snippet"
+    }
+  ]
+}

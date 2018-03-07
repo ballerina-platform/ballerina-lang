@@ -15,15 +15,14 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
+/* eslint max-len: 0 */
 import 'brace';
 import _ from 'lodash';
 import { invokeTryIt, getTryItUrl } from 'api-client/api-client';
 import cn from 'classnames';
 import AceEditor from 'react-ace';
-import { DropdownButton, MenuItem } from 'react-bootstrap';
+import { Container, Grid, Form, Item, Button, Message, Divider, Segment, Input, Icon, Select } from 'semantic-ui-react';
 import copy from 'copy-to-clipboard';
-import AutoSuggest from 'plugins/ballerina/diagram/views/default/components/decorators/autosuggest-html';
 import PropTypes from 'prop-types';
 import React from 'react';
 import ServiceTreeNode from 'plugins/ballerina/model/tree/service-node';
@@ -32,6 +31,7 @@ import 'brace/mode/json';
 import 'brace/mode/xml';
 import 'brace/mode/html';
 import 'brace/theme/monokai';
+import RequestHeaderItem from './request-header-item';
 
 import './http-client.scss';
 
@@ -83,9 +83,7 @@ class HttpClient extends React.Component {
         this.onContentTypeChange = this.onContentTypeChange.bind(this);
         this.onContentTypeSelected = this.onContentTypeSelected.bind(this);
         this.onHeaderDelete = this.onHeaderDelete.bind(this);
-        this.onHeaderKeyChange = this.onHeaderKeyChange.bind(this);
-        this.onHeaderValueChange = this.onHeaderValueChange.bind(this);
-        this.onHeaderValueKeyDown = this.onHeaderValueKeyDown.bind(this);
+        this.onChangeHeader = this.onChangeHeader.bind(this);
         this.onHttpMethodChanged = this.onHttpMethodChanged.bind(this);
         this.onHttpMethodSelected = this.onHttpMethodSelected.bind(this);
         this.onInvoke = this.onInvoke.bind(this);
@@ -93,10 +91,7 @@ class HttpClient extends React.Component {
         this.onRequestBodyChange = this.onRequestBodyChange.bind(this);
         this.onServiceSelected = this.onServiceSelected.bind(this);
         this.onResourceSelected = this.onResourceSelected.bind(this);
-        this.renderInputComponent = this.renderInputComponent.bind(this);
-
         this.headerKey = undefined;
-        this.focusOnHeaderKey = false;
     }
 
     /**
@@ -143,39 +138,18 @@ class HttpClient extends React.Component {
     }
 
     /**
-     * On component did update event.
-     * @memberof HttpClient
-     */
-    componentDidUpdate() {
-        if (this.headerKey && this.focusOnHeaderKey) {
-            this.headerKey.focus();
-        }
-        this.focusOnHeaderKey = false;
-    }
-
-    /**
      * Event handler when a new header is added.
      * @param {boolean} [focus=true] True to focus on empty header key.
      * @memberof HttpClient
      */
-    onAddNewHeader(focus = true) {
+    onAddNewHeader() {
         const emptyHeaderIndex = this.state.requestHeaders.findIndex((header) => {
             return header.key.trim() === '' && header.value.trim() === '';
         });
-
         if (emptyHeaderIndex === -1) {
-            const headerClone = JSON.parse(JSON.stringify(this.state.requestHeaders));
-            headerClone.push({ id: uuid(), key: '', value: '' });
             this.setState({
-                requestHeaders: headerClone,
+                requestHeaders: [...this.state.requestHeaders, { id: uuid(), key: '', value: '' }],
             });
-        }
-
-        if (focus === true) {
-            this.focusOnHeaderKey = true;
-            if (this.headerKey) {
-                this.headerKey.focus();
-            }
         }
     }
 
@@ -195,9 +169,9 @@ class HttpClient extends React.Component {
      * @param {Event} event The change event.
      * @memberof HttpClient
      */
-    onContentTypeChange(event) {
+    onContentTypeChange(event, data) {
         this.setState({
-            contentType: event.target.value,
+            contentType: data.value,
         });
     }
 
@@ -218,66 +192,21 @@ class HttpClient extends React.Component {
      * @param {string} headerKey They key or the name of the header.
      * @memberof HttpClient
      */
-    onHeaderDelete(headerKey) {
+    onHeaderDelete(id) {
         const newHeaders = this.state.requestHeaders.filter((header) => {
-            return header.key !== headerKey;
+            return header.id !== id;
         });
         this.setState({
             requestHeaders: newHeaders,
         });
     }
 
-    /**
-     * Event handler when the name or key of the header is changed.
-     * @param {string} headerValue Value of the header.
-     * @param {Object} event The change event.
-     * @memberof HttpClient
-     */
-    onHeaderKeyChange(headerValue, event) {
-        const headerClone = JSON.parse(JSON.stringify(this.state.requestHeaders));
-        headerClone.forEach((header, index, headers) => {
-            if (header.id === event.currentTarget.id) {
-                headers[index].key = event.currentTarget.value;
-            }
-        });
-
+    onChangeHeader(i, header) {
+        const newHeaders = [...this.state.requestHeaders];
+        newHeaders[i] = header;
         this.setState({
-            requestHeaders: headerClone,
-        }, function () {
-            if (headerClone[headerClone.length - 1].value === '' && headerClone[headerClone.length - 1].key !== '') {
-                this.onAddNewHeader(false);
-            }
+            requestHeaders: newHeaders,
         });
-    }
-
-    /**
-     * Event handler when the value of the header is changed.
-     * @param {string} headerKey The name or key of the header.
-     * @param {Object} event The change event.
-     * @memberof HttpClient
-     */
-    onHeaderValueChange(headerKey, event) {
-        const headerClone = JSON.parse(JSON.stringify(this.state.requestHeaders));
-        headerClone.forEach((header, index, headers) => {
-            if (header.id === event.currentTarget.id) {
-                headers[index].value = event.currentTarget.value;
-            }
-        });
-
-        this.setState({
-            requestHeaders: headerClone,
-        });
-    }
-
-    /**
-     * Event handler when a key is pressed in a header value.
-     * @param {Object} e The keypress event.
-     * @memberof HttpClient
-     */
-    onHeaderValueKeyDown(e) {
-        if (e.charCode === 13 || e.key === 'Enter') {
-            this.onAddNewHeader(true);
-        }
     }
 
     /**
@@ -366,28 +295,28 @@ class HttpClient extends React.Component {
      * @param {Object} event The select event.
      * @memberof HttpClient
      */
-    onServiceSelected(eventKey) {
+    onServiceSelected(event, data) {
         this.setState({
-            selectedService: eventKey,
+            selectedService: data.value,
             selectedResource: undefined,
         });
     }
 
     /**
      * Event handler when a resource is selected.
-     * @param {string} eventKey The selected resource node.
+     * @param {string} value The selected resource node.
      * @memberof HttpClient
      */
-    onResourceSelected(eventKey) {
-        const appendUrl = this.compileURL(eventKey);
+    onResourceSelected(event, { value }) {
+        const appendUrl = this.compileURL(value);
         let contentType = '';
-        if (eventKey.getConsumeTypes().length === 1) {
-            contentType = eventKey.getConsumeTypes()[0];
+        if (value.getConsumeTypes().length === 1) {
+            contentType = value.getConsumeTypes()[0];
         }
         this.setState({
-            selectedResource: eventKey,
+            selectedResource: value,
             appendUrl,
-            httpMethods: this.getHttpMethods(eventKey),
+            httpMethods: this.getHttpMethods(value),
             contentType,
         });
     }
@@ -399,7 +328,14 @@ class HttpClient extends React.Component {
      * @memberof HttpClient
      */
     getHttpMethods() {
-        return ['GET', 'POST', 'DELETE', 'PUT', 'OPTIONS', 'HEAD'];
+        return [
+            { text: 'GET', value: 'GET' },
+            { text: 'POST', value: 'POST' },
+            { text: 'DELETE', value: 'DELETE' },
+            { text: 'PUT', value: 'PUT' },
+            { text: 'OPTIONS', value: 'OPTIONS' },
+            { text: 'HEAD', value: 'HEAD' },
+        ];
     }
 
     /**
@@ -487,109 +423,32 @@ class HttpClient extends React.Component {
     }
 
     /**
-     * Renders the view of the headers.
-     * @returns {ReactElement} The view of the headers.
-     * @memberof HttpClient
-     */
-    renderHeaders() {
-        return this.state.requestHeaders.map((header, index) => {
-            let removeButton;
-            // Remove button is not included for new header fields
-            if (index !== this.state.requestHeaders.length - 1) {
-                removeButton = <i className='fw fw-delete' onClick={() => this.onHeaderDelete(header.key)} />;
-            }
-            return (<div key={`${header.id}`} className='form-inline'>
-                <input
-                    id={header.id}
-                    key={`key-${header.id}`}
-                    ref={(ref) => {
-                        if (header.key === '' && header.value === '') {
-                            this.headerKey = ref;
-                        }
-                    }}
-                    placeholder='Key'
-                    type='text'
-                    className='request-header-input form-control'
-                    value={header.key}
-                    onChange={e => this.onHeaderKeyChange(header.key, e)}
-                    onBlur={() => { this.focusTarget = undefined; }}
-                />
-                :
-                <input
-                    id={header.id}
-                    key={`value-${header.id}`}
-                    placeholder='Value'
-                    type='text'
-                    className='request-header-input form-control'
-                    value={header.value}
-                    onChange={e => this.onHeaderValueChange(header.value, e)}
-                    onBlur={() => { this.focusTarget = undefined; }}
-                    onKeyDown={this.onHeaderValueKeyDown}
-                />
-                {removeButton}
-            </div>);
-        });
-    }
-
-    /**
-     * Renders the input view of the http method selection dropdown's input box.
-     * @param {any} inputProps The input properties.
-     * @returns {React.Element} The view.
-     * @memberof HttpClient
-     */
-    renderInputComponent(inputProps) {
-        return (<div className='inputContainer'>
-            <input {...inputProps} />
-            <i
-                className='fw fw-down'
-                onClick={(e) => {
-                    e.currentTarget.previousElementSibling.focus();
-                }}
-            />
-        </div>);
-    }
-
-    /**
      * Rendering the services dropdown.
      * @returns {React.Element} The dropdown view.
      * @memberof HttpClient
      */
     renderServicesDropdown() {
         const serviceItems = this.props.serviceNodes.map((serviceNode) => {
-            return (<MenuItem
-                key={serviceNode.getID()}
-                eventKey={serviceNode}
-            >
-                {serviceNode.getName().getValue()}
-            </MenuItem>);
+            return ({
+                key: serviceNode.getID(),
+                text: serviceNode.getName().getValue(),
+                value: serviceNode,
+            });
         });
 
-        // Compiling selected value
-        let dropdownTitle;
-        if (this.state.selectedService === undefined) {
-            dropdownTitle = 'Select Service';
-        } else {
-            dropdownTitle = this.state.selectedService.getName().getValue();
-        }
-
+        const defaultValue = this.state.selectedService;
         return (
-            <div className='dropdown-wrapper'>
-                <DropdownButton
-                    id='services-dropdown'
-                    title={dropdownTitle}
-                    key='try-it-service-dropdown'
-                    onSelect={this.onServiceSelected}
-                    noCaret
-                >
-                    {serviceItems}
-                </DropdownButton>
-                <i
-                    className='fw fw-down'
-                    onClick={(e) => {
-                        e.currentTarget.previousElementSibling.children[0].click();
-                    }}
+            <Form.Field>
+                <Select
+                    search
+                    selection
+                    placeholder='Select Service'
+                    options={serviceItems}
+                    value={this.state.selectedService}
+                    onChange={this.onServiceSelected}
+                    defaultValue={defaultValue}
                 />
-            </div>
+            </Form.Field>
         );
     }
 
@@ -602,37 +461,27 @@ class HttpClient extends React.Component {
         let resourceItems = [];
         if (this.state.selectedService) {
             resourceItems = this.state.selectedService.getResources().map((resourceNode) => {
-                return (<MenuItem key={resourceNode.getID()} eventKey={resourceNode}>
-                    {resourceNode.getName().getValue()}
-                </MenuItem>);
+                return ({
+                    key: resourceNode.getID(),
+                    text: resourceNode.getName().getValue(),
+                    value: resourceNode,
+                });
             });
         }
 
-        // Compiling selected value
-        let dropdownTitle;
-        if (this.state.selectedResource === undefined) {
-            dropdownTitle = 'Select Resource';
-        } else {
-            dropdownTitle = this.state.selectedResource.getName().getValue();
-        }
+        const defaultValue = this.state.selectedResource;
 
-        return (<div className='dropdown-wrapper'>
-            <DropdownButton
-                id='resource-dropdown'
-                title={dropdownTitle}
-                key='try-it-resource-dropdown'
-                onSelect={this.onResourceSelected}
-                noCaret
-            >
-                {resourceItems}
-            </DropdownButton>
-            <i
-                className='fw fw-down'
-                onClick={(e) => {
-                    e.currentTarget.previousElementSibling.children[0].click();
-                }}
+        return (
+            <Select
+                search
+                selection
+                placeholder='Select Resource'
+                options={resourceItems}
+                value={this.state.selectedResource}
+                onChange={this.onResourceSelected}
+                defaultValue={defaultValue}
             />
-        </div>);
+        );
     }
 
     /**
@@ -648,71 +497,59 @@ class HttpClient extends React.Component {
             // Getting service name views
             const servicesDropdown = this.renderServicesDropdown();
             const resourceDropdown = this.renderResourcesDropdown();
+            return (
+                <Segment
+                    className='http-client-main-wrapper'
+                    inverted
+                >
+                    <Form
+                        inverted
+                        widths='equal'
+                    >
+                        <Form.Group inline>
+                            <Form.Field >
+                                <Form.Select
+                                    search
+                                    selection
+                                    options={this.state.httpMethods}
+                                    onChange={this.onHttpMethodChanged}
+                                    defaultValue={this.state.httpMethod}
+                                />
+                            </Form.Field>
+                            <Form.Field>
+                                <label htmlFor='service'>
+                                    <span>{httpBaseUrl}</span>
+                                    <span className='url-separator'> / </span>
+                                </label>
+                            </Form.Field>
+                            {servicesDropdown}
+                            <Form.Field >
+                                {resourceDropdown}
+                            </Form.Field>
+                        </Form.Group>
+                        <Form.Group>
+                            <Form.Field>
+                                <Form.Input type='text' action>
+                                    <Input
+                                        label={`${httpBaseUrl} `}
+                                        value={this.state.appendUrl}
+                                        onChange={this.onAppendUrlChange}
+                                    />
+                                    {sendOrCancelButton}
+                                    <Button
+                                        title='Copy URL'
+                                        onClick={() => {
+                                            copy(`${httpBaseUrl}${this.state.appendUrl}`);
+                                        }}
+                                    >
+                                        <Icon name='copy' />
+                                    </Button>
+                                </Form.Input>
+                            </Form.Field>
 
-            return (<div className='row http-client-main-wrapper'>
-                <div className='main-wrapper-top'>
-                    <div className='http-client-request-method-wrapper'>
-                        <AutoSuggest
-                            items={this.state.httpMethods}
-                            onSuggestionSelected={this.onHttpMethodSelected}
-                            onChange={this.onHttpMethodChanged}
-                            disableAutoFocus
-                            initialValue={this.state.httpMethod}
-                            showAllAtStart
-                            alwaysRenderSuggestions
-                            renderInputComponent={this.renderInputComponent}
-                        />
-                    </div>
-                    <span className='http-method-separator'>|</span>
-                    <div className='http-client-request-url'>
-                        {httpBaseUrl}
-                    </div>
-                    <span className='url-separator'>/</span>
-                    <div className='selectors service-selector'>
-                        {servicesDropdown}
-                    </div>
-                    <span className='url-separator'>/</span>
-                    <div className='selectors resource-selector'>
-                        {resourceDropdown}
-                    </div>
-                </div>
-                <div className='main-wrapper-bottom'>
-                    <div className='http-client-request-url'>
-                        {httpBaseUrl}
-                    </div>
-                    <div className='input-group'>
-                        <input
-                            className='http-client-path form-control'
-                            type='text'
-                            value={this.state.appendUrl}
-                            onChange={this.onAppendUrlChange}
-                        />
-                        <span className='input-group-btn'> {sendOrCancelButton} </span>
-                        <div
-                            className='copy-url-wrapper'
-                            title='Copy URL'
-                            onClick={() => {
-                                copy(`${httpBaseUrl}${this.state.appendUrl}`);
-                                this.setState({
-                                    showCopyUrlNotification: true,
-                                });
-                            }}
-                            onMouseLeave={() => {
-                                this.setState({
-                                    showCopyUrlNotification: false,
-                                });
-                            }}
-                        >
-                            <i className='fw fw-copy-link' />
-                            <div
-                                className={cn('copy-url-notification', { hide: !this.state.showCopyUrlNotification })}
-                            >
-                                URL Copied !
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>);
+                        </Form.Group>
+                    </Form>
+                </Segment>);
         } else {
             return (null);
         }
@@ -725,12 +562,12 @@ class HttpClient extends React.Component {
      */
     renderSendOrCancelButton() {
         if (this.state.waitingForResponse === false) {
-            return (<button onClick={this.onInvoke} className='btn btn-success' type='button'>Send</button>);
+            return (<Button primary className='send-request' onClick={this.onInvoke} >Send</Button>);
         } else {
-            return (<button onClick={this.onInvokeCancel} className='btn btn-cancel' type='button'>
+            return (<Button primary className='cancel-request' onClick={this.onInvokeCancel} >
                 <i className='fw fw-loader5 fw-spin fw-1x' />
                 <span>Cancel</span>
-            </button>);
+            </Button>);
         }
     }
 
@@ -741,35 +578,7 @@ class HttpClient extends React.Component {
      */
     renderRequestHeaders() {
         return this.state.requestHeaders.map((header) => {
-            return (<div key={`${header.id}`} className='form-inline'>
-                <input
-                    key={`key-${header.id}`}
-                    ref={(ref) => {
-                        if (header.key === '' && header.value === '') {
-                            this.headerKey = ref;
-                        }
-                    }}
-                    placeholder='Key'
-                    type='text'
-                    className='header-input form-control'
-                    value={header.key}
-                    onChange={e => this.onHeaderKeyChange(header.value, e)}
-                    onBlur={() => { this.focusTarget = undefined; }}
-                    readOnly
-                />
-                :
-                <input
-                    key={`value-${header.id}`}
-                    placeholder='Value'
-                    type='text'
-                    className='header-input form-control'
-                    value={header.value}
-                    onChange={e => this.onHeaderValueChange(header.key, e)}
-                    onBlur={() => { this.focusTarget = undefined; }}
-                    onKeyDown={this.onHeaderValueKeyDown}
-                />
-                <i className='fw fw-delete' onClick={() => this.onHeaderDelete(header.key)} />
-            </div>);
+            return (<RequestHeaderItem header={header} key={header.id} />);
         });
     }
 
@@ -783,17 +592,18 @@ class HttpClient extends React.Component {
         if (this.state.selectedResource && this.state.selectedResource.getConsumeTypes().length > 0) {
             contentTypes = this.state.selectedResource.getConsumeTypes();
         }
-
-        return (<AutoSuggest
-            items={contentTypes}
-            onSuggestionSelected={this.onContentTypeSelected}
-            onChange={this.onContentTypeChange}
-            disableAutoFocus
-            initialValue={this.state.contentType}
-            showAllAtStart
-            alwaysRenderSuggestions
-            renderInputComponent={this.renderInputComponent}
-        />);
+        const contentTypesItems = contentTypes.map(type => ({ key: type, text: type, value: type }));
+        return (
+            <Form.Select
+                search
+                selection
+                options={contentTypesItems}
+                value={this.state.contentType}
+                onChange={this.onContentTypeChange}
+                defaultValue={this.state.contentType}
+                placeholder='Content Type'
+            />
+        );
     }
 
     /**
@@ -802,156 +612,212 @@ class HttpClient extends React.Component {
      * @memberof HttpClient
      */
     render() {
-        const requestHeaders = this.renderRequestHeaders();
+        const { requestHeaders } = this.state;
         const mainControlComponent = this.renderMainControlComponent();
         const contentTypesControl = this.renderContentTypes();
-        return (<div className='container-fluid'>
-            {mainControlComponent}
-            <div className='row http-client-wrapper'>
-                <div className='http-client-request'>
-                    <h3>Request</h3>
-                    <hr />
-                    <div className='form-horizontal'>
-                        <div className='form-group http-client-content-type-wrapper'>
-                            <span className='col-sm-2 control-label'>Content-Type : </span>
-                            <div className='col-sm-10'>
-                                {contentTypesControl}
-                            </div>
-                        </div>
-                        <div className='http-client-headers-wrapper'>
-                            <span className='section-header'>Headers</span>
-                            <hr />
-                            <div className='current-headers'>
-                                {requestHeaders}
-                            </div>
-                        </div>
-                        <div className='http-client-body-wrapper'>
-                            <span className='section-header'>Body</span>
-                            <hr />
-                            <div className='ACE-editor-wrapper'>
-                                <AceEditor
-                                    mode={this.getRequestBodyMode()}
-                                    theme='monokai'
-                                    onChange={this.onRequestBodyChange}
-                                    value={this.state.requestBody}
-                                    name='RequestBody'
-                                    editorProps={{
-                                        $blockScrolling: Infinity,
-                                    }}
-                                    setOptions={{
-                                        showLineNumbers: false,
-                                    }}
-                                    maxLines={Infinity}
-                                    minLines={10}
-                                    width='auto'
-                                    showPrintMargin={false}
-                                />
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div className='http-client-response'>
-                    <h3>Response</h3>
-                    <hr />
-                    <div className='http-client-response-attributes'>
-                        <strong>Request URL :
-                            <span className={cn('attribute-value', this.getStatusCodeClass(this.state.responseCode))}>
-                                {this.state.requestUrl}
-                            </span>
-                        </strong>
-                        <br />
-                        <strong>Reponse Code :
-                            <span className={cn('attribute-value', this.getStatusCodeClass(this.state.responseCode))}>
-                                {this.state.responseCode}
-                            </span>
-                        </strong>
-                        <br />
-                        <strong>Request HTTP Method :
-                            <span className={cn('attribute-value', this.getStatusCodeClass(this.state.responseCode))}>
-                                {this.state.responseHttpMethod}
-                            </span>
-                        </strong>
-                        <br />
-                        <strong>Time Consumed :
-                            <span className={cn('attribute-value', this.getStatusCodeClass(this.state.responseCode))}>
-                                {this.state.timeConsumed} ms
-                            </span>
-                        </strong>
-                    </div>
-                    <div className='http-client-response-content'>
-                        <div className='header-wrapper'>
-                            <div className='header-title section-header'>Headers</div>
-                            <div className='header-content'>
-                                <div className='response-headers'>
-                                    <span className='response-header-title'>Response Headers</span>
-                                    {this.state.responseHeaders.length > 0 ? (
-                                        <div>
-                                            {
-                                        Object.entries(JSON.parse(this.state.responseHeaders)).map(([key, value]) => {
-                                            return (<div className='header-attribute' key={`response-${key}`}>
-                                                <div className='key'>{key}</div>
-                                                    :
-                                                <div className='value'>{value}</div>
-                                            </div>);
-                                        })}
-                                        </div>
-                                    ) : (
-                                        <div className='try-it-message message message-warning'>
-                                            <p> <i className='icon fw fw-warning' />
-                                                Hit the send button to see the headers. </p>
-                                        </div>
-                                        )}
+        return (
+            <Container fluid>
+                {mainControlComponent}
+                <Grid>
+                    <Grid.Row className='http-client-wrapper'>
+                        <Grid.Column width={8}>
+                            <Item.Group>
+                                <Item>
+                                    <div className='http-client-request'>
+                                        <Item.Content>
+                                            <Segment inverted>
+                                                <Item.Header >Request</Item.Header>
+                                                <Divider />
+                                                <Form inverted>
+                                                    <Form.Group inline>
+                                                        <label htmlFor='content-types'>Content-Type</label>
+                                                        {contentTypesControl}
+                                                    </Form.Group>
+                                                </Form>
+                                                <Form.Field width={16}>
+                                                    <h3>Headers</h3>
+                                                    <Divider />
+                                                    <div className='current-headers'>
+                                                        {
+                                                            requestHeaders.map((header, i) => {
+                                                                return (<RequestHeaderItem
+                                                                    header={header}
+                                                                    onChange={newHeader => this.onChangeHeader(i, newHeader)}
+                                                                    onAddNew={this.onAddNewHeader}
+                                                                    key={header.id}
+                                                                    onDelete={() => this.onHeaderDelete(header.id)}
+                                                                />);
+                                                            })
+                                                        }
+                                                    </div>
+                                                </Form.Field>
+                                                <Form.Field width={16} className='http-client-body-wrapper'>
+                                                    <label htmlFor='http-body'>Body</label>
+                                                    <Divider />
+                                                    <div className='ACE-editor-wrapper'>
+                                                        <AceEditor
+                                                            mode={this.getRequestBodyMode()}
+                                                            theme='monokai'
+                                                            onChange={this.onRequestBodyChange}
+                                                            value={this.state.requestBody}
+                                                            name='RequestBody'
+                                                            editorProps={{
+                                                                $blockScrolling: Infinity,
+                                                            }}
+                                                            setOptions={{
+                                                                showLineNumbers: false,
+                                                            }}
+                                                            maxLines={Infinity}
+                                                            minLines={10}
+                                                            width='auto'
+                                                            showPrintMargin={false}
+                                                        />
+                                                    </div>
+                                                </Form.Field>
+                                            </Segment>
+                                        </Item.Content>
+                                    </div>
+                                </Item>
+                            </Item.Group>
+                        </Grid.Column>
+                        <Grid.Column width={8}>
+                            <Item.Group>
+                                <Item>
+                                    <div className='http-client-request'>
+                                        <Item.Content>
+                                            <Segment inverted>
+                                                <Item.Header >Response</Item.Header>
+                                                <Divider />
+                                                <Form>
+                                                    <Form.Group>
+                                                        <Form.Field className='http-client-response-attributes'>
+                                                            <p>Request URL :
+                                                                <span
+                                                                    className={cn('attribute-value',
+                                                                        this.getStatusCodeClass(this.state.responseCode))}
+                                                                >
+                                                                    {this.state.requestUrl}
+                                                                </span>
+                                                            </p>
+                                                            <p>Reponse Code :
+                                                                <span
+                                                                    className={cn('attribute-value',
+                                                                        this.getStatusCodeClass(
+                                                                            this.state.responseCode))}
+                                                                >
+                                                                    {this.state.responseCode}
+                                                                </span>
+                                                            </p>
+                                                            <p>Request HTTP Method :
+                                                                <span
+                                                                    className={cn('attribute-value',
+                                                                        this.getStatusCodeClass(
+                                                                            this.state.responseCode))}
+                                                                >
+                                                                    {this.state.responseHttpMethod}
+                                                                </span>
+                                                            </p>
+                                                            <p>Time Consumed :
+                                                                <span
+                                                                    className={cn('attribute-value',
+                                                                        this.getStatusCodeClass(
+                                                                            this.state.responseCode))}
+                                                                >
+                                                                    {this.state.timeConsumed} ms
+                                                                </span>
+                                                            </p>
+                                                        </Form.Field>
+                                                    </Form.Group>
+                                                    <Form.Group>
+                                                        <Form.Field width={16}>
+                                                            <h3> Headers </h3>
+                                                            <Divider />
+                                                            <div className='header-content'>
+                                                                <div
+                                                                    className='response-headers'
+                                                                >
+                                                                    <h4>Response Headers </h4>
+                                                                    {this.state.responseHeaders.length > 0 ? (
+                                                                        <div>
+                                                                            {
+                                                                                Object.entries(JSON.parse(this.state.responseHeaders)).map(([key, value]) => {
+                                                                                    return (<div className='header-attribute' key={`response-${key}`}>
+                                                                                        <div className='key'>{key}</div>
+                                                                                        :
+                                                                                        <div className='value'>{value}</div>
+                                                                                    </div>);
+                                                                                })}
+                                                                        </div>
+                                                                    ) : (
+                                                                        <Message
+                                                                            warning
+                                                                            list={[
+                                                                                'Hit the send button to see the headers.',
+                                                                            ]}
+                                                                        />
+                                                                    )}
 
-                                </div>
-                                <div className='request-headers'>
-                                    <span className='request-headers-title'>Request Headers</span>
-                                    {this.state.returnedRequestHeaders.length > 0 ? (
-                                        <div>
-                                            {
-                                Object.entries(JSON.parse(this.state.returnedRequestHeaders)).map(([key, value]) => {
-                                    return (<div className='header-attribute' key={`returned-request-${key}`}>
-                                        <div className='key'>{key}</div>
-                                            :
-                                        <div className='value'>{value}</div>
-                                    </div>);
-                                })}
-                                        </div>
-                                    ) : (
-                                        <div className='try-it-message message message-warning'>
-                                            <p><i className='icon fw fw-warning' />
-                                                Hit the send button to see the headers.</p>
-                                        </div>
-                                        )}
-                                </div>
-                            </div>
-                        </div>
-                        <div className='response-body-wrapper'>
-                            <div className='body-title section-header'>Body</div>
-                            <hr />
-                            <div className='body-content'>
-                                <AceEditor
-                                    mode={this.getResponseBodyMode()}
-                                    theme='monokai'
-                                    name='ResponseBody'
-                                    value={this.state.responseBody}
-                                    editorProps={{
-                                        $blockScrolling: Infinity,
-                                    }}
-                                    setOptions={{
-                                        showLineNumbers: false,
-                                    }}
-                                    maxLines={Infinity}
-                                    minLines={10}
-                                    readOnly
-                                    width='auto'
-                                    showPrintMargin={false}
-                                />
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>);
+                                                                </div>
+                                                                <div className='request-headers'>
+                                                                    <h4>Request Headers</h4>
+                                                                    {this.state.returnedRequestHeaders.length > 0 ? (
+                                                                        <div>
+                                                                            {
+                                                                                Object.entries(JSON.parse(this.state.returnedRequestHeaders)).map(([key, value]) => {
+                                                                                    return (<div className='header-attribute' key={`returned-request-${key}`}>
+                                                                                        <div className='key'>{key}</div>
+                                                                                        :
+                                                                                        <div className='value'>{value}</div>
+                                                                                    </div>);
+                                                                                })}
+                                                                        </div>
+                                                                    ) : (
+                                                                        <Message
+                                                                            warning
+                                                                            list={[
+                                                                                'Hit the send button to see the headers.',
+                                                                            ]}
+                                                                        />
+                                                                    )}
+                                                                </div>
+                                                            </div>
+                                                        </Form.Field>
+                                                    </Form.Group>
+                                                    <Form.Group>
+                                                        <Form.Field width={16} className='http-client-response-attributes'>
+                                                            <label htmlFor='body-content'>Body</label>
+                                                            <Divider />
+                                                            <div className='body-content'>
+                                                                <AceEditor
+                                                                    mode={this.getResponseBodyMode()}
+                                                                    theme='monokai'
+                                                                    name='ResponseBody'
+                                                                    value={this.state.responseBody}
+                                                                    editorProps={{
+                                                                        $blockScrolling: Infinity,
+                                                                    }}
+                                                                    setOptions={{
+                                                                        showLineNumbers: false,
+                                                                    }}
+                                                                    maxLines={Infinity}
+                                                                    minLines={10}
+                                                                    readOnly
+                                                                    width='auto'
+                                                                    showPrintMargin={false}
+                                                                />
+                                                            </div>
+                                                        </Form.Field>
+                                                    </Form.Group>
+                                                </Form>
+                                            </Segment>
+                                        </Item.Content>
+                                    </div>
+                                </Item>
+                            </Item.Group>
+                        </Grid.Column>
+                    </Grid.Row>
+                </Grid>
+            </Container>);
     }
 }
 

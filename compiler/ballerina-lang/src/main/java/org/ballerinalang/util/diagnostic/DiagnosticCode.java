@@ -140,6 +140,11 @@ public enum DiagnosticCode {
     ATTRIBUTE_VAL_CANNOT_REFER_NON_CONST("annotation.attribute.value.cannot.refer.non.constant"),
     INCOMPATIBLE_TYPES_ARRAY_FOUND("incompatible.types.array.found"),
 
+    NO_SUCH_DOCUMENTABLE_ATTRIBUTE("no.such.documentable.attribute"),
+    DUPLICATE_DOCUMENTED_ATTRIBUTE("duplicate.documented.attribute"),
+    UNDEFINED_DOCUMENTATION_PUBLIC_FUNCTION("undefined.documentation.public.function"),
+    USAGE_OF_DEPRECATED_FUNCTION("usage.of.deprecated.function"),
+
     // Error codes related to iteration.
     ITERABLE_NOT_SUPPORTED_COLLECTION("iterable.not.supported.collection"),
     ITERABLE_NOT_SUPPORTED_OPERATION("iterable.not.supported.operation"),
@@ -151,6 +156,10 @@ public enum DiagnosticCode {
     ITERABLE_NO_ARGS_REQUIRED("iterable.no.args.required"),
     ITERABLE_LAMBDA_INCOMPATIBLE_TYPES("iterable.lambda.incompatible.types"),
     ITERABLE_RETURN_TYPE_MISMATCH("iterable.return.type.mismatch"),
+
+    //Error code related to annotation processors
+    COMPILER_PLUGIN_NO_PACKAGE_FOUND("compiler.plugin.no.package.found"),
+    COMPILER_PLUGIN_NO_ANNOTATIONS_FOUND_IN_PACKAGE("compiler.plugin.no.annotations.found.in.package"),
 
     // Parser error diagnostic codes
     INVALID_TOKEN("invalid.token"),

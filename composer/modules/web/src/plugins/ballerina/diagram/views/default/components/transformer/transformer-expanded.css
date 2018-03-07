@@ -46,6 +46,7 @@
     list-style-type: none;
     border: 1px solid #e4e4e4;
     width: calc(100% - 2px);
+    background:#eee;
 }
 
 .transformOverlay .btn-add-source {
@@ -82,6 +83,7 @@
   padding:5px;
 }
 
+.transform-endpoint
 .variable-edit-type {
     text-anchor: middle;
     dominant-baseline: central;

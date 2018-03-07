@@ -2,6 +2,8 @@ lexer grammar BallerinaLexer;
 
 @members {
     boolean inTemplate = false;
+    boolean inDocTemplate = false;
+    boolean inDeprecatedTemplate = false;
     boolean inSiddhi = false;
 }
 
@@ -30,6 +32,8 @@ ENDPOINT    : 'endpoint' ;
 XMLNS       : 'xmlns' ;
 RETURNS     : 'returns';
 VERSION     : 'version';
+DOCUMENTATION  : 'documentation';
+DEPRECATED  :  'deprecated';
 
 FROM        : 'from' { inSiddhi = true; } ;
 ON          : 'on' ;
@@ -93,6 +97,7 @@ WITH        : 'with' ;
 BIND        : 'bind' ;
 IN          : 'in' ;
 LOCK        : 'lock' ;
+UNTAINT     : 'untaint' ;
 
 // Separators
 
@@ -415,8 +420,20 @@ StringTemplateLiteralStart
     :   TYPE_STRING WS* BACKTICK   { inTemplate = true; } -> pushMode(STRING_TEMPLATE)
     ;
 
+DocumentationTemplateStart
+    :   DOCUMENTATION WS* LEFT_BRACE   { inDocTemplate = true; } -> pushMode(DOCUMENTATION_TEMPLATE)
+    ;
+
+DeprecatedTemplateStart
+    :   DEPRECATED WS* LEFT_BRACE   { inDeprecatedTemplate = true; } -> pushMode(DEPRECATED_TEMPLATE)
+    ;
+
 ExpressionEnd
     :   {inTemplate}? RIGHT_BRACE WS* RIGHT_BRACE   ->  popMode
+    ;
+
+DocumentationTemplateAttributeEnd
+    :   {inDocTemplate}? RIGHT_BRACE WS* RIGHT_BRACE               ->  popMode
     ;
 
 // Whitespace and comments
@@ -709,6 +726,158 @@ XMLCommentSpecialSequence
     |   ('>'* '-' '>'+)+
     |   '-'? '>'* '-'+
     ;
+
+mode DOCUMENTATION_TEMPLATE;
+
+DocumentationTemplateEnd
+    :   RIGHT_BRACE { inDocTemplate = false; }                                 -> popMode
+    ;
+
+DocumentationTemplateAttributeStart
+    :   AttributePrefix ExpressionStart                                        -> pushMode(DEFAULT_MODE)
+    ;
+
+SBDocInlineCodeStart
+    :  AttributePrefix? DocBackTick                                            -> pushMode(SINGLE_BACKTICK_INLINE_CODE)
+    ;
+
+DBDocInlineCodeStart
+    :  AttributePrefix? DocBackTick DocBackTick                                -> pushMode(DOUBLE_BACKTICK_INLINE_CODE)
+    ;
+
+TBDocInlineCodeStart
+    :  AttributePrefix? DocBackTick DocBackTick DocBackTick                    -> pushMode(TRIPLE_BACKTICK_INLINE_CODE)
+    ;
+
+DocumentationTemplateText
+    :   DocumentationValidCharSequence? (DocumentationTemplateStringChar DocumentationValidCharSequence?)+
+    |   DocumentationValidCharSequence  (DocumentationTemplateStringChar DocumentationValidCharSequence?)*
+    ;
+
+fragment
+DocumentationTemplateStringChar
+    :   ~[`{}\\FPTRV]
+    |   '\\' [{}`]
+    |   WS
+    |   DocumentationEscapedSequence
+    ;
+
+fragment
+AttributePrefix
+    :   [FPTRV]
+    ;
+
+fragment
+DocBackTick
+    :   '`'
+    ;
+
+fragment
+DocumentationEscapedSequence
+    :   '\\\\'
+    ;
+
+fragment
+DocumentationValidCharSequence
+     :  [FPTRV] ~[`{}\\]
+     |  [FPTRV] '\\' [{}`]
+     |  [FPTRV] '\\' ~[{}`]
+     |  '\\' ~'\\'
+     ;
+
+mode TRIPLE_BACKTICK_INLINE_CODE;
+
+TripleBackTickInlineCodeEnd
+    : BACKTICK BACKTICK BACKTICK              -> popMode
+    ;
+
+TripleBackTickInlineCode
+    : TripleBackTickInlineCodeChar+
+    ;
+
+fragment
+TripleBackTickInlineCodeChar
+    :  ~[`]
+    |   [`] ~[`]
+    |   [`] [`] ~[`]
+    ;
+
+mode DOUBLE_BACKTICK_INLINE_CODE;
+
+DoubleBackTickInlineCodeEnd
+    : BACKTICK BACKTICK                       -> popMode
+    ;
+
+DoubleBackTickInlineCode
+    : DoubleBackTickInlineCodeChar+
+    ;
+
+fragment
+DoubleBackTickInlineCodeChar
+    :  ~[`]
+    |   [`] ~[`]
+    ;
+
+mode SINGLE_BACKTICK_INLINE_CODE;
+
+SingleBackTickInlineCodeEnd
+    : BACKTICK                                -> popMode
+    ;
+
+SingleBackTickInlineCode
+    : SingleBackTickInlineCodeChar+
+    ;
+
+fragment
+SingleBackTickInlineCodeChar
+    :  ~[`]
+    ;
+
+mode DEPRECATED_TEMPLATE;
+
+DeprecatedTemplateEnd
+    :   RIGHT_BRACE { inDeprecatedTemplate = false; }                         -> popMode
+    ;
+
+SBDeprecatedInlineCodeStart
+    :  DeprecatedBackTick                                                     -> pushMode(SINGLE_BACKTICK_INLINE_CODE)
+    ;
+
+DBDeprecatedInlineCodeStart
+    :  DeprecatedBackTick DeprecatedBackTick                                  -> pushMode(DOUBLE_BACKTICK_INLINE_CODE)
+    ;
+
+TBDeprecatedInlineCodeStart
+    :  DeprecatedBackTick DeprecatedBackTick DeprecatedBackTick               -> pushMode(TRIPLE_BACKTICK_INLINE_CODE)
+    ;
+
+DeprecatedTemplateText
+    :   DeprecatedValidCharSequence? (DeprecatedTemplateStringChar DeprecatedValidCharSequence?)+
+    |   DeprecatedValidCharSequence (DeprecatedTemplateStringChar DeprecatedValidCharSequence?)*
+    ;
+
+fragment
+DeprecatedTemplateStringChar
+    :   ~[`{}\\]
+    |   '\\' [{}`]
+    |   WS
+    |   DeprecatedEscapedSequence
+    ;
+
+fragment
+DeprecatedBackTick
+    :   '`'
+    ;
+
+fragment
+DeprecatedEscapedSequence
+    :   '\\\\'
+    ;
+
+fragment
+DeprecatedValidCharSequence
+     :  '\\' ~'\\'
+     ;
 
 mode STRING_TEMPLATE;
 

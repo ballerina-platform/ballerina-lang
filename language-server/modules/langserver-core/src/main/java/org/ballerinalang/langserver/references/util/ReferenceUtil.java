@@ -28,6 +28,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.Name;
 
 import java.util.List;
+import java.util.Set;
 
 /**
  * Utility class for find all references functionality in language server.
@@ -38,17 +39,30 @@ public class ReferenceUtil {
      *
      * @param referencesContext   context of the references.
      * @param bLangPackageContext package context for language server.
+     * @param currentBLangPackage current package that is visiting.
      * @return position
      */
     public static List<Location> getReferences(TextDocumentServiceContext referencesContext,
-                                               BLangPackageContext bLangPackageContext) {
+                                               BLangPackageContext bLangPackageContext,
+                                               BLangPackage currentBLangPackage) {
         ReferencesTreeVisitor referencesTreeVisitor = new ReferencesTreeVisitor(referencesContext);
+        Set<PackageID> packages = BallerinaPackageLoader.getPackageList(referencesContext
+                .get(DocumentServiceKeys.COMPILER_CONTEXT_KEY), 15);
 
-        for (Object o : BallerinaPackageLoader.getPackageList(referencesContext
-                .get(DocumentServiceKeys.COMPILER_CONTEXT_KEY), 15)) {
+        for (Object o : packages) {
             PackageID packageID = (PackageID) o;
-            BLangPackage bLangPackage = getPackageOfTheOwner(packageID.name, referencesContext, bLangPackageContext);
-            bLangPackage.accept(referencesTreeVisitor);
+            // TODO: remove the following condition after fixing the issue when loading runtime package it imports
+            //       itself cause a stackOverFlow in semantic analyzer.
+            if (!packageID.getName().getValue().equals("ballerina.runtime")) {
+                BLangPackage bLangPackage = getPackageOfTheOwner(packageID.name, referencesContext,
+                        bLangPackageContext);
+                bLangPackage.accept(referencesTreeVisitor);
+            }
+        }
+
+        // If the current package is default package continue.
+        if (currentBLangPackage.symbol.pkgID.name.getValue().equals(".")) {
+            currentBLangPackage.accept(referencesTreeVisitor);
         }
 
         return referencesContext.get(NodeContextKeys.REFERENCE_NODES_KEY);

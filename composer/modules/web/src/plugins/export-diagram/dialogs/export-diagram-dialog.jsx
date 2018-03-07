@@ -404,9 +404,9 @@ class ExportDiagramDialog extends React.Component {
                         <Form.Group controlId='filePath'>
                             <Form.Input
                                 fluid
+                                className='inverted'
                                 label='File Path'
                                 placeholder='eg: /home/user/diagrams'
-                                className='inverted'
                                 value={this.state.filePath}
                                 onChange={(evt) => {
                                     this.setState({
@@ -416,14 +416,13 @@ class ExportDiagramDialog extends React.Component {
                                 }}
                             />
                         </Form.Group>
-                        <Form.Group controlId='fileName' inline >
+                        <Form.Group controlId='fileName' inline className='inverted'>
                             <Form.Field width={3} htmlFor='fileName'>
                                 <label>File Name</label>
                             </Form.Field>
-                            <Form.Field width={10}>
+                            <Form.Field width={10} className='inverted'>
                                 <Input
                                     type='text'
-                                    className='inverted'
                                     value={this.state.fileName}
                                     onChange={(evt) => {
                                         this.setState({

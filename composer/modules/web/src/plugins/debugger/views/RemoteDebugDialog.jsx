@@ -48,7 +48,7 @@ class RemoteDebugDialog extends React.Component {
         DebugManager.on('session-error', () => {
             if (this.state.showDialog) {
                 this.setState({
-                    error: 'Connection error please check provided URL.',
+                    error: 'Connection error, Please check provided URL.',
                     connecting: false,
                 });
             }
@@ -78,7 +78,13 @@ class RemoteDebugDialog extends React.Component {
             showDialog: false,
         });
     }
-
+    onChangeUrl(event) {
+        this.setState({
+            url: event.target.value,
+            error: '',
+            connecting: false,
+        });
+    }
     connectDebugger() {
         try {
             DebugManager.startDebugger(`ws://${this.state.url}/debug`);
@@ -88,14 +94,6 @@ class RemoteDebugDialog extends React.Component {
                 error: error.message,
             });
         }
-    }
-
-    onChangeUrl(event) {
-        this.setState({
-            url: event.target.value,
-            error: '',
-            connecting: false,
-        });
     }
     /**
      * @inheritdoc
@@ -121,6 +119,7 @@ class RemoteDebugDialog extends React.Component {
                 className='remote-debug-dialog'
             >
                 <Form
+                    inverted
                     onSubmit={(e) => {
                         this.connectDebugger();
                     }}
@@ -137,6 +136,7 @@ class RemoteDebugDialog extends React.Component {
                         label='ws://'
                         value={this.state.url}
                         onChange={this.onChangeUrl}
+                        placeholder='Remote debugger url'
                     />
                 </Form>
             </Dialog>

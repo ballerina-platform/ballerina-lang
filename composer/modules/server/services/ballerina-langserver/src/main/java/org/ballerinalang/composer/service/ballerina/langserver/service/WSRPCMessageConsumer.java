@@ -53,6 +53,7 @@ public class WSRPCMessageConsumer implements MessageConsumer {
 
     protected String getHeader(int contentLength) {
         StringBuilder headerBuilder = new StringBuilder();
+        // TODO: Use HTTpHeaderNames constants instead
         this.appendHeader(headerBuilder, "Content-Length", contentLength).append("\r\n");
         if (!StandardCharsets.UTF_8.name().equals(this.encoding)) {
             this.appendHeader(headerBuilder, "Content-Type", "application/json");

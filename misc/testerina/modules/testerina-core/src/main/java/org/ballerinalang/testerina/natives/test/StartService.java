@@ -32,6 +32,7 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.net.http.HttpConnectionManager;
 import org.ballerinalang.net.http.HttpConstants;
+import org.ballerinalang.net.http.HttpUtil;
 import org.ballerinalang.net.ws.WebSocketConstants;
 import org.ballerinalang.testerina.core.TesterinaRegistry;
 import org.ballerinalang.util.codegen.AnnAttachmentInfo;
@@ -43,6 +44,7 @@ import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.ballerinalang.util.program.BLangFunctions;
 import org.wso2.transport.http.netty.config.ChunkConfig;
+import org.wso2.transport.http.netty.config.KeepAliveConfig;
 import org.wso2.transport.http.netty.config.ListenerConfiguration;
 import org.wso2.transport.http.netty.config.Parameter;
 
@@ -198,20 +200,20 @@ public class StartService extends AbstractNativeFunction {
         if (annotationInfo == null) {
             return HttpConnectionManager.getInstance().getDefaultListenerConfiugrationSet();
         }
-    
+
         //key - listenerId, value - listener config property map
         Set<ListenerConfiguration> listenerConfSet = new HashSet<>();
-    
+
         extractBasicConfig(annotationInfo, listenerConfSet);
         extractHttpsConfig(annotationInfo, listenerConfSet);
-    
+
         if (listenerConfSet.isEmpty()) {
             listenerConfSet = HttpConnectionManager.getInstance().getDefaultListenerConfiugrationSet();
         }
-    
+
         return listenerConfSet;
     }
-    
+
     private void extractBasicConfig(AnnAttachmentInfo configInfo, Set<ListenerConfiguration> listenerConfSet) {
         AnnAttributeValue hostAttrVal = configInfo.getAttributeValue(HttpConstants.ANN_CONFIG_ATTR_HOST);
         AnnAttributeValue portAttrVal = configInfo.getAttributeValue(HttpConstants.ANN_CONFIG_ATTR_PORT);
@@ -219,24 +221,25 @@ public class StartService extends AbstractNativeFunction {
         AnnAttributeValue transferEncoding = configInfo.getAttributeValue(
                 HttpConstants.ANN_CONFIG_ATTR_TRANSFER_ENCODING);
         AnnAttributeValue chunking = configInfo.getAttributeValue(HttpConstants.ANN_CONFIG_ATTR_CHUNKING);
-        
+
         ListenerConfiguration listenerConfiguration = new ListenerConfiguration();
         if (portAttrVal != null && portAttrVal.getIntValue() > 0) {
             listenerConfiguration.setPort(Math.toIntExact(portAttrVal.getIntValue()));
-            
+
             listenerConfiguration.setScheme(HttpConstants.PROTOCOL_HTTP);
             if (hostAttrVal != null && hostAttrVal.getStringValue() != null) {
                 listenerConfiguration.setHost(hostAttrVal.getStringValue());
             } else {
                 listenerConfiguration.setHost(HttpConstants.HTTP_DEFAULT_HOST);
             }
-            
+
             if (keepAliveAttrVal != null) {
-                listenerConfiguration.setKeepAlive(keepAliveAttrVal.getBooleanValue());
+                listenerConfiguration.setKeepAliveConfig(
+                        HttpUtil.getKeepAliveConfig(keepAliveAttrVal.getStringValue()));
             } else {
-                listenerConfiguration.setKeepAlive(Boolean.TRUE);
+                listenerConfiguration.setKeepAliveConfig(KeepAliveConfig.AUTO);
             }
-            
+
             // For the moment we don't have to pass it down to transport as we only support
             // chunking. Once we start supporting gzip, deflate, etc, we need to parse down the config.
             if (transferEncoding != null && !HttpConstants.ANN_CONFIG_ATTR_CHUNKING
@@ -244,32 +247,17 @@ public class StartService extends AbstractNativeFunction {
                 throw new BallerinaConnectorException("Unsupported configuration found for Transfer-Encoding : "
                                                       + transferEncoding.getStringValue());
             }
-            
+
             if (chunking != null) {
-                ChunkConfig chunkConfig = getChunkConfig(chunking.getStringValue());
-                listenerConfiguration.setChunkConfig(chunkConfig);
+                listenerConfiguration.setChunkConfig(HttpUtil.getChunkConfig(chunking.getStringValue()));
             } else {
                 listenerConfiguration.setChunkConfig(ChunkConfig.AUTO);
             }
-            
+
             listenerConfiguration
                     .setId(getListenerInterface(listenerConfiguration.getHost(), listenerConfiguration.getPort()));
             listenerConfSet.add(listenerConfiguration);
         }
-    }
-    
-    public ChunkConfig getChunkConfig(String chunking) {
-        ChunkConfig chunkConfig;
-        if (HttpConstants.CHUNKING_AUTO.equalsIgnoreCase(chunking)) {
-            chunkConfig = ChunkConfig.AUTO;
-        } else if (HttpConstants.CHUNKING_ALWAYS.equalsIgnoreCase(chunking)) {
-            chunkConfig = ChunkConfig.ALWAYS;
-        } else if (HttpConstants.CHUNKING_NEVER.equalsIgnoreCase(chunking)) {
-            chunkConfig = ChunkConfig.NEVER;
-        } else {
-            throw new BallerinaConnectorException("Invalid configuration found for Transfer-Encoding : " + chunking);
-        }
-        return chunkConfig;
     }
     
     private void extractHttpsConfig(AnnAttachmentInfo configInfo, Set<ListenerConfiguration> listenerConfSet) {

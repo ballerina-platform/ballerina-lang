@@ -483,12 +483,28 @@ public class UriTemplateBestMatchTest {
         Assert.assertEquals(bJson.value().get("echo55").asText(), "default"
                 , "Resource dispatched to wrong template");
 
-        path = "/echo55/wso2";
+        path = "/echo55/foo";
         cMsg = MessageUtils.generateHTTPMessage(path, "GET");
         response = Services.invokeNew(application, cMsg);
         Assert.assertNotNull(response, "Response message not found");
         bJson = new BJSON(new HttpMessageDataStreamer(response).getInputStream());
         Assert.assertEquals(bJson.value().get("echo55").asText(), "default"
+                , "Resource dispatched to wrong template");
+
+        path = "/echo55/foo/";
+        cMsg = MessageUtils.generateHTTPMessage(path, "GET");
+        response = Services.invokeNew(application, cMsg);
+        Assert.assertNotNull(response, "Response message not found");
+        bJson = new BJSON(new HttpMessageDataStreamer(response).getInputStream());
+        Assert.assertEquals(bJson.value().get("echo55").asText(), "default"
+                , "Resource dispatched to wrong template");
+
+        path = "/echo55/foo/abc";
+        cMsg = MessageUtils.generateHTTPMessage(path, "GET");
+        response = Services.invokeNew(application, cMsg);
+        Assert.assertNotNull(response, "Response message not found");
+        bJson = new BJSON(new HttpMessageDataStreamer(response).getInputStream());
+        Assert.assertEquals(bJson.value().get("echo55").asText(), "/foo/*"
                 , "Resource dispatched to wrong template");
     }
 

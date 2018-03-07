@@ -18,6 +18,7 @@
 
 package org.ballerinalang.mime.util;
 
+import io.netty.handler.codec.http.HttpHeaderNames;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStringArray;
@@ -32,8 +33,12 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static org.ballerinalang.mime.util.Constants.ASSIGNMENT;
+import static org.ballerinalang.mime.util.Constants.BOUNDARY;
+import static org.ballerinalang.mime.util.Constants.CONTENT_ID;
+import static org.ballerinalang.mime.util.Constants.CONTENT_ID_INDEX;
 import static org.ballerinalang.mime.util.Constants.ENTITY_HEADERS_INDEX;
 import static org.ballerinalang.mime.util.Constants.FIRST_ELEMENT;
+import static org.ballerinalang.mime.util.Constants.MULTIPART_AS_PRIMARY_TYPE;
 import static org.ballerinalang.mime.util.Constants.SEMICOLON;
 
 /**
@@ -187,7 +192,7 @@ public class HeaderUtil {
      * @param headerName    Header name as a string
      * @param headerValue   Header value as a string
      */
-    static void addToEntityHeaders(BMap<String, BValue> entityHeaders, String headerName, String headerValue) {
+    private static void addToEntityHeaders(BMap<String, BValue> entityHeaders, String headerName, String headerValue) {
         if (entityHeaders.keySet().contains(headerName)) {
             BStringArray valueArray = (BStringArray) entityHeaders.get(headerName);
             valueArray.add(valueArray.size(), headerValue);
@@ -195,5 +200,84 @@ public class HeaderUtil {
             BStringArray valueArray = new BStringArray(new String[]{headerValue});
             entityHeaders.put(headerName, valueArray);
         }
+    }
+
+    /**
+     * Override a header with a given value.
+     *
+     * @param entityHeaders A map of entity headers
+     * @param headerName    Header name as a string
+     * @param headerValue   Header value as a string
+     */
+    public static void overrideEntityHeader(BMap<String, BValue> entityHeaders, String headerName, String
+            headerValue) {
+            BStringArray valueArray = new BStringArray(new String[]{headerValue});
+            entityHeaders.put(headerName, valueArray);
+    }
+
+    /**
+     * Given an entity, get its header map. If it's null then return an empty map.
+     *
+     * @param entityStruct Represent a ballerina entity
+     * @return A map of headers
+     */
+    static BMap<String, BValue> getEntityHeaderMap(BStruct entityStruct) {
+        return entityStruct.getRefField(ENTITY_HEADERS_INDEX) != null ?
+                (BMap) entityStruct.getRefField(ENTITY_HEADERS_INDEX) : new BMap<>();
+    }
+
+    /**
+     * Add MediaType struct info as an entity header.
+     *
+     * @param bodyPart      Represent a ballerina body part
+     * @param entityHeaders Map of entity headers
+     */
+    static void setContentTypeHeader(BStruct bodyPart, BMap<String, BValue> entityHeaders) {
+        String contentType = MimeUtil.getContentTypeWithParameters(bodyPart);
+        overrideEntityHeader(entityHeaders, HttpHeaderNames.CONTENT_TYPE.toString(), contentType);
+    }
+
+    /**
+     * Add ContentDisposition struct info as an entity header.
+     *
+     * @param bodyPart      Represent a ballerina body part
+     * @param entityHeaders Map of entity headers
+     */
+    static void setContentDispositionHeader(BStruct bodyPart, BMap<String, BValue> entityHeaders) {
+        String contentDisposition = MimeUtil.getContentDisposition(bodyPart);
+        if (MimeUtil.isNotNullAndEmpty(contentDisposition)) {
+            overrideEntityHeader(entityHeaders, HttpHeaderNames.CONTENT_DISPOSITION.toString(), contentDisposition);
+        }
+    }
+
+    /**
+     * Add content id as an entity header.
+     *
+     * @param bodyPart      Represent a ballerina body part
+     * @param entityHeaders Map of entity headers
+     */
+    static void setContentIdHeader(BStruct bodyPart, BMap<String, BValue> entityHeaders) {
+        String contentId = bodyPart.getStringField(CONTENT_ID_INDEX);
+        if (MimeUtil.isNotNullAndEmpty(contentId)) {
+            addToEntityHeaders(entityHeaders, CONTENT_ID, contentId);
+        }
+    }
+
+    public static boolean isMultipart(String contentType) {
+        return contentType != null && contentType.startsWith(MULTIPART_AS_PRIMARY_TYPE);
+    }
+
+    /**
+     * Given a Content-Type, extract the boundary parameter value out of it.
+     *
+     * @param contentType Represent the value of Content-Type header including parameters
+     * @return A ballerina string that has the boundary parameter value
+     */
+    public static BString extractBoundaryParameter(String contentType) {
+        BMap<String, BValue> paramMap = HeaderUtil.getParamMap(contentType);
+        if (paramMap != null) {
+            return paramMap.get(BOUNDARY) != null ? (BString) paramMap.get(BOUNDARY) : null;
+        }
+        return null;
     }
 }

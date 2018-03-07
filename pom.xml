@@ -635,11 +635,6 @@
                 <version>${javax-transaction-version}</version>
             </dependency>
             <dependency>
-                <groupId>org.atomikos.wso2</groupId>
-                <artifactId>atomikos</artifactId>
-                <version>${atomikos-version}</version>
-            </dependency>
-            <dependency>
                 <groupId>org.quartz-scheduler</groupId>
                 <artifactId>quartz</artifactId>
                 <version>${quartz.version}</version>
@@ -805,6 +800,7 @@
                 <module>cli/ballerina-packerina</module>
 
                 <module>tests/ballerina-test</module>
+                <module>tests/ballerina-test-compiler-plugins</module>
 
                 <module>misc/docerina</module>
                 <module>misc/ballerina-maven-plugins</module>
@@ -833,6 +829,7 @@
                 <module>cli/ballerina-packerina</module>
 
                 <module>tests/ballerina-test</module>
+                <module>tests/ballerina-test-compiler-plugins</module>
 
                 <module>language-server</module>
                 <module>misc/ballerina-maven-plugins</module>
@@ -1183,7 +1180,7 @@
         <equinox.osgi.version>3.10.2.v20150203-1939</equinox.osgi.version>
         <equinox.osgi.services.version>3.4.0.v20140312-2051</equinox.osgi.services.version>
         <carbon.kernel.version>5.1.0</carbon.kernel.version>
-        <transport.http.version>6.0.92</transport.http.version>
+        <transport.http.version>6.0.100</transport.http.version>
         <carbon.messaging.version>2.3.7</carbon.messaging.version>
         <carbon.deployment.version>5.0.0</carbon.deployment.version>
         <carbon.config.version>2.1.2</carbon.config.version>
@@ -1231,7 +1228,6 @@
         <msf4j.version>2.4.2</msf4j.version>
         <servlet-api-version>2.5</servlet-api-version>
         <javax-transaction-version>1.2</javax-transaction-version>
-        <atomikos-version>3.8.0.wso2v1</atomikos-version>
         <quartz.version>2.3.0</quartz.version>
         <commons-net.version>3.6</commons-net.version>
         <jackson-core.version>2.8.6</jackson-core.version>

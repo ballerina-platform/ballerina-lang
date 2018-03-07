@@ -20,6 +20,7 @@ package org.ballerinalang.mime.nativeimpl;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.mime.util.EntityBodyHandler;
+import org.ballerinalang.mime.util.MimeUtil;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BBlob;
 import org.ballerinalang.model.values.BStruct;
@@ -30,8 +31,8 @@ import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.runtime.message.BlobDataSource;
 import org.ballerinalang.runtime.message.MessageDataSource;
-import org.ballerinalang.util.exceptions.BallerinaException;
 
+import static org.ballerinalang.mime.util.Constants.ENTITY_BYTE_CHANNEL;
 import static org.ballerinalang.mime.util.Constants.FIRST_PARAMETER_INDEX;
 
 /**
@@ -43,7 +44,7 @@ import static org.ballerinalang.mime.util.Constants.FIRST_PARAMETER_INDEX;
         packageName = "ballerina.mime",
         functionName = "getBlob",
         receiver = @Receiver(type = TypeKind.STRUCT, structType = "Entity", structPackage = "ballerina.mime"),
-        returnType = {@ReturnType(type = TypeKind.BLOB)},
+        returnType = {@ReturnType(type = TypeKind.BLOB), @ReturnType(type = TypeKind.STRUCT)},
         isPublic = true
 )
 public class GetBlob extends AbstractNativeFunction {
@@ -59,10 +60,13 @@ public class GetBlob extends AbstractNativeFunction {
             } else {
                 result = EntityBodyHandler.constructBlobDataSource(entityStruct);
                 EntityBodyHandler.addMessageDataSource(entityStruct, result);
+                //Set byte channel to null, once the message data source has been constructed
+                entityStruct.addNativeData(ENTITY_BYTE_CHANNEL, null);
             }
         } catch (Throwable e) {
-            throw new BallerinaException("Error occurred while extracting blob data from entity : " + e.getMessage());
+            return this.getBValues(null, MimeUtil.createEntityError
+                    (context, "Error occurred while extracting blob data from entity : " + e.getMessage()));
         }
-        return this.getBValues(new BBlob(result != null ? result.getValue() : new byte[0]));
+        return this.getBValues(new BBlob(result != null ? result.getValue() : new byte[0]), null);
     }
 }

@@ -24,6 +24,7 @@
 /* global before */
 
 import fs from 'fs';
+import fse from 'fs-extra';
 import { expect } from 'chai';
 import _ from 'lodash';
 import path from 'path';
@@ -135,11 +136,17 @@ function findBalFilesInDirSync(dir, filelist) {
 describe('Ballerina Composer Test Suite', () => {
     // fetch configs before proceeding
     let backEndProcess;
+    let projectVersion;
+    let moveFailingFiles; 
     before(function (beforeAllDone) {
         this.timeout(10000);
-
-        const projectVersionParam = process.argv[process.argv.length - 1];
-        const projectVersion = projectVersionParam.split('=')[1];
+        process.argv.forEach((arg) => {
+            if (arg.startsWith('--projectVersion')) {
+                projectVersion = arg.split('=')[1]
+            } else if (arg.startsWith('--moveFailingFiles')) {
+                moveFailingFiles = arg.split('=')[1]
+            }
+        });
 
         const targetPath = path.join(__dirname, '..', '..', 'lib', `composer-server-distribution-${projectVersion}.jar`);
         backEndProcess = spawn('java', ['-Dbal.composer.home', '-jar', targetPath]);
@@ -208,7 +215,13 @@ describe('Ballerina Composer Test Suite', () => {
                     if (error.message === 'Network Error') {
                         this.skip();
                     } else {
-                        done(error);
+                        if (moveFailingFiles) {
+                            fse.move(testFile, testFile.replace('passing', 'failing'), { overwrite: true })
+                                .then(done)
+                                .catch(done);
+                        } else {
+                            done(error);
+                        }
                     }
                 });
         });

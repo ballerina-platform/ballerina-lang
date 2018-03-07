@@ -76,11 +76,14 @@ public class ItemResolverConstants {
     public static final String ENUM_TYPE = "Enum";
     public static final String FIELD_TYPE = "Field";
     public static final String NONE = "none";
+    public static final String BOOLEAN_TYPE = "boolean";
     // End Symbol Types Constants
     
     // Keyword constants
     public static final String VAR_KEYWORD = "var";
     public static final String CREATE_KEYWORD = "create";
+    public static final String TRUE_KEYWORD = "true";
+    public static final String FALSE_KEYWORD = "false";
     
     // Iterable operators completion item labels
     public static final String ITR_FOREACH_LABEL = "foreach(<@lambda:function>)";
