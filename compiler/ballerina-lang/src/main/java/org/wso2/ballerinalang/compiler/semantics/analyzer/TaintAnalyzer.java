@@ -179,7 +179,6 @@ public class TaintAnalyzer  extends BLangNodeVisitor {
         this.names = Names.getInstance(context);
         this.dlog = BLangDiagnosticLog.getInstance(context);
         this.symTable = SymbolTable.getInstance(context);
-
     }
 
     public BLangPackage analyze(BLangPackage pkgNode) {
