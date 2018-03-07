@@ -35,6 +35,11 @@ public class OpenTracerManager implements TraceManager {
     }
 
     @Override
+    public boolean isEnabled() {
+        return enabled;
+    }
+
+    @Override
     public Map<String, Object> extract(Object format, Map<String, String> headers, String serviceName) {
         Map<String, Object> spanContext = new HashMap<>();
         if (enabled) {

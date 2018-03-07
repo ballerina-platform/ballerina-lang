@@ -32,42 +32,37 @@ import java.util.List;
  * @since 0.94
  */
 public class BServerConnectorFuture implements ConnectorFuture {
-    private List<ConnectorFutureListener> connectorFutureListeners = new ArrayList<>();
-
+    private List<ConnectorFutureListener> listeners = new ArrayList<>();
     private BallerinaException exception;
     private boolean success = false;
 
     @Override
     public void registerConnectorFutureListener(ConnectorFutureListener futureListener) {
         if (futureListener != null) {
-            connectorFutureListeners.add(futureListener);
+            listeners.add(futureListener);
             if (exception != null) {
-                futureListener.notifyFailure(new BallerinaConnectorException(exception.getMessage(), exception));
-                success = false; //double check this.
-            }
-            if (success) {
+                futureListener.notifyFailure(
+                        new BallerinaConnectorException(exception.getMessage(), exception));
+            } else if (success) {
                 futureListener.notifySuccess();
             }
         }
     }
 
     public void notifySuccess() {
-        //if future listeners already exist, notify right away. if not store until listener registration.
-        if (!connectorFutureListeners.isEmpty()) {
-            connectorFutureListeners.forEach(ConnectorFutureListener::notifySuccess);
-        } else {
-            this.success = true;
-        }
+        success = true;
+        listeners.forEach(ConnectorFutureListener::notifySuccess);
     }
 
     public void notifyFailure(BallerinaException exception) {
-        //if future listeners already exist, notify right away. if not store until listener registration.
-        if (!connectorFutureListeners.isEmpty()) {
-            connectorFutureListeners.forEach(listener ->
-                    listener.notifyFailure(new BallerinaConnectorException(exception.getMessage(), exception)));
-        } else {
+        success = false;
+        if (listeners.isEmpty()) {
             ErrorHandlerUtils.printError(exception);
             this.exception = exception;
+        } else {
+            listeners.forEach(listener ->
+                    listener.notifyFailure(new BallerinaConnectorException(
+                            exception.getMessage(), exception)));
         }
     }
 }

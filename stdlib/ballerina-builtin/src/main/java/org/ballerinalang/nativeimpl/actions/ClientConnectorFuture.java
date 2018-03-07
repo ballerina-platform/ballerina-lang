@@ -40,37 +40,31 @@ public class ClientConnectorFuture implements ConnectorFuture {
     @Override
     public void registerConnectorFutureListener(ConnectorFutureListener futureListener) {
         if (futureListener != null) {
-            this.listeners.add(futureListener);
+            listeners.add(futureListener);
+
             if (value != null) {
                 futureListener.notifyReply(value);
             } else if (exception != null) {
                 futureListener.notifyFailure(exception);
-                success = false; //double check this.
-            }
-            if (success) {
+            } else if (success) {
                 futureListener.notifySuccess();
             }
         }
     }
 
     public void notifySuccess() {
-        if (!listeners.isEmpty()) {
-            listeners.forEach(ConnectorFutureListener::notifySuccess);
-        }
-        this.success = true;
+        success = true;
+        listeners.forEach(ConnectorFutureListener::notifySuccess);
     }
 
-    public void notifyReply(BValue... value) {
-        if (!listeners.isEmpty()) {
-            listeners.forEach(l -> l.notifyReply(value));
-        }
-        this.value = value;
+    public void notifyReply(BValue... v) {
+        value = v;
+        listeners.forEach(l -> l.notifyReply(v));
     }
 
     public void notifyFailure(BallerinaConnectorException ex) {
-        if (!listeners.isEmpty()) {
-            listeners.forEach(l -> l.notifyFailure(ex));
-        }
-        this.exception = ex;
+        exception = ex;
+        success = false;
+        listeners.forEach(l -> l.notifyFailure(ex));
     }
 }

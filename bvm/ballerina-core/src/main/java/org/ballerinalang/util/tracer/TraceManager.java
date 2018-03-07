@@ -29,6 +29,8 @@ import java.util.Map;
  */
 public interface TraceManager {
 
+    boolean isEnabled();
+
     /**
      * Starts a new spans for each loaded tracer.
      *
