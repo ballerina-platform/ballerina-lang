@@ -3,7 +3,7 @@ package ballerina.net.http;
 @Description {value:"HTTP Configuration for service"}
 public annotation <service> httpServiceConfig HttpServiceConfiguration;
 
-                                              @Description {value:"Configuration for a WebSocket service."}
+@Description {value:"Configuration for a WebSocket service."}
 @Field {value: "endpoints: array of endpoints the service would be attached to"}
 @Field {value:"basePath: Path of the WebSocket service"}
 @Field {value:"subProtocols: Negotiable sub protocol by the service"}
