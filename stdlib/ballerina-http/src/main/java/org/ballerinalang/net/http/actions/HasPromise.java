@@ -20,6 +20,7 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.connector.api.ConnectorFuture;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BBoolean;
+import org.ballerinalang.model.values.BConnector;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.nativeimpl.actions.ClientConnectorFuture;
 import org.ballerinalang.natives.annotations.Argument;
@@ -29,6 +30,7 @@ import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.wso2.transport.http.netty.contract.HttpClientConnector;
 import org.wso2.transport.http.netty.contract.HttpConnectorListener;
 import org.wso2.transport.http.netty.message.ResponseHandle;
 
@@ -70,9 +72,11 @@ public class HasPromise extends AbstractHTTPAction {
             throw new BallerinaException("invalid handle");
         }
         ClientConnectorFuture ballerinaFuture = new ClientConnectorFuture();
-
-        responseHandle.getOutboundMsgHolder().getPromiseAvailabilityFuture().setPromiseAvailabilityListener(
-                new PromiseAvailabilityCheckListener(ballerinaFuture));
+        BConnector bConnector = (BConnector) getRefArgument(context, 0);
+        HttpClientConnector clientConnector =
+                (HttpClientConnector) bConnector.getnativeData(HttpConstants.CONNECTOR_NAME);
+        clientConnector.hasPushPromise(responseHandle).
+                setPromiseAvailabilityListener(new PromiseAvailabilityCheckListener(ballerinaFuture));
         return ballerinaFuture;
     }
 

@@ -20,6 +20,7 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.connector.api.ConnectorFuture;
 import org.ballerinalang.model.types.BStructType;
 import org.ballerinalang.model.types.TypeKind;
+import org.ballerinalang.model.values.BConnector;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.nativeimpl.actions.ClientConnectorFuture;
 import org.ballerinalang.natives.annotations.Argument;
@@ -31,6 +32,7 @@ import org.ballerinalang.util.codegen.StructInfo;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.wso2.transport.http.netty.contract.HttpClientConnector;
 import org.wso2.transport.http.netty.contract.HttpConnectorListener;
 import org.wso2.transport.http.netty.message.Http2PushPromise;
 import org.wso2.transport.http.netty.message.ResponseHandle;
@@ -77,10 +79,20 @@ public class GetNextPromise extends AbstractHTTPAction {
         }
         ClientConnectorFuture ballerinaFuture = new ClientConnectorFuture();
 
-        responseHandle.getOutboundMsgHolder().getPushPromiseFuture().setPushPromiseListener(
-                new PromiseListener(ballerinaFuture, context));
+        BConnector bConnector = (BConnector) getRefArgument(context, 0);
+        HttpClientConnector clientConnector =
+                (HttpClientConnector) bConnector.getnativeData(HttpConstants.CONNECTOR_NAME);
+        clientConnector.getNextPushPromise(responseHandle).
+                setPushPromiseListener(new PromiseListener(ballerinaFuture, context));
         return ballerinaFuture;
+    }
 
+    private BStruct createStruct(Context context, String structName, String protocolPackage) {
+        PackageInfo httpPackageInfo = context.getProgramFile()
+                .getPackageInfo(protocolPackage);
+        StructInfo structInfo = httpPackageInfo.getStructInfo(structName);
+        BStructType structType = structInfo.getType();
+        return new BStruct(structType);
     }
 
     private class PromiseListener implements HttpConnectorListener {
@@ -96,7 +108,7 @@ public class GetNextPromise extends AbstractHTTPAction {
         @Override
         public void onPushPromise(Http2PushPromise pushPromise) {
             BStruct pushPromiseStruct = createStruct(this.context, HttpConstants.PUSH_PROMISE,
-                                                   HttpConstants.PROTOCOL_PACKAGE_HTTP);
+                                                     HttpConstants.PROTOCOL_PACKAGE_HTTP);
             pushPromiseStruct.addNativeData(HttpConstants.TRANSPORT_PUSH_PROMISE, pushPromise);
             ballerinaFuture.notifyReply(pushPromiseStruct);
         }
@@ -105,14 +117,6 @@ public class GetNextPromise extends AbstractHTTPAction {
         public void onError(Throwable throwable) {
         }
 
-    }
-
-    private BStruct createStruct(Context context, String structName, String protocolPackage) {
-        PackageInfo httpPackageInfo = context.getProgramFile()
-                .getPackageInfo(protocolPackage);
-        StructInfo structInfo = httpPackageInfo.getStructInfo(structName);
-        BStructType structType = structInfo.getType();
-        return new BStruct(structType);
     }
 
 }

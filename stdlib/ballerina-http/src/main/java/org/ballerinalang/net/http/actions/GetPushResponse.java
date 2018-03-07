@@ -20,6 +20,7 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.connector.api.ConnectorFuture;
 import org.ballerinalang.model.types.BStructType;
 import org.ballerinalang.model.types.TypeKind;
+import org.ballerinalang.model.values.BConnector;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.nativeimpl.actions.ClientConnectorFuture;
 import org.ballerinalang.natives.annotations.Argument;
@@ -32,6 +33,7 @@ import org.ballerinalang.util.codegen.StructInfo;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.wso2.transport.http.netty.contract.HttpClientConnector;
 import org.wso2.transport.http.netty.contract.HttpConnectorListener;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 import org.wso2.transport.http.netty.message.Http2PushPromise;
@@ -85,10 +87,21 @@ public class GetPushResponse extends AbstractHTTPAction {
         Http2PushPromise http2PushPromise = HttpUtil.getPushPromise(pushPromiseStruct,
                                                                     HttpUtil.createHttpPushPromise());
         ClientConnectorFuture ballerinaFuture = new ClientConnectorFuture();
-
-        responseHandle.getOutboundMsgHolder().getPushResponseFuture(http2PushPromise).setPushResponseListener(
-                new PushResponseListener(ballerinaFuture, context), http2PushPromise.getPromisedStreamId());
+        BConnector bConnector = (BConnector) getRefArgument(context, 0);
+        HttpClientConnector clientConnector =
+                (HttpClientConnector) bConnector.getnativeData(HttpConstants.CONNECTOR_NAME);
+        clientConnector.getPushResponse(responseHandle, http2PushPromise).
+                setPushResponseListener(new PushResponseListener(ballerinaFuture, context),
+                                        http2PushPromise.getPromisedStreamId());
         return ballerinaFuture;
+    }
+
+    private BStruct createStruct(Context context, String structName, String protocolPackage) {
+        PackageInfo httpPackageInfo = context.getProgramFile()
+                .getPackageInfo(protocolPackage);
+        StructInfo structInfo = httpPackageInfo.getStructInfo(structName);
+        BStructType structType = structInfo.getType();
+        return new BStruct(structType);
     }
 
     private class PushResponseListener implements HttpConnectorListener {
@@ -115,14 +128,6 @@ public class GetPushResponse extends AbstractHTTPAction {
         public void onError(Throwable throwable) {
 
         }
-    }
-
-    private BStruct createStruct(Context context, String structName, String protocolPackage) {
-        PackageInfo httpPackageInfo = context.getProgramFile()
-                .getPackageInfo(protocolPackage);
-        StructInfo structInfo = httpPackageInfo.getStructInfo(structName);
-        BStructType structType = structInfo.getType();
-        return new BStruct(structType);
     }
 
 }
