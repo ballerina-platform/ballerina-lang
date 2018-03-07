@@ -74,7 +74,6 @@ public class ReadCharacters extends AbstractNativeFunction {
      * @param result the result returned as the response.
      * @return the processed event result.
      *//*
-
     private static EventResult readCharactersResponse(EventResult<Boolean, EventContext> result) {
         BStruct errorStruct;
         EventContext eventContext = result.getContext();
@@ -101,7 +100,6 @@ public class ReadCharacters extends AbstractNativeFunction {
             ExecutionException, InterruptedException {
         ReadCharactersEvent event = new ReadCharactersEvent(characterChannel, numberOfCharacters);
         CompletableFuture<EventResult> future = eventManager.publish(event);
-        // future.thenApply(ReadCharacters::readCharactersResponse);
         EventResult eventResult = future.get();
         return (String) eventResult.getResponse();
     }
@@ -123,11 +121,13 @@ public class ReadCharacters extends AbstractNativeFunction {
             numberOfCharacters = getIntArgument(context, NUMBER_OF_CHARS_INDEX);
             CharacterChannel characterChannel = (CharacterChannel) channel.getNativeData(IOConstants
                     .CHARACTER_CHANNEL_NAME);
+            // IOUtils.read(characterChannel,numberOfCharacters,ReadCharacters::readCharactersResponse);
             String readCharacters = asyncReadCharacters((int) numberOfCharacters, characterChannel);
             content = new BString(readCharacters);
         } catch (Throwable e) {
             String message = "Error occurred while reading characters:" + e.getMessage();
             throw new BallerinaException(message, context);
+
         }
         return getBValues(content, null);
     }

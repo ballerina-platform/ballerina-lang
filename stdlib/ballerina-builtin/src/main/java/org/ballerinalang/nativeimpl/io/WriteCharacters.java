@@ -101,7 +101,6 @@ public class WriteCharacters extends AbstractNativeFunction {
             InterruptedException {
         WriteCharactersEvent event = new WriteCharactersEvent(characterChannel, text, offset);
         CompletableFuture<EventResult> future = eventManager.publish(event);
-        //future.thenApply(WriteCharacters::readCharactersResponse);
         EventResult eventResult = future.get();
         return (int) eventResult.getResponse();
     }
@@ -123,6 +122,7 @@ public class WriteCharacters extends AbstractNativeFunction {
             startOffset = getIntArgument(context, START_OFFSET_INDEX);
             CharacterChannel characterChannel = (CharacterChannel) channel.getNativeData(IOConstants
                     .CHARACTER_CHANNEL_NAME);
+//            IOUtils.write(characterChannel,content,startOffset,WriteCharacters::readCharactersResponse);
             numberOfCharactersWritten = asyncWriteCharacters(characterChannel, content, (int) startOffset);
         } catch (Throwable e) {
             String message = "Error occurred while writing characters:" + e.getMessage();

@@ -22,11 +22,14 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BLangVMStructs;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.nativeimpl.io.channels.base.Channel;
+import org.ballerinalang.nativeimpl.io.channels.base.CharacterChannel;
 import org.ballerinalang.nativeimpl.io.events.EventContext;
 import org.ballerinalang.nativeimpl.io.events.EventManager;
 import org.ballerinalang.nativeimpl.io.events.EventResult;
 import org.ballerinalang.nativeimpl.io.events.bytes.ReadBytesEvent;
 import org.ballerinalang.nativeimpl.io.events.bytes.WriteBytesEvent;
+import org.ballerinalang.nativeimpl.io.events.characters.ReadCharactersEvent;
+import org.ballerinalang.nativeimpl.io.events.characters.WriteCharactersEvent;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.StructInfo;
 
@@ -112,7 +115,7 @@ public class IOUtils {
      * @param function      callback function which should be called upon completion.
      */
     public static void write(Channel channel, byte[] content, int offset, int numberOfBytes, EventContext context,
-                              Function<EventResult, EventResult> function) {
+                             Function<EventResult, EventResult> function) {
         WriteBytesEvent writeBytesEvent = new WriteBytesEvent(channel, content, offset, numberOfBytes, context);
         CompletableFuture<EventResult> future = EventManager.getInstance().publish(writeBytesEvent);
         future.thenApply(function);
@@ -134,6 +137,35 @@ public class IOUtils {
             offset = offset + read(channel, content, offset, context);
         } while (offset < numberOfBytesToRead && !channel.hasReachedEnd());
         return offset;
+    }
+
+    /**
+     * Reads characters from the channel.
+     *
+     * @param characterChannel   channel the characters should be read.
+     * @param numberOfCharacters the number of characters to read.
+     * @param function           the callback function which will be triggered after reading characters.
+     */
+    public static void read(CharacterChannel characterChannel, int numberOfCharacters,
+                            Function<EventResult, EventResult> function) {
+        ReadCharactersEvent event = new ReadCharactersEvent(characterChannel, numberOfCharacters);
+        CompletableFuture<EventResult> future = EventManager.getInstance().publish(event);
+        future.thenApply(function);
+    }
+
+    /**
+     * Writes characters to a channel.
+     *
+     * @param characterChannel the channel the characters will be written
+     * @param content          the content which will be written.
+     * @param offset           if an offset should be specified while writing.
+     * @param function         callback function which should be triggered
+     */
+    public static void write(CharacterChannel characterChannel, String content, int offset,
+                             Function<EventResult, EventResult> function) {
+        WriteCharactersEvent event = new WriteCharactersEvent(characterChannel, content, offset);
+        CompletableFuture<EventResult> future = EventManager.getInstance().publish(event);
+        future.thenApply(function);
     }
 
     /**
