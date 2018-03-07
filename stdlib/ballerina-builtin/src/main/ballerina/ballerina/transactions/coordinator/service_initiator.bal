@@ -76,10 +76,11 @@ service<http> InitiatorService {
 
          Cannot-Register
         If the registering participant specified an unknown micro-transaction identifier, the following fault is returned:
+
+        Micro-Transaction-Unknown
     }
     resource register (http:Connection conn, http:InRequest req, string transactionBlockId) {
 
-        // Micro-Transaction-Unknown
         var txnBlockId, txnBlockIdConversionErr = <int>transactionBlockId;
         var payload, payloadError = req.getJsonPayload();
         http:OutResponse res;
