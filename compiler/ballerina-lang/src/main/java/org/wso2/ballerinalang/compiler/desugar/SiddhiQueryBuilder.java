@@ -490,7 +490,8 @@ public class SiddhiQueryBuilder extends BLangNodeVisitor {
         streamDefinitionQuery.append(streamDefinition).append("\n");
     }
 
-    void generateStreamDefinition(List<BStructType.BStructField> structFieldList, StringBuilder streamDefinition) {
+    private void generateStreamDefinition(List<BStructType.BStructField> structFieldList,
+                                          StringBuilder streamDefinition) {
         Iterator<BStructType.BStructField> structFieldIterator = structFieldList.iterator();
         BStructType.BStructField structField = structFieldIterator.next();
         if (structField != null) {

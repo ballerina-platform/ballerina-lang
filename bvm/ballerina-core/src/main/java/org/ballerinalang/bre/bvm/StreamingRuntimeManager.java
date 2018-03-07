@@ -18,28 +18,42 @@
 
 package org.ballerinalang.bre.bvm;
 
+import org.ballerinalang.model.values.BStream;
 import org.ballerinalang.model.values.BStreamlet;
 import org.wso2.siddhi.core.SiddhiAppRuntime;
 import org.wso2.siddhi.core.SiddhiManager;
 import org.wso2.siddhi.core.stream.input.InputHandler;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 /**
- * Siddhi Runtime generation factory class.
+ * This class responsible on holding Siddhi App runtimes and related stream objects.
  */
-public class SiddhiRuntimeFactory {
+public class StreamingRuntimeManager {
 
-    private static SiddhiRuntimeFactory siddhiRuntimeFactory;
+    private static StreamingRuntimeManager streamingRuntimeManager;
     private SiddhiManager siddhiManager = new SiddhiManager();
+    private List<SiddhiAppRuntime> siddhiAppRuntimeList = new ArrayList<>();
+    private Map<String, BStream> streamMap = new HashMap<>();
 
-    public static SiddhiRuntimeFactory getInstance() {
-        if (siddhiRuntimeFactory == null) {
-            siddhiRuntimeFactory = new SiddhiRuntimeFactory();
+    private StreamingRuntimeManager() {
+
+    }
+
+    public static StreamingRuntimeManager getInstance() {
+        if (streamingRuntimeManager != null) {
+            return streamingRuntimeManager;
         }
-        return siddhiRuntimeFactory;
+        synchronized (StreamingRuntimeManager.class) {
+            if (streamingRuntimeManager == null) {
+                streamingRuntimeManager = new StreamingRuntimeManager();
+            }
+        }
+        return streamingRuntimeManager;
     }
 
 
@@ -53,8 +67,30 @@ public class SiddhiRuntimeFactory {
 
         streamlet.setStreamSpecificInputHandlerMap(streamSpecificInputHandlerMap);
         streamlet.setSiddhiAppRuntime(siddhiAppRuntime);
+        siddhiAppRuntimeList.add(siddhiAppRuntime);
         siddhiAppRuntime.start();
     }
 
+    public List<InputHandler> getStreamSpecificInputHandlerList(String streamId) {
+        List<InputHandler> inputHandlerList = new ArrayList<>();
+        for (SiddhiAppRuntime siddhiAppRuntime : siddhiAppRuntimeList) {
+            if (siddhiAppRuntime != null) {
+                InputHandler inputHandler = siddhiAppRuntime.getInputHandler(streamId);
+                inputHandlerList.add(inputHandler);
+            }
+        }
+        return inputHandlerList;
+    }
 
+    public List<SiddhiAppRuntime> getSiddhiAppRuntimeList() {
+        return siddhiAppRuntimeList;
+    }
+
+    public void addStreamReference(String streamId, BStream bStream) {
+        this.streamMap.put(streamId, bStream);
+    }
+
+    public BStream getStreamReference(String streamId) {
+        return streamMap.get(streamId);
+    }
 }

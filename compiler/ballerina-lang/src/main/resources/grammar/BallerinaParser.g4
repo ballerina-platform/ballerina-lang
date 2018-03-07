@@ -657,6 +657,7 @@ streamingQueryStatement
     :   FROM (streamingInput (joinStreamingInput)?  | patternStreamingInput)
         selectClause?
         orderByClause?
+        outputRate?
         streamingAction
     ;
 
@@ -687,7 +688,7 @@ havingClause
     ;
 
 streamingAction
-    :   INSERT INTO Identifier
+    :   INSERT outputEventType? INTO Identifier
     |   UPDATE (OR INSERT INTO)? Identifier setClause ? ON expression
     |   DELETE Identifier ON expression
     ;
@@ -705,7 +706,73 @@ streamingInput
     ;
 
 joinStreamingInput
-    :   JOIN streamingInput ON expression
+    :   (UNIDIRECTIONAL joinType | joinType UNIDIRECTIONAL | joinType) streamingInput ON expression
+    ;
+
+outputEventType
+    : ALL EVENTS | EXPIRED EVENTS | CURRENT? EVENTS
+    ;
+
+joinType
+    : LEFT OUTER JOIN
+    | RIGHT OUTER JOIN
+    | FULL OUTER JOIN
+    | OUTER JOIN
+    | INNER? JOIN
+    ;
+
+outputRate
+    : OUTPUT outputRateType? EVERY ( timeValue | IntegerLiteral EVENTS )
+    | OUTPUT SNAPSHOT EVERY timeValue
+    ;
+
+outputRateType
+    : ALL
+    | LAST
+    | FIRST
+    ;
+
+timeValue
+    :  yearValue  ( monthValue)? ( weekValue)? ( dayValue)? ( hourValue)? ( minuteValue)? ( secondValue)?  ( millisecondValue)?
+    |  monthValue ( weekValue)? ( dayValue)? ( hourValue)? ( minuteValue)? ( secondValue)?  ( millisecondValue)?
+    |  weekValue ( dayValue)? ( hourValue)? ( minuteValue)? ( secondValue)?  ( millisecondValue)?
+    |  dayValue ( hourValue)? ( minuteValue)? ( secondValue)?  ( millisecondValue)?
+    |  hourValue ( minuteValue)? ( secondValue)?  ( millisecondValue)?
+    |  minuteValue ( secondValue)?  ( millisecondValue)?
+    |  secondValue ( millisecondValue)?
+    |  millisecondValue
+    ;
+
+yearValue
+    : IntegerLiteral YEARS
+    ;
+
+monthValue
+    : IntegerLiteral MONTHS
+    ;
+
+weekValue
+    : IntegerLiteral WEEKS
+    ;
+
+dayValue
+    : IntegerLiteral DAYS
+    ;
+
+hourValue
+    : IntegerLiteral HOURS
+    ;
+
+minuteValue
+    : IntegerLiteral MINUTES
+    ;
+
+secondValue
+    : IntegerLiteral SECONDS
+    ;
+
+millisecondValue
+    : IntegerLiteral MILLISECONDS
     ;
 
 patternStreamingInput
