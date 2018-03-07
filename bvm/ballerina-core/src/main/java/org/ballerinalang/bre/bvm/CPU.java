@@ -613,7 +613,9 @@ public class CPU {
                     break;
                 case InstructionCodes.NEWTABLE:
                     i = operands[0];
-                    //sf.refRegs[i] = new BTable(null);
+                    cpIndex = operands[1];
+                    typeRefCPEntry = (TypeRefCPEntry) ctx.constPool[cpIndex];
+                    sf.refRegs[i] = new BTable(typeRefCPEntry.getType());
                     break;
                 case InstructionCodes.NEW_INT_RANGE:
                     createNewIntRange(operands, sf);

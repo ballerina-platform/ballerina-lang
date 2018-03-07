@@ -403,7 +403,7 @@ public class XMLLiteralTest {
     }
     
     @Test(expectedExceptions = { BLangRuntimeException.class },
-            expectedExceptionsMessageRegExp = "invalid xml qualified name: unsupported characters in 'foo&gt;bar'")
+            expectedExceptionsMessageRegExp = ".*invalid xml qualified name: unsupported characters in 'foo&gt;bar'.*")
     public void testIvalidAttributeName() {
         BRunUtil.invoke(result, "testIvalidAttributeName");
     }
