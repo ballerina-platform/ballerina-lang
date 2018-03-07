@@ -54,7 +54,7 @@ public class TestCallableUnitCallback implements CallableUnitCallback {
     public void notifyFailure(BStruct error) {
         Object carbonStatusCode = requestMessage.getProperty(HttpConstants.HTTP_STATUS_CODE);
         int statusCode = (carbonStatusCode == null) ? 500 : Integer.parseInt(carbonStatusCode.toString());
-        String errorMsg = error.getStringField(0);
+        String errorMsg = BLangVMErrors.getAggregatedRootErrorMessages(error);
         ErrorHandlerUtils.printError("error: " + BLangVMErrors.getPrintableStackTrace(error));
         this.responseMsg = HttpUtil.createErrorMessage(errorMsg, statusCode);
         this.executionWaitSem.release();
