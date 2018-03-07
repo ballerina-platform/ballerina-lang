@@ -33,7 +33,7 @@ import org.wso2.transport.http.netty.contract.HttpConnectorListener;
 import org.wso2.transport.http.netty.message.ResponseHandle;
 
 /**
- * {@code Execute} action can be used to check whether a promise promise is available.
+ * {@code HasPromise} action can be used to check whether a promise promise is available.
  */
 @BallerinaAction(
         packageName = "ballerina.net.http",

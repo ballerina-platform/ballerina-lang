@@ -41,7 +41,8 @@ import static org.ballerinalang.mime.util.Constants.MEDIA_TYPE;
 import static org.ballerinalang.mime.util.Constants.PROTOCOL_PACKAGE_MIME;
 
 /**
- * {@code Execute} action can be used to get a push response message associated with a previous asynchronous invocation.
+ * {@code GetPushResponse} action can be used to get a push response message associated with a
+ * previous asynchronous invocation.
  */
 @BallerinaAction(
         packageName = "ballerina.net.http",

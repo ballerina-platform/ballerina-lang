@@ -36,7 +36,7 @@ import org.wso2.transport.http.netty.message.Http2PushPromise;
 import org.wso2.transport.http.netty.message.ResponseHandle;
 
 /**
- * {@code Execute} action can be used to get the next available push promise message associated with
+ * {@code GetNextPromise} action can be used to get the next available push promise message associated with
  * a previous asynchronous invocation.
  */
 @BallerinaAction(
