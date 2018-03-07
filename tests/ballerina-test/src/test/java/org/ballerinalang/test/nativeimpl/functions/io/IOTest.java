@@ -188,7 +188,7 @@ public class IOTest {
         BValue[] args = {new BString(sourceToWrite), new BString("w")};
         BRunUtil.invoke(bytesInputOutputProgramFile, "initFileChannel", args);
 
-        args = new BValue[]{new BBlob(content), new BInteger(0)};
+        args = new BValue[]{new BBlob(content), new BInteger(0), new BInteger(content.length)};
         BRunUtil.invoke(bytesInputOutputProgramFile, "writeBytes", args);
 
         BRunUtil.invoke(bytesInputOutputProgramFile, "close");

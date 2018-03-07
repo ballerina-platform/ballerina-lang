@@ -13,9 +13,9 @@ function readBytes (int numberOfBytes) (blob) {
     return bytes;
 }
 
-function writeBytes (blob content, int startOffset) (int) {
+function writeBytes (blob content, int startOffset, int size) (int) {
     int numberOfBytesWritten;
-    numberOfBytesWritten, _ = channel.write(content, startOffset, -1);
+    numberOfBytesWritten, _ = channel.write(content, startOffset, size);
     return numberOfBytesWritten;
 }
 

@@ -64,12 +64,12 @@ public class Write extends AbstractNativeFunction {
     /*
      * Index which holds the start offset in ballerina.io#writeBytes.
      */
-//    private static final int START_OFFSET_INDEX = 0;
+    private static final int START_OFFSET_INDEX = 0;
 
     /*
      * Index which holds the number of bytes which should be written.
      */
-//    private static final int NUMBER_OF_BYTES_INDEX = 1;
+    private static final int NUMBER_OF_BYTES_INDEX = 1;
 
     /*
      * Function which will be notified on the response obtained after the async operation.
@@ -102,17 +102,17 @@ public class Write extends AbstractNativeFunction {
     public BValue[] execute(Context context) {
         BStruct channel;
         byte[] content;
-//        int numberOfBytes;
-//        int offset;
+        int numberOfBytes;
+        int offset;
         int numberOfBytesWritten;
         try {
             channel = (BStruct) getRefArgument(context, BYTE_CHANNEL_INDEX);
             content = getBlobArgument(context, CONTENT_INDEX);
-//            numberOfBytes = (int) getIntArgument(context, NUMBER_OF_BYTES_INDEX);
-//            offset = (int) getIntArgument(context, START_OFFSET_INDEX);
+            numberOfBytes = (int) getIntArgument(context, NUMBER_OF_BYTES_INDEX);
+            offset = (int) getIntArgument(context, START_OFFSET_INDEX);
             Channel byteChannel = (Channel) channel.getNativeData(IOConstants.BYTE_CHANNEL_NAME);
             EventContext eventContext = new EventContext(context);
-            numberOfBytesWritten = IOUtils.writeFull(byteChannel, content, content.length, eventContext);
+            numberOfBytesWritten = IOUtils.writeFull(byteChannel, content, offset, numberOfBytes, eventContext);
 //            IOUtils.write(byteChannel, content, offset, numberOfBytes, eventContext, Write::writeResponse);
         } catch (Throwable e) {
             String message = "Error occurred while writing bytes:" + e.getMessage();

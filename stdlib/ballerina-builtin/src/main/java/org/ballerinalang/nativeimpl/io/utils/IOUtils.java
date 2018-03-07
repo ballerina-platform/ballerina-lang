@@ -61,18 +61,19 @@ public class IOUtils {
     /**
      * Asynchronously writes bytes to a channel.
      *
-     * @param content content which should be written.
      * @param channel the channel the bytes should be written.
+     * @param content content which should be written.
+     * @param offset  the start index of the bytes which should be written.
+     * @param size    the number of bytes which should be written.
      * @return the number of bytes written to the channel.
      * @throws ExecutionException   errors which occur during execution.
      * @throws InterruptedException during interrupt error.
      */
-    public static int writeFull(Channel channel, byte[] content, int size, EventContext context)
+    public static int writeFull(Channel channel, byte[] content, int offset, int size, EventContext context)
             throws ExecutionException, InterruptedException {
-        int offset = 0;
         do {
             offset = offset + write(channel, content, offset, size, context);
-        } while (offset < content.length);
+        } while (offset < size);
         return offset;
     }
 

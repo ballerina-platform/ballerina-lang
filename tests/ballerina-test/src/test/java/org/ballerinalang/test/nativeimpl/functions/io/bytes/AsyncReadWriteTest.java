@@ -107,7 +107,7 @@ public class AsyncReadWriteTest {
         Channel channel = new MockByteChannel(byteChannel);
         byte[] bytes = "hello".getBytes();
 
-        int numberOfBytesWritten = IOUtils.writeFull(channel, bytes, bytes.length, new EventContext());
+        int numberOfBytesWritten = IOUtils.writeFull(channel, bytes, 0, bytes.length, new EventContext());
         Assert.assertEquals(numberOfBytesWritten, bytes.length);
     }
 

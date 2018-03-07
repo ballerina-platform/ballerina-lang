@@ -13,10 +13,10 @@ function closeSocket () {
     socket.closeSocket();
 }
 
-function write (blob content) (int) {
+function write (blob content, int size) (int) {
     int numberOfBytesWritten;
     io:ByteChannel channel = socket.channel;
-    numberOfBytesWritten, _ = channel.write(content, 0, -1);
+    numberOfBytesWritten, _ = channel.write(content, 0, size);
     return numberOfBytesWritten;
 }
 
